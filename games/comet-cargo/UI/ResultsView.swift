@@ -3,12 +3,26 @@ import SwiftUI
 /// After the apex: each delivery with ring, rating and pay, the stage ratings, lost satellites, the total rolling up,
 /// the badges, the ring progress of every ring this flight delivered to, the next upgrade, and the Collect button back
 /// to the hangar. Collect arms after 0.6 s, so a tap meant for the flight cannot skip the report.
+///
+/// Its beats (DESIGN.md "Feel"): the badges spring in at 0.15 s, "New best altitude" shimmers once at 0.35 s, the total
+/// rolls up with light ticks from 0.45 s, and a ring this flight completed turns gold with a short burst and its chime at
+/// 1.7 s. Under Reduce Motion everything is in its end state at once and only the ring chime (or the new-best shimmer
+/// sound) plays.
 struct ResultsView: View {
     let settlement: Economy.Settlement
     let onCollect: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var shown = false
     @State private var armed = false
+    /// The shimmer's sweep across the new-best badge, -0.5 (before) … 1.2 (past).
+    @State private var sweep: CGFloat = -0.5
+    /// The completed rings have turned gold; the burst plays while `bursting`.
+    @State private var ringsLit = false
+    @State private var bursting = false
+
+    /// When the roll-up of the total starts and how long it takes.
+    static let rollDelay = 0.45
+    static let rollTime = 1.1
 
     init(settlement: Economy.Settlement, onCollect: @escaping () -> Void) {
         self.settlement = settlement
@@ -57,9 +71,44 @@ struct ResultsView: View {
             }
         }
         .task {
-            try? await Task.sleep(for: .milliseconds(600))
-            armed = true
+            await playBeats()
         }
+    }
+
+    /// The report's beats, in order; each waits for the one before, and leaving the screen stops them.
+    private func playBeats() async {
+        let completed = !settlement.completedRings.isEmpty
+        if reduceMotion {
+            ringsLit = true
+            if completed {
+                Feedback.shared.play(.ringComplete)
+            } else if settlement.newBest {
+                Feedback.shared.play(.newBest)
+            }
+            guard await pause(0.6) else { return }
+            armed = true
+            return
+        }
+        guard await pause(0.35) else { return }
+        if settlement.newBest {
+            Feedback.shared.play(.newBest)
+            withAnimation(.easeInOut(duration: 0.9)) { sweep = 1.2 }
+        }
+        guard await pause(0.25) else { return }
+        armed = true
+        guard completed else { return }
+        guard await pause(1.1) else { return }
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.55)) { ringsLit = true }
+        bursting = true
+        Feedback.shared.play(.ringComplete)
+        guard await pause(GoldBurstDrawing.duration + 0.1) else { return }
+        bursting = false
+    }
+
+    /// Waits `seconds`; false when the screen went away meanwhile.
+    private func pause(_ seconds: Double) async -> Bool {
+        try? await Task.sleep(for: .seconds(seconds))
+        return !Task.isCancelled
     }
 
     private var header: some View {
@@ -82,7 +131,8 @@ struct ResultsView: View {
         if settlement.newBest || !settlement.completedRings.isEmpty {
             VStack(spacing: 8) {
                 if settlement.newBest {
-                    Badge(text: String(localized: "New best altitude"), symbol: "arrow.up.circle.fill", tint: Palette.coral)
+                    Badge(text: String(localized: "New best altitude"), symbol: "arrow.up.circle.fill", tint: Palette.coral,
+                          sweep: sweep)
                 }
                 ForEach(settlement.completedRings, id: \.self) { ring in
                     Badge(text: String(localized: "Ring \(ring + 1) complete"), symbol: "checkmark.seal.fill", tint: Palette.gold)
@@ -169,7 +219,7 @@ struct ResultsView: View {
                     .font(.rounded(20, .black))
                     .foregroundStyle(Palette.ink)
                 Spacer()
-                RollingNumber(value: settlement.total, duration: 1.1, size: 34)
+                RollingNumber(value: settlement.total, duration: Self.rollTime, size: 34, delay: Self.rollDelay, ticks: true)
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel(Text("\(settlement.total) coins"))
                     .accessibilityIdentifier("results-total")
@@ -189,7 +239,7 @@ struct ResultsView: View {
                     .font(.rounded(17, .heavy))
                     .foregroundStyle(Palette.paper)
                 ForEach(settlement.progress, id: \.ring) { line in
-                    RingProgressRow(progress: line)
+                    RingProgressRow(progress: line, lit: ringsLit, burst: bursting && line.completed)
                 }
             }
             .padding(18)
@@ -232,13 +282,25 @@ struct ResultsView: View {
 
 struct RingProgressRow: View {
     let progress: Economy.RingProgress
+    /// A ring this flight completed shows gold (with its bonus) once lit; before that its new slots are mustard.
+    var lit = true
+    /// The gold burst plays over the slots.
+    var burst = false
+
+    init(progress: Economy.RingProgress, lit: Bool = true, burst: Bool = false) {
+        self.progress = progress
+        self.lit = lit
+        self.burst = burst
+    }
+
+    private var gold: Bool { progress.completed && lit }
 
     var body: some View {
         let filled = min(Economy.ringSlots, progress.after)
         HStack(spacing: 10) {
             Text("Ring \(progress.ring + 1)")
                 .font(.rounded(16, .heavy))
-                .foregroundStyle(progress.completed ? Palette.gold : Palette.paper)
+                .foregroundStyle(gold ? Palette.gold : Palette.paper)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
             HStack(spacing: 5) {
@@ -249,11 +311,18 @@ struct RingProgressRow: View {
                         .frame(width: 16, height: 16)
                 }
             }
+            .scaleEffect(gold && burst ? 1.12 : 1)
+            .overlay {
+                if burst {
+                    GoldBurst()
+                        .frame(width: 220, height: 110)
+                }
+            }
             Text(verbatim: "\(filled)/\(Economy.ringSlots)")
                 .font(.rounded(15, .bold).monospacedDigit())
                 .foregroundStyle(Palette.paper.opacity(0.8))
             Spacer(minLength: 4)
-            if progress.completed {
+            if gold {
                 Text(verbatim: "+\(progress.bonus)")
                     .font(.rounded(16, .heavy).monospacedDigit())
                     .foregroundStyle(Palette.gold)
@@ -267,7 +336,7 @@ struct RingProgressRow: View {
         let earlier = min(Economy.ringSlots, progress.before)
         let filled = min(Economy.ringSlots, progress.after)
         if slot < earlier { return Palette.paper.opacity(0.85) }
-        if slot < filled { return progress.completed ? Palette.gold : Palette.mustard }
+        if slot < filled { return gold ? Palette.gold : Palette.mustard }
         return Palette.paper.opacity(0.08)
     }
 }
@@ -310,6 +379,15 @@ struct Badge: View {
     let text: String
     let symbol: String
     let tint: Color
+    /// A bright band sweeping across once (-0.5 before it starts, 1.2 when it is past); nil for no shimmer.
+    var sweep: CGFloat?
+
+    init(text: String, symbol: String, tint: Color, sweep: CGFloat? = nil) {
+        self.text = text
+        self.symbol = symbol
+        self.tint = tint
+        self.sweep = sweep
+    }
 
     var body: some View {
         HStack(spacing: 8) {
@@ -323,6 +401,30 @@ struct Badge: View {
         .padding(.horizontal, 18)
         .padding(.vertical, 10)
         .background(Capsule().fill(tint))
+        .overlay {
+            if let sweep {
+                ShimmerBand(sweep: sweep)
+                    .clipShape(Capsule())
+            }
+        }
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// A soft paper-coloured band, tilted, at `sweep` (0 = left edge, 1 = right edge) across its container.
+struct ShimmerBand: View {
+    let sweep: CGFloat
+
+    var body: some View {
+        GeometryReader { geo in
+            let band = geo.size.width * 0.32
+            LinearGradient(colors: [Palette.paper.opacity(0), Palette.paper.opacity(0.75), Palette.paper.opacity(0)],
+                           startPoint: .leading, endPoint: .trailing)
+                .frame(width: band, height: geo.size.height * 1.6)
+                .rotationEffect(.degrees(18))
+                .offset(x: geo.size.width * sweep - band / 2, y: -geo.size.height * 0.3)
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }

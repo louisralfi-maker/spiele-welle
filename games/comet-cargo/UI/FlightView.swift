@@ -38,9 +38,15 @@ struct FlightSceneView: View {
     var body: some View {
         let state = driver.sceneState(reduceMotion: reduceMotion)
         let onPad = state.phase == .pad
+        let shake = reduceMotion ? ShakeOffset.still : FlightShake.offset(
+            sinceIgnition: driver.clock - driver.ignitedAt,
+            sinceDrop: driver.clock - driver.droppedAt
+        )
         Canvas { context, size in
             FlightScene.draw(&context, size: size, state: state)
         }
+        .scaleEffect(shake.scale)
+        .offset(x: shake.x, y: shake.y)
         .contentShape(Rectangle())
         .onLongPressGesture(minimumDuration: 0, maximumDistance: 10_000, perform: {}, onPressingChanged: { pressing in
             if pressing { driver.tapScene() }
@@ -50,6 +56,52 @@ struct FlightSceneView: View {
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { driver.tapScene() }
         .accessibilityIdentifier("flight-scene")
+    }
+}
+
+/// One frame of the screen shake: an offset, and a zoom just big enough that the shaken scene never shows its edges.
+struct ShakeOffset: Sendable, Equatable {
+    var x: CGFloat
+    var y: CGFloat
+    var scale: CGFloat
+
+    static let still = ShakeOffset(x: 0, y: 0, scale: 1)
+}
+
+/// A tiny shake of the scene on ignition (4 pt, 0.45 s) and on every stage drop (3 pt, 0.25 s), decaying to nothing.
+/// None under Reduce Motion (the caller skips it).
+enum FlightShake {
+    static let igniteTime = 0.45
+    static let igniteAmplitude = 4.0
+    static let dropTime = 0.25
+    static let dropAmplitude = 3.0
+
+    /// The strongest shake running now, by age; 0 when none.
+    static func amplitude(sinceIgnition: Double, sinceDrop: Double) -> (amplitude: Double, age: Double) {
+        var amplitude = 0.0
+        var age = 0.0
+        if sinceIgnition >= 0 && sinceIgnition < igniteTime {
+            amplitude = igniteAmplitude * (1 - sinceIgnition / igniteTime)
+            age = sinceIgnition
+        }
+        if sinceDrop >= 0 && sinceDrop < dropTime {
+            let drop = dropAmplitude * (1 - sinceDrop / dropTime)
+            if drop > amplitude {
+                amplitude = drop
+                age = sinceDrop
+            }
+        }
+        return (amplitude, age)
+    }
+
+    static func offset(sinceIgnition: Double, sinceDrop: Double) -> ShakeOffset {
+        let now = amplitude(sinceIgnition: sinceIgnition, sinceDrop: sinceDrop)
+        guard now.amplitude > 0 else { return .still }
+        let x = now.amplitude * sin(now.age * 61)
+        let y = now.amplitude * 0.6 * sin(now.age * 47 + 1.3)
+        // 2 × amplitude over a 360 pt side: at least the amplitude of overscan on every edge of a phone screen.
+        let zoom = 1 + 2 * now.amplitude / 360
+        return ShakeOffset(x: CGFloat(x), y: CGFloat(y), scale: CGFloat(zoom))
     }
 }
 
@@ -77,12 +129,18 @@ struct FlightHUD: View {
                     topBar(sim)
                     Spacer(minLength: 0)
                     if sim.phase == .pad && !driver.autoplay {
-                        TapToLaunch(opacity: launchPulse(clock))
+                        launchPrompt(clock)
                             .padding(.bottom, geo.size.height * 0.12)
                     }
                     HStack {
                         Spacer()
                         releaseButton(sim, clock: clock)
+                            .overlay(alignment: .topLeading) {
+                                if driver.hint == .release {
+                                    ReleaseHint(clock: clock, reduceMotion: reduceMotion)
+                                        .offset(x: 56, y: 56)
+                                }
+                            }
                     }
                 }
                 HStack {
@@ -101,7 +159,21 @@ struct FlightHUD: View {
                     Spacer()
                 }
                 .allowsHitTesting(false)
+                if driver.hint == .drop {
+                    DropHint(clock: clock, reduceMotion: reduceMotion)
+                        .position(x: geo.size.width * 0.72, y: geo.size.height * 0.46)
+                }
             }
+        }
+    }
+
+    /// "Tap to launch" on the pad; during the first flights with a tapping hand beside it.
+    @ViewBuilder
+    private func launchPrompt(_ clock: Double) -> some View {
+        if driver.hint == .launch {
+            LaunchHint(clock: clock, reduceMotion: reduceMotion, opacity: launchPulse(clock))
+        } else {
+            TapToLaunch(opacity: launchPulse(clock))
         }
     }
 
@@ -161,6 +233,137 @@ struct TapToLaunch: View {
             .background(Capsule().fill(Palette.paper.opacity(0.85)))
             .opacity(opacity)
             .allowsHitTesting(false)
+    }
+}
+
+// MARK: First-flight hints
+
+/// The timing of the hint hand: it taps about 1.4 times a second (down, a short hold, up, a rest) and a ring spreads
+/// from the fingertip at each touch. Under Reduce Motion it rests (phase 0).
+enum HintMotion {
+    static let tapsPerSecond = 1.4
+
+    static func phase(clock: Double, reduceMotion: Bool) -> Double {
+        guard !reduceMotion else { return 0 }
+        let raw = (clock * tapsPerSecond).truncatingRemainder(dividingBy: 1)
+        return raw < 0 ? raw + 1 : raw
+    }
+
+    /// 0 up, 1 pressed down.
+    static func press(_ phase: Double) -> Double {
+        if phase < 0.22 { return ease(phase / 0.22) }
+        if phase < 0.4 { return 1 }
+        if phase < 0.7 { return 1 - ease((phase - 0.4) / 0.3) }
+        return 0
+    }
+
+    /// The ring from the fingertip: 0 before the touch, then 0 → 1 as it spreads and fades.
+    static func ripple(_ phase: Double) -> Double {
+        guard phase >= 0.22 else { return 0 }
+        return min(1, (phase - 0.22) / 0.5)
+    }
+
+    static func ease(_ x: Double) -> Double {
+        let t = min(1, max(0, x))
+        return t * t * (3 - 2 * t)
+    }
+}
+
+/// A pointing hand that taps with its fingertip at its top-left corner, and a mustard ring spreading from the touch.
+struct HintHand: View {
+    let clock: Double
+    let reduceMotion: Bool
+    var size: CGFloat = 60
+
+    init(clock: Double, reduceMotion: Bool, size: CGFloat = 60) {
+        self.clock = clock
+        self.reduceMotion = reduceMotion
+        self.size = size
+    }
+
+    var body: some View {
+        let phase = HintMotion.phase(clock: clock, reduceMotion: reduceMotion)
+        let press = CGFloat(HintMotion.press(phase))
+        let ripple = HintMotion.ripple(phase)
+        ZStack(alignment: .topLeading) {
+            Circle()
+                .stroke(Palette.mustard, lineWidth: 3)
+                .frame(width: size * 0.5, height: size * 0.5)
+                .scaleEffect(CGFloat(0.4 + 1.2 * ripple))
+                .opacity(ripple > 0 ? 1 - ripple : 0)
+                .offset(x: -size * 0.18, y: -size * 0.2)
+            Image(systemName: "hand.point.up.left.fill")
+                .font(.system(size: size, weight: .regular))
+                .foregroundStyle(Palette.paper)
+                .shadow(color: Palette.ink.opacity(0.6), radius: 0, x: 2, y: 3)
+                .scaleEffect(1 - 0.08 * press, anchor: .topLeading)
+                .offset(x: 8 * (1 - press), y: 8 * (1 - press))
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
+/// On the pad during the first flights: "Tap to launch" with the hand tapping its lower right corner.
+struct LaunchHint: View {
+    let clock: Double
+    let reduceMotion: Bool
+    let opacity: Double
+
+    var body: some View {
+        TapToLaunch(opacity: max(0.85, opacity))
+            .overlay(alignment: .bottomTrailing) {
+                HintHand(clock: clock, reduceMotion: reduceMotion, size: 56)
+                    .offset(x: 22, y: 52)
+            }
+            .allowsHitTesting(false)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("Tap to launch"))
+            .accessibilityIdentifier("hint-launch")
+    }
+}
+
+/// The first stage's fuel is in the Perfect zone (the flight runs in slow motion): a pulsing "Tap now!" and the hand
+/// tapping over the scene.
+struct DropHint: View {
+    let clock: Double
+    let reduceMotion: Bool
+
+    var body: some View {
+        let pulse = reduceMotion ? 1.0 : 1 + 0.08 * abs(sin(clock * 8))
+        VStack(spacing: 4) {
+            Text("Tap now!")
+                .font(.rounded(26, .black))
+                .foregroundStyle(Palette.ink)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Capsule().fill(Palette.mustard))
+                .overlay(Capsule().stroke(Palette.paper, lineWidth: 2))
+                .scaleEffect(CGFloat(pulse))
+            HintHand(clock: clock, reduceMotion: reduceMotion, size: 64)
+                .offset(x: 14)
+        }
+        .frame(maxWidth: 190)
+        .allowsHitTesting(false)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("Tap now!"))
+        .accessibilityIdentifier("hint-drop")
+    }
+}
+
+/// The first ring entered with a satellite aboard (slow motion): the hand taps the release button.
+struct ReleaseHint: View {
+    let clock: Double
+    let reduceMotion: Bool
+
+    var body: some View {
+        HintHand(clock: clock, reduceMotion: reduceMotion, size: 58)
+            .allowsHitTesting(false)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("Release now"))
+            .accessibilityIdentifier("hint-release")
     }
 }
 

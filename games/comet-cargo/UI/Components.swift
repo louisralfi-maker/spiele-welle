@@ -142,46 +142,155 @@ struct PillButtonStyle: ButtonStyle {
     }
 }
 
-/// A number that rolls up from 0 to `value` over `duration` (instant under Reduce Motion).
+/// A number that rolls up from 0 to `value` over `duration`, after `delay`; with `ticks`, a light tick (sound and haptic)
+/// each time the shown number changes, at most every `tickGap` seconds. Under Reduce Motion it shows the value at once
+/// and stays silent.
 struct RollingNumber: View {
     var value: Int
     var duration: Double = 1.0
     var size: CGFloat = 44
     var color: Color = Palette.ink
+    var delay: Double = 0
+    var ticks = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var start = Date()
-    /// Set once the number has finished rolling; the timeline then stops redrawing.
-    @State private var done = false
+    /// nil until the roll starts (then 0 … value).
+    @State private var shown: Int?
 
-    init(value: Int, duration: Double = 1.0, size: CGFloat = 44, color: Color = Palette.ink) {
+    /// The shortest gap between two ticks (a tick every frame would be a buzz, not a count).
+    static let tickGap = 0.065
+
+    init(value: Int, duration: Double = 1.0, size: CGFloat = 44, color: Color = Palette.ink, delay: Double = 0,
+         ticks: Bool = false) {
         self.value = value
         self.duration = duration
         self.size = size
         self.color = color
+        self.delay = delay
+        self.ticks = ticks
     }
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: reduceMotion || done)) { timeline in
-            let shown = done ? value : displayed(at: timeline.date)
-            HStack(spacing: 8) {
-                CoinIcon(size: size * 0.8)
-                Text(shown, format: .number)
-                    .font(.rounded(size, .black).monospacedDigit())
-                    .foregroundStyle(color)
-            }
+        HStack(spacing: 8) {
+            CoinIcon(size: size * 0.8)
+            Text(shown ?? (reduceMotion ? value : 0), format: .number)
+                .font(.rounded(size, .black).monospacedDigit())
+                .foregroundStyle(color)
         }
-        .onAppear { start = Date() }
-        .task {
-            try? await Task.sleep(for: .seconds(duration + 0.1))
-            done = true
+        .task(id: value) {
+            await roll()
         }
     }
 
-    private func displayed(at date: Date) -> Int {
-        if reduceMotion { return value }
-        let t = min(1, max(0, date.timeIntervalSince(start) / duration))
+    private func roll() async {
+        guard !reduceMotion, value > 0 else {
+            shown = value
+            return
+        }
+        shown = 0
+        try? await Task.sleep(for: .seconds(delay))
+        guard !Task.isCancelled else { return }
+        let start = Date()
+        var lastTick = -1.0
+        while !Task.isCancelled {
+            let elapsed = Date().timeIntervalSince(start)
+            let next = RollingNumber.rolled(value, at: elapsed, duration: duration)
+            if next != shown {
+                shown = next
+                if ticks && elapsed - lastTick >= RollingNumber.tickGap {
+                    lastTick = elapsed
+                    Feedback.shared.play(.coinTick)
+                }
+            }
+            if elapsed >= duration { break }
+            try? await Task.sleep(for: .milliseconds(30))
+        }
+        shown = value
+    }
+
+    /// The shown number `elapsed` seconds into the roll (eased out, so it slows as it arrives).
+    nonisolated static func rolled(_ value: Int, at elapsed: Double, duration: Double) -> Int {
+        let t = min(1, max(0, elapsed / max(0.001, duration)))
         let eased = 1 - pow(1 - t, 3)
         return Int((Double(value) * eased).rounded())
+    }
+}
+
+/// A short gold burst (a spreading ring, rays and sparks) for a ring completed on the results screen. Shown only while it
+/// plays (about 0.9 s); the caller removes it after.
+struct GoldBurst: View {
+    @State private var start = Date()
+
+    var body: some View {
+        TimelineView(.animation) { timeline in
+            let t = timeline.date.timeIntervalSince(start) / GoldBurstDrawing.duration
+            Canvas { context, size in
+                GoldBurstDrawing.draw(context, size: size, t: t)
+            }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
+/// The burst's drawing, a plain enum so it carries no actor isolation. `t` runs 0 … 1 over `duration`.
+enum GoldBurstDrawing {
+    static let duration = 0.9
+
+    static func draw(_ context: GraphicsContext, size: CGSize, t: Double) {
+        guard t >= 0, t < 1 else { return }
+        let center = CGPoint(x: size.width / 2, y: size.height / 2)
+        let ease = 1 - pow(1 - t, 3)
+        let fade = 1 - t
+        let reach = Double(min(size.width, size.height)) * 0.5
+        let radius = 8 + ease * reach
+        drawRing(context, center: center, radius: radius, fade: fade)
+        drawRays(context, center: center, radius: radius, fade: fade)
+        drawSparks(context, center: center, radius: radius, fade: fade)
+    }
+
+    /// Points on a flattened circle (the burst is wider than tall, like the row it sits on).
+    static func point(_ center: CGPoint, angle: Double, distance: Double) -> CGPoint {
+        CGPoint(x: center.x + CGFloat(cos(angle) * distance * 1.6), y: center.y + CGFloat(sin(angle) * distance))
+    }
+
+    static func drawRing(_ context: GraphicsContext, center: CGPoint, radius: Double, fade: Double) {
+        let w = CGFloat(radius * 3.2)
+        let h = CGFloat(radius * 2)
+        let rect = CGRect(x: center.x - w / 2, y: center.y - h / 2, width: w, height: h)
+        context.stroke(Path(ellipseIn: rect), with: .color(Palette.gold.opacity(0.75 * fade)), lineWidth: CGFloat(1 + 3 * fade))
+    }
+
+    static func drawRays(_ context: GraphicsContext, center: CGPoint, radius: Double, fade: Double) {
+        let count = 14
+        for index in 0..<count {
+            let angle = Double(index) / Double(count) * 2 * Double.pi + 0.2
+            let length = 0.75 + 0.25 * sin(Double(index) * 2.3)
+            var ray = Path()
+            ray.move(to: point(center, angle: angle, distance: radius * 0.35))
+            ray.addLine(to: point(center, angle: angle, distance: radius * length))
+            let color = index % 2 == 0 ? Palette.gold : Palette.mustard
+            context.stroke(ray, with: .color(color.opacity(fade)), style: StrokeStyle(lineWidth: 3, lineCap: .round))
+        }
+    }
+
+    static func drawSparks(_ context: GraphicsContext, center: CGPoint, radius: Double, fade: Double) {
+        for index in 0..<10 {
+            let angle = Double(index) * 0.628 + 0.45
+            let distance = radius * (0.95 + 0.15 * sin(Double(index) * 1.7))
+            let at = point(center, angle: angle, distance: distance)
+            let arm = CGFloat(2 + 5 * fade)
+            var star = Path()
+            star.move(to: CGPoint(x: at.x, y: at.y - arm))
+            star.addLine(to: CGPoint(x: at.x + arm * 0.3, y: at.y - arm * 0.3))
+            star.addLine(to: CGPoint(x: at.x + arm, y: at.y))
+            star.addLine(to: CGPoint(x: at.x + arm * 0.3, y: at.y + arm * 0.3))
+            star.addLine(to: CGPoint(x: at.x, y: at.y + arm))
+            star.addLine(to: CGPoint(x: at.x - arm * 0.3, y: at.y + arm * 0.3))
+            star.addLine(to: CGPoint(x: at.x - arm, y: at.y))
+            star.addLine(to: CGPoint(x: at.x - arm * 0.3, y: at.y - arm * 0.3))
+            star.closeSubpath()
+            context.fill(star, with: .color(Palette.paper.opacity(fade)))
+        }
     }
 }
 
