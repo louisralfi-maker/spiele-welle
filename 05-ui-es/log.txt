@@ -1,0 +1,8 @@
+Test Case '-[CometCargoUITests.FlightUITests testDoubleReward]' passed (59.620 seconds).
+Test Case '-[CometCargoUITests.FlightUITests testFirstFlight]' passed (43.742 seconds).
+Test Case '-[CometCargoUITests.FlightUITests testFirstFlightHints]' passed (48.335 seconds).
+Test Case '-[CometCargoUITests.FlightUITests testManualControls]' passed (47.143 seconds).
+Test Case '-[CometCargoUITests.FlightUITests testMidGame]' passed (82.850 seconds).
+Test Case '-[CometCargoUITests.FlightUITests testResultsRingBurst]' passed (12.580 seconds).
+exit=0
+screenshots: 13

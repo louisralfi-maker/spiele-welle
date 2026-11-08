@@ -1,0 +1,19 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: comet-cargo
+tested: 146d14d
+source: claude/sharp-kalam-dc0c30
+19:11:33 build starts (CometCargo)
+simulator: 98A0BFA3-CEC3-4FD6-9916-5A2149774DBF (iPhone 17 Pro, iOS 26.5)
+19:16:59 PASS build
+19:18:07 PASS unit CometCargoTests
+19:25:53 PASS ui CometCargoUITests
+19:32:05 PASS ui-de CometCargoUITests
+19:38:04 PASS ui-fr CometCargoUITests
+19:44:07 PASS ui-es CometCargoUITests
+19:50:02 PASS ui-it CometCargoUITests
+19:55:50 PASS ui-pt-BR CometCargoUITests
+20:02:09 PASS ui-ja CometCargoUITests
+20:07:27 PASS ui-zh-Hans CometCargoUITests
+20:08:42 PASS release
+ALL PASSED
