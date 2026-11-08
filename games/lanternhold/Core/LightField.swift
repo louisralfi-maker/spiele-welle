@@ -130,14 +130,15 @@ struct DarknessBank: Sendable, Equatable {
 /// The light as a game mechanic (DESIGN.md "Light rules", `Core/LightField`): the same `LightSource` list the renderer
 /// draws, without flicker, so creatures do not jitter at the edge.
 ///
-/// Distance is **elliptic**: `d = sqrt(dx² + (ellipseY × dy)²)` with `ellipseY = 1.5`, so a light pool is wider than
-/// tall and sits flat on the ground, exactly like the rendered pool. A brazier flame at height 14 (radius 56) reaches
-/// about 52 px along the ground.
+/// Distance is **elliptic**: `d = sqrt(dx² + (ellipseY × dy)²)` with `ellipseY = 1.25`, so a light pool is wider than
+/// tall and sits flat on the ground, exactly like the rendered pool. A brazier flame at height 16 (radius 56) reaches
+/// about 52 px along the ground and lights it (0.12) for about 31 px. Gameplay asks at a body centre:
+/// `SceneActor.litY`. A torch high on a wall lights the wall walk, not the ground at its foot.
 struct LightField: Sendable, Equatable {
     /// A point is lit at this illumination or more.
     static let litThreshold = 0.12
     /// Vertical distances count this much more than horizontal ones.
-    static let ellipseY = 1.5
+    static let ellipseY = 1.25
 
     /// The battle's light sources (windows, candles and the moon are left out).
     let sources: [LightSource]

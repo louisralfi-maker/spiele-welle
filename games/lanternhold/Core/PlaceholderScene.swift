@@ -90,6 +90,9 @@ struct SceneActor: Sendable, Equatable {
     var facing: Int
     /// Seconds added to the idle animation so a group does not move in step.
     var phase: Double
+
+    /// Where the light field is asked whether this actor is lit: the centre of its body.
+    var litY: Double { y + Double(kind.sprite.size.height) / 2 }
 }
 
 /// The king: position, facing and walking speed (DESIGN.md "Controls": walk 36, run 80 game px/s).
@@ -104,9 +107,12 @@ struct KingState: Sendable, Equatable {
 
     var isWalking: Bool { velocity != 0 }
 
+    /// The centre of his body, where the light field is asked.
+    var litY: Double { Double(SpriteID.king.size.height) / 2 }
+
     /// The old lamplighter's lantern on its hooked pole, held ahead of him (DESIGN.md "Light rules": radius 40).
     var lantern: LightSource {
-        LightSource(kind: .lantern, x: x + 9 * Double(facing), y: 24, flickerSeed: 0x4B49_4E47)
+        LightSource(kind: .lantern, x: x + 9 * Double(facing), y: 16, flickerSeed: 0x4B49_4E47)
     }
 
     /// Moves `dt` seconds at the current velocity, clamped to the world, and turns toward the walk.

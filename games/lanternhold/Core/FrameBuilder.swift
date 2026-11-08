@@ -375,7 +375,7 @@ enum FrameBuilder {
             let frame = idleFrame(time: animTime + actor.phase, frames: sprite.frameCount)
             let flipped = actor.facing < 0
             if actor.kind.isCreature {
-                let lit = field.isLit(x: actor.x, y: actor.y + 4)
+                let lit = field.isLit(x: actor.x, y: actor.litY)
                 let alpha: Float = lit ? 1 : unlitAlpha
                 if alpha > 0.001 {
                     let rect = actorRect(sprite: sprite, x: actor.x, y: actor.y, camera: camera, options: options,
@@ -398,7 +398,7 @@ enum FrameBuilder {
                 let rect = actorRect(sprite: sprite, x: actor.x, y: actor.y, camera: camera, options: options,
                                      geometry: geometry)
                 if isOnScreen(rect, geometry: geometry) {
-                    let lit = field.isLit(x: actor.x, y: actor.y + 4)
+                    let lit = field.isLit(x: actor.x, y: actor.litY)
                     list.append(ActorInstance(sprite: sprite, frame: frame, rect: rect, tint: white,
                                               flipped: flipped, isEmissive: false, isLit: lit))
                 }
@@ -409,7 +409,7 @@ enum FrameBuilder {
         let kingFrame = kingFrameIndex(king: king, animTime: animTime)
         let kingRect = actorRect(sprite: .king, x: king.x, y: 0, camera: camera, options: options, geometry: geometry)
         if isOnScreen(kingRect, geometry: geometry) {
-            let lit = field.isLit(x: king.x, y: 4)
+            let lit = field.isLit(x: king.x, y: king.litY)
             list.append(ActorInstance(sprite: .king, frame: kingFrame, rect: kingRect, tint: white,
                                       flipped: king.facing < 0, isEmissive: false, isLit: lit))
         }
