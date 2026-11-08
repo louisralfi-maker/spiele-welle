@@ -17,8 +17,8 @@ Piston Empire went through all of this for its 1.0 (live since 04.11.2026). Its 
 - **AdMob:** publisher `ca-app-pub-4855617456569312`.
   - Every game needs its own AdMob app and its own ad units (rewarded, interstitial).
   - Louis creates them in the AdMob console, or you do it in the built-in browser if he is signed in and gives his go.
-- **app-ads.txt** is already live at `https://louisralfi-maker.github.io/app-ads.txt`. It covers every app whose store listing names `https://louisralfi-maker.github.io` as its marketing website.
-- **Pages:** the privacy policy and support pages live on Louis' GitHub Pages site, like Piston Empire's: one page per game, or one shared page listing all games. Never publish an address there. Publishing a page is an outward step: say what you publish.
+- **app-ads.txt** is already live at `https://louisralfi-maker.github.io/app-ads.txt`. It covers every app whose store listing names a marketing website on that host; the crawler strips the path, so a game's own page there counts.
+- **Pages:** each game's support and privacy pages live in `pages/<slug>/` and go out with `tools/publish-pages.sh` to the `gh-pages` branch, which GitHub Pages serves at `https://louisralfi-maker.github.io/spiele-welle/<slug>/` (Comet Cargo since 08.11.2026). Never publish an address there. Publishing a page is an outward step: say what you publish.
 
 ## Steps
 

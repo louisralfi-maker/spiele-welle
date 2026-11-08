@@ -14,9 +14,9 @@ enum AdConfig {
 
     // MARK: Privacy policy
 
-    /// The game's privacy policy on Louis' GitHub Pages site, linked from Settings (App Review 5.1.1(i)) and entered as the
-    /// privacy policy URL in App Store Connect. The page must be live at this address before the first submission.
-    static let privacyPolicyURL = URL(string: "https://louisralfi-maker.github.io/comet-cargo/privacy.html")!
+    /// The game's privacy policy on Louis' GitHub Pages site (source `pages/comet-cargo/privacy.html`, live since
+    /// 08.11.2026), linked from Settings (App Review 5.1.1(i)) and entered as the privacy policy URL in App Store Connect.
+    static let privacyPolicyURL = URL(string: "https://louisralfi-maker.github.io/spiele-welle/comet-cargo/privacy.html")!
 
     // MARK: Google's test ad units (always safe)
     static let testRewarded = "ca-app-pub-3940256099942544/1712485313"

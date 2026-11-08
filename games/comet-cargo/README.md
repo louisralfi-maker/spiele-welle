@@ -19,9 +19,11 @@ ring. Higher rings pay more; satellites still aboard when the rocket stalls are 
   URL first. Before asking Louis for the go: publish the privacy page, create and publish that message for the app,
   then run one runner round with `-GWConsentEEA YES` and without `-GWNoAds` (debug build) to see the form come up and
   the tracking question follow it.
-- Privacy policy URL: `https://louisralfi-maker.github.io/comet-cargo/privacy.html` (`AdConfig.privacyPolicyURL`, linked
-  from Settings → "Privacy policy"; the same URL goes into App Store Connect). The page is not live yet (404 on
-  08.11.2026): publish it on Louis' Pages site before the first submission.
+- Privacy policy URL: `https://louisralfi-maker.github.io/spiele-welle/comet-cargo/privacy.html`
+  (`AdConfig.privacyPolicyURL`, linked from Settings → "Privacy policy"; the same URL goes into App Store Connect).
+  Support and marketing URL: `https://louisralfi-maker.github.io/spiele-welle/comet-cargo/`. Both pages are live since
+  08.11.2026 (Louis' go): sources in `pages/comet-cargo/`, published to the `gh-pages` branch with
+  `tools/publish-pages.sh`. AdMob finds `app-ads.txt` at the root of the same host.
 - Ads (Louis, 08.11.2026): interstitials rarely (not in the first 3 minutes of play, then at most every 3 to 4
   minutes, only after the flight report); one rewarded offer: double the flight's coins, once per flight. No booster.
 - Store texts: `store/metadata.json`. Keywords stay within 100 UTF-8 bytes in every language (App Store Connect may count
