@@ -31,7 +31,7 @@ Piston Empire went through all of this for its 1.0 (live since 04.11.2026). Its 
 2. **AdMob:**
    - Privacy & messaging: publish the EU consent message (GDPR) for the app. Without it, the UMP form shows nothing and EU users get no personalised ads.
 3. **App Store Connect API key** (once, Louis): Users and Access → Integrations → App Store Connect API → Team Keys → "+".
-   - He picks the role App Manager and downloads the `.p8` once.
+   - He picks the role **Admin** and downloads the `.p8` once. App Manager is not enough for the runner: `xcodebuild -exportArchive -allowProvisioningUpdates` with an API key needs Admin to create the cloud-managed distribution certificate ("Cloud signing permission error" otherwise; Apple developer forums threads 698117 and 690676, checked 08.11.2026).
    - He keeps it at `~/.appstoreconnect/private_keys/AuthKey_<KEYID>.p8` on this Mac, and adds it as Actions secrets in the repo for the runner.
    - He tells you the Key ID and Issuer ID, which are not secret. The key file never goes through chat.
 4. **Bundle id:** register it through the API, or let automatic signing create it.
