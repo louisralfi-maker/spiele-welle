@@ -15,6 +15,9 @@ struct CometCargoApp: App {
                 .onChange(of: scenePhase) { _, phase in
                     model.scenePhaseChanged(phase)
                 }
+                .task {
+                    await Feedback.shared.prepare()
+                }
         }
     }
 }

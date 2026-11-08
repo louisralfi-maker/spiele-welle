@@ -40,37 +40,49 @@ final class GameModel {
 
     func launch() {
         guard screen == .hangar else { return }
-        Feedback.shared.prepare()
+        Feedback.shared.flightBegan()
         Feedback.shared.play(.button)
         let driver = FlightDriver(
             rocket: RocketConfig(levels: save.levels),
             autoplay: args.autoplay,
             best: save.bestApex,
             last: save.lastApex,
-            ringDeliveries: save.ringDeliveries
+            ringDeliveries: save.ringDeliveries,
+            hints: args.hintsAllowed ? save.pendingHints : []
         )
         driver.onFinish = { [weak self] result in
             self?.finishFlight(result)
+        }
+        driver.onHintDone = { [weak self] hint in
+            self?.hintLearned(hint)
         }
         flight = driver
         screen = .flight
         driver.start()
     }
 
+    /// The ring-complete chime and the new-best shimmer play on the results screen, in time with their effects.
     func finishFlight(_ result: FlightResult) {
         flight?.stop()
         flight = nil
+        Feedback.shared.flightEnded()
         let booked = Economy.settle(result, into: &save)
         settlement = booked
         persist()
-        if !booked.completedRings.isEmpty { Feedback.shared.play(.ringComplete) }
         screen = .results
     }
 
     func abortFlight() {
         flight?.stop()
         flight = nil
+        Feedback.shared.flightEnded()
+        persist()
         screen = .hangar
+    }
+
+    /// A first-flight hint was learned; it is saved with the flight (or when the app leaves the screen).
+    func hintLearned(_ hint: FlightHint) {
+        save.markHintDone(hint)
     }
 
     func collect() {
@@ -89,6 +101,7 @@ final class GameModel {
     func setSound(_ on: Bool) {
         save.soundOn = on
         Feedback.shared.soundOn = on
+        if on { Feedback.shared.play(.button) }
         persist()
     }
 

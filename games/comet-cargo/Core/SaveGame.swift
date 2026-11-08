@@ -1,5 +1,16 @@
 import Foundation
 
+/// The first-flight hints (DESIGN.md "Feel"): each one ends at the player's first success with it, or after
+/// `SaveGame.hintFlights` flights.
+enum FlightHint: String, Codable, Sendable, CaseIterable {
+    /// On the pad: a hand and "Tap to launch". Success: the ignition.
+    case launch
+    /// The first stage's fuel enters the Perfect zone: slow motion, a hand and "Tap now!". Success: a Perfect or Great drop.
+    case drop
+    /// The first ring entered with a satellite aboard: slow motion and a hand on the release button. Success: a delivery.
+    case release
+}
+
 /// Everything the game remembers. Codable JSON with a version; every field decodes with a default, so older saves and
 /// saves from newer versions with extra fields keep loading.
 struct SaveGame: Codable, Sendable, Equatable {
@@ -15,6 +26,13 @@ struct SaveGame: Codable, Sendable, Equatable {
     var flights = 0
     var soundOn = true
     var hapticsOn = true
+    /// First-flight hints already learned (new in 0.3; older saves decode them as false).
+    var hintLaunchDone = false
+    var hintDropDone = false
+    var hintReleaseDone = false
+
+    /// Hints show during the first this many flights at most.
+    static let hintFlights = 3
 
     init() {}
 
@@ -31,6 +49,9 @@ struct SaveGame: Codable, Sendable, Equatable {
         flights = (try? c.decodeIfPresent(Int.self, forKey: .flights)) ?? 0
         soundOn = (try? c.decodeIfPresent(Bool.self, forKey: .soundOn)) ?? true
         hapticsOn = (try? c.decodeIfPresent(Bool.self, forKey: .hapticsOn)) ?? true
+        hintLaunchDone = (try? c.decodeIfPresent(Bool.self, forKey: .hintLaunchDone)) ?? false
+        hintDropDone = (try? c.decodeIfPresent(Bool.self, forKey: .hintDropDone)) ?? false
+        hintReleaseDone = (try? c.decodeIfPresent(Bool.self, forKey: .hintReleaseDone)) ?? false
         if version < SaveGame.currentVersion {
             migrate(from: version)
             version = SaveGame.currentVersion
@@ -55,6 +76,24 @@ struct SaveGame: Codable, Sendable, Equatable {
         flights = max(0, flights)
         if !bestApex.isFinite || bestApex < 0 { bestApex = 0 }
         if let last = lastApex, !last.isFinite { lastApex = nil }
+    }
+
+    /// The hints the next flight still teaches: none after `hintFlights` settled flights.
+    var pendingHints: Set<FlightHint> {
+        guard flights < SaveGame.hintFlights else { return [] }
+        var hints = Set<FlightHint>()
+        if !hintLaunchDone { hints.insert(.launch) }
+        if !hintDropDone { hints.insert(.drop) }
+        if !hintReleaseDone { hints.insert(.release) }
+        return hints
+    }
+
+    mutating func markHintDone(_ hint: FlightHint) {
+        switch hint {
+        case .launch: hintLaunchDone = true
+        case .drop: hintDropDone = true
+        case .release: hintReleaseDone = true
+        }
     }
 
     func isComplete(_ ring: Int) -> Bool {

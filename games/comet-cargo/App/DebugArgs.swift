@@ -4,6 +4,8 @@ import Foundation
 struct DebugArgs: Sendable, Equatable {
     var reset = false
     var autoplay = false
+    /// No first-flight hints (UI tests that play by hand).
+    var skipOnboarding = false
     var coins: Int?
     /// "mid" or "max".
     var upgrades: String?
@@ -17,6 +19,7 @@ struct DebugArgs: Sendable, Equatable {
         var args = DebugArgs()
         args.reset = defaults.bool(forKey: "GWReset")
         args.autoplay = defaults.bool(forKey: "GWAutoplay")
+        args.skipOnboarding = defaults.bool(forKey: "GWSkipOnboarding")
         if defaults.object(forKey: "GWCoins") != nil {
             args.coins = defaults.integer(forKey: "GWCoins")
         }
@@ -25,6 +28,9 @@ struct DebugArgs: Sendable, Equatable {
         args.screen = defaults.string(forKey: "GWScreen")
         return args
     }
+
+    /// Hints are off while the autopilot plays and with -GWSkipOnboarding YES.
+    var hintsAllowed: Bool { !autoplay && !skipOnboarding }
 
     var changesSave: Bool {
         reset || coins != nil || upgrades != nil || network != nil

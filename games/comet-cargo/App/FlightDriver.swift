@@ -101,6 +101,10 @@ final class FlightDriver {
     private(set) var liveDeliveries: [Int]
     /// True while the rocket coasts with no cargo left: nothing can change any more, so the flight runs faster.
     private(set) var fastForward = false
+    /// Clock time of the ignition (a small shake of the screen).
+    private(set) var ignitedAt = -10.0
+    /// The first-flight hint on screen right now (DESIGN.md "Feel").
+    private(set) var hint: FlightHint?
 
     let best: Double
     let last: Double?
@@ -108,6 +112,10 @@ final class FlightDriver {
     /// Scale of every stage, bottom first (the top stage is 1); fixed for the flight.
     let stageScales: [Double]
     @ObservationIgnored var onFinish: ((FlightResult) -> Void)?
+    /// Called once per hint when the player first succeeds with it (the model marks it learned in the save).
+    @ObservationIgnored var onHintDone: ((FlightHint) -> Void)?
+    /// The sim tick at which the current (or last) hint appeared; for the tests.
+    @ObservationIgnored private(set) var hintStartTick: Int?
     /// True once the flight was handed to `onFinish`.
     @ObservationIgnored private(set) var finished = false
 
@@ -122,6 +130,11 @@ final class FlightDriver {
     @ObservationIgnored private var nextSide = 1.0
     /// Satellites still gliding to their ring line: they count on the line once they arrive.
     @ObservationIgnored private var arrivals: [(ring: Int, time: Double)] = []
+    /// Hints this flight may still teach, and those already shown on it (each shows at most once per flight).
+    @ObservationIgnored private var pendingHints: Set<FlightHint>
+    @ObservationIgnored private var shownHints: Set<FlightHint> = []
+    /// Drops and deliveries when the current hint appeared: the hint leaves with the next one.
+    @ObservationIgnored private var hintMark = 0
     private let link = DisplayLinkProxy()
 
     /// The pause at the apex before the results.
@@ -135,8 +148,11 @@ final class FlightDriver {
     /// Pop-ups younger than this push a new one into the next lane.
     static let popupLaneTime = 0.6
     static let maxStepsPerFrame = 24
+    /// The drop and release hints run the flight at this speed.
+    static let hintSlowMotion = 0.35
 
-    init(rocket: RocketConfig, autoplay: Bool, best: Double, last: Double?, ringDeliveries: [Int]) {
+    init(rocket: RocketConfig, autoplay: Bool, best: Double, last: Double?, ringDeliveries: [Int],
+         hints: Set<FlightHint> = []) {
         self.sim = FlightSim(rocket: rocket)
         self.autoplay = autoplay
         self.best = best
@@ -151,6 +167,20 @@ final class FlightDriver {
             pow(RocketConfig.stageScale, Double(index - (stageCount - 1)))
         }
         self.pilot = autoplay ? Autopilot(rocket: rocket) : nil
+        let teach: Set<FlightHint> = autoplay ? [] : hints
+        self.pendingHints = teach
+        if teach.contains(.launch) {
+            hint = .launch
+            shownHints.insert(.launch)
+            hintStartTick = 0
+        }
+    }
+
+    /// How fast the sim runs against the screen's clock: slow motion under the drop and release hints, faster once the
+    /// cargo is gone and the last stage coasts, otherwise real time.
+    var timeScale: Double {
+        if hint == .drop || hint == .release { return Self.hintSlowMotion }
+        return fastForward ? Self.fastForwardRate : 1
     }
 
     func start() {
@@ -221,7 +251,7 @@ final class FlightDriver {
         clock += delta
         let fast = sim.phase == .coasting && sim.satellitesAboard == 0
         if fast != fastForward { fastForward = fast }
-        advance(by: fast ? delta * Self.fastForwardRate : delta)
+        advance(by: delta * timeScale)
         processEvents()
         landArrivals()
         pruneEffects()
@@ -256,6 +286,14 @@ final class FlightDriver {
             next.step()
             accumulator -= FlightSim.dt
             steps += 1
+            if hint != nil || !pendingHints.isEmpty {
+                // Hints start and end on the exact tick; the time still owed to the sim this frame is re-expressed at
+                // the new speed, so the slow motion is the same whatever the frame rate.
+                let before = timeScale
+                updateHint(for: next)
+                let after = timeScale
+                if after != before { accumulator *= after / before }
+            }
         }
         if steps == Self.maxStepsPerFrame { accumulator = 0 }
         sim = next
@@ -268,6 +306,8 @@ final class FlightDriver {
         for event in events[eventsSeen...] {
             switch event {
             case .ignited:
+                ignitedAt = clock
+                completeHint(.launch)
                 feedback.play(.ignite)
             case .burnout:
                 break
@@ -277,6 +317,7 @@ final class FlightDriver {
                 addEffect(.debris(stage: drop.stage, scale: scale, side: nextSide), altitude: drop.altitude, speed: drop.speed)
                 addPopup(drop.rating.title.uppercased(), tint: drop.rating.tint, altitude: drop.altitude)
                 nextSide = -nextSide
+                if drop.rating == .perfect || drop.rating == .great { completeHint(.drop) }
                 feedback.play(.stageDrop(drop.rating))
             case .dropRefused:
                 refusedAt = clock
@@ -289,6 +330,7 @@ final class FlightDriver {
                 if let ring = delivery.ring {
                     text = "\(delivery.rating.title.uppercased()) +\(delivery.pay)"
                     arrivals.append((ring: ring, time: clock + SceneEffect.glideEnd))
+                    completeHint(.release)
                     feedback.play(.release(delivery.rating))
                 } else {
                     text = delivery.rating.title.uppercased()
@@ -306,6 +348,49 @@ final class FlightDriver {
             }
         }
         eventsSeen = events.count
+    }
+
+    // MARK: Hints
+
+    /// After every sim tick while hints are in play: ends the hint on screen when its moment is over, and starts the next
+    /// one the moment its condition first holds (each at most once per flight, one at a time).
+    private func updateHint(for state: FlightSim) {
+        switch hint {
+        case .launch:
+            if state.phase != .pad { hint = nil }
+        case .drop:
+            let over = state.drops.count != hintMark || state.gaugeCue == .late || !state.isFlying
+            if over { hint = nil }
+        case .release:
+            let over = state.deliveries.count != hintMark || state.liveBand == nil
+            if over { hint = nil }
+        case nil:
+            break
+        }
+        guard hint == nil else { return }
+        if wantsHint(.drop), state.stageIndex == 0, state.gaugeCue == .perfect || state.gaugeCue == .grace {
+            startHint(.drop, mark: state.drops.count, tick: state.tick)
+        } else if wantsHint(.release), state.liveBand != nil {
+            startHint(.release, mark: state.deliveries.count, tick: state.tick)
+        }
+    }
+
+    private func wantsHint(_ kind: FlightHint) -> Bool {
+        pendingHints.contains(kind) && !shownHints.contains(kind)
+    }
+
+    private func startHint(_ kind: FlightHint, mark: Int, tick: Int) {
+        hint = kind
+        shownHints.insert(kind)
+        hintMark = mark
+        hintStartTick = tick
+    }
+
+    /// The player's first success with a hint: it is learned and never shows again.
+    private func completeHint(_ kind: FlightHint) {
+        guard pendingHints.contains(kind) else { return }
+        pendingHints.remove(kind)
+        onHintDone?(kind)
     }
 
     private func addEffect(_ kind: SceneEffect.Kind, altitude: Double, speed: Double) {
