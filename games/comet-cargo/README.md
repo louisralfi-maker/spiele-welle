@@ -4,8 +4,20 @@ Launch a cargo rocket, drop each stage at the right moment, and release every sa
 ring. Higher rings pay more; satellites still aboard when the rocket stalls are lost. Retro space-age poster look.
 
 - Design: `DESIGN.md`
-- Status: 0.3 built and passed every test on the runner (08.11.2026): painted art (Recraft) and app icon, synthesized
-  sounds, haptics, juice, first-flight hints. Next: ads, the six other languages, store assets.
+- Status (08.11.2026):
+  - 0.4 passed every test on the runner in all eight languages (round `cc-wf4-v1`) and is on `main`: AdMob ads with
+    consent, the six other languages, store texts, review fixes. Before it, 0.3 added painted art, sounds, haptics and
+    hints.
+  - 0.5 was paused at Louis' request. The store-shot agent was stopped mid-step, and its unfinished, unbuilt work is in
+    the WIP commit after this one: `UI/StoreShot.swift`, `UITests/StoreShotsUITests.swift` and launch arguments.
+  - Still open:
+    - `shots`/`shots-<lang>` steps on an iPhone 17 Pro Max in `scripts/ci/run-check.sh` and `sim-udid.sh`;
+    - caption strings in eight languages;
+    - DESIGN and README sections;
+    - a compiler read, then a runner round, a store lens and fixes;
+    - the upload pipeline (`upload.yml`, `remote-upload.sh`, export options, store listing upload, age rating and
+      privacy answers), which has not been started;
+    - Louis' App Store Connect key (Admin role), the app record, then TestFlight.
 - Tuning: `python3 tools/tune.py` mirrors the Swift sim and prints every tuning target (starter apex 120.7 km in 23.0 s,
   maxed 1498 km in 86.8 s, ring crossings 0.88 to 2.53 s, early/late drops −44 %/−12 %, 4 to 9 % per engine or tank
   level, economy bot reaches ring 15 after 112 flights). Deviations from the design's start values: engines ×1.035 and
