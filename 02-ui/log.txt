@@ -1,0 +1,7 @@
+Test Case '-[CometCargoUITests.FlightUITests testFilmstrip]' passed (109.737 seconds).
+Test Case '-[CometCargoUITests.FlightUITests testFirstFlight]' passed (45.805 seconds).
+Test Case '-[CometCargoUITests.FlightUITests testFirstFlightHints]' passed (55.546 seconds).
+Test Case '-[CometCargoUITests.FlightUITests testManualControls]' passed (41.878 seconds).
+Test Case '-[CometCargoUITests.FlightUITests testMidGame]' passed (67.755 seconds).
+exit=0
+screenshots: 81

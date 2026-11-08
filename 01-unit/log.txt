@@ -1,0 +1,66 @@
+IOSurfaceClientSetSurfaceNotify failed e00002c7
+2026-11-08 17:52:19.864607+0000 CometCargo[12185:40406] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-08 17:52:20.793579+0000 CometCargo[12185:40406] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[CometCargoTests.EconomyTests testAFullFlightPaysForItsDeliveries]' passed (0.012 seconds).
+Test Case '-[CometCargoTests.EconomyTests testBasePayRunsFrom5To271]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.EconomyTests testBuyingNeedsCoinsAndStopsAtTheTop]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.EconomyTests testDeliveryPayByRating]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.EconomyTests testFifthDeliveryCompletesTheRingOnce]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.EconomyTests testPrices]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.EconomyTests testSettlementListsRingProgressAndTheNextUpgrade]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.EconomyTests testSettleTracksBestAndLostSatellites]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.FeelTests testEveryCueIsShortFiniteAndAtItsPeak]' passed (0.809 seconds).
+Test Case '-[CometCargoTests.FeelTests testEveryMomentHasItsSoundAndVibration]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FeelTests testEveryVibrationIsAValidPattern]' passed (0.005 seconds).
+Test Case '-[CometCargoTests.FeelTests testSynthesisIsDeterministic]' passed (1.368 seconds).
+Test Case '-[CometCargoTests.FeelTests testTheHintHandTapsAndRestsUnderReduceMotion]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.FeelTests testTheShakeIsTinyShortAndNeverShowsTheEdge]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FeelTests testTheTotalEasesToItsValue]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testAFlightIsSettledExactlyOnce]' passed (0.155 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testAMissedDropHintLeavesAfterTheGraceAndStaysPending]' passed (0.011 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testCoastingWithoutCargoRunsFaster]' passed (0.014 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testDropHintRunsInSlowMotionFromTheExactTick]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testFinishNowSettlesDuringTheApexHold]' passed (0.012 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testLaunchHintShowsOnThePadAndIsLearnedAtIgnition]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testPauseFreezesTheFlightAndIgnoresTaps]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testReleaseHintSlowsAtTheFirstRingAndADeliveryTeachesIt]' passed (0.018 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testTapsReachTheSimAndTheReleaseNeverDrops]' passed (0.038 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testTheAutopilotNeverShowsHints]' passed (0.017 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testApexEndsTheFlightAndLosesCargo]' passed (0.003 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testAutopilotDeliversPerfectlyIntoItsTargets]' passed (0.019 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testBandsDoNotOverlap]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testBurnoutLeavesASpentStage]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testDropRatingsByFuelLeft]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testFastBandsSpanAFixedTime]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testInputsApplyAtTheNextTick]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testLastStageRefusesTheDrop]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testMoreStagesAndLevelsGoHigher]' passed (0.024 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testNeverDroppingStillEnds]' passed (0.010 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testPadWaitsForIgnition]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testPerfectDropKicksAndIgnitesTheNextStage]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testReleaseRatingsByDistance]' passed (0.000 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testReleasingLightensTheRocket]' passed (0.151 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testSameInputsGiveTheSameFlight]' passed (0.004 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testStarterAutopilotAimsForTheTwoHighestRings]' passed (0.004 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testTwoDropTapsInOneTickDropOneStage]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testHintsStartPendingAndAreLearnedOneByOne]' passed (0.013 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testHintsStopAfterThreeFlights]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testNonFiniteAltitudesAreCleared]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testOlderVersionsAreBumped]' passed (0.008 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testOldOrPartialSavesLoadWithDefaults]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testOneBadFieldKeepsTheRest]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testResetKeepsTheSettings]' passed (0.000 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testSavesFromBeforeTheHintsLoad]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testSurvivesARoundTrip]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testUnknownFieldsAreIgnoredAndValuesClamped]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.SaveStoreTests testCorruptFileIsMovedAsideNotOverwritten]' passed (0.006 seconds).
+Test Case '-[CometCargoTests.SaveStoreTests testMissingFileLoadsNothing]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.SaveStoreTests testWriteAndLoadRoundTrip]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.TuningTests testBadDropsCostApex]' passed (0.036 seconds).
+Test Case '-[CometCargoTests.TuningTests testEachLevelAddsApex]' passed (0.064 seconds).
+Test Case '-[CometCargoTests.TuningTests testEconomyBotReachesRing15]' passed (1.588 seconds).
+Test Case '-[CometCargoTests.TuningTests testMaxedRocket]' passed (0.015 seconds).
+Test Case '-[CometCargoTests.TuningTests testRingCrossingTimes]' passed (0.063 seconds).
+Test Case '-[CometCargoTests.TuningTests testStarterRocket]' passed (0.003 seconds).
+exit=0
+screenshots: 0
