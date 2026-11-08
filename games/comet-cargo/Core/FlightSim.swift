@@ -54,6 +54,8 @@ struct FlightResult: Codable, Sendable, Equatable {
     var drops: [StageDrop]
     var deliveries: [Delivery]
     var lost: Int
+    /// Stages still attached and never used when the flight ended (it ended while a spent stage was still attached).
+    var unusedStages = 0
 }
 
 /// The deterministic flight model: a fixed step of 1/120 s, inputs queued and applied at the start of the next tick.
@@ -81,7 +83,11 @@ struct FlightSim: Sendable {
     private(set) var drops: [StageDrop] = []
     private(set) var deliveries: [Delivery] = []
     private(set) var lost = 0
+    /// Stages never used: the rocket fell back while a spent stage was still attached.
+    private(set) var unusedStages = 0
     private var queue: [FlightInput] = []
+    /// The tick of the last drop input, so two taps in one tick drop only one stage.
+    private var lastDropTick = -1
 
     init(rocket: RocketConfig) {
         self.rocket = rocket
@@ -125,7 +131,8 @@ struct FlightSim: Sendable {
     }
 
     var result: FlightResult {
-        FlightResult(apex: maxAltitude, flightTime: flightTime, drops: drops, deliveries: deliveries, lost: lost)
+        FlightResult(apex: maxAltitude, flightTime: flightTime, drops: drops, deliveries: deliveries, lost: lost,
+                     unusedStages: unusedStages)
     }
 
     mutating func send(_ input: FlightInput) {
@@ -169,6 +176,7 @@ struct FlightSim: Sendable {
             phase = .ended
             lost = satellitesAboard
             satellitesAboard = 0
+            unusedStages = stageCount - 1 - stageIndex
             events.append(.apex(altitude: maxAltitude, lost: lost, tick: tick))
         }
     }
@@ -182,6 +190,8 @@ struct FlightSim: Sendable {
             events.append(.ignited(tick: tick))
         case .dropStage:
             guard phase == .burning || phase == .spent else { return }
+            guard lastDropTick != tick else { return }
+            lastDropTick = tick
             guard !isLastStage else {
                 events.append(.dropRefused(tick: tick))
                 return
@@ -205,7 +215,7 @@ struct FlightSim: Sendable {
             burnoutTick = nil
         case .release:
             guard isFlying, satellitesAboard > 0 else { return }
-            let placed = Rings.release(at: altitude, guidance: rocket.guidance)
+            let placed = Rings.release(at: altitude, speed: speed, guidance: rocket.guidance)
             satellitesAboard -= 1
             let pay = Economy.deliveryPay(ring: placed.ring, rating: placed.rating)
             let delivery = Delivery(ring: placed.ring, rating: placed.rating, pay: pay, altitude: altitude, tick: tick)

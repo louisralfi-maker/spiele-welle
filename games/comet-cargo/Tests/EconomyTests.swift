@@ -15,7 +15,8 @@ final class EconomyTests: XCTestCase {
     }
 
     func testPrices() {
-        XCTAssertEqual(Economy.price(.engines, level: 0), 60)
+        XCTAssertEqual(Economy.price(.engines, level: 0), 30, "The first level is cheap, so the first flight buys one")
+        XCTAssertEqual(Economy.price(.tanks, level: 0), 30)
         XCTAssertEqual(Economy.price(.engines, level: 1), 108)
         XCTAssertEqual(Economy.price(.tanks, level: 9), 11_902)
         XCTAssertNil(Economy.price(.engines, level: 10))
@@ -65,11 +66,29 @@ final class EconomyTests: XCTestCase {
         save.coins = 100
         XCTAssertTrue(Economy.buy(.engines, in: &save))
         XCTAssertEqual(save.levels.engines, 1)
-        XCTAssertEqual(save.coins, 40)
+        XCTAssertEqual(save.coins, 70)
         save.levels.stages = 5
         save.coins = 1_000_000
         XCTAssertFalse(Economy.canBuy(.stages, in: save))
         XCTAssertFalse(Economy.buy(.stages, in: &save))
+    }
+
+    func testSettlementListsRingProgressAndTheNextUpgrade() {
+        var save = SaveGame()
+        save.ringDeliveries[3] = 4
+        save.ringDeliveries[4] = 1
+        let into3 = Delivery(ring: 3, rating: .perfect, pay: 24, altitude: 80, tick: 100)
+        let into4 = Delivery(ring: 4, rating: .good, pay: 16, altitude: 110, tick: 200)
+        let result = FlightResult(apex: 120, flightTime: 23, drops: [], deliveries: [into4, into3], lost: 0, unusedStages: 1)
+        let settlement = Economy.settle(result, into: &save)
+        XCTAssertEqual(settlement.progress, [
+            Economy.RingProgress(ring: 3, before: 4, after: 5, completed: true, bonus: 120),
+            Economy.RingProgress(ring: 4, before: 1, after: 2, completed: false, bonus: 0),
+        ])
+        XCTAssertEqual(settlement.unusedStages, 1)
+        XCTAssertEqual(settlement.coinsAfter, save.coins)
+        XCTAssertEqual(settlement.nextTrack, .engines, "Engines and tanks both cost 30; the first one wins")
+        XCTAssertEqual(settlement.nextPrice, 30)
     }
 
     func testAFullFlightPaysForItsDeliveries() {

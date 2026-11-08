@@ -60,6 +60,14 @@ struct DebugArgs: Sendable, Equatable {
         settlement.bonusPay = Economy.ringBonus(5)
         settlement.apex = 284
         settlement.newBest = true
+        settlement.progress = [
+            Economy.RingProgress(ring: 5, before: 4, after: 5, completed: true, bonus: Economy.ringBonus(5)),
+            Economy.RingProgress(ring: 6, before: 1, after: 2, completed: false, bonus: 0),
+            Economy.RingProgress(ring: 7, before: 0, after: 1, completed: false, bonus: 0),
+        ]
+        settlement.coinsAfter = 420
+        settlement.nextTrack = .engines
+        settlement.nextPrice = 583
         return settlement
     }()
 }

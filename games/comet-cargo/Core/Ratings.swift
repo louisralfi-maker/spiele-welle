@@ -63,6 +63,12 @@ enum Ratings {
         return .good
     }
 
+    /// The share of a band's half width that rates Perfect and Great at this guidance level (for drawing the strips).
+    static func releaseShares(guidance: Int) -> (perfect: Double, great: Double) {
+        let scale = windowScale(guidance: guidance)
+        return (min(1.0, perfectRelease * scale), min(1.0, greatRelease * scale))
+    }
+
     /// The fuel fractions that bound the gauge zones for this guidance level (Perfect, Great, Good).
     static func gaugeZones(guidance: Int) -> (perfect: Double, great: Double, good: Double) {
         let scale = windowScale(guidance: guidance)

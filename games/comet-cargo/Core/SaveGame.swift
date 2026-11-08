@@ -18,29 +18,43 @@ struct SaveGame: Codable, Sendable, Equatable {
 
     init() {}
 
+    /// Every field decodes on its own, so one field of the wrong type falls back to its default instead of failing the
+    /// whole save.
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        version = try c.decodeIfPresent(Int.self, forKey: .version) ?? SaveGame.currentVersion
-        coins = try c.decodeIfPresent(Int.self, forKey: .coins) ?? 0
-        levels = try c.decodeIfPresent(UpgradeLevels.self, forKey: .levels) ?? UpgradeLevels()
-        ringDeliveries = try c.decodeIfPresent([Int].self, forKey: .ringDeliveries) ?? []
-        bestApex = try c.decodeIfPresent(Double.self, forKey: .bestApex) ?? 0
-        lastApex = try c.decodeIfPresent(Double.self, forKey: .lastApex)
-        flights = try c.decodeIfPresent(Int.self, forKey: .flights) ?? 0
-        soundOn = try c.decodeIfPresent(Bool.self, forKey: .soundOn) ?? true
-        hapticsOn = try c.decodeIfPresent(Bool.self, forKey: .hapticsOn) ?? true
+        version = (try? c.decodeIfPresent(Int.self, forKey: .version)) ?? SaveGame.currentVersion
+        coins = (try? c.decodeIfPresent(Int.self, forKey: .coins)) ?? 0
+        levels = (try? c.decodeIfPresent(UpgradeLevels.self, forKey: .levels)) ?? UpgradeLevels()
+        ringDeliveries = (try? c.decodeIfPresent([Int].self, forKey: .ringDeliveries)) ?? []
+        bestApex = (try? c.decodeIfPresent(Double.self, forKey: .bestApex)) ?? 0
+        lastApex = try? c.decodeIfPresent(Double.self, forKey: .lastApex)
+        flights = (try? c.decodeIfPresent(Int.self, forKey: .flights)) ?? 0
+        soundOn = (try? c.decodeIfPresent(Bool.self, forKey: .soundOn)) ?? true
+        hapticsOn = (try? c.decodeIfPresent(Bool.self, forKey: .hapticsOn)) ?? true
+        if version < SaveGame.currentVersion {
+            migrate(from: version)
+            version = SaveGame.currentVersion
+        }
         normalize()
     }
 
-    /// Exactly one slot counter per ring, levels inside their ranges, no negative coins.
+    /// Upgrades an older save to the current version (nothing to do yet: version 1 is the first).
+    mutating func migrate(from oldVersion: Int) {}
+
+    /// Exactly one slot counter per ring and none negative, levels inside their ranges, no negative coins, finite
+    /// altitudes (JSON cannot store NaN or infinity, so one would stop every later write).
     mutating func normalize() {
         if ringDeliveries.count < Rings.count {
             ringDeliveries += Array(repeating: 0, count: Rings.count - ringDeliveries.count)
         } else if ringDeliveries.count > Rings.count {
             ringDeliveries = Array(ringDeliveries.prefix(Rings.count))
         }
+        ringDeliveries = ringDeliveries.map { max(0, $0) }
         levels.clamp()
         coins = max(0, coins)
+        flights = max(0, flights)
+        if !bestApex.isFinite || bestApex < 0 { bestApex = 0 }
+        if let last = lastApex, !last.isFinite { lastApex = nil }
     }
 
     func isComplete(_ ring: Int) -> Bool {

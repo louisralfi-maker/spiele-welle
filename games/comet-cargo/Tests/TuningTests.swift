@@ -26,7 +26,8 @@ final class TuningTests: XCTestCase {
         XCTAssertEqual(sim.drops.map(\.rating), [.perfect, .perfect, .perfect, .perfect])
     }
 
-    /// 3. Every ring crossed upward at 0.5 km/s or more is crossed in 0.5 to 3.0 s (tune.py: 0.59 to 2.53 s).
+    /// 3. Every ring crossed upward at 0.5 km/s or more is crossed in 0.8 to 3.0 s (tune.py: 0.88 to 2.53 s). The band
+    /// grows with the speed, so its width is measured at each sample's speed.
     func testRingCrossingTimes() {
         for levels in [UpgradeLevels.starter, .maxed] {
             let rocket = RocketConfig(levels: levels)
@@ -41,13 +42,15 @@ final class TuningTests: XCTestCase {
             var checked = 0
             for ring in 0..<Rings.count {
                 let center = Rings.altitudes[ring]
-                let half = Rings.halfWidth(ring)
-                let inside = track.indices.filter { abs(track[$0].h - center) <= half && track[$0].v > 0 }
+                let inside = track.indices.filter { index in
+                    let sample = track[index]
+                    return abs(sample.h - center) <= Rings.halfWidth(ring, speed: sample.v) && sample.v > 0
+                }
                 guard let lastInside = inside.last else { continue }
-                let exits = track[lastInside...].contains { $0.h > center + half }
+                let exits = track[lastInside...].contains { $0.h > center + Rings.halfWidth(ring, speed: $0.v) }
                 guard exits, let atCenter = track.first(where: { $0.h >= center }), atCenter.v >= 0.5 else { continue }
                 let seconds = Double(inside.count) * FlightSim.dt
-                XCTAssertTrue((0.5...3.0).contains(seconds), "\(levels) ring \(ring + 1): \(seconds) s at \(atCenter.v) km/s")
+                XCTAssertTrue((0.8...3.0).contains(seconds), "\(levels) ring \(ring + 1): \(seconds) s at \(atCenter.v) km/s")
                 checked += 1
             }
             XCTAssertGreaterThanOrEqual(checked, levels == .maxed ? 15 : 5)

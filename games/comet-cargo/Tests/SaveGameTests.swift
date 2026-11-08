@@ -30,13 +30,36 @@ final class SaveGameTests: XCTestCase {
     }
 
     func testUnknownFieldsAreIgnoredAndValuesClamped() throws {
-        let json = #"{"version":9,"coins":-5,"futureThing":true,"levels":{"engines":99,"stages":1},"ringDeliveries":[1,2]}"#
+        let json = #"{"version":9,"coins":-5,"futureThing":true,"levels":{"engines":99,"stages":1},"ringDeliveries":[1,2,-3]}"#
         let save = try SaveGame.decoded(from: Data(json.utf8))
         XCTAssertEqual(save.coins, 0)
         XCTAssertEqual(save.levels.engines, 10)
         XCTAssertEqual(save.levels.stages, 2)
         XCTAssertEqual(save.ringDeliveries.count, Rings.count)
-        XCTAssertEqual(Array(save.ringDeliveries.prefix(3)), [1, 2, 0])
+        XCTAssertEqual(Array(save.ringDeliveries.prefix(4)), [1, 2, 0, 0], "A negative count would crash the hangar")
+    }
+
+    func testOneBadFieldKeepsTheRest() throws {
+        let json = #"{"version":1,"coins":"lots","bestApex":210.5,"flights":7}"#
+        let save = try SaveGame.decoded(from: Data(json.utf8))
+        XCTAssertEqual(save.coins, 0)
+        XCTAssertEqual(save.bestApex, 210.5)
+        XCTAssertEqual(save.flights, 7)
+    }
+
+    func testNonFiniteAltitudesAreCleared() throws {
+        var save = SaveGame()
+        save.bestApex = .nan
+        save.lastApex = .infinity
+        save.normalize()
+        XCTAssertEqual(save.bestApex, 0)
+        XCTAssertNil(save.lastApex)
+        XCTAssertNoThrow(try save.encoded(), "JSON cannot store NaN; a save with one would never be written")
+    }
+
+    func testOlderVersionsAreBumped() throws {
+        let save = try SaveGame.decoded(from: Data(#"{"version":0}"#.utf8))
+        XCTAssertEqual(save.version, SaveGame.currentVersion)
     }
 
     func testResetKeepsTheSettings() {

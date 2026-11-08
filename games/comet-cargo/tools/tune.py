@@ -24,8 +24,17 @@ TANK_STEP = 1.06          # fuel and burn time x 1.06 per tanks level
 
 # --- Rings.swift ---
 RINGS = [20.0, 35.0, 55.0, 80.0, 110.0, 150.0, 200.0, 260.0, 330.0, 410.0, 500.0, 600.0, 720.0, 860.0, 1000.0]
-def half_width(k):
+BAND_SECONDS = 0.45      # a fast rocket's band spans this many seconds of flight on each side of the centre line
+MAX_GAP_SHARE = 0.45     # no band reaches past this share of the gap to its nearest neighbour (or the ground)
+def base_half_width(k):
     return 2.8 + 0.018 * RINGS[k]
+def max_half_width(k):
+    below = RINGS[0] if k == 0 else RINGS[k] - RINGS[k - 1]
+    above = below if k == len(RINGS) - 1 else RINGS[k + 1] - RINGS[k]
+    return MAX_GAP_SHARE * min(below, above)
+def half_width(k, speed=0.0):
+    moving = max(0.0, speed) * BAND_SECONDS
+    return min(max_half_width(k), max(base_half_width(k), moving))
 
 # --- Ratings.swift ---
 def window_scale(guidance):
@@ -40,10 +49,10 @@ def drop_rating(fuel_left, since_burnout, guidance):
     if fuel_left <= 0.30: return 'good'
     return 'early'
 KICK = {'perfect': 0.06, 'great': 0.03, 'good': 0.0, 'early': 0.0, 'late': 0.0}
-def release_rating(altitude, guidance):
+def release_rating(altitude, speed, guidance):
     m = window_scale(guidance)
     for k in range(len(RINGS)):
-        w = half_width(k)
+        w = half_width(k, speed)
         d = abs(altitude - RINGS[k]) / w
         if d <= 1.0:
             if d <= min(1.0, 0.25 * m): return k, 'perfect'
@@ -67,9 +76,12 @@ MIN_LEVEL = {'engines': 0, 'tanks': 0, 'stages': 2, 'cargo': 2, 'guidance': 0}
 TRACKS = ['engines', 'tanks', 'stages', 'cargo', 'guidance']
 STAGE_PRICES = [800, 10000, 60000]
 CARGO_PRICES = [150, 800, 3000, 10000]
+FIRST_LEVEL_PRICE = 30
 def price(track, level):
     if level >= MAX_LEVEL[track]: return None
-    if track in ('engines', 'tanks'): return swift_round(60.0 * math.pow(1.8, level))
+    if track in ('engines', 'tanks'):
+        if level == 0: return FIRST_LEVEL_PRICE
+        return swift_round(60.0 * math.pow(1.8, level))
     if track == 'stages': return STAGE_PRICES[level - 2]
     if track == 'cargo': return CARGO_PRICES[level - 2]
     return swift_round(50.0 * math.pow(1.8, level))
@@ -94,6 +106,7 @@ class Sim:
         self.fuel = rocket['stages'][0]['fuel']; self.sats = rocket['sats']
         self.ignition = None; self.burnout = None; self.maxh = 0.0
         self.drops = []; self.deliveries = []; self.lost = 0; self.queue = []
+        self.last_drop_tick = -1; self.unused = 0
     def last(self): return self.stage == len(self.r['stages']) - 1
     def mass(self):
         m = CAPSULE_MASS + self.sats * SATELLITE_MASS
@@ -107,7 +120,11 @@ class Sim:
         if inp == 'ignite':
             if self.phase == 'pad': self.phase = 'burning'; self.ignition = self.tick
         elif inp == 'drop':
-            if self.phase in ('burning', 'spent') and not self.last():
+            if self.phase in ('burning', 'spent') and self.last_drop_tick != self.tick:
+                self.last_drop_tick = self.tick
+            else:
+                return
+            if not self.last():
                 if self.phase == 'spent':
                     rating = drop_rating(0.0, (self.tick - self.burnout) * DT, self.r['guidance'])
                     f = 0.0
@@ -119,7 +136,7 @@ class Sim:
                 self.stage += 1; self.fuel = st[self.stage]['fuel']; self.phase = 'burning'; self.burnout = None
         elif inp == 'release':
             if self.phase in ('burning', 'spent', 'coasting') and self.sats > 0:
-                k, rating = release_rating(self.h, self.r['guidance'])
+                k, rating = release_rating(self.h, self.v, self.r['guidance'])
                 self.sats -= 1
                 self.deliveries.append((k, rating, delivery_pay(k, rating)))
     def step(self):
@@ -146,6 +163,7 @@ class Sim:
                 self.phase = 'coasting' if self.last() else 'spent'
         if self.phase in ('spent', 'coasting') and self.v <= 0.0:
             self.phase = 'ended'; self.lost = self.sats; self.sats = 0
+            self.unused = len(self.r['stages']) - 1 - self.stage
     def flight_time(self): return (self.tick - self.ignition) * DT
 
 # --- Autopilot.swift ---
@@ -199,10 +217,9 @@ def crossing_times(rocket):
     fly(rocket, releases=False, track=tr)
     out = []
     for k, r in enumerate(RINGS):
-        w = half_width(k)
-        inside = [i for i, (h, v) in enumerate(tr) if abs(h - r) <= w and v > 0]
+        inside = [i for i, (h, v) in enumerate(tr) if abs(h - r) <= half_width(k, v) and v > 0]
         if not inside: continue
-        exits = any(h > r + w for h, v in tr[inside[-1]:])
+        exits = any(h > r + half_width(k, v) for h, v in tr[inside[-1]:])
         vc = next((v for h, v in tr if h >= r), None)
         if not exits or vc is None or vc < 0.5: continue
         out.append((k, len(inside) * DT, vc))
@@ -246,7 +263,7 @@ def main():
     print(f"2 maxed:   apex {mx.maxh:.1f} km (>= 1050), ignition to apex {mx.flight_time():.2f} s (<= 95)")
     for name, lv in (('starter', STARTER), ('maxed', MAXED)):
         ct = crossing_times(make_rocket(lv))
-        print(f"3 {name} ring crossings (0.5..3.0 s): " + ', '.join(f"r{k+1} {t:.2f}s@{v:.1f}" for k, t, v in ct))
+        print(f"3 {name} ring crossings (0.8..3.0 s): " + ', '.join(f"r{k+1} {t:.2f}s@{v:.1f}" for k, t, v in ct))
     for name, lv in (('starter', STARTER), ('maxed', MAXED)):
         p = fly(make_rocket(lv), releases=False).maxh
         e = fly(make_rocket(lv), 'early', releases=False).maxh

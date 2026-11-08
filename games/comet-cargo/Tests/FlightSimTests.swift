@@ -93,9 +93,37 @@ final class FlightSimTests: XCTestCase {
     }
 
     func testBandsDoNotOverlap() {
-        for ring in 1..<Rings.count {
-            XCTAssertLessThan(Rings.top(ring - 1), Rings.bottom(ring))
+        for speed in [0.0, 5, 10, 20, 40, 100] {
+            XCTAssertGreaterThan(Rings.bottom(0, speed: speed), 0, "at \(speed) km/s")
+            for ring in 1..<Rings.count {
+                XCTAssertLessThan(Rings.top(ring - 1, speed: speed), Rings.bottom(ring, speed: speed), "at \(speed) km/s")
+            }
         }
+    }
+
+    func testFastBandsSpanAFixedTime() {
+        XCTAssertEqual(Rings.halfWidth(6), Rings.baseHalfWidth(6), "Slow rockets get the base width")
+        XCTAssertEqual(Rings.halfWidth(6, speed: 1), Rings.baseHalfWidth(6))
+        XCTAssertEqual(Rings.halfWidth(6, speed: 24), 24 * Rings.bandSeconds, accuracy: 1e-9)
+        XCTAssertEqual(Rings.halfWidth(0, speed: 1000), Rings.maxHalfWidth(0), "Capped below the next ring")
+        // At 24 km/s the band of ring 7 is ±10.8 km: 2 km off the centre is Perfect (d 0.19). At rest it is ±6.4 km:
+        // 5.5 km off is Good (d 0.86).
+        XCTAssertEqual(Rings.release(at: 202, speed: 24, guidance: 0).rating, .perfect)
+        XCTAssertEqual(Rings.release(at: 205.5, speed: 0, guidance: 0).rating, .good)
+    }
+
+    func testTwoDropTapsInOneTickDropOneStage() {
+        var sim = FlightSim(rocket: RocketConfig(levels: .mid))
+        sim.send(.ignite)
+        sim.step()
+        sim.send(.dropStage)
+        sim.send(.dropStage)
+        sim.step()
+        XCTAssertEqual(sim.stageIndex, 1, "A touch bounce must not throw away the freshly lit stage")
+        XCTAssertEqual(sim.drops.count, 1)
+        sim.send(.dropStage)
+        sim.step()
+        XCTAssertEqual(sim.stageIndex, 2, "A tap in the next tick drops again")
     }
 
     func testLastStageRefusesTheDrop() {
@@ -124,6 +152,8 @@ final class FlightSimTests: XCTestCase {
         sim.runToEnd()
         XCTAssertEqual(sim.phase, .ended)
         XCTAssertEqual(sim.stageIndex, 0)
+        XCTAssertEqual(sim.result.unusedStages, 1, "The upper stage was never used")
+        XCTAssertEqual(Autopilot.fly(starter).result.unusedStages, 0)
     }
 
     func testReleasingLightensTheRocket() {
