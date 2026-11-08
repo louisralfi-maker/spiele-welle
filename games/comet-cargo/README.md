@@ -15,10 +15,15 @@ ring. Higher rings pay more; satellites still aboard when the rocket stalls are 
 - Bundle id: `com.louisherwick.cometcargo` (not registered yet)
 - AdMob (created 08.11.2026, Louis' go): app `ca-app-pub-4855617456569312~2107555400`; interstitial
   `ca-app-pub-4855617456569312/2243286779`; rewarded ("Double it") `ca-app-pub-4855617456569312/4813609790`.
-  The EU consent message (Privacy & messaging, European regulations) is not created yet: it needs the privacy policy
-  URL first. Before asking Louis for the go: publish the privacy page, create and publish that message for the app,
-  then run one runner round with `-GWConsentEEA YES` and without `-GWNoAds` (debug build) to see the form come up and
-  the tracking question follow it.
+  The EU consent message "Comet Cargo iOS EU Consent" (Privacy & messaging → European regulations) was published on
+  08.11.2026 with Louis' go and is set up like Piston Empire's:
+  - languages: English, plus de, fr, es, it, pt-PT, ja and zh-CN. AdMob offers pt-PT, not pt-BR; the message only
+    shows in the EEA, the UK and Switzerland;
+  - "Do not consent" is on in every country, "Close" is off;
+  - the privacy policy URL is the one below.
+
+  Before asking Louis for the submission go, run one runner round with `-GWConsentEEA YES` and without `-GWNoAds`
+  (debug build) to see the form come up and the tracking question follow it.
 - Privacy policy URL: `https://louisralfi-maker.github.io/spiele-welle/comet-cargo/privacy.html`
   (`AdConfig.privacyPolicyURL`, linked from Settings → "Privacy policy"; the same URL goes into App Store Connect).
   Support and marketing URL: `https://louisralfi-maker.github.io/spiele-welle/comet-cargo/`. Both pages are live since
