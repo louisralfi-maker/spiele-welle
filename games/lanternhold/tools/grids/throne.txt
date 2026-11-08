@@ -1,0 +1,34 @@
+# throne 14x24, hand-set (started from the Recraft throne of s5-hall-1 run through the pipeline)
+k = ink
+w = woodDark
+o = wood
+L = woodLight
+g = gold
+t = banner
+T = roofLight
+D = roofDeep
+---
+..g........g..
+..k........k..
+..k.kkkkkk.k..
+..kkoLLLLokk..
+..kwoLggLowk..
+..kowkkkkwok..
+..kogDDDDgok..
+..kogtTTtgok..
+..kogtTttgok..
+..kogtTttgok..
+..kogtTttgok..
+..kogttttgok..
+..kogttttgok..
+..kogDttDgok..
+.kLokDttDkoLk.
+kLLLkDttDkLLLk
+kwwgTTTTTTgwwk
+kowgttttttgwok
+kowggggggggwok
+kowoooooooowok
+kowwLwwwwLwwok
+kowoooooooowok
+kowkkkkkkkkwok
+kwk........kwk

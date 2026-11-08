@@ -1,0 +1,32 @@
+# hearth 26x20, hand-set: stone fireplace; the firebox is x 5-20, rows 7-16 (the hearthFire sprite at dx 5, dy 3)
+a = night0
+k = ink
+n = night1
+d = stoneDark
+m = stoneMid
+s = stone
+l = stoneLight
+p = stonePale
+w = woodDark
+o = wood
+---
+aaaaaaaaaaaaaaaaaaaaaaaaaa
+appppppppppppppppppppppppa
+alllllllllllllllllllllllsa
+aaddddddddddddddddddddddaa
+.alllslllllllslllllllslla.
+.asssdsssssssdsssssssdssa.
+.addddddddddddddddddddmda.
+.allskkkkkkkkkkkkkkkklsda.
+.alssnnnnnnnnnnnnnnnnssda.
+.amddnnnknnnnnnknnnnnmdda.
+.allsnnnnnnnnnnnnnnnnlsda.
+.alssnknnnnnnknnnnnnkssda.
+.amddnnnnnnnnnnnnnnnnmdda.
+.allsnnnnnnnnnnnnnnnnlsda.
+.alssnnnnwoooooowwnnnssda.
+.amddnnnwooowooooooonmdda.
+.allsnnkwwwwwwwwwwwkklsda.
+appppppppppppppppppppppppa
+allllsllllllllsllllllllsla
+adddddddddddddddddddddddda
