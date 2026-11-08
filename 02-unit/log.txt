@@ -1,0 +1,12 @@
+2026-11-08 22:53:07.681427+0000 Lanternhold[20010:58848] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.MetalProbeTests testAppContextComesUpWithEveryShader]' passed (0.040 seconds).
+Test Case '-[LanternholdTests.MetalProbeTests testDeviceExistsAndReportsItsFamilies]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.MetalProbeTests testShaderStructStridesMatchTheMetalSide]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.OffscreenRenderTests testAdditiveLightsAddUp]' passed (0.034 seconds).
+Test Case '-[LanternholdTests.OffscreenRenderTests testClearColourReadsBack]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.OffscreenRenderTests testNearestQuadMakesExactBlocks]' passed (0.044 seconds).
+Test Case '-[LanternholdTests.ResolutionTests testChunkyChoiceAndOverride]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ResolutionTests testDeviceTable]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ResolutionTests testEitherOrientationGivesTheSameScale]' passed (0.002 seconds).
+exit=0
+screenshots: 0

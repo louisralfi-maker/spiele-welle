@@ -1,0 +1,4 @@
+Test Case '-[LanternholdUITests.ProbeUITests testPixelGrid135]' passed (20.348 seconds).
+Test Case '-[LanternholdUITests.ProbeUITests testPixelGrid180]' passed (9.837 seconds).
+exit=0
+screenshots: 2
