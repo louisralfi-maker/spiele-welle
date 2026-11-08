@@ -59,9 +59,10 @@ struct PlaneOffset: Sendable, Equatable {
 /// `x` is the world x at the left edge of the screen (the scroll position), clamped so the view stays inside the
 /// world 0 ... 3800. `focusX` is the screen centre, where the king stands (`-GWCameraX` sets the focus).
 ///
-/// Following uses a critically damped spring with the king's velocity fed forward: while the king walks at a steady
-/// speed the camera moves exactly with him (no lag, so he stays steady on screen); only when he starts or stops does
-/// he drift a little off centre and the camera eases back. Reduce Motion: no lag, the camera sits on the king.
+/// Following uses a critically damped spring with the king's velocity fed forward. The spring aims at where the king
+/// will be after the camera's own move (`goal - velocity * dt`), so while he walks at a steady speed the camera ends
+/// each step centred on him (no lag and no lead, so he stays steady on screen); only when he starts or stops does he
+/// drift a little off centre and the camera eases back. Reduce Motion: no lag, the camera sits on the king.
 struct Camera: Sendable, Equatable {
     /// Spring stiffness of the follow (rad/s): settles in about a second.
     static let followOmega = 6.0
@@ -118,7 +119,7 @@ struct Camera: Sendable, Equatable {
         }
         let feedVelocity = pinned ? 0 : targetVelocity
         let omega = Camera.followOmega
-        let spring = omega * omega * (goal - x)
+        let spring = omega * omega * (goal - x - feedVelocity * dt)
         let damping = 2 * omega * (feedVelocity - velocity)
         velocity += (spring + damping) * dt
         x += velocity * dt

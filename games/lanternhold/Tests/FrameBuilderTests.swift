@@ -219,4 +219,21 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertTrue(night.layer(.world).sprites.contains { $0.sprite == .darknessEdge })
         XCTAssertTrue(night.layer(.world).sprites.contains { $0.sprite == .darknessBank })
     }
+
+    func testKingWalkCycleRunsForwardInBothDirections() {
+        for direction in [1, -1] {
+            var previous: Int?
+            for i in 0..<12 {
+                let x = 1000 + Double(direction) * (7 * Double(i) + 3.5)
+                let king = KingState(x: x, facing: direction, velocity: Double(direction) * KingState.walkSpeed)
+                let frame = FrameBuilder.kingFrameIndex(king: king, animTime: 0)
+                XCTAssertTrue((2...5).contains(frame), "walk frame \(frame) at x \(x)")
+                if let previous {
+                    XCTAssertEqual(frame, 2 + (previous - 2 + 1) % 4,
+                                   "facing \(direction): frame advances by one every 7 px at x \(x)")
+                }
+                previous = frame
+            }
+        }
+    }
 }

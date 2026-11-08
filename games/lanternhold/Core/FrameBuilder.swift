@@ -426,10 +426,11 @@ enum FrameBuilder {
     }
 
     /// The king's frame: idle 0 ... 1 standing, walk 2 ... 5 by distance (one frame per 7 game px), so his feet
-    /// match the ground at any speed.
+    /// match the ground at any speed. The distance is measured along his facing, so the mirrored sprite walking left
+    /// plays the cycle forward too (no moonwalk).
     static func kingFrameIndex(king: KingState, animTime: Double) -> Int {
         guard king.isWalking else { return idleFrame(time: animTime, frames: 2) }
-        let walkStep = Int((king.x / 7).rounded(.down))
+        let walkStep = Int((king.x * Double(king.facing) / 7).rounded(.down))
         return 2 + ((walkStep % 4) + 4) % 4
     }
 
