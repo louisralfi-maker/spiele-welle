@@ -141,7 +141,8 @@ final class AdManager: NSObject, FullScreenContentDelegate {
             return false
         }
         var scene = moment
-        scene.overlayShowing = scene.overlayShowing || Self.rootViewController()?.presentedViewController != nil
+        let presented = Self.rootViewController()?.presentedViewController != nil
+        if presented { scene.overlayShowing = true }
         let now = Self.now
         guard pacing.allowsInterstitial(at: now, moment: scene), let root = Self.topViewController() else {
             Self.debugLog("interstitial held back by the pacing (\(scene))")

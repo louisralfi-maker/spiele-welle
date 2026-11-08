@@ -265,6 +265,37 @@ new speed. Hints are off with `-GWAutoplay YES` and with `-GWSkipOnboarding YES`
   stage drop and at least one delivery row. `testResultsRingBurst` (`-GWScreen results`, the sample with a new best and
   a completed ring): shot `12-results-ring` 2.5 s in, while the gold burst plays.
 
+## Ads (version 0.4)
+
+Ads only, no purchases. The code is Piston Empire's proven ad code (`Ads/`), the same packages and versions
+(GoogleMobileAds from 13.11.0, GoogleUserMessagingPlatform from 3.1.0, pinned in `Package.resolved`).
+
+- **Ids:** AdMob app id in the build setting `GAD_APPLICATION_IDENTIFIER` (project.yml, read by
+  `Resources/LaunchInfo.plist`, which also carries Google's SKAdNetwork list). Unit ids in `Ads/AdConfig.swift`. Debug
+  builds always use Google's test units; release builds run ads only with the real ids.
+- **Launch:** `AdConsent.runOnce()` from the first screen's task: Google's consent form (UMP, EEA and UK only), then
+  Apple's tracking question (only if never answered), then the SDK starts (`maxAdContentRating = .general`) and preloads
+  one rewarded and one interstitial ad (retries 4 s … 5 min after a failure). Nothing waits for it: the hangar is usable
+  at once. A flight in progress pauses on its own while the tracking question is up (the app is inactive).
+- **Rewarded, "Double it":** the one rewarded offer. On the flight report, above Collect, armed with Collect (0.6 s),
+  only for a booked flight that earned coins, once per flight, only while an ad is loaded. The coins are added only in
+  the SDK's reward callback (`GameModel.grantDouble`), and the save is written at once; once the ad has closed the total
+  rolls on from the number on screen to twice the flight's coins, a "×2" tag shows by "Total" and a coin sound plays. The
+  first tap uses the offer up: an ad that fails or is closed early changes nothing and the button is gone.
+- **Interstitial:** only when the player taps Collect on the flight report (`AdPacing`, pure rules over a monotonic clock):
+  none before 3 minutes of play in the session (foreground time), none in the player's first three flights ever (the
+  4th report is the first that may), then at most one every 210 s, none while a first-flight hint is still taught, none
+  over a sheet, none within 60 s after a rewarded ad closed.
+- **Settings:** "Privacy choices" (`settings-privacy`) shows when UMP says privacy options are required; it opens Google's
+  privacy options form.
+- **Privacy:** `Resources/PrivacyInfo.xcprivacy` as Piston Empire: `NSPrivacyTracking` false, no tracking domains, no
+  collected data of our own (Google's SDKs ship their own manifests); reasons for UserDefaults (CA92.1) and the system
+  boot time (35F9.1, the pacing clock). `NSUserTrackingUsageDescription` in all 8 languages in
+  `Resources/InfoPlist.xcstrings`.
+- **Tests:** `AdPacingTests` (every pacing rule with the clock and counters injected; Double it in the model: offered
+  only after a paid flight, doubles once, saves, Collect ends it, no ad no reward). UI: every test passes `-GWNoAds YES`
+  except `testDoubleReward`, which uses `-GWFakeAds YES`.
+
 ## Code layout (`games/comet-cargo/`)
 
 - `project.yml`: name `CometCargo`, portrait only, iPhone only, iOS 17. Pattern: `games/hello/project.yml`.
@@ -276,6 +307,8 @@ new speed. Hints are off with `-GWAutoplay YES` and with `-GWSkipOnboarding YES`
 - `UI/`: `HangarView.swift`, `NetworkView.swift`, `FlightView.swift`, `FlightScene.swift` (Canvas drawing),
   `ResultsView.swift`, `SettingsView.swift`, `Palette.swift`, `Components.swift`.
 - `Audio/Feedback.swift`.
+- `Ads/`: `AdConfig.swift` (ids, `AdPolicy`), `AdConsent.swift` (UMP form, tracking question), `AdManager.swift` (SDK,
+  rewarded, interstitial), `AdPacing.swift` (the interstitial's rules).
 - `Resources/Localizable.xcstrings`: English source plus German for 0.1; the other six languages come in step 8. Every UI
   string is English in code (`Text("Launch")`, `String(localized:)`).
 - `Tests/`: `FlightSimTests`, `TuningTests`, `EconomyTests`, `SaveGameTests`.
@@ -294,13 +327,17 @@ read its state. Rendering never mutates state.
 | `-GWUpgrades mid` / `max` | set upgrade levels (mid = engines 5, tanks 5, 4 stages, 4 satellites, guidance 2) |
 | `-GWNetwork demo` | fill the rings with sample deliveries and a best apex of 420 km |
 | `-GWScreen results` | open the results screen with a fixed sample flight |
+| `-GWNoAds YES` | no ads at all: no SDK start, no consent form, no tracking question (every UI test but one) |
+| `-GWFakeAds YES` | debug builds: no SDK; a rewarded ad is always loaded and grants at once (tests, screenshots) |
+| `-GWAdsNoFill YES` | debug builds: every ad load fails, as offline |
+| `-GWConsentEEA YES` | debug builds: the consent form as a player in the EU sees it |
 
 ## Accessibility identifiers
 
 `hangar-launch`, `hangar-coins`, `hangar-best`, `upgrade-<track>-buy` (tracks: engines, tanks, stages, cargo, guidance),
 `settings-open`, `flight-root`, `flight-scene`, `flight-release`, `flight-pause`, `flight-altitude`, `pause-title`,
 `pause-resume`, `pause-abort`, `results-root`, `results-total`, `results-collect`, `results-delivery`, `results-lost`,
-`results-drop`, `results-unused`, `results-network`. Every button has a VoiceOver label.
+`results-drop`, `results-unused`, `results-network`, `results-double`, `settings-privacy`. Every button has a VoiceOver label.
 
 ## UI smoke test (`UITests/FlightUITests.swift`)
 
@@ -316,10 +353,14 @@ Screenshots are `XCTAttachment(screenshot:)` with `lifetime = .keepAlways`, name
    tap `flight-release`, tap the screen (drop), shot `07-manual`; pause (the altitude stands still), resume; wait for the
    results, shot `08-manual-results`; exactly one `results-drop` and at least one `results-delivery`.
 4. `testFirstFlightHints` and `testResultsRingBurst`: see "Feel", "Tests" (shots 09 to 12).
-5. `testFilmstrip` (English only): `-GWReset YES -GWUpgrades mid -GWAutoplay YES`; a screenshot about every 1.2 s from
+5. `testDoubleReward`: `-GWReset YES -GWAutoplay YES -GWFakeAds YES -GWSkipOnboarding YES`; fly; tap `results-double`;
+   the total (digits of `results-total`'s label) doubles and the button goes away; shot `13-double`; Collect; the
+   hangar's coins equal the doubled total.
+6. `testFilmstrip` (English only, skipped when `GW_LANG` is not `en`): `-GWReset YES -GWUpgrades mid -GWAutoplay YES`; a screenshot about every 1.2 s from
    launch to the results, named `film-<nn>`, for the fun check.
 
 ## Later steps (not in 0.1)
 
-Recraft art and app icon, synthesized sounds, onboarding hand, ads (rewarded "Double it" on the results, "Free booster"
-in the hangar; interstitial after results, paced), the other six languages, a date-seeded daily launch, store assets.
+Recraft art and app icon, synthesized sounds, onboarding hand, ads (done in 0.4: "Double it" and the paced
+interstitial; Louis decided against a "Free booster"), the other six languages, a date-seeded daily launch, store
+assets.
