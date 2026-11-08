@@ -25,5 +25,5 @@ ring. Higher rings pay more; satellites still aboard when the rocket stalls are 
 - Ads (Louis, 08.11.2026): interstitials rarely (not in the first 3 minutes of play, then at most every 3 to 4
   minutes, only after the flight report); one rewarded offer: double the flight's coins, once per flight. No booster.
 - Store texts: `store/metadata.json`. Keywords stay within 100 UTF-8 bytes in every language (App Store Connect may count
-  bytes: ja 92, zh-Hans 97) and repeat no word of the name or subtitle.
+  bytes: ja 92, zh-Hans 97); the English ones repeat no word of the name or subtitle (both are indexed already).
 - Runner: `scripts/ci/remote-check.sh comet-cargo <label> ci-out/<label> build unit ui ui-de release`
