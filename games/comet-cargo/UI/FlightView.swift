@@ -128,10 +128,6 @@ struct FlightHUD: View {
                 VStack(spacing: 0) {
                     topBar(sim)
                     Spacer(minLength: 0)
-                    if sim.phase == .pad && !driver.autoplay {
-                        launchPrompt(clock)
-                            .padding(.bottom, geo.size.height * 0.12)
-                    }
                     HStack {
                         Spacer()
                         releaseButton(sim, clock: clock)
@@ -159,9 +155,19 @@ struct FlightHUD: View {
                     Spacer()
                 }
                 .allowsHitTesting(false)
+                // "Tap to launch" in the empty sky above the rocket (the nose stands at about 0.55 h), never over the
+                // rocket. The fixed width (65 pt clear on each side) keeps a long translation off the gauge and the
+                // edge; the capsule hugs its text and stays centred.
+                if sim.phase == .pad && !driver.autoplay {
+                    launchPrompt(clock)
+                        .frame(width: max(120, geo.size.width - 130))
+                        .position(x: geo.size.width / 2, y: geo.size.height * 0.36)
+                        .allowsHitTesting(false)
+                }
                 if driver.hint == .drop {
+                    // Centred left of 0.72 w on narrow phones, so the pulsing bubble keeps clear of the right edge.
                     DropHint(clock: clock, reduceMotion: reduceMotion)
-                        .position(x: geo.size.width * 0.72, y: geo.size.height * 0.46)
+                        .position(x: min(geo.size.width * 0.68, geo.size.width - 112), y: geo.size.height * 0.46)
                 }
             }
         }
@@ -221,6 +227,9 @@ struct FlightHUD: View {
     }
 }
 
+/// "Tap to launch" on a paper capsule. The capsule hugs its text; within a narrower proposal (the HUD gives it the width
+/// between the gauge and the right edge) a long translation shrinks to as little as 60 % on one line instead of
+/// reaching the gauge or the edge.
 struct TapToLaunch: View {
     let opacity: Double
 
@@ -228,6 +237,8 @@ struct TapToLaunch: View {
         Text("Tap to launch")
             .font(.rounded(28, .black))
             .foregroundStyle(Palette.ink)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
             .padding(.horizontal, 22)
             .padding(.vertical, 12)
             .background(Capsule().fill(Palette.paper.opacity(0.85)))
