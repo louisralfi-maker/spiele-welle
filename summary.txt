@@ -1,0 +1,13 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: hello
+tested: 02418f7
+source: claude/sharp-kalam-dc0c30
+16:02:21 build starts (Hello)
+simulator: 98A0BFA3-CEC3-4FD6-9916-5A2149774DBF (iPhone 17 Pro, iOS 26.5)
+16:09:05 PASS build
+16:10:13 PASS unit HelloTests
+16:11:08 PASS ui HelloUITests
+16:12:07 PASS ui-de HelloUITests
+16:12:34 PASS release
+ALL PASSED

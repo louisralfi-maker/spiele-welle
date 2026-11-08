@@ -1,0 +1,4 @@
+Test Case '-[HelloTests.CounterTests testEachTapAddsOne]' passed (0.002 seconds).
+Test Case '-[HelloTests.CounterTests testSurvivesASaveRoundTrip]' passed (0.005 seconds).
+exit=0
+screenshots: 0

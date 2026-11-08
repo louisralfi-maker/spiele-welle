@@ -1,0 +1,3 @@
+Test Case '-[HelloUITests.HelloUITests testThreeTapsCount]' passed (25.438 seconds).
+exit=0
+screenshots: 1
