@@ -48,7 +48,9 @@ enum NetworkDrawing {
     static func draw(_ context: GraphicsContext, size: CGSize, deliveries: [Int], bestApex: Double, time: Double) {
         let center = CGPoint(x: size.width / 2, y: size.height / 2)
         let outer = min(size.width, size.height) / 2 - 8
-        let planet = outer * 0.17
+        let painted = ArtAsset.image(ArtName.planet)
+        // The painted planet is drawn a little bigger than the procedural disc, so its bands read in the card.
+        let planet = outer * (painted == nil ? 0.17 : 0.21)
         let next = nextRing(bestApex: bestApex)
         // Soft stars behind.
         for index in 0..<46 {
@@ -97,6 +99,10 @@ enum NetworkDrawing {
         // The planet.
         let disc = CGRect(x: center.x - planet, y: center.y - planet, width: planet * 2, height: planet * 2)
         context.fill(Path(ellipseIn: disc.insetBy(dx: -5, dy: -5)), with: .color(Palette.skyTeal.opacity(0.25)))
+        if let painted {
+            drawPaintedPlanet(context, art: painted, disc: disc)
+            return
+        }
         context.fill(Path(ellipseIn: disc), with: .linearGradient(
             Gradient(colors: [Palette.skyTeal, Palette.groundRGB.color]),
             startPoint: CGPoint(x: disc.minX, y: disc.minY), endPoint: CGPoint(x: disc.maxX, y: disc.maxY)))
@@ -110,5 +116,12 @@ enum NetworkDrawing {
             bands.stroke(band, with: .color(Palette.cream.opacity(0.45)), lineWidth: 3)
         }
         context.stroke(Path(ellipseIn: disc), with: .color(Palette.paper.opacity(0.6)), lineWidth: 1.5)
+    }
+
+    /// The painted planet (ART.md): its disc fills 92.6 % of the square picture, the rest is its soft atmosphere rim, so
+    /// the picture is drawn a little larger than the disc to put the painted limb on the disc's edge.
+    static func drawPaintedPlanet(_ context: GraphicsContext, art: Image, disc: CGRect) {
+        let grow = disc.width * (1 / 0.926 - 1) / 2
+        context.draw(art, in: disc.insetBy(dx: -grow, dy: -grow))
     }
 }

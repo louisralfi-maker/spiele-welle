@@ -162,6 +162,18 @@ enum FlightScene {
         let shading = GraphicsContext.Shading.linearGradient(
             Gradient(stops: stops), startPoint: CGPoint(x: 0, y: 0), endPoint: CGPoint(x: 0, y: h))
         ctx.fill(Path(rect), with: shading)
+        drawPaperGrain(ctx, rect: rect)
+    }
+
+    /// The painted poster paper over the sky: a grey tile (mean 50 % grey) in overlay mode, so it adds grain to the cream
+    /// sky and to deep space alike without shifting their colour. Fixed to the screen like the paper of a print, so it adds
+    /// no motion. Without the file the sky stays plain (the procedural PaperGrain overlay still sits above the scene).
+    static func drawPaperGrain(_ ctx: GraphicsContext, rect: CGRect) {
+        guard let tile = ArtAsset.image(ArtName.paper, scale: 2) else { return }
+        var grain = ctx
+        grain.blendMode = .overlay
+        grain.opacity = 0.6
+        grain.fill(Path(rect), with: .tiledImage(tile))
     }
 
     static func drawStars(_ ctx: GraphicsContext, camera: SceneCamera, state: SceneState) {
@@ -212,6 +224,7 @@ enum FlightScene {
                 ctx.stroke(Path(ellipseIn: halo), with: .color(Palette.skyTeal.opacity(glowAlpha / Double(ring))), lineWidth: 6)
             }
         }
+        drawLaunchSite(ctx, groundY: groundY, width: w, height: h, altitude: state.altitude)
         let surface = GraphicsContext.Shading.linearGradient(
             Gradient(colors: [Palette.skyTealRGB.mix(Palette.groundRGB, 0.5).color, Palette.groundRGB.color, Palette.navyRGB.mix(Palette.groundRGB, 0.5).color]),
             startPoint: CGPoint(x: 0, y: horizonY), endPoint: CGPoint(x: 0, y: horizonY + min(radius, h)))
@@ -255,6 +268,20 @@ enum FlightScene {
         }
     }
 
+    /// The painted launch site: low mesas, a tiny distant tower and fuel tanks, standing on the ground line behind the pad.
+    /// It is fixed to the ground, so it scrolls away with it as the rocket climbs, and it fades out over the first 8 km.
+    /// Drawn before the ground disc, which covers its bottom edge. Without the file nothing is drawn.
+    static func drawLaunchSite(_ ctx: GraphicsContext, groundY: CGFloat, width: CGFloat, height: CGFloat, altitude: Double) {
+        let fade = 1 - altitude / 8
+        guard fade > 0, let art = ArtAsset.image(ArtName.launchSite) else { return }
+        let artHeight = width / ArtAsset.aspect(ArtName.launchSite)
+        let rect = CGRect(x: 0, y: groundY - artHeight + 3, width: width, height: artHeight)
+        guard rect.minY < height else { return }
+        var layer = ctx
+        layer.opacity = 0.92 * fade
+        layer.draw(art, in: rect)
+    }
+
     static func drawClouds(_ ctx: GraphicsContext, camera: SceneCamera, state: SceneState) {
         let w = camera.size.width
         let h = camera.size.height
@@ -265,15 +292,33 @@ enum FlightScene {
             let scale = CGFloat(0.7 + 0.6 * fraction(Double(index) * 0.371))
             let cw = 90 * scale
             guard y > -60, y < h + 60 else { continue }
-            let span = w + cw * 2
+            // Wrap off screen on both sides, with room for the wider painted clouds, so none pops in at an edge.
+            let margin = cw * 1.3
+            let span = w + margin * 2
             let base = CGFloat(fraction(Double(index) * 0.7548777)) * span
             let speed = CGFloat(0.5 + fraction(Double(index) * 0.29))
-            let x = (base + drift * speed).truncatingRemainder(dividingBy: span) - cw
+            let x = (base + drift * speed).truncatingRemainder(dividingBy: span) - margin
             let near = fraction(Double(index) * 0.53) > 0.5
+            if let art = ArtAsset.image(ArtName.cloud(index)) {
+                drawPaintedCloud(ctx, art: art, name: ArtName.cloud(index), at: CGPoint(x: x, y: y), width: cw, near: near)
+                continue
+            }
             let tint = near ? Palette.paper : Palette.cream
             let alpha = near ? 0.92 : 0.7
             drawCloud(ctx, at: CGPoint(x: x, y: y), width: cw, color: tint.opacity(alpha))
         }
+    }
+
+    /// A painted poster cloud in the slot of a procedural one: a little wider, its flat base on the same line
+    /// (`point.y` plus the procedural body height), far clouds paler.
+    static func drawPaintedCloud(_ ctx: GraphicsContext, art: Image, name: String, at point: CGPoint, width: CGFloat, near: Bool) {
+        let paintedWidth = width * 1.25
+        let paintedHeight = paintedWidth / ArtAsset.aspect(name)
+        let base = point.y + width * 0.32
+        let rect = CGRect(x: point.x - width * 0.12, y: base - paintedHeight, width: paintedWidth, height: paintedHeight)
+        var layer = ctx
+        layer.opacity = near ? 1 : 0.72
+        layer.draw(art, in: rect)
     }
 
     static func drawCloud(_ ctx: GraphicsContext, at point: CGPoint, width: CGFloat, color: Color) {
@@ -320,7 +365,7 @@ enum FlightScene {
                 let speed = 0.012 + 0.006 * Double(index)
                 let moving = state.reduceMotion ? 0 : state.clock * speed
                 let x = CGFloat(fraction(seed + moving)) * w
-                SatelliteShape.draw(in: layer, at: CGPoint(x: x, y: y), size: 18)
+                drawSatellite(layer, at: CGPoint(x: x, y: y), size: 18, variant: ring)
             }
         }
     }
@@ -770,7 +815,7 @@ enum FlightScene {
             let eased = CGFloat(1 - pow(1 - t, 3))
             let x = cx + s * (16 + 70 * eased)
             let y = startY - 14 * CGFloat(sin(t * Double.pi))
-            SatelliteShape.draw(in: ctx, at: CGPoint(x: x, y: y), size: 26, unfold: t)
+            drawSatellite(ctx, at: CGPoint(x: x, y: y), size: 26, variant: ring ?? effect.id, unfold: t)
             return
         }
         let popX = cx + s * 86
@@ -782,7 +827,7 @@ enum FlightScene {
             let x = popX + s * 30 * CGFloat(eased)
             let y = camera.y(alt)
             guard y > -30, y < camera.size.height + 30 else { return }
-            SatelliteShape.draw(in: ctx, at: CGPoint(x: x, y: y), size: 26 - 8 * CGFloat(eased))
+            drawSatellite(ctx, at: CGPoint(x: x, y: y), size: 26 - 8 * CGFloat(eased), variant: ring)
         } else {
             let t = age - popTime
             guard t < 3 else { return }
@@ -791,8 +836,31 @@ enum FlightScene {
             var dimmed = ctx
             dimmed.opacity = max(0, 1 - t / 3)
             let angle = state.reduceMotion ? 0 : t * 4 * side
-            SatelliteShape.draw(in: dimmed, at: CGPoint(x: x, y: y), size: 22, dim: true, angle: angle)
+            drawSatellite(dimmed, at: CGPoint(x: x, y: y), size: 22, variant: effect.id, dim: true, angle: angle)
         }
+    }
+
+    /// A satellite: the painted one when its file is there, else the procedural SatelliteShape. `center` is the body's
+    /// centre and `size` the procedural size (the painted one is drawn as wide as the procedural one with open panels,
+    /// 1.36 × size). While it unfolds, the painted panels open by widening the picture from 35 % to full width.
+    static func drawSatellite(_ ctx: GraphicsContext, at center: CGPoint, size: CGFloat, variant: Int, unfold: Double = 1,
+                              dim: Bool = false, angle: Double = 0) {
+        let name = ArtName.satellite(variant)
+        guard let art = ArtAsset.image(name) else {
+            SatelliteShape.draw(in: ctx, at: center, size: size, unfold: unfold, dim: dim, angle: angle)
+            return
+        }
+        let width = size * 1.36
+        let height = width / ArtAsset.aspect(name)
+        let open = CGFloat(min(1, max(0, unfold)))
+        var piece = ctx
+        piece.translateBy(x: center.x, y: center.y)
+        piece.rotate(by: .radians(angle))
+        piece.scaleBy(x: 0.35 + 0.65 * open, y: 1)
+        if dim { piece.opacity = 0.45 }
+        // The antenna takes the top of the picture: the body's centre sits at about 60 % of its height.
+        let rect = CGRect(x: -width / 2, y: -height * 0.6, width: width, height: height)
+        piece.draw(art, in: rect)
     }
 
     /// The fractional part, for cheap seeded scatter.
