@@ -1,0 +1,36 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Hello, wave!" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hallo, Welle!"
+          }
+        }
+      }
+    },
+    "Tap me" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipp mich an"
+          }
+        }
+      }
+    },
+    "Taps: %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipper: %lld"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

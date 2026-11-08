@@ -1,0 +1,27 @@
+# Builds and tests one game on GitHub's Mac runner, so this old Mac never compiles. scripts/ci/remote-check.sh starts it by
+# pushing a wrapper commit to ci/<label>; the game and the steps are in that commit's message. Results go to the branch
+# ci-results/<label>.
+name: Sim check
+on:
+  push:
+    branches: ['ci/**']
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: macos-26
+    timeout-minutes: 120
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+      HOMEBREW_NO_ENV_HINTS: 1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Run the steps
+        run: scripts/ci/run-check.sh
+      - name: Publish the results
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: scripts/ci/publish-results.sh
