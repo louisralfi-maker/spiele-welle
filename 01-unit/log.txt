@@ -1,0 +1,91 @@
+IOSurfaceClientSetSurfaceNotify failed e00002c7
+2026-11-08 20:40:30.356261+0000 CometCargo[12479:39852] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-08 20:40:30.957558+0000 CometCargo[12479:39852] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-08 20:40:31.336981+0000 CometCargo[12479:40179] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-08 20:40:31.337024+0000 CometCargo[12479:40190] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-08 20:40:31.337643+0000 CometCargo[12479:40190] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-08 20:40:31.337921+0000 CometCargo[12479:40179] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-08 20:40:31.350868+0000 CometCargo[12479:40179] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-08 20:40:31.632983+0000 CometCargo[12479:40179] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[CometCargoTests.AdPacingTests testAdTimeIsNotPlay]' passed (0.005 seconds).
+Test Case '-[CometCargoTests.AdPacingTests testAtMostEvery210Seconds]' passed (0.003 seconds).
+Test Case '-[CometCargoTests.AdPacingTests testBackgroundTimeIsNotPlay]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.AdPacingTests testBecomingActiveTwiceDoesNotRestartTheClock]' passed (0.003 seconds).
+Test Case '-[CometCargoTests.AdPacingTests testCollectingEveryMinuteShowsOneEveryFourMinutes]' passed (0.004 seconds).
+Test Case '-[CometCargoTests.AdPacingTests testConstantsMatchLouisDecisions]' passed (0.003 seconds).
+Test Case '-[CometCargoTests.AdPacingTests testNeverDuringTheHints]' passed (0.003 seconds).
+Test Case '-[CometCargoTests.AdPacingTests testNeverInTheFirstThreeFlightsEver]' passed (0.003 seconds).
+Test Case '-[CometCargoTests.AdPacingTests testNeverOnAReportWithARewardedAd]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.AdPacingTests testNeverOverASheet]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.AdPacingTests testNoneInTheFirstThreeMinutesOfPlay]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.AdPacingTests testNotRightAfterARewardedAd]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.DoubleRewardTests testCollectEndsTheOffer]' passed (0.090 seconds).
+Test Case '-[CometCargoTests.DoubleRewardTests testNoAdNoOfferInTests]' passed (0.016 seconds).
+Test Case '-[CometCargoTests.DoubleRewardTests testOfferedAfterAPaidFlightOnly]' passed (0.005 seconds).
+Test Case '-[CometCargoTests.DoubleRewardTests testRewardDoublesCoinsOnceAndSaves]' passed (0.029 seconds).
+Test Case '-[CometCargoTests.DoubleRewardTests testRollingOnFromTheShownTotal]' passed (0.004 seconds).
+Test Case '-[CometCargoTests.EconomyTests testAFullFlightPaysForItsDeliveries]' passed (0.008 seconds).
+Test Case '-[CometCargoTests.EconomyTests testBasePayRunsFrom5To271]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.EconomyTests testBuyingNeedsCoinsAndStopsAtTheTop]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.EconomyTests testDeliveryPayByRating]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.EconomyTests testFifthDeliveryCompletesTheRingOnce]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.EconomyTests testPrices]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.EconomyTests testSettlementListsRingProgressAndTheNextUpgrade]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.EconomyTests testSettleTracksBestAndLostSatellites]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FeelTests testEveryCueIsShortFiniteAndAtItsPeak]' passed (0.531 seconds).
+Test Case '-[CometCargoTests.FeelTests testEveryMomentHasItsSoundAndVibration]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FeelTests testEveryVibrationIsAValidPattern]' passed (0.005 seconds).
+Test Case '-[CometCargoTests.FeelTests testPopupsNeverStartOnTopOfEachOther]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FeelTests testSynthesisIsDeterministic]' passed (1.015 seconds).
+Test Case '-[CometCargoTests.FeelTests testTheHintHandTapsAndRestsUnderReduceMotion]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FeelTests testTheResultBeatsDoNotPileUp]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FeelTests testTheShakeIsTinyShortAndNeverShowsTheEdge]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FeelTests testTheTotalEasesToItsValue]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testAFlightIsSettledExactlyOnce]' passed (0.047 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testAMissedDropHintLeavesAfterTheGraceAndStaysPending]' passed (0.012 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testCoastingWithoutCargoRunsFaster]' passed (0.013 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testDropHintRunsInSlowMotionFromTheExactTick]' passed (0.003 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testFinishNowSettlesDuringTheApexHold]' passed (0.009 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testLaunchHintShowsOnThePadAndIsLearnedAtIgnition]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testPauseFreezesTheFlightAndIgnoresTaps]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testReleaseHintSlowsAtTheFirstRingAndADeliveryTeachesIt]' passed (0.005 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testTapsReachTheSimAndTheReleaseNeverDrops]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightDriverTests testTheAutopilotNeverShowsHints]' passed (0.009 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testApexEndsTheFlightAndLosesCargo]' passed (0.003 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testAutopilotDeliversPerfectlyIntoItsTargets]' passed (0.026 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testBandsDoNotOverlap]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testBurnoutLeavesASpentStage]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testDropRatingsByFuelLeft]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testFastBandsSpanAFixedTime]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testInputsApplyAtTheNextTick]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testLastStageRefusesTheDrop]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testMoreStagesAndLevelsGoHigher]' passed (0.030 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testNeverDroppingStillEnds]' passed (0.007 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testPadWaitsForIgnition]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testPerfectDropKicksAndIgnitesTheNextStage]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testReleaseRatingsByDistance]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testReleasingLightensTheRocket]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testSameInputsGiveTheSameFlight]' passed (0.004 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testStarterAutopilotAimsForTheTwoHighestRings]' passed (0.008 seconds).
+Test Case '-[CometCargoTests.FlightSimTests testTwoDropTapsInOneTickDropOneStage]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testHintsStartPendingAndAreLearnedOneByOne]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testHintsStopAfterThreeFlights]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testNonFiniteAltitudesAreCleared]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testOlderVersionsAreBumped]' passed (0.005 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testOldOrPartialSavesLoadWithDefaults]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testOneBadFieldKeepsTheRest]' passed (0.005 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testResetKeepsTheSettings]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testSavesFromBeforeTheHintsLoad]' passed (0.002 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testSurvivesARoundTrip]' passed (0.008 seconds).
+Test Case '-[CometCargoTests.SaveGameTests testUnknownFieldsAreIgnoredAndValuesClamped]' passed (0.001 seconds).
+Test Case '-[CometCargoTests.SaveStoreTests testCorruptFileIsMovedAsideNotOverwritten]' passed (0.014 seconds).
+Test Case '-[CometCargoTests.SaveStoreTests testMissingFileLoadsNothing]' passed (0.009 seconds).
+Test Case '-[CometCargoTests.SaveStoreTests testWriteAndLoadRoundTrip]' passed (0.004 seconds).
+Test Case '-[CometCargoTests.TuningTests testBadDropsCostApex]' passed (0.035 seconds).
+Test Case '-[CometCargoTests.TuningTests testEachLevelAddsApex]' passed (0.073 seconds).
+Test Case '-[CometCargoTests.TuningTests testEconomyBotReachesRing15]' passed (1.413 seconds).
+Test Case '-[CometCargoTests.TuningTests testMaxedRocket]' passed (0.009 seconds).
+Test Case '-[CometCargoTests.TuningTests testRingCrossingTimes]' passed (0.063 seconds).
+Test Case '-[CometCargoTests.TuningTests testStarterRocket]' passed (0.003 seconds).
+exit=0
+screenshots: 0
