@@ -1,0 +1,17 @@
+# Local only
+.claude/
+build/
+DerivedData/
+*.xcodeproj/
+*.xcworkspace/
+*.xcresult
+ci-out/
+tools/smcread
+tools/guard.log
+.DS_Store
+# Never commit secrets
+*.p8
+*.p12
+*.mobileprovision
+*.cer
+.env
