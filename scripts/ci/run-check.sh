@@ -3,7 +3,7 @@
 #   build                build-for-testing; it runs first by itself when a step needs it
 #   unit [<filter>...]   scripts/simtests.sh over these filters in one run; without a filter, all of <Name>Tests
 #   ui [<filter>...]     the same for the UI tests (all of <Name>UITests without a filter), in English
-#   ui-de [<filter>...]  the same in German
+#   ui-de [<filter>...]  the same in German; ui-<lang> for any other language (fr, es, it, pt-BR, ja, zh-Hans)
 #   release              unsigned Release build for a device
 #   sh <command>         any command from the game's folder; it may write files to $CI_OUT
 # The game's folder is games/<slug>; its project.yml's "name:" is the project, scheme and app name. A failed step does not
@@ -81,6 +81,13 @@ build() {
     note "$(stamp) PASS build"
 }
 
+region() { # <language> → the region the UI tests run in
+    case "$1" in
+        de) echo de_DE ;; fr) echo fr_FR ;; es) echo es_ES ;; it) echo it_IT ;;
+        pt-BR) echo pt_BR ;; ja) echo ja_JP ;; zh-Hans) echo zh_CN ;; *) echo en_US ;;
+    esac
+}
+
 tests() { # <kind> <filters...>
     KIND=$1; shift
     N=$((N + 1))
@@ -90,7 +97,9 @@ tests() { # <kind> <filters...>
         if [ "$KIND" = unit ]; then set -- "${NAME}Tests"; else set -- "${NAME}UITests"; fi
     fi
     export TEST_LANG="" TEST_REGION=""
-    [ "$KIND" = ui-de ] && export TEST_LANG=de TEST_REGION=de_DE
+    case "$KIND" in
+        ui-*) TEST_LANG=${KIND#ui-}; TEST_REGION=$(region "$TEST_LANG") ;;
+    esac
     "$REPO/scripts/simtests.sh" "$CI_OUT/$D" "$@" >/dev/null 2>&1
     RC=$?
     rm -rf "$CI_OUT/$D.xcresult" "$CI_OUT/$D/raw"
@@ -123,7 +132,7 @@ while IFS= read -r LINE; do
     CMD=$1; shift
     case "$CMD" in
         build) build ;;
-        unit|ui|ui-de) tests "$CMD" "$@" ;;
+        unit|ui|ui-*) tests "$CMD" "$@" ;;
         release) release ;;
         sh) simulator; other sh bash -c "${LINE#sh }" ;;
         *) note "FAIL unknown step: $LINE"; FAILED=$((FAILED + 1)) ;;
