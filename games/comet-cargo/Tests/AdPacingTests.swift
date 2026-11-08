@@ -3,7 +3,7 @@ import XCTest
 
 /// The interstitial's pacing (Louis, 08.11.2026) over an injected clock: not before 3 minutes of play in the session,
 /// never in the first three flights ever, then at most every 210 s, never during the first-flight hints or over a
-/// sheet, never within 60 s after a rewarded ad.
+/// sheet, never on a report where the rewarded ad played, never within 60 s after a rewarded ad; ad time is not play.
 final class AdPacingTests: XCTestCase {
     /// A player past the first three flights, no hints, nothing on top.
     private let veteran = AdMoment(flightsEver: 10)
@@ -75,6 +75,25 @@ final class AdPacingTests: XCTestCase {
         XCTAssertFalse(pacing.allowsInterstitial(at: 1_000, moment: veteran))
         XCTAssertFalse(pacing.allowsInterstitial(at: 1_059, moment: veteran))
         XCTAssertTrue(pacing.allowsInterstitial(at: 1_060, moment: veteran))
+    }
+
+    /// Watched "Double it", then lingered on the report for minutes: still no interstitial for that report.
+    func testNeverOnAReportWithARewardedAd() {
+        var pacing = AdPacing(startedAt: 0)
+        pacing.rewardedClosed(at: 1_000)
+        let moment = AdMoment(flightsEver: 10, rewardedThisReport: true)
+        XCTAssertFalse(pacing.allowsInterstitial(at: 5_000, moment: moment))
+        XCTAssertTrue(pacing.allowsInterstitial(at: 5_000, moment: veteran), "The next report may have one")
+    }
+
+    /// The time an ad is on screen is not play (AdManager stops the clock while it shows).
+    func testAdTimeIsNotPlay() {
+        var pacing = AdPacing(startedAt: 0)
+        pacing.resignedActive(at: 60)
+        pacing.becameActive(at: 90)
+        XCTAssertEqual(pacing.playTime(at: 120), 90, "30 s of video left out")
+        XCTAssertFalse(pacing.allowsInterstitial(at: 209, moment: veteran))
+        XCTAssertTrue(pacing.allowsInterstitial(at: 210, moment: veteran))
     }
 
     /// A long session after the warm-up: one interstitial per 210 s at most, however often the player collects.
@@ -162,6 +181,7 @@ final class DoubleRewardTests: XCTestCase {
         model.doubleCoins()
         XCTAssertEqual(model.save.coins, coins, "No ad, no reward")
         XCTAssertTrue(model.doubleOffered, "A tap that cannot show an ad does not use up the offer")
+        XCTAssertFalse(model.rewardTried, "No video started, so the report may still have its interstitial")
     }
 
     func testRollingOnFromTheShownTotal() {

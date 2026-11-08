@@ -281,24 +281,33 @@ Ads only, no purchases. The code is Piston Empire's proven ad code (`Ads/`), the
 - **Launch:** `AdConsent.runOnce()` from the first screen's task: Google's consent form (UMP, EEA and UK only), then
   Apple's tracking question (only if never answered), then the SDK starts (`maxAdContentRating = .general`) and preloads
   one rewarded and one interstitial ad (retries 4 s … 5 min after a failure). Nothing waits for it: the hangar is usable
-  at once. A flight in progress pauses on its own while the tracking question is up (the app is inactive).
-- **Rewarded, "Double it":** the one rewarded offer. On the flight report, above Collect, armed with Collect (0.6 s),
-  only for a booked flight that earned coins, once per flight, only while an ad is loaded. The coins are added only in
+  at once. A flight in progress pauses on its own while the tracking question is up (the app is inactive); the consent
+  form does not make the app inactive, so a flight already running is paused when it comes up
+  (`AdConsent.isPresentingForm`, `GameModel.pauseFlightForOverlay`) and the pause card resumes it afterwards.
+- **Rewarded, "Double it":** the one rewarded offer. On the flight report, above Collect, with "Plays a short video ad"
+  visible under it, armed with Collect (0.6 s) and never sooner than 0.6 s after it appeared (an ad that loads during
+  the report cannot catch a thumb on its way to Collect), only for a booked flight that earned coins, once per flight,
+  only while an ad is loaded. The buttons sit on an opaque night bar; the report fades out above it. The coins are added only in
   the SDK's reward callback (`GameModel.grantDouble`), and the save is written at once; once the ad has closed the total
   rolls on from the number on screen to twice the flight's coins, a "×2" tag shows by "Total" and a coin sound plays. The
-  first tap uses the offer up: an ad that fails or is closed early changes nothing and the button is gone.
+  offer is used up when the video really starts: a video closed early changes nothing and the button is gone; an
+  expired ad or one that fails to present leaves the offer standing, and the button comes back once a fresh ad has
+  loaded.
 - **Interstitial:** only when the player taps Collect on the flight report (`AdPacing`, pure rules over a monotonic clock):
   none before 3 minutes of play in the session (foreground time), none in the player's first three flights ever (the
   4th report is the first that may), then at most one every 210 s, none while a first-flight hint is still taught, none
-  over a sheet, none within 60 s after a rewarded ad closed.
+  over a sheet, none on a report where "Double it" played its video (`AdMoment.rewardedThisReport`), none within 60 s
+  after a rewarded ad closed. Time with an ad on screen does not count as play. An expired interstitial (loaded over an
+  hour ago) is reloaded without using up the 210 s slot.
 - **Settings:** "Privacy choices" (`settings-privacy`) shows when UMP says privacy options are required; it opens Google's
   privacy options form.
 - **Privacy:** `Resources/PrivacyInfo.xcprivacy` as Piston Empire: `NSPrivacyTracking` false, no tracking domains, no
   collected data of our own (Google's SDKs ship their own manifests); reasons for UserDefaults (CA92.1) and the system
   boot time (35F9.1, the pacing clock). `NSUserTrackingUsageDescription` in all 8 languages in
   `Resources/InfoPlist.xcstrings`.
-- **Tests:** `AdPacingTests` (every pacing rule with the clock and counters injected; Double it in the model: offered
-  only after a paid flight, doubles once, saves, Collect ends it, no ad no reward). UI: every test passes `-GWNoAds YES`
+- **Tests:** `AdPacingTests` (every pacing rule with the clock and counters injected, the rewarded report and ad time
+  included; Double it in the model: offered only after a paid flight, doubles once, saves, Collect ends it, no ad no
+  reward and the offer stands). UI: every test passes `-GWNoAds YES`
   except `testDoubleReward`, which uses `-GWFakeAds YES`.
 
 ## Code layout (`games/comet-cargo/`)

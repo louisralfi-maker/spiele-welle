@@ -13,6 +13,9 @@ final class AdConsent {
 
     /// Settings offers "Privacy choices" (the form can be opened again) where the regulations require it.
     private(set) var privacyOptionsRequired = false
+    /// The first-launch consent form is about to show or on screen. It does not make the app inactive, so RootView
+    /// pauses a flight that is already running.
+    private(set) var isPresentingForm = false
 
     @ObservationIgnored private var ran = false
     @ObservationIgnored private var retrying = false
@@ -43,10 +46,12 @@ final class AdConsent {
         #endif
         do {
             try await info.requestConsentInfoUpdate(with: parameters)
+            if info.consentStatus == .required { isPresentingForm = true }
             try await ConsentForm.loadAndPresentIfRequired(from: AdManager.topViewController())
         } catch {
             // Offline or a form that would not load: whatever consent there was stands; asked again next launch.
         }
+        isPresentingForm = false
         refreshPrivacyStatus()
         await startIfAllowed()
     }

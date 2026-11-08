@@ -8,11 +8,14 @@ struct AdMoment: Equatable, Sendable {
     var hintsActive = false
     /// Something is presented over the game (a sheet, the consent form, another ad).
     var overlayShowing = false
+    /// The player started the rewarded ad ("Double it") on this flight report: never two ads for one report.
+    var rewardedThisReport = false
 
-    init(flightsEver: Int, hintsActive: Bool = false, overlayShowing: Bool = false) {
+    init(flightsEver: Int, hintsActive: Bool = false, overlayShowing: Bool = false, rewardedThisReport: Bool = false) {
         self.flightsEver = flightsEver
         self.hintsActive = hintsActive
         self.overlayShowing = overlayShowing
+        self.rewardedThisReport = rewardedThisReport
     }
 }
 
@@ -23,7 +26,7 @@ struct AdMoment: Equatable, Sendable {
 /// - none in the player's first three flights ever,
 /// - then at most one every 210 s,
 /// - none while a first-flight hint is still taught, none over a sheet,
-/// - none within 60 s after a rewarded ad closed.
+/// - none on a report where the player watched the rewarded ad, and none within 60 s after a rewarded ad closed.
 struct AdPacing: Equatable, Sendable {
     static let warmUp: TimeInterval = 180
     static let gap: TimeInterval = 210
@@ -59,7 +62,7 @@ struct AdPacing: Equatable, Sendable {
     }
 
     func allowsInterstitial(at now: TimeInterval, moment: AdMoment) -> Bool {
-        if moment.hintsActive || moment.overlayShowing { return false }
+        if moment.hintsActive || moment.overlayShowing || moment.rewardedThisReport { return false }
         if moment.flightsEver <= Self.freeFlights { return false }
         if playTime(at: now) < Self.warmUp { return false }
         if let lastInterstitial, now - lastInterstitial < Self.gap { return false }

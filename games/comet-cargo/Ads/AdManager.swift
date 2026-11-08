@@ -56,6 +56,8 @@ final class AdManager: NSObject, FullScreenContentDelegate {
     /// The app came to the foreground or left it: only foreground time counts as play for the warm-up.
     func appActiveChanged(_ active: Bool) {
         if active {
+            // Back while an ad is still up: the clock starts when it closes (`finishShowing`).
+            guard !isShowingAd else { return }
             pacing.becameActive(at: Self.now)
         } else {
             pacing.resignedActive(at: Self.now)
@@ -148,6 +150,13 @@ final class AdManager: NSObject, FullScreenContentDelegate {
             Self.debugLog("interstitial held back by the pacing (\(scene))")
             return false
         }
+        // An ad loaded more than an hour ago has expired: reload it, and keep the pacing slot for an ad that shows.
+        guard (try? ad.canPresent(from: root)) != nil else {
+            Self.debugLog("interstitial expired: reloading")
+            interstitial = nil
+            loadInterstitial()
+            return false
+        }
         interstitial = nil
         pacing.interstitialShown(at: now)
         ad.fullScreenContentDelegate = self
@@ -195,6 +204,8 @@ final class AdManager: NSObject, FullScreenContentDelegate {
     func adWillPresentFullScreenContent(_ ad: FullScreenPresentingAd) {
         Self.debugLog("presenting \(ad is RewardedAd ? "rewarded" : "interstitial")")
         isShowingAd = true
+        // Watching an ad is not play: the warm-up clock stops until it closes.
+        pacing.resignedActive(at: Self.now)
     }
 
     func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
@@ -212,6 +223,9 @@ final class AdManager: NSObject, FullScreenContentDelegate {
 
     private func finishShowing(_ ad: FullScreenPresentingAd) {
         isShowingAd = false
+        if UIApplication.shared.applicationState == .active {
+            pacing.becameActive(at: Self.now)
+        }
         pendingReward = nil
         pendingFailure = nil
         if ad is RewardedAd {

@@ -18,8 +18,10 @@ final class GameModel {
     private(set) var flight: FlightDriver?
     private(set) var settlement: Economy.Settlement?
     /// "Double it" is still offered on this flight report: the flight was booked and earned coins, and the offer has not
-    /// been used (once per flight; it goes away at the first tap, whatever the ad does).
+    /// been used (once per flight; it is used up when the video really starts, and comes back if it fails to show).
     private(set) var doubleOffered = false
+    /// The rewarded video started on this flight report: no interstitial when the player leaves it.
+    private(set) var rewardTried = false
     /// The rewarded ad paid out: this flight's coins were doubled.
     private(set) var doubled = false
 
@@ -75,6 +77,7 @@ final class GameModel {
         settlement = booked
         doubled = false
         doubleOffered = booked.total > 0
+        rewardTried = false
         persist()
         screen = .results
     }
@@ -94,10 +97,12 @@ final class GameModel {
 
     /// Back to the hangar. Leaving the flight report is the only moment an interstitial may come (paced, `AdPacing`).
     func collect() {
-        let moment = AdMoment(flightsEver: save.flights, hintsActive: args.hintsAllowed && !save.pendingHints.isEmpty)
+        let hints = args.hintsAllowed && !save.pendingHints.isEmpty
+        let moment = AdMoment(flightsEver: save.flights, hintsActive: hints, rewardedThisReport: rewardTried)
         settlement = nil
         doubleOffered = false
         doubled = false
+        rewardTried = false
         screen = .hangar
         AdManager.shared.maybeShowInterstitial(moment)
     }
@@ -109,18 +114,31 @@ final class GameModel {
         screen == .results && settlement != nil && doubleOffered && AdManager.shared.canShowRewarded
     }
 
-    /// Plays the rewarded ad. The coins double only in its reward callback (`grantDouble`); an ad that fails or is closed
-    /// early changes nothing. The offer is used up either way.
+    /// Plays the rewarded ad. The coins double only in its reward callback (`grantDouble`); a video closed early changes
+    /// nothing. The offer is used up only when the video really starts: an expired ad, or one that fails to present,
+    /// leaves the offer standing, and the button comes back as soon as a fresh ad has loaded (`canShowRewarded` drops at
+    /// once, so a second tap cannot start a second video).
     func doubleCoins() {
         guard canDouble, let amount = settlement?.total, amount > 0 else { return }
-        doubleOffered = false
         Feedback.shared.play(.button)
         let shown = AdManager.shared.showRewarded(reward: { [weak self] in
             self?.grantDouble(amount)
+        }, onFailure: { [weak self] in
+            self?.doubleOffered = true
+            self?.rewardTried = false
         })
-        if !shown {
+        if shown {
+            doubleOffered = false
+            rewardTried = true
+        } else {
             AdManager.debugLog("double it: no ad could be shown")
         }
+    }
+
+    /// A full-screen form (Google's consent form) came up over the game without making the app inactive: a flight in
+    /// the air pauses, and the pause card lets the player go on afterwards.
+    func pauseFlightForOverlay() {
+        flight?.pause()
     }
 
     /// The reward: this flight's coins once more, booked and saved at once.

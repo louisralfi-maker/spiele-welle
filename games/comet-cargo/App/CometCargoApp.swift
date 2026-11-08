@@ -58,6 +58,10 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut(duration: 0.25), value: model.screen)
+        .onChange(of: AdConsent.shared.isPresentingForm) { _, up in
+            // The consent form covers the screen without making the app inactive: a running flight pauses.
+            if up { model.pauseFlightForOverlay() }
+        }
         .statusBarHidden(true)
         .preferredColorScheme(.light)
         .sheet(isPresented: $bindable.showSettings) {
