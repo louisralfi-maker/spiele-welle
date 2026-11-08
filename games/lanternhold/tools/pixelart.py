@@ -35,6 +35,9 @@ Commands (run from anywhere; paths are plain file paths):
           --tile                  seamless horizontally (minimum-error seam over an overlap)
           --window dx,dy          stamp a dark 6x8 window recess at a scene window offset (dy up from the bottom);
                                   repeatable; --window-frame NAME --window-glass NAME
+          --zone n1,n2@x0,y0,x1,y1[@gain]  map the blocks inside this rect with only these palette colours
+                                  (and an extra brightness gain); repeatable
+          --patch grid.txt[@x,y]  overlay a hand-drawn text grid (see grid; "?" keeps a pixel); repeatable
           --fill NAME:x0,y0,x1,y1 paint a palette colour into a rect (inclusive, top-left origin); repeatable
           --palette path          default: palette.txt next to this file
 
@@ -365,23 +368,34 @@ def key_out(img, key, tol):
     kr, kg, kb = key
     tol2 = tol * tol
     khue, ksat, _ = hsv(key)
-    vivid = ksat > 0.6  # a saturated key (magenta, pink, green): also drop its hue's anti-alias fringe
+    w, h = img.w, img.h
     out = []
     for r, g, b, a in img.px:
-        if a < 128:
-            out.append((0, 0, 0, 0))
-            continue
         dr, dg, db = r - kr, g - kg, b - kb
-        if dr * dr + dg * dg + db * db <= tol2:
+        if a < 128 or dr * dr + dg * dg + db * db <= tol2:
             out.append((0, 0, 0, 0))
-            continue
-        if vivid:
-            h, s, v = hsv((r, g, b))
-            dh = abs(h - khue)
-            if min(dh, 360 - dh) < 28 and s > 0.42 and v > 0.3:
-                out.append((0, 0, 0, 0))
-                continue
-        out.append((r, g, b, 255))
+        else:
+            out.append((r, g, b, 255))
+    if ksat > 0.6:
+        # a saturated key (magenta, pink, green): pixels of the key's hue within 2 px of the background are its
+        # anti-alias fringe; inside the painting the same hue is left alone
+        near = bytearray(w * h)
+        for i, p in enumerate(out):
+            if not p[3]:
+                y, x = divmod(i, w)
+                if not ((x > 0 and out[i - 1][3]) or (x < w - 1 and out[i + 1][3]) or
+                        (y > 0 and out[i - w][3]) or (y < h - 1 and out[i + w][3])):
+                    continue
+                for yy in range(max(0, y - 2), min(h, y + 3)):
+                    base = yy * w
+                    for xx in range(max(0, x - 2), min(w, x + 3)):
+                        near[base + xx] = 1
+        for i, p in enumerate(out):
+            if p[3] and near[i]:
+                hh, ss, vv = hsv(p)
+                dh = abs(hh - khue)
+                if min(dh, 360 - dh) < 30 and ss > 0.45 and vv > 0.35:
+                    out[i] = (0, 0, 0, 0)
     img.px = out
     return img
 
@@ -692,6 +706,17 @@ def cmd_convert(a):
             else:
                 out.append(pal.nearest(nudge(c, a.sat, a.gain, a.gamma, a.warm)))
         idx.append(out)
+    for spec in a.zone or []:
+        parts = spec.split("@")
+        names, rect = parts[0], parts[1]
+        zgain = float(parts[2]) if len(parts) > 2 else 1.0
+        x0, y0, x1, y1 = (int(v) for v in rect.split(","))
+        zpal = Palette(a.palette, a.allow_emissive, set(), set(names.split(",")))
+        for y in range(max(0, y0), min(th, y1 + 1)):
+            for x in range(max(0, x0), min(gw, x1 + 1)):
+                c = grid[y][x]
+                if c is not None and c[0] != "i":
+                    idx[y][x] = zpal.nearest(nudge(c, a.sat, a.gain * zgain, a.gamma, a.warm))
     if a.tile:
         idx = tile_seam(idx, tw, th, overlap, pal)
     idx = remove_orphans(idx, tw, th, a.orphans)
@@ -712,6 +737,15 @@ def cmd_convert(a):
             for x in range(max(0, x0), min(tw, x1 + 1)):
                 idx[y][x] = v
     idx = outline(idx, tw, th, pal, a.outline, a.outline_skip_bottom)
+    for spec in a.patch or []:
+        path, at = spec.split("@") if "@" in spec else (spec, "0,0")
+        px0, py0 = (int(v) for v in at.split(","))
+        legend, rows = read_grid(path, pal)
+        for y, row in enumerate(rows):
+            for x, ch in enumerate(row):
+                if ch == "?":
+                    continue
+                put(idx, tw, th, px0 + x, py0 + y, legend[ch])
     if a.window:
         frame = pal.index(a.window_frame)
         glass = pal.index(a.window_glass)
@@ -746,9 +780,10 @@ def cmd_convert(a):
           f"{len(used)} colours, {100 * opaque // (tw * th)} % opaque")
 
 
-def cmd_grid(a):
-    pal = Palette(a.palette, True)
-    with open(a.input) as fh:
+def read_grid(path, pal):
+    """A text grid: legend lines "X = paletteName", a line "---", then one row of characters per pixel row.
+    "." is transparent; "?" keeps what is there (patches only)."""
+    with open(path) as fh:
         lines = fh.read().splitlines()
     legend = {".": None}
     i = 0
@@ -758,7 +793,13 @@ def cmd_grid(a):
             ch, name = (t.strip() for t in s.split("=", 1))
             legend[ch] = pal.index(name)
         i += 1
-    rows = [l for l in lines[i + 1:] if l.strip()]
+    rows = [l.rstrip() for l in lines[i + 1:] if l.strip()]
+    return legend, rows
+
+
+def cmd_grid(a):
+    pal = Palette(a.palette, True)
+    legend, rows = read_grid(a.input, pal)
     w = max(len(r) for r in rows)
     out = Image(w, len(rows))
     for y, row in enumerate(rows):
@@ -877,6 +918,8 @@ def main():
     v.add_argument("--window-glass", default="night1")
     v.add_argument("--window-sill", default="stoneLight")
     v.add_argument("--fill", action="append")
+    v.add_argument("--zone", action="append")
+    v.add_argument("--patch", action="append")
     v.add_argument("--palette", default=DEFAULT_PALETTE)
     v.set_defaults(fn=cmd_convert)
 
