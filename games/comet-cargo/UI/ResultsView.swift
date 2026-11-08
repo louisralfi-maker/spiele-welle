@@ -9,8 +9,14 @@ import SwiftUI
 /// ring this flight completed turns gold with a short burst and its chime at 1.7 s, or once the roll-up is over. Under
 /// Reduce Motion everything is in its end state at once and only the ring chime (or the new-best shimmer
 /// sound) plays.
+///
+/// Ads: "Double it" (the game's one rewarded ad) sits above Collect while `canDouble`, armed with Collect. Once the ad
+/// has paid out and closed (`doubled`), the total rolls on to twice the flight's coins and a "×2" tag shows.
 struct ResultsView: View {
     let settlement: Economy.Settlement
+    let doubled: Bool
+    let canDouble: Bool
+    let onDouble: () -> Void
     let onCollect: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var shown = false
@@ -37,9 +43,18 @@ struct ResultsView: View {
         max(1.7, rollStart(newBest: newBest) + rollTime + 0.05)
     }
 
-    init(settlement: Economy.Settlement, onCollect: @escaping () -> Void) {
+    init(settlement: Economy.Settlement, doubled: Bool = false, canDouble: Bool = false,
+         onDouble: @escaping () -> Void = {}, onCollect: @escaping () -> Void) {
         self.settlement = settlement
+        self.doubled = doubled
+        self.canDouble = canDouble
+        self.onDouble = onDouble
         self.onCollect = onCollect
+    }
+
+    /// The total on screen: the flight's coins, twice once the reward is in.
+    private var shownTotal: Int {
+        doubled ? settlement.total * 2 : settlement.total
     }
 
     var body: some View {
@@ -62,17 +77,27 @@ struct ResultsView: View {
             .scrollIndicators(.hidden)
         }
         .safeAreaInset(edge: .bottom) {
-            Button {
-                Feedback.shared.play(.coin)
-                onCollect()
-            } label: {
-                Text("Collect")
+            VStack(spacing: 10) {
+                if canDouble {
+                    doubleButton
+                        .transition(.opacity)
+                }
+                Button {
+                    Feedback.shared.play(.coin)
+                    onCollect()
+                } label: {
+                    Text("Collect")
+                }
+                .buttonStyle(PillButtonStyle(fill: Palette.mustard, text: Palette.ink))
+                .disabled(!armed)
+                .accessibilityIdentifier("results-collect")
             }
-            .buttonStyle(PillButtonStyle(fill: Palette.mustard, text: Palette.ink))
-            .disabled(!armed)
-            .accessibilityIdentifier("results-collect")
+            .animation(.easeOut(duration: 0.2), value: canDouble)
             .padding(.horizontal, 24)
             .padding(.vertical, 10)
+        }
+        .onChange(of: doubled) { _, isDoubled in
+            if isDoubled { Feedback.shared.play(.coin) }
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("results-root")
@@ -116,6 +141,30 @@ struct ResultsView: View {
         Feedback.shared.play(.ringComplete)
         guard await pause(GoldBurstDrawing.duration + 0.1) else { return }
         bursting = false
+    }
+
+    /// "Double it": watch a video, get the flight's coins once more.
+    private var doubleButton: some View {
+        Button {
+            onDouble()
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "play.rectangle.fill")
+                    .accessibilityHidden(true)
+                Text("Double it")
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                Text(verbatim: "+\(settlement.total)")
+                    .monospacedDigit()
+                    .lineLimit(1)
+                CoinIcon(size: 20)
+            }
+            .padding(.horizontal, 12)
+        }
+        .buttonStyle(PillButtonStyle(fill: Palette.coral, text: Palette.paper, height: 54, fontSize: 21))
+        .disabled(!armed)
+        .accessibilityHint(Text("Plays a short video ad"))
+        .accessibilityIdentifier("results-double")
     }
 
     /// Waits `seconds`; false when the screen went away meanwhile.
@@ -231,11 +280,20 @@ struct ResultsView: View {
                 Text("Total")
                     .font(.rounded(20, .black))
                     .foregroundStyle(Palette.ink)
+                if doubled {
+                    Text(verbatim: "×2")
+                        .font(.rounded(15, .black))
+                        .foregroundStyle(Palette.paper)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Capsule().fill(Palette.coral))
+                        .accessibilityHidden(true)
+                }
                 Spacer()
-                RollingNumber(value: settlement.total, duration: Self.rollTime, size: 34,
+                RollingNumber(value: shownTotal, duration: Self.rollTime, size: 34,
                               delay: Self.rollStart(newBest: settlement.newBest), ticks: true)
                     .accessibilityElement(children: .ignore)
-                    .accessibilityLabel(Text("\(settlement.total) coins"))
+                    .accessibilityLabel(Text("\(shownTotal) coins"))
                     .accessibilityIdentifier("results-total")
             }
         }

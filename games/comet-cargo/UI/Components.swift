@@ -141,16 +141,18 @@ struct PaperGrain: View, Equatable {
     }
 }
 
-/// The big coral pill button.
+/// The big coral pill button (a smaller one with `height` and `fontSize`).
 struct PillButtonStyle: ButtonStyle {
     var fill: Color = Palette.coral
     var text: Color = Palette.paper
+    var height: CGFloat = 64
+    var fontSize: CGFloat = 24
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.rounded(24, .heavy))
+            .font(.rounded(fontSize, .heavy))
             .foregroundStyle(text)
-            .frame(maxWidth: .infinity, minHeight: 64)
+            .frame(maxWidth: .infinity, minHeight: height)
             .background(
                 Capsule().fill(fill)
                     .shadow(color: Palette.ink.opacity(0.25), radius: 0, x: 0, y: configuration.isPressed ? 1 : 4)
@@ -161,8 +163,8 @@ struct PillButtonStyle: ButtonStyle {
 }
 
 /// A number that rolls up from 0 to `value` over `duration`, after `delay`; with `ticks`, a light tick (sound and haptic)
-/// each time the shown number changes, at most every `tickGap` seconds. Under Reduce Motion it shows the value at once
-/// and stays silent.
+/// each time the shown number changes, at most every `tickGap` seconds. When `value` grows later (the doubled total), it
+/// rolls on from the number on screen at once. Under Reduce Motion it shows the value at once and stays silent.
 struct RollingNumber: View {
     var value: Int
     var duration: Double = 1.0
@@ -204,14 +206,19 @@ struct RollingNumber: View {
             shown = value
             return
         }
-        shown = 0
-        try? await Task.sleep(for: .seconds(delay))
-        guard !Task.isCancelled else { return }
+        var base = 0
+        if let current = shown, current > 0, current < value {
+            base = current
+        } else {
+            shown = 0
+            try? await Task.sleep(for: .seconds(delay))
+            guard !Task.isCancelled else { return }
+        }
         let start = Date()
         var lastTick = -1.0
         while !Task.isCancelled {
             let elapsed = Date().timeIntervalSince(start)
-            let next = RollingNumber.rolled(value, at: elapsed, duration: duration)
+            let next = base + RollingNumber.rolled(value - base, at: elapsed, duration: duration)
             if next != shown {
                 shown = next
                 if ticks && elapsed - lastTick >= RollingNumber.tickGap {

@@ -16,6 +16,8 @@ struct CometCargoApp: App {
                     model.scenePhaseChanged(phase)
                 }
                 .task {
+                    // Ads: Google's consent form (EEA, UK), then the tracking question, then the SDK. Nothing waits for it.
+                    AdConsent.shared.runOnce()
                     // The paintings decode in the background, so none is decoded inside a flight frame.
                     Task.detached(priority: .utility) {
                         ArtAsset.prewarm()
@@ -44,8 +46,14 @@ struct RootView: View {
                 }
             case .results:
                 if let settlement = model.settlement {
-                    ResultsView(settlement: settlement) { model.collect() }
-                        .transition(.opacity)
+                    ResultsView(
+                        settlement: settlement,
+                        doubled: model.doubled && !AdManager.shared.isShowingAd,
+                        canDouble: model.canDouble,
+                        onDouble: { model.doubleCoins() },
+                        onCollect: { model.collect() }
+                    )
+                    .transition(.opacity)
                 }
             }
         }

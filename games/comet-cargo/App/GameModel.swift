@@ -17,6 +17,11 @@ final class GameModel {
     var showSettings = false
     private(set) var flight: FlightDriver?
     private(set) var settlement: Economy.Settlement?
+    /// "Double it" is still offered on this flight report: the flight was booked and earned coins, and the offer has not
+    /// been used (once per flight; it goes away at the first tap, whatever the ad does).
+    private(set) var doubleOffered = false
+    /// The rewarded ad paid out: this flight's coins were doubled.
+    private(set) var doubled = false
 
     @ObservationIgnored let args: DebugArgs
     @ObservationIgnored private let store: SaveStore
@@ -68,6 +73,8 @@ final class GameModel {
         Feedback.shared.flightEnded()
         let booked = Economy.settle(result, into: &save)
         settlement = booked
+        doubled = false
+        doubleOffered = booked.total > 0
         persist()
         screen = .results
     }
@@ -85,9 +92,44 @@ final class GameModel {
         save.markHintDone(hint)
     }
 
+    /// Back to the hangar. Leaving the flight report is the only moment an interstitial may come (paced, `AdPacing`).
     func collect() {
+        let moment = AdMoment(flightsEver: save.flights, hintsActive: args.hintsAllowed && !save.pendingHints.isEmpty)
         settlement = nil
+        doubleOffered = false
+        doubled = false
         screen = .hangar
+        AdManager.shared.maybeShowInterstitial(moment)
+    }
+
+    // MARK: Double it (the one rewarded ad)
+
+    /// The report shows "Double it": offered for this flight and a rewarded ad is loaded.
+    var canDouble: Bool {
+        screen == .results && settlement != nil && doubleOffered && AdManager.shared.canShowRewarded
+    }
+
+    /// Plays the rewarded ad. The coins double only in its reward callback (`grantDouble`); an ad that fails or is closed
+    /// early changes nothing. The offer is used up either way.
+    func doubleCoins() {
+        guard canDouble, let amount = settlement?.total, amount > 0 else { return }
+        doubleOffered = false
+        Feedback.shared.play(.button)
+        let shown = AdManager.shared.showRewarded(reward: { [weak self] in
+            self?.grantDouble(amount)
+        })
+        if !shown {
+            AdManager.debugLog("double it: no ad could be shown")
+        }
+    }
+
+    /// The reward: this flight's coins once more, booked and saved at once.
+    func grantDouble(_ amount: Int) {
+        guard !doubled, amount > 0 else { return }
+        doubled = true
+        save.coins += amount
+        settlement?.coinsAfter = save.coins
+        persist()
     }
 
     func buy(_ track: UpgradeTrack) {
@@ -122,6 +164,7 @@ final class GameModel {
     func scenePhaseChanged(_ phase: ScenePhase) {
         switch phase {
         case .background:
+            AdManager.shared.appActiveChanged(false)
             // A flight that already reached its apex is settled now (finishFlight books and saves it), so killing the
             // app during the apex hold loses nothing; a flight still in the air pauses.
             flight?.finishNow()
@@ -130,7 +173,7 @@ final class GameModel {
         case .inactive:
             flight?.pause()
         case .active:
-            break
+            AdManager.shared.appActiveChanged(true)
         @unknown default:
             break
         }

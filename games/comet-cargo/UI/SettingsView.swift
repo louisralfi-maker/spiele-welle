@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// Settings sheet: sound, haptics and a progress reset behind a confirmation.
+/// Settings sheet: sound, haptics, "Privacy choices" (Google's privacy options form, only where the regulations require
+/// it) and a progress reset behind a confirmation.
 struct SettingsView: View {
     let model: GameModel
     @Environment(\.dismiss) private var dismiss
@@ -46,6 +47,20 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 16)
             .background(RoundedRectangle(cornerRadius: 18).fill(Palette.paper))
+            if AdConsent.shared.privacyOptionsRequired {
+                Button {
+                    Task { await AdConsent.shared.presentPrivacyOptions() }
+                } label: {
+                    Label { Text("Privacy choices") } icon: { Image(systemName: "hand.raised.fill") }
+                        .font(.rounded(18, .bold))
+                        .foregroundStyle(Palette.ink)
+                        .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+                        .padding(.horizontal, 16)
+                        .background(RoundedRectangle(cornerRadius: 18).fill(Palette.paper))
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("settings-privacy")
+            }
             Button(role: .destructive) {
                 confirmReset = true
             } label: {
