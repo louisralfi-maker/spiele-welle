@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The ring network around the planet: 15 concentric rings on a log scale, delivered satellites orbiting slowly (up to 5
-/// per ring), rings above the best apex dim and dashed, completed rings gold.
+/// per ring), rings above the best apex faint, the next ring to reach dashed in mustard, completed rings gold.
 struct NetworkView: View {
     let deliveries: [Int]
     let bestApex: Double
@@ -32,6 +32,11 @@ struct NetworkView: View {
 
 /// The network drawing, a plain enum so it carries no actor isolation.
 enum NetworkDrawing {
+    /// The lowest ring above the best apex: the next goal.
+    static func nextRing(bestApex: Double) -> Int? {
+        (0..<Rings.count).first { Rings.altitudes[$0] > bestApex }
+    }
+
     /// Radius of ring `k` between the planet and the edge, on a log scale of its altitude.
     static func radius(_ ring: Int, planet: CGFloat, outer: CGFloat) -> CGFloat {
         let low = log(12.0)
@@ -44,6 +49,7 @@ enum NetworkDrawing {
         let center = CGPoint(x: size.width / 2, y: size.height / 2)
         let outer = min(size.width, size.height) / 2 - 8
         let planet = outer * 0.17
+        let next = nextRing(bestApex: bestApex)
         // Soft stars behind.
         for index in 0..<46 {
             let fx = FlightScene.fraction(Double(index) * 0.6180339 + 0.2)
@@ -55,7 +61,7 @@ enum NetworkDrawing {
         for ring in 0..<Rings.count {
             let r = radius(ring, planet: planet, outer: outer)
             let rect = CGRect(x: center.x - r, y: center.y - r, width: r * 2, height: r * 2)
-            let count = ring < deliveries.count ? deliveries[ring] : 0
+            let count = ring < deliveries.count ? max(0, deliveries[ring]) : 0
             let complete = count >= Economy.ringSlots
             let reached = Rings.altitudes[ring] <= bestApex
             if complete {
@@ -63,13 +69,15 @@ enum NetworkDrawing {
                 context.stroke(Path(ellipseIn: rect), with: .color(Palette.gold), lineWidth: 2.2)
             } else if reached {
                 context.stroke(Path(ellipseIn: rect), with: .color(Palette.mustard.opacity(0.75)), lineWidth: 1.4)
+            } else if ring == next {
+                context.stroke(Path(ellipseIn: rect), with: .color(Palette.mustard),
+                               style: StrokeStyle(lineWidth: 1.6, dash: [4, 4]))
             } else {
-                context.stroke(Path(ellipseIn: rect), with: .color(Palette.paper.opacity(0.22)),
-                               style: StrokeStyle(lineWidth: 1, dash: [3, 5]))
+                context.stroke(Path(ellipseIn: rect), with: .color(Palette.paper.opacity(0.1)), lineWidth: 1)
             }
             let shown = min(Economy.ringSlots, count)
             let speed = 0.5 / pow(Double(r / planet), 1.5)
-            for index in 0..<shown {
+            for index in 0..<max(0, shown) {
                 let slotAngle: Double = Double(index) * 2.0 * Double.pi / Double(Economy.ringSlots)
                 let angle: Double = slotAngle + Double(ring) * 0.9 + time * speed
                 let p = CGPoint(x: center.x + CGFloat(cos(angle)) * r, y: center.y + CGFloat(sin(angle)) * r)

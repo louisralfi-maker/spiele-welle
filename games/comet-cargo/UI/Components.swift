@@ -150,6 +150,8 @@ struct RollingNumber: View {
     var color: Color = Palette.ink
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var start = Date()
+    /// Set once the number has finished rolling; the timeline then stops redrawing.
+    @State private var done = false
 
     init(value: Int, duration: Double = 1.0, size: CGFloat = 44, color: Color = Palette.ink) {
         self.value = value
@@ -159,8 +161,8 @@ struct RollingNumber: View {
     }
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: reduceMotion)) { timeline in
-            let shown = displayed(at: timeline.date)
+        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: reduceMotion || done)) { timeline in
+            let shown = done ? value : displayed(at: timeline.date)
             HStack(spacing: 8) {
                 CoinIcon(size: size * 0.8)
                 Text(shown, format: .number)
@@ -169,6 +171,10 @@ struct RollingNumber: View {
             }
         }
         .onAppear { start = Date() }
+        .task {
+            try? await Task.sleep(for: .seconds(duration + 0.1))
+            done = true
+        }
     }
 
     private func displayed(at date: Date) -> Int {

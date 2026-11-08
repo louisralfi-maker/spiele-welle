@@ -1,12 +1,14 @@
 import SwiftUI
 
 /// After the apex: each delivery with ring, rating and pay, the stage ratings, lost satellites, the total rolling up,
-/// the badges and the Collect button back to the hangar.
+/// the badges, the ring progress of every ring this flight delivered to, the next upgrade, and the Collect button back
+/// to the hangar. Collect arms after 0.6 s, so a tap meant for the flight cannot skip the report.
 struct ResultsView: View {
     let settlement: Economy.Settlement
     let onCollect: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var shown = false
+    @State private var armed = false
 
     init(settlement: Economy.Settlement, onCollect: @escaping () -> Void) {
         self.settlement = settlement
@@ -23,6 +25,8 @@ struct ResultsView: View {
                     header
                     badges
                     card
+                    networkCard
+                    nextStrip
                 }
                 .padding(.horizontal, 18)
                 .padding(.top, 18)
@@ -38,6 +42,7 @@ struct ResultsView: View {
                 Text("Collect")
             }
             .buttonStyle(PillButtonStyle(fill: Palette.mustard, text: Palette.ink))
+            .disabled(!armed)
             .accessibilityIdentifier("results-collect")
             .padding(.horizontal, 24)
             .padding(.vertical, 10)
@@ -50,6 +55,10 @@ struct ResultsView: View {
             } else {
                 withAnimation(.spring(response: 0.45, dampingFraction: 0.6).delay(0.15)) { shown = true }
             }
+        }
+        .task {
+            try? await Task.sleep(for: .milliseconds(600))
+            armed = true
         }
     }
 
@@ -96,6 +105,7 @@ struct ResultsView: View {
             }
             ForEach(Array(settlement.deliveries.enumerated()), id: \.offset) { _, delivery in
                 DeliveryRow(delivery: delivery)
+                    .accessibilityIdentifier("results-delivery")
             }
             if settlement.lost > 0 {
                 HStack {
@@ -106,6 +116,7 @@ struct ResultsView: View {
                         .foregroundStyle(Palette.coral)
                 }
                 .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("results-lost")
             }
             if !settlement.drops.isEmpty {
                 Divider()
@@ -123,7 +134,20 @@ struct ResultsView: View {
                             .padding(.vertical, 6)
                             .background(Capsule().fill(rating.tint.opacity(rating == .good ? 1 : 0.85)))
                             .overlay(Capsule().stroke(Palette.ink.opacity(0.15), lineWidth: 1))
+                            .accessibilityIdentifier("results-drop")
                     }
+                }
+                if settlement.unusedStages > 0 {
+                    // The rocket fell back while a burnt-out stage was still attached: the stages above it never fired.
+                    Text("Stages never dropped: \(settlement.unusedStages)")
+                        .font(.rounded(13, .heavy))
+                        .foregroundStyle(Palette.paper)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Capsule().fill(Palette.coral))
+                        .accessibilityIdentifier("results-unused")
                 }
             }
             if settlement.bonusPay > 0 {
@@ -153,6 +177,98 @@ struct ResultsView: View {
         }
         .padding(18)
         .background(RoundedRectangle(cornerRadius: 26).fill(Palette.cream))
+    }
+
+    /// Every ring this flight delivered to: five slots, the ones filled before in paper, this flight's in mustard (gold
+    /// when the flight completed the ring), and the completion bonus.
+    @ViewBuilder
+    private var networkCard: some View {
+        if !settlement.progress.isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Ring network")
+                    .font(.rounded(17, .heavy))
+                    .foregroundStyle(Palette.paper)
+                ForEach(settlement.progress, id: \.ring) { line in
+                    RingProgressRow(progress: line)
+                }
+            }
+            .padding(18)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: 26).fill(Palette.paper.opacity(0.08)))
+            .overlay(RoundedRectangle(cornerRadius: 26).stroke(Palette.paper.opacity(0.18), lineWidth: 1))
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("results-network")
+        }
+    }
+
+    /// What the coins buy next: the cheapest upgrade and how far the coins reach.
+    @ViewBuilder
+    private var nextStrip: some View {
+        if let track = settlement.nextTrack, settlement.nextPrice > 0 {
+            let have = min(settlement.coinsAfter, settlement.nextPrice)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 6) {
+                    Text("Next upgrade: \(track.title)")
+                        .font(.rounded(15, .heavy))
+                        .foregroundStyle(Palette.paper)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                    Spacer(minLength: 4)
+                    Text(verbatim: "\(have)/\(settlement.nextPrice)")
+                        .font(.rounded(15, .heavy).monospacedDigit())
+                        .foregroundStyle(Palette.mustard)
+                    CoinIcon(size: 15)
+                }
+                ProgressView(value: Double(have), total: Double(settlement.nextPrice))
+                    .tint(Palette.mustard)
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 14)
+            .background(RoundedRectangle(cornerRadius: 20).fill(Palette.paper.opacity(0.08)))
+            .accessibilityElement(children: .combine)
+        }
+    }
+}
+
+struct RingProgressRow: View {
+    let progress: Economy.RingProgress
+
+    var body: some View {
+        let filled = min(Economy.ringSlots, progress.after)
+        HStack(spacing: 10) {
+            Text("Ring \(progress.ring + 1)")
+                .font(.rounded(16, .heavy))
+                .foregroundStyle(progress.completed ? Palette.gold : Palette.paper)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            HStack(spacing: 5) {
+                ForEach(0..<Economy.ringSlots, id: \.self) { slot in
+                    Circle()
+                        .fill(slotColor(slot))
+                        .overlay(Circle().stroke(Palette.paper.opacity(0.5), lineWidth: 1.5))
+                        .frame(width: 16, height: 16)
+                }
+            }
+            Text(verbatim: "\(filled)/\(Economy.ringSlots)")
+                .font(.rounded(15, .bold).monospacedDigit())
+                .foregroundStyle(Palette.paper.opacity(0.8))
+            Spacer(minLength: 4)
+            if progress.completed {
+                Text(verbatim: "+\(progress.bonus)")
+                    .font(.rounded(16, .heavy).monospacedDigit())
+                    .foregroundStyle(Palette.gold)
+                CoinIcon(size: 16)
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    private func slotColor(_ slot: Int) -> Color {
+        let earlier = min(Economy.ringSlots, progress.before)
+        let filled = min(Economy.ringSlots, progress.after)
+        if slot < earlier { return Palette.paper.opacity(0.85) }
+        if slot < filled { return progress.completed ? Palette.gold : Palette.mustard }
+        return Palette.paper.opacity(0.08)
     }
 }
 

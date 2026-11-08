@@ -371,6 +371,26 @@
         }
       }
     },
+    "Next upgrade: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nächstes Upgrade: %@"
+          }
+        }
+      }
+    },
+    "Next: Ring %lld · %lld km" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nächstes Ziel: Ring %lld · %lld km"
+          }
+        }
+      }
+    },
     "No deliveries" : {
       "localizations" : {
         "de" : {
@@ -557,6 +577,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stufen"
+          }
+        }
+      }
+    },
+    "Stages never dropped: %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie abgeworfene Stufen: %lld"
           }
         }
       }

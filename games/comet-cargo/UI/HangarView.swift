@@ -1,6 +1,8 @@
 import SwiftUI
 
-/// Home: coins and settings, the ring network with the best altitude, five upgrade rows and the big Launch button.
+/// Home: coins and settings, the ring network with the best altitude and the next ring, five upgrade rows and the big
+/// Launch button. The Launch bar sits below the scroll view, never on top of it, so no row can hide behind it; on the
+/// 874 pt iPhone 17 Pro all five rows fit above it, smaller screens scroll.
 struct HangarView: View {
     let model: GameModel
 
@@ -12,9 +14,9 @@ struct HangarView: View {
             VStack(spacing: 0) {
                 topBar(save)
                 ScrollView {
-                    VStack(spacing: 14) {
+                    VStack(spacing: 12) {
                         networkCard(save)
-                        VStack(spacing: 8) {
+                        VStack(spacing: 7) {
                             ForEach(UpgradeTrack.allCases) { track in
                                 UpgradeRow(track: track, save: save) { model.buy(track) }
                             }
@@ -24,25 +26,32 @@ struct HangarView: View {
                     .padding(.bottom, 12)
                 }
                 .scrollIndicators(.hidden)
+                launchBar
             }
         }
-        .safeAreaInset(edge: .bottom) {
-            Button {
-                model.launch()
-            } label: {
-                HStack(spacing: 10) {
-                    Image(systemName: "flame.fill")
-                    Text("Launch")
-                }
+    }
+
+    private var launchBar: some View {
+        Button {
+            model.launch()
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "flame.fill")
+                Text("Launch")
             }
-            .buttonStyle(PillButtonStyle())
-            .accessibilityLabel(Text("Launch"))
-            .accessibilityIdentifier("hangar-launch")
-            .padding(.horizontal, 24)
-            .padding(.top, 8)
-            .padding(.bottom, 10)
-            .background(Palette.cream.opacity(0.94).ignoresSafeArea())
         }
+        .buttonStyle(PillButtonStyle())
+        .accessibilityLabel(Text("Launch"))
+        .accessibilityIdentifier("hangar-launch")
+        .padding(.horizontal, 24)
+        .padding(.top, 8)
+        .padding(.bottom, 10)
+        .frame(maxWidth: .infinity)
+        .background(
+            Palette.cream
+                .overlay(alignment: .top) { Rectangle().fill(Palette.ink.opacity(0.08)).frame(height: 1) }
+                .ignoresSafeArea()
+        )
     }
 
     private func topBar(_ save: SaveGame) -> some View {
@@ -78,9 +87,9 @@ struct HangarView: View {
     }
 
     private func networkCard(_ save: SaveGame) -> some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 4) {
             NetworkView(deliveries: save.ringDeliveries, bestApex: save.bestApex)
-                .frame(height: 280)
+                .frame(height: 200)
             HStack {
                 Text("Best: \(Int(save.bestApex.rounded())) km")
                     .font(.rounded(17, .heavy).monospacedDigit())
@@ -92,13 +101,37 @@ struct HangarView: View {
                     .foregroundStyle(Palette.mustard)
             }
             .padding(.horizontal, 16)
-            .padding(.bottom, 12)
+            nextRing(save)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
         }
         .background(
             RoundedRectangle(cornerRadius: 26)
                 .fill(LinearGradient(colors: [Palette.navy, Palette.night], startPoint: .top, endPoint: .bottom))
         )
         .overlay(RoundedRectangle(cornerRadius: 26).stroke(Palette.ink.opacity(0.25), lineWidth: 1))
+    }
+
+    /// The goal of the next flights: the lowest ring above the best apex, with its altitude and pay.
+    @ViewBuilder
+    private func nextRing(_ save: SaveGame) -> some View {
+        if let ring = NetworkDrawing.nextRing(bestApex: save.bestApex) {
+            HStack(spacing: 5) {
+                Text("Next: Ring \(ring + 1) · \(Int(Rings.altitudes[ring])) km")
+                    .font(.rounded(14, .bold).monospacedDigit())
+                    .foregroundStyle(Palette.paper.opacity(0.85))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                Spacer(minLength: 4)
+                CoinIcon(size: 14)
+                Text(verbatim: "\(Rings.basePay(ring))")
+                    .font(.rounded(14, .heavy).monospacedDigit())
+                    .foregroundStyle(Palette.mustard)
+            }
+            .accessibilityElement(children: .combine)
+        } else {
+            Color.clear.frame(height: 0)
+        }
     }
 }
 
@@ -158,7 +191,7 @@ struct UpgradeRow: View {
             .accessibilityIdentifier("upgrade-\(track.rawValue)-buy")
         }
         .padding(.horizontal, 12)
-        .padding(.vertical, 9)
+        .padding(.vertical, 6)
         .background(RoundedRectangle(cornerRadius: 18).fill(Palette.paper))
         .overlay(RoundedRectangle(cornerRadius: 18).stroke(Palette.ink.opacity(0.08), lineWidth: 1))
     }
