@@ -10,8 +10,10 @@ import SwiftUI
 /// Reduce Motion everything is in its end state at once and only the ring chime (or the new-best shimmer
 /// sound) plays.
 ///
-/// Ads: "Double it" (the game's one rewarded ad) sits above Collect while `canDouble`, armed with Collect. Once the ad
-/// has paid out and closed (`doubled`), the total rolls on to twice the flight's coins and a "×2" tag shows.
+/// Ads: "Double it" (the game's one rewarded ad) sits above Collect while `canDouble`, with "Plays a short video ad"
+/// visible under it. It arms with Collect, and never sooner than 0.6 s after it appeared (an ad that loads late cannot
+/// catch a thumb on its way to Collect). Once the ad has paid out and closed (`doubled`), the total rolls on to twice the
+/// flight's coins and a "×2" tag shows. The buttons sit on an opaque bar; the report fades out above it.
 struct ResultsView: View {
     let settlement: Economy.Settlement
     let doubled: Bool
@@ -26,6 +28,11 @@ struct ResultsView: View {
     /// The completed rings have turned gold; the burst plays while `bursting`.
     @State private var ringsLit = false
     @State private var bursting = false
+    /// "Double it" can be tapped (0.6 s after it appeared, and never before Collect arms).
+    @State private var doubleArmed = false
+
+    /// How long "Double it" waits after it appears before a tap counts.
+    static let doubleArmDelay = 0.6
 
     /// When the roll-up of the total starts (later after a new best, once the shimmer's ticks are through) and how long it
     /// takes.
@@ -72,14 +79,15 @@ struct ResultsView: View {
                 }
                 .padding(.horizontal, 18)
                 .padding(.top, 18)
-                .padding(.bottom, 12)
+                // Clear of the bar's 24 pt fade once scrolled to the end.
+                .padding(.bottom, 28)
             }
             .scrollIndicators(.hidden)
         }
         .safeAreaInset(edge: .bottom) {
-            VStack(spacing: 10) {
+            VStack(spacing: 14) {
                 if canDouble {
-                    doubleButton
+                    doubleOffer
                         .transition(.opacity)
                 }
                 Button {
@@ -95,6 +103,15 @@ struct ResultsView: View {
             .animation(.easeOut(duration: 0.2), value: canDouble)
             .padding(.horizontal, 24)
             .padding(.vertical, 10)
+            .frame(maxWidth: .infinity)
+            .background { bottomBar }
+        }
+        .task(id: canDouble) {
+            // "Double it" arms 0.6 s after it shows: an ad that finishes loading during the report must not catch a thumb
+            // that was already on its way to Collect.
+            doubleArmed = false
+            guard canDouble, await pause(Self.doubleArmDelay) else { return }
+            doubleArmed = true
         }
         .onChange(of: doubled) { _, isDoubled in
             if isDoubled { Feedback.shared.play(.coin) }
@@ -143,6 +160,32 @@ struct ResultsView: View {
         bursting = false
     }
 
+    /// The opaque bar under the buttons: the report fades out above them instead of scrolling visibly behind them.
+    private var bottomBar: some View {
+        Palette.night
+            .ignoresSafeArea(edges: .bottom)
+            .overlay(alignment: .top) {
+                LinearGradient(colors: [Palette.night.opacity(0), Palette.night], startPoint: .top, endPoint: .bottom)
+                    .frame(height: 24)
+                    .offset(y: -24)
+            }
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+    }
+
+    /// "Double it" and, visible under it, that it plays a video ad (an informed opt-in, not only a VoiceOver hint).
+    private var doubleOffer: some View {
+        VStack(spacing: 5) {
+            doubleButton
+            Text("Plays a short video ad")
+                .font(.rounded(13, .semibold))
+                .foregroundStyle(Palette.paper.opacity(0.8))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .accessibilityHidden(true)
+        }
+    }
+
     /// "Double it": watch a video, get the flight's coins once more.
     private var doubleButton: some View {
         Button {
@@ -162,7 +205,7 @@ struct ResultsView: View {
             .padding(.horizontal, 12)
         }
         .buttonStyle(PillButtonStyle(fill: Palette.coral, text: Palette.paper, height: 54, fontSize: 21))
-        .disabled(!armed)
+        .disabled(!armed || !doubleArmed)
         .accessibilityHint(Text("Plays a short video ad"))
         .accessibilityIdentifier("results-double")
     }
