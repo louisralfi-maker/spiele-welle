@@ -1,6 +1,6 @@
 # Spiele-Welle
 
-A small wave of original, ads-only iPhone games, built by Claude for Louis Herwick (German, owner of the App Store game Piston Empire). The goal is 3 to 5 good games, each with its own idea, released weeks apart. This folder holds the starter kit, and later one folder per game (`games/<slug>/`). It becomes a public GitHub repo that Louis creates himself. That repo is the safe copy of the work and also the build machine.
+A small wave of original, ads-only iPhone games, built by Claude for Louis Herwick (German, owner of the App Store game Piston Empire). The goal is 3 to 5 good games, each with its own idea, released weeks apart. This folder holds the starter kit, and later one folder per game (`games/<slug>/`). It is the public GitHub repo `github.com/louisralfi-maker/spiele-welle` (created 08.11.2026). That repo is the safe copy of the work and also the build machine.
 
 The Piston Empire chat wrote this kit on 08.11.2026 from what it learned while building and releasing Piston Empire. Read next:
 
@@ -66,7 +66,8 @@ The Piston Empire chat wrote this kit on 08.11.2026 from what it learned while b
   - `.github/workflows/sim-check.yml` runs `scripts/ci/run-check.sh` on `macos-26` (Xcode 26.6, iPhone 17 Pro simulator);
   - `scripts/ci/publish-results.sh` pushes logs and screenshots to `ci-results/<label>`;
   - `remote-check.sh` waits, unpacks the results into an outdir and exits 0 only on `ALL PASSED`.
-- **Deploy key:** it needs an SSH deploy key with write access for this repo. Make a new key `~/.ssh/id_ed25519_games` with ssh-keygen and no passphrase. Louis adds its public half under the repo's Settings → Deploy keys and ticks "Allow write access"; guide him there. Never reuse Piston Empire's key.
+- **Deploy key:** `~/.ssh/id_ed25519_games` (no passphrase) has write access to the repo since 08.11.2026. Use it through `GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519_games -o IdentitiesOnly=yes"`; the remote is `origin`. Never reuse Piston Empire's key.
+- **Proven:** the round trip works (08.11.2026). The runner is an arm64 Mac with 3 cores and 7 GB; a cold build takes 5 to 7 minutes, a full round (build, unit, ui, ui-de, release) 13 to 17 minutes. `games/hello` is the canary.
 - **Projects:** each game is an xcodegen `project.yml`. The runner installs xcodegen with brew, as Piston Empire's `run-check.sh` does.
 - **Rounds:** bundle a round into one call: build-for-testing, the unit tests, a UI smoke test that plays the first minute and saves screenshots in English and German, and a Release build. A cold build is about ten minutes. Run the call in the background and wait with a Bash until-loop on the output file; foreground `sleep` is blocked.
 - **Screenshots:** XCUITest captures of landscape screens carry EXIF orientation 8. Strip it, or rotate with `sips -r 270`, before using them anywhere. On the runner the 6.9-inch Pro Max simulator is fine for store screenshots; on this Mac it is not.

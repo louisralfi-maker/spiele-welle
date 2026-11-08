@@ -11,6 +11,8 @@
 
 - No compiles, simulators or long CPU jobs (see CLAUDE.md). The heat guard log shows how close it gets. The Mac also restarted on its own once, on 07.11. Afterwards the built-in browser had lost its Google and Apple sign-ins, so Louis had to sign in again.
 - Agents that only read, write and use git cost the Mac almost nothing; the load comes from compiles, simulators and image work.
+- Agents' python tuning runs and optimizers heat it too (74 °C on 08.11.). The heat guard now stops `python3` at 85 °C; tell agents to keep each python run under 20 s.
+- Never run `find /` here: it scans the whole disk for minutes. Look in known paths instead (the Xcode SDK is under `/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk`).
 - If the Mac sleeps mid-answer, the agent fails. Keep caffeinate running and the lid open.
 
 ## Agents and workflows
@@ -21,6 +23,7 @@
 - A workflow can die silently when the session stops. After a pause, check the newest agent log and `git log` before reporting anything.
 - Watch what agents do, not only that they live. If one waits on the same thing for 20 minutes or debugs one thing for 30, stop it and take over.
 - Reviews work best as two lenses (code, player) plus a refute pass on blockers and highs. Many findings are polish; real blockers are rare but expensive.
+- Comet Cargo 0.1 (about 30 Swift files) passed its first runner round without one compile error (08.11.). What worked: a detailed DESIGN.md with measurable tuning targets, one build agent, then a separate agent that reads every file like a compiler and greps the SDK's `.swiftinterface` files for each Apple API it calls. Keep that order.
 - Code written without a compiler compiles more often when the agent:
   - reads every declaration it calls;
   - keeps expressions short for the type checker (split arithmetic with custom CGPoint operators into named lets);
@@ -34,6 +37,12 @@
 - Judge a run by its real exit status and the log, not by a filtered summary.
 - Simulator UI test screenshots in landscape carry EXIF orientation 8; strip it before use.
 - ImageRenderer "sheet" pictures have blind spots: no onAppear or animation, no ScrollView content, and the process language for `Text("key")`. A missing row or an English word in a German sheet can be an artifact of the sheet, not a bug.
+
+## GitHub
+
+- Louis may ask Claude to do GitHub clicks for him; the built-in browser is signed in to his account. Creating a public repo needs his explicit "yes" in chat first: the safety check blocks the click otherwise.
+- Adding a deploy key puts GitHub in sudo mode with a code sent to Louis' e-mail. Only he can enter it (on his phone or in the browser pane); never ask for the code in chat.
+- Push `main` first: the first branch pushed to a new repo becomes its default branch, so a `ci/` push must never be the first.
 
 ## App Store
 
