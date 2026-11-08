@@ -206,16 +206,18 @@ enum FrameBuilder {
         let white = SIMD4<Float>(1, 1, 1, 1)
         var list: [SpriteInstance] = []
 
+        // Body tiles laid leftward from the edge tile, so none reaches past the edge.
         let bodyEnd = edge - Double(edgeSize.width)
-        var x = 0.0
-        while x < bodyEnd {
+        let bodyWidth = Double(bodySize.width)
+        var x = bodyEnd - bodyWidth
+        while x > -bodyWidth {
             let left = x - whole
-            if geometry.isVisible(left: left, width: Double(bodySize.width)) {
+            if geometry.isVisible(left: left, width: bodyWidth) {
                 let top = geometry.top(y: baseY, height: Double(bodySize.height))
                 let rect = SIMD4<Float>(Float(left), Float(top), Float(bodySize.width), Float(bodySize.height))
                 list.append(SpriteInstance(sprite: .darknessBank, frame: 0, rect: rect, tint: white, flipped: false))
             }
-            x += Double(bodySize.width)
+            x -= bodyWidth
         }
 
         let edgeLeft = bodyEnd - whole
