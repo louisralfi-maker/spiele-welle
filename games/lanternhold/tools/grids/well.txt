@@ -1,0 +1,33 @@
+# well 18x20, hand-set: shingled roof on two posts, crank beam, rope and bucket, stone ring
+k = ink
+w = woodDark
+o = wood
+L = woodLight
+t = tile
+T = tileLight
+d = stoneDark
+s = stone
+l = stoneLight
+p = stonePale
+r = strawLight
+---
+....kkkkkkkkkk....
+...kTTTTTTTTTTk...
+..kTtTtTtTtTtTtk..
+.kttttttttttttttk.
+kkkkkkkkkkkkkkkkkk
+...kok......kok...
+...kokkkkkkkkok...
+...koLLLLLLLLok...
+...kokkkkrkkkok...
+...kok...r..kok...
+...kok..kkk.kok...
+.kkkkkkkoLokkkkkk.
+.kppppppppppppppk.
+.kllllslllllslllk.
+.kssssdsssssdsssk.
+.kddddddddddddddk.
+.klldllllldlllllk.
+.kssdsssssdssssdk.
+.kddddddddddddddk.
+..kkkkkkkkkkkkkk..

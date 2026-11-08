@@ -1,0 +1,31 @@
+# lanternPost 6x24, hand-set: the glass is x 1-4, rows 2-5 (the lanternGlass sprite at dx 1, dy 18)
+k = ink
+w = woodDark
+o = wood
+g = night2
+b = stoneDark
+---
+..kk..
+.kbbk.
+kggggk
+kggggk
+kggggk
+kggggk
+.kbbk.
+..kk..
+..wo..
+.kwok.
+..wo..
+..wo..
+..wo..
+..wo..
+..wo..
+..wo..
+..wo..
+..wo..
+..wo..
+..wo..
+..wo..
+..wo..
+.kwok.
+kwwook

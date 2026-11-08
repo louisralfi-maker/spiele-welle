@@ -1,0 +1,19 @@
+# field 80x8, hand-set: a 16 px motif (wheat, cabbage, furrows) five times, so it tiles seamlessly
+S = strawLight
+s = straw
+g = leafLight
+G = meadow
+L = leaf
+D = leafDark
+o = soilLight
+w = soil
+d = soilDark
+---
+.S..S..S.........S..S..S.........S..S..S.........S..S..S.........S..S..S........
+SsS.sS.sS..gg...SsS.sS.sS..gg...SsS.sS.sS..gg...SsS.sS.sS..gg...SsS.sS.sS..gg...
+sGs.sGsGs.gGGg..sGs.sGsGs.gGGg..sGs.sGsGs.gGGg..sGs.sGsGs.gGGg..sGs.sGsGs.gGGg..
+.G..G..G.gGLLGg..G..G..G.gGLLGg..G..G..G.gGLLGg..G..G..G.gGLLGg..G..G..G.gGLLGg.
+.G..G..G.LGDDGL..G..G..G.LGDDGL..G..G..G.LGDDGL..G..G..G.LGDDGL..G..G..G.LGDDGL.
+owowowowowowowowowowowowowowowowowowowowowowowowowowowowowowowowowowowowowowowow
+wdwwdwwwdwwwdwwwwdwwdwwwdwwwdwwwwdwwdwwwdwwwdwwwwdwwdwwwdwwwdwwwwdwwdwwwdwwwdwww
+dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
