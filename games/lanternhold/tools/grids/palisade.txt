@@ -1,0 +1,42 @@
+# palisade 20x34, hand-set (design from the Recraft palisade of s7-defence-1): five sharpened stakes, two lashed beams
+k = ink
+w = woodDark
+o = wood
+L = woodLight
+p = strawLight
+r = straw
+---
+..k.................
+.kLk......k.......k.
+kpow..k..kLk.....kLk
+kLow.kLkkpow..k.kpow
+kLowkpowkLow.kLkkLww
+kLowkLwwkLowkpowkLow
+kLowkLowkLowkLowkLow
+kLowkLowkLowkLwwkLow
+kLwwkLowkLowkLowkLow
+krkkkrkkkrkkkrkkkrkk
+LLrLLLrLLLrLLLrLLLrL
+wrwwwrwwwrwwwrwwwrww
+kkrkkkrkkkrkkkrkkkrk
+kLowkLowkLwwkLowkLow
+kLowkLowkLowkLowkLww
+kLwwkLowkLowkLowkLow
+kLowkLowkLowkLowkLow
+kLowkLowkLowkLwwkLow
+kLowkLowkLowkLowkLow
+kLowkLwwkLowkLowkLow
+kLowkLowkLowkLowkLow
+kLowkLowkLwwkLowkLow
+kLowkLowkLowkLowkLww
+kLowkLowkLowkLowkLow
+krkkkrkkkrkkkrkkkrkk
+LLrLLLrLLLrLLLrLLLrL
+wrwwwrwwwrwwwrwwwrww
+kkrkkkrkkkrkkkrkkkrk
+kLowkLwwkLowkLowkLow
+kLwwkLowkLowkLowkLow
+kLowkLowkLowkLwwkLow
+kLowkLowkLowkLowkLow
+kLowkLowkLowkLowkLow
+kwwwkwwwkwwwkwwwkwww

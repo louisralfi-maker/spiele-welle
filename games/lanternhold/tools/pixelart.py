@@ -18,6 +18,7 @@ Commands (run from anywhere; paths are plain file paths):
           --box x0,y0,x1,y1       cut this box of a sheet first
           --key auto|none|#hex    background colour (auto: the most common border colour); default auto
           --tol 90                key distance in RGB
+          --flood                 key only background joined to the border (key-like paint inside stays)
           --fit stretch|contain|cover   how the content box meets WxH (default stretch; contain pads bottom-centre,
                                   cover crops the sides and the top)
           --pad l,t,r,b           extra transparent margin in target pixels inside WxH (contain/stretch)
@@ -362,7 +363,7 @@ def hsv(c):
     return h, (d / mx if mx else 0), mx
 
 
-def key_out(img, key, tol):
+def key_out(img, key, tol, flood=False):
     """Background colour to alpha 0, everything else alpha 255 (binary). A magenta key also removes the magenta-tinted
     anti-alias fringe."""
     kr, kg, kb = key
@@ -376,6 +377,23 @@ def key_out(img, key, tol):
             out.append((0, 0, 0, 0))
         else:
             out.append((r, g, b, 255))
+    if flood:
+        # only background joined to the border counts; key-like paint enclosed by the painting stays
+        keep = bytearray(w * h)
+        stack = [i for i in range(w * h) if (i < w or i >= w * (h - 1) or i % w in (0, w - 1)) and not out[i][3]]
+        for i in stack:
+            keep[i] = 1
+        while stack:
+            i = stack.pop()
+            y, x = divmod(i, w)
+            for j in (i - 1 if x > 0 else -1, i + 1 if x < w - 1 else -1, i - w, i + w):
+                if 0 <= j < w * h and not keep[j] and not out[j][3]:
+                    keep[j] = 1
+                    stack.append(j)
+        for i, p in enumerate(out):
+            if not p[3] and not keep[i]:
+                r, g, b, _ = img.px[i]
+                out[i] = (r, g, b, 255)
     if ksat > 0.6:
         # a saturated key (magenta, pink, green): pixels of the key's hue within 2 px of the background are its
         # anti-alias fringe; inside the painting the same hue is left alone
@@ -686,7 +704,7 @@ def cmd_convert(a):
     img, info = read_png(a.input, box)
     if a.key != "none":
         key = border_key(img) if a.key == "auto" else parse_hex(a.key)
-        key_out(img, key, a.tol)
+        key_out(img, key, a.tol, a.flood)
     cbox = content_box(img, a.min_count)
     pad = tuple(int(v) for v in a.pad.split(",")) if a.pad else (0, 0, 0, 0)
     overlap = 0
@@ -895,6 +913,7 @@ def main():
     v.add_argument("--box")
     v.add_argument("--key", default="auto")
     v.add_argument("--tol", type=float, default=90)
+    v.add_argument("--flood", action="store_true")
     v.add_argument("--min-count", type=int, default=3)
     v.add_argument("--fit", default="stretch")
     v.add_argument("--pad")

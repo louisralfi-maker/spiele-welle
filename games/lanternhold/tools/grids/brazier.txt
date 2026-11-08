@@ -1,0 +1,22 @@
+# brazier 10x14, hand-set: iron bowl of dark coals on a tripod; the flame sprite (8x7 at dx 1, dy 11) covers rows 0-2
+k = ink
+d = stoneDark
+m = stoneMid
+s = stone
+l = stoneLight
+n = night2
+---
+kndndndndk
+klssssssdk
+kdssssssdk
+.kddddddk.
+..kkkkkk..
+...kddk...
+...dkkd...
+..dk..kd..
+..d.kk.d..
+.dk.kk.kd.
+.d..kk..d.
+.d..kk..d.
+kd..kk..dk
+k..kkkk..k

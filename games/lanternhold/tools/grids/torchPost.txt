@@ -1,0 +1,22 @@
+# torchPost 4x14, hand-set: the flame sprite (4x5 at dx 0, dy 12) sits on the iron cup in rows 0-1
+k = ink
+d = stoneDark
+s = stone
+w = woodDark
+o = wood
+r = straw
+---
+kddk
+ksdk
+.kk.
+.wo.
+.wo.
+.rr.
+.wo.
+.wo.
+.wo.
+.wo.
+.wo.
+.wo.
+.wo.
+kwok
