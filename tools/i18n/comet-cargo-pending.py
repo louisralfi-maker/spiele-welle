@@ -96,6 +96,16 @@ T = {
     "Deliveries": row("Lieferungen", "Livraisons", "Entregas", "Consegne", "Entregas", "配送", "交付",
                       comment="Results section: satellites released this flight"),
     "Done": row("Fertig", "OK", "Listo", "Fine", "OK", "完了", "完成", comment="Closes the settings sheet"),
+    "Double it": row("Verdoppeln", "Doubler", "Duplicar", "Raddoppia", "Dobrar", "2倍にする", "翻倍",
+                     comment="Results button (rewarded ad): watch a short video, get the flight's coins once more"),
+    "Plays a short video ad": row(
+        "Spielt einen kurzen Werbeclip ab", "Lance une courte vidéo publicitaire", "Reproduce un breve anuncio en vídeo",
+        "Riproduce un breve video pubblicitario", "Reproduz um anúncio curto em vídeo", "短い動画広告が再生されます",
+        "播放一段简短的视频广告", comment="VoiceOver hint of the Double it button"),
+    "Privacy choices": row(
+        "Datenschutzoptionen", "Choix de confidentialité", "Opciones de privacidad", "Scelte sulla privacy",
+        "Opções de privacidade", "プライバシー設定", "隐私选项",
+        comment="Settings row: opens Google's privacy options form (ads consent)"),
     "Drop stage": row(
         "Stufe abwerfen", "Larguer l'étage", "Soltar etapa", "Sgancia stadio", "Soltar estágio", "段を切り離す",
         "分离火箭级", comment="VoiceOver action in flight: drop the burning rocket stage"),
