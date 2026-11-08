@@ -360,7 +360,8 @@ Screenshots are `XCTAttachment(screenshot:)` with `lifetime = .keepAlways`, name
 `ProcessInfo.processInfo.environment["GW_LANG"] ?? "en"`.
 
 1. `testFirstFlight`: `-GWReset YES -GWAutoplay YES`; shot `01-hangar`; tap `hangar-launch`; shots `02-liftoff` after
-   about 1.5 s and `03-climb` after about 6 s; wait for `results-root` (up to 120 s); shot `04-results`; tap
+   about 1.5 s and `03-climb` after about 6 s; wait for `results-root` (up to 120 s); shot `04-results` after 2.4 s (the
+   roll-up is over); tap
    `results-collect`; the hangar's coins are no longer 0.
 2. `testMidGame`: `-GWReset YES -GWCoins 5000 -GWUpgrades mid -GWNetwork demo -GWAutoplay YES`; shot `05-hangar-mid`;
    launch; shot `06-space` after about 20 s; wait for the results.
@@ -368,7 +369,8 @@ Screenshots are `XCTAttachment(screenshot:)` with `lifetime = .keepAlways`, name
    tap `flight-release`, tap the screen (drop), shot `07-manual`; pause (the altitude stands still), resume; wait for the
    results, shot `08-manual-results`; exactly one `results-drop` and at least one `results-delivery`.
 4. `testFirstFlightHints` and `testResultsRingBurst`: see "Feel", "Tests" (shots 09 to 12).
-5. `testDoubleReward`: `-GWReset YES -GWAutoplay YES -GWFakeAds YES -GWSkipOnboarding YES`; fly; tap `results-double`;
+5. `testDoubleReward`: `-GWReset YES -GWAutoplay YES -GWFakeAds YES -GWSkipOnboarding YES`; fly; after 2.4 s shot
+   `13a-double-offer` (Double it, its "Plays a short video ad" line and Collect, in every language); tap `results-double`;
    the total (digits of `results-total`'s label) doubles and the button goes away; shot `13-double`; Collect; the
    hangar's coins equal the doubled total.
 6. `testFilmstrip` (English only, skipped when `GW_LANG` is not `en`): `-GWReset YES -GWUpgrades mid -GWAutoplay YES`; a screenshot about every 1.2 s from

@@ -54,7 +54,8 @@ final class FlightUITests: XCTestCase {
         shot("03-climb")
         let results = element(app, "results-root")
         XCTAssertTrue(results.waitForExistence(timeout: 120), "The results show after the apex")
-        pause(1.6)
+        // The first flight sets a new best: the total rolls from 1.05 s to 2.15 s, so the shot waits for its end value.
+        pause(2.4)
         shot("04-results")
         let collect = element(app, "results-collect")
         XCTAssertTrue(collect.waitForExistence(timeout: 5))
@@ -201,8 +202,8 @@ final class FlightUITests: XCTestCase {
         XCTAssertTrue(element(app, "results-collect").exists)
     }
 
-    /// "Double it" with a fake rewarded ad that grants at once (-GWFakeAds YES): fly, tap `results-double` on the report,
-    /// the total doubles and the button goes away; shot 13-double; Collect, and the hangar's coins match the doubled
+    /// "Double it" with a fake rewarded ad that grants at once (-GWFakeAds YES): fly, shot 13a-double-offer, tap
+    /// `results-double` on the report, the total doubles and the button goes away; shot 13-double; Collect, and the hangar's coins match the doubled
     /// total (a fresh save starts at 0).
     func testDoubleReward() {
         let app = XCUIApplication()
@@ -220,6 +221,8 @@ final class FlightUITests: XCTestCase {
         XCTAssertTrue(double.waitForExistence(timeout: 5), "Double it is offered after a paid flight")
         // Collect and Double it arm at 0.6 s; the first roll-up (after a new best) is over at about 2.2 s.
         pause(2.4)
+        // The offer as the player sees it: Double it, its "video ad" line and Collect on the bar, in every language.
+        shot("13a-double-offer")
         double.tap()
         var after = number(in: total.label)
         var tries = 0

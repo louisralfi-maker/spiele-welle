@@ -4,7 +4,7 @@
     "subtitle": "Drop stages, fill orbit rings",
     "promotionalText": "Launch, drop each stage at the perfect moment and release your satellites right inside the glowing orbit rings. Carry them higher for more coins, if you dare.",
     "description": "Comet Cargo is a one-thumb rocket timing game with a press-your-luck twist.\n\nTap to launch. Watch the tank gauge and tap again the moment a stage runs dry: a perfect drop gives your rocket a kick. Then release your satellites exactly inside the glowing orbit rings. Higher rings pay more, but every satellite still aboard when the rocket stalls is lost. Release now for sure coins, or carry your cargo higher?\n\nA flight lasts 20 to 90 seconds. Spend your coins on five upgrades: stronger engines, bigger tanks, more stages, a larger cargo bay and sharper guidance. Your rocket grows and climbs past the clouds into the night.\n\nFifteen rings circle the planet, each with five slots. Fill a ring with five satellites and it turns gold and pays a big bonus. Your satellites keep orbiting above the hangar, so you always see how far your ring network has come.\n\n• Two timing skills in one short flight\n• Fifteen orbit rings from 20 to 1,000 km\n• Retro space-age poster art\n• Sound effects and haptics, no music\n• No account, no in-app purchases\n• In English, German, French, Spanish, Italian, Portuguese, Japanese and Chinese",
-    "keywords": "rocket,space,launch,orbit,satellite,timing,arcade,stage,ring,upgrade,planet,casual,reflex,retro"
+    "keywords": "rocket,space,launch,satellite,timing,arcade,upgrade,planet,casual,reflex,retro,physics,tap,spaceship"
   },
   "de-DE": {
     "name": "Comet Cargo",
@@ -46,7 +46,7 @@
     "subtitle": "段を切り離し衛星を軌道リングへ",
     "promotionalText": "ロケットを発射し、ベストなタイミングで段を切り離して、光る軌道リングの中で衛星を放出しよう。もっと高く運べば報酬アップ。ただし欲張りすぎには要注意！",
     "description": "Comet Cargoは、親指ひとつで遊べるロケットのタイミングゲーム。運び時を見極める駆け引きが勝負です。\n\nタップで発射。燃料タンクのゲージを見ながら、段が空になった瞬間にもう一度タップ。パーフェクトな切り離しでロケットが一気に加速します。次は、光る軌道リングの中でぴったり衛星を放出しましょう。高いリングほど報酬は大きくなりますが、ロケットが止まった時に積んだままの衛星はロストしてしまいます。今すぐ放出して確実に稼ぐか、それとももっと高く運ぶか？\n\n1回の飛行は20〜90秒。コインで5種類を強化できます：パワフルなエンジン、大きなタンク、段の追加、広い貨物室、精密な誘導。ロケットはどんどん大きくなり、雲を抜けて夜空の彼方へ。\n\n惑星を囲む15本のリングには、それぞれ5つの枠があります。衛星を5基届けるとリングが金色に輝き、大きなボーナスを獲得。届けた衛星は格納庫の上で回り続けるので、リング網の広がりがいつでもひと目でわかります。\n\n• 1回の短い飛行で2つのタイミングに挑戦\n• 高度20〜1,000 kmの15本の軌道リング\n• レトロな宇宙時代のポスター風アート\n• 効果音と振動のみ、音楽なし\n• アカウント不要、アプリ内課金なし\n• 日本語、英語、ドイツ語、フランス語、スペイン語、イタリア語、ポルトガル語、中国語に対応",
-    "keywords": "ロケット,宇宙,打ち上げ,軌道,衛星,タイミング,アーケード,リング,惑星,カジュアル,ワンタップ,スペース,育成"
+    "keywords": "ロケット,宇宙,打ち上げ,軌道,衛星,タイミング,惑星,カジュアル,育成"
   },
   "zh-Hans": {
     "name": "Comet Cargo",
