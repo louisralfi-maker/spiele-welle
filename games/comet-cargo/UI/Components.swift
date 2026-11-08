@@ -85,15 +85,33 @@ enum SatelliteShape {
     }
 }
 
+/// The satellite of the release button and the results rows: the painted one (the same picture the ring lines show),
+/// else the flat SatelliteShape.
 struct SatelliteIcon: View {
     var size: CGFloat = 40
 
     var body: some View {
         Canvas { context, canvasSize in
-            SatelliteShape.draw(in: context, at: CGPoint(x: canvasSize.width / 2, y: canvasSize.height / 2 + size * 0.06), size: canvasSize.width)
+            SatelliteIconDrawing.draw(context, side: canvasSize.width)
         }
         .frame(width: size, height: size)
         .accessibilityHidden(true)
+    }
+}
+
+/// The icon's drawing, a plain enum so it carries no actor isolation.
+enum SatelliteIconDrawing {
+    static func draw(_ context: GraphicsContext, side: CGFloat) {
+        let name = ArtName.satellite(0)
+        guard ArtAsset.cgImage(name) != nil else {
+            SatelliteShape.draw(in: context, at: CGPoint(x: side / 2, y: side / 2 + side * 0.06), size: side)
+            return
+        }
+        // As wide as the square (aspect fit); the body sits at 60 % of the picture's height, so shift it down a little to
+        // centre the whole picture.
+        let height = side / ArtAsset.aspect(name)
+        FlightScene.drawSatellite(context, at: CGPoint(x: side / 2, y: side / 2 + height * 0.1), size: side / 1.36,
+                                  variant: 0)
     }
 }
 

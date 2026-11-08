@@ -16,6 +16,10 @@ struct CometCargoApp: App {
                     model.scenePhaseChanged(phase)
                 }
                 .task {
+                    // The paintings decode in the background, so none is decoded inside a flight frame.
+                    Task.detached(priority: .utility) {
+                        ArtAsset.prewarm()
+                    }
                     await Feedback.shared.prepare()
                 }
         }

@@ -130,11 +130,8 @@ enum FlightScene {
     static func draw(_ context: inout GraphicsContext, size: CGSize, state: SceneState) {
         let camera = SceneCamera(size: size, altitude: state.altitude, span: state.span)
         let layout = RocketLayout(scales: state.stageScales, maxHeight: min(240, size.height * 0.28))
-        var ctx = context
-        if !state.reduceMotion && state.sinceDrop < 0.25 {
-            let k = CGFloat(1 - state.sinceDrop / 0.25)
-            ctx.translateBy(x: 0, y: 5 * k)
-        }
+        // The jolt of a stage drop is FlightShake's job (FlightView), whose zoom covers it; the scene itself stays put.
+        let ctx = context
         drawSky(ctx, camera: camera)
         drawStars(ctx, camera: camera, state: state)
         drawPlanet(ctx, camera: camera, layout: layout, state: state)
@@ -143,6 +140,8 @@ enum FlightScene {
         drawApexLines(ctx, camera: camera, state: state)
         drawSmoke(ctx, camera: camera, layout: layout, state: state)
         drawEffects(ctx, camera: camera, layout: layout, state: state, popups: false)
+        // The ring plates sit above the released satellites gliding onto the lines, so the pay stays readable.
+        drawRingLabels(ctx, camera: camera, state: state)
         drawRocket(ctx, camera: camera, layout: layout, state: state)
         drawEffects(ctx, camera: camera, layout: layout, state: state, popups: true)
     }
@@ -229,8 +228,13 @@ enum FlightScene {
             Gradient(colors: [Palette.skyTealRGB.mix(Palette.groundRGB, 0.5).color, Palette.groundRGB.color, Palette.navyRGB.mix(Palette.groundRGB, 0.5).color]),
             startPoint: CGPoint(x: 0, y: horizonY), endPoint: CGPoint(x: 0, y: horizonY + min(radius, h)))
         ctx.fill(Path(ellipseIn: disc), with: surface)
-        // Cream cloud bands on the planet, seen from above.
-        if rise > 0.15 {
+        // From about 6 km up: the painted planet surface (cloud bands, seas, islands), or without the file the cream
+        // dashed cloud bands.
+        if rise > 0.15, let tile = ArtAsset.image(ArtName.planetSurface, scale: 3) {
+            let fade = Double(min(1, (rise - 0.15) * 2))
+            drawPlanetSurface(ctx, tile: tile, disc: disc, size: camera.size, horizonY: horizonY, rise: rise, fade: fade,
+                              state: state)
+        } else if rise > 0.15 {
             var bands = ctx
             bands.clip(to: Path(ellipseIn: disc))
             let bandAlpha = Double(min(1, (rise - 0.15) * 2)) * 0.35
@@ -268,6 +272,35 @@ enum FlightScene {
         }
     }
 
+    /// The painted planet surface on the horizon disc: a seamless tile, squashed as if seen at a grazing angle and finer
+    /// the higher the rocket climbs, turning slowly (standing still under Reduce Motion), with a navy veil deepening
+    /// downward and a pale haze along the limb, so the disc reads round. The tile stays sharp at any disc radius.
+    static func drawPlanetSurface(_ ctx: GraphicsContext, tile: Image, disc: CGRect, size: CGSize, horizonY: CGFloat,
+                                  rise: CGFloat, fade: Double, state: SceneState) {
+        let w = size.width
+        let h = max(horizonY + 1, size.height)
+        let shape = Path(ellipseIn: disc)
+        let zoom = 1.5 - 0.9 * rise
+        let squash = 0.32 + 0.3 * rise
+        let drift = state.reduceMotion ? 0 : CGFloat(state.clock * 5)
+        var tex = ctx
+        tex.clip(to: shape)
+        tex.opacity = 0.85 * fade
+        tex.translateBy(x: 0, y: horizonY)
+        tex.scaleBy(x: zoom, y: zoom * squash)
+        let area = CGRect(x: 0, y: -2, width: w / zoom, height: (h - horizonY) / (zoom * squash) + 4)
+        tex.fill(Path(area), with: .tiledImage(tile, origin: CGPoint(x: drift, y: 0)))
+        var veil = ctx
+        veil.clip(to: shape)
+        let below = CGRect(x: 0, y: horizonY, width: w, height: h - horizonY)
+        veil.fill(Path(below), with: .linearGradient(
+            Gradient(colors: [Palette.navy.opacity(0), Palette.navy.opacity(0.5 * fade)]),
+            startPoint: CGPoint(x: 0, y: horizonY + 40), endPoint: CGPoint(x: 0, y: horizonY + 260)))
+        veil.fill(Path(below), with: .linearGradient(
+            Gradient(colors: [Palette.skyTeal.opacity(0.55 * fade), Palette.skyTeal.opacity(0)]),
+            startPoint: CGPoint(x: 0, y: horizonY), endPoint: CGPoint(x: 0, y: horizonY + 26)))
+    }
+
     /// The painted launch site: low mesas, a tiny distant tower and fuel tanks, standing on the ground line behind the pad.
     /// It is fixed to the ground, so it scrolls away with it as the rocket climbs, and it fades out over the first 8 km.
     /// Drawn before the ground disc, which covers its bottom edge. Without the file nothing is drawn.
@@ -291,7 +324,8 @@ enum FlightScene {
             let y = camera.y(alt)
             let scale = CGFloat(0.7 + 0.6 * fraction(Double(index) * 0.371))
             let cw = 90 * scale
-            guard y > -60, y < h + 60 else { continue }
+            // Room below for the tall painted tower cloud, whose top stands well above its base line.
+            guard y > -60, y < h + 140 else { continue }
             // Wrap off screen on both sides, with room for the wider painted clouds, so none pops in at an edge.
             let margin = cw * 1.3
             let span = w + margin * 2
@@ -300,7 +334,7 @@ enum FlightScene {
             let x = (base + drift * speed).truncatingRemainder(dividingBy: span) - margin
             let near = fraction(Double(index) * 0.53) > 0.5
             if let art = ArtAsset.image(ArtName.cloud(index)) {
-                drawPaintedCloud(ctx, art: art, name: ArtName.cloud(index), at: CGPoint(x: x, y: y), width: cw, near: near)
+                drawPaintedCloud(ctx, art: art, index: index, at: CGPoint(x: x, y: y), width: cw, near: near)
                 continue
             }
             let tint = near ? Palette.paper : Palette.cream
@@ -309,15 +343,30 @@ enum FlightScene {
         }
     }
 
-    /// A painted poster cloud in the slot of a procedural one: a little wider, its flat base on the same line
-    /// (`point.y` plus the procedural body height), far clouds paler.
-    static func drawPaintedCloud(_ ctx: GraphicsContext, art: Image, name: String, at point: CGPoint, width: CGFloat, near: Bool) {
-        let paintedWidth = width * 1.25
-        let paintedHeight = paintedWidth / ArtAsset.aspect(name)
+    /// Width of each painted cloud against the procedural one it replaces (stratus, two-puff, lenticular, tower, wide
+    /// cumulus, three puffs), so the long thin shapes are drawn longer and the small puff smaller.
+    static let paintedCloudWidths: [CGFloat] = [1.3, 0.7, 1.15, 0.85, 1.15, 1.0]
+
+    /// A painted poster cloud in the slot of a procedural one, centred on it, its flat base on the same line (`point.y`
+    /// plus the procedural body height), far clouds paler. Six silhouettes for 22 clouds: every second round of six is
+    /// mirrored and each cloud gets its own height (85 to 115 %), so no two repeats look stamped.
+    static func drawPaintedCloud(_ ctx: GraphicsContext, art: Image, index: Int, at point: CGPoint, width: CGFloat,
+                                 near: Bool) {
+        let name = ArtName.cloud(index)
+        let shape = paintedCloudWidths[index % paintedCloudWidths.count]
+        let paintedWidth = width * 1.25 * shape
+        let stretch = CGFloat(0.85 + 0.3 * fraction(Double(index) * 0.43))
+        let paintedHeight = paintedWidth / ArtAsset.aspect(name) * stretch
         let base = point.y + width * 0.32
-        let rect = CGRect(x: point.x - width * 0.12, y: base - paintedHeight, width: paintedWidth, height: paintedHeight)
+        let midX = point.x + width * 0.5
+        let rect = CGRect(x: midX - paintedWidth / 2, y: base - paintedHeight, width: paintedWidth, height: paintedHeight)
         var layer = ctx
         layer.opacity = near ? 1 : 0.72
+        if (index / paintedCloudWidths.count) % 2 == 1 {
+            layer.translateBy(x: midX, y: 0)
+            layer.scaleBy(x: -1, y: 1)
+            layer.translateBy(x: -midX, y: 0)
+        }
         layer.draw(art, in: rect)
     }
 
@@ -357,7 +406,6 @@ enum FlightScene {
                 startPoint: CGPoint(x: 0, y: band.minY), endPoint: CGPoint(x: 0, y: band.maxY)))
             drawPerfectStrip(layer, camera: camera, center: center, half: half * shares.perfect, tint: tint, live: live)
             drawCenterLine(layer, y: y, width: w, tint: tint, live: live, perfect: perfect, state: state)
-            drawRingLabel(layer, ring: ring, y: y, tint: tint, live: live)
             // Satellites already delivered here drift along the line.
             let count = min(Economy.ringSlots, delivered)
             for index in 0..<max(0, count) {
@@ -367,6 +415,20 @@ enum FlightScene {
                 let x = CGFloat(fraction(seed + moving)) * w
                 drawSatellite(layer, at: CGPoint(x: x, y: y), size: 18, variant: ring)
             }
+        }
+    }
+
+    /// The label plates of the rings in view (ring number, altitude, pay), in their own pass after the effects.
+    static func drawRingLabels(_ ctx: GraphicsContext, camera: SceneCamera, state: SceneState) {
+        let h = camera.size.height
+        for ring in 0..<Rings.count {
+            let y = camera.y(Rings.altitudes[ring])
+            guard y > -10, y < h + 50 else { continue }
+            let delivered = ring < state.ringDeliveries.count ? max(0, state.ringDeliveries[ring]) : 0
+            let tint = delivered >= Economy.ringSlots ? Palette.gold : Palette.mustard
+            var layer = ctx
+            layer.opacity = outOfReach(ring, state: state) ? 0.35 : 1
+            drawRingLabel(layer, ring: ring, y: y, tint: tint, live: state.bandRing == ring)
         }
     }
 
@@ -714,6 +776,12 @@ enum FlightScene {
         let phase = state.clock.truncatingRemainder(dividingBy: period)
         let emitted = floor(state.clock / period)
         let speedPx = CGFloat(max(0, state.speed)) * camera.pxPerKm
+        // While the ground is in view the smoke stays above it: puffs that reach it billow sideways along the pad.
+        let groundY = camera.y(0) + layout.baseY
+        var smoke = ctx
+        if groundY < camera.size.height {
+            smoke.clip(to: Path(CGRect(x: 0, y: 0, width: camera.size.width, height: max(0, groundY))))
+        }
         for j in 0..<16 {
             let age = phase + Double(j) * period
             let id = emitted - Double(j)
@@ -722,8 +790,16 @@ enum FlightScene {
             let r = CGFloat(7 + age * 24)
             let alpha = 0.5 * thin * max(0, 1 - age / 1.1)
             guard alpha > 0.01 else { continue }
-            let rect = CGRect(x: cx + wobble - r, y: startY + fall - r, width: r * 2, height: r * 2)
-            ctx.fill(Path(ellipseIn: rect), with: .color(Palette.paper.opacity(alpha)))
+            var x = cx + wobble
+            var y = startY + fall
+            let rest = groundY - r * 0.5
+            if y > rest {
+                let side: CGFloat = sin(id * 1.7) >= 0 ? 1 : -1
+                x += side * (y - rest) * 0.9
+                y = rest
+            }
+            let rect = CGRect(x: x - r, y: y - r, width: r * 2, height: r * 2)
+            smoke.fill(Path(ellipseIn: rect), with: .color(Palette.paper.opacity(alpha)))
         }
     }
 

@@ -26,6 +26,14 @@ enum ArtAsset {
         return CGFloat(cg.width) / CGFloat(cg.height)
     }
 
+    /// Decodes every painted piece now (call it off the main thread at launch), so no picture is decoded inside a frame
+    /// the first time it comes into view.
+    static func prewarm() {
+        for name in ArtName.all {
+            _ = store.image(name)
+        }
+    }
+
     static func decode(_ name: String) -> CGImage? {
         for ext in ["heic", "png"] {
             guard let url = Bundle.main.url(forResource: name, withExtension: ext),
@@ -69,4 +77,13 @@ enum ArtName {
     static let planet = "planet"
     static let launchSite = "launchsite"
     static let paper = "paper"
+    static let planetSurface = "planet-surface"
+
+    /// Every painted piece, for decoding them all once at launch.
+    static var all: [String] {
+        var names = [paper, launchSite, planet, planetSurface]
+        names += (0..<cloudCount).map { ArtName.cloud($0) }
+        names += (0..<satelliteCount).map { ArtName.satellite($0) }
+        return names
+    }
 }
