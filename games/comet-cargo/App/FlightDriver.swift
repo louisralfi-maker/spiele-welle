@@ -118,6 +118,9 @@ final class FlightDriver {
     @ObservationIgnored private(set) var hintStartTick: Int?
     /// True once the flight was handed to `onFinish`.
     @ObservationIgnored private(set) var finished = false
+    /// A store-shot flight that was run to its moment and now stands still (`runStill`): no display link, no input,
+    /// no pause card.
+    @ObservationIgnored private(set) var still = false
 
     @ObservationIgnored private var pilot: Autopilot?
     @ObservationIgnored private var accumulator = 0.0
@@ -148,6 +151,10 @@ final class FlightDriver {
     static let maxStepsPerFrame = 24
     /// The drop and release hints run the flight at this speed.
     static let hintSlowMotion = 0.35
+    /// The frame rate of the fixed clock `runStill` uses.
+    static let stillFrameRate = 60.0
+    /// `runStill` never runs more frames than this (five minutes of flight).
+    static let stillFrameLimit = 60 * 300
 
     init(rocket: RocketConfig, autoplay: Bool, best: Double, last: Double?, ringDeliveries: [Int],
          hints: Set<FlightHint> = []) {
@@ -195,8 +202,23 @@ final class FlightDriver {
         link.onFrame = nil
     }
 
+    /// Store shots (`-GWFreeze`): runs the flight frame by frame on a fixed 60 fps clock, all at once, until its clock is
+    /// nearest `seconds` (or the flight is over), and then leaves it standing: the display link never starts, so every
+    /// frame drawn afterwards is the same picture. The same rocket, save and seconds always give the same picture
+    /// (DESIGN.md "Store shots").
+    func runStill(until seconds: Double) {
+        still = true
+        let frameTime = 1.0 / Self.stillFrameRate
+        lastTimestamp = 0
+        var index = 0
+        while clock + frameTime / 2 < seconds && !finished && index < Self.stillFrameLimit {
+            index += 1
+            frame(Double(index) / Self.stillFrameRate)
+        }
+    }
+
     func pause() {
-        guard sim.phase != .ended, !finished else { return }
+        guard !still, sim.phase != .ended, !finished else { return }
         paused = true
         link.isPaused = true
     }
@@ -219,7 +241,7 @@ final class FlightDriver {
 
     /// A tap on the scene: ignite on the pad, otherwise drop the current stage.
     func tapScene() {
-        guard !paused, !autoplay else { return }
+        guard !paused, !autoplay, !still else { return }
         switch sim.phase {
         case .pad:
             sim.send(.ignite)
@@ -234,7 +256,7 @@ final class FlightDriver {
     }
 
     func tapRelease() {
-        guard !paused, !autoplay, sim.isFlying, sim.satellitesAboard > 0 else { return }
+        guard !paused, !autoplay, !still, sim.isFlying, sim.satellitesAboard > 0 else { return }
         sim.send(.release)
     }
 

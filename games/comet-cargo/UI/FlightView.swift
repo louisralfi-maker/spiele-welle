@@ -6,28 +6,42 @@ import SwiftUI
 struct FlightView: View {
     let driver: FlightDriver
     let model: GameModel
-    /// The bottom of the HUD's top bar on screen (the scene fills the whole screen, so screen points are scene points):
-    /// the scene keeps its apex and ring plates below it. 132 pt until measured.
-    @State private var hudBottom: CGFloat = 132
+    /// The bottom of the HUD's top bar and the top of the scene, both in the flight screen's own coordinate space
+    /// (`FlightSpace`), so their difference is the bar's bottom in scene points even while a store shot draws the whole
+    /// screen scaled down. The scene keeps its apex and ring plates below it. 132 pt until measured.
+    @State private var barBottom: CGFloat = 132
+    @State private var sceneTop: CGFloat = 0
 
     var body: some View {
         ZStack {
-            FlightSceneView(driver: driver, hudBottom: hudBottom)
+            FlightSceneView(driver: driver, hudBottom: barBottom - sceneTop)
+                .onGeometryChange(for: CGFloat.self) { proxy in
+                    proxy.frame(in: .named(FlightSpace.name)).minY
+                } action: { top in
+                    if abs(top - sceneTop) > 0.5 { sceneTop = top }
+                }
                 .ignoresSafeArea()
             PaperGrain(opacity: 0.035)
                 .equatable()
                 .ignoresSafeArea()
             FlightHUD(driver: driver, onTopBarBottom: { bottom in
-                if abs(bottom - hudBottom) > 0.5 { hudBottom = bottom }
+                if abs(bottom - barBottom) > 0.5 { barBottom = bottom }
             })
             if driver.paused {
                 PauseCard(onResume: { driver.resume() }, onAbort: { model.abortFlight() })
                     .transition(.opacity)
             }
         }
+        .coordinateSpace(.named(FlightSpace.name))
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("flight-root")
     }
+}
+
+/// The flight screen's own coordinate space. Measured in it, the HUD bar and the scene keep their distance whatever is
+/// drawn around the screen (a store shot scales the whole screen down, which changes every global frame).
+enum FlightSpace {
+    static let name = "flight-screen"
 }
 
 /// The part that redraws every frame. It is also the big "tap anywhere" control: VoiceOver reads it as a button
@@ -121,7 +135,7 @@ enum BandCue: Sendable, Equatable {
 
 struct FlightHUD: View {
     let driver: FlightDriver
-    /// Reports where the top bar ends on screen (global points), for the scene's labels.
+    /// Reports where the top bar ends (in `FlightSpace`), for the scene's labels.
     let onTopBarBottom: (CGFloat) -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -138,7 +152,7 @@ struct FlightHUD: View {
                 VStack(spacing: 0) {
                     topBar(sim)
                         .onGeometryChange(for: CGFloat.self) { proxy in
-                            proxy.frame(in: .global).maxY
+                            proxy.frame(in: .named(FlightSpace.name)).maxY
                         } action: { bottom in
                             onTopBarBottom(bottom)
                         }

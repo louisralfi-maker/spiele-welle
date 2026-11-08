@@ -34,12 +34,18 @@ final class GameModel {
         var loaded = args.reset ? SaveGame() : (store.load() ?? SaveGame())
         args.apply(to: &loaded)
         save = loaded
-        Feedback.shared.hapticsOn = loaded.hapticsOn
-        Feedback.shared.soundOn = loaded.soundOn
+        // Store shots are silent (the saved switches stay as they are).
+        Feedback.shared.hapticsOn = loaded.hapticsOn && !args.still
+        Feedback.shared.soundOn = loaded.soundOn && !args.still
         if args.changesSave { store.write(loaded) }
         if args.screen == "results" {
             settlement = DebugArgs.sampleSettlement
             screen = .results
+        } else if args.screen == "report" {
+            settlement = DebugArgs.storeSettlement
+            screen = .results
+        } else if let seconds = args.freeze {
+            launchStill(at: seconds)
         }
     }
 
@@ -49,6 +55,22 @@ final class GameModel {
         guard screen == .hangar else { return }
         Feedback.shared.flightBegan()
         Feedback.shared.play(.button)
+        let driver = makeDriver()
+        flight = driver
+        screen = .flight
+        driver.start()
+    }
+
+    /// `-GWFreeze <seconds>` (store shots): the flight starts at once, without the hangar, and runs on a fixed clock to
+    /// that moment, where it stands still (`FlightDriver.runStill`).
+    private func launchStill(at seconds: Double) {
+        let driver = makeDriver()
+        flight = driver
+        screen = .flight
+        driver.runStill(until: seconds)
+    }
+
+    private func makeDriver() -> FlightDriver {
         let driver = FlightDriver(
             rocket: RocketConfig(levels: save.levels),
             autoplay: args.autoplay,
@@ -63,9 +85,7 @@ final class GameModel {
         driver.onHintDone = { [weak self] hint in
             self?.hintLearned(hint)
         }
-        flight = driver
-        screen = .flight
-        driver.start()
+        return driver
     }
 
     /// The ring-complete chime and the new-best shimmer play on the results screen, in time with their effects.

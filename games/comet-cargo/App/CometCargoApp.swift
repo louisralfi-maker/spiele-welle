@@ -28,12 +28,38 @@ struct CometCargoApp: App {
     }
 }
 
-/// Shows the screen the model's state machine is on.
+/// Shows the screen the model's state machine is on; with `-GWStoreShot <n>` inside that App Store screenshot's poster.
 struct RootView: View {
     let model: GameModel
 
     var body: some View {
         @Bindable var bindable = model
+        framedScreens
+        .onChange(of: AdConsent.shared.isPresentingForm) { _, up in
+            // The consent form covers the screen without making the app inactive: a running flight pauses.
+            if up { model.pauseFlightForOverlay() }
+        }
+        .statusBarHidden(true)
+        .preferredColorScheme(.light)
+        .sheet(isPresented: $bindable.showSettings) {
+            SettingsView(model: model)
+                .presentationDetents([.medium, .large])
+        }
+    }
+
+    /// The screens, inside the store-shot poster (`StoreShotFrame`) only with `-GWStoreShot <n>`.
+    @ViewBuilder
+    private var framedScreens: some View {
+        if let shot = model.args.storeShot.flatMap(StoreShot.init(rawValue:)) {
+            StoreShotFrame(shot: shot) {
+                screens
+            }
+        } else {
+            screens
+        }
+    }
+
+    private var screens: some View {
         ZStack {
             switch model.screen {
             case .hangar:
@@ -51,22 +77,13 @@ struct RootView: View {
                         doubled: model.doubled && !AdManager.shared.isShowingAd,
                         canDouble: model.canDouble,
                         onDouble: { model.doubleCoins() },
-                        onCollect: { model.collect() }
+                        onCollect: { model.collect() },
+                        still: model.args.still
                     )
                     .transition(.opacity)
                 }
             }
         }
         .animation(.easeInOut(duration: 0.25), value: model.screen)
-        .onChange(of: AdConsent.shared.isPresentingForm) { _, up in
-            // The consent form covers the screen without making the app inactive: a running flight pauses.
-            if up { model.pauseFlightForOverlay() }
-        }
-        .statusBarHidden(true)
-        .preferredColorScheme(.light)
-        .sheet(isPresented: $bindable.showSettings) {
-            SettingsView(model: model)
-                .presentationDetents([.medium, .large])
-        }
     }
 }

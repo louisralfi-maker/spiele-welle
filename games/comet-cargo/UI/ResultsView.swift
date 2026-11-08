@@ -14,12 +14,16 @@ import SwiftUI
 /// visible under it. It arms with Collect, and never sooner than 0.6 s after it appeared (an ad that loads late cannot
 /// catch a thumb on its way to Collect). Once the ad has paid out and closed (`doubled`), the total rolls on to twice the
 /// flight's coins and a "×2" tag shows. The buttons sit on an opaque bar; the report fades out above it.
+///
+/// Store shots (`still`): every beat is in its end state at once (badges in, the total rolled up, completed rings gold,
+/// Collect armed), silently, so the screenshot never depends on timing.
 struct ResultsView: View {
     let settlement: Economy.Settlement
     let doubled: Bool
     let canDouble: Bool
     let onDouble: () -> Void
     let onCollect: () -> Void
+    let still: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var shown = false
     @State private var armed = false
@@ -51,12 +55,13 @@ struct ResultsView: View {
     }
 
     init(settlement: Economy.Settlement, doubled: Bool = false, canDouble: Bool = false,
-         onDouble: @escaping () -> Void = {}, onCollect: @escaping () -> Void) {
+         onDouble: @escaping () -> Void = {}, onCollect: @escaping () -> Void, still: Bool = false) {
         self.settlement = settlement
         self.doubled = doubled
         self.canDouble = canDouble
         self.onDouble = onDouble
         self.onCollect = onCollect
+        self.still = still
     }
 
     /// The total on screen: the flight's coins, twice once the reward is in.
@@ -119,7 +124,7 @@ struct ResultsView: View {
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("results-root")
         .onAppear {
-            if reduceMotion {
+            if reduceMotion || still {
                 shown = true
             } else {
                 withAnimation(.spring(response: 0.45, dampingFraction: 0.6).delay(0.15)) { shown = true }
@@ -133,6 +138,11 @@ struct ResultsView: View {
     /// The report's beats, in order; each waits for the one before, and leaving the screen stops them.
     private func playBeats() async {
         let completed = !settlement.completedRings.isEmpty
+        if still {
+            ringsLit = true
+            armed = true
+            return
+        }
         if reduceMotion {
             ringsLit = true
             if completed {
@@ -334,7 +344,7 @@ struct ResultsView: View {
                 }
                 Spacer()
                 RollingNumber(value: shownTotal, duration: Self.rollTime, size: 34,
-                              delay: Self.rollStart(newBest: settlement.newBest), ticks: true)
+                              delay: Self.rollStart(newBest: settlement.newBest), ticks: true, instant: still)
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel(Text("\(shownTotal) coins"))
                     .accessibilityIdentifier("results-total")

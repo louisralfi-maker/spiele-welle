@@ -164,7 +164,8 @@ struct PillButtonStyle: ButtonStyle {
 
 /// A number that rolls up from 0 to `value` over `duration`, after `delay`; with `ticks`, a light tick (sound and haptic)
 /// each time the shown number changes, at most every `tickGap` seconds. When `value` grows later (the doubled total), it
-/// rolls on from the number on screen at once. Under Reduce Motion it shows the value at once and stays silent.
+/// rolls on from the number on screen at once. Under Reduce Motion, and with `instant` (store shots), it shows the value at
+/// once and stays silent.
 struct RollingNumber: View {
     var value: Int
     var duration: Double = 1.0
@@ -172,6 +173,7 @@ struct RollingNumber: View {
     var color: Color = Palette.ink
     var delay: Double = 0
     var ticks = false
+    var instant = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// nil until the roll starts (then 0 … value).
     @State private var shown: Int?
@@ -180,19 +182,20 @@ struct RollingNumber: View {
     static let tickGap = 0.065
 
     init(value: Int, duration: Double = 1.0, size: CGFloat = 44, color: Color = Palette.ink, delay: Double = 0,
-         ticks: Bool = false) {
+         ticks: Bool = false, instant: Bool = false) {
         self.value = value
         self.duration = duration
         self.size = size
         self.color = color
         self.delay = delay
         self.ticks = ticks
+        self.instant = instant
     }
 
     var body: some View {
         HStack(spacing: 8) {
             CoinIcon(size: size * 0.8)
-            Text(shown ?? (reduceMotion ? value : 0), format: .number)
+            Text(shown ?? (reduceMotion || instant ? value : 0), format: .number)
                 .font(.rounded(size, .black).monospacedDigit())
                 .foregroundStyle(color)
         }
@@ -202,7 +205,7 @@ struct RollingNumber: View {
     }
 
     private func roll() async {
-        guard !reduceMotion, value > 0 else {
+        guard !reduceMotion, !instant, value > 0 else {
             shown = value
             return
         }

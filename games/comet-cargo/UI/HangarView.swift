@@ -88,7 +88,7 @@ struct HangarView: View {
 
     private func networkCard(_ save: SaveGame) -> some View {
         VStack(spacing: 4) {
-            NetworkView(deliveries: save.ringDeliveries, bestApex: save.bestApex)
+            NetworkView(deliveries: save.ringDeliveries, bestApex: save.bestApex, still: model.args.still)
                 .frame(height: 200)
             HStack {
                 Text("Best: \(Int(save.bestApex.rounded())) km")

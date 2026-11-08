@@ -1,20 +1,24 @@
 import SwiftUI
 
 /// The ring network around the planet: 15 concentric rings on a log scale, delivered satellites orbiting slowly (up to 5
-/// per ring), rings above the best apex faint, the next ring to reach dashed in mustard, completed rings gold.
+/// per ring), rings above the best apex faint, the next ring to reach dashed in mustard, completed rings gold. In store
+/// shots (`still`) the satellites stand where Reduce Motion puts them, so the picture never depends on the clock.
 struct NetworkView: View {
     let deliveries: [Int]
     let bestApex: Double
+    let still: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    init(deliveries: [Int], bestApex: Double) {
+    init(deliveries: [Int], bestApex: Double, still: Bool = false) {
         self.deliveries = deliveries
         self.bestApex = bestApex
+        self.still = still
     }
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: reduceMotion)) { timeline in
-            let time = reduceMotion ? 0 : timeline.date.timeIntervalSinceReferenceDate
+        let stopped = reduceMotion || still
+        TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: stopped)) { timeline in
+            let time = stopped ? 0 : timeline.date.timeIntervalSinceReferenceDate
             Canvas { context, size in
                 NetworkDrawing.draw(context, size: size, deliveries: deliveries, bestApex: bestApex, time: time)
             }
