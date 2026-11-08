@@ -220,6 +220,8 @@ struct RollingNumber: View {
 struct GoldBurst: View {
     @State private var start = Date()
 
+    init() {}
+
     var body: some View {
         TimelineView(.animation) { timeline in
             let t = timeline.date.timeIntervalSince(start) / GoldBurstDrawing.duration
