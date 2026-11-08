@@ -566,6 +566,12 @@ The research is in `docs/research-rendering.md` (sources, evidence labels, numbe
   pixel formats; no MSAA, no memoryless textures; atlases at most 2048². No Metal 4 APIs: the classic
   `MTLRenderCommandEncoder` path runs on the A12 (Apple5) and in the Simulator.
 - Shaders live in one `Render/Shaders.metal`, compiled at build time, so a syntax error fails the runner build.
+- **Proven on the runner (08.11.2026, round `lh-probe-1`, iPhone 17 Pro, iOS 26.5, Xcode 26.6):** the Simulator's Metal
+  device ("Apple iOS simulator GPU") works; it reports only the **Apple2 and Common1** families, so every feature must
+  stay inside Apple2 (at most 4 colour attachments per pass, no tile shaders, no imageblocks, no raster order groups,
+  no programmable blending). Offscreen readback is exact (clear, nearest 4x blocks, additive lights in `rgba16Float`),
+  and XCUITest screenshots show `MTKView` content with every game pixel an exact s x s block at s = 6 (180 rows) and
+  s = 8 (135 rows), colours unchanged. The Metal Toolchain was already installed; the guard step took 20 s.
 - 60 fps cap (no `CADisableMinimumFrameDurationOnPhone`); the sim runs a fixed 60 Hz step with an accumulator and never
   assumes a frame rate. The render loop stays swappable (`MTKView` internal, `CADisplayLink`, `CAMetalDisplayLink`)
   because of iOS 26 pacing reports. `isPaused` in menus and the background.
@@ -759,7 +765,7 @@ pixels, the jitter check passes, and Louis has seen the pictures and picked 180 
 
 | Risk | What we do |
 |---|---|
-| Metal does not run in the runner's Simulator (unproven) | The probe is the very first round; Plan B is Canvas with pixel light sprites |
+| Metal in the runner's Simulator (resolved: it works, Apple2 features only) | Stay inside the Apple2 family; Plan B (Canvas with pixel light sprites) is no longer needed |
 | GPU code written blind, wrong pixels are the only symptom | Build-time shader compile, readback tests, buffer debug views, only well-known techniques, Simulator subset |
 | Real-device speed and iOS 26 frame pacing unmeasured | Low-res design with big headroom, stats overlay, a TestFlight check on an A12 phone, swappable render loop |
 | Metal Toolchain missing on `macos-26` | The guard step; runtime compile as the fallback |
