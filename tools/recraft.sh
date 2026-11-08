@@ -18,6 +18,8 @@
 # Sizes: "1:1", "16:9", "2:1" … or WxH. Every call is logged (without the key) to build/recraft/log.jsonl.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+# python's downloader fails the TLS check on this Mac without it, after the image is already paid for (08.11.: 70 credits).
+export SSL_CERT_FILE="${SSL_CERT_FILE:-/etc/ssl/cert.pem}"
 KEY_FILE="$HOME/.recraft_api_key"
 API=https://external.api.recraft.ai/v1
 LOG=build/recraft/log.jsonl
