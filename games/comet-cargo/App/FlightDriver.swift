@@ -145,8 +145,6 @@ final class FlightDriver {
     static let fastForwardRate = 3.0
     /// How long the autopilot waits on the pad, so the pad can be seen.
     static let autoplayIgnitionDelay = 0.8
-    /// Pop-ups younger than this push a new one into the next lane.
-    static let popupLaneTime = 0.6
     static let maxStepsPerFrame = 24
     /// The drop and release hints run the flight at this speed.
     static let hintSlowMotion = 0.35
@@ -398,16 +396,18 @@ final class FlightDriver {
         nextEffectID += 1
     }
 
-    /// A rating pop-up; one that comes while another is still fresh takes the next lane, so they never overlap.
+    /// A rating pop-up. It starts clear of every pop-up still on screen (risen ones included, for their whole drawn
+    /// life), so two never overlap (`SceneEffect.popupLift`).
     private func addPopup(_ text: String, tint: Color, altitude: Double) {
         let now = clock
-        var lane = 0
-        for effect in effects where now - effect.spawn < Self.popupLaneTime {
-            if case .popup(_, _, let used) = effect.kind, used >= lane {
-                lane = used + 1
-            }
+        var taken: [Double] = []
+        for effect in effects {
+            let age = now - effect.spawn
+            guard age >= 0, age < SceneEffect.popupLife, case .popup(_, _, let lift) = effect.kind else { continue }
+            taken.append(lift + age * SceneEffect.popupRise)
         }
-        addEffect(.popup(text: text, tint: tint, lane: min(lane, 3)), altitude: altitude, speed: 0)
+        let lift = SceneEffect.popupLift(clearOf: taken)
+        addEffect(.popup(text: text, tint: tint, lift: lift), altitude: altitude, speed: 0)
     }
 
     /// Satellites whose glide ended now sit on their ring line (a ring completed this flight turns gold).
@@ -449,7 +449,7 @@ final class FlightDriver {
 
     // MARK: For the views
 
-    func sceneState(reduceMotion: Bool) -> SceneState {
+    func sceneState(reduceMotion: Bool, hudBottom: CGFloat = 132) -> SceneState {
         let band = sim.liveBand
         let guidance = sim.rocket.guidance
         return SceneState(
@@ -472,7 +472,8 @@ final class FlightDriver {
             cue: sim.gaugeCue,
             bandRing: band?.ring,
             bandRating: band?.rating ?? .lost,
-            predictedApex: sim.isFlying ? sim.predictedApex : nil
+            predictedApex: sim.isFlying ? sim.predictedApex : nil,
+            hudBottom: hudBottom
         )
     }
 }

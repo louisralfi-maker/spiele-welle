@@ -115,4 +115,25 @@ final class FeelTests: XCTestCase {
             last = shown
         }
     }
+
+    /// A new rating pop-up starts clear of every pop-up still on screen, risen ones included (the French "PERDU" over
+    /// "PARFAIT" overlap): all rise at the same speed, so the distance at spawn holds.
+    func testPopupsNeverStartOnTopOfEachOther() {
+        XCTAssertEqual(SceneEffect.popupLift(clearOf: []), 0, "Alone: the first slot")
+        let gap = SceneEffect.popupGap
+        // An older pop-up has risen 14 pt (0.5 s): the first slot would overlap it, so the new one starts above it.
+        XCTAssertEqual(SceneEffect.popupLift(clearOf: [14]), 14 + gap)
+        // One that has risen past the gap leaves the first slot free.
+        XCTAssertEqual(SceneEffect.popupLift(clearOf: [gap + 1]), 0)
+        // A free slot between two pop-ups is used.
+        XCTAssertEqual(SceneEffect.popupLift(clearOf: [5, 5 + 3 * gap]), 5 + gap)
+        for taken in [[0.0], [10, 50], [0, 32, 64], [20, 33.6, 39.2]] {
+            let lift = SceneEffect.popupLift(clearOf: taken)
+            XCTAssertLessThanOrEqual(lift, SceneEffect.popupMaxLift)
+            if lift < SceneEffect.popupMaxLift {
+                XCTAssertTrue(taken.allSatisfy { abs($0 - lift) >= gap - 0.001 }, "\(taken) → \(lift)")
+            }
+        }
+        XCTAssertEqual(SceneEffect.popupLife, 1.4, "Lane occupancy and the drawn life are one constant")
+    }
 }

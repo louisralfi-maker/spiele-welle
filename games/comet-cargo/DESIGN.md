@@ -150,18 +150,23 @@ Coins come only from deliveries and ring bonuses. Show prices and coins with a c
      `max(25 km, v × 3 s)` (smoothed), so a ring is visible about two seconds before the rocket reaches it.
    - Rings: horizontal glowing mustard lines across the screen with a faint band for `± w`, a brighter Perfect strip with
      thin paper edges (as wide as the real Perfect window) and a brighter center line; a label at the left with ring
-     number, altitude and pay, drawn above the released satellites so they never hide it; satellites already delivered
+     number, altitude and pay, drawn above the released satellites so they never hide it (above the line, or below it
+     while above would put it under the HUD's top bar; as wide as its title needs; dimmed while a rating pop-up covers
+     it); satellites already delivered
      there drift along the line (including this flight's, once
      they arrive; a ring completed in flight turns gold).
    - While the rocket carries satellites and is inside a band: the band, its label plate and its center line light up, the
      hatch ticks grow, and the release button gets a mustard rim and pulses; while a release would be Perfect, the center
      line glows and the rim and ticks turn gold. Reduce Motion: colour only, no pulse.
    - Lines for "Best" and "Last" apex (thin, dashed), and the predicted apex "Apex ≈ h km" in coral, `h + v² / 2g`: it
-     rises live while a stage burns and is exact while coasting; then rings above it dim (out of reach).
+     rises live while a stage burns and is exact while coasting; then rings above it dim (out of reach). Its plate never
+     goes up under the HUD's top bar (FlightView measures the bar's bottom and passes it in `SceneState.hudBottom`); the
+     line itself stays at the apex.
    - Dropped stages look like the stage they were (stripe, nozzle, fins on the bottom stage), fall away and tumble (no
      tumbling with Reduce Motion), with a puff of smoke at the separation; released satellites pop out sideways at the
      hatch, unfold their panels and glide onto the ring line; a lost satellite tumbles away dimmed.
-   - Rating pop-ups above the rocket ("PERFECT +24"); pop-ups that come within 0.6 s of each other stack in lanes.
+   - Rating pop-ups above the rocket ("PERFECT +24"), drawn for 1.4 s while they rise; a new one starts at least 32 pt
+     clear of every pop-up still on screen, risen ones included (`SceneEffect.popupLift`), so two never overlap.
    - Drop cue next to the rocket: a slim fuel bar with the same zones beside the bottom stage; in the Perfect window the
      stage's stripe flashes mustard and a "Drop!" tag appears (alternating coral once the stage is burnt out).
    - Once the cargo is gone and the last stage coasts, nothing can change any more: the flight runs 3× faster (a "≫" next

@@ -7,8 +7,28 @@ struct SceneEffect: Sendable, Identifiable {
         case debris(stage: Int, scale: Double, side: Double)
         /// A released satellite: unfolds and glides onto its ring, or tumbles away dimmed when `ring` is nil.
         case satellite(ring: Int?, side: Double)
-        /// A rating pop-up above the rocket; `lane` stacks pop-ups that come close together.
-        case popup(text: String, tint: Color, lane: Int)
+        /// A rating pop-up above the rocket, `lift` points higher than the first slot, so it keeps clear of every pop-up
+        /// still on screen (`popupLift`).
+        case popup(text: String, tint: Color, lift: Double)
+    }
+
+    /// A rating pop-up is drawn this long (it fades from 0.9 s), rising at `popupRise` points per second.
+    static let popupLife = 1.4
+    static let popupRise = 28.0
+    /// The vertical distance two pop-ups keep (26 pt capitals, their shadow and the pop-in zoom).
+    static let popupGap = 32.0
+    /// The highest a new pop-up starts above the first slot.
+    static let popupMaxLift = 110.0
+
+    /// Where a new pop-up starts: the lowest lift at least `popupGap` away from every pop-up still on screen (`taken`:
+    /// their current lifts, risen ones included). All pop-ups rise at the same speed, so the distance at spawn holds for
+    /// their whole life.
+    static func popupLift(clearOf taken: [Double]) -> Double {
+        let candidates = ([0] + taken.map { $0 + popupGap }).sorted()
+        for lift in candidates where lift <= popupMaxLift {
+            if taken.allSatisfy({ abs($0 - lift) >= popupGap - 0.001 }) { return lift }
+        }
+        return popupMaxLift
     }
 
     /// A delivered satellite pops out sideways, then glides onto its ring line, where the line itself draws it on.
@@ -50,6 +70,8 @@ struct SceneState: Sendable {
     var bandRating: ReleaseRating
     /// Where the rocket stalls without more thrust (nil on the pad and after the apex).
     var predictedApex: Double?
+    /// The bottom edge of the HUD's top bar in scene points (measured by FlightView): labels keep below it.
+    var hudBottom: CGFloat = 132
 }
 
 /// Maps altitudes to screen rows. The rocket's reference point, the cargo hatch, sits at 60 % of the screen height; the
@@ -141,7 +163,7 @@ enum FlightScene {
         drawSmoke(ctx, camera: camera, layout: layout, state: state)
         drawEffects(ctx, camera: camera, layout: layout, state: state, popups: false)
         // The ring plates sit above the released satellites gliding onto the lines, so the pay stays readable.
-        drawRingLabels(ctx, camera: camera, state: state)
+        drawRingLabels(ctx, camera: camera, layout: layout, state: state)
         drawRocket(ctx, camera: camera, layout: layout, state: state)
         drawEffects(ctx, camera: camera, layout: layout, state: state, popups: true)
     }
@@ -419,8 +441,9 @@ enum FlightScene {
     }
 
     /// The label plates of the rings in view (ring number, altitude, pay), in their own pass after the effects.
-    static func drawRingLabels(_ ctx: GraphicsContext, camera: SceneCamera, state: SceneState) {
+    static func drawRingLabels(_ ctx: GraphicsContext, camera: SceneCamera, layout: RocketLayout, state: SceneState) {
         let h = camera.size.height
+        let popups = popupFrames(ctx, camera: camera, layout: layout, state: state)
         for ring in 0..<Rings.count {
             let y = camera.y(Rings.altitudes[ring])
             guard y > -10, y < h + 50 else { continue }
@@ -428,7 +451,8 @@ enum FlightScene {
             let tint = delivered >= Economy.ringSlots ? Palette.gold : Palette.mustard
             var layer = ctx
             layer.opacity = outOfReach(ring, state: state) ? 0.35 : 1
-            drawRingLabel(layer, ring: ring, y: y, tint: tint, live: state.bandRing == ring)
+            drawRingLabel(layer, ring: ring, y: y, tint: tint, live: state.bandRing == ring, hudBottom: state.hudBottom,
+                          popups: popups)
         }
     }
 
@@ -476,7 +500,10 @@ enum FlightScene {
         }
     }
 
-    static func drawRingLabel(_ ctx: GraphicsContext, ring: Int, y: CGFloat, tint: Color, live: Bool) {
+    /// A ring's plate: number and coin, altitude and pay. It sits above the centre line, or below it while above would put
+    /// it under the HUD; it is as wide as its title needs (French "Anneau 12"); it dims while a rating pop-up covers it.
+    static func drawRingLabel(_ ctx: GraphicsContext, ring: Int, y: CGFloat, tint: Color, live: Bool, hudBottom: CGFloat,
+                              popups: [CGRect]) {
         let km = Int(Rings.altitudes[ring])
         let titleColor = live ? Palette.ink : tint
         let detailColor = live ? Palette.ink : Palette.paper.opacity(0.9)
@@ -484,13 +511,21 @@ enum FlightScene {
         let title = Text("Ring \(ring + 1)").font(.rounded(14, .heavy)).foregroundStyle(titleColor)
         let detail = Text("\(km) km").font(.rounded(13, .bold)).foregroundStyle(detailColor)
         let pay = Text(verbatim: "\(Rings.basePay(ring))").font(.rounded(13, .heavy).monospacedDigit()).foregroundStyle(payColor)
-        let plate = CGRect(x: 62, y: y - 42, width: 98, height: 36)
+        let resolvedTitle = ctx.resolve(title)
+        let titleWidth = resolvedTitle.measure(in: CGSize(width: 240, height: 30)).width
+        let above = y - 42
+        let top = above < hudBottom ? y + 6 : above
+        let plate = CGRect(x: 62, y: top, width: max(98, titleWidth + 8 + 22), height: 36)
+        var layer = ctx
+        if popups.contains(where: { $0.insetBy(dx: -4, dy: -4).intersects(plate) }) {
+            layer.opacity *= 0.3
+        }
         let plateFill = live ? tint : Palette.night.opacity(0.55)
-        ctx.fill(Path(roundedRect: plate, cornerRadius: 9), with: .color(plateFill))
-        ctx.draw(title, at: CGPoint(x: plate.minX + 8, y: plate.minY + 10), anchor: .leading)
-        ctx.draw(detail, at: CGPoint(x: plate.minX + 8, y: plate.minY + 26), anchor: .leading)
-        ctx.draw(pay, at: CGPoint(x: plate.maxX - 8, y: plate.minY + 26), anchor: .trailing)
-        CoinShape.draw(in: ctx, center: CGPoint(x: plate.maxX - 13, y: plate.minY + 10), radius: 5.5)
+        layer.fill(Path(roundedRect: plate, cornerRadius: 9), with: .color(plateFill))
+        layer.draw(resolvedTitle, at: CGPoint(x: plate.minX + 8, y: plate.minY + 10), anchor: .leading)
+        layer.draw(detail, at: CGPoint(x: plate.minX + 8, y: plate.minY + 26), anchor: .leading)
+        layer.draw(pay, at: CGPoint(x: plate.maxX - 8, y: plate.minY + 26), anchor: .trailing)
+        CoinShape.draw(in: layer, center: CGPoint(x: plate.maxX - 13, y: plate.minY + 10), radius: 5.5)
     }
 
     static func drawApexLines(_ ctx: GraphicsContext, camera: SceneCamera, state: SceneState) {
@@ -501,7 +536,7 @@ enum FlightScene {
             drawApexLine(ctx, camera: camera, altitude: last, label: lastLabel, color: Palette.paper)
         }
         if let apex = state.predictedApex, apex > 1 {
-            drawPredictedApex(ctx, camera: camera, apex: apex, exact: state.phase == .coasting)
+            drawPredictedApex(ctx, camera: camera, apex: apex, exact: state.phase == .coasting, hudBottom: state.hudBottom)
         }
     }
 
@@ -517,8 +552,9 @@ enum FlightScene {
         ctx.draw(text, at: CGPoint(x: w - 10, y: y - 10), anchor: .trailing)
     }
 
-    /// Where the rocket stalls: rises live while a stage burns (dimmer), exact while it coasts.
-    static func drawPredictedApex(_ ctx: GraphicsContext, camera: SceneCamera, apex: Double, exact: Bool) {
+    /// Where the rocket stalls: rises live while a stage burns (dimmer), exact while it coasts. The line stays at the
+    /// apex; its plate never goes up under the HUD.
+    static func drawPredictedApex(_ ctx: GraphicsContext, camera: SceneCamera, apex: Double, exact: Bool, hudBottom: CGFloat) {
         let y = camera.y(apex)
         guard y > -10, y < camera.size.height + 10 else { return }
         let w = camera.size.width
@@ -531,7 +567,8 @@ enum FlightScene {
         let text = Text(verbatim: label).font(.rounded(13, .heavy)).foregroundStyle(Palette.paper)
         let resolved = ctx.resolve(text)
         let size = resolved.measure(in: CGSize(width: 260, height: 40))
-        let plate = CGRect(x: w - 14 - size.width, y: y + 4, width: size.width + 8, height: size.height + 4)
+        let plate = CGRect(x: w - 14 - size.width, y: max(y + 4, hudBottom + 4), width: size.width + 8,
+                           height: size.height + 4)
         ctx.fill(Path(roundedRect: plate, cornerRadius: plate.height / 2), with: .color(Palette.coral.opacity(alpha)))
         ctx.draw(resolved, at: CGPoint(x: plate.midX, y: plate.midY), anchor: .center)
     }
@@ -817,12 +854,10 @@ enum FlightScene {
             case .satellite(let ring, let side):
                 guard !popups else { continue }
                 drawSatelliteEffect(ctx, camera: camera, effect: effect, ring: ring, side: side, age: age, state: state)
-            case .popup(let text, let tint, let lane):
-                guard popups, age < 1.4 else { continue }
-                let rise = CGFloat(age * 28)
-                let laneShift = CGFloat(lane) * 34
-                let y = camera.rocketY + layout.nose.minY - 26 - rise - laneShift
-                let pop = state.reduceMotion ? 1 : 1 + 0.35 * max(0, 1 - age / 0.15)
+            case .popup(let text, let tint, let lift):
+                guard popups, age < SceneEffect.popupLife else { continue }
+                let y = popupY(camera: camera, layout: layout, age: age, lift: lift)
+                let pop = popupZoom(age: age, reduceMotion: state.reduceMotion)
                 let alpha = age < 0.9 ? 1 : max(0, 1 - (age - 0.9) / 0.5)
                 var label = ctx
                 label.opacity = alpha
@@ -834,6 +869,34 @@ enum FlightScene {
                 label.draw(main, at: .zero, anchor: .center)
             }
         }
+    }
+
+    /// The centre row of a pop-up `age` seconds old: above the nose, risen, lifted clear of the others.
+    static func popupY(camera: SceneCamera, layout: RocketLayout, age: Double, lift: Double) -> CGFloat {
+        let rise = CGFloat(age * SceneEffect.popupRise)
+        return camera.rocketY + layout.nose.minY - 26 - rise - CGFloat(lift)
+    }
+
+    /// Pop-ups grow in from 1.35× over 0.15 s (not under Reduce Motion).
+    static func popupZoom(age: Double, reduceMotion: Bool) -> Double {
+        reduceMotion ? 1 : 1 + 0.35 * max(0, 1 - age / 0.15)
+    }
+
+    /// Where the pop-ups on screen are, so a ring plate under one can step back.
+    static func popupFrames(_ ctx: GraphicsContext, camera: SceneCamera, layout: RocketLayout, state: SceneState) -> [CGRect] {
+        var frames: [CGRect] = []
+        for effect in state.effects {
+            let age = state.clock - effect.spawn
+            guard age >= 0, age < SceneEffect.popupLife, case .popup(let text, _, let lift) = effect.kind else { continue }
+            let resolved = ctx.resolve(Text(verbatim: text).font(.rounded(26, .black)))
+            let size = resolved.measure(in: CGSize(width: camera.size.width, height: 80))
+            let zoom = CGFloat(popupZoom(age: age, reduceMotion: state.reduceMotion))
+            let width = size.width * zoom
+            let height = size.height * zoom
+            let y = popupY(camera: camera, layout: layout, age: age, lift: lift)
+            frames.append(CGRect(x: camera.size.width / 2 - width / 2, y: y - height / 2, width: width, height: height))
+        }
+        return frames
     }
 
     /// A dropped stage: drawn like the stage it was (stripe, nozzle, fins on the bottom stage), it falls away and

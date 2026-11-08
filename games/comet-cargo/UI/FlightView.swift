@@ -6,15 +6,20 @@ import SwiftUI
 struct FlightView: View {
     let driver: FlightDriver
     let model: GameModel
+    /// The bottom of the HUD's top bar on screen (the scene fills the whole screen, so screen points are scene points):
+    /// the scene keeps its apex and ring plates below it. 132 pt until measured.
+    @State private var hudBottom: CGFloat = 132
 
     var body: some View {
         ZStack {
-            FlightSceneView(driver: driver)
+            FlightSceneView(driver: driver, hudBottom: hudBottom)
                 .ignoresSafeArea()
             PaperGrain(opacity: 0.035)
                 .equatable()
                 .ignoresSafeArea()
-            FlightHUD(driver: driver)
+            FlightHUD(driver: driver, onTopBarBottom: { bottom in
+                if abs(bottom - hudBottom) > 0.5 { hudBottom = bottom }
+            })
             if driver.paused {
                 PauseCard(onResume: { driver.resume() }, onAbort: { model.abortFlight() })
                     .transition(.opacity)
@@ -29,14 +34,16 @@ struct FlightView: View {
 /// ("Launch" on the pad, then "Drop stage") with an action, since a tap on the screen is the only other way to do that.
 struct FlightSceneView: View {
     let driver: FlightDriver
+    var hudBottom: CGFloat = 132
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    init(driver: FlightDriver) {
+    init(driver: FlightDriver, hudBottom: CGFloat = 132) {
         self.driver = driver
+        self.hudBottom = hudBottom
     }
 
     var body: some View {
-        let state = driver.sceneState(reduceMotion: reduceMotion)
+        let state = driver.sceneState(reduceMotion: reduceMotion, hudBottom: hudBottom)
         let onPad = state.phase == .pad
         let shake = reduceMotion ? ShakeOffset.still : FlightShake.offset(
             sinceIgnition: driver.clock - driver.ignitedAt,
@@ -114,10 +121,13 @@ enum BandCue: Sendable, Equatable {
 
 struct FlightHUD: View {
     let driver: FlightDriver
+    /// Reports where the top bar ends on screen (global points), for the scene's labels.
+    let onTopBarBottom: (CGFloat) -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    init(driver: FlightDriver) {
+    init(driver: FlightDriver, onTopBarBottom: @escaping (CGFloat) -> Void = { _ in }) {
         self.driver = driver
+        self.onTopBarBottom = onTopBarBottom
     }
 
     var body: some View {
@@ -127,6 +137,11 @@ struct FlightHUD: View {
             ZStack {
                 VStack(spacing: 0) {
                     topBar(sim)
+                        .onGeometryChange(for: CGFloat.self) { proxy in
+                            proxy.frame(in: .global).maxY
+                        } action: { bottom in
+                            onTopBarBottom(bottom)
+                        }
                     Spacer(minLength: 0)
                     HStack {
                         Spacer()
