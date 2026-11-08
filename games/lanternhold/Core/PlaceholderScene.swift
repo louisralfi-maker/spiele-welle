@@ -312,8 +312,10 @@ private struct SceneBuilder {
         }
     }
 
-    /// The front: the outer line's palisade with two torches, a brazier and the ballista; the middle line's stone
-    /// wall with two torches and a brazier (DESIGN.md "The world": outer line 640, middle line 940).
+    /// The front (DESIGN.md "The world": outer line 640, middle line 940): the outer line's palisade with two torches
+    /// on top and the ballista behind it; the middle line's stone wall with two torches and both brazier slots lit.
+    /// The palisade torches burn 35 px up and light the wall walk, so the ground at the palisade's foot stays dark:
+    /// that is where the creatures wait, inside the `-GWCameraX 760` shot.
     mutating func addFront() {
         let outer = WorldLayout.lines[2]
         let middle = WorldLayout.lines[1]
@@ -321,13 +323,13 @@ private struct SceneBuilder {
         add(.palisade, .world, x: outer.wallX, y: 0, z: 1)
         torch(cx: outer.wallX - 4, baseY: 20)
         torch(cx: outer.wallX + 24, baseY: 20)
-        brazier(cx: outer.brazierXs[0] + 5)
         add(.ballista, .world, x: outer.engineX, y: 0, z: 1)
 
         add(.stoneWall, .world, x: middle.wallX, y: 0, z: 1)
         torch(cx: middle.wallX - 4, baseY: 38)
         torch(cx: middle.wallX + 40, baseY: 38)
         brazier(cx: middle.brazierXs[0] + 5)
+        brazier(cx: middle.brazierXs[1] + 5)
     }
 
     /// The castle front: gatehouse with two towers and gate torches, the courtyard wall, the great hall cut away
@@ -415,13 +417,13 @@ private struct SceneBuilder {
 
     // MARK: Actors
 
-    /// Six creatures waiting between the darkness bank and the outer line's light, three archers on the stone wall,
-    /// two citizens by the well.
+    /// Six creatures waiting in the dark at the palisade's foot, three archers on the stone wall, two citizens by the
+    /// well.
     static func actors() -> [SceneActor] {
         var list: [SceneActor] = []
         let creatures: [(ActorKind, Double)] = [
-            (.sootling, 440), (.sootling, 458), (.shadehound, 476), (.sootling, 496), (.shadehound, 512),
-            (.sootling, 530),
+            (.sootling, 556), (.sootling, 571), (.shadehound, 588), (.sootling, 606), (.shadehound, 620),
+            (.sootling, 632),
         ]
         for (index, entry) in creatures.enumerated() {
             let phase = 0.37 * Double(index)

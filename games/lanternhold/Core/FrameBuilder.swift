@@ -431,7 +431,8 @@ enum FrameBuilder {
         return 2 + ((walkStep % 4) + 4) % 4
     }
 
-    /// An actor's quad in device pixels: anchored at its bottom centre, its texels s × s blocks.
+    /// An actor's quad in device pixels: its anchor (bottom centre) is `width / 2` whole game pixels from the left edge,
+    /// so snapped actors stay on the world grid; its texels are s × s blocks.
     private static func actorRect(sprite: SpriteID, x: Double, y: Double, camera: Camera, options: FrameOptions,
                                   geometry: Geometry) -> SIMD4<Float> {
         let scale = geometry.scale
@@ -439,7 +440,7 @@ enum FrameBuilder {
         let anchor = camera.deviceX(worldX: x, scale: scale, mode: options.actorMode)
         let width = size.width * scale
         let height = size.height * scale
-        let left = anchor - width / 2
+        let left = anchor - (size.width / 2) * scale
         let lift: Int
         switch options.actorMode {
         case .smooth: lift = Int((y * Double(scale)).rounded())
