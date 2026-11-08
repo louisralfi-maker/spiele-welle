@@ -178,12 +178,80 @@ Coins come only from deliveries and ring bonuses. Show prices and coins with a c
 
 Navigation is a small state machine in the model (hangar → flight → results → hangar); no NavigationStack.
 
-## Feel (version 0.1)
+## Feel (version 0.3)
 
-`Audio/Feedback.swift` is the one hub every action goes through: `Feedback.shared.play(.ignite / .stageDrop(rating) /
-.release(rating) / .lost / .coin / .ringComplete / .button)`. Version 0.1 plays haptics only (UIKit feedback
-generators) and respects the haptics setting; synthesized sounds come in the juice step. Reduce Motion: no shake, no
-flashes, calm end states.
+### One hub
+
+`Audio/Feedback.swift` is the one hub every moment goes through: `Feedback.shared.play(.ignite / .stageDrop(rating) /
+.release(rating) / .lost / .coin / .coinTick / .ringComplete / .newBest / .button / .refused)`. Each `FeedbackCue` names
+its sound (`SoundCue`) and its vibration (`HapticPattern`); the hub plays both. The stack is adapted from the starter
+kit (Piston Empire's feedback stack, without its engine voice):
+
+- `AudioHub`: one `AVAudioEngine`, six player nodes taking turns (cues overlap), session `.ambient` with
+  `.mixWithOthers` (the ring/silent switch mutes the game; the player's own music keeps playing). Every cue is made at a
+  fixed 44.1 kHz mono format and the mixer converts it, so a route change never changes a pitch. The session comes up and
+  every cue is synthesised in the background at launch (`.task` on the root view). Behind the Sound switch.
+- `CueSynth`: the cues, rendered in code into samples (fixed-seed noise, biquad filters, struck partials), each normalised
+  to its `peak`. No audio files, never music.
+- `HapticHub` and `HapticScore`: authored Core Haptics patterns as plain data (`playsHapticsOnly`, so they play on silent
+  like the system's haptics and never touch the audio session). The engine stays warm during a flight
+  (`flightBegan` / `flightEnded`). Behind the Haptics switch. A device without a Taptic Engine is a silent no-op.
+
+| Moment | Sound | Vibration |
+|---|---|---|
+| Ignition | short low rumble burst: low-passed noise and a falling 78 → 44 Hz sine through a soft clipper, a gritty mid band, 30 ms swell, gone in about a second | hard kick and a 0.6 s rumble that swells and fades |
+| Stage drop | mechanical clunk (pitch-dropping thunk, metal click, housing ring) and 50 ms later the pop of the separation (a burst of band-passed air) | heavy tap and a crisp one |
+| Perfect drop | the same, brighter click and ring, plus a two-note chime (G6, D7) | harder tap, the pop, a bright tick |
+| Early or Late drop | the plain clunk | one soft tap |
+| Release | latch click and a soft whoosh (band-passed noise sweeping 600 → 2100 → 1400 Hz) | crisp tap and a faint breath |
+| Perfect release | the same with a chime (E6, B6) | crisp tap and two bright ticks |
+| Lost satellite | soft falling blip (880 → 330 Hz) and a smaller echo | three taps falling away |
+| Total rolling up | a light glassy tick per change, at most every 65 ms | one light crisp tap per tick |
+| Coins (buy, Collect) | two coins meeting | two light taps |
+| Ring complete | short bright arpeggio chime: four bells 70 ms apart (C6 E6 G6 C7) and a faint sheen, a signal, not a tune | four rising taps and a short swell |
+| New best altitude | shimmer: thirty tiny high pings rising and thinning out over bright air | ten fine ticks |
+| Button | soft tap | soft tap |
+| Drop tap on the last stage | dull thunk | dull bump |
+
+### Juice
+
+- A tiny screen shake: 4 pt over 0.45 s on ignition, 3 pt over 0.25 s on each stage drop, decaying; the scene zooms in by
+  just enough that the shake never shows its edges. None under Reduce Motion.
+- Rating pop-ups grow in from 1.35× to their size over 0.15 s as they rise and fade (`FlightScene`).
+- Results beats: the badges spring in (0.15 s), "New best altitude" shimmers once with its sound (0.35 s), the total
+  rolls up with ticks (0.45 to 1.55 s), Collect arms (0.6 s), and a ring completed this flight turns gold with a short
+  gold burst (a spreading ring, rays, sparks; 0.9 s) and the ring chime (1.7 s). Big effects stay rare: the burst only for
+  a completed ring, the shimmer only for a new best.
+- Reduce Motion: no shake, no pulses, no shimmer, no burst, the total at once without ticks; the results play only the
+  ring chime (or the new-best sound) once.
+
+### First-flight hints
+
+No text walls: a tapping hand (a pointing hand pressing down, with a mustard ring spreading from the fingertip) and at
+most two words. Each hint shows at most once per flight and one at a time, ends at the player's first success with it,
+and stops for good after three settled flights (`SaveGame.hintFlights`). The save remembers `hintLaunchDone`,
+`hintDropDone` and `hintReleaseDone` (new in 0.3; older saves decode them as false, a player with three or more flights
+never sees them).
+
+| Hint | When | What | Success |
+|---|---|---|---|
+| `hint-launch` | on the pad | the hand taps the corner of "Tap to launch" | the ignition |
+| `hint-drop` | the tick the first stage's fuel first enters the Perfect zone, until the drop or until a drop would be Late | the sim runs at 0.35×, a pulsing "Tap now!" and the hand over the scene | a Perfect or Great drop |
+| `hint-release` | the tick the rocket first enters a ring band with a satellite aboard, until the release or the end of the band | the sim runs at 0.35×, the hand taps the release button | a delivery into a ring |
+
+The slow motion lives in the flight driver (`timeScale`): the sim keeps its fixed tick; hints start and end on the exact
+tick after the step that meets their condition, and the time still owed to the sim in that frame is re-expressed at the
+new speed. Hints are off with `-GWAutoplay YES` and with `-GWSkipOnboarding YES` (UI tests that play by hand).
+
+### Tests
+
+- Unit: `FeelTests` (every cue short, finite, deterministic, at its peak, click-free; every vibration a valid pattern;
+  the cue mapping; the shake stays tiny and covered by its zoom; the hint hand; the roll-up), `FlightDriverTests` (launch
+  hint learned at ignition; the drop hint starts on the exact tick and runs at 0.35×; a missed drop hint leaves and stays
+  pending; the release hint; never with the autopilot), `SaveGameTests` (hint flags, three-flight limit, old saves).
+- UI: `testManualControls` passes `-GWSkipOnboarding YES`. `testFirstFlightHints` (`-GWReset YES`, no autopilot): the
+  launch hint shows (shot `09-hint-launch`), tap to launch, wait for `hint-drop` (shot `10-hint-drop`), tap, the hint
+  leaves, the results list one stage drop.
 
 ## Code layout (`games/comet-cargo/`)
 

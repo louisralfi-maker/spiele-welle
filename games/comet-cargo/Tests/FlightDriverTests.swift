@@ -107,4 +107,108 @@ final class FlightDriverTests: XCTestCase {
         run(driver, seconds: 0.1, time: &time)
         XCTAssertTrue(driver.fastForward || driver.sim.phase == .ended)
     }
+
+    // MARK: First-flight hints
+
+    private func makeHintDriver(_ hints: Set<FlightHint>, autoplay: Bool = false) -> FlightDriver {
+        FlightDriver(rocket: RocketConfig(levels: .starter), autoplay: autoplay, best: 0, last: nil,
+                     ringDeliveries: Array(repeating: 0, count: Rings.count), hints: hints)
+    }
+
+    func testLaunchHintShowsOnThePadAndIsLearnedAtIgnition() {
+        let driver = makeHintDriver([.launch])
+        var learned: [FlightHint] = []
+        driver.onHintDone = { learned.append($0) }
+        var time = 0.0
+        run(driver, seconds: 0.3, time: &time)
+        XCTAssertEqual(driver.hint, .launch)
+        XCTAssertEqual(driver.timeScale, 1, "The launch hint does not slow anything")
+        driver.tapScene()
+        run(driver, seconds: 0.2, time: &time)
+        XCTAssertNil(driver.hint)
+        XCTAssertEqual(learned, [.launch])
+        XCTAssertGreaterThan(driver.ignitedAt, 0, "The ignition time drives the screen shake")
+    }
+
+    /// The drop hint starts on the very tick the first stage's fuel enters the Perfect zone, the sim then runs at 0.35×
+    /// the screen's clock, and a Perfect drop teaches it and brings the speed back.
+    func testDropHintRunsInSlowMotionFromTheExactTick() throws {
+        let driver = makeHintDriver([.drop])
+        var learned: [FlightHint] = []
+        driver.onHintDone = { learned.append($0) }
+        var time = 0.0
+        driver.tapScene()
+        run(driver, time: &time) { $0.hint == .drop }
+        XCTAssertEqual(driver.hint, .drop)
+        XCTAssertEqual(driver.timeScale, FlightDriver.hintSlowMotion, accuracy: 1e-9)
+
+        var reference = FlightSim(rocket: driver.sim.rocket)
+        let ignition = try XCTUnwrap(driver.sim.ignitionTick)
+        while reference.tick < ignition { reference.step() }
+        reference.send(.ignite)
+        while reference.gaugeCue == .calm { reference.step() }
+        XCTAssertEqual(reference.gaugeCue, .perfect)
+        XCTAssertEqual(driver.hintStartTick, reference.tick, "The hint starts on the first tick inside the Perfect zone")
+
+        let before = driver.sim.tick
+        run(driver, seconds: 0.25, time: &time)
+        let ticks = Double(driver.sim.tick - before)
+        XCTAssertEqual(ticks, 0.25 * 120 * FlightDriver.hintSlowMotion, accuracy: 2, "0.35 × real time")
+        XCTAssertEqual(driver.hint, .drop, "Still inside the window")
+
+        driver.tapScene()
+        run(driver, seconds: 0.1, time: &time)
+        XCTAssertEqual(driver.sim.drops.first?.rating, .perfect)
+        XCTAssertNil(driver.hint)
+        XCTAssertEqual(driver.timeScale, 1)
+        XCTAssertEqual(learned, [.drop])
+    }
+
+    func testAMissedDropHintLeavesAfterTheGraceAndStaysPending() {
+        let driver = makeHintDriver([.drop])
+        var learned: [FlightHint] = []
+        driver.onHintDone = { learned.append($0) }
+        var time = 0.0
+        driver.tapScene()
+        run(driver, time: &time) { $0.hint == .drop }
+        run(driver, time: &time) { $0.hint == nil }
+        XCTAssertEqual(driver.sim.gaugeCue, .late, "The hint leaves once a drop would be Late")
+        XCTAssertEqual(driver.timeScale, 1)
+        run(driver, seconds: 1, time: &time)
+        XCTAssertNil(driver.hint, "Each hint shows at most once per flight")
+        XCTAssertTrue(learned.isEmpty, "Not learned: it shows again on the next flight")
+    }
+
+    func testReleaseHintSlowsAtTheFirstRingAndADeliveryTeachesIt() {
+        let driver = makeHintDriver([.release])
+        var learned: [FlightHint] = []
+        driver.onHintDone = { learned.append($0) }
+        var time = 0.0
+        driver.tapScene()
+        run(driver, time: &time) { $0.sim.gaugeCue == .perfect }
+        driver.tapScene()
+        run(driver, time: &time) { $0.hint == .release }
+        XCTAssertEqual(driver.hint, .release)
+        XCTAssertEqual(driver.timeScale, FlightDriver.hintSlowMotion, accuracy: 1e-9)
+        XCTAssertEqual(driver.sim.liveBand?.ring, 0, "The first ring entered with a satellite aboard")
+        driver.tapRelease()
+        run(driver, seconds: 0.1, time: &time)
+        XCTAssertNil(driver.hint)
+        XCTAssertEqual(driver.sim.deliveries.first?.ring, 0)
+        XCTAssertEqual(learned, [.release])
+        XCTAssertEqual(driver.timeScale, 1)
+    }
+
+    func testTheAutopilotNeverShowsHints() {
+        let driver = makeHintDriver(Set(FlightHint.allCases), autoplay: true)
+        XCTAssertNil(driver.hint)
+        var seen = false
+        var time = 0.0
+        run(driver, time: &time) { flight in
+            if flight.hint != nil { seen = true }
+            return flight.finished
+        }
+        XCTAssertTrue(driver.finished)
+        XCTAssertFalse(seen)
+    }
 }

@@ -1,0 +1,104 @@
+import XCTest
+@testable import CometCargo
+
+/// The feel layer without a speaker or a Taptic Engine: every synthesised cue is short, finite, deterministic and at its
+/// mix level; every vibration is a valid Core Haptics pattern; every moment has its sound and vibration; the screen
+/// shake is tiny and never shows the scene's edge; the hint hand taps; the results total eases to its value.
+@MainActor
+final class FeelTests: XCTestCase {
+    func testEveryCueIsShortFiniteAndAtItsPeak() {
+        for cue in SoundCue.allCases {
+            let samples = CueSynth.render(cue, sampleRate: AudioHub.cueRate)
+            XCTAssertEqual(Double(samples.count), cue.duration * AudioHub.cueRate, accuracy: 2, "\(cue)")
+            XCTAssertLessThanOrEqual(cue.duration, 1.5, "\(cue): short effects only, never music")
+            XCTAssertTrue(samples.allSatisfy { $0.isFinite }, "\(cue)")
+            let top = samples.map { abs(Double($0)) }.max() ?? 0
+            XCTAssertEqual(top, cue.peak, accuracy: 0.001, "\(cue) is normalised to its mix level")
+            XCTAssertLessThan(top, 0.5, "\(cue) leaves headroom for overlapping cues")
+            XCTAssertEqual(samples.first ?? 1, 0, accuracy: 0.001, "\(cue) starts without a click")
+            XCTAssertEqual(samples.last ?? 1, 0, accuracy: 0.001, "\(cue) ends without a click")
+        }
+    }
+
+    func testSynthesisIsDeterministic() {
+        for cue in SoundCue.allCases {
+            XCTAssertEqual(CueSynth.render(cue, sampleRate: 44_100), CueSynth.render(cue, sampleRate: 44_100), "\(cue)")
+        }
+    }
+
+    func testEveryVibrationIsAValidPattern() throws {
+        for pattern in HapticPattern.allCases {
+            let score = pattern.score
+            XCTAssertFalse(score.events.isEmpty, "\(pattern)")
+            for event in score.events {
+                XCTAssertGreaterThanOrEqual(event.time, 0, "\(pattern)")
+                XCTAssertTrue((0...1).contains(event.intensity), "\(pattern)")
+                XCTAssertTrue((0...1).contains(event.sharpness), "\(pattern)")
+                if let length = event.length { XCTAssertGreaterThan(length, 0, "\(pattern)") }
+            }
+            for curve in score.curves {
+                for point in curve.points {
+                    XCTAssertTrue((0...1).contains(point.value), "\(pattern)")
+                }
+            }
+            XCTAssertLessThanOrEqual(score.duration, 1.0, "\(pattern) is a beat, not a buzz")
+            XCTAssertLessThanOrEqual(score.rumbleTime, 0.7, "\(pattern)")
+            _ = try score.pattern()
+        }
+    }
+
+    func testEveryMomentHasItsSoundAndVibration() {
+        XCTAssertEqual(FeedbackCue.ignite.sound, .ignite)
+        XCTAssertEqual(FeedbackCue.stageDrop(.perfect).sound, .stageDropPerfect)
+        XCTAssertEqual(FeedbackCue.stageDrop(.great).sound, .stageDrop)
+        XCTAssertEqual(FeedbackCue.stageDrop(.perfect).haptic, .stageDropPerfect)
+        XCTAssertEqual(FeedbackCue.stageDrop(.late).haptic, .stageDropSoft)
+        XCTAssertEqual(FeedbackCue.release(.perfect).sound, .releasePerfect)
+        XCTAssertEqual(FeedbackCue.release(.good).sound, .release)
+        XCTAssertEqual(FeedbackCue.release(.lost).sound, .lost)
+        XCTAssertEqual(FeedbackCue.lost.haptic, .lost)
+        XCTAssertEqual(FeedbackCue.coinTick.sound, .coinTick)
+        XCTAssertEqual(FeedbackCue.ringComplete.sound, .ringComplete)
+        XCTAssertEqual(FeedbackCue.newBest.haptic, .newBest)
+        XCTAssertEqual(FeedbackCue.button.sound, .button)
+    }
+
+    func testTheShakeIsTinyShortAndNeverShowsTheEdge() {
+        XCTAssertEqual(FlightShake.offset(sinceIgnition: 1, sinceDrop: 1), .still)
+        XCTAssertEqual(FlightShake.offset(sinceIgnition: -10, sinceDrop: -10), .still)
+        for step in 0..<120 {
+            let age = Double(step) / 240
+            for shake in [FlightShake.offset(sinceIgnition: age, sinceDrop: 9),
+                          FlightShake.offset(sinceIgnition: 9, sinceDrop: age)] {
+                XCTAssertLessThanOrEqual(abs(shake.x), 4.0001)
+                XCTAssertLessThanOrEqual(abs(shake.y), 4.0001)
+                // The narrowest phone is 375 × 667 pt: the zoom must cover the offset on every edge.
+                XCTAssertGreaterThanOrEqual((shake.scale - 1) * 375 / 2 + 0.0001, abs(shake.x))
+                XCTAssertGreaterThanOrEqual((shake.scale - 1) * 667 / 2 + 0.0001, abs(shake.y))
+            }
+        }
+    }
+
+    func testTheHintHandTapsAndRestsUnderReduceMotion() {
+        XCTAssertEqual(HintMotion.phase(clock: 12.3, reduceMotion: true), 0)
+        XCTAssertEqual(HintMotion.press(0), 0)
+        XCTAssertEqual(HintMotion.press(0.3), 1)
+        XCTAssertEqual(HintMotion.press(0.8), 0)
+        XCTAssertEqual(HintMotion.ripple(0.1), 0)
+        XCTAssertEqual(HintMotion.ripple(0.72), 1, accuracy: 1e-9)
+        let phase = HintMotion.phase(clock: 3.7, reduceMotion: false)
+        XCTAssertTrue((0..<1).contains(phase))
+    }
+
+    func testTheTotalEasesToItsValue() {
+        XCTAssertEqual(RollingNumber.rolled(56, at: 0, duration: 1.1), 0)
+        XCTAssertEqual(RollingNumber.rolled(56, at: 1.1, duration: 1.1), 56)
+        XCTAssertEqual(RollingNumber.rolled(56, at: 5, duration: 1.1), 56)
+        var last = 0
+        for step in 0...22 {
+            let shown = RollingNumber.rolled(56, at: Double(step) * 0.05, duration: 1.1)
+            XCTAssertGreaterThanOrEqual(shown, last)
+            last = shown
+        }
+    }
+}

@@ -2,7 +2,8 @@ import XCTest
 
 /// Plays the first flight and a mid-game flight with the autopilot and saves screenshots named <nn>-<what>-<lang>; plays
 /// one flight by hand (taps reach the sim, the buttons never drop a stage, pause works); shoots a filmstrip of a mid-game
-/// flight for the fun check.
+/// flight for the fun check; checks the first-flight hints. Tests that play by hand without the hints pass
+/// -GWSkipOnboarding YES.
 @MainActor
 final class FlightUITests: XCTestCase {
     override func setUp() async throws {
@@ -63,7 +64,7 @@ final class FlightUITests: XCTestCase {
     /// exactly one stage drop and the released satellite.
     func testManualControls() {
         let app = XCUIApplication()
-        app.launchArguments = ["-GWReset", "YES", "-GWUpgrades", "mid"]
+        app.launchArguments = ["-GWReset", "YES", "-GWUpgrades", "mid", "-GWSkipOnboarding", "YES"]
         app.launch()
         let launch = element(app, "hangar-launch")
         XCTAssertTrue(launch.waitForExistence(timeout: 30), "The hangar shows")
@@ -138,5 +139,35 @@ final class FlightUITests: XCTestCase {
         pause(20)
         shot("06-space")
         XCTAssertTrue(element(app, "results-root").waitForExistence(timeout: 120), "The results show after the apex")
+    }
+
+    /// No autopilot, fresh save: the first-flight hints. The launch hint waits on the pad; after the ignition tap the drop
+    /// hint appears when the first stage's fuel reaches the Perfect zone (the flight runs slowly then), and a tap drops the
+    /// stage and sends it away.
+    func testFirstFlightHints() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-GWReset", "YES"]
+        app.launch()
+        let launch = element(app, "hangar-launch")
+        XCTAssertTrue(launch.waitForExistence(timeout: 30), "The hangar shows")
+        launch.tap()
+        let launchHint = element(app, "hint-launch")
+        XCTAssertTrue(launchHint.waitForExistence(timeout: 10), "The launch hint shows on the pad")
+        pause(0.8)
+        shot("09-hint-launch")
+        let scene = element(app, "flight-scene")
+        XCTAssertTrue(scene.exists)
+        let screen = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+        screen.tap()
+        let dropHint = element(app, "hint-drop")
+        XCTAssertTrue(dropHint.waitForExistence(timeout: 20), "The drop hint shows when the tank reaches the Perfect zone")
+        shot("10-hint-drop")
+        XCTAssertFalse(launchHint.exists, "The launch hint left at the ignition")
+        screen.tap()
+        let gone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: dropHint)
+        wait(for: [gone], timeout: 8)
+        XCTAssertTrue(element(app, "results-root").waitForExistence(timeout: 120), "The flight ends in the results")
+        let drops = app.descendants(matching: .any).matching(identifier: "results-drop")
+        XCTAssertEqual(drops.count, 1, "The tap under the hint dropped the first stage")
     }
 }

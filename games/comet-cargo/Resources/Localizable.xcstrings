@@ -441,6 +441,16 @@
         }
       }
     },
+    "Release now" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt aussetzen"
+          }
+        }
+      }
+    },
     "Release satellite" : {
       "localizations" : {
         "de" : {
@@ -597,6 +607,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tanks"
+          }
+        }
+      }
+    },
+    "Tap now!" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt tippen!"
           }
         }
       }

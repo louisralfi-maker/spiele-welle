@@ -71,4 +71,41 @@ final class SaveGameTests: XCTestCase {
         XCTAssertFalse(fresh.soundOn)
         XCTAssertTrue(fresh.hapticsOn)
     }
+
+    // MARK: First-flight hints
+
+    func testHintsStartPendingAndAreLearnedOneByOne() throws {
+        var save = SaveGame()
+        XCTAssertEqual(save.pendingHints, Set(FlightHint.allCases))
+        save.markHintDone(.drop)
+        XCTAssertEqual(save.pendingHints, [.launch, .release])
+        let back = try SaveGame.decoded(from: save.encoded())
+        XCTAssertEqual(back, save)
+        XCTAssertTrue(back.hintDropDone)
+        XCTAssertFalse(back.hintLaunchDone)
+        save.markHintDone(.launch)
+        save.markHintDone(.release)
+        XCTAssertTrue(save.pendingHints.isEmpty)
+    }
+
+    func testHintsStopAfterThreeFlights() {
+        var save = SaveGame()
+        save.flights = SaveGame.hintFlights - 1
+        XCTAssertFalse(save.pendingHints.isEmpty)
+        save.flights = SaveGame.hintFlights
+        XCTAssertTrue(save.pendingHints.isEmpty, "Unlearned hints still end after three flights")
+    }
+
+    func testSavesFromBeforeTheHintsLoad() throws {
+        let fresh = try SaveGame.decoded(from: Data(#"{"version":1,"coins":40,"flights":1}"#.utf8))
+        XCTAssertFalse(fresh.hintLaunchDone)
+        XCTAssertFalse(fresh.hintDropDone)
+        XCTAssertFalse(fresh.hintReleaseDone)
+        XCTAssertEqual(fresh.pendingHints, Set(FlightHint.allCases))
+        let veteran = try SaveGame.decoded(from: Data(#"{"version":1,"coins":900,"flights":40}"#.utf8))
+        XCTAssertTrue(veteran.pendingHints.isEmpty, "A player with many flights never sees the hints")
+        let odd = try SaveGame.decoded(from: Data(#"{"version":1,"hintDropDone":"yes","hintLaunchDone":true}"#.utf8))
+        XCTAssertFalse(odd.hintDropDone, "A flag of the wrong type falls back to its default")
+        XCTAssertTrue(odd.hintLaunchDone)
+    }
 }
