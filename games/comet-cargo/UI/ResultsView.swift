@@ -5,8 +5,9 @@ import SwiftUI
 /// to the hangar. Collect arms after 0.6 s, so a tap meant for the flight cannot skip the report.
 ///
 /// Its beats (DESIGN.md "Feel"): the badges spring in at 0.15 s, "New best altitude" shimmers once at 0.35 s, the total
-/// rolls up with light ticks from 0.45 s, and a ring this flight completed turns gold with a short burst and its chime at
-/// 1.7 s. Under Reduce Motion everything is in its end state at once and only the ring chime (or the new-best shimmer
+/// rolls up with light ticks from 0.45 s (from 1.05 s after a new best, so the ticks never pile onto the shimmer), and a
+/// ring this flight completed turns gold with a short burst and its chime at 1.7 s, or once the roll-up is over. Under
+/// Reduce Motion everything is in its end state at once and only the ring chime (or the new-best shimmer
 /// sound) plays.
 struct ResultsView: View {
     let settlement: Economy.Settlement
@@ -20,9 +21,21 @@ struct ResultsView: View {
     @State private var ringsLit = false
     @State private var bursting = false
 
-    /// When the roll-up of the total starts and how long it takes.
+    /// When the roll-up of the total starts (later after a new best, once the shimmer's ticks are through) and how long it
+    /// takes.
     static let rollDelay = 0.45
+    static let rollDelayAfterBest = 1.05
     static let rollTime = 1.1
+
+    /// When the roll-up starts for this report.
+    static func rollStart(newBest: Bool) -> Double {
+        newBest ? rollDelayAfterBest : rollDelay
+    }
+
+    /// When a completed ring turns gold with its burst and chime: 1.7 s, never before the roll-up's last tick.
+    static func ringBeat(newBest: Bool) -> Double {
+        max(1.7, rollStart(newBest: newBest) + rollTime + 0.05)
+    }
 
     init(settlement: Economy.Settlement, onCollect: @escaping () -> Void) {
         self.settlement = settlement
@@ -97,7 +110,7 @@ struct ResultsView: View {
         guard await pause(0.25) else { return }
         armed = true
         guard completed else { return }
-        guard await pause(1.1) else { return }
+        guard await pause(Self.ringBeat(newBest: settlement.newBest) - 0.6) else { return }
         withAnimation(.spring(response: 0.35, dampingFraction: 0.55)) { ringsLit = true }
         bursting = true
         Feedback.shared.play(.ringComplete)
@@ -219,7 +232,8 @@ struct ResultsView: View {
                     .font(.rounded(20, .black))
                     .foregroundStyle(Palette.ink)
                 Spacer()
-                RollingNumber(value: settlement.total, duration: Self.rollTime, size: 34, delay: Self.rollDelay, ticks: true)
+                RollingNumber(value: settlement.total, duration: Self.rollTime, size: 34,
+                              delay: Self.rollStart(newBest: settlement.newBest), ticks: true)
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel(Text("\(settlement.total) coins"))
                     .accessibilityIdentifier("results-total")

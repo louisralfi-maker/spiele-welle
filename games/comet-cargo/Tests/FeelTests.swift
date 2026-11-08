@@ -90,6 +90,20 @@ final class FeelTests: XCTestCase {
         XCTAssertTrue((0..<1).contains(phase))
     }
 
+    func testTheResultBeatsDoNotPileUp() {
+        // After a new best the roll-up's ticks wait until the shimmer (sound from 0.35 s, its ten haptic ticks) is through.
+        let shimmerEnd = 0.35 + HapticPattern.newBest.score.duration
+        XCTAssertGreaterThanOrEqual(ResultsView.rollStart(newBest: true), shimmerEnd)
+        XCTAssertEqual(ResultsView.rollStart(newBest: false), ResultsView.rollDelay)
+        for best in [false, true] {
+            let rollEnd = ResultsView.rollStart(newBest: best) + ResultsView.rollTime
+            XCTAssertGreaterThanOrEqual(ResultsView.ringBeat(newBest: best), rollEnd, "The ring chime comes after the last tick")
+            XCTAssertGreaterThanOrEqual(ResultsView.ringBeat(newBest: best), 1.7)
+        }
+        // The ring chime is two strikes, not a figure of notes.
+        XCTAssertEqual(HapticPattern.ringComplete.score.events.filter { $0.length == nil }.count, 2)
+    }
+
     func testTheTotalEasesToItsValue() {
         XCTAssertEqual(RollingNumber.rolled(56, at: 0, duration: 1.1), 0)
         XCTAssertEqual(RollingNumber.rolled(56, at: 1.1, duration: 1.1), 56)

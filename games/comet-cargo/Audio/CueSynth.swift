@@ -23,7 +23,7 @@ enum SoundCue: CaseIterable, Sendable {
     case coinTick
     /// Coins spent or collected: a small double clink.
     case coin
-    /// A ring complete: a short, bright arpeggio chime (four struck notes in a quarter second, not a tune).
+    /// A ring complete: two struck bells with inharmonic partials, 90 ms apart (a signal, not a tune).
     case ringComplete
     /// A new best altitude: a high shimmer.
     case newBest
@@ -293,19 +293,25 @@ enum CueSynth {
         }
     }
 
-    /// A short, bright arpeggio chime: four struck bells 70 ms apart (C6 E6 G6 C7) over a faint high shimmer. One rising
-    /// figure, a quarter of a second, then it rings out: a signal, not a tune.
+    /// Two bell strikes 90 ms apart (1568 Hz, then 2093 Hz), each with inharmonic partials (× 2.76 and × 5.4, like a
+    /// small struck bell) that die away faster than the fundamental, over a faint high sheen. No melody: a signal, not a
+    /// tune (no music, ever).
     static func ringComplete(_ sr: Double) -> [Float] {
         var n = CueNoise(907)
         var sheen = highpass(6_000, sr)
         return render(seconds: SoundCue.ringComplete.duration, sr: sr, peak: SoundCue.ringComplete.peak, fadeOut: 0.08) { t in
-            var s = 0.0
-            for (i, f) in [1_046.5, 1_318.5, 1_568.0, 2_093.0].enumerated() {
-                s += chime(t, f, 0.07 * Double(i), 4.2) * (0.8 + 0.07 * Double(i))
-            }
+            let s = bell(t, 1_568, 0) + 0.8 * bell(t, 2_093, 0.09)
             let shimmer = sheen.process(n.next()) * smooth(t, 0.05, 0.25) * exp(-max(0, t - 0.25) * 4) * 0.25
             return s + shimmer
         }
+    }
+
+    /// A struck bell: the fundamental and two inharmonic partials that fade faster.
+    static func bell(_ t: Double, _ f: Double, _ start: Double) -> Double {
+        let body = ping(t, f, start, 3.2)
+        let upper = 0.5 * ping(t, f * 2.76, start, 5.5)
+        let glint = 0.25 * ping(t, f * 5.4, start, 9)
+        return body + upper + glint
     }
 
     /// A shimmer: thirty tiny high pings rising in pitch and thinning out, over a breath of bright air.

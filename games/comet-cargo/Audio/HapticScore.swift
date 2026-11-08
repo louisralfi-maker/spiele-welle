@@ -89,7 +89,7 @@ enum HapticPattern: String, CaseIterable, Sendable {
     case coinTick
     /// Coins: two light, crisp taps.
     case coin
-    /// A ring complete: four rising taps with the arpeggio and a short swell.
+    /// A ring complete: two bright taps with the two bell strikes and a short swell.
     case ringComplete
     /// A new best: a fine shimmer of light ticks.
     case newBest
@@ -126,9 +126,8 @@ enum HapticPattern: String, CaseIterable, Sendable {
         case .coin:
             return HapticScore(events: [.tap(0, 0.55, 0.9), .tap(0.075, 0.4, 0.95)])
         case .ringComplete:
-            let notes = (0..<4).map { k in HapticScore.Event.tap(0.07 * Double(k), 0.5 + 0.12 * Double(k), 0.7 + 0.08 * Double(k)) }
-            return HapticScore(events: notes + [.rumble(0.21, 0.25, 0.35, 0.3)],
-                               curves: [.init(start: 0.21, points: [.init(time: 0, value: 1), .init(time: 0.25, value: 0)])])
+            return HapticScore(events: [.tap(0, 0.7, 0.8), .tap(0.09, 0.85, 0.95), .rumble(0.12, 0.25, 0.35, 0.3)],
+                               curves: [.init(start: 0.12, points: [.init(time: 0, value: 1), .init(time: 0.25, value: 0)])])
         case .newBest:
             let ticks = (0..<10).map { k in HapticScore.Event.tap(0.07 * Double(k), 0.35 - 0.02 * Double(k), 1.0) }
             return HapticScore(events: ticks)

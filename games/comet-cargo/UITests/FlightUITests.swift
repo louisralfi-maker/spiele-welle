@@ -143,7 +143,8 @@ final class FlightUITests: XCTestCase {
 
     /// No autopilot, fresh save: the first-flight hints. The launch hint waits on the pad; after the ignition tap the drop
     /// hint appears when the first stage's fuel reaches the Perfect zone (the flight runs slowly then), and a tap drops the
-    /// stage and sends it away.
+    /// stage and sends it away. Then the release hint appears at the first ring, and a tap on the release button sends a
+    /// satellite out (delivered, or outside the ring if the tap came late: a delivery row either way).
     func testFirstFlightHints() {
         let app = XCUIApplication()
         app.launchArguments = ["-GWReset", "YES"]
@@ -166,8 +167,31 @@ final class FlightUITests: XCTestCase {
         screen.tap()
         let gone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: dropHint)
         wait(for: [gone], timeout: 8)
+        let releaseHint = element(app, "hint-release")
+        XCTAssertTrue(releaseHint.waitForExistence(timeout: 30), "The release hint shows at the first ring")
+        shot("11-hint-release")
+        element(app, "flight-release").tap()
+        let released = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: releaseHint)
+        wait(for: [released], timeout: 8)
         XCTAssertTrue(element(app, "results-root").waitForExistence(timeout: 120), "The flight ends in the results")
         let drops = app.descendants(matching: .any).matching(identifier: "results-drop")
         XCTAssertEqual(drops.count, 1, "The tap under the hint dropped the first stage")
+        let deliveries = app.descendants(matching: .any).matching(identifier: "results-delivery")
+        XCTAssertGreaterThanOrEqual(deliveries.count, 1, "The tap under the release hint sent a satellite out")
+    }
+
+    /// The fixed sample report (-GWScreen results: a new best and ring 6 completed): shot 12-results-ring while the gold
+    /// burst plays over the ring's slots, after the roll-up.
+    func testResultsRingBurst() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-GWReset", "YES", "-GWScreen", "results"]
+        app.launch()
+        let results = element(app, "results-root")
+        XCTAssertTrue(results.waitForExistence(timeout: 30), "The sample report shows")
+        XCTAssertTrue(element(app, "results-network").waitForExistence(timeout: 5), "The ring network card shows")
+        // The ring beat comes at 2.2 s after a new best (ResultsView.ringBeat); the burst lasts 0.9 s.
+        pause(2.5)
+        shot("12-results-ring")
+        XCTAssertTrue(element(app, "results-collect").exists)
     }
 }

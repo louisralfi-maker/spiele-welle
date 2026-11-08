@@ -139,15 +139,19 @@ Coins come only from deliveries and ring bonuses. Show prices and coins with a c
      rows fit above it, smaller screens scroll.
 2. **Flight**: the scene (Canvas) plus the HUD.
    - Sky gradient by altitude (cream and teal at the ground, deep teal around 30 km, navy at 100 km, night with stars above
-     300 km), clouds between 3 and 15 km, stars fading in above 60 km with slow parallax, the ground at the bottom whose
-     horizon curves more and more with altitude (the planet's curvature).
+     300 km), painted clouds between 3 and 15 km (six different silhouettes, every second round mirrored, each its own
+     height), stars fading in above 60 km with slow parallax, the ground at the bottom whose horizon curves more and more
+     with altitude (the planet's curvature); from about 6 km up the planet's disc carries a painted surface (seas, cloud
+     bands, a few islands; a seamless tile, squashed by the grazing view and finer the higher the rocket gets) under a
+     navy veil and a pale haze at the limb. The launch smoke stays above the ground and billows sideways along the pad.
    - The rocket's reference point is the cargo hatch, the base of the nose (the top of the top stage): its altitude is the
      one a release counts. It sits at 60 % of the screen height and never moves when lower stages drop; the stages hang
      below it. Mustard ticks mark it on both sides. The world scrolls. The camera shows a vertical span of
      `max(25 km, v × 3 s)` (smoothed), so a ring is visible about two seconds before the rocket reaches it.
    - Rings: horizontal glowing mustard lines across the screen with a faint band for `± w`, a brighter Perfect strip with
      thin paper edges (as wide as the real Perfect window) and a brighter center line; a label at the left with ring
-     number, altitude and pay; satellites already delivered there drift along the line (including this flight's, once
+     number, altitude and pay, drawn above the released satellites so they never hide it; satellites already delivered
+     there drift along the line (including this flight's, once
      they arrive; a ring completed in flight turns gold).
    - While the rocket carries satellites and is inside a band: the band, its label plate and its center line light up, the
      hatch ticks grow, and the release button gets a mustard rim and pulses; while a release would be Perfect, the center
@@ -166,8 +170,10 @@ Coins come only from deliveries and ring bonuses. Show prices and coins with a c
      gauge of the burning stage on the left edge (about 40 % of the screen height): a warm orange fuel column that drains,
      the zones along its edges and as a ruler on the right (Perfect at the bottom in mustard, Great in teal, Good in
      paper); in the Perfect window it glows and pulses; when empty it blinks mustard and coral through the grace time,
-     then coral; on the last stage the zones disappear. Stage pips below it, the release button bottom right, "Tap to
-     launch" on the pad.
+     then coral; on the last stage the zones disappear. Stage pips below it, the release button bottom right (with the
+     painted satellite), "Tap to launch" on the pad in the empty sky above the rocket (at 36 % of the height, centred,
+     at most the screen width minus 130 pt so it never reaches the gauge; a long translation shrinks to as little as 60 %
+     on one line).
 3. **Results**: each delivery (ring, rating, pay), the stage ratings in a small row ("Stages never dropped" when some
    stayed unused), lost satellites, the total rolling up, "New best altitude" and "Ring complete" badges; below the card
    the ring progress of each ring delivered to ("Ring 4" with five slots, the new ones in mustard, gold plus the bonus when
@@ -208,7 +214,7 @@ kit (Piston Empire's feedback stack, without its engine voice):
 | Lost satellite | soft falling blip (880 → 330 Hz) and a smaller echo | three taps falling away |
 | Total rolling up | a light glassy tick per change, at most every 65 ms | one light crisp tap per tick |
 | Coins (buy, Collect) | two coins meeting | two light taps |
-| Ring complete | short bright arpeggio chime: four bells 70 ms apart (C6 E6 G6 C7) and a faint sheen, a signal, not a tune | four rising taps and a short swell |
+| Ring complete | two struck bells 90 ms apart (1568 Hz, then 2093 Hz, each with inharmonic partials at × 2.76 and × 5.4) and a faint sheen: a signal, no melody | two bright taps and a short swell |
 | New best altitude | shimmer: thirty tiny high pings rising and thinning out over bright air | ten fine ticks |
 | Button | soft tap | soft tap |
 | Drop tap on the last stage | dull thunk | dull bump |
@@ -216,11 +222,14 @@ kit (Piston Empire's feedback stack, without its engine voice):
 ### Juice
 
 - A tiny screen shake: 4 pt over 0.45 s on ignition, 3 pt over 0.25 s on each stage drop, decaying; the scene zooms in by
-  just enough that the shake never shows its edges. None under Reduce Motion.
+  just enough that the shake never shows its edges. None under Reduce Motion. The shake is the only jolt (the scene
+  itself no longer shifts on a drop).
 - Rating pop-ups grow in from 1.35× to their size over 0.15 s as they rise and fade (`FlightScene`).
 - Results beats: the badges spring in (0.15 s), "New best altitude" shimmers once with its sound (0.35 s), the total
-  rolls up with ticks (0.45 to 1.55 s), Collect arms (0.6 s), and a ring completed this flight turns gold with a short
-  gold burst (a spreading ring, rays, sparks; 0.9 s) and the ring chime (1.7 s). Big effects stay rare: the burst only for
+  rolls up with ticks (0.45 to 1.55 s; after a new best from 1.05 to 2.15 s, once the shimmer's ten haptic ticks are
+  through, so the ticks never pile up), Collect arms (0.6 s), and a ring completed this flight turns gold with a short
+  gold burst (a spreading ring, rays, sparks; 0.9 s) and the ring chime (1.7 s, or 2.2 s after a new best: always after
+  the roll-up's last tick; `ResultsView.rollStart` and `ringBeat`). Big effects stay rare: the burst only for
   a completed ring, the shimmer only for a new best.
 - Reduce Motion: no shake, no pulses, no shimmer, no burst, the total at once without ticks; the results play only the
   ring chime (or the new-best sound) once.
@@ -246,12 +255,15 @@ new speed. Hints are off with `-GWAutoplay YES` and with `-GWSkipOnboarding YES`
 ### Tests
 
 - Unit: `FeelTests` (every cue short, finite, deterministic, at its peak, click-free; every vibration a valid pattern;
-  the cue mapping; the shake stays tiny and covered by its zoom; the hint hand; the roll-up), `FlightDriverTests` (launch
+  the cue mapping; the shake stays tiny and covered by its zoom; the hint hand; the roll-up; the results beats never
+  pile up and the ring chime is two strikes), `FlightDriverTests` (launch
   hint learned at ignition; the drop hint starts on the exact tick and runs at 0.35×; a missed drop hint leaves and stays
   pending; the release hint; never with the autopilot), `SaveGameTests` (hint flags, three-flight limit, old saves).
 - UI: `testManualControls` passes `-GWSkipOnboarding YES`. `testFirstFlightHints` (`-GWReset YES`, no autopilot): the
   launch hint shows (shot `09-hint-launch`), tap to launch, wait for `hint-drop` (shot `10-hint-drop`), tap, the hint
-  leaves, the results list one stage drop.
+  leaves; wait for `hint-release` (shot `11-hint-release`), tap `flight-release`, the hint leaves; the results list one
+  stage drop and at least one delivery row. `testResultsRingBurst` (`-GWScreen results`, the sample with a new best and
+  a completed ring): shot `12-results-ring` 2.5 s in, while the gold burst plays.
 
 ## Code layout (`games/comet-cargo/`)
 
@@ -303,7 +315,8 @@ Screenshots are `XCTAttachment(screenshot:)` with `lifetime = .keepAlways`, name
 3. `testManualControls`: `-GWReset YES -GWUpgrades mid`, no autopilot; tap the screen (ignite), wait for the altitude,
    tap `flight-release`, tap the screen (drop), shot `07-manual`; pause (the altitude stands still), resume; wait for the
    results, shot `08-manual-results`; exactly one `results-drop` and at least one `results-delivery`.
-4. `testFilmstrip` (English only): `-GWReset YES -GWUpgrades mid -GWAutoplay YES`; a screenshot about every 1.2 s from
+4. `testFirstFlightHints` and `testResultsRingBurst`: see "Feel", "Tests" (shots 09 to 12).
+5. `testFilmstrip` (English only): `-GWReset YES -GWUpgrades mid -GWAutoplay YES`; a screenshot about every 1.2 s from
    launch to the results, named `film-<nn>`, for the fun check.
 
 ## Later steps (not in 0.1)
