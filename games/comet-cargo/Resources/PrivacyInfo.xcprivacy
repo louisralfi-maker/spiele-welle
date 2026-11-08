@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- The game's own code collects nothing and does not track, so NSPrivacyTracking is false with no domains
+	     (Piston Empire's approach). Google Mobile Ads and the consent SDK (UMP) ship their own PrivacyInfo.xcprivacy
+	     inside their frameworks (collected data, Device ID used for tracking); Xcode merges all of them into the app's
+	     privacy report. Never set NSPrivacyTracking to true here without tracking domains: App Store Connect rejects
+	     that combination (ITMS-91064, Piston Empire build 2 of 1.0.0), and listing Google's ad domains would make iOS
+	     block them for players who decline tracking. -->
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<!-- UserDefaults: the app's own launch arguments (App/DebugArgs.swift, Ads/AdConfig.swift). -->
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+			</array>
+		</dict>
+		<!-- System boot time: ProcessInfo.systemUptime measures the time between events inside the app (the ad pacing,
+		     Ads/AdManager.swift). -->
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategorySystemBootTime</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>35F9.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
