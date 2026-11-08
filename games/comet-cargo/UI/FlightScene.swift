@@ -7,9 +7,14 @@ struct SceneEffect: Sendable, Identifiable {
         case debris(stage: Int, scale: Double, side: Double)
         /// A released satellite: unfolds and glides onto its ring, or tumbles away dimmed when `ring` is nil.
         case satellite(ring: Int?, side: Double)
-        /// A rating pop-up near the rocket.
-        case popup(text: String, tint: Color)
+        /// A rating pop-up above the rocket; `lane` stacks pop-ups that come close together.
+        case popup(text: String, tint: Color, lane: Int)
     }
+
+    /// A delivered satellite pops out sideways, then glides onto its ring line, where the line itself draws it on.
+    static let popTime = 0.45
+    static let glideTime = 1.1
+    static let glideEnd = popTime + glideTime
 
     let id: Int
     let kind: Kind
@@ -35,9 +40,20 @@ struct SceneState: Sendable {
     var ringDeliveries: [Int]
     var reduceMotion: Bool
     var sinceDrop: Double
+    var guidance: Int
+    /// Fuel left in the burning stage, 0 … 1, and the gauge zones for this guidance level.
+    var fuel: Double
+    var zones: (perfect: Double, great: Double, good: Double)
+    var cue: GaugeCue
+    /// The band the rocket is inside right now (only while satellites are aboard) and what a release would rate there.
+    var bandRing: Int?
+    var bandRating: ReleaseRating
+    /// Where the rocket stalls without more thrust (nil on the pad and after the apex).
+    var predictedApex: Double?
 }
 
-/// Maps altitudes to screen rows. The rocket's reference point sits at 60 % of the screen height; the world scrolls.
+/// Maps altitudes to screen rows. The rocket's reference point, the cargo hatch, sits at 60 % of the screen height; the
+/// world scrolls.
 struct SceneCamera {
     let size: CGSize
     let rocketY: CGFloat
@@ -61,12 +77,16 @@ struct SceneCamera {
     }
 }
 
-/// The rocket's parts in screen points, relative to its reference point (0, 0).
+/// The rocket's parts in screen points, relative to its reference point (0, 0): the cargo hatch at the base of the nose,
+/// the top of the top stage. That is the point whose altitude counts for a release, and it never moves when lower stages
+/// drop, so the stages hang below it and the nose sits above it.
 struct RocketLayout {
     /// One rect per stage of the whole rocket, bottom first.
     var stages: [CGRect]
     var nose: CGRect
     var fullHeight: CGFloat
+    /// The bottom of stage 0 (where the rocket stands on the pad).
+    var baseY: CGFloat
 
     /// Width and height of a stage of scale `s` before fitting.
     static func rawSize(_ scale: Double) -> CGSize {
@@ -83,24 +103,30 @@ struct RocketLayout {
         let total = stackHeight + noseHeight
         let fit = min(1, maxHeight / total)
         fullHeight = total * fit
-        var y = fullHeight / 2
-        var rects: [CGRect] = []
-        for size in raw {
-            let w = size.width * fit
-            let h = size.height * fit
-            y -= h
-            rects.append(CGRect(x: -w / 2, y: y, width: w, height: h))
+        var rects = Array(repeating: CGRect.zero, count: raw.count)
+        var y: CGFloat = 0
+        for index in raw.indices.reversed() {
+            let w = raw[index].width * fit
+            let h = raw[index].height * fit
+            rects[index] = CGRect(x: -w / 2, y: y, width: w, height: h)
+            y += h
         }
         stages = rects
+        baseY = y
         let noseW = topWidth * fit
         let noseH = noseHeight * fit
-        nose = CGRect(x: -noseW / 2, y: y - noseH, width: noseW, height: noseH)
+        nose = CGRect(x: -noseW / 2, y: -noseH, width: noseW, height: noseH)
     }
 }
 
 /// Draws the flight: sky by altitude, stars, the curving planet, clouds, rings, apex lines, the rocket with flame and
 /// smoke, and the effects. Pure drawing: it reads a SceneState and changes nothing.
 enum FlightScene {
+    static let bestLabel = String(localized: "Best")
+    static let lastLabel = String(localized: "Last")
+    static let apexLabel = String(localized: "Apex")
+    static let dropLabel = String(localized: "Drop!")
+
     static func draw(_ context: inout GraphicsContext, size: CGSize, state: SceneState) {
         let camera = SceneCamera(size: size, altitude: state.altitude, span: state.span)
         let layout = RocketLayout(scales: state.stageScales, maxHeight: min(240, size.height * 0.28))
@@ -166,11 +192,12 @@ enum FlightScene {
     static func drawPlanet(_ ctx: GraphicsContext, camera: SceneCamera, layout: RocketLayout, state: SceneState) {
         let w = camera.size.width
         let h = camera.size.height
-        let groundY = camera.y(0) + layout.fullHeight / 2
+        let groundY = camera.y(0) + layout.baseY
         let lifted = log10(1 + state.altitude / 5) / 2.3
         let rise = CGFloat(min(1, max(0, lifted)))
         let limbY = h * (0.97 - 0.13 * rise)
-        let horizonY = max(groundY, limbY)
+        // The ground under the pad while it is in view; once it scrolls away, the planet's limb low on the screen.
+        let horizonY = min(groundY, limbY)
         guard horizonY < h + 2 else { return }
         let sag = w * (0.004 + 0.46 * rise * rise)
         let radius = (w * w / 4 + sag * sag) / (2 * sag)
@@ -263,92 +290,248 @@ enum FlightScene {
     static func drawRings(_ ctx: GraphicsContext, camera: SceneCamera, state: SceneState) {
         let w = camera.size.width
         let h = camera.size.height
+        let shares = Ratings.releaseShares(guidance: state.guidance)
         for ring in 0..<Rings.count {
             let center = Rings.altitudes[ring]
-            let half = Rings.halfWidth(ring)
+            let half = Rings.halfWidth(ring, speed: state.speed)
             let yTop = camera.y(center + half)
             let yBottom = camera.y(center - half)
             guard yBottom > -40, yTop < h + 40 else { continue }
             let y = camera.y(center)
-            let complete = ring < state.ringDeliveries.count && state.ringDeliveries[ring] >= Economy.ringSlots
+            let delivered = ring < state.ringDeliveries.count ? max(0, state.ringDeliveries[ring]) : 0
+            let complete = delivered >= Economy.ringSlots
             let tint = complete ? Palette.gold : Palette.mustard
+            let live = state.bandRing == ring
+            let perfect = live && state.bandRating == .perfect
+            var layer = ctx
+            layer.opacity = outOfReach(ring, state: state) ? 0.35 : 1
+            let peak = live ? 0.38 : 0.16
             let band = CGRect(x: 0, y: yTop, width: w, height: max(2, yBottom - yTop))
-            ctx.fill(Path(band), with: .linearGradient(
-                Gradient(colors: [tint.opacity(0), tint.opacity(0.16), tint.opacity(0)]),
+            layer.fill(Path(band), with: .linearGradient(
+                Gradient(colors: [tint.opacity(0), tint.opacity(peak), tint.opacity(0)]),
                 startPoint: CGPoint(x: 0, y: band.minY), endPoint: CGPoint(x: 0, y: band.maxY)))
-            // Perfect zone: a slightly brighter strip.
-            let perfectHalf = half * Ratings.perfectRelease
-            let pTop = camera.y(center + perfectHalf)
-            let pBottom = camera.y(center - perfectHalf)
-            ctx.fill(Path(CGRect(x: 0, y: pTop, width: w, height: max(1, pBottom - pTop))), with: .color(tint.opacity(0.12)))
-            var line = Path()
-            line.move(to: CGPoint(x: 0, y: y))
-            line.addLine(to: CGPoint(x: w, y: y))
-            ctx.stroke(line, with: .color(tint.opacity(0.25)), lineWidth: 9)
-            ctx.stroke(line, with: .color(tint.opacity(0.5)), lineWidth: 4)
-            ctx.stroke(line, with: .color(Palette.paper.opacity(0.95)), lineWidth: 1.5)
-            drawRingLabel(ctx, ring: ring, y: y, tint: tint)
+            drawPerfectStrip(layer, camera: camera, center: center, half: half * shares.perfect, tint: tint, live: live)
+            drawCenterLine(layer, y: y, width: w, tint: tint, live: live, perfect: perfect, state: state)
+            drawRingLabel(layer, ring: ring, y: y, tint: tint, live: live)
             // Satellites already delivered here drift along the line.
-            let count = ring < state.ringDeliveries.count ? min(Economy.ringSlots, state.ringDeliveries[ring]) : 0
-            for index in 0..<count {
+            let count = min(Economy.ringSlots, delivered)
+            for index in 0..<max(0, count) {
                 let seed = fraction(Double(ring) * 0.37 + Double(index) * 0.21)
                 let speed = 0.012 + 0.006 * Double(index)
                 let moving = state.reduceMotion ? 0 : state.clock * speed
                 let x = CGFloat(fraction(seed + moving)) * w
-                SatelliteShape.draw(in: ctx, at: CGPoint(x: x, y: y), size: 18)
+                SatelliteShape.draw(in: layer, at: CGPoint(x: x, y: y), size: 18)
             }
         }
     }
 
-    static func drawRingLabel(_ ctx: GraphicsContext, ring: Int, y: CGFloat, tint: Color) {
+    /// While the rocket coasts, the predicted apex is exact: a ring whose band starts above it cannot be reached.
+    static func outOfReach(_ ring: Int, state: SceneState) -> Bool {
+        guard state.phase == .coasting, let apex = state.predictedApex else { return false }
+        return Rings.altitudes[ring] - Rings.baseHalfWidth(ring) > apex
+    }
+
+    /// The Perfect part of the band: a brighter strip with thin paper edges, as wide as the real Perfect window.
+    static func drawPerfectStrip(_ ctx: GraphicsContext, camera: SceneCamera, center: Double, half: Double, tint: Color, live: Bool) {
+        let width = camera.size.width
+        let top = camera.y(center + half)
+        let bottom = camera.y(center - half)
+        let strip = CGRect(x: 0, y: top, width: width, height: max(1, bottom - top))
+        ctx.fill(Path(strip), with: .color(tint.opacity(live ? 0.34 : 0.22)))
+        var edges = Path()
+        edges.move(to: CGPoint(x: 0, y: strip.minY))
+        edges.addLine(to: CGPoint(x: width, y: strip.minY))
+        edges.move(to: CGPoint(x: 0, y: strip.maxY))
+        edges.addLine(to: CGPoint(x: width, y: strip.maxY))
+        ctx.stroke(edges, with: .color(Palette.paper.opacity(live ? 0.75 : 0.4)), lineWidth: 1)
+    }
+
+    /// The centre line: brighter while the rocket is inside the band, a wide glow while a release would be Perfect
+    /// (pulsing, or steady with Reduce Motion).
+    static func drawCenterLine(_ ctx: GraphicsContext, y: CGFloat, width: CGFloat, tint: Color, live: Bool, perfect: Bool,
+                               state: SceneState) {
+        var line = Path()
+        line.move(to: CGPoint(x: 0, y: y))
+        line.addLine(to: CGPoint(x: width, y: y))
+        if perfect {
+            let pulse = state.reduceMotion ? 1.0 : 0.7 + 0.3 * sin(state.clock * 30)
+            ctx.stroke(line, with: .color(tint.opacity(0.45 * pulse)), lineWidth: 20)
+            ctx.stroke(line, with: .color(tint), lineWidth: 6)
+            ctx.stroke(line, with: .color(Palette.paper), lineWidth: 2.5)
+        } else if live {
+            ctx.stroke(line, with: .color(tint.opacity(0.4)), lineWidth: 12)
+            ctx.stroke(line, with: .color(tint), lineWidth: 4)
+            ctx.stroke(line, with: .color(Palette.paper.opacity(0.95)), lineWidth: 1.5)
+        } else {
+            ctx.stroke(line, with: .color(tint.opacity(0.25)), lineWidth: 9)
+            ctx.stroke(line, with: .color(tint.opacity(0.5)), lineWidth: 4)
+            ctx.stroke(line, with: .color(Palette.paper.opacity(0.95)), lineWidth: 1.5)
+        }
+    }
+
+    static func drawRingLabel(_ ctx: GraphicsContext, ring: Int, y: CGFloat, tint: Color, live: Bool) {
         let km = Int(Rings.altitudes[ring])
-        let title = Text("Ring \(ring + 1)").font(.rounded(13, .heavy)).foregroundStyle(tint)
-        let detail = Text("\(km) km").font(.rounded(12, .bold)).foregroundStyle(Palette.paper.opacity(0.9))
-        let pay = Text(verbatim: "\(Rings.basePay(ring))").font(.rounded(12, .heavy).monospacedDigit()).foregroundStyle(Palette.mustard)
-        let plate = CGRect(x: 52, y: y - 40, width: 92, height: 34)
-        ctx.fill(Path(roundedRect: plate, cornerRadius: 9), with: .color(Palette.night.opacity(0.55)))
+        let titleColor = live ? Palette.ink : tint
+        let detailColor = live ? Palette.ink : Palette.paper.opacity(0.9)
+        let payColor = live ? Palette.ink : Palette.mustard
+        let title = Text("Ring \(ring + 1)").font(.rounded(14, .heavy)).foregroundStyle(titleColor)
+        let detail = Text("\(km) km").font(.rounded(13, .bold)).foregroundStyle(detailColor)
+        let pay = Text(verbatim: "\(Rings.basePay(ring))").font(.rounded(13, .heavy).monospacedDigit()).foregroundStyle(payColor)
+        let plate = CGRect(x: 62, y: y - 42, width: 98, height: 36)
+        let plateFill = live ? tint : Palette.night.opacity(0.55)
+        ctx.fill(Path(roundedRect: plate, cornerRadius: 9), with: .color(plateFill))
         ctx.draw(title, at: CGPoint(x: plate.minX + 8, y: plate.minY + 10), anchor: .leading)
-        ctx.draw(detail, at: CGPoint(x: plate.minX + 8, y: plate.minY + 25), anchor: .leading)
-        ctx.draw(pay, at: CGPoint(x: plate.maxX - 8, y: plate.minY + 25), anchor: .trailing)
-        CoinShape.draw(in: ctx, center: CGPoint(x: plate.maxX - 12, y: plate.minY + 10), radius: 5)
+        ctx.draw(detail, at: CGPoint(x: plate.minX + 8, y: plate.minY + 26), anchor: .leading)
+        ctx.draw(pay, at: CGPoint(x: plate.maxX - 8, y: plate.minY + 26), anchor: .trailing)
+        CoinShape.draw(in: ctx, center: CGPoint(x: plate.maxX - 13, y: plate.minY + 10), radius: 5.5)
     }
 
     static func drawApexLines(_ ctx: GraphicsContext, camera: SceneCamera, state: SceneState) {
-        let w = camera.size.width
-        let entries: [(Double, String, Color)] = [
-            (state.best, String(localized: "Best"), Palette.coral),
-            (state.last ?? 0, String(localized: "Last"), Palette.paper),
-        ]
-        for (alt, label, color) in entries where alt > 1 {
-            if label != String(localized: "Best") && abs(alt - state.best) < 0.5 { continue }
-            let y = camera.y(alt)
-            guard y > -10, y < camera.size.height + 10 else { continue }
-            var line = Path()
-            line.move(to: CGPoint(x: 0, y: y))
-            line.addLine(to: CGPoint(x: w, y: y))
-            ctx.stroke(line, with: .color(color.opacity(0.7)), style: StrokeStyle(lineWidth: 1.2, dash: [6, 6]))
-            let text = Text(verbatim: "\(label) \(Int(alt.rounded())) km").font(.rounded(11, .heavy)).foregroundStyle(color)
-            ctx.draw(text, at: CGPoint(x: w - 10, y: y - 9), anchor: .trailing)
+        if state.best > 1 {
+            drawApexLine(ctx, camera: camera, altitude: state.best, label: bestLabel, color: Palette.coral)
         }
+        if let last = state.last, last > 1, abs(last - state.best) >= 0.5 {
+            drawApexLine(ctx, camera: camera, altitude: last, label: lastLabel, color: Palette.paper)
+        }
+        if let apex = state.predictedApex, apex > 1 {
+            drawPredictedApex(ctx, camera: camera, apex: apex, exact: state.phase == .coasting)
+        }
+    }
+
+    static func drawApexLine(_ ctx: GraphicsContext, camera: SceneCamera, altitude: Double, label: String, color: Color) {
+        let y = camera.y(altitude)
+        guard y > -10, y < camera.size.height + 10 else { return }
+        let w = camera.size.width
+        var line = Path()
+        line.move(to: CGPoint(x: 0, y: y))
+        line.addLine(to: CGPoint(x: w, y: y))
+        ctx.stroke(line, with: .color(color.opacity(0.7)), style: StrokeStyle(lineWidth: 1.2, dash: [6, 6]))
+        let text = Text(verbatim: "\(label) \(Int(altitude.rounded())) km").font(.rounded(13, .heavy)).foregroundStyle(color)
+        ctx.draw(text, at: CGPoint(x: w - 10, y: y - 10), anchor: .trailing)
+    }
+
+    /// Where the rocket stalls: rises live while a stage burns (dimmer), exact while it coasts.
+    static func drawPredictedApex(_ ctx: GraphicsContext, camera: SceneCamera, apex: Double, exact: Bool) {
+        let y = camera.y(apex)
+        guard y > -10, y < camera.size.height + 10 else { return }
+        let w = camera.size.width
+        var line = Path()
+        line.move(to: CGPoint(x: 0, y: y))
+        line.addLine(to: CGPoint(x: w, y: y))
+        let alpha = exact ? 0.95 : 0.55
+        ctx.stroke(line, with: .color(Palette.coral.opacity(alpha)), style: StrokeStyle(lineWidth: 2, dash: [10, 6]))
+        let label = "\(apexLabel) ≈ \(Int(apex.rounded())) km"
+        let text = Text(verbatim: label).font(.rounded(13, .heavy)).foregroundStyle(Palette.paper)
+        let resolved = ctx.resolve(text)
+        let size = resolved.measure(in: CGSize(width: 260, height: 40))
+        let plate = CGRect(x: w - 14 - size.width, y: y + 4, width: size.width + 8, height: size.height + 4)
+        ctx.fill(Path(roundedRect: plate, cornerRadius: plate.height / 2), with: .color(Palette.coral.opacity(alpha)))
+        ctx.draw(resolved, at: CGPoint(x: plate.midX, y: plate.midY), anchor: .center)
     }
 
     // MARK: Rocket
 
     static func drawRocket(_ ctx: GraphicsContext, camera: SceneCamera, layout: RocketLayout, state: SceneState) {
+        guard state.stageIndex >= 0, state.stageIndex < layout.stages.count else { return }
         var rocket = ctx
         rocket.translateBy(x: camera.size.width / 2, y: camera.rocketY)
         let attached = Array(state.stageIndex..<layout.stages.count)
-        guard let bottomIndex = attached.first else { return }
+        let bottomIndex = state.stageIndex
         let bottom = layout.stages[bottomIndex]
+        let dropNow = state.cue == .perfect || state.cue == .grace
+        // In the drop window the bottom stage's band flashes mustard (steady with Reduce Motion).
+        let flash = dropNow && (state.reduceMotion || sin(state.clock * 18) > -0.3)
         if state.phase == .burning {
             drawFlame(rocket, below: bottom, clock: state.clock, calm: state.reduceMotion)
         }
         drawNozzle(rocket, under: bottom)
         drawFins(rocket, on: bottom)
         for index in attached.reversed() {
-            drawStage(rocket, rect: layout.stages[index], index: index, isTop: index == layout.stages.count - 1, dim: false)
+            let isTop = index == layout.stages.count - 1
+            let lit = flash && index == bottomIndex
+            drawStage(rocket, rect: layout.stages[index], index: index, isTop: isTop, dim: false, flash: lit)
         }
         drawNose(rocket, rect: layout.nose)
+        drawHatch(rocket, layout: layout, state: state)
+        let showBar = state.cue != .last && (state.phase == .burning || state.phase == .spent)
+        if showBar {
+            drawFuelBar(rocket, beside: bottom, state: state)
+        }
+        if dropNow {
+            drawDropCue(rocket, beside: bottom, state: state)
+        }
+    }
+
+    /// The cargo hatch at the base of the nose: the point that must meet a ring's centre line. Mustard ticks stick out on
+    /// both sides; they grow while the rocket is inside a band and turn gold while a release would be Perfect.
+    static func drawHatch(_ ctx: GraphicsContext, layout: RocketLayout, state: SceneState) {
+        guard let top = layout.stages.last else { return }
+        let live = state.bandRing != nil
+        let perfect = live && state.bandRating == .perfect
+        let color = perfect ? Palette.gold : Palette.mustard
+        let reach: CGFloat = perfect ? 18 : (live ? 13 : 8)
+        var seam = Path()
+        seam.move(to: CGPoint(x: top.minX + 1, y: 0))
+        seam.addLine(to: CGPoint(x: top.maxX - 1, y: 0))
+        ctx.stroke(seam, with: .color(color), lineWidth: 2.5)
+        var ticks = Path()
+        ticks.move(to: CGPoint(x: top.minX - reach, y: 0))
+        ticks.addLine(to: CGPoint(x: top.minX - 2, y: 0))
+        ticks.move(to: CGPoint(x: top.maxX + 2, y: 0))
+        ticks.addLine(to: CGPoint(x: top.maxX + reach, y: 0))
+        ctx.stroke(ticks, with: .color(Palette.ink.opacity(0.55)), style: StrokeStyle(lineWidth: 4.5, lineCap: .round))
+        ctx.stroke(ticks, with: .color(color), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+    }
+
+    /// A slim tank beside the bottom stage with the same zones as the big gauge, so the drop cue sits next to the ring
+    /// lines the eyes follow.
+    static func drawFuelBar(_ ctx: GraphicsContext, beside stage: CGRect, state: SceneState) {
+        let height = min(60, max(36, stage.height * 1.4))
+        let x = stage.maxX + stage.width * 0.42 + 8
+        let track = CGRect(x: x, y: stage.maxY - height, width: 7, height: height)
+        let shape = Path(roundedRect: track, cornerRadius: 3.5)
+        ctx.fill(shape, with: .color(Palette.night.opacity(0.55)))
+        let fuel = CGFloat(min(1, max(0, state.fuel)))
+        let level = track.height * fuel
+        let dropNow = state.cue == .perfect || state.cue == .grace
+        let fill = dropNow ? Palette.mustard : Palette.fuel
+        var inner = ctx
+        inner.clip(to: shape)
+        inner.fill(Path(CGRect(x: track.minX, y: track.maxY - level, width: track.width, height: level)), with: .color(fill))
+        let marks: [(Double, Color)] = [
+            (state.zones.good, Palette.paper),
+            (state.zones.great, Palette.skyTeal),
+            (state.zones.perfect, Palette.mustard),
+        ]
+        for (top, color) in marks {
+            let y = track.maxY - track.height * CGFloat(top)
+            var tick = Path()
+            tick.move(to: CGPoint(x: track.maxX, y: y))
+            tick.addLine(to: CGPoint(x: track.maxX + 4, y: y))
+            ctx.stroke(tick, with: .color(color), lineWidth: 2)
+        }
+        let outline = state.cue == .late ? Palette.coral : (dropNow ? Palette.mustard : Palette.paper.opacity(0.8))
+        ctx.stroke(shape, with: .color(outline), lineWidth: 1.5)
+    }
+
+    /// "Drop!" next to the rocket while a drop is Perfect: mustard, alternating with coral once the stage is burnt out.
+    static func drawDropCue(_ ctx: GraphicsContext, beside stage: CGRect, state: SceneState) {
+        let pop = state.reduceMotion ? 1.0 : 1.0 + 0.08 * sin(state.clock * 16)
+        let blinkCoral = state.cue == .grace && !state.reduceMotion && sin(state.clock * 14) > 0
+        let fill = blinkCoral ? Palette.coral : Palette.mustard
+        let text = Text(verbatim: dropLabel).font(.rounded(15, .heavy)).foregroundStyle(Palette.ink)
+        let barHeight = min(60, max(36, stage.height * 1.4))
+        let tagX = stage.maxX + stage.width * 0.42 + 26
+        var tag = ctx
+        tag.translateBy(x: tagX, y: stage.maxY - barHeight / 2)
+        tag.scaleBy(x: CGFloat(pop), y: CGFloat(pop))
+        let resolved = tag.resolve(text)
+        let size = resolved.measure(in: CGSize(width: 200, height: 40))
+        let plate = CGRect(x: 0, y: -size.height / 2 - 4, width: size.width + 16, height: size.height + 8)
+        let shape = Path(roundedRect: plate, cornerRadius: plate.height / 2)
+        tag.fill(shape, with: .color(fill))
+        tag.stroke(shape, with: .color(Palette.ink.opacity(0.6)), lineWidth: 1.5)
+        tag.draw(resolved, at: CGPoint(x: plate.midX, y: plate.midY), anchor: .center)
     }
 
     static func bodyShading(_ rect: CGRect, dim: Bool) -> GraphicsContext.Shading {
@@ -358,14 +541,15 @@ enum FlightScene {
                                startPoint: CGPoint(x: rect.minX, y: 0), endPoint: CGPoint(x: rect.maxX, y: 0))
     }
 
-    static func drawStage(_ ctx: GraphicsContext, rect: CGRect, index: Int, isTop: Bool, dim: Bool) {
+    static func drawStage(_ ctx: GraphicsContext, rect: CGRect, index: Int, isTop: Bool, dim: Bool, flash: Bool = false) {
         let corner = min(7, rect.width * 0.18)
         let body = Path(roundedRect: rect, cornerRadius: corner)
         ctx.fill(body, with: bodyShading(rect, dim: dim))
         var banded = ctx
         banded.clip(to: body)
-        let bandColor = index % 2 == 0 ? Palette.coral : Palette.deepTeal
-        let bandHeight = max(3, rect.height * 0.16)
+        let stripe = index % 2 == 0 ? Palette.coral : Palette.deepTeal
+        let bandColor = flash ? Palette.mustard : stripe
+        let bandHeight = max(3, rect.height * (flash ? 0.3 : 0.16))
         let band = CGRect(x: rect.minX, y: rect.minY + rect.height * 0.22, width: rect.width, height: bandHeight)
         banded.fill(Path(band), with: .color(bandColor.opacity(dim ? 0.5 : 1)))
         let rivetY = rect.maxY - max(3, rect.height * 0.12)
@@ -379,6 +563,9 @@ enum FlightScene {
                 let c = CGPoint(x: rect.midX + rect.width * CGFloat(dx), y: rect.minY + rect.height * 0.66)
                 drawPorthole(ctx, center: c, radius: r)
             }
+        }
+        if flash {
+            ctx.stroke(body, with: .color(Palette.mustard.opacity(0.7)), lineWidth: 5)
         }
         ctx.stroke(body, with: .color(Palette.ink.opacity(0.7)), lineWidth: 1.6)
     }
@@ -505,24 +692,15 @@ enum FlightScene {
             switch effect.kind {
             case .debris(let stage, _, let side):
                 guard !popups, age < 5, let rect = layout.stages[safe: stage] else { continue }
-                let fallKm = effect.altitude + effect.speed * age - 0.5 * FlightSim.gravity * age * age
-                let shift = CGFloat(state.altitude - fallKm) * camera.pxPerKm
-                let y = camera.rocketY + rect.midY + shift
-                guard y < camera.size.height + 200 else { continue }
-                let x = cx + CGFloat(side) * CGFloat(12 + age * 30)
-                var piece = ctx
-                piece.translateBy(x: x, y: y)
-                piece.rotate(by: .radians(side * age * 1.3))
-                piece.opacity = max(0, 1 - age / 5)
-                let local = CGRect(x: -rect.width / 2, y: -rect.height / 2, width: rect.width, height: rect.height)
-                drawStage(piece, rect: local, index: stage, isTop: false, dim: true)
+                drawDebris(ctx, camera: camera, rect: rect, stage: stage, side: side, age: age, effect: effect, state: state)
             case .satellite(let ring, let side):
                 guard !popups else { continue }
-                drawSatelliteEffect(ctx, camera: camera, layout: layout, effect: effect, ring: ring, side: side, age: age, state: state)
-            case .popup(let text, let tint):
+                drawSatelliteEffect(ctx, camera: camera, effect: effect, ring: ring, side: side, age: age, state: state)
+            case .popup(let text, let tint, let lane):
                 guard popups, age < 1.4 else { continue }
                 let rise = CGFloat(age * 28)
-                let y = camera.rocketY - layout.fullHeight / 2 - 26 - rise
+                let laneShift = CGFloat(lane) * 34
+                let y = camera.rocketY + layout.nose.minY - 26 - rise - laneShift
                 let pop = state.reduceMotion ? 1 : 1 + 0.35 * max(0, 1 - age / 0.15)
                 let alpha = age < 0.9 ? 1 : max(0, 1 - (age - 0.9) / 0.5)
                 var label = ctx
@@ -537,12 +715,56 @@ enum FlightScene {
         }
     }
 
-    static func drawSatelliteEffect(_ ctx: GraphicsContext, camera: SceneCamera, layout: RocketLayout, effect: SceneEffect,
+    /// A dropped stage: drawn like the stage it was (stripe, nozzle, fins on the bottom stage), it falls away and
+    /// tumbles (no tumbling with Reduce Motion), with a puff of smoke where it separated.
+    static func drawDebris(_ ctx: GraphicsContext, camera: SceneCamera, rect: CGRect, stage: Int, side: Double, age: Double,
+                           effect: SceneEffect, state: SceneState) {
+        let cx = camera.size.width / 2
+        let seamY = camera.y(effect.altitude) + rect.minY
+        if age < 0.8 {
+            drawPuff(ctx, at: CGPoint(x: cx, y: seamY), age: age)
+        }
+        let fallKm = effect.altitude + effect.speed * age - 0.5 * FlightSim.gravity * age * age
+        let shift = CGFloat(state.altitude - fallKm) * camera.pxPerKm
+        let y = camera.rocketY + rect.midY + shift
+        guard y < camera.size.height + 200 else { return }
+        let x = cx + CGFloat(side) * CGFloat(12 + age * 30)
+        var piece = ctx
+        piece.translateBy(x: x, y: y)
+        if !state.reduceMotion {
+            piece.rotate(by: .radians(side * age * 1.3))
+        }
+        piece.opacity = max(0, 1 - age / 5)
+        let local = CGRect(x: -rect.width / 2, y: -rect.height / 2, width: rect.width, height: rect.height)
+        drawNozzle(piece, under: local)
+        if stage == 0 {
+            drawFins(piece, on: local)
+        }
+        drawStage(piece, rect: local, index: stage, isTop: false, dim: false)
+    }
+
+    /// A short ring of smoke puffs that spreads and fades.
+    static func drawPuff(_ ctx: GraphicsContext, at point: CGPoint, age: Double) {
+        let t = age / 0.8
+        let alpha = 0.75 * (1 - t)
+        let dist = CGFloat(6 + 26 * t)
+        let r = CGFloat(5 + 12 * t)
+        for index in 0..<6 {
+            let angle = Double(index) / 6 * 2 * Double.pi + 0.4
+            let dx = CGFloat(cos(angle)) * dist * 1.4
+            let dy = CGFloat(sin(angle)) * dist * 0.6
+            let rect = CGRect(x: point.x + dx - r, y: point.y + dy - r, width: r * 2, height: r * 2)
+            ctx.fill(Path(ellipseIn: rect), with: .color(Palette.paper.opacity(alpha)))
+        }
+    }
+
+    static func drawSatelliteEffect(_ ctx: GraphicsContext, camera: SceneCamera, effect: SceneEffect,
                                     ring: Int?, side: Double, age: Double, state: SceneState) {
         let cx = camera.size.width / 2
         let s = CGFloat(side)
-        let popTime = 0.45
-        let startY = camera.y(effect.altitude) + layout.nose.maxY
+        let popTime = SceneEffect.popTime
+        // The satellite leaves at the hatch, the rocket's reference point, at the altitude it was released.
+        let startY = camera.y(effect.altitude)
         if age <= popTime {
             let t = age / popTime
             let eased = CGFloat(1 - pow(1 - t, 3))
@@ -553,16 +775,14 @@ enum FlightScene {
         }
         let popX = cx + s * 86
         if let ring {
-            let glide = min(1, (age - popTime) / 1.1)
+            let glide = min(1, (age - popTime) / SceneEffect.glideTime)
             let eased = 1 - pow(1 - glide, 2)
             let target = Rings.altitudes[ring]
-            let startAlt = camera.altitude(atY: startY)
-            let alt = startAlt + (target - startAlt) * eased
-            let drift = s * CGFloat(max(0, age - popTime - 1.1) * 14)
-            let x = popX + s * 30 * CGFloat(eased) + drift
+            let alt = effect.altitude + (target - effect.altitude) * eased
+            let x = popX + s * 30 * CGFloat(eased)
             let y = camera.y(alt)
             guard y > -30, y < camera.size.height + 30 else { return }
-            SatelliteShape.draw(in: ctx, at: CGPoint(x: x, y: y), size: 26 - 6 * CGFloat(eased))
+            SatelliteShape.draw(in: ctx, at: CGPoint(x: x, y: y), size: 26 - 8 * CGFloat(eased))
         } else {
             let t = age - popTime
             guard t < 3 else { return }
@@ -570,7 +790,8 @@ enum FlightScene {
             let y = startY + CGFloat(t * t * 90)
             var dimmed = ctx
             dimmed.opacity = max(0, 1 - t / 3)
-            SatelliteShape.draw(in: dimmed, at: CGPoint(x: x, y: y), size: 22, dim: true, angle: t * 4 * side)
+            let angle = state.reduceMotion ? 0 : t * 4 * side
+            SatelliteShape.draw(in: dimmed, at: CGPoint(x: x, y: y), size: 22, dim: true, angle: angle)
         }
     }
 

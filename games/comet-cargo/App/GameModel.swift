@@ -109,6 +109,9 @@ final class GameModel {
     func scenePhaseChanged(_ phase: ScenePhase) {
         switch phase {
         case .background:
+            // A flight that already reached its apex is settled now (finishFlight books and saves it), so killing the
+            // app during the apex hold loses nothing; a flight still in the air pauses.
+            flight?.finishNow()
             flight?.pause()
             persist()
         case .inactive:

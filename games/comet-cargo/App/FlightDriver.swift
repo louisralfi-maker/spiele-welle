@@ -2,12 +2,63 @@ import Observation
 import QuartzCore
 import SwiftUI
 
+/// What the tank gauge tells the player right now.
+enum GaugeCue: Sendable, Equatable {
+    /// On the pad, or the fuel is still above the Perfect zone.
+    case calm
+    /// The fuel is inside the Perfect zone: drop now.
+    case perfect
+    /// Burnt out, still inside the grace time: a drop is still Perfect.
+    case grace
+    /// Burnt out past the grace time: a drop is Late.
+    case late
+    /// The last stage burns or coasts: there is nothing to drop.
+    case last
+}
+
+extension FlightSim {
+    var gaugeCue: GaugeCue {
+        if isLastStage { return .last }
+        switch phase {
+        case .burning:
+            let zones = Ratings.gaugeZones(guidance: rocket.guidance)
+            return fuelFraction <= zones.perfect ? .perfect : .calm
+        case .spent:
+            let grace = Ratings.burnoutGrace * Ratings.windowScale(guidance: rocket.guidance)
+            return (sinceBurnout ?? 0) <= grace ? .grace : .late
+        case .pad, .coasting, .ended:
+            return .calm
+        }
+    }
+
+    /// Where the rocket stalls if nothing pushes it any more: exact while it coasts, a floor while a stage burns.
+    var predictedApex: Double {
+        let v = max(0, speed)
+        return altitude + v * v / (2 * Self.gravity)
+    }
+
+    /// The band the rocket is inside right now and the rating a release would get, while satellites are aboard.
+    var liveBand: (ring: Int, rating: ReleaseRating)? {
+        guard isFlying, satellitesAboard > 0 else { return nil }
+        let placed = Rings.release(at: altitude, speed: speed, guidance: rocket.guidance)
+        guard let ring = placed.ring else { return nil }
+        return (ring, placed.rating)
+    }
+}
+
 /// Calls back once per screen refresh. CADisplayLink needs an Objective-C target with an @objc method; this small proxy is
 /// that target, so the driver itself stays a plain observable class.
 @MainActor
 final class DisplayLinkProxy: NSObject {
     private var link: CADisplayLink?
-    var onFrame: ((CFTimeInterval) -> Void)?
+    /// Returns false when its owner is gone; the link then stops, so a lost driver can never leave a link running.
+    var onFrame: ((CFTimeInterval) -> Bool)?
+
+    /// A paused link stops calling back (the pause card costs no frames).
+    var isPaused: Bool {
+        get { link?.isPaused ?? true }
+        set { link?.isPaused = newValue }
+    }
 
     func start() {
         guard link == nil else { return }
@@ -24,7 +75,8 @@ final class DisplayLinkProxy: NSObject {
     }
 
     @objc private func frame(_ sender: CADisplayLink) {
-        onFrame?(sender.timestamp)
+        let alive = onFrame?(sender.timestamp) ?? false
+        if !alive { stop() }
     }
 }
 
@@ -45,40 +97,67 @@ final class FlightDriver {
     private(set) var refusedAt = -10.0
     /// Clock time of the last stage drop (a small kick of the camera).
     private(set) var droppedAt = -10.0
+    /// Deliveries per ring, including this flight's satellites once they glided onto their line.
+    private(set) var liveDeliveries: [Int]
+    /// True while the rocket coasts with no cargo left: nothing can change any more, so the flight runs faster.
+    private(set) var fastForward = false
 
     let best: Double
     let last: Double?
-    let ringDeliveries: [Int]
     let autoplay: Bool
+    /// Scale of every stage, bottom first (the top stage is 1); fixed for the flight.
+    let stageScales: [Double]
     @ObservationIgnored var onFinish: ((FlightResult) -> Void)?
+    /// True once the flight was handed to `onFinish`.
+    @ObservationIgnored private(set) var finished = false
 
     @ObservationIgnored private var pilot: Autopilot?
     @ObservationIgnored private var accumulator = 0.0
     @ObservationIgnored private var lastTimestamp: CFTimeInterval?
     @ObservationIgnored private var eventsSeen = 0
     @ObservationIgnored private var endedAt: Double?
-    @ObservationIgnored private var finished = false
+    /// The apex hold of this flight (apexHold, or skipHold after a fast-forward).
+    @ObservationIgnored private var hold = 1.2
     @ObservationIgnored private var nextEffectID = 0
     @ObservationIgnored private var nextSide = 1.0
+    /// Satellites still gliding to their ring line: they count on the line once they arrive.
+    @ObservationIgnored private var arrivals: [(ring: Int, time: Double)] = []
     private let link = DisplayLinkProxy()
 
     /// The pause at the apex before the results.
     static let apexHold = 1.2
+    /// The shorter pause when the end of the flight ran fast-forward.
+    static let skipHold = 0.6
+    /// How much faster the flight runs once there is nothing left to do.
+    static let fastForwardRate = 3.0
     /// How long the autopilot waits on the pad, so the pad can be seen.
     static let autoplayIgnitionDelay = 0.8
+    /// Pop-ups younger than this push a new one into the next lane.
+    static let popupLaneTime = 0.6
+    static let maxStepsPerFrame = 24
 
     init(rocket: RocketConfig, autoplay: Bool, best: Double, last: Double?, ringDeliveries: [Int]) {
         self.sim = FlightSim(rocket: rocket)
         self.autoplay = autoplay
         self.best = best
         self.last = last
-        self.ringDeliveries = ringDeliveries
+        var counts = Array(ringDeliveries.prefix(Rings.count)).map { max(0, $0) }
+        if counts.count < Rings.count {
+            counts += Array(repeating: 0, count: Rings.count - counts.count)
+        }
+        self.liveDeliveries = counts
+        let stageCount = rocket.stages.count
+        self.stageScales = (0..<stageCount).map { index in
+            pow(RocketConfig.stageScale, Double(index - (stageCount - 1)))
+        }
         self.pilot = autoplay ? Autopilot(rocket: rocket) : nil
     }
 
     func start() {
         link.onFrame = { [weak self] timestamp in
-            self?.frame(timestamp)
+            guard let self else { return false }
+            self.frame(timestamp)
+            return true
         }
         link.start()
     }
@@ -89,13 +168,23 @@ final class FlightDriver {
     }
 
     func pause() {
-        guard sim.phase != .ended else { return }
+        guard sim.phase != .ended, !finished else { return }
         paused = true
+        link.isPaused = true
     }
 
     func resume() {
         paused = false
         lastTimestamp = nil
+        link.isPaused = false
+    }
+
+    /// Settles a flight that already reached its apex right away (the app goes to the background during the apex hold).
+    func finishNow() {
+        guard sim.phase == .ended, !finished else { return }
+        finished = true
+        stop()
+        onFinish?(sim.result)
     }
 
     // MARK: Input
@@ -104,10 +193,15 @@ final class FlightDriver {
     func tapScene() {
         guard !paused, !autoplay else { return }
         switch sim.phase {
-        case .pad: sim.send(.ignite)
-        case .burning, .spent: sim.send(.dropStage)
-        case .coasting: refusedAt = clock
-        case .ended: break
+        case .pad:
+            sim.send(.ignite)
+        case .burning, .spent:
+            sim.send(.dropStage)
+        case .coasting:
+            refusedAt = clock
+            Feedback.shared.play(.refused)
+        case .ended:
+            break
         }
     }
 
@@ -118,22 +212,29 @@ final class FlightDriver {
 
     // MARK: Frame
 
-    private func frame(_ timestamp: CFTimeInterval) {
+    /// One display frame. Internal so the unit tests can drive the driver with made-up timestamps.
+    func frame(_ timestamp: CFTimeInterval) {
         let previous = lastTimestamp ?? timestamp - 1.0 / 60.0
         lastTimestamp = timestamp
         guard !paused, !finished else { return }
         let delta = min(0.05, max(0, timestamp - previous))
         clock += delta
-        advance(by: delta)
+        let fast = sim.phase == .coasting && sim.satellitesAboard == 0
+        if fast != fastForward { fastForward = fast }
+        advance(by: fast ? delta * Self.fastForwardRate : delta)
         processEvents()
+        landArrivals()
+        pruneEffects()
         updateCamera(delta)
-        if sim.phase == .ended {
-            if endedAt == nil { endedAt = clock }
-            if let end = endedAt, clock - end >= Self.apexHold {
-                finished = true
-                stop()
-                onFinish?(sim.result)
-            }
+        guard sim.phase == .ended else { return }
+        if endedAt == nil {
+            endedAt = clock
+            hold = fast ? Self.skipHold : Self.apexHold
+        }
+        if let end = endedAt, clock - end >= hold {
+            finished = true
+            stop()
+            onFinish?(sim.result)
         }
     }
 
@@ -142,7 +243,7 @@ final class FlightDriver {
         accumulator += delta
         var next = sim
         var steps = 0
-        while accumulator >= FlightSim.dt && steps < 12 {
+        while accumulator >= FlightSim.dt && steps < Self.maxStepsPerFrame {
             if var current = pilot {
                 let waiting = next.phase == .pad && clock < Self.autoplayIgnitionDelay
                 if !waiting {
@@ -156,7 +257,7 @@ final class FlightDriver {
             accumulator -= FlightSim.dt
             steps += 1
         }
-        if steps == 12 { accumulator = 0 }
+        if steps == Self.maxStepsPerFrame { accumulator = 0 }
         sim = next
     }
 
@@ -172,9 +273,9 @@ final class FlightDriver {
                 break
             case .stageDropped(let drop):
                 droppedAt = clock
-                let scale = pow(RocketConfig.stageScale, Double(drop.stage - (sim.stageCount - 1)))
+                let scale = stageScales[safe: drop.stage] ?? 1
                 addEffect(.debris(stage: drop.stage, scale: scale, side: nextSide), altitude: drop.altitude, speed: drop.speed)
-                addEffect(.popup(text: drop.rating.title.uppercased(), tint: drop.rating.tint), altitude: drop.altitude, speed: 0)
+                addPopup(drop.rating.title.uppercased(), tint: drop.rating.tint, altitude: drop.altitude)
                 nextSide = -nextSide
                 feedback.play(.stageDrop(drop.rating))
             case .dropRefused:
@@ -185,14 +286,15 @@ final class FlightDriver {
                 addEffect(.satellite(ring: delivery.ring, side: nextSide), altitude: delivery.altitude, speed: 0)
                 nextSide = -nextSide
                 let text: String
-                if delivery.ring == nil {
+                if let ring = delivery.ring {
+                    text = "\(delivery.rating.title.uppercased()) +\(delivery.pay)"
+                    arrivals.append((ring: ring, time: clock + SceneEffect.glideEnd))
+                    feedback.play(.release(delivery.rating))
+                } else {
                     text = delivery.rating.title.uppercased()
                     feedback.play(.lost)
-                } else {
-                    text = "\(delivery.rating.title.uppercased()) +\(delivery.pay)"
-                    feedback.play(.release(delivery.rating))
                 }
-                addEffect(.popup(text: text, tint: delivery.rating.tint), altitude: delivery.altitude, speed: 0)
+                addPopup(text, tint: delivery.rating.tint, altitude: delivery.altitude)
             case .apex(_, let lost, _):
                 if lost > 0 {
                     feedback.play(.lost)
@@ -204,13 +306,52 @@ final class FlightDriver {
             }
         }
         eventsSeen = events.count
-        let now = clock
-        effects.removeAll { now - $0.spawn > 6 }
     }
 
     private func addEffect(_ kind: SceneEffect.Kind, altitude: Double, speed: Double) {
         effects.append(SceneEffect(id: nextEffectID, kind: kind, spawn: clock, altitude: altitude, speed: speed))
         nextEffectID += 1
+    }
+
+    /// A rating pop-up; one that comes while another is still fresh takes the next lane, so they never overlap.
+    private func addPopup(_ text: String, tint: Color, altitude: Double) {
+        let now = clock
+        var lane = 0
+        for effect in effects where now - effect.spawn < Self.popupLaneTime {
+            if case .popup(_, _, let used) = effect.kind, used >= lane {
+                lane = used + 1
+            }
+        }
+        addEffect(.popup(text: text, tint: tint, lane: min(lane, 3)), altitude: altitude, speed: 0)
+    }
+
+    /// Satellites whose glide ended now sit on their ring line (a ring completed this flight turns gold).
+    private func landArrivals() {
+        guard !arrivals.isEmpty else { return }
+        let now = clock
+        guard arrivals.contains(where: { $0.time <= now }) else { return }
+        var counts = liveDeliveries
+        for arrival in arrivals where arrival.time <= now && counts.indices.contains(arrival.ring) {
+            counts[arrival.ring] += 1
+        }
+        arrivals.removeAll { $0.time <= now }
+        liveDeliveries = counts
+    }
+
+    /// Drops finished effects on every frame (only touching the array when something is stale).
+    private func pruneEffects() {
+        guard !effects.isEmpty else { return }
+        let now = clock
+        guard effects.contains(where: { FlightDriver.isStale($0, now: now) }) else { return }
+        effects.removeAll { FlightDriver.isStale($0, now: now) }
+    }
+
+    nonisolated private static func isStale(_ effect: SceneEffect, now: Double) -> Bool {
+        let age = now - effect.spawn
+        if case .satellite(let ring, _) = effect.kind, ring != nil {
+            return age > SceneEffect.glideEnd
+        }
+        return age > 6
     }
 
     /// The camera shows max(25 km, v × 3 s), smoothed; near the pad it starts closer (6 km) so the lift-off is felt.
@@ -224,21 +365,29 @@ final class FlightDriver {
     // MARK: For the views
 
     func sceneState(reduceMotion: Bool) -> SceneState {
-        let scales = (0..<sim.stageCount).map { pow(RocketConfig.stageScale, Double($0 - (sim.stageCount - 1))) }
+        let band = sim.liveBand
+        let guidance = sim.rocket.guidance
         return SceneState(
             altitude: sim.altitude,
             speed: sim.speed,
             phase: sim.phase,
             clock: clock,
             span: span,
-            stageScales: scales,
+            stageScales: stageScales,
             stageIndex: sim.stageIndex,
             effects: effects,
             best: best,
             last: last,
-            ringDeliveries: ringDeliveries,
+            ringDeliveries: liveDeliveries,
             reduceMotion: reduceMotion,
-            sinceDrop: clock - droppedAt
+            sinceDrop: clock - droppedAt,
+            guidance: guidance,
+            fuel: sim.fuelFraction,
+            zones: Ratings.gaugeZones(guidance: guidance),
+            cue: sim.gaugeCue,
+            bandRing: band?.ring,
+            bandRating: band?.rating ?? .lost,
+            predictedApex: sim.isFlying ? sim.predictedApex : nil
         )
     }
 }

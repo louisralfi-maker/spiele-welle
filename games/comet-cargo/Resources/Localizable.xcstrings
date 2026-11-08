@@ -201,6 +201,26 @@
         }
       }
     },
+    "Drop stage" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stufe abwerfen"
+          }
+        }
+      }
+    },
+    "Drop!" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abwerfen!"
+          }
+        }
+      }
+    },
     "Early" : {
       "localizations" : {
         "de" : {
@@ -227,6 +247,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Flugbericht"
+          }
+        }
+      }
+    },
+    "Fuel" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Treibstoff"
           }
         }
       }

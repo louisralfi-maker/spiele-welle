@@ -52,6 +52,8 @@ enum Palette {
     /// A darker teal for the ground and the planet.
     static let groundRGB = RGB(hex: 0x24575B)
     static let gold = RGB(hex: 0xFFD36B).color
+    /// The warm orange of the fuel in the tank gauges.
+    static let fuel = RGB(hex: 0xF08A47).color
 
     /// Sky colour at an altitude in km: cream and teal at the ground, deep teal around 30 km, navy at 100 km, night above
     /// 300 km.
