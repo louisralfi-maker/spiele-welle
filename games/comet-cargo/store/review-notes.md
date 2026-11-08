@@ -20,7 +20,7 @@ the coins on the five upgrades in the hangar (engines, tanks, stages, cargo bay,
 
 Consent for ads uses Google's User Messaging Platform where the regulations require it, followed by the App Tracking
 Transparency prompt. Players can change their ad privacy choices at any time under Settings → "Privacy choices" (shown
-where the regulations require it).
+where the regulations require it). The privacy policy is linked in Settings → "Privacy policy".
 
 **Other.** No music; sound effects and haptics only, both can be switched off in Settings. The app collects no personal
 data of its own.

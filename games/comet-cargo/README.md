@@ -16,7 +16,12 @@ ring. Higher rings pay more; satellites still aboard when the rocket stalls are 
 - AdMob (created 08.11.2026, Louis' go): app `ca-app-pub-4855617456569312~2107555400`; interstitial
   `ca-app-pub-4855617456569312/2243286779`; rewarded ("Double it") `ca-app-pub-4855617456569312/4813609790`.
   The EU consent message (Privacy & messaging, European regulations) is not created yet: it needs the privacy policy
-  URL first.
+  URL first. Before asking Louis for the go: publish the privacy page, create and publish that message for the app,
+  then run one runner round with `-GWConsentEEA YES` and without `-GWNoAds` (debug build) to see the form come up and
+  the tracking question follow it.
+- Privacy policy URL: `https://louisralfi-maker.github.io/comet-cargo/privacy.html` (`AdConfig.privacyPolicyURL`, linked
+  from Settings → "Privacy policy"; the same URL goes into App Store Connect). The page is not live yet (404 on
+  08.11.2026): publish it on Louis' Pages site before the first submission.
 - Ads (Louis, 08.11.2026): interstitials rarely (not in the first 3 minutes of play, then at most every 3 to 4
   minutes, only after the flight report); one rewarded offer: double the flight's coins, once per flight. No booster.
 - Runner: `scripts/ci/remote-check.sh comet-cargo <label> ci-out/<label> build unit ui ui-de release`

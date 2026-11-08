@@ -299,8 +299,9 @@ Ads only, no purchases. The code is Piston Empire's proven ad code (`Ads/`), the
   over a sheet, none on a report where "Double it" played its video (`AdMoment.rewardedThisReport`), none within 60 s
   after a rewarded ad closed. Time with an ad on screen does not count as play. An expired interstitial (loaded over an
   hour ago) is reloaded without using up the 210 s slot.
-- **Settings:** "Privacy choices" (`settings-privacy`) shows when UMP says privacy options are required; it opens Google's
-  privacy options form.
+- **Settings:** "Privacy policy" (`settings-policy`, always shown, App Review 5.1.1(i)) opens
+  `AdConfig.privacyPolicyURL` in Safari; "Privacy choices" (`settings-privacy`) shows under it when UMP says privacy
+  options are required; it opens Google's privacy options form. The sheet scrolls when the medium detent is too short.
 - **Privacy:** `Resources/PrivacyInfo.xcprivacy` as Piston Empire: `NSPrivacyTracking` false, no tracking domains, no
   collected data of our own (Google's SDKs ship their own manifests); reasons for UserDefaults (CA92.1) and the system
   boot time (35F9.1, the pacing clock). `NSUserTrackingUsageDescription` in all 8 languages in
@@ -351,7 +352,7 @@ read its state. Rendering never mutates state.
 `hangar-launch`, `hangar-coins`, `hangar-best`, `upgrade-<track>-buy` (tracks: engines, tanks, stages, cargo, guidance),
 `settings-open`, `flight-root`, `flight-scene`, `flight-release`, `flight-pause`, `flight-altitude`, `pause-title`,
 `pause-resume`, `pause-abort`, `results-root`, `results-total`, `results-collect`, `results-delivery`, `results-lost`,
-`results-drop`, `results-unused`, `results-network`, `results-double`, `settings-privacy`. Every button has a VoiceOver label.
+`results-drop`, `results-unused`, `results-network`, `results-double`, `settings-policy`, `settings-privacy`. Every button has a VoiceOver label.
 
 ## UI smoke test (`UITests/FlightUITests.swift`)
 

@@ -12,6 +12,12 @@ enum AdConfig {
     static let liveRewarded: String? = "ca-app-pub-4855617456569312/4813609790"
     static let liveInterstitial: String? = "ca-app-pub-4855617456569312/2243286779"
 
+    // MARK: Privacy policy
+
+    /// The game's privacy policy on Louis' GitHub Pages site, linked from Settings (App Review 5.1.1(i)) and entered as the
+    /// privacy policy URL in App Store Connect. The page must be live at this address before the first submission.
+    static let privacyPolicyURL = URL(string: "https://louisralfi-maker.github.io/comet-cargo/privacy.html")!
+
     // MARK: Google's test ad units (always safe)
     static let testRewarded = "ca-app-pub-3940256099942544/1712485313"
     static let testInterstitial = "ca-app-pub-3940256099942544/4411468910"
