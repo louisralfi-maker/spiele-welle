@@ -70,7 +70,8 @@ enum NetworkDrawing {
             let shown = min(Economy.ringSlots, count)
             let speed = 0.5 / pow(Double(r / planet), 1.5)
             for index in 0..<shown {
-                let angle = Double(index) * 2 * Double.pi / Double(Economy.ringSlots) + Double(ring) * 0.9 + time * speed
+                let slotAngle: Double = Double(index) * 2.0 * Double.pi / Double(Economy.ringSlots)
+                let angle: Double = slotAngle + Double(ring) * 0.9 + time * speed
                 let p = CGPoint(x: center.x + CGFloat(cos(angle)) * r, y: center.y + CGFloat(sin(angle)) * r)
                 let dot = CGRect(x: p.x - 3.2, y: p.y - 3.2, width: 6.4, height: 6.4)
                 context.fill(Path(ellipseIn: dot), with: .color(complete ? Palette.gold : Palette.paper))
