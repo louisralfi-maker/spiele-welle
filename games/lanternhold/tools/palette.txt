@@ -1,0 +1,73 @@
+# Lanternhold shared palette: 48 colours. One line per colour: name, hex, optional tags.
+# The 20 DESIGN.md "Look" tokens come first, then the albedo mid-tones the art needs.
+# Tag "emissive": the fire ramp; pixelart.py never maps painted albedo onto these unless --allow-emissive
+# (the engine draws flames and glow as separate emissive sprites, and later builds emissive masks from these colours).
+# Painted art is ALBEDO: evenly lit daylight colours. The engine adds dusk, night, firelight and fog.
+
+# --- DESIGN.md tokens ---
+night0      #0E0B1E
+night1      #1C1838
+night2      #2E2A5C
+moon        #8C98D0
+stoneDark   #3A3346
+stone       #6B6078
+stoneLight  #A99CA8
+wood        #7A4E2E
+fireWhite   #FFF2C2  emissive
+fireGold    #FFC65A  emissive
+fireOrange  #FF8A2A  emissive
+ember       #D9481F  emissive
+dawnRose    #F2A6A0
+dusk        #C8587A
+daySky      #9CCBDD
+meadow      #6E9A4A
+banner      #2F6E8E
+gold        #E8B84A
+parchment   #F1E3C4
+ink         #2A2230
+
+# --- castle stone (cool grey-violet) ---
+stoneMid    #544A60
+stonePale   #CDC2C6
+
+# --- gorge rock (ochre by day) ---
+rockDeep    #3E3036
+rockDark    #5C4640
+rock        #826248
+rockLight   #A8845A
+rockPale    #CDAE78
+
+# --- wood, straw, thatch ---
+woodDark    #4A2E22
+woodLight   #A0703F
+straw       #C49A52
+strawLight  #E0C07A
+
+# --- roofs: realm teal slate and town tiles ---
+roofDeep    #1F4660
+roofLight   #4F92AE
+tile        #8E4A36
+tileLight   #B8664A
+
+# --- greens ---
+leafDark    #2E4630
+leaf        #4A6B3A
+leafLight   #9DBF62
+
+# --- earth ---
+soilDark    #3A2A26
+soil        #5E4434
+soilLight   #876448
+
+# --- plaster (town houses) ---
+plaster     #D9C9A8
+plasterDim  #B4A284
+
+# --- far mountains (cool, aerial) ---
+farDeep     #3C4468
+far         #5A6890
+farPale     #B4C0D8
+
+# --- water, snow, foam ---
+waterDeep   #5E8FB0
+foam        #E6F0F2
