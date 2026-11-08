@@ -310,7 +310,7 @@ enum FlightScene {
         ctx.draw(title, at: CGPoint(x: plate.minX + 8, y: plate.minY + 10), anchor: .leading)
         ctx.draw(detail, at: CGPoint(x: plate.minX + 8, y: plate.minY + 25), anchor: .leading)
         ctx.draw(pay, at: CGPoint(x: plate.maxX - 8, y: plate.minY + 25), anchor: .trailing)
-        CoinIcon.draw(in: ctx, center: CGPoint(x: plate.maxX - 12, y: plate.minY + 10), radius: 5)
+        CoinShape.draw(in: ctx, center: CGPoint(x: plate.maxX - 12, y: plate.minY + 10), radius: 5)
     }
 
     static func drawApexLines(_ ctx: GraphicsContext, camera: SceneCamera, state: SceneState) {

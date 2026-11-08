@@ -31,6 +31,10 @@ struct FlightSceneView: View {
     let driver: FlightDriver
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    init(driver: FlightDriver) {
+        self.driver = driver
+    }
+
     var body: some View {
         let state = driver.sceneState(reduceMotion: reduceMotion)
         Canvas { context, size in
@@ -43,6 +47,10 @@ struct FlightSceneView: View {
 struct FlightHUD: View {
     let driver: FlightDriver
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    init(driver: FlightDriver) {
+        self.driver = driver
+    }
 
     var body: some View {
         GeometryReader { geo in

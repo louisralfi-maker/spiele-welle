@@ -8,6 +8,11 @@ struct ResultsView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var shown = false
 
+    init(settlement: Economy.Settlement, onCollect: @escaping () -> Void) {
+        self.settlement = settlement
+        self.onCollect = onCollect
+    }
+
     var body: some View {
         ZStack {
             LinearGradient(colors: [Palette.navy, Palette.night], startPoint: .top, endPoint: .bottom)

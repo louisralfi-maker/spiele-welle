@@ -7,11 +7,16 @@ struct NetworkView: View {
     let bestApex: Double
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    init(deliveries: [Int], bestApex: Double) {
+        self.deliveries = deliveries
+        self.bestApex = bestApex
+    }
+
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: reduceMotion)) { timeline in
             let time = reduceMotion ? 0 : timeline.date.timeIntervalSinceReferenceDate
             Canvas { context, size in
-                NetworkView.draw(context, size: size, deliveries: deliveries, bestApex: bestApex, time: time)
+                NetworkDrawing.draw(context, size: size, deliveries: deliveries, bestApex: bestApex, time: time)
             }
         }
         .accessibilityElement(children: .ignore)
@@ -23,6 +28,10 @@ struct NetworkView: View {
         deliveries.filter { $0 >= Economy.ringSlots }.count
     }
 
+}
+
+/// The network drawing, a plain enum so it carries no actor isolation.
+enum NetworkDrawing {
     /// Radius of ring `k` between the planet and the edge, on a log scale of its altitude.
     static func radius(_ ring: Int, planet: CGFloat, outer: CGFloat) -> CGFloat {
         let low = log(12.0)

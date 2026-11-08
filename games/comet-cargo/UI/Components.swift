@@ -6,12 +6,15 @@ struct CoinIcon: View {
 
     var body: some View {
         Canvas { context, canvasSize in
-            CoinIcon.draw(in: context, center: CGPoint(x: canvasSize.width / 2, y: canvasSize.height / 2), radius: canvasSize.width / 2)
+            CoinShape.draw(in: context, center: CGPoint(x: canvasSize.width / 2, y: canvasSize.height / 2), radius: canvasSize.width / 2)
         }
         .frame(width: size, height: size)
         .accessibilityHidden(true)
     }
+}
 
+/// Coin drawing for any Canvas (a plain enum, so the flight scene can call it off the main actor).
+enum CoinShape {
     static func draw(in context: GraphicsContext, center: CGPoint, radius: CGFloat) {
         let outer = CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)
         context.fill(Path(ellipseIn: outer), with: .color(Palette.mustard))
@@ -147,6 +150,13 @@ struct RollingNumber: View {
     var color: Color = Palette.ink
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var start = Date()
+
+    init(value: Int, duration: Double = 1.0, size: CGFloat = 44, color: Color = Palette.ink) {
+        self.value = value
+        self.duration = duration
+        self.size = size
+        self.color = color
+    }
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: reduceMotion)) { timeline in

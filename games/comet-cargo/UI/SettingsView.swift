@@ -6,6 +6,10 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var confirmReset = false
 
+    init(model: GameModel) {
+        self.model = model
+    }
+
     var body: some View {
         VStack(spacing: 18) {
             HStack {
