@@ -2,8 +2,9 @@ import XCTest
 
 /// Plays the first flight and a mid-game flight with the autopilot and saves screenshots named <nn>-<what>-<lang>; plays
 /// one flight by hand (taps reach the sim, the buttons never drop a stage, pause works); shoots a filmstrip of a mid-game
-/// flight for the fun check; checks the first-flight hints. Tests that play by hand without the hints pass
-/// -GWSkipOnboarding YES.
+/// flight for the fun check; checks the first-flight hints and "Double it". Tests that play by hand without the hints
+/// pass -GWSkipOnboarding YES. Every test runs without ads (-GWNoAds YES) except testDoubleReward, which fakes a rewarded
+/// ad (-GWFakeAds YES). No test reads English text: they run in all eight languages.
 @MainActor
 final class FlightUITests: XCTestCase {
     override func setUp() async throws {
@@ -21,6 +22,11 @@ final class FlightUITests: XCTestCase {
         add(attachment)
     }
 
+    /// The number in an accessibility label such as "1,234 coins" (digits only, so in any language).
+    private func number(in label: String) -> Int {
+        Int(label.filter { "0123456789".contains($0) }) ?? 0
+    }
+
     private func element(_ app: XCUIApplication, _ identifier: String) -> XCUIElement {
         app.descendants(matching: .any).matching(identifier: identifier).firstMatch
     }
@@ -34,7 +40,7 @@ final class FlightUITests: XCTestCase {
 
     func testFirstFlight() {
         let app = XCUIApplication()
-        app.launchArguments = ["-GWReset", "YES", "-GWAutoplay", "YES"]
+        app.launchArguments = ["-GWNoAds", "YES", "-GWReset", "YES", "-GWAutoplay", "YES"]
         app.launch()
         let launch = element(app, "hangar-launch")
         XCTAssertTrue(launch.waitForExistence(timeout: 30), "The hangar shows")
@@ -64,7 +70,7 @@ final class FlightUITests: XCTestCase {
     /// exactly one stage drop and the released satellite.
     func testManualControls() {
         let app = XCUIApplication()
-        app.launchArguments = ["-GWReset", "YES", "-GWUpgrades", "mid", "-GWSkipOnboarding", "YES"]
+        app.launchArguments = ["-GWNoAds", "YES", "-GWReset", "YES", "-GWUpgrades", "mid", "-GWSkipOnboarding", "YES"]
         app.launch()
         let launch = element(app, "hangar-launch")
         XCTAssertTrue(launch.waitForExistence(timeout: 30), "The hangar shows")
@@ -103,9 +109,9 @@ final class FlightUITests: XCTestCase {
     /// A mid-game autopilot flight with a screenshot about every 1.2 s from launch to the results (film-<nn>), for the
     /// next fun check. English only.
     func testFilmstrip() throws {
-        try XCTSkipIf(language == "de", "The filmstrip is shot in English only")
+        try XCTSkipIf(language != "en", "The filmstrip is shot in English only")
         let app = XCUIApplication()
-        app.launchArguments = ["-GWReset", "YES", "-GWUpgrades", "mid", "-GWAutoplay", "YES"]
+        app.launchArguments = ["-GWNoAds", "YES", "-GWReset", "YES", "-GWUpgrades", "mid", "-GWAutoplay", "YES"]
         app.launch()
         let launch = element(app, "hangar-launch")
         XCTAssertTrue(launch.waitForExistence(timeout: 30), "The hangar shows")
@@ -128,7 +134,7 @@ final class FlightUITests: XCTestCase {
 
     func testMidGame() {
         let app = XCUIApplication()
-        app.launchArguments = ["-GWReset", "YES", "-GWCoins", "5000", "-GWUpgrades", "mid", "-GWNetwork", "demo", "-GWAutoplay", "YES"]
+        app.launchArguments = ["-GWNoAds", "YES", "-GWReset", "YES", "-GWCoins", "5000", "-GWUpgrades", "mid", "-GWNetwork", "demo", "-GWAutoplay", "YES"]
         app.launch()
         let launch = element(app, "hangar-launch")
         XCTAssertTrue(launch.waitForExistence(timeout: 30), "The hangar shows")
@@ -147,7 +153,7 @@ final class FlightUITests: XCTestCase {
     /// satellite out (delivered, or outside the ring if the tap came late: a delivery row either way).
     func testFirstFlightHints() {
         let app = XCUIApplication()
-        app.launchArguments = ["-GWReset", "YES"]
+        app.launchArguments = ["-GWNoAds", "YES", "-GWReset", "YES"]
         app.launch()
         let launch = element(app, "hangar-launch")
         XCTAssertTrue(launch.waitForExistence(timeout: 30), "The hangar shows")
@@ -184,7 +190,7 @@ final class FlightUITests: XCTestCase {
     /// burst plays over the ring's slots, after the roll-up.
     func testResultsRingBurst() {
         let app = XCUIApplication()
-        app.launchArguments = ["-GWReset", "YES", "-GWScreen", "results"]
+        app.launchArguments = ["-GWNoAds", "YES", "-GWReset", "YES", "-GWScreen", "results"]
         app.launch()
         let results = element(app, "results-root")
         XCTAssertTrue(results.waitForExistence(timeout: 30), "The sample report shows")
@@ -193,5 +199,45 @@ final class FlightUITests: XCTestCase {
         pause(2.5)
         shot("12-results-ring")
         XCTAssertTrue(element(app, "results-collect").exists)
+    }
+
+    /// "Double it" with a fake rewarded ad that grants at once (-GWFakeAds YES): fly, tap `results-double` on the report,
+    /// the total doubles and the button goes away; shot 13-double; Collect, and the hangar's coins match the doubled
+    /// total (a fresh save starts at 0).
+    func testDoubleReward() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-GWReset", "YES", "-GWAutoplay", "YES", "-GWFakeAds", "YES", "-GWSkipOnboarding", "YES"]
+        app.launch()
+        let launch = element(app, "hangar-launch")
+        XCTAssertTrue(launch.waitForExistence(timeout: 30), "The hangar shows")
+        launch.tap()
+        XCTAssertTrue(element(app, "results-root").waitForExistence(timeout: 120), "The results show after the apex")
+        let total = element(app, "results-total")
+        XCTAssertTrue(total.waitForExistence(timeout: 5))
+        let before = number(in: total.label)
+        XCTAssertGreaterThan(before, 0, "The first flight paid something; the total reads \(total.label)")
+        let double = element(app, "results-double")
+        XCTAssertTrue(double.waitForExistence(timeout: 5), "Double it is offered after a paid flight")
+        // Collect and Double it arm at 0.6 s; the first roll-up (after a new best) is over at about 2.2 s.
+        pause(2.4)
+        double.tap()
+        var after = number(in: total.label)
+        var tries = 0
+        while after != before * 2 && tries < 20 {
+            pause(0.25)
+            after = number(in: total.label)
+            tries += 1
+        }
+        XCTAssertEqual(after, before * 2, "The total doubled")
+        let gone = expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: double)
+        wait(for: [gone], timeout: 5)
+        pause(1.4)
+        shot("13-double")
+        let collect = element(app, "results-collect")
+        XCTAssertTrue(collect.exists)
+        collect.tap()
+        let coins = element(app, "hangar-coins")
+        XCTAssertTrue(coins.waitForExistence(timeout: 10), "Back in the hangar")
+        XCTAssertEqual(number(in: coins.label), before * 2, "The hangar's coins match the doubled total")
     }
 }
