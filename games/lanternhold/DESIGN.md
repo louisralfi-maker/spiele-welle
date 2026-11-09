@@ -839,10 +839,10 @@ same seed and time give the same hash), `SaveGameTests` (round trip, old saves, 
 
 ### Tuning (M2a)
 
-Measured on the runner with the bots of `Core/Autoplay.swift` (the sweep of round `lh-fin-2`, its unit tests passing on
-the same balance; Debug and `-O` give the same numbers, `tools/simtune` sweeps variants). Petitions and the story are not
-in yet (M3), so the bots hear none; the chapel's blessing never applies yet; the endless events are not built. Each of
-these moves the targets, so they must be measured again when they arrive.
+Measured on the runner with the bots of `Core/Autoplay.swift`: the sweep of round `lh-fin-fix-1` (`tools/simtune`, -O)
+and the unit tests of round `lh-fin-fix-2` on the same balance (Debug gives the same numbers). Petitions and the story
+are not in yet (M3), so the bots hear none; the chapel's blessing never applies yet; the endless events are not built.
+Each of these moves the targets, so they must be measured again when they arrive.
 
 | Target | Measured | Target value |
 |---|---|---|
@@ -851,33 +851,47 @@ these moves the targets, so they must be measured again when they arrive.
 | 3 | beacon finished on days 17, 17, 17; with low tax not by day 20 | by day 18; low tax cannot |
 | 4 | high tax: happiness 25 at dawn 8 (without the chapel's blessing; with it, +1 a dawn, it would be 32); low tax: lowest 92 over dawns 8 to 20 | below 30; above 70 |
 | 5 | first dawn taxes 49 gold buy 3 builds; 11 buildings by day 10 | 2 to 3; 8 to 12 |
-| 6 | with the beacon night 20 won in 10 of 10 seeds and the Lightless King slain in 10 of 10, 42 to 48 s after he left the Gloom, at x 891 to 930 (the middle line); without (the same realm, the last stage taken away) won in 5 of 10, the five fall at 03:49 to 04:59. Reported, not a target: a bot that never builds the beacon and spends that gold on the rest of its order holds night 20 in 10 of 10 | at least 8 won and 6 slain; 3 to 6 |
-| 7 | endless: falls on nights 50, 43, 40 (seeds 1 to 3) | 35 to 60 |
+| 6 | with the beacon night 20 won in 10 of 10 seeds and the Lightless King slain in 10 of 10 (20 of 20 over seeds 1 to 20), 60 to 68 s after he left the Gloom (59 to 68 over 20 seeds), at x 849 to 926 (the middle line, its wall still standing), with 10 to 19 s of the beacon's light left (8 to 19 over 20 seeds); without (the same realm, the last stage taken away) won in 5 of 10 (11 of 20): held with the hearth at 41, 79, 85, 78, 100, fell 6, 2, 0, 0 and 14 s before first light. Reported, not a target: a bot that never builds the beacon and spends that gold on the rest of its order holds night 20 in 10 of 10 | at least 8 won and 6 slain; 3 to 6 |
+| 7 | endless: falls on nights 56, 45, 42 (seeds 1 to 3; seeds 4 to 6, reported: 47, 48, 48) | 35 to 60 |
 | 8 | last wave leaves 80 s after nightfall (03:00 is 84 s); night 3 (38 creatures): 42 drawn sim entities, 11 battle lights (a sim proxy until M2b's `FrameBuilder` budget test) | by 03:00; under 300 and 40 |
 
 Changed from the start values: tax per taxpayer 1.6 → 5; high tax −3 → −7, war tax −6 → −10; Great Beacon 150 / 250 /
-400 → 110 / 200 / 330, its radius 600 → 760 (its lit reach covers the middle line); the Lightless King 2400 → 500 HP,
-12 / 9 px/s and 40 per s → 24 px/s and 150 per s, leaving 10 s after nightfall (20:50); endless growth 0.15 → 0.4. New
-numbers: the gatehouse (4000 / 7000 / 11000 HP), archer 20 HP, archer posts per wall tier.
+400 → 110 / 200 / 330, its radius 600 → 840 (its lit reach ends just behind the middle line's engine); the Lightless
+King 2400 → 700 HP, 12 / 9 px/s and 40 per s → 24 px/s in his darkness and 12 in the beacon's light and 150 per s,
+leaving 10 s after nightfall (20:50; provisional, see the open points); endless growth 0.15 → 0.4. New numbers: the
+gatehouse (4000 / 7000 / 11000 HP), archer 20 HP, archer posts per wall tier, the bank falling back over 1.5 s.
 
-Night 20 in round `lh-fin-2` (10 seeds; the bot's realm on the eve: gate tier 1, a stone wall on the middle line, a
+Night 20 in round `lh-fin-fix-2` (10 seeds; the bot's realm on the eve: gate tier 1, a stone wall on the middle line, a
 palisade on the outer line, all three beacon stages):
 
-- With the beacon: the King leaves at 20:15 to 21:15 and the beacon flares up. The outer wall falls at 22:25 to 23:35
-  (the middle wall once, at 00:50). In the beacon's light the sootlings burn, the archers and the ballista turn on the
-  King, and he falls at the middle line at 23:45 to 01:05, 42 to 48 s after he left; the Gloom recedes, 14 to 31
-  creatures dissolve and the waves still to come stay away. 0 to 3 soldiers fall.
+- With the beacon: the King leaves at 20:15 to 21:15, the beacon flares up and the bank falls back to x 360. He walks
+  out of the fog into its light at about x 360, slows to 12 px/s, and the archers and the ballista turn on him; the
+  sootlings burn on the gorge floor in front of the outer line. The outer wall falls at 23:30 to 00:30 (the middle wall
+  never). He falls at the middle line at 01:25 to 02:30, 60 to 68 s after he left, with 10 to 19 s of light left; the
+  Gloom recedes, 32 to 47 creatures dissolve, the waves still to come stay away and dawn breaks. 0 to 5 soldiers fall;
+  the hearth is never reached.
 - Without it: the outer wall falls at 22:25 to 23:30, the middle wall at 23:50 to 01:05, the gatehouse at 02:55 to
-  04:10; the Gloom reaches the hearth at 03:35 to 05:20, and the realm falls in the five seeds where the hearth goes out
-  before first light (03:49 to 04:59). 0 to 2 soldiers fall.
+  04:10; the Gloom reaches the hearth at 03:35 to 05:20, and the realm falls in the five seeds where the King reaches
+  the hearth before first light (03:49 to 04:59). 0 to 2 soldiers fall.
 
-Margins in that sweep (each variant changes one number of the standard): T6 without stays at 4 to 6 of 10 with the King
-leaving 8 to 11 s after nightfall (4 at 8 s; 12 s gives 7 and fails), his jitter 6 or 10 s (6, 5), the beacon radius 720
-or 800, archers not aiming at him first, beacon prices 120 / 220 / 360 (all 5) and harm × 1.1 (6); harm × 0.9 gives 9
-and fails. The King's HP: 450 to 500 slain in
-10 of 10, 550 in 8, 600 in 6 (the edge); his kill times stay 39 to 48 s. T7 is fragile on seed 1: it falls on night 50
-at the standard but holds past night 70 with the King leaving 9 or 12 s after nightfall, jitter 10 s, 450 HP, endless
-growth 0.35 or 0.5, harm × 0.9 or the King's harm 120 (seeds 2 and 3 stay at 37 to 56); see the open points.
+Margins in round `lh-fin-fix-1`'s sweep (each variant changes one or two numbers; the "without" side does not depend
+on the King's HP or lit speed, so those rows were measured beside 600 HP):
+
+- The King slain (with the beacon): at 12 px/s in the light, 450 to 700 HP slain 10 of 10 (20 of 20) with at least 8
+  s of light left; 800 HP leaves 3 s (the step check fails on seed 3), 900 HP slain 8 of 10. His lit speed matters
+  most: at 10 px/s and 700 HP 14 to 26 s are left but the kill takes 63 to 73 s; at 16 px/s 700 HP leaves 3 to 11 s;
+  at 24 px/s (the old rule, no slowing) 600 HP is slain 8 of 10 and 700 HP 3 of 10. The radius moves only the light
+  left: at 700 HP 760 gives 3 to 15 s, 800 gives 6 to 17, 840 gives 8 to 19 and 880 gives 10 to 22. Kill times: 500 HP
+  52 to 60 s, 600 HP 55 to 64, 700 HP 59 to 68.
+- Without the beacon, 5 of 10 (11 of 20) at the standard: the King leaving 6 or 8 s after nightfall gives 4 (8 and 9 of
+  20), 12 s gives 7 and fails (13 of 20), 14 s 6; his jitter 6 or 10 s 6 and 5; his harm 120 or 135 gives 8 or 7 and
+  fails, 165 gives 2 and fails, 180 gives 3; his dark speed 20 gives 10, 28 gives 0; harm × 0.9 gives 9 and fails, × 1.1
+  gives 6; beacon prices 120 / 220 / 360 give 5. The falls cluster near first light by nature: with 150 harm the King
+  drains the hearth in under a second, so the realm falls when he reaches it, and his arrival is what this band tunes.
+  The margin is in the count over 20 seeds (11, the middle of 6 to 12), not in the single seeds.
+- T7 (endless): at 600 HP seed 1 held past the cap (T7 failed); at 700 HP all six endless seeds fall (42 to 56). 450
+  to 650 HP and many other variants leave one of six seeds standing. 700 HP was taken over 600 HP for this reason only;
+  T6 alone accepts 450 to 700.
 
 Rules fixed in M2a:
 
@@ -885,10 +899,18 @@ Rules fixed in M2a:
   King leaves the Gloom (no longer at 04:30, 6 s before first light, when it barely mattered: in round `lh-m2a-fix-2` a
   bot that never built it held night 20 in 10 of 10 seeds). Without the beacon the King marches on the hearth as before;
   from first light (05:00) the hearth takes no more harm. Bosses drain the hearth by their harm per second.
+- After the review of round `lh-fin-3` (round `lh-fin-fix-1`): in the beacon's light the King slows to his lit speed
+  (12 px/s) and the beacon's lit reach ends just behind the middle line's engine (radius 840), so the kill no longer
+  races the middle wall: at 760 and 24 px/s the reach ended 25 px behind that wall, the King walked out of it 1.5 s
+  after it fell, and 600 HP was the edge. The darkness bank swallows the beacon's battle light and falls back over
+  1.5 s; the King's aura fails at points inside the reach wherever he stands; the guards strike the frontmost attacker
+  they can hurt (the King outside the light no longer absorbs their blows), for the front creature's attack time; a
+  King who falls in the step the hearth goes out does not win the night; dawn breaks at once when he falls.
 - Contact damage (creatures striking soldiers they walk past) is harm × the seconds the two spend within 8 px of each
   other while the creature walks, worked out from both paths through the step (`Battle.contactTime`); a creature that
-  reaches a wall, the guards or the hearth during a step strikes only for the rest of it. Until round `lh-fin-1` the
-  distance was sampled once a step.
+  reaches a wall, the guards or the hearth during a step strikes only for the rest of it. Whether a soldier is on the
+  ground is decided at the start of the step; one who reaches his post or the guard line during it is struck only
+  while he still walks. Until round `lh-fin-1` the distance was sampled once a step.
 - The last guard holding a breach stands his ground and can fall there; guards who step back are let go.
 - Builders walk home when their work is done and at the horn.
 - The lit beacon lights only the finale (`beaconEndlessRadius` 0); endless relies on what was built.
@@ -899,21 +921,30 @@ Rules fixed in M2a:
 - Headless runs step 1 s by day and 0.1 s at night; `SimTests` checks night 7, night 20 without the beacon (wall falls,
   the hearth reached, the outcome, soldier losses until the gatehouse falls) and the finale with the beacon (the
   outcome, the King slain in both runs or neither and within 3 s, soldier losses) against the 1/60 s step for seeds 1
-  to 3. T1's losses and the night-20 losses are measured at 0.1 s.
+  to 3 (`TuningRun.nightTwentyStepCheck`, which `tools/simtune` runs for every variant). T1's losses and the night-20
+  losses are measured at 0.1 s.
 
 Open points:
 
-- Soldier losses after the gatehouse falls stay chaotic between step sizes. Round `lh-fin-2`, seed 3 without the beacon:
-  the gatehouse falls at 92 s at 1/60 s and 91 s at 0.1 s, with 2 shadehounds waiting at it in one run and 5 in the
-  other (earlier kills differ by a few creatures); the gate's four archers climb down into that crowd and walk to the
-  keep, and the hounds overtake them: 0 fall at 1/60 s, 2 at 0.1 s (round `lh-fin-1`: 0 against 4). Contact damage is
-  exact now; the test compares losses only until the gatehouse falls.
-- T7 hangs on whether endless seed 1's realm ever loses its gatehouse: when it does not, it holds past night 70 with
-  the hearth untouched (see the margins). A steadier endless measure (more seeds, or endless growth that also adds
-  brutes) belongs to the endless work in M3.
-- The King always falls at the middle line (x 891 to 930), where the bot's stone wall holds him for a few seconds at
-  the edge of the beacon's light; with these bots he never falls at the outer line.
-- The braziers stand 5 px left of the M1b world's brazier slots (`WorldLayout.lines`: 1250, 1274, 891, 915, 591, 612);
+- The beacon decides the ending, not survival (accepted here, the lead to confirm): a realm that never builds it holds
+  night 20 in 10 of 10, and with the beacon the bot's hearth is never reached; the night's tension is whether the King
+  falls before he leaves the light. If night 20 with the beacon should carry more danger, a night-20-only pressure (a
+  bigger budget, the King's summons appearing ahead of him) would move T6 and needs a retune.
+- The step check passes at the standard but fails for 19 of the 58 variants of round `lh-fin-fix-1`: without the
+  beacon mostly on seed 1, where the gatehouse falls 3 to 5 s apart between the step sizes once the King leaves earlier,
+  strikes harder or softer or walks at another speed (or seed 3's outcome flips); with the beacon at 800 to 900 HP or
+  16 px/s, where he dies near the edge of the light. Retunes must keep running it.
+- Soldier losses after the gatehouse falls stay chaotic between step sizes (round `lh-fin-2`, seed 3 without the beacon:
+  0 fall at 1/60 s, 2 at 0.1 s); the test compares losses only until the gatehouse falls.
+- T7 hangs on whether an endless realm ever loses its gatehouse: when it does not, it holds past night 70 with the
+  hearth untouched. The finale's numbers were chosen on T6; T7 only decided 700 against 600 HP. A steadier endless
+  measure (more seeds as the target, or endless growth that also adds brutes) belongs to the endless work in M3, and the
+  King's leaving at 10 s after nightfall stays provisional until then.
+- With these bots the King always falls at the middle line, never at the outer line (its palisade falls in seconds).
+- The realm's world numbers (`Realm.worldWidth` 3900, `walkEnd` 3760, the town plots 100 px right) follow the M1b world
+  of the `lh-m1b-port` branch; on this branch `WorldLayout` and the world table above still say 3800. They must land
+  together with that port, and then `Realm` should take them from `WorldLayout` (or a test should pin them equal).
+- The realm's braziers stand 5 px right of the M1b world's brazier slots (`WorldLayout.lines`: 1250, 1274, 891, 915, 591, 612);
   the realm keeps 1255, 1279, 896, 920, 596, 617 until a retune can absorb the move.
 
 ### UI (screenshots `<nn>-<what>-<lang>`, English and German)
