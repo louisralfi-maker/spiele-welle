@@ -57,7 +57,9 @@ build() { # name: one sprite
     # --- M1b: the gorge, the castle that seals it, the open valley ---
     gorgeWall|gorgeWallA|gorgeWallB|gorgeWallC) # one panorama, seamless, cut into A-B-C
                    mkdir -p $PT
-                   python3 $T convert $M/gorgewall-a-1.png $PT/gorgeWall.png --size 576x190 --box 0,8,1536,696 --tile --only $ROCKG --sat 1.5
+                   # M1b polish: gorgewall-b (horizontal strata and ledges; gorgewall-a's even vertical fractures and dead
+                   # trees read as a night forest); the key is given (the pale rock is the commonest border colour)
+                   python3 $T convert $M/gorgewall-b-1.png $PT/gorgeWall.png --size 576x190 --box 0,150,1536,740 --key '#FC1494' --tile --only $ROCKG --sat 1.4 --warm 14 --gain 0.85
                    python3 $T split $PT/gorgeWall.png $A/gorgeWallA.png $A/gorgeWallB.png $A/gorgeWallC.png ;;
     gorgeWallHigh) # the high rock, its left edge carried on from gorgeWallA's first columns (what follows gorgeWallC)
                    mkdir -p $PT
@@ -66,7 +68,12 @@ build() { # name: one sprite
     cliffFlank)    # all rock now (the masonry strip and the long highlight read as a tree trunk): the left cliff of rocks-a
                    python3 $T convert $M/rocks-a-1.png $A/cliffFlank.png --size 80x240 --box 60,44,330,748 --only $ROCKG --sat 1.3 ;;
     gorgeMouth)    python3 $T convert $M/rocks-a-1.png $A/gorgeMouth.png --size 120x230 --box 1000,104,1520,748 --only $ROCKG,meadow,leafLight --sat 1.3 ;;
-    wardenStatue)  python3 $T convert $M/statue-a-1.png $A/wardenStatue.png --size 96x200 --box 0,20,768,1536 --only $ROCKG --sat 1.3 --fill night0:37,44,59,45 --fill night0:40,43,56,43 --fill night0:43,46,55,46 ;;
+    wardenStatue)  # M1b polish: carved in cool grey stone (the rock ramp remapped to the stone ramp) so it separates from the
+                   # ochre gorge, in a dark arched niche (rockDeep, only behind the figure); the bowl reads as a bowl (lit
+                   # rim, stone-dark hollow, underside) instead of a night0 bar across the chin; moss specks under 3 px merged
+                   mkdir -p $PT
+                   python3 $T convert $M/statue-a-1.png $PT/statue-raw.png --size 96x200 --box 0,20,768,1536 --only $ROCKG --sat 1.3
+                   python3 $T post $PT/statue-raw.png $A/wardenStatue.png --remap rockPale:stoneLight,rockLight:stone,rock:stoneMid,rockDark:stoneMid,rockDeep:stoneDark,soilDark:stoneDark,soilLight:stone,soil:stoneMid --clusters 3 --fill stonePale:38,42,58,43 --fill stoneDark:37,44,59,45 --fill stoneMid:41,46,55,46 --fill-holes rockDeep:34,6,62,20 --fill-holes rockDeep:24,20,72,34 --fill-holes rockDeep:16,34,80,199 ;;
     castleFront)   # towers from castlefront-b (the left one, mirrored for the right), gatehouse from castlefront-a
                    mkdir -p $PT
                    python3 $T convert $M/castlefront-b-1.png $PT/cf-tower.png --size 58x236 --box 80,80,315,1072 --gain 1.1 --only $CAS,leafDark,leaf --outline ink --outline-skip-bottom

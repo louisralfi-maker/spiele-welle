@@ -16,7 +16,7 @@ LOOK = dict(lift=0.46, farShare=0.9, midLight=0.32, gain=1.55, knee=0.95, fogGlo
             bloom=0.75, bloomLight=0.16, bloomSky=0.55, thr=0.34, kneeB=0.5, farHaze=0.24, farHazeShare=0.62,
             midHazeShare=0.26, mist=0.22, colorise=0.6, glowAdd=0.06, midHaze=0.18, midShare=0.8, fogBright=1.6,
             # M1b polish (renderer additions, defaults keep the old look): aerial perspective at warm hours, clouds
-            farCool=0.0, farWarm=1.0, midWarm=1.0, midCool=0.0, cloudSun=1.1, cloudFill=1.3, cloudHaze=0.25, fogScale=1.0)
+            farCool=0.0, farWarm=1.0, midWarm=1.0, midCool=0.0, cloudSun=1.1, cloudFill=1.7, cloudHaze=0.25, fogScale=1.0)
 for k in list(LOOK):
     if k in args: LOOK[k] = float(args[k])
 src = open(os.path.join(G, 'Core/FrameDesc.swift')).read()
@@ -359,7 +359,7 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
         if s_[3] > 0:  # clouds: sunlit tops take the warm light, shaded bellies the sky's top colour
             a_ = s_[3]; alb = [s_[k] / a_ for k in range(3)]; lu = 0.299 * alb[0] + 0.587 * alb[1] + 0.114 * alb[2]
             Lw = min(1, max(0, (lu - 0.6) / 0.3))
-            lit = [alb[k] * (ambW[k] * LOOK['cloudSun'] * Lw + stN[k] * lvl * LOOK['cloudFill'] * (1 - Lw)) for k in range(3)]
+            lit = [alb[k] * (ambW[k] * LOOK['cloudSun'] * Lw + amb['skyTop'][k] * LOOK['cloudFill'] * (1 - Lw)) for k in range(3)]
             lit = [lit[k] + (amb['skyBottom'][k] - lit[k]) * LOOK['cloudHaze'] for k in range(3)]
             c = [c[k] * (1 - a_) + lit[k] * a_ for k in range(3)]
         f = layers['far'][y][x]

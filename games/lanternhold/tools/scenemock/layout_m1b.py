@@ -85,7 +85,7 @@ CYCLES = [
 # Cloud bands (M1b polish), parallax 0.05: sky x 0 to 710 covers every camera (the plane shifts at most 173 px).
 # Albedo is cream tops (parchment, foam) over lavender bellies (farPale, moon). The renderer lights them like this
 # (mock.py base(), cloud branch): the sunlit share Lw = clamp((luma - 0.6) / 0.3) takes ambient * cloudSun, the rest
-# the sky's top colour * cloudFill, then cloudHaze toward skyBottom; so at golden hour the tops turn gold and the
+# skyTop * cloudFill (1.7), then cloudHaze toward skyBottom; so at golden hour the tops turn gold and the
 # bellies violet, at night both go dim blue. y is the band's bottom above the ground line; tops stay below row 172.
 SKY = [
     dict(s="cloudA", x=-40, y=122),
@@ -97,11 +97,11 @@ SKY = [
 # ------------------------------------------------------------------------------------------------- far plane
 FAR = [
     # gorge set: glimpses only (the gorge wall hides almost all of it); kept for the notches
+    # (M1b polish: the farPeak pyramids are gone; one poked through the wall's notch and looked pasted in)
     dict(s="farMountain", x=-40, y=40, region="gorge", z=0, shade=0.92),
-    dict(s="farPeak", x=56, y=40, region="gorge", z=1, shade=0.92, flip=True),
-    dict(s="farMountain", x=152, y=40, region="gorge", z=0, shade=0.92),
-    dict(s="farPeak", x=248, y=40, region="gorge", z=1, shade=0.92),
-    dict(s="farMountain", x=344, y=40, region="gorge", z=0, shade=0.92, flip=True),
+    dict(s="farMountain", x=100, y=36, region="gorge", z=0, shade=0.92, flip=True),
+    dict(s="farMountain", x=240, y=40, region="gorge", z=0, shade=0.92),
+    dict(s="farMountain", x=380, y=34, region="gorge", z=0, shade=0.92, flip=True),
 ]
 
 # ------------------------------------------------------------------------------------------------- mid plane
@@ -109,12 +109,12 @@ MID = [
     # The warden statue, carved into the wall; seen behind the king at the front (focus 600 to 1000). Its bowl fire
     # burns all night: a hearthFire in the dark hollow and a brazier light.
     # It stands 34 px low (its plinth behind the ground strip) so the crown and the bowl stay on screen.
-    dict(s="wardenStatue", x=430, y=-34, region="gorge", z=2,
+    dict(s="wardenStatue", x=430, y=-34, region="gorge", z=2, shade=0.88,  # grey stone in a dark niche (M1b polish)
          em=[("sprite", "hearthFire", 40, 153, "fireOrange", False)],
          li=[("hearth", 478, 124, 70)]),
     # The throat: the wall rises above the screen behind the castle front (at the gate view, x 669-909 is behind the
     # front); its right end hides behind the front.
-    dict(s="gorgeWallHigh", x=690, y=0, region="gorge", z=1),
+    dict(s="gorgeWallHigh", x=690, y=0, region="gorge", z=1, shade=0.85),  # under the hazy wall's value (M1b polish)
     # Inside the walls the cliffs still rise behind the courtyard and the hall.
     dict(s="gorgeWallB", x=862, y=0, region="gorge", z=0),
     # Where the gorge ends: seen above the kitchen from the back gate, falling away to the right behind the gate.
@@ -145,8 +145,8 @@ def brazier(cx):
 
 
 F = CASTLE_FRONT_X
-ROCK_SHADE = 0.8    # the throat rock one value step below the castle stone, so the front separates from the cliffs
-FLANK_SHADE = 0.72  # the flanks right beside the towers, darker still (rock in the castle's shadow)
+ROCK_SHADE = 0.7    # the throat rock one value step below the castle stone, so the front separates from the cliffs
+FLANK_SHADE = 0.62  # the flanks right beside the towers, darker still (rock in the castle's shadow)
 K = 1286  # castleKeep x: centred behind the gatehouse, it fills the gap between the towers above the wall walk
 B = BACK_GATE_SPRITE_X
 
@@ -185,7 +185,7 @@ WORLD = [
          # the wall-walk braziers smaller (44, was 56) and a warm pool in the gateway, so the king at the gate is the
          # one focal point of the hero shot
          li=[("brazier", F + 97, 136, 44), ("brazier", F + 142, 136, 44),
-             ("torch", F + 92, 64, 30), ("torch", F + 147, 64, 30), ("torch", F + 120, 14, 46)]),
+             ("torch", F + 92, 64, 30), ("torch", F + 147, 64, 30), ("lantern", F + 120, 40, 34)]),
     # --- inside: courtyard, great hall, chapel, kitchen ---
     # the courtyard wall runs from 1580, out of the gate view: from the gate, rock (the right flank, then the high
     # rock from the ground) closes the frame right of the right tower; inside, the castle is built into the throat
