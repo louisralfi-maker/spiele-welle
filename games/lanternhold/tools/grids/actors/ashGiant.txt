@@ -9,8 +9,8 @@ id ashGiant
 size 110x110
 frames 7
 outline ink
-# unlit at night: the top contour smoulders emberDim, every stake of the crown burns at its point (ember on spikes)
-rim emberDim ember
+# unlit at night: the top contour smoulders ember, every stake of the crown burns at its point (fireOrange on spikes)
+rim ember fireOrange
 # the key with its lone red specks grown into 3-4 px cracks between the boulders (build-art-actors.sh)
 image key build/recraft/lh/actors/keys/ashGiant-cracks.png
 glowmap tile=emberDim

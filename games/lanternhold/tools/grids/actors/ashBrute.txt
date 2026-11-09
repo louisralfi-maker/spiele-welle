@@ -9,9 +9,9 @@ id ashBrute
 size 44x44
 frames 7
 outline ink
-# unlit at night it reads as smouldering ash: the top contour of the hump, head and fists glows emberDim (ember on
-# spikes), and its plate seams are one connected network of cracks
-rim emberDim ember
+# unlit at night it reads as smouldering ash: the top contour of the hump, head and fists glows ember (fireOrange
+# on spikes), and its plate seams are one connected network of emberDim cracks
+rim ember fireOrange
 image walk build/recraft/lh/actors/keys/ashBrute-walk.png
 image rear build/recraft/lh/actors/keys/ashBrute-attack.png
 glowmap tile=ember

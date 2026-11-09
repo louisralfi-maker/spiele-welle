@@ -110,13 +110,39 @@ def scene_gate(tier, frame=0, tod=0.95):
 
 # --- the Great Beacon ----------------------------------------------------------------------------------------------------
 
+# the Great Beacon lit, as the finale draws it (scene_actors.py `finale`): its fire (48x32 x 4, the fix stage's size)
+# with its bottom row on the bowl's mouth, the mouth's glass mask, and the finale's beacon light (the game's beacon is
+# a 600 px sweeping cone, code lane)
+BEACON_LIGHT = ('beacon', 470, 130, 840, 0.45)
+
+
+def great_beacon(frame=0):
+    return prop('greatBeacon', x=438, z=-1,
+                em=[('sprite', 'beaconFire', 8, 125, 'fireWhite', False, frame, 4), ('mask', 9, 125, 46, 1, 'window')],
+                li=[BEACON_LIGHT])
+
+
 def scene_beacon_night():
-    ex = [prop('greatBeacon', x=438, z=-1,
-               em=[('sprite', 'beaconFire', 20, 123, 'fireWhite', False), ('mask', 9, 125, 46, 1, 'window')],
-               # the game's beacon light is a 600 px sweeping cone (code lane); here a warm point light above the
-               # flames shows the tower lit by its fire without washing the iron bowl out
-               li=[('hearth', 470, 168, 230)])]
-    return dict(focus=470, tod=0.97, drop=[('beaconRuin', 438)], extras=ex, king=540)
+    return dict(focus=470, tod=0.97, drop=[('beaconRuin', 438)], extras=[great_beacon()], king=540)
+
+
+def scene_beacon_finale():
+    """Night 20 with the beacon lit: inside its reach the Lightless King's aura fails, so he and his creatures are
+    lit (the gloomweaver stays dark in its own bubble); archers loose at him from the tower behind the palisade, the
+    king lifts his lantern behind the line."""
+    ex = [great_beacon(1),
+          prop('archerTower', cx=662, z=1),
+          prop('gloomweaver', cx=512, y=6, frame=1, lit=False, glow='gloomweaverGlow', z=8),
+          prop('sootling', cx=396, frame=1, glow='sootlingGlow', z=9), prop('sootlingB', cx=420, frame=2, glow='sootlingBGlow', z=9),
+          prop('shadehound', cx=540, frame=2, glow='shadehoundGlow', z=9),
+          prop('sootling', cx=563, frame=3, glow='sootlingGlow', z=9),
+          prop('lightlessKing', cx=598, frame=5, glow='lightlessKingGlow', z=9),
+          prop('sootling', cx=630, frame=5, glow='sootlingGlow', z=9),
+          prop('archer', cx=657, y=42, frame=3, f=True, z=10), prop('archer', cx=668, y=42, frame=4, f=True, z=10),
+          prop('fireArrow', cx=640, y=58, frame=2, f=True, z=10, li=[('fireArrow', 637, 60, 12)]),
+          prop('king', cx=704, frame=8, f=True, glow='kingGlow', z=10, li=[('lantern', 698.5, 25, 40)]),
+          prop('guardsman', cx=684, frame=7, f=True, z=9)]
+    return dict(focus=560, tod=0.97, drop=[('beaconRuin', 438)], extras=ex, king='off')
 
 
 def scene_beacon_day():
@@ -186,6 +212,7 @@ SCENES = {
     'gate-great': lambda: scene_gate('gateGreat'),
     'gate-broken': lambda: scene_gate('gateBroken'),
     'beacon-night': scene_beacon_night,
+    'beacon-finale': scene_beacon_finale,
     'beacon-day': scene_beacon_day,
     'courtyard-dusk': scene_courtyard,
     'courtyard-grown': scene_courtyard_grown,

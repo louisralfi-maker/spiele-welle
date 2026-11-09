@@ -15,7 +15,7 @@ cool() {
         echo "CPU $t °C, waiting"; while t=$("$SMC" | sed -n 's/.*TCXC=\([0-9]*\).*/\1/p'); [ "$t" -ge 70 ]; do sleep 10; done
     fi
 }
-for name in ${@:-line-night line-day gate-wood gate-iron gate-great gate-broken gate-iron-damaged gate-great-open-day beacon-night beacon-day
+for name in ${@:-line-night line-day gate-wood gate-iron gate-great gate-broken gate-iron-damaged gate-great-open-day beacon-night beacon-finale beacon-day
 courtyard-dusk courtyard-grown town-golden town-night market-golden market-night}; do
     cool
     python3 -I -B $G/tools/scenemock/scene_buildings.py $G "$name" $OUT/bld-$name.png

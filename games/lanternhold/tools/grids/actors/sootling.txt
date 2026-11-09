@@ -5,9 +5,9 @@ id sootling
 size 14x14
 frames 6
 outline night0
-# unlit at night it shows as smouldering ash, not as eyes: the top contour glows emberDim, the three crest flakes'
-# tips ember, and the seams between its plates are one connected crack network
-rim emberDim ember
+# unlit at night it shows as smouldering ash, not as eyes: the top contour glows ember, the three crest flakes' tips
+# fireOrange, and the seams between its plates are one connected crack network in emberDim
+rim ember fireOrange
 
 legend
     K = ink

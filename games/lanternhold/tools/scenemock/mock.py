@@ -9,8 +9,9 @@
 #       centre), y (bottom above the ground line, as layout_m1b.py), z (default 5: after every world prop), sh (shade,
 #       default 1), f (flip), lit (default true; false draws the body at shade 0.12, as the engine draws a creature
 #       outside every light), glow (id of a glow strip, drawn additively over the same frame, lit or not), gs (glow
-#       strength, default 1), em, li (as layout_m1b.py, plus an optional intensity; extra light kinds fireArrow, firepot,
-#       beacon)}. A prop without
+#       strength, default 1), em (as layout_m1b.py; a sprite emitter may add its frame and the strip's frame count:
+#       ["sprite", id, dx, dy, colour, fades, frame, frames]), li (as layout_m1b.py, plus an optional intensity; extra
+#       light kinds fireArrow, firepot, beacon)}. A prop without
 #       s only adds its lights.
 #   king=off|<x>  no king, or the king's foot at x (default: at the focus, frame 0, with his lantern light)
 #   actors=off    without layout_m1b.ACTORS (the scale-check archers, citizens and eye glints)
@@ -242,8 +243,8 @@ def extra_props():
             w = len(sprite(s, fr, nf)[0]) if s else 0
             x = d['x'] if 'x' in d else d.get('cx', 0) - w // 2
             em, masks, li = [], [], []
-            for e in d.get('em', []):
-                if e[0] == 'sprite': em.append((e[1], e[2], e[3], NAMED[e[4]], e[5]))
+            for e in d.get('em', []):  # an emitter sprite may name its frame and the strip's frame count (e[6], e[7])
+                if e[0] == 'sprite': em.append((e[1], e[2], e[3], NAMED[e[4]], e[5]) + tuple(e[6:8]))
                 else: masks.append((e[1], e[2], e[3], e[4], (1.0, 0.76, 0.42)))
             for l in d.get('li', []):  # (kind, x, y, radius[, intensity])
                 kind, lx, ly, r = l[:4]
@@ -357,13 +358,16 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                     if p is None or p[:3] not in GLASS: continue
                     X = int(left + (w - 1 - sx if pr['f'] else sx)); Y = int(top + sy)
                     if 0 <= X < TW and 0 <= Y < TH: e = emis[Y][X]; emis[Y][X] = (e[0] + rgb[0], e[1] + rgb[1], e[2] + rgb[2])
-        for (es, dx, dy, col, fades) in pr['em']:
+        for em_ in pr['em']:
+            es, dx, dy, col, fades = em_[:5]
             st = torchS if fades else 1.0
             if st < 0.01: continue
-            sw, sh = SIZES[es]; ex = w - dx - sw if pr['f'] else dx
+            # an extra's emitter with a frame count is cut from its strip at the strip's own frame size
+            eimg = sprite(es, em_[5], em_[6]) if len(em_) > 6 else sprite(es)
+            sw, sh = (len(eimg[0]), len(eimg)) if len(em_) > 6 else SIZES[es]; ex = w - dx - sw if pr['f'] else dx
             rgb = [c * st for c in col]; pk = max(max(rgb), 1e-4); hue = [c / pk for c in rgb]
             tint = [(1 + (hue[k] - 1) * 0.4) * pk for k in range(3)] + [1]
-            draw('world', sprite(es), int(left + ex), int(GROUND - (pr['y'] + dy) - sh), tint, add=emis)
+            draw('world', eimg, int(left + ex), int(GROUND - (pr['y'] + dy) - sh), tint, add=emis)
         for (kind, lx, ly, r, col, inten) in pr['li']:
             it = inten * (torchS if kind in FADES else 0.35 + 0.65 * torchS)
             it *= {'window': 0.4, 'candle': 0.7, 'lantern': 0.85}.get(kind, 1.0)

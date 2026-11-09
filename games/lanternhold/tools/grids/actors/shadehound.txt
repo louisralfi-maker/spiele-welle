@@ -6,8 +6,9 @@ id shadehound
 size 22x14
 frames 6
 outline night0
-# unlit at night: one ember line runs from the tail along the spine and up the mane's edge to the ears (the rim)
-rim emberDim ember
+# unlit at night: one ember line runs from the tail along the spine and up the mane's edge to the ears (the rim),
+# the ear tips fireOrange
+rim ember fireOrange
 
 legend
     K = ink

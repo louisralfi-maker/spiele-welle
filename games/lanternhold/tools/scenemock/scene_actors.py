@@ -6,8 +6,8 @@ Scenes:
                    the left, the ones near the torches and a fire arrow's pool lit, the rest only their glow; archers
                    draw and loose from the tower, a guard holds behind the palisade, the king rallies with his lantern
     battle-day     the same by day (tod 0.5), everything lit
-    finale         the Lightless King at the middle line (focus 930, tod 0.97) in firelight and the beacon's far glow,
-                   a gloomweaver behind him, sootlings he called, archers and the king on the wall
+    finale         the Lightless King at the middle line (focus 930, tod 0.97), unlit inside his own aura (his cold
+                   silhouette), a gloomweaver behind him, sootlings he called, archers and the king on the wall
     giant          the ash giant stomping at the stone wall (focus 930, tod 0.95), archers on the wall, a guard
     town-golden    the king among citizens in the town at golden hour (focus 2900, tod 0.75), a builder at a plot
     town-night     the same at night (tod 0.95), the king's lantern lit
@@ -80,14 +80,18 @@ def battle(day):
 
 
 def finale():
+    """Night 20 at the middle line: the Lightless King's own 80 px aura cancels every light around him (the braziers,
+    the beacon's far reach), so he and the creatures near him are unlit and read by their glow strips alone: his cold
+    teal silhouette, the gloomweaver's violet edges, the sootlings' smouldering rims and cracks. Lit in the beacon's
+    reach: scene_buildings.py `beacon-finale`."""
     return [
         # the beacon's sweeping light from the left (radius 840 at x 470), far and soft here
         dict(li=[["beacon", 470, 130, 840, 0.45]]),
         actor("gloomweaver", 812, 1, y=6, lit=False),
-        actor("sootling", 880, 4, lit=True),
+        actor("sootling", 880, 4, lit=False),
         actor("sootlingB", 790, 1, lit=False),
         actor("sootling", 776, 2, lit=False),
-        actor("lightlessKing", 852, 5, lit=True),
+        actor("lightlessKing", 852, 5, lit=False),
         # on the wall walk (the stone wall is 52 high): archers loosing at him, the king with his lantern raised
         actor("archer", 948, 4, y=52, f=True),
         king(960, 9, y=52, f=True, z=4),
