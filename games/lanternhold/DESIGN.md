@@ -65,9 +65,11 @@ and four target pictures, `docs/mood/look2-1-weltmauer.jpg` to `look2-4-farbe.jp
     and deciduous trees (linden, poplars, orchards) in the town, so the contrast stays strong.
   - The player reads at a glance where the monsters come from: dark and foggy on the left, warm and bright on the
     right, the Weltmauer filling the sky behind the castle.
-- **The story: the House of the Lantern.** For a thousand years the House of the Lantern has held the cleft, generation
-  after generation. Nobody knows what the shadows are; everybody fears them. Behind the wall lies a huge continent with
-  other families, lands, small towns and castles.
+- **The story: House Lantern.** For a thousand years House Lantern has held the cleft, generation after generation.
+  Nobody knows what the shadows are; everybody fears them. Behind the wall lies a huge continent with other families,
+  lands, small towns and castles.
+  - The name is Louis' choice: **House Lantern** in English, **Haus Lantern** in German and the same word in every
+    language. Like Lanternhold, the name "Lantern" is never translated.
   - **The player is the Burgherr**, the lord of Lanternhold, not a king: a narrow gold circlet instead of a crown. The
     other lands have their own rulers.
   - **The other families are mixed:** some are allies, some envy the house, some think the shadows are a myth and want
