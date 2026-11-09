@@ -1,0 +1,449 @@
+{
+  "petitions": [
+    {
+      "id": "crow_rags",
+      "speaker": "child",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        5,
+        18
+      ],
+      "weight": 2,
+      "forbids": [
+        "rags_tied"
+      ],
+      "text": "petition.crow_rags.text",
+      "hint": "petition.crow_rags.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.crow_rags.c1",
+          "flags": [
+            "rags_tied"
+          ],
+          "night": [
+            "crows-2"
+          ],
+          "reaction": "petition.crow_rags.r1"
+        },
+        {
+          "label": "petition.crow_rags.c2",
+          "happiness": -1,
+          "reaction": "petition.crow_rags.r2"
+        }
+      ]
+    },
+    {
+      "id": "old_sergeant",
+      "speaker": "soldier",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        3,
+        20
+      ],
+      "weight": 1,
+      "forbids": [
+        "sergeant_joined",
+        "sergeant_rested"
+      ],
+      "text": "petition.old_sergeant.text",
+      "hint": "petition.old_sergeant.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.old_sergeant.c1",
+          "guards": 1,
+          "flags": [
+            "sergeant_joined"
+          ],
+          "reaction": "petition.old_sergeant.r1"
+        },
+        {
+          "label": "petition.old_sergeant.c2",
+          "happiness": 1,
+          "flags": [
+            "sergeant_rested"
+          ],
+          "reaction": "petition.old_sergeant.r2"
+        }
+      ]
+    },
+    {
+      "id": "deserter",
+      "speaker": "soldier",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        5,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "deserter_judged"
+      ],
+      "text": "petition.deserter.text",
+      "hint": "petition.deserter.hint",
+      "counsel": 2,
+      "choices": [
+        {
+          "label": "petition.deserter.c1",
+          "happiness": -1,
+          "flags": [
+            "deserter_judged"
+          ],
+          "reaction": "petition.deserter.r1"
+        },
+        {
+          "label": "petition.deserter.c2",
+          "archers": -1,
+          "flags": [
+            "deserter_judged"
+          ],
+          "reaction": "petition.deserter.r2"
+        },
+        {
+          "label": "petition.deserter.c3",
+          "flags": [
+            "deserter_judged",
+            "deserter_pardoned"
+          ],
+          "reaction": "petition.deserter.r3"
+        }
+      ]
+    },
+    {
+      "id": "scout_report",
+      "speaker": "soldier",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        8,
+        18
+      ],
+      "weight": 2,
+      "forbids": [
+        "scout_heard"
+      ],
+      "text": "petition.scout_report.text",
+      "hint": "petition.scout_report.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.scout_report.c1",
+          "gold": -20,
+          "flags": [
+            "scout_heard"
+          ],
+          "night": [
+            "brutes-2"
+          ],
+          "reaction": "petition.scout_report.r1"
+        },
+        {
+          "label": "petition.scout_report.c2",
+          "happiness": -1,
+          "flags": [
+            "scout_heard"
+          ],
+          "reaction": "petition.scout_report.r2"
+        },
+        {
+          "label": "petition.scout_report.c3",
+          "flags": [
+            "scout_heard"
+          ],
+          "reaction": "petition.scout_report.r3"
+        }
+      ]
+    },
+    {
+      "id": "soldiers_pay",
+      "speaker": "soldier",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        9,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "pay_judged"
+      ],
+      "text": "petition.soldiers_pay.text",
+      "hint": "petition.soldiers_pay.hint",
+      "counsel": 2,
+      "choices": [
+        {
+          "label": "petition.soldiers_pay.c1",
+          "gold": -25,
+          "happiness": 1,
+          "flags": [
+            "pay_judged",
+            "archers_paid"
+          ],
+          "reaction": "petition.soldiers_pay.r1"
+        },
+        {
+          "label": "petition.soldiers_pay.c2",
+          "chance": {
+            "p": 0.5,
+            "then": {
+              "flags": [
+                "pay_judged"
+              ],
+              "reaction": "petition.soldiers_pay.r2a"
+            },
+            "else": {
+              "archers": -1,
+              "flags": [
+                "pay_judged"
+              ],
+              "reaction": "petition.soldiers_pay.r2b"
+            }
+          }
+        },
+        {
+          "label": "petition.soldiers_pay.c3",
+          "flags": [
+            "pay_judged",
+            "archers_honoured"
+          ],
+          "reaction": "petition.soldiers_pay.r3"
+        }
+      ]
+    },
+    {
+      "id": "young_recruit",
+      "speaker": "child",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        4,
+        18
+      ],
+      "weight": 2,
+      "forbids": [
+        "recruit_judged"
+      ],
+      "text": "petition.young_recruit.text",
+      "hint": "petition.young_recruit.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.young_recruit.c1",
+          "flags": [
+            "recruit_judged",
+            "lamp_runner"
+          ],
+          "night": [
+            "crows-2"
+          ],
+          "reaction": "petition.young_recruit.r1"
+        },
+        {
+          "label": "petition.young_recruit.c2",
+          "happiness": 1,
+          "flags": [
+            "recruit_judged"
+          ],
+          "reaction": "petition.young_recruit.r2"
+        },
+        {
+          "label": "petition.young_recruit.c3",
+          "flags": [
+            "recruit_judged"
+          ],
+          "reaction": "petition.young_recruit.r3"
+        }
+      ]
+    },
+    {
+      "id": "pitch_trap",
+      "speaker": "builder",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        5,
+        18
+      ],
+      "weight": 2,
+      "forbids": [
+        "trap_idea_judged"
+      ],
+      "text": "petition.pitch_trap.text",
+      "hint": "petition.pitch_trap.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.pitch_trap.c1",
+          "gold": -15,
+          "flags": [
+            "trap_idea_judged"
+          ],
+          "chance": {
+            "p": 0.7,
+            "then": {
+              "night": [
+                "sootlings-6"
+              ],
+              "reaction": "petition.pitch_trap.r1a"
+            },
+            "else": {
+              "happiness": -1,
+              "reaction": "petition.pitch_trap.r1b"
+            }
+          }
+        },
+        {
+          "label": "petition.pitch_trap.c2",
+          "flags": [
+            "trap_idea_judged"
+          ],
+          "reaction": "petition.pitch_trap.r2"
+        }
+      ]
+    },
+    {
+      "id": "guards_on_wall",
+      "speaker": "brannock",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        8,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "wall_guards_judged"
+      ],
+      "text": "petition.guards_on_wall.text",
+      "hint": "petition.guards_on_wall.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.guards_on_wall.c1",
+          "happiness": 1,
+          "flags": [
+            "wall_guards_judged"
+          ],
+          "world": [
+            "castle.guards.wall"
+          ],
+          "reaction": "petition.guards_on_wall.r1"
+        },
+        {
+          "label": "petition.guards_on_wall.c2",
+          "flags": [
+            "wall_guards_judged"
+          ],
+          "reaction": "petition.guards_on_wall.r2"
+        }
+      ]
+    },
+    {
+      "id": "captured_sootling",
+      "speaker": "soldier",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        4,
+        999
+      ],
+      "weight": 1,
+      "forbids": [
+        "jar_judged"
+      ],
+      "text": "petition.captured_sootling.text",
+      "hint": "petition.captured_sootling.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.captured_sootling.c1",
+          "flags": [
+            "jar_judged"
+          ],
+          "reaction": "petition.captured_sootling.r1"
+        },
+        {
+          "label": "petition.captured_sootling.c2",
+          "chance": {
+            "p": 0.6,
+            "then": {
+              "flags": [
+                "jar_judged"
+              ],
+              "night": [
+                "sootlings-5"
+              ],
+              "reaction": "petition.captured_sootling.r2a"
+            },
+            "else": {
+              "flags": [
+                "jar_judged"
+              ],
+              "night": [
+                "fog"
+              ],
+              "reaction": "petition.captured_sootling.r2b"
+            }
+          }
+        },
+        {
+          "label": "petition.captured_sootling.c3",
+          "happiness": 2,
+          "flags": [
+            "jar_judged",
+            "gerald_kept"
+          ],
+          "reaction": "petition.captured_sootling.r3"
+        }
+      ]
+    },
+    {
+      "id": "widow_pension",
+      "speaker": "widow",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        8,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "pension_judged"
+      ],
+      "text": "petition.widow_pension.text",
+      "hint": "petition.widow_pension.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.widow_pension.c1",
+          "gold": -15,
+          "happiness": 2,
+          "flags": [
+            "pension_judged"
+          ],
+          "reaction": "petition.widow_pension.r1"
+        },
+        {
+          "label": "petition.widow_pension.c2",
+          "happiness": 1,
+          "flags": [
+            "pension_judged"
+          ],
+          "reaction": "petition.widow_pension.r2"
+        },
+        {
+          "label": "petition.widow_pension.c3",
+          "happiness": -3,
+          "flags": [
+            "pension_judged"
+          ],
+          "reaction": "petition.widow_pension.r3"
+        }
+      ]
+    }
+  ]
+}

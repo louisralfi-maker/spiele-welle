@@ -15,6 +15,131 @@
       "text": "line.odile_treasury"
     },
     {
+      "id": "odile_taxes",
+      "speaker": "odile",
+      "days": [
+        2,
+        7
+      ],
+      "text": "line.odile_taxes"
+    },
+    {
+      "id": "odile_counsel",
+      "speaker": "odile",
+      "days": [
+        2,
+        6
+      ],
+      "text": "line.odile_counsel"
+    },
+    {
+      "id": "odile_guest",
+      "speaker": "odile",
+      "days": [
+        5,
+        14
+      ],
+      "requires": [
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_revealed",
+        "seren_handed_over"
+      ],
+      "text": "line.odile_guest"
+    },
+    {
+      "id": "odile_war_tax",
+      "speaker": "odile",
+      "days": [
+        8,
+        20
+      ],
+      "requires": [
+        "war_tax_promised"
+      ],
+      "text": "line.odile_war_tax"
+    },
+    {
+      "id": "odile_guilds",
+      "speaker": "odile",
+      "requires": [
+        "guilds_levied"
+      ],
+      "text": "line.odile_guilds"
+    },
+    {
+      "id": "odile_beacon",
+      "speaker": "odile",
+      "days": [
+        11,
+        19
+      ],
+      "requires": [
+        "beacon_vowed"
+      ],
+      "text": "line.odile_beacon"
+    },
+    {
+      "id": "odile_plans_hint",
+      "speaker": "odile",
+      "weight": 2,
+      "text": "line.odile_plans_hint",
+      "about": "beacon_plans"
+    },
+    {
+      "id": "odile_aldric",
+      "speaker": "odile",
+      "requires": [
+        "seren_revealed"
+      ],
+      "forbids": [
+        "seren_handed_over"
+      ],
+      "text": "line.odile_aldric"
+    },
+    {
+      "id": "odile_refugees",
+      "speaker": "odile",
+      "requires": [
+        "refugees_in"
+      ],
+      "text": "line.odile_refugees"
+    },
+    {
+      "id": "odile_handed",
+      "speaker": "odile",
+      "requires": [
+        "seren_handed_over"
+      ],
+      "text": "line.odile_handed"
+    },
+    {
+      "id": "odile_family_hint",
+      "speaker": "odile",
+      "weight": 2,
+      "text": "line.odile_family_hint",
+      "about": "family_leaving"
+    },
+    {
+      "id": "odile_night20",
+      "speaker": "odile",
+      "days": [
+        20,
+        20
+      ],
+      "text": "line.odile_night20"
+    },
+    {
+      "id": "odile_endless",
+      "speaker": "odile",
+      "days": [
+        21,
+        999
+      ],
+      "text": "line.odile_endless"
+    },
+    {
       "id": "brannock_walls",
       "speaker": "brannock",
       "text": "line.brannock_walls"
@@ -22,9 +147,127 @@
     {
       "id": "brannock_sergeant",
       "speaker": "brannock",
-      "about": "old_sergeant",
       "weight": 2,
-      "text": "line.brannock_sergeant"
+      "text": "line.brannock_sergeant",
+      "about": "old_sergeant"
+    },
+    {
+      "id": "brannock_first",
+      "speaker": "brannock",
+      "days": [
+        1,
+        1
+      ],
+      "text": "line.brannock_first"
+    },
+    {
+      "id": "brannock_tower_hint",
+      "speaker": "brannock",
+      "weight": 2,
+      "text": "line.brannock_tower_hint",
+      "about": "tower_request"
+    },
+    {
+      "id": "brannock_hounds",
+      "speaker": "brannock",
+      "days": [
+        3,
+        6
+      ],
+      "text": "line.brannock_hounds"
+    },
+    {
+      "id": "brannock_promised",
+      "speaker": "brannock",
+      "days": [
+        3,
+        9
+      ],
+      "requires": [
+        "tower_promised"
+      ],
+      "text": "line.brannock_promised"
+    },
+    {
+      "id": "brannock_light",
+      "speaker": "brannock",
+      "days": [
+        3,
+        9
+      ],
+      "requires": [
+        "light_first"
+      ],
+      "text": "line.brannock_light"
+    },
+    {
+      "id": "brannock_tax_hint",
+      "speaker": "brannock",
+      "weight": 2,
+      "text": "line.brannock_tax_hint",
+      "about": "war_tax"
+    },
+    {
+      "id": "brannock_giant",
+      "speaker": "brannock",
+      "days": [
+        10,
+        10
+      ],
+      "text": "line.brannock_giant"
+    },
+    {
+      "id": "brannock_after_giant",
+      "speaker": "brannock",
+      "days": [
+        11,
+        13
+      ],
+      "text": "line.brannock_after_giant"
+    },
+    {
+      "id": "brannock_guest",
+      "speaker": "brannock",
+      "requires": [
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_handed_over"
+      ],
+      "text": "line.brannock_guest"
+    },
+    {
+      "id": "brannock_refused",
+      "speaker": "brannock",
+      "requires": [
+        "herald_refused"
+      ],
+      "text": "line.brannock_refused"
+    },
+    {
+      "id": "brannock_last_hint",
+      "speaker": "brannock",
+      "weight": 2,
+      "text": "line.brannock_last_hint",
+      "about": "last_stand"
+    },
+    {
+      "id": "brannock_last",
+      "speaker": "brannock",
+      "days": [
+        19,
+        20
+      ],
+      "text": "line.brannock_last"
+    },
+    {
+      "id": "brannock_endless",
+      "speaker": "brannock",
+      "days": [
+        21,
+        999
+      ],
+      "text": "line.brannock_endless"
     },
     {
       "id": "pip_matches",
@@ -34,9 +277,128 @@
     {
       "id": "pip_crows",
       "speaker": "pip",
-      "about": "crow_rags",
       "weight": 2,
-      "text": "line.pip_crows"
+      "text": "line.pip_crows",
+      "about": "crow_rags"
+    },
+    {
+      "id": "pip_first",
+      "speaker": "pip",
+      "days": [
+        1,
+        1
+      ],
+      "text": "line.pip_first"
+    },
+    {
+      "id": "pip_crown",
+      "speaker": "pip",
+      "days": [
+        2,
+        9
+      ],
+      "text": "line.pip_crown"
+    },
+    {
+      "id": "pip_guest",
+      "speaker": "pip",
+      "days": [
+        5,
+        14
+      ],
+      "requires": [
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_revealed",
+        "seren_handed_over"
+      ],
+      "text": "line.pip_guest"
+    },
+    {
+      "id": "pip_turned",
+      "speaker": "pip",
+      "requires": [
+        "stranger_turned_away"
+      ],
+      "forbids": [
+        "stranger_in"
+      ],
+      "text": "line.pip_turned"
+    },
+    {
+      "id": "pip_arrows",
+      "speaker": "pip",
+      "requires": [
+        "cheap_arrows"
+      ],
+      "text": "line.pip_arrows"
+    },
+    {
+      "id": "pip_refugees_hint",
+      "speaker": "pip",
+      "weight": 2,
+      "text": "line.pip_refugees_hint",
+      "about": "refugees_gate"
+    },
+    {
+      "id": "pip_herald_hint",
+      "speaker": "pip",
+      "weight": 2,
+      "text": "line.pip_herald_hint",
+      "about": "herald_demand"
+    },
+    {
+      "id": "pip_handed",
+      "speaker": "pip",
+      "requires": [
+        "seren_handed_over"
+      ],
+      "text": "line.pip_handed"
+    },
+    {
+      "id": "pip_aldric",
+      "speaker": "pip",
+      "requires": [
+        "seren_revealed"
+      ],
+      "text": "line.pip_aldric"
+    },
+    {
+      "id": "pip_beacon",
+      "speaker": "pip",
+      "days": [
+        11,
+        19
+      ],
+      "requires": [
+        "beacon_vowed"
+      ],
+      "text": "line.pip_beacon"
+    },
+    {
+      "id": "pip_minister",
+      "speaker": "pip",
+      "requires": [
+        "pip_minister"
+      ],
+      "text": "line.pip_minister"
+    },
+    {
+      "id": "pip_farewell_hint",
+      "speaker": "pip",
+      "weight": 2,
+      "text": "line.pip_farewell_hint",
+      "about": "pip_farewell"
+    },
+    {
+      "id": "pip_endless",
+      "speaker": "pip",
+      "days": [
+        21,
+        999
+      ],
+      "text": "line.pip_endless"
     },
     {
       "id": "hesper_flame",
@@ -44,11 +406,100 @@
       "text": "line.hesper_flame"
     },
     {
+      "id": "hesper_first",
+      "speaker": "hesper",
+      "days": [
+        1,
+        1
+      ],
+      "text": "line.hesper_first"
+    },
+    {
+      "id": "hesper_hunger",
+      "speaker": "hesper",
+      "days": [
+        2,
+        9
+      ],
+      "text": "line.hesper_hunger"
+    },
+    {
+      "id": "hesper_giant_hint",
+      "speaker": "hesper",
+      "weight": 2,
+      "text": "line.hesper_giant_hint",
+      "about": "hesper_giant"
+    },
+    {
+      "id": "hesper_lantern",
+      "speaker": "hesper",
+      "requires": [
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_handed_over"
+      ],
+      "text": "line.hesper_lantern"
+    },
+    {
+      "id": "hesper_gone",
+      "speaker": "hesper",
+      "requires": [
+        "seren_handed_over"
+      ],
+      "text": "line.hesper_gone"
+    },
+    {
+      "id": "hesper_beacon",
+      "speaker": "hesper",
+      "days": [
+        11,
+        19
+      ],
+      "requires": [
+        "beacon_vowed"
+      ],
+      "text": "line.hesper_beacon"
+    },
+    {
+      "id": "hesper_blessed",
+      "speaker": "hesper",
+      "requires": [
+        "chapel_blessed"
+      ],
+      "text": "line.hesper_blessed"
+    },
+    {
+      "id": "hesper_truce_hint",
+      "speaker": "hesper",
+      "weight": 2,
+      "text": "line.hesper_truce_hint",
+      "about": "truce_end"
+    },
+    {
+      "id": "hesper_night20",
+      "speaker": "hesper",
+      "days": [
+        20,
+        20
+      ],
+      "text": "line.hesper_night20"
+    },
+    {
+      "id": "hesper_endless",
+      "speaker": "hesper",
+      "days": [
+        21,
+        999
+      ],
+      "text": "line.hesper_endless"
+    },
+    {
       "id": "tamsin_well",
       "speaker": "tamsin",
-      "about": "well_repair",
       "weight": 2,
-      "text": "line.tamsin_well"
+      "text": "line.tamsin_well",
+      "about": "well_repair"
     },
     {
       "id": "tamsin_gossip",
@@ -56,14 +507,470 @@
       "text": "line.tamsin_gossip"
     },
     {
+      "id": "tamsin_first",
+      "speaker": "tamsin",
+      "days": [
+        1,
+        1
+      ],
+      "text": "line.tamsin_first"
+    },
+    {
+      "id": "tamsin_arrows_hint",
+      "speaker": "tamsin",
+      "weight": 3,
+      "text": "line.tamsin_arrows_hint",
+      "about": "marek_arrows"
+    },
+    {
+      "id": "tamsin_stranger_hint",
+      "speaker": "tamsin",
+      "weight": 2,
+      "text": "line.tamsin_stranger_hint",
+      "about": "stranger_gate"
+    },
+    {
+      "id": "tamsin_refugees_hint",
+      "speaker": "tamsin",
+      "weight": 2,
+      "text": "line.tamsin_refugees_hint",
+      "about": "refugees_gate"
+    },
+    {
+      "id": "tamsin_goat_hint",
+      "speaker": "tamsin",
+      "weight": 2,
+      "text": "line.tamsin_goat_hint",
+      "about": "goat_chapel"
+    },
+    {
+      "id": "tamsin_ludo_hint",
+      "speaker": "tamsin",
+      "weight": 2,
+      "text": "line.tamsin_ludo_hint",
+      "about": "ludo_arrives"
+    },
+    {
+      "id": "tamsin_bard_hint",
+      "speaker": "tamsin",
+      "weight": 2,
+      "text": "line.tamsin_bard_hint",
+      "about": "bard_song"
+    },
+    {
+      "id": "tamsin_miller_hint",
+      "speaker": "tamsin",
+      "weight": 2,
+      "text": "line.tamsin_miller_hint",
+      "about": "miller_hoard"
+    },
+    {
+      "id": "tamsin_herald_hint",
+      "speaker": "tamsin",
+      "weight": 3,
+      "text": "line.tamsin_herald_hint",
+      "about": "herald_demand"
+    },
+    {
+      "id": "tamsin_oven_hint",
+      "speaker": "tamsin",
+      "weight": 2,
+      "text": "line.tamsin_oven_hint",
+      "about": "tamsin_oven"
+    },
+    {
+      "id": "tamsin_cough_hint",
+      "speaker": "tamsin",
+      "weight": 2,
+      "text": "line.tamsin_cough_hint",
+      "about": "ash_cough"
+    },
+    {
+      "id": "tamsin_guest",
+      "speaker": "tamsin",
+      "requires": [
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_handed_over"
+      ],
+      "text": "line.tamsin_guest"
+    },
+    {
+      "id": "tamsin_pip",
+      "speaker": "tamsin",
+      "text": "line.tamsin_pip"
+    },
+    {
+      "id": "tamsin_endless",
+      "speaker": "tamsin",
+      "days": [
+        21,
+        999
+      ],
+      "text": "line.tamsin_endless"
+    },
+    {
       "id": "bram_arrows",
       "speaker": "bram",
       "text": "line.bram_arrows"
     },
     {
+      "id": "bram_first",
+      "speaker": "bram",
+      "days": [
+        1,
+        1
+      ],
+      "text": "line.bram_first"
+    },
+    {
+      "id": "bram_test_hint",
+      "speaker": "bram",
+      "weight": 2,
+      "text": "line.bram_test_hint",
+      "about": "marek_arrows"
+    },
+    {
+      "id": "bram_bell_hint",
+      "speaker": "bram",
+      "weight": 2,
+      "text": "line.bram_bell_hint",
+      "about": "bell_for_arrows"
+    },
+    {
+      "id": "bram_reforged",
+      "speaker": "bram",
+      "requires": [
+        "arrows_reforged"
+      ],
+      "text": "line.bram_reforged"
+    },
+    {
+      "id": "bram_giant",
+      "speaker": "bram",
+      "days": [
+        10,
+        10
+      ],
+      "text": "line.bram_giant"
+    },
+    {
+      "id": "bram_beacon",
+      "speaker": "bram",
+      "days": [
+        11,
+        19
+      ],
+      "requires": [
+        "beacon_vowed"
+      ],
+      "text": "line.bram_beacon"
+    },
+    {
+      "id": "bram_endless",
+      "speaker": "bram",
+      "days": [
+        21,
+        999
+      ],
+      "text": "line.bram_endless"
+    },
+    {
       "id": "marek_bargain",
       "speaker": "marek",
       "text": "line.marek_bargain"
+    },
+    {
+      "id": "marek_arrows_hint",
+      "speaker": "marek",
+      "weight": 2,
+      "text": "line.marek_arrows_hint",
+      "about": "marek_arrows"
+    },
+    {
+      "id": "marek_caught",
+      "speaker": "marek",
+      "requires": [
+        "marek_caught"
+      ],
+      "text": "line.marek_caught"
+    },
+    {
+      "id": "marek_stays",
+      "speaker": "marek",
+      "requires": [
+        "marek_stays"
+      ],
+      "text": "line.marek_stays"
+    },
+    {
+      "id": "marek_coast",
+      "speaker": "marek",
+      "days": [
+        9,
+        999
+      ],
+      "text": "line.marek_coast"
+    },
+    {
+      "id": "marek_gloom",
+      "speaker": "marek",
+      "text": "line.marek_gloom"
+    },
+    {
+      "id": "marek_spyglass_hint",
+      "speaker": "marek",
+      "weight": 2,
+      "text": "line.marek_spyglass_hint",
+      "about": "marek_spyglass"
+    },
+    {
+      "id": "marek_endless",
+      "speaker": "marek",
+      "days": [
+        21,
+        999
+      ],
+      "text": "line.marek_endless"
+    },
+    {
+      "id": "seren_gate",
+      "speaker": "seren",
+      "text": "line.seren_gate",
+      "about": "stranger_gate"
+    },
+    {
+      "id": "seren_patient",
+      "speaker": "seren",
+      "requires": [
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_revealed",
+        "seren_handed_over"
+      ],
+      "text": "line.seren_patient"
+    },
+    {
+      "id": "seren_nearer",
+      "speaker": "seren",
+      "requires": [
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_handed_over"
+      ],
+      "text": "line.seren_nearer"
+    },
+    {
+      "id": "seren_lantern",
+      "speaker": "seren",
+      "requires": [
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_handed_over"
+      ],
+      "text": "line.seren_lantern"
+    },
+    {
+      "id": "seren_reveal_hint",
+      "speaker": "seren",
+      "weight": 2,
+      "text": "line.seren_reveal_hint",
+      "about": "seren_reveal"
+    },
+    {
+      "id": "seren_aldric",
+      "speaker": "seren",
+      "requires": [
+        "seren_revealed",
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_handed_over"
+      ],
+      "text": "line.seren_aldric"
+    },
+    {
+      "id": "seren_light",
+      "speaker": "seren",
+      "requires": [
+        "seren_revealed",
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_handed_over"
+      ],
+      "text": "line.seren_light"
+    },
+    {
+      "id": "seren_night20",
+      "speaker": "seren",
+      "days": [
+        20,
+        20
+      ],
+      "requires": [
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_handed_over"
+      ],
+      "text": "line.seren_night20"
+    },
+    {
+      "id": "ludo_goose",
+      "speaker": "serLudo",
+      "text": "line.ludo_goose"
+    },
+    {
+      "id": "ludo_helmet",
+      "speaker": "serLudo",
+      "text": "line.ludo_helmet"
+    },
+    {
+      "id": "ludo_walls",
+      "speaker": "serLudo",
+      "requires": [
+        "ludo_stays"
+      ],
+      "text": "line.ludo_walls"
+    },
+    {
+      "id": "bard_song_line",
+      "speaker": "bard",
+      "text": "line.bard_song_line"
+    },
+    {
+      "id": "bard_rhyme",
+      "speaker": "bard",
+      "text": "line.bard_rhyme"
+    },
+    {
+      "id": "envoy_sea",
+      "speaker": "envoy",
+      "text": "line.envoy_sea"
+    },
+    {
+      "id": "envoy_lighthouse",
+      "speaker": "envoy",
+      "text": "line.envoy_lighthouse"
+    },
+    {
+      "id": "herald_throne",
+      "speaker": "herald",
+      "text": "line.herald_throne"
+    },
+    {
+      "id": "herald_fire",
+      "speaker": "herald",
+      "text": "line.herald_fire"
+    },
+    {
+      "id": "brannock_gerald",
+      "speaker": "brannock",
+      "requires": [
+        "gerald_kept"
+      ],
+      "text": "line.brannock_gerald"
+    },
+    {
+      "id": "brannock_runner",
+      "speaker": "brannock",
+      "requires": [
+        "lamp_runner"
+      ],
+      "text": "line.brannock_runner"
+    },
+    {
+      "id": "brannock_scarecrow",
+      "speaker": "brannock",
+      "requires": [
+        "scarecrow_brannock"
+      ],
+      "text": "line.brannock_scarecrow"
+    },
+    {
+      "id": "brannock_window",
+      "speaker": "brannock",
+      "requires": [
+        "mourning_kept"
+      ],
+      "text": "line.brannock_window"
+    },
+    {
+      "id": "pip_verse_nine",
+      "speaker": "pip",
+      "requires": [
+        "ballad"
+      ],
+      "text": "line.pip_verse_nine"
+    },
+    {
+      "id": "pip_satire",
+      "speaker": "pip",
+      "requires": [
+        "satire_sung"
+      ],
+      "text": "line.pip_satire"
+    },
+    {
+      "id": "pip_mocked",
+      "speaker": "pip",
+      "requires": [
+        "herald_mocked"
+      ],
+      "text": "line.pip_mocked"
+    },
+    {
+      "id": "pip_saved_joke",
+      "speaker": "pip",
+      "requires": [
+        "pip_joke_saved"
+      ],
+      "text": "line.pip_saved_joke"
+    },
+    {
+      "id": "hesper_relic",
+      "speaker": "hesper",
+      "requires": [
+        "relic_bought"
+      ],
+      "text": "line.hesper_relic"
+    },
+    {
+      "id": "hesper_bell",
+      "speaker": "hesper",
+      "requires": [
+        "bell_melted"
+      ],
+      "text": "line.hesper_bell"
+    },
+    {
+      "id": "hesper_goat",
+      "speaker": "hesper",
+      "requires": [
+        "goat_holy"
+      ],
+      "text": "line.hesper_goat"
+    },
+    {
+      "id": "envoy_thanks",
+      "speaker": "envoy",
+      "requires": [
+        "coast_helped"
+      ],
+      "text": "line.envoy_thanks"
+    },
+    {
+      "id": "tamsin_herbs",
+      "speaker": "tamsin",
+      "requires": [
+        "herbs_grown"
+      ],
+      "text": "line.tamsin_herbs"
     }
   ]
 }

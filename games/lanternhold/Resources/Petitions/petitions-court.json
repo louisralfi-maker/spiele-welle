@@ -1,0 +1,537 @@
+{
+  "petitions": [
+    {
+      "id": "bell_for_arrows",
+      "speaker": "bram",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        8,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "bell_judged"
+      ],
+      "text": "petition.bell_for_arrows.text",
+      "hint": "petition.bell_for_arrows.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.bell_for_arrows.c1",
+          "happiness": -3,
+          "flags": [
+            "bell_judged",
+            "bell_melted"
+          ],
+          "world": [
+            "castle.chapel.bell.missing"
+          ],
+          "unlock": [
+            "-blessing"
+          ],
+          "night": [
+            "wave-25pct"
+          ],
+          "reaction": "petition.bell_for_arrows.r1"
+        },
+        {
+          "label": "petition.bell_for_arrows.c2",
+          "flags": [
+            "bell_judged"
+          ],
+          "reaction": "petition.bell_for_arrows.r2"
+        }
+      ]
+    },
+    {
+      "id": "tamsin_oven",
+      "speaker": "tamsin",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        3,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "oven_judged"
+      ],
+      "text": "petition.tamsin_oven.text",
+      "hint": "petition.tamsin_oven.hint",
+      "counsel": 2,
+      "choices": [
+        {
+          "label": "petition.tamsin_oven.c1",
+          "gold": -20,
+          "flags": [
+            "oven_judged"
+          ],
+          "reaction": "petition.tamsin_oven.r1"
+        },
+        {
+          "label": "petition.tamsin_oven.c2",
+          "chance": {
+            "p": 0.5,
+            "then": {
+              "flags": [
+                "oven_judged"
+              ],
+              "reaction": "petition.tamsin_oven.r2a"
+            },
+            "else": {
+              "happiness": -1,
+              "flags": [
+                "oven_judged"
+              ],
+              "reaction": "petition.tamsin_oven.r2b"
+            }
+          }
+        },
+        {
+          "label": "petition.tamsin_oven.c3",
+          "happiness": -1,
+          "flags": [
+            "oven_judged"
+          ],
+          "reaction": "petition.tamsin_oven.r3"
+        }
+      ]
+    },
+    {
+      "id": "hesper_bowl",
+      "speaker": "hesper",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        11,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "blessing_asked"
+      ],
+      "text": "petition.hesper_bowl.text",
+      "hint": "petition.hesper_bowl.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.hesper_bowl.c1",
+          "gold": -30,
+          "flags": [
+            "blessing_asked",
+            "chapel_blessed"
+          ],
+          "unlock": [
+            "blessing"
+          ],
+          "reaction": "petition.hesper_bowl.r1"
+        },
+        {
+          "label": "petition.hesper_bowl.c2",
+          "flags": [
+            "blessing_asked"
+          ],
+          "reaction": "petition.hesper_bowl.r2"
+        }
+      ]
+    },
+    {
+      "id": "pip_minister",
+      "speaker": "pip",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        4,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "pip_judged"
+      ],
+      "text": "petition.pip_minister.text",
+      "hint": "petition.pip_minister.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.pip_minister.c1",
+          "gold": -5,
+          "happiness": 1,
+          "flags": [
+            "pip_judged",
+            "pip_minister"
+          ],
+          "reaction": "petition.pip_minister.r1"
+        },
+        {
+          "label": "petition.pip_minister.c2",
+          "flags": [
+            "pip_judged",
+            "pip_minister"
+          ],
+          "reaction": "petition.pip_minister.r2"
+        },
+        {
+          "label": "petition.pip_minister.c3",
+          "happiness": -1,
+          "flags": [
+            "pip_judged"
+          ],
+          "reaction": "petition.pip_minister.r3"
+        }
+      ]
+    },
+    {
+      "id": "odile_ledger",
+      "speaker": "odile",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        7,
+        999
+      ],
+      "weight": 1,
+      "forbids": [
+        "ledger_judged"
+      ],
+      "text": "petition.odile_ledger.text",
+      "hint": "petition.odile_ledger.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.odile_ledger.c1",
+          "chance": {
+            "p": 0.6,
+            "then": {
+              "gold": 18,
+              "flags": [
+                "ledger_judged"
+              ],
+              "reaction": "petition.odile_ledger.r1a"
+            },
+            "else": {
+              "happiness": -2,
+              "flags": [
+                "ledger_judged"
+              ],
+              "reaction": "petition.odile_ledger.r1b"
+            }
+          }
+        },
+        {
+          "label": "petition.odile_ledger.c2",
+          "flags": [
+            "ledger_judged"
+          ],
+          "reaction": "petition.odile_ledger.r2"
+        },
+        {
+          "label": "petition.odile_ledger.c3",
+          "happiness": -1,
+          "flags": [
+            "ledger_judged"
+          ],
+          "reaction": "petition.odile_ledger.r3"
+        }
+      ]
+    },
+    {
+      "id": "marek_spyglass",
+      "speaker": "marek",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        5,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "spyglass_judged"
+      ],
+      "text": "petition.marek_spyglass.text",
+      "hint": "petition.marek_spyglass.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.marek_spyglass.c1",
+          "gold": -30,
+          "flags": [
+            "spyglass_judged"
+          ],
+          "chance": {
+            "p": 0.8,
+            "then": {
+              "flags": [
+                "spyglass"
+              ],
+              "night": [
+                "hounds-3"
+              ],
+              "reaction": "petition.marek_spyglass.r1a"
+            },
+            "else": {
+              "reaction": "petition.marek_spyglass.r1b"
+            }
+          }
+        },
+        {
+          "label": "petition.marek_spyglass.c2",
+          "flags": [
+            "spyglass_judged"
+          ],
+          "reaction": "petition.marek_spyglass.r2"
+        }
+      ]
+    },
+    {
+      "id": "marek_relic",
+      "speaker": "marek",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        8,
+        999
+      ],
+      "weight": 1,
+      "forbids": [
+        "relic_judged"
+      ],
+      "text": "petition.marek_relic.text",
+      "hint": "petition.marek_relic.hint",
+      "counsel": 2,
+      "choices": [
+        {
+          "label": "petition.marek_relic.c1",
+          "gold": -40,
+          "happiness": 3,
+          "flags": [
+            "relic_judged",
+            "relic_bought"
+          ],
+          "reaction": "petition.marek_relic.r1"
+        },
+        {
+          "label": "petition.marek_relic.c2",
+          "happiness": 1,
+          "flags": [
+            "relic_judged"
+          ],
+          "reaction": "petition.marek_relic.r2"
+        },
+        {
+          "label": "petition.marek_relic.c3",
+          "flags": [
+            "relic_judged"
+          ],
+          "reaction": "petition.marek_relic.r3"
+        }
+      ]
+    },
+    {
+      "id": "marek_stall",
+      "speaker": "marek",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        10,
+        999
+      ],
+      "weight": 1,
+      "forbids": [
+        "stall_marek_judged"
+      ],
+      "text": "petition.marek_stall.text",
+      "hint": "petition.marek_stall.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.marek_stall.c1",
+          "gold": 10,
+          "flags": [
+            "stall_marek_judged",
+            "marek_stays"
+          ],
+          "world": [
+            "castle.courtyard.stall"
+          ],
+          "reaction": "petition.marek_stall.r1"
+        },
+        {
+          "label": "petition.marek_stall.c2",
+          "flags": [
+            "stall_marek_judged"
+          ],
+          "reaction": "petition.marek_stall.r2"
+        }
+      ]
+    },
+    {
+      "id": "banners_new",
+      "speaker": "odile",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        6,
+        999
+      ],
+      "weight": 1,
+      "forbids": [
+        "banners_judged"
+      ],
+      "text": "petition.banners_new.text",
+      "hint": "petition.banners_new.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.banners_new.c1",
+          "gold": -20,
+          "happiness": 1,
+          "flags": [
+            "banners_judged"
+          ],
+          "world": [
+            "castle.banners.new"
+          ],
+          "reaction": "petition.banners_new.r1"
+        },
+        {
+          "label": "petition.banners_new.c2",
+          "flags": [
+            "banners_judged",
+            "aldric_banners"
+          ],
+          "reaction": "petition.banners_new.r2"
+        }
+      ]
+    },
+    {
+      "id": "tapestry_aldric",
+      "speaker": "widow",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        9,
+        999
+      ],
+      "weight": 1,
+      "forbids": [
+        "tapestry_judged"
+      ],
+      "text": "petition.tapestry_aldric.text",
+      "hint": "petition.tapestry_aldric.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.tapestry_aldric.c1",
+          "happiness": 2,
+          "flags": [
+            "tapestry_judged"
+          ],
+          "world": [
+            "castle.hall.tapestry"
+          ],
+          "reaction": "petition.tapestry_aldric.r1"
+        },
+        {
+          "label": "petition.tapestry_aldric.c2",
+          "gold": -15,
+          "happiness": 3,
+          "flags": [
+            "tapestry_judged"
+          ],
+          "world": [
+            "castle.hall.tapestry"
+          ],
+          "reaction": "petition.tapestry_aldric.r2"
+        },
+        {
+          "label": "petition.tapestry_aldric.c3",
+          "happiness": -2,
+          "flags": [
+            "tapestry_judged"
+          ],
+          "reaction": "petition.tapestry_aldric.r3"
+        }
+      ]
+    },
+    {
+      "id": "keep_window",
+      "speaker": "hesper",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        8,
+        999
+      ],
+      "weight": 1,
+      "forbids": [
+        "mourning_judged"
+      ],
+      "text": "petition.keep_window.text",
+      "hint": "petition.keep_window.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.keep_window.c1",
+          "happiness": 1,
+          "flags": [
+            "mourning_judged",
+            "mourning_kept"
+          ],
+          "world": [
+            "castle.keep.window.dark"
+          ],
+          "reaction": "petition.keep_window.r1"
+        },
+        {
+          "label": "petition.keep_window.c2",
+          "flags": [
+            "mourning_judged"
+          ],
+          "reaction": "petition.keep_window.r2"
+        }
+      ]
+    },
+    {
+      "id": "seren_watch",
+      "speaker": "seren",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        6,
+        14
+      ],
+      "weight": 3,
+      "requires": [
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_watch_judged",
+        "seren_handed_over"
+      ],
+      "text": "petition.seren_watch.text",
+      "hint": "petition.seren_watch.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.seren_watch.c1",
+          "flags": [
+            "seren_watch_judged",
+            "seren_on_wall"
+          ],
+          "night": [
+            "hounds-2"
+          ],
+          "reaction": "petition.seren_watch.r1"
+        },
+        {
+          "label": "petition.seren_watch.c2",
+          "flags": [
+            "seren_watch_judged"
+          ],
+          "reaction": "petition.seren_watch.r2"
+        }
+      ]
+    }
+  ]
+}

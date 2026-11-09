@@ -1,0 +1,801 @@
+{
+  "petitions": [
+    {
+      "id": "first_plough",
+      "speaker": "farmer",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        1,
+        1
+      ],
+      "text": "petition.first_plough.text",
+      "hint": "petition.first_plough.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.first_plough.c1",
+          "happiness": 1,
+          "flags": [
+            "plough_blessed"
+          ],
+          "reaction": "petition.first_plough.r1"
+        },
+        {
+          "label": "petition.first_plough.c2",
+          "happiness": -1,
+          "reaction": "petition.first_plough.r2"
+        }
+      ]
+    },
+    {
+      "id": "tower_request",
+      "speaker": "brannock",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        2,
+        3
+      ],
+      "text": "petition.tower_request.text",
+      "hint": "petition.tower_request.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.tower_request.c1",
+          "flags": [
+            "tower_promised"
+          ],
+          "reaction": "petition.tower_request.r1"
+        },
+        {
+          "label": "petition.tower_request.c2",
+          "flags": [
+            "light_first"
+          ],
+          "reaction": "petition.tower_request.r2"
+        }
+      ]
+    },
+    {
+      "id": "stranger_gate",
+      "speaker": "seren",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        4,
+        5
+      ],
+      "text": "petition.stranger_gate.text",
+      "hint": "petition.stranger_gate.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.stranger_gate.c1",
+          "flags": [
+            "stranger_in"
+          ],
+          "world": [
+            "castle.seren.lantern"
+          ],
+          "reaction": "petition.stranger_gate.r1"
+        },
+        {
+          "label": "petition.stranger_gate.c2",
+          "flags": [
+            "stranger_turned_away"
+          ],
+          "reaction": "petition.stranger_gate.r2"
+        }
+      ]
+    },
+    {
+      "id": "marek_arrows",
+      "speaker": "marek",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        6,
+        7
+      ],
+      "text": "petition.marek_arrows.text",
+      "hint": "petition.marek_arrows.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.marek_arrows.c1",
+          "gold": -15,
+          "flags": [
+            "cheap_arrows"
+          ],
+          "schedule": [
+            {
+              "id": "bad_arrows",
+              "inDays": 1
+            }
+          ],
+          "reaction": "petition.marek_arrows.r1"
+        },
+        {
+          "label": "petition.marek_arrows.c2",
+          "flags": [
+            "arrows_refused"
+          ],
+          "reaction": "petition.marek_arrows.r2"
+        },
+        {
+          "label": "petition.marek_arrows.c3",
+          "chance": {
+            "p": 0.7,
+            "then": {
+              "gold": 10,
+              "flags": [
+                "marek_caught"
+              ],
+              "reaction": "petition.marek_arrows.r3a"
+            },
+            "else": {
+              "gold": -15,
+              "flags": [
+                "cheap_arrows"
+              ],
+              "schedule": [
+                {
+                  "id": "bad_arrows",
+                  "inDays": 1
+                }
+              ],
+              "reaction": "petition.marek_arrows.r3b"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "bad_arrows",
+      "speaker": "bram",
+      "kind": "story",
+      "chapter": 1,
+      "requires": [
+        "cheap_arrows"
+      ],
+      "text": "petition.bad_arrows.text",
+      "hint": "petition.bad_arrows.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.bad_arrows.c1",
+          "gold": -5,
+          "flags": [
+            "-cheap_arrows",
+            "arrows_reforged"
+          ],
+          "reaction": "petition.bad_arrows.r1"
+        },
+        {
+          "label": "petition.bad_arrows.c2",
+          "flags": [
+            "-cheap_arrows"
+          ],
+          "night": [
+            "wave+15pct"
+          ],
+          "reaction": "petition.bad_arrows.r2"
+        },
+        {
+          "label": "petition.bad_arrows.c3",
+          "chance": {
+            "p": 0.5,
+            "then": {
+              "gold": 15,
+              "flags": [
+                "-cheap_arrows",
+                "marek_caught"
+              ],
+              "reaction": "petition.bad_arrows.r3a"
+            },
+            "else": {
+              "happiness": -1,
+              "flags": [
+                "-cheap_arrows"
+              ],
+              "reaction": "petition.bad_arrows.r3b"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "war_tax",
+      "speaker": "brannock",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        8,
+        9
+      ],
+      "text": "petition.war_tax.text",
+      "hint": "petition.war_tax.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.war_tax.c1",
+          "flags": [
+            "war_tax_promised"
+          ],
+          "unlock": [
+            "warTax"
+          ],
+          "reaction": "petition.war_tax.r1"
+        },
+        {
+          "label": "petition.war_tax.c2",
+          "gold": 40,
+          "happiness": -4,
+          "flags": [
+            "guilds_levied"
+          ],
+          "unlock": [
+            "warTax"
+          ],
+          "reaction": "petition.war_tax.r2"
+        },
+        {
+          "label": "petition.war_tax.c3",
+          "happiness": 2,
+          "flags": [
+            "war_tax_refused"
+          ],
+          "reaction": "petition.war_tax.r3"
+        }
+      ]
+    },
+    {
+      "id": "hesper_giant",
+      "speaker": "hesper",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        10,
+        10
+      ],
+      "text": "petition.hesper_giant.text",
+      "hint": "petition.hesper_giant.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.hesper_giant.c1",
+          "flags": [
+            "vigil_kept"
+          ],
+          "reaction": "petition.hesper_giant.r1"
+        },
+        {
+          "label": "petition.hesper_giant.c2",
+          "gold": -10,
+          "happiness": 3,
+          "flags": [
+            "vigil_kept",
+            "town_vigil"
+          ],
+          "world": [
+            "castle.chapel.candles"
+          ],
+          "reaction": "petition.hesper_giant.r2"
+        },
+        {
+          "label": "petition.hesper_giant.c3",
+          "happiness": -1,
+          "flags": [
+            "giant_unwarned"
+          ],
+          "reaction": "petition.hesper_giant.r3"
+        }
+      ]
+    },
+    {
+      "id": "beacon_plans",
+      "speaker": "odile",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        11,
+        12
+      ],
+      "text": "petition.beacon_plans.text",
+      "hint": "petition.beacon_plans.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.beacon_plans.c1",
+          "flags": [
+            "beacon_vowed"
+          ],
+          "unlock": [
+            "beacon"
+          ],
+          "reaction": "petition.beacon_plans.r1"
+        },
+        {
+          "label": "petition.beacon_plans.c2",
+          "happiness": 2,
+          "flags": [
+            "beacon_vowed",
+            "beacon_shown"
+          ],
+          "unlock": [
+            "beacon"
+          ],
+          "reaction": "petition.beacon_plans.r2"
+        },
+        {
+          "label": "petition.beacon_plans.c3",
+          "flags": [
+            "beacon_doubted"
+          ],
+          "unlock": [
+            "beacon"
+          ],
+          "reaction": "petition.beacon_plans.r3"
+        }
+      ]
+    },
+    {
+      "id": "refugees_gate",
+      "speaker": "refugee",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        13,
+        14
+      ],
+      "text": "petition.refugees_gate.text",
+      "hint": "petition.refugees_gate.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.refugees_gate.c1",
+          "citizens": 6,
+          "flags": [
+            "refugees_in"
+          ],
+          "schedule": [
+            {
+              "id": "ash_cough",
+              "inDays": 3
+            }
+          ],
+          "reaction": "petition.refugees_gate.r1"
+        },
+        {
+          "label": "petition.refugees_gate.c2",
+          "happiness": -2,
+          "citizens": 3,
+          "flags": [
+            "refugees_some"
+          ],
+          "schedule": [
+            {
+              "id": "ash_cough",
+              "inDays": 3
+            }
+          ],
+          "reaction": "petition.refugees_gate.r2"
+        },
+        {
+          "label": "petition.refugees_gate.c3",
+          "happiness": -3,
+          "flags": [
+            "refugees_turned_away"
+          ],
+          "reaction": "petition.refugees_gate.r3"
+        }
+      ]
+    },
+    {
+      "id": "ash_cough",
+      "speaker": "farmwife",
+      "kind": "story",
+      "chapter": 1,
+      "forbids": [
+        "herbs_grown"
+      ],
+      "text": "petition.ash_cough.text",
+      "hint": "petition.ash_cough.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.ash_cough.c1",
+          "gold": -15,
+          "happiness": 1,
+          "flags": [
+            "cough_cured"
+          ],
+          "reaction": "petition.ash_cough.r1"
+        },
+        {
+          "label": "petition.ash_cough.c2",
+          "happiness": -2,
+          "citizens": -2,
+          "flags": [
+            "sick_sent_away"
+          ],
+          "reaction": "petition.ash_cough.r2"
+        },
+        {
+          "label": "petition.ash_cough.c3",
+          "chance": {
+            "p": 0.5,
+            "then": {
+              "flags": [
+                "cough_cured"
+              ],
+              "reaction": "petition.ash_cough.r3a"
+            },
+            "else": {
+              "happiness": -4,
+              "citizens": -1,
+              "flags": [
+                "cough_cured"
+              ],
+              "world": [
+                "town.window.dark"
+              ],
+              "reaction": "petition.ash_cough.r3b"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "seren_reveal",
+      "speaker": "seren",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        15,
+        16
+      ],
+      "requires": [
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_handed_over"
+      ],
+      "text": "petition.seren_reveal.text",
+      "hint": "petition.seren_reveal.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.seren_reveal.c1",
+          "flags": [
+            "seren_revealed",
+            "vow_aldric"
+          ],
+          "reaction": "petition.seren_reveal.r1"
+        },
+        {
+          "label": "petition.seren_reveal.c2",
+          "chance": {
+            "p": 0.5,
+            "then": {
+              "happiness": 4,
+              "flags": [
+                "seren_revealed",
+                "aldric_known"
+              ],
+              "reaction": "petition.seren_reveal.r2a"
+            },
+            "else": {
+              "happiness": -4,
+              "flags": [
+                "seren_revealed",
+                "aldric_known"
+              ],
+              "reaction": "petition.seren_reveal.r2b"
+            }
+          }
+        },
+        {
+          "label": "petition.seren_reveal.c3",
+          "flags": [
+            "seren_revealed",
+            "seren_doubted"
+          ],
+          "reaction": "petition.seren_reveal.r3"
+        }
+      ]
+    },
+    {
+      "id": "seren_at_gate",
+      "speaker": "seren",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        15,
+        16
+      ],
+      "forbids": [
+        "stranger_in"
+      ],
+      "text": "petition.seren_at_gate.text",
+      "hint": "petition.seren_at_gate.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.seren_at_gate.c1",
+          "flags": [
+            "stranger_in",
+            "seren_revealed"
+          ],
+          "world": [
+            "castle.seren.lantern"
+          ],
+          "reaction": "petition.seren_at_gate.r1"
+        },
+        {
+          "label": "petition.seren_at_gate.c2",
+          "flags": [
+            "seren_revealed",
+            "seren_outside"
+          ],
+          "reaction": "petition.seren_at_gate.r2"
+        }
+      ]
+    },
+    {
+      "id": "herald_demand",
+      "speaker": "herald",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        17,
+        17
+      ],
+      "requires": [
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_handed_over"
+      ],
+      "text": "petition.herald_demand.text",
+      "hint": "petition.herald_demand.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.herald_demand.c1",
+          "happiness": 2,
+          "flags": [
+            "seren_handed_over",
+            "truce"
+          ],
+          "world": [
+            "-castle.seren.lantern"
+          ],
+          "schedule": [
+            {
+              "id": "truce_drill",
+              "inDays": 1
+            },
+            {
+              "id": "truce_end",
+              "inDays": 2
+            }
+          ],
+          "night": [
+            "wave-50pct"
+          ],
+          "reaction": "petition.herald_demand.r1"
+        },
+        {
+          "label": "petition.herald_demand.c2",
+          "happiness": -2,
+          "flags": [
+            "herald_refused"
+          ],
+          "reaction": "petition.herald_demand.r2"
+        },
+        {
+          "label": "petition.herald_demand.c3",
+          "happiness": 3,
+          "flags": [
+            "herald_refused",
+            "herald_mocked"
+          ],
+          "night": [
+            "wave+20pct"
+          ],
+          "reaction": "petition.herald_demand.r3"
+        }
+      ]
+    },
+    {
+      "id": "herald_alone",
+      "speaker": "herald",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        17,
+        17
+      ],
+      "forbids": [
+        "stranger_in"
+      ],
+      "text": "petition.herald_alone.text",
+      "hint": "petition.herald_alone.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.herald_alone.c1",
+          "gold": -60,
+          "flags": [
+            "truce",
+            "tribute_paid"
+          ],
+          "schedule": [
+            {
+              "id": "truce_drill",
+              "inDays": 1
+            },
+            {
+              "id": "truce_end",
+              "inDays": 2
+            }
+          ],
+          "night": [
+            "wave-50pct"
+          ],
+          "reaction": "petition.herald_alone.r1"
+        },
+        {
+          "label": "petition.herald_alone.c2",
+          "happiness": -1,
+          "flags": [
+            "herald_refused"
+          ],
+          "reaction": "petition.herald_alone.r2"
+        }
+      ]
+    },
+    {
+      "id": "truce_drill",
+      "speaker": "brannock",
+      "kind": "story",
+      "chapter": 1,
+      "requires": [
+        "truce"
+      ],
+      "text": "petition.truce_drill.text",
+      "hint": "petition.truce_drill.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.truce_drill.c1",
+          "gold": -20,
+          "archers": 2,
+          "flags": [
+            "truce_drilled"
+          ],
+          "night": [
+            "wave-50pct"
+          ],
+          "reaction": "petition.truce_drill.r1"
+        },
+        {
+          "label": "petition.truce_drill.c2",
+          "happiness": 2,
+          "flags": [
+            "truce_rested"
+          ],
+          "night": [
+            "wave-50pct"
+          ],
+          "reaction": "petition.truce_drill.r2"
+        }
+      ]
+    },
+    {
+      "id": "truce_end",
+      "speaker": "hesper",
+      "kind": "story",
+      "chapter": 1,
+      "requires": [
+        "truce"
+      ],
+      "text": "petition.truce_end.text",
+      "hint": "petition.truce_end.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.truce_end.c1",
+          "flags": [
+            "truce_candle"
+          ],
+          "world": [
+            "castle.chapel.candles"
+          ],
+          "night": [
+            "wave-50pct"
+          ],
+          "reaction": "petition.truce_end.r1"
+        },
+        {
+          "label": "petition.truce_end.c2",
+          "flags": [
+            "truce_unrepentant"
+          ],
+          "night": [
+            "wave-50pct"
+          ],
+          "reaction": "petition.truce_end.r2"
+        }
+      ]
+    },
+    {
+      "id": "pip_farewell",
+      "speaker": "pip",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        19,
+        19
+      ],
+      "text": "petition.pip_farewell.text",
+      "hint": "petition.pip_farewell.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.pip_farewell.c1",
+          "happiness": 2,
+          "flags": [
+            "pip_joke_told"
+          ],
+          "reaction": "petition.pip_farewell.r1"
+        },
+        {
+          "label": "petition.pip_farewell.c2",
+          "flags": [
+            "pip_joke_saved"
+          ],
+          "reaction": "petition.pip_farewell.r2"
+        }
+      ]
+    },
+    {
+      "id": "last_stand",
+      "speaker": "brannock",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        20,
+        20
+      ],
+      "text": "petition.last_stand.text",
+      "hint": "petition.last_stand.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.last_stand.c1",
+          "flags": [
+            "speech_dawn"
+          ],
+          "reaction": "petition.last_stand.r1"
+        },
+        {
+          "label": "petition.last_stand.c2",
+          "flags": [
+            "speech_aldric"
+          ],
+          "reaction": "petition.last_stand.r2"
+        },
+        {
+          "label": "petition.last_stand.c3",
+          "flags": [
+            "speech_honest"
+          ],
+          "reaction": "petition.last_stand.r3"
+        }
+      ]
+    }
+  ]
+}

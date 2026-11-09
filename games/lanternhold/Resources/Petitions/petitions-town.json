@@ -1,0 +1,991 @@
+{
+  "petitions": [
+    {
+      "id": "well_repair",
+      "speaker": "townswoman",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        2,
+        20
+      ],
+      "weight": 3,
+      "forbids": [
+        "well_fixed"
+      ],
+      "text": "petition.well_repair.text",
+      "hint": "petition.well_repair.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.well_repair.c1",
+          "gold": -15,
+          "happiness": 2,
+          "flags": [
+            "well_fixed"
+          ],
+          "world": [
+            "town.well.repaired"
+          ],
+          "reaction": "petition.well_repair.r1"
+        },
+        {
+          "label": "petition.well_repair.c2",
+          "happiness": -2,
+          "schedule": [
+            {
+              "id": "well_dispute",
+              "inDays": 3
+            }
+          ],
+          "reaction": "petition.well_repair.r2"
+        }
+      ]
+    },
+    {
+      "id": "well_dispute",
+      "speaker": "townsman",
+      "kind": "random",
+      "chapter": 1,
+      "weight": 0,
+      "forbids": [
+        "well_fixed"
+      ],
+      "text": "petition.well_dispute.text",
+      "hint": "petition.well_dispute.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.well_dispute.c1",
+          "chance": {
+            "p": 0.6,
+            "then": {
+              "happiness": 1,
+              "reaction": "petition.well_dispute.r1a"
+            },
+            "else": {
+              "happiness": -2,
+              "reaction": "petition.well_dispute.r1b"
+            }
+          }
+        },
+        {
+          "label": "petition.well_dispute.c2",
+          "gold": -20,
+          "happiness": 1,
+          "flags": [
+            "well_fixed"
+          ],
+          "world": [
+            "town.well.repaired"
+          ],
+          "reaction": "petition.well_dispute.r2"
+        }
+      ]
+    },
+    {
+      "id": "plough_harvest",
+      "speaker": "farmer",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        11,
+        17
+      ],
+      "weight": 3,
+      "requires": [
+        "plough_blessed"
+      ],
+      "forbids": [
+        "harvest_done"
+      ],
+      "text": "petition.plough_harvest.text",
+      "hint": "petition.plough_harvest.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.plough_harvest.c1",
+          "gold": 20,
+          "flags": [
+            "harvest_done"
+          ],
+          "reaction": "petition.plough_harvest.r1"
+        },
+        {
+          "label": "petition.plough_harvest.c2",
+          "happiness": 3,
+          "flags": [
+            "harvest_done"
+          ],
+          "world": [
+            "town.festival.tent"
+          ],
+          "reaction": "petition.plough_harvest.r2"
+        },
+        {
+          "label": "petition.plough_harvest.c3",
+          "happiness": 1,
+          "flags": [
+            "harvest_done"
+          ],
+          "reaction": "petition.plough_harvest.r3"
+        }
+      ]
+    },
+    {
+      "id": "goat_chapel",
+      "speaker": "farmwife",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        3,
+        14
+      ],
+      "weight": 2,
+      "forbids": [
+        "goat_judged"
+      ],
+      "text": "petition.goat_chapel.text",
+      "hint": "petition.goat_chapel.hint",
+      "counsel": 2,
+      "choices": [
+        {
+          "label": "petition.goat_chapel.c1",
+          "gold": -10,
+          "happiness": 1,
+          "flags": [
+            "goat_judged"
+          ],
+          "reaction": "petition.goat_chapel.r1"
+        },
+        {
+          "label": "petition.goat_chapel.c2",
+          "happiness": -1,
+          "flags": [
+            "goat_judged",
+            "goat_holy"
+          ],
+          "reaction": "petition.goat_chapel.r2"
+        },
+        {
+          "label": "petition.goat_chapel.c3",
+          "flags": [
+            "goat_judged"
+          ],
+          "reaction": "petition.goat_chapel.r3"
+        }
+      ]
+    },
+    {
+      "id": "wedding_feast",
+      "speaker": "townswoman",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        5,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "wedding_done"
+      ],
+      "happinessRange": [
+        55,
+        100
+      ],
+      "text": "petition.wedding_feast.text",
+      "hint": "petition.wedding_feast.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.wedding_feast.c1",
+          "gold": -25,
+          "happiness": 4,
+          "flags": [
+            "wedding_done"
+          ],
+          "world": [
+            "town.festival.tent"
+          ],
+          "reaction": "petition.wedding_feast.r1"
+        },
+        {
+          "label": "petition.wedding_feast.c2",
+          "happiness": 1,
+          "flags": [
+            "wedding_done"
+          ],
+          "world": [
+            "town.festival.tent"
+          ],
+          "reaction": "petition.wedding_feast.r2"
+        },
+        {
+          "label": "petition.wedding_feast.c3",
+          "happiness": -2,
+          "flags": [
+            "wedding_done"
+          ],
+          "reaction": "petition.wedding_feast.r3"
+        }
+      ]
+    },
+    {
+      "id": "footbridge",
+      "speaker": "builder",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        8,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "bridge_done"
+      ],
+      "text": "petition.footbridge.text",
+      "hint": "petition.footbridge.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.footbridge.c1",
+          "gold": -20,
+          "happiness": 2,
+          "flags": [
+            "bridge_done"
+          ],
+          "world": [
+            "town.bridge.mended"
+          ],
+          "reaction": "petition.footbridge.r1"
+        },
+        {
+          "label": "petition.footbridge.c2",
+          "chance": {
+            "p": 0.5,
+            "then": {
+              "happiness": 1,
+              "flags": [
+                "bridge_done"
+              ],
+              "world": [
+                "town.bridge.mended"
+              ],
+              "reaction": "petition.footbridge.r2a"
+            },
+            "else": {
+              "happiness": -2,
+              "reaction": "petition.footbridge.r2b"
+            }
+          }
+        },
+        {
+          "label": "petition.footbridge.c3",
+          "happiness": -1,
+          "reaction": "petition.footbridge.r3"
+        }
+      ]
+    },
+    {
+      "id": "statue_market",
+      "speaker": "noble",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        6,
+        999
+      ],
+      "weight": 1,
+      "forbids": [
+        "statue_done"
+      ],
+      "happinessRange": [
+        50,
+        100
+      ],
+      "text": "petition.statue_market.text",
+      "hint": "petition.statue_market.hint",
+      "counsel": 2,
+      "choices": [
+        {
+          "label": "petition.statue_market.c1",
+          "gold": -40,
+          "happiness": 3,
+          "flags": [
+            "statue_done"
+          ],
+          "world": [
+            "town.statue"
+          ],
+          "reaction": "petition.statue_market.r1"
+        },
+        {
+          "label": "petition.statue_market.c2",
+          "gold": -40,
+          "happiness": 4,
+          "flags": [
+            "statue_done",
+            "aldric_statue"
+          ],
+          "world": [
+            "town.statue"
+          ],
+          "reaction": "petition.statue_market.r2"
+        },
+        {
+          "label": "petition.statue_market.c3",
+          "happiness": -1,
+          "flags": [
+            "statue_done"
+          ],
+          "reaction": "petition.statue_market.r3"
+        }
+      ]
+    },
+    {
+      "id": "barn_fire",
+      "speaker": "farmer",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        8,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "barn_done"
+      ],
+      "text": "petition.barn_fire.text",
+      "hint": "petition.barn_fire.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.barn_fire.c1",
+          "gold": -20,
+          "happiness": 1,
+          "flags": [
+            "barn_done"
+          ],
+          "reaction": "petition.barn_fire.r1"
+        },
+        {
+          "label": "petition.barn_fire.c2",
+          "happiness": 1,
+          "archers": -1,
+          "flags": [
+            "barn_done"
+          ],
+          "reaction": "petition.barn_fire.r2"
+        },
+        {
+          "label": "petition.barn_fire.c3",
+          "happiness": -2,
+          "flags": [
+            "barn_done"
+          ],
+          "world": [
+            "town.barn.burnt"
+          ],
+          "reaction": "petition.barn_fire.r3"
+        }
+      ]
+    },
+    {
+      "id": "lantern_lanes",
+      "speaker": "townsman",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        8,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "lanterns_done"
+      ],
+      "text": "petition.lantern_lanes.text",
+      "hint": "petition.lantern_lanes.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.lantern_lanes.c1",
+          "gold": -15,
+          "happiness": 2,
+          "flags": [
+            "lanterns_done"
+          ],
+          "world": [
+            "town.lanterns.extra"
+          ],
+          "reaction": "petition.lantern_lanes.r1"
+        },
+        {
+          "label": "petition.lantern_lanes.c2",
+          "happiness": -1,
+          "reaction": "petition.lantern_lanes.r2"
+        }
+      ]
+    },
+    {
+      "id": "family_leaving",
+      "speaker": "townsman",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        6,
+        999
+      ],
+      "weight": 3,
+      "forbids": [
+        "family_left",
+        "family_stayed"
+      ],
+      "happinessRange": [
+        0,
+        45
+      ],
+      "text": "petition.family_leaving.text",
+      "hint": "petition.family_leaving.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.family_leaving.c1",
+          "citizens": -3,
+          "flags": [
+            "family_left"
+          ],
+          "world": [
+            "town.window.dark"
+          ],
+          "reaction": "petition.family_leaving.r1"
+        },
+        {
+          "label": "petition.family_leaving.c2",
+          "gold": -20,
+          "flags": [
+            "family_stayed"
+          ],
+          "reaction": "petition.family_leaving.r2"
+        },
+        {
+          "label": "petition.family_leaving.c3",
+          "happiness": -3,
+          "flags": [
+            "family_stayed"
+          ],
+          "reaction": "petition.family_leaving.r3"
+        }
+      ]
+    },
+    {
+      "id": "widow_garden",
+      "speaker": "widow",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        8,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "garden_done"
+      ],
+      "text": "petition.widow_garden.text",
+      "hint": "petition.widow_garden.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.widow_garden.c1",
+          "gold": -10,
+          "happiness": 2,
+          "flags": [
+            "garden_done"
+          ],
+          "world": [
+            "town.garden"
+          ],
+          "reaction": "petition.widow_garden.r1"
+        },
+        {
+          "label": "petition.widow_garden.c2",
+          "gold": -10,
+          "happiness": 1,
+          "flags": [
+            "garden_done",
+            "herbs_grown"
+          ],
+          "world": [
+            "town.garden"
+          ],
+          "reaction": "petition.widow_garden.r2"
+        },
+        {
+          "label": "petition.widow_garden.c3",
+          "happiness": -1,
+          "flags": [
+            "garden_done"
+          ],
+          "reaction": "petition.widow_garden.r3"
+        }
+      ]
+    },
+    {
+      "id": "scarecrow",
+      "speaker": "child",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        3,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "scarecrow_done"
+      ],
+      "text": "petition.scarecrow.text",
+      "hint": "petition.scarecrow.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.scarecrow.c1",
+          "happiness": 1,
+          "flags": [
+            "scarecrow_done",
+            "scarecrow_brannock"
+          ],
+          "world": [
+            "town.scarecrow"
+          ],
+          "reaction": "petition.scarecrow.r1"
+        },
+        {
+          "label": "petition.scarecrow.c2",
+          "happiness": 2,
+          "flags": [
+            "scarecrow_done",
+            "scarecrow_king"
+          ],
+          "world": [
+            "town.scarecrow"
+          ],
+          "reaction": "petition.scarecrow.r2"
+        },
+        {
+          "label": "petition.scarecrow.c3",
+          "happiness": -1,
+          "flags": [
+            "scarecrow_done"
+          ],
+          "reaction": "petition.scarecrow.r3"
+        }
+      ]
+    },
+    {
+      "id": "market_stall",
+      "speaker": "merchant",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        4,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "stall_done"
+      ],
+      "text": "petition.market_stall.text",
+      "hint": "petition.market_stall.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.market_stall.c1",
+          "gold": 30,
+          "happiness": -2,
+          "flags": [
+            "stall_done"
+          ],
+          "world": [
+            "town.market.stall"
+          ],
+          "reaction": "petition.market_stall.r1"
+        },
+        {
+          "label": "petition.market_stall.c2",
+          "happiness": 1,
+          "flags": [
+            "stall_done"
+          ],
+          "reaction": "petition.market_stall.r2"
+        }
+      ]
+    },
+    {
+      "id": "tavern_brawl",
+      "speaker": "townsman",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        5,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "brawl_judged"
+      ],
+      "text": "petition.tavern_brawl.text",
+      "hint": "petition.tavern_brawl.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.tavern_brawl.c1",
+          "flags": [
+            "brawl_judged"
+          ],
+          "reaction": "petition.tavern_brawl.r1"
+        },
+        {
+          "label": "petition.tavern_brawl.c2",
+          "happiness": -2,
+          "flags": [
+            "brawl_judged"
+          ],
+          "reaction": "petition.tavern_brawl.r2"
+        },
+        {
+          "label": "petition.tavern_brawl.c3",
+          "gold": -15,
+          "happiness": 2,
+          "flags": [
+            "brawl_judged"
+          ],
+          "reaction": "petition.tavern_brawl.r3"
+        }
+      ]
+    },
+    {
+      "id": "miller_hoard",
+      "speaker": "farmwife",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        6,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "miller_judged"
+      ],
+      "happinessRange": [
+        0,
+        60
+      ],
+      "text": "petition.miller_hoard.text",
+      "hint": "petition.miller_hoard.hint",
+      "counsel": 2,
+      "choices": [
+        {
+          "label": "petition.miller_hoard.c1",
+          "happiness": 2,
+          "flags": [
+            "miller_judged",
+            "miller_forced"
+          ],
+          "reaction": "petition.miller_hoard.r1"
+        },
+        {
+          "label": "petition.miller_hoard.c2",
+          "gold": -25,
+          "happiness": 3,
+          "flags": [
+            "miller_judged"
+          ],
+          "reaction": "petition.miller_hoard.r2"
+        },
+        {
+          "label": "petition.miller_hoard.c3",
+          "happiness": -2,
+          "flags": [
+            "miller_judged"
+          ],
+          "reaction": "petition.miller_hoard.r3"
+        }
+      ]
+    },
+    {
+      "id": "quack_amulets",
+      "speaker": "merchant",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        5,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "amulets_judged"
+      ],
+      "text": "petition.quack_amulets.text",
+      "hint": "petition.quack_amulets.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.quack_amulets.c1",
+          "gold": 15,
+          "flags": [
+            "amulets_judged",
+            "amulets_sold"
+          ],
+          "reaction": "petition.quack_amulets.r1"
+        },
+        {
+          "label": "petition.quack_amulets.c2",
+          "happiness": -1,
+          "flags": [
+            "amulets_judged"
+          ],
+          "reaction": "petition.quack_amulets.r2"
+        },
+        {
+          "label": "petition.quack_amulets.c3",
+          "chance": {
+            "p": 0.5,
+            "then": {
+              "happiness": 2,
+              "flags": [
+                "amulets_judged"
+              ],
+              "reaction": "petition.quack_amulets.r3a"
+            },
+            "else": {
+              "gold": 10,
+              "flags": [
+                "amulets_judged",
+                "amulets_sold"
+              ],
+              "reaction": "petition.quack_amulets.r3b"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "thief_bread",
+      "speaker": "townswoman",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        3,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "thief_judged"
+      ],
+      "text": "petition.thief_bread.text",
+      "hint": "petition.thief_bread.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.thief_bread.c1",
+          "happiness": -1,
+          "flags": [
+            "thief_judged"
+          ],
+          "reaction": "petition.thief_bread.r1"
+        },
+        {
+          "label": "petition.thief_bread.c2",
+          "citizens": 1,
+          "flags": [
+            "thief_judged"
+          ],
+          "reaction": "petition.thief_bread.r2"
+        },
+        {
+          "label": "petition.thief_bread.c3",
+          "gold": -5,
+          "happiness": 1,
+          "flags": [
+            "thief_judged"
+          ],
+          "reaction": "petition.thief_bread.r3"
+        }
+      ]
+    },
+    {
+      "id": "noble_hunt",
+      "speaker": "noble",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        11,
+        999
+      ],
+      "weight": 1,
+      "forbids": [
+        "hunt_judged"
+      ],
+      "text": "petition.noble_hunt.text",
+      "hint": "petition.noble_hunt.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.noble_hunt.c1",
+          "gold": 40,
+          "happiness": -3,
+          "flags": [
+            "hunt_judged",
+            "hunt_granted"
+          ],
+          "reaction": "petition.noble_hunt.r1"
+        },
+        {
+          "label": "petition.noble_hunt.c2",
+          "happiness": 1,
+          "flags": [
+            "hunt_judged"
+          ],
+          "reaction": "petition.noble_hunt.r2"
+        }
+      ]
+    },
+    {
+      "id": "haunted_cellar",
+      "speaker": "townswoman",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        7,
+        999
+      ],
+      "weight": 1,
+      "forbids": [
+        "cellar_done"
+      ],
+      "text": "petition.haunted_cellar.text",
+      "hint": "petition.haunted_cellar.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.haunted_cellar.c1",
+          "chance": {
+            "p": 0.6,
+            "then": {
+              "happiness": 1,
+              "flags": [
+                "cellar_done"
+              ],
+              "reaction": "petition.haunted_cellar.r1a"
+            },
+            "else": {
+              "flags": [
+                "cellar_done"
+              ],
+              "night": [
+                "fog"
+              ],
+              "reaction": "petition.haunted_cellar.r1b"
+            }
+          }
+        },
+        {
+          "label": "petition.haunted_cellar.c2",
+          "flags": [
+            "cellar_done"
+          ],
+          "reaction": "petition.haunted_cellar.r2"
+        },
+        {
+          "label": "petition.haunted_cellar.c3",
+          "happiness": -1,
+          "flags": [
+            "cellar_done"
+          ],
+          "reaction": "petition.haunted_cellar.r3"
+        }
+      ]
+    },
+    {
+      "id": "castle_statue",
+      "speaker": "builder",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        8,
+        999
+      ],
+      "weight": 1,
+      "forbids": [
+        "castle_statue_judged"
+      ],
+      "text": "petition.castle_statue.text",
+      "hint": "petition.castle_statue.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.castle_statue.c1",
+          "gold": -15,
+          "happiness": 1,
+          "flags": [
+            "castle_statue_judged"
+          ],
+          "world": [
+            "castle.statue"
+          ],
+          "reaction": "petition.castle_statue.r1"
+        },
+        {
+          "label": "petition.castle_statue.c2",
+          "flags": [
+            "castle_statue_judged"
+          ],
+          "reaction": "petition.castle_statue.r2"
+        }
+      ]
+    },
+    {
+      "id": "border_family",
+      "speaker": "refugee",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        14,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "border_family_judged"
+      ],
+      "text": "petition.border_family.text",
+      "hint": "petition.border_family.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.border_family.c1",
+          "citizens": 2,
+          "flags": [
+            "border_family_judged"
+          ],
+          "reaction": "petition.border_family.r1"
+        },
+        {
+          "label": "petition.border_family.c2",
+          "citizens": 1,
+          "guards": 1,
+          "flags": [
+            "border_family_judged"
+          ],
+          "reaction": "petition.border_family.r2"
+        },
+        {
+          "label": "petition.border_family.c3",
+          "happiness": -2,
+          "flags": [
+            "border_family_judged"
+          ],
+          "reaction": "petition.border_family.r3"
+        }
+      ]
+    }
+  ]
+}
