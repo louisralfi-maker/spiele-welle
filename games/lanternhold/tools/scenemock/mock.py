@@ -14,7 +14,9 @@ FOCUS = float(args.get('focus', 760)); HOUR = float(args.get('tod', 0.95)) * 24;
 STYLE = args.get('style', 'smooth'); LAB = args.get('lab') == '1'
 LOOK = dict(lift=0.46, farShare=0.9, midLight=0.32, gain=1.55, knee=0.95, fogGlow=0.5, fgLight=0.75, fgAmb=0.62,
             bloom=0.75, bloomLight=0.16, bloomSky=0.55, thr=0.34, kneeB=0.5, farHaze=0.24, farHazeShare=0.62,
-            midHazeShare=0.26, mist=0.22, colorise=0.6, glowAdd=0.06, midHaze=0.18, midShare=0.8, fogBright=1.6)
+            midHazeShare=0.26, mist=0.22, colorise=0.6, glowAdd=0.06, midHaze=0.18, midShare=0.8, fogBright=1.6,
+            # M1b polish (renderer additions, defaults keep the old look): aerial perspective at warm hours, clouds
+            farCool=0.0, farWarm=1.0, midWarm=1.0, midCool=0.0, cloudSun=1.1, cloudFill=1.3, cloudHaze=0.25, fogScale=1.0)
 for k in list(LOOK):
     if k in args: LOOK[k] = float(args[k])
 src = open(os.path.join(G, 'Core/FrameDesc.swift')).read()
@@ -148,7 +150,7 @@ def build_scene(chapelWin, kitchenWin, houseWin):
     post = 120.0
     while post < 5400: add('fencePost', 'fg', round(post), -24, 1, 0.6); post += 260 + (post * 7 % 80)
     return props
-PAR = dict(sky=0, far=0.2, mid=0.5, fogA=0.9, world=1.0, fogB=1.15, fg=1.3)
+PAR = dict(sky=0.05 if LAYOUT else 0, far=0.2, mid=0.5, fogA=0.9, world=1.0, fogB=1.15, fg=1.3)
 GLASS = {(0x0E, 0x0B, 0x1E, 255), (0x1C, 0x18, 0x38, 255), (0x2A, 0x22, 0x30, 255)}
 GLASS = {g[:3] for g in GLASS}
 NAMED = dict(fireWhite=fireWhite, fireGold=fireGold, fireOrange=fireOrange, window=WIN)
@@ -175,6 +177,7 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
     light = [[(0.0, 0.0, 0.0)] * TW for _ in range(TH)]; emis = [[(0.0, 0.0, 0.0)] * TW for _ in range(TH)]
     def draw(layer, img, left, top, tint=(1, 1, 1, 1), flip=False, add=False):
         h = len(img); w = len(img[0]); L = layers[layer] if not add else None
+        occl = LAYOUT and layer in ('mid', 'world', 'fg')
         for j in range(h):
             y = top + j
             if y < 0 or y >= TH: continue
@@ -190,6 +193,7 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                     e = add[y][x]; add[y][x] = (e[0] + c[0], e[1] + c[1], e[2] + c[2])
                 else:
                     d = L[y][x]; L[y][x] = (c[0] + d[0] * (1 - a), c[1] + d[1] * (1 - a), c[2] + d[2] * (1 - a), a + d[3] * (1 - a))
+                    if occl and a >= 0.5: emis[y][x] = (0.0, 0.0, 0.0)  # glow behind a sprite drawn later is hidden
     props = [] if LAB else (layout_props() if LAYOUT else build_scene(chapelWin, kitchenWin, houseWin))
     lights = []
     ground = sprite('ground')
@@ -259,7 +263,7 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
         # king and his lantern
         kx = FOCUS; lights.append((kx + 9 - whole['world'], GROUND - 16, 40, fireGold, torchS * 0.85))
     # fog
-    fogA = (amb['fogColor'], amb['fogD'] * 0.9); fogB = (amb['fogColor'], amb['fogD'] * 0.6)
+    fogA = (amb['fogColor'], amb['fogD'] * 0.9 * LOOK['fogScale']); fogB = (amb['fogColor'], amb['fogD'] * 0.6 * LOOK['fogScale'])
     for name, (fc, fd), fy in (('fogA', fogA, -4), ('fogB', fogB, -14)):
         top = GROUND - fy - 24; first = math.floor(whole[name] / 128) - 1
         for idx in range(first, first + TW // 128 + 3):
@@ -330,6 +334,17 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
     fc = amb['fogColor']; fogLum = 0.299 * fc[0] + 0.587 * fc[1] + 0.114 * fc[2]
     FB = min(LOOK['fogBright'], max(1.0, 0.45 / max(fogLum, 0.01)))
     MH = 0.12 + (LOOK['midHaze'] - 0.12) * night
+    # aerial perspective at warm hours (M1b polish): the far plane hazes toward a cool lavender and keeps only a share
+    # of the warm light, the mid plane a larger share; w is 0 by day and at night, 1 at golden hour (warmth 0.45)
+    wv0 = min(1, max(0, amb['warmth'] / 0.45)); COOL = (0.62, 0.60, 0.86)
+    def desat(v, k):
+        lu = 0.299 * v[0] + 0.587 * v[1] + 0.114 * v[2]; cool = (lu * 0.94, lu * 0.96, lu * 1.12)
+        return [v[i] + (cool[i] - v[i]) * k for i in range(3)]
+    ambF = desat(ambF, (1 - LOOK['farWarm']) * wv0)
+    ambM = desat([v * LOOK['midShare'] for v in ambW], (1 - LOOK['midWarm']) * wv0)
+    farHC = [amb['skyBottom'][k] + (COOL[k] - amb['skyBottom'][k]) * LOOK['farCool'] * wv0 for k in range(3)]
+    midHC = [amb['skyBottom'][k] + (COOL[k] - amb['skyBottom'][k]) * LOOK['midCool'] * wv0 for k in range(3)]
+    stN = [v / max(max(amb['skyTop']), 1e-3) for v in amb['skyTop']]
     def cold(rgb, ambv):
         a = [rgb[k] * ambv[k] for k in range(3)]; lu = 0.299 * a[0] + 0.587 * a[1] + 0.114 * a[2]
         return [a[k] + (lu * NT[k] - a[k]) * kcol for k in range(3)]
@@ -340,14 +355,21 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
         v = min(1, max(0, (y + 0.5) / GROUND)) ** 1.35; q = min(1, max(0, math.floor(v * 16 + bayer(x, y)) / 16))
         c = [amb['skyTop'][k] + (amb['skyBottom'][k] - amb['skyTop'][k]) * q + skyAdd[y][x][k] for k in range(3)]
         low = ss((y - (GROUND - 70)) / 70)
+        s_ = layers['sky'][y][x]
+        if s_[3] > 0:  # clouds: sunlit tops take the warm light, shaded bellies the sky's top colour
+            a_ = s_[3]; alb = [s_[k] / a_ for k in range(3)]; lu = 0.299 * alb[0] + 0.587 * alb[1] + 0.114 * alb[2]
+            Lw = min(1, max(0, (lu - 0.6) / 0.3))
+            lit = [alb[k] * (ambW[k] * LOOK['cloudSun'] * Lw + stN[k] * lvl * LOOK['cloudFill'] * (1 - Lw)) for k in range(3)]
+            lit = [lit[k] + (amb['skyBottom'][k] - lit[k]) * LOOK['cloudHaze'] for k in range(3)]
+            c = [c[k] * (1 - a_) + lit[k] * a_ for k in range(3)]
         f = layers['far'][y][x]
         if f[3] > 0:
             hzz = min(1, max(0, farH + low * mistv)); lit = cold(f, ambF)
-            lit = [lit[k] + (amb['skyBottom'][k] * f[3] - lit[k]) * hzz for k in range(3)]; c = [c[k] * (1 - f[3]) + lit[k] for k in range(3)]
+            lit = [lit[k] + (farHC[k] * f[3] - lit[k]) * hzz for k in range(3)]; c = [c[k] * (1 - f[3]) + lit[k] for k in range(3)]
         m = layers['mid'][y][x]
         if m[3] > 0:
-            hzz = min(1, max(0, MH + midH + low * mistv * 0.5)); cm = cold(m, [v * LOOK['midShare'] for v in ambW]); lit = [cm[k] + m[k] * L[k] * LOOK['midLight'] for k in range(3)]
-            lit = [lit[k] + (amb['skyBottom'][k] * m[3] - lit[k]) * hzz for k in range(3)]; c = [c[k] * (1 - m[3]) + lit[k] for k in range(3)]
+            hzz = min(1, max(0, MH + midH + low * mistv * 0.5)); cm = cold(m, ambM); lit = [cm[k] + m[k] * L[k] * LOOK['midLight'] for k in range(3)]
+            lit = [lit[k] + (midHC[k] * m[3] - lit[k]) * hzz for k in range(3)]; c = [c[k] * (1 - m[3]) + lit[k] for k in range(3)]
         a = layers['fogA'][y][x]
         if a[3] > 0: c = [c[k] * (1 - a[3]) + a[k] * FB + L[k] * 0.6 * LOOK['fogGlow'] * a[3] for k in range(3)]
         w = layers['world'][y][x]

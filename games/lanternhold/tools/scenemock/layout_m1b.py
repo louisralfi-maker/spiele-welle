@@ -31,12 +31,13 @@ Emitters (`em`), all offsets in sprite pixels from the sprite's bottom-left, dy 
 - `fades`: torches, windows and lanterns follow the ambient ramp's torch strength; braziers, the hearth and the
   statue's bowl fire burn all night (and dimly by day).
 Lights (`li`): (kind, x, y, radius) with x and y in the instance's plane coordinates (absolute, not sprite-local).
-Kinds as in `Core/LightField`: torch 30, brazier 56, lantern 40, hearth 70, window 14 to 18, candle 12.
+Kinds as in `Core/LightField`: torch 30, brazier 56, lantern 40, hearth 70, window 8 (M1b polish: was 14 to 18;
+the glow stays at the window frame), candle 12.
 """
 
 VIEW_W = 437            # iPhone 17 Pro at s = 6 (the runner); 175 rows above the ground, 26 below
 WORLD_WIDTH = 3900      # the town and the river moved 100 px right to give the castle room (was 3800)
-PARALLAX = {"far": 0.2, "mid": 0.5, "world": 1.0, "fg": 1.3}
+PARALLAX = {"sky": 0.05, "far": 0.2, "mid": 0.5, "world": 1.0, "fg": 1.3}
 
 # --- gameplay positions (unchanged) ---
 SPAWN_X = 40
@@ -80,6 +81,19 @@ CYCLES = [
     ("far", "valley", ["valleyFarC", "valleyFarA", "valleyFarB", "valleyFarC"], 449, 55, 0, 1.0, 4),
 ]
 
+# ------------------------------------------------------------------------------------------------- sky plane
+# Cloud bands (M1b polish), parallax 0.05: sky x 0 to 710 covers every camera (the plane shifts at most 173 px).
+# Albedo is cream tops (parchment, foam) over lavender bellies (farPale, moon). The renderer lights them like this
+# (mock.py base(), cloud branch): the sunlit share Lw = clamp((luma - 0.6) / 0.3) takes ambient * cloudSun, the rest
+# the sky's top colour * cloudFill, then cloudHaze toward skyBottom; so at golden hour the tops turn gold and the
+# bellies violet, at night both go dim blue. y is the band's bottom above the ground line; tops stay below row 172.
+SKY = [
+    dict(s="cloudA", x=-40, y=122),
+    dict(s="cloudC", x=260, y=132),
+    dict(s="cloudB", x=520, y=112),
+    dict(s="cloudA", x=760, y=128, flip=True),
+]
+
 # ------------------------------------------------------------------------------------------------- far plane
 FAR = [
     # gorge set: glimpses only (the gorge wall hides almost all of it); kept for the notches
@@ -105,10 +119,12 @@ MID = [
     dict(s="gorgeWallB", x=862, y=0, region="gorge", z=0),
     # Where the gorge ends: seen above the kitchen from the back gate, falling away to the right behind the gate.
     dict(s="gorgeMouth", x=1030, y=0, region="gorge", z=3),
-    # The keep seen from the town: the same sprite on the mid plane, its foot hidden by the hills (z below them).
-    dict(s="castleKeep", x=1240, y=0, region="valley", z=-3, shade=0.92),
-    # The windmill on a hill crest of valleyMidB (the hill is 91 to 93 px high there).
-    dict(s="windmill", x=1490, y=88, region="valley", z=1),
+    # The keep seen from the town: the same sprite on the mid plane, sunk 52 px so its merlons sit just under the
+    # screen top with the banner and the upper windows above the hills in the town frame (focus 2900: screen 4 to 154;
+    # at y 0 and x 1240 it was cut at the top-left corner); foot behind the hills.
+    dict(s="castleKeep", x=1345, y=-52, region="valley", z=-3, shade=0.92),
+    # The windmill on a hill crest of valleyMidB (96 px high there), right of the keep.
+    dict(s="windmill", x=1500, y=93, region="valley", z=1),
 ]
 
 # ------------------------------------------------------------------------------------------------- world plane
@@ -129,6 +145,8 @@ def brazier(cx):
 
 
 F = CASTLE_FRONT_X
+ROCK_SHADE = 0.8    # the throat rock one value step below the castle stone, so the front separates from the cliffs
+FLANK_SHADE = 0.72  # the flanks right beside the towers, darker still (rock in the castle's shadow)
 K = 1286  # castleKeep x: centred behind the gatehouse, it fills the gap between the towers above the wall walk
 B = BACK_GATE_SPRITE_X
 
@@ -144,16 +162,21 @@ WORLD = [
     # it rises behind the courtyard wall.
     # (Mirrored on the left so its overhang leans out over the gorge; the straight-cut strip it carries on from
     # gorgeWallC lies behind the flanks on both sides.)
-    dict(s="gorgeWallHigh", x=F - 190, y=0, z=-5, flip=True),
-    dict(s="gorgeWallHigh", x=F + 278, y=0, z=-5),  # its cut left edge just behind the right flank; shows other
-                                                    # columns than the mirrored copy on the left
-    # cliffFlank's masonry is its columns 45-65; the towers' bodies start 10 px inside the front's edges
-    dict(s="cliffFlank", x=F - 53, y=0, z=-3),             # rock on the left, its masonry running under the left tower
-    dict(s="cliffFlank", x=F + 213, y=0, z=-3, flip=True),  # mirrored on the right
-    dict(s="castleKeep", x=K, y=0, z=-4,
-         em=[("mask", 29, 111, 10, 23, WIN), ("mask", 49, 116, 10, 20, WIN), ("mask", 76, 181, 8, 16, WIN),
-             ("mask", 91, 181, 8, 13, WIN)],
-         li=[("window", K + 34, 122, 16), ("window", K + 54, 126, 16)]),
+    dict(s="gorgeWallHigh", x=F - 190, y=0, z=-5, flip=True, shade=ROCK_SHADE),
+    dict(s="gorgeWallHigh", x=F + 278, y=0, z=-5, shade=ROCK_SHADE),  # its cut left edge just behind the right flank;
+                                                                     # shows other columns than the mirrored copy
+    # cliffFlank is plain rock (the left cliff of rocks-a); its straight right edge hides behind the tower bodies,
+    # which start 10 px inside the front's edges. The right one stands in FRONT of the courtyard wall (z -1), so from
+    # the gate view rock rises right of the right tower from the ground to above the screen; the wall run starts
+    # behind it.
+    dict(s="cliffFlank", x=F - 53, y=0, z=-3, shade=FLANK_SHADE),
+    dict(s="cliffFlank", x=F + 213, y=0, z=-1, flip=True, shade=FLANK_SHADE),
+    dict(s="castleKeep", x=K, y=0, z=-4,  # front elevation; only its top row of windows clears the wall walk
+         # only the lower 10 rows of each tall window glow (lamplight low in the room, not a full blob); one of the
+         # middle windows stays dark
+         em=[("mask", 69, 150, 13, 10, WIN), ("mask", 113, 150, 12, 10, WIN), ("mask", 111, 96, 13, 10, WIN),
+             ("mask", 69, 35, 13, 10, WIN), ("mask", 113, 35, 13, 10, WIN)],
+         li=[("window", K + 75, 160, 8), ("window", K + 119, 160, 8)]),
     dict(s="castleFront", x=F, y=0, z=0,
          em=[("sprite", "brazierFlame", 93, 130, FIRE, False), ("sprite", "brazierFlame", 138, 130, FIRE, False),
              ("sprite", "flame", 90, 61, GOLD, True), ("sprite", "flame", 145, 61, GOLD, True),
@@ -162,9 +185,11 @@ WORLD = [
          li=[("brazier", F + 97, 136, 56), ("brazier", F + 142, 136, 56),
              ("torch", F + 92, 64, 30), ("torch", F + 147, 64, 30)]),
     # --- inside: courtyard, great hall, chapel, kitchen ---
-    *[dict(s="castleWall", x=1460 + 40 * k, y=0, z=-2,
-           em=[("sprite", "windowGlow", 17, 58, WIN, True)] if k % 2 == 1 else [],
-           li=[("window", 1460 + 40 * k + 20, 62, 14)] if k % 2 == 1 else []) for k in range(6)],
+    # the courtyard wall runs from 1580, out of the gate view: from the gate, rock (the right flank, then the high
+    # rock from the ground) closes the frame right of the right tower; inside, the castle is built into the throat
+    *[dict(s="castleWall", x=1580 + 40 * k, y=0, z=-2,
+           em=[("mask", 17, 58, 6, 8, WIN)] if k == 1 else [],
+           li=[("window", 1580 + 40 * k + 20, 62, 8)] if k == 1 else []) for k in range(3)],
     dict(s="well", x=1600, y=0, z=1),
     dict(s="hallInterior", x=1700, y=0, z=-2),
     dict(s="throne", x=1817, y=0, z=1),
@@ -178,19 +203,19 @@ WORLD = [
          em=[("sprite", "windowGlow", dx, 32, WIN, True) for dx in (26, 79)],
          li=[("window", 2120 + dx + 3, 36, 14) for dx in (26, 79)]),
     # --- the back gate: the castle's friendly face towards the town ---
-    dict(s="castleBackGate", x=B, y=0, z=0,
-         em=[("sprite", "lanternGlass", 39, 60, GOLD, True), ("sprite", "lanternGlass", 155, 60, GOLD, True),
-             ("mask", 64, 80, 23, 19, WIN), ("mask", 113, 80, 27, 19, WIN),
-             ("mask", 10, 122, 13, 18, WIN), ("mask", 35, 122, 12, 18, WIN), ("mask", 152, 122, 11, 18, WIN),
-             ("mask", 179, 122, 9, 18, WIN)],
-         li=[("lantern", B + 41, 62, 40), ("lantern", B + 157, 62, 40),
-             ("window", B + 75, 90, 18), ("window", B + 126, 90, 18)]),
+    dict(s="castleBackGate", x=B, y=0, z=0,  # front elevation, 200x172 under a 28 px top margin
+         em=[("sprite", "lanternGlass", 51, 95, GOLD, True), ("sprite", "lanternGlass", 136, 95, GOLD, True),
+             ("mask", 28, 107, 10, 20, WIN), ("mask", 166, 107, 10, 20, WIN),
+             ("mask", 28, 72, 10, 20, WIN), ("mask", 166, 72, 10, 20, WIN)],
+         li=[("lantern", B + 53, 97, 40), ("lantern", B + 138, 97, 40),
+             ("window", B + 33, 117, 8), ("window", B + 171, 117, 8)]),
     # --- the town (moved 100 px right) ---
     *[x for n, start in enumerate((2480, 2800, 2900, 3090)) for x in (
         dict(s="house", x=start, y=0, z=0, shade=0.97, flip=n % 2 == 1,
-             em=[("sprite", "windowGlow", 9, 7, WIN, True), ("sprite", "windowGlow", 44, 7, WIN, True)],
-             li=[("window", start + (64 - 9 - 3 if n % 2 == 1 else 9 + 3), 11, 18),
-                 ("window", start + (64 - 44 - 3 if n % 2 == 1 else 44 + 3), 11, 18)]),
+             # window glass only (the four night1 panes of each half-timbered window), no soft glow sprite
+             em=[("mask", 11, 8, 5, 6, WIN), ("mask", 46, 8, 5, 6, WIN)],
+             li=[("window", start + (64 - 13 - 1 if n % 2 == 1 else 13), 11, 8),
+                 ("window", start + (64 - 48 - 1 if n % 2 == 1 else 48), 11, 8)]),
         dict(s="lanternPost", x=start + 68, y=0, z=1, em=[("sprite", "lanternGlass", 1, 18, GOLD, True)],
              li=[("lantern", start + 71, 20, 28)]))],
     dict(s="field", x=2600, y=0, z=-1), dict(s="field", x=2680, y=0, z=-1),
@@ -235,7 +260,8 @@ ACTORS = [
 
 
 def instances():
-    """Every sprite instance: dicts with s, p (plane), x, y, z, sh (shade), f (flip), em, li, anchor, region."""
+    """Every sprite instance: dicts with s, p (plane: sky, far, mid, world, fg), x, y, z, sh (shade), f (flip), em, li,
+    anchor, region."""
     out = []
 
     def add(plane, d, region=None):
@@ -249,6 +275,8 @@ def instances():
             name = names[k % len(names)]
             add(plane, dict(s=name, x=x, y=y, z=z, shade=shade), region)
             x += 192  # every tile in the cycles is 192 px wide
+    for d in SKY:
+        add("sky", d, "all")
     for d in FAR:
         add("far", d)
     for d in MID:

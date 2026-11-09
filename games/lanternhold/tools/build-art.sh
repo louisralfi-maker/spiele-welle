@@ -50,7 +50,8 @@ build() { # name: one sprite
     hallInterior)  python3 $T convert $R/s5-hall-1.png $A/hallInterior.png --size 260x90 --box 210,0,1358,356 --only $CAS,strawLight --gain 1.1 --warm 22 --outline ink ;;
     kitchen)       python3 $T convert $R/s6-town-1.png $A/kitchen.png --size 120x80 --box 864,10,1148,296 --only $TOWN --outline ink ;;
     valleyHill)    python3 $T convert $R/s6-town-1.png $A/valleyHill.png --size 150x46 --box 800,565,1450,706 --only $NAT --outline leafDark --outline-skip-bottom ;;
-    house)         python3 $T convert $R/s7-defence-1.png $A/house.png --size 64x46 --box 480,308,1080,632 --flood --only $COTTAGE --outline ink --zone ink,woodDark,tile,tileLight@0,4,63,24 --zone ink,stoneDark,stone,stoneLight,stonePale@44,0,52,12 ;;
+    house)         python3 $T convert $R/s7-defence-1.png $A/house.png --size 64x46 --box 480,308,1080,632 --flood --only $COTTAGE --outline ink --zone ink,woodDark,tile,tileLight@0,4,63,24 --zone ink,stoneDark,stone,stoneLight,stonePale@44,0,52,12 --patch $G/house-front.txt@2,29
+                   python3 $T post $A/house.png $A/house.png --remap parchment:plaster ;;  # M1b polish: clean half-timbering
     stoneWall)     python3 $T convert $R/s7-defence-1.png $A/stoneWall.png --size 36x52 --box 522,80,704,298 --flood --tol 60 --only $ST --fill clear:15,0,21,9 --fill stoneMid:1,49,34,50 --fill ink:35,10,35,51 --fill ink:0,49,0,51 --outline ink --outline-skip-bottom ;;
     ground)        python3 $T convert $R/s7-defence-1.png $A/ground.png --size 64x26 --box 560,673,745,737 --key none --min-count 1 --tile --only $GR ;;
     # --- M1b: the gorge, the castle that seals it, the open valley ---
@@ -62,7 +63,8 @@ build() { # name: one sprite
                    mkdir -p $PT
                    python3 $T convert $M/rocks-a-1.png $PT/gwh-rock.png --size 180x240 --box 16,44,540,748 --only $ROCKG,meadow --sat 1.3
                    python3 $T compose $A/gorgeWallHigh.png --size 192x240 --layer $A/gorgeWallA.png@0,50@box=0,0,40,190 --layer $PT/gwh-rock.png@12,0 ;;
-    cliffFlank)    python3 $T convert $M/rocks-a-1.png $A/cliffFlank.png --size 80x240 --box 568,48,968,748 --only $ROCKG,$STONE --sat 1.3 ;;
+    cliffFlank)    # all rock now (the masonry strip and the long highlight read as a tree trunk): the left cliff of rocks-a
+                   python3 $T convert $M/rocks-a-1.png $A/cliffFlank.png --size 80x240 --box 60,44,330,748 --only $ROCKG --sat 1.3 ;;
     gorgeMouth)    python3 $T convert $M/rocks-a-1.png $A/gorgeMouth.png --size 120x230 --box 1000,104,1520,748 --only $ROCKG,meadow,leafLight --sat 1.3 ;;
     wardenStatue)  python3 $T convert $M/statue-a-1.png $A/wardenStatue.png --size 96x200 --box 0,20,768,1536 --only $ROCKG --sat 1.3 --fill night0:37,44,59,45 --fill night0:40,43,56,43 --fill night0:43,46,55,46 ;;
     castleFront)   # towers from castlefront-b (the left one, mirrored for the right), gatehouse from castlefront-a
@@ -70,10 +72,17 @@ build() { # name: one sprite
                    python3 $T convert $M/castlefront-b-1.png $PT/cf-tower.png --size 58x236 --box 80,80,315,1072 --gain 1.1 --only $CAS,leafDark,leaf --outline ink --outline-skip-bottom
                    python3 $T convert $M/castlefront-a-1.png $PT/cf-gate.png --size 132x156 --box 295,420,735,895 --gain 0.86 --only $CAS --fill clear:0,0,29,28 --fill clear:102,0,131,28 --outline ink --outline-skip-bottom
                    python3 $T compose $A/castleFront.png --size 240x236 --layer $PT/cf-gate.png@54,80 --layer $PT/cf-tower.png@0,0 --layer $PT/cf-tower.png@182,0@flip ;;
-    castleKeep)    # the painting's shaded left face lifted with zones (albedo is evenly lit)
-                   python3 $T convert $M/keepgate-a-1.png $A/castleKeep.png --size 150x250 --box 104,28,668,748 --only $CAS --zone $STONE@0,95,76,249@1.45 --zone $STONE@20,30,72,95@1.4 --zone $STONE,roofDeep,banner@0,0,19,130@1.4 --zone $STONE,roofDeep,banner@132,0,149,130@1.2 --outline ink --outline-skip-bottom ;;
-    castleBackGate) # the see-through gateway becomes a dark passage; keyed flower boxes refilled
-                   python3 $T convert $M/keepgate-a-1.png $A/castleBackGate.png --size 200x200 --box 824,76,1456,748 --only $CAS,tile,tileLight,gold,leaf,leafDark --outline ink --outline-skip-bottom --fill-holes night1:76,138,124,199 --fill-holes tileLight:62,118,88,125 --fill-holes tileLight:117,118,141,125 ;;
+    castleKeep)    # front elevation (keepgate-b left, M1b polish): flat crenellated top like the front's towers; the painting's
+                   # shaded left third lifted with a zone (albedo is evenly lit); specks under 2 px merged
+                   mkdir -p $PT
+                   python3 $T convert $M/keepgate-b-1.png $PT/keep-raw.png --size 150x250 --box 92,20,532,724 --gain 0.72 --only $CAS --zone night1,ink,stoneDark,stoneMid,stone,stoneLight,stonePale,banner,roofDeep@0,30,52,249@1.7 --outline ink --outline-skip-bottom
+                   python3 $T post $PT/keep-raw.png $A/castleKeep.png --clusters 2 ;;
+    castleBackGate) # front elevation (keepgate-b right, M1b polish): square towers with flat crenellated tops, one roof
+                   # language with the front and the keep; wider than tall, so it fills 200x172 under a 28 px top margin;
+                   # the see-through passage between the open doors becomes night1
+                   mkdir -p $PT
+                   python3 $T convert $M/keepgate-b-1.png $PT/backgate-raw.png --size 200x200 --box 740,212,1436,728 --pad 0,28,0,0 --gain 0.72 --only $CAS --outline ink --outline-skip-bottom
+                   python3 $T post $PT/backgate-raw.png $A/castleBackGate.png --clusters 2 --fill-holes night1:80,105,120,199 ;;
     valleyFar|valleyFarA|valleyFarB|valleyFarC)
                    mkdir -p $PT
                    python3 $T convert $M/valleyfar-a-1.png $PT/valleyFar.png --size 576x90 --box 210,280,1450,560 --tile --only $FAR
@@ -81,6 +90,8 @@ build() { # name: one sprite
     valleyMid|valleyMidA|valleyMidB|valleyMidC)
                    mkdir -p $PT
                    python3 $T convert $M/valleymid-a-1.png $PT/valleyMid.png --size 576x110 --box 0,300,1536,545 --key '#EC149C' --tile --warm 12 --only $VMID
+                   # M1b polish: the river reads as water under warm light (deep blue body, one pale highlight row on top)
+                   python3 $T post $PT/valleyMid.png $PT/valleyMid.png --remap daySky:waterDeep,foam:daySky --top-edge foam:waterDeep,daySky
                    python3 $T split $PT/valleyMid.png $A/valleyMidA.png $A/valleyMidB.png $A/valleyMidC.png ;;
     windmill)      python3 $T convert $M/props-a-1.png $A/windmill.png --size 40x60 --box 844,20,1308,492 --only stoneDark,stoneMid,stone,stoneLight,woodDark,wood,woodLight,soil,leafDark,leaf,meadow,ink --outline ink --outline-skip-bottom ;;
     beaconRuin)    # the painted fire cage floated above the stump: set down into the broken top
@@ -92,6 +103,12 @@ build() { # name: one sprite
                    python3 $PROC riverbase $PT/river-base.png
                    python3 $T convert $M/props-a-1.png $PT/reeds.png --size 64x40 --box 1150,515,1516,700 --only leafDark,leaf,meadow,woodDark,wood,soilDark
                    python3 $T compose $A/riverEnd.png --size 220x64 --layer $PT/river-base.png@0,0 --layer $PT/reeds.png@156,22 --layer $PT/reeds.png@46,22@box=0,10,22,40 ;;
+    clouds|cloudA|cloudB|cloudC) # sky-plane cloud bands (M1b polish), keyed from the painting's green; the painted
+                   # black ground line under each band is cut off by the boxes
+                   CL=foam,parchment,farPale,moon
+                   python3 $T convert $M/clouds-a-1.png $A/cloudA.png --size 280x40 --box 184,68,1372,234 --key '#04BC44' --only $CL
+                   python3 $T convert $M/clouds-a-1.png $A/cloudB.png --size 240x42 --box 264,288,1288,460 --key '#04BC44' --only $CL
+                   python3 $T convert $M/clouds-a-1.png $A/cloudC.png --size 286x36 --box 160,534,1380,681 --key '#04BC44' --only $CL ;;
     fgRockA)       python3 $PROC fgrock $A/fgRockA.png --style a ;;
     fgRockB)       python3 $PROC fgrock $A/fgRockB.png --style b ;;
     fgRockC)       python3 $PROC fgrock $A/fgRockC.png --style c ;;
@@ -106,7 +123,7 @@ build() { # name: one sprite
 ALL="farMountain farPeak gorgeCliff gorgeEndCliff waterfall gatehouse castleTower castleWall backGate chapel hallInterior
 throne hearth kitchen house valleyHill well lanternPost field palisade stoneWall ballista brazier torchPost ground
 gorgeWall gorgeWallHigh cliffFlank gorgeMouth wardenStatue castleFront castleKeep castleBackGate valleyFar valleyMid windmill
-beaconRuin riverEnd fgRockA fgRockB fgRockC fgOverhangA fgOverhangB"
+beaconRuin riverEnd clouds fgRockA fgRockB fgRockC fgOverhangA fgOverhangB"
 for name in ${@:-$ALL}; do
     cool
     build "$name"

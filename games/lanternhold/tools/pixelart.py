@@ -52,6 +52,19 @@ Commands (run from anywhere; paths are plain file paths):
         Stacks finished palette sprites on a transparent canvas, later layers on top (opaque pixels only); a layer can
         be mirrored and cropped first. For hero pieces built from parts of several paintings.
 
+  pixelart.py post    <in.png> <out.png> [ops, applied in this order]
+        Touches up a finished palette sprite (M1b polish):
+          --remap a:b[,c:d][@x0,y0,x1,y1]   swap palette colours (inside a rect); repeatable
+          --clusters N[@x0,y0,x1,y1]        a 4-connected run of one colour smaller than N pixels takes its most
+                                            common opaque neighbour colour (kills speckle and lone moss dots)
+          --rim NAME@x0,y0,x1,y1@left|right[@w]  the outermost w (default 1) opaque pixels of every row in the rect,
+                                            on that side, become NAME (a clean edge light instead of speckle)
+          --fill NAME:x0,y0,x1,y1 / --fill-holes NAME:x0,y0,x1,y1   as in convert ("clear" empties a rect)
+          --top-edge NAME:c1,c2…            a pixel of these colours whose upper neighbour is none of them becomes
+                                            NAME (a highlight row along the top of water)
+          --band NAME[,NAME…]:x0,y0,x1,y1    flattens the rect: every opaque pixel takes the nearest of these
+                                            colours by value (a dithered strip becomes solid bands)
+
   pixelart.py grid    <grid.txt> <out.png>
         Builds a sprite from a text grid: a legend block "X = paletteName" lines, a line "---", then one row of
         characters per pixel row ("." is transparent).
@@ -941,6 +954,119 @@ def cmd_info(a):
         print(f"  {n:12s} {k}")
 
 
+def _rect(spec, w, h):
+    x0, y0, x1, y1 = (int(v) for v in spec.split(","))
+    return max(0, x0), max(0, y0), min(w - 1, x1), min(h - 1, y1)
+
+
+def cmd_post(a):
+    img, _ = read_png(a.input)
+    pal = Palette(a.palette, True)
+    lut = {c: i for i, c in enumerate(pal.rgb)}
+    w, h = img.w, img.h
+    idx = [[(lut[img.get(x, y)[:3]] if img.get(x, y)[3] else None) for x in range(w)] for y in range(h)]
+    for spec in a.remap or []:
+        pairs, _, rect = spec.partition("@")
+        x0, y0, x1, y1 = _rect(rect, w, h) if rect else (0, 0, w - 1, h - 1)
+        m = {pal.index(f): pal.index(t) for f, t in (pr.split(":") for pr in pairs.split(","))}
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                if idx[y][x] in m:
+                    idx[y][x] = m[idx[y][x]]
+    for spec in a.clusters or []:
+        n, _, rect = spec.partition("@")
+        n = int(n)
+        x0, y0, x1, y1 = _rect(rect, w, h) if rect else (0, 0, w - 1, h - 1)
+        for _pass in range(3):
+            seen = [[False] * w for _ in range(h)]
+            changed = 0
+            for sy in range(y0, y1 + 1):
+                for sx in range(x0, x1 + 1):
+                    v = idx[sy][sx]
+                    if v is None or seen[sy][sx]:
+                        continue
+                    comp, stack = [], [(sx, sy)]
+                    seen[sy][sx] = True
+                    while stack:
+                        cx, cy = stack.pop()
+                        comp.append((cx, cy))
+                        for nx, ny in ((cx - 1, cy), (cx + 1, cy), (cx, cy - 1), (cx, cy + 1)):
+                            if x0 <= nx <= x1 and y0 <= ny <= y1 and not seen[ny][nx] and idx[ny][nx] == v:
+                                seen[ny][nx] = True
+                                stack.append((nx, ny))
+                    if len(comp) >= n:
+                        continue
+                    counts = {}
+                    for cx, cy in comp:
+                        for nx, ny in ((cx - 1, cy), (cx + 1, cy), (cx, cy - 1), (cx, cy + 1)):
+                            if 0 <= nx < w and 0 <= ny < h:
+                                u = idx[ny][nx]
+                                if u is not None and u != v:
+                                    counts[u] = counts.get(u, 0) + 1
+                    if counts:
+                        u = max(counts, key=counts.get)
+                        for cx, cy in comp:
+                            idx[cy][cx] = u
+                        changed += 1
+            if not changed:
+                break
+    for spec in a.top_edge or []:
+        name, cols = spec.split(":")
+        members = {pal.index(c) for c in cols.split(",")}
+        v = pal.index(name)
+        new = [row[:] for row in idx]
+        for y in range(1, h):
+            for x in range(w):
+                if idx[y][x] in members and idx[y - 1][x] not in members:
+                    new[y][x] = v
+        idx = new
+    for spec in a.rim or []:
+        parts = spec.split("@")
+        v = pal.index(parts[0])
+        x0, y0, x1, y1 = _rect(parts[1], w, h)
+        side = parts[2]
+        rw = int(parts[3]) if len(parts) > 3 else 1
+        for y in range(y0, y1 + 1):
+            xs = range(x1, x0 - 1, -1) if side == "right" else range(x0, x1 + 1)
+            k = 0
+            for x in xs:
+                if idx[y][x] is not None:
+                    idx[y][x] = v
+                    k += 1
+                    if k >= rw:
+                        break
+    for spec in a.band or []:
+        names, rect = spec.split(":")
+        x0, y0, x1, y1 = _rect(rect, w, h)
+        cand = [pal.index(n) for n in names.split(",")]
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                if idx[y][x] is not None:
+                    L = pal.labs[idx[y][x]][0]
+                    idx[y][x] = min(cand, key=lambda c: abs(pal.labs[c][0] - L))
+    for spec in a.fill_holes or []:
+        name, rect = spec.split(":")
+        x0, y0, x1, y1 = _rect(rect, w, h)
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                if idx[y][x] is None:
+                    idx[y][x] = pal.index(name)
+    for spec in a.fill or []:
+        name, rect = spec.split(":")
+        x0, y0, x1, y1 = _rect(rect, w, h)
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                idx[y][x] = None if name == "clear" else pal.index(name)
+    out = Image(w, h)
+    for y in range(h):
+        for x in range(w):
+            if idx[y][x] is not None:
+                r, g, b = pal.rgb[idx[y][x]]
+                out.set(x, y, (r, g, b, 255))
+    write_png(a.output, out)
+    print(f"wrote {a.output} {w}x{h} (post)")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -1025,6 +1151,14 @@ def main():
     i.add_argument("input")
     i.add_argument("--palette", default=DEFAULT_PALETTE)
     i.set_defaults(fn=cmd_info)
+
+    po = sub.add_parser("post")
+    po.add_argument("input")
+    po.add_argument("output")
+    for opt in ("--remap", "--clusters", "--top-edge", "--rim", "--band", "--fill", "--fill-holes"):
+        po.add_argument(opt, action="append")
+    po.add_argument("--palette", default=DEFAULT_PALETTE)
+    po.set_defaults(fn=cmd_post)
 
     a = p.parse_args()
     a.fn(a)
