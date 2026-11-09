@@ -1,0 +1,59 @@
+2026-11-09 04:13:00.790076+0000 Lanternhold[8904:32257] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.AtlasTests testBundledArtReplacesThePlaceholder]' passed (0.699 seconds).
+Test Case '-[LanternholdTests.AtlasTests testCellsKeepTheirPaddingClear]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEveryPlacedSpriteIsPainted]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEveryPlaceholderDrawsSomethingAtItsSize]' passed (1.805 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEverySpriteGetsCellsOfItsSize]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.AtlasTests testPackerKeepsInsideTheWidth]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.AtlasTests testPlaceholdersAreDeterministic]' passed (0.353 seconds).
+Test Case '-[LanternholdTests.AtlasTests testStripsSplitIntoFrames]' passed (0.001 seconds).
+2026-11-09 04:13:06.172178+0000 Lanternhold[8904:32257] [Lanternhold] createImageAtIndex:2185: *** ERROR: createImageAtIndex[0] - 'n/a ' - failed to create image [-62]
+2026-11-09 04:13:06.172296+0000 Lanternhold[8904:32257] [Lanternhold] CGImageSourceCreateImageAtIndex:5179: *** ERROR: CGImageSourceCreateImageAtIndex[0] - 'n/a ' - failed to create image [-62]
+Test Case '-[LanternholdTests.AtlasTests testTinyPNGDecodesExactly]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DayClockTests testAFullDayCrossesEveryEventAndCountsTheDay]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.DayClockTests testEightSortedKeyframesThatTheRampHits]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DayClockTests testFrameStepsMatchOneBigStep]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.DayClockTests testNightIsDarkerThanDay]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.DayClockTests testPauseAndFreezeStopTheHourButNotElapsedTime]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DayClockTests testPhaseProgress]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DayClockTests testPhasesFollowTheDesignTable]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.DayClockTests testRampIsContinuousBetweenConsecutiveFrames]' passed (0.290 seconds).
+Test Case '-[LanternholdTests.DayClockTests testTheStartingEventDoesNotFireAgain]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DayClockTests testTimeOfDayMapsToHours]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.DayClockTests testTwelveSecondsPerHourAndAHundredFiftySixSecondDay]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DayClockTests testWarmFireAgainstColdAmbient]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testCastleHallAndTownAtNight]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testCountsMatchTheLists]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testCreaturesShowTheirBodiesByDay]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testDarknessBankEdgeFollowsTheClock]' passed (0.163 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testEffectLevels]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testFrameGeometry]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testFrontAtNightHasFireCreaturesEyesAndArchers]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testGlassMasksSitInsideTheirSprite]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testGroundTilesJoinAndVary]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testKingWalkCycleRunsForwardInBothDirections]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testMidPlaneLightsMoveWithTheirPlane]' passed (0.019 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testNightStaysInsideTheBudgetEverywhere]' passed (0.197 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testNoonHasNoTorchlightWindowsOrStars]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testOccludersHideGlowBehindLaterSprites]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testPlaneOffsetsMatchTheCamera]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testRegionsSwitchAtTheBorders]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testSameInputsGiveEqualFrames]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testSceneMatchesTheLayout]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testSnappedActorsLandOnWholeGamePixels]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testSnuffingABrazierTakesItsLightAway]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testSpriteRectsSitOnWholeTargetPixels]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testTheKeepShowsFromTheGorge]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testTheKeepsValleyViewFadesInAtTheBackGate]' passed (0.197 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testTopAnchorHoldsOn154And181Rows]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testWorldIsAsWideAsTheLayout]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.RendererTests testActorsAreLitAtDevicePixels]' passed (0.157 seconds).
+Test Case '-[LanternholdTests.RendererTests testBackdropLightsLightOnlyTheMidPlane]' passed (0.285 seconds).
+Test Case '-[LanternholdTests.RendererTests testEveryPipelineBuilds]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.RendererTests testFullEffectsAndEveryDebugViewRender]' passed (0.335 seconds).
+Test Case '-[LanternholdTests.RendererTests testLightStylesQuantizeTheFalloff]' passed (0.102 seconds).
+Test Case '-[LanternholdTests.RendererTests testNightBrazierIsWarmNearAndColdFar]' passed (0.055 seconds).
+Test Case '-[LanternholdTests.RendererTests testStructStridesMatchTheShaders]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.RendererTests testWindowGlassGlowsAndOccludersHideIt]' passed (0.114 seconds).
+exit=0
+screenshots: 9
