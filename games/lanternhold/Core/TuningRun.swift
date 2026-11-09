@@ -213,15 +213,25 @@ enum TuningRun {
         return (value < 0 ? "-" : "") + String(scaled / 10) + "." + String(scaled % 10)
     }
 
+    /// One soldier's fall in a traced night: the second after nightfall and a line about him.
+    struct TracedFall: Sendable {
+        var second: Double
+        var text: String
+    }
+
     /// Plays one night like `Sim.runToDawn` (the same steps, the bot before every step) and writes down every soldier
     /// who falls: the second after nightfall, his kind, what he was doing and where, and the creatures within 24 px
-    /// one step before (`SimTests` and `tools/simtune` compare the step sizes with it).
-    static func tracedNight(_ start: GameState, bot: Autoplay, balance: Balance,
-                            nightStep: Double) -> (state: GameState, falls: [String]) {
+    /// one step before (`SimTests` and `tools/simtune` compare the step sizes with it). With `snapshots`, also one line
+    /// per whole second in that range: the gatehouse, the soldiers on the ground and the creatures in the castle.
+    static func tracedNight(_ start: GameState, bot: Autoplay, balance: Balance, nightStep: Double,
+                            snapshots: ClosedRange<Double>? = nil)
+        -> (state: GameState, falls: [TracedFall], snapshots: [String]) {
         var s = start
         var player = bot
         var events: [SimEvent] = []
-        var falls: [String] = []
+        var falls: [TracedFall] = []
+        var shots: [String] = []
+        var nextShot = snapshots?.lowerBound ?? .infinity
         let startDay = s.day
         var steps = 0
         while !s.defeated && s.day == startDay && steps < 5_000_000 {
@@ -242,12 +252,39 @@ enum TuningRun {
                 for c in before.creatures where abs(c.x - soldier.x) <= 24 {
                     near.append("\(c.kind.rawValue)@\(Int(c.x.rounded())) \(c.action.rawValue)")
                 }
-                falls.append("\(tenths(s.nightTime)) s \(soldier.kind.rawValue) \(soldier.state.rawValue)>"
-                             + "\(soldier.goal.rawValue) x \(Int(soldier.x.rounded()))>\(Int(soldier.targetX.rounded()))"
-                             + " hp \(tenths(soldier.hp)) near [\(near.joined(separator: ", "))]")
+                let text = "\(tenths(s.nightTime)) s \(soldier.kind.rawValue) \(soldier.state.rawValue)>"
+                    + "\(soldier.goal.rawValue) x \(Int(soldier.x.rounded()))>\(Int(soldier.targetX.rounded()))"
+                    + " hp \(tenths(soldier.hp)) near [\(near.joined(separator: ", "))]"
+                falls.append(TracedFall(second: s.nightTime, text: text))
+            }
+            if let range = snapshots, s.nightTime >= nextShot, nextShot <= range.upperBound {
+                nextShot += 1
+                shots.append(snapshot(s))
             }
         }
-        return (s, falls)
+        return (s, falls, shots)
+    }
+
+    /// One line about the castle: the gatehouse's HP, the soldiers on the ground, the creatures from x 1200 to the
+    /// hearth (kind, x, L when lit, its action's first letter) and the Lightless King.
+    static func snapshot(_ s: GameState) -> String {
+        var line = "  t \(tenths(s.nightTime)): gate \(Int(s.plots[Realm.lines[0].wall].hp.rounded()))"
+        var ground: [String] = []
+        for soldier in s.soldiers where soldier.state != .posted {
+            ground.append("\(soldier.kind == .archer ? "a" : "g")\(Int(soldier.x.rounded())):\(Int(soldier.hp.rounded()))"
+                          + ":\(soldier.state.rawValue.prefix(3))")
+        }
+        line += " | ground [\(ground.joined(separator: " "))]"
+        var crowd: [String] = []
+        for c in s.creatures where c.x >= 1200 && c.x <= Realm.hearthX + 10 {
+            crowd.append("\(c.kind.rawValue.prefix(4))\(Int(c.x.rounded()))\(c.isLit ? "L" : "")"
+                         + "\(c.action.rawValue.prefix(1))")
+        }
+        line += " | castle \(crowd.count) [\(crowd.joined(separator: " "))]"
+        if let king = s.creatures.first(where: { $0.kind == .lightlessKing }) {
+            line += " | King \(Int(king.x.rounded()))"
+        }
+        return line
     }
 
     /// Night 20 of one seed at the app's 1/60 s step and at the headless 0.1 s step, with the beacon and without it
@@ -273,7 +310,7 @@ enum TuningRun {
                     line += " (kill after \(tenths(slain - left)) s)"
                 }
                 lines.append(line)
-                for fall in run.falls { lines.append("    " + fall) }
+                for fall in run.falls { lines.append("    " + fall.text) }
             }
         }
         return lines

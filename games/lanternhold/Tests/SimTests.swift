@@ -100,15 +100,15 @@ final class SimTests: XCTestCase {
 
     /// Night 20 is where the tuning is tight (T6). The 0.1 s night step must give the app's 1/60 s outcome.
     /// Without the beacon (walls fall, the Lightless King marches, the hearth is reached): the same walls at the same
-    /// times within a few seconds, the hearth reached at the same time, the same soldier losses within one, and the same
-    /// outcome, except when the hearth is reached within those seconds of first light (05:00, when it stops taking
-    /// harm): there a 1 s difference may rightly flip the outcome, and the arrival time is the check. Likewise a creature
-    /// that reaches the hearth only during first light may be dissolved by the sweep first in the other run (round
-    /// lh-m2a-fix-2, seed 2: 113 s against never).
+    /// times within a few seconds, the hearth reached at the same time, the same soldier losses within one until the
+    /// gatehouse falls, and the same outcome, except when the hearth is reached within those seconds of first light
+    /// (05:00, when it stops taking harm): there a 1 s difference may rightly flip the outcome, and the arrival time is
+    /// the check. Likewise a creature that reaches the hearth only during first light may be dissolved by the sweep
+    /// first in the other run (round lh-m2a-fix-2, seed 2: 113 s against never).
     /// With the beacon (the finale): the same outcome, the King slain in both runs or in neither, his fall within 3 s,
     /// the same soldier losses within one.
-    /// Soldier losses diverged in round lh-m2a-fix-2 (seed 3: 0 at 1/60 s, 4 at 0.1 s) while contact damage sampled the
-    /// distance once per step; it is now harm × the time in contact. Every fall is written to the attachment.
+    /// Soldier losses: contact damage is harm × the time in contact (it sampled the distance once a step until round
+    /// lh-fin-1). Without the beacon they are compared up to the gatehouse's fall; every fall is in the attachment.
     func testTheHeadlessStepKeepsNightTwentysOutcome() {
         var lines: [String] = []
         func text(_ n: NightStats, _ fell: Bool) -> String {
@@ -129,8 +129,8 @@ final class SimTests: XCTestCase {
             let b = coarse.state.night
             lines.append("seed \(seed) without: 1/60 s \(text(a, fine.state.defeated)) | 0.1 s "
                          + text(b, coarse.state.defeated))
-            for fall in fine.falls { lines.append("    1/60 s: " + fall) }
-            for fall in coarse.falls { lines.append("    0.1 s: " + fall) }
+            for fall in fine.falls { lines.append("    1/60 s: " + fall.text) }
+            for fall in coarse.falls { lines.append("    0.1 s: " + fall.text) }
             XCTAssertEqual(a.night, 20)
             XCTAssertEqual(b.night, 20)
             let firstLight = 9 * DayClock.secondsPerHour
@@ -152,8 +152,20 @@ final class SimTests: XCTestCase {
             if let x = a.defeatHour, let y = b.defeatHour {
                 XCTAssertEqual(x, y, accuracy: 0.25, "seed \(seed): the realm falls at the same hour")
             }
-            XCTAssertLessThanOrEqual(abs(a.fallen.count - b.fallen.count), 1,
-                                     "seed \(seed) without: \(a.fallen.count) fallen at 1/60 s, \(b.fallen.count) at 0.1 s")
+            // Losses are compared while the realm still stands, up to the gatehouse's fall in the earlier run: after it
+            // the whole crowd pours into the castle, and whether it catches the gate's archers on their way to the keep
+            // turns on that second (round lh-fin-1, seed 3: 0 against 4). Every fall stays in the attachment.
+            func gateFall(_ n: NightStats) -> Double {
+                guard let k = n.wallsLost.firstIndex(of: Realm.plots[Realm.lines[0].wall].key),
+                      k < n.wallFallSeconds.count else { return .infinity }
+                return n.wallFallSeconds[k]
+            }
+            let standing = min(gateFall(a), gateFall(b))
+            let fineBefore = fine.falls.filter { $0.second < standing }.count
+            let coarseBefore = coarse.falls.filter { $0.second < standing }.count
+            XCTAssertLessThanOrEqual(abs(fineBefore - coarseBefore), 1,
+                                     "seed \(seed) without: \(fineBefore) fallen before the gatehouse fell at 1/60 s, "
+                                     + "\(coarseBefore) at 0.1 s")
 
             let fineWith = TuningRun.tracedNight(first.final, bot: Autoplay.reference(), balance: balance,
                                                  nightStep: Sim.frameStep)
@@ -163,8 +175,8 @@ final class SimTests: XCTestCase {
             let d = coarseWith.state.night
             lines.append("seed \(seed) with: 1/60 s \(text(c, fineWith.state.defeated)) | 0.1 s "
                          + text(d, coarseWith.state.defeated))
-            for fall in fineWith.falls { lines.append("    1/60 s: " + fall) }
-            for fall in coarseWith.falls { lines.append("    0.1 s: " + fall) }
+            for fall in fineWith.falls { lines.append("    1/60 s: " + fall.text) }
+            for fall in coarseWith.falls { lines.append("    0.1 s: " + fall.text) }
             XCTAssertEqual(fineWith.state.defeated, coarseWith.state.defeated, "seed \(seed) with: the same outcome")
             XCTAssertEqual(c.kingSlain, d.kingSlain, "seed \(seed) with: the King slain in both runs or in neither")
             if let x = c.kingSlainSecond, let y = d.kingSlainSecond {

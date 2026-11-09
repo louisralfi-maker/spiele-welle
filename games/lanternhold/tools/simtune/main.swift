@@ -27,24 +27,33 @@ enum SimTune {
             b.setItem(.beaconTower, price: prices[1])
             b.setItem(.greatBeacon, price: prices[2])
         }
-        // The finale (round lh-fin-1): the Lightless King's HP inside the beacon's light, whether archers and
-        // ballistas aim at him first, the beacon's radius, and bosses striking soldiers in passing.
+        // Round lh-fin-2, margins around the standard chosen from round lh-fin-1's sweep (the King leaves 10 s after
+        // nightfall, 500 HP, beacon radius 760, endless growth 0.4).
         func kingHP(_ b: inout Balance, _ hp: Double) { b.creatures[CreatureKind.lightlessKing.index].hp = hp }
-        for hp in [300.0, 400, 650, 800, 1000, 1400] {
+        for second in [8.0, 9, 11, 12] {
+            add("kSec\(Int(second))") { $0.kingSecond = second }
+        }
+        for jitter in [6.0, 10] {
+            add("kJit\(Int(jitter))") { $0.kingJitter = jitter }
+        }
+        for hp in [450.0, 550, 600] {
             add("hp\(Int(hp))") { kingHP(&$0, hp) }
         }
-        add("noAim") { $0.aimAtTheKing = false }
-        add("noAim300") {
-            $0.aimAtTheKing = false
-            kingHP(&$0, 300)
+        for quad in [0.35, 0.45, 0.5] {
+            add("q\(quad)") { $0.endlessQuadratic = quad }
         }
-        for radius in [700.0, 840] {
+        for radius in [720.0, 800] {
             add("r\(Int(radius))") { $0.beaconRadius = radius }
         }
-        add("noBossPass") { $0.bossesStrikeInPassing = false }
-        add("kSec10") { $0.kingSecond = 10 }
-        add("kSec18") { $0.kingSecond = 18 }
+        add("harm0.9") { $0.creatureHarmScale = 0.9 }
         add("harm1.1") { $0.creatureHarmScale = 1.1 }
+        add("noAim") { $0.aimAtTheKing = false }
+        add("kSec12q45") {
+            $0.kingSecond = 12
+            $0.endlessQuadratic = 0.45
+        }
+        add("bcn120") { beacon(&$0, [120, 220, 360]) }
+        add("kHarm120") { king(&$0, speed: 24, harm: 120) }
         return list
     }
 
@@ -87,7 +96,7 @@ enum SimTune {
             }
         }
         // Night 20 at 1/60 s against 0.1 s, with every soldier's fall (the contact-damage check).
-        for variant in list where variant.name == "standard" || variant.name == "noBossPass" {
+        for variant in list where variant.name == "standard" {
             say("steps, \(variant.name):")
             for seed: UInt64 in 1...10 {
                 for line in TuningRun.stepComparison(seed: seed, balance: variant.balance)
@@ -96,6 +105,19 @@ enum SimTune {
                 }
             }
             say("")
+        }
+        // Seed 3 without the beacon, second by second from the gatehouse's fall: where the losses after it come from.
+        let first = TuningRun.play(GameState.newRealm(seed: 3), bot: Autoplay.reference(), balance: .standard,
+                                   nights: 19)
+        if first.fellOnNight == nil {
+            for step in [Sim.frameStep, Sim.nightStep] {
+                let run = TuningRun.tracedNight(TuningRun.withoutBeacon(first.final),
+                                                bot: Autoplay.reference(buildsBeacon: false), balance: .standard,
+                                                nightStep: step, snapshots: 86...106)
+                say("seed 3 without, \(step == Sim.frameStep ? "1/60" : "0.1") s: " + TuningRun.timeline(run.state.night))
+                for line in run.snapshots { say(line) }
+                for fall in run.falls { say("    " + fall.text) }
+            }
         }
         say("simtune: done")
     }

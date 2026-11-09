@@ -242,9 +242,9 @@ struct Balance: Sendable, Equatable {
     var waveSpread = 10.0
     var spawnInterval = 0.35
     var bossSecond = 20.0
-    /// The Lightless King leaves the Gloom this many seconds after nightfall (14 s is 21:10; ± `kingJitter`) and
+    /// The Lightless King leaves the Gloom this many seconds after nightfall (10 s is 20:50; ± `kingJitter`) and
     /// marches on the hearth.
-    var kingSecond = 14.0
+    var kingSecond = 10.0
     /// The Lightless King's start varies by up to this many seconds (seeded).
     var kingJitter = 8.0
     /// Bosses drain the hearth by their harm per second (other creatures by `hearthDrain`).
