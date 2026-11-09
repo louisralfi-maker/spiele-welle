@@ -309,7 +309,7 @@ final class BattleTests: XCTestCase {
         XCTAssertEqual(s.hearth, balance.hearthStrength, "the dawn has won")
         XCTAssertFalse(s.defeated)
         XCTAssertFalse(events.contains(.hearthHit))
-        XCTAssertNil(s.night.hearthFirstHitSecond)
+        XCTAssertNotNil(s.night.hearthFirstHitSecond, "they reached it, harmlessly")
 
         var before = night(day: 20)
         before.hour = 4.9

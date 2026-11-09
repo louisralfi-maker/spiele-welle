@@ -27,38 +27,15 @@ enum SimTune {
             b.setItem(.beaconTower, price: prices[1])
             b.setItem(.greatBeacon, price: prices[2])
         }
-        // M2a fixes (round lh-m2a-fix-1): the hearth takes no harm from first light, so night 20 without the beacon
-        // must fall before 05:00; sweep the Lightless King's start, jitter and speed, an earlier beacon, the beacon's
-        // price (builders now walk home) and endless growth.
-        for second in [12.0, 14, 16, 18, 20] {
+        // Margins around the standard chosen in round lh-m2a-fix-1 (King 14 s after nightfall, beacon 110 / 200 / 330).
+        for second in [13.0, 15] {
             add("kSec\(Int(second))") { $0.kingSecond = second }
         }
-        for second in [14.0, 16] {
-            add("kSec\(Int(second))j4") { b in
-                b.kingSecond = second
-                b.kingJitter = 4
-            }
+        for jitter in [6.0, 10] {
+            add("kJit\(Int(jitter))") { $0.kingJitter = jitter }
         }
-        add("kV28") { king(&$0, speed: 28, harm: 150) }
-        add("kSec18v28") { b in
-            b.kingSecond = 18
-            king(&b, speed: 28, harm: 150)
-        }
-        add("light4.0") { $0.beaconLightHour = 4.0 }
-        add("light4kSec18") { b in
-            b.beaconLightHour = 4.0
-            b.kingSecond = 18
-        }
-        add("bcn110") { beacon(&$0, [110, 200, 330]) }
-        add("bcn110kS16") { b in
-            beacon(&b, [110, 200, 330])
-            b.kingSecond = 16
-        }
-        add("bcn110kS14") { b in
-            beacon(&b, [110, 200, 330])
-            b.kingSecond = 14
-        }
-        for quad in [0.35, 0.5] {
+        add("bcn120") { beacon(&$0, [120, 220, 360]) }
+        for quad in [0.35, 0.45] {
             add("q\(quad)") { $0.endlessQuadratic = quad }
         }
         add("harm1.1") { $0.creatureHarmScale = 1.1 }

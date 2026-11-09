@@ -567,6 +567,7 @@ enum Battle {
         var wallDamage: [Double] = [0, 0, 0]
         var guardDamage = 0.0
         var hearthDrain = 0.0
+        var reachedHearth = false
         var frontContact = -1
         var frontContactX = -Double.infinity
         let guardX = s.guardsHolding ? s.guardPostX : Double.infinity
@@ -633,6 +634,7 @@ enum Battle {
                 case .hearth:
                     c.action = .atHearth
                     c.target = -1
+                    reachedHearth = true
                     if !firstLight {
                         var drain = balance.hearthDrain
                         if c.kind.isBoss && balance.bossesDrainByHarm { drain = max(drain, stats.harm * harmScale) }
@@ -685,8 +687,8 @@ enum Battle {
             }
         }
         if guardDamage > 0 { hurtGuards(&s, damage: guardDamage, balance: balance) }
+        if reachedHearth && s.night.hearthFirstHitSecond == nil { s.night.hearthFirstHitSecond = s.nightTime }
         if hearthDrain > 0 {
-            if s.night.hearthFirstHitSecond == nil { s.night.hearthFirstHitSecond = s.nightTime }
             if s.hearth > 0 && s.simTime - s.lastHearthEvent >= 1 {
                 events.append(.hearthHit)
                 s.lastHearthEvent = s.simTime

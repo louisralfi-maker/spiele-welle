@@ -114,9 +114,9 @@ struct Balance: Sendable, Equatable {
         ItemStats(.ballista, price: 70, time: 18),
         ItemStats(.catapult, price: 110, time: 26),
         ItemStats(.stakePit, price: 15, time: 6),
-        ItemStats(.beaconBase, price: 120, time: 30),
-        ItemStats(.beaconTower, price: 220, time: 40),
-        ItemStats(.greatBeacon, price: 360, time: 60),
+        ItemStats(.beaconBase, price: 110, time: 30),
+        ItemStats(.beaconTower, price: 200, time: 40),
+        ItemStats(.greatBeacon, price: 330, time: 60),
         ItemStats(.smithy, price: 60, time: 20),
         ItemStats(.masterSmithy, price: 150, time: 20),
         ItemStats(.lodge, price: 60, time: 20),
@@ -242,8 +242,9 @@ struct Balance: Sendable, Equatable {
     var waveSpread = 10.0
     var spawnInterval = 0.35
     var bossSecond = 20.0
-    /// The Lightless King leaves the Gloom this many seconds after nightfall (± 8 s) and marches on the hearth.
-    var kingSecond = 22.0
+    /// The Lightless King leaves the Gloom this many seconds after nightfall (14 s is 21:10; ± `kingJitter`) and
+    /// marches on the hearth.
+    var kingSecond = 14.0
     /// The Lightless King's start varies by up to this many seconds (seeded).
     var kingJitter = 8.0
     /// Bosses drain the hearth by their harm per second (other creatures by `hearthDrain`).

@@ -244,7 +244,7 @@ enum TuningRun {
                         falls.append(key + "@" + String(Int(night.wallFallSeconds[index].rounded())))
                     }
                     line += " walls " + falls.joined(separator: ",")
-                    if let hit = night.hearthFirstHitSecond { line += " hearth hit @\(Int(hit.rounded()))" }
+                    if let hit = night.hearthFirstHitSecond { line += " hearth reached @\(Int(hit.rounded()))" }
                     line += " | gate tier \(first.final.plots[Realm.lines[0].wall].item?.tier ?? 0)"
                     line += " l2 \(first.final.plots[Realm.lines[1].wall].item?.rawValue ?? "-")"
                     line += " l3 \(first.final.plots[Realm.lines[2].wall].item?.rawValue ?? "-")"
