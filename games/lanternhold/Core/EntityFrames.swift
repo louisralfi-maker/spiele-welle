@@ -85,9 +85,15 @@ enum EntityFrames {
     static let propIDBase = 1_000_000
     /// The castle front's gateway (SPRITES.md: 1337 ... 1383), where the gate overlays sit.
     static let gatewayX = 1337.0
-    /// Line 1's archers spread along the painted wall walk; its engine stands on the walk by the right tower.
-    static let lineOneWalk: ClosedRange<Double> = 1306...1412
-    static let lineOneWalkWithEngine: ClosedRange<Double> = 1306...1384
+    /// Line 1's archer posts on the painted wall walk (y 124), filled in order (M2b review): first the middle of the
+    /// walk's three stretches between the towers and the two wall-walk brazier niches (world 1324 ... 1350 and
+    /// 1369 ... 1396, their flames at 1333 and 1378), then a second and a third archer in each stretch, so no archer
+    /// ever stands in a fire. With the line-1 engine on the walk by the right tower its stretch is left out (the last
+    /// two posts of the great gate then stand at the engine).
+    static let lineOnePosts: [Double] = [1310, 1361, 1408, 1319, 1352, 1399, 1301, 1368]
+    static let lineOnePostsWithEngine: [Double] = [1310, 1361, 1319, 1352, 1301, 1368, 1398, 1410]
+    /// The castle front's two wall-walk brazier niches (world x), where no line-1 archer stands.
+    static let lineOneNiches: [ClosedRange<Double>] = [1324...1350, 1369...1396]
     static let lineOneEngineX = 1404.0
     static let lineOneTowerPosts: [Double] = [1297, 1416, 1291, 1421]
     /// The courtyard's buildings, left to right after the castle front: barracks, smithy, the well (scene), lodge.
@@ -98,6 +104,14 @@ enum EntityFrames {
     static let beaconLeft = Realm.beaconX - 32
     /// An unlit creature's body at full night (× its albedo): only its glow strip reads.
     static let unlitValue: Float = 0.2
+    /// Creatures reflect at most this much point light (the world 1.6, `kLitCap`; M2b review: their pale ash crusts
+    /// blew out to cream in the beacon's and the braziers' light), and an unlit creature's moonlight rim is this
+    /// strong at full night (the king's rim is 0.5: on a body at 0.2 it vanished into the ground).
+    static let creatureLightCap: Float = 1.2
+    static let unlitRim: Float = 0.9
+    /// The king's lantern glass from his anchor (ART-actors.md "Eye and lantern positions"), where the picture's
+    /// lantern light sits.
+    static let kingGlass = (dx: 5.5, dy: 22.5)
     /// Creatures this close to the gate (or inside it) keep it closed by day.
     static let gateNear = 260.0
     /// At most this many effect particles per frame (the frame budget).
@@ -134,6 +148,12 @@ enum EntityFrames {
         let strength = max(0, min(1, s.hearth / max(1, balance.hearthStrength)))
         for var light in battleLights {
             if light.kind == .hearth { light.intensity *= 0.35 + 0.65 * strength }
+            if light.kind == .lantern {
+                // The picture's lantern pool sits on the painted glass (ART-actors.md); the battle's light stays where
+                // the simulation holds it, a few pixels ahead (its reach on the ground is the same within 3 px).
+                light.x = s.king.x + kingGlass.dx * Double(s.king.facing)
+                light.y = kingGlass.dy
+            }
             lights.append((source: light, plane: .world))
         }
         layer.lights = lights
@@ -202,14 +222,6 @@ enum EntityFrames {
 
     // MARK: - Line layout
 
-    /// `count` positions spread evenly over `range`.
-    static func spread(_ count: Int, over range: ClosedRange<Double>) -> [Double] {
-        if count <= 0 { return [] }
-        if count == 1 { return [(range.lowerBound + range.upperBound) / 2] }
-        let span = range.upperBound - range.lowerBound
-        return (0..<count).map { range.lowerBound + span * Double($0) / Double(count - 1) }
-    }
-
     /// `count` offsets across `width`: the preferred ones (the art's anchors) when the count matches.
     static func offsets(_ preferred: [Double], count: Int, width: Double) -> [Double] {
         if count <= 0 { return [] }
@@ -230,12 +242,12 @@ enum EntityFrames {
         let towerCount = towerItem.map { Build.posts($0, balance: balance) } ?? 0
         if index == 0 {
             let gate = wall.item ?? .gate
-            let walk = engineSprite == nil ? lineOneWalk : lineOneWalkWithEngine
+            let posts = engineSprite == nil ? lineOnePosts : lineOnePostsWithEngine
             let walkY = WorldLayout.wallWalkY
             return LineLayout(line: 1, wallLeft: Realm.wallX[0], wallRight: Realm.gateBackX, towerSprite: nil,
                               towerCentre: Realm.plots[slots.tower].x, engineSprite: engineSprite,
                               engineCentre: lineOneEngineX, engineY: walkY, wallPostY: walkY,
-                              wallPosts: spread(Build.posts(gate, balance: balance), over: walk), towerPostY: walkY,
+                              wallPosts: Array(posts.prefix(Build.posts(gate, balance: balance))), towerPostY: walkY,
                               towerPosts: Array(lineOneTowerPosts.prefix(towerCount)))
         }
         let wallItem = wall.item ?? wall.job?.target
@@ -248,14 +260,18 @@ enum EntityFrames {
         let behind = towerSprite == nil ? right : towerCentre + towerWidth / 2
         let engineWidth = Double((engineSprite ?? .ballista).size.width)
         let engineCentre = max(Realm.plots[slots.engine].x, behind + engineWidth / 2 + 2)
-        var wallPostY = 31.0
+        // Archers stand on each wall's walk (M2b review: on the sprites' top rows they stood on the merlons and on the
+        // stake points): the stone wall's crenel floor is row 10 (dy 42), the bastion's row 7 (dy 57); on a palisade
+        // they stand on the upper beam (dy 25), the stake points behind them. Actors draw after props, so the merlons
+        // stand behind their legs, as on the gatehouse.
+        var wallPostY = 25.0
         var wallOffsets: [Double] = [5, 15]
         switch wallItem {
         case .stoneWall?:
-            wallPostY = 52
-            wallOffsets = [6, 18, 30]
+            wallPostY = 42
+            wallOffsets = [5, 18, 31]
         case .bastion?:
-            wallPostY = 64
+            wallPostY = 57
             wallOffsets = [6, 16, 27, 38]
         default:
             break
@@ -332,8 +348,9 @@ enum EntityFrames {
             engine(s, plot: slots.engine, layout: layout, balance: balance, props: &props)
             trap(s, plot: slots.trap, props: &props)
         }
-        // The torches burning on every standing wall, where the battle's torch lights are.
-        for light in battleLights where light.kind == .torch {
+        // The torches burning on every standing wall, where the battle's torch lights are. Line 1's burn on the castle
+        // front's wall walk among its archers, beside its painted brackets and braziers: no post of their own there.
+        for light in battleLights where light.kind == .torch && light.x < Realm.wallX[0] {
             props.add(.torchPost, x: light.x - 2, y: light.y - 15, z: 2,
                       emissive: [fire(.flame, dx: 0, dy: 12, seed: light.flickerSeed, color: GamePalette.fireGold,
                                       fades: true)])
@@ -470,7 +487,12 @@ enum EntityFrames {
             // The great beacon's slits, and the bowl's dark mouth glowing as an ember line (ART-buildings.md).
             let masks = sprite == .greatBeacon
                 ? [glass(23, 55, 2, 9), glass(38, 33, 2, 8), glass(9, 125, 46, 1)] : []
-            props.add(sprite, x: beaconLeft, z: -1, masks: masks)
+            // While it burns, a warm scene-only light at the bowl (M2b review): the parapet, the banners and the bowl's
+            // rim catch the blaze from above, so the tower reads crowned by fire, not floodlit by its own pool.
+            let blaze = sprite == .greatBeacon && s.beaconLit
+                ? [LightSource(kind: .brazier, x: Realm.beaconX, y: 140, radius: 90, intensity: 0.9,
+                               flickerSeed: 0x4245_4143)] : []
+            props.add(sprite, x: beaconLeft, z: -1, masks: masks, lights: blaze)
         }
         if plot.job != nil {
             scaffold(&props, centre: Realm.beaconX, width: 64)
@@ -590,11 +612,13 @@ enum EntityFrames {
         let width = Double(SpriteID.gloomBubble.size.width)
         for c in s.creatures where c.hp > 0 {
             switch c.kind {
+            // Behind the walls, braziers and scaffolds (z 0, M2b review: at z 5 it veiled them like a smudge of dirt);
+            // a cold void, its soft edge from the sprite's own alpha.
             case .lightlessKing where !c.isLit:
-                props.add(.gloomBubble, x: (c.x - width).rounded(.down), y: -4, z: 5, flipped: true, alpha: 0.9)
-                props.add(.gloomBubble, x: c.x.rounded(.down), y: -4, z: 5, alpha: 0.9)
+                props.add(.gloomBubble, x: (c.x - width).rounded(.down), y: -4, z: 0, flipped: true, alpha: 0.9)
+                props.add(.gloomBubble, x: c.x.rounded(.down), y: -4, z: 0, alpha: 0.9)
             case .gloomweaver:
-                props.add(.gloomBubble, x: (c.x - width / 2).rounded(.down), y: -6, z: 5, alpha: 0.72)
+                props.add(.gloomBubble, x: (c.x - width / 2).rounded(.down), y: -6, z: 0, alpha: 0.72)
             default:
                 break
             }
@@ -662,7 +686,7 @@ enum EntityFrames {
     private static func trail(_ path: DrawnPath, color: SIMD4<Float>) -> EntityGlow {
         let width = Double(SpriteID.streak.size.width)
         let x = path.flipped ? path.x + 3 : path.x - 3 - width
-        return EntityGlow(.streak, x: x, y: path.y - 2, color: color, frame: path.frame, flipped: path.flipped)
+        return EntityGlow(.streak, x: x, y: path.y - 3, color: color, frame: path.frame, flipped: path.flipped)
     }
 
     // MARK: - Projectile paths
@@ -698,15 +722,28 @@ enum EntityFrames {
         var flipped: Bool
     }
 
-    /// The simulation's arc (`Projectile.position`), started from where the shooter is drawn: the launch offset
-    /// fades out over the flight, so every projectile still lands exactly where the simulation lands it.
+    /// How much higher than the simulation's arc a projectile is drawn at the top of its flight (M2b review: the
+    /// simulation's 10 px peak read as a straight line; arrows now peak at about 30 px). Picture only: the extra arc
+    /// is 0 at both ends, so every projectile still leaves its shooter and lands where the simulation lands it.
+    static func extraArc(_ kind: ProjectileKind) -> Double {
+        switch kind {
+        case .arrow, .fireArrow: return 20
+        case .bolt: return 4
+        case .firepot: return 0
+        }
+    }
+
+    /// The simulation's arc (`Projectile.position`) raised by `extraArc`, started from where the shooter is drawn:
+    /// the launch offset fades out over the flight, so every projectile still lands exactly where the simulation
+    /// lands it.
     static func drawnPath(_ p: Projectile, origins: [OriginKey: (dx: Double, dy: Double)]) -> DrawnPath {
         let t = p.duration > 0 ? min(1, max(0, p.elapsed / p.duration)) : 1
         let position = p.position
         let offset = origins[OriginKey(x: p.fromX, y: p.fromY)] ?? (dx: 0, dy: 0)
+        let lift = extraArc(p.kind)
         let x = position.x + offset.dx * (1 - t)
-        let y = position.y + offset.dy * (1 - t)
-        let arc = p.kind == .firepot ? 240.0 : 40.0
+        let y = position.y + offset.dy * (1 - t) + lift * 4 * t * (1 - t)
+        let arc = p.kind == .firepot ? 240.0 : 4 * (10 + lift)
         let vx = (p.toX - p.fromX) - offset.dx
         let vy = (p.toY - p.fromY) + arc * (1 - 2 * t) - offset.dy
         let flipped = vx < 0
@@ -774,6 +811,11 @@ enum EntityFrames {
         }
     }
 
+    /// A creature body's shade by its id, 0.85 ... 1 (neighbours in a crowd read apart).
+    static func creatureShade(_ id: Int) -> Float {
+        0.85 + 0.15 * Float(SeededRandom.hash(0x5348_4144, Int64(id)) % 1000) / 999
+    }
+
     /// A creature's sprite (the two sootlings alternate by creature id).
     static func creatureSprite(_ c: Creature) -> SpriteID {
         switch c.kind {
@@ -787,17 +829,21 @@ enum EntityFrames {
         }
     }
 
-    /// Game pixels walked per frame of a creature's walk cycle.
+    /// Game pixels walked per frame of a creature's walk cycle. The Ash Giant's planted feet barely move in its strip,
+    /// so it takes shorter steps (M2b review: at 6 px a frame its boulder feet slid 5 px a frame along the ground).
     static func walkStride(_ kind: CreatureKind) -> Double {
         switch kind {
         case .sootling: return 3
         case .shadehound: return 6
         case .ashBrute: return 4
-        case .ashGiant: return 6
+        case .ashGiant: return 4
         case .lightlessKing: return 5
         default: return 4
         }
     }
+
+    /// Game pixels the king walks per frame of his walk cycle (M2b review: at 7 px his planted feet slid; was 7).
+    static let kingStride = 4.0
 
     /// A creature's frame: walk 0 ... 3 by the distance walked, attack from 4 by time (three attack frames for the
     /// brute, the giant and the Lightless King); the crow flies 0 ... 2 and perches 3; the gloomweaver floats 0 ... 3.
@@ -821,24 +867,32 @@ enum EntityFrames {
         }
     }
 
-    /// The king's frame: walk 0 ... 5 by distance along his facing (one frame per 7 px), command 8 ... 9 while he
-    /// lights a brazier or just after a patch, else idle 6 ... 7.
+    /// The king's frame: walk 0 ... 5 by distance along his facing (one frame per `kingStride` px), command 8 ... 9
+    /// while he lights a brazier or just after a patch, else idle 6 ... 7.
     static func kingFrame(_ king: RealmKing, balance: Balance, time: Double) -> Int {
         if king.lightingPlot >= 0 || king.patchCooldown > balance.patchCooldown - 0.6 {
             return 8 + Int((time * 4).rounded(.down)) % 2
         }
         if king.velocity != 0 {
-            let step = Int((king.x * Double(king.facing) / 7).rounded(.down))
+            let step = Int((king.x * Double(king.facing) / kingStride).rounded(.down))
             return ((step % 6) + 6) % 6
         }
         return 6 + Int((time * 2).rounded(.down)) % 2
     }
 
+    /// How long an archer holds the loose pose after a shot and draws before the next (M2b review: at 0.18 and 0.45 s
+    /// no screenshot caught an archer shooting).
+    static let archerLooseSeconds = 0.3
+    static let archerDrawSeconds = 0.6
+
     /// An archer's frame on his post from his reload: loose 4 just after a shot, draw 2 ... 3 in the last moments
-    /// before the next, idle 0 ... 1 otherwise (and while no lit creature is in range).
+    /// before the next (also while his staggered first shot waits), idle 0 ... 1 otherwise (and while no lit creature
+    /// is in range).
     static func archerFrame(_ soldier: Soldier, balance: Balance, time: Double) -> Int {
-        if soldier.cooldown > balance.archerPeriod - 0.18 { return 4 }
-        if soldier.cooldown > 0 && soldier.cooldown < 0.45 { return soldier.cooldown < 0.22 ? 3 : 2 }
+        if soldier.cooldown > balance.archerPeriod - archerLooseSeconds { return 4 }
+        if soldier.cooldown > 0 && soldier.cooldown < archerDrawSeconds {
+            return soldier.cooldown < archerDrawSeconds / 2 ? 3 : 2
+        }
         return Int((time * 2 + Double(soldier.id % 5) * 0.37).rounded(.down)) % 2
     }
 
@@ -847,13 +901,13 @@ enum EntityFrames {
                                effects: BattleEffects) -> [ActorInstance] {
         var list: [ActorInstance] = []
         let time = s.simTime
-        let white = SIMD4<Float>(1, 1, 1, 1)
         func add(_ sprite: SpriteID, frame: Int, x: Double, y: Double, flipped: Bool = false,
-                 tint: SIMD4<Float> = SIMD4<Float>(1, 1, 1, 1), emissive: Bool = false, lit: Bool = true) {
+                 tint: SIMD4<Float> = SIMD4<Float>(1, 1, 1, 1), emissive: Bool = false, lit: Bool = true,
+                 lightCap: Float = 0, moonRim: Float = 0) {
             let rect = view.rect(sprite, x: x, y: y)
             guard view.isOnScreen(rect) else { return }
             list.append(ActorInstance(sprite: sprite, frame: frame, rect: rect, tint: tint, flipped: flipped,
-                                      isEmissive: emissive, isLit: lit))
+                                      isEmissive: emissive, isLit: lit, lightCap: lightCap, moonRim: moonRim))
         }
 
         // Townsfolk walking between their houses, the fields and the market by day.
@@ -863,7 +917,8 @@ enum EntityFrames {
             }
         }
 
-        // Builders walking to their work and hammering.
+        // Builders walking to their work and hammering (spread across the scaffold by their number, M2b review: three
+        // at one x read as one brown cluster), the idle ones side by side at the lodge, every second one turned.
         for (index, builder) in s.builders.enumerated() {
             var x = builder.x
             var frame = 0
@@ -877,6 +932,8 @@ enum EntityFrames {
                 frame = 4 + Int((time * 4 + Double(index) * 0.5).rounded(.down)) % 2
             case .idle:
                 frame = 1
+                x += Double(index) * 8
+                flipped = index % 2 == 0
             }
             if builder.plot >= 0 && builder.plot < Realm.plots.count {
                 // Close to the work, drift onto where it is drawn (towers and engines stand behind their walls).
@@ -885,18 +942,29 @@ enum EntityFrames {
                 let closeness = max(0, 1 - abs(builder.x - simX) / 60)
                 x += (drawn - simX) * closeness
                 if builder.task == .building || builder.task == .repairing {
+                    let spread: [Double] = [0, -8, 8, -4, 4]
+                    x += spread[index % spread.count] * closeness
                     flipped = drawn < x
                 }
             }
             add(.builder, frame: frame, x: x, y: 0, flipped: flipped)
         }
 
-        // Creatures: lit, the body and its glow; unlit, the glow over a body at a very low value.
-        let value = 1 - (1 - unlitValue) * min(1, max(0, ambient.torchStrength))
-        let dark = SIMD4<Float>(value, value, value, 1)
+        // Creatures: lit, the body and its glow; unlit, the glow over a body at a very low value with a moonlight rim.
+        // Drawn from left to right, so neighbours always overlap the same way and a crowd separates (M2b review), each
+        // body a shade lighter or darker by its id (bosses as painted).
+        let night = min(1, max(0, ambient.torchStrength))
+        let value = 1 - (1 - unlitValue) * night
         var attacked = false
-        for c in s.creatures where c.hp > 0 {
-            if c.action == .attackingGuards { attacked = true }
+        var order: [Int] = []
+        order.reserveCapacity(s.creatures.count)
+        for index in s.creatures.indices where s.creatures[index].hp > 0 {
+            if s.creatures[index].action == .attackingGuards { attacked = true }
+            order.append(index)
+        }
+        order.sort { (s.creatures[$0].x, s.creatures[$0].id) < (s.creatures[$1].x, s.creatures[$1].id) }
+        for index in order {
+            let c = s.creatures[index]
             let sprite = creatureSprite(c)
             let frame = creatureFrame(c, time: time)
             var y = c.y
@@ -905,7 +973,10 @@ enum EntityFrames {
             if c.kind == .sootCrow && c.target >= 0 && c.target < Realm.plots.count {
                 flipped = Realm.plots[c.target].x < c.x
             }
-            add(sprite, frame: frame, x: c.x, y: y, flipped: flipped, tint: c.isLit ? white : dark, lit: c.isLit)
+            let shade = c.kind.isBoss ? 1 : creatureShade(c.id)
+            let body = (c.isLit ? 1 : value) * shade
+            add(sprite, frame: frame, x: c.x, y: y, flipped: flipped, tint: SIMD4<Float>(body, body, body, 1),
+                lit: c.isLit, lightCap: creatureLightCap, moonRim: c.isLit ? 0 : unlitRim * night)
             if let glow = glowStrip(sprite) {
                 add(glow, frame: frame, x: c.x, y: y, flipped: flipped, emissive: true, lit: c.isLit)
             }
@@ -959,7 +1030,9 @@ enum EntityFrames {
         }
 
         // Effect particles: sparks and shards.
-        effectParticles(effects, animTime: animTime, add: add)
+        effectParticles(effects, animTime: animTime) { sprite, frame, x, y, flipped, tint, emissive, lit in
+            add(sprite, frame: frame, x: x, y: y, flipped: flipped, tint: tint, emissive: emissive, lit: lit)
+        }
 
         // Projectiles in flight: arrows and bolts pale as moonlit shafts, fire arrows and firepots burning.
         let origins = projectileOrigins(s, layouts: layouts)
@@ -986,11 +1059,15 @@ enum EntityFrames {
         let king = s.king
         let kingFrame = kingFrame(king, balance: balance, time: time)
         add(.king, frame: kingFrame, x: king.x, y: 0, flipped: king.facing < 0)
-        // The glass burns dim by day and full at night (ART-actors.md). An emissive actor's pixels replace what lies
-        // behind them, so it dims by its colour, never by its alpha (the rock would show through the glass).
-        let glass = 0.5 + 0.5 * min(1, max(0, ambient.torchStrength))
-        add(.kingGlow, frame: kingFrame, x: king.x, y: 0, flipped: king.facing < 0,
-            tint: SIMD4<Float>(glass, glass, glass, 1), emissive: true)
+        // The glass lights with the torches from the dusk and burns full at night; by day the painted cream glass and
+        // the teal crown stone show in the sun (M2b review: the strip at half its colour read as a dead olive lantern
+        // and a grey jewel). An emissive actor's pixels replace what lies behind them, so it dims by its colour, never
+        // by its alpha (the rock would show through the glass).
+        if night >= 0.3 {
+            let glass = Float(0.6 + 0.4 * (night - 0.3) / 0.7)
+            add(.kingGlow, frame: kingFrame, x: king.x, y: 0, flipped: king.facing < 0,
+                tint: SIMD4<Float>(glass, glass, glass, 1), emissive: true)
+        }
         return list
     }
 

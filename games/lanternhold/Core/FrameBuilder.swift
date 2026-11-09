@@ -15,6 +15,9 @@ enum FrameBuilder {
     static let fogScale: Float = 0.7
     /// Window glass glows with its colour × the ramp's torch strength × this.
     static let glassGain: Float = 0.9
+    /// The keep's glass seen across the gorge stands in the mid plane's haze (M2b review: at full strength its panes
+    /// read as two eyes in the dark): glass on the gorge's mid plane glows at this share.
+    static let gorgeMidGlass: Float = 0.45
     /// The lowest a top-anchored rock lip may hang, in rows above the ground line (polish after the art review): 20
     /// rows above the statue's bowl fire (y 119), so the gorge's signature prop stays clear on every phone; 175-row
     /// screens show 36 of a lip's 48 rows, 154-row screens 15, the 135-row look none.
@@ -408,8 +411,9 @@ enum FrameBuilder {
         }
         let torch = ambient.torchStrength
         guard torch > 0.01 else { return }
+        let haze: Float = prop.plane == .mid && prop.region == .gorge ? gorgeMidGlass : 1
         for mask in prop.masks {
-            let rgb = mask.color * (torch * glassGain)
+            let rgb = mask.color * (torch * glassGain * haze)
             let dx = prop.flipped ? width - mask.dx - Double(mask.width) : mask.dx
             let maskTop = geometry.top(y: bottom + mask.dy, height: Double(mask.height))
             let place = SIMD4<Float>(Float(left + dx), Float(maskTop), Float(mask.width), Float(mask.height))

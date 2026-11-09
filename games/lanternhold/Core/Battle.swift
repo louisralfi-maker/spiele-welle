@@ -446,6 +446,9 @@ enum Battle {
 
     // MARK: - Lights
 
+    /// Line 1's two wall torches: at the ends of the castle front's painted wall walk (x 1306 and 1412, y 126).
+    static let lineOneTorchX: [Double] = [WorldLayout.castleFrontX + 66, WorldLayout.castleFrontX + 172]
+
     private static func lightSeed(_ plot: Int, _ part: Int) -> UInt64 {
         SeededRandom.mix(UInt64(plot * 16 + part + 1) &* 0x9E37_79B9_7F4A_7C15)
     }
@@ -460,12 +463,20 @@ enum Battle {
         for (index, line) in Realm.lines.enumerated() {
             let wall = s.plots[line.wall]
             if let item = wall.item, !wall.isRubble {
-                let x = Realm.wallX[index]
-                let y = item.height + 2
-                let far = min(item.width, 40) - 2
-                lights.append(LightSource(kind: .torch, x: x + 2, y: y, radius: balance.torchRadius,
+                var x = Realm.wallX[index] + 2
+                var y = item.height + 2
+                var far = Realm.wallX[index] + min(item.width, 40) - 2
+                if index == 0 {
+                    // Line 1 is the castle front: its torches burn at both ends of the painted wall walk, among the
+                    // archers (M2b review: at the gate's height they hung on the facade below the walk). Neither
+                    // place reaches a creature on the ground or a crow at a brazier, so the battle is the same.
+                    x = Battle.lineOneTorchX[0]
+                    far = Battle.lineOneTorchX[1]
+                    y = WorldLayout.wallWalkY + 2
+                }
+                lights.append(LightSource(kind: .torch, x: x, y: y, radius: balance.torchRadius,
                                           flickerSeed: lightSeed(line.wall, 0)))
-                lights.append(LightSource(kind: .torch, x: x + far, y: y, radius: balance.torchRadius,
+                lights.append(LightSource(kind: .torch, x: far, y: y, radius: balance.torchRadius,
                                           flickerSeed: lightSeed(line.wall, 1)))
             }
             for plot in line.braziers {
@@ -836,7 +847,11 @@ enum Battle {
         }
         for x in summonAt {
             for k in 0..<balance.summonCount {
-                spawn(&s, kind: .sootling, x: x - 8 - 5 * Double(k), wave: 99, balance: balance, fromWave: false)
+                // Spread out behind him (M2b review: 5 px apart they walked as one noisy band): `summonSpacing` apart
+                // with up to ±3 px from a hash, so no draw of the random stream changes.
+                let jitter = Double(SeededRandom.hash(UInt64(s.nextID), Int64(k)) % 7) - 3
+                let offset = 8 + balance.summonSpacing * Double(k) + jitter
+                spawn(&s, kind: .sootling, x: x - offset, wave: 99, balance: balance, fromWave: false)
             }
         }
         if wallsChanged {
@@ -1002,12 +1017,23 @@ enum Battle {
             case .posted:
                 guard soldier.kind == .archer else { break }
                 let rally = abs(soldier.x - kingX) <= balance.rallyRadius ? balance.rallyFactor : 1
+                // An archer who had no target waits with his reload at exactly 0 (the dusk resets it to 0 too).
+                let waiting = soldier.cooldown == 0
                 soldier.cooldown -= dt * rally
                 if soldier.cooldown > 0 { break }
                 let range = balance.archerRange * (1 + rangeBonus(s, plot: soldier.postPlot, balance: balance))
                 guard let target = litTarget(s, x: soldier.x, range: range, balance: balance) else {
                     soldier.cooldown = 0
                     break
+                }
+                // The volleys stagger (M2b review): a waiting archer who sees a target draws for his own share of a
+                // second first, so a wall's archers do not all loose in the same step and then fall silent together.
+                if waiting {
+                    let delay = balance.archerStagger * Double(soldier.id % 6)
+                    if delay > 0 {
+                        soldier.cooldown = delay
+                        break
+                    }
                 }
                 soldier.shots += 1
                 let fire = soldier.shots % max(1, balance.fireArrowEvery) == 0

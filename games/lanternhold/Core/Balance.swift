@@ -157,7 +157,11 @@ struct Balance: Sendable, Equatable {
     var fireArrowEvery = 4
     var fireArrowRadius = 22.0
     var fireArrowSeconds = 2.5
-    var arrowSpeed = 320.0
+    /// Slower since the M2b review (was 320): a shot of 150 px now flies about 0.7 s, so arrows read in the air.
+    var arrowSpeed = 220.0
+    /// A waiting archer who sees a target first draws for `archerStagger` × (his id mod 6) seconds, so the volleys of a
+    /// wall stagger instead of all loosing in one step (M2b review).
+    var archerStagger = 0.15
     var archerHP = 20.0
     var guardHP = 30.0
     var guardDPS = 6.0
@@ -235,6 +239,8 @@ struct Balance: Sendable, Equatable {
     var kingAura = 80.0
     var summonEvery = 15.0
     var summonCount = 6
+    /// The summoned sootlings leave this far apart behind the Lightless King (was 5 until the M2b review).
+    var summonSpacing = 11.0
     /// Seconds after nightfall (20:00): the first wave leaves, the last wave starts leaving, the longest spread of a
     /// wave, the interval inside a wave, the boss.
     var firstWaveSecond = 15.0

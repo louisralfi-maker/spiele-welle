@@ -27,7 +27,12 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertEqual(unlit.count, 2)
         XCTAssertTrue(unlit.allSatisfy { $0.tint.x < 0.4 && $0.tint.w == 1 && !$0.isEmissive },
                       "an unlit body at a very low value")
-        XCTAssertTrue(lit.allSatisfy { $0.tint.x == 1 }, "a lit body as painted")
+        XCTAssertTrue(lit.allSatisfy { $0.tint.x >= 0.85 && $0.tint.x <= 1 }, "a lit body as painted, a shade by its id")
+        XCTAssertTrue(bodies.allSatisfy { $0.lightCap == EntityFrames.creatureLightCap }, "creatures reflect less light")
+        XCTAssertTrue(unlit.allSatisfy { $0.moonRim > 0.5 }, "an unlit body keeps a strong moonlight rim")
+        XCTAssertTrue(lit.allSatisfy { $0.moonRim == 0 })
+        let xs = bodies.map(\.rect.x)
+        XCTAssertEqual(xs, xs.sorted(), "drawn from left to right, so a crowd overlaps one way")
         for body in bodies {
             let glow = layer.actors.first { $0.rect == body.rect && $0.sprite == EntityFrames.glowStrip(body.sprite) }
             XCTAssertNotNil(glow, "\(body.sprite) has its glow strip over it")
@@ -155,7 +160,7 @@ final class EntityFramesTests: XCTestCase {
                 XCTAssertEqual(spot.y, WorldLayout.wallWalkY, "line 1's archers on the painted wall walk")
                 XCTAssertTrue((1290...1425).contains(spot.x))
             case Realm.lines[2].wall, Realm.lines[1].wall:
-                XCTAssertEqual(spot.y, 52, "on a stone wall's top")
+                XCTAssertEqual(spot.y, 42, "on a stone wall's walk, its crenel floor")
             case Realm.lines[2].tower:
                 XCTAssertEqual(spot.y, 42, "on the archer tower's deck")
             case Realm.lines[1].tower:
@@ -163,6 +168,31 @@ final class EntityFramesTests: XCTestCase {
             default:
                 XCTFail("an unexpected post \(soldier.postPlot)")
             }
+        }
+    }
+
+    func testLineOnesArchersNeverStandInTheWallWalksFires() {
+        // The castle front's two brazier niches (their flames at 1333 and 1378): no archer's feet there, for every gate
+        // tier, with and without the engine on the walk (M2b review: spread evenly, two stood in the fires).
+        var s = GameState.newRealm(seed: 1)
+        for gate in [BuildItem.gate, .ironGate, .greatGate] {
+            for engine in [BuildItem?.none, .ballista, .catapult] {
+                s.plots[Realm.lines[0].wall].item = gate
+                s.plots[Realm.lines[0].engine].item = engine
+                let layout = EntityFrames.lineLayout(0, state: s, balance: balance)
+                XCTAssertEqual(layout.wallPosts.count, Build.posts(gate, balance: balance), "\(gate) \(String(describing: engine))")
+                XCTAssertEqual(Set(layout.wallPosts).count, layout.wallPosts.count, "every post its own place")
+                for x in layout.wallPosts {
+                    XCTAssertFalse(EntityFrames.lineOneNiches.contains { $0.contains(x) },
+                                   "\(gate) post at \(x) stands in a brazier niche")
+                    XCTAssertTrue((1295...1415).contains(x), "on the wall walk")
+                }
+            }
+        }
+        // The walls of lines 2 and 3: the archers stand on the walk, not on the merlons or the stake points.
+        for (item, y) in [(BuildItem.palisade, 25.0), (.stoneWall, 42), (.bastion, 57)] {
+            s.plots[Realm.lines[1].wall].item = item
+            XCTAssertEqual(EntityFrames.lineLayout(1, state: s, balance: balance).wallPostY, y, "\(item)")
         }
     }
 
@@ -309,7 +339,7 @@ final class EntityFramesTests: XCTestCase {
         let s = GameFrameSupport.demoNight()
         let (_, layer) = GameFrameSupport.frame(s, focus: 760)
         let battle = Battle.lightSources(s, balance: balance)
-        for light in battle {
+        for light in battle where light.kind != .lantern {
             XCTAssertTrue(layer.lights.contains { $0.source.x == light.x && $0.source.kind == light.kind
                 && $0.source.radius == light.radius }, "\(light.kind) at \(light.x)")
         }
@@ -317,8 +347,11 @@ final class EntityFramesTests: XCTestCase {
                        "the scene's placeholder torches are gone")
         XCTAssertTrue(layer.lights.contains { $0.source.kind == .brazier && $0.source.x == WorldLayout.castleFrontX + 97 },
                       "the castle front's wall-walk braziers stay scenery")
-        let lanterns = layer.lights.filter { $0.source.kind == .lantern && $0.source.y == 16 }
+        // The picture's lantern pool sits on the painted glass (the battle's stays where the simulation holds it).
+        let lanterns = layer.lights.filter { $0.source.kind == .lantern && $0.source.y == EntityFrames.kingGlass.dy }
         XCTAssertEqual(lanterns.count, 1, "one lantern: the simulation's king's")
+        XCTAssertEqual(lanterns.first?.source.x, s.king.x + EntityFrames.kingGlass.dx * Double(s.king.facing))
+        XCTAssertEqual(lanterns.first?.source.radius, balance.lanternRadius)
         let hearths = layer.lights.filter { $0.source.kind == .hearth && $0.plane == .world }
         XCTAssertEqual(hearths.count, 1, "one hearth light: the simulation's")
     }
@@ -329,7 +362,7 @@ final class EntityFramesTests: XCTestCase {
         king.velocity = 36
         var frames = Set<Int>()
         for step in 0..<12 {
-            king.x = 1000 + Double(step) * 7 + 3
+            king.x = 1000 + Double(step) * EntityFrames.kingStride + 1
             frames.insert(EntityFrames.kingFrame(king, balance: balance, time: 0))
         }
         XCTAssertEqual(frames, [0, 1, 2, 3, 4, 5], "walk 0 to 5")

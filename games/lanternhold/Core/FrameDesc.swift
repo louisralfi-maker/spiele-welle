@@ -166,7 +166,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .spark: return PixelSize(width: 5, height: 5)
         case .shard: return PixelSize(width: 4, height: 4)
         case .gloomBubble: return PixelSize(width: 96, height: 64)
-        case .streak: return PixelSize(width: 12, height: 4)
+        case .streak: return PixelSize(width: 18, height: 6)
         }
     }
 
@@ -254,6 +254,10 @@ struct ActorInstance: Sendable, Equatable {
     var isEmissive: Bool
     /// The gameplay light field lights this actor (0.12 or more).
     var isLit: Bool
+    /// The most point light it reflects (0: the world's cap, `kLitCap`; creatures less, M2b review).
+    var lightCap: Float = 0
+    /// The strength of a moonlight rim on its screen-right edge (unlit creatures at night; 0: none, or the king's).
+    var moonRim: Float = 0
 }
 
 /// One quad of the emissive pass (flames, window glass, lantern glass, stars, sun, moon), added after lighting; it
