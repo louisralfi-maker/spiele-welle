@@ -587,3 +587,23 @@ unchanged. Mocks: `tools/scenemock/run_m1b.sh` (it now passes the renderer's who
   tower's shadow lit as in the sun).
 - The haze band is screen-row based (rows above the ground line): on the 135-row look it covers the same 48 rows.
 - The keep's windows at the gate view still stay behind the gatehouse.
+
+# Look 2, stage 1: the palette revision (09.11.2026, evening)
+
+The style bible of the new look is [`ART-look2.md`](ART-look2.md) ("farbig-düster": deep blue nights, warm fire, dark
+green firs, muted but colourful). Its first step revised `tools/palette.txt`:
+
+- **70 colours** (53 before): every old name kept, 42 values moved toward the direction (castle stone bluer and a step
+  darker, the gorge's ochre rock now Weltmauer granite, greens muted and darker, plaster a step down from cream, roofs,
+  wood and straw less orange, skin less pink, far mountains and water less saturated), 17 new (`nightDeep` …
+  `nightHaze`, `fir0` … `fir4`, `mistDark` … `mistLight`, `moorDark`, `moor`, the emissive `wraithDim` … `wraithWhite`
+  for stage 3's creatures). `night0`, `night1` and `ink` keep their values: they are the window glass colours the
+  renderer's glass masks test for (`Shaders.metal` `lh_is_glass`).
+- **Index-stable conversions.** A moved colour carries its old value as `match=#…`; `pixelart.py convert` matches
+  paintings against it unless `--match new`, and its `darken` outline darkens from it. So the rebuild changes colours
+  only: every sprite keeps the palette indices its zones, fills, remaps and clusters were tuned on.
+- **Rebuilt** with `build-art.sh` on an emptied `Resources/Art` from the raws in `build/recraft/lh/` (exit 0, all 123
+  PNGs back). Checked against the art of `f35272a` pixel by pixel through the old-to-new palette map: 0 of 123 sprites
+  differ in structure; 666,672 of 783,768 opaque pixels changed colour (106 files; the glow strips, the beacon fire,
+  the fire arrow, the shadows and the mist bank use only unchanged colours).
+- No Recraft credits spent.
