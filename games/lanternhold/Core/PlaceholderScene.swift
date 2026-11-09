@@ -365,8 +365,10 @@ private struct SceneBuilder {
         }
 
         add(.castleTower, .world, x: 2088, y: 0, z: -1)
-        building(.chapel, x: 1960, z: 0, windows: [(30, 52), (77, 52), (124, 52)])
-        building(.kitchen, x: 2120, z: 0, windows: [(28, 40), (86, 40)])
+        // Window glows sit on the painted glass of Resources/Art (ART.md "Window glass"): three of the chapel's four
+        // lancets, the kitchen's two windows.
+        building(.chapel, x: 1960, z: 0, windows: [(18, 28), (54, 28), (89, 28)])
+        building(.kitchen, x: 2120, z: 0, windows: [(26, 32), (79, 32)])
         add(.backGate, .world, x: 2240, y: 0, z: 0)
     }
 
@@ -377,7 +379,7 @@ private struct SceneBuilder {
             let mirrored = random.int(in: 0...1) == 1
             let tone = shade(0.9, 1.05)
             building(.house, x: plot.start, z: 0, shade: tone, flipped: mirrored,
-                     windows: [(14, 14), (44, 14)], windowRadius: 18)
+                     windows: [(9, 7), (44, 7)], windowRadius: 18)
             let postX = plot.start + 68
             let seed = nextLightSeed()
             let glass = fire(.lanternGlass, dx: 1, dy: 18, color: GamePalette.fireGold, seed: seed, fadesByDay: true)
