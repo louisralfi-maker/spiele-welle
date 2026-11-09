@@ -1,0 +1,2 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Render/PixelPainter.swift:36:16: error: invalid redeclaration of 'ember'
