@@ -36,6 +36,39 @@ def spot(c, name, x, facing):
     c.anchor("spot", name, x, facing)
 
 
+def actor_frame(sid, frame, fw):
+    """Frame `frame` (fw px wide) of a committed actor strip as a Canvas."""
+    strip = art(sid)
+    c = Canvas(fw, strip.h, strip.pal)
+    for y in range(strip.h):
+        for x in range(fw):
+            c.px[y][x] = strip.get(frame * fw + x, y)
+    return c
+
+
+def lightness(pal, name):
+    from pixelart import lab
+    return lab(pal.color(name))[0]
+
+
+def to_stone(c, ramp=("stoneDark", "stoneMid", "stone", "stoneLight", "stonePale"), cuts=(26, 40, 55, 70),
+             keep=(), outline=None):
+    """Recolours every pixel by its lightness into a stone ramp (a statue, a relief); `keep` names stay, an
+    `outline` colour replaces ink."""
+    for y in range(c.h):
+        for x in range(c.w):
+            v = c.px[y][x]
+            if v is None or v in keep:
+                continue
+            if v == "ink":
+                c.px[y][x] = outline or "ink"
+                continue
+            L = lightness(c.pal, v)
+            i = sum(1 for t in cuts if L >= t)
+            c.px[y][x] = ramp[i]
+    return c
+
+
 # ---------------------------------------------------------------------------------------------- shared pieces
 
 def head_rows(w, h, sharp, pointed=True):
@@ -411,7 +444,254 @@ def hall_front():
                 c.put(x, 80, "leafDark")
     return c
 
+# ---------------------------------------------------------------------------------------------- chapelInterior
+
+CHAPEL_LANCETS = ((21, 36), (57, 72), (92, 106), (127, 139))   # the front's lancets (x of their frames), rows 52-77
+
+
+def stained_lancet(c, x0, x1, top, bottom, motif, seed):
+    """A lancet seen from inside: a splayed stone frame, stained glass in lead cames (stoneDark): a border of teal
+    and gold quarries round a coloured field with a motif stamp in the middle."""
+    w = x1 - x0 + 1
+    outer = arch_set(x0, top, w, bottom - top + 1, True, 0.9)
+    glass = arch_set(x0 + 2, top + 2, w - 4, bottom - top - 2, True, 0.9)
+    paint_set(c, outer, "ink")
+    for (px, py) in outer:
+        if (px, py) in glass:
+            continue
+        edge = any(q not in outer for q in ((px + 1, py), (px - 1, py), (px, py - 1), (px, py + 1)))
+        if not edge:
+            c.put(px, py, "stonePale" if px < x0 + w // 2 else "stoneLight")
+    gx0 = min(p[0] for p in glass)
+    gx1 = max(p[0] for p in glass)
+    gy0 = min(p[1] for p in glass)
+    for (px, py) in glass:
+        border = px in (gx0, gx1) or py == gy0 or (px, py - 1) not in glass or py == bottom - 2
+        if border:
+            col = "gold" if (px + py) % 3 == 0 else "banner"
+        else:
+            col = pick(("roofLight", "banner", "roofLight", "daySky"), seed, (px - gx0) // 3, (py - gy0) // 4)
+            if (px - gx0) % 3 == 0 or (py - gy0) % 4 == 0:
+                col = "stoneDark"
+        c.put(px, py, col)
+    m = stamps("chapel")[motif]
+    mx = gx0 + (gx1 - gx0 + 1 - m.w) // 2
+    my = gy0 + (bottom - 2 - gy0 + 1 - m.h) // 2 + 1
+    c.stamp(m, mx, my)
+
+
+def saint_figure():
+    """The lamplighter saint for the chapel's niche, a painted relief: the king's command frame (the lantern raised on
+    its hooked pole) with a hood for the crown, the robe of the Flame's order in cream and gold (Mother Hesper's
+    colours), the pole's wood kept, the lantern gilded."""
+    f = actor_frame("king", 9, 16)
+    for y in range(0, 6):
+        for x in range(0, 11):
+            if f.px[y][x] in ("gold", "strawLight", "straw", "banner", "ink"):
+                f.px[y][x] = None
+    robe = {"banner": "plaster", "roofDeep": "plasterDim", "roofLight": "parchment", "tile": "parchment",
+            "tileLight": "parchment", "soil": "plasterDim", "soilDark": "plasterDim", "woodDark": "plasterDim"}
+    for y in range(6, f.h):
+        for x in range(0, 12):
+            v = f.px[y][x]
+            if v in robe:
+                f.px[y][x] = robe[v]
+    for y in range(0, 8):
+        for x in range(10, 16):
+            v = f.px[y][x]
+            if v in ("stone", "stoneDark"):
+                f.px[y][x] = "gold"
+            elif v in ("parchment", "strawLight"):
+                f.px[y][x] = "strawLight"
+    f.stamp(stamps("chapel")["saintHood"], 2, 0)
+    return f
+
+
+def chapel_interior():
+    front = art("chapel")
+    W, H = front.w, front.h
+    c = Canvas(W, H, front.pal)
+    c.clip = alpha_set(front)
+    st = stamps("chapel")
+    full = sorted(c.clip)
+    for (x, y) in full:
+        c.put(x, y, "roofDeep")
+
+    # --- the back wall: lime plaster over a wainscot, a painted frieze under the wall plate
+    plaster(c, 0, 47, W - 1, 84, seed=21)
+    for x in range(W):
+        for y in (49, 50, 51):
+            c.put(x, y, "tile")
+        c.put(x, 48, "gold")
+        c.put(x, 52, "gold")
+    for x in range(2, W, 6):
+        c.stamp(st["frieze"], x, 49)
+    planks(c, 0, 76, W - 1, 86, seed=22, width=(4, 5), colours=("wood", "wood", "woodLight"), knots=0.0)
+    c.hline(0, W - 1, 75, "woodLight")
+    c.hline(0, W - 1, 74, "woodDark")
+    # --- the floor: flagstones in perspective, a red runner up the nave to the chancel step
+    flagstones(c, 0, 87, W - 1, 95, seed=23, grow=(2, 3))
+    for x in range(0, 104):
+        c.put(x, 90, "tileLight")
+        c.put(x, 91, "tile")
+        c.put(x, 92, "tile" if x % 7 else "gold")
+    c.hline(0, W - 1, 86, "woodDark")
+
+    # --- the roof: a starry vault in the realm's teal, ribs from the wall shafts, the wall plate
+    for (x, y) in full:
+        if 23 <= y <= 46 and not (x < 41 and y < 38):
+            c.put(x, y, "roofDeep")
+    for (x, y) in full:
+        if 26 <= y <= 42 and rnd(24, x, y) < 0.022 and not (x < 41 and y < 38):
+            c.put(x, y, "gold")
+            if rnd(25, x, y) < 0.35:
+                for (dx, dy) in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    if (x + dx, y + dy) in c.clip and 26 <= y + dy <= 42:
+                        c.put(x + dx, y + dy, "strawLight")
+    for sx in (43, 76):
+        for y in range(27, 47):
+            if (sx, y) in c.clip:
+                c.put(sx - 1, y, "woodLight")
+                c.put(sx, y, "wood")
+                c.put(sx + 1, y, "woodDark")
+    # the chancel's gable: a king-post truss over the stars (principal rafters inside both slopes, the king post,
+    # two struts)
+    apex_x = 133
+    c.line(116, 43, 132, 25, "woodDark")
+    c.line(117, 43, 133, 25, "woodLight")
+    c.line(118, 43, 134, 25, "wood")
+    c.line(150, 43, 135, 25, "woodDark")
+    c.line(149, 43, 134, 25, "wood")
+    for y in range(25, 44):
+        c.put(apex_x - 1, y, "woodLight")
+        c.put(apex_x, y, "wood")
+        c.put(apex_x + 1, y, "woodDark")
+    c.line(apex_x - 2, 41, 124, 34, "wood")
+    c.line(apex_x + 2, 41, 142, 34, "woodDark")
+    beam(c, 0, W - 1, 44, h=4, seed=26)
+    for x in range(3, W, 8):
+        c.put(x, 46, "woodLight")
+        c.put(x + 1, 46, "woodDark")
+    c.hline(0, W - 1, 47, "ink")
+
+    # --- the turret: the bell in its belfry, the spire's rafters
+    for (x, y) in full:
+        if y < 38 and x < 43:
+            c.put(x, y, "woodDark")
+    for bx in (15, 21, 27, 33, 40):
+        c.line(27, 1, bx, 14, "wood")
+    for y in range(15, 38):
+        for x in range(15, 41):
+            if (x, y) in c.clip:
+                c.put(x, y, "stoneMid" if (x // 5 + y // 4) % 2 else "stone")
+                if y % 4 == 3:
+                    c.put(x, y, "stoneDark")
+    for (lx0, lx1, ly0, ly1) in ((19, 26, 18, 27), (32, 36, 21, 26)):
+        c.rect(lx0, ly0, lx1, ly1, "night1")
+        for y in range(ly0 + 1, ly1, 2):
+            c.hline(lx0, lx1, y, "woodDark")
+    beam(c, 13, 41, 14, h=3, seed=27)
+    c.stamp(st["bell"], 24, 17)
+    beam(c, 12, 41, 34, h=4, seed=28)
+    for y in range(27, 78):
+        c.put(28, y, "strawLight" if y % 3 else "straw")
+    for y in range(66, 74):
+        c.put(28, y, "tile" if (y // 2) % 2 else "plaster")
+        c.put(29, y, "tileLight" if (y // 2) % 2 else "parchment")
+
+    # --- the side walls in section
+    for (x0, x1) in ((0, 13), (148, W - 1)):
+        ashlar(c, x0, 36, x1, 94, seed=29 + x0, course=(5, 4), width=(5, 9))
+
+    # --- shafts between the windows, rising into the ribs (the third is the saint's niche)
+    for sx in (43, 76):
+        for y in range(47, 87):
+            c.put(sx - 2, y, "ink")
+            c.put(sx - 1, y, "stonePale")
+            c.put(sx, y, "stoneLight")
+            c.put(sx + 1, y, "stone")
+            c.put(sx + 2, y, "ink")
+        c.stamp(st["capital"], sx - 3, 46)
+        c.stamp(st["shaftBase"], sx - 3, 82)
+        # a candle sconce on the shaft
+        sc = st["sconce"]
+        c.stamp(sc, sx - 2, 58)
+        fire_at(c, "sconce candle", "candleFlame", sx, 57, 2)
+        light_at(c, "sconce candle", "candle", sx, 56, 14)
+
+    # --- the four lancets in stained glass
+    for k, (x0, x1) in enumerate(CHAPEL_LANCETS):
+        stained_lancet(c, x0, x1, 52, 77, ("flame", "lantern", "star", "flame")[k], seed=30 + k)
+
+    # --- the saint's niche between the third and the fourth lancet, the saint in relief
+    nx0, nx1, ntop, nbot = 107, 126, 49, 80
+    niche = arch_set(nx0, ntop, nx1 - nx0 + 1, nbot - ntop + 1, True, 0.75)
+    paint_set(c, niche, "ink")
+    inner = arch_set(nx0 + 2, ntop + 2, nx1 - nx0 - 3, nbot - ntop - 1, True, 0.75)
+    for (px, py) in niche:
+        if (px, py) not in inner and not any(q not in niche for q in ((px + 1, py), (px - 1, py), (px, py - 1))):
+            c.put(px, py, "stonePale" if px < (nx0 + nx1) // 2 else "stoneLight")
+    for (px, py) in inner:
+        c.put(px, py, "roofDeep")
+        if rnd(41, px, py) < 0.05:
+            c.put(px, py, "gold")
+    c.stamp(st["rays"], 115, 51)
+    c.blit(saint_figure(), 109, 51)
+
+    # --- the chancel step, the altar with the Flame's bowl, candles, the sanctuary lamp
+    c.rect(100, 90, 150, 94, "stone")
+    c.hline(100, 150, 90, "stonePale")
+    c.hline(100, 150, 91, "stoneLight")
+    c.hline(100, 150, 94, "stoneMid")
+    c.vline(99, 90, 94, "ink")
+    for x in range(104, 150, 9):
+        c.vline(x, 92, 94, "stoneMid")
+    alt = st["altar"]
+    ax = 116 - alt.w // 2
+    c.stamp(alt, ax, 90 - alt.h)
+    bowl = st["bowl"]
+    bx = 116 - bowl.w // 2
+    by = 90 - alt.h - bowl.h + 1
+    c.stamp(bowl, bx, by)
+    fire_at(c, "the Flame", "brazierFlame", 112, by, 8)
+    light_at(c, "the Flame", "brazier", 116, by - 3, 54)
+    stick = st["candlestick"]
+    for cx in (ax + 2, ax + alt.w - 5):
+        c.stamp(stick, cx, 90 - alt.h - stick.h + 1)
+        fire_at(c, "altar candle", "candleFlame", cx + 1 - 0, 90 - alt.h - stick.h, 2)
+        light_at(c, "altar candle", "candle", cx + 1, 90 - alt.h - stick.h + 2, 12)
+    stand = st["candleStand"]
+    for cx in (97, 131):
+        c.stamp(stand, cx, 94 - stand.h + 1)
+        fire_at(c, "candle stand", "candleFlame", cx + 1, 94 - stand.h, 2)
+        light_at(c, "candle stand", "candle", cx + 2, 94 - stand.h + 2, 12)
+    vase = st["vase"]
+    c.stamp(vase, ax + alt.w - 1, 90 - vase.h)
+    lamp = st["sanctuaryLamp"]
+    c.stamp(lamp, 141, 48)
+    glass_mask(c, "sanctuary lamp", 142, 48 + lamp.h - 3, 143, 48 + lamp.h - 2)
+    light_at(c, "sanctuary lamp", "lantern", 142, 48 + lamp.h - 2, 22)
+
+    # --- the pews, facing the altar
+    pew = st["pew"]
+    for k, x in enumerate((15, 29, 47, 61, 79)):
+        c.stamp(pew, x, 91 - pew.h)
+    spot(c, "hesper altar", 98, 1)
+    spot(c, "hesper pews", 52, -1)
+
+    # --- the outline: the silhouette's edge in ink, as the front's
+    edge = [(x, y) for (x, y) in full if y < H - 1 and any((x + dx, y + dy) not in c.clip
+            for (dx, dy) in ((1, 0), (-1, 0), (0, -1)))]
+    for (x, y) in edge:
+        c.put(x, y, "ink")
+    for x in range(W):
+        if (x, H - 1) in c.clip:
+            c.put(x, H - 1, "night0")
+    for (k, (x0, x1)) in enumerate(CHAPEL_LANCETS):
+        pass
+    return c
 
 SPRITES = {
     "hallFront": hall_front,
+    "chapelInterior": chapel_interior,
 }

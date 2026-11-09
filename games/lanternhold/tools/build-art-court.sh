@@ -34,7 +34,7 @@ build() { # name: one sprite (and its glow strip)
     portrait*)
         python3 -I -B $PA build "$1" --out $A
         sleep 4 ;;
-    hallFront)
+    hallFront|chapelInterior|kitchenInterior|bench|taxLectern|marekCart|statue|speakerMark)
         python3 -I -B $RA build "$1" --out $A ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;
     esac
@@ -44,7 +44,7 @@ ALL="odile brannock pip hesper tamsin bram marek seren serLudo bard envoy herald
 portraitOdile portraitBrannock portraitPip portraitHesper portraitTamsin portraitBram portraitMarek portraitSeren
 portraitSerLudo portraitBard portraitEnvoy portraitHerald portraitKing
 portraitClothes portraitFace portraitBeard portraitHair portraitHat
-hallFront"
+hallFront chapelInterior"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do
     cool
