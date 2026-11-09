@@ -1395,7 +1395,8 @@ This stage fixed all five confirmed high findings, the cheap medium ones and the
 - **Scene**: the castle's shadows at z 0 (after the courtyard's buildings), the mist at the castle's foot at z 2
   (after the gate in the gateway), the foreground rocks at y -34 (2 px above the ground at most), the gorge keep's glass
   smaller and dimmed in the haze (no pair of eyes); the dusk fog violet with half the haze, the cool bounce held through
-  the horn (`Look.bounceDusk` 2.2); empty plots' markers bob a pixel (not with Reduce Motion); the king's glow strip
+  the horn (`Look.bounceDusk` 2.2); empty plots' markers are taller (12x22, a pale staff with a bigger pennant;
+  SPRITES.md amended) and bob a pixel (not with Reduce Motion); the king's glow strip
   only from the dusk, his drawn lantern pool on the painted glass (the battle's stays where the simulation holds it).
 - **HUD and cards**: the clock, the numbers and the strip hide under every card and screen (the pause button under
   the screens); the tax card shows the treasury; the action button is greyed with the missing gold, a cooldown ring or
@@ -1438,7 +1439,6 @@ This stage fixed all five confirmed high findings, the cheap medium ones and the
 - The Ash Giant still slides a little (its walk keys keep the planted feet in place); a second leg key pose would fix
   it.
 - "Sound the horn" by day (the review's medium finding on day 1's idle minutes) waits for M3 and Louis.
-- The plot marker keeps its 10x16 size; a taller marker with a pale stake (a SPRITES.md change) would read better still.
 - The tuning was measured again by `TuningTests` T1 to T8 on the runner (they pass); `tools/simtune`'s sweep was not
   rerun for the margins.
 

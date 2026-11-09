@@ -1,27 +1,37 @@
-# plotMarker 10x16, hand-set: an empty, unlocked plot by day: a staff with a small teal flag, two short stakes with a
-# rope between them, a little heap of soil.
+# plotMarker 12x22, hand-set: an empty, unlocked plot by day: a tall pale staff with the realm's teal pennant (a lit top
+# edge, the gold lantern, a forked tail), two short stakes with a rope, a little heap of soil. M2b review: taller and
+# brighter than the first 10x16 marker (a small flag that vanished against the throat rock), so day 1's first build is
+# found at a glance; the engine bobs it a pixel.
 b = banner
 k = ink
 w = woodDark
 L = woodLight
 y = straw
+Y = strawLight
 R = roofLight
+g = gold
 z = soilDark
 Z = soil
 ---
-...k......
-..kLk.....
-..kLkkkkk.
-..kLkRbbbk
-..kLkbbbk.
-..kLkRbk..
-..kLkbk...
-..kLwkk...
-..kLwk....
-..kLwk....
-k.kLwk..k.
-LkkLwkk.Lk
-kyykLwkyyk
-kLkkLwkkLk
-kLwkLwkLwk
-zZZzZZzZZz
+..kk........
+.kYYk.......
+.kYLkkkkkkk.
+.kYLRRRRRRRk
+.kYLbbbbbbbk
+.kYLbbbggbbk
+.kYLbbgYYgbk
+.kYLbbbggbbk
+.kYLbbbbbbbk
+.kYLbbbbkbbk
+.kYLbbbk.kbk
+.kYLkkk...kk
+.kYLk.......
+.kYLk.......
+.kYLk.......
+.kYLk.k...k.
+.kYLkkLk.kLk
+.kYLyyLyyyLk
+.kYLkkLk.kLk
+.kYLk.wk.kwk
+.kwLk.kk.kkk
+zZZZzZZzZZZz

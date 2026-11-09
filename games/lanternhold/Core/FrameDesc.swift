@@ -159,7 +159,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bigHouse: return PixelSize(width: 72, height: 56)
         case .market: return PixelSize(width: 90, height: 40)
         case .tavern: return PixelSize(width: 90, height: 56)
-        case .plotMarker: return PixelSize(width: 10, height: 16)
+        case .plotMarker: return PixelSize(width: 12, height: 22)
         case .arrow, .fireArrow: return PixelSize(width: 7, height: 5)
         case .bolt: return PixelSize(width: 11, height: 5)
         case .firepot: return PixelSize(width: 5, height: 5)

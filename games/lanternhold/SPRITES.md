@@ -80,7 +80,7 @@ check that `build-art.sh` still rebuilds every committed sprite byte for byte).
 | `bigHouse` | 72x56 | 1 | town (`house`, `houseB`, `houseC`, `field` exist) |
 | `market` | 90x40 | 1 | town: stalls with awnings |
 | `tavern` | 90x56 | 1 | town: two storeys and a sign |
-| `plotMarker` | 10x16 | 1 | stakes and a small banner on an empty, unlocked plot by day |
+| `plotMarker` | 12x22 | 1 | a tall pale staff with the realm's pennant, stakes and a rope on an empty, unlocked plot by day (M2b review: was 10x16, too small to find) |
 
 ## Projectiles
 

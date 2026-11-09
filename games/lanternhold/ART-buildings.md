@@ -91,7 +91,7 @@ below.
 | `bigHouse` | 72x56 | Recraft `town-a` (left) for the roof and chimneys + hand-set storeys | two storeys in the cottages' half-timbering: a jettied upper storey with two windows between braced bays, a ground floor with two windows over flower boxes, an oak door, a stone plinth; a tile roof with a hand-drawn dormer and two chimneys |
 | `market` | 90x40 | grid (layout from `town-a`, middle) | three stalls under raspberry, teal and ochre striped awnings with scalloped valances, counters piled with produce, cloth and pots, crates and barrels |
 | `tavern` | 90x56 | Recraft `town-a` (right) for the roof with its gable + hand-set storeys | a half-timbered upper storey with three windows, a grey stone ground floor with an arched door, a wall lantern and two wide windows, a bench, barrels, a sign with a gold tankard on an iron bracket |
-| `plotMarker` | 10x16 | grid | a staff with a small teal flag, two stakes with a rope, a little soil heap |
+| `plotMarker` | 12x22 | grid | a tall pale staff with the realm's teal pennant (lit top edge, gold lantern, forked tail), two stakes with a rope, a little soil heap (M2b review: was 10x16 with a small flag) |
 | `arrow` | 7x5 x 3 | grid | pointing right (mirrored when flying left): rising, flat, falling; pale fletching, an iron tip |
 | `fireArrow` | 7x5 x 3 | grid | as `arrow` with a pitch rag bound behind the head |
 | `bolt` | 11x5 x 3 | grid | pointing right: a thick shaft, an iron head, wooden fins |
@@ -312,6 +312,7 @@ byte for byte (both lanes run whole, and `build-art.sh castleShadow` after the l
 | the finale's tower blew out to near-white lavender under its own pool | `greatBeacon` p/l/s one value step darker (stoneLight/stone/stoneMid); the engine adds a warm scene-only light at the bowl (x 470, y 140, r 90) while it burns and the pool itself is warm amber |
 | the damaged palisade barely differed at phone scale | frame 1: the second and the fourth stake snapped above the beam with raw pale breaks, a see-through hole through the planks between the beams with pale broken edges |
 | gateBroken's bottom row drew a dotted line across the gateway's grass | row 19 holds three splinters only |
+| the plot markers (10x16) were too small to find day 1's first build | `plotMarker` 12x22: a tall pale staff, a bigger teal pennant with the gold lantern, the stakes and rope (SPRITES.md amended); the engine bobs it a pixel |
 | the towers' 1 px stonePale edge read as white drainpipes, the shafts showed no stonework | `castleFront`: the right edge column stoneLight, both edge lines broken at the courses, faint course joints in a running bond every 7 rows across the shaft (a post step on `cf-tower-l` before the cylinder shading) |
 
 Engine anchors changed: archers stand on the walks (stone wall dy 42 with posts at 5, 18 and 31; bastion dy 57;

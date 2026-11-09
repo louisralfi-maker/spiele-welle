@@ -316,9 +316,10 @@ final class EntityFramesTests: XCTestCase {
         let day = GameFrameSupport.frame(s, focus: 1300).layer
         let markers = props(day, .plotMarker)
         XCTAssertFalse(markers.isEmpty)
-        XCTAssertTrue(markers.contains { abs($0.x + 5 - Realm.plots[Realm.lines[0].braziers[0]].x) < 1 },
+        let half = Double(SpriteID.plotMarker.size.width) / 2
+        XCTAssertTrue(markers.contains { abs($0.x + half - Realm.plots[Realm.lines[0].braziers[0]].x) < 1 },
                       "line 1's empty brazier plot")
-        XCTAssertFalse(markers.contains { abs($0.x + 5 - Realm.wallX[1] - 10) < 2 }, "the middle line opens on day 3")
+        XCTAssertFalse(markers.contains { abs($0.x + half - Realm.wallX[1] - 10) < 2 }, "the middle line opens on day 3")
         s.hour = 22
         XCTAssertTrue(props(GameFrameSupport.frame(s, focus: 1300).layer, .plotMarker).isEmpty, "none at night")
     }
