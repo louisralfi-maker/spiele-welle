@@ -2,7 +2,7 @@
 
 Written 09.11.2026 for the story pass that follows M3. It is the one source for the world, the people and
 the secret. DESIGN.md stays the source for rules and numbers; where the two disagree about the world, this
-file is newer and wins, and section 9 lists the disagreement.
+file is the newer word, and section 9 lists each disagreement for the lead to carry over.
 
 Fixed by Louis and not open here: the Worldwall with its single cleft; the castle wedged in it; the shadow
 land beyond; the valley, the town and a whole continent of other families behind; House Lantern for a
@@ -268,7 +268,7 @@ both sides, or keep feeding it.
 2. It makes the shadow land a place to go to, which is what Louis asked for the same evening: stone at
    the door, a country when you walk out. Later chapters have a direction: outward.
 3. It keeps the nightly defense honest. If the lost take the fire, the Morninglands go dark. Both sides
-   are right, and the player is never told he has been murdering neighbours.
+   are right, and the player is never told that every arrow struck a neighbour.
 4. It gives the families a stake beyond money: the tithe, the bell, the chronicle.
 5. The player's low start becomes the key. A lamplighter began this and a lamplighter can end it.
 6. B is the warmest but turns every arrow into a wrong, which is heavy for a game with an endless mode.
@@ -382,7 +382,7 @@ largest tithe and has done the sum of what a thousand years of it comes to.
 - **In the game:** flattering letters, a gift that is a debt, the offer of gold for a signature in the
   bad weeks, and a quiet question to every other house about whether a servant can be a lord.
 - **Reacts:** to weakness. Low gold or low happiness brings Pell back with a better pen. A lord who
-  refuses politely and pays his way earns Oxmoor's respect and its long enmity together. Odile hates
+  refuses politely and pays the house's way earns Oxmoor's respect and its long enmity together. Odile hates
   Pell on sight and is right.
 
 ### House Calder of Stillmere: the doubters
@@ -521,7 +521,7 @@ gold, people or the night on Odile's counsel path beyond the limits in section 9
 | 15-16 | `seren_reveal` or `seren_at_gate` | Seren unhoods: keeper of the beacon, rode with Aldric. "The dark did not kill him. It crowned him." | What the court will believe: the Lightless King is Aldric. Only the beacon's light can touch him. |
 | 16 | `tithe_letters` **new** | Odile reads the houses' answers. Banners go up, or do not. Marek may warn about Oxmoor. | The lord's choices have travelled. |
 | 17 | `herald_demand` or `herald_alone`; `truce_drill`, `truce_end` | The herald asks for the keeper, or for sixty gold of lamp oil poured out on the stone. | The King wants lights out and the beacon's keeper. He remembers this hall. |
-| 18 | `varn_ride` **new** | Hild asks leave to ride out after Aldric before the last night. | What the lord owes the missing, set against what he owes the wall. |
+| 18 | `varn_ride` **new** | Hild asks leave to ride out after Aldric before the last night. | What is owed to the missing, set against what is owed to the wall. |
 | 19 | `pip_farewell` | Pip's saved joke. Tamsin and Aldric's place at table. | Who the court was before, and that it has let the lord in. |
 | 20 | `last_stand` | Brannock asks for the speech. "We hold until dawn." / "We bring Lord Aldric home." / "I was never meant for this." | The lord's own leaning, said aloud. |
 | Night 20 | finale | Seren carries the flame out. The beacon flares. The King comes up the Throat with crown, mantle and snuffer. | In the beacon's light, for one breath, they have faces. |
@@ -617,7 +617,7 @@ The keys with "king" that must be read one by one (83): `l.bard_song_line`, `l.b
 `miller_hoard`, `plough_harvest`, `scarecrow`, `tamsin_oven`, `tavern_brawl`, `watch_feast`,
 `wedding_feast`. A search for king, crown, majest, reign, realm, gorge, cliff, border and duke (and
 König, Kron, Krön, Majestät, Reich, Schlucht, Klippe, Grenz, Herzog) must come back empty except for
-the keys listed under "Stays".
+the keys listed under "Stays" and the sea cliffs of the coast.
 
 ### 9.2 Petitions and lines to rewrite
 
@@ -672,3 +672,111 @@ the keys listed under "Stays".
   layers (the Throat), "open shadow land directly before the castle", and chapters 2 and 3 (a coast
   and a thorn forest as battle fronts do not fit a wall with one door; open question 5). In the art
   lane the texts of `portraitKing`, `king`, `kingGlow` and `statue`.
+
+### 9.3 New petitions and lines
+
+Six story audiences for the houses. All are `kind: story`, `chapter: 1`. The first choice is Odile's
+counsel unless noted, and it moves no gold, no people and no night.
+
+| id | Speaker | Days | Choices (label, 40 characters at most) | Sets |
+|---|---|---|---|---|
+| `varn_levy` | Hild Varn | 3-4 | "Welcome. Take the middle line." / "Tell your father I can count." / "Soup first, then walls." | `varn_with` on 1 and 3 |
+| `oxmoor_gift` | Lorenz Pell | 5-6 | "Keep the lamp. Sign nothing." / "Sign." (gold now, `oxmoor_debt`) / "Send both back, kindly." | `oxmoor_with` on 2 |
+| `calder_audit` | Ebba Calder | 12-13 | "Stand with the archers tonight." / "Watch from the keep." / "The wall is no place for guests." | `calder_with` on 1, `calder_coddled` on 2 |
+| `lorn_visit` | Dame Orla Lorn | 14-15 | "Tell me about the bell." / "Odile, check the family book." / "Thank her and see her out." | `lorn_with` on 1 and 2, `stubs_known` on 2 |
+| `tithe_letters` | Odile | 16 | "Hang the banners." / "Hang none. We hold alone." | world change `castle.hall.banners.houses` (new id) |
+| `varn_ride` | Hild Varn | 18, needs `varn_with` | "After the last night, we both go." (counsel) / "No. I need you on the wall." / "Go. Take a numbered lantern." | `vow_aldric` on 1, `hild_rode` on 3 |
+
+Notes: the levy Hild brings is the garrison the player already has, now given a name, so `varn_levy`
+adds no soldiers. `brine_with` is set by `coast_promise` in M3's `envoy_tide`. An unheard house
+petition leaves that house's flag unset and locks nothing. Until art has time, the four new faces use
+the M3 archetype bodies (soldier, noble, townswoman, widow) with a sash in the house's colour.
+
+Later, as random or guest petitions once the spine is in: `quay_lanterns` (buy one of the washed-up
+lanterns for Bram's shelf), `pell_returns` (needs low gold; a better pen), `hemmet_sentence` (old
+Hemmet tries a second sentence), `finch_list` (the Song of Small Things).
+
+New court lines, one each, 120 characters at most (aim for 90):
+
+- Brannock, night 7 onward: "That pole. No."
+- Bram: "Nine lanterns off the stone this morning. Hinges on the wrong side. Not our work."
+- Hesper: "At dusk the Flame leans west. I have stopped telling myself it is the draught."
+- Tamsin: "My mother went in once. All she ever said of it was: the bread was still warm."
+- Seren: "Ask what is out there and I say: a kitchen. I have tried other words."
+- Ebba Calder: "Forty lords in your book. Sixty statues before the fog. One of us is wrong."
+- Finch: "Kitchen, washing, warm bread, a stair, a blue door. I collect what the Returned say."
+- Pip: "Eleven pages gone from the big book. I asked it why. Books are terrible gossips."
+- Odile: "The plans put the beacon's door on the west side. Lady Oriel did not make mistakes."
+- Ansel Quay: "Grey lanterns wash up at Saltgate all year. No chandler of ours made them."
+- Dame Orla: "Your house came down out of the Cleft, young Taper. Mine watched it come."
+- Marek: "Goldenacre writes to everyone, Your Radiance. I only carry the letters."
+- Hild: "Father says a wall is as good as whoever counts it at dawn."
+- Tamsin, day 19: "I laid his place again. Tell me to stop and I will."
+
+### 9.4 Limits the story pass must keep
+
+From M3's tuning, proven on the runner:
+
+- Odile's counsel keeps happiness below +5 net over days 1 to 7 and gold near zero over the chapter.
+- Counsel choices change the night only on days 4 to 14, never on 19 or 20, and never roll a `chance`.
+- No late gifts of people or gold on the counsel path. Day 1's counsel changes neither gold nor night.
+- An unheard story petition never locks the chapter: the war tax unlocks at dawn 8, the beacon site on
+  day 11.
+- Every petition has two or three choices and at least one that costs neither gold nor people.
+- The validator must pass after every batch: request 240 characters, choice 40, reaction 140, counsel
+  hint 140, court line 120, in English. German may run a third longer; cards scroll, labels do not.
+
+## 10. Rules for every writer
+
+1. **Original names only.** People, houses, towns and creatures come from this file or are new. No
+   real brands, no real places, no name from another game, book or series. When in doubt, search it.
+2. **"Lantern" is never translated**, in the house's name or the castle's: Haus Lantern, Lanternhold,
+   in every language. The object is translated as usual (Laterne, lanterne, farol).
+3. **No king, no crown, nothing royal on our side.** The lord is a Burgherr with a circlet. The only
+   king is the Lightless King, and the only crown is his.
+4. **German addresses the lord with "Ihr" and "Euch"**, never "Sie", never "du". The lord says "du"
+   only to a child. The other languages keep the respectful form M3 already uses, in the register
+   for a local lord, not an emperor.
+5. **The lord has no name and no gender in English.** Write around pronouns. German uses "der
+   Burgherr" as the title's grammar and nothing else gendered.
+6. **Keep the limits of 9.4.** One picture and one turn per request. Cut the second adjective.
+7. **Each voice stays itself.** Odile dry, Brannock short, Pip sideways, Hesper calm, Tamsin warm and
+   informed, Bram nearly silent, Marek smooth, Seren far away, Ludo sincere, the herald courteous.
+8. **Hints are things seen.** Nobody at court knows what the figures are and nobody theorises well.
+   No text in chapter 1 goes past section 3's line. The Returned say household things and nothing else.
+9. **Dread, not gore.** No blood, no torture, no dead children shown or described. A low age rating
+   is part of the design. The figures are sad first.
+10. **Humor comes from people, never from the dark** and never at the cost of someone asking for help.
+11. **No music.** The game has none. The horn and the bell are sounds; the bard's song is text. Never
+    promise a tune the player would expect to hear.
+12. **Not a copy.** Never a wall that was built, never ice, never a sworn brotherhood or an oath to
+    take no family. Never giants, never a walled-in people whose memories were wiped. Never a ruler
+    on a mount, a coin pouch, vagrants bought with coins, masked thieves of a crown, portals, or
+    enemies from both sides. Never marriages, heirs or succession plots as petitions. Never swipe
+    cards or four meters. Ours: the lamplighter's hooked pole, the hearth fire as the heart, light
+    pools, the Round, the Count, the Returned and their one sentence, the walk from black rock into a
+    warm hall.
+
+## 11. Open questions for Louis
+
+At most five, each with a recommendation, worded so the lead can ask in short German.
+
+1. **Which secret?** A: the shadow land is the house's old home and the lost want their fire back.
+   B: the lost are all our own missing, made by being given up, and can be called home by name.
+   C: the Gloom is the hearth fire's own shadow and every lord ends inside the King.
+   *Recommended: A.* ("Welches Geheimnis: A, B oder C?")
+2. **Does chapter 1 say that the Lightless King is Aldric?** (a) Yes, from day 15, as the court's
+   belief, as in M3. (b) No, the King stays faceless until the ending. *Recommended: (a).* It pulls
+   harder through the last five days and the deeper truth stays hidden. ("Soll man ab Tag 15 glauben,
+   dass der Lichtlose König Aldric ist?")
+3. **Who is the lord?** (a) No name, never he or she; the picture shows a young lord. (b) A fixed
+   young man with a name. (c) The player types a name. *Recommended: (a).* ("Hat der Burgherr einen
+   Namen?")
+4. **How far out can the player walk in chapter 1?** (a) To the beacon at the mouth: stone all the
+   way, and from there the view over forest, moor and statues. (b) A further stretch of shadow land
+   on foot already in chapter 1. *Recommended: (a) now, (b) as the heart of chapter 2.* ("Wie weit
+   darf man in Kapitel 1 rausgehen?")
+5. **Where do chapters 2 and 3 play?** The Wall has one door, so a coast and a thorn forest as new
+   fronts no longer fit. (a) Further into the shadow land, a new stretch each chapter. (b) Keep the
+   coast and the thorn forest, with another reason for shadows there. (c) Decide after chapter 1.
+   *Recommended: (a).* ("Kapitel 2 und 3: tiefer ins Schattenland?")
