@@ -68,9 +68,11 @@ def king_seated(f=True):
 
 
 def hesper_flame(cx, frame, f=False):
-    """Hesper's staff flame lights a little (a candle's pool at the cup, dx +4.5 from her foot, dy 28)."""
-    dx = -4.5 if f else 4.5
-    return dict(li=[["candle", cx + dx, 28, 12, 0.9]])
+    """Hesper's flame lights a little: a candle's pool at the cup before her chin (ART-court.md "Glow positions":
+    dx +5.5 from her foot, dy 19; 18 in the bob frames 1, 3 and 5, 22 in talk 6 with the staff lifted)."""
+    dx = -5.5 if f else 5.5
+    dy = {1: 18, 3: 18, 5: 18, 6: 22}.get(frame, 19)
+    return dict(li=[["candle", cx + dx, dy, 12, 0.9]])
 
 
 def courtyard_buildings():
