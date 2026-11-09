@@ -1,0 +1,66 @@
+# stoneWall 36x52, 2 frames (strip 72x52). Frame 0 (whole) is the milestone 1 sprite unchanged (converted from
+# s7-defence-1 piece 2, see ART.md), written out as a grid; frame 1 (below 50 % HP), hand-set over it: the right merlon
+# shattered to a ragged stump with fresh pale stone on the breaks, a chip off the left merlon, a branching crack from the
+# crenel floor down four courses, two face stones knocked out (the dark rubble core shows), soot licking up the left side
+# from a fire at the foot, two fallen chips.
+n = night0
+N = night1
+d = stoneDark
+s = stone
+l = stoneLight
+k = ink
+m = stoneMid
+p = stonePale
+---
+..knnnnnnnnnnk.........knnnnnnnnnk......knnnnnnnnk......................
+.kpppppspppppk........kppppsppppplk....kppsspppppk......................
+.kppssslppppsmk.......kppssslpppsmk...kplsslppppsmk.....................
+.kpsssssnppssmk.......kpssssdppsssk..kpsssssnppssmk.........k...........
+.kssssssnssssmk.......ksssssdpssssk..kssssssnssssmk........kpk..........
+.kssppsssssssmk.......ksssssdpssssk..kssppsssssssmk.......kplpk..k......
+.kssssssdssssmk.......ksssssdsssssk..kssssssdssssmk.......kslppkkpk.....
+.kssssssddssskk.......ksssssddssssk..kssssssddssskk.......ksslpplppk....
+.kssddmddddsdk........kmdddddddssk...kssddmddddsdk........kmddslpplpk..k
+.kmdppdpppppdk........kpdsppppppsk...kmdppdpppppdk........kpdsppslpppkkp
+.kssssdppppssmkkkkkkkklpsspppssssskk.kssssdppppssmkkkkkkkklpsspppssslppk
+.kssssdssssssddsssssssssssssssssssdk.kssssdssssssddssksssssssssssssssslk
+.kssssdssssssddssssssssssssssssssddk.kssssdsssssskdskssssssssssssssssddk
+.kssssddssssdddmsssssdmsssssdsssdddk.kssssddssssddkmkssssdmsssssdsssdddk
+.kkddddddddddddddsssnnnddddddddddddk.kkddddddddddddkdsssnnnddddddddddddk
+.kppppppdddpppppddddppppppdddppppppk.kppppppdddppppkddddppppppdddppppppk
+.kpssssssdpssssslddpssssssldlssssssk.kpssssssdpssssklddpssssssldlssssssk
+.ksssssssmsssssssspssssssssmlssssssk.ksssssssmsssskskspssssssssmlssssssk
+.ksssssssdsssssssdsssssssssmsssssssk.ksssssssdsskksskdsssssssssmsssssssk
+.ksssssssdsssssssdsssssssssdsssssssk.ksssssssdsssssssksssssssssdsssssssk
+.kssssssdddssssssddsssssssmddssssssk.kssssssdddsssssskdsssssssmddssssssk
+.knssssdddddssssddddssssssddddsssssk.knssssdddddssssddkdssssssddddsssssk
+.kpddddddddddddddddddddddddddddddddk.kpdddddddddddddddkddddddddddddddddk
+.kppdpmppppdddppppppldddpdpppppdddpk.kppkkkkpppdddppppkpldddpdpppppdddpk
+.kpsssssssssmsssssssssdlssssssssmssk.kpkNNNNkkssmsssssskssdlssssssssmssk
+.kpsssssssssmsssssssssdssssssssssssk.kpkNNNNNNksmsssssskssdssssssssssssk
+.kpsssssssssdsssssssssdsssssssssmssk.kpkdNNNNNksdsssssksksdsssssssssmssk
+.kpdssssssssddsssssssddssssssssmddsk.kpdkdNNdkssddssssksskkssssssssmddsk
+.kmddssssssdddssssssddddsssssssddddk.kmddkkkkssdddssssskddddsssssssddddk
+.kdddddmmmdddddddddddddddddddddddddk.kdddddmmmddddddddddkddddddddddddddk
+.kppppdpdpddddlsdspdppmppdpplmpdddpk.kppppdpdpddddlsdspdkpmppdpplmpdddpk
+.kpsssdssssdddssdpsdsssssdssssssdpsk.kpssmNssssdddssdpsdsksssdskkkssdpsk
+.kssssdsssssddddnssdsssssdssssssdssk.ksssmNsssssddddnssdsksssdkNNNksdssk
+.kssssdssssddppdnmmdsssssdssssssdssk.ksssmNssssddppdnmmdksssskNNNNNkdssk
+.kssssdsssmdpsspddddsssssdsssssddmsk.kssmmNmssmdpsspddddksssskNNdNkddmsk
+.kssssdssmdpssssppddsssssdssssdddppk.kssmmNmsmdpssssppddsksssdkkkkdddppk
+.kddddddddplssssssmkdmmmddddddddlssk.kddNNNNddplssssssmkdmkmddddddddlssk
+.kppppmdddsmmmssssmndppppdddlpddsssk.kpsssdNNNsmmmssssmndppkpdddlpddsssk
+.klssssnsdmmmmmsmmmnllllsldmpssddmsk.klmmmmnmNdmmmmsmmmnllllsldmpssddmsk
+.ksssssnssdmmmmmmmmnssssssslsssskddk.ksmmmmnmmNmmmmmmmmnssssssslsssskddk
+.kssssdnmmmmmmmmmmmnmmmmmmmmsssssddk.ksmmmNndddmmmmmmmmnmmmmmmmmsssssddk
+.kdddddnmmmmmmmmmmmnmmmmmmmdmmmmmnnk.kNNNNNnddddmmmmmmmnmmmmmmmdmmmmmnnk
+.kdddddnmmmmmnddddkmmmmmmmmdmmmmmnnk.kNNNNNnddddmnddddkmmmmmmmmdmmmmmnnk
+.knddddnmmmmmnnnnnnmmmmmnnnnmmmmdnnk.knNNNNndddddnnnnnnmmmmmnnnnmmmmdnnk
+.klsssssmmmmmssssnnmmmmdssssnmmnsssk.ksmmNmmdddddssssnnmmmmdssssnmmnsssk
+.kmmmmmmmmmmnssmsmmmmmksmmmmmdnsmmmk.kddddddddddnmmmsmmmmmksmmmmmdnsmmmk
+.kmmdmmmmmmnmmmmmmmmmnnmmmmmmmnmmmmk.kddNddddNdndddmmmmmmnnmmmmmmmnmmmmk
+.kmmddmmmmmnmmmmmmmmmnsmmdmmmmnmmmmk.kddNNdddddndddmmmmmmnsmmdmmmmnmmmmk
+.kmmmmmmmmmnmmmmmmmmmnmmmdmmmmnmmmmk.kdddddNdddndddmmmmmmnmmmkkmmmnkmmmk
+kmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmkkmdNdddddddNdddmmmmmmmmmkpskmmkpkmmk
+kmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmkkmdddddddddddddmmmmmmmmmmmmmmmmmmmmk
+knnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnkknnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnk
