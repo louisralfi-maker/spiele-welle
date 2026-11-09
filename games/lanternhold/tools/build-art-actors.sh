@@ -48,6 +48,11 @@ build() { # name: one sprite (and its glow strip)
         python3 -I $T post $K/ashGiant-conv.png $K/ashGiant-lift.png --remap ink:rockDeep,rockDeep:stoneDark,stoneDark:stoneMid
         # the flat dark bands (the painting's black) broken into a cobble of boulders like its lit stone arm
         python3 -I $AA texture $K/ashGiant-lift.png $K/ashGiant-key.png --colour rockDeep --to stoneDark --light stoneMid --cell 6 --seed 3
+        # fix stage: long ember fissures along the boulders' joints (crown to chest, chest to waist, across the
+        # shoulder and down the stone arm, down the left leg, chest to the left flank), the lone red specks grown
+        # into 3-4 px cracks; tile glows emberDim (glowmap), so unlit the colossus reads by its cracks, not as a mass
+        python3 -I $AA cracks $K/ashGiant-key.png $K/ashGiant-cracks.png --seed tile --along rockDeep,stoneDark --min 3 --max 4 \
+            --path 40,22:58,30 --path 58,30:50,52 --path 58,30:80,46 --path 80,46:86,75 --path 40,56:30,85 --path 48,36:28,50
         python3 -I $AA build $G/ashGiant.txt --out $A ;;
     lightlessKing) # the cloak recoloured (night0 to night1, its lit folds to night2) so it is no black band
         mkdir -p $K

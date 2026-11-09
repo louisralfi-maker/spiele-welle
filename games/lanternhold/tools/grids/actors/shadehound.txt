@@ -6,6 +6,8 @@ id shadehound
 size 22x14
 frames 6
 outline night0
+# unlit at night: one ember line runs from the tail along the spine and up the mane's edge to the ears (the rim)
+rim emberDim ember
 
 legend
     K = ink
@@ -21,49 +23,50 @@ legend
     s = /fireOrange
     t = /ember
 
-# torso, neck, head and mane (run, stretched): the spine seam glows along the back, the mane streams back
+# torso, neck, head and mane (run, stretched): the mane streams back, ember cracks run down the ribs and the haunch
+# from a hot spot on the spine; the snout tapers to the nose inside the frame (its outline in the last column)
 part body
-    ...............PP.K...
-    .............PPLLPKK..
-    ............PLLSSMDDD.
-    .SS.......PLLSSMMDDEDD
-    ..SLLrrRrrRLSSMMDDDDCD
-    ...MSSSMMMMMMDDDDDK...
-    ....MDDDCCCCCDDDD.....
-    ....DDC.....DDD.......
+    .............PP.K.....
+    ...........PPLLPKK....
+    ..........PLLSSMDDD...
+    .SS.....PLLSSMMDDEDD..
+    ..SLLSSLRLSSMMDDDDCDK.
+    ...MrSSMMrMDDDDDK.....
+    ....MrDCCCrDDDD.......
+    ....DDC...DDD.........
 
 # gathered: the back arches up, the head drops a little
 part bodyUp
-    ..............PP.K....
-    ............PPLLPKK...
-    ......PPLLLLLLSSMDDD..
-    .SS..PLLrrRrrRLSMMDEDD
-    ..SLLSSSMMMMMMDDDDDCDD
-    ...MSMMDDDDDDDDDDK....
-    ....MDDDCCCCCDDDD.....
-    ....DDC.....DDD.......
+    ............PP.K......
+    ..........PPLLPKK.....
+    ......PPLLLLSSMDDD....
+    .SS..PLLLLSRLSMMDEDD..
+    ..SLLrSSMMMMrDDDDCDDK.
+    ...MSMrDDDDDDrDK......
+    ....MDDDCCCDDDD.......
+    ....DDC...DDD.........
 
 # attack: crouched, head low and jaws open; then lunging flat out, jaws shut
 part bodyCrouch
-    ................P.....
-    ..............PPLPK...
-    .............PLLSSKK..
-    ...........PLLSSMMDD..
-    .SS.....PLLSSSMMDDDED.
-    ..SLLrrRrrRLSMMDDDCDDD
-    ...MSSSMMMMMMDDDDDK..K
-    ....MDDDCCCCCDDDD..KK.
-    ....DDC.....DDD.......
+    ..............P.......
+    ............PPLPK.....
+    ...........PLLSSKK....
+    .........PLLSSMMDD....
+    .SS...PLLSSSMMDDDED...
+    ..SLLSSLRLSMMDDDCDDDK.
+    ...MrSSMMrMDDDDDK..K..
+    ....MrDCCCrDDDD..KK...
+    ....DDC...DDD.........
 
 part bodyLunge
-    .................PP.K.
-    ...............PPLLPKK
-    .S...........PLLSSMDDD
-    ..SS.....PPLLSSSMMDDED
-    ...SLLrrRrrRrLSSMMDDCD
-    ....MSSSMMMMMMMDDDDK..
-    .....MDDDCCCCCDDDD....
-    .....DDC.....DDD......
+    ...............PP.K...
+    .............PPLLPKK..
+    .S.........PLLSSMDDD..
+    ..SS...PPLLSSSMMDDED..
+    ...SLLSSLRLLSSMMDDCDK.
+    ....MrSSMMrMMDDDDK....
+    .....MrDCCCrDDDD......
+    .....DDC...DDD........
 
 # legs: hind pair (left), fore pair (right); the far legs one value darker
 part hindA
@@ -154,44 +157,44 @@ part sparkDim
 
 frame 0
     hindAfar 5 8
-    foreAfar 13 8
+    foreAfar 11 8
     body 0 1
     hindA 3 8
-    foreA 12 8
+    foreA 10 8
     spark 7 2
 
 frame 1
     hindBfar 4 8
-    foreBfar 12 8
+    foreBfar 10 8
     bodyUp 0 1
     hindB 5 8
-    foreB 13 8
+    foreB 11 8
     sparkDim 9 1
 
 frame 2
     hindA 5 8
-    foreA 13 8
+    foreA 11 8
     body 0 1
     hindAfar 3 8
-    foreAfar 12 8
+    foreAfar 10 8
     spark 5 2
 
 frame 3
     hindB 4 8
-    foreB 12 8
+    foreB 10 8
     bodyUp 0 1
     hindBfar 5 8
-    foreBfar 13 8
+    foreBfar 11 8
     sparkDim 11 1
 
 frame 4
     hindCrouch 3 9
-    foreCrouch 12 9
+    foreCrouch 10 9
     bodyCrouch 0 1
     spark 8 2
 
 frame 5
     hindPush 0 8
-    foreReach 14 8
+    foreReach 12 8
     bodyLunge 0 1
     sparkDim 4 2

@@ -6,6 +6,8 @@ id sootlingB
 size 14x14
 frames 6
 outline night0
+# unlit at night: the head's top contour smoulders emberDim over its crackled crust, the stick's seam glows
+rim emberDim ember
 
 legend
     K = ink

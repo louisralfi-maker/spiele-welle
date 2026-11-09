@@ -10,7 +10,12 @@ id lightlessKing
 size 64x64
 frames 7
 outline ink
+# lightlessKingGlow, a cold silhouette (his own aura keeps him unlit nearly all of night 20): the top contour glows
+# tealDim with tealGlow on the crown's broken points, the teal rags glow tealDim, the blade's whole light edge
+# tealDim to a tealGlow point, the helm's visor edge and the plate glints tealDim, the eyes tealGlow
+rim tealDim tealGlow
 image key build/recraft/lh/actors/keys/lightlessKing-key.png
+glowmap roofLight=tealDim
 
 legend
     k = ink
@@ -21,15 +26,18 @@ legend
     m = stoneDark
     s = stoneMid
     l = stone
-    L = stoneLight
+    L = stoneLight/tealDim
     r = rock
     g = woodLight
+    G = woodLight/tealDim
+    n = stone/tealDim
     w = woodDark
     y = straw
     E = night0/tealGlow
     f = ink/tealDim
     t = /tealDim
-    a = stoneLight!
+    a = stoneLight!/tealDim
+    A = stoneLight!/tealGlow
     b = stoneDark!
     c = ink!
     h = woodDark!
@@ -40,8 +48,8 @@ part cloakHem image=key poly=8,64;8,57;16,46;10,44;12,40;38,40;38,64
 
 # extinguished crown: tarnished dark gold, one point broken
 part crown
-    g...g..
-    rg.rrg.g
+    G...G..
+    rg.rrg.G
     rrgrrrgr
     wrrwwwrw
 
@@ -50,10 +58,10 @@ part helm
     ..dmmsd..
     .dmsLLsd.
     dmslLlsdd
-    dmslsf00d
-    dmssf000d
-    dmsd0E0Ed
-    dmsdd000d
+    dmslsf00f
+    dmssf000f
+    dmsd0E0Ef
+    dmsdd000f
     ddmsdd0dd
     .ddmsmdd.
     ..ddmmd..
@@ -110,7 +118,7 @@ part swordLow
     ........bbbaaa........
     ...........bbbaaa.....
     ..............bbbaa...
-    .................bba..
+    .................bbA..
     ...................b..
 
 # legs: cuisses, knee cops, greaves and sabatons; the far leg one value darker
@@ -124,7 +132,7 @@ part legNearFwd
     ..dmssd..
     ..dmssd..
     ..dmlsd..
-    ..dllld..
+    ..dlnld..
     ..ddsdd..
     ...dmsd..
     ...dmsd..
@@ -152,7 +160,7 @@ part legNearBack
     ..dmsd...
     ..dmsd...
     ..dmlsd..
-    ..dllsd..
+    ..dlnsd..
     ..ddsdd..
     ..dmsd...
     ..dmsd...
@@ -180,7 +188,7 @@ part legNearStraight
     .dmssd.
     .dmssd.
     .dmlsd.
-    .dllld.
+    .dlnld.
     .ddsdd.
     .dmsd..
     .dmsd..
@@ -207,7 +215,7 @@ part legNearBent
     ..dmsd.
     ..dmssd
     ..dmlsd
-    ..dllsd
+    ..dlnsd
     ..ddsdd
     .dmsd..
     .dmsd..
@@ -337,7 +345,7 @@ part armBack
 part swordBack
     ..............kh
     .aaaaaaaaaaaakhh
-    abbbbbbbbbbbbkh.
+    Abbbbbbbbbbbbkh.
 
 part armForward
     dmmmmmkk
@@ -346,7 +354,7 @@ part armForward
 
 part swordForward
     hk.....................
-    hkaaaaaaaaaaaaaaaaaaaa.
+    hkaaaaaaaaaaaaaaaaaaaA.
     hkbbbbbbbbbbbbbbbbbbbbb
 
 part swordThrough
@@ -356,7 +364,7 @@ part swordThrough
     ........bbbaaa........
     ...........bbbaaa.....
     ..............bbbaa...
-    .................bbaa.
+    .................bbaA.
     ...................bb.
 
 frame 0

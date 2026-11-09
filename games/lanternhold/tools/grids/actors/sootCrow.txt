@@ -5,6 +5,8 @@ id sootCrow
 size 12x10
 frames 4
 outline night0
+# unlit at night the wing's soot flakes smoulder along their top edge, the feather tips hot
+rim emberDim ember
 
 legend
     K = ink

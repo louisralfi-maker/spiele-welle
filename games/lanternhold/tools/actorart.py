@@ -14,12 +14,20 @@ Pure python 3 (pixelart.py's PNG and palette helpers); one sprite per run, each 
   actorart.py texture <in.png> <out.png> --colour NAME --to NAME --light NAME [--cell 5] [--seed 1] [--rect x0,y0,x1,y1]
         Breaks flat areas of one colour into a seeded cobble of boulders (Voronoi cells: crevices keep the colour,
         cell interiors take --to, their upper-left rim --light), so a dark band of a converted painting gets form.
+  actorart.py cracks <in.png> <out.png> --seed NAME --along NAME,… [--min 2] [--max 4] [--seed-value 1]
+                     [--path x0,y0:x1,y1 …]
+        Grows the lone specks of a crack colour into strokes of --min to --max pixels along the crevice colours, so
+        a converted painting's scattered red dots become ember cracks between its boulders (glowmap makes them glow);
+        each --path draws a long fissure first, the cheapest way between its two points along the crevices.
 
 Spec format (`tools/grids/actors/<id>.txt`). Directives start in column 0; their content lines are indented.
     id NAME                  output sprite id (the glow strip is NAMEGlow)
     size WxH                 one frame
     frames N
     outline COLOUR           optional: transparent pixels 4-adjacent to the body become COLOUR (a 1 px outline)
+    rim GLOW [TIP]           optional, with an outline: the top contour (the outline pixel above each column's topmost
+                             body pixel) glows GLOW in every frame, a smouldering edge that carries the silhouette at
+                             night; TIP lights the rim over 1 px wide spikes (crest flakes, ears, stake points)
     image NAME PATH          optional: a palette PNG (e.g. a converted key pose) that parts can be cut from
     glowmap COLOUR=GLOW …    image parts: pixels of that body colour glow (the ember cracks of a converted painting)
     legend                   lines "X = body" or "X = body/glow" or "X = /glow" (palette names; "." is transparent);
@@ -61,6 +69,7 @@ class Spec:
         self.w = self.h = 0
         self.frames = 1
         self.outline = None
+        self.rim = None
         self.legend = {".": (None, None)}
         self.parts = {}
         self.images = {}
@@ -94,6 +103,8 @@ class Spec:
                     self.frames = int(words[1])
                 elif key == "outline":
                     self.outline = self.colour(words[1])
+                elif key == "rim":
+                    self.rim = (self.colour(words[1]), self.colour(words[2]) if len(words) > 2 else None)
                 elif key == "image":
                     path = words[2]
                     if not os.path.isabs(path):
@@ -303,6 +314,22 @@ class Spec:
                 for x, y in add:
                     body[y][x] = self.outline
                     glow[y][x] = None
+                if self.rim:
+                    edge = set(add)
+
+                    def solid(x, y):  # a body pixel of the drawing (not the outline, not a bare string or blade)
+                        return 0 <= x < self.w and 0 <= y < self.h and (x, y) not in edge \
+                            and body[y][x] is not None and len(body[y][x]) == 3
+
+                    # the top contour: the outline pixel right above each column's topmost body pixel (legs and
+                    # arms under the body stay dark)
+                    lit, tip = self.rim
+                    for x in range(self.w):
+                        y = next((y for y in range(self.h) if solid(x, y)), None)
+                        if y is None or (x, y - 1) not in edge:
+                            continue
+                        spike = tip is not None and not solid(x - 1, y) and not solid(x + 1, y)
+                        glow[y - 1][x] = tip if spike else lit
             for y in range(self.h):
                 for x in range(self.w):
                     if body[y][x] is not None and len(body[y][x]) > 3:
@@ -542,6 +569,157 @@ def cmd_texture(a):
     print(f"wrote {a.output} (texture {a.colour} -> {a.to}/{a.light}, cell {cell})")
 
 
+def cmd_cracks(a):
+    """Specks of a crack colour (a converted painting's lone red pixels) grown into strokes: every component smaller
+    than --min pixels walks on from both ends along the crevice colours (--along, in order of preference; never into
+    lit stone, the background or another crack) until it is --min to --max pixels long (a seeded choice per speck)."""
+    pal = Palette(a.palette, True)
+    img, _ = read_png(a.input)
+    W, H = img.w, img.h
+    seed = pal.color(a.seed)
+    along = [pal.color(n) for n in a.along.split(",")]
+    crack = {(x, y) for y in range(H) for x in range(W) if img.get(x, y)[3] and img.get(x, y)[:3] == seed}
+    comps, seen = [], set()
+    for p in sorted(crack, key=lambda q: (q[1], q[0])):
+        if p in seen:
+            continue
+        stack, comp = [p], []
+        seen.add(p)
+        while stack:
+            q = stack.pop()
+            comp.append(q)
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    r = (q[0] + dx, q[1] + dy)
+                    if r in crack and r not in seen:
+                        seen.add(r)
+                        stack.append(r)
+        comps.append(sorted(comp, key=lambda q: (q[1], q[0])))
+
+    def rnd(i, k):
+        v = (i * 73856093) ^ (k * 19349663) ^ (a.seed_value * 83492791)
+        v = (v ^ (v >> 13)) * 1274126177 & 0xFFFFFFFF
+        return ((v ^ (v >> 16)) & 0xFFFF) / 65535.0
+
+    dirs = [(1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1)]
+    out = Image(W, H, list(img.px))
+    # fissures first: the cheapest 8-connected path between two points through the body, cheap along the crevice
+    # colours and dear across lit stone, so a long crack follows the boulders' joints
+    import heapq
+    fissure = set()
+    def snap(p):  # the nearest body pixel
+        if img.get(*p)[3]:
+            return p
+        ring = sorted(((dx * dx + dy * dy, dx, dy) for dx in range(-6, 7) for dy in range(-6, 7)))
+        for _, dx, dy in ring:
+            q = (p[0] + dx, p[1] + dy)
+            if 0 <= q[0] < W and 0 <= q[1] < H and img.get(*q)[3]:
+                return q
+        raise SystemExit(f"cracks: no body pixel near {p}")
+
+    for spec in a.path or []:
+        (x0, y0), (x1, y1) = (snap(tuple(int(v) for v in q.split(","))) for q in spec.split(":"))
+        cost = {(x0, y0): 0.0}
+        prev = {}
+        heap = [(0.0, x0, y0)]
+        while heap:
+            c, x, y = heapq.heappop(heap)
+            if (x, y) == (x1, y1):
+                break
+            if c > cost.get((x, y), 1e9):
+                continue
+            for dx, dy in dirs:
+                X, Y = x + dx, y + dy
+                if not (0 <= X < W and 0 <= Y < H) or not img.get(X, Y)[3]:
+                    continue
+                col = img.get(X, Y)[:3]
+                step = (1 + along.index(col) * 3) if col in along else (1 if col == seed else 14)
+                nc = c + step * (1.41 if dx and dy else 1.0)
+                if nc < cost.get((X, Y), 1e9):
+                    cost[(X, Y)] = nc
+                    prev[(X, Y)] = (x, y)
+                    heapq.heappush(heap, (nc, X, Y))
+        p = (x1, y1)
+        if p not in prev:
+            raise SystemExit(f"cracks: no path {spec}")
+        while p != (x0, y0):
+            fissure.add(p)
+            p = prev[p]
+        fissure.add((x0, y0))
+    for x, y in fissure:
+        out.set(x, y, seed + (255,))
+    owner = {p: i for i, c in enumerate(comps) for p in c}
+    for p in fissure:
+        owner.setdefault(p, -1)
+    grown = len(fissure)
+    for i, comp in enumerate(comps):
+        if len(comp) >= a.min:
+            continue
+        target = a.min + int(rnd(i, 1) * (a.max - a.min + 1) * 0.999)
+        mine = set(comp)
+
+        def free(p):
+            x, y = p
+            if not (0 <= x < W and 0 <= y < H) or p in mine:
+                return None
+            c = img.get(x, y)
+            if not c[3] or c[:3] not in along:
+                return None
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    if owner.get((x + dx, y + dy), i) != i:
+                        return None  # keeps clear of the other cracks: strokes, not blobs
+            return along.index(c[:3])
+
+        # the stroke's axis: along the pair, else the direction with the longest run of crevice pixels
+        if len(comp) > 1:
+            d = (comp[-1][0] - comp[0][0], comp[-1][1] - comp[0][1])
+            d = (max(-1, min(1, d[0])), max(-1, min(1, d[1])))
+        else:
+            best = None
+            for k, d0 in enumerate(dirs[:4]):
+                run = 0
+                for sgn in (1, -1):
+                    x, y = comp[0]
+                    for _ in range(3):
+                        x, y = x + sgn * d0[0], y + sgn * d0[1]
+                        if free((x, y)) is None:
+                            break
+                        run += 1
+                score = run + rnd(i, 10 + k) * 0.5
+                if best is None or score > best[0]:
+                    best = (score, d0)
+            d = best[1]
+        ends = [[comp[-1], d], [comp[0], (-d[0], -d[1])]]
+        side = 0
+        stuck = [False, False]
+        while len(mine) < target and not all(stuck):
+            if stuck[side]:
+                side = 1 - side
+                continue
+            (x, y), (dx, dy) = ends[side]
+            k = dirs.index((dx, dy))
+            pick = None
+            for turn in (0, 1, -1):
+                nd = dirs[(k + turn) % 8]
+                f = free((x + nd[0], y + nd[1]))
+                if f is not None and (pick is None or f < pick[0]):
+                    pick = (f, nd)
+            if pick is None:
+                stuck[side] = True
+            else:
+                nd = pick[1]
+                p = (x + nd[0], y + nd[1])
+                mine.add(p)
+                owner[p] = i
+                ends[side] = [p, nd]
+                out.set(p[0], p[1], seed + (255,))
+                grown += 1
+            side = 1 - side
+    write_png(a.output, out)
+    print(f"wrote {a.output} ({len(comps)} cracks, {grown} pixels grown)")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -574,6 +752,17 @@ def main():
     t.add_argument("--rect")
     t.add_argument("--palette", default=DEFAULT_PALETTE)
     t.set_defaults(fn=cmd_texture)
+    c = sub.add_parser("cracks")
+    c.add_argument("input")
+    c.add_argument("output")
+    c.add_argument("--seed", required=True, help="the crack colour (e.g. tile)")
+    c.add_argument("--along", required=True, help="crevice colours a crack may grow into, best first")
+    c.add_argument("--min", type=int, default=2)
+    c.add_argument("--max", type=int, default=4)
+    c.add_argument("--seed-value", type=int, default=1)
+    c.add_argument("--path", action="append", help="x0,y0:x1,y1 a long fissure along the crevices (repeatable)")
+    c.add_argument("--palette", default=DEFAULT_PALETTE)
+    c.set_defaults(fn=cmd_cracks)
     a = p.parse_args()
     a.fn(a)
 

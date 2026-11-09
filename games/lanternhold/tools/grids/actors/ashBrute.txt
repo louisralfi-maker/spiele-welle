@@ -9,6 +9,9 @@ id ashBrute
 size 44x44
 frames 7
 outline ink
+# unlit at night it reads as smouldering ash: the top contour of the hump, head and fists glows emberDim (ember on
+# spikes), and its plate seams are one connected network of cracks
+rim emberDim ember
 image walk build/recraft/lh/actors/keys/ashBrute-walk.png
 image rear build/recraft/lh/actors/keys/ashBrute-attack.png
 glowmap tile=ember
@@ -46,11 +49,6 @@ part cracksTorso
     .....c
     ....C.
 
-part cracksArm
-    c.
-    .C
-    .c
-
 part cracksLeg
     c
     C
@@ -65,73 +63,160 @@ part impact
     o.....o
     .e...e.
 
+# the plate seams joined into one network (glow only, in key coordinates, placed with the part they cross): up the
+# hump to a hot spot on its crest and down to the belly, along the flank, behind the head, down the front arm from
+# shoulder to wrist; on the rearing key the fist and chest cracks joined into lines
+
+part seamsTorso
+    .....ddde...........
+    .......d.d..........
+    ......d..d..........
+    ..........d..d......
+    ..........d..d......
+    ..........d...d.....
+    d........d.d..d.....
+    .d..................
+    ....................
+    .d..................
+    d...................
+    d..................d
+    ...................d
+
+part seamsArm
+    d....
+    .....
+    .....
+    .d...
+    ..d..
+    ..d..
+    ...d.
+    ...de
+
+part seamsArmBack
+    d.
+    .d
+    .e
+
+part seamsRear
+    .......d..............
+    .......d.............d
+    ...d..............d..d
+    .................d....
+    ......................
+    ......................
+    ......................
+    ......................
+    ......................
+    ......................
+    ......................
+    ......................
+    ......................
+    ......................
+    .......d..............
+    ........d.............
+    ......................
+    ......................
+    ........d.............
+    ........d.............
+    .........d............
+    ..........d...........
+    ...........e..........
+    ......................
+    ......................
+    ......................
+    ......................
+    ......................
+    ......................
+    ......................
+    ......................
+    ......................
+    d.....................
+    ......................
+    ......................
+    ......................
+    .d....................
+    d.....................
+
 frame 0
     armBack 5 11
+    seamsArmBack 12 36
     legBack 3 11
     legFront 5 11
     torso 3 11
+    seamsTorso 11 15
     armFront 3 11
+    seamsArm 30 28
     eyesWalk 30 20
     cracksTorso 14 18
-    cracksArm 29 30
     cracksLeg 18 35
 
 frame 1
     armBack 4 11
+    seamsArmBack 11 36
     legBack 4 10
     legFront 4 11
     torso 3 10
+    seamsTorso 11 14
     armFront 4 9
+    seamsArm 31 26
     eyesWalk 30 19
     cracksTorso 14 17
-    cracksArm 30 28
     cracksLeg 19 34
 
 frame 2
     armBack 3 11
+    seamsArmBack 10 36
     legBack 5 11
     legFront 3 11
     torso 3 11
+    seamsTorso 11 15
     armFront 5 11
+    seamsArm 32 28
     eyesWalk 30 20
     cracksTorso 14 18
-    cracksArm 31 30
     cracksLeg 20 35
 
 frame 3
     armBack 4 9
+    seamsArmBack 11 34
     legBack 4 11
     legFront 4 10
     torso 3 10
+    seamsTorso 11 14
     armFront 4 11
+    seamsArm 31 28
     eyesWalk 30 19
     cracksTorso 14 17
-    cracksArm 30 30
     cracksLeg 19 35
 
 frame 4
     rear 6 0
+    seamsRear 13 1
     eyesRear 21 17
     cracksRear 7 6
 
 frame 5
     armBack 9 11
+    seamsArmBack 16 36
     legBack 3 11
     legFront 5 11
     torso 5 13
+    seamsTorso 13 17
     armFront 6 11
+    seamsArm 33 28
     eyesWalk 32 22
     cracksTorso 16 20
-    cracksArm 32 30
     impact 31 42
 
 frame 6
     armBack 7 11
+    seamsArmBack 14 36
     legBack 3 11
     legFront 5 11
     torso 4 12
+    seamsTorso 12 16
     armFront 4 11
+    seamsArm 31 28
     eyesWalk 31 21
     cracksTorso 15 19
-    cracksArm 30 30
     cracksLeg 18 35
