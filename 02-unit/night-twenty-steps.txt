@@ -1,0 +1,21 @@
+seed 1 without: 1/60 s fell true at 498, fallen 0, killed 106, walls l3.wall@44,l2.wall@61,l1.wall@97 hearth reached @105 King left @19 | 0.1 s fell true at 498, fallen 0, killed 109, walls l3.wall@44,l2.wall@61,l1.wall@97 hearth reached @105 King left @19
+seed 1 with: 1/60 s fell false at -, fallen 0, killed 51, walls l3.wall@44 King left @19 slain @61 at x 930 | 0.1 s fell false at -, fallen 0, killed 51, walls l3.wall@44 King left @19 slain @61 at x 930
+seed 2 without: 1/60 s fell false at -, fallen 1, killed 138, walls l3.wall@38,l2.wall@56,l1.wall@94 King left @10 | 0.1 s fell false at -, fallen 1, killed 138, walls l3.wall@38,l2.wall@57,l1.wall@94 hearth reached @113 King left @10
+    1/60 s: 50.9 s guardsman moving>holding x 915>652 hp 1.5 near [lightlessKing@919 walking, sootling@934 attackingWall, sootling@931 attackingWall, sootling@938 attackingWall, sootling@937 attackingWall, sootling@935 attackingWall]
+    0.1 s: 50.8 s guardsman moving>holding x 916>652 hp 11.0 near [lightlessKing@916 walking, sootling@934 attackingWall, sootling@931 attackingWall, sootling@938 attackingWall, sootling@937 attackingWall, sootling@935 attackingWall]
+seed 2 with: 1/60 s fell false at -, fallen 3, killed 60, walls l3.wall@39 King left @10 slain @54 at x 926 | 0.1 s fell false at -, fallen 3, killed 60, walls l3.wall@39 King left @10 slain @54 at x 926
+    1/60 s: 40.1 s archer moving>posted x 706>1316 hp 0.1 near [shadehound@706 walking, shadehound@695 walking, shadehound@701 walking]
+    1/60 s: 40.6 s archer moving>posted x 717>1310 hp 0.2 near [shadehound@718 walking, shadehound@706 walking, shadehound@712 walking]
+    1/60 s: 51.9 s guardsman moving>holding x 915>652 hp 1.5 near [lightlessKing@919 walking]
+    0.1 s: 40.1 s archer moving>posted x 702>1316 hp 1.4 near [shadehound@703 walking, shadehound@693 walking, shadehound@699 walking]
+    0.1 s: 40.6 s archer moving>posted x 716>1310 hp 0.6 near [shadehound@717 walking, shadehound@706 walking, shadehound@713 walking]
+    0.1 s: 51.9 s guardsman moving>holding x 916>652 hp 11.0 near [lightlessKing@916 walking]
+seed 3 without: 1/60 s fell true at 496, fallen 0, killed 109, walls l3.wall@41,l2.wall@59,l1.wall@95 hearth reached @103 King left @15 | 0.1 s fell true at 476, fallen 4, killed 104, walls l3.wall@41,l2.wall@59,l1.wall@94 hearth reached @102 King left @15
+    0.1 s: 100.3 s archer moving>reserve x 1566>1990 hp 0.3 near [shadehound@1571 walking]
+    0.1 s: 101.6 s archer moving>reserve x 1600>1990 hp 0.2 near [shadehound@1604 walking]
+    0.1 s: 101.8 s archer moving>reserve x 1614>1990 hp 0.0 near [shadehound@1619 walking]
+    0.1 s: 101.9 s archer moving>reserve x 1624>1990 hp 0.6 near [shadehound@1626 walking]
+seed 3 with: 1/60 s fell false at -, fallen 1, killed 54, walls l3.wall@42 King left @15 slain @60 at x 927 | 0.1 s fell false at -, fallen 2, killed 54, walls l3.wall@42 King left @15 slain @60 at x 927
+    1/60 s: 44.6 s archer moving>posted x 749>1316 hp 0.0 near [shadehound@740 walking, shadehound@747 walking, shadehound@756 walking]
+    0.1 s: 44.5 s archer moving>posted x 746>1316 hp 0.6 near [shadehound@738 walking, shadehound@743 walking, shadehound@753 walking]
+    0.1 s: 44.8 s archer moving>posted x 752>1310 hp 1.2 near [shadehound@745 walking, shadehound@751 walking, shadehound@761 walking]

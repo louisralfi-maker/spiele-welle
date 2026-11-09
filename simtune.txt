@@ -1,0 +1,224 @@
+simtune: compiled in 121 s
+simtune: 15 variants
+standard     123456.8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low92 | T5 tax49 b3 d10:11 | T6 10/10/6 of 10 kill[42, 44, 45, 43, 42, 43, 43, 44, 46, 42] x[930, 926, 927, 902, 930, 923, 907, 928, 926, 923] [498, 0, 476, 0, 492, 0, 0, 0, 0, 460] nb10 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] | T7 [0, 42, 39] | T8 80s e42 l11 | 4 s
+T1 PASS nights 1-10, reference bot, normal tax: survived true, hearth lowest 100.0 (target 100), losses most 0 (target <= 3)
+T2 PASS builds nothing: falls on nights [3, 3, 3] (target 2 or 3; 0 = not by night 6)
+T3 PASS beacon finished on days [17, 17, 17] (target <= 18), low tax: 0 (target never by 18; 0 = never)
+T4 PASS high tax happiness at dawn 8: 25 (target < 30); low tax lowest dawns 8-20: 92 (target > 70)
+T5 PASS first dawn taxes 49 buy 3 builds (target 2-3); buildings by day 10: 11 (target 8-12)
+T6 PASS night 20 won with the beacon 10/10 (target >= 8), the King slain 10/10 (target >= 6) after [42, 44, 45, 43, 42, 43, 43, 44, 46, 42] s at x [930, 926, 927, 902, 930, 923, 907, 928, 926, 923] (0 = he lived; target about 25-70 s at the outer or middle line), without (same realm, last stage taken away) 6/10 (target 3-6), falls at [498, 0, 476, 0, 492, 0, 0, 0, 0, 460]; reported only: a bot that never builds the beacon holds night 20 in 10/10, falls [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (night × 1000 + hour × 100)
+T7 FAIL endless: falls on nights [0, 42, 39] (target 35-60; 0 = still standing at the cap)
+T8 PASS last wave left at 79.9 s after nightfall (target <= 84); sim proxy, night 3 with 38 creatures: 42 sim entities (target < 300), 11 battle lights (target < 40)
+
+reference bot, seed 1:
+night 1: held, spawned 25, killed 25, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 70, taxes 49, happiness 62, citizens 15, archers 3, guards 2, buildings 3
+night 2: held, spawned 34, killed 34, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 65, taxes 60, happiness 64, citizens 16, archers 3, guards 2, buildings 5
+night 3: held, spawned 38, killed 38, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 52, taxes 49, happiness 66, citizens 16, archers 6, guards 2, buildings 7
+night 4: held, spawned 45, killed 45, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 90, taxes 50, happiness 68, citizens 16, archers 6, guards 2, buildings 8
+night 5: held, spawned 50, killed 50, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 61, taxes 56, happiness 70, citizens 17, archers 6, guards 2, buildings 9
+night 6: held, spawned 58, killed 58, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 3, patches 0 | gold 63, taxes 62, happiness 72, citizens 19, archers 7, guards 2, buildings 9
+night 7: held, spawned 58, killed 58, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 72, taxes 69, happiness 74, citizens 20, archers 7, guards 2, buildings 9
+night 8: held, spawned 50, killed 50, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 92, taxes 70, happiness 76, citizens 21, archers 8, guards 2, buildings 10
+night 9: held, spawned 61, killed 60, dissolved 1, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 108, taxes 76, happiness 78, citizens 23, archers 9, guards 2, buildings 10
+night 10: held, spawned 68, killed 66, dissolved 2, walls lost 0, fallen 0, hearth 100, snuffed 1, patches 2 | gold 102, taxes 94, happiness 80, citizens 25, archers 9, guards 2, buildings 11
+night 11: held, spawned 81, killed 81, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 162, taxes 110, happiness 83, citizens 27, archers 9, guards 2, buildings 12
+night 12: held, spawned 73, killed 71, dissolved 2, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 178, taxes 126, happiness 86, citizens 28, archers 9, guards 2, buildings 13
+night 13: held, spawned 71, killed 60, dissolved 11, walls lost 1, fallen 0, hearth 100, snuffed 0, patches 0 | gold 313, taxes 135, happiness 89, citizens 28, archers 9, guards 2, buildings 13
+night 14: held, spawned 67, killed 56, dissolved 11, walls lost 1, fallen 0, hearth 100, snuffed 2, patches 0 | gold 222, taxes 139, happiness 92, citizens 28, archers 9, guards 2, buildings 13
+night 15: held, spawned 71, killed 63, dissolved 8, walls lost 1, fallen 0, hearth 100, snuffed 0, patches 0 | gold 333, taxes 141, happiness 95, citizens 28, archers 9, guards 2, buildings 13
+night 16: held, spawned 94, killed 89, dissolved 5, walls lost 1, fallen 0, hearth 100, snuffed 2, patches 0 | gold 446, taxes 143, happiness 98, citizens 28, archers 9, guards 2, buildings 13
+night 17: held, spawned 88, killed 80, dissolved 8, walls lost 2, fallen 4, hearth 100, snuffed 13, patches 3 | gold 158, taxes 146, happiness 87, citizens 26, archers 6, guards 1, buildings 16
+night 18: held, spawned 102, killed 95, dissolved 7, walls lost 1, fallen 0, hearth 100, snuffed 9, patches 3 | gold 153, taxes 145, happiness 90, citizens 28, archers 7, guards 1, buildings 17
+night 19: held, spawned 114, killed 109, dissolved 5, walls lost 1, fallen 1, hearth 100, snuffed 2, patches 0 | gold 135, taxes 132, happiness 88, citizens 28, archers 11, guards 0, buildings 19
+night 20: held, spawned 80, killed 51, dissolved 29, walls lost 1, fallen 0, hearth 100, snuffed 6, patches 2 | gold 148, taxes 123, happiness 91, citizens 30, archers 13, guards 0, buildings 19
+
+night 20 by seed:
+seed 1: beacon stage 3 | with: night 20: held, spawned 80, killed 51, dissolved 29, walls lost 1, fallen 0, hearth 100, snuffed 6, patches 2 | gold 148, taxes 123, happiness 91, citizens 30, archers 13, guards 0, buildings 19 | walls l3.wall@44 King left @19 slain @61 at x 930 | without: FELL hearth 0 walls lost 3 fallen 0 at 498 walls l3.wall@44,l2.wall@61,l1.wall@97 hearth reached @105 King left @19 | gate tier 1 l2 stoneWall l3 palisade
+seed 2: beacon stage 3 | with: night 20: held, spawned 71, killed 60, dissolved 11, walls lost 1, fallen 3, hearth 100, snuffed 0, patches 1 | gold 142, taxes 128, happiness 68, citizens 26, archers 8, guards 0, buildings 19 | walls l3.wall@39 King left @10 slain @54 at x 926 | without: held hearth 100 walls lost 3 fallen 1 walls l3.wall@38,l2.wall@57,l1.wall@94 hearth reached @113 King left @10 | gate tier 1 l2 stoneWall l3 palisade
+seed 3: beacon stage 3 | with: night 20: held, spawned 75, killed 54, dissolved 21, walls lost 1, fallen 2, hearth 100, snuffed 2, patches 2 | gold 143, taxes 105, happiness 59, citizens 23, archers 8, guards 0, buildings 18 | walls l3.wall@42 King left @15 slain @60 at x 927 | without: FELL hearth 0 walls lost 3 fallen 4 at 476 walls l3.wall@41,l2.wall@59,l1.wall@94 hearth reached @102 King left @15 | gate tier 1 l2 stoneWall l3 palisade
+seed 4: beacon stage 3 | with: night 20: held, spawned 64, killed 43, dissolved 21, walls lost 1, fallen 0, hearth 100, snuffed 2, patches 1 | gold 157, taxes 120, happiness 88, citizens 32, archers 13, guards 2, buildings 19 | walls l3.wall@43 King left @12 slain @54 at x 902 | without: held hearth 61 walls lost 3 fallen 2 walls l3.wall@41,l2.wall@57,l1.wall@96 hearth reached @104 King left @12 | gate tier 1 l2 stoneWall l3 palisade
+seed 5: beacon stage 3 | with: night 20: held, spawned 69, killed 48, dissolved 21, walls lost 1, fallen 0, hearth 100, snuffed 2, patches 1 | gold 154, taxes 105, happiness 76, citizens 28, archers 13, guards 0, buildings 19 | walls l3.wall@40 King left @12 slain @54 at x 930 | without: FELL hearth 0 walls lost 3 fallen 0 at 492 walls l3.wall@38,l2.wall@55,l1.wall@95 hearth reached @103 King left @12 | gate tier 1 l2 stoneWall l3 palisade
+seed 6: beacon stage 3 | with: night 20: held, spawned 70, killed 45, dissolved 25, walls lost 1, fallen 0, hearth 100, snuffed 1, patches 1 | gold 151, taxes 111, happiness 86, citizens 30, archers 13, guards 1, buildings 19 | walls l3.wall@35 King left @8 slain @51 at x 923 | without: held hearth 100 walls lost 3 fallen 1 walls l3.wall@35,l2.wall@52,l1.wall@92 hearth reached @113 King left @8 | gate tier 1 l2 stoneWall l3 palisade
+seed 7: beacon stage 3 | with: night 20: held, spawned 69, killed 42, dissolved 27, walls lost 1, fallen 0, hearth 100, snuffed 2, patches 1 | gold 160, taxes 128, happiness 100, citizens 31, archers 13, guards 1, buildings 19 | walls l3.wall@39 King left @8 slain @51 at x 907 | without: held hearth 100 walls lost 3 fallen 1 walls l3.wall@37,l2.wall@53,l1.wall@93 hearth reached @112 King left @8 | gate tier 1 l2 stoneWall l3 palisade
+seed 8: beacon stage 3 | with: night 20: held, spawned 72, killed 49, dissolved 23, walls lost 1, fallen 3, hearth 100, snuffed 3, patches 0 | gold 112, taxes 111, happiness 74, citizens 26, archers 11, guards 0, buildings 19 | walls l3.wall@45 King left @15 slain @59 at x 928 | without: held hearth 100 walls lost 3 fallen 1 walls l3.wall@45,l2.wall@63,l1.wall@100 King left @15 | gate tier 1 l2 stoneWall l3 palisade
+seed 9: beacon stage 3 | with: night 20: held, spawned 81, killed 58, dissolved 23, walls lost 1, fallen 0, hearth 100, snuffed 3, patches 2 | gold 108, taxes 91, happiness 63, citizens 24, archers 10, guards 0, buildings 18 | walls l3.wall@40 King left @12 slain @58 at x 926 | without: held hearth 100 walls lost 3 fallen 0 walls l3.wall@39,l2.wall@57,l1.wall@100 King left @12 | gate tier 1 l2 stoneWall l3 palisade
+seed 10: beacon stage 3 | with: night 20: held, spawned 64, killed 34, dissolved 30, walls lost 1, fallen 0, hearth 100, snuffed 3, patches 0 | gold 110, taxes 110, happiness 84, citizens 30, archers 13, guards 1, buildings 19 | walls l3.wall@33 King left @7 slain @49 at x 923 | without: FELL hearth 0 walls lost 3 fallen 1 at 460 walls l3.wall@33,l2.wall@49,l1.wall@84 hearth reached @101 King left @7 | gate tier 1 l2 stoneWall l3 palisade
+
+endless, first seed:
+night 21: held, spawned 121, killed 107, dissolved 14, walls lost 1, fallen 2, hearth 100, snuffed 10, patches 3 | gold 145, taxes 125, happiness 86, citizens 31, archers 13, guards 1, buildings 19
+night 22: held, spawned 138, killed 131, dissolved 7, walls lost 1, fallen 4, hearth 100, snuffed 4, patches 3 | gold 139, taxes 128, happiness 75, citizens 28, archers 10, guards 1, buildings 20
+night 23: held, spawned 144, killed 140, dissolved 4, walls lost 2, fallen 0, hearth 100, snuffed 5, patches 0 | gold 129, taxes 120, happiness 78, citizens 29, archers 11, guards 1, buildings 20
+night 24: held, spawned 140, killed 127, dissolved 13, walls lost 1, fallen 3, hearth 100, snuffed 3, patches 1 | gold 172, taxes 123, happiness 70, citizens 28, archers 11, guards 0, buildings 20
+night 25: held, spawned 134, killed 127, dissolved 7, walls lost 1, fallen 0, hearth 100, snuffed 8, patches 2 | gold 119, taxes 117, happiness 73, citizens 29, archers 12, guards 0, buildings 21
+night 26: held, spawned 146, killed 140, dissolved 6, walls lost 1, fallen 0, hearth 100, snuffed 5, patches 2 | gold 178, taxes 119, happiness 76, citizens 30, archers 13, guards 0, buildings 21
+night 27: held, spawned 144, killed 139, dissolved 5, walls lost 1, fallen 1, hearth 100, snuffed 12, patches 3 | gold 119, taxes 115, happiness 74, citizens 31, archers 15, guards 0, buildings 21
+night 28: held, spawned 172, killed 170, dissolved 2, walls lost 1, fallen 0, hearth 100, snuffed 5, patches 3 | gold 178, taxes 119, happiness 77, citizens 32, archers 15, guards 0, buildings 21
+night 29: held, spawned 163, killed 157, dissolved 6, walls lost 1, fallen 0, hearth 100, snuffed 8, patches 3 | gold 136, taxes 122, happiness 80, citizens 32, archers 15, guards 1, buildings 21
+night 30: held, spawned 179, killed 174, dissolved 5, walls lost 1, fallen 0, hearth 100, snuffed 6, patches 1 | gold 220, taxes 124, happiness 83, citizens 32, archers 15, guards 1, buildings 21
+night 31: held, spawned 213, killed 209, dissolved 4, walls lost 1, fallen 4, hearth 100, snuffed 5, patches 2 | gold 156, taxes 126, happiness 72, citizens 29, archers 12, guards 0, buildings 21
+night 32: held, spawned 210, killed 203, dissolved 7, walls lost 1, fallen 0, hearth 100, snuffed 9, patches 3 | gold 204, taxes 118, happiness 75, citizens 30, archers 13, guards 0, buildings 21
+night 33: held, spawned 220, killed 218, dissolved 2, walls lost 1, fallen 0, hearth 100, snuffed 9, patches 2 | gold 124, taxes 120, happiness 78, citizens 32, archers 15, guards 0, buildings 21
+night 34: held, spawned 239, killed 235, dissolved 4, walls lost 1, fallen 0, hearth 100, snuffed 8, patches 3 | gold 133, taxes 123, happiness 81, citizens 32, archers 15, guards 1, buildings 21
+night 35: held, spawned 242, killed 236, dissolved 6, walls lost 1, fallen 0, hearth 100, snuffed 23, patches 3 | gold 158, taxes 125, happiness 84, citizens 32, archers 15, guards 1, buildings 21
+night 36: held, spawned 246, killed 244, dissolved 2, walls lost 1, fallen 0, hearth 100, snuffed 9, patches 3 | gold 185, taxes 127, happiness 87, citizens 32, archers 15, guards 1, buildings 21
+night 37: held, spawned 274, killed 272, dissolved 2, walls lost 0, fallen 0, hearth 100, snuffed 14, patches 3 | gold 215, taxes 130, happiness 90, citizens 32, archers 15, guards 1, buildings 21
+night 38: held, spawned 276, killed 273, dissolved 3, walls lost 1, fallen 0, hearth 100, snuffed 15, patches 2 | gold 137, taxes 132, happiness 93, citizens 32, archers 15, guards 1, buildings 21
+night 39: held, spawned 285, killed 273, dissolved 12, walls lost 1, fallen 5, hearth 100, snuffed 18, patches 2 | gold 141, taxes 134, happiness 79, citizens 29, archers 12, guards 0, buildings 21
+night 40: held, spawned 284, killed 277, dissolved 7, walls lost 1, fallen 4, hearth 100, snuffed 21, patches 2 | gold 125, taxes 124, happiness 68, citizens 26, archers 9, guards 0, buildings 21
+night 41: held, spawned 328, killed 322, dissolved 6, walls lost 1, fallen 4, hearth 100, snuffed 6, patches 0 | gold 121, taxes 116, happiness 57, citizens 22, archers 6, guards 0, buildings 21
+night 42: held, spawned 331, killed 321, dissolved 10, walls lost 1, fallen 0, hearth 100, snuffed 10, patches 1 | gold 148, taxes 107, happiness 60, citizens 23, archers 6, guards 0, buildings 21
+night 43: held, spawned 316, killed 310, dissolved 6, walls lost 1, fallen 0, hearth 100, snuffed 16, patches 3 | gold 147, taxes 109, happiness 63, citizens 24, archers 7, guards 0, buildings 21
+night 44: held, spawned 373, killed 362, dissolved 11, walls lost 2, fallen 4, hearth 100, snuffed 14, patches 3 | gold 148, taxes 111, happiness 52, citizens 20, archers 4, guards 0, buildings 21
+night 45: held, spawned 356, killed 338, dissolved 18, walls lost 2, fallen 0, hearth 100, snuffed 20, patches 0 | gold 111, taxes 103, happiness 55, citizens 20, archers 4, guards 0, buildings 21
+night 46: held, spawned 360, killed 310, dissolved 50, walls lost 1, fallen 0, hearth 100, snuffed 24, patches 0 | gold 146, taxes 105, happiness 58, citizens 20, archers 4, guards 0, buildings 21
+night 47: held, spawned 403, killed 366, dissolved 37, walls lost 2, fallen 0, hearth 100, snuffed 21, patches 0 | gold 114, taxes 108, happiness 61, citizens 21, archers 4, guards 0, buildings 21
+night 48: held, spawned 446, killed 411, dissolved 35, walls lost 1, fallen 0, hearth 100, snuffed 17, patches 2 | gold 140, taxes 116, happiness 64, citizens 22, archers 4, guards 0, buildings 21
+night 49: held, spawned 491, killed 471, dissolved 20, walls lost 2, fallen 0, hearth 100, snuffed 20, patches 0 | gold 125, taxes 125, happiness 67, citizens 23, archers 4, guards 0, buildings 21
+night 50: held, spawned 524, killed 482, dissolved 42, walls lost 1, fallen 0, hearth 100, snuffed 26, patches 1 | gold 179, taxes 134, happiness 70, citizens 24, archers 4, guards 0, buildings 21
+night 51: held, spawned 475, killed 455, dissolved 20, walls lost 1, fallen 0, hearth 100, snuffed 17, patches 2 | gold 146, taxes 137, happiness 73, citizens 26, archers 6, guards 0, buildings 21
+night 52: held, spawned 529, killed 516, dissolved 13, walls lost 1, fallen 3, hearth 100, snuffed 23, patches 2 | gold 185, taxes 139, happiness 65, citizens 24, archers 4, guards 0, buildings 21
+night 53: held, spawned 540, killed 516, dissolved 24, walls lost 1, fallen 1, hearth 100, snuffed 29, patches 3 | gold 207, taxes 132, happiness 63, citizens 24, archers 4, guards 0, buildings 21
+night 54: held, spawned 595, killed 572, dissolved 23, walls lost 2, fallen 0, hearth 100, snuffed 30, patches 0 | gold 133, taxes 131, happiness 66, citizens 25, archers 5, guards 0, buildings 23
+night 55: held, spawned 506, killed 449, dissolved 57, walls lost 1, fallen 1, hearth 100, snuffed 24, patches 0 | gold 203, taxes 140, happiness 64, citizens 25, archers 4, guards 0, buildings 23
+night 56: held, spawned 577, killed 521, dissolved 56, walls lost 2, fallen 1, hearth 100, snuffed 28, patches 2 | gold 156, taxes 138, happiness 62, citizens 25, archers 4, guards 0, buildings 24
+night 57: held, spawned 625, killed 594, dissolved 31, walls lost 2, fallen 1, hearth 100, snuffed 34, patches 0 | gold 143, taxes 137, happiness 60, citizens 25, archers 4, guards 0, buildings 24
+night 58: held, spawned 559, killed 502, dissolved 57, walls lost 2, fallen 0, hearth 100, snuffed 34, patches 0 | gold 143, taxes 140, happiness 63, citizens 26, archers 4, guards 0, buildings 24
+night 59: held, spawned 699, killed 641, dissolved 58, walls lost 2, fallen 0, hearth 100, snuffed 32, patches 0 | gold 152, taxes 149, happiness 66, citizens 27, archers 4, guards 0, buildings 24
+night 60: held, spawned 619, killed 543, dissolved 76, walls lost 2, fallen 1, hearth 100, snuffed 32, patches 0 | gold 155, taxes 153, happiness 64, citizens 27, archers 4, guards 0, buildings 24
+night 61: held, spawned 729, killed 661, dissolved 68, walls lost 2, fallen 1, hearth 100, snuffed 26, patches 0 | gold 155, taxes 150, happiness 62, citizens 27, archers 4, guards 0, buildings 24
+night 62: held, spawned 697, killed 645, dissolved 52, walls lost 2, fallen 1, hearth 100, snuffed 31, patches 0 | gold 154, taxes 149, happiness 60, citizens 27, archers 4, guards 0, buildings 24
+night 63: held, spawned 851, killed 787, dissolved 64, walls lost 2, fallen 1, hearth 100, snuffed 26, patches 0 | gold 151, taxes 147, happiness 58, citizens 26, archers 4, guards 0, buildings 24
+night 64: held, spawned 796, killed 715, dissolved 81, walls lost 2, fallen 0, hearth 100, snuffed 36, patches 1 | gold 146, taxes 145, happiness 61, citizens 27, archers 4, guards 0, buildings 24
+night 65: held, spawned 807, killed 731, dissolved 76, walls lost 2, fallen 0, hearth 100, snuffed 36, patches 0 | gold 160, taxes 154, happiness 64, citizens 28, archers 4, guards 0, buildings 24
+night 66: held, spawned 823, killed 749, dissolved 74, walls lost 2, fallen 1, hearth 100, snuffed 34, patches 1 | gold 157, taxes 157, happiness 62, citizens 28, archers 4, guards 0, buildings 24
+night 67: held, spawned 756, killed 659, dissolved 97, walls lost 2, fallen 1, hearth 100, snuffed 37, patches 0 | gold 162, taxes 155, happiness 60, citizens 28, archers 4, guards 0, buildings 24
+night 68: held, spawned 923, killed 849, dissolved 74, walls lost 2, fallen 1, hearth 100, snuffed 32, patches 1 | gold 155, taxes 153, happiness 58, citizens 27, archers 4, guards 0, buildings 24
+night 69: held, spawned 915, killed 815, dissolved 100, walls lost 2, fallen 0, hearth 100, snuffed 37, patches 1 | gold 155, taxes 150, happiness 61, citizens 28, archers 4, guards 0, buildings 24
+night 70: held, spawned 884, killed 782, dissolved 102, walls lost 2, fallen 1, hearth 100, snuffed 31, patches 0 | gold 159, taxes 154, happiness 59, citizens 27, archers 4, guards 0, buildings 24
+
+hp300        12345678 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low92 | T5 tax49 b3 d10:11 | T6 10/10/6 of 10 kill[35, 38, 37, 34, 36, 36, 33, 38, 39, 35] x[855, 838, 876, 689, 822, 840, 689, 787, 868, 841] [498, 0, 476, 0, 492, 0, 0, 0, 0, 460] nb10 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] | T7 [48, 43, 40] | T8 80s e42 l11 | 3 s
+hp400        12345678 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low92 | T5 tax49 b3 d10:11 | T6 10/10/6 of 10 kill[38, 41, 41, 39, 39, 39, 39, 41, 43, 39] x[930, 903, 927, 818, 901, 918, 828, 860, 926, 920] [498, 0, 476, 0, 492, 0, 0, 0, 0, 460] nb10 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] | T7 [47, 41, 40] | T8 80s e42 l11 | 4 s
+hp650        12345.78 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low92 | T5 tax49 b3 d10:11 | T6 9/4/6 of 10 kill[0, 49, 0, 47, 0, 0, 48, 50, 0, 0] x[0, 939, 0, 927, 0, 0, 927, 961, 0, 0] [498, 0, 476, 0, 492, 0, 0, 0, 0, 460] nb10 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] | T7 [47, 41, 40] | T8 80s e42 l11 | 5 s
+hp800        12345.78 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low92 | T5 tax49 b3 d10:11 | T6 9/0/6 of 10 kill[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] x[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] [498, 0, 476, 0, 492, 0, 0, 0, 0, 460] nb10 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] | T7 [47, 40, 40] | T8 80s e42 l11 | 4 s
+hp1000       12345.78 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low92 | T5 tax49 b3 d10:11 | T6 9/0/6 of 10 kill[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] x[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] [498, 0, 476, 0, 492, 0, 0, 0, 0, 460] nb10 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] | T7 [47, 40, 40] | T8 80s e42 l11 | 4 s
+hp1400       12345.78 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low92 | T5 tax49 b3 d10:11 | T6 9/0/6 of 10 kill[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] x[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] [498, 0, 476, 0, 492, 0, 0, 0, 0, 460] nb10 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] | T7 [47, 40, 40] | T8 80s e42 l11 | 4 s
+noAim        123456.8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low92 | T5 tax49 b3 d10:11 | T6 10/10/6 of 10 kill[44, 45, 47, 43, 43, 43, 43, 47, 48, 42] x[930, 926, 954, 916, 930, 923, 919, 928, 937, 923] [498, 0, 476, 0, 492, 0, 0, 0, 0, 460] nb10 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] | T7 [0, 46, 49] | T8 80s e42 l11 | 39 s
+noAim300     12345678 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low92 | T5 tax49 b3 d10:11 | T6 10/10/6 of 10 kill[37, 39, 40, 37, 36, 36, 37, 41, 40, 35] x[907, 860, 927, 761, 839, 840, 763, 831, 903, 841] [498, 0, 476, 0, 492, 0, 0, 0, 0, 460] nb10 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] | T7 [48, 43, 56] | T8 80s e42 l11 | 4 s
+r700         12345.78 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low92 | T5 tax49 b3 d10:11 | T6 10/4/6 of 10 kill[0, 0, 0, 43, 0, 43, 43, 0, 0, 42] x[0, 0, 0, 902, 0, 923, 907, 0, 0, 923] [498, 0, 476, 0, 492, 0, 0, 0, 0, 460] nb10 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] | T7 [47, 40, 40] | T8 80s e42 l11 | 2 s
+r840         123456.8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low92 | T5 tax49 b3 d10:11 | T6 10/10/6 of 10 kill[42, 44, 45, 43, 42, 43, 43, 44, 46, 42] x[930, 926, 927, 902, 930, 923, 907, 928, 926, 923] [498, 0, 476, 0, 492, 0, 0, 0, 0, 460] nb10 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] | T7 [0, 42, 39] | T8 80s e42 l11 | 4 s
+noBossPass   123456.8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low92 | T5 tax49 b3 d10:11 | T6 10/10/6 of 10 kill[42, 44, 45, 43, 42, 43, 43, 44, 46, 42] x[930, 926, 927, 902, 930, 923, 907, 928, 926, 923] [498, 0, 476, 0, 492, 0, 0, 0, 0, 460] nb10 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] | T7 [0, 41, 39] | T8 80s e42 l11 | 3 s
+kSec10       12345678 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low92 | T5 tax49 b3 d10:11 | T6 10/10/5 of 10 kill[46, 45, 47, 43, 43, 42, 42, 45, 48, 42] x[924, 926, 924, 907, 930, 923, 891, 928, 926, 923] [0, 0, 449, 0, 483, 498, 497, 0, 0, 382] nb10 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] | T7 [50, 43, 40] | T8 80s e42 l11 | 3 s
+kSec18       12345..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low92 | T5 tax49 b3 d10:11 | T6 10/10/9 of 10 kill[43, 45, 44, 41, 43, 43, 42, 44, 45, 42] x[922, 926, 920, 925, 930, 923, 900, 922, 945, 923] [0, 0, 0, 0, 0, 0, 0, 0, 0, 484] nb10 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] | T7 [0, 47, 41] | T8 80s e42 l11 | 3 s
+harm1.1      12345.78 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low84 | T5 tax49 b3 d10:11 | T6 10/9/7 of 10 kill[0, 44, 40, 42, 42, 44, 42, 44, 45, 44] x[0, 926, 924, 895, 930, 927, 907, 928, 945, 924] [482, 0, 0, 447, 477, 0, 0, 0, 0, 0] nb9 [0, 0, 0, 0, 0, 0, 0, 0, 0, 20468] | T7 [37, 47, 57] | T8 80s e42 l11 | 4 s
+steps, standard:
+seed 1 with 1/60 s: held, fallen 0, killed 51, walls l3.wall@44 King left @19 slain @61 at x 930 (kill after 42.4 s)
+seed 1 with 0.1 s: held, fallen 0, killed 51, walls l3.wall@44 King left @19 slain @61 at x 930 (kill after 42.3 s)
+seed 1 without 1/60 s: FELL at 498, fallen 0, killed 106, walls l3.wall@44,l2.wall@61,l1.wall@97 hearth reached @105 King left @19
+seed 1 without 0.1 s: FELL at 498, fallen 0, killed 109, walls l3.wall@44,l2.wall@61,l1.wall@97 hearth reached @105 King left @19
+seed 2 with 1/60 s: held, fallen 3, killed 60, walls l3.wall@39 King left @10 slain @54 at x 926 (kill after 44.4 s)
+    40.1 s archer moving>posted x 706>1316 hp 0.1 near [shadehound@706 walking, shadehound@695 walking, shadehound@701 walking]
+    40.6 s archer moving>posted x 717>1310 hp 0.2 near [shadehound@718 walking, shadehound@706 walking, shadehound@712 walking]
+    51.9 s guardsman moving>holding x 915>652 hp 1.5 near [lightlessKing@919 walking]
+seed 2 with 0.1 s: held, fallen 3, killed 60, walls l3.wall@39 King left @10 slain @54 at x 926 (kill after 44.3 s)
+    40.1 s archer moving>posted x 702>1316 hp 1.4 near [shadehound@703 walking, shadehound@693 walking, shadehound@699 walking]
+    40.6 s archer moving>posted x 716>1310 hp 0.6 near [shadehound@717 walking, shadehound@706 walking, shadehound@713 walking]
+    51.9 s guardsman moving>holding x 916>652 hp 11.0 near [lightlessKing@916 walking]
+seed 2 without 1/60 s: held, fallen 1, killed 138, walls l3.wall@38,l2.wall@56,l1.wall@94 King left @10
+    50.9 s guardsman moving>holding x 915>652 hp 1.5 near [lightlessKing@919 walking, sootling@934 attackingWall, sootling@931 attackingWall, sootling@938 attackingWall, sootling@937 attackingWall, sootling@935 attackingWall]
+seed 2 without 0.1 s: held, fallen 1, killed 138, walls l3.wall@38,l2.wall@57,l1.wall@94 hearth reached @113 King left @10
+    50.8 s guardsman moving>holding x 916>652 hp 11.0 near [lightlessKing@916 walking, sootling@934 attackingWall, sootling@931 attackingWall, sootling@938 attackingWall, sootling@937 attackingWall, sootling@935 attackingWall]
+seed 3 with 1/60 s: held, fallen 1, killed 54, walls l3.wall@42 King left @15 slain @60 at x 927 (kill after 45.0 s)
+    44.6 s archer moving>posted x 749>1316 hp 0.0 near [shadehound@740 walking, shadehound@747 walking, shadehound@756 walking]
+seed 3 with 0.1 s: held, fallen 2, killed 54, walls l3.wall@42 King left @15 slain @60 at x 927 (kill after 44.9 s)
+    44.5 s archer moving>posted x 746>1316 hp 0.6 near [shadehound@738 walking, shadehound@743 walking, shadehound@753 walking]
+    44.8 s archer moving>posted x 752>1310 hp 1.2 near [shadehound@745 walking, shadehound@751 walking, shadehound@761 walking]
+seed 3 without 1/60 s: FELL at 496, fallen 0, killed 109, walls l3.wall@41,l2.wall@59,l1.wall@95 hearth reached @103 King left @15
+seed 3 without 0.1 s: FELL at 476, fallen 4, killed 104, walls l3.wall@41,l2.wall@59,l1.wall@94 hearth reached @102 King left @15
+    100.3 s archer moving>reserve x 1566>1990 hp 0.3 near [shadehound@1571 walking]
+    101.6 s archer moving>reserve x 1600>1990 hp 0.2 near [shadehound@1604 walking]
+    101.8 s archer moving>reserve x 1614>1990 hp 0.0 near [shadehound@1619 walking]
+    101.9 s archer moving>reserve x 1624>1990 hp 0.6 near [shadehound@1626 walking]
+seed 4 with 1/60 s: held, fallen 0, killed 43, walls l3.wall@43 King left @12 slain @54 at x 902 (kill after 42.6 s)
+seed 4 with 0.1 s: held, fallen 0, killed 43, walls l3.wall@43 King left @12 slain @54 at x 902 (kill after 42.5 s)
+seed 4 without 1/60 s: held, fallen 2, killed 126, walls l3.wall@41,l2.wall@58,l1.wall@94 hearth reached @102 King left @12
+seed 4 without 0.1 s: held, fallen 2, killed 122, walls l3.wall@41,l2.wall@57,l1.wall@96 hearth reached @104 King left @12
+seed 5 with 1/60 s: held, fallen 0, killed 48, walls l3.wall@39 King left @12 slain @54 at x 930 (kill after 42.4 s)
+seed 5 with 0.1 s: held, fallen 0, killed 48, walls l3.wall@40 King left @12 slain @54 at x 930 (kill after 42.3 s)
+seed 5 without 1/60 s: held, fallen 0, killed 139, walls l3.wall@38,l2.wall@55,l1.wall@90 hearth reached @111 King left @12
+seed 5 without 0.1 s: FELL at 492, fallen 0, killed 119, walls l3.wall@38,l2.wall@55,l1.wall@95 hearth reached @103 King left @12
+seed 6 with 1/60 s: held, fallen 0, killed 45, walls l3.wall@35 King left @8 slain @51 at x 923 (kill after 42.8 s)
+seed 6 with 0.1 s: held, fallen 0, killed 45, walls l3.wall@35 King left @8 slain @51 at x 923 (kill after 42.6 s)
+seed 6 without 1/60 s: held, fallen 1, killed 140, walls l3.wall@34,l2.wall@52,l1.wall@92 hearth reached @109 King left @8
+seed 6 without 0.1 s: held, fallen 1, killed 142, walls l3.wall@35,l2.wall@52,l1.wall@92 hearth reached @113 King left @8
+seed 7 with 1/60 s: held, fallen 0, killed 42, walls l3.wall@39 King left @8 slain @51 at x 908 (kill after 42.6 s)
+seed 7 with 0.1 s: held, fallen 0, killed 42, walls l3.wall@39 King left @8 slain @51 at x 907 (kill after 42.5 s)
+seed 7 without 1/60 s: held, fallen 1, killed 137, walls l3.wall@37,l2.wall@53,l1.wall@94 hearth reached @104 King left @8
+seed 7 without 0.1 s: held, fallen 1, killed 139, walls l3.wall@37,l2.wall@53,l1.wall@93 hearth reached @112 King left @8
+seed 8 with 1/60 s: held, fallen 4, killed 50, walls l3.wall@45 King left @15 slain @59 at x 928 (kill after 44.4 s)
+seed 8 with 0.1 s: held, fallen 3, killed 49, walls l3.wall@45 King left @15 slain @59 at x 928 (kill after 44.4 s)
+seed 8 without 1/60 s: held, fallen 1, killed 121, walls l3.wall@45,l2.wall@63,l1.wall@100 King left @15
+seed 8 without 0.1 s: held, fallen 1, killed 121, walls l3.wall@45,l2.wall@63,l1.wall@100 King left @15
+seed 9 with 1/60 s: held, fallen 0, killed 58, walls l3.wall@40 King left @12 slain @58 at x 926 (kill after 46.2 s)
+seed 9 with 0.1 s: held, fallen 0, killed 58, walls l3.wall@40 King left @12 slain @58 at x 926 (kill after 46.0 s)
+seed 9 without 1/60 s: held, fallen 0, killed 140, walls l3.wall@39,l2.wall@57,l1.wall@93 hearth reached @111 King left @12
+seed 9 without 0.1 s: held, fallen 0, killed 131, walls l3.wall@39,l2.wall@57,l1.wall@100 King left @12
+seed 10 with 1/60 s: held, fallen 0, killed 33, walls l3.wall@33 King left @7 slain @49 at x 923 (kill after 42.1 s)
+seed 10 with 0.1 s: held, fallen 0, killed 34, walls l3.wall@33 King left @7 slain @49 at x 923 (kill after 42.0 s)
+seed 10 without 1/60 s: FELL at 392, fallen 1, killed 100, walls l3.wall@33,l2.wall@49,l1.wall@84 hearth reached @92 King left @7
+seed 10 without 0.1 s: FELL at 460, fallen 1, killed 117, walls l3.wall@33,l2.wall@49,l1.wall@84 hearth reached @101 King left @7
+
+steps, noBossPass:
+seed 1 with 1/60 s: held, fallen 0, killed 51, walls l3.wall@44 King left @19 slain @61 at x 930 (kill after 42.4 s)
+seed 1 with 0.1 s: held, fallen 0, killed 51, walls l3.wall@44 King left @19 slain @61 at x 930 (kill after 42.3 s)
+seed 1 without 1/60 s: FELL at 498, fallen 0, killed 106, walls l3.wall@44,l2.wall@61,l1.wall@97 hearth reached @105 King left @19
+seed 1 without 0.1 s: FELL at 498, fallen 0, killed 109, walls l3.wall@44,l2.wall@61,l1.wall@97 hearth reached @105 King left @19
+seed 2 with 1/60 s: held, fallen 2, killed 60, walls l3.wall@39 King left @10 slain @54 at x 926 (kill after 44.4 s)
+    40.1 s archer moving>posted x 706>1316 hp 0.1 near [shadehound@706 walking, shadehound@695 walking, shadehound@701 walking]
+    40.6 s archer moving>posted x 717>1310 hp 0.2 near [shadehound@718 walking, shadehound@706 walking, shadehound@712 walking]
+seed 2 with 0.1 s: held, fallen 2, killed 60, walls l3.wall@39 King left @10 slain @54 at x 926 (kill after 44.3 s)
+    40.1 s archer moving>posted x 702>1316 hp 1.4 near [shadehound@703 walking, shadehound@693 walking, shadehound@699 walking]
+    40.6 s archer moving>posted x 716>1310 hp 0.6 near [shadehound@717 walking, shadehound@706 walking, shadehound@713 walking]
+seed 2 without 1/60 s: held, fallen 0, killed 138, walls l3.wall@38,l2.wall@56,l1.wall@94 King left @10
+seed 2 without 0.1 s: held, fallen 0, killed 138, walls l3.wall@38,l2.wall@57,l1.wall@94 hearth reached @113 King left @10
+seed 3 with 1/60 s: held, fallen 1, killed 54, walls l3.wall@42 King left @15 slain @60 at x 927 (kill after 45.0 s)
+    44.6 s archer moving>posted x 749>1316 hp 0.0 near [shadehound@740 walking, shadehound@747 walking, shadehound@756 walking]
+seed 3 with 0.1 s: held, fallen 2, killed 54, walls l3.wall@42 King left @15 slain @60 at x 927 (kill after 44.9 s)
+    44.5 s archer moving>posted x 746>1316 hp 0.6 near [shadehound@738 walking, shadehound@743 walking, shadehound@753 walking]
+    44.8 s archer moving>posted x 752>1310 hp 1.2 near [shadehound@745 walking, shadehound@751 walking, shadehound@761 walking]
+seed 3 without 1/60 s: FELL at 496, fallen 0, killed 109, walls l3.wall@41,l2.wall@59,l1.wall@95 hearth reached @103 King left @15
+seed 3 without 0.1 s: FELL at 476, fallen 4, killed 104, walls l3.wall@41,l2.wall@59,l1.wall@94 hearth reached @102 King left @15
+    100.3 s archer moving>reserve x 1566>1990 hp 0.3 near [shadehound@1571 walking]
+    101.6 s archer moving>reserve x 1600>1990 hp 0.2 near [shadehound@1604 walking]
+    101.8 s archer moving>reserve x 1614>1990 hp 0.0 near [shadehound@1619 walking]
+    101.9 s archer moving>reserve x 1624>1990 hp 0.6 near [shadehound@1626 walking]
+seed 4 with 1/60 s: held, fallen 0, killed 43, walls l3.wall@43 King left @12 slain @54 at x 902 (kill after 42.6 s)
+seed 4 with 0.1 s: held, fallen 0, killed 43, walls l3.wall@43 King left @12 slain @54 at x 902 (kill after 42.5 s)
+seed 4 without 1/60 s: held, fallen 2, killed 126, walls l3.wall@41,l2.wall@58,l1.wall@94 hearth reached @102 King left @12
+seed 4 without 0.1 s: held, fallen 2, killed 120, walls l3.wall@41,l2.wall@57,l1.wall@96 hearth reached @104 King left @12
+seed 5 with 1/60 s: held, fallen 0, killed 48, walls l3.wall@39 King left @12 slain @54 at x 930 (kill after 42.4 s)
+seed 5 with 0.1 s: held, fallen 0, killed 48, walls l3.wall@40 King left @12 slain @54 at x 930 (kill after 42.3 s)
+seed 5 without 1/60 s: held, fallen 0, killed 139, walls l3.wall@38,l2.wall@55,l1.wall@90 hearth reached @111 King left @12
+seed 5 without 0.1 s: FELL at 492, fallen 0, killed 119, walls l3.wall@38,l2.wall@55,l1.wall@95 hearth reached @103 King left @12
+seed 6 with 1/60 s: held, fallen 0, killed 45, walls l3.wall@35 King left @8 slain @51 at x 923 (kill after 42.8 s)
+seed 6 with 0.1 s: held, fallen 0, killed 45, walls l3.wall@35 King left @8 slain @51 at x 923 (kill after 42.6 s)
+seed 6 without 1/60 s: held, fallen 1, killed 140, walls l3.wall@34,l2.wall@52,l1.wall@92 hearth reached @109 King left @8
+seed 6 without 0.1 s: held, fallen 1, killed 142, walls l3.wall@35,l2.wall@52,l1.wall@92 hearth reached @113 King left @8
+seed 7 with 1/60 s: held, fallen 0, killed 42, walls l3.wall@39 King left @8 slain @51 at x 908 (kill after 42.6 s)
+seed 7 with 0.1 s: held, fallen 0, killed 42, walls l3.wall@39 King left @8 slain @51 at x 907 (kill after 42.5 s)
+seed 7 without 1/60 s: held, fallen 1, killed 137, walls l3.wall@37,l2.wall@53,l1.wall@94 hearth reached @104 King left @8
+seed 7 without 0.1 s: held, fallen 1, killed 139, walls l3.wall@37,l2.wall@53,l1.wall@93 hearth reached @112 King left @8
+seed 8 with 1/60 s: held, fallen 3, killed 50, walls l3.wall@45 King left @15 slain @59 at x 928 (kill after 44.4 s)
+seed 8 with 0.1 s: held, fallen 2, killed 49, walls l3.wall@45 King left @15 slain @59 at x 928 (kill after 44.4 s)
+seed 8 without 1/60 s: held, fallen 0, killed 122, walls l3.wall@45,l2.wall@63,l1.wall@100 King left @15
+seed 8 without 0.1 s: held, fallen 0, killed 122, walls l3.wall@45,l2.wall@63,l1.wall@100 King left @15
+seed 9 with 1/60 s: held, fallen 0, killed 58, walls l3.wall@40 King left @12 slain @58 at x 926 (kill after 46.2 s)
+seed 9 with 0.1 s: held, fallen 0, killed 58, walls l3.wall@40 King left @12 slain @58 at x 926 (kill after 46.0 s)
+seed 9 without 1/60 s: held, fallen 0, killed 140, walls l3.wall@39,l2.wall@57,l1.wall@93 hearth reached @111 King left @12
+seed 9 without 0.1 s: held, fallen 0, killed 131, walls l3.wall@39,l2.wall@57,l1.wall@100 King left @12
+seed 10 with 1/60 s: held, fallen 0, killed 33, walls l3.wall@33 King left @7 slain @49 at x 923 (kill after 42.1 s)
+seed 10 with 0.1 s: held, fallen 0, killed 34, walls l3.wall@33 King left @7 slain @49 at x 923 (kill after 42.0 s)
+seed 10 without 1/60 s: FELL at 392, fallen 1, killed 100, walls l3.wall@33,l2.wall@49,l1.wall@84 hearth reached @92 King left @7
+seed 10 without 0.1 s: FELL at 460, fallen 1, killed 117, walls l3.wall@33,l2.wall@49,l1.wall@84 hearth reached @101 King left @7
+
+simtune: done
+simtune: exit 0 after 217 s
