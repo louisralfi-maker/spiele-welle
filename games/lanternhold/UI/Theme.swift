@@ -330,3 +330,37 @@ struct RibbonShape: Shape {
         return path
     }
 }
+
+// MARK: - Scrolling only when needed
+
+/// Sizes its one child to the child's ideal height, but never taller than offered: a ScrollView inside reports its
+/// content's height as its ideal, so a card hugs its content and scrolls only when the screen is too short (Dynamic
+/// Type, German). `ViewThatFits` took the whole height offered and centred short content in a tall card.
+struct HuggingHeight: Layout {
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        guard let child = subviews.first else { return .zero }
+        let ideal = child.sizeThatFits(ProposedViewSize(width: proposal.width, height: nil))
+        let height = min(ideal.height, proposal.height ?? ideal.height)
+        return CGSize(width: proposal.width ?? ideal.width, height: max(0, height))
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        subviews.first?.place(at: bounds.origin, anchor: .topLeading,
+                              proposal: ProposedViewSize(width: bounds.width, height: bounds.height))
+    }
+}
+
+/// A card's body: as tall as its content, scrolling (with a flash of the indicator) only when it does not fit.
+struct CardScroll<Content: View>: View {
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        HuggingHeight {
+            ScrollView(.vertical, showsIndicators: true) {
+                content()
+            }
+            .scrollBounceBehavior(.basedOnSize)
+            .scrollIndicatorsFlash(onAppear: true)
+        }
+    }
+}

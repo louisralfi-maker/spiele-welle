@@ -11,11 +11,8 @@ struct DefeatCardView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 0) {
-                ViewThatFits(in: .vertical) {
-                    content
-                    ScrollView(.vertical, showsIndicators: true) { content }
-                }
+            CardScroll {
+                content
             }
             .frame(width: min(460, geometry.size.width - 24))
             .frame(maxHeight: geometry.size.height - 12)
@@ -83,14 +80,15 @@ struct DefeatCardView: View {
     }
 }
 
-/// The town's silhouette with its windows going dark one by one (DESIGN.md "The town"): a window every 0.4 s.
+/// The town's silhouette with its windows going dark one by one (DESIGN.md "The town"): a window every 0.7 s.
 struct DarkeningTown: View {
+    static let step = 0.7
     @State private var start = Date()
 
     var body: some View {
         let began = start
-        return TimelineView(.periodic(from: began, by: 0.4)) { context in
-            let dark = max(0, Int(context.date.timeIntervalSince(began) / 0.4))
+        return TimelineView(.periodic(from: began, by: DarkeningTown.step)) { context in
+            let dark = max(0, Int(context.date.timeIntervalSince(began) / DarkeningTown.step))
             Canvas { graphics, size in
                 DarkeningTown.draw(dark: dark, in: &graphics, size: size)
             }
@@ -110,22 +108,22 @@ struct DarkeningTown: View {
             let left = CGFloat(index) * slot + (slot - width) / 2
             let base = size.height
             let body = CGRect(x: left, y: base - height, width: width, height: height)
-            graphics.fill(Path(body), with: .color(Theme.night1))
+            graphics.fill(Path(body), with: .color(Color(hex: 0x4A4262)))
             var roof = Path()
             roof.move(to: CGPoint(x: left - 3, y: base - height))
             roof.addLine(to: CGPoint(x: left + width / 2, y: base - height - size.height * 0.3))
             roof.addLine(to: CGPoint(x: left + width + 3, y: base - height))
             roof.closeSubpath()
-            graphics.fill(roof, with: .color(Theme.night2))
+            graphics.fill(roof, with: .color(Color(hex: 0x6A4A5E)))
             for side in [CGFloat(0.22), CGFloat(0.62)].reversed() {
                 let pane = CGRect(x: left + width * side, y: base - height * 0.66, width: width * 0.16,
                                   height: height * 0.24)
                 let lit = window >= dark
-                graphics.fill(Path(pane), with: .color(lit ? Theme.fireGold : Color(hex: 0x15122A)))
                 if lit {
-                    graphics.fill(Path(ellipseIn: pane.insetBy(dx: -5, dy: -5)),
-                                  with: .color(Theme.fireGold.opacity(0.18)))
+                    graphics.fill(Path(ellipseIn: pane.insetBy(dx: -7, dy: -7)),
+                                  with: .color(Theme.fireGold.opacity(0.22)))
                 }
+                graphics.fill(Path(pane), with: .color(lit ? Theme.fireGold : Color(hex: 0x15122A)))
                 window += 1
             }
         }
@@ -142,9 +140,8 @@ struct PauseSheetView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            ViewThatFits(in: .vertical) {
+            CardScroll {
                 content
-                ScrollView(.vertical, showsIndicators: true) { content }
             }
             .frame(width: min(420, geometry.size.width - 24))
             .frame(maxHeight: geometry.size.height - 12)

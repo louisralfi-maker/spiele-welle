@@ -39,13 +39,17 @@ enum GameStart {
             applyDemo(&dawn, balance: balance)
         }
         if let hour = args.hour, !state.defeated {
-            // `-GWHour`: the reference bot plays on headless to that hour; a dawn on the way renews the snapshot.
-            if gap(from: state.hour, to: ClockEvent.dawnReport.hour) <= gap(from: state.hour, to: hour) {
-                Sim.run(&state, untilHour: ClockEvent.dawnReport.hour, balance: balance, bot: &bot)
-                dawn = state
-            }
-            if !state.defeated && abs(state.hour - hour) > 1e-6 {
-                Sim.run(&state, untilHour: hour, balance: balance, bot: &bot)
+            // `-GWHour`: the reference bot plays on headless to that hour; a dawn on the way renews the snapshot (run
+            // to the dawn report itself, since a run to 06:00 can stop a hair short of it).
+            let target = gap(from: state.hour, to: hour)
+            if target < 23.99 {
+                if gap(from: state.hour, to: ClockEvent.dawnReport.hour) <= target {
+                    Sim.runToDawn(&state, balance: balance, bot: &bot)
+                    dawn = state
+                }
+                if !state.defeated && gap(from: state.hour, to: hour) < 23.5 {
+                    Sim.run(&state, untilHour: hour, balance: balance, bot: &bot)
+                }
             }
         }
         applyNumbers(&state, args: args)

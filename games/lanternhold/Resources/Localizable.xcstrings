@@ -430,17 +430,6 @@
         }
       }
     },
-    "Collected at every dawn" : {
-      "comment" : "Tax card subtitle.",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eingezogen an jedem Morgen"
-          }
-        }
-      }
-    },
     "Continue" : {
       "comment" : "Dawn report: start the day.",
       "localizations" : {
@@ -1321,6 +1310,17 @@
         }
       }
     },
+    "Taxes at the next dawn" : {
+      "comment" : "Tax card: the column of each rate's taxes at the next dawn.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steuern am nächsten Morgen"
+          }
+        }
+      }
+    },
     "The Gloom reached the throne room on night %lld." : {
       "comment" : "Defeat card.",
       "localizations" : {
@@ -1603,17 +1603,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Markt +%lld"
-          }
-        }
-      }
-    },
-    "next dawn" : {
-      "comment" : "Tax card: the forecast is for the next dawn.",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "nächster Morgen"
           }
         }
       }

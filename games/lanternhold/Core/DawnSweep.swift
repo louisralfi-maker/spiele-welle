@@ -21,11 +21,12 @@ enum DawnSweep {
         let into = DayClock.wrap(hour) - 5
         let fade = min(1, max(0, min(into / 0.04, (1 - into) / 0.06)))
         guard fade > 0.01 else { return [] }
+        // Soft enough not to blow the archers on the walls out to white (round lh-m2b-b1 at full strength).
         let front: [(dx: Double, y: Double, radius: Double, intensity: Double)] = [
-            (0, 10, 70, 1.0),
-            (22, 60, 84, 0.85),
-            (46, 116, 96, 0.7),
-            (150, 40, 150, 0.4),
+            (0, 10, 70, 0.62),
+            (22, 60, 84, 0.5),
+            (46, 116, 96, 0.4),
+            (150, 40, 150, 0.24),
         ]
         return front.enumerated().map { index, part in
             LightSource(kind: .moon, x: x + part.dx, y: part.y, radius: part.radius,

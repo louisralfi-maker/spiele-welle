@@ -15,9 +15,8 @@ struct ReportCardView: View {
             let width = min(660, geometry.size.width - 20)
             VStack(spacing: 0) {
                 header
-                ViewThatFits(in: .vertical) {
+                CardScroll {
                     sections
-                    ScrollView(.vertical, showsIndicators: true) { sections }
                 }
                 footer
             }
@@ -49,8 +48,8 @@ struct ReportCardView: View {
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 20)
-        .padding(.top, 14)
-        .padding(.bottom, 10)
+        .padding(.top, 12)
+        .padding(.bottom, 8)
         .background(
             UnevenRoundedRectangle(topLeadingRadius: 14, topTrailingRadius: 14, style: .continuous)
                 .fill(LinearGradient(colors: [Theme.dawnRose.opacity(0.55), Theme.fireGold.opacity(0.18)],
@@ -61,7 +60,7 @@ struct ReportCardView: View {
 
     private var sections: some View {
         VStack(alignment: .leading, spacing: 10) {
-            ForEach(Array(card.banners.enumerated()), id: \.offset) { index, banner in
+            ForEach(Array(bigBanners.enumerated()), id: \.offset) { index, banner in
                 ReportBanner(banner: banner, large: index == 0 && card.isFinale)
             }
             HStack(alignment: .top, spacing: 14) {
@@ -88,6 +87,10 @@ struct ReportCardView: View {
                 ReportRow(label: String(localized: "Hearth fire at its lowest")) {
                     Text(verbatim: "\(lowest)")
                 }
+            }
+            if card.banners.contains(.noLosses) {
+                ReportBanner(banner: .noLosses, large: false)
+                    .padding(.top, 2)
             }
             if !card.fallen.isEmpty {
                 VStack(alignment: .leading, spacing: 3) {
@@ -157,6 +160,11 @@ struct ReportCardView: View {
         .padding(.horizontal, 20)
         .padding(.top, 6)
         .padding(.bottom, 14)
+    }
+
+    /// The banners across the card: the King's and a second chance; no losses stands in the night's column.
+    private var bigBanners: [ReportCard.Banner] {
+        card.banners.filter { $0 != .noLosses }
     }
 
     private var wallsLost: String {

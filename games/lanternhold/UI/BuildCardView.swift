@@ -59,11 +59,8 @@ struct CardChrome<Header: View, Content: View>: View {
                 Spacer(minLength: 0)
                 CardCloseButton(identifier: closeIdentifier, action: close)
             }
-            ViewThatFits(in: .vertical) {
+            CardScroll {
                 content()
-                ScrollView(.vertical, showsIndicators: true) {
-                    content()
-                }
             }
         }
         .padding(.leading, 16)
@@ -340,25 +337,26 @@ struct TaxCardView: View {
     let model: GameModel
 
     var body: some View {
-        AnchoredCard(anchor: model.cardAnchor, width: 450) {
+        AnchoredCard(anchor: model.cardAnchor, width: 480) {
             CardChrome(identifier: "tax-card", closeIdentifier: "tax-card-close", close: { model.closeCard() }) {
-                CardTitle(title: String(localized: "Taxes"),
-                          subtitle: String(localized: "Collected at every dawn"))
+                HStack(alignment: .lastTextBaseline) {
+                    CardTitle(title: String(localized: "Taxes"), subtitle: nil)
+                    Spacer(minLength: 8)
+                    Text("Taxes at the next dawn")
+                        .font(Theme.serif(.caption, .semibold))
+                        .foregroundStyle(Theme.inkSoft)
+                        .multilineTextAlignment(.trailing)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             } content: {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 6) {
                     ForEach(card.options, id: \.rate) { option in
                         OptionRow(name: Texts.taxName(option.rate), detail: detail(option),
                                   hint: option.lockedUntil.map { String(localized: "Opens on day \($0)") },
                                   hintIsWarning: false, enabled: option.lockedUntil == nil,
                                   selected: option.isCurrent, identifier: "tax-\(option.rate.rawValue)",
                                   action: { model.setTax(option.rate) }) {
-                            VStack(alignment: .trailing, spacing: 2) {
-                                GoldAmount(amount: option.forecast, size: 15)
-                                Text("next dawn")
-                                    .font(Theme.serif(.caption))
-                                    .foregroundStyle(Theme.inkSoft)
-                                    .fixedSize()
-                            }
+                            GoldAmount(amount: option.forecast, size: 15)
                         }
                     }
                 }

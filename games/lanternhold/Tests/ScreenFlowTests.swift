@@ -43,7 +43,7 @@ final class DriverMovesTests: XCTestCase {
         driver.replayDay()
         XCTAssertEqual(driver.state, driver.dawnSnapshot)
         XCTAssertEqual(driver.state.day, 2)
-        XCTAssertEqual(driver.state.hour, 6, accuracy: 1e-9)
+        XCTAssertEqual(driver.state.hour, 6, accuracy: 0.01, "the dawn's step overshoots 06:00 by at most one step")
         driver.restart(seed: 77)
         XCTAssertEqual(driver.state.day, 1)
         XCTAssertEqual(driver.state.seed, 77)
@@ -90,6 +90,12 @@ final class DriverMovesTests: XCTestCase {
         XCTAssertNotNil(morning.dawn.lastReport)
         XCTAssertEqual(GameStart.gap(from: 20, to: 6), 10, accuracy: 1e-9)
         XCTAssertEqual(GameStart.gap(from: 6, to: 6), 24, accuracy: 1e-9)
+        let dawnHour = GameStart.realm(args: DebugArgs(values: ["GWNight": "2", "GWHour": "6", "GWSeed": "5"]),
+                                       saved: nil)
+        XCTAssertEqual(dawnHour.state.day, 3, "a run to 06:00 ends at the dawn report")
+        XCTAssertEqual(dawnHour.state.hour, 6, accuracy: 0.02)
+        let same = GameStart.realm(args: DebugArgs(values: ["GWDay": "2", "GWHour": "6", "GWSeed": "5"]), saved: nil)
+        XCTAssertEqual(same.state.day, 2, "the hour it already shows: nothing to play")
     }
 }
 

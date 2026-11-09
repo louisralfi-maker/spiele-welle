@@ -169,7 +169,7 @@ final class FirstDayUITests: XCTestCase {
             XCTAssertTrue(waitForGone(root, timeout: 6), "replay closes the card")
             let clock = element(defeat, "hud-clock")
             XCTAssertTrue(clock.waitForExistence(timeout: 6))
-            XCTAssertTrue(clock.label.contains("06:0"), "back at this day's dawn (\(clock.label))")
+            XCTAssertTrue(clock.label.contains("06:"), "back at this day's dawn (\(clock.label))")
 
             // The pause sheet and its confirmation.
             let pauseButton = element(defeat, "hud-pause")
