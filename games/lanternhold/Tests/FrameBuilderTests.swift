@@ -1,16 +1,17 @@
+import Foundation
 import XCTest
 @testable import Lanternhold
 
-/// The pure frame builder (DESIGN.md "Tech plan", "Performance budget"): budgets, determinism, plane offsets and what
-/// the milestone 1 shots need.
+/// The pure frame builder (DESIGN.md "Tech plan", "Performance budget"): budgets, determinism, plane offsets, what the
+/// shots need, and the M1b world exactly as `tools/scenemock/layout_m1b.py` places it.
 final class FrameBuilderTests: XCTestCase {
     private let pro = (2622, 1206)
 
-    /// A frame of the placeholder scene with the king standing at `focus` and the clock frozen at `timeOfDay`.
+    /// A frame of the world with the king standing at `focus` and the clock frozen at `timeOfDay`.
     private func frame(timeOfDay: Double, focus: Double, screen: (Int, Int) = (2622, 1206),
                        options: FrameOptions = FrameOptions(), scene: PlaceholderScene? = nil,
                        elapsed: Double = 0) -> FrameDesc {
-        var world = scene ?? PlaceholderScene.milestone1()
+        var world = scene ?? PlaceholderScene.world()
         world.king.x = focus
         var clock = DayClock(timeOfDay: timeOfDay)
         clock.isFrozen = true
@@ -37,7 +38,7 @@ final class FrameBuilderTests: XCTestCase {
         }
         XCTAssertGreaterThan(mostInstances, 30, "the scene is not empty")
         XCTAssertGreaterThan(mostLights, 5)
-        XCTAssertLessThanOrEqual(PlaceholderScene.milestone1().lightSources().count, 40, "even unculled")
+        XCTAssertLessThanOrEqual(PlaceholderScene.world().sceneLights().count, 64, "even unculled: the renderer's cap")
     }
 
     func testCountsMatchTheLists() {
@@ -57,7 +58,7 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertEqual(a, b)
         let later = frame(timeOfDay: 0.95, focus: 760, options: FrameOptions(flickerTime: 3.9))
         XCTAssertNotEqual(a.lights, later.lights, "flicker moves with time")
-        for plane in [Plane.sky, .far, .mid, .world, .foreground] {
+        for plane in [Plane.sky, .clouds, .far, .mid, .world, .foreground] {
             XCTAssertEqual(a.layer(plane), later.layer(plane), "\(plane) stands still; only the fog drifts")
         }
         XCTAssertEqual(frame(timeOfDay: 0.95, focus: 760, elapsed: 2), frame(timeOfDay: 0.95, focus: 760, elapsed: 2),
@@ -65,7 +66,7 @@ final class FrameBuilderTests: XCTestCase {
     }
 
     func testPlaneOffsetsMatchTheCamera() {
-        for focus in [0.0, 760, 1500, 1830, 2900, 3800] {
+        for focus in [0.0, 760, 1360, 1830, 2330, 2900, 3720, 3900] {
             let pixelScale = PixelScale(physicalWidth: pro.0, physicalHeight: pro.1)
             let camera = Camera(focusX: focus, pixelScale: pixelScale)
             let desc = frame(timeOfDay: 0.5, focus: focus)
@@ -92,7 +93,7 @@ final class FrameBuilderTests: XCTestCase {
     }
 
     func testSpriteRectsSitOnWholeTargetPixels() {
-        for focus in [300.0, 760, 1830, 2900] {
+        for focus in [300.0, 760, 1360, 1830, 2330, 2900, 3720] {
             let desc = frame(timeOfDay: 0.95, focus: focus, elapsed: 7.3)
             for layer in desc.planes {
                 for sprite in layer.sprites {
@@ -112,12 +113,15 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertTrue(kinds.contains(.brazier))
         XCTAssertTrue(kinds.contains(.torch))
         XCTAssertTrue(kinds.contains(.lantern), "the king's lantern")
+        XCTAssertTrue(desc.lights.contains { $0.kind == .hearth && $0.plane == .mid }, "the warden statue's bowl fire")
         let eyes = desc.actors.filter { $0.sprite == .eyeGlints }
         XCTAssertEqual(eyes.count, 6, "six creatures wait at the edge of the light")
         XCTAssertTrue(eyes.allSatisfy { $0.isEmissive && !$0.isLit })
         let bodies = desc.actors.filter { $0.sprite == .sootling || $0.sprite == .shadehound }
         XCTAssertTrue(bodies.isEmpty, "unlit creatures show only their eyes at night")
-        XCTAssertEqual(desc.actors.filter { $0.sprite == .archer }.count, 3)
+        let archers = desc.actors.filter { $0.sprite == .archer }
+        XCTAssertEqual(archers.count, 3)
+        XCTAssertEqual(archers.filter(\.flipped).count, 2, "one archer of the three turned the other way")
         let king = desc.actors.last
         XCTAssertEqual(king?.sprite, .king)
         XCTAssertEqual(king?.rect.z, Float(16 * 6), "texels stay s x s blocks")
@@ -128,7 +132,12 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertGreaterThan(desc.starAlpha, 0.8)
         XCTAssertTrue(desc.emissives.contains { $0.sprite == .starField })
         XCTAssertTrue(desc.emissives.contains { $0.sprite == .brazierFlame })
+        XCTAssertTrue(desc.emissives.contains { $0.sprite == .hearthFire && $0.plane == .mid })
         XCTAssertEqual(desc.phase, .night)
+        for sprite in [SpriteID.wardenStatue, .gorgeWallB, .gorgeWallC] {
+            XCTAssertTrue(desc.layer(.mid).sprites.contains { $0.sprite == sprite }, "\(sprite) behind the front")
+        }
+        XCTAssertTrue(desc.layer(.foreground).sprites.contains { $0.sprite == .fgOverhangB }, "rock lips overhead")
     }
 
     func testCreaturesShowTheirBodiesByDay() {
@@ -138,18 +147,27 @@ final class FrameBuilderTests: XCTestCase {
     }
 
     func testNoonHasNoTorchlightWindowsOrStars() {
-        let desc = frame(timeOfDay: 0.5, focus: 1500)
+        let desc = frame(timeOfDay: 0.5, focus: 1360)
         let faded: Set<LightKind> = [.torch, .window, .lantern, .candle]
         XCTAssertTrue(desc.lights.allSatisfy { !faded.contains($0.kind) }, "torches fade in at dusk")
-        XCTAssertFalse(desc.emissives.contains { $0.sprite == .windowGlow })
+        XCTAssertFalse(desc.emissives.contains { $0.sprite == .windowGlow || $0.kind == .glass })
         XCTAssertFalse(desc.emissives.contains { $0.sprite == .starField })
         XCTAssertTrue(desc.emissives.contains { $0.sprite == .sun })
+        XCTAssertTrue(desc.emissives.contains { $0.sprite == .brazierFlame }, "braziers burn dimly by day")
         XCTAssertEqual(desc.starAlpha, 0)
+        XCTAssertFalse(desc.layer(.clouds).sprites.isEmpty, "clouds over the gorge")
     }
 
     func testCastleHallAndTownAtNight() {
-        let castle = frame(timeOfDay: 0.95, focus: 1500)
-        XCTAssertGreaterThanOrEqual(castle.emissives.filter { $0.sprite == .windowGlow }.count, 4)
+        let castle = frame(timeOfDay: 0.95, focus: 1360)
+        let glass = castle.emissives.filter { $0.kind == .glass }
+        XCTAssertGreaterThanOrEqual(glass.count, 6, "the keep's and the towers' windows")
+        XCTAssertTrue(glass.contains { $0.sprite == .castleKeep })
+        XCTAssertTrue(glass.contains { $0.sprite == .castleFront })
+        for sprite in [SpriteID.castleFront, .castleKeep, .cliffFlank, .gorgeWallHigh] {
+            XCTAssertTrue(castle.layer(.world).sprites.contains { $0.sprite == sprite }, "\(sprite) at the gate")
+        }
+        XCTAssertEqual(castle.actors.filter { $0.sprite == .archer }.count, 3, "archers on the wall walk")
         let hall = frame(timeOfDay: 0.95, focus: 1830)
         let hallKinds = Set(hall.lights.map(\.kind))
         XCTAssertTrue(hallKinds.contains(.hearth))
@@ -160,12 +178,36 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertTrue(townKinds.contains(.window))
         XCTAssertTrue(townKinds.contains(.lantern))
         XCTAssertTrue(town.layer(.world).sprites.contains { $0.sprite == .well })
+        XCTAssertTrue(town.emissives.contains { $0.kind == .glass && $0.sprite == .house }, "house windows glow")
         XCTAssertEqual(town.actors.filter { $0.sprite == .citizen }.count, 2)
+        XCTAssertTrue(town.layer(.far).sprites.contains { $0.sprite == .castleKeep }, "the keep seen from the town")
+        XCTAssertTrue(town.layer(.mid).sprites.contains { $0.sprite == .windmill })
         var castleWindows = 0
-        for prop in PlaceholderScene.milestone1().props where prop.plane == .world && prop.sprite != .house {
-            castleWindows += prop.emissive.filter { $0.sprite == .windowGlow }.count
+        for prop in PlaceholderScene.world().props where prop.plane == .world && prop.sprite != .house {
+            castleWindows += prop.masks.count + prop.emissive.filter { $0.sprite == .windowGlow }.count
         }
-        XCTAssertEqual(castleWindows, 10, "the castle front has ten windows")
+        XCTAssertEqual(castleWindows, 20, "keep 5, front 4, courtyard 1, chapel 4, kitchen 2, back gate 4")
+    }
+
+    func testOccludersHideGlowBehindLaterSprites() {
+        // At the gate the keep stands behind the castle front: its glass comes first, then the front hides what it
+        // covers, so the keep's lower windows never shine through the gatehouse.
+        let desc = frame(timeOfDay: 0.95, focus: 1360)
+        let keepGlass = desc.emissives.firstIndex { $0.kind == .glass && $0.sprite == .castleKeep }
+        let frontOccluder = desc.emissives.firstIndex { $0.kind == .occluder && $0.sprite == .castleFront }
+        XCTAssertNotNil(keepGlass)
+        XCTAssertNotNil(frontOccluder)
+        if let keepGlass, let frontOccluder {
+            XCTAssertLessThan(keepGlass, frontOccluder, "the occluder follows the glow it hides")
+        }
+        let frontGlass = desc.emissives.lastIndex { $0.kind == .glass && $0.sprite == .castleFront }
+        if let frontGlass, let frontOccluder {
+            XCTAssertGreaterThan(frontGlass, frontOccluder, "the front's own windows come after its occluder")
+        }
+        XCTAssertFalse(desc.emissives.contains { $0.kind == .occluder && ($0.plane == .far || $0.plane == .clouds) },
+                       "only the mid, world and foreground planes occlude")
+        let noon = frame(timeOfDay: 0.5, focus: 2900)
+        XCTAssertFalse(noon.emissives.contains { $0.kind == .occluder }, "no glow in the town by day, no occluders")
     }
 
     func testEffectLevels() {
@@ -174,6 +216,9 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertEqual(all.fog.map(\.plane), [.fogA, .fogB])
         XCTAssertFalse(all.layer(.fogA).sprites.isEmpty)
         XCTAssertFalse(all.layer(.fogB).sprites.isEmpty)
+        let ambient = AmbientRamp.sample(timeOfDay: 0.95)
+        XCTAssertEqual(all.fog[0].density, ambient.fogDensity * 0.9 * 0.7, accuracy: 1e-6, "ground mist at 0.7")
+        XCTAssertEqual(all.fog[1].density, ambient.fogDensity * 0.6 * 0.7, accuracy: 1e-6)
 
         let minimal = frame(timeOfDay: 0.95, focus: 760, options: FrameOptions(effects: .minimal))
         XCTAssertFalse(minimal.bloom)
@@ -189,7 +234,7 @@ final class FrameBuilderTests: XCTestCase {
     }
 
     func testSnuffingABrazierTakesItsLightAway() {
-        var scene = PlaceholderScene.milestone1()
+        var scene = PlaceholderScene.world()
         let before = frame(timeOfDay: 0.95, focus: 760, scene: scene)
         let id = scene.toggleBrazier(near: 900)
         XCTAssertNotNil(id)
@@ -236,4 +281,262 @@ final class FrameBuilderTests: XCTestCase {
             }
         }
     }
+
+    // MARK: - The M1b world
+
+    func testSceneMatchesTheLayout() {
+        let props = PlaceholderScene.world().props
+        XCTAssertEqual(props.count, FrameBuilderTests.layoutM1b.count, "every instance of layout_m1b.py")
+        for (index, (prop, expected)) in zip(props, FrameBuilderTests.layoutM1b).enumerated() {
+            XCTAssertEqual(describe(prop), expected, "instance \(index)")
+        }
+    }
+
+    func testWorldIsAsWideAsTheLayout() {
+        XCTAssertEqual(WorldLayout.width, 3900)
+        let pixelScale = PixelScale(physicalWidth: pro.0, physicalHeight: pro.1)
+        XCTAssertEqual(Camera(focusX: 5000, pixelScale: pixelScale).x, 3900 - pixelScale.visibleColumns)
+        let river = frame(timeOfDay: 0.5, focus: 3720)
+        let whole = Double(river.layer(.world).offset.whole)
+        let ground = river.layer(.world).sprites.filter { $0.sprite == .ground }
+        XCTAssertFalse(ground.isEmpty)
+        for tile in ground {
+            XCTAssertLessThan(Double(tile.rect.x) + whole, WorldLayout.groundTileEnd, "ground tiles end at the bank")
+        }
+        let lastTile = ground.map { Double($0.rect.x + $0.rect.z) + whole }.max() ?? 0
+        XCTAssertEqual(lastTile, WorldLayout.groundTileEnd, "the last tile reaches the river bank")
+        XCTAssertTrue(river.layer(.world).sprites.contains { $0.sprite == .riverEnd })
+        XCTAssertTrue(river.layer(.mid).sprites.contains { $0.sprite == .riverFarBank })
+        var king = KingState(x: 3700, facing: 1, velocity: KingState.runSpeed)
+        for _ in 0..<120 {
+            king.step(dt: 1.0 / 60.0)
+        }
+        XCTAssertEqual(king.x, WorldLayout.walkEnd, "the walk ends on the bank")
+    }
+
+    func testRegionsSwitchAtTheBorders() {
+        // Each plane's border is the plane x that shows at the back gate's passage when the camera is centred there.
+        XCTAssertEqual(WorldLayout.border(.far), 641)
+        XCTAssertEqual(WorldLayout.border(.mid), 1274)
+        XCTAssertEqual(WorldLayout.border(.world), 2330)
+        let camera = Camera(focusX: WorldLayout.backGateX, viewWidth: WorldLayout.referenceViewWidth)
+        for plane in [Plane.far, .mid, .world] {
+            let column = WorldLayout.border(plane) - camera.x * plane.parallax
+            XCTAssertEqual(column, WorldLayout.referenceViewWidth / 2, accuracy: 0.5, "\(plane) border at the gate")
+        }
+        // A gorge piece starts left of its plane's border, a valley piece reaches right of it (sets do not clip).
+        for prop in PlaceholderScene.world().props where prop.plane == .far || prop.plane == .mid {
+            let border = WorldLayout.border(prop.plane)
+            switch prop.region {
+            case .gorge: XCTAssertLessThan(prop.x, border, "\(prop.sprite) at \(prop.x) on \(prop.plane)")
+            case .valley:
+                XCTAssertGreaterThanOrEqual(prop.x + Double(prop.width), border, "\(prop.sprite) at \(prop.x)")
+            default: XCTFail("\(prop.sprite) on \(prop.plane) has no backdrop set")
+            }
+        }
+        // The town sees only the valley set on the mid plane; the front only the gorge set.
+        let town = frame(timeOfDay: 0.75, focus: 2900)
+        let front = frame(timeOfDay: 0.75, focus: 760)
+        let valleySprites: Set<SpriteID> = [.valleyMidA, .valleyMidB, .valleyMidC, .windmill, .riverFarBank]
+        XCTAssertTrue(town.layer(.mid).sprites.allSatisfy { valleySprites.contains($0.sprite) })
+        XCTAssertTrue(front.layer(.mid).sprites.allSatisfy { !valleySprites.contains($0.sprite) })
+    }
+
+    func testTopAnchorHoldsOn154And181Rows() {
+        // 12/13 mini: 180 rows (154 above the ground); XR: 207 rows (181 above the ground).
+        let short = frame(timeOfDay: 0.95, focus: 1000, screen: (2340, 1080))
+        let tall = frame(timeOfDay: 0.95, focus: 1000, screen: (1792, 828))
+        XCTAssertEqual(short.groundRow, 154)
+        XCTAssertEqual(tall.groundRow, 181)
+        for desc in [short, tall] {
+            let lips = desc.layer(.foreground).sprites.filter { $0.sprite == .fgOverhangA || $0.sprite == .fgOverhangB }
+            XCTAssertFalse(lips.isEmpty, "rock lips at the top on \(desc.targetHeight) rows")
+            XCTAssertTrue(lips.allSatisfy { $0.rect.y == 0 }, "flush with the top row on \(desc.targetHeight) rows")
+            let rocks = desc.layer(.foreground).sprites.filter { $0.sprite == .fgRockC || $0.sprite == .fgRockB }
+            for rock in rocks {
+                XCTAssertGreaterThan(Int(rock.rect.y + rock.rect.w), desc.groundRow, "rocks stand below the ground")
+            }
+        }
+    }
+
+    func testMidPlaneLightsMoveWithTheirPlane() {
+        for focus in [600.0, 700, 800, 900] {
+            let desc = frame(timeOfDay: 0.95, focus: focus, options: FrameOptions(flickerTime: 1))
+            let mid = desc.layer(.mid).offset.whole
+            let fire = desc.lights.first { $0.kind == .hearth && $0.plane == .mid }
+            XCTAssertNotNil(fire, "the statue's fire at \(focus)")
+            if let fire {
+                XCTAssertEqual(fire.circle.x, Float(478 - mid), "at \(focus) the fire stands at mid x 478")
+                XCTAssertEqual(fire.circle.y, Float(desc.groundRow - 124))
+            }
+            let flame = desc.emissives.first { $0.sprite == .hearthFire && $0.plane == .mid }
+            XCTAssertEqual(flame?.rect.x, Float(430 + 40 - mid), "the flame sits in the statue's bowl")
+        }
+        let field = PlaceholderScene.world().battleField(hour: 22.8)
+        XCTAssertFalse(field.sources.contains { $0.kind == .hearth && $0.x == 478 }, "a backdrop fire is no battle light")
+    }
+
+    func testGlassMasksSitInsideTheirSprite() {
+        var masks = 0
+        for prop in PlaceholderScene.world().props {
+            for mask in prop.masks {
+                masks += 1
+                XCTAssertGreaterThanOrEqual(mask.dx, 0, "\(prop.sprite)")
+                XCTAssertGreaterThanOrEqual(mask.dy, 0, "\(prop.sprite)")
+                XCTAssertLessThanOrEqual(Int(mask.dx) + mask.width, prop.width, "\(prop.sprite) at \(prop.x)")
+                XCTAssertLessThanOrEqual(Int(mask.dy) + mask.height, prop.height, "\(prop.sprite) at \(prop.x)")
+            }
+        }
+        XCTAssertEqual(masks, 22, "keep 5, front 4, courtyard 1, back gate 4, houses 8")
+        // In a frame each glass quad lies inside its prop's quad, mirrored with it.
+        for focus in [1360.0, 1650, 2330, 2900] {
+            let desc = frame(timeOfDay: 0.95, focus: focus)
+            for glass in desc.emissives where glass.kind == .glass {
+                let owner = desc.layer(glass.plane).sprites.first { sprite in
+                    sprite.sprite == glass.sprite && sprite.flipped == glass.flipped && encloses(sprite.rect, glass.rect)
+                }
+                XCTAssertNotNil(owner, "\(glass.sprite) glass at \(glass.rect) at \(focus)")
+            }
+        }
+        // A mirrored house's left window shows the sprite's right pane: x 64 − 46 − 5 = 13 from its left edge.
+        let town = frame(timeOfDay: 0.95, focus: 2830)
+        let whole = Float(town.layer(.world).offset.whole)
+        let mirrored = town.emissives.filter { $0.kind == .glass && $0.sprite == .house && $0.flipped }
+        XCTAssertTrue(mirrored.contains { $0.rect.x == 2800 + 13 - whole && $0.source.x == 46 })
+    }
+
+    /// True when `inner` lies inside `outer` (x, y, width, height).
+    private func encloses(_ outer: SIMD4<Float>, _ inner: SIMD4<Float>) -> Bool {
+        let left = inner.x >= outer.x
+        let right = inner.x + inner.z <= outer.x + outer.z
+        let top = inner.y >= outer.y
+        let bottom = inner.y + inner.w <= outer.y + outer.w
+        return left && right && top && bottom
+    }
+
+    /// The layout line of a prop (see tools/scenemock/swift_fixture.py).
+    private func describe(_ prop: Prop) -> String {
+        let planes: [Plane: String] = [.clouds: "sky", .far: "far", .mid: "mid", .world: "world", .foreground: "fg"]
+        func number(_ value: Double) -> String { String(format: "%.0f", value) }
+        func glow(_ color: SIMD3<Float>) -> String {
+            if color == GamePalette.fireWhite { return "fireWhite" }
+            if color == GamePalette.fireGold { return "fireGold" }
+            if color == GamePalette.fireOrange { return "fireOrange" }
+            return "window"
+        }
+        var emitters = prop.emissive.map { part in
+            "\(part.sprite.rawValue)@\(number(part.dx)),\(number(part.dy)):\(glow(part.color)):"
+                + (part.fadesByDay ? "fades" : "steady")
+        }
+        emitters += prop.masks.map { "glass@\(number($0.dx)),\(number($0.dy)),\($0.width)x\($0.height)" }
+        let lights = prop.lights.map { "\($0.kind.rawValue)@\(number($0.x)),\(number($0.y)),\(number($0.radius))" }
+        let anchor = prop.anchor == .top ? "top" : "ground"
+        return "\(prop.sprite.rawValue) \(planes[prop.plane] ?? "?") x=\(number(prop.x)) y=\(number(prop.y)) z=\(prop.z) "
+            + "shade=\(String(format: "%.2f", prop.shade)) flip=\(prop.flipped ? 1 : 0) anchor=\(anchor) "
+            + "region=\(prop.region.rawValue) em=[\(emitters.joined(separator: " "))] "
+            + "li=[\(lights.joined(separator: " "))]"
+    }
+
+    // BEGIN layout_m1b (generated by tools/scenemock/swift_fixture.py)
+    private static let layoutM1b: [String] = [
+        "gorgeWallA mid x=-462 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "gorgeWallB mid x=-270 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "gorgeWallC mid x=-78 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "gorgeWallA mid x=114 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "gorgeWallB mid x=306 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "gorgeWallC mid x=498 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "valleyMidC mid x=1082 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "valleyMidA mid x=1274 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "valleyMidB mid x=1466 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "valleyMidC mid x=1658 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "valleyMidA mid x=1850 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "valleyMidB mid x=2042 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "valleyFarC far x=449 y=55 z=0 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "valleyFarA far x=641 y=55 z=0 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "valleyFarB far x=833 y=55 z=0 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "valleyFarC far x=1025 y=55 z=0 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "cloudA sky x=-40 y=122 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "cloudC sky x=260 y=132 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "cloudB sky x=520 y=112 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "cloudA sky x=760 y=128 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "farMountain far x=-40 y=40 z=0 shade=0.92 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "farMountain far x=100 y=36 z=0 shade=0.92 flip=1 anchor=ground region=gorge em=[] li=[]",
+        "farMountain far x=240 y=40 z=0 shade=0.92 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "farMountain far x=380 y=34 z=0 shade=0.92 flip=1 anchor=ground region=gorge em=[] li=[]",
+        "castleKeep far x=545 y=-62 z=2 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "wardenStatue mid x=430 y=-34 z=2 shade=0.88 flip=0 anchor=ground region=gorge em=[hearthFire@40,153:fireOrange:steady] li=[hearth@478,124,70]",
+        "gorgeWallHigh mid x=690 y=0 z=1 shade=0.85 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "gorgeWallB mid x=862 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "gorgeMouth mid x=1030 y=0 z=3 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "windmill mid x=1500 y=93 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "riverFarBank mid x=1940 y=0 z=2 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "beaconRuin world x=438 y=0 z=-1 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "palisade world x=640 y=0 z=1 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "torchPost world x=634 y=20 z=2 shade=1.00 flip=0 anchor=ground region=gorge em=[flame@0,12:fireGold:fades] li=[torch@636,35,30]",
+        "torchPost world x=662 y=20 z=2 shade=1.00 flip=0 anchor=ground region=gorge em=[flame@0,12:fireGold:fades] li=[torch@664,35,30]",
+        "ballista world x=676 y=0 z=1 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "stoneWall world x=940 y=0 z=1 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "torchPost world x=934 y=38 z=2 shade=1.00 flip=0 anchor=ground region=gorge em=[flame@0,12:fireGold:fades] li=[torch@936,53,30]",
+        "torchPost world x=978 y=38 z=2 shade=1.00 flip=0 anchor=ground region=gorge em=[flame@0,12:fireGold:fades] li=[torch@980,53,30]",
+        "brazier world x=891 y=0 z=3 shade=1.00 flip=0 anchor=ground region=gorge em=[brazierFlame@1,11:fireOrange:steady] li=[brazier@896,16,56]",
+        "brazier world x=915 y=0 z=3 shade=1.00 flip=0 anchor=ground region=gorge em=[brazierFlame@1,11:fireOrange:steady] li=[brazier@920,16,56]",
+        "gorgeWallHigh world x=1050 y=0 z=-5 shade=0.70 flip=1 anchor=ground region=gorge em=[] li=[]",
+        "gorgeWallHigh world x=1518 y=0 z=-5 shade=0.70 flip=0 anchor=ground region=castle em=[] li=[]",
+        "cliffFlank world x=1187 y=0 z=-3 shade=0.62 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "cliffFlank world x=1453 y=0 z=-1 shade=0.62 flip=1 anchor=ground region=castle em=[] li=[]",
+        "castleKeep world x=1286 y=0 z=-4 shade=1.00 flip=0 anchor=ground region=gorge em=[glass@69,150,13x10 glass@113,150,12x10 glass@111,96,13x10 glass@69,35,13x10 glass@113,35,13x10] li=[window@1361,160,8 window@1405,160,8]",
+        "castleFront world x=1240 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[brazierFlame@93,130:fireOrange:steady brazierFlame@138,130:fireOrange:steady flame@90,61:fireGold:fades flame@145,61:fireGold:fades glass@29,124,6x15 glass@202,124,6x15 glass@29,69,6x15 glass@202,69,6x15] li=[brazier@1337,136,44 brazier@1382,136,44 torch@1332,64,30 torch@1387,64,30 lantern@1360,40,34]",
+        "castleWall world x=1580 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
+        "castleWall world x=1620 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[glass@17,58,6x8] li=[window@1640,62,8]",
+        "castleWall world x=1660 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
+        "well world x=1600 y=0 z=1 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
+        "hallInterior world x=1700 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
+        "throne world x=1817 y=0 z=1 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
+        "hearth world x=1870 y=0 z=1 shade=1.00 flip=0 anchor=ground region=castle em=[hearthFire@5,3:fireOrange:steady] li=[hearth@1883,10,70]",
+        "candleStand world x=1756 y=0 z=1 shade=1.00 flip=0 anchor=ground region=castle em=[candleFlame@1,15:fireWhite:fades] li=[candle@1758,17,12]",
+        "candleStand world x=1796 y=0 z=1 shade=1.00 flip=0 anchor=ground region=castle em=[candleFlame@1,15:fireWhite:fades] li=[candle@1798,17,12]",
+        "candleStand world x=1926 y=0 z=1 shade=1.00 flip=0 anchor=ground region=castle em=[candleFlame@1,15:fireWhite:fades] li=[candle@1928,17,12]",
+        "chapel world x=1960 y=0 z=0 shade=1.00 flip=0 anchor=ground region=castle em=[windowGlow@18,28:window:fades windowGlow@54,28:window:fades windowGlow@89,28:window:fades windowGlow@125,28:window:fades] li=[window@1981,32,14 window@2017,32,14 window@2052,32,14 window@2088,32,14]",
+        "kitchen world x=2120 y=0 z=-1 shade=1.00 flip=0 anchor=ground region=castle em=[windowGlow@26,32:window:fades windowGlow@79,32:window:fades] li=[window@2149,36,14 window@2202,36,14]",
+        "castleBackGate world x=2230 y=0 z=0 shade=1.00 flip=0 anchor=ground region=castle em=[lanternGlass@51,95:fireGold:fades lanternGlass@136,95:fireGold:fades glass@28,107,10x20 glass@166,107,10x20 glass@28,72,10x20 glass@166,72,10x20] li=[lantern@2283,97,40 lantern@2368,97,40 window@2263,117,8 window@2401,117,8]",
+        "house world x=2480 y=0 z=0 shade=0.97 flip=0 anchor=ground region=valley em=[glass@11,8,5x6 glass@46,8,5x6] li=[window@2493,11,8 window@2528,11,8]",
+        "lanternPost world x=2548 y=0 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[lanternGlass@1,18:fireGold:fades] li=[lantern@2551,20,28]",
+        "house world x=2800 y=0 z=0 shade=0.97 flip=1 anchor=ground region=valley em=[glass@11,8,5x6 glass@46,8,5x6] li=[window@2850,11,8 window@2815,11,8]",
+        "lanternPost world x=2868 y=0 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[lanternGlass@1,18:fireGold:fades] li=[lantern@2871,20,28]",
+        "house world x=2900 y=0 z=0 shade=0.97 flip=0 anchor=ground region=valley em=[glass@11,8,5x6 glass@46,8,5x6] li=[window@2913,11,8 window@2948,11,8]",
+        "lanternPost world x=2968 y=0 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[lanternGlass@1,18:fireGold:fades] li=[lantern@2971,20,28]",
+        "house world x=3090 y=0 z=0 shade=0.97 flip=1 anchor=ground region=valley em=[glass@11,8,5x6 glass@46,8,5x6] li=[window@3140,11,8 window@3105,11,8]",
+        "lanternPost world x=3158 y=0 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[lanternGlass@1,18:fireGold:fades] li=[lantern@3161,20,28]",
+        "field world x=2600 y=0 z=-1 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "field world x=2680 y=0 z=-1 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "well world x=3013 y=0 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "riverEnd world x=3680 y=-26 z=2 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "fgRockA fg x=20 y=-30 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockC fg x=170 y=-30 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockB fg x=330 y=-30 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgRockA fg x=505 y=-30 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgRockC fg x=640 y=-30 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockB fg x=820 y=-30 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockC fg x=960 y=-30 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgRockA fg x=1110 y=-30 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockB fg x=1250 y=-30 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgRockA fg x=1330 y=-26 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockC fg x=1410 y=-28 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockB fg x=1490 y=-24 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgRockA fg x=1555 y=-28 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgRockC fg x=1900 y=-32 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockC fg x=3150 y=-32 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockA fg x=3560 y=-32 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgRockB fg x=4020 y=-32 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockC fg x=4480 y=-32 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgOverhangA fg x=40 y=0 z=0 shade=1.00 flip=0 anchor=top region=all em=[] li=[]",
+        "fgOverhangB fg x=300 y=0 z=0 shade=1.00 flip=0 anchor=top region=all em=[] li=[]",
+        "fgOverhangA fg x=590 y=0 z=0 shade=1.00 flip=1 anchor=top region=all em=[] li=[]",
+        "fgOverhangB fg x=880 y=0 z=0 shade=1.00 flip=1 anchor=top region=all em=[] li=[]",
+        "fgOverhangA fg x=1120 y=0 z=0 shade=1.00 flip=0 anchor=top region=all em=[] li=[]",
+        "fgOverhangB fg x=1290 y=0 z=0 shade=1.00 flip=0 anchor=top region=all em=[] li=[]",
+        "fgOverhangA fg x=1400 y=0 z=0 shade=1.00 flip=1 anchor=top region=all em=[] li=[]",
+        "fgOverhangB fg x=1500 y=0 z=0 shade=1.00 flip=0 anchor=top region=all em=[] li=[]",
+    ]
+    // END layout_m1b
 }

@@ -101,10 +101,10 @@ One horizontal strip. `x` grows to the right in game pixels; the ground line is 
 | x (game px) | Zone | What is there |
 |---|---|---|
 | 0 to 400 | The Gloom's mouth | The darkness bank rests here by day (a wall of black fog, soot motes, eye glints). Spawn point at x 40. |
-| 400 to 1300 | The front (gorge floor) | Beacon site at x 470 (chapter goal). Outer line at x 640, middle line at x 940, each with a wall slot, a tower slot, two brazier slots in front of it, an engine slot behind it and a trap slot in front. |
-| 1300 to 2300 | The castle | The castle front: the gatehouse 1300 to 1420 (the inner wall: line 1, always built) between two round towers, its flanks grown into the cliffs. Courtyard 1420 to 1700 under the keep (barracks, smithy, well, builders' lodge), great hall 1700 to 1960 (throne and hearth fire), chapel of the Flame 1960 to 2120, kitchen 2120 to 2240, back gate 2240 to 2300 between two smaller towers. |
-| 2300 to 3600 | The town (in the valley) | Eight plots (houses, fields, market, tavern), market square with the well, lanes, lanterns. |
-| 3600 to 3800 | The river | A broad river with the stumps of an old bridge closes the world on the right; forest and mountains beyond. |
+| 400 to 1300 | The front (gorge floor) | Beacon site at x 470 (chapter goal; the ruined beacon tower stands on it, the warden statue is carved into the far wall behind it). Outer line at x 640, middle line at x 940, each with a wall slot, a tower slot, two brazier slots in front of it, an engine slot behind it and a trap slot in front. |
+| 1300 to 2430 | The castle | The castle front 1240 to 1480 seals the throat: the gatehouse 1300 to 1420 (the inner wall: line 1, always built; its gateway 1337 to 1383, the wall walk at 124 px) between two round towers (1240 to 1297 and 1422 to 1479), the throat rock rising behind its flanks on both sides, the keep centred behind the gatehouse. Courtyard 1420 to 1700 (barracks, smithy, well, builders' lodge; its wall runs from 1580), great hall 1700 to 1960 (throne and hearth fire), chapel of the Flame 1960 to 2120, kitchen 2120 to 2240, back gate 2230 to 2430 between two smaller towers, its passage at 2330. |
+| 2430 to 3680 | The town (in the valley) | Eight plots (houses 2480, 2800, 2900 and 3090, fields 2600 to 2760 and 3460 to 3620, market 3200, tavern 3320), market square 2990 to 3070 with the well at 3022, lanes, lanterns. |
+| 3680 to 3900 | The river | A broad river with the stumps of an old bridge closes the world on the right (ground tiles end at 3712, the king's walk at 3760 on the bank); the far shore, forest and mountains beyond. |
 
 - Lines unlock over the chapter: line 1 at the start, the middle line on day 3, the outer line on day 8, the beacon site
   on day 11.
@@ -114,15 +114,18 @@ One horizontal strip. `x` grows to the right in game pixels; the ground line is 
   - In front, dark rock and hanging roots frame the screen (foreground plane).
   - From x 1100 the gorge closes in: the back wall rises to the top of the screen and the foreground rock thickens, so
     the castle stands in the gorge's throat.
-- **The castle (1300 to 2300)** seals the gorge (see "The castle"). Inside the walls the cliffs still rise behind the
+- **The castle (1300 to 2430)** seals the gorge (see "The castle"). Inside the walls the cliffs still rise behind the
   courtyard.
-- **The valley (2300 to 3800):**
+- **The valley (2430 to 3900):**
   - Past the back gate the cliffs fall away and the land opens: a wide sky, rolling hills, a windmill, a river and far
     mountains.
   - The town lies here, outside the gorge, under open sky.
   - The back of the castle and the gorge's last cliffs close the view on the left.
 - **Backdrop regions:** each parallax plane has a gorge set and a valley set. On each plane the border between them is
-  placed so that it lines up with the back gate when the camera is centred there.
+  placed so that it lines up with the back gate when the camera is centred there: far 641, mid 1274, world 2330 (plane
+  x, `WorldLayout.border`). The sets do not clip; a piece belongs to a set by where it stands.
+- **The placement** of every sprite is `tools/scenemock/layout_m1b.py` (the mocks are rendered from it), ported to
+  `Core/SceneLayout.swift`; `FrameBuilderTests` checks the port instance for instance.
 - The sun rises behind the town (right) and sets behind the Gloom (left): dawn pushes the night back to the left.
 
 ## Day and night
@@ -613,15 +616,20 @@ The research is in `docs/research-rendering.md` (sources, evidence labels, numbe
   no glass materials or animated menus over the running scene (FB20808104); pause the scene under full-screen sheets.
 - **Low-resolution passes**, each about (W + 1) x H game pixels, private storage, `rgba8Unorm` for planes and
   `rgba16Float` for light and bloom:
-  - planes: sky, far (parallax 0.2), mid (0.5), fog A (0.9), world (1.0), fog B (1.15), foreground (1.3); each plane is
-    one instanced draw of textured quads from an atlas, at its own integer camera offset `floor(cameraX × p)`;
-  - emissive target;
+  - planes: sky (stars, moon and sun, fixed to the screen), clouds (0.05), far (parallax 0.2), mid (0.5), fog A (0.9),
+    world (1.0), fog B (1.15), foreground (1.3); each plane is one instanced draw of textured quads from an atlas, at
+    its own integer camera offset `floor(cameraX × p)`;
+  - emissive target: glow, window glass (the sprite's dark glass pixels inside a rect) and occluders, drawn in the
+    planes' order with premultiplied-over blending, so a sprite drawn later on the mid, world or foreground plane hides
+    the glow behind it;
   - light accumulation: cleared to zero, additive instanced light quads, falloff style smooth, banded or dithered;
   - bloom: threshold, half resolution, two separable blur passes.
 - **One composite pass at native resolution** (a full-screen triangle). Per device pixel it reads each plane with
   `texture.read` at `floor((p + shift_i) / s)`, where `shift_i = round(frac_i × s)` device pixels: exact s x s game
   pixels, no shimmer, motion resolved to 1/s of a game pixel. World = albedo × (ambient + light) + emissive; fog =
-  fog colour × (ambient + k × light); far planes take the ambient ramp; then bloom and the grade.
+  fog colour × (ambient + k × light); far planes take the ambient ramp; clouds are lit by the sky (sunlit tops by the
+  ambient light, shaded bellies by the sky's top colour); at warm hours the far and mid planes haze toward lavender and
+  keep only part of the warm light (aerial perspective); then bloom and the grade.
 - **Actors** (king, people, creatures, arrows) are quads drawn in the composite at device-pixel positions, their texels
   still s x s blocks, lit by reading the light buffer at their position. This keeps the walking king steady on screen.
   The prototype compares this with snapped actors (`-GWActorMode smooth|snapped`).
@@ -811,14 +819,20 @@ falloff, bands, dither, bloom and fog.
 | `03-front-dusk` | 0.8 |
 | `04-front-night` | 0.95 |
 | `05-front-dawn` | 0.25 |
-| `06-castle-night` | `-GWCameraX 1500` at 0.95 |
+| `06-castle-night` | `-GWCameraX 1360` at 0.95 (the king in the gateway; mock `m1b-castle-night`) |
 | `07-hall-night` | `-GWCameraX 1830` at 0.95 (the cut-away throne room) |
-| `08-town-golden` / `09-town-night` | `-GWCameraX 2900` at 0.75 / 0.95 |
+| `08-town-golden` / `09-town-night` | `-GWCameraX 2900` at 0.75 / 0.95 (mocks `m1b-valley-golden`, `m1b-valley-night`) |
 | `10-lab-smooth` / `11-lab-banded` / `12-lab-dithered` | `-GWScene lightlab` with each style |
 | `13-front-night-135` | shot 04 with `-GWVirtualHeight 135` |
 | `14-buffer-light` | shot 04 with `-GWShowBuffer light` |
 | `15-front-night-minimal` | shot 04 with `-GWEffects minimal` |
 | `16-hud-de` | shot 04 in German with the HUD |
+| `17-castle-dusk` | `-GWCameraX 1360` at 0.77 (mock `m1b-castle-dusk`) |
+| `18-backgate-golden` | `-GWCameraX 2330` at 0.75 (mock `m1b-backgate-golden`) |
+| `19-courtyard-dusk` | `-GWCameraX 1650` at 0.77 (mock `m1b-courtyard-dusk`; the valley at golden hour is shot 08) |
+| `20-river-day` | `-GWCameraX 3720` at 0.5 (mock `m1b-river-day`) |
+| `21-approach-night` | `-GWCameraX 1100` at 0.95 (mock `m1b-approach-night`) |
+| `22-beacon-day` | `-GWCameraX 470` at 0.5 (mock `m1b-beacon-day`) |
 | `film-01` … `film-08` | `-GWAutoplay walk` at dusk, at least 0.5 s apart (about 1.5 s on the runner: one screenshot and one read of the scene value per frame), with the king's screen x and the camera x from the `world-scene` value (`king:` and `cam:`) for the jitter check |
 
 **Unit tests:** `DayClockTests`, `FlickerTests` (deterministic, bounded, Reduce Motion), `LightFieldTests`,
