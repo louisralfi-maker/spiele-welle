@@ -1,4 +1,5 @@
-/// Taxes collected at one dawn.
+/// Taxes collected at one dawn. Saved inside `DawnReport`: a field added later must be Optional or decoded with a
+/// default.
 struct TaxBreakdown: Codable, Sendable, Equatable {
     var taxpayers: Int
     var taxPart: Int
@@ -56,7 +57,8 @@ enum Economy {
                             unrest: happiness < balance.unrestBelow)
     }
 
-    /// Today's happiness changes: the tax rate, the tavern, the chapel, the night's losses, unheard petitioners.
+    /// Today's happiness changes: the tax rate, the tavern, the chapel's blessing (granted by story or petitions from
+    /// M3 on; until then `chapelBlessed` is never set), the night's losses, unheard petitioners.
     static func happinessChanges(_ state: GameState, fallen: Int, balance: Balance) -> [HappinessChange] {
         var changes: [HappinessChange] = []
         let taxDelta = balance.happinessChange(state.tax)

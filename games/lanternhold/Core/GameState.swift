@@ -9,6 +9,9 @@ enum GameMode: String, Codable, Sendable {
 }
 
 /// A construction on a plot: a new build, an upgrade or a rubble rebuild. `work` and `total` are builder-seconds.
+/// Saved (`SaveGame`, version 1): a field added later must be Optional or decoded with `decodeIfPresent ?? default`,
+/// because synthesized `Decodable` ignores property defaults and an old save without the key would read as corrupt
+/// (`SaveGameTests` decodes a frozen version 1 save every round).
 struct BuildJob: Codable, Sendable, Equatable {
     var target: BuildItem
     var work: Double
@@ -21,6 +24,9 @@ struct BuildJob: Codable, Sendable, Equatable {
 }
 
 /// One plot's state. A wall at 0 HP is rubble: it keeps its item (the tier it comes back at) but no longer blocks.
+/// Saved (`SaveGame`, version 1): a field added later must be Optional or decoded with `decodeIfPresent ?? default`,
+/// because synthesized `Decodable` ignores property defaults and an old save without the key would read as corrupt
+/// (`SaveGameTests` decodes a frozen version 1 save every round).
 struct PlotState: Codable, Sendable, Equatable {
     var item: BuildItem?
     var hp: Double = 0
@@ -43,6 +49,9 @@ enum BuilderTask: String, Codable, Sendable {
 }
 
 /// One builder (castle staff, not a citizen). Builders work by day only and walk to the job.
+/// Saved (`SaveGame`, version 1): a field added later must be Optional or decoded with `decodeIfPresent ?? default`,
+/// because synthesized `Decodable` ignores property defaults and an old save without the key would read as corrupt
+/// (`SaveGameTests` decodes a frozen version 1 save every round).
 struct Builder: Codable, Sendable, Equatable {
     var x: Double
     var task: BuilderTask = .idle
@@ -69,6 +78,9 @@ enum SoldierState: String, Codable, Sendable {
 }
 
 /// One archer or guard: a citizen with a name. Soldiers can fall at night; the fallen are named in the dawn report.
+/// Saved (`SaveGame`, version 1): a field added later must be Optional or decoded with `decodeIfPresent ?? default`,
+/// because synthesized `Decodable` ignores property defaults and an old save without the key would read as corrupt
+/// (`SaveGameTests` decodes a frozen version 1 save every round).
 struct Soldier: Codable, Sendable, Equatable {
     var id: Int
     var name: String
@@ -132,6 +144,9 @@ enum DamageSource: String, Codable, Sendable {
 
 /// One creature of the Gloom. `x` is its anchor (bottom centre) in world game pixels; `y` is above the ground (crows
 /// fly).
+/// Saved (`SaveGame`, version 1): a field added later must be Optional or decoded with `decodeIfPresent ?? default`,
+/// because synthesized `Decodable` ignores property defaults and an old save without the key would read as corrupt
+/// (`SaveGameTests` decodes a frozen version 1 save every round).
 struct Creature: Codable, Sendable, Equatable {
     var id: Int
     var kind: CreatureKind
@@ -212,6 +227,9 @@ struct FallenSoldier: Codable, Sendable, Equatable {
 }
 
 /// What happened tonight (the dawn report's night half and the tuning metrics).
+/// Saved (`SaveGame`, version 1): a field added later must be Optional or decoded with `decodeIfPresent ?? default`,
+/// because synthesized `Decodable` ignores property defaults and an old save without the key would read as corrupt
+/// (`SaveGameTests` decodes a frozen version 1 save every round).
 struct NightStats: Codable, Sendable, Equatable {
     var night: Int = 0
     var spawned = 0
@@ -245,7 +263,11 @@ struct NightStats: Codable, Sendable, Equatable {
     var gloomReceded = false
 }
 
-/// The Chronicle's numbers (DESIGN.md "Progression and saving").
+/// This realm's own numbers. The Chronicle across realms and modes lives in `SaveGame.chronicle`, so a new realm keeps
+/// it (DESIGN.md "Progression and saving", "Endless").
+/// Saved (`SaveGame`, version 1): a field added later must be Optional or decoded with `decodeIfPresent ?? default`,
+/// because synthesized `Decodable` ignores property defaults and an old save without the key would read as corrupt
+/// (`SaveGameTests` decodes a frozen version 1 save every round).
 struct Records: Codable, Sendable, Equatable {
     var bestNight = 0
     var fallenTotal = 0
@@ -255,6 +277,9 @@ struct Records: Codable, Sendable, Equatable {
 
 /// The king in the simulation: he cannot be harmed and creatures ignore him. His lantern lights radius 40, soldiers
 /// within 80 px rally. Input (or the bot) sets `velocity`; the sim moves him.
+/// Saved (`SaveGame`, version 1): a field added later must be Optional or decoded with `decodeIfPresent ?? default`,
+/// because synthesized `Decodable` ignores property defaults and an old save without the key would read as corrupt
+/// (`SaveGameTests` decodes a frozen version 1 save every round).
 struct RealmKing: Codable, Sendable, Equatable {
     var x: Double
     var velocity: Double = 0
@@ -272,6 +297,9 @@ struct RealmKing: Codable, Sendable, Equatable {
 
 /// The whole realm (DESIGN.md "Code layout": `GameState`). Plain values, `Codable` for the dawn save, deterministic:
 /// every random choice draws from `rng`.
+/// Saved (`SaveGame`, version 1): a field added later must be Optional or decoded with `decodeIfPresent ?? default`,
+/// because synthesized `Decodable` ignores property defaults and an old save without the key would read as corrupt
+/// (`SaveGameTests` decodes a frozen version 1 save every round).
 struct GameState: Codable, Sendable, Equatable {
     var mode: GameMode = .chapter
     var seed: UInt64
@@ -413,14 +441,7 @@ struct GameState: Codable, Sendable, Equatable {
     /// and 2 guards among them, 2 builders, happiness 60, normal tax; line 1 is the gatehouse.
     static func newRealm(seed: UInt64, balance: Balance = .standard, mode: GameMode = .chapter) -> GameState {
         var plots: [PlotState] = []
-        for spec in Realm.plots {
-            var plot = PlotState()
-            if let item = spec.prebuilt {
-                plot.item = item
-                if item.isWall { plot.hp = Build.maxHP(item, balance: balance) }
-            }
-            plots.append(plot)
-        }
+        for spec in Realm.plots { plots.append(initialPlot(spec, balance: balance)) }
         var builders: [Builder] = []
         for index in 0..<balance.buildersBase {
             builders.append(Builder(x: Realm.lodgeX + 6 * Double(index)))
@@ -436,6 +457,16 @@ struct GameState: Codable, Sendable, Equatable {
             state.addSoldier(.guardsman, balance: balance)
         }
         return state
+    }
+
+    /// A plot as it is on the morning of day 1: empty, or its prebuilt item at full strength.
+    static func initialPlot(_ spec: PlotSpec, balance: Balance = .standard) -> PlotState {
+        var plot = PlotState()
+        if let item = spec.prebuilt {
+            plot.item = item
+            if item.isWall { plot.hp = Build.maxHP(item, balance: balance) }
+        }
+        return plot
     }
 
     /// A new soldier with a name from the seeded stream, waiting in the keep.

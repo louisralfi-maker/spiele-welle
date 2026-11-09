@@ -83,7 +83,8 @@ enum Sim {
             s.warTaxUnlocked = true
             unlocked.append("warTax")
         }
-        s.records.bestNight = max(s.records.bestNight, stats.night)
+        let fell = stats.defeatHour != nil
+        if !fell { s.records.bestNight = max(s.records.bestNight, stats.night) }
         s.records.creaturesStopped += stats.killed
         if stats.fallen.isEmpty { s.records.nightsWithoutLosses += 1 }
         let report = DawnReport(day: s.day, night: stats.night, creaturesStopped: stats.killed,
@@ -92,7 +93,8 @@ enum Sim {
                                 taxes: people.taxes, happinessBefore: people.happinessBefore,
                                 happinessAfter: people.happinessAfter, happinessChanges: people.changes,
                                 citizensBefore: citizensBefore, citizensAfter: s.citizens, grown: people.grown,
-                                left: people.left, volunteer: people.volunteer, unlocked: unlocked, goldAfter: s.gold)
+                                left: people.left, volunteer: people.volunteer, unlocked: unlocked, goldAfter: s.gold,
+                                realmFell: fell ? true : nil)
         s.lastReport = report
         events.append(.dawn(day: s.day))
     }

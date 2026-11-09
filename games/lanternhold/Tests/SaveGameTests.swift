@@ -87,6 +87,141 @@ final class SaveGameTests: XCTestCase {
         }
     }
 
+    /// The frozen version 1 save (`SaveFixtures`) loads with every value, and the fields added since read as absent.
+    func testTheFrozenVersionOneSaveStillLoads() throws {
+        let decoded = SaveGame.decode(Data(SaveFixtures.versionOne.utf8))
+        if case .corrupt(let reason) = decoded { XCTFail("the version 1 save no longer loads: \(reason)") }
+        let save = try XCTUnwrap(load(Data(SaveFixtures.versionOne.utf8)))
+        XCTAssertEqual(save.version, 1)
+        XCTAssertEqual(save.mode, .chapter)
+        XCTAssertEqual(save.continueDay, 4)
+        XCTAssertNil(save.track)
+        XCTAssertNil(save.chronicle)
+        XCTAssertEqual(save.countsFor, .chapter)
+        XCTAssertEqual(save.settings, SaveSettings(sound: true, haptics: false))
+        XCTAssertEqual(save.adPacing?.lastDoubleTaxesDay, 2)
+        XCTAssertEqual(save.hintFlags, ["walk"])
+        let state = save.state
+        XCTAssertEqual(state.seed, 4242)
+        XCTAssertEqual(state.rng.state, 9_876_543_210_123_456_789, "the random stream as text, all 64 bits")
+        XCTAssertEqual(state.gold, 37)
+        XCTAssertEqual(state.plots.count, Realm.plots.count)
+        XCTAssertEqual(state.plots[0].item, .gate)
+        XCTAssertEqual(state.plots[0].hp, 3650.5)
+        XCTAssertEqual(state.plots[6].job?.target, .stoneWall)
+        XCTAssertEqual(state.plots[6].job?.order, 9)
+        XCTAssertTrue(state.plots[3].snuffed)
+        XCTAssertEqual(state.builders.map { $0.task }, [.idle, .walking])
+        XCTAssertEqual(state.soldiers.map { $0.name }, ["Aldric", "Brenna", "Corwin", "Dagny", "Edwin", "Ffion"])
+        XCTAssertEqual(state.soldiers[2].state, .posted)
+        XCTAssertEqual(state.creatures.first?.action, .perching)
+        XCTAssertEqual(state.projectiles.first?.target, 11)
+        XCTAssertEqual(state.glows.first?.kind, .fireArrow)
+        XCTAssertEqual(state.spawns.first?.kind, .sootling)
+        XCTAssertEqual(state.night.wallFallSeconds, [61.5])
+        XCTAssertEqual(state.night.hearthFirstHitSecond, 88.25)
+        XCTAssertNil(state.night.defeatHour)
+        XCTAssertEqual(state.records.creaturesStopped, 101)
+        let report = try XCTUnwrap(state.lastReport)
+        XCTAssertEqual(report.taxes.total, 58)
+        XCTAssertEqual(report.happinessChanges, [HappinessChange(reason: .fallen, delta: -3)])
+        XCTAssertNil(report.realmFell)
+        XCTAssertTrue(report.held)
+        XCTAssertNil(SaveGame.indexProblem(state))
+        let again = try XCTUnwrap(load(try save.encoded()))
+        XCTAssertTrue(again == save, "it writes back what it read")
+    }
+
+    private func editedFixture(_ change: (inout [String: Any]) -> Void) throws -> Data {
+        let object = try JSONSerialization.jsonObject(with: Data(SaveFixtures.versionOne.utf8))
+        var save = try XCTUnwrap(object as? [String: Any])
+        var state = try XCTUnwrap(save["state"] as? [String: Any])
+        change(&state)
+        save["state"] = state
+        return try JSONSerialization.data(withJSONObject: save)
+    }
+
+    /// A save with fewer plots (from before a plot was added) gets the missing ones as on day 1; more plots than the
+    /// realm has, or a plot index out of range, is corrupt instead of a crash later.
+    func testPlotCountsAndIndicesAreCheckedOnLoad() throws {
+        let short = try editedFixture { state in
+            let plots = state["plots"] as? [Any] ?? []
+            state["plots"] = Array(plots.prefix(20))
+        }
+        let padded = try XCTUnwrap(load(short))
+        XCTAssertEqual(padded.state.plots.count, Realm.plots.count)
+        XCTAssertEqual(padded.state.plots[6].item, .palisade, "the saved plots stay as they were")
+        XCTAssertEqual(padded.state.plots[Realm.townPlots[0]].item, .house, "a missing prebuilt plot comes back")
+        XCTAssertNil(padded.state.plots[Realm.townPlots[1]].item)
+
+        let long = try editedFixture { state in
+            var plots = state["plots"] as? [Any] ?? []
+            plots.append(plots[0])
+            state["plots"] = plots
+        }
+        let broken: [Data] = [
+            long,
+            try editedFixture { state in
+                var soldiers = state["soldiers"] as? [[String: Any]] ?? []
+                soldiers[0]["postPlot"] = 40
+                state["soldiers"] = soldiers
+            },
+            try editedFixture { state in
+                var builders = state["builders"] as? [[String: Any]] ?? []
+                builders[1]["plot"] = Realm.plots.count
+                state["builders"] = builders
+            },
+            try editedFixture { state in
+                var creatures = state["creatures"] as? [[String: Any]] ?? []
+                creatures[0]["target"] = -2
+                state["creatures"] = creatures
+            },
+            try editedFixture { state in
+                var king = state["king"] as? [String: Any] ?? [:]
+                king["lightingPlot"] = 99
+                state["king"] = king
+            },
+        ]
+        for (index, sample) in broken.enumerated() {
+            guard case .corrupt = SaveGame.decode(sample) else {
+                XCTFail("sample \(index) should be reported as corrupt")
+                continue
+            }
+        }
+    }
+
+    /// The Chronicle keeps records per track beside the snapshot, so a new realm keeps them; a dawn counts once; a
+    /// night saved by a second chance is not a night held.
+    func testTheChronicleKeepsRecordsPerTrackAcrossRealms() throws {
+        let (state, _) = midChapter()
+        let report = try XCTUnwrap(state.lastReport)
+        var save = SaveGame(state: state)
+        save.countDawn()
+        save.countDawn()
+        let chapter = try XCTUnwrap(save.chronicle?.records(.chapter))
+        XCTAssertEqual(chapter.bestNight, 3)
+        XCTAssertEqual(chapter.creaturesStopped, report.creaturesStopped, "the same dawn counts once")
+        XCTAssertEqual(chapter.nightsWithoutLosses, report.noLosses ? 1 : 0)
+
+        var fresh = GameState.newRealm(seed: 99, balance: balance, mode: .endless)
+        var bot = Autoplay.reference()
+        Sim.runToDawn(&fresh, balance: balance, bot: &bot)
+        var next = SaveGame(state: fresh, track: .endlessNew, chronicle: save.chronicle)
+        next.countDawn()
+        let back = try XCTUnwrap(load(try next.encoded()))
+        XCTAssertEqual(back.countsFor, .endlessNew)
+        XCTAssertEqual(back.chronicle?.records(.chapter), chapter, "a new realm keeps the chapter's records")
+        XCTAssertEqual(back.chronicle?.records(.endlessNew).bestNight, 1)
+        XCTAssertEqual(back.chronicle?.records(.endlessContinued), TrackRecords())
+
+        var lost = report
+        lost.realmFell = true
+        var book = Chronicle()
+        book.count(lost, track: .chapter, seed: 1)
+        XCTAssertEqual(book.records(.chapter).bestNight, 0)
+        XCTAssertEqual(book.records(.chapter).creaturesStopped, report.creaturesStopped)
+    }
+
     func testPlayingOnFromALoadedSaveMatchesPlayingStraightOn() throws {
         let (state, bot) = midChapter()
         let back = try XCTUnwrap(load(try SaveGame(state: state).encoded()))

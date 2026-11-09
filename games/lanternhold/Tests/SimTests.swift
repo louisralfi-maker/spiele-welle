@@ -56,9 +56,17 @@ final class SimTests: XCTestCase {
         let b = play(11)
         let c = play(12)
         XCTAssertTrue(a == b, "same seed, same realm after four days")
-        XCTAssertFalse(a == c, "another seed gives other names and other nights")
         XCTAssertEqual(a.gold, b.gold)
         XCTAssertEqual(a.records, b.records)
+        XCTAssertNotEqual(a.soldiers.map { $0.name }, c.soldiers.map { $0.name }, "another seed gives other names")
+        var nights: [[Int]] = []
+        for seed: UInt64 in [11, 12] {
+            var s = GameState.newRealm(seed: seed, balance: balance)
+            var idle = Autoplay.buildsNothing
+            Sim.run(&s, untilHour: 20.5, balance: balance, bot: &idle)
+            nights.append(s.spawns.map { Int(($0.time * 1000).rounded()) })
+        }
+        XCTAssertNotEqual(nights[0], nights[1], "another seed gives another night")
     }
 
     /// The headless step (1 s by day, 0.1 s at night) keeps a night's outcome close to the app's 1/60 s step.
@@ -89,6 +97,51 @@ final class SimTests: XCTestCase {
         XCTAssertLessThanOrEqual(abs(fine.gold - coarse.gold), 20)
     }
 
+    /// Night 20 without the beacon is where the tuning is tight (T6): walls fall, the Lightless King marches, the
+    /// hearth is hit. The 0.1 s night step must give the app's 1/60 s outcome within a few seconds.
+    func testTheHeadlessStepKeepsNightTwentysOutcome() {
+        var lines: [String] = []
+        for seed: UInt64 in 1...3 {
+            let first = TuningRun.play(GameState.newRealm(seed: seed, balance: balance), bot: Autoplay.reference(),
+                                       balance: balance, nights: 19)
+            XCTAssertNil(first.fellOnNight, "seed \(seed) reaches night 20")
+            guard first.fellOnNight == nil else { continue }
+            let eve = TuningRun.withoutBeacon(first.final)
+            let bot = Autoplay.reference(buildsBeacon: false)
+            let fine = TuningRun.play(eve, bot: bot, balance: balance, nights: 1, nightStep: Sim.frameStep).final
+            let coarse = TuningRun.play(eve, bot: bot, balance: balance, nights: 1).final
+            let a = fine.night
+            let b = coarse.night
+            func text(_ n: NightStats, _ fell: Bool) -> String {
+                let walls = zip(n.wallsLost, n.wallFallSeconds).map { "\($0)@\(Int($1.rounded()))" }
+                return "fell \(fell) at \(n.defeatHour.map { String(Int(($0 * 100).rounded())) } ?? "-")"
+                    + ", walls \(walls), hearth hit \(n.hearthFirstHitSecond.map { String(Int($0.rounded())) } ?? "-")"
+                    + ", fallen \(n.fallen.count), killed \(n.killed)"
+            }
+            lines.append("seed \(seed): 1/60 s \(text(a, fine.defeated)) | 0.1 s \(text(b, coarse.defeated))")
+            XCTAssertEqual(a.night, 20)
+            XCTAssertEqual(b.night, 20)
+            XCTAssertEqual(fine.defeated, coarse.defeated, "seed \(seed): the same outcome")
+            XCTAssertEqual(a.wallsLost, b.wallsLost, "seed \(seed): the same walls fall")
+            for (x, y) in zip(a.wallFallSeconds, b.wallFallSeconds) {
+                XCTAssertEqual(x, y, accuracy: 3, "seed \(seed): a wall falls at the same time")
+            }
+            XCTAssertEqual(a.hearthFirstHitSecond == nil, b.hearthFirstHitSecond == nil, "seed \(seed)")
+            if let x = a.hearthFirstHitSecond, let y = b.hearthFirstHitSecond {
+                XCTAssertEqual(x, y, accuracy: 3, "seed \(seed): the hearth is first hit at the same time")
+            }
+            if let x = a.defeatHour, let y = b.defeatHour {
+                XCTAssertEqual(x, y, accuracy: 0.25, "seed \(seed): the realm falls at the same hour")
+            }
+            XCTAssertLessThanOrEqual(abs(a.fallen.count - b.fallen.count), 1, "seed \(seed)")
+        }
+        let attachment = XCTAttachment(string: lines.joined(separator: "\n"))
+        attachment.name = "night-twenty-steps"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        print(lines.joined(separator: "\n"))
+    }
+
     func testTheRealmFallsAndASecondChanceBringsDawn() {
         var s = GameState.newRealm(seed: 9, balance: balance)
         var bot = Autoplay.buildsNothing
@@ -113,6 +166,9 @@ final class SimTests: XCTestCase {
         XCTAssertEqual(s.hearth, balance.hearthStrength)
         XCTAssertEqual(s.lastReport?.day, day + 1)
         XCTAssertTrue(events.contains(.dawn(day: day + 1)))
+        XCTAssertEqual(s.lastReport?.realmFell, true)
+        XCTAssertFalse(s.lastReport?.held ?? true)
+        XCTAssertLessThan(s.records.bestNight, day, "a night saved by a second chance is not a night held")
     }
 
     func testDawnReportsNameTheUnlocks() {
