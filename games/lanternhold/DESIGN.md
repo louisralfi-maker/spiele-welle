@@ -1277,10 +1277,22 @@ state machine (`overlay`) pauses the simulation under every card and screen.
 | The shake moves the camera sideways only. | The renderer anchors the ground line; an up-down shake would need a renderer hook, and sideways reads as the thud. |
 | First light's lights are `.moon`-kind world lights (steady, no embers), never battle lights. | They are a picture of the sweep the simulation already does. |
 | Restarting the chapter takes a new seed made from the old one; the Chronicle stays. | A restart should not replay the same names and nights. |
+| Cards hug their content and scroll only when the screen is too short (`HuggingHeight` around a `ScrollView`, the indicator flashing once). | `ViewThatFits` took the whole height offered and centred short content in a tall card (round `lh-m2b-b1`). |
+| The no-losses ribbon stands in the report's night column; only the King's banner and a second chance cross the card. | On night 20 two ribbons pushed the people below the fold. |
+| The build and recruit options show the thing's own pixel art, cut from the renderer's atlas (whole device pixels per art pixel, never smoothed). | The card reads at a glance, and the art lane's PNGs appear there by themselves once merged. |
 
 **Runner rounds (M2b part 2)**
 
-(filled in after the rounds)
+- `lh-m2b-b1` (build, unit, ui FirstDay and MidChapter, ui-de FirstDay) on `613ca59`: the build passed first time.
+  `testFirstDay` passed in English (130 s) and German (102 s): the drag, the strip's walk, the build card and the
+  order (60 to 48 gold), the barracks, the tax lectern, the horn caught at 19:06, the night, the report of night 1 (25
+  creatures stopped, no losses, 49 gold of taxes). `testMidChapter` and `testFinale` passed and ended on their reports;
+  the finale's came from the live night: the Lightless King slain, 80 creatures stopped, one guard fallen. Failed: two
+  unit tests (`-GWHour`'s run to 06:00 stopped a hair short of the dawn report; the dawn step overshoots 06:00) and
+  `testScreens`' clock check (06:15 after the replay). The shots showed the HUD centred on the screen when no action
+  button stretched it (fixed before the round came back), the night cards stretched to full height, the tax card
+  scrolling (German rows on three lines), the finale's report hiding the people under two ribbons, first light blowing
+  the archers out to white.
 
 **Open points (M2b part 2)**
 
