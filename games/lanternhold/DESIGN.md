@@ -1165,7 +1165,11 @@ lit and unlit, in the M1b world. The cards, the full HUD, sound and haptics come
   beacon's light among burning summoned sootlings, a gloomweaver's darkness, archers shooting at him). The light probe
   shots and the jitter check (spread 0 device px) unchanged. The arrows' 8 px trails still read as no motion at
   phone size.
-- `lh-m2b-a4` (build, unit, ui, ui-de, release): brighter arrow shafts, 12 px trails, softer fire-arrow landings.
+- `lh-m2b-a4` (build, unit, ui, ui-de, release) on `ed01760`: all passed (219 unit tests, the six UI tests in English
+  and German, the Release build). Brighter arrow shafts, 12 px trails and softer fire-arrow landings: at 01:46 two
+  arrows with their trails, a firepot and the brute in the fire tower's light read at a glance; the finale's 23:45
+  shot has 17 creatures in view with arrows flying at the Lightless King. The frame budget unchanged (161 instances,
+  15 lights with 40 creatures; a live night 12 at most 107 and 17).
 
 **Open points (M2b part 1)**
 
