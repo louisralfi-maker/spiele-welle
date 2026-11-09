@@ -21,6 +21,7 @@ mkdir -p $P
 K='#FC0CBC'   # the paintings' magenta background (never --key auto: it once took the rock for the key)
 FARW=farDeep,far,mistDark,moon,mist,farPale,mistLight,foam
 ROCKW=rockDeep,rockDark,rock,rockLight,rockPale,soilDark,soil
+GRANITE=rockDeep,rockDark,rock,rockLight,rockPale   # the cleft's flanks beside the castle: no soil darks (at dusk they went black)
 FIRW=fir0,fir1,fir2,fir3,fir4
 WOODS=fir0,fir1,fir2,fir3,fir4,rockDeep,rockDark,rock,rockLight,rockPale,stoneDark,stoneMid,stone,stoneLight,moorDark,moor,soilDark,soil,woodDark
 CROWNS=fir0,fir1,fir2,fir3,fir4,rockLight
@@ -48,7 +49,7 @@ tree() { # name box size ramp [more options]: one tree of the sheet
 fir() { tree $1 $2 $3 $FIRW --warm 28 --gain 1.25 --zone fir0,fir1@$4; }   # the painting's firs are navy: warmed onto the fir ramp
 cliff() { # name old-sprite box: the painting's granite in an old cliff sprite's silhouette
     local size; size=$(px info $A/$2.png | sed -n '1s/.*: \([0-9]*x[0-9]*\),.*/\1/p')
-    px convert $W/gorge-1.png $P/$1.png --box $3 --size $size --key none --only $ROCKW --match new --gain 0.9; cool
+    px convert $W/gorge-1.png $P/$1.png --box $3 --size $size --key none --only $GRANITE --match new --gamma 0.7; cool
     wa retex $A/$2.png $P/$1.png $A/$1.png
 }
 

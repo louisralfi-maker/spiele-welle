@@ -327,6 +327,9 @@ def cmd_retex(a):
     def solid(x, y):
         return 0 <= x < shape.w and 0 <= y < shape.h and shape.get(x, y)[3] > 0
 
+    def deep(x, y):
+        return rock.get(min(max(x, 0), rock.w - 1), min(max(y, 0), rock.h - 1))[:3] == col("rockDeep")[:3]
+
     for y in range(shape.h):
         for x in range(shape.w):
             if not solid(x, y):
@@ -334,6 +337,8 @@ def cmd_retex(a):
             p = rock.get(min(x, rock.w - 1), min(y, rock.h - 1))
             if not p[3]:
                 p = col("rockDark")
+            elif deep(x, y) and all(deep(x + i, y + j) for i in (-1, 0, 1) for j in (-1, 0, 1)):
+                p = col("rockDark")  # the inside of a shadowed slab one step up: only cracks and slab edges stay rockDeep
             if y > 0 and not solid(x, y - 1):
                 p = col("rockPale")
             elif y > 1 and not solid(x, y - 2):
