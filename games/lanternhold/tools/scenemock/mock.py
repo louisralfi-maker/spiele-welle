@@ -9,10 +9,12 @@
 #       centre), y (bottom above the ground line, as layout_m1b.py), z (default 5: after every world prop), sh (shade,
 #       default 1), f (flip), lit (default true; false draws the body at shade 0.12, as the engine draws a creature
 #       outside every light), glow (id of a glow strip, drawn additively over the same frame, lit or not), gs (glow
-#       strength, default 1), em, li (as layout_m1b.py; extra light kinds fireArrow, firepot, beacon)}. A prop without
+#       strength, default 1), em, li (as layout_m1b.py, plus an optional intensity; extra light kinds fireArrow, firepot,
+#       beacon)}. A prop without
 #       s only adds its lights.
 #   king=off|<x>  no king, or the king's foot at x (default: at the focus, frame 0, with his lantern light)
 #   actors=off    without layout_m1b.ACTORS (the scale-check archers, citizens and eye glints)
+#   litCap=1.6 litNeutral=0.35  the renderer's cap on reflected firelight and its neutral share (default off)
 # sprite(name, frame) cuts frame n out of a horizontal strip PNG (frame width = PNG width / frame count; a PNG one
 # frame wide is used for every frame, as Atlas.splitFrames does).
 import sys, os, math, re, json
@@ -28,7 +30,10 @@ LOOK = dict(lift=0.46, farShare=0.9, midLight=0.32, gain=1.55, knee=0.95, fogGlo
             bloom=0.75, bloomLight=0.16, bloomSky=0.55, thr=0.34, kneeB=0.5, farHaze=0.24, farHazeShare=0.62,
             midHazeShare=0.26, mist=0.22, colorise=0.6, glowAdd=0.06, midHaze=0.18, midShare=0.8, fogBright=1.6,
             # M1b polish (renderer additions, defaults keep the old look): aerial perspective at warm hours, clouds
-            farCool=0.0, farWarm=1.0, midWarm=1.0, midCool=0.0, cloudSun=1.1, cloudFill=1.7, cloudHaze=0.25, fogScale=1.0)
+            farCool=0.0, farWarm=1.0, midWarm=1.0, midCool=0.0, cloudSun=1.1, cloudFill=1.7, cloudHaze=0.25, fogScale=1.0,
+            # opt-in, as the renderer since the polish after the art review (Shaders.metal kLitCap, kLitNeutral): the
+            # light a world pixel reflects is capped as a whole and reflects partly as from a neutral grey; 0 = off
+            litCap=0.0, litNeutral=0.0)
 for k in list(LOOK):
     if k in args: LOOK[k] = float(args[k])
 src = open(os.path.join(G, 'Core/FrameDesc.swift')).read()
@@ -218,8 +223,9 @@ def extra_props():
             for e in d.get('em', []):
                 if e[0] == 'sprite': em.append((e[1], e[2], e[3], NAMED[e[4]], e[5]))
                 else: masks.append((e[1], e[2], e[3], e[4], (1.0, 0.76, 0.42)))
-            for (kind, lx, ly, r) in d.get('li', []):
-                li.append((kind, lx, ly, r, COLX[kind], 0.8 if kind == 'window' else 1))
+            for l in d.get('li', []):  # (kind, x, y, radius[, intensity])
+                kind, lx, ly, r = l[:4]
+                li.append((kind, lx, ly, r, COLX[kind], l[4] if len(l) > 4 else (0.8 if kind == 'window' else 1)))
             out.append(dict(s=s, p=plane, x=x, y=d.get('y', 0), z=d.get('z', 5), sh=d.get('sh', 1.0), f=bool(d.get('f', False)),
                             em=em, li=li, masks=masks, anchor='ground', lp=plane, extra=True, frame=fr, frames=nf,
                             lit=d.get('lit', True), glow=d.get('glow'), gs=d.get('gs', 1.0)))
@@ -429,6 +435,12 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
     def cold(rgb, ambv):
         a = [rgb[k] * ambv[k] for k in range(3)]; lu = 0.299 * a[0] + 0.587 * a[1] + 0.114 * a[2]
         return [a[k] + (lu * NT[k] - a[k]) * kcol for k in range(3)]
+    def lit_world(w, L):  # the renderer's cap and neutral share, when the look asks for them (else L and w unchanged)
+        if LOOK['litCap'] > 0:
+            pk = max(L); L = [v * (min(pk, LOOK['litCap']) / max(pk, 1e-4)) for v in L]
+        if LOOK['litNeutral'] > 0:
+            lu = 0.299 * w[0] + 0.587 * w[1] + 0.114 * w[2]; w = [w[k] + (lu - w[k]) * LOOK['litNeutral'] for k in range(3)]
+        return L, w
     def lit_light(x, y):
         l = [v * LOOK['gain'] for v in light[y][x]]; hot = max(max(l) - LOOK['knee'], 0)
         return [l[0] + 0.55 * hot, l[1] + 0.5 * hot, l[2] + 0.38 * hot]
@@ -455,7 +467,8 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
         if a[3] > 0: c = [c[k] * (1 - a[3]) + a[k] * FB + L[k] * 0.6 * LOOK['fogGlow'] * a[3] for k in range(3)]
         w = layers['world'][y][x]
         if w[3] > 0:
-            cw = cold(w, ambW); c = [c[k] * (1 - w[3]) + cw[k] + w[k] * L[k] + L[k] * LOOK['glowAdd'] * w[3] for k in range(3)]
+            Lc, rf = lit_world(w, L)
+            cw = cold(w, ambW); c = [c[k] * (1 - w[3]) + cw[k] + rf[k] * Lc[k] + Lc[k] * LOOK['glowAdd'] * w[3] for k in range(3)]
         return [c[k] + emis[y][x][k] for k in range(3)]
     def top(c, x, y, L):
         b = layers['fogB'][y][x]
@@ -483,7 +496,8 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                 p = spr[j][w - 1 - i if flip else i]; x, y = left + i, topy + j
                 if p is None or not (0 <= x < TW and 0 <= y < TH): continue
                 L = lit_light(x, y); b = base(x, y, L); al = [p[k] / 255 * tint[k] for k in range(3)]
-                cl = cold(al, ambW); litc = al if emissive else [cl[k] + al[k] * L[k] + L[k] * LOOK['glowAdd'] for k in range(3)]
+                Lc, rf = lit_world(al, L)
+                cl = cold(al, ambW); litc = al if emissive else [cl[k] + rf[k] * Lc[k] + Lc[k] * LOOK['glowAdd'] for k in range(3)]
                 img[y][x] = top([b[k] + (litc[k] - b[k]) * tint[3] for k in range(3)], x, y, L)
     Z = 3; rows = []
     for r in img:
