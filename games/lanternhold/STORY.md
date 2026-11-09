@@ -40,6 +40,11 @@ Asked by the lead after this bible was written; they overrule anything below tha
    the forest and the landscape when you walk out a little). Walking further in is the heart of chapter 2.
 5. **Chapters 2 and 3 go deeper into the shadow land**, a new stretch each chapter. The coast and the
    thorn forest are dropped as fronts.
+6. **The small creatures are not children** (asked at 22:45 after the top-game review's age-rating risk). The
+   sootlings stay small and stooped but carry no child features in the art, and no text ever calls a creature
+   a child. Who they were may only be hinted at quietly, and never during a fight.
+7. **Rain and wind may sound as soft loops** while the weather lasts. Louis counts them as sound effects, not
+   music. The rule "no music, ever" stands: no melody, no score.
 
 ## 1. Premise and tone
 
