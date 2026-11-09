@@ -21,14 +21,14 @@ legend
     s = /fireOrange
     t = /ember
 
-# the head: a ball of ash crust, cracks, two eyes at the front
+# the head: a ball of ash crust crackled with ember seams like a dying coal, two eyes at the front
 part head
     .PPP..
-    PLLLP.
-    LSSrLP
-    SrMMES
-    MDRDDE
-    .DCCD.
+    PLrLP.
+    LrSrLP
+    SrMrES
+    rDRDDE
+    .DrCD.
 
 part stick
     S
