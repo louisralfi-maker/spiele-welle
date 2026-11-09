@@ -2,19 +2,27 @@ import Foundation
 import Observation
 import UIKit
 
-/// What the action button does at the brazier in reach (milestone 1).
+/// What the action button does: light or snuff the probe's brazier in reach, or at night in the game light a snuffed
+/// brazier or patch a damaged wall.
 enum BrazierAction: Sendable, Equatable {
-    case light, snuff
+    case light, snuff, patch
 }
 
-/// The milestone 1 driver (DESIGN.md "Code layout": `GameModel`, the sim driver): the clock and the king step on a
-/// fixed 60 Hz accumulator, the camera follows, the debug arguments set time, camera and freeze, and the HUD reads a
-/// few published values. The renderer asks it for one `FrameDesc` per drawn frame.
+/// The driver of the screen (DESIGN.md "Code layout": `GameModel`, the save, the screen state, the sim driver). In the
+/// game (`-GWScene world`, the default, M2b) it owns the simulation through `SimDriver` (a fixed 60 Hz step on an
+/// accumulator; the day clock is the simulation's hour), draws it with `SceneFilter` and `EntityFrames` into the M1b
+/// world, turns the simulation's events into visual effects, and saves the dawn snapshot at every dawn and when the
+/// app goes to the background. The light probe (`-GWScene probe`) and the light lab keep milestone 1's scene as data:
+/// its clock and walking king step on the same fixed step. The renderer asks for one `FrameDesc` per drawn frame.
 @MainActor
 @Observable
 final class GameModel {
     enum SceneKind: Sendable, Equatable {
-        case world, lightLab
+        /// The game: the simulation drawn into the M1b world.
+        case world
+        /// The M1b light probe: the scene as placed for the shots, no simulation.
+        case probe
+        case lightLab
     }
 
     /// The fixed simulation step.
@@ -26,13 +34,15 @@ final class GameModel {
     /// Drag distances in points: below the dead zone the king stands, beyond the run distance he runs.
     static let dragDeadZone = 6.0
     static let runDistance = 40.0
-    /// The default clock position: just before dusk, so the first picture shows fire against the coming night.
+    /// The probe's default clock position: just before dusk, so the first picture shows fire against the coming night.
     static let defaultTimeOfDay = 0.79
 
     let args: DebugArgs
     let kind: SceneKind
     let reduceMotion: Bool
+    /// The probe's scene, and in the game the scene the filter starts from.
     @ObservationIgnored private(set) var scene: PlaceholderScene
+    /// The probe's day clock; in the game only its running seconds count (flicker, fire, particles).
     @ObservationIgnored private(set) var clock: DayClock
     @ObservationIgnored private(set) var camera: Camera?
     @ObservationIgnored private var accumulator = 0.0
@@ -47,26 +57,62 @@ final class GameModel {
     /// Thermal state `.serious`: the renderer drops bloom and one fog plane.
     @ObservationIgnored var reducedEffects = false
 
+    // The game (kind == .world).
+    @ObservationIgnored private(set) var driver: SimDriver?
+    @ObservationIgnored private(set) var effects = BattleEffects()
+    @ObservationIgnored private var store: SaveStore?
+    @ObservationIgnored private var chronicle: Chronicle?
+    @ObservationIgnored private var events: [SimEvent] = []
+    @ObservationIgnored private var kingAction: KingAction?
+
     private(set) var day: Int
     private(set) var clockText: String
     private(set) var action: BrazierAction?
     private(set) var debugKingX = 0
     private(set) var debugCameraX = 0.0
     private(set) var statsText = ""
+    /// The game's state for UI tests in the scene's accessibility value ("day:12 hour:21.50").
+    private(set) var sceneStatus = ""
 
     init(args: DebugArgs, kind: SceneKind) {
         self.args = args
         self.kind = kind
         reduceMotion = args.reduceMotion || UIAccessibility.isReduceMotionEnabled
         var world = PlaceholderScene.world(seed: args.seed)
-        let start = min(WorldLayout.walkEnd, max(0, args.cameraX ?? world.king.x))
+        var start = min(WorldLayout.walkEnd, max(0, args.cameraX ?? world.king.x))
+        var dayClock: DayClock
+        if kind == .world {
+            let store = SaveStore.standard()
+            if args.reset { store?.reset() }
+            var saved: GameState?
+            switch store?.read() {
+            case .loaded(let save)?:
+                saved = save.state
+                chronicle = args.reset ? nil : save.chronicle
+            case .corrupt?:
+                store?.keepCorrupt()
+            case nil:
+                break
+            }
+            let begin = GameStart.realm(args: args, saved: saved, balance: .standard)
+            var simDriver = SimDriver(state: begin.state, balance: .standard,
+                                      bot: args.autoplay == .play ? begin.bot : nil, dawnSnapshot: begin.dawn)
+            if args.autoplay == .walk { simDriver.walker = KingWalker.around(begin.state.king.x) }
+            simDriver.isFrozen = args.freezeTime
+            driver = simDriver
+            self.store = store
+            start = begin.state.king.x
+            dayClock = DayClock(hour: begin.state.hour, day: begin.state.day)
+            dayClock.isFrozen = true
+        } else {
+            let fallback = kind == .lightLab ? 0.95 : GameModel.defaultTimeOfDay
+            dayClock = DayClock(timeOfDay: args.timeOfDay ?? fallback)
+            dayClock.isFrozen = args.freezeTime
+        }
         world.king.x = start
         scene = world
-        let fallback = kind == .lightLab ? 0.95 : GameModel.defaultTimeOfDay
-        var dayClock = DayClock(timeOfDay: args.timeOfDay ?? fallback)
-        dayClock.isFrozen = args.freezeTime
         clock = dayClock
-        autoplay = args.autoplay != nil && kind == .world
+        autoplay = args.autoplay == .walk && kind == .probe
         if start + GameModel.autoplayLeg <= WorldLayout.walkEnd - 20 {
             autoplayRange = start...(start + GameModel.autoplayLeg)
             autoplayDirection = 1
@@ -74,10 +120,11 @@ final class GameModel {
             autoplayRange = max(20, start - GameModel.autoplayLeg)...start
             autoplayDirection = -1
         }
-        day = dayClock.day
-        clockText = GameModel.format(hour: dayClock.hour)
+        day = driver?.state.day ?? dayClock.day
+        clockText = GameModel.format(hour: driver?.state.hour ?? dayClock.hour)
         action = nil
         refreshAction()
+        refreshGameStatus()
     }
 
     /// The debug values (`debug-king-x`, `debug-camera-x`) show while autoplay or the stats run.
@@ -98,12 +145,34 @@ final class GameModel {
         RenderSettings(args: args, time: animationTime, reduceMotion: reduceMotion, reducedEffects: reducedEffects)
     }
 
+    // MARK: - The game's pause rules
+
+    /// A card or the pause sheet is open: the simulation does not step (the UI sets it).
+    var isPaused: Bool {
+        get { driver?.isPaused ?? false }
+        set { driver?.isPaused = newValue }
+    }
+
+    /// The app became active or left it: nothing steps in the background.
+    func setActive(_ active: Bool) {
+        driver?.isInBackground = !active
+    }
+
+    /// Writes the dawn snapshot now (the app goes to the background).
+    func saveNow() {
+        writeSave()
+    }
+
     // MARK: - Simulation
 
     /// Runs whole fixed steps for `seconds` of real time (at most a quarter second at once, so a stall never
     /// fast-forwards the world).
     func advance(by seconds: Double) {
         guard seconds > 0 else { return }
+        if kind == .world {
+            advanceGame(by: min(seconds, 0.25))
+            return
+        }
         accumulator += min(seconds, 0.25)
         while accumulator >= GameModel.step {
             stepOnce()
@@ -111,10 +180,43 @@ final class GameModel {
         }
     }
 
+    private func advanceGame(by seconds: Double) {
+        guard var game = driver else { return }
+        if !game.isInBackground {
+            clock.advance(by: seconds)
+        }
+        events.removeAll(keepingCapacity: true)
+        game.accumulate(seconds)
+        var stepped = 0
+        while game.stepIfDue(events: &events) {
+            stepped += 1
+            if var follow = camera {
+                follow.follow(targetX: game.state.king.x, targetVelocity: game.state.king.velocity, dt: GameModel.step,
+                              reduceMotion: reduceMotion)
+                camera = follow
+            }
+        }
+        driver = game
+        if !events.isEmpty {
+            effects.note(events, state: game.state, balance: game.balance, time: animationTime)
+            for event in events {
+                if case .dawn = event { writeSave() }
+            }
+        }
+        effects.prune(time: animationTime)
+        if stepped > 0 {
+            let before = steps
+            steps += stepped
+            if before / 6 != steps / 6 {
+                refreshHUD()
+            }
+        }
+    }
+
     private func stepOnce() {
         let dt = GameModel.step
         clock.advance(by: dt)
-        if kind == .world {
+        if kind == .probe {
             scene.king.velocity = kingVelocity()
             scene.king.step(dt: dt)
             if var follow = camera {
@@ -129,7 +231,7 @@ final class GameModel {
         }
     }
 
-    /// The drag wins; else autoplay walks back and forth; else the king stands.
+    /// The probe's king: the drag wins; else autoplay walks back and forth; else he stands.
     private func kingVelocity() -> Double {
         if let drag = dragOffset {
             let distance = abs(drag)
@@ -150,19 +252,37 @@ final class GameModel {
     // MARK: - Input
 
     /// The walk pad's horizontal drag in points from where the finger went down; nil when it lifts. Any drag ends
-    /// autoplay.
+    /// autoplay. In the game it sets the simulation's king intent.
     func setDrag(offset: Double?) {
+        if kind == .world {
+            driver?.setDrag(offset: offset, deadZone: GameModel.dragDeadZone, runDistance: GameModel.runDistance)
+            return
+        }
         dragOffset = offset
         if offset != nil {
             autoplay = false
         }
     }
 
-    /// The action button: lights or snuffs the brazier in reach.
+    /// The action button: in the probe it lights or snuffs the brazier in reach; in the game it lights a snuffed
+    /// brazier or patches a damaged wall (at night).
     func performAction() {
-        guard kind == .world else { return }
-        scene.toggleBrazier(near: scene.king.x, reach: GameModel.actionReach)
-        refreshAction()
+        switch kind {
+        case .world:
+            guard let action = kingAction, var game = driver else { return }
+            events.removeAll(keepingCapacity: true)
+            game.perform(action, events: &events)
+            driver = game
+            if !events.isEmpty {
+                effects.note(events, state: game.state, balance: game.balance, time: animationTime)
+            }
+            refreshHUD()
+        case .probe:
+            scene.toggleBrazier(near: scene.king.x, reach: GameModel.actionReach)
+            refreshAction()
+        case .lightLab:
+            break
+        }
     }
 
     // MARK: - Frames
@@ -171,13 +291,32 @@ final class GameModel {
     func frame(physicalWidth: Int, physicalHeight: Int) -> FrameDesc {
         let options = self.options
         let pixelScale = options.pixelScale(physicalWidth: physicalWidth, physicalHeight: physicalHeight)
-        if kind == .lightLab {
-            return LightLabScene.frame(clock: clock, pixelScale: pixelScale, options: options,
-                                       animTime: animationTime)
-        }
-        let view = ensureCamera(pixelScale)
-        let frame = FrameBuilder.build(scene: scene, clock: clock, camera: view, pixelScale: pixelScale,
+        let frame: FrameDesc
+        switch kind {
+        case .lightLab:
+            return LightLabScene.frame(clock: clock, pixelScale: pixelScale, options: options, animTime: animationTime)
+        case .probe:
+            let view = ensureCamera(pixelScale, focus: scene.king.x)
+            frame = FrameBuilder.build(scene: scene, clock: clock, camera: view, pixelScale: pixelScale,
                                        options: options)
+        case .world:
+            guard let game = driver else {
+                let view = ensureCamera(pixelScale, focus: scene.king.x)
+                return FrameBuilder.build(scene: scene, clock: clock, camera: view, pixelScale: pixelScale,
+                                          options: options)
+            }
+            let state = game.state
+            let view = ensureCamera(pixelScale, focus: state.king.x)
+            let filtered = SceneFilter.gameScene(scene, state: state)
+            let layer = EntityFrames.layer(state: state, balance: game.balance, scene: filtered, camera: view,
+                                           pixelScale: pixelScale, options: options, animTime: animationTime,
+                                           effects: effects)
+            var frameClock = DayClock(hour: state.hour, day: state.day)
+            frameClock.isFrozen = true
+            frameClock.advance(by: clock.elapsed)
+            frame = FrameBuilder.build(scene: filtered, clock: frameClock, camera: view, pixelScale: pixelScale,
+                                       options: options, entities: layer)
+        }
         renderedFrames += 1
         if renderedFrames % 6 == 1 {
             publishDebug(frame)
@@ -185,11 +324,11 @@ final class GameModel {
         return frame
     }
 
-    private func ensureCamera(_ pixelScale: PixelScale) -> Camera {
+    private func ensureCamera(_ pixelScale: PixelScale, focus: Double) -> Camera {
         if let camera, camera.viewWidth == pixelScale.visibleColumns {
             return camera
         }
-        let made = Camera(focusX: scene.king.x, pixelScale: pixelScale)
+        let made = Camera(focusX: focus, pixelScale: pixelScale)
         camera = made
         return made
     }
@@ -234,22 +373,44 @@ final class GameModel {
         }
     }
 
+    // MARK: - Saving
+
+    /// The save of the last dawn: written at every dawn and when the app goes to the background; the Chronicle counts
+    /// each dawn once.
+    private func writeSave() {
+        guard kind == .world, let store, let game = driver else { return }
+        var save = SaveGame(state: game.dawnSnapshot, chronicle: chronicle)
+        save.countDawn()
+        chronicle = save.chronicle
+        try? store.write(save)
+    }
+
     // MARK: - HUD
 
     private func refreshHUD() {
-        if clock.day != day {
-            day = clock.day
+        let currentDay = driver?.state.day ?? clock.day
+        if currentDay != day {
+            day = currentDay
         }
-        let text = GameModel.format(hour: clock.hour)
+        let text = GameModel.format(hour: driver?.state.hour ?? clock.hour)
         if text != clockText {
             clockText = text
         }
         refreshAction()
+        refreshGameStatus()
     }
 
     private func refreshAction() {
         var next: BrazierAction?
-        if kind == .world {
+        switch kind {
+        case .world:
+            kingAction = driver?.kingAction
+            switch kingAction {
+            case .light?: next = .light
+            case .patch?: next = .patch
+            case nil: next = nil
+            }
+        case .probe:
             var best = GameModel.actionReach
             for prop in scene.braziers {
                 let centre = prop.x + Double(prop.width) / 2
@@ -259,9 +420,20 @@ final class GameModel {
                     next = prop.isLit ? .snuff : .light
                 }
             }
+        case .lightLab:
+            next = nil
         }
         if next != action {
             action = next
+        }
+    }
+
+    private func refreshGameStatus() {
+        guard let game = driver else { return }
+        let state = game.state
+        let text = "day:\(state.day) hour:\(String(format: "%.2f", state.hour))"
+        if text != sceneStatus {
+            sceneStatus = text
         }
     }
 

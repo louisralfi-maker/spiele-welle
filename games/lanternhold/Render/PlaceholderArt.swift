@@ -29,7 +29,17 @@ enum PlaceholderArt {
         case .darknessBank: frames = [darknessBank(salt)]
         case .darknessEdge: frames = [darknessEdge(salt)]
         default:
-            frames = PlaceholderBuildings.frames(for: sprite, salt: salt)
+            // M2b first (the strips of SPRITES.md), then the milestone 1 buildings and grids.
+            frames = PlaceholderStructures.frames(for: sprite, salt: salt)
+            if frames.isEmpty {
+                frames = PlaceholderCreatures.frames(for: sprite)
+            }
+            if frames.isEmpty {
+                frames = PlaceholderPeople.frames(for: sprite)
+            }
+            if frames.isEmpty {
+                frames = PlaceholderBuildings.frames(for: sprite, salt: salt)
+            }
             if frames.isEmpty {
                 frames = PlaceholderSprites.frames(for: sprite)
             }

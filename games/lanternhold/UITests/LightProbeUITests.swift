@@ -21,9 +21,11 @@ final class LightProbeUITests: XCTestCase {
         let arguments: [String]
     }
 
-    /// A world shot frozen at a time of day, the flicker fixed so every run shows the same fire.
+    /// A world shot frozen at a time of day, the flicker fixed so every run shows the same fire. The light probe
+    /// (`-GWScene probe`, M2b) keeps the M1b scene as placed for these shots; the default scene is the game.
     private func world(_ time: String, camera: String = "760") -> [String] {
-        ["-GWCameraX", camera, "-GWTimeOfDay", time, "-GWFreezeTime", "YES", "-GWFlickerTime", "2.5"]
+        ["-GWScene", "probe", "-GWCameraX", camera, "-GWTimeOfDay", time, "-GWFreezeTime", "YES",
+         "-GWFlickerTime", "2.5"]
     }
 
     func testLightProbe() {
@@ -71,7 +73,8 @@ final class LightProbeUITests: XCTestCase {
     func testFilmstrip() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
-        app.launchArguments = ["-GWAutoplay", "walk", "-GWCameraX", "700", "-GWTimeOfDay", "0.8", "-GWFreezeTime", "YES"]
+        app.launchArguments = ["-GWScene", "probe", "-GWAutoplay", "walk", "-GWCameraX", "700", "-GWTimeOfDay", "0.8",
+                               "-GWFreezeTime", "YES"]
         app.launch()
         guard waitUntilReady(app, name: "film") else { return }
         pause(3.0)

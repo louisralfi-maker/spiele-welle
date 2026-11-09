@@ -1,8 +1,10 @@
 import SwiftUI
 
-/// The milestone 1 HUD (DESIGN.md "Controls", "Screens"): the day and clock top right, the action button bottom right
-/// when a brazier is in reach, and the debug readouts. Plain views only (no materials over the running scene); it
-/// respects the safe area while the scene renders under the sensor housing.
+/// The HUD so far (DESIGN.md "Controls", "Screens"): the day and clock top right (in the game the simulation's), the
+/// action button bottom right when there is something to do (the probe's brazier; at night in the game a snuffed
+/// brazier to light or a damaged wall to patch), and the debug readouts. Plain views only (no materials over the
+/// running scene); it respects the safe area while the scene renders under the sensor housing. The game's full HUD
+/// (gold, happiness, realm strip, cards) comes with the UI step of M2b.
 @MainActor
 struct HUDView: View {
     let model: GameModel
@@ -71,7 +73,7 @@ struct ActionButton: View {
                     .fill(Color(red: 0.09, green: 0.07, blue: 0.14).opacity(0.8))
                 Circle()
                     .strokeBorder(Color(red: 0.91, green: 0.72, blue: 0.29), lineWidth: 3)
-                Image(systemName: action == .light ? "flame.fill" : "wind")
+                Image(systemName: iconName)
                     .font(.system(size: 34, weight: .bold))
                     .foregroundStyle(iconColor)
             }
@@ -81,11 +83,31 @@ struct ActionButton: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("action-button")
-        .accessibilityLabel(action == .light ? Text("Light the brazier") : Text("Snuff the brazier"))
+        .accessibilityLabel(label)
+    }
+
+    private var iconName: String {
+        switch action {
+        case .light: return "flame.fill"
+        case .snuff: return "wind"
+        case .patch: return "hammer.fill"
+        }
+    }
+
+    private var label: Text {
+        switch action {
+        case .light: return Text("Light the brazier")
+        case .snuff: return Text("Snuff the brazier")
+        case .patch: return Text("Patch the wall")
+        }
     }
 
     private var iconColor: Color {
-        action == .light ? Color(red: 1.0, green: 0.78, blue: 0.35) : Color(red: 0.76, green: 0.8, blue: 0.92)
+        switch action {
+        case .light: return Color(red: 1.0, green: 0.78, blue: 0.35)
+        case .snuff: return Color(red: 0.76, green: 0.8, blue: 0.92)
+        case .patch: return Color(red: 0.86, green: 0.8, blue: 0.7)
+        }
     }
 }
 

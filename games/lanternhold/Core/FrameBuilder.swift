@@ -79,13 +79,15 @@ enum FrameBuilder {
             guard covers else { return }
             let black = SIMD4<Float>(0, 0, 0, 1)
             items.append(EmissiveInstance(sprite: sprite.sprite, plane: plane, rect: r, color: black, kind: .occluder,
-                                          flipped: sprite.flipped))
+                                          flipped: sprite.flipped, frame: sprite.frame))
         }
     }
 
-    /// The frame for `scene` at the clock's hour, seen by `camera` on a screen with `pixelScale`.
+    /// The frame for `scene` at the clock's hour, seen by `camera` on a screen with `pixelScale`. In game mode
+    /// `entities` (M2b, `EntityFrames`) brings the simulation: its props join the scene's, its glow joins the world
+    /// plane's, its light list replaces the scene's and its actors replace the scene's actors and king.
     static func build(scene: PlaceholderScene, clock: DayClock, camera: Camera, pixelScale: PixelScale,
-                      options: FrameOptions) -> FrameDesc {
+                      options: FrameOptions, entities: EntityLayer? = nil) -> FrameDesc {
         let scale = pixelScale.scale
         let targetHeight = pixelScale.targetHeight
         let geometry = Geometry(scale: scale,
@@ -107,7 +109,8 @@ enum FrameBuilder {
 
         // Back to front, so the emissive pass sees every sprite in draw order: the props of each plane (sorted by z,
         // then as listed), on the world plane the ground before them and the darkness bank after them.
-        let ordered = scene.props.sorted { ($0.plane, $0.z, $0.id) < ($1.plane, $1.z, $1.id) }
+        let props = scene.props + (entities?.props ?? [])
+        let ordered = props.sorted { ($0.plane, $0.z, $0.id) < ($1.plane, $1.z, $1.id) }
         var next = 0
         for plane in Plane.allCases {
             if plane == .world {
@@ -122,6 +125,10 @@ enum FrameBuilder {
                 next += 1
             }
             if plane == .world {
+                for item in entities?.emissives(worldWhole: geometry.whole(.world), groundRow: geometry.groundRow,
+                                                targetWidth: geometry.targetWidth) ?? [] {
+                    glow.add(item)
+                }
                 for tile in bankTiles(edgeX: bankEdgeX, geometry: geometry) {
                     glow.occlude(tile, plane: .world)
                     planeSprites[plane.rawValue].append(tile)
@@ -140,11 +147,11 @@ enum FrameBuilder {
             fog = layers
         }
 
-        let lights = frameLights(scene: scene, ambient: ambient, bankEdgeX: bankEdgeX, animTime: animTime,
-                                 options: options, geometry: geometry)
-        let field = scene.battleField(hour: hour)
-        let actors = actorInstances(scene: scene, field: field, ambient: ambient, animTime: animTime,
-                                    camera: camera, options: options, geometry: geometry)
+        let lights = frameLights(sources: entities?.lights ?? scene.sceneLights(), ambient: ambient,
+                                 bankEdgeX: bankEdgeX, animTime: animTime, options: options, geometry: geometry)
+        let actors = entities?.actors ?? actorInstances(scene: scene, field: scene.battleField(hour: hour),
+                                                        ambient: ambient, animTime: animTime, camera: camera,
+                                                        options: options, geometry: geometry)
 
         var planes: [PlaneLayer] = []
         for plane in Plane.allCases {
@@ -344,8 +351,9 @@ enum FrameBuilder {
         let bottom = geometry.bottom(of: prop)
         let top = geometry.top(y: bottom, height: height)
         let rect = SIMD4<Float>(Float(left), Float(top), Float(prop.width), Float(prop.height))
-        let tint = SIMD4<Float>(prop.shade, prop.shade, prop.shade, alpha)
-        let sprite = SpriteInstance(sprite: prop.sprite, frame: 0, rect: rect, tint: tint, flipped: prop.flipped)
+        let tint = SIMD4<Float>(prop.shade, prop.shade, prop.shade, alpha * prop.alpha)
+        let sprite = SpriteInstance(sprite: prop.sprite, frame: prop.frame, rect: rect, tint: tint,
+                                    flipped: prop.flipped)
         glow.occlude(sprite, plane: prop.plane)
         sprites[prop.plane.rawValue].append(sprite)
 
@@ -367,7 +375,7 @@ enum FrameBuilder {
                                       Float(mask.width), Float(mask.height))
             glow.add(EmissiveInstance(sprite: prop.sprite, plane: prop.plane, rect: place,
                                       color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1), kind: .glass, source: source,
-                                      flipped: prop.flipped))
+                                      flipped: prop.flipped, frame: prop.frame))
         }
     }
 
@@ -436,12 +444,13 @@ enum FrameBuilder {
     /// The scene's lights for the light pass: flicker applied, torches faded by day, radii × 0.6 inside the darkness
     /// bank (world plane), each at its own plane's offset (the statue's fire moves with the mid plane), culled to the
     /// visible width.
-    private static func frameLights(scene: PlaceholderScene, ambient: AmbientSample, bankEdgeX: Double,
-                                    animTime: Double, options: FrameOptions, geometry: Geometry) -> [FrameLight] {
+    private static func frameLights(sources: [(source: LightSource, plane: Plane)], ambient: AmbientSample,
+                                    bankEdgeX: Double, animTime: Double, options: FrameOptions,
+                                    geometry: Geometry) -> [FrameLight] {
         let bank = DarknessBank(edgeX: bankEdgeX)
         let torch = Double(ambient.torchStrength)
         var list: [FrameLight] = []
-        for (source, plane) in scene.sceneLights() {
+        for (source, plane) in sources {
             var radius = source.radius
             if plane == .world && bank.contains(x: source.x) { radius *= DarknessBank.radiusScale }
             var intensity = source.intensity
@@ -490,7 +499,7 @@ enum FrameBuilder {
 
         for actor in scene.actors {
             let sprite = actor.kind.sprite
-            let frame = idleFrame(time: animTime + actor.phase, frames: sprite.frameCount)
+            let frame = actor.kind.idleBase + idleFrame(time: animTime + actor.phase, frames: sprite.frameCount)
             let flipped = actor.facing < 0
             if actor.kind.isCreature {
                 let lit = field.isLit(x: actor.x, y: actor.litY)
@@ -545,7 +554,7 @@ enum FrameBuilder {
     /// match the ground at any speed. The distance is measured along his facing, so the mirrored sprite walking left
     /// plays the cycle forward too (no moonwalk).
     static func kingFrameIndex(king: KingState, animTime: Double) -> Int {
-        guard king.isWalking else { return idleFrame(time: animTime, frames: 2) }
+        guard king.isWalking else { return 6 + idleFrame(time: animTime, frames: 2) }
         let walkStep = Int((king.x * Double(king.facing) / 7).rounded(.down))
         return 2 + ((walkStep % 4) + 4) % 4
     }

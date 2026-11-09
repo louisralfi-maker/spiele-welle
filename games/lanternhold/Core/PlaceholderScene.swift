@@ -67,12 +67,16 @@ struct Prop: Sendable, Equatable {
     var movesWith: Plane?
     /// False for a snuffed brazier: no lights and no fire emissives.
     var isLit: Bool
+    /// The atlas frame drawn (M2b: a damaged wall, a gate's state, an engine that has just fired); 0 for the scene.
+    var frame: Int
+    /// Opacity of the drawn sprite (M2b: the darkness around the Lightless King); 1 for the scene.
+    var alpha: Float
 
     init(id: Int, sprite: SpriteID, plane: Plane, x: Double, y: Double, z: Int = 0, shade: Float = 1,
          flipped: Bool = false, anchor: PropAnchor = .ground, region: WorldLayout.Region = .all,
          emissive: [EmissivePart] = [], masks: [GlassMask] = [], lights: [LightSource] = [],
          fade: ClosedRange<Double>? = nil, fadeOut: ClosedRange<Double>? = nil, movesWith: Plane? = nil,
-         isLit: Bool = true) {
+         isLit: Bool = true, frame: Int = 0, alpha: Float = 1) {
         self.id = id
         self.sprite = sprite
         self.plane = plane
@@ -92,6 +96,8 @@ struct Prop: Sendable, Equatable {
         self.fadeOut = fadeOut
         self.movesWith = movesWith
         self.isLit = isLit
+        self.frame = frame
+        self.alpha = alpha
     }
 }
 
@@ -111,6 +117,10 @@ enum ActorKind: String, Sendable, CaseIterable, Equatable {
 
     /// Creatures of the Gloom (they show only their eyes when unlit).
     var isCreature: Bool { self == .sootling || self == .shadehound }
+
+    /// The first of the two idle frames in the sprite's strip (SPRITES.md: townsfolk idle 4 ... 5; archers idle
+    /// 0 ... 1; the creatures' walk 0 ... 1 stand in while they wait).
+    var idleBase: Int { self == .citizen ? 4 : 0 }
 
     /// Where the eye glints sit, from the anchor (bottom centre), facing right: forward and up.
     var eyeOffset: (dx: Double, dy: Double) {

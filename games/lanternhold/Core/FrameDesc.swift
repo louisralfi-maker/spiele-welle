@@ -30,6 +30,22 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     case king, sootling, shadehound, archer, citizen
     // Foreground plane
     case fgRockA, fgRockB, fgRockC, fgOverhangA, fgOverhangB
+    // M2b (SPRITES.md): the people of the realm
+    case kingGlow, citizenB, citizenC, guardsman, builder
+    // The creatures of the Gloom and their glow strips
+    case sootlingB, sootCrow, ashBrute, gloomweaver, ashGiant, lightlessKing
+    case sootlingGlow, sootlingBGlow, shadehoundGlow, sootCrowGlow, ashBruteGlow, gloomweaverGlow, ashGiantGlow,
+         lightlessKingGlow
+    // Buildings, overlays and the beacon
+    case bastion, rubbleWood, rubbleStone, scaffold, gateWood, gateIron, gateGreat, gateBroken
+    case archerTower, watchtower, fireTower, catapult, stakePit
+    case beaconBase, beaconTower, greatBeacon, beaconFire
+    case barracks, smithy, masterSmithy, lodge, bigLodge, bigHouse, market, tavern, plotMarker
+    // Projectiles
+    case arrow, fireArrow, bolt, firepot
+    // Effects (procedural only, not in the art contract): sparks, soot shards, the darkness of the Lightless King's
+    // aura and the gloomweavers' bubbles, arrow trails
+    case spark, shard, gloomBubble, streak
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -102,14 +118,66 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .fgRockC: return PixelSize(width: 96, height: 36)
         case .fgOverhangA: return PixelSize(width: 128, height: 48)
         case .fgOverhangB: return PixelSize(width: 128, height: 48)
+        case .kingGlow: return PixelSize(width: 16, height: 30)
+        case .citizenB, .citizenC: return PixelSize(width: 12, height: 26)
+        case .guardsman: return PixelSize(width: 14, height: 28)
+        case .builder: return PixelSize(width: 12, height: 24)
+        case .sootlingB, .sootlingGlow, .sootlingBGlow: return PixelSize(width: 14, height: 14)
+        case .shadehoundGlow: return PixelSize(width: 22, height: 14)
+        case .sootCrow, .sootCrowGlow: return PixelSize(width: 12, height: 10)
+        case .ashBrute, .ashBruteGlow: return PixelSize(width: 44, height: 44)
+        case .gloomweaver, .gloomweaverGlow: return PixelSize(width: 30, height: 30)
+        case .ashGiant, .ashGiantGlow: return PixelSize(width: 110, height: 110)
+        case .lightlessKing, .lightlessKingGlow: return PixelSize(width: 64, height: 64)
+        case .bastion: return PixelSize(width: 44, height: 64)
+        case .rubbleWood: return PixelSize(width: 24, height: 10)
+        case .rubbleStone: return PixelSize(width: 40, height: 14)
+        case .scaffold: return PixelSize(width: 24, height: 40)
+        case .gateWood, .gateIron, .gateGreat: return PixelSize(width: 46, height: 60)
+        case .gateBroken: return PixelSize(width: 46, height: 20)
+        case .archerTower: return PixelSize(width: 20, height: 48)
+        case .watchtower: return PixelSize(width: 24, height: 64)
+        case .fireTower: return PixelSize(width: 14, height: 40)
+        case .catapult: return PixelSize(width: 32, height: 24)
+        case .stakePit: return PixelSize(width: 24, height: 8)
+        case .beaconBase, .beaconTower, .greatBeacon: return PixelSize(width: 64, height: 130)
+        case .beaconFire: return PixelSize(width: 24, height: 20)
+        case .barracks: return PixelSize(width: 64, height: 48)
+        case .smithy: return PixelSize(width: 60, height: 48)
+        case .masterSmithy: return PixelSize(width: 60, height: 56)
+        case .lodge: return PixelSize(width: 56, height: 44)
+        case .bigLodge: return PixelSize(width: 64, height: 52)
+        case .bigHouse: return PixelSize(width: 72, height: 56)
+        case .market: return PixelSize(width: 90, height: 40)
+        case .tavern: return PixelSize(width: 90, height: 56)
+        case .plotMarker: return PixelSize(width: 10, height: 16)
+        case .arrow, .fireArrow: return PixelSize(width: 7, height: 5)
+        case .bolt: return PixelSize(width: 11, height: 5)
+        case .firepot: return PixelSize(width: 5, height: 5)
+        case .spark: return PixelSize(width: 5, height: 5)
+        case .shard: return PixelSize(width: 4, height: 4)
+        case .gloomBubble: return PixelSize(width: 96, height: 64)
+        case .streak: return PixelSize(width: 8, height: 4)
         }
     }
 
-    /// Frames in the atlas: the king has idle 0 ... 1 and walk 2 ... 5; the other actors idle 0 ... 1.
+    /// Frames in the atlas, one row left to right (SPRITES.md): the king walk 0 ... 5, idle 6 ... 7, command 8 ... 9;
+    /// townsfolk walk 0 ... 3, idle 4 ... 5; the archer idle 0 ... 1, draw 2 ... 3, loose 4; the guardsman idle 0 ... 1,
+    /// walk 2 ... 5, strike 6 ... 8; the builder walk 0 ... 3, hammer 4 ... 5; creatures walk 0 ... 3 and attack from 4
+    /// (the crow flies 0 ... 2 and perches 3, the gloomweaver floats 0 ... 3); a glow strip has its body's frames;
+    /// walls whole 0 and damaged 1; gates closed 0, closed damaged 1, open 2; projectiles rising 0, flat 1, falling 2.
     var frameCount: Int {
         switch self {
-        case .king: return 6
-        case .sootling, .shadehound, .archer, .citizen: return 2
+        case .king, .kingGlow: return 10
+        case .guardsman: return 9
+        case .ashBrute, .ashBruteGlow, .ashGiant, .ashGiantGlow, .lightlessKing, .lightlessKingGlow: return 7
+        case .sootling, .sootlingB, .sootlingGlow, .sootlingBGlow, .shadehound, .shadehoundGlow: return 6
+        case .citizen, .citizenB, .citizenC, .builder: return 6
+        case .archer: return 5
+        case .sootCrow, .sootCrowGlow, .gloomweaver, .gloomweaverGlow: return 4
+        case .gateWood, .gateIron, .gateGreat, .catapult, .beaconFire: return 3
+        case .arrow, .fireArrow, .bolt, .spark, .streak: return 3
+        case .palisade, .stoneWall, .bastion, .ballista, .stakePit, .firepot, .shard: return 2
         default: return 1
         }
     }
@@ -200,9 +268,12 @@ struct EmissiveInstance: Sendable, Equatable {
     var source: SIMD4<Float>
     /// Mirrored horizontally, with its prop.
     var flipped: Bool
+    /// The atlas frame of the sprite (M2b: the beacon's fire flickers through its frames; glass and occluders follow
+    /// their prop's frame).
+    var frame: Int
 
     init(sprite: SpriteID, plane: Plane, rect: SIMD4<Float>, color: SIMD4<Float>, kind: Kind = .glow,
-         source: SIMD4<Float>? = nil, flipped: Bool = false) {
+         source: SIMD4<Float>? = nil, flipped: Bool = false, frame: Int = 0) {
         self.sprite = sprite
         self.plane = plane
         self.rect = rect
@@ -211,6 +282,7 @@ struct EmissiveInstance: Sendable, Equatable {
         let size = sprite.size
         self.source = source ?? SIMD4<Float>(0, 0, Float(size.width), Float(size.height))
         self.flipped = flipped
+        self.frame = frame
     }
 }
 

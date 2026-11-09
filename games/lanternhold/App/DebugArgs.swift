@@ -1,10 +1,12 @@
 import Foundation
 
-/// Launch arguments that let UI tests and screenshots reach any state (DESIGN.md "Debug launch arguments"). Milestone 1
-/// reads the light-lab group: scene, clock, camera, pixel scale and effect experiments. Values are plain parsed data;
-/// an unknown or malformed value keeps the default.
+/// Launch arguments that let UI tests and screenshots reach any state (DESIGN.md "Debug launch arguments"): the
+/// light-lab group (scene, clock, camera, pixel scale and effect experiments) and, from M2b, the game's starts
+/// (`-GWDay`, `-GWNight`, `-GWBuild`, `-GWGold`, `-GWHappiness`, `-GWReset`). Values are plain parsed data; an unknown
+/// or malformed value keeps the default.
 struct DebugArgs: Sendable, Equatable {
-    /// "world" (default), "lightlab" or "testpattern".
+    /// "world" (default: the game), "probe" (the M1b light probe: the scene as data, no simulation), "lightlab" or
+    /// "testpattern".
     var scene = "world"
     /// Target game-pixel rows of the scale rule (180 by default, 135 for the chunkier look).
     var virtualHeight = 180
@@ -39,6 +41,22 @@ struct DebugArgs: Sendable, Equatable {
     var stats = false
     /// `-GWReduceMotion YES`: Reduce Motion without the system setting.
     var reduceMotion = false
+    /// `-GWDay <n>`: the seeded headless reference bot plays a new realm to that day's morning, then hands over.
+    var day: Int?
+    /// `-GWNight <n>`: the same to that night's 20:00.
+    var night: Int?
+    /// `-GWBuild demo`: a built-up realm for screenshots.
+    var build: BuildPreset?
+    /// `-GWGold <n>`, `-GWHappiness <n>` (0 ... 100): set the numbers.
+    var gold: Int?
+    var happiness: Int?
+    /// `-GWReset YES`: a fresh save.
+    var reset = false
+
+    /// `-GWBuild` presets.
+    enum BuildPreset: String, Sendable, CaseIterable, Equatable {
+        case demo
+    }
 
     /// `-GWAutoplay` modes.
     enum Autoplay: String, Sendable, CaseIterable, Equatable {
@@ -57,7 +75,8 @@ struct DebugArgs: Sendable, Equatable {
     static let keys = [
         "GWScene", "GWVirtualHeight", "GWScaleOverride", "GWTimeOfDay", "GWFreezeTime", "GWFlickerTime", "GWSeed",
         "GWCameraX", "GWAutoplay", "GWActorMode", "GWLightStyle", "GWEffects", "GWShowLowRes", "GWShowBuffer",
-        "GWDebugLights", "GWStats", "GWReduceMotion",
+        "GWDebugLights", "GWStats", "GWReduceMotion", "GWDay", "GWNight", "GWBuild", "GWGold", "GWHappiness",
+        "GWReset",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -110,6 +129,20 @@ struct DebugArgs: Sendable, Equatable {
         debugLights = DebugArgs.bool(values["GWDebugLights"])
         stats = DebugArgs.bool(values["GWStats"])
         reduceMotion = DebugArgs.bool(values["GWReduceMotion"])
+        if let day = DebugArgs.int(values["GWDay"]), day >= 1 {
+            self.day = min(day, 999)
+        }
+        if let night = DebugArgs.int(values["GWNight"]), night >= 1 {
+            self.night = min(night, 999)
+        }
+        build = values["GWBuild"].flatMap { BuildPreset(rawValue: $0.lowercased()) }
+        if let gold = DebugArgs.int(values["GWGold"]), gold >= 0 {
+            self.gold = gold
+        }
+        if let happiness = DebugArgs.int(values["GWHappiness"]) {
+            self.happiness = min(100, max(0, happiness))
+        }
+        reset = DebugArgs.bool(values["GWReset"])
     }
 
     init() {}

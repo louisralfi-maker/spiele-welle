@@ -399,11 +399,17 @@ enum AtlasBuilder {
     }
 
     /// Cuts a PNG into `count` frames of `size`: a horizontal strip (`count × width` wide), a vertical strip, or one
-    /// frame used for all. Any other size is cropped or padded around its bottom centre, where sprites stand.
+    /// frame used for all. A horizontal strip with fewer frames repeats its last frame (M2b: the one-frame palisade,
+    /// stone wall and ballista until their damaged and loosed frames land), one with more keeps the first `count`.
+    /// Any other size is cropped or padded around its bottom centre, where sprites stand.
     static func splitFrames(_ image: PixelImage, size: PixelSize, count: Int) -> [PixelImage] {
         let n = max(1, count)
         let w = size.width
         let h = size.height
+        if n > 1 && w > 0 && image.height == h && image.width >= w * 2 && image.width % w == 0 {
+            let available = image.width / w
+            return (0..<n).map { image.cropped(x: min($0, available - 1) * w, y: 0, width: w, height: h) }
+        }
         if n > 1 && image.width == w * n && image.height == h {
             return (0..<n).map { image.cropped(x: $0 * w, y: 0, width: w, height: h) }
         }

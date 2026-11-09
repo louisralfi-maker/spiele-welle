@@ -11,9 +11,9 @@ struct LanternholdApp: App {
     }
 }
 
-/// Switches scenes by `-GWScene` (DESIGN.md "Debug launch arguments"): the game world (default), the light lab, or
-/// the pixel-grid test pattern of the runner's Metal probe. Each Metal view fills the screen; the HUD keeps to the
-/// safe area.
+/// Switches scenes by `-GWScene` (DESIGN.md "Debug launch arguments"): the game (default), the M1b light probe
+/// (`probe`), the light lab, or the pixel-grid test pattern of the runner's Metal probe. Each Metal view fills the
+/// screen; the HUD keeps to the safe area.
 struct RootView: View {
     private let args = DebugArgs.fromProcess()
 
@@ -29,7 +29,16 @@ struct RootView: View {
             TestPatternView(virtualHeight: args.virtualHeight, scaleOverride: args.scaleOverride)
                 .ignoresSafeArea()
         } else {
-            GameView(args: args, kind: args.scene == "lightlab" ? .lightLab : .world)
+            GameView(args: args, kind: RootView.kind(of: args.scene))
+        }
+    }
+
+    /// The scene kind a `-GWScene` value asks for.
+    static func kind(of scene: String) -> GameModel.SceneKind {
+        switch scene {
+        case "lightlab": return .lightLab
+        case "probe": return .probe
+        default: return .world
         }
     }
 }

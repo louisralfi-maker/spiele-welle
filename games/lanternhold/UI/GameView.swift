@@ -3,10 +3,12 @@ import QuartzCore
 import SwiftUI
 
 /// The world screen (DESIGN.md "Screens": the scene plus the HUD): the Metal scene, the walk pad on the left 45 % and
-/// the plain SwiftUI HUD on top. The light lab uses the same screen without the walk pad.
+/// the plain SwiftUI HUD on top. The light lab uses the same screen without the walk pad. In the game nothing steps
+/// while the app is not active, and the dawn snapshot is saved when it goes to the background.
 @MainActor
 struct GameView: View {
     @State private var model: GameModel
+    @Environment(\.scenePhase) private var scenePhase
 
     init(args: DebugArgs, kind: GameModel.SceneKind) {
         _model = State(initialValue: GameModel(args: args, kind: kind))
@@ -16,7 +18,7 @@ struct GameView: View {
         ZStack {
             WorldSceneView(model: model)
                 .ignoresSafeArea()
-            if model.kind == .world {
+            if model.kind != .lightLab {
                 WalkPad(model: model)
                     .ignoresSafeArea()
             }
@@ -25,6 +27,12 @@ struct GameView: View {
         .background(Color.black.ignoresSafeArea())
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("world-root")
+        .onChange(of: scenePhase) { _, phase in
+            model.setActive(phase == .active)
+            if phase == .background {
+                model.saveNow()
+            }
+        }
     }
 }
 
@@ -137,6 +145,9 @@ final class WorldSceneCoordinator: NSObject, MTKViewDelegate {
         if ready != reportedReady || frames % 10 == 0 || model.showsDebugValues {
             reportedReady = ready
             var value = ready ? "frame:\(frames) ready" : "frame:\(frames)"
+            if !model.sceneStatus.isEmpty {
+                value += " " + model.sceneStatus
+            }
             if model.showsDebugValues {
                 value += " king:\(model.debugKingX) cam:\(String(format: "%.2f", model.debugCameraX))"
             }

@@ -39,10 +39,11 @@ enum LightKind: String, Sendable, CaseIterable, Equatable {
         }
     }
 
-    /// Fire flickers; windows and the moon stay steady.
+    /// Fire flickers; windows, the moon and the Great Beacon's pool stay steady (DESIGN.md "The finale": the edge band
+    /// of its light marks where the Lightless King can be hurt, so it must not wobble).
     var flickers: Bool {
         switch self {
-        case .window, .moon: return false
+        case .window, .moon, .beacon: return false
         default: return true
         }
     }

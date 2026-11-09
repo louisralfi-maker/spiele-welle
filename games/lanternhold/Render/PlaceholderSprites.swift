@@ -1,16 +1,12 @@
 import Foundation
 
 /// Placeholder characters, small props and emissive parts as pixel grids written as text (DESIGN.md "Art pipeline":
-/// pixel grids written as text, one letter per palette colour), plus the soot creatures drawn in code. Everything
-/// faces right; the renderer mirrors sprites that face left.
+/// pixel grids written as text, one letter per palette colour). Everything faces right; the renderer mirrors sprites
+/// that face left. The people's and creatures' strips of SPRITES.md (M2b) are composed from these grids in
+/// `PlaceholderPeople` and drawn in `PlaceholderCreatures`.
 enum PlaceholderSprites {
     static func frames(for sprite: SpriteID) -> [PixelImage] {
         switch sprite {
-        case .king: return kingFrames()
-        case .sootling: return [sootling(phase: 0), sootling(phase: 1)]
-        case .shadehound: return [shadehound(phase: 0), shadehound(phase: 1)]
-        case .archer: return bobbed(archerRows, size: SpriteID.archer.size, headRows: 6)
-        case .citizen: return bobbed(citizenRows, size: SpriteID.citizen.size, headRows: 6)
         case .torchPost: return [grid(torchPostRows, SpriteID.torchPost.size)]
         case .brazier: return [grid(brazierRows, SpriteID.brazier.size)]
         case .lanternPost: return [grid(lanternPostRows, SpriteID.lanternPost.size)]
@@ -76,32 +72,7 @@ enum PlaceholderSprites {
     // MARK: - The king
 
     /// The lamplighter king, facing right: a crown a size too big, a white beard, the realm's teal cloak over a
-    /// brown tunic, and his old lantern on a hooked pole. Frames: idle 0 ... 1, walk 2 ... 5 (contact, passing,
-    /// contact, passing).
-    static func kingFrames() -> [PixelImage] {
-        let size = SpriteID.king.size
-        func compose(legs: [String], legsTop: Int, bodyOffset: Int, headBob: Bool) -> PixelImage {
-            var p = Painter(size, salt: 0)
-            p.stamp(kingPoleRows, palette, x: 0, y: 5)
-            p.stamp(legs, palette, x: 0, y: legsTop)
-            if headBob {
-                p.stamp(Array(kingBodyRows.dropFirst(8)), palette, x: 0, y: 8 + bodyOffset)
-                p.stamp(Array(kingBodyRows.prefix(8)), palette, x: 0, y: 1 + bodyOffset)
-            } else {
-                p.stamp(kingBodyRows, palette, x: 0, y: bodyOffset)
-            }
-            return p.image
-        }
-        return [
-            compose(legs: kingLegsIdle, legsTop: 24, bodyOffset: 0, headBob: false),
-            compose(legs: kingLegsIdle, legsTop: 24, bodyOffset: 0, headBob: true),
-            compose(legs: kingLegsContactNear, legsTop: 24, bodyOffset: 1, headBob: false),
-            compose(legs: kingLegsPassingNear, legsTop: 23, bodyOffset: 0, headBob: false),
-            compose(legs: kingLegsContactFar, legsTop: 24, bodyOffset: 1, headBob: false),
-            compose(legs: kingLegsPassingFar, legsTop: 23, bodyOffset: 0, headBob: false),
-        ]
-    }
-
+    /// brown tunic, and his old lantern on a hooked pole (composed into the strip of SPRITES.md by `PlaceholderPeople`).
     static let kingBodyRows = gridRows("""
     ...H..H..H......
     ...GH.GH.GH.....
@@ -267,106 +238,6 @@ enum PlaceholderSprites {
     ...FFf.FFf..
     ...KKK.KKK..
     """)
-
-    // MARK: - Soot creatures
-
-    /// A sootling: a hunched blob of ash-crusted soot with ember cracks, smoke wisps curling up and little tendrils for
-    /// feet, a pale rim on top. The eyes are glints drawn by the renderer. `phase` moves the wisps and squashes the
-    /// body by a pixel.
-    static func sootling(phase: Int) -> PixelImage {
-        let size = SpriteID.sootling.size
-        var p = Painter(size, salt: 77)
-        let squash = Double(phase)
-        let cx = 6.5
-        let cy = 9.2 + squash * 0.3
-        let rx = 5.4 + squash * 0.3
-        let ry = 4.4 - squash * 0.3
-        for y in 0..<size.height {
-            for x in 0..<size.width {
-                let dx = (Double(x) + 0.5 - cx) / rx
-                let dy = (Double(y) + 0.5 - cy) / ry
-                let lean = (Double(x) - cx) * 0.06
-                if dx * dx + (dy + lean) * (dy + lean) <= 1 {
-                    let core = 1 - (dx * dx + dy * dy)
-                    let value = 0.55 - core * 0.25 + (p.hash(x, y, 1) - 0.5) * 0.16
-                    p.put(x, y, p.ramp(Ink.ash, value, x, y))
-                }
-            }
-        }
-        // Wisps rising from the head and back.
-        let starts: [(Int, Int, Int)] = [(4, 5, 4), (7, 4, 5), (10, 5, 3)]
-        for (index, start) in starts.enumerated() {
-            for step in 0..<start.2 {
-                let sway = sin(Double(step) * 1.3 + Double(phase) * 1.7 + Double(index)) * 1.1
-                let x = start.0 + Int(sway.rounded())
-                let y = start.1 - step - 1
-                p.put(x, y, step == start.2 - 1 ? Ink.ash[4] : Ink.ash[3])
-            }
-        }
-        // Tendrils.
-        for (index, fx) in [2, 5, 8, 11].enumerated() {
-            let reach = (index + phase) % 2 == 0 ? 1 : 0
-            p.put(fx, size.height - 1, Ink.ash[0])
-            if reach == 1 { p.put(fx - 1, size.height - 1, Ink.ash[1]) }
-        }
-        p.topRim(Ink.ash[4])
-        // Ember cracks in the crust (a zigzag across the flank, a fleck on the back).
-        let cracks: [(Int, Int, Int)] = [(4, 9, 1), (5, 10, 2), (6, 10, 1), (7, 11, 2), (9, 8, 1), (10, 9, 2)]
-        for (x, y, tone) in cracks {
-            p.put(x, y, Ink.emberCracks[tone])
-        }
-        return p.image
-    }
-
-    /// A shadehound: a low, long soot body with a wolfish head, pricked ears, four legs and a wispy tail.
-    /// `phase` swaps the leg pairs and moves the wisps.
-    static func shadehound(phase: Int) -> PixelImage {
-        let size = SpriteID.shadehound.size
-        var p = Painter(size, salt: 91)
-        func blob(_ cx: Double, _ cy: Double, _ rx: Double, _ ry: Double) {
-            for y in 0..<size.height {
-                for x in 0..<size.width {
-                    let dx = (Double(x) + 0.5 - cx) / rx
-                    let dy = (Double(y) + 0.5 - cy) / ry
-                    guard dx * dx + dy * dy <= 1 else { continue }
-                    let value = 0.5 + (1 - dx * dx - dy * dy) * -0.12 + (p.hash(x, y, 2) - 0.5) * 0.16
-                    p.put(x, y, p.ramp(Ink.ash, value, x, y))
-                }
-            }
-        }
-        blob(9.5, 7.6, 7.4, 3.3)
-        blob(17.0, 4.6, 3.6, 2.7)
-        blob(20.0, 5.6, 1.8, 1.2)
-        p.put(15, 1, Ink.ash[2])
-        p.put(15, 0, Ink.ash[3])
-        p.put(17, 1, Ink.ash[2])
-        p.put(18, 0, Ink.ash[3])
-        // Legs: near and far pairs, swapped by phase.
-        let legs: [(Int, Int)] = phase == 0 ? [(4, 0), (6, 1), (13, 0), (15, 1)] : [(3, 1), (6, 0), (12, 1), (15, 0)]
-        for (lx, lift) in legs {
-            for y in 10..<(size.height - lift) {
-                p.put(lx, y, Ink.ash[0])
-                p.put(lx + 1, y, Ink.ash[1])
-            }
-        }
-        // Tail and back wisps.
-        for step in 0..<5 {
-            let sway = sin(Double(step) * 1.1 + Double(phase) * 2) * 1.0
-            p.put(2 - step / 2 + Int(sway.rounded()), 6 - step, step == 4 ? Ink.ash[4] : Ink.ash[3])
-        }
-        for (index, bx) in [6, 9, 12].enumerated() {
-            let lift = (index + phase) % 2
-            p.put(bx, 3 - lift, Ink.ash[3])
-            if lift == 1 { p.put(bx, 3, Ink.ash[3]) }
-        }
-        p.topRim(Ink.ash[4])
-        // Ember cracks along the flank and at the shoulder.
-        let cracks: [(Int, Int, Int)] = [(6, 8, 1), (7, 7, 2), (8, 8, 1), (11, 7, 1), (12, 8, 2), (16, 6, 1)]
-        for (x, y, tone) in cracks {
-            p.put(x, y, Ink.emberCracks[tone])
-        }
-        return p.image
-    }
 
     // MARK: - Small props
 

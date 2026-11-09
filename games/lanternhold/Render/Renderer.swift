@@ -675,7 +675,7 @@ final class Renderer {
     /// An emissive quad. Glow: its colour tints the drawn colours a little (40 %), scaled by its intensity. Glass: the
     /// part of the prop's sprite inside the mask, the glow colour as it is. Occluder: the whole sprite, black.
     static func quad(_ emissive: EmissiveInstance, layout: AtlasLayout) -> SpriteQuad {
-        let cell = layout.cell(emissive.sprite, frame: 0)
+        let cell = layout.cell(emissive.sprite, frame: emissive.frame)
         let rgb = SIMD3<Float>(emissive.color.x, emissive.color.y, emissive.color.z)
         switch emissive.kind {
         case .glow:

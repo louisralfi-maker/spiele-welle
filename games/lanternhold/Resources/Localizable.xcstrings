@@ -23,6 +23,17 @@
         }
       }
     },
+    "Patch the wall" : {
+      "comment" : "Accessibility label of the action button at a damaged wall at night (patch it for 10 gold).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mauer flicken"
+          }
+        }
+      }
+    },
     "Snuff the brazier" : {
       "comment" : "Accessibility label of the action button at a burning brazier.",
       "localizations" : {
