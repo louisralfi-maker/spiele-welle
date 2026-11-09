@@ -1,5 +1,10 @@
 # Lanternhold: art (milestone 1, first real pixel art)
 
+The M2b art lane keeps its own records: [`ART-actors.md`](ART-actors.md) (the king, people, soldiers, creatures and
+their glow strips) and [`ART-buildings.md`](ART-buildings.md) (walls, gates, towers, engines, the Great Beacon, the
+courtyard, the town, projectiles). `bash games/lanternhold/tools/build-art.sh` rebuilds all of them with the scene
+sprites below in one call (see "Pipeline").
+
 Every M1 prop and backdrop sprite is real pixel art now: 25 PNGs in `Resources/Art/`, one per `SpriteID`, each exactly
 its `SpriteID.size`, 8-bit RGBA, binary alpha, one texel = one game pixel, all colours from the shared palette
 `tools/palette.txt`. Actors, flames, glows, fog, sky, stars and the darkness bank stay procedural in this milestone.
@@ -40,7 +45,11 @@ used for painted albedo.
 
 To rebuild everything (needs the raws in `build/recraft/lh/`, git-ignored): `bash games/lanternhold/tools/build-art.sh`
 (or name single sprites). It converts one image at a time, pauses between them and waits below 70 °C if the CPU reaches
-80 °C. A full run reproduces the committed files byte for byte. Previews go to `build/recraft/lh/preview/`.
+80 °C. Since the art lane's fix stage it also runs `build-art-buildings.sh` and `build-art-actors.sh` (after the scene
+sprites: `beaconBase` is composed over `beaconRuin`); a name of either lane goes to its script, and `buildings` or
+`actors` runs a lane whole. `stoneWall`, `palisade` and `ballista` belong to the buildings lane (frame 0 is the
+milestone 1 sprite, frame 1 the damaged one). A full run reproduces every committed PNG byte for byte (checked on an
+empty copy of `Resources/Art`). Previews go to `build/recraft/lh/preview/`.
 
 ### Palette (`tools/palette.txt`, 48 colours)
 
@@ -522,8 +531,8 @@ unchanged. Mocks: `tools/scenemock/run_m1b.sh` (it now passes the renderer's who
   steps through a Bayer pattern, not binary: the scene tints it with the hour).
 - `build-art.sh` names `castleShadow` (all six) and `castleMist`; `gorgeWall` and `gorgeWallHigh` end with the flatten
   step, `castleFront` with the banner step. `bash build-art.sh gorgeWall gorgeWallHigh castleFront castleShadow
-  castleMist` rebuilds them byte for byte (checked). Do not run `build-art.sh` without names on this branch: its
-  `palisade`, `stoneWall` and `ballista` steps would write the old one-frame sprites over the buildings lane's strips.
+  castleMist` rebuilds them byte for byte (checked). (Its old `palisade`, `stoneWall` and `ballista` steps went to the
+  buildings lane in the art fix stage, so a full run is safe now.)
 - `mock.py` look options (all off by default, so older mocks stay byte for byte): `litCool`, `bounce` (`bounceLo`,
   `bounceHi`, `bounceDusk`), `duskSun`, `band` (`bandH`, `bandWhite`, `bandValley`, `bandWarmCut`), `rim`, and the
   renderer's earlier polish values

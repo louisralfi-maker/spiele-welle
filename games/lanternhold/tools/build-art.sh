@@ -1,9 +1,16 @@
 #!/bin/bash
-# Rebuilds every milestone 1 and M1b sprite in Resources/Art from the Recraft raws in build/recraft/lh/ (git-ignored; see ART.md
-# for the prompts) and the hand-set grids in tools/grids/. One image at a time with a pause between, and a wait while the
-# CPU is at 80 °C or more (this old Mac's heat rule). Run from anywhere: bash games/lanternhold/tools/build-art.sh [name …]
+# Rebuilds every sprite in Resources/Art: the milestone 1 and M1b scene sprites here, from the Recraft raws in
+# build/recraft/lh/ (git-ignored; see ART.md for the prompts) and the hand-set grids in tools/grids/, then the M2b
+# buildings (build-art-buildings.sh, ART-buildings.md) and the actors and creatures (build-art-actors.sh,
+# ART-actors.md). One image at a time with a pause between, and a wait while the CPU is at 80 °C or more (this old
+# Mac's heat rule). A full run reproduces every committed PNG byte for byte. Run from anywhere:
+#   bash games/lanternhold/tools/build-art.sh [name …]
+# A name of either lane goes to its script (stoneWall, palisade and ballista belong to the buildings lane: their
+# frame 0 is the milestone 1 sprite, frame 1 the damaged one); the group names `buildings` and `actors` run a lane whole.
 set -euo pipefail
 cd "$(dirname "$0")/../../.."
+BLD=games/lanternhold/tools/build-art-buildings.sh
+ACT=games/lanternhold/tools/build-art-actors.sh
 T=games/lanternhold/tools/pixelart.py
 A=games/lanternhold/Resources/Art
 G=games/lanternhold/tools/grids
@@ -69,7 +76,9 @@ build() { # name: one sprite
                        --fill woodDark:25,9,25,9 --fill straw:26,9,30,9 --fill woodDark:31,9,31,9 --fill woodDark:24,10,32,10 \
                        --fill woodDark:25,11,25,13 --fill plaster:26,11,26,12 --fill night1:27,11,29,12 --fill plaster:30,11,30,12 \
                        --fill woodDark:31,11,31,13 --fill plaster:26,13,30,13 --fill woodDark:25,14,31,14 ;;
-    stoneWall)     python3 $T convert $R/s7-defence-1.png $A/stoneWall.png --size 36x52 --box 522,80,704,298 --flood --tol 60 --only $ST --fill clear:15,0,21,9 --fill stoneMid:1,49,34,50 --fill ink:35,10,35,51 --fill ink:0,49,0,51 --outline ink --outline-skip-bottom ;;
+    # stoneWall's milestone 1 conversion (`convert $R/s7-defence-1.png --size 36x52 --box 522,80,704,298 --flood --tol 60
+    # --only $ST --fill clear:15,0,21,9 --fill stoneMid:1,49,34,50 --fill ink:35,10,35,51 --fill ink:0,49,0,51 --outline
+    # ink --outline-skip-bottom`) is frame 0 of the buildings lane's grid now, beside the damaged frame
     ground)        python3 $T convert $R/s7-defence-1.png $A/ground.png --size 64x26 --box 560,673,745,737 --key none --min-count 1 --tile --only $GR ;;
     # --- M1b: the gorge, the castle that seals it, the open valley ---
     gorgeWall|gorgeWallA|gorgeWallB|gorgeWallC) # one panorama, seamless, cut into A-B-C
@@ -198,18 +207,26 @@ build() { # name: one sprite
     fgOverhangA|fgOverhangB)
                    python3 $PROC overhang $A/$1.png --style $(echo "${1#fgOverhang}" | tr 'AB' 'ab')
                    python3 $T post $A/$1.png $A/$1.png --remap $FGLIFT ;;
-    throne|hearth|well|lanternPost|field|palisade|ballista|brazier|torchPost)
+    throne|hearth|well|lanternPost|field|brazier|torchPost)
                    python3 $T grid $G/$1.txt $A/$1.png ;;
-    *) echo "unknown sprite $1" >&2; return 1 ;;
+    # the two M2b lanes: whole, or one sprite of theirs
+    buildings)     bash $BLD ;;
+    actors)        bash $ACT ;;
+    *)             if [[ " $LANE_B " == *" $1 "* ]]; then bash $BLD "$1"
+                   elif [[ " $LANE_A " == *" $1 "* ]]; then bash $ACT "$1"
+                   else echo "unknown sprite $1" >&2; return 1; fi ;;
     esac
 }
 
+LANE_B=$(bash $BLD --list)
+LANE_A=$(bash $ACT --list)
+# the scene sprites first (the buildings lane composes beaconBase over beaconRuin), then both lanes whole
 ALL="farMountain farPeak gorgeCliff gorgeEndCliff waterfall gatehouse castleTower castleWall backGate chapel hallInterior
-throne hearth kitchen house valleyHill well lanternPost field palisade stoneWall ballista brazier torchPost ground
+throne hearth kitchen house valleyHill well lanternPost field brazier torchPost ground
 gorgeWall gorgeWallHigh cliffFlank gorgeMouth wardenStatue castleFront castleKeep castleBackGate valleyFar valleyMid windmill
 beaconRuin riverEnd riverFarBank clouds fgRockA fgRockB fgRockC fgOverhangA fgOverhangB
-houseB houseC keepFar keepTop throatRock cliffFlankB groundB groundC groundD castleShadow castleMist"
+houseB houseC keepFar keepTop throatRock cliffFlankB groundB groundC groundD castleShadow castleMist buildings actors"
 for name in ${@:-$ALL}; do
-    cool
+    case $name in buildings|actors) ;; *) cool ;; esac
     build "$name"
 done

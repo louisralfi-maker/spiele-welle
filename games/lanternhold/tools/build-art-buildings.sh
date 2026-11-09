@@ -48,6 +48,7 @@ build() { # name: one sprite
 ALL="palisade stoneWall bastion rubbleWood rubbleStone scaffold gateWood gateIron gateGreat gateBroken archerTower
 watchtower fireTower ballista catapult stakePit beaconBase beaconTower greatBeacon beaconFire
 barracks smithy masterSmithy lodge bigLodge bigHouse market tavern plotMarker arrow fireArrow bolt firepot"
+if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do
     cool
     build "$name"

@@ -65,6 +65,7 @@ build() { # name: one sprite (and its glow strip)
 
 ALL="sootling sootlingB shadehound sootCrow ashBrute gloomweaver ashGiant lightlessKing archer guardsman builder king
 citizen citizenB citizenC"
+if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do
     cool
     build "$name"
