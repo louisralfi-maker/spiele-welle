@@ -1,5 +1,5 @@
 # seren 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Seren, the Stranger: tall in a long grey
-# hooded cloak (a cool blue-grey, so it parts from the hall's violet stone) worn to threads at the hem, the hood deep
+# hooded cloak (a cool blue-grey, so it parts from the hall's violet stone) worn to threads at the hem, a pale clasp at the throat, the hood deep
 # over a face that stays in shadow (only a pale chin), a grey iron lantern held low on a short chain in the near hand,
 # its glass pale (serenGlow: its cold grey-white light). Walk: a quiet glide, the lantern swaying. Idle: still, the
 # lantern sways. Talk: the lantern lifted to the height of the hood (6), then lowered, her free hand opening (7).
@@ -20,7 +20,7 @@ legend
     I = stoneDark/moon
     i = stone/farPale
     j = stoneDark
-    J = stoneLight
+    J = stonePale
     Y = stonePale/foam
     y = stoneLight/foam
     z = /moon
@@ -30,14 +30,14 @@ legend
 part hood
     ..fFFF..
     .fFFFFC.
-    fFFFFFFC
-    fFFFFOOo
-    fFFFFOOo
-    ffFFFOoc
+    fFFFFFfC
+    fFFFFfOo
+    fFFFFfOo
+    ffFFFfoc
     ffFFFFc.
 
 part cloakTop
-    .ffFFFFC
+    .ffFFJFC
     ffFFFFFC
     ffFFFFFC
     ffFFFFFC

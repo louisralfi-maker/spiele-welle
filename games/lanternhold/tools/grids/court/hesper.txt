@@ -1,6 +1,6 @@
 # hesper 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Mother Hesper, priestess of the Flame: an
 # old woman with dark skin and white brows under a deep cream hood, a short cream cape over her shoulders edged in
-# gold, a gold stole down the front of her cream robe, a gold hem, a tall wooden staff held out in front of her with a
+# gold with the gold flame of her order on its front, a gold stole down the front of her cream robe, a gold hem, a tall wooden staff held out in front of her with a
 # small iron cup at the top where a little flame burns (hesperGlow: the flame, flickering through four shapes). Walk:
 # slow, the staff planted ahead of each step. Idle: a breath, the flame flickers. Talk: she lifts the staff and the
 # flame flares (6), then lowers it, her free hand on her heart (7).
@@ -42,8 +42,8 @@ part hood
 
 part cape
     .qwwwwwwG.
-    qwwwwwwwwG
-    qwwwwwwwwG
+    qwwwwwGwwG
+    qwwwwGgGwG
     GgGgGgGgG.
 
 part torso
