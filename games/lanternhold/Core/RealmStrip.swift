@@ -72,7 +72,7 @@ struct RealmStrip: Sendable, Equatable {
             let plot = s.plots[slots.wall]
             let spec = Realm.plots[slots.wall]
             var mark: WallMark
-            if s.day < spec.unlockDay {
+            if !s.isUnlocked(plot: slots.wall) {
                 mark = .locked
             } else if plot.job != nil {
                 mark = .building

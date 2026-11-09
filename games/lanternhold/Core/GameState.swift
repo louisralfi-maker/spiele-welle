@@ -354,6 +354,9 @@ struct GameState: Codable, Sendable, Equatable {
     var lastReport: DawnReport?
     /// Story flags (M3), sorted.
     var flags: [String] = []
+    /// The court (M3, `PetitionEngine`): today's petitioners, the heard history, the follow-ups, the world's changes,
+    /// the night modifiers. Optional: saves from before M3 read as nil, and the drivers start it.
+    var court: CourtState?
     var records = Records()
     var nextID = 1
     var orderCounter = 0
@@ -410,13 +413,18 @@ struct GameState: Codable, Sendable, Equatable {
         return room
     }
 
-    /// Builders the castle has: 2, 3 with the lodge, 4 with the big lodge.
-    func builderCapacity(_ balance: Balance) -> Int {
+    /// Builders the lodge gives: 2, 3 with the lodge, 4 with the big lodge.
+    func lodgeBuilders(_ balance: Balance) -> Int {
         switch plots[Realm.lodgePlot].item {
         case .lodge?: return balance.buildersLodge
         case .bigLodge?: return balance.buildersBigLodge
         default: return balance.buildersBase
         }
+    }
+
+    /// Builders the castle has: the lodge's, plus or minus those petitions added (M3), at least one.
+    func builderCapacity(_ balance: Balance) -> Int {
+        max(1, lodgeBuilders(balance) + (court?.extraBuilders ?? 0))
     }
 
     /// Plots the realm built itself (everything finished except what stood at the start: the gate, the four houses).
@@ -438,8 +446,10 @@ struct GameState: Codable, Sendable, Equatable {
         return item.tier
     }
 
-    /// True when day `unlockDay` has come.
-    func isUnlocked(plot: Int) -> Bool { day >= Realm.plots[plot].unlockDay }
+    /// True when day `unlockDay` has come, or a petition opened the plot early (M3, `unlock`).
+    func isUnlocked(plot: Int) -> Bool {
+        day >= Realm.plots[plot].unlockDay || (court?.opensEarly(plot: plot) ?? false)
+    }
 
     /// A new id for a creature, soldier or projectile.
     mutating func makeID() -> Int {

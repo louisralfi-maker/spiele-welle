@@ -135,8 +135,8 @@ enum Battle {
 
     /// The night's creatures without the boss: each kind takes its share of the budget once it has arrived (varied a
     /// little by the seed), sootlings take the rest.
-    static func composition(night: Int, rng: inout SeededRandom, balance: Balance) -> [CreatureKind] {
-        let total = budget(night: night, balance: balance)
+    static func composition(night: Int, rng: inout SeededRandom, balance: Balance, scale: Double = 1) -> [CreatureKind] {
+        let total = budget(night: night, balance: balance) * scale
         var kinds: [CreatureKind] = []
         var spent = 0
         let shares: [(CreatureKind, Double)] = [
@@ -164,7 +164,10 @@ enum Battle {
     static func planNight(_ s: inout GameState, balance: Balance) {
         let night = s.nightNumber
         var rng = s.rng
-        var kinds = composition(night: night, rng: &rng, balance: balance)
+        // Tonight's modifiers from the petitions (M3, `NightPlanModifiers`): a smaller or bigger budget, fewer of a kind.
+        let tonight = NightPlanModifiers.tonight(s)
+        var kinds = composition(night: night, rng: &rng, balance: balance, scale: tonight.budgetScale)
+        tonight.trim(&kinds)
         if kinds.count > 1 {
             for i in stride(from: kinds.count - 1, to: 0, by: -1) {
                 let j = rng.int(in: 0...i)
@@ -509,7 +512,8 @@ enum Battle {
     /// The darkness bank's edge now; while the beacon shines it stops short of the beacon. When the beacon flares up
     /// the bank falls back to `beaconBankEdge` over `beaconBankSeconds` (part of the flare, not a jump in one frame).
     static func bankEdge(_ s: GameState, balance: Balance) -> Double {
-        var nightEdge = DarknessBank.nightEdge(night: s.nightNumber)
+        // A petition's fog (M3) brings the bank further tonight.
+        var nightEdge = DarknessBank.nightEdge(night: s.nightNumber) + NightPlanModifiers.bankShift(s)
         if beaconRadius(s, balance: balance) > 0 && balance.beaconBankEdge < nightEdge {
             var share = 1.0
             if let lit = s.night.kingLeftSecond, balance.beaconBankSeconds > 0 {
