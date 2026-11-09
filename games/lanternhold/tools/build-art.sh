@@ -1,16 +1,18 @@
 #!/bin/bash
 # Rebuilds every sprite in Resources/Art: the milestone 1 and M1b scene sprites here, from the Recraft raws in
 # build/recraft/lh/ (git-ignored; see ART.md for the prompts) and the hand-set grids in tools/grids/, then the M2b
-# buildings (build-art-buildings.sh, ART-buildings.md) and the actors and creatures (build-art-actors.sh,
-# ART-actors.md). One image at a time with a pause between, and a wait while the CPU is at 80 °C or more (this old
+# buildings (build-art-buildings.sh, ART-buildings.md), the actors and creatures (build-art-actors.sh,
+# ART-actors.md) and the world art of look 2 (build-art-world.sh, ART-look2.md section 13). One image at a time with a pause between, and a wait while the CPU is at 80 °C or more (this old
 # Mac's heat rule). A full run reproduces every committed PNG byte for byte. Run from anywhere:
 #   bash games/lanternhold/tools/build-art.sh [name …]
 # A name of either lane goes to its script (stoneWall, palisade and ballista belong to the buildings lane: their
-# frame 0 is the milestone 1 sprite, frame 1 the damaged one); the group names `buildings` and `actors` run a lane whole.
+# frame 0 is the milestone 1 sprite, frame 1 the damaged one); the group names `buildings`, `actors` and `world` run a
+# lane whole.
 set -euo pipefail
 cd "$(dirname "$0")/../../.."
 BLD=games/lanternhold/tools/build-art-buildings.sh
 ACT=games/lanternhold/tools/build-art-actors.sh
+WLD=games/lanternhold/tools/build-art-world.sh
 T=games/lanternhold/tools/pixelart.py
 A=games/lanternhold/Resources/Art
 G=games/lanternhold/tools/grids
@@ -233,21 +235,26 @@ build() { # name: one sprite
     # the two M2b lanes: whole, or one sprite of theirs
     buildings)     bash $BLD ;;
     actors)        bash $ACT ;;
+    world)         bash $WLD ;;
     *)             if [[ " $LANE_B " == *" $1 "* ]]; then bash $BLD "$1"
                    elif [[ " $LANE_A " == *" $1 "* ]]; then bash $ACT "$1"
+                   elif [[ " $LANE_W " == *" $1 "* ]]; then bash $WLD "$1"
                    else echo "unknown sprite $1" >&2; return 1; fi ;;
     esac
 }
 
 LANE_B=$(bash $BLD --list)
 LANE_A=$(bash $ACT --list)
-# the scene sprites first (the buildings lane composes beaconBase over beaconRuin), then both lanes whole
+LANE_W=$(bash $WLD --list)
+# the scene sprites first (the buildings lane composes beaconBase over beaconRuin), then the lanes whole (the world
+# lane last: it cuts the cleft's rock in the shapes of cliffFlank, cliffFlankB and throatRock and the far castle from
+# castleFront and castleBackGate)
 ALL="farMountain farPeak gorgeCliff gorgeEndCliff waterfall gatehouse castleTower castleWall backGate chapel hallInterior
 throne hearth kitchen house valleyHill well lanternPost field brazier torchPost ground
 gorgeWall gorgeWallHigh cliffFlank gorgeMouth wardenStatue castleFront castleKeep castleBackGate valleyFar valleyMid windmill
 beaconRuin riverEnd riverFarBank clouds fgRockA fgRockB fgRockC fgOverhangA fgOverhangB
-houseB houseC keepFar keepTop throatRock cliffFlankB groundB groundC groundD castleShadow castleMist buildings actors"
+houseB houseC keepFar keepTop throatRock cliffFlankB groundB groundC groundD castleShadow castleMist buildings actors world"
 for name in ${@:-$ALL}; do
-    case $name in buildings|actors) ;; *) cool ;; esac
+    case $name in buildings|actors|world) ;; *) cool ;; esac
     build "$name"
 done
