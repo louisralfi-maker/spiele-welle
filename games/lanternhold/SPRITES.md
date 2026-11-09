@@ -30,7 +30,7 @@ into its own notes (ART.md or DESIGN.md) and reports it, and the lead updates th
 
 | id | size | frames | frame use |
 |---|---|---|---|
-| `king` | 16x30 | 10 | walk 0-5 (one frame per 7 game px), idle 6-7, command 8-9 (lifts the lantern to give an order) |
+| `king` | 16x30 | 10 | walk 0-5 (one frame per 4 game px since the M2b review, was 7: his planted feet slid), idle 6-7, command 8-9 (lifts the lantern to give an order) |
 | `kingGlow` | 16x30 | 10 | the lantern glass (and a glint on the crown) per frame; the engine dims it by day (half its colour) and burns it full at night |
 | `citizen`, `citizenB`, `citizenC` | 12x26 | 6 each | walk 0-3, idle 4-5 (three different townsfolk) |
 | `archer` | 12x28 | 5 | idle 0-1, draw 2-3, loose 4 |

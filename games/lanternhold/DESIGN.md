@@ -241,8 +241,9 @@ outcome comes from what was built and recruited by day.
   more, asked at the middle of its body but at most 24 px up (a giant whose legs stand in the light is lit). The rendered
   falloff draws a visible edge band exactly at that radius, so the player can read where the light ends.
 - Lit creatures move at their lit speed, can be targeted by archers and ballistas, and the burning kinds lose health.
-- Unlit creatures show only their eyes (two 1 px glints), move at full speed, and archers cannot see them. Catapults lob
-  firepots at the densest group of eyes, lit or not, and light it up.
+- Unlit creatures smoulder in the dark (an opaque dark body with its ember edge, cracks and a cool moonlight rim; the
+  09.11. decision), move at full speed, and archers cannot see them. Catapults lob firepots at the densest group, lit or
+  not, and light it up.
 - The darkness bank advances at 20:00 to `x = 260 + 20 × night` (at most 600) over 20 s. Inside it, ambient light is
   ×0.4 and light radii ×0.6. It retreats at first light. When the Great Beacon flares up the bank falls back to x 360
   over 1.5 s (part of the flare), and the bank swallows the beacon's battle light: nothing left of its edge is lit by
@@ -310,7 +311,8 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 
 - **Archers** on walls and towers: range 150, a shot every 1.4 s, 4 damage, lit targets only, 20 HP. Every fourth arrow
   is a fire arrow that lights its landing spot (radius 22, 2.5 s): the night is full of streaks and short pools of
-  light. They aim at the lit creature closest to the castle; on night 20 at the Lightless King first, while he can be
+  light. Arrows fly at 220 px/s; an archer who waited without a target first draws for 0.15 s × (his id mod 6) when one
+  appears, so a wall's volleys stagger instead of loosing in one step (M2b review). They aim at the lit creature closest to the castle; on night 20 at the Lightless King first, while he can be
   hurt. When their wall falls they climb down and walk to a free
   post (or the keep); creatures that catch them on the way strike them.
 - **Guards**: they hold the breach nearest the front (the innermost rubble in front of the first standing wall) and
@@ -844,7 +846,7 @@ simulation's clock), `hud-gold`, `hud-happiness`, `hud-clock`, `hud-pause`,
 `recruit-guardsman`, `recruit-card-close`, `tax-card`, `tax-card-close`, `report-king-banner` (night 20),
 `report-banner`, `pause-sheet`, `pause-sound`, `pause-haptics`, `pause-restart`, `pause-restart-confirm`,
 `pause-restart-cancel`; `world-scene`'s value adds `kx:<x>` (the king's world x) and, while first light's front is on
-screen, `dawn:<share>`. Debug only: `debug-king-x`, `debug-camera-x` (values for the jitter test).
+screen, `dawn:<share>`; since the M2b review also `aim:<n>` (archers drawing or loosing in the frame). Debug only: `debug-king-x`, `debug-camera-x` (values for the jitter test).
 
 ## Tests
 
@@ -1011,7 +1013,9 @@ Open points:
    King in its light (`34-finale-2230`, `35-finale-2345`). Since M2b part 2 the night ends on its dawn report
    (`36-mid-report`), first light is held still as its front passes the outer wall (`37-mid-firstlight`:
    `-GWNight 12 -GWBuild demo -GWHour 5.83 -GWFreezeTime YES -GWAutoplay play`), and the finale ends on its report with
-   the King's banner (`38-finale-report`).
+   the King's banner (`38-finale-report`). Since the M2b review the gatehouse at 22:00 with the demo's iron gate closed
+   (`39-mid-gate-2200`: `-GWNight 12 -GWBuild demo -GWHour 22 -GWFreezeTime YES -GWCameraX 1360 -GWAutoplay play`), and
+   the liveliest frame also counts archers drawing or loosing (`aim:`).
 4. `testAudience`: `-GWScreen audience` in every language (the longest petition) for clipping.
 5. `testFilmstrip` (English): a frame every 1.2 s through a dusk and a night, for the fun check.
 
@@ -1360,6 +1364,83 @@ state machine (`overlay`) pauses the simulation under every card and screen.
   `AdPacing.lastSecondChanceNight`); the report's double taxes and Marek's gift join `ReportCardView`'s footer; the
   onboarding reads `-GWSkipOnboarding`.
 - The art lane's PNGs appear on the build and barracks cards by themselves (`SpriteImages` cuts the shared atlas).
+
+### M2b review (09.11.2026): the fix stage
+
+The review of round `lh-join-1` (code and player lenses, every blocker and high finding checked by a separate agent)
+found the night too quiet, the archers standing on air, the finale's beacon blown out and the HUD cut by every card.
+This stage fixed all five confirmed high findings, the cheap medium ones and the quick, visible low ones.
+
+**What changed**
+
+- **Archers stand on the walks** (`EntityFrames.lineLayout`): the stone wall's crenel floor (dy 42, posts at 5, 18 and
+  31), the bastion's walk (dy 57), the palisade's upper beam (dy 25, the stake points behind them); the probe's
+  stone-wall archers too. Actors draw after props, so merlons stand behind their legs as on the gatehouse.
+- **Line 1's posts** are fixed slots on the painted walk, filled in order (`lineOnePosts`: the middle of the three
+  stretches, then a second and a third archer in each), never in the brazier niches (1324 to 1350 and 1369 to 1396,
+  `EntityFramesTests`); with the line-1 engine its stretch is left out. Line 1's two torches burn at the walk's ends
+  (1306 and 1412, y 126) and have no torch posts on the facade.
+- **Schüsse fliegen** (pillar 1): a waiting archer who sees a target draws for 0.15 s × (his id mod 6) first
+  (`Balance.archerStagger`), so a wall's volleys stagger; arrows fly at 220 px/s (was 320); they are drawn on an arc
+  peaking about 30 px (picture only, 0 at both ends: every arrow still lands where the simulation lands it) with 18 px
+  trails; the loose pose holds 0.3 s and the draw 0.6 s. The scene value counts archers drawing or loosing (`aim:`),
+  and the night shots keep the frame with the most creatures, arrows and shooting archers.
+- **Creatures**: their ash crusts one value step darker (sootling, sootlingB, shadehound, ash brute); bodies drawn left
+  to right with a shade by id (0.85 to 1), a light cap of 1.2 (the world 1.6) and, unlit, a 0.9 moonlight rim
+  (`ActorQuad.flags` y: rim, w: cap); the Lightless King's summons leave 11 px apart with a hash jitter
+  (`Balance.summonSpacing`; no random draw, so the stream is unchanged); the gloom bubble is a cold, soft-edged void
+  behind the walls (z 0).
+- **The finale's beacon**: its pool warm amber (1.0, 0.80, 0.50), a scene-only warm light at the bowl (x 470, y 140, r
+  90) while it burns, its tower's stone one value step darker; fire-arrow pools fireGold.
+- **Scene**: the castle's shadows at z 0 (after the courtyard's buildings), the mist at the castle's foot at z 2
+  (after the gate in the gateway), the foreground rocks at y -34 (2 px above the ground at most), the gorge keep's glass
+  smaller and dimmed in the haze (no pair of eyes); the dusk fog violet with half the haze, the cool bounce held through
+  the horn (`Look.bounceDusk` 2.2); empty plots' markers bob a pixel (not with Reduce Motion); the king's glow strip
+  only from the dusk, his drawn lantern pool on the painted glass (the battle's stays where the simulation holds it).
+- **HUD and cards**: the clock, the numbers and the strip hide under every card and screen (the pause button under
+  the screens); the tax card shows the treasury; the action button is greyed with the missing gold, a cooldown ring or
+  while he lights (`KingTargetHold`), and its caption says Build, Upgrade or Rebuild; on the restart's confirmation
+  Cancel is gold and Restart quiet with ember; the defeat card shows the town's own cottages at night (cut from the
+  atlas), their glass going out one by one.
+- **Words**: a woman archer is "Bogenschützin" (`Names.female`, key `fallen.archer.female`); plurals for "left the
+  realm" and "taxpayers"; "Houses full: build a house" when the houses cut a dawn's growth (`DawnReport.housesFull`,
+  optional); card effects in player words; the sample report on day 8 (it had lost the middle line the day before it
+  opened).
+- **Saves and engine**: `SaveSettings` and `AdPacing` decode every field with a default; `GameModel` takes its
+  `SaveStore` (the tests use a temporary one); a restart starts fresh ad pacing; one `GameModel` per run (made by
+  `RootView`); Reduce Motion is followed while the game runs; 20 fps under the pause sheet, the report and the defeat
+  card; the filtered scene is cached; the actor shader skips the planes behind an opaque actor.
+- **Art** (through the art tools; every other PNG rebuilds byte for byte): the creatures' crusts and the Great Beacon
+  as above; the king's cloak roofDeep with banner teal only on its lit folds; the Ash Giant's crown stakes 2 px shorter
+  (no longer cut by the frame edge); the damaged palisade with two snapped stakes and a hole through the planks;
+  gateBroken's dotted bottom row broken into splinters; the castle towers' edge lines one step softer with course
+  joints across their shafts. The probe draws its creatures by the game's rule (no eye dots) and its second
+  townsperson is citizenB.
+
+**Decisions taken (M2b review)**
+
+| Decision | Why |
+|---|---|
+| The higher arrow arc is drawn, not simulated; the stagger and the slower arrows are the simulation's. | The hit must stay where the simulation puts it (one truth for what is seen and what is hit), while the battle itself needed arrows in the air for longer and volleys that do not fire in one step. |
+| The stagger starts only when a waiting archer (reload at exactly 0) finds a target; after that his 1.4 s rhythm runs on. | Archers who keep shooting stay out of step by their ids; the dusk and every lull spread them again. |
+| Line 1's posts are a fixed list, not an even spread. | Spread over the walk, two archers stood in the niche fires from the horn to dawn on the hero view of the castle. The list keeps every count clear of the niches and the engine. |
+| Line 1's torches moved to the walk's ends instead of keeping posts on the facade. | DESIGN says the torches light the archers on the walk; at the gate's height they lit the facade below it and cluttered the symmetric front. No creature or crow ever stood in either light, so the battle is the same. |
+| The picture's lantern pool sits on the painted glass; the battle's lantern stays at x + 9, y 16. | Moving the battle light would change what is lit (a tuning change for a 3 px difference); the drawn pool now matches the lantern the player sees. |
+| The Ash Giant takes 4 px per walk frame (was 6) and the king 4 (was 7, SPRITES.md amended). | Their planted feet barely move in their strips, so the shorter step slides them less; the giant's true fix is a new leg pose (open point). |
+| "Sound the horn" by day was not built. | It is a new mechanic (fast-forwarding the day, a confirmation, the onboarding's day 1); it belongs with M3's audience, which fills part of the day, and needs Louis' view on skipping days. |
+
+**Runner rounds (M2b review)**
+
+- `lh-rev-f1` (build, unit, ui, ui-de, release): RESULT_F1
+
+**Open points (M2b review)**
+
+- The Ash Giant still slides a little (its walk keys keep the planted feet in place); a second leg key pose would fix
+  it.
+- "Sound the horn" by day (the review's medium finding on day 1's idle minutes) waits for M3 and Louis.
+- The plot marker keeps its 10x16 size; a taller marker with a pale stake (a SPRITES.md change) would read better still.
+- The tuning was measured again by `TuningTests` T1 to T8 on the runner (they pass); `tools/simtune`'s sweep was not
+  rerun for the margins.
 
 ## Risks
 

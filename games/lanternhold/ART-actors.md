@@ -228,3 +228,17 @@ before, 391 after**). Sheets of every creature: `build/recraft/lh/preview/actors
   pixel row that carries the whole shape, and it stays a dark line in firelight.
 - emberDim alone is too dim under the ground fog in the mock; the rim needs ember, the cracks may stay emberDim.
 - A long crack drawn along a converted painting's crevices (a cheapest path) looks painted; random specks never join.
+
+## M2b review (09.11.2026)
+
+No Recraft images. Rebuilt through `build-art-actors.sh`; every other actor PNG rebuilds byte for byte.
+
+| Finding | Fix |
+|---|---|
+| lit by the beacon and the braziers the pale crusts blew out: cream sootling domes, a pink brute, a white hound | the crust one value step darker: the sootling's, sootlingB's and the hound's legend P/L/S now stoneLight/stone/stoneMid (were stonePale/stoneLight/stone); both brute key poses remapped the same way after their conversion (`post --remap stonePale:stoneLight,stoneLight:stone,stone:stoneMid`). In the engine creatures also reflect at most 1.2 of point light (the world 1.6) |
+| the king's teal cloak read beige by his own lantern and sage by a fire | the cloak roofDeep, banner teal only on its lit folds (legend T, t roofDeep, U banner; a fold line down the body part) |
+| the Ash Giant's crown stakes reached row 0 and blinked every other walk frame | the torso's cut polygon starts 2 rows down: the stakes are 2 px shorter, nothing is clipped any more |
+| the giant and the king slide their planted feet | the engine's stride: the giant 4 px a walk frame (was 6), the king 4 (was 7); the giant's true fix (a second leg key pose with the planted foot moving back) is open |
+
+The engine side: unlit creatures keep a 0.9 moonlight rim (`EntityFrames.unlitRim`), bodies a shade by id (0.85 to 1),
+drawn left to right; the king's glow strip lights only from the dusk.
