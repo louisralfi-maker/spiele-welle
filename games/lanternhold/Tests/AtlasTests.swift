@@ -70,8 +70,23 @@ final class AtlasTests: XCTestCase {
                           "the walk cycle moves")
     }
 
+    func testEveryPlacedSpriteIsPainted() {
+        // Every sprite the M1b world places comes from its PNG in Resources/Art, except the candle stands (a hand-set
+        // grid in code); the whole set fits one atlas page.
+        let layout = AtlasLayout.shared
+        let placed = Set(PlaceholderScene.world().props.map(\.sprite))
+        XCTAssertGreaterThanOrEqual(placed.count, 45, "the M1b world uses \(placed.count) sprites")
+        for sprite in placed where sprite != .candleStand {
+            XCTAssertNotNil(AtlasBuilder.artURL(for: sprite, bundle: .main), "\(sprite).png is in the bundle")
+            XCTAssertEqual(layout.sources[sprite], .png, "\(sprite) is drawn from its painting")
+            XCTAssertNotNil(layout.cells[sprite], "\(sprite) has a cell")
+        }
+        XCTAssertLessThanOrEqual(layout.width * layout.height, AtlasLayout.maxSide * AtlasLayout.maxSide, "one page")
+        XCTAssertLessThanOrEqual(layout.height, AtlasLayout.maxSide)
+    }
+
     func testPlaceholdersAreDeterministic() {
-        XCTAssertEqual(PlaceholderArt.frames(for: .gorgeCliff), PlaceholderArt.frames(for: .gorgeCliff))
+        XCTAssertEqual(PlaceholderArt.frames(for: .gorgeWallA), PlaceholderArt.frames(for: .gorgeWallA))
         XCTAssertEqual(PlaceholderArt.frames(for: .fogStrip), PlaceholderArt.frames(for: .fogStrip))
         XCTAssertEqual(PlaceholderArt.stableSalt("king"), PlaceholderArt.stableSalt("king"))
         XCTAssertNotEqual(PlaceholderArt.stableSalt("king"), PlaceholderArt.stableSalt("house"))

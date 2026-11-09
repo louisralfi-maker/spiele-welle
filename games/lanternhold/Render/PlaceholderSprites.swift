@@ -17,8 +17,6 @@ enum PlaceholderSprites {
         case .throne: return [grid(throneRows, SpriteID.throne.size)]
         case .hearth: return [hearth()]
         case .candleStand: return [grid(candleStandRows, SpriteID.candleStand.size)]
-        case .grassTuft: return [grassTuft()]
-        case .fencePost: return [grid(fencePostRows, SpriteID.fencePost.size)]
         case .flame: return [grid(flameRows, SpriteID.flame.size)]
         case .brazierFlame: return [grid(brazierFlameRows, SpriteID.brazierFlame.size)]
         case .hearthFire: return [grid(hearthFireRows, SpriteID.hearthFire.size)]
@@ -468,27 +466,6 @@ enum PlaceholderSprites {
     IIII
     """)
 
-    static let fencePostRows = gridRows("""
-    ..P..
-    .PPp.
-    .PPp.
-    .PPp.
-    .PPp.
-    pPPpp
-    bnnbb
-    .PPp.
-    .PPp.
-    .PPp.
-    .PPp.
-    .PPp.
-    .PPp.
-    .PPp.
-    .PPp.
-    .PPp.
-    .PPp.
-    .ppp.
-    """)
-
     /// The hearth: a stone fireplace with a mantle, a soot-black opening, logs and ash. The fire is emissive.
     static func hearth() -> PixelImage {
         let size = SpriteID.hearth.size
@@ -506,23 +483,6 @@ enum PlaceholderSprites {
         p.hline(6, w - 7, h - 3, Ink.wood[2])
         p.hline(7, w - 8, h - 2, Ink.wood[1])
         p.put(6, h - 3, Ink.wood[3])
-        return p.image
-    }
-
-    /// A tuft of grass blades for the foreground.
-    static func grassTuft() -> PixelImage {
-        let size = SpriteID.grassTuft.size
-        var p = Painter(size, salt: 55)
-        let blades: [(x: Int, height: Int, lean: Int)] = [(1, 4, -1), (3, 6, 0), (5, 8, 1), (6, 5, -1), (8, 7, 1),
-                                                          (10, 6, 0), (12, 4, 1)]
-        for blade in blades {
-            for step in 0..<blade.height {
-                let x = blade.x + (step * blade.lean) / 3
-                let y = size.height - 1 - step
-                let tone = step == blade.height - 1 ? Ink.grass[3] : (step < 2 ? Ink.grass[1] : Ink.grass[2])
-                p.put(x, y, tone)
-            }
-        }
         return p.image
     }
 

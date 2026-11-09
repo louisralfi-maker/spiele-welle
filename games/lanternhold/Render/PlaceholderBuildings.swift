@@ -1,19 +1,18 @@
-/// Procedural placeholders for the built things: the front's palisade, wall and ballista, the castle (gatehouse,
-/// towers, walls, the great hall cut away, chapel, kitchen, back gate) and the town (house, field, well). Window
-/// recesses sit exactly where `PlaceholderScene` puts the window glows, so the windows read by day too.
+/// Procedural placeholders for the built things: the front's palisade, wall and ballista, the castle (walls, the
+/// great hall cut away, chapel, kitchen; a plain stone stand-in for the painted front, keep, back gate and beacon
+/// ruin) and the town (house, field, well). Window recesses sit where the scene's window glows were in milestone 1,
+/// so the windows read by day too.
 enum PlaceholderBuildings {
     static func frames(for sprite: SpriteID, salt: UInt64) -> [PixelImage] {
         switch sprite {
         case .palisade: return [palisade(salt)]
         case .stoneWall: return [stoneWall(salt)]
         case .ballista: return [ballista(salt)]
-        case .gatehouse: return [gatehouse(salt)]
-        case .castleTower: return [castleTower(salt)]
+        case .castleFront, .castleKeep, .castleBackGate, .beaconRuin: return [stoneMass(salt, size: sprite.size)]
         case .castleWall: return [castleWall(salt)]
         case .hallInterior: return [hallInterior(salt)]
         case .chapel: return [chapel(salt)]
         case .kitchen: return [kitchen(salt)]
-        case .backGate: return [backGate(salt)]
         case .house: return [house(salt)]
         case .field: return [field(salt)]
         case .well: return [well(salt)]
@@ -215,101 +214,21 @@ enum PlaceholderBuildings {
 
     // MARK: - The castle
 
-    /// The gatehouse (line 1): crenellations, a string course, two windows (dy 62), the realm's banners and a gate
-    /// arch with the portcullis raised halfway.
-    static func gatehouse(_ salt: UInt64) -> PixelImage {
-        let size = SpriteID.gatehouse.size
+    /// A stand-in for the painted castle pieces: ashlar under a crenellated top, a darker plinth and a dark arched
+    /// passage in the middle.
+    static func stoneMass(_ salt: UInt64, size: PixelSize) -> PixelImage {
         var p = Painter(size, salt: salt)
         let w = size.width
         let h = size.height
         p.stoneBlocks(0, 0, w, h - 8, blockW: 12, blockH: 6, ramp: Ink.stone, key: 1)
         p.stoneBlocks(0, h - 8, w, 8, blockW: 16, blockH: 8, ramp: darker(Ink.stone), key: 2)
-        p.hline(0, w - 1, 7, Ink.stone[5])
-        p.hline(0, w - 1, 8, Ink.stone[1])
         p.crenellate(0, w - 1, top: 0, merlon: 8, gap: 5, depth: 7, ramp: Ink.stone)
-        p.hline(0, w - 1, 23, Ink.stone[5])
-        p.hline(0, w - 1, 24, Ink.stone[3])
-        p.hline(0, w - 1, 25, Ink.stone[0])
-        p.windowRecess(18, 30, frame: Ink.stone)
-        p.windowRecess(96, 30, frame: Ink.stone)
-        banner(&p, x: 31, top: 28, w: 9, h: 28)
-        banner(&p, x: 80, top: 28, w: 9, h: 28)
-        // Gate: a ring of dressed stone, then the dark passage.
-        p.arch(40, bottom: h - 1, w: 40, h: 56, Ink.stone[4])
-        p.arch(43, bottom: h - 1, w: 34, h: 53, Ink.soot[1])
-        p.rect(59, h - 56, 2, 3, Ink.stone[5])
-        for y in (h - 53)..<h {
-            let ringRow = (y - (h - 56)) % 4 == 0
-            if ringRow {
-                for x in 40..<80 where p.get(x, y) == Ink.stone[4] { p.put(x, y, Ink.stone[2]) }
-            }
-        }
-        // The portcullis, raised to row 84: iron bars over the dark passage, spikes at the foot.
-        let opening = Ink.soot[1]
-        for x in 44...76 where (x - 44) % 4 == 0 {
-            for y in (h - 52)...(h - 16) where p.get(x, y) == opening { p.put(x, y, Ink.iron[2]) }
-            p.put(x, h - 15, Ink.iron[3])
-        }
-        for y in stride(from: h - 48, through: h - 18, by: 6) {
-            for x in 44...76 where p.get(x, y) == opening { p.put(x, y, Ink.iron[1]) }
-        }
-        // A sliver of courtyard floor seen through the gate.
-        for x in 44...76 where p.get(x, h - 1) == opening { p.put(x, h - 1, Ink.earth[1]) }
+        let gateWidth = max(8, w / 5)
+        let gateHeight = min(h - 10, max(12, h / 4))
+        p.arch((w - gateWidth) / 2, bottom: h - 1, w: gateWidth, h: gateHeight, Ink.soot[1])
         for y in 0..<h {
             shift(&p, 0, y, ramp: Ink.stone, by: 1)
             shift(&p, w - 1, y, ramp: Ink.stone, by: -2)
-        }
-        return p.image
-    }
-
-    /// A round tower: a slate cone with a pennant, arrow slits, roundness shading.
-    static func castleTower(_ salt: UInt64) -> PixelImage {
-        let size = SpriteID.castleTower.size
-        var p = Painter(size, salt: salt)
-        let w = size.width
-        let h = size.height
-        let coneTop = 4
-        let coneBottom = 30
-        for y in coneTop...coneBottom {
-            let half = Int((Double(y - coneTop) / Double(coneBottom - coneTop) * 17.5).rounded())
-            let x0 = 16 - half
-            let x1 = 15 + half
-            if x1 < x0 { continue }
-            for x in max(0, x0)...min(w - 1, x1) {
-                let rel = Double(x - x0) / Double(max(1, x1 - x0))
-                var value = 0.82 - rel * 0.66
-                if (y - coneTop) % 3 == 2 { value -= 0.18 }
-                p.put(x, y, p.ramp(Ink.slate, value, x, y))
-            }
-        }
-        p.vline(15, 0, coneTop, Ink.iron[2])
-        p.put(15, 0, Ink.gold[3])
-        p.hline(16, 19, 1, Ink.banner[3])
-        p.hline(16, 18, 2, Ink.banner[2])
-        p.put(16, 3, Ink.banner[1])
-        let bodyTop = coneBottom + 1
-        p.stoneBlocks(0, bodyTop, w, h - bodyTop - 8, blockW: 8, blockH: 5, ramp: Ink.stone, key: 1)
-        p.stoneBlocks(0, h - 8, w, 8, blockW: 11, blockH: 8, ramp: darker(Ink.stone), key: 2)
-        p.hline(0, w - 1, bodyTop, Ink.wood[1])
-        p.hline(0, w - 1, bodyTop + 1, Ink.stone[1])
-        p.hline(0, w - 1, 66, Ink.stone[5])
-        p.hline(0, w - 1, 67, Ink.stone[1])
-        for slitY in [48, 82] {
-            p.rect(15, slitY, 2, 6, Ink.glass[0])
-            p.hline(14, 17, slitY + 6, Ink.stone[5])
-        }
-        for y in bodyTop...(h - 1) {
-            for x in 0..<w {
-                if x < 3 {
-                    shift(&p, x, y, ramp: Ink.stone, by: -1)
-                } else if x < 10 {
-                    shift(&p, x, y, ramp: Ink.stone, by: 1)
-                } else if x > 26 {
-                    shift(&p, x, y, ramp: Ink.stone, by: -2)
-                } else if x > 21 {
-                    shift(&p, x, y, ramp: Ink.stone, by: -1)
-                }
-            }
         }
         return p.image
     }
@@ -539,33 +458,6 @@ enum PlaceholderBuildings {
                 p.put(x, y, p.ramp(Ink.thatch, value, x, y))
             }
         }
-    }
-
-    /// The back gate to the town: crenellated stone, an arch with the doors swung open.
-    static func backGate(_ salt: UInt64) -> PixelImage {
-        let size = SpriteID.backGate.size
-        var p = Painter(size, salt: salt)
-        let w = size.width
-        let h = size.height
-        p.stoneBlocks(0, 0, w, h - 6, blockW: 10, blockH: 6, ramp: Ink.stone, key: 1)
-        p.stoneBlocks(0, h - 6, w, 6, blockW: 14, blockH: 6, ramp: darker(Ink.stone), key: 2)
-        p.hline(0, w - 1, 6, Ink.stone[5])
-        p.hline(0, w - 1, 7, Ink.stone[1])
-        p.crenellate(0, w - 1, top: 0, merlon: 6, gap: 4, depth: 6, ramp: Ink.stone)
-        p.arch(15, bottom: h - 1, w: 30, h: 48, Ink.stone[4])
-        p.arch(18, bottom: h - 1, w: 24, h: 45, Ink.soot[2])
-        for y in (h - 40)..<h {
-            for x in 18...21 where p.get(x, y) == Ink.soot[2] {
-                p.put(x, y, x == 21 ? Ink.wood[0] : Ink.wood[1 + (x == 18 ? 1 : 0)])
-            }
-            for x in 38...41 where p.get(x, y) == Ink.soot[2] {
-                p.put(x, y, x == 38 ? Ink.wood[0] : Ink.wood[1])
-            }
-        }
-        for x in 22...37 where p.get(x, h - 1) == Ink.soot[2] {
-            p.put(x, h - 1, Ink.earth[2])
-        }
-        return p.image
     }
 
     // MARK: - The town

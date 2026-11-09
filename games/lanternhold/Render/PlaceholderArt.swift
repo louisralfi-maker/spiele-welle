@@ -1,33 +1,38 @@
 /// The procedural placeholder art (DESIGN.md "Milestone 1 in detail": placeholder art made in code). Each sprite is
 /// drawn as albedo in the DESIGN palette at exactly `SpriteID.size`, lit later by the renderer: stone with mortar and
 /// light top edges, cliff strata, timbered houses, soot creatures. Emissive sprites (flames, windows, stars) carry
-/// their glow colours. Deterministic: the same sprite always gives the same pixels.
+/// their glow colours. The painted sprites of `Resources/Art` win over these; for them a plain stand-in (rock, hills,
+/// clouds, river, stone) keeps the game drawable without its PNG. Deterministic: the same sprite always gives the
+/// same pixels.
 enum PlaceholderArt {
     /// Every frame of a sprite (`SpriteID.frameCount`), each `SpriteID.size`.
     static func frames(for sprite: SpriteID) -> [PixelImage] {
         let salt = stableSalt(sprite.rawValue)
+        let size = sprite.size
         var frames: [PixelImage]
         switch sprite {
         case .moon: frames = [moon(salt)]
         case .sun: frames = [sun(salt)]
         case .starField: frames = [starField(salt)]
-        case .farMountain: frames = [farRange(salt, size: sprite.size, peaks: [(36, 56), (98, 66), (142, 42)])]
-        case .farPeak: frames = [farRange(salt, size: sprite.size, peaks: [(54, 92), (20, 40), (92, 52)])]
-        case .gorgeCliff: frames = [cliff(salt, size: sprite.size)]
-        case .gorgeEndCliff: frames = [cliff(salt, size: sprite.size)]
-        case .valleyHill: frames = [valleyHill(salt)]
+        case .cloudA, .cloudB, .cloudC: frames = [cloudBand(salt, size: size)]
+        case .farMountain: frames = [farRange(salt, size: size, peaks: [(36, 56), (98, 66), (142, 42)])]
+        case .valleyFarA, .valleyFarB, .valleyFarC:
+            frames = [farRange(salt, size: size, peaks: [(30, 52), (96, 70), (160, 48)])]
+        case .gorgeWallA, .gorgeWallB, .gorgeWallC, .gorgeWallHigh, .wardenStatue, .gorgeMouth, .cliffFlank,
+             .fgRockA, .fgRockB, .fgRockC, .fgOverhangA, .fgOverhangB:
+            frames = [cliff(salt, size: size)]
+        case .valleyMidA, .valleyMidB, .valleyMidC, .windmill, .riverFarBank: frames = [hills(salt, size: size)]
+        case .riverEnd: frames = [river(salt, size: size)]
         case .fogStrip: frames = [fogStrip(salt)]
         case .ground: frames = [ground(salt)]
         case .darknessBank: frames = [darknessBank(salt)]
         case .darknessEdge: frames = [darknessEdge(salt)]
-        case .waterfall: frames = [waterfall(salt)]
         default:
             frames = PlaceholderBuildings.frames(for: sprite, salt: salt)
             if frames.isEmpty {
                 frames = PlaceholderSprites.frames(for: sprite)
             }
         }
-        let size = sprite.size
         let count = max(1, sprite.frameCount)
         var fitted: [PixelImage] = []
         for index in 0..<count {
@@ -126,6 +131,32 @@ enum PlaceholderArt {
                 let wrapped = (x + dx + size.width) % size.width
                 p.put(wrapped, y + dy, tones[1])
             }
+        }
+        return p.image
+    }
+
+    /// A band of cumulus for the clouds plane: round puffs on a flat underside, cream tops over lavender bellies.
+    static func cloudBand(_ salt: UInt64, size: PixelSize) -> PixelImage {
+        var p = Painter(size, salt: salt)
+        let w = size.width
+        let h = size.height
+        let ramp = [RGBA(0x8C98D0), RGBA(0xB4C0D8), RGBA(0xE6F0F2), RGBA(0xF1E3C4)]
+        var cx = 10
+        var index = 0
+        while cx < w - 10 {
+            let radius = 7 + Int(p.hash(index, 1) * Double(max(1, h / 2 - 7)))
+            let cy = h - 1 - radius / 2
+            for y in max(0, cy - radius)..<h {
+                for x in max(0, cx - radius)...min(w - 1, cx + radius) {
+                    let dx = Double(x - cx)
+                    let dy = Double(y - cy)
+                    guard dx * dx + dy * dy <= Double(radius * radius) else { continue }
+                    let value = 0.9 - Double(y - (cy - radius)) / Double(2 * radius + 1) * 0.8
+                    p.put(x, y, p.ramp(ramp, value, x, y))
+                }
+            }
+            cx += radius + 4 + Int(p.hash(index, 2) * 8)
+            index += 1
         }
         return p.image
     }
@@ -257,9 +288,8 @@ enum PlaceholderArt {
         return p.image
     }
 
-    /// Low green hills where the gorge opens into the valley: tree clumps on the ridge, a patch of field.
-    static func valleyHill(_ salt: UInt64) -> PixelImage {
-        let size = SpriteID.valleyHill.size
+    /// Low green hills of the open valley: tree clumps on the ridge, a patch of field.
+    static func hills(_ salt: UInt64, size: PixelSize) -> PixelImage {
         var p = Painter(size, salt: salt)
         let w = size.width
         let h = size.height
@@ -423,23 +453,26 @@ enum PlaceholderArt {
         return p.image
     }
 
-    /// The waterfall at the gorge's end: falling streaks over darker water, foam at the foot.
-    static func waterfall(_ salt: UInt64) -> PixelImage {
-        let size = SpriteID.waterfall.size
+    /// The river that closes the world: an earth bank level with the ground on the left, falling to the water,
+    /// which runs to the right edge with light streaks.
+    static func river(_ salt: UInt64, size: PixelSize) -> PixelImage {
         var p = Painter(size, salt: salt)
         let w = size.width
         let h = size.height
-        for y in 0..<h {
-            let foam = y > h - 14
-            let spread = foam ? (y - (h - 14)) / 3 : 0
-            for x in 0..<w {
-                let edge = min(x, w - 1 - x)
-                if edge + spread < 2 && p.hash(x, y / 3, 1) > 0.4 { continue }
-                let streak = p.smooth(Double(x) * 2.2, Double(y) * 0.12, cell: 3, key: 2)
-                var value = 0.42 + (streak - 0.5) * 0.8
-                if edge < 2 { value -= 0.2 }
-                if foam { value = 0.75 + p.hash(x, y, 3) * 0.3 }
-                p.put(x, y, p.ramp(Ink.water, value, x, y))
+        let ground = h - WorldLayout.groundRowsBelow
+        let bankEnd = w * 2 / 5
+        let water = min(h - 2, ground + 12)
+        for x in 0..<w {
+            let top = x < bankEnd ? ground + (x * (water - ground)) / max(1, bankEnd) : water
+            for y in top..<h {
+                if x >= bankEnd || y >= water {
+                    let streak = p.smooth(Double(x) * 0.4, Double(y) * 2, cell: 4, key: 2)
+                    let value = y == water ? 0.85 : 0.35 + (streak - 0.5) * 0.4 - Double(y - water) * 0.02
+                    p.put(x, y, p.ramp(Ink.water, value, x, y))
+                } else {
+                    let value = y == top ? 0.8 : 0.5 - Double(y - top) * 0.02
+                    p.put(x, y, p.ramp(Ink.earth, value, x, y))
+                }
             }
         }
         return p.image

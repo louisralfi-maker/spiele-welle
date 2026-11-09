@@ -4,49 +4,71 @@ struct PixelSize: Sendable, Equatable {
     let height: Int
 }
 
-/// Every sprite of milestone 1. The renderer's procedural placeholder atlas draws one cell per id and frame at
-/// exactly `size`, so quads never stretch texels (long things such as the ground, walls and fields are tiled).
+/// Every sprite of the world (milestone M1b). The painted ones come from `Resources/Art/<name>.png` at exactly `size`;
+/// the procedural placeholder atlas draws a stand-in for any PNG that is missing, one cell per id and frame, so quads
+/// never stretch texels (long things such as the ground, the gorge wall, the valley panoramas and walls are tiled).
 enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // Sky (emissive)
     case moon, sun, starField
-    // Far and mid planes
-    case farMountain, farPeak, gorgeCliff, valleyHill
+    // Clouds plane (parallax 0.05)
+    case cloudA, cloudB, cloudC
+    // Far plane
+    case farMountain, valleyFarA, valleyFarB, valleyFarC
+    // Mid plane: the gorge's far wall, the warden statue, the gorge mouth; the valley's hills, windmill and far shore
+    case gorgeWallA, gorgeWallB, gorgeWallC, gorgeWallHigh, wardenStatue, gorgeMouth
+    case valleyMidA, valleyMidB, valleyMidC, windmill, riverFarBank
     // Fog planes
     case fogStrip
     // World plane
     case ground, darknessBank, darknessEdge
-    case palisade, stoneWall, torchPost, brazier, ballista
-    case gatehouse, castleTower, castleWall, hallInterior, throne, hearth, candleStand, chapel, kitchen, backGate
-    case house, lanternPost, field, well, waterfall, gorgeEndCliff
+    case beaconRuin, palisade, stoneWall, torchPost, brazier, ballista
+    case cliffFlank, castleKeep, castleFront, castleWall, hallInterior, throne, hearth, candleStand, chapel, kitchen
+    case castleBackGate, house, lanternPost, field, well, riverEnd
     // Emissive parts
     case flame, brazierFlame, hearthFire, candleFlame, windowGlow, lanternGlass, eyeGlints
     // Actors
     case king, sootling, shadehound, archer, citizen
     // Foreground plane
-    case grassTuft, fencePost
+    case fgRockA, fgRockB, fgRockC, fgOverhangA, fgOverhangB
 
-    /// Size of one frame in game pixels (DESIGN.md "Pixel scale": king 30, palisade 34, stone wall 52, castle main
-    /// wall 90, towers 120, cliffs above the screen).
+    /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
+    /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
     var size: PixelSize {
         switch self {
         case .moon: return PixelSize(width: 14, height: 14)
         case .sun: return PixelSize(width: 18, height: 18)
         case .starField: return PixelSize(width: 128, height: 64)
+        case .cloudA: return PixelSize(width: 280, height: 40)
+        case .cloudB: return PixelSize(width: 240, height: 42)
+        case .cloudC: return PixelSize(width: 286, height: 36)
         case .farMountain: return PixelSize(width: 160, height: 70)
-        case .farPeak: return PixelSize(width: 110, height: 95)
-        case .gorgeCliff: return PixelSize(width: 70, height: 210)
-        case .valleyHill: return PixelSize(width: 150, height: 46)
+        case .valleyFarA: return PixelSize(width: 192, height: 90)
+        case .valleyFarB: return PixelSize(width: 192, height: 90)
+        case .valleyFarC: return PixelSize(width: 192, height: 90)
+        case .gorgeWallA: return PixelSize(width: 192, height: 190)
+        case .gorgeWallB: return PixelSize(width: 192, height: 190)
+        case .gorgeWallC: return PixelSize(width: 192, height: 190)
+        case .gorgeWallHigh: return PixelSize(width: 192, height: 240)
+        case .wardenStatue: return PixelSize(width: 96, height: 200)
+        case .gorgeMouth: return PixelSize(width: 120, height: 230)
+        case .valleyMidA: return PixelSize(width: 192, height: 110)
+        case .valleyMidB: return PixelSize(width: 192, height: 110)
+        case .valleyMidC: return PixelSize(width: 192, height: 110)
+        case .windmill: return PixelSize(width: 40, height: 60)
+        case .riverFarBank: return PixelSize(width: 240, height: 30)
         case .fogStrip: return PixelSize(width: 128, height: 24)
         case .ground: return PixelSize(width: 64, height: 26)
         case .darknessBank: return PixelSize(width: 64, height: 236)
         case .darknessEdge: return PixelSize(width: 32, height: 236)
+        case .beaconRuin: return PixelSize(width: 64, height: 130)
         case .palisade: return PixelSize(width: 20, height: 34)
         case .stoneWall: return PixelSize(width: 36, height: 52)
         case .torchPost: return PixelSize(width: 4, height: 14)
         case .brazier: return PixelSize(width: 10, height: 14)
         case .ballista: return PixelSize(width: 28, height: 16)
-        case .gatehouse: return PixelSize(width: 120, height: 100)
-        case .castleTower: return PixelSize(width: 32, height: 120)
+        case .cliffFlank: return PixelSize(width: 80, height: 240)
+        case .castleKeep: return PixelSize(width: 150, height: 250)
+        case .castleFront: return PixelSize(width: 240, height: 236)
         case .castleWall: return PixelSize(width: 40, height: 90)
         case .hallInterior: return PixelSize(width: 260, height: 90)
         case .throne: return PixelSize(width: 14, height: 24)
@@ -54,13 +76,12 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .candleStand: return PixelSize(width: 4, height: 16)
         case .chapel: return PixelSize(width: 160, height: 96)
         case .kitchen: return PixelSize(width: 120, height: 80)
-        case .backGate: return PixelSize(width: 60, height: 84)
+        case .castleBackGate: return PixelSize(width: 200, height: 200)
         case .house: return PixelSize(width: 64, height: 46)
         case .lanternPost: return PixelSize(width: 6, height: 24)
         case .field: return PixelSize(width: 80, height: 8)
         case .well: return PixelSize(width: 18, height: 20)
-        case .waterfall: return PixelSize(width: 24, height: 200)
-        case .gorgeEndCliff: return PixelSize(width: 120, height: 220)
+        case .riverEnd: return PixelSize(width: 220, height: 64)
         case .flame: return PixelSize(width: 4, height: 5)
         case .brazierFlame: return PixelSize(width: 8, height: 7)
         case .hearthFire: return PixelSize(width: 16, height: 10)
@@ -73,8 +94,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .shadehound: return PixelSize(width: 22, height: 14)
         case .archer: return PixelSize(width: 12, height: 28)
         case .citizen: return PixelSize(width: 12, height: 26)
-        case .grassTuft: return PixelSize(width: 14, height: 8)
-        case .fencePost: return PixelSize(width: 5, height: 18)
+        case .fgRockA: return PixelSize(width: 96, height: 36)
+        case .fgRockB: return PixelSize(width: 96, height: 36)
+        case .fgRockC: return PixelSize(width: 96, height: 36)
+        case .fgOverhangA: return PixelSize(width: 128, height: 48)
+        case .fgOverhangB: return PixelSize(width: 128, height: 48)
         }
     }
 
@@ -151,24 +175,51 @@ struct ActorInstance: Sendable, Equatable {
     var isLit: Bool
 }
 
-/// One emissive quad (flames, windows, lantern glass, stars, sun, moon), added after lighting; it feeds the bloom.
+/// One quad of the emissive pass (flames, window glass, lantern glass, stars, sun, moon), added after lighting; it
+/// feeds the bloom. The pass draws its quads in order with premultiplied-over blending: `glow` adds its light,
+/// `glass` lights the dark window glass of its sprite (palette night0, night1, ink) inside `source`, and `occluder`
+/// clears the glow under the opaque pixels of a sprite drawn later on the mid, world or foreground plane, so a light
+/// never shines through what stands in front of it (ART.md "Renderer additions").
 struct EmissiveInstance: Sendable, Equatable {
+    enum Kind: Sendable, Equatable {
+        case glow, glass, occluder
+    }
+
     var sprite: SpriteID
-    /// The plane whose offset the rect uses (sky or world).
+    /// The plane whose offset the rect uses.
     var plane: Plane
     /// x, y, width, height in target pixels of that plane.
     var rect: SIMD4<Float>
-    /// rgb × intensity, alpha in a.
+    /// rgb × intensity, alpha in a (glow); the glow colour of the glass (glass); unused (occluder).
     var color: SIMD4<Float>
+    var kind: Kind
+    /// The part of the sprite the quad shows: x, y from its top-left, width, height in sprite pixels (unflipped).
+    var source: SIMD4<Float>
+    /// Mirrored horizontally, with its prop.
+    var flipped: Bool
+
+    init(sprite: SpriteID, plane: Plane, rect: SIMD4<Float>, color: SIMD4<Float>, kind: Kind = .glow,
+         source: SIMD4<Float>? = nil, flipped: Bool = false) {
+        self.sprite = sprite
+        self.plane = plane
+        self.rect = rect
+        self.color = color
+        self.kind = kind
+        let size = sprite.size
+        self.source = source ?? SIMD4<Float>(0, 0, Float(size.width), Float(size.height))
+        self.flipped = flipped
+    }
 }
 
 /// One light of the light pass, shaped like `LightInstance`: `circle` = centre x, centre y, radius (target pixels of
-/// the world plane), intensity; `color` = r, g, b, 0. `ellipseY` is the vertical squash of the pool (`LightField`).
+/// its plane), intensity; `color` = r, g, b, 0. `ellipseY` is the vertical squash of the pool (`LightField`). A light
+/// of the mid plane (the warden statue's bowl fire) moves with the mid plane.
 struct FrameLight: Sendable, Equatable {
     var circle: SIMD4<Float>
     var color: SIMD4<Float>
     var ellipseY: Float
     var kind: LightKind
+    var plane: Plane = .world
 }
 
 /// One fog plane: colour, density, how much point light it catches, and its drift in game pixels.
