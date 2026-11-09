@@ -1,0 +1,4 @@
+Test Case '-[LanternholdUITests.LightProbeUITests testFilmstrip]' passed (18.948 seconds).
+Test Case '-[LanternholdUITests.LightProbeUITests testLightProbe]' passed (164.059 seconds).
+exit=0
+screenshots: 29
