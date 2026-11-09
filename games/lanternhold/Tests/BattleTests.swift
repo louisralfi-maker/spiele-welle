@@ -112,12 +112,39 @@ final class BattleTests: XCTestCase {
     func testEveryFourthArrowIsAFireArrowThatLightsTheGround() {
         var s = night { $0.plots[Realm.lines[0].braziers[0]].item = .brazier }
         spawn(&s, .ashBrute, at: 1255, still: true)
-        _ = run(&s, seconds: 6)
+        var glowSeen = false
+        var events: [SimEvent] = []
+        for _ in 0..<60 {
+            Sim.step(&s, dt: 0.1, balance: balance, events: &events)
+            if let glow = Battle.lightSources(s, balance: balance).first(where: { $0.kind == .fireArrow }) {
+                glowSeen = true
+                XCTAssertEqual(glow.x, 1255, accuracy: 1, "the glow burns where the fire arrow landed")
+                XCTAssertEqual(glow.radius, balance.fireArrowRadius)
+            }
+        }
         XCTAssertGreaterThanOrEqual(s.night.arrows, 8)
         XCTAssertEqual(s.night.fireArrows, s.soldiers.reduce(0) { $0 + $1.shots / 4 })
         XCTAssertGreaterThan(s.night.fireArrows, 0)
-        XCTAssertTrue(Battle.lightSources(s, balance: balance).contains { $0.kind == .fireArrow }
-                      || s.night.fireArrows > 0)
+        XCTAssertTrue(glowSeen, "a landed fire arrow is a battle light")
+    }
+
+    /// Wall torches burn on the wall walk: their lit reach (about 20 px) lights the wall's top, not the ground at its
+    /// foot, so a wall without braziers cannot see what hacks at it (DESIGN.md "Light rules").
+    func testWallTorchesLightTheWallWalkNotItsFoot() {
+        var s = night { state in
+            state.plots[Realm.lines[1].wall].item = .palisade
+            state.plots[Realm.lines[1].wall].hp = 300
+        }
+        let torches = Battle.lightSources(s, balance: balance).filter { $0.kind == .torch && $0.x < 1000 }
+        XCTAssertEqual(torches.count, 2, "two torches on the palisade")
+        XCTAssertTrue(torches.allSatisfy { $0.y == BuildItem.palisade.height + 2 }, "on the wall walk")
+        let probe = Battle.probe(s, balance: balance)
+        XCTAssertTrue(probe.isLit(x: 942, y: BuildItem.palisade.height), "the wall walk is lit")
+        let id = spawn(&s, .sootling, at: 936, still: true)
+        _ = run(&s, seconds: 3)
+        XCTAssertFalse(creature(s, id: id)?.isLit ?? true, "the foot of the wall stays dark")
+        XCTAssertEqual(creature(s, id: id)?.hp ?? 0, balance.creature(.sootling).hp, "not shot, not burning")
+        XCTAssertEqual(s.night.arrows, 0)
     }
 
     // MARK: Walls, breaches, the hearth
@@ -191,19 +218,67 @@ final class BattleTests: XCTestCase {
         XCTAssertEqual(quiet.guardPostX, 1312, accuracy: 1e-9, "the gate fell: they hold the gate")
     }
 
-    func testGuardsStepBackBelowThirtyPercent() {
+    /// A guard below 30 % steps back while another guard holds; the last one holding stands his ground and falls.
+    /// The guard who stepped back walks to the keep through the creature stream unharmed.
+    func testGuardsStepBackBelowThirtyPercentAndTheLastOneFalls() {
         var s = night(day: 9) { state in
             state.plots[Realm.lines[2].wall].item = .palisade
             state.plots[Realm.lines[2].wall].isRubble = true
             state.plots[Realm.lines[1].wall].item = .stoneWall
             state.plots[Realm.lines[1].wall].hp = 800
         }
+        let guardIDs = s.soldiers.filter { $0.kind == .guardsman }.map { $0.id }
+        XCTAssertEqual(guardIDs.count, 2)
+        for k in 0..<3 { spawn(&s, .ashBrute, at: 630 - Double(k)) }
+        let events = run(&s, seconds: 3)
+        let guards = s.soldiers.filter { $0.kind == .guardsman }
+        XCTAssertEqual(guards.count, 1, "the front guard stepped back, the last one fell in the breach")
+        XCTAssertEqual(guards.first?.id, guardIDs[0])
+        XCTAssertEqual(s.night.fallen.map { $0.kind }, [.guardsman])
+        XCTAssertTrue(events.contains { if case .soldierFell = $0 { return true } else { return false } })
+        let survivor = try? XCTUnwrap(guards.first)
+        XCTAssertEqual(survivor?.goal, .resting)
+        XCTAssertLessThanOrEqual(survivor?.hp ?? 99, balance.guardHP * balance.guardRetreatShare + 1e-9)
+        XCTAssertFalse(s.guardsHolding)
+
+        // Hounds catch up with him on his way to the keep and run past: stepping back saves him.
+        let x = survivor?.x ?? 700
+        for k in 0..<4 { spawn(&s, .shadehound, at: x - 60 - Double(k)) }
+        var passed = false
+        var elapsed = 0.0
+        while elapsed < 40 {
+            _ = run(&s, seconds: 0.5)
+            elapsed += 0.5
+            if let hound = s.creatures.first(where: { $0.kind == .shadehound }),
+               let guardNow = s.soldiers.first(where: { $0.id == guardIDs[0] }), hound.x > guardNow.x {
+                passed = true
+            }
+        }
+        XCTAssertTrue(passed, "the hounds overtook him")
+        let home = s.soldiers.first { $0.id == guardIDs[0] }
+        XCTAssertNotNil(home, "he reached the keep alive")
+        XCTAssertEqual(home?.state, .resting)
+        XCTAssertEqual(home?.x ?? 0, Realm.keepX, accuracy: 1e-9)
+        XCTAssertEqual(home?.hp ?? 0, survivor?.hp ?? -1, accuracy: 1e-9, "nobody struck him on the way")
+    }
+
+    /// A lone guard holding the breach has no one to pass the blow to: he can fall there.
+    func testALoneGuardCanFallInTheBreach() {
+        var s = night(day: 9) { state in
+            state.plots[Realm.lines[2].wall].item = .palisade
+            state.plots[Realm.lines[2].wall].isRubble = true
+            state.plots[Realm.lines[1].wall].item = .stoneWall
+            state.plots[Realm.lines[1].wall].hp = 800
+            if let last = state.soldiers.lastIndex(where: { $0.kind == .guardsman }) {
+                state.soldiers.remove(at: last)
+            }
+        }
+        XCTAssertEqual(s.guardCount, 1)
+        XCTAssertTrue(s.guardsHolding)
         for k in 0..<3 { spawn(&s, .ashBrute, at: 630 - Double(k)) }
         _ = run(&s, seconds: 3)
-        let guards = s.soldiers.filter { $0.kind == .guardsman }
-        XCTAssertEqual(guards.count, 2, "they step back instead of dying")
-        XCTAssertTrue(guards.allSatisfy { $0.state == .moving || $0.state == .resting })
-        XCTAssertTrue(guards.allSatisfy { $0.hp <= $0.maxHP * balance.guardRetreatShare + 1e-9 })
+        XCTAssertEqual(s.guardCount, 0, "he stood his ground and fell")
+        XCTAssertEqual(s.night.fallen.count, 1)
         XCTAssertFalse(s.guardsHolding)
     }
 
@@ -220,6 +295,27 @@ final class BattleTests: XCTestCase {
         let hour = s.hour
         _ = run(&s, seconds: 5)
         XCTAssertEqual(s.hour, hour, "nothing moves after the fall")
+    }
+
+    /// From first light (05:00) the hearth takes no more harm, even from the Lightless King standing at it.
+    func testTheHearthTakesNoHarmAfterFirstLight() {
+        var s = night(day: 20)
+        s.hour = 5.02
+        for k in 0..<3 { spawn(&s, .ashBrute, at: 1866 + 0.5 * Double(k)) }
+        spawn(&s, .lightlessKing, at: 1860)
+        let events = run(&s, seconds: 2)
+        XCTAssertGreaterThanOrEqual(s.creatures.count, 4, "the sweep has not reached the hall yet")
+        XCTAssertTrue(s.creatures.contains { $0.action == .atHearth })
+        XCTAssertEqual(s.hearth, balance.hearthStrength, "the dawn has won")
+        XCTAssertFalse(s.defeated)
+        XCTAssertFalse(events.contains(.hearthHit))
+        XCTAssertNil(s.night.hearthFirstHitSecond)
+
+        var before = night(day: 20)
+        before.hour = 4.9
+        spawn(&before, .ashBrute, at: 1866)
+        _ = run(&before, seconds: 0.5)
+        XCTAssertLessThan(before.hearth, balance.hearthStrength, "before 05:00 the hearth still burns down")
     }
 
     // MARK: Waves

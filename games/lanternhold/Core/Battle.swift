@@ -414,8 +414,9 @@ enum Battle {
         SeededRandom.mix(UInt64(plot * 16 + part + 1) &* 0x9E37_79B9_7F4A_7C15)
     }
 
-    /// Every light of the battle (DESIGN.md "Light rules"): two torches on each standing wall, braziers and fire
-    /// towers that are not snuffed, fire-arrow and firepot glows, the king's lantern, the hearth, the lit beacon. The
+    /// Every light of the battle (DESIGN.md "Light rules"): two torches on the wall walk of each standing wall (their
+    /// lit reach of about 20 px lights the wall's top, not the ground at its foot), braziers and fire towers that are
+    /// not snuffed, fire-arrow and firepot glows, the king's lantern, the hearth, the lit beacon. The
     /// renderer draws the same list.
     static func lightSources(_ s: GameState, balance: Balance) -> [LightSource] {
         var lights: [LightSource] = []
@@ -504,7 +505,8 @@ enum Battle {
         }
 
         if !s.creatures.isEmpty {
-            stepCreatures(&s, dt: dt, balance: balance, probe: probe, events: &events)
+            stepCreatures(&s, dt: dt, balance: balance, probe: probe, firstLight: phase == .firstLight,
+                          events: &events)
         }
         stepSoldiers(&s, dt: dt, balance: balance, events: &events)
         if !s.creatures.isEmpty {
@@ -555,8 +557,10 @@ enum Battle {
         return walls
     }
 
+    /// Creatures walk, attack walls and guards and drain the hearth. From first light (05:00) the hearth takes no more
+    /// harm: the dawn has won, and what is left waits for the sweep.
     private static func stepCreatures(_ s: inout GameState, dt: Double, balance: Balance, probe: LitProbe,
-                                      events: inout [SimEvent]) {
+                                      firstLight: Bool, events: inout [SimEvent]) {
         let table = balance.creatures
         let harmScale = balance.creatureHarmScale
         let walls = standingWalls(s)
@@ -629,9 +633,11 @@ enum Battle {
                 case .hearth:
                     c.action = .atHearth
                     c.target = -1
-                    var drain = balance.hearthDrain
-                    if c.kind.isBoss && balance.bossesDrainByHarm { drain = max(drain, stats.harm * harmScale) }
-                    hearthDrain += drain * dt
+                    if !firstLight {
+                        var drain = balance.hearthDrain
+                        if c.kind.isBoss && balance.bossesDrainByHarm { drain = max(drain, stats.harm * harmScale) }
+                        hearthDrain += drain * dt
+                    }
                 }
             } else {
                 c.x = nextX
@@ -707,23 +713,31 @@ enum Battle {
         }
     }
 
-    /// Damage to the holding guards, front guard first. A guard steps back at 30 % (the rest of the blow goes to the
-    /// next one), so a guard in the breach falls only to a blow that comes when no one else holds.
+    /// Damage to the holding guards, front guard first. A guard steps back at 30 % while another guard still holds
+    /// (the rest of the blow goes to the next one). The last guard holding has no one to pass the blow to: he stands
+    /// his ground and can fall in the breach (DESIGN.md "Defenders", "Losses").
     private static func hurtGuards(_ s: inout GameState, damage: Double, balance: Balance) {
+        var holders: [Int] = []
+        for index in s.soldiers.indices where s.soldiers[index].state == .holding { holders.append(index) }
         var left = damage
-        for index in s.soldiers.indices where left > 0 && s.soldiers[index].state == .holding {
+        for (k, index) in holders.enumerated() where left > 0 {
             var soldier = s.soldiers[index]
-            let floor = soldier.maxHP * balance.guardRetreatShare
-            let room = soldier.hp - floor
-            if left < room {
+            if k == holders.count - 1 {
                 soldier.hp -= left
                 left = 0
             } else {
-                soldier.hp = min(soldier.hp, floor)
-                left -= max(0, room)
-                soldier.state = .moving
-                soldier.goal = .resting
-                soldier.targetX = Realm.keepX
+                let floor = soldier.maxHP * balance.guardRetreatShare
+                let room = soldier.hp - floor
+                if left < room {
+                    soldier.hp -= left
+                    left = 0
+                } else {
+                    soldier.hp = min(soldier.hp, floor)
+                    left -= max(0, room)
+                    soldier.state = .moving
+                    soldier.goal = .resting
+                    soldier.targetX = Realm.keepX
+                }
             }
             s.soldiers[index] = soldier
         }
@@ -882,7 +896,8 @@ enum Battle {
         contactDamage(&s, dt: dt, balance: balance)
     }
 
-    /// Creatures walking past a soldier on the ground strike it (an archer whose wall broke, a guard stepping back).
+    /// Creatures walking past a soldier on the ground strike it (an archer whose wall broke, a guard marching to a new
+    /// breach, soldiers waiting in the courtyard). A guard who steps back is out of the fight: creatures let him go.
     private static func contactDamage(_ s: inout GameState, dt: Double, balance: Balance) {
         if s.creatures.isEmpty { return }
         let table = balance.creatures
@@ -890,6 +905,7 @@ enum Battle {
         for index in s.soldiers.indices {
             let state = s.soldiers[index].state
             guard state == .moving || state == .reserve || state == .resting else { continue }
+            if s.soldiers[index].goal == .resting { continue }
             let x = s.soldiers[index].x
             if x > Realm.hearthX + 20 { continue }
             var harm = 0.0
