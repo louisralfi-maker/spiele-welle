@@ -29,9 +29,12 @@ struct Autoplay: Sendable, Equatable {
     var patchesTonight = 0
     var maxPatchesPerNight = 3
     var patchNight = 0
-    /// The army the bot has had at its strongest: fallen soldiers are replaced up to it.
+    /// The army the bot has had at its strongest: fallen soldiers are replaced up to it, one a day and only while the
+    /// realm is content (happiness 60 and up), so losses never eat the taxpayers.
     var archerTarget = 0
     var guardTarget = 0
+    var refillDay = 0
+    var refillFrom = 60
 
     static func reference(tax: TaxRate = .normal, buildsBeacon: Bool = true) -> Autoplay {
         Autoplay(plan: .reference, tax: tax, buildsBeacon: buildsBeacon)
@@ -146,16 +149,17 @@ struct Autoplay: Sendable, Equatable {
             if s.gold < Build.rebuildPrice(item, balance: balance) { return }
             Build.order(&s, plot: plot, item: item, balance: balance, events: &events)
         }
-        // Replace the fallen before anything else.
+        // Replace one fallen soldier a day, first.
         archerTarget = max(archerTarget, s.archerCount)
         guardTarget = max(guardTarget, s.guardCount)
-        while s.archerCount < archerTarget && canRecruit(s) && Battle.posts(s, balance: balance).count > s.archerCount {
-            if s.gold < balance.archerPrice { return }
-            if !Build.recruit(&s, kind: .archer, balance: balance, events: &events) { break }
-        }
-        while s.guardCount < guardTarget && canRecruit(s) {
-            if s.gold < balance.guardPrice { return }
-            if !Build.recruit(&s, kind: .guardsman, balance: balance, events: &events) { break }
+        if refillDay != s.day && s.happiness >= refillFrom && canRecruit(s) {
+            if s.archerCount < archerTarget && Battle.posts(s, balance: balance).count > s.archerCount {
+                if s.gold < balance.archerPrice { return }
+                if Build.recruit(&s, kind: .archer, balance: balance, events: &events) { refillDay = s.day }
+            } else if s.guardCount < guardTarget {
+                if s.gold < balance.guardPrice { return }
+                if Build.recruit(&s, kind: .guardsman, balance: balance, events: &events) { refillDay = s.day }
+            }
         }
         let order = Autoplay.referenceOrder
         var guardSteps = 0
@@ -243,7 +247,9 @@ struct Autoplay: Sendable, Equatable {
             }
             return
         }
-        if patchesTonight < maxPatchesPerNight {
+        // While it saves for the Great Beacon the bot keeps its gold.
+        let saving = buildsBeacon && s.day >= Realm.beaconUnlockDay && s.beaconStage < 3
+        if patchesTonight < maxPatchesPerNight && !saving {
             for plot in Realm.wallsOuterFirst {
                 let state = s.plots[plot]
                 guard let item = state.item, !state.isRubble else { continue }

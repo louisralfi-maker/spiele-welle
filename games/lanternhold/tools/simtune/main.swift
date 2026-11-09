@@ -22,27 +22,33 @@ enum SimTune {
             b.creatures[CreatureKind.lightlessKing.index].litSpeed = speed
             b.creatures[CreatureKind.lightlessKing.index].harm = harm
         }
-        // T6: the Lightless King's march (speed and harm), his start.
-        for (speed, harm) in [(20.0, 150.0), (22, 150), (26, 150), (28, 150), (24, 100), (24, 220), (24, 300),
-                              (20, 220), (22, 220), (28, 100), (30, 80)] {
-            add("k\(Int(speed))h\(Int(harm))") { king(&$0, speed: speed, harm: harm) }
+        // T6: when the Lightless King leaves, how much his start varies, how fast he marches.
+        for second in [18.0, 20, 24, 26, 28] {
+            add("kSec\(Int(second))") { $0.kingSecond = second }
         }
-        add("kSec20") { $0.kingSecond = 20 }
-        add("kSec2") { $0.kingSecond = 2 }
-        add("kNoDrain") { $0.bossesDrainByHarm = false }
-        // T7: the beacon's light on endless nights and the endless growth.
-        for (radius, quad) in [(0.0, 0.05), (0, 0.15), (0, 0.4), (300, 0.05), (300, 0.4), (300, 1.0), (600, 0.4),
-                               (600, 1.0), (600, 1.5)] {
-            add("e\(Int(radius))q\(quad)") { b in
-                b.beaconEndlessRadius = radius
-                b.endlessQuadratic = quad
+        for (second, jitter) in [(22.0, 15.0), (26, 15), (30, 15), (26, 12)] {
+            add("kSec\(Int(second))j\(Int(jitter))") { b in
+                b.kingSecond = second
+                b.kingJitter = jitter
             }
         }
+        for (second, speed) in [(22.0, 22.0), (22, 26), (26, 26), (18, 22)] {
+            add("kSec\(Int(second))v\(Int(speed))") { b in
+                b.kingSecond = second
+                king(&b, speed: speed, harm: 150)
+            }
+        }
+        // T7: endless growth, and the beacon's light on endless nights.
+        for quad in [0.05, 0.15, 0.25, 0.4] {
+            add("q\(quad)") { $0.endlessQuadratic = quad }
+        }
+        add("e300") { $0.beaconEndlessRadius = 300 }
         // Robustness of T1 to T5.
         add("tax4.75") { $0.taxPerPayer = 4.75 }
         add("tax5.25") { $0.taxPerPayer = 5.25 }
         add("harm1.1") { $0.creatureHarmScale = 1.1 }
         add("hp1.1") { $0.creatureHPScale = 1.1 }
+        add("budget8.5") { $0.budgetPerNight = 8.5 }
         add("budget9.5") { $0.budgetPerNight = 9.5 }
         return list
     }

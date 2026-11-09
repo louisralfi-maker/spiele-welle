@@ -222,7 +222,7 @@ struct Balance: Sendable, Equatable {
     /// Night budget `B(n) = budgetBase + budgetPerNight × n`, plus `endlessQuadratic × (n − 20)²` beyond night 20.
     var budgetBase = 16.0
     var budgetPerNight = 9.0
-    var endlessQuadratic = 0.15
+    var endlessQuadratic = 0.1
     /// Shares of the budget once a kind has arrived; sootlings take the rest.
     var houndShare = 0.25
     var crowShare = 0.10
@@ -243,7 +243,9 @@ struct Balance: Sendable, Equatable {
     var spawnInterval = 0.35
     var bossSecond = 20.0
     /// The Lightless King leaves the Gloom this many seconds after nightfall (± 8 s) and marches on the hearth.
-    var kingSecond = 10.0
+    var kingSecond = 22.0
+    /// The Lightless King's start varies by up to this many seconds (seeded).
+    var kingJitter = 8.0
     /// Bosses drain the hearth by their harm per second (other creatures by `hearthDrain`).
     var bossesDrainByHarm = true
     /// Night 20: a finished Great Beacon is lit at this hour and the Gloom recedes (DESIGN.md "Story").
@@ -253,7 +255,7 @@ struct Balance: Sendable, Equatable {
     /// With the beacon lit, the darkness bank stops here at night.
     var beaconBankEdge = 360.0
     /// The lit beacon's radius on the endless nights after the finale (0: it lights only the finale).
-    var beaconEndlessRadius = 300.0
+    var beaconEndlessRadius = 0.0
     /// Global knobs for the tuning harness.
     var creatureHPScale = 1.0
     var creatureHarmScale = 1.0

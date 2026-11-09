@@ -223,6 +223,10 @@ struct NightStats: Codable, Sendable, Equatable {
     var killedByFire = 0
     var killedByGuards = 0
     var wallsLost: [String] = []
+    /// Seconds after nightfall at which each lost wall fell (same order as `wallsLost`).
+    var wallFallSeconds: [Double] = []
+    /// Seconds after nightfall at which the first creature reached the hearth.
+    var hearthFirstHitSecond: Double?
     var fallen: [FallenSoldier] = []
     var hearthLowest = 100.0
     var braziersSnuffed = 0

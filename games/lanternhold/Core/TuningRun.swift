@@ -228,6 +228,16 @@ enum TuningRun {
                     line += " | without: " + (o.survived ? "held" : "FELL")
                     line += " hearth \(Int(o.hearthLowest.rounded())) walls lost \(o.wallsLost) fallen \(o.fallen)"
                     if let hour = o.defeatHour { line += " at \(Int((hour * 100).rounded()))" }
+                    let night = withoutRun.final.night
+                    var falls: [String] = []
+                    for (index, key) in night.wallsLost.enumerated() where index < night.wallFallSeconds.count {
+                        falls.append(key + "@" + String(Int(night.wallFallSeconds[index].rounded())))
+                    }
+                    line += " walls " + falls.joined(separator: ",")
+                    if let hit = night.hearthFirstHitSecond { line += " hearth hit @\(Int(hit.rounded()))" }
+                    line += " | gate tier \(first.final.plots[Realm.lines[0].wall].item?.tier ?? 0)"
+                    line += " l2 \(first.final.plots[Realm.lines[1].wall].item?.rawValue ?? "-")"
+                    line += " l3 \(first.final.plots[Realm.lines[2].wall].item?.rawValue ?? "-")"
                 }
                 m.nightTwentyLog.append(line)
             } else {

@@ -166,7 +166,8 @@ enum Battle {
             }
         }
         if let boss = boss(night: night) {
-            let jitter = rng.double(in: -8...8)
+            let spread = boss == .lightlessKing ? max(0, balance.kingJitter) : 8
+            let jitter = rng.double(in: -spread...spread)
             let base = boss == .lightlessKing ? balance.kingSecond : balance.bossSecond
             spawns.append(SpawnEntry(time: max(1, base + jitter), kind: boss, wave: 0))
         }
@@ -661,6 +662,7 @@ enum Battle {
                 s.plots[plot].hp = 0
                 s.plots[plot].isRubble = true
                 s.night.wallsLost.append(Realm.plots[plot].key)
+                s.night.wallFallSeconds.append(s.nightTime)
                 events.append(.wallBroken(plot: plot))
                 wallsChanged = true
             }
@@ -678,6 +680,7 @@ enum Battle {
         }
         if guardDamage > 0 { hurtGuards(&s, damage: guardDamage, balance: balance) }
         if hearthDrain > 0 {
+            if s.night.hearthFirstHitSecond == nil { s.night.hearthFirstHitSecond = s.nightTime }
             if s.hearth > 0 && s.simTime - s.lastHearthEvent >= 1 {
                 events.append(.hearthHit)
                 s.lastHearthEvent = s.simTime
