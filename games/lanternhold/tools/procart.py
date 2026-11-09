@@ -15,6 +15,9 @@ exactly reproducible.
                                                             edge and the bottom; tile/build-art.sh adds the painted
                                                             bridge stumps and reeds
 
+  procart.py farbank   <out.png> [--seed N]                 240x30 the river's far bank for the mid plane: tree line,
+                                                            reeds, the far bridge stump (M1b polish)
+
 Colours: rockDeep, soilDark, leafDark, with sparse rockDark rims, leaf tips and woodDark roots (all albedo).
 """
 import argparse
@@ -243,61 +246,62 @@ def bayer4(x, y):
 
 
 def cmd_riverbase(a):
+    """M1b polish: the water fills everything below the bank (surface 4 rows under the ground line), solid bands
+    instead of dither, a dark wet line where the bank meets the water, two highlight rows, and stepped voussoir stubs
+    on the piers instead of the hook-shaped springers."""
     pal = Palette(a.palette, True)
-    W, H, GL, WS = 220, 64, 38, 50
+    W, H, GL, WS = 220, 64, 38, 42
     rng = random.Random(a.seed * 31337)
     c = Canvas(W, H, pal)
     wob = value_noise(rng, W, 9)
-    surf = []
+    surf = []  # top of the bank per column; the bank face drops steeply into the water
     for x in range(W):
-        t = min(1.0, max(0.0, (x - 12) / 58))
+        t = min(1.0, max(0.0, (x - 30) / 34))
         t = t * t * (3 - 2 * t)
-        surf.append(int(round(GL + (WS + 2 - GL) * t + (wob[x] * 0.8 if 0.05 < t < 0.95 else 0))))
+        surf.append(int(round(GL + (H - GL) * t + (wob[x] * 0.8 if 0.05 < t < 0.9 else 0))))
     for x in range(W):
         top = surf[x]
-        if top >= WS:
-            continue
         for y in range(top, H):
             d = y - top
-            if d < 4:
+            if d < 3 and top <= WS:
                 n = "leaf"
-            elif d < 6:
+            elif d < 5 and top <= WS:
                 n = "leafDark"
-            elif y >= H - 2:
-                n = "soilDark" if (x + y) % 3 else "stoneDark"
-            elif y >= H - 4:
-                n = "stoneMid" if rng.random() < 0.6 else "soilLight"
+            elif y >= H - 3:
+                n = "soilDark"
+            elif y >= H - 7:
+                n = "soil"
             else:
                 n = "soilLight"
-                if rng.random() < 0.06:
-                    n = rng.choice(("rockLight", "stone", "stoneLight", "rockDark"))
             c.put(x, y, n)
-        if top > GL + 1:  # the wet mud edge where the bank meets the water
-            c.put(x, top, "soil" if rng.random() < 0.5 else "leaf")
+    # water: every empty pixel at or below the surface
     for x in range(W):
         for y in range(WS, H):
-            if c.get(x, y) is not None and surf[x] < WS - 1:
+            if c.get(x, y) is not None:
                 continue
-            d = (y - WS) / (H - 1 - WS)
-            n = "waterDeep"
-            if y == WS:
-                n = "daySky" if (x // 3 + x // 7) % 3 else "foam"
-            elif y == WS + 1:
-                n = "daySky" if bayer4(x, y) < 0.5 else "waterDeep"
-            elif d > 0.62 and bayer4(x, y) < (d - 0.62) * 2.2:
+            d = y - WS
+            if d == 0:
+                n = "foam" if (x * 7 + x // 5) % 11 == 0 else "daySky"
+            elif d == 1:
+                n = "daySky" if (x // 4 + x // 9) % 3 else "waterDeep"
+            elif d < 12:
+                n = "waterDeep"
+            else:
                 n = "roofDeep"
             c.put(x, y, n)
-        # mud under the water's edge near the bank
-        if x < 78 and surf[x] >= WS - 1:
-            for y in range(max(WS + 2, surf[x]), H):
-                if rng.random() < 0.5:
-                    c.put(x, y, "soil")
-    for _ in range(26):  # ripples
-        x = rng.randint(70, W - 6)
-        y = rng.randint(WS + 3, H - 4)
-        for k in range(rng.randint(2, 5)):
-            c.put(x + k, y, "daySky")
-    # two piers of the old bridge, their broken arch springers reaching towards each other
+    # the wet line: bank pixels touching water on their right or below turn soilDark
+    for x in range(W - 1):
+        for y in range(GL, H):
+            if c.get(x, y) in ("soilLight", "soil", "leafDark", "leaf") and y >= WS - 1:
+                if c.get(x + 1, y) in ("waterDeep", "daySky", "foam", "roofDeep"):
+                    c.put(x, y, "soilDark")
+    for _ in range(18):  # ripples: short pale dashes on fixed rows (no checker)
+        x = rng.randint(70, W - 8)
+        y = rng.choice((WS + 4, WS + 6, WS + 9))
+        for k in range(rng.randint(3, 6)):
+            if c.get(x + k, y) == "waterDeep":
+                c.put(x + k, y, "daySky")
+    # two piers of the old bridge, each with a broken stepped arch springer (voussoir stubs) leaning out over the water
     for px0, pw, top, side in ((98, 15, 24, 1), (158, 15, 29, -1)):
         brk = value_noise(rng, 40, 3)
         for x in range(px0, px0 + pw):
@@ -314,29 +318,87 @@ def cmd_riverbase(a):
                     n = "stoneLight"
                 if col in (0, pw - 1):
                     n = "ink" if col == pw - 1 else n
-                if WS - 3 <= y <= WS:
-                    n = "leafDark" if rng.random() < 0.6 else "stoneDark"  # moss and the wet line
+                if WS - 2 <= y <= WS:
+                    n = "stoneDark" if y == WS else "leafDark"  # moss and the wet line
                 c.put(x, y, n)
-        # the springer: the arch starts curving out over the water from the pier's top
-        for k in range(10):
-            x = px0 + (pw - 1 + k if side > 0 else -k)
-            y0 = top + (k * k) // 12
-            th = 8 - k // 3
-            for y in range(y0, y0 + th):
-                n = "stoneLight" if y == y0 else ("stoneDark" if y == y0 + th - 1 else "stone")
-                if (y - y0) == 3 and k % 4 != 1:
-                    n = "stoneMid"
-                c.put(x, y, n)
-        for y in range(WS + 1, H):  # the water stays in front of the pier bases
-            for x in range(px0 - 1, px0 + pw + 1):
-                d = (y - WS) / (H - 1 - WS)
-                if y > WS + 1 or bayer4(x, y) >= 0.5:
-                    c.put(x, y, "waterDeep" if d < 0.62 or bayer4(x, y) >= (d - 0.62) * 2.2 else "roofDeep")
+        # voussoir stubs: three wedge blocks stepping up and out from the pier top, the last one broken
+        for k in range(3):
+            bw, bh = 4, 7 - k
+            bx0 = px0 + pw + 4 * k if side > 0 else px0 - 4 * (k + 1)
+            by0 = top - 2 - 3 * k
+            for x in range(bx0, bx0 + bw):
+                for y in range(by0, by0 + bh):
+                    edge_out = (x == bx0 + bw - 1) if side > 0 else (x == bx0)
+                    if k == 2 and y < by0 + 2 and edge_out:
+                        continue  # the broken end
+                    n = "stone"
+                    if y == by0:
+                        n = "stoneLight"
+                    elif y == by0 + bh - 1:
+                        n = "stoneDark"
+                    if edge_out:
+                        n = "stoneDark"
+                    c.put(x, y, n)
+            # fill under each block down to the pier top line so the stubs read as one masonry mass
+            for x in range(bx0, bx0 + bw):
+                for y in range(by0 + bh, top + 2):
+                    if c.get(x, y) is None:
+                        c.put(x, y, "stoneMid" if y < top else "stoneDark")
     for x in range(0, 60):  # grass tufts on the bank
         if rng.random() < 0.35:
             h = rng.randint(1, 3)
             for k in range(h):
                 c.put(x, surf[x] - 1 - k, "leafDark" if k else "leaf")
+    c.save(a.output)
+
+
+def cmd_farbank(a):
+    """M1b polish: the river's far bank for the mid plane (240x30): a low tree line and reeds on a thin strip of
+    shore, and the far stump of the old bridge, so the river reads wide and closes the world."""
+    pal = Palette(a.palette, True)
+    W, H = 240, 30
+    rng = random.Random(a.seed * 7919 + 3)
+    c = Canvas(W, H, pal)
+    base = H - 3  # shore line
+    for x in range(W):  # the shore strip
+        for y in range(base, H):
+            c.put(x, y, "soilDark" if y == base else "leafDark")
+    x = 0
+    while x < W:  # tree crowns: overlapping rounded blobs, a light rim on top
+        r = rng.randint(4, 8)
+        h = rng.randint(10, 20)
+        cx = x + r
+        cy = base - h + r
+        for yy in range(cy - r, base):
+            for xx in range(cx - r, cx + r + 1):
+                inside = (xx - cx) ** 2 + ((yy - cy) * 1.15) ** 2 <= r * r or (yy > cy and abs(xx - cx) <= 1)
+                if inside and 0 <= xx < W and 0 <= yy < H:
+                    c.put(xx, yy, "leafDark" if yy > cy - r // 2 else "leaf")
+        x += rng.randint(r, 2 * r + 4)
+        if rng.random() < 0.25:
+            x += rng.randint(8, 20)  # gaps in the tree line
+    for x in range(W):  # a light rim along the crown tops
+        for y in range(H):
+            if c.get(x, y) == "leaf" and (y == 0 or c.get(x, y - 1) is None):
+                c.put(x, y, "meadow")
+                break
+    for _ in range(40):  # reeds along the shore
+        x = rng.randint(0, W - 1)
+        for k in range(rng.randint(2, 5)):
+            c.put(x, base - 1 - k, "leaf" if k else "leafDark")
+    px0, pw, top = 150, 8, base - 14  # the far bridge stump
+    for x in range(px0, px0 + pw):
+        for y in range(top, base + 1):
+            n = "stoneMid" if (y - top) % 3 == 2 else "stone"
+            if x == px0:
+                n = "stoneLight"
+            if x == px0 + pw - 1:
+                n = "stoneDark"
+            c.put(x, y, n)
+    for k in range(2):  # its stub reaching back towards the near piers
+        for x in range(px0 - 3 * (k + 1), px0 - 3 * k):
+            for y in range(top - 2 - 2 * k, top + 3 - k):
+                c.put(x, y, "stone" if y > top - 2 - 2 * k else "stoneLight")
     c.save(a.output)
 
 
@@ -360,6 +422,11 @@ def main():
     rb.add_argument("--seed", type=int, default=1)
     rb.add_argument("--palette", default=DEFAULT_PALETTE)
     rb.set_defaults(fn=cmd_riverbase)
+    fb = sub.add_parser("farbank")
+    fb.add_argument("output")
+    fb.add_argument("--seed", type=int, default=1)
+    fb.add_argument("--palette", default=DEFAULT_PALETTE)
+    fb.set_defaults(fn=cmd_farbank)
     a = p.parse_args()
     a.fn(a)
 

@@ -125,6 +125,9 @@ MID = [
     dict(s="castleKeep", x=1345, y=-52, region="valley", z=-3, shade=0.92),
     # The windmill on a hill crest of valleyMidB (96 px high there), right of the keep.
     dict(s="windmill", x=1500, y=93, region="valley", z=1),
+    # The river's far shore (M1b polish): seen behind the river at the world's end (focus 3720 shows mid x 1948 to
+    # 2168); in front of the hills, at the ground line, so the river reads wide and closes the world.
+    dict(s="riverFarBank", x=1940, y=0, region="valley", z=2),
 ]
 
 # ------------------------------------------------------------------------------------------------- world plane

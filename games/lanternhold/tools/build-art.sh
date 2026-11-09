@@ -113,7 +113,8 @@ build() { # name: one sprite
                    mkdir -p $PT
                    python3 $T convert $M/props-a-1.png $PT/beacon-raw.png --size 64x130 --box 360,18,620,492 --only $CAS,leafDark,leaf,meadow --outline ink --outline-skip-bottom
                    python3 $T compose $A/beaconRuin.png --size 64x130 --layer $PT/beacon-raw.png@0,29@box=0,29,64,130 --layer $PT/beacon-raw.png@0,22@box=0,22,19,29 --layer $PT/beacon-raw.png@42,22@box=42,22,64,29 --layer $PT/beacon-raw.png@17,5@box=17,0,45,29 ;;
-    riverEnd)      # procedural bank, water and bridge piers; the painted reeds and cattails on top
+    riverEnd)      # procedural bank, water and bridge piers (M1b polish: water up to 4 rows under the ground line, no
+                   # dither, stepped voussoir stubs); the painted reeds and cattails on top
                    mkdir -p $PT
                    python3 $PROC riverbase $PT/river-base.png
                    python3 $T convert $M/props-a-1.png $PT/reeds.png --size 64x40 --box 1150,515,1516,700 --only leafDark,leaf,meadow,woodDark,wood,soilDark
@@ -124,6 +125,7 @@ build() { # name: one sprite
                    python3 $T convert $M/clouds-a-1.png $A/cloudA.png --size 280x40 --box 184,68,1372,234 --key '#04BC44' --only $CL
                    python3 $T convert $M/clouds-a-1.png $A/cloudB.png --size 240x42 --box 264,288,1288,460 --key '#04BC44' --only $CL
                    python3 $T convert $M/clouds-a-1.png $A/cloudC.png --size 286x36 --box 160,534,1380,681 --key '#04BC44' --only $CL ;;
+    riverFarBank)  python3 $PROC farbank $A/riverFarBank.png ;;  # M1b polish: the far shore on the mid plane
     fgRockA)       python3 $PROC fgrock $A/fgRockA.png --style a ;;
     fgRockB)       python3 $PROC fgrock $A/fgRockB.png --style b ;;
     fgRockC)       python3 $PROC fgrock $A/fgRockC.png --style c ;;
@@ -138,7 +140,7 @@ build() { # name: one sprite
 ALL="farMountain farPeak gorgeCliff gorgeEndCliff waterfall gatehouse castleTower castleWall backGate chapel hallInterior
 throne hearth kitchen house valleyHill well lanternPost field palisade stoneWall ballista brazier torchPost ground
 gorgeWall gorgeWallHigh cliffFlank gorgeMouth wardenStatue castleFront castleKeep castleBackGate valleyFar valleyMid windmill
-beaconRuin riverEnd clouds fgRockA fgRockB fgRockC fgOverhangA fgOverhangB"
+beaconRuin riverEnd riverFarBank clouds fgRockA fgRockB fgRockC fgOverhangA fgOverhangB"
 for name in ${@:-$ALL}; do
     cool
     build "$name"
