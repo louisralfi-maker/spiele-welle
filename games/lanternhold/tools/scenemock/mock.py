@@ -18,6 +18,16 @@
 #   litCap=1.6 litNeutral=0.35  the renderer's cap on reflected firelight and its neutral share (default off)
 # sprite(name, frame) cuts frame n out of a horizontal strip PNG (frame width = PNG width / frame count; a PNG one
 # frame wide is used for every frame, as Atlas.splitFrames does).
+# Look 2 (ART-look2.md, opt-in; the default look=1 renders every old mock unchanged):
+#   look=2        the farbig-düster look: the look-2 ambient ramp (core.KEYS2), stronger haze and value compression on the
+#                 far and mid planes toward the hour's air colour, a near plane (parallax 0.75) and a mist band (fogM,
+#                 0.62) between the mid plane and the world, the depth layout (layout_look2.py: the open shadow land,
+#                 rows of trees, lane ground tiles, foreground plants), a bluer night tint, navy darks and a vignette.
+#                 Every look-2 value below (LOOK2) can be set as name=value.
+#   art=<dir>[,<dir>…]  where the sprite PNGs are (default <game>/Resources/Art); depth=<dir> the depth stand-ins
+#                 (tools/depthart.py), searched first with look=2
+#   lut=<old palette>,<new palette>  recolours every art PNG pixel of an old palette colour to the new palette's value of
+#                 the same name (previews a palette change before build-art.sh rebuilds the art)
 import sys, os, math, re, json
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 from core import *
@@ -47,8 +57,42 @@ LOOK = dict(lift=0.46, farShare=0.9, midLight=0.32, gain=1.55, knee=0.95, fogGlo
             # 1), rim (the king's cool rim on his screen-right edge pixels)
             litCool=0.0, bounce=0.0, bounceLo=0.2, bounceHi=0.5, duskSun=0.0, band=0.0, bandH=48.0, bandWhite=0.4,
             bandValley=0.5, bandWarmCut=0.5, bounceDusk=1.0, rim=0.0)
+L2 = args.get('look') == '2'
+# Look 2 (ART-look2.md "Engine values"): the renderer values of the farbig-düster look
+LOOK2 = dict(lift=0.30, colorise=0.72, farShare=0.85, midShare=0.72, nearShare=0.85, midLight=0.3, nearLight=0.5,
+             farHaze=0.40, farHazeShare=0.55, midHazeDay=0.2, midHazeNight=0.36, midHazeShare=0.25, nearHazeDay=0.08,
+             nearHazeNight=0.36, nearHazeShare=0.12, midAir=0.86, nearAir=0.78, farCool=0.6, mist=0.25,
+             fogMH=56.0, fogMShare=1.5, fogMBright=1.4, fogAH=32.0, fogScale=0.85, fogBright=2.0, fogGlow=0.7, gain=3.0, knee=0.95,
+             glowAdd=0.06, fgLight=0.55, fgAmb=0.55, fgAmbNight=0.3, bloom=0.75, bloomLight=0.16, bloomSky=0.55,
+             thr=0.34, kneeB=0.5, litCap=1.6, litNeutral=0.35, litCool=0.6, bounce=0.5, bounceLo=0.2, bounceHi=0.5,
+             bounceDusk=2.2, duskSun=1.0, band=0.2, bandH=40.0, bandWhite=0.3, bandValley=0.5, bandWarmCut=0.5, rim=0.6,
+             winR=1.6, winI=0.7, glassGain=1.3, fireI=1.15, cloudSun=1.0, cloudFill=1.5, cloudHaze=0.3, cloudMoon=0.35, blackR=0.22,
+             groundSky=1.4, groundSkyDay=1.1, midGlass=0.45, smoke=0.55)
+NT2 = (0.72, 0.95, 1.85)              # look 2's night tint: deep blue (the old (1.03, 0.86, 1.66) is violet)
+BLACK2 = (0.030, 0.040, 0.095)        # the navy the darks lift toward
+if L2:
+    LOOK.update(LOOK2)
 for k in list(LOOK):
     if k in args: LOOK[k] = float(args[k])
+ART_DIRS = [d for d in args.get('art', '').split(',') if d] or [os.path.join(G, 'Resources/Art')]
+DEPTH_DIR = args.get('depth') if L2 else None
+SEARCH = ([DEPTH_DIR] if DEPTH_DIR else []) + ART_DIRS
+def art_path(name):
+    for d in SEARCH:
+        p = os.path.join(d, name + '.png')
+        if os.path.exists(p): return p
+    return os.path.join(ART_DIRS[0], name + '.png')
+def _palette_file(path):  # name -> (r, g, b) of a palette.txt
+    out = {}
+    for line in open(path):
+        parts = line.split()
+        if not parts or parts[0].startswith('#') or len(parts) < 2: continue
+        out[parts[0]] = tuple(int(parts[1].lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))
+    return out
+LUT = None
+if args.get('lut'):
+    _old, _new = (_palette_file(p) for p in args['lut'].split(','))
+    LUT = {_old[n]: _new[n] for n in _old if n in _new and _old[n] != _new[n]}
 src = open(os.path.join(G, 'Core/FrameDesc.swift')).read()
 SIZES = {m.group(1): (int(m.group(2)), int(m.group(3))) for m in re.finditer(r'case \.(\w+): return PixelSize\(width: (\d+), height: (\d+)\)', src)}
 def _contract():  # SPRITES.md tables: id -> (frame width, height, frames); glow strips as their creature
@@ -70,7 +114,7 @@ class _Sizes(dict):
     def __missing__(self, name):  # sprites not yet in FrameDesc: SPRITES.md's frame size, else the PNG header
         if name in CONTRACT: self[name] = CONTRACT[name][:2]; return self[name]
         import struct
-        with open(os.path.join(G, 'Resources/Art', name + '.png'), 'rb') as fh: head = fh.read(24)
+        with open(art_path(name), 'rb') as fh: head = fh.read(24)
         v = struct.unpack('>II', head[16:24]); self[name] = v; return v
 SIZES = _Sizes(SIZES)
 LAYOUT = args.get('layout')
@@ -143,9 +187,11 @@ def cut_frame(name, img, frame, frames=None):
 def sprite(name, frame=0, frames=None):
     key = (name, frame) if frames is None else (name, frame, frames)
     if key in CACHE: return CACHE[key]
-    path = os.path.join(G, 'Resources/Art', name + '.png')
+    path = art_path(name)
     if os.path.exists(path):
         w, h, px, _ = read_png(path); img = [[p if p[3] > 0 else None for p in r] for r in px]
+        if LUT and not (DEPTH_DIR and path.startswith(DEPTH_DIR)):  # preview a palette change (lut=)
+            img = [[(LUT[p[:3]] + (p[3],) if p and p[:3] in LUT else p) for p in r] for r in img]
         img = cut_frame(name, img, frame, frames)
     elif name == 'king': img = king(frame)
     elif name == 'archer': img = grid('archerRows')
@@ -206,12 +252,18 @@ def build_scene(chapelWin, kitchenWin, houseWin):
     while post < 5400: add('fencePost', 'fg', round(post), -24, 1, 0.6); post += 260 + (post * 7 % 80)
     return props
 PAR = dict(sky=0.05 if LAYOUT else 0, far=0.2, mid=0.5, fogA=0.9, world=1.0, fogB=1.15, fg=1.3)
+if L2:  # look 2: the mist band between the mid and near planes, the near plane between the mid plane and the world
+    import layout_look2 as LL
+    PAR.update(fogM=0.62, near=0.75)
 GLASS = {(0x0E, 0x0B, 0x1E, 255), (0x1C, 0x18, 0x38, 255), (0x2A, 0x22, 0x30, 255)}
 GLASS = {g[:3] for g in GLASS}
 NAMED = dict(fireWhite=fireWhite, fireGold=fireGold, fireOrange=fireOrange, window=WIN)
 def layout_props():
     out = []
-    for d in LM.instances():
+    inst = LM.instances()
+    if L2:  # look 2: the open shadow land (no far gorge wall, no rock lips) plus the depth layout
+        inst = [d for d in inst if not LL.dropped(d)] + LL.instances()
+    for d in inst:
         em, masks, li = [], [], []
         for e in d['em']:
             if e[0] == 'sprite': em.append((e[1], e[2], e[3], NAMED[e[4]], e[5]))
@@ -233,6 +285,10 @@ def shadow_alpha(kind, amb, hour):
 def mist_alpha(k, amb):
     return MIST_MAX * k * min(1.0, max(0.0, amb['torch'])) * min(1.25, amb['fogD'] / 0.4)
 COLX = dict(COL, fireArrow=fireWhite, firepot=fireOrange, beacon=fireWhite)  # light kinds of the extras
+if L2:  # look 2: the fires' light a step deeper toward orange (pools read as fire on stone, not white-gold)
+    TORCH2, ARROW2 = (1.0, 0.66, 0.30), (1.0, 0.74, 0.40)
+    COL.update(torch=TORCH2, lantern=(1.0, 0.70, 0.34), candle=(1.0, 0.72, 0.38))
+    COLX.update(COL, fireArrow=ARROW2)
 UNLIT = 0.12  # an unlit creature's body: very low value, its glow strip carries it (SPRITES.md)
 def extra_props():
     """The extras hook: props from extras=<file.json>[,…] (see the header), drawn with the layout's props."""
@@ -254,16 +310,18 @@ def extra_props():
                             lit=d.get('lit', True), glow=d.get('glow'), gs=d.get('gs', 1.0)))
     return out
 ORDER = ['sky', 'far', 'mid', 'fogA', 'world', 'fogB', 'fg']
+if L2:
+    ORDER = ['sky', 'far', 'mid', 'fogM', 'near', 'fogA', 'world', 'fogB', 'fg']
 def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86, 40)), houseWin=((14, 14), (44, 14))):
     TW, TH = 438, 201; GROUND = TH - 26; VIS = 437
-    amb = ambient(HOUR); torchS = amb['torch']
+    amb = ambient2(HOUR) if L2 else ambient(HOUR); torchS = amb['torch']
     WORLD_W = LM.WORLD_WIDTH if LAYOUT else 3800
     camx = min(WORLD_W - VIS, max(0, FOCUS - VIS / 2)); whole = {k: math.floor(camx * v) for k, v in PAR.items()}
     layers = {k: [[(0.0, 0.0, 0.0, 0.0)] * TW for _ in range(TH)] for k in ORDER}
     light = [[(0.0, 0.0, 0.0)] * TW for _ in range(TH)]; emis = [[(0.0, 0.0, 0.0)] * TW for _ in range(TH)]
     def draw(layer, img, left, top, tint=(1, 1, 1, 1), flip=False, add=False, occlude=True):
         h = len(img); w = len(img[0]); L = layers[layer] if not add else None
-        occl = LAYOUT and occlude and layer in ('mid', 'world', 'fg')
+        occl = LAYOUT and occlude and layer in ('mid', 'near', 'world', 'fg')
         for j in range(h):
             y = top + j
             if y < 0 or y >= TH: continue
@@ -296,6 +354,9 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
         k = wx // 64
         tile = ground if not LAYOUT else sprite({(True, True): 'ground', (True, False): 'groundB', (False, True): 'groundC',
                                                 (False, False): 'groundD'}[(edge_stone(k), edge_stone(k + 1))])
+        if L2:  # look 2: the lane under the feet, its family by region, a variant by the tile index
+            hv = (k * 0x9E3779B1) & 0xFFFFFFFF; hv ^= hv >> 15
+            tile = sprite(LL.lane_at(wx + 32) + 'ABCD'[(hv >> 3) & 3])
         draw('world', tile, int(wx - whole['world']), GROUND)
     # sky
     if amb['stars'] > 0.01:
@@ -350,7 +411,8 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
             draw(pr['p'], sprite(pr['s']), int(left), int(top), (pr['sh'], pr['sh'], pr['sh'], fa), pr['f'])
         for (dx, dy, mw, mh, col) in pr.get('masks', []):  # window glass: the sprite's dark pixels in a rect glow
             if torchS < 0.01: continue
-            img = ximg if isx else sprite(pr['s']); rgb = [c * torchS * 0.9 for c in col]
+            gk = (LOOK['glassGain'] * (LOOK['midGlass'] if pr['p'] == 'mid' else 1.0)) if L2 else 1.0  # look 2: far glass in haze
+            img = ximg if isx else sprite(pr['s']); rgb = [c * torchS * 0.9 * gk for c in col]
             for j in range(mh):
                 sy = h - 1 - (dy + j)
                 for i in range(mw):
@@ -371,6 +433,10 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
         for (kind, lx, ly, r, col, inten) in pr['li']:
             it = inten * (torchS if kind in FADES else 0.35 + 0.65 * torchS)
             it *= {'window': 0.4, 'candle': 0.7, 'lantern': 0.85}.get(kind, 1.0)
+            if L2 and kind == 'window':  # look 2: warm pools under the windows (gemütlich)
+                it *= LOOK['winI'] / 0.4; r *= LOOK['winR']
+            elif L2:  # look 2: the fires a step stronger against the darker ambient
+                it *= LOOK['fireI']
             if it > 0.01: lights.append((lx - whole[pr.get('lp', 'world')], GROUND - ly, r, col, it))
     if LAB:
         for row, (hgt, col, es) in enumerate(((104, (1.0, 0.62, 0.26), 'brazierFlame'), (20, (0.46, 0.62, 1.0), 'lanternGlass'))):
@@ -380,13 +446,28 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                 draw('world', sprite(es), cx - sw // 2, cy - sh // 2, tint, add=emis)
     elif args.get('king') != 'off':
         # king and his lantern (king=<x> moves him, king=off leaves him out: a scene adds him as an extra)
-        kx = FOCUS if 'king' not in args else float(args['king']); lights.append((kx + 9 - whole['world'], GROUND - 16, 40, fireGold, torchS * 0.85))
+        kx = FOCUS if 'king' not in args else float(args['king']); lights.append((kx + 9 - whole['world'], GROUND - 16, 40, COL['lantern'] if L2 else fireGold, torchS * 0.85))
     # fog
     fogA = (amb['fogColor'], amb['fogD'] * 0.9 * LOOK['fogScale']); fogB = (amb['fogColor'], amb['fogD'] * 0.6 * LOOK['fogScale'])
     for name, (fc, fd), fy in (('fogA', fogA, -4), ('fogB', fogB, -14)):
-        top = GROUND - fy - 24; first = math.floor(whole[name] / 128) - 1
+        top = GROUND - fy - 24; first = math.floor(whole[name] / 128) - 1; strip = sprite('fogStrip')
+        if L2 and name == 'fogA':  # look 2: the bank behind the play plane taller, so creatures stand dark against it
+            H = int(LOOK['fogAH']); strip = [strip[int(j * 24 / H)] for j in range(H)]; top = GROUND + 4 - H
         for idx in range(first, first + TW // 128 + 3):
-            draw(name, sprite('fogStrip'), int(idx * 128 - whole[name]), top, (fc[0], fc[1], fc[2], fd), idx % 2 != 0)
+            left = int(idx * 128 - whole[name])
+            fdr = fd * (LL.fog_region(camx + left + 64) if L2 else 1.0)  # look 2: the shadow land is the foggiest
+            draw(name, strip, left, top, (fc[0], fc[1], fc[2], fdr), idx % 2 != 0)
+    if L2:  # the mist band between the mid and near planes: the fog strip stretched to fogMH rows, its dense foot low
+        H = int(LOOK['fogMH']); fs = sprite('fogStrip'); mband = [fs[int(j * 24 / H)] for j in range(H)]
+        fc = amb['fogColor']; fd = amb['fogD'] * LOOK['fogMShare']; first = math.floor(whole['fogM'] / 128) - 1
+        for idx in range(first, first + TW // 128 + 3):
+            left = int(idx * 128 - whole['fogM'])
+            fdr = min(1.0, fd * LL.fog_region(camx + left + 64))
+            draw('fogM', mband, left, GROUND + 2 - H, (fc[0], fc[1], fc[2], fdr), idx % 2 != 0)
+        for (hx, fl) in LL.SMOKE:  # chimney smoke over the cottages the scene keeps, lit like the world it rises in
+            if not any(p['s'] in ('house', 'houseB', 'houseC') and abs(p['x'] - hx) < 0.5 for p in props): continue
+            cx_ = hx + (14 if fl else 49); sm = sprite('d2Smoke'); sl = int(cx_ - len(sm[0]) // 2 - whole['world'])
+            if -20 < sl < TW: draw('world', sm, sl, GROUND - 46 - len(sm) + 1, (0.74, 0.74, 0.76, LOOK['smoke']), occlude=False)
     # actors (game-pixel precision in the mock)
     actors = []
     if not LAB:
@@ -546,6 +627,96 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
         c = [min(v, 0.82) + 0.18 * (1 - math.exp(-max(v - 0.82, 0) / 0.18)) for v in c]
         u = ((x + 0.5) / TW * 2 - 1) * 0.82; vv = (y + 0.5) / TH * 2 - 1; vg = 1 - vig * ss((math.hypot(u, vv) - 0.45) / 0.85)
         return [min(1, max(0, v * vg)) for v in c]
+    if L2:
+        # ---- look 2 (ART-look2.md "Engine values"): the farbig-düster composite. Same passes as above plus the mist
+        # band and the near plane; a lower lift, a blue night tint, haze toward the hour's air colour with each plane
+        # one step darker than the one behind it, a sky-facing lane, navy darks and a stronger vignette.
+        lift = LOOK['lift']; ac = amb['ambColor']; pk = max(ac); lvl = lift + (1 - lift) * min(1, amb['ambI'])
+        ambW = [c / pk * lvl for c in ac]
+        night = ss((0.75 - amb['ambI']) / 0.5); day = 1 - night
+        sat = amb['sat']; vig = amb['vig']; NT = NT2; kcol = LOOK['colorise'] * night
+        wv0 = min(1, max(0, amb['warmth'] / 0.45))
+        ambF = desat([v * LOOK['farShare'] for v in ambW], 0.7 * wv0)
+        ambM = desat([v * LOOK['midShare'] for v in ambW], 0.3 * wv0)
+        ambN = [v * LOOK['nearShare'] for v in ambW]
+        air = amb['air']
+        farHC = [air[k] + (COOL[k] - air[k]) * LOOK['farCool'] * wv0 for k in range(3)]
+        midHC = [v * LOOK['midAir'] for v in air]; nearHC = [v * LOOK['nearAir'] for v in air]
+        hz = amb['haze']; farH = LOOK['farHaze'] + hz * LOOK['farHazeShare']
+        MH = LOOK['midHazeDay'] + (LOOK['midHazeNight'] - LOOK['midHazeDay']) * night + hz * LOOK['midHazeShare']
+        NH = LOOK['nearHazeDay'] + (LOOK['nearHazeNight'] - LOOK['nearHazeDay']) * night + hz * LOOK['nearHazeShare']
+        mistv = LOOK['mist'] * (0.4 + amb['fogD'])
+        fc = amb['fogColor']; fogLum = 0.299 * fc[0] + 0.587 * fc[1] + 0.114 * fc[2]
+        FB = min(LOOK['fogBright'], max(1.0, 0.45 / max(fogLum, 0.01)))
+        fgA = LOOK['fgAmb'] + (LOOK['fgAmbNight'] - LOOK['fgAmb']) * night
+        bounceK = LOOK['bounce'] * min(1.0, day * LOOK['bounceDusk'])
+        bounceW = [(stN_ + (BLUE[k] - stN_) * 0.5) * lvl for k, stN_ in enumerate(v / max(max(amb['skyTop']), 1e-3) for v in amb['skyTop'])]
+        bandK = LOOK['band'] * day * (1 - (1 - LOOK['bandValley']) * ss((camx + VIS / 2 - 2150) / 180)) * (1 - LOOK['bandWarmCut'] * wv0)
+        bandC = [amb['skyBottom'][k] + (1 - amb['skyBottom'][k]) * LOOK['bandWhite'] for k in range(3)]
+        moonUp = min(1.0, max(0.0, amb['moon'] / 0.6)); MOONC = (0.55, 0.60, 0.92)
+        gsky = LOOK['groundSkyDay'] + (LOOK['groundSky'] - LOOK['groundSkyDay']) * night
+        RIM = [c * max(lvl, 0.6) for c in (0.72, 0.82, 1.0)]
+        def base(x, y, L):
+            v = min(1, max(0, (y + 0.5) / GROUND)) ** 1.35; q = min(1, max(0, math.floor(v * 16 + bayer(x, y)) / 16))
+            c = [amb['skyTop'][k] + (amb['skyBottom'][k] - amb['skyTop'][k]) * q + skyAdd[y][x][k] for k in range(3)]
+            low = ss((y - (GROUND - 70)) / 70)
+            s_ = layers['sky'][y][x]
+            if s_[3] > 0:  # clouds: sunlit tops warm, bellies the sky's top colour, the moon's light at night
+                a_ = s_[3]; alb = [s_[k] / a_ for k in range(3)]; lu = 0.299 * alb[0] + 0.587 * alb[1] + 0.114 * alb[2]
+                Lw = min(1, max(0, (lu - 0.6) / 0.3))
+                lit = [alb[k] * (ambW[k] * LOOK['cloudSun'] * Lw + amb['skyTop'][k] * LOOK['cloudFill'] * (1 - Lw)
+                                 + MOONC[k] * LOOK['cloudMoon'] * moonUp) for k in range(3)]
+                lit = [lit[k] + (amb['skyBottom'][k] - lit[k]) * LOOK['cloudHaze'] for k in range(3)]
+                c = [c[k] * (1 - a_) + lit[k] * a_ for k in range(3)]
+            bnd = band_at(y)
+            f = layers['far'][y][x]
+            if f[3] > 0:
+                hzz = min(1, max(0, farH + low * mistv)); lit = cold(f, ambF)
+                lit = [lit[k] + (farHC[k] * f[3] - lit[k]) * hzz for k in range(3)]
+                if bnd > 0: lit = [lit[k] + (bandC[k] * f[3] - lit[k]) * bnd for k in range(3)]
+                c = [c[k] * (1 - f[3]) + lit[k] for k in range(3)]
+            m = layers['mid'][y][x]
+            if m[3] > 0:
+                hzz = min(1, max(0, MH + low * mistv * 0.5)); am, sun = lit_amb(m, m[3], ambM, LOOK['midShare'])
+                cm = cold(m, am, sun); lit = [cm[k] + m[k] * L[k] * LOOK['midLight'] for k in range(3)]
+                lit = [lit[k] + (midHC[k] * m[3] - lit[k]) * hzz for k in range(3)]
+                if bnd > 0: lit = [lit[k] + (bandC[k] * m[3] - lit[k]) * bnd * 0.6 for k in range(3)]
+                c = [c[k] * (1 - m[3]) + lit[k] for k in range(3)]
+            g = layers['fogM'][y][x]
+            if g[3] > 0: c = [c[k] * (1 - g[3]) + g[k] * FB * LOOK['fogMBright'] + L[k] * 0.4 * LOOK['fogGlow'] * g[3] for k in range(3)]
+            n = layers['near'][y][x]
+            if n[3] > 0:
+                an, sun = lit_amb(n, n[3], ambN, LOOK['nearShare']); cn = cold(n, an, sun); Lc, rf = lit_world(n, L)
+                lit = [cn[k] + rf[k] * Lc[k] * LOOK['nearLight'] for k in range(3)]
+                lit = [lit[k] + (nearHC[k] * n[3] - lit[k]) * NH for k in range(3)]
+                c = [c[k] * (1 - n[3]) + lit[k] for k in range(3)]
+            a = layers['fogA'][y][x]
+            if a[3] > 0: c = [c[k] * (1 - a[3]) + a[k] * FB + L[k] * 0.6 * LOOK['fogGlow'] * a[3] for k in range(3)]
+            w = layers['world'][y][x]
+            if w[3] > 0:
+                Lc, rf = lit_world(w, L); aw, sun = lit_amb(w, w[3], ambW)
+                if GROUND <= y < GROUND + 8: aw = [v * gsky for v in aw]  # the lane's track faces the sky
+                cw = cold(w, aw, sun); c = [c[k] * (1 - w[3]) + cw[k] + rf[k] * Lc[k] + Lc[k] * LOOK['glowAdd'] * w[3] for k in range(3)]
+            return [c[k] + emis[y][x][k] for k in range(3)]
+        def top(c, x, y, L):
+            b = layers['fogB'][y][x]
+            if b[3] > 0: c = [c[k] * (1 - b[3]) + b[k] * FB + L[k] * 0.8 * LOOK['fogGlow'] * b[3] for k in range(3)]
+            f = layers['fg'][y][x]
+            if f[3] > 0:
+                cf = cold(f, [v * fgA for v in ambW]); c = [c[k] * (1 - f[3]) + cf[k] + f[k] * L[k] * LOOK['fgLight'] for k in range(3)]
+            fx = min(HW - 1.0, max(0.0, (x + 0.5) / 2 - 0.5)); fy = min(HH - 1.0, max(0.0, (y + 0.5) / 2 - 0.5)); x0, y0 = int(fx), int(fy); x1, y1 = min(HW - 1, x0 + 1), min(HH - 1, y0 + 1); tx, ty = fx - x0, fy - y0
+            for k in range(3):
+                c[k] += ((bl[y0][x0][k] * (1 - tx) + bl[y0][x1][k] * tx) * (1 - ty) + (bl[y1][x0][k] * (1 - tx) + bl[y1][x1][k] * tx) * ty) * LOOK['bloom']
+            warm = min(1, max(0, max(L) * 1.5)); lu = 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]; s2 = sat + (max(sat, 1.08) - sat) * warm
+            c = [lu + (c[k] - lu) * s2 for k in range(3)]; wv = amb['warmth']
+            # the cold grade pushes blue (the old one added red: the violet night)
+            tint = (1 + 0.10 * wv, 1 + 0.02 * wv, 1 - 0.12 * wv) if wv >= 0 else (1 + 0.20 * wv, 1 + 0.05 * wv, 1 - 0.15 * wv)
+            c = [c[k] * (tint[k] + (1 - tint[k]) * warm) for k in range(3)]
+            lu = 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]; kb = amb['black'] * (1 - min(1.0, max(0.0, lu) / LOOK['blackR'])) ** 2
+            c = [c[k] + BLACK2[k] * kb for k in range(3)]  # the darks lift toward navy, never to grey or black
+            c = [min(v, 0.82) + 0.18 * (1 - math.exp(-max(v - 0.82, 0) / 0.18)) for v in c]
+            u = ((x + 0.5) / TW * 2 - 1) * 0.82; vv = (y + 0.5) / TH * 2 - 1; vg = 1 - vig * ss((math.hypot(u, vv) - 0.42) / 0.83)
+            return [min(1, max(0, v * vg)) for v in c]
     for y in range(TH):
         for x in range(TW):
             L = lit_light(x, y); img[y][x] = top(base(x, y, L), x, y, L)

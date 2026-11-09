@@ -117,7 +117,7 @@ distance fades to), stars, torch strength, the grade (warmth, saturation), the v
 | afternoon | 16.2 | `#577AA8` | `#C7BDA8` | `#FFE6C7` × 0.84 | `#CCC2B2` × 0.14 | 0.38 | `#BDB8B2` | 0 | 0 | 0.14 | 0.94 | 0.18 | 0.2 |
 | golden | 17.8 | `#4C578F` | `#F5A361` | `#FFB870` × 0.66 | `#E6A375` × 0.28 | 0.55 | `#D19E85` | 0 | 0.20 | 0.45 | 1.00 | 0.22 | 0.3 |
 | sunset | 18.8 | `#292B66` | `#EB754C` | `#E69975` × 0.44 | `#85667A` × 0.32 | 0.45 | `#806680` | 0.10 | 0.60 | 0.32 | 1.02 | 0.28 | 0.5 |
-| dusk | 19.5 | `#141A45` | `#9E5C6B` | `#8085D6` × 0.30 | `#575794` × 0.38 | 0.42 | `#57528A` | 0.35 | 1.00 | 0.08 | 0.95 | 0.34 | 0.8 |
+| dusk | 19.5 | `#141A45` | `#9E5C6B` | `#8085D6` × 0.30 | `#525999` × 0.38 | 0.42 | `#4C548F` | 0.35 | 1.00 | 0.08 | 0.95 | 0.34 | 0.8 |
 | blue hour | 20.3 | `#0F1436` | `#424F8F` | `#6680E6` × 0.18 | `#47549E` × 0.42 | 0.40 | `#38478A` | 0.60 | 1.00 | -0.22 | 0.86 | 0.40 | 1.0 |
 | night | 21.4 | `#0D0F26` | `#3D4785` | `#5C73E0` × 0.14 | `#454F9E` × 0.45 | 0.40 | `#334080` | 0.70 | 1.00 | -0.30 | 0.82 | 0.42 | 1.0 |
 
@@ -129,8 +129,10 @@ waves (from 21:15) come in the deep night, after a blue hour of about 12 s; firs
 into a rose dawn with morning mist (fog 0.55).
 
 **Warm pools.** Windows glow at 1.3 × the old glass strength, their light pool 1.6 × wider and 0.7 strong (was 0.4);
-torches, braziers, lanterns, hearths and candles 1.15 × stronger against the darker ambient. Glass on the mid plane
-(the keep seen from afar) glows at 0.45: it stands in haze, and two full panes read as eyes.
+torches, braziers, lanterns, hearths and candles 1.15 × stronger against the darker ambient, and their light a step
+deeper toward orange, so a pool reads as fire on stone, not white-gold: torch `#FFA84C` (was `fireGold`), lantern
+`#FFB257`, candle `#FFB861`, fire arrow `#FFBD66` (was `fireWhite`); braziers and the hearth stay `fireOrange`. Glass on
+the mid plane (the keep seen from afar) glows at 0.45: it stands in haze, and two full panes read as eyes.
 
 **The grade.** Saturation from the key (warm light keeps at least 1.08); the cold grade pushes blue (the old one added
 red, which made the night violet); the darks lift toward navy `#080A18` below luma 0.22 (× the key's black); a
@@ -196,7 +198,7 @@ The renderer keeps its passes; look 2 changes these values and adds three things
 | foreground ambient | day 0.9, night 0.43 | **day 0.55, night 0.30**; light share 0.55 |
 | lane sky light (new) | – | the lane's top 8 rows take × 1.1 (day) to × 1.4 (night) ambient: they face the sky |
 | window light | radius 8, × 0.4 | radius × 1.6, × 0.7; glass × 1.3; mid-plane glass × 0.45 |
-| fire lights | × 1 | × 1.15 |
+| fire lights | × 1; torch and lantern `fireGold`, fire arrow `fireWhite` | × 1.15; torch `#FFA84C`, lantern `#FFB257`, candle `#FFB861`, fire arrow `#FFBD66` |
 | clouds | sun 1.1, fill 1.7, haze 0.25 | sun 1.0, fill 1.5, haze 0.3, **moonlight 0.35** at night |
 | grade | warmth tint adds red when cold | the cold tint pushes blue (1 + 0.20 w, 1 + 0.05 w, 1 − 0.15 w); **navy lift** `#080A18` below luma 0.22; vignette per key 0.16 to 0.42 |
 | bright haze band | 0.45 | 0.2 (the mist band does its work) |
@@ -222,7 +224,20 @@ light, the region share of the fog. The glass test (`lh_is_glass`) keeps `night0
   a time with the heat rule, into `build/recraft/lh/preview/look2/`, plus the two 2x3 contact sheets.
 - The scenes: the front at night with the battle (focus 900, 22:48, as the runner's shots 31 and 32), the castle front
   at dusk (1360, 19:12), the courtyard and great hall at dusk (1700, 19:12), the town square at dusk (3040, 19:12), the
-  town at noon (2800), the river end at golden hour (3720, 17:53).
+  town at noon (2800), the river end at golden hour (3720, 17:53). A render takes about 3 s (python 3.13); all twelve
+  and both sheets about 90 s, the CPU stays under 70 °C.
+- `mock.py look=1` (the default) still renders every old mock byte for byte (checked against `f35272a`'s mock.py on
+  two frames); `art=`, `depth=` and `lut=` (preview a palette change on the old art) are new options.
+
+**What the mocks show.** The night battle now reads like the colour target: deep blue, the open shadow land with fir
+rows paling into fog, the statue and the keep as silhouettes above the mist, the fog bank behind the play plane
+turning every creature into a dark shape with an ember edge, the fires and the lit wall the only warm values; the
+foreground is the darkest band. The castle at dusk is cool slate between near-black granite under an afterglow sky,
+its torches and braziers the focal warmth. The courtyard and hall: blue dusk outside, the hall's hearth and candles
+warm inside. The town at dusk is the cozy end: warm windows and lanterns, trees in rows behind the houses, smoke, a
+violet-blue valley under orange cloud rims. Noon is muted and serious (dark greens, rows of trees, a blue-grey sky)
+instead of bright and cheerful; golden hour at the river is warm with lavender distance. The before set (`sheet-old`)
+is the renderer of today: ochre rock, violet nights with every plane at one value, the soil cross-section.
 
 ## 9. Open after stage 1 (for stage 2 and the port)
 
@@ -239,6 +254,12 @@ light, the region share of the fog. The glass test (`lh_is_glass`) keeps `night0
 - The town square wants cobbles and a few props (cart, barrels, a notice board); houses want lit interiors at night.
 - The keep seen from the town still shows two big panes; one lit pane and a glimmer, as in the gorge, would end the
   "eyes".
-- Fire-arrow pools are pale white-gold on the blue lane (light colour `fireWhite`); a warmer `fireGold` reads better.
 - Depth stand-ins are symmetric and regular (cone firs, round crowns); stage 2's trees need irregular tiers, broken
   branches, wind-bent crowns, and 3 variants each.
+- The cliffs behind the courtyard show the old strata painting at a large scale and read as a giant brick wall; the
+  Weltmauer's inner face wants vertical granite, ledges and a few firs.
+- At dusk the town's plaster takes a lavender-pink from blue ambient plus warm pools; a warmer, darker plaster (or a
+  little less window pool on the walls) would keep it cream-warm. The lane at dusk is nearly black away from the
+  lanterns.
+- The night battle has no darkness bank in the mock (the game draws it); stage 3 should give the Gloom's bank the
+  look-2 treatment (navy soot, drifting motes, cold eye glints) together with the creatures.
