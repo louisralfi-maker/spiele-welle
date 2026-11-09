@@ -145,7 +145,8 @@ WORLD = [
     # (Mirrored on the left so its overhang leans out over the gorge; the straight-cut strip it carries on from
     # gorgeWallC lies behind the flanks on both sides.)
     dict(s="gorgeWallHigh", x=F - 190, y=0, z=-5, flip=True),
-    dict(s="gorgeWallHigh", x=F + 230, y=0, z=-5),
+    dict(s="gorgeWallHigh", x=F + 278, y=0, z=-5),  # its cut left edge just behind the right flank; shows other
+                                                    # columns than the mirrored copy on the left
     # cliffFlank's masonry is its columns 45-65; the towers' bodies start 10 px inside the front's edges
     dict(s="cliffFlank", x=F - 53, y=0, z=-3),             # rock on the left, its masonry running under the left tower
     dict(s="cliffFlank", x=F + 213, y=0, z=-3, flip=True),  # mirrored on the right
