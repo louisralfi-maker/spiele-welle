@@ -14,8 +14,8 @@ shot() { # name focus tod
     case $1 in
     front-night)    echo "760 0.95" ;;
     castle-night)   echo "1360 0.95" ;;
-    castle-dusk)    echo "1360 0.8" ;;
-    courtyard-dusk) echo "1650 0.8" ;;
+    castle-dusk)    echo "1360 0.77" ;;
+    courtyard-dusk) echo "1650 0.77" ;;
     valley-golden)  echo "2900 0.75" ;;
     valley-night)   echo "2900 0.95" ;;
     river-day)      echo "3720 0.5" ;;

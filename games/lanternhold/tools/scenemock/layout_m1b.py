@@ -180,10 +180,12 @@ WORLD = [
     dict(s="castleFront", x=F, y=0, z=0,
          em=[("sprite", "brazierFlame", 93, 130, FIRE, False), ("sprite", "brazierFlame", 138, 130, FIRE, False),
              ("sprite", "flame", 90, 61, GOLD, True), ("sprite", "flame", 145, 61, GOLD, True),
-             ("mask", 29, 124, 6, 15, WIN), ("mask", 205, 124, 6, 15, WIN),
-             ("mask", 29, 69, 6, 15, WIN), ("mask", 205, 69, 6, 15, WIN)],
-         li=[("brazier", F + 97, 136, 56), ("brazier", F + 142, 136, 56),
-             ("torch", F + 92, 64, 30), ("torch", F + 147, 64, 30)]),
+             ("mask", 29, 124, 6, 15, WIN), ("mask", 202, 124, 6, 15, WIN),   # right tower unmirrored at x 173
+             ("mask", 29, 69, 6, 15, WIN), ("mask", 202, 69, 6, 15, WIN)],
+         # the wall-walk braziers smaller (44, was 56) and a warm pool in the gateway, so the king at the gate is the
+         # one focal point of the hero shot
+         li=[("brazier", F + 97, 136, 44), ("brazier", F + 142, 136, 44),
+             ("torch", F + 92, 64, 30), ("torch", F + 147, 64, 30), ("torch", F + 120, 14, 46)]),
     # --- inside: courtyard, great hall, chapel, kitchen ---
     # the courtyard wall runs from 1580, out of the gate view: from the gate, rock (the right flank, then the high
     # rock from the ground) closes the frame right of the right tower; inside, the castle is built into the throat

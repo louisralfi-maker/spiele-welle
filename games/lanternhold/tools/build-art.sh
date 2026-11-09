@@ -71,7 +71,15 @@ build() { # name: one sprite
                    mkdir -p $PT
                    python3 $T convert $M/castlefront-b-1.png $PT/cf-tower.png --size 58x236 --box 80,80,315,1072 --gain 1.1 --only $CAS,leafDark,leaf --outline ink --outline-skip-bottom
                    python3 $T convert $M/castlefront-a-1.png $PT/cf-gate.png --size 132x156 --box 295,420,735,895 --gain 0.86 --only $CAS --fill clear:0,0,29,28 --fill clear:102,0,131,28 --outline ink --outline-skip-bottom
-                   python3 $T compose $A/castleFront.png --size 240x236 --layer $PT/cf-gate.png@54,80 --layer $PT/cf-tower.png@0,0 --layer $PT/cf-tower.png@182,0@flip ;;
+                   # M1b polish: the painted shadow band on the towers' right side (night1, cols 42-53) lifted to stoneMid/stoneDark
+                   # (albedo; the castle is one value step above the rock at night), the speckled left highlight
+                   # cleaned into one stoneLight column, the right edge light (col 54) made a solid stonePale rim for the
+                   # moon. Both towers lit from the same side: the right one is not mirrored but moved 9 px left (its
+                   # transparent margin is on the left), with two arrow slits moved and a broken merlon.
+                   python3 $T post $PT/cf-tower.png $PT/cf-tower-l.png --remap stonePale:stone,stoneLight:stone@11,40,16,235 --remap night1:stoneMid@42,40,46,235 --remap night1:stoneDark@47,40,53,235 --fill stoneLight:10,40,10,235 --fill stonePale:54,40,54,235
+                   python3 $T post $PT/cf-tower-l.png $PT/cf-tower-r0.png --fill stone:28,68,35,85 --fill stone:28,123,35,140 --fill clear:36,0,43,4
+                   python3 $T compose $PT/cf-tower-r.png --size 58x236 --layer $PT/cf-tower-r0.png@0,0 --layer $PT/cf-tower-l.png@28,62@box=28,68,36,86 --layer $PT/cf-tower-l.png@28,130@box=28,123,36,141
+                   python3 $T compose $A/castleFront.png --size 240x236 --layer $PT/cf-gate.png@54,80 --layer $PT/cf-tower-l.png@0,0 --layer $PT/cf-tower-r.png@173,0 ;;
     castleKeep)    # front elevation (keepgate-b left, M1b polish): flat crenellated top like the front's towers; the painting's
                    # shaded left third lifted with a zone (albedo is evenly lit); specks under 2 px merged
                    mkdir -p $PT
