@@ -1052,7 +1052,8 @@ Open points:
 - T7 hangs on whether an endless realm ever loses its gatehouse: when it does not, it holds past night 70 with the
   hearth untouched. The finale's numbers were chosen on T6; T7 only decided 700 against 600 HP. A steadier endless
   measure (more seeds as the target, or endless growth that also adds brutes) belongs to the endless work in M3, and the
-  King's leaving at 10 s after nightfall stays provisional until then.
+  King's leaving at 10 s after nightfall stays provisional until then. (The M3 join measures T7 over 20 seeds, raises
+  the endless growth to 0.5 and moves the King to 4 ± 1 s.)
 - With these bots the King always falls at the middle line, never at the outer line (its palisade falls in seconds).
 - The realm's world numbers (`Realm.worldWidth` 3900, `walkEnd` 3760, the town plots 100 px right) landed together
   with the M1b world (merge of `lh-m1b-port`, 09.11.). `Tests/RealmWorldTests` pins every copy in `Realm` to
@@ -2024,7 +2025,8 @@ late nights, made the eve of night 20 much stronger than measured (see the decis
 
 **Open points**
 
-- T6's "without" count and T7 are out of band (above); everything else passes.
+- T6's "without" count and T7 are out of band (above); everything else passes. (Resolved in "M3 join": 20 seeds as
+  shares, the King at 4 ± 1 s, the endless growth 0.5.)
 - An endless realm hears about two to three petitioners a day: twelve repeatable endless petitions and the five-day
   rule. A few more repeatable ones would fill four.
 - The war tax and the beacon site still open by themselves at dawn 8 and on day 11; the petitions' unlocks change
@@ -2180,7 +2182,8 @@ same numbers.
 **Open points and notes for the lead**
 
 - T6 and T7 still fail exactly as in round `lh-m3-c3` (the content step's open point, unchanged by this step: the
-  same numbers in rounds `lh-m3-b1` to `b3`). They wait for the lead's decision on the bands or the seeds.
+  same numbers in rounds `lh-m3-b1` to `b3`). They wait for the lead's decision on the bands or the seeds. (Decided
+  and resolved in "M3 join".)
 - The art lane's room PNGs (`hallFront`, `chapelInterior`, `kitchenInterior`, the touched-up `chapel` and `kitchen`)
   are on `claude/lh-m3-art`; the anchors here are theirs. The bell overlay (`bellGone`) is painted in the colours of
   their `chapelInterior` behind the bell; if they repaint the belfry it must follow.
@@ -2303,6 +2306,27 @@ measured (the story pass after the merge will reshuffle the realms at dawn 21 ag
   65 s. The audience's shots show the HUD's clock and numbers above the card and the art lane's court and portraits.
 - `lh-m3-j2` (`sh bash tools/simtune/run.sh finale`) on `3a44971`: the departures 7 to 3 s with ± 1, ± 0 and ± 2 and T7
   with each endless growth (the tables above), 560 s.
+- `lh-m3-j3` (build, unit, ui, ui-de, release) on `98ac27e` with 4 ± 1 s and 0.5: **ALL PASSED**. 323 unit tests,
+  exactly the sweep's numbers: T6 with the beacon 20 of 20 won and the King slain in 20, 59 to 64 s after he left,
+  with 11 to 22 s of light left; without it 10 of 20 held, the falls at 03:52 to 05:00; T7 17 of 20 in the band; T1
+  to T5 and T8 unchanged; night 20's step check passed. `TuningTests` takes 294 s with 20 seeds and 20 endless seeds
+  (90 s before), the unit step 8 minutes. ui 9 of 9 and ui-de 9 of 9 passed; release passed. In `34-finale-2230`
+  arrows now fly at the King (3 in flight, 2 archers drawing), since he leaves 30 minutes earlier.
+
+**Open points (M3 join)**
+
+- Reported, not a target: a bot that never builds the beacon and spends that gold on the rest of its order still holds
+  night 20 in 10 of 10 (the first ten seeds). The beacon decides the ending and, against the same realm without its
+  last stage, survival in half the seeds; a realm built for defence instead holds ("The finale").
+- The story pass after the merge (king to lord, the families in the audiences) rewrites the content, and every content
+  change redraws night 20 and the realms at dawn 21: run `tools/simtune/run.sh finale` again. T6 sits in the middle
+  of its band (10 of 20), T7 at 17 of 20.
+- Night 20's step check stays fragile near first light: at 6 s and 5 s it failed on seed 1 (the courtyard after the
+  gatehouse falls, 4 s apart between the step sizes), as 19 of M2a's 58 variants did.
+- Two endless realms of 20 still stand at night 70 (the gatehouse never falls); more growth (0.55) or brutes in the
+  endless mix would take them, at the cost of moving the median fall earlier.
+- "Sound the horn" by day sends the petitioners still waiting home unheard at the horn (one happiness each at dawn);
+  its confirmation does not say so yet.
 
 ## Risks
 
