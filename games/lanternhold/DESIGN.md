@@ -1261,6 +1261,14 @@ state machine (`overlay`) pauses the simulation under every card and screen.
   Motion.
 - **Debug arguments**: `-GWTimeScale`, `-GWHour`, `-GWScreen report|finale|defeat`, `-GWSkipOnboarding` (see the
   table); the scene value adds `kx:` and `dawn:`.
+- **Files**: `Core/KingTargets.swift`, `Core/BuildCard.swift` (with `RecruitCard`, `TaxCard`), `Core/ReportCard.swift`,
+  `Core/RealmStrip.swift`, `Core/Feedback.swift` (with `ScreenShake`), `Core/DawnSweep.swift`; `App/FeedbackHub.swift`,
+  `App/GameModel.swift` (the screen state machine), `App/DebugArgs.swift`, `App/GameStart.swift`; `UI/Theme.swift`
+  (palette, cards, coin, face, buttons, `CardScroll`), `UI/Texts.swift`, `UI/HUDView.swift`, `UI/RealmStripView.swift`,
+  `UI/BuildCardView.swift` (with the barracks and the tax lectern), `UI/ReportCardView.swift`, `UI/DefeatCardView.swift`
+  (with the pause sheet), `UI/OverlayView.swift`, `UI/SpriteThumbnail.swift`; `Core/SimDriver.swift` gained the
+  strip's walk, the second chance, replay and restart. Tests: `CardModelTests`, `ReportCardTests` (with
+  `RealmStripTests`), `FeelTests`, `ScreenFlowTests` (`DriverMovesTests`, `GameScreensTests`), `UITests/FirstDayUITests`.
 
 **Decisions taken (M2b part 2)**
 
@@ -1304,6 +1312,11 @@ state machine (`overlay`) pauses the simulation under every card and screen.
   card and the pause sheet centred at their own height), the tax lectern shows its four rates in English and German
   with the war tax locked "Ab Tag 8" in its price column, the build and barracks cards show the treasury; no German
   text clips in any shot, every checked target is at least 44 pt.
+- `lh-m2b-b4` (build, unit, ui, ui-de, release) on `9aed974`: ALL PASSED, the final round of this step: 253 unit tests
+  (34 new), every UI test in English and German (`testFirstDay` 104 and 109 s, `testScreens` 47 and 50 s,
+  `testMidChapter` with its report and first light, `testFinale` with the King's report, the light probe and the jitter
+  check unchanged), the Release build; no compiler warning from the game's code. The defeat card's windows now go out
+  from the Gloom's side.
 
 **Open points (M2b part 2)**
 
@@ -1313,6 +1326,23 @@ state machine (`overlay`) pauses the simulation under every card and screen.
   string.
 - The HUD's sizes are fixed (Dynamic Type grows the cards, which scroll).
 - A long walk through the strip takes its time (town to front about 30 s at a run); DESIGN keeps the walk.
+- First light's front is a soft glow in a still shot (`37-mid-firstlight`); the king and the archers near the outer
+  line's fire tower stay very bright from the lantern and the fire tower themselves (the renderer's lights, not the
+  sweep).
+- Reduce Motion is covered by code and `FeelTests` (no shake, no hop, no rolling numbers, no card transitions); no UI
+  run uses `-GWReduceMotion` yet.
+
+**Notes for the next steps**
+
+- M3's audience plugs into `KingTarget.throne` (today it opens the tax lectern; with petitioners waiting the throne
+  should open the audience and the lectern keep its own place beside it); talking adds a `KingTarget` for a court
+  member. New cards use `AnchoredCard`, `CardChrome`, `OptionRow` (52 pt rows, an optional sprite) and `CardScroll`.
+- M6 gives `FeedbackHub` its real implementation (Comet Cargo's `CueSynth` and `HapticHub`) and sets
+  `GameModel.feedback`; every cue already arrives thinned (`FeedbackCue`), and `SaveSettings` holds the switches.
+- M7: the rewarded video goes in front of `GameModel.takeSecondChance()` (the pacing is already
+  `AdPacing.lastSecondChanceNight`); the report's double taxes and Marek's gift join `ReportCardView`'s footer; the
+  onboarding reads `-GWSkipOnboarding`.
+- The art lane's PNGs appear on the build and barracks cards by themselves (`SpriteImages` cuts the shared atlas).
 
 ## Risks
 
