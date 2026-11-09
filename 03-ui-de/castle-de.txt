@@ -1,0 +1,1 @@
+scene: frame:1410 ready day:3 hour:12.40 alive:0 seen:0 shots:0 aim:0 kx:2038
