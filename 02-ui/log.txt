@@ -1,0 +1,11 @@
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (140.467 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (116.350 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (63.283 seconds).
+Test Case '-[LanternholdUITests.LightProbeUITests testFilmstrip]' passed (23.193 seconds).
+Test Case '-[LanternholdUITests.LightProbeUITests testLightProbe]' passed (239.317 seconds).
+Test Case '-[LanternholdUITests.MidChapterUITests testFinale]' passed (108.865 seconds).
+Test Case '-[LanternholdUITests.MidChapterUITests testMidChapter]' passed (171.595 seconds).
+Test Case '-[LanternholdUITests.ProbeUITests testPixelGrid135]' passed (8.660 seconds).
+Test Case '-[LanternholdUITests.ProbeUITests testPixelGrid180]' passed (9.598 seconds).
+exit=0
+screenshots: 66
