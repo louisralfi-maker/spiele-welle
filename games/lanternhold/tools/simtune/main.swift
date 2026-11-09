@@ -27,17 +27,23 @@ enum SimTune {
             b.setItem(.beaconTower, price: prices[1])
             b.setItem(.greatBeacon, price: prices[2])
         }
-        // Margins around the standard chosen in round lh-m2a-fix-1 (King 14 s after nightfall, beacon 110 / 200 / 330).
-        for second in [13.0, 15] {
-            add("kSec\(Int(second))") { $0.kingSecond = second }
+        // The finale (round lh-fin-1): the Lightless King's HP inside the beacon's light, whether archers and
+        // ballistas aim at him first, the beacon's radius, and bosses striking soldiers in passing.
+        func kingHP(_ b: inout Balance, _ hp: Double) { b.creatures[CreatureKind.lightlessKing.index].hp = hp }
+        for hp in [300.0, 400, 650, 800, 1000, 1400] {
+            add("hp\(Int(hp))") { kingHP(&$0, hp) }
         }
-        for jitter in [6.0, 10] {
-            add("kJit\(Int(jitter))") { $0.kingJitter = jitter }
+        add("noAim") { $0.aimAtTheKing = false }
+        add("noAim300") {
+            $0.aimAtTheKing = false
+            kingHP(&$0, 300)
         }
-        add("bcn120") { beacon(&$0, [120, 220, 360]) }
-        for quad in [0.35, 0.45] {
-            add("q\(quad)") { $0.endlessQuadratic = quad }
+        for radius in [700.0, 840] {
+            add("r\(Int(radius))") { $0.beaconRadius = radius }
         }
+        add("noBossPass") { $0.bossesStrikeInPassing = false }
+        add("kSec10") { $0.kingSecond = 10 }
+        add("kSec18") { $0.kingSecond = 18 }
         add("harm1.1") { $0.creatureHarmScale = 1.1 }
         return list
     }
@@ -79,6 +85,17 @@ enum SimTune {
                 say(metrics.report)
                 say("")
             }
+        }
+        // Night 20 at 1/60 s against 0.1 s, with every soldier's fall (the contact-damage check).
+        for variant in list where variant.name == "standard" || variant.name == "noBossPass" {
+            say("steps, \(variant.name):")
+            for seed: UInt64 in 1...10 {
+                for line in TuningRun.stepComparison(seed: seed, balance: variant.balance)
+                where seed <= 3 || !line.hasPrefix(" ") {
+                    say(line)
+                }
+            }
+            say("")
         }
         say("simtune: done")
     }
