@@ -150,12 +150,16 @@ def builder(sid):
 
 @builder("portraitOdile")
 def odile():
-    """Odile, the chancellor: a long face with a long sharp nose and a dry, lidded look (the far brow up, a thin wry
-    mouth), grey hair pulled up into a high bun, the aubergine robe with a standing collar open over a rose facing,
-    the silver chain of office with its gold seal."""
+    """Odile, the chancellor: a long, thin face (the jaw narrowed, the cheek hollow) with a long thin wedge of a nose
+    hooked a little at the tip, a half-lidded near eye under a level brow and the far brow arched (the dry look), a
+    thin mouth with one corner up, crow's feet; grey hair pulled up into a high bun with a pin; the aubergine robe with
+    a standing collar, open down the front over the rose facing of her sprite, the collar lined in rose; the silver
+    chain of office with its gold seal. Fix stage: the rendered beak was a bulb with a highlight and a nostril (a
+    snout) on the round template; the nose is hand-set now."""
     P = K.face_params("long")
-    P.update(nose_a=(0.0, -2.0, 10.0), nose_b=(0.0, 5.0, 18.2), nose_r=(0.85, 0.95), wings=(1.4, 5.0, 12.2, 1.0),
-             cheek=(5.4, 0.4, 6.2, 2.1), lip_w=2.0)
+    P.update(jaw_r=(6.2, 8.2, 7.6), mand=((5.6, 6.2, -0.6), (1.3, 10.4, 6.0), 1.4), cheek=(5.0, 0.0, 5.8, 1.8),
+             nose_a=(0.0, -1.8, 9.6), nose_b=(0.0, 3.0, 12.0), nose_r=(0.75, 0.85), wings=(1.2, 3.6, 11.0, 0.8),
+             lip_w=1.9)
     face = head_part(P)
     cc, cr = P["cran_c"], P["cran_r"]
 
@@ -175,8 +179,8 @@ def odile():
 
     def collar(q):
         x, y, z = q
-        d = K.around_neck(q, -15.2, 6.6, 1.3)
-        d = smin(d, smax(K.around_neck(q, -17.0, 6.4, 1.1), -(z - 1.0), 0.5), 1.2)   # standing up behind the neck
+        d = K.around_neck(q, -15.2, 6.6, 1.4)
+        d = smin(d, smax(K.around_neck(q, -17.2, 6.5, 1.2), -(z - 0.5), 0.5), 1.2)   # standing up behind the neck
         return d
 
     def chainf(q):
@@ -192,11 +196,17 @@ def odile():
         x, y, z = q
         d = robe(q)
         mat = "robe"
-        if z > 1.5 and abs(x - 1.0) < (y + 16.0) * 0.30 and y > -14.5:
+        # the robe open down the front over the rose facing: a panel in the opening, in front of the throat, under
+        # the standing collar
+        panel = sd_box(q, (1.2, -8.6, 6.6), (3.0, 7.4, 1.6), 1.0)
+        if panel < d:
+            d, mat = panel, "rose"
+        elif z > 1.0 and abs(x - 1.2) < 3.6 + (y + 15.0) * 0.10 and y > -15.5:
             mat = "rose"
         dc = collar(q)
         if dc < d:
-            d, mat = dc, ("rose" if z > 4.0 else "robe")
+            # the standing collar: its inside (towards the neck) lined in rose, the outside aubergine
+            d, mat = dc, ("rose" if z > 2.5 or (z > -2.0 and K.around_neck(q, -15.2, 6.6, 0.0) < 6.6) else "robe")
         return d, mat
 
     fn = scene(face, local(HEAD, hair, "hair"), local(HEAD, bun, "bun"), local(HEAD, pin, "pin"), robe_mat,
@@ -211,7 +221,7 @@ def odile():
         "bun": Mat(["stoneMid", "stone", "stoneLight", "stonePale"], th=[0.2, 0.46, 0.8],
                    tex=K.strands((-2.2, -15.6, -5.0), n=9, amp=0.18, seed=7)),
         "robe": Mat(["night0", "night2", "rockDeep", "stoneMid"], th=[0.12, 0.30, 0.76], tex=K.folds(0.10)),
-        "rose": Mat(["tile", "dusk", "dawnRose"], th=[0.32, 0.72]),
+        "rose": Mat(["tile", "dusk"], th=[0.34]),
         "chain": Mat(["stone", "stoneLight", "stonePale"], th=[0.3, 0.62],
                      tex=lambda x, y, c, v: v + (0.2 if (x + y) % 2 else -0.15)),
         "seal": Mat(["woodLight", "straw", "gold", "strawLight"], th=[0.2, 0.45, 0.78]),
@@ -220,23 +230,39 @@ def odile():
                    {"t": "tile", "s": "straw", "g": "gold"})
     a = K.anchors(P)
     st = eye_stamps(P, L, eyes="lidded", brows=None, mouth=None, a=a)
+    st = [x for x in st if x[1] != ["21"]]          # no nostril stamp: the nose is hand-set below
     st.append(ear_stamp(P, L))
+    pic, r, mm = portrait(fn, mats, st)
+    for at, rows, lg in odile_finish(K.anchors(P), L):
+        stamp(pic, at, rows, lg)
+    return pic
+
+
+def odile_finish(a, L):
+    """Odile's hand-set features over the render (fix stage): the thin wedge of a nose breaking the profile (2 px tall
+    at the tip, 3-4 px beyond the cheek, hooked a little down, one shadow row under the tip, no highlight, no
+    nostril), the brows, the thin mouth with its far corner up, the crow's feet and the hollow cheek."""
     ex, ey = a["eyeN"]
     fx, fy = a["eyeF"]
     mx, my = a["mouth"]
-    st += [
-        ((ex - 2, ey - 3), [".bbbb"], L),             # the near brow, level
+    return [
+        ((ex - 2, ey - 3), [".bbbb"], L),             # the near brow, level over the half-lidded eye
         ((fx - 1, fy - 4), [".b", "b.b"], L),          # the far brow arched up: the dry look
-        ((mx - 2, my), ["1111", "...."], L),           # a thin mouth...
-        ((mx + 2, my - 1), ["1"], L),                  # ...its far corner tucked up
         ((ex - 4, ey + 1), ["2", ".2"], L),            # crow's feet
         ((ex - 3, ey + 4), ["2.", ".2", ".2"], L),     # the hollow under the cheekbone
-        ((27, 26), ["2", "2", ".2"], L),               # the fold from the nose's wing to the mouth
-        ((28, 20), ["4", "4", "4", ".4"], L),          # the long bridge catching the light
-        ((27, 43), ["kk", "kk"], {"k": "woodDark"}),   # the seal's mark
+        ((29, 20), [                                   # the nose: bridge from between the eyes to the hooked tip
+            "33k....",
+            "333k...",
+            "3333k..",
+            "33333k.",
+            "333333k",
+            ".22223k",
+            "..kkkk.",
+        ], L),
+        ((mx - 2, my), ["1111"], L),                   # the thin mouth...
+        ((mx + 2, my - 1), ["1"], L),                  # ...its far corner tucked up
+        ((mx - 1, my + 1), ["33"], L),                 # the thin lower lip catching the light
     ]
-    pic, r, mm = portrait(fn, mats, st)
-    return pic
 
 
 # ---------------------------------------------------------------------------------------------------- the others
@@ -332,31 +358,34 @@ def std_portrait(P, parts, mats, st, skin_ramp, extra_skip=()):
 
 @builder("portraitBrannock")
 def brannock():
-    """Brannock, captain of the guard: a square, scarred face (a pale scar through the near eye), heavy frowning
-    brows, bald with a grey fringe round the back, a short square iron-grey beard; steel pauldrons and mail under the
-    realm's teal surcoat with the gold lantern."""
-    P = K.face_params("square")
+    """Brannock, captain of the guard: a narrow, long head (fix stage: he and Bram shared one bald dome, eyes and
+    nose and read as twins), a hooked nose, a clear pale scar through the near eye, heavy frowning brows, bald with a
+    grey fringe round the back, a short square iron-grey beard; steel pauldrons of three plates each with lit top
+    edges (they read as rocks under a ring-mail speckle), mail below them and at the throat, the realm's teal surcoat
+    with the gold lantern."""
+    P = K.face_params("long")
+    P.update(cran_c=(0.0, -3.4, -1.8), cran_r=(9.3, 11.2, 10.6), jaw_r=(7.2, 8.0, 7.8),
+             mand=((6.2, 6.0, -0.6), (1.8, 10.2, 6.2), 1.8), chin=(0.0, 9.8, 7.0, 2.5),
+             nose_a=(0.0, -1.8, 9.6), nose_b=(0.0, 3.2, 12.2), nose_r=(0.8, 0.9), wings=(1.3, 3.6, 11.0, 0.9),
+             brow=(-3.6, 9.6, 2.0), ear_c=(-9.0, 0.4, -0.6), neck_r=6.0)
     fringe = shell_hair(P, 1.0, front=-2.6, temple=0.0, nape=6.4, burn=1.2)
 
     def band(q):
         x, y, z = q
         return smax(smax(fringe(q), -(y + 2.4 - 0.4 * smoothstep(0.0, -6.0, z)), 0.4), z - 1.2, 0.4)
 
-    def body(q):
-        x, y, z = q
-        d = K.bust(q, 1.8)
-        return d
-
     def body_m(q):
         x, y, z = q
-        d = body(q)
+        d = K.bust(q, 1.8)
         sur = z > 0.5 and y > -12.6 + 0.12 * abs(x - 1.0) and abs(x - 1.0) < 11.0
         m = "teal" if sur else "mail"
-        for s in (-1, 1):
-            dp = sd_ellipsoid(q, (s * 15.6, -8.6, -0.2), (6.4, 4.4, 6.8))
-            dp = smin(dp, sd_ellipsoid(q, (s * 16.6, -5.6, 0.2), (6.2, 3.0, 6.4)), 1.0)
-            if dp < d:
-                d, m = dp, "steel"
+        for s_ in (-1, 1):
+            # three overlapping plates (lames) per shoulder, the top one highest and innermost
+            for k, (dx, dy, rx, ry, rz) in enumerate(((14.6, -10.2, 6.6, 3.2, 6.8), (16.4, -7.2, 6.4, 2.9, 6.6),
+                                                      (18.0, -4.4, 6.0, 2.6, 6.2))):
+                dp = sd_ellipsoid(q, (s_ * dx, dy, -0.2 + 0.3 * k), (rx, ry, rz))
+                if dp < d:
+                    d, m = dp, "steel%d" % k
         ring = K.around_neck(q, -14.8, 6.4, 1.3)
         if ring < d:
             d, m = ring, "mail"
@@ -364,29 +393,49 @@ def brannock():
 
     beard = beard_shape(P, t=0.8, square=True, jag=0.4)
     parts = [local(HEAD, band, "hair"), local(HEAD, beard, "beard"), localm(BODY, body_m)]
-    mats = dict(skin_mats(SKIN_ROSY))
+    mats = dict(skin_mats(SKIN_ROSY, th=(0.14, 0.42, 0.975)))
+    plate = Mat(METAL, th=[0.15, 0.36, 0.6, 0.86])
     mats.update({
         "hair": Mat(GREY, th=[0.2, 0.46, 0.8], tex=K.strands((-6.0, -2.0, -8.0), n=9, amp=0.12)),
-        "beard": Mat(GREY, th=[0.22, 0.48, 0.8], tex=lambda x, y, c, v: v + 0.14 * (hash01(x, y, 5) - 0.5)),
+        "beard": Mat(GREY, th=[0.22, 0.48, 0.8], tex=lambda x, y, c, v: v + 0.10 * (hash01(x, y, 5) - 0.5)),
         "teal": Mat(TEAL, th=[0.2, 0.5, 0.9], tex=K.folds(0.08)),
         "mail": Mat(["stoneDark", "stoneMid", "stone", "stoneLight"], th=[0.2, 0.45, 0.72], tex=K.mail_tex),
-        "steel": Mat(METAL, th=[0.15, 0.36, 0.6, 0.86]),
+        "steel0": plate, "steel1": plate, "steel2": plate,
     })
     L = legend_for(SKIN_ROSY, GREY, {"g": "gold", "s": "straw", "t": "tileLight", "p": "parchment"})
     a = K.anchors(P)
     st = eye_stamps(P, L, eyes="open", brows=None, mouth=None, a=a)
+    st = [x for x in st if x[1] != ["21"]]
     st.append(ear_stamp(P, L))
     ex, ey = a["eyeN"]
     fx, fy = a["eyeF"]
     st += [
         ((ex - 3, ey - 3), ["bbbbb", "....b"], L),     # heavy brows drawn down
         ((fx - 1, fy - 3), ["bbb"], L),
-        ((ex - 1, ey - 6), ["4", "4", "4", ".", ".", "4", "4", "4", "4"], L),   # the scar through the near eye
-        ((ex, ey - 6), ["1", "1", "1", ".", ".", "1", "1", "1", "."], L),
         ((23, 42), [".gg.", "gssg", "gssg", ".gg."], L),   # the gold lantern on the surcoat
         ((24, 41), ["gg"], L),
     ]
-    return std_portrait(P, parts, mats, st, SKIN_ROSY)
+    pic = std_portrait(P, parts, mats, st, SKIN_ROSY)
+    for at, rows, lg in brannock_finish(a, L):
+        stamp(pic, at, rows, lg)
+    return pic
+
+
+def brannock_finish(a, L):
+    """The hooked nose breaking the profile and the clear scar (a pale seam with a dark edge) from the brow through
+    the near eye to the cheek."""
+    ex, ey = a["eyeN"]
+    return [
+        ((29, 20), [
+            "33k..",
+            "333k.",
+            "3333k",
+            "33332k",
+            "3222k.",
+            ".kkk..",
+        ], L),
+        ((ex - 2, ey - 6), ["..p", "..p", ".p1", ".p.", "...", "...", "p1.", "p1.", "1.."], L),
+    ]
 
 
 @builder("portraitPip")
@@ -459,74 +508,100 @@ def pip():
 
 @builder("portraitHesper")
 def hesper():
-    """Mother Hesper, priestess of the Flame: an old, calm face with dark skin and white brows, eyes closed in a
-    gentle smile, a deep cream hood edged in gold, the cream cape with the gold flame of her order, a gold stole."""
+    """Mother Hesper, priestess of the Flame: an old, calm face with dark skin and white hair, eyes closed in a gentle
+    smile; the broad gold-ochre mantle of her order over her shoulders with its rounded hood pushed back from her face
+    (fix stage: the deep cream hood read as a lumpy mass and hid her), the cream robe showing in front with a gold
+    trim along the mantle's edge."""
     P = K.face_params("old")
     cc, cr = P["cran_c"], P["cran_r"]
 
     def hood_m(q):
         x, y, z = q
-        outer = sd_ellipsoid(q, cc, (cr[0] + 2.8, cr[1] + 2.6, cr[2] + 2.8))
-        outer = smin(outer, sd_ellipsoid(q, (-1.0, 10.0, -3.0), (13.6, 10.0, 10.2)), 3.0)
-        outer = smax(outer, y - 16.0, 1.0)
-        opening = sd_ellipsoid(q, (2.2, 2.6, 13.0), (8.8, 12.0, 9.4))
-        d = smax(outer, -opening, 1.0)
-        rim = opening
-        m = "cream"
-        if abs(rim) < 0.9 and z > 2.0:
-            m = "gold"
-        if outer < -0.35:
-            m = "creamIn"
+        # a hood of thick cloth lying back on the skull: its front edge runs from above the forehead down behind the
+        # ear to the nape, so the white hairline and the whole face show; it falls onto the shoulders behind
+        outer = sd_ellipsoid(q, (cc[0] - 0.4, cc[1] - 0.2, cc[2] - 0.6), (cr[0] + 2.6, cr[1] + 2.4, cr[2] + 2.6))
+        outer = smin(outer, sd_ellipsoid(q, (-2.0, 9.0, -6.0), (12.0, 8.5, 7.5)), 3.0)
+        edge = z - (6.0 - 0.45 * (y + 12.0))
+        d = smax(outer, edge, 0.8)
+        d = smax(d, y - 15.0, 1.0)
+        m = "mantle"
+        if edge > -1.2 and outer < 0.8:
+            m = "trim"
+        elif outer < -0.6:
+            m = "inside"
         return d, m
+
+    def hair_m(q):
+        x, y, z = q
+        d = smax(sd_ellipsoid(q, cc, (cr[0] + 1.0, cr[1] + 1.0, cr[2] + 1.0)),
+                 K.hairline(q, front=-8.2, temple=3.6, nape=5.0, burn=1.0, jag=0.5), 0.4)
+        return d, "hair"
 
     def body_m(q):
         x, y, z = q
         d = K.bust(q, -1.0)
-        m = "cream"
-        if z > 3.0 and (abs(x + 3.0) < 1.6 or abs(x - 5.4) < 1.6) and y > -12.0:
-            m = "gold"
+        m = "mantle"
+        # the cream robe in a deep V between the mantle's edges, a gold trim along them
+        v = abs(x - 1.2) - (y + 15.5) * 0.36
+        if z > 2.0 and y > -15.0:
+            if v < -0.6:
+                m = "robe"
+            elif v < 0.7:
+                m = "trim"
+        col = K.around_neck(q, -16.0, 6.6, 2.5)
+        if col < d:
+            d, m = col, ("robe" if z > 3.0 else "mantle")
         return d, m
 
-    parts = [localm(HEAD, hood_m), localm(BODY, body_m)]
+    parts = [localm(HEAD, hood_m), localm(HEAD, hair_m), localm(BODY, body_m)]
     mats = dict(skin_mats(SKIN_BROWN, th=(0.14, 0.40, 0.90)))
     mats.update({
-        "cream": Mat(["stoneLight", "plasterDim", "plaster", "parchment"], th=[0.18, 0.42, 0.8], tex=K.folds(0.08)),
-        "creamIn": Mat(["soilDark", "rockDark", "plasterDim"], th=[0.4, 0.75], outline="ink"),
-        "gold": Mat(GOLD, th=[0.2, 0.45, 0.8]),
+        "mantle": Mat(["wood", "woodLight", "straw", "strawLight"], th=[0.2, 0.46, 0.82], tex=K.folds(0.10)),
+        "trim": Mat(["woodLight", "straw", "gold"], th=[0.3, 0.62]),
+        "robe": Mat(CREAM, th=[0.3, 0.62]),
+        "inside": Mat(["woodDark", "wood"], th=[0.6], outline="ink"),
+        "hair": Mat(WHITE, th=[0.3, 0.66], tex=K.strands((-1.0, -12.0, -1.0), n=12, amp=0.14)),
     })
     L = legend_for(SKIN_BROWN, WHITE, {"g": "gold", "s": "straw", "S": "strawLight"})
     a = K.anchors(P)
     st = eye_stamps(P, L, eyes="closed", brows=None, mouth="smile", a=a)
+    st.append(ear_stamp(P, L))
     ex, ey = a["eyeN"]
     fx, fy = a["eyeF"]
     st += [
         ((ex - 3, ey - 3), [".cccc"], L),          # white brows
         ((fx - 1, fy - 3), ["cc."], L),
         ((ex - 4, ey + 1), ["2", ".2"], L),
-        ((25, 41), ["..S..", ".sgs.", "sgSgs", "sgggs", ".sss."], L),   # the flame of her order on the cape
     ]
     return std_portrait(P, parts, mats, st, SKIN_BROWN)
 
 
 @builder("portraitTamsin")
 def tamsin():
-    """Tamsin, the cook: a round, rosy face with a broad smile, a teal kerchief knotted at the back with an auburn
-    curl peeking out, a red-brown dress with a white apron's bib."""
+    """Tamsin, the cook: a round, rosy face with a broad smile, a teal kerchief over her auburn hair (curls at the
+    forehead, the temple and the nape show under it), knotted well behind the head with two short tails, a red-brown
+    dress with a white apron's bib."""
     P = K.face_params("round")
     cc, cr = P["cran_c"], P["cran_r"]
 
     def scarf_m(q):
         x, y, z = q
+        # the kerchief over the crown, its edge above the ear and above the nape (fix stage: it hid every hair and
+        # hung to the shoulder, so on the card she had teal hair); the knot well behind the head, two short tails
         d = smax(sd_ellipsoid(q, cc, (cr[0] + 2.2, cr[1] + 2.2, cr[2] + 2.2)),
-                 K.hairline(q, front=-6.8, temple=3.0, nape=7.6), 0.6)
-        d = smin(d, sd_ellipsoid(q, (-5.6, 1.6, -11.0), (3.2, 3.0, 2.8)), 1.0)
-        d = smin(d, chain(q, [(-6.0, 3.0, -11.2), (-9.0, 7.6, -10.4), (-9.6, 11.6, -8.6)], 2.0, 0.9), 0.6)
-        d = smin(d, chain(q, [(-6.4, 3.0, -10.6), (-5.4, 8.4, -11.6), (-4.0, 12.0, -10.8)], 1.8, 0.8), 0.6)
-        m = "teal"
-        curl = chain(q, [(1.6, -6.8, 11.4), (3.4, -5.6, 11.8), (3.2, -4.0, 12.2), (1.8, -4.4, 12.4)], 1.2, 0.8)
-        if curl < d:
-            d, m = curl, "auburn"
-        return d, m
+                 K.hairline(q, front=-7.4, temple=1.6, nape=1.4), 0.6)
+        d = smin(d, sd_ellipsoid(q, (-4.6, -3.2, -13.2), (2.8, 2.6, 2.6)), 1.2)
+        d = smin(d, chain(q, [(-5.6, -2.4, -14.0), (-8.6, -0.6, -16.4), (-11.0, 1.6, -17.0)], 1.5, 0.8), 0.5)
+        d = smin(d, chain(q, [(-4.6, -1.6, -14.4), (-4.8, 2.0, -16.6), (-4.0, 4.6, -17.2)], 1.4, 0.7), 0.5)
+        return d, "teal"
+
+    def hair_m(q):
+        x, y, z = q
+        # auburn curls under the kerchief: at the forehead, the temple and the nape
+        bump = math.sin(2.1 * x + 0.3) * math.sin(2.0 * y + 1.0) * math.sin(2.2 * z + 0.6)
+        d = smax(sd_ellipsoid(q, cc, (cr[0] + 1.5, cr[1] + 1.3, cr[2] + 1.5)) - 0.6 * bump,
+                 K.hairline(q, front=-6.2, temple=4.2, nape=8.4, burn=1.2, jag=0.6), 0.5)
+        return d, "auburn"
 
     def body_m(q):
         x, y, z = q
@@ -541,7 +616,7 @@ def tamsin():
         d = smin(d, ap, 0.5)
         return d, m
 
-    parts = [localm(HEAD, scarf_m), localm(BODY, body_m)]
+    parts = [localm(HEAD, scarf_m), localm(HEAD, hair_m), localm(BODY, body_m)]
     mats = dict(skin_mats(SKIN_ROSY))
     mats.update({
         "teal": Mat(["roofDeep", "banner", "roofLight"], th=[0.28, 0.66], tex=K.folds(0.10, slant=-0.6)),
@@ -565,11 +640,14 @@ def tamsin():
 
 @builder("portraitBram")
 def bram():
-    """Bram, the smith: huge and bald, a short black beard, soot on his brow and cheek, few words (a flat, steady
-    look); bare sooty shoulders, the leather apron's straps over a dark shirt, the hammer over his near shoulder with
-    its iron head behind his neck."""
+    """Bram, the smith: huge, a broad flat bald skull on a thick neck, small eyes under flat heavy brows (few words),
+    a short black beard, one soft smudge of soot on the brow and one on the cheek (fix stage: grey dots read as moles,
+    and he shared Brannock's head); bare sooty shoulders, the leather apron's straps over a dark shirt, the hammer
+    over his near shoulder with its iron head behind his neck."""
     P = K.face_params("square")
-    P.update(neck_r=6.4)
+    P.update(cran_c=(0.0, -2.0, -1.8), cran_r=(11.4, 9.4, 11.0), jaw_r=(8.6, 7.8, 8.4), neck_r=7.8,
+             box_jaw=((0.0, 8.6, 4.0), (4.6, 1.6, 3.4), 1.4), mand=((7.4, 6.4, -0.4), (2.4, 9.8, 6.4), 2.3),
+             socket_r=1.6)
 
     def body_m(q):
         x, y, z = q
@@ -595,9 +673,9 @@ def bram():
 
     beard = beard_shape(P, t=0.7, square=True, jag=0.3)
     parts = [local(HEAD, beard, "beard"), localm(BODY, body_m), localm(BODY, hammer_m)]
-    mats = dict(skin_mats(SKIN_ROSY))
+    mats = dict(skin_mats(SKIN_ROSY, th=(0.14, 0.42, 0.975)))
     mats.update({
-        "beard": Mat(BLACK, th=[0.25, 0.5, 0.84], tex=lambda x, y, c, v: v + 0.14 * (hash01(x, y, 6) - 0.5)),
+        "beard": Mat(BLACK, th=[0.25, 0.5, 0.84], tex=lambda x, y, c, v: v + 0.10 * (hash01(x, y, 6) - 0.5)),
         "shirt": Mat(SABLE, th=[0.2, 0.46, 0.84], tex=K.folds(0.08)),
         "leather": Mat(LEATHER, th=[0.3, 0.64]),
         "iron": Mat(["night0", "stoneDark", "stoneMid", "stone"], th=[0.2, 0.45, 0.76]),
@@ -605,15 +683,14 @@ def bram():
     })
     L = legend_for(SKIN_ROSY, BLACK, {"m": "stoneMid", "n": "stone"})
     a = K.anchors(P)
-    st = eye_stamps(P, L, eyes="open", brows=None, mouth=None, a=a)
-    st.append(ear_stamp(P, L))
     ex, ey = a["eyeN"]
     fx, fy = a["eyeF"]
-    st += [
-        ((ex - 3, ey - 3), ["bbbbb"], L),          # flat, heavy brows: few words
+    st = [
+        ((ex - 2, ey - 1), [".kkk", "kek."], L),       # small eyes
+        ((fx - 1, fy - 1), ["kk", "e."], L),
+        ((ex - 3, ey - 3), ["bbbbb"], L),             # flat, heavy brows: few words
         ((fx - 1, fy - 3), ["bbb"], L),
-        ((ex - 2, ey - 6), [".mm..m", "m.mm.."], L),   # soot on the brow
-        ((ex - 4, ey + 3), ["m.m", ".mm"], L),         # and on the cheek
+        ear_stamp(P, L),
     ]
     return std_portrait(P, parts, mats, st, SKIN_ROSY)
 
@@ -845,8 +922,11 @@ def ser_ludo():
 
 @builder("portraitBard")
 def bard():
-    """A wandering bard: a merry young face with ginger curls, singing with a wink, a floppy red cap with a long
-    white feather, a spring-green doublet with cream puffed sleeves and a gold sash, the lute's neck at his side."""
+    """A wandering bard: a merry young face with ginger-gold curls (woodLight and straw, as his sprite), singing with
+    a wink; a soft rose-red beret (dusk over tile, clearly apart from the hair) draping over the back of his head, its
+    crown puffed over a band, a long white feather set into the band; a spring-green doublet with a standing collar,
+    slashed cream puffs on the shoulders with the green showing in the slashes, the gold sash. Fix stage: the cap was a
+    brown sausage across blond hair, the sleeves two cream balls."""
     P = K.face_params("young")
     cc, cr = P["cran_c"], P["cran_r"]
 
@@ -859,16 +939,16 @@ def bard():
 
     def cap_m(q):
         x, y, z = q
-        cap = sd_ellipsoid(q, (-3.0, -14.2, -1.8), (13.8, 5.2, 14.0))
-        cap = smax(cap, -(y + 10.4 + 0.10 * z - 0.12 * x), 0.5)
-        droop = sd_ellipsoid(q, (-13.4, -10.4, -4.8), (5.0, 5.0, 5.8))
-        d = smin(cap, droop, 2.6)
-        m = "cap"
-        rimb = smax(sd_ellipsoid(q, (-2.4, -11.0, -1.4), (12.2, 2.0, 12.4)), -(y + 11.6), 0.3)
-        if rimb < d:
-            d, m = rimb, "capBand"
-        vane = sd_ellipsoid(Frame((0, 0, 0), yaw=-25.0, roll=-62.0).to_local((x + 9.0, y + 17.6, z + 4.0)),
-                            (0.0, 0.0, 0.0), (1.6, 9.0, 0.8))
+        # the band: a soft ring round the head above the brow, lower at the back
+        f = Frame((0, 0, 0), roll=6.0, pitch=-12.0).to_local((x + 0.4, y + 8.2, z + 1.2))
+        band = sd_torus(f, (0, 0, 0), 10.9, 1.3)
+        # the crown: a wide soft disc over the band, sagging over the back of the head
+        g = Frame((0, 0, 0), roll=12.0, pitch=-14.0).to_local((x + 2.2, y + 11.4, z + 2.4))
+        crown = sd_ellipsoid(g, (0, 0, 0), (13.4, 3.3, 12.8))
+        crown = smin(crown, sd_ellipsoid(q, (-10.0, -8.2, -6.2), (4.8, 4.4, 6.2)), 3.0)   # the drape at the back
+        d, m = (crown, "cap") if crown < band - 0.15 else (band, "capBand")
+        vane = chain(q, [(-10.6, -9.4, -4.0), (-13.2, -13.4, -6.0), (-15.0, -17.2, -7.4), (-15.4, -20.0, -8.0)],
+                     1.3, 0.5, 0.5)
         if vane < d:
             d, m = vane, "feather"
         return d, m
@@ -877,32 +957,34 @@ def bard():
         x, y, z = q
         d = K.bust(q, -1.0)
         m = "green"
-        for s in (-1, 1):
-            puff = sd_ellipsoid(q, (s * 16.4, -7.0, 0.0), (5.6, 4.8, 6.4))
+        for sgn in (-1, 1):
+            puff = sd_ellipsoid(q, (sgn * 16.2, -7.4, 0.0), (5.4, 4.6, 6.2))
             if puff < d + 0.8:
-                d, m = min(d, puff - 0.3), "cream"
+                d = min(d, puff - 0.3)
+                # slashed puffs: cream panels with the doublet's green in the slashes between them
+                k = int(math.floor((x * 0.9 + z * 0.5 + 40.0) / 2.4))
+                m = "slash" if k % 3 == 0 else "cream"
         if abs((x - 0.62 * y) - 6.0) < 1.4 and z > 0.0:
             m = "goldc"
+        col = smax(K.around_neck(q, -15.6, 6.4, 1.6), -(z + 1.0), 0.5)
+        if col < d:
+            d, m = col, "green"
         return d, m
-
-    def lute_m(q):
-        neck = sd_box(q, (14.0, -12.0, 9.0), (1.1, 9.0, 0.9), 0.3)
-        peg = sd_box(q, (14.6, -21.6, 8.4), (1.5, 2.2, 1.0), 0.3)
-        return min(neck, peg), "wood"
 
     parts = [localm(HEAD, hair_m), localm(HEAD, cap_m), localm(BODY, body_m)]
     mats = dict(skin_mats(SKIN_ROSY))
     mats.update({
-        "hair": Mat(["tile", "tileLight", "straw", "strawLight"], th=[0.2, 0.5, 0.86],
+        "hair": Mat(["wood", "woodLight", "straw"], th=[0.3, 0.72],
                     tex=lambda x, y, c, v: v + 0.12 * (hash01(x // 2, y // 2, 4) - 0.5)),
-        "cap": Mat(["woodDark", "tile", "tileLight"], th=[0.34, 0.86]),
-        "capBand": Mat(["woodDark", "tile"], th=[0.5]),
+        "cap": Mat(["woodDark", "tile", "dusk"], th=[0.22, 0.52], tex=K.folds(0.08, slant=-0.4)),
+        "capBand": Mat(["woodDark", "tile"], th=[0.55]),
         "feather": Mat(["stoneLight", "stonePale", "foam"], th=[0.3, 0.6]),
         "green": Mat(GREEN, th=[0.2, 0.48, 0.86], tex=K.folds(0.08)),
-        "cream": Mat(CREAM, th=[0.3, 0.64], tex=lambda x, y, c, v: v + (0.12 if (x + y) % 3 == 0 else 0.0)),
+        "cream": Mat(CREAM, th=[0.3, 0.64]),
+        "slash": Mat(["leafDark", "leaf"], th=[0.5]),
         "goldc": Mat(GOLD, th=[0.2, 0.45, 0.8]),
     })
-    L = legend_for(SKIN_ROSY, GINGER, {"r": "dusk"})
+    L = legend_for(SKIN_ROSY, ["wood", "woodLight", "straw", "strawLight"], {"r": "dusk"})
     a = K.anchors(P)
     st = eye_stamps(P, L, eyes="open", brows="raised", mouth="open", a=a)
     st.append(ear_stamp(P, L))

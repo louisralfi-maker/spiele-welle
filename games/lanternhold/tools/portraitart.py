@@ -18,6 +18,11 @@ run; a part strip renders in well under 20 s on this Mac.
         Renders one sprite id into DIR/<id>.png (default games/lanternhold/Resources/Art).
   portraitart.py list
         The ids, for build-art-court.sh.
+  portraitart.py freeze <id> <out.txt> [--from PNG]
+        Writes a story portrait (the render, or PNG) as an actorart.py spec: one 48x48 text grid per frame with the
+        fixed legend FREEZE_LETTERS. Since the fix stage the 13 story portraits are frozen grids in
+        tools/grids/court/portraits/, hand-finished there and built by actorart.py; `build` renders a story id only as
+        a draft (pass --out).
   portraitart.py sheet story|composed|parts|archetypes <out.png> [--art DIR] [--scale 3] [--n 30] [--seed 1]
         Contact sheets on the audience card's framed dusk tile: every story portrait; random composed petitioners
         exactly as the code composes them (clothes, face, beard, hair, hat, the "none" frames skipped, each swap ramp
@@ -651,6 +656,63 @@ def cmd_build(a):
     print(f"wrote {a.id}.png {W * len(frames)}x{H} ({len(frames)} frames)")
 
 
+# the frozen story grids' legend: one fixed letter per palette colour, so a hand edit reads the same in every grid
+FREEZE_LETTERS = {
+    "ink": "k", "night0": "0", "night1": "1", "night2": "2", "moon": "M",
+    "stoneDark": "d", "stoneMid": "m", "stone": "s", "stoneLight": "l", "stonePale": "p",
+    "woodDark": "b", "wood": "w", "woodLight": "W", "straw": "y", "strawLight": "Y", "gold": "g",
+    "tile": "t", "tileLight": "T", "dawnRose": "r", "dusk": "R", "parchment": "P", "plaster": "c", "plasterDim": "C",
+    "soilDark": "o", "soil": "e", "soilLight": "E", "rockDeep": "x", "rockDark": "X", "rock": "q", "rockLight": "Q",
+    "rockPale": "z", "roofDeep": "n", "banner": "B", "roofLight": "N", "daySky": "a", "waterDeep": "A", "foam": "h",
+    "farDeep": "F", "far": "f", "farPale": "v", "leafDark": "3", "leaf": "4", "meadow": "6", "leafLight": "5",
+}
+
+
+def cmd_freeze(a):
+    import portraitstory as S
+    n = S.STORY_FRAMES.get(a.id, 1)
+    if a.png:
+        frames = load_frames(a.png, n)
+    else:
+        frames = []
+        for pic in S.story_frames(a.id):
+            frames.append([[(PAL.color(c) + (255,)) if c else (0, 0, 0, 0) for c in row] for row in pic.c])
+    lut = {PAL.color(nm): nm for nm in FREEZE_LETTERS}
+    used = []
+    rows_out = []
+    for f in frames:
+        rows = []
+        for row in f:
+            line = ""
+            for px in row:
+                if not px[3]:
+                    line += "."
+                    continue
+                nm = lut.get(tuple(px[:3]))
+                if nm is None:
+                    raise SystemExit(f"{a.id}: colour {px[:3]} has no freeze letter")
+                if nm not in used:
+                    used.append(nm)
+                line += FREEZE_LETTERS[nm]
+            rows.append(line)
+        rows_out.append(rows)
+    used.sort(key=lambda nm: list(FREEZE_LETTERS).index(nm))
+    with open(a.output, "w") as fh:
+        fh.write(f"# {a.id}: a story portrait of the audience card (SPRITES.md \"M3\", ART-court.md), 48x48 x {n}, frozen\n"
+                 f"# from portraitstory.py's render and finished by hand (ART-court.md \"Fix stage\"); actorart.py builds it\n"
+                 f"# (no outline directive: the outline is in the pixels). Letters: portraitart.py FREEZE_LETTERS.\n")
+        fh.write(f"id {a.id}\nsize 48x48\nframes {n}\n\nlegend\n")
+        for nm in used:
+            fh.write(f"    {FREEZE_LETTERS[nm]} = {nm}\n")
+        for k, rows in enumerate(rows_out):
+            fh.write(f"\npart f{k}\n")
+            for line in rows:
+                fh.write("    " + line + "\n")
+        for k in range(n):
+            fh.write(f"\nframe {k}\n    f{k} 0 0\n")
+    print(f"wrote {a.output} ({n} frames, {len(used)} colours)")
+
+
 def cmd_list(a):
     import portraitkit as K
     import portraitstory as S
@@ -741,6 +803,11 @@ def main():
     b.set_defaults(fn=cmd_build)
     li = sub.add_parser("list")
     li.set_defaults(fn=cmd_list)
+    fz = sub.add_parser("freeze")
+    fz.add_argument("id")
+    fz.add_argument("output")
+    fz.add_argument("--from", dest="png")
+    fz.set_defaults(fn=cmd_freeze)
     s = sub.add_parser("sheet")
     s.add_argument("kind", choices=["story", "composed", "parts", "archetypes", "card"])
     s.add_argument("output")
