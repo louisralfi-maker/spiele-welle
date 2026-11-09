@@ -1,0 +1,158 @@
+# The great hall's front (hallFront): hand-set details stamped by roomscenes.py. "." is transparent.
+legend
+    i = plasterDim
+    k = ink
+    d = stoneDark
+    m = stoneMid
+    s = stone
+    l = stoneLight
+    p = stonePale
+    N = night1
+    n = night0
+    g = gold
+    y = strawLight
+    Y = straw
+    D = woodDark
+    w = wood
+    L = woodLight
+    b = banner
+    B = roofDeep
+    r = roofLight
+    P = parchment
+    q = plaster
+    t = tile
+    T = tileLight
+    e = leafDark
+    f = leaf
+    h = meadow
+
+# the gold lantern on the banners (the castle front's emblem): ring, cap, the body with its flame, the base
+stamp emblem
+    ...g...
+    ..g.g..
+    .ggggg.
+    .g.y.g.
+    .gyyyg.
+    .g.y.g.
+    .ggggg.
+    ..g.g..
+
+# an iron wall lantern on its wall plate (5x10); its glass at columns 1-3, rows 3-5
+stamp wallLantern
+    ..k..
+    .kdk.
+    kdmdk
+    kNnNk
+    kNnNk
+    kNnNk
+    kdmdk
+    .kdk.
+    ..k..
+    .kdk.
+
+# the hall's notice board under a little roof: decrees and petitions, nailed at odd heights
+stamp noticeBoard
+    .kkkkkkkkkkkkkkk.
+    kLLLLLLLLLLLLLLLk
+    kwwwwwwwwwwwwwwwk
+    .kkkkkkkkkkkkkkk.
+    .kDDDDDDDDDDDDDk.
+    .kDwmwwwwwwwwwDk.
+    .kDPPPPwwwwmwwDk.
+    .kDPiiPwwwqqqqDk.
+    .kDPPPPwmwqiiqDk.
+    .kDPiiPPPPqqqqDk.
+    .kDPPPPiiPqiiqDk.
+    .kDwwwPPPPqqqqDk.
+    .kDwwwPiiPwwwwDk.
+    .kDwwwPPtPwwwwDk.
+    .kDDDDDDDDDDDDDk.
+    .kkkkkkkkkkkkkkk.
+
+# the realm's crest over the door: a carved stone shield, the teal field, the gold lantern
+stamp crest
+    kkkkkkkkkkk
+    kplllllllsk
+    klbbbgbbbsk
+    klbbgggbbsk
+    klbbgygbbsk
+    klbbgygbbsk
+    kslbgggbssk
+    .kslbbbssk.
+    ..kslbssk..
+    ...kssmk...
+    ....kkk....
+
+# logs end-on in the woodpile: a woodDark bark ring round a cut face (woodLight, wood or straw), a heart
+stamp log5
+    .DDD.
+    DLLwD
+    DLywD
+    DwwwD
+    .DDD.
+
+stamp log5b
+    .DDD.
+    DyyLD
+    DyLyD
+    DLyLD
+    .DDD.
+
+stamp log5c
+    .DDD.
+    DwLwD
+    DLwwD
+    DwwDD
+    .DDD.
+
+stamp log4
+    .DD.
+    DLwD
+    DwLD
+    .DD.
+
+stamp log4b
+    .DD.
+    DyYD
+    DYyD
+    .DD.
+
+# a chopping block with the axe in it
+stamp chopBlock
+    .....k..
+    ....kLk.
+    ...kLk..
+    ..kLk...
+    kklk....
+    klkkkkk.
+    kDYYyYDk
+    kDwwLwDk
+    kDwLwwDk
+    kDwwwLDk
+    kkkkkkkk
+
+# a bay laurel in a clay pot, beside the door
+stamp potBay
+    ..efe..
+    .effhe.
+    efhfffe
+    effeffe
+    .eefee.
+    ..eDe..
+    .ktttk.
+    .tTtTt.
+    .tttTt.
+    ..ttt..
+
+# a pigeon on the cornice (facing right), and one pecking
+stamp pigeon
+    ....ps
+    .sllpk
+    smmll.
+    ..k.k.
+
+stamp pigeonB
+    .ls...
+    sllls.
+    smmllk
+    ..k.k.
