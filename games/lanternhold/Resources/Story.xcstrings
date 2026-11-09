@@ -1,0 +1,1356 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "line.bram_arrows" : {
+      "comment" : "Court talk: bram.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pfeile. Mehr Pfeile. Fragt mich morgen wieder."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arrows. More arrows. Ask me again tomorrow."
+          }
+        }
+      }
+    },
+    "line.brannock_sergeant" : {
+      "comment" : "Court talk: brannock, a hint about old_sergeant.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Saal fragt ein alter Feldwebel nach einem Speer. Schnarcht auf Wache. Der beste Mann, den ich je hatte."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There is an old sergeant in the hall asking for a spear. Snores on watch. Best man I ever had."
+          }
+        }
+      }
+    },
+    "line.brannock_walls" : {
+      "comment" : "Court talk: brannock.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erst Mauern, dann Lieder. So werden alte Soldaten alt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Walls first, songs later. That is how old soldiers get to be old."
+          }
+        }
+      }
+    },
+    "line.hesper_flame" : {
+      "comment" : "Court talk: hesper.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Flamme erinnert sich an jeden König. Vor allem an die, die sie erlöschen ließen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Flame remembers every king. Mostly the ones who let it go out."
+          }
+        }
+      }
+    },
+    "line.marek_bargain" : {
+      "comment" : "Court talk: marek.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alles hat seinen Preis, Majestät. Heute ist meiner sehr vernünftig."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Everything has a price, Your Majesty. Today mine is very reasonable."
+          }
+        }
+      }
+    },
+    "line.odile_first_day" : {
+      "comment" : "Court talk: odile.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Krone ist ein Hut, der widerspricht, mein König. Setzt Euch auf den Thron, wenn Ihr bereit seid."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A crown is a hat that argues back, my king. Sit on the throne when you are ready."
+          }
+        }
+      }
+    },
+    "line.odile_treasury" : {
+      "comment" : "Court talk: odile.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Schatzkammer ist ein Eimer, mein König. Steuern fließen hinein, und die Mauern trinken sie leer."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The treasury is a bucket, my king. Taxes pour in, and the walls drink it dry."
+          }
+        }
+      }
+    },
+    "line.pip_crows" : {
+      "comment" : "Court talk: pip, a hint about crow_rags.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Kind will Eure Feuerschalen in Lumpen kleiden. Endlich eine Mode, die die Krähen respektieren."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A child wants to dress your braziers in rags. Finally, a fashion the crows respect."
+          }
+        }
+      }
+    },
+    "line.pip_matches" : {
+      "comment" : "Court talk: pip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie haben den Laternenanzünder gekrönt. Endlich weiß bei Hofe jemand, wo die Zündhölzer liegen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "They crowned the lamplighter. At last someone at court knows where the matches are."
+          }
+        }
+      }
+    },
+    "line.tamsin_gossip" : {
+      "comment" : "Court talk: tamsin.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Bäckersfrau sagt, die Düsternis rieche nach nasser Asche. Sie muss es wissen. Sie verbrennt das Brot."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The baker's wife says the Gloom smells of wet ash. She would know. She burns the bread."
+          }
+        }
+      }
+    },
+    "line.tamsin_well" : {
+      "comment" : "Court talk: tamsin, a hint about well_repair.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Marktbrunnen? Grün wie eine Froschhochzeit. Heute kommt bestimmt jemand deswegen betteln, merkt Euch das."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The market well? Green as a frog's wedding. Someone will come begging about it today, mark me."
+          }
+        }
+      }
+    },
+    "petition.crow_rags.c1" : {
+      "comment" : "Petition crow_rags: choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bindet sie fest"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tie them on"
+          }
+        }
+      }
+    },
+    "petition.crow_rags.c2" : {
+      "comment" : "Petition crow_rags: choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feuerschalen sind kein Spielzeug"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Braziers are no toys"
+          }
+        }
+      }
+    },
+    "petition.crow_rags.hint" : {
+      "comment" : "Petition crow_rags: Odile's counsel.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Kind hat öfter recht als die Generäle. Sagt ja."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The child is right more often than the generals. Say yes."
+          }
+        }
+      }
+    },
+    "petition.crow_rags.r1" : {
+      "comment" : "Petition crow_rags: reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit einem Arm voll rotem Stoff rennt das Kind davon. Heute Nacht ziehen die Krähen weite Kreise."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Off runs the child with an armful of red cloth. Tonight the crows circle wide."
+          }
+        }
+      }
+    },
+    "petition.crow_rags.r2" : {
+      "comment" : "Petition crow_rags: reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Stampfen, und weg. Die Wache sagt, auf dem Weg hinaus hätten sich ihre Stiefel aufgeschnürt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A stamped foot, and gone. The guard says his bootlaces came undone on the way out."
+          }
+        }
+      }
+    },
+    "petition.crow_rags.text" : {
+      "comment" : "Petition crow_rags (child): the request.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte, Majestät, Rußkrähen hassen bunte Lumpen! Meine Oma sagt das. Lasst mich vor der Dunkelheit rote Lumpen um die Feuerschalen binden, dann bleiben sie weg. Sechs habe ich schon gebunden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please, Your Majesty, soot crows hate bright rags! My gran says so. Let me tie red rags round the braziers before dark and they will keep away. I tied six already."
+          }
+        }
+      }
+    },
+    "petition.first_plough.c1" : {
+      "comment" : "Petition first_plough: choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den Pflug segnen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bless the plough"
+          }
+        }
+      }
+    },
+    "petition.first_plough.c2" : {
+      "comment" : "Petition first_plough: choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Könige segnen keine Werkzeuge"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kings do not bless tools"
+          }
+        }
+      }
+    },
+    "petition.first_plough.hint" : {
+      "comment" : "Petition first_plough: Odile's counsel.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Segen kostet nichts, und er erzählt es dem ganzen Tal. Segnet den Pflug."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blessings cost nothing, and he will tell the whole valley. Bless the plough."
+          }
+        }
+      }
+    },
+    "petition.first_plough.r1" : {
+      "comment" : "Petition first_plough: reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er strahlt, küsst die Pflugschar und läuft los, um es bis Mittag dem halben Tal zu erzählen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "He beams, kisses the blade and runs off to tell half the valley before noon."
+          }
+        }
+      }
+    },
+    "petition.first_plough.r2" : {
+      "comment" : "Petition first_plough: reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er schlurft hinaus. Ihr hört ihn der Wache sagen, die Krone sei ohnehin zu groß."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "He shuffles out. You hear him tell the guard that the crown looks too big anyway."
+          }
+        }
+      }
+    },
+    "petition.first_plough.text" : {
+      "comment" : "Petition first_plough (farmer, story day 1): the request.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Majestät! Der Frost hat mir den Pflug gesprengt, just am Morgen Eurer Krönung. Die Leute sagen, die Hand eines neuen Königs bringt Glück. Segnet Ihr den neuen, bevor ich das lange Feld umbreche?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Majesty! The frost cracked my plough on the very morning you were crowned. Folk say a new king's touch brings luck. Would you bless the new one before I break the long field?"
+          }
+        }
+      }
+    },
+    "petition.old_sergeant.c1" : {
+      "comment" : "Petition old_sergeant: choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Willkommen zurück, Feldwebel"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome back, sergeant"
+          }
+        }
+      }
+    },
+    "petition.old_sergeant.c2" : {
+      "comment" : "Petition old_sergeant: choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schont Eure Knie, alter Freund"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rest your knees, old friend"
+          }
+        }
+      }
+    },
+    "petition.old_sergeant.hint" : {
+      "comment" : "Petition old_sergeant: Odile's counsel.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein alter Soldat am Tor ist zwei junge wert. Nehmt ihn."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An old soldier at the gate is worth two young ones. Take him."
+          }
+        }
+      }
+    },
+    "petition.old_sergeant.r1" : {
+      "comment" : "Petition old_sergeant: reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er salutiert so heftig, dass sein Helm klingt. Brannock tut so, als freue er sich nicht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "He salutes so hard his helmet rings. Brannock pretends not to be glad."
+          }
+        }
+      }
+    },
+    "petition.old_sergeant.r2" : {
+      "comment" : "Petition old_sergeant: reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er verneigt sich, ein wenig steif. Später hört Ihr ihn in der Küche sagen, der König habe ein gütiges Gesicht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "He bows, a little stiffly. Later you hear him tell the kitchen the king has a kind face."
+          }
+        }
+      }
+    },
+    "petition.old_sergeant.text" : {
+      "comment" : "Petition old_sergeant (soldier): the request.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ich habe zwanzig Winter das Tor des alten Königs gehalten. Meine Knie sind hin, mein Arm nicht. Gebt mir einen Speer und einen Platz am Tor, und ich verlange keinen Lohn außer Suppe."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I held the old king's gate for twenty winters. My knees are done, my arm is not. Give me a spear and a place by the gate, and I ask no pay but soup."
+          }
+        }
+      }
+    },
+    "petition.well_dispute.c1" : {
+      "comment" : "Petition well_dispute: choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einen gerechten Preis festsetzen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set a fair price"
+          }
+        }
+      }
+    },
+    "petition.well_dispute.c2" : {
+      "comment" : "Petition well_dispute: choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den Brunnen doch reparieren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fix the well after all"
+          }
+        }
+      }
+    },
+    "petition.well_dispute.hint" : {
+      "comment" : "Petition well_dispute: Odile's counsel.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repariert den Brunnen, dann verdurstet der Streit."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fix the well, and the quarrel dies of thirst."
+          }
+        }
+      }
+    },
+    "petition.well_dispute.r1a" : {
+      "comment" : "Petition well_dispute: choice 1, it went well.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Preis hält. Die Brisks murren, die anderen trinken."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The price holds. The Brisks grumble, the rest drink."
+          }
+        }
+      }
+    },
+    "petition.well_dispute.r1b" : {
+      "comment" : "Petition well_dispute: choice 1, it went badly.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Brisks verstecken ihre Kessel. Bei Einbruch der Nacht hat niemand Wasser, und alle geben Euch die Schuld."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Brisks hide their kettles. By nightfall nobody has water and everybody blames you."
+          }
+        }
+      }
+    },
+    "petition.well_dispute.r2" : {
+      "comment" : "Petition well_dispute: reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Maurer grinst über das zusätzliche Gold. Die Kessel der Brisks werden kalt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The mason grins at the extra gold. The Brisks' kettles go cold."
+          }
+        }
+      }
+    },
+    "petition.well_dispute.text" : {
+      "comment" : "Petition well_dispute (townsman, the well's follow-up): the request.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seit der Brunnen verdorben ist, verkauft Familie Brisk abgekochtes Wasser, einen Kupfer pro Becher. Die anderen Familien wollen sie auspeitschen lassen. Ich will nur einen gerechten Preis, Majestät."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Since the well went bad, the Brisk family sells boiled water at a copper a cup. The other families want them flogged. I only want a fair price, Your Majesty."
+          }
+        }
+      }
+    },
+    "petition.well_repair.c1" : {
+      "comment" : "Petition well_repair: choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den Maurer bezahlen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pay the mason"
+          }
+        }
+      }
+    },
+    "petition.well_repair.c2" : {
+      "comment" : "Petition well_repair: choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sollen sie das Wasser abkochen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let them boil the water"
+          }
+        }
+      }
+    },
+    "petition.well_repair.hint" : {
+      "comment" : "Petition well_repair: Odile's counsel.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fünfzehn Gold für sauberes Wasser sind billiger als eine kranke Stadt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fifteen gold for clean water is cheaper than a sick town."
+          }
+        }
+      }
+    },
+    "petition.well_repair.r1" : {
+      "comment" : "Petition well_repair: reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Am Abend kommt der Eimer klar herauf. Jemand hat eine Blume ans Seil gebunden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By evening the bucket comes up clear. Someone has tied a flower to the rope."
+          }
+        }
+      }
+    },
+    "petition.well_repair.r2" : {
+      "comment" : "Petition well_repair: reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie nickt steif. Kochen, sagt sie, wird sie den, dem zuerst das Feuerholz ausgeht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "She nods stiffly. Boiling, she says, is what she will do to whoever runs out of firewood first."
+          }
+        }
+      }
+    },
+    "petition.well_repair.text" : {
+      "comment" : "Petition well_repair (townswoman): the request.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Marktbrunnen ist wieder grün. Die Kinder trinken aus dem Bach, und der Bach schmeckt nach Ziege. Fünfzehn Gold bezahlen einen Maurer, ein Seil und einen neuen Eimer."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The market well has gone green again. The children drink from the brook, and the brook tastes of goat. Fifteen gold buys a mason, a rope and a new bucket."
+          }
+        }
+      }
+    },
+    "speaker.bard.role" : {
+      "comment" : "Audience card: the role under the name (bard).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fahrender Barde"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wandering bard"
+          }
+        }
+      }
+    },
+    "speaker.bram.name" : {
+      "comment" : "Audience card: the name of bram.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram"
+          }
+        }
+      }
+    },
+    "speaker.bram.role" : {
+      "comment" : "Audience card: the role under the name (bram).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schmied"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smith"
+          }
+        }
+      }
+    },
+    "speaker.brannock.name" : {
+      "comment" : "Audience card: the name of brannock.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brannock"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brannock"
+          }
+        }
+      }
+    },
+    "speaker.brannock.role" : {
+      "comment" : "Audience card: the role under the name (brannock).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hauptmann der Wache"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Captain of the guard"
+          }
+        }
+      }
+    },
+    "speaker.builder.role" : {
+      "comment" : "Audience card: the role under the name (builder).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Handwerker"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Builder"
+          }
+        }
+      }
+    },
+    "speaker.child.role" : {
+      "comment" : "Audience card: the role under the name (child).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kind"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Child"
+          }
+        }
+      }
+    },
+    "speaker.envoy.role" : {
+      "comment" : "Audience card: the role under the name (envoy).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesandter der Küste"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoy from the coast"
+          }
+        }
+      }
+    },
+    "speaker.farmer.role" : {
+      "comment" : "Audience card: the role under the name (farmer).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bauer"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Farmer"
+          }
+        }
+      }
+    },
+    "speaker.farmwife.role" : {
+      "comment" : "Audience card: the role under the name (farmwife).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bäuerin"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Farmer's wife"
+          }
+        }
+      }
+    },
+    "speaker.herald.role" : {
+      "comment" : "Audience card: the role under the name (herald).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herold des Lichtlosen Königs"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herald of the Lightless King"
+          }
+        }
+      }
+    },
+    "speaker.hesper.name" : {
+      "comment" : "Audience card: the name of hesper.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mutter Hesper"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mother Hesper"
+          }
+        }
+      }
+    },
+    "speaker.hesper.role" : {
+      "comment" : "Audience card: the role under the name (hesper).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Priesterin der Flamme"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Priestess of the Flame"
+          }
+        }
+      }
+    },
+    "speaker.marek.name" : {
+      "comment" : "Audience card: the name of marek.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marek"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marek"
+          }
+        }
+      }
+    },
+    "speaker.marek.role" : {
+      "comment" : "Audience card: the role under the name (marek).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fahrender Händler"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Travelling merchant"
+          }
+        }
+      }
+    },
+    "speaker.merchant.role" : {
+      "comment" : "Audience card: the role under the name (merchant).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Händler"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merchant"
+          }
+        }
+      }
+    },
+    "speaker.noble.role" : {
+      "comment" : "Audience card: the role under the name (noble).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edelmann"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noble"
+          }
+        }
+      }
+    },
+    "speaker.odile.name" : {
+      "comment" : "Audience card: the name of odile.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile"
+          }
+        }
+      }
+    },
+    "speaker.odile.role" : {
+      "comment" : "Audience card: the role under the name (odile).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kanzlerin"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chancellor"
+          }
+        }
+      }
+    },
+    "speaker.pip.name" : {
+      "comment" : "Audience card: the name of pip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pip"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pip"
+          }
+        }
+      }
+    },
+    "speaker.pip.role" : {
+      "comment" : "Audience card: the role under the name (pip).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Narr"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fool"
+          }
+        }
+      }
+    },
+    "speaker.refugee.role" : {
+      "comment" : "Audience card: the role under the name (refugee).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flüchtling"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refugee"
+          }
+        }
+      }
+    },
+    "speaker.serLudo.name" : {
+      "comment" : "Audience card: the name of serLudo.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ser Ludo"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ser Ludo"
+          }
+        }
+      }
+    },
+    "speaker.serLudo.role" : {
+      "comment" : "Audience card: the role under the name (serLudo).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fahrender Ritter"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wandering knight"
+          }
+        }
+      }
+    },
+    "speaker.seren.name" : {
+      "comment" : "Audience card: the name of seren.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seren"
+          }
+        }
+      }
+    },
+    "speaker.seren.role" : {
+      "comment" : "Audience card: the role under the name (seren).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trägerin der grauen Laterne"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bearer of the grey lantern"
+          }
+        }
+      }
+    },
+    "speaker.soldier.role" : {
+      "comment" : "Audience card: the role under the name (soldier).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soldat"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soldier"
+          }
+        }
+      }
+    },
+    "speaker.stranger.name" : {
+      "comment" : "Audience card: Seren's name before it is revealed on day 15.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Fremde"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Stranger"
+          }
+        }
+      }
+    },
+    "speaker.tamsin.name" : {
+      "comment" : "Audience card: the name of tamsin.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamsin"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamsin"
+          }
+        }
+      }
+    },
+    "speaker.tamsin.role" : {
+      "comment" : "Audience card: the role under the name (tamsin).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Köchin"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cook"
+          }
+        }
+      }
+    },
+    "speaker.townsman.role" : {
+      "comment" : "Audience card: the role under the name (townsman).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bürger"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Townsman"
+          }
+        }
+      }
+    },
+    "speaker.townswoman.role" : {
+      "comment" : "Audience card: the role under the name (townswoman).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bürgerin"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Townswoman"
+          }
+        }
+      }
+    },
+    "speaker.widow.role" : {
+      "comment" : "Audience card: the role under the name (widow).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Witwe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widow"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

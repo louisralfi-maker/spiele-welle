@@ -1,0 +1,175 @@
+{
+  "petitions": [
+    {
+      "id": "first_plough",
+      "speaker": "farmer",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        1,
+        1
+      ],
+      "text": "petition.first_plough.text",
+      "hint": "petition.first_plough.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.first_plough.c1",
+          "happiness": 1,
+          "flags": [
+            "plough_blessed"
+          ],
+          "reaction": "petition.first_plough.r1"
+        },
+        {
+          "label": "petition.first_plough.c2",
+          "happiness": -1,
+          "reaction": "petition.first_plough.r2"
+        }
+      ]
+    },
+    {
+      "id": "well_repair",
+      "speaker": "townswoman",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        2,
+        20
+      ],
+      "weight": 3,
+      "forbids": [
+        "well_fixed"
+      ],
+      "text": "petition.well_repair.text",
+      "hint": "petition.well_repair.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.well_repair.c1",
+          "gold": -15,
+          "happiness": 2,
+          "flags": [
+            "well_fixed"
+          ],
+          "world": [
+            "town.well.repaired"
+          ],
+          "reaction": "petition.well_repair.r1"
+        },
+        {
+          "label": "petition.well_repair.c2",
+          "happiness": -2,
+          "schedule": [
+            {
+              "id": "well_dispute",
+              "inDays": 3
+            }
+          ],
+          "reaction": "petition.well_repair.r2"
+        }
+      ]
+    },
+    {
+      "id": "well_dispute",
+      "speaker": "townsman",
+      "kind": "random",
+      "chapter": 1,
+      "weight": 0,
+      "forbids": [
+        "well_fixed"
+      ],
+      "text": "petition.well_dispute.text",
+      "hint": "petition.well_dispute.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.well_dispute.c1",
+          "chance": {
+            "p": 0.6,
+            "then": {
+              "happiness": 1,
+              "reaction": "petition.well_dispute.r1a"
+            },
+            "else": {
+              "happiness": -2,
+              "reaction": "petition.well_dispute.r1b"
+            }
+          }
+        },
+        {
+          "label": "petition.well_dispute.c2",
+          "gold": -20,
+          "happiness": 1,
+          "flags": [
+            "well_fixed"
+          ],
+          "world": [
+            "town.well.repaired"
+          ],
+          "reaction": "petition.well_dispute.r2"
+        }
+      ]
+    },
+    {
+      "id": "crow_rags",
+      "speaker": "child",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        5,
+        18
+      ],
+      "weight": 2,
+      "text": "petition.crow_rags.text",
+      "hint": "petition.crow_rags.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.crow_rags.c1",
+          "night": [
+            "crows-2"
+          ],
+          "reaction": "petition.crow_rags.r1"
+        },
+        {
+          "label": "petition.crow_rags.c2",
+          "happiness": -1,
+          "reaction": "petition.crow_rags.r2"
+        }
+      ]
+    },
+    {
+      "id": "old_sergeant",
+      "speaker": "soldier",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        3,
+        20
+      ],
+      "weight": 1,
+      "forbids": [
+        "sergeant_joined"
+      ],
+      "text": "petition.old_sergeant.text",
+      "hint": "petition.old_sergeant.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.old_sergeant.c1",
+          "guards": 1,
+          "flags": [
+            "sergeant_joined"
+          ],
+          "reaction": "petition.old_sergeant.r1"
+        },
+        {
+          "label": "petition.old_sergeant.c2",
+          "happiness": 1,
+          "reaction": "petition.old_sergeant.r2"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "lines": [
+    {
+      "id": "odile_first_day",
+      "speaker": "odile",
+      "days": [
+        1,
+        1
+      ],
+      "text": "line.odile_first_day"
+    },
+    {
+      "id": "odile_treasury",
+      "speaker": "odile",
+      "text": "line.odile_treasury"
+    },
+    {
+      "id": "brannock_walls",
+      "speaker": "brannock",
+      "text": "line.brannock_walls"
+    },
+    {
+      "id": "brannock_sergeant",
+      "speaker": "brannock",
+      "about": "old_sergeant",
+      "weight": 2,
+      "text": "line.brannock_sergeant"
+    },
+    {
+      "id": "pip_matches",
+      "speaker": "pip",
+      "text": "line.pip_matches"
+    },
+    {
+      "id": "pip_crows",
+      "speaker": "pip",
+      "about": "crow_rags",
+      "weight": 2,
+      "text": "line.pip_crows"
+    },
+    {
+      "id": "hesper_flame",
+      "speaker": "hesper",
+      "text": "line.hesper_flame"
+    },
+    {
+      "id": "tamsin_well",
+      "speaker": "tamsin",
+      "about": "well_repair",
+      "weight": 2,
+      "text": "line.tamsin_well"
+    },
+    {
+      "id": "tamsin_gossip",
+      "speaker": "tamsin",
+      "text": "line.tamsin_gossip"
+    },
+    {
+      "id": "bram_arrows",
+      "speaker": "bram",
+      "text": "line.bram_arrows"
+    },
+    {
+      "id": "marek_bargain",
+      "speaker": "marek",
+      "text": "line.marek_bargain"
+    }
+  ]
+}
