@@ -907,8 +907,131 @@ def kitchen_interior():
     return c
 
 
+# --------------------------------------------------------------------------------------------------------- props
+
+def stamp_sprite(name, w, h):
+    """A prop that is one stamp of props.txt, bottom-aligned on a canvas of its contract size."""
+    c = Canvas(w, h)
+    st = stamps("props")[name]
+    c.stamp(st, 0, h - st.h)
+    return c
+
+
+def bench():
+    return stamp_sprite("bench", 32, 10)
+
+
+def tax_lectern():
+    return stamp_sprite("taxLectern", 12, 20)
+
+
+def speaker_mark():
+    return stamp_sprite("speakerMark", 14, 7)
+
+
+STATUE_STONE = {
+    "banner": "stoneLight", "roofDeep": "stone", "roofLight": "stonePale",        # the cloak, lit from the left
+    "tile": "stone", "tileLight": "stoneLight", "gold": "stoneLight",             # the tunic, belt and clasp
+    "strawLight": "stonePale", "straw": "stoneLight",                             # the crown
+    "dawnRose": "stonePale", "foam": "stonePale",                                 # face and beard
+    "wood": "stone", "woodLight": "stoneLight", "woodDark": "stoneMid",           # the pole
+    "soil": "stoneMid", "soilDark": "stoneDark",                                  # legs and boots
+    "stone": "stoneDark", "stoneDark": "stoneDark", "stoneLight": "stoneLight",   # lantern frame, beard shade
+}
+
+
+def statue():
+    """A stone statue of the lamplighter king with his lantern raised: the king's command frame carved in pale
+    stone (a colour-for-colour map, so cloak, tunic, beard and pole stay apart), the lantern's glass gilded, on a
+    plinth with a bronze plaque; moss at its foot."""
+    c = Canvas(20, 40)
+    f = actor_frame("king", 8, 16)
+    for y in range(f.h):
+        for x in range(f.w):
+            v = f.px[y][x]
+            if v is None or v == "ink":
+                continue
+            if v in ("parchment", "strawLight") and x >= 10 and y <= 10:
+                f.px[y][x] = "gold"
+            else:
+                f.px[y][x] = STATUE_STONE.get(v, "stone")
+    c.blit(f, 2, 0)
+    pl = stamps("props")["plinth"]
+    c.stamp(pl, 0, 40 - pl.h)
+    for (x, y, col) in ((1, 39, "leaf"), (2, 39, "leafDark"), (17, 38, "leaf"), (18, 39, "meadow"), (3, 30, "leaf")):
+        c.put(x, y, col)
+    return c
+
+
+def marek_cart():
+    """Marek's cart: a striped awning in rose and cream on two poles over his wares (a barrel, a crate with a rolled
+    rug, bolts of cloth, jugs and a lantern), a plank bed with his sign of a gold coin, two spoked wheels, the shafts
+    resting on the ground."""
+    c = Canvas(48, 30)
+    # the wheels behind the bed
+    for (wx, col) in ((11, "wood"), (34, "wood")):
+        cx, cy, r = wx + 0.5, 24.5, 5.5
+        c.ellipse(cx, cy, r, r, "ink")
+        c.ellipse(cx, cy, r - 1, r - 1, "woodDark")
+        c.ellipse(cx, cy, r - 2, r - 2, None)
+        for y in range(19, 30):
+            for x in range(wx - 5, wx + 7):
+                d2 = (x + 0.5 - cx) ** 2 + (y + 0.5 - cy) ** 2
+                if (r - 1.2) ** 2 < d2 <= (r - 0.1) ** 2:
+                    c.put(x, y, "wood" if x < wx else "woodDark")
+                    if y < 23 and x < wx + 1:
+                        c.put(x, y, "woodLight")
+        for (dx, dy) in ((0, -4), (0, 4), (-4, 0), (4, 0), (-3, -3), (3, 3), (-3, 3), (3, -3)):
+            c.line(wx, 24, wx + dx, 24 + dy, "wood")
+        c.put(wx, 24, "stoneDark")
+        c.put(wx + 1, 24, "ink")
+    # the shafts down to the ground
+    c.line(41, 19, 47, 28, "ink")
+    c.line(41, 20, 46, 28, "wood")
+    c.line(42, 19, 47, 27, "woodLight")
+    # the bed
+    c.rect(1, 16, 42, 20, "ink")
+    c.hline(2, 41, 17, "woodLight")
+    c.hline(2, 41, 18, "wood")
+    c.hline(2, 41, 19, "woodDark")
+    for x in range(6, 41, 7):
+        c.vline(x, 17, 19, "woodDark")
+    st = stamps("cart")
+    c.stamp(st["coinSign"], 19, 16)
+    # the poles and the awning
+    for px in (3, 39):
+        c.vline(px, 3, 16, "ink")
+        c.vline(px + 1, 3, 16, "wood")
+    for x in range(0, 45):
+        stripe = (x // 4) % 2 == 0
+        for y in range(1, 5):
+            c.put(x, y, ("dusk" if y > 1 else "dawnRose") if stripe else ("parchment" if y > 1 else "plaster"))
+        c.put(x, 0, "ink")
+        if x % 4 in (1, 2):
+            c.put(x, 5, "dusk" if stripe else "parchment")
+            c.put(x, 6, "ink")
+        else:
+            c.put(x, 5, "ink")
+    c.vline(0, 0, 5, "ink")
+    c.vline(44, 0, 5, "ink")
+    # the wares
+    for (name, x) in (("barrel", 5), ("crate", 13), ("bolts", 24), ("jugs", 31)):
+        w = st[name]
+        c.stamp(w, x, 16 - w.h)
+    c.stamp(st["rug"], 12, 16 - st["crate"].h - st["rug"].h + 1)
+    c.stamp(st["lantern"], 36, 6)
+    glass_mask(c, "cart lantern", 37, 8, 37, 9)
+    light_at(c, "cart lantern", "lantern", 37, 9, 20)
+    return c
+
+
 SPRITES = {
     "hallFront": hall_front,
     "chapelInterior": chapel_interior,
     "kitchenInterior": kitchen_interior,
+    "bench": bench,
+    "taxLectern": tax_lectern,
+    "marekCart": marek_cart,
+    "statue": statue,
+    "speakerMark": speaker_mark,
 }

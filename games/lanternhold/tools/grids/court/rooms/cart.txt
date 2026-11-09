@@ -1,0 +1,86 @@
+# Marek's cart (marekCart): its wares, stamped by roomscenes.py. "." is transparent.
+legend
+    k = ink
+    d = stoneDark
+    m = stoneMid
+    s = stone
+    l = stoneLight
+    g = gold
+    y = strawLight
+    Y = straw
+    D = woodDark
+    w = wood
+    L = woodLight
+    b = banner
+    B = roofDeep
+    r = roofLight
+    t = tile
+    T = tileLight
+    o = dusk
+    O = dawnRose
+    e = leafDark
+    f = leaf
+    h = meadow
+    P = parchment
+    q = plaster
+    N = night1
+    n = night0
+
+stamp barrel
+    .kkkkkk.
+    kLwwwwDk
+    kddddddk
+    kLwLwwDk
+    kLwLwwDk
+    kddddddk
+    kLwwwwDk
+    .kkkkkk.
+
+stamp crate
+    kkkkkkkkkk
+    kLLwLLwLLk
+    kwkkkkkkwk
+    kwkLwwLkwk
+    kwkwLwwkwk
+    kwkkkkkkwk
+    kLLwLLwLLk
+    kkkkkkkkkk
+
+stamp rug
+    .kkkkkkkkkk.
+    kotototototk
+    kTgTgTgTgTgk
+    .kkkkkkkkkk.
+
+stamp bolts
+    .kkkkk.
+    kbrbrbk
+    kBbBbBk
+    kkkkkkk
+    khfhfhk
+    kefefek
+    kkkkkkk
+    kTtTtTk
+    ktotoTk
+    kkkkkkk
+
+stamp jugs
+    ..kk.....
+    .kTtk.kk.
+    .kTtkkPqk
+    kTTttkPqk
+    kTttkkqqk
+    .kkkk.kk.
+
+stamp lantern
+    .k.
+    kdk
+    kNk
+    kNk
+    kdk
+
+stamp coinSign
+    .kkkk.
+    kgyggk
+    kgYgYk
+    .kkkk.

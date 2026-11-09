@@ -92,19 +92,34 @@ def chapel_front():
                 li=[["window", CHAPEL_X + dx + 3, 32, 14] for dx in (18, 54, 89, 125)])
 
 
+def courtyard_row():
+    """The courtyard as the engine draws it (DESIGN.md "M2b part 1": barracks 1481-1545, smithy 1546-1606, the
+    layout's well, the lodge centred at 1648), its windows and the forge's fire as scene_court.py gives them."""
+    out = []
+    for d in SC.courtyard_buildings():
+        if d["s"] == "well":
+            continue
+        d = dict(d)
+        shift = {"barracks": 1481, "smithy": 1546, "lodge": 1620}[d["s"]] - d["x"]
+        d["x"] += shift
+        d["li"] = [[l[0], l[1] + shift] + list(l[2:]) for l in d.get("li", [])]
+        out.append(d)
+    return out
+
+
 def hall_props():
     return [prop("bench", 1712), prop("bench", 1760), prop("taxLectern", 1834)]
 
 
 def scene_hall_closed(tod):
-    ex = SC.courtyard_buildings() + [
+    ex = courtyard_row() + [
         room("hallFront", HALL_X),
         SC.king(1678, 1 if tod < 0.9 else 6, z=8),
         SC.actor("pip", 1652, 6 if tod < 0.9 else 4, z=8),
     ]
     if tod < 0.9:
         ex.append(SC.actor("citizenB", 1736, 4, z=8, f=True))
-    return dict(focus=1716, tod=tod, drop=HALL_FURNITURE + [("well", 1600)], extras=ex)
+    return dict(focus=1716, tod=tod, drop=HALL_FURNITURE, extras=ex)
 
 
 def scene_hall_open(tod):
@@ -150,9 +165,9 @@ def scene_kitchen_open(tod):
 
 
 def scene_courtyard(tod):
-    ex = SC.courtyard_buildings() + [
+    ex = courtyard_row() + [
         room("hallFront", HALL_X),
-        prop("marekCart", 1486, z=3),
+        room("marekCart", 1486, z=3),
         prop("statue", 1680, z=3),
         SC.actor("marek", 1542, 7 if tod < 0.9 else 4, f=True, z=8),
         SC.king(1600, 6, f=True, z=8),
@@ -160,7 +175,7 @@ def scene_courtyard(tod):
     ]
     if tod < 0.9:
         ex.append(SC.actor("brannock", 1452, 4, z=8))
-    return dict(focus=1590, tod=tod, drop=HALL_FURNITURE + [("well", 1600)], extras=ex)
+    return dict(focus=1600, tod=tod, drop=HALL_FURNITURE, extras=ex)
 
 
 SCENES = {

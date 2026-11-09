@@ -61,12 +61,27 @@ build() { # name: one sprite
                    # of dressed stone now, one step darker, under a straight light course at row 47
                    python3 $T post $A/castleWall.png $A/castleWall.png --remap stoneLight:stoneMid@0,45,39,46 --remap stoneLight:stone,stone:stoneMid,stonePale:stoneLight@0,48,39,88 --fill stoneLight:0,47,39,47 ;;
     backGate)      python3 $T convert $R/s3-castle-1.png $A/backGate.png --size 60x84 --box 1245,400,1518,695 --only $CAS --outline ink --zone $DOOR@21,48,38,83@1.35 ;;
-    chapel)        python3 $T convert $R/s4-chapel-1.png $A/chapel.png --size 160x96 --box 130,75,715,668 --only $CAS,plaster,plasterDim,parchment --gain 1.15 --outline ink ;;
+    chapel)        python3 $T convert $R/s4-chapel-1.png $A/chapel.png --size 160x96 --box 130,75,715,668 --only $CAS,plaster,plasterDim,parchment --gain 1.15 --outline ink
+                   # M3 art step 3 (ART-court.md): the gable end's painted night shade lifted one value step (albedo is
+                   # evenly lit; it read as night beside the bright chapelInterior painted in this silhouette), lancet
+                   # 4 and its frame kept; a small oak door under the lancet where the painting left mud
+                   M3L=night1:stoneMid,stoneMid:stone,stoneDark:stoneMid,night0:stoneDark
+                   python3 $T post $A/chapel.png $A/chapel.png --remap $M3L@112,22,158,49 --remap $M3L@112,50,125,94 \
+                       --remap $M3L@141,50,158,94 --remap $M3L@126,79,140,94 \
+                       --fill ink:126,80,139,80 --fill stonePale:126,81,139,81 --fill stoneLight:126,82,139,82 \
+                       --fill ink:126,83,139,94 --fill woodDark:127,84,138,94 --fill wood:128,84,129,94 \
+                       --fill woodLight:128,84,128,94 --fill wood:131,84,132,94 --fill wood:134,84,135,94 \
+                       --fill wood:137,84,137,94 --fill ink:132,84,133,94 --fill stoneDark:127,88,138,88 \
+                       --fill stoneDark:127,92,138,92 --fill gold:131,90,131,90 --fill gold:134,90,134,90 ;;
     hallInterior)  python3 $T convert $R/s5-hall-1.png $A/hallInterior.png --size 260x90 --box 210,0,1358,356 --only $CAS,strawLight --gain 1.1 --warm 22 --outline ink
                    # polish after the art review: five identical teal banners; the second and fourth are a red-brown house
                    # colour now (teal, red, teal, red, teal), the gold emblems kept
                    python3 $T post $A/hallInterior.png $A/hallInterior.png --remap banner:tile,roofDeep:woodDark,roofLight:tileLight@84,25,101,61 --remap banner:tile,roofDeep:woodDark,roofLight:tileLight@159,25,177,61 ;;
-    kitchen)       python3 $T convert $R/s6-town-1.png $A/kitchen.png --size 120x80 --box 864,10,1148,296 --only $TOWN --outline ink ;;
+    kitchen)       python3 $T convert $R/s6-town-1.png $A/kitchen.png --size 120x80 --box 864,10,1148,296 --only $TOWN --outline ink
+                   # M3 art step 3 (ART-court.md): the ground floor's painted night shade on its right corner and the
+                   # stack's top lifted one value step (albedo is evenly lit; kitchenInterior is painted in this silhouette)
+                   python3 $T post $A/kitchen.png $A/kitchen.png --remap night0:stoneMid,night1:stone,roofDeep:stoneMid@93,57,112,79 \
+                       --remap night0:stoneMid,night1:stone,roofDeep:stoneMid,banner:stone@94,1,101,8 ;;
     valleyHill)    python3 $T convert $R/s6-town-1.png $A/valleyHill.png --size 150x46 --box 800,565,1450,706 --only $NAT --outline leafDark --outline-skip-bottom ;;
     house)         python3 $T convert $R/s7-defence-1.png $A/house.png --size 64x46 --box 480,308,1080,632 --flood --only $COTTAGE --outline ink --zone ink,woodDark,tile,tileLight@0,4,63,24 --zone ink,stoneDark,stone,stoneLight,stonePale@44,0,52,12 --patch $G/house-front.txt@2,29
                    python3 $T post $A/house.png $A/house.png --remap parchment:plaster ;;  # M1b polish: clean half-timbering
