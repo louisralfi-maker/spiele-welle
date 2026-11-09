@@ -58,8 +58,8 @@ final class GameModel {
         self.args = args
         self.kind = kind
         reduceMotion = args.reduceMotion || UIAccessibility.isReduceMotionEnabled
-        var world = PlaceholderScene.milestone1(seed: args.seed)
-        let start = min(WorldLayout.width, max(0, args.cameraX ?? world.king.x))
+        var world = PlaceholderScene.world(seed: args.seed)
+        let start = min(WorldLayout.walkEnd, max(0, args.cameraX ?? world.king.x))
         world.king.x = start
         scene = world
         let fallback = kind == .lightLab ? 0.95 : GameModel.defaultTimeOfDay
@@ -67,7 +67,7 @@ final class GameModel {
         dayClock.isFrozen = args.freezeTime
         clock = dayClock
         autoplay = args.autoplay != nil && kind == .world
-        if start + GameModel.autoplayLeg <= WorldLayout.width - 20 {
+        if start + GameModel.autoplayLeg <= WorldLayout.walkEnd - 20 {
             autoplayRange = start...(start + GameModel.autoplayLeg)
             autoplayDirection = 1
         } else {

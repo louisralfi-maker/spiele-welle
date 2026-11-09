@@ -1,12 +1,14 @@
 /// The parallax planes, back to front (DESIGN.md "Tech plan", docs/research-rendering.md 5.1). Each plane is one
-/// low-resolution layer drawn at its own integer camera offset.
+/// low-resolution layer drawn at its own integer camera offset. `sky` holds the stars, the moon and the sun (fixed to
+/// the screen), `clouds` the cloud bands (M1b, lit by the sky's own light).
 enum Plane: Int, Sendable, CaseIterable, Equatable, Comparable {
-    case sky, far, mid, fogA, world, fogB, foreground
+    case sky, clouds, far, mid, fogA, world, fogB, foreground
 
     /// Parallax factor: how far the plane moves per game pixel of camera movement.
     var parallax: Double {
         switch self {
         case .sky: return 0
+        case .clouds: return 0.05
         case .far: return 0.2
         case .mid: return 0.5
         case .fogA: return 0.9
@@ -57,7 +59,8 @@ struct PlaneOffset: Sendable, Equatable {
 /// The side-scrolling camera (DESIGN.md "Tech plan", docs/research-rendering.md 3.2).
 ///
 /// `x` is the world x at the left edge of the screen (the scroll position), clamped so the view stays inside the
-/// world 0 ... 3800. `focusX` is the screen centre, where the king stands (`-GWCameraX` sets the focus).
+/// world 0 ... 3900 (`WorldLayout.width`). `focusX` is the screen centre, where the king stands (`-GWCameraX` sets
+/// the focus).
 ///
 /// Following uses a critically damped spring with the king's velocity fed forward. The spring aims at where the king
 /// will be after the camera's own move (`goal - velocity * dt`), so while he walks at a steady speed the camera ends
