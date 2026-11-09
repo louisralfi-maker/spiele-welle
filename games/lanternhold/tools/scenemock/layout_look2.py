@@ -1,16 +1,19 @@
-"""Lanternhold look 2, stage 1: the depth layout of the look mocks (ART-look2.md "Depth per region"). Plain numbers,
-read by mock.py when it renders with look=2. Not the final world: stage 2 paints the real shadow land, Weltmauer and
-valley art and replaces these stand-ins (tools/depthart.py) one by one.
+"""Lanternhold look 2: the world layout of the look mocks (ART-look2.md "Depth per region" and "Stage 2: the world
+art"). Plain numbers, read by mock.py when it renders with look=2; the engine port takes its positions from here.
 
 What look 2 changes against layout_m1b.py:
-- DROP: layout_m1b instances look 2 leaves out. The gorge's far wall (gorgeWallA/B/C on the mid plane before the
-  throat) and the rock lips along the top edge go: the shadow land is open (DESIGN.md, Louis' decisions of 09.11.
-  evening); the Weltmauer's cliffs (the throat rock, the flanks, gorgeWallHigh) stay at the cleft around the castle.
-  The valley's foreground rocks give way to the meadow strips.
+- DROP: layout_m1b instances look 2 leaves out: the old far mountains and valley hills, the old gorge walls, the far
+  keep and the warden statue on the mid plane, the rock lips along the top edge, the valley's foreground rocks. The
+  world plane's cliffs (cliffFlank, cliffFlankB, throatRock) are swapped for their granite versions at the same
+  places (SWAP).
 - PLANES: a near plane (parallax 0.75) between the mid plane and the world, and a mist band (fogM, parallax 0.62)
   between the mid and near planes.
-- DEPTH: rows of trees per region on the far, mid and near planes, bushes on the world plane behind the actors, dark
-  plants on the foreground plane, and the lane ground tiles (LANES) instead of the soil cross-section.
+- THE WORLD (stage 2, WORLD below): the Weltmauer on the far plane across the whole view, with the cleft as a narrow
+  slot and the far castle in it; on the mid plane the shadow land's forest (world 0 to about 520), then the gorge:
+  bare rock rising out of sight from its mouth (world 520 to 700) to the castle, the cleft's inner face behind the
+  castle, and its end stepping down into the valley; the valley's painted distance on the far plane.
+- DEPTH: single trees per region on the near plane, bushes on the world plane behind the actors, dark plants on the
+  foreground plane, and the lane ground tiles (LANES) instead of the soil cross-section.
 
 Coordinates as layout_m1b.py (plane x of the left edge, y the bottom above the ground line). `at(p, X)` is the plane x
 that shows at the same screen column as world x X when the camera is centred on X, so a near tree placed with
@@ -29,8 +32,18 @@ def at(p, X):
 
 
 # ------------------------------------------------------------------------------------------------ what look 2 drops
+SWAP = {"cliffFlank": "cleftFlank", "cliffFlankB": "cleftFlankB", "throatRock": "cleftThroat"}
+SWAP_SHADE = 1.0   # the granite versions' shade, as a factor on the old instances' shade
+
+
 def dropped(d):
-    if d["p"] == "mid" and d["s"] in ("gorgeWallA", "gorgeWallB", "gorgeWallC") and d["x"] < 690:
+    if d["p"] == "mid" and d["s"] in ("gorgeWallA", "gorgeWallB", "gorgeWallC", "gorgeWallHigh", "gorgeMouth",
+                                      "keepFar", "cliffFlank", "wardenStatue", "valleyMidA", "valleyMidB",
+                                      "valleyMidC", "windmill"):
+        return True
+    if d["p"] == "far" and d["s"] in ("farMountain", "valleyFarA", "valleyFarB", "valleyFarC"):
+        return True
+    if d["p"] == "world" and d["s"] in SWAP:  # re-added as granite by instances()
         return True
     if d["p"] == "fg" and d["s"].startswith("fgOverhang"):
         return True
@@ -70,9 +83,8 @@ def fog_region(x):
 
 # ------------------------------------------------------------------------------------------------ depth instances
 def _w(name):
-    return {"d2FirA": 59, "d2FirB": 49, "d2FirC": 37, "d2FirD": 67, "d2DeadTree": 60, "d2Linden": 84, "d2Poplar": 24,
-            "d2PoplarB": 24, "d2Orchard": 40, "d2OrchardB": 34, "d2OrchardC": 46, "d2Willow": 70, "d2BushA": 30,
-            "d2BushB": 22}[name]
+    return {"firA": 29, "firB": 30, "firC": 34, "firD": 27, "deadTreeA": 17, "deadTreeB": 17,
+            "linden": 52, "poplar": 14, "appleTree": 42, "willow": 52, "d2BushA": 30, "d2BushB": 22}[name]
 
 
 def tree(plane, name, X, y=0, z=0, shade=1.0, flip=False):
@@ -80,37 +92,63 @@ def tree(plane, name, X, y=0, z=0, shade=1.0, flip=False):
     return dict(s=name, p=plane, x=round(at(p, X) - _w(name) / 2), y=y, z=z, sh=shade, f=flip)
 
 
+# ---- stage 2: the world. Far plane x = 0.2 x camera x + screen x; mid plane x = 0.5 x camera x + screen x.
+WALL_X, WALL_Y = -44, -17         # weltmauer 888x190: its ridge 135 to 173 px above the ground line
+CLEFT_FRONT, CLEFT_BACK = 324, 650  # the two views of the cleft in the sprite: from the shadow land, from the valley
+FAR_CASTLE_Y = 92                 # the far castles' foot above the sprite's bottom (75 above the ground line)
+PATCH_FADE = (2330, 2520)         # the camera focus over which the valley's view of the cleft appears
+GORGE_X, GORGE_Y = 345, -10       # gorgeRock 448x211 on the mid plane: the mouth's steps over world 520 to 700
+FACE_X, FACE_Y = 740, -95         # cleftFace 448x218: its lit top edge 123 above the ground line; then cleftFaceEnd
+GORGE_SHADE, FACE_SHADE = 0.42, 0.42
+
+WORLD = [
+    # --- far plane: the wall, the far castle's lights, the unbroken patch over the valley's view of the cleft
+    dict(s="weltmauer", p="far", x=WALL_X, y=WALL_Y, z=-3,
+         em=[("sprite", "farCastleGlow", CLEFT_FRONT - 15, FAR_CASTLE_Y, "fireGold", True)]),
+    dict(s="weltmauerPatch", p="far", x=WALL_X + CLEFT_BACK - 19, y=WALL_Y, z=-2, fadeout=PATCH_FADE),
+    dict(s="farCastlePane", p="far", x=WALL_X + CLEFT_BACK - 15, y=WALL_Y + FAR_CASTLE_Y, z=-1, fade=PATCH_FADE,
+         em=[("sprite", "farCastlePane", 0, 0, "window", True)]),
+    # a cloud deck before the wall: the peaks stand above the clouds
+    dict(s="cloudA", p="far", x=-70, y=96, z=0), dict(s="cloudC", p="far", x=170, y=106, z=0, f=True),
+    dict(s="cloudB", p="far", x=430, y=98, z=0), dict(s="cloudA", p="far", x=640, y=108, z=0, f=True),
+    # the valley's painted distance, before the wall's end
+    dict(s="valleyVista", p="far", x=620, y=-34, z=1), dict(s="valleyVista", p="far", x=1068, y=-34, z=1, f=True),
+    # --- mid plane, the shadow land: the forest edge, twice, then the gorge's rock
+    dict(s="shadowForest", p="mid", x=-128, y=-4, z=1), dict(s="shadowForest", p="mid", x=96, y=-4, z=1, f=True),
+    dict(s="gorgeRock", p="mid", x=GORGE_X, y=GORGE_Y, z=3, sh=GORGE_SHADE),
+    # --- mid plane, the cleft: the inner face behind the castle, its end toward the valley (no tree on its edge:
+    # a tree there gives the cliff a scale, and a small one)
+    dict(s="cleftFace", p="mid", x=FACE_X, y=FACE_Y, z=2, sh=FACE_SHADE),
+    dict(s="cleftFaceEnd", p="mid", x=FACE_X + 448, y=FACE_Y, z=2, sh=FACE_SHADE),
+]
+
 DEPTH = [
     # --- the sky: a high cloud deck over the old bands (after the critic: a moon and few stars, the night sky a value
     # step lighter where the clouds catch the moon; at dusk their rims take the low sun)
     dict(s="cloudB", p="sky", x=60, y=152, z=-1), dict(s="cloudC", p="sky", x=330, y=160, z=-1, f=True),
     dict(s="cloudA", p="sky", x=600, y=154, z=-1),
-    # --- the shadow land (world 0 to 1240): fir forest rows in fog, each farther row paler -------------------------
-    # far plane: a low ridge of firs at the horizon, under the far mountains' foot
-    *[dict(s="d2FirBeltFar", p="far", x=x, y=2, z=1) for x in (-120, 400)],
-    # mid plane: the forest's edge; the warden statue (z 2) stands in front of it
-    *[dict(s="d2FirBelt", p="mid", x=x, y=-2, z=1) for x in (-140, 380)],
-    dict(s="d2FirBeltB", p="mid", x=560, y=-4, z=1, f=True),
-    # near plane: single firs and dead trees in loose groups with gaps (behind the play plane; they never cover an
-    # actor), the tallest far from the lines, a dead tree or a small fir near them
-    tree("near", "d2FirD", 30), tree("near", "d2FirB", 70, flip=True), tree("near", "d2DeadTree", 160),
-    tree("near", "d2FirA", 250), tree("near", "d2FirC", 290, flip=True), tree("near", "d2FirB", 420),
-    tree("near", "d2FirD", 470, flip=True), tree("near", "d2DeadTree", 560, flip=True), tree("near", "d2FirC", 690),
-    tree("near", "d2FirB", 728, flip=True), tree("near", "d2DeadTree", 800), tree("near", "d2FirC", 1040),
-    # (the fir by the cleft's mouth stays low: from the castle front it would poke over the cliff into the sky)
-    tree("near", "d2FirC", 1090, flip=True), tree("near", "d2FirC", 1150),
-    # foreground: ferns, dead grass and roots
-    *[dict(s="d2FgFerns", p="fg", x=x, y=-30, z=2) for x in (-60, 420, 900)],  # none in front of the castle front
+    # --- the shadow land (world 0 to 1240) -------------------------------------------------------------------------
+    # far plane: a low ridge of firs at the wall's foot
+    *[dict(s="d2FirBeltFar", p="far", x=x, y=2, z=2) for x in (-120, 400)],
+    # near plane: the open land (world 0 to 520): single firs in loose groups with gaps (behind the play plane; they
+    # never cover an actor), none behind the beacon (470); the gorge's mouth (520 to 700): dead trees only; inside the
+    # gorge (700 to the castle): no tree at all, only rock
+    tree("near", "firB", 24), tree("near", "firD", 62, flip=True), tree("near", "deadTreeA", 150),
+    tree("near", "firA", 236), tree("near", "firC", 284), tree("near", "firD", 318, flip=True),
+    tree("near", "firB", 408, flip=True), tree("near", "firD", 524), tree("near", "deadTreeB", 566),
+    tree("near", "deadTreeA", 622, flip=True), tree("near", "deadTreeB", 688, flip=True),
+    # foreground: ferns, dead grass and roots in the open land and at the mouth; rock and scree in the gorge
+    *[dict(s="d2FgFerns", p="fg", x=x, y=-30, z=2) for x in (-60, 420)],
     # --- the valley (from the back gate): a tree belt along the valley floor, trees behind the town ---------------
-    *[dict(s="d2TreeBelt", p="mid", x=x, y=-2, z=1) for x in (1290, 1810)],
-    # (the orchard rows mix sizes and kinds and never keep one spacing: 34 and 68 px apart on screen)
-    tree("near", "d2Poplar", 2452), tree("near", "d2Linden", 2548), tree("near", "d2OrchardB", 2606),
-    tree("near", "d2Orchard", 2652, flip=True), tree("near", "d2OrchardC", 2741), tree("near", "d2PoplarB", 2868),
-    tree("near", "d2Poplar", 2882), tree("near", "d2Linden", 2992, flip=True), tree("near", "d2PoplarB", 3170),
-    tree("near", "d2Poplar", 3186), tree("near", "d2Linden", 3300), tree("near", "d2OrchardC", 3448),
-    tree("near", "d2OrchardB", 3523, flip=True), tree("near", "d2Linden", 3610),
-    # the river end: a willow on the near bank
-    tree("near", "d2Willow", 3684), tree("near", "d2Willow", 3790, flip=True),
+    *[dict(s="d2TreeBelt", p="mid", x=x, y=-2, z=3) for x in (1400, 1920)],
+    # (the rows mix sizes and kinds and never keep one spacing; poplars stand in pairs)
+    tree("near", "poplar", 2452), tree("near", "linden", 2548), tree("near", "appleTree", 2606),
+    tree("near", "appleTree", 2658, flip=True), tree("near", "appleTree", 2741), tree("near", "poplar", 2868),
+    tree("near", "poplar", 2884, flip=True), tree("near", "linden", 2992, flip=True), tree("near", "poplar", 3170),
+    tree("near", "poplar", 3186, flip=True), tree("near", "linden", 3300), tree("near", "appleTree", 3448),
+    tree("near", "appleTree", 3523, flip=True), tree("near", "linden", 3610, flip=True),
+    # the river end: willows on the near bank
+    tree("near", "willow", 3684), tree("near", "willow", 3790, flip=True),
     # bushes on the world plane behind the actors (z -3: behind the houses' fronts)
     tree("world", "d2BushA", 2560, z=-3), tree("world", "d2BushB", 2884, z=-3), tree("world", "d2BushA", 3080, z=-3,
                                                                                     flip=True),
@@ -134,8 +172,11 @@ SMOKE = [(2480, False), (2800, True), (3090, False)]
 
 def instances():
     out = []
-    for d in DEPTH:
+    for d in WORLD + DEPTH:
         out.append(dict(s=d["s"], p=d["p"], x=d["x"], y=d.get("y", 0), z=d.get("z", 0), sh=d.get("sh", 1.0),
-                        f=d.get("f", False), em=[], li=[], anchor="ground", region=None, fade=None, mv=None,
-                        fadeout=None, shadow=None, mist=None))
+                        f=d.get("f", False), em=list(d.get("em", [])), li=[], anchor="ground", region=None,
+                        fade=d.get("fade"), mv=None, fadeout=d.get("fadeout"), shadow=None, mist=None))
+    for d in LM.instances():  # the world plane's cliffs in granite, at the old places
+        if d["p"] == "world" and d["s"] in SWAP:
+            out.append(dict(d, s=SWAP[d["s"]], sh=d["sh"] * SWAP_SHADE))
     return out

@@ -475,7 +475,7 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                     if 0 <= X < TW and 0 <= Y < TH: e = emis[Y][X]; emis[Y][X] = (e[0] + rgb[0], e[1] + rgb[1], e[2] + rgb[2])
         for em_ in pr['em']:
             es, dx, dy, col, fades = em_[:5]
-            st = torchS if fades else 1.0
+            st = (torchS if fades else 1.0) * (fa if L2 else 1.0)  # look 2: a fading sprite's glow fades with it
             if st < 0.01: continue
             # an extra's emitter with a frame count is cut from its strip at the strip's own frame size
             eimg = sprite(es, em_[5], em_[6]) if len(em_) > 6 else sprite(es)

@@ -3,6 +3,8 @@ the same frame. The scene content (the battle at the middle line, the courtyard'
 people) comes from the art lanes' context scenes; look 2 adds its depth layout itself (layout_look2.py) and, here, a
 few particles (sparks over the fires, fireflies at dusk).
 
+Stage 2 added three walk points of the world for the previews (look 2 only): shadow-night, wall-dusk, valley-golden.
+
 Usage (pure python, one render at a time; run_look2.sh does all twelve with the heat rule):
     python3 -I -B scene_look2.py <games/lanternhold> <scene> <1|2> <out.png> [art=<dir>] [depth=<dir>] [lut=<a>,<b>]
 The old look (1) renders with run_m1b.sh's values, the renderer of today; the new look (2) with mock.py look=2.
@@ -120,7 +122,35 @@ def river_golden(look):
     return dict(focus=3720, tod=0.745, drop=[], extras=ex, king=3700)
 
 
+# --- stage 2, the world (look 2 only; ART-look2.md section 13): three walk points for the previews -----------------
+def shadow_night(look):
+    """The outer line at the gorge's mouth at night: the forest to the left, the rock rising to the right, the
+    creatures coming out of the fog toward the palisade and its braziers."""
+    ex = [
+        prop("brazier", x=599, z=3, em=[("sprite", "brazierFlame", 1, 11, "fireOrange", False)], li=[("brazier", 604, 16, 56)]),
+        prop("brazier", x=617, z=3, em=[("sprite", "brazierFlame", 1, 11, "fireOrange", False)], li=[("brazier", 622, 16, 56)]),
+        prop("sootling", cx=588, frame=4, z=9), prop("sootlingB", cx=570, frame=1, z=9),
+        prop("ashBrute", cx=532, frame=1, lit=False, z=9), prop("shadehound", cx=500, frame=2, lit=False, z=9),
+        prop("sootling", cx=474, frame=2, lit=False, z=9), prop("gloomweaver", cx=436, frame=0, lit=False, z=9),
+        prop("sootlingB", cx=404, frame=3, lit=False, z=9), prop("shadehound", cx=372, frame=0, lit=False, z=9),
+        prop("sootCrow", cx=556, y=66, frame=1, lit=False, z=9), prop("sootCrow", cx=462, y=84, frame=0, lit=False, z=9),
+        prop("archer", cx=688, frame=3, f=True, z=8), prop("guardsman", cx=704, frame=0, f=True, z=8),
+        prop("king", cx=726, frame=8, f=True, z=10, li=[("lantern", 720.5, 25, 40)]),
+        emitter(602, 22, "d2Sparks", colour="fireGold"),
+    ]
+    return dict(focus=556, tod=0.95, drop=[], extras=ex, king="off")
+
+
+def wall_dusk(look):
+    """The view back at dusk from the open shadow land: the Weltmauer across the whole view, the cleft's slot with
+    the castle's lit windows in it, the gorge's first crag at the right."""
+    return dict(focus=250, tod=0.8, drop=[], extras=[], king=306)
+
+
 SCENES = {
+    "shadow-night": shadow_night,
+    "wall-dusk": wall_dusk,
+    "valley-golden": lambda look: town(look, 0.745, 2560, 2604),
     "front-night": front_night,
     "castle-dusk": castle_dusk,
     "court-dusk": court_dusk,
