@@ -20,7 +20,7 @@ final class LightFieldTests: XCTestCase {
         XCTAssertEqual(LightKind.firepot.defaultRadius, 48)
         XCTAssertEqual(LightKind.lantern.defaultRadius, 40)
         XCTAssertEqual(LightKind.hearth.defaultRadius, 70)
-        XCTAssertEqual(LightKind.beacon.defaultRadius, 600)
+        XCTAssertEqual(LightKind.beacon.defaultRadius, Balance.standard.beaconRadius)
     }
 
     func testLitAtTheThresholdRadius() {

@@ -17,43 +17,75 @@ enum SimTune {
             change(&balance)
             list.append(Variant(name: name, balance: balance))
         }
-        func king(_ b: inout Balance, speed: Double, harm: Double) {
-            b.creatures[CreatureKind.lightlessKing.index].unlitSpeed = speed
-            b.creatures[CreatureKind.lightlessKing.index].litSpeed = speed
-            b.creatures[CreatureKind.lightlessKing.index].harm = harm
+        let king = CreatureKind.lightlessKing.index
+        // Round lh-fin-fix-1 (standard: the King 600 HP, 24 px/s in the dark and 12 in the beacon's light, beacon
+        // radius 840 with its edge just behind the middle line's engine, the bank swallowing the beacon's light).
+        // With the beacon: his HP against his lit speed and the radius.
+        for lit in [12.0, 16] {
+            for hp in [450.0, 500, 550, 650, 700, 800, 900] {
+                add("l\(Int(lit))hp\(Int(hp))") {
+                    $0.creatures[king].litSpeed = lit
+                    $0.creatures[king].hp = hp
+                }
+            }
         }
-        func beacon(_ b: inout Balance, _ prices: [Int]) {
-            b.setItem(.beaconBase, price: prices[0])
-            b.setItem(.beaconTower, price: prices[1])
-            b.setItem(.greatBeacon, price: prices[2])
+        add("l16hp600") { $0.creatures[king].litSpeed = 16 }
+        for lit in [10.0, 20, 24] {
+            for hp in [500.0, 600, 700] {
+                add("l\(Int(lit))hp\(Int(hp))") {
+                    $0.creatures[king].litSpeed = lit
+                    $0.creatures[king].hp = hp
+                }
+            }
         }
-        // Round lh-fin-2, margins around the standard chosen from round lh-fin-1's sweep (the King leaves 10 s after
-        // nightfall, 500 HP, beacon radius 760, endless growth 0.4).
-        func kingHP(_ b: inout Balance, _ hp: Double) { b.creatures[CreatureKind.lightlessKing.index].hp = hp }
-        for second in [8.0, 9, 11, 12] {
+        for radius in [760.0, 800, 880] {
+            for hp in [600.0, 700] {
+                add("r\(Int(radius))hp\(Int(hp))") {
+                    $0.beaconRadius = radius
+                    $0.creatures[king].hp = hp
+                }
+            }
+        }
+        // Without the beacon: when he leaves, how hard he strikes, how fast he walks in the dark.
+        for second in [6.0, 8, 12, 14] {
             add("kSec\(Int(second))") { $0.kingSecond = second }
         }
         for jitter in [6.0, 10] {
             add("kJit\(Int(jitter))") { $0.kingJitter = jitter }
         }
-        for hp in [450.0, 550, 600] {
-            add("hp\(Int(hp))") { kingHP(&$0, hp) }
+        for harm in [120.0, 135, 165, 180] {
+            add("kHarm\(Int(harm))") { $0.creatures[king].harm = harm }
         }
-        for quad in [0.35, 0.45, 0.5] {
-            add("q\(quad)") { $0.endlessQuadratic = quad }
+        for speed in [20.0, 28] {
+            add("kDark\(Int(speed))") { $0.creatures[king].unlitSpeed = speed }
         }
-        for radius in [720.0, 800] {
-            add("r\(Int(radius))") { $0.beaconRadius = radius }
+        // Combinations around the standard.
+        for hp in [550.0, 650, 750] {
+            for second in [8.0, 12] {
+                add("hp\(Int(hp))kSec\(Int(second))") {
+                    $0.creatures[king].hp = hp
+                    $0.kingSecond = second
+                }
+            }
+        }
+        for hp in [600.0, 700] {
+            for harm in [135.0, 165] {
+                add("hp\(Int(hp))kHarm\(Int(harm))") {
+                    $0.creatures[king].hp = hp
+                    $0.creatures[king].harm = harm
+                }
+            }
         }
         add("harm0.9") { $0.creatureHarmScale = 0.9 }
         add("harm1.1") { $0.creatureHarmScale = 1.1 }
         add("noAim") { $0.aimAtTheKing = false }
-        add("kSec12q45") {
-            $0.kingSecond = 12
-            $0.endlessQuadratic = 0.45
+        add("bcn120") {
+            $0.setItem(.beaconBase, price: 120)
+            $0.setItem(.beaconTower, price: 220)
+            $0.setItem(.greatBeacon, price: 360)
         }
-        add("bcn120") { beacon(&$0, [120, 220, 360]) }
-        add("kHarm120") { king(&$0, speed: 24, harm: 120) }
+        add("q0.35") { $0.endlessQuadratic = 0.35 }
+        add("q0.45") { $0.endlessQuadratic = 0.45 }
         return list
     }
 
@@ -61,20 +93,23 @@ enum SimTune {
         FileHandle.standardOutput.write(Data((text + "\n").utf8))
     }
 
-    static func row(_ name: String, _ m: TuningMetrics, seconds: Double) -> String {
+    static func row(_ name: String, _ m: TuningMetrics, steps: [String], seconds: Double) -> String {
         var passed = ""
         for target in 1...8 { passed += m.passes(target) ? String(target) : "." }
-        var line = name.padding(toLength: 12, withPad: " ", startingAt: 0) + " " + passed
+        var line = name.padding(toLength: 13, withPad: " ", startingAt: 0) + " " + passed
         line += " | T1 \(m.t1Survived ? "ok" : "FELL") h\(Int(m.t1HearthMin.rounded())) loss\(m.t1LossesMax)"
         line += " | T2 \(m.t2FellOn)"
         line += " | T3 \(m.t3BeaconDays) low\(m.t3LowTaxBeaconDay)"
         line += " | T4 high\(m.t4HighTaxDay8) low\(m.t4LowTaxMin)"
         line += " | T5 tax\(m.t5FirstTaxes) b\(m.t5FirstBuilds) d10:\(m.t5BuildingsDay10)"
-        line += " | T6 \(m.t6WithBeacon)/\(m.t6KingSlain)/\(m.t6WithoutBeacon) of \(m.t6Seeds) kill\(m.t6KillSeconds)"
-        line += " x\(m.t6KillXs) \(m.t6FallHours)"
-        line += " nb\(m.t6NoBeaconRun) \(m.t6NoBeaconFalls)"
+        line += " | T6 \(m.t6WithBeacon)/\(m.t6KingSlain)/\(m.t6WithoutBeacon) of \(m.t6Seeds)"
+        line += " all \(m.t6AllWithBeacon)/\(m.t6AllKingSlain)/\(m.t6AllWithoutBeacon) of \(m.t6AllSeeds)"
+        line += " kill\(m.t6AllKillSeconds) left\(m.t6AllKillLightLeft) x\(m.t6KillXs)"
+        line += " without\(m.t6WithoutMargins)"
+        line += " nb\(m.t6NoBeaconRun)"
         line += " | T7 \(m.t7FellOn)"
         line += " | T8 \(Int(m.t8LastSpawnSecond.rounded()))s e\(m.t8Entities) l\(m.t8Lights)"
+        line += " | steps " + (steps.isEmpty ? "ok" : "FAIL \(steps)")
         line += " | \(Int(seconds.rounded())) s"
         return line
     }
@@ -82,41 +117,30 @@ enum SimTune {
     static func main() {
         let clock = ContinuousClock()
         let list = variants()
-        say("simtune: \(list.count) variants")
+        say("simtune: \(list.count) variants (T6 also over seeds 1-20, T7 over endless seeds 1-6; the targets count "
+            + "seeds 1-10 and 1-3)")
+        var standardReport = ""
         for variant in list {
             var metrics = TuningMetrics()
+            var failures: [String] = []
             let elapsed = clock.measure {
-                metrics = TuningRun.measure(balance: variant.balance)
-            }
-            let seconds = Double(elapsed.components.seconds) + Double(elapsed.components.attoseconds) * 1e-18
-            say(row(variant.name, metrics, seconds: seconds))
-            if variant.name == "standard" {
-                say(metrics.report)
-                say("")
-            }
-        }
-        // Night 20 at 1/60 s against 0.1 s, with every soldier's fall (the contact-damage check).
-        for variant in list where variant.name == "standard" {
-            say("steps, \(variant.name):")
-            for seed: UInt64 in 1...10 {
-                for line in TuningRun.stepComparison(seed: seed, balance: variant.balance)
-                where seed <= 3 || !line.hasPrefix(" ") {
-                    say(line)
+                metrics = TuningRun.measure(balance: variant.balance, seedsT6: 20, endlessSeeds: 6)
+                for seed: UInt64 in 1...3 {
+                    failures += TuningRun.nightTwentyStepCheck(seed: seed, balance: variant.balance).failures
                 }
             }
-            say("")
+            let seconds = Double(elapsed.components.seconds) + Double(elapsed.components.attoseconds) * 1e-18
+            say(row(variant.name, metrics, steps: failures, seconds: seconds))
+            if variant.name == "standard" { standardReport = metrics.report }
         }
-        // Seed 3 without the beacon, second by second from the gatehouse's fall: where the losses after it come from.
-        let first = TuningRun.play(GameState.newRealm(seed: 3), bot: Autoplay.reference(), balance: .standard,
-                                   nights: 19)
-        if first.fellOnNight == nil {
-            for step in [Sim.frameStep, Sim.nightStep] {
-                let run = TuningRun.tracedNight(TuningRun.withoutBeacon(first.final),
-                                                bot: Autoplay.reference(buildsBeacon: false), balance: .standard,
-                                                nightStep: step, snapshots: 86...106)
-                say("seed 3 without, \(step == Sim.frameStep ? "1/60" : "0.1") s: " + TuningRun.timeline(run.state.night))
-                for line in run.snapshots { say(line) }
-                for fall in run.falls { say("    " + fall.text) }
+        say("")
+        say(standardReport)
+        say("")
+        // Night 20 at 1/60 s against 0.1 s, with every soldier's fall (the contact-damage check), standard balance.
+        say("steps, standard:")
+        for seed: UInt64 in 1...10 {
+            for line in TuningRun.stepComparison(seed: seed, balance: .standard) where seed <= 3 || !line.hasPrefix(" ") {
+                say(line)
             }
         }
         say("simtune: done")

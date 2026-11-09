@@ -1,14 +1,25 @@
 /// The battle lights reduced to what the lit test needs (DESIGN.md "Light rules"). A point is lit when some source
 /// reaches it with `(1 − d / r)² ≥ 0.12`, which is the same as `d ≤ r × (1 − √0.12)`: so each source keeps its lit
 /// reach, and the test needs no square roots. Same elliptic distance and darkness-bank rule as `LightField`; a
-/// gloomweaver's bubble or the Lightless King's aura cancels light inside it.
+/// gloomweaver's bubble or the Lightless King's aura cancels light inside it. The Great Beacon is the exception on two
+/// counts (DESIGN.md "The finale"): the darkness bank swallows its battle light (it lights nothing left of the bank's
+/// edge), and the King's aura fails inside its lit reach.
 struct LitProbe: Sendable {
     private(set) var xs: [Double] = []
     private(set) var ys: [Double] = []
     private(set) var reach: [Double] = []
     private(set) var reachSquared: [Double] = []
+    /// A source lights nothing left of this x (the bank's edge for the beacon, −∞ for every other light).
+    private(set) var minX: [Double] = []
     private(set) var darkX: [Double] = []
     private(set) var darkRadius: [Double] = []
+    /// The darkness fails inside the beacon's lit reach (the Lightless King's aura).
+    private(set) var darkFailsInBeacon: [Bool] = []
+    private var hasBeacon = false
+    private var beaconX = 0.0
+    private var beaconY = 0.0
+    private var beaconReachSquared = 0.0
+    private var beaconMinX = 0.0
 
     init(sources: [LightSource], bankEdge: Double) {
         let fraction = LightField.litRadiusFraction
@@ -20,19 +31,40 @@ struct LitProbe: Sendable {
             ys.append(source.y)
             reach.append(lit)
             reachSquared.append(lit * lit)
+            if source.kind == .beacon {
+                minX.append(bankEdge)
+                hasBeacon = true
+                beaconX = source.x
+                beaconY = source.y
+                beaconReachSquared = lit * lit
+                beaconMinX = bankEdge
+            } else {
+                minX.append(-Double.infinity)
+            }
         }
     }
 
-    /// A bubble of darkness centred at `x`.
-    mutating func addDarkness(x: Double, radius: Double) {
+    /// A bubble of darkness centred at `x`; `failsInBeacon` for the Lightless King's aura.
+    mutating func addDarkness(x: Double, radius: Double, failsInBeacon: Bool = false) {
         darkX.append(x)
         darkRadius.append(radius)
+        darkFailsInBeacon.append(failsInBeacon)
+    }
+
+    /// True inside the lit Great Beacon's lit reach (and right of the darkness bank's edge).
+    func inBeacon(x: Double, y: Double) -> Bool {
+        guard hasBeacon, x >= beaconMinX else { return false }
+        let dx = x - beaconX
+        let dy = (y - beaconY) * LightField.ellipseY
+        return dx * dx + dy * dy <= beaconReachSquared
     }
 
     func isLit(x: Double, y: Double) -> Bool {
         var index = 0
         while index < darkX.count {
-            if abs(x - darkX[index]) <= darkRadius[index] { return false }
+            if abs(x - darkX[index]) <= darkRadius[index] {
+                if !(darkFailsInBeacon[index] && inBeacon(x: x, y: y)) { return false }
+            }
             index += 1
         }
         let ellipse = LightField.ellipseY
@@ -40,7 +72,7 @@ struct LitProbe: Sendable {
         while index < xs.count {
             let dx = x - xs[index]
             let r = reach[index]
-            if dx <= r && dx >= -r {
+            if dx <= r && dx >= -r && x >= minX[index] {
                 let dy = (y - ys[index]) * ellipse
                 if dx * dx + dy * dy <= reachSquared[index] { return true }
             }
@@ -474,10 +506,17 @@ enum Battle {
         return s.day <= 20 ? balance.beaconRadius : balance.beaconEndlessRadius
     }
 
-    /// The darkness bank's edge now; while the beacon shines it stops short of the beacon.
+    /// The darkness bank's edge now; while the beacon shines it stops short of the beacon. When the beacon flares up
+    /// the bank falls back to `beaconBankEdge` over `beaconBankSeconds` (part of the flare, not a jump in one frame).
     static func bankEdge(_ s: GameState, balance: Balance) -> Double {
         var nightEdge = DarknessBank.nightEdge(night: s.nightNumber)
-        if beaconRadius(s, balance: balance) > 0 { nightEdge = min(nightEdge, balance.beaconBankEdge) }
+        if beaconRadius(s, balance: balance) > 0 && balance.beaconBankEdge < nightEdge {
+            var share = 1.0
+            if let lit = s.night.kingLeftSecond, balance.beaconBankSeconds > 0 {
+                share = min(1, max(0, (s.nightTime - lit) / balance.beaconBankSeconds))
+            }
+            nightEdge += (balance.beaconBankEdge - nightEdge) * share
+        }
         return DarknessBank.edge(hour: s.hour, restingEdge: DarknessBank.restingEdge, nightEdge: nightEdge)
     }
 
@@ -488,22 +527,21 @@ enum Battle {
         return probe
     }
 
-    /// The gloomweavers' bubbles and the Lightless King's aura. Inside the Great Beacon's light the King's darkness
-    /// fails: his aura cancels nothing there.
+    /// The gloomweavers' bubbles and the Lightless King's aura. The aura fails inside the Great Beacon's lit reach: it
+    /// cancels no light at points inside it, wherever the King stands (`LitProbe.isLit`).
     private static func addDarkness(_ probe: inout LitProbe, _ s: GameState, balance: Balance) {
         for creature in s.creatures where creature.hp > 0 {
             let radius = creature.kind.darkness(balance)
             guard radius > 0 else { continue }
-            if creature.kind == .lightlessKing && kingInBeaconLight(s, creature, balance: balance) { continue }
-            probe.addDarkness(x: creature.x, radius: radius)
+            probe.addDarkness(x: creature.x, radius: radius, failsInBeacon: creature.kind == .lightlessKing)
         }
     }
 
     /// True when the point lies inside the lit Great Beacon's lit reach (the same elliptic distance and darkness-bank
-    /// rule as `LitProbe`).
+    /// rule as `LitProbe`): the darkness bank swallows the beacon's battle light, so nothing left of its edge counts.
     static func inBeaconLight(_ s: GameState, x: Double, y: Double, balance: Balance) -> Bool {
         var radius = beaconRadius(s, balance: balance)
-        guard radius > 0 else { return false }
+        guard radius > 0, x >= s.bankEdge else { return false }
         if Realm.beaconX < s.bankEdge { radius *= DarknessBank.radiusScale }
         let reach = radius * LightField.litRadiusFraction
         let dx = x - Realm.beaconX
@@ -520,6 +558,36 @@ enum Battle {
     /// stays inside his own darkness (`isLit` is set every step; for the King it means "in the beacon's light").
     static func canHarm(_ c: Creature) -> Bool {
         c.kind != .lightlessKing || c.isLit
+    }
+
+    /// The x where the beacon's lit reach ends at the King's height (where he walks out of it), or nil when it is dark.
+    static func beaconEdgeX(_ s: GameState, balance: Balance) -> Double? {
+        var radius = beaconRadius(s, balance: balance)
+        guard radius > 0 else { return nil }
+        if Realm.beaconX < s.bankEdge { radius *= DarknessBank.radiusScale }
+        let reach = radius * LightField.litRadiusFraction
+        let dy = (litHeight(balance.creature(.lightlessKing)) - balance.beaconFlameY) * LightField.ellipseY
+        return Realm.beaconX + max(0, reach * reach - dy * dy).squareRoot()
+    }
+
+    /// About how many seconds the King would still have stayed in the beacon's light where he fell: his walk to its
+    /// edge at his lit speed plus every standing wall in the way, each worn down at the harm of what attacks it now (he
+    /// counts at least). The tuning's margin: the kill should not hang on the last second.
+    static func kingLightLeft(_ s: GameState, king: Creature, balance: Balance) -> Double {
+        guard let edge = beaconEdgeX(s, balance: balance) else { return 0 }
+        let stats = balance.creature(.lightlessKing)
+        let speed = stats.litSpeed * max(0.01, king.speedScale)
+        var seconds = max(0, edge - king.x) / speed
+        let harmScale = balance.creatureHarmScale
+        for wall in standingWalls(s) where wall.x + 0.5 >= king.x && wall.x - king.gap < edge {
+            var rate = stats.harm * harmScale
+            for c in s.creatures where c.hp > 0 && c.kind != .lightlessKing && c.action == .attackingWall
+                && c.target == wall.plot {
+                rate += balance.creature(c.kind).harm * harmScale
+            }
+            seconds += max(0, s.plots[wall.plot].hp) / max(1, rate)
+        }
+        return seconds
     }
 
     // MARK: - The step
@@ -555,7 +623,7 @@ enum Battle {
             stepEngines(&s, dt: dt, balance: balance, events: &events)
         }
         if !s.projectiles.isEmpty {
-            stepProjectiles(&s, dt: dt, balance: balance)
+            stepProjectiles(&s, dt: dt, balance: balance, events: &events)
         }
         removeDead(&s, balance: balance, events: &events)
         if phase == .firstLight { sweep(&s) }
@@ -614,6 +682,7 @@ enum Battle {
         var reachedHearth = false
         var frontContact = -1
         var frontContactX = -Double.infinity
+        var frontContactTime = 0.0
         let guardX = s.guardsHolding ? s.guardPostX : Double.infinity
         var trapPlots: [Int] = []
         for line in Realm.lines where s.plots[line.trap].item == .stakePit && s.plots[line.trap].trapUses > 0 {
@@ -627,7 +696,11 @@ enum Battle {
             if c.hp <= 0 { continue }
             let stats = table[c.kind.index]
             if c.kind == .lightlessKing {
+                let wasLit = c.isLit
                 c.isLit = kingInBeaconLight(s, c, balance: balance)
+                if c.isLit != wasLit {
+                    events.append(c.isLit ? .kingAuraBroken(x: c.x) : .kingAuraClosed(x: c.x))
+                }
             } else {
                 c.isLit = probe.isLit(x: c.x, y: c.y + litHeight(stats))
             }
@@ -679,9 +752,12 @@ enum Battle {
                     c.action = .attackingGuards
                     c.target = -1
                     guardDamage += stats.harm * harmScale * attackTime
-                    if c.x > frontContactX {
+                    // The guards strike the frontmost attacker they can hurt (the Lightless King outside the beacon's
+                    // light takes no blow, so he does not shield the creatures behind him).
+                    if canHarm(c) && c.x > frontContactX {
                         frontContactX = c.x
                         frontContact = index
+                        frontContactTime = attackTime
                     }
                 case .hearth:
                     c.action = .atHearth
@@ -729,12 +805,13 @@ enum Battle {
             }
         }
         if frontContact >= 0 {
+            // For the part of the step in which the front creature stands at the guards (harm × time at any step).
             var strike = 0.0
             for soldier in s.soldiers where soldier.state == .holding {
                 let rally = abs(soldier.x - s.king.x) <= balance.rallyRadius ? balance.rallyFactor : 1
-                strike += balance.guardDPS * rally * dt
+                strike += balance.guardDPS * rally * frontContactTime
             }
-            if strike > 0 && canHarm(s.creatures[frontContact]) {
+            if strike > 0 {
                 s.creatures[frontContact].hp -= strike
                 s.creatures[frontContact].lastHit = .guards
             }
@@ -914,6 +991,7 @@ enum Battle {
                                      walkTimes: [Double], events: inout [SimEvent]) {
         if s.soldiers.isEmpty { return }
         let soldierStartX = s.soldiers.map { $0.x }
+        let soldierStart = s.soldiers.map { (state: $0.state, goal: $0.goal) }
         let kingX = s.king.x
         let damage = balance.archerDamage * (1 + smithyBonus(s, balance: balance))
         let table = balance.creatures
@@ -961,29 +1039,35 @@ enum Battle {
         }
         if arrived { refreshHolding(&s) }
         contactDamage(&s, dt: dt, balance: balance, creatureStartX: creatureStartX, walkTimes: walkTimes,
-                      soldierStartX: soldierStartX)
+                      soldierStartX: soldierStartX, soldierStart: soldierStart)
     }
 
     /// Creatures walking past a soldier on the ground strike it (an archer whose wall broke, a guard marching to a new
     /// breach, soldiers waiting in the courtyard). A guard who steps back is out of the fight: creatures let him go.
     /// The blow is harm × the time the two spend within `contactReach` of each other while the creature walks, worked
     /// out from both paths through the step, so it does not depend on the step size (round lh-m2a-fix-2 sampled the
-    /// distance once per step instead).
+    /// distance once per step instead). Whether a soldier is on the ground is decided by his state at the start of
+    /// the step: one who reaches his post or the guard line during it is struck only while he still walks.
     private static func contactDamage(_ s: inout GameState, dt: Double, balance: Balance, creatureStartX: [Double],
-                                      walkTimes: [Double], soldierStartX: [Double]) {
+                                      walkTimes: [Double], soldierStartX: [Double],
+                                      soldierStart: [(state: SoldierState, goal: SoldierState)]) {
         if s.creatures.isEmpty { return }
         let table = balance.creatures
         let reach = balance.contactReach
         let count = min(walkTimes.count, creatureStartX.count, s.creatures.count)
         if count == 0 { return }
+        func onTheGround(_ state: SoldierState) -> Bool { state == .moving || state == .reserve || state == .resting }
         for index in s.soldiers.indices {
             let soldier = s.soldiers[index]
-            guard soldier.state == .moving || soldier.state == .reserve || soldier.state == .resting else { continue }
-            if soldier.goal == .resting { continue }
+            let start = index < soldierStart.count ? soldierStart[index] : (state: soldier.state, goal: soldier.goal)
+            guard onTheGround(start.state) else { continue }
+            if start.goal == .resting || soldier.goal == .resting { continue }
             let s1 = soldier.x
             if s1 > Realm.hearthX + 20 { continue }
             let s0 = index < soldierStartX.count ? soldierStartX[index] : s1
             let moveTime = balance.soldierSpeed > 0 ? min(dt, abs(s1 - s0) / balance.soldierSpeed) : 0
+            // Arrived on a post (up on the wall) or in the guard line (struck there as a guard): only the walk counts.
+            let window = onTheGround(soldier.state) ? Double.infinity : moveTime
             let low = min(s0, s1) - reach
             let high = max(s0, s1) + reach
             var harm = 0.0
@@ -995,7 +1079,8 @@ enum Battle {
                 if c.kind.isBoss && !balance.bossesStrikeInPassing { continue }
                 let c0 = creatureStartX[k]
                 if max(c0, c.x) < low || min(c0, c.x) > high { continue }
-                let time = contactTime(c0: c0, c1: c.x, walk: walk, s0: s0, s1: s1, move: moveTime, reach: reach)
+                let time = contactTime(c0: c0, c1: c.x, walk: walk, s0: s0, s1: s1, move: moveTime, reach: reach,
+                                       window: window)
                 if time > 0 { harm += table[c.kind.index].harm * time }
             }
             if harm > 0 {
@@ -1006,15 +1091,18 @@ enum Battle {
 
     /// Seconds of the step in which a creature walking from `c0` to `c1` during the first `walk` seconds stands within
     /// `reach` of a soldier going from `s0` to `s1` during the first `move` seconds (then standing). Only the creature's
-    /// walking time counts: it strikes in passing.
+    /// walking time counts: it strikes in passing. Only the first `window` seconds count (a soldier who climbs onto his
+    /// post or joins the guard line leaves the ground).
     static func contactTime(c0: Double, c1: Double, walk: Double, s0: Double, s1: Double, move: Double,
-                            reach: Double) -> Double {
+                            reach: Double, window: Double = .infinity) -> Double {
         guard walk > 0 else { return 0 }
+        let last = min(walk, window)
+        guard last > 0 else { return 0 }
         func creature(_ t: Double) -> Double { c0 + (c1 - c0) * min(1, t / walk) }
         func soldier(_ t: Double) -> Double { move > 0 ? s0 + (s1 - s0) * min(1, t / move) : s1 }
         var total = 0.0
         var start = 0.0
-        for end in (move > 0 && move < walk) ? [move, walk] : [walk] {
+        for end in (move > 0 && move < last) ? [move, last] : [last] {
             total += overlap(from: creature(start) - soldier(start), to: creature(end) - soldier(end),
                              length: end - start, reach: reach)
             start = end
@@ -1094,7 +1182,9 @@ enum Battle {
         return nil
     }
 
-    private static func stepProjectiles(_ s: inout GameState, dt: Double, balance: Balance) {
+    /// Arrows, bolts and firepots land. What strikes the Lightless King outside the beacon's light glances off his
+    /// darkness (`SimEvent.glancedOff`: a spark and a dull sound).
+    private static func stepProjectiles(_ s: inout GameState, dt: Double, balance: Balance, events: inout [SimEvent]) {
         var flying: [Projectile] = []
         var landed: [Projectile] = []
         for var projectile in s.projectiles {
@@ -1114,6 +1204,8 @@ enum Battle {
                     if canHarm(s.creatures[index]) {
                         s.creatures[index].hp -= projectile.damage
                         s.creatures[index].lastHit = .archer
+                    } else {
+                        events.append(.glancedOff(x: s.creatures[index].x))
                     }
                 }
                 if projectile.kind == .fireArrow {
@@ -1126,6 +1218,8 @@ enum Battle {
                 if canHarm(s.creatures[index]) {
                     s.creatures[index].hp -= projectile.damage
                     s.creatures[index].lastHit = .ballista
+                } else {
+                    events.append(.glancedOff(x: s.creatures[index].x))
                 }
                 let tx = s.creatures[index].x
                 var hits = 1
@@ -1153,9 +1247,14 @@ enum Battle {
             case .firepot:
                 for index in s.creatures.indices {
                     let c = s.creatures[index]
-                    if c.hp > 0 && !c.kind.flies && canHarm(c) && abs(c.x - projectile.toX) <= balance.catapultSplash {
+                    guard c.hp > 0 && !c.kind.flies && abs(c.x - projectile.toX) <= balance.catapultSplash else {
+                        continue
+                    }
+                    if canHarm(c) {
                         s.creatures[index].hp -= projectile.damage
                         s.creatures[index].lastHit = .catapult
+                    } else {
+                        events.append(.glancedOff(x: c.x))
                     }
                 }
                 s.glows.append(Glow(kind: .firepot, x: projectile.toX, y: 4, radius: balance.firepotRadius,
@@ -1180,10 +1279,12 @@ enum Battle {
                     alive.append(c)
                     continue
                 }
-                if c.kind == .lightlessKing && s.night.kingSlainSecond == nil {
+                // A King who falls in the step the hearth goes out does not win the night: the realm fell first.
+                if c.kind == .lightlessKing && s.night.kingSlainSecond == nil && !s.defeated {
                     kingFell = true
                     s.night.kingSlainSecond = s.nightTime
                     s.night.kingSlainX = c.x
+                    s.night.kingLightLeft = kingLightLeft(s, king: c, balance: balance)
                 }
                 s.night.killed += 1
                 switch c.lastHit {
@@ -1249,7 +1350,8 @@ enum Battle {
     }
 
     /// The Lightless King fell in the beacon's light: the Gloom recedes at once, every creature dissolves, the waves
-    /// still to come stay away and the night is won.
+    /// still to come stay away and the night is won. Dawn breaks at once: the clock jumps to first light (05:00), whose
+    /// hour pulls the darkness bank back and leads to the dawn report at 06:00.
     private static func gloomRecedes(_ s: inout GameState, events: inout [SimEvent]) {
         s.night.gloomReceded = true
         s.night.dissolved += s.creatures.count
@@ -1258,5 +1360,9 @@ enum Battle {
         s.spawns.removeAll()
         events.append(.kingSlain)
         events.append(.gloomRecedes)
+        if DayClock.phase(at: s.hour) == .night {
+            s.hour = ClockEvent.firstLight.hour
+            events.append(.firstLight)
+        }
     }
 }

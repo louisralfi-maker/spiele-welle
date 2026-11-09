@@ -462,7 +462,7 @@ final class BattleTests: XCTestCase {
     }
 
     func testAPassingCreatureHarmsASoldierByTheTimeInContact() {
-        func hpAfterThePass(dt: Double) -> Double {
+        func hpAfterThePass(dt: Double) -> (hp: Double, expected: Double) {
             var s = night()
             s.soldiers.removeAll { $0.kind == .guardsman }
             let index = s.soldiers.indices.first(where: { s.soldiers[$0].kind == .archer }) ?? 0
@@ -474,13 +474,29 @@ final class BattleTests: XCTestCase {
             s.soldiers[index].postPlot = -1
             let name = s.soldiers[index].name
             spawn(&s, .shadehound, at: 1480)
+            let hound = s.creatures[s.creatures.count - 1]
+            // Hound and archer both walk right: 16 px of reach (±8) closed at the hound's speed minus his.
+            let closing = balance.creature(.shadehound).unlitSpeed * hound.speedScale - balance.soldierSpeed
+            let expected = balance.archerHP - balance.creature(.shadehound).harm * balance.creatureHarmScale
+                * 2 * balance.contactReach / closing
             _ = run(&s, seconds: 2, dt: dt)
-            return s.soldiers.first(where: { $0.name == name })?.hp ?? 0
+            XCTAssertFalse(s.creatures.first?.isLit ?? true, "the hound walks in the dark, at its unlit speed")
+            return (s.soldiers.first(where: { $0.name == name })?.hp ?? 0, expected)
         }
         let fine = hpAfterThePass(dt: 1 / 60)
         let coarse = hpAfterThePass(dt: 0.1)
-        XCTAssertLessThan(fine, balance.archerHP, "the hound struck him in passing")
-        XCTAssertEqual(fine, coarse, accuracy: 0.05, "the same blow at both steps")
+        XCTAssertLessThan(fine.hp, balance.archerHP, "the hound struck him in passing")
+        XCTAssertEqual(fine.hp, fine.expected, accuracy: 1e-6, "harm × the time within reach")
+        XCTAssertEqual(coarse.hp, coarse.expected, accuracy: 1e-6, "harm × the time within reach at 0.1 s too")
+    }
+
+    /// A soldier who reaches the guard line during a step is struck in passing only while he still walks: once he
+    /// holds, creatures strike him as a guard.
+    func testASoldierWhoArrivesMidStepIsStruckOnlyWhileHeWalks() {
+        XCTAssertEqual(Battle.contactTime(c0: 0, c1: 3, walk: 0.1, s0: 6, s1: 2, move: 0.1, reach: 8, window: 0.04),
+                       0.04, accuracy: 1e-12, "only the first 0.04 s count")
+        XCTAssertEqual(Battle.contactTime(c0: 0, c1: 3, walk: 0.1, s0: 6, s1: 2, move: 0.1, reach: 8), 0.1,
+                       accuracy: 1e-12)
     }
 
     // MARK: The finale (night 20)
@@ -491,6 +507,14 @@ final class BattleTests: XCTestCase {
             if beacon { state.plots[Realm.beaconPlot].item = .greatBeacon }
             prepare(&state)
         }
+    }
+
+    /// As if the King had left the Gloom 10 s ago: the darkness bank has fallen back to `beaconBankEdge`.
+    private func settle(_ s: inout GameState, hour: Double = 22) {
+        s.hour = hour
+        s.night.kingLeftSecond = s.nightTime - 10
+        if s.beaconStage == 3 { s.beaconLit = true }
+        s.bankEdge = Battle.bankEdge(s, balance: balance)
     }
 
     func testAFinishedBeaconIsLitWhenTheLightlessKingLeaves() {
@@ -509,7 +533,12 @@ final class BattleTests: XCTestCase {
         XCTAssertTrue(Battle.lightSources(s, balance: balance).contains { $0.kind == .beacon })
         XCTAssertTrue(Battle.inBeaconLight(s, x: Realm.wallX[2] - 20, y: 24, balance: balance), "the outer line")
         XCTAssertTrue(Battle.inBeaconLight(s, x: Realm.wallX[1] - 20, y: 24, balance: balance), "the middle line")
+        XCTAssertTrue(Battle.inBeaconLight(s, x: Realm.plots[Realm.lines[1].engine].x + 10, y: 24, balance: balance),
+                      "its edge lies just behind the middle line's engine")
         XCTAssertFalse(Battle.inBeaconLight(s, x: Realm.wallX[0] - 20, y: 24, balance: balance), "not the gatehouse")
+        let edge = Battle.beaconEdgeX(s, balance: balance) ?? 0
+        XCTAssertGreaterThan(edge, Realm.plots[Realm.lines[1].engine].x + 10)
+        XCTAssertLessThan(edge, Realm.plots[Realm.lines[1].engine].x + 40)
 
         var dark = finale(beacon: false) { $0.plots[Realm.beaconPlot].item = .beaconTower }
         dark.spawns = [SpawnEntry(time: dark.nightTime + 0.05, kind: .lightlessKing, wave: 0)]
@@ -518,9 +547,54 @@ final class BattleTests: XCTestCase {
         XCTAssertEqual(dark.creatures.filter { $0.kind == .lightlessKing }.count, 1)
     }
 
+    /// When the beacon flares up the darkness bank falls back to `beaconBankEdge` over 1.5 s, not in one frame.
+    func testTheDarknessBankFallsBackAsTheBeaconFlaresUp() {
+        var s = finale(beacon: true)
+        s.hour = 22
+        s.bankEdge = Battle.bankEdge(s, balance: balance)
+        let night = s.bankEdge
+        XCTAssertEqual(night, DarknessBank.nightEdge(night: 20), accuracy: 1e-9)
+        s.spawns = [SpawnEntry(time: s.nightTime + 0.05, kind: .lightlessKing, wave: 0)]
+        var edges: [Double] = []
+        for _ in 0..<25 {
+            _ = run(&s, seconds: 0.1)
+            edges.append(s.bankEdge)
+        }
+        XCTAssertTrue(s.beaconLit)
+        let steps = zip(edges.dropFirst(), edges).map { $0.0 - $0.1 }
+        XCTAssertTrue(steps.allSatisfy { $0 <= 1e-9 }, "it only falls back")
+        XCTAssertTrue(steps.allSatisfy { $0 >= -(night - balance.beaconBankEdge) * 0.1 / 1.5 - 1e-6 },
+                      "a little every step: \(edges)")
+        XCTAssertEqual(edges.last ?? 0, balance.beaconBankEdge, accuracy: 1e-9)
+    }
+
+    /// The darkness bank swallows the beacon's battle light: nothing in it is lit by the beacon, and the King becomes
+    /// lit (his aura shatters) only when he steps out of the fog.
+    func testTheDarknessBankSwallowsTheBeaconsLight() {
+        var s = finale(beacon: true)
+        settle(&s)
+        XCTAssertEqual(s.bankEdge, balance.beaconBankEdge, accuracy: 1e-9)
+        let inFog = spawn(&s, .sootling, at: 200, still: true)
+        let onTheFloor = spawn(&s, .sootling, at: 450, still: true)
+        let king = spawn(&s, .lightlessKing, at: 350)
+        s.creatures[s.creatures.count - 1].gap = 4
+        _ = run(&s, seconds: 0.1)
+        XCTAssertFalse(creature(s, id: inFog)?.isLit ?? true, "inside the bank the beacon lights nothing")
+        XCTAssertTrue(creature(s, id: onTheFloor)?.isLit ?? false, "on the gorge floor it does")
+        XCTAssertFalse(Battle.inBeaconLight(s, x: 200, y: 24, balance: balance))
+        XCTAssertFalse(creature(s, id: king)?.isLit ?? true, "still in the fog: inside his own darkness")
+        var events: [SimEvent] = []
+        for _ in 0..<10 { events += run(&s, seconds: 0.1) }
+        XCTAssertGreaterThan(creature(s, id: king)?.x ?? 0, balance.beaconBankEdge)
+        XCTAssertTrue(creature(s, id: king)?.isLit ?? false)
+        XCTAssertTrue(events.contains { if case .kingAuraBroken = $0 { return true } else { return false } },
+                      "his aura shatters as he steps into the beacon's light")
+    }
+
     func testInTheBeaconsLightTheKingCanBeHurtAndOutsideItNot() {
         func afterTheTrap(beacon: Bool) -> Double {
             var s = finale(beacon: beacon) { $0.plots[Realm.lines[2].trap].item = .stakePit }
+            settle(&s)
             s.plots[Realm.lines[2].trap].trapUses = balance.stakeUses
             let id = spawn(&s, .lightlessKing, at: Realm.plots[Realm.lines[2].trap].x - 10)
             _ = run(&s, seconds: 1)
@@ -531,6 +605,7 @@ final class BattleTests: XCTestCase {
         XCTAssertEqual(afterTheTrap(beacon: false), full, accuracy: 1e-9, "inside his own darkness")
 
         var near = finale(beacon: true)
+        settle(&near)
         spawn(&near, .lightlessKing, at: 620, still: true)
         _ = run(&near, seconds: 0.1)
         XCTAssertTrue(near.creatures[0].isLit, "in the beacon's light he counts as lit")
@@ -538,6 +613,7 @@ final class BattleTests: XCTestCase {
         XCTAssertTrue(Battle.probe(near, balance: balance).isLit(x: 600, y: 7), "his aura cancels no light there")
 
         var far = finale(beacon: true) { $0.plots[Realm.lines[0].braziers[0]].item = .brazier }
+        settle(&far)
         spawn(&far, .lightlessKing, at: 1250, still: true)
         _ = run(&far, seconds: 0.1)
         XCTAssertTrue(far.beaconLit)
@@ -546,8 +622,81 @@ final class BattleTests: XCTestCase {
         XCTAssertFalse(Battle.probe(far, balance: balance).isLit(x: 1255, y: 7), "his aura cancels the brazier")
     }
 
+    /// His aura fails at points inside the beacon's reach even while he stands just outside it, and keeps cancelling
+    /// light beyond it.
+    func testTheKingsAuraFailsOnlyInsideTheBeaconsReach() throws {
+        var s = finale(beacon: true)
+        settle(&s)
+        let edge = try XCTUnwrap(Battle.beaconEdgeX(s, balance: balance))
+        let id = spawn(&s, .lightlessKing, at: edge + 40, still: true)
+        _ = run(&s, seconds: 0.1)
+        XCTAssertFalse(creature(s, id: id)?.isLit ?? true)
+        let probe = Battle.probe(s, balance: balance)
+        XCTAssertTrue(probe.isLit(x: edge - 30, y: 7), "inside the beacon's reach his aura cancels nothing")
+        XCTAssertTrue(probe.inBeacon(x: edge - 30, y: 7))
+        XCTAssertFalse(probe.inBeacon(x: edge + 10, y: 7))
+    }
+
+    /// Outside the beacon's light arrows, bolts, firepots and the guards leave him whole (they glance off), while the
+    /// creature beside him takes the blows.
+    func testOutsideTheBeaconsLightNothingHurtsTheKing() throws {
+        var s = finale(beacon: true)
+        settle(&s)
+        let king = spawn(&s, .lightlessKing, at: 1250, still: true)
+        let beside = spawn(&s, .ashBrute, at: 1240, still: true)
+        let k = try XCTUnwrap(s.creatures.firstIndex { $0.id == king })
+        let b = try XCTUnwrap(s.creatures.firstIndex { $0.id == beside })
+        s.creatures[b].hp = 1000
+        s.creatures[b].maxHP = 1000
+        s.creatures[k].incoming = balance.archerDamage * 2 + balance.ballistaDamage
+        s.projectiles = [
+            Projectile(kind: .arrow, fromX: 1300, fromY: 30, toX: 1250, toY: 30, duration: 0.05, target: king,
+                       damage: balance.archerDamage),
+            Projectile(kind: .fireArrow, fromX: 1300, fromY: 30, toX: 1250, toY: 30, duration: 0.05, target: king,
+                       damage: balance.archerDamage),
+            Projectile(kind: .bolt, fromX: 1440, fromY: 14, toX: 1250, toY: 6, duration: 0.05, target: king,
+                       damage: balance.ballistaDamage),
+            Projectile(kind: .firepot, fromX: 1440, fromY: 20, toX: 1248, toY: 0, duration: 0.05, target: -1,
+                       damage: balance.catapultDamage),
+        ]
+        let events = run(&s, seconds: 0.1)
+        let full = balance.creature(.lightlessKing).hp
+        XCTAssertEqual(creature(s, id: king)?.hp ?? 0, full, accuracy: 1e-9, "nothing hurts him outside the light")
+        XCTAssertEqual(creature(s, id: king)?.incoming ?? -1, 0, accuracy: 1e-9, "the shots in flight are spent")
+        XCTAssertEqual(creature(s, id: beside)?.hp ?? 0, 1000 - balance.ballistaDamage - balance.catapultDamage,
+                       accuracy: 1e-9, "the bolt pierces on into the brute, the firepot burns him")
+        let glances = events.filter { if case .glancedOff = $0 { return true } else { return false } }
+        XCTAssertEqual(glances.count, 4, "every blow glances off him with a spark")
+    }
+
+    /// The guards strike the frontmost attacker they can hurt: the Lightless King outside the beacon's light takes no
+    /// blow and so does not shield the creature behind him.
+    func testTheGuardsStrikeTheFrontmostCreatureTheyCanHurt() throws {
+        var s = finale(beacon: true) { state in
+            state.plots[Realm.lines[0].wall].isRubble = true
+            state.plots[Realm.lines[0].wall].hp = 0
+        }
+        settle(&s)
+        XCTAssertTrue(s.guardsHolding)
+        XCTAssertEqual(s.guardPostX, 1312, accuracy: 1e-9)
+        let king = spawn(&s, .lightlessKing, at: 1310, still: true)
+        s.creatures[s.creatures.count - 1].gap = 2
+        let behind = spawn(&s, .sootling, at: 1304, still: true)
+        let index = try XCTUnwrap(s.creatures.firstIndex { $0.id == behind })
+        s.creatures[index].gap = 8
+        s.creatures[index].hp = 100
+        s.creatures[index].maxHP = 100
+        _ = run(&s, seconds: 0.1)
+        XCTAssertEqual(creature(s, id: king)?.action, .attackingGuards)
+        XCTAssertEqual(creature(s, id: behind)?.action, .attackingGuards)
+        XCTAssertEqual(creature(s, id: king)?.hp ?? 0, balance.creature(.lightlessKing).hp, accuracy: 1e-9)
+        XCTAssertEqual(creature(s, id: behind)?.hp ?? 0, 100 - 2 * balance.guardDPS * 0.1, accuracy: 1e-9,
+                       "both guards strike the sootling behind him")
+    }
+
     func testSlayingTheKingWinsTheNight() throws {
         var s = finale(beacon: true)
+        settle(&s)
         s.spawns = [SpawnEntry(time: s.nightTime + 500, kind: .sootling, wave: 4)]
         let id = spawn(&s, .lightlessKing, at: 700)
         for x in [600.0, 900, 1250] { spawn(&s, .sootling, at: x) }
@@ -558,10 +707,14 @@ final class BattleTests: XCTestCase {
         let events = run(&s, seconds: 0.2)
         XCTAssertTrue(events.contains(.kingSlain))
         XCTAssertTrue(events.contains(.gloomRecedes))
+        XCTAssertTrue(events.contains(.firstLight), "dawn breaks at once")
+        XCTAssertGreaterThanOrEqual(s.hour, 5)
+        XCTAssertLessThan(s.hour, 5.1)
         XCTAssertTrue(s.creatures.isEmpty, "every creature dissolves")
         XCTAssertTrue(s.spawns.isEmpty, "the waves still to come stay away")
         XCTAssertTrue(s.night.kingSlain)
         XCTAssertEqual(s.night.kingSlainX ?? 0, 700, accuracy: 10)
+        XCTAssertGreaterThan(s.night.kingLightLeft ?? 0, 10, "he was far from the edge of the light")
         XCTAssertTrue(s.night.gloomReceded)
         XCTAssertEqual(s.night.dissolved, 3)
         XCTAssertEqual(s.night.killedByArchers, 1)
@@ -572,5 +725,30 @@ final class BattleTests: XCTestCase {
         XCTAssertTrue(report.held)
         XCTAssertTrue(report.gloomReceded)
         XCTAssertEqual(report.night, 20)
+    }
+
+    /// A King who falls in the step the hearth goes out does not win the night: the realm fell first, and the report
+    /// after a second chance says so.
+    func testAKingWhoFallsAsTheHearthGoesOutDoesNotWinTheNight() throws {
+        var s = finale(beacon: true)
+        settle(&s)
+        s.hearth = 0.1
+        let id = spawn(&s, .lightlessKing, at: 700, still: true)
+        spawn(&s, .ashBrute, at: Realm.hearthX - 4, still: true)
+        let king = try XCTUnwrap(s.creatures.firstIndex { $0.id == id })
+        s.creatures[king].hp = 1
+        s.projectiles.append(Projectile(kind: .arrow, fromX: 660, fromY: 34, toX: 700, toY: 30, duration: 0.05,
+                                        target: id, damage: balance.archerDamage))
+        var events = run(&s, seconds: 0.1)
+        XCTAssertTrue(s.defeated)
+        XCTAssertTrue(events.contains(.defeat))
+        XCTAssertFalse(events.contains(.kingSlain))
+        XCTAssertFalse(s.night.kingSlain)
+        XCTAssertFalse(s.night.gloomReceded)
+        Sim.secondChance(&s, balance: balance, events: &events)
+        let report = try XCTUnwrap(s.lastReport)
+        XCTAssertEqual(report.realmFell, true)
+        XCTAssertNil(report.kingSlain)
+        XCTAssertFalse(report.slewTheKing)
     }
 }

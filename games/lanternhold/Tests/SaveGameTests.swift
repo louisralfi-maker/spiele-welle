@@ -132,6 +132,7 @@ final class SaveGameTests: XCTestCase {
         XCTAssertNil(state.night.kingLeftSecond)
         XCTAssertNil(state.night.kingSlainSecond)
         XCTAssertFalse(state.night.kingSlain)
+        XCTAssertNil(state.night.kingLightLeft)
         XCTAssertNil(SaveGame.indexProblem(state))
         let again = try XCTUnwrap(load(try save.encoded()))
         XCTAssertTrue(again == save, "it writes back what it read")

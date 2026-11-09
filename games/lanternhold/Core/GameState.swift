@@ -267,6 +267,9 @@ struct NightStats: Codable, Sendable, Equatable {
     var kingLeftSecond: Double?
     var kingSlainSecond: Double?
     var kingSlainX: Double?
+    /// About how many seconds he would still have stayed in the beacon's light where he fell (his walk to its edge and
+    /// the walls in the way: `Battle.kingLightLeft`), the tuning's margin.
+    var kingLightLeft: Double?
 
     /// The Lightless King fell tonight: the Gloom receded at once.
     var kingSlain: Bool { kingSlainSecond != nil }

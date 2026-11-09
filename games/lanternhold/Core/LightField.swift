@@ -2,7 +2,8 @@
 enum LightKind: String, Sendable, CaseIterable, Equatable {
     case torch, brazier, fireTower, fireArrow, firepot, lantern, hearth, window, candle, beacon, moon
 
-    /// Radius in game pixels from DESIGN.md "Light rules" (window, candle and moon are scene-only values).
+    /// Radius in game pixels from DESIGN.md "Light rules" (window, candle and moon are scene-only values; the beacon's is
+    /// the battle's `Balance.beaconRadius`).
     var defaultRadius: Double {
         switch self {
         case .torch: return 30
@@ -14,7 +15,7 @@ enum LightKind: String, Sendable, CaseIterable, Equatable {
         case .hearth: return 70
         case .window: return 14
         case .candle: return 12
-        case .beacon: return 600
+        case .beacon: return Balance.standard.beaconRadius
         case .moon: return 400
         }
     }

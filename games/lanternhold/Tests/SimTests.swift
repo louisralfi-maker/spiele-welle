@@ -109,81 +109,13 @@ final class SimTests: XCTestCase {
     /// the same soldier losses within one.
     /// Soldier losses: contact damage is harm × the time in contact (it sampled the distance once a step until round
     /// lh-fin-1). Without the beacon they are compared up to the gatehouse's fall; every fall is in the attachment.
+    /// The checks live in `TuningRun.nightTwentyStepCheck`, so `tools/simtune` runs them for every balance variant.
     func testTheHeadlessStepKeepsNightTwentysOutcome() {
         var lines: [String] = []
-        func text(_ n: NightStats, _ fell: Bool) -> String {
-            "fell \(fell) at \(n.defeatHour.map { String(Int(($0 * 100).rounded())) } ?? "-"), fallen \(n.fallen.count)"
-                + ", killed \(n.killed), " + TuningRun.timeline(n)
-        }
         for seed: UInt64 in 1...3 {
-            let first = TuningRun.play(GameState.newRealm(seed: seed, balance: balance), bot: Autoplay.reference(),
-                                       balance: balance, nights: 19)
-            XCTAssertNil(first.fellOnNight, "seed \(seed) reaches night 20")
-            guard first.fellOnNight == nil else { continue }
-
-            let eve = TuningRun.withoutBeacon(first.final)
-            let bot = Autoplay.reference(buildsBeacon: false)
-            let fine = TuningRun.tracedNight(eve, bot: bot, balance: balance, nightStep: Sim.frameStep)
-            let coarse = TuningRun.tracedNight(eve, bot: bot, balance: balance, nightStep: Sim.nightStep)
-            let a = fine.state.night
-            let b = coarse.state.night
-            lines.append("seed \(seed) without: 1/60 s \(text(a, fine.state.defeated)) | 0.1 s "
-                         + text(b, coarse.state.defeated))
-            for fall in fine.falls { lines.append("    1/60 s: " + fall.text) }
-            for fall in coarse.falls { lines.append("    0.1 s: " + fall.text) }
-            XCTAssertEqual(a.night, 20)
-            XCTAssertEqual(b.night, 20)
-            let firstLight = 9 * DayClock.secondsPerHour
-            let arrivals = [a.hearthFirstHitSecond, b.hearthFirstHitSecond].compactMap { $0 }
-            let nearFirstLight = arrivals.contains { abs($0 - firstLight) <= 3 }
-            if !nearFirstLight {
-                XCTAssertEqual(fine.state.defeated, coarse.state.defeated, "seed \(seed): the same outcome")
-            }
-            XCTAssertEqual(a.wallsLost, b.wallsLost, "seed \(seed): the same walls fall")
-            for (x, y) in zip(a.wallFallSeconds, b.wallFallSeconds) {
-                XCTAssertEqual(x, y, accuracy: 3, "seed \(seed): a wall falls at the same time")
-            }
-            if let x = a.hearthFirstHitSecond, let y = b.hearthFirstHitSecond {
-                XCTAssertEqual(x, y, accuracy: 3, "seed \(seed): the hearth is reached at the same time")
-            } else if let only = arrivals.first {
-                XCTAssertGreaterThanOrEqual(only, firstLight - 3,
-                                            "seed \(seed): only one run reached the hearth, so only in first light")
-            }
-            if let x = a.defeatHour, let y = b.defeatHour {
-                XCTAssertEqual(x, y, accuracy: 0.25, "seed \(seed): the realm falls at the same hour")
-            }
-            // Losses are compared while the realm still stands, up to the gatehouse's fall in the earlier run: after it
-            // the whole crowd pours into the castle, and whether it catches the gate's archers on their way to the keep
-            // turns on that second (round lh-fin-1, seed 3: 0 against 4). Every fall stays in the attachment.
-            func gateFall(_ n: NightStats) -> Double {
-                guard let k = n.wallsLost.firstIndex(of: Realm.plots[Realm.lines[0].wall].key),
-                      k < n.wallFallSeconds.count else { return .infinity }
-                return n.wallFallSeconds[k]
-            }
-            let standing = min(gateFall(a), gateFall(b))
-            let fineBefore = fine.falls.filter { $0.second < standing }.count
-            let coarseBefore = coarse.falls.filter { $0.second < standing }.count
-            XCTAssertLessThanOrEqual(abs(fineBefore - coarseBefore), 1,
-                                     "seed \(seed) without: \(fineBefore) fallen before the gatehouse fell at 1/60 s, "
-                                     + "\(coarseBefore) at 0.1 s")
-
-            let fineWith = TuningRun.tracedNight(first.final, bot: Autoplay.reference(), balance: balance,
-                                                 nightStep: Sim.frameStep)
-            let coarseWith = TuningRun.tracedNight(first.final, bot: Autoplay.reference(), balance: balance,
-                                                   nightStep: Sim.nightStep)
-            let c = fineWith.state.night
-            let d = coarseWith.state.night
-            lines.append("seed \(seed) with: 1/60 s \(text(c, fineWith.state.defeated)) | 0.1 s "
-                         + text(d, coarseWith.state.defeated))
-            for fall in fineWith.falls { lines.append("    1/60 s: " + fall.text) }
-            for fall in coarseWith.falls { lines.append("    0.1 s: " + fall.text) }
-            XCTAssertEqual(fineWith.state.defeated, coarseWith.state.defeated, "seed \(seed) with: the same outcome")
-            XCTAssertEqual(c.kingSlain, d.kingSlain, "seed \(seed) with: the King slain in both runs or in neither")
-            if let x = c.kingSlainSecond, let y = d.kingSlainSecond {
-                XCTAssertEqual(x, y, accuracy: 3, "seed \(seed) with: the King falls at the same time")
-            }
-            XCTAssertLessThanOrEqual(abs(c.fallen.count - d.fallen.count), 1,
-                                     "seed \(seed) with: \(c.fallen.count) fallen at 1/60 s, \(d.fallen.count) at 0.1 s")
+            let check = TuningRun.nightTwentyStepCheck(seed: seed, balance: balance)
+            lines.append(contentsOf: check.lines)
+            for failure in check.failures { XCTFail(failure) }
         }
         let attachment = XCTAttachment(string: lines.joined(separator: "\n"))
         attachment.name = "night-twenty-steps"

@@ -23,7 +23,15 @@ enum SimEvent: Sendable, Equatable {
     case beaconLit
     /// Night 20: the Lightless King fell in the beacon's light.
     case kingSlain
+    /// The Gloom recedes (after the King's fall): every creature dissolves and dawn breaks at once.
     case gloomRecedes
+    /// The Lightless King steps into the beacon's light: his aura shatters and he can be hurt.
+    case kingAuraBroken(x: Double)
+    /// He steps out of it: his darkness closes around him again.
+    case kingAuraClosed(x: Double)
+    /// An arrow, bolt or firepot strikes the Lightless King outside the beacon's light and glances off (a spark, a dull
+    /// sound).
+    case glancedOff(x: Double)
 }
 
 /// What the action button offers the king at night (DESIGN.md "The king at night").
@@ -98,7 +106,7 @@ enum Sim {
                                 happinessAfter: people.happinessAfter, happinessChanges: people.changes,
                                 citizensBefore: citizensBefore, citizensAfter: s.citizens, grown: people.grown,
                                 left: people.left, volunteer: people.volunteer, unlocked: unlocked, goldAfter: s.gold,
-                                realmFell: fell ? true : nil, kingSlain: stats.kingSlain ? true : nil)
+                                realmFell: fell ? true : nil, kingSlain: stats.kingSlain && !fell ? true : nil)
         s.lastReport = report
         events.append(.dawn(day: s.day))
     }

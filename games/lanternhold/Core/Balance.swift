@@ -213,7 +213,7 @@ struct Balance: Sendable, Equatable {
                       burns: false),
         CreatureStats(.ashGiant, firstNight: 10, hp: 1000, unlit: 10, lit: 7, harm: 60, points: 0, height: 110,
                       burns: false),
-        CreatureStats(.lightlessKing, firstNight: 20, hp: 500, unlit: 24, lit: 24, harm: 150, points: 0, height: 64,
+        CreatureStats(.lightlessKing, firstNight: 20, hp: 600, unlit: 24, lit: 12, harm: 150, points: 0, height: 64,
                       burns: false),
     ]
 
@@ -253,13 +253,16 @@ struct Balance: Sendable, Equatable {
     var aimAtTheKing = true
     /// Bosses strike soldiers they walk past on the ground (contact damage), as every creature does.
     var bossesStrikeInPassing = true
-    /// Night 20 (DESIGN.md "Story"): a finished Great Beacon is lit the moment the Lightless King leaves the Gloom and
-    /// burns until dawn. Inside its lit reach (radius × `LightField.litRadiusFraction` around `Realm.beaconX`, the
-    /// outer and the middle line) the King's darkness fails: he counts as lit and can be hurt.
-    var beaconRadius = 760.0
+    /// Night 20 (DESIGN.md "The finale"): a finished Great Beacon is lit the moment the Lightless King leaves the Gloom
+    /// and burns until dawn. Inside its lit reach (radius × `LightField.litRadiusFraction` around `Realm.beaconX`, right
+    /// of the darkness bank's edge: from x 360 to just behind the middle line's engine at 990) the King's darkness
+    /// fails: he counts as lit, walks at his lit speed and can be hurt.
+    var beaconRadius = 840.0
     var beaconFlameY = 60.0
-    /// With the beacon lit, the darkness bank stops here at night.
+    /// With the beacon lit, the darkness bank stops here at night; it falls back there over this many seconds when the
+    /// beacon flares up.
     var beaconBankEdge = 360.0
+    var beaconBankSeconds = 1.5
     /// The lit beacon's radius on the endless nights after the finale (0: it lights only the finale).
     var beaconEndlessRadius = 0.0
     /// Global knobs for the tuning harness.
