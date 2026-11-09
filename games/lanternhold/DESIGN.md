@@ -317,7 +317,7 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 | Ash brute | 7 | 120 | 14 / 8 | 20 per s to walls | 44 px | never slower than 8; does not burn |
 | Gloomweaver | 12 | 40 | 22 / 12 | none | 30 px | carries a 50 px bubble of darkness that cancels light inside it |
 | Ash Giant (boss) | night 10 | 1000 | 10 / 7 | 60 per s; stomp shakes the screen | 110 px | |
-| The Lightless King (boss) | night 20 | 700 | 24 in his own darkness / 12 in the Great Beacon's light | 150 per s, to the hearth too; 80 px darkness aura | 64 px | leaves at 20:50 ± 0:40 (10 s ± 8 s after nightfall; provisional, see the Tuning) and marches on the hearth; calls 6 sootlings every 15 s; can be hurt only inside the lit beacon's light, where his aura fails, he counts as lit and slows to his lit speed (see "The finale"); tuned from 2400 HP, 12 / 9 px/s and 40 per s |
+| The Lightless King (boss) | night 20 | 700 | 24 in his own darkness / 12 in the Great Beacon's light | 150 per s, to the hearth too; 80 px darkness aura | 64 px | leaves at 20:20 ± 0:05 (4 s ± 1 s after nightfall since the M3 join; 20:50 ± 0:40 before, see "M3 join") and marches on the hearth; calls 6 sootlings every 15 s; can be hurt only inside the lit beacon's light, where his aura fails, he counts as lit and slows to his lit speed (see "The finale"); tuned from 2400 HP, 12 / 9 px/s and 40 per s |
 
 - Night budget `B(n) = 16 + 9 n` points (sootling 1, hound 2, crow 2, weaver 6, brute 10), split into 3 waves on nights
   1 to 4, 4 waves on 5 to 14 and 5 waves on 15 to 20; the last wave leaves by 03:00. Boss nights add the boss.
@@ -537,7 +537,8 @@ Each is a short scene of three panels; then the realm goes on in endless mode.
 
 - Unlocks after chapter 1. **Continue the realm** keeps the chapter's end state and goes on with night 21; **New realm**
   starts fresh from day 1 with random petitions only.
-- Nights scale with `B(n) = 16 + 9 n + 0.4 (n − 20)²` beyond night 20 (tuned from 0.15); random events (an eclipse with a double wave,
+- Nights scale with `B(n) = 16 + 9 n + 0.5 (n − 20)²` beyond night 20 (tuned from 0.15 to 0.4 in M2a, to 0.5 in the M3
+  join); random events (an eclipse with a double wave,
   a festival, a plague of crows). The events are not built yet (M3 or later); T7 was tuned without them and must be
   measured again when they arrive.
 - Records: the highest night survived per mode (chapter, endless continued, endless new), kept in the save's
@@ -931,15 +932,18 @@ same seed and time give the same hash), `SaveGameTests` (round trip, old saves, 
 3. The reference bot finishes all three beacon stages by day 18 with normal tax; with low tax all the time it cannot.
 4. High tax all the time drops happiness below 30 by day 8; low tax all the time keeps it above 70.
 5. Day 1 taxes buy 2 to 3 builds; by day 10 the reference bot owns 8 to 12 buildings.
-6. Night 20 with the beacon is won by the reference bot in at least 8 of 10 seeds and the Lightless King is slain in at
-   least 6 of 10 (his kill times are reported: about 25 to 70 s after he leaves the Gloom); without the beacon it is won
-   in 3 to 6 of 10. "Without" is the same realm on the eve of night 20 with the beacon's last stage taken away, so the
-   two runs differ only by the beacon. A whole run of a bot that never builds the beacon (its gold goes into the rest of
-   the order) is reported beside it, not asserted. Margins are reported per seed: the seconds of the beacon's light the
-   King had left where he fell (his walk to its edge plus the walls in his way, `Battle.kingLightLeft`), and without
-   the beacon the seconds before first light at which the realm fell or the hearth's lowest strength where it held;
-   `tools/simtune` also counts seeds 1 to 20, so the bands are chosen with margin, not on a coin flip.
-7. In endless, the reference bot falls between night 35 and 60.
+6. Over seeds 1 to 20 (since the M3 join; ten seeds before), night 20 with the beacon is won by the reference bot in at
+   least 80 % and the Lightless King is slain in at least 60 % (his kill times are reported: about 25 to 70 s after he
+   leaves the Gloom); without the beacon 30 to 60 % hold. "Without" is the same realm on the eve of night 20 with the
+   beacon's last stage taken away, so the two runs differ only by the beacon. A whole run of a bot that never builds
+   the beacon (its gold goes into the rest of the order) is reported beside it for the first ten seeds, not asserted.
+   Margins are reported per seed: the seconds of the beacon's light the King had left where he fell (his walk to its
+   edge plus the walls in his way, `Battle.kingLightLeft`), and without the beacon the seconds before first light at
+   which the realm fell or the hearth's lowest strength where it held.
+   The bands are shares of 20 seeds, so a single draw no longer decides them (`tools/simtune finale` sweeps the
+   finale's numbers over the same 20 seeds).
+7. In endless, the reference bot falls between night 35 and 60 in at least 80 % of 20 endless seeds (the realms of
+   seeds 1 to 20 at dawn 21, played on; three seeds before the M3 join, all three in the band).
 8. Each night's last wave leaves by 03:00; a night with 40 creatures keeps under 300 sprite instances and 40 lights.
    `TuningTests` keeps the sim-side proxy (drawn sim entities and battle lights on the night nearest 40 creatures);
    M2b's `FrameBudgetTests` counts the real frames: 40 creatures alive across the front of the manned demo realm with
@@ -2185,6 +2189,120 @@ same numbers.
 - The cart's lantern mask, the hall's glass masks and the room fires use the art lane's anchors; on this branch's
   placeholders they now match too.
 - Reduce Motion: no walks, no fades (the fronts swap), no card transitions; the speech mark holds still.
+
+### M3 join (09.11.2026): the art, the M2b review's fixes and the finale's draw
+
+The join brought M3's three lanes and the planning branch together on `claude/lh-m3`: M3's code (steps 1 to 3), M3's art
+(`claude/lh-m3-art` after its review and fix stage) and `claude/game2-planning-354541` (the M2b review's fix stage with
+M2a's battle restored, round `lh-rev-f4`, and Louis' decisions of 09.11. evening).
+
+**The merge**
+
+- `claude/lh-m3-art` merged cleanly (tools, Resources/Art, ART-court.md). Hesper's moved flame needs nothing in the
+  code: the glow strip draws over the body, and no light sits at her flame.
+- `claude/game2-planning-354541` conflicted in five files, resolved so both sides stay:
+  - `GameModel`: M3's court state beside the review's save store, holds, build verbs, the horn by day and the cached
+    filtered scene. The cache now also keys on the rooms' fades and the dark keep window
+    (`CastleRooms.SceneKey`), so `CastleRooms.scene` runs only when a room fades or the keep window changes, not 60
+    times a second.
+  - `FrameDesc`: M3's sprites beside the review's 18x6 streak.
+  - `HUDView`: M3's throne, talk and Stranger labels in the review's `(target, hold)` form.
+  - `Localizable.xcstrings`: merged key by key (33 M3 keys, 13 review keys, 2 review renames, no key changed on both
+    sides).
+  - DESIGN.md: both sides' sections in order (the M2b review before M3's three steps).
+- Clashes in meaning, fixed in the merge:
+  - `KingTargets.hold` (new on the review side) covers M3's lectern, talk and Stranger targets.
+  - The review hides the HUD under every card and screen, drops the pause button under the screens and draws the
+    world at 20 fps under them, all keyed on "not a card". M3's audience is neither: its card stands below the HUD,
+    whose numbers roll there after a choice, the pause sheet ends the audience, and the hall lives on under the card.
+    `Overlay.isScreen` (the dawn report, the defeat card, the pause sheet) now decides the pause button and the 20
+    fps; the HUD's clock and numbers stay during the audience (the strip still rests for Odile's counsel).
+  - The review made the gorge keep's glass smaller (its right pane at dx 65); the dark keep window
+    (`castle.keep.window.dark`) now darkens it there too.
+  - `AudienceFlowTests` use a temporary save store, as the review's `GameScreensTests` do.
+  - "Sound the horn" by day plays the day on headless to 18:59; petitioners still waiting go home unheard at the horn
+    as on any day.
+- `tools/simtune/run.sh` compiles M3's core: the petitions the reference bot hears (`Core/Petition*.swift`) and, since
+  the review's line-1 torches read `WorldLayout`, `WorldLayout`, `Camera` and `PixelScale`. Started in the game's
+  folder, it reads `Resources/Petitions`. `run.sh finale` sweeps the Lightless King's departure, its jitter and his
+  walk in the dark on night 20 over seeds 1 to 20 (`SimTune.finale`).
+
+**T6 and T7 over 20 seeds** (the lead's decision on step 2's open point)
+
+Both targets now count 20 seeds and state their bands as shares (`TuningMetrics.targetSeeds`; "Tuning targets" 6 and
+7): T6 with the beacon won in at least 80 % and the King slain in at least 60 %, without it 30 to 60 % held; T7 at
+least 80 % of 20 endless seeds falling between nights 35 and 60. Measured on the merged code (round `lh-m3-j1`, the
+same numbers as `lh-m3-b3` on seeds 1 to 10):
+
+- T6 with the beacon: won 20 of 20, the King slain 20 of 20, 58 to 65 s after he left, with 12 to 22 s of light left.
+- T6 without: **18 of 20 held (90 %)**; only seeds 9 (F1) and 15 (F7) fell. The draw decided it: with the King leaving
+  at the earliest second of 10 ± 8 (2 s) 6 of 20 held, at the latest (18 s) all 20, and 14 of 20 seeds flipped
+  between the two. The finale was too easy without the beacon, and the beacon has to matter.
+- T7: falls on nights 45, 65, 51, 0, 0, 39, 46, 0, 49, 61, 66, 47, 46, 62, 50, 51, 49, 44, 47, 46: **13 of 20 in the
+  band**, three realms still standing at the cap and four falling at 61 to 66, the median fall 49.
+
+The sweep (`tools/simtune/run.sh finale`, rounds `lh-m3-j1` and `j2`; nights 1 to 19 do not depend on the King, so
+each seed's eve is played once and every variant plays night 20 from it): held without the beacon, of 20 (with the
+beacon every variant won 20 of 20 and slew the King in all 20, 56 to 65 s after he left).
+
+| Departure | ± 0 | ± 1 | ± 2 |
+|---|---|---|---|
+| 10 s | 14 | 15 | 18 (± 3: 17, ± 4: 18, ± 8: 18) |
+| 8 s | | 13 | 14 |
+| 7 s | 13 | 12 | 13 |
+| 6 s | 10 | 10 | 10 |
+| 5 s | 8 | 8 | 10 |
+| 4 s | 12 | **10** | 9 |
+| 3 s | 6 | 8 | 9 |
+
+His walk in the dark at 10 s: 25 px/s held 13 (± 1) and 11 (± 2), 26 px/s 5 and 5, 27 px/s 0 and 2, 28 px/s 0. Night
+20's step check (seeds 1 to 3) passed at 10 ± 8, 7 ± 1, 4 ± 1, 3 ± 0 and 3 ± 2; it failed at 6 s and 5 s with every
+jitter (seed 1 without the beacon: the hearth reached 4 s apart between the step sizes, 108.8 against 104.7 s, the
+courtyard phase after the gatehouse falls, as in M2a's sweep), at 4 ± 0, 4 ± 2 and 3 ± 1, and at 25 px/s.
+
+**Decision: the King leaves at 4 ± 1 s (20:20 ± 0:05; `Balance.kingSecond` 4, `kingJitter` 1).**
+
+- The jitter narrowed from ± 8 to ± 1 s and the departure 6 s earlier: without the beacon **10 of 20 hold (50 %)**,
+  the middle of the band; with it 20 of 20 won and the King slain in all 20, 59 to 64 s after he left, with 11 to 22 s
+  of light left; the step check passes. Margins without the beacon: H98, H1, H100, F1, F5, F0, H100, F2, F5, F1, H100,
+  H100, H97, H26, F3, F9, F3, F14, H100, H100.
+- The outcome now hangs on the realm, not the draw: over the whole ± 1 window 6 (leaving at 3 s) to 8 (at 5 s) of 20
+  hold, against 6 to 20 over 10 ± 8. The seeds that still flip inside the window are the realms that fall or hold
+  within a few seconds of first light (F0 to F5, H1), where any change of the night moves them.
+- Why not less: 7 ± 1 s, the smallest shift into the band, lands on its upper edge (12 of 20 = 60 %) only through its
+  draws (± 0 and ± 2 hold 13, out of the band), so any content change would push it out; 6 s and 5 s lie inside the
+  band with every jitter but fail the step check. 4 ± 1 s is the smallest shift inside the band with every jitter that
+  passes the step check.
+- Not his walk: one pixel per second moves the share by 6 to 8 seeds (25 px/s 11 or 13, 26 px/s 5), and 25 px/s
+  fails the step check. Not first light: it times every night, so T1 to T8 would all move.
+
+**T7: tuned, not widened.** At 4 ± 1 s and the old endless growth (0.4) T7 falls on 46, 65, 43, 47, 0, 34, 58, 51, 49,
+61, 59, 57, 34, 46, 50, 49, 47, 47, 51, 50: 15 of 20 in the band (75 %). Over all 14 finale variants of round `j2`
+(each reshuffles the realms at dawn 21) T7 kept 12 to 15 of 20 in the band, every variant with one to three realms
+still standing at the cap, most with falls at 61 to 66, the median fall 49 to 51: a tail of realms that never lose
+their gatehouse, which is systematic, not noise. The endless growth over the same 14 variants:
+
+| `endlessQuadratic` | In the band, of 20 | Variants failing T7 | Standing at the cap | Median fall |
+|---|---|---|---|---|
+| 0.4 | 12 to 15 (mean 13.6) | 14 of 14 | 1 to 3 (mean 2.1) | 49 to 51 |
+| 0.45 | 15 to 18 (16.4) | 3 | 2 to 4 (2.7) | 45 to 47 |
+| **0.5** | 16 to 19 (17.7) | 0 | 0 to 3 (1.4) | 45 to 48 |
+| 0.55 | 17 to 20 (18.6) | 0 | 0 to 3 (1.4) | 44 to 47 |
+
+**Decision: `endlessQuadratic` 0.4 → 0.5**, the smallest growth that keeps T7 in its band for every finale variant
+measured (the story pass after the merge will reshuffle the realms at dawn 21 again). With 4 ± 1 s: falls on 46, 46,
+48, 43, 55, 37, 52, 50, 39, 53, 53, 49, 38, 49, 38, 0, 63, 44, 45, 0: **17 of 20 in the band (85 %)**, the median fall
+48. It changes only the nights after 20, so T1 to T6 and T8 do not move.
+
+**Runner rounds (M3 join)**
+
+- `lh-m3-j1` (build, unit, ui, ui-de, release, `sh bash tools/simtune/run.sh finale`) on `8467449`, the merged branch
+  with T6 and T7 over 20 seeds: build passed without a compiler warning from the game's code; unit failed only T6
+  (without the beacon 18 of 20 held) and T7 (13 of 20 in the band), every other test passed (the step check, T1 to T5
+  and T8 as in `lh-m3-b3`); ui, ui-de and release passed; simtune compiled the core in 78 s and swept 31 variants in
+  65 s. The audience's shots show the HUD's clock and numbers above the card and the art lane's court and portraits.
+- `lh-m3-j2` (`sh bash tools/simtune/run.sh finale`) on `3a44971`: the departures 7 to 3 s with ± 1, ± 0 and ± 2 and T7
+  with each endless growth (the tables above), 560 s.
 
 ## Risks
 

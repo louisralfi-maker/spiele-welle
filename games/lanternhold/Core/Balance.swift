@@ -219,10 +219,12 @@ struct Balance: Sendable, Equatable {
 
     /// Sootlings burn this much per second in light.
     var burnPerSecond = 2.0
-    /// Night budget `B(n) = budgetBase + budgetPerNight × n`, plus `endlessQuadratic × (n − 20)²` beyond night 20.
+    /// Night budget `B(n) = budgetBase + budgetPerNight × n`, plus `endlessQuadratic × (n − 20)²` beyond night 20
+    /// (0.4 until the M3 join: over 20 endless seeds one to three realms a seed set never fell and others outlasted
+    /// night 60; 0.5 brings 17 of 20 into T7's band, DESIGN.md "M3 join").
     var budgetBase = 16.0
     var budgetPerNight = 9.0
-    var endlessQuadratic = 0.4
+    var endlessQuadratic = 0.5
     /// Shares of the budget once a kind has arrived; sootlings take the rest.
     var houndShare = 0.25
     var crowShare = 0.10
@@ -242,11 +244,12 @@ struct Balance: Sendable, Equatable {
     var waveSpread = 10.0
     var spawnInterval = 0.35
     var bossSecond = 20.0
-    /// The Lightless King leaves the Gloom this many seconds after nightfall (10 s is 20:50; ± `kingJitter`) and
-    /// marches on the hearth.
-    var kingSecond = 10.0
+    /// The Lightless King leaves the Gloom this many seconds after nightfall (4 s is 20:20; ± `kingJitter`) and
+    /// marches on the hearth. M3 join: 10 ± 8 s until then, when the draw decided night 20 without the beacon (held
+    /// in 18 of 20 seeds; leaving at 2 s 6 held, at 18 s all 20); at 4 ± 1 s 10 of 20 hold (DESIGN.md "M3 join").
+    var kingSecond = 4.0
     /// The Lightless King's start varies by up to this many seconds (seeded).
-    var kingJitter = 8.0
+    var kingJitter = 1.0
     /// Bosses drain the hearth by their harm per second (other creatures by `hearthDrain`).
     var bossesDrainByHarm = true
     /// Archers and ballistas aim at the Lightless King first whenever he can be hurt (inside the beacon's light).
