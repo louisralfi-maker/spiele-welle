@@ -79,7 +79,7 @@ struct GameHUD: View {
                         }
                         if let night = model.hornNight {
                             HornBanner(night: night)
-                                .transition(model.reduceMotion ? .identity : .opacity)
+                                .transition(model.reduceMotion ? AnyTransition.identity : AnyTransition.opacity)
                         }
                     }
                     .animation(model.reduceMotion ? nil : .easeInOut(duration: 0.35), value: model.hornNight)

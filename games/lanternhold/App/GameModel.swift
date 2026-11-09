@@ -116,7 +116,7 @@ final class GameModel {
     /// The probe's action button.
     private(set) var action: BrazierAction?
     /// The game's action button: what is in front of the king (nil: the button hides).
-    private(set) var target: KingTarget?
+    private(set) var target: KingTarget? = nil
     private(set) var debugKingX = 0
     private(set) var debugCameraX = 0.0
     private(set) var statsText = ""
@@ -126,7 +126,7 @@ final class GameModel {
     private(set) var sceneStatus = ""
 
     // The HUD and the screens (the game).
-    private(set) var overlay: Overlay?
+    private(set) var overlay: Overlay? = nil
     /// Where the open card's place is on screen, 0 ... 1 of the width (the card stands above it).
     private(set) var cardAnchor = 0.5
     private(set) var gold = 0
@@ -134,9 +134,9 @@ final class GameModel {
     /// Citizens, soldiers included (DESIGN.md "Economy": people), and how many of them are soldiers.
     private(set) var people = 0
     private(set) var soldiers = 0
-    private(set) var strip: RealmStrip?
+    private(set) var strip: RealmStrip? = nil
     /// The horn banner shows the coming night's number while set.
-    private(set) var hornNight: Int?
+    private(set) var hornNight: Int? = nil
     private(set) var settings = SaveSettings()
     /// Bumped by every action of the player, so the open card reads the realm again.
     private(set) var revision = 0
@@ -435,11 +435,12 @@ final class GameModel {
             guard let target, var game = driver, overlay == nil else { return }
             switch target {
             case .build(let plot):
-                open(.build(plot: plot), anchorX: KingTargets.anchorX(target, state: game.state, balance: game.balance))
+                let anchor = KingTargets.anchorX(target, state: game.state, balance: game.balance)
+                openCard(.build(plot: plot), anchorX: anchor)
             case .recruit:
-                open(.recruit, anchorX: KingTargets.barracksX)
+                openCard(.recruit, anchorX: KingTargets.barracksX)
             case .throne:
-                open(.taxes, anchorX: KingTargets.throneX)
+                openCard(.taxes, anchorX: KingTargets.throneX)
             case .light(let plot), .patch(let plot):
                 let action: KingAction = {
                     if case .light = target { return .light(plot: plot) }
@@ -479,7 +480,7 @@ final class GameModel {
         refreshHUD()
     }
 
-    private func open(_ card: Overlay, anchorX: Double) {
+    private func openCard(_ card: Overlay, anchorX: Double) {
         if let view = camera {
             cardAnchor = min(1, max(0, (anchorX - view.x) / max(1, view.viewWidth)))
         }
@@ -506,7 +507,7 @@ final class GameModel {
     func showPlot(_ plot: Int) {
         guard case .build? = overlay, let game = driver, plot >= 0, plot < Realm.plots.count else { return }
         let x = KingTargets.spotX(plot: plot, layouts: KingTargets.layouts(game.state, balance: game.balance))
-        open(.build(plot: plot), anchorX: x)
+        openCard(.build(plot: plot), anchorX: x)
     }
 
     /// Orders `item` on the open card's plot through the simulation; the card closes when the order stands.
