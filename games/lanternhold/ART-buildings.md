@@ -42,8 +42,18 @@ Recraft (`bash tools/recraft.sh`, `recraftv4_1`, 35 credits per image), budget 1
 | `gateGreat` | 46x60 x 3 | grid | tier 3: steel-plated leaves behind a heavy portcullis (three-pixel bars, gold bosses, gold-capped teeth) with the realm's crest on its centre crossing; damaged: a plate staved in with bent bars round it, a plate torn away (oak beneath), the crest cracked and chipped, a tooth snapped, scorch; open: heavy gold-capped teeth under the arch, plated leaves with gold rivets swung in |
 | `gateBroken` | 46x20 | grid | a broken leaf lying tilted, a beam across the front, a bent piece of the portcullis with its teeth, splinters |
 
+| `archerTower` | 20x48 | grid | tier 1: a timber frame tower (splayed legs, braces, a ladder, a deck with a plank parapet) |
+| `watchtower` | 24x64 | grid (design from `beacon-a`'s right piece) | tier 2: a slender stone tower, merlons on corbels, an arrow slit, a barred window, an oak door, a teal pennant |
+| `fireTower` | 14x40 | grid | tier 2 of the brazier: a stone column on a stepped plinth with an iron fire basket of coals |
+| `ballista` | 28x16 x 2 | grid `tools/grids/ballista.txt` | aimed left; frame 0 loaded (the milestone 1 pixels), frame 1 loosed: no bolt, arms sprung forward, the string straight between the tips |
+| `catapult` | 32x24 x 3 | grid | a mangonel throwing left: the stop beam end-on on a braced upright, a torsion skein, a rear post and winch; rest (a firepot with a rag wick in the cup), wind (the arm hauled down by the taut rope), throw (the arm against the padded stop, the cup empty) |
+| `stakePit` | 24x8 x 2 | grid | armed: three sharpened stakes leaning toward the Gloom; sprung: splintered stubs with soot, the points lying on the rim |
+
 The tiers read at a glance: the palisade (20x34, brown stakes) < the stone wall (36x52, two merlons) < the bastion
 (44x64: crown on corbels, three merlons, talus, banner).
+
+The towers: an open timber frame (20x48) < a stone tower with merlons and a pennant (24x64); the brazier's iron tripod
+(10x14) < the fire tower's stone column (14x40).
 
 The gates: plain oak doors < the same behind an iron grid < steel plates behind a heavy gold-studded grid with the
 crest.
@@ -66,6 +76,19 @@ shadows), two-row crossbars at rows 163-164 and 170-171. The passage below row 1
   39-44), the passage between them stays the front's; the iron and great gates show the raised portcullis' teeth in
   rows 0-2.
 - `gateBroken` is placed the same way (bottom on the ground line, x 1337) over the open passage.
+
+## Anchors for the engine (sprite pixels; dx from the left edge, dy up from the bottom row, as layout_m1b.py)
+
+Archer posts, flames and window glass:
+
+| sprite | what | where |
+|---|---|---|
+| `archerTower` | archers' feet | y 42 (on the deck), foot centres at x 5 and 14 |
+| `watchtower` | archers' feet | y 52 (the parapet walk), foot centres at x 4, 10, 15, 20 (the merlons reach y 56) |
+| `watchtower` | window glass | mask (dx 10, dy 24, w 4, h 6): the barred window; the arrow slit as a second mask (dx 11, dy 36, w 2, h 7) |
+| `fireTower` | flame | `brazierFlame` at (dx 3, dy 37) over the coals; its brazier light from (cx 7, y 41) |
+| `catapult` | firepot | it leaves the cup at frame 2's cup position, about (dx 13, dy 21); in frames 0 and 1 the pot sits in the cup at (dx 27, dy 16) and (dx 27, dy 12) |
+| `ballista` | bolt | the bolt leaves from the stock's front at (dx 0, dy 10), flying left |
 
 ## Notes for the lead
 

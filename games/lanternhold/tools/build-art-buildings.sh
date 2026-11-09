@@ -30,13 +30,15 @@ build() { # name: one sprite
     # milestone 1 conversion written out as a grid, with frame 1 beside it
     palisade|ballista)
                    python3 -I -B $T grid $G/$1.txt $A/$1.png ;;
-    stoneWall|bastion|rubbleWood|rubbleStone|scaffold|gateWood|gateIron|gateGreat|gateBroken)
+    stoneWall|bastion|rubbleWood|rubbleStone|scaffold|gateWood|gateIron|gateGreat|gateBroken|archerTower|watchtower|\
+    fireTower|catapult|stakePit)
                    python3 -I -B $T grid $GB/$1.txt $A/$1.png ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;
     esac
 }
 
-ALL="palisade stoneWall bastion rubbleWood rubbleStone scaffold gateWood gateIron gateGreat gateBroken"
+ALL="palisade stoneWall bastion rubbleWood rubbleStone scaffold gateWood gateIron gateGreat gateBroken archerTower
+watchtower fireTower ballista catapult stakePit"
 for name in ${@:-$ALL}; do
     cool
     build "$name"
