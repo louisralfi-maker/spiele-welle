@@ -52,8 +52,13 @@ struct TuningMetrics: Sendable {
     var t5FirstBuilds = 0
     var t5BuildingsDay10 = 0
     var t6WithBeacon = 0
+    /// "Without": the same realm with the beacon's last stage taken away, so night 20 differs only by the beacon.
     var t6WithoutBeacon = 0
     var t6Seeds = 0
+    /// Reported, not a target: a whole run of a bot that never builds the beacon (its gold goes into the rest of the
+    /// order), night 20 held in this many seeds, and the night or hour (× 100) each seed fell (0 = held all 20).
+    var t6NoBeaconRun = 0
+    var t6NoBeaconFalls: [Int] = []
     /// Night 20 without the beacon: the hour the realm fell (× 100, so 435 is 04:21), 0 when it held.
     var t6FallHours: [Int] = []
     var t7FellOn: [Int] = []
@@ -81,6 +86,8 @@ struct TuningMetrics: Sendable {
         case 5: return t5FirstBuilds >= 2 && t5FirstBuilds <= 3 && t5BuildingsDay10 >= 8 && t5BuildingsDay10 <= 12
         case 6: return t6Seeds == 10 && t6WithBeacon >= 8 && t6WithoutBeacon >= 3 && t6WithoutBeacon <= 6
         case 7: return !t7FellOn.isEmpty && t7FellOn.allSatisfy { $0 >= 35 && $0 <= 60 }
+        // A sim-side proxy: drawn sim entities and battle lights. The renderer's sprite instances and the scene lights
+        // are measured by a FrameBuilder budget test in M2b.
         case 8: return t8LastSpawnSecond <= 84 && t8Entities < 300 && t8Lights < 40
         default: return false
         }
@@ -104,11 +111,13 @@ struct TuningMetrics: Sendable {
         lines.append("T5 \(mark(5)) first dawn taxes \(t5FirstTaxes) buy \(t5FirstBuilds) builds (target 2-3); "
                      + "buildings by day 10: \(t5BuildingsDay10) (target 8-12)")
         lines.append("T6 \(mark(6)) night 20 won with the beacon \(t6WithBeacon)/\(t6Seeds) (target >= 8), without "
-                     + "\(t6WithoutBeacon)/\(t6Seeds) (target 3-6)")
+                     + "(same realm, last stage taken away) \(t6WithoutBeacon)/\(t6Seeds) (target 3-6), falls at "
+                     + "\(t6FallHours); reported only: a bot that never builds the beacon holds night 20 in "
+                     + "\(t6NoBeaconRun)/\(t6Seeds), falls \(t6NoBeaconFalls) (night × 1000 + hour × 100)")
         lines.append("T7 \(mark(7)) endless: falls on nights \(t7FellOn) (target 35-60; 0 = still standing at the cap)")
         lines.append("T8 \(mark(8)) last wave left at \(fmt(t8LastSpawnSecond)) s after nightfall (target <= 84); "
-                     + "night \(t8Night) with \(t8Creatures) creatures: \(t8Entities) entities (target < 300), "
-                     + "\(t8Lights) lights (target < 40)")
+                     + "sim proxy, night \(t8Night) with \(t8Creatures) creatures: \(t8Entities) sim entities "
+                     + "(target < 300), \(t8Lights) battle lights (target < 40)")
         lines.append("")
         lines.append("reference bot, seed 1:")
         lines.append(contentsOf: nightLog)
@@ -199,9 +208,10 @@ enum TuningRun {
         return line
     }
 
-    /// Measures all eight targets. `endlessCap` bounds the endless runs; `seedsT6` is 10 for the real target.
-    static func measure(balance: Balance, seedsT6: Int = 10, endlessSeeds: Int = 3, endlessCap: Int = 70)
-        -> TuningMetrics {
+    /// Measures all eight targets. `endlessCap` bounds the endless runs; `seedsT6` is 10 for the real target;
+    /// `noBeaconRuns` also plays whole runs of a bot that never builds the beacon (reported, not asserted).
+    static func measure(balance: Balance, seedsT6: Int = 10, endlessSeeds: Int = 3, endlessCap: Int = 70,
+                        noBeaconRuns: Bool = true) -> TuningMetrics {
         var m = TuningMetrics()
         let reference = Autoplay.reference()
 
@@ -244,6 +254,16 @@ enum TuningRun {
                 m.nightTwentyLog.append("seed \(seed): fell on night \(first.fellOnNight ?? 0)")
             }
             m.t6Seeds += 1
+            if noBeaconRuns {
+                let run = play(start, bot: Autoplay.reference(buildsBeacon: false), balance: balance, nights: 20)
+                if let night = run.fellOnNight {
+                    let hour = run.outcomes.last?.defeatHour ?? 0
+                    m.t6NoBeaconFalls.append(night * 1000 + Int((hour * 100).rounded()))
+                } else {
+                    m.t6NoBeaconRun += 1
+                    m.t6NoBeaconFalls.append(0)
+                }
+            }
             if seed <= 3 {
                 let early = outcomes.filter { $0.night <= 10 }
                 for o in early {

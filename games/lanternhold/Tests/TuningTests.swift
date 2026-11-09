@@ -4,8 +4,8 @@ import XCTest
 /// The eight tuning targets of DESIGN.md "Tuning targets", measured once with the bots (`TuningRun.measure`) and
 /// attached as `tuning-report.txt`. `tools/tune.py` mirrors the economy half on a Mac without Xcode.
 final class TuningTests: XCTestCase {
-    /// Two endless seeds (the harness runs three) keep the Debug build's run short.
-    private static let metrics: TuningMetrics = TuningRun.measure(balance: .standard, endlessSeeds: 2,
+    /// Three endless seeds, as the harness runs (seed 3 sits near the lower edge of T7).
+    private static let metrics: TuningMetrics = TuningRun.measure(balance: .standard, endlessSeeds: 3,
                                                                   endlessCap: 66)
 
     private func check(_ target: Int) {
@@ -37,12 +37,14 @@ final class TuningTests: XCTestCase {
     /// 5. Day 1 taxes buy 2 to 3 builds; by day 10 the reference bot owns 8 to 12 buildings.
     func testTarget5PaceOfBuilding() { check(5) }
 
-    /// 6. Night 20 is won in 8 of 10 seeds with the beacon, in 3 to 6 without it.
+    /// 6. Night 20 is won in 8 of 10 seeds with the beacon, in 3 to 6 without it ("without": the same realm with the
+    /// beacon's last stage taken away; a whole run that never builds the beacon is reported, not asserted).
     func testTarget6NightTwentyAndTheBeacon() { check(6) }
 
     /// 7. In endless, the reference bot falls between night 35 and 60.
     func testTarget7EndlessFallsBetweenThirtyFiveAndSixty() { check(7) }
 
-    /// 8. Each night's last wave leaves by 03:00; a night with about 40 creatures keeps under 300 entities and 40 lights.
+    /// 8. Each night's last wave leaves by 03:00; a night with about 40 creatures keeps under 300 entities and 40 lights
+    /// (a sim proxy: drawn sim entities and battle lights; the renderer's own budget test comes with M2b).
     func testTarget8WavesAndBudgets() { check(8) }
 }
