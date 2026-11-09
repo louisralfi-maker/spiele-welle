@@ -29,7 +29,7 @@ LEAFW=leafDeep,leafDark,leaf,meadow,leafLight,woodDark,wood,rockDeep,rockDark,ro
 DEADW=rockDeep,rockDark,rock,rockLight
 VISTA=fir0,fir1,fir2,fir3,fir4,leafDark,leaf,farDeep,far,mistDark,moon,mist,farPale,mistLight,foam
 # the procedural plants, lanes, fog and particles of look 2 (tools/depthart.py), now game art
-PLANTS="d2FgFerns d2FgMeadow d2FgReeds d2BushA d2BushB d2TreeBelt d2FirBeltFar laneMoorA laneMoorB laneMoorC laneMoorD laneCobbleA laneCobbleB laneCobbleC laneCobbleD laneEarthA laneEarthB laneEarthC laneEarthD d2LaneEnd d2Smoke d2Fireflies d2Sparks d2FogBank d2MistBand d2FogLow"
+PLANTS="d2FgFerns d2FgMeadow d2FgReeds d2BushA d2BushB d2TreeBelt d2FirBeltFar laneMoorA laneMoorB laneMoorC laneMoorD laneCobbleA laneCobbleB laneCobbleC laneCobbleD laneEarthA laneEarthB laneEarthC laneEarthD laneScreeA laneScreeB laneScreeC laneScreeD d2LaneEnd d2Smoke d2Fireflies d2Sparks d2FogBank d2MistBand d2FogLow"
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
     [ -x "$SMC" ] || return 0
@@ -55,13 +55,13 @@ cliff() { # name old-sprite box: the painting's granite in an old cliff sprite's
 
 build() { # name: one sprite (or one group of small ones)
     case $1 in
-    weltmauer)   # the wall with its two views of the cleft, the patch that hides the valley's view, the far castles' glow
+    weltmauer)   # the wall with its two views of the cleft, the patch that hides the valley's view, the far castles' glow, the slots' light
         px convert $W/wall-1.png $P/wallA.png --size 384x182 --key $K --only $FARW --match new; cool
         px convert $W/wall-1.png $P/wallB.png --size 420x190 --box 0,0,1400,768 --key $K --only $FARW --match new; cool
         wa wall $P/wallA.png $P/wallB.png $A/castleFront.png $A/keepTop.png $A/castleBackGate.png $A ;;
-    gorgeRock)   # the gorge's wall on the monster side: bare rock out of sight, stepping down at its mouth
-        px convert $W/gorge-1.png $P/gorge.png --size 448x211 --box 0,48,1536,768 --key none --only $ROCKW --match new --gain 0.8; cool
-        wa gorge $P/gorge.png $A/gorgeRock.png ;;
+    gorgeRock)   # the gorge's wall on the monster side: bare granite out of sight; gorgeCrags, five crags before its mouth (near plane)
+        px convert $W/gorge-1.png $P/gorge.png --size 448x211 --box 0,48,1536,768 --key none --only $GRANITE --match new --gamma 0.7; cool
+        wa gorge $P/gorge.png $A/gorgeRock.png $A/gorgeCrags.png ;;
     cleftFace)   # the cleft's inner face behind the castle, with its broken top edge; its end toward the valley
         px convert $W/gorge-1.png $P/face.png --size 448x218 --key $K --only $ROCKW --match new --gain 0.9; cool
         wa face $P/face.png $A/cleftFace.png $A/cleftFaceEnd.png ;;

@@ -642,7 +642,9 @@ def lane(out, name, seed, kind, w=64, h=26):
     lies under the feet; rows 0-6 are the walked track, 7-9 its near edge, 10-25 the bank toward the viewer (the
     foreground plants cover most of it). Look 2 after the critic: albedo only, in each region's own darks (no night
     blues: the engine's night tint does that), the bank in two or three flat clustered steps instead of a dithered
-    gradient, the moor's track a worn pale path that catches the sky. Seamless horizontally."""
+    gradient, the moor's track a worn pale path that catches the sky. Seamless horizontally.
+    The fix stage's "scree" (the Throat, STORY.md): bare rock and scree with two cart ruts, granite only, no tuft, no
+    fir or moor colour; loose stones lie on the near edge instead of grass."""
     img = Img(w, h)
     r = random.Random(seed)
     near = clumps(seed, 3.0, period=w // 3)
@@ -650,6 +652,11 @@ def lane(out, name, seed, kind, w=64, h=26):
         track = [C("soil"), C("moor"), C("rockLight")]
         edge = [C("moorDark"), C("moor")]
         bank = [C("fir0"), C("moorDark"), C("fir1"), C("moor")]
+        stone = C("rockPale")
+    elif kind == "scree":
+        track = [C("rockDark"), C("rock"), C("rockLight")]
+        edge = [C("rockDeep"), C("rockDark")]
+        bank = [C("rockDeep"), C("rockDeep"), C("rockDark"), C("rock")]
         stone = C("rockPale")
     elif kind == "cobble":
         track = [C("stoneDark"), C("stoneMid"), C("stone")]
@@ -677,8 +684,8 @@ def lane(out, name, seed, kind, w=64, h=26):
                     v = 0.58 + 0.28 * (lo - 0.3) - 0.04 * y
                     c = track[2] if v > 0.64 else track[1] if v > 0.42 else track[0]
                     if y in (2, 5) and (x * 7 + 3 * seed) % 11 > 2:
-                        c = track[0]  # two worn ruts
-                    if r.random() < 0.015:
+                        c = C("rockDeep") if kind == "scree" else track[0]  # two worn ruts
+                    if r.random() < (0.04 if kind == "scree" else 0.015):
                         c = stone
             elif y < 10:
                 c = edge[1] if (y == 7 and (x + seed) % 3) else edge[0]
@@ -686,7 +693,15 @@ def lane(out, name, seed, kind, w=64, h=26):
                 v = 0.62 + 0.3 * (lo - 0.3) - 0.34 * (y - 10) / (h - 10)
                 c = bank[min(len(bank) - 1, max(0, int(v * len(bank))))]
             img.put(x, y, c)
-    for k in range(10 if kind != "cobble" else 4):  # tufts on the near edge
+    for k in range(7 if kind == "scree" else 0):  # loose stones on the near edge: a lit top, a dark foot
+        x0 = r.randrange(w)
+        ww = r.randint(2, 4)
+        for i in range(ww):
+            img.put((x0 + i) % w, 8, C("rockLight") if i < ww - 1 else C("rock"))
+            img.put((x0 + i) % w, 9, C("rockDark"))
+        if ww > 2 and r.random() < 0.6:
+            img.put((x0 + 1) % w, 7, C("rockPale"))
+    for k in range(0 if kind == "scree" else 10 if kind != "cobble" else 4):  # tufts on the near edge
         x0 = r.randrange(w)
         hh = r.randint(2, 4)
         for i in range(hh):
@@ -877,6 +892,7 @@ def build(out, name):
     elif name.startswith("laneMoor"): lane(out, name, 70 + "ABCD".index(name[-1]), "moor")
     elif name.startswith("laneCobble"): lane(out, name, 74 + "ABCD".index(name[-1]), "cobble")
     elif name.startswith("laneEarth"): lane(out, name, 78 + "ABCD".index(name[-1]), "earth")
+    elif name.startswith("laneScree"): lane(out, name, 90 + "ABCD".index(name[-1]), "scree")
     elif name == "d2Smoke": smoke(out, name)
     elif name == "d2Fireflies": dots(out, name, 61, 96, 30, 9, [C("fireGold"), C("fireWhite")])
     elif name == "d2Sparks": dots(out, name, 63, 14, 24, 7, [C("fireGold"), C("fireOrange"), C("ember")])
@@ -892,7 +908,8 @@ def build(out, name):
 SET = ("d2FirA d2FirB d2FirC d2FirD d2DeadTree d2FirBelt d2FirBeltB d2FirBeltFar d2FgFerns d2Linden d2Poplar "
        "d2PoplarB d2Orchard d2OrchardB d2OrchardC d2Willow d2BushA d2BushB d2TreeBelt d2FgMeadow d2FgReeds "
        "laneMoorA laneMoorB laneMoorC laneMoorD laneCobbleA laneCobbleB laneCobbleC laneCobbleD "
-       "laneEarthA laneEarthB laneEarthC laneEarthD d2LaneEnd d2Smoke d2Fireflies d2Sparks "
+       "laneEarthA laneEarthB laneEarthC laneEarthD laneScreeA laneScreeB laneScreeC laneScreeD "
+       "d2LaneEnd d2Smoke d2Fireflies d2Sparks "
        "d2FogBank d2MistBand d2FogLow").split()
 
 

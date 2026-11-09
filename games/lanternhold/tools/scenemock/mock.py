@@ -60,7 +60,13 @@ LOOK = dict(lift=0.46, farShare=0.9, midLight=0.32, gain=1.55, knee=0.95, fogGlo
             # bandWarmCut its thinning at the warm hours), bounceDusk (the bounce fades with daylight x this, capped at
             # 1), rim (the king's cool rim on his screen-right edge pixels)
             litCool=0.0, bounce=0.0, bounceLo=0.2, bounceHi=0.5, duskSun=0.0, band=0.0, bandH=48.0, bandWhite=0.4,
-            bandValley=0.5, bandWarmCut=0.5, bounceDusk=1.0, rim=0.0)
+            bandValley=0.5, bandWarmCut=0.5, bounceDusk=1.0, rim=0.0,
+            # look 2, fix stage: the far plane's haze thins toward the top of the screen (farClear = the share it
+            # loses at the top row, farClearH = the rows over which it returns): the Weltmauer's snow stands clear
+            # of the mist that lies on its feet
+            # farKey: the far plane's pale albedo (snow, the cleft's light; luma from farKeyLo up, full 0.2 above
+            # it) takes a key before the haze: the moon at night, the sun's colour on the clouds by day and at dusk
+            farClear=0.0, farClearH=64.0, farKey=0.0, farKeyLo=0.55)
 L2 = args.get('look') == '2'
 # Look 2 (ART-look2.md "Engine values"): the renderer values of the farbig-düster look, as revised after the critic of
 # stage 1 (ART-look2.md "Critic and fixes"): brighter fog toward the target's periwinkle banks, a lower cap on the
@@ -81,7 +87,7 @@ LOOK2 = dict(lift=0.30, colorise=0.72, farShare=0.85, midShare=0.72, nearShare=1
              # lit albedo (luma above moonLo), the sky-facing ledge light (the top pixel of a silhouette), the rims of
              # the figures (creatures unlit, people), the warm ambient inside cut-away rooms, the vignette's width
              fireFall=1.0, moonKey=0.30, moonLo=0.26, ledge=1.4, ledgeSky=0.15, creatureRim=0.6, peopleRim=0.35,
-             inter=0.30, vigX=0.6, fireCold=0.7, castleMist=0.35)
+             inter=0.30, vigX=0.6, fireCold=0.7, castleMist=0.35, farClear=0.5, farKey=0.5)
 NT2 = (0.72, 0.95, 1.85)              # look 2's night tint: deep blue (the old (1.03, 0.86, 1.66) is violet)
 BLACK2 = (0.030, 0.040, 0.095)        # the navy the darks lift toward
 EMBER2, EMBERDIM2 = hexf(0xD9481F), hexf(0x8C2A12)  # look 2: a fire pool's colour falls off to ember, its rim emberDim
@@ -278,6 +284,7 @@ if L2:  # look 2: the mist band between the mid and near planes, the near plane 
 GLASS = {(0x0E, 0x0B, 0x1E, 255), (0x1C, 0x18, 0x38, 255), (0x2A, 0x22, 0x30, 255)}
 GLASS = {g[:3] for g in GLASS}
 NAMED = dict(fireWhite=fireWhite, fireGold=fireGold, fireOrange=fireOrange, window=WIN)
+NAMED['cleft'] = (0.11, 0.13, 0.19)  # look 2, fix stage: the pale light in the Weltmauer's slot behind the far castle, at night
 def layout_props():
     out = []
     inst = LM.instances()
@@ -767,7 +774,10 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
             bnd = band_at(y)
             f = layers['far'][y][x]
             if f[3] > 0:
-                hzz = min(1, max(0, farH + low * mistv)); lit = cold(f, ambF)
+                hzz = min(1, max(0, farH * (1 - LOOK['farClear'] * (1 - ss(y / LOOK['farClearH']))) + low * mistv)); lit = cold(f, ambF)
+                if LOOK['farKey'] > 0:
+                    fk = LOOK['farKey'] * ss(((0.299 * f[0] + 0.587 * f[1] + 0.114 * f[2]) / f[3] - LOOK['farKeyLo']) / 0.2)
+                    if fk > 0: lit = [lit[k] + f[k] * fk * (MOONC[k] * moonUp * night + cloudC[k]) for k in range(3)]
                 lit = [lit[k] + (farHC[k] * f[3] - lit[k]) * hzz for k in range(3)]
                 if bnd > 0: lit = [lit[k] + (bandC[k] * f[3] - lit[k]) * bnd for k in range(3)]
                 c = [c[k] * (1 - f[3]) + lit[k] for k in range(3)]

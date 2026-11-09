@@ -3,8 +3,8 @@ art"). Plain numbers, read by mock.py when it renders with look=2; the engine po
 
 What look 2 changes against layout_m1b.py:
 - DROP: layout_m1b instances look 2 leaves out: the old far mountains and valley hills, the old gorge walls, the far
-  keep and the warden statue on the mid plane, the rock lips along the top edge, the valley's foreground rocks. The
-  world plane's cliffs (cliffFlank, cliffFlankB, throatRock) are swapped for their granite versions at the same
+  keep, the rock lips along the top edge, the valley's foreground rocks. The warden statue is dropped at its old place
+  and set again into the gorge's rock (WORLD, fix stage). The world plane's cliffs (cliffFlank, cliffFlankB, throatRock) are swapped for their granite versions at the same
   places (SWAP).
 - PLANES: a near plane (parallax 0.75) between the mid plane and the world, and a mist band (fogM, parallax 0.62)
   between the mid and near planes.
@@ -12,6 +12,9 @@ What look 2 changes against layout_m1b.py:
   slot and the far castle in it; on the mid plane the shadow land's forest (world 0 to about 520), then the gorge:
   bare rock rising out of sight from its mouth (world 520 to 700) to the castle, the cleft's inner face behind the
   castle, and its end stepping down into the valley; the valley's painted distance on the far plane.
+- THE THROAT (fix stage): from the beacon (world 470) to the castle the ground is scree with cart ruts (laneScree),
+  no tree stands on the near plane and no fern in the foreground; the firs stand west of world 250, dead trees
+  between there and the beacon, so nothing covers the far castle in its slot from focus 150 to 470.
 - DEPTH: single trees per region on the near plane, bushes on the world plane behind the actors, dark plants on the
   foreground plane, and the lane ground tiles (LANES) instead of the soil cross-section.
 
@@ -53,10 +56,13 @@ def dropped(d):
 
 
 # ------------------------------------------------------------------------------------------------ the lane ground
-# (world x0, x1, tile family): the moor track in the shadow land, cobbles from the cleft through the castle, the earth
-# lane in the valley (a cobbled market square is stage 2 art). Variants A-D by a hash of the tile index.
+# (world x0, x1, tile family): the moor track in the open shadow land, scree with cart ruts in the Throat (from the
+# beacon to the castle: no grass, no moss), cobbles from the cleft through the castle, the earth lane in the valley
+# (a cobbled market square is stage 2 art). Variants A-D by a hash of the tile index.
+THROAT_START = 448                  # the tile edge before the beacon (470)
 LANES = [
-    (-64, 1240, "laneMoor"),
+    (-64, THROAT_START, "laneMoor"),
+    (THROAT_START, 1240, "laneScree"),
     (1240, 2430, "laneCobble"),
     (2430, LM.GROUND_TILE_END, "laneEarth"),
 ]
@@ -99,23 +105,36 @@ FAR_CASTLE_Y = 92                 # the far castles' foot above the sprite's bot
 PATCH_FADE = (2330, 2520)         # the camera focus over which the valley's view of the cleft appears
 GORGE_X, GORGE_Y = 345, -10       # gorgeRock 448x211 on the mid plane: the mouth's steps over world 520 to 700
 FACE_X, FACE_Y = 740, -95         # cleftFace 448x218: its lit top edge 123 above the ground line; then cleftFaceEnd
-GORGE_SHADE, FACE_SHADE = 0.42, 0.42
+GORGE_SHADE, FACE_SHADE = 1.0, 0.42
+CRAGS_X, CRAGS_SHADE = 415, 1.0   # gorgeCrags 160x200 on the near plane: before the face's edge from focus 450 to 700
+
+STATUE_X, STATUE_Y = 520, -34     # wardenStatue 96x200 in the Throat's wall (mid plane): behind the king at focus 917
 
 WORLD = [
-    # --- far plane: the wall, the far castle's lights, the unbroken patch over the valley's view of the cleft
+    # --- far plane: the wall, the far castle's lights, the unbroken patch over the valley's view of the cleft. The far
+    # castles are 40 px wide (1/6); the slot behind each is filled with light, and at night that light glows a little
+    # (farCleftGlow, farCleftGlowBack: 44 px wide, their foot on the castle's foot, the colour "cleft")
     dict(s="weltmauer", p="far", x=WALL_X, y=WALL_Y, z=-3,
-         em=[("sprite", "farCastleGlow", CLEFT_FRONT - 15, FAR_CASTLE_Y, "fireGold", True)]),
-    dict(s="weltmauerPatch", p="far", x=WALL_X + CLEFT_BACK - 19, y=WALL_Y, z=-2, fadeout=PATCH_FADE),
-    dict(s="farCastlePane", p="far", x=WALL_X + CLEFT_BACK - 15, y=WALL_Y + FAR_CASTLE_Y, z=-1, fade=PATCH_FADE,
-         em=[("sprite", "farCastlePane", 0, 0, "window", True)]),
-    # a cloud deck before the wall: the peaks stand above the clouds
-    dict(s="cloudA", p="far", x=-70, y=96, z=0), dict(s="cloudC", p="far", x=170, y=106, z=0, f=True),
-    dict(s="cloudB", p="far", x=430, y=98, z=0), dict(s="cloudA", p="far", x=640, y=108, z=0, f=True),
+         em=[("sprite", "farCleftGlow", CLEFT_FRONT - 22, FAR_CASTLE_Y, "cleft", True),
+             ("sprite", "farCastleGlow", CLEFT_FRONT - 20, FAR_CASTLE_Y, "fireGold", True)]),
+    dict(s="weltmauerPatch", p="far", x=WALL_X + CLEFT_BACK - 26, y=WALL_Y, z=-2, fadeout=PATCH_FADE),
+    dict(s="farCastlePane", p="far", x=WALL_X + CLEFT_BACK - 20, y=WALL_Y + FAR_CASTLE_Y, z=-1, fade=PATCH_FADE,
+         em=[("sprite", "farCleftGlowBack", -2, 0, "cleft", True), ("sprite", "farCastlePane", 0, 0, "window", True)]),
+    # a cloud deck before the wall: the peaks stand above the clouds. No cloud before the two slots (far x 260 to 300
+    # and 586 to 626): the far castles stay free
+    dict(s="cloudA", p="far", x=-60, y=96, z=0), dict(s="cloudB", p="far", x=322, y=104, z=0),
+    dict(s="cloudC", p="far", x=640, y=108, z=0, f=True),
     # the valley's painted distance, before the wall's end
     dict(s="valleyVista", p="far", x=620, y=-34, z=1), dict(s="valleyVista", p="far", x=1068, y=-34, z=1, f=True),
     # --- mid plane, the shadow land: the forest edge, twice, then the gorge's rock
     dict(s="shadowForest", p="mid", x=-128, y=-4, z=1), dict(s="shadowForest", p="mid", x=96, y=-4, z=1, f=True),
     dict(s="gorgeRock", p="mid", x=GORGE_X, y=GORGE_Y, z=3, sh=GORGE_SHADE),
+    # the mouth's second depth (fix stage): five crags on the near plane before the face's edge, the mist between
+    dict(s="gorgeCrags", p="near", x=CRAGS_X, y=GORGE_Y, z=1, sh=CRAGS_SHADE),
+    # the warden statue, cut into the Throat's wall (layout_m1b.py had it at mid x 430, where the mouth now stands
+    # open): 34 px low as before, its bowl fire burning all night
+    dict(s="wardenStatue", p="mid", x=STATUE_X, y=STATUE_Y, z=4, sh=0.88, region="gorge",
+         em=[("sprite", "hearthFire", 40, 153, "fireOrange", False)], li=[("hearth", STATUE_X + 48, 124, 70)]),
     # --- mid plane, the cleft: the inner face behind the castle, its end toward the valley (no tree on its edge:
     # a tree there gives the cliff a scale, and a small one)
     dict(s="cleftFace", p="mid", x=FACE_X, y=FACE_Y, z=2, sh=FACE_SHADE),
@@ -125,25 +144,27 @@ WORLD = [
 DEPTH = [
     # --- the sky: a high cloud deck over the old bands (after the critic: a moon and few stars, the night sky a value
     # step lighter where the clouds catch the moon; at dusk their rims take the low sun)
-    dict(s="cloudB", p="sky", x=60, y=152, z=-1), dict(s="cloudC", p="sky", x=330, y=160, z=-1, f=True),
+    dict(s="cloudB", p="sky", x=4, y=152, z=-1), dict(s="cloudC", p="sky", x=330, y=160, z=-1, f=True),
     dict(s="cloudA", p="sky", x=600, y=154, z=-1),
     # --- the shadow land (world 0 to 1240) -------------------------------------------------------------------------
     # far plane: a low ridge of firs at the wall's foot
     *[dict(s="d2FirBeltFar", p="far", x=x, y=2, z=2) for x in (-120, 400)],
-    # near plane: the open land (world 0 to 520): single firs in loose groups with gaps (behind the play plane; they
-    # never cover an actor), none behind the beacon (470); the gorge's mouth (520 to 700): dead trees only; inside the
-    # gorge (700 to the castle): no tree at all, only rock
-    tree("near", "firB", 24), tree("near", "firD", 62, flip=True), tree("near", "deadTreeA", 150),
-    tree("near", "firA", 236), tree("near", "firC", 284), tree("near", "firD", 318, flip=True),
-    tree("near", "firB", 408, flip=True), tree("near", "firD", 524), tree("near", "deadTreeB", 566),
-    tree("near", "deadTreeA", 622, flip=True), tree("near", "deadTreeB", 688, flip=True),
-    # foreground: ferns, dead grass and roots in the open land and at the mouth; rock and scree in the gorge
-    *[dict(s="d2FgFerns", p="fg", x=x, y=-30, z=2) for x in (-60, 420)],
+    # near plane: the open land (world 0 to 470): single firs in loose groups with gaps (behind the play plane; they
+    # never cover an actor), all west of world 247: a near tree taller than 75 px east of that covers the far castle
+    # somewhere between focus 150 and 470. From there to the beacon (470) dead trees only (72 px: under the castle's
+    # foot). In the Throat (from the beacon to the castle): no tree at all, only rock
+    tree("near", "firB", 24), tree("near", "firD", 62, flip=True), tree("near", "firC", 118),
+    tree("near", "firD", 190, flip=True), tree("near", "firA", 236), tree("near", "deadTreeA", 300),
+    tree("near", "deadTreeB", 372, flip=True), tree("near", "deadTreeA", 436, flip=True),
+    # foreground: ferns, dead grass and roots in the open land, ending at the beacon (fg x 546 shows before world 470);
+    # rock and scree in the Throat
+    *[dict(s="d2FgFerns", p="fg", x=x, y=-30, z=2) for x in (-414, 66)],
     # --- the valley (from the back gate): a tree belt along the valley floor, trees behind the town ---------------
     *[dict(s="d2TreeBelt", p="mid", x=x, y=-2, z=3) for x in (1400, 1920)],
-    # (the rows mix sizes and kinds and never keep one spacing; poplars stand in pairs)
-    tree("near", "poplar", 2452), tree("near", "linden", 2548), tree("near", "appleTree", 2606),
-    tree("near", "appleTree", 2658, flip=True), tree("near", "appleTree", 2741), tree("near", "poplar", 2868),
+    # (the rows mix sizes and kinds and never keep one spacing; poplars stand in pairs). Between world 2386 and 2616
+    # only apple trees (48 px): a poplar or a linden there covers the far castle between focus 2520 and 2700
+    tree("near", "appleTree", 2466), tree("near", "appleTree", 2548, flip=True), tree("near", "linden", 2624),
+    tree("near", "appleTree", 2690, flip=True), tree("near", "appleTree", 2741), tree("near", "poplar", 2868),
     tree("near", "poplar", 2884, flip=True), tree("near", "linden", 2992, flip=True), tree("near", "poplar", 3170),
     tree("near", "poplar", 3186, flip=True), tree("near", "linden", 3300), tree("near", "appleTree", 3448),
     tree("near", "appleTree", 3523, flip=True), tree("near", "linden", 3610, flip=True),
@@ -174,7 +195,8 @@ def instances():
     out = []
     for d in WORLD + DEPTH:
         out.append(dict(s=d["s"], p=d["p"], x=d["x"], y=d.get("y", 0), z=d.get("z", 0), sh=d.get("sh", 1.0),
-                        f=d.get("f", False), em=list(d.get("em", [])), li=[], anchor="ground", region=None,
+                        f=d.get("f", False), em=list(d.get("em", [])), li=list(d.get("li", [])), anchor="ground",
+                        region=d.get("region"),
                         fade=d.get("fade"), mv=None, fadeout=d.get("fadeout"), shadow=None, mist=None))
     for d in LM.instances():  # the world plane's cliffs in granite, at the old places
         if d["p"] == "world" and d["s"] in SWAP:
