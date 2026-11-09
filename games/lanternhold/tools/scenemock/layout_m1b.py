@@ -203,15 +203,17 @@ WORLD = [
     # gorgeWallC lies behind the flanks on both sides.)
     # (polish after the art review: a rock shoulder 155 px low, its top at y 85, so the keep seen from the gorge rises
     # above it; the high rock's flat overhang read as a table there, a gorge-wall tile showed its straight cut)
-    dict(s="cliffFlank", x=F - 130, y=-155, z=-5, shade=ROCK_SHADE),
-    dict(s="gorgeWallHigh", x=F + 278, y=0, z=-5, shade=ROCK_SHADE),  # its cut left edge just behind the right flank;
-                                                                     # shows other columns than the mirrored copy
+    dict(s="cliffFlankB", x=F - 130, y=-155, z=-5, shade=ROCK_SHADE),
+    # (polish after the art review: the right side is other rock than the left, so the gate view is not a mirror and
+    # the rock no longer repeats like wallpaper: strata with a cave from gorgewall-b, its cut left edge just behind the
+    # right flank, and the rocks-a middle rock as the flank)
+    dict(s="throatRock", x=F + 278, y=0, z=-5, shade=ROCK_SHADE),
     # cliffFlank is plain rock (the left cliff of rocks-a); its straight right edge hides behind the tower bodies,
     # which start 10 px inside the front's edges. The right one stands in FRONT of the courtyard wall (z -1), so from
     # the gate view rock rises right of the right tower from the ground to above the screen; the wall run starts
     # behind it.
     dict(s="cliffFlank", x=F - 53, y=0, z=-3, shade=FLANK_SHADE),
-    dict(s="cliffFlank", x=F + 213, y=0, z=-1, flip=True, shade=FLANK_SHADE),
+    dict(s="cliffFlankB", x=F + 213, y=0, z=-1, flip=True, shade=FLANK_SHADE),
     # Polish after the art review: only the keep's top 130 rows (keepTop) stand behind the gatehouse, 40 px up, so its
     # crenellated crown and flag rise above the gatehouse between the towers' crowns (top at y 170); its top window row
     # stays behind the gatehouse (the front's occluder hides the glass; the two small window lights are gone)
@@ -255,9 +257,11 @@ WORLD = [
              ("window", B + 33, 117, 8), ("window", B + 171, 117, 8)]),
     # --- the town (moved 100 px right) ---
     *[x for n, start in enumerate((2480, 2800, 2900, 3090)) for x in (
-        dict(s="house", x=start, y=0, z=0, shade=0.97, flip=n % 2 == 1,
-             # window glass only (the four night1 panes of each half-timbered window), no soft glow sprite
-             em=[("mask", 11, 8, 5, 6, WIN), ("mask", 46, 8, 5, 6, WIN)],
+        # (polish after the art review: tile, slate, thatch with a dormer, tile; every second one mirrored)
+        dict(s=("house", "houseB", "houseC", "house")[n], x=start, y=0, z=0, shade=0.97, flip=n % 2 == 1,
+             # window glass only (the four night1 panes of each half-timbered window), no soft glow sprite; the
+             # thatched cottage's dormer window too
+             em=[("mask", 11, 8, 5, 6, WIN), ("mask", 46, 8, 5, 6, WIN)] + ([("mask", 27, 33, 3, 2, WIN)] if n == 2 else []),
              li=[("window", start + (64 - 13 - 1 if n % 2 == 1 else 13), 11, 8),
                  ("window", start + (64 - 48 - 1 if n % 2 == 1 else 48), 11, 8)]),
         dict(s="lanternPost", x=start + 68, y=0, z=1, em=[("sprite", "lanternGlass", 1, 18, GOLD, True)],

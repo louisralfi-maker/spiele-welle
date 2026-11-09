@@ -47,11 +47,23 @@ build() { # name: one sprite
     castleWall)    python3 $T convert $R/s3-castle-1.png $A/castleWall.png --size 40x90 --box 826,300,948,695 --tile --only $CAS --window 17,58 --patch $G/castleWall-crenels.txt ;;
     backGate)      python3 $T convert $R/s3-castle-1.png $A/backGate.png --size 60x84 --box 1245,400,1518,695 --only $CAS --outline ink --zone $DOOR@21,48,38,83@1.35 ;;
     chapel)        python3 $T convert $R/s4-chapel-1.png $A/chapel.png --size 160x96 --box 130,75,715,668 --only $CAS,plaster,plasterDim,parchment --gain 1.15 --outline ink ;;
-    hallInterior)  python3 $T convert $R/s5-hall-1.png $A/hallInterior.png --size 260x90 --box 210,0,1358,356 --only $CAS,strawLight --gain 1.1 --warm 22 --outline ink ;;
+    hallInterior)  python3 $T convert $R/s5-hall-1.png $A/hallInterior.png --size 260x90 --box 210,0,1358,356 --only $CAS,strawLight --gain 1.1 --warm 22 --outline ink
+                   # polish after the art review: five identical teal banners; the second and fourth are a red-brown house
+                   # colour now (teal, red, teal, red, teal), the gold emblems kept
+                   python3 $T post $A/hallInterior.png $A/hallInterior.png --remap banner:tile,roofDeep:woodDark,roofLight:tileLight@84,25,101,61 --remap banner:tile,roofDeep:woodDark,roofLight:tileLight@159,25,177,61 ;;
     kitchen)       python3 $T convert $R/s6-town-1.png $A/kitchen.png --size 120x80 --box 864,10,1148,296 --only $TOWN --outline ink ;;
     valleyHill)    python3 $T convert $R/s6-town-1.png $A/valleyHill.png --size 150x46 --box 800,565,1450,706 --only $NAT --outline leafDark --outline-skip-bottom ;;
     house)         python3 $T convert $R/s7-defence-1.png $A/house.png --size 64x46 --box 480,308,1080,632 --flood --only $COTTAGE --outline ink --zone ink,woodDark,tile,tileLight@0,4,63,24 --zone ink,stoneDark,stone,stoneLight,stonePale@44,0,52,12 --patch $G/house-front.txt@2,29
                    python3 $T post $A/house.png $A/house.png --remap parchment:plaster ;;  # M1b polish: clean half-timbering
+    # Polish after the art review: three identical cottages in a row read as clones. houseB has a teal slate roof (the
+    # kitchen's), houseC a straw thatch with a gabled dormer whose window glows at night (glass at 27-29, rows 11-12)
+    houseB)        python3 $T post $A/house.png $A/houseB.png --remap tile:roofDeep,tileLight:roofLight ;;
+    houseC)        python3 $T post $A/house.png $A/houseC.png --remap tile:straw,tileLight:strawLight \
+                       --fill woodDark:28,6,28,6 --fill woodDark:27,7,27,7 --fill strawLight:28,7,28,7 --fill woodDark:29,7,29,7 \
+                       --fill woodDark:26,8,26,8 --fill strawLight:27,8,29,8 --fill woodDark:30,8,30,8 \
+                       --fill woodDark:25,9,25,9 --fill straw:26,9,30,9 --fill woodDark:31,9,31,9 --fill woodDark:24,10,32,10 \
+                       --fill woodDark:25,11,25,13 --fill plaster:26,11,26,12 --fill night1:27,11,29,12 --fill plaster:30,11,30,12 \
+                       --fill woodDark:31,11,31,13 --fill plaster:26,13,30,13 --fill woodDark:25,14,31,14 ;;
     stoneWall)     python3 $T convert $R/s7-defence-1.png $A/stoneWall.png --size 36x52 --box 522,80,704,298 --flood --tol 60 --only $ST --fill clear:15,0,21,9 --fill stoneMid:1,49,34,50 --fill ink:35,10,35,51 --fill ink:0,49,0,51 --outline ink --outline-skip-bottom ;;
     ground)        python3 $T convert $R/s7-defence-1.png $A/ground.png --size 64x26 --box 560,673,745,737 --key none --min-count 1 --tile --only $GR ;;
     # --- M1b: the gorge, the castle that seals it, the open valley ---
@@ -139,6 +151,18 @@ build() { # name: one sprite
                    python3 $T convert $M/clouds-a-1.png $A/cloudB.png --size 240x42 --box 264,288,1288,460 --key '#04BC44' --only $CL
                    python3 $T convert $M/clouds-a-1.png $A/cloudC.png --size 286x36 --box 160,534,1380,681 --key '#04BC44' --only $CL ;;
     riverFarBank)  python3 $PROC farbank $A/riverFarBank.png ;;  # M1b polish: the far shore on the mid plane
+    # --- polish after the art review (ART.md "Polish after the art review") ---
+    keepFar)       # the keep seen from the valley and the gorge: its main block without the side tower and without the
+                   # machicolations, so the crown sits on the top window row
+                   python3 $T compose $A/keepFar.png --size 98x237 --layer $A/castleKeep.png@0,0@box=52,0,150,56 --layer $A/castleKeep.png@0,56@box=52,69,150,250 ;;
+    keepTop)       python3 $T compose $A/keepTop.png --size 150x130 --layer $A/castleKeep.png@0,0@box=0,0,150,130 ;;
+    throatRock)    # the throat rock right of the castle: gorgewall-b's right part (strata, a cave), unlike the left's joints
+                   python3 $T convert $M/gorgewall-b-1.png $A/throatRock.png --size 192x240 --box 930,140,1536,740 --fit stretch --key '#FC1494' --only $ROCKG --sat 1.4 --warm 14 --gain 0.85 ;;
+    cliffFlankB)   # the right flank: the middle rock of rocks-a without its masonry strip
+                   python3 $T convert $M/rocks-a-1.png $A/cliffFlankB.png --size 80x240 --box 575,60,785,748 --fit stretch --only $ROCKG --sat 1.3 ;;
+    groundB)       python3 $PROC ground $A/ground.png $A/groundB.png --seed 2 --left stone --right plain ;;
+    groundC)       python3 $PROC ground $A/ground.png $A/groundC.png --seed 3 --left plain --right stone ;;
+    groundD)       python3 $PROC ground $A/ground.png $A/groundD.png --seed 4 --left plain --right plain ;;
     fgRockA)       python3 $PROC fgrock $A/fgRockA.png --style a ;;
     fgRockB)       python3 $PROC fgrock $A/fgRockB.png --style b ;;
     fgRockC)       python3 $PROC fgrock $A/fgRockC.png --style c ;;
@@ -153,7 +177,8 @@ build() { # name: one sprite
 ALL="farMountain farPeak gorgeCliff gorgeEndCliff waterfall gatehouse castleTower castleWall backGate chapel hallInterior
 throne hearth kitchen house valleyHill well lanternPost field palisade stoneWall ballista brazier torchPost ground
 gorgeWall gorgeWallHigh cliffFlank gorgeMouth wardenStatue castleFront castleKeep castleBackGate valleyFar valleyMid windmill
-beaconRuin riverEnd riverFarBank clouds fgRockA fgRockB fgRockC fgOverhangA fgOverhangB"
+beaconRuin riverEnd riverFarBank clouds fgRockA fgRockB fgRockC fgOverhangA fgOverhangB
+houseB houseC keepFar keepTop throatRock cliffFlankB groundB groundC groundD"
 for name in ${@:-$ALL}; do
     cool
     build "$name"

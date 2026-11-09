@@ -20,10 +20,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // Fog planes
     case fogStrip
     // World plane
-    case ground, darknessBank, darknessEdge
+    case ground, groundB, groundC, groundD, darknessBank, darknessEdge
     case beaconRuin, palisade, stoneWall, torchPost, brazier, ballista
-    case cliffFlank, castleKeep, keepTop, castleFront, castleWall, hallInterior, throne, hearth, candleStand, chapel, kitchen
-    case castleBackGate, house, lanternPost, field, well, riverEnd
+    case cliffFlank, cliffFlankB, throatRock, castleKeep, keepTop, castleFront, castleWall, hallInterior, throne, hearth, candleStand, chapel, kitchen
+    case castleBackGate, house, houseB, houseC, lanternPost, field, well, riverEnd
     // Emissive parts
     case flame, brazierFlame, hearthFire, candleFlame, windowGlow, lanternGlass, eyeGlints
     // Actors
@@ -58,7 +58,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .riverFarBank: return PixelSize(width: 240, height: 30)
         case .keepFar: return PixelSize(width: 98, height: 237)
         case .fogStrip: return PixelSize(width: 128, height: 24)
-        case .ground: return PixelSize(width: 64, height: 26)
+        case .ground, .groundB, .groundC, .groundD: return PixelSize(width: 64, height: 26)
         case .darknessBank: return PixelSize(width: 64, height: 236)
         case .darknessEdge: return PixelSize(width: 32, height: 236)
         case .beaconRuin: return PixelSize(width: 64, height: 130)
@@ -67,7 +67,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .torchPost: return PixelSize(width: 4, height: 14)
         case .brazier: return PixelSize(width: 10, height: 14)
         case .ballista: return PixelSize(width: 28, height: 16)
-        case .cliffFlank: return PixelSize(width: 80, height: 240)
+        case .cliffFlank, .cliffFlankB: return PixelSize(width: 80, height: 240)
+        case .throatRock: return PixelSize(width: 192, height: 240)
         case .castleKeep: return PixelSize(width: 150, height: 250)
         case .keepTop: return PixelSize(width: 150, height: 130)
         case .castleFront: return PixelSize(width: 240, height: 236)
@@ -79,7 +80,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .chapel: return PixelSize(width: 160, height: 96)
         case .kitchen: return PixelSize(width: 120, height: 80)
         case .castleBackGate: return PixelSize(width: 200, height: 200)
-        case .house: return PixelSize(width: 64, height: 46)
+        case .house, .houseB, .houseC: return PixelSize(width: 64, height: 46)
         case .lanternPost: return PixelSize(width: 6, height: 24)
         case .field: return PixelSize(width: 80, height: 8)
         case .well: return PixelSize(width: 18, height: 20)

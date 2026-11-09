@@ -273,10 +273,12 @@ enum SceneLayout {
         // straight edges hide behind the towers (the right one in front of the courtyard wall), the keep behind the
         // gatehouse. On the left a rock shoulder 155 px low (its top at y 85), so the keep seen from the gorge rises
         // above it (polish after the art review: the high rock's flat overhang read as a table there).
-        list.append(Entry(sprite: .cliffFlank, x: front - 130, y: -155, z: -5, shade: rockShade))
-        list.append(Entry(sprite: .gorgeWallHigh, x: front + 278, y: 0, z: -5, shade: rockShade))
+        list.append(Entry(sprite: .cliffFlankB, x: front - 130, y: -155, z: -5, shade: rockShade))
+        // The right side is other rock than the left (strata with a cave, the rocks-a middle rock as its flank), so
+        // the gate view is no mirror and the rock does not repeat like wallpaper.
+        list.append(Entry(sprite: .throatRock, x: front + 278, y: 0, z: -5, shade: rockShade))
         list.append(Entry(sprite: .cliffFlank, x: front - 53, y: 0, z: -3, shade: flankShade))
-        list.append(Entry(sprite: .cliffFlank, x: front + 213, y: 0, z: -1, shade: flankShade, flipped: true))
+        list.append(Entry(sprite: .cliffFlankB, x: front + 213, y: 0, z: -1, shade: flankShade, flipped: true))
         // Only the keep's top 130 rows stand behind the gatehouse, 40 px up, so its crown and flag rise above the
         // gatehouse between the towers' crowns (top at y 170); the front hides its top window row (the lower 10 rows
         // of each window would glow: lamplight low in the room).
@@ -338,12 +340,16 @@ enum SceneLayout {
 
         // The town: four houses (every second one mirrored) with their window glass and a lantern post each, the
         // field, the well; the river closes the world (the bank drops to the water, two stumps of the old bridge).
+        // Tile, slate, thatch with a dormer (its window glows too), tile: three cottages in a row read as clones.
         let houses = WorldLayout.townPlots.filter { $0.kind == .house }
+        let cottages: [SpriteID] = [.house, .houseB, .houseC, .house]
         for (index, plot) in houses.enumerated() {
             let start = plot.start
             let mirrored = index % 2 == 1
-            list.append(Entry(sprite: .house, x: start, y: 0, z: 0, shade: 0.97, flipped: mirrored,
-                              emitters: [glass(11, 8, 5, 6), glass(46, 8, 5, 6)],
+            let sprite = cottages[index % cottages.count]
+            let dormer = sprite == .houseC ? [glass(27, 33, 3, 2)] : []
+            list.append(Entry(sprite: sprite, x: start, y: 0, z: 0, shade: 0.97, flipped: mirrored,
+                              emitters: [glass(11, 8, 5, 6), glass(46, 8, 5, 6)] + dormer,
                               lights: [window(start + (mirrored ? 50 : 13), 11, 8),
                                        window(start + (mirrored ? 15 : 48), 11, 8)]))
             list.append(Entry(sprite: .lanternPost, x: start + 68, y: 0, z: 1,

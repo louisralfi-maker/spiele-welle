@@ -18,13 +18,14 @@ enum PlaceholderArt {
         case .farMountain: frames = [farRange(salt, size: size, peaks: [(36, 56), (98, 66), (142, 42)])]
         case .valleyFarA, .valleyFarB, .valleyFarC:
             frames = [farRange(salt, size: size, peaks: [(30, 52), (96, 70), (160, 48)])]
-        case .gorgeWallA, .gorgeWallB, .gorgeWallC, .gorgeWallHigh, .wardenStatue, .gorgeMouth, .cliffFlank,
+        case .gorgeWallA, .gorgeWallB, .gorgeWallC, .gorgeWallHigh, .wardenStatue, .gorgeMouth, .cliffFlank, .cliffFlankB,
+             .throatRock,
              .fgRockA, .fgRockB, .fgRockC, .fgOverhangA, .fgOverhangB:
             frames = [cliff(salt, size: size)]
         case .valleyMidA, .valleyMidB, .valleyMidC, .windmill, .riverFarBank: frames = [hills(salt, size: size)]
         case .riverEnd: frames = [river(salt, size: size)]
         case .fogStrip: frames = [fogStrip(salt)]
-        case .ground: frames = [ground(salt)]
+        case .ground, .groundB, .groundC, .groundD: frames = [ground(salt)]
         case .darknessBank: frames = [darknessBank(salt)]
         case .darknessEdge: frames = [darknessEdge(salt)]
         default:

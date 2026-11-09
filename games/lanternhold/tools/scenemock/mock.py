@@ -200,10 +200,16 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
     if LAB:
         for row in (1, 0):
             for x in range(0, TW, 40): draw('world', sprite('castleWall'), x, GROUND - 90 * (row + 1), (0.96, 0.96, 0.96, 1))
+    def edge_stone(k):  # the same hash as FrameBuilder.groundEdgeHasStone (polish after the art review)
+        h = (k * 0x9E3779B1) & 0xFFFFFFFF; h ^= h >> 16; h = (h * 0x85EBCA6B) & 0xFFFFFFFF; h ^= h >> 13
+        return (h >> 7) & 1 == 0
     for x in range(0, TW + 64, 64): 
         wx = math.floor(whole['world'] / 64) * 64 + x
         if LAYOUT and wx >= LM.GROUND_TILE_END: continue
-        draw('world', ground, int(wx - whole['world']), GROUND)
+        k = wx // 64
+        tile = ground if not LAYOUT else sprite({(True, True): 'ground', (True, False): 'groundB', (False, True): 'groundC',
+                                                (False, False): 'groundD'}[(edge_stone(k), edge_stone(k + 1))])
+        draw('world', tile, int(wx - whole['world']), GROUND)
     # sky
     if amb['stars'] > 0.01:
         for row in (0, 64):

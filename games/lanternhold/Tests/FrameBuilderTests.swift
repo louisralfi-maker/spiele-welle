@@ -164,7 +164,7 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(glass.count, 6, "the keep's and the towers' windows")
         XCTAssertTrue(glass.contains { $0.sprite == .keepTop })
         XCTAssertTrue(glass.contains { $0.sprite == .castleFront })
-        for sprite in [SpriteID.castleFront, .keepTop, .cliffFlank, .gorgeWallHigh] {
+        for sprite in [SpriteID.castleFront, .keepTop, .cliffFlank, .cliffFlankB, .throatRock] {
             XCTAssertTrue(castle.layer(.world).sprites.contains { $0.sprite == sprite }, "\(sprite) at the gate")
         }
         XCTAssertEqual(castle.actors.filter { $0.sprite == .archer }.count, 3, "archers on the wall walk")
@@ -183,7 +183,8 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertTrue(town.layer(.mid).sprites.contains { $0.sprite == .keepFar }, "the keep seen from the town")
         XCTAssertTrue(town.layer(.mid).sprites.contains { $0.sprite == .windmill })
         var castleWindows = 0
-        for prop in PlaceholderScene.world().props where prop.plane == .world && prop.sprite != .house {
+        let cottages: Set<SpriteID> = [.house, .houseB, .houseC]
+        for prop in PlaceholderScene.world().props where prop.plane == .world && !cottages.contains(prop.sprite) {
             castleWindows += prop.masks.count + prop.emissive.filter { $0.sprite == .windowGlow }.count
         }
         XCTAssertEqual(castleWindows, 17, "keep 2, front 4, courtyard 1, chapel 4, kitchen 2, back gate 4")
@@ -298,7 +299,8 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertEqual(Camera(focusX: 5000, pixelScale: pixelScale).x, 3900 - pixelScale.visibleColumns)
         let river = frame(timeOfDay: 0.5, focus: 3720)
         let whole = Double(river.layer(.world).offset.whole)
-        let ground = river.layer(.world).sprites.filter { $0.sprite == .ground }
+        let groundTiles: Set<SpriteID> = [.ground, .groundB, .groundC, .groundD]
+        let ground = river.layer(.world).sprites.filter { groundTiles.contains($0.sprite) }
         XCTAssertFalse(ground.isEmpty)
         for tile in ground {
             XCTAssertLessThan(Double(tile.rect.x) + whole, WorldLayout.groundTileEnd, "ground tiles end at the bank")
@@ -418,6 +420,21 @@ final class FrameBuilderTests: XCTestCase {
         }
     }
 
+    func testGroundTilesJoinAndVary() {
+        // Each tile's edges match its neighbours' (the big stone either wraps across a boundary or neither side has
+        // it), and the stones do not repeat at the tile's rhythm.
+        var used: Set<SpriteID> = []
+        for index in 0..<58 {
+            let tile = FrameBuilder.groundTile(index)
+            let next = FrameBuilder.groundTile(index + 1)
+            let rightStone = tile == .ground || tile == .groundC
+            let nextLeftStone = next == .ground || next == .groundB
+            XCTAssertEqual(rightStone, nextLeftStone, "tiles \(index) and \(index + 1) join")
+            used.insert(tile)
+        }
+        XCTAssertEqual(used.count, 4, "all four variants appear along the world")
+    }
+
     func testTheKeepShowsFromTheGorge() {
         // The approach: the keep seen from the gorge stands on its rock plateau above the lowered throat rock, its
         // windows lit at night; the castle front's towers end on screen (their crowns at y 132 to 172).
@@ -446,7 +463,8 @@ final class FrameBuilderTests: XCTestCase {
                 XCTAssertLessThanOrEqual(Int(mask.dy) + mask.height, prop.height, "\(prop.sprite) at \(prop.x)")
             }
         }
-        XCTAssertEqual(masks, 25, "keep 2, front 4, courtyard 1, back gate 4, houses 8, the valley's keep 4, the gorge's 2")
+        XCTAssertEqual(masks, 26,
+                       "keep 2, front 4, courtyard 1, back gate 4, houses 8 and a dormer, the valley's keep 4, the gorge's 2")
         // In a frame each glass quad lies inside its prop's quad, mirrored with it.
         for focus in [1360.0, 1650, 2330, 2900] {
             let desc = frame(timeOfDay: 0.95, focus: focus)
@@ -460,7 +478,7 @@ final class FrameBuilderTests: XCTestCase {
         // A mirrored house's left window shows the sprite's right pane: x 64 − 46 − 5 = 13 from its left edge.
         let town = frame(timeOfDay: 0.95, focus: 2830)
         let whole = Float(town.layer(.world).offset.whole)
-        let mirrored = town.emissives.filter { $0.kind == .glass && $0.sprite == .house && $0.flipped }
+        let mirrored = town.emissives.filter { $0.kind == .glass && $0.sprite == .houseB && $0.flipped }
         XCTAssertTrue(mirrored.contains { $0.rect.x == 2800 + 13 - whole && $0.source.x == 46 })
     }
 
@@ -546,10 +564,10 @@ final class FrameBuilderTests: XCTestCase {
         "torchPost world x=978 y=38 z=2 shade=1.00 flip=0 anchor=ground region=gorge em=[flame@0,12:fireGold:fades] li=[torch@980,53,30]",
         "brazier world x=891 y=0 z=3 shade=1.00 flip=0 anchor=ground region=gorge em=[brazierFlame@1,11:fireOrange:steady] li=[brazier@896,16,56]",
         "brazier world x=915 y=0 z=3 shade=1.00 flip=0 anchor=ground region=gorge em=[brazierFlame@1,11:fireOrange:steady] li=[brazier@920,16,56]",
-        "cliffFlank world x=1110 y=-155 z=-5 shade=0.70 flip=0 anchor=ground region=gorge em=[] li=[]",
-        "gorgeWallHigh world x=1518 y=0 z=-5 shade=0.70 flip=0 anchor=ground region=castle em=[] li=[]",
+        "cliffFlankB world x=1110 y=-155 z=-5 shade=0.70 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "throatRock world x=1518 y=0 z=-5 shade=0.70 flip=0 anchor=ground region=castle em=[] li=[]",
         "cliffFlank world x=1187 y=0 z=-3 shade=0.62 flip=0 anchor=ground region=gorge em=[] li=[]",
-        "cliffFlank world x=1453 y=0 z=-1 shade=0.62 flip=1 anchor=ground region=castle em=[] li=[]",
+        "cliffFlankB world x=1453 y=0 z=-1 shade=0.62 flip=1 anchor=ground region=castle em=[] li=[]",
         "keepTop world x=1286 y=40 z=-4 shade=1.00 flip=0 anchor=ground region=gorge em=[glass@69,30,13x10 glass@113,30,12x10] li=[]",
         "castleFront world x=1240 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[brazierFlame@93,130:fireOrange:steady brazierFlame@138,130:fireOrange:steady flame@90,61:fireGold:fades flame@145,61:fireGold:fades glass@29,96,6x15 glass@202,89,6x15 glass@29,69,6x15 glass@202,69,6x15] li=[brazier@1337,136,44 brazier@1382,136,44 torch@1332,64,30 torch@1387,64,30 lantern@1360,40,34]",
         "castleWall world x=1580 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
@@ -567,9 +585,9 @@ final class FrameBuilderTests: XCTestCase {
         "castleBackGate world x=2230 y=0 z=0 shade=1.00 flip=0 anchor=ground region=castle em=[lanternGlass@51,95:fireGold:fades lanternGlass@136,95:fireGold:fades glass@28,107,10x20 glass@166,107,10x20 glass@28,72,10x20 glass@166,72,10x20] li=[lantern@2283,97,40 lantern@2368,97,40 window@2263,117,8 window@2401,117,8]",
         "house world x=2480 y=0 z=0 shade=0.97 flip=0 anchor=ground region=valley em=[glass@11,8,5x6 glass@46,8,5x6] li=[window@2493,11,8 window@2528,11,8]",
         "lanternPost world x=2548 y=0 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[lanternGlass@1,18:fireGold:fades] li=[lantern@2551,20,28]",
-        "house world x=2800 y=0 z=0 shade=0.97 flip=1 anchor=ground region=valley em=[glass@11,8,5x6 glass@46,8,5x6] li=[window@2850,11,8 window@2815,11,8]",
+        "houseB world x=2800 y=0 z=0 shade=0.97 flip=1 anchor=ground region=valley em=[glass@11,8,5x6 glass@46,8,5x6] li=[window@2850,11,8 window@2815,11,8]",
         "lanternPost world x=2868 y=0 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[lanternGlass@1,18:fireGold:fades] li=[lantern@2871,20,28]",
-        "house world x=2900 y=0 z=0 shade=0.97 flip=0 anchor=ground region=valley em=[glass@11,8,5x6 glass@46,8,5x6] li=[window@2913,11,8 window@2948,11,8]",
+        "houseC world x=2900 y=0 z=0 shade=0.97 flip=0 anchor=ground region=valley em=[glass@11,8,5x6 glass@46,8,5x6 glass@27,33,3x2] li=[window@2913,11,8 window@2948,11,8]",
         "lanternPost world x=2968 y=0 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[lanternGlass@1,18:fireGold:fades] li=[lantern@2971,20,28]",
         "house world x=3090 y=0 z=0 shade=0.97 flip=1 anchor=ground region=valley em=[glass@11,8,5x6 glass@46,8,5x6] li=[window@3140,11,8 window@3105,11,8]",
         "lanternPost world x=3158 y=0 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[lanternGlass@1,18:fireGold:fades] li=[lantern@3161,20,28]",

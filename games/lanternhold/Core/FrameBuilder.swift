@@ -252,10 +252,34 @@ enum FrameBuilder {
             guard geometry.isVisible(left: left, width: tile) else { continue }
             let top = geometry.top(y: -Double(size.height), height: Double(size.height))
             let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
-            list.append(SpriteInstance(sprite: .ground, frame: 0, rect: rect, tint: SIMD4<Float>(1, 1, 1, 1),
-                                       flipped: false))
+            list.append(SpriteInstance(sprite: groundTile(index), frame: 0, rect: rect,
+                                       tint: SIMD4<Float>(1, 1, 1, 1), flipped: false))
         }
         return list
+    }
+
+    /// The ground tile at `index` (polish after the art review: one 64 px tile repeated put its stones at a fixed
+    /// rhythm). Each tile boundary either carries the big stone that wraps across it or plain soil, picked by a hash of
+    /// the boundary; the tile whose edges match both of its boundaries is drawn, so neighbours always join.
+    static func groundTile(_ index: Int) -> SpriteID {
+        let left = groundEdgeHasStone(index)
+        let right = groundEdgeHasStone(index + 1)
+        switch (left, right) {
+        case (true, true): return .ground
+        case (true, false): return .groundB
+        case (false, true): return .groundC
+        case (false, false): return .groundD
+        }
+    }
+
+    /// Whether the big stone wraps across the boundary left of ground tile `index` (a fixed integer hash, the same as
+    /// tools/scenemock/mock.py's).
+    static func groundEdgeHasStone(_ index: Int) -> Bool {
+        var h = UInt32(truncatingIfNeeded: index) &* 0x9E37_79B1
+        h ^= h >> 16
+        h = h &* 0x85EB_CA6B
+        h ^= h >> 13
+        return (h >> 7) & 1 == 0
     }
 
     /// The darkness bank: dark tiles from the world's left end up to its edge, drawn in front of the world props.

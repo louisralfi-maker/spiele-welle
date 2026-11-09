@@ -19,6 +19,12 @@ exactly reproducible.
                                                             reeds, the far bridge stump (M1b polish)
   procart.py slopebands <in.png> <out.png> --rect x0,y0,x1,y1   repaints a grass slope in a finished sprite: irregular
                                                             edge, three value bands, tuft clusters (M1b polish)
+  procart.py ground    <base.png> <out.png> --seed N --left stone|plain --right stone|plain
+                                                            a variant of the 64x26 ground tile: the grass rows kept,
+                                                            each bottom edge either the base's big wrapping stone or
+                                                            plain soil (the scene picks one per tile boundary, so
+                                                            neighbours always join), pebbles and stones reseeded with
+                                                            jittered spacing (polish after the art review)
   procart.py cylinder  <in.png> <out.png> --rect x0,y0,x1,y1 --bands a-b:+1,c-d:-1 [--ramp names]
                                                             rounds a flat tower: shifts every ramp colour in the rect
                                                             by its column's band (+1 one step lighter), the band edges
@@ -479,6 +485,67 @@ def cmd_slopebands(a):
     c.save(a.output)
 
 
+def cmd_ground(a):
+    """Polish after the art review: the soil strip carried its stones at the tile's fixed 64 px rhythm. A variant keeps
+    the base tile's grass (rows 0-8) and the bottom band's edge columns (0-9 and 50-63, where the big stone wraps), so
+    any two variants join seamlessly; the soil between is refilled and gets new pebbles (rows 10-16) and one or two of
+    the base's stones (cut from it) in the bottom band, at seeded positions with jittered spacing."""
+    from pixelart import read_png
+    base, _ = read_png(a.input)
+    W, H = base.w, base.h
+    rng = random.Random(a.seed * 7919 + 17)
+    out = Image(W, H, list(base.px))
+    soil = base.get(20, 10)
+    band = base.get(30, 24)
+
+    def put(x, y, p):
+        if 0 <= x < W and 0 <= y < H:
+            out.set(x, y, p)
+
+    # clear the soil and the middle of the bottom band; a plain edge clears its part of the big wrapping stone too
+    lo = 10 if a.left == "stone" else 0
+    hi = 50 if a.right == "stone" else W
+    for y in range(9, 24):
+        for x in range(W):
+            if y >= 16 and (x < lo or x >= hi):
+                continue
+            put(x, y, soil)
+    for x in range(lo, hi):
+        put(x, 24, band)
+        put(x, 25, base.get(x, 25))
+    # pebbles: the base's small light pebbles and dark grit, cut from it, stamped with jittered spacing
+    pebbles = [(6, 11, 3, 2), (13, 12, 2, 2), (21, 11, 2, 2), (31, 12, 6, 2), (43, 11, 3, 3), (50, 13, 2, 2),
+               (10, 16, 3, 3), (30, 16, 2, 2)]
+    x = rng.randint(2, 8)
+    while x < W - 4:
+        px, py, pw, ph = rng.choice(pebbles)
+        if x + pw <= W - 2:
+            y = rng.randint(10, 15)
+            for j in range(ph):
+                for i in range(pw):
+                    p = base.get(px + i, py + j)
+                    if p != soil and p[3]:
+                        put(x + i, y + j, p)
+        x += pw + rng.randint(5, 13)
+    # stones in the bottom band: the base's mid stone (cols 16-26, rows 20-25) and small one (cols 35-38, rows 22-24)
+    stones = [(16, 20, 11, 6), (35, 22, 4, 3), (40, 18, 4, 3)]
+    picks = [stones[0], rng.choice(stones[1:])] if rng.random() < 0.7 else [rng.choice(stones[1:])]
+    taken = []
+    for (sx, sy, sw, sh) in picks:
+        for _ in range(20):
+            x = rng.randint(lo + 1, hi - 1 - sw)
+            if all(x + sw + 2 < t0 or x > t1 + 2 for t0, t1 in taken):
+                break
+        taken.append((x, x + sw))
+        for j in range(sh):
+            for i in range(sw):
+                p = base.get(sx + i, sy + j)
+                if p != soil and p[3]:
+                    put(x + i, sy + j, p)
+    write_png(a.output, out)
+    print(f"wrote {a.output} {W}x{H} (ground variant, seed {a.seed})")
+
+
 def cmd_cylinder(a):
     """Polish after the art review: a tower painted as a flat strip reads as cardboard. Every pixel inside the rect whose
     colour is on the ramp (default the castle stone ramp, darkest first) moves along it by its column's band: a lit
@@ -552,6 +619,13 @@ def main():
     sb.add_argument("--tufts", type=int, default=24)
     sb.add_argument("--palette", default=DEFAULT_PALETTE)
     sb.set_defaults(fn=cmd_slopebands)
+    gv = sub.add_parser("ground")
+    gv.add_argument("input")
+    gv.add_argument("output")
+    gv.add_argument("--seed", type=int, default=1)
+    gv.add_argument("--left", choices=["stone", "plain"], default="stone")
+    gv.add_argument("--right", choices=["stone", "plain"], default="stone")
+    gv.set_defaults(fn=cmd_ground)
     cy = sub.add_parser("cylinder")
     cy.add_argument("input")
     cy.add_argument("output")

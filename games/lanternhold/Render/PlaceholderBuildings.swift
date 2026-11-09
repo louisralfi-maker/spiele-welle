@@ -13,7 +13,7 @@ enum PlaceholderBuildings {
         case .hallInterior: return [hallInterior(salt)]
         case .chapel: return [chapel(salt)]
         case .kitchen: return [kitchen(salt)]
-        case .house: return [house(salt)]
+        case .house, .houseB, .houseC: return [house(salt)]
         case .field: return [field(salt)]
         case .well: return [well(salt)]
         default: return []
