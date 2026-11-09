@@ -1,0 +1,218 @@
+# serLudo 16x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Ser Ludo, the wandering knight (comic): a
+# great bucket helm far too big for him, dented on top, its breathing slits dark, sitting low on his shoulders, a long
+# rose plume drooping wilted down its back; a skinny frame in a too-long yellow surcoat with a red chevron over mail,
+# thin legs in baggy mail, big boots; a battered heater shield on his near arm (red, a yellow bend, a dent in its rim,
+# a crack), a small sword at the hip. Walk: a proud high-stepping march, the helm wobbling. Idle: chest out, a breath.
+# Talk: he lifts the visor and two earnest eyes peer out (6), then thrusts his sword up heroically, the visor down (7).
+id serLudo
+size 16x30
+frames 8
+outline ink
+
+legend
+    k = ink
+    O = night0
+    P = stonePale
+    L = stoneLight
+    m = stone
+    M = stoneMid
+    D = stoneDark
+    F = dusk
+    f = tile
+    Y = strawLight
+    y = straw
+    R = tile
+    r = woodDark
+    W = woodLight
+    w = wood
+    S = dawnRose
+    s = tileLight
+    B = woodDark
+    b = soilDark
+    x = stonePale!
+
+part helm
+    ..mLLm.m..
+    .mLPPLmLm.
+    mLPPLLLLLm
+    mLPLLLLLLm
+    mLLOOOOOOO
+    mLLLLLLLLm
+    mLLOOLOOLm
+    mmLLLLLLLm
+    .mmmMMMMm.
+
+part helmOpen
+    ..mLLm.m..
+    .mLPPLmLm.
+    mLPPLLLLLm
+    mLPLLLLLLm
+    mLLmSSkSSk
+    mLLmSSSSSs
+    mLLOOLOOLm
+    mmLLLLLLLm
+    .mmmMMMMm.
+
+part plume
+    .FF.
+    FFFf
+    Ff.f
+    f...
+    f...
+
+part torso
+    ..YYYYY..
+    .yYYYYYY.
+    yyYRYYYY.
+    yyRYRYYY.
+    yRYYYRYY.
+    yyYYYYRY.
+    rrrrrrrr.
+    yyYYYYYY.
+    yyYYYYYY.
+    yYYYYYYY.
+
+part legsStand
+    .Mm..Mm.
+    .Mm..Mm.
+    .Mm..Mm.
+    .Mm..Mm.
+    .BBB.BBB
+    BBBB.BBBb
+
+part legsContactA
+    Mm....Mm.
+    Mm.....Mm
+    Mm.....Mm
+    Mm.....Mm
+    BBB....BBB
+    BBBB...BBBb
+
+part legsHigh
+    ...MmMm..
+    ...Mm.Mm.
+    ...Mm..BBB
+    ...Mm..BBBb
+    ..BBB.....
+    .BBBB.....
+
+part legsContactB
+    .Mm...Mm.
+    .Mm....Mm
+    Mm.....Mm
+    Mm.....Mm
+    BBB....BBB
+    BBBB...BBBb
+
+part legsHighB
+    ...MmMm..
+    ..Mm..Mm.
+    .BBB..Mm.
+    BBBB..Mm.
+    ......BBB
+    .....BBBBb
+
+part shield
+    rRRRRRr
+    RRRRYYR
+    RRRYYRr
+    RRYYRRR
+    .RYRRR.
+    .rRRRr.
+    ..rRr..
+    ...r...
+
+part sword
+    m.
+    m.
+    .w
+
+part swordUp
+    P.
+    P.
+    P.
+    P.
+    LL
+    mL
+    Lm
+
+part armShield
+    mM
+    mM
+    Mm
+
+part armUp
+    .m
+    mM
+
+frame 0
+    plume 1 4
+    legsContactA 3 24
+    torso 4 14
+    sword 3 21
+    helm 3 5
+    shield 9 15
+    armShield 8 15
+
+frame 1
+    plume 1 5
+    legsHigh 3 24
+    torso 4 14
+    sword 3 21
+    helm 3 6
+    shield 9 16
+    armShield 8 16
+
+frame 2
+    plume 1 4
+    legsContactB 3 24
+    torso 4 14
+    sword 3 21
+    helm 3 5
+    shield 9 15
+    armShield 8 15
+
+frame 3
+    plume 1 5
+    legsHighB 3 24
+    torso 4 14
+    sword 3 21
+    helm 3 6
+    shield 9 16
+    armShield 8 16
+
+frame 4
+    plume 1 4
+    legsStand 3 24
+    torso 4 14
+    sword 3 21
+    helm 3 5
+    shield 9 15
+    armShield 8 15
+
+frame 5
+    plume 1 5
+    legsStand 3 24
+    torso 4 15
+    sword 3 22
+    helm 3 6
+    shield 9 16
+    armShield 8 16
+
+frame 6
+    plume 1 4
+    legsStand 3 24
+    torso 4 14
+    sword 3 21
+    helmOpen 3 5
+    shield 9 15
+    armShield 8 15
+
+frame 7
+    plume 1 4
+    legsStand 3 24
+    torso 4 14
+    helm 3 5
+    shield 9 15
+    swordUp 13 0
+    armUp 12 7

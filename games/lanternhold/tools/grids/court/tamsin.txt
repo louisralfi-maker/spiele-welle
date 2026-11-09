@@ -1,0 +1,215 @@
+# tamsin 14x28, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Tamsin, the cook: round and rosy, a teal
+# kerchief over her auburn hair (curls at the forehead and the temple, the hair at the nape below it), knotted behind
+# the head with two short tails sticking out, a fold across it; rosy cheeks and a broad smile, a red-brown dress with
+# the sleeves rolled up over strong forearms, a white apron with a bib tied at the waist, a long wooden ladle with an
+# iron bowl in her near fist. Fix stage: the kerchief covered every hair (teal hair at device scale), and talk 6 held
+# the ladle's bowl beside her face like a beak. Walk: a rolling waddle, the skirt swinging. Idle: a breath. Talk: the
+# ladle kept low, she wags a finger of her free hand before her chest (6), then points the ladle forward like a finger
+# (7): have you heard?
+id tamsin
+size 14x28
+frames 8
+outline ink
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    n = dusk
+    U = roofLight
+    T = banner
+    t = roofDeep
+    h = tile
+    R = tile
+    r = woodDark
+    Q = tileLight
+    A = parchment
+    a = plaster
+    L = stoneLight
+    l = stone
+    D = woodLight
+    d = wood
+    B = woodDark
+
+part head
+    .....UUUU..
+    ....UUTUUT.
+    ..tTUUUThQS
+    .tTtUUhhSSS
+    t.t.hhSSkSS
+    ....hSnSSSS
+    .....sSSsS.
+    ......sSs..
+
+part torso
+    ..QRRRR...
+    .QRRRRAR..
+    RRRRRAAAR.
+    RRRRRAAAAR
+    rRRRRAAAAR
+    rRRRRAAAAR
+    raaaaaaaaa
+
+part skirtStand
+    .rRRRRAAAAa.
+    rrRRRRAAAAa.
+    rrRRRRAAAAAa
+    rrRRRRAAAAAa
+    rrRRRRAAaAAa
+    rrRRRRAAaAAa
+    rrRRRRAAaAAa
+    rrRRRRAAaAAa
+    rrRRRRRAAAAa
+    .rRRRRRRRRRR
+
+part skirtA
+    .rRRRRAAAAa..
+    rrRRRRAAAAAa.
+    rrRRRRAAAAAa.
+    rrRRRRAAAAAAa
+    rrRRRRAAAaAAa
+    rrRRRRAAAaAAa
+    rrRRRRAAAaAAa
+    rrRRRRAAAaAAa
+    rrRRRRRAAAAAa
+    .rRRRRRRRRRRR
+
+part skirtB
+    .rRRRRAAAAa.
+    rrRRRRAAAAa.
+    rrRRRRAAAAa.
+    rrRRRRAAAAAa
+    rrRRRRAAaAAa
+    rrRRRRAAaAAa
+    rrRRRRAAaAAa
+    rrRRRRAAaAAa
+    rrRRRRRAAAAa
+    .rRRRRRRRRRR
+
+part skirtC
+    ..rRRRRAAAa.
+    .rrRRRRAAAa.
+    .rrRRRRAAAAa
+    rrrRRRRAAAAa
+    rrrRRRRAaAAa
+    rrrRRRRAaAAa
+    rrrRRRRAaAAa
+    rrrRRRRAaAAa
+    rrrRRRRRAAAa
+    .rrRRRRRRRRR
+
+part feetStand
+    .BBB.BBB
+
+part feetA
+    BBB...BBB
+
+part feetB
+    ..BBBBB
+
+part feetC
+    .BBBBBB
+
+# the near arm, sleeve rolled up, the long ladle hanging from her fist at her side
+part armLadle
+    QR..
+    RRR.
+    RQSS
+    .sSS
+    ...D
+    ...D
+    ...d
+    ..lL
+    ..LL
+
+part armLadleUp
+    ......LLL
+    ......lLl
+    .....D...
+    ....D....
+    ..SSD....
+    QRSS.....
+    RR.......
+
+part armLadlePoint
+    .........
+    .........
+    QR.......
+    RRSSDDDLl
+    RRSs...lL
+
+part armBack
+    RR
+    RQ
+    sS
+
+# talk 6: the free hand raised before her chest, one finger wagging
+part handWag
+    .S
+    SS
+    R.
+
+frame 0
+    armBack 2 10
+    skirtA 1 17
+    feetA 2 27
+    torso 2 10
+    head 1 2
+    armLadle 6 10
+
+frame 1
+    armBack 2 11
+    skirtB 1 17
+    feetB 3 27
+    torso 2 11
+    head 1 3
+    armLadle 6 11
+
+frame 2
+    armBack 2 10
+    skirtC 1 17
+    feetC 3 27
+    torso 2 10
+    head 1 2
+    armLadle 6 10
+
+frame 3
+    armBack 2 11
+    skirtB 1 17
+    feetB 3 27
+    torso 2 11
+    head 1 3
+    armLadle 6 11
+
+frame 4
+    armBack 2 10
+    skirtStand 1 17
+    feetStand 2 27
+    torso 2 10
+    head 1 2
+    armLadle 6 10
+
+frame 5
+    armBack 2 11
+    skirtStand 1 17
+    feetStand 2 27
+    torso 2 11
+    head 1 3
+    armLadle 6 11
+
+frame 6
+    armBack 2 10
+    skirtStand 1 17
+    feetStand 2 27
+    torso 2 10
+    head 1 2
+    armLadle 6 10
+    handWag 10 9
+
+frame 7
+    armBack 2 10
+    skirtStand 1 17
+    feetStand 2 27
+    torso 2 10
+    head 1 2
+    armLadlePoint 5 10

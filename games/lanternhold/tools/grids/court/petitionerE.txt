@@ -1,0 +1,177 @@
+# petitionerE 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md "M3"). A petitioner body: a well-off townsman, portly,
+# a neat grey beard, a soft brimless cap of red velvet drooping over the back of his head with a gold brooch, a fine
+# teal gown with wide sleeves trimmed with pale fur at the collar, the cuffs and the hem, a gold chain over his
+# shoulders, the belt low at the hip, dark hose, buckled shoes. Fix stage: the red-brown cap over a dark band and the
+# long brown belted coat with a button row read as a 1940s detective in a fedora and a trench coat. Walk: four frames,
+# a self-important waddle. Idle: a breath, his hand at his belt.
+id petitionerE
+size 12x26
+frames 6
+outline ink
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    W = stonePale
+    w = stoneLight
+    R = dusk
+    r = tile
+    G = gold
+    g = straw
+    V = banner
+    v = roofDeep
+    U = roofLight
+    F = plaster
+    f = plasterDim
+    N = soilDark
+    B = woodDark
+    b = stoneLight
+    L = woodDark
+
+# the soft cap: a velvet crown wider than his head, drooping over the back of the head, the gold brooch in front
+part cap
+    ..RRRR..
+    .RRRRRRG
+    rRr.....
+
+part head
+    .wSSSs
+    .wSSkS
+    ..SSSSS
+    .wWWWs.
+    ..wWW..
+
+# the gown's top: the fur collar, the gold chain hanging over the shoulders onto the chest, no buttons
+part torso
+    .fFFFFv.
+    fFFFFFvv
+    .vGVVVGv
+    vVVGGGVv
+    vVVVVUVv
+    vVVVVVUv
+    vVVVVVVv
+    vVVVVVUv
+
+# the gown's skirt to the knee: the belt low at the hip, the fur trim at the hem
+part coatStand
+    .LLLLGLLL
+    .vVVVVVUV
+    vvVVVVVUV
+    vvVVVVVVUV
+    ffFFFFFFFf
+
+part coatA
+    .LLLLGLLL.
+    .vVVVVVVUV
+    vvVVVVVVUV
+    vvVVVVVVVUV
+    ffFFFFFFFFf
+
+part coatB
+    .LLLLGLLL
+    .vVVVVVUV
+    .vVVVVVUV
+    vvVVVVVUV
+    ffFFFFFFf
+
+part coatC
+    ..LLLGLLL
+    ..vVVVVUV
+    .vvVVVVUV
+    vvvVVVVVUV
+    fffFFFFFFf
+
+part legsStand
+    .NN.NN
+    .NN.NN
+    .BB.BB
+    BBBbBBBb
+
+part legsContactA
+    NN...NN
+    NN...NN
+    BB...BB
+    BBBb.BBBb
+
+part legsPass
+    ..NNNN
+    ..NNNN
+    ..BBBB
+    .BBBbBBb
+
+part legsContactB
+    .NN..NN
+    NN...NN
+    BB...BB
+    BBBb.BBBb
+
+# the near arm in its wide sleeve, a pale fur cuff, the hand at his belt or swinging
+part armThumb
+    VU..
+    VUU.
+    VUUU
+    fFF.
+    .SS.
+
+part armSwingFwd
+    VU...
+    VUU..
+    .VUUU
+    ..fFF
+    ...SS
+
+part armSwingBack
+    VU..
+    VU..
+    UVV.
+    fFF.
+    SS..
+
+frame 0
+    coatA 1 17
+    legsContactA 2 22
+    torso 2 9
+    head 3 5
+    cap 3 3
+    armSwingFwd 6 10
+
+frame 1
+    coatB 2 17
+    legsPass 2 22
+    torso 2 10
+    head 3 6
+    cap 3 4
+    armThumb 6 11
+
+frame 2
+    coatC 1 17
+    legsContactB 2 22
+    torso 2 9
+    head 3 5
+    cap 3 3
+    armSwingBack 6 10
+
+frame 3
+    coatB 2 17
+    legsPass 2 22
+    torso 2 10
+    head 3 6
+    cap 3 4
+    armThumb 6 11
+
+frame 4
+    coatStand 1 17
+    legsStand 2 22
+    torso 2 9
+    head 3 5
+    cap 3 3
+    armThumb 6 10
+
+frame 5
+    coatStand 1 17
+    legsStand 2 22
+    torso 2 10
+    head 3 6
+    cap 3 4
+    armThumb 6 11

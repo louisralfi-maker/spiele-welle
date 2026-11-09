@@ -1,0 +1,294 @@
+# The castle kitchen inside (kitchenInterior): hand-set details stamped by roomscenes.py. "." is transparent.
+legend
+    k = ink
+    d = stoneDark
+    m = stoneMid
+    s = stone
+    l = stoneLight
+    p = stonePale
+    N = night1
+    n = night0
+    g = gold
+    y = strawLight
+    Y = straw
+    D = woodDark
+    w = wood
+    L = woodLight
+    t = tile
+    T = tileLight
+    R = dawnRose
+    o = dusk
+    e = leafDark
+    f = leaf
+    h = meadow
+    H = leafLight
+    q = plaster
+    Q = plasterDim
+    P = parchment
+    S = soil
+    C = soilLight
+    b = banner
+
+# a bunch of herbs hanging from the tie beam
+stamp herbs
+    ..D..
+    ..D..
+    .kDk.
+    efhfe
+    ehHhe
+    .efe.
+    .hfe.
+    ..e..
+
+stamp herbsB
+    ..D..
+    ..D..
+    .kDk.
+    .fhf.
+    ehHfe
+    efhhe
+    .efe.
+    ..f..
+
+# a braid of garlic
+stamp garlic
+    .D.
+    .D.
+    PqP
+    qPq
+    PqP
+    qPq
+    PqP
+    .q.
+
+# a cured ham hanging by its string
+stamp ham
+    ..D...
+    ..D...
+    .kTk..
+    kTTtk.
+    kTRtk.
+    kTttDk
+    .ktDk.
+    ..kpk.
+    ...k..
+
+# copper pots hanging from the rail, by their handles
+stamp potS
+    ..k..
+    .k.k.
+    kkkkk
+    kyTtk
+    kTttk
+    .kkk.
+
+stamp potL
+    ...k...
+    ..k.k..
+    kkkkkkk
+    kyTTttk
+    kTTtttk
+    kTttttk
+    .kkkkk.
+
+stamp pan
+    .k.
+    .D.
+    .D.
+    .D.
+    kkk
+    kmk
+    kmk
+    kmk
+    .k.
+
+# on the shelf: plates on edge, crocks, a jug
+stamp plate
+    .pl.
+    plsl
+    lssl
+    .ll.
+
+stamp crock
+    kDk
+    LwD
+    LwD
+    kkk
+
+stamp jug
+    .kk..
+    kTtkk
+    kTtk.
+    kTtk.
+    .kk..
+
+# on the table: loaves, a cheese, a board with a knife, a basket of apples, a candle
+stamp loaf
+    .yyyY.
+    yYyYYw
+    .wwww.
+
+stamp cheese
+    .yyy.
+    gyyyg
+    gYgYg
+    .ggg.
+
+stamp board
+    llpk....
+    .LLwwwwD
+
+stamp apples
+    .oTo..
+    oTotT.
+    kLwLwk
+    .kwLk.
+
+stamp tableCandle
+    .P.
+    .P.
+    .q.
+    kgk
+
+# a barrel with iron hoops and a brass tap
+stamp barrel
+    ..kkkkkk..
+    .kLwwwwDk.
+    kddddddddk
+    kLwLwwwwDk
+    kLwLwwwwDk
+    kLwLwwwwDk
+    kddddddddk
+    kLwLwwwwDk
+    kLwLwwwwDk
+    kLwLwwwggk
+    kLwLwwwwDk
+    kddddddddk
+    .kLwwwwDk.
+    ..kkkkkk..
+
+# a sack of flour, tied at the neck
+stamp sack
+    ...kk...
+    ..kqqk..
+    ..kQQk..
+    .kqqqqk.
+    kqPqqqQk
+    kqPqqqQk
+    kqqqqQQk
+    kqqqQQQk
+    .kkkkkk.
+
+# the cat, ginger and white, curled asleep on its stool, its head toward the fire
+stamp cat
+    .........k.k
+    ........kTkTk
+    ..kkkkkkkTTTk
+    .kTTtTTtTTkTk
+    kTTTTTTTTPPTk
+    kTtTTtTTTPPk.
+    kttttttPPPk..
+    .kkkkkkkkk...
+
+# the cat's stool
+stamp stool
+    kkkkkkk
+    kLLLLLk
+    kwwwwwk
+    .kw.wk.
+    .kw.wk.
+    .kw.wk.
+    .kk.kk.
+
+# a broom against the wall
+stamp broom
+    .k..
+    .L..
+    .L..
+    .w..
+    .L..
+    .L..
+    .w..
+    .L..
+    .L..
+    .w..
+    .L..
+    .L..
+    kkk.
+    kYYk
+    YyYYk
+    YYyYk
+    kYYk.
+
+# the bread oven's iron door in its brick arch
+stamp ovenDoor
+    ..kkkkkk..
+    .kttTTttk.
+    kttkkkkttk
+    ktkddddktk
+    ktkdmmdktk
+    ktkdllgktk
+    ktkdmmdktk
+    ktkkkkkktk
+    kttttttttk
+
+# the cauldron over the fire
+stamp cauldron
+    ..k...k..
+    kkkkkkkkk
+    kdmmmmmdk
+    kdmlmmmdk
+    kddmmmmdk
+    .kdddddk.
+    ..kkkkk..
+
+# a bread peel leaning by the oven
+stamp peel
+    .k.
+    .L.
+    .L.
+    .w.
+    .L.
+    .L.
+    .w.
+    .L.
+    .L.
+    kLk
+    LLw
+    LLw
+    kwk
+
+# a pot of herbs on the sill
+stamp sillPot
+    .fhf.
+    efhHe
+    .tTt.
+    .ttt.
+
+# a mouse hole in the wall's foot
+stamp mouseHole
+    .kk.
+    knnk
+
+# sausages smoking on a string from the purlin
+stamp sausages
+    D...D...D
+    D...D...D
+    t...t...t
+    T..tT..tT
+    t..tt..tt
+    t...t...t
+    .....t...
+
+# a wooden utensil rack: a ladle, a spoon, a skimmer
+stamp rack
+    kkkkkkkkkk
+    kLLLLLLLLk
+    kkkkkkkkkk
+    .m..D..m..
+    .m..L..m..
+    .m..L..m..
+    .m..L.kmk.
+    kmk.L.kmk.
+    kmk.w..k..
+    .k..w.....

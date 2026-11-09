@@ -1,0 +1,228 @@
+# odile 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Odile, the chancellor: tall and thin, a
+# dark plum robe to the floor (aubergine with violet folds; the palette has no plum, see ART-court.md) open over a rose
+# facing down the front, rose cuffs and hem, the silver chain of office with a gold seal, grey hair pulled into a high
+# bun, a long nose, the realm's ledger (red-brown, gold clasp) clamped under her near arm.
+id odile
+size 14x30
+frames 8
+outline ink
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    H = stonePale
+    h = stoneLight
+    g = stone
+    P = rockDeep
+    p = night2
+    L = stoneMid
+    r = dusk
+    C = stonePale
+    G = gold
+    T = tile
+    t = woodDark
+    W = parchment
+    B = woodDark
+    b = soilDark
+
+# grey hair pulled back into a high bun, the long nose
+part head
+    .hHg....
+    hHHHg...
+    .gHg.hh.
+    ..ghHHHh
+    ..ghHSSS
+    ..gghSkS
+    ...gSSSSS
+    ...gsSs.
+    ....sSs.
+
+part torso
+    .pPPPp.
+    pPPPPPr
+    pPPPPPr
+    pPPPPPr
+    pPPPPPr
+    pPPPPPr
+    ppPPPPr
+    ppPPPPr
+
+# the chain of office seen from the side: from the nape over the shoulder to the gold seal on the chest
+part chain
+    C...
+    .C..
+    ..C.
+    ...G
+    ...G
+
+part skirtStand
+    .ppPPPPr..
+    .ppPPPPr..
+    .ppPPLPr..
+    .ppPPLPPr.
+    pppPPLPPr.
+    pppPPLPPr.
+    ppPPPLPPr.
+    ppPPPLPPr.
+    ppPPPLPPPr
+    ppPPPLPPPr
+    ppPPPLPPPr
+    rrrrrrrrrr
+
+part skirtA
+    .ppPPPPr...
+    .ppPPPPPr..
+    .ppPPLPPr..
+    .ppPPLPPPr.
+    pppPPLPPPr.
+    pppPPPLPPr.
+    ppPPPPLPPPr
+    ppPPPPLPPPr
+    ppPPPPLPPPr
+    ppPPPPLPPPPr
+    ppPPPPLPPPPr
+    .rrrrrrrrrrr
+
+part skirtB
+    .ppPPPPr.
+    .ppPPPPr.
+    .ppPPLPr.
+    .ppPPLPPr
+    pppPPLPPr
+    pppPPLPPr
+    pppPPLPPr
+    ppPPPLPPr
+    ppPPPLPPr
+    ppPPPLPPr
+    ppPPPLPPr
+    rrrrrrrrr
+
+part skirtC
+    ..ppPPPr.
+    ..ppPPPr.
+    .pppPLPr.
+    .pppPLPPr
+    .pppPLPPr
+    ppppPLPPr
+    pppPPLPPr
+    pppPPLPPr
+    pppPPLPPPr
+    ppppPLPPPr
+    pppPPLPPPr
+    rrrrrrrrrr
+
+# the near arm, the ledger clamped under it (its fore-edge pages and clasp to the front), the hand under it
+part armLedger
+    pP...
+    pP...
+    pP...
+    pP...
+    pPtTW
+    pPtTW
+    pPtGG
+    rPtTW
+    .rtTW
+    .Ss..
+
+# talk: the elbow keeps the ledger clamped, the forearm comes up with one dry finger lifted (6), palm up (7)
+part armUpper
+    pP...
+    pP...
+    pP...
+    pP...
+    pPtTW
+    pPtTW
+    pPtGG
+    pPtTW
+    .ptTW
+
+part forearmFinger
+    ...S
+    ..sS
+    .rS.
+    pr..
+    P...
+
+part forearmPalm
+    ..SSs
+    .rrS.
+    pPr..
+
+part feetStand
+    .BB.BBb
+
+part feetA
+    BBb..BBb
+
+part feetB
+    ..BBBBb
+
+part feetC
+    .BBbBBb
+
+frame 0
+    skirtA 1 17
+    feetA 1 29
+    torso 3 9
+    head 3 0
+    armLedger 7 10
+    chain 5 9
+
+frame 1
+    skirtB 2 17
+    feetB 2 29
+    torso 3 10
+    head 3 1
+    armLedger 7 11
+    chain 5 10
+
+frame 2
+    skirtC 1 17
+    feetC 3 29
+    torso 3 9
+    head 3 0
+    armLedger 7 10
+    chain 5 9
+
+frame 3
+    skirtB 2 17
+    feetB 2 29
+    torso 3 10
+    head 3 1
+    armLedger 7 11
+    chain 5 10
+
+frame 4
+    skirtStand 1 17
+    feetStand 2 29
+    torso 3 9
+    head 3 0
+    armLedger 7 10
+    chain 5 9
+
+frame 5
+    skirtStand 1 17
+    feetStand 2 29
+    torso 3 10
+    head 3 1
+    armLedger 7 11
+    chain 5 10
+
+frame 6
+    skirtStand 1 17
+    feetStand 2 29
+    torso 3 9
+    head 3 0
+    armUpper 7 10
+    chain 5 9
+    forearmFinger 8 8
+
+frame 7
+    skirtStand 1 17
+    feetStand 2 29
+    torso 3 9
+    head 3 0
+    armUpper 7 10
+    chain 5 9
+    forearmPalm 8 11

@@ -1,0 +1,220 @@
+# bard 12x28, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). A wandering bard: a floppy rose-red cap
+# (dusk over tile) with a long white feather, ginger-gold curls (straw and woodLight, as his portrait), a merry face, a
+# spring-green doublet with cream puffed sleeves and a gold sash, dark hose, soft boots, a round-bellied lute slung
+# across his front, its neck angled forward at chest height (fix stage: cap and hair were one brown mass, and the neck
+# rose to his face, in front of the nose). Walk: a light step, the lute bobbing. Idle: fingers resting on the strings,
+# a breath. Talk: he strums, the strumming hand up (6) and down (7), singing (mouth open).
+id bard
+size 12x28
+frames 8
+outline ink
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    C = straw
+    c = woodLight
+    R = dusk
+    r = tile
+    F = foam
+    f = stonePale
+    E = leafLight
+    e = meadow
+    l = leaf
+    W = parchment
+    w = plaster
+    G = gold
+    D = woodLight
+    d = wood
+    n = woodDark
+    Y = strawLight
+    N = soilDark
+    B = soilDark
+    b = woodDark
+
+part cap
+    .....FF.
+    ...FFf..
+    .rRRRR..
+    rRRRRRR.
+    .rrRRRr.
+
+part head
+    .CcSSS.
+    CcSSkS.
+    CcSSSSS
+    .csSSs.
+    ..sSs..
+    ...s...
+
+part headSing
+    .CcSSS.
+    CcSSkS.
+    CcSSSSS
+    .csSkS.
+    ..sSs..
+    ...s...
+
+part torso
+    .WlEEe.
+    WWlEEEe
+    WwlEEEe
+    WwlEEEe
+    .lEEEEe
+    .GGGGGG
+    .lEEEEe
+    .lEEEEe
+    .llEEEe
+
+part legsStand
+    .NN.NN
+    .NN.NN
+    .NN.NN
+    .NN.NN
+    .NN.NN
+    .BB.BB
+    .BBbBBb
+
+part legsContactA
+    NN...NN
+    NN...NN
+    NN...NN
+    NN....NN
+    NN....NN
+    BB....BB
+    BBb...BBb
+
+part legsPass
+    ..NNNN
+    ..NNNN
+    ..NN.NN
+    ..NN.NN
+    ..NN.NN
+    ..BB.BB
+    ..BBbBBb
+
+part legsContactB
+    .NN..NN
+    .NN..NN
+    .NN..NN
+    NN...NN
+    NN...NN
+    BB...BB
+    BBb..BBb
+
+# the lute across his front: the round belly at his hip, the neck angled forward at chest height, the pegbox bent back
+part lute
+    ........
+    ........
+    ........
+    .......n
+    .....nnn
+    .YDDn...
+    YDDDDd..
+    DDnnDd..
+    DDnnDd..
+    dDDDd...
+    .ddd....
+
+part armStrum
+    WW.
+    Ww.
+    .SS
+
+part armStrumUp
+    .SS
+    WW.
+    Ww.
+
+part armBack
+    W.
+    W.
+    w.
+    S.
+
+part armFret
+    .....
+    .....
+    ...SS
+    .wW..
+
+frame 0
+    armBack 2 11
+    legsContactA 2 21
+    torso 2 12
+    head 3 6
+    cap 2 2
+    lute 4 9
+    armFret 5 10
+    armStrum 4 15
+
+frame 1
+    armBack 2 12
+    legsPass 2 21
+    torso 2 13
+    head 3 7
+    cap 2 3
+    lute 4 10
+    armFret 5 11
+    armStrum 4 16
+
+frame 2
+    armBack 2 11
+    legsContactB 2 21
+    torso 2 12
+    head 3 6
+    cap 2 2
+    lute 4 9
+    armFret 5 10
+    armStrum 4 15
+
+frame 3
+    armBack 2 12
+    legsPass 2 21
+    torso 2 13
+    head 3 7
+    cap 2 3
+    lute 4 10
+    armFret 5 11
+    armStrum 4 16
+
+frame 4
+    armBack 2 11
+    legsStand 2 21
+    torso 2 12
+    head 3 6
+    cap 2 2
+    lute 4 9
+    armFret 5 10
+    armStrum 4 15
+
+frame 5
+    armBack 2 12
+    legsStand 2 21
+    torso 2 13
+    head 3 7
+    cap 2 3
+    lute 4 10
+    armFret 5 11
+    armStrum 4 16
+
+frame 6
+    armBack 2 11
+    legsStand 2 21
+    torso 2 12
+    headSing 3 6
+    cap 2 2
+    lute 4 9
+    armFret 5 10
+    armStrumUp 4 14
+
+frame 7
+    armBack 2 11
+    legsStand 2 21
+    torso 2 12
+    headSing 3 6
+    cap 2 2
+    lute 4 9
+    armFret 5 10
+    armStrum 4 16

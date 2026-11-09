@@ -1,0 +1,91 @@
+# The court's props (bench, taxLectern, marekCart, the statue's plinth, speakerMark): hand-set stamps painted by
+# roomscenes.py. "." is transparent.
+legend
+    k = ink
+    d = stoneDark
+    m = stoneMid
+    s = stone
+    l = stoneLight
+    p = stonePale
+    N = night1
+    g = gold
+    y = strawLight
+    Y = straw
+    D = woodDark
+    w = wood
+    L = woodLight
+    b = banner
+    B = roofDeep
+    r = roofLight
+    t = tile
+    T = tileLight
+    o = dusk
+    O = dawnRose
+    e = leafDark
+    f = leaf
+    h = meadow
+    q = plaster
+    Q = plasterDim
+    P = parchment
+    S = soil
+
+# a petitioners' bench in the great hall: an oak plank seat with a teal cushion and gold tassels on turned legs
+stamp bench
+    ..kkkkkkkkkkkkkkkkkkkkkkkkkkkk..
+    .gkrrrrbrrrrrrbrrrrrrrbrrrrrbkg.
+    kkLLLLLLLLLLLLLLLLLLLLLLLLLLLLkk
+    kwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwk
+    kkDkkkkkkkkkkkkkkkkkkkkkkkkkDkkk
+    ..kLwk..................kLwk....
+    ..kwwk..................kwwk....
+    ..kLwkkkkkkkkkkkkkkkkkkkkLwk....
+    ..kwwDDDDDDDDDDDDDDDDDDDDwwk....
+    .kkkkkk................kkkkkk...
+
+# the tax lectern beside the throne: the realm's ledger open on an oak desk, a quill in its inkpot, a little stack
+# of the day's coins, a turned post on a base
+stamp taxLectern
+    .........k..
+    ........kPk.
+    ........kPk.
+    ..kkkkkkkP..
+    .kPPPPkPPkk.
+    kPQQPPkPQQPk
+    kPPPPPtPPPPk
+    kPQQPPtPQQPk
+    kkkkkkkkkkkk
+    kLLLLLLLLLLk
+    .kwwwwwwwwk.
+    ..kkkwwkkk..
+    ....kLwk....
+    ....kLwk....
+    ...gkLwk....
+    ..gykLwk....
+    ..kgkLwk....
+    ....kLwk....
+    ..kkLLwwkk..
+    .kkkkkkkkkk.
+
+# the speech mark over a court member with something new to say: a parchment bubble with a red "!" and its tail
+# down to the speaker; frame 1 (the pulse) lit gold
+stamp speakerMark
+    .kkkkk..kkkkk.
+    kPPtPPkkyytyyk
+    kPPtPPkkyytyyk
+    kPPPPPkkyyyyyk
+    kPPtPPkkyytyyk
+    .kPkkk..kykkk.
+    .kk.....kk....
+
+# the statue's plinth (the lamplighter king stands on it): a cornice, a die with a bronze plaque, a base
+stamp plinth
+    kkkkkkkkkkkkkkkkkkkk
+    kppppppppppppppplllk
+    kkkkkkkkkkkkkkkkkkkk
+    .klllllllllllllllsk.
+    .klkkkkkkkkkkkkkksk.
+    .klkgygyggygyggksk.
+    .klkggggggggggkksk.
+    .klkkkkkkkkkkkkksk.
+    kplllllllllllllllssk
+    kkkkkkkkkkkkkkkkkkkk

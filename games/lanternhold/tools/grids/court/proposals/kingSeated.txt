@@ -1,0 +1,120 @@
+# kingSeated 16x30, 2 frames (a PROPOSAL of the M3 art lane, not in SPRITES.md and not in Resources/Art; ART-court.md):
+# the lamplighter king seated on the throne, in profile like every actor (facing right; the engine mirrors him to face
+# the petitioners): the king's own crown, head, cloak and tunic from tools/grids/actors/king.txt, the thighs forward on
+# the seat (y 8, the throne's cushion), the shins down to the floor, the lantern pole upright before his knees.
+# Frame 0 seated, frame 1 a breath. Built only for the context mocks (tools/scenemock/run_court.sh).
+id kingSeated
+size 16x30
+frames 2
+outline ink
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    W = foam
+    w = stonePale
+    v = stoneLight
+    G = gold
+    C = strawLight
+    g = straw
+    j = banner/fireWhite
+    T = banner
+    t = roofDeep
+    U = roofLight
+    R = tile
+    r = woodDark
+    Q = tileLight
+    H = woodDark
+    B = soilDark
+    b = soil
+    p = wood
+    P = woodLight
+    i = stoneDark
+    I = stone
+    Y = strawLight/fireGold
+    Z = parchment/fireWhite
+
+part crown
+    .G.C.G.
+    .GgjgG.
+    GCGGGCG
+    gGGGGGg
+
+part head
+    .wSSS.
+    wSSkSs
+    wSSSSS
+    WWSWWs
+    vWWWWW
+    .vWWW.
+    ..vW..
+
+part body
+    ...UTRQ.
+    ..tTGRRQ
+    ..tTTRRR
+    .tTTTRRQ
+    .tTTTRrR
+    .tTTUHGH
+    tTTTTRRR
+    tTTTTRrQ
+    tTTUTRRR
+    ttTTTRrR
+    ttTTT...
+    .ttTT...
+
+part armHold
+    RR.
+    QSS
+
+part pole
+    .III.
+    I...I
+    p.iiii
+    p.iZZi
+    p.iYYi
+    p.iiii
+    p.....
+    P.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    P.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+
+part legsSeated
+    BbbbbbB.
+    BbbbbbbB
+    .....Bb.
+    .....Bb.
+    .....Bb.
+    .....HH.
+    .....HH.
+    .....HHHr
+
+frame 0
+    legsSeated 3 22
+    body 2 11
+    head 5 5
+    crown 4 2
+    pole 10 3
+    armHold 8 14
+
+frame 1
+    legsSeated 3 22
+    body 2 12
+    head 5 6
+    crown 4 3
+    pole 10 3
+    armHold 8 15

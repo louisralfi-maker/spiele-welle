@@ -1,0 +1,293 @@
+# hesper 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Mother Hesper, priestess of the Flame: an
+# old woman with dark skin and white hair, a broad gold-ochre mantle of her order over her shoulders and down her back
+# with a rounded hood pushed back from her face, the cream robe showing in front with a gold hem, and a short crook
+# staff whose iron cup carries the little flame at her chest, before the chin (hesperGlow: the flame, flickering
+# through four shapes; it lights her face). Fix stage (ART-court.md): the cream hooded robe with the flame on a pole
+# above her head read as a faceless ghost and carried an unwanted image; the mantle breaks the silhouette, the face
+# shows, the flame burns low. Walk: slow, the staff carried before her. Idle: a breath, the flame flickers. Talk: she
+# lifts the staff and the flame flares up beside her face, the head drawn back (6), then lowers it, her free hand on
+# her heart (7).
+id hesper
+size 14x30
+frames 8
+outline ink
+
+legend
+    k = ink
+    e = foam
+    E = stonePale
+    S = soilLight
+    s = soil
+    r = rockLight
+    n = woodDark
+    W = parchment
+    w = plaster
+    q = plasterDim
+    L = strawLight
+    g = straw
+    G = gold
+    D = woodLight
+    d = wood
+    T = woodLight
+    t = wood
+    I = stone
+    i = stoneMid
+    B = woodDark
+    F = strawLight/fireWhite
+    f = gold/fireGold
+    o = straw/fireOrange
+
+# the head: the rounded hood of the mantle pushed back (its inside dark beside the face), white hair at the crown and
+# the temple, the face 4-5 px wide: a lit cheek (rockLight), the eye, the nose, the mouth
+part head
+    ..gLLg...
+    .gLLLgee.
+    DgLLgneSS
+    DgLgnESkS
+    DggnsrSSS
+    DggnsSsS.
+    DgDgnss..
+
+# talk 6: the head drawn back a pixel as the flame flares up before it
+part headBack
+    .gLLg....
+    gLLLgee..
+    gLLgneSS.
+    gLgnESkS.
+    ggnsrSSS.
+    ggnsSsS..
+    gDgnss...
+
+# the shoulders and the chest: the mantle over both shoulders with its gold-edged front falling from the neck over the
+# near shoulder, the cream robe in front, the near arm's sleeve reaching to the staff, the hand on it
+part upper
+    .DDgGDgGGq...
+    DggLLLLGqW...
+    DggLLLGqwWwS.
+    DggLLGGqwWWs.
+    DggLLGqwWWW..
+    DggLgGqwWWW..
+    DggggGqwWWW..
+
+# talk 7: the far hand laid on the heart
+part upperHeart
+    .DDgGDgGGq...
+    DggLLLLGqW...
+    DggLLLGqwWwS.
+    DggLLGGsSWWs.
+    DggLLGqwWWW..
+    DggLgGqwWWW..
+    DggggGqwWWW..
+
+# the long robe and the mantle's back fall: standing, and the three walk shapes (the hem swings, the feet peek out)
+part lowerStand
+    DgggGqwWWWW
+    DgggGqwWWWW
+    DgggGqwWwWW
+    DgggGqwWwWW
+    DgggGqwWwWW
+    DgggGqwWwWW
+    DgDgGqwWwWW
+    DgDgGqwWwWW
+    DgDgGqwWwWW
+    DgDgGqwWwWW
+    DgDgGGGGGGG
+
+part lowerA
+    DgggGqwWWWW
+    DgggGqwWWWW
+    DgggGqwWwWW
+    DgggGqwWwWW
+    DgggGqwWwWW
+    DgggGqqwWwW
+    DgDgGqqwWwW
+    DgDgGqqwWwW
+    .DgDGqqwWwW
+    .DgDGqqwWwW
+    .DgDGGGGGGG
+
+part lowerB
+    DgggGqwWWWW
+    DgggGqwWWWW
+    DgggGqwWwWW
+    DgggGqwWwWW
+    DgggGqwWwWW
+    .DggGqwWwWW
+    .DgDGqwWwWW
+    .DgDGqwWwWW
+    .DgDGqwWwWW
+    .DgDGqwWwWW
+    .DgDGGGGGGG
+
+part lowerC
+    DgggGqwWWWW
+    DgggGqwWWWW
+    DgggGqwWwWW
+    DgggGqwWwWW
+    DgggGqwWWwW
+    DgggGqwWWwW
+    DgDgGqwWWwW
+    DgDgGqwWWwW
+    DgDgGqwWWwW
+    DgDgGqwWWwW
+    DgDgGGGGGGG
+
+part feetStand
+    .BB.BBB
+
+part feetA
+    BB....BBB
+
+part feetB
+    ..BBBB
+
+part feetC
+    .BBB.BBB
+
+# the crook staff: its iron cup on the forward bend of the crook, the shaft (two lengths, for the bob frames)
+part staff
+    IiI
+    .T.
+    .t.
+    .T.
+    .T.
+    .t.
+    .T.
+    .T.
+    .t.
+    .T.
+    .T.
+    .t.
+    .T.
+    .T.
+    .t.
+    .T.
+    .T.
+    .t.
+
+part staffShort
+    IiI
+    .T.
+    .t.
+    .T.
+    .T.
+    .t.
+    .T.
+    .T.
+    .t.
+    .T.
+    .T.
+    .t.
+    .T.
+    .T.
+    .t.
+    .T.
+
+part staffShorter
+    IiI
+    .T.
+    .t.
+    .T.
+    .T.
+    .t.
+    .T.
+    .T.
+    .t.
+    .T.
+    .T.
+    .t.
+    .T.
+    .T.
+
+# the flame in the cup (body pixels are warm albedo under the glow, so by day a dimmed glow still reads as flame)
+part flame0
+    .o.
+    fFo
+    oFf
+
+part flame1
+    o..
+    fFf
+    oFo
+
+part flame2
+    ..o
+    oFf
+    fFo
+
+part flame3
+    .f.
+    oFo
+    fFf
+
+# talk 6: the flame flares up, tall and narrow beside the drawn-back face
+part flameHigh
+    .o.
+    .fo
+    .Fo
+    .Ff
+    oFf
+
+frame 0
+    lowerA 0 18
+    feetA 1 29
+    upper 0 11
+    head 3 4
+    staff 11 12
+    flame0 11 9
+
+frame 1
+    lowerB 0 18
+    feetB 2 29
+    upper 0 12
+    head 3 5
+    staffShort 11 13
+    flame1 11 10
+
+frame 2
+    lowerC 0 18
+    feetC 1 29
+    upper 0 11
+    head 3 4
+    staff 11 12
+    flame2 11 9
+
+frame 3
+    lowerB 0 18
+    feetB 2 29
+    upper 0 12
+    head 3 5
+    staffShort 11 13
+    flame3 11 10
+
+frame 4
+    lowerStand 0 18
+    feetStand 1 29
+    upper 0 11
+    head 3 4
+    staff 11 12
+    flame0 11 9
+
+frame 5
+    lowerStand 0 18
+    feetStand 1 29
+    upper 0 12
+    head 3 5
+    staffShort 11 13
+    flame2 11 10
+
+frame 6
+    lowerStand 0 18
+    feetStand 1 29
+    upper 0 11
+    headBack 3 4
+    staff 11 10
+    flameHigh 11 5
+
+frame 7
+    lowerStand 0 18
+    feetStand 1 29
+    upperHeart 0 11
+    head 3 4
+    staff 11 12
+    flame3 11 9
