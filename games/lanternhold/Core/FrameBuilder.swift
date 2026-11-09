@@ -27,6 +27,8 @@ enum FrameBuilder {
         let groundDeviceY: Int
         let physicalWidth: Int
         let offsets: [PlaneOffset]
+        /// The camera's focus (the screen centre) in world game pixels.
+        let focusX: Double
 
         func whole(_ plane: Plane) -> Double { Double(offsets[plane.rawValue].whole) }
 
@@ -88,7 +90,8 @@ enum FrameBuilder {
                                 groundDeviceY: Camera.groundDeviceY(physicalHeight: pixelScale.physicalHeight,
                                                                     scale: scale),
                                 physicalWidth: pixelScale.physicalWidth,
-                                offsets: camera.offsets(scale: scale))
+                                offsets: camera.offsets(scale: scale),
+                                focusX: camera.focusX)
         let hour = clock.hour
         let ambient = AmbientRamp.sample(at: hour)
         let animTime = options.flickerTime ?? clock.elapsed
@@ -297,10 +300,16 @@ enum FrameBuilder {
         let width = Double(prop.width)
         let height = Double(prop.height)
         guard geometry.isVisible(left: left, width: width) else { return }
+        var alpha: Float = 1
+        if let fade = prop.fade {
+            let share = (geometry.focusX - fade.lowerBound) / max(1, fade.upperBound - fade.lowerBound)
+            alpha = Float(min(1, max(0, share)))
+            guard alpha > 0.003 else { return }
+        }
         let bottom = geometry.bottom(of: prop)
         let top = geometry.top(y: bottom, height: height)
         let rect = SIMD4<Float>(Float(left), Float(top), Float(prop.width), Float(prop.height))
-        let tint = SIMD4<Float>(prop.shade, prop.shade, prop.shade, 1)
+        let tint = SIMD4<Float>(prop.shade, prop.shade, prop.shade, alpha)
         let sprite = SpriteInstance(sprite: prop.sprite, frame: 0, rect: rect, tint: tint, flipped: prop.flipped)
         glow.occlude(sprite, plane: prop.plane)
         sprites[prop.plane.rawValue].append(sprite)

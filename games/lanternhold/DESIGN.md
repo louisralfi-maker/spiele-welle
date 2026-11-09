@@ -120,7 +120,8 @@ One horizontal strip. `x` grows to the right in game pixels; the ground line is 
   - Past the back gate the cliffs fall away and the land opens: a wide sky, rolling hills, a windmill, a river and far
     mountains.
   - The town lies here, outside the gorge, under open sky.
-  - The back of the castle and the gorge's last cliffs close the view on the left.
+  - The back of the castle and the gorge's last cliffs close the view on the left; above the back gate the keep shows
+    (a far-plane view that fades in as the king nears the gate, so it never floats above the courtyard and the hall).
 - **Backdrop regions:** each parallax plane has a gorge set and a valley set. On each plane the border between them is
   placed so that it lines up with the back gate when the camera is centred there: far 641, mid 1274, world 2330 (plane
   x, `WorldLayout.border`). The sets do not clip; a piece belongs to a set by where it stands.
@@ -488,9 +489,13 @@ fields under a pale sky. The realm's colour is teal-blue.
 - **Point lights:** `LightSource { x, y, radius, color, intensity, kind, flickerSeed }`; falloff `(1 − d/r)²`, slightly
   elliptic so pools sit flat on the ground; deterministic flicker from `(seed, sim time)`: intensity ±15 %, radius in
   whole pixels, a slight colour shift. Style choice `smooth`, `banded` (3 to 5 bands) or `dithered` (4×4 Bayer in game
-  pixels); the prototype shows all three.
-- **Emissive:** flames, windows, lantern glass, embers, creature eyes, stars. Added after lighting; they feed the bloom.
-  Windows dim when the house sleeps.
+  pixels); the prototype shows all three. A light stands on a plane: world lights light the world, the fog, the
+  foreground and a share of the mid plane; a backdrop light (the warden statue's bowl fire on the mid plane, M1b) moves
+  with its plane and lights only the mid plane, so it never paints the rock overhangs in front of it. Only world lights
+  count for the battle.
+- **Emissive:** flames, window glass (the painted dark panes inside a rect glow), lantern glass, embers, creature eyes,
+  stars. Added after lighting; they feed the bloom. A sprite drawn later on the mid, world or foreground plane hides the
+  glow behind it. Windows dim when the house sleeps.
 - **Fog:** two drifting pixel-noise planes, one behind and one in front of the world; lit fog glows around braziers.
 - **Light shafts:** sun beams through the gorge and castle windows at dawn and dusk; moonbeams at night.
 - **Bloom** on strong lights, then the time-of-day grade.

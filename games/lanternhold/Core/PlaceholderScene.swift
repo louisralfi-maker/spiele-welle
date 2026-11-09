@@ -59,12 +59,15 @@ struct Prop: Sendable, Equatable {
     var emissive: [EmissivePart]
     var masks: [GlassMask]
     var lights: [LightSource]
+    /// Fades in while the camera's focus moves across this range (nil: always drawn).
+    var fade: ClosedRange<Double>?
     /// False for a snuffed brazier: no lights and no fire emissives.
     var isLit: Bool
 
     init(id: Int, sprite: SpriteID, plane: Plane, x: Double, y: Double, z: Int = 0, shade: Float = 1,
          flipped: Bool = false, anchor: PropAnchor = .ground, region: WorldLayout.Region = .all,
-         emissive: [EmissivePart] = [], masks: [GlassMask] = [], lights: [LightSource] = [], isLit: Bool = true) {
+         emissive: [EmissivePart] = [], masks: [GlassMask] = [], lights: [LightSource] = [],
+         fade: ClosedRange<Double>? = nil, isLit: Bool = true) {
         self.id = id
         self.sprite = sprite
         self.plane = plane
@@ -80,6 +83,7 @@ struct Prop: Sendable, Equatable {
         self.emissive = emissive
         self.masks = masks
         self.lights = lights
+        self.fade = fade
         self.isLit = isLit
     }
 }
@@ -330,7 +334,7 @@ private struct SceneBuilder {
         }
         append(Prop(id: props.count + 1, sprite: entry.sprite, plane: plane, x: entry.x, y: entry.y, z: entry.z,
                     shade: entry.shade, flipped: entry.flipped, anchor: entry.anchor, region: region,
-                    emissive: parts, masks: masks, lights: lights))
+                    emissive: parts, masks: masks, lights: lights, fade: entry.fade))
     }
 
     private mutating func append(_ prop: Prop) {

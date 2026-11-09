@@ -165,7 +165,7 @@ def layout_props():
             li.append((kind, x, y, r, COL[kind], 0.8 if kind == 'window' else 1))
         plane = 'fg' if d['p'] == 'fg' else d['p']
         out.append(dict(s=d['s'], p=plane, x=d['x'], y=d['y'], z=d['z'], sh=d['sh'], f=d['f'], em=em, li=li,
-                        masks=masks, anchor=d['anchor'], lp=plane))
+                        masks=masks, anchor=d['anchor'], lp=plane, fade=d.get('fade')))
     return out
 ORDER = ['sky', 'far', 'mid', 'fogA', 'world', 'fogB', 'fg']
 def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86, 40)), houseWin=((14, 14), (44, 14))):
@@ -231,7 +231,11 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
         w, h = SIZES[pr['s']]; left = pr['x'] - whole[pr['p']]
         if left + w < -1 or left > TW + 1: continue
         top = pr['y'] if pr.get('anchor') == 'top' else GROUND - pr['y'] - h
-        draw(pr['p'], sprite(pr['s']), int(left), int(top), (pr['sh'], pr['sh'], pr['sh'], 1), pr['f'])
+        fa = 1.0
+        if pr.get('fade'):  # fades in with the camera's focus (the far view of the keep)
+            f0, f1 = pr['fade']; fa = min(1.0, max(0.0, (camx + VIS / 2 - f0) / (f1 - f0)))
+            if fa <= 0.003: continue
+        draw(pr['p'], sprite(pr['s']), int(left), int(top), (pr['sh'], pr['sh'], pr['sh'], fa), pr['f'])
         for (dx, dy, mw, mh, col) in pr.get('masks', []):  # window glass: the sprite's dark pixels in a rect glow
             if torchS < 0.01: continue
             img = sprite(pr['s']); rgb = [c * torchS * 0.9 for c in col]

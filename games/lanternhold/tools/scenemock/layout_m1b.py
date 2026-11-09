@@ -13,6 +13,9 @@ Coordinates
   y is then the distance from the screen's top row to the sprite's top row (0 = flush), so the lip covers the screen
   top on every phone (154 to 181 visible rows above the ground).
 - z orders instances inside one plane (low first). Actors draw on the world plane after every world prop.
+- `fade: (f0, f1)` (the far view of the keep, Swift port): the instance fades in while the camera's focus moves from f0
+  (invisible) to f1 (opaque), so it is not seen from the courtyard and the hall, where the real keep stands behind the
+  camera.
 
 Backdrop regions
 - Every far and mid instance belongs to the gorge set or the valley set. On each plane the border between them sits at
@@ -106,7 +109,9 @@ FAR = [
     # second castle in the valley). On the far plane at x 545 it sits behind the back gate at the back-gate view
     # (screen 123 to 273, showing only between the gate's towers above its wall walk, where the real keep stands) and at
     # the left edge of the town frame (focus 2900: screen 9 to 159), its foot behind the hills; z above the mountains.
-    dict(s="castleKeep", x=545, y=-62, region="valley", z=2),
+    # It fades in from focus 2150 to the back gate (2330): from the courtyard and the hall it floated above the gorge
+    # mouth as a second castle (the art review's open point).
+    dict(s="castleKeep", x=545, y=-62, region="valley", z=2, fade=(2150, 2330)),
 ]
 
 # ------------------------------------------------------------------------------------------------- mid plane
@@ -275,7 +280,7 @@ def instances():
     def add(plane, d, region=None):
         out.append(dict(s=d["s"], p=plane, x=d["x"], y=d.get("y", 0), z=d.get("z", 0), sh=d.get("shade", 1.0),
                         f=d.get("flip", False), em=d.get("em", []), li=d.get("li", []),
-                        anchor=d.get("anchor", "ground"), region=region or d.get("region")))
+                        anchor=d.get("anchor", "ground"), region=region or d.get("region"), fade=d.get("fade")))
 
     for plane, region, names, x0, y, z, shade, count in CYCLES:
         x = x0

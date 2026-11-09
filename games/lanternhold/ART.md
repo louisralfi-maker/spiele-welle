@@ -314,7 +314,8 @@ smoke clauses).
 - The courtyard still shows only the old curtain wall and the well (barracks, smithy and lodge are later art).
 - The statue is faint by day (carved rock in the same ochre as the wall); at night its bowl fire carries it.
 - The engine needs: the `anchor: top` placement for the overhangs, window-glass masks from rects (or windowGlow sprites
-  at the listed offsets), mid-plane lights (the statue's fire), and a world width of 3900.
+  at the listed offsets), mid-plane lights (the statue's fire), and a world width of 3900. (Done in the Swift port, see
+  "M1b port" at the end.)
 
 ## M1b polish (09.11.2026, after the art director's review)
 
@@ -413,3 +414,17 @@ All with the shared finish (the clouds with a green key and without "side view",
 - The throat rock (gorgeWallHigh, cliffFlank) still comes from `rocks-a` with its vertical joints; at night its rhythm
   is calm enough, by day it reads as rock.
 - The keep's front has no rich texture (the new painting is plain); a later pass could add weathering.
+
+## M1b port (Swift, 09.11.2026)
+
+The Swift scene is `Core/SceneLayout.swift`, ported from `layout_m1b.py` instance for instance (`FrameBuilderTests`
+compares it with `tools/scenemock/swift_fixture.py`'s output). The renderer has every addition above: the clouds plane
+(parallax 0.05) with the sky's light, aerial perspective at warm hours, ground mist at 0.7, the top anchor, window glass
+as masks over the painted panes, and occlusion in the emissive pass (premultiplied over in draw order: occluder quads
+clear the glow under later sprites). On the runner (round `lh-m1b-1`, iPhone 17 Pro) the shots match the mocks within
+1 to 3 colour levels per region. Two points the port does better than the mock:
+
+- The keep's far view fades in from focus 2150 to the back gate (2330): it no longer floats above the courtyard and the
+  great hall as a second castle (`fade` in `layout_m1b.py`, also drawn by `mock.py`).
+- A backdrop light (the statue's bowl fire) lights only the mid plane: on shorter screens (154 rows above the ground,
+  or the 135-row look) the rock overhang in front of the bowl no longer glows orange.

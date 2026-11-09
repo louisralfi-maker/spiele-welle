@@ -45,6 +45,8 @@ enum SceneLayout {
         var region: WorldLayout.Region?
         var emitters: [Emitter] = []
         var lights: [Light] = []
+        /// Fades in while the camera's focus moves from the lower bound (invisible) to the upper (opaque).
+        var fade: ClosedRange<Double>?
     }
 
     /// Tiles laid side by side: `sprites` in order (it repeats), `count` tiles from `x`, each `tileWidth` wide.
@@ -94,8 +96,9 @@ enum SceneLayout {
         Entry(sprite: .farMountain, x: 240, y: 40, shade: 0.92, region: .gorge),
         Entry(sprite: .farMountain, x: 380, y: 34, shade: 0.92, flipped: true, region: .gorge),
         // The keep seen from the town: behind the back gate at the back-gate view (only between the gate's towers,
-        // where the real keep stands) and at the left edge of the town frame, its foot behind the hills.
-        Entry(sprite: .castleKeep, x: 545, y: -62, z: 2, region: .valley),
+        // where the real keep stands) and at the left edge of the town frame, its foot behind the hills. It fades in
+        // from focus 2150 to the back gate, so it never floats above the courtyard and the hall as a second castle.
+        Entry(sprite: .castleKeep, x: 545, y: -62, z: 2, region: .valley, fade: 2150...2330),
     ]
 
     static let mid: [Entry] = [
