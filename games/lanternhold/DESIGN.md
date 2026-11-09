@@ -1624,6 +1624,14 @@ austere or ask the lead to widen T5 (a petition-rich realm builds faster by desi
 
 - `lh-m3-a1` (build, unit) on `840dccd`: ALL PASSED on the first build (293 unit test lines, every new test; the
   validator found no problem with the bundle's files against the source `Story.xcstrings`; T1 to T8 as above).
+- `lh-m3-a2` (build, unit, ui) on `4d03999`: ALL PASSED (294 unit test lines, every UI test in English; T1 to T8
+  unchanged). `m3-sprites` shows every placeholder readable: each court member and guest by colour and outline (Odile's
+  plum robe and bun, Brannock's teal surcoat, Pip's bell cap, Hesper's staff flame, Tamsin's apron, Bram's hammer,
+  Marek's hat and green coat, Seren's hood and grey lantern, Ser Ludo's helmet, the herald's banner), the story
+  portraits, varied composed portraits for every archetype, the rooms and the props. In `45-report` the first day's
+  dawn report names "Petitioners unheard −1": the UI test never sat on the throne, so the tutorial's farmer went home
+  at the horn. The light probe, the mid-chapter, finale and first-day shots are unchanged (nothing of the court is drawn
+  yet).
 
 ## Risks
 
