@@ -277,3 +277,222 @@ both sides, or keep feeding it.
 Kept from B inside A, because they are true there too: the Count, and faces in the beacon's light.
 Hesper's ominous voice stays as a false trail toward C. A must never drift into giants, a walled-in
 people with wiped memories, or a built wall; see section 10.
+
+## 4. The player: the lamplighter who became Burgherr
+
+**Who.** Lord Aldric's cousin from a side branch, about nineteen, orphaned small, raised between the
+castle kitchen and the lamp ladders, lamplighter since the age of twelve. The last living Lantern, which
+nobody had worked out until Odile opened the family book. The lord has no name in any text and English
+never says he or she; German says "der Burgherr" and "Ihr" (open question 3).
+
+**Voice.** The lord speaks only in choice labels, 40 characters at most. They are a working person's
+words: short, plain, no decrees, no royal "we", no speeches except the one on day 20. Kind without
+softness, hard without cruelty. "Open the gate." "Light first, then walls." "Count them again." The lord
+never jokes at a petitioner's cost and never threatens.
+
+**Wants.** To know what happened to Aldric, who was the only family there was. To keep the lamps lit,
+which is the one job the lord is sure of. Not to be found out as too small for the chair. Under all
+three: to be counted as a Lantern, by a house that forgot the lamplighter was one.
+
+**What only a lamplighter knows.** Every lamp, roof and back stair of castle and town. Who is still
+awake at midnight. People by their windows before their names. Texts should use this: the lord
+recognises the widow by "the last window out in Chandler's Row", not by her face. It is the lord's
+single advantage over every noble visitor, and it costs no words.
+
+**How others see the lord.**
+
+| Who | Sees | Says |
+|---|---|---|
+| Odile | a ledger entry that turned out to be the heir; then, slowly, a lord | "my lord" |
+| Brannock | a child to be kept alive; respects orders that are short | "lord", once on day 20 "my lord" |
+| Tamsin | the hungry child from her kitchen bench | "my lord", and "lamb" when she forgets |
+| Pip | the only person at court with a lower start than his | "Your Wickship" |
+| Mother Hesper | the hand that has carried the Flame to every lamp for seven years | "child of the house" |
+| Bram | someone who knows how to trim a wick properly | nothing, or "lord" |
+| Marek | a customer with a treasury | "Your Radiance" |
+| Seren | Aldric's kin, and a debt | "lamplighter", and "lord" only after day 15 |
+| Ser Ludo | the noblest lord he has ever met, like all of them | "good my lord" |
+| The town | one of their own on a chair that is too big | "my lord", "Burgherr", or just "lamplighter" |
+| The envoys | a servant in a dead man's circlet | "Lord Lantern", politely |
+| The herald | exactly what the lord is | "lamplighter" |
+
+**How choices shape the lord.** No meter and no alignment screen. Three leanings are read from flags
+that M3 already sets, and the court and the ending panels answer them:
+
+- **The open hand:** lets people in (`stranger_in`, the refugees, `plough_blessed`, `coast_promise`).
+  The town warms; Odile counts the cost aloud; Brannock worries.
+- **The shut gate:** takes no risk (`stranger_turned_away`, the refugees turned away, the tribute
+  refused or paid without a word). The walls are stronger; Tamsin goes quiet; Pip's jokes get sharper.
+- **The honest lamp:** tells the town what is true (shows the beacon plans, calls the chapel,
+  `speech_honest`). Fear rises early and settles; Hesper approves; the envoys think it weak.
+
+The middle panel of each ending names the leaning in one sentence. What never changes: the lord does the
+Round, carries the hooked lantern, never fights and is never touched.
+
+## 5. The families of the Morninglands
+
+Five houses, each a different answer to one question: why should we pay for a door we have never seen?
+Each has one face at court. In chapter 1 each gets one or two audiences and a standing flag
+(`varn_with`, `brine_with`, `oxmoor_with`, `calder_with`, `lorn_with`); their banners hang in the hall on
+night 20 for those that stand with the lord (a world change, no numbers). Later chapters turn standing
+into tithe, soldiers and doors that open. No marriages and no succession plots, ever (section 10).
+
+### House Varn of Highcairn: the old friends
+
+Hill lords under the Wall, three days north. Stone, sheep, long memories. Arms: a grey cairn on green.
+Lord Harrow Varn was Aldric's friend from boyhood. Varn has sent a levy of soldiers to the Cleft every
+autumn for longer than its own records; Brannock came with one thirty years ago and stayed.
+
+- **Wants:** Aldric found, or at least buried. And proof that the lamplighter can hold, before more Varn
+  children are sent to a wall that may fall.
+- **Face:** Hild Varn, the lord's daughter, twenty, blunt, arrives with the levy and wants a place on
+  the outer line. She measures the lord by whether orders are clear.
+- **In the game:** she brings half the levy and a letter: the other half comes "when the new lord has
+  shown he can count". Petitions about where to post her, about a Varn soldier who wants to go home,
+  and about her wish to ride out after Aldric. Brannock's lines carry Varn's mood.
+- **Reacts:** to honesty about Aldric and to care for soldiers. Lies and wasted lives lose Varn slowly
+  and for good. If `vow_aldric` is set, Varn sends the second half without being asked. Chapter 2: Hild
+  is the first to volunteer for a walk out.
+
+### House Brine of Saltgate: the ally in need
+
+The coast, where the Wall ends in sea cliffs. Fishers, lighthouse keepers, a harbour that has seen
+better trade. Arms: a white wave on sea-blue. Lady Maris Brine pays her tithe in lamp oil and is behind
+with it.
+
+- **Wants:** archers and oil for a hard winter of her own, and a promise of shelter behind the castle
+  if the coast has to be left.
+- **Face:** the envoy of M3, now named Ansel Quay: courteous, tired, honest about being a beggar with a
+  seal.
+- **In the game:** `envoy_coast` and `envoy_tide` as they stand, reworded. One new thing he carries
+  without knowing its weight: grey lanterns have been washing ashore at Saltgate all year, of a make
+  nobody on the coast knows. The sea brings round the Wall's end what cannot walk.
+- **Reacts:** to generosity when it hurts. `coast_promise` makes Brine the first banner in the hall. A
+  refusal is forgiven once. Chapter 2: Saltgate's lighthouse is where the washed-up lanterns are kept.
+
+### House Oxmoor of Goldenacre: the envious
+
+The grain plain, rich and far from the Wall. Arms: a gold sheaf on red. Lady Petra Oxmoor pays the
+largest tithe and has done the sum of what a thousand years of it comes to.
+
+- **Wants:** the tithe turned into a loan against the valley, and an Oxmoor steward "to help the young
+  lord with the books". In plain words, the castle.
+- **Face:** Steward Lorenz Pell, smooth, generous with small gifts, and her cousin Ser Aubrey Oxmoor,
+  who appears as the hunting noble of `noble_hunt`.
+- **In the game:** flattering letters, a gift that is a debt, the offer of gold for a signature in the
+  bad weeks, and a quiet question to every other house about whether a servant can be a lord.
+- **Reacts:** to weakness. Low gold or low happiness brings Pell back with a better pen. A lord who
+  refuses politely and pays his way earns Oxmoor's respect and its long enmity together. Odile hates
+  Pell on sight and is right.
+
+### House Calder of Stillmere: the doubters
+
+The lake towns, run by guilds and ledgers. Arms: three silver fish on black. Nobody in Stillmere has
+seen a shadow in ten generations, and the syndics have voted to stop the tithe until somebody does.
+
+- **Wants:** proof, in writing, by one of their own.
+- **Face:** Auditor Ebba Calder, thirty, precise, unafraid because she does not believe.
+- **In the game:** she asks to stand one night on the wall. Let her, forbid her, or stage a safe view
+  from the keep. What she writes home depends on what she saw and whether she was lied to. She is also
+  the one who notices that the statues do not match the book.
+- **Reacts:** to evidence and to being treated as an adult. If she stands the night, Calder pays again
+  and she stays on, counting. If she is coddled or tricked, Stillmere stops paying for the chapter.
+  Chapter 2: her ledgers find the first tithes addressed "to the lord beyond".
+
+### House Lorn of Greybell: the old ones
+
+A small, poor, proud house in the wooded hills east of the valley. Arms: a grey bell on plum. Lorn
+claims to be older than House Lantern and has been laughed at for it for centuries.
+
+- **Wants:** to be believed once before its last old woman dies.
+- **Face:** Dame Orla Lorn, past eighty, who comes in person with a great-grandchild to carry her
+  stick, sits down without being asked, and calls the lord "young Taper".
+- **In the game:** she says the Lanterns "came down out of the Cleft, not up to it", and that her house
+  keeps the hall's first bell, sent away by Lord Edric in the Dark Year because it rang by itself. The
+  lord can laugh with the court, hear her out, or ask for the bell.
+- **Reacts:** to being listened to. If heard, Lorn sends the only thing it has: the great-grandchild as
+  a lamp-runner, and later the bell. If mocked, the door of Greybell is shut when chapter 3 needs it.
+
+## 6. The court
+
+All M3 names, roles, looks and voices stay. Changes are marked **(changed)** or **(new)**. Every entry:
+what they want, what they hide or fear, their arc in chapter 1, and the hook for later.
+
+**Odile, chancellor.** Wants the house solvent and the lord alive by spring. Hides that she told Aldric
+the house could not afford a dark beacon, and believes she sent him. Arc: begins by managing a ledger
+entry in a circlet; is wrong once in public (`marek_arrows`) and sees the lord notice kindly; gives her
+coldest counsel at `refugees_gate`; by day 20 says "my lord" and means it. **(new)** On day 1 she folds
+a strip of ledger paper into the circlet's band so it stops slipping. Hook: she keeps the family book
+and cannot bear the eleven stubs.
+
+**Brannock, captain of the guard.** Wants no more empty hooks in the chapel. Hides that Aldric ordered
+him to stay behind, took twelve others, and that part of him was glad. Arc: tests the lord with
+`tower_request`, learns the lord's orders are short and kept, drills through the truce, and on day 20
+asks for the speech instead of giving it. Hook **(new)**: one ash brute carries a watchman's pole he
+knows. In chapter 1 he says only: "That pole. No."
+
+**Pip, the fool.** Wants one laugh a day in the hall, as proof nobody has given up. Hides that he was
+Aldric's friend more than his fool, and that he is saving a joke for the day Aldric comes home
+(`pip_farewell`). Fears silence. Arc: sharpest about the lamplighter lord at first, because the lord
+took the one post lower than his; ends by offering the saved joke to the new lord, or keeping it. Hook
+**(new)**: fools go where they like, and he has seen ink ghosts on the pages facing Edric's stubs.
+
+**Mother Hesper, priestess of the Flame.** Wants the hearth fire never out on her watch. Hides a
+sentence each keeper hands to the next and none understands: "The fire is on loan." Fears what she has
+seen since autumn: at dusk the hearth fire leans west. Arc: the vigil before the Ash Giant, the
+blessing, the end of the truce. Calm and a little ominous throughout; the player should half suspect
+her and be wrong. Hook: the sentence.
+
+**Tamsin, the cook.** Wants everyone fed, the lord first. Hides nothing, and that is her use: her
+gossip is right where Odile's reasoning is wrong. Fears an empty bench; she has laid Aldric's place at
+table every night since he rode. Arc: feeds the lord through the first days, warns about Marek's
+arrows, notices the herald does not breathe, and on day 19 either clears Aldric's place or does not
+(`vow_aldric`). Hook **(new)**: her mother was a Returned and said one thing all her life: "The bread
+was still warm."
+
+**Bram, the smith.** Wants good iron and quiet. Hides a shelf. He picks up the broken lanterns after
+each night to mend them, and the hinges are on the wrong side: not his work, not his master's, not any
+smith's he knows. Arc: `bad_arrows`, and one long sentence late in the chapter that stops the hall.
+Hook: the shelf.
+
+**Marek, travelling merchant.** Wants profit and a warm winter inside the walls. Hides **(new)** that
+he carries Steward Pell's letters between Goldenacre and the other houses, and reads them. Fears being
+outside a gate at dusk. Arc: sells the bad arrows knowing; can pay it back near day 16 by warning the
+lord what Oxmoor is offering the others. Hook: he knows which houses are talking to which.
+
+**Seren, the Stranger with the grey lantern.** **(changed: deepened, same role.)** Keeper of the Great
+Beacon, one of the Returned, the only rider who came back from Aldric's company. Wants the beacon lit
+and Aldric out of the dark. About the land beyond she can only say: "A kitchen." Hides why the beacon
+went dark: it did not fail. On one autumn night she saw, in its light, the figures kneel before it like
+people at a hearth, and she shuttered it herself for an hour. The dark held the mouth by morning. None
+of this is told in chapter 1. Arc: the gate on day 4 or 5, hooded and unnamed; the reveal on day 15;
+the herald's demand for her on day 17; on night 20 she carries the flame out to the finished beacon.
+Hook: "Ask me why it went dark on the day it burns again."
+
+**Ser Ludo of the Seven Hills, wandering knight.** Wants one true deed. Hides **(new)** that he was
+never knighted: he is the squire of a knight who rode into the shadow land ten years ago and left him
+the helmet, which is why it is far too big. Fears being asked for proof. Arc: arrives, boasts, returns,
+holds his tourney; on night 20 he stands at the gate with the dented shield, and it is the true deed.
+The lord, in a circlet too big, is the one person who never laughs at the helmet. Hook: his knight's
+lantern number.
+
+**Ansel Quay, envoy of House Brine.** **(new name; was "the envoy from the coast".)** Wants not to go
+home empty-handed. Fears that the coast will be told to save itself. See section 5.
+
+**Finch, the bard.** **(new name.)** Wants one song that outlives him. Hides a list: he collects the
+single sentences of the Returned and has eleven. Kitchen, washing, warm bread, a stair, a blue door.
+Sung in a row they describe a house. He thinks it is a pretty verse. Arc: the ballad of the lamplighter
+lord with its unkind verse nine, then the satire. Hook: the Song of Small Things.
+
+**The herald of the Lightless King.** Ashen, a tattered black banner, cold eyes, no breath. Wants
+nothing of its own. Speaks in old court courtesy, never raises its voice, and calls the lord
+"lamplighter" as one states a title. Tell: it does not flinch from the hearth fire. It looks at it too
+long. Arc: the demand on day 17. Hook: under the soot of the banner there is gold thread.
+
+**Lord Aldric, absent.** Big, loud, generous, careless with money, loved. Left behind: his place at
+table, his horn on its peg, the lamplighter's first ladder (his gift), and a hall that still expects
+his laugh. He appears only in the endings.
+
+**Smaller people worth keeping.** Old Hemmet at the mill, a Returned ("The washing was still on the
+line"); the Brisk family at the well; the lamp-runner child; Gerald, the sootling in Pip's jar, who
+presses against the glass on the side where the hearth is (see section 9 for the rewrite).
