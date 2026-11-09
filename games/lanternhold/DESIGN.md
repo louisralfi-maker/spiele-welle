@@ -1969,10 +1969,45 @@ same numbers.
 | Figures inside a shut room are not drawn, and the room's warm light is out. | The art lane's note: a wall hides them; a hearth pool on the outer wall read as a fire outside. |
 | The five castle world changes without a contract sprite are procedural sprites. | SPRITES.md "M3" has no sprite for them and the art lane did not paint them; the lead can hand them over (their ids, sizes and places are above). |
 
+**Tests (M3 step 3)**
+
+- New unit tests (24, all passing): `AudienceTests` (the throne hears the hall and the Stranger waits at the gate, the
+  walk up and the card on arrival, the card's choices with their costs and reasons, hearing through the session and
+  who went home unheard, the leavers), `AudienceFlowTests` (the crown, a choice heard, standing up with the rest
+  waiting, the lectern's taxes, the pause, Reduce Motion, the Stranger at the gate, talking, `-GWScreen petition`),
+  `CastleRoomsTests` (a front fades in a quarter second and swaps at once with Reduce Motion, the shut hall hides its
+  court and the open hall shows it, the chapel and the kitchen open with their interiors lit, the court walks, talks
+  and carries its marks, the castle's world changes, a crowded castle frame within the budget), `PortraitCardTests`
+  and `TalkTests`. `ScreenFlowTests` and `FirstDayUITests` follow the throne's new split (the crown opens the
+  audience while petitioners wait; the taxes at the lectern).
+- UI test 4 `testAudience` (`UITests/AudienceUITests.swift`, English and German): the court in the courtyard (58), the
+  hall's front from the courtyard (60), the hall with the court and three petitioners (51), the kitchen opened (57),
+  a line from Tamsin (55), the chapel opened (56), the audience: Brannock's card (52), Odile's counsel (53), the
+  reaction (54), the next petitioner, a townswoman with her composed portrait (52b), standing up; the herald's sample
+  (59); night 3 in the hall and the chapel (51b, 56b, for the look); Reduce Motion (the card within 1.5 s). Every
+  button it taps is checked for 44 pt.
+
+**Runner rounds (M3 step 3)**
+
+- `lh-m3-b1` (build, unit, ui with `AudienceUITests` and `FirstDayUITests`, ui-de with `AudienceUITests`, release) on
+  `b7b3424`, the first draft: build passed on the first try; ui, ui-de and release passed. Unit failed the walk-up
+  test (`CourtFrames.key` gave a court member the petition's key and a townsfolk petitioner his own, so the walker
+  was drawn twice: `"p:tower"` against `"brannock"`) and T6 and T7 as in round `lh-m3-c3`. Its screenshots showed
+  Odile's line scrolled out of the card, the strip's petitioner bubble under the king's mark, the king covering a
+  bench and the herald's sample dim at 06:00.
+- `lh-m3-b2` (build, unit, ui and ui-de with both tests) on `b9b3366` (the walker's key, the counsel note at the top,
+  the strip's bubble above the bar, seed 2 and the lectern for 51, the herald at 17:48, the placeholders at the art
+  lane's anchors): build, ui and ui-de passed; unit failed only T6 and T7, the same numbers.
+- `lh-m3-b3` (build, unit, ui, ui-de, release, every UI test) on `381da66`: build passed without a compiler warning;
+  316 unit tests passed and 2 failed, T6 and T7 exactly as in round `c3` (T6 with the beacon 10 of 10 won and the
+  King slain in 10 of 10 after 58 to 65 s; without it 9 of 10 held, margins H92, H36, H100, H100, H89, H100, H100,
+  H96, F1, H62; T7 falls on nights 45, 65, 51); every step-3 test passed; ui 9 of 9 and ui-de 9 of 9 passed
+  (`testAudience` 140 s); release passed. German fits on every card, bubble and caption of the shots 51 to 60.
+
 **Open points and notes for the lead**
 
 - T6 and T7 still fail exactly as in round `lh-m3-c3` (the content step's open point, unchanged by this step: the
-  same numbers in round `lh-m3-b1`). They wait for the lead's decision on the bands or the seeds.
+  same numbers in rounds `lh-m3-b1` to `b3`). They wait for the lead's decision on the bands or the seeds.
 - The art lane's room PNGs (`hallFront`, `chapelInterior`, `kitchenInterior`, the touched-up `chapel` and `kitchen`)
   are on `claude/lh-m3-art`; the anchors here are theirs. The bell overlay (`bellGone`) is painted in the colours of
   their `chapelInterior` behind the bell; if they repaint the belfry it must follow.
