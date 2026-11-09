@@ -1,0 +1,19 @@
+# rubbleWood 24x10, hand-set: a fallen palisade, one stake lying flat with its point to the left, a second fallen
+# across it rising to the right, raw pale splinters at the broken ends.
+o = wood
+k = ink
+w = woodDark
+L = woodLight
+y = straw
+Y = strawLight
+---
+........................
+....................kk..
+.................kkkLYk.
+..............kkkLLLoYk.
+...........kkkLLLoooowk.
+..kkkkkkkkkLLLooowwwkkk.
+.kLLLLLLLLkooowwwwkkLkY.
+kYoooooooyLkwwwkkkLoowYk
+.kwwwwwwwyokkkk.kwwwwkY.
+..kkkkkkkkkk.....kkkkk..

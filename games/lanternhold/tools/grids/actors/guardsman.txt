@@ -1,0 +1,225 @@
+# guardsman 14x28, 9 frames: idle 0-1, walk 2-5, strike 6-8 (SPRITES.md). A guard of the realm in mail: a steel
+# nasal helm, a mail shirt over brown leather, a teal kite shield with a gold rim and the gold lantern on the near arm,
+# a spear in the far hand. Idle: spear upright, a breath. Walk: a marching step with the shield bobbing. Strike: the
+# spear drawn back to the hip (anticipation), thrust flat forward over the shield (hit), pulled back (recovery).
+id guardsman
+size 14x28
+frames 9
+outline ink
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    H = woodDark
+    h = wood
+    l = woodLight
+    T = banner
+    t = roofDeep
+    U = roofLight
+    G = gold
+    g = straw
+    B = soilDark
+    b = soil
+    D = stoneDark
+    M = stoneMid
+    m = stone
+    L = stoneLight
+    P = stonePale
+    x = stoneLight!
+    X = stonePale!
+    y = wood!
+    Y = woodDark!
+
+# nasal helm and face, a mail coif at the neck
+part head
+    .LLP.
+    LmmLP
+    DDDDDm
+    .MsSD.
+    .MSkSD
+    .MsSS.
+    .MMM..
+
+part torso
+    MmmmM
+    mLmLm
+    MMmMM
+    mMMMm
+    MMmMM
+    HHGHH
+    MmMmM
+    MMmMM
+
+part legsIdle
+    Bb.Bb
+    Bb.Bb
+    Bb.Bb
+    Bb.Bb
+    Bb.Bb
+    HH.HH
+    HH.HH
+    HH.HH
+    HHhHHh
+
+part legsWalkA
+    Bb..Bb
+    Bb..Bb
+    Bb...Bb
+    Bb...Bb
+    .Bb..Bb
+    .HH..HH
+    .HH..HH
+    HH...HH
+    HHh..HHh
+
+part legsWalkB
+    .BbBb.
+    .BbBb.
+    .BbBb.
+    .Bb.Bb
+    .Bb.Bb
+    .HH.HH
+    .HH.HH
+    .HH.HH
+    .HHhHHh
+
+part legsWalkC
+    Bb..Bb
+    Bb..Bb
+    Bb..Bb.
+    Bb...Bb
+    Bb...Bb
+    HH...HH
+    HH...HH
+    HH...HH
+    HHh..HHh
+
+part legsLunge
+    Bb...Bb
+    Bb...Bb
+    Bb....Bb
+    Bb....Bb
+    Bb.....Bb
+    HH.....HH
+    HH.....HH
+    HH.....HH
+    HHh....HHh
+
+# the kite shield on the near arm: teal, gold rim and the gold lantern
+part shield
+    .GGG.
+    GTUTG
+    GTGTG
+    GTGTG
+    GtTtG
+    .GtG.
+    ..G..
+
+# the spear upright in the far hand (shaft, steel head)
+part spearUp
+    X
+    x
+    x
+    y
+    y
+    y
+    y
+    y
+    y
+    y
+    y
+    y
+    y
+    y
+    y
+    y
+    y
+    y
+    y
+    Y
+
+part handFar
+    S
+
+# strike: the spear drawn back level at the hip, then thrust forward over the shield
+part spearBack
+    yyyyyyxX
+
+part spearThrust
+    yyyyyyyxX
+
+part armThrust
+    MmS
+
+frame 0
+    spearUp 11 1
+    handFar 10 13
+    legsIdle 4 18
+    torso 4 10
+    head 3 3
+    shield 7 10
+
+frame 1
+    spearUp 11 2
+    handFar 10 14
+    legsIdle 4 18
+    torso 4 11
+    head 3 4
+    shield 7 11
+
+frame 2
+    spearUp 11 1
+    handFar 10 13
+    legsWalkA 3 18
+    torso 4 10
+    head 3 3
+    shield 7 10
+
+frame 3
+    spearUp 11 2
+    handFar 10 14
+    legsWalkB 3 18
+    torso 4 11
+    head 3 4
+    shield 7 11
+
+frame 4
+    spearUp 11 1
+    handFar 10 13
+    legsWalkC 3 18
+    torso 4 10
+    head 3 3
+    shield 7 10
+
+frame 5
+    spearUp 11 2
+    handFar 10 14
+    legsWalkB 3 18
+    torso 4 11
+    head 3 4
+    shield 7 11
+
+frame 6
+    legsIdle 3 18
+    torso 3 10
+    head 2 3
+    spearBack 1 11
+    handFar 6 11
+    shield 6 11
+
+frame 7
+    legsLunge 2 18
+    torso 5 11
+    head 4 4
+    shield 8 12
+    spearThrust 5 11
+    armThrust 8 11
+
+frame 8
+    legsWalkA 3 18
+    torso 4 10
+    head 3 3
+    spearBack 3 11
+    handFar 8 11
+    shield 7 11

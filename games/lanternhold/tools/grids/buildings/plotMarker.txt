@@ -1,0 +1,27 @@
+# plotMarker 10x16, hand-set: an empty, unlocked plot by day: a staff with a small teal flag, two short stakes with a
+# rope between them, a little heap of soil.
+b = banner
+k = ink
+w = woodDark
+L = woodLight
+y = straw
+R = roofLight
+z = soilDark
+Z = soil
+---
+...k......
+..kLk.....
+..kLkkkkk.
+..kLkRbbbk
+..kLkbbbk.
+..kLkRbk..
+..kLkbk...
+..kLwkk...
+..kLwk....
+..kLwk....
+k.kLwk..k.
+LkkLwkk.Lk
+kyykLwkyyk
+kLkkLwkkLk
+kLwkLwkLwk
+zZZzZZzZZz

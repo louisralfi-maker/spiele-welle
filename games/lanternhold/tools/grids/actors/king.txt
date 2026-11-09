@@ -1,0 +1,306 @@
+# king 16x30, 10 frames: walk 0-5, idle 6-7, command 8-9 (SPRITES.md). The lamplighter king: a gold crown a size too
+# big with a teal stone, a white beard and kind face, the realm's teal cloak with a gold clasp over a warm red-brown
+# tunic, a belt, brown breeches, boots, and his old lamplighter's lantern hanging from a hooked pole in his near hand
+# (DESIGN.md "Not a copy"). Walk: six frames (contact, down, passing on each leg), the cloak hem and the lantern swing.
+# Idle: a breath and a slow sway of the lantern. Command: he lifts the pole high, the lantern raised to give an order.
+# kingGlow: the lantern glass and a glint on the crown's stone.
+id king
+size 16x30
+frames 10
+outline ink
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    W = foam
+    w = stonePale
+    v = stoneLight
+    G = gold
+    C = strawLight
+    g = straw
+    j = banner/fireWhite
+    T = banner
+    t = roofDeep
+    U = roofLight
+    R = tile
+    r = woodDark
+    Q = tileLight
+    H = woodDark
+    B = soilDark
+    b = soil
+    p = wood
+    P = woodLight
+    i = stoneDark
+    I = stone
+    Y = strawLight/fireGold
+    Z = parchment/fireWhite
+
+# the crown, a size too big, with a teal stone (glints at night)
+part crown
+    .G.C.G.
+    .GgjgG.
+    GCGGGCG
+    gGGGGGg
+
+part head
+    .wSSS.
+    wSSkSs
+    wSSSSS
+    WWSWWs
+    vWWWWW
+    .vWWW.
+    ..vW..
+
+# shoulders, cloak down the back to the calves, tunic in front, gold clasp, belt
+part body
+    ...UTRQ.
+    ..tTGRRQ
+    ..tTTRRR
+    .tTTTRRQ
+    .tTTTRrR
+    .tTTUHGH
+    tTTTTRRR
+    tTTTTRrQ
+    tTTUTRRR
+    ttTTTRrR
+    ttTTT...
+    .ttTT...
+
+part hem0
+    tt.
+    t..
+
+part hem1
+    .tt
+    .t.
+
+part legsStand
+    Bb.Bb
+    Bb.Bb
+    Bb.Bb
+    Bb.Bb
+    Bb.Bb
+    HH.HH
+    HH.HH
+    HHrHHr
+
+part legsContactA
+    Bb..Bb.
+    Bb..Bb.
+    Bb...Bb
+    Bb...Bb
+    Bb...Bb
+    HH...HH
+    HH...HH
+    HHr..HHr
+
+part legsDownA
+    .Bb.Bb.
+    .Bb.Bb.
+    Bb..Bb.
+    Bb...Bb
+    Bb...Bb
+    HH...HH
+    HH...HH
+    HHr..HHr
+
+part legsPassA
+    .BbBb.
+    .BbBb.
+    .BbBb.
+    .Bb.Bb
+    .BbHHr
+    .HH...
+    .HH...
+    .HHr..
+
+part legsContactB
+    Bb..Bb.
+    Bb..Bb.
+    .Bb..Bb
+    .Bb..Bb
+    Bb...Bb
+    HH...HH
+    HH...HH
+    HHr..HHr
+
+part legsPassB
+    .BbBb.
+    .BbBb.
+    .BbBb.
+    Bb.Bb.
+    HHrBb.
+    ...HH.
+    ...HH.
+    ...HHr
+
+# the near arm and hand on the pole
+part armHold
+    RR.
+    QSS
+
+part armRaise
+    ..S
+    .QS
+    QR.
+    R..
+
+# the pole with its hook, the lantern hanging from the hook (its glass glows: kingGlow)
+part pole
+    .III.
+    I...I
+    p.iiii
+    p.iZZi
+    p.iYYi
+    p.iiii
+    p.....
+    P.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    P.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+
+part poleSwing
+    .III.
+    I...I
+    p...I
+    p.iiii
+    p.iZZi
+    p.iYYi
+    p.iiii
+    P.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    P.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+
+part poleHigh
+    .III.
+    I...I
+    p.iiii
+    p.iZZi
+    p.iYYi
+    p.iiii
+    p.....
+    P.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    P.....
+    p.....
+    p.....
+
+frame 0
+    hem0 1 21
+    legsContactA 4 21
+    body 2 11
+    head 5 5
+    crown 4 2
+    pole 10 3
+    armHold 8 14
+
+frame 1
+    hem1 1 22
+    legsDownA 4 21
+    body 2 12
+    head 5 6
+    crown 4 3
+    poleSwing 10 4
+    armHold 8 15
+
+frame 2
+    hem0 2 22
+    legsPassA 4 21
+    body 2 11
+    head 5 5
+    crown 4 2
+    pole 10 3
+    armHold 8 14
+
+frame 3
+    hem1 1 21
+    legsContactB 4 21
+    body 2 11
+    head 5 5
+    crown 4 2
+    pole 10 3
+    armHold 8 14
+
+frame 4
+    hem0 1 22
+    legsDownA 4 21
+    body 2 12
+    head 5 6
+    crown 4 3
+    poleSwing 10 4
+    armHold 8 15
+
+frame 5
+    hem1 2 22
+    legsPassB 4 21
+    body 2 11
+    head 5 5
+    crown 4 2
+    pole 10 3
+    armHold 8 14
+
+frame 6
+    hem0 1 21
+    legsStand 5 21
+    body 2 11
+    head 5 5
+    crown 4 2
+    pole 10 3
+    armHold 8 14
+
+frame 7
+    hem0 1 22
+    legsStand 5 21
+    body 2 12
+    head 5 6
+    crown 4 3
+    poleSwing 10 4
+    armHold 8 15
+
+frame 8
+    hem0 1 21
+    legsStand 5 21
+    body 2 11
+    head 5 5
+    crown 4 2
+    poleHigh 10 1
+    armRaise 8 10
+
+frame 9
+    hem1 1 21
+    legsStand 5 21
+    body 2 11
+    head 5 5
+    crown 4 2
+    poleHigh 10 0
+    armRaise 8 9

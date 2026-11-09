@@ -1,42 +1,46 @@
-# palisade 20x34, hand-set (design from the Recraft palisade of s7-defence-1): five sharpened stakes, two lashed beams
+# palisade 20x34, 2 frames (strip 40x34), hand-set. Frame 0 (whole, unchanged since milestone 1; design from the
+# Recraft palisade of s7-defence-1): five sharpened stakes, two lashed beams. Frame 1 (below 50 % HP): one stake snapped
+# above the beam (raw pale wood at the break), one point split off, a plank piece torn out (see-through), a split down
+# the fourth stake, the foot charred with ash-grey flecks, a burst lashing.
+d = stoneDark
+o = wood
 k = ink
 w = woodDark
-o = wood
 L = woodLight
-p = strawLight
 r = straw
+p = strawLight
 ---
-..k.................
-.kLk......k.......k.
-kpow..k..kLk.....kLk
-kLow.kLkkpow..k.kpow
-kLowkpowkLow.kLkkLww
-kLowkLwwkLowkpowkLow
-kLowkLowkLowkLowkLow
-kLowkLowkLowkLwwkLow
-kLwwkLowkLowkLowkLow
-krkkkrkkkrkkkrkkkrkk
-LLrLLLrLLLrLLLrLLLrL
-wrwwwrwwwrwwwrwwwrww
-kkrkkkrkkkrkkkrkkkrk
-kLowkLowkLwwkLowkLow
-kLowkLowkLowkLowkLww
-kLwwkLowkLowkLowkLow
-kLowkLowkLowkLowkLow
-kLowkLowkLowkLwwkLow
-kLowkLowkLowkLowkLow
-kLowkLwwkLowkLowkLow
-kLowkLowkLowkLowkLow
-kLowkLowkLwwkLowkLow
-kLowkLowkLowkLowkLww
-kLowkLowkLowkLowkLow
-krkkkrkkkrkkkrkkkrkk
-LLrLLLrLLLrLLLrLLLrL
-wrwwwrwwwrwwwrwwwrww
-kkrkkkrkkkrkkkrkkkrk
-kLowkLwwkLowkLowkLow
-kLwwkLowkLowkLowkLow
-kLowkLowkLowkLwwkLow
-kLowkLowkLowkLowkLow
-kLowkLowkLowkLowkLow
-kwwwkwwwkwwwkwwwkwww
+..k...................k.................
+.kLk......k.......k..kLk................
+kpow..k..kLk.....kLkkpow..k.............
+kLow.kLkkpow..k.kpowkLow.kLk......k....k
+kLowkpowkLow.kLkkLwwkLowkpow.....kLk..kp
+kLowkLwwkLowkpowkLowkLowkLww..k.kpow.kpr
+kLowkLowkLowkLowkLowkLowkLow.kpkkLowkprw
+kLowkLowkLowkLwwkLowkLowkLowkprpkLwwkLow
+kLwwkLowkLowkLowkLowkLwwkLowkrpwkLowkLow
+krkkkrkkkrkkkrkkkrkkkrkkkrkkkrkkkrkkkkkk
+LLrLLLrLLLrLLLrLLLrLLLrLLLrLLLrLLLrLLLrL
+wrwwwrwwwrwwwrwwwrwwwrwwwrwwwrwwwrwwwwww
+kkrkkkrkkkrkkkrkkkrkkkrkkkrkkkrkkkrkkkrk
+kLowkLowkLwwkLowkLowkLowkkpkkLwwkpkkkLow
+kLowkLowkLowkLowkLwwkLowkk.pkLowkpkkkLww
+kLwwkLowkLowkLowkLowkLwwkkp.kLowkLkwkLow
+kLowkLowkLowkLowkLowkLowkkp.kLowkLkwkLow
+kLowkLowkLowkLwwkLowkLowkk..kLowkpkwkLow
+kLowkLowkLowkLowkLowkLowkkp.kLowkpkwkLow
+kLowkLwwkLowkLowkLowkLowkk.pkLowkLkwkLow
+kLowkLowkLowkLowkLowkLowkkpkkLowkLkwkLow
+kLowkLowkLwwkLowkLowkowkkkLwkLwwkpkwkLow
+kLowkLowkLowkLowkLwwkowkkLowkLowkLkwkokw
+kLowkLowkLowkLowkLowkodkkLowkLowkLowkoww
+krkkkrkkkrkkkrkkkrkkkwkkkwkkkrkkkrkkkwkk
+LLrLLLrLLLrLLLrLLLrLoowooorLLLrLLLrooowo
+wrwwwrwwwrwwwrwwwrwwkwkdkwwwwrwwwrwkkwkk
+kkrkkkrkkkrkkkrkkkrkkkwkkkrkkkrkkkrkkkdk
+kLowkLwwkLowkLowkLowkkkkkowwkLowkLokkowk
+kLwwkLowkLowkLowkLowkkdkkoowkLowkLokkkkk
+kLowkLowkLowkLwwkLowkkkkkoowkLowkLwkkdkk
+kLowkLowkLowkLowkLowkdkkkoowkLowkLokkkkk
+kLowkLowkLowkLowkLowkkkkkoowkLowkLokdkkk
+kwwwkwwwkwwwkwwwkwwwkkkkkkwwkwwwkwwkkkkk

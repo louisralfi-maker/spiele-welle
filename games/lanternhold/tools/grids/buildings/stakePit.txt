@@ -1,0 +1,20 @@
+# stakePit 24x8, 2 frames (strip 48x8), hand-set: a dug pit with soil rims. Frame 0 armed: three sharpened stakes
+# leaning toward the Gloom with raw pale points. Frame 1 sprung: splintered stubs with soot on them, the points snapped off
+# and lying on the rim.
+o = wood
+k = ink
+w = woodDark
+L = woodLight
+Y = strawLight
+z = soilDark
+Z = soil
+u = soilLight
+---
+...kYk...kYk...kYk..............................
+...kYLk..kYLk..kYLk.............................
+...kLwk..kLwk..kLwk.............................
+....kLwk..kLwk..kLwk..........k.....k.....k.....
+.kk.kLwk..kLwk..kLwk.kk..kkkkkYk...kYkkkkkYkkkk.
+kuZkkkLwkkkkLwkkkkLwkZukkuYLokowkkkkowYLokowYLok
+ZZzzzzLwzzzzLwzzzzLwzzZZZZzzzzwkzzzzwkzzzzwkzzZZ
+zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz

@@ -467,7 +467,9 @@ enum EntityFrames {
             case .beaconTower: sprite = .beaconTower
             default: sprite = .greatBeacon
             }
-            let masks = sprite == .greatBeacon ? [glass(23, 55, 2, 9), glass(38, 33, 2, 8)] : []
+            // The great beacon's slits, and the bowl's dark mouth glowing as an ember line (ART-buildings.md).
+            let masks = sprite == .greatBeacon
+                ? [glass(23, 55, 2, 9), glass(38, 33, 2, 8), glass(9, 125, 46, 1)] : []
             props.add(sprite, x: beaconLeft, z: -1, masks: masks)
         }
         if plot.job != nil {
@@ -534,7 +536,7 @@ enum EntityFrames {
                 let left = centre - 36
                 props.add(.bigHouse, x: left, z: 0, flipped: houseIndex % 2 == 1,
                           masks: [glass(26, 24, 5, 5), glass(41, 24, 5, 5), glass(16, 9, 5, 5), glass(50, 9, 5, 5),
-                                  glass(31, 41, 6, 4)],
+                                  glass(35, 40, 3, 2)],
                           lights: [windowLight(left + 28, 26), windowLight(left + 43, 26), windowLight(left + 18, 11),
                                    windowLight(left + 52, 11)])
             case .field?:
@@ -545,7 +547,7 @@ enum EntityFrames {
             case .tavern?:
                 props.add(.tavern, x: spec.start, z: 0,
                           masks: [glass(11, 25, 5, 5), glass(41, 25, 5, 5), glass(69, 25, 5, 5), glass(15, 9, 8, 5),
-                                  glass(56, 9, 8, 5)],
+                                  glass(56, 9, 8, 5), glass(32, 10, 1, 2)],
                           lights: [windowLight(spec.start + 19, 11, radius: 12), windowLight(spec.start + 60, 11, radius: 12),
                                    windowLight(spec.start + 43, 27)])
             default:
@@ -628,14 +630,15 @@ enum EntityFrames {
             list.append(EntityGlow(.hearthFire, x: Realm.hearthX + 5, y: 3,
                                    color: rgb(GamePalette.fireOrange, (0.3 + 0.7 * strength) * flicker(0x4845_4152))))
         }
-        // The Great Beacon's fire in its bowl while it burns (art anchor: dx 20, dy 123), brighter as it flares up.
+        // The Great Beacon's blaze across its bowl while it burns (art anchor: dx 8, dy 125, its coal row on the
+        // bowl's mouth), brighter as it flares up.
         if s.beaconLit {
             var gain: Float = 1.25
             for effect in effects.items where effect.kind == .beaconFlare {
                 gain += Float(1 - effect.age(at: animTime)) * 1.6
             }
-            let frame = Int((animTime * 9).rounded(.down)) % 3
-            list.append(EntityGlow(.beaconFire, x: beaconLeft + 20, y: 123,
+            let frame = Int((animTime * 9).rounded(.down)) % SpriteID.beaconFire.frameCount
+            list.append(EntityGlow(.beaconFire, x: beaconLeft + 8, y: 125,
                                    color: rgb(SIMD3<Float>(1, 0.95, 0.85), gain * flicker(0x4245_4143)), frame: frame))
         }
         // Projectile heads and trails.
@@ -983,7 +986,11 @@ enum EntityFrames {
         let king = s.king
         let kingFrame = kingFrame(king, balance: balance, time: time)
         add(.king, frame: kingFrame, x: king.x, y: 0, flipped: king.facing < 0)
-        add(.kingGlow, frame: kingFrame, x: king.x, y: 0, flipped: king.facing < 0, emissive: true)
+        // The glass burns dim by day and full at night (ART-actors.md). An emissive actor's pixels replace what lies
+        // behind them, so it dims by its colour, never by its alpha (the rock would show through the glass).
+        let glass = 0.5 + 0.5 * min(1, max(0, ambient.torchStrength))
+        add(.kingGlow, frame: kingFrame, x: king.x, y: 0, flipped: king.facing < 0,
+            tint: SIMD4<Float>(glass, glass, glass, 1), emissive: true)
         return list
     }
 

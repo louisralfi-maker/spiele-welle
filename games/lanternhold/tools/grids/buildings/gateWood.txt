@@ -1,0 +1,81 @@
+# gateWood 46x60, 3 frames (strip 138x60), hand-set: tier 1 of the castle gate.
+# Frame 0 closed whole: two oak leaves of vertical planks, two iron straps with rivets, ring handles; the painted
+# portcullis stays raised in the arch. Frame 1 closed damaged: two plank pieces torn out (see-through, raw pale
+# splinters at the ends), the upper right strap torn loose and hanging askew, a split and claw gouges, the foot charred
+# and burnt through in two places. Frame 2 open: the leaves swung in against the passage walls (foreshortened strips over
+# the reveals, their thick edges lit), the passage clear.
+# Fitted to castleFront.png: overlay column c, row r is castleFront pixel (97 + c, 176 + r), world x 1337 + c; only
+# the painted passage (night0 and night1) is painted, so the jambs, the arch and the torch brackets stay the front's. Row
+# 0 is the first row under the raised portcullis painted in the arch; row 58 is the front's ink base line and row 59 its
+# empty bottom row (both left clear). The leaves fill the dark passage x 102-135 (cols 5-38) and meet at cols 21/22 (the
+# arch's axis); the reveals (cols 0-4 and 39-44) stay the front's. A lowered portcullis continues the painted one exactly:
+# verticals at cols 1, 8, 15, 21, 28, 35, 42 (x 98, 105, 112, 118, 125, 132, 139), horizontals every 7 rows from row 1.
+d = stoneDark
+l = stoneLight
+o = wood
+k = ink
+m = stoneMid
+w = woodDark
+L = woodLight
+Y = strawLight
+---
+.....kkk.kkkkkk.kkkkk..kkkkk.kkkkkk.kkk............kkk.kkkkkk.kkkkk..kkkkk.kkkkkk.kkk.....................................................
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLooowLwkwLoowLooowLoowLwk.....................................................
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLooowLwkwLoowLooowLoowLwk.....................................................
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLooowLwkwLoowLooowLoowLwk.......kk.........................................kk.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLooowLwkwLoowLooowLoowLwk.......owkk.....................................kkow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLooowLwkwLoowLooowLoowLwk.......owowk..................................kkowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLooowLwkwLoowLooowLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLooowLwkwLoowLooowLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLooowLwkwLoowLooowLoowLwk.......owowL..................................Lwowow.
+.....kmlmmmmmlmmmmmlmkwmlmmmmmlmmmmmlmk............kmlmmmmmlmmmmmlmkwmmwooowooowooowk.......owowL..................................Lwowow.
+.....kdddddddddddddddkwdddddddddddddddk............kdddddddddddddddkwddmmoowooowooowk.......mmmmL..................................Lmmmmm.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLooowLwkwLoddmmoowLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLookwLwkwLoowddmmwLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLookwLwkwLoowLLddmmoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLokowLwkwLoowLYoLddmmwLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLokowLwkwLoowL.oYwLddmmwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLokowLwkwLookY.L.kLooddmk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLokowLwkwLook..Y.kLoowLdk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLokowLwkwLook....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLokowLwkwLook....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLokowLwkwLook....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLookwLwkwLook....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLkowLoowLookwLwkwLook....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLokwLoowLookwLwkwLook....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLookLoowLookwLwkwLook....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLookwLwkwLook....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLkowLoowLookwLwkwLook....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLokwLoowLookwLwkwLook....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooolLwkwLolwLooowLoowLwk............kLookLoowLokolLwkwLolk....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLoodwdwkwLdodLooowLoowLwk............kLoowLoowLokdwdwkwLdok....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLoodwdwkwLdodLooowLoowLwk............kLoowLoowLoodwdwkwLdok....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooodLwkwLodwLooowLoowLwk............kLoowLoowLooodLwkwLodk....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLooowLwkwLook....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoowLooowLwkwLook....kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoLwLooowLwkwLook.Y..kLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowLoYLLooowLwkwLook.o.YkLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLoowYL.YLooowLwkwLoowYo.owLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLook.Y..kooowLwkwLoowLoYowLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLook....kooowLwkwLoowLooowLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLook....kooowLwkwLoowLooowLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLook....kooowLwkwLoowLooowLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLook....kooowLwkwLoowLooowLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLook....kooowLwkwLoowLooowLoowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLook....kooowLwkwLoowLooowLoowLwk.......owowL..................................Lwowow.
+.....kmlmmmmmlmmmmmlmkwmlmmmmmlmmmmmlmk............kmldk....kmmmmlmkwmlmmmmmlmmmmmlmk.......owowL..................................Lwowow.
+.....kdddddddddddddddkwdddddddddddddddk............kddkk....kddddddkwdddddddddddddddk.......mmmmL..................................Lmmmmm.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kLowk.o..kooowLwkwLoowowwwkowowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kowwk.wo.owwwkokkwLoowowwwkowowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kowwkowwoowwwkokkwLoowowwwkowowLwk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kowwkowwkowwwkokkwowwkowwwkowwkokk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kowwkowwkowwwkokkwowwkowwwkowwkokk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kowwkkkkkkkkwkokkwowwkowwwkowwkokk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kowwkkkkkkkkwkokkwowwkokkkkkkkkokk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kowwkkkkkkkkwkokkwowwkokkkkkkkkokk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kowwkkkkkkkkwkokkwowwkokkkkkkkkokk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kowwkkk.kkkkwkokkwowwkokkkk.kkkokk.......owowL..................................Lwowow.
+.....kLoowLoowLooowLwkwLoowLooowLoowLwk............kowwkk..kkkkwkokkwowwkokkk...kkokk.......owowL..................................Lwowow.
+.....kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk............kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk.......owowL..................................Lwowow.
+..........................................................................................................................................
+..........................................................................................................................................

@@ -1,0 +1,459 @@
+# lightlessKing 64x64, 7 frames: walk 0-3, attack 4-6 (SPRITES.md). The night-20 boss, once King Aldric: a tall knight
+# in blackened plate, an extinguished dark-gold crown on his closed helm, a hollow face with a faint cold teal rim and
+# two cold eyes, a tattered shadow cloak with torn teal banner rags, a long dark sword. Key pose: Recraft `creatures-b`
+# (right piece), converted to 64x64 (build-art-actors.sh): its ragged cloak and banner rags are cut out of the key; the
+# plate armour, helm, crown, legs and sword are hand-set over it (the conversion turned the plates into one flat
+# violet). Walk: a slow heavy stride (contact, passing on each leg, a 1 px bob, the cloak hem swinging). Attack: the
+# sword drawn back level behind him (anticipation), swept flat forward at chest height (hit), carried through low in
+# front (recovery). The cold eyes and rim glow in lightlessKingGlow.
+id lightlessKing
+size 64x64
+frames 7
+outline ink
+# lightlessKingGlow, a cold silhouette (his own aura keeps him unlit nearly all of night 20): the top contour glows
+# tealDim with tealGlow on the crown's broken points, the teal rags glow tealDim, the blade's whole light edge
+# tealDim to a tealGlow point, the helm's visor edge and the plate glints tealDim, the eyes tealGlow
+rim tealDim tealGlow
+image key build/recraft/lh/actors/keys/lightlessKing-key.png
+glowmap roofLight=tealDim
+
+legend
+    k = ink
+    0 = night0
+    1 = night1
+    2 = night2
+    d = ink
+    m = stoneDark
+    s = stoneMid
+    l = stone
+    L = stoneLight/tealDim
+    r = rock
+    g = woodLight
+    G = woodLight/tealDim
+    n = stone/tealDim
+    w = woodDark
+    y = straw
+    E = night0/tealGlow
+    f = ink/tealDim
+    t = /tealDim
+    a = stoneLight!/tealDim
+    A = stoneLight!/tealGlow
+    b = stoneDark!
+    c = ink!
+    h = woodDark!
+
+# the cloak and its banner rags, cut out of the converted key (upper part and the swinging hem)
+part cloakTop image=key poly=26,20;30,15;34,13;38,14;38,40;12,40;14,34;22,28
+part cloakHem image=key poly=8,64;8,57;16,46;10,44;12,40;38,40;38,64
+
+# extinguished crown: tarnished dark gold, one point broken
+part crown
+    G...G..
+    rg.rrg.G
+    rrgrrrgr
+    wrrwwwrw
+
+# closed helm with the hollow face (rim and eyes glow cold)
+part helm
+    ..dmmsd..
+    .dmsLLsd.
+    dmslLlsdd
+    dmslsf00f
+    dmssf000f
+    dmsd0E0Ef
+    dmsdd000f
+    ddmsdd0dd
+    .ddmsmdd.
+    ..ddmmd..
+
+# breastplate in lames, belt, fauld (pauldrons and arm drawn over it)
+part torso
+    ..kddddk..
+    .kdmmmmdk.
+    kdmsssmmdk
+    kdmslssmdk
+    kdmsllsmdk
+    kdmsslsmdk
+    kddmsssmdk
+    kdddmmmddk
+    kdmmssmmdk
+    kddmmmmddk
+    kdmmssmmdk
+    kddddddddk
+    kdmmrmmmdk
+    kdmmsmmmdk
+    kddmsmmddk
+    .kddmddk..
+
+part pauldronFar
+    .dmmd.
+    dmmmdd
+    dmmddd
+    .dddd.
+
+part pauldron
+    .dmmLd.
+    dmsLlsd
+    dmsllsd
+    dmssssd
+    .dmmmd.
+    ..ddd..
+
+# the sword arm: walking (hand at the hip, the sword low and forward)
+part armLow
+    dmm.
+    dms.
+    dmsd
+    .dmd
+    .dms
+    .dms
+    ..dm
+    .kmmk
+    .kmsk
+
+part swordLow
+    .h.k..................
+    hhhkkaaa..............
+    .h.k.bbbaaa...........
+    ........bbbaaa........
+    ...........bbbaaa.....
+    ..............bbbaa...
+    .................bbA..
+    ...................b..
+
+# legs: cuisses, knee cops, greaves and sabatons; the far leg one value darker
+part legNearFwd
+    dmssd....
+    dmssd....
+    dmssd....
+    .dmssd...
+    .dmssd...
+    .dmssd...
+    ..dmssd..
+    ..dmssd..
+    ..dmlsd..
+    ..dlnld..
+    ..ddsdd..
+    ...dmsd..
+    ...dmsd..
+    ...dmsd..
+    ...dmsd..
+    ...dmsd..
+    ...dmsd..
+    ...dmsd..
+    ...dmsd..
+    ...dmsd..
+    ...dmsd..
+    ...dmsd..
+    ...dmsdd.
+    ...dmssdd
+    ...dmsssd
+    ...dddddd
+
+part legNearBack
+    ....dmsd.
+    ....dmsd.
+    ....dmsd.
+    ...dmsd..
+    ...dmsd..
+    ...dmsd..
+    ..dmsd...
+    ..dmsd...
+    ..dmlsd..
+    ..dlnsd..
+    ..ddsdd..
+    ..dmsd...
+    ..dmsd...
+    .dmsd....
+    .dmsd....
+    .dmsd....
+    .dmsd....
+    dmsd.....
+    dmsd.....
+    dmsd.....
+    dmsd.....
+    dmsd.....
+    dmsdd....
+    dmssdd...
+    dmsssd...
+    dddddd...
+
+part legNearStraight
+    .dmssd.
+    .dmssd.
+    .dmssd.
+    .dmssd.
+    .dmssd.
+    .dmssd.
+    .dmssd.
+    .dmssd.
+    .dmlsd.
+    .dlnld.
+    .ddsdd.
+    .dmsd..
+    .dmsd..
+    .dmsd..
+    .dmsd..
+    .dmsd..
+    .dmsd..
+    .dmsd..
+    .dmsd..
+    .dmsd..
+    .dmsd..
+    .dmsd..
+    .dmsdd.
+    .dmssdd
+    .dmsssd
+    .dddddd
+
+part legNearBent
+    ..dmsd.
+    ..dmsd.
+    ..dmsd.
+    ..dmsd.
+    ..dmsd.
+    ..dmsd.
+    ..dmssd
+    ..dmlsd
+    ..dlnsd
+    ..ddsdd
+    .dmsd..
+    .dmsd..
+    dmsd...
+    dmsd...
+    dmsd...
+    dmsd...
+    dmsd...
+    dmsdd..
+    dmssdd.
+    dddddd.
+
+part legFarFwd
+    dmmmd....
+    dmmmd....
+    dmmmd....
+    .dmmmd...
+    .dmmmd...
+    .dmmmd...
+    ..dmmmd..
+    ..dmmmd..
+    ..dmmmd..
+    ..dmmmd..
+    ..ddmdd..
+    ...dmmd..
+    ...dmmd..
+    ...dmmd..
+    ...dmmd..
+    ...dmmd..
+    ...dmmd..
+    ...dmmd..
+    ...dmmd..
+    ...dmmd..
+    ...dmmd..
+    ...dmmd..
+    ...dmmdd.
+    ...dmmmdd
+    ...dmmmmd
+    ...dddddd
+
+part legFarBack
+    ....dmmd.
+    ....dmmd.
+    ....dmmd.
+    ...dmmd..
+    ...dmmd..
+    ...dmmd..
+    ..dmmd...
+    ..dmmd...
+    ..dmmmd..
+    ..dmmmd..
+    ..ddmdd..
+    ..dmmd...
+    ..dmmd...
+    .dmmd....
+    .dmmd....
+    .dmmd....
+    .dmmd....
+    dmmd.....
+    dmmd.....
+    dmmd.....
+    dmmd.....
+    dmmd.....
+    dmmdd....
+    dmmmdd...
+    dmmmmd...
+    dddddd...
+
+part legFarStraight
+    .dmmmd.
+    .dmmmd.
+    .dmmmd.
+    .dmmmd.
+    .dmmmd.
+    .dmmmd.
+    .dmmmd.
+    .dmmmd.
+    .dmmmd.
+    .dmmmd.
+    .ddmdd.
+    .dmmd..
+    .dmmd..
+    .dmmd..
+    .dmmd..
+    .dmmd..
+    .dmmd..
+    .dmmd..
+    .dmmd..
+    .dmmd..
+    .dmmd..
+    .dmmd..
+    .dmmdd.
+    .dmmmdd
+    .dmmmmd
+    .dddddd
+
+part legFarBent
+    ..dmmd.
+    ..dmmd.
+    ..dmmd.
+    ..dmmd.
+    ..dmmd.
+    ..dmmd.
+    ..dmmmd
+    ..dmmmd
+    ..dmmmd
+    ..ddmdd
+    .dmmd..
+    .dmmd..
+    dmmd...
+    dmmd...
+    dmmd...
+    dmmd...
+    dmmd...
+    dmmdd..
+    dmmmdd.
+    dddddd.
+
+# attack: the arm drawn back and the sword level behind him; then swept forward level; then low through
+part armBack
+    .mmd
+    msmd
+    msd.
+    kmmk
+    kmsk
+
+part swordBack
+    ..............kh
+    .aaaaaaaaaaaakhh
+    Abbbbbbbbbbbbkh.
+
+part armForward
+    dmmmmmkk
+    dmsssmmk
+    .dddddkk
+
+part swordForward
+    hk.....................
+    hkaaaaaaaaaaaaaaaaaaaA.
+    hkbbbbbbbbbbbbbbbbbbbbb
+
+part swordThrough
+    .h.k..................
+    hhhkkaaa..............
+    .h.k.bbbaaa...........
+    ........bbbaaa........
+    ...........bbbaaa.....
+    ..............bbbaa...
+    .................bbaA.
+    ...................bb.
+
+frame 0
+    cloakTop -6 0
+    cloakHem -6 0
+    legFarBack 24 36
+    pauldronFar 28 19
+    torso 28 21
+    legNearFwd 33 36
+    helm 31 10
+    crown 32 7
+    pauldron 34 19
+    armLow 36 25
+    swordLow 35 32
+
+frame 1
+    cloakTop -6 1
+    cloakHem -7 1
+    legFarBent 26 36
+    pauldronFar 28 20
+    torso 28 22
+    legNearStraight 32 36
+    helm 31 11
+    crown 32 8
+    pauldron 34 20
+    armLow 36 26
+    swordLow 35 33
+
+frame 2
+    cloakTop -6 0
+    cloakHem -5 0
+    legFarFwd 28 36
+    pauldronFar 28 19
+    torso 28 21
+    legNearBack 29 36
+    helm 31 10
+    crown 32 7
+    pauldron 34 19
+    armLow 36 25
+    swordLow 35 32
+
+frame 3
+    cloakTop -6 1
+    cloakHem -6 1
+    legFarStraight 27 36
+    pauldronFar 28 20
+    torso 28 22
+    legNearBent 31 36
+    helm 31 11
+    crown 32 8
+    pauldron 34 20
+    armLow 36 26
+    swordLow 35 33
+
+frame 4
+    cloakTop -7 0
+    cloakHem -8 0
+    swordBack 12 25
+    legFarBack 23 36
+    pauldronFar 27 19
+    torso 27 21
+    legNearFwd 33 36
+    helm 30 10
+    crown 31 7
+    armBack 26 24
+    pauldron 32 19
+
+frame 5
+    cloakTop -5 1
+    cloakHem -6 1
+    legFarBack 25 37
+    pauldronFar 29 20
+    torso 29 22
+    legNearFwd 35 37
+    helm 32 11
+    crown 33 8
+    pauldron 35 20
+    armForward 37 26
+    swordForward 41 25
+
+frame 6
+    cloakTop -5 1
+    cloakHem -5 1
+    legFarBack 25 37
+    pauldronFar 29 20
+    torso 29 22
+    legNearFwd 34 37
+    helm 32 11
+    crown 33 8
+    pauldron 35 20
+    armLow 37 26
+    swordThrough 36 33

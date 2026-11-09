@@ -546,6 +546,12 @@ final class Renderer {
         let whole = Float(max(0, frame.layer(.world).offset.whole))
         let haze = ambient.haze
         let bloomStrength: Float = bloomOn ? Look.bloomStrength : 0
+        // Scene polish 2: the cool bounce, the dusk spare and the haze band by daylight, the king's rim.
+        let daylight = Look.daylight(ambient)
+        let focus = frame.cameraX + Double(max(0, frame.targetWidth - 1)) / 2
+        let bounce = Look.bounceColor(ambient)
+        let bandColor = Look.bandColor(ambient)
+        let rim = Look.rimColor(ambient)
         return CompositeUniforms(
             screen: SIMD4<Float>(Float(frame.physicalWidth), Float(frame.physicalHeight), Float(frame.scale),
                                  Float(LightField.litThreshold)),
@@ -572,7 +578,12 @@ final class Renderer {
             farHaze: SIMD4<Float>(farHaze.x, farHaze.y, farHaze.z, 0),
             midHaze: SIMD4<Float>(midHaze.x, midHaze.y, midHaze.z, 0),
             cloud: SIMD4<Float>(Look.cloudSun, Look.cloudFill, Look.cloudHaze, 0),
-            backdropLight: SIMD4<Float>(backdrop.x, backdrop.y, backdrop.z, 0))
+            backdropLight: SIMD4<Float>(backdrop.x, backdrop.y, backdrop.z, 0),
+            polish: SIMD4<Float>(0, Look.bounceStrength(ambient), Look.duskSun * daylight,
+                                 Look.bandStrength(ambient, focus: focus)),
+            bounceColor: SIMD4<Float>(bounce.x, bounce.y, bounce.z, 0),
+            bandColor: SIMD4<Float>(bandColor.x, bandColor.y, bandColor.z, Look.bandHeight),
+            rim: SIMD4<Float>(rim.x, rim.y, rim.z, Look.rim))
     }
 
     /// The colour of the frame's backdrop lights (lights of the far and mid planes, such as the warden statue's bowl
@@ -696,9 +707,16 @@ final class Renderer {
         }
     }
 
+    /// Actors that keep a cool rim on their screen-right edge (scene polish 2): the king, and every creature, so an
+    /// unlit body's edge reads against the dark ground where its glow strip has no pixel (SPRITES.md "Unlit
+    /// creatures"); firelight outshines it.
+    static let rimmed: Set<SpriteID> = [.king, .sootling, .sootlingB, .shadehound, .sootCrow, .ashBrute, .gloomweaver,
+                                        .ashGiant, .lightlessKing]
+
     static func quad(_ actor: ActorInstance, layout: AtlasLayout) -> ActorQuad {
         let cell = layout.cell(actor.sprite, frame: actor.frame)
-        let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.isLit ? 1 : 0, 0, 0)
+        let rim: Float = rimmed.contains(actor.sprite) ? 1 : 0
+        let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.isLit ? 1 : 0, rim, 0)
         return ActorQuad(rect: actor.rect, texel: cell.texels(flipped: actor.flipped), tint: actor.tint, flags: flags)
     }
 

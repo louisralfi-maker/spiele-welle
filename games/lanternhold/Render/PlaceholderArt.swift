@@ -25,6 +25,9 @@ enum PlaceholderArt {
         case .valleyMidA, .valleyMidB, .valleyMidC, .windmill, .riverFarBank: frames = [hills(salt, size: size)]
         case .riverEnd: frames = [river(salt, size: size)]
         case .fogStrip: frames = [fogStrip(salt)]
+        case .castleMist: frames = [mistBank(salt, size: size)]
+        case .castleShadow, .castleShadowLong, .groundShadow, .groundShadowLong, .gateShadow, .gateShadowLong:
+            frames = [shadowStandIn(size: size)]
         case .ground, .groundB, .groundC, .groundD: frames = [ground(salt)]
         case .darknessBank: frames = [darknessBank(salt)]
         case .darknessEdge: frames = [darknessEdge(salt)]
@@ -373,6 +376,42 @@ enum PlaceholderArt {
             }
         }
         return p.image
+    }
+
+    /// A bank of ground mist (scene polish 2): white, its alpha a soft noise in eight steps, thick in the bottom rows,
+    /// thinning upward and fading out at both ends. The scene's bank is `Resources/Art/castleMist.png` (`procart.py
+    /// fogbank`); this stand-in keeps the game drawable without it.
+    static func mistBank(_ salt: UInt64, size: PixelSize) -> PixelImage {
+        var p = Painter(size, salt: salt)
+        let w = size.width
+        let h = size.height
+        for y in 0..<h {
+            let up = Double(h - 1 - y) / 24
+            let body = max(0, 1 - up)
+            let swell = body * body * (3 - 2 * body)
+            for x in 0..<w {
+                let edge = min(1, Double(min(x, w - 1 - x)) / 48)
+                let envelope = edge * edge * (3 - 2 * edge)
+                let cloud = p.fractal(Double(x), Double(y) * 2.2, cell: 32, key: 1, period: w)
+                let density = min(1, max(0, swell * envelope * (0.4 + 0.7 * cloud)))
+                let level = (density * 8 + Painter.bayer(x, y) - 0.5).rounded(.down) / 8
+                let alpha = UInt8(min(220, max(0, level * 230)))
+                if alpha > 0 {
+                    p.put(x, y, RGBA(0xFFFFFF, alpha: alpha))
+                }
+            }
+        }
+        return p.image
+    }
+
+    /// A stand-in for a baked cast shadow (scene polish 2, `bake_shadows.py` paints the real ones): only its bottom
+    /// row, so a missing PNG darkens almost nothing.
+    static func shadowStandIn(size: PixelSize) -> PixelImage {
+        var image = PixelImage(width: size.width, height: size.height)
+        for x in 0..<size.width {
+            image[x, size.height - 1] = RGBA(0x0E0B1E)
+        }
+        return image
     }
 
     // MARK: - World ground and the Gloom

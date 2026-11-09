@@ -110,7 +110,8 @@ One horizontal strip. `x` grows to the right in game pixels; the ground line is 
   on day 11.
 - **The gorge (0 to 1300):**
   - Behind the front stands one continuous rock face (mid plane) with a jagged top, dead trees on the rim and a narrow
-    strip of sky with stars and the moon.
+    strip of sky with stars and the moon. It is one value step flatter than the near rock and its foot dissolves in a
+    bright haze band by day (scene polish 2), so the gorge reads deep.
   - In front, dark rock and hanging roots frame the screen (foreground plane).
   - From x 1100 the gorge closes in: the back wall rises to the top of the screen and the foreground rock thickens, so
     the castle stands in the gorge's throat.
@@ -345,7 +346,10 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
     the art review, they rose above the top of the screen before);
   - the gatehouse has a deep arched gate with an iron portcullis;
   - the crenellations carry archers, braziers and banners;
-  - flanks of masonry grow into the rock on both sides.
+  - flanks of masonry grow into the rock on both sides;
+  - it stands heavy on the ground (scene polish 2): by day it throws a shadow to the right onto the throat rock and the
+    ground at its foot (light from the upper left), at dusk a long one across the throat rock, never at night; at dusk
+    and night a bank of mist lies at the foot of its walls, behind the king.
 - **The keep** stands behind the gatehouse. Its crown and flag rise above the gatehouse between the towers' crowns. From
   the approach and the front its upper storey (crown, banner, lit windows) stands on a rock plateau in the middle
   distance (a mid-plane view, hidden at the gate), and from the town in the gorge mouth's notch (see "The valley").
@@ -575,7 +579,15 @@ fields under a pale sky. The realm's colour is teal-blue.
 - **Emissive:** flames, window glass (the painted dark panes inside a rect glow), lantern glass, embers, creature eyes,
   stars. Added after lighting; they feed the bloom. A sprite drawn later on the mid, world or foreground plane hides the
   glow behind it. Windows dim when the house sleeps.
+- **Warm light, cold shadow (scene polish 2):** by day and dusk the shadowed share of the albedo takes the sky's cool
+  light instead of the warm sun (world and mid plane, not the figures), and at dusk the night's violet pull spares the
+  sunlit share, so lit rock stays ochre while shadows turn violet. Cool albedo (teal cloth, slate) reflects firelight
+  more neutrally, so it never glows mint or cyan. Cast shadows are baked from the layout (the castle front's, black at
+  the sun's strength, the long dusk one beyond the day one); a mist bank at the castle's foot follows the torch
+  strength. The king keeps a cool rim (sky by day, moon at night) on his screen-right edge, outshone by firelight.
 - **Fog:** two drifting pixel-noise planes, one behind and one in front of the world; lit fog glows around braziers.
+  By day and dusk a bright haze band lies over the far and mid planes' lowest 48 rows (half of it in the valley), so
+  the far gorge wall's foot dissolves and the gorge reads deep.
 - **Light shafts:** sun beams through the gorge and castle windows at dawn and dusk; moonbeams at night.
 - **Bloom** on strong lights, then the time-of-day grade.
 - **The darkness bank:** negative light plus soot motes and eye glints; it dims lights inside it.
@@ -717,7 +729,10 @@ The research is in `docs/research-rendering.md` (sources, evidence labels, numbe
   keep only part of the warm light (aerial perspective); then bloom and the grade. Polish after the art review:
   firelight reflects 35 % as from a neutral surface and is capped at 1.6 (no cyan halo on teal cloth, no blown walls)
   and fades to a quarter a few rows under the grass; bloom is read once per game pixel, so glows step in s x s blocks;
-  rock lips at the top never hang below y 139.
+  rock lips at the top never hang below y 139. Scene polish 2: cool albedo reflects up to 60 % more neutrally, the
+  shadowed albedo takes the sky's cool light by day and dusk, the night's violet pull spares the sunlit albedo at dusk,
+  the haze band over the far and mid planes' lowest rows, actors lit like the world (cap, neutral share) and the king's
+  cool rim.
 - **Actors** (king, people, creatures, arrows) are quads drawn in the composite at device-pixel positions, their texels
   still s x s blocks, lit by reading the light buffer at their position. This keeps the walking king steady on screen.
   The prototype compares this with snapped actors (`-GWActorMode smooth|snapped`).
@@ -1066,6 +1081,7 @@ falloff, bands, dither, bloom and fog.
 | `20-river-day` | `-GWCameraX 3720` at 0.5 (mock `m1b-river-day`) |
 | `21-approach-night` | `-GWCameraX 1100` at 0.95 (mock `m1b-approach-night`) |
 | `22-beacon-day` | `-GWCameraX 470` at 0.5 (mock `m1b-beacon-day`) |
+| `23-castle-noon` / `24-approach-noon` | `-GWCameraX 1360` / `1100` at 0.5 (scene polish 2: the castle's cast shadow by day, the throat rock against the far wall; mocks `m1b-castle-day`, `m1b-approach-day`) |
 | `film-01` … `film-08` | `-GWAutoplay walk` at dusk, at least 0.5 s apart (about 1.5 s on the runner: one screenshot and one read of the scene value per frame), with the king's screen x and the camera x from the `world-scene` value (`king:` and `cam:`) for the jitter check |
 
 **Unit tests:** `DayClockTests`, `FlickerTests` (deterministic, bounded, Reduce Motion), `LightFieldTests`,

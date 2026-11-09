@@ -1,0 +1,144 @@
+# citizenC 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md). An old farmer: a wide straw hat, a grey beard, a blue
+# smock under a brown vest, patched breeches, a crooked walking stick. Walk: four frames, slow, leaning on the stick.
+# Idle: a breath, both hands on the stick.
+id citizenC
+size 12x26
+frames 6
+outline ink
+
+legend
+    k = ink
+    S = rockPale
+    s = rockLight
+    v = stoneLight
+    w = stonePale
+    c = straw
+    C = strawLight
+    g = woodLight
+    F = waterDeep
+    f = far
+    D = farDeep
+    H = woodDark
+    h = wood
+    B = soilDark
+    b = soil
+    n = soilLight
+    l = woodLight
+
+part hat
+    ...CCC...
+    ..CcccC..
+    CCcCcCcCC
+    .ccccccc.
+
+part head
+    .SSS.
+    SSkSs
+    vwSSs
+    .vwv.
+
+part torso
+    .FfF.
+    HFfFH
+    HhFhH
+    HhFhH
+    HhfhH
+    HhFhH
+    FffFF
+    FFfFf
+
+part legsA
+    Bb..Bn
+    Bb..Bn
+    Bb...Bn
+    HH...HH
+    HHh..HHh
+
+part legsB
+    .BbBn
+    .BbBn
+    .BbBn
+    .HHHH
+    .HHhHh
+
+part legsC
+    Bn.Bb
+    Bn.Bb
+    .BnBb.
+    .HHHH.
+    .HHhHHh
+
+part armBack
+    F
+    f
+    s
+
+part armStick
+    FS.
+    .S.
+
+part stick
+    h
+    g
+    h
+    h
+    h
+    h
+    h
+    h
+    h
+    H
+
+frame 0
+    armBack 3 11
+    legsA 3 20
+    torso 3 12
+    head 4 8
+    hat 1 5
+    stick 10 15
+    armStick 8 14
+
+frame 1
+    armBack 3 12
+    legsB 3 20
+    torso 3 13
+    head 4 9
+    hat 1 6
+    stick 9 15
+    armStick 7 15
+
+frame 2
+    armBack 3 11
+    legsC 3 20
+    torso 3 12
+    head 4 8
+    hat 1 5
+    stick 10 15
+    armStick 8 14
+
+frame 3
+    armBack 3 12
+    legsB 3 20
+    torso 3 13
+    head 4 9
+    hat 1 6
+    stick 9 15
+    armStick 7 15
+
+frame 4
+    armBack 3 11
+    legsB 3 20
+    torso 3 12
+    head 4 8
+    hat 1 5
+    stick 9 15
+    armStick 7 14
+
+frame 5
+    armBack 3 12
+    legsB 3 20
+    torso 3 13
+    head 4 9
+    hat 1 6
+    stick 9 15
+    armStick 7 15

@@ -153,11 +153,12 @@ enum AmbientRamp {
             haze: 0.6, stars: 0, sun: 0.12, moon: -0.1, torch: 0.2, warmth: 0.45, saturation: 1.1),
         // Polish after the art review: a step between the warm hour and the night instead of one magenta wash. The
         // rock keeps a warm ochre (warm ambient, less haze toward a salmon horizon), violet stays in the sky's top and
-        // in the shadows, the torches read warm.
+        // in the shadows, the torches read warm. Scene polish 2: the light and the horizon one step more amber (less
+        // blue), so the sunlit rock at 19:12 is a dimmer ochre on the way to the night, not rose.
         key("dusk", 19.2,
-            sky: (SIMD3<Float>(0.20, 0.16, 0.38), SIMD3<Float>(0.90, 0.48, 0.44)),
-            ambient: (SIMD3<Float>(0.92, 0.64, 0.50), 0.5),
-            fog: (SIMD3<Float>(0.50, 0.36, 0.42), 0.35),
+            sky: (SIMD3<Float>(0.20, 0.16, 0.38), SIMD3<Float>(0.90, 0.54, 0.38)),
+            ambient: (SIMD3<Float>(0.94, 0.68, 0.42), 0.5),
+            fog: (SIMD3<Float>(0.48, 0.36, 0.40), 0.35),
             haze: 0.32, stars: 0.25, sun: -0.08, moon: 0.1, torch: 0.85, warmth: 0.32, saturation: 1.0),
         key("night", 20.4,
             sky: (GamePalette.night0, GamePalette.night2),

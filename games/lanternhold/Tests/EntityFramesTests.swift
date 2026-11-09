@@ -232,7 +232,8 @@ final class EntityFramesTests: XCTestCase {
         XCTAssertEqual(props(layer, .greatBeacon).count, 1)
         let fire = layer.glows.first { $0.sprite == .beaconFire }
         XCTAssertNotNil(fire, "the fire in the bowl")
-        XCTAssertEqual(fire?.x, EntityFrames.beaconLeft + 20)
+        XCTAssertEqual(fire?.x, EntityFrames.beaconLeft + 8, "the blaze spans the bowl's mouth")
+        XCTAssertEqual(fire?.y, 125, "its coal row lies on the mouth")
         XCTAssertTrue(desc.lights.contains { $0.kind == .beacon }, "its steady pool comes from the simulation")
         XCTAssertFalse(LightKind.beacon.flickers, "the pool's edge band stands still")
         var fresh = GameState.newRealm(seed: 1)

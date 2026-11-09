@@ -28,7 +28,7 @@ enum PlaceholderStructures {
         case .catapult: return (0..<3).map { catapult($0, salt: salt) }
         case .stakePit: return [stakePit(armed: true, salt: salt), stakePit(armed: false, salt: salt)]
         case .beaconBase, .beaconTower, .greatBeacon: return [beacon(sprite, salt: salt)]
-        case .beaconFire: return (0..<3).map { beaconFire($0) }
+        case .beaconFire: return (0..<SpriteID.beaconFire.frameCount).map { beaconFire($0) }
         case .barracks: return [barracks(salt)]
         case .smithy: return [smithy(salt, master: false)]
         case .masterSmithy: return [smithy(salt, master: true)]
@@ -650,8 +650,8 @@ enum PlaceholderStructures {
         return p.image
     }
 
-    /// The fire in the Great Beacon's bowl (glow strip, fire colours): a bed of coals and five tongues with white
-    /// cores that trade heights from frame to frame, a few sparks.
+    /// The fire in the Great Beacon's bowl (glow strip, fire colours): a bed of coals and tongues with white cores
+    /// across the whole width that trade heights from frame to frame, a few sparks.
     static func beaconFire(_ frame: Int) -> PixelImage {
         let size = SpriteID.beaconFire.size
         var p = Painter(size, salt: 0xBEAC_0F1E)
@@ -667,7 +667,8 @@ enum PlaceholderStructures {
             p.put(x, h - 2, orange)
             if x > 2 && x < w - 3 { p.put(x, h - 3, yellow) }
         }
-        let heights = [[11, 15, 9, 13, 10], [13, 10, 15, 9, 12], [9, 13, 11, 15, 10]][frame % 3]
+        let pattern = [11, 15, 9, 13, 10, 14, 12, 16]
+        let heights = (0..<max(1, (w - 4) / 4)).map { min(h - 4, pattern[($0 + frame * 3) % pattern.count] * h / 20) }
         for (index, height) in heights.enumerated() {
             let cx = 3 + index * 4 + 1
             for step in 0..<height {
@@ -682,7 +683,7 @@ enum PlaceholderStructures {
                 }
             }
         }
-        for (x, y) in [(2, 3 + frame), (21, 5 - frame), (12, 1 + frame)] {
+        for (x, y) in [(2, 3 + frame), (w - 3, 5 - frame % 4), (w / 2, 1 + frame)] {
             p.put(x, y, yellow)
         }
         return p.image

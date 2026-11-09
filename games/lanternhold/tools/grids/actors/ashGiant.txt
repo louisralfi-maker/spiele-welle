@@ -1,0 +1,81 @@
+# ashGiant 110x110, 7 frames: walk 0-3, stomp 4-6 (SPRITES.md). The night-10 boss: a towering colossus of burnt
+# stone and charred wood, a crown of burning stakes on its head, ember cracks between its boulders, two deep ember
+# eyes. It leans forward on one huge stone arm. Key pose: Recraft `creatures-a` (right piece), converted to 110x110
+# and lifted one value step on its shaded side (build-art-actors.sh); the frames are cut-out animation of that key:
+# walk = a slow heavy step (each leg lifted in turn, planted feet sliding back, the body bobbing up as a leg lifts),
+# stomp = the stone arm raised high (anticipation), slammed down with the body dipping (hit, the screen shake),
+# raised a little again (recovery).
+id ashGiant
+size 110x110
+frames 7
+outline ink
+# unlit at night: the top contour smoulders ember, every stake of the crown burns at its point (fireOrange on spikes)
+rim ember fireOrange
+# the key with its lone red specks grown into 3-4 px cracks between the boulders (build-art-actors.sh)
+image key build/recraft/lh/actors/keys/ashGiant-cracks.png
+glowmap tile=emberDim
+
+legend
+    o = /fireOrange
+    g = /fireGold
+    e = /ember
+    d = /emberDim
+
+# parts of the key, back to front
+part legR image=key poly=54,110;54,46;63,40;73,42;73,110
+part legL image=key poly=4,110;4,58;14,46;40,46;54,52;54,110
+part armR image=key poly=64,110;67,50;76,37;87,39;101,50;104,110
+part torso image=key poly=0,0;110,0;110,33;86,33;76,38;68,50;0,52
+
+part eyes
+    oo..oo
+    go..go
+
+frame 0
+    legR 2 0
+    legL 0 0
+    armR 1 0
+    torso 0 0
+    eyes 34 17
+
+frame 1
+    legR 1 0
+    legL 2 -3
+    armR 0 0
+    torso 0 -1
+    eyes 34 16
+
+frame 2
+    legR 0 0
+    legL 2 0
+    armR 1 0
+    torso 0 0
+    eyes 34 17
+
+frame 3
+    legR 2 -3
+    legL 1 0
+    armR 2 0
+    torso 0 -1
+    eyes 34 16
+
+frame 4
+    legR 1 0
+    legL 0 0
+    armR 3 -6
+    torso 1 -1
+    eyes 35 16
+
+frame 5
+    legR 1 0
+    legL 0 0
+    armR 3 0
+    torso 1 2
+    eyes 35 19
+
+frame 6
+    legR 1 0
+    legL 0 0
+    armR 2 -2
+    torso 0 1
+    eyes 34 18

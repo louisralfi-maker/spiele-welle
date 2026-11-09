@@ -68,6 +68,10 @@ struct CompositeUniforms: Sendable {
     var midHaze: SIMD4<Float>
     var cloud: SIMD4<Float>
     var backdropLight: SIMD4<Float>
+    var polish: SIMD4<Float>
+    var bounceColor: SIMD4<Float>
+    var bandColor: SIMD4<Float>
+    var rim: SIMD4<Float>
 }
 
 /// The look's knobs (DESIGN.md "Lighting model"): how the ambient ramp, the point lights, the fog, the bloom and the
@@ -131,6 +135,29 @@ enum Look {
     static let cloudSun: Float = 1.1
     static let cloudFill: Float = 1.7
     static let cloudHaze: Float = 0.25
+    /// Scene polish 2 (tools/scenemock/mock.py look values `bounce`, `duskSun`, `band`, `rim`): by day and dusk the
+    /// shadowed albedo takes this share of the sky's cool light instead of the warm sun (half the sky's own colour,
+    /// half a plain cool blue: the noon sky alone turned rock teal), so warm lit tops stand against cold shadow.
+    static let bounce: Float = 0.5
+    static let bounceBlue = SIMD3<Float>(0.6, 0.68, 1.0)
+    /// The bounce fades with daylight × this (capped at 1), so the dusk (daylight 0.5) keeps 0.8 of it: violet
+    /// shadows under the amber light instead of one warm haze (round lh-art-s1, shot 03).
+    static let bounceDusk: Float = 1.6
+    /// At dusk the night's violet pull spares the sunlit share of a pixel by this much (× daylight).
+    static let duskSun: Float = 1
+    /// The bright haze band low in the gorge: its strength by day (× daylight), its height in rows above the ground
+    /// line, how far its colour goes from the horizon toward white, and its share in the valley (from the back gate on:
+    /// there it veiled the river's far shore).
+    static let band: Float = 0.45
+    static let bandHeight: Float = 48
+    static let bandWhite: Float = 0.4
+    static let bandValley: Float = 0.5
+    /// At the warm hours, whose haze is thick already, the band thins by this share of the aerial weight (round
+    /// lh-art-s1: at golden hour the statue's foot and the far wall's lower third washed out).
+    static let bandWarmCut: Float = 0.5
+    /// The king's cool rim on his screen-right edge: its strength and colour (at the ambient's level, at least 0.6).
+    static let rim: Float = 0.5
+    static let rimBlue = SIMD3<Float>(0.72, 0.82, 1.0)
 
     /// Lights of these kinds shine gentler in the picture (they light only the scene): windows, candles, and the king's
     /// lantern a little. The Great Beacon's pool (radius 840, M2b) at a third: at full strength it blew the whole front
@@ -173,8 +200,49 @@ enum Look {
     static func worldAmbient(_ sample: AmbientSample) -> SIMD3<Float> {
         let color = sample.ambientColor
         let peak = max(0.001, max(color.x, max(color.y, color.z)))
-        let level = ambientLift + (1 - ambientLift) * min(1, max(0, sample.ambientIntensity))
-        return color / peak * level
+        return color / peak * ambientLevel(sample)
+    }
+
+    /// The world ambient's level: `lift + (1 − lift) × I`.
+    static func ambientLevel(_ sample: AmbientSample) -> Float {
+        ambientLift + (1 - ambientLift) * min(1, max(0, sample.ambientIntensity))
+    }
+
+    /// How much of day this ambient is: 1 by day and at golden hour, 0 at night.
+    static func daylight(_ sample: AmbientSample) -> Float {
+        1 - nightness(sample)
+    }
+
+    /// The cool bounce's strength at this hour: full by day and at golden hour, 0.8 of it at dusk, none at night.
+    static func bounceStrength(_ sample: AmbientSample) -> Float {
+        bounce * min(1, daylight(sample) * bounceDusk)
+    }
+
+    /// The sky's cool light on shadowed albedo (scene polish 2): the sky's top colour at full brightness, half of it
+    /// pulled to a plain cool blue, at the world ambient's level.
+    static func bounceColor(_ sample: AmbientSample) -> SIMD3<Float> {
+        let top = sample.skyTop
+        let peak = max(0.001, max(top.x, max(top.y, top.z)))
+        let sky = top / peak
+        return (sky + (bounceBlue - sky) * 0.5) * ambientLevel(sample)
+    }
+
+    /// The haze band's colour: the horizon, a share of the way to white.
+    static func bandColor(_ sample: AmbientSample) -> SIMD3<Float> {
+        sample.skyBottom + (SIMD3<Float>(repeating: 1) - sample.skyBottom) * bandWhite
+    }
+
+    /// The haze band's strength with the camera's focus at `focus`: full in the gorge and the castle, `bandValley` of it
+    /// from the back gate on (blended from focus 2150 to 2330, as the keep's valley view fades in), × daylight.
+    static func bandStrength(_ sample: AmbientSample, focus: Double) -> Float {
+        let t = Float(min(1, max(0, (focus - 2150) / 180)))
+        let valley = t * t * (3 - 2 * t)
+        return band * daylight(sample) * (1 - (1 - bandValley) * valley) * (1 - bandWarmCut * aerialWeight(sample))
+    }
+
+    /// The king's rim colour: cool, at the ambient's level but never below 0.6 (a moonlit rim at night).
+    static func rimColor(_ sample: AmbientSample) -> SIMD3<Float> {
+        rimBlue * max(ambientLevel(sample), 0.6)
     }
 
     /// How warm the hour is for the aerial perspective: 0 by day and at night, 1 at golden hour (warmth 0.45).

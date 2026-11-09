@@ -1,0 +1,84 @@
+# gateGreat 46x60, 3 frames (strip 138x60), hand-set: tier 3 of the castle gate.
+# Frame 0 closed whole: leaves clad in steel plates behind a heavy portcullis (three-pixel bars, three-row crossbars,
+# gold bosses where they cross, gold-capped teeth) with the realm's crest on its centre crossing (a teal shield with a
+# gold lantern). Frame 1 closed damaged: a plate staved in (a dark crater with radiating cracks) and two bars bent round
+# it, two bosses knocked off, a plate torn away (the oak beneath shows), the crest cracked with a corner broken off, one
+# tooth snapped, the foot scorched. Frame 2 open: the portcullis raised (its heavy gold-capped teeth under the arch), the
+# plated leaves swung in against the passage walls with their gold rivets.
+# Fitted to castleFront.png: overlay column c, row r is castleFront pixel (97 + c, 176 + r), world x 1337 + c; only
+# the painted passage (night0 and night1) is painted, so the jambs, the arch and the torch brackets stay the front's. Row
+# 0 is the first row under the raised portcullis painted in the arch; row 58 is the front's ink base line and row 59 its
+# empty bottom row (both left clear). The leaves fill the dark passage x 102-135 (cols 5-38) and meet at cols 21/22 (the
+# arch's axis); the reveals (cols 0-4 and 39-44) stay the front's. A lowered portcullis continues the painted one exactly:
+# verticals at cols 1, 8, 15, 21, 28, 35, 42 (x 98, 105, 112, 118, 125, 132, 139), horizontals every 7 rows from row 1.
+N = night1
+d = stoneDark
+s = stone
+l = stoneLight
+o = wood
+b = banner
+g = gold
+k = ink
+m = stoneMid
+w = woodDark
+---
+mdk..kkm.kkkkkm.kkkkm..kkkkm.kkkkkm.kkk..m.k..mdk..kkm.kkkkkm.kkkkm..kkkkm.kkkkkm.kkk..m.k..mdk....m.k....m.k...m......m.k....m.k....m.k..
+ggmmmmmggmmmmmggmmmmggmmmmmggmmmmmggmmmmmggm..ggmmmmmggmmmmmggmmmmggmmmmmggmmmmmggmmmmmggm...gk.....gk.....gk....gk.....gk.....gk.....gk..
+gwdddddgwdddddgwddddgwdddddgwdddddgwdddddgwd..gwdddddgwdddddgwddddgwdddddgwdddddgwdddddgwd...k......k......k.....k......k......k......k...
+kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..kk.........................................kk.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..smkk.....................................kksm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..smsmk..................................kksmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..smsml..................................lmsmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..smsml..................................lmsmsm.
+ggmmmmmggmmmmmggmmmmggmmmmmggmmmmmggmmmmmggm..ggmmmmmggmmmmmggmmmmggmmmmmggmmmmmggmmmmmggm..smsml..................................lmsmsm.
+gwdddddgwdddddgwddddgwdddddgwdddddgwdddddgwd..gwdddddgwdddddgwddddgwdddddgwdddddgwdddddgwd..smsml..................................lmsmsm.
+kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..smsml..................................lmsmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..smsml..................................lmsmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..smsml..................................lmsmsm.
+mdk..klmdkmmmmmdkmmmmdklmmmmdkmmmmmdkmk..mdk..mdk..klmdkmmmmmdkmmmmdklmmmmdkmmmmmdkmk..mdk..smsml..................................lmsmsm.
+mdk..klmdkllllmdklllmdkllllmdkllllmdklk..mdk..mdk..klmdkllllmdklllmdkllllmdkllllmdklk..mdk..mmmml..................................lmmmmm.
+ggmmmmmggmmmmmgkkkkkkkkkkkkkkmmmmmggmmmmmggm..ggmmmmmggmmmmmgkkkkkkkkkkk...mmmmmggmmmmmggm..gmgml..................................lgsgsg.
+gwdddddgwdddddgkggggggggggggkdddddgwdddddgwd..gwdddddgwdddddgkggggggggggk..dddddgwdddddgwd..smsml..................................lmsmsm.
+kkkkkkkkkkkkkkkkgbbbbkkbbbbgkkkkkkkkkkkkkkkk..kkkkkkkkkkkkkkkkgbbbbkkbbbbk.kkkkkkkkkkkkkkk..smsml..................................lmsmsm.
+mdk..klmdkssssmkgbbbkggkbbbgkkssssmdkmk..mdk..mdk..klmdkssssmkgbbbkggkbbbgkkssssmdkmk..mdk..smsml..................................lmsmsm.
+mdk..klmdkssssmkgbbkggggkbbgkkssssmdkmk..mdk..mdk..klmdkssssmkgbbkggggkbbgkkssssmdkmk..mdk..smsml..................................lmsmsm.
+mdk..klmdkssssmkgbbbkggkbbbgkkssssmdkmk..mdk..mdk..klmdkssssmkgbbbkggkbbbgkkssssmdkmk..mdk..smsml..................................lmsmsm.
+mdk..klmdkssssmkgbbkgNNgkbbgkkssssmdkmk..mdk..mdk..klmdkssssmkgkkkgNNgkbbgkkssssmdkmk..mdk..smsml..................................lmsmsm.
+ggmmmmmggmmmmmgkgbbkgNNgkbbgkmmmmmggmmmmmggm..ggmmmmmggmmmmmgkgbbkkNNgkbbgkmmmmmggmmmmmggm..smsml..................................lmsmsm.
+gwdddddgwdddddgkgbbkgNNgkbbgkdddddgwdddddgwd..gwdddddgwdddddgkgbbkgkkgkbbmdkddddmdkddddgwd..smsml..................................lmsmsm.
+kkkkkkkkkkkkkkkkgbbkggggkbbgkkkkkkkkkkkkkkkk..kkkkkkkkkkkkkkkkgbbkgggkkbbmdkkkkkmdkkkkkkkk..smsml..................................lmsmsm.
+mdk..klmdkssssmkgbbbkggkbbbgkkssssmdkmk..mdk..mdk..klmdkssssmkgbbbkggkbkkmdkssssmdkmk..mdk..smsml..................................lmsmsm.
+mdk..klmdkssssmdkgbbbkkbbbgkdkssssmdkmk..mdk..mdk..klmdkssssmdkgbbbkkbbbmdkksssssmdkk..mdk..smsml..................................lmsmsm.
+mdk..klmdkmmmmmdkkgbbbbbbgkmdkmmmmmdkmk..mdk..mdk..klmdkmmmmmdkkgbbbbbbgmdkmmmmmsmdkk..mdk..smsml..................................lmsmsm.
+mdk..klmdkllllmdklkgbbbbgklmdkllllmdklk..mdk..mdk..klmdkllllmdklkgbbbbgkmdkmllllsmdkk..mdk..mmmml..................................lmmmmm.
+ggmmmmmggmmmmmggmmmkggggkmmggmmmmmggmmmmmggm..ggmmmmmggmmmmmggmmmkggggkmmddmmmmmgmdkmmmggm..gmgml..................................lgsgsg.
+gwdddddgwdddddgwddddkkkkdddgwdddddgwdddddgwd..gwdddddgwdddddgwddddkkkkdmddwdddddgwmdkddgwd..smsml..................................lmsmsm.
+kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..kkkkkkkkkkkkkkkkkkkkkkkkkmdkkkkkkkkkmdkkkkkk..smsml..................................lmsmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..klmdkssssmdksssmdklsmdkkkmmmkssmdk..mdk..smsml..................................lmsmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..klmdkssssmdksssmdklsmdksmmmkmssmdk..mdk..smsml..................................lmsmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..klmdkssssmdksssmdklsmdksmkkmmssmdk..mdk..smsml..................................lmsmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..klmdkssssmdksssmdklsmdksmkkmmssmdk..mdk..smsml..................................lmsmsm.
+ggmmmmmggmmmmmggmmmmggmmmmmggmmmmmggmmmmmggm..ggmmmmmggmmmmmggmmmmggmmmmdkkmkmmkddmdkmmggm..smsml..................................lmsmsm.
+gwdddddgwdddddgwddddgwdddddgwdddddgwdddddgwd..gwdddddgwdddddgwddddgwdddmdkwddkdddkmdkddgwd..smsml..................................lmsmsm.
+kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..kkkkkkkkkkkkkkkkkkkkkkkkkmdkkkkkkkkkmdkkkkkk..smsml..................................lmsmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..klmdkssssmdksssmdklsmmdkmmmkmsmdkk..mdk..smsml..................................lmsmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..klmdkssssmdksssmdklsmmdkmmmmmsmdkk..mdk..smsml..................................lmsmsm.
+mdk..klmdkmmmmmdkmmmmdklmmmmdkmmmmmdkmk..mdk..mdk..klmdkdddddkkmmmmdklmmmdkmmmmmsmdkk..mdk..smsml..................................lmsmsm.
+mdk..klmdkllllmdklllmdkllllmdkllllmdklk..mdk..mdk..komdkooowdkkwooodklllmdkmllllsmdkk..mdk..mmmml..................................lmmmmm.
+ggmmmmmggmmmmmggmmmmggmmmmmggmmmmmggmmmmmggm..ggmmmmoggdkkddggdwooggmmmmmmkkmmmmmdkmmmmggm..gmgml..................................lgsgsg.
+gwdddddgwdddddgwddddgwdddddgwdddddgwdddddgwd..gwdddddgwkkkkkgkkdddgwdddddmkkddddmdkddddgwd..smsml..................................lmsmsm.
+kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..kkkkkkkkkkkkkkkkkkkkkkkkkkkdkkkkkkmdkkkkkkkk..smsml..................................lmsmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..kodkkwwwwdkkwooddklssmdkkssmmdkkmk..mdk..smsml..................................lmsmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..kodkkwwwwkkkkooddksmmdkkkmmddkkkdk..mdk..smsml..................................lmsmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..kodkkwwwwkkkkooddksmmdkkkmmddkkkdk..mdk..smsml..................................lmsmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..kodkkwwwwkkkkooddkmdddkkkddddkkkkk..mdk..smsml..................................lmsmsm.
+ggmmmmmggmmmmmggmmmmggmmmmmggmmmmmggmmmmmggm..ggmmmmkggkkkkkggkkkkggmkkkkggkkkkkggkkmmmggm..smsml..................................lmsmsm.
+gwdddddgwdddddgwddddgwdddddgwdddddgwdddddgwd..gwddddkgkkkkkkgkkkkkgwdkkkkgkkkkkkgkkkdddgwd..smsml..................................lmsmsm.
+kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..kkkkkkkkkdkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk..smsml..................................lmsmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..kmkkkddkkkkkdddkdkmdddkkkkkkkkkkkk..l....smsml..................................lmsmsm.
+mdk..klmdkssssmdksssmdklsssmdkssssmdkmk..mdk..mdk..kmkkkkkdkkkkdddkdkmdddkkkkkkkkkkkk..m....smsml..................................lmsmsm.
+.gk..klsgksssssgksssmgklssssgksssssgkmk...gk...gk..kmdgkkkkkkgkdddkgkmddddgkkkkkkgkkk....k..smsml..................................lmsmsm.
+.k...klmkmmmmmmkmmmmmkmlmmmmkmmmmmmkmmk...k....k...kmkkkkkkkkkkkkkkkmmkkkkkkkkkkkkkkk.......smsml..................................lmsmsm.
+.....kkkkkkkkkkkkkkkkkmkkkkkkkkkkkkkkkk............kkkkkkkkkkkkkkkkkmkkkkkkkkkkkkkkkk.......smsml..................................lmsmsm.
+..........................................................................................................................................
+..........................................................................................................................................

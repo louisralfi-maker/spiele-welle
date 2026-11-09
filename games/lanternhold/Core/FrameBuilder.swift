@@ -21,6 +21,10 @@ enum FrameBuilder {
     static let lipLowestBottom = 139.0
     /// Colour of the creatures' eye glints.
     static let eyeColor = SIMD4<Float>(1.0, 0.86, 0.55, 1)
+    /// Scene polish 2: how dark the castle's cast shadow gets in full sun (black over-blended at this alpha), and how
+    /// thick its ground mist gets at night (white at this alpha times the sprite's own).
+    static let sunShadowMax: Float = 0.55
+    static let mistMax: Float = 0.9
 
     /// Geometry shared by every part of one frame.
     private struct Geometry {
@@ -120,8 +124,8 @@ enum FrameBuilder {
                 }
             }
             while next < ordered.count && ordered[next].plane == plane {
-                addProp(ordered[next], ambient: ambient, animTime: animTime, options: options, geometry: geometry,
-                        sprites: &planeSprites, glow: &glow)
+                addProp(ordered[next], ambient: ambient, hour: hour, animTime: animTime, options: options,
+                        geometry: geometry, sprites: &planeSprites, glow: &glow)
                 next += 1
             }
             if plane == .world {
@@ -329,9 +333,31 @@ enum FrameBuilder {
 
     // MARK: - Props
 
+    /// The alpha of a baked cast shadow (scene polish 2): the sun's strength (full from a sun height of 0.18, none
+    /// below −0.12: gone at night, faint at dawn and after sunset) times `sunShadowMax`; the long dusk shadow beyond
+    /// the day one also times the evening weight (0 before 16:00, 1 from about 18:24), so the two never darken one
+    /// pixel twice. The same as tools/scenemock/mock.py `shadow_alpha`.
+    static func sunShadowAlpha(_ kind: SunShadow, ambient: AmbientSample, hour: Double) -> Float {
+        let sun = min(1, max(0, (ambient.sunHeight + 0.12) / 0.3))
+        var alpha = sunShadowMax * sun
+        if kind == .dusk {
+            let t = Float(min(1, max(0, (hour - 16) / 2.4)))
+            alpha *= t * t * (3 - 2 * t)
+        }
+        return alpha
+    }
+
+    /// The alpha of a bank of ground mist (scene polish 2): the torch strength (0 by day, rising at dusk, full at
+    /// night) times the hour's fog density against the night's 0.4 (at most 1.25: the dawn haze), times `mistMax` and
+    /// the prop's own share. The same as mock.py `mist_alpha`.
+    static func mistAlpha(_ share: Float, ambient: AmbientSample) -> Float {
+        mistMax * share * min(1, max(0, ambient.torchStrength)) * min(1.25, ambient.fogDensity / 0.4)
+    }
+
     /// One prop as a plane sprite (culled off screen), then its emissive sprites and window glass.
-    private static func addProp(_ prop: Prop, ambient: AmbientSample, animTime: Double, options: FrameOptions,
-                                geometry: Geometry, sprites: inout [[SpriteInstance]], glow: inout EmissiveList) {
+    private static func addProp(_ prop: Prop, ambient: AmbientSample, hour: Double, animTime: Double,
+                                options: FrameOptions, geometry: Geometry, sprites: inout [[SpriteInstance]],
+                                glow: inout EmissiveList) {
         // A prop that moves with another plane is placed by that plane's whole offset (within a game pixel of its
         // own sub-pixel shift) but drawn into its own plane's picture.
         let left = prop.x - geometry.whole(prop.movesWith ?? prop.plane)
@@ -351,10 +377,26 @@ enum FrameBuilder {
         let bottom = geometry.bottom(of: prop)
         let top = geometry.top(y: bottom, height: height)
         let rect = SIMD4<Float>(Float(left), Float(top), Float(prop.width), Float(prop.height))
-        let tint = SIMD4<Float>(prop.shade, prop.shade, prop.shade, alpha * prop.alpha)
+        var tint = SIMD4<Float>(prop.shade, prop.shade, prop.shade, alpha * prop.alpha)
+        // Scene polish 2: a cast shadow is black at the sun's strength, a mist bank white at the mist's; both are
+        // translucent veils that hide no glow.
+        var hidesGlow = true
+        if let shadow = prop.sunShadow {
+            let strength = sunShadowAlpha(shadow, ambient: ambient, hour: hour) * alpha * prop.alpha
+            guard strength > 0.003 else { return }
+            tint = SIMD4<Float>(0, 0, 0, strength)
+            hidesGlow = false
+        } else if let mist = prop.mist {
+            let strength = mistAlpha(mist, ambient: ambient) * alpha * prop.alpha
+            guard strength > 0.003 else { return }
+            tint = SIMD4<Float>(1, 1, 1, strength)
+            hidesGlow = false
+        }
         let sprite = SpriteInstance(sprite: prop.sprite, frame: prop.frame, rect: rect, tint: tint,
                                     flipped: prop.flipped)
-        glow.occlude(sprite, plane: prop.plane)
+        if hidesGlow {
+            glow.occlude(sprite, plane: prop.plane)
+        }
         sprites[prop.plane.rawValue].append(sprite)
 
         for part in prop.emissive {
@@ -550,13 +592,13 @@ enum FrameBuilder {
         return ((step % count) + count) % count
     }
 
-    /// The king's frame: idle 0 ... 1 standing, walk 2 ... 5 by distance (one frame per 7 game px), so his feet
-    /// match the ground at any speed. The distance is measured along his facing, so the mirrored sprite walking left
+    /// The king's frame (SPRITES.md): idle 6 ... 7 standing, walk 0 ... 5 by distance (one frame per 7 game px), so
+    /// his feet match the ground at any speed. The distance is measured along his facing, so the mirrored sprite walking left
     /// plays the cycle forward too (no moonwalk).
     static func kingFrameIndex(king: KingState, animTime: Double) -> Int {
         guard king.isWalking else { return 6 + idleFrame(time: animTime, frames: 2) }
         let walkStep = Int((king.x * Double(king.facing) / 7).rounded(.down))
-        return 2 + ((walkStep % 4) + 4) % 4
+        return ((walkStep % 6) + 6) % 6
     }
 
     /// An actor's quad in device pixels: its anchor (bottom centre) is `width / 2` whole game pixels from the left edge,

@@ -21,6 +21,12 @@ Coordinates
   plane's light and haze) but moves with the named plane's parallax. The keep seen from the valley is drawn into the
   mid picture (mid haze, about half the far haze: it stands a few hundred metres away, not on the horizon) but moves
   like the far plane, so it hides behind the back gate at the back-gate view and still shows at the town's left edge.
+- `shadow: "sun" | "dusk"` (scene polish 2): a baked cast shadow (bake_shadows.py), drawn as black at the sun's
+  strength ("sun": the day shadow) or at the sun's strength times the evening weight ("dusk": the long evening
+  shadow beyond the day one), never at night. It lies only on rock and ground drawn before it, so it never darkens
+  the sky; it hides no glow.
+- `mist: k` (scene polish 2): a bank of ground mist (white with alpha) drawn at k times the hour's mist strength
+  (0 by day, rising at dusk, full at night and in the dawn haze); lit like the world it stands in. It hides no glow.
 
 Backdrop regions
 - Every far and mid instance belongs to the gorge set or the valley set. On each plane the border between them sits at
@@ -184,6 +190,18 @@ def brazier(cx):
 
 
 F = CASTLE_FRONT_X
+# The castle's cast shadows (scene polish 2), baked by bake_shadows.py: sprite size (w, h) and bottom-left (x, y).
+# "sun" is the day shadow, "dusk" the long evening shadow beyond it; z -1 lies on the rock and ground before the front,
+# z 0 (the left tower's shadow on the gatehouse wall) after it.
+SHADOWS = [
+    dict(s="castleShadow", x=1468, y=0, w=13, h=171, z=-1, shadow="sun"),
+    dict(s="castleShadowLong", x=1471, y=0, w=90, h=172, z=-1, shadow="dusk"),
+    dict(s="groundShadow", x=1241, y=-6, w=240, h=6, z=-1, shadow="sun"),
+    dict(s="groundShadowLong", x=1481, y=-3, w=80, h=3, z=-1, shadow="dusk"),
+    dict(s="gateShadow", x=1298, y=1, w=9, h=126, z=0, shadow="sun"),
+    dict(s="gateShadowLong", x=1307, y=1, w=21, h=153, z=0, shadow="dusk"),
+]
+SHADOW_SPRITES = {d["s"] for d in SHADOWS}
 ROCK_SHADE = 0.7    # the throat rock one value step below the castle stone, so the front separates from the cliffs
 FLANK_SHADE = 0.62  # the flanks right beside the towers, darker still (rock in the castle's shadow)
 K = 1286  # castleKeep x: centred behind the gatehouse, it fills the gap between the towers above the wall walk
@@ -214,6 +232,10 @@ WORLD = [
     # behind it.
     dict(s="cliffFlank", x=F - 53, y=0, z=-3, shade=FLANK_SHADE),
     dict(s="cliffFlankB", x=F + 213, y=0, z=-1, flip=True, shade=FLANK_SHADE),
+    # Scene polish 2: the castle's cast shadow (light from the upper left by day, low from the west at dusk) on the rock
+    # right of the right tower and on the ground strip at the foot of the walls; baked by bake_shadows.py into
+    # SHADOWS' boxes (the left tower's shadow on the gatehouse follows the front).
+    *[d for d in SHADOWS if d["z"] < 0],
     # Polish after the art review: only the keep's top 130 rows (keepTop) stand behind the gatehouse, 40 px up, so its
     # crenellated crown and flag rise above the gatehouse between the towers' crowns (top at y 170); its top window row
     # stays behind the gatehouse (the front's occluder hides the glass; the two small window lights are gone)
@@ -230,6 +252,10 @@ WORLD = [
          # one focal point of the hero shot
          li=[("brazier", F + 97, 136, 44), ("brazier", F + 142, 136, 44),
              ("torch", F + 92, 64, 30), ("torch", F + 147, 64, 30), ("lantern", F + 120, 40, 34)]),
+    # Scene polish 2: the left tower's shadow on the gatehouse wall, and a bank of ground mist at the foot of the walls at
+    # dusk and night (behind the king, who walks in front of it), so the castle stands heavy on the ground.
+    *[d for d in SHADOWS if d["z"] >= 0],
+    dict(s="castleMist", x=F - 30, y=-8, z=0, mist=1.0),
     # --- inside: courtyard, great hall, chapel, kitchen ---
     # the courtyard wall runs from 1580, out of the gate view: from the gate, rock (the right flank, then the high
     # rock from the ground) closes the frame right of the right tower; inside, the castle is built into the throat
@@ -318,7 +344,7 @@ def instances():
         out.append(dict(s=d["s"], p=plane, x=d["x"], y=d.get("y", 0), z=d.get("z", 0), sh=d.get("shade", 1.0),
                         f=d.get("flip", False), em=d.get("em", []), li=d.get("li", []),
                         anchor=d.get("anchor", "ground"), region=region or d.get("region"), fade=d.get("fade"),
-                        mv=d.get("moves"), fadeout=d.get("fadeout")))
+                        mv=d.get("moves"), fadeout=d.get("fadeout"), shadow=d.get("shadow"), mist=d.get("mist")))
 
     for plane, region, names, x0, y, z, shade, count in CYCLES:
         x = x0
