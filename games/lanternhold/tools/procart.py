@@ -19,6 +19,10 @@ exactly reproducible.
                                                             reeds, the far bridge stump (M1b polish)
   procart.py slopebands <in.png> <out.png> --rect x0,y0,x1,y1   repaints a grass slope in a finished sprite: irregular
                                                             edge, three value bands, tuft clusters (M1b polish)
+  procart.py cylinder  <in.png> <out.png> --rect x0,y0,x1,y1 --bands a-b:+1,c-d:-1 [--ramp names]
+                                                            rounds a flat tower: shifts every ramp colour in the rect
+                                                            by its column's band (+1 one step lighter), the band edges
+                                                            dithered in a checker (polish after the art review)
 
 Colours: rockDeep, soilDark, leafDark, with sparse rockDark rims, leaf tips and woodDark roots (all albedo).
 """
@@ -475,6 +479,46 @@ def cmd_slopebands(a):
     c.save(a.output)
 
 
+def cmd_cylinder(a):
+    """Polish after the art review: a tower painted as a flat strip reads as cardboard. Every pixel inside the rect whose
+    colour is on the ramp (default the castle stone ramp, darkest first) moves along it by its column's band: a lit
+    band left of centre one step lighter, the side turning away one step darker. Pixels at a band's first and last
+    column move only on a checker, so the terminator steps softly. Colours off the ramp (slits, moss, outline ink)
+    stay; the ramp's darkest colour never moves (mortar shadows keep their depth)."""
+    from pixelart import read_png
+    pal = Palette(a.palette, True)
+    img, _ = read_png(a.input)
+    ramp = a.ramp.split(",")
+    rgb = {n: pal.rgb[pal.index(n)] for n in ramp}
+    index = {rgb[n]: i for i, n in enumerate(ramp)}
+    x0, y0, x1, y1 = (int(v) for v in a.rect.split(","))
+    bands = []
+    for spec in a.bands.split(","):
+        span, delta = spec.split(":")
+        b0, b1 = (int(v) for v in span.split("-"))
+        bands.append((b0, b1, int(delta)))
+    out = img
+    for y in range(y0, y1 + 1):
+        for x in range(x0, x1 + 1):
+            p = img.get(x, y)
+            if not p[3] or p[:3] not in index:
+                continue
+            i = index[p[:3]]
+            if i == 0:
+                continue
+            d = 0
+            for b0, b1, delta in bands:
+                if b0 <= x <= b1:
+                    edge = x == b0 or x == b1
+                    if not edge or (x + y) % 2 == 0:
+                        d += delta
+            j = min(len(ramp) - 1, max(1, i + d))
+            r, g, b = rgb[ramp[j]]
+            out.set(x, y, (r, g, b, 255))
+    write_png(a.output, out)
+    print(f"wrote {a.output} {img.w}x{img.h} (cylinder)")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -508,6 +552,14 @@ def main():
     sb.add_argument("--tufts", type=int, default=24)
     sb.add_argument("--palette", default=DEFAULT_PALETTE)
     sb.set_defaults(fn=cmd_slopebands)
+    cy = sub.add_parser("cylinder")
+    cy.add_argument("input")
+    cy.add_argument("output")
+    cy.add_argument("--rect", required=True)
+    cy.add_argument("--bands", required=True)
+    cy.add_argument("--ramp", default="night1,stoneDark,stoneMid,stone,stoneLight,stonePale")
+    cy.add_argument("--palette", default=DEFAULT_PALETTE)
+    cy.set_defaults(fn=cmd_cylinder)
     a = p.parse_args()
     a.fn(a)
 

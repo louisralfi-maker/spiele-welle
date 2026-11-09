@@ -139,6 +139,13 @@ MID = [
     # The throat: the wall rises above the screen behind the castle front (at the gate view, x 669-909 is behind the
     # front); its right end hides behind the front.
     dict(s="gorgeWallHigh", x=690, y=0, region="gorge", z=1, shade=0.85),  # under the hazy wall's value (M1b polish)
+    # The keep seen from the gorge (polish after the art review): its crown, banner and top windows rise above a rock
+    # shoulder in the middle distance, so the castle shows from the approach (focus 1100: screen 200 to 298, above the
+    # lowered throat rock) and at the right edge of the front view (focus 760); at the gate view it hides behind the
+    # castle front and the left flank. The shoulder (a mid copy of the high rock, top at y 100) hides its foot.
+    dict(s="keepFar", x=641, y=-59, region="gorge", z=3, shade=0.78,
+         em=[("mask", 17, 150, 13, 10, "window"), ("mask", 61, 150, 12, 10, "window")]),
+    dict(s="gorgeWallHigh", x=571, y=-152, region="gorge", z=4, shade=0.85),
     # Inside the walls the cliffs still rise behind the courtyard and the hall.
     dict(s="gorgeWallB", x=862, y=0, region="gorge", z=0),
     # Where the gorge ends: seen above the kitchen from the back gate, falling away to the right behind the gate.
@@ -194,7 +201,9 @@ WORLD = [
     # it rises behind the courtyard wall.
     # (Mirrored on the left so its overhang leans out over the gorge; the straight-cut strip it carries on from
     # gorgeWallC lies behind the flanks on both sides.)
-    dict(s="gorgeWallHigh", x=F - 190, y=0, z=-5, flip=True, shade=ROCK_SHADE),
+    # (polish after the art review: a rock shoulder 155 px low, its top at y 85, so the keep seen from the gorge rises
+    # above it; the high rock's flat overhang read as a table there, a gorge-wall tile showed its straight cut)
+    dict(s="cliffFlank", x=F - 130, y=-155, z=-5, shade=ROCK_SHADE),
     dict(s="gorgeWallHigh", x=F + 278, y=0, z=-5, shade=ROCK_SHADE),  # its cut left edge just behind the right flank;
                                                                      # shows other columns than the mirrored copy
     # cliffFlank is plain rock (the left cliff of rocks-a); its straight right edge hides behind the tower bodies,
@@ -203,16 +212,17 @@ WORLD = [
     # behind it.
     dict(s="cliffFlank", x=F - 53, y=0, z=-3, shade=FLANK_SHADE),
     dict(s="cliffFlank", x=F + 213, y=0, z=-1, flip=True, shade=FLANK_SHADE),
-    dict(s="castleKeep", x=K, y=0, z=-4,  # front elevation; only its top row of windows clears the wall walk
-         # only the lower 10 rows of each tall window glow (lamplight low in the room, not a full blob); one of the
-         # middle windows stays dark
-         em=[("mask", 69, 150, 13, 10, WIN), ("mask", 113, 150, 12, 10, WIN), ("mask", 111, 96, 13, 10, WIN),
-             ("mask", 69, 35, 13, 10, WIN), ("mask", 113, 35, 13, 10, WIN)],
-         li=[("window", K + 75, 160, 8), ("window", K + 119, 160, 8)]),
+    # Polish after the art review: only the keep's top 130 rows (keepTop) stand behind the gatehouse, 40 px up, so its
+    # crenellated crown and flag rise above the gatehouse between the towers' crowns (top at y 170); its top window row
+    # stays behind the gatehouse (the front's occluder hides the glass; the two small window lights are gone)
+    dict(s="keepTop", x=K, y=40, z=-4,
+         # only the lower 10 rows of each tall window glow (lamplight low in the room, not a full blob)
+         em=[("mask", 69, 30, 13, 10, WIN), ("mask", 113, 30, 12, 10, WIN)]),
     dict(s="castleFront", x=F, y=0, z=0,
          em=[("sprite", "brazierFlame", 93, 130, FIRE, False), ("sprite", "brazierFlame", 138, 130, FIRE, False),
              ("sprite", "flame", 90, 61, GOLD, True), ("sprite", "flame", 145, 61, GOLD, True),
-             ("mask", 29, 124, 6, 15, WIN), ("mask", 202, 124, 6, 15, WIN),   # right tower unmirrored at x 173
+             # the slits' glass (the towers are 64 rows shorter since the polish; right tower unmirrored at x 173)
+             ("mask", 29, 96, 6, 15, WIN), ("mask", 202, 89, 6, 15, WIN),
              ("mask", 29, 69, 6, 15, WIN), ("mask", 202, 69, 6, 15, WIN)],
          # the wall-walk braziers smaller (44, was 56) and a warm pool in the gateway, so the king at the gate is the
          # one focal point of the hero shot

@@ -112,6 +112,13 @@ enum SceneLayout {
               lights: [Light(kind: .hearth, x: 478, y: 124, radius: 70)]),
         // The throat: the wall rises above the screen behind the castle front, under the hazy wall's value.
         Entry(sprite: .gorgeWallHigh, x: 690, y: 0, z: 1, shade: 0.85, region: .gorge),
+        // The keep seen from the gorge (polish after the art review): its crown, banner and top windows stand on a
+        // rock plateau in the middle distance (a mid copy of the high rock, its overhang at y 88), so the castle shows
+        // from the approach (focus 1100: screen 200 to 298, above the lowered throat rock) and at the right edge of
+        // the front view (focus 760); at the gate view the castle front and the left flank hide it.
+        Entry(sprite: .keepFar, x: 641, y: -59, z: 3, shade: 0.78, region: .gorge,
+              emitters: [SceneLayout.glass(17, 150, 13, 10), SceneLayout.glass(61, 150, 12, 10)]),
+        Entry(sprite: .gorgeWallHigh, x: 571, y: -152, z: 4, shade: 0.85, region: .gorge),
         // Inside the walls the cliffs still rise behind the courtyard and the hall.
         Entry(sprite: .gorgeWallB, x: 862, y: 0, region: .gorge),
         // Where the gorge ends: seen above the kitchen from the back gate, falling away to the right behind the gate.
@@ -262,26 +269,26 @@ enum SceneLayout {
         list.append(brazier(896))
         list.append(brazier(920))
 
-        // The castle front sealing the gorge's throat: the high rock behind the flanks on both sides (mirrored on the
-        // left, so its overhang leans out over the gorge), plain rock flanks whose straight edges hide behind the
-        // towers (the right one in front of the courtyard wall), the keep behind the gatehouse.
-        list.append(Entry(sprite: .gorgeWallHigh, x: front - 190, y: 0, z: -5, shade: rockShade, flipped: true))
+        // The castle front sealing the gorge's throat: rock behind the flanks on both sides, plain rock flanks whose
+        // straight edges hide behind the towers (the right one in front of the courtyard wall), the keep behind the
+        // gatehouse. On the left a rock shoulder 155 px low (its top at y 85), so the keep seen from the gorge rises
+        // above it (polish after the art review: the high rock's flat overhang read as a table there).
+        list.append(Entry(sprite: .cliffFlank, x: front - 130, y: -155, z: -5, shade: rockShade))
         list.append(Entry(sprite: .gorgeWallHigh, x: front + 278, y: 0, z: -5, shade: rockShade))
         list.append(Entry(sprite: .cliffFlank, x: front - 53, y: 0, z: -3, shade: flankShade))
         list.append(Entry(sprite: .cliffFlank, x: front + 213, y: 0, z: -1, shade: flankShade, flipped: true))
-        // Only the lower 10 rows of each tall keep window glow (lamplight low in the room); one middle window stays
-        // dark.
-        list.append(Entry(sprite: .castleKeep, x: keep, y: 0, z: -4,
-                          emitters: [glass(69, 150, 13, 10), glass(113, 150, 12, 10), glass(111, 96, 13, 10),
-                                     glass(69, 35, 13, 10), glass(113, 35, 13, 10)],
-                          lights: [window(keep + 75, 160, 8), window(keep + 119, 160, 8)]))
+        // Only the keep's top 130 rows stand behind the gatehouse, 40 px up, so its crown and flag rise above the
+        // gatehouse between the towers' crowns (top at y 170); the front hides its top window row (the lower 10 rows
+        // of each window would glow: lamplight low in the room).
+        list.append(Entry(sprite: .keepTop, x: keep, y: 40, z: -4,
+                          emitters: [glass(69, 30, 13, 10), glass(113, 30, 12, 10)]))
         // The wall-walk braziers smaller (44) and a warm pool in the gateway: the king at the gate is the focal point.
         list.append(Entry(sprite: .castleFront, x: front, y: 0, z: 0,
                           emitters: [.sprite(.brazierFlame, dx: 93, dy: 130, glow: .fireOrange, fades: false),
                                      .sprite(.brazierFlame, dx: 138, dy: 130, glow: .fireOrange, fades: false),
                                      .sprite(.flame, dx: 90, dy: 61, glow: .fireGold, fades: true),
                                      .sprite(.flame, dx: 145, dy: 61, glow: .fireGold, fades: true),
-                                     glass(29, 124, 6, 15), glass(202, 124, 6, 15), glass(29, 69, 6, 15),
+                                     glass(29, 96, 6, 15), glass(202, 89, 6, 15), glass(29, 69, 6, 15),
                                      glass(202, 69, 6, 15)],
                           lights: [Light(kind: .brazier, x: front + 97, y: 136, radius: 44),
                                    Light(kind: .brazier, x: front + 142, y: 136, radius: 44),

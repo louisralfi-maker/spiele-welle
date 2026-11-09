@@ -22,7 +22,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // World plane
     case ground, darknessBank, darknessEdge
     case beaconRuin, palisade, stoneWall, torchPost, brazier, ballista
-    case cliffFlank, castleKeep, castleFront, castleWall, hallInterior, throne, hearth, candleStand, chapel, kitchen
+    case cliffFlank, castleKeep, keepTop, castleFront, castleWall, hallInterior, throne, hearth, candleStand, chapel, kitchen
     case castleBackGate, house, lanternPost, field, well, riverEnd
     // Emissive parts
     case flame, brazierFlame, hearthFire, candleFlame, windowGlow, lanternGlass, eyeGlints
@@ -69,6 +69,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .ballista: return PixelSize(width: 28, height: 16)
         case .cliffFlank: return PixelSize(width: 80, height: 240)
         case .castleKeep: return PixelSize(width: 150, height: 250)
+        case .keepTop: return PixelSize(width: 150, height: 130)
         case .castleFront: return PixelSize(width: 240, height: 236)
         case .castleWall: return PixelSize(width: 40, height: 90)
         case .hallInterior: return PixelSize(width: 260, height: 90)

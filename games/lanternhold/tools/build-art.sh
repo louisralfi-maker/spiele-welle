@@ -89,7 +89,17 @@ build() { # name: one sprite
                    python3 $T post $PT/cf-tower.png $PT/cf-tower-l.png --remap stonePale:stone,stoneLight:stone@11,40,16,235 --remap night1:stoneMid@42,40,46,235 --remap night1:stoneDark@47,40,53,235 --fill stoneLight:10,40,10,235 --fill stonePale:54,40,54,235
                    python3 $T post $PT/cf-tower-l.png $PT/cf-tower-r0.png --fill stone:28,68,35,85 --fill stone:28,123,35,140 --fill clear:36,0,43,4
                    python3 $T compose $PT/cf-tower-r.png --size 58x236 --layer $PT/cf-tower-r0.png@0,0 --layer $PT/cf-tower-l.png@28,62@box=28,68,36,86 --layer $PT/cf-tower-l.png@28,130@box=28,123,36,141
-                   python3 $T compose $A/castleFront.png --size 240x236 --layer $PT/cf-gate.png@54,80 --layer $PT/cf-tower-l.png@0,0 --layer $PT/cf-tower-r.png@173,0 ;;
+                   # Polish after the art review: the towers rounded (a lit band left of centre, the side turning away
+                   # one step darker, soft checker terminators) and shortened by 64 rows (shaft rows 40-103 cut out;
+                   # the stub of the slit under the cut filled), so their corbelled crowns stand on screen at y 132-172
+                   # instead of above the top edge
+                   for side in l r; do
+                       python3 $PROC cylinder $PT/cf-tower-$side.png $PT/cf-tower-${side}c.png --rect 11,40,53,235 --bands 18-26:+1,34-41:-1
+                       python3 $PROC cylinder $PT/cf-tower-${side}c.png $PT/cf-tower-${side}c.png --rect 2,0,56,39 --bands 12-22:+1
+                       python3 $T compose $PT/cf-tower-${side}s.png --size 58x236 --layer $PT/cf-tower-${side}c.png@0,64@box=0,0,58,40 --layer $PT/cf-tower-${side}c.png@0,104@box=0,104,58,236
+                       python3 $T post $PT/cf-tower-${side}s.png $PT/cf-tower-${side}s.png --fill stone:28,104,35,112
+                   done
+                   python3 $T compose $A/castleFront.png --size 240x236 --layer $PT/cf-gate.png@54,80 --layer $PT/cf-tower-ls.png@0,0 --layer $PT/cf-tower-rs.png@173,0 ;;
     castleKeep)    # front elevation (keepgate-b left, M1b polish): flat crenellated top like the front's towers; the painting's
                    # shaded left third lifted with a zone (albedo is evenly lit); specks under 2 px merged
                    mkdir -p $PT

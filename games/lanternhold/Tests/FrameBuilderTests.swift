@@ -162,9 +162,9 @@ final class FrameBuilderTests: XCTestCase {
         let castle = frame(timeOfDay: 0.95, focus: 1360)
         let glass = castle.emissives.filter { $0.kind == .glass }
         XCTAssertGreaterThanOrEqual(glass.count, 6, "the keep's and the towers' windows")
-        XCTAssertTrue(glass.contains { $0.sprite == .castleKeep })
+        XCTAssertTrue(glass.contains { $0.sprite == .keepTop })
         XCTAssertTrue(glass.contains { $0.sprite == .castleFront })
-        for sprite in [SpriteID.castleFront, .castleKeep, .cliffFlank, .gorgeWallHigh] {
+        for sprite in [SpriteID.castleFront, .keepTop, .cliffFlank, .gorgeWallHigh] {
             XCTAssertTrue(castle.layer(.world).sprites.contains { $0.sprite == sprite }, "\(sprite) at the gate")
         }
         XCTAssertEqual(castle.actors.filter { $0.sprite == .archer }.count, 3, "archers on the wall walk")
@@ -186,14 +186,14 @@ final class FrameBuilderTests: XCTestCase {
         for prop in PlaceholderScene.world().props where prop.plane == .world && prop.sprite != .house {
             castleWindows += prop.masks.count + prop.emissive.filter { $0.sprite == .windowGlow }.count
         }
-        XCTAssertEqual(castleWindows, 20, "keep 5, front 4, courtyard 1, chapel 4, kitchen 2, back gate 4")
+        XCTAssertEqual(castleWindows, 17, "keep 2, front 4, courtyard 1, chapel 4, kitchen 2, back gate 4")
     }
 
     func testOccludersHideGlowBehindLaterSprites() {
         // At the gate the keep stands behind the castle front: its glass comes first, then the front hides what it
         // covers, so the keep's lower windows never shine through the gatehouse.
         let desc = frame(timeOfDay: 0.95, focus: 1360)
-        let keepGlass = desc.emissives.firstIndex { $0.kind == .glass && $0.sprite == .castleKeep }
+        let keepGlass = desc.emissives.firstIndex { $0.kind == .glass && $0.sprite == .keepTop }
         let frontOccluder = desc.emissives.firstIndex { $0.kind == .occluder && $0.sprite == .castleFront }
         XCTAssertNotNil(keepGlass)
         XCTAssertNotNil(frontOccluder)
@@ -343,8 +343,8 @@ final class FrameBuilderTests: XCTestCase {
         // The town sees only the valley set on the mid plane; the front only the gorge set.
         let town = frame(timeOfDay: 0.75, focus: 2900)
         let front = frame(timeOfDay: 0.75, focus: 760)
-        let valleySprites: Set<SpriteID> = [.valleyMidA, .valleyMidB, .valleyMidC, .windmill, .riverFarBank, .keepFar]
-        let valleyKeepRock: Set<SpriteID> = [.cliffFlank, .gorgeMouth]
+        let valleySprites: Set<SpriteID> = [.valleyMidA, .valleyMidB, .valleyMidC, .windmill, .riverFarBank]
+        let valleyKeepRock: Set<SpriteID> = [.keepFar, .cliffFlank, .gorgeMouth]
         XCTAssertTrue(town.layer(.mid).sprites.allSatisfy {
             valleySprites.contains($0.sprite) || valleyKeepRock.contains($0.sprite)
         })
@@ -386,8 +386,13 @@ final class FrameBuilderTests: XCTestCase {
     }
 
     func testTheKeepsValleyViewFadesInAtTheBackGate() {
+        // The valley's keep (the gorge's keep is another keepFar on the mid plane, at mid x 641).
+        func valleyKeep(_ desc: FrameDesc) -> SpriteInstance? {
+            let x = Float(560 - desc.layer(.far).offset.whole)
+            return desc.layer(.mid).sprites.first { $0.sprite == .keepFar && $0.rect.x == x }
+        }
         func farKeep(_ focus: Double) -> SpriteInstance? {
-            frame(timeOfDay: 0.75, focus: focus).layer(.mid).sprites.first { $0.sprite == .keepFar }
+            valleyKeep(frame(timeOfDay: 0.75, focus: focus))
         }
         XCTAssertNil(farKeep(1650), "no second castle above the courtyard")
         XCTAssertNil(farKeep(1830), "nor above the great hall")
@@ -400,19 +405,34 @@ final class FrameBuilderTests: XCTestCase {
         // Drawn into the mid picture (mid haze) but moving like the far plane: at the back gate it stands behind the
         // gate, between its towers.
         for focus in [2330.0, 2600, 2900] {
-            let desc = frame(timeOfDay: 0.75, focus: focus)
-            let keep = desc.layer(.mid).sprites.first { $0.sprite == .keepFar }
-            XCTAssertEqual(keep?.rect.x, Float(560 - desc.layer(.far).offset.whole), "at \(focus)")
+            XCTAssertNotNil(valleyKeep(frame(timeOfDay: 0.75, focus: focus)), "at mid x 560 − far offset at \(focus)")
         }
         let gate = frame(timeOfDay: 0.75, focus: 2330)
         let backGate = gate.layer(.world).sprites.first { $0.sprite == .castleBackGate }
-        let keep = gate.layer(.mid).sprites.first { $0.sprite == .keepFar }
+        let keep = valleyKeep(gate)
         if let backGate, let keep {
             XCTAssertGreaterThan(keep.rect.x, backGate.rect.x, "the keep stands behind the back gate")
             XCTAssertLessThan(keep.rect.x + keep.rect.z, backGate.rect.x + backGate.rect.z)
         } else {
             XCTFail("back gate and keep at the back-gate view")
         }
+    }
+
+    func testTheKeepShowsFromTheGorge() {
+        // The approach: the keep seen from the gorge stands on its rock plateau above the lowered throat rock, its
+        // windows lit at night; the castle front's towers end on screen (their crowns at y 132 to 172).
+        let approach = frame(timeOfDay: 0.95, focus: 1100)
+        let mid = approach.layer(.mid).offset.whole
+        let keep = approach.layer(.mid).sprites.first { $0.sprite == .keepFar }
+        XCTAssertEqual(keep?.rect.x, Float(641 - mid), "the gorge's keep at mid x 641")
+        if let keep {
+            XCTAssertGreaterThanOrEqual(keep.rect.x, 0)
+            XCTAssertLessThanOrEqual(keep.rect.x + keep.rect.z, Float(approach.targetWidth), "fully on screen")
+        }
+        XCTAssertTrue(approach.emissives.contains { $0.kind == .glass && $0.sprite == .keepFar }, "its windows glow")
+        let gate = frame(timeOfDay: 0.95, focus: 1360)
+        let keepTop = gate.layer(.world).sprites.first { $0.sprite == .keepTop }
+        XCTAssertEqual(keepTop.map { Int($0.rect.y) }, gate.groundRow - 170, "the keep's crown tops out at y 170")
     }
 
     func testGlassMasksSitInsideTheirSprite() {
@@ -426,7 +446,7 @@ final class FrameBuilderTests: XCTestCase {
                 XCTAssertLessThanOrEqual(Int(mask.dy) + mask.height, prop.height, "\(prop.sprite) at \(prop.x)")
             }
         }
-        XCTAssertEqual(masks, 26, "keep 5, front 4, courtyard 1, back gate 4, houses 8, the valley's keep 4")
+        XCTAssertEqual(masks, 25, "keep 2, front 4, courtyard 1, back gate 4, houses 8, the valley's keep 4, the gorge's 2")
         // In a frame each glass quad lies inside its prop's quad, mirrored with it.
         for focus in [1360.0, 1650, 2330, 2900] {
             let desc = frame(timeOfDay: 0.95, focus: focus)
@@ -507,6 +527,8 @@ final class FrameBuilderTests: XCTestCase {
         "farMountain far x=380 y=34 z=0 shade=0.92 flip=1 anchor=ground region=gorge em=[] li=[]",
         "wardenStatue mid x=430 y=-34 z=2 shade=0.88 flip=0 anchor=ground region=gorge em=[hearthFire@40,153:fireOrange:steady] li=[hearth@478,124,70]",
         "gorgeWallHigh mid x=690 y=0 z=1 shade=0.85 flip=0 anchor=ground region=gorge em=[] li=[]",
+        "keepFar mid x=641 y=-59 z=3 shade=0.78 flip=0 anchor=ground region=gorge em=[glass@17,150,13x10 glass@61,150,12x10] li=[]",
+        "gorgeWallHigh mid x=571 y=-152 z=4 shade=0.85 flip=0 anchor=ground region=gorge em=[] li=[]",
         "gorgeWallB mid x=862 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
         "gorgeMouth mid x=1030 y=0 z=3 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
         "windmill mid x=1500 y=93 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
@@ -524,12 +546,12 @@ final class FrameBuilderTests: XCTestCase {
         "torchPost world x=978 y=38 z=2 shade=1.00 flip=0 anchor=ground region=gorge em=[flame@0,12:fireGold:fades] li=[torch@980,53,30]",
         "brazier world x=891 y=0 z=3 shade=1.00 flip=0 anchor=ground region=gorge em=[brazierFlame@1,11:fireOrange:steady] li=[brazier@896,16,56]",
         "brazier world x=915 y=0 z=3 shade=1.00 flip=0 anchor=ground region=gorge em=[brazierFlame@1,11:fireOrange:steady] li=[brazier@920,16,56]",
-        "gorgeWallHigh world x=1050 y=0 z=-5 shade=0.70 flip=1 anchor=ground region=gorge em=[] li=[]",
+        "cliffFlank world x=1110 y=-155 z=-5 shade=0.70 flip=0 anchor=ground region=gorge em=[] li=[]",
         "gorgeWallHigh world x=1518 y=0 z=-5 shade=0.70 flip=0 anchor=ground region=castle em=[] li=[]",
         "cliffFlank world x=1187 y=0 z=-3 shade=0.62 flip=0 anchor=ground region=gorge em=[] li=[]",
         "cliffFlank world x=1453 y=0 z=-1 shade=0.62 flip=1 anchor=ground region=castle em=[] li=[]",
-        "castleKeep world x=1286 y=0 z=-4 shade=1.00 flip=0 anchor=ground region=gorge em=[glass@69,150,13x10 glass@113,150,12x10 glass@111,96,13x10 glass@69,35,13x10 glass@113,35,13x10] li=[window@1361,160,8 window@1405,160,8]",
-        "castleFront world x=1240 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[brazierFlame@93,130:fireOrange:steady brazierFlame@138,130:fireOrange:steady flame@90,61:fireGold:fades flame@145,61:fireGold:fades glass@29,124,6x15 glass@202,124,6x15 glass@29,69,6x15 glass@202,69,6x15] li=[brazier@1337,136,44 brazier@1382,136,44 torch@1332,64,30 torch@1387,64,30 lantern@1360,40,34]",
+        "keepTop world x=1286 y=40 z=-4 shade=1.00 flip=0 anchor=ground region=gorge em=[glass@69,30,13x10 glass@113,30,12x10] li=[]",
+        "castleFront world x=1240 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[brazierFlame@93,130:fireOrange:steady brazierFlame@138,130:fireOrange:steady flame@90,61:fireGold:fades flame@145,61:fireGold:fades glass@29,96,6x15 glass@202,89,6x15 glass@29,69,6x15 glass@202,69,6x15] li=[brazier@1337,136,44 brazier@1382,136,44 torch@1332,64,30 torch@1387,64,30 lantern@1360,40,34]",
         "castleWall world x=1580 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
         "castleWall world x=1620 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[glass@17,58,6x8] li=[window@1640,62,8]",
         "castleWall world x=1660 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
