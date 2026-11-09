@@ -485,6 +485,84 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertTrue(mirrored.contains { $0.rect.x == 2800 + 13 - whole && $0.source.x == 46 })
     }
 
+    // MARK: - Scene polish 2
+
+    private static let shadowSprites: Set<SpriteID> = [.castleShadow, .castleShadowLong, .groundShadow,
+                                                        .groundShadowLong, .gateShadow, .gateShadowLong]
+
+    func testCastleShadowFollowsTheSun() {
+        func shadows(_ desc: FrameDesc) -> [SpriteInstance] {
+            desc.layer(.world).sprites.filter { FrameBuilderTests.shadowSprites.contains($0.sprite) }
+        }
+        // Noon: the day shadows, black at full strength; the long evening ones are not drawn.
+        let noon = frame(timeOfDay: 0.5, focus: 1360)
+        XCTAssertEqual(Set(shadows(noon).map(\.sprite)), [.castleShadow, .groundShadow, .gateShadow])
+        for shadow in shadows(noon) {
+            XCTAssertEqual(shadow.tint, SIMD4<Float>(0, 0, 0, FrameBuilder.sunShadowMax), "\(shadow.sprite) at noon")
+        }
+        // 18:28 (shot 17): the long shadow joins, never darker than the day one; at night there is none.
+        let dusk = frame(timeOfDay: 0.77, focus: 1360)
+        XCTAssertEqual(Set(shadows(dusk).map(\.sprite)), FrameBuilderTests.shadowSprites)
+        let short = shadows(dusk).first { $0.sprite == .castleShadow }
+        let long = shadows(dusk).first { $0.sprite == .castleShadowLong }
+        if let short, let long {
+            XCTAssertGreaterThan(long.tint.w, 0.1, "the evening shadow reaches across the throat rock")
+            XCTAssertLessThanOrEqual(long.tint.w, short.tint.w)
+            XCTAssertLessThan(short.tint.w, FrameBuilder.sunShadowMax, "the low sun casts a softer shadow")
+        }
+        XCTAssertTrue(shadows(frame(timeOfDay: 0.95, focus: 1360)).isEmpty, "no sun, no shadow at night")
+        // The rock and ground shadows lie before the front, the left tower's on the gatehouse after it; none of them
+        // hides glow (the front's torches and slit windows glow at 18:28).
+        let world = dusk.layer(.world).sprites
+        let front = world.firstIndex { $0.sprite == .castleFront }
+        let rock = world.firstIndex { $0.sprite == .castleShadow }
+        let gate = world.firstIndex { $0.sprite == .gateShadow }
+        if let front, let rock, let gate {
+            XCTAssertLessThan(rock, front)
+            XCTAssertGreaterThan(gate, front)
+        } else {
+            XCTFail("front and shadows at the gate")
+        }
+        XCTAssertFalse(dusk.emissives.contains {
+            $0.kind == .occluder && FrameBuilderTests.shadowSprites.contains($0.sprite)
+        })
+    }
+
+    func testShadowAndMistStrengthsByTheHour() {
+        let noon = AmbientRamp.sample(timeOfDay: 0.5)
+        let night = AmbientRamp.sample(timeOfDay: 0.95)
+        XCTAssertEqual(FrameBuilder.sunShadowAlpha(.sun, ambient: noon, hour: 12), FrameBuilder.sunShadowMax,
+                       accuracy: 1e-6)
+        XCTAssertEqual(FrameBuilder.sunShadowAlpha(.dusk, ambient: noon, hour: 12), 0, "no evening shadow at noon")
+        XCTAssertEqual(FrameBuilder.sunShadowAlpha(.sun, ambient: night, hour: 22.8), 0)
+        XCTAssertEqual(FrameBuilder.mistAlpha(1, ambient: noon), 0, "no mist by day")
+        let expected = FrameBuilder.mistMax * min(1.25, night.fogDensity / 0.4)
+        XCTAssertEqual(FrameBuilder.mistAlpha(1, ambient: night), expected, accuracy: 1e-6)
+        XCTAssertGreaterThan(FrameBuilder.mistAlpha(1, ambient: night), 0.8, "thick at night")
+    }
+
+    func testMistAtTheCastleFootComesWithTheDusk() {
+        func mist(_ timeOfDay: Double) -> SpriteInstance? {
+            frame(timeOfDay: timeOfDay, focus: 1360).layer(.world).sprites.first { $0.sprite == .castleMist }
+        }
+        XCTAssertNil(mist(0.5), "no mist by day")
+        let dusk = mist(0.77)
+        let night = mist(0.95)
+        XCTAssertNotNil(dusk)
+        XCTAssertNotNil(night)
+        if let dusk, let night {
+            XCTAssertLessThan(dusk.tint.w, night.tint.w, "thicker at night")
+            XCTAssertEqual(SIMD3<Float>(night.tint.x, night.tint.y, night.tint.z), SIMD3<Float>(1, 1, 1), "white mist")
+        }
+        let gate = frame(timeOfDay: 0.95, focus: 1360)
+        let world = gate.layer(.world).sprites
+        if let front = world.firstIndex(where: { $0.sprite == .castleFront }),
+           let bank = world.firstIndex(where: { $0.sprite == .castleMist }) {
+            XCTAssertGreaterThan(bank, front, "at the foot of the walls, in front of them")
+        }
+        XCTAssertFalse(gate.emissives.contains { $0.kind == .occluder && $0.sprite == .castleMist }, "it hides no glow")
+    }
+
     /// True when `inner` lies inside `outer` (x, y, width, height).
     private func encloses(_ outer: SIMD4<Float>, _ inner: SIMD4<Float>) -> Bool {
         let left = inner.x >= outer.x
@@ -514,6 +592,8 @@ final class FrameBuilderTests: XCTestCase {
         var fade = prop.fade.map { " fade=\(number($0.lowerBound))-\(number($0.upperBound))" } ?? ""
         fade += prop.fadeOut.map { " fadeout=\(number($0.lowerBound))-\(number($0.upperBound))" } ?? ""
         fade += prop.movesWith.map { " moves=\(planes[$0] ?? "?")" } ?? ""
+        fade += prop.sunShadow.map { " shadow=\($0.rawValue)" } ?? ""
+        fade += prop.mist.map { " mist=\(String(format: "%.2f", $0))" } ?? ""
         return "\(prop.sprite.rawValue) \(planes[prop.plane] ?? "?") x=\(number(prop.x)) y=\(number(prop.y)) z=\(prop.z) "
             + "shade=\(String(format: "%.2f", prop.shade)) flip=\(prop.flipped ? 1 : 0) anchor=\(anchor) "
             + "region=\(prop.region.rawValue) em=[\(emitters.joined(separator: " "))] "
@@ -571,8 +651,15 @@ final class FrameBuilderTests: XCTestCase {
         "throatRock world x=1518 y=0 z=-5 shade=0.70 flip=0 anchor=ground region=castle em=[] li=[]",
         "cliffFlank world x=1187 y=0 z=-3 shade=0.62 flip=0 anchor=ground region=gorge em=[] li=[]",
         "cliffFlankB world x=1453 y=0 z=-1 shade=0.62 flip=1 anchor=ground region=castle em=[] li=[]",
+        "castleShadow world x=1468 y=0 z=-1 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[] shadow=sun",
+        "castleShadowLong world x=1471 y=0 z=-1 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[] shadow=dusk",
+        "groundShadow world x=1241 y=-6 z=-1 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[] shadow=sun",
+        "groundShadowLong world x=1481 y=-3 z=-1 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[] shadow=dusk",
         "keepTop world x=1286 y=40 z=-4 shade=1.00 flip=0 anchor=ground region=gorge em=[glass@69,30,13x10 glass@113,30,12x10] li=[]",
         "castleFront world x=1240 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[brazierFlame@93,130:fireOrange:steady brazierFlame@138,130:fireOrange:steady flame@90,61:fireGold:fades flame@145,61:fireGold:fades glass@29,96,6x15 glass@202,89,6x15 glass@29,69,6x15 glass@202,69,6x15] li=[brazier@1337,136,44 brazier@1382,136,44 torch@1332,64,30 torch@1387,64,30 lantern@1360,40,34]",
+        "gateShadow world x=1298 y=1 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[] shadow=sun",
+        "gateShadowLong world x=1307 y=1 z=0 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[] shadow=dusk",
+        "castleMist world x=1210 y=-8 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[] mist=1.00",
         "castleWall world x=1580 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
         "castleWall world x=1620 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[glass@17,58,6x8] li=[window@1640,62,8]",
         "castleWall world x=1660 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",

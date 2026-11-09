@@ -366,6 +366,11 @@ struct CompositeUniforms {
     float4 midHaze;     // the mid plane's haze colour rgb, unused
     float4 cloud;       // clouds: share of ambient on the sunlit tops, of the sky's top colour in the bellies, haze
     float4 backdropLight; // colour of the backdrop lights (the light buffer's alpha: they light only the mid plane)
+    // Scene polish 2
+    float4 polish;      // unused, cool bounce on shadowed albedo, dusk spare of sunlit albedo, depth band (x daylight)
+    float4 bounceColor; // the sky's cool light at the ambient's level (rgb), unused
+    float4 bandColor;   // the bright haze band's colour (rgb), its height in rows above the ground line
+    float4 rim;         // the king's cool rim colour (rgb), its strength
 };
 
 // The cold colour of the night: ambient-lit albedo pulled toward violet by its own luminance (k = 0 by day), so
@@ -378,11 +383,45 @@ constant float3 kNightTint = float3(1.03f, 0.86f, 1.66f);
 constant float kLitNeutral = 0.35f;
 constant float kLitCap = 1.6f;
 constant float kLitUnderground = 0.25f;
+// Scene polish 2: cool albedo (teal cloth, slate) reflects firelight more neutrally, by this share of how far its green
+// or blue rises over its red (warm light on the gate's banners read mint and cyan); albedo darker than kShadeLo is
+// shadow, lighter than kShadeHi sunlit (the cool bounce and the dusk spare blend between them).
+constant float kLitCool = 0.6f;
+constant float kShadeLo = 0.2f;
+constant float kShadeHi = 0.5f;
 
 static inline float3 lh_cold(float3 albedo, float3 ambient, float k) {
     float3 a = albedo * ambient;
     float luma = dot(a, float3(0.299f, 0.587f, 0.114f));
     return mix(a, luma * kNightTint, k);
+}
+
+static inline float lh_luma(float3 c) {
+    return dot(c, float3(0.299f, 0.587f, 0.114f));
+}
+
+// 1 for dark (shadowed) albedo, 0 for light (sunlit) albedo; `albedo` straight, not premultiplied.
+static inline float lh_shade(float3 albedo) {
+    return 1.0f - smoothstep(kShadeLo, kShadeHi, lh_luma(albedo));
+}
+
+// What a surface reflects of point light: partly as from a neutral grey (kLitNeutral), more for cool albedo. Scale
+// free, so it works on premultiplied colours.
+static inline float3 lh_reflectance(float3 albedo) {
+    float high = max(albedo.g, albedo.b);
+    float cool = saturate((high - albedo.r) / max(high, 0.0001f));
+    return mix(albedo, float3(lh_luma(albedo)), saturate(kLitNeutral + kLitCool * cool));
+}
+
+// The night's violet pull on a pixel: at dusk it spares the sunlit share (the rock's lit tops stay ochre while the
+// shadows turn violet); at night it is whole.
+static inline float lh_pull(float shade, constant CompositeUniforms &u) {
+    return u.look.x * (1.0f - (1.0f - shade) * u.polish.z);
+}
+
+// The ambient on a pixel: by day and dusk its shadowed share takes the sky's cool light instead of the warm sun.
+static inline float3 lh_ambient(float3 ambient, float3 bounce, float shade, constant CompositeUniforms &u) {
+    return mix(ambient, bounce, shade * u.polish.y);
 }
 
 struct PlaneCoords {
@@ -505,20 +544,29 @@ static float3 lh_base(PlaneCoords c, PixelLight info, constant CompositeUniforms
     }
     float horizon = max(u.target.z, 1.0f);
     float low = smoothstep(horizon - 70.0f, horizon, float(c.row));
+    // Scene polish 2: a bright haze band low in the gorge, over the far and mid planes' lowest rows by day and dusk,
+    // so the far wall's foot dissolves and the gorge reads deep.
+    float above = u.target.z - 1.0f - float(c.row);
+    float band = u.polish.w * (1.0f - smoothstep(0.0f, max(u.bandColor.w, 1.0f), above));
 
     float4 f = farTex.read(c.distant);
     if (f.a > 0.0f) {
         float3 lit = lh_cold(f.rgb, u.ambientFar.rgb, u.look.x);
         float haze = saturate(u.haze.x + low * u.haze.z);
         lit = mix(lit, u.farHaze.rgb * f.a, haze);
+        lit = mix(lit, u.bandColor.rgb * f.a, band);
         color = color * (1.0f - f.a) + lit;
     }
     float4 m = midTex.read(c.mid);
     midVisible = 0.0f;
     if (m.a > 0.0f) {
-        float3 lit = lh_cold(m.rgb, u.ambientMid.rgb, u.look.x) + m.rgb * info.backdrop * u.ambientFar.w;
+        // The far wall's shadowed faces take the sky's cool light by day, its lit tops stay warm (scene polish 2).
+        float shade = lh_shade(m.rgb / m.a);
+        float3 ambient = lh_ambient(u.ambientMid.rgb, u.bounceColor.rgb * u.look.z, shade, u);
+        float3 lit = lh_cold(m.rgb, ambient, lh_pull(shade, u)) + m.rgb * info.backdrop * u.ambientFar.w;
         float haze = saturate(u.haze.y + low * u.haze.z * 0.5f);
         lit = mix(lit, u.midHaze.rgb * m.a, haze);
+        lit = mix(lit, u.bandColor.rgb * m.a, band);
         color = color * (1.0f - m.a) + lit;
         midVisible = m.a;
     }
@@ -532,16 +580,19 @@ static float3 lh_base(PlaneCoords c, PixelLight info, constant CompositeUniforms
     if (w.a > 0.0f) {
         // Polish after the art review: firelight reflects partly as from a neutral surface (warm light on a teal banner
         // read as a cyan halo), it is capped below white (the king's lantern blew a cottage wall out), and it fades
-        // a few rows under the grass (no light shining into the earth's cross-section).
-        float3 reflectance = mix(w.rgb, float3(dot(w.rgb, float3(0.299f, 0.587f, 0.114f))), kLitNeutral);
+        // a few rows under the grass (no light shining into the earth's cross-section). Scene polish 2: cool albedo
+        // reflects it more neutrally still (the mint pools on the gate's banners), the shadowed share takes the sky's
+        // cool light by day, and at dusk the violet pull spares the sunlit share.
+        float3 reflectance = lh_reflectance(w.rgb);
         float under = float(c.row) - u.target.z;
         // The cap scales the light as a whole, so it keeps its warm hue (a per-channel cap turned it white near the
         // torches, and white light on teal cloth read cyan again).
         float peak = max(info.light.r, max(info.light.g, info.light.b));
         float3 light = info.light * (min(peak, kLitCap) / max(peak, 0.0001f))
             * mix(1.0f, kLitUnderground, smoothstep(3.0f, 7.0f, under));
-        float3 lit = lh_cold(w.rgb, u.ambient.rgb * info.bank, u.look.x) + reflectance * light
-            + light * (u.look.y * w.a);
+        float shade = lh_shade(w.rgb / w.a);
+        float3 ambient = lh_ambient(u.ambient.rgb, u.bounceColor.rgb, shade, u) * info.bank;
+        float3 lit = lh_cold(w.rgb, ambient, lh_pull(shade, u)) + reflectance * light + light * (u.look.y * w.a);
         color = color * (1.0f - w.a) + lit;
         midVisible *= 1.0f - w.a;
     }
@@ -693,7 +744,7 @@ struct ActorQuad {
     float4 rect;    // x, y, width, height in device pixels, origin top-left
     float4 texel;   // u0, v0, u1, v1 in atlas texels (u0 > u1 when mirrored)
     float4 tint;    // rgb multiplier, alpha
-    float4 flags;   // x: 1 for emissive actors (eye glints), y: lit by the gameplay light field
+    float4 flags;   // x: 1 for emissive actors (eye glints), y: lit by the gameplay light field, z: 1 keeps a rim
 };
 
 struct ActorOut {
@@ -734,6 +785,8 @@ fragment float4 lh_actor_fragment(ActorOut in [[stage_in]],
                                   texture2d<float> emissiveTex [[texture(9)]],
                                   texture2d<float> bloomTex [[texture(10)]],
                                   texture2d<float> atlas [[texture(11)]]) {
+    // Which way the atlas runs on screen (a mirrored actor reads its texels right to left), before any discard.
+    float across = dfdx(in.texel.x);
     uint2 t = uint2(max(in.texel, float2(0.0f)));
     float4 texel = atlas.read(t);
     if (texel.a < 0.5f || in.tint.a <= 0.003f) {
@@ -745,8 +798,22 @@ fragment float4 lh_actor_fragment(ActorOut in [[stage_in]],
     float midVisible = 0.0f;
     float3 base = lh_base(c, info, u, skyTex, cloudsTex, farTex, midTex, fogATex, worldTex, emissiveTex, midVisible);
     float3 albedo = texel.rgb * in.tint.rgb;
-    float3 cold = lh_cold(albedo, u.ambient.rgb * info.bank, u.look.x);
-    float3 lit = in.flags.x > 0.5f ? albedo : cold + albedo * info.light + info.light * u.look.y;
+    // Lit as the world (scene polish 2): the capped light reflected partly as from grey, more for cool albedo (his
+    // teal cloak never glows cyan by his lantern), the dusk spare of the sunlit share; no cool bounce on the figures.
+    float shade = lh_shade(albedo);
+    float3 cold = lh_cold(albedo, u.ambient.rgb * info.bank, lh_pull(shade, u));
+    float peak = max(info.light.r, max(info.light.g, info.light.b));
+    float3 light = info.light * (min(peak, kLitCap) / max(peak, 0.0001f));
+    float3 lit = in.flags.x > 0.5f ? albedo : cold + lh_reflectance(albedo) * light + light * u.look.y;
+    // The king keeps a cool rim (sky by day, moon at night) on his screen-right edge pixels, so he pops against the
+    // ochre rock and the dark stone; firelight outshines it (his own lantern at night).
+    if (in.flags.z > 0.5f && in.flags.x < 0.5f && u.rim.w > 0.0f) {
+        int toward = across < 0.0f ? -1 : 1;
+        int2 side = int2(t) + int2(toward, 0);
+        if (atlas.read(uint2(max(side, int2(0)))).a < 0.5f) {
+            lit = mix(lit, u.rim.rgb, u.rim.w * (1.0f - saturate(peak * 1.5f)));
+        }
+    }
     float3 color = mix(base, lit, saturate(in.tint.a));
     midVisible *= 1.0f - saturate(in.tint.a);
     color = lh_top(color, c, info, u, fogBTex, fgTex, bloomTex, midVisible);

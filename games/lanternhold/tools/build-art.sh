@@ -26,6 +26,7 @@ ROCKG=rockDeep,rockDark,rock,rockLight,rockPale,soilDark,soil,soilLight,leafDark
 STONE=night1,ink,stoneDark,stoneMid,stone,stoneLight
 VMID=leafDark,leaf,meadow,leafLight,straw,strawLight,soilDark,daySky,foam,plaster,roofDeep
 FGLIFT=rockDeep:rockDark,rockDark:rock,soilDark:soil,leafDark:leaf,leaf:meadow
+FARFLAT=rockDeep:rockDark,soilDark:soil
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
     [ -x "$SMC" ] || return 0
@@ -76,11 +77,15 @@ build() { # name: one sprite
                    # M1b polish: gorgewall-b (horizontal strata and ledges; gorgewall-a's even vertical fractures and dead
                    # trees read as a night forest); the key is given (the pale rock is the commonest border colour)
                    python3 $T convert $M/gorgewall-b-1.png $PT/gorgeWall.png --size 576x190 --box 0,150,1536,740 --key '#FC1494' --tile --only $ROCKG --sat 1.4 --warm 14 --gain 0.85
-                   python3 $T split $PT/gorgeWall.png $A/gorgeWallA.png $A/gorgeWallB.png $A/gorgeWallC.png ;;
+                   python3 $T split $PT/gorgeWall.png $A/gorgeWallA.png $A/gorgeWallB.png $A/gorgeWallC.png
+                   # Scene polish 2: the far wall flattened one value step (its darkest strata lifted), so it reads
+                   # farther than the near throat rock cut from the same painting
+                   for t in A B C; do python3 $T post $A/gorgeWall$t.png $A/gorgeWall$t.png --remap $FARFLAT; done ;;
     gorgeWallHigh) # the high rock, its left edge carried on from gorgeWallA's first columns (what follows gorgeWallC)
                    mkdir -p $PT
                    python3 $T convert $M/rocks-a-1.png $PT/gwh-rock.png --size 180x240 --box 16,44,540,748 --only $ROCKG,meadow --sat 1.3
-                   python3 $T compose $A/gorgeWallHigh.png --size 192x240 --layer $A/gorgeWallA.png@0,50@box=0,0,40,190 --layer $PT/gwh-rock.png@12,0 ;;
+                   python3 $T compose $A/gorgeWallHigh.png --size 192x240 --layer $A/gorgeWallA.png@0,50@box=0,0,40,190 --layer $PT/gwh-rock.png@12,0
+                   python3 $T post $A/gorgeWallHigh.png $A/gorgeWallHigh.png --remap $FARFLAT ;;  # scene polish 2, as the far wall
     cliffFlank)    # all rock now (the masonry strip and the long highlight read as a tree trunk): the left cliff of rocks-a
                    python3 $T convert $M/rocks-a-1.png $A/cliffFlank.png --size 80x240 --box 60,44,330,748 --only $ROCKG --sat 1.3 ;;
     gorgeMouth)    # M1b polish: the slope (x 38-119, rows 150-224) repainted by procart slopebands
@@ -115,7 +120,16 @@ build() { # name: one sprite
                        python3 $T compose $PT/cf-tower-${side}s.png --size 58x236 --layer $PT/cf-tower-${side}c.png@0,64@box=0,0,58,40 --layer $PT/cf-tower-${side}c.png@0,104@box=0,104,58,236
                        python3 $T post $PT/cf-tower-${side}s.png $PT/cf-tower-${side}s.png --fill stone:28,104,35,112
                    done
-                   python3 $T compose $A/castleFront.png --size 240x236 --layer $PT/cf-gate.png@54,80 --layer $PT/cf-tower-ls.png@0,0 --layer $PT/cf-tower-rs.png@173,0 ;;
+                   python3 $T compose $A/castleFront.png --size 240x236 --layer $PT/cf-gate.png@54,80 --layer $PT/cf-tower-ls.png@0,0 --layer $PT/cf-tower-rs.png@173,0
+                   # Scene polish 2: the gate's banners deep teal (roofDeep) with two lit folds each and a lit hem, so
+                   # the torches beside them light a warm sheen instead of a pale mint pool (hem via leafLight as a
+                   # stand-in that the castle never uses)
+                   python3 $T post $A/castleFront.png $A/castleFront.png \
+                       --remap roofDeep:leafLight@68,141,87,145 --remap roofDeep:leafLight@151,141,170,145 \
+                       --remap banner:roofDeep@68,146,87,202 --remap banner:roofDeep@151,146,170,202 \
+                       --remap leafLight:banner@68,141,87,145 --remap leafLight:banner@151,141,170,145 \
+                       --remap roofDeep:banner@70,146,71,202 --remap roofDeep:banner@77,146,78,169 --remap roofDeep:banner@77,182,78,202 \
+                       --remap roofDeep:banner@153,146,154,202 --remap roofDeep:banner@160,146,161,169 --remap roofDeep:banner@160,182,161,202 ;;
     castleKeep)    # front elevation (keepgate-b left, M1b polish): flat crenellated top like the front's towers; the painting's
                    # shaded left third lifted with a zone (albedo is evenly lit); specks under 2 px merged
                    mkdir -p $PT
@@ -171,6 +185,11 @@ build() { # name: one sprite
     groundB)       python3 $PROC ground $A/ground.png $A/groundB.png --seed 2 --left stone --right plain ;;
     groundC)       python3 $PROC ground $A/ground.png $A/groundC.png --seed 3 --left plain --right stone ;;
     groundD)       python3 $PROC ground $A/ground.png $A/groundD.png --seed 4 --left plain --right plain ;;
+    # --- scene polish 2 (ART.md "Scene polish 2") ---
+    castleShadow)  # the castle's cast shadows (day and the long dusk one) on the rock, the ground and the gatehouse, baked
+                   # from the layout and the sprites above (castleFront, the throat rock and flanks); boxes in layout_m1b
+                   python3 games/lanternhold/tools/scenemock/bake_shadows.py ;;
+    castleMist)    python3 $PROC fogbank $A/castleMist.png --size 300x34 --rise 24 ;;  # ground mist at the castle's foot
     # Polish after the art review: the foreground one value step lighter (olive and ochre instead of near-black; the
     # renderer gives it 0.9 of the ambient by day and 0.43 at night, so the night keeps its dark silhouettes)
     fgRockA|fgRockB|fgRockC)
@@ -189,7 +208,7 @@ ALL="farMountain farPeak gorgeCliff gorgeEndCliff waterfall gatehouse castleTowe
 throne hearth kitchen house valleyHill well lanternPost field palisade stoneWall ballista brazier torchPost ground
 gorgeWall gorgeWallHigh cliffFlank gorgeMouth wardenStatue castleFront castleKeep castleBackGate valleyFar valleyMid windmill
 beaconRuin riverEnd riverFarBank clouds fgRockA fgRockB fgRockC fgOverhangA fgOverhangB
-houseB houseC keepFar keepTop throatRock cliffFlankB groundB groundC groundD"
+houseB houseC keepFar keepTop throatRock cliffFlankB groundB groundC groundD castleShadow castleMist"
 for name in ${@:-$ALL}; do
     cool
     build "$name"

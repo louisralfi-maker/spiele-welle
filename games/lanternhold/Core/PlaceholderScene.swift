@@ -27,6 +27,13 @@ struct GlassMask: Sendable, Equatable {
     var color: SIMD3<Float>
 }
 
+/// A baked cast shadow of the castle (scene polish 2, `tools/scenemock/bake_shadows.py`): drawn black at the sun's
+/// strength (`sun`: the day shadow) or at the sun's strength times the evening weight (`dusk`: the long evening shadow
+/// beyond the day one), never at night (`FrameBuilder.sunShadowAlpha`).
+enum SunShadow: String, Sendable, Equatable {
+    case sun, dusk
+}
+
 /// Where a prop is placed from.
 enum PropAnchor: Sendable, Equatable {
     /// `y` is the bottom edge above the ground line.
@@ -65,6 +72,10 @@ struct Prop: Sendable, Equatable {
     var fadeOut: ClosedRange<Double>?
     /// Moves with this plane's parallax while drawn into its own plane's picture (nil: its own plane).
     var movesWith: Plane?
+    /// A baked cast shadow: drawn black at the sun's strength, never hiding glow (nil: an ordinary prop).
+    var sunShadow: SunShadow?
+    /// A bank of ground mist: drawn white at this share of the hour's mist strength, never hiding glow (nil: none).
+    var mist: Float?
     /// False for a snuffed brazier: no lights and no fire emissives.
     var isLit: Bool
 
@@ -72,7 +83,7 @@ struct Prop: Sendable, Equatable {
          flipped: Bool = false, anchor: PropAnchor = .ground, region: WorldLayout.Region = .all,
          emissive: [EmissivePart] = [], masks: [GlassMask] = [], lights: [LightSource] = [],
          fade: ClosedRange<Double>? = nil, fadeOut: ClosedRange<Double>? = nil, movesWith: Plane? = nil,
-         isLit: Bool = true) {
+         sunShadow: SunShadow? = nil, mist: Float? = nil, isLit: Bool = true) {
         self.id = id
         self.sprite = sprite
         self.plane = plane
@@ -91,6 +102,8 @@ struct Prop: Sendable, Equatable {
         self.fade = fade
         self.fadeOut = fadeOut
         self.movesWith = movesWith
+        self.sunShadow = sunShadow
+        self.mist = mist
         self.isLit = isLit
     }
 }
@@ -342,7 +355,7 @@ private struct SceneBuilder {
         append(Prop(id: props.count + 1, sprite: entry.sprite, plane: plane, x: entry.x, y: entry.y, z: entry.z,
                     shade: entry.shade, flipped: entry.flipped, anchor: entry.anchor, region: region,
                     emissive: parts, masks: masks, lights: lights, fade: entry.fade, fadeOut: entry.fadeOut,
-                    movesWith: entry.movesWith))
+                    movesWith: entry.movesWith, sunShadow: entry.sunShadow, mist: entry.mist))
     }
 
     private mutating func append(_ prop: Prop) {

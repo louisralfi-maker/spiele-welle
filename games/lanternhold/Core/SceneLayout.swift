@@ -52,6 +52,11 @@ enum SceneLayout {
         /// Drawn into its own plane's picture (its light and haze) but moving with this plane's parallax (nil: its
         /// own). The keep seen from the valley takes the mid plane's haze and moves like the far plane.
         var movesWith: Plane?
+        /// A baked cast shadow (scene polish 2): black at the sun's strength; it lies only on rock and ground drawn
+        /// before it, so it never darkens the sky, and it hides no glow.
+        var sunShadow: SunShadow?
+        /// A bank of ground mist (scene polish 2): white at this share of the hour's mist strength (0 by day).
+        var mist: Float?
     }
 
     /// Tiles laid side by side: `sprites` in order (it repeats), `count` tiles from `x`, each `tileWidth` wide.
@@ -155,6 +160,20 @@ enum SceneLayout {
     }()
 
     static let world: [Entry] = makeWorld()
+
+    /// The castle's cast shadows (scene polish 2), baked by `tools/scenemock/bake_shadows.py` into these boxes (the
+    /// sprite sizes, bottom-left here): light from the upper left by day and low from the west at dusk, so the front
+    /// throws its shadow right, onto the rock beside the right tower and onto the ground strip at the foot of the walls
+    /// (z −1, before the front); the left tower throws its own onto the gatehouse wall (z 0, after the front). `sun` is
+    /// the day shadow, `dusk` the long evening shadow beyond it.
+    static let shadows: [Entry] = [
+        Entry(sprite: .castleShadow, x: 1468, y: 0, z: -1, sunShadow: .sun),
+        Entry(sprite: .castleShadowLong, x: 1471, y: 0, z: -1, sunShadow: .dusk),
+        Entry(sprite: .groundShadow, x: 1241, y: -6, z: -1, sunShadow: .sun),
+        Entry(sprite: .groundShadowLong, x: 1481, y: -3, z: -1, sunShadow: .dusk),
+        Entry(sprite: .gateShadow, x: 1298, y: 1, z: 0, sunShadow: .sun),
+        Entry(sprite: .gateShadowLong, x: 1307, y: 1, z: 0, sunShadow: .dusk),
+    ]
 
     /// Foreground x for something that passes in front of world x when the camera is centred there: 1.3 × x − 65.6.
     /// The gorge (world 0 to 1240) is fg 0 to 1546; the gate view keeps fg 1640 to 1780 clear so the gateway shows.
@@ -279,6 +298,8 @@ enum SceneLayout {
         list.append(Entry(sprite: .throatRock, x: front + 278, y: 0, z: -5, shade: rockShade))
         list.append(Entry(sprite: .cliffFlank, x: front - 53, y: 0, z: -3, shade: flankShade))
         list.append(Entry(sprite: .cliffFlankB, x: front + 213, y: 0, z: -1, shade: flankShade, flipped: true))
+        // Scene polish 2: the castle's cast shadow on the rock right of the right tower and on the ground strip.
+        list += shadows.filter { $0.z < 0 }
         // Only the keep's top 130 rows stand behind the gatehouse, 40 px up, so its crown and flag rise above the
         // gatehouse between the towers' crowns (top at y 170); the front hides its top window row (the lower 10 rows
         // of each window would glow: lamplight low in the room).
@@ -297,6 +318,10 @@ enum SceneLayout {
                                    Light(kind: .torch, x: front + 92, y: 64, radius: 30),
                                    Light(kind: .torch, x: front + 147, y: 64, radius: 30),
                                    Light(kind: .lantern, x: front + 120, y: 40, radius: 34)]))
+        // Scene polish 2: the left tower's shadow on the gatehouse wall, and a bank of ground mist at the foot of the
+        // walls at dusk and night (behind the king, who walks in front of it), so the castle stands heavy on the ground.
+        list += shadows.filter { $0.z >= 0 }
+        list.append(Entry(sprite: .castleMist, x: front - 30, y: -8, z: 0, mist: 1))
 
         // Inside: the courtyard wall runs from 1580, out of the gate view (rock closes the frame right of the right
         // tower); the great hall cut away, the chapel, the kitchen.
