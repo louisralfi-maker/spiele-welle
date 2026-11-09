@@ -110,6 +110,8 @@ final class GameModel {
     @ObservationIgnored var feedback: any FeedbackHub = SilentFeedback()
     /// Creature bodies in the last drawn frame (the scene value's `seen:`, so UI tests catch the fight in view).
     @ObservationIgnored private var seenCreatures = 0
+    /// Archers drawing or loosing in the last drawn frame (the scene value's `aim:`).
+    @ObservationIgnored private var aimingArchers = 0
     /// The game's view of the scene, kept while the beacon's site stays as it is (M2b review: filtered every frame,
     /// the whole prop list with its emitters, masks and lights was copied 60 times a second).
     @ObservationIgnored private var filteredScene: (built: Bool, scene: PlaceholderScene)?
@@ -747,11 +749,16 @@ final class GameModel {
             frame = FrameBuilder.build(scene: filtered, clock: frameClock, camera: view, pixelScale: pixelScale,
                                        options: options, entities: layer)
             var seen = 0
-            for actor in frame.actors where !actor.isEmissive && actor.sprite != .king
-                && EntityFrames.glowStrip(actor.sprite) != nil {
-                seen += 1
+            var aiming = 0
+            for actor in frame.actors {
+                if actor.sprite == .archer {
+                    if actor.frame >= 2 { aiming += 1 }
+                } else if !actor.isEmissive && actor.sprite != .king && EntityFrames.glowStrip(actor.sprite) != nil {
+                    seen += 1
+                }
             }
             seenCreatures = seen
+            aimingArchers = aiming
         }
         renderedFrames += 1
         if renderedFrames % 6 == 1 {
@@ -899,7 +906,8 @@ final class GameModel {
         guard let game = driver else { return }
         let state = game.state
         var text = "day:\(state.day) hour:\(String(format: "%.2f", state.hour)) alive:\(state.creatures.count) "
-            + "seen:\(seenCreatures) shots:\(state.projectiles.count) kx:\(Int(state.king.x.rounded()))"
+            + "seen:\(seenCreatures) shots:\(state.projectiles.count) aim:\(aimingArchers) "
+            + "kx:\(Int(state.king.x.rounded()))"
         if let front = dawnFront {
             text += " dawn:\(String(format: "%.2f", front))"
         }

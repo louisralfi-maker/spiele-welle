@@ -63,6 +63,17 @@ final class MidChapterUITests: XCTestCase {
         }
         dawn.terminate()
 
+        // M2b review: the gatehouse at 22:00 with the demo's iron gate closed: line 1's archers on the wall walk
+        // (never in the brazier niches), its torches at the walk's ends, the mist veiling the gate's foot.
+        let gate = XCUIApplication()
+        gate.launchArguments = ["-GWNight", "12", "-GWBuild", "demo", "-GWHour", "22", "-GWFreezeTime", "YES",
+                                "-GWCameraX", "1360", "-GWAutoplay", "play"]
+        gate.launch()
+        if waitUntilReady(gate, name: "mid-gate") {
+            attach(XCUIScreen.main.screenshot(), "39-mid-gate-2200-\(language)")
+        }
+        gate.terminate()
+
         let day = XCUIApplication()
         day.launchArguments = ["-GWDay", "12", "-GWBuild", "demo", "-GWCameraX", "600"]
         day.launch()
@@ -144,12 +155,13 @@ final class MidChapterUITests: XCTestCase {
     }
 
     /// Watches the scene until the clock reaches `until` (or `timeout`) and keeps the screenshot of its liveliest
-    /// moment: creatures in view count twice, projectiles in flight once (up to six).
+    /// moment: creatures in view count twice, projectiles in flight once (up to eight), archers drawing or loosing
+    /// once (up to three; M2b review: arrows in the air and an archer shooting in every night shot).
     private func liveliestShot(_ app: XCUIApplication, until target: Double,
                                timeout: TimeInterval) -> (screenshot: XCUIScreenshot, value: String) {
         let scene = element(app, "world-scene")
         func score(_ text: String) -> Double {
-            2 * (field(text, "seen:") ?? 0) + min(6, field(text, "shots:") ?? 0)
+            2 * (field(text, "seen:") ?? 0) + min(8, field(text, "shots:") ?? 0) + min(3, field(text, "aim:") ?? 0)
         }
         var bestValue = (scene.value as? String) ?? ""
         var best = XCUIScreen.main.screenshot()
