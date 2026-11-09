@@ -23,7 +23,7 @@ enum Ink {
     /// The creatures' ash (polish after the art review: pure-black bodies by day read as another game's masked
     /// enemies): cold ash grey with a violet cast, and the ember of the cracks in their crust.
     static let ash: [RGBA] = [RGBA(0x221C28), RGBA(0x342C3A), RGBA(0x4A4250), RGBA(0x645C6A), RGBA(0x857C88)]
-    static let ember: [RGBA] = [RGBA(0x9A2E18), RGBA(0xD9481F), RGBA(0xFF8A2A)]
+    static let emberCracks: [RGBA] = [RGBA(0x9A2E18), RGBA(0xD9481F), RGBA(0xFF8A2A)]
     static let water: [RGBA] = [RGBA(0x2E4266), RGBA(0x48648C), RGBA(0x7290B4), RGBA(0xA8C2DA), RGBA(0xE0ECF6)]
     static let cloth: [RGBA] = [RGBA(0x3A2A1E), RGBA(0x5E4430), RGBA(0x86643E), RGBA(0xA88654)]
     static let skin: [RGBA] = [RGBA(0x8E5A40), RGBA(0xC08060), RGBA(0xE0A880)]

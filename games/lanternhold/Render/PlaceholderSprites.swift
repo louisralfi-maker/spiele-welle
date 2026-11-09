@@ -313,7 +313,7 @@ enum PlaceholderSprites {
         // Ember cracks in the crust (a zigzag across the flank, a fleck on the back).
         let cracks: [(Int, Int, Int)] = [(4, 9, 1), (5, 10, 2), (6, 10, 1), (7, 11, 2), (9, 8, 1), (10, 9, 2)]
         for (x, y, tone) in cracks {
-            p.put(x, y, Ink.ember[tone])
+            p.put(x, y, Ink.emberCracks[tone])
         }
         return p.image
     }
@@ -363,7 +363,7 @@ enum PlaceholderSprites {
         // Ember cracks along the flank and at the shoulder.
         let cracks: [(Int, Int, Int)] = [(6, 8, 1), (7, 7, 2), (8, 8, 1), (11, 7, 1), (12, 8, 2), (16, 6, 1)]
         for (x, y, tone) in cracks {
-            p.put(x, y, Ink.ember[tone])
+            p.put(x, y, Ink.emberCracks[tone])
         }
         return p.image
     }
