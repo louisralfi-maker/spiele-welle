@@ -1,0 +1,3 @@
+Story table: /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Resources/Story.xcstrings
+files: ["petitions-samples.json"]
+problems:
