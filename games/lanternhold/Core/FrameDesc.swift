@@ -48,6 +48,18 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // Effects (procedural only, not in the art contract): sparks, soot shards, the darkness of the Lightless King's
     // aura and the gloomweavers' bubbles, arrow trails
     case spark, shard, gloomBubble, streak
+    // M3 (SPRITES.md "M3"): the court and the guests (walk 0-3, idle 4-5, talk 6-7), two petitioner bodies (walk
+    // 0-3, idle 4-5) and three glow strips
+    case odile, brannock, pip, hesper, tamsin, bram, marek, seren, serLudo, bard, envoy, herald
+    case petitionerD, petitionerE
+    case hesperGlow, serenGlow, heraldGlow
+    // The audience card's portraits (48x48): story and guest portraits, and the composed portrait's parts
+    case portraitOdile, portraitBrannock, portraitPip, portraitHesper, portraitTamsin, portraitBram, portraitMarek,
+         portraitSeren, portraitSerLudo, portraitBard, portraitEnvoy, portraitHerald, portraitKing
+    case portraitClothes, portraitFace, portraitBeard, portraitHair, portraitHat
+    // The castle's rooms (cut-away) and the court's props
+    case hallFront, chapelInterior, kitchenInterior
+    case bench, taxLectern, marekCart, statue, speakerMark
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -167,7 +179,43 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .shard: return PixelSize(width: 4, height: 4)
         case .gloomBubble: return PixelSize(width: 96, height: 64)
         case .streak: return PixelSize(width: 12, height: 4)
+        case .odile, .hesper, .marek, .seren, .envoy, .herald, .hesperGlow, .serenGlow, .heraldGlow:
+            return PixelSize(width: 14, height: 30)
+        case .brannock, .bram, .serLudo: return PixelSize(width: 16, height: 30)
+        case .pip: return PixelSize(width: 12, height: 22)
+        case .tamsin: return PixelSize(width: 14, height: 28)
+        case .bard: return PixelSize(width: 12, height: 28)
+        case .petitionerD, .petitionerE: return PixelSize(width: 12, height: 26)
+        case .portraitOdile, .portraitBrannock, .portraitPip, .portraitHesper, .portraitTamsin, .portraitBram,
+             .portraitMarek, .portraitSeren, .portraitSerLudo, .portraitBard, .portraitEnvoy, .portraitHerald,
+             .portraitKing, .portraitClothes, .portraitFace, .portraitBeard, .portraitHair, .portraitHat:
+            return PixelSize(width: 48, height: 48)
+        case .hallFront: return PixelSize(width: 260, height: 90)
+        case .chapelInterior: return PixelSize(width: 160, height: 96)
+        case .kitchenInterior: return PixelSize(width: 120, height: 80)
+        case .bench: return PixelSize(width: 32, height: 10)
+        case .taxLectern: return PixelSize(width: 12, height: 20)
+        case .marekCart: return PixelSize(width: 48, height: 30)
+        case .statue: return PixelSize(width: 20, height: 40)
+        case .speakerMark: return PixelSize(width: 7, height: 7)
         }
+    }
+
+    /// The court and the guests of M3 and their glow strips: 8 frames each (walk 0 ... 3, idle 4 ... 5, talk 6 ... 7).
+    var isCourtBody: Bool {
+        switch self {
+        case .odile, .brannock, .pip, .hesper, .tamsin, .bram, .marek, .seren, .serLudo, .bard, .envoy, .herald,
+             .hesperGlow, .serenGlow, .heraldGlow:
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// The composed portrait's parts whose frame 0 means "none" (SPRITES.md "M3": frame 0 of beard, hair and hat is
+    /// empty); the composer skips that frame.
+    var hasEmptyFirstFrame: Bool {
+        self == .portraitBeard || self == .portraitHair || self == .portraitHat
     }
 
     /// Frames in the atlas, one row left to right (SPRITES.md): the king walk 0 ... 5, idle 6 ... 7, command 8 ... 9;
@@ -176,7 +224,12 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     /// (the crow flies 0 ... 2 and perches 3, the gloomweaver floats 0 ... 3); a glow strip has its body's frames;
     /// walls whole 0 and damaged 1; gates closed 0, closed damaged 1, open 2; projectiles rising 0, flat 1, falling 2.
     var frameCount: Int {
+        if isCourtBody { return 8 }
         switch self {
+        case .petitionerD, .petitionerE: return 6
+        case .portraitSeren, .speakerMark: return 2
+        case .portraitClothes, .portraitHair, .portraitHat: return 8
+        case .portraitFace, .portraitBeard: return 6
         case .king, .kingGlow: return 10
         case .guardsman: return 9
         case .ashBrute, .ashBruteGlow, .ashGiant, .ashGiantGlow, .lightlessKing, .lightlessKingGlow: return 7

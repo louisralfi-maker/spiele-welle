@@ -41,6 +41,9 @@ enum PlaceholderArt {
                 frames = PlaceholderPeople.frames(for: sprite)
             }
             if frames.isEmpty {
+                frames = PlaceholderCourt.frames(for: sprite)
+            }
+            if frames.isEmpty {
                 frames = PlaceholderBuildings.frames(for: sprite, salt: salt)
             }
             if frames.isEmpty {
