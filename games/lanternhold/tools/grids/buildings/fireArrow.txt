@@ -1,0 +1,15 @@
+# fireArrow 7x5, 3 frames (strip 21x5), hand-set, as arrow with a pitch rag bound behind the head (straw); the
+# engine adds the small glow.
+c = parchment
+m = stoneMid
+p = stonePale
+L = woodLight
+y = straw
+Y = strawLight
+P = plaster
+---
+....Ymp.......cc.....
+...yYm.cc..Y..cPL....
+...L...PLLyYmp...L...
+cPL....cc..y.....yYm.
+cc................Ymp

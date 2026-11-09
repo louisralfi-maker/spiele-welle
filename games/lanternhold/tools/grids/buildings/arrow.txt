@@ -1,0 +1,13 @@
+# arrow 7x5, 3 frames (strip 21x5), hand-set, pointing right (the engine mirrors it when it flies left): rising,
+# flat, falling; pale fletching, a woodLight shaft, an iron tip.
+c = parchment
+m = stoneMid
+p = stonePale
+L = woodLight
+P = plaster
+---
+.....mp.......cc.....
+....Lm.cc.....cPL....
+...L...PLLLLmp...L...
+cPL....cc.........Lm.
+cc.................mp

@@ -31,7 +31,8 @@ build() { # name: one sprite
     palisade|ballista)
                    python3 -I -B $T grid $G/$1.txt $A/$1.png ;;
     stoneWall|bastion|rubbleWood|rubbleStone|scaffold|gateWood|gateIron|gateGreat|gateBroken|archerTower|watchtower|\
-    fireTower|catapult|stakePit|beaconBase|beaconTower|greatBeacon|beaconFire|barracks|smithy|masterSmithy|lodge|bigLodge)
+    fireTower|catapult|stakePit|beaconBase|beaconTower|greatBeacon|beaconFire|barracks|smithy|masterSmithy|lodge|bigLodge|\
+    bigHouse|market|tavern|plotMarker|arrow|fireArrow|bolt|firepot)
                    python3 -I -B $T grid $GB/$1.txt $A/$1.png ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;
     esac
@@ -39,7 +40,7 @@ build() { # name: one sprite
 
 ALL="palisade stoneWall bastion rubbleWood rubbleStone scaffold gateWood gateIron gateGreat gateBroken archerTower
 watchtower fireTower ballista catapult stakePit beaconBase beaconTower greatBeacon beaconFire
-barracks smithy masterSmithy lodge bigLodge"
+barracks smithy masterSmithy lodge bigLodge bigHouse market tavern plotMarker arrow fireArrow bolt firepot"
 for name in ${@:-$ALL}; do
     cool
     build "$name"

@@ -1,0 +1,14 @@
+# bolt 11x5, 3 frames (strip 33x5), hand-set, pointing right: rising, flat, falling; the ballista's heavy bolt with
+# a thick shaft, an iron head and wooden fins.
+o = wood
+k = ink
+m = stoneMid
+p = stonePale
+w = woodDark
+L = woodLight
+---
+........mp.oL.........ow.........
+......LLm..LLLLLLLLmm.LLLLwk.....
+...LLLwk...owwwwwwwmpp...LLLwk...
+LLLLwk.....oL...............LLm..
+ow............................mp.

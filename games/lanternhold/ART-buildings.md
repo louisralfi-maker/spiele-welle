@@ -60,6 +60,15 @@ Recraft (`bash tools/recraft.sh`, `recraftv4_1`, 35 credits per image), budget 1
 | `lodge` | 56x44 | grid (design from `court-a`) | a timber workshop on a stone base, its doors open, a shingle roof, logs, a ladder, a wheelbarrow, a saw sign |
 | `bigLodge` | 64x52 | grid (design from `court-a`) | two storeys (stone and timber), teal slate, a crane hoist with a block on its rope, stone blocks and planks |
 
+| `bigHouse` | 72x56 | Recraft `town-a` (left) for the roof and chimneys + hand-set storeys | two storeys in the cottages' half-timbering: a jettied upper storey with two windows between braced bays, a ground floor with two windows over flower boxes, an oak door, a stone plinth; a tile roof with a dormer and two chimneys |
+| `market` | 90x40 | grid (layout from `town-a`, middle) | three stalls under raspberry, teal and ochre striped awnings with scalloped valances, counters piled with produce, cloth and pots, crates and barrels |
+| `tavern` | 90x56 | Recraft `town-a` (right) for the roof with its gable + hand-set storeys | a half-timbered upper storey with three windows, a grey stone ground floor with an arched door and two wide windows, a bench, barrels, a sign with a gold tankard on an iron bracket |
+| `plotMarker` | 10x16 | grid | a staff with a small teal flag, two stakes with a rope, a little soil heap |
+| `arrow` | 7x5 x 3 | grid | pointing right (mirrored when flying left): rising, flat, falling; pale fletching, an iron tip |
+| `fireArrow` | 7x5 x 3 | grid | as `arrow` with a pitch rag bound behind the head |
+| `bolt` | 11x5 x 3 | grid | pointing right: a thick shaft, an iron head, wooden fins |
+| `firepot` | 5x5 x 2 | grid | a clay pot with a rag wick, upright and turned a quarter |
+
 The tiers read at a glance: the palisade (20x34, brown stakes) < the stone wall (36x52, two merlons) < the bastion
 (44x64: crown on corbels, three merlons, talus, banner).
 
@@ -73,6 +82,9 @@ Why the courtyard is hand-set: `court-a` came with a strong violet cast (the tim
 night1, the wood to grey stone) and with details far below a game pixel at the 8x downscale (spears, shield rims,
 tools). Converted with colour zones it stayed mush (`build/recraft/lh/bld/parts/barracks-b.png`), so the buildings are
 drawn with the masonry, slate, plank, window, door and banner brushes of this lane, following the painting's layout.
+
+The town: the cottages (64x46, one storey) < the big house (72x56, two storeys, two chimneys, a dormer); the market
+and the tavern read by their awnings and their sign.
 
 The beacon: the overgrown ruin with its empty cage < a clean rebuilt drum under shear legs < the half tower in its
 scaffold < the finished tower with banners and the bowl. All four share the ruin's footprint, ground line and pale
@@ -102,7 +114,8 @@ shadows), two-row crossbars at rows 163-164 and 170-171. The passage below row 1
 
 ## Anchors for the engine (sprite pixels; dx from the left edge, dy up from the bottom row, as layout_m1b.py)
 
-Archer posts, flames and window glass:
+Archer posts, flames and window glass. Masks are tight to the panes: the mock (and the engine's glass masks) glow every
+night0, night1 and ink pixel inside a mask, so a mask over an outline would glow too.
 
 | sprite | what | where |
 |---|---|---|
@@ -113,12 +126,15 @@ Archer posts, flames and window glass:
 | `catapult` | firepot | it leaves the cup at frame 2's cup position, about (dx 13, dy 21); in frames 0 and 1 the pot sits in the cup at (dx 27, dy 16) and (dx 27, dy 12) |
 | `ballista` | bolt | the bolt leaves from the stock's front at (dx 0, dy 10), flying left |
 | `greatBeacon` | fire | `beaconFire` (24x20) at (dx 20, dy 123): its coal bed lies on the bowl's dark mouth (night0, x 9-54 at row 4, i.e. dy 125); the beacon light from about (cx 32, y 130) |
-| `barracks` | window glass | masks (dx 7, dy 25, w 6, h 6), (20, 25, 6, 6), (38, 25, 6, 6), (51, 25, 6, 6); the wall lanterns' glass (23, 14, 1, 2) and (41, 14, 1, 2) |
+| `barracks` | window glass | (dx 8, dy 26, w 4, h 4), (21, 26, 4, 4), (39, 26, 4, 4), (52, 26, 4, 4); the wall lanterns' glass (23, 14, 1, 2) and (41, 14, 1, 2) |
 | `smithy` | forge fire | `brazierFlame` at (dx 15, dy 13) on the coals (row 33, x 14-24); a small brazier-kind light from (cx 19, y 16) |
 | `masterSmithy` | forge fire | `hearthFire` at (dx 13, dy 13) on the coals (row 41, x 15-27); light from (cx 21, y 16) |
-| `masterSmithy` | window glass | loft (19, 40, 6, 6), annex (46, 15, 6, 6) |
-| `lodge` | window glass | (10, 10, 6, 6); optional: the open doorway's dark inside (22, 1, 12, 16) as a dim warm glow |
-| `bigLodge` | window glass | (8, 25, 5, 6), (21, 25, 5, 6), (34, 25, 5, 6), (46, 25, 5, 6); optional doorway (22, 0, 14, 17) |
+| `masterSmithy` | window glass | loft (20, 41, 4, 4), annex (47, 16, 4, 4) |
+| `lodge` | window glass | (11, 11, 4, 4); optional: the open doorway's dark inside (22, 1, 12, 15) as a dim warm glow |
+| `bigLodge` | window glass | (9, 26, 3, 4), (22, 26, 3, 4), (35, 26, 3, 4), (47, 26, 3, 4); optional doorway (22, 0, 14, 16) |
+| `smithy` | vent | the gable vent (20, 36, 3, 2) can glow faintly with the forge |
+| `bigHouse` | window glass | upper (26, 24, 5, 5), (41, 24, 5, 5); ground (16, 9, 5, 5), (50, 9, 5, 5); the dormer (31, 41, 6, 4) |
+| `tavern` | window glass | upper (11, 25, 5, 5), (41, 25, 5, 5), (69, 25, 5, 5); ground (15, 9, 8, 5), (56, 9, 8, 5) |
 | `greatBeacon` | slit glass | masks (dx 23, dy 55, w 2, h 9) and (dx 38, dy 33, w 2, h 8) |
 
 ## Notes for the lead
