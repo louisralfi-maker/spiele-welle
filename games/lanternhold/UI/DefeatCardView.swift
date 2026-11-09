@@ -97,12 +97,12 @@ struct DarkeningTown: View {
         .accessibilityHidden(true)
     }
 
-    /// Six houses, two windows each; the first `dark` windows (right to left, as the Gloom came) are out.
+    /// Six houses, two windows each; the first `dark` windows (from the left, the side the Gloom came from) are out.
     static func draw(dark: Int, in graphics: inout GraphicsContext, size: CGSize) {
         let houses = 6
         let slot = size.width / CGFloat(houses)
         var window = 0
-        for index in (0..<houses).reversed() {
+        for index in 0..<houses {
             let tall = index % 2 == 0
             let width = slot * 0.62
             let height = size.height * (tall ? 0.62 : 0.5)
@@ -116,7 +116,7 @@ struct DarkeningTown: View {
             roof.addLine(to: CGPoint(x: left + width + 3, y: base - height))
             roof.closeSubpath()
             graphics.fill(roof, with: .color(Color(hex: 0x6A4A5E)))
-            for side in [CGFloat(0.22), CGFloat(0.62)].reversed() {
+            for side in [CGFloat(0.22), CGFloat(0.62)] {
                 let pane = CGRect(x: left + width * side, y: base - height * 0.66, width: width * 0.16,
                                   height: height * 0.24)
                 let lit = window >= dark

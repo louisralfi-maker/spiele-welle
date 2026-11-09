@@ -44,8 +44,8 @@ enum GameStart {
             let target = gap(from: state.hour, to: hour)
             if target < 23.99 {
                 if gap(from: state.hour, to: ClockEvent.dawnReport.hour) <= target {
-                    Sim.runToDawn(&state, balance: balance, bot: &bot)
-                    dawn = state
+                    // A realm that falls on the way keeps its last dawn as the snapshot.
+                    if Sim.runToDawn(&state, balance: balance, bot: &bot) != nil { dawn = state }
                 }
                 if !state.defeated && gap(from: state.hour, to: hour) < 23.5 {
                     Sim.run(&state, untilHour: hour, balance: balance, bot: &bot)

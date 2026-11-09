@@ -1300,6 +1300,10 @@ state machine (`overlay`) pauses the simulation under every card and screen.
   ribbon in the night column, the defeat card's town reads with its windows going out. Still to fix: the night cards
   and the report filled the whole height (a `.frame(maxHeight:)` takes all the height offered, and their backgrounds
   were drawn after it), and the tax card still scrolled to its war tax (the close button's 44 pt row and a lock line).
+- `lh-m2b-b3` (build, unit, ui, ui-de, release) on `3cb8482`: ALL PASSED. Every card hugs its content (the defeat
+  card and the pause sheet centred at their own height), the tax lectern shows its four rates in English and German
+  with the war tax locked "Ab Tag 8" in its price column, the build and barracks cards show the treasury; no German
+  text clips in any shot, every checked target is at least 44 pt.
 
 **Open points (M2b part 2)**
 
