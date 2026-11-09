@@ -61,13 +61,18 @@ struct Prop: Sendable, Equatable {
     var lights: [LightSource]
     /// Fades in while the camera's focus moves across this range (nil: always drawn).
     var fade: ClosedRange<Double>?
+    /// Fades out again while the camera's focus moves across this range (nil: never).
+    var fadeOut: ClosedRange<Double>?
+    /// Moves with this plane's parallax while drawn into its own plane's picture (nil: its own plane).
+    var movesWith: Plane?
     /// False for a snuffed brazier: no lights and no fire emissives.
     var isLit: Bool
 
     init(id: Int, sprite: SpriteID, plane: Plane, x: Double, y: Double, z: Int = 0, shade: Float = 1,
          flipped: Bool = false, anchor: PropAnchor = .ground, region: WorldLayout.Region = .all,
          emissive: [EmissivePart] = [], masks: [GlassMask] = [], lights: [LightSource] = [],
-         fade: ClosedRange<Double>? = nil, isLit: Bool = true) {
+         fade: ClosedRange<Double>? = nil, fadeOut: ClosedRange<Double>? = nil, movesWith: Plane? = nil,
+         isLit: Bool = true) {
         self.id = id
         self.sprite = sprite
         self.plane = plane
@@ -84,6 +89,8 @@ struct Prop: Sendable, Equatable {
         self.masks = masks
         self.lights = lights
         self.fade = fade
+        self.fadeOut = fadeOut
+        self.movesWith = movesWith
         self.isLit = isLit
     }
 }
@@ -334,7 +341,8 @@ private struct SceneBuilder {
         }
         append(Prop(id: props.count + 1, sprite: entry.sprite, plane: plane, x: entry.x, y: entry.y, z: entry.z,
                     shade: entry.shade, flipped: entry.flipped, anchor: entry.anchor, region: region,
-                    emissive: parts, masks: masks, lights: lights, fade: entry.fade))
+                    emissive: parts, masks: masks, lights: lights, fade: entry.fade, fadeOut: entry.fadeOut,
+                    movesWith: entry.movesWith))
     }
 
     private mutating func append(_ prop: Prop) {

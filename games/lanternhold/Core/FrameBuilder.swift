@@ -296,7 +296,9 @@ enum FrameBuilder {
     /// One prop as a plane sprite (culled off screen), then its emissive sprites and window glass.
     private static func addProp(_ prop: Prop, ambient: AmbientSample, animTime: Double, options: FrameOptions,
                                 geometry: Geometry, sprites: inout [[SpriteInstance]], glow: inout EmissiveList) {
-        let left = prop.x - geometry.whole(prop.plane)
+        // A prop that moves with another plane is placed by that plane's whole offset (within a game pixel of its
+        // own sub-pixel shift) but drawn into its own plane's picture.
+        let left = prop.x - geometry.whole(prop.movesWith ?? prop.plane)
         let width = Double(prop.width)
         let height = Double(prop.height)
         guard geometry.isVisible(left: left, width: width) else { return }
@@ -304,8 +306,12 @@ enum FrameBuilder {
         if let fade = prop.fade {
             let share = (geometry.focusX - fade.lowerBound) / max(1, fade.upperBound - fade.lowerBound)
             alpha = Float(min(1, max(0, share)))
-            guard alpha > 0.003 else { return }
         }
+        if let fadeOut = prop.fadeOut {
+            let share = (geometry.focusX - fadeOut.lowerBound) / max(1, fadeOut.upperBound - fadeOut.lowerBound)
+            alpha *= Float(1 - min(1, max(0, share)))
+        }
+        guard alpha > 0.003 else { return }
         let bottom = geometry.bottom(of: prop)
         let top = geometry.top(y: bottom, height: height)
         let rect = SIMD4<Float>(Float(left), Float(top), Float(prop.width), Float(prop.height))

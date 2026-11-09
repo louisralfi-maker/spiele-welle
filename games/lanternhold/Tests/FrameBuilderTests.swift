@@ -180,7 +180,7 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertTrue(town.layer(.world).sprites.contains { $0.sprite == .well })
         XCTAssertTrue(town.emissives.contains { $0.kind == .glass && $0.sprite == .house }, "house windows glow")
         XCTAssertEqual(town.actors.filter { $0.sprite == .citizen }.count, 2)
-        XCTAssertTrue(town.layer(.far).sprites.contains { $0.sprite == .castleKeep }, "the keep seen from the town")
+        XCTAssertTrue(town.layer(.mid).sprites.contains { $0.sprite == .keepFar }, "the keep seen from the town")
         XCTAssertTrue(town.layer(.mid).sprites.contains { $0.sprite == .windmill })
         var castleWindows = 0
         for prop in PlaceholderScene.world().props where prop.plane == .world && prop.sprite != .house {
@@ -326,6 +326,12 @@ final class FrameBuilderTests: XCTestCase {
         }
         // A gorge piece starts left of its plane's border, a valley piece reaches right of it (sets do not clip).
         for prop in PlaceholderScene.world().props where prop.plane == .far || prop.plane == .mid {
+            // The keep seen from the valley and its rock move with the far plane and fade in at the back gate.
+            if prop.movesWith != nil {
+                XCTAssertEqual(prop.region, .valley, "\(prop.sprite) moving with another plane")
+                XCTAssertNotNil(prop.fade, "\(prop.sprite) fades in at the back gate")
+                continue
+            }
             let border = WorldLayout.border(prop.plane)
             switch prop.region {
             case .gorge: XCTAssertLessThan(prop.x, border, "\(prop.sprite) at \(prop.x) on \(prop.plane)")
@@ -337,8 +343,11 @@ final class FrameBuilderTests: XCTestCase {
         // The town sees only the valley set on the mid plane; the front only the gorge set.
         let town = frame(timeOfDay: 0.75, focus: 2900)
         let front = frame(timeOfDay: 0.75, focus: 760)
-        let valleySprites: Set<SpriteID> = [.valleyMidA, .valleyMidB, .valleyMidC, .windmill, .riverFarBank]
-        XCTAssertTrue(town.layer(.mid).sprites.allSatisfy { valleySprites.contains($0.sprite) })
+        let valleySprites: Set<SpriteID> = [.valleyMidA, .valleyMidB, .valleyMidC, .windmill, .riverFarBank, .keepFar]
+        let valleyKeepRock: Set<SpriteID> = [.cliffFlank, .gorgeMouth]
+        XCTAssertTrue(town.layer(.mid).sprites.allSatisfy {
+            valleySprites.contains($0.sprite) || valleyKeepRock.contains($0.sprite)
+        })
         XCTAssertTrue(front.layer(.mid).sprites.allSatisfy { !valleySprites.contains($0.sprite) })
     }
 
@@ -378,7 +387,7 @@ final class FrameBuilderTests: XCTestCase {
 
     func testTheKeepsValleyViewFadesInAtTheBackGate() {
         func farKeep(_ focus: Double) -> SpriteInstance? {
-            frame(timeOfDay: 0.75, focus: focus).layer(.far).sprites.first { $0.sprite == .castleKeep }
+            frame(timeOfDay: 0.75, focus: focus).layer(.mid).sprites.first { $0.sprite == .keepFar }
         }
         XCTAssertNil(farKeep(1650), "no second castle above the courtyard")
         XCTAssertNil(farKeep(1830), "nor above the great hall")
@@ -387,6 +396,23 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertEqual(halfway?.tint.w ?? 0, 0.5, accuracy: 0.01, "half faded in between")
         XCTAssertEqual(farKeep(2330)?.tint.w, 1, "opaque at the back gate")
         XCTAssertEqual(farKeep(2900)?.tint.w, 1, "and from the town")
+        XCTAssertNil(farKeep(3720), "gone at the river end (no sliver at the left edge)")
+        // Drawn into the mid picture (mid haze) but moving like the far plane: at the back gate it stands behind the
+        // gate, between its towers.
+        for focus in [2330.0, 2600, 2900] {
+            let desc = frame(timeOfDay: 0.75, focus: focus)
+            let keep = desc.layer(.mid).sprites.first { $0.sprite == .keepFar }
+            XCTAssertEqual(keep?.rect.x, Float(560 - desc.layer(.far).offset.whole), "at \(focus)")
+        }
+        let gate = frame(timeOfDay: 0.75, focus: 2330)
+        let backGate = gate.layer(.world).sprites.first { $0.sprite == .castleBackGate }
+        let keep = gate.layer(.mid).sprites.first { $0.sprite == .keepFar }
+        if let backGate, let keep {
+            XCTAssertGreaterThan(keep.rect.x, backGate.rect.x, "the keep stands behind the back gate")
+            XCTAssertLessThan(keep.rect.x + keep.rect.z, backGate.rect.x + backGate.rect.z)
+        } else {
+            XCTFail("back gate and keep at the back-gate view")
+        }
     }
 
     func testGlassMasksSitInsideTheirSprite() {
@@ -400,7 +426,7 @@ final class FrameBuilderTests: XCTestCase {
                 XCTAssertLessThanOrEqual(Int(mask.dy) + mask.height, prop.height, "\(prop.sprite) at \(prop.x)")
             }
         }
-        XCTAssertEqual(masks, 22, "keep 5, front 4, courtyard 1, back gate 4, houses 8")
+        XCTAssertEqual(masks, 26, "keep 5, front 4, courtyard 1, back gate 4, houses 8, the valley's keep 4")
         // In a frame each glass quad lies inside its prop's quad, mirrored with it.
         for focus in [1360.0, 1650, 2330, 2900] {
             let desc = frame(timeOfDay: 0.95, focus: focus)
@@ -444,7 +470,9 @@ final class FrameBuilderTests: XCTestCase {
         emitters += prop.masks.map { "glass@\(number($0.dx)),\(number($0.dy)),\($0.width)x\($0.height)" }
         let lights = prop.lights.map { "\($0.kind.rawValue)@\(number($0.x)),\(number($0.y)),\(number($0.radius))" }
         let anchor = prop.anchor == .top ? "top" : "ground"
-        let fade = prop.fade.map { " fade=\(number($0.lowerBound))-\(number($0.upperBound))" } ?? ""
+        var fade = prop.fade.map { " fade=\(number($0.lowerBound))-\(number($0.upperBound))" } ?? ""
+        fade += prop.fadeOut.map { " fadeout=\(number($0.lowerBound))-\(number($0.upperBound))" } ?? ""
+        fade += prop.movesWith.map { " moves=\(planes[$0] ?? "?")" } ?? ""
         return "\(prop.sprite.rawValue) \(planes[prop.plane] ?? "?") x=\(number(prop.x)) y=\(number(prop.y)) z=\(prop.z) "
             + "shade=\(String(format: "%.2f", prop.shade)) flip=\(prop.flipped ? 1 : 0) anchor=\(anchor) "
             + "region=\(prop.region.rawValue) em=[\(emitters.joined(separator: " "))] "
@@ -477,12 +505,14 @@ final class FrameBuilderTests: XCTestCase {
         "farMountain far x=100 y=36 z=0 shade=0.92 flip=1 anchor=ground region=gorge em=[] li=[]",
         "farMountain far x=240 y=40 z=0 shade=0.92 flip=0 anchor=ground region=gorge em=[] li=[]",
         "farMountain far x=380 y=34 z=0 shade=0.92 flip=1 anchor=ground region=gorge em=[] li=[]",
-        "castleKeep far x=545 y=-62 z=2 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[] fade=2150-2330",
         "wardenStatue mid x=430 y=-34 z=2 shade=0.88 flip=0 anchor=ground region=gorge em=[hearthFire@40,153:fireOrange:steady] li=[hearth@478,124,70]",
         "gorgeWallHigh mid x=690 y=0 z=1 shade=0.85 flip=0 anchor=ground region=gorge em=[] li=[]",
         "gorgeWallB mid x=862 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
         "gorgeMouth mid x=1030 y=0 z=3 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
         "windmill mid x=1500 y=93 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
+        "cliffFlank mid x=490 y=-50 z=-4 shade=0.80 flip=0 anchor=ground region=valley em=[] li=[] fade=2150-2330 fadeout=3300-3550 moves=far",
+        "gorgeMouth mid x=640 y=-60 z=-4 shade=0.80 flip=0 anchor=ground region=valley em=[] li=[] fade=2150-2330 fadeout=3300-3550 moves=far",
+        "keepFar mid x=560 y=-45 z=-3 shade=0.72 flip=0 anchor=ground region=valley em=[glass@17,150,13x10 glass@61,150,12x10 glass@59,96,13x10 glass@17,96,13x10] li=[] fade=2150-2330 fadeout=3300-3550 moves=far",
         "riverFarBank mid x=1940 y=0 z=2 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
         "beaconRuin world x=438 y=0 z=-1 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
         "palisade world x=640 y=0 z=1 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",

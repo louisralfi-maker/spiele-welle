@@ -165,7 +165,7 @@ def layout_props():
             li.append((kind, x, y, r, COL[kind], 0.8 if kind == 'window' else 1))
         plane = 'fg' if d['p'] == 'fg' else d['p']
         out.append(dict(s=d['s'], p=plane, x=d['x'], y=d['y'], z=d['z'], sh=d['sh'], f=d['f'], em=em, li=li,
-                        masks=masks, anchor=d['anchor'], lp=plane, fade=d.get('fade')))
+                        masks=masks, anchor=d['anchor'], lp=plane, fade=d.get('fade'), mv=d.get('mv'), fadeout=d.get('fadeout')))
     return out
 ORDER = ['sky', 'far', 'mid', 'fogA', 'world', 'fogB', 'fg']
 def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86, 40)), houseWin=((14, 14), (44, 14))):
@@ -228,12 +228,15 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                 p = m[j][i]
                 if p: skyAdd[top + j][left + i] = tuple(skyAdd[top + j][left + i][k] + p[k] / 255 * tint[k] * a for k in range(3))
     for pr in sorted(props, key=lambda q: (ORDER.index(q['p']), q['z'])):
-        w, h = SIZES[pr['s']]; left = pr['x'] - whole[pr['p']]
+        w, h = SIZES[pr['s']]; left = pr['x'] - whole[pr.get('mv') or pr['p']]  # moves: another plane's parallax
         if left + w < -1 or left > TW + 1: continue
         top = pr['y'] if pr.get('anchor') == 'top' else GROUND - pr['y'] - h
         fa = 1.0
         if pr.get('fade'):  # fades in with the camera's focus (the far view of the keep)
             f0, f1 = pr['fade']; fa = min(1.0, max(0.0, (camx + VIS / 2 - f0) / (f1 - f0)))
+            if fa <= 0.003: continue
+        if pr.get('fadeout'):  # and out again
+            f2, f3 = pr['fadeout']; fa *= 1 - min(1.0, max(0.0, (camx + VIS / 2 - f2) / (f3 - f2)))
             if fa <= 0.003: continue
         draw(pr['p'], sprite(pr['s']), int(left), int(top), (pr['sh'], pr['sh'], pr['sh'], fa), pr['f'])
         for (dx, dy, mw, mh, col) in pr.get('masks', []):  # window glass: the sprite's dark pixels in a rect glow

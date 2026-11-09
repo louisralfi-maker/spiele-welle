@@ -16,7 +16,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     case farMountain, valleyFarA, valleyFarB, valleyFarC
     // Mid plane: the gorge's far wall, the warden statue, the gorge mouth; the valley's hills, windmill and far shore
     case gorgeWallA, gorgeWallB, gorgeWallC, gorgeWallHigh, wardenStatue, gorgeMouth
-    case valleyMidA, valleyMidB, valleyMidC, windmill, riverFarBank
+    case valleyMidA, valleyMidB, valleyMidC, windmill, riverFarBank, keepFar
     // Fog planes
     case fogStrip
     // World plane
@@ -56,6 +56,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .valleyMidC: return PixelSize(width: 192, height: 110)
         case .windmill: return PixelSize(width: 40, height: 60)
         case .riverFarBank: return PixelSize(width: 240, height: 30)
+        case .keepFar: return PixelSize(width: 98, height: 237)
         case .fogStrip: return PixelSize(width: 128, height: 24)
         case .ground: return PixelSize(width: 64, height: 26)
         case .darknessBank: return PixelSize(width: 64, height: 236)

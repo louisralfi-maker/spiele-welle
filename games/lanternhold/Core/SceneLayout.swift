@@ -47,6 +47,11 @@ enum SceneLayout {
         var lights: [Light] = []
         /// Fades in while the camera's focus moves from the lower bound (invisible) to the upper (opaque).
         var fade: ClosedRange<Double>?
+        /// Fades out again while the focus moves from the lower bound (opaque) to the upper (invisible).
+        var fadeOut: ClosedRange<Double>?
+        /// Drawn into its own plane's picture (its light and haze) but moving with this plane's parallax (nil: its
+        /// own). The keep seen from the valley takes the mid plane's haze and moves like the far plane.
+        var movesWith: Plane?
     }
 
     /// Tiles laid side by side: `sprites` in order (it repeats), `count` tiles from `x`, each `tileWidth` wide.
@@ -95,10 +100,7 @@ enum SceneLayout {
         Entry(sprite: .farMountain, x: 100, y: 36, shade: 0.92, flipped: true, region: .gorge),
         Entry(sprite: .farMountain, x: 240, y: 40, shade: 0.92, region: .gorge),
         Entry(sprite: .farMountain, x: 380, y: 34, shade: 0.92, flipped: true, region: .gorge),
-        // The keep seen from the town: behind the back gate at the back-gate view (only between the gate's towers,
-        // where the real keep stands) and at the left edge of the town frame, its foot behind the hills. It fades in
-        // from focus 2150 to the back gate, so it never floats above the courtyard and the hall as a second castle.
-        Entry(sprite: .castleKeep, x: 545, y: -62, z: 2, region: .valley, fade: 2150...2330),
+        // (The keep seen from the town moved into the mid plane's picture: `valleyKeep`.)
     ]
 
     static let mid: [Entry] = [
@@ -116,9 +118,34 @@ enum SceneLayout {
         Entry(sprite: .gorgeMouth, x: 1030, y: 0, z: 3, region: .gorge),
         // The windmill on a hill crest of valleyMidB (96 px high there).
         Entry(sprite: .windmill, x: 1500, y: 93, z: 1, region: .valley),
+    ] + valleyKeep + [
         // The river's far shore, at the ground line in front of the hills: the river reads wide and closes the world.
         Entry(sprite: .riverFarBank, x: 1940, y: 0, z: 2, region: .valley),
     ]
+
+    /// The keep seen from the valley (polish after the art review): a solid slate keep (`keepFar`, the keep's main
+    /// block without its machicolations) with its teal banner in the notch of the gorge mouth, drawn into the mid
+    /// plane's picture (the mid haze, about half the far haze: it stands a few hundred metres away, not on the horizon)
+    /// but moving like the far plane, so it stands behind the back gate at the back-gate view (between the gate's
+    /// towers, where the real keep is) and at the left edge of the town frame. Rock on both sides plugs the gorge
+    /// mouth; all of it behind the hills. It fades in from focus 2150 (no second castle above the courtyard and the
+    /// hall) and out from 3300 to 3550 (at the river end its rock showed as a sliver at the left edge). Its windows
+    /// glow at night, a beacon for the valley.
+    static let valleyKeep: [Entry] = {
+        let x = 560.0
+        let fadeIn = 2150.0...2330
+        let fadeOut = 3300.0...3550
+        return [
+            Entry(sprite: .cliffFlank, x: x - 70, y: -50, z: -4, shade: 0.8, region: .valley, fade: fadeIn,
+                  fadeOut: fadeOut, movesWith: .far),
+            Entry(sprite: .gorgeMouth, x: x + 80, y: -60, z: -4, shade: 0.8, region: .valley, fade: fadeIn,
+                  fadeOut: fadeOut, movesWith: .far),
+            Entry(sprite: .keepFar, x: x, y: -45, z: -3, shade: 0.72, region: .valley,
+                  emitters: [SceneLayout.glass(17, 150, 13, 10), SceneLayout.glass(61, 150, 12, 10),
+                             SceneLayout.glass(59, 96, 13, 10), SceneLayout.glass(17, 96, 13, 10)],
+                  fade: fadeIn, fadeOut: fadeOut, movesWith: .far),
+        ]
+    }()
 
     static let world: [Entry] = makeWorld()
 

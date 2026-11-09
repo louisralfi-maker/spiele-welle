@@ -16,6 +16,11 @@ Coordinates
 - `fade: (f0, f1)` (the far view of the keep, Swift port): the instance fades in while the camera's focus moves from f0
   (invisible) to f1 (opaque), so it is not seen from the courtyard and the hall, where the real keep stands behind the
   camera.
+- `fadeout: (f2, f3)`: it fades out again while the focus moves from f2 (opaque) to f3 (invisible).
+- `moves: plane` (polish after the art review): the instance is drawn into its own plane's picture (and takes that
+  plane's light and haze) but moves with the named plane's parallax. The keep seen from the valley is drawn into the
+  mid picture (mid haze, about half the far haze: it stands a few hundred metres away, not on the horizon) but moves
+  like the far plane, so it hides behind the back gate at the back-gate view and still shows at the town's left edge.
 
 Backdrop regions
 - Every far and mid instance belongs to the gorge set or the valley set. On each plane the border between them sits at
@@ -111,10 +116,19 @@ FAR = [
     # the left edge of the town frame (focus 2900: screen 9 to 159), its foot behind the hills; z above the mountains.
     # It fades in from focus 2150 to the back gate (2330): from the courtyard and the hall it floated above the gorge
     # mouth as a second castle (the art review's open point).
-    dict(s="castleKeep", x=545, y=-62, region="valley", z=2, fade=(2150, 2330)),
+    # (Polish after the art review: moved into the mid plane's picture, see VALLEY_KEEP below.)
 ]
 
 # ------------------------------------------------------------------------------------------------- mid plane
+VK = dict(region="valley", moves="far", fade=(2150, 2330), fadeout=(3300, 3550))
+VK_X, VK_Y = 560, -45   # keepFar 98x237: its crenels at y 156 to 167, the top window row at y 104 to 128
+VALLEY_KEEP = [
+    dict(s="cliffFlank", x=VK_X - 70, y=-50, z=-4, shade=0.8, **VK),
+    dict(s="gorgeMouth", x=VK_X + 80, y=-60, z=-4, shade=0.8, **VK),
+    dict(s="keepFar", x=VK_X, y=VK_Y, z=-3, shade=0.72,
+         em=[("mask", 17, 150, 13, 10, "window"), ("mask", 61, 150, 12, 10, "window"),
+             ("mask", 59, 96, 13, 10, "window"), ("mask", 17, 96, 13, 10, "window")], **VK),
+]
 MID = [
     # The warden statue, carved into the wall; seen behind the king at the front (focus 600 to 1000). Its bowl fire
     # burns all night: a hearthFire in the dark hollow and a brazier light.
@@ -131,6 +145,15 @@ MID = [
     dict(s="gorgeMouth", x=1030, y=0, region="gorge", z=3),
     # The windmill on a hill crest of valleyMidB (96 px high there), right of the keep.
     dict(s="windmill", x=1500, y=93, region="valley", z=1),
+    # The keep seen from the valley (polish after the art review): a solid slate keep with its teal banner in the
+    # notch of the gorge mouth, drawn into the mid picture but moving like the far plane (see `moves`). At the back-gate
+    # view it stands behind the gate (screen 123 to 273, between the gate's towers, where the real keep is); from the
+    # town (focus 2900) at the left edge (screen 9 to 159). Rock walls on both sides plug the gorge mouth: the high rock
+    # on the left (behind the mid gorge mouth at the back-gate view) and a mirrored gorge mouth on the right falling
+    # away to the valley. All stand behind the hills (z -3). It fades in from focus 2150 (no second castle above the
+    # courtyard and the hall) and out again from 3300 to 3550 (at the river end its rock showed as a sliver at the left
+    # edge). Three to five windows glow at night: a beacon for the valley.
+    *VALLEY_KEEP,
     # The river's far shore (M1b polish): seen behind the river at the world's end (focus 3720 shows mid x 1948 to
     # 2168); in front of the hills, at the ground line, so the river reads wide and closes the world.
     dict(s="riverFarBank", x=1940, y=0, region="valley", z=2),
@@ -280,7 +303,8 @@ def instances():
     def add(plane, d, region=None):
         out.append(dict(s=d["s"], p=plane, x=d["x"], y=d.get("y", 0), z=d.get("z", 0), sh=d.get("shade", 1.0),
                         f=d.get("flip", False), em=d.get("em", []), li=d.get("li", []),
-                        anchor=d.get("anchor", "ground"), region=region or d.get("region"), fade=d.get("fade")))
+                        anchor=d.get("anchor", "ground"), region=region or d.get("region"), fade=d.get("fade"),
+                        mv=d.get("moves"), fadeout=d.get("fadeout")))
 
     for plane, region, names, x0, y, z, shade, count in CYCLES:
         x = x0

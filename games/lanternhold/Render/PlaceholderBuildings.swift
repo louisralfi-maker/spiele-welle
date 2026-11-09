@@ -8,7 +8,7 @@ enum PlaceholderBuildings {
         case .palisade: return [palisade(salt)]
         case .stoneWall: return [stoneWall(salt)]
         case .ballista: return [ballista(salt)]
-        case .castleFront, .castleKeep, .castleBackGate, .beaconRuin: return [stoneMass(salt, size: sprite.size)]
+        case .castleFront, .castleKeep, .keepFar, .castleBackGate, .beaconRuin: return [stoneMass(salt, size: sprite.size)]
         case .castleWall: return [castleWall(salt)]
         case .hallInterior: return [hallInterior(salt)]
         case .chapel: return [chapel(salt)]
