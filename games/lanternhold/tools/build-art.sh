@@ -25,6 +25,7 @@ DOOR=night0,ink,woodDark,wood,woodLight
 ROCKG=rockDeep,rockDark,rock,rockLight,rockPale,soilDark,soil,soilLight,leafDark,leaf
 STONE=night1,ink,stoneDark,stoneMid,stone,stoneLight
 VMID=leafDark,leaf,meadow,leafLight,straw,strawLight,soilDark,daySky,foam,plaster,roofDeep
+FGLIFT=rockDeep:rockDark,rockDark:rock,soilDark:soil,leafDark:leaf,leaf:meadow
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
     [ -x "$SMC" ] || return 0
@@ -44,7 +45,10 @@ build() { # name: one sprite
     waterfall)     python3 $T convert $R/s2-cliffs-1.png $A/waterfall.png --size 24x200 --box 266,30,340,1480 --only daySky,waterDeep,foam,farPale,moon ;;
     gatehouse)     python3 $T convert $R/s3-castle-1.png $A/gatehouse.png --size 120x100 --box 350,300,780,695 --only $CAS --outline ink --window 18,62 --window 96,62 --zone $DOOR@38,54,70,99@1.35 ;;
     castleTower)   python3 $T convert $R/s3-castle-1.png $A/castleTower.png --size 32x120 --box 55,20,345,695 --only $CAS --outline ink ;;
-    castleWall)    python3 $T convert $R/s3-castle-1.png $A/castleWall.png --size 40x90 --box 826,300,948,695 --tile --only $CAS --window 17,58 --patch $G/castleWall-crenels.txt ;;
+    castleWall)    python3 $T convert $R/s3-castle-1.png $A/castleWall.png --size 40x90 --box 826,300,948,695 --tile --only $CAS --window 17,58 --patch $G/castleWall-crenels.txt
+                   # polish after the art review: the pale lower half's scalloped top read as a snowdrift; it is a plinth
+                   # of dressed stone now, one step darker, under a straight light course at row 47
+                   python3 $T post $A/castleWall.png $A/castleWall.png --remap stoneLight:stoneMid@0,45,39,46 --remap stoneLight:stone,stone:stoneMid,stonePale:stoneLight@0,48,39,88 --fill stoneLight:0,47,39,47 ;;
     backGate)      python3 $T convert $R/s3-castle-1.png $A/backGate.png --size 60x84 --box 1245,400,1518,695 --only $CAS --outline ink --zone $DOOR@21,48,38,83@1.35 ;;
     chapel)        python3 $T convert $R/s4-chapel-1.png $A/chapel.png --size 160x96 --box 130,75,715,668 --only $CAS,plaster,plasterDim,parchment --gain 1.15 --outline ink ;;
     hallInterior)  python3 $T convert $R/s5-hall-1.png $A/hallInterior.png --size 260x90 --box 210,0,1358,356 --only $CAS,strawLight --gain 1.1 --warm 22 --outline ink
@@ -149,7 +153,11 @@ build() { # name: one sprite
                    CL=foam,parchment,farPale,moon
                    python3 $T convert $M/clouds-a-1.png $A/cloudA.png --size 280x40 --box 184,68,1372,234 --key '#04BC44' --only $CL
                    python3 $T convert $M/clouds-a-1.png $A/cloudB.png --size 240x42 --box 264,288,1288,460 --key '#04BC44' --only $CL
-                   python3 $T convert $M/clouds-a-1.png $A/cloudC.png --size 286x36 --box 160,534,1380,681 --key '#04BC44' --only $CL ;;
+                   python3 $T convert $M/clouds-a-1.png $A/cloudC.png --size 286x36 --box 160,534,1380,681 --key '#04BC44' --only $CL
+                   # polish after the art review: wispy undersides instead of a ruler-straight bottom edge
+                   python3 $PROC ragged $A/cloudA.png $A/cloudA.png --seed 1 --depth 9
+                   python3 $PROC ragged $A/cloudB.png $A/cloudB.png --seed 2 --depth 9
+                   python3 $PROC ragged $A/cloudC.png $A/cloudC.png --seed 3 --depth 9 ;;
     riverFarBank)  python3 $PROC farbank $A/riverFarBank.png ;;  # M1b polish: the far shore on the mid plane
     # --- polish after the art review (ART.md "Polish after the art review") ---
     keepFar)       # the keep seen from the valley and the gorge: its main block without the side tower and without the
@@ -163,11 +171,14 @@ build() { # name: one sprite
     groundB)       python3 $PROC ground $A/ground.png $A/groundB.png --seed 2 --left stone --right plain ;;
     groundC)       python3 $PROC ground $A/ground.png $A/groundC.png --seed 3 --left plain --right stone ;;
     groundD)       python3 $PROC ground $A/ground.png $A/groundD.png --seed 4 --left plain --right plain ;;
-    fgRockA)       python3 $PROC fgrock $A/fgRockA.png --style a ;;
-    fgRockB)       python3 $PROC fgrock $A/fgRockB.png --style b ;;
-    fgRockC)       python3 $PROC fgrock $A/fgRockC.png --style c ;;
-    fgOverhangA)   python3 $PROC overhang $A/fgOverhangA.png --style a ;;
-    fgOverhangB)   python3 $PROC overhang $A/fgOverhangB.png --style b ;;
+    # Polish after the art review: the foreground one value step lighter (olive and ochre instead of near-black; the
+    # renderer gives it 0.9 of the ambient by day and 0.43 at night, so the night keeps its dark silhouettes)
+    fgRockA|fgRockB|fgRockC)
+                   python3 $PROC fgrock $A/$1.png --style $(echo "${1#fgRock}" | tr 'ABC' 'abc')
+                   python3 $T post $A/$1.png $A/$1.png --remap $FGLIFT ;;
+    fgOverhangA|fgOverhangB)
+                   python3 $PROC overhang $A/$1.png --style $(echo "${1#fgOverhang}" | tr 'AB' 'ab')
+                   python3 $T post $A/$1.png $A/$1.png --remap $FGLIFT ;;
     throne|hearth|well|lanternPost|field|palisade|ballista|brazier|torchPost)
                    python3 $T grid $G/$1.txt $A/$1.png ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;

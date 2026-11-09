@@ -25,6 +25,10 @@ exactly reproducible.
                                                             plain soil (the scene picks one per tile boundary, so
                                                             neighbours always join), pebbles and stones reseeded with
                                                             jittered spacing (polish after the art review)
+  procart.py ragged    <in.png> <out.png> [--depth 5] [--seed N]
+                                                            gives a cloud band a wispy underside: each column's bottom
+                                                            eroded by seeded noise, a checker-dithered fringe above the
+                                                            cut (polish after the art review)
   procart.py cylinder  <in.png> <out.png> --rect x0,y0,x1,y1 --bands a-b:+1,c-d:-1 [--ramp names]
                                                             rounds a flat tower: shifts every ramp colour in the rect
                                                             by its column's band (+1 one step lighter), the band edges
@@ -546,6 +550,34 @@ def cmd_ground(a):
     print(f"wrote {a.output} {W}x{H} (ground variant, seed {a.seed})")
 
 
+def cmd_ragged(a):
+    """Polish after the art review: every cloud band ended in a ruler-straight bottom edge (a sprite cut, not vapour).
+    Each column loses 0 to `depth` pixels from its bottom by smooth seeded noise plus a little jitter, and the pixels
+    just above the new edge thin out on a checker, so the underside frays into wisps."""
+    from pixelart import read_png
+    img, _ = read_png(a.input)
+    W, H = img.w, img.h
+    rng = random.Random(a.seed * 6151 + 3)
+    low = value_noise(rng, W + 8, 9)
+    fine = value_noise(rng, W + 8, 3)
+    out = Image(W, H, list(img.px))
+    for x in range(W):
+        bottom = next((y for y in range(H - 1, -1, -1) if img.get(x, y)[3]), None)
+        if bottom is None:
+            continue
+        top = next(y for y in range(H) if img.get(x, y)[3])
+        cut = int(round((0.5 + 0.5 * low[x]) * a.depth * 0.8 + (0.5 + 0.5 * fine[x]) * a.depth * 0.4))
+        cut = min(cut, max(0, (bottom - top) // 2))
+        for y in range(bottom - cut + 1, bottom + 1):
+            out.set(x, y, (0, 0, 0, 0))
+        edge = bottom - cut
+        for y in (edge, edge - 1):
+            if y > top + 2 and (x + y) % 2 == 0 and (y == edge or (x // 2) % 3 == 0):
+                out.set(x, y, (0, 0, 0, 0))
+    write_png(a.output, out)
+    print(f"wrote {a.output} {W}x{H} (ragged underside)")
+
+
 def cmd_cylinder(a):
     """Polish after the art review: a tower painted as a flat strip reads as cardboard. Every pixel inside the rect whose
     colour is on the ramp (default the castle stone ramp, darkest first) moves along it by its column's band: a lit
@@ -626,6 +658,12 @@ def main():
     gv.add_argument("--left", choices=["stone", "plain"], default="stone")
     gv.add_argument("--right", choices=["stone", "plain"], default="stone")
     gv.set_defaults(fn=cmd_ground)
+    rg = sub.add_parser("ragged")
+    rg.add_argument("input")
+    rg.add_argument("output")
+    rg.add_argument("--depth", type=int, default=5)
+    rg.add_argument("--seed", type=int, default=1)
+    rg.set_defaults(fn=cmd_ragged)
     cy = sub.add_parser("cylinder")
     cy.add_argument("input")
     cy.add_argument("output")
