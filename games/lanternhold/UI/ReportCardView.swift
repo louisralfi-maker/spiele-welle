@@ -63,6 +63,15 @@ struct ReportCardView: View {
             ForEach(Array(bigBanners.enumerated()), id: \.offset) { index, banner in
                 ReportBanner(banner: banner, large: index == 0 && card.isFinale)
             }
+            if let speech = card.speechKey {
+                // M3 fix (U1): the finale quotes the speech the king gave at the last stand.
+                Label(StoryText.string(speech), systemImage: "bookmark.fill")
+                    .font(Theme.serif(.subheadline, .semibold))
+                    .foregroundStyle(Theme.teal)
+                    .labelStyle(.titleAndIcon)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("report-speech")
+            }
             HStack(alignment: .top, spacing: 14) {
                 nightColumn
                     .frame(maxWidth: .infinity, alignment: .topLeading)

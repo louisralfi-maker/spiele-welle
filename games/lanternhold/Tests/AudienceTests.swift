@@ -126,6 +126,37 @@ final class AudienceTests: XCTestCase {
         XCTAssertEqual(towerCard.waiting, 0)
     }
 
+    /// M3 fix (U1): a story choice that changes no number says what it leaves behind, on its tile and in the
+    /// reaction card's change row.
+    func testAStoryChoiceShowsWhatItLeavesBehind() throws {
+        var s = Self.state(day: 2, queue: ["tower_request"])
+        var session = try XCTUnwrap(AudienceSession.begin(.throne, state: s, catalog: .standard, figures: [],
+                                                          reduceMotion: true))
+        let card = try XCTUnwrap(AudienceCard.make(session: session, state: s, catalog: .standard))
+        XCTAssertEqual(card.options.map(\.remembers), [true, true], "the tower promised, or the light first")
+        XCTAssertNil(card.options[0].noteKey)
+        XCTAssertEqual(card.options[1].noteKey, "remember.brazier_gift.tile", "the tile names the free brazier")
+        XCTAssertTrue(card.remembered.isEmpty, "nothing is remembered before the choice")
+
+        let position = try XCTUnwrap(AudienceRules.hall(s, catalog: .standard).first?.position)
+        let outcome = try XCTUnwrap(PetitionEngine.hear(&s, choice: 1, at: position, catalog: .standard,
+                                                        balance: .standard))
+        XCTAssertTrue(s.flags.contains(Build.brazierGiftFlag))
+        session.phase = .reaction
+        session.outcome = outcome
+        let after = try XCTUnwrap(AudienceCard.make(session: session, state: s, catalog: .standard))
+        XCTAssertEqual(after.remembered, ["remember.brazier_gift"], "one line in the change row")
+
+        // A choice with numbers keeps its chips and no bookmark.
+        let well = Self.state(day: 5, queue: ["well"])
+        let plain = try XCTUnwrap(AudienceSession.begin(.throne, state: well, catalog: Self.sample, figures: [],
+                                                        reduceMotion: true))
+        let wellCard = try XCTUnwrap(AudienceCard.make(session: plain, state: well, catalog: Self.sample))
+        XCTAssertFalse(wellCard.options.contains { $0.remembers })
+        XCTAssertEqual(Remembered.keys(["speech_honest", "tower_promised", "unknown"]),
+                       ["remember.tower_promised", "remember.speech_honest"], "in the list's order, known flags only")
+    }
+
     func testHearingThroughTheSessionAndTheUnheardOfADawn() throws {
         var s = Self.state(day: 5, queue: ["well", "song"])
         s.gold = 40

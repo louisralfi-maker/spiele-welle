@@ -16,8 +16,14 @@ struct CourtLine: Codable, Sendable, Equatable {
     var text: String
     /// A petition id: the line is a hint about it, said only while that petition waits today, and preferred then.
     var about: String?
+    /// True: the line answers a decision of the king (it requires the flag the choice set and names the days after
+    /// it). It is said before the everyday lines, and the speech mark shows over its speaker (M3 fix, U1).
+    var answer: Bool?
 
-    static let keys: Set<String> = ["id", "speaker", "days", "requires", "forbids", "weight", "text", "about"]
+    static let keys: Set<String> = ["id", "speaker", "days", "requires", "forbids", "weight", "text", "about",
+                                    "answer"]
+
+    var isAnswer: Bool { answer == true }
 
     func allows(day: Int) -> Bool {
         guard let days, let first = days.first else { return true }
@@ -107,23 +113,27 @@ struct CourtLineBook: Sendable, Equatable {
     }()
 
     /// What `speaker` may say today, in the order the king hears it: hints about today's waiting petitions first, then
-    /// the rest, each group in a weighted order drawn from the realm's seed, the day and the speaker (the same day
-    /// always gives the same order).
+    /// his answers to what the king decided, then the rest, each group in a weighted order drawn from the realm's
+    /// seed, the day and the speaker (the same day always gives the same order).
     func lines(for speaker: String, day: Int, flags: [String], waiting: [String], seed: UInt64) -> [CourtLine] {
         var hints: [(key: Double, line: CourtLine)] = []
+        var answers: [(key: Double, line: CourtLine)] = []
         var others: [(key: Double, line: CourtLine)] = []
         for line in lines where line.speaker == speaker && line.allows(day: day) && line.allows(flags: flags) {
             if let about = line.about, !waiting.contains(about) { continue }
             let key = CourtLineBook.orderKey(line, day: day, seed: seed)
             if line.about != nil {
                 hints.append((key, line))
+            } else if line.isAnswer {
+                answers.append((key, line))
             } else {
                 others.append((key, line))
             }
         }
         hints.sort { $0.key == $1.key ? $0.line.id < $1.line.id : $0.key < $1.key }
+        answers.sort { $0.key == $1.key ? $0.line.id < $1.line.id : $0.key < $1.key }
         others.sort { $0.key == $1.key ? $0.line.id < $1.line.id : $0.key < $1.key }
-        return hints.map { $0.line } + others.map { $0.line }
+        return hints.map { $0.line } + answers.map { $0.line } + others.map { $0.line }
     }
 
     /// A weighted random order (Efraimidis and Spirakis): the smallest `−ln(u) / weight` first.
@@ -150,8 +160,10 @@ struct CourtLineBook: Sendable, Equatable {
         return list[((nth % list.count) + list.count) % list.count]
     }
 
-    /// True when `speaker` has a hint about one of today's waiting petitions (the speech mark over him).
+    /// True when `speaker` has a hint about one of today's waiting petitions, or an answer to what the king decided
+    /// (the speech mark over him).
     func hasHint(for speaker: String, state: GameState) -> Bool {
-        lines(for: speaker, state: state).first?.about != nil
+        guard let first = lines(for: speaker, state: state).first else { return false }
+        return first.about != nil || first.isAnswer
     }
 }

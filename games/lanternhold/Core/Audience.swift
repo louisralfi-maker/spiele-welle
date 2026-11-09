@@ -163,6 +163,10 @@ struct AudienceCard: Sendable, Equatable {
         var blocker: ChoiceBlock?
         /// Odile's counsel favours it (marked once the counsel is read).
         var favoured: Bool
+        /// It sets something the court remembers (`Remembered`): the tile says so instead of "No cost".
+        var remembers = false
+        /// What exactly, where the tile can say it in two or three words (the free brazier); else nil.
+        var noteKey: String?
 
         var enabled: Bool { blocker == nil }
     }
@@ -184,6 +188,8 @@ struct AudienceCard: Sendable, Equatable {
     var options: [Option]
     var outcome: PetitionOutcome?
     var reactionKey: String?
+    /// What the court remembers of the choice (`remember.<flag>` keys; the reaction's change row lists them).
+    var remembered: [String] = []
     /// Petitioners who still wait for the throne after this one (0 at the gate).
     var waiting: Int
 
@@ -201,7 +207,9 @@ struct AudienceCard: Sendable, Equatable {
                                   builders: effect.builders ?? 0, night: effect.night ?? [],
                                   risky: effect.chance != nil,
                                   blocker: PetitionEngine.blocker(choice, state),
-                                  favoured: session.counselShown && petition.counsel == index))
+                                  favoured: session.counselShown && petition.counsel == index,
+                                  remembers: Remembered.remembers(effect),
+                                  noteKey: Remembered.tileKey(effect)))
         }
         var waiting = 0
         if session.place == .throne {
@@ -216,7 +224,7 @@ struct AudienceCard: Sendable, Equatable {
                             portrait: portrait(speaker: speaker.id, look: look, day: state.day, flags: state.flags),
                             textKey: petition.text, hintKey: petition.hint, counselShown: session.counselShown,
                             options: options, outcome: session.outcome, reactionKey: session.outcome?.reaction,
-                            waiting: waiting)
+                            remembered: Remembered.keys(session.outcome?.flagsSet ?? []), waiting: waiting)
     }
 
     /// The portrait of a speaker: the court's and the guests' own (Seren's hooded or revealed frame), else the

@@ -941,6 +941,17 @@
         }
       }
     },
+    "Leave" : {
+      "comment" : "Audience card: the king leaves the audience (it ends; the others keep waiting).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gehen"
+          }
+        }
+      }
+    },
     "Light" : {
       "comment" : "Action button caption at a snuffed brazier.",
       "localizations" : {
@@ -1656,17 +1667,6 @@
         }
       }
     },
-    "Stand up" : {
-      "comment" : "Audience card: the king stands up from the throne (the audience ends).",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aufstehen"
-          }
-        }
-      }
-    },
     "Stone wall" : {
       "comment" : "Build item.",
       "localizations" : {
@@ -1975,6 +1975,17 @@
         }
       }
     },
+    "Tonight %@" : {
+      "comment" : "Audience card: what a choice does to the coming night; %@ is a signed percentage of the attack or a signed number of creatures.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute Nacht %@"
+          }
+        }
+      }
+    },
     "Tonight %lld fewer creatures" : {
       "comment" : "VoiceOver: a choice takes creatures out of the coming night.",
       "localizations" : {
@@ -2092,6 +2103,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wachturm"
+          }
+        }
+      }
+    },
+    "Will be remembered" : {
+      "comment" : "Audience card: a choice that changes no number but that the court remembers.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wird nicht vergessen"
           }
         }
       }

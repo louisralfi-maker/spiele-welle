@@ -153,6 +153,50 @@ final class CourtTests: XCTestCase {
         XCTAssertGreaterThan(bread, 2 * gossip, "weight 3 against 1: \(bread) to \(gossip)")
     }
 
+    /// M3 fix (U1): the court answers what the king decided, before its everyday lines and after a hint, and the
+    /// speech mark shows over whoever has an answer.
+    func testTheCourtAnswersADecisionBeforeItsEverydayLines() {
+        let lines = CourtLineBook([
+            CourtLine(id: "brannock_everyday", speaker: "brannock", weight: 9, text: "a"),
+            CourtLine(id: "brannock_promised", speaker: "brannock", days: [2, 5], requires: ["tower_promised"],
+                      text: "b", answer: true),
+            CourtLine(id: "brannock_well", speaker: "brannock", text: "c", about: "well"),
+        ])
+        var s = GameState.newRealm(seed: 5)
+        s.day = 3
+        s.hour = 9
+        XCTAssertFalse(lines.hasHint(for: "brannock", state: s), "nothing decided yet")
+        XCTAssertEqual(lines.lines(for: "brannock", state: s).map(\.id), ["brannock_everyday"])
+        s.flags = ["tower_promised"]
+        XCTAssertEqual(lines.lines(for: "brannock", state: s).map(\.id), ["brannock_promised", "brannock_everyday"])
+        XCTAssertTrue(lines.hasHint(for: "brannock", state: s), "an answer marks its speaker")
+        var court = CourtState()
+        court.queueDay = 3
+        court.queue = [Petitioner(id: "well", reason: .random, look: 0)]
+        s.court = court
+        XCTAssertEqual(lines.lines(for: "brannock", state: s).map(\.id),
+                       ["brannock_well", "brannock_promised", "brannock_everyday"], "a hint still comes first")
+        s.day = 6
+        s.court?.queueDay = 6
+        s.court?.queue = []
+        XCTAssertFalse(lines.hasHint(for: "brannock", state: s), "the answer has its days")
+
+        // The shipped lines: Brannock answers the promised tower on days 2 to 5, and his mark shows until he is heard.
+        var realm = GameState.newRealm(seed: 5)
+        realm.day = 3
+        realm.hour = 9
+        realm.flags = ["tower_promised"]
+        XCTAssertEqual(CourtLineBook.standard.line(for: "brannock", state: realm)?.id, "brannock_promised")
+        let figures = CourtLayout.figures(realm, catalog: .standard)
+        XCTAssertTrue(CourtTalk.marks(realm, figures: figures, lines: .standard, log: TalkLog()).contains("brannock"))
+        realm.flags = []
+        XCTAssertFalse(CourtLineBook.standard.lines(for: "brannock", state: realm).contains { $0.isAnswer })
+        for line in CourtLineBook.standard.lines where line.isAnswer {
+            XCTAssertFalse((line.requires ?? []).isEmpty, "\(line.id) answers a flag")
+            XCTAssertNotNil(line.days, "\(line.id) has its days")
+        }
+    }
+
     func testTheCourtsProps() {
         let base = CourtLayout.props(day: 2, hour: 10, world: [], queue: [], catalog: Self.sample)
         XCTAssertEqual(base.map(\.sprite), [.bench, .bench, .taxLectern])

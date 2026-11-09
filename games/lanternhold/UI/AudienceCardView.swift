@@ -5,7 +5,8 @@ import SwiftUI
 /// stands between the HUD and the figures, its pointer down to the petitioner before the throne, so the hall and the
 /// speaker stay in view. The portrait (whole device pixels per art pixel on a framed tile), the name and the role, the
 /// request; 2 or 3 choice tiles side by side (52 pt and more) with what they cost or bring, greyed with the reason
-/// when they cannot be taken; Odile's counsel (it marks the choice she favours); Stand up. After a choice the card
+/// when they cannot be taken; Odile's counsel (it marks the choice she favours); Leave (the lord
+/// never sat down, so "Stand up" promised a picture the hall does not show; M3 fix, U3). After a choice the card
 /// shows the king's word, the reaction and what changed, and the button to the next petitioner. The text scrolls
 /// when the screen is too short; the choices stay in view.
 @MainActor
@@ -146,7 +147,7 @@ struct AudienceCardView: View {
             Button {
                 model.standUp()
             } label: {
-                Text("Stand up")
+                Text("Leave")
                     .font(Theme.serif(.subheadline, .semibold))
                     .foregroundStyle(Theme.ink.opacity(0.85))
                     .lineLimit(1)
@@ -212,6 +213,16 @@ struct AudienceCardView: View {
                             .foregroundStyle(Theme.teal)
                             .labelStyle(.titleAndIcon)
                             .fixedSize(horizontal: false, vertical: true)
+                    }
+                    // M3 fix (U1): what the court remembers of the choice, so a decision that changes no number
+                    // still leaves a trace on the card.
+                    ForEach(card.remembered, id: \.self) { key in
+                        Label(StoryText.string(key), systemImage: "bookmark.fill")
+                            .font(Theme.serif(.footnote, .semibold))
+                            .foregroundStyle(Theme.teal)
+                            .labelStyle(.titleAndIcon)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityIdentifier("audience-remembered")
                     }
                 }
             }
@@ -280,7 +291,8 @@ struct ChoiceTile: View {
                 }
                 EffectChips(gold: option.gold, happiness: option.happiness, citizens: option.citizens,
                             archers: option.archers, guards: option.guards, builders: option.builders,
-                            risky: option.risky, size: 13, night: option.night)
+                            risky: option.risky, size: 13, night: option.night,
+                            remembers: option.remembers, noteKey: option.noteKey)
                     .opacity(option.enabled ? 1 : 0.6)
                 if let block = option.blocker {
                     HStack(spacing: 4) {
@@ -327,8 +339,17 @@ struct EffectChips: View {
     var size: CGFloat = 13
     /// "No cost" when nothing changes (a choice); a reaction shows nothing then.
     var saysNoCost = true
-    /// The coming night's modifiers (a moon: the attack smaller or bigger, fewer of a kind; fog).
+    /// The coming night's modifiers, spelled out ("Tonight −50%": the attack smaller or bigger, fewer of a kind; fog).
     var night: [String] = []
+    /// The choice sets something the court remembers (`Remembered`): a bookmark, with "Will be remembered" where
+    /// nothing else changes (instead of "No cost").
+    var remembers = false
+    /// A Story.xcstrings key that says what exactly (the free brazier), instead of "Will be remembered".
+    var noteKey: String?
+
+    private var rememberedText: String {
+        noteKey.map { StoryText.string($0) } ?? String(localized: "Will be remembered")
+    }
 
     var body: some View {
         HStack(spacing: 9) {
@@ -363,8 +384,19 @@ struct EffectChips: View {
                 symbol("dice.fill")
                     .accessibilityLabel(Text("A risk"))
             }
-            if saysNoCost && gold == 0 && happiness == 0 && citizens == 0 && archers == 0 && guards == 0
-                && builders == 0 && !risky && night.isEmpty {
+            if remembers {
+                HStack(spacing: 3) {
+                    Image(systemName: "bookmark.fill")
+                        .font(.system(size: size - 2, weight: .semibold))
+                    if changesNothing {
+                        Text(verbatim: rememberedText)
+                            .font(Theme.serif(.footnote, .semibold))
+                    }
+                }
+                .foregroundStyle(Theme.teal)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(Text(verbatim: rememberedText))
+            } else if saysNoCost && changesNothing {
                 Text("No cost")
                     .font(Theme.serif(.footnote))
                     .foregroundStyle(Theme.inkSoft)
@@ -373,14 +405,20 @@ struct EffectChips: View {
         .fixedSize()
     }
 
-    /// Tonight: a smaller attack in teal, a bigger one in ember (`wave±P%`), fewer of a kind, fog.
+    private var changesNothing: Bool {
+        gold == 0 && happiness == 0 && citizens == 0 && archers == 0 && guards == 0 && builders == 0 && !risky
+            && night.isEmpty
+    }
+
+    /// Tonight, in words (M3 fix, U5: a bare moon and a percentage said too little): a smaller attack in teal, a
+    /// bigger one in ember (`wave±P%`, the wave glyph), fewer of a kind (a paw), fog.
     @ViewBuilder private func nightChip(_ id: String) -> some View {
         switch NightModifier(id: id) {
         case .wave(let percent)?:
             HStack(spacing: 3) {
-                Image(systemName: "moon.fill")
+                Image(systemName: "water.waves")
                     .font(.system(size: size - 2, weight: .semibold))
-                Text(verbatim: "\(Texts.signed(percent))%")
+                Text(AudienceTexts.tonight(Texts.signed(percent) + "%"))
                     .font(Theme.rounded(size, .bold))
                     .monospacedDigit()
             }
@@ -389,9 +427,9 @@ struct EffectChips: View {
             .accessibilityLabel(Text("Tonight's attack \(Texts.signed(percent) + "%")"))
         case .fewer(_, let count)?:
             HStack(spacing: 3) {
-                Image(systemName: "moon.fill")
+                Image(systemName: "pawprint.fill")
                     .font(.system(size: size - 2, weight: .semibold))
-                Text(verbatim: Texts.signed(-count))
+                Text(AudienceTexts.tonight(Texts.signed(-count)))
                     .font(Theme.rounded(size, .bold))
                     .monospacedDigit()
             }
@@ -437,6 +475,12 @@ enum AudienceTexts {
         case .guards(let missing): return String(localized: "\(missing) more guards needed")
         case .builders: return String(localized: "The castle keeps one builder")
         }
+    }
+
+    /// "Tonight −50%": what a choice does to the coming night (a signed percentage of the attack, or a signed
+    /// number of creatures).
+    static func tonight(_ amount: String) -> String {
+        String(localized: "Tonight \(amount)")
     }
 
     /// What a petition opened.

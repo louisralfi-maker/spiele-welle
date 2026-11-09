@@ -631,7 +631,7 @@ final class GameModel {
 
     var reportCard: ReportCard? {
         guard case .report(let report)? = overlay else { return nil }
-        return ReportCard.make(report)
+        return ReportCard.make(report, flags: driver?.state.flags ?? [])
     }
 
     /// The dawn report's Continue: the day begins.
@@ -756,6 +756,12 @@ final class GameModel {
         case .report?:
             setOverlay(.report(ReportCard.sampleReport()))
         case .finale?:
+            // The sample's dawn quotes a speech (M3 fix, U1): the first one unless the realm brought its own.
+            if Remembered.speechKey(flags: game.state.flags) == nil {
+                game.state.flags.append(Remembered.speeches[0])
+                game.state.flags.sort()
+                driver = game
+            }
             setOverlay(.report(ReportCard.sampleFinale()))
         case .petition?:
             openPetitionSample()

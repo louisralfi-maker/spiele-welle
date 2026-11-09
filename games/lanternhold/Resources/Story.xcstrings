@@ -1,6 +1,60 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "ending.speech_aldric" : {
+      "comment" : "Dawn report after night 20 held: quotes the speech the king gave at the last stand.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Wir holen unseren alten König heim“, habt Ihr ihnen gesagt. Auf der Mauer vergaß es keiner."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“We bring our old king home,” you told them. Nobody on the wall forgot it."
+          }
+        }
+      }
+    },
+    "ending.speech_dawn" : {
+      "comment" : "Dawn report after night 20 held: quotes the speech the king gave at the last stand.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Wir halten bis zum Morgen“, habt Ihr ihnen gesagt. Und sie hielten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“We hold until dawn,” you told them. And they held."
+          }
+        }
+      }
+    },
+    "ending.speech_honest" : {
+      "comment" : "Dawn report after night 20 held: quotes the speech the king gave at the last stand.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Ich sollte nie König werden“, habt Ihr ihnen gesagt. Sie folgten Euch trotzdem."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“I was never meant to be king,” you told them. They followed you anyway."
+          }
+        }
+      }
+    },
     "line.bard_rhyme" : {
       "comment" : "Court talk: bard.",
       "extractionState" : "manual",
@@ -51,6 +105,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Arrows. More arrows. Ask me again tomorrow."
+          }
+        }
+      }
+    },
+    "line.bram_arrows_refused" : {
+      "comment" : "Court talk: bram (answers a decision).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr habt Mareks Pfeile weggeschickt. Gut. Meine fliegen gerade."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You sent Marek’s arrows away. Good. Mine fly straight."
           }
         }
       }
@@ -447,6 +519,60 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "There is an old sergeant in the hall asking for a spear. Snores on watch. Best man I ever had."
+          }
+        }
+      }
+    },
+    "line.brannock_speech_aldric" : {
+      "comment" : "Court talk: brannock (answers a decision).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Alten schärfen ihre Schwerter für Aldric. Nicht um ihn zu töten. Um ihn heimzuholen. Eure Worte."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The old hands sharpen their swords for Aldric. Not to kill him. To bring him home. Your words."
+          }
+        }
+      }
+    },
+    "line.brannock_speech_dawn" : {
+      "comment" : "Court talk: brannock (answers a decision).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Wir halten bis zum Morgen.“ Kurz. Den Jungs gefiel es. Jetzt sagen sie es sich gegenseitig."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“We hold until dawn.” Short. The lads liked it. They are saying it to each other now."
+          }
+        }
+      }
+    },
+    "line.brannock_speech_honest" : {
+      "comment" : "Court talk: brannock (answers a decision).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie zum König bestimmt, sagtet Ihr. Dem trauen die Jungs mehr als jeder Krone."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Never meant to be king, you said. The lads trust that more than any crown."
           }
         }
       }
@@ -865,6 +991,42 @@
         }
       }
     },
+    "line.hesper_unwarned" : {
+      "comment" : "Court talk: hesper (answers a decision).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Stadt erfuhr vom Riesen durch ihre bebenden Böden. Nächstes Mal fragen sie zuerst mich."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The town learned of the giant from its own shaking floors. They will ask me first next time."
+          }
+        }
+      }
+    },
+    "line.hesper_vigil" : {
+      "comment" : "Court talk: hesper (answers a decision).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ich hielt die Wache. Der Boden bebte, die Flamme nicht. Denkt daran, wenn der Nächste kommt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I kept the vigil. The ground shook, and the Flame did not. Remember that when the next one comes."
+          }
+        }
+      }
+    },
     "line.ludo_goose" : {
       "comment" : "Court talk: serLudo.",
       "extractionState" : "manual",
@@ -1113,6 +1275,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "At an audience, ask for my counsel. I give it freely. It is the only free thing in this castle."
+          }
+        }
+      }
+    },
+    "line.odile_doubted" : {
+      "comment" : "Court talk: odile (answers a decision).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Pläne des Leuchtfeuers liegen unter Später, mein König. Ich sehe jeden Morgen in diese Schublade."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The beacon’s plans are filed under Later, my king. I check that drawer every morning."
           }
         }
       }
@@ -1531,6 +1711,24 @@
         }
       }
     },
+    "line.pip_joke_told" : {
+      "comment" : "Court talk: pip (answers a decision).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie lachen immer noch über den Witz, Eure Dochtheit. Ich habe ihn noch viermal erzählt. Er wird besser."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "They are still laughing at the joke, Your Wickship. I have told it four more times. It gets better."
+          }
+        }
+      }
+    },
     "line.pip_matches" : {
       "comment" : "Court talk: pip.",
       "extractionState" : "manual",
@@ -1693,6 +1891,24 @@
         }
       }
     },
+    "line.seren_doubt" : {
+      "comment" : "Court talk: seren (answers a decision).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr fragtet, warum erst jetzt. Fragt wieder, wenn er vor Eurer Mauer steht. Ich bin dann noch hier."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You asked why only now. Ask again when he stands at your wall. I will still be here."
+          }
+        }
+      }
+    },
     "line.seren_gate" : {
       "comment" : "Court talk: seren, a hint about stranger_gate.",
       "extractionState" : "manual",
@@ -1815,6 +2031,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Come to the throne today. There is something I should have told you on the first night."
+          }
+        }
+      }
+    },
+    "line.seren_vow" : {
+      "comment" : "Court talk: seren (answers a decision).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr gabt mir Euer Wort für Aldric. Ich habe schon weniger durch die Düsternis getragen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You gave me your word for Aldric. I have carried less than that through the Gloom."
           }
         }
       }
@@ -11600,13 +11834,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Ein Laternenkrieg also“, murmelt er. Er sagt nicht, dass Ihr falsch liegt. Dass Ihr recht habt, sagt er aber auch nicht."
+            "value" : "„Ein Laternenkrieg also“, murmelt er. Er sagt nicht, dass Ihr falsch liegt. Bis Mittag haben seine Jungs eine Feuerschale für Euch bereit."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“A lamplighter’s war, then,” he mutters. He does not say you are wrong. He does not say you are right, either."
+            "value" : "“A lamplighter’s war, then,” he mutters. He does not say you are wrong. By noon his lads have a brazier ready for you."
           }
         }
       }
@@ -13209,6 +13443,312 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your Majesty, I am almost thirteen and I can hit a crow at forty paces with a stone. Captain Brannock laughed at me. Let me be an archer! I will not be scared. I am only scared of my mother."
+          }
+        }
+      }
+    },
+    "remember.arrows_refused" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram schmiedet weiter Eure Pfeile."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram keeps forging your arrows."
+          }
+        }
+      }
+    },
+    "remember.beacon_doubted" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile hält die Pläne griffbereit."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile keeps the plans within reach."
+          }
+        }
+      }
+    },
+    "remember.brazier_gift" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eure nächste Feuerschale kostet nichts."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your next brazier costs nothing."
+          }
+        }
+      }
+    },
+    "remember.brazier_gift.tile" : {
+      "comment" : "Audience card, a choice tile: what the choice brings (instead of 'Will be remembered').",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nächste Feuerschale gratis"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next brazier free"
+          }
+        }
+      }
+    },
+    "remember.giant_unwarned" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niemand hat die Stadt gewarnt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nobody warned the town."
+          }
+        }
+      }
+    },
+    "remember.pip_joke_saved" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pip hebt den Witz für den Morgen danach auf."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pip saves the joke for the morning after."
+          }
+        }
+      }
+    },
+    "remember.pip_joke_told" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Saal erzählt den Witz noch jahrelang."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The hall will tell the joke for years."
+          }
+        }
+      }
+    },
+    "remember.seren_doubted" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seren hat Euren Zweifel gehört."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seren heard your doubt."
+          }
+        }
+      }
+    },
+    "remember.seren_outside" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seren wartet am Rand des Dunkels."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seren waits at the edge of the dark."
+          }
+        }
+      }
+    },
+    "remember.speech_aldric" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die alten Soldaten kämpfen, um Aldric heimzuholen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The old soldiers fight to bring Aldric home."
+          }
+        }
+      }
+    },
+    "remember.speech_dawn" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Mauern sagen es weiter: bis zum Morgen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The walls repeat it: until dawn."
+          }
+        }
+      }
+    },
+    "remember.speech_honest" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie wissen, wer Ihr seid. Sie bleiben."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "They know who you are. They stay."
+          }
+        }
+      }
+    },
+    "remember.stranger_in" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die graue Laterne hängt in Eurem Saal."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The grey lantern hangs in your hall."
+          }
+        }
+      }
+    },
+    "remember.stranger_turned_away" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Fremde wartet vor der Mauer."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Stranger waits beyond the wall."
+          }
+        }
+      }
+    },
+    "remember.tower_promised" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brannock nimmt Euch beim Wort: der Turm."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brannock holds you to the tower."
+          }
+        }
+      }
+    },
+    "remember.vigil_kept" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hesper hält heute Nacht Wache."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hesper keeps the vigil tonight."
+          }
+        }
+      }
+    },
+    "remember.vow_aldric" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seren nimmt Euch beim Wort."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seren holds you to your word."
           }
         }
       }

@@ -39,17 +39,30 @@ struct StoryTable: Sendable, Equatable {
 
 /// Checks the content (DESIGN.md "M3 in detail"): every petition file and the court lines against the schema (no
 /// unknown key, which catches typos the decoder would skip), every reference (speakers, follow-ups, world changes,
-/// unlocks, night modifiers, petitions a line is about), every text key in English and German, and the English length
-/// limits (text 240, choice 40, reaction 140, hint 140, line 120). `PetitionDataTests` runs it over the bundle's
-/// files and the source catalogue; the content step can rely on it.
+/// unlocks, night modifiers, petitions a line is about; every flag a petition or a line requires or forbids is set
+/// somewhere), every text key in English and German, and the length limits of both (English: text 240, choice 40,
+/// reaction 140, hint 140, line 120; German runs longer, so its limits are higher: 280, 48, 165, 165, 140; M3 fix,
+/// C5). `PetitionDataTests` runs it over the bundle's files and the source catalogue; the content step can rely on
+/// it.
 enum CourtValidator {
-    static let textLimit = 240
-    static let choiceLimit = 40
-    static let reactionLimit = 140
-    static let hintLimit = 140
-    static let lineLimit = 120
-    static let nameLimit = 24
-    static let roleLimit = 32
+    /// How long a text may be, in characters.
+    struct Limit: Sendable, Equatable {
+        var english: Int
+        var german: Int
+    }
+
+    static let textLimit = Limit(english: 240, german: 280)
+    static let choiceLimit = Limit(english: 40, german: 48)
+    static let reactionLimit = Limit(english: 140, german: 165)
+    static let hintLimit = Limit(english: 140, german: 165)
+    static let lineLimit = Limit(english: 120, german: 140)
+    static let nameLimit = Limit(english: 24, german: 24)
+    static let roleLimit = Limit(english: 32, german: 32)
+    static let rememberedLimit = Limit(english: Remembered.limit, german: Remembered.limit)
+    static let tileLimit = Limit(english: Remembered.tileLimit, german: Remembered.tileLimit)
+    static let endingLimit = Limit(english: 100, german: 110)
+    /// The flags the code sets or reads by itself (the Stranger let in, Seren revealed from day 15).
+    static let codeFlags: Set<String> = [CourtLayout.serenInFlag, Speakers.serenRevealedFlag]
     /// Petitions add or take 1 to 10 happiness at once (DESIGN.md "Happiness").
     static let happinessLimit = 10
     static let goldLimit = 500
@@ -72,16 +85,47 @@ enum CourtValidator {
         }
         let catalog = PetitionCatalog(petitions)
         let followUps = scheduled(in: catalog)
+        let known = flagsSet(in: catalog).union(codeFlags)
         for petition in catalog.petitions {
             problems += check(petition, catalog: catalog, followUps: followUps, table: table)
+            for flag in (petition.requires ?? []) + (petition.forbids ?? []) where !known.contains(flag) {
+                problems.append("\(petition.id): the flag \(flag) is never set by any choice")
+            }
         }
         if let linesData {
-            problems += lineProblems(linesData, catalog: catalog, table: table)
+            problems += lineProblems(linesData, catalog: catalog, table: table, known: known)
         } else {
             problems.append("lines.json is missing")
         }
         problems += speakerProblems(table: table)
+        problems += rememberedProblems(table: table)
         return problems
+    }
+
+    /// Every flag a choice sets somewhere (its own effect or a chance's side).
+    static func flagsSet(in catalog: PetitionCatalog) -> Set<String> {
+        var flags = Set<String>()
+        for petition in catalog.petitions {
+            for choice in petition.choices {
+                for effect in effects(choice.effect) {
+                    for flag in effect.flags ?? [] where !flag.hasPrefix("-") { flags.insert(flag) }
+                }
+            }
+        }
+        return flags
+    }
+
+    /// The remembered lines, the tile notes and the finale's speech lines (`Remembered`) in English and German.
+    static func rememberedProblems(table: StoryTable) -> [String] {
+        var out: [String] = []
+        for flag in Remembered.flags {
+            out += text(Remembered.key(flag), limit: rememberedLimit, what: "remembered \(flag)", table: table)
+        }
+        for key in Remembered.tileKeys.values.sorted() {
+            out += text(key, limit: tileLimit, what: "remembered tile", table: table)
+        }
+        for key in Remembered.speechKeys { out += text(key, limit: endingLimit, what: "ending", table: table) }
+        return out
     }
 
     /// Every text key the content uses (petitions, lines, speakers).
@@ -103,6 +147,7 @@ enum CourtValidator {
             if let name = speaker.nameKey { keys.append(name) }
         }
         keys.append("speaker.stranger.name")
+        keys += Remembered.allKeys
         return keys
     }
 
@@ -139,17 +184,23 @@ enum CourtValidator {
         return true
     }
 
-    /// A text key: it has English and German, and the English stays within `limit` characters.
-    static func text(_ key: String, limit: Int, what: String, table: StoryTable) -> [String] {
+    /// A text key: it has English and German, and each stays within its limit.
+    static func text(_ key: String, limit: Limit, what: String, table: StoryTable) -> [String] {
         var out: [String] = []
         if let english = table.english[key], !english.isEmpty {
-            if english.count > limit {
-                out.append("\(what): \(key) is \(english.count) characters in English (at most \(limit))")
+            if english.count > limit.english {
+                out.append("\(what): \(key) is \(english.count) characters in English (at most \(limit.english))")
             }
         } else {
             out.append("\(what): \(key) has no English text")
         }
-        if (table.german[key] ?? "").isEmpty { out.append("\(what): \(key) has no German text") }
+        if let german = table.german[key], !german.isEmpty {
+            if german.count > limit.german {
+                out.append("\(what): \(key) is \(german.count) characters in German (at most \(limit.german))")
+            }
+        } else {
+            out.append("\(what): \(key) has no German text")
+        }
         return out
     }
 
@@ -298,7 +349,8 @@ enum CourtValidator {
         return out
     }
 
-    static func lineProblems(_ data: Data, catalog: PetitionCatalog, table: StoryTable) -> [String] {
+    static func lineProblems(_ data: Data, catalog: PetitionCatalog, table: StoryTable,
+                             known: Set<String>? = nil) -> [String] {
         var out: [String] = []
         if let root = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] {
             for key in root.keys.sorted() where key != "lines" {
@@ -325,8 +377,17 @@ enum CourtValidator {
             if let about = line.about, catalog.petition(about) == nil {
                 out.append("\(what): about \(about) is no petition")
             }
-            for flag in (line.requires ?? []) + (line.forbids ?? []) where !isName(flag) {
-                out.append("\(what): the flag \(flag) must be lowercase letters, digits and _")
+            for flag in (line.requires ?? []) + (line.forbids ?? []) {
+                if !isName(flag) {
+                    out.append("\(what): the flag \(flag) must be lowercase letters, digits and _")
+                } else if let known, !known.contains(flag) {
+                    out.append("\(what): the flag \(flag) is never set by any choice")
+                }
+            }
+            // An answer answers a decision: it needs the flag the choice set, and days, so the speech mark over its
+            // speaker does not stay for the rest of the chapter.
+            if line.isAnswer && ((line.requires ?? []).isEmpty || line.days == nil) {
+                out.append("\(what): an answer needs requires and days")
             }
             out += text(line.text, limit: lineLimit, what: what, table: table)
         }

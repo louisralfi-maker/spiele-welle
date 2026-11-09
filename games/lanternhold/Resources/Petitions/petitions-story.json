@@ -51,7 +51,8 @@
         {
           "label": "petition.tower_request.c2",
           "flags": [
-            "light_first"
+            "light_first",
+            "brazier_gift"
           ],
           "reaction": "petition.tower_request.r2"
         }

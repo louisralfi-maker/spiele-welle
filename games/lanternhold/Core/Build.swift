@@ -55,7 +55,9 @@ enum Build {
         let current = state.plots[plot]
         if current.job != nil { return [] }
         guard let item = current.item else {
-            return spec.firstItems.map { BuildOption(item: $0, price: balance.price($0), isRebuild: false) }
+            return spec.firstItems.map {
+                BuildOption(item: $0, price: isGift($0, state) ? 0 : balance.price($0), isRebuild: false)
+            }
         }
         if current.isRubble {
             return [BuildOption(item: item, price: rebuildPrice(item, balance: balance), isRebuild: true)]
@@ -64,6 +66,15 @@ enum Build {
             return [BuildOption(item: next, price: balance.price(next), isRebuild: false)]
         }
         return []
+    }
+
+    /// Brannock's gift when the king answers "light first" on day 2 (M3 fix, U1; `petitions-story.json`
+    /// `tower_request`): the next brazier the king has built costs nothing. The flag goes when it is ordered.
+    static let brazierGiftFlag = "brazier_gift"
+
+    /// True when a first build of `item` is paid by a gift.
+    static func isGift(_ item: BuildItem, _ state: GameState) -> Bool {
+        item == .brazier && state.flags.contains(brazierGiftFlag)
     }
 
     /// What a wall's rubble comes back from: its own tier for the outer walls; for the gatehouse every tier it went
@@ -106,6 +117,7 @@ enum Build {
         }
         if state.gold < option.price { return .notEnoughGold(missing: option.price - state.gold) }
         state.gold -= option.price
+        if !option.isRebuild && isGift(item, state) { state.flags.removeAll { $0 == brazierGiftFlag } }
         state.orderCounter += 1
         let total = work(item, rebuild: option.isRebuild, balance: balance)
         state.plots[plot].job = BuildJob(target: item, work: 0, total: total, isRebuild: option.isRebuild,

@@ -48,11 +48,15 @@ struct ReportCard: Sendable, Equatable {
     var goldAfter: Int
     /// The houses were full: more citizens would have been born (the card says to build a house).
     var housesFull: Bool = false
+    /// The finale's dawn after a night that held: the line that quotes the speech the king gave before it
+    /// (`ending.<speech>` in Story.xcstrings; M3 fix, U1), nil without one.
+    var speechKey: String?
 
     var happinessDelta: Int { happinessAfter - happinessBefore }
     var isFinale: Bool { night == ReportCard.finaleNight }
 
-    static func make(_ report: DawnReport) -> ReportCard {
+    /// `flags`: the realm's flags (the last stand's speech).
+    static func make(_ report: DawnReport, flags: [String] = []) -> ReportCard {
         var banners: [Banner] = []
         if report.night == finaleNight {
             banners.append(report.slewTheKing ? .kingSlain : .kingWithdrew)
@@ -83,7 +87,9 @@ struct ReportCard: Sendable, Equatable {
                           reasons: report.happinessChanges.filter { $0.delta != 0 },
                           citizensBefore: report.citizensBefore, citizensAfter: report.citizensAfter,
                           grown: report.grown, left: report.left, volunteer: report.volunteer, unlocked: unlocks,
-                          goldIn: report.goldIn, goldAfter: report.goldAfter, housesFull: report.housesFull == true)
+                          goldIn: report.goldIn, goldAfter: report.goldAfter, housesFull: report.housesFull == true,
+                          speechKey: report.night == finaleNight && report.held
+                              ? Remembered.speechKey(flags: flags) : nil)
     }
 
     // MARK: - Samples (`-GWScreen report` and `-GWScreen finale`)

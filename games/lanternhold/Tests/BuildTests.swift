@@ -62,6 +62,25 @@ final class BuildTests: XCTestCase {
         }
     }
 
+    /// M3 fix (U1): "light first" on day 2 makes the next brazier free, once.
+    func testAGiftedBrazierCostsNothingOnce() {
+        var s = realm(day: 2)
+        s.flags = [Build.brazierGiftFlag, "light_first"]
+        var events: [SimEvent] = []
+        let first = plot("l1.brazier.a")
+        let second = plot("l1.brazier.b")
+        XCTAssertEqual(Build.options(s, plot: first, balance: balance).first { $0.item == .brazier }?.price, 0)
+        XCTAssertEqual(Build.options(s, plot: plot("l1.tower"), balance: balance).first?.price,
+                       balance.price(.archerTower), "only a brazier")
+        XCTAssertEqual(Build.order(&s, plot: first, item: .brazier, balance: balance, events: &events), .ordered)
+        XCTAssertEqual(s.gold, balance.startGold, "the gift costs nothing")
+        XCTAssertEqual(s.flags, ["light_first"], "the gift is spent with the order")
+        XCTAssertEqual(Build.options(s, plot: second, balance: balance).first { $0.item == .brazier }?.price,
+                       balance.price(.brazier), "the next one has its price again")
+        XCTAssertEqual(Build.order(&s, plot: second, item: .brazier, balance: balance, events: &events), .ordered)
+        XCTAssertEqual(s.gold, balance.startGold - balance.price(.brazier))
+    }
+
     func testOrderCostsTheGoldAtOnce() {
         var s = realm()
         var events: [SimEvent] = []

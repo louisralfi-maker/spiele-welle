@@ -61,6 +61,19 @@ final class ReportCardTests: XCTestCase {
         XCTAssertFalse(ReportCard.make(later).banners.contains(.kingWithdrew), "endless has no King")
     }
 
+    /// M3 fix (U1): the finale's dawn quotes the speech the king gave on day 20, when the night held.
+    func testTheFinaleQuotesTheSpeech() {
+        let finale = ReportCard.sampleFinale()
+        XCTAssertEqual(ReportCard.make(finale, flags: ["stranger_in", "speech_aldric"]).speechKey,
+                       "ending.speech_aldric")
+        XCTAssertNil(ReportCard.make(finale).speechKey, "no speech given")
+        XCTAssertNil(ReportCard.make(ReportCard.sampleReport(), flags: ["speech_dawn"]).speechKey, "only night 20")
+        var fell = finale
+        fell.realmFell = true
+        XCTAssertNil(ReportCard.make(fell, flags: ["speech_dawn"]).speechKey, "not over a fallen realm")
+        XCTAssertEqual(Remembered.speechKeys.count, 3)
+    }
+
     func testTheHearthAndTheUnlocksAreWorded() {
         var report = ReportCard.sampleReport()
         report.hearthLowest = 41.4

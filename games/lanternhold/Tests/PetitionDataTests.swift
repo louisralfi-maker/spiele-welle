@@ -49,6 +49,31 @@ final class PetitionDataTests: XCTestCase {
         XCTAssertEqual(problems, [], problems.joined(separator: "\n"))
     }
 
+    /// M3 fix (U1): no story choice ends with "No cost" and an empty change row: it changes a number, opens or
+    /// rolls something, or sets a flag the game remembers in words.
+    func testEveryStoryChoiceLeavesATrace() {
+        var choices = 0
+        for petition in PetitionCatalog.standard.petitions where petition.kind == .story {
+            for (index, choice) in petition.choices.enumerated() {
+                choices += 1
+                let e = choice.effect
+                let numbers = [e.gold, e.happiness, e.citizens, e.archers, e.guards, e.builders]
+                    .contains { ($0 ?? 0) != 0 }
+                let more = !(e.unlock ?? []).isEmpty || !(e.night ?? []).isEmpty || e.chance != nil
+                XCTAssertTrue(numbers || more || Remembered.remembers(e),
+                              "\(petition.id) choice \(index) leaves nothing to see")
+            }
+        }
+        XCTAssertGreaterThan(choices, 40)
+        let set = CourtValidator.flagsSet(in: .standard)
+        for flag in Remembered.flags {
+            XCTAssertTrue(set.contains(flag), "\(flag) is remembered but never set")
+        }
+        for flag in Remembered.speeches {
+            XCTAssertTrue(Remembered.flags.contains(flag))
+        }
+    }
+
     func testTheSourceFolderHoldsOnlyPetitionFilesTheBundleHas() throws {
         let folder = Self.gameFolder.appendingPathComponent("Resources/Petitions")
         guard let names = try? FileManager.default.contentsOfDirectory(atPath: folder.path) else {
@@ -66,6 +91,8 @@ final class PetitionDataTests: XCTestCase {
             XCTAssertNotNil(StoryText.string(key, language: "en"), "\(key) in English")
             XCTAssertNotNil(StoryText.string(key, language: "de"), "\(key) in German")
         }
+        XCTAssertEqual(StoryText.string("remember.tower_promised", language: "de"),
+                       "Brannock nimmt Euch beim Wort: der Turm.")
         XCTAssertEqual(StoryText.string("speaker.odile.role", language: "de"), "Kanzlerin")
         XCTAssertEqual(StoryText.string("speaker.odile.role", language: "en"), "Chancellor")
         XCTAssertNil(StoryText.string("petition.nothing.text", language: "en"))
@@ -78,7 +105,7 @@ final class PetitionDataTests: XCTestCase {
         let json = """
         {"petitions": [
           {"id": "Bad-Id", "speaker": "dragon", "kind": "random", "weight": 0, "hapiness": 3, "text": "missing.text",
-           "counsel": 5, "choices": [{"label": "ok.label", "gold": -10, "world": ["castle.moat"], "night": ["dragons-1"],
+           "requires": ["never_set"], "counsel": 5, "choices": [{"label": "ok.label", "gold": -10, "world": ["castle.moat"], "night": ["dragons-1"],
              "unlock": ["catapult"], "schedule": [{"id": "nowhere", "inDays": 0, "when": 1}],
              "chance": {"p": 1.5, "then": {"golt": 1}}, "reaction": "long.reaction"}]}
         ], "extra": 1}
@@ -88,8 +115,11 @@ final class PetitionDataTests: XCTestCase {
         table.german["ok.label"] = "Gut"
         table.english["long.reaction"] = String(repeating: "x", count: 141)
         table.german["long.reaction"] = "lang"
+        table.english["line.long"] = "Short"
+        table.german["line.long"] = String(repeating: "ä", count: 141)
         let lines = """
-        {"lines": [{"id": "l", "speaker": "farmer", "text": "none", "about": "ghost", "mood": 1}]}
+        {"lines": [{"id": "l", "speaker": "farmer", "text": "none", "about": "ghost", "mood": 1},
+                   {"id": "m", "speaker": "odile", "text": "line.long", "forbids": ["nobody_sets"], "answer": true}]}
         """
         let problems = CourtValidator.problems(petitionFiles: [("petitions-broken.json", Data(json.utf8))],
                                                linesData: Data(lines.utf8), table: table)
@@ -100,6 +130,10 @@ final class PetitionDataTests: XCTestCase {
             "unlock catapult", "schedule nowhere", "inDays", "unknown schedule key when", "chance p",
             "unknown key golt", "141 characters", "every choice costs", "weight 0 and no schedule", "the id must be",
             "farmer does not talk", "about ghost", "lines.json: l: unknown key mood", "speaker odile role",
+            // M3 fix (C5): flags nobody sets, German lengths, an answer without its flag and days.
+            "Bad-Id: the flag never_set is never set", "line m: the flag nobody_sets is never set",
+            "line.long is 141 characters in German (at most 140)", "line m: an answer needs requires and days",
+            "remembered tower_promised: remember.tower_promised has no English text",
         ]
         for snippet in expected {
             XCTAssertTrue(text.contains(snippet), "expected a problem with \"\(snippet)\" in:\n\(text)")

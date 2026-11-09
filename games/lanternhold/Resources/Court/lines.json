@@ -180,25 +180,27 @@
       "id": "brannock_promised",
       "speaker": "brannock",
       "days": [
-        3,
-        9
+        2,
+        5
       ],
       "requires": [
         "tower_promised"
       ],
-      "text": "line.brannock_promised"
+      "text": "line.brannock_promised",
+      "answer": true
     },
     {
       "id": "brannock_light",
       "speaker": "brannock",
       "days": [
-        3,
-        9
+        2,
+        5
       ],
       "requires": [
         "light_first"
       ],
-      "text": "line.brannock_light"
+      "text": "line.brannock_light",
+      "answer": true
     },
     {
       "id": "brannock_tax_hint",
@@ -927,10 +929,15 @@
     {
       "id": "pip_saved_joke",
       "speaker": "pip",
+      "days": [
+        19,
+        21
+      ],
       "requires": [
         "pip_joke_saved"
       ],
-      "text": "line.pip_saved_joke"
+      "text": "line.pip_saved_joke",
+      "answer": true
     },
     {
       "id": "hesper_relic",
@@ -971,6 +978,144 @@
         "herbs_grown"
       ],
       "text": "line.tamsin_herbs"
+    },
+    {
+      "id": "brannock_speech_dawn",
+      "speaker": "brannock",
+      "days": [
+        20,
+        21
+      ],
+      "requires": [
+        "speech_dawn"
+      ],
+      "text": "line.brannock_speech_dawn",
+      "answer": true
+    },
+    {
+      "id": "brannock_speech_aldric",
+      "speaker": "brannock",
+      "days": [
+        20,
+        21
+      ],
+      "requires": [
+        "speech_aldric"
+      ],
+      "text": "line.brannock_speech_aldric",
+      "answer": true
+    },
+    {
+      "id": "brannock_speech_honest",
+      "speaker": "brannock",
+      "days": [
+        20,
+        21
+      ],
+      "requires": [
+        "speech_honest"
+      ],
+      "text": "line.brannock_speech_honest",
+      "answer": true
+    },
+    {
+      "id": "seren_vow",
+      "speaker": "seren",
+      "days": [
+        15,
+        17
+      ],
+      "requires": [
+        "vow_aldric",
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_handed_over"
+      ],
+      "text": "line.seren_vow",
+      "answer": true
+    },
+    {
+      "id": "seren_doubt",
+      "speaker": "seren",
+      "days": [
+        15,
+        17
+      ],
+      "requires": [
+        "seren_doubted",
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_handed_over"
+      ],
+      "text": "line.seren_doubt",
+      "answer": true
+    },
+    {
+      "id": "hesper_vigil",
+      "speaker": "hesper",
+      "days": [
+        11,
+        12
+      ],
+      "requires": [
+        "vigil_kept"
+      ],
+      "text": "line.hesper_vigil",
+      "answer": true
+    },
+    {
+      "id": "hesper_unwarned",
+      "speaker": "hesper",
+      "days": [
+        11,
+        12
+      ],
+      "requires": [
+        "giant_unwarned"
+      ],
+      "text": "line.hesper_unwarned",
+      "answer": true
+    },
+    {
+      "id": "odile_doubted",
+      "speaker": "odile",
+      "days": [
+        11,
+        13
+      ],
+      "requires": [
+        "beacon_doubted"
+      ],
+      "text": "line.odile_doubted",
+      "answer": true
+    },
+    {
+      "id": "pip_joke_told",
+      "speaker": "pip",
+      "days": [
+        19,
+        20
+      ],
+      "requires": [
+        "pip_joke_told"
+      ],
+      "text": "line.pip_joke_told",
+      "answer": true
+    },
+    {
+      "id": "bram_arrows_refused",
+      "speaker": "bram",
+      "days": [
+        6,
+        8
+      ],
+      "requires": [
+        "arrows_refused"
+      ],
+      "text": "line.bram_arrows_refused",
+      "answer": true
     }
   ]
 }
