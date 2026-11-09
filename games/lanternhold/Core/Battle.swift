@@ -446,9 +446,6 @@ enum Battle {
 
     // MARK: - Lights
 
-    /// The summoned sootlings' small offsets from their even spacing, by their place in the line.
-    static let summonJitter: [Double] = [0, 2, -2, 3, -3, 1]
-
     /// Line 1's two wall torches: at the ends of the castle front's painted wall walk (x 1306 and 1412, y 126).
     static let lineOneTorchX: [Double] = [WorldLayout.castleFrontX + 66, WorldLayout.castleFrontX + 172]
 
@@ -850,11 +847,7 @@ enum Battle {
         }
         for x in summonAt {
             for k in 0..<balance.summonCount {
-                // Spread out behind him (M2b review: 5 px apart they walked as one noisy band): `summonSpacing` apart
-                // with a fixed ±3 px pattern (no random draw, nothing that differs between step sizes).
-                let jitter = Battle.summonJitter[k % Battle.summonJitter.count]
-                let offset = 8 + balance.summonSpacing * Double(k) + jitter
-                spawn(&s, kind: .sootling, x: x - offset, wave: 99, balance: balance, fromWave: false)
+                spawn(&s, kind: .sootling, x: x - 8 - 5 * Double(k), wave: 99, balance: balance, fromWave: false)
             }
         }
         if wallsChanged {
@@ -1020,26 +1013,12 @@ enum Battle {
             case .posted:
                 guard soldier.kind == .archer else { break }
                 let rally = abs(soldier.x - kingX) <= balance.rallyRadius ? balance.rallyFactor : 1
-                // An archer who had no target waits with his reload at exactly 0 (the dusk resets it to 0 too).
-                let waiting = soldier.cooldown == 0
                 soldier.cooldown -= dt * rally
                 if soldier.cooldown > 0 { break }
                 let range = balance.archerRange * (1 + rangeBonus(s, plot: soldier.postPlot, balance: balance))
                 guard let target = litTarget(s, x: soldier.x, range: range, balance: balance) else {
                     soldier.cooldown = 0
                     break
-                }
-                // The volleys stagger (M2b review): a waiting archer who sees a target draws for his own share of a
-                // second first, so a wall's archers do not all loose in the same step and fall silent together. The
-                // target turned up somewhere inside this step, so half a step counts as spent: the first shot then
-                // comes after the same delay on average at any step size (round lh-rev-f1: without it the headless
-                // 0.1 s step shot about 0.06 s later after every lull).
-                if waiting {
-                    let delay = balance.archerStagger * Double(soldier.id % 6)
-                    if delay > 0 {
-                        soldier.cooldown = delay - 0.5 * dt * rally
-                        if soldier.cooldown > 0 { break }
-                    }
                 }
                 soldier.shots += 1
                 let fire = soldier.shots % max(1, balance.fireArrowEvery) == 0

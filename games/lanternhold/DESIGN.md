@@ -311,8 +311,7 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 
 - **Archers** on walls and towers: range 150, a shot every 1.4 s, 4 damage, lit targets only, 20 HP. Every fourth arrow
   is a fire arrow that lights its landing spot (radius 22, 2.5 s): the night is full of streaks and short pools of
-  light. Arrows fly at 220 px/s; an archer who waited without a target first draws for 0.12 s × (his id mod 6) when
-  one appears, so a wall's volleys stagger instead of loosing in one step (M2b review). They aim at the lit creature closest to the castle; on night 20 at the Lightless King first, while he can be
+  light. They aim at the lit creature closest to the castle; on night 20 at the Lightless King first, while he can be
   hurt. When their wall falls they climb down and walk to a free
   post (or the keep); creatures that catch them on the way strike them.
 - **Guards**: they hold the breach nearest the front (the innermost rubble in front of the first standing wall) and
@@ -1382,18 +1381,15 @@ This stage fixed all five confirmed high findings, the cheap medium ones and the
   stretches, then a second and a third archer in each), never in the brazier niches (1324 to 1350 and 1369 to 1396,
   `EntityFramesTests`); with the line-1 engine its stretch is left out. Line 1's two torches burn at the walk's ends
   (1306 and 1412, y 126) and have no torch posts on the facade.
-- **Schüsse fliegen** (pillar 1): a waiting archer who sees a target first draws for 0.12 s × (his id mod 6)
-  (`Balance.archerStagger`; half a step counts as spent, so the delay is the same at any step size), so a wall's
-  volleys stagger instead of loosing in one step and falling silent together; he shows idle while nothing is in reach;
-  arrows fly at 220 px/s (was 320); they are drawn on an arc
-  peaking about 30 px (picture only, 0 at both ends: every arrow still lands where the simulation lands it) with 18 px
-  trails; the loose pose holds 0.3 s and the draw 0.6 s. The scene value counts archers drawing or loosing (`aim:`),
-  and the night shots keep the frame with the most creatures, arrows and shooting archers.
+- **Schüsse fliegen** (pillar 1): arrows are drawn on an arc peaking about 30 px (picture only, 0 at both ends: every
+  arrow still lands where the simulation lands it) with 18 px trails; the loose pose holds 0.3 s and the draw 0.6 s,
+  and an archer shows idle while nothing is in reach. The scene value counts archers drawing or loosing (`aim:`), and
+  the night shots keep the frame with the most creatures, arrows in flight and shooting archers. The battle itself is
+  unchanged: a staggered first shot, slower arrows (220 px/s) and wider-spread summons were tried in three rounds; they
+  kept T1 to T8 but broke night 20's step check (see the decisions and the open points).
 - **Creatures**: their ash crusts one value step darker (sootling, sootlingB, shadehound, ash brute); bodies drawn left
   to right with a shade by id (0.85 to 1), a light cap of 1.2 (the world 1.6) and, unlit, a 0.9 moonlight rim
-  (`ActorQuad.flags` y: rim, w: cap); the Lightless King's summons leave 11 px apart with a fixed ±3 px pattern
-  (`Balance.summonSpacing`, `Battle.summonJitter`; no random draw, nothing that differs between step sizes); the gloom
-  bubble is a cold, soft-edged void behind the walls (z 0).
+  (`ActorQuad.flags` y: rim, w: cap); the gloom bubble is a cold, soft-edged void behind the walls (z 0).
 - **The finale's beacon**: its pool warm amber (1.0, 0.80, 0.50), a scene-only warm light at the bowl (x 470, y 140, r
   90) while it burns, its tower's stone one value step darker; fire-arrow pools fireGold.
 - **Scene**: the castle's shadows at z 0 (after the courtyard's buildings), the mist at the castle's foot at z 2
@@ -1429,8 +1425,8 @@ This stage fixed all five confirmed high findings, the cheap medium ones and the
 
 | Decision | Why |
 |---|---|
-| The higher arrow arc is drawn, not simulated; the stagger and the slower arrows are the simulation's. | The hit must stay where the simulation puts it (one truth for what is seen and what is hit), while the battle itself needed arrows in the air for longer and volleys that do not fire in one step. |
-| The staggered first shot counts half a step as spent and uses 0.12 s steps of delay. | Round `lh-rev-f1` (0.15 s × id mod 6, the delay counted from the step's end): the headless 0.1 s step rounded every delay up, about 0.06 s later after each lull, and night 20 without the beacon drifted past the step check (seed 2: the gatehouse fell at 85.1 against 80.6 s). Round `lh-rev-f2` tried a free-running beat instead (no rounding), but waiting up to a whole reload for the first shot weakened the archers: the Lightless King was slain in 5 of 10 seeds (T6 needs 6) and an endless realm fell on night 23 (T7 needs 35). |
+| The higher arrow arc is drawn, not simulated. | The hit must stay where the simulation puts it (one truth for what is seen and what is hit). |
+| The battle keeps M2a's archers, arrow speed and summons; the review's staggered volleys and slower arrows stay open for a tuning pass. | Three rounds tried them. `lh-rev-f1` (a waiting archer's first shot 0.15 s × id mod 6 late, arrows 220 px/s, summons 11 px apart with a hash jitter): T1 to T8 held, but the headless 0.1 s step rounded every delay up and night 20 without the beacon drifted past the step check (seed 2: the gatehouse fell at 85.1 against 80.6 s). `lh-rev-f2` (a free-running beat per archer): no rounding, but waiting up to a whole reload weakened the archers (the King slain in 5 of 10, T6 needs 6; an endless realm fell on night 23, T7 needs 35). `lh-rev-f3` (the first-shot delay 0.12 s × id mod 6 with half a step counted as spent, a fixed summon pattern): T1 to T8 held and seeds 2 and 3 agreed within a second, but seed 1 without the beacon diverged in the courtyard after the gatehouse fell (the hearth reached at 107.2 against 92.9 s; the realm held at 1/60 s and fell at 0.1 s). The final round needed a known-good battle, so the simulation went back to M2a's; the picture keeps the higher arcs, the longer trails and poses. |
 | Line 1's posts are a fixed list, not an even spread. | Spread over the walk, two archers stood in the niche fires from the horn to dawn on the hero view of the castle. The list keeps every count clear of the niches and the engine. |
 | Line 1's torches moved to the walk's ends instead of keeping posts on the facade. | DESIGN says the torches light the archers on the walk; at the gate's height they lit the facade below it and cluttered the symmetric front. No creature or crow ever stood in either light, so the battle is the same. |
 | The picture's lantern pool sits on the painted glass; the battle's lantern stays at x + 9, y 16. | Moving the battle light would change what is lit (a tuning change for a 3 px difference); the drawn pool now matches the lantern the player sees. |
@@ -1450,15 +1446,23 @@ This stage fixed all five confirmed high findings, the cheap medium ones and the
   fell on night 23) and the step check (seed 1 without the beacon: the hearth reached at 99.7 against 108.6 s, the
   walls alike): the free-running beat made the archers too slow to their first shot. Every new test passed (the horn,
   the relaunch, the night button's holds, line 1's posts, the markers).
-- `lh-rev-f3` (build, unit, ui, ui-de, release) on the half-step stagger: RESULT_F3
+- `lh-rev-f3` (build, unit, ui, ui-de, release) on `944da3f`: build, ui, ui-de and release passed, T1 to T8 passed;
+  unit failed only the step check (seed 1 without the beacon: the hearth reached at 107.2 against 92.9 s, the realm held
+  at 1/60 s and fell at 0.1 s, the walls within a second).
+- `lh-rev-f4` (build, unit, ui, ui-de, release) with M2a's battle restored: RESULT_F4
 
 **Open points (M2b review)**
 
 - The Ash Giant still slides a little (its walk keys keep the planted feet in place); a second leg key pose would fix
   it.
 - "Sound the horn" by day is a product change: Louis should see it once (the pause sheet's second button by day).
-- The tuning was measured again by `TuningTests` T1 to T8 on the runner (they pass); `tools/simtune`'s sweep was not
-  rerun for the margins.
+- **The review's staggered volleys and slower arrows** (its high finding 3, parts a and c) are not in the simulation:
+  every variant kept T1 to T8 but moved night 20's step check without the beacon past its limits (see the decisions).
+  They need a tuning pass with `tools/simtune`, which runs the step check for every variant: for example arrows at 260
+  or 220 px/s alone, the 0.12 s half-step stagger alone, and a step check that compares the courtyard phase after the
+  gatehouse falls with a wider window (the 19 of 58 variants that already failed it in M2a fail there too).
+- The Lightless King's summons still leave 5 px apart (the fixed 11 px pattern of round f3 was part of the step-check
+  trouble); the picture separates the crowd by drawing it left to right with a shade by id.
 
 ## Risks
 
