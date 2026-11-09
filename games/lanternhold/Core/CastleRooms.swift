@@ -139,7 +139,7 @@ enum CastleRooms {
         Flame(sprite: .candleFlame, dx: 76, dy: 38, color: GamePalette.fireWhite, fadesByDay: true, seed: 0x4348_0006),
     ]
     static let chapelLights: [RoomLight] = [
-        RoomLight(kind: .brazier, dx: 116, dy: 26, radius: 54, seed: 0x464C_414D),
+        RoomLight(kind: .brazier, dx: 116, dy: 26, radius: 54, intensity: 0.8, seed: 0x464C_414D),
         RoomLight(kind: .candle, dx: 108, dy: 27, radius: 12, seed: 0x4348_0001),
         RoomLight(kind: .candle, dx: 124, dy: 27, radius: 12, seed: 0x4348_0002),
         RoomLight(kind: .candle, dx: 99, dy: 18, radius: 12, seed: 0x4348_0003),

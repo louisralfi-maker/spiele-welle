@@ -1338,16 +1338,17 @@ enum PlaceholderCourt {
         var p = Painter(SpriteID.chapelInterior.size, salt: PlaceholderArt.stableSalt("chapelInterior"))
         let w = 160
         p.stoneBlocks(0, 0, w, 96, blockW: 12, blockH: 7, ramp: Ink.stone, key: 4)
-        // The vault and the gable: deep teal with gold stars.
-        let vault = [RGBA(0x16384A), RGBA(0x1E4A60)]
+        // The vault and the gable: deep teal, a lighter band under the ribs, scattered gold stars.
         for x in 6..<154 {
             let from = max(top(chapelTops, at: x) + 2, 16)
             guard from < 40 else { continue }
             for y in from..<40 {
-                p.put(x, y, vault[(x / 9 + y / 7) % 2])
-                if (x * 7 + y * 13) % 41 == 0 { p.put(x, y, Ink.gold[3]) }
+                p.put(x, y, y >= 37 ? RGBA(0x1E4A60) : RGBA(0x16384A))
+                let star = (x &* 73 &+ y &* 151) % 97
+                if star == 0 || star == 41 { p.put(x, y, Ink.gold[3]) }
             }
         }
+        for x in stride(from: 40, to: 154, by: 28) { p.vline(x, 27, 39, Ink.wood[2]) }
         p.hline(6, 153, 40, Ink.wood[2])
         p.hline(6, 153, 41, Ink.gold[1])
         // Cream walls below the vault, a red frieze, an oak wainscot.

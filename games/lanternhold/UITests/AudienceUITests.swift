@@ -22,7 +22,23 @@ final class AudienceUITests: XCTestCase {
         walkTheCastle()
         holdAudience()
         heraldSample()
+        castleAtNight()
         reduceMotion()
+    }
+
+    /// Night 3 at 20:00, the clock held: the great hall and the chapel open and lit by the hearth, the Flame and the
+    /// candles (extra shots for the look, not in the store set).
+    private func castleAtNight() {
+        for (x, name) in [(1838.0, "51b-hall-night"), (2040.0, "56b-chapel-night")] {
+            let app = XCUIApplication()
+            app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWNight", "3", "-GWSeed", "2",
+                                   "-GWCameraX", "\(Int(x))", "-GWFreezeTime", "YES"]
+            app.launch()
+            guard waitUntilReady(app, name: name) else { continue }
+            pause(0.8)
+            attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
+            app.terminate()
+        }
     }
 
     /// Day 3 (one of Marek's days) at 10:00, nobody heard yet (seed 2: a child, a townswoman and an old soldier wait
