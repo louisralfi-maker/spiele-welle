@@ -108,8 +108,9 @@ final class FirstDayUITests: XCTestCase {
         } else {
             XCTFail("no crown at the throne")
         }
-        tapStrip(strip, worldX: 1840)
-        XCTAssertTrue(waitForKing(app, near: 1840, within: 14, timeout: 20), "the king walked to the lectern")
+        // The lectern stands beyond the hearth (M3 fix, U2; its middle 1914): from 1902 on it wins over Odile beside it.
+        tapStrip(strip, worldX: 1924)
+        XCTAssertTrue(waitForKing(app, near: 1924, within: 14, timeout: 20), "the king walked to the lectern")
         if button.waitForExistence(timeout: 6) {
             button.tap()
             let taxes = element(app, "tax-card")

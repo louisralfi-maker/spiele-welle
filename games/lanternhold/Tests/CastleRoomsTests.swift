@@ -175,6 +175,26 @@ final class CastleRoomsTests: XCTestCase {
                        1580)
     }
 
+    /// M3 fix (U2): a gold mark over the throne while petitioners wait in the hall by day (the same art as the speech
+    /// mark, drawn after the lighting); gone with the last petitioner, at night and under the audience.
+    func testTheThroneIsMarkedWhilePetitionersWait() {
+        var s = realm(day: 3, hour: 10, kingX: 1830)
+        XCTAssertFalse(AudienceRules.hall(s, catalog: .standard).isEmpty, "petitioners wait on day 3")
+        let court = CourtScene(rooms: RoomFades(kingX: 1830))
+        func marks(_ state: GameState) -> [ActorInstance] {
+            Self.frame(state, focus: 1830, court: court).desc.actors.filter { $0.sprite == .speakerMark }
+        }
+        let waiting = marks(s)
+        XCTAssertEqual(waiting.count, 1, "one mark over the throne")
+        XCTAssertEqual(waiting.first?.isEmissive, true, "it reads in the dim hall")
+        XCTAssertEqual(waiting.first?.tint.x, CourtFrames.throneMarkGold.x)
+        var night = s
+        night.hour = 22
+        XCTAssertTrue(marks(night).isEmpty, "they went home at the horn")
+        s.court?.queue = []
+        XCTAssertTrue(marks(s).isEmpty, "nobody waits")
+    }
+
     func testTheCastlesWorldChangesAreDrawn() {
         let changes = ["castle.statue", "castle.guards.wall", "castle.banners.new", "castle.hall.tapestry",
                        "castle.courtyard.stall", "castle.seren.lantern"]

@@ -113,6 +113,10 @@ enum CourtFrames {
     static let talkSeconds = 0.35
     /// The wall walk's two guards (`castle.guards.wall`).
     static let wallGuards: [Double] = [1324, 1396]
+    /// The throne's mark while petitioners wait (M3 fix, U2): above the lord's head when he stands at the throne, in
+    /// gold (the speech mark's parchment times this tint).
+    static let throneMarkY = 36.0
+    static let throneMarkGold = SIMD3<Float>(1.0, 0.80, 0.34)
     /// The renewed banners over the hall's five (`castle.banners.new`): their left edges, their bottom 28 px up.
     static let bannerXs: [Double] = [1745, 1784, 1821, 1859, 1896]
     static let bannerY = 28.0
@@ -359,6 +363,19 @@ enum CourtFrames {
                 let height = Double(figure.body.sprite.size.height)
                 add(.speakerMark, frame: pulse, x: figure.x + 2, y: height + 2, facing: 1, alpha: figure.alpha,
                     emissive: true)
+            }
+        }
+        // M3 fix (U2): while petitioners wait in the hall a gold mark stands over the throne (the speech mark, tinted
+        // gold, pulsing; held on its lit frame with Reduce Motion), so the place of the audience shows from across
+        // the hall. Not while the audience runs, and not over a shut hall.
+        if scene.audience == nil && hall > 0.003 && !AudienceRules.hall(s, catalog: catalog).isEmpty {
+            let rect = view.rect(.speakerMark, x: Realm.throneX, y: throneMarkY)
+            if view.isOnScreen(rect) {
+                let pulse = reduceMotion ? 1 : Int(max(0, animTime) / 0.6) % 2
+                actors.append(ActorInstance(sprite: .speakerMark, frame: pulse, rect: rect,
+                                            tint: SIMD4<Float>(throneMarkGold.x, throneMarkGold.y, throneMarkGold.z,
+                                                               Float(min(1, hall))),
+                                            flipped: false, isEmissive: true, isLit: true))
             }
         }
         // Two guards on the wall walk by day once a petition posted them there.

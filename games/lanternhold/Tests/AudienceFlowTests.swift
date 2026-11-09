@@ -89,7 +89,7 @@ final class AudienceFlowTests: XCTestCase {
         XCTAssertNil(game.audience)
 
         let lectern = model(["GWCameraX": "\(KingTargets.lecternX)"])
-        XCTAssertEqual(lectern.target, .lectern, "the tax lectern keeps its own place beside the throne")
+        XCTAssertEqual(lectern.target, .lectern, "the tax lectern keeps its own place beyond the hearth")
         lectern.performAction()
         XCTAssertEqual(lectern.overlay, .taxes)
         lectern.setTax(.low)
@@ -132,8 +132,22 @@ final class AudienceFlowTests: XCTestCase {
     }
 
     func testTalkingToTheCourt() throws {
-        let game = model(["GWCameraX": "1856"])
-        XCTAssertEqual(game.target, .talk(who: "odile"), "Odile stands beside the throne on the first morning")
+        let game = model(["GWCameraX": "1848"])
+        XCTAssertEqual(game.target, .throne, "the farmer waits: the throne owns the dais, Odile's spot too (M3 fix, U2)")
+        game.performAction()
+        wait(game, seconds: 1.6)
+        game.choosePetition(0)
+        game.nextPetitioner()
+        XCTAssertNil(game.overlay, "the farmer was the only one")
+        // The audience seated the king on the throne; Odile stands a step to its right.
+        game.setDrag(offset: 60)
+        var steps = 0
+        while game.target != .talk(who: "odile") && steps < 80 {
+            game.advance(by: 0.05)
+            steps += 1
+        }
+        game.setDrag(offset: nil)
+        XCTAssertEqual(game.target, .talk(who: "odile"), "nobody waits any more: beside Odile the button talks")
         game.performAction()
         let bubble = try XCTUnwrap(game.talkBubble)
         XCTAssertEqual(bubble.who, "odile")
@@ -142,10 +156,11 @@ final class AudienceFlowTests: XCTestCase {
         XCTAssertNil(game.overlay, "talking is no card: the clock runs")
         XCTAssertEqual(game.talkLog.count("odile", day: 1), 1)
         let first = bubble.textKey
+        let state = try XCTUnwrap(game.driver?.state)
+        XCTAssertGreaterThan(CourtLineBook.standard.lines(for: "odile", state: state).count, 1,
+                             "Odile has more than one line on day 1")
         game.performAction()
-        if let state = game.driver?.state, CourtLineBook.standard.lines(for: "odile", state: state).count > 1 {
-            XCTAssertNotEqual(game.talkBubble?.textKey, first, "talking again goes on through her lines")
-        }
+        XCTAssertNotEqual(game.talkBubble?.textKey, first, "talking again goes on through her lines")
         game.closeTalk()
         XCTAssertNil(game.talkBubble)
         XCTAssertNil(game.court.talking)

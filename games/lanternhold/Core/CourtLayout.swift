@@ -47,8 +47,8 @@ struct CourtRoutine: Sendable, Equatable {
 /// The court's places (DESIGN.md "M3 in detail"): a pure function of the day, the hour, the flags and today's queue
 /// that puts every court member and today's guests in the castle, and today's petitioners on the great hall's benches.
 ///
-/// - Odile by the throne in the hall (stepping to the tax lectern now and then); Brannock between the courtyard and
-///   the gatehouse; Pip wandering the courtyard and the hall; Mother Hesper in the chapel by day and at the hearth at
+/// - Odile by the throne in the hall (stepping to her tax lectern beyond the hearth now and then); Brannock between
+///   the courtyard and the gatehouse; Pip wandering the courtyard and the hall; Mother Hesper in the chapel by day and at the hearth at
 ///   night; Tamsin in the kitchen; Bram at the smithy; Marek with his cart in the courtyard on his days (every third
 ///   day, and any day he brings a petition), by day only.
 /// - Seren: waiting at the front gate on the day her petition comes, then from the moment she is let in
@@ -59,8 +59,12 @@ struct CourtRoutine: Sendable, Equatable {
 enum CourtLayout {
     /// Where the heard petitioner stands before the throne (x 1824).
     static let audienceSpot = 1800.0
-    /// The tax lectern beside the throne (its left edge).
-    static let lecternX = 1834.0
+    /// The tax lectern (its left edge): Odile's desk beyond the hearth, well away from the throne (M3 fix, U2: beside
+    /// the throne the lectern, the throne and Odile lay within 16 px, so "Taxes" hid the audience).
+    static let lecternX = 1908.0
+    /// The dais: from the benches' end to the hearth. While petitioners wait in the hall the throne owns all of it
+    /// (`KingTargets.target`), whoever stands there.
+    static let dais: ClosedRange<Double> = 1792...1870
     /// The two benches' left edges, and the four waiting places at them, the next petitioner nearest the throne.
     static let benches: [Double] = [1712, 1760]
     static let seats: [Double] = [1788, 1772, 1740, 1724]
@@ -81,10 +85,12 @@ enum CourtLayout {
     static let courtOrder = ["odile", "brannock", "pip", "hesper", "tamsin", "bram", "marek", "seren"]
 
     static let routines: [String: CourtRoutine] = [
-        "odile": CourtRoutine(stops: [1856, 1846], faces: [-1, -1], dwell: [14, 6], night: 1860, nightFacing: -1),
+        // M3 fix (U2): Odile stands a step off the throne (the king's place is 1824, she never covers him) and walks
+        // round the hearth to her lectern's near side (1894, the lectern from 1908), where she faces it.
+        "odile": CourtRoutine(stops: [1848, 1894], faces: [-1, 1], dwell: [14, 6], night: 1860, nightFacing: -1),
         "brannock": CourtRoutine(stops: [1428, 1470], faces: [-1, 1], dwell: [9, 9], night: 1424, nightFacing: -1,
                                  offset: 5),
-        "pip": CourtRoutine(stops: [1612, 1690, 1770, 1700], faces: [1, 1, -1, -1], dwell: [5, 4, 7, 3], night: 1916,
+        "pip": CourtRoutine(stops: [1612, 1690, 1770, 1700], faces: [1, 1, -1, -1], dwell: [5, 4, 7, 3], night: 1880,
                             nightFacing: -1, speed: 22, offset: 11),
         // M3 step 3: Hesper at the altar (2058) and by the pews (2012), Tamsin at her table (2158) and at the
         // oven-hearth under the chimney (2208), where the art lane's interiors put them (ART-court.md).

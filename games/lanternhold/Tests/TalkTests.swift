@@ -47,17 +47,55 @@ final class TalkTests: XCTestCase {
     func testTheButtonOffersTalkingAndThePlaceWinsACloseCall() throws {
         var s = morning(day: 2, hour: 6)
         let odile = try XCTUnwrap(CourtLayout.figures(s, catalog: .standard).first { $0.who == "odile" })
-        XCTAssertEqual(odile.x, 1856, "beside the throne on the first morning's round")
+        XCTAssertEqual(odile.x, 1848, "a step off the throne on the first morning's round")
         s.king.x = odile.x
         XCTAssertEqual(KingTargets.target(s, balance: balance), .talk(who: "odile"))
-        s.king.x = KingTargets.lecternX + 4
-        XCTAssertEqual(KingTargets.target(s, balance: balance), .lectern,
-                       "Odile 12 px away yields to the lectern 4 px away")
         s.king.x = Realm.throneX
         XCTAssertEqual(KingTargets.target(s, balance: balance), .throne)
+        // Her second stop is the lectern's near side: between her and the lectern the place wins.
+        var later = s
+        later.hour = 6 + 18.0 / DayClock.secondsPerHour
+        let atDesk = try XCTUnwrap(CourtLayout.figures(later, catalog: .standard).first { $0.who == "odile" })
+        XCTAssertEqual(atDesk.x, 1894, "at her lectern")
+        XCTAssertEqual(atDesk.facing, 1, "facing it")
+        later.king.x = 1904
+        XCTAssertEqual(KingTargets.target(later, balance: balance), .lectern,
+                       "Odile 10 px away yields to the lectern 10 px away")
+        later.king.x = 1890
+        XCTAssertEqual(KingTargets.target(later, balance: balance), .talk(who: "odile"))
         s.hour = 21
         s.king.x = odile.x
         XCTAssertNil(KingTargets.target(s, balance: balance), "no talking from the horn to dawn")
+    }
+
+    /// M3 fix (U2): while petitioners wait in the hall the throne owns the dais, from the benches to the hearth, whoever
+    /// stands there; the lectern beyond the hearth keeps its place, at least 40 px from the throne.
+    func testTheThroneOwnsTheDaisWhilePetitionersWait() throws {
+        var s = morning(day: 3, hour: 6)
+        PetitionEngine.prepare(&s, catalog: .standard)
+        XCTAssertFalse(AudienceRules.hall(s, catalog: .standard).isEmpty, "petitioners wait on day 3")
+        let odile = try XCTUnwrap(CourtLayout.figures(s, catalog: .standard).first { $0.who == "odile" })
+        for x in [CourtLayout.dais.lowerBound, Realm.throneX, odile.x, CourtLayout.dais.upperBound] {
+            s.king.x = x
+            XCTAssertEqual(KingTargets.target(s, balance: balance), .throne, "the audience at \(x)")
+        }
+        s.king.x = KingTargets.lecternX
+        XCTAssertEqual(KingTargets.target(s, balance: balance), .lectern, "the lectern keeps its own place")
+        s.court?.queue = []
+        s.king.x = odile.x
+        XCTAssertEqual(KingTargets.target(s, balance: balance), .talk(who: "odile"), "nobody waits: she talks")
+        s.king.x = CourtLayout.dais.upperBound
+        XCTAssertNotEqual(KingTargets.target(s, balance: balance), .throne, "and the throne is out of reach there")
+
+        let lecternLeft = CourtLayout.lecternX
+        let throneRight = Realm.throneX + Double(SpriteID.throne.size.width) / 2
+        XCTAssertGreaterThanOrEqual(lecternLeft - throneRight, 40, "the lectern stands well away from the throne")
+        let half = Double(SpriteID.odile.size.width) / 2
+        for stop in CourtLayout.routines["odile"]?.stops ?? [] {
+            XCTAssertGreaterThanOrEqual(stop - half, Realm.throneX + Double(SpriteID.king.size.width) / 2,
+                                        "Odile never covers the lord")
+            XCTAssertLessThanOrEqual(stop + half, lecternLeft, "nor her lectern")
+        }
     }
 
     func testTalkingAgainGoesOnThroughTheLines() {

@@ -3,8 +3,8 @@
 ///
 /// - By day: a plot's build card (hammer: build, upgrade or rebuild; also at a plot that is still locked, so its card
 ///   tells the unlock day), the barracks' recruit card (coins), the throne (crown: the audience while petitioners wait
-///   in the hall, else the tax card), and from M3 the tax lectern beside it, the Stranger at the front gate and the
-///   court member or guest in talking reach (a speech bubble).
+///   in the hall, anywhere on the dais; else the tax card), and from M3 the tax lectern beyond the hearth, the
+///   Stranger at the front gate and the court member or guest in talking reach (a speech bubble).
 /// - From the horn to dawn: light a snuffed brazier or patch a damaged wall (`Sim.kingAction`); the barracks still
 ///   recruit (`Build.recruit` posts a recruit at once at night).
 ///
@@ -15,7 +15,7 @@ enum KingTarget: Sendable, Equatable {
     case recruit
     /// The throne: the audience while petitioners wait in the hall, else the tax card (M3).
     case throne
-    /// The tax lectern beside the throne, its own place (M3).
+    /// The tax lectern beyond the hearth, its own place (M3).
     case lectern
     /// A court member or guest to talk to, by day (M3).
     case talk(who: String)
@@ -39,9 +39,9 @@ enum KingTargetHold: Sendable, Equatable {
 enum KingTargets {
     /// The barracks' door: the middle of the drawn barracks in the courtyard.
     static let barracksX = EntityFrames.barracksLeft + Double(SpriteID.barracks.size.width) / 2
-    /// The throne in the great hall (the tax lectern stands beside it).
+    /// The throne in the great hall.
     static let throneX = Realm.throneX
-    /// The tax lectern's middle (M3: its own place beside the throne).
+    /// The tax lectern's middle (M3: its own place, Odile's desk beyond the hearth).
     static let lecternX = CourtLayout.lecternX + Double(SpriteID.taxLectern.size.width) / 2
     /// A court member counts this much farther than he stands, so the lectern, the throne or a plot beside him wins a
     /// close call (Odile steps up to the lectern now and then).
@@ -95,6 +95,10 @@ enum KingTargets {
             }
             return abs(x - barracksX) <= reach ? .recruit : nil
         }
+        // M3 fix (U2): while petitioners wait in the hall the throne owns the whole dais, whoever stands there, so the
+        // button says "Audience" anywhere between the benches and the hearth. The lectern beyond the hearth and the
+        // court outside the dais keep their own places.
+        if CourtLayout.dais.contains(x) && !AudienceRules.hall(s, catalog: .standard).isEmpty { return .throne }
         var best: KingTarget?
         var bestDistance = Double.infinity
         func consider(_ target: KingTarget, _ distance: Double) {
