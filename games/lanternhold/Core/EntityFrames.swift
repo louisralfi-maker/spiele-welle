@@ -615,7 +615,8 @@ enum EntityFrames {
             let share = Float(glow.duration > 0 ? max(0, glow.remaining / glow.duration) : 1)
             let seed = SeededRandom.mix(UInt64(index + 1) &* 0x9E37_79B9 &+ UInt64(max(0, glow.x)))
             if glow.kind == .fireArrow {
-                list.append(EntityGlow(.flame, x: glow.x - 2, y: 0, color: rgb(GamePalette.fireGold, (0.5 + 0.9 * share) * flicker(seed))))
+                list.append(EntityGlow(.flame, x: glow.x - 2, y: 0,
+                                       color: rgb(GamePalette.fireGold, (0.4 + 0.6 * share) * flicker(seed))))
             } else {
                 list.append(EntityGlow(.hearthFire, x: glow.x - 8, y: 0,
                                        color: rgb(GamePalette.fireOrange, (0.45 + 0.9 * share) * flicker(seed))))
@@ -643,9 +644,9 @@ enum EntityFrames {
             let path = drawnPath(p, origins: origins)
             switch p.kind {
             case .arrow, .bolt:
-                list.append(trail(path, color: SIMD4<Float>(0.62, 0.66, 0.82, 1)))
+                list.append(trail(path, color: SIMD4<Float>(0.95, 0.98, 1.2, 1)))
             case .fireArrow:
-                list.append(trail(path, color: SIMD4<Float>(1.3, 0.62, 0.22, 1)))
+                list.append(trail(path, color: SIMD4<Float>(1.5, 0.75, 0.28, 1)))
                 list.append(EntityGlow(.flame, x: path.x - 2, y: path.y - 2, color: rgb(GamePalette.fireGold, 1.3)))
             case .firepot:
                 list.append(EntityGlow(.flame, x: path.x - 2, y: path.y, color: rgb(GamePalette.fireOrange, 1.4)))
@@ -962,7 +963,7 @@ enum EntityFrames {
         for p in s.projectiles {
             let path = drawnPath(p, origins: origins)
             let sprite: SpriteID
-            var tint = SIMD4<Float>(0.82, 0.86, 1.0, 1)
+            var tint = SIMD4<Float>(1.15, 1.18, 1.35, 1)
             switch p.kind {
             case .arrow: sprite = .arrow
             case .bolt: sprite = .bolt

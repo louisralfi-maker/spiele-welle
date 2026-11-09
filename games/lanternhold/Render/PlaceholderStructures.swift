@@ -1069,18 +1069,18 @@ enum PlaceholderStructures {
     }
 
     /// A trail behind an arrow or a bolt flying right (the head at the right end): rising 0, flat 1, falling 2,
-    /// brighter toward the head.
+    /// fading from the head over 12 px (8 px read as no motion at phone size, round lh-m2b-a3).
     static func streak(_ frame: Int) -> PixelImage {
         var p = Painter(SpriteID.streak.size, salt: 0)
-        let tones = [RGBA(0x3C3C4C), RGBA(0x5C5C70), RGBA(0x8A8AA0), RGBA(0xC4C4D8)]
-        for x in 0..<8 {
+        let tones = [RGBA(0x2C2C3A), RGBA(0x44445A), RGBA(0x62627C), RGBA(0x8686A0), RGBA(0xB0B0C8), RGBA(0xDCDCEC)]
+        for x in 0..<12 {
             let y: Int
             switch frame {
-            case 0: y = 3 - x / 2
-            case 2: y = x / 2
+            case 0: y = 3 - x / 3
+            case 2: y = x / 3
             default: y = 2
             }
-            p.put(x, y, tones[min(3, x / 2)])
+            p.put(x, y, tones[min(5, x / 2)])
         }
         return p.image
     }

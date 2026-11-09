@@ -157,7 +157,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .spark: return PixelSize(width: 5, height: 5)
         case .shard: return PixelSize(width: 4, height: 4)
         case .gloomBubble: return PixelSize(width: 96, height: 64)
-        case .streak: return PixelSize(width: 8, height: 4)
+        case .streak: return PixelSize(width: 12, height: 4)
         }
     }
 

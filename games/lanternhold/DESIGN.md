@@ -1144,7 +1144,59 @@ lit and unlit, in the M1b world. The cards, the full HUD, sound and haptics come
 | The courtyard's row: barracks 1481 to 1545, smithy 1546 to 1606, the well (scene), the lodge centred at 1648. | The castle front ends at 1480 and the hall begins at 1700; DESIGN lists barracks, smithy, well, lodge. |
 | Unlit creatures at night: body × 0.2, glow strip at full. | A dark silhouette with ember eyes reads as "in the dark" against the night ground and the fog; at alpha instead of value, crowds would punch holes into each other (actors do not blend). |
 | `-GWBuild demo` drops leftover orders and posts every archer at night, and leaves two builds with the builders at work by day. | The night shots show the fight without scaffolding; the day shot shows the builders. |
-| `-GWAutoplay play` shows no debug readouts (they stay for `walk` and `-GWStats`). | The mid-chapter shots must work as store screenshots. |
+| `-GWAutoplay play` shows no debug readouts (they stay for `walk` and `-GWStats`) and no action button (the bot acts itself). | The mid-chapter shots must work as store screenshots; in round `lh-m2b-a2` the button covered the finale. |
+| At night in front of the castle the game's camera aims 60 px left of the king, toward the Gloom (eased in through the dusk, out through first light, faded out as he walks into the castle front). | The fight comes from the left: centred on the king behind the outer wall, the view showed 64 px of the fog and an empty right half (rounds `lh-m2b-a1` and `a2`); the probe's camera is unchanged. |
+| The Great Beacon's pool shines at 0.32 in the picture (`Look.intensityScale`); its radius and reach stay the simulation's. | At full strength the radius-840 pool blew the front out to white (round `lh-m2b-a2`: the Lightless King and the archers near-white). |
+| The demo's one fire tower stands in front of the outer wall. | It lights the approach (from x 545), creatures slow to their lit speed in it and the outer line's archers shoot in view; without it the creatures stayed dark until the braziers and died there in seconds (round `lh-m2b-a1`: the shots caught the wall between waves). |
+| The mid-chapter shots keep the liveliest frame of a window after each time (half an in-game hour for 21:30, a whole one for 23:00 and 01:00), by the scene value's `seen:` (creature bodies in the frame) and `shots:` (projectiles in flight). | The demo realm wipes each wave out within seconds of its reaching the light, so a fixed moment mostly shows the lull between waves (round `lh-m2b-a2`: one to three creatures in view). |
+
+**Runner rounds (M2b part 1)**
+
+- `lh-m2b-a1` (build, unit, `testMidChapter`): all passed on the first build. `FrameBudgetTests`: with 40 creatures
+  alive across the front of the manned demo realm, at most 161 sprite instances and 15 lights on four screens and
+  seven camera positions (targets: under 300 and 40); a whole live night 12 at most 101 instances and 17 lights (23
+  creatures at once). The shots caught the outer wall between waves.
+- `lh-m2b-a2` (build, unit, `testMidChapter`, `testFinale`): all passed; the outer line's fire tower lit the approach
+  and arrows with trails read, but a fixed moment still showed one to three creatures, and the finale blew out to
+  white under the beacon.
+- `lh-m2b-a3` (build, unit, ui, ui-de, release): all passed. The liveliest-moment shots: 23:43 (5 creatures in view, 5
+  projectiles), 01:45 (8 and 5: an ash brute in the fire tower's light, sootlings as ember eyes and cracks in the
+  fog, a firepot and arrows in flight), the finale at 22:32 and 23:49 (13 and 15 creatures: the Lightless King in the
+  beacon's light among burning summoned sootlings, a gloomweaver's darkness, archers shooting at him). The light probe
+  shots and the jitter check (spread 0 device px) unchanged. The arrows' 8 px trails still read as no motion at
+  phone size.
+- `lh-m2b-a4` (build, unit, ui, ui-de, release): brighter arrow shafts, 12 px trails, softer fire-arrow landings.
+
+**Open points (M2b part 1)**
+
+- The darkness bank swallows the beacon's battle light, but the light pass has no clip: the pool still brightens the
+  fog a little left of the bank's edge (night 20 only). A clip at the bank edge in the light shader would make the
+  picture match the rule exactly.
+- `FrameBuilderTests` is frozen, so the probe's king still walks on frames 2 to 5 of the new ten-frame strip (the
+  game uses 0 to 5); his idle moved to 6 and 7, which the test does not pin.
+- With the demo realm each wave dies within seconds of reaching the light, so the night reads as bursts; the night
+  shots show the liveliest moment of a window, not the moment itself. Whether night 12 of a played realm needs more
+  pressure is a tuning question for M5 (the waves' spread, the burn in light).
+- Line 1's tower archers stand on the wall walk's ends, not on the towers' crowns (y 132 to 172 lies at the top edge
+  of a 175-row screen).
+- Glow strips are drawn as actors (over at full brightness) rather than additively in the emissive pass: they do not
+  feed the bloom. If the art lane wants the ember eyes to bloom, a low-res copy in the emissive pass (under the body)
+  could add it.
+- No screen shake, sound or haptics yet (M6): the events reach `GameModel.advanceGame` and `BattleEffects`, where
+  the feedback hub will hook in.
+
+**Notes for the UI step (M2b part 2)**
+
+- `GameModel` is the place: `driver` (`SimDriver`: `state`, `balance`, `bot`) is private(set); add the actions the
+  cards need there (an order through `Build.order(&driver.state, …)`, recruiting through `Build.recruit`, the tax
+  through `Economy.setTax`) and publish gold, happiness and people in `refreshHUD` (every 6 steps) like `day` and
+  `clockText`. `isPaused` stops the simulation while a card or the pause sheet is open; the events of each frame
+  (`.dawn` for the report, `.defeat` for the defeat card, `.horn`, `.beaconLit`, `.kingSlain`) arrive in
+  `advanceGame`, where the dawn save already happens.
+- The world-scene value carries `day:`, `hour:`, `alive:`, `seen:` and `shots:` for UI tests; `-GWNight`, `-GWDay`,
+  `-GWBuild demo`, `-GWGold`, `-GWHappiness` and `-GWReset` reach any state; `-GWAutoplay play` hides the action
+  button.
+- The HUD must keep the night clear: in the shots only the clock badge (top right) sits over the picture.
 
 ## Risks
 
