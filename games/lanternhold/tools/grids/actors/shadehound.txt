@@ -10,14 +10,16 @@ outline night0
 # the ear tips fireOrange
 rim ember fireOrange
 
+# M2b review: the ash crust one value step darker than first painted (P stoneLight, L stone, S stoneMid; it was
+# stonePale, stoneLight, stone): lit by the beacon and the braziers the pale crust blew out to cream and salmon.
 legend
     K = ink
     C = rockDeep
     D = stoneDark
     M = stoneMid
-    S = stone
-    L = stoneLight
-    P = stonePale
+    S = stoneMid
+    L = stone
+    P = stoneLight
     r = stoneDark/emberDim
     R = tile/ember
     E = strawLight/fireGold

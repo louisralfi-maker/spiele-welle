@@ -37,6 +37,10 @@ build() { # name: one sprite (and its glow strip)
         mkdir -p $K
         python3 -I $T convert $R/brute-b-1.png $K/ashBrute-walk.png --size 38x33 --box 144,176,752,704 --only $BR --gain 0.95
         python3 -I $T convert $R/brute-b-1.png $K/ashBrute-attack.png --size 33x44 --box 892,8,1420,704 --only $BR --gain 0.95
+        # M2b review: the ash plates one value step darker (lit, the pale plates read as a pink boulder)
+        for KEY in walk attack; do
+            python3 -I $T post $K/ashBrute-$KEY.png $K/ashBrute-$KEY.png --remap stonePale:stoneLight,stoneLight:stone,stone:stoneMid
+        done
         python3 -I $AA build $G/ashBrute.txt --out $A ;;
     gloomweaver)   # the conversion is the reference the hand-set grid follows (hood slant, orb); the sprite is the grid
         mkdir -p $K

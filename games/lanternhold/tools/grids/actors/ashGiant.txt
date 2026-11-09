@@ -25,7 +25,9 @@ legend
 part legR image=key poly=54,110;54,46;63,40;73,42;73,110
 part legL image=key poly=4,110;4,58;14,46;40,46;54,52;54,110
 part armR image=key poly=64,110;67,50;76,37;87,39;101,50;104,110
-part torso image=key poly=0,0;110,0;110,33;86,33;76,38;68,50;0,52
+# M2b review: the torso's polygon starts 2 rows down, so the crown's stakes are 2 px shorter and their burning points
+# are no longer cut by the frame's top edge when the body bobs up (they blinked every other walk frame)
+part torso image=key poly=0,2;110,2;110,33;86,33;76,38;68,50;0,52
 
 part eyes
     oo..oo
