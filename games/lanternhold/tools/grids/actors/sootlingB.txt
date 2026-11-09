@@ -1,0 +1,137 @@
+# sootlingB 14x14, 6 frames: walk 0-3, attack 4-5 (SPRITES.md). The second sootling silhouette, lean where the first
+# is a lump: a burnt-out matchstick come alive. A round head of crusted ash with ember cracks and two ember eyes sits
+# on a thin charcoal stick of a body; it walks stiff-legged on two thin legs with a jerky, bobbing strut, thin arms
+# swinging. Attack: it rears its head back, then butts forward with it.
+id sootlingB
+size 14x14
+frames 6
+outline night0
+
+legend
+    K = ink
+    C = rockDeep
+    D = stoneDark
+    M = stoneMid
+    S = stone
+    L = stoneLight
+    P = stonePale
+    r = tile/emberDim
+    R = tile/ember
+    E = strawLight/fireGold
+    s = /fireOrange
+    t = /ember
+
+# the head: a ball of ash crust, cracks, two eyes at the front
+part head
+    .PPP..
+    PLLLP.
+    LSSrLP
+    SrMMES
+    MDRDDE
+    .DCCD.
+
+part stick
+    S
+    r
+    M
+    D
+
+part armF0
+    L.
+    .S
+    .S
+
+part armF1
+    L
+    S
+    S
+
+part armB0
+    .D
+    D.
+    D.
+
+part armB1
+    D
+    D
+    D
+
+part legsA
+    .S..S
+    S....M
+    S....M
+    K....K
+
+part legsB
+    .SM.
+    .S.M
+    S..M
+    K..K
+
+part legsC
+    ..S.M
+    .S..M
+    .S.M.
+    .K.K.
+
+part legsBrace
+    S...M
+    S....M
+    S....M
+    K....K
+
+part armsUp
+    S..S
+    .SS.
+
+part spark
+    s
+
+part sparkDim
+    t
+
+frame 0
+    armB0 5 7
+    legsA 4 9
+    stick 6 6
+    head 4 1
+    armF0 7 7
+    spark 3 0
+
+frame 1
+    armB1 6 7
+    legsB 4 9
+    stick 6 6
+    head 4 2
+    armF1 7 7
+    sparkDim 10 1
+
+frame 2
+    armB0 6 7
+    legsC 3 9
+    stick 6 6
+    head 5 1
+    armF0 6 7
+    spark 10 0
+
+frame 3
+    armB1 5 7
+    legsB 4 9
+    stick 6 6
+    head 4 2
+    armF1 7 7
+    sparkDim 3 1
+
+frame 4
+    legsBrace 3 9
+    stick 5 6
+    head 2 1
+    armsUp 4 5
+    spark 9 1
+
+frame 5
+    legsBrace 4 9
+    stick 7 6
+    head 7 2
+    armF0 8 7
+    sparkDim 4 1

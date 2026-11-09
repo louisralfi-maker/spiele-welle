@@ -1,0 +1,142 @@
+# sootling 14x14, 6 frames: walk 0-3, attack 4-5 (SPRITES.md). A hunched lump of smouldering ash that knuckle-walks
+# on long thin arms: high shoulders under a jagged crust of pale ash flakes, the head low and forward with two ember
+# eyes under the brow, charcoal underneath, 1 px ember seams between the plates, stubby hind legs.
+id sootling
+size 14x14
+frames 6
+outline night0
+
+legend
+    K = ink
+    C = rockDeep
+    D = stoneDark
+    M = stoneMid
+    S = stone
+    L = stoneLight
+    P = stonePale
+    r = tile/emberDim
+    R = tile/ember
+    E = strawLight/fireGold
+    s = /fireOrange
+    t = /ember
+
+# the lump without limbs: crest, shoulders, head with eyes, plates and seams, belly
+part body
+    .....P.P...
+    ....PLPLP..
+    ..PPLLSLLP.
+    .PLLSSMSLLP
+    PLSSMrMSEDE
+    LSMMrDDMMDS
+    SMDrDCRrDMD
+    .DCCKCCKD..
+
+part legsA
+    DM.D
+    DM.D
+    DK.D
+    KK.KK
+
+part legsB
+    .DMD
+    .DM.
+    DK.D
+    KK.KK
+
+part legsC
+    DM..D
+    DM.D.
+    .DKD.
+    .KKK.
+
+part armNear0
+    L.
+    S.
+    S.
+    KK
+
+part armNear1
+    L..
+    .S.
+    .S.
+    .KK
+
+part armNear2
+    .L
+    .S
+    S.
+    KK
+
+part armFar0
+    M
+    D
+    D
+    K
+
+part armFar1
+    M.
+    D.
+    .D
+    .K
+
+# attack: the near arm flung up in front of the head, claws high (anticipation), then raked down to the ground
+# ahead of it while the lump lunges forward (hit)
+part armRaise
+    ..LK
+    .LS.
+    S...
+    S...
+
+part armRake
+    S....
+    .SS..
+    ...SK
+    ....K
+
+part spark
+    s
+
+part sparkDim
+    t
+
+frame 0
+    armFar0 11 9
+    legsA 2 9
+    body 1 1
+    armNear0 9 9
+    spark 5 0
+
+frame 1
+    armFar1 10 9
+    legsB 2 9
+    body 1 2
+    armNear1 9 9
+    sparkDim 7 1
+
+frame 2
+    armFar0 10 9
+    legsC 2 9
+    body 1 1
+    armNear2 10 9
+    spark 4 0
+
+frame 3
+    armFar1 11 9
+    legsB 2 9
+    body 1 2
+    armNear0 8 9
+    sparkDim 6 1
+
+frame 4
+    armFar1 9 8
+    legsA 1 9
+    body 0 2
+    armRaise 8 4
+    spark 3 1
+
+frame 5
+    armFar0 12 9
+    legsC 3 9
+    body 2 2
+    armRake 9 8
+    sparkDim 4 1

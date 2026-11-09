@@ -1,0 +1,135 @@
+# citizenB 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md). A townsman: short dark curly hair, a beard, a green
+# tunic with rolled sleeves over a linen shirt, a belt with a pouch, brown trousers, a sack over his far shoulder.
+# Walk: four frames, a long stride. Idle: a breath, weight shifted.
+id citizenB
+size 12x26
+frames 6
+outline ink
+
+legend
+    k = ink
+    S = soilLight
+    s = soil
+    n = woodDark
+    N = soilDark
+    E = leafDark
+    e = leaf
+    f = meadow
+    p = plaster
+    q = plasterDim
+    H = woodDark
+    h = wood
+    B = soilDark
+    b = soil
+    l = woodLight
+    c = straw
+    C = strawLight
+
+part head
+    .nnn.
+    nNnnn
+    nSSSn
+    nSkSs
+    .SSSs
+    .nNn.
+
+# the sack slung on his back
+part sack
+    .cC.
+    cCCc
+    cCcc
+    cccc
+    .cc.
+
+part torso
+    .efee
+    effee
+    efpee
+    eEpEe
+    eepee
+    HHlHH
+    effee
+    eEeEe
+
+part legsA
+    Bb..Bb
+    Bb..Bb
+    Bb...Bb
+    Bb...Bb
+    HH...HH
+    HHh..HHh
+
+part legsB
+    .BbBb
+    .BbBb
+    .BbBb
+    .BbBb
+    .HHHH
+    .HHhHh
+
+part legsC
+    Bb..Bb
+    Bb..Bb
+    .Bb.Bb
+    .Bb.Bb
+    .HHHH.
+    .HHhHHh
+
+part armBack
+    e
+    s
+    s
+
+part armFront
+    f
+    e
+    S
+    S
+
+frame 0
+    sack 0 10
+    armBack 3 12
+    legsA 3 19
+    torso 3 11
+    head 3 5
+    armFront 8 11
+
+frame 1
+    sack 0 11
+    armBack 3 13
+    legsB 3 19
+    torso 3 12
+    head 3 6
+    armFront 7 12
+
+frame 2
+    sack 0 10
+    armBack 3 12
+    legsC 3 19
+    torso 3 11
+    head 3 5
+    armFront 8 11
+
+frame 3
+    sack 0 11
+    armBack 3 13
+    legsB 3 19
+    torso 3 12
+    head 3 6
+    armFront 7 12
+
+frame 4
+    sack 0 10
+    armBack 3 12
+    legsB 3 19
+    torso 3 11
+    head 3 5
+    armFront 7 11
+
+frame 5
+    sack 0 11
+    armBack 3 13
+    legsB 3 19
+    torso 3 12
+    head 3 6
+    armFront 7 12

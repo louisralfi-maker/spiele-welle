@@ -1,0 +1,67 @@
+# sootCrow 12x10, 4 frames: fly 0-2, perch 3 (SPRITES.md). A crow of soot: a charcoal body, a sharp beak, one ember
+# eye, and ragged wings of loose soot flakes with gaps between the feathers, an ember edge on the wing. Fly: wings up,
+# level, down. Perch: on its feet, wings folded, head raised.
+id sootCrow
+size 12x10
+frames 4
+outline night0
+
+legend
+    K = ink
+    C = rockDeep
+    D = stoneDark
+    M = stoneMid
+    S = stone
+    L = stoneLight
+    P = stonePale
+    r = stoneDark/emberDim
+    E = strawLight/fireGold
+    s = /ember
+
+# body in flight: tail, body, head, beak
+part body
+    ......DE..
+    CCMDDDDDKK
+    .C.CDDC...
+
+part wingUp
+    P.P.P..
+    LSLSLS.
+    .SMSMSM
+    ..MDrDM
+    ...DDD.
+
+part wingMid
+    P.LSSMMD
+    PLSMrDD.
+    .P.P.L..
+
+part wingDown
+    ...DDDM
+    ..MDrSM
+    .LSMSL.
+    LP.P...
+    P......
+
+part perch
+    ......DD..
+    .....DDEKK
+    ..PLSMDD..
+    CCMSrDDD..
+    .C..CDC...
+    ....K.K...
+
+frame 0
+    body 1 5
+    wingUp 1 0
+
+frame 1
+    body 1 4
+    wingMid 0 3
+
+frame 2
+    body 1 2
+    wingDown 1 3
+
+frame 3
+    perch 1 3

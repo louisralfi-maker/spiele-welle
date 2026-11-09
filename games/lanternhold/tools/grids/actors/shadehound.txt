@@ -1,0 +1,197 @@
+# shadehound 22x14, 6 frames: run 0-3, attack 4-5 (SPRITES.md). Lean and low: a long charcoal hound of ash with a deep
+# chest, a tucked belly and thin legs, a ragged mane of pale smoke on its neck and shoulders, a smoky tail, an ember
+# line along the spine and one ember eye. Run: a four-beat gallop (stretched, gathered, stretched, gathered) with the
+# back rising and the mane streaming. Attack: it crouches with the jaws open, then lunges and snaps.
+id shadehound
+size 22x14
+frames 6
+outline night0
+
+legend
+    K = ink
+    C = rockDeep
+    D = stoneDark
+    M = stoneMid
+    S = stone
+    L = stoneLight
+    P = stonePale
+    r = stoneDark/emberDim
+    R = tile/ember
+    E = strawLight/fireGold
+    s = /fireOrange
+    t = /ember
+
+# torso, neck, head and mane (run, stretched): the spine seam glows along the back, the mane streams back
+part body
+    ...............PP.K...
+    .............PPLLPKK..
+    ............PLLSSMDDD.
+    .SS.......PLLSSMMDDEDD
+    ..SLLrrRrrRLSSMMDDDDCD
+    ...MSSSMMMMMMDDDDDK...
+    ....MDDDCCCCCDDDD.....
+    ....DDC.....DDD.......
+
+# gathered: the back arches up, the head drops a little
+part bodyUp
+    ..............PP.K....
+    ............PPLLPKK...
+    ......PPLLLLLLSSMDDD..
+    .SS..PLLrrRrrRLSMMDEDD
+    ..SLLSSSMMMMMMDDDDDCDD
+    ...MSMMDDDDDDDDDDK....
+    ....MDDDCCCCCDDDD.....
+    ....DDC.....DDD.......
+
+# attack: crouched, head low and jaws open; then lunging flat out, jaws shut
+part bodyCrouch
+    ................P.....
+    ..............PPLPK...
+    .............PLLSSKK..
+    ...........PLLSSMMDD..
+    .SS.....PLLSSSMMDDDED.
+    ..SLLrrRrrRLSMMDDDCDDD
+    ...MSSSMMMMMMDDDDDK..K
+    ....MDDDCCCCCDDDD..KK.
+    ....DDC.....DDD.......
+
+part bodyLunge
+    .................PP.K.
+    ...............PPLLPKK
+    .S...........PLLSSMDDD
+    ..SS.....PPLLSSSMMDDED
+    ...SLLrrRrrRrLSSMMDDCD
+    ....MSSSMMMMMMMDDDDK..
+    .....MDDDCCCCCDDDD....
+    .....DDC.....DDD......
+
+# legs: hind pair (left), fore pair (right); the far legs one value darker
+part hindA
+    M...
+    .M..
+    .M..
+    ..M.
+    ..K.
+
+part hindAfar
+    .D.
+    D..
+    D..
+    D..
+    K..
+
+part foreA
+    .M..
+    .M..
+    M...
+    M...
+    K...
+
+part foreAfar
+    D...
+    .D..
+    ..D.
+    ...D
+    ...K
+
+part hindB
+    .M.
+    M..
+    M..
+    M..
+    KK.
+
+part hindBfar
+    D..
+    .D.
+    ..D
+    ..D
+    ..K
+
+part foreB
+    M...
+    .M..
+    ..M.
+    ..M.
+    ..K.
+
+part foreBfar
+    .D.
+    .D.
+    D..
+    D..
+    K..
+
+part hindCrouch
+    MM..
+    M.M.
+    M..M
+    KK.K
+
+part foreCrouch
+    M.M.
+    M.M.
+    M.M.
+    K.K.
+
+part hindPush
+    M......
+    .M.....
+    ..MM...
+    ....KK.
+
+part foreReach
+    M.....
+    .MM...
+    ...MM.
+    .....K
+
+part spark
+    s
+
+part sparkDim
+    t
+
+frame 0
+    hindAfar 5 8
+    foreAfar 13 8
+    body 0 1
+    hindA 3 8
+    foreA 12 8
+    spark 7 2
+
+frame 1
+    hindBfar 4 8
+    foreBfar 12 8
+    bodyUp 0 1
+    hindB 5 8
+    foreB 13 8
+    sparkDim 9 1
+
+frame 2
+    hindA 5 8
+    foreA 13 8
+    body 0 1
+    hindAfar 3 8
+    foreAfar 12 8
+    spark 5 2
+
+frame 3
+    hindB 4 8
+    foreB 12 8
+    bodyUp 0 1
+    hindBfar 5 8
+    foreBfar 13 8
+    sparkDim 11 1
+
+frame 4
+    hindCrouch 3 9
+    foreCrouch 12 9
+    bodyCrouch 0 1
+    spark 8 2
+
+frame 5
+    hindPush 0 8
+    foreReach 14 8
+    bodyLunge 0 1
+    sparkDim 4 2

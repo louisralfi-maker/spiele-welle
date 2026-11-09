@@ -1,0 +1,152 @@
+# builder 12x24, 6 frames: walk 0-3, hammer 4-5 (SPRITES.md). A builder of the realm: a straw-coloured cloth cap, a
+# brown smock with rolled sleeves over a linen shirt, a tool belt, a mallet. Walk: a brisk step, the mallet over the
+# shoulder bobbing. Hammer: mallet raised high behind the head, then struck down in front.
+id builder
+size 12x24
+frames 6
+outline ink
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    H = woodDark
+    h = wood
+    l = woodLight
+    c = straw
+    C = strawLight
+    p = plaster
+    q = plasterDim
+    B = soilDark
+    b = soil
+    n = soilLight
+    D = stoneDark
+    m = stone
+    L = stoneLight
+    G = gold
+
+# cloth cap, face, a short beard
+part head
+    .CCc.
+    CCccc
+    cSSSs
+    .SkSs
+    .SSSs
+    .hbs.
+
+part torso
+    hhphh
+    hhqhh
+    hhphh
+    hhqhh
+    HlHGH
+    hhhhh
+    hh.hh
+
+part legsA
+    Bb.Bb
+    Bb.Bb
+    Bb..Bb
+    HH..HH
+    HHh.HHh
+
+part legsB
+    .BbBb
+    .BbBb
+    .BbBb
+    .HHHH
+    .HHhHh
+
+part legsC
+    Bb..Bb
+    Bb..Bb
+    Bb.Bb.
+    HH.HH.
+    HHhHHh
+
+# sleeves rolled up: brown cuff, bare forearm
+part armBack
+    h
+    h
+    s
+    s
+
+part armFront
+    h
+    h
+    S
+    S
+
+# the mallet in the front hand while walking, its head hanging by the knee
+part malletHang
+    .l.
+    .l.
+    .h.
+    LmD
+    mDD
+
+part armUp
+    S.
+    S.
+    h.
+    .h
+
+part malletUp
+    LmD
+    mDD
+    .l.
+    .l.
+
+part armDown
+    hhSS
+
+part malletDown
+    lllLm
+    ...mD
+    ...DD
+
+frame 0
+    armBack 3 13
+    legsA 3 18
+    torso 3 11
+    head 3 5
+    armFront 7 11
+    malletHang 6 14
+
+frame 1
+    armBack 3 14
+    legsB 3 18
+    torso 3 12
+    head 3 6
+    armFront 7 12
+    malletHang 6 15
+
+frame 2
+    armBack 3 13
+    legsC 3 18
+    torso 3 11
+    head 3 5
+    armFront 7 11
+    malletHang 6 14
+
+frame 3
+    armBack 3 14
+    legsB 3 18
+    torso 3 12
+    head 3 6
+    armFront 7 12
+    malletHang 6 15
+
+frame 4
+    legsA 3 18
+    torso 3 11
+    head 3 5
+    malletUp 1 1
+    armUp 2 5
+
+frame 5
+    legsA 3 18
+    torso 3 12
+    head 4 6
+    armDown 6 14
+    malletDown 7 14
