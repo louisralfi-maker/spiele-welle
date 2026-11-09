@@ -362,7 +362,10 @@ final class FrameBuilderTests: XCTestCase {
         for desc in [short, tall] {
             let lips = desc.layer(.foreground).sprites.filter { $0.sprite == .fgOverhangA || $0.sprite == .fgOverhangB }
             XCTAssertFalse(lips.isEmpty, "rock lips at the top on \(desc.targetHeight) rows")
-            XCTAssertTrue(lips.allSatisfy { $0.rect.y == 0 }, "flush with the top row on \(desc.targetHeight) rows")
+            // A lip reaches the top edge but never hangs below y 139 (20 rows above the statue's bowl fire).
+            let lowest = Float(desc.groundRow) - Float(FrameBuilder.lipLowestBottom)
+            XCTAssertTrue(lips.allSatisfy { $0.rect.y <= 0 }, "the top edge covered on \(desc.targetHeight) rows")
+            XCTAssertTrue(lips.allSatisfy { $0.rect.y + $0.rect.w == lowest }, "no lower than y 139")
             let rocks = desc.layer(.foreground).sprites.filter { $0.sprite == .fgRockC || $0.sprite == .fgRockB }
             for rock in rocks {
                 XCTAssertGreaterThan(Int(rock.rect.y + rock.rect.w), desc.groundRow, "rocks stand below the ground")

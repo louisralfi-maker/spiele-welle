@@ -15,6 +15,10 @@ enum FrameBuilder {
     static let fogScale: Float = 0.7
     /// Window glass glows with its colour × the ramp's torch strength × this.
     static let glassGain: Float = 0.9
+    /// The lowest a top-anchored rock lip may hang, in rows above the ground line (polish after the art review): 20
+    /// rows above the statue's bowl fire (y 119), so the gorge's signature prop stays clear on every phone; 175-row
+    /// screens show 36 of a lip's 48 rows, 154-row screens 15, the 135-row look none.
+    static let lipLowestBottom = 139.0
     /// Colour of the creatures' eye glints.
     static let eyeColor = SIMD4<Float>(1.0, 0.86, 0.55, 1)
 
@@ -43,11 +47,12 @@ enum FrameBuilder {
         }
 
         /// The bottom of a prop above the ground line: its `y`, or for a top-anchored prop the bottom that puts its
-        /// top row `y` rows below the screen's top row.
+        /// top row `y` rows below the screen's top row, but never below `FrameBuilder.lipLowestBottom` (on short
+        /// screens the lip slides up past the top edge instead of covering the warden statue's crown and bowl fire).
         func bottom(of prop: Prop) -> Double {
             switch prop.anchor {
             case .ground: return prop.y
-            case .top: return Double(groundRow) - prop.y - Double(prop.height)
+            case .top: return max(Double(groundRow) - prop.y - Double(prop.height), FrameBuilder.lipLowestBottom)
             }
         }
     }

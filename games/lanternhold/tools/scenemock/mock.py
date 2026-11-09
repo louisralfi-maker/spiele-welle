@@ -236,7 +236,8 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
     for pr in sorted(props, key=lambda q: (ORDER.index(q['p']), q['z'])):
         w, h = SIZES[pr['s']]; left = pr['x'] - whole[pr.get('mv') or pr['p']]  # moves: another plane's parallax
         if left + w < -1 or left > TW + 1: continue
-        top = pr['y'] if pr.get('anchor') == 'top' else GROUND - pr['y'] - h
+        # top-anchored lips never hang below y 139 (FrameBuilder.lipLowestBottom, polish after the art review)
+        top = min(pr['y'], GROUND - 139 - h) if pr.get('anchor') == 'top' else GROUND - pr['y'] - h
         fa = 1.0
         if pr.get('fade'):  # fades in with the camera's focus (the far view of the keep)
             f0, f1 = pr['fade']; fa = min(1.0, max(0.0, (camx + VIS / 2 - f0) / (f1 - f0)))

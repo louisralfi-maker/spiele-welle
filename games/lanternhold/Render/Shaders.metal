@@ -373,6 +373,12 @@ struct CompositeUniforms {
 // premultiplied planes.
 constant float3 kNightTint = float3(1.03f, 0.86f, 1.66f);
 
+// How much point light reflects as from a neutral grey surface, the cap on the light a surface reflects, and the share
+// of light left in the soil under the grass (polish after the art review).
+constant float kLitNeutral = 0.35f;
+constant float kLitCap = 1.6f;
+constant float kLitUnderground = 0.25f;
+
 static inline float3 lh_cold(float3 albedo, float3 ambient, float k) {
     float3 a = albedo * ambient;
     float luma = dot(a, float3(0.299f, 0.587f, 0.114f));
@@ -420,8 +426,11 @@ static PlaneCoords lh_coords(float2 p, constant CompositeUniforms &u) {
     c.world = uint2(lh_column(p.x, u.shiftsB.y, u), r);
     c.fogB = uint2(lh_column(p.x, u.shiftsB.z, u), r);
     c.fg = uint2(lh_column(p.x, u.shiftsB.w, u), r);
-    float xs = (p.x + float(u.shiftsB.y)) / float(s);
-    float ys = u.target.y - (u.screen.y - p.y) / float(s);
+    // Bloom is read once per game pixel (its centre on the world grid, rows from the bottom), so glows step in s x s
+    // blocks like the art instead of a smooth full-resolution blur (polish after the art review: the sun's and the
+    // bowl fire's halos were the only smeared pixels on screen).
+    float xs = floor((p.x + float(u.shiftsB.y)) / float(s)) + 0.5f;
+    float ys = floor(u.target.y - (u.screen.y - p.y) / float(s)) + 0.5f;
     c.bloomUV = float2(xs, ys) / max(u.bloom.zw * 2.0f, float2(1.0f));
     return c;
 }
@@ -521,8 +530,14 @@ static float3 lh_base(PlaneCoords c, PixelLight info, constant CompositeUniforms
     }
     float4 w = worldTex.read(c.world);
     if (w.a > 0.0f) {
-        float3 lit = lh_cold(w.rgb, u.ambient.rgb * info.bank, u.look.x) + w.rgb * info.light
-            + info.light * (u.look.y * w.a);
+        // Polish after the art review: firelight reflects partly as from a neutral surface (warm light on a teal banner
+        // read as a cyan halo), it is capped below white (the king's lantern blew a cottage wall out), and it fades
+        // a few rows under the grass (no light shining into the earth's cross-section).
+        float3 reflectance = mix(w.rgb, float3(dot(w.rgb, float3(0.299f, 0.587f, 0.114f))), kLitNeutral);
+        float under = float(c.row) - u.target.z;
+        float3 light = min(info.light, float3(kLitCap)) * mix(1.0f, kLitUnderground, smoothstep(3.0f, 7.0f, under));
+        float3 lit = lh_cold(w.rgb, u.ambient.rgb * info.bank, u.look.x) + reflectance * light
+            + light * (u.look.y * w.a);
         color = color * (1.0f - w.a) + lit;
         midVisible *= 1.0f - w.a;
     }

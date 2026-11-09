@@ -93,9 +93,12 @@ enum Look {
     static let fogGlow: Float = 0.7
     /// Dark night fog is brightened so it reads as mist against the dark ground (never above this, never by day).
     static let fogBrightMax: Float = 2.4
-    /// The foreground's shares of point light and ambient (it sits in shadow, with a rim from the fires).
+    /// The foreground's shares of point light and ambient (it sits in shadow, with a rim from the fires). By day it
+    /// takes more of the ambient (polish after the art review: near-black mounds and lips at noon read as a
+    /// silhouette band); at night it stays as dark as before (its albedo is one value step lighter since then).
     static let foregroundLight: Float = 0.75
-    static let foregroundAmbient: Float = 0.62
+    static let foregroundAmbientNight: Float = 0.43   // with the one step lighter albedo: as dark as 0.62 was
+    static let foregroundAmbientDay: Float = 0.9
     /// Bloom: strength, the shares of point light and sky glow fed into it, threshold and knee.
     static let bloomStrength: Float = 0.75
     static let bloomLightShare: Float = 0.16
@@ -108,11 +111,11 @@ enum Look {
     static let bankFade: Float = 24
     /// Haze: far planes mix toward the horizon colour by `farHaze + ramp haze × farHazeShare`, mid planes by
     /// `ramp haze × midHazeShare`; mist adds near the horizon.
-    static let farHaze: Float = 0.24
+    static let farHaze: Float = 0.34   // polish after the art review: was 0.24; the gorge's far wall recedes by day
     static let farHazeShare: Float = 0.62
     static let midHazeShare: Float = 0.26
     /// Mid planes mix toward the horizon by this much by day and this much at night (the gorge melts into the dark).
-    static let midHazeDay: Float = 0.12
+    static let midHazeDay: Float = 0.2   // polish after the art review: was 0.12 (three depths separated by haze)
     static let midHazeNight: Float = 0.36
     static let mist: Float = 0.22
     /// Aerial perspective at warm hours (M1b, ART.md "Renderer additions"): by `aerialWeight` (0 by day and at night,
@@ -151,6 +154,11 @@ enum Look {
     static func midHaze(_ sample: AmbientSample) -> Float {
         let base = midHazeDay + (midHazeNight - midHazeDay) * nightness(sample)
         return base + sample.haze * midHazeShare
+    }
+
+    /// The foreground's share of the ambient at this hour.
+    static func foregroundAmbient(_ sample: AmbientSample) -> Float {
+        foregroundAmbientDay + (foregroundAmbientNight - foregroundAmbientDay) * nightness(sample)
     }
 
     /// How much of night this ambient is: 0 by day, 1 at night.

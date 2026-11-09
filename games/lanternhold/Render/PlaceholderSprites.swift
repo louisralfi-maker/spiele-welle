@@ -270,8 +270,9 @@ enum PlaceholderSprites {
 
     // MARK: - Soot creatures
 
-    /// A sootling: a hunched blob of soot with wisps curling up and little tendrils for feet, a faint violet rim on
-    /// top. The eyes are glints drawn by the renderer. `phase` moves the wisps and squashes the body by a pixel.
+    /// A sootling: a hunched blob of ash-crusted soot with ember cracks, smoke wisps curling up and little tendrils for
+    /// feet, a pale rim on top. The eyes are glints drawn by the renderer. `phase` moves the wisps and squashes the
+    /// body by a pixel.
     static func sootling(phase: Int) -> PixelImage {
         let size = SpriteID.sootling.size
         var p = Painter(size, salt: 77)
@@ -287,8 +288,8 @@ enum PlaceholderSprites {
                 let lean = (Double(x) - cx) * 0.06
                 if dx * dx + (dy + lean) * (dy + lean) <= 1 {
                     let core = 1 - (dx * dx + dy * dy)
-                    let value = 0.28 - core * 0.2 + (p.hash(x, y, 1) - 0.5) * 0.12
-                    p.put(x, y, p.ramp(Ink.soot, value, x, y))
+                    let value = 0.55 - core * 0.25 + (p.hash(x, y, 1) - 0.5) * 0.16
+                    p.put(x, y, p.ramp(Ink.ash, value, x, y))
                 }
             }
         }
@@ -299,16 +300,21 @@ enum PlaceholderSprites {
                 let sway = sin(Double(step) * 1.3 + Double(phase) * 1.7 + Double(index)) * 1.1
                 let x = start.0 + Int(sway.rounded())
                 let y = start.1 - step - 1
-                p.put(x, y, step == start.2 - 1 ? Ink.soot[3] : Ink.soot[2])
+                p.put(x, y, step == start.2 - 1 ? Ink.ash[4] : Ink.ash[3])
             }
         }
         // Tendrils.
         for (index, fx) in [2, 5, 8, 11].enumerated() {
             let reach = (index + phase) % 2 == 0 ? 1 : 0
-            p.put(fx, size.height - 1, Ink.soot[1])
-            if reach == 1 { p.put(fx - 1, size.height - 1, Ink.soot[2]) }
+            p.put(fx, size.height - 1, Ink.ash[0])
+            if reach == 1 { p.put(fx - 1, size.height - 1, Ink.ash[1]) }
         }
-        p.topRim(Ink.soot[4])
+        p.topRim(Ink.ash[4])
+        // Ember cracks in the crust (a zigzag across the flank, a fleck on the back).
+        let cracks: [(Int, Int, Int)] = [(4, 9, 1), (5, 10, 2), (6, 10, 1), (7, 11, 2), (9, 8, 1), (10, 9, 2)]
+        for (x, y, tone) in cracks {
+            p.put(x, y, Ink.ember[tone])
+        }
         return p.image
     }
 
@@ -323,37 +329,42 @@ enum PlaceholderSprites {
                     let dx = (Double(x) + 0.5 - cx) / rx
                     let dy = (Double(y) + 0.5 - cy) / ry
                     guard dx * dx + dy * dy <= 1 else { continue }
-                    let value = 0.18 + (1 - dx * dx - dy * dy) * -0.08 + (p.hash(x, y, 2) - 0.5) * 0.12
-                    p.put(x, y, p.ramp(Ink.soot, value, x, y))
+                    let value = 0.5 + (1 - dx * dx - dy * dy) * -0.12 + (p.hash(x, y, 2) - 0.5) * 0.16
+                    p.put(x, y, p.ramp(Ink.ash, value, x, y))
                 }
             }
         }
         blob(9.5, 7.6, 7.4, 3.3)
         blob(17.0, 4.6, 3.6, 2.7)
         blob(20.0, 5.6, 1.8, 1.2)
-        p.put(15, 1, Ink.soot[2])
-        p.put(15, 0, Ink.soot[3])
-        p.put(17, 1, Ink.soot[2])
-        p.put(18, 0, Ink.soot[3])
+        p.put(15, 1, Ink.ash[2])
+        p.put(15, 0, Ink.ash[3])
+        p.put(17, 1, Ink.ash[2])
+        p.put(18, 0, Ink.ash[3])
         // Legs: near and far pairs, swapped by phase.
         let legs: [(Int, Int)] = phase == 0 ? [(4, 0), (6, 1), (13, 0), (15, 1)] : [(3, 1), (6, 0), (12, 1), (15, 0)]
         for (lx, lift) in legs {
             for y in 10..<(size.height - lift) {
-                p.put(lx, y, Ink.soot[1])
-                p.put(lx + 1, y, Ink.soot[2])
+                p.put(lx, y, Ink.ash[0])
+                p.put(lx + 1, y, Ink.ash[1])
             }
         }
         // Tail and back wisps.
         for step in 0..<5 {
             let sway = sin(Double(step) * 1.1 + Double(phase) * 2) * 1.0
-            p.put(2 - step / 2 + Int(sway.rounded()), 6 - step, step == 4 ? Ink.soot[3] : Ink.soot[2])
+            p.put(2 - step / 2 + Int(sway.rounded()), 6 - step, step == 4 ? Ink.ash[4] : Ink.ash[3])
         }
         for (index, bx) in [6, 9, 12].enumerated() {
             let lift = (index + phase) % 2
-            p.put(bx, 3 - lift, Ink.soot[2])
-            if lift == 1 { p.put(bx, 3, Ink.soot[2]) }
+            p.put(bx, 3 - lift, Ink.ash[3])
+            if lift == 1 { p.put(bx, 3, Ink.ash[3]) }
         }
-        p.topRim(Ink.soot[4])
+        p.topRim(Ink.ash[4])
+        // Ember cracks along the flank and at the shoulder.
+        let cracks: [(Int, Int, Int)] = [(6, 8, 1), (7, 7, 2), (8, 8, 1), (11, 7, 1), (12, 8, 2), (16, 6, 1)]
+        for (x, y, tone) in cracks {
+            p.put(x, y, Ink.ember[tone])
+        }
         return p.image
     }
 
