@@ -54,9 +54,9 @@ final class LightProbeUITests: XCTestCase {
         }
     }
 
-    /// `-GWAutoplay walk` at dusk: eight frames every 0.5 s, after the camera has settled behind the walking king.
-    /// His screen position (`debug-king-x`, device pixels) must stay within one device pixel while the camera
-    /// (`debug-camera-x`) moves on.
+    /// `-GWAutoplay walk` at dusk: eight frames at least 0.5 s apart, after the camera has settled behind the walking
+    /// king. His screen position (`king:` in the `world-scene` value, device pixels) must stay within one device pixel
+    /// while the camera (`cam:`) moves on. One element read per frame keeps the strip short on the runner.
     func testFilmstrip() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
@@ -64,17 +64,17 @@ final class LightProbeUITests: XCTestCase {
         app.launch()
         guard waitUntilReady(app, name: "film") else { return }
         pause(3.0)
-        let kingElement = element(app, "debug-king-x")
-        let cameraElement = element(app, "debug-camera-x")
-        XCTAssertTrue(kingElement.waitForExistence(timeout: 5), "debug-king-x shows during autoplay")
+        let scene = element(app, "world-scene")
+        let firstValue = (scene.value as? String) ?? ""
+        XCTAssertTrue(firstValue.contains("king:"), "the scene value carries the king's x during autoplay (\(firstValue))")
         var kings: [Double] = []
         var cameras: [Double] = []
         for index in 1...8 {
             let started = Date()
-            let name = "film-" + String(format: "%02d", index) + "-\(language)"
-            attach(XCUIScreen.main.screenshot(), name)
-            if let king = number(kingElement) { kings.append(king) }
-            if let camera = number(cameraElement) { cameras.append(camera) }
+            attach(XCUIScreen.main.screenshot(), "film-" + String(format: "%02d", index) + "-\(language)")
+            let text = (scene.value as? String) ?? ""
+            if let king = field(text, "king:") { kings.append(king) }
+            if let camera = field(text, "cam:") { cameras.append(camera) }
             let rest = 0.5 - Date().timeIntervalSince(started)
             if rest > 0.02 { pause(rest) }
         }
@@ -133,12 +133,9 @@ final class LightProbeUITests: XCTestCase {
         app.descendants(matching: .any).matching(identifier: identifier).firstMatch
     }
 
-    /// A number from an element's value or label.
-    private func number(_ element: XCUIElement) -> Double? {
-        if let value = element.value as? String, let number = Double(value) {
-            return number
-        }
-        return Double(element.label)
+    /// The number after `key` in a space-separated scene value such as "frame:120 ready king:1034 cam:812.50".
+    private func field(_ text: String, _ key: String) -> Double? {
+        text.split(separator: " ").first { $0.hasPrefix(key) }.flatMap { Double($0.dropFirst(key.count)) }
     }
 
     private func attach(_ screenshot: XCUIScreenshot, _ name: String) {

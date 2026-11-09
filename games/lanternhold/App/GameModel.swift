@@ -20,7 +20,7 @@ final class GameModel {
     /// The fixed simulation step.
     static let step = 1.0 / 60.0
     /// Autoplay walks this far before it turns.
-    static let autoplayLeg = 900.0
+    static let autoplayLeg = 2400.0
     /// A brazier this close (game px) can be lit or snuffed.
     static let actionReach = 40.0
     /// Drag distances in points: below the dead zone the king stands, beyond the run distance he runs.

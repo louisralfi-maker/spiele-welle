@@ -753,7 +753,7 @@ falloff, bands, dither, bloom and fog.
 | `14-buffer-light` | shot 04 with `-GWShowBuffer light` |
 | `15-front-night-minimal` | shot 04 with `-GWEffects minimal` |
 | `16-hud-de` | shot 04 in German with the HUD |
-| `film-01` … `film-08` | `-GWAutoplay walk` at dusk, every 0.5 s, with `debug-king-x` and `debug-camera-x` for the jitter check |
+| `film-01` … `film-08` | `-GWAutoplay walk` at dusk, at least 0.5 s apart (about 1.5 s on the runner: one screenshot and one read of the scene value per frame), with the king's screen x and the camera x from the `world-scene` value (`king:` and `cam:`) for the jitter check |
 
 **Unit tests:** `DayClockTests`, `FlickerTests` (deterministic, bounded, Reduce Motion), `LightFieldTests`,
 `CameraTests`, `ResolutionTests`, `FrameBuilderTests`, `MetalProbeTests`, `OffscreenRenderTests`.

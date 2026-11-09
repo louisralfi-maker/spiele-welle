@@ -134,9 +134,13 @@ final class WorldSceneCoordinator: NSObject, MTKViewDelegate {
             applyThermalState(to: view)
         }
         let ready = stableFrames >= WorldSceneCoordinator.readyFrames
-        if ready != reportedReady || frames % 10 == 0 {
+        if ready != reportedReady || frames % 10 == 0 || model.showsDebugValues {
             reportedReady = ready
-            view.accessibilityValue = ready ? "frame:\(frames) ready" : "frame:\(frames)"
+            var value = ready ? "frame:\(frames) ready" : "frame:\(frames)"
+            if model.showsDebugValues {
+                value += " king:\(model.debugKingX) cam:\(String(format: "%.2f", model.debugCameraX))"
+            }
+            view.accessibilityValue = value
         }
     }
 
