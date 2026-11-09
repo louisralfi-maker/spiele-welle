@@ -94,17 +94,17 @@ def frame(k):
                                ".rrrrrrrrr..",
                                "rrrrssssssr.",
                                "rrrssssssss.",
-                               "rrssoossooss",
-                               "rrssoEssoEss",
-                               "rrsssessses.",
-                               ".rsssdsssd..",
+                               "rrssssssooss",
+                               "rrssssssoEss",
+                               "rrssssssses.",
+                               ".rsssssssd..",
                                ".rrsssssss..",
                                "..rssjjjjs..",
                                "..r.sjjjjs..",
                                "..r.sjjjjs..",
                                ".r..ssjjss..",
                                ".....ssss..."],
-            {"r": "moorDark", "s": "stoneMid", "o": "night0", "j": "night0",
+            {"r": "moorDark", "s": "stoneDark", "o": "nightDeep", "j": "night0",   # fix stage: an ashen head, one eye
              "E": ("stoneLight", "wraithWhite"), "e": ("stone", "wraithGlow"), "d": ("stoneDark", "wraithDim")})
     # the near arm: too long, the hand almost on the ground
     nh = (88 + ln + sw * 1.5, 97 + dy * 0.5)

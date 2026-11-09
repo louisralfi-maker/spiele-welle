@@ -66,18 +66,18 @@ committed scene sprites byte for byte with the new palette (checked in a copy of
 
 | id | size × frames | method | frame use | notes |
 |---|---|---|---|---|
-| `sootling` | 14x14 × 6 | look 2 painter `tools/creatures/sootling.py` (hand-set frames) | crawl 0-3 (on hands and knees, the reaching hand planted and moving back 3 px a frame, then the other arm reaches), attack 4-5 (rears up with the claw high above the head; strikes down in front) | a lost child: a husk on all fours, the pale head too big and hanging forward, two hollow eyes weeping cold light, a rag of a shirt on its back, a dark jaw |
-| `sootlingB` | 14x14 × 6 | look 2 painter `tools/creatures/sootlingB.py` (hand-set frames) | walk 0-3 (stooped, on stick legs, the head bobbing 1 px, the long arm dragged behind the step), attack 4-5 (the long arm swung up behind the head; whipped forward at chest height) | the second child: upright and thin as a stick, a rag of a smock, one arm grown far too long and dragged along the ground |
-| `shadehound` | 22x14 × 6 | look 2 painter `tools/creatures/shadehound.py` (hand-set frames) | run 0-3 (gathered, push off, stretched in the air with nothing on the bottom row, landing on the hands; 6 px a frame), attack 4-5 (crouched back, the jaw wide; the lunge flat out) | a man on all fours: arms as long as the legs, elbows and knees too high, the spine arched, a shirt rag on the ribs, the pale head hanging low on a long neck, the jaw unhinged |
-| `sootCrow` | 12x10 × 4 | look 2 painter `tools/creatures/sootCrow.py` (hand-set frames) | fly 0-2 (wings up, level, down), perch 3 (hunched, the wings a hood) | a crow of torn cloak scraps: a rag tail, a pale skull face with one hollow eye and a grey beak; flying frames do not touch the bottom row |
-| `ashBrute` | 44x44 × 7 | look 2 painter `tools/creatures/ashBrute.py` (rig) | walk 0-3 (near foot planted at x 23, 19, 15 then swung, far foot two frames later, the fist planted and lifted like a third leg, the body down 1 px on the contacts), attack 4-6 (the fist reared back over the hump, leaning back; slammed down in front, the body thrown 3 px forward and 2 px down; held) | a swollen night watchman: a hump under a patched cloak with hanging rag strands, the torn cloak behind, a bare smoke belly with two ember cracks, a small skull head sunk between the shoulders, one arm as thick as a trunk ending in a fist, the other withered, his pole across the hump with a dead lantern cage dangling over the head (one emberDim spark) |
-| `gloomweaver` | 30x30 × 4 | look 2 painter `tools/creatures/gloomweaver.py` (rig) | float 0-3 (the robe's five strips wave, the lantern swings 1 px, its violet drips fall a pixel a frame) | a robed figure bent forward, no feet, the robe ending in torn strips; a limp hood over a face of darkness with two weeping eyes; two thin arms hold out a dead lantern that leaks violet light downward |
-| `ashGiant` | 110x110 × 7 | look 2 painter `tools/creatures/ashGiant.py` (rig) | walk 0-3 (near foot planted at x 60, 56, 52 then lifted 4 px and swung, far foot two frames later; the hands swing, the cloak hem follows, the heart flickers), stomp 4-6 (the near knee drawn up to the belly, leaning back 5 px, the heart dims; the foot slammed down 12 px ahead, the body 5 px down and forward, the heart flares to fireGold: the screen shake; held) | a starved giant bent double: a hump under a sail of a cloak torn into hanging strips, stilt legs, arms that reach the ground with open hands, a hooded skull hanging lower than the shoulders with weeping sockets and an open jaw, and in the bare chest a cage of pale ribs (two broken) around an ember heart |
-| `lightlessKing` | 64x64 × 7 | look 2 painter `tools/creatures/lightlessKing.py` (rig) | walk 0-3 (he glides: the foot tips under the hem planted and moving back 5 px a frame, the pole's foot planted, then lifted and set ahead, the train swaying), attack 4-6 (the snuffer lifted level over the crown, leaning back; brought down in front, the bell on the ground, leaning forward; held) | the full frame height: a tall mantled shape with a torn train and shoulder cape, a cowl whose face is a void ringed by a cold crescent, a crown of uneven iron thorns, two dead lanterns on chains at the belt, a long-fingered hand, and a pole taller than himself that ends in a crook with a candle snuffer bell. No circlet, no sword, no teal |
+| `sootling` | 14x14 × 6 | look 2 painter `tools/creatures/sootling.py` (hand-set frames) | crawl 0-3 (on hands and knees, the reaching hand planted and moving back 3 px a frame, then the other arm reaches), attack 4-5 (rears up with the claw high above the head; strikes down in front) | a small stooped husk on all fours: a hump of a back, the head a torn hood hanging at the front with one hollow socket and a single point of cold light low in it, a rag of a shirt on its back, a dropped jaw. No pale face, never two eyes, nothing of a child (Louis, 09.11. 22:45) |
+| `sootlingB` | 14x14 × 6 | look 2 painter `tools/creatures/sootlingB.py` (hand-set frames) | walk 0-3 (stooped, on stick legs, the head bobbing 1 px, the long arm dragged behind the step), attack 4-5 (the long arm swung up behind the head; whipped forward at chest height) | the second small husk: upright, stooped and thin as a stick, a hump behind a hooded head that hangs forward (one socket, one cold point), a rag at the hip, one arm grown far too long and dragged along the ground. No bare pale head, no smock |
+| `shadehound` | 22x14 × 6 | look 2 painter `tools/creatures/shadehound.py` (hand-set frames) | run 0-3 (gathered, push off, stretched in the air with nothing on the bottom row, landing on the hands; 6 px a frame), attack 4-5 (crouched back, the jaw wide; the lunge flat out) | a man on all fours: arms as long as the legs, elbows and knees too high, the spine arched, a hump behind the shoulders, a shirt rag on the ribs, a dark hooded head low on a long neck with one cold point, the jaw hanging (no teeth), the forefeet readable hands (a palm and two spread fingers in `stoneMid`) |
+| `sootCrow` | 12x10 × 4 | look 2 painter `tools/creatures/sootCrow.py` (hand-set frames) | fly 0-2 (wings up, level, down), perch 3 (hunched, the wings a hood) | a crow of torn cloak scraps: a rag tail, a dark hooded head with one hollow eye and a grey beak (no pale skull face); flying frames do not touch the bottom row |
+| `ashBrute` | 44x44 × 7 | look 2 painter `tools/creatures/ashBrute.py` (rig) | walk 0-3 (near foot planted at x 23, 19, 15 then swung, far foot two frames later, the fist planted and lifted like a third leg, the body down 1 px on the contacts), attack 4-6 (the fist reared back over the hump, leaning back; slammed down in front, the body thrown 3 px forward and 2 px down; held) | a swollen night watchman: a hump under a patched cloak with hanging rag strands, the torn cloak behind, a bare smoke belly with two ember cracks, a small hooded head sunk between the shoulders (a `nightDeep` socket with one cold point, a hanging jaw; no pale skull), one arm as thick as a trunk ending in a fist, the other withered, his pole across the hump with a dead lantern cage dangling over the head (one emberDim spark) |
+| `gloomweaver` | 30x30 × 4 | look 2 painter `tools/creatures/gloomweaver.py` (rig) | float 0-3 (the robe's five strips wave, the lantern swings 1 px, its violet drips fall a pixel a frame) | a robed figure bent forward, no feet, the robe ending in torn strips; a limp hood over a face of darkness with one weeping eye low in the hood; two thin arms hold out a dead lantern that leaks violet light downward |
+| `ashGiant` | 110x110 × 7 | look 2 painter `tools/creatures/ashGiant.py` (rig) | walk 0-3 (near foot planted at x 60, 56, 52 then lifted 4 px and swung, far foot two frames later; the hands swing, the cloak hem follows, the heart flickers), stomp 4-6 (the near knee drawn up to the belly, leaning back 5 px, the heart dims; the foot slammed down 12 px ahead, the body 5 px down and forward, the heart flares to fireGold: the screen shake; held) | a starved giant bent double: a hump under a sail of a cloak torn into hanging strips, stilt legs, arms that reach the ground with open hands, a hooded skull in `stoneDark` hanging lower than the shoulders with one weeping socket and an open jaw, and in the bare chest a cage of pale ribs (two broken) around an ember heart |
+| `lightlessKing` | 64x64 × 7 | look 2 painter `tools/creatures/lightlessKing.py` (rig) | walk 0-3 (he glides: the foot tips under the hem planted and moving back 5 px a frame, the pole's foot planted, then lifted and set ahead, the train swaying), attack 4-6 (the snuffer lifted level over the thorns, leaning back; brought down in front, the bell on the ground, leaning forward; held) | the full frame height: a tall mantled shape with a torn train and shoulder cape, a cowl whose face is a void ringed by a cold crescent, a dead briar of uneven thorns growing out of the cowl's rim and swept back behind him (no crown, no band; the longest thorn forks), two dead lanterns on chains at the belt, a long-fingered hand, and a pole taller than himself that ends in a crook with a candle snuffer bell. No circlet, no sword, no teal |
 | `archer` | 12x28 × 5 | hand-set parts | idle 0-1 (a breath: head, shoulders and bow 1 px down), draw 2-3 (bow raised, arrow nocked at the chest; full draw to the cheek, the bow bent, the string in a V), loose 4 (string straight, drawing hand flung back) | brown leather hood, the teal tabard with the gold lantern, belt, red-fletched quiver, longbow |
 | `guardsman` | 14x28 × 9 | hand-set parts | idle 0-1, walk 2-5 (march, the shield bobbing), strike 6-8 (spear drawn back level; thrust over the shield on a lunge; pulled back) | nasal helm, mail (soft two-tone rings), teal kite shield with a gold rim and the gold lantern, spear |
 | `builder` | 12x24 × 6 | hand-set parts | walk 0-3, hammer 4-5 (mallet high behind the head; struck down in front) | straw cloth cap, brown smock over a linen shirt, tool belt, the mallet in his hand by the knee while walking |
-| `king` | 16x30 × 10 | hand-set parts | walk 0-5 (contact, down, passing on each leg; the lantern swings 1 px on frames 1 and 4), idle 6-7 (a breath, the lantern sways), command 8-9 (the pole lifted 2 and 3 px, lantern raised) | gold crown a size too big with a teal stone, white beard, the teal cloak with a gold clasp over a red-brown tunic, the lamplighter's lantern on its hooked pole (DESIGN.md "Not a copy"; the pole is held in his hand, the lantern hangs from the hook at head height) |
+| `king` | 16x30 × 10 | hand-set parts | walk 0-5 (contact, down, passing on each leg; the lantern swings 1 px on frames 1 and 4), idle 6-7 (a breath, the lantern sways), command 8-9 (the pole lifted 2 and 3 px, lantern raised) | the young lord of House Lantern (ART-look2.md 6.2): beardless, brown hair, a plain gold circlet a size too big that has slipped 1 px toward his brow (no stone), one pixel longer in the leg, the teal cloak with a gold clasp over a red-brown tunic, the lamplighter's lantern on its hooked pole (DESIGN.md "Not a copy"; the pole is held in his hand, the lantern hangs from the hook at head height) |
 | `citizen` | 12x26 × 6 | hand-set parts | walk 0-3, idle 4-5 | townswoman: cream headscarf, red-brown dress, pale apron, a basket on her arm |
 | `citizenB` | 12x26 × 6 | hand-set parts | walk 0-3, idle 4-5 | townsman: dark skin, dark curly hair and beard, green tunic, a sack on his back |
 | `citizenC` | 12x26 × 6 | hand-set parts | walk 0-3, idle 4-5 | old farmer: wide straw hat, grey beard, blue smock under a brown vest, a crooked walking stick |
@@ -93,36 +93,41 @@ with fireOrange spikes, fireGold eyes, the King in teal) no longer apply.
 - A glow strip alone still shows the creature: its top contour, its eyes, its one sign.
 - The common folk of the Gloom (sootlings, hound, crow, brute, giant): an `emberDim` line on the top contour (on the
   outline pixel above every body pixel that has two or three free pixels over it), `ember` only inside cracks, and
-  cold weeping eyes: one `wraithWhite` pixel each with a `wraithGlow` or `wraithDim` pixel below it (the tear). No
+  one cold eye: a single `wraithWhite` pixel, low and off the head's axis in a `nightDeep` socket, with at most one
+  `wraithDim` (the giant: `wraithGlow`) pixel below it (the tear). Never two eyes (fix stage, ART-look2.md 14). No
   fireOrange spikes, no fireGold eyes: a creature never looks like a fire.
 - The giant's ember heart is the one warm sign of size: `emberDim` dithered around `ember`, a core that flickers
   (`ember`, `fireOrange`, `fireGold` on the stomp).
-- The gloomweaver: a `violetDim` top contour, weeping eyes, and the dead lantern leaking violet (`violetGlow` core,
+- The gloomweaver: a `violetDim` top contour, one weeping eye, and the dead lantern leaking violet (`violetGlow` core,
   `violetDim` cage and drips).
-- The Lightless King is cold only: a `wraithDim` top contour, `wraithGlow` on the crown's thorn tips and as a crescent
+- The Lightless King is cold only: a `wraithDim` top contour, `wraithGlow` on three thorn tips and as a crescent
   around the cowl's void. No eyes, no ember, no teal.
-- The body pixel under a glow pixel is a dark or neutral albedo (cracks `tile`, eyes `stoneLight`, tears `stoneMid`
-  or `stoneDark`), so by day the eye is a pale grey pixel and the crack red-brown.
+- The body pixel under a glow pixel is a dark or neutral albedo (cracks `tile`, the eye `stoneLight`, the tear
+  `stoneDark`), so by day the eye is one pale grey pixel in a dark socket and the crack red-brown. No small kind has
+  any other pale pixel on its head.
 - No glow pixel and no body pixel lies loose outside the silhouette: the engine's moonlight rim lights every
   screen-right edge pixel of an unlit creature, so a loose smoke pixel becomes a bright speck. Torn edges are
   connected cloth.
-- `kingGlow` is the lantern glass (2x2: fireWhite above fireGold) and a fireWhite glint on the crown's teal stone. The
+- `kingGlow` is the lantern glass (2x2: fireWhite above fireGold) and one fireWhite glint on the circlet's front (albedo `strawLight`). The
   engine should draw it with the lantern's torch strength (in the golden-hour mock at full strength the glass shows as
   a white dot by day).
 
-### Eye and lantern positions (from the anchor: dx right, dy up from the bottom row; facing right)
+### Eye and lantern positions (measured from the glow strips after the fix stage)
 
-| sprite | frame 0 | notes |
+dx = pixel column − frame width / 2 (so the pixel's left edge from the anchor, facing right); dy = rows above the
+bottom row. Every creature has one eye.
+
+| sprite | frame 0 | other frames |
 |---|---|---|
-| sootling | eyes (2, 5) and (4, 5) | crawling; attack frame 4: (0, 8) and (2, 8) |
-| sootlingB | eyes (-3, 10) and (-1, 10) | walk frames 1 and 3 one pixel lower |
-| shadehound | eyes (5, 7) and (7, 7) | two eyes now; in the air (frame 2) at (7, 8) and (9, 8) |
-| sootCrow | eye (3, 5); perched (2, 4) | |
-| ashBrute | eyes (10, 28) and (12, 28); dead lantern spark about (7, 36) | the lantern cage swings 1 px |
-| gloomweaver | eyes (1, 22) and (3, 22); lantern core (9, 9) | the engine's bob moves all of it |
-| ashGiant | eyes (28, 73) and (32, 73); heart centre (5, 68), radius 7 | the head hangs right of the frame centre now |
-| lightlessKing | no eyes; cowl crescent (-6..-3, 50..54); crown tips up to (-2, 63) | the sprite fills the frame's 64 px |
-| king | lantern glass x 5-6: dy 22-23 (frames 0, 2, 3, 5, 6), 20-21 (1, 4, 7), 24-25 (8), 25-26 (9); crown glint (-1, 26 or 25) | the light should sit at about (+5.5, 22.5), not `x + 9, y 16` |
+| sootling | eye (4, 3) | crawl 1 and 3: (4, 2); attack 4: (-1, 7); attack 5: (0, 6) |
+| sootlingB | eye (2, 6) | walk 1 to 3 and attack 4 the same; attack 5: (3, 5) |
+| shadehound | eye (8, 5) | run 1: (9, 6); in the air (2): (9, 8); landing (3): (7, 4); attack 4: (5, 7); attack 5: (9, 6) |
+| sootCrow | eye (3, 5) | perched (3): (2, 4) |
+| ashBrute | eye (12, 26) | walk 1 and 3: (12, 27); attack 4: hidden behind the reared fist; 5: (15, 24); 6: (14, 25); the dead lantern spark about (7, 36), the cage swings 1 px |
+| gloomweaver | eye (3, 21); lantern core (9, 9) | the core at x 10, 9, 8 in frames 1, 2, 3; the engine's bob moves all of it |
+| ashGiant | eye (32, 73), tear below; heart centre (5, 68), radius 7 | walk 1 and 3: (32, 74); stomp 4: (25, 76); 5: (39, 67); 6: (36, 71) |
+| lightlessKing | no eyes; cowl crescent (-6..-3, 50..54); thorn tips up to (-19, 58) behind and row 63 on the down frames | the sprite fills the frame's 64 px |
+| king | lantern glass x 5-6: dy 23-24 (frames 0, 2, 3, 5, 6), 21-22 (1, 4, 7), 24-25 (8), 25-26 (9); circlet glint (1, 24), (1, 23) on frames 1, 4, 7 | the light should sit at about (+5.5, 23.5), not `x + 9, y 16` |
 
 The glow strips make the old `eyeGlints` sprite unnecessary for these creatures. Positions are of look 2 (stage 3).
 
@@ -189,7 +194,7 @@ out (`king=off actors=off`) so every actor comes from the scene.
 - The code lane must update `SpriteID.frameCount` (king 10, archer 5, citizen 6, sootling 6, shadehound 6) and add the
   new ids (sootlingB, sootCrow, ashBrute, gloomweaver, ashGiant, lightlessKing, guardsman, builder, citizenB,
   citizenC and the glow strips); until then the atlas crops the new strips around their bottom centre.
-- The king's lantern light (`SceneActor.lantern`: x + 9, y 16) should move to the painted glass (+5.5, about 22.5);
+- The king's lantern light (`SceneActor.lantern`: x + 9, y 16) should move to the painted glass (+5.5, about 23.5);
   `kingGlow` should fade with the torch strength by day.
 - No projectiles are painted in this lane (`arrow`, `fireArrow`, `bolt`, `firepot`); the scenes show fire arrows only as
   their flame and light pool.

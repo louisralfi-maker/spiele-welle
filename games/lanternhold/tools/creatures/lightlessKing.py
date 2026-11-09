@@ -1,6 +1,8 @@
-"""The Lightless King: a tall crowned shape whose face is a void. A long mantle with a torn train, a crown of iron
-thorns, and in its hand a snuffer on a long pole, the tool that puts lights out. No eyes: a cold ring of light leaks
-around the hollow of the cowl. Cold only, no ember."""
+"""The Lightless King: a tall shape whose face is a void. A long mantle with a torn train, thorns like a dead briar
+growing out of the cowl's rim (no crown), and in its hand a snuffer on a long pole, the tool that puts lights out.
+No eyes: a cold ring of light leaks around the hollow of the cowl. Cold only, no ember."""
+import math
+
 from rig import Frame, ik, ASH, ROBE, IRON, HUSK
 
 SIZE = (64, 64, 7)
@@ -54,16 +56,23 @@ def frame(k):
                         (-2, 2, "wraithDim"), (-1, 3, "wraithDim"), (0, -3, "wraithDim"), (1, -3, "wraithGlow"),
                         (2, -3, "wraithDim"), (0, 4, "wraithDim"), (1, 4, "wraithDim")):
         f.glow(hx + 1 + gx, hy + 0.6 + gy, g, "stoneMid")
-    # the crown of thorns: uneven iron spikes, the tallest in front, one broken
-    f.stamp(hx - 5, hy - 14, [".....T....",
-                              ".....c....",
-                              ".T...c....",
-                              ".c...c..T.",
-                              ".c...c..c.",
-                              ".c.T.c..c.",
-                              ".c.c.c.cc.",
-                              ".cccccccc.",
-                              "..cccccc.."], {"c": "stoneMid", "T": ("stoneLight", "wraithGlow")})
+    # the thorns: no crown and no band. They grow out of the cowl's own rim like a dead briar, each at its own
+    # angle and length, bent at the middle, the longest at the back and the front ones short or snapped (fix stage,
+    # ART-look2.md 14: a crown of upright spikes on a hood over a void read as a known film wraith)
+    # a dead briar swept back by a wind that is not there: uneven thorns, all leaning behind him, the longest forked
+    for (deg, n, bend, tip, fork) in ((-80, 5, -24, None, 0), (-56, 11, -30, "wraithGlow", 6), (-30, 4, -20, None, 0),
+                                      (-8, 8, -34, "wraithGlow", 0), (20, 3, -30, None, 0), (44, 2, -10, "wraithDim", 0)):
+        a0 = math.radians(deg)
+        x, y = hx + 4.6 * math.sin(a0), hy - 5.6 * math.cos(a0)
+        for i in range(n):
+            ang = math.radians(deg + (bend if i >= n // 2 else 0))
+            x, y = x + math.sin(ang), y - math.cos(ang)
+            last = i == n - 1
+            f.put(x, y, "nightHaze" if last and tip else ("night2" if i < n // 2 else "night1"),
+                  tip if last else None)
+            if fork and i == fork:
+                for j in (1, 2, 3):
+                    f.put(x + j * 0.35, y - j, "night1")
     f.norim.update(range(int(hx) - 5, int(hx) + 5))
     # the snuffer: a long pole, a crook at its top, the bell hanging from the crook
     bot, top = p["pole"], p["top"]

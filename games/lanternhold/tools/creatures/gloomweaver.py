@@ -1,5 +1,5 @@
 """Gloomweaver: a gaunt robed figure that floats, bent over the dead lantern it carries on arms far too long. The
-lantern gives no light: a violet dark leaks from it and drips. Its eyes weep cold light. The robe ends in torn
+lantern gives no light: a violet dark leaks from it and drips. One eye weeps cold light, low in the hood. The robe ends in torn
 strips that trail behind."""
 from rig import Frame, ik, ASH, ROBE
 
@@ -25,10 +25,10 @@ def frame(k):
     f.poly([(11, 4), (12, 0), (15, 1), (14, 4)], ROBE, dk=1)           # the hood's limp peak
     f.stamp(15, 5, [".vvv",
                     "vvvv",
-                    "vevE",
-                    "vdvd",
-                    "vdvv",
-                    ".vv."], {"v": "night0", "E": ("stoneLight", "wraithWhite"), "e": ("stone", "wraithGlow"),
+                    "vvvv",
+                    "vvvE",
+                    "vvvd",
+                    ".vv."], {"v": "night0", "E": ("stoneLight", "wraithWhite"),
                               "d": ("stoneDark", "wraithDim")})
     # the arms: thin, both reaching forward and down, the lantern's chain in the hands
     hand = (24, 15)

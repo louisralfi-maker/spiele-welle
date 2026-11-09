@@ -222,6 +222,7 @@ def leg(f, hip, foot, l1, l2, r0, r1, r2, ramp, dk=0, bend=-1):
 # hand-set frames of the small creatures: one character per pixel
 SMALL = {"h": "nightBlue", "H": "nightSlate", "k": "night0", "s": "stoneMid", "S": "stone", "d": "stoneDark",
          "r": "moorDark", "R": "moor", "t": "roofDeep", "j": "night0", "i": "stoneDark",
+         "n": "nightDeep",                                         # the hollow of a socket or a hood
          "E": ("stoneLight", "wraithWhite"), "e": ("stoneMid", "wraithGlow"), "w": ("stoneDark", "wraithDim"),
          "c": ("tile", "ember"), "C": ("tile", "emberDim")}
 

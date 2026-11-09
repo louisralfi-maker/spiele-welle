@@ -1,9 +1,11 @@
-# king 16x30, 10 frames: walk 0-5, idle 6-7, command 8-9 (SPRITES.md). The lamplighter king: a gold crown a size too
-# big with a teal stone, a white beard and kind face, the realm's teal cloak with a gold clasp over a warm red-brown
-# tunic, a belt, brown breeches, boots, and his old lamplighter's lantern hanging from a hooked pole in his near hand
-# (DESIGN.md "Not a copy"). Walk: six frames (contact, down, passing on each leg), the cloak hem and the lantern swing.
-# Idle: a breath and a slow sway of the lantern. Command: he lifts the pole high, the lantern raised to give an order.
-# kingGlow: the lantern glass and a glint on the crown's stone.
+# king 16x30, 10 frames: walk 0-5, idle 6-7, command 8-9 (SPRITES.md). The lord of House Lantern (ART-look2.md 6.2,
+# fix stage 14): a young man, beardless, brown hair, a plain gold circlet a size too big that has slipped 1 px toward
+# his brow (2 px of gold, no stone), the house's teal cloak with a gold clasp over a warm red-brown tunic, a belt,
+# brown breeches, boots, and the house's lantern hanging from a hooked pole in his near hand (DESIGN.md "Not a copy").
+# He is one pixel longer in the leg and smaller in the head than the old bearded king. Walk: six frames (contact,
+# down, passing on each leg), the cloak hem and the lantern swing. Idle: a breath and a slow sway of the lantern.
+# Command: he lifts the pole high, the lantern raised to give an order.
+# kingGlow: the lantern glass and one fireWhite glint on the circlet's front.
 id king
 size 16x30
 frames 10
@@ -13,13 +15,10 @@ legend
     k = ink
     S = dawnRose
     s = tileLight
-    W = foam
-    w = stonePale
-    v = stoneLight
     G = gold
     C = strawLight
     g = straw
-    j = banner/fireWhite
+    J = strawLight/fireWhite
     T = roofDeep
     t = roofDeep
     U = banner
@@ -36,21 +35,24 @@ legend
     Y = strawLight/fireGold
     Z = parchment/fireWhite
 
-# the crown, a size too big, with a teal stone (glints at night)
-part crown
-    .G.C.G.
-    .GgjgG.
-    GCGGGCG
-    gGGGGGg
+# the circlet: gold, two pixels at the brow and one at the back, a size too big, the back 1 px higher than the
+# front; one glint (kingGlow)
+part circlet
+    gGG....
+    .gGGGJG
+    ....gGg
 
+# the head: brown hair above and behind the circlet (lit wood on woodDark), a young beardless face
 part head
-    .wSSS.
-    wSSkSs
-    wSSSSS
-    WWSWWs
-    vWWWWW
-    .vWWW.
-    ..vW..
+    ..Hp..
+    .HppP.
+    HHpppP
+    HppppS
+    HHpSSS
+    HHpSSS
+    HpSSkS
+    HHSSSs
+    .HSSs.
 
 # shoulders, cloak down the back to the calves, tunic in front, gold clasp, belt. M2b review: the cloak is roofDeep
 # with banner teal only on its lit folds (all banner teal, it read beige by his own lantern and pale sage by a fire)
@@ -82,11 +84,13 @@ part legsStand
     Bb.Bb
     Bb.Bb
     Bb.Bb
+    Bb.Bb
     HH.HH
     HH.HH
     HHrHHr
 
 part legsContactA
+    Bb..Bb.
     Bb..Bb.
     Bb..Bb.
     Bb...Bb
@@ -97,6 +101,7 @@ part legsContactA
     HHr..HHr
 
 part legsDownA
+    .Bb.Bb.
     .Bb.Bb.
     .Bb.Bb.
     Bb..Bb.
@@ -110,6 +115,7 @@ part legsPassA
     .BbBb.
     .BbBb.
     .BbBb.
+    .BbBb.
     .Bb.Bb
     .BbHHr
     .HH...
@@ -117,6 +123,7 @@ part legsPassA
     .HHr..
 
 part legsContactB
+    Bb..Bb.
     Bb..Bb.
     Bb..Bb.
     .Bb..Bb
@@ -127,6 +134,7 @@ part legsContactB
     HHr..HHr
 
 part legsPassB
+    .BbBb.
     .BbBb.
     .BbBb.
     .BbBb.
@@ -217,91 +225,91 @@ part poleHigh
     p.....
 
 frame 0
-    hem0 1 21
-    legsContactA 4 21
-    body 2 11
-    head 5 5
-    crown 4 2
-    pole 10 3
-    armHold 8 14
+    hem0 1 20
+    legsContactA 4 20
+    body 2 10
+    head 5 1
+    circlet 4 4
+    pole 10 2
+    armHold 8 13
 
 frame 1
-    hem1 1 22
-    legsDownA 4 21
-    body 2 12
-    head 5 6
-    crown 4 3
-    poleSwing 10 4
-    armHold 8 15
+    hem1 1 21
+    legsDownA 4 20
+    body 2 11
+    head 5 2
+    circlet 4 5
+    poleSwing 10 3
+    armHold 8 14
 
 frame 2
-    hem0 2 22
-    legsPassA 4 21
-    body 2 11
-    head 5 5
-    crown 4 2
-    pole 10 3
-    armHold 8 14
+    hem0 2 21
+    legsPassA 4 20
+    body 2 10
+    head 5 1
+    circlet 4 4
+    pole 10 2
+    armHold 8 13
 
 frame 3
-    hem1 1 21
-    legsContactB 4 21
-    body 2 11
-    head 5 5
-    crown 4 2
-    pole 10 3
-    armHold 8 14
+    hem1 1 20
+    legsContactB 4 20
+    body 2 10
+    head 5 1
+    circlet 4 4
+    pole 10 2
+    armHold 8 13
 
 frame 4
-    hem0 1 22
-    legsDownA 4 21
-    body 2 12
-    head 5 6
-    crown 4 3
-    poleSwing 10 4
-    armHold 8 15
+    hem0 1 21
+    legsDownA 4 20
+    body 2 11
+    head 5 2
+    circlet 4 5
+    poleSwing 10 3
+    armHold 8 14
 
 frame 5
-    hem1 2 22
-    legsPassB 4 21
-    body 2 11
-    head 5 5
-    crown 4 2
-    pole 10 3
-    armHold 8 14
+    hem1 2 21
+    legsPassB 4 20
+    body 2 10
+    head 5 1
+    circlet 4 4
+    pole 10 2
+    armHold 8 13
 
 frame 6
-    hem0 1 21
-    legsStand 5 21
-    body 2 11
-    head 5 5
-    crown 4 2
-    pole 10 3
-    armHold 8 14
+    hem0 1 20
+    legsStand 5 20
+    body 2 10
+    head 5 1
+    circlet 4 4
+    pole 10 2
+    armHold 8 13
 
 frame 7
-    hem0 1 22
-    legsStand 5 21
-    body 2 12
-    head 5 6
-    crown 4 3
-    poleSwing 10 4
-    armHold 8 15
+    hem0 1 21
+    legsStand 5 20
+    body 2 11
+    head 5 2
+    circlet 4 5
+    poleSwing 10 3
+    armHold 8 14
 
 frame 8
-    hem0 1 21
-    legsStand 5 21
-    body 2 11
-    head 5 5
-    crown 4 2
+    hem0 1 20
+    legsStand 5 20
+    body 2 10
+    head 5 1
+    circlet 4 4
     poleHigh 10 1
-    armRaise 8 10
+    armRaise 8 9
 
 frame 9
-    hem1 1 21
-    legsStand 5 21
-    body 2 11
-    head 5 5
-    crown 4 2
+    hem1 1 20
+    legsStand 5 20
+    body 2 10
+    head 5 1
+    circlet 4 4
     poleHigh 10 0
-    armRaise 8 9
+    armRaise 8 8

@@ -210,7 +210,7 @@ the low sun.
 Louis' words of 09.11.: the shadow monsters must become extremely creepy, with more character. DESIGN.md: lost people
 of smoke, gaunt and far too long, hollow eyes, torn clothes, broken lanterns, ember cracks. They were people of this
 land (lamplighters, wardens, soldiers, villagers who went into the shadow land), and the Gloom wears them. Each kind
-keeps a trace of who it was (a hood, a lantern, a tabard in the house's teal gone grey, a child's size); the traces
+keeps a trace of who it was (a hood, a lantern, a tabard in the house's teal gone grey, a watchman's pole); the traces
 are the mystery shown piece by piece, so the player feels before he knows.
 
 **The silhouette (the first read, at 14 to 110 px).**
@@ -233,7 +233,7 @@ are the mystery shown piece by piece, so the player feels before he knows.
   0.2 (on screen 0.06 or less at night: the darkest thing on the play plane); in firelight their torn detail shows.
 - Cracks in `emberDim #8C2A12` with only 1 or 2 px of `ember #D9481F` at the hottest points: smouldering, not burning.
   No `fireGold`, `fireOrange` or `fireWhite` on a living creature (those are ours); they flare only in the death burst.
-- Their own light is cold: the eye; the weaver's dead lantern spills darkness; the Lightless King's crown points in
+- Their own light is cold: the eye; the weaver's dead lantern spills darkness; the Lightless King's thorn tips in
   `wraithGlow` with his teal rags.
 - The moon rim (`(0.62, 0.70, 0.95)` × 0.6) runs down their right side: on a tall figure a thin cold line, the best read
   against dark firs. Judge it in the engine or in the mock (which now draws it).
@@ -249,22 +249,22 @@ are the mystery shown piece by piece, so the player feels before he knows.
 
 | Kind | Size | Who it was, what it does |
 |---|---|---|
-| Sootling | 14 px | a child-sized husk crawling on its knuckles, arms too long, the head hanging low and turning toward the light; scuttles in bursts, then freezes |
+| Sootling | 14 px | a small stooped husk crawling on its knuckles, arms too long, the head hanging low and turning toward the light; scuttles in bursts, then freezes |
 | Sootling B | 14 px | a stick-thin figure walking upright and stiff, the head lolling on a broken neck, arms to the ground |
 | Shadehound | 20 px | a thing on all fours that was a man: arched spine, human hands for forefeet, the jaw hanging open, the hind legs bending the wrong way |
 | Soot crow | 12 px | a crow of loose ash flakes whose wings come apart and re-form; one eye |
 | Ash brute | 44 px | a swollen giant in a tattered cloak, a small head sunk between the shoulders, one long arm dragging a broken lamp-post |
 | Gloomweaver | 30 px | a robed figure holding up a dead lantern whose empty cage spills its bubble of darkness; it floats, the hem frayed into smoke |
 | Ash Giant | 110 px | a colossus of charred stone and timber, the remains of a beacon tower on its back; one cold eye high up |
-| Lightless King | 64 px | a tall crowned shape in the house's teal rags, the face a void with one cold point; his broken crown may echo the lord's circlet (a hint for the story pass to decide) |
+| Lightless King | 64 px | a tall cowled shape, the face a void; no crown (11.2 rule 7): thorns grow from the cowl's rim |
 
 **The Gloom's bank** (stage 3, with the creatures): navy soot (`nightDeep`, `nightBlue`) in the fog banks' stacked
 levels, drifting motes, and cold eye pinpoints inside it, a few of which blink out.
 
 ### 6.2 The lord (stage 3)
 
-The `king` sprite is still the old king (white beard, tall crown). Since the 09.11. evening decision he is the young
-lamplighter lord, Aldric's cousin. Repaint `king` (16x30 × 10) and `kingGlow`: a young beardless face, hair in
+Until the fix stage (section 14) the `king` sprite was the old king (white beard, tall crown); it is repainted now.
+Since the 09.11. evening decision he is the young lamplighter lord, Aldric's cousin. The brief was: repaint `king` (16x30 × 10) and `kingGlow`: a young beardless face, hair in
 `woodDark`/`wood`, a 2 px `gold` circlet tilted 1 px (a little too big), a 1 px `fireWhite` glint in `kingGlow`; keep
 the hooked lantern pole and the teal cloak. Check at 30 px against fog at 0.45 and stone at 0.10 with his 0.6 rim. He is
 the face of every store screenshot.
@@ -448,8 +448,10 @@ loses exactly what makes these figures (thin limbs, eyes, a lantern), so every c
    (`soilDark, moorDark, moor`), an ashen face and hands (`stoneDark, stoneMid, stone`), iron
    (`ink, stoneDark, stoneMid`), a mantle (`night0, night1, night2`). So by day and in torchlight you see a shirt, a
    face, a lantern; unlit you see a shape with eyes.
-2. **Hollow cold eyes that weep.** One `wraithWhite` pixel an eye and a `wraithGlow` or `wraithDim` pixel under it.
-   Two eyes wherever the head is wide enough: two close pale points read as a face, one as a lamp. The crow has one.
+2. **One hollow cold eye that weeps** (changed in the fix stage, section 14; it is rule 6.1 again). One `wraithWhite`
+   pixel, low and off the head's axis in a 2x3 `nightDeep` socket, and at most one `wraithDim` pixel under it. Never
+   two: two close pale points on a round head read as the black-blob-with-eyes stock creature, and a pale face disc
+   as a mask. The head is HUSK; light shows a torn hood edge and a dropped jaw, never a pale oval.
 3. **Glow hierarchy.** The common folk carry `emberDim` on the top contour and `ember` only inside cracks. The
    gloomweaver's sign is violet (its dead lantern leaks it). The Lightless King is cold only (`wraithDim`,
    `wraithGlow`), has no eyes, and carries no ember: he is the one thing in the Gloom without any warmth. This
@@ -463,22 +465,24 @@ loses exactly what makes these figures (thin limbs, eyes, a lantern), so every c
    strides are the engine's: sootling 3, shadehound 6, ashBrute 4, ashGiant 4, lightlessKing 5.
 6. **Attacks have an anticipation frame** that changes the silhouette (the claw above the head, the fist behind the
    hump, the knee at the belly, the pole over the crown), then the strike, then a held frame for the big three.
-7. **Quiet hints only.** A watchman's pole and dead lantern, a shirt rag, a child's smock, a cage of ribs. Nothing
-   names who they were. The Lightless King wears a crown of uneven iron thorns, not the Burgherr's circlet, and
-   carries a candle snuffer on a pole instead of a sword: he puts lights out.
+7. **Quiet hints only.** A watchman's pole and dead lantern, a shirt rag, a torn hood, a cage of ribs. No creature
+   is a child or has a child's features (Louis, 09.11. 22:45). Nothing names who they were. The Lightless King
+   wears no crown at all: a dead briar of thorns grows out of his cowl's rim, swept back (fix stage, section 14: a
+   thorn crown on a hood over a void is another work's king), and he carries a candle snuffer on a pole instead of
+   a sword: he puts lights out.
 
 ### 11.3 The eight
 
 | id | who it was | silhouette and gait |
 |---|---|---|
-| `sootling` | a child | on all fours, low and long, the pale head too big and hanging; drags itself hand over hand; rears up to claw |
-| `sootlingB` | a child | upright, stooped, stick-thin, one arm far too long and dragged; whips the arm forward |
-| `shadehound` | a man | on hands and feet, elbows and knees too high, arched spine, the head low on a long neck, the jaw unhinged; bounds with all four off the ground in frame 2 |
-| `sootCrow` | cloak scraps | a rag tail, a skull face, one eye; perched it is a small hunched hood |
-| `ashBrute` | a night watchman | a hump under a patched cloak, a small skull head sunk in the shoulders, one trunk of an arm on its fist, his pole across the hump with the dead lantern swinging over his head |
-| `gloomweaver` | a lantern bearer | a narrow robe bent forward, no feet, torn strips trailing, a limp hood, two weeping eyes, thin arms holding out a dead lantern that drips violet |
+| `sootling` | someone small and stooped (not a child) | on all fours, low and long, a hump of a back, a hooded head hanging at the front; drags itself hand over hand; rears up to claw |
+| `sootlingB` | someone thin and stooped (not a child) | upright, stooped, stick-thin, a hump behind the hooded head, one arm far too long and dragged; whips the arm forward |
+| `shadehound` | a man | on hands and feet, elbows and knees too high, arched spine, a hump behind the shoulders, the head low on a long neck, the jaw hanging, hands for forefeet; bounds with all four off the ground in frame 2 |
+| `sootCrow` | cloak scraps | a rag tail, a dark hooded head, one eye, a grey beak; perched it is a small hunched hood |
+| `ashBrute` | a night watchman | a hump under a patched cloak, a small hooded head sunk in the shoulders, one trunk of an arm on its fist, his pole across the hump with the dead lantern swinging over his head |
+| `gloomweaver` | a lantern bearer | a narrow robe bent forward, no feet, torn strips trailing, a limp hood, one weeping eye, thin arms holding out a dead lantern that drips violet |
 | `ashGiant` | no one knows | bent double under a sail of a torn cloak, stilt legs, hands on the ground, a hooded skull lower than the shoulders, an ember heart in a cage of ribs |
-| `lightlessKing` | (the mystery; not told) | the frame's full 64 px: mantle, train, shoulder cape, a cowl with a void ringed by a cold crescent, a thorn crown, two dead lanterns at the belt, a snuffer pole taller than himself |
+| `lightlessKing` | (the mystery; not told) | the frame's full 64 px: mantle, train, shoulder cape, a cowl with a void ringed by a cold crescent, a swept-back briar of thorns from the cowl's rim, two dead lanterns at the belt, a snuffer pole taller than himself |
 
 Frame use, exact poses and the eye and lantern positions are in ART-actors.md ("Sprites", "Glow strip rules", "Eye
 and lantern positions").
@@ -497,7 +501,7 @@ and lantern positions").
 - **Gloomweaver**: the engine's bob (`2 + sin`) moves the whole figure; the sprite itself only waves its strips and
   swings the lantern 1 px, so both together read as drifting. Its violet light should sit at the lantern core
   (9 px right of the anchor, 9 px up), not at the head.
-- **Lightless King**: the sprite fills all 64 px in height (the crown reaches the top row). Anything placed over his
+- **Lightless King**: the sprite fills all 64 px in height (the thorns reach the top row). Anything placed over his
   head (health bar, aura centre) needs 2 px more. His aura centre fits the cowl: 4 px left of the anchor, 52 px up.
 - **Ash Giant**: the stomp lands in frame 5 (the foot 12 px ahead of the walk contact, the body 5 px down): the
   screen shake and the damage belong on frame 5. The heart (5 px right of the anchor, 68 px up, radius 7) is the

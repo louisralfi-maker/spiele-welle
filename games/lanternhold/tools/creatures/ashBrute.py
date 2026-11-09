@@ -59,14 +59,15 @@ def frame(k):
             {"i": "stoneMid", "o": ("tile", "emberDim")})
     # head: small, sunk, hanging forward
     hx, hy = 30 + ln, 12 + dy + (1 if k == 5 else 0)
-    f.stamp(hx, hy, [".rrrr.",
-                     "rrssss",
-                     "rsEsEs",
-                     "rsesed",
-                     ".sjjs.",
-                     ".sjjs.",
-                     "..ss.."],
-            dict(EYE, r="moorDark", s="stoneMid", j="night0"))
+    f.stamp(hx, hy, [".rrrr.",          # a cowl of rags over a husk head: one socket, one eye low in it, the jaw
+                     "rrhHHh",          # hanging (fix stage: no pale skull, never two eyes)
+                     "rhhnnH",
+                     "rhhnnh",
+                     ".hhnE.",
+                     ".hddw.",
+                     "..dd.."],
+            dict(EYE, r="moorDark", h="nightBlue", H="nightSlate", n="nightDeep", d="stoneDark",
+                 w=("stoneDark", "wraithDim")))
     # the huge near arm and its fist
     fist = p["fist"]
     el = ik(sh, fist, 12, 13, 1)

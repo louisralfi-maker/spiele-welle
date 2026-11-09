@@ -1,4 +1,5 @@
-"""Soot Crow: a crow made of torn cloak scraps, one hollow eye. Perched it is a small hunched hood."""
+"""Soot Crow: a crow made of torn cloak scraps: a dark hooded head with one hollow eye and a grey beak, a rag tail.
+Perched it is a small hunched hood. (Fix stage, ART-look2.md 14: no pale skull face.)"""
 from rig import grid
 
 SIZE = (12, 10, 4)
@@ -8,9 +9,9 @@ F = [
     ["...h..h.....",
      "...hh.hh....",
      "....hhhh....",
-     ".r..hhhhSs..",
-     "rrrhhhhhsEdd",
-     ".r.rhhhhsw..",
+     ".r..hhhhHh..",
+     "rrrhhhhhnEdd",
+     ".r.rhhhhnw..",
      "..r..hh.....",
      "............",
      "............",
@@ -18,9 +19,9 @@ F = [
     ["............",
      "............",
      "..hh........",
-     ".r.hhhhhSs..",
-     "rrrhhhhhsEdd",
-     ".r.rhhhhsw..",
+     ".r.hhhhhHh..",
+     "rrrhhhhhnEdd",
+     ".r.rhhhhnw..",
      "..r.hhhh....",
      "....hh.h....",
      "............",
@@ -28,9 +29,9 @@ F = [
     ["............",
      "............",
      "............",
-     ".r..hhhhSs..",
-     "rrrhhhhhsEdd",
-     ".r.rhhhhsw..",
+     ".r..hhhhHh..",
+     "rrrhhhhhnEdd",
+     ".r.rhhhhnw..",
      "..r.hhhh....",
      "...hhhh.....",
      "...hh.hh....",
@@ -40,9 +41,9 @@ F = [
      "............",
      "............",
      "....hhhh....",
-     "...hhHhSs...",
-     "...hhhhsEdd.",
-     "..rhhhhsw...",
+     "...hhHhHh...",
+     "...hhhhnEdd.",
+     "..rhhhhnw...",
      "..rrhhhh....",
      ".rr.hhh.....",
      ".r...d.d...."],
