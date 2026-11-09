@@ -180,7 +180,7 @@ _n = length(*LIGHT)
 LIGHT = (LIGHT[0] / _n, LIGHT[1] / _n, LIGHT[2] / _n)
 
 
-def march(fn, x, y, zfar=60.0):
+def march(fn, x, y, zfar=44.0):
     z = zfar
     for _ in range(260):
         d, mat = fn((x, y, z))
@@ -228,8 +228,7 @@ def render(fn, ao_ctx=None, samples=2, wrap=0.15, box=(0, 0, W, H)):
                         hits.append(r)
             if len(hits) * 2 < samples * samples:
                 continue
-            c = march(fn, px + 0.5, py + 0.5) or hits[len(hits) // 2]
-            z, mat = c
+            z, mat = max(hits, key=lambda h: h[0])      # the frontmost of the pixel's hits
             p = (px + 0.5, py + 0.5, z)
             e = 0.25
             nx = fn((p[0] + e, p[1], p[2]))[0] - fn((p[0] - e, p[1], p[2]))[0]
@@ -407,6 +406,24 @@ def outline(pic, matmap, mats, inner_mask=None, skip=None, colour="ink"):
     return pic
 
 
+def edge_light(pic, matmap, mats, steps=2, skip=()):
+    """The hearth's rim on the left: in every row, the leftmost pixel of the drawing (where the outline lies to its
+    left, so only the outer silhouette) is lifted `steps` along its material's ramp."""
+    for y in range(H):
+        for x in range(W):
+            m = matmap[y][x]
+            if m is None:
+                if pic.c[y][x] is not None and x + 1 < W and matmap[y][x + 1] is not None:
+                    continue
+                if pic.c[y][x] is None:
+                    continue
+                break
+            if m not in skip and x > 0 and pic.c[y][x - 1] is not None:
+                pic.c[y][x] = mats[m].step(pic.c[y][x], steps)
+            break
+    return pic
+
+
 def stamp(pic, at, rows, legend, mask=None):
     """Hand-set pixels: rows of characters placed with their top-left at `at`; "." keeps the pixel, "_" clears it,
     other characters are palette names through `legend`. With `mask`, only pixels already drawn are touched."""
@@ -537,6 +554,90 @@ def sheet(cells, out, scale=3, cols=6, pad=4):
     print(f"wrote {out} {Wd * scale}x{Hd * scale}")
 
 
+# part frames (PortraitPart): clothes smock 0, dress 1, tunic 2, coat 3, leather 4, mail 5, robe 6, rags 7; faces
+# round 0, long 1, square 2, old 3, young 4, child 5; beards none 0, stubble 1, short 2, full 3, long 4, moustache 5;
+# hair bald 0, short 1, long 2, bun 3, curly 4, braids 5, tousled 6, mop 7; hats none 0, straw 1, scarf 2, feather 3,
+# hood 4, wool 5, helm 6, wreath 7
+ARCHETYPES = [
+    ("farmer", [dict(clothes=[0, 2], faces=[3, 2, 1, 0], beards=[3, 4, 1, 2], hair=[1, 6, 0], hats=[1, 5, 0],
+                     hairColors=["grey", "midBrown", "darkBrown", "black"], cloths=["green", "ochre", "blue", "redBrown"])]),
+    ("farmwife", [dict(female=True, clothes=[1, 0], faces=[0, 1, 3, 4], hair=[3, 5, 2], hats=[2, 1, 0],
+                       hairColors=["darkBrown", "midBrown", "blond", "red", "grey", "black"],
+                       cloths=["redBrown", "ochre", "green", "blue"])]),
+    ("townswoman", [dict(female=True, clothes=[1], faces=[0, 1, 4], hair=[2, 3, 5, 4], hats=[2, 0, 7],
+                         cloths=["redBrown", "plum", "blue", "teal", "green"])]),
+    ("townsman", [dict(clothes=[2, 3], faces=[0, 1, 2, 4], beards=[0, 1, 2, 5], hair=[1, 4, 6], hats=[0, 5, 3],
+                       cloths=["blue", "green", "ochre", "redBrown"])]),
+    ("merchant", [dict(clothes=[3], faces=[0, 1, 2], beards=[2, 3, 5], hair=[1, 4, 0], hats=[3, 0],
+                       cloths=["plum", "teal", "blue", "redBrown"])]),
+    ("soldier", [dict(clothes=[5], faces=[2, 1, 3], beards=[1, 2, 3, 5], hair=[1, 0], hats=[6, 0],
+                      hairColors=["black", "darkBrown", "midBrown", "blond", "red", "grey"], cloths=["teal"])]),
+    ("builder", [dict(clothes=[4], faces=[0, 2], beards=[1, 3, 2], hair=[1, 6, 0], hats=[5, 0],
+                      cloths=["ochre", "redBrown", "green"])]),
+    ("widow", [dict(female=True, clothes=[1, 6], faces=[3], hair=[3, 2], hats=[2, 4], hairColors=["grey"],
+                    cloths=["plum", "blue"])]),
+    ("child", [dict(female=True, clothes=[0, 2], faces=[5], hair=[7, 5], hats=[0, 7],
+                    cloths=["green", "ochre", "teal", "redBrown"]),
+               dict(clothes=[0, 2], faces=[5], beards=[0], hair=[7], hats=[0, 5],
+                    cloths=["green", "ochre", "teal", "redBrown"])]),
+    ("noble", [dict(clothes=[3, 6], faces=[1, 0, 2], beards=[0, 2, 5], hair=[4, 1, 2], hats=[3, 0],
+                    skins=["pale", "light", "medium", "brown"], cloths=["plum", "teal", "blue"])]),
+    ("refugee", [dict(female=True, clothes=[7], faces=[1, 3, 4, 0], hair=[2, 5], hats=[4, 2, 0],
+                      cloths=["ochre", "redBrown", "green"]),
+                 dict(clothes=[7], faces=[1, 3, 4, 0], beards=[1, 0, 2], hair=[6, 1], hats=[4, 0],
+                      cloths=["ochre", "redBrown", "green"])]),
+]
+
+
+def card_mock(a, parts, recipe_layers):
+    """A rough audience card (parchment, the framed dusk tile with the portrait at 3 device px per art pixel, ink
+    bars where the name, the request and the choices go) for three speakers: the contrast check of the portraits on
+    the card. Not the code lane's layout, only its colours and scale."""
+    art = a.art or ART
+    s = a.scale
+    picks = [load_frames(os.path.join(art, "portraitOdile.png"), 1)[0],
+             compose(recipe_layers(1, 3, 0, 3, 2), swap_map("light", "grey", "plum")),
+             load_frames(os.path.join(art, "portraitHerald.png"), 1)[0]]
+    cw, chh, pad = 220, 64, 6
+    W2, H2 = cw + 2 * pad, len(picks) * (chh + pad) + pad
+    can = [[(28, 24, 32)] * W2 for _ in range(H2)]
+    parch, ink, wood = _hex("#F1E3C4"), _hex("#2A2230"), _hex("#4A2E22")
+    for k, f in enumerate(picks):
+        ox, oy = pad, pad + k * (chh + pad)
+        for y in range(chh):
+            for x in range(cw):
+                edge = x in (0, cw - 1) or y in (0, chh - 1)
+                can[oy + y][ox + x] = wood if edge else parch
+        tx, ty = ox + 6, oy + 7
+        for y in range(-1, H + 1):
+            for x in range(-1, W + 1):
+                if 0 <= x < W and 0 <= y < H:
+                    p = f[y][x]
+                    can[ty + y][tx + x] = (p[:3] if len(p) > 3 and p[3] else p) if (p and (len(p) < 4 or p[3])) else tile_rgb(y)
+                else:
+                    can[ty + y][tx + x] = wood
+        for i, (lx, ly, ln) in enumerate([(62, 8, 60), (62, 18, 140), (62, 24, 130), (62, 30, 100)]):
+            for x in range(ln):
+                for y in range(3 if i == 0 else 2):
+                    can[oy + ly + y][ox + lx + x] = ink
+        for j in range(3):
+            bx, by = ox + 62 + j * 50, oy + 44
+            for y in range(12):
+                for x in range(44):
+                    can[by + y][bx + x] = wood if (x in (0, 43) or y in (0, 11)) else (0xE8, 0xD4, 0xA8)
+    img = Image(W2 * s, H2 * s)
+    px = []
+    for row in can:
+        line = []
+        for c in row:
+            line.extend([tuple(c[:3]) + (255,)] * s)
+        for _ in range(s):
+            px.extend(line)
+    img.px = px
+    write_png(a.output, img)
+    print(f"wrote {a.output} {W2 * s}x{H2 * s}")
+
+
 def cmd_build(a):
     import portraitkit as K
     if a.id in K.PARTS:
@@ -609,6 +710,24 @@ def cmd_sheet(a):
         for c in range(8):
             cells.append(compose(recipe_layers(c, 2, 0, 0, 0), ident))
         sheet(cells, a.output, a.scale, cols=a.cols or 8)
+    elif a.kind == "archetypes":
+        # the code lane's townsfolk archetypes (Core/CourtSpeakers.swift on claude/lh-m3, 09.11.): four draws each
+        rng = random.Random(a.seed)
+        for name, styles in ARCHETYPES:
+            for k in range(4):
+                st = styles[k % len(styles)]
+                female = st.get("female", False)
+                pick = lambda key, default: rng.choice(st.get(key, default))
+                c, f = pick("clothes", [0]), pick("faces", [0])
+                b = 0 if female else pick("beards", [0])
+                h, t = pick("hair", [0]), pick("hats", [0])
+                smap = swap_map(pick("skins", list(TARGETS["skin"])),
+                                pick("hairColors", ["black", "darkBrown", "midBrown", "blond", "red"]),
+                                pick("cloths", ["ochre"]))
+                cells.append(compose(recipe_layers(c, f, b, h, t), smap))
+        sheet(cells, a.output, a.scale, cols=a.cols or 8)
+    elif a.kind == "card":
+        card_mock(a, parts, recipe_layers)
     else:
         raise SystemExit(f"no sheet {a.kind}")
 
@@ -623,7 +742,7 @@ def main():
     li = sub.add_parser("list")
     li.set_defaults(fn=cmd_list)
     s = sub.add_parser("sheet")
-    s.add_argument("kind", choices=["story", "composed", "parts", "archetypes"])
+    s.add_argument("kind", choices=["story", "composed", "parts", "archetypes", "card"])
     s.add_argument("output")
     s.add_argument("--art")
     s.add_argument("--scale", type=int, default=3)

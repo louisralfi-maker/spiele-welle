@@ -392,17 +392,16 @@ def hat_fn(style, frame=HEAD):
             cap = sd_ellipsoid(q, (-1.4, -11.6, -1.4), (11.0, 5.4, 11.6))
             cap = smax(cap, -(y + 8.4 + 0.10 * z - 0.12 * x), 0.5)
             brim = smax(sd_ellipsoid(q, (-0.6, -9.0, -0.6), (12.0, 1.6, 12.4)), -(y + 10.2), 0.3)
-            vane = sd_ellipsoid(Frame((0, 0, 0), yaw=-20.0, roll=-38.0).to_local((x + 8.0, y + 14.4, z + 6.0)),
-                                (0.0, 0.0, 0.0), (1.4, 6.6, 0.8))
-            d, mat = min((cap, "cloth"), (brim - 0.05, "cuff"), (vane, "feather"))
+            plume = chain(q, [(-8.6, -11.4, -2.4), (-12.0, -15.0, -4.6), (-16.0, -16.6, -6.0), (-19.2, -15.0, -6.4)],
+                          1.7, 0.5, 0.6)
+            d, mat = min((cap, "cloth"), (brim - 0.05, "cuff"), (plume, "feather"))
         elif style == "hood":
             outer = shell(q, 3.6)
             outer = smin(outer, sd_ellipsoid(q, (-1.0, 10.0, -3.0), (14.5, 12.0, 11.0)), 4.0)
             outer = smax(outer, y - 17.0, 1.0)
             opening = sd_ellipsoid(q, (1.5, 2.2, 12.5), (8.6, 11.8, 9.0))
             d = smax(outer, -opening, 1.0)
-            inner = shell(q, 2.6)
-            if d > 0 and inner < 0.6 and z > -2:
+            if outer < -0.35:
                 mat = "clothIn"
         elif style == "wool":
             d = smax(shell(q, 2.6), hairline(q, front=-7.8, temple=1.8, nape=1.5) + 0.0, 0.5)
@@ -416,7 +415,8 @@ def hat_fn(style, frame=HEAD):
             rim = smax(shell(q, 2.9), smax(hairline(q, front=-6.2, temple=2.4, nape=3.6),
                                            -hairline(q, front=-8.0, temple=2.4, nape=1.8), 0.2), 0.3)
             nasal = sd_box(q, (0.0, -4.0, 11.0), (0.8, 4.4, 0.9), 0.3)
-            d = min(d, rim - 0.01, nasal)
+            ridge = sd_capsule(q, (0.0, -15.6, 5.0), (0.0, -14.6, -9.0), 0.9)
+            d = min(smin(d, ridge, 0.6), rim - 0.01, nasal)
             mat = "metal"
         elif style == "wreath":
             ring = sd_torus((x, y + 10.2 + 0.18 * z, z + 0.6), (0, 0, 0), 11.2, 1.25)
@@ -727,7 +727,7 @@ GARMENT_STAMPS = {
 # ------------------------------------------------------------------------------------------------- the parts' build
 
 from portraitart import (Pic, Raster, W, H, render, tone, outline, stamp, union_z, clip_behind,  # noqa: E402
-                         rim as rim_light, hash01 as _h)
+                         edge_light)
 
 FACES = ["round", "long", "square", "old", "young", "child"]
 FACE_LEGEND = {"k": "ink", "w": "parchment", "e": "soilDark", "1": "skin1", "2": "skin2", "3": "skin3", "4": "skin4",
@@ -800,6 +800,7 @@ def face_pic(kind, P, r, mats=None, legend=None, feats=None, ear=True, marks=Tru
     legend = legend or FACE_LEGEND
     pic, mm = tone(r, mats)
     outline(pic, mm, mats, skip=lambda x, y: y >= NECK_CUT)
+    edge_light(pic, mm, mats)
     a = anchors(P)
     if ear:
         ex, ey = a["ear"]
@@ -874,6 +875,7 @@ def part_frames(sprite):
             m["hair"] = Mat(HAIR, th=[0.16, 0.42, 0.80], inner="hair1", tex=strands(HAIR_WHORL[st]))
             pic, mm = tone(r, m)
             outline(pic, mm, m, inner_mask=mask)
+            edge_light(pic, mm, m)
             out.append(pic)
         return out
     if sprite == "portraitBeard":
@@ -888,6 +890,7 @@ def part_frames(sprite):
                             r.px[y][x] = None
             pic, mm = tone(r, mats)
             outline(pic, mm, mats, inner_mask=mask)
+            edge_light(pic, mm, mats)
             out.append(pic)
         return out
     if sprite == "portraitHat":
@@ -896,6 +899,7 @@ def part_frames(sprite):
             r = drop_specks(clip_behind(render(hat_fn(st)), zu, keep=lambda m: m == "clothIn" and False))
             pic, mm = tone(r, mats)
             outline(pic, mm, mats, inner_mask=mask)
+            edge_light(pic, mm, mats)
             out.append(pic)
         return out
     if sprite == "portraitClothes":
@@ -904,6 +908,7 @@ def part_frames(sprite):
             r = render(clothes_fn(st))
             pic, mm = tone(r, mats)
             outline(pic, mm, mats)
+            edge_light(pic, mm, mats)
             for at, rows in GARMENT_STAMPS.get(st, []):
                 stamp(pic, at, rows, GARMENT_LEGEND)
             out.append(pic)

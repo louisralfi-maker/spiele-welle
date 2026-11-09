@@ -29,7 +29,8 @@ build() { # name: one sprite (and its glow strip)
     odile|brannock|pip|hesper|tamsin|bram|marek|seren|serLudo|bard|envoy|herald|petitionerD|petitionerE)
         python3 -I -B $AA build $G/$1.txt --out $A ;;
     portrait*)
-        python3 -I -B $PA build "$1" --out $A ;;
+        python3 -I -B $PA build "$1" --out $A
+        sleep 4 ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;
     esac
 }

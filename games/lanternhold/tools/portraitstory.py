@@ -6,7 +6,8 @@ hand-set details. Every colour is a palette colour of tools/palette.txt; none is
 import math
 
 import portraitkit as K
-from portraitart import (Frame, Mat, Pic, W, H, chain, clamp, hash01, mix, outline, render, sd_box, sd_capsule,
+from portraitart import (Frame, Mat, Pic, W, H, chain, clamp, edge_light, hash01, mix, outline, render, sd_box,
+                         sd_capsule,
                          sd_cyl, sd_ellipsoid, sd_sphere, sd_torus, smax, smin, smoothstep, stamp, tone)
 
 HEAD, BODY = K.HEAD, K.BODY
@@ -79,6 +80,7 @@ def portrait(fn, mats, stamps=(), skip_edges=(), neck_cut=None):
     pic, mm = tone(r, mats)
     depth_edges(pic, mm, r, mats, skip=skip_edges)
     outline(pic, mm, mats)
+    edge_light(pic, mm, mats)
     for at, rows, legend in stamps:
         stamp(pic, at, rows, legend)
     return pic, r, mm
@@ -473,8 +475,7 @@ def hesper():
         m = "cream"
         if abs(rim) < 0.9 and z > 2.0:
             m = "gold"
-        inner = sd_ellipsoid(q, cc, (cr[0] + 2.6, cr[1] + 2.6, cr[2] + 2.6))
-        if d > 0 and inner < 0.6 and z > -2:
+        if outer < -0.35:
             m = "creamIn"
         return d, m
 
@@ -716,8 +717,7 @@ def seren():
             opening = sd_ellipsoid(q, (2.6, 3.6, 13.6), (7.8, 10.6, 8.6))
             d = smax(outer, -opening, 1.0)
             m = "cloak"
-            inner = sd_ellipsoid(q, cc, (cr[0] + 2.6, cr[1] + 2.6, cr[2] + 2.6))
-            if d > 0 and inner < 0.6 and z > -2:
+            if outer < -0.35:
                 m = "cloakIn"
             return d, m
 
@@ -756,7 +756,7 @@ def seren():
                     "neck": Mat(["night0", "night1", "farDeep"], th=[0.4, 0.9]),
                     "chin": Mat(["farDeep", "stone", "stoneLight", "stonePale"], th=[0.2, 0.42, 0.72])}
         mats.update({
-            "cloak": Mat(["night1", "farDeep", "far", "moon"], th=[0.2, 0.52, 0.94], tex=K.folds(0.06)),
+            "cloak": Mat(["night1", "farDeep", "far"], th=[0.26, 0.66], tex=K.folds(0.06)),
             "cloakIn": Mat(["night0", "night1"], th=[0.6], outline="ink"),
             "clasp": Mat(["stone", "stonePale", "foam"], th=[0.3, 0.62]),
             "hair": Mat(["stone", "stoneLight", "farPale", "foam"], th=[0.2, 0.46, 0.82],
@@ -792,7 +792,7 @@ def ser_ludo():
     def helm_m(q):
         x, y, z = q
         body = sd_cyl(q, (0.0, -3.5, 0.5), 12.4, 13.8, 4.0)
-        dent = sd_sphere(q, (5.0, -19.6, 5.0), 3.6)
+        dent = sd_sphere(q, (3.0, -19.4, 3.6), 4.4)
         body = smax(body, -dent, 1.2)
         m = "helm"
         d = body
@@ -853,17 +853,20 @@ def bard():
     def hair_m(q):
         x, y, z = q
         bump = math.sin(1.9 * x + 0.7) * math.sin(1.9 * y + 1.3) * math.sin(1.9 * z + 0.4)
-        d = smax(sd_ellipsoid(q, cc, (cr[0] + 2.4, cr[1] + 2.4, cr[2] + 2.4)) - 0.8 * bump,
+        d = smax(sd_ellipsoid(q, cc, (cr[0] + 1.8, cr[1] + 1.4, cr[2] + 1.8)) - 0.8 * bump,
                  K.hairline(q, front=-6.2, temple=4.6, nape=7.2, burn=2.2), 0.8)
         return d, "hair"
 
     def cap_m(q):
         x, y, z = q
-        cap = sd_ellipsoid(q, (-2.6, -13.4, -1.4), (13.2, 5.6, 13.4))
-        cap = smax(cap, -(y + 9.4 + 0.10 * z - 0.14 * x), 0.5)
-        droop = sd_ellipsoid(q, (-12.6, -9.6, -4.6), (4.8, 4.6, 5.6))
-        d = smin(cap, droop, 2.4)
+        cap = sd_ellipsoid(q, (-3.0, -14.2, -1.8), (13.8, 5.2, 14.0))
+        cap = smax(cap, -(y + 10.4 + 0.10 * z - 0.12 * x), 0.5)
+        droop = sd_ellipsoid(q, (-13.4, -10.4, -4.8), (5.0, 5.0, 5.8))
+        d = smin(cap, droop, 2.6)
         m = "cap"
+        rimb = smax(sd_ellipsoid(q, (-2.4, -11.0, -1.4), (12.2, 2.0, 12.4)), -(y + 11.6), 0.3)
+        if rimb < d:
+            d, m = rimb, "capBand"
         vane = sd_ellipsoid(Frame((0, 0, 0), yaw=-25.0, roll=-62.0).to_local((x + 9.0, y + 17.6, z + 4.0)),
                             (0.0, 0.0, 0.0), (1.6, 9.0, 0.8))
         if vane < d:
@@ -890,8 +893,10 @@ def bard():
     parts = [localm(HEAD, hair_m), localm(HEAD, cap_m), localm(BODY, body_m)]
     mats = dict(skin_mats(SKIN_ROSY))
     mats.update({
-        "hair": Mat(GINGER, th=[0.2, 0.46, 0.84], tex=lambda x, y, c, v: v + 0.12 * (hash01(x // 2, y // 2, 4) - 0.5)),
-        "cap": Mat(["woodDark", "tile", "tileLight", "dawnRose"], th=[0.2, 0.46, 0.86]),
+        "hair": Mat(["tile", "tileLight", "straw", "strawLight"], th=[0.2, 0.5, 0.86],
+                    tex=lambda x, y, c, v: v + 0.12 * (hash01(x // 2, y // 2, 4) - 0.5)),
+        "cap": Mat(["woodDark", "tile", "tileLight"], th=[0.34, 0.86]),
+        "capBand": Mat(["woodDark", "tile"], th=[0.5]),
         "feather": Mat(["stoneLight", "stonePale", "foam"], th=[0.3, 0.6]),
         "green": Mat(GREEN, th=[0.2, 0.48, 0.86], tex=K.folds(0.08)),
         "cream": Mat(CREAM, th=[0.3, 0.64], tex=lambda x, y, c, v: v + (0.12 if (x + y) % 3 == 0 else 0.0)),
@@ -902,7 +907,7 @@ def bard():
     st = eye_stamps(P, L, eyes="open", brows="raised", mouth="open", a=a)
     st.append(ear_stamp(P, L))
     fx, fy = a["eyeF"]
-    st += [((fx - 1, fy - 1), ["...", "kkk", "..."], {"k": "ink"})]   # the wink: the far eye closed
+    st += [((fx - 1, fy - 1), ["3k3", "k3k", "333"], {"k": "ink", "3": "dawnRose"})]   # the wink
     return std_portrait(P, parts, mats, st, SKIN_ROSY)
 
 
@@ -992,11 +997,12 @@ def herald():
         if z > 2.5 and abs(x - 0.6) < 4.0 + 0.3 * (y + 12.0) and y > -13.0:
             m = "ash"
             d = d - 0.5 * (hash01(int(x * 1.2 + 50), int(y * 1.2 + 50), 9) - 0.5) * 0.0
-        pole = sd_capsule(q, (19.0, -44.0, 6.0), (19.0, 14.0, 6.0), 1.0)
-        if pole < d:
-            d, m = pole, "pole"
-        rag = sd_box(q, (24.6, -32.0, 6.0), (5.4, 9.0, 0.6), 0.2)
-        rag = smax(rag, -(y - (-24.0 + 3.0 * math.sin(x * 1.7))), 0.3)
+        pole = sd_capsule(q, (-14.0, -50.0, -9.0), (-14.0, 14.0, -9.0), 0.9)
+        bar = sd_capsule(q, (-14.0, -47.0, -9.0), (-27.0, -47.0, -9.0), 0.7)
+        if min(pole, bar) < d:
+            d, m = min(pole, bar), "pole"
+        rag = sd_box(q, (-21.0, -37.0, -9.4), (6.4, 10.0, 0.5), 0.2)
+        rag = smax(rag, -(y - (-28.0 + 2.6 * math.sin(x * 1.9) + 1.6 * math.sin(x * 4.3))), 0.3)
         if rag < d:
             d, m = rag, "banner"
         return d, m
@@ -1023,6 +1029,8 @@ def herald():
         ear_stamp(P, L),
     ]
     pic, r, mm = portrait(fn, mats, st)
+    # the King's sign on the banner: a small cracked crown
+    stamp(pic, (3, 4), ["s.s.s", "sssss", "s.sss", ".sss."], {"s": "stoneDark"})
     return pic
 
 
