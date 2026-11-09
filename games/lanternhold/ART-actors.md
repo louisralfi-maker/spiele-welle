@@ -27,9 +27,12 @@ the third), so no other lane's spending is mixed in.
 | `sheet <id> <out.png> [--scale 6]` | every frame at device scale on four strips: day on the ochre throat rock, day on castle stone, night outside every light (body at 0.12 plus the glow strip, as the engine draws an unlit creature), night in firelight |
 | `dump <in.png> <out.txt>` | a palette PNG as a text grid with a generated legend |
 | `texture <in> <out> --colour --to --light [--cell --seed --rect]` | breaks a flat colour area into a seeded Voronoi cobble (crevices keep the colour, cells take `--to`, their upper-left rims `--light`) |
+| `cracks <in> <out> --seed C --along C1,C2 [--min --max --seed-value --path x0,y0:x1,y1 …]` | fix stage: each `--path` draws a long fissure in the crack colour, the cheapest 8-connected way between its two points through the body (cheap along the crevice colours, dear across lit stone, so it follows the boulders' joints); then every speck of the crack colour smaller than `--min` grows along the crevices into a stroke of `--min` to `--max` pixels (seeded, never touching another crack) |
 
 Spec format (`tools/grids/actors/<id>.txt`): `id`, `size WxH`, `frames N`, optional `outline COLOUR` (transparent
-pixels 4-adjacent to the body take it), `image NAME PATH` (a converted key pose), `glowmap COLOUR=GLOW`, a `legend`
+pixels 4-adjacent to the body take it), optional `rim GLOW [TIP]` (fix stage, with an outline: the outline pixel above
+each column's topmost body pixel glows GLOW in every frame, TIP over 1 px wide spikes; legs and arms under the body
+stay dark), `image NAME PATH` (a converted key pose), `glowmap COLOUR=GLOW`, a `legend`
 (`X = body`, `X = body/glow`, `X = /glow`; a body name ending in `!` is drawn without an outline: bow strings, arrows,
 the Lightless King's blade), `part NAME` with its rows, and `frame N` blocks of placements (`PART x y [flip]`, drawn in
 order; `frame N = M` copies). A body pixel also sets or clears the glow under it, so a part in front hides what it
@@ -58,14 +61,14 @@ committed scene sprites byte for byte with the new palette (checked in a copy of
 
 | id | size × frames | method | frame use | notes |
 |---|---|---|---|---|
-| `sootling` | 14x14 × 6 | hand-set parts | walk 0-3 (knuckle-walk, the lump bobs 1 px), attack 4-5 (near arm flung up in front of the head, then raked to the ground while lunging) | hunched lump: a jagged crest of three ash flakes on the hump, charcoal plates below, diagonal ember seams, two pale ember eyes under the brow and a hot ember mouth seam, long thin arms, stubby legs; one rising spark per frame (glow only) |
+| `sootling` | 14x14 × 6 | hand-set parts | walk 0-3 (knuckle-walk, the lump bobs 1 px), attack 4-5 (near arm flung up in front of the head, then raked to the ground while lunging) | hunched lump: a jagged crest of three ash flakes on the hump, charcoal plates below, one connected network of ember seams (a Y from the crest flakes down across the plates), two pale ember eyes under the brow and a hot ember mouth seam, long thin arms, stubby legs; one rising spark per frame (glow only); an ember rim with fireOrange crest tips |
 | `sootlingB` | 14x14 × 6 | hand-set parts | walk 0-3 (a stiff-legged strut, the head bobbing), attack 4-5 (head reared back, then butted forward on braced legs) | the lean second silhouette: a burnt-out matchstick, a round head of crusted ash crackled with ember seams like a dying coal (at night a glowing cracked ball on legs) and two eyes, on a thin charcoal stick with thin pale limbs |
-| `shadehound` | 22x14 × 6 | hand-set parts | run 0-3 (gallop: stretched, gathered with the back arched, stretched, gathered), attack 4-5 (crouch with jaws open; lunge flat out, a leap with the feet off the ground) | lean and low, a deep chest and tucked belly, a ragged pale smoke mane on neck and shoulders, an ember seam along the spine, one ember eye, far legs one value darker |
+| `shadehound` | 22x14 × 6 | hand-set parts | run 0-3 (gallop: stretched, gathered with the back arched, stretched, gathered), attack 4-5 (crouch with jaws open; lunge flat out, a leap with the feet off the ground) | lean and low, a deep chest and tucked belly, a ragged pale smoke mane on neck and shoulders, one ember eye, far legs one value darker; fix stage: the torso 2 px shorter, the snout tapering to an ink nose at column 20 with its outline in column 21 (no cut at the frame edge); one ember line from the tail along the spine and up the mane to the ears (the rim), cracks down the ribs and the haunch from a hot spot on the spine |
 | `sootCrow` | 12x10 × 4 | hand-set parts | fly 0-2 (wing up, level, down), perch 3 | ragged wings of separate soot flakes with gaps, an ember-edged feather, one eye; flying frames do not touch the bottom row |
-| `ashBrute` | 44x44 × 7 | Recraft `brute-b`, cut-out | walk 0-3 (diagonal knuckle-walk: front fist with the hind leg, back fist with the front leg, the hump bobbing), attack 4-6 (the rearing key with both fists high; slammed down, the body thrown forward, sparks at the impact; half way back) | a golem of fused ash plates; both keys converted at one common scale (15.8 sheet px per game px); ember eyes and hand-set joint cracks as glow parts |
-| `gloomweaver` | 30x30 × 4 | hand-set after the Recraft key | float 0-3 (the body bobs 1 px up and settles, the ribbons ripple through three shapes, the orb's spark breathes) | a tall pointed hood curling forward over a void with two violet eyes, a sleeve reaching to thin pale hands, a dark orb rimmed in violet, the robe trailing into smoke ribbons; it floats (nothing on the bottom row) |
-| `ashGiant` | 110x110 × 7 | Recraft `creatures-a`, cut-out | walk 0-3 (each leg lifted in turn, planted feet sliding back, the body up 1 px while a leg is lifted), stomp 4-6 (the stone arm raised 6 px; slammed, the body dipping 2 px: the screen shake; raised 2 px) | burnt stone and charred wood leaning on one huge stone arm, a crown of burning stakes; its shaded half lifted one value step and its flat dark bands cobbled into boulders (`texture`); every `tile` pixel glows `emberDim` (`glowmap`), two ember eyes under the crown |
-| `lightlessKing` | 64x64 × 7 | Recraft `creatures-b`, cut-out plus hand-set | walk 0-3 (contact and passing on each leg, a 1 px bob, the cloak hem swinging), attack 4-6 (sword drawn back level behind him; swept flat forward at chest height; carried through low in front) | the converted cloak with its torn teal banner rags (night0 recoloured night1, its lit folds night2, so it is no black band); blackened plate (ink, stoneDark, stoneMid, stone edges, a few cold stoneLight glints on helm, pauldron and knee), a closed helm with a hollow face, a 2 px cold rim and two cold eyes, an extinguished dark-gold crown with a broken point, a long dark blade (edge over body, outline-free) |
+| `ashBrute` | 44x44 × 7 | Recraft `brute-b`, cut-out | walk 0-3 (diagonal knuckle-walk: front fist with the hind leg, back fist with the front leg, the hump bobbing), attack 4-6 (the rearing key with both fists high; slammed down, the body thrown forward, sparks at the impact; half way back) | a golem of fused ash plates; both keys converted at one common scale (15.8 sheet px per game px); ember eyes and hand-set joint cracks as glow parts; fix stage: the plate seams joined into one network (glow-only parts in key coordinates, placed with the part they cross: up the hump to a hot spot on its crest and down to the belly, the flank, behind the head, the front arm from shoulder to wrist; on the rearing key the fist, chest, belly and shin cracks), an ember rim |
+| `gloomweaver` | 30x30 × 4 | hand-set after the Recraft key | float 0-3 (the body bobs 1 px up and settles, the ribbons ripple through three shapes, the orb's spark breathes) | a tall pointed hood curling forward over a void with two violet eyes, a sleeve reaching to thin pale hands, a dark orb rimmed in violet, the robe trailing into smoke ribbons; it floats (nothing on the bottom row); fix stage: a violetDim line on the hood's lit front edge and a violetDim rim on the top contour (hood and ribbons) |
+| `ashGiant` | 110x110 × 7 | Recraft `creatures-a`, cut-out | walk 0-3 (each leg lifted in turn, planted feet sliding back, the body up 1 px while a leg is lifted), stomp 4-6 (the stone arm raised 6 px; slammed, the body dipping 2 px: the screen shake; raised 2 px) | burnt stone and charred wood leaning on one huge stone arm, a crown of burning stakes; its shaded half lifted one value step and its flat dark bands cobbled into boulders (`texture`); every `tile` pixel glows `emberDim` (`glowmap`), two ember eyes under the crown; fix stage: `cracks` draws six long fissures along the boulders' joints (crown to chest, chest to waist, across the shoulder and down the stone arm, down the left leg, chest to the left flank) and grows the lone specks into 3-4 px strokes (key `ashGiant-cracks.png`), an ember rim with every crown stake burning at its point |
+| `lightlessKing` | 64x64 × 7 | Recraft `creatures-b`, cut-out plus hand-set | walk 0-3 (contact and passing on each leg, a 1 px bob, the cloak hem swinging), attack 4-6 (sword drawn back level behind him; swept flat forward at chest height; carried through low in front) | the converted cloak with its torn teal banner rags (night0 recoloured night1, its lit folds night2, so it is no black band); blackened plate (ink, stoneDark, stoneMid, stone edges, a few cold stoneLight glints on helm, pauldron and knee), a closed helm with a hollow face, a 2 px cold rim and two cold eyes, an extinguished dark-gold crown with a broken point, a long dark blade (edge over body, outline-free); fix stage: a cold silhouette in his glow strip (see the glow rules) |
 | `archer` | 12x28 × 5 | hand-set parts | idle 0-1 (a breath: head, shoulders and bow 1 px down), draw 2-3 (bow raised, arrow nocked at the chest; full draw to the cheek, the bow bent, the string in a V), loose 4 (string straight, drawing hand flung back) | brown leather hood, the teal tabard with the gold lantern, belt, red-fletched quiver, longbow |
 | `guardsman` | 14x28 × 9 | hand-set parts | idle 0-1, walk 2-5 (march, the shield bobbing), strike 6-8 (spear drawn back level; thrust over the shield on a lunge; pulled back) | nasal helm, mail (soft two-tone rings), teal kite shield with a gold rim and the gold lantern, spear |
 | `builder` | 12x24 × 6 | hand-set parts | walk 0-3, hammer 4-5 (mallet high behind the head; struck down in front) | straw cloth cap, brown smock over a linen shirt, tool belt, the mallet in his hand by the knee while walking |
@@ -79,9 +82,20 @@ Glow strips: `sootlingGlow`, `sootlingBGlow`, `shadehoundGlow`, `sootCrowGlow`, 
 
 ### Glow strip rules
 
-- Eyes are the brightest (fireGold; the gloomweaver violetGlow, the Lightless King tealGlow); seams are fainter
-  (emberDim, a few hot pixels in ember); sparks and crown embers fireOrange or ember. Alone, a glow strip still shows
-  the creature: eye spacing, a seam line along the body, the hound's spine, the giant's burning crown.
+- Fix stage (the review's blocker: unlit, the creatures read as black blobs with ember eye dots, the look DESIGN.md
+  "Not a copy" forbids): a glow strip alone carries the creature as smouldering ash, and the eyes are no longer its
+  main read. Every ember creature has a `rim ember fireOrange`: its silhouette's top contour glows ember on the
+  outline (so in firelight and by day it is a warm outline, never a dark line across a lit crust), spikes fireOrange
+  (the sootling's crest flakes, the hound's ears, the giant's crown stakes, the crow's feathers); below it one
+  connected crack network in emberDim with a few ember hot spots (the sootling's Y, the hound's rib and haunch
+  cracks, the brute's plate seams, the giant's fissures). The cracks stay emberDim: brighter, the creatures read as
+  burning instead of as the Gloom.
+- The Lightless King's strip is a cold silhouette (his aura keeps him unlit almost all of night 20): a tealDim rim with
+  tealGlow on the crown's broken points, the crown points themselves, the teal rags (`glowmap roofLight=tealDim`), the
+  blade's whole light edge tealDim to a tealGlow point, the visor's front edge, the plate glints and one knee glint
+  tealDim, the eyes tealGlow. The gloomweaver (always in its own bubble) has a violetDim hood line and rim.
+- Eyes are the brightest single pixels (fireGold; the gloomweaver violetGlow, the Lightless King tealGlow); sparks and
+  crown embers fireOrange or ember. Alone, a glow strip shows the creature: its top contour, its cracks, the eye spacing.
 - The body pixel under a glow pixel is a dark or warm albedo (seams `tile`, eyes `strawLight`, the King's hollow
   night0), so by day, if the engine dims the glow, the seam still reads red-brown and the eye pale gold.
 - Sparks may lie outside the body (glow only): one per frame above the sootlings and hounds.
@@ -97,7 +111,7 @@ Glow strips: `sootlingGlow`, `sootlingBGlow`, `shadehoundGlow`, `sootCrowGlow`, 
 |---|---|---|
 | sootling | eyes (2, 8) and (4, 8) | |
 | sootlingB | eyes (1, 9) and (2, 8) | |
-| shadehound | eye (8, 9) | one eye |
+| shadehound | eye (6, 9) | one eye (was (8, 9) before the fix stage's 2 px shorter torso) |
 | sootCrow | eye (2, 4) | flying frame |
 | ashBrute | eyes (8, 23) and (10, 23) | |
 | gloomweaver | eyes (-1, 19) and (2, 19), orb spark (9, 14) | |
@@ -148,7 +162,7 @@ out (`king=off actors=off`) so every actor comes from the scene.
 |---|---|
 | `battle-night` (focus 700, tod 0.95) | sootlings, sootlingBs, shadehounds, a soot crow and the ash brute come from the left; three fire arrow pools light the brute and two creatures, the rest show only their glow; two archers draw and loose from the tower at 662, a guard thrusts behind the palisade, the king lifts his lantern |
 | `battle-day` (tod 0.5) | the same, everything lit |
-| `finale` (focus 930, tod 0.97) | the Lightless King's sword sweep left of the middle line's braziers, the beacon's far glow, a gloomweaver and sootlings in the dark behind him, archers and the king with his lantern raised on the stone wall, a guard |
+| `finale` (focus 930, tod 0.97) | the Lightless King's sword sweep left of the middle line's braziers, unlit inside his own aura with the creatures near him (fix stage: before, he was drawn lit by the braziers, which the game never does), so he reads by his cold teal silhouette; the beacon's far glow, a gloomweaver and sootlings in the dark, archers and the king with his lantern raised on the stone wall, a guard. Lit in the beacon's reach: `bld-beacon-finale` (ART-buildings.md) |
 | `giant` (focus 930, tod 0.95) | the ash giant's stomp at the stone wall, its upper body dark with burning crown and seams, archers on the wall and the tower at 978, a hound and a sootling in the dark |
 | `town-golden` (focus 2900, tod 0.75) | the king walking among townsfolk, two builders hammering at a scaffold on plot 2832, a woman at the well |
 | `town-night` (tod 0.95) | the same at night, lit by the king's lantern, the lantern post and the windows |
@@ -181,3 +195,36 @@ out (`king=off actors=off`) so every actor comes from the scene.
   swing).
 - The ash giant's attack is an arm slam; a true foot stomp would need a second key pose.
 - The gloomweaver's darkness bubble (50 px) is the engine's; the sprite only carries its orb.
+
+## Fix stage (09.11.2026, after the art review)
+
+The review's blocker and its high finding on this lane, and one medium, all fixed; no Recraft images (credits **391
+before, 391 after**). Sheets of every creature: `build/recraft/lh/preview/actors/sheet-<id>.png` (the four strips of
+`actorart.py sheet`; "before" copies of the sootling, sootlingB and hound in `actors/before/`).
+
+| Finding | Fix |
+|---|---|
+| unlit, the creatures read as black blobs with ember eye dots (7 to 16 glow pixels a frame; the giant's ~120 isolated specks) | `rim` on the outline's top contour (ember, fireOrange spikes) for every ember creature; connected crack networks: the sootling's Y of seams, the hound's spine line and two flank cracks, the brute's joined plate seams on both keys, the giant's six fissures and its specks grown into 3-4 px strokes (`cracks`); sootlingB and the crow get the rim. Glow pixels a frame now: sootling 25-26, sootlingB 17-19, hound 26-28, crow 9-13, brute 77-87 (52 on the rearing key), giant 403-416 |
+| the Lightless King reads as a dark shape with two teal dots inside his aura (4 glow pixels a frame), and `actors-finale` showed him lit by the braziers | a cold silhouette (tealDim rim, tealGlow crown points, teal rags, the blade's light edge to a tealGlow point, the visor's edge, glints; 124-132 glow pixels a frame, was 4); the finale rendered twice: `actors-finale` unlit inside his aura, `bld-beacon-finale` lit in the beacon's reach; the gloomweaver's violetDim hood line |
+| the hound's head ran out of the frame (the snout cut flat in column 21) | the torso 2 px shorter (two columns cut from the middle of each body pose), the fore legs 2 px left, the snout tapering to an ink nose at column 20 with its outline in column 21 in every frame; its glow strip rebuilt with the shift |
+
+### Notes for the lead (engine and contract)
+
+- SPRITES.md's unlit rule should change: the engine should draw an unlit creature's body opaque (never as a
+  translucent ghost) and give it the moonlight rim DESIGN.md "Readable at night" asks for, the king's rim pass (cool
+  rim on the screen-right edge pixels, outshone by firelight), so its lower half separates from the dark ground where
+  no glow lies. The glow strips now carry the top contour and the cracks; the rim pass would carry the rest.
+- The planning branch's actor shader draws an emissive actor (a glow strip) as its flat colour over the body
+  (`mix(base, albedo, alpha)`), not additively as SPRITES.md says. The new strips are made for both: the rims lie on
+  the outline (a dark pixel either way), the cracks on dark seam albedo. Additive drawing, as the contract says, would
+  let a lit crust keep its colour under a crack pixel.
+- The rims make an unlit creature visible from its top edge; the light pools still read, because a lit creature shows
+  its whole grey crust and an unlit one only its edge and cracks.
+- shadehound's eye moved to (6, 9) from the anchor (was (8, 9)).
+
+### Lessons
+
+- A dark creature reads in the dark by its silhouette's edge, not by its eyes: the outline's top contour is the cheapest
+  pixel row that carries the whole shape, and it stays a dark line in firelight.
+- emberDim alone is too dim under the ground fog in the mock; the rim needs ember, the cracks may stay emberDim.
+- A long crack drawn along a converted painting's crevices (a cheapest path) looks painted; random specks never join.

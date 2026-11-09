@@ -69,10 +69,10 @@ below.
 
 | id | size x frames | method | notes |
 |---|---|---|---|
-| `beaconBase` | 64x130 | grid (design from `beacon-a`'s left piece) | the ruin cleared and rebuilt to a third of the tower (top at y 58): pale new courses, an unfinished top, shear legs lifting a block, cut blocks stacked beside it |
-| `beaconTower` | 64x130 | grid | the half tower (top at y 84): an unfinished top, a scaffold deck round it, a hoist with a block on its rope, two iron bands, two slits |
-| `greatBeacon` | 64x130 | grid | the full tower in the ruin's pale stone with a parapet on corbels, two teal banners, and the huge iron bowl (51 px across) on four curved ribs |
-| `beaconFire` | 24x20 x 3 | grid (fire ramp only) | glow strip: a coal bed and five tongues with white cores that trade heights, sparks |
+| `beaconBase` | 64x130 | grid (design from `beacon-a`'s left piece) over the ruin's shell (compose) | new pale courses rebuilt to a third of the tower (top course at y 58) inside the ruin's broken shell, which stands behind them (`beaconRuin.png` without its fire cage, broken top at y 104-108); an unfinished top, tall shear legs (apex at y 117) lifting a block high, cut blocks stacked beside it |
+| `beaconTower` | 64x130 | grid | the tower risen above the ruin (its unfinished top course at y 105, the scaffold to y 115, the hoist to y 121): a scaffold deck round its top, a hoist with a block on its rope, three iron bands, three slits |
+| `greatBeacon` | 64x130 | grid | the full tower in the ruin's pale stone with a parapet on corbels, two teal banners, and the huge iron bowl (51 px across) on four curved ribs; the bowl's iron one value step darker since the fix stage (it washed out pale under the beacon's own light) |
+| `beaconFire` | 48x32 x 4 | grid (fire ramp only) | glow strip, the chapter's climax: a bed of fire across the whole bowl mouth with an ember coal row on it, nine tongues with white cores that trade heights (the tallest 27 rows above the mouth), wisps above the tips, sparks (fix stage: was 24x20 x 3, a campfire in half the bowl) |
 
 ### Courtyard (castle palette)
 
@@ -114,9 +114,10 @@ drawn with the masonry, slate, plank, window, door and banner brushes of this la
 The town: the cottages (64x46, one storey) < the big house (72x56, two storeys, two chimneys, a dormer); the market
 and the tavern read by their awnings and their sign.
 
-The beacon: the overgrown ruin with its empty cage < a clean rebuilt drum under shear legs < the half tower in its
-scaffold < the finished tower with banners and the bowl. All four share the ruin's footprint, ground line and pale
-stone, so the site visibly grows in place.
+The beacon: the overgrown ruin with its empty cage (masonry to y 108) < new pale courses inside the ruin's shell under
+shear legs that rise above it (y 117) < the tower in its scaffold above the ruin (masonry y 105, scaffold y 115) <
+the finished tower with banners and the bowl (y 127). All four share the ruin's footprint, ground line and pale stone,
+and the silhouette only grows (fix stage: stages 1 and 2 stood lower than the ruin they replace).
 
 The gates: plain oak doors < the same behind an iron grid < steel plates behind a heavy gold-studded grid with the
 crest.
@@ -153,7 +154,7 @@ night0, night1 and ink pixel inside a mask, so a mask over an outline would glow
 | `fireTower` | flame | `brazierFlame` at (dx 3, dy 37) over the coals; its brazier light from (cx 7, y 41) |
 | `catapult` | firepot | in the cup with its bottom-left at (dx 27, dy 17) on frame 0 and (dx 27, dy 13) on frame 1; it leaves from the cup at about (dx 14, dy 21) on frame 2 |
 | `ballista` | bolt | the bolt leaves from the stock's front at (dx 0, dy 10), flying left |
-| `greatBeacon` | fire | `beaconFire` (24x20) at (dx 20, dy 123): its coal bed lies on the bowl's dark mouth (night0, x 9-54 at row 4); that mouth as a glass mask (dx 9, dy 125, w 46, h 1) glows as an ember line across the whole bowl; the light from above the flames, about (cx 32, y 168) |
+| `greatBeacon` | fire | `beaconFire` (48x32 x 4, fix stage) at (dx 8, dy 125): its bottom row, the coal row, lies on the bowl's dark mouth (night0, x 9-54 at row 4), its tongues across the whole mouth; that mouth as a glass mask (dx 9, dy 125, w 46, h 1) still glows as an ember line; the scenes light it with the finale's beacon light (`beacon` kind, x 470, y 130, r 840, 0.45) |
 | `barracks` | window glass | (dx 8, dy 26, w 4, h 4), (21, 26, 4, 4), (39, 26, 4, 4), (52, 26, 4, 4); the wall lanterns' glass (23, 14, 1, 2) and (41, 14, 1, 2) |
 | `smithy` | forge fire | `brazierFlame` at (dx 15, dy 13) on the coals (row 33, x 14-24); a small brazier-kind light from (cx 19, y 16) |
 | `masterSmithy` | forge fire | `hearthFire` at (dx 13, dy 13) on the coals (row 41, x 15-27); light from (cx 21, y 16) |
@@ -222,8 +223,9 @@ run_actors.sh). Each render takes about 2 s; `run_buildings.sh` renders them one
 | `gate-broken` | 1360, 0.95 | the gate destroyed: gateBroken lit by a fire arrow burning on it, soot creatures pouring through the breach |
 | `gate-iron-damaged` | 1360, 0.95 | the iron gate's damaged frame: the burst hole and the bowed bars |
 | `gate-great-open-day` | 1360, 0.5 | the great gate open by day: the plated leaves swung in, the raised portcullis' gold-capped teeth |
-| `beacon-night` | 470, 0.97 | the Great Beacon lit: beaconFire in the bowl, the bowl's mouth glowing, a warm light from above the flames, the warden statue behind |
-| `beacon-day` | 470, 0.5 | a lineup by day: the ruin with the plot marker of the unlocked site, beaconBase, beaconTower, greatBeacon |
+| `beacon-night` | 470, 0.97 | the Great Beacon lit: the 48x32 blaze across the whole bowl, the bowl's mouth glowing, the finale's beacon light (fix stage), the warden statue behind |
+| `beacon-finale` | 560, 0.97 | fix stage: night 20 with the beacon lit: the Lightless King and his creatures lit in its reach (his aura fails there), the gloomweaver dark in its own bubble, archers on the tower at 662 loosing at him, a guard and the king with his lantern behind the palisade |
+| `beacon-day` | 470, 0.5 | a lineup by day: the ruin with the plot marker of the unlocked site, beaconBase, beaconTower, greatBeacon (the silhouette grows at every step) |
 | `courtyard-dusk` | 1600, 0.77 | barracks (a guardsman at the door), smithy with its forge burning, the well, the lodge with a builder |
 | `courtyard-grown` | 1600, 0.77 | the same with masterSmithy (hearthFire in the forge) and bigLodge |
 | `town-golden`, `town-night` | 3000, 0.75 / 0.95 | the grown town: bigHouse in plot 2932 between the cottages, the well, citizens; at night its windows and dormer glow |
@@ -231,12 +233,11 @@ run_actors.sh). Each render takes about 2 s; `run_buildings.sh` renders them one
 
 ## Notes for the lead
 
-- `build-art.sh` still lists `stoneWall` as the milestone 1 conversion (one frame); running it would write the
-  one-frame file over the two-frame strip. `stoneWall` belongs to `build-art-buildings.sh` now and should leave
-  `build-art.sh`'s list. `palisade` and `ballista` can stay in `build-art.sh`: their grids hold both frames, so both
-  scripts write the same files. `build-art-buildings.sh` rebuilds all 33 sprites of this lane byte for byte (checked),
-  and the M1b mocks with the palisade, stone wall and ballista on screen are byte for byte the same with the two-frame
-  strips (front 760 at night, approach 1100 and outer line 640 by day, rendered against the old one-frame files).
+- Done in the fix stage: `build-art.sh` runs this lane's script (and the actors') after the scene sprites, and
+  `stoneWall`, `palisade` and `ballista` belong to this lane only. `build-art-buildings.sh` rebuilds all 33 sprites of
+  this lane byte for byte (checked), and the M1b mocks with the palisade, stone wall and ballista on screen are byte
+  for byte the same with the two-frame strips (front 760 at night, approach 1100 and outer line 640 by day, rendered
+  against the old one-frame files).
 - The extras hook cannot remove a layout prop; `scene_buildings.py` works round it (see "Context scenes"). A `drop`
   option in the hook would make that unnecessary.
 - Facing: the ballista and the catapult aim left as drawn (the Gloom is always left); the projectiles point right like
@@ -247,10 +248,13 @@ run_actors.sh). Each render takes about 2 s; `run_buildings.sh` renders them one
   it). The scaffold tiles every 24 px from the build's left edge (two tiles over a stone wall or a bastion).
 - The archers on towers and walls draw in front of the parapets (actors draw after props), so the parapets never hide
   their legs; the posts above are where their feet go.
-- beaconFire is the contract's 24x20; in the 51-px bowl it reads as a fire in the middle of the bowl, not a blaze
-  filling it. The mouth mask (dx 9, dy 125, w 46, h 1) adds an ember line across the bowl; a 48x28 fire would fill it
-  (a contract change, if wanted). The mock lights the beacon with a warm point light (r 230, above the flames); the
-  hook's white `beacon` light kind at r 300 washed the iron bowl out to white.
+- Fix stage, for SPRITES.md and the code lane: `beaconFire` is 48x32 with 4 frames now (the review: "widen the
+  contract to about 48x32 with 4 frames"). It goes at the great beacon's (dx 8, dy 125), its bottom row on the bowl's
+  mouth: on the planning branch `EntityFrames` places it at `beaconLeft + 20, y: 123`, which becomes `beaconLeft + 8,
+  y: 125`; `SpriteID.beaconFire` 24x20 becomes 48x32 and its frame count 3 becomes 4 (the placeholder follows the
+  size). Until then the atlas crops the strip around its bottom centre (no crash, a wrong picture). The scenes light
+  the beacon with the finale's `beacon` light (fireWhite, r 840, 0.45), as the game's 600 px beacon light is fireWhite
+  too; the darker bowl keeps it iron under that light.
 - `tools/__pycache__/` and `tools/scenemock/__pycache__/` are untracked byproducts of the python tools; `__pycache__/`
   could go into `.gitignore`.
 
@@ -268,10 +272,32 @@ run_actors.sh). Each render takes about 2 s; `run_buildings.sh` renders them one
 
 ## Open points
 
-- beaconFire size (above).
+- beaconFire size: painted at 48x32 x 4; SPRITES.md and the code lane still say 24x20 x 3 (notes for the lead).
 - The courtyard buildings, the market and the storeys of the big house and the tavern are hand-set after the paintings;
   they are crisp and consistent with the bastion and the towers, but a later pass could add more surface texture (moss,
   weathering, timber grain) to match the painted cottages.
 - No window-glass masks or lights for these sprites exist in the Swift scene yet: the anchor table is what M2b needs.
 - The bastion and the watchtower are front elevations in the stone wall's colours; they share the castle front's stone
   only in hue, not its painted texture.
+
+## Fix stage (09.11.2026, after the art review)
+
+No Recraft images (credits **391 before, 391 after**). The review's high finding on this lane and its medium one:
+
+| Finding | Fix | Build step |
+|---|---|---|
+| the beacon's fire read as a campfire (24x20 in a 51 px bowl, no bigger than the statue's bowl fire) | `beaconFire` 48x32 x 4: the blaze across the whole mouth, white cores trading heights, wisps and sparks; `greatBeacon`'s bowl one value darker; `bld-beacon-night` with the finale's beacon light and a new `bld-beacon-finale` | grids `beaconFire.txt`, `greatBeacon.txt` |
+| beaconBase and beaconTower stood lower than the ruin they replace (masonry 60 and 84 px against the ruin's 104-108) | stage 1 keeps the ruin's shell behind its new courses and lifts its shear legs to y 117; stage 2's masonry reaches y 105, its scaffold 115 | `beaconBase` composed over `beaconRuin.png` (no cage), `beaconTower.txt` raised by 20 rows |
+
+`mock.py`'s extras hook gained an opt-in frame for emitter sprites (`["sprite", id, dx, dy, colour, fades, frame,
+frames]`), so a scene can draw a strip whose size SPRITES.md does not list yet; the M1b shots render byte for byte as
+before (front 760 at night checked against the old mock).
+
+### Lessons
+
+- A fire must be compared with the other fires in the same frame: next to the statue's bowl fire, a beacon twice its
+  width but only as tall read as the same campfire; the climax needs the whole bowl mouth and twice the height.
+- A stage of a building should never be lower than the stage before it: Louis reads strength from pictures, and a
+  rebuilt site that shrinks reads as a step back even when it is new stone.
+- An iron bowl right under a strong light reads pale in a 2D light model (no self-shadow): give dark metal one value
+  step less albedo than it would need by day.
