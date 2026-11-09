@@ -25,10 +25,11 @@ final class AudienceUITests: XCTestCase {
         reduceMotion()
     }
 
-    /// Day 3 (one of Marek's days) at 10:00, nobody heard yet: the court in the castle, the rooms cut away, talking.
+    /// Day 3 (one of Marek's days) at 10:00, nobody heard yet (seed 2: a child, a townswoman and an old soldier wait
+    /// at the benches): the court in the castle, the rooms cut away, talking.
     private func walkTheCastle() {
         let app = XCUIApplication()
-        app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWDay", "3", "-GWSeed", "1",
+        app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWDay", "3", "-GWSeed", "2",
                                "-GWClock", "10", "-GWCameraX", "1530"]
         app.launch()
         guard waitUntilReady(app, name: "castle") else { return }
@@ -38,13 +39,13 @@ final class AudienceUITests: XCTestCase {
         pause(1.0)
         attach(XCUIScreen.main.screenshot(), "58-courtyard-court-\(language)")
 
-        tapStrip(strip, worldX: 1660)
-        XCTAssertTrue(waitForKing(app, near: 1660, within: 14, timeout: 20), "the king walked to the hall's door")
+        tapStrip(strip, worldX: 1675)
+        XCTAssertTrue(waitForKing(app, near: 1675, within: 14, timeout: 20), "the king walked to the hall's door")
         pause(0.8)
         attach(XCUIScreen.main.screenshot(), "60-hall-front-\(language)")
 
-        tapStrip(strip, worldX: 1792)
-        XCTAssertTrue(waitForKing(app, near: 1792, within: 14, timeout: 20), "the king stepped into the hall")
+        tapStrip(strip, worldX: 1840)
+        XCTAssertTrue(waitForKing(app, near: 1840, within: 14, timeout: 20), "the king stepped into the hall")
         pause(0.9)
         attach(XCUIScreen.main.screenshot(), "51-hall-court-\(language)")
 
@@ -129,8 +130,10 @@ final class AudienceUITests: XCTestCase {
             next.tap()
             // The next petitioner walks up; the king stands up and the rest keep waiting.
             if element(app, "audience-choice-0").waitForExistence(timeout: 10) {
-                pause(0.4)
-                note("second", "the next petitioner's card opened")
+                pause(0.5)
+                attach(XCUIScreen.main.screenshot(), "52b-petition-townsfolk-\(language)")
+            } else {
+                XCTFail("the next petitioner's card did not open")
             }
             let leave = element(app, "audience-leave")
             if leave.waitForExistence(timeout: 6) { leave.tap() }

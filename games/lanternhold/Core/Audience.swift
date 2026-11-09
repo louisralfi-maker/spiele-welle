@@ -156,6 +156,8 @@ struct AudienceCard: Sendable, Equatable {
         var archers: Int
         var guards: Int
         var builders: Int
+        /// What it does to the coming night (`NightModifier` ids: a smaller or bigger attack, fewer of a kind, fog).
+        var night: [String]
         /// A chance decides part of it.
         var risky: Bool
         var blocker: ChoiceBlock?
@@ -196,7 +198,8 @@ struct AudienceCard: Sendable, Equatable {
             options.append(Option(index: index, labelKey: choice.label, gold: effect.gold ?? 0,
                                   happiness: effect.happiness ?? 0, citizens: effect.citizens ?? 0,
                                   archers: effect.archers ?? 0, guards: effect.guards ?? 0,
-                                  builders: effect.builders ?? 0, risky: effect.chance != nil,
+                                  builders: effect.builders ?? 0, night: effect.night ?? [],
+                                  risky: effect.chance != nil,
                                   blocker: PetitionEngine.blocker(choice, state),
                                   favoured: session.counselShown && petition.counsel == index))
         }

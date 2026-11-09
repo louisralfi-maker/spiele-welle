@@ -71,7 +71,8 @@ struct GameHUD: View {
                 } else {
                     topBar
                     VStack(spacing: 8) {
-                        if let strip = model.strip {
+                        // M3: the strip rests during the audience (Odile's counsel shows there).
+                        if let strip = model.strip, model.overlay != .audience {
                             RealmStripView(strip: strip, reduceMotion: model.reduceMotion) { fraction in
                                 model.travel(toFraction: fraction)
                             }

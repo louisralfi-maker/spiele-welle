@@ -15,6 +15,10 @@ struct AudienceCardView: View {
 
     /// The card stands under the HUD's clock and numbers.
     static let topRoom: CGFloat = 78
+    /// Odile's counsel shows as a note at the top while the strip hides: right of the pause button, left of the
+    /// clock and numbers.
+    static let noteLeft: CGFloat = 70
+    static let noteRight: CGFloat = 214
 
     var body: some View {
         GeometryReader { geometry in
@@ -27,17 +31,29 @@ struct AudienceCardView: View {
             let left = (geometry.size.width - width) / 2
             let anchor = CGFloat(model.stageAnchor) * fullWidth - insets.leading
             let pointer = min(max(24, anchor - left), width - 24)
-            VStack(spacing: 0) {
-                content
-                    .frame(width: width)
-                    .frame(maxHeight: room, alignment: .bottom)
-                PointerShape()
-                    .fill(Theme.woodDark)
-                    .frame(width: 18, height: 9)
-                    .offset(x: pointer - width / 2)
-                    .accessibilityHidden(true)
+            ZStack(alignment: .topLeading) {
+                VStack(spacing: 0) {
+                    content
+                        .frame(width: width)
+                        .frame(maxHeight: room, alignment: .bottom)
+                    PointerShape()
+                        .fill(Theme.woodDark)
+                        .frame(width: 18, height: 9)
+                        .offset(x: pointer - width / 2)
+                        .accessibilityHidden(true)
+                }
+                .frame(width: geometry.size.width, height: max(0, bottom + 9), alignment: .bottom)
+                if card.phase == .hearing, card.counselShown, let hint = card.hintKey {
+                    let noteWidth = max(220, geometry.size.width - AudienceCardView.noteLeft
+                                        - AudienceCardView.noteRight)
+                    CounselNote(text: StoryText.string(hint))
+                        .frame(width: noteWidth, alignment: .leading)
+                        .frame(maxHeight: AudienceCardView.topRoom - 10, alignment: .top)
+                        .offset(x: AudienceCardView.noteLeft, y: 5)
+                        .transition(model.reduceMotion ? .identity : .opacity)
+                }
             }
-            .frame(width: geometry.size.width, height: max(0, bottom + 9), alignment: .bottom)
+            .animation(model.reduceMotion ? nil : .easeOut(duration: 0.2), value: card.counselShown)
         }
     }
 
@@ -56,9 +72,6 @@ struct AudienceCardView: View {
                                     .font(Theme.serif(.subheadline))
                                     .foregroundStyle(Theme.ink)
                                     .fixedSize(horizontal: false, vertical: true)
-                                if card.counselShown, let hint = card.hintKey {
-                                    CounselBox(text: StoryText.string(hint))
-                                }
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -191,7 +204,7 @@ struct AudienceCardView: View {
             if let outcome = card.outcome {
                 EffectChips(gold: outcome.gold, happiness: outcome.happiness, citizens: outcome.citizens,
                             archers: outcome.archers, guards: outcome.guards, builders: outcome.builders, risky: false,
-                            size: 15)
+                            size: 15, saysNoCost: false, night: outcome.night)
                 VStack(alignment: .leading, spacing: 2) {
                     ForEach(outcome.unlocked, id: \.self) { unlock in
                         Label(AudienceTexts.unlock(unlock), systemImage: "key.fill")
@@ -218,28 +231,26 @@ struct AudienceCardView: View {
     }
 }
 
-/// Odile's one line of counsel under the request: her small portrait and the line, set apart in teal.
-struct CounselBox: View {
+/// Odile's one line of counsel (the Counsel button): a small parchment at the top of the screen, where the realm
+/// strip rests during the audience, with her portrait and her line in teal, as if she leaned in to the king.
+struct CounselNote: View {
     let text: String
 
     var body: some View {
-        HStack(alignment: .top, spacing: 8) {
+        HStack(alignment: .center, spacing: 8) {
             PortraitTile(portrait: .own(.portraitOdile, frame: 0), side: 40)
-            VStack(alignment: .leading, spacing: 1) {
-                Text("Odile counsels")
-                    .font(Theme.serif(.caption, .bold))
-                    .foregroundStyle(Theme.teal)
-                Text(verbatim: text)
-                    .font(Theme.serif(.footnote).italic())
-                    .foregroundStyle(Theme.ink)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+            (Text("Odile counsels").font(Theme.serif(.footnote, .bold)).foregroundStyle(Theme.teal)
+                + Text(verbatim: ": ").font(Theme.serif(.footnote, .bold)).foregroundStyle(Theme.teal)
+                + Text(verbatim: text).font(Theme.serif(.footnote).italic()).foregroundStyle(Theme.ink))
+                .lineLimit(4)
+                .minimumScaleFactor(0.8)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(8)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Theme.teal.opacity(0.12)))
-        .overlay(RoundedRectangle(cornerRadius: 9, style: .continuous).strokeBorder(Theme.teal.opacity(0.45),
-                                                                                    lineWidth: 1))
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(ParchmentBackground(corner: 11))
+        .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous).strokeBorder(Theme.teal.opacity(0.6),
+                                                                                     lineWidth: 1.2))
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("audience-counsel-line")
     }
@@ -269,7 +280,7 @@ struct ChoiceTile: View {
                 }
                 EffectChips(gold: option.gold, happiness: option.happiness, citizens: option.citizens,
                             archers: option.archers, guards: option.guards, builders: option.builders,
-                            risky: option.risky, size: 13)
+                            risky: option.risky, size: 13, night: option.night)
                     .opacity(option.enabled ? 1 : 0.6)
                 if let block = option.blocker {
                     HStack(spacing: 4) {
@@ -314,6 +325,10 @@ struct EffectChips: View {
     let builders: Int
     let risky: Bool
     var size: CGFloat = 13
+    /// "No cost" when nothing changes (a choice); a reaction shows nothing then.
+    var saysNoCost = true
+    /// The coming night's modifiers (a moon: the attack smaller or bigger, fewer of a kind; fog).
+    var night: [String] = []
 
     var body: some View {
         HStack(spacing: 9) {
@@ -341,17 +356,56 @@ struct EffectChips: View {
                 chip(Texts.signed(builders)) { symbol("hammer.fill") }
                     .accessibilityLabel(Text("Builders \(Texts.signed(builders))"))
             }
+            ForEach(Array(night.enumerated()), id: \.offset) { _, id in
+                nightChip(id)
+            }
             if risky {
                 symbol("dice.fill")
                     .accessibilityLabel(Text("A risk"))
             }
-            if gold == 0 && happiness == 0 && citizens == 0 && archers == 0 && guards == 0 && builders == 0 && !risky {
+            if saysNoCost && gold == 0 && happiness == 0 && citizens == 0 && archers == 0 && guards == 0
+                && builders == 0 && !risky && night.isEmpty {
                 Text("No cost")
                     .font(Theme.serif(.footnote))
                     .foregroundStyle(Theme.inkSoft)
             }
         }
         .fixedSize()
+    }
+
+    /// Tonight: a smaller attack in teal, a bigger one in ember (`wave±P%`), fewer of a kind, fog.
+    @ViewBuilder private func nightChip(_ id: String) -> some View {
+        switch NightModifier(id: id) {
+        case .wave(let percent)?:
+            HStack(spacing: 3) {
+                Image(systemName: "moon.fill")
+                    .font(.system(size: size - 2, weight: .semibold))
+                Text(verbatim: "\(Texts.signed(percent))%")
+                    .font(Theme.rounded(size, .bold))
+                    .monospacedDigit()
+            }
+            .foregroundStyle(percent > 0 ? Theme.ember : Theme.teal)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("Tonight's attack \(Texts.signed(percent) + "%")"))
+        case .fewer(_, let count)?:
+            HStack(spacing: 3) {
+                Image(systemName: "moon.fill")
+                    .font(.system(size: size - 2, weight: .semibold))
+                Text(verbatim: Texts.signed(-count))
+                    .font(Theme.rounded(size, .bold))
+                    .monospacedDigit()
+            }
+            .foregroundStyle(Theme.teal)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("Tonight \(count) fewer creatures"))
+        case .fog?:
+            Image(systemName: "cloud.fog.fill")
+                .font(.system(size: size - 1, weight: .semibold))
+                .foregroundStyle(Theme.ember)
+                .accessibilityLabel(Text("Fog tonight"))
+        case nil:
+            EmptyView()
+        }
     }
 
     private func symbol(_ name: String) -> some View {

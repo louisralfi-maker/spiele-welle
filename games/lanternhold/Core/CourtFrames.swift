@@ -133,9 +133,10 @@ enum CourtFrames {
         figure.petition.map { "p:" + $0 } ?? figure.who
     }
 
-    /// The key of the audience's walker.
+    /// The key of the audience's walker: a court member by name (he walks back to his round afterwards), anyone else
+    /// by the petition (his place on the benches or where a guest stands).
     static func key(_ session: AudienceSession, catalog: PetitionCatalog) -> String {
-        guard let speaker = Speakers.speaker(session.speaker), speaker.role != .court else {
+        guard let speaker = Speakers.speaker(session.speaker), speaker.role == .court else {
             return "p:" + session.petitionID
         }
         return session.speaker

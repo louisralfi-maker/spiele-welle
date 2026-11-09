@@ -129,22 +129,7 @@ struct RealmStripView: View {
                 map.stroke(cross, with: .color(Color(hex: 0xFF5A3A)), lineWidth: 2)
             }
         }
-        // M3: the petitioners waiting for the throne (a parchment bubble with their number over the great hall) and
-        // the Stranger at the front gate (her grey lantern).
-        if strip.petitioners > 0 {
-            let hx = x(RealmStrip.hallPosition)
-            let bubble = CGRect(x: hx - 7.5, y: top + 2, width: 15, height: 11)
-            var tail = Path()
-            tail.move(to: CGPoint(x: hx - 2.5, y: bubble.maxY - 0.5))
-            tail.addLine(to: CGPoint(x: hx + 2.5, y: bubble.maxY - 0.5))
-            tail.addLine(to: CGPoint(x: hx, y: bubble.maxY + 3.5))
-            tail.closeSubpath()
-            map.fill(Path(roundedRect: bubble, cornerRadius: 3.5), with: .color(Theme.parchment))
-            map.fill(tail, with: .color(Theme.parchment))
-            map.stroke(Path(roundedRect: bubble, cornerRadius: 3.5), with: .color(Theme.goldDeep), lineWidth: 0.75)
-            map.draw(Text(verbatim: "\(strip.petitioners)").font(.system(size: 9, weight: .heavy, design: .rounded))
-                .foregroundStyle(Theme.ink), at: CGPoint(x: hx, y: bubble.midY))
-        }
+        // M3: the Stranger at the front gate (her grey lantern); the petitioners' bubble comes last, over the bar.
         if strip.strangerAtGate {
             let gx = x(RealmStrip.gatePosition)
             let glow = CGRect(x: gx - 6, y: ground - 13, width: 12, height: 12)
@@ -185,5 +170,22 @@ struct RealmStripView: View {
         crown.closeSubpath()
         map.fill(crown, with: .color(Theme.fireGold))
         context.stroke(outline, with: .color(Theme.gold.opacity(0.5)), lineWidth: 1)
+        // M3: the petitioners waiting for the throne: a parchment bubble with their number over the great hall,
+        // standing above the bar so the king's mark never hides it.
+        if strip.petitioners > 0 {
+            let hx = x(RealmStrip.hallPosition)
+            let bubble = CGRect(x: hx - 8, y: max(0, top - 9), width: 16, height: 12)
+            var tail = Path()
+            tail.move(to: CGPoint(x: hx - 3, y: bubble.maxY - 0.5))
+            tail.addLine(to: CGPoint(x: hx + 3, y: bubble.maxY - 0.5))
+            tail.addLine(to: CGPoint(x: hx, y: bubble.maxY + 4))
+            tail.closeSubpath()
+            context.fill(Path(roundedRect: bubble, cornerRadius: 4), with: .color(Theme.parchment))
+            context.fill(tail, with: .color(Theme.parchment))
+            context.stroke(Path(roundedRect: bubble, cornerRadius: 4), with: .color(Theme.goldDeep), lineWidth: 1)
+            context.draw(Text(verbatim: "\(strip.petitioners)")
+                .font(.system(size: 10, weight: .heavy, design: .rounded))
+                .foregroundStyle(Theme.ink), at: CGPoint(x: hx, y: bubble.midY))
+        }
     }
 }

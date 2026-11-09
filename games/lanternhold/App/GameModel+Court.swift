@@ -195,13 +195,14 @@ extension GameModel {
         }
     }
 
-    /// `-GWScreen petition`: the herald of the Lightless King before the throne on day 17 (the Stranger let in and
-    /// revealed, her lantern in the hall), the audience open.
+    /// `-GWScreen petition`: the herald of the Lightless King before the throne on day 17 at the golden hour (the
+    /// Stranger let in and revealed, her lantern in the hall), the audience open.
     func openPetitionSample() {
         withDriver { game in
             var s = game.state
             s.day = 17
-            if DayClock.phase(at: s.hour) != .day { s.hour = 10 }
+            // The golden hour before the horn: the herald comes late, in long light.
+            s.hour = 17.8
             for flag in [CourtLayout.serenInFlag, Speakers.serenRevealedFlag] where !s.flags.contains(flag) {
                 s.flags.append(flag)
             }

@@ -819,7 +819,8 @@ tap in Release) is checked on an A12 iPhone and a current one before the store.
 | `-GWAutoplay walk\|play` | the king walks back and forth / the reference bot plays live (it sets the king's intent and orders by its build order before every step; at night it lights snuffed braziers, patches and stands behind the front wall); any drag ends it |
 | `-GWGold <n>` / `-GWHappiness <n>` | set the numbers (happiness 0 to 100) |
 | `-GWBuild demo` | a built-up realm for screenshots: the iron gate, stone walls on the middle and outer line, an archer tower on lines 1 and 3 and a watchtower on line 2, braziers and a fire tower in front of the outer wall (it lights the approach, so the fight shows in its light), a ballista (line 2) and a catapult (line 3), stake pits on every line, the beacon at stage 2, smithy and lodge (3 builders), two big houses, two cottages, both fields, market and tavern; 24 citizens, 14 archers, 4 guards, happiness at least 70. At night every archer stands on his post at once and no build is in progress; by day the third beacon stage and the outer line's watchtower are being built, the builders at work |
-| `-GWScreen title\|audience\|report\|defeat\|story\|finale` | open that screen with sample data (M2b part 2: `report`, a night with a lost wall, a fallen archer and an unlock; `finale`, night 20's report with the Lightless King slain; `defeat`, the hearth out on the night the other arguments reach, at 02:30 when they reach a day) |
+| `-GWScreen title\|audience\|report\|defeat\|story\|finale\|petition` | open that screen with sample data (M2b part 2: `report`, a night with a lost wall, a fallen archer and an unlock; `finale`, night 20's report with the Lightless King slain; `defeat`, the hearth out on the night the other arguments reach, at 02:30 when they reach a day; M3: `petition`, the herald of the Lightless King before the throne on day 17 at the golden hour, the Stranger let in and revealed) |
+| `-GWClock <h>` | tests (M3): the start state's clock set to that hour of the same day (6 to 19) without anyone playing on, so today's petitioners still wait (`-GWHour` lets the reference bot play, and it hears them) |
 | `-GWTimeScale <x>` | tests only: the game's simulation runs x times as fast (0.25 to 20; the driver's quarter-second catch-up cap stays) |
 | `-GWHour <h>` | after the start (a day, a night, the save or a new realm, then the demo build) the reference bot plays on headless until the clock next shows h; a dawn on the way renews the snapshot (`-GWNight 12 -GWBuild demo -GWHour 5.83 -GWFreezeTime YES` holds first light's front at the outer wall) |
 | `-GWSeed <n>` | seed of the random stream |
@@ -846,7 +847,9 @@ simulation's clock), `hud-gold`, `hud-happiness`, `hud-clock`, `hud-pause`,
 `recruit-guardsman`, `recruit-card-close`, `tax-card`, `tax-card-close`, `report-king-banner` (night 20),
 `report-banner`, `pause-sheet`, `pause-sound`, `pause-haptics`, `pause-restart`, `pause-restart-confirm`,
 `pause-restart-cancel`; `world-scene`'s value adds `kx:<x>` (the king's world x) and, while first light's front is on
-screen, `dawn:<share>`. Debug only: `debug-king-x`, `debug-camera-x` (values for the jitter test).
+screen, `dawn:<share>`. Since M3 step 3 also: `audience-next`, `audience-reaction`, `audience-counsel-line`,
+`talk-bubble`, `report-unheard`; `realm-strip`'s value names the petitioners waiting. Debug only: `debug-king-x`,
+`debug-camera-x` (values for the jitter test).
 
 ## Tests
 
@@ -1014,7 +1017,14 @@ Open points:
    (`36-mid-report`), first light is held still as its front passes the outer wall (`37-mid-firstlight`:
    `-GWNight 12 -GWBuild demo -GWHour 5.83 -GWFreezeTime YES -GWAutoplay play`), and the finale ends on its report with
    the King's banner (`38-finale-report`).
-4. `testAudience`: `-GWScreen audience` in every language (the longest petition) for clipping.
+4. `testAudience` (`UITests/AudienceUITests.swift`, M3 step 3, English and German): day 3 (seed 2, `-GWClock 10`)
+   walked through the castle: the courtyard with Brannock, Bram, Marek and his cart, Pip (`58-courtyard-court`), the
+   great hall shut from the courtyard (`60-hall-front`), open inside with Odile and three petitioners at the benches
+   (`51-hall-court`), the kitchen opened (`57-kitchen-open`) and a line from Tamsin in a bubble (`55-talk`), the chapel
+   opened (`56-chapel-open`); day 2 on the throne: Brannock's story petition with his portrait (`52-petition`), Odile's
+   counsel (`53-counsel`), the reaction (`54-reaction`), the next petitioner's composed portrait
+   (`52b-petition-townsfolk`), standing up; `-GWScreen petition` (`59-petition-herald`); Reduce Motion opens the card
+   without the walk. Every button checked for 44 pt. M7 adds the other six languages.
 5. `testFilmstrip` (English): a frame every 1.2 s through a dusk and a night, for the fun check.
 
 ## Milestones (internal steps to 1.0)
@@ -1525,8 +1535,8 @@ Every archetype also chooses its skin, hair and cloth target ramps (SPRITES.md).
 | Odile | beside the throne at 1856, stepping to the tax lectern (1846) | by the hearth, 1860 |
 | Brannock | between 1428 (the gatehouse's back) and 1470 | at the gate, 1424 |
 | Pip | wandering 1612, 1690 (courtyard), 1770, 1700 (hall) | by the hearth, 1916 |
-| Mother Hesper | the chapel's altar 2052 and pews 2010 | tending the hearth, 1900 |
-| Tamsin | the kitchen's oven 2146 and table 2196 | the kitchen, 2170 |
+| Mother Hesper | the chapel's altar 2058 and pews 2012 (step 3: the art lane's spots; first 2052 and 2010) | tending the hearth, 1900 |
+| Tamsin | the kitchen's table 2158 and the oven-hearth under the chimney 2208, both facing right (step 3; first 2146 and 2196) | the kitchen, 2170 |
 | Bram | the smithy, 1566 to 1588 | the smithy, 1580 |
 | Marek | by his cart (1486) at 1542 on his days: every third day and any day he brings a petition | gone |
 | Seren | at the front gate (1352) the day her petition waits; from `stranger_in` the hall's far corner (1950); gone after `seren_handed_over` | the corner |
@@ -1853,6 +1863,124 @@ late nights, made the eve of night 20 much stronger than measured (see the decis
 - The content's generator stays outside the repo (`tools/` was not this lane's): edit the JSON files and
   Story.xcstrings directly; `PetitionDataTests` checks them.
 - `tools/simtune/run.sh` still lacks `Core/Petition*.swift` (step 1's open point).
+
+### M3 in detail: the audience on screen, the court alive, the rooms cut away (step 3, 09.11.2026)
+
+Step 3 puts the audience, the court and the castle's rooms on screen on top of steps 1 and 2: the throne opens the
+audience, a petitioner after the other walks up to a parchment card over the hall, the court walks its rounds and
+talks, the great hall, the chapel and the kitchen open when the king steps in, and the castle shows what petitions
+changed. The simulation is untouched: the reference bot hears petitions exactly as in step 2, so T1 to T8 measure the
+same numbers.
+
+**What was built**
+
+- **The throne** (`KingTarget.throne`): while petitioners wait in the hall the crown (caption "Audience (n)") opens the
+  audience; with nobody waiting it still opens the tax card. The **tax lectern** is its own target
+  (`KingTarget.lectern`, the book; `KingTargets.lecternX` 1840, the `taxLectern` prop at 1834). A court member counts
+  6 px farther than he stands (`KingTargets.talkBias`), so the lectern, the throne or a plot beside him wins a close
+  call.
+- **The audience** (`Core/Audience.swift`, `App/GameModel+Court.swift`, `UI/AudienceCardView.swift`): the clock stops
+  (`Overlay.audience`), the king sits on the throne (his x set to 1824, facing the petitioner) and the camera settles on
+  him under the card. `AudienceRules.hall` is today's queue in its order without the Stranger at the gate. The first
+  petitioner walks from where he waits (townsfolk at the benches, guests where they stand, a court member from his
+  round, by the hall's door when that is elsewhere) to the audience spot (1800) in 0.5 to 1.4 s; the card opens when he
+  arrives (at once with Reduce Motion). Hearing a choice goes through `PetitionEngine.hear` (position in the queue), the
+  HUD's numbers roll, the card shows the king's word, the reaction and what changed (gold, happiness, people, soldiers,
+  builders, tonight's attack, what was opened), and "Next petitioner (n)" lets the next one walk up while the heard
+  townsfolk or guest walks out by the hall's door and fades (`CourtLeaver`); a court member walks back to his round.
+  "Stand up" ends the audience at any time; whoever was not heard keeps waiting until the horn. The pause sheet ends it
+  too.
+- **The card** stands between the HUD and the figures (`GameModel.figureTop`, from the frame's pixel scale), as wide as
+  the screen allows (780 pt at most), its pointer down to the speaker (`GameModel.stageAnchor`), so the hall, the king
+  and the petitioner stay in view below it. The portrait (`UI/PortraitTile.swift`: 48x48 at whole device pixels per art
+  pixel, 4 on a 3x screen, on a framed dusk tile): story characters and guests their own (Seren hooded until day 15 or
+  `seren_revealed`), townsfolk a portrait composed from the contract's parts with the swap ramps by the petitioner's
+  look (`PortraitComposer.compose(recipe, atlas:)`, cached per recipe). The name and the role (the unnamed guests show
+  their role as the name), the request; the choices as 2 or 3 tiles side by side (52 pt and more) with what they cost or
+  bring (`EffectChips`: a coin, the face, people, archers, guards, builders, a moon for tonight's attack, a die where a
+  chance decides part of it, "No cost"), greyed with the reason (`ChoiceBlock`: gold missing, taxpayers, archers,
+  guards, the castle's last builder). The text scrolls when the screen is too short (German, Dynamic Type); the choices
+  stay in view. **Counsel** (Odile's mini portrait) shows her line in a small parchment note at the top of the screen,
+  where the realm strip rests during the audience, and puts her seal on the choice she favours.
+- **The Stranger at the gate** (`KingTarget.stranger`, `AudiencePlace.gate`): on the days her petition waits and she
+  is not let in, Seren stands in the castle's front gateway (1352); the speech bubble there opens the same card with
+  her hooded portrait ("The Stranger"). Let in, she walks in through the gate and takes her corner of the hall; turned
+  away, she walks back into the gorge. She waits all day, not only at dusk (see the decisions).
+- **Talking** (`KingTarget.talk`, `Core/CourtTalk.swift`, `UI/TalkBubbleView.swift`): by day, within 28 px of a court
+  member or guest who has a line today, the speech bubble (caption: his name) opens his next line of today
+  (`CourtLineBook.line(for:state:nth:)` with `TalkLog`, not saved) in a parchment bubble over his head, following him on
+  screen; he stops, turns to the king and gestures with his talk frames. A tap on the bubble closes it, so do walking
+  52 px away, a card and the horn. The **speech mark** (`speakerMark`, drawn at full brightness so it reads at night,
+  frame 1 pulsing every 0.6 s, still with Reduce Motion) stands over a member with a hint about one of today's
+  petitions until the king has talked to him today.
+- **The court drawn** (`Core/CourtFrames.swift`): every figure of `CourtLayout.figures` as an actor before the king
+  (he stays in front), its glow strip over it (Hesper's flame, Seren's lantern, the herald's eyes; dimmed by day like
+  the king's glass), breathing on the animation clock (so the court lives while the audience stops the simulation),
+  walking its round, talking with talk frames. `CourtMotion` smooths where they stand: a member walks back to his round
+  at 42 px/s after an audience or a talk, a jump farther than 240 px (Seren let in) is taken at once, and Reduce Motion
+  takes every change at once. Today's petitioners wait at the benches; guests stand in the hall; Marek and his cart on
+  his days. Figures inside a shut room do not show; they fade in with it.
+- **The rooms cut away** (`Core/CastleRooms.swift`): `RoomFades` opens the great hall, the chapel and the kitchen
+  while the king stands inside (`WorldLayout.rooms`) and shuts them when he leaves, over 0.25 s of real time (at once
+  with Reduce Motion). The hall's front (`hallFront`, z 2 over the throne, hearth, candles, benches and lectern) and
+  the scene's chapel and kitchen fronts fade; a front that is gone is not drawn at all, so it never clears the glow of
+  the interior behind it. `chapelInterior` and `kitchenInterior` are drawn behind their fronts while open. The art
+  lane's anchors (ART-court.md): the fronts' window glass masks (the chapel's four lancets at their real panes, not the
+  probe's window sprites; the kitchen's eight panes; the hall's three windows, its two lanterns and the light under its
+  door), the Flame in its bowl, the altar candles, stands and sconces, the sanctuary lamp, the oven-hearth's fire and
+  the table candle, with their lights. A shut room's warm light is out: the hearth's glow and its light (visual only;
+  the battle keeps its light) and the hall's candles show only while the hall is open, so no pool paints the outer
+  wall. The light probe (`-GWScene probe`) keeps the M1b scene with the hall cut away.
+- **World changes in the castle** (each drawn while its id shows): `castle.statue` (the statue at 1680),
+  `castle.courtyard.stall` (Marek's cart every day, its lantern lit at dusk), `castle.guards.wall` (two guards on the
+  wall walk by day, 1324 and 1396), `castle.banners.new` (five renewed banners over the hall's own), `castle.hall.tapestry`
+  (Aldric on the back wall, 1764), `castle.seren.lantern` (her grey lantern on the hall's far wall with a cold light),
+  `castle.chapel.candles` (votive candles before the altar step, lit), `castle.chapel.bell.missing` (the belfry's
+  louvres where the bell hung, the rope left hanging), `castle.keep.window.dark` (one keep window unlit on the castle
+  front's keep, the far keep and the keep above the valley). The five without a contract sprite are procedural
+  (`hallBanner`, `tapestry`, `serenLantern`, `votiveCandles`, `bellGone`, `Render/PlaceholderCastle.swift`).
+- **The realm strip** marks the petitioners waiting for the throne (a parchment bubble with their number over the
+  hall, above the bar) and the Stranger at the gate (her grey lantern); its VoiceOver value names the count. It rests
+  during the audience.
+- **The dawn report** names who went home unheard at the last horn ("Sent home unheard": "Agnes (Farmer's wife),
+  Brannock"), from the court's history and the same looks (`UnheardPetitioners`), beside the happiness reason.
+- **Placeholders** (`Render/PlaceholderCourt.swift`): the rooms' stand-ins now sit inside their rooms' outlines
+  (measured from `hallInterior`, `chapel` and `kitchen`) with their windows, altar, oven and candles at the art lane's
+  anchors, so the screenshots before the art lane's merge show the glow where the art will have it.
+- **Debug arguments**: `-GWScreen petition` and `-GWClock` (see the table). **Hooks in existing files**: `GameModel`
+  (the court's state, `withDriver`, the throne, lectern, talk and gate actions, the camera settling under a card, the
+  court's frame and clock), `KingTargets`, `RealmStrip`, `CourtLayout` (Hesper's and Tamsin's stops), `FrameDesc` (the
+  five procedural ids), `PlaceholderArt`, `GameStart`, `DebugArgs`, `HUDView`, `OverlayView`, `GameView`,
+  `RealmStripView`, `ReportCardView`.
+
+**Decisions taken (M3 step 3)**
+
+| Decision | Why |
+|---|---|
+| The audience card stands above the figures, between the HUD and their heads, with a pointer down to the speaker; not in the lower half. | In the lower half it hid the petitioner, the king and the benches, the story moment itself. Above them the hall stays in view and the HUD's numbers roll in their place after a choice. |
+| Odile's counsel is a small note at the top of the screen, where the strip rests during the audience. | Under the request it pushed the choices out of the card on a 17 Pro (round `lh-m3-b1`: the line was scrolled away). The top is empty during the audience: no travel is possible then. |
+| The throne without petitioners still opens the tax card; the lectern is its own target beside it. | The crown never does nothing, M2b's players find the taxes where they were, and the lectern serves while petitioners wait. |
+| A court member yields a close call to a place beside him (6 px). | Odile steps to the lectern now and then: without the bias the lectern's book and her bubble swapped under the king's feet. |
+| The Stranger waits at the gate all day (days 4 and 5), with the same card. | A dusk-only window would last 3 in-game hours (36 s) and is easy to miss; she stands in the gateway, the strip shows her lantern, and the horn still sends her away. |
+| Talking does not stop the clock and is a bubble, not a card; by day only. | A line is a moment in passing; at night the court keeps the hearth and the king the walls (and the night's action button stays light and patch). |
+| The speech mark shows a hint about today's petitions until the king heard the member today. | "Something new to say" that a player can act on; gossip without a hint does not nag. |
+| The audience's walk, the rooms' fades, the leavers and the court's breathing run on real time while the simulation stops. | The audience pauses the clock, but the hall must not freeze into a still picture. |
+| A court member who petitions comes in by the hall's door when his round is elsewhere. | Brannock's round is in the courtyard: crossing it in a second would be a sprint; the door is off screen from the throne. |
+| Figures inside a shut room are not drawn, and the room's warm light is out. | The art lane's note: a wall hides them; a hearth pool on the outer wall read as a fire outside. |
+| The five castle world changes without a contract sprite are procedural sprites. | SPRITES.md "M3" has no sprite for them and the art lane did not paint them; the lead can hand them over (their ids, sizes and places are above). |
+
+**Open points and notes for the lead**
+
+- T6 and T7 still fail exactly as in round `lh-m3-c3` (the content step's open point, unchanged by this step: the
+  same numbers in round `lh-m3-b1`). They wait for the lead's decision on the bands or the seeds.
+- The art lane's room PNGs (`hallFront`, `chapelInterior`, `kitchenInterior`, the touched-up `chapel` and `kitchen`)
+  are on `claude/lh-m3-art`; the anchors here are theirs. The bell overlay (`bellGone`) is painted in the colours of
+  their `chapelInterior` behind the bell; if they repaint the belfry it must follow.
+- The seated king (the art lane's `kingSeated` proposal) and sit frames for the benches are not in the contract: the
+  king stands at the throne during the audience and the petitioners stand at the benches.
+- The cart's lantern mask, the hall's glass masks and the room fires use the art lane's anchors; on this branch's
+  placeholders they now match too.
+- Reduce Motion: no walks, no fades (the fronts swap), no card transitions; the speech mark holds still.
 
 ## Risks
 

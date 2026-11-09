@@ -1231,122 +1231,253 @@ enum PlaceholderCourt {
 
     // MARK: - Rooms
 
-    /// The great hall's outer wall from the courtyard: stone, three tall windows with warm glass, the main door, two
-    /// banners of the realm.
+    /// The top row of each column of the rooms' silhouettes (run-length: top, columns), measured from the painted
+    /// `hallInterior`, `chapel` and `kitchen` in Resources/Art, so a placeholder front or interior keeps its room's
+    /// outline when the other fades (SPRITES.md: the fronts and the interiors match pixel for pixel).
+    static let hallTops: [(Int, Int)] = [
+        (12, 6), (0, 12), (12, 4), (13, 1), (12, 3), (13, 1), (14, 5), (15, 4), (14, 4), (15, 1), (14, 1), (13, 2),
+        (14, 1), (15, 2), (14, 5), (15, 4), (14, 4), (15, 1), (13, 3), (14, 1), (15, 2), (14, 4), (15, 4), (14, 4),
+        (15, 1), (14, 1), (13, 3), (15, 2), (14, 5), (15, 4), (14, 5), (13, 3), (14, 1), (15, 2), (14, 4), (15, 4),
+        (14, 5), (13, 3), (14, 1), (15, 2), (14, 4), (15, 4), (14, 4), (15, 1), (14, 1), (13, 3), (14, 5), (15, 4),
+        (14, 4), (15, 2), (14, 1), (13, 3), (14, 6), (15, 4), (14, 3), (15, 2), (14, 1), (13, 3), (14, 6), (15, 3),
+        (14, 4), (15, 2), (14, 1), (13, 3), (14, 1), (15, 1), (14, 4), (15, 4), (14, 5), (15, 1), (14, 1), (13, 3),
+        (14, 6), (15, 4), (14, 4), (13, 1), (12, 8), (5, 1), (0, 11), (3, 1), (4, 1), (12, 4),
+    ]
+    static let chapelTops: [(Int, Int)] = [
+        (95, 2), (91, 2), (74, 1), (73, 1), (60, 1), (59, 1), (45, 1), (44, 1), (43, 1), (42, 1), (39, 1), (14, 2),
+        (13, 3), (12, 1), (10, 1), (9, 1), (8, 1), (6, 1), (4, 1), (3, 1), (1, 2), (0, 1), (1, 2), (2, 1), (4, 1),
+        (5, 1), (7, 1), (8, 1), (10, 1), (12, 3), (13, 1), (14, 3), (26, 87), (25, 2), (24, 1), (23, 2), (24, 1),
+        (25, 1), (27, 2), (29, 1), (31, 1), (33, 1), (34, 1), (36, 2), (37, 1), (40, 1), (42, 1), (43, 1), (45, 2),
+        (46, 1), (59, 1), (60, 1), (73, 2), (74, 1), (91, 1), (95, 2),
+    ]
+    static let kitchenTops: [(Int, Int)] = [
+        (32, 2), (31, 1), (30, 2), (29, 1), (28, 2), (27, 1), (26, 2), (24, 2), (23, 2), (22, 1), (20, 1), (19, 1),
+        (18, 2), (15, 1), (10, 1), (9, 6), (10, 1), (11, 44), (1, 2), (0, 6), (1, 2), (0, 10), (1, 1), (0, 7), (1, 1),
+        (19, 1), (20, 1), (22, 1), (23, 2), (24, 1), (25, 1), (26, 2), (27, 1), (28, 2), (29, 1), (30, 2), (31, 1),
+        (32, 2),
+    ]
+
+    /// Clears every pixel above its column's top.
+    static func clip(_ p: inout Painter, tops: [(Int, Int)]) {
+        var x = 0
+        for (top, count) in tops {
+            for column in x..<(x + count) {
+                for y in 0..<min(top, p.height) { p.image[column, y] = RGBA(r: 0, g: 0, b: 0, a: 0) }
+            }
+            x += count
+        }
+    }
+
+    /// The column of a silhouette's top at `x`.
+    static func top(_ tops: [(Int, Int)], at x: Int) -> Int {
+        var start = 0
+        for (top, count) in tops {
+            if x < start + count { return top }
+            start += count
+        }
+        return 0
+    }
+
+    /// A tall two-light window: a stone frame, dark glass (the palette's night glass, which the engine lights at dusk)
+    /// with a mullion and a transom, a pointed head.
+    static func hallWindow(_ p: inout Painter, x: Int, top: Int, w: Int, h: Int) {
+        p.rect(x - 1, top - 1, w + 2, h + 2, Ink.stone[5])
+        p.arch(x, bottom: top + h - 1, w: w, h: h, RGBA(0x1C1838))
+        p.vline(x + w / 2, top + 3, top + h - 1, RGBA(0x0E0B1E))
+        p.hline(x, x + w - 1, top + h / 2, RGBA(0x0E0B1E))
+        p.hline(x - 2, x + w + 1, top + h + 1, Ink.stone[4])
+    }
+
+    /// The great hall's outer wall from the courtyard (inside `hallInterior`'s outline): stone courses under a slate
+    /// roof, the main door on the courtyard side with its two lanterns, three tall windows, two banners of the realm.
+    /// The windows, the lanterns and the light under the door sit at the art lane's anchors (ART-court.md).
     static func hallFront() -> PixelImage {
         var p = Painter(SpriteID.hallFront.size, salt: PlaceholderArt.stableSalt("hallFront"))
         let w = 260
         let h = 90
-        p.stoneBlocks(0, 10, w, h - 10, blockW: 10, blockH: 6, ramp: Ink.stone, key: 1)
-        p.rect(0, 4, w, 6, Ink.wood[1])
-        p.hline(0, w - 1, 4, Ink.wood[3])
-        p.stoneBlocks(0, 0, 20, 10, blockW: 10, blockH: 5, ramp: Ink.stone, key: 2)
-        p.stoneBlocks(240, 0, 20, 10, blockW: 10, blockH: 5, ramp: Ink.stone, key: 3)
-        p.crenellate(0, 19, top: 0, merlon: 4, gap: 3, depth: 3, ramp: Ink.stone)
-        p.crenellate(240, 259, top: 0, merlon: 4, gap: 3, depth: 3, ramp: Ink.stone)
-        for x in [40, 206] {
-            p.windowRecess(x, 24, w: 10, h: 30, frame: Ink.stone)
+        p.stoneBlocks(0, 0, w, h, blockW: 10, blockH: 6, ramp: Ink.stone, key: 1)
+        for x in 0..<w {
+            let roof = top(hallTops, at: x)
+            if roof <= 15 && x > 18 && x < 242 {
+                for y in roof..<min(h, roof + 7) {
+                    p.put(x, y, (x + y) % 5 == 0 ? Ink.slate[1] : Ink.slate[2 + (y - roof) % 2])
+                }
+                p.put(x, min(h - 1, roof + 7), Ink.stone[5])
+            }
         }
-        p.windowRecess(125, 14, w: 10, h: 22, frame: Ink.stone)
-        p.arch(115, bottom: h - 1, w: 30, h: 42, Ink.stone[0])
-        p.arch(117, bottom: h - 1, w: 26, h: 39, Ink.wood[2])
-        for y in stride(from: h - 32, to: h, by: 8) {
-            p.hline(117, 142, y, Ink.iron[2])
+        p.rect(0, h - 2, w, 2, Ink.stone[2])
+        // The door: a pointed arch of stone, oak leaves with iron straps, the gap under them.
+        p.arch(34, bottom: h - 9, w: 26, h: 40, Ink.stone[5])
+        p.arch(37, bottom: h - 9, w: 20, h: 36, Ink.wood[2])
+        p.vline(47, h - 44, h - 9, Ink.wood[1])
+        for y in stride(from: h - 36, to: h - 9, by: 9) { p.hline(37, 56, y, Ink.iron[2]) }
+        p.hline(38, 55, h - 9, RGBA(0x0E0B1E))
+        p.put(45, h - 24, Ink.gold[2])
+        p.put(49, h - 24, Ink.gold[2])
+        // The lanterns either side of the door, dark glass in iron.
+        for x in [26, 65] {
+            p.rect(x - 1, h - 37, 5, 5, Ink.iron[2])
+            p.rect(x, h - 36, 3, 3, RGBA(0x1C1838))
+            p.vline(x + 1, h - 40, h - 38, Ink.iron[1])
         }
-        p.vline(129, h - 38, h - 1, Ink.wood[1])
-        p.vline(130, h - 38, h - 1, Ink.wood[1])
-        PlaceholderBuildings.banner(&p, x: 88, top: 18, w: 12, h: 30)
-        PlaceholderBuildings.banner(&p, x: 160, top: 18, w: 12, h: 30)
+        // Three tall windows and two banners on the piers between them.
+        for x in [92, 135, 181] {
+            hallWindow(&p, x: x, top: h - 50, w: 9, h: 32)
+        }
+        PlaceholderBuildings.banner(&p, x: 112, top: 20, w: 12, h: 32)
+        PlaceholderBuildings.banner(&p, x: 157, top: 20, w: 12, h: 32)
+        clip(&p, tops: hallTops)
         return p.image
     }
 
-    /// The chapel of the Flame inside: the Flame's bowl on the altar, pews, the four lancets, candles, a relief of the
-    /// lamplighter saint.
+    /// The chapel of the Flame inside (inside `chapel`'s outline): a starry teal vault, the belfry with its bell, cream
+    /// walls on stone shafts with sconces, the four lancets in stained glass at the front's lancets, the lamplighter
+    /// saint painted over the altar, the altar with the Flame's bowl, candlesticks and candle stands, pews facing the
+    /// altar; the Flame, the candles and the lamp at the art lane's anchors.
     static func chapelInterior() -> PixelImage {
         var p = Painter(SpriteID.chapelInterior.size, salt: PlaceholderArt.stableSalt("chapelInterior"))
-        p.stoneBlocks(0, 0, 160, 90, blockW: 12, blockH: 7, ramp: Ink.stone, key: 4)
-        p.rect(0, 90, 160, 6, Ink.stone[1])
-        p.hline(0, 159, 89, Ink.stone[4])
-        for dx in [18, 54, 89, 125] {
-            p.windowRecess(dx, 28, w: 6, h: 14, frame: Ink.stone)
+        let w = 160
+        p.stoneBlocks(0, 0, w, 96, blockW: 12, blockH: 7, ramp: Ink.stone, key: 4)
+        // The vault and the gable: deep teal with gold stars.
+        let vault = [RGBA(0x16384A), RGBA(0x1E4A60)]
+        for x in 6..<154 {
+            let from = max(top(chapelTops, at: x) + 2, 16)
+            guard from < 40 else { continue }
+            for y in from..<40 {
+                p.put(x, y, vault[(x / 9 + y / 7) % 2])
+                if (x * 7 + y * 13) % 41 == 0 { p.put(x, y, Ink.gold[3]) }
+            }
         }
-        // The relief: the lamplighter saint with his pole, in pale stone.
-        let relief = Ink.stone[5]
-        p.rect(74, 14, 6, 5, relief)
-        p.rect(72, 19, 10, 16, relief)
-        p.vline(84, 10, 34, relief)
-        p.rect(83, 10, 3, 3, relief)
-        // The altar and the Flame's stone bowl.
-        p.rect(64, 72, 32, 17, Ink.stone[4])
-        p.hline(62, 97, 71, Ink.stone[5])
-        p.rect(73, 66, 14, 5, Ink.stone[2])
-        p.hline(72, 87, 66, Ink.stone[3])
-        p.rect(77, 61, 6, 5, Ink.fireOrange)
-        p.rect(78, 58, 4, 4, Ink.fireGold)
-        p.put(79, 57, Ink.fireWhite)
-        for x in [8, 34, 108, 134] {
-            p.rect(x, 80, 20, 3, Ink.wood[3])
-            p.rect(x, 74, 3, 9, Ink.wood[2])
-            p.vline(x + 18, 83, 88, Ink.wood[1])
-            p.vline(x + 1, 83, 88, Ink.wood[1])
+        p.hline(6, 153, 40, Ink.wood[2])
+        p.hline(6, 153, 41, Ink.gold[1])
+        // Cream walls below the vault, a red frieze, an oak wainscot.
+        p.rect(6, 42, 148, 38, Ink.plaster[3])
+        p.hline(6, 153, 43, Ink.ember)
+        p.rect(6, 76, 148, 12, Ink.wood[2])
+        p.hline(6, 153, 76, Ink.wood[3])
+        // The belfry and its bell.
+        p.rect(14, 15, 22, 12, Ink.soot[3])
+        for y in stride(from: 17, to: 26, by: 2) { p.hline(15, 34, y, Ink.wood[1]) }
+        p.rect(26, 17, 5, 6, Ink.gold[1])
+        p.rect(25, 22, 7, 2, Ink.gold[2])
+        p.put(28, 16, Ink.iron[2])
+        p.vline(28, 24, 70, Ink.plaster[1])
+        // Stone shafts with sconces.
+        for x in [42, 75] {
+            p.rect(x, 42, 4, 46, Ink.stone[4])
+            p.vline(x, 42, 87, Ink.stone[5])
+            p.rect(x, 58, 4, 2, Ink.iron[2])
+            p.vline(x + 1, 55, 57, Ink.plaster[3])
         }
-        for x in [58, 101] {
-            p.vline(x, 78, 88, Ink.plaster[3])
-            p.put(x, 77, Ink.fireGold)
+        // The four lancets in stained glass at the front's panes.
+        let panes: [(Int, Int)] = [(24, 10), (60, 10), (95, 10), (129, 9)]
+        for (x, width) in panes {
+            p.arch(x, bottom: 76, w: width, h: 24, Ink.banner[2])
+            for y in stride(from: 56, to: 76, by: 5) { p.hline(x, x + width - 1, y, Ink.gold[2]) }
+            p.vline(x + width / 2, 56, 75, Ink.banner[0])
+            p.rect(x + width / 2 - 1, 63, 3, 3, Ink.ember)
         }
+        // The lamplighter saint over the altar: a cream robe, a hood, his lantern raised, gold rays.
+        p.rect(108, 46, 14, 20, Ink.soot[3])
+        p.rect(112, 49, 6, 5, Ink.skin[2])
+        p.rect(111, 54, 8, 11, Ink.plaster[3])
+        p.vline(120, 47, 64, Ink.wood[3])
+        p.rect(119, 46, 3, 3, Ink.gold[3])
+        for (dx, dy) in [(-3, -2), (0, -4), (3, -2)] { p.put(115 + dx, 47 + dy, Ink.gold[2]) }
+        // The altar, the Flame's bowl on it, the candlesticks and the candle stands.
+        p.rect(100, 78, 30, 11, Ink.plaster[3])
+        p.rect(100, 78, 30, 2, Ink.gold[2])
+        p.rect(112, 83, 6, 4, Ink.gold[1])
+        p.rect(110, 74, 12, 4, Ink.stone[4])
+        p.hline(109, 122, 73, Ink.gold[2])
+        for x in [108, 124] {
+            p.vline(x, 70, 77, Ink.gold[2])
+            p.put(x, 69, Ink.plaster[3])
+        }
+        for x in [99, 133] {
+            p.vline(x, 79, 88, Ink.iron[2])
+            p.hline(x - 1, x + 1, 88, Ink.iron[2])
+            p.put(x, 78, Ink.plaster[3])
+        }
+        // The sanctuary lamp on its chain.
+        p.vline(142, 30, 53, Ink.iron[1])
+        p.rect(141, 54, 4, 4, Ink.iron[2])
+        p.rect(142, 55, 2, 2, RGBA(0x2A2230))
+        // Pews facing the altar, the floor and a red runner.
+        for x in [8, 28, 48, 68, 84] {
+            p.rect(x, 82, 14, 2, Ink.wood[3])
+            p.rect(x + 12, 76, 2, 12, Ink.wood[2])
+            p.vline(x + 1, 84, 88, Ink.wood[1])
+        }
+        p.rect(0, 89, w, 7, Ink.stone[2])
+        p.hline(0, w - 1, 89, Ink.stone[4])
+        p.rect(30, 90, 70, 2, RGBA(0x8E4A36))
+        clip(&p, tops: chapelTops)
         return p.image
     }
 
-    /// The castle kitchen: a big oven-hearth, hanging pots and herbs, a table with bread, barrels, sacks, a cat on a
-    /// stool.
+    /// The castle kitchen inside (inside `kitchen`'s outline): rafters under the roof, the stack, whitewashed walls
+    /// between timbers, the windows at the front's windows, the oven-hearth under the chimney on the right (its fire at
+    /// the art lane's anchor), the table with bread and a candle, barrels and sacks, hanging pots and herbs, the cat on
+    /// its stool by the fire.
     static func kitchenInterior() -> PixelImage {
         var p = Painter(SpriteID.kitchenInterior.size, salt: PlaceholderArt.stableSalt("kitchenInterior"))
-        p.stoneBlocks(0, 0, 120, 76, blockW: 10, blockH: 6, ramp: Ink.stone, key: 5)
-        p.rect(0, 76, 120, 4, Ink.stone[1])
-        for dx in [26, 79] {
-            p.windowRecess(dx, 32, w: 6, h: 8, frame: Ink.stone)
+        let w = 120
+        // The roof inside: rafters, then the walls.
+        for x in 0..<w {
+            let roof = top(kitchenTops, at: x)
+            for y in roof..<34 { p.put(x, y, (x + y) % 6 == 0 ? Ink.wood[1] : Ink.wood[2]) }
         }
-        // The oven-hearth.
-        let brick: [RGBA] = [RGBA(0x4A1E18), RGBA(0x6E2E20), RGBA(0x8E4A36), RGBA(0xB8664A), RGBA(0xDE9474)]
-        p.stoneBlocks(0, 26, 22, 50, blockW: 6, blockH: 4, ramp: brick, key: 6)
-        p.arch(3, bottom: 75, w: 16, h: 22, Ink.soot[2])
-        p.rect(6, 69, 10, 6, Ink.fireOrange)
-        p.rect(8, 66, 6, 4, Ink.fireGold)
-        // The beam with pots and herbs.
-        p.hline(30, 118, 12, Ink.wood[1])
-        p.hline(30, 118, 13, Ink.wood[2])
-        for x in [40, 52, 64] {
-            p.vline(x + 2, 14, 16, Ink.iron[3])
-            p.rect(x, 17, 5, 4, Ink.iron[2])
+        p.stoneBlocks(70, 0, 30, 34, blockW: 6, blockH: 5, ramp: Ink.stone, key: 5)
+        p.rect(0, 34, w, 42, Ink.plaster[3])
+        for x in [0, 26, 60, 118] { p.rect(x, 34, 2, 42, Ink.wood[2]) }
+        p.hline(0, w - 1, 34, Ink.wood[1])
+        p.hline(0, w - 1, 35, Ink.wood[3])
+        // The windows at the front's windows, daylight in their panes.
+        for x in [29, 83] {
+            p.rect(x - 1, 40, 11, 9, Ink.wood[1])
+            p.rect(x, 41, 9, 7, RGBA(0x9CCBDD))
+            p.vline(x + 4, 41, 47, Ink.wood[1])
+            p.hline(x, x + 8, 44, Ink.wood[1])
         }
-        for x in [92, 98, 104] {
-            p.vline(x, 14, 20, Ink.grass[2])
-            p.put(x - 1, 18, Ink.grass[3])
+        // Pots and herbs from a beam.
+        p.hline(40, 70, 37, Ink.wood[1])
+        for x in [44, 52, 60] {
+            p.rect(x, 39, 5, 4, RGBA(0xB8664A))
+            p.vline(x + 2, 37, 38, Ink.iron[2])
         }
-        // The table with bread.
-        p.rect(34, 60, 30, 3, Ink.wood[3])
-        p.vline(36, 63, 75, Ink.wood[1])
-        p.vline(61, 63, 75, Ink.wood[1])
-        p.rect(40, 57, 6, 3, Ink.wheat[2])
-        p.rect(50, 57, 5, 3, Ink.wheat[3])
-        // The cat on a stool.
-        p.rect(68, 66, 8, 2, Ink.wood[3])
-        p.vline(69, 68, 75, Ink.wood[1])
-        p.vline(74, 68, 75, Ink.wood[1])
-        p.rect(68, 61, 7, 5, Ink.iron[1])
-        p.put(68, 60, Ink.iron[1])
-        p.put(71, 60, Ink.iron[1])
-        p.put(70, 62, goldLight)
-        p.vline(75, 63, 66, Ink.iron[1])
-        // Sacks and barrels.
-        p.rect(82, 68, 8, 8, Ink.cloth[2])
-        p.rect(84, 66, 4, 2, Ink.cloth[3])
-        for x in [94, 106] {
-            p.rect(x, 58, 11, 18, Ink.wood[2])
-            p.hline(x, x + 10, 61, Ink.iron[2])
-            p.hline(x, x + 10, 72, Ink.iron[2])
-            p.vline(x, 58, 75, Ink.wood[3])
+        for x in [66, 68] { p.vline(x, 38, 44, Ink.grass[3]) }
+        // The oven-hearth under the chimney: a stone hood, the dark opening, logs.
+        p.stoneBlocks(88, 34, 28, 42, blockW: 6, blockH: 4, ramp: Ink.stone, key: 6)
+        p.rect(86, 46, 32, 3, Ink.wood[2])
+        p.arch(94, bottom: 75, w: 17, h: 22, Ink.soot[2])
+        p.rect(96, 72, 13, 3, Ink.wood[1])
+        p.hline(97, 107, 71, Ink.wood[3])
+        // The table with bread and a candle.
+        p.rect(28, 64, 34, 2, Ink.wood[3])
+        p.vline(30, 66, 75, Ink.wood[1])
+        p.vline(59, 66, 75, Ink.wood[1])
+        p.rect(32, 61, 7, 3, Ink.wheat[2])
+        p.rect(52, 62, 5, 2, Ink.wheat[3])
+        p.rect(46, 62, 2, 2, Ink.plaster[3])
+        // Barrels, sacks, the cat on its stool by the fire.
+        for x in [4, 15] {
+            p.rect(x, 62, 10, 14, Ink.wood[2])
+            p.hline(x, x + 9, 65, Ink.iron[2])
+            p.hline(x, x + 9, 72, Ink.iron[2])
         }
+        p.rect(64, 68, 8, 8, Ink.cloth[2])
+        p.rect(66, 66, 4, 2, Ink.cloth[3])
+        p.rect(78, 69, 9, 2, Ink.wood[3])
+        p.vline(79, 71, 75, Ink.wood[1])
+        p.vline(85, 71, 75, Ink.wood[1])
+        p.rect(78, 64, 8, 5, RGBA(0xE08448))
+        p.put(78, 63, RGBA(0xE08448))
+        p.put(81, 63, RGBA(0xE08448))
+        p.rect(80, 66, 3, 2, RGBA(0xECEAEE))
+        p.rect(0, 76, w, 4, Ink.stone[2])
+        p.hline(0, w - 1, 76, Ink.stone[4])
+        clip(&p, tops: kitchenTops)
         return p.image
     }
 

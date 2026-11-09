@@ -628,6 +628,17 @@
         }
       }
     },
+    "Fog tonight" : {
+      "comment" : "VoiceOver: a choice brings fog to the coming night.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute Nacht Nebel"
+          }
+        }
+      }
+    },
     "Gate" : {
       "comment" : "Build item: the gatehouse's first tier.",
       "localizations" : {
@@ -1801,6 +1812,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Die Kriegssteuer ist möglich"
+          }
+        }
+      }
+    },
+    "Tonight %lld fewer creatures" : {
+      "comment" : "VoiceOver: a choice takes creatures out of the coming night.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute Nacht %lld Kreaturen weniger"
+          }
+        }
+      }
+    },
+    "Tonight's attack %@" : {
+      "comment" : "VoiceOver: a choice makes the coming night's attack smaller or bigger; a signed percentage.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angriff heute Nacht %@"
           }
         }
       }
