@@ -87,7 +87,11 @@ build() { # name: one sprite
                    mkdir -p $PT
                    python3 $T convert $M/props-a-1.png $PT/beacon-raw.png --size 64x130 --box 360,18,620,492 --only $CAS,leafDark,leaf,meadow --outline ink --outline-skip-bottom
                    python3 $T compose $A/beaconRuin.png --size 64x130 --layer $PT/beacon-raw.png@0,29@box=0,29,64,130 --layer $PT/beacon-raw.png@0,22@box=0,22,19,29 --layer $PT/beacon-raw.png@42,22@box=42,22,64,29 --layer $PT/beacon-raw.png@17,5@box=17,0,45,29 ;;
-    riverEnd)      python3 $T convert $M/props-a-1.png $A/riverEnd.png --size 220x64 --box 28,512,1516,740 --only leafDark,leaf,meadow,leafLight,soilDark,soil,stoneDark,stoneMid,stone,stoneLight,waterDeep,daySky,foam,woodDark,wood,ink,roofDeep ;;
+    riverEnd)      # procedural bank, water and bridge piers; the painted reeds and cattails on top
+                   mkdir -p $PT
+                   python3 $PROC riverbase $PT/river-base.png
+                   python3 $T convert $M/props-a-1.png $PT/reeds.png --size 64x40 --box 1150,515,1516,700 --only leafDark,leaf,meadow,woodDark,wood,soilDark
+                   python3 $T compose $A/riverEnd.png --size 220x64 --layer $PT/river-base.png@0,0 --layer $PT/reeds.png@156,22 --layer $PT/reeds.png@46,22@box=0,10,22,40 ;;
     fgRockA)       python3 $PROC fgrock $A/fgRockA.png --style a ;;
     fgRockB)       python3 $PROC fgrock $A/fgRockB.png --style b ;;
     fgRockC)       python3 $PROC fgrock $A/fgRockC.png --style c ;;

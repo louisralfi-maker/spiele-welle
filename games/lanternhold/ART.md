@@ -186,3 +186,132 @@ time; the auto key handles it.
 - Window glow offsets for chapel, kitchen and house (table above).
 - The mid-plane cliffs are as bright as the world plane in daylight albedo; depth separation relies on the engine's
   fog and the 0.85 shade.
+
+# Milestone M1b: the gorge, the castle that seals it, the open valley (09.11.2026)
+
+Louis on 09.11.: the game must be "extrem schön"; in the first mock the castle looked small and did not block the only
+way out of the gorge, and the town stood under the cliffs. M1b adds 25 sprites for the new world (DESIGN.md "The world",
+"The castle", decisions log) and the layout they are placed by. The old gorgeCliff, waterfall, gorgeEndCliff,
+gatehouse, castleTower and backGate files stay; the M1b scene no longer uses them.
+
+## M1b credits
+
+Recraft (`recraftv4_1`, 35 per image): **1021 before, 706 after: 315 spent** on 9 generations (budget 450 for all of
+M1b). The fg rocks, the overhangs and the river's bank, water and bridge piers are procedural (`tools/procart.py`); no
+palette colours were added (the 48 cover the valley's greens and the castle).
+
+## M1b pipeline additions
+
+- `pixelart.py split <in> <A> <B> <C>`: cuts a seamless `--tile` panorama into equal tiles that join A-B-C-A.
+- `pixelart.py compose <out> --size WxH --layer path@x,y[@flip][@box=…]`: stacks finished sprites (hero pieces built
+  from parts of two paintings, a part moved inside a sprite).
+- `convert --fill-holes NAME:rect`: paints only transparent pixels (a see-through gateway becomes a dark passage).
+- `tools/procart.py fgrock|overhang|riverbase`: seeded silhouettes and the river base, exactly reproducible.
+- Intermediate parts go to `build/recraft/lh/m1b/parts/`; the paintings are `build/recraft/lh/m1b/*-1.png`
+  (git-ignored). `build-art.sh` rebuilds every M1b sprite (group names `gorgeWall`, `valleyFar`, `valleyMid` write
+  their three tiles).
+
+## M1b assets
+
+| Sprite | Size | Plane | Source | Notes |
+|---|---|---|---|---|
+| `gorgeWallA`, `gorgeWallB`, `gorgeWallC` | 192x190 each | mid | `gorgewall-a` full width | one panorama at 576x190 (`--tile`, `--sat 1.5` so the moss maps to leaf), cut A-B-C; jagged top 105 to 190 px, dead trees, the rock-cut stair (B), the cave mouth (B/C), ledges with moss; no straw tones (ochre maps to rock) |
+| `gorgeWallHigh` | 192x240 | mid (and world, see layout) | `rocks-a` left | the high rock at 180x240 composed over gorgeWallA's first 40 columns (bottom-aligned), so its left edge carries on from gorgeWallC; overhang at the top right |
+| `wardenStatue` | 96x200 | mid | `statue-a` | robed, crowned, bearded king holding a lantern bowl before his chest; the bowl's hollow filled `night0` at x 37-59, rows 43-46 (the scene's fire: `hearthFire` at dx 40, dy 153) |
+| `fgRockA`, `fgRockB`, `fgRockC` | 96x36 each | fg | `procart.py fgrock --style a/b/c` | rockDeep boulders over a soilDark band, a broken rockDark rim, ferns and grass in leafDark, roots (C); flat bottom, the profile falls to nothing at both ends |
+| `fgOverhangA`, `fgOverhangB` | 128x48 each | fg | `procart.py overhang --style a/b` | flat top, ragged underside with two lobes, thin lips at the ends, hanging roots (soilDark, woodDark) and vines with leaves |
+| `cliffFlank` | 80x240 | world | `rocks-a` middle | natural rock (columns 11-44) turning into fitted grey-violet masonry (columns 45-65) on the right; mirrored for the right side |
+| `castleFront` | 240x236 | world | composed: towers from `castlefront-b` (left tower, 58x236, `--gain 1.1`, mirrored for the right), gatehouse from `castlefront-a` (132x156 at x 54, y 80, `--gain 0.86`, the painting's tower corners cleared) | towers 0-57 and 182-239 to the top edge, crenellated on corbels, six arrow slits each (x 29-34 / 205-210); gatehouse x 54-185, 156 px: wall walk at y 124 (merlon tops 127), two brazier niches (dark x 87-107 and 132-153, rows 91-105: `brazierFlame` at dx 93 / 138, dy 130), torch brackets (flame at dx 90 / 145, dy 61), gateway x 97-143, 83 px high (wider and taller than the 40x56 asked: the king and soldiers pass with room), raised portcullis in the arch, two teal banners with a gold lantern |
+| `castleKeep` | 150x250 | world, behind the gatehouse | `keepgate-a` left | three-quarter view: square keep, four corner turrets with teal cones and pennants, a central slate roof, a long teal banner; the painting's shaded left face lifted with zones (albedo), dark windows (masks in the layout) |
+| `castleBackGate` | 200x200 | world | `keepgate-a` right | two small towers with teal cones and pennants, banners, open wooden doors; the see-through gateway filled `night1` (`--fill-holes`), the keyed-out flower boxes refilled `tileLight`; lantern glass x 39-43 and 155-159 (dy 60), windows in the layout |
+| `gorgeMouth` | 120x230 | mid | `rocks-a` right | a crag on the left stepping down into grassy slopes with trees and bushes (squeezed 0.64x: reads as a steep crag) |
+| `valleyFarA`, `B`, `C` | 192x90 each | far | `valleyfar-a` box 210,280,1450,560 | one panorama (`--tile`): snowy pale ranges in `farDeep`/`far`/`moon`/`farPale`/`foam` (no green was needed); the layout raises them to y 55 so they show above the hills |
+| `valleyMidA`, `B`, `C` | 192x110 each | mid | `valleymid-a` box 0,300,1536,545 | one panorama (`--tile`, `--warm 12` so the teal hill shadows map to green): rolling hills, a forest edge, hedged wheat fields, far farmhouses and the winding river; hill tops 69 to 110 px |
+| `windmill` | 40x60 | mid | `props-a` top right | stone tower, wooden cap, four lattice sails (static) on a grassy knoll |
+| `beaconRuin` | 64x130 | world | `props-a` top left | broken round tower with ivy and fallen stones; the painted fire cage floated above it and is set down into the broken top (compose) |
+| `riverEnd` | 220x64 | world (y -26) | `procart.py riverbase` + `props-a` reeds | the bank level with the ground tile at its left edge (row 38), sloping to the water at row 50; water to the right edge with ripples and a darker dithered bottom; two bridge piers with broken arch springers reaching for each other; the painted reeds and cattails at the right end and by the bank |
+
+## M1b paintings and prompts
+
+All end with the shared finish of milestone 1 ("Crisp detailed 16-bit pixel art, side view, … isolated on a flat solid
+pure magenta #FF00FF background, no text, no border."; the two valley panoramas say "no clouds" and drop the fire and
+smoke clauses).
+
+1. `castlefront-a` (1:1), used: the gatehouse. "the mighty front facade of a medieval fortress that seals a mountain
+   pass, seen straight on, perfectly symmetric … two massive round stone towers … a tall wide gatehouse … two square
+   stone brazier niches on its battlements, a deep round-arched gateway … a raised iron portcullis grid … iron torch
+   brackets … two long teal-blue banners, each with a small gold lantern emblem …" Reject: its towers (squat, each 37 %
+   of the width: the whole read as a toy fort).
+2. `castlefront-b` (4:5), used: the towers. "the towering front of a huge medieval fortress that blocks a narrow
+   mountain gorge … taller than wide … two tall slender round towers … each four times taller than wide … overhanging
+   crenellated battlements on stone corbels and many narrow arrow slits …" Reject: its gatehouse (narrow and tall).
+3. `gorgewall-a` (2:1), all used. "one long continuous natural sandstone cliff face, the far wall of a deep mountain
+   gorge seen straight on, a wide panorama … filling the lower three quarters … jagged irregular skyline … gnarled dead
+   trees and dangling roots along the rim … deep vertical fractures … one dark cave mouth … a narrow stair cut into the
+   rock … Natural organic rock only: no bricks, no masonry, no blocks, no pillars, no columns, no repeated shapes …"
+4. `rocks-a` (2:1), all used: gorgeWallHigh, cliffFlank, gorgeMouth. "three separate natural rock pieces of a deep
+   mountain gorge … Left: a towering massive cliff wall … rising from a lower jagged shoulder on the left to an
+   overhanging crag … Middle: a tall narrow rock buttress … natural rugged rock on its left side that gradually turns
+   into rough fitted castle masonry of grey-violet stone blocks along its straight right edge … Right: the end of a
+   gorge, a tall rocky crag on the left that falls away to the right in big steps and ledges into green grassy slopes …"
+5. `statue-a` (1:2), used. "a colossal ancient statue of a robed king carved out of a sandstone cliff, front view …
+   a simple crown and a long hooded robe … with both hands he holds a large round stone lantern bowl raised high in
+   front of his chest, the hollow of the bowl empty and dark … weathered and eroded: deep cracks, chipped edges, moss
+   and small ferns …"
+6. `keepgate-a` (2:1), used: castleKeep, castleBackGate. "Left: a tall square castle keep, almost twice as tall as
+   wide … four slender round corner turrets with pointed teal-blue slate cone roofs and small teal pennant flags … Right:
+   a friendly castle back gate … two smaller round towers … a wide open round-arched gateway, its heavy wooden doors
+   swung open … two iron lanterns with dark unlit glass … wooden flower boxes with red and yellow flowers …" The keep
+   came in three-quarter view; the gateway was painted see-through.
+7. `valleyfar-a` (2:1), used. "a long distant panorama of far-away mountains seen across a wide valley … a few broad
+   snow-capped summits, long gentle ridges … two or three hazy layers … Soft aerial perspective, only cool hazy
+   colours …" It came boat-shaped (the sides slant in); the box keeps the full-width band.
+8. `valleymid-a` (2:1), used. "a long panorama of a wide green river valley in the middle distance … gently rolling
+   green hills … patchwork fields of green and golden wheat divided by dark hedgerows; the dark edge of a forest of
+   round trees … a winding pale blue river glinting between the lower hills …" Its dark bottom band was the most common
+   border colour, so the key is given explicitly (`--key '#EC149C'`).
+9. `props-a` (2:1), used: beaconRuin, windmill, the reeds. "Top left: a tall ruined stone beacon tower … an empty
+   black iron fire cage basket standing on the broken top … Top right: a small round stone windmill … four big lattice
+   sails … Bottom, spanning the full width: a long low side-view cross-section of a riverbank … two broken stone stumps
+   of an old arched bridge standing in the water, tall reeds and cattails …" Reject: the river strip (its bank rose 50
+   px above the water, which cannot sit below a ground line with 26 rows under it; the stumps read as boulders).
+
+## M1b composition (`tools/scenemock/`)
+
+- `layout_m1b.py` is the world as data, for the Swift port: planes and parallax, the backdrop borders (far 641, mid
+  1274, world 2330 = the back gate's passage, fg 2964), tile cycles, every instance with plane, x, y, z, flip, shade,
+  emitters (emissive sprites and window-glass masks) and lights. Gameplay positions are unchanged (beacon 470, lines
+  640 and 940, gate 1300-1420); the town and the river moved 100 px right (world 3900 wide).
+- `mock.py` is the renderer agent's pure-python composite with `layout=m1b`; `run_m1b.sh` renders the seven shots
+  (`build/recraft/lh/preview/m1b-*.png`, 437x201 upscaled x3, about 3 s each).
+- Decisions from the mocks:
+  - The keep stands centred behind the gatehouse (x 1286), not behind the hall: from the gorge it fills the gap
+    between the towers above the wall walk, which makes the front read as one fortress. It cannot also be seen from the
+    town on the world plane (no camera shows both 1300 and 2400), so the same sprite stands on the mid plane at 1240:
+    from the town it rises behind the hills at the left, beyond the back gate; the two copies are never on screen
+    together.
+  - The throat is one mass of rock on the world plane: gorgeWallHigh (mirrored on the left) stands behind each
+    cliffFlank. A lone flank read as a giant tree trunk; with the high rock behind it the front sits between two cliffs
+    that rise above the screen.
+  - The warden statue stands 34 px low (plinth behind the ground strip) so the crown and the bowl fire stay on screen.
+  - Far and mid valley sets start with a lead-in tile left of their border (the first tile's left edge is a straight
+    cut); it is hidden behind the gorge mouth and the 200 px back gate at the back-gate view.
+
+## M1b lessons
+
+- Two paintings can make one hero piece: the best towers of one and the best gatehouse of the other, composed in palette
+  space, with `--gain` to match their values. Near-square output makes this the only way to exact proportions.
+- A side-view river cannot be painted as a bank above the water: water must lie below the ground line, and only 26
+  rows exist there. Procedural base plus painted reeds solved it.
+- A rock piece alone in front of a darker backdrop reads as a tree trunk; give it mass behind it.
+- Big flat key-coloured holes inside a sprite (an open gateway) survive `--flood` keying as key colour and map to the
+  nearest palette colour; key normally and refill with `--fill-holes`.
+
+## M1b open points
+
+- The castle front and back gate are front views and the keep a three-quarter view; side by side in the courtyard this
+  is acceptable, but a later repaint of the keep in front view would be cleaner.
+- The courtyard still shows only the old curtain wall and the well (barracks, smithy and lodge are later art).
+- The statue is faint by day (carved rock in the same ochre as the wall); at night its bowl fire carries it.
+- The engine needs: the `anchor: top` placement for the overhangs, window-glass masks from rects (or windowGlow sprites
+  at the listed offsets), mid-plane lights (the statue's fire), and a world width of 3900.

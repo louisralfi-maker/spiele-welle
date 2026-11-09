@@ -9,6 +9,11 @@ exactly reproducible.
                                                             bottom edge, the profile falls to nothing at both ends
   procart.py overhang  <out.png> --style a|b   [--seed N]   128x48 rock lip for the top edge of the screen: flat top
                                                             edge, ragged underside, hanging roots and vines
+  procart.py riverbase <out.png> [--seed N]                 220x64 base of riverEnd (placed at y -26): the grass
+                                                            bank level with the ground tile at its left edge (row 38)
+                                                            slopes down to the water at row 50; water to the right
+                                                            edge and the bottom; tile/build-art.sh adds the painted
+                                                            bridge stumps and reeds
 
 Colours: rockDeep, soilDark, leafDark, with sparse rockDark rims, leaf tips and woodDark roots (all albedo).
 """
@@ -232,6 +237,109 @@ def cmd_overhang(a):
     c.save(a.output)
 
 
+def bayer4(x, y):
+    m = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
+    return (m[(y & 3) * 4 + (x & 3)] + 0.5) / 16
+
+
+def cmd_riverbase(a):
+    pal = Palette(a.palette, True)
+    W, H, GL, WS = 220, 64, 38, 50
+    rng = random.Random(a.seed * 31337)
+    c = Canvas(W, H, pal)
+    wob = value_noise(rng, W, 9)
+    surf = []
+    for x in range(W):
+        t = min(1.0, max(0.0, (x - 12) / 58))
+        t = t * t * (3 - 2 * t)
+        surf.append(int(round(GL + (WS + 2 - GL) * t + (wob[x] * 0.8 if 0.05 < t < 0.95 else 0))))
+    for x in range(W):
+        top = surf[x]
+        if top >= WS:
+            continue
+        for y in range(top, H):
+            d = y - top
+            if d < 4:
+                n = "leaf"
+            elif d < 6:
+                n = "leafDark"
+            elif y >= H - 2:
+                n = "soilDark" if (x + y) % 3 else "stoneDark"
+            elif y >= H - 4:
+                n = "stoneMid" if rng.random() < 0.6 else "soilLight"
+            else:
+                n = "soilLight"
+                if rng.random() < 0.06:
+                    n = rng.choice(("rockLight", "stone", "stoneLight", "rockDark"))
+            c.put(x, y, n)
+        if top > GL + 1:  # the wet mud edge where the bank meets the water
+            c.put(x, top, "soil" if rng.random() < 0.5 else "leaf")
+    for x in range(W):
+        for y in range(WS, H):
+            if c.get(x, y) is not None and surf[x] < WS - 1:
+                continue
+            d = (y - WS) / (H - 1 - WS)
+            n = "waterDeep"
+            if y == WS:
+                n = "daySky" if (x // 3 + x // 7) % 3 else "foam"
+            elif y == WS + 1:
+                n = "daySky" if bayer4(x, y) < 0.5 else "waterDeep"
+            elif d > 0.62 and bayer4(x, y) < (d - 0.62) * 2.2:
+                n = "roofDeep"
+            c.put(x, y, n)
+        # mud under the water's edge near the bank
+        if x < 78 and surf[x] >= WS - 1:
+            for y in range(max(WS + 2, surf[x]), H):
+                if rng.random() < 0.5:
+                    c.put(x, y, "soil")
+    for _ in range(26):  # ripples
+        x = rng.randint(70, W - 6)
+        y = rng.randint(WS + 3, H - 4)
+        for k in range(rng.randint(2, 5)):
+            c.put(x + k, y, "daySky")
+    # two piers of the old bridge, their broken arch springers reaching towards each other
+    for px0, pw, top, side in ((98, 15, 24, 1), (158, 15, 29, -1)):
+        brk = value_noise(rng, 40, 3)
+        for x in range(px0, px0 + pw):
+            for y in range(top + int(abs(brk[x - px0]) * 3), H):
+                col = x - px0
+                course = (y - top) // 4
+                joint = (col + (2 if course % 2 else 0)) % 6 == 0
+                n = "stone"
+                if (y - top) % 4 == 3 or joint:
+                    n = "stoneDark"
+                elif col == pw - 1 or col == pw - 2:
+                    n = "stoneMid"
+                elif col < 2 or (y - top) % 4 == 0:
+                    n = "stoneLight"
+                if col in (0, pw - 1):
+                    n = "ink" if col == pw - 1 else n
+                if WS - 3 <= y <= WS:
+                    n = "leafDark" if rng.random() < 0.6 else "stoneDark"  # moss and the wet line
+                c.put(x, y, n)
+        # the springer: the arch starts curving out over the water from the pier's top
+        for k in range(10):
+            x = px0 + (pw - 1 + k if side > 0 else -k)
+            y0 = top + (k * k) // 12
+            th = 8 - k // 3
+            for y in range(y0, y0 + th):
+                n = "stoneLight" if y == y0 else ("stoneDark" if y == y0 + th - 1 else "stone")
+                if (y - y0) == 3 and k % 4 != 1:
+                    n = "stoneMid"
+                c.put(x, y, n)
+        for y in range(WS + 1, H):  # the water stays in front of the pier bases
+            for x in range(px0 - 1, px0 + pw + 1):
+                d = (y - WS) / (H - 1 - WS)
+                if y > WS + 1 or bayer4(x, y) >= 0.5:
+                    c.put(x, y, "waterDeep" if d < 0.62 or bayer4(x, y) >= (d - 0.62) * 2.2 else "roofDeep")
+    for x in range(0, 60):  # grass tufts on the bank
+        if rng.random() < 0.35:
+            h = rng.randint(1, 3)
+            for k in range(h):
+                c.put(x, surf[x] - 1 - k, "leafDark" if k else "leaf")
+    c.save(a.output)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -247,6 +355,11 @@ def main():
     o.add_argument("--seed", type=int, default=1)
     o.add_argument("--palette", default=DEFAULT_PALETTE)
     o.set_defaults(fn=cmd_overhang)
+    rb = sub.add_parser("riverbase")
+    rb.add_argument("output")
+    rb.add_argument("--seed", type=int, default=1)
+    rb.add_argument("--palette", default=DEFAULT_PALETTE)
+    rb.set_defaults(fn=cmd_riverbase)
     a = p.parse_args()
     a.fn(a)
 
