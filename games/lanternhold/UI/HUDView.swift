@@ -106,7 +106,7 @@ struct GameHUD: View {
                     }
                 }
             }
-            .frame(width: geometry.size.width, height: geometry.size.height)
+            .frame(width: geometry.size.width, height: geometry.size.height, alignment: .top)
         }
         .padding(.horizontal, 8)
         .padding(.top, 6)
