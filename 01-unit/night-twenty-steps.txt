@@ -1,0 +1,3 @@
+seed 1: 1/60 s fell true at 498, walls ["l3.wall@44", "l2.wall@61", "l1.wall@97"], hearth reached 105, fallen 0, killed 106 | 0.1 s fell true at 497, walls ["l3.wall@44", "l2.wall@61", "l1.wall@97"], hearth reached 105, fallen 0, killed 109
+seed 2: 1/60 s fell false at -, walls ["l3.wall@38", "l2.wall@56", "l1.wall@94"], hearth reached -, fallen 1, killed 138 | 0.1 s fell false at -, walls ["l3.wall@38", "l2.wall@57", "l1.wall@94"], hearth reached 113, fallen 1, killed 138
+seed 3: 1/60 s fell true at 496, walls ["l3.wall@41", "l2.wall@59", "l1.wall@95"], hearth reached 103, fallen 0, killed 109 | 0.1 s fell true at 476, walls ["l3.wall@41", "l2.wall@59", "l1.wall@94"], hearth reached 102, fallen 4, killed 104
