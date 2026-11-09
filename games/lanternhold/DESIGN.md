@@ -1632,6 +1632,9 @@ austere or ask the lead to widen T5 (a petition-rich realm builds faster by desi
   dawn report names "Petitioners unheard −1": the UI test never sat on the throne, so the tutorial's farmer went home
   at the horn. The light probe, the mid-chapter, finale and first-day shots are unchanged (nothing of the court is drawn
   yet).
+- `lh-m3-a3` (build, unit, ui) on `0dee55b` (the per-step checks copy nothing while nothing changes): ALL PASSED,
+  the final round of this step: 294 unit tests, every UI test in English, T1 to T8 as above, the validator without a
+  problem; no compiler warning from the game's code.
 
 ## Risks
 
