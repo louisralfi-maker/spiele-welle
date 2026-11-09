@@ -1,0 +1,1 @@
+XCTAssertTrue failed - T6 FAIL night 20 won with the beacon 10/10 (target >= 8), without (same realm, last stage taken away) 10/10 (target 3-6), falls at [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; reported only: a bot that never builds the beacon holds night 20 in 10/10, falls [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (night × 1000 + hour × 100)
