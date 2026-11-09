@@ -45,13 +45,15 @@ def mask(dx, dy, w, h):
 
 # --- the defence line (middle line, wall 940, tower 978, braziers 896/920, engine 990, trap 860) -----------------------
 
-def line_props(day):
-    """The middle line built up: a fire tower in the second brazier's slot, an archer tower, a catapult behind the wall,
-    a stake pit in front."""
+def line_props(day, tower='archerTower'):
+    """The middle line built up: a fire tower in the second brazier's slot, a tower (the archer tower, or the
+    watchtower by day), a catapult behind the wall, a stake pit in front."""
+    # the watchtower stands clear of the wider bastion (the archer tower overlaps the stone wall's back by 8 px)
+    tx, ex_ = (968, 990) if tower == 'archerTower' else (981, 1008)
     return [
         prop('fireTower', x=913, z=3, em=[('sprite', 'brazierFlame', 3, 37, 'fireOrange', False)], li=[('brazier', 920, 43, 90)]),
-        prop('archerTower', x=968, z=2),
-        prop('catapult', x=990, z=1, frame=0 if day else 2),
+        prop(tower, x=tx, z=2),
+        prop('catapult', x=ex_, z=1, frame=0 if day else 2),
         prop('stakePit', x=848, z=2, frame=0),
     ]
 
@@ -78,15 +80,16 @@ def scene_line_night():
 
 
 def scene_line_day():
-    ex = line_props(day=True)
+    # the line upgraded by day: the watchtower (tier 2) behind a bastion still in its scaffold
+    ex = line_props(day=True, tower='watchtower')
     ex += [
         prop('bastion', x=936, z=1),
         # the scaffold over the bastion being built (two tiles), a builder hammering on its upper deck, one carrying in
         prop('scaffold', x=934, z=6), prop('scaffold', x=958, z=6),
         prop('builder', cx=951, y=28, frame=4, z=8), prop('builder', cx=916, frame=1, z=8),
-        prop('archer', cx=974, y=42, frame=0, f=True, z=8),
+        prop('archer', cx=987, y=52, frame=0, f=True, z=8), prop('archer', cx=998, y=52, frame=1, f=True, z=8),
     ]
-    return dict(focus=930, tod=0.5, drop=[('brazier', 915), ('stoneWall', 940)], extras=ex, king=1030)
+    return dict(focus=930, tod=0.5, drop=[('brazier', 915), ('stoneWall', 940)], extras=ex, king=1052)
 
 
 # --- the castle gate ---------------------------------------------------------------------------------------------------
@@ -95,13 +98,13 @@ def wall_archers():
     return [prop('archer', cx=F + cx, y=LM.WALKWAY_Y, frame=fr, f=fl, z=8) for cx, fr, fl in ((66, 2, True), (121, 0, True), (173, 3, False))]
 
 
-def scene_gate(tier, frame=0):
+def scene_gate(tier, frame=0, tod=0.95):
     ex = [prop(tier, x=1337, z=6, frame=frame)] + wall_archers()
     if tier == 'gateBroken':
         # creatures pouring through the breach, past the wreck of the gate
         ex += [prop('sootling', cx=1392, frame=1, glow='sootlingGlow', z=9), prop('sootlingB', cx=1405, frame=3, glow='sootlingBGlow', z=9),
                prop('sootling', cx=1318, frame=2, glow='sootlingGlow', z=9), dict(li=[['fireArrow', 1352, 4, 22]])]
-    return dict(focus=1360, tod=0.95, drop=[], extras=ex, king=1296)
+    return dict(focus=1360, tod=tod, drop=[], extras=ex, king=1296)
 
 
 # --- the Great Beacon ----------------------------------------------------------------------------------------------------
@@ -138,6 +141,21 @@ def scene_courtyard():
     return dict(focus=1600, tod=0.77, drop=[('well', 1600)], extras=ex, king=1598)
 
 
+def scene_courtyard_grown():
+    # the courtyard upgraded: the master smithy and the big lodge in the smithy's and the lodge's places
+    ex = [
+        prop('barracks', x=1480, z=1,
+             em=[mask(8, 26, 4, 4), mask(21, 26, 4, 4), mask(39, 26, 4, 4), mask(52, 26, 4, 4), mask(23, 14, 1, 2), mask(41, 14, 1, 2)],
+             li=[('window', 1490, 28, 8), ('window', 1521, 28, 8), ('lantern', 1503, 16, 20), ('lantern', 1521, 16, 20)]),
+        prop('masterSmithy', x=1550, z=1, em=[('sprite', 'hearthFire', 13, 13, 'fireOrange', False), mask(20, 41, 4, 4), mask(47, 16, 4, 4)],
+             li=[('brazier', 1571, 16, 48), ('window', 1572, 43, 8)]),
+        prop('bigLodge', x=1636, z=1, em=[mask(9, 26, 3, 4), mask(22, 26, 3, 4), mask(35, 26, 3, 4), mask(47, 26, 3, 4)],
+             li=[('window', 1647, 28, 8), ('window', 1673, 28, 8)]),
+        prop('guardsman', cx=1512, frame=0, z=8), prop('builder', cx=1626, frame=4, z=8),
+    ]
+    return dict(focus=1600, tod=0.77, drop=[('well', 1600)], extras=ex, king=1612)
+
+
 # --- the town --------------------------------------------------------------------------------------------------------------
 
 def town_props():
@@ -169,6 +187,9 @@ SCENES = {
     'beacon-night': scene_beacon_night,
     'beacon-day': scene_beacon_day,
     'courtyard-dusk': scene_courtyard,
+    'courtyard-grown': scene_courtyard_grown,
+    'gate-iron-damaged': lambda: scene_gate('gateIron', 1),
+    'gate-great-open-day': lambda: scene_gate('gateGreat', 2, 0.5),
     'town-golden': lambda: scene_town(0.75, 3000),
     'town-night': lambda: scene_town(0.95, 3000),
     'market-golden': lambda: scene_town(0.75, 3270),

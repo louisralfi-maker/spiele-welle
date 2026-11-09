@@ -8,7 +8,10 @@ the palette and the lessons this builds on.
 
 ## Credits
 
-Recraft (`bash tools/recraft.sh`, `recraftv4_1`, 35 credits per image), budget 150 for this lane:
+Recraft (`bash tools/recraft.sh`, `recraftv4_1`, 35 credits per image), budget 150 for this lane: **601 before, 496
+after my three sheets: 105 spent** (the balance read 391 at the end; the actors lane spent the other 105 in between).
+The raws are `build/recraft/lh/bld/<sheet>-1.png` (git-ignored), the prompts in `build/recraft/lh/bld/prompts.txt` and
+below.
 
 | Sheet | Balance before | after |
 |---|---|---|
@@ -22,11 +25,16 @@ Recraft (`bash tools/recraft.sh`, `recraftv4_1`, 35 credits per image), budget 1
   `tools/grids/buildings/<id>.txt`, built with `pixelart.py grid`. The grids were drawn with throwaway helpers (a
   masonry painter in the stoneWall's block language, plank, strap and log brushes) and then tuned by eye; the grid
   files are the source.
-- Recraft sheets plus `pixelart.py convert` for the big buildings (see the sprite table for each).
+- Recraft sheets for the big ones: `beacon-a` (the beacon, the bastion, the watchtower), `court-a` (the five courtyard
+  buildings) and `town-a` (big house, market, tavern). Only `town-a` converted well enough to keep pixels (the roofs of
+  the big house and the tavern); the others gave the designs, which are hand-set as grids (why: see the courtyard note
+  below; the beacon's and the bastion's bricks were 4 to 6 px in the paintings and turned to noise).
 - Every two- and three-frame sprite keeps frame 0 where SPRITES.md says the old one-frame PNG stays: `palisade`,
   `stoneWall` and `ballista` frame 0 are byte for byte the milestone 1 pixels, so the M1b shots do not change.
 
 ## Sprites
+
+### Walls, rubble, scaffold
 
 | id | size x frames | method | notes |
 |---|---|---|---|
@@ -37,11 +45,19 @@ Recraft (`bash tools/recraft.sh`, `recraftv4_1`, 35 credits per image), budget 1
 | `rubbleStone` | 40x14 | grid | tilted blocks in a lumpy heap, a broken merlon on top, cracked blocks, chips |
 | `scaffold` | 24x40 | grid | seamless at 24 px (poles every 12 px; ledgers, plank decks and the braces wrap): two decks, alternating braces, lashings, footing stones |
 
+### Gate overlays
+
+| id | size x frames | method | notes |
+|---|---|---|---|
 | `gateWood` | 46x60 x 3 | grid | tier 1: oak leaves of vertical planks, two iron straps, ring handles (the portcullis stays up in the arch); damaged: two plank pieces torn out with raw splinters, a strap hanging loose, a split, the foot charred and burnt through; open: the leaves swung in against the passage walls |
 | `gateIron` | 46x60 x 3 | grid | tier 2: iron-banded leaves behind the lowered portcullis, continuing the painted bars to pointed teeth; damaged: two bars bowed far apart round a hole broken through the leaves, crossbars burst, a bar's foot torn away, scorch; open: only the teeth show under the arch, banded leaves swung in |
 | `gateGreat` | 46x60 x 3 | grid | tier 3: steel-plated leaves behind a heavy portcullis (three-pixel bars, gold bosses, gold-capped teeth) with the realm's crest on its centre crossing; damaged: a plate staved in with bent bars round it, a plate torn away (oak beneath), the crest cracked and chipped, a tooth snapped, scorch; open: heavy gold-capped teeth under the arch, plated leaves with gold rivets swung in |
 | `gateBroken` | 46x20 | grid | a broken leaf lying tilted, a beam across the front, a bent piece of the portcullis with its teeth, splinters |
 
+### Towers and engines
+
+| id | size x frames | method | notes |
+|---|---|---|---|
 | `archerTower` | 20x48 | grid | tier 1: a timber frame tower (splayed legs, braces, a ladder, a deck with a plank parapet) |
 | `watchtower` | 24x64 | grid (design from `beacon-a`'s right piece) | tier 2: a slender stone tower, merlons on corbels, an arrow slit, a barred window, an oak door, a teal pennant |
 | `fireTower` | 14x40 | grid | tier 2 of the brazier: a stone column on a stepped plinth with an iron fire basket of coals |
@@ -49,17 +65,29 @@ Recraft (`bash tools/recraft.sh`, `recraftv4_1`, 35 credits per image), budget 1
 | `catapult` | 32x24 x 3 | grid | a mangonel throwing left: the stop beam end-on on a braced upright, a torsion skein, a rear post and winch; rest (a firepot with a rag wick in the cup), wind (the arm hauled down by the taut rope), throw (the arm against the padded stop, the cup empty) |
 | `stakePit` | 24x8 x 2 | grid | armed: three sharpened stakes leaning toward the Gloom; sprung: splintered stubs with soot, the points lying on the rim |
 
+### The Great Beacon
+
+| id | size x frames | method | notes |
+|---|---|---|---|
 | `beaconBase` | 64x130 | grid (design from `beacon-a`'s left piece) | the ruin cleared and rebuilt to a third of the tower (top at y 58): pale new courses, an unfinished top, shear legs lifting a block, cut blocks stacked beside it |
 | `beaconTower` | 64x130 | grid | the half tower (top at y 84): an unfinished top, a scaffold deck round it, a hoist with a block on its rope, two iron bands, two slits |
 | `greatBeacon` | 64x130 | grid | the full tower in the ruin's pale stone with a parapet on corbels, two teal banners, and the huge iron bowl (51 px across) on four curved ribs |
 | `beaconFire` | 24x20 x 3 | grid (fire ramp only) | glow strip: a coal bed and five tongues with white cores that trade heights, sparks |
 
+### Courtyard (castle palette)
+
+| id | size x frames | method | notes |
+|---|---|---|---|
 | `barracks` | 64x48 | grid (design from `court-a`) | a stone ground floor, a dark timber upper storey with four windows, teal slate, an arched door under a teal banner, two wall lanterns, spear racks and round shields |
 | `smithy` | 60x48 | grid (design from `court-a`) | a forge: an open front between stone piers, a hood over a hearth of coals, an anvil, tools, a shingle gable with a chimney, a hammer sign, a lean-to with a grindstone and a barrel |
 | `masterSmithy` | 60x56 | grid (design from `court-a`) | the forge grown: a teal slate gable with a loft window, two chimneys, a bigger hearth, bellows, a quench barrel, a banner, a stone annex with iron bars |
 | `lodge` | 56x44 | grid (design from `court-a`) | a timber workshop on a stone base, its doors open, a shingle roof, logs, a ladder, a wheelbarrow, a saw sign |
 | `bigLodge` | 64x52 | grid (design from `court-a`) | two storeys (stone and timber), teal slate, a crane hoist with a block on its rope, stone blocks and planks |
 
+### Town (the cottages' palette), plot marker, projectiles
+
+| id | size x frames | method | notes |
+|---|---|---|---|
 | `bigHouse` | 72x56 | Recraft `town-a` (left) for the roof and chimneys + hand-set storeys | two storeys in the cottages' half-timbering: a jettied upper storey with two windows between braced bays, a ground floor with two windows over flower boxes, an oak door, a stone plinth; a tile roof with a hand-drawn dormer and two chimneys |
 | `market` | 90x40 | grid (layout from `town-a`, middle) | three stalls under raspberry, teal and ochre striped awnings with scalloped valances, counters piled with produce, cloth and pots, crates and barrels |
 | `tavern` | 90x56 | Recraft `town-a` (right) for the roof with its gable + hand-set storeys | a half-timbered upper storey with three windows, a grey stone ground floor with an arched door, a wall lantern and two wide windows, a bench, barrels, a sign with a gold tankard on an iron bracket |
@@ -123,9 +151,9 @@ night0, night1 and ink pixel inside a mask, so a mask over an outline would glow
 | `watchtower` | archers' feet | y 52 (the parapet walk), foot centres at x 4, 10, 15, 20 (the merlons reach y 56) |
 | `watchtower` | window glass | mask (dx 10, dy 24, w 4, h 6): the barred window; the arrow slit as a second mask (dx 11, dy 36, w 2, h 7) |
 | `fireTower` | flame | `brazierFlame` at (dx 3, dy 37) over the coals; its brazier light from (cx 7, y 41) |
-| `catapult` | firepot | it leaves the cup at frame 2's cup position, about (dx 13, dy 21); in frames 0 and 1 the pot sits in the cup at (dx 27, dy 16) and (dx 27, dy 12) |
+| `catapult` | firepot | in the cup with its bottom-left at (dx 27, dy 17) on frame 0 and (dx 27, dy 13) on frame 1; it leaves from the cup at about (dx 14, dy 21) on frame 2 |
 | `ballista` | bolt | the bolt leaves from the stock's front at (dx 0, dy 10), flying left |
-| `greatBeacon` | fire | `beaconFire` (24x20) at (dx 20, dy 123): its coal bed lies on the bowl's dark mouth (night0, x 9-54 at row 4, i.e. dy 125); the beacon light from about (cx 32, y 130) |
+| `greatBeacon` | fire | `beaconFire` (24x20) at (dx 20, dy 123): its coal bed lies on the bowl's dark mouth (night0, x 9-54 at row 4); that mouth as a glass mask (dx 9, dy 125, w 46, h 1) glows as an ember line across the whole bowl; the light from above the flames, about (cx 32, y 168) |
 | `barracks` | window glass | (dx 8, dy 26, w 4, h 4), (21, 26, 4, 4), (39, 26, 4, 4), (52, 26, 4, 4); the wall lanterns' glass (23, 14, 1, 2) and (41, 14, 1, 2) |
 | `smithy` | forge fire | `brazierFlame` at (dx 15, dy 13) on the coals (row 33, x 14-24); a small brazier-kind light from (cx 19, y 16) |
 | `masterSmithy` | forge fire | `hearthFire` at (dx 13, dy 13) on the coals (row 41, x 15-27); light from (cx 21, y 16) |
@@ -137,8 +165,112 @@ night0, night1 and ink pixel inside a mask, so a mask over an outline would glow
 | `tavern` | window glass | upper (11, 25, 5, 5), (41, 25, 5, 5), (69, 25, 5, 5); ground (15, 9, 8, 5), (56, 9, 8, 5); the wall lantern by the door (32, 10, 1, 2) |
 | `greatBeacon` | slit glass | masks (dx 23, dy 55, w 2, h 9) and (dx 38, dy 33, w 2, h 8) |
 
+## Sheets and prompts
+
+All three end with the shared finish of ART.md ("Crisp detailed 16-bit pixel art, side view, clean hard pixel edges,
+no anti-aliasing, limited palette, rich pixel texture and form, evenly lit neutral daylight colours with gentle form
+shading, no cast shadows, no glow, no fire, no smoke, no night, no fog, no sky, isolated on a flat solid pure magenta
+#FF00FF background, no text, no border."), size 2:1.
+
+1. `beacon-a`: "three separate defensive structures in one row … strict orthographic front elevation … Left: the Great
+   Beacon, a tall mighty round stone tower about twice as tall as wide, shaded as a cylinder, fitted grey-violet ashlar
+   blocks, a wider battered base, two narrow arrow slits, two iron bands, and at its top a projecting corbelled stone
+   ring carrying a huge wide black iron fire bowl, much wider than the tower, held by curved iron ribs … two long
+   teal-blue banners with a small gold lantern emblem … Middle: a massive stone bastion … a sloped battered base, a
+   crenellated top with wide merlons standing out on a row of stone corbels, two narrow arrow slits, a short teal-blue
+   banner. Right: a tall slender square watchtower … a lower half of grey-violet stone blocks, a dark timber upper storey
+   with a lookout platform behind a plank parapet, a small pointed roof of dark wooden shingles, a teal-blue pennant …"
+   Used as designs: the bowl on ribs over a corbel ring and the banners (greatBeacon), the crown on corbels and the talus
+   (bastion), the stone tower with a pennant (watchtower). Its bricks were 4 to 6 px after the downscale (noise), the
+   bastion came in three-quarter view with a shaded right face.
+2. `court-a`: "five separate medieval castle courtyard buildings … three in the top row and two in the bottom row …
+   strict orthographic front elevation … 1, a soldiers' barracks … a long two-storey hall of rough grey-violet stone
+   blocks, a dark timber upper storey with small dark windows, a steep teal-blue slate roof, a wide arched wooden door, a
+   rack of spears and round wooden shields beside it, a teal-blue banner with a small gold lantern emblem; 2, a small
+   blacksmith's forge … an open front under a timber lean-to roof of dark wooden shingles showing a cold dark forge hearth
+   and an iron anvil on a stump, one stone chimney; 3, a large master smithy, the same forge grown taller and grander: two
+   stone chimneys, a teal-blue slate roof, a big leather bellows, a quenching barrel, iron tools hanging on the wall … 4,
+   a builders' lodge … a timber-framed workshop on a low stone base … a wooden plank roof, a big open door, stacked logs,
+   a ladder and a wheelbarrow beside it; 5, a big builders' lodge, the same lodge grown larger with a second timber
+   storey and a teal-blue slate roof, a wooden crane hoist with a rope and a hook on its gable, stacks of cut stone blocks
+   and planks …" Every building used as a design; its violet cast (the timber maps to night1) and the sub-pixel detail
+   (spears, shield rims, tools) did not survive a conversion, even with colour zones.
+3. `town-a`: "three separate medieval village buildings … Left: a big two-storey timber-framed town house … the upper
+   storey jutting out a little over the ground floor, a steep red-brown clay tile roof with a small dormer and two stone
+   chimneys … two window boxes with red flowers. Middle: a village market … three wooden market stalls side by side under
+   striped cloth awnings (red and cream, teal-blue and cream, ochre and cream), their counters piled with wares … wooden
+   crates and barrels stacked in front, no people. Right: a cosy village tavern … a grey stone ground floor with an arched
+   wooden door and two wide dark windows, a timber-framed cream plaster upper storey with small windows, a steep red-brown
+   tile roof with a chimney, a wooden sign showing a golden tankard hanging from an iron bracket above the door, a wooden
+   bench and two barrels by the door …" Its colours sat close to the palette: the roofs of the big house and the tavern
+   are kept as converted (`convert --flood`, town palette), the storeys and the market are hand-set after it.
+
+## Context scenes (`tools/scenemock/scene_buildings.py`, `run_buildings.sh`)
+
+`scene_buildings.py` runs `mock.py` once per scene with the extras hook (`extras=<json>`, `actors=off`, `king=<x>`); a
+scene names the layout props it replaces (`drop`), and the file removes them by wrapping `layout_m1b.instances()` before
+`mock.py` imports the module (the hook adds props but cannot remove any; neither `mock.py` nor `layout_m1b.py` is
+touched). Each render takes about 2 s; `run_buildings.sh` renders them one at a time with the heat rule. Output:
+`build/recraft/lh/preview/bld-<name>.png` (437x201, upscaled x3, git-ignored).
+
+| shot | focus, tod | shows |
+|---|---|---|
+| `line-night` | 930, 0.95 | the middle line at night: the stone wall with two archers, a fire tower in the second brazier's slot and the brazier, the archer tower with two archers on its deck, the catapult after a throw (lit by the king's lantern), the stake pit, soot creatures at the trap and in the dark, fire arrows in flight and one burning on the ground, arrows, a firepot in the air |
+| `line-day` | 930, 0.5 | the same line by day, upgraded: the bastion in two scaffold tiles with a builder hammering on the upper deck and one carrying in, the watchtower with two archers on its parapet, the fire tower, the brazier, the catapult loaded, the stake pit armed |
+| `gate-wood`, `gate-iron`, `gate-great` | 1360, 0.95 | the castle gate at night with each tier closed (lit by the gateway's lantern), archers on the wall walk |
+| `gate-broken` | 1360, 0.95 | the gate destroyed: gateBroken lit by a fire arrow burning on it, soot creatures pouring through the breach |
+| `gate-iron-damaged` | 1360, 0.95 | the iron gate's damaged frame: the burst hole and the bowed bars |
+| `gate-great-open-day` | 1360, 0.5 | the great gate open by day: the plated leaves swung in, the raised portcullis' gold-capped teeth |
+| `beacon-night` | 470, 0.97 | the Great Beacon lit: beaconFire in the bowl, the bowl's mouth glowing, a warm light from above the flames, the warden statue behind |
+| `beacon-day` | 470, 0.5 | a lineup by day: the ruin with the plot marker of the unlocked site, beaconBase, beaconTower, greatBeacon |
+| `courtyard-dusk` | 1600, 0.77 | barracks (a guardsman at the door), smithy with its forge burning, the well, the lodge with a builder |
+| `courtyard-grown` | 1600, 0.77 | the same with masterSmithy (hearthFire in the forge) and bigLodge |
+| `town-golden`, `town-night` | 3000, 0.75 / 0.95 | the grown town: bigHouse in plot 2932 between the cottages, the well, citizens; at night its windows and dormer glow |
+| `market-golden`, `market-night` | 3270, 0.75 / 0.95 | the cottage of plot 3122, the market (plot 3245) and the tavern (plot 3365); at night the tavern's windows and its door lantern |
+
 ## Notes for the lead
 
-- `build-art.sh` still has `stoneWall` as the milestone 1 conversion (one frame) in its list. Running it would write
-  the one-frame file over the two-frame strip: `stoneWall` belongs to `build-art-buildings.sh` now and should leave
-  `build-art.sh`'s list. `palisade` and `ballista` stay in `build-art.sh`: their grids hold both frames.
+- `build-art.sh` still lists `stoneWall` as the milestone 1 conversion (one frame); running it would write the
+  one-frame file over the two-frame strip. `stoneWall` belongs to `build-art-buildings.sh` now and should leave
+  `build-art.sh`'s list. `palisade` and `ballista` can stay in `build-art.sh`: their grids hold both frames, so both
+  scripts write the same files. `build-art-buildings.sh` rebuilds all 33 sprites of this lane byte for byte (checked),
+  and the M1b mocks with the palisade, stone wall and ballista on screen are byte for byte the same with the two-frame
+  strips (front 760 at night, approach 1100 and outer line 640 by day, rendered against the old one-frame files).
+- The extras hook cannot remove a layout prop; `scene_buildings.py` works round it (see "Context scenes"). A `drop`
+  option in the hook would make that unnecessary.
+- Facing: the ballista and the catapult aim left as drawn (the Gloom is always left); the projectiles point right like
+  the actors and need mirroring when they fly left.
+- Placement: walls at their left face as `Realm.wallX`; the bastion (44 px) is best placed 4 px left of the stone wall's
+  face (936) so both share a centre; it then reaches into the tower slot at 978, so with a bastion standing the tower
+  shows best at x 981 or more (the archer tower at 968 overlaps a stone wall's back by 8 px and reads as built against
+  it). The scaffold tiles every 24 px from the build's left edge (two tiles over a stone wall or a bastion).
+- The archers on towers and walls draw in front of the parapets (actors draw after props), so the parapets never hide
+  their legs; the posts above are where their feet go.
+- beaconFire is the contract's 24x20; in the 51-px bowl it reads as a fire in the middle of the bowl, not a blaze
+  filling it. The mouth mask (dx 9, dy 125, w 46, h 1) adds an ember line across the bowl; a 48x28 fire would fill it
+  (a contract change, if wanted). The mock lights the beacon with a warm point light (r 230, above the flames); the
+  hook's white `beacon` light kind at r 300 washed the iron bowl out to white.
+- `tools/__pycache__/` and `tools/scenemock/__pycache__/` are untracked byproducts of the python tools; `__pycache__/`
+  could go into `.gitignore`.
+
+## Lessons
+
+- A painting's violet cast decides whether a conversion is usable: `town-a` (warm, near the palette) converted almost
+  clean, `court-a` (timber painted dark purple) did not, even with colour zones; then the painting is a layout reference
+  and the brushes do the pixels.
+- Thin parts (poles, ropes, stakes, the catapult's arm) lose their colour to an inner outline; an outline outside the
+  shape (`outline_out` in the scratch helpers) keeps a 1-2 px pole wooden.
+- Fit an overlay to the painted pixels, not to a box: deriving the mask from the front's passage pixels made every gate
+  frame fit, and continuing the painted portcullis bar for bar made the lowered grid read as one with the arch.
+- A big glowing light right at an iron bowl turns it white in the mock; light from above the flames keeps the bowl
+  dark iron with a firelit rim.
+
+## Open points
+
+- beaconFire size (above).
+- The courtyard buildings, the market and the storeys of the big house and the tavern are hand-set after the paintings;
+  they are crisp and consistent with the bastion and the towers, but a later pass could add more surface texture (moss,
+  weathering, timber grain) to match the painted cottages.
+- No window-glass masks or lights for these sprites exist in the Swift scene yet: the anchor table is what M2b needs.
+- The bastion and the watchtower are front elevations in the stone wall's colours; they share the castle front's stone
+  only in hue, not its painted texture.
