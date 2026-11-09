@@ -1,0 +1,167 @@
+# petitionerE 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md "M3"). A petitioner body: a well-off townsman, portly,
+# a neat grey beard, a red velvet cap with a gold brooch, a fine chestnut coat to the knees with a pale fur collar, gold
+# buttons and a gold chain, dark hose, buckled shoes. Walk: four frames, a self-important waddle. Idle: a breath, his
+# thumb in his belt.
+id petitionerE
+size 12x26
+frames 6
+outline ink
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    W = stonePale
+    w = stoneLight
+    R = tile
+    r = woodDark
+    Q = tileLight
+    G = gold
+    V = rockDark
+    v = rockDeep
+    U = rock
+    F = plaster
+    f = plasterDim
+    N = soilDark
+    B = woodDark
+    b = stoneLight
+
+part cap
+    .rRRRQ.
+    rRRRRRG
+    .rrrrr.
+
+part head
+    .wSSSs
+    .wSSkS
+    ..SSSSS
+    .wWWWs.
+    ..wWW..
+
+part torso
+    .fFFFFV.
+    fFFFFUVV
+    .vVVVVGV
+    vVVVVUVV
+    vVVVGVUV
+    vVVVVVVV
+    vrrrGrrr
+    vVVVVVUV
+
+part coatStand
+    .vVVVVVUV
+    .vVVVVVUV
+    vvVVVVVUV
+    vvVVVVVVUV
+    vvVVVVVVUV
+
+part coatA
+    .vVVVVVUV.
+    .vVVVVVVUV
+    vvVVVVVVUV
+    vvVVVVVVVUV
+    vvVVVVVVVUV
+
+part coatB
+    .vVVVVVUV
+    .vVVVVVUV
+    .vVVVVVUV
+    vvVVVVVUV
+    vvVVVVVUV
+
+part coatC
+    ..vVVVVUV
+    ..vVVVVUV
+    .vvVVVVUV
+    vvvVVVVVUV
+    vvvVVVVVUV
+
+part legsStand
+    .NN.NN
+    .NN.NN
+    .BB.BB
+    BBBbBBBb
+
+part legsContactA
+    NN...NN
+    NN...NN
+    BB...BB
+    BBBb.BBBb
+
+part legsPass
+    ..NNNN
+    ..NNNN
+    ..BBBB
+    .BBBbBBb
+
+part legsContactB
+    .NN..NN
+    NN...NN
+    BB...BB
+    BBBb.BBBb
+
+part armThumb
+    VU.
+    VUU
+    VVU
+    .SS
+
+part armSwingFwd
+    VU..
+    VUU.
+    .VUU
+    ..SS
+
+part armSwingBack
+    VU.
+    VU.
+    UV.
+    SS.
+
+frame 0
+    coatA 1 17
+    legsContactA 2 22
+    torso 2 9
+    head 3 5
+    cap 3 3
+    armSwingFwd 6 10
+
+frame 1
+    coatB 2 17
+    legsPass 2 22
+    torso 2 10
+    head 3 6
+    cap 3 4
+    armThumb 6 11
+
+frame 2
+    coatC 1 17
+    legsContactB 2 22
+    torso 2 9
+    head 3 5
+    cap 3 3
+    armSwingBack 6 10
+
+frame 3
+    coatB 2 17
+    legsPass 2 22
+    torso 2 10
+    head 3 6
+    cap 3 4
+    armThumb 6 11
+
+frame 4
+    coatStand 1 17
+    legsStand 2 22
+    torso 2 9
+    head 3 5
+    cap 3 3
+    armThumb 6 10
+
+frame 5
+    coatStand 1 17
+    legsStand 2 22
+    torso 2 10
+    head 3 6
+    cap 3 4
+    armThumb 6 11

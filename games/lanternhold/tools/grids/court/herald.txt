@@ -1,0 +1,221 @@
+# herald 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). The Lightless King's herald: a gaunt
+# figure the colour of ash, a black iron circlet with three spikes (the King's broken crown in small), hollow dark eye
+# sockets with cold teal eyes, a black mantle over ragged ash-grey robes, a tall black pole held before him with a
+# tattered black banner hanging from its crossbar. heraldGlow (as lightlessKingGlow): the eyes tealGlow, a tealDim rim
+# on the top contour with tealGlow on the spikes and the pole's point, the banner's torn edge tealDim. Walk: a stiff,
+# deliberate step, the banner swaying. Idle: utterly still but for a breath. Talk: the banner thrust forward (6), then
+# the bony free hand raised, pointing (7): hand over the Stranger.
+id herald
+size 14x30
+frames 8
+outline ink
+rim tealDim tealGlow
+
+legend
+    k = ink
+    O = night0/tealGlow
+    o = night0
+    A = stoneLight
+    a = stone
+    M = stoneMid
+    D = stoneDark
+    N = night1
+    n = night0
+    K = night1
+    j = night0
+    J = night0/tealDim
+    I = stoneDark
+    i = stoneMid
+    P = stoneMid
+
+part head
+    .I.I.I.
+    .IIIIII
+    .aAAAAA
+    .aoOAOA
+    ..aAAAa
+    ..aAoA.
+    ...aa..
+
+part mantle
+    .NNNNNN.
+    NNNNNNNN
+    NNnNNNNN
+    NNnNNNNN
+    aNNnNNNN
+    aMMNnNNN
+    aMMMMMMM
+
+part robeStand
+    .aMMMaMM.
+    .aMMMaMMM
+    .aMMMaMMM
+    aaMMMaMMM
+    aaMMMaMMM
+    aaMMMaMMMM
+    aaMMMaMMMM
+    aaMMMaMMMM
+    aaMMMMaMMM
+    aMaMaMaMaM
+    .a..a.a..a
+
+part robeA
+    .aMMMaMM..
+    .aMMMaMMM.
+    .aMMMaMMMM
+    aaMMMaMMMM
+    aaMMMaMMMM
+    aaMMMMaMMMM
+    aaMMMMaMMMM
+    aaMMMMaMMMM
+    aaMMMMaMMMM
+    aMaMaMaMaMa
+    .a..a.a..a.
+
+part robeB
+    .aMMMaMM
+    .aMMMaMM
+    .aMMMaMM
+    aaMMMaMMM
+    aaMMMaMMM
+    aaMMMaMMM
+    aaMMMaMMM
+    aaMMMaMMM
+    aaMMMMaMM
+    aMaMaMaMa
+    .a..a.a..
+
+part robeC
+    ..aMMMaM.
+    ..aMMMaMM
+    .aaMMMaMM
+    .aaMMMaMMM
+    aaaMMMaMMM
+    aaaMMMaMMM
+    aaaMMMaMMM
+    aaaMMMaMMM
+    aaaMMMMaMM
+    aMaMaMaMaM
+    .a..a..a.a
+
+part feetStand
+    .DD.DD
+
+part feetA
+    DD...DD
+
+part feetB
+    ..DDD.
+
+part feetC
+    .DD.DD
+
+# the pole with its point and crossbar, the tattered banner hanging in front
+part banner
+    I....
+    IiiiI
+    IKKKK
+    IKKKK
+    IKjKK
+    IKKKK
+    IKKjK
+    IKKKK
+    IKjKK
+    IKKKK
+    IJKJK
+    I.J.J
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+
+part armPole
+    NN.
+    NNN
+    .Na
+    ..a
+
+part armPoint
+    ....a
+    ...aA
+    ..aa.
+    NNN..
+    NN...
+
+frame 0
+    robeA 1 19
+    feetA 1 29
+    mantle 2 12
+    head 3 5
+    banner 9 1
+    armPole 7 13
+
+frame 1
+    robeB 2 19
+    feetB 2 29
+    mantle 2 13
+    head 3 6
+    banner 9 1
+    armPole 7 14
+
+frame 2
+    robeC 1 19
+    feetC 2 29
+    mantle 2 12
+    head 3 5
+    banner 9 1
+    armPole 7 13
+
+frame 3
+    robeB 2 19
+    feetB 2 29
+    mantle 2 13
+    head 3 6
+    banner 9 1
+    armPole 7 14
+
+frame 4
+    robeStand 1 19
+    feetStand 2 29
+    mantle 2 12
+    head 3 5
+    banner 9 1
+    armPole 7 13
+
+frame 5
+    robeStand 1 19
+    feetStand 2 29
+    mantle 2 13
+    head 3 6
+    banner 9 1
+    armPole 7 14
+
+frame 6
+    robeStand 1 19
+    feetStand 2 29
+    mantle 2 12
+    head 3 5
+    banner 9 0
+    armPole 7 12
+
+frame 7
+    robeStand 1 19
+    feetStand 2 29
+    mantle 2 12
+    head 3 5
+    banner 9 1
+    armPole 7 13
+    armPoint 7 8

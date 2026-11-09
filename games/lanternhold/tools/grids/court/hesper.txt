@@ -1,0 +1,267 @@
+# hesper 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Mother Hesper, priestess of the Flame: an
+# old woman with dark skin and white brows under a deep cream hood, a short cream cape over her shoulders edged in
+# gold, a gold stole down the front of her cream robe, a gold hem, a tall wooden staff held out in front of her with a
+# small iron cup at the top where a little flame burns (hesperGlow: the flame, flickering through four shapes). Walk:
+# slow, the staff planted ahead of each step. Idle: a breath, the flame flickers. Talk: she lifts the staff and the
+# flame flares (6), then lowers it, her free hand on her heart (7).
+id hesper
+size 14x30
+frames 8
+outline ink
+
+legend
+    k = ink
+    S = soilLight
+    s = soil
+    Z = woodLight
+    e = foam
+    W = parchment
+    w = plaster
+    q = plasterDim
+    G = gold
+    g = straw
+    D = woodLight
+    d = wood
+    I = stone
+    i = stoneMid
+    B = woodDark
+    F = strawLight/fireWhite
+    f = gold/fireGold
+    o = straw/fireOrange
+    x = /fireOrange
+    y = /fireGold
+
+part hood
+    ..qWWW...
+    .qWWWWWW.
+    qWWWWeeS.
+    qWWWwSkSs
+    qWWWwSSSZ
+    qqWWwsSS.
+    qqWWWwss.
+
+part cape
+    .qwwwwwwG.
+    qwwwwwwwwG
+    qwwwwwwwwG
+    GgGgGgGgG.
+
+part torso
+    qWWWWGW
+    qWWWWGW
+    qwWWWGW
+    qwWWWGW
+    qwWWWGW
+
+part skirtStand
+    .qwWWWGW.
+    .qwWWWGWW
+    qqwWWWGWW
+    qqwWWWGWW
+    qqwWWWGWW
+    qqwWwWGWWW
+    qqwWwWGWWW
+    qqwWwWWWWW
+    qqwWwWWWWW
+    qqwWwWWWWW
+    GGGGGGGGGG
+
+part skirtA
+    .qwWWWGW..
+    .qwWWWGWW.
+    qqwWWWGWWW
+    qqwWWWGWWW
+    qqwWWWWGWW
+    qqwWwWWGWWW
+    qqwWwWWGWWW
+    qqwWwWWWWWW
+    qqwWwWWWWWW
+    qqwWwWWWWWW
+    .GGGGGGGGGG
+
+part skirtB
+    .qwWWWGW
+    .qwWWWGW
+    .qwWWWGW
+    qqwWWWGWW
+    qqwWWWGWW
+    qqwWwWGWW
+    qqwWwWGWW
+    qqwWwWWWW
+    qqwWwWWWW
+    qqwWwWWWW
+    GGGGGGGGG
+
+part skirtC
+    ..qwWWGW.
+    ..qwWWGW.
+    .qqwWWGWW
+    .qqwWWGWW
+    qqqwWWGWW
+    qqqwWwGWWW
+    qqqwWwGWWW
+    qqqwWwWWWW
+    qqqwWwWWWW
+    qqqwWwWWWW
+    GGGGGGGGGG
+
+part feetStand
+    .BB.BBB
+
+part feetA
+    BB...BBB
+
+part feetB
+    ..BBBB
+
+part feetC
+    .BBBBB
+
+# the staff: a small iron cup at the top, the shaft
+part staff
+    IiI
+    .D.
+    .d.
+    .D.
+    .D.
+    .d.
+    .D.
+    .D.
+    .d.
+    .D.
+    .D.
+    .d.
+    .D.
+    .D.
+    .d.
+    .D.
+    .D.
+    .d.
+    .D.
+    .D.
+    .d.
+    .D.
+    .D.
+    .d.
+    .D.
+    .D.
+    .d.
+
+part flame0
+    .x.
+    yFx
+    oFf
+
+part flame1
+    x..
+    yFy
+    oFf
+
+part flame2
+    ..x
+    yFy
+    fFo
+
+part flame3
+    .y.
+    xFx
+    oFf
+
+part flameHigh
+    .x.
+    xFy
+    yFx
+    oFf
+
+# the near arm in its wide sleeve reaching to the staff
+part armStaff
+    ww...
+    wWw..
+    WWWSS
+    WWW..
+
+part armHeart
+    .....
+    .wZS.
+    wWW..
+
+frame 0
+    skirtA 1 18
+    feetA 2 29
+    torso 3 13
+    hood 3 4
+    cape 2 10
+    staff 11 3
+    flame0 11 0
+    armStaff 7 12
+
+frame 1
+    skirtB 2 18
+    feetB 3 29
+    torso 3 14
+    hood 3 5
+    cape 2 11
+    staff 11 3
+    flame1 11 0
+    armStaff 7 13
+
+frame 2
+    skirtC 1 18
+    feetC 3 29
+    torso 3 13
+    hood 3 4
+    cape 2 10
+    staff 11 3
+    flame2 11 0
+    armStaff 7 12
+
+frame 3
+    skirtB 2 18
+    feetB 3 29
+    torso 3 14
+    hood 3 5
+    cape 2 11
+    staff 11 3
+    flame3 11 0
+    armStaff 7 13
+
+frame 4
+    skirtStand 1 18
+    feetStand 2 29
+    torso 3 13
+    hood 3 4
+    cape 2 10
+    staff 11 3
+    flame0 11 0
+    armStaff 7 12
+
+frame 5
+    skirtStand 1 18
+    feetStand 2 29
+    torso 3 14
+    hood 3 5
+    cape 2 11
+    staff 11 3
+    flame2 11 0
+    armStaff 7 13
+
+frame 6
+    skirtStand 1 18
+    feetStand 2 29
+    torso 3 13
+    hood 3 4
+    cape 2 10
+    staff 11 2
+    flameHigh 11 0
+    armStaff 7 11
+
+frame 7
+    skirtStand 1 18
+    feetStand 2 29
+    torso 3 13
+    hood 3 4
+    cape 2 10
+    staff 11 3
+    flame3 11 0
+    armStaff 7 12
+    armHeart 6 13

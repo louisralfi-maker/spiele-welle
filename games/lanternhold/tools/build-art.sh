@@ -1,16 +1,19 @@
 #!/bin/bash
 # Rebuilds every sprite in Resources/Art: the milestone 1 and M1b scene sprites here, from the Recraft raws in
 # build/recraft/lh/ (git-ignored; see ART.md for the prompts) and the hand-set grids in tools/grids/, then the M2b
-# buildings (build-art-buildings.sh, ART-buildings.md) and the actors and creatures (build-art-actors.sh,
-# ART-actors.md). One image at a time with a pause between, and a wait while the CPU is at 80 °C or more (this old
-# Mac's heat rule). A full run reproduces every committed PNG byte for byte. Run from anywhere:
+# buildings (build-art-buildings.sh, ART-buildings.md), the actors and creatures (build-art-actors.sh,
+# ART-actors.md) and the M3 court and guests (build-art-court.sh, ART-court.md). One image at a time with a pause
+# between, and a wait while the CPU is at 80 °C or more (this old Mac's heat rule). A full run reproduces every
+# committed PNG byte for byte. Run from anywhere:
 #   bash games/lanternhold/tools/build-art.sh [name …]
-# A name of either lane goes to its script (stoneWall, palisade and ballista belong to the buildings lane: their
-# frame 0 is the milestone 1 sprite, frame 1 the damaged one); the group names `buildings` and `actors` run a lane whole.
+# A name of a lane goes to its script (stoneWall, palisade and ballista belong to the buildings lane: their
+# frame 0 is the milestone 1 sprite, frame 1 the damaged one); the group names `buildings`, `actors` and `court` run a
+# lane whole.
 set -euo pipefail
 cd "$(dirname "$0")/../../.."
 BLD=games/lanternhold/tools/build-art-buildings.sh
 ACT=games/lanternhold/tools/build-art-actors.sh
+CRT=games/lanternhold/tools/build-art-court.sh
 T=games/lanternhold/tools/pixelart.py
 A=games/lanternhold/Resources/Art
 G=games/lanternhold/tools/grids
@@ -209,24 +212,27 @@ build() { # name: one sprite
                    python3 $T post $A/$1.png $A/$1.png --remap $FGLIFT ;;
     throne|hearth|well|lanternPost|field|brazier|torchPost)
                    python3 $T grid $G/$1.txt $A/$1.png ;;
-    # the two M2b lanes: whole, or one sprite of theirs
+    # the two M2b lanes and the M3 court lane: whole, or one sprite of theirs
     buildings)     bash $BLD ;;
     actors)        bash $ACT ;;
+    court)         bash $CRT ;;
     *)             if [[ " $LANE_B " == *" $1 "* ]]; then bash $BLD "$1"
                    elif [[ " $LANE_A " == *" $1 "* ]]; then bash $ACT "$1"
+                   elif [[ " $LANE_C " == *" $1 "* ]]; then bash $CRT "$1"
                    else echo "unknown sprite $1" >&2; return 1; fi ;;
     esac
 }
 
 LANE_B=$(bash $BLD --list)
 LANE_A=$(bash $ACT --list)
-# the scene sprites first (the buildings lane composes beaconBase over beaconRuin), then both lanes whole
+LANE_C=$(bash $CRT --list)
+# the scene sprites first (the buildings lane composes beaconBase over beaconRuin), then the three lanes whole
 ALL="farMountain farPeak gorgeCliff gorgeEndCliff waterfall gatehouse castleTower castleWall backGate chapel hallInterior
 throne hearth kitchen house valleyHill well lanternPost field brazier torchPost ground
 gorgeWall gorgeWallHigh cliffFlank gorgeMouth wardenStatue castleFront castleKeep castleBackGate valleyFar valleyMid windmill
 beaconRuin riverEnd riverFarBank clouds fgRockA fgRockB fgRockC fgOverhangA fgOverhangB
-houseB houseC keepFar keepTop throatRock cliffFlankB groundB groundC groundD castleShadow castleMist buildings actors"
+houseB houseC keepFar keepTop throatRock cliffFlankB groundB groundC groundD castleShadow castleMist buildings actors court"
 for name in ${@:-$ALL}; do
-    case $name in buildings|actors) ;; *) cool ;; esac
+    case $name in buildings|actors|court) ;; *) cool ;; esac
     build "$name"
 done
