@@ -121,7 +121,9 @@ One horizontal strip. `x` grows to the right in game pixels; the ground line is 
     mountains.
   - The town lies here, outside the gorge, under open sky.
   - The back of the castle and the gorge's last cliffs close the view on the left; above the back gate the keep shows
-    (a far-plane view that fades in as the king nears the gate, so it never floats above the courtyard and the hall).
+    as a solid slate keep in the notch of the gorge mouth, rock on both sides, its windows lit at night (drawn into the
+    mid picture with the mid haze but moving like the far plane; it fades in as the king nears the gate, so it never
+    floats above the courtyard and the hall, and fades out again before the river end).
 - **Backdrop regions:** each parallax plane has a gorge set and a valley set. On each plane the border between them is
   placed so that it lines up with the back gate when the camera is centred there: far 641, mid 1274, world 2330 (plane
   x, `WorldLayout.border`). The sets do not clip; a piece belongs to a set by where it stands.
@@ -278,12 +280,14 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 ## The castle: walking, people, guests
 
 - **From the gorge**, the castle is a facade facing the camera that fills the gorge's throat:
-  - two round towers rise above the top of the screen (about 230 px);
+  - two round towers, shaded as cylinders, end on screen in corbelled, crenellated crowns (y 132 to 172; polish after
+    the art review, they rose above the top of the screen before);
   - the gatehouse has a deep arched gate with an iron portcullis;
   - the crenellations carry archers, braziers and banners;
   - flanks of masonry grow into the rock on both sides.
-- **The keep** stands behind the courtyard. At about 250 px it is the tallest thing in the world, and its top and
-  banners show above the walls both from the gorge and from the town.
+- **The keep** stands behind the gatehouse. Its crown and flag rise above the gatehouse between the towers' crowns. From
+  the approach and the front its upper storey (crown, banner, lit windows) stands on a rock plateau in the middle
+  distance (a mid-plane view, hidden at the gate), and from the town in the gorge mouth's notch (see "The valley").
 - **The portcullis** drops with a heavy clang at the horn and rises at dawn. The king passes at any time, because the
   guards lift it for him.
 - **From the town**, the back gate between two smaller towers is the castle's friendly face: banners, lanterns and
@@ -634,7 +638,10 @@ The research is in `docs/research-rendering.md` (sources, evidence labels, numbe
   pixels, no shimmer, motion resolved to 1/s of a game pixel. World = albedo × (ambient + light) + emissive; fog =
   fog colour × (ambient + k × light); far planes take the ambient ramp; clouds are lit by the sky (sunlit tops by the
   ambient light, shaded bellies by the sky's top colour); at warm hours the far and mid planes haze toward lavender and
-  keep only part of the warm light (aerial perspective); then bloom and the grade.
+  keep only part of the warm light (aerial perspective); then bloom and the grade. Polish after the art review:
+  firelight reflects 35 % as from a neutral surface and is capped at 1.6 (no cyan halo on teal cloth, no blown walls)
+  and fades to a quarter a few rows under the grass; bloom is read once per game pixel, so glows step in s x s blocks;
+  rock lips at the top never hang below y 139.
 - **Actors** (king, people, creatures, arrows) are quads drawn in the composite at device-pixel positions, their texels
   still s x s blocks, lit by reading the light buffer at their position. This keeps the walking king steady on screen.
   The prototype compares this with snapped actors (`-GWActorMode smooth|snapped`).
