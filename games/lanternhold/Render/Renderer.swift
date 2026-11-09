@@ -417,7 +417,7 @@ final class Renderer {
         // Bloom.
         let bloomOn = frame.bloom && !settings.reducedEffects
         if bloomOn {
-            draws += encodeBloom(commands, targets: targets)
+            draws += encodeBloom(commands, targets: targets, frame: frame)
             passes += 3
         }
 
@@ -475,13 +475,15 @@ final class Renderer {
     }
 
     /// Threshold at half resolution, then a horizontal and a vertical blur (result in `bloomA`).
-    private func encodeBloom(_ commands: any MTLCommandBuffer, targets: RenderTargets) -> Int {
+    private func encodeBloom(_ commands: any MTLCommandBuffer, targets: RenderTargets, frame: FrameDesc) -> Int {
         let halfWidth = Float(targets.bloomWidth)
         let halfHeight = Float(targets.bloomHeight)
         var draws = 0
+        let backdrop = Renderer.backdropColor(frame)
         var bloom = BloomUniforms(
             size: SIMD4<Float>(Float(targets.width), Float(targets.height), halfWidth, halfHeight),
-            params: SIMD4<Float>(Look.bloomLightShare, Look.bloomSkyShare, Look.bloomThreshold, Look.bloomKnee))
+            params: SIMD4<Float>(Look.bloomLightShare, Look.bloomSkyShare, Look.bloomThreshold, Look.bloomKnee),
+            backdrop: SIMD4<Float>(backdrop.x, backdrop.y, backdrop.z, 0))
         if let encoder = commands.makeRenderCommandEncoder(descriptor: Renderer.clearPass(targets.bloomA)) {
             encoder.label = "bloom threshold"
             encoder.setRenderPipelineState(prefilterPipeline)
@@ -530,6 +532,7 @@ final class Renderer {
         let mid = Look.midAmbient(ambient)
         let farHaze = Look.farHazeColor(ambient)
         let midHaze = Look.midHazeColor(ambient)
+        let backdrop = Renderer.backdropColor(frame)
         var shifts = [Int32](repeating: 0, count: Plane.allCases.count)
         for layer in frame.planes {
             shifts[layer.plane.rawValue] = Int32(layer.offset.deviceShift)
@@ -567,7 +570,20 @@ final class Renderer {
             ambientMid: SIMD4<Float>(mid.x, mid.y, mid.z, 0),
             farHaze: SIMD4<Float>(farHaze.x, farHaze.y, farHaze.z, 0),
             midHaze: SIMD4<Float>(midHaze.x, midHaze.y, midHaze.z, 0),
-            cloud: SIMD4<Float>(Look.cloudSun, Look.cloudFill, Look.cloudHaze, 0))
+            cloud: SIMD4<Float>(Look.cloudSun, Look.cloudFill, Look.cloudHaze, 0),
+            backdropLight: SIMD4<Float>(backdrop.x, backdrop.y, backdrop.z, 0))
+    }
+
+    /// The colour of the frame's backdrop lights (lights of the far and mid planes, such as the warden statue's bowl
+    /// fire): the brightest one's. They light only the mid plane, through the light buffer's alpha.
+    static func backdropColor(_ frame: FrameDesc) -> SIMD3<Float> {
+        var color = SIMD3<Float>(repeating: 0)
+        var strongest: Float = 0
+        for light in frame.lights.prefix(64) where light.plane != .world && light.circle.w > strongest {
+            strongest = light.circle.w
+            color = SIMD3<Float>(light.color.x, light.color.y, light.color.z)
+        }
+        return color
     }
 
     // MARK: - Instances
@@ -595,8 +611,10 @@ final class Renderer {
         emissiveQuads += Particles.embers(frame, time: settings.time, reduceMotion: settings.reduceMotion,
                                           white: layout.white)
         let lightQuads = frame.lights.prefix(64).map { light in
+            // A backdrop light carries a negative intensity: the light pass writes it to alpha only.
+            let sign: Float = light.plane == .world ? 1 : -1
             let circle = SIMD4<Float>(light.circle.x, light.circle.y, light.circle.z,
-                                      light.circle.w * Look.intensityScale(light.kind))
+                                      sign * light.circle.w * Look.intensityScale(light.kind))
             return LightQuad(circle: circle,
                              color: SIMD4<Float>(light.color.x, light.color.y, light.color.z, light.ellipseY))
         }

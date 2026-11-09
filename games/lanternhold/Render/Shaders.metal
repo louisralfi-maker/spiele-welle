@@ -283,7 +283,13 @@ fragment float4 lh_pool_fragment(LightPoolOut in [[stage_in]],
     }
     uint2 cell = uint2(uint(p.x) + uint(max(u.target.z, 0.0f)), uint(p.y));
     float level = lh_light_level(d, u.style.x, u.style.y, u.target.w, lh_bayer(cell));
-    return float4(in.color.rgb * (in.circle.w * level), 0.0f);
+    float strength = abs(in.circle.w) * level;
+    // A backdrop light (negative intensity: the warden statue's bowl fire on the far wall) goes to alpha only; the
+    // composite lights only the mid plane with it, in the backdrop light's colour.
+    if (in.circle.w < 0.0f) {
+        return float4(0.0f, 0.0f, 0.0f, strength);
+    }
+    return float4(in.color.rgb * strength, 0.0f);
 }
 
 // MARK: Bloom
@@ -291,6 +297,7 @@ fragment float4 lh_pool_fragment(LightPoolOut in [[stage_in]],
 struct BloomUniforms {
     float4 size;    // low-res width, height, half-res width, height
     float4 params;  // share of point light, share of the sky emissives, threshold, knee
+    float4 backdrop; // colour of the backdrop lights (the light buffer's alpha), unused
 };
 
 // Half resolution: each pixel averages 2 x 2 low-res pixels of emissive, light and sky glow, then keeps only what
@@ -306,7 +313,8 @@ fragment float4 lh_bloom_prefilter_fragment(FullscreenOut in [[stage_in]],
     for (uint j = 0u; j < 2u; j++) {
         for (uint i = 0u; i < 2u; i++) {
             uint2 t = min(base + uint2(i, j), limit);
-            sum += emissive.read(t).rgb + light.read(t).rgb * u.params.x + sky.read(t).rgb * u.params.y;
+            float4 l = light.read(t);
+            sum += emissive.read(t).rgb + (l.rgb + u.backdrop.rgb * l.a) * u.params.x + sky.read(t).rgb * u.params.y;
         }
     }
     float3 c = sum * 0.25f;
@@ -357,6 +365,7 @@ struct CompositeUniforms {
     float4 farHaze;     // the far plane's haze colour rgb (the horizon, toward lavender at warm hours), unused
     float4 midHaze;     // the mid plane's haze colour rgb, unused
     float4 cloud;       // clouds: share of ambient on the sunlit tops, of the sky's top colour in the bellies, haze
+    float4 backdropLight; // colour of the backdrop lights (the light buffer's alpha: they light only the mid plane)
 };
 
 // The cold colour of the night: ambient-lit albedo pulled toward violet by its own luminance (k = 0 by day), so
@@ -385,6 +394,7 @@ struct PlaneCoords {
 
 struct PixelLight {
     float3 light;   // point light at this pixel, gain and hot shoulder applied
+    float3 backdrop; // the same with the backdrop lights added: the mid plane's light
     float bank;     // ambient multiplier of the darkness bank
 };
 
@@ -433,12 +443,19 @@ static PlaneCoords lh_inset_coords(float2 p, constant CompositeUniforms &u) {
     return c;
 }
 
-static PixelLight lh_pixel_light(PlaneCoords c, constant CompositeUniforms &u, texture2d<float> lightTex) {
-    PixelLight info;
-    float3 l = lightTex.read(c.world).rgb * u.light.x;
+// Light gain and a hot shoulder: bright light turns gold-white.
+static inline float3 lh_hot(float3 raw, constant CompositeUniforms &u) {
+    float3 l = raw * u.light.x;
     float peak = max(l.r, max(l.g, l.b));
     float hot = max(peak - u.light.y, 0.0f);
-    info.light = l + float3(0.55f, 0.5f, 0.38f) * hot;
+    return l + float3(0.55f, 0.5f, 0.38f) * hot;
+}
+
+static PixelLight lh_pixel_light(PlaneCoords c, constant CompositeUniforms &u, texture2d<float> lightTex) {
+    PixelLight info;
+    float4 raw = lightTex.read(c.world);
+    info.light = lh_hot(raw.rgb, u);
+    info.backdrop = lh_hot(raw.rgb + u.backdropLight.rgb * raw.a, u);
     float column = float(c.world.x) + 0.5f;
     float inside = 1.0f - smoothstep(u.bank.x - u.bank.y, u.bank.x, column);
     info.bank = mix(1.0f, u.ambient.w, inside);
@@ -467,10 +484,11 @@ static float3 lh_clouds(float3 color, float4 k, constant CompositeUniforms &u) {
 }
 
 // Sky and clouds, far and mid planes with haze (aerial perspective), fog A, the lit world plane and its emissive parts.
+// `midVisible` returns how much of the mid plane still shows (the backdrop lights grade only that share).
 static float3 lh_base(PlaneCoords c, PixelLight info, constant CompositeUniforms &u,
                       texture2d<float> skyTex, texture2d<float> cloudsTex, texture2d<float> farTex,
                       texture2d<float> midTex, texture2d<float> fogATex, texture2d<float> worldTex,
-                      texture2d<float> emissiveTex) {
+                      texture2d<float> emissiveTex, thread float &midVisible) {
     float3 color = lh_sky(c, u) + skyTex.read(c.sky).rgb;
     float4 k = cloudsTex.read(c.clouds);
     if (k.a > 0.0f) {
@@ -487,22 +505,26 @@ static float3 lh_base(PlaneCoords c, PixelLight info, constant CompositeUniforms
         color = color * (1.0f - f.a) + lit;
     }
     float4 m = midTex.read(c.mid);
+    midVisible = 0.0f;
     if (m.a > 0.0f) {
-        float3 lit = lh_cold(m.rgb, u.ambientMid.rgb, u.look.x) + m.rgb * info.light * u.ambientFar.w;
+        float3 lit = lh_cold(m.rgb, u.ambientMid.rgb, u.look.x) + m.rgb * info.backdrop * u.ambientFar.w;
         float haze = saturate(u.haze.y + low * u.haze.z * 0.5f);
         lit = mix(lit, u.midHaze.rgb * m.a, haze);
         color = color * (1.0f - m.a) + lit;
+        midVisible = m.a;
     }
     float4 fa = fogATex.read(c.fogA);
     if (fa.a > 0.0f) {
         float3 lit = fa.rgb * (info.bank * u.look.w) + info.light * (u.fog.x * u.fog.z * fa.a);
         color = color * (1.0f - fa.a) + lit;
+        midVisible *= 1.0f - fa.a;
     }
     float4 w = worldTex.read(c.world);
     if (w.a > 0.0f) {
         float3 lit = lh_cold(w.rgb, u.ambient.rgb * info.bank, u.look.x) + w.rgb * info.light
             + info.light * (u.look.y * w.a);
         color = color * (1.0f - w.a) + lit;
+        midVisible *= 1.0f - w.a;
     }
     return color + emissiveTex.read(c.world).rgb;
 }
@@ -525,25 +547,28 @@ static float3 lh_grade(float3 color, float3 light, PlaneCoords c, constant Compo
     return color * vignette;
 }
 
-// Fog B, the foreground, bloom and the grade: everything in front of the world plane and its actors.
+// Fog B, the foreground, bloom and the grade: everything in front of the world plane and its actors. The grade keeps
+// warm what the light warms: the world's light, and the backdrop lights on the share of the mid plane that shows.
 static float3 lh_top(float3 color, PlaneCoords c, PixelLight info, constant CompositeUniforms &u,
-                     texture2d<float> fogBTex, texture2d<float> fgTex, texture2d<float> bloomTex) {
+                     texture2d<float> fogBTex, texture2d<float> fgTex, texture2d<float> bloomTex, float midVisible) {
     float4 fb = fogBTex.read(c.fogB);
     if (fb.a > 0.0f) {
         float3 lit = fb.rgb * (info.bank * u.look.w) + info.light * (u.fog.y * u.fog.z * fb.a);
         color = color * (1.0f - fb.a) + lit;
+        midVisible *= 1.0f - fb.a;
     }
     float4 f = fgTex.read(c.fg);
     if (f.a > 0.0f) {
         float3 lit = lh_cold(f.rgb, u.ambient.rgb * info.bank * u.light.w, u.look.x)
             + f.rgb * info.light * u.light.z;
         color = color * (1.0f - f.a) + lit;
+        midVisible *= 1.0f - f.a;
     }
     if (u.bloom.y > 0.5f) {
         constexpr sampler linear_clamp(coord::normalized, filter::linear, address::clamp_to_edge);
         color += bloomTex.sample(linear_clamp, c.bloomUV).rgb * u.bloom.x;
     }
-    return lh_grade(color, info.light, c, u);
+    return lh_grade(color, mix(info.light, info.backdrop, midVisible), c, u);
 }
 
 constant ushort kDigits[10] = { 0x7B6F, 0x2C97, 0x73E7, 0x73CF, 0x5BC9, 0x79CF, 0x79EF, 0x7249, 0x7BEF, 0x7BCF };
@@ -591,7 +616,8 @@ static float3 lh_debug_view(PlaneCoords c, PixelLight info, constant CompositeUn
                             texture2d<float> lightTex, texture2d<float> emissiveTex, texture2d<float> bloomTex,
                             texture2d<float> fogATex, texture2d<float> fogBTex) {
     if (u.debug.x == 1u) {
-        float3 l = lightTex.read(c.world).rgb;
+        float4 raw = lightTex.read(c.world);
+        float3 l = raw.rgb + u.backdropLight.rgb * raw.a;
         return l / (1.0f + l) * 1.6f;
     }
     if (u.debug.x == 2u) {
@@ -630,8 +656,9 @@ fragment float4 lh_composite_fragment(FullscreenOut in [[stage_in]],
         float3 view = lh_debug_view(c, info, u, lightTex, emissiveTex, bloomTex, fogATex, fogBTex);
         return float4(view, 1.0f);
     }
-    float3 color = lh_base(c, info, u, skyTex, cloudsTex, farTex, midTex, fogATex, worldTex, emissiveTex);
-    color = lh_top(color, c, info, u, fogBTex, fgTex, bloomTex);
+    float midVisible = 0.0f;
+    float3 color = lh_base(c, info, u, skyTex, cloudsTex, farTex, midTex, fogATex, worldTex, emissiveTex, midVisible);
+    color = lh_top(color, c, info, u, fogBTex, fgTex, bloomTex, midVisible);
     if (u.debug.z != 0u) {
         color = lh_debug_lights(color, c, u, lights);
     }
@@ -696,12 +723,14 @@ fragment float4 lh_actor_fragment(ActorOut in [[stage_in]],
     float2 p = in.position.xy;
     PlaneCoords c = lh_coords(p, u);
     PixelLight info = lh_pixel_light(c, u, lightTex);
-    float3 base = lh_base(c, info, u, skyTex, cloudsTex, farTex, midTex, fogATex, worldTex, emissiveTex);
+    float midVisible = 0.0f;
+    float3 base = lh_base(c, info, u, skyTex, cloudsTex, farTex, midTex, fogATex, worldTex, emissiveTex, midVisible);
     float3 albedo = texel.rgb * in.tint.rgb;
     float3 cold = lh_cold(albedo, u.ambient.rgb * info.bank, u.look.x);
     float3 lit = in.flags.x > 0.5f ? albedo : cold + albedo * info.light + info.light * u.look.y;
     float3 color = mix(base, lit, saturate(in.tint.a));
-    color = lh_top(color, c, info, u, fogBTex, fgTex, bloomTex);
+    midVisible *= 1.0f - saturate(in.tint.a);
+    color = lh_top(color, c, info, u, fogBTex, fgTex, bloomTex, midVisible);
     if (u.debug.z != 0u) {
         color = lh_debug_lights(color, c, u, lights);
     }

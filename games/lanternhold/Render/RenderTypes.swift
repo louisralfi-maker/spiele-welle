@@ -32,10 +32,12 @@ struct LightPassUniforms: Sendable {
     var style: SIMD4<UInt32>
 }
 
-/// `BloomUniforms`: low-res and half-res sizes; shares of point light and sky glow, threshold, knee.
+/// `BloomUniforms`: low-res and half-res sizes; shares of point light and sky glow, threshold, knee; the colour of the
+/// backdrop lights.
 struct BloomUniforms: Sendable {
     var size: SIMD4<Float>
     var params: SIMD4<Float>
+    var backdrop: SIMD4<Float>
 }
 
 /// `BlurUniforms`: the step in normalized coordinates and the texture size.
@@ -65,6 +67,7 @@ struct CompositeUniforms: Sendable {
     var farHaze: SIMD4<Float>
     var midHaze: SIMD4<Float>
     var cloud: SIMD4<Float>
+    var backdropLight: SIMD4<Float>
 }
 
 /// The look's knobs (DESIGN.md "Lighting model"): how the ambient ramp, the point lights, the fog, the bloom and the
