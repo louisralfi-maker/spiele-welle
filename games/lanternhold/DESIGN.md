@@ -37,6 +37,27 @@ Landscape, side view, pixel art. Lighting carries the mood: warm fire against a 
   `com.louisherwick.lanternhold`, slug `lanternhold`. Free on the App Store (US and DE search, 08.11.2026); no game of
   that name found on Steam, itch.io or the web. Recheck when the App Store record is created.
 
+## Louis' decisions (09.11.2026)
+
+- **Looks first:** "gib alles beim Aussehen, das sieht man ja am meisten" and "Game muss extrem schön werden". The art
+  bar ("Look", "Art bar") applies to every milestone.
+- **The castle seals the gorge.** In the first night mock the castle read as a low wall, and the town still stood under
+  the gorge cliffs. Louis wants a mighty castle that visibly blocks the only way out of the gorge, with the town
+  outside.
+- **Delegation:** he offered short loading screens between the gorge, the castle and the town. Then he left that choice
+  and every further product decision to Claude ("entscheide alles selber, dass es ein top game wird"). Those decisions
+  are logged below. His go before a submission and the legal answers stay his.
+
+## Decisions taken for Louis (log)
+
+| Date | Decision | Why |
+|---|---|---|
+| 09.11. | **Walk through, no loading screens.** The gorge, the castle and the town stay one continuous strip. At the castle's back gate the backdrop opens from the gorge into the valley. Long ways go by the realm strip. | Players of the genre value an unbroken realm, and an uninterrupted ride is what Kingdom's players praise most. The night battle stays in view while the king walks back. Walking out of the dark gorge through the gate into the bright valley is itself the clearest proof that the castle seals the gorge. And there is nothing to load on any phone. |
+| 09.11. | **The castle is the hero of the world.** A facade facing the camera fills the gorge's throat from cliff to cliff. Two round towers rise above the top of the screen, the gatehouse has a portcullis, and the flanks grow into the rock. The keep with the realm's banners stands above the walls and can be seen from the gorge and from the town. | Louis: "die Burg sieht nicht so mächtig aus". Size, silhouette and backdrop must tell at a glance where the king is. |
+| 09.11. | **The town lies outside, in the open valley:** a wide sky, rolling hills, far mountains, a river and a windmill. On the right the world ends at a broad river with the stumps of an old bridge; this replaces the waterfall and the end cliff. | It gives the strongest contrast: the narrow, dark gorge of the war against the bright, open land that the castle protects. |
+| 09.11. | **The gorge wall is one continuous rock face** with a jagged top and a narrow strip of sky, never a row of repeated pillars. Over its last 200 px before the castle it rises and closes in. | In the first mock, the repeated cliff pairs read as hourglass pillars. |
+| 09.11. | **Target pictures:** `docs/mood/world-castle-night.jpg` and `docs/mood/world-valley-golden.jpg`. They are Recraft concepts for composition and mood, not game art. | They are the reference for the art agents and for the review lens. |
+
 ## Not a copy
 
 The research (`docs/research-market-art.md`) lists what makes Kingdom, Yes, Your Grace and Reigns recognisable. We never
@@ -67,7 +88,8 @@ into a peaceful town.
    through: a mended bridge, guards on the wall, a missing bell, a dark window.
 3. **Light is life.** The Gloom shrinks from fire. Every torch, brazier and fire arrow is part of the defence, and the
    light pools are readable game state, not decoration.
-4. **One walk.** Front, castle and town are one continuous side-view strip, walked by one king. No travel menus.
+4. **One walk.** Front, castle and town are one continuous side-view strip, walked by one king. No travel menus, no
+   loading screens.
 5. **Made for a phone.** A day and night take about 5 minutes; the game saves at every dawn; two thumbs in landscape.
 
 ## The world (chapter 1: the Gorge)
@@ -78,14 +100,27 @@ One horizontal strip. `x` grows to the right in game pixels; the ground line is 
 |---|---|---|
 | 0 to 400 | The Gloom's mouth | The darkness bank rests here by day (a wall of black fog, soot motes, eye glints). Spawn point at x 40. |
 | 400 to 1300 | The front (gorge floor) | Beacon site at x 470 (chapter goal). Outer line at x 640, middle line at x 940, each with a wall slot, a tower slot, two brazier slots in front of it, an engine slot behind it and a trap slot in front. |
-| 1300 to 2300 | The castle | Gatehouse 1300 to 1420 (the inner wall: line 1, always built), courtyard 1420 to 1700 (barracks, smithy, well, builders' lodge), great hall 1700 to 1960 (throne and hearth fire), chapel of the Flame 1960 to 2120, kitchen 2120 to 2240, back gate 2240 to 2300. |
-| 2300 to 3600 | The town | Eight plots (houses, fields, market, tavern), market square with the well, lanes, lanterns. |
-| 3600 to 3800 | The end of the gorge | A waterfall and cliff close the world on the right. |
+| 1300 to 2300 | The castle | The castle front: the gatehouse 1300 to 1420 (the inner wall: line 1, always built) between two round towers, its flanks grown into the cliffs. Courtyard 1420 to 1700 under the keep (barracks, smithy, well, builders' lodge), great hall 1700 to 1960 (throne and hearth fire), chapel of the Flame 1960 to 2120, kitchen 2120 to 2240, back gate 2240 to 2300 between two smaller towers. |
+| 2300 to 3600 | The town (in the valley) | Eight plots (houses, fields, market, tavern), market square with the well, lanes, lanterns. |
+| 3600 to 3800 | The river | A broad river with the stumps of an old bridge closes the world on the right; forest and mountains beyond. |
 
 - Lines unlock over the chapter: line 1 at the start, the middle line on day 3, the outer line on day 8, the beacon site
   on day 11.
-- The gorge's cliffs rise above the top of the screen on both sides of the front and frame the castle. Behind the town
-  the gorge widens into a valley with fields and a far view.
+- **The gorge (0 to 1300):**
+  - Behind the front stands one continuous rock face (mid plane) with a jagged top, dead trees on the rim and a narrow
+    strip of sky with stars and the moon.
+  - In front, dark rock and hanging roots frame the screen (foreground plane).
+  - From x 1100 the gorge closes in: the back wall rises to the top of the screen and the foreground rock thickens, so
+    the castle stands in the gorge's throat.
+- **The castle (1300 to 2300)** seals the gorge (see "The castle"). Inside the walls the cliffs still rise behind the
+  courtyard.
+- **The valley (2300 to 3800):**
+  - Past the back gate the cliffs fall away and the land opens: a wide sky, rolling hills, a windmill, a river and far
+    mountains.
+  - The town lies here, outside the gorge, under open sky.
+  - The back of the castle and the gorge's last cliffs close the view on the left.
+- **Backdrop regions:** each parallax plane has a gorge set and a valley set. On each plane the border between them is
+  placed so that it lines up with the back gate when the camera is centred there.
 - The sun rises behind the town (right) and sets behind the Gloom (left): dawn pushes the night back to the left.
 
 ## Day and night
@@ -236,6 +271,17 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 
 ## The castle: walking, people, guests
 
+- **From the gorge**, the castle is a facade facing the camera that fills the gorge's throat:
+  - two round towers rise above the top of the screen (about 230 px);
+  - the gatehouse has a deep arched gate with an iron portcullis;
+  - the crenellations carry archers, braziers and banners;
+  - flanks of masonry grow into the rock on both sides.
+- **The keep** stands behind the courtyard. At about 250 px it is the tallest thing in the world, and its top and
+  banners show above the walls both from the gorge and from the town.
+- **The portcullis** drops with a heavy clang at the horn and rises at dawn. The king passes at any time, because the
+  guards lift it for him.
+- **From the town**, the back gate between two smaller towers is the castle's friendly face: banners, lanterns and
+  flower boxes.
 - The castle is drawn as a side-view building. When the king steps inside a room, its front wall fades out over 0.25 s
   and shows the cut-away interior in warm candle and hearth light; when he leaves, the wall returns.
 - Rooms, left to right: gatehouse (stairs to the wall walk), courtyard (barracks, smithy, well, builders' lodge), great
@@ -309,6 +355,7 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 
 ## The town
 
+- The town lies outside the gorge, in the open valley behind the castle (see "The world").
 - Eight plots on the right, fixed: four for houses, two for fields, one market, one tavern. Big houses replace houses.
 - Citizens walk between houses, fields and the market square; they wave at the king; children play when happiness is
   80 or more; grumblers stand with crossed arms below 30. At night the windows glow and the lanes have lanterns.
@@ -382,6 +429,22 @@ realm goes on in endless mode.
   important sits in the outer 30 game px.
 
 ## Look
+
+### Art bar (Louis: "extrem schön")
+
+- **Store-ready:** every screenshot must work as a store screenshot. That means a clear focal point and three depths
+  (backdrop, world, foreground), separated by aerial perspective, value contrast and fog, with warm light against cold
+  shadow.
+- **Places read at a glance** by silhouette and backdrop:
+  - the narrow gorge: rock walls and a strip of sky;
+  - the castle: towers above the screen;
+  - the valley: open sky and a far view.
+- **Always something to see:** no stretch longer than one screen without a feature worth looking at, such as a carved
+  statue, a ruin, a bridge, a shrine or a waterfall.
+- **No visible repetition:** tiles come in at least three variants, and nothing repeats at a fixed rhythm.
+- **Readable at night:** the castle, the king and the creatures keep a rim of moonlight or firelight.
+- **Review:** each milestone ends with an art-director review of the runner screenshots against the target pictures in
+  `docs/mood/`.
 
 ### Palette (start; the art step fixes 32 to 48 colours)
 
@@ -701,6 +764,7 @@ Louis chose to build 1.0 straight away. These steps follow the work method in `C
 | Step | Content | Louis sees |
 |---|---|---|
 | M1 Light and feel | renderer, pixel scale, parallax gorge, day and night, lights, fog, bloom, the walking king, placeholder art; the runner's Metal probe | screenshots: front at dusk and night, castle, throne room, town; 180 against 135 rows; three light styles |
+| M1b World and castle (09.11.) | the castle that seals the gorge, the continuous gorge wall, the open valley and the river end; new Recraft art for all of it; backdrop regions per plane; an art-director review against the target pictures | the castle at night from the gorge, the valley town at golden hour |
 | M2 Core loop | plots, builders, walls, towers, braziers, creatures, the automatic battle, the hearth, dawn report, saving | a whole day and night played by the bot |
 | M3 Castle and court | cut-away rooms, court characters, talking, audience, petitions from JSON, taxes, happiness | the audience in German |
 | M4 Town | plots, houses, fields, market, tavern, citizens' life, growth | the town by day and night |
