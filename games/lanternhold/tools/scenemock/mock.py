@@ -3,7 +3,19 @@
 # Usage (pure python, about a minute per frame on the old Mac; run with python3 -I, one at a time):
 #   python3 -I mock.py <games/lanternhold> layout=m1b focus=760 tod=0.95 gain=3.0 lift=0.55 midHaze=0.36 \
 #       midShare=0.7 fogBright=2.4 fogGlow=0.7 out=<file.png>
-import sys, os, math, re
+# Extras hook (M2b art lane): context scenes add entities without editing the layout.
+#   extras=<file.json>[,<file.json>…]  a JSON list of props, each {s (sprite id), frame (default 0), frames (optional:
+#       the strip's frame count; else SPRITES.md's, else 1), p (plane, default world), x (left edge, plane px) or cx (foot
+#       centre), y (bottom above the ground line, as layout_m1b.py), z (default 5: after every world prop), sh (shade,
+#       default 1), f (flip), lit (default true; false draws the body at shade 0.12, as the engine draws a creature
+#       outside every light), glow (id of a glow strip, drawn additively over the same frame, lit or not), gs (glow
+#       strength, default 1), em, li (as layout_m1b.py; extra light kinds fireArrow, firepot, beacon)}. A prop without
+#       s only adds its lights.
+#   king=off|<x>  no king, or the king's foot at x (default: at the focus, frame 0, with his lantern light)
+#   actors=off    without layout_m1b.ACTORS (the scale-check archers, citizens and eye glints)
+# sprite(name, frame) cuts frame n out of a horizontal strip PNG (frame width = PNG width / frame count; a PNG one
+# frame wide is used for every frame, as Atlas.splitFrames does).
+import sys, os, math, re, json
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 from core import *
 from pngr import read_png
@@ -21,8 +33,24 @@ for k in list(LOOK):
     if k in args: LOOK[k] = float(args[k])
 src = open(os.path.join(G, 'Core/FrameDesc.swift')).read()
 SIZES = {m.group(1): (int(m.group(2)), int(m.group(3))) for m in re.finditer(r'case \.(\w+): return PixelSize\(width: (\d+), height: (\d+)\)', src)}
+def _contract():  # SPRITES.md tables: id -> (frame width, height, frames); glow strips as their creature
+    out = {}; path = os.path.join(G, 'SPRITES.md')
+    if not os.path.exists(path): return out
+    text = open(path).read()
+    for line in text.splitlines():
+        cells = [c.strip() for c in line.strip().strip('|').split('|')]
+        if len(cells) < 3 or '`' not in cells[0]: continue
+        ids = re.findall(r'`(\w+)`', cells[0]); sizes = re.findall(r'(\d+)x(\d+)', cells[1]); n = re.match(r'(\d+)', cells[2])
+        if not ids or not sizes or not n: continue
+        for k, i in enumerate(ids):
+            w, h = sizes[k] if len(sizes) == len(ids) else sizes[0]; out[i] = (int(w), int(h), int(n.group(1)))
+    for m in re.finditer(r'`(\w+)Glow`', text):
+        if m.group(1) in out and m.group(1) + 'Glow' not in out: out[m.group(1) + 'Glow'] = out[m.group(1)]
+    return out
+CONTRACT = _contract()
 class _Sizes(dict):
-    def __missing__(self, name):  # sprites not yet in FrameDesc: the PNG header gives the size
+    def __missing__(self, name):  # sprites not yet in FrameDesc: SPRITES.md's frame size, else the PNG header
+        if name in CONTRACT: self[name] = CONTRACT[name][:2]; return self[name]
         import struct
         with open(os.path.join(G, 'Resources/Art', name + '.png'), 'rb') as fh: head = fh.read(24)
         v = struct.unpack('>II', head[16:24]); self[name] = v; return v
@@ -86,12 +114,21 @@ def grass():
             c[7 - st][x] = g[3] if st == hh - 1 else (g[1] if st < 2 else g[2])
     return c
 CACHE = {}
-def sprite(name, frame=0):
-    key = (name, frame)
+def cut_frame(name, img, frame, frames=None):
+    """Frame `frame` of a horizontal strip: frame width = PNG width / frame count (the `frames` argument, else
+    SPRITES.md's count); a PNG one frame wide (SPRITES.md's width) serves every frame, as Atlas.splitFrames does."""
+    n = int(frames) if frames else CONTRACT.get(name, (0, 0, 1))[2]
+    W = len(img[0])
+    if n <= 1 or (not frames and W == CONTRACT[name][0]): return img
+    fw = W // n; k = int(frame) % n
+    return [r[k * fw:(k + 1) * fw] for r in img]
+def sprite(name, frame=0, frames=None):
+    key = (name, frame) if frames is None else (name, frame, frames)
     if key in CACHE: return CACHE[key]
     path = os.path.join(G, 'Resources/Art', name + '.png')
     if os.path.exists(path):
         w, h, px, _ = read_png(path); img = [[p if p[3] > 0 else None for p in r] for r in px]
+        img = cut_frame(name, img, frame, frames)
     elif name == 'king': img = king(frame)
     elif name == 'archer': img = grid('archerRows')
     elif name == 'citizen': img = grid('citizenRows')
@@ -167,6 +204,26 @@ def layout_props():
         out.append(dict(s=d['s'], p=plane, x=d['x'], y=d['y'], z=d['z'], sh=d['sh'], f=d['f'], em=em, li=li,
                         masks=masks, anchor=d['anchor'], lp=plane, fade=d.get('fade'), mv=d.get('mv'), fadeout=d.get('fadeout')))
     return out
+COLX = dict(COL, fireArrow=fireWhite, firepot=fireOrange, beacon=fireWhite)  # light kinds of the extras
+UNLIT = 0.12  # an unlit creature's body: very low value, its glow strip carries it (SPRITES.md)
+def extra_props():
+    """The extras hook: props from extras=<file.json>[,…] (see the header), drawn with the layout's props."""
+    out = []
+    for path in [q for q in args.get('extras', '').split(',') if q]:
+        for d in json.load(open(path)):
+            s = d.get('s'); fr = int(d.get('frame', 0)); nf = d.get('frames'); plane = d.get('p', 'world')
+            w = len(sprite(s, fr, nf)[0]) if s else 0
+            x = d['x'] if 'x' in d else d.get('cx', 0) - w // 2
+            em, masks, li = [], [], []
+            for e in d.get('em', []):
+                if e[0] == 'sprite': em.append((e[1], e[2], e[3], NAMED[e[4]], e[5]))
+                else: masks.append((e[1], e[2], e[3], e[4], (1.0, 0.76, 0.42)))
+            for (kind, lx, ly, r) in d.get('li', []):
+                li.append((kind, lx, ly, r, COLX[kind], 0.8 if kind == 'window' else 1))
+            out.append(dict(s=s, p=plane, x=x, y=d.get('y', 0), z=d.get('z', 5), sh=d.get('sh', 1.0), f=bool(d.get('f', False)),
+                            em=em, li=li, masks=masks, anchor='ground', lp=plane, extra=True, frame=fr, frames=nf,
+                            lit=d.get('lit', True), glow=d.get('glow'), gs=d.get('gs', 1.0)))
+    return out
 ORDER = ['sky', 'far', 'mid', 'fogA', 'world', 'fogB', 'fg']
 def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86, 40)), houseWin=((14, 14), (44, 14))):
     TW, TH = 438, 201; GROUND = TH - 26; VIS = 437
@@ -195,6 +252,7 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                     d = L[y][x]; L[y][x] = (c[0] + d[0] * (1 - a), c[1] + d[1] * (1 - a), c[2] + d[2] * (1 - a), a + d[3] * (1 - a))
                     if occl and a >= 0.5: emis[y][x] = (0.0, 0.0, 0.0)  # glow behind a sprite drawn later is hidden
     props = [] if LAB else (layout_props() if LAYOUT else build_scene(chapelWin, kitchenWin, houseWin))
+    if args.get('extras'): props += extra_props()
     lights = []
     ground = sprite('ground')
     if LAB:
@@ -234,8 +292,10 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                 p = m[j][i]
                 if p: skyAdd[top + j][left + i] = tuple(skyAdd[top + j][left + i][k] + p[k] / 255 * tint[k] * a for k in range(3))
     for pr in sorted(props, key=lambda q: (ORDER.index(q['p']), q['z'])):
-        w, h = SIZES[pr['s']]; left = pr['x'] - whole[pr.get('mv') or pr['p']]  # moves: another plane's parallax
-        if left + w < -1 or left > TW + 1: continue
+        isx = pr.get('extra'); ximg = sprite(pr['s'], pr['frame'], pr['frames']) if isx and pr['s'] else None
+        w, h = (len(ximg[0]), len(ximg)) if ximg else ((0, 0) if isx else SIZES[pr['s']])
+        left = pr['x'] - whole[pr.get('mv') or pr['p']]  # moves: another plane's parallax
+        if (ximg or not isx) and (left + w < -1 or left > TW + 1): continue
         # top-anchored lips never hang below y 139 (FrameBuilder.lipLowestBottom, polish after the art review)
         top = min(pr['y'], GROUND - 139 - h) if pr.get('anchor') == 'top' else GROUND - pr['y'] - h
         fa = 1.0
@@ -245,10 +305,17 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
         if pr.get('fadeout'):  # and out again
             f2, f3 = pr['fadeout']; fa *= 1 - min(1.0, max(0.0, (camx + VIS / 2 - f2) / (f3 - f2)))
             if fa <= 0.003: continue
-        draw(pr['p'], sprite(pr['s']), int(left), int(top), (pr['sh'], pr['sh'], pr['sh'], fa), pr['f'])
+        if isx:  # an extra: its frame, at shade 0.12 when unlit, then its glow strip added over the same frame
+            if ximg:
+                shd = pr['sh'] * (1 if pr['lit'] else UNLIT)
+                draw(pr['p'], ximg, int(left), int(top), (shd, shd, shd, 1.0), pr['f'])
+                if pr['glow']:
+                    g = pr['gs']; draw(pr['p'], sprite(pr['glow'], pr['frame'], pr['frames']), int(left), int(top), (g, g, g, 1.0), pr['f'], add=emis)
+        else:
+            draw(pr['p'], sprite(pr['s']), int(left), int(top), (pr['sh'], pr['sh'], pr['sh'], fa), pr['f'])
         for (dx, dy, mw, mh, col) in pr.get('masks', []):  # window glass: the sprite's dark pixels in a rect glow
             if torchS < 0.01: continue
-            img = sprite(pr['s']); rgb = [c * torchS * 0.9 for c in col]
+            img = ximg if isx else sprite(pr['s']); rgb = [c * torchS * 0.9 for c in col]
             for j in range(mh):
                 sy = h - 1 - (dy + j)
                 for i in range(mw):
@@ -273,9 +340,9 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                 cx = round(VIS * share); cy = GROUND - hgt; lights.append((cx, cy, (22, 40, 64)[k], col, 1.0))
                 sw, sh = SIZES[es]; pk = max(col); hue = [c / pk for c in col]; tint = [(1 + (hue[i] - 1) * 0.4) * pk for i in range(3)] + [1]
                 draw('world', sprite(es), cx - sw // 2, cy - sh // 2, tint, add=emis)
-    else:
-        # king and his lantern
-        kx = FOCUS; lights.append((kx + 9 - whole['world'], GROUND - 16, 40, fireGold, torchS * 0.85))
+    elif args.get('king') != 'off':
+        # king and his lantern (king=<x> moves him, king=off leaves him out: a scene adds him as an extra)
+        kx = FOCUS if 'king' not in args else float(args['king']); lights.append((kx + 9 - whole['world'], GROUND - 16, 40, fireGold, torchS * 0.85))
     # fog
     fogA = (amb['fogColor'], amb['fogD'] * 0.9 * LOOK['fogScale']); fogB = (amb['fogColor'], amb['fogD'] * 0.6 * LOOK['fogScale'])
     for name, (fc, fd), fy in (('fogA', fogA, -4), ('fogB', fogB, -14)):
@@ -289,11 +356,11 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
             off = (2, 9) if kind == 's' else (6, 10)
             actors.append(('eyeGlints', x + off[0], off[1], (1.0, 0.86, 0.55, 1), True, False))
         if LAYOUT:
-            actors = [(n, x, y, (1.0, 0.86, 0.55, 1) if n == 'eyeGlints' else (1, 1, 1, 1), em, fl) for (n, x, y, em, fl) in LM.ACTORS]
+            actors = [] if args.get('actors') == 'off' else [(n, x, y, (1.0, 0.86, 0.55, 1) if n == 'eyeGlints' else (1, 1, 1, 1), em, fl) for (n, x, y, em, fl) in LM.ACTORS]
         else:
             for k in range(3): actors.append(('archer', 946 + 12 * k, 52, (1, 1, 1, 1), False, True))
             actors.append(('citizen', 2902, 0, (1, 1, 1, 1), False, False)); actors.append(('citizen', 2944, 0, (1, 1, 1, 1), False, True))
-        actors.append(('king', FOCUS, 0, (1, 1, 1, 1), False, False))
+        if args.get('king') != 'off': actors.append(('king', kx, 0, (1, 1, 1, 1), False, False))
     # light pass
     edge = 0.12
     for (cx, cy, r, col, it) in lights:
