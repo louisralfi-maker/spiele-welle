@@ -61,13 +61,14 @@ enum PetitionEngine {
     /// acts); a queue drawn already only loses petitioners whose petition no longer exists.
     static func prepare(_ s: inout GameState, catalog: PetitionCatalog) {
         guard DayClock.phase(at: s.hour) == .day, !s.defeated else { return }
-        var court = s.court ?? CourtState()
-        if court.queueDay == s.day {
-            let before = court.queue.count
-            court.queue.removeAll { catalog.petition($0.id) == nil }
-            if court.queue.count != before { s.court = court }
+        // Runs after every step: nothing is copied while today's queue stands.
+        if s.court?.queueDay == s.day {
+            if s.court?.queue.contains(where: { catalog.petition($0.id) == nil }) == true {
+                s.court?.queue.removeAll { catalog.petition($0.id) == nil }
+            }
             return
         }
+        var court = s.court ?? CourtState()
         court.queueDay = s.day
         court.queue = draw(s, court: court, catalog: catalog)
         s.court = court

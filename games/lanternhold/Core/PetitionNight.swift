@@ -80,9 +80,9 @@ struct NightPlanModifiers: Sendable, Equatable {
 
     /// The darkness bank's extra advance tonight (read every step, so it stays cheap without modifiers).
     static func bankShift(_ s: GameState) -> Double {
-        guard let court = s.court, !court.nightModifiers.isEmpty else { return 0 }
+        guard let modifiers = s.court?.nightModifiers, !modifiers.isEmpty else { return 0 }
         let night = s.nightNumber
-        for entry in court.nightModifiers where entry.night == night && entry.id == "fog" {
+        for entry in modifiers where entry.night == night && entry.id == "fog" {
             return fogShift
         }
         return 0
