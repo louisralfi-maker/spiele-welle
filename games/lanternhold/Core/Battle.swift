@@ -167,7 +167,8 @@ enum Battle {
         }
         if let boss = boss(night: night) {
             let jitter = rng.double(in: -8...8)
-            spawns.append(SpawnEntry(time: max(1, balance.bossSecond + jitter), kind: boss, wave: 0))
+            let base = boss == .lightlessKing ? balance.kingSecond : balance.bossSecond
+            spawns.append(SpawnEntry(time: max(1, base + jitter), kind: boss, wave: 0))
         }
         // Stable order by time (the index breaks ties).
         let order = spawns.indices.sorted { a, b in
@@ -453,17 +454,24 @@ enum Battle {
             lights.append(LightSource(kind: .hearth, x: Realm.hearthX + 13, y: 10, radius: balance.hearthRadius,
                                       flickerSeed: 0x4845_4152))
         }
-        if s.beaconLit {
-            lights.append(LightSource(kind: .beacon, x: Realm.beaconX, y: balance.beaconFlameY,
-                                      radius: balance.beaconRadius, flickerSeed: 0x4245_4143))
+        let beacon = beaconRadius(s, balance: balance)
+        if beacon > 0 {
+            lights.append(LightSource(kind: .beacon, x: Realm.beaconX, y: balance.beaconFlameY, radius: beacon,
+                                      flickerSeed: 0x4245_4143))
         }
         return lights
     }
 
-    /// The darkness bank's edge now; with the beacon lit it stops short of the beacon.
+    /// The lit beacon's radius: full on the finale night, `beaconEndlessRadius` on the endless nights after it.
+    static func beaconRadius(_ s: GameState, balance: Balance) -> Double {
+        guard s.beaconLit else { return 0 }
+        return s.day <= 20 ? balance.beaconRadius : balance.beaconEndlessRadius
+    }
+
+    /// The darkness bank's edge now; while the beacon shines it stops short of the beacon.
     static func bankEdge(_ s: GameState, balance: Balance) -> Double {
         var nightEdge = DarknessBank.nightEdge(night: s.nightNumber)
-        if s.beaconLit { nightEdge = min(nightEdge, balance.beaconBankEdge) }
+        if beaconRadius(s, balance: balance) > 0 { nightEdge = min(nightEdge, balance.beaconBankEdge) }
         return DarknessBank.edge(hour: s.hour, restingEdge: DarknessBank.restingEdge, nightEdge: nightEdge)
     }
 
@@ -620,7 +628,9 @@ enum Battle {
                 case .hearth:
                     c.action = .atHearth
                     c.target = -1
-                    hearthDrain += balance.hearthDrain * dt
+                    var drain = balance.hearthDrain
+                    if c.kind.isBoss && balance.bossesDrainByHarm { drain = max(drain, stats.harm * harmScale) }
+                    hearthDrain += drain * dt
                 }
             } else {
                 c.x = nextX

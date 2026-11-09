@@ -17,33 +17,33 @@ enum SimTune {
             change(&balance)
             list.append(Variant(name: name, balance: balance))
         }
-        add("gate3500") { $0.gateHP[0] = 3500 }
-        add("gate4500") { $0.gateHP[0] = 4500 }
-        add("tax4.5") { $0.taxPerPayer = 4.5 }
-        add("tax5.5") { $0.taxPerPayer = 5.5 }
-        add("budget8") { $0.budgetPerNight = 8 }
-        add("budget10") { $0.budgetPerNight = 10 }
-        add("budget11") { $0.budgetPerNight = 11 }
-        add("budget12") { $0.budgetPerNight = 12 }
-        add("harm0.8") { $0.creatureHarmScale = 0.8 }
-        add("harm1.3") { $0.creatureHarmScale = 1.3 }
-        add("hp0.8") { $0.creatureHPScale = 0.8 }
-        add("hp1.3") { $0.creatureHPScale = 1.3 }
-        add("quad0.1") { $0.endlessQuadratic = 0.1 }
-        add("quad0.3") { $0.endlessQuadratic = 0.3 }
-        add("kingStrong") { b in
-            b.creatures[CreatureKind.lightlessKing.index].hp = 3600
-            b.creatures[CreatureKind.lightlessKing.index].unlitSpeed = 20
-            b.creatures[CreatureKind.lightlessKing.index].litSpeed = 15
-            b.creatures[CreatureKind.lightlessKing.index].harm = 80
+        func king(_ b: inout Balance, speed: Double, harm: Double) {
+            b.creatures[CreatureKind.lightlessKing.index].unlitSpeed = speed
+            b.creatures[CreatureKind.lightlessKing.index].litSpeed = speed
+            b.creatures[CreatureKind.lightlessKing.index].harm = harm
         }
-        add("weaver0.05") { $0.weaverShare = 0.05 }
-        add("bubble36") { $0.weaverBubble = 36 }
-        add("brute0.3") { $0.bruteShare = 0.3 }
-        add("archer5") { $0.archerDamage = 5 }
-        add("high-6") { $0.happinessHighTax = -6 }
-        add("jitter0") { $0.shareJitter = 0 }
-        add("lastWave60") { $0.lastWaveSecond = 60 }
+        // T6: the Lightless King's march (speed and harm), his start.
+        for (speed, harm) in [(20.0, 150.0), (22, 150), (26, 150), (28, 150), (24, 100), (24, 220), (24, 300),
+                              (20, 220), (22, 220), (28, 100), (30, 80)] {
+            add("k\(Int(speed))h\(Int(harm))") { king(&$0, speed: speed, harm: harm) }
+        }
+        add("kSec20") { $0.kingSecond = 20 }
+        add("kSec2") { $0.kingSecond = 2 }
+        add("kNoDrain") { $0.bossesDrainByHarm = false }
+        // T7: the beacon's light on endless nights and the endless growth.
+        for (radius, quad) in [(0.0, 0.05), (0, 0.15), (0, 0.4), (300, 0.05), (300, 0.4), (300, 1.0), (600, 0.4),
+                               (600, 1.0), (600, 1.5)] {
+            add("e\(Int(radius))q\(quad)") { b in
+                b.beaconEndlessRadius = radius
+                b.endlessQuadratic = quad
+            }
+        }
+        // Robustness of T1 to T5.
+        add("tax4.75") { $0.taxPerPayer = 4.75 }
+        add("tax5.25") { $0.taxPerPayer = 5.25 }
+        add("harm1.1") { $0.creatureHarmScale = 1.1 }
+        add("hp1.1") { $0.creatureHPScale = 1.1 }
+        add("budget9.5") { $0.budgetPerNight = 9.5 }
         return list
     }
 
@@ -60,7 +60,7 @@ enum SimTune {
         line += " | T3 \(m.t3BeaconDays) low\(m.t3LowTaxBeaconDay)"
         line += " | T4 high\(m.t4HighTaxDay8) low\(m.t4LowTaxMin)"
         line += " | T5 tax\(m.t5FirstTaxes) b\(m.t5FirstBuilds) d10:\(m.t5BuildingsDay10)"
-        line += " | T6 \(m.t6WithBeacon)/\(m.t6WithoutBeacon) of \(m.t6Seeds)"
+        line += " | T6 \(m.t6WithBeacon)/\(m.t6WithoutBeacon) of \(m.t6Seeds) \(m.t6FallHours)"
         line += " | T7 \(m.t7FellOn)"
         line += " | T8 \(Int(m.t8LastSpawnSecond.rounded()))s e\(m.t8Entities) l\(m.t8Lights)"
         line += " | \(Int(seconds.rounded())) s"

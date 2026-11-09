@@ -29,6 +29,9 @@ struct Autoplay: Sendable, Equatable {
     var patchesTonight = 0
     var maxPatchesPerNight = 3
     var patchNight = 0
+    /// The army the bot has had at its strongest: fallen soldiers are replaced up to it.
+    var archerTarget = 0
+    var guardTarget = 0
 
     static func reference(tax: TaxRate = .normal, buildsBeacon: Bool = true) -> Autoplay {
         Autoplay(plan: .reference, tax: tax, buildsBeacon: buildsBeacon)
@@ -131,12 +134,28 @@ struct Autoplay: Sendable, Equatable {
         return current.tier >= item.tier
     }
 
+    /// True while one more soldier still leaves enough taxpayers (soldiers stay at most `soldierShare` of the people).
+    private func canRecruit(_ s: GameState) -> Bool {
+        s.taxpayers - 1 >= Int((soldierShare * Double(s.citizens)).rounded(.up))
+    }
+
     private mutating func planDay(_ s: inout GameState, balance: Balance, events: inout [SimEvent]) {
         for plot in Realm.wallsOuterFirst.reversed() {
             let state = s.plots[plot]
             guard state.isRubble, state.job == nil, let item = state.item else { continue }
             if s.gold < Build.rebuildPrice(item, balance: balance) { return }
             Build.order(&s, plot: plot, item: item, balance: balance, events: &events)
+        }
+        // Replace the fallen before anything else.
+        archerTarget = max(archerTarget, s.archerCount)
+        guardTarget = max(guardTarget, s.guardCount)
+        while s.archerCount < archerTarget && canRecruit(s) && Battle.posts(s, balance: balance).count > s.archerCount {
+            if s.gold < balance.archerPrice { return }
+            if !Build.recruit(&s, kind: .archer, balance: balance, events: &events) { break }
+        }
+        while s.guardCount < guardTarget && canRecruit(s) {
+            if s.gold < balance.guardPrice { return }
+            if !Build.recruit(&s, kind: .guardsman, balance: balance, events: &events) { break }
         }
         let order = Autoplay.referenceOrder
         var guardSteps = 0

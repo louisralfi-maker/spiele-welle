@@ -114,9 +114,9 @@ struct Balance: Sendable, Equatable {
         ItemStats(.ballista, price: 70, time: 18),
         ItemStats(.catapult, price: 110, time: 26),
         ItemStats(.stakePit, price: 15, time: 6),
-        ItemStats(.beaconBase, price: 150, time: 30),
-        ItemStats(.beaconTower, price: 250, time: 40),
-        ItemStats(.greatBeacon, price: 400, time: 60),
+        ItemStats(.beaconBase, price: 120, time: 30),
+        ItemStats(.beaconTower, price: 220, time: 40),
+        ItemStats(.greatBeacon, price: 360, time: 60),
         ItemStats(.smithy, price: 60, time: 20),
         ItemStats(.masterSmithy, price: 150, time: 20),
         ItemStats(.lodge, price: 60, time: 20),
@@ -213,7 +213,7 @@ struct Balance: Sendable, Equatable {
                       burns: false),
         CreatureStats(.ashGiant, firstNight: 10, hp: 1000, unlit: 10, lit: 7, harm: 60, points: 0, height: 110,
                       burns: false),
-        CreatureStats(.lightlessKing, firstNight: 20, hp: 2400, unlit: 12, lit: 9, harm: 40, points: 0, height: 64,
+        CreatureStats(.lightlessKing, firstNight: 20, hp: 2400, unlit: 24, lit: 24, harm: 150, points: 0, height: 64,
                       burns: false),
     ]
 
@@ -242,12 +242,18 @@ struct Balance: Sendable, Equatable {
     var waveSpread = 10.0
     var spawnInterval = 0.35
     var bossSecond = 20.0
+    /// The Lightless King leaves the Gloom this many seconds after nightfall (± 8 s) and marches on the hearth.
+    var kingSecond = 10.0
+    /// Bosses drain the hearth by their harm per second (other creatures by `hearthDrain`).
+    var bossesDrainByHarm = true
     /// Night 20: a finished Great Beacon is lit at this hour and the Gloom recedes (DESIGN.md "Story").
     var beaconLightHour = 4.5
     var beaconRadius = 600.0
     var beaconFlameY = 60.0
     /// With the beacon lit, the darkness bank stops here at night.
     var beaconBankEdge = 360.0
+    /// The lit beacon's radius on the endless nights after the finale (0: it lights only the finale).
+    var beaconEndlessRadius = 300.0
     /// Global knobs for the tuning harness.
     var creatureHPScale = 1.0
     var creatureHarmScale = 1.0

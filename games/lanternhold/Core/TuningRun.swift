@@ -54,6 +54,8 @@ struct TuningMetrics: Sendable {
     var t6WithBeacon = 0
     var t6WithoutBeacon = 0
     var t6Seeds = 0
+    /// Night 20 without the beacon: the hour the realm fell (× 100, so 435 is 04:21), 0 when it held.
+    var t6FallHours: [Int] = []
     var t7FellOn: [Int] = []
     var t8LastSpawnSecond = 0.0
     var t8Night = 0
@@ -222,6 +224,7 @@ enum TuningRun {
                 var line = "seed \(seed): beacon stage \(first.final.beaconStage)"
                 if let o = withRun.outcomes.last { line += " | with: " + logLine(o) }
                 if let o = withoutRun.outcomes.last {
+                    m.t6FallHours.append(o.defeatHour.map { Int(($0 * 100).rounded()) } ?? 0)
                     line += " | without: " + (o.survived ? "held" : "FELL")
                     line += " hearth \(Int(o.hearthLowest.rounded())) walls lost \(o.wallsLost) fallen \(o.fallen)"
                     if let hour = o.defeatHour { line += " at \(Int((hour * 100).rounded()))" }
