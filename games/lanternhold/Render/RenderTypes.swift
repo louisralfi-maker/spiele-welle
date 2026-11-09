@@ -61,6 +61,10 @@ struct CompositeUniforms: Sendable {
     var debug: SIMD4<UInt32>
     var haze: SIMD4<Float>
     var look: SIMD4<Float>
+    var ambientMid: SIMD4<Float>
+    var farHaze: SIMD4<Float>
+    var midHaze: SIMD4<Float>
+    var cloud: SIMD4<Float>
 }
 
 /// The look's knobs (DESIGN.md "Lighting model"): how the ambient ramp, the point lights, the fog, the bloom and the
@@ -108,6 +112,19 @@ enum Look {
     static let midHazeDay: Float = 0.12
     static let midHazeNight: Float = 0.36
     static let mist: Float = 0.22
+    /// Aerial perspective at warm hours (M1b, ART.md "Renderer additions"): by `aerialWeight` (0 by day and at night,
+    /// 1 at golden hour) the far plane hazes toward a cool lavender and keeps only `farWarmKeep` of the warm light, the
+    /// mid plane a larger share, so the distance stays cool while the near world glows.
+    static let aerialLavender = SIMD3<Float>(0.62, 0.60, 0.86)
+    static let farHazeCool: Float = 0.75
+    static let midHazeCool: Float = 0.25
+    static let farWarmKeep: Float = 0.3
+    static let midWarmKeep: Float = 0.7
+    /// Clouds: the sunlit tops take this share of the ambient light, the shaded bellies this share of the sky's top
+    /// colour, then this much haze toward the horizon colour.
+    static let cloudSun: Float = 1.1
+    static let cloudFill: Float = 1.7
+    static let cloudHaze: Float = 0.25
 
     /// Lights of these kinds shine gentler in the picture (they light only the scene): windows, candles, and the king's
     /// lantern a little.
@@ -145,6 +162,38 @@ enum Look {
         let peak = max(0.001, max(color.x, max(color.y, color.z)))
         let level = ambientLift + (1 - ambientLift) * min(1, max(0, sample.ambientIntensity))
         return color / peak * level
+    }
+
+    /// How warm the hour is for the aerial perspective: 0 by day and at night, 1 at golden hour (warmth 0.45).
+    static func aerialWeight(_ sample: AmbientSample) -> Float {
+        min(1, max(0, sample.warmth / 0.45))
+    }
+
+    /// A colour pulled `amount` of the way toward a cool grey of its own luminance.
+    static func cooled(_ color: SIMD3<Float>, by amount: Float) -> SIMD3<Float> {
+        let luma = 0.299 * color.x + 0.587 * color.y + 0.114 * color.z
+        let cool = SIMD3<Float>(luma * 0.94, luma * 0.96, luma * 1.12)
+        return color + (cool - color) * amount
+    }
+
+    /// The far plane's ambient: its share of the world's, keeping only part of the warm light at warm hours.
+    static func farAmbient(_ sample: AmbientSample) -> SIMD3<Float> {
+        cooled(worldAmbient(sample) * farShare, by: (1 - farWarmKeep) * aerialWeight(sample))
+    }
+
+    /// The mid plane's ambient, likewise with a larger share of the warm light.
+    static func midAmbient(_ sample: AmbientSample) -> SIMD3<Float> {
+        cooled(worldAmbient(sample) * midShare, by: (1 - midWarmKeep) * aerialWeight(sample))
+    }
+
+    /// The far plane's haze colour: the horizon, toward lavender at warm hours.
+    static func farHazeColor(_ sample: AmbientSample) -> SIMD3<Float> {
+        sample.skyBottom + (aerialLavender - sample.skyBottom) * (farHazeCool * aerialWeight(sample))
+    }
+
+    /// The mid plane's haze colour: a quarter of the far plane's pull toward lavender.
+    static func midHazeColor(_ sample: AmbientSample) -> SIMD3<Float> {
+        sample.skyBottom + (aerialLavender - sample.skyBottom) * (midHazeCool * aerialWeight(sample))
     }
 
     /// The grade's saturation: the ramp's value, softened (the cold areas lose some colour, never all).
