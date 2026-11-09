@@ -154,8 +154,7 @@ enum SimTune {
 /// stage (as `TuningRun.measure` does). The variants in T6's bands (won with the beacon on every seed, 30 to 60 % held
 /// without) and the standard also get night 20's step check (seeds 1 to 3), the draw test (night 20 without the beacon
 /// with the King leaving at the earliest and at the latest second the spread allows: the seeds whose outcome flips
-/// hang on the draw, not on the realm) and T7 over 20 endless seeds; the first of them also T7 with other endless
-/// growth.
+/// hang on the draw, not on the realm) and T7 over 20 endless seeds with each endless growth of `quadratics`.
 extension SimTune {
     struct KingVariant {
         let name: String
@@ -180,29 +179,22 @@ extension SimTune {
         }
     }
 
-    /// The standard first, then the jitter narrowed, then narrowed and shifted earlier, then a faster walk, then both.
+    /// The standard first, then the departures around T6's band. Round lh-m3-j1 swept 10 s with the jitter narrowed to
+    /// 4, 3, 2, 1 and 0, the departure at 8, 6, 4 and 3 s with ± 2 and ± 1, and his dark walk at 25 to 28 px/s: without
+    /// the beacon 30 to 60 % held from about 6 s on, the step check passed at 4 ± 1 and 3 ± 2, and the dark walk was too
+    /// steep (25 px/s held 11 or 13 of 20, 26 px/s 5). This sweep fills the departures between with ± 1, ± 0 and ± 2.
     static func kingVariants() -> [KingVariant] {
         var list: [KingVariant] = [KingVariant(second: 10, jitter: 8, dark: 24)]
-        for jitter in [4.0, 3, 2, 1, 0] {
-            list.append(KingVariant(second: 10, jitter: jitter, dark: 24))
-        }
-        for jitter in [2.0, 1] {
-            for second in [8.0, 6, 4, 3] {
+        for jitter in [1.0, 0, 2] {
+            for second in [7.0, 6, 5, 4, 3] {
                 list.append(KingVariant(second: second, jitter: jitter, dark: 24))
-            }
-        }
-        for jitter in [2.0, 1] {
-            for dark in [25.0, 26, 27, 28] {
-                list.append(KingVariant(second: 10, jitter: jitter, dark: dark))
-            }
-        }
-        for dark in [25.0, 26] {
-            for second in [8.0, 6] {
-                list.append(KingVariant(second: second, jitter: 2, dark: dark))
             }
         }
         return list
     }
+
+    /// The endless growths T7 is measured with for every variant in T6's bands (0.4 is the standard).
+    static let quadratics: [Double] = [0.4, 0.45, 0.5, 0.55]
 
     /// One seed's realm at dawn 20.
     struct Eve {
@@ -305,7 +297,10 @@ extension SimTune {
 
     static func t7Text(_ falls: [Int]) -> String {
         let inBand = falls.filter { $0 >= 35 && $0 <= 60 }.count
-        return "T7 \(falls) in 35-60: \(inBand)/\(falls.count)"
+        let fell = falls.filter { $0 > 0 }.sorted()
+        let median = fell.isEmpty ? 0 : fell[fell.count / 2]
+        return "T7 \(falls) in 35-60: \(inBand)/\(falls.count), standing at the cap \(falls.count - fell.count), "
+            + "median fall \(median)"
     }
 
     static func finale() {
@@ -328,7 +323,6 @@ extension SimTune {
             + "left, seconds of light left | without: held, his departure second, the hearth first reached (second), "
             + "margins (F = fell n s before first light, H = held, hearth lowest) | step check | draw test | T7")
         var candidates: [KingVariant] = []
-        var evaluated = 0
         for variant in kingVariants() {
             let started = Date()
             let balance = variant.balance()
@@ -339,10 +333,9 @@ extension SimTune {
             let inBand = r.seeds > 0 && r.won == r.seeds && 10 * r.held >= 3 * r.seeds && 10 * r.held <= 6 * r.seeds
             let isStandard = variant.second == standard.kingSecond && variant.jitter == standard.kingJitter
                 && variant.dark == standard.creature(.lightlessKing).unlitSpeed
-            // At most eight variants in the bands get the step check and the draw test, the standard and the first four
-            // that pass the step check also T7 (each T7 plays 20 endless realms).
-            if isStandard || (inBand && evaluated < 8) {
-                if inBand { evaluated += 1 }
+            var extra: [String] = []
+            // Every variant in the bands, and the standard: the step check, the draw test and T7 with each growth.
+            if isStandard || inBand {
                 var failures: [String] = []
                 for seed: UInt64 in 1...3 {
                     failures += TuningRun.nightTwentyStepCheck(seed: seed, balance: balance).failures
@@ -350,23 +343,16 @@ extension SimTune {
                 line += " | steps " + (failures.isEmpty ? "ok" : "FAIL \(failures)")
                 let draw = drawTest(eves, variant: variant)
                 line += " | draw: held \(draw.early) leaving first, \(draw.late) leaving last, \(draw.flips) flip"
-                if isStandard || (failures.isEmpty && candidates.count < 4) {
-                    line += " | " + t7Text(endlessFalls(r, balance: balance))
+                // Night 20 does not depend on the endless growth, so its dawns serve every growth.
+                for quadratic in quadratics {
+                    let falls = endlessFalls(r, balance: variant.balance(quadratic: quadratic))
+                    extra.append("    \(variant.name) q\(quadratic): " + t7Text(falls))
                 }
                 if inBand && failures.isEmpty { candidates.append(variant) }
             }
             line += " | \(elapsed(started)) s"
             say(line)
-        }
-        // The endless growth for the first candidate (T7 moves with the realm at dawn 21, and so with the finale).
-        if let pick = candidates.first {
-            for quadratic in [0.35, 0.45, 0.5] {
-                let started = Date()
-                let balance = pick.balance(quadratic: quadratic)
-                let r = finaleNight(eves, balance: balance)
-                say("\(pick.name) q\(quadratic) | " + t7Text(endlessFalls(r, balance: balance))
-                    + " | \(elapsed(started)) s")
-            }
+            for text in extra { say(text) }
         }
         say("finale: candidates \(candidates.map { $0.name }), done in \(elapsed(began)) s")
     }
