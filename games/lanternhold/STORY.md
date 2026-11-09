@@ -16,6 +16,31 @@ Lichtzehnt; the Returned = die Heimgekehrten; the Count = die Zählung; the Grea
 Leuchtfeuer; the Lightless King = der Lichtlose König; House Lantern = Haus Lantern. Names of people, houses
 and towns are never translated.
 
+## Louis' decisions (09.11.2026, 22:15)
+
+Asked by the lead after this bible was written; they overrule anything below that disagrees.
+
+1. **The secret is option A, The Locked Door** (section 3). B and C are dropped; the pieces of B that
+   section 3 keeps inside A (the Count, faces in the beacon's light) stay.
+2. **From day 15 the court believes the Lightless King is Aldric** (Seren: "The dark did not kill him. It
+   crowned him."), as in M3.
+3. **The player types a name and chooses Burgherr or Burgherrin** at the start of a new game. This
+   replaces "no name" in section 4:
+   - The name appears where a name would be natural: Odile's family book on day 1, the prologue's last
+     panel, the endings, and a few court lines (a `{lord}` placeholder; the validator and the text limits
+     must count a long name).
+   - Titles and address follow the choice: Burgherr / Burgherrin, mein Herr / meine Herrin, Lord / Lady
+     Lantern, "my lord" / "my lady"; Pip's "Your Wickship" and the herald's "lamplighter" fit both. English
+     still never needs he or she; German keeps "Ihr" and "Euch".
+   - The art needs a second lord: a young Burgherrin with the same circlet, hooked lantern pole and frames
+     as the Burgherr (sprite, glow strip and portrait), and the prologue's fourth panel shows the chosen one.
+   - Names are filtered for length (and the store's content rules) and stored in the save.
+4. **Chapter 1 goes as far as the beacon tower at the Throat's mouth**, with the view over the shadow
+   land (open question 4, decided by the lead along Louis' wish of the same evening: rock at the door,
+   the forest and the landscape when you walk out a little). Walking further in is the heart of chapter 2.
+5. **Chapters 2 and 3 go deeper into the shadow land**, a new stretch each chapter. The coast and the
+   thorn forest are dropped as fronts.
+
 ## 1. Premise and tone
 
 A wall of mountains as high as the sky parts the world, and it has one door: a cleft a bowshot wide, with a
@@ -759,7 +784,8 @@ From M3's tuning, proven on the runner:
 
 ## 11. Open questions for Louis
 
-At most five, each with a recommendation, worded so the lead can ask in short German.
+All five answered on 09.11.2026: see "Louis' decisions" at the top (1 A, 2 yes, 3 typed name with Burgherr or
+Burgherrin, 4 to the mouth, 5 deeper into the shadow land). The questions as they were asked:
 
 1. **Which secret?** A: the shadow land is the house's old home and the lost want their fire back.
    B: the lost are all our own missing, made by being given up, and can be called home by name.
