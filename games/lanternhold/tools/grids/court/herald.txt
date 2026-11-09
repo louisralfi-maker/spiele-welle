@@ -1,10 +1,11 @@
 # herald 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). The Lightless King's herald: a gaunt
 # figure the colour of ash, a black iron circlet with three spikes (the King's broken crown in small), hollow dark eye
 # sockets with cold teal eyes, a black mantle over ragged ash-grey robes, a tall black pole held before him with a
-# tattered black banner hanging from its crossbar. heraldGlow (as lightlessKingGlow): the eyes tealGlow, a tealDim rim
-# on the top contour with tealGlow on the spikes and the pole's point, the banner's torn edge tealDim. Walk: a stiff,
-# deliberate step, the banner swaying. Idle: utterly still but for a breath. Talk: the banner thrust forward (6), then
-# the bony free hand raised, pointing (7): hand over the Stranger.
+# tattered black banner hanging from its crossbar with the King's sign on it, a small cracked crown. heraldGlow (as
+# lightlessKingGlow): the eyes tealGlow, a tealDim rim on the top contour with tealGlow on the spikes and the pole's
+# point, the crown on the banner and its torn edge tealDim. Walk: a stiff, deliberate step, the banner swaying. Idle:
+# utterly still but for a breath. Talk: the banner thrust forward (6), then the bony free hand raised, pointing (7):
+# hand over the Stranger.
 id herald
 size 14x30
 frames 8
@@ -24,6 +25,7 @@ legend
     K = night1
     j = night0
     J = night0/tealDim
+    Q = stoneDark/tealDim
     I = stoneDark
     i = stoneMid
     P = stoneMid
@@ -115,8 +117,8 @@ part banner
     I....
     IiiiI
     IKKKK
-    IKKKK
-    IKjKK
+    IQKQK
+    IQQQK
     IKKKK
     IKKjK
     IKKKK
