@@ -35,7 +35,7 @@ FACE = dict(
     cheek=(5.8, 1.0, 6.4, 2.7),
     brow=(-3.6, 9.4, 1.8),
     eye=(3.6, -1.4, 9.2), socket_r=2.0,
-    nose_a=(0.0, -1.8, 9.6), nose_b=(0.0, 3.4, 13.0), nose_r=(1.0, 1.6),
+    nose_a=(0.0, -1.8, 9.6), nose_b=(0.0, 3.2, 12.2), nose_r=(0.95, 1.45),
     wings=(1.7, 3.7, 11.4, 1.3),
     mouth=(6.2, 10.4), lip_w=2.4,
     chin=(0.0, 9.4, 7.0, 2.4),
@@ -46,25 +46,31 @@ FACE = dict(
 
 
 def face_params(kind):
+    """The face kinds of portraitFace. Fix stage: the round, long, square and young faces differed by a pixel or two
+    and read as one family; each is exaggerated now (the round face's cheeks wider, a short chin and a button nose;
+    the long face's chin 3 px longer and its nose longer and narrower; the square face's jaw corners wider over a flat
+    chin; the young face's nose smaller, its jaw smooth and narrow). The old face and the child stay as they were."""
     P = dict(FACE)
     if kind == "round":
-        P.update(jaw_r=(8.2, 8.0, 8.4), cheek=(5.9, 1.6, 6.6, 3.1), chin=(0.0, 9.2, 7.0, 2.8),
-                 mand=((6.6, 6.0, -0.4), (1.8, 9.6, 6.2), 2.1))
+        P.update(jaw_r=(9.1, 7.2, 8.6), cheek=(6.5, 1.9, 6.4, 3.3), chin=(0.0, 8.3, 7.0, 2.9),
+                 mand=((7.0, 5.5, -0.4), (2.0, 8.6, 6.2), 2.3), nose_a=(0.0, -1.0, 9.6), nose_b=(0.0, 2.8, 11.7),
+                 nose_r=(0.9, 1.6), wings=(1.8, 3.2, 10.9, 1.4))
     elif kind == "long":
-        P.update(jaw_c=(0.0, 2.8, 3.0), jaw_r=(7.0, 8.2, 7.8), cheek=(5.6, 0.6, 6.2, 2.3),
-                 chin=(0.0, 10.0, 7.0, 2.3), mand=((6.2, 6.2, -0.6), (1.4, 10.4, 6.2), 1.5),
-                 mouth=(6.6, 10.0), nose_b=(0.0, 3.8, 13.2), wings=(1.6, 4.1, 11.5, 1.3))
+        P.update(jaw_c=(0.0, 3.8, 3.0), jaw_r=(6.7, 9.6, 7.6), cheek=(5.3, 0.8, 6.0, 2.2),
+                 chin=(0.0, 12.6, 6.6, 2.2), mand=((6.0, 7.0, -0.6), (1.3, 13.0, 5.8), 1.5),
+                 mouth=(7.4, 9.9), nose_a=(0.0, -2.0, 9.6), nose_b=(0.0, 4.9, 12.7), nose_r=(0.75, 1.15),
+                 wings=(1.25, 5.0, 11.2, 1.05))
     elif kind == "square":
-        P.update(jaw_r=(8.2, 7.8, 8.2), chin=(0.0, 9.4, 7.2, 2.7), box_jaw=((0.0, 8.6, 4.0), (4.0, 1.6, 3.4), 1.4),
-                 mand=((7.0, 6.4, -0.4), (2.2, 9.8, 6.4), 2.1), brow=(-3.6, 9.6, 2.0), neck_r=6.0)
+        P.update(jaw_r=(8.6, 7.8, 8.2), chin=(0.0, 9.0, 7.0, 2.1), box_jaw=((0.0, 8.5, 3.8), (5.8, 1.8, 3.6), 0.9),
+                 mand=((8.7, 6.6, -0.4), (3.6, 9.7, 6.2), 2.1), brow=(-3.6, 9.6, 2.0), neck_r=6.2)
     elif kind == "old":
         P.update(jaw_c=(0.0, 2.6, 3.0), jaw_r=(7.6, 8.0, 8.0), jowl=((5.6, 7.4, 3.6), 1.9),
                  chin=(0.0, 9.8, 6.8, 2.3), cheek=(5.6, 0.8, 6.2, 2.4), nose_b=(0.0, 3.8, 13.2),
                  wings=(1.7, 4.0, 11.4, 1.4), mand=((6.2, 6.4, -0.6), (1.6, 10.2, 6.0), 1.6))
     elif kind == "young":
-        P.update(jaw_r=(7.4, 7.4, 7.8), chin=(0.0, 9.2, 6.8, 2.3), cheek=(5.6, 1.4, 6.4, 2.8),
-                 nose_b=(0.0, 3.2, 12.6), nose_r=(0.9, 1.5), wings=(1.6, 3.5, 11.2, 1.2), neck_r=5.2,
-                 mand=((6.2, 5.8, -0.6), (1.5, 9.6, 6.0), 1.5))
+        P.update(jaw_r=(6.8, 7.2, 7.4), chin=(0.0, 8.9, 6.6, 2.1), cheek=(5.4, 1.6, 6.2, 2.7),
+                 nose_b=(0.0, 2.6, 11.4), nose_r=(0.8, 1.2), wings=(1.4, 3.0, 10.6, 1.0), neck_r=5.0,
+                 mand=((5.6, 5.8, -0.6), (1.4, 9.2, 5.8), 1.3))
     elif kind == "child":
         P.update(jaw_c=(0.0, 3.2, 2.8), jaw_r=(7.6, 7.0, 7.6), cheek=(5.4, 3.2, 6.0, 3.2), chin=(0.0, 8.6, 6.4, 2.3),
                  mand=((6.2, 6.0, -0.4), (1.6, 8.8, 5.6), 1.8),
@@ -120,12 +126,13 @@ def face_fn(P, frame=HEAD, mat="skin"):
     return fn
 
 
-def nose_line(P, frame=HEAD):
-    """The pixels of the nose's bridge (its lit near side), from between the eyes to above the tip."""
+def nose_line(P, frame=HEAD, start=0.15):
+    """The pixels of the nose's bridge (its lit near side), from between the eyes (or from `start` along it) to above
+    the tip."""
     a, b = P["nose_a"], P["nose_b"]
     out = []
     for i in range(6):
-        t = 0.15 + 0.7 * i / 5
+        t = start + (0.85 - start) * i / 5
         q = (mix(a[0], b[0], t) - 0.9, mix(a[1], b[1], t), mix(a[2], b[2], t) + 0.6)
         pt = frame.screen(q)
         if pt not in out:
@@ -156,9 +163,11 @@ NECK_MAT = Mat(SKIN, th=[0.30, 0.66, 1.1], inner="skin1")
 # ramp (brows), "." keeps the pixel.
 
 EYES = {
-    # the near eye (left of the nose) and the far eye: (dx, dy of the top-left corner from the landmark, rows)
-    "open": ((-3, -1, ["..kkkk", ".kwWek", "..2ee."]), (-1, -1, ["kkk", "Wek", "ee."])),
-    "wide": ((-3, -2, ["..kkk.", ".kwWek", ".kwee.", "..22.."]), (-1, -2, [".kk", "Wek", "ee.", "2.."])),
+    # the near eye (left of the nose) and the far eye: (dx, dy of the top-left corner from the landmark, rows); fix
+    # stage: a 1 px lash flicks up from the near eye's outer corner, and the young eye is larger with a catchlight
+    "open": ((-4, -1, ["k..kkkk", "..kwWek", "...2ee."]), (-1, -1, ["kkk", "Wek", "ee."])),
+    "wide": ((-4, -2, ["k..kkk.", "..kwWek", "..kwee.", "...22.."]), (-1, -2, [".kk", "Wek", "ee.", "2.."])),
+    "young": ((-4, -2, ["k.kkkk.", "..kWwek", "..kwee.", "...32.."]), (-1, -2, ["kkk", "Wek", "ee.", "3.."])),
     "lidded": ((-3, -1, ["..kkkk", ".k2kkk", "..wee."]), (-1, -1, ["kkk", "kkk", "ee."])),
     "closed": ((-3, 0, ["..kkk.", ".k...k"]), (-1, 0, ["kk.", "..k"])),
     "squint": ((-3, -1, ["...kk.", ".kkWek", "..22.."]), (-1, -1, [".kk", "kek", "..."])),
@@ -171,7 +180,8 @@ BROWS = {
 }
 MOUTHS = {
     # (dx, dy of the top-left corner from the mouth landmark, rows): the line in the deepest skin, the lower lip lit
-    "neutral": (-3, -1, [".2222.", "111111", ".3443.", "..22.."]),
+    "neutral": (-3, -1, ["..22..", ".1111.", ".3443.", "..22.."]),
+    "soft": (-3, -1, ["......", ".1111.", ".3443.", "..22.."]),
     "smile": (-3, -1, ["1....1", "311113", ".3443.", "..22.."]),
     "grin": (-3, -1, ["1....1", "1wwww1", ".1111.", "..22.."]),
     "frown": (-3, -1, [".1111.", "13333.1", ".3443.", "..22.."]),
@@ -328,32 +338,53 @@ def beard_fn(style, frame=HEAD):
         x, y, z = q
         if style == "moustache":
             return stache(q, 1.4) * frame.ds, "stache"
-        else:
-            t = {"stubble": 0.35, "short": 1.0, "full": 1.9, "long": 1.9}[style]
-            bump = 0.0
-            if style in ("full", "long"):
-                bump = 0.45 * math.sin(2.2 * x + 0.4) * math.sin(2.0 * y + 1.1) * math.sin(2.1 * z)
-            d = jaw_union(q) - t - bump
-            # the beard line: the sideburn in front of the ear, down the cheek under the cheekbone, to the corner
-            # of the moustache beside the nose's wing
-            lift = {"stubble": 0.0, "short": 0.0, "full": 0.35, "long": 0.35}[style]
-            # the top runs from the sideburn (joining the hair in front of the ear) down under the cheekbone; the
-            # lips stay free below the moustache
-            yline = mix(-1.4, 4.9, smoothstep(-1.5, 5.5, z)) - lift * smoothstep(-1.0, 3.0, z)
-            if style in ("full", "long", "short"):
-                yline += (0.9 if style != "short" else 0.5) * (hash01(int(math.floor(z * 1.6 + 30)), 13) - 0.5)
+        t = {"stubble": 0.35, "short": 1.0, "full": 1.9, "long": 1.9}[style]
+        bump = 0.0
+        if style in ("full", "long"):
+            bump = 0.45 * math.sin(2.2 * x + 0.4) * math.sin(2.0 * y + 1.1) * math.sin(2.1 * z)
+        d = jaw_union(q) - t - bump
+        if style == "stubble":
+            yline = mix(-1.4, 4.9, smoothstep(-1.5, 5.5, z))
             d = smax(d, yline - y, 0.5)
             d = smax(d, -(z + 2.0), 0.8)    # nothing behind the ear
-            if style == "long":
-                d = smin(d, sd_ellipsoid(q, (0.4, 14.0, 6.2), (4.6, 8.0, 3.6)), 2.0)
-                d = smin(d, sd_capsule(q, (0.6, 16.0, 6.0), (1.0, 22.5, 5.0), 2.4, 0.6), 1.5)
-            d = smax(d, -lips(q, 1.2 if style in ("full", "long") else 0.0), 0.5)
-            if style != "stubble":
-                ds = stache(q)
-                if ds < d:
-                    return ds * frame.ds, "stache"
-        return d * frame.ds, ("stubble" if style == "stubble" else "hair")
+            d = smax(d, -lips(q, 0.0), 0.5)
+            return d * frame.ds, "stubble"
+        # fix stage (the review: a straight top in the darkest hair across the cheek, over the whole mouth, read as a
+        # bandana or a balaclava): the top runs on the screen diagonally from the sideburn (x 15, y 22) down along the
+        # jaw to the mouth corner (x 27, y 28), ragged, so the cheek above it stays skin; the full beard sits a pixel
+        # higher; the mouth is left open for the hand-set moustache and lower lip (BEARD_MOUTH), the chin beard
+        # starts at row 30
+        sx, sy = p[0], p[1]
+        lift = 1.0 if style in ("full", "long") else 0.0
+        jag = 0.9 * (hash01(int(math.floor(sx)), 13) - 0.5)
+        top = 22.0 + 0.5 * max(0.0, sx - 15.0) - lift + jag
+        d = smax(d, top - sy, 0.4)
+        d = smax(d, -(z + 2.0), 0.8)        # nothing behind the ear
+        hole = max(abs(sx - 30.5) - 4.0, abs(sy - 27.5) - 2.0)
+        d = smax(d, -hole * frame.ds, 0.3)
+        if style == "long":
+            d = smin(d, sd_ellipsoid(q, (0.4, 14.0, 6.2), (4.6, 8.0, 3.6)), 2.0)
+            d = smin(d, sd_capsule(q, (0.6, 16.0, 6.0), (1.0, 22.5, 5.0), 2.4, 0.6), 1.5)
+            d = smax(d, -hole * frame.ds, 0.3)
+        return d * frame.ds, "beard"
     return fn
+
+
+# the hand-set mouth of the short, full and long beards (fix stage): a moustache over the upper lip (rows 26-27, lit
+# on the left, its ends drooping at the mouth corners), the lower lip lit in skin below it (row 28) and the skin
+# under the lip (row 29), so every face gets the same mouth in a beard; letters: a-d the hair ramp, 1-4 the skin ramp
+BEARD_MOUTH = {
+    "short": (27, 26, ["cddccbb.",
+                       "bccbbbab",
+                       "a.3443.a",
+                       "..2332.."]),
+    "full": (26, 25, [".bccbbbb.",
+                      "bcddcccbb",
+                      "abccbbbab",
+                      "ab.3443ba",
+                      "a..2332.a"]),
+}
+BEARD_MOUTH["long"] = BEARD_MOUTH["full"]
 
 
 def stubble_tex(x, y, c, v):
@@ -388,13 +419,20 @@ def hat_fn(style, frame=HEAD):
             d = smin(d, sd_ellipsoid(q, (-3.0, 5.5, -10.5), (2.6, 2.4, 2.4)), 1.0)          # the knot
             d = smin(d, chain(q, [(-3.0, 6.5, -10.5), (-4.4, 11.0, -10.0), (-4.0, 15.0, -9.0)], 1.6, 0.8), 0.6)
         elif style == "feather":
-            # a soft cap pulled to one side, a turned-up brim, a white feather in its band sweeping back
-            cap = sd_ellipsoid(q, (-1.4, -11.6, -1.4), (11.0, 5.4, 11.6))
-            cap = smax(cap, -(y + 8.4 + 0.10 * z - 0.12 * x), 0.5)
-            brim = smax(sd_ellipsoid(q, (-0.6, -9.0, -0.6), (12.0, 1.6, 12.4)), -(y + 10.2), 0.3)
-            plume = chain(q, [(-8.6, -11.4, -2.4), (-12.0, -15.0, -4.6), (-16.0, -16.6, -6.0), (-19.2, -15.0, -6.4)],
-                          1.7, 0.5, 0.6)
-            d, mat = min((cap, "cloth"), (brim - 0.05, "cuff"), (plume, "feather"))
+            # fix stage (a flat band over the hair with one feather from the forehead read as a headband, on dark
+            # hair and brown skin close to a caricature): a soft cap whose crown covers the top of the skull, 4-5 px
+            # tall, and droops to the back, a turned-up brim at the front, the white plume rising from the side band
+            # at the back and sweeping back
+            crown = sd_ellipsoid(q, (-1.6, -12.4, -2.6), (11.6, 6.4, 12.4))
+            crown = smin(crown, sd_ellipsoid(q, (-3.4, -10.0, -8.6), (9.0, 4.8, 6.6)), 2.4)       # the droop behind
+            band = hairline(q, front=-8.6, temple=1.6, nape=-0.6)
+            crown = smax(crown, band, 0.6)
+            brim = smax(shell(q, 2.6), smax(hairline(q, front=-8.0, temple=1.6, nape=0.0),
+                                            -hairline(q, front=-11.2, temple=1.0, nape=-2.6), 0.2), 0.3)
+            brim = smax(brim, -(z - 1.0), 0.8)                                                  # only at the front
+            plume = chain(q, [(-7.4, -10.6, -8.8), (-10.6, -13.6, -10.6), (-14.0, -15.4, -11.2), (-17.4, -15.2, -10.8),
+                              (-19.8, -13.4, -9.8)], 1.7, 0.5, 0.6)
+            d, mat = min((crown, "cloth"), (brim - 0.05, "cuff"), (plume, "feather"))
         elif style == "hood":
             outer = shell(q, 3.6)
             outer = smin(outer, sd_ellipsoid(q, (-1.0, 10.0, -3.0), (14.5, 12.0, 11.0)), 4.0)
@@ -755,11 +793,11 @@ AGE_MARKS = {
     "child": [],
 }
 FACE_FEATURES = {
-    "round": dict(eyes="open", brows="level", mouth="neutral"),
-    "long": dict(eyes="open", brows="level", mouth="thin"),
+    "round": dict(eyes="open", brows="soft", mouth="soft"),
+    "long": dict(eyes="open", brows="level", mouth="soft"),
     "square": dict(eyes="open", brows="frown", mouth="thin"),
     "old": dict(eyes="lidded", brows="soft", mouth="thin"),
-    "young": dict(eyes="wide", brows="soft", mouth="neutral"),
+    "young": dict(eyes="young", brows="soft", mouth="soft"),
     "child": dict(eyes="wide", brows="soft", mouth="smile"),
 }
 
@@ -811,10 +849,11 @@ def face_pic(kind, P, r, mats=None, legend=None, feats=None, ear=True, marks=Tru
             stamp(pic, (lx + dx, ly + dy), rows, legend, mask=True)
     # the nose: the bridge's lit edge down from between the eyes, the shadow under the tip, the nostril
     nx, ny = a["nose"]
-    for (x, y) in nose_line(P):
+    # fix stage: the round and young faces light only the lower bridge, so their noses read smaller
+    for (x, y) in nose_line(P, start=0.5 if kind in ("round", "young") else 0.15):
         if pic.opaque(x, y):
             pic.set(x, y, legend["4"])
-    stamp(pic, (nx - 2, ny), ["221"], legend, mask=True)
+    stamp(pic, (nx - 2, ny), ["221"] if kind == "old" else [".21"], legend, mask=True)
     f = dict(FACE_FEATURES.get(kind, {}))
     f.update(feats or {})
     features(pic, P, legend, **f, a=a)
@@ -861,6 +900,27 @@ PART_MATS = {
 }
 
 
+def beard_edge(pic, matmap, mask):
+    """The beard's edge where it lies over a face (no outline there): each edge pixel next to bare skin becomes hair2
+    or hair3 by turns, and one in four is dropped, so the edge breaks up like hair instead of drawing a line."""
+    edge = []
+    for y in range(H):
+        for x in range(W):
+            if matmap[y][x] != "beard":
+                continue
+            for dx, dy in ((1, 0), (-1, 0), (0, -1), (0, 1)):
+                X, Y = x + dx, y + dy
+                if 0 <= X < W and 0 <= Y < H and pic.c[Y][X] is None and mask[Y][X]:
+                    edge.append((x, y))
+                    break
+    for (x, y) in edge:
+        if hash01(x, y, 31) < 0.25 and y < 30:
+            pic.c[y][x] = None
+        else:
+            pic.c[y][x] = "hair2" if (x + y) % 2 else "hair3"
+    return pic
+
+
 def part_frames(sprite):
     """The frames of one part strip as Pics."""
     mats = dict(PART_MATS)
@@ -880,6 +940,9 @@ def part_frames(sprite):
         return out
     if sprite == "portraitBeard":
         out = [Pic()]
+        bm = dict(mats)
+        bm["beard"] = Mat(HAIR, th=[0.14, 0.36, 0.72], inner="hair2",
+                          tex=lambda x, y, c, v: v + 0.20 * (hash01(x, y // 2, 17) - 0.5) + (0.10 if x < 21 else 0.0))
         for st in BEARD_STYLES:
             r = drop_specks(clip_behind(render(beard_fn(st)), zu, keep=lambda m: m == "stache"))
             if st == "stubble":
@@ -888,9 +951,17 @@ def part_frames(sprite):
                     for x in range(W):
                         if r.px[y][x] and (hash01(x, y, 21) > 0.36 or (x > 0 and r.px[y][x - 1] is not None)):
                             r.px[y][x] = None
-            pic, mm = tone(r, mats)
-            outline(pic, mm, mats, inner_mask=mask)
-            edge_light(pic, mm, mats)
+            pic, mm = tone(r, bm)
+            if st in BEARD_MOUTH:
+                # no outline where the beard lies over a face; its edge over the skin is broken hair2 and hair3
+                outline(pic, mm, bm, skip=lambda x, y: mask[y][x])
+                beard_edge(pic, mm, mask)
+                edge_light(pic, mm, bm)
+                x0, y0, rows = BEARD_MOUTH[st]
+                stamp(pic, (x0, y0), rows, FACE_LEGEND)
+            else:
+                outline(pic, mm, bm, inner_mask=mask)
+                edge_light(pic, mm, bm)
             out.append(pic)
         return out
     if sprite == "portraitHat":
