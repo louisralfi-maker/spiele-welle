@@ -485,3 +485,80 @@ existing raws, and `tools/build-art.sh` rebuilds every changed or new sprite (th
 - The keep's windows at the gate view stay behind the gatehouse (the crown shows instead).
 - Mid-plane glass (the gorge's keep) goes into the world-aligned emissive buffer, as before: up to a game pixel off
   while the camera moves.
+
+## Scene polish 2 (09.11.2026): the castle's mass, the gorge's depth, the gate at night
+
+The art review's open points and the review of round `lh-m1b-final2` (shots 03, 06, 17, 22): the castle stood on
+the ground like a cut-out, the far gorge wall was as dense as the near rock, warm firelight turned the gate's teal
+banners mint, the 0.80 dusk was rose instead of the next step after the 0.77 ochre, and the king had little contrast
+against the ochre rock by day. Every fix is layout, renderer or a pipeline step on the existing art; no Recraft
+images (credits **391 before, 391 after**). The paint agents' sprites (SPRITES.md ids) and their scene files are
+unchanged. Mocks: `tools/scenemock/run_m1b.sh` (it now passes the renderer's whole look, see below), runner rounds
+`lh-art-s1` and later.
+
+### What changed
+
+| Point | Fix | Where |
+|---|---|---|
+| castle mass: a cast shadow | the front's silhouette swept along the light and kept only on rock and ground drawn before it (`bake_shadows.py`): by day light from the upper left (sweep 10 right, 8 down on the rock, 6 on the ground, 9/6 for the left tower on the gatehouse wall), at dusk the low western sun (90 right, 3 to 4 down: the long shadow across the throat rock); six sprites, the day shadow and the long dusk shadow beyond it for the rock, the ground strip and the gatehouse wall; drawn black at `sunShadowAlpha` (0.55 in full sun, falling to 0 from a sun height of 0.18 to −0.12; the dusk part also times the evening weight, smoothstep 16:00 to 18:24), so the two never darken a pixel twice and there is none at night | `castleShadow`, `castleShadowLong`, `groundShadow`, `groundShadowLong`, `gateShadow`, `gateShadowLong`; layout `SHADOWS`; `FrameBuilder.sunShadowAlpha` |
+| castle mass: fog at its foot | a bank of ground mist at the foot of the walls (300x34, white with alpha in eight steps, thick at the bottom, thinning over 24 rows, soft over 48 px at both ends) on the world plane after the front and before the actors, so the king walks in front of it; `mistAlpha` = 0.9 × torch strength × fog density / 0.4 (at most 1.25): none by day, a veil at 18:28, thick at night and in the dawn haze; lit like the world (moonlit lavender, warm by the gate lantern) | `castleMist` (`procart.py fogbank`); `FrameBuilder.mistAlpha` |
+| gorge depth: the far wall's strata | the far wall flattened one value step (`rockDeep` → `rockDark`, `soilDark` → `soil`): its darkest strata lifted, so it reads farther than the throat rock cut from the same painting | `gorgeWallA`-`C`, `gorgeWallHigh` (`post --remap $FARFLAT`) |
+| gorge depth: a bright fog band | over the far and mid planes' lowest 48 rows, by day and dusk (× daylight), toward the horizon colour 40 % of the way to white, strength 0.45 (half of it from the back gate on: in the valley it veiled the river's far shore) | renderer (`lh_base`, `Look.band…`) |
+| gorge depth: a cool bounce | by day and dusk the shadowed share of the albedo (luma 0.5 down to 0.2) takes the sky's cool light instead of the warm sun (the sky's top colour at full brightness, half of it pulled to a plain cool blue `(0.6, 0.68, 1.0)`: the noon sky alone turned the rock teal), strength 0.5, on the world and the mid plane (not on the figures): warm sunlit tops against cold shadow, and the cast shadows turn cool | renderer (`lh_ambient`, `Look.bounce…`) |
+| gate lanterns | cool albedo reflects firelight more neutrally: the neutral share 0.35 + 0.6 × its green-or-blue-over-red share (the banner 0.75), on the world and the figures; and the front's banners deep teal (`roofDeep`) with two lit folds each and a lit hem: the torches now light a warm sheen on dark cloth instead of a pale mint oval | renderer (`lh_reflectance`), `castleFront` (`post --remap` banner rects) |
+| dusk at 0.80 | the dusk keyframe's light, horizon and fog one step more amber (ambient `(0.94, 0.68, 0.42)`, horizon `(0.90, 0.54, 0.38)`, fog `(0.48, 0.36, 0.40)`), and the night's violet pull spares the sunlit share at dusk (k × (1 − sunlit × daylight)): the sunlit rock a dimmer ochre on the way to the night, violet in the sky and the shadows, no rose wash | `AmbientRamp` (and `core.py`), renderer (`lh_pull`) |
+| the king's readability | a cool rim (sky by day, moon at night: `(0.72, 0.82, 1.0)` × the ambient level, at least 0.6) on his screen-right edge pixels, half strength, outshone by firelight (his own lantern at night); his painted outline turns cool grey on that side instead of a black line all round | renderer (actor pass, `flags.z` for the king) |
+| the figures in firelight | actors are lit as the world now (the capped light, the neutral reflectance, the dusk spare), as the mocks always drew them: his teal cloak never glows cyan by his lantern | renderer (actor pass) |
+| the paint agents' strips in the build | the atlas takes the first `frameCount` frames of a longer horizontal strip of whole frames, so the king, archers, citizens, creatures and the two-frame walls show whole frames until the code lane maps every frame (before, a centre crop showed halves of two frames) | `AtlasBuilder.splitFrames` |
+
+### Pipeline additions
+
+- `tools/scenemock/bake_shadows.py [--check]`: bakes the six shadow sprites from the layout (`layout_m1b.SHADOWS` holds
+  their boxes; the bake fails when a shadow outgrows its box, `--check` prints the boxes it needs). Receivers are the
+  topmost pixels before the front that are rock (`cliffFlank`, `cliffFlankB`, `throatRock`) or the ground strip; the
+  rock shadow starts at the right tower (holes in the front's outline and the left tower's rubble notches are no
+  shadow anyone sees).
+- `procart.py fogbank <out> [--size 300x30] [--seed N] [--ends 48] [--rise 20]`: the mist bank (white, alpha in eight
+  steps through a Bayer pattern, not binary: the scene tints it with the hour).
+- `build-art.sh` names `castleShadow` (all six) and `castleMist`; `gorgeWall` and `gorgeWallHigh` end with the flatten
+  step, `castleFront` with the banner step. `bash build-art.sh gorgeWall gorgeWallHigh castleFront castleShadow
+  castleMist` rebuilds them byte for byte (checked). Do not run `build-art.sh` without names on this branch: its
+  `palisade`, `stoneWall` and `ballista` steps would write the old one-frame sprites over the buildings lane's strips.
+- `mock.py` look options (all off by default, so older mocks stay byte for byte): `litCool`, `bounce` (`bounceLo`,
+  `bounceHi`), `duskSun`, `band` (`bandH`, `bandWhite`, `bandValley`), `rim`, and the renderer's earlier polish values
+  that the mock lacked: `midHazeDay` (0.2) and `fgAmbNight` (with `fgAmb` 0.9 by day, 0.43 at night), plus `farHaze`
+  0.34. It draws the shadow and mist instances (`shadow`, `mist` keys of `layout_m1b.instances()`). `run_m1b.sh` passes
+  the whole current look (and gains the shots `front-noon`, `front-dusk`, `castle-day`).
+
+### Renderer additions (Shaders.metal; mock.py is the reference)
+
+- `CompositeUniforms` gains `polish` (unused, bounce × daylight, dusk spare × daylight, band strength), `bounceColor`,
+  `bandColor` (rgb, band height) and `rim` (rgb, strength); 400 bytes.
+- World and mid plane: `shade = 1 − smoothstep(0.2, 0.5, luma(straight albedo))`; ambient `mix(ambient, bounce, shade ×
+  polish.y)` (the mid plane's bounce × its 0.7 share); the colourise `look.x × (1 − (1 − shade) × polish.z)`;
+  reflectance `mix(albedo, luma, 0.35 + 0.6 × saturate((max(g, b) − r) / max(g, b)))`. Far and mid: after the haze,
+  `mix(lit, bandColor × a, polish.w × (1 − smoothstep(0, 48, rows above the ground line)))`.
+- Actors: the same reflectance, cap and colourise (no bounce); the king's rim on texels whose screen-right neighbour
+  (`dfdx` of the texel x gives the direction, so a mirrored king keeps it on the right) is transparent:
+  `mix(lit, rim.rgb, rim.w × (1 − saturate(peak light × 1.5)))`.
+
+### Lessons
+
+- A cast shadow does not need a shadow map in a fixed side view: the world never moves against itself, so a shadow
+  baked from the layout and kept on opaque receivers is exact, and a plain over-blend of black darkens only rock.
+- A shadow on rock that is already dark reads only once it turns cool: the bounce does more for the shadows than
+  their alpha.
+- Rose at dusk came from three places at once (a salmon horizon the far wall hazes toward, a pinkish light, the
+  night's violet pull on lit tops); amber light and horizon plus a violet pull that spares lit tops gave ochre.
+- Flattening a far layer by one value step (lifting its darkest strata) separated it from the near rock more than
+  more haze did, and kept its colour.
+- Dark cloth hides a torch pool's colour problem: the same warm light on a deep teal reads as a sheen.
+
+### Open points
+
+- The cast shadows are baked for the castle front only; the courtyard wall, the keep and the back gate cast none.
+- The mist bank and the shadows do not follow the M2b gate tiers (a broken gate shows the shadow on the gatehouse
+  wall as before: fine) and do not dim actors standing in them (the archers on the wall walk stand in the left
+  tower's shadow lit as in the sun).
+- The haze band is screen-row based (rows above the ground line): on the 135-row look it covers the same 48 rows.
+- The keep's windows at the gate view still stay behind the gatehouse.

@@ -32,6 +32,9 @@ ART = os.path.join(G, 'Resources', 'Art')
 # is low in the west and the shadow reaches far to the right and barely down.
 DAY = dict(rock=(10, 8), ground=(10, 6), gate=(9, 6))
 DUSK = dict(rock=(90, 4), ground=(90, 3), gate=(30, 2))
+# The long dusk shadow's far edge (fray): seed, wiggle and penumbra half-width in px. A straight, hard edge across the
+# throat rock read as a rectangle laid over it (round lh-art-s1, shots 17 and 19).
+FRAY = dict(rock=(17, 5, 3), ground=(29, 4, 3), gate=(41, 3, 2))
 ROCK = {'cliffFlank', 'cliffFlankB', 'throatRock'}
 RIGHT_TOWER_X = 1413  # the front's right tower starts at sprite column 173
 SHADOW_COLOUR = (0x0E, 0x0B, 0x1E, 255)  # night0; the scene tints it black, the colour only keeps to the palette
@@ -135,6 +138,39 @@ def filled(rows):
     return out
 
 
+BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
+
+
+def fray(rows, seed, wiggle, pen):
+    """Softens a shadow's far (right) edge: per row the edge moves by smooth seeded noise (+-wiggle px, so it follows no
+    ruler line across the strata), and over 2 * pen + 1 px around it the shadow thins out through a 4x4 Bayer pattern
+    anchored to the world (pixel art's penumbra). The edge never reaches past the hard shadow."""
+    import random
+    rng = random.Random(seed)
+    step = 7
+    points = [rng.uniform(-1, 1) for _ in range(ROWS // step + 3)]
+    out = []
+    for r, bits in enumerate(rows):
+        if not bits:
+            out.append(0)
+            continue
+        f = r / step
+        k = int(f)
+        t = f - k
+        t = t * t * (3 - 2 * t)
+        offset = round((points[k] + (points[k + 1] - points[k]) * t) * wiggle)
+        right = bits.bit_length() - 1
+        edge = right - pen - wiggle + offset
+        for x in range(max(0, edge - pen), right + 1):
+            d = x - edge
+            cover = (pen - d + 0.5) / (2 * pen + 1)
+            threshold = (BAYER[(r & 3) * 4 + ((X0 + x) & 3)] + 0.5) / 16
+            if d > pen or cover <= threshold:
+                bits &= ~(1 << x)
+        out.append(bits)
+    return out
+
+
 def shadows():
     rock, ground, caster, tower, wall = world_layers()
     inside = filled(caster)
@@ -142,7 +178,7 @@ def shadows():
     for name, rec, cast, key in (('castle', rock, caster, 'rock'), ('ground', ground, caster, 'ground'),
                                  ('gate', wall, tower, 'gate')):
         day = sweep(cast, *DAY[key])
-        dusk = sweep(cast, *DUSK[key])
+        dusk = fray(sweep(cast, *DUSK[key]), *FRAY[key])
         # Rock behind the castle shows only right of it (holes in the front's outline and the notches of the left
         # tower's rubble are no shadow anyone sees): the rock shadow starts at the right tower.
         right = FULL ^ ((1 << (RIGHT_TOWER_X - X0)) - 1)

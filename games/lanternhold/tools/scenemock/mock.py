@@ -44,7 +44,7 @@ LOOK = dict(lift=0.46, farShare=0.9, midLight=0.32, gain=1.55, knee=0.95, fogGlo
             # planes' lowest bandH rows by day and dusk, bandWhite toward white), rim (a cool rim on the actors' edge
             # pixels by day)
             litCool=0.0, bounce=0.0, bounceLo=0.2, bounceHi=0.5, duskSun=0.0, band=0.0, bandH=48.0, bandWhite=0.4,
-            bandValley=0.5, rim=0.0)
+            bandValley=0.5, bandWarmCut=0.5, rim=0.0)
 for k in list(LOOK):
     if k in args: LOOK[k] = float(args[k])
 src = open(os.path.join(G, 'Core/FrameDesc.swift')).read()
@@ -454,7 +454,7 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
     BLUE = (0.6, 0.68, 1.0)  # half the sky's own colour, half a plain cool blue (the noon sky alone turned rock teal)
     bounceW = [(stN_ + (BLUE[k] - stN_) * 0.5) * lvl for k, stN_ in enumerate(v / max(max(amb['skyTop']), 1e-3) for v in amb['skyTop'])]
     # the band's share in the valley (Look.bandStrength: full to focus 2150, bandValley of it from the back gate on)
-    bandK = LOOK['band'] * day * (1 - (1 - LOOK['bandValley']) * ss((camx + VIS / 2 - 2150) / 180)); bandC = [amb['skyBottom'][k] + (1 - amb['skyBottom'][k]) * LOOK['bandWhite'] for k in range(3)]
+    bandK = LOOK['band'] * day * (1 - (1 - LOOK['bandValley']) * ss((camx + VIS / 2 - 2150) / 180)) * (1 - LOOK['bandWarmCut'] * min(1, max(0, amb['warmth'] / 0.45))); bandC = [amb['skyBottom'][k] + (1 - amb['skyBottom'][k]) * LOOK['bandWhite'] for k in range(3)]
     def shade_share(rgb, a):  # 1 for dark (shadowed) albedo, 0 for light (sunlit) albedo
         if a <= 0: return 0.0
         lu = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / a

@@ -149,6 +149,9 @@ enum Look {
     static let bandHeight: Float = 48
     static let bandWhite: Float = 0.4
     static let bandValley: Float = 0.5
+    /// At the warm hours, whose haze is thick already, the band thins by this share of the aerial weight (round
+    /// lh-art-s1: at golden hour the statue's foot and the far wall's lower third washed out).
+    static let bandWarmCut: Float = 0.5
     /// The king's cool rim on his screen-right edge: its strength and colour (at the ambient's level, at least 0.6).
     static let rim: Float = 0.5
     static let rimBlue = SIMD3<Float>(0.72, 0.82, 1.0)
@@ -224,7 +227,7 @@ enum Look {
     static func bandStrength(_ sample: AmbientSample, focus: Double) -> Float {
         let t = Float(min(1, max(0, (focus - 2150) / 180)))
         let valley = t * t * (3 - 2 * t)
-        return band * daylight(sample) * (1 - (1 - bandValley) * valley)
+        return band * daylight(sample) * (1 - (1 - bandValley) * valley) * (1 - bandWarmCut * aerialWeight(sample))
     }
 
     /// The king's rim colour: cool, at the ambient's level but never below 0.6 (a moonlit rim at night).
