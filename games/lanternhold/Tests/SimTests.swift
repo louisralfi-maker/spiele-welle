@@ -23,6 +23,7 @@ final class SimTests: XCTestCase {
                        "night 1 is sootlings only, one point each")
         XCTAssertEqual(report.creaturesStopped + report.creaturesDissolved, s.night.spawned)
         XCTAssertTrue(report.noLosses)
+        XCTAssertNil(report.kingSlain)
         XCTAssertEqual(report.hearthLowest, 100, "nothing reached the hearth on the first night")
         XCTAssertTrue(s.creatures.isEmpty)
         XCTAssertTrue(s.soldiers.allSatisfy { $0.hp == $0.maxHP && $0.state == .reserve })

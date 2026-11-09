@@ -13,7 +13,7 @@ struct DawnReport: Codable, Sendable, Equatable {
     var wallsLost: [String]
     var fallen: [FallenSoldier]
     var hearthLowest: Double
-    /// Night 20: the Great Beacon was lit and the Gloom receded.
+    /// Night 20: the Lightless King fell in the Great Beacon's light and the Gloom receded at once.
     var gloomReceded: Bool
     var taxes: TaxBreakdown
     var happinessBefore: Int
@@ -30,10 +30,15 @@ struct DawnReport: Codable, Sendable, Equatable {
     var goldAfter: Int
     /// The hearth went out tonight and a second chance brought this dawn (nil in saves from before this field: false).
     var realmFell: Bool?
+    /// Night 20: the Lightless King was slain, the true ending (nil in saves from before this field, and on every other
+    /// night: false).
+    var kingSlain: Bool?
 
     /// No soldier fell tonight: the report shows a small banner.
     var noLosses: Bool { fallen.isEmpty }
     /// True when the realm held the night by itself (no second chance).
     var held: Bool { realmFell != true }
+    /// True when the Lightless King fell tonight.
+    var slewTheKing: Bool { kingSlain == true }
     var goldIn: Int { taxes.total }
 }

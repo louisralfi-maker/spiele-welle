@@ -226,8 +226,9 @@ outcome comes from what was built and recruited by day.
   palisade, but never the ground at the wall's foot; what hacks at a wall is seen only in a brazier's, a fire arrow's,
   a firepot's or the lantern's light), fire arrows where they land
   (22 for 2.5 s), catapult fires (48 for 6 s), the king's lantern (40), the hearth fire inside the great hall (70), the
-  Great Beacon when lit (600, a sweeping cone; it burns from 04:30 of night 20 and stays dark in endless). Castle and
-  town windows light only the scene, not the battle.
+  Great Beacon when lit (760, a sweeping cone; its lit reach of about 495 px covers the front from the Gloom's mouth to
+  the middle line, not the gatehouse; it is lit on night 20 the moment the Lightless King leaves the Gloom, burns until
+  dawn and stays dark in endless). Castle and town windows light only the scene, not the battle.
 - `illumination(x, y)` = the highest `(1 − d / r)²` of all sources, without flicker. A creature is **lit** at 0.12 or
   more, asked at the middle of its body but at most 24 px up (a giant whose legs stand in the light is lit). The rendered
   falloff draws a visible edge band exactly at that radius, so the player can read where the light ends.
@@ -249,7 +250,7 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 | Ash brute | 7 | 120 | 14 / 8 | 20 per s to walls | 44 px | never slower than 8; does not burn |
 | Gloomweaver | 12 | 40 | 22 / 12 | none | 30 px | carries a 50 px bubble of darkness that cancels light inside it |
 | Ash Giant (boss) | night 10 | 1000 | 10 / 7 | 60 per s; stomp shakes the screen | 110 px | |
-| The Lightless King (boss) | night 20 | 2400 | 24 (always inside his own darkness) | 150 per s, to the hearth too; 80 px darkness aura | 64 px | leaves at 21:10 ± 0:40 (14 s ± 8 s after nightfall) and marches on the hearth; calls 6 sootlings every 15 s (tuned from 12 / 9 and 40 per s) |
+| The Lightless King (boss) | night 20 | 500 | 24 (inside his own darkness, except in the Great Beacon's light) | 150 per s, to the hearth too; 80 px darkness aura | 64 px | leaves at 21:10 ± 0:40 (14 s ± 8 s after nightfall) and marches on the hearth; calls 6 sootlings every 15 s; can be hurt only inside the lit beacon's light, where his aura fails (see "The finale"); tuned from 2400 HP, 12 / 9 px/s and 40 per s |
 
 - Night budget `B(n) = 16 + 9 n` points (sootling 1, hound 2, crow 2, weaver 6, brute 10), split into 3 waves on nights
   1 to 4, 4 waves on 5 to 14 and 5 waves on 15 to 20; the last wave leaves by 03:00. Boss nights add the boss.
@@ -258,6 +259,22 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 - The waves start leaving between 21:15 and 01:50 (15 to 70 s after nightfall; later waves bigger), each within 10 s,
   so the last has left by about 02:40 (80 s), before 03:00; the Ash Giant leaves at about 21:40 (20 s ± 8 s after
   nightfall). At 12 s per in-game hour, n seconds after nightfall is 20:00 plus n × 5 minutes.
+
+### The finale (night 20)
+
+- The Great Beacon is chapter 1's goal and the only weapon against the Lightless King. A finished beacon (all three
+  stages) is lit the moment the King leaves the Gloom and burns until dawn.
+- Inside the beacon's light (its lit reach around x 470: the outer and the middle line) the King's darkness fails: his
+  aura cancels no light there, he counts as lit, and archers, fire arrows, ballistas, catapults and stake pits hurt him.
+  Archers and ballistas aim at him first while he can be hurt, so the night fills with arrows flying at him. The beacon's
+  light is light for every other creature in it too: sootlings burn in it as in any light.
+- Outside the beacon's light, or without a finished beacon, he stays inside his own darkness and nothing can harm him.
+- When the King falls, the Gloom recedes at once: every creature dissolves, the waves still to come stay away, the night
+  is won and the dawn report records that the King was slain. This is the true ending: Aldric is freed.
+- If he walks out of the beacon's light alive, or there is no beacon, the realm must hold until first light (05:00); at
+  dawn the King withdraws into the Gloom with the rest, and the night counts as held.
+- The fight takes a while: with the beacon he usually falls 25 to 70 s after he leaves the Gloom, at the outer or the
+  middle line, under many volleys (T6).
 
 ### Defenders
 
@@ -407,11 +424,12 @@ castle's lamplighter, who was too slow to run away. The crown is a little too bi
 | 15 | The Stranger, Seren, reveals that Aldric lives: the Gloom made him the Lightless King. |
 | 17 | A herald of the Lightless King comes to the audience: hand over Seren and the town is spared for three nights. |
 | 19 | Last preparations. Pip's farewell joke. |
-| 20 | The Lightless King attacks. If the beacon is finished, it is lit at 04:30 and the Gloom recedes; the boss falls at dawn. Without the beacon, the realm must simply survive until dawn. |
+| 20 | The Lightless King attacks. If the beacon is finished, it flares up the moment he leaves the Gloom; in its light his darkness fails and the defenders can bring him down. If he falls, the Gloom recedes at once and Aldric is freed (the true ending). If he gets past the beacon's light, or the beacon was never finished, the realm must survive until dawn, when he withdraws into the Gloom. |
 
-Endings by happiness and key choices: **The Bright Crown** (happiness 60 or more and Seren not handed over), **The Iron
-Crown** (30 to 59, or Seren handed over), **The Ash Crown** (below 30). Each is a short scene of three panels; then the
-realm goes on in endless mode.
+Endings by the finale, happiness and key choices: **The Bright Crown** (the Lightless King slain, happiness 60 or more
+and Seren not handed over: Aldric is freed), **The Iron Crown** (the realm held until dawn without slaying the King, or
+happiness 30 to 59, or Seren handed over), **The Ash Crown** (happiness below 30). A realm that only held until dawn
+gets at best The Iron Crown. Each is a short scene of three panels; then the realm goes on in endless mode.
 
 ### Endless: The Long Watch
 
@@ -774,10 +792,11 @@ same seed and time give the same hash), `SaveGameTests` (round trip, old saves, 
 3. The reference bot finishes all three beacon stages by day 18 with normal tax; with low tax all the time it cannot.
 4. High tax all the time drops happiness below 30 by day 8; low tax all the time keeps it above 70.
 5. Day 1 taxes buy 2 to 3 builds; by day 10 the reference bot owns 8 to 12 buildings.
-6. Night 20 with the beacon is won by the reference bot in 8 of 10 seeds; without the beacon in 3 to 6 of 10.
-   "Without" is the same realm on the eve of night 20 with the beacon's last stage taken away, so the two runs differ
-   only by the beacon. A whole run of a bot that never builds the beacon (its gold goes into the rest of the order) is
-   reported beside it, not asserted.
+6. Night 20 with the beacon is won by the reference bot in at least 8 of 10 seeds and the Lightless King is slain in at
+   least 6 of 10 (his kill times are reported: about 25 to 70 s after he leaves the Gloom); without the beacon it is won
+   in 3 to 6 of 10. "Without" is the same realm on the eve of night 20 with the beacon's last stage taken away, so the
+   two runs differ only by the beacon. A whole run of a bot that never builds the beacon (its gold goes into the rest of
+   the order) is reported beside it, not asserted.
 7. In endless, the reference bot falls between night 35 and 60.
 8. Each night's last wave leaves by 03:00; a night with 40 creatures keeps under 300 sprite instances and 40 lights.
    Until M2b the test is a sim-side proxy (drawn sim entities and battle lights on the night nearest 40 creatures); M2b
@@ -809,12 +828,10 @@ posts per wall tier.
 
 Rules fixed in M2a:
 
-- The finale: the Lightless King marches on the hearth. In round `lh-m2a-fix-2` (10 seeds, gate never upgraded by the
-  bot) the outer wall fell at 22:45 to 00:05, the middle wall at 00:05 to 01:20 and the gate at 03:00 to 04:20, and the
-  Gloom reached the hearth at 04:25 to 04:45 where it fell. A finished beacon is lit at 04:30, and the Gloom recedes at
-  once. From first light (05:00) the hearth takes no more harm, so without the beacon the realm falls in the seeds where
-  the hearth goes out between 04:30 and 05:00 (04:33 to 04:58 in that round). Bosses drain the hearth by their harm per
-  second.
+- The finale (decided for Louis on 09.11.2026, see "The finale (night 20)"): a finished beacon is lit when the Lightless
+  King leaves the Gloom (no longer at 04:30, 6 s before first light, when it barely mattered: in round `lh-m2a-fix-2` a
+  bot that never built it held night 20 in 10 of 10 seeds). Without the beacon the King marches on the hearth as before;
+  from first light (05:00) the hearth takes no more harm. Bosses drain the hearth by their harm per second.
 - The last guard holding a breach stands his ground and can fall there; guards who step back are let go.
 - Builders walk home when their work is done and at the horn.
 - The lit beacon lights only the finale (`beaconEndlessRadius` 0); endless relies on what was built.

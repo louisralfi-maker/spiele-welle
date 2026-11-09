@@ -19,6 +19,10 @@ enum SimEvent: Sendable, Equatable {
     case stomp(x: Double)
     case hearthHit
     case defeat
+    /// Night 20: the Great Beacon flares up as the Lightless King leaves the Gloom.
+    case beaconLit
+    /// Night 20: the Lightless King fell in the beacon's light.
+    case kingSlain
     case gloomRecedes
 }
 
@@ -94,7 +98,7 @@ enum Sim {
                                 happinessAfter: people.happinessAfter, happinessChanges: people.changes,
                                 citizensBefore: citizensBefore, citizensAfter: s.citizens, grown: people.grown,
                                 left: people.left, volunteer: people.volunteer, unlocked: unlocked, goldAfter: s.gold,
-                                realmFell: fell ? true : nil)
+                                realmFell: fell ? true : nil, kingSlain: stats.kingSlain ? true : nil)
         s.lastReport = report
         events.append(.dawn(day: s.day))
     }

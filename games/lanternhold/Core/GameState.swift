@@ -262,6 +262,14 @@ struct NightStats: Codable, Sendable, Equatable {
     /// Hour the hearth went out, if it did.
     var defeatHour: Double?
     var gloomReceded = false
+    /// Night 20: seconds after nightfall when the Lightless King left the Gloom, when he fell inside the Great Beacon's
+    /// light (nil while he lives) and where (Optional: saves from before these fields read as nil).
+    var kingLeftSecond: Double?
+    var kingSlainSecond: Double?
+    var kingSlainX: Double?
+
+    /// The Lightless King fell tonight: the Gloom receded at once.
+    var kingSlain: Bool { kingSlainSecond != nil }
 }
 
 /// This realm's own numbers. The Chronicle across realms and modes lives in `SaveGame.chronicle`, so a new realm keeps
@@ -348,7 +356,8 @@ struct GameState: Codable, Sendable, Equatable {
     var orderCounter = 0
     /// Dawns seen (a free archer volunteers on every third dawn at happiness 70 and up).
     var dawns = 0
-    /// Night 20: the Great Beacon burns; from then on it lights the front every night.
+    /// The Great Beacon burns: lit on night 20 when the Lightless King leaves the Gloom, it stays lit (on the endless
+    /// nights with `Balance.beaconEndlessRadius`).
     var beaconLit = false
     var defeated = false
 

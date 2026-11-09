@@ -213,7 +213,7 @@ struct Balance: Sendable, Equatable {
                       burns: false),
         CreatureStats(.ashGiant, firstNight: 10, hp: 1000, unlit: 10, lit: 7, harm: 60, points: 0, height: 110,
                       burns: false),
-        CreatureStats(.lightlessKing, firstNight: 20, hp: 2400, unlit: 24, lit: 24, harm: 150, points: 0, height: 64,
+        CreatureStats(.lightlessKing, firstNight: 20, hp: 500, unlit: 24, lit: 24, harm: 150, points: 0, height: 64,
                       burns: false),
     ]
 
@@ -249,9 +249,12 @@ struct Balance: Sendable, Equatable {
     var kingJitter = 8.0
     /// Bosses drain the hearth by their harm per second (other creatures by `hearthDrain`).
     var bossesDrainByHarm = true
-    /// Night 20: a finished Great Beacon is lit at this hour and the Gloom recedes (DESIGN.md "Story").
-    var beaconLightHour = 4.5
-    var beaconRadius = 600.0
+    /// Archers and ballistas aim at the Lightless King first whenever he can be hurt (inside the beacon's light).
+    var aimAtTheKing = true
+    /// Night 20 (DESIGN.md "Story"): a finished Great Beacon is lit the moment the Lightless King leaves the Gloom and
+    /// burns until dawn. Inside its lit reach (radius × `LightField.litRadiusFraction` around `Realm.beaconX`, the
+    /// outer and the middle line) the King's darkness fails: he counts as lit and can be hurt.
+    var beaconRadius = 760.0
     var beaconFlameY = 60.0
     /// With the beacon lit, the darkness bank stops here at night.
     var beaconBankEdge = 360.0

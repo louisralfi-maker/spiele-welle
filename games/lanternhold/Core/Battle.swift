@@ -214,6 +214,10 @@ enum Battle {
         if fromWave {
             s.night.lastSpawnSecond = max(s.night.lastSpawnSecond, s.nightTime)
         }
+        if kind == .lightlessKing {
+            if s.night.kingLeftSecond == nil { s.night.kingLeftSecond = s.nightTime }
+            lightBeacon(&s)
+        }
     }
 
     private static func spawnDue(_ s: inout GameState, balance: Balance) {
@@ -480,11 +484,42 @@ enum Battle {
     /// The lit test for the current state (lights, darkness bank, bubbles of darkness).
     static func probe(_ s: GameState, balance: Balance) -> LitProbe {
         var probe = LitProbe(sources: lightSources(s, balance: balance), bankEdge: s.bankEdge)
+        addDarkness(&probe, s, balance: balance)
+        return probe
+    }
+
+    /// The gloomweavers' bubbles and the Lightless King's aura. Inside the Great Beacon's light the King's darkness
+    /// fails: his aura cancels nothing there.
+    private static func addDarkness(_ probe: inout LitProbe, _ s: GameState, balance: Balance) {
         for creature in s.creatures where creature.hp > 0 {
             let radius = creature.kind.darkness(balance)
-            if radius > 0 { probe.addDarkness(x: creature.x, radius: radius) }
+            guard radius > 0 else { continue }
+            if creature.kind == .lightlessKing && kingInBeaconLight(s, creature, balance: balance) { continue }
+            probe.addDarkness(x: creature.x, radius: radius)
         }
-        return probe
+    }
+
+    /// True when the point lies inside the lit Great Beacon's lit reach (the same elliptic distance and darkness-bank
+    /// rule as `LitProbe`).
+    static func inBeaconLight(_ s: GameState, x: Double, y: Double, balance: Balance) -> Bool {
+        var radius = beaconRadius(s, balance: balance)
+        guard radius > 0 else { return false }
+        if Realm.beaconX < s.bankEdge { radius *= DarknessBank.radiusScale }
+        let reach = radius * LightField.litRadiusFraction
+        let dx = x - Realm.beaconX
+        let dy = (y - balance.beaconFlameY) * LightField.ellipseY
+        return dx * dx + dy * dy <= reach * reach
+    }
+
+    /// The Lightless King stands in the beacon's light (asked where every creature is asked, see `litHeight`).
+    static func kingInBeaconLight(_ s: GameState, _ king: Creature, balance: Balance) -> Bool {
+        inBeaconLight(s, x: king.x, y: king.y + litHeight(balance.creature(.lightlessKing)), balance: balance)
+    }
+
+    /// Whether anything can hurt this creature now: everything but the Lightless King outside the beacon's light, who
+    /// stays inside his own darkness (`isLit` is set every step; for the King it means "in the beacon's light").
+    static func canHarm(_ c: Creature) -> Bool {
+        c.kind != .lightlessKing || c.isLit
     }
 
     // MARK: - The step
@@ -494,15 +529,19 @@ enum Battle {
         let phase = DayClock.phase(at: s.hour)
         if phase == .night || phase == .firstLight { s.nightTime += dt }
         s.bankEdge = bankEdge(s, balance: balance)
-        if phase == .night { spawnDue(&s, balance: balance) }
+        if phase == .night {
+            let wasLit = s.beaconLit
+            spawnDue(&s, balance: balance)
+            if s.beaconLit && !wasLit {
+                s.bankEdge = bankEdge(s, balance: balance)
+                events.append(.beaconLit)
+            }
+        }
         stepGlows(&s, dt: dt)
 
         let lights = lightSources(s, balance: balance)
         var probe = LitProbe(sources: lights, bankEdge: s.bankEdge)
-        for creature in s.creatures where creature.hp > 0 {
-            let radius = creature.kind.darkness(balance)
-            if radius > 0 { probe.addDarkness(x: creature.x, radius: radius) }
-        }
+        addDarkness(&probe, s, balance: balance)
 
         if !s.creatures.isEmpty {
             stepCreatures(&s, dt: dt, balance: balance, probe: probe, firstLight: phase == .firstLight,
@@ -517,7 +556,6 @@ enum Battle {
         }
         removeDead(&s, balance: balance, events: &events)
         if phase == .firstLight { sweep(&s) }
-        lightBeacon(&s, balance: balance, events: &events)
 
         if s.creatures.count > s.night.maxCreatures { s.night.maxCreatures = s.creatures.count }
         if lights.count > s.night.maxLights { s.night.maxLights = lights.count }
@@ -581,7 +619,11 @@ enum Battle {
             var c = s.creatures[index]
             if c.hp <= 0 { continue }
             let stats = table[c.kind.index]
-            c.isLit = probe.isLit(x: c.x, y: c.y + litHeight(stats))
+            if c.kind == .lightlessKing {
+                c.isLit = kingInBeaconLight(s, c, balance: balance)
+            } else {
+                c.isLit = probe.isLit(x: c.x, y: c.y + litHeight(stats))
+            }
             if c.isLit && stats.burns {
                 c.hp -= balance.burnPerSecond * dt
                 c.lastHit = .fire
@@ -610,7 +652,7 @@ enum Battle {
             let nextX = c.x + speed * dt
             for plot in trapPlots where s.plots[plot].trapUses > 0 {
                 let trapX = Realm.plots[plot].x
-                if c.x < trapX && min(nextX, stopX) >= trapX {
+                if c.x < trapX && min(nextX, stopX) >= trapX && canHarm(c) {
                     c.hp -= balance.stakeDamage
                     c.lastHit = .trap
                     s.plots[plot].trapUses -= 1
@@ -681,7 +723,7 @@ enum Battle {
                 let rally = abs(soldier.x - s.king.x) <= balance.rallyRadius ? balance.rallyFactor : 1
                 strike += balance.guardDPS * rally * dt
             }
-            if strike > 0 {
+            if strike > 0 && canHarm(s.creatures[frontContact]) {
                 s.creatures[frontContact].hp -= strike
                 s.creatures[frontContact].lastHit = .guards
             }
@@ -830,8 +872,17 @@ enum Battle {
         }
     }
 
-    /// The most advanced lit creature in range that is not already covered by arrows in flight.
-    private static func litTarget(_ s: GameState, x: Double, range: Double) -> Int? {
+    /// The Lightless King when he can be hurt and is in range (archers and ballistas aim at him first,
+    /// `Balance.aimAtTheKing`), else the most advanced lit creature in range that is not already covered by arrows in
+    /// flight.
+    private static func litTarget(_ s: GameState, x: Double, range: Double, balance: Balance) -> Int? {
+        if balance.aimAtTheKing {
+            for index in s.creatures.indices {
+                let c = s.creatures[index]
+                guard c.kind == .lightlessKing, c.isLit, c.hp - c.incoming > 0 else { continue }
+                if abs(c.x - x) <= range { return index }
+            }
+        }
         var best = -1
         var bestX = -Double.infinity
         for index in s.creatures.indices {
@@ -862,7 +913,7 @@ enum Battle {
                 soldier.cooldown -= dt * rally
                 if soldier.cooldown > 0 { break }
                 let range = balance.archerRange * (1 + rangeBonus(s, plot: soldier.postPlot, balance: balance))
-                guard let target = litTarget(s, x: soldier.x, range: range) else {
+                guard let target = litTarget(s, x: soldier.x, range: range, balance: balance) else {
                     soldier.cooldown = 0
                     break
                 }
@@ -947,7 +998,7 @@ enum Battle {
             s.plots[line.engine].cooldown -= dt
             if s.plots[line.engine].cooldown > 0 { continue }
             if item == .ballista {
-                guard let target = litTarget(s, x: x, range: balance.ballistaRange) else {
+                guard let target = litTarget(s, x: x, range: balance.ballistaRange, balance: balance) else {
                     s.plots[line.engine].cooldown = 0
                     continue
                 }
@@ -996,9 +1047,11 @@ enum Battle {
             switch projectile.kind {
             case .arrow, .fireArrow:
                 if let index = creatureIndex(s, id: projectile.target) {
-                    s.creatures[index].hp -= projectile.damage
                     s.creatures[index].incoming = max(0, s.creatures[index].incoming - projectile.damage)
-                    s.creatures[index].lastHit = .archer
+                    if canHarm(s.creatures[index]) {
+                        s.creatures[index].hp -= projectile.damage
+                        s.creatures[index].lastHit = .archer
+                    }
                 }
                 if projectile.kind == .fireArrow {
                     s.glows.append(Glow(kind: .fireArrow, x: projectile.toX, y: 2, radius: balance.fireArrowRadius,
@@ -1006,9 +1059,11 @@ enum Battle {
                 }
             case .bolt:
                 guard let index = creatureIndex(s, id: projectile.target) else { continue }
-                s.creatures[index].hp -= projectile.damage
                 s.creatures[index].incoming = max(0, s.creatures[index].incoming - projectile.damage)
-                s.creatures[index].lastHit = .ballista
+                if canHarm(s.creatures[index]) {
+                    s.creatures[index].hp -= projectile.damage
+                    s.creatures[index].lastHit = .ballista
+                }
                 let tx = s.creatures[index].x
                 var hits = 1
                 var lastX = tx
@@ -1016,7 +1071,8 @@ enum Battle {
                 while hits < balance.ballistaPierce {
                     var pick = -1
                     var pickX = -Double.infinity
-                    for (other, c) in s.creatures.enumerated() where other != index && c.hp > 0 && !c.kind.flies {
+                    for (other, c) in s.creatures.enumerated()
+                    where other != index && c.hp > 0 && !c.kind.flies && canHarm(c) {
                         if c.x > lastX || c.x < tx - 60 { continue }
                         if c.x == lastX && other <= lastIndex { continue }
                         if c.x > pickX {
@@ -1034,7 +1090,7 @@ enum Battle {
             case .firepot:
                 for index in s.creatures.indices {
                     let c = s.creatures[index]
-                    if c.hp > 0 && !c.kind.flies && abs(c.x - projectile.toX) <= balance.catapultSplash {
+                    if c.hp > 0 && !c.kind.flies && canHarm(c) && abs(c.x - projectile.toX) <= balance.catapultSplash {
                         s.creatures[index].hp -= projectile.damage
                         s.creatures[index].lastHit = .catapult
                     }
@@ -1055,10 +1111,16 @@ enum Battle {
         if anyDead {
             var alive: [Creature] = []
             alive.reserveCapacity(s.creatures.count)
+            var kingFell = false
             for c in s.creatures {
                 if c.hp > 0 {
                     alive.append(c)
                     continue
+                }
+                if c.kind == .lightlessKing && s.night.kingSlainSecond == nil {
+                    kingFell = true
+                    s.night.kingSlainSecond = s.nightTime
+                    s.night.kingSlainX = c.x
                 }
                 s.night.killed += 1
                 switch c.lastHit {
@@ -1072,6 +1134,7 @@ enum Battle {
                 events.append(.creatureKilled(kind: c.kind, x: c.x))
             }
             s.creatures = alive
+            if kingFell { gloomRecedes(&s, events: &events) }
         }
         var anyFallen = false
         for soldier in s.soldiers where soldier.hp <= 0 {
@@ -1115,16 +1178,22 @@ enum Battle {
         }
     }
 
-    /// Night 20: a finished Great Beacon is lit at 04:30 and the Gloom recedes at once.
-    private static func lightBeacon(_ s: inout GameState, balance: Balance, events: inout [SimEvent]) {
+    /// Night 20: a finished Great Beacon is lit the moment the Lightless King leaves the Gloom and burns until dawn
+    /// (DESIGN.md "Story").
+    private static func lightBeacon(_ s: inout GameState) {
         guard !s.beaconLit, s.day == 20, s.beaconStage == 3 else { return }
-        guard s.hour >= balance.beaconLightHour && s.hour < 6 else { return }
         s.beaconLit = true
+    }
+
+    /// The Lightless King fell in the beacon's light: the Gloom recedes at once, every creature dissolves, the waves
+    /// still to come stay away and the night is won.
+    private static func gloomRecedes(_ s: inout GameState, events: inout [SimEvent]) {
         s.night.gloomReceded = true
         s.night.dissolved += s.creatures.count
         s.creatures.removeAll()
         s.projectiles.removeAll()
         s.spawns.removeAll()
+        events.append(.kingSlain)
         events.append(.gloomRecedes)
     }
 }

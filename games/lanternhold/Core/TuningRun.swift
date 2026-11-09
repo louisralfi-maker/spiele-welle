@@ -52,6 +52,11 @@ struct TuningMetrics: Sendable {
     var t5FirstBuilds = 0
     var t5BuildingsDay10 = 0
     var t6WithBeacon = 0
+    /// With the beacon: the Lightless King slain in this many seeds, and per seed the seconds from his leaving the
+    /// Gloom to his fall and where he fell (0 when he lived).
+    var t6KingSlain = 0
+    var t6KillSeconds: [Int] = []
+    var t6KillXs: [Int] = []
     /// "Without": the same realm with the beacon's last stage taken away, so night 20 differs only by the beacon.
     var t6WithoutBeacon = 0
     var t6Seeds = 0
@@ -84,7 +89,9 @@ struct TuningMetrics: Sendable {
             return normal && low
         case 4: return t4HighTaxDay8 < 30 && t4LowTaxMin > 70
         case 5: return t5FirstBuilds >= 2 && t5FirstBuilds <= 3 && t5BuildingsDay10 >= 8 && t5BuildingsDay10 <= 12
-        case 6: return t6Seeds == 10 && t6WithBeacon >= 8 && t6WithoutBeacon >= 3 && t6WithoutBeacon <= 6
+        case 6:
+            return t6Seeds == 10 && t6WithBeacon >= 8 && t6KingSlain >= 6 && t6WithoutBeacon >= 3
+                && t6WithoutBeacon <= 6
         case 7: return !t7FellOn.isEmpty && t7FellOn.allSatisfy { $0 >= 35 && $0 <= 60 }
         // A sim-side proxy: drawn sim entities and battle lights. The renderer's sprite instances and the scene lights
         // are measured by a FrameBuilder budget test in M2b.
@@ -110,7 +117,9 @@ struct TuningMetrics: Sendable {
                      + "dawns 8-20: \(t4LowTaxMin) (target > 70)")
         lines.append("T5 \(mark(5)) first dawn taxes \(t5FirstTaxes) buy \(t5FirstBuilds) builds (target 2-3); "
                      + "buildings by day 10: \(t5BuildingsDay10) (target 8-12)")
-        lines.append("T6 \(mark(6)) night 20 won with the beacon \(t6WithBeacon)/\(t6Seeds) (target >= 8), without "
+        lines.append("T6 \(mark(6)) night 20 won with the beacon \(t6WithBeacon)/\(t6Seeds) (target >= 8), the King "
+                     + "slain \(t6KingSlain)/\(t6Seeds) (target >= 6) after \(t6KillSeconds) s at x \(t6KillXs) (0 = he "
+                     + "lived; target about 25-70 s at the outer or middle line), without "
                      + "(same realm, last stage taken away) \(t6WithoutBeacon)/\(t6Seeds) (target 3-6), falls at "
                      + "\(t6FallHours); reported only: a bot that never builds the beacon holds night 20 in "
                      + "\(t6NoBeaconRun)/\(t6Seeds), falls \(t6NoBeaconFalls) (night × 1000 + hour × 100)")
@@ -198,6 +207,22 @@ enum TuningRun {
         return copy
     }
 
+    /// A night's timeline in seconds after nightfall: walls falling, the hearth reached, the Lightless King leaving
+    /// and falling.
+    static func timeline(_ night: NightStats) -> String {
+        var falls: [String] = []
+        for (index, key) in night.wallsLost.enumerated() where index < night.wallFallSeconds.count {
+            falls.append(key + "@" + String(Int(night.wallFallSeconds[index].rounded())))
+        }
+        var text = "walls " + falls.joined(separator: ",")
+        if let hit = night.hearthFirstHitSecond { text += " hearth reached @\(Int(hit.rounded()))" }
+        if let left = night.kingLeftSecond { text += " King left @\(Int(left.rounded()))" }
+        if let slain = night.kingSlainSecond {
+            text += " slain @\(Int(slain.rounded())) at x \(Int((night.kingSlainX ?? 0).rounded()))"
+        }
+        return text
+    }
+
     private static func logLine(_ o: NightOutcome) -> String {
         var line = "night \(o.night): " + (o.survived ? "held" : "FELL")
         line += ", spawned \(o.spawned), killed \(o.killed), dissolved \(o.dissolved), walls lost \(o.wallsLost)"
@@ -229,22 +254,27 @@ enum TuningRun {
                                       balance: balance, nights: 1)
                 if withRun.fellOnNight == nil { m.t6WithBeacon += 1 }
                 if withoutRun.fellOnNight == nil { m.t6WithoutBeacon += 1 }
+                let finale = withRun.final.night
+                if let slain = finale.kingSlainSecond {
+                    m.t6KingSlain += 1
+                    m.t6KillSeconds.append(Int((slain - (finale.kingLeftSecond ?? 0)).rounded()))
+                    m.t6KillXs.append(Int((finale.kingSlainX ?? 0).rounded()))
+                } else {
+                    m.t6KillSeconds.append(0)
+                    m.t6KillXs.append(0)
+                }
                 outcomes.append(contentsOf: withRun.outcomes)
                 withResult = withRun
                 var line = "seed \(seed): beacon stage \(first.final.beaconStage)"
-                if let o = withRun.outcomes.last { line += " | with: " + logLine(o) }
+                if let o = withRun.outcomes.last {
+                    line += " | with: " + logLine(o) + " | " + timeline(finale)
+                }
                 if let o = withoutRun.outcomes.last {
                     m.t6FallHours.append(o.defeatHour.map { Int(($0 * 100).rounded()) } ?? 0)
                     line += " | without: " + (o.survived ? "held" : "FELL")
                     line += " hearth \(Int(o.hearthLowest.rounded())) walls lost \(o.wallsLost) fallen \(o.fallen)"
                     if let hour = o.defeatHour { line += " at \(Int((hour * 100).rounded()))" }
-                    let night = withoutRun.final.night
-                    var falls: [String] = []
-                    for (index, key) in night.wallsLost.enumerated() where index < night.wallFallSeconds.count {
-                        falls.append(key + "@" + String(Int(night.wallFallSeconds[index].rounded())))
-                    }
-                    line += " walls " + falls.joined(separator: ",")
-                    if let hit = night.hearthFirstHitSecond { line += " hearth reached @\(Int(hit.rounded()))" }
+                    line += " " + timeline(withoutRun.final.night)
                     line += " | gate tier \(first.final.plots[Realm.lines[0].wall].item?.tier ?? 0)"
                     line += " l2 \(first.final.plots[Realm.lines[1].wall].item?.rawValue ?? "-")"
                     line += " l3 \(first.final.plots[Realm.lines[2].wall].item?.rawValue ?? "-")"
