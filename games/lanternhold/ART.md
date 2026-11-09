@@ -315,3 +315,101 @@ smoke clauses).
 - The statue is faint by day (carved rock in the same ochre as the wall); at night its bowl fire carries it.
 - The engine needs: the `anchor: top` placement for the overhangs, window-glass masks from rects (or windowGlow sprites
   at the listed offsets), mid-plane lights (the statue's fire), and a world width of 3900.
+
+## M1b polish (09.11.2026, after the art director's review)
+
+The review: pixel discipline good, but not store-ready. The castle read as a huge gate, not a fortress sealing the
+gorge (rock hidden behind the courtyard wall on the right, the left flank a tree trunk, castle and rock the same value at
+night, dusk the same as night); the golden valley warm but flat (orange far mountains, no clouds, egg-shaped window
+blobs); keep and back gate in another style; the gorge wall a night forest. 13 findings; all were worked.
+
+### Credits
+
+3 more Recraft images (105): **706 before, 601 after.** M1b in total: 420 of the 450 budget (12 images), 30 left.
+
+### What changed
+
+| Finding | Fix | Where |
+|---|---|---|
+| right rock hidden behind the courtyard wall | the right cliffFlank stands in front of the courtyard wall (z -1); the wall run starts at 1580, out of the gate view, so the high rock rises from the ground right of the flank; the only lit courtyard window is at 1620 | layout |
+| cliffFlank a tree trunk | rebuilt as plain strata rock from the left cliff of `rocks-a` (box 60,44,330,748; no masonry strip, no long highlight); its straight right edge hides behind the tower bodies | `cliffFlank` |
+| window blobs | the blobs were the cottage's pale egg-shaped plaster panels, not the glow: the front is redrawn as clean half-timbering (`tools/grids/house-front.txt`, parchment to plaster); house windows glow as glass masks (four night1 panes), window lights radius 8 (was 14 to 18); the emissive already follows the ambient ramp's torch strength (0 by day, 0.2 at tod 0.75) | `house`, layout |
+| golden valley flat | aerial perspective in the renderer at warm hours (far plane hazes toward lavender `farCool 0.75` and keeps 30 % of the warm light, mid 70 %); three cloud bands on a new sky plane (`clouds-a`); the valley river is waterDeep with a daySky highlight row | mock, `cloudA-C`, `valleyMidA-C` |
+| castle and rock one value at night, dusk = night | the towers' painted night1 shadow band lifted (stoneMid/stoneDark), a clean stoneLight column on the left, a solid stonePale moon rim on the right; throat rock shaded 0.7, flanks 0.62; braziers 44 (was 56) and a lantern-kind light (radius 34) inside the gateway, so the king is the focal point; dusk shots at tod 0.77 (18.5 h: warm sky, ochre rock against the grey castle) | `castleFront`, layout, `run_m1b.sh` |
+| keep and back gate in another style | repainted as orthographic front elevations with flat crenellated tops (`keepgate-b`): one roof language with the front's towers; the old cones are gone | `castleKeep`, `castleBackGate` |
+| the keep's valley copy cut off | moved to the far plane (x 545, y -62): at the back-gate view it shows only between the gate's towers, where the real keep stands; at the town frame it is a hazy keep at the left edge | layout |
+| gorge wall a night forest (Kingdom) | regenerated as sedimentary strata (`gorgewall-b`: horizontal ledges, irregular joints, one dead tree); the lower band is clean | `gorgeWallA-C`, `gorgeWallHigh` (its left strip) |
+| statue: black bar, ochre, moss specks | the rock ramp remapped to the stone ramp (cool grey), a dark stepped niche behind the head, the bowl as a lit rim, a stoneDark hollow and an underside, specks under 3 px merged | `wardenStatue` |
+| approach-day throat rock too bright | the mid copy of gorgeWallHigh shaded 0.85, the world copies 0.7 | layout |
+| river end weak | water up to 4 rows under the ground line across the whole width, solid bands, a wet line, two highlight rows, stepped voussoir stubs; a new far shore on the mid plane (`riverFarBank`: tree line, reeds, the far stump) | `riverEnd`, `riverFarBank`, layout |
+| towers mirror copies, speckled highlight | both towers lit from the same side (the right one is not mirrored but placed at x 173, so the front's right 9 columns are empty), two of its slits moved, one merlon broken | `castleFront` |
+| farPeak, gorgeMouth slope | farPeak dropped (four farMountains instead); the slope repainted by `procart.py slopebands` (irregular edge, leafLight lip, meadow, leaf deeper, tuft clusters) | layout, `gorgeMouth` |
+| mock coverage, clones | `backgate-day` and `backgate-golden` shots; archers staggered and one turned | `run_m1b.sh`, layout |
+
+### New paintings and prompts
+
+All with the shared finish (the clouds with a green key and without "side view", "no sky" and the daylight clause).
+
+10. `keepgate-b` (2:1), used: castleKeep (left, 150x250, `--gain 0.72`, the shaded left third lifted with a zone at
+    1.7, specks under 2 px merged) and castleBackGate (right, 200x172 under a 28 px top margin, `--fill-holes night1`
+    for the see-through passage). "Two separate castle buildings side by side … strict orthographic front elevations:
+    perfectly flat, no perspective, no side faces … Left: a tall square castle keep … a flat crenellated top with square
+    merlons on small stone corbels, no roofs, no cones, no spires … one long teal-blue banner … Right: a castle back gate,
+    wider than tall, two square flanking towers with flat crenellated tops and no roofs … heavy wooden doors swung open,
+    the opening filled with a solid dark passage, two iron wall lanterns …" The passage still came see-through.
+11. `gorgewall-b` (2:1), used whole (box 0,150,1536,740, `--key '#FC1494'`: the pale rock is the commonest border colour,
+    the auto key took it). "one long continuous natural sandstone cliff face … Sedimentary rock: strong horizontal strata
+    and stepped ledges running across the whole width … irregular widely spaced joints, a few big overhanging slabs …
+    only one small dead tree on the rim. No vertical tree-like cracks, no tree trunks, no roots, no pillars …"
+12. `clouds-a` (2:1), used: three bands (the painted black line under each cut off by the boxes; `--key '#04BC44'`).
+    "three separate long horizontal bands of puffy cumulus clouds seen from the side … flat underside, bright cream-white
+    sunlit tops, soft light lavender-grey shaded bellies … isolated on a flat solid pure green #00FF00 background …"
+
+### Pipeline additions
+
+- `pixelart.py post <in> <out>`: touch-ups on a finished sprite, in order `--remap a:b[@rect]`, `--clusters N[@rect]`
+  (runs of one colour under N px take their commonest neighbour), `--top-edge NAME:colours` (a highlight row along the
+  top of water), `--rim NAME@rect@side[@w]`, `--band`, `--fill-holes`, `--fill`.
+- `procart.py farbank` (the river's far shore) and `procart.py slopebands` (repaints a grass slope); `riverbase`
+  rewritten.
+- `tools/grids/house-front.txt`: the cottage's half-timbered front as a patch.
+- `build-art.sh`: new names `clouds` (writes cloudA-C) and `riverFarBank`; castleFront composes `cf-tower-l` and
+  `cf-tower-r` (parts in `build/recraft/lh/m1b/parts/`).
+
+### New sprites
+
+| Sprite | Size | Plane | Source |
+|---|---|---|---|
+| `cloudA`, `cloudB`, `cloudC` | 280x40, 240x42, 286x36 | sky (parallax 0.05) | `clouds-a`: parchment and foam tops, farPale and moon bellies |
+| `riverFarBank` | 240x30 | mid (x 1940, z 2) | `procart.py farbank` |
+
+### Renderer additions the Swift scene needs (mock.py is the reference)
+
+- A sky plane with parallax 0.05 for the clouds, drawn after the sky gradient and before the far plane. Cloud light:
+  `Lw = clamp((luma(albedo) - 0.6) / 0.3)`, `lit = albedo * (ambient * 1.1 * Lw + skyTop * 1.7 * (1 - Lw))`, then 25 %
+  toward skyBottom.
+- Aerial perspective at warm hours: `w = clamp(warmth / 0.45, 0, 1)`; the far plane's haze colour is
+  `mix(skyBottom, (0.62, 0.60, 0.86), 0.75 * w)` and its ambient is desaturated toward a cool grey by `0.7 * w`; the mid
+  plane's haze colour mixes 25 % of the way and its ambient is desaturated by `0.3 * w`.
+- Emissive glow (window masks, flames) is hidden by any sprite drawn after it on the mid, world or fg plane (the old mock
+  added it on top of everything, so the keep's windows shone through the gatehouse).
+- Ground mist at 0.7 of its old density (`fogScale`).
+
+### Lessons
+
+- What reads as "glow blobs" can be albedo: look at the sprite before touching the light.
+- A mid-plane copy of a world prop slides against the world at every other camera; the far plane (0.2) can hide such a
+  copy behind the real building at one view and show it at another.
+- Give the key colour explicitly when the subject is the commonest border colour (a full-width cliff) or close to
+  magenta (pink clouds); a green key suits pale subjects.
+- Mirroring a lit tower mirrors its light: one light direction for the whole front reads truer.
+
+### Open points
+
+- The courtyard is still the weakest frame: barracks, smithy and lodge and a varied inner wall are the next art pass.
+  From the courtyard view the far-plane keep shows hazily above the gorge mouth.
+- The king has little contrast against the ochre throat rock by day (his sprite is in Swift; a 1 px dark outline on
+  bright backdrops would fix it).
+- The throat rock (gorgeWallHigh, cliffFlank) still comes from `rocks-a` with its vertical joints; at night its rhythm
+  is calm enough, by day it reads as rock.
+- The keep's front has no rich texture (the new painting is plain); a later pass could add weathering.
