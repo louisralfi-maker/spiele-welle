@@ -1449,7 +1449,14 @@ This stage fixed all five confirmed high findings, the cheap medium ones and the
 - `lh-rev-f3` (build, unit, ui, ui-de, release) on `944da3f`: build, ui, ui-de and release passed, T1 to T8 passed;
   unit failed only the step check (seed 1 without the beacon: the hearth reached at 107.2 against 92.9 s, the realm held
   at 1/60 s and fell at 0.1 s, the walls within a second).
-- `lh-rev-f4` (build, unit, ui, ui-de, release) with M2a's battle restored: RESULT_F4
+- `lh-rev-f4` (build, unit, ui, ui-de, release) on `1f1410f` with M2a's battle restored: ALL PASSED (the step check and
+  T1 to T8 as in M2a, every new unit test, every UI test in English and German, the Release build). The shots: a
+  volley of arrows on its arc with trails at 23:43 (5 in flight, 5 archers drawing or loosing) and arrows into the ash
+  brute at 01:45 (5 and 5); the brute and the sootlings dark ash in firelight, the unlit hound with its moonlight rim;
+  the finale's beacon tower stone under a warm blaze, the gloomweavers' cold voids behind the palisade, arrows at the
+  Lightless King at 23:55 (2 in flight; at 22:30 he is not yet in reach, see the open points); the gatehouse at 22:00
+  with two archers between the niche fires; the taller plot markers at the gatehouse's foot; the cards and screens
+  without HUD fragments; the pause sheet's "Sound the horn" beside Resume; the defeat card's cottages.
 
 **Open points (M2b review)**
 
@@ -1463,6 +1470,8 @@ This stage fixed all five confirmed high findings, the cheap medium ones and the
   gatehouse falls with a wider window (the 19 of 58 variants that already failed it in M2a fail there too).
 - The Lightless King's summons still leave 5 px apart (the fixed 11 px pattern of round f3 was part of the step-check
   trouble); the picture separates the crowd by drawing it left to right with a shade by id.
+- The finale's shots: at 22:30 the Lightless King has not reached the archers' reach yet, so `34-finale-2230` shows no
+  arrow; windows from 23:00 to 00:30, when the archers turn on him, would show the arrows the review asked for.
 
 ## Risks
 
