@@ -426,6 +426,7 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 - Text keys live in `Resources/Story.xcstrings` (manual keys, English source, all eight languages). A unit test checks
   every key in every language, every `schedule` id, every `world` id and every `speaker`.
 - 1.0 needs at least 80 petitions: 20 story, 45 random (town, front, guests, comic), 15 for endless only.
+- The full schema, the queue's rules, the speakers, the world change ids and the night modifiers: "M3 in detail".
 - Random petitioners get composed portraits (face, hair, hat, beard and clothes parts with palette swaps); story
   characters have their own portraits.
 
@@ -1360,6 +1361,269 @@ state machine (`overlay`) pauses the simulation under every card and screen.
   `AdPacing.lastSecondChanceNight`); the report's double taxes and Marek's gift join `ReportCardView`'s footer; the
   onboarding reads `-GWSkipOnboarding`.
 - The art lane's PNGs appear on the build and barracks cards by themselves (`SpriteImages` cuts the shared atlas).
+
+### M3 in detail: the petition engine and the court's state (step 1, 09.11.2026)
+
+Step 1 of M3 builds the audience's rules as pure, deterministic code with tests. The audience card, talking and the
+court on screen come in the UI step; step 3 draws the castle's world changes, M4 the town's.
+
+**What was built**
+
+- **Petition data** (`Core/PetitionData.swift`): `Petition`, `PetitionChoice`, `PetitionEffect`, `PetitionChance`,
+  `PetitionCatalog`. The files are `Resources/Petitions/petitions-<group>.json`, each `{"petitions": [ … ]}`. The loader
+  decodes every petition on its own: in the app a broken petition costs only itself (a Debug build prints the problem),
+  and `PetitionDataTests` fails on any problem. `PetitionCatalog.standard` is the app bundle's set; without a bundle (a
+  command-line run started in the game's folder) it reads `Resources/Petitions`.
+- **The engine** (`Core/PetitionEngine.swift`): `prepare` draws today's queue, `hear` applies a choice, `horn` sends the
+  waiting home, `dawn` spends the night modifiers and prunes the history, `blocker` says why a choice is greyed,
+  `waiting` lists today's petitioners with their petitions, `botChoice` and `holdAudience` are the reference bot's.
+- **The court's state** (`Core/PetitionCourtState.swift`): `GameState.court: CourtState?` holds today's queue
+  (`Petitioner`: the petition, why it came, its look), the history of shown petitions (`HeardPetition`, the last ten
+  days), every petition ever heard, the count heard, the follow-ups, the world changes, the night modifiers, what
+  petitions unlocked and the builders they added. The story's own state lives in `GameState.flags`.
+- **Night modifiers** (`Core/PetitionNight.swift`): `NightModifier` parses the ids, `NightPlanModifiers` folds tonight's
+  and is read by `Battle.planNight` and `Battle.bankEdge`.
+- **The court** (`Core/CourtSpeakers.swift`, `CourtLayout.swift`, `CourtLines.swift`, `CourtWorld.swift`,
+  `CourtText.swift`, `CourtValidator.swift`): every speaker with body and portrait, the court's places, the court's talk,
+  the world change registry, the story text lookup (`StoryText`), the content validator.
+- **Sprites**: every M3 id of SPRITES.md is a `SpriteID` with its size and frames, with readable placeholders
+  (`Render/PlaceholderCourt.swift`): the court and guests with walk, idle and talk frames and their glow strips, the
+  petitioner bodies, the story portraits and the portrait parts drawn in the swap ramps, the rooms and the props.
+  `Render/PortraitComposer.swift` composes a townsfolk portrait from the parts and the target ramps (from the atlas, so
+  the art lane's PNGs show by themselves). The atlas stays one page.
+- **Hooks in existing files** (a few lines each): `Sim` (`PetitionEngine.horn` at the horn, `.dawn` at dawn), `Battle`
+  (`composition` takes a budget scale; `planNight` and `bankEdge` read tonight's modifiers), `GameState` (`court`,
+  `lodgeBuilders`, `builderCapacity` with the petitions' builders, `isUnlocked` with early unlocks), `Build.order`,
+  `BuildCard`, `RealmStrip` and `Autoplay` ask `isUnlocked`, `Autoplay.hearsPetitions`, `SimDriver` draws each day's
+  petitioners, `PlaceholderArt` asks `PlaceholderCourt`.
+- **Content**: five sample petitions (`petitions-samples.json`: the day-1 tutorial `first_plough`, `well_repair` and its
+  follow-up `well_dispute` with a chance, `crow_rags` with a night modifier, `old_sergeant` with a guard), eleven court
+  lines (`Resources/Court/lines.json`) and `Resources/Story.xcstrings` in English and German with every speaker's name
+  and role. The content step writes the rest.
+- **Tests** (new files): `PetitionTests`, `PetitionNightTests`, `PetitionDataTests` (its attachment
+  `petition-validator` lists every problem), `CourtTests`, and `CourtSheetTests`, which attaches `m3-sprites`: every
+  M3 sprite as the atlas draws it (the placeholders until the art lane's PNGs land), composed portraits of every
+  townsfolk archetype included.
+
+**The petition schema**
+
+| Field | Type | Rule |
+|---|---|---|
+| `id` | string | unique; lowercase letters, digits and `_` |
+| `speaker` | string | a speaker id (see "Speakers") |
+| `kind` | `story`, `random`, `endless` | story: on its days in the chapter until heard; random: by weight in the chapter and in endless; endless: by weight in endless only |
+| `chapter` | int, optional | 1 (left out: 1) |
+| `days` | `[day]` or `[from, to]`, optional | both included; left out: any day. A story petition needs it, or a `schedule` that leads to it |
+| `weight` | number, optional | the random draw's weight (left out: 1); 0: only as a follow-up |
+| `requires`, `forbids` | flag lists, optional | every required flag set and no forbidden one |
+| `happinessRange` | `[low, high]`, optional | within 0 to 100, both included; checked for random draws and story days |
+| `text` | key | the request: at most 240 English characters |
+| `hint` | key, optional | Odile's one-line counsel (the Counsel button): at most 140 |
+| `counsel` | int, optional | the index (from 0) of the choice Odile's counsel favours (usually right, not always); the reference bot takes it when it can |
+| `choices` | 2 or 3 | each `{"label": key, effects…, "reaction": key}`: label at most 40, reaction at most 140; at least one choice costs neither gold nor people, so a poor realm can always answer |
+
+| Effect (in a choice or a chance's side) | Rule |
+|---|---|
+| `gold` | added. A cost must be affordable, else the choice is greyed (`ChoiceBlock.gold`); gold never drops below 0 (a chance's side is not checked in advance) |
+| `happiness` | added, kept within 0 to 100; at most ±10 per effect |
+| `citizens` | +n new people move in (also beyond the houses' room: growth waits for room); −n people leave, taxpayers first (needs n taxpayers) |
+| `archers`, `guards` | +n new people arrive as soldiers of that kind (like the volunteer at dawn, names from the seeded stream); −n soldiers of that kind lay down their arms and go back to the town as taxpayers, the last recruited first (needs n of them) |
+| `builders` | castle staff beyond the lodge (`CourtState.extraBuilders`: a new lodge keeps them); the castle keeps at least one |
+| `flags` | `name` sets a flag, `-name` clears it |
+| `world` | a registered change id (see "World changes"); `-id` takes it away again |
+| `schedule` | `[{"id": …, "inDays": n}]`, n at least 1: that petition comes on that day if its `requires` and `forbids` still hold (its `days`, `weight`, `happinessRange` and the five-day rule do not count); one that cannot come is dropped |
+| `unlock` | `warTax`; `blessing` (the chapel's blessing, +1 happiness every dawn), `-blessing` lifts it; `line2`, `line3`, `beacon` open those plots before their day |
+| `night` | modifier ids for the coming night (see "Night modifiers") |
+| `chance` | `{"p": 0 < p < 1, "then": {…}, "else": {…}}`: rolled with the simulation's seeded stream when chosen; the side's `reaction` replaces the choice's |
+| `reaction` | the text after the choice |
+
+`CourtValidator` checks every file against this schema (an unknown key, a typo the decoder would skip, is a problem),
+every reference (speaker, follow-up, world id, unlock, night modifier), every text key in English and German and the
+English limits; `PetitionDataTests` runs it over the bundle's files and the source `Story.xcstrings`.
+
+**The rules of the queue** (`PetitionEngine.prepare`, called from 06:00 to the horn)
+
+- Day 1 brings one petitioner (the tutorial in the chapter), every other day 2 to 4: story petitions on their days
+  first, follow-ups due today next, then random ones drawn by weight among the eligible until the day's number is
+  reached. Story petitions and follow-ups are never dropped, even past 4; when too few are eligible the day has fewer.
+- Eligible random petitions: kind `random` (and `endless` only in endless), weight above 0, chapter 1, on their days,
+  their flags and happiness range allowing, and not shown in the last five days (a petition shown on day d, heard or
+  sent home, may come again from day d + 5).
+- A story petition comes on each day of its range until it is heard (so `[4, 5]` gives a second chance), never in
+  endless. A new realm in endless therefore hears random petitions only.
+- The draw uses its own stream made from the seed and the day (`queueSeed`), so the queue never moves the simulation's
+  random stream: the same seed gives the same queue, and adding content does not reshuffle the nights. Each
+  petitioner's look (31 bits from the seed, the day and the petition) chooses a townsfolk's portrait and name.
+- The queue is drawn once a day and lives in the save; the dawn snapshot holds it.
+- At the horn the petitioners still waiting go home unheard (`PetitionEngine.horn`): each costs 1 happiness at dawn
+  (`Balance.happinessPerUnheard`), shown in the dawn report's realm column ("Petitioners unheard −n"), and counts as
+  shown for the five-day rule.
+
+**Night modifiers** (a choice's `night`, for the night after the day it was heard; spent at dawn)
+
+| Id | What the battle does |
+|---|---|
+| `crows-n`, `hounds-n`, `brutes-n`, `weavers-n`, `sootlings-n` (n 1 to 9) | `planNight` takes n creatures of that kind out of tonight's plan (never fewer than none) |
+| `wave-Ppct`, `wave+Ppct` (P 1 to 50) | tonight's budget P % smaller or bigger, every kind in its share; several add up, at most ±50 % |
+| `fog` | the darkness bank comes 60 px further tonight (`bankEdge`; its edge at most 660), so the lights inside it shrink to 0.6 of their radius |
+
+Without a modifier the night is planned exactly as before (the same random draws), so T1 to T8 move only by what
+petitions change.
+
+**World changes** (`CourtWorld.registry`; the content step adds ids there with a line here)
+
+| Id | Where | Drawn in | What |
+|---|---|---|---|
+| `castle.statue` | courtyard, x 1680 | M3 step 3 | a stone statue of the lamplighter king with his lantern (`statue`) |
+| `castle.guards.wall` | castle front, x 1340 | M3 step 3 | two guards posted on the wall walk by day |
+| `castle.banners.new` | great hall | M3 step 3 | the hall's banners renewed, bright teal with gold lanterns |
+| `castle.hall.tapestry` | great hall | M3 step 3 | a tapestry of the old king Aldric |
+| `castle.chapel.bell.missing` | chapel | M3 step 3 | the chapel's bell gone from its gable |
+| `castle.chapel.candles` | chapel | M3 step 3 | votive candles before the altar |
+| `castle.keep.window.dark` | keep | M3 step 3 | one keep window dark at night |
+| `castle.courtyard.stall` | courtyard, x 1486 | M3 step 3 | Marek's cart stays every day |
+| `castle.seren.lantern` | great hall, x 1950 | M3 step 3 | Seren's grey lantern hangs in the far corner |
+| `town.well.repaired` | market, x 3022 | M4 | the well rebuilt: roof, rope, bucket |
+| `town.bridge.mended` | x 3430 | M4 | a footbridge over the brook |
+| `town.festival.tent` | market square | M4 | a striped festival tent |
+| `town.statue` | market square | M4 | a statue |
+| `town.barn.burnt` | first field | M4 | the barn burnt black |
+| `town.market.stall` | market | M4 | an extra stall |
+| `town.lanterns.extra` | lanes | M4 | more lanterns at night |
+| `town.window.dark` | a cottage | M4 | a dark window: a family left |
+| `town.garden` | first house | M4 | flower boxes and a vegetable garden |
+| `town.scarecrow` | far field | M4 | a scarecrow |
+
+**Speakers** (`Speakers`): the court `odile`, `brannock`, `pip`, `hesper`, `tamsin`, `bram`, `marek`, `seren` and the
+guests `serLudo`, `bard`, `envoy`, `herald` have their own bodies (8 frames: walk 0-3, idle 4-5, talk 6-7) and
+portraits; Seren is "The Stranger" (`speaker.stranger.name`) with the hooded portrait until day 15 or the flag
+`seren_revealed`. Townsfolk archetypes walk in a townsfolk body and get a composed portrait chosen from their look:
+
+| Archetype | Body | Portrait (clothes; faces; beards; hair; hats) |
+|---|---|---|
+| `farmer` (man) | `citizenC` | smock, tunic; old, square, long, round; full, long, stubble, short; short, tousled, bald; straw hat, wool cap, none |
+| `farmwife` | `citizen` | dress with apron, smock; round, long, old, young; –; bun, braids, long; headscarf, straw hat, none |
+| `townswoman` | `petitionerD` | dress with apron; round, long, young; –; long, bun, braids, curly; headscarf, none, flower wreath |
+| `townsman` | `petitionerE` | tunic, fine coat; round, long, square, young; none, stubble, short, moustache; short, curly, tousled; none, wool cap, feather cap |
+| `merchant` | `petitionerE` | fine coat; round, long, square; short, full, moustache; short, curly, bald; feather cap, none |
+| `soldier` | `guardsman` | mail and surcoat (teal); square, long, old; stubble, short, full, moustache; short, bald; helm, none |
+| `builder` | `builder` | leather apron; round, square; stubble, full, short; short, tousled, bald; wool cap, none |
+| `widow` | `citizen` | dress with apron, robe; old; –; bun, long (grey); headscarf, hood |
+| `child` (girl or boy) | `citizen` (no child body yet) | smock, tunic; child; –; child's mop, braids; none, flower wreath or wool cap |
+| `noble` (man) | `petitionerE` | fine coat, robe; long, round, square; none, short, moustache; curly, short, long; feather cap, none |
+| `refugee` (woman or man) | `citizenB` | rags; long, old, young, round; stubble or none; long, braids or tousled, short; hood, headscarf, none |
+
+Every archetype also chooses its skin, hair and cloth target ramps (SPRITES.md). A townsfolk petitioner's name comes from
+`Speakers.womensNames` or `mensNames` by the look (names are never translated).
+
+**The court's places** (`CourtLayout.figures(day:hour:flags:queue:catalog:)`, pure)
+
+| Who | By day (06:00 to the horn) | At night |
+|---|---|---|
+| Odile | beside the throne at 1856, stepping to the tax lectern (1846) | by the hearth, 1860 |
+| Brannock | between 1428 (the gatehouse's back) and 1470 | at the gate, 1424 |
+| Pip | wandering 1612, 1690 (courtyard), 1770, 1700 (hall) | by the hearth, 1916 |
+| Mother Hesper | the chapel's altar 2052 and pews 2010 | tending the hearth, 1900 |
+| Tamsin | the kitchen's oven 2146 and table 2196 | the kitchen, 2170 |
+| Bram | the smithy, 1566 to 1588 | the smithy, 1580 |
+| Marek | by his cart (1486) at 1542 on his days: every third day and any day he brings a petition | gone |
+| Seren | at the front gate (1352) the day her petition waits; from `stranger_in` the hall's far corner (1950); gone after `seren_handed_over` | the corner |
+| Guests | standing in the hall (1706, 1754, …) while their petition waits | gone |
+| Townsfolk petitioners | at the benches' four places 1788, 1772, 1740, 1724 (the next one nearest the throne), more standing behind | gone (sent home at the horn) |
+
+Rounds walk at 16 px/s (Pip 22) with a walk frame every 7 px and a breath every 0.8 s, offset so the court never moves
+in step. Court members who petition stay at their round; the audience calls them up. `CourtLayout.props` gives the two
+benches (1712, 1760), the tax lectern (1834), Marek's cart on his days and the statue once `castle.statue` shows.
+
+**Court lines** (`Resources/Court/lines.json`, `{"lines": [ … ]}`): `id` (lowercase), `speaker` (a court member or a
+guest), `days` (optional `[from, to]`), `requires`, `forbids`, `weight` (optional, above 0), `text` (a key, at most 120
+English characters), `about` (optional petition id: a hint, said only while that petition waits today). The lines a
+speaker may say today come in a fixed order: hints about today's waiting petitions first, then the rest, each group in a
+weighted order drawn from the seed, the day and the speaker; talking again goes on through the list
+(`CourtLineBook.line(for:state:nth:)`). `hasHint` puts the speech mark over a court member with a hint.
+
+**Story.xcstrings keys**: `petition.<id>.text`, `.hint`, `.c1` … `.c3` (labels), `.r1` … `.r3` (reactions), `.r1a` and
+`.r1b` (a chance's then and else); `line.<id>`; `speaker.<id>.name` and `.role`, `speaker.stranger.name`. Manual keys with
+English and German values (`extractionState` manual); `StoryText.string` reads them.
+
+**Decisions taken (M3 step 1)**
+
+| Decision | Why |
+|---|---|
+| The drivers draw the queue (`SimDriver` after every step, the bot before it acts), not `Sim` itself; `Sim` only sends the waiting home at the horn and spends the night's modifiers at dawn. | The simulation stays free of the catalogue, and every test that steps `Sim` without a court plays exactly as before (no unheard petitioners); every path the game takes (new realm, save, `-GWDay`, replay, restart, second chance) goes through a driver. |
+| The queue has its own stream from the seed and the day; only `chance` rolls `GameState.rng`. | The same seed gives the same queue, and adding or reordering petitions never reshuffles the nights the tuning measured. |
+| `hint` is Odile's counsel line and `counsel` the index of the choice she favours. | DESIGN's example already had `hint`; the bot needs the choice, the card needs the line. Hints from the rest of the court about today's petitions are court lines with `about`. |
+| Unheard petitioners cost 1 happiness each at dawn and count as shown. | The rule stood in "Happiness" and in `Economy` already; the report's realm column already names the reason. |
+| `archers` and `guards` add new people as soldiers; taking them sends soldiers home as taxpayers. | The volunteer at dawn sets the pattern; a petition that wants a man to leave the realm adds `citizens: -1`. |
+| `unlock` opens `warTax`, the chapel's `blessing` (`-blessing` lifts it) and the plots of `line2`, `line3`, `beacon` early; the days in `Realm` stay. | No build is locked by anything but a plot's day; an unheard story petition must never lock the chapter (the war tax still unlocks at dawn 8 and the beacon on day 11 by themselves, see the open points). |
+| Night modifiers are a small set: fewer of a kind, a smaller or bigger budget, fog. | Each is honoured by code that already exists (the plan and the bank edge), and each is visible in the battle. |
+| The bot hears every petitioner first thing each day, wherever the king stands. | The tuning bot needs no walk to the throne; the live bot (`-GWAutoplay play`) is for night shots. |
+| Seren waits at the front gate on the day of her petition. | "At dusk a stranger asks to be let in": she stands outside until she is. |
+| Petition files are `petitions-<group>.json`; the lines file is `lines.json`. | An Xcode group copies resources flat into the bundle: the prefix finds the petition files and keeps the names apart from every other resource. |
+| Frame 0 of beard, hair and hat holds one texel of alpha 1 in the placeholders. | The contract leaves it empty and the composer skips it, but `AtlasTests` wants no empty placeholder frame. |
+
+**Notes for the content step**
+
+- The reference bot hears every petition (Odile's counsel when it can pay, else the cheapest), so counsel choices move
+  T1 to T8. Keep each day's net small: the counsel choices' happiness over days 1 to 7 below +5 in all (T4's high-tax
+  realm reaches 25 by dawn 8 without petitions; the bar is below 30), gold close to nothing over the chapter (T3's
+  beacon by day 18 had one day of margin), no night modifiers in counsel choices on days 19 and 20 (T6), and endless
+  petitions move T7. If a target fails, change petition values, never `Balance`, and write it here.
+- The tutorial (day 1) counsel choice must change neither gold nor the night: `AutoplayTests` pins the first
+  morning's gold and `SimTests` night 1's creatures.
+- Story beats: day 4's stranger is a story petition by `seren` (she waits at the gate) whose yes sets `stranger_in`;
+  the war tax still unlocks by itself at dawn 8 (`Realm.warTaxDay`) and the beacon site on day 11 (`Realm.plots`): when
+  Brannock's and Odile's petitions take them over, remove those automatic unlocks in the same step.
+- Run `PetitionDataTests` (the validator) after every batch; its attachment `petition-validator` lists every problem.
+
+**Notes for the UI step**
+
+- The audience: `PetitionEngine.waiting(state, catalog: .standard)` gives today's petitioners in order with their
+  petitions; `Speakers.speaker(id)` the body, portrait sprite (`portraitFrame` for Seren) or the composed portrait
+  (`Speakers.recipe(id, look:)` and `PortraitComposer.compose(recipe, atlas:)`); `StoryText.name` and `.role` the card's
+  header; `PetitionEngine.blocker(choice, state)` greys a choice with its reason; `PetitionEngine.hear(&state, choice:,
+  at:, catalog:, balance:)` returns the `PetitionOutcome` (reaction key and every change, for the HUD's numbers). The
+  clock stands still while the card is open (`GameModel.isPaused`).
+- The hall: `CourtLayout.figures(state, catalog:)` places the court, the guests and the petitioners (sprite, frame,
+  facing, room); `CourtLayout.props(state, catalog:)` the benches, the lectern, the cart and the statue;
+  `CourtLayout.audienceSpot` (1800) is where the heard petitioner stands before the throne.
+- Talking: a `KingTarget` for the court member in reach, `CourtLineBook.standard.line(for:state:nth:)` for the line,
+  `hasHint` for the speech mark (`speakerMark`). The throne opens the audience while petitioners wait; the tax lectern
+  keeps its own place (1834).
+
+**Open points**
+
+- `tools/simtune/run.sh` compiles a fixed list of Core files; since the bot hears petitions it needs
+  `Core/Petition*.swift` added to its list (this step must not edit `tools/`). With them it reads `Resources/Petitions`
+  from the game's folder and measures with the petitions, as `TuningTests` does.
+- `tools/tune.py` mirrors the economy without petitions.
+- There is no child body in the sprite contract: a child petitioner walks as `citizen`.
+- The Chronicle does not count petitions heard yet (`CourtState.heardCount` holds the realm's count).
+- A line unlocked early by a petition is still named in the dawn report on its normal day.
+
+**Tuning with petitions** (round `lh-m3-a1`: the five samples, every reference bot hearing every petitioner with the
+fixed policy; the realm that builds nothing hears none)
+
+| Target | Measured with the samples (M2a without petitions) | Target value |
+|---|---|---|
+| 1 | nights 1 to 10 held in 3 of 3 seeds, hearth never touched, 0 soldiers lost (the same) | hearth untouched, at most 3 lost |
+| 2 | falls on night 3 (3 of 3, the same) | night 2 or 3 |
+| 3 | beacon finished on days 16, 16, 16 (17); with low tax not by day 20 | by day 18; low tax cannot |
+| 4 | high tax: 28 at dawn 8 (25: the tutorial's +1 and the well's +2); low tax: lowest 84 over dawns 8 to 20 (92) | below 30; above 70 |
+| 5 | first dawn taxes 49 buy 3 builds; 12 buildings by day 10 (11) | 2 to 3; 8 to 12 |
+| 6 | with the beacon won 10 of 10, the King slain 10 of 10, 58 to 69 s after he left the Gloom, 8 to 22 s of light left; without 4 of 10 (5) | at least 8 won and 6 slain; 3 to 6 |
+| 7 | endless falls on nights 46, 52, 41 (56, 45, 42) | 35 to 60 |
+| 8 | last wave 79.9 s after nightfall; night 3 (37 creatures): 41 sim entities, 11 battle lights | by 84 s; under 300 and 40 |
+
+Every target holds without a change to `Balance` or to the samples. Margins to watch: T5 now sits on its upper edge
+(happiness 80, and with it the builders' 20 %, comes one dawn earlier with the samples' +3), and T4's high-tax realm
+keeps 2 points. More generous counsel choices break T5 first: the content step should either keep the counsel
+austere or ask the lead to widen T5 (a petition-rich realm builds faster by design).
+
+**Runner rounds (M3 step 1)**
+
+- `lh-m3-a1` (build, unit) on `840dccd`: ALL PASSED on the first build (293 unit test lines, every new test; the
+  validator found no problem with the bundle's files against the source `Story.xcstrings`; T1 to T8 as above).
 
 ## Risks
 
