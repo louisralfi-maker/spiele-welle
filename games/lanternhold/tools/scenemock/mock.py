@@ -23,6 +23,10 @@
 #                 far and mid planes toward the hour's air colour, a near plane (parallax 0.75) and a mist band (fogM,
 #                 0.62) between the mid plane and the world, the depth layout (layout_look2.py: the open shadow land,
 #                 rows of trees, lane ground tiles, foreground plants), a bluer night tint, navy darks and a vignette.
+#                 After the critic of stage 1: painted fog banks (d2FogBank, d2MistBand, d2FogLow) instead of the
+#                 stretched strip, fog that takes the light's hue, fire pools falling off to ember, firelight displacing
+#                 the cold, a moon key on the near and mid planes, a ledge light, a moonlit lane, rims for creatures and
+#                 people, a warm fill inside cut-away rooms (layout_look2.INTERIORS), cloud tops in the low sun's colour.
 #                 Every look-2 value below (LOOK2) can be set as name=value.
 #   art=<dir>[,<dir>…]  where the sprite PNGs are (default <game>/Resources/Art); depth=<dir> the depth stand-ins
 #                 (tools/depthart.py), searched first with look=2
@@ -58,18 +62,34 @@ LOOK = dict(lift=0.46, farShare=0.9, midLight=0.32, gain=1.55, knee=0.95, fogGlo
             litCool=0.0, bounce=0.0, bounceLo=0.2, bounceHi=0.5, duskSun=0.0, band=0.0, bandH=48.0, bandWhite=0.4,
             bandValley=0.5, bandWarmCut=0.5, bounceDusk=1.0, rim=0.0)
 L2 = args.get('look') == '2'
-# Look 2 (ART-look2.md "Engine values"): the renderer values of the farbig-düster look
-LOOK2 = dict(lift=0.30, colorise=0.72, farShare=0.85, midShare=0.72, nearShare=0.85, midLight=0.3, nearLight=0.5,
-             farHaze=0.40, farHazeShare=0.55, midHazeDay=0.2, midHazeNight=0.36, midHazeShare=0.25, nearHazeDay=0.08,
-             nearHazeNight=0.36, nearHazeShare=0.12, midAir=0.86, nearAir=0.78, farCool=0.6, mist=0.25,
-             fogMH=56.0, fogMShare=1.5, fogMBright=1.4, fogAH=32.0, fogScale=0.85, fogBright=2.0, fogGlow=0.7, gain=3.0, knee=0.95,
-             glowAdd=0.06, fgLight=0.55, fgAmb=0.55, fgAmbNight=0.3, bloom=0.75, bloomLight=0.16, bloomSky=0.55,
-             thr=0.34, kneeB=0.5, litCap=1.6, litNeutral=0.35, litCool=0.6, bounce=0.5, bounceLo=0.2, bounceHi=0.5,
+# Look 2 (ART-look2.md "Engine values"): the renderer values of the farbig-düster look, as revised after the critic of
+# stage 1 (ART-look2.md "Critic and fixes"): brighter fog toward the target's periwinkle banks, a lower cap on the
+# light a surface reflects, fire pools that fall off from their own colour to ember red, fog that takes the light's hue
+# instead of adding to its blue, a near plane with less haze and a moon key on its lit tiers, a sky-facing ledge light,
+# a moonlit lane, rims for every figure, a warm ambient inside cut-away rooms and a softer vignette.
+LOOK2 = dict(lift=0.30, colorise=0.72, farShare=0.85, midShare=0.72, nearShare=1.05, midLight=0.3, nearLight=0.5,
+             farHaze=0.40, farHazeShare=0.55, midHazeDay=0.14, midHazeNight=0.36, midHazeShare=0.25, nearHazeDay=0.06,
+             nearHazeNight=0.20, nearHazeShare=0.06, midAir=0.86, nearAir=0.62, farCool=0.6, mist=0.25,
+             fogMShare=1.0, fogMBright=1.8, fogScale=1.2, fogBright=2.6, fogGoal=0.65,
+             fogGlow=0.35, gain=3.0, knee=0.95,
+             glowAdd=0.06, fgLight=0.55, fgAmb=0.55, fgAmbNight=0.45, bloom=0.75, bloomLight=0.10, bloomSky=0.55,
+             thr=0.34, kneeB=0.5, litCap=1.0, litNeutral=0.35, litCool=0.6, bounce=0.3, bounceLo=0.2, bounceHi=0.5,
              bounceDusk=2.2, duskSun=1.0, band=0.2, bandH=40.0, bandWhite=0.3, bandValley=0.5, bandWarmCut=0.5, rim=0.6,
-             winR=1.6, winI=0.7, glassGain=1.3, fireI=1.15, cloudSun=1.0, cloudFill=1.5, cloudHaze=0.3, cloudMoon=0.35, blackR=0.22,
-             groundSky=1.4, groundSkyDay=1.1, midGlass=0.45, smoke=0.55)
+             winR=1.25, winI=0.5, glassGain=1.3, fireI=1.15, cloudSun=1.0, cloudFill=1.5, cloudHaze=0.3, cloudMoon=0.7, blackR=0.22,
+             groundSky=1.2, groundSkyDay=1.0, moonTrack=0.18, midGlass=0.45, smoke=0.55,
+             # new after the critic: the fire pools' colour falloff (0 = off), the moon key on the near and mid planes'
+             # lit albedo (luma above moonLo), the sky-facing ledge light (the top pixel of a silhouette), the rims of
+             # the figures (creatures unlit, people), the warm ambient inside cut-away rooms, the vignette's width
+             fireFall=1.0, moonKey=0.30, moonLo=0.26, ledge=1.4, ledgeSky=0.15, creatureRim=0.6, peopleRim=0.35,
+             inter=0.30, vigX=0.6, fireCold=0.7, castleMist=0.35)
 NT2 = (0.72, 0.95, 1.85)              # look 2's night tint: deep blue (the old (1.03, 0.86, 1.66) is violet)
 BLACK2 = (0.030, 0.040, 0.095)        # the navy the darks lift toward
+EMBER2, EMBERDIM2 = hexf(0xD9481F), hexf(0x8C2A12)  # look 2: a fire pool's colour falls off to ember, its rim emberDim
+MOONRIM2 = (0.62, 0.70, 0.95)         # look 2: an unlit creature's moonlight rim (Shaders.metal kMoonRim 0.55, 0.60, 0.82)
+INTERIOR2 = hexf(0xB07850)            # look 2: the warm ambient inside cut-away rooms at night (hearth and candle fill)
+UNLIT2 = 0.2                          # look 2: an unlit creature's body value, as the engine (EntityFrames.unlitValue)
+RIMMED2 = {'king', 'sootling', 'sootlingB', 'shadehound', 'sootCrow', 'ashBrute', 'gloomweaver', 'ashGiant', 'lightlessKing'}
+PEOPLE2 = {'archer', 'guardsman', 'builder', 'citizen', 'citizenB', 'citizenC'}
 if L2:
     LOOK.update(LOOK2)
 for k in list(LOOK):
@@ -286,8 +306,8 @@ def mist_alpha(k, amb):
     return MIST_MAX * k * min(1.0, max(0.0, amb['torch'])) * min(1.25, amb['fogD'] / 0.4)
 COLX = dict(COL, fireArrow=fireWhite, firepot=fireOrange, beacon=fireWhite)  # light kinds of the extras
 if L2:  # look 2: the fires' light a step deeper toward orange (pools read as fire on stone, not white-gold)
-    TORCH2, ARROW2 = (1.0, 0.66, 0.30), (1.0, 0.74, 0.40)
-    COL.update(torch=TORCH2, lantern=(1.0, 0.70, 0.34), candle=(1.0, 0.72, 0.38))
+    TORCH2, ARROW2 = (1.0, 0.58, 0.26), (1.0, 0.70, 0.36)
+    COL.update(torch=TORCH2, lantern=(1.0, 0.64, 0.30), candle=(1.0, 0.68, 0.34), window=(1.0, 0.66, 0.32))
     COLX.update(COL, fireArrow=ARROW2)
 UNLIT = 0.12  # an unlit creature's body: very low value, its glow strip carries it (SPRITES.md)
 def extra_props():
@@ -319,6 +339,35 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
     camx = min(WORLD_W - VIS, max(0, FOCUS - VIS / 2)); whole = {k: math.floor(camx * v) for k, v in PAR.items()}
     layers = {k: [[(0.0, 0.0, 0.0, 0.0)] * TW for _ in range(TH)] for k in ORDER}
     light = [[(0.0, 0.0, 0.0)] * TW for _ in range(TH)]; emis = [[(0.0, 0.0, 0.0)] * TW for _ in range(TH)]
+    if L2:  # look 2's masks: a figure's rim (strength, tone 1 moon or 2 sky), cut-away rooms, figure pixels
+        rimA = [[0.0] * TW for _ in range(TH)]; rimT = [[0] * TW for _ in range(TH)]
+        inter = [[0.0] * TW for _ in range(TH)]; actorpx = [[False] * TW for _ in range(TH)]
+        night0_ = ss((0.75 - amb['ambI']) / 0.5)
+        def mark_figure(name, img, left, top, flip, lit):  # its screen-right edge pixels take a rim (Renderer.rimmed)
+            if name in RIMMED2 and name != 'king' and not lit: rs, rt = LOOK['creatureRim'] * night0_, 1
+            elif name in RIMMED2: rs, rt = LOOK['rim'], 2
+            elif name in PEOPLE2: rs, rt = LOOK['peopleRim'], 2
+            else: rs, rt = 0.0, 0
+            h_, w_ = len(img), len(img[0])
+            for j in range(h_):
+                y = top + j
+                if not 0 <= y < TH: continue
+                for i in range(w_):
+                    x = left + i; p = img[j][w_ - 1 - i if flip else i]
+                    if p is None or p[3] < 128 or not 0 <= x < TW: continue
+                    actorpx[y][x] = True
+                    q = img[j][w_ - 2 - i] if flip and i + 1 < w_ else (img[j][i + 1] if not flip and i + 1 < w_ else None)
+                    if rs > 0 and (q is None or q[3] < 128): rimA[y][x] = rs; rimT[y][x] = rt
+        def mark_interior(name, left, top, w_, h_, flip):  # a cut-away room: its rect takes the warm interior ambient
+            box = LL.INTERIORS.get(name)
+            if not box: return
+            x0, x1, y0, y1 = box  # sprite x from the left, y from the bottom row up
+            for j in range(h_ - y1, h_ - y0):
+                y = top + j
+                if not 0 <= y < TH: continue
+                for i in range(x0, x1):
+                    x = left + (w_ - 1 - i if flip else i)
+                    if 0 <= x < TW: inter[y][x] = 1.0
     def draw(layer, img, left, top, tint=(1, 1, 1, 1), flip=False, add=False, occlude=True):
         h = len(img); w = len(img[0]); L = layers[layer] if not add else None
         occl = LAYOUT and occlude and layer in ('mid', 'near', 'world', 'fg')
@@ -397,18 +446,22 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
             if fa <= 0.003: continue
         if isx:  # an extra: its frame, at shade 0.12 when unlit, then its glow strip added over the same frame
             if ximg:
-                shd = pr['sh'] * (1 if pr['lit'] else UNLIT)
+                shd = pr['sh'] * (1 if pr['lit'] else ((1 - (1 - UNLIT2) * night0_) if L2 else UNLIT))
                 draw(pr['p'], ximg, int(left), int(top), (shd, shd, shd, 1.0), pr['f'])
+                if L2:
+                    mark_interior(pr['s'], int(left), int(top), w, h, pr['f'])
+                    if pr['s'] in RIMMED2 or pr['s'] in PEOPLE2: mark_figure(pr['s'], ximg, int(left), int(top), pr['f'], pr['lit'])
                 if pr['glow']:
                     g = pr['gs']; draw(pr['p'], sprite(pr['glow'], pr['frame'], pr['frames']), int(left), int(top), (g, g, g, 1.0), pr['f'], add=emis)
         elif pr.get('shadow'):  # a baked cast shadow: black at the sun's strength, hides no glow (scene polish 2)
             sa = shadow_alpha(pr['shadow'], amb, HOUR) * fa
             if sa > 0.003: draw(pr['p'], sprite(pr['s']), int(left), int(top), (0.0, 0.0, 0.0, sa), pr['f'], occlude=False)
         elif pr.get('mist'):  # a bank of ground mist: white at the hour's mist strength, hides no glow
-            ma = mist_alpha(pr['mist'], amb) * fa
+            ma = mist_alpha(pr['mist'], amb) * fa * (LOOK['castleMist'] if L2 else 1.0)  # look 2: the banks do most
             if ma > 0.003: draw(pr['p'], sprite(pr['s']), int(left), int(top), (1.0, 1.0, 1.0, ma), pr['f'], occlude=False)
         else:
             draw(pr['p'], sprite(pr['s']), int(left), int(top), (pr['sh'], pr['sh'], pr['sh'], fa), pr['f'])
+            if L2 and pr['p'] == 'world': mark_interior(pr['s'], int(left), int(top), w, h, pr['f'])
         for (dx, dy, mw, mh, col) in pr.get('masks', []):  # window glass: the sprite's dark pixels in a rect glow
             if torchS < 0.01: continue
             gk = (LOOK['glassGain'] * (LOOK['midGlass'] if pr['p'] == 'mid' else 1.0)) if L2 else 1.0  # look 2: far glass in haze
@@ -437,7 +490,9 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                 it *= LOOK['winI'] / 0.4; r *= LOOK['winR']
             elif L2:  # look 2: the fires a step stronger against the darker ambient
                 it *= LOOK['fireI']
-            if it > 0.01: lights.append((lx - whole[pr.get('lp', 'world')], GROUND - ly, r, col, it))
+            if it > 0.01:
+                li_ = (lx - whole[pr.get('lp', 'world')], GROUND - ly, r, col, it)
+                lights.append(li_ + (kind != 'window',) if L2 else li_)  # look 2: fire pools fall off to ember
     if LAB:
         for row, (hgt, col, es) in enumerate(((104, (1.0, 0.62, 0.26), 'brazierFlame'), (20, (0.46, 0.62, 1.0), 'lanternGlass'))):
             for k, share in enumerate((0.17, 0.48, 0.81)):
@@ -446,24 +501,34 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                 draw('world', sprite(es), cx - sw // 2, cy - sh // 2, tint, add=emis)
     elif args.get('king') != 'off':
         # king and his lantern (king=<x> moves him, king=off leaves him out: a scene adds him as an extra)
-        kx = FOCUS if 'king' not in args else float(args['king']); lights.append((kx + 9 - whole['world'], GROUND - 16, 40, COL['lantern'] if L2 else fireGold, torchS * 0.85))
+        kx = FOCUS if 'king' not in args else float(args['king']); lights.append((kx + 9 - whole['world'], GROUND - 16, 40, COL['lantern'] if L2 else fireGold, torchS * 0.85) + ((True,) if L2 else ()))
     # fog
     fogA = (amb['fogColor'], amb['fogD'] * 0.9 * LOOK['fogScale']); fogB = (amb['fogColor'], amb['fogD'] * 0.6 * LOOK['fogScale'])
-    for name, (fc, fd), fy in (('fogA', fogA, -4), ('fogB', fogB, -14)):
+    if L2:  # look 2 (after the critic): painted banks at their own heights instead of the stretched strip: the bank
+        # behind the play plane (d2FogBank), the mist band between the mid and near planes (d2MistBand) and the low
+        # mist over the lane (d2FogLow), seamless, density by region per column, never flipped
+        fc = amb['fogColor']
+        for name, spr, bottom, dens in (('fogA', 'd2FogBank', GROUND + 4, fogA[1]), ('fogB', 'd2FogLow', GROUND + 14, fogB[1]),
+                                        ('fogM', 'd2MistBand', GROUND + 2, amb['fogD'] * LOOK['fogMShare'])):
+            img = sprite(spr); W_, H_ = len(img[0]), len(img); first = math.floor(whole[name] / W_) - 1; Ly_ = layers[name]
+            reg = [LL.fog_region(camx + x) for x in range(TW)]
+            for idx in range(first, first + TW // W_ + 3):
+                left = int(idx * W_ - whole[name]); top = bottom - H_
+                for j in range(H_):
+                    y = top + j
+                    if not 0 <= y < TH: continue
+                    row = img[j]
+                    for i in range(W_):
+                        x = left + i; p = row[i]
+                        if p is None or not 0 <= x < TW: continue
+                        a = min(1.0, p[3] / 255 * dens * reg[x])
+                        if a > 0.003: Ly_[y][x] = (fc[0] * a, fc[1] * a, fc[2] * a, a)
+    for name, (fc, fd), fy in ((('fogA', fogA, -4), ('fogB', fogB, -14)) if not L2 else ()):
         top = GROUND - fy - 24; first = math.floor(whole[name] / 128) - 1; strip = sprite('fogStrip')
-        if L2 and name == 'fogA':  # look 2: the bank behind the play plane taller, so creatures stand dark against it
-            H = int(LOOK['fogAH']); strip = [strip[int(j * 24 / H)] for j in range(H)]; top = GROUND + 4 - H
         for idx in range(first, first + TW // 128 + 3):
             left = int(idx * 128 - whole[name])
-            fdr = fd * (LL.fog_region(camx + left + 64) if L2 else 1.0)  # look 2: the shadow land is the foggiest
-            draw(name, strip, left, top, (fc[0], fc[1], fc[2], fdr), idx % 2 != 0)
-    if L2:  # the mist band between the mid and near planes: the fog strip stretched to fogMH rows, its dense foot low
-        H = int(LOOK['fogMH']); fs = sprite('fogStrip'); mband = [fs[int(j * 24 / H)] for j in range(H)]
-        fc = amb['fogColor']; fd = amb['fogD'] * LOOK['fogMShare']; first = math.floor(whole['fogM'] / 128) - 1
-        for idx in range(first, first + TW // 128 + 3):
-            left = int(idx * 128 - whole['fogM'])
-            fdr = min(1.0, fd * LL.fog_region(camx + left + 64))
-            draw('fogM', mband, left, GROUND + 2 - H, (fc[0], fc[1], fc[2], fdr), idx % 2 != 0)
+            draw(name, strip, left, top, (fc[0], fc[1], fc[2], fd), idx % 2 != 0)
+    if L2:
         for (hx, fl) in LL.SMOKE:  # chimney smoke over the cottages the scene keeps, lit like the world it rises in
             if not any(p['s'] in ('house', 'houseB', 'houseC') and abs(p['x'] - hx) < 0.5 for p in props): continue
             cx_ = hx + (14 if fl else 49); sm = sprite('d2Smoke'); sl = int(cx_ - len(sm[0]) // 2 - whole['world'])
@@ -482,11 +547,17 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
         if args.get('king') != 'off': actors.append(('king', kx, 0, (1, 1, 1, 1), False, False))
     # light pass
     edge = 0.12
-    for (cx, cy, r, col, it) in lights:
+    for li_ in lights:
+        cx, cy, r, col0, it = li_[:5]; fall = L2 and len(li_) > 5 and li_[5] and LOOK['fireFall'] > 0
+        col = col0
         for y in range(max(0, int(cy - r / 1.25) - 1), min(TH, int(cy + r / 1.25) + 2)):
             for x in range(max(0, int(cx - r) - 1), min(TW, int(cx + r) + 2)):
                 d = math.hypot(x + 0.5 - cx, (y + 0.5 - cy) * 1.25) / r
                 if d >= 1: continue
+                if fall:  # look 2: the light's own colour only at the core, ember red by d 0.75, emberDim at the rim
+                    k1 = ss((d - 0.3) / 0.45) * LOOK['fireFall']; k2 = ss((d - 0.75) / 0.25) * LOOK['fireFall']
+                    col = [col0[k] + (EMBER2[k] - col0[k]) * k1 for k in range(3)]
+                    col = [col[k] + (EMBERDIM2[k] - col[k]) * k2 for k in range(3)]
                 t = (1 - d) ** 2
                 if STYLE == 'smooth': lv = t if t >= edge else t * 0.55
                 else:
@@ -656,15 +727,40 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
         moonUp = min(1.0, max(0.0, amb['moon'] / 0.6)); MOONC = (0.55, 0.60, 0.92)
         gsky = LOOK['groundSkyDay'] + (LOOK['groundSky'] - LOOK['groundSkyDay']) * night
         RIM = [c * max(lvl, 0.6) for c in (0.72, 0.82, 1.0)]
+        FB = min(LOOK['fogBright'], max(1.0, LOOK['fogGoal'] / max(fogLum, 0.01)))  # the banks the brightest non-fire
+        torchI = min(1.0, max(0.0, torchS))
+        lvlI = LOOK['lift'] + (1 - LOOK['lift']) * LOOK['inter']  # a room's fill, read like a key: colour x strength
+        INTER = [ambW[k] * 0.8 + (INTERIOR2[k] / max(INTERIOR2) * lvlI - ambW[k] * 0.8) * torchI for k in range(3)]
+        cloudC = amb['cloud']
+        def cold2(rgb, ambv, sun=0.0, kmul=1.0):  # cold() with a share of the night pull (rooms keep their warmth)
+            a = [rgb[k] * ambv[k] for k in range(3)]; lu = 0.299 * a[0] + 0.587 * a[1] + 0.114 * a[2]
+            kk = kcol * (1 - sun * day * LOOK['duskSun']) * kmul
+            return [a[k] + (lu * NT[k] - a[k]) * kk for k in range(3)]
+        def fog_lit(c, g, gain, glowK, L):  # fog over c: inside light it takes the light's hue instead of adding to its
+            a = g[3]                         # blue (fire in the periwinkle banks read pink-lilac), then a warm glow
+            f = [g[k] * gain for k in range(3)]; pk = max(L)
+            if pk > 1e-4:
+                wl = min(1.0, 1.2 * pk); lf = 0.299 * f[0] + 0.587 * f[1] + 0.114 * f[2]
+                f = [f[k] + (lf * L[k] / pk - f[k]) * wl for k in range(3)]
+            return [c[k] * (1 - a) + f[k] + L[k] * glowK * LOOK['fogGlow'] * a for k in range(3)]
+        def moon_key(p):  # the moon on the lit albedo of the near and mid planes at night (fir tiers, crowns, statues)
+            if moonUp <= 0 or LOOK['moonKey'] <= 0: return 0.0
+            lu = (0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2]) / max(p[3], 1e-4)
+            return LOOK['moonKey'] * moonUp * night * ss((lu - LOOK['moonLo']) / 0.12)
+        def ledge(layer, x, y):  # 1 for a silhouette's top pixel (nothing above it on its plane), 0.5 for the next
+            if y < 1 or layer[y][x][3] < 0.5: return 0.0
+            if layer[y - 1][x][3] < 0.5: return 1.0
+            if y >= 2 and layer[y - 2][x][3] < 0.5: return 0.5
+            return 0.0
         def base(x, y, L):
             v = min(1, max(0, (y + 0.5) / GROUND)) ** 1.35; q = min(1, max(0, math.floor(v * 16 + bayer(x, y)) / 16))
             c = [amb['skyTop'][k] + (amb['skyBottom'][k] - amb['skyTop'][k]) * q + skyAdd[y][x][k] for k in range(3)]
             low = ss((y - (GROUND - 70)) / 70)
             s_ = layers['sky'][y][x]
-            if s_[3] > 0:  # clouds: sunlit tops warm, bellies the sky's top colour, the moon's light at night
+            if s_[3] > 0:  # clouds: sunlit tops in the low sun's own colour, bellies the sky's top colour, the moon's light
                 a_ = s_[3]; alb = [s_[k] / a_ for k in range(3)]; lu = 0.299 * alb[0] + 0.587 * alb[1] + 0.114 * alb[2]
                 Lw = min(1, max(0, (lu - 0.6) / 0.3))
-                lit = [alb[k] * (ambW[k] * LOOK['cloudSun'] * Lw + amb['skyTop'][k] * LOOK['cloudFill'] * (1 - Lw)
+                lit = [alb[k] * (cloudC[k] * LOOK['cloudSun'] * Lw + amb['skyTop'][k] * LOOK['cloudFill'] * (1 - Lw)
                                  + MOONC[k] * LOOK['cloudMoon'] * moonUp) for k in range(3)]
                 lit = [lit[k] + (amb['skyBottom'][k] - lit[k]) * LOOK['cloudHaze'] for k in range(3)]
                 c = [c[k] * (1 - a_) + lit[k] * a_ for k in range(3)]
@@ -678,36 +774,59 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
             m = layers['mid'][y][x]
             if m[3] > 0:
                 hzz = min(1, max(0, MH + low * mistv * 0.5)); am, sun = lit_amb(m, m[3], ambM, LOOK['midShare'])
-                cm = cold(m, am, sun); lit = [cm[k] + m[k] * L[k] * LOOK['midLight'] for k in range(3)]
+                e = ledge(layers['mid'], x, y)
+                if e > 0: am = [am[k] * (1 + (LOOK['ledge'] - 1) * e) + amb['skyBottom'][k] * LOOK['ledgeSky'] * e for k in range(3)]
+                cm = cold(m, am, sun); mk = moon_key(m)
+                lit = [cm[k] + m[k] * L[k] * LOOK['midLight'] + m[k] * MOONC[k] * mk for k in range(3)]
                 lit = [lit[k] + (midHC[k] * m[3] - lit[k]) * hzz for k in range(3)]
                 if bnd > 0: lit = [lit[k] + (bandC[k] * m[3] - lit[k]) * bnd * 0.6 for k in range(3)]
                 c = [c[k] * (1 - m[3]) + lit[k] for k in range(3)]
             g = layers['fogM'][y][x]
-            if g[3] > 0: c = [c[k] * (1 - g[3]) + g[k] * FB * LOOK['fogMBright'] + L[k] * 0.4 * LOOK['fogGlow'] * g[3] for k in range(3)]
+            if g[3] > 0: c = fog_lit(c, g, FB * LOOK['fogMBright'], 0.4, L)
             n = layers['near'][y][x]
             if n[3] > 0:
-                an, sun = lit_amb(n, n[3], ambN, LOOK['nearShare']); cn = cold(n, an, sun); Lc, rf = lit_world(n, L)
-                lit = [cn[k] + rf[k] * Lc[k] * LOOK['nearLight'] for k in range(3)]
+                an, sun = lit_amb(n, n[3], ambN, LOOK['nearShare'])
+                an = [v * (1 - LOOK['fireCold'] * min(1.0, max(L) * LOOK['nearLight'] * 1.5)) for v in an]
+                e = ledge(layers['near'], x, y)
+                if e > 0: an = [an[k] * (1 + (LOOK['ledge'] - 1) * e) + amb['skyBottom'][k] * LOOK['ledgeSky'] * e for k in range(3)]
+                cn = cold(n, an, sun); Lc, rf = lit_world(n, L); mk = moon_key(n)
+                lit = [cn[k] + rf[k] * Lc[k] * LOOK['nearLight'] + n[k] * MOONC[k] * mk for k in range(3)]
                 lit = [lit[k] + (nearHC[k] * n[3] - lit[k]) * NH for k in range(3)]
                 c = [c[k] * (1 - n[3]) + lit[k] for k in range(3)]
             a = layers['fogA'][y][x]
-            if a[3] > 0: c = [c[k] * (1 - a[3]) + a[k] * FB + L[k] * 0.6 * LOOK['fogGlow'] * a[3] for k in range(3)]
+            if a[3] > 0: c = fog_lit(c, a, FB, 0.6, L)
             w = layers['world'][y][x]
             if w[3] > 0:
-                Lc, rf = lit_world(w, L); aw, sun = lit_amb(w, w[3], ambW)
+                Lc, rf = lit_world(w, L); aw, sun = lit_amb(w, w[3], ambW); iv = inter[y][x]; kmul = 1.0
+                fk = 1 - LOOK['fireCold'] * min(1.0, max(L) * 1.5)  # firelight displaces the cold inside its pool
+                if fk < 1: aw = [v * fk for v in aw]
+                if iv > 0:  # a cut-away room: the warm fill of its hearth and candles, no night pull
+                    aw = [aw[k] + (INTER[k] - aw[k]) * iv for k in range(3)]; kmul = 1 - iv * torchI
                 if GROUND <= y < GROUND + 8: aw = [v * gsky for v in aw]  # the lane's track faces the sky
-                cw = cold(w, aw, sun); c = [c[k] * (1 - w[3]) + cw[k] + rf[k] * Lc[k] + Lc[k] * LOOK['glowAdd'] * w[3] for k in range(3)]
+                elif not actorpx[y][x]:
+                    e = ledge(layers['world'], x, y)  # a silhouette's top edge catches the sky
+                    if e > 0: aw = [aw[k] * (1 + (LOOK['ledge'] - 1) * e) + amb['skyBottom'][k] * LOOK['ledgeSky'] * e for k in range(3)]
+                cw = cold2(w, aw, sun, kmul); c = [c[k] * (1 - w[3]) + cw[k] + rf[k] * Lc[k] + Lc[k] * LOOK['glowAdd'] * w[3] for k in range(3)]
+                if GROUND <= y < GROUND + 7 and moonUp > 0:  # the moonlit track
+                    c = [c[k] + w[k] * MOONC[k] * LOOK['moonTrack'] * moonUp * night for k in range(3)]
+                ra = rimA[y][x]
+                if ra > 0:  # a figure's rim on its screen-right edge (moon for an unlit creature), outshone by fire
+                    tone = MOONRIM2 if rimT[y][x] == 1 else RIM; k_ = ra * (1 - min(1.0, max(L) * 1.5))
+                    c = [c[k] + (tone[k] - c[k]) * k_ for k in range(3)]
             return [c[k] + emis[y][x][k] for k in range(3)]
         def top(c, x, y, L):
             b = layers['fogB'][y][x]
-            if b[3] > 0: c = [c[k] * (1 - b[3]) + b[k] * FB + L[k] * 0.8 * LOOK['fogGlow'] * b[3] for k in range(3)]
+            if b[3] > 0: c = fog_lit(c, b, FB, 0.8, L)
             f = layers['fg'][y][x]
             if f[3] > 0:
                 cf = cold(f, [v * fgA for v in ambW]); c = [c[k] * (1 - f[3]) + cf[k] + f[k] * L[k] * LOOK['fgLight'] for k in range(3)]
             fx = min(HW - 1.0, max(0.0, (x + 0.5) / 2 - 0.5)); fy = min(HH - 1.0, max(0.0, (y + 0.5) / 2 - 0.5)); x0, y0 = int(fx), int(fy); x1, y1 = min(HW - 1, x0 + 1), min(HH - 1, y0 + 1); tx, ty = fx - x0, fy - y0
             for k in range(3):
                 c[k] += ((bl[y0][x0][k] * (1 - tx) + bl[y0][x1][k] * tx) * (1 - ty) + (bl[y1][x0][k] * (1 - tx) + bl[y1][x1][k] * tx) * ty) * LOOK['bloom']
-            warm = min(1, max(0, max(L) * 1.5)); lu = 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]; s2 = sat + (max(sat, 1.08) - sat) * warm
+            warm = min(1, max(0, max(L) * 1.5)); lu = 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]
+            fa = max(layers['fogA'][y][x][3], layers['fogB'][y][x][3], layers['fogM'][y][x][3])
+            warmS = warm * (1 - ss((fa - 0.3) / 0.2))  # no warm saturation keep in dense fog (it made the glow pink)
+            s2 = sat + (max(sat, 1.08) - sat) * warmS
             c = [lu + (c[k] - lu) * s2 for k in range(3)]; wv = amb['warmth']
             # the cold grade pushes blue (the old one added red: the violet night)
             tint = (1 + 0.10 * wv, 1 + 0.02 * wv, 1 - 0.12 * wv) if wv >= 0 else (1 + 0.20 * wv, 1 + 0.05 * wv, 1 - 0.15 * wv)
@@ -715,7 +834,7 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
             lu = 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]; kb = amb['black'] * (1 - min(1.0, max(0.0, lu) / LOOK['blackR'])) ** 2
             c = [c[k] + BLACK2[k] * kb for k in range(3)]  # the darks lift toward navy, never to grey or black
             c = [min(v, 0.82) + 0.18 * (1 - math.exp(-max(v - 0.82, 0) / 0.18)) for v in c]
-            u = ((x + 0.5) / TW * 2 - 1) * 0.82; vv = (y + 0.5) / TH * 2 - 1; vg = 1 - vig * ss((math.hypot(u, vv) - 0.42) / 0.83)
+            u = ((x + 0.5) / TW * 2 - 1) * LOOK['vigX']; vv = (y + 0.5) / TH * 2 - 1; vg = 1 - vig * ss((math.hypot(u, vv) - 0.42) / 0.83)
             return [min(1, max(0, v * vg)) for v in c]
     for y in range(TH):
         for x in range(TW):
@@ -732,7 +851,11 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                 if p is None or not (0 <= x < TW and 0 <= y < TH): continue
                 L = lit_light(x, y); b = base(x, y, L); al = [p[k] / 255 * tint[k] for k in range(3)]
                 Lc, rf = lit_world(al, L)
-                cl = cold(al, ambW, 1 - shade_share(al, 1.0)) if LOOK['duskSun'] > 0 else cold(al, ambW)
+                if L2:  # look 2: firelight displaces the cold; inside a cut-away room a figure takes its warm fill
+                    iv = inter[y][x]; fk = 1 - LOOK['fireCold'] * min(1.0, max(L) * 1.5)
+                    cl = cold2(al, [(ambW[k] + (INTER[k] - ambW[k]) * iv) * fk for k in range(3)], 1 - shade_share(al, 1.0), 1 - iv * torchI)
+                else:
+                    cl = cold(al, ambW, 1 - shade_share(al, 1.0)) if LOOK['duskSun'] > 0 else cold(al, ambW)
                 litc = al if emissive else [cl[k] + rf[k] * Lc[k] + Lc[k] * LOOK['glowAdd'] for k in range(3)]
                 if rimK > 0 and (i + 1 >= w or spr[j][w - 2 - i if flip else i + 1] is None):
                     fire = min(1.0, max(L) * 1.5)  # firelight (his lantern at night) outshines the rim
