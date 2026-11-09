@@ -64,7 +64,8 @@ enum GameStart {
     }
 
     /// `-GWBuild demo`: a built-up realm for screenshots. Stone walls on the middle and outer line, the iron gate,
-    /// towers (a watchtower on the middle line), braziers and fire towers, a ballista and a catapult, stake pits, the
+    /// towers (a watchtower on the middle line), braziers and a fire tower in front of the outer wall (it lights the
+    /// approach, so the fight shows in its light), a ballista and a catapult, stake pits, the
     /// beacon at stage 2, smithy and lodge, a grown town (two big houses, two cottages, both fields, market, tavern);
     /// 24 citizens with 14 archers and 4 guards. At night the archers stand on their posts at once; by day two builds
     /// stay in progress (the third beacon stage and the outer line's watchtower) with the builders at work on them.
@@ -84,17 +85,17 @@ enum GameStart {
         put("l1.wall", .ironGate)
         put("l1.tower", .archerTower)
         put("l1.brazier.a", .brazier)
-        put("l1.brazier.b", .fireTower)
+        put("l1.brazier.b", .brazier)
         put("l1.trap", .stakePit)
         put("l2.wall", .stoneWall)
         put("l2.tower", .watchtower)
-        put("l2.brazier.a", .fireTower)
+        put("l2.brazier.a", .brazier)
         put("l2.brazier.b", .brazier)
         put("l2.engine", .ballista)
         put("l2.trap", .stakePit)
         put("l3.wall", .stoneWall)
         put("l3.tower", .archerTower)
-        put("l3.brazier.a", .brazier)
+        put("l3.brazier.a", .fireTower)
         put("l3.brazier.b", .brazier)
         put("l3.engine", .catapult)
         put("l3.trap", .stakePit)

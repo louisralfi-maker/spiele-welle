@@ -85,13 +85,16 @@ final class FrameBudgetTests: XCTestCase {
         var mostLights = 0
         var mostCreatures = 0
         var step = 0
+        var effects = BattleEffects()
         while DayClock.phase(at: s.hour) != .day && step < 60 * 140 && !s.defeated {
             events.removeAll(keepingCapacity: true)
             bot.act(&s, dt: Sim.frameStep, balance: balance, events: &events)
             Sim.step(&s, dt: Sim.frameStep, balance: balance, events: &events)
+            effects.note(events, state: s, balance: balance, time: s.simTime)
+            effects.prune(time: s.simTime)
             step += 1
             guard step % 120 == 0 else { continue }
-            let (desc, _) = GameFrameSupport.frame(s, focus: s.king.x)
+            let (desc, _) = GameFrameSupport.frame(s, focus: s.king.x, time: s.simTime, effects: effects)
             mostInstances = max(mostInstances, desc.counts.instances)
             mostLights = max(mostLights, desc.counts.lights)
             mostCreatures = max(mostCreatures, s.creatures.count)

@@ -101,7 +101,7 @@ enum EntityFrames {
     /// Creatures this close to the gate (or inside it) keep it closed by day.
     static let gateNear = 260.0
     /// At most this many effect particles per frame (the frame budget).
-    static let maxEffectParticles = 32
+    static let maxEffectParticles = 24
 
     // MARK: - The layer
 
@@ -872,7 +872,7 @@ enum EntityFrames {
             case .building, .repairing:
                 frame = 4 + Int((time * 4 + Double(index) * 0.5).rounded(.down)) % 2
             case .idle:
-                frame = 4
+                frame = 1
             }
             if builder.plot >= 0 && builder.plot < Realm.plots.count {
                 // Close to the work, drift onto where it is drawn (towers and engines stand behind their walls).

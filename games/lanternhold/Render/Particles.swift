@@ -11,6 +11,7 @@ enum Particles {
         case .brazier: return 11
         case .fireTower: return 15
         case .firepot: return 8
+        case .fireArrow: return 4
         case .hearth: return 7
         case .torch: return 3
         case .beacon: return 24

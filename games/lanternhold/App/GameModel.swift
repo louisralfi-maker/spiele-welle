@@ -64,6 +64,8 @@ final class GameModel {
     @ObservationIgnored private var chronicle: Chronicle?
     @ObservationIgnored private var events: [SimEvent] = []
     @ObservationIgnored private var kingAction: KingAction?
+    /// Creature bodies in the last drawn frame (the scene value's `seen:`, so UI tests catch the fight in view).
+    @ObservationIgnored private var seenCreatures = 0
 
     private(set) var day: Int
     private(set) var clockText: String
@@ -71,7 +73,8 @@ final class GameModel {
     private(set) var debugKingX = 0
     private(set) var debugCameraX = 0.0
     private(set) var statsText = ""
-    /// The game's state for UI tests in the scene's accessibility value ("day:12 hour:21.50").
+    /// The game's state for UI tests in the scene's accessibility value: "day:12 hour:21.50 alive:9 seen:4 shots:2"
+    /// (creatures alive, creature bodies in the last frame, projectiles in flight).
     private(set) var sceneStatus = ""
 
     init(args: DebugArgs, kind: SceneKind) {
@@ -317,6 +320,9 @@ final class GameModel {
             frameClock.advance(by: clock.elapsed)
             frame = FrameBuilder.build(scene: filtered, clock: frameClock, camera: view, pixelScale: pixelScale,
                                        options: options, entities: layer)
+            seenCreatures = frame.actors.filter { actor in
+                !actor.isEmissive && actor.sprite != .king && EntityFrames.glowStrip(actor.sprite) != nil
+            }.count
         }
         renderedFrames += 1
         if renderedFrames % 6 == 1 {
@@ -432,7 +438,8 @@ final class GameModel {
     private func refreshGameStatus() {
         guard let game = driver else { return }
         let state = game.state
-        let text = "day:\(state.day) hour:\(String(format: "%.2f", state.hour))"
+        let text = "day:\(state.day) hour:\(String(format: "%.2f", state.hour)) alive:\(state.creatures.count) "
+            + "seen:\(seenCreatures) shots:\(state.projectiles.count)"
         if text != sceneStatus {
             sceneStatus = text
         }

@@ -25,9 +25,11 @@ final class MidChapterUITests: XCTestCase {
             let shots: [(name: String, hour: Double)] = [("30-mid-2130", 21.5), ("31-mid-2300", 23.0),
                                                          ("32-mid-0100", 25.0)]
             for shot in shots {
-                if let reached = waitForHour(night, shot.hour, timeout: 150) {
+                if waitForHour(night, shot.hour, timeout: 150) != nil {
+                    // Within the next 0.6 in-game hours (7 s), the first moment with the fight in view.
+                    let moment = waitForAction(night, until: shot.hour + 0.6, timeout: 20)
                     attach(XCUIScreen.main.screenshot(), "\(shot.name)-\(language)")
-                    note("\(shot.name)-hour", "\(shot.name): taken at hour \(String(format: "%.2f", reached))")
+                    note("\(shot.name)-hour", "\(shot.name): taken at \(moment)")
                 } else {
                     attach(XCUIScreen.main.screenshot(), "\(shot.name)-late-\(language)")
                     XCTFail("\(shot.name): the night never reached hour \(shot.hour)")
@@ -40,7 +42,7 @@ final class MidChapterUITests: XCTestCase {
         day.launchArguments = ["-GWDay", "12", "-GWBuild", "demo", "-GWCameraX", "600"]
         day.launch()
         if waitUntilReady(day, name: "mid-day") {
-            _ = waitForHour(day, 6.25, timeout: 60)
+            _ = waitForHour(day, 7.5, timeout: 60)
             attach(XCUIScreen.main.screenshot(), "33-mid-day-\(language)")
         }
         day.terminate()
@@ -57,9 +59,10 @@ final class MidChapterUITests: XCTestCase {
         app.launch()
         if waitUntilReady(app, name: "finale") {
             for shot in [(name: "34-finale-2230", hour: 22.5), (name: "35-finale-2345", hour: 23.75)] {
-                if let reached = waitForHour(app, shot.hour, timeout: 120) {
+                if waitForHour(app, shot.hour, timeout: 120) != nil {
+                    let moment = waitForAction(app, until: shot.hour + 0.4, timeout: 15)
                     attach(XCUIScreen.main.screenshot(), "\(shot.name)-\(language)")
-                    note("\(shot.name)-hour", "\(shot.name): taken at hour \(String(format: "%.2f", reached))")
+                    note("\(shot.name)-hour", "\(shot.name): taken at \(moment)")
                 } else {
                     XCTFail("\(shot.name): the night never reached hour \(shot.hour)")
                 }
@@ -103,6 +106,26 @@ final class MidChapterUITests: XCTestCase {
             pause(0.4)
         }
         return nil
+    }
+
+    /// Polls until the scene shows the fight (at least five creatures in view and a projectile in flight) or the
+    /// clock reaches `until`; returns the scene value of that moment.
+    private func waitForAction(_ app: XCUIApplication, until target: Double, timeout: TimeInterval) -> String {
+        let scene = element(app, "world-scene")
+        let started = Date()
+        var text = ""
+        while Date().timeIntervalSince(started) < timeout {
+            text = (scene.value as? String) ?? ""
+            let seen = field(text, "seen:") ?? 0
+            let shots = field(text, "shots:") ?? 0
+            if seen >= 5 && shots >= 1 { return text }
+            if let hour = field(text, "hour:") {
+                let night = hour < 12 && target > 24 ? hour + 24 : hour
+                if night >= target { return text }
+            }
+            pause(0.3)
+        }
+        return text
     }
 
     private func element(_ app: XCUIApplication, _ identifier: String) -> XCUIElement {

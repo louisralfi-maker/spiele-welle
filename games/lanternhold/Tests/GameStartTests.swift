@@ -84,7 +84,8 @@ final class GameStartTests: XCTestCase {
         XCTAssertEqual(item("castle.smithy"), .smithy)
         XCTAssertEqual(item("castle.lodge"), .lodge)
         XCTAssertEqual(item("town.market.6"), .market)
-        XCTAssertEqual(night.count(.fireTower), 2)
+        XCTAssertEqual(night.count(.fireTower), 1)
+        XCTAssertEqual(item("l3.brazier.a"), .fireTower, "the fire tower lights the outer line's approach")
         XCTAssertGreaterThanOrEqual(night.archerCount, 14)
         XCTAssertGreaterThanOrEqual(night.guardCount, 4)
         XCTAssertGreaterThanOrEqual(night.soldiers.filter { $0.state == .posted }.count, 12,
