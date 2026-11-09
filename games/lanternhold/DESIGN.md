@@ -801,7 +801,9 @@ tap in Release) is checked on an A12 iPhone and a current one before the store.
 | `-GWAutoplay walk\|play` | the king walks back and forth / the reference bot plays live (it sets the king's intent and orders by its build order before every step; at night it lights snuffed braziers, patches and stands behind the front wall); any drag ends it |
 | `-GWGold <n>` / `-GWHappiness <n>` | set the numbers (happiness 0 to 100) |
 | `-GWBuild demo` | a built-up realm for screenshots: the iron gate, stone walls on the middle and outer line, an archer tower on lines 1 and 3 and a watchtower on line 2, braziers and a fire tower in front of the outer wall (it lights the approach, so the fight shows in its light), a ballista (line 2) and a catapult (line 3), stake pits on every line, the beacon at stage 2, smithy and lodge (3 builders), two big houses, two cottages, both fields, market and tavern; 24 citizens, 14 archers, 4 guards, happiness at least 70. At night every archer stands on his post at once and no build is in progress; by day the third beacon stage and the outer line's watchtower are being built, the builders at work |
-| `-GWScreen title\|audience\|report\|defeat\|story` | open that screen with sample data |
+| `-GWScreen title\|audience\|report\|defeat\|story\|finale` | open that screen with sample data (M2b part 2: `report`, a night with a lost wall, a fallen archer and an unlock; `finale`, night 20's report with the Lightless King slain; `defeat`, the hearth out on the night the other arguments reach, at 02:30 when they reach a day) |
+| `-GWTimeScale <x>` | tests only: the game's simulation runs x times as fast (0.25 to 20; the driver's quarter-second catch-up cap stays) |
+| `-GWHour <h>` | after the start (a day, a night, the save or a new realm, then the demo build) the reference bot plays on headless until the clock next shows h; a dawn on the way renews the snapshot (`-GWNight 12 -GWBuild demo -GWHour 5.83 -GWFreezeTime YES` holds first light's front at the outer wall) |
 | `-GWSeed <n>` | seed of the random stream |
 | `-GWVirtualHeight 180\|135`, `-GWScaleOverride <s>` | pixel scale experiments |
 | `-GWLightStyle smooth\|banded\|dithered` | light falloff style |
@@ -811,7 +813,7 @@ tap in Release) is checked on an A12 iPhone and a current one before the store.
 | `-GWDebugLights YES` | light radius rings and ids |
 | `-GWStats YES` | CPU and GPU ms, fps, thermal state, s |
 | `-GWReduceMotion YES` | Reduce Motion without the system setting |
-| `-GWSkipOnboarding YES` | no hints |
+| `-GWSkipOnboarding YES` | no hints (accepted since M2b part 2, so the tests already pass it; the onboarding comes in M7) |
 
 ## Accessibility identifiers
 
@@ -821,7 +823,12 @@ simulation's clock), `hud-gold`, `hud-happiness`, `hud-clock`, `hud-pause`,
 `realm-strip`, `action-button`, `build-card`, `build-option-<id>`, `audience-root`, `audience-choice-<n>`,
 `audience-counsel`, `audience-leave`, `tax-<rate>`, `report-root`, `report-continue`, `report-ad-double`,
 `report-fallen`, `merchant-gift`, `defeat-root`, `defeat-second-chance`, `defeat-replay`, `story-next`, `story-skip`,
-`pause-resume`, `pause-title`. Debug only: `debug-king-x`, `debug-camera-x` (values for the jitter test).
+`pause-resume`, `pause-title`. Since M2b part 2 also: `hud-people`, `horn-banner`, `build-card-close`, `build-card-prev`,
+`build-card-next` (the build card's arrows to the other plots in reach), `recruit-card`, `recruit-archer`,
+`recruit-guardsman`, `recruit-card-close`, `tax-card`, `tax-card-close`, `report-king-banner` (night 20),
+`report-banner`, `pause-sheet`, `pause-sound`, `pause-haptics`, `pause-restart`, `pause-restart-confirm`,
+`pause-restart-cancel`; `world-scene`'s value adds `kx:<x>` (the king's world x) and, while first light's front is on
+screen, `dawn:<share>`. Debug only: `debug-king-x`, `debug-camera-x` (values for the jitter test).
 
 ## Tests
 
@@ -973,12 +980,22 @@ Open points:
 ### UI (screenshots `<nn>-<what>-<lang>`, English and German)
 
 1. `testLightProbe` (milestone 1): the scenes and times of "Milestone 1" plus the pixel-grid check on the test pattern.
-2. `testFirstDay`: `-GWReset YES`, onboarding on; walk, build, audience, night, report.
+2. `testFirstDay` (`UITests/FirstDayUITests.swift`, M2b part 2): `-GWReset YES -GWSkipOnboarding YES -GWTimeScale 4
+   -GWCameraX 1150`; the HUD (`40-hud`), a drag walks the king, a tap on the realm strip runs him to line 1's braziers,
+   the hammer opens the build card (`41-build-card`) and a brazier is ordered (gold 60 to 48), the barracks
+   (`42-recruit`), the tax lectern (`43-taxes`), the horn (`44-horn`, when caught), the night, the dawn report
+   (`45-report`) and Continue; every button checked for 44 pt. With the onboarding (M7) a second run keeps it on;
+   the audience joins in M3. `testScreens`: `-GWScreen report` (`46-report-sample`), `-GWScreen finale`
+   (`47-report-finale`), `-GWScreen defeat` on night 3 at 02:30 (`48-defeat`) and its replay, the pause sheet
+   (`49-pause`) and the restart's confirmation (`50-restart`).
 3. `testMidChapter` (`UITests/MidChapterUITests.swift`, M2b): `-GWNight 12 -GWBuild demo -GWAutoplay play`, shots at
    about 21:30, 23:00 and 01:00 (`30-mid-2130`, `31-mid-2300`, `32-mid-0100`), then `-GWDay 12 -GWBuild demo
    -GWCameraX 600` for the same realm by day with the builders at work (`33-mid-day`); the clock is read from the
    scene's value (`hour:`). `testFinale` (English): `-GWNight 20 -GWAutoplay play`, the beacon lit and the Lightless
-   King in its light (`34-finale-2230`, `35-finale-2345`). The report comes with the UI step.
+   King in its light (`34-finale-2230`, `35-finale-2345`). Since M2b part 2 the night ends on its dawn report
+   (`36-mid-report`), first light is held still as its front passes the outer wall (`37-mid-firstlight`:
+   `-GWNight 12 -GWBuild demo -GWHour 5.83 -GWFreezeTime YES -GWAutoplay play`), and the finale ends on its report with
+   the King's banner (`38-finale-report`).
 4. `testAudience`: `-GWScreen audience` in every language (the longest petition) for clipping.
 5. `testFilmstrip` (English): a frame every 1.2 s through a dusk and a night, for the fun check.
 
@@ -1201,6 +1218,78 @@ lit and unlit, in the M1b world. The cards, the full HUD, sound and haptics come
   `-GWBuild demo`, `-GWGold`, `-GWHappiness` and `-GWReset` reach any state; `-GWAutoplay play` hides the action
   button.
 - The HUD must keep the night clear: in the shots only the clock badge (top right) sits over the picture.
+
+### M2b part 2 in detail: the UI (09.11.2026)
+
+Day 1 to dawn is playable with the whole HUD on top of part 1's engine: walk, build, recruit, set the taxes, live
+through the night, read the dawn report; fall and get up again. Everything goes through `GameModel`, whose screen
+state machine (`overlay`) pauses the simulation under every card and screen.
+
+**What was built**
+
+- **The action button** (`Core/KingTargets.swift`): what is in front of the king, the nearest in reach
+  (`Balance.kingReach`, 40 px). By day a plot's build card (hammer), the barracks' recruit card (coins), the throne's
+  tax lectern (crown); from the horn to dawn light (flame) and patch (`Sim.kingAction`), and the barracks still
+  recruit. A caption above the button names it ("Brazier", "Recruit", "Taxes", "Light", "Patch 10").
+- **The cards** (`Core/BuildCard.swift`, `UI/BuildCardView.swift`): parchment cards above their place with a pointer
+  down to it. The build card shows each option the simulation offers (`Build.options`) with the thing's own pixel art
+  from the atlas (`UI/SpriteThumbnail.swift`, the art lane's PNGs once merged), price, the time today's builders need
+  (their number and the happy pace) and its effect in a few words from `Balance`; greyed with the missing gold, locked
+  with its day; arrows step to the other plots in reach; an order goes through `Build.order` and closes the card. The
+  barracks' card recruits archers and guards (it stays open for the next one; greyed without gold, closed when nobody
+  pays taxes any more); the tax lectern shows each rate's share, its happiness at dawn and the taxes it would bring at
+  the next dawn, the war tax locked until day 8.
+- **The HUD** (`UI/HUDView.swift`, `UI/RealmStripView.swift`): pause top left (44 pt in a 60 pt area), the realm strip
+  centred at the top, the day and clock top right with gold (a coin), the happiness face (five moods, a hop when it
+  changes) and the people under it; the numbers roll when they change. The strip (`Core/RealmStrip.swift`, drawn with
+  a Canvas): the gorge with the darkness bank, the beacon by stage and fire, the three walls by state (standing,
+  damaged, rubble, being built, open), the castle's towers, the town's roofs, the river, a frame for what is on
+  screen, the king's crown mark, where he walks to, and at night the creatures as embers; a tap walks the king there at
+  a run (`SimDriver.travelTarget`), any drag cancels it.
+- **The day and the night**: the horn banner at 19:00 (3.6 s), first light's sweep (`Core/DawnSweep.swift`: a slanted
+  wall of warm light at the simulation's sweep front with a glow behind it; the creatures it takes dissolve in puffs of
+  soot like killed ones, as do those the Gloom takes back when the Lightless King falls), the dawn report
+  (`Core/ReportCard.swift`, `UI/ReportCardView.swift`: the night, the realm, what opens today, the treasury; banners
+  for the King slain or withdrawn on night 20, a second chance, no losses), the defeat card (`UI/DefeatCardView.swift`:
+  the town's windows going dark one by one; the second chance and "Replay the day"), the pause sheet (resume, the sound
+  and haptics switches kept in the save, restarting the chapter after a confirmation).
+- **Feel** (`Core/Feedback.swift`, `App/FeedbackHub.swift`): the `FeedbackHub` protocol with a silent hub until M6;
+  `FeedbackThinner` turns each frame's events into cues: positional ones (volleys, fire arrows, engines, dissolving
+  creatures, glancing blows, the giant's steps) only within about a screen of the king and each at most every 0.12 to
+  0.4 s, at most four cues a frame, the big moments first. `ScreenShake`: a breaking wall (3 game px at the king's
+  feet, fading to nothing 650 px away) and the Ash Giant's stomp (1.6) sway the camera for 0.45 s; never with Reduce
+  Motion.
+- **Debug arguments**: `-GWTimeScale`, `-GWHour`, `-GWScreen report|finale|defeat`, `-GWSkipOnboarding` (see the
+  table); the scene value adds `kx:` and `dawn:`.
+
+**Decisions taken (M2b part 2)**
+
+| Decision | Why |
+|---|---|
+| A plot counts where it is drawn (its marker, its scaffolding), not at its rule x; the nearest target in reach wins, and the build card's arrows step to the other plots in reach. | Line 1 packs the trap, both braziers and the tower within 70 px (1220 to 1290): the nearest alone would leave brazier B a 17 px window. The caption over the button says which plot the hammer means. |
+| A locked plot still shows the hammer; its card names the day it opens. No hammer from the horn to dawn; the barracks recruit at night too. | The task asks for "locked with the unlock day", and walking past line 2 on day 1 teaches the plan of the chapter. Builders work by day only, so a night order would only wait; recruiting at night posts the archer at once (`Build.recruit`). |
+| The build card closes after an order; the barracks' and the tax lectern's cards stay open. | One order per plot is all a plot takes; several recruits in a row and comparing rates are common. |
+| The HUD keeps the strip truly centred and puts gold, happiness and people under the clock. | Side by side with the clock the right group took 320 pt and left the strip under 100 pt on a 17 Pro. |
+| While the reference bot plays (`-GWAutoplay play`) only the clock and the screens show, no horn banner. | The mid-chapter shots stay store shots. |
+| The dawn and the defeat stop the world in the very step that brings them. | Up to 15 steps run per frame; without the stop the report opened a few in-game minutes past 06:00. |
+| The second chance is granted at once until the rewarded video arrives (M7), once per five nights (ten in endless) by `AdPacing.lastSecondChanceNight`, which the save now keeps with the settings. | The defeat card works end to end today and the pacing rule is already in place. |
+| The app coming back from the background opens the pause sheet. | A player returning mid-night should not find the battle running. |
+| The shake moves the camera sideways only. | The renderer anchors the ground line; an up-down shake would need a renderer hook, and sideways reads as the thud. |
+| First light's lights are `.moon`-kind world lights (steady, no embers), never battle lights. | They are a picture of the sweep the simulation already does. |
+| Restarting the chapter takes a new seed made from the old one; the Chronicle stays. | A restart should not replay the same names and nights. |
+
+**Runner rounds (M2b part 2)**
+
+(filled in after the rounds)
+
+**Open points (M2b part 2)**
+
+- The audience and talking (M3), the onboarding (M7), the ads with the report's double taxes, the merchant's gift and
+  the real second chance (M7), sound and haptics in the hub (M6).
+- The scene's VoiceOver summary ("Day 4, 2 pm. Front: walls 80 %.") is not built; the scene value is still the test
+  string.
+- The HUD's sizes are fixed (Dynamic Type grows the cards, which scroll).
+- A long walk through the strip takes its time (town to front about 30 s at a run); DESIGN keeps the walk.
 
 ## Risks
 

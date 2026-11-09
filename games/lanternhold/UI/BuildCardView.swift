@@ -107,12 +107,18 @@ struct OptionRow<Trailing: View>: View {
     let enabled: Bool
     let selected: Bool
     let identifier: String
+    /// The thing's own pixel art beside its name, when it has one.
+    var sprite: SpriteID? = nil
     let action: @MainActor () -> Void
     @ViewBuilder let trailing: () -> Trailing
 
     var body: some View {
         Button(action: action) {
             HStack(alignment: .center, spacing: 10) {
+                if let sprite {
+                    SpriteThumbnail(sprite: sprite)
+                        .opacity(enabled ? 1 : 0.6)
+                }
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 6) {
                         if selected {
@@ -213,6 +219,7 @@ struct BuildCardView: View {
                         OptionRow(name: name(option), detail: Texts.effect(option.item, balance: .standard),
                                   hint: hint(option), hintIsWarning: isWarning(option), enabled: option.canOrder,
                                   selected: false, identifier: "build-option-\(option.item.rawValue)",
+                                  sprite: SpriteImages.sprite(for: option.item),
                                   action: { model.order(option.item) }) {
                             PriceAndTime(price: option.price, seconds: option.seconds)
                         }
@@ -293,6 +300,7 @@ struct RecruitCardView: View {
                         OptionRow(name: Texts.soldierKind(option.kind), detail: detail(option.kind),
                                   hint: hint(option), hintIsWarning: true, enabled: option.canRecruit, selected: false,
                                   identifier: "recruit-\(option.kind.rawValue)",
+                                  sprite: SpriteImages.sprite(for: option.kind),
                                   action: { model.recruit(option.kind) }) {
                             GoldAmount(amount: option.price, size: 15)
                         }
