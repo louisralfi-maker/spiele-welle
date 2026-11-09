@@ -31,9 +31,16 @@ build() { # name: one sprite
     palisade|ballista)
                    python3 -I -B $T grid $G/$1.txt $A/$1.png ;;
     stoneWall|bastion|rubbleWood|rubbleStone|scaffold|gateWood|gateIron|gateGreat|gateBroken|archerTower|watchtower|\
-    fireTower|catapult|stakePit|beaconBase|beaconTower|greatBeacon|beaconFire|barracks|smithy|masterSmithy|lodge|bigLodge|\
+    fireTower|catapult|stakePit|beaconTower|greatBeacon|beaconFire|barracks|smithy|masterSmithy|lodge|bigLodge|\
     bigHouse|market|tavern|plotMarker|arrow|fireArrow|bolt|firepot)
                    python3 -I -B $T grid $GB/$1.txt $A/$1.png ;;
+    # fix stage: the first stage keeps the ruin's broken shell standing behind the new pale courses (beaconRuin.png
+    # without its fire cage: the body from row 34, the two broken stubs from row 22), the shear legs rising above it
+    beaconBase)    mkdir -p $PB
+                   python3 -I -B $T grid $GB/beaconBase.txt $PB/beaconBase-front.png
+                   python3 -I -B $T compose $A/beaconBase.png --size 64x130 --layer $A/beaconRuin.png@0,34@box=0,34,64,130 \
+                       --layer $A/beaconRuin.png@0,22@box=0,22,18,34 --layer $A/beaconRuin.png@42,22@box=42,22,64,34 \
+                       --layer $PB/beaconBase-front.png@0,0 ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;
     esac
 }
