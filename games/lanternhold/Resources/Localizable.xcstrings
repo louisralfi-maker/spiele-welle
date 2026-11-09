@@ -1,7 +1,39 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-
+    "Day %lld" : {
+      "comment" : "HUD: the day number next to the clock.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tag %lld"
+          }
+        }
+      }
+    },
+    "Light the brazier" : {
+      "comment" : "Accessibility label of the action button at an unlit brazier.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feuerschale entzünden"
+          }
+        }
+      }
+    },
+    "Snuff the brazier" : {
+      "comment" : "Accessibility label of the action button at a burning brazier.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feuerschale löschen"
+          }
+        }
+      }
+    }
   },
   "version" : "1.0"
 }

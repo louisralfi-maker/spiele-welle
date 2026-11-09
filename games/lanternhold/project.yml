@@ -26,13 +26,18 @@ targets:
   Lanternhold:
     type: application
     platform: iOS
+    # Resources includes Resources/Art/*.png (the art agent's pixel art) when the folder exists: plain resources,
+    # copied byte for byte (no PNG crushing), found by AtlasBuilder.artURL; a missing or sparse folder still builds.
     sources:
       - App
       - Core
       - Render
+      - UI
       - Resources
     settings:
       base:
+        COMPRESS_PNG_FILES: NO
+        STRIP_PNG_TEXT: NO
         PRODUCT_BUNDLE_IDENTIFIER: com.louisherwick.lanternhold
         PRODUCT_NAME: Lanternhold
         TARGETED_DEVICE_FAMILY: "1"
