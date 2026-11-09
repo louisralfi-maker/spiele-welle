@@ -496,3 +496,179 @@ his laugh. He appears only in the endings.
 **Smaller people worth keeping.** Old Hemmet at the mill, a Returned ("The washing was still on the
 line"); the Brisk family at the well; the lamp-runner child; Gerald, the sootling in Pip's jar, who
 presses against the glass on the side where the hearth is (see section 9 for the rewrite).
+
+## 7. Chapter 1: The Dark Beacon
+
+Was "The Lamplighter King". Twenty days and nights. The spine is M3's eighteen story petitions, kept in
+place and reworded; six short audiences for the houses are new (marked **new**). Nothing new may move
+gold, people or the night on Odile's counsel path beyond the limits in section 9.
+
+| Day | Petition | What happens | What the player learns |
+|---|---|---|---|
+| 1 | `first_plough` | A farmer asks the lord who lit his lane last week to bless his plough. Odile folds paper into the circlet. | The town knows its lord as its lamplighter. The circlet is too big. |
+| 2-3 | `tower_request` | Brannock wants a tower on the line; the lord can put light first. | The three lines stand on bare rock in the Throat. Why it is dark there. |
+| 3-4 | `varn_levy` **new** | Hild Varn arrives with half a levy and her father's letter. | Other houses exist, and they are watching. |
+| 4-5 | `stranger_gate` | At dawn a hooded figure with a grey lantern stands at the Throat gate, where nobody comes from. | The Returned. The hearth fire leans away from a grey flame. |
+| 5-6 | `oxmoor_gift` **new** | Steward Pell brings a gilded lamp and a paper to sign. | A gift can be a debt. Odile's dislike is a compass. |
+| 6-7 | `marek_arrows`, then `bad_arrows` | Cheap arrows; Odile is wrong, Tamsin and Bram are right. | The lord must weigh counsel. Bram mentions hinges on the wrong side. |
+| 7 | court line | Night of the first ash brutes. Brannock: "That pole. No." | One of them carries a thing a man here knows. |
+| 8-9 | `war_tax`; `bard_song`; `envoy_coast` | The guilds, the ballad with its ninth verse, Ansel Quay and his grey lanterns from the sea. | The door is paid for by people who never see it. Lanterns come round the Wall's end. |
+| 10 | `hesper_giant` | Hesper's vigil before the Ash Giant. | The hearth and the beacon are one fire. Hesper knows more than she says. |
+| 11-12 | `beacon_plans` | Lady Oriel's plans for the Great Beacon, found under nine hundred years of tithe rolls. The lord walks to the mouth for the first time. | The country beyond, seen whole: fog, firs, the road, the statues facing home. On the plans the tower door opens west. |
+| 12-13 | `calder_audit` **new** | Auditor Ebba Calder asks to stand one night on the wall. She counts statues from the beacon site. | Doubt can be answered or insulted. Sixty statues, forty lords. |
+| 13-14 | `refugees_gate`, then `ash_cough` | Six people from Beaconfoot, the keepers' hamlet at the mouth, reach the Throat gate after weeks in its caves. Three days later the cough. Old Hemmet may die of it. | The Gloom's edge thins the living. Odile's counsel can be right and cold. |
+| 14-15 | `lorn_visit` **new** | Dame Orla Lorn sits down unasked and calls the lord "young Taper". | Someone remembers the house differently. The court laughs. |
+| 15-16 | `seren_reveal` or `seren_at_gate` | Seren unhoods: keeper of the beacon, rode with Aldric. "The dark did not kill him. It crowned him." | What the court will believe: the Lightless King is Aldric. Only the beacon's light can touch him. |
+| 16 | `tithe_letters` **new** | Odile reads the houses' answers. Banners go up, or do not. Marek may warn about Oxmoor. | The lord's choices have travelled. |
+| 17 | `herald_demand` or `herald_alone`; `truce_drill`, `truce_end` | The herald asks for the keeper, or for sixty gold of lamp oil poured out on the stone. | The King wants lights out and the beacon's keeper. He remembers this hall. |
+| 18 | `varn_ride` **new** | Hild asks leave to ride out after Aldric before the last night. | What the lord owes the missing, set against what he owes the wall. |
+| 19 | `pip_farewell` | Pip's saved joke. Tamsin and Aldric's place at table. | Who the court was before, and that it has let the lord in. |
+| 20 | `last_stand` | Brannock asks for the speech. "We hold until dawn." / "We bring Lord Aldric home." / "I was never meant for this." | The lord's own leaning, said aloud. |
+| Night 20 | finale | Seren carries the flame out. The beacon flares. The King comes up the Throat with crown, mantle and snuffer. | In the beacon's light, for one breath, they have faces. |
+
+Random and guest petitions fill the other audiences as in M3. Court lines carry the small hints between
+story days, one per day at most, and never two days running from the same person.
+
+### The endings
+
+Three panels each. The first tells what happened, the second names the lord's leaning (section 4) and
+the houses whose banners hung, the third is the first big hint. Then the endless mode, "The Long
+Watch", as in M3.
+
+**The Open Lantern** (was The Bright Crown: the King falls, happiness 60 or more, Seren not handed
+over).
+
+1. The iron crown rolled across the stone. Under the mantle lay Aldric, grey, thin, and breathing.
+2. One sentence for the leaning, one for the houses.
+3. At dawn the fog drew back past the firs. On a hill beyond stood a second castle, older than ours and
+   in ruins, with our lantern cut above its gate. Aldric: "They had the crown ready, cousin."
+
+**The Shuttered Lantern** (was The Iron Crown: everything else).
+
+1. He did not fall. At first light he turned and walked back into the fog, and the snuffer went with
+   him.
+2. The leaning and the houses. If `seren_handed_over`: her grey lantern stood on the wall where she had
+   set it down. It was still burning.
+3. The herald's banner lay on the outer line. Bram washed the soot out of it. Under the black was gold
+   thread: a lantern, ours, with half a sun above it. Nobody in the castle could say who had sewn it.
+
+**The Guttering Lantern** (was The Ash Crown: happiness below 30).
+
+1. The door held. Half the windows of Tallowford stayed dark that winter, and not for the dead.
+2. The leaning and the houses.
+3. Among the rags on the outer line was a child's coat in the house's teal, of a weave no loom in the
+   valley has made in living memory. Tamsin folded it and said nothing.
+
+## 8. The prologue
+
+Four panels before day 1, skippable, one tap each. Was three. Text is two short lines at most.
+
+| # | Text | Picture |
+|---|---|---|
+| 1 | A wall of mountains parts the world. / It has one door. | The Worldwall from far off at dusk: snow peaks above the clouds, one black upright cleft, and in it a small castle with lit windows. Warm valley lights below, right. |
+| 2 | For a thousand years House Lantern has held it. / Nobody knows what waits on the other side. | Seen from the castle wall, looking west: black rock walls of the Throat, no plant anywhere, and at the far end a narrow slit of grey-violet fog with cold eyes in it. A teal banner with the gold lantern at the frame's edge. |
+| 3 | This autumn the Great Beacon went dark. / Lord Aldric rode out to light it. He did not come back. | The Throat's mouth: the dark beacon tower on the left, a broad rider in a teal cloak with a lit lantern going out along a rutted road between two statues that face us, firs and fog beyond. Twelve small lights follow him. |
+| 4 | The circlet passed to the last of his blood. / The one who lights the lamps. | The hall, warm: the hearth fire, the empty seat, the court in a half ring. In the middle a young lamplighter with a wick pole, soot on one cheek, the gold circlet slipped over one eyebrow. Odile is holding out a folded strip of paper. |
+
+## 9. What the story pass must change
+
+Measured on M3's content at commit 7b7b1ab (`Resources/Story.xcstrings`, 767 keys; `p.` = `petition.`,
+`l.` = `line.`). Every change applies to all eight languages. The prologue and the ending panels are
+not in M3's strings yet; they are written new from sections 7 and 8.
+
+### 9.1 Words
+
+| Old | New (en) | New (de) | Where |
+|---|---|---|---|
+| my king (Odile) | my lord | Herr | her lines and hints |
+| Majesty, Your Majesty | my lord | Burgherr (town), Herr (soldiers) | 65 keys |
+| king (Seren's address) | lamplighter; "lord" once `seren_revealed` | Laternenanzünder; Herr | `l.seren_*`, `p.seren_*`, `p.stranger_gate.*` |
+| good king (Ser Ludo) | good my lord | edler Herr | 4 keys |
+| King Aldric, the old king | Lord Aldric, the old lord | Burgherr Aldric, der alte Herr | all |
+| crown (the object) | circlet | Stirnreif | 27 keys with crown/crowned |
+| the crown (the institution) | the house | das Haus | `p.noble_hunt`, `p.tax_grumble`, `p.thief_bread`, others |
+| crowned, coronation | "the circlet passed", "the day the circlet passed" | "der Stirnreif ging an ..." | `p.first_plough.text`, `p.bard_song.text`, `l.pip_matches` |
+| reign | watch ("in Aldric's watch") | Wacht | `p.statue_market.text` |
+| realm | the valley, or the house's lands | das Tal | 6 keys, each by sense |
+| throne room | the great hall | der Saal | UI and texts |
+| gorge, gorge floor | the Throat, the Throat's floor | der Schlund | 18 keys |
+| the old wall | the outer line | die äußere Linie | `p.castle_statue.text`, `p.hesper_giant.text`, `p.widow_pension.text` |
+| duke (Marek's drowned duke) | a drowned lord of the lake towns | | `l.marek_arrows_hint`, `p.bad_arrows.r3a`, `p.marek_arrows.text` |
+| my lord (the envoy's liege) | my lady (Lady Maris Brine) | meine Herrin | `l.envoy_*`, `p.envoy_*` |
+
+Stays: "Your Wickship" (7 keys), "Your Radiance" (12), "throne" for the chair itself (11), and "King"
+wherever it is the enemy: `l.herald_throne`, `l.pip_mocked`, `p.herald_alone.text`,
+`p.herald_demand.text`, `p.pip_farewell.text`, `p.seren_at_gate.text`, `p.seren_reveal.text`,
+`speaker.herald.role`. He is the only king in the game, and that is the point of the word.
+
+The keys with "king" that must be read one by one (83): `l.bard_song_line`, `l.bram_first`,
+`l.brannock_refused`, `l.hesper_beacon`, `l.hesper_bell`, `l.hesper_endless`, `l.hesper_first`,
+`l.hesper_flame`, `l.hesper_giant_hint`, `l.hesper_hunger`, `l.hesper_night20`, `l.hesper_truce_hint`,
+`l.ludo_goose`, `l.ludo_walls`, `l.odile_beacon`, `l.odile_family_hint`, `l.odile_first_day`,
+`l.odile_handed`, `l.odile_night20`, `l.odile_plans_hint`, `l.odile_treasury`, `l.odile_war_tax`,
+`l.pip_aldric`, `l.pip_first`, `l.pip_satire`, `l.seren_gate`, `l.seren_lantern`, and in the petitions
+`banners_new`, `bard_satire`, `bard_song`, `beacon_plans`, `child_question`, `chronicle`,
+`eclipse_omen`, `family_leaving`, `first_plough`, `footbridge`, `herald_alone`, `herald_demand`,
+`hesper_bowl`, `hesper_giant`, `keep_window`, `lantern_lanes`, `last_stand`, `ludo_arrives`, `ludo_old`,
+`ludo_returns`, `ludo_tourney`, `noble_hunt`, `odile_ledger`, `old_sergeant`, `pip_farewell`,
+`pip_minister`, `seren_at_gate`, `seren_reveal`, `seren_watch`, `statue_market`, `stranger_gate`,
+`tapestry_aldric`, `truce_end`, `war_tax`, `widow_pension`. With "crown": `l.odile_aldric`,
+`l.pip_crown`, `l.pip_verse_nine`, and the petitions `ash_cough`, `barn_fire`, `lantern_night`,
+`miller_hoard`, `plough_harvest`, `scarecrow`, `tamsin_oven`, `tavern_brawl`, `watch_feast`,
+`wedding_feast`. A search for king, crown, majest, reign, realm, gorge, cliff, border and duke (and
+König, Kron, Krön, Majestät, Reich, Schlucht, Klippe, Grenz, Herzog) must come back empty except for
+the keys listed under "Stays".
+
+### 9.2 Petitions and lines to rewrite
+
+- **The old premise** ("nobody wanted the crown, except the lamplighter, who was too slow to run away")
+  goes. The lamplighter inherits by blood, to everyone's surprise. `p.pip_farewell.r1` becomes: when
+  Odile read the name from the family book, the whole court looked at the ladder.
+- `first_plough`: "the morning the circlet passed"; choice 2 "A lord blesses no tools."; the circlet
+  is too big, not the crown.
+- `stranger_gate`: she stands at the Throat gate at dawn, the side nobody comes from.
+- `refugees_gate`, `ash_cough`, `border_family`, `border_scouts`, `l.odile_refugees`: no farms lie
+  beyond the Wall and nobody walks over it. The six are from Beaconfoot, the keepers' hamlet at the
+  Throat's mouth, and hid nine nights in the Throat's caves. `border_family` are two more of them.
+  The cough is what the Gloom's edge does to the living; no text says more than that.
+- `child_question`: "before the beacon went dark the nights were quiet, and from the wall you could
+  see its light all the way down the Throat."
+- `hesper_giant`: "the night the outer line fell, in Lady Ysmay's watch." `l.hesper_first`: the Flame
+  has burned a thousand years, not three hundred. `l.hesper_flame`: "every lord".
+- `beacon_plans`: Lady Oriel's plans under nine hundred years of tithe rolls, not forty years of tax
+  rolls. One reaction notes the door on the west side.
+- `banners_new`: the hall's oldest banners show half a sun above the lantern, moth-eaten. New cloth is
+  plain teal and gold. Replacing them is the cheap, tidy choice and quietly removes a clue. Never
+  "Aldric's sun".
+- `statue_market`, `castle_statue`: statues of lords are for the dead and stand on the moor road. The
+  town wants a Saint Taper with his lantern, and the mason admits he will use the lord's nose. The
+  world-change texts say "statue of the lamplighter saint".
+- `tapestry_aldric`, `widow_pension`, `old_sergeant`, `noble_hunt` (now Ser Aubrey Oxmoor): Lord Aldric;
+  "a gift to the house".
+- `haunted_cellar`: no sootling can be behind the walls. The whisperer is the woman's brother, a
+  soldier counted lost in spring, who slipped in through the Throat gate at dawn and hides out of
+  shame. A Returned. He says one thing: "A blue door."
+- `scout_report`: brutes piling scree against the outer line like a ramp, not digging under.
+  `eclipse_omen`: the old fire-baskets on the Throat's ledges, not signal fires on cliffs.
+- `captured_sootling`: the court's three opinions and the name Gerald stay. The sootling is small and
+  silent and keeps to the side of the jar where the hearth is. The choices become: put it out, keep it
+  for study, let it go at the Throat gate at dusk. No choice plays cruelty for a laugh.
+- `herald_alone`: sixty gold of lamp oil poured out on the Throat's floor at dusk, not coin laid down.
+  The King wants lights out. `herald_demand` keeps "his borrowed chair".
+- `seren_reveal`, `seren_at_gate`: "He did not fall. The dark did not kill him. It crowned him."
+- `last_stand`: "We hold until dawn." / "We bring Lord Aldric home." / "I was never meant for this."
+- `bard_song`: the ballad of the lamplighter lord; verse nine is about the circlet.
+- `chronicle`: the scribe finds eleven stubs where Lord Edric cut pages. `keep_window`,
+  `widow_pension`: name the Count and the empty hook in the chapel.
+- Lines: `l.odile_first_day` "A circlet is a hat that argues back, my lord. Sit when you are ready.";
+  `l.pip_matches` "They made the lamplighter lord. At last someone here knows where the matches are.";
+  `l.pip_aldric` "The old lord is the new enemy, and the new lord is the old lamplighter.";
+  `l.envoy_sea` "one door" for "one gorge"; `l.envoy_thanks` "my lady".
+- Speakers: `speaker.envoy.name` Ansel Quay, role "Envoy of House Brine"; `speaker.bard.name` Finch.
+- `Localizable.xcstrings`: "The Gloom reached the throne room on night %lld." becomes "The Gloom
+  reached the hearth on night %lld."
+- For the lead, outside this file's reach: in DESIGN.md the chapter title, the premise, the prologue
+  (three panels to four), the endings' names, the court's forms of address, the front's name and depth
+  layers (the Throat), "open shadow land directly before the castle", and chapters 2 and 3 (a coast
+  and a thorn forest as battle fronts do not fit a wall with one door; open question 5). In the art
+  lane the texts of `portraitKing`, `king`, `kingGlow` and `statue`.
