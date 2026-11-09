@@ -552,6 +552,11 @@ unchanged. Mocks: `tools/scenemock/run_m1b.sh` (it now passes the renderer's who
   400-byte uniforms). From its shots: the long shadow's edge frayed, the band thinner at the warm hours, two noon shots.
 - `lh-art-s2` (26daf55): ALL PASSED with the unit step over every test class but `TuningTests`. From its shots: the
   bounce keeps 0.8 of its strength at dusk (shot 03 was one warm haze).
+- `lh-art-s3` (48a914d): ALL PASSED (the same steps). Landscape copies of its shots (text and eXIf chunks stripped,
+  `sips -r 270`, 1400 wide) in the worktree's `ci-out/lh-art-s3/view/`: 06 and 17 the gate at night and dusk (deep
+  banners with a warm sheen, the mist at night, the long frayed dusk shadow), 23 the castle at noon (the day shadow,
+  the gatehouse's self-shadow, the contact band on the ground), 24 and 01 and 22 the gorge's depth by day, 03 the
+  amber dusk, 19 the dusk shadow from the courtyard.
 
 ### Lessons
 
