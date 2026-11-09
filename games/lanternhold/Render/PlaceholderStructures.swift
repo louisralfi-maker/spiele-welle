@@ -1043,8 +1043,9 @@ enum PlaceholderStructures {
         return p.image
     }
 
-    /// The darkness a creature carries (the Lightless King's aura, a gloomweaver's bubble): a dithered cloud of soot,
-    /// dense in the middle and thinning to the edge, with tendrils.
+    /// The darkness a creature carries (the Lightless King's aura, a gloomweaver's bubble): a cloud of soot in clumps
+    /// and wisps (a noise threshold, not an ordered dither: at 6 x a Bayer pattern read as a screen door), dense in the
+    /// middle and fraying to the edge.
     static func gloomBubble(_ salt: UInt64) -> PixelImage {
         let size = SpriteID.gloomBubble.size
         var p = Painter(size, salt: salt)
@@ -1056,11 +1057,12 @@ enum PlaceholderStructures {
                 let dy = (Double(y) + 0.5 - h * 0.55) / (h * 0.5)
                 let d = dx * dx + dy * dy
                 guard d < 1 else { continue }
-                let tendril = p.smooth(Double(x) * 0.7, Double(y), cell: 6, key: 2)
-                let density = 0.78 * pow(1 - d, 0.7) + (tendril - 0.5) * 0.35
-                guard density > Painter.bayer(x, y) else { continue }
+                let clump = p.fractal(Double(x) * 0.8 + Double(y) * 0.3, Double(y), cell: 7, key: 2)
+                let wisp = p.smooth(Double(x) * 1.6, Double(y) * 0.5, cell: 5, key: 4)
+                let density = 1.05 * pow(1 - d, 0.6) + (wisp - 0.5) * 0.3
+                guard density > 0.35 + clump * 0.55 else { continue }
                 let swirl = p.fractal(Double(x), Double(y), cell: 10, key: 3)
-                p.put(x, y, p.ramp(Ink.soot, 0.2 + (swirl - 0.5) * 0.4, x, y))
+                p.put(x, y, p.ramp(Ink.soot, 0.18 + (swirl - 0.5) * 0.4, x, y))
             }
         }
         return p.image

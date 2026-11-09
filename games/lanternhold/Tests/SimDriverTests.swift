@@ -113,6 +113,22 @@ final class SimDriverTests: XCTestCase {
         XCTAssertNotNil(driver.dawnSnapshot.lastReport)
     }
 
+    func testTheCameraLooksTowardTheGloomAtNightAtTheFront() {
+        var s = GameState.newRealm(seed: 6)
+        s.king.x = 654
+        s.hour = 12
+        XCTAssertEqual(GameModel.cameraLead(s), 0, "by day the camera centres on the king")
+        s.hour = 22
+        XCTAssertEqual(GameModel.cameraLead(s), -GameModel.nightLead, "at night it looks toward the Gloom")
+        s.hour = 19.5
+        XCTAssertEqual(GameModel.cameraLead(s), -GameModel.nightLead / 2, accuracy: 1e-9, "eased in through the dusk")
+        s.hour = 5.75
+        XCTAssertEqual(GameModel.cameraLead(s), -GameModel.nightLead / 4, accuracy: 1e-9, "eased out at first light")
+        s.hour = 22
+        s.king.x = 1824
+        XCTAssertEqual(GameModel.cameraLead(s), 0, "inside the castle it centres on the king")
+    }
+
     func testTheActionButtonLightsASnuffedBrazierAtNight() {
         var s = GameFrameSupport.demoNight()
         let plot = Realm.lines[2].braziers[0]

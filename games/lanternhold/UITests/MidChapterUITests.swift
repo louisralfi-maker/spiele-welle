@@ -2,10 +2,11 @@ import UIKit
 import XCTest
 
 /// M2b's shots of the game (DESIGN.md "Tests", "UI"): a night of the mid chapter played live by the reference bot in
-/// the built-up demo realm (`-GWNight 12 -GWBuild demo -GWAutoplay play`), at about 21:30 (the defenders wait, the
-/// Gloom's eyes in the fog), 23:00 and 01:00 (the fight), and a morning of the same realm with the builders at work
-/// (`-GWDay 12`, the king at the outer line). The game's clock is the simulation's, read from the scene's
-/// accessibility value ("hour:21.50"). Saves `<nn>-mid-<what>-<lang>`.
+/// the built-up demo realm (`-GWNight 12 -GWBuild demo -GWAutoplay play`), at about 21:30 (the defenders wait),
+/// 23:00 and 01:00 (the fight; each the liveliest moment of the following hour), and a morning of the same realm with
+/// the builders at work (`-GWDay 12`, the king at the outer line); `testFinale` takes night 20 with the Great Beacon.
+/// The game's clock and counts are the simulation's, read from the scene's accessibility value ("hour:21.50 seen:4
+/// shots:2"). Saves `<nn>-mid-<what>-<lang>`.
 @MainActor
 final class MidChapterUITests: XCTestCase {
     override func setUp() async throws {
@@ -22,14 +23,15 @@ final class MidChapterUITests: XCTestCase {
         night.launchArguments = ["-GWNight", "12", "-GWBuild", "demo", "-GWAutoplay", "play"]
         night.launch()
         if waitUntilReady(night, name: "mid-night") {
-            let shots: [(name: String, hour: Double)] = [("30-mid-2130", 21.5), ("31-mid-2300", 23.0),
-                                                         ("32-mid-0100", 25.0)]
+            // From each time on, the liveliest moment of the next half or whole in-game hour (6 or 12 s).
+            let shots: [(name: String, hour: Double, window: Double)] = [("30-mid-2130", 21.5, 0.5),
+                                                                         ("31-mid-2300", 23.0, 1.0),
+                                                                         ("32-mid-0100", 25.0, 1.0)]
             for shot in shots {
                 if waitForHour(night, shot.hour, timeout: 150) != nil {
-                    // Within the next 0.6 in-game hours (7 s), the first moment with the fight in view.
-                    let moment = waitForAction(night, until: shot.hour + 0.6, timeout: 20)
-                    attach(XCUIScreen.main.screenshot(), "\(shot.name)-\(language)")
-                    note("\(shot.name)-hour", "\(shot.name): taken at \(moment)")
+                    let best = liveliestShot(night, until: shot.hour + shot.window, timeout: 30)
+                    attach(best.screenshot, "\(shot.name)-\(language)")
+                    note("\(shot.name)-hour", "\(shot.name): taken at \(best.value)")
                 } else {
                     attach(XCUIScreen.main.screenshot(), "\(shot.name)-late-\(language)")
                     XCTFail("\(shot.name): the night never reached hour \(shot.hour)")
@@ -60,9 +62,9 @@ final class MidChapterUITests: XCTestCase {
         if waitUntilReady(app, name: "finale") {
             for shot in [(name: "34-finale-2230", hour: 22.5), (name: "35-finale-2345", hour: 23.75)] {
                 if waitForHour(app, shot.hour, timeout: 120) != nil {
-                    let moment = waitForAction(app, until: shot.hour + 0.4, timeout: 15)
-                    attach(XCUIScreen.main.screenshot(), "\(shot.name)-\(language)")
-                    note("\(shot.name)-hour", "\(shot.name): taken at \(moment)")
+                    let best = liveliestShot(app, until: shot.hour + 0.5, timeout: 20)
+                    attach(best.screenshot, "\(shot.name)-\(language)")
+                    note("\(shot.name)-hour", "\(shot.name): taken at \(best.value)")
                 } else {
                     XCTFail("\(shot.name): the night never reached hour \(shot.hour)")
                 }
@@ -108,24 +110,32 @@ final class MidChapterUITests: XCTestCase {
         return nil
     }
 
-    /// Polls until the scene shows the fight (at least five creatures in view and a projectile in flight) or the
-    /// clock reaches `until`; returns the scene value of that moment.
-    private func waitForAction(_ app: XCUIApplication, until target: Double, timeout: TimeInterval) -> String {
+    /// Watches the scene until the clock reaches `until` (or `timeout`) and keeps the screenshot of its liveliest
+    /// moment: creatures in view count twice, projectiles in flight once (up to six).
+    private func liveliestShot(_ app: XCUIApplication, until target: Double,
+                               timeout: TimeInterval) -> (screenshot: XCUIScreenshot, value: String) {
         let scene = element(app, "world-scene")
+        func score(_ text: String) -> Double {
+            2 * (field(text, "seen:") ?? 0) + min(6, field(text, "shots:") ?? 0)
+        }
+        var bestValue = (scene.value as? String) ?? ""
+        var best = XCUIScreen.main.screenshot()
+        var bestScore = score(bestValue)
         let started = Date()
-        var text = ""
         while Date().timeIntervalSince(started) < timeout {
-            text = (scene.value as? String) ?? ""
-            let seen = field(text, "seen:") ?? 0
-            let shots = field(text, "shots:") ?? 0
-            if seen >= 5 && shots >= 1 { return text }
+            let text = (scene.value as? String) ?? ""
+            if score(text) > bestScore {
+                best = XCUIScreen.main.screenshot()
+                bestValue = text
+                bestScore = score(text)
+            }
             if let hour = field(text, "hour:") {
                 let night = hour < 12 && target > 24 ? hour + 24 : hour
-                if night >= target { return text }
+                if night >= target { break }
             }
-            pause(0.3)
+            pause(0.25)
         }
-        return text
+        return (best, bestValue)
     }
 
     private func element(_ app: XCUIApplication, _ identifier: String) -> XCUIElement {

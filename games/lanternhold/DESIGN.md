@@ -991,7 +991,7 @@ Louis chose to build 1.0 straight away. These steps follow the work method in `C
 |---|---|---|
 | M1 Light and feel | renderer, pixel scale, parallax gorge, day and night, lights, fog, bloom, the walking king, placeholder art; the runner's Metal probe | screenshots: front at dusk and night, castle, throne room, town; 180 against 135 rows; three light styles |
 | M1b World and castle (09.11.) | the castle that seals the gorge, the continuous gorge wall, the open valley and the river end; new Recraft art for all of it; backdrop regions per plane; an art-director review against the target pictures | the castle at night from the gorge, the valley town at golden hour |
-| M2 Core loop | plots, builders, walls, towers, braziers, creatures, the automatic battle, the hearth, dawn report, saving | a whole day and night played by the bot |
+| M2 Core loop | plots, builders, walls, towers, braziers, creatures, the automatic battle, the hearth, dawn report, saving (M2a: the simulation and its tuning; M2b part 1: the simulation on screen, see below; M2b part 2: the HUD and the cards) | a whole day and night played by the bot |
 | M3 Castle and court | cut-away rooms, court characters, talking, audience, petitions from JSON, taxes, happiness | the audience in German |
 | M4 Town | plots, houses, fields, market, tavern, citizens' life, growth | the town by day and night |
 | M5 Chapter 1 and endless | 20 nights of story, all creatures and bosses, the beacon, endings, endless, 80 petitions | the story beats |
@@ -1056,6 +1056,95 @@ falloff, bands, dither, bloom and fog.
 
 **Done when:** the round passes, the screenshots show the warm-against-cold look with readable light pools and crisp
 pixels, the jitter check passes, and Louis has seen the pictures and picked 180 or 135 rows and a light style.
+
+### M2b part 1 in detail: the simulation on screen (engine side, 09.11.2026)
+
+The tuned simulation of M2a plays in the real renderer: a night battle with flying arrows, fire and creatures that read
+lit and unlit, in the M1b world. The cards, the full HUD, sound and haptics come with the UI step.
+
+**What was built**
+
+- **The driver** (`Core/SimDriver.swift`, used by `App/GameModel.swift`): `Sim.step` at 1/60 s on an accumulator
+  (at most 0.25 s of real time at once, so a stall never fast-forwards the world); the day clock is the simulation's
+  hour (one truth: the HUD clock, the ambient ramp and the frame all read `GameState.hour`). No step while a card or
+  the pause sheet is open (`GameModel.isPaused`, for the UI), while the app is not active (`scenePhase`), while
+  `-GWFreezeTime` holds the clock or after the realm fell; time that passes meanwhile is dropped, never caught up. The
+  walk pad sets the simulation's own king intent, `GameState.king.velocity` (the one `Autoplay` sets): walk 36, run 80
+  beyond 40 pt. `-GWAutoplay play` lets the reference bot act before every step; any drag ends it. At night the action
+  button lights a snuffed brazier or patches a damaged wall (`Sim.kingAction`); the rest of the day's actions come
+  with the cards. The camera follows the simulation's king step by step.
+- **The scene filter** (`Core/SceneFilter.swift`): game mode keeps the M1b world but hides, by sprite id and x, every
+  placeholder of something the simulation owns: the front's palisade (640), stone wall (940), their four torch posts,
+  the ballista (676) and the two braziers (891, 915), the beacon ruin once a stage stands or is being raised, the four
+  cottages and two fields on the town plots. The hearth keeps its sprite but loses its fire and light (the
+  simulation's hearth burns by its strength); the scene's archers, creatures and citizens leave; the darkness bank
+  stands at the simulation's edge. The castle front's own wall-walk braziers, gate torches and lantern stay scenery.
+- **The entity frames** (`Core/EntityFrames.swift`, a hook of a few lines in `FrameBuilder.build(…, entities:)`):
+  - buildings per plot by item and tier as world-plane props (lit like the world, hiding the glow behind them, under
+    the darkness bank): walls whole or damaged (frame 1 below 50 % HP), rubble (`rubbleWood` for a palisade,
+    `rubbleStone` otherwise), scaffolding tiled over every build in progress, a `plotMarker` on every empty unlocked
+    plot by day;
+  - line 1: the gate overlay in the castle front's gateway (x 1337): closed from the horn to dawn and while a
+    creature is within 260 px, open by day, the damaged frame below half strength, `gateBroken` when it falls;
+  - towers (lines 2 and 3), braziers and fire towers with their `brazierFlame` (flickering with the battle light's
+    seed, gone while a crow has snuffed it), engines with their firing frames from the reload time (a ballista loosed
+    for 0.6 s after a shot; a catapult throws for 0.5 s and winds for the last 1.4 s), stake pits armed or sprung, a
+    torch post with a flame at every battle torch light (the simulation's wall-walk torches);
+  - the beacon's stages on the ruin's footprint, `beaconFire` in the great beacon's bowl while it burns (brighter
+    for 1.5 s as it flares up);
+  - the courtyard in a row after the castle front: barracks (always), smithy (with its forge fire and a small
+    scene light), the scene's well, the lodge; the town by plot state: the cottages exactly as the scene drew them,
+    big houses, fields, market and tavern, with their window glass masks and window lights (scene-only);
+  - actors in device pixels: townsfolk by day (visual only: between their houses and the well, the market, the
+    fields and the tavern, about one for every two taxpayers, 2 to 9), builders walking and hammering, creatures,
+    guards on the ground (in the breach striking while creatures press them, marching, waiting by the gate), archers
+    on their posts (drawing in the last 0.45 s before a shot, loosing for 0.18 s after it, facing the most advanced lit
+    creature in reach), projectiles, effect particles, the king last;
+  - creatures by kind and action: walk 0 to 3 by the distance walked, attack from 4 by time; the crow flies and
+    perches, the gloomweaver floats; the two sootlings alternate by creature id. Lit (`Creature.isLit`, the battle's
+    truth): the body as painted plus its glow strip; unlit at night: the glow strip over the body at 0.2 of its value
+    (scaled with the torch strength, so bodies show by day);
+  - projectiles on the simulation's arcs (`Projectile.position`), frame by vertical speed (rising, flat, falling at a
+    slope of ±0.3), mirrored when flying left, drawn emissive (arrows and bolts as pale, moonlit shafts, fire arrows
+    and firepots burning) with a `streak` trail in the emissive pass that feeds the bloom; a fire arrow carries a
+    flame at its head; where fire arrows and firepots land, flames burn as long as their light;
+  - the Lightless King's aura: two mirrored `gloomBubble` halves (192 px, his 80 px aura) on the world plane while he
+    is outside the beacon's light (a gloomweaver carries one too); `kingAuraBroken` bursts it into teal sparks and soot
+    shards flying outward, `kingAuraClosed` draws them in again, `glancedOff` strikes a spark where a blow glances off
+    him; creatures dissolve in a puff of soot and an ember, a falling wall throws dust. At most 24 effects and 24
+    particles a frame (`Core/BattleEffects.swift`).
+- **Lights:** the battle's lights come from `Battle.lightSources` (one truth for what is seen and what is lit): the
+  wall-walk torches, braziers and fire towers, the glows of fire arrows and firepots, the king's lantern, the hearth
+  and the lit beacon. The hearth's light shows its strength (intensity × 0.35 + 0.65 × strength; its radius stays the
+  simulation's). Scene lights stay scene-only (`SceneFilter.sceneLights`). The Great Beacon's pool no longer flickers
+  (`LightKind.beacon.flickers` is false), so the smooth light style's step at the lit threshold draws its edge band
+  exactly at the battle's reach and holds still.
+- **Sprites:** every id of `SPRITES.md` is a `SpriteID` with its size and frame count (the king's walk 0 to 5, idle 6
+  to 7, command 8 to 9; townsfolk, archer, guardsman, builder, creatures and glow strips, buildings, overlays,
+  projectiles), plus four procedural effect sprites (`spark`, `shard`, `gloomBubble`, `streak`). Readable procedural
+  placeholders for all (`Render/PlaceholderCreatures.swift`, `PlaceholderPeople.swift`, `PlaceholderStructures.swift`),
+  windows painted in the glass colours at the art lane's anchors. The atlas repeats the last frame of a strip that is
+  shorter than its frame count (the one-frame palisade, stone wall and ballista until the art lane's land); the page
+  is 1024 x 1494 with every placeholder (it stays one page under 2048²).
+- **Debug arguments** (`App/GameStart.swift`): see "Debug launch arguments": `-GWScene probe`, `-GWDay`, `-GWNight`,
+  `-GWBuild demo`, `-GWAutoplay play`, `-GWGold`, `-GWHappiness`, `-GWReset`, `-GWCameraX` in the game.
+- **Saving** (`App/SaveStore.swift`): the dawn snapshot (the realm right after the dawn step) is written at every dawn
+  and when the app goes to the background; launch resumes it; a corrupt file is kept as `save-corrupt-<seconds>.json`
+  and the game starts fresh; the Chronicle carries from save to save; `-GWDay`, `-GWNight` and `-GWReset` do not load
+  it.
+
+**Decisions taken (M2b part 1)**
+
+| Decision | Why |
+|---|---|
+| The game is the default scene; the M1b scene as data is `-GWScene probe`, and `LightProbeUITests` pass it. | Explicit: the light probe's shots stay comparable with the mocks and the art reviews, the game never guesses from other arguments. |
+| Glow strips are drawn as emissive actor quads right after their body, in device pixels, not in the low-resolution emissive pass. | The emissive pass lies in whole game pixels under the actors: a strip there would be up to a game pixel off its body and hidden by the body's opaque pixels. "Additive" becomes "over at full brightness": the strip's pixels are the glow colours, which over a dark body looks the same. (A deviation from SPRITES.md's wording for the lead.) |
+| Towers of lines 2 and 3 are drawn just behind their wall (overlapping it by 4 px, behind it) and the engine behind the tower; archers stand on the drawn posts; a projectile starts at the drawn shooter and the offset fades out over its flight. | The plots put the tower inside the stone wall's footprint (662 against 640 to 676), where a 48 px tower vanished behind a 52 px wall. The simulation's positions stay the truth: every arrow lands where the simulation lands it. Builders drift onto the drawn place in the last 60 px of their walk. |
+| Line 1's archers stand along the painted wall walk (y 124, x 1306 to 1412), its tower archers at the walk's ends by the towers, its engine on the walk by the right tower (x 1404). | The round towers' crowns (y 132 to 172) sit at the top edge of a 175-row screen: an archer there would be cut off. The engine's plot (1440) lies behind the castle front's right tower. |
+| The courtyard's row: barracks 1481 to 1545, smithy 1546 to 1606, the well (scene), the lodge centred at 1648. | The castle front ends at 1480 and the hall begins at 1700; DESIGN lists barracks, smithy, well, lodge. |
+| Unlit creatures at night: body × 0.2, glow strip at full. | A dark silhouette with ember eyes reads as "in the dark" against the night ground and the fog; at alpha instead of value, crowds would punch holes into each other (actors do not blend). |
+| `-GWBuild demo` drops leftover orders and posts every archer at night, and leaves two builds with the builders at work by day. | The night shots show the fight without scaffolding; the day shot shows the builders. |
+| `-GWAutoplay play` shows no debug readouts (they stay for `walk` and `-GWStats`). | The mid-chapter shots must work as store screenshots. |
 
 ## Risks
 

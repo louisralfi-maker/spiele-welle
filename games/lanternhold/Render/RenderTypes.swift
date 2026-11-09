@@ -133,12 +133,14 @@ enum Look {
     static let cloudHaze: Float = 0.25
 
     /// Lights of these kinds shine gentler in the picture (they light only the scene): windows, candles, and the king's
-    /// lantern a little.
+    /// lantern a little. The Great Beacon's pool (radius 840, M2b) at a third: at full strength it blew the whole front
+    /// out to white (round lh-m2b-a2); at 0.32 it is a strong warm wash and its edge band still reads.
     static func intensityScale(_ kind: LightKind) -> Float {
         switch kind {
         case .window: return 0.4
         case .candle: return 0.7
         case .lantern: return 0.85
+        case .beacon: return 0.32
         default: return 1
         }
     }

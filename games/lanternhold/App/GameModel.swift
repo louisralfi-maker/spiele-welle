@@ -36,6 +36,8 @@ final class GameModel {
     static let runDistance = 40.0
     /// The probe's default clock position: just before dusk, so the first picture shows fire against the coming night.
     static let defaultTimeOfDay = 0.79
+    /// At night at the front the game's camera aims this far left of the king, toward the Gloom (M2b).
+    nonisolated static let nightLead = 60.0
 
     let args: DebugArgs
     let kind: SceneKind
@@ -195,8 +197,8 @@ final class GameModel {
         while game.stepIfDue(events: &events) {
             stepped += 1
             if var follow = camera {
-                follow.follow(targetX: game.state.king.x, targetVelocity: game.state.king.velocity, dt: GameModel.step,
-                              reduceMotion: reduceMotion)
+                follow.follow(targetX: game.state.king.x + GameModel.cameraLead(game.state),
+                              targetVelocity: game.state.king.velocity, dt: GameModel.step, reduceMotion: reduceMotion)
                 camera = follow
             }
         }
@@ -310,7 +312,7 @@ final class GameModel {
                                           options: options)
             }
             let state = game.state
-            let view = ensureCamera(pixelScale, focus: state.king.x)
+            let view = ensureCamera(pixelScale, focus: state.king.x + GameModel.cameraLead(state))
             let filtered = SceneFilter.gameScene(scene, state: state)
             let layer = EntityFrames.layer(state: state, balance: game.balance, scene: filtered, camera: view,
                                            pixelScale: pixelScale, options: options, animTime: animationTime,
@@ -329,6 +331,23 @@ final class GameModel {
             publishDebug(frame)
         }
         return frame
+    }
+
+    /// Where the game's camera aims relative to the king: at night in front of the castle, `nightLead` toward the
+    /// Gloom, so the approach and its eyes show; eased in through the dusk, out through first light, and faded out
+    /// as the king walks into the castle front.
+    nonisolated static func cameraLead(_ state: GameState) -> Double {
+        let hour = state.hour
+        var night = 0.0
+        if hour >= 19 && hour < 20 {
+            night = hour - 19
+        } else if hour >= 20 || hour < 5 {
+            night = 1
+        } else if hour >= 5 && hour < 6 {
+            night = 6 - hour
+        }
+        let front = min(1, max(0, (WorldLayout.castleFrontX + 60 - state.king.x) / 120))
+        return -nightLead * night * front
     }
 
     private func ensureCamera(_ pixelScale: PixelScale, focus: Double) -> Camera {
@@ -417,6 +436,8 @@ final class GameModel {
             case .patch?: next = .patch
             case nil: next = nil
             }
+            // While the reference bot plays, it acts itself: no button over the picture.
+            if driver?.bot != nil { next = nil }
         case .probe:
             var best = GameModel.actionReach
             for prop in scene.braziers {
