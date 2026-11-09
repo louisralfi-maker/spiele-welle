@@ -165,7 +165,10 @@ struct LineSlots: Sendable, Equatable {
 /// The chapter 1 realm as plots and places (DESIGN.md "The world (chapter 1: the Gorge)"). The values are copied from
 /// the design on purpose: the scene files may move single sprites without changing the rules.
 enum Realm {
-    static let worldWidth = 3800.0
+    /// The world's width (M1b, `WorldLayout.width`): first light sweeps in from here.
+    static let worldWidth = 3900.0
+    /// The king's walk ends on the river bank (`WorldLayout.walkEnd`).
+    static let walkEnd = 3760.0
     /// Where creatures appear.
     static let spawnX = 40.0
     /// The Great Beacon's site.
@@ -248,14 +251,15 @@ enum Realm {
         add("beacon", .beacon, line: 0, x: beaconX, day: beaconUnlockDay, first: [.beaconBase])
         add("castle.smithy", .smithy, line: 0, x: 1550, day: 1, first: [.smithy])
         add("castle.lodge", .lodge, line: 0, x: lodgeX, day: 1, first: [.lodge])
-        add("town.house.1", .house, line: 0, x: 2412, day: 1, first: [.house], prebuilt: .house)
-        add("town.field.2", .field, line: 0, x: 2580, day: 1, first: [.field])
-        add("town.house.3", .house, line: 0, x: 2732, day: 1, first: [.house], prebuilt: .house)
-        add("town.house.4", .house, line: 0, x: 2832, day: 1, first: [.house], prebuilt: .house)
-        add("town.house.5", .house, line: 0, x: 3022, day: 1, first: [.house], prebuilt: .house)
-        add("town.market.6", .market, line: 0, x: 3145, day: 1, first: [.market])
-        add("town.tavern.7", .tavern, line: 0, x: 3265, day: 1, first: [.tavern])
-        add("town.field.8", .field, line: 0, x: 3440, day: 1, first: [.field])
+        // The town plots' centres in the M1b world (`WorldLayout.townPlots`, moved 100 px right with the town).
+        add("town.house.1", .house, line: 0, x: 2512, day: 1, first: [.house], prebuilt: .house)
+        add("town.field.2", .field, line: 0, x: 2680, day: 1, first: [.field])
+        add("town.house.3", .house, line: 0, x: 2832, day: 1, first: [.house], prebuilt: .house)
+        add("town.house.4", .house, line: 0, x: 2932, day: 1, first: [.house], prebuilt: .house)
+        add("town.house.5", .house, line: 0, x: 3122, day: 1, first: [.house], prebuilt: .house)
+        add("town.market.6", .market, line: 0, x: 3245, day: 1, first: [.market])
+        add("town.tavern.7", .tavern, line: 0, x: 3365, day: 1, first: [.tavern])
+        add("town.field.8", .field, line: 0, x: 3540, day: 1, first: [.field])
         return list
     }
 }

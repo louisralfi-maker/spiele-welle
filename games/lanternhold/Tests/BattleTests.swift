@@ -365,11 +365,11 @@ final class BattleTests: XCTestCase {
         XCTAssertLessThanOrEqual(s.night.lastSpawnSecond, 84)
 
         var late = night()
-        spawn(&late, .sootling, at: 3100, still: true)
+        spawn(&late, .sootling, at: 3200, still: true)
         spawn(&late, .sootling, at: 800, still: true)
         late.hour = 5.2
         _ = run(&late, seconds: 0.1)
-        XCTAssertEqual(late.creatures.count, 1, "the light from the right took the one at 3100")
+        XCTAssertEqual(late.creatures.count, 1, "the light from the right (from x 3900 at 05:00) took the one at 3200")
         XCTAssertEqual(late.night.dissolved, 1)
     }
 

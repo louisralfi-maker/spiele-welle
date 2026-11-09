@@ -38,6 +38,10 @@ final class BuildTests: XCTestCase {
         XCTAssertEqual(Realm.plots[Realm.lines[1].wall].unlockDay, 3)
         XCTAssertEqual(Realm.plots[Realm.lines[2].wall].unlockDay, 8)
         XCTAssertEqual(Realm.townPlots.count, 8)
+        XCTAssertEqual(Realm.townPlots.map { Realm.plots[$0].x }, [2512, 2680, 2832, 2932, 3122, 3245, 3365, 3540],
+                       "the town plots' centres in the M1b world")
+        XCTAssertEqual(Realm.worldWidth, 3900)
+        XCTAssertEqual(Realm.walkEnd, 3760)
         for (index, spec) in Realm.plots.enumerated() {
             XCTAssertEqual(spec.id, index)
             XCTAssertEqual(Realm.plotID(spec.key), index)

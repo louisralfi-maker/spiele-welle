@@ -209,6 +209,19 @@ final class SimTests: XCTestCase {
         XCTAssertLessThan(s.records.bestNight, day, "a night saved by a second chance is not a night held")
     }
 
+    func testTheKingsWalkEndsOnTheRiverBank() {
+        var s = GameState.newRealm(seed: 3, balance: balance)
+        var events: [SimEvent] = []
+        s.king.x = 3740
+        s.king.velocity = balance.kingRunSpeed
+        Sim.step(&s, dt: 1, balance: balance, events: &events)
+        XCTAssertEqual(s.king.x, Realm.walkEnd)
+        s.king.x = 10
+        s.king.velocity = -balance.kingRunSpeed
+        Sim.step(&s, dt: 1, balance: balance, events: &events)
+        XCTAssertEqual(s.king.x, 0)
+    }
+
     func testDawnReportsNameTheUnlocks() {
         var s = GameState.newRealm(seed: 10, balance: balance)
         var bot = Autoplay.reference()

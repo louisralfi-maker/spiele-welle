@@ -119,7 +119,7 @@ enum Sim {
                 king.lightTimer = 0
             }
         }
-        king.x = min(Realm.worldWidth, max(0, king.x + king.velocity * dt))
+        king.x = min(Realm.walkEnd, max(0, king.x + king.velocity * dt))
         if king.velocity > 0 { king.facing = 1 }
         if king.velocity < 0 { king.facing = -1 }
         s.king = king
