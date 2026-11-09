@@ -334,6 +334,8 @@ class Palette:
                 continue
             if "emissive" in self.tags[i] and not allow_emissive:
                 continue
+            if MATCH == "old" and "new" in self.tags[i] and not only:
+                continue  # an old painting never lands on a look-2 colour unless an --only list names it
             self.allowed.append(i)
         self.labs = [lab(c) for c in self.mrgb]
         self.cache = {}
