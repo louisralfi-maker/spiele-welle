@@ -19,7 +19,7 @@ the third), so no other lane's spending is mixed in.
 ## Pipeline
 
 Look 2, stage 3 (09.11.2026): the eight creatures no longer come from this pipeline. They are painted by
-`tools/rig.py` and `tools/creatures/<id>.py` through `tools/creatureart.py` (ART-look2.md, section 10); no Recraft
+`tools/rig.py` and `tools/creatures/<id>.py` through `tools/creatureart.py` (ART-look2.md, section 11); no Recraft
 image was used for them (credits 251 before and after). What follows describes the people (archer, guardsman,
 builder, king, citizens) and look 1's creatures, whose key poses, prompts and grids stay in the repo as history.
 
