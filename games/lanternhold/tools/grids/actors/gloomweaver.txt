@@ -1,0 +1,120 @@
+# gloomweaver 30x30, 4 frames: float 0-3 (SPRITES.md). A floating hooded figure woven of smoke ribbons: a tall pointed
+# hood leaning forward with darkness inside and two cold violet eyes, thin pale hands cradling a dark orb rimmed in
+# violet, a robe that comes apart into long trailing ribbons of smoke instead of legs. Key pose: Recraft `creatures-b`
+# (left piece); at 30x30 the conversion kept only the hood's slant and the orb (ART-actors.md), so the sprite is
+# hand-set after it. Float: the body bobs 2 px up and back while the ribbons ripple; the orb's glow breathes.
+id gloomweaver
+size 30x30
+frames 4
+outline night0
+
+legend
+    0 = night0
+    1 = night1
+    2 = night2
+    m = stoneMid
+    M = moon
+    d = stoneDark
+    w = stoneLight
+    W = stonePale
+    E = night0/violetGlow
+    o = night0
+    O = night0/violetDim
+    q = night1/violetDim
+    v = /violetGlow
+    u = /violetDim
+
+# the hood: pointed, leaning forward, darkness inside, two violet eyes
+part hood
+    ..2.......
+    ..22......
+    ..122.....
+    ..1222....
+    .11222M...
+    .112222M..
+    1112222MM.
+    1122200022
+    11220E0E02
+    1122000002
+    1112200022
+    .111222222
+
+# the robe and sleeves reaching forward
+part robe
+    .111222222M..
+    11112222222M.
+    11112222MM22M
+    111122222222M
+    1111122222222
+    .111112222222
+    ..1111122222.
+    ...11111122..
+
+# thin pale hands cradling the dark orb (the orb's rim glows violet)
+part orb
+    ..qOq..
+    .OoooO.
+    WqoooqW
+    wWoooWw
+    ..qOq..
+
+part orbBright
+    ..OqO..
+    .qoooq.
+    WOooEOW
+    wWoooWw
+    ..OqO..
+
+# smoke ribbons trailing back and down, three ripples
+part ribbonsA
+    ......11111122222.
+    ....111112222.2M..
+    ..11111.122.2M....
+    .1M..11..12..2....
+    1M....1...1M..M...
+    M.....1....2......
+    .....M.....M......
+    ....M.............
+
+part ribbonsB
+    ......11111122222.
+    ...11111112222.22.
+    .111M.1111222.2M..
+    1M...11..12..M....
+    M...11...1M..M....
+    ...1M...M.........
+    ..M...............
+
+part ribbonsC
+    ......11111122222.
+    .....111112222.22.
+    ..111111..122.2.M.
+    .11M..11..12..M...
+    1M...1M...1M.M....
+    M...1M...M........
+    ...M..............
+    ..................
+
+frame 0
+    ribbonsA 2 19
+    robe 8 12
+    hood 12 1
+    orb 19 13
+
+frame 1
+    ribbonsB 2 18
+    robe 8 11
+    hood 12 0
+    orbBright 19 12
+
+frame 2
+    ribbonsC 1 17
+    robe 8 10
+    hood 12 0
+    orb 19 11
+
+frame 3
+    ribbonsB 2 18
+    robe 8 11
+    hood 12 0
+    orbBright 19 12

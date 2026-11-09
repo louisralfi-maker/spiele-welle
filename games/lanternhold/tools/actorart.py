@@ -18,12 +18,17 @@ Spec format (`tools/grids/actors/<id>.txt`). Directives start in column 0; their
     frames N
     outline COLOUR           optional: transparent pixels 4-adjacent to the body become COLOUR (a 1 px outline)
     image NAME PATH          optional: a palette PNG (e.g. a converted key pose) that parts can be cut from
+    glowmap COLOUR=GLOW …    image parts: pixels of that body colour glow (the ember cracks of a converted painting)
     legend                   lines "X = body" or "X = body/glow" or "X = /glow" (palette names; "." is transparent);
                              a body name ending in "!" is drawn without an outline around it (bow strings, arrows)
     part NAME                the part's rows follow ("." transparent)
-    part NAME image=IMG box=x0,y0,x1,y1 [mask=MASK:labels] [glow=GLOWPART]
+    part NAME image=IMG box=x0,y0,x1,y1 [mask=MASK:labels]
                              a part cut from an image (exclusive box ends); with a mask (a part of the same box size
                              whose characters are labels), only pixels whose label is in `labels` are taken
+    part NAME image=IMG poly=x,y;x,y;…[|x,y;…]
+                             cut-out animation: the image pixels inside the polygon(s), as a full-size layer whose
+                             placement is an offset; the poly parts of one image are resolved in declaration order
+                             (later ones lie in front, the ones behind are underpainted where they are covered)
     frame N[,M…]             placements follow, drawn in order: "PART x y [flip]" (top-left of the part in the frame)
     frame N = M              frame N is a copy of frame M
 A body pixel also sets (or clears) the glow under it, so a part in front hides the glow of what it covers; a glow-only
@@ -59,6 +64,7 @@ class Spec:
         self.placements = {}
         self.copies = {}
         self.bare = set()
+        self.glowmap = {}
         self._parse()
 
     def colour(self, name):
@@ -90,6 +96,10 @@ class Spec:
                     if not os.path.isabs(path):
                         path = os.path.normpath(os.path.join(base, path)) if path.startswith(".") else path
                     self.images[words[1]] = path
+                elif key == "glowmap":
+                    for pair in words[1:]:
+                        a, b = pair.split("=")
+                        self.glowmap[self.colour(a)] = self.colour(b)
                 elif key == "legend":
                     block = "legend"
                 elif key == "part":
@@ -142,7 +152,9 @@ class Spec:
             return cache[key]
         part = self.parts[name]
         opts = part["opts"]
-        if "image" in opts:
+        if "image" in opts and "poly" in opts:
+            rows = self._cutout(opts["image"])[name]
+        elif "image" in opts:
             img, _ = read_png(self.images[opts["image"]])
             x0, y0, x1, y1 = (int(v) for v in opts["box"].split(","))
             labels = None
@@ -173,6 +185,75 @@ class Spec:
                 rows.append(row)
         cache[key] = rows
         return rows
+
+    def _cutout(self, image, cache={}):
+        """Cut-out animation: every `poly=` part of one image, in declaration order (later parts lie in front). A key
+        pixel belongs to the frontmost part whose polygon holds it; where a part in front covers a part, the part
+        behind is underpainted from its own pixels (nearest colour, spreading row-wise first), so a limb that moves
+        1 or 2 px uncovers body, not a hole. Each part is a full-size layer: its placement is an offset."""
+        key = (self.path, image)
+        if key in cache:
+            return cache[key]
+        img, _ = read_png(self.images[image])
+        W, H = img.w, img.h
+        names = [n for n, p in self.parts.items() if p["opts"].get("image") == image and "poly" in p["opts"]]
+
+        def polys(spec):
+            out = []
+            for poly in spec.split("|"):
+                out.append([tuple(float(v) for v in pt.split(",")) for pt in poly.split(";")])
+            return out
+
+        def inside(pts, x, y):
+            c = False
+            j = len(pts) - 1
+            for i in range(len(pts)):
+                xi, yi = pts[i]
+                xj, yj = pts[j]
+                if (yi > y) != (yj > y) and x < (xj - xi) * (y - yi) / (yj - yi) + xi:
+                    c = not c
+                j = i
+            return c
+
+        regions = {}
+        for n in names:
+            ps = polys(self.parts[n]["opts"]["poly"])
+            regions[n] = [[any(inside(p, x + 0.5, y + 0.5) for p in ps) for x in range(W)] for y in range(H)]
+        owner = [[None] * W for _ in range(H)]
+        for y in range(H):
+            for x in range(W):
+                if img.get(x, y)[3] == 0:
+                    continue
+                for n in names:  # the last match wins: front
+                    if regions[n][y][x]:
+                        owner[y][x] = n
+        out = {}
+        for idx, n in enumerate(names):
+            layer = [[None] * W for _ in range(H)]
+            front = set(names[idx + 1:])
+            todo = set()
+            for y in range(H):
+                for x in range(W):
+                    if owner[y][x] == n:
+                        rgb = img.get(x, y)[:3]
+                        layer[y][x] = (rgb, self.glowmap.get(rgb))
+                    elif regions[n][y][x] and owner[y][x] in front:
+                        todo.add((x, y))
+            while todo:
+                grown = []
+                for (x, y) in todo:
+                    for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                        if 0 <= nx < W and 0 <= ny < H and layer[ny][nx] is not None:
+                            grown.append(((x, y), layer[ny][nx]))
+                            break
+                if not grown:
+                    break
+                for (x, y), c in grown:
+                    layer[y][x] = c
+                    todo.discard((x, y))
+            out[n] = layer
+        cache[key] = out
+        return out
 
     def render(self):
         """Every frame as (body, glow) grids of RGB tuples or None."""

@@ -1,0 +1,137 @@
+# ashBrute 44x44, 7 frames: walk 0-3, attack 4-6 (SPRITES.md). A hunched golem of fused ash plates that knuckle-walks
+# on two huge stone fists, its small head thrust forward under the hump, ember cracks glowing at the shoulder, elbow
+# and knee joints, two ember eyes. Key poses: Recraft `brute-b` (left: walking, right: rearing with both fists up),
+# converted at one common scale (build-art-actors.sh). Walk = cut-out animation of the walking key (a diagonal
+# knuckle-walk: front fist with the hind leg, back fist with the front leg, the hump bobbing). Attack: the rearing key
+# (anticipation), the walking key thrown forward and down with both fists on the ground and sparks at the impact
+# (hit), half way back (recovery).
+id ashBrute
+size 44x44
+frames 7
+outline ink
+image walk build/recraft/lh/actors/keys/ashBrute-walk.png
+image rear build/recraft/lh/actors/keys/ashBrute-attack.png
+glowmap tile=ember
+
+legend
+    o = /fireOrange
+    g = /fireGold
+    e = /ember
+    d = /emberDim
+    c = tile/ember
+    C = tile/emberDim
+
+# the walking key, back to front
+part armBack image=walk poly=0,33;0,15;6,13;12,17;12,33
+part legBack image=walk poly=11,33;11,23;18,21;18,33
+part legFront image=walk poly=18,33;18,22;25,21;25,33
+part torso image=walk poly=0,0;38,0;38,16;31,16;26,21;24,25;12,25;10,18;5,13;0,13
+part armFront image=walk poly=23,33;23,21;28,16;33,17;38,23;38,33
+
+# the rearing key as one piece
+part rear image=rear box=0,0,33,44
+
+# ember eyes and joint cracks (body crack pixels carry their glow), placed with their part
+part eyesWalk
+    g.g
+
+part eyesRear
+    gg
+
+part cracksTorso
+    ..c...
+    .C....
+    C.....
+    ......
+    .....c
+    ....C.
+
+part cracksArm
+    c.
+    .C
+    .c
+
+part cracksLeg
+    c
+    C
+
+part cracksRear
+    .c.......c
+    C........C
+    ..........
+    ...c..c...
+
+part impact
+    o.....o
+    .e...e.
+
+frame 0
+    armBack 5 11
+    legBack 3 11
+    legFront 5 11
+    torso 3 11
+    armFront 3 11
+    eyesWalk 30 20
+    cracksTorso 14 18
+    cracksArm 29 30
+    cracksLeg 18 35
+
+frame 1
+    armBack 4 11
+    legBack 4 10
+    legFront 4 11
+    torso 3 10
+    armFront 4 9
+    eyesWalk 30 19
+    cracksTorso 14 17
+    cracksArm 30 28
+    cracksLeg 19 34
+
+frame 2
+    armBack 3 11
+    legBack 5 11
+    legFront 3 11
+    torso 3 11
+    armFront 5 11
+    eyesWalk 30 20
+    cracksTorso 14 18
+    cracksArm 31 30
+    cracksLeg 20 35
+
+frame 3
+    armBack 4 9
+    legBack 4 11
+    legFront 4 10
+    torso 3 10
+    armFront 4 11
+    eyesWalk 30 19
+    cracksTorso 14 17
+    cracksArm 30 30
+    cracksLeg 19 35
+
+frame 4
+    rear 6 0
+    eyesRear 21 17
+    cracksRear 7 6
+
+frame 5
+    armBack 9 11
+    legBack 3 11
+    legFront 5 11
+    torso 5 13
+    armFront 6 11
+    eyesWalk 32 22
+    cracksTorso 16 20
+    cracksArm 32 30
+    impact 31 42
+
+frame 6
+    armBack 7 11
+    legBack 3 11
+    legFront 5 11
+    torso 4 12
+    armFront 4 11
+    eyesWalk 31 21
+    cracksTorso 15 19
+    cracksArm 30 30
+    cracksLeg 18 35
