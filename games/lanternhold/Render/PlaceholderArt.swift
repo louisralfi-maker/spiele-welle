@@ -266,7 +266,7 @@ enum PlaceholderArt {
         var ridge = [Int](repeating: h, count: w)
         for x in 0..<w {
             let edge = min(Double(x), Double(w - 1 - x)) / 22
-            let fade = min(1, edge)
+            let fade: Double = min(1, edge)
             let broad = p.smooth(Double(x), 0, cell: 38, key: 1) * 16
             let small = p.smooth(Double(x), 0, cell: 13, key: 2) * 6
             let height = (16 + broad + small) * fade
@@ -314,8 +314,10 @@ enum PlaceholderArt {
         let w = size.width
         let h = size.height
         for y in 0..<h {
-            let rise = min(1, max(0, Double(y) / 11))
-            let profile = rise * rise * (3 - 2 * rise) * (1 - 0.25 * min(1, max(0, Double(y - 16) / 7)))
+            let rise: Double = min(1, max(0, Double(y) / 11))
+            let thinning: Double = min(1, max(0, Double(y - 16) / 7))
+            let swell = rise * rise * (3 - 2 * rise)
+            let profile = swell * (1 - 0.25 * thinning)
             for x in 0..<w {
                 let cloud = p.fractal(Double(x), Double(y) * 2.2, cell: 32, key: 1, period: w)
                 let puff = p.smooth(Double(x), Double(y) * 3, cell: 16, key: 2, period: w)

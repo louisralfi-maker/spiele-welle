@@ -257,7 +257,7 @@ final class Renderer {
         let targetWidth: Int
         let targetHeight: Int
         /// The light buffer, RGBA floats per target pixel.
-        let light: [Float]
+        let lightValues: [Float]
         let bgra: Bool
 
         /// The final colour at a device pixel, 0 ... 1.
@@ -272,7 +272,7 @@ final class Renderer {
         /// The light buffer at a target pixel.
         func light(x: Int, y: Int) -> SIMD3<Float> {
             let i = (min(max(0, y), targetHeight - 1) * targetWidth + min(max(0, x), targetWidth - 1)) * 4
-            return SIMD3<Float>(light[i], light[i + 1], light[i + 2])
+            return SIMD3<Float>(lightValues[i], lightValues[i + 1], lightValues[i + 2])
         }
     }
 
@@ -346,7 +346,7 @@ final class Renderer {
             }
         }
         return Snapshot(width: width, height: height, pixels: pixels, targetWidth: targets.width,
-                        targetHeight: targets.height, light: light, bgra: outputFormat == .bgra8Unorm)
+                        targetHeight: targets.height, lightValues: light, bgra: outputFormat == .bgra8Unorm)
     }
 
     // MARK: - Encoding
