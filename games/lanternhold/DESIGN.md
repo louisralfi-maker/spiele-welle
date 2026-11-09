@@ -59,6 +59,7 @@ Landscape, side view, pixel art. Lighting carries the mood: warm fire against a 
 | 09.11. | **Target pictures:** `docs/mood/world-castle-night.jpg` and `docs/mood/world-valley-golden.jpg`. They are Recraft concepts for composition and mood, not game art. | They are the reference for the art agents and for the review lens. |
 | 09.11. | **180 rows** (not 135), from the runner screenshots of round `lh-m1-0`. | The castle must tower over the king and the gorge must feel deep: 135 rows crop both, and the battle needs the wider view (about 437 instead of 328 columns). The king stays readable at 30 px. |
 | 09.11. | **Smooth light** (not banded or dithered). | It looks the most premium at phone size: crisp pixel art under soft glowing light. Bands read as cheap rings, and dither adds grain that blurs small shapes. `banded` and `dithered` stay as debug styles. |
+| 09.11. | **Creatures smoulder in the dark, and the beacon blazes.** Unlit, a creature is an opaque dark body with a glowing ash edge, a crack network and a cool moonlight rim on its screen-right side (`Renderer.rimmed`); its eyes are no longer the main read. The Lightless King shows a cold teal silhouette inside his aura. The Great Beacon's fire is a 48x32 blaze across the whole bowl (SPRITES.md amended). The king's lantern glass burns dim by day. | The art review of the entity art found black blobs with two eye dots (the look "Not a copy" forbids), a finale boss that read as two teal dots, and a campfire as the chapter's climax. |
 
 ## Not a copy
 
