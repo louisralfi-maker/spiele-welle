@@ -1,0 +1,122 @@
+simtune: compiled in 108 s
+simtune: 23 variants
+standard     12345..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [18, 18, 18] low0 | T4 high25 low84 | T5 tax49 b3 d10:11 | T6 9/9 of 10 | T7 [0, 0, 0] | T8 80s e42 l11 | 4 s
+T1 PASS nights 1-10, reference bot, normal tax: survived true, hearth lowest 100.0 (target 100), losses most 0 (target <= 3)
+T2 PASS builds nothing: falls on nights [3, 3, 3] (target 2 or 3; 0 = not by night 6)
+T3 PASS beacon finished on days [18, 18, 18] (target <= 18), low tax: 0 (target never by 18; 0 = never)
+T4 PASS high tax happiness at dawn 8: 25 (target < 30); low tax lowest dawns 8-20: 84 (target > 70)
+T5 PASS first dawn taxes 49 buy 3 builds (target 2-3); buildings by day 10: 11 (target 8-12)
+T6 FAIL night 20 won with the beacon 9/10 (target >= 8), without 9/10 (target 3-6)
+T7 FAIL endless: falls on nights [0, 0, 0] (target 35-60; 0 = still standing at the cap)
+T8 PASS last wave left at 79.9 s after nightfall (target <= 84); night 3 with 38 creatures: 42 entities (target < 300), 11 lights (target < 40)
+
+reference bot, seed 1:
+night 1: held, spawned 25, killed 25, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 70, taxes 49, happiness 62, citizens 15, archers 3, guards 2, buildings 3
+night 2: held, spawned 34, killed 34, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 65, taxes 60, happiness 64, citizens 16, archers 3, guards 2, buildings 5
+night 3: held, spawned 38, killed 38, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 52, taxes 49, happiness 66, citizens 16, archers 6, guards 2, buildings 7
+night 4: held, spawned 45, killed 45, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 90, taxes 50, happiness 68, citizens 16, archers 6, guards 2, buildings 8
+night 5: held, spawned 50, killed 50, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 61, taxes 56, happiness 70, citizens 17, archers 6, guards 2, buildings 9
+night 6: held, spawned 58, killed 58, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 3, patches 0 | gold 63, taxes 62, happiness 72, citizens 19, archers 7, guards 2, buildings 9
+night 7: held, spawned 58, killed 58, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 72, taxes 69, happiness 74, citizens 20, archers 7, guards 2, buildings 9
+night 8: held, spawned 50, killed 50, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 92, taxes 70, happiness 76, citizens 21, archers 8, guards 2, buildings 10
+night 9: held, spawned 61, killed 60, dissolved 1, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 108, taxes 76, happiness 78, citizens 23, archers 9, guards 2, buildings 10
+night 10: held, spawned 68, killed 66, dissolved 2, walls lost 0, fallen 0, hearth 100, snuffed 1, patches 2 | gold 102, taxes 94, happiness 80, citizens 25, archers 9, guards 2, buildings 11
+night 11: held, spawned 81, killed 81, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 162, taxes 110, happiness 83, citizens 27, archers 9, guards 2, buildings 12
+night 12: held, spawned 73, killed 71, dissolved 2, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 138, taxes 126, happiness 86, citizens 28, archers 9, guards 2, buildings 13
+night 13: held, spawned 71, killed 58, dissolved 13, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 2 | gold 253, taxes 135, happiness 89, citizens 28, archers 9, guards 2, buildings 13
+night 14: held, spawned 67, killed 56, dissolved 11, walls lost 1, fallen 0, hearth 100, snuffed 2, patches 0 | gold 142, taxes 139, happiness 92, citizens 28, archers 9, guards 2, buildings 13
+night 15: held, spawned 71, killed 64, dissolved 7, walls lost 1, fallen 0, hearth 100, snuffed 0, patches 1 | gold 243, taxes 141, happiness 95, citizens 28, archers 9, guards 2, buildings 13
+night 16: held, spawned 94, killed 89, dissolved 5, walls lost 1, fallen 0, hearth 100, snuffed 3, patches 1 | gold 346, taxes 143, happiness 98, citizens 28, archers 9, guards 2, buildings 13
+night 17: held, spawned 88, killed 75, dissolved 13, walls lost 1, fallen 0, hearth 100, snuffed 2, patches 2 | gold 442, taxes 146, happiness 100, citizens 28, archers 9, guards 2, buildings 13
+night 18: held, spawned 98, killed 87, dissolved 11, walls lost 1, fallen 5, hearth 100, snuffed 1, patches 1 | gold 149, taxes 147, happiness 86, citizens 26, archers 7, guards 0, buildings 13
+night 19: held, spawned 109, killed 96, dissolved 13, walls lost 2, fallen 3, hearth 100, snuffed 7, patches 3 | gold 178, taxes 143, happiness 78, citizens 24, archers 5, guards 0, buildings 16
+night 20: held, spawned 135, killed 106, dissolved 29, walls lost 2, fallen 1, hearth 100, snuffed 11, patches 1 | gold 151, taxes 123, happiness 76, citizens 24, archers 7, guards 0, buildings 17
+
+night 20 by seed:
+seed 1: beacon stage 3 | with: night 20: held, spawned 135, killed 106, dissolved 29, walls lost 2, fallen 1, hearth 100, snuffed 11, patches 1 | gold 151, taxes 123, happiness 76, citizens 24, archers 7, guards 0, buildings 17 | without: held hearth 100 walls lost 2 fallen 1
+seed 2: beacon stage 3 | with: night 20: held, spawned 146, killed 112, dissolved 34, walls lost 2, fallen 3, hearth 100, snuffed 17, patches 2 | gold 158, taxes 140, happiness 66, citizens 25, archers 5, guards 0, buildings 17 | without: held hearth 100 walls lost 2 fallen 3
+seed 3: beacon stage 3 | with: night 20: held, spawned 139, killed 109, dissolved 30, walls lost 1, fallen 1, hearth 100, snuffed 10, patches 1 | gold 149, taxes 123, happiness 67, citizens 26, archers 8, guards 0, buildings 17 | without: held hearth 100 walls lost 2 fallen 1
+seed 4: beacon stage 3 | with: night 20: held, spawned 134, killed 112, dissolved 22, walls lost 2, fallen 3, hearth 100, snuffed 8, patches 1 | gold 162, taxes 139, happiness 82, citizens 27, archers 8, guards 0, buildings 18 | without: held hearth 100 walls lost 2 fallen 3
+seed 5: beacon stage 3 | with: night 20: held, spawned 139, killed 111, dissolved 28, walls lost 2, fallen 0, hearth 100, snuffed 7, patches 2 | gold 132, taxes 122, happiness 80, citizens 28, archers 11, guards 0, buildings 18 | without: held hearth 100 walls lost 2 fallen 0
+seed 6: beacon stage 3 | with: night 20: held, spawned 140, killed 120, dissolved 20, walls lost 2, fallen 3, hearth 100, snuffed 4, patches 2 | gold 183, taxes 153, happiness 72, citizens 26, archers 5, guards 0, buildings 18 | without: held hearth 100 walls lost 2 fallen 3
+seed 7: beacon stage 3 | with: night 20: held, spawned 146, killed 119, dissolved 27, walls lost 2, fallen 3, hearth 100, snuffed 11, patches 1 | gold 185, taxes 127, happiness 58, citizens 23, archers 5, guards 0, buildings 16 | without: held hearth 100 walls lost 2 fallen 3
+seed 8: beacon stage 3 | with: night 20: held, spawned 141, killed 118, dissolved 23, walls lost 1, fallen 0, hearth 100, snuffed 14, patches 1 | gold 131, taxes 115, happiness 80, citizens 28, archers 11, guards 0, buildings 17 | without: held hearth 100 walls lost 2 fallen 0
+seed 9: fell on night 19
+seed 10: beacon stage 3 | with: night 20: held, spawned 155, killed 129, dissolved 26, walls lost 2, fallen 2, hearth 100, snuffed 4, patches 2 | gold 154, taxes 150, happiness 72, citizens 27, archers 6, guards 0, buildings 17 | without: held hearth 100 walls lost 2 fallen 2
+
+endless, first seed:
+night 21: held, spawned 106, killed 99, dissolved 7, walls lost 0, fallen 0, hearth 100, snuffed 2, patches 0 | gold 123, taxes 122, happiness 79, citizens 26, archers 9, guards 0, buildings 19
+night 22: held, spawned 119, killed 113, dissolved 6, walls lost 1, fallen 3, hearth 100, snuffed 0, patches 0 | gold 134, taxes 131, happiness 71, citizens 24, archers 6, guards 0, buildings 19
+night 23: held, spawned 122, killed 108, dissolved 14, walls lost 1, fallen 3, hearth 100, snuffed 12, patches 2 | gold 132, taxes 104, happiness 63, citizens 22, archers 3, guards 4, buildings 19
+night 24: held, spawned 131, killed 122, dissolved 9, walls lost 1, fallen 1, hearth 100, snuffed 12, patches 2 | gold 127, taxes 105, happiness 61, citizens 22, archers 2, guards 4, buildings 20
+night 25: held, spawned 134, killed 125, dissolved 9, walls lost 1, fallen 0, hearth 100, snuffed 7, patches 0 | gold 117, taxes 110, happiness 64, citizens 23, archers 2, guards 4, buildings 20
+night 26: held, spawned 144, killed 132, dissolved 12, walls lost 1, fallen 4, hearth 100, snuffed 9, patches 2 | gold 186, taxes 119, happiness 53, citizens 19, archers 2, guards 0, buildings 20
+night 27: held, spawned 137, killed 132, dissolved 5, walls lost 1, fallen 0, hearth 100, snuffed 10, patches 2 | gold 136, taxes 110, happiness 56, citizens 19, archers 2, guards 0, buildings 21
+night 28: held, spawned 159, killed 157, dissolved 2, walls lost 1, fallen 0, hearth 100, snuffed 5, patches 0 | gold 113, taxes 107, happiness 59, citizens 19, archers 3, guards 0, buildings 21
+night 29: held, spawned 177, killed 176, dissolved 1, walls lost 0, fallen 0, hearth 100, snuffed 4, patches 2 | gold 75, taxes 72, happiness 62, citizens 20, archers 9, guards 0, buildings 21
+night 30: held, spawned 151, killed 148, dissolved 3, walls lost 1, fallen 0, hearth 100, snuffed 3, patches 2 | gold 134, taxes 79, happiness 65, citizens 21, archers 9, guards 0, buildings 21
+night 31: held, spawned 159, killed 157, dissolved 2, walls lost 0, fallen 0, hearth 100, snuffed 13, patches 0 | gold 85, taxes 81, happiness 68, citizens 22, archers 10, guards 0, buildings 21
+night 32: held, spawned 182, killed 178, dissolved 4, walls lost 1, fallen 0, hearth 100, snuffed 12, patches 1 | gold 164, taxes 89, happiness 71, citizens 23, archers 10, guards 0, buildings 21
+night 33: held, spawned 207, killed 205, dissolved 2, walls lost 0, fallen 0, hearth 100, snuffed 4, patches 0 | gold 231, taxes 97, happiness 74, citizens 25, archers 11, guards 0, buildings 21
+night 34: held, spawned 192, killed 190, dissolved 2, walls lost 0, fallen 0, hearth 100, snuffed 6, patches 0 | gold 196, taxes 105, happiness 77, citizens 26, archers 11, guards 0, buildings 21
+night 35: held, spawned 218, killed 216, dissolved 2, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 171, taxes 115, happiness 80, citizens 28, archers 11, guards 0, buildings 21
+night 36: held, spawned 226, killed 225, dissolved 1, walls lost 0, fallen 0, hearth 100, snuffed 2, patches 0 | gold 152, taxes 131, happiness 83, citizens 31, archers 12, guards 0, buildings 21
+night 37: held, spawned 230, killed 225, dissolved 5, walls lost 0, fallen 0, hearth 100, snuffed 4, patches 2 | gold 160, taxes 148, happiness 86, citizens 32, archers 12, guards 0, buildings 21
+night 38: held, spawned 245, killed 240, dissolved 5, walls lost 0, fallen 0, hearth 100, snuffed 14, patches 1 | gold 158, taxes 158, happiness 89, citizens 32, archers 12, guards 0, buildings 22
+night 39: held, spawned 225, killed 225, dissolved 0, walls lost 1, fallen 0, hearth 100, snuffed 6, patches 0 | gold 147, taxes 139, happiness 92, citizens 32, archers 15, guards 0, buildings 24
+night 40: held, spawned 227, killed 225, dissolved 2, walls lost 0, fallen 0, hearth 100, snuffed 15, patches 0 | gold 200, taxes 133, happiness 95, citizens 32, archers 16, guards 0, buildings 24
+night 41: held, spawned 255, killed 252, dissolved 3, walls lost 0, fallen 0, hearth 100, snuffed 3, patches 1 | gold 145, taxes 135, happiness 98, citizens 32, archers 16, guards 0, buildings 24
+night 42: held, spawned 262, killed 255, dissolved 7, walls lost 0, fallen 0, hearth 100, snuffed 15, patches 1 | gold 153, taxes 138, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 43: held, spawned 273, killed 271, dissolved 2, walls lost 0, fallen 0, hearth 100, snuffed 13, patches 0 | gold 212, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 44: held, spawned 283, killed 279, dissolved 4, walls lost 0, fallen 0, hearth 100, snuffed 15, patches 3 | gold 321, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 45: held, spawned 290, killed 288, dissolved 2, walls lost 0, fallen 0, hearth 100, snuffed 9, patches 2 | gold 440, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 46: held, spawned 277, killed 273, dissolved 4, walls lost 1, fallen 0, hearth 100, snuffed 2, patches 3 | gold 549, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 47: held, spawned 301, killed 292, dissolved 9, walls lost 1, fallen 0, hearth 100, snuffed 6, patches 3 | gold 588, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 48: held, spawned 347, killed 344, dissolved 3, walls lost 0, fallen 0, hearth 100, snuffed 6, patches 0 | gold 657, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 49: held, spawned 320, killed 309, dissolved 11, walls lost 1, fallen 0, hearth 100, snuffed 5, patches 2 | gold 776, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 50: held, spawned 325, killed 319, dissolved 6, walls lost 0, fallen 0, hearth 100, snuffed 9, patches 3 | gold 815, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 51: held, spawned 341, killed 333, dissolved 8, walls lost 1, fallen 0, hearth 100, snuffed 19, patches 3 | gold 924, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 52: held, spawned 357, killed 350, dissolved 7, walls lost 0, fallen 0, hearth 100, snuffed 7, patches 3 | gold 963, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 53: held, spawned 353, killed 345, dissolved 8, walls lost 1, fallen 0, hearth 100, snuffed 14, patches 2 | gold 1082, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 54: held, spawned 378, killed 368, dissolved 10, walls lost 1, fallen 0, hearth 100, snuffed 13, patches 2 | gold 1131, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 55: held, spawned 383, killed 381, dissolved 2, walls lost 1, fallen 0, hearth 100, snuffed 13, patches 3 | gold 1170, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 56: held, spawned 444, killed 437, dissolved 7, walls lost 1, fallen 0, hearth 100, snuffed 15, patches 3 | gold 1209, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 57: held, spawned 387, killed 379, dissolved 8, walls lost 0, fallen 0, hearth 100, snuffed 5, patches 2 | gold 1258, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 58: held, spawned 402, killed 390, dissolved 12, walls lost 1, fallen 0, hearth 100, snuffed 24, patches 3 | gold 1367, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 59: held, spawned 456, killed 454, dissolved 2, walls lost 1, fallen 0, hearth 100, snuffed 16, patches 2 | gold 1416, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 60: held, spawned 433, killed 415, dissolved 18, walls lost 1, fallen 0, hearth 100, snuffed 16, patches 1 | gold 1475, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 61: held, spawned 469, killed 456, dissolved 13, walls lost 1, fallen 0, hearth 100, snuffed 11, patches 2 | gold 1524, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 62: held, spawned 478, killed 464, dissolved 14, walls lost 1, fallen 0, hearth 100, snuffed 16, patches 2 | gold 1573, taxes 139, happiness 100, citizens 32, archers 16, guards 0, buildings 24
+night 63: held, spawned 523, killed 499, dissolved 24, walls lost 1, fallen 4, hearth 100, snuffed 9, patches 1 | gold 1632, taxes 139, happiness 89, citizens 31, archers 13, guards 0, buildings 24
+night 64: held, spawned 477, killed 457, dissolved 20, walls lost 1, fallen 0, hearth 100, snuffed 28, patches 2 | gold 1688, taxes 146, happiness 92, citizens 32, archers 13, guards 0, buildings 24
+night 65: held, spawned 551, killed 539, dissolved 12, walls lost 1, fallen 0, hearth 100, snuffed 13, patches 2 | gold 1754, taxes 156, happiness 95, citizens 32, archers 13, guards 0, buildings 24
+night 66: held, spawned 497, killed 482, dissolved 15, walls lost 1, fallen 0, hearth 100, snuffed 20, patches 2 | gold 1822, taxes 158, happiness 98, citizens 32, archers 13, guards 0, buildings 24
+night 67: held, spawned 448, killed 424, dissolved 24, walls lost 1, fallen 4, hearth 100, snuffed 26, patches 2 | gold 1893, taxes 161, happiness 87, citizens 30, archers 9, guards 0, buildings 24
+night 68: held, spawned 549, killed 536, dissolved 13, walls lost 1, fallen 0, hearth 100, snuffed 26, patches 3 | gold 1959, taxes 166, happiness 90, citizens 32, archers 9, guards 0, buildings 24
+night 69: held, spawned 549, killed 536, dissolved 13, walls lost 1, fallen 0, hearth 100, snuffed 19, patches 3 | gold 2044, taxes 185, happiness 93, citizens 32, archers 9, guards 0, buildings 24
+night 70: held, spawned 606, killed 587, dissolved 19, walls lost 1, fallen 4, hearth 100, snuffed 10, patches 3 | gold 2132, taxes 188, happiness 82, citizens 30, archers 5, guards 0, buildings 24
+
+gate3500     12345..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [18, 18, 18] low0 | T4 high25 low84 | T5 tax49 b3 d10:11 | T6 9/9 of 10 | T7 [0, 0, 0] | T8 80s e42 l11 | 4 s
+gate4500     1.345..8 | T1 ok h100 loss0 | T2 [4, 4, 4] | T3 [18, 18, 18] low0 | T4 high25 low84 | T5 tax49 b3 d10:11 | T6 9/9 of 10 | T7 [0, 0, 0] | T8 80s e42 l11 | 5 s
+tax4.5       12.45..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [0, 20, 20] low0 | T4 high25 low94 | T5 tax44 b3 d10:10 | T6 10/10 of 10 | T7 [26, 0, 0] | T8 80s e44 l10 | 3 s
+tax5.5       12345..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [17, 17, 17] low0 | T4 high25 low89 | T5 tax53 b3 d10:12 | T6 10/10 of 10 | T7 [0, 0, 0] | T8 80s e43 l12 | 4 s
+budget8      1.345..8 | T1 ok h100 loss0 | T2 [4, 4, 4] | T3 [18, 18, 18] low0 | T4 high25 low89 | T5 tax49 b3 d10:11 | T6 9/9 of 10 | T7 [0, 0, 0] | T8 80s e51 l13 | 5 s
+budget10     12.45..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [0, 18, 19] low0 | T4 high25 low85 | T5 tax49 b3 d10:11 | T6 5/5 of 10 | T7 [19, 0, 0] | T8 80s e43 l11 | 3 s
+budget11     12.45..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [19, 18, 19] low0 | T4 high25 low76 | T5 tax49 b3 d10:11 | T6 7/7 of 10 | T7 [0, 0, 0] | T8 80s e48 l9 | 4 s
+budget12     12..5..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [0, 0, 0] low0 | T4 high25 low0 | T5 tax49 b3 d10:11 | T6 2/2 of 10 | T7 [17, 18, 0] | T8 80s e49 l9 | 2 s
+harm0.8      1.345..8 | T1 ok h100 loss0 | T2 [4, 4, 4] | T3 [18, 18, 18] low0 | T4 high25 low95 | T5 tax49 b3 d10:11 | T6 9/9 of 10 | T7 [0, 0, 0] | T8 80s e42 l11 | 3 s
+harm1.3      12.45..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [0, 0, 18] low0 | T4 high25 low84 | T5 tax49 b3 d10:11 | T6 5/5 of 10 | T7 [18, 19, 0] | T8 80s e42 l11 | 3 s
+hp0.8        12.45..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [18, 19, 18] low0 | T4 high25 low93 | T5 tax49 b3 d10:11 | T6 10/10 of 10 | T7 [0, 0, 0] | T8 80s e41 l11 | 5 s
+hp1.3        12.45..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [19, 0, 18] low0 | T4 high25 low90 | T5 tax49 b3 d10:11 | T6 6/6 of 10 | T7 [0, 22, 0] | T8 80s e42 l11 | 3 s
+quad0.1      12345..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [18, 18, 18] low0 | T4 high25 low84 | T5 tax49 b3 d10:11 | T6 9/9 of 10 | T7 [0, 0, 0] | T8 80s e42 l11 | 4 s
+quad0.3      12345..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [18, 18, 18] low0 | T4 high25 low84 | T5 tax49 b3 d10:11 | T6 9/9 of 10 | T7 [0, 0, 0] | T8 80s e42 l11 | 4 s
+kingStrong   12345..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [18, 18, 18] low0 | T4 high25 low84 | T5 tax49 b3 d10:11 | T6 9/9 of 10 | T7 [0, 0, 0] | T8 80s e42 l11 | 3 s
+weaver0.05   12.45..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [19, 20, 17] low0 | T4 high25 low95 | T5 tax49 b3 d10:11 | T6 10/10 of 10 | T7 [0, 0, 0] | T8 80s e42 l11 | 2 s
+bubble36     12.45..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [18, 0, 18] low0 | T4 high25 low90 | T5 tax49 b3 d10:11 | T6 9/9 of 10 | T7 [19, 0, 0] | T8 80s e42 l11 | 2 s
+brute0.3     12.45..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [20, 19, 18] low0 | T4 high25 low93 | T5 tax49 b3 d10:11 | T6 9/9 of 10 | T7 [0, 0, 0] | T8 79s e57 l15 | 2 s
+archer5      12.45..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [18, 19, 18] low0 | T4 high25 low90 | T5 tax49 b3 d10:11 | T6 10/10 of 10 | T7 [0, 0, 0] | T8 80s e41 l11 | 2 s
+high-6       123.5..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [18, 18, 18] low0 | T4 high32 low84 | T5 tax49 b3 d10:11 | T6 9/9 of 10 | T7 [0, 0, 0] | T8 80s e42 l11 | 2 s
+jitter0      12.45..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [18, 0, 19] low0 | T4 high25 low93 | T5 tax49 b3 d10:11 | T6 9/9 of 10 | T7 [19, 0, 0] | T8 80s e42 l11 | 2 s
+lastWave60   12.45..8 | T1 ok h100 loss0 | T2 [3, 3, 3] | T3 [19, 0, 19] low0 | T4 high25 low89 | T5 tax49 b3 d10:11 | T6 7/7 of 10 | T7 [17, 0, 0] | T8 70s e48 l11 | 2 s
+simtune: done
+simtune: exit 0 after 179 s
