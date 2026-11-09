@@ -116,7 +116,28 @@ build() { # name: one sprite
                    # cleaned into one stoneLight column, the right edge light (col 54) made a solid stonePale rim for the
                    # moon. Both towers lit from the same side: the right one is not mirrored but moved 9 px left (its
                    # transparent margin is on the left), with two arrow slits moved and a broken merlon.
-                   python3 $T post $PT/cf-tower.png $PT/cf-tower-l.png --remap stonePale:stone,stoneLight:stone@11,40,16,235 --remap night1:stoneMid@42,40,46,235 --remap night1:stoneDark@47,40,53,235 --fill stoneLight:10,40,10,235 --fill stonePale:54,40,54,235
+                   python3 $T post $PT/cf-tower.png $PT/cf-tower-l.png --remap stonePale:stone,stoneLight:stone@11,40,16,235 --remap night1:stoneMid@42,40,46,235 --remap night1:stoneDark@47,40,53,235 --fill stoneLight:10,40,10,235 --fill stoneLight:54,40,54,235
+                   # M2b review: the towers' edge lines one step softer (the stonePale rim read as a white drainpipe by day)
+                   # and broken at the courses, faint course joints in a running bond across the shaft every 7 rows
+                   python3 $T post $PT/cf-tower-l.png $PT/cf-tower-l.png \
+                       --remap stone:stoneMid,stoneLight:stone@12,108,24,108 --remap stone:stoneMid,stoneLight:stone@32,108,46,108 --remap stone:stoneMid,stoneLight:stone@17,115,29,115 \
+                       --remap stone:stoneMid,stoneLight:stone@37,115,50,115 --remap stone:stoneMid,stoneLight:stone@12,122,24,122 --remap stone:stoneMid,stoneLight:stone@32,122,46,122 \
+                       --remap stone:stoneMid,stoneLight:stone@17,129,29,129 --remap stone:stoneMid,stoneLight:stone@37,129,50,129 --remap stone:stoneMid,stoneLight:stone@12,136,24,136 \
+                       --remap stone:stoneMid,stoneLight:stone@32,136,46,136 --remap stone:stoneMid,stoneLight:stone@17,143,29,143 --remap stone:stoneMid,stoneLight:stone@37,143,50,143 \
+                       --remap stone:stoneMid,stoneLight:stone@12,150,24,150 --remap stone:stoneMid,stoneLight:stone@32,150,46,150 --remap stone:stoneMid,stoneLight:stone@17,157,29,157 \
+                       --remap stone:stoneMid,stoneLight:stone@37,157,50,157 --remap stone:stoneMid,stoneLight:stone@12,164,24,164 --remap stone:stoneMid,stoneLight:stone@32,164,46,164 \
+                       --remap stone:stoneMid,stoneLight:stone@17,171,29,171 --remap stone:stoneMid,stoneLight:stone@37,171,50,171 --remap stone:stoneMid,stoneLight:stone@12,178,24,178 \
+                       --remap stone:stoneMid,stoneLight:stone@32,178,46,178 --remap stone:stoneMid,stoneLight:stone@17,185,29,185 --remap stone:stoneMid,stoneLight:stone@37,185,50,185 \
+                       --remap stone:stoneMid,stoneLight:stone@12,192,24,192 --remap stone:stoneMid,stoneLight:stone@32,192,46,192 --remap stone:stoneMid,stoneLight:stone@17,199,29,199 \
+                       --remap stone:stoneMid,stoneLight:stone@37,199,50,199 --remap stone:stoneMid,stoneLight:stone@12,206,24,206 --remap stone:stoneMid,stoneLight:stone@32,206,46,206 \
+                       --remap stone:stoneMid,stoneLight:stone@17,213,29,213 --remap stone:stoneMid,stoneLight:stone@37,213,50,213 --remap stone:stoneMid,stoneLight:stone@12,220,24,220 \
+                       --remap stone:stoneMid,stoneLight:stone@32,220,46,220 --remap stone:stoneMid,stoneLight:stone@17,227,29,227 --remap stone:stoneMid,stoneLight:stone@37,227,50,227 \
+                       --fill stoneMid:54,108,54,108 --fill stone:10,108,10,108 --fill stoneMid:54,115,54,115 --fill stone:10,115,10,115 --fill stoneMid:54,122,54,122 --fill stone:10,122,10,122 \
+                       --fill stoneMid:54,129,54,129 --fill stone:10,129,10,129 --fill stoneMid:54,136,54,136 --fill stone:10,136,10,136 --fill stoneMid:54,143,54,143 --fill stone:10,143,10,143 \
+                       --fill stoneMid:54,150,54,150 --fill stone:10,150,10,150 --fill stoneMid:54,157,54,157 --fill stone:10,157,10,157 --fill stoneMid:54,164,54,164 --fill stone:10,164,10,164 \
+                       --fill stoneMid:54,171,54,171 --fill stone:10,171,10,171 --fill stoneMid:54,178,54,178 --fill stone:10,178,10,178 --fill stoneMid:54,185,54,185 --fill stone:10,185,10,185 \
+                       --fill stoneMid:54,192,54,192 --fill stone:10,192,10,192 --fill stoneMid:54,199,54,199 --fill stone:10,199,10,199 --fill stoneMid:54,206,54,206 --fill stone:10,206,10,206 \
+                       --fill stoneMid:54,213,54,213 --fill stone:10,213,10,213 --fill stoneMid:54,220,54,220 --fill stone:10,220,10,220 --fill stoneMid:54,227,54,227 --fill stone:10,227,10,227
                    python3 $T post $PT/cf-tower-l.png $PT/cf-tower-r0.png --fill stone:28,68,35,85 --fill stone:28,123,35,140 --fill clear:36,0,43,4
                    python3 $T compose $PT/cf-tower-r.png --size 58x236 --layer $PT/cf-tower-r0.png@0,0 --layer $PT/cf-tower-l.png@28,62@box=28,68,36,86 --layer $PT/cf-tower-l.png@28,130@box=28,123,36,141
                    # Polish after the art review: the towers rounded (a lit band left of centre, the side turning away

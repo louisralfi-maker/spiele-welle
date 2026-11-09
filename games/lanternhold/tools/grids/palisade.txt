@@ -2,6 +2,8 @@
 # Recraft palisade of s7-defence-1): five sharpened stakes, two lashed beams. Frame 1 (below 50 % HP): one stake snapped
 # above the beam (raw pale wood at the break), one point split off, a plank piece torn out (see-through), a split down
 # the fourth stake, the foot charred with ash-grey flecks, a burst lashing.
+# M2b review: frame 1 reads damaged at phone scale: two stakes snapped above the beam with raw pale breaks (the
+# second and the fourth), and a see-through hole broken into the planks between the beams with pale edges.
 d = stoneDark
 o = wood
 k = ink
@@ -12,25 +14,25 @@ p = strawLight
 ---
 ..k...................k.................
 .kLk......k.......k..kLk................
-kpow..k..kLk.....kLkkpow..k.............
-kLow.kLkkpow..k.kpowkLow.kLk......k....k
-kLowkpowkLow.kLkkLwwkLowkpow.....kLk..kp
-kLowkLwwkLowkpowkLowkLowkLww..k.kpow.kpr
-kLowkLowkLowkLowkLowkLowkLow.kpkkLowkprw
-kLowkLowkLowkLwwkLowkLowkLowkprpkLwwkLow
-kLwwkLowkLowkLowkLowkLwwkLowkrpwkLowkLow
+kpow..k..kLk.....kLkkpow................
+kLow.kLkkpow..k.kpowkLow...............k
+kLowkpowkLow.kLkkLwwkLow..............kp
+kLowkLwwkLowkpowkLowkLow......k..k...kpr
+kLowkLowkLowkLowkLowkLow.k...kpkkpk.kprw
+kLowkLowkLowkLwwkLowkLowkpkkkprpkprkkLow
+kLwwkLowkLowkLowkLowkLwwkprwkrpwkLowkLow
 krkkkrkkkrkkkrkkkrkkkrkkkrkkkrkkkrkkkkkk
 LLrLLLrLLLrLLLrLLLrLLLrLLLrLLLrLLLrLLLrL
 wrwwwrwwwrwwwrwwwrwwwrwwwrwwwrwwwrwwwwww
 kkrkkkrkkkrkkkrkkkrkkkrkkkrkkkrkkkrkkkrk
-kLowkLowkLwwkLowkLowkLowkkpkkLwwkpkkkLow
-kLowkLowkLowkLowkLwwkLowkk.pkLowkpkkkLww
-kLwwkLowkLowkLowkLowkLwwkkp.kLowkLkwkLow
-kLowkLowkLowkLowkLowkLowkkp.kLowkLkwkLow
-kLowkLowkLowkLwwkLowkLowkk..kLowkpkwkLow
-kLowkLowkLowkLowkLowkLowkkp.kLowkpkwkLow
-kLowkLwwkLowkLowkLowkLowkk.pkLowkLkwkLow
-kLowkLowkLowkLowkLowkLowkkpkkLowkLkwkLow
+kLowkLowkLwwkLowkLowkLowkkpppkwwkpkkkLow
+kLowkLowkLowkLowkLwwkLowkp....pwkpkkkLww
+kLwwkLowkLowkLowkLowkLwwp......pkLkwkLow
+kLowkLowkLowkLowkLowkLowp......pkLkwkLow
+kLowkLowkLowkLwwkLowkLowp......pkpkwkLow
+kLowkLowkLowkLowkLowkLowkp.....pkpkwkLow
+kLowkLwwkLowkLowkLowkLowkkp...pwkLkwkLow
+kLowkLowkLowkLowkLowkLowkkppppowkLkwkLow
 kLowkLowkLwwkLowkLowkowkkkLwkLwwkpkwkLow
 kLowkLowkLowkLowkLwwkowkkLowkLowkLkwkokw
 kLowkLowkLowkLowkLowkodkkLowkLowkLowkoww
