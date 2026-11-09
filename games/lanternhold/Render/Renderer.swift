@@ -713,10 +713,12 @@ final class Renderer {
     static let rimmed: Set<SpriteID> = [.king, .sootling, .sootlingB, .shadehound, .sootCrow, .ashBrute, .gloomweaver,
                                         .ashGiant, .lightlessKing]
 
+    /// Flags: x 1 for an emissive actor, y the moonlight rim of an unlit creature (its strength, M2b review), z 1 for
+    /// the cool rim, w the cap on reflected point light (0: `kLitCap`).
     static func quad(_ actor: ActorInstance, layout: AtlasLayout) -> ActorQuad {
         let cell = layout.cell(actor.sprite, frame: actor.frame)
         let rim: Float = rimmed.contains(actor.sprite) ? 1 : 0
-        let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.isLit ? 1 : 0, rim, 0)
+        let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, actor.lightCap)
         return ActorQuad(rect: actor.rect, texel: cell.texels(flipped: actor.flipped), tint: actor.tint, flags: flags)
     }
 

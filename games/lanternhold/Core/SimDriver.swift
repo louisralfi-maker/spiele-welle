@@ -133,6 +133,32 @@ struct SimDriver: Sendable {
         }
     }
 
+    /// Where "Sound the horn" takes the clock: a minute before the horn.
+    static let hornCallHour = 19.0 - 1.0 / 60
+
+    /// The player sounds the horn by day (the pause sheet; M2b review: once day 1's gold was spent, two minutes of the
+    /// day had nothing left to do): the realm plays on headless to 18:59 in the day's one-second steps, so the builders
+    /// finish what they can, and the horn sounds at 19:00 a moment later. The king stands still meanwhile. False when it
+    /// is not day.
+    @discardableResult
+    mutating func callTheNight() -> Bool {
+        guard DayClock.phase(at: state.hour) == .day, state.hour < SimDriver.hornCallHour - 1e-6, !state.defeated else {
+            return false
+        }
+        state.king.velocity = 0
+        travelTarget = nil
+        var remaining = (SimDriver.hornCallHour - state.hour) * DayClock.secondsPerHour
+        var events: [SimEvent] = []
+        while remaining > 1e-9 && !state.defeated {
+            let dt = min(Sim.dayStep, remaining)
+            events.removeAll(keepingCapacity: true)
+            Sim.step(&state, dt: dt, balance: balance, events: &events)
+            remaining -= dt
+        }
+        accumulator = 0
+        return true
+    }
+
     /// The walk pad's horizontal drag in points from where the finger went down (nil when it lifts): below the dead
     /// zone the king stands, beyond `runDistance` he runs (DESIGN.md "Controls": walk 36, run 80 game px/s). Any drag
     /// ends autoplay.

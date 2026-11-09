@@ -16,6 +16,8 @@ struct LanternholdApp: App {
 /// screen; the HUD keeps to the safe area.
 struct RootView: View {
     private let args = DebugArgs.fromProcess()
+    /// The one model of the run, made when the screen first appears (M2b review: not in a view's init).
+    @State private var model: GameModel? = nil
 
     var body: some View {
         if MetalContext.shared == nil {
@@ -28,8 +30,14 @@ struct RootView: View {
         } else if args.scene == "testpattern" {
             TestPatternView(virtualHeight: args.virtualHeight, scaleOverride: args.scaleOverride)
                 .ignoresSafeArea()
+        } else if let model {
+            GameView(model: model)
         } else {
-            GameView(args: args, kind: RootView.kind(of: args.scene))
+            Color.black
+                .ignoresSafeArea()
+                .onAppear {
+                    if model == nil { model = GameModel(args: args, kind: RootView.kind(of: args.scene)) }
+                }
         }
     }
 

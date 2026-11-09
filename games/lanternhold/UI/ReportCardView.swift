@@ -198,6 +198,7 @@ struct ReportCardView: View {
         if card.grown > 0 { parts.append(String(localized: "\(card.grown) born")) }
         if card.left > 0 { parts.append(String(localized: "\(card.left) left the realm")) }
         if card.volunteer { parts.append(String(localized: "a volunteer took up the bow")) }
+        if card.housesFull { parts.append(String(localized: "Houses full: build a house")) }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 }

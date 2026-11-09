@@ -175,14 +175,14 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bigHouse: return PixelSize(width: 72, height: 56)
         case .market: return PixelSize(width: 90, height: 40)
         case .tavern: return PixelSize(width: 90, height: 56)
-        case .plotMarker: return PixelSize(width: 10, height: 16)
+        case .plotMarker: return PixelSize(width: 12, height: 22)
         case .arrow, .fireArrow: return PixelSize(width: 7, height: 5)
         case .bolt: return PixelSize(width: 11, height: 5)
         case .firepot: return PixelSize(width: 5, height: 5)
         case .spark: return PixelSize(width: 5, height: 5)
         case .shard: return PixelSize(width: 4, height: 4)
         case .gloomBubble: return PixelSize(width: 96, height: 64)
-        case .streak: return PixelSize(width: 12, height: 4)
+        case .streak: return PixelSize(width: 18, height: 6)
         case .odile, .hesper, .marek, .seren, .envoy, .herald, .hesperGlow, .serenGlow, .heraldGlow:
             return PixelSize(width: 14, height: 30)
         case .brannock, .bram, .serLudo: return PixelSize(width: 16, height: 30)
@@ -316,6 +316,10 @@ struct ActorInstance: Sendable, Equatable {
     var isEmissive: Bool
     /// The gameplay light field lights this actor (0.12 or more).
     var isLit: Bool
+    /// The most point light it reflects (0: the world's cap, `kLitCap`; creatures less, M2b review).
+    var lightCap: Float = 0
+    /// The strength of a moonlight rim on its screen-right edge (unlit creatures at night; 0: none, or the king's).
+    var moonRim: Float = 0
 }
 
 /// One quad of the emissive pass (flames, window glass, lantern glass, stars, sun, moon), added after lighting; it

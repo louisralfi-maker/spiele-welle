@@ -744,8 +744,13 @@ struct ActorQuad {
     float4 rect;    // x, y, width, height in device pixels, origin top-left
     float4 texel;   // u0, v0, u1, v1 in atlas texels (u0 > u1 when mirrored)
     float4 tint;    // rgb multiplier, alpha
-    float4 flags;   // x: 1 for emissive actors (eye glints), y: lit by the gameplay light field, z: 1 keeps a rim
+    float4 flags;   // x: 1 for emissive actors (glow strips), y: an unlit creature's moonlight rim strength (0: the
+                    // king's cool rim), z: 1 keeps a rim, w: the cap on reflected point light (0: kLitCap)
 };
+
+// The moonlight rim of an unlit creature (M2b review: the king's rim at 0.5 over a body at 0.2 vanished into the
+// ground).
+constant float3 kMoonRim = float3(0.55f, 0.60f, 0.82f);
 
 struct ActorOut {
     float4 position [[position]];
@@ -795,23 +800,32 @@ fragment float4 lh_actor_fragment(ActorOut in [[stage_in]],
     float2 p = in.position.xy;
     PlaneCoords c = lh_coords(p, u);
     PixelLight info = lh_pixel_light(c, u, lightTex);
+    // The stack behind the actor matters only where it shows through (the probe's translucent creatures); every game
+    // actor is opaque, so the composite of the planes behind it is skipped (the A12's GPU budget, M2b review).
     float midVisible = 0.0f;
-    float3 base = lh_base(c, info, u, skyTex, cloudsTex, farTex, midTex, fogATex, worldTex, emissiveTex, midVisible);
+    float3 base = float3(0.0f);
+    if (in.tint.a < 0.999f) {
+        base = lh_base(c, info, u, skyTex, cloudsTex, farTex, midTex, fogATex, worldTex, emissiveTex, midVisible);
+    }
     float3 albedo = texel.rgb * in.tint.rgb;
     // Lit as the world (scene polish 2): the capped light reflected partly as from grey, more for cool albedo (his
     // teal cloak never glows cyan by his lantern), the dusk spare of the sunlit share; no cool bounce on the figures.
     float shade = lh_shade(albedo);
     float3 cold = lh_cold(albedo, u.ambient.rgb * info.bank, lh_pull(shade, u));
     float peak = max(info.light.r, max(info.light.g, info.light.b));
-    float3 light = info.light * (min(peak, kLitCap) / max(peak, 0.0001f));
+    float cap = in.flags.w > 0.0f ? in.flags.w : kLitCap;
+    float3 light = info.light * (min(peak, cap) / max(peak, 0.0001f));
     float3 lit = in.flags.x > 0.5f ? albedo : cold + lh_reflectance(albedo) * light + light * u.look.y;
-    // The king keeps a cool rim (sky by day, moon at night) on his screen-right edge pixels, so he pops against the
-    // ochre rock and the dark stone; firelight outshines it (his own lantern at night).
-    if (in.flags.z > 0.5f && in.flags.x < 0.5f && u.rim.w > 0.0f) {
+    // The king and the creatures keep a cool rim (sky by day, moon at night) on their screen-right edge pixels, so
+    // they pop against the ochre rock and the dark stone; an unlit creature's moonlight rim is stronger (flags.y).
+    // Firelight outshines it (the king's own lantern at night).
+    float rimStrength = in.flags.y > 0.0f ? in.flags.y : u.rim.w;
+    if (in.flags.z > 0.5f && in.flags.x < 0.5f && rimStrength > 0.0f) {
         int toward = across < 0.0f ? -1 : 1;
         int2 side = int2(t) + int2(toward, 0);
         if (atlas.read(uint2(max(side, int2(0)))).a < 0.5f) {
-            lit = mix(lit, u.rim.rgb, u.rim.w * (1.0f - saturate(peak * 1.5f)));
+            float3 tone = in.flags.y > 0.0f ? kMoonRim : u.rim.rgb;
+            lit = mix(lit, tone, rimStrength * (1.0f - saturate(peak * 1.5f)));
         }
     }
     float3 color = mix(base, lit, saturate(in.tint.a));

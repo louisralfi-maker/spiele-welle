@@ -449,6 +449,9 @@ enum Battle {
 
     // MARK: - Lights
 
+    /// Line 1's two wall torches: at the ends of the castle front's painted wall walk (x 1306 and 1412, y 126).
+    static let lineOneTorchX: [Double] = [WorldLayout.castleFrontX + 66, WorldLayout.castleFrontX + 172]
+
     private static func lightSeed(_ plot: Int, _ part: Int) -> UInt64 {
         SeededRandom.mix(UInt64(plot * 16 + part + 1) &* 0x9E37_79B9_7F4A_7C15)
     }
@@ -463,12 +466,20 @@ enum Battle {
         for (index, line) in Realm.lines.enumerated() {
             let wall = s.plots[line.wall]
             if let item = wall.item, !wall.isRubble {
-                let x = Realm.wallX[index]
-                let y = item.height + 2
-                let far = min(item.width, 40) - 2
-                lights.append(LightSource(kind: .torch, x: x + 2, y: y, radius: balance.torchRadius,
+                var x = Realm.wallX[index] + 2
+                var y = item.height + 2
+                var far = Realm.wallX[index] + min(item.width, 40) - 2
+                if index == 0 {
+                    // Line 1 is the castle front: its torches burn at both ends of the painted wall walk, among the
+                    // archers (M2b review: at the gate's height they hung on the facade below the walk). Neither
+                    // place reaches a creature on the ground or a crow at a brazier, so the battle is the same.
+                    x = Battle.lineOneTorchX[0]
+                    far = Battle.lineOneTorchX[1]
+                    y = WorldLayout.wallWalkY + 2
+                }
+                lights.append(LightSource(kind: .torch, x: x, y: y, radius: balance.torchRadius,
                                           flickerSeed: lightSeed(line.wall, 0)))
-                lights.append(LightSource(kind: .torch, x: x + far, y: y, radius: balance.torchRadius,
+                lights.append(LightSource(kind: .torch, x: far, y: y, radius: balance.torchRadius,
                                           flickerSeed: lightSeed(line.wall, 1)))
             }
             for plot in line.braziers {

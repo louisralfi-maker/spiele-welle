@@ -20,9 +20,9 @@ legend
     C = strawLight
     g = straw
     j = banner/fireWhite
-    T = banner
+    T = roofDeep
     t = roofDeep
-    U = roofLight
+    U = banner
     R = tile
     r = woodDark
     Q = tileLight
@@ -52,18 +52,19 @@ part head
     .vWWW.
     ..vW..
 
-# shoulders, cloak down the back to the calves, tunic in front, gold clasp, belt
+# shoulders, cloak down the back to the calves, tunic in front, gold clasp, belt. M2b review: the cloak is roofDeep
+# with banner teal only on its lit folds (all banner teal, it read beige by his own lantern and pale sage by a fire)
 part body
     ...UTRQ.
     ..tTGRRQ
-    ..tTTRRR
-    .tTTTRRQ
+    ..tTURRR
+    .tTTURRQ
     .tTTTRrR
     .tTTUHGH
-    tTTTTRRR
-    tTTTTRrQ
     tTTUTRRR
-    ttTTTRrR
+    tTTUTRrQ
+    tTTUTRRR
+    ttTTURrR
     ttTTT...
     .ttTT...
 

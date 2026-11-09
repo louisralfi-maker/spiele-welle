@@ -25,6 +25,17 @@ enum KingTarget: Sendable, Equatable {
     case patch(plot: Int)
 }
 
+/// Why an offered night action cannot be done right now: the button shows it greyed (M2b review: Patch offered without
+/// the gold or during its cooldown, and Light pressed while he was lighting, did nothing at all).
+enum KingTargetHold: Sendable, Equatable {
+    /// Patch: this much gold is missing.
+    case missingGold(Int)
+    /// Patch: the share of the cooldown still to run (1 just after a patch), in sixteenths.
+    case cooldown(Double)
+    /// Light: he is lighting a brazier already.
+    case busy
+}
+
 enum KingTargets {
     /// The barracks' door: the middle of the drawn barracks in the courtyard.
     static let barracksX = EntityFrames.barracksLeft + Double(SpriteID.barracks.size.width) / 2
@@ -107,6 +118,35 @@ enum KingTargets {
             consider(.talk(who: near.who), abs(near.x - x) + talkBias)
         }
         return best
+    }
+
+    /// What the hammer does at a plot: build on an empty plot, upgrade what stands, rebuild rubble (the caption says
+    /// which, M2b review).
+    enum BuildVerb: Sendable, Equatable {
+        case build, upgrade, rebuild
+    }
+
+    static func verb(_ s: GameState, plot: Int) -> BuildVerb {
+        let state = s.plots[plot]
+        if state.item != nil && state.isRubble { return .rebuild }
+        return state.item == nil ? .build : .upgrade
+    }
+
+    /// What keeps `target` from being done now, nil when the button acts at once.
+    static func hold(_ target: KingTarget, state s: GameState, balance: Balance) -> KingTargetHold? {
+        switch target {
+        case .patch:
+            if s.king.patchCooldown > 0 {
+                let share = min(1, s.king.patchCooldown / max(0.001, balance.patchCooldown))
+                return .cooldown((share * 16).rounded(.up) / 16)
+            }
+            if s.gold < balance.patchCost { return .missingGold(balance.patchCost - s.gold) }
+            return nil
+        case .light:
+            return s.king.lightingPlot >= 0 ? .busy : nil
+        case .build, .recruit, .throne, .lectern, .talk, .stranger:
+            return nil
+        }
     }
 
     /// The world x of a target, for placing its card over it.

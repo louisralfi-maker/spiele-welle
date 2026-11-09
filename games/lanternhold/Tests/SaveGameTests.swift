@@ -66,6 +66,29 @@ final class SaveGameTests: XCTestCase {
         XCTAssertTrue(back.state == state)
     }
 
+    func testSettingsAndPacingWithoutTheirFieldsDecodeWithDefaults() throws {
+        // M2b review: a field M6 or M7 adds to the settings or the ad pacing must never make an older save corrupt.
+        let decoder = JSONDecoder()
+        XCTAssertEqual(try decoder.decode(SaveSettings.self, from: Data("{}".utf8)), SaveSettings())
+        XCTAssertEqual(try decoder.decode(AdPacing.self, from: Data("{}".utf8)), AdPacing())
+        XCTAssertEqual(try decoder.decode(SaveSettings.self, from: Data("{\"sound\":false}".utf8)),
+                       SaveSettings(sound: false))
+        let (state, _) = midChapter()
+        let save = SaveGame(state: state, settings: SaveSettings(sound: false, haptics: false),
+                            adPacing: AdPacing(lastSecondChanceNight: 4), hintFlags: [])
+        var json = text(try save.encoded())
+        json = json.replacingOccurrences(of: #""settings":\{[^}]*\}"#, with: "\"settings\":{}",
+                                         options: .regularExpression)
+        json = json.replacingOccurrences(of: #""adPacing":\{[^}]*\}"#, with: "\"adPacing\":{}",
+                                         options: .regularExpression)
+        XCTAssertTrue(json.contains("\"settings\":{}"))
+        XCTAssertTrue(json.contains("\"adPacing\":{}"))
+        let back = try XCTUnwrap(load(Data(json.utf8)), "an older settings block never makes the save corrupt")
+        XCTAssertEqual(back.settings, SaveSettings())
+        XCTAssertEqual(back.adPacing, AdPacing())
+        XCTAssertTrue(back.state == state)
+    }
+
     func testACorruptFileIsReportedAsCorrupt() throws {
         let (state, _) = midChapter()
         let data = try SaveGame(state: state).encoded()

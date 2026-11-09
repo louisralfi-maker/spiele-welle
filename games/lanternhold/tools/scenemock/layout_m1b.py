@@ -149,8 +149,10 @@ MID = [
     # shoulder in the middle distance, so the castle shows from the approach (focus 1100: screen 200 to 298, above the
     # lowered throat rock) and at the right edge of the front view (focus 760); at the gate view it hides behind the
     # castle front and the left flank. The shoulder (a mid copy of the high rock, top at y 100) hides its foot.
+    # M2b review: at night its two big panes side by side read as the eyes of something huge; now one pane of the left
+    # window and a glimmer low in the right one (the game's gorge mid-plane glass also glows dimmer, in the haze).
     dict(s="keepFar", x=641, y=-59, region="gorge", z=3, shade=0.78,
-         em=[("mask", 17, 150, 13, 10, "window"), ("mask", 61, 150, 12, 10, "window")]),
+         em=[("mask", 21, 150, 5, 7, "window"), ("mask", 65, 150, 3, 4, "window")]),
     dict(s="gorgeWallHigh", x=571, y=-152, region="gorge", z=4, shade=0.85),
     # Inside the walls the cliffs still rise behind the courtyard and the hall.
     dict(s="gorgeWallB", x=862, y=0, region="gorge", z=0),
@@ -191,15 +193,16 @@ def brazier(cx):
 
 F = CASTLE_FRONT_X
 # The castle's cast shadows (scene polish 2), baked by bake_shadows.py: sprite size (w, h) and bottom-left (x, y).
-# "sun" is the day shadow, "dusk" the long evening shadow beyond it; z -1 lies on the rock and ground before the front,
-# z 0 (the left tower's shadow on the gatehouse wall) after it.
+# "sun" is the day shadow, "dusk" the long evening shadow beyond it; the ones on the rock and the ground are listed
+# before the front, the left tower's shadow on the gatehouse wall ("front") after it. All at z 0 (M2b review: at z -1
+# the game's courtyard buildings, z -1 and drawn after them, stood sunlit inside the castle's dusk shadow).
 SHADOWS = [
-    dict(s="castleShadow", x=1468, y=0, w=13, h=171, z=-1, shadow="sun"),
-    dict(s="castleShadowLong", x=1471, y=0, w=90, h=172, z=-1, shadow="dusk"),
-    dict(s="groundShadow", x=1241, y=-6, w=240, h=6, z=-1, shadow="sun"),
-    dict(s="groundShadowLong", x=1481, y=-3, w=80, h=3, z=-1, shadow="dusk"),
-    dict(s="gateShadow", x=1298, y=1, w=9, h=126, z=0, shadow="sun"),
-    dict(s="gateShadowLong", x=1307, y=1, w=21, h=153, z=0, shadow="dusk"),
+    dict(s="castleShadow", x=1468, y=0, w=13, h=171, z=0, shadow="sun"),
+    dict(s="castleShadowLong", x=1471, y=0, w=90, h=172, z=0, shadow="dusk"),
+    dict(s="groundShadow", x=1241, y=-6, w=240, h=6, z=0, shadow="sun"),
+    dict(s="groundShadowLong", x=1481, y=-3, w=80, h=3, z=0, shadow="dusk"),
+    dict(s="gateShadow", x=1298, y=1, w=9, h=126, z=0, shadow="sun", front=True),
+    dict(s="gateShadowLong", x=1307, y=1, w=21, h=153, z=0, shadow="dusk", front=True),
 ]
 SHADOW_SPRITES = {d["s"] for d in SHADOWS}
 ROCK_SHADE = 0.7    # the throat rock one value step below the castle stone, so the front separates from the cliffs
@@ -235,7 +238,7 @@ WORLD = [
     # Scene polish 2: the castle's cast shadow (light from the upper left by day, low from the west at dusk) on the rock
     # right of the right tower and on the ground strip at the foot of the walls; baked by bake_shadows.py into
     # SHADOWS' boxes (the left tower's shadow on the gatehouse follows the front).
-    *[d for d in SHADOWS if d["z"] < 0],
+    *[d for d in SHADOWS if not d.get("front")],
     # Polish after the art review: only the keep's top 130 rows (keepTop) stand behind the gatehouse, 40 px up, so its
     # crenellated crown and flag rise above the gatehouse between the towers' crowns (top at y 170); its top window row
     # stays behind the gatehouse (the front's occluder hides the glass; the two small window lights are gone)
@@ -254,8 +257,9 @@ WORLD = [
              ("torch", F + 92, 64, 30), ("torch", F + 147, 64, 30), ("lantern", F + 120, 40, 34)]),
     # Scene polish 2: the left tower's shadow on the gatehouse wall, and a bank of ground mist at the foot of the walls at
     # dusk and night (behind the king, who walks in front of it), so the castle stands heavy on the ground.
-    *[d for d in SHADOWS if d["z"] >= 0],
-    dict(s="castleMist", x=F - 30, y=-8, z=0, mist=1.0),
+    *[d for d in SHADOWS if d.get("front")],
+    # the mist at z 2 (M2b review): after the game's gate in the gateway (z 1), before the braziers and stake pit (z 3)
+    dict(s="castleMist", x=F - 30, y=-8, z=2, mist=1.0),
     # --- inside: courtyard, great hall, chapel, kitchen ---
     # the courtyard wall runs from 1580, out of the gate view: from the gate, rock (the right flank, then the high
     # rock from the ground) closes the frame right of the right tower; inside, the castle is built into the throat
@@ -302,18 +306,19 @@ WORLD = [
 # fg x for something that should pass in front of world x when the camera is centred there: 1.3 * x - 65.6.
 # The gorge (world 0 to 1240) is fg 0 to 1546; the gate view keeps fg 1640 to 1780 clear so the gateway shows.
 FG = [
-    # dark rock along the bottom edge (y -30: the tallest peaks reach 3 to 6 px above the ground line)
-    dict(s="fgRockA", x=20, y=-30), dict(s="fgRockC", x=170, y=-30), dict(s="fgRockB", x=330, y=-30, flip=True),
-    dict(s="fgRockA", x=505, y=-30, flip=True), dict(s="fgRockC", x=640, y=-30), dict(s="fgRockB", x=820, y=-30),
-    dict(s="fgRockC", x=960, y=-30, flip=True), dict(s="fgRockA", x=1110, y=-30),
+    # dark rock along the bottom edge (y -34, M2b review: the tallest peaks reach 2 px above the ground line, only the
+    # grass tufts rise higher; at -30 and the throat's -24 to -28 they hid the feet of whatever stood on the ground)
+    dict(s="fgRockA", x=20, y=-34), dict(s="fgRockC", x=170, y=-34), dict(s="fgRockB", x=330, y=-34, flip=True),
+    dict(s="fgRockA", x=505, y=-34, flip=True), dict(s="fgRockC", x=640, y=-34), dict(s="fgRockB", x=820, y=-34),
+    dict(s="fgRockC", x=960, y=-34, flip=True), dict(s="fgRockA", x=1110, y=-34),
     # the throat: the rock thickens before the castle
-    dict(s="fgRockB", x=1250, y=-30, flip=True), dict(s="fgRockA", x=1330, y=-26), dict(s="fgRockC", x=1410, y=-28),
-    dict(s="fgRockB", x=1490, y=-24, flip=True), dict(s="fgRockA", x=1555, y=-28, flip=True),
+    dict(s="fgRockB", x=1250, y=-34, flip=True), dict(s="fgRockA", x=1330, y=-34), dict(s="fgRockC", x=1410, y=-34),
+    dict(s="fgRockB", x=1490, y=-34, flip=True), dict(s="fgRockA", x=1555, y=-34, flip=True),
     # the castle inside: one rock by the courtyard, none in the hall
-    dict(s="fgRockC", x=1900, y=-32),
+    dict(s="fgRockC", x=1900, y=-34),
     # the valley: sparse
-    dict(s="fgRockC", x=3150, y=-32), dict(s="fgRockA", x=3560, y=-32, flip=True), dict(s="fgRockB", x=4020, y=-32),
-    dict(s="fgRockC", x=4480, y=-32, flip=True),
+    dict(s="fgRockC", x=3150, y=-34), dict(s="fgRockA", x=3560, y=-34, flip=True), dict(s="fgRockB", x=4020, y=-34),
+    dict(s="fgRockC", x=4480, y=-34, flip=True),
     # the gorge only: rock lips with roots along the top edge, closer together towards the throat
     dict(s="fgOverhangA", x=40, y=0, anchor="top"), dict(s="fgOverhangB", x=300, y=0, anchor="top"),
     dict(s="fgOverhangA", x=590, y=0, anchor="top", flip=True), dict(s="fgOverhangB", x=880, y=0, anchor="top", flip=True),
@@ -329,9 +334,10 @@ ACTORS = [
       for x, k in ((556, "s"), (571, "s"), (588, "h"), (606, "s"), (620, "h"), (632, "s"))],
     # staggered spacing and one turned the other way, so they do not read as clones (the scene also gives each
     # archer its own animation phase)
-    *[("archer", x, 52, False, fl) for x, fl in ((944, True), (957, False), (972, True))],
+    # on the stone wall's walk (its crenel floor, dy 42; M2b review: at 52 they stood on the merlons)
+    *[("archer", x, 42, False, fl) for x, fl in ((945, True), (958, False), (971, True))],
     *[("archer", F + cx, WALKWAY_Y, False, fl) for cx, fl in ((66, True), (121, True), (173, False))],
-    ("citizen", 3002, 0, False, False), ("citizen", 3044, 0, False, True),
+    ("citizen", 3002, 0, False, False), ("citizenB", 3044, 0, False, True),
 ]
 
 

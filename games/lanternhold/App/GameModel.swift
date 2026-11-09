@@ -46,6 +46,16 @@ final class GameModel {
             default: return false
             }
         }
+
+        /// A whole screen over the stopped world (the dawn report, the defeat card, the pause sheet): the HUD's pause
+        /// button goes too and the world draws at 20 fps (M2b review). The audience is no screen (M3): the hall lives
+        /// on under its card (the walk up, the fades, the court breathing), and the pause sheet ends it.
+        var isScreen: Bool {
+            switch self {
+            case .report, .defeat, .pause: return true
+            case .build, .recruit, .taxes, .audience: return false
+            }
+        }
     }
 
     /// The defeat card's facts.
@@ -78,7 +88,9 @@ final class GameModel {
 
     let args: DebugArgs
     let kind: SceneKind
-    let reduceMotion: Bool
+    /// Reduce Motion: `-GWReduceMotion` or the system setting, followed while the game runs (M2b review: read once at
+    /// launch, turning it on kept the shake, the camera lag and the card transitions until the next launch).
+    private(set) var reduceMotion: Bool
     /// The probe's scene, and in the game the scene the filter starts from.
     @ObservationIgnored private(set) var scene: PlaceholderScene
     /// The probe's day clock; in the game only its running seconds count (flicker, fire, particles, banners).
@@ -110,6 +122,11 @@ final class GameModel {
     @ObservationIgnored var feedback: any FeedbackHub = SilentFeedback()
     /// Creature bodies in the last drawn frame (the scene value's `seen:`, so UI tests catch the fight in view).
     @ObservationIgnored private var seenCreatures = 0
+    /// Archers drawing or loosing in the last drawn frame (the scene value's `aim:`).
+    @ObservationIgnored private var aimingArchers = 0
+    /// The game's view of the scene, kept while the beacon's site and the rooms' fades stay as they are (M2b review:
+    /// filtered every frame, the whole prop list with its emitters, masks and lights was copied 60 times a second).
+    @ObservationIgnored private var filteredScene: (built: Bool, rooms: CastleRooms.SceneKey, scene: PlaceholderScene)?
     /// Where first light's front stands on screen (0 ... 1), nil when it is not on screen (the scene value's `dawn:`).
     @ObservationIgnored private var dawnFront: Double?
 
@@ -119,6 +136,10 @@ final class GameModel {
     private(set) var action: BrazierAction?
     /// The game's action button: what is in front of the king (nil: the button hides).
     private(set) var target: KingTarget? = nil
+    /// Why the button cannot act now (drawn greyed, with the missing gold or the cooldown), nil when it can.
+    private(set) var targetHold: KingTargetHold? = nil
+    /// At a plot: whether the hammer builds, upgrades or rebuilds (its caption says so).
+    private(set) var targetVerb: KingTargets.BuildVerb? = nil
     private(set) var debugKingX = 0
     private(set) var debugCameraX = 0.0
     private(set) var statsText = ""
@@ -157,7 +178,9 @@ final class GameModel {
     var stageAnchor = 0.45
     var figureTop = 0.7
 
-    init(args: DebugArgs, kind: SceneKind) {
+    /// `store` is where the game's save lives (the app's own by default; the tests pass a temporary one, so they never
+    /// touch the simulator app's real save).
+    init(args: DebugArgs, kind: SceneKind, store saveStore: SaveStore? = SaveStore.standard()) {
         self.args = args
         self.kind = kind
         reduceMotion = args.reduceMotion || UIAccessibility.isReduceMotionEnabled
@@ -166,7 +189,7 @@ final class GameModel {
         var dayClock: DayClock
         var loadedSettings = SaveSettings()
         if kind == .world {
-            let store = SaveStore.standard()
+            let store = saveStore
             if args.reset { store?.reset() }
             var saved: GameState?
             switch store?.read() {
@@ -669,6 +692,29 @@ final class GameModel {
         setOverlay(nil)
     }
 
+    /// The pause sheet offers "Sound the horn" by day while the player drives (not under the reference bot).
+    var canCallTheNight: Bool {
+        guard kind == .world, let game = driver, game.bot == nil, !game.state.defeated else { return false }
+        return DayClock.phase(at: game.state.hour) == .day && game.state.hour < SimDriver.hornCallHour - 1e-6
+    }
+
+    /// The pause sheet's "Sound the horn" (after its confirmation): the day plays on to 18:59 at once and the horn
+    /// sounds a moment after the sheet closes.
+    func callTheNight() {
+        guard overlay == .pause, canCallTheNight, var game = driver else { return }
+        game.callTheNight()
+        driver = game
+        revision += 1
+        setOverlay(nil)
+        refreshHUD()
+    }
+
+    /// The system's Reduce Motion changed (GameView follows `accessibilityReduceMotion`).
+    func setSystemReduceMotion(_ on: Bool) {
+        let value = args.reduceMotion || on
+        if value != reduceMotion { reduceMotion = value }
+    }
+
     func setSound(_ on: Bool) {
         settings.sound = on
         feedback.soundOn = on
@@ -687,7 +733,9 @@ final class GameModel {
         let seed = SeededRandom.mix(game.state.seed &+ 0x9E37_79B9_7F4A_7C15 &* UInt64(max(1, game.state.day)))
         game.restart(seed: seed)
         driver = game
-        adPacing.lastSecondChanceNight = 0
+        // The new realm starts with fresh ad pacing (M2b review: only the second chance's night was reset, so the old
+        // realm's double-taxes and interstitial days would have held the new one back).
+        adPacing = AdPacing()
         restartView(game.state)
         writeSave()
         setOverlay(nil)
@@ -752,8 +800,21 @@ final class GameModel {
             if sway != 0 {
                 view.jump(toFocus: view.focusX + sway)
             }
-            let filtered = CastleRooms.scene(SceneFilter.gameScene(scene, state: state), state: state,
+            // The filtered scene is kept while the beacon's site and the rooms stay as they are (M2b review), and
+            // drawn with the rooms cut away as they stand (M3, `CastleRooms.scene`).
+            let built = SceneFilter.beaconBuilt(state)
+            let rooms = CastleRooms.sceneKey(state: state, rooms: court.rooms)
+            var filtered: PlaceholderScene
+            if let cached = filteredScene, cached.built == built, cached.rooms == rooms {
+                filtered = cached.scene
+                filtered.king = KingState(x: state.king.x, facing: state.king.facing, velocity: state.king.velocity)
+                filtered.bankRestingEdge = state.bankEdge
+                filtered.bankNightEdge = state.bankEdge
+            } else {
+                filtered = CastleRooms.scene(SceneFilter.gameScene(scene, state: state), state: state,
                                              rooms: court.rooms)
+                filteredScene = (built: built, rooms: rooms, scene: filtered)
+            }
             var layer = EntityFrames.layer(state: state, balance: game.balance, scene: filtered, camera: view,
                                            pixelScale: pixelScale, options: options, animTime: animationTime,
                                            effects: effects)
@@ -773,9 +834,17 @@ final class GameModel {
             frameClock.advance(by: clock.elapsed)
             frame = FrameBuilder.build(scene: filtered, clock: frameClock, camera: view, pixelScale: pixelScale,
                                        options: options, entities: layer)
-            seenCreatures = frame.actors.filter { actor in
-                !actor.isEmissive && actor.sprite != .king && EntityFrames.glowStrip(actor.sprite) != nil
-            }.count
+            var seen = 0
+            var aiming = 0
+            for actor in frame.actors {
+                if actor.sprite == .archer {
+                    if actor.frame >= 2 { aiming += 1 }
+                } else if !actor.isEmissive && actor.sprite != .king && EntityFrames.glowStrip(actor.sprite) != nil {
+                    seen += 1
+                }
+            }
+            seenCreatures = seen
+            aimingArchers = aiming
         }
         renderedFrames += 1
         if renderedFrames % 6 == 1 {
@@ -893,10 +962,16 @@ final class GameModel {
         switch kind {
         case .world:
             var next: KingTarget?
+            var hold: KingTargetHold?
+            var verb: KingTargets.BuildVerb?
             if let game = driver, overlay == nil, game.bot == nil {
                 next = KingTargets.target(game.state, balance: game.balance)
+                hold = next.flatMap { KingTargets.hold($0, state: game.state, balance: game.balance) }
+                if case .build(let plot)? = next { verb = KingTargets.verb(game.state, plot: plot) }
             }
             if next != target { target = next }
+            if hold != targetHold { targetHold = hold }
+            if verb != targetVerb { targetVerb = verb }
         case .probe:
             var next: BrazierAction?
             var best = GameModel.actionReach
@@ -918,7 +993,8 @@ final class GameModel {
         guard let game = driver else { return }
         let state = game.state
         var text = "day:\(state.day) hour:\(String(format: "%.2f", state.hour)) alive:\(state.creatures.count) "
-            + "seen:\(seenCreatures) shots:\(state.projectiles.count) kx:\(Int(state.king.x.rounded()))"
+            + "seen:\(seenCreatures) shots:\(state.projectiles.count) aim:\(aimingArchers) "
+            + "kx:\(Int(state.king.x.rounded()))"
         if let front = dawnFront {
             text += " dawn:\(String(format: "%.2f", front))"
         }

@@ -166,6 +166,17 @@ enum CastleRooms {
 
     // MARK: - The scene in the game
 
+    /// What `scene` reads besides its base: how far each room is open and whether the keep's window is dark. The game
+    /// keeps the scene it drew while this and the beacon's site stay as they are (`GameModel`'s filtered scene).
+    struct SceneKey: Sendable, Equatable {
+        var open: [Double]
+        var darkKeep: Bool
+    }
+
+    static func sceneKey(state: GameState, rooms: RoomFades) -> SceneKey {
+        SceneKey(open: rooms.open, darkKeep: CourtWorld.shows(state, "castle.keep.window.dark"))
+    }
+
     /// The M1b scene as the game draws it with the rooms: the chapel's and the kitchen's fronts fade with their rooms
     /// and glow through their real panes (the probe's window sprites sit half on the frames), the hall's candles burn
     /// only while the hall is open (their flames come back as the room's glow), and a world change darkens one window
@@ -198,7 +209,9 @@ enum CastleRooms {
             case (.world, .keepTop) where darkKeep:
                 prop.masks = Array(prop.masks.prefix(1))
             case (.mid, .keepFar) where darkKeep:
-                prop.masks = prop.masks.filter { !($0.dx == 61 && $0.dy == 150) }
+                // The upper row's right window: dx 61 on the valley's keep, the glimmer at dx 65 on the gorge's (its
+                // glass made smaller in the M2b review).
+                prop.masks = prop.masks.filter { !($0.dy == 150 && $0.dx >= 55) }
             default:
                 break
             }

@@ -1044,44 +1044,50 @@ enum PlaceholderStructures {
         return p.image
     }
 
-    /// The darkness a creature carries (the Lightless King's aura, a gloomweaver's bubble): a cloud of soot in clumps
-    /// and wisps (a noise threshold, not an ordered dither: at 6 x a Bayer pattern read as a screen door), dense in the
-    /// middle and fraying to the edge.
+    /// The cold void a creature carries (the Lightless King's aura, a gloomweaver's bubble), M2b review: a cold
+    /// violet-black cloud (not the warm soot that the beacon and the braziers lit like dirt), dense in the middle and
+    /// thinning softly to its edge through its own alpha (no ragged threshold), with slow wisps.
     static func gloomBubble(_ salt: UInt64) -> PixelImage {
         let size = SpriteID.gloomBubble.size
         var p = Painter(size, salt: salt)
         let w = Double(size.width)
         let h = Double(size.height)
+        let void = [RGBA(0x05040C), RGBA(0x0A0818), RGBA(0x0E0B1E), RGBA(0x15112C)]
         for y in 0..<size.height {
             for x in 0..<size.width {
                 let dx = (Double(x) + 0.5 - w / 2) / (w / 2)
                 let dy = (Double(y) + 0.5 - h * 0.55) / (h * 0.5)
                 let d = dx * dx + dy * dy
                 guard d < 1 else { continue }
-                let clump = p.fractal(Double(x) * 0.8 + Double(y) * 0.3, Double(y), cell: 7, key: 2)
-                let wisp = p.smooth(Double(x) * 1.6, Double(y) * 0.5, cell: 5, key: 4)
-                let density = 1.05 * pow(1 - d, 0.6) + (wisp - 0.5) * 0.3
-                guard density > 0.35 + clump * 0.55 else { continue }
-                let swirl = p.fractal(Double(x), Double(y), cell: 10, key: 3)
-                p.put(x, y, p.ramp(Ink.soot, 0.18 + (swirl - 0.5) * 0.4, x, y))
+                let clump = p.fractal(Double(x) * 0.8 + Double(y) * 0.3, Double(y), cell: 9, key: 2)
+                let wisp = p.smooth(Double(x) * 1.6, Double(y) * 0.5, cell: 6, key: 4)
+                let density = 1.1 * pow(1 - d, 0.7) + (wisp - 0.5) * 0.25 - (clump - 0.5) * 0.2
+                let t = min(1, max(0, (density - 0.12) / 0.5))
+                let alpha = t * t * (3 - 2 * t)
+                guard alpha > 0.03 else { continue }
+                let swirl = p.fractal(Double(x), Double(y), cell: 12, key: 3)
+                let color = p.ramp(void, 0.35 + (swirl - 0.5) * 0.6, x, y)
+                p.put(x, y, color.alpha(UInt8((alpha * 255).rounded())))
             }
         }
         return p.image
     }
 
     /// A trail behind an arrow or a bolt flying right (the head at the right end): rising 0, flat 1, falling 2,
-    /// fading from the head over 12 px (8 px read as no motion at phone size, round lh-m2b-a3).
+    /// fading from the head over 18 px (8 px read as no motion at phone size, round lh-m2b-a3; 12 px was still short
+    /// at the slower arrows' longer flights, M2b review).
     static func streak(_ frame: Int) -> PixelImage {
-        var p = Painter(SpriteID.streak.size, salt: 0)
+        let size = SpriteID.streak.size
+        var p = Painter(size, salt: 0)
         let tones = [RGBA(0x2C2C3A), RGBA(0x44445A), RGBA(0x62627C), RGBA(0x8686A0), RGBA(0xB0B0C8), RGBA(0xDCDCEC)]
-        for x in 0..<12 {
+        for x in 0..<size.width {
             let y: Int
             switch frame {
-            case 0: y = 3 - x / 3
+            case 0: y = size.height - 1 - x / 3
             case 2: y = x / 3
-            default: y = 2
+            default: y = size.height / 2
             }
-            p.put(x, y, tones[min(5, x / 2)])
+            p.put(x, min(size.height - 1, max(0, y)), tones[min(5, x * 6 / size.width)])
         }
         return p.image
     }

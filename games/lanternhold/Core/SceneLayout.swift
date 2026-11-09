@@ -121,8 +121,10 @@ enum SceneLayout {
         // rock plateau in the middle distance (a mid copy of the high rock, its overhang at y 88), so the castle shows
         // from the approach (focus 1100: screen 200 to 298, above the lowered throat rock) and at the right edge of
         // the front view (focus 760); at the gate view the castle front and the left flank hide it.
+        // M2b review: at night its two big panes side by side read as the eyes of something huge; now one pane of the
+        // left window and a glimmer low in the right one (the gorge's mid-plane glass also glows dimmer, in the haze).
         Entry(sprite: .keepFar, x: 641, y: -59, z: 3, shade: 0.78, region: .gorge,
-              emitters: [SceneLayout.glass(17, 150, 13, 10), SceneLayout.glass(61, 150, 12, 10)]),
+              emitters: [SceneLayout.glass(21, 150, 5, 7), SceneLayout.glass(65, 150, 3, 4)]),
         Entry(sprite: .gorgeWallHigh, x: 571, y: -152, z: 4, shade: 0.85, region: .gorge),
         // Inside the walls the cliffs still rise behind the courtyard and the hall.
         Entry(sprite: .gorgeWallB, x: 862, y: 0, region: .gorge),
@@ -164,13 +166,16 @@ enum SceneLayout {
     /// The castle's cast shadows (scene polish 2), baked by `tools/scenemock/bake_shadows.py` into these boxes (the
     /// sprite sizes, bottom-left here): light from the upper left by day and low from the west at dusk, so the front
     /// throws its shadow right, onto the rock beside the right tower and onto the ground strip at the foot of the walls
-    /// (z −1, before the front); the left tower throws its own onto the gatehouse wall (z 0, after the front). `sun` is
-    /// the day shadow, `dusk` the long evening shadow beyond it.
-    static let shadows: [Entry] = [
-        Entry(sprite: .castleShadow, x: 1468, y: 0, z: -1, sunShadow: .sun),
-        Entry(sprite: .castleShadowLong, x: 1471, y: 0, z: -1, sunShadow: .dusk),
-        Entry(sprite: .groundShadow, x: 1241, y: -6, z: -1, sunShadow: .sun),
-        Entry(sprite: .groundShadowLong, x: 1481, y: -3, z: -1, sunShadow: .dusk),
+    /// (listed before the front); the left tower throws its own onto the gatehouse wall (after the front). `sun` is
+    /// the day shadow, `dusk` the long evening shadow beyond it. All at z 0 (M2b review: at z −1 the courtyard's
+    /// buildings at z −1, drawn after them, stood sunlit inside the castle's dusk shadow).
+    static let shadowsBeforeFront: [Entry] = [
+        Entry(sprite: .castleShadow, x: 1468, y: 0, z: 0, sunShadow: .sun),
+        Entry(sprite: .castleShadowLong, x: 1471, y: 0, z: 0, sunShadow: .dusk),
+        Entry(sprite: .groundShadow, x: 1241, y: -6, z: 0, sunShadow: .sun),
+        Entry(sprite: .groundShadowLong, x: 1481, y: -3, z: 0, sunShadow: .dusk),
+    ]
+    static let shadowsOnFront: [Entry] = [
         Entry(sprite: .gateShadow, x: 1298, y: 1, z: 0, sunShadow: .sun),
         Entry(sprite: .gateShadowLong, x: 1307, y: 1, z: 0, sunShadow: .dusk),
     ]
@@ -178,28 +183,30 @@ enum SceneLayout {
     /// Foreground x for something that passes in front of world x when the camera is centred there: 1.3 × x − 65.6.
     /// The gorge (world 0 to 1240) is fg 0 to 1546; the gate view keeps fg 1640 to 1780 clear so the gateway shows.
     static let foreground: [Entry] = [
-        // Dark rock along the bottom edge (y −30: the tallest peaks reach 3 to 6 px above the ground line).
-        Entry(sprite: .fgRockA, x: 20, y: -30),
-        Entry(sprite: .fgRockC, x: 170, y: -30),
-        Entry(sprite: .fgRockB, x: 330, y: -30, flipped: true),
-        Entry(sprite: .fgRockA, x: 505, y: -30, flipped: true),
-        Entry(sprite: .fgRockC, x: 640, y: -30),
-        Entry(sprite: .fgRockB, x: 820, y: -30),
-        Entry(sprite: .fgRockC, x: 960, y: -30, flipped: true),
-        Entry(sprite: .fgRockA, x: 1110, y: -30),
+        // Dark rock along the bottom edge (y −34, M2b review: the tallest peaks reach 2 px above the ground line, only
+        // the grass tufts rise higher; at −30 and the throat's −24 to −28 they hid the feet of whatever stood on the
+        // ground, the king's legs, the stake pits, the plot markers and half a sootling).
+        Entry(sprite: .fgRockA, x: 20, y: -34),
+        Entry(sprite: .fgRockC, x: 170, y: -34),
+        Entry(sprite: .fgRockB, x: 330, y: -34, flipped: true),
+        Entry(sprite: .fgRockA, x: 505, y: -34, flipped: true),
+        Entry(sprite: .fgRockC, x: 640, y: -34),
+        Entry(sprite: .fgRockB, x: 820, y: -34),
+        Entry(sprite: .fgRockC, x: 960, y: -34, flipped: true),
+        Entry(sprite: .fgRockA, x: 1110, y: -34),
         // The throat: the rock thickens before the castle.
-        Entry(sprite: .fgRockB, x: 1250, y: -30, flipped: true),
-        Entry(sprite: .fgRockA, x: 1330, y: -26),
-        Entry(sprite: .fgRockC, x: 1410, y: -28),
-        Entry(sprite: .fgRockB, x: 1490, y: -24, flipped: true),
-        Entry(sprite: .fgRockA, x: 1555, y: -28, flipped: true),
+        Entry(sprite: .fgRockB, x: 1250, y: -34, flipped: true),
+        Entry(sprite: .fgRockA, x: 1330, y: -34),
+        Entry(sprite: .fgRockC, x: 1410, y: -34),
+        Entry(sprite: .fgRockB, x: 1490, y: -34, flipped: true),
+        Entry(sprite: .fgRockA, x: 1555, y: -34, flipped: true),
         // The castle inside: one rock by the courtyard, none in the hall.
-        Entry(sprite: .fgRockC, x: 1900, y: -32),
+        Entry(sprite: .fgRockC, x: 1900, y: -34),
         // The valley: sparse.
-        Entry(sprite: .fgRockC, x: 3150, y: -32),
-        Entry(sprite: .fgRockA, x: 3560, y: -32, flipped: true),
-        Entry(sprite: .fgRockB, x: 4020, y: -32),
-        Entry(sprite: .fgRockC, x: 4480, y: -32, flipped: true),
+        Entry(sprite: .fgRockC, x: 3150, y: -34),
+        Entry(sprite: .fgRockA, x: 3560, y: -34, flipped: true),
+        Entry(sprite: .fgRockB, x: 4020, y: -34),
+        Entry(sprite: .fgRockC, x: 4480, y: -34, flipped: true),
         // The gorge only: rock lips with roots along the top edge, closer together towards the throat.
         Entry(sprite: .fgOverhangA, x: 40, y: 0, anchor: .top),
         Entry(sprite: .fgOverhangB, x: 300, y: 0, anchor: .top),
@@ -231,14 +238,15 @@ enum SceneLayout {
         ActorEntry(kind: .sootling, x: 606, y: 0, facing: 1, phase: 1.11),
         ActorEntry(kind: .shadehound, x: 620, y: 0, facing: 1, phase: 1.48),
         ActorEntry(kind: .sootling, x: 632, y: 0, facing: 1, phase: 1.85),
-        ActorEntry(kind: .archer, x: 944, y: 52, facing: -1, phase: 0),
-        ActorEntry(kind: .archer, x: 957, y: 52, facing: 1, phase: 0.7),
-        ActorEntry(kind: .archer, x: 972, y: 52, facing: -1, phase: 0.35),
+        // On the stone wall's walk (its crenel floor, dy 42; M2b review: at 52 they stood on the merlons).
+        ActorEntry(kind: .archer, x: 945, y: 42, facing: -1, phase: 0),
+        ActorEntry(kind: .archer, x: 958, y: 42, facing: 1, phase: 0.7),
+        ActorEntry(kind: .archer, x: 971, y: 42, facing: -1, phase: 0.35),
         ActorEntry(kind: .archer, x: WorldLayout.castleFrontX + 66, y: WorldLayout.wallWalkY, facing: -1, phase: 0.15),
         ActorEntry(kind: .archer, x: WorldLayout.castleFrontX + 121, y: WorldLayout.wallWalkY, facing: -1, phase: 0.6),
         ActorEntry(kind: .archer, x: WorldLayout.castleFrontX + 173, y: WorldLayout.wallWalkY, facing: 1, phase: 0.95),
         ActorEntry(kind: .citizen, x: 3002, y: 0, facing: 1, phase: 0.2),
-        ActorEntry(kind: .citizen, x: 3044, y: 0, facing: -1, phase: 0.9),
+        ActorEntry(kind: .citizenB, x: 3044, y: 0, facing: -1, phase: 0.9),
     ]
 
     // MARK: - The world plane
@@ -299,7 +307,7 @@ enum SceneLayout {
         list.append(Entry(sprite: .cliffFlank, x: front - 53, y: 0, z: -3, shade: flankShade))
         list.append(Entry(sprite: .cliffFlankB, x: front + 213, y: 0, z: -1, shade: flankShade, flipped: true))
         // Scene polish 2: the castle's cast shadow on the rock right of the right tower and on the ground strip.
-        list += shadows.filter { $0.z < 0 }
+        list += shadowsBeforeFront
         // Only the keep's top 130 rows stand behind the gatehouse, 40 px up, so its crown and flag rise above the
         // gatehouse between the towers' crowns (top at y 170); the front hides its top window row (the lower 10 rows
         // of each window would glow: lamplight low in the room).
@@ -320,8 +328,10 @@ enum SceneLayout {
                                    Light(kind: .lantern, x: front + 120, y: 40, radius: 34)]))
         // Scene polish 2: the left tower's shadow on the gatehouse wall, and a bank of ground mist at the foot of the
         // walls at dusk and night (behind the king, who walks in front of it), so the castle stands heavy on the ground.
-        list += shadows.filter { $0.z >= 0 }
-        list.append(Entry(sprite: .castleMist, x: front - 30, y: -8, z: 0, mist: 1))
+        // The mist at z 2 (M2b review): after the gate in the gateway (z 1), so it veils the gate's foot as it veils the
+        // wall's, before the braziers and the stake pit (z 3).
+        list += shadowsOnFront
+        list.append(Entry(sprite: .castleMist, x: front - 30, y: -8, z: 2, mist: 1))
 
         // Inside: the courtyard wall runs from 1580, out of the gate view (rock closes the frame right of the right
         // tower); the great hall cut away, the chapel, the kitchen.

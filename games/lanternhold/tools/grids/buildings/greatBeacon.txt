@@ -7,18 +7,20 @@
 # ruin's pale stone rebuilt as a round tower in the stoneWall's block language (pale lips, bevels), a talus over the
 # lowest 30 rows, an oak door, cylinder shading (a lit band left of centre, the side turning away one to two steps
 # darker). Design from the Recraft beacon of beacon-a (left piece; its bricks were too small to survive the downscale).
+# M2b review: the whole stone one value step darker (p stoneLight, l stone, s stoneMid; they were stonePale,
+# stoneLight, stone): under the beacon's own pool the tower's lit face blew out to near-white lavender.
 n = night0
 N = night1
 d = stoneDark
-s = stone
-l = stoneLight
+s = stoneMid
+l = stone
 o = wood
 b = banner
 g = gold
 c = parchment
 k = ink
 m = stoneMid
-p = stonePale
+p = stoneLight
 w = woodDark
 L = woodLight
 R = roofLight

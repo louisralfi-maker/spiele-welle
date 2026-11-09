@@ -9,10 +9,23 @@ import XCTest
 /// away closes; the realm strip's mark. Each test starts a fresh realm (`-GWReset YES`).
 @MainActor
 final class AudienceFlowTests: XCTestCase {
+    /// A temporary save directory per test, as `GameScreensTests` (M2b review: the tests must never delete or overwrite
+    /// the simulator app's real save).
+    private var directory: URL!
+
+    override func setUp() async throws {
+        directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("lanternhold-tests-\(UUID().uuidString)", isDirectory: true)
+    }
+
+    override func tearDown() async throws {
+        if let directory { try? FileManager.default.removeItem(at: directory) }
+    }
+
     private func model(_ values: [String: String]) -> GameModel {
         var all = values
         all["GWReset"] = "YES"
-        return GameModel(args: DebugArgs(values: all), kind: .world)
+        return GameModel(args: DebugArgs(values: all), kind: .world, store: SaveStore(directory: directory))
     }
 
     /// Real time for the court (the walk up) while the card stops the simulation.

@@ -114,16 +114,22 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertTrue(kinds.contains(.torch))
         XCTAssertTrue(kinds.contains(.lantern), "the king's lantern")
         XCTAssertTrue(desc.lights.contains { $0.kind == .hearth && $0.plane == .mid }, "the warden statue's bowl fire")
-        let eyes = desc.actors.filter { $0.sprite == .eyeGlints }
-        XCTAssertEqual(eyes.count, 6, "six creatures wait at the edge of the light")
-        XCTAssertTrue(eyes.allSatisfy { $0.isEmissive && !$0.isLit })
+        // Six creatures wait at the edge of the light, drawn by the game's rule (M2b review): an opaque dark body
+        // with its glow strip over it and a moonlight rim, no eye dots.
+        XCTAssertTrue(desc.actors.allSatisfy { $0.sprite != .eyeGlints }, "no eye dots")
         let bodies = desc.actors.filter { $0.sprite == .sootling || $0.sprite == .shadehound }
-        XCTAssertTrue(bodies.isEmpty, "unlit creatures show only their eyes at night")
+        XCTAssertEqual(bodies.count, 6)
+        XCTAssertTrue(bodies.allSatisfy { !$0.isLit && $0.tint.w == 1 && $0.tint.x < 0.4 && $0.moonRim > 0.5 },
+                      "unlit at night: an opaque body at a very low value with a moonlight rim")
+        let glows = desc.actors.filter { $0.sprite == .sootlingGlow || $0.sprite == .shadehoundGlow }
+        XCTAssertEqual(glows.count, 6, "each with its glow strip")
+        XCTAssertTrue(glows.allSatisfy(\.isEmissive))
         let archers = desc.actors.filter { $0.sprite == .archer }
         XCTAssertEqual(archers.count, 3)
         XCTAssertEqual(archers.filter(\.flipped).count, 2, "one archer of the three turned the other way")
-        let king = desc.actors.last
+        let king = desc.actors.last { $0.sprite == .king }
         XCTAssertEqual(king?.sprite, .king)
+        XCTAssertEqual(desc.actors.last?.sprite, .kingGlow, "his lantern glass burns at night, drawn last")
         XCTAssertEqual(king?.rect.z, Float(16 * 6), "texels stay s x s blocks")
         XCTAssertEqual(king?.rect.w, Float(30 * 6))
         if let king {
@@ -179,7 +185,8 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertTrue(townKinds.contains(.lantern))
         XCTAssertTrue(town.layer(.world).sprites.contains { $0.sprite == .well })
         XCTAssertTrue(town.emissives.contains { $0.kind == .glass && $0.sprite == .house }, "house windows glow")
-        XCTAssertEqual(town.actors.filter { $0.sprite == .citizen }.count, 2)
+        XCTAssertEqual(town.actors.filter { $0.sprite == .citizen || $0.sprite == .citizenB }.count, 2)
+        XCTAssertEqual(town.actors.filter { $0.sprite == .citizenB }.count, 1, "two different townsfolk at the well")
         XCTAssertTrue(town.layer(.mid).sprites.contains { $0.sprite == .keepFar }, "the keep seen from the town")
         XCTAssertTrue(town.layer(.mid).sprites.contains { $0.sprite == .windmill })
         var castleWindows = 0
@@ -628,7 +635,7 @@ final class FrameBuilderTests: XCTestCase {
         "farMountain far x=380 y=34 z=0 shade=0.92 flip=1 anchor=ground region=gorge em=[] li=[]",
         "wardenStatue mid x=430 y=-34 z=2 shade=0.88 flip=0 anchor=ground region=gorge em=[hearthFire@40,153:fireOrange:steady] li=[hearth@478,124,70]",
         "gorgeWallHigh mid x=690 y=0 z=1 shade=0.85 flip=0 anchor=ground region=gorge em=[] li=[]",
-        "keepFar mid x=641 y=-59 z=3 shade=0.78 flip=0 anchor=ground region=gorge em=[glass@17,150,13x10 glass@61,150,12x10] li=[]",
+        "keepFar mid x=641 y=-59 z=3 shade=0.78 flip=0 anchor=ground region=gorge em=[glass@21,150,5x7 glass@65,150,3x4] li=[]",
         "gorgeWallHigh mid x=571 y=-152 z=4 shade=0.85 flip=0 anchor=ground region=gorge em=[] li=[]",
         "gorgeWallB mid x=862 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
         "gorgeMouth mid x=1030 y=0 z=3 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[]",
@@ -651,15 +658,15 @@ final class FrameBuilderTests: XCTestCase {
         "throatRock world x=1518 y=0 z=-5 shade=0.70 flip=0 anchor=ground region=castle em=[] li=[]",
         "cliffFlank world x=1187 y=0 z=-3 shade=0.62 flip=0 anchor=ground region=gorge em=[] li=[]",
         "cliffFlankB world x=1453 y=0 z=-1 shade=0.62 flip=1 anchor=ground region=castle em=[] li=[]",
-        "castleShadow world x=1468 y=0 z=-1 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[] shadow=sun",
-        "castleShadowLong world x=1471 y=0 z=-1 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[] shadow=dusk",
-        "groundShadow world x=1241 y=-6 z=-1 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[] shadow=sun",
-        "groundShadowLong world x=1481 y=-3 z=-1 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[] shadow=dusk",
+        "castleShadow world x=1468 y=0 z=0 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[] shadow=sun",
+        "castleShadowLong world x=1471 y=0 z=0 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[] shadow=dusk",
+        "groundShadow world x=1241 y=-6 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[] shadow=sun",
+        "groundShadowLong world x=1481 y=-3 z=0 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[] shadow=dusk",
         "keepTop world x=1286 y=40 z=-4 shade=1.00 flip=0 anchor=ground region=gorge em=[glass@69,30,13x10 glass@113,30,12x10] li=[]",
         "castleFront world x=1240 y=0 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[brazierFlame@93,130:fireOrange:steady brazierFlame@138,130:fireOrange:steady flame@90,61:fireGold:fades flame@145,61:fireGold:fades glass@29,96,6x15 glass@202,89,6x15 glass@29,69,6x15 glass@202,69,6x15] li=[brazier@1337,136,44 brazier@1382,136,44 torch@1332,64,30 torch@1387,64,30 lantern@1360,40,34]",
         "gateShadow world x=1298 y=1 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[] shadow=sun",
         "gateShadowLong world x=1307 y=1 z=0 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[] shadow=dusk",
-        "castleMist world x=1210 y=-8 z=0 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[] mist=1.00",
+        "castleMist world x=1210 y=-8 z=2 shade=1.00 flip=0 anchor=ground region=gorge em=[] li=[] mist=1.00",
         "castleWall world x=1580 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
         "castleWall world x=1620 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[glass@17,58,6x8] li=[window@1640,62,8]",
         "castleWall world x=1660 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
@@ -685,24 +692,24 @@ final class FrameBuilderTests: XCTestCase {
         "field world x=2680 y=0 z=-1 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
         "well world x=3013 y=0 z=1 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
         "riverEnd world x=3680 y=-26 z=2 shade=1.00 flip=0 anchor=ground region=valley em=[] li=[]",
-        "fgRockA fg x=20 y=-30 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
-        "fgRockC fg x=170 y=-30 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
-        "fgRockB fg x=330 y=-30 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
-        "fgRockA fg x=505 y=-30 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
-        "fgRockC fg x=640 y=-30 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
-        "fgRockB fg x=820 y=-30 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
-        "fgRockC fg x=960 y=-30 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
-        "fgRockA fg x=1110 y=-30 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
-        "fgRockB fg x=1250 y=-30 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
-        "fgRockA fg x=1330 y=-26 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
-        "fgRockC fg x=1410 y=-28 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
-        "fgRockB fg x=1490 y=-24 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
-        "fgRockA fg x=1555 y=-28 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
-        "fgRockC fg x=1900 y=-32 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
-        "fgRockC fg x=3150 y=-32 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
-        "fgRockA fg x=3560 y=-32 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
-        "fgRockB fg x=4020 y=-32 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
-        "fgRockC fg x=4480 y=-32 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgRockA fg x=20 y=-34 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockC fg x=170 y=-34 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockB fg x=330 y=-34 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgRockA fg x=505 y=-34 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgRockC fg x=640 y=-34 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockB fg x=820 y=-34 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockC fg x=960 y=-34 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgRockA fg x=1110 y=-34 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockB fg x=1250 y=-34 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgRockA fg x=1330 y=-34 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockC fg x=1410 y=-34 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockB fg x=1490 y=-34 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgRockA fg x=1555 y=-34 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgRockC fg x=1900 y=-34 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockC fg x=3150 y=-34 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockA fg x=3560 y=-34 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
+        "fgRockB fg x=4020 y=-34 z=0 shade=1.00 flip=0 anchor=ground region=all em=[] li=[]",
+        "fgRockC fg x=4480 y=-34 z=0 shade=1.00 flip=1 anchor=ground region=all em=[] li=[]",
         "fgOverhangA fg x=40 y=0 z=0 shade=1.00 flip=0 anchor=top region=all em=[] li=[]",
         "fgOverhangB fg x=300 y=0 z=0 shade=1.00 flip=0 anchor=top region=all em=[] li=[]",
         "fgOverhangA fg x=590 y=0 z=0 shade=1.00 flip=1 anchor=top region=all em=[] li=[]",

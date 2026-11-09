@@ -272,11 +272,23 @@ struct GoldButtonStyle: ButtonStyle {
 /// A quieter button (Replay the day, Cancel, Restart chapter): an outline on the card, at least 52 pt high.
 struct QuietButtonStyle: ButtonStyle {
     var onDark = false
+    /// A destructive choice (restarting the chapter): ember text and border.
+    var danger = false
+
+    private var text: Color {
+        if danger { return Color(hex: 0xFF8A6A) }
+        return onDark ? Theme.parchment : Theme.ink
+    }
+
+    private var border: Color {
+        if danger { return Color(hex: 0xD9481F).opacity(0.9) }
+        return onDark ? Theme.gold.opacity(0.55) : Theme.woodDark.opacity(0.5)
+    }
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(Theme.serif(.headline, .semibold))
-            .foregroundStyle(onDark ? Theme.parchment : Theme.ink)
+            .foregroundStyle(text)
             .multilineTextAlignment(.center)
             .padding(.horizontal, 20)
             .padding(.vertical, 8)
@@ -287,7 +299,7 @@ struct QuietButtonStyle: ButtonStyle {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 11, style: .continuous)
-                    .strokeBorder(onDark ? Theme.gold.opacity(0.55) : Theme.woodDark.opacity(0.5), lineWidth: 1.2)
+                    .strokeBorder(border, lineWidth: danger ? 1.6 : 1.2)
             )
             .contentShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
             .opacity(configuration.isPressed ? 0.75 : 1)

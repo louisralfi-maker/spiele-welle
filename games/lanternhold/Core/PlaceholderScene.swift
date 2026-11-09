@@ -116,7 +116,7 @@ struct Prop: Sendable, Equatable {
 
 /// The kinds of actor in milestone 1.
 enum ActorKind: String, Sendable, CaseIterable, Equatable {
-    case king, sootling, shadehound, archer, citizen
+    case king, sootling, shadehound, archer, citizen, citizenB
 
     var sprite: SpriteID {
         switch self {
@@ -125,15 +125,16 @@ enum ActorKind: String, Sendable, CaseIterable, Equatable {
         case .shadehound: return .shadehound
         case .archer: return .archer
         case .citizen: return .citizen
+        case .citizenB: return .citizenB
         }
     }
 
-    /// Creatures of the Gloom (they show only their eyes when unlit).
+    /// Creatures of the Gloom (unlit, a dark body with its glow strip, as the game draws them).
     var isCreature: Bool { self == .sootling || self == .shadehound }
 
     /// The first of the two idle frames in the sprite's strip (SPRITES.md: townsfolk idle 4 ... 5; archers idle
     /// 0 ... 1; the creatures' walk 0 ... 1 stand in while they wait).
-    var idleBase: Int { self == .citizen ? 4 : 0 }
+    var idleBase: Int { self == .citizen || self == .citizenB ? 4 : 0 }
 
     /// Where the eye glints sit, from the anchor (bottom centre), facing right: forward and up.
     var eyeOffset: (dx: Double, dy: Double) {

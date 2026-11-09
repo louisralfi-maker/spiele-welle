@@ -20,12 +20,13 @@ enum LightKind: String, Sendable, CaseIterable, Equatable {
         }
     }
 
-    /// The light's colour (sRGB 0 ... 1): warm fire, a cold moon.
+    /// The light's colour (sRGB 0 ... 1): warm fire, a cold moon. Fire arrows burn gold and the Great Beacon's pool is
+    /// a warm amber (M2b review: in fireWhite their pools turned the grass mint and lit creatures white).
     var defaultColor: SIMD3<Float> {
         switch self {
-        case .torch, .lantern, .candle: return GamePalette.fireGold
+        case .torch, .lantern, .candle, .fireArrow: return GamePalette.fireGold
         case .brazier, .fireTower, .firepot, .hearth: return GamePalette.fireOrange
-        case .fireArrow, .beacon: return GamePalette.fireWhite
+        case .beacon: return SIMD3<Float>(1.0, 0.80, 0.50)
         case .window: return SIMD3<Float>(1.0, 0.72, 0.38)
         case .moon: return GamePalette.moon
         }

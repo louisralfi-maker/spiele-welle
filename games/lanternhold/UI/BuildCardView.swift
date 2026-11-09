@@ -305,7 +305,7 @@ struct RecruitCardView: View {
             CardChrome(identifier: "recruit-card", closeIdentifier: "recruit-card-close", treasury: model.gold,
                        close: { model.closeCard() }) {
                 CardTitle(title: String(localized: "Barracks"),
-                          subtitle: String(localized: "Archers \(card.archers) · free posts \(card.freePosts) · guards \(card.guards)"))
+                          subtitle: String(localized: "Archers \(card.archers) · room on the walls for \(card.freePosts) more · guards \(card.guards)"))
             } content: {
                 VStack(alignment: .leading, spacing: 8) {
                     ForEach(card.options, id: \.kind) { option in
@@ -353,7 +353,8 @@ struct TaxCardView: View {
 
     var body: some View {
         AnchoredCard(anchor: model.cardAnchor, width: 480) {
-            CardChrome(identifier: "tax-card", closeIdentifier: "tax-card-close", close: { model.closeCard() }) {
+            CardChrome(identifier: "tax-card", closeIdentifier: "tax-card-close", treasury: model.gold,
+                       close: { model.closeCard() }) {
                 HStack(alignment: .lastTextBaseline) {
                     CardTitle(title: String(localized: "Taxes"), subtitle: nil)
                     Spacer(minLength: 8)
