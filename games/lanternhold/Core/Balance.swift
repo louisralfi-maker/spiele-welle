@@ -213,7 +213,7 @@ struct Balance: Sendable, Equatable {
                       burns: false),
         CreatureStats(.ashGiant, firstNight: 10, hp: 1000, unlit: 10, lit: 7, harm: 60, points: 0, height: 110,
                       burns: false),
-        CreatureStats(.lightlessKing, firstNight: 20, hp: 600, unlit: 24, lit: 12, harm: 150, points: 0, height: 64,
+        CreatureStats(.lightlessKing, firstNight: 20, hp: 700, unlit: 24, lit: 12, harm: 150, points: 0, height: 64,
                       burns: false),
     ]
 

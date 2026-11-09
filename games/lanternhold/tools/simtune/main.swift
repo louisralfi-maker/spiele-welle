@@ -18,18 +18,17 @@ enum SimTune {
             list.append(Variant(name: name, balance: balance))
         }
         let king = CreatureKind.lightlessKing.index
-        // Round lh-fin-fix-1 (standard: the King 600 HP, 24 px/s in the dark and 12 in the beacon's light, beacon
-        // radius 840 with its edge just behind the middle line's engine, the bank swallowing the beacon's light).
-        // With the beacon: his HP against his lit speed and the radius.
+        // Round lh-fin-fix-1 swept these around 600 HP and chose 700 (standard: 24 px/s in the dark and 12 in the
+        // beacon's light, beacon radius 840 with its edge just behind the middle line's engine, the bank swallowing
+        // the beacon's light). With the beacon: his HP against his lit speed and the radius.
         for lit in [12.0, 16] {
-            for hp in [450.0, 500, 550, 650, 700, 800, 900] {
+            for hp in [500.0, 600, 650, 750, 800, 900] {
                 add("l\(Int(lit))hp\(Int(hp))") {
                     $0.creatures[king].litSpeed = lit
                     $0.creatures[king].hp = hp
                 }
             }
         }
-        add("l16hp600") { $0.creatures[king].litSpeed = 16 }
         for lit in [10.0, 20, 24] {
             for hp in [500.0, 600, 700] {
                 add("l\(Int(lit))hp\(Int(hp))") {

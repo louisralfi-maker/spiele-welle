@@ -226,9 +226,9 @@ outcome comes from what was built and recruited by day.
   palisade, but never the ground at the wall's foot; what hacks at a wall is seen only in a brazier's, a fire arrow's,
   a firepot's or the lantern's light), fire arrows where they land
   (22 for 2.5 s), catapult fires (48 for 6 s), the king's lantern (40), the hearth fire inside the great hall (70), the
-  Great Beacon when lit (760, a sweeping cone; its lit reach of about 495 px covers the front from the Gloom's mouth to
-  the middle line, not the gatehouse; it is lit on night 20 the moment the Lightless King leaves the Gloom, burns until
-  dawn and stays dark in endless). Castle and town windows light only the scene, not the battle.
+  Great Beacon when lit (840, a steady pool, see "The finale"; it is lit on night 20 the moment the Lightless King
+  leaves the Gloom, burns until dawn and stays dark in endless). Castle and town windows light only the scene, not the
+  battle.
 - `illumination(x, y)` = the highest `(1 − d / r)²` of all sources, without flicker. A creature is **lit** at 0.12 or
   more, asked at the middle of its body but at most 24 px up (a giant whose legs stand in the light is lit). The rendered
   falloff draws a visible edge band exactly at that radius, so the player can read where the light ends.
@@ -236,7 +236,9 @@ outcome comes from what was built and recruited by day.
 - Unlit creatures show only their eyes (two 1 px glints), move at full speed, and archers cannot see them. Catapults lob
   firepots at the densest group of eyes, lit or not, and light it up.
 - The darkness bank advances at 20:00 to `x = 260 + 20 × night` (at most 600) over 20 s. Inside it, ambient light is
-  ×0.4 and light radii ×0.6. It retreats at first light.
+  ×0.4 and light radii ×0.6. It retreats at first light. When the Great Beacon flares up the bank falls back to x 360
+  over 1.5 s (part of the flare), and the bank swallows the beacon's battle light: nothing left of its edge is lit by
+  the beacon.
 
 ### Creatures of the Gloom (chapter 1)
 
@@ -250,7 +252,7 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 | Ash brute | 7 | 120 | 14 / 8 | 20 per s to walls | 44 px | never slower than 8; does not burn |
 | Gloomweaver | 12 | 40 | 22 / 12 | none | 30 px | carries a 50 px bubble of darkness that cancels light inside it |
 | Ash Giant (boss) | night 10 | 1000 | 10 / 7 | 60 per s; stomp shakes the screen | 110 px | |
-| The Lightless King (boss) | night 20 | 500 | 24 (inside his own darkness, except in the Great Beacon's light) | 150 per s, to the hearth too; 80 px darkness aura | 64 px | leaves at 20:50 ± 0:40 (10 s ± 8 s after nightfall) and marches on the hearth; calls 6 sootlings every 15 s; can be hurt only inside the lit beacon's light, where his aura fails (see "The finale"); tuned from 2400 HP, 12 / 9 px/s and 40 per s |
+| The Lightless King (boss) | night 20 | 700 | 24 in his own darkness / 12 in the Great Beacon's light | 150 per s, to the hearth too; 80 px darkness aura | 64 px | leaves at 20:50 ± 0:40 (10 s ± 8 s after nightfall; provisional, see the Tuning) and marches on the hearth; calls 6 sootlings every 15 s; can be hurt only inside the lit beacon's light, where his aura fails, he counts as lit and slows to his lit speed (see "The finale"); tuned from 2400 HP, 12 / 9 px/s and 40 per s |
 
 - Night budget `B(n) = 16 + 9 n` points (sootling 1, hound 2, crow 2, weaver 6, brute 10), split into 3 waves on nights
   1 to 4, 4 waves on 5 to 14 and 5 waves on 15 to 20; the last wave leaves by 03:00. Boss nights add the boss.
@@ -263,24 +265,45 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 ### The finale (night 20)
 
 - The Great Beacon is chapter 1's goal and the only weapon against the Lightless King. A finished beacon (all three
-  stages) is lit the moment the King leaves the Gloom and burns until dawn.
-- Inside the beacon's light (its lit reach around x 470: the outer and the middle line) the King's darkness fails: his
-  aura cancels no light there, he counts as lit, and archers, fire arrows, ballistas, catapults and stake pits hurt him.
-  Archers and ballistas aim at him first while he can be hurt, so the night fills with arrows flying at him. The beacon's
-  light is light for every other creature in it too: sootlings burn in it as in any light.
-- Outside the beacon's light, or without a finished beacon, he stays inside his own darkness and nothing can harm him.
-- When the King falls, the Gloom recedes at once: every creature dissolves, the waves still to come stay away, the night
-  is won and the dawn report records that the King was slain. This is the true ending: Aldric is freed.
+  stages) is lit the moment the King leaves the Gloom and burns until dawn. The beacon decides the ending, not
+  survival: a realm that never builds it and spends the gold on defence holds night 20 too (reported beside T6, not a
+  target), but only the beacon can bring the King down, and only that gives The Bright Crown.
+- **Its light** is a steady pool (radius 840 around the beacon at x 470). Its lit reach of about 550 px covers the gorge
+  floor from the darkness bank's edge (x 360) to just behind the middle line's engine (about x 1018): the outer and the
+  middle line, not the gatehouse. The darkness bank swallows its battle light (nothing inside the fog is lit by it), so
+  the King leaves his darkness exactly when he steps out of the fog. The renderer draws the pool with a visible edge
+  band at that reach, so the player sees where the King can be hurt; a sweeping beam may sit on top as decoration but
+  never defines the rule.
+- **Inside it** the King's darkness fails: his aura cancels no light at points inside the beacon's reach (wherever he
+  stands; outside the reach it still cancels light), he counts as lit, he slows to his lit speed (12 px/s, like every
+  creature in light), and archers, fire arrows, ballistas, catapults, stake pits and the guards in a breach hurt him.
+  Archers and ballistas aim at him first while he can be hurt, so the night fills with arrows flying at him. The
+  beacon's light is light for every other creature in it too: sootlings burn in it as in any light. A gloomweaver's
+  bubble cancels the beacon's light for the creatures inside it but does not shield the King: the beacon breaks his own
+  darkness, not theirs.
+- **Outside it**, or without a finished beacon, he stays inside his own darkness and nothing can harm him: arrows,
+  bolts and firepots that strike him glance off (a spark and a dull sound), archers do not aim at him, and the guards
+  strike the next creature in the breach instead.
+- **Cues** (sim events for M2b's sound, haptics and effects): the beacon flares up (`beaconLit`) and the bank falls
+  back; the King's aura visibly shatters as he steps into the light (`kingAuraBroken`) and closes again if he steps
+  out (`kingAuraClosed`); blows on him outside the light glance off (`glancedOff`).
+- **When the King falls**, the Gloom recedes at once: every creature dissolves, the waves still to come stay away, the
+  night is won, and dawn breaks at once (the clock jumps to first light, 05:00: the bank retreats over the last hour's
+  12 s and the dawn report follows at 06:00). The dawn report records that the King was slain. This is the true
+  ending: Aldric is freed. A King who falls in the step the hearth goes out does not count: the realm fell first.
 - If he walks out of the beacon's light alive, or there is no beacon, the realm must hold until first light (05:00); at
-  dawn the King withdraws into the Gloom with the rest, and the night counts as held.
-- The fight takes a while: with the beacon he usually falls 25 to 70 s after he leaves the Gloom, at the outer or the
-  middle line, under many volleys (T6).
+  dawn the King withdraws into the Gloom with the rest, and the night counts as held. The chance is then gone for good:
+  he never returns (endless has no King), and the dawn report says so.
+- The fight takes a while: with the beacon he falls about a minute after he leaves the Gloom, after many volleys, at
+  the middle line, with several seconds of light still left (T6 reports the kill times and the seconds of light he had
+  left).
 
 ### Defenders
 
 - **Archers** on walls and towers: range 150, a shot every 1.4 s, 4 damage, lit targets only, 20 HP. Every fourth arrow
   is a fire arrow that lights its landing spot (radius 22, 2.5 s): the night is full of streaks and short pools of
-  light. They aim at the lit creature closest to the castle. When their wall falls they climb down and walk to a free
+  light. They aim at the lit creature closest to the castle; on night 20 at the Lightless King first, while he can be
+  hurt. When their wall falls they climb down and walk to a free
   post (or the keep); creatures that catch them on the way strike them.
 - **Guards**: they hold the breach nearest the front (the innermost rubble in front of the first standing wall) and
   block it; without a breach they wait behind the gatehouse. 30 HP, 6 damage per s; below 30 % a guard steps back
@@ -419,17 +442,24 @@ castle's lamplighter, who was too slow to run away. The crown is a little too bi
 | 6 | Marek offers cheap arrows. Tamsin's gossip hints that they are bad. |
 | 8 | Brannock asks for a war tax. It unlocks. |
 | 10 | Boss night: the Ash Giant. |
-| 11 | Odile finds the old plans of the Great Beacon. The beacon site unlocks (three stages, days 11 to 18). |
+| 11 | Odile finds the old plans of the Great Beacon. The beacon site unlocks (three stages, days 11 to 18). She reads from the plans that the beacon's light breaks any darkness of the Gloom. |
 | 13 | Refugees from the Gloom's border at the gate: let them in (+6 citizens, a risk later) or turn them away. |
-| 15 | The Stranger, Seren, reveals that Aldric lives: the Gloom made him the Lightless King. |
+| 15 | The Stranger, Seren, reveals that Aldric lives: the Gloom made him the Lightless King. Only in the Great Beacon's light can he be hurt, so the walls must hold him inside it until he falls. |
 | 17 | A herald of the Lightless King comes to the audience: hand over Seren and the town is spared for three nights. |
 | 19 | Last preparations. Pip's farewell joke. |
-| 20 | The Lightless King attacks. If the beacon is finished, it flares up the moment he leaves the Gloom; in its light his darkness fails and the defenders can bring him down. If he falls, the Gloom recedes at once and Aldric is freed (the true ending). If he gets past the beacon's light, or the beacon was never finished, the realm must survive until dawn, when he withdraws into the Gloom. |
+| 20 | The Lightless King attacks. If the beacon is finished, it flares up the moment he leaves the Gloom; in its light his darkness fails and the defenders can bring him down. If he falls, the Gloom recedes at once, dawn breaks and Aldric is freed (the true ending). If he gets past the beacon's light, or the beacon was never finished, the realm must survive until dawn, when he withdraws into the Gloom for good. |
 
-Endings by the finale, happiness and key choices: **The Bright Crown** (the Lightless King slain, happiness 60 or more
-and Seren not handed over: Aldric is freed), **The Iron Crown** (the realm held until dawn without slaying the King, or
-happiness 30 to 59, or Seren handed over), **The Ash Crown** (happiness below 30). A realm that only held until dawn
-gets at best The Iron Crown. Each is a short scene of three panels; then the realm goes on in endless mode.
+Endings by the finale, happiness and key choices, in this order:
+
+1. **The Ash Crown**: happiness below 30, whatever happened on night 20.
+2. **The Bright Crown**: the Lightless King slain on night 20, happiness 60 or more and Seren not handed over: Aldric
+   is freed.
+3. **The Iron Crown**: every other case: the realm held until dawn without slaying the King, or happiness 30 to 59,
+   or Seren handed over. A night 20 lost and saved by a second chance also ends here (the King cannot have been slain:
+   the realm fell first). A realm that only held until dawn gets at best The Iron Crown, and the chance is final: the
+   King does not return.
+
+Each is a short scene of three panels; then the realm goes on in endless mode.
 
 ### Endless: The Long Watch
 
@@ -638,7 +668,8 @@ player's first success and never comes back. `-GWSkipOnboarding YES` turns it of
 3. **Build card:** above the plot.
 4. **Audience:** the hall in the background, the parchment card in the lower half.
 5. **Dawn report:** the night (creatures stopped, walls lost, the fallen by name, a banner for no losses), taxes in,
-   happiness change and why, the ad buttons, **Continue**.
+   happiness change and why, the ad buttons, **Continue**. After night 20 a large banner says whether the Lightless King
+   was slain (`DawnReport.kingSlain`) or withdrew into the Gloom for good.
 6. **Story panels:** prologue, beats, endings (three panels each, tap to go on, skippable).
 7. **Defeat card** and **chapter end**.
 8. **Pause sheet:** resume, settings, back to the title. **Settings:** sound, haptics, reset (with confirmation).
@@ -796,7 +827,10 @@ same seed and time give the same hash), `SaveGameTests` (round trip, old saves, 
    least 6 of 10 (his kill times are reported: about 25 to 70 s after he leaves the Gloom); without the beacon it is won
    in 3 to 6 of 10. "Without" is the same realm on the eve of night 20 with the beacon's last stage taken away, so the
    two runs differ only by the beacon. A whole run of a bot that never builds the beacon (its gold goes into the rest of
-   the order) is reported beside it, not asserted.
+   the order) is reported beside it, not asserted. Margins are reported per seed: the seconds of the beacon's light the
+   King had left where he fell (his walk to its edge plus the walls in his way, `Battle.kingLightLeft`), and without
+   the beacon the seconds before first light at which the realm fell or the hearth's lowest strength where it held;
+   `tools/simtune` also counts seeds 1 to 20, so the bands are chosen with margin, not on a coin flip.
 7. In endless, the reference bot falls between night 35 and 60.
 8. Each night's last wave leaves by 03:00; a night with 40 creatures keeps under 300 sprite instances and 40 lights.
    Until M2b the test is a sim-side proxy (drawn sim entities and battle lights on the night nearest 40 creatures); M2b
