@@ -222,7 +222,7 @@ struct Balance: Sendable, Equatable {
     /// Night budget `B(n) = budgetBase + budgetPerNight × n`, plus `endlessQuadratic × (n − 20)²` beyond night 20.
     var budgetBase = 16.0
     var budgetPerNight = 9.0
-    var endlessQuadratic = 0.1
+    var endlessQuadratic = 0.4
     /// Shares of the budget once a kind has arrived; sootlings take the rest.
     var houndShare = 0.25
     var crowShare = 0.10
