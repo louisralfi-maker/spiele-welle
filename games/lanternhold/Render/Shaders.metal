@@ -535,7 +535,11 @@ static float3 lh_base(PlaneCoords c, PixelLight info, constant CompositeUniforms
         // a few rows under the grass (no light shining into the earth's cross-section).
         float3 reflectance = mix(w.rgb, float3(dot(w.rgb, float3(0.299f, 0.587f, 0.114f))), kLitNeutral);
         float under = float(c.row) - u.target.z;
-        float3 light = min(info.light, float3(kLitCap)) * mix(1.0f, kLitUnderground, smoothstep(3.0f, 7.0f, under));
+        // The cap scales the light as a whole, so it keeps its warm hue (a per-channel cap turned it white near the
+        // torches, and white light on teal cloth read cyan again).
+        float peak = max(info.light.r, max(info.light.g, info.light.b));
+        float3 light = info.light * (min(peak, kLitCap) / max(peak, 0.0001f))
+            * mix(1.0f, kLitUnderground, smoothstep(3.0f, 7.0f, under));
         float3 lit = lh_cold(w.rgb, u.ambient.rgb * info.bank, u.look.x) + reflectance * light
             + light * (u.look.y * w.a);
         color = color * (1.0f - w.a) + lit;
