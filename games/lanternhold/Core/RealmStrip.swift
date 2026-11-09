@@ -48,6 +48,14 @@ struct RealmStrip: Sendable, Equatable {
     var isNight: Bool
     /// The part of the world on screen (`GameModel` adds it from the camera), nil when unknown.
     var window: ClosedRange<Double>?
+    /// M3: petitioners waiting for the throne today (marked at the great hall), and whether the Stranger waits at the
+    /// front gate.
+    var petitioners = 0
+    var strangerAtGate = false
+
+    /// Where the waiting petitioners and the Stranger are marked.
+    static let hallPosition = fraction(Realm.throneX)
+    static let gatePosition = fraction(CourtLayout.strangerAtGate)
 
     /// `x` in world game pixels as a share of the world, clamped to 0 ... 1.
     static func fraction(_ x: Double) -> Double {
@@ -66,7 +74,7 @@ struct RealmStrip: Sendable, Equatable {
     }
 
     static func make(_ s: GameState, balance: Balance, travelTarget: Double?,
-                     window: ClosedRange<Double>? = nil) -> RealmStrip {
+                     window: ClosedRange<Double>? = nil, catalog: PetitionCatalog = .standard) -> RealmStrip {
         var lines: [Line] = []
         for slots in Realm.lines {
             let plot = s.plots[slots.wall]
@@ -104,6 +112,7 @@ struct RealmStrip: Sendable, Equatable {
                           bank: fraction(s.bankEdge), lines: lines,
                           beaconStage: s.beaconStage, beaconLit: s.beaconLit,
                           beaconOpen: s.day >= Realm.beaconUnlockDay, creatures: buckets, isNight: night,
-                          window: window)
+                          window: window, petitioners: AudienceRules.hall(s, catalog: catalog).count,
+                          strangerAtGate: AudienceRules.gate(s, catalog: catalog) != nil)
     }
 }

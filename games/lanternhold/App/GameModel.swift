@@ -36,6 +36,8 @@ final class GameModel {
         case report(DawnReport)
         case defeat
         case pause
+        /// M3: the audience at the throne or the gate (`GameModel+Court.swift`; the card is `audience`).
+        case audience
 
         /// The three cards opened by the action button (they close with a tap beside them).
         var isCard: Bool {
@@ -141,6 +143,20 @@ final class GameModel {
     /// Bumped by every action of the player, so the open card reads the realm again.
     private(set) var revision = 0
 
+    // The court (M3 step 3, `GameModel+Court.swift`): the rooms cut away, the audience, talking.
+    @ObservationIgnored var court = CourtScene(rooms: RoomFades(kingX: 0))
+    @ObservationIgnored var talkLog = TalkLog()
+    /// The last frame's pixel scale (the bubble's and the card's anchors).
+    @ObservationIgnored var lastPixelScale: PixelScale?
+    /// The audience card while it shows (nil while the petitioner walks up).
+    var audience: AudienceCard? = nil
+    /// A court member's line in a bubble over him.
+    var talkBubble: TalkBubble? = nil
+    /// Where the audience's speaker stands on screen (0 ... 1 of the width) and the top of the figures (0 ... 1 of
+    /// the height): the card stands above them with its pointer down to the speaker.
+    var stageAnchor = 0.45
+    var figureTop = 0.7
+
     init(args: DebugArgs, kind: SceneKind) {
         self.args = args
         self.kind = kind
@@ -182,6 +198,7 @@ final class GameModel {
         world.king.x = start
         scene = world
         clock = dayClock
+        court = CourtScene(rooms: RoomFades(kingX: start))
         autoplay = args.autoplay == .walk && kind == .probe
         if start + GameModel.autoplayLeg <= WorldLayout.walkEnd - 20 {
             autoplayRange = start...(start + GameModel.autoplayLeg)
@@ -289,6 +306,13 @@ final class GameModel {
             if tracking { dissolveSwept(before: before, state: game.state, balance: game.balance) }
             handle(events, state: game.state)
         }
+        // Under a card the camera still settles on the king (the audience seats him on the throne).
+        if stepped == 0, game.isPaused, var follow = camera {
+            follow.follow(targetX: game.state.king.x + GameModel.cameraLead(game.state), targetVelocity: 0,
+                          dt: seconds, reduceMotion: reduceMotion)
+            camera = follow
+        }
+        stepCourt(seconds, state: game.state)
         effects.prune(time: animationTime)
         shake.prune(time: clock.elapsed)
         if hornNight != nil && clock.elapsed > hornUntil {
@@ -440,7 +464,18 @@ final class GameModel {
             case .recruit:
                 openCard(.recruit, anchorX: KingTargets.barracksX)
             case .throne:
-                openCard(.taxes, anchorX: KingTargets.throneX)
+                // M3: the crown opens the audience while petitioners wait in the hall, else the tax card.
+                if AudienceRules.hall(game.state, catalog: .standard).isEmpty {
+                    openCard(.taxes, anchorX: KingTargets.throneX)
+                } else {
+                    openAudience(.throne)
+                }
+            case .lectern:
+                openCard(.taxes, anchorX: KingTargets.lecternX)
+            case .stranger:
+                openAudience(.gate)
+            case .talk(let who):
+                talk(to: who)
             case .light(let plot), .patch(let plot):
                 let action: KingAction = {
                     if case .light = target { return .light(plot: plot) }
@@ -473,7 +508,8 @@ final class GameModel {
 
     // MARK: - The screens (DESIGN.md "Screens")
 
-    private func setOverlay(_ next: Overlay?) {
+    func setOverlay(_ next: Overlay?) {
+        if next != nil && next != .audience { closeTalk() }
         if overlay != next { overlay = next }
         driver?.isPaused = next != nil
         if next != nil { driver?.setDrag(offset: nil) }
@@ -488,6 +524,15 @@ final class GameModel {
         }
         feedback.play(.cardOpened)
         setOverlay(card)
+    }
+
+    /// Changes the realm through the simulation's driver (the court's actions, `GameModel+Court.swift`).
+    @discardableResult
+    func withDriver<T>(_ body: (inout SimDriver) -> T) -> T? {
+        guard var game = driver else { return nil }
+        let result = body(&game)
+        driver = game
+        return result
     }
 
     /// Closes a card (the close button, a tap beside it).
@@ -614,7 +659,8 @@ final class GameModel {
     }
 
     func openPause() {
-        guard kind == .world, overlay == nil || overlay?.isCard == true else { return }
+        guard kind == .world, overlay == nil || overlay?.isCard == true || overlay == .audience else { return }
+        if overlay == .audience { endAudience(feedbackCue: false) }
         setOverlay(.pause)
     }
 
@@ -663,6 +709,8 @@ final class GameModel {
             setOverlay(.report(ReportCard.sampleReport()))
         case .finale?:
             setOverlay(.report(ReportCard.sampleFinale()))
+        case .petition?:
+            openPetitionSample()
         case .defeat?:
             if DayClock.phase(at: game.state.hour) == .day {
                 game.state.hour = 2.5
@@ -704,10 +752,18 @@ final class GameModel {
             if sway != 0 {
                 view.jump(toFocus: view.focusX + sway)
             }
-            let filtered = SceneFilter.gameScene(scene, state: state)
+            let filtered = CastleRooms.scene(SceneFilter.gameScene(scene, state: state), state: state,
+                                             rooms: court.rooms)
             var layer = EntityFrames.layer(state: state, balance: game.balance, scene: filtered, camera: view,
                                            pixelScale: pixelScale, options: options, animTime: animationTime,
                                            effects: effects)
+            // M3: the court, the rooms cut away, the castle's world changes (`CourtFrames`).
+            CourtFrames.apply(&layer, state: state, catalog: .standard, scene: court,
+                              view: EntityFrames.ActorView(camera: view, pixelScale: pixelScale,
+                                                           mode: options.actorMode),
+                              ambient: AmbientRamp.sample(at: state.hour), animTime: animationTime,
+                              reduceMotion: reduceMotion)
+            noteCourtFrame(camera: view, pixelScale: pixelScale)
             for light in DawnSweep.lights(hour: state.hour) {
                 layer.lights.append((source: light, plane: .world))
             }
@@ -809,7 +865,7 @@ final class GameModel {
 
     // MARK: - HUD
 
-    private func refreshHUD() {
+    func refreshHUD() {
         let currentDay = driver?.state.day ?? clock.day
         if currentDay != day {
             day = currentDay
@@ -827,6 +883,7 @@ final class GameModel {
             let window = camera.map { RealmStrip.window(cameraX: $0.x, viewWidth: $0.viewWidth) }
             let next = RealmStrip.make(s, balance: game.balance, travelTarget: game.travelTarget, window: window)
             if next != strip { strip = next }
+            refreshCourt(s)
         }
         refreshAction()
         refreshGameStatus()

@@ -86,9 +86,11 @@ enum CourtLayout {
                                  offset: 5),
         "pip": CourtRoutine(stops: [1612, 1690, 1770, 1700], faces: [1, 1, -1, -1], dwell: [5, 4, 7, 3], night: 1916,
                             nightFacing: -1, speed: 22, offset: 11),
-        "hesper": CourtRoutine(stops: [2052, 2010], faces: [1, -1], dwell: [12, 8], night: 1900, nightFacing: -1,
+        // M3 step 3: Hesper at the altar (2058) and by the pews (2012), Tamsin at her table (2158) and at the
+        // oven-hearth under the chimney (2208), where the art lane's interiors put them (ART-court.md).
+        "hesper": CourtRoutine(stops: [2058, 2012], faces: [1, -1], dwell: [12, 8], night: 1900, nightFacing: -1,
                                offset: 3),
-        "tamsin": CourtRoutine(stops: [2146, 2196], faces: [-1, 1], dwell: [8, 10], night: 2170, nightFacing: -1,
+        "tamsin": CourtRoutine(stops: [2158, 2208], faces: [1, 1], dwell: [8, 10], night: 2170, nightFacing: -1,
                                offset: 7),
         "bram": CourtRoutine(stops: [1566, 1588], faces: [1, 1], dwell: [10, 6], night: 1580, nightFacing: 1,
                              offset: 2),

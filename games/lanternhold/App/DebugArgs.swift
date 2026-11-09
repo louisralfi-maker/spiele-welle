@@ -57,9 +57,13 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWHour <h>` (0 ... 24): after the start (a day, a night, the save or a new realm, and the demo build), the
     /// reference bot plays on headless until the clock next shows this hour.
     var hour: Double?
-    /// `-GWScreen title|audience|report|defeat|story|finale`: opens that screen with sample data (M2b: report, defeat
-    /// and finale, the dawn report of night 20 with the Lightless King slain).
+    /// `-GWScreen title|audience|report|defeat|story|finale|petition`: opens that screen with sample data (M2b:
+    /// report, defeat and finale, the dawn report of night 20 with the Lightless King slain; M3: petition, the herald
+    /// of the Lightless King before the throne on day 17).
     var screen: Screen?
+    /// `-GWClock <h>` (tests): the clock of the start state is set to this hour by day (6 ... 19) without anyone
+    /// playing on, so today's petitioners still wait (`-GWHour` lets the reference bot play, and it hears them).
+    var clock: Double?
     /// `-GWSkipOnboarding YES`: no hints (the onboarding comes in M7; accepted now so tests already pass it).
     var skipOnboarding = false
 
@@ -70,7 +74,7 @@ struct DebugArgs: Sendable, Equatable {
 
     /// `-GWScreen` screens.
     enum Screen: String, Sendable, CaseIterable, Equatable {
-        case title, audience, report, defeat, story, finale
+        case title, audience, report, defeat, story, finale, petition
     }
 
     /// `-GWAutoplay` modes.
@@ -91,7 +95,7 @@ struct DebugArgs: Sendable, Equatable {
         "GWScene", "GWVirtualHeight", "GWScaleOverride", "GWTimeOfDay", "GWFreezeTime", "GWFlickerTime", "GWSeed",
         "GWCameraX", "GWAutoplay", "GWActorMode", "GWLightStyle", "GWEffects", "GWShowLowRes", "GWShowBuffer",
         "GWDebugLights", "GWStats", "GWReduceMotion", "GWDay", "GWNight", "GWBuild", "GWGold", "GWHappiness",
-        "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding",
+        "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -166,6 +170,9 @@ struct DebugArgs: Sendable, Equatable {
         }
         screen = values["GWScreen"].flatMap { Screen(rawValue: $0.lowercased()) }
         skipOnboarding = DebugArgs.bool(values["GWSkipOnboarding"])
+        if let clock = DebugArgs.double(values["GWClock"]), clock >= 6, clock < 19 {
+            self.clock = clock
+        }
     }
 
     init() {}

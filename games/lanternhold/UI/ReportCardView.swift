@@ -128,6 +128,14 @@ struct ReportCardView: View {
             ReportRow(label: String(localized: "People"), detail: peopleDetail) {
                 Text(verbatim: "\(card.citizensBefore) \u{2192} \(card.citizensAfter)")
             }
+            // M3: who went home unheard at the horn (each cost a point of happiness).
+            let unheard = model.unheardPetitioners(dawnOf: card.day)
+            if !unheard.isEmpty {
+                ReportRow(label: String(localized: "Sent home unheard"), detail: unheard.joined(separator: ", ")) {
+                    Text(verbatim: "\(unheard.count)")
+                }
+                .accessibilityIdentifier("report-unheard")
+            }
             ForEach(card.unlocked, id: \.self) { unlock in
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Image(systemName: "key.fill")

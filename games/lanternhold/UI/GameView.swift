@@ -27,6 +27,10 @@ struct GameView: View {
             }
             HUDView(model: model)
             if model.kind == .world {
+                // M3: a court member's line in a bubble over him.
+                if let bubble = model.talkBubble, model.overlay == nil {
+                    TalkBubbleView(bubble: bubble, model: model)
+                }
                 OverlayView(model: model)
             }
         }

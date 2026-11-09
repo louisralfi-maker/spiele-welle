@@ -4,8 +4,9 @@ import SwiftUI
 /// violet with the darkness bank's black at its mouth, the Great Beacon, the three lines' walls by state (standing,
 /// damaged, rubble, being built, an empty open site), the castle's towers in stone, the town's roofs on the valley's
 /// green, the river; a frame for what is on screen, the king's gold mark, where he walks to, and at night the
-/// creatures as embers. The map spans the strip's whole width, so a tap at a share of it walks the king to that share
-/// of the world (`realm-strip`; 44 pt tall to tap).
+/// creatures as embers; by day (M3) a parchment bubble over the great hall with the number of petitioners waiting and
+/// the Stranger's grey lantern at the front gate. The map spans the strip's whole width, so a tap at a share of it
+/// walks the king to that share of the world (`realm-strip`; 44 pt tall to tap).
 struct RealmStripView: View {
     static let height: CGFloat = 44
     static let barHeight: CGFloat = 26
@@ -35,6 +36,8 @@ struct RealmStripView: View {
         .frame(height: RealmStripView.height)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text("Map of the realm"))
+        .accessibilityValue(snapshot.petitioners > 0 ? Text("Petitioners waiting: \(snapshot.petitioners)")
+                                                     : Text(verbatim: ""))
         .accessibilityHint(Text("Tap to walk there"))
         .accessibilityAddTraits(.isButton)
         .accessibilityIdentifier("realm-strip")
@@ -125,6 +128,30 @@ struct RealmStripView: View {
                 cross.addLine(to: CGPoint(x: lx - 3.5, y: ground - 1))
                 map.stroke(cross, with: .color(Color(hex: 0xFF5A3A)), lineWidth: 2)
             }
+        }
+        // M3: the petitioners waiting for the throne (a parchment bubble with their number over the great hall) and
+        // the Stranger at the front gate (her grey lantern).
+        if strip.petitioners > 0 {
+            let hx = x(RealmStrip.hallPosition)
+            let bubble = CGRect(x: hx - 7.5, y: top + 2, width: 15, height: 11)
+            var tail = Path()
+            tail.move(to: CGPoint(x: hx - 2.5, y: bubble.maxY - 0.5))
+            tail.addLine(to: CGPoint(x: hx + 2.5, y: bubble.maxY - 0.5))
+            tail.addLine(to: CGPoint(x: hx, y: bubble.maxY + 3.5))
+            tail.closeSubpath()
+            map.fill(Path(roundedRect: bubble, cornerRadius: 3.5), with: .color(Theme.parchment))
+            map.fill(tail, with: .color(Theme.parchment))
+            map.stroke(Path(roundedRect: bubble, cornerRadius: 3.5), with: .color(Theme.goldDeep), lineWidth: 0.75)
+            map.draw(Text(verbatim: "\(strip.petitioners)").font(.system(size: 9, weight: .heavy, design: .rounded))
+                .foregroundStyle(Theme.ink), at: CGPoint(x: hx, y: bubble.midY))
+        }
+        if strip.strangerAtGate {
+            let gx = x(RealmStrip.gatePosition)
+            let glow = CGRect(x: gx - 6, y: ground - 13, width: 12, height: 12)
+            map.fill(Path(ellipseIn: glow), with: .radialGradient(
+                Gradient(colors: [Color.white.opacity(0.95), Color(hex: 0xB8C4E0).opacity(0.55), .clear]),
+                center: CGPoint(x: glow.midX, y: glow.midY), startRadius: 0, endRadius: 6))
+            map.fill(Path(ellipseIn: CGRect(x: gx - 1.5, y: ground - 8.5, width: 3, height: 3)), with: .color(.white))
         }
         // At night: the creatures as embers along the floor.
         for fraction in strip.creatures {

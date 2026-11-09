@@ -60,6 +60,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // The castle's rooms (cut-away) and the court's props
     case hallFront, chapelInterior, kitchenInterior
     case bench, taxLectern, marekCart, statue, speakerMark
+    // M3 step 3: the castle's world changes that have no sprite in the art contract (procedural only, like the
+    // effects): the hall's renewed banners, the tapestry of Aldric, Seren's grey lantern, the votive candles before
+    // the chapel's altar, the empty belfry where the bell hung
+    case hallBanner, tapestry, serenLantern, votiveCandles, bellGone
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -198,6 +202,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .marekCart: return PixelSize(width: 48, height: 30)
         case .statue: return PixelSize(width: 20, height: 40)
         case .speakerMark: return PixelSize(width: 7, height: 7)
+        case .hallBanner: return PixelSize(width: 18, height: 37)
+        case .tapestry: return PixelSize(width: 18, height: 22)
+        case .serenLantern: return PixelSize(width: 7, height: 16)
+        case .votiveCandles: return PixelSize(width: 14, height: 6)
+        case .bellGone: return PixelSize(width: 7, height: 8)
         }
     }
 

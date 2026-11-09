@@ -52,6 +52,10 @@ enum GameStart {
                 }
             }
         }
+        // `-GWClock` (tests, M3): a later hour of the same day without the bot playing on (today's petitioners wait).
+        if let clock = args.clock, DayClock.phase(at: state.hour) == .day, !state.defeated {
+            state.hour = clock
+        }
         applyNumbers(&state, args: args)
         applyNumbers(&dawn, args: args)
         if let x = args.cameraX {
