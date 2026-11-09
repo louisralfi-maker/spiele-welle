@@ -48,6 +48,60 @@ Landscape, side view, pixel art. Lighting carries the mood: warm fire against a 
   and every further product decision to Claude ("entscheide alles selber, dass es ein top game wird"). Those decisions
   are logged below. His go before a submission and the legal answers stay his.
 
+## Louis' decisions (09.11.2026, evening): the world, the story and the look
+
+Louis compared the screenshots with the genre's best (he named Kingdom New Lands and Kingdom Two Crowns): the depth of
+trees and bushes was missing, and the look should be darker and more serious, "düster und gemütlich", at the level of a
+big studio. He then reshaped the world and the story. He was interviewed with pictures: a before/after mock with depth
+and four target pictures, `docs/mood/look2-1-weltmauer.jpg` to `look2-4-farbe.jpg` (Recraft concepts, not game art).
+
+- **The world: the Weltmauer.** At the edge of the continent runs a mountain wall "like a line of Mount Everests", far
+  above the clouds, that nobody can climb. It has one single cleft that leads to the other side. Lanternhold is wedged
+  into that cleft, wall to wall, and defends it.
+  - Before the castle (left, x 0 to 1240) lies the **shadow land**, open and dark: dark fir forests, fog, a dead moor,
+    ruins of older defence lines, weathered statues of past lords. It is no longer a narrow gorge with rock walls along
+    its length; the Weltmauer's cliffs rise at the cleft's mouth, around the castle.
+  - Behind the castle (right) lies our land: the valley, the town and the river. Dark firs grow on the mountain slopes
+    and deciduous trees (linden, poplars, orchards) in the town, so the contrast stays strong.
+  - The player reads at a glance where the monsters come from: dark and foggy on the left, warm and bright on the
+    right, the Weltmauer filling the sky behind the castle.
+- **The story: the House of the Lantern.** For a thousand years the House of the Lantern has held the cleft, generation
+  after generation. Nobody knows what the shadows are; everybody fears them. Behind the wall lies a huge continent with
+  other families, lands, small towns and castles.
+  - **The player is the Burgherr**, the lord of Lanternhold, not a king: a narrow gold circlet instead of a crown. The
+    other lands have their own rulers.
+  - **The other families are mixed:** some are allies, some envy the house, some think the shadows are a myth and want
+    to stop paying. They come as envoys, merchants and petitioners to the audiences.
+  - **The mystery opens piece by piece:** every chapter reveals a little more; the end of chapter 1 gives the first
+    big hint.
+- **The look: "farbig-düster"** (target picture 4): deep blue nights, warm orange fire, dark green forests; muted and
+  serious, but with colour that carries on a phone screen. More dusk and night, mist and haze, warm windows and
+  lanterns against the cold dark.
+  - Depth: trees in rows behind the play plane, each farther row paler; dark plants in front that pass faster; a calm,
+    hazy backdrop with the strongest contrast in the play plane; a lane under the feet instead of the soil cross-section;
+    water reflections only where the world has water.
+  - Movement: grass and trees in the wind, sparks, fireflies, chimney smoke.
+- **The shadow creatures: lost people.** Gaunt, far too long figures of smoke that were once people: hollow glowing
+  eyes, torn clothes, broken lanterns, ember cracks. Much creepier, each type with its own character.
+- **The bar:** a big studio's game. Backdrops are painted (Recraft concepts converted to the palette and finished by
+  hand), not built from code, and every scene is judged against the target pictures.
+
+How it goes on (the lead, 09.11. evening):
+
+- The look and world pass runs in its own lane `claude/lh-look2`: the direction first (palette, light, mocks), then
+  the world art (Weltmauer, shadow land, valley, depth), then the creatures, each with review, refute and fix. The
+  engine port follows after the M3 merge.
+- The M4 art lane was stopped after step 2's well (87b10bf) to free its place. It resumes under the new look; the
+  brook, the footbridge, the barn, the festival tent and the town's other changes are still to paint.
+- The story pass after the M3 merge rewrites the content (DESIGN.md "M3 in detail", `Resources/Story.xcstrings`):
+  king to lord, the families in the audiences, chapter 1's new premise and the first big hint in the endings.
+- Chapter 1's premise in the new frame (decided for Louis): the Great Beacon at the cleft's mouth has gone dark; Lord
+  Aldric rode into the shadow land to rekindle it and never returned. The lordship falls to the last of the house that
+  nobody counted on, the castle's lamplighter, Aldric's young cousin; the circlet is a little too big. Seren, the
+  Lightless King and the endings stay as in "Story"; the story pass renames the endings from crowns to lanterns.
+- Kept apart from other wall stories: a natural mountain range, a family and its people, light against shadow; never a
+  built wall of ice or a sworn order.
+
 ## Decisions taken for Louis (log)
 
 | Date | Decision | Why |
@@ -72,8 +126,8 @@ use their names, characters, art, music, levels or look. In particular:
 | Coins carried in a pouch and dropped at build sites, the coin drop as the only input | Gold in a treasury from taxes; a build card with prices at each plot |
 | Vagrants in the wild recruited with coins, tools that set a job | Citizens are born in the town when people are happy; soldiers are recruited at the barracks |
 | Masked enemies from portals that steal coins and the crown; losing the crown ends the run | The Gloom is a creeping wall of black fog with soot creatures; they want the hearth fire, never the king |
-| Enemies from both sides | One front only, on the left; the gorge's cliffs close everything else |
-| A water reflection strip along the bottom, the island campaign, boats | The gorge: cliffs framing the top of the screen, a castle cut-away, the town's lit windows |
+| Enemies from both sides | One front only, on the left; the Weltmauer closes everything else |
+| A water reflection strip along the bottom, the island campaign, boats | The Weltmauer and its single cleft, a castle cut-away, the town's lit windows; reflections only where the world has water |
 | The Kingdom palette, its silhouette-heavy single band | Our own palette (see "Look"), interiors, vertical cliffs, light pools as readable game state |
 | King Eryk, a queen and three daughters, a succession or forced-marriage story, Slavic folklore monsters | A lamplighter crowned because nobody else wanted the crown; the old king lost in the Gloom; original court and creatures |
 | Yes, Your Grace's throne-room layout or ledger UI | Petitioners walk into a side-view great hall; a parchment card with 2 or 3 tap choices |
