@@ -1,0 +1,4 @@
+Test Case '-[LanternholdUITests.MidChapterUITests testFinale]' passed (73.256 seconds).
+Test Case '-[LanternholdUITests.MidChapterUITests testMidChapter]' passed (105.986 seconds).
+exit=0
+screenshots: 6
