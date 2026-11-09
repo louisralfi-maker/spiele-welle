@@ -961,11 +961,12 @@ Open points:
   measure (more seeds as the target, or endless growth that also adds brutes) belongs to the endless work in M3, and the
   King's leaving at 10 s after nightfall stays provisional until then.
 - With these bots the King always falls at the middle line, never at the outer line (its palisade falls in seconds).
-- The realm's world numbers (`Realm.worldWidth` 3900, `walkEnd` 3760, the town plots 100 px right) follow the M1b world
-  of the `lh-m1b-port` branch; on this branch `WorldLayout` and the world table above still say 3800. They must land
-  together with that port, and then `Realm` should take them from `WorldLayout` (or a test should pin them equal).
-- The realm's braziers stand 5 px right of the M1b world's brazier slots (`WorldLayout.lines`: 1250, 1274, 891, 915, 591, 612);
-  the realm keeps 1255, 1279, 896, 920, 596, 617 until a retune can absorb the move.
+- The realm's world numbers (`Realm.worldWidth` 3900, `walkEnd` 3760, the town plots 100 px right) landed together
+  with the M1b world (merge of `lh-m1b-port`, 09.11.). `Tests/RealmWorldTests` pins every copy in `Realm` to
+  `WorldLayout`: width, walk end, spawn, beacon, hearth, throne, the lines' walls, towers, engines and traps, and the town
+  plots' centres.
+- The braziers are not 5 px off: `WorldLayout.lines` gives a brazier's left edge (1250, 1274, 891, 915, 591, 612, where
+  its 10 px sprite stands), `Realm` its centre and light (1255, 1279, 896, 920, 596, 617). The test pins that too.
 
 ### UI (screenshots `<nn>-<what>-<lang>`, English and German)
 
