@@ -210,7 +210,8 @@ shading, no cast shadows, no glow, no fire, no smoke, no night, no fog, no sky, 
 `scene_buildings.py` runs `mock.py` once per scene with the extras hook (`extras=<json>`, `actors=off`, `king=<x>`); a
 scene names the layout props it replaces (`drop`), and the file removes them by wrapping `layout_m1b.instances()` before
 `mock.py` imports the module (the hook adds props but cannot remove any; neither `mock.py` nor `layout_m1b.py` is
-touched). Each render takes about 2 s; `run_buildings.sh` renders them one at a time with the heat rule. Output:
+touched). The look is run_m1b.sh's plus the renderer's cap on reflected firelight (`litCap=1.6 litNeutral=0.35`, as
+run_actors.sh). Each render takes about 2 s; `run_buildings.sh` renders them one at a time with the heat rule. Output:
 `build/recraft/lh/preview/bld-<name>.png` (437x201, upscaled x3, git-ignored).
 
 | shot | focus, tod | shows |

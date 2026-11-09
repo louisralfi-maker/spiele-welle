@@ -18,9 +18,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import layout_m1b as LM  # noqa: E402
 
-# the M1b look values (run_m1b.sh)
+# the M1b look values (run_m1b.sh) plus the renderer's cap on reflected firelight (Shaders.metal kLitCap 1.6,
+# kLitNeutral 0.35; opt-in in mock.py), as run_actors.sh: without it pale stone next to a fire blows out to white
 LOOK = ('gain=3.0 lift=0.55 midHaze=0.36 midShare=0.7 fogBright=2.4 fogGlow=0.7 farCool=0.75 farWarm=0.3 midWarm=0.7 '
-        'midCool=0.25 fogScale=0.7').split()
+        'midCool=0.25 fogScale=0.7 litCap=1.6 litNeutral=0.35').split()
 F = LM.CASTLE_FRONT_X
 
 
