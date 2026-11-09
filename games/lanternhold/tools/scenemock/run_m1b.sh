@@ -43,7 +43,7 @@ for name in ${@:-front-night castle-night castle-dusk courtyard-dusk valley-gold
     read -r f t <<< "$(shot "$name")"
     python3 -I $G/tools/scenemock/mock.py $G layout=m1b focus=$f tod=$t gain=3.0 lift=0.55 midHaze=0.36 midShare=0.7 \
         fogBright=2.4 fogGlow=0.7 farCool=0.75 farWarm=0.3 midWarm=0.7 midCool=0.25 fogScale=0.7 farHaze=0.34 \
-        midHazeDay=0.2 fgAmb=0.9 fgAmbNight=0.43 litCap=1.6 litNeutral=0.35 litCool=0.6 bounce=0.5 duskSun=1 band=0.45 \
-        rim=0.5 out=$OUT/m1b-$name.png
+        midHazeDay=0.2 fgAmb=0.9 fgAmbNight=0.43 litCap=1.6 litNeutral=0.35 litCool=0.6 bounce=0.5 bounceDusk=1.6 \
+        duskSun=1 band=0.45 rim=0.5 out=$OUT/m1b-$name.png
     sleep 3
 done

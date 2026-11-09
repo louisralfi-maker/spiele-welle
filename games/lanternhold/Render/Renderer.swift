@@ -579,7 +579,7 @@ final class Renderer {
             midHaze: SIMD4<Float>(midHaze.x, midHaze.y, midHaze.z, 0),
             cloud: SIMD4<Float>(Look.cloudSun, Look.cloudFill, Look.cloudHaze, 0),
             backdropLight: SIMD4<Float>(backdrop.x, backdrop.y, backdrop.z, 0),
-            polish: SIMD4<Float>(0, Look.bounce * daylight, Look.duskSun * daylight,
+            polish: SIMD4<Float>(0, Look.bounceStrength(ambient), Look.duskSun * daylight,
                                  Look.bandStrength(ambient, focus: focus)),
             bounceColor: SIMD4<Float>(bounce.x, bounce.y, bounce.z, 0),
             bandColor: SIMD4<Float>(bandColor.x, bandColor.y, bandColor.z, Look.bandHeight),

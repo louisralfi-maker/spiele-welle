@@ -41,10 +41,11 @@ LOOK = dict(lift=0.46, farShare=0.9, midLight=0.32, gain=1.55, knee=0.95, fogGlo
             # neutral share litNeutral + litCool x its green-blue-over-red share), bounce (by day the dark, shadowed albedo
             # takes the sky's cool light instead of the warm sun, between albedo lumas bounceLo and bounceHi), duskSun
             # (at dusk the night's violet pull spares the sunlit albedo), band (a bright haze band over the far and mid
-            # planes' lowest bandH rows by day and dusk, bandWhite toward white), rim (a cool rim on the actors' edge
-            # pixels by day)
+            # planes' lowest bandH rows by day and dusk, bandWhite toward white; bandValley its share in the valley,
+            # bandWarmCut its thinning at the warm hours), bounceDusk (the bounce fades with daylight x this, capped at
+            # 1), rim (the king's cool rim on his screen-right edge pixels)
             litCool=0.0, bounce=0.0, bounceLo=0.2, bounceHi=0.5, duskSun=0.0, band=0.0, bandH=48.0, bandWhite=0.4,
-            bandValley=0.5, bandWarmCut=0.5, rim=0.0)
+            bandValley=0.5, bandWarmCut=0.5, bounceDusk=1.0, rim=0.0)
 for k in list(LOOK):
     if k in args: LOOK[k] = float(args[k])
 src = open(os.path.join(G, 'Core/FrameDesc.swift')).read()
@@ -450,7 +451,7 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
     MH = LOOK['midHazeDay'] + (LOOK['midHaze'] - LOOK['midHazeDay']) * night
     fgA = LOOK['fgAmb'] if LOOK['fgAmbNight'] < 0 else LOOK['fgAmb'] + (LOOK['fgAmbNight'] - LOOK['fgAmb']) * night
     # scene polish 2: the sky's cool light at the ambient's level (bounce), how much of it by day and dusk, the band
-    day = 1 - night; bounceK = LOOK['bounce'] * day
+    day = 1 - night; bounceK = LOOK['bounce'] * min(1.0, day * LOOK['bounceDusk'])
     BLUE = (0.6, 0.68, 1.0)  # half the sky's own colour, half a plain cool blue (the noon sky alone turned rock teal)
     bounceW = [(stN_ + (BLUE[k] - stN_) * 0.5) * lvl for k, stN_ in enumerate(v / max(max(amb['skyTop']), 1e-3) for v in amb['skyTop'])]
     # the band's share in the valley (Look.bandStrength: full to focus 2150, bandValley of it from the back gate on)

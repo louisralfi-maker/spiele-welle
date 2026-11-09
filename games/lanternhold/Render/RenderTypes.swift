@@ -140,6 +140,9 @@ enum Look {
     /// half a plain cool blue: the noon sky alone turned rock teal), so warm lit tops stand against cold shadow.
     static let bounce: Float = 0.5
     static let bounceBlue = SIMD3<Float>(0.6, 0.68, 1.0)
+    /// The bounce fades with daylight × this (capped at 1), so the dusk (daylight 0.5) keeps 0.8 of it: violet
+    /// shadows under the amber light instead of one warm haze (round lh-art-s1, shot 03).
+    static let bounceDusk: Float = 1.6
     /// At dusk the night's violet pull spares the sunlit share of a pixel by this much (× daylight).
     static let duskSun: Float = 1
     /// The bright haze band low in the gorge: its strength by day (× daylight), its height in rows above the ground
@@ -206,6 +209,11 @@ enum Look {
     /// How much of day this ambient is: 1 by day and at golden hour, 0 at night.
     static func daylight(_ sample: AmbientSample) -> Float {
         1 - nightness(sample)
+    }
+
+    /// The cool bounce's strength at this hour: full by day and at golden hour, 0.8 of it at dusk, none at night.
+    static func bounceStrength(_ sample: AmbientSample) -> Float {
+        bounce * min(1, daylight(sample) * bounceDusk)
     }
 
     /// The sky's cool light on shadowed albedo (scene polish 2): the sky's top colour at full brightness, half of it

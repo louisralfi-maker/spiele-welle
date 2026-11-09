@@ -500,11 +500,11 @@ unchanged. Mocks: `tools/scenemock/run_m1b.sh` (it now passes the renderer's who
 
 | Point | Fix | Where |
 |---|---|---|
-| castle mass: a cast shadow | the front's silhouette swept along the light and kept only on rock and ground drawn before it (`bake_shadows.py`): by day light from the upper left (sweep 10 right, 8 down on the rock, 6 on the ground, 9/6 for the left tower on the gatehouse wall), at dusk the low western sun (90 right, 3 to 4 down: the long shadow across the throat rock); six sprites, the day shadow and the long dusk shadow beyond it for the rock, the ground strip and the gatehouse wall; drawn black at `sunShadowAlpha` (0.55 in full sun, falling to 0 from a sun height of 0.18 to −0.12; the dusk part also times the evening weight, smoothstep 16:00 to 18:24), so the two never darken a pixel twice and there is none at night | `castleShadow`, `castleShadowLong`, `groundShadow`, `groundShadowLong`, `gateShadow`, `gateShadowLong`; layout `SHADOWS`; `FrameBuilder.sunShadowAlpha` |
+| castle mass: a cast shadow | the front's silhouette swept along the light and kept only on rock and ground drawn before it (`bake_shadows.py`): by day light from the upper left (sweep 10 right, 8 down on the rock, 6 on the ground, 9/6 for the left tower on the gatehouse wall), at dusk the low western sun (90 right, 3 to 4 down: the long shadow across the throat rock), its far edge frayed (per-row seeded wiggle of 3 to 5 px and a world-anchored Bayer penumbra: the straight hard edge of round `lh-art-s1` read as a rectangle laid over the rock); six sprites, the day shadow and the long dusk shadow beyond it for the rock, the ground strip and the gatehouse wall; drawn black at `sunShadowAlpha` (0.55 in full sun, falling to 0 from a sun height of 0.18 to −0.12; the dusk part also times the evening weight, smoothstep 16:00 to 18:24), so the two never darken a pixel twice and there is none at night | `castleShadow`, `castleShadowLong`, `groundShadow`, `groundShadowLong`, `gateShadow`, `gateShadowLong`; layout `SHADOWS`; `FrameBuilder.sunShadowAlpha` |
 | castle mass: fog at its foot | a bank of ground mist at the foot of the walls (300x34, white with alpha in eight steps, thick at the bottom, thinning over 24 rows, soft over 48 px at both ends) on the world plane after the front and before the actors, so the king walks in front of it; `mistAlpha` = 0.9 × torch strength × fog density / 0.4 (at most 1.25): none by day, a veil at 18:28, thick at night and in the dawn haze; lit like the world (moonlit lavender, warm by the gate lantern) | `castleMist` (`procart.py fogbank`); `FrameBuilder.mistAlpha` |
 | gorge depth: the far wall's strata | the far wall flattened one value step (`rockDeep` → `rockDark`, `soilDark` → `soil`): its darkest strata lifted, so it reads farther than the throat rock cut from the same painting | `gorgeWallA`-`C`, `gorgeWallHigh` (`post --remap $FARFLAT`) |
-| gorge depth: a bright fog band | over the far and mid planes' lowest 48 rows, by day and dusk (× daylight), toward the horizon colour 40 % of the way to white, strength 0.45 (half of it from the back gate on: in the valley it veiled the river's far shore) | renderer (`lh_base`, `Look.band…`) |
-| gorge depth: a cool bounce | by day and dusk the shadowed share of the albedo (luma 0.5 down to 0.2) takes the sky's cool light instead of the warm sun (the sky's top colour at full brightness, half of it pulled to a plain cool blue `(0.6, 0.68, 1.0)`: the noon sky alone turned the rock teal), strength 0.5, on the world and the mid plane (not on the figures): warm sunlit tops against cold shadow, and the cast shadows turn cool | renderer (`lh_ambient`, `Look.bounce…`) |
+| gorge depth: a bright fog band | over the far and mid planes' lowest 48 rows, by day and dusk (× daylight), toward the horizon colour 40 % of the way to white, strength 0.45 (half of it from the back gate on: in the valley it veiled the river's far shore; and half the aerial weight less at the warm hours, whose haze is thick already: round `lh-art-s1`'s golden hour washed the statue's foot out) | renderer (`lh_base`, `Look.band…`) |
+| gorge depth: a cool bounce | by day and dusk the shadowed share of the albedo (luma 0.5 down to 0.2) takes the sky's cool light instead of the warm sun (the sky's top colour at full brightness, half of it pulled to a plain cool blue `(0.6, 0.68, 1.0)`: the noon sky alone turned the rock teal), strength 0.5 × min(1, daylight × 1.6) (so the dusk keeps 0.8 of it: violet shadows under amber light), on the world and the mid plane (not on the figures): warm sunlit tops against cold shadow, and the cast shadows turn cool | renderer (`lh_ambient`, `Look.bounceStrength`) |
 | gate lanterns | cool albedo reflects firelight more neutrally: the neutral share 0.35 + 0.6 × its green-or-blue-over-red share (the banner 0.75), on the world and the figures; and the front's banners deep teal (`roofDeep`) with two lit folds each and a lit hem: the torches now light a warm sheen on dark cloth instead of a pale mint oval | renderer (`lh_reflectance`), `castleFront` (`post --remap` banner rects) |
 | dusk at 0.80 | the dusk keyframe's light, horizon and fog one step more amber (ambient `(0.94, 0.68, 0.42)`, horizon `(0.90, 0.54, 0.38)`, fog `(0.48, 0.36, 0.40)`), and the night's violet pull spares the sunlit share at dusk (k × (1 − sunlit × daylight)): the sunlit rock a dimmer ochre on the way to the night, violet in the sky and the shadows, no rose wash | `AmbientRamp` (and `core.py`), renderer (`lh_pull`) |
 | the king's readability | a cool rim (sky by day, moon at night: `(0.72, 0.82, 1.0)` × the ambient level, at least 0.6) on his screen-right edge pixels, half strength, outshone by firelight (his own lantern at night); his painted outline turns cool grey on that side instead of a black line all round | renderer (actor pass, `flags.z` for the king) |
@@ -525,14 +525,15 @@ unchanged. Mocks: `tools/scenemock/run_m1b.sh` (it now passes the renderer's who
   castleMist` rebuilds them byte for byte (checked). Do not run `build-art.sh` without names on this branch: its
   `palisade`, `stoneWall` and `ballista` steps would write the old one-frame sprites over the buildings lane's strips.
 - `mock.py` look options (all off by default, so older mocks stay byte for byte): `litCool`, `bounce` (`bounceLo`,
-  `bounceHi`), `duskSun`, `band` (`bandH`, `bandWhite`, `bandValley`), `rim`, and the renderer's earlier polish values
+  `bounceHi`, `bounceDusk`), `duskSun`, `band` (`bandH`, `bandWhite`, `bandValley`, `bandWarmCut`), `rim`, and the
+  renderer's earlier polish values
   that the mock lacked: `midHazeDay` (0.2) and `fgAmbNight` (with `fgAmb` 0.9 by day, 0.43 at night), plus `farHaze`
   0.34. It draws the shadow and mist instances (`shadow`, `mist` keys of `layout_m1b.instances()`). `run_m1b.sh` passes
   the whole current look (and gains the shots `front-noon`, `front-dusk`, `castle-day`).
 
 ### Renderer additions (Shaders.metal; mock.py is the reference)
 
-- `CompositeUniforms` gains `polish` (unused, bounce × daylight, dusk spare × daylight, band strength), `bounceColor`,
+- `CompositeUniforms` gains `polish` (unused, `Look.bounceStrength`, dusk spare × daylight, `Look.bandStrength`), `bounceColor`,
   `bandColor` (rgb, band height) and `rim` (rgb, strength); 400 bytes.
 - World and mid plane: `shade = 1 − smoothstep(0.2, 0.5, luma(straight albedo))`; ambient `mix(ambient, bounce, shade ×
   polish.y)` (the mid plane's bounce × its 0.7 share); the colourise `look.x × (1 − (1 − shade) × polish.z)`;
@@ -541,6 +542,16 @@ unchanged. Mocks: `tools/scenemock/run_m1b.sh` (it now passes the renderer's who
 - Actors: the same reflectance, cap and colourise (no bounce); the king's rim on texels whose screen-right neighbour
   (`dfdx` of the texel x gives the direction, so a mirrored king keeps it on the right) is transparent:
   `mix(lit, rim.rgb, rim.w × (1 − saturate(peak light × 1.5)))`.
+
+### Rounds
+
+- `lh-art-s1` (c2542c5): build, ui, ui-de and release passed; unit failed only in `TuningTests` (T6 and T7, the M2a
+  simulation's night-20 and endless targets: this branch carries the simulation from before the planning branch's
+  retune; no file of this pass touches it). Every test of this pass passed (`testCastleShadowFollowsTheSun`,
+  `testShadowAndMistStrengthsByTheHour`, `testMistAtTheCastleFootComesWithTheDusk`, the fixture, the strip split, the
+  400-byte uniforms). From its shots: the long shadow's edge frayed, the band thinner at the warm hours, two noon shots.
+- `lh-art-s2` (26daf55): ALL PASSED with the unit step over every test class but `TuningTests`. From its shots: the
+  bounce keeps 0.8 of its strength at dusk (shot 03 was one warm haze).
 
 ### Lessons
 
