@@ -1,0 +1,1 @@
+scene after the report: frame:3940 ready day:2 hour:6.46 alive:0 seen:0 shots:0 kx:1152
