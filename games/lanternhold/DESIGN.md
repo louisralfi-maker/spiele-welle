@@ -809,11 +809,12 @@ posts per wall tier.
 
 Rules fixed in M2a:
 
-- The finale: the Lightless King marches on the hearth. He breaks the outer walls before midnight and the gate between
-  about 04:00 and 05:00 (it varies by seed), then the Gloom floods the hall. A finished beacon is lit at 04:30, and the
-  Gloom recedes at once. From first light (05:00) the hearth takes no more harm, so without the beacon the realm falls
-  in the seeds where the King reaches the hearth between 04:30 and 05:00 (no seed reached it before 04:30). Bosses
-  drain the hearth by their harm per second.
+- The finale: the Lightless King marches on the hearth. In round `lh-m2a-fix-2` (10 seeds, gate never upgraded by the
+  bot) the outer wall fell at 22:45 to 00:05, the middle wall at 00:05 to 01:20 and the gate at 03:00 to 04:20, and the
+  Gloom reached the hearth at 04:25 to 04:45 where it fell. A finished beacon is lit at 04:30, and the Gloom recedes at
+  once. From first light (05:00) the hearth takes no more harm, so without the beacon the realm falls in the seeds where
+  the hearth goes out between 04:30 and 05:00 (04:33 to 04:58 in that round). Bosses drain the hearth by their harm per
+  second.
 - The last guard holding a breach stands his ground and can fall there; guards who step back are let go.
 - Builders walk home when their work is done and at the horn.
 - The lit beacon lights only the finale (`beaconEndlessRadius` 0); endless relies on what was built.
@@ -822,7 +823,9 @@ Rules fixed in M2a:
   or more, keeps its gold while saving for the beacon (no patches then), and at night lights snuffed braziers, patches
   walls under attack below half strength (at most 3 a night) and otherwise stands behind the front wall.
 - Headless runs step 1 s by day and 0.1 s at night; `SimTests` checks night 7 and night 20 without the beacon (wall
-  falls, the hearth reached, the outcome) against the 1/60 s step.
+  falls, the hearth reached, the outcome) against the 1/60 s step. Open: soldier losses on night 20 depend on the step
+  (round `lh-m2a-fix-2`, seed 3: 0 at 1/60 s, 4 at 0.1 s, in the crowd pouring through the fallen gatehouse), so the
+  test records them without comparing; T1's losses and the night-20 losses are measured at 0.1 s.
 
 ### UI (screenshots `<nn>-<what>-<lang>`, English and German)
 
