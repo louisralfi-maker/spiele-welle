@@ -44,13 +44,13 @@ struct CourtRoutine: Sendable, Equatable {
     var offset = 0.0
 }
 
-/// The court's places (DESIGN.md "M3 in detail"): a pure function of the day, the hour, the flags and today's queue that
-/// puts every court member and today's guests in the castle, and today's petitioners on the great hall's benches.
+/// The court's places (DESIGN.md "M3 in detail"): a pure function of the day, the hour, the flags and today's queue
+/// that puts every court member and today's guests in the castle, and today's petitioners on the great hall's benches.
 ///
-/// - Odile by the throne in the hall (stepping to the tax lectern now and then); Brannock between the courtyard and the
-///   gatehouse; Pip wandering the courtyard and the hall; Mother Hesper in the chapel by day and at the hearth at night;
-///   Tamsin in the kitchen; Bram at the smithy; Marek with his cart in the courtyard on his days (every third day, and
-///   any day he brings a petition), by day only.
+/// - Odile by the throne in the hall (stepping to the tax lectern now and then); Brannock between the courtyard and
+///   the gatehouse; Pip wandering the courtyard and the hall; Mother Hesper in the chapel by day and at the hearth at
+///   night; Tamsin in the kitchen; Bram at the smithy; Marek with his cart in the courtyard on his days (every third
+///   day, and any day he brings a petition), by day only.
 /// - Seren: waiting at the front gate on the day her petition comes, then from the moment she is let in
 ///   (`stranger_in`) in the great hall's far corner, gone once handed over (`seren_handed_over`).
 /// - Guests stand in the hall on their petition's day while they wait; townsfolk petitioners stand at the benches'
@@ -90,7 +90,8 @@ enum CourtLayout {
                                offset: 3),
         "tamsin": CourtRoutine(stops: [2146, 2196], faces: [-1, 1], dwell: [8, 10], night: 2170, nightFacing: -1,
                                offset: 7),
-        "bram": CourtRoutine(stops: [1566, 1588], faces: [1, 1], dwell: [10, 6], night: 1580, nightFacing: 1, offset: 2),
+        "bram": CourtRoutine(stops: [1566, 1588], faces: [1, 1], dwell: [10, 6], night: 1580, nightFacing: 1,
+                             offset: 2),
         "marek": CourtRoutine(stops: [1542, 1550], faces: [-1, -1], dwell: [10, 8], night: 1542, nightFacing: -1,
                               offset: 4),
     ]
@@ -100,8 +101,8 @@ enum CourtLayout {
         day % marekEvery == 0 || speakers.contains("marek")
     }
 
-    /// Where a round puts its walker `seconds` after dawn: the spot, the way he faces, whether he walks and how far along
-    /// the current leg (for the walk frame).
+    /// Where a round puts its walker `seconds` after dawn: the spot, the way he faces, whether he walks and how far
+    /// along the current leg (for the walk frame).
     static func place(_ routine: CourtRoutine, seconds: Double) -> (x: Double, facing: Int, walking: Bool,
                                                                    walked: Double) {
         let n = min(routine.stops.count, routine.faces.count, routine.dwell.count)
@@ -158,15 +159,16 @@ enum CourtLayout {
         for id in courtOrder {
             guard let speaker = Speakers.speaker(id) else { continue }
             let body = speaker.body
+            let still = frame(body, walking: false, walked: 0, seconds: seconds)
             if id == "seren" {
                 if flags.contains(serenGoneFlag) { continue }
                 if flags.contains(serenInFlag) {
                     list.append(CourtFigure(who: id, sprite: body.sprite, glow: body.glow, x: serenCorner, facing: -1,
-                                            pose: .idle, frame: frame(body, walking: false, walked: 0, seconds: seconds),
+                                            pose: .idle, frame: still,
                                             room: WorldLayout.room(at: serenCorner), petition: nil, look: nil))
                 } else if let found = waiting.first(where: { catalog.petition($0.id)?.speaker == id }) {
                     list.append(CourtFigure(who: id, sprite: body.sprite, glow: body.glow, x: strangerAtGate, facing: 1,
-                                            pose: .idle, frame: frame(body, walking: false, walked: 0, seconds: seconds),
+                                            pose: .idle, frame: still,
                                             room: WorldLayout.room(at: strangerAtGate), petition: found.id,
                                             look: found.look))
                 }
@@ -200,9 +202,8 @@ enum CourtLayout {
             return spot
         }
         for petitioner in waiting {
-            guard let petition = catalog.petition(petitioner.id), let speaker = Speakers.speaker(petition.speaker) else {
-                continue
-            }
+            guard let petition = catalog.petition(petitioner.id),
+                  let speaker = Speakers.speaker(petition.speaker) else { continue }
             let body = speaker.body
             let x: Double
             switch speaker.role {
@@ -219,7 +220,8 @@ enum CourtLayout {
                 }
             }
             list.append(CourtFigure(who: speaker.id, sprite: body.sprite, glow: body.glow, x: x, facing: 1, pose: .idle,
-                                    frame: frame(body, walking: false, walked: 0, seconds: seconds + Double(seat + stand)),
+                                    frame: frame(body, walking: false, walked: 0,
+                                                 seconds: seconds + Double(seat + stand)),
                                     room: WorldLayout.room(at: x), petition: petition.id, look: petitioner.look))
         }
         return list

@@ -153,6 +153,12 @@ enum CourtValidator {
         return out
     }
 
+    /// `[day]` or `[from, to]` with from at least 1 and to not before from.
+    static func validDays(_ days: [Int]) -> Bool {
+        guard let first = days.first, days.count <= 2, first >= 1 else { return false }
+        return days.count == 1 || days[1] >= first
+    }
+
     /// True when a choice costs neither gold nor people.
     static func costsNothing(_ effect: PetitionEffect) -> Bool {
         for value in [effect.gold, effect.citizens, effect.archers, effect.guards, effect.builders] {
@@ -168,18 +174,21 @@ enum CourtValidator {
         func note(_ text: String) { out.append("\(id): \(text)") }
         if !isName(id) { note("the id must be lowercase letters, digits and _") }
         if !Speakers.isKnown(petition.speaker) { note("unknown speaker \(petition.speaker)") }
-        if let chapter = petition.chapter, chapter != PetitionEngine.chapter { note("chapter \(chapter) does not exist") }
-        if let days = petition.days, days.isEmpty || days.count > 2 || days[0] < 1 || (days.count == 2 && days[1] < days[0]) {
-            note("days must be [day] or [from, to], from day 1")
+        if let chapter = petition.chapter, chapter != PetitionEngine.chapter {
+            note("chapter \(chapter) does not exist")
         }
+        if let days = petition.days, !validDays(days) { note("days must be [day] or [from, to], from day 1") }
         switch petition.kind {
         case .story:
-            if petition.days == nil && !followUps.contains(id) { note("a story petition needs days or a schedule to it") }
+            if petition.days == nil && !followUps.contains(id) {
+                note("a story petition needs days or a schedule to it")
+            }
         case .random, .endless:
             if petition.drawWeight == 0 && !followUps.contains(id) { note("weight 0 and no schedule leads to it") }
         }
         if let weight = petition.weight, weight < 0 { note("weight below 0") }
-        if let range = petition.happinessRange, range.count != 2 || range[0] < 0 || range[1] > 100 || range[0] > range[1] {
+        if let range = petition.happinessRange,
+           range.count != 2 || range[0] < 0 || range[1] > 100 || range[0] > range[1] {
             note("happinessRange must be [low, high] within 0 ... 100")
         }
         for flag in (petition.requires ?? []) + (petition.forbids ?? []) where !isName(flag) {
@@ -292,7 +301,9 @@ enum CourtValidator {
     static func lineProblems(_ data: Data, catalog: PetitionCatalog, table: StoryTable) -> [String] {
         var out: [String] = []
         if let root = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] {
-            for key in root.keys.sorted() where key != "lines" { out.append("lines.json: unknown top-level key \(key)") }
+            for key in root.keys.sorted() where key != "lines" {
+                out.append("lines.json: unknown top-level key \(key)")
+            }
             for (position, item) in ((root["lines"] as? [Any]) ?? []).enumerated() {
                 guard let line = item as? [String: Any] else { continue }
                 let id = (line["id"] as? String) ?? "#\(position)"
@@ -309,11 +320,11 @@ enum CourtValidator {
             if !Speakers.canTalk(line.speaker) {
                 out.append("\(what): \(line.speaker) does not talk in the hall (a court member or a guest does)")
             }
-            if let days = line.days, days.isEmpty || days.count > 2 || days[0] < 1 || (days.count == 2 && days[1] < days[0]) {
-                out.append("\(what): days must be [day] or [from, to], from day 1")
-            }
+            if let days = line.days, !validDays(days) { out.append("\(what): days must be [day] or [from, to], from day 1") }
             if let weight = line.weight, weight <= 0 { out.append("\(what): weight must be above 0") }
-            if let about = line.about, catalog.petition(about) == nil { out.append("\(what): about \(about) is no petition") }
+            if let about = line.about, catalog.petition(about) == nil {
+                out.append("\(what): about \(about) is no petition")
+            }
             for flag in (line.requires ?? []) + (line.forbids ?? []) where !isName(flag) {
                 out.append("\(what): the flag \(flag) must be lowercase letters, digits and _")
             }

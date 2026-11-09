@@ -35,10 +35,10 @@ struct PetitionOutcome: Sendable, Equatable {
 
 /// The audience's rules (DESIGN.md "The throne: audiences and decisions", "M3 in detail"), pure and deterministic.
 ///
-/// - `prepare` draws today's petitioners once a day, by day: day 1 one (the tutorial), else 2 to 4; story petitions on
-///   their days first (until heard), follow-ups due today next, then random ones by weight among the eligible, never the
-///   same one twice in five days; endless-only ones only in endless. The draw uses its own stream made from the seed
-///   and the day, so the queue never moves the simulation's random stream.
+/// - `prepare` draws today's petitioners once a day, by day: day 1 one (the tutorial), else 2 to 4; story petitions
+///   on their days first (until heard), follow-ups due today next, then random ones by weight among the eligible,
+///   never the same one twice in five days; endless-only ones only in endless. The draw uses its own stream made from
+///   the seed and the day, so the queue never moves the simulation's random stream.
 /// - `hear` applies a choice through the simulation's own rules; a chance rolls the simulation's seeded stream.
 /// - `horn` (from `Sim` at 19:00) sends the waiting home: each costs 1 happiness at dawn
 ///   (`Balance.happinessPerUnheard`, shown in the dawn report's realm column).
@@ -82,7 +82,8 @@ enum PetitionEngine {
         func has(_ id: String) -> Bool { picked.contains { $0.id == id } }
         if s.mode == .chapter {
             for petition in catalog.petitions where isStoryDue(petition, s, court: court) {
-                picked.append(Petitioner(id: petition.id, reason: .story, look: look(s.seed, day: day, id: petition.id)))
+                let face = look(s.seed, day: day, id: petition.id)
+                picked.append(Petitioner(id: petition.id, reason: .story, look: face))
             }
         }
         for entry in court.scheduled where entry.day == day && !has(entry.id) {
@@ -201,7 +202,9 @@ enum PetitionEngine {
         if let count = effect.archers, count < 0, s.archerCount < -count {
             return .archers(missing: -count - s.archerCount)
         }
-        if let count = effect.guards, count < 0, s.guardCount < -count { return .guards(missing: -count - s.guardCount) }
+        if let count = effect.guards, count < 0, s.guardCount < -count {
+            return .guards(missing: -count - s.guardCount)
+        }
         if let count = effect.citizens, count < 0, s.taxpayers < -count {
             return .taxpayers(missing: -count - s.taxpayers)
         }
@@ -260,7 +263,9 @@ enum PetitionEngine {
         if let count = effect.guards, count != 0 {
             outcome.guards += changeSoldiers(&s, kind: .guardsman, by: count, balance: balance)
         }
-        if let count = effect.builders, count != 0 { outcome.builders += changeBuilders(&s, by: count, balance: balance) }
+        if let count = effect.builders, count != 0 {
+            outcome.builders += changeBuilders(&s, by: count, balance: balance)
+        }
         for flag in effect.flags ?? [] {
             setFlag(&s, flag, outcome: &outcome)
         }

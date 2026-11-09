@@ -1018,7 +1018,7 @@ enum PlaceholderCourt {
         case PortraitPart.helm:
             for y in 7...17 {
                 for x in 13...35 where inEllipse(x, y, cx: 24, cy: 17, rx: 11, ry: 10.5) {
-                    p.put(x, y, leftLit([Ink.iron[1], Ink.iron[2], Ink.iron[3], Ink.iron[4]], x: x, from: 13, width: 23))
+                    p.put(x, y, leftLit(Array(Ink.iron[1...4]), x: x, from: 13, width: 23))
                 }
             }
             p.hline(12, 36, 17, Ink.iron[2])

@@ -203,7 +203,8 @@ enum Speakers {
             faces: [PortraitPart.round, PortraitPart.long, PortraitPart.old, PortraitPart.young],
             hair: [PortraitPart.bun, PortraitPart.braids, PortraitPart.longHair],
             hats: [PortraitPart.headscarf, PortraitPart.strawHat, PortraitPart.noHat],
-            hairColors: [.darkBrown, .midBrown, .blond, .red, .grey, .black], cloths: [.redBrown, .ochre, .green, .blue])),
+            hairColors: [.darkBrown, .midBrown, .blond, .red, .grey, .black],
+            cloths: [.redBrown, .ochre, .green, .blue])),
         folk("townswoman", .petitionerD, female: PortraitStyle(
             clothes: [PortraitPart.dressWithApron],
             faces: [PortraitPart.round, PortraitPart.long, PortraitPart.young],

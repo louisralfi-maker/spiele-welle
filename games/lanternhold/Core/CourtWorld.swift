@@ -22,7 +22,7 @@ struct WorldChange: Sendable, Equatable {
 enum CourtWorld {
     static let registry: [WorldChange] = [
         WorldChange(id: "castle.statue", place: .castle, x: 1680, drawnIn: "M3",
-                    what: "a stone statue of the lamplighter king with his lantern at the courtyard's right end (statue)"),
+                    what: "a stone statue of the lamplighter king with his lantern at the courtyard's end (statue)"),
         WorldChange(id: "castle.guards.wall", place: .castle, x: 1340, drawnIn: "M3",
                     what: "two guards posted on the castle front's wall walk by day"),
         WorldChange(id: "castle.banners.new", place: .castle, x: 1700, drawnIn: "M3",
