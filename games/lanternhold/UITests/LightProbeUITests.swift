@@ -1,9 +1,10 @@
 import UIKit
 import XCTest
 
-/// Milestone 1's screenshots (DESIGN.md "Milestone 1 in detail"): the front through the day, the castle, the great
-/// hall, the town, the light lab in three styles, the chunky 135-row look, the light buffer, minimal effects, the HUD
-/// in German, and a filmstrip of the walking king at dusk with the jitter check. Each shot launches the app with its
+/// Milestone 1's screenshots (DESIGN.md "Milestone 1 in detail"): the front through the day, the castle gate, the
+/// great hall, the valley town, the light lab in three styles, the chunky 135-row look, the light buffer, minimal
+/// effects, the HUD in German, the M1b world against its mocks (castle at dusk, back gate, courtyard, river, approach,
+/// beacon), and a filmstrip of the walking king at dusk with the jitter check. Each shot launches the app with its
 /// arguments, waits until the scene reports "ready" and saves `<name>-<lang>`.
 @MainActor
 final class LightProbeUITests: XCTestCase {
@@ -34,7 +35,7 @@ final class LightProbeUITests: XCTestCase {
             Shot(name: "03-front-dusk", arguments: world("0.8")),
             Shot(name: "04-front-night", arguments: world("0.95")),
             Shot(name: "05-front-dawn", arguments: world("0.25")),
-            Shot(name: "06-castle-night", arguments: world("0.95", camera: "1500")),
+            Shot(name: "06-castle-night", arguments: world("0.95", camera: "1360")),
             Shot(name: "07-hall-night", arguments: world("0.95", camera: "1830")),
             Shot(name: "08-town-golden", arguments: world("0.75", camera: "2900")),
             Shot(name: "09-town-night", arguments: world("0.95", camera: "2900")),
@@ -49,6 +50,16 @@ final class LightProbeUITests: XCTestCase {
             // Shot 04 with the German HUD: saved as 16-hud-de.
             shots.append(Shot(name: "16-hud", arguments: world("0.95")))
         }
+        // The M1b world against the composition mocks (tools/scenemock/run_m1b.sh): 08 and 09 are the valley mocks
+        // (2900 at 0.75 and 0.95), so 19 takes the courtyard instead of a second valley-golden.
+        shots += [
+            Shot(name: "17-castle-dusk", arguments: world("0.77", camera: "1360")),
+            Shot(name: "18-backgate-golden", arguments: world("0.75", camera: "2330")),
+            Shot(name: "19-courtyard-dusk", arguments: world("0.77", camera: "1650")),
+            Shot(name: "20-river-day", arguments: world("0.5", camera: "3720")),
+            Shot(name: "21-approach-night", arguments: world("0.95", camera: "1100")),
+            Shot(name: "22-beacon-day", arguments: world("0.5", camera: "470")),
+        ]
         for shot in shots {
             capture(shot)
         }

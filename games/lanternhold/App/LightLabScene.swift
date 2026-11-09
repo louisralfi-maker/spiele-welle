@@ -69,16 +69,12 @@ enum LightLabScene {
         var fog: [FogLayer] = []
         var fogSprites: [Plane: [SpriteInstance]] = [:]
         if options.effects.fog {
-            let slow = options.reduceMotion ? Flicker.reducedRateScale : 1.0
-            let back = FogLayer(plane: .fogA, color: ambient.fogColor, density: ambient.fogDensity * 0.9,
-                                lightShare: 0.6, drift: Float(animTime * FrameBuilder.fogDriftA * slow))
-            let front = FogLayer(plane: .fogB, color: ambient.fogColor, density: ambient.fogDensity * 0.6,
-                                 lightShare: 0.8, drift: Float(animTime * FrameBuilder.fogDriftB * slow))
-            fog = [back, front]
-            fogSprites[.fogA] = fogStrips(back, baseY: FrameBuilder.fogYA, groundRow: groundRow,
-                                          targetWidth: targetWidth)
-            fogSprites[.fogB] = fogStrips(front, baseY: FrameBuilder.fogYB, groundRow: groundRow,
-                                          targetWidth: targetWidth)
+            // The world's fog layers (the same density and drift), so the lab judges the fog the scene shows.
+            fog = FrameBuilder.fogLayers(ambient: ambient, animTime: animTime, reduceMotion: options.reduceMotion)
+            for layer in fog {
+                let baseY = layer.plane == .fogA ? FrameBuilder.fogYA : FrameBuilder.fogYB
+                fogSprites[layer.plane] = fogStrips(layer, baseY: baseY, groundRow: groundRow, targetWidth: targetWidth)
+            }
         }
 
         var planes: [PlaneLayer] = []

@@ -20,17 +20,17 @@ final class RendererTests: XCTestCase {
         XCTAssertEqual(MemoryLayout<LightQuad>.stride, 32)
         XCTAssertEqual(MemoryLayout<ActorQuad>.stride, 64)
         XCTAssertEqual(MemoryLayout<LightPassUniforms>.stride, 32)
-        XCTAssertEqual(MemoryLayout<BloomUniforms>.stride, 32)
+        XCTAssertEqual(MemoryLayout<BloomUniforms>.stride, 48)
         XCTAssertEqual(MemoryLayout<BlurUniforms>.stride, 16)
-        XCTAssertEqual(MemoryLayout<CompositeUniforms>.stride, 256)
+        XCTAssertEqual(MemoryLayout<CompositeUniforms>.stride, 336)
     }
 
     func testEveryPipelineBuilds() throws {
         let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
         let names = Set(context.library.functionNames)
-        for name in ["lh_sprite_vertex", "lh_sprite_fragment", "lh_pool_vertex", "lh_pool_fragment",
-                     "lh_bloom_prefilter_fragment", "lh_blur_fragment", "lh_composite_fragment", "lh_actor_vertex",
-                     "lh_actor_fragment"] {
+        for name in ["lh_sprite_vertex", "lh_sprite_fragment", "lh_emissive_fragment", "lh_pool_vertex",
+                     "lh_pool_fragment", "lh_bloom_prefilter_fragment", "lh_blur_fragment", "lh_composite_fragment",
+                     "lh_actor_vertex", "lh_actor_fragment"] {
             XCTAssertTrue(names.contains(name), "the default library has \(name)")
         }
         XCTAssertNoThrow(try Renderer(context: context))
@@ -57,7 +57,7 @@ final class RendererTests: XCTestCase {
         XCTAssertGreaterThan(far.z, far.x, "cold far away: \(report)")
         XCTAssertLessThan(luma(far), 0.35, "dark far away: \(report)")
         XCTAssertEqual(renderer.stats.lights, 1)
-        XCTAssertGreaterThanOrEqual(renderer.stats.passes, 10, "seven planes, light, emissive, composite")
+        XCTAssertGreaterThanOrEqual(renderer.stats.passes, 11, "eight planes, light, emissive, composite")
     }
 
     func testFullEffectsAndEveryDebugViewRender() throws {
@@ -68,7 +68,7 @@ final class RendererTests: XCTestCase {
         settings.time = 1.25
         let full = try renderer.renderOffscreen(frame, settings: settings)
         attach(full, name: "renderer-night-all")
-        XCTAssertEqual(renderer.stats.passes, 13, "with bloom: threshold and two blur passes")
+        XCTAssertEqual(renderer.stats.passes, 14, "with bloom: threshold and two blur passes")
         let near = average(full, targetX: 38...42, targetY: 22...26)
         let far = average(full, targetX: 106...110, targetY: 22...26)
         XCTAssertGreaterThan(luma(near), luma(far), "the brazier still wins with fog and bloom")
@@ -132,11 +132,92 @@ final class RendererTests: XCTestCase {
         XCTAssertGreaterThan(nearBeard.x, nearBeard.z, "lit warm: \(nearBeard)")
     }
 
+    func testWindowGlassGlowsAndOccludersHideIt() throws {
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        let house = SpriteID.house.size
+        let groundRow = Camera.groundRow(targetHeight: RendererTests.pixelScale.targetHeight)
+        // A cottage at x 80, out of the brazier's reach; its left window's painted glass (sprite x 11 to 15, 8 to 13
+        // px up) lit as the scene lights it at night.
+        let cottage = SpriteInstance(sprite: .house, frame: 0,
+                                     rect: SIMD4<Float>(80, Float(groundRow - house.height), Float(house.width),
+                                                        Float(house.height)),
+                                     tint: SIMD4<Float>(1, 1, 1, 1), flipped: false)
+        let glass = EmissiveInstance(sprite: .house, plane: .world, rect: SIMD4<Float>(91, Float(groundRow - 14), 5, 6),
+                                     color: SIMD4<Float>(0.9, 0.68, 0.38, 1), kind: .glass,
+                                     source: SIMD4<Float>(11, Float(house.height - 14), 5, 6))
+        let occluder = EmissiveInstance(sprite: .house, plane: .world, rect: cottage.rect,
+                                        color: SIMD4<Float>(0, 0, 0, 1), kind: .occluder)
+        func shot(_ emissives: [EmissiveInstance]) throws -> Renderer.Snapshot {
+            let frame = RendererTests.nightFrame(effects: .minimal, style: .smooth, world: [cottage],
+                                                 emissives: emissives)
+            return try renderer.renderOffscreen(frame, settings: RenderSettings())
+        }
+        let dark = try shot([])
+        let lit = try shot([glass])
+        let hidden = try shot([glass, occluder])
+        attach(lit, name: "renderer-window-glass")
+        let rows = (groundRow - 14)...(groundRow - 9)
+        let before = average(dark, targetX: 91...95, targetY: rows)
+        let glowing = average(lit, targetX: 91...95, targetY: rows)
+        let covered = average(hidden, targetX: 91...95, targetY: rows)
+        let report = "dark \(before), glowing \(glowing), covered \(covered)"
+        XCTAssertGreaterThan(luma(glowing), luma(before) + 0.15, "the glass glows: \(report)")
+        XCTAssertGreaterThan(glowing.x, glowing.z, "warm lamplight: \(report)")
+        XCTAssertEqual(luma(covered), luma(before), accuracy: 0.02, "a sprite drawn later hides it: \(report)")
+        let wallLit = average(lit, targetX: 100...104, targetY: rows)
+        let wallDark = average(dark, targetX: 100...104, targetY: rows)
+        XCTAssertEqual(luma(wallLit), luma(wallDark), accuracy: 0.02, "only the glass glows: \(report)")
+    }
+
+    func testBackdropLightsLightOnlyTheMidPlane() throws {
+        // A fire on the mid plane (the warden statue's bowl on the far wall) lights the wall around it, never the world
+        // or the foreground in front of it.
+        let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
+        let renderer = try Renderer(context: context)
+        let groundRow = Camera.groundRow(targetHeight: RendererTests.pixelScale.targetHeight)
+        let orange = GamePalette.fireOrange
+        let fire = FrameLight(circle: SIMD4<Float>(100, Float(groundRow - 12), 40, 1),
+                              color: SIMD4<Float>(orange.x, orange.y, orange.z, 0), ellipseY: Float(LightField.ellipseY),
+                              kind: .hearth, plane: .mid)
+        let tile = SpriteID.castleWall.size
+        var farWall: [SpriteInstance] = []
+        for x in stride(from: 0, to: RendererTests.pixelScale.targetWidth, by: tile.width) {
+            farWall.append(SpriteInstance(sprite: .castleWall, frame: 0,
+                                          rect: SIMD4<Float>(Float(x), Float(groundRow - tile.height), Float(tile.width),
+                                                             Float(tile.height)),
+                                          tint: SIMD4<Float>(1, 1, 1, 1), flipped: false))
+        }
+        func shot(wall: Bool, lights: [FrameLight]) throws -> Renderer.Snapshot {
+            let frame = RendererTests.nightFrame(effects: .minimal, style: .smooth, wall: wall, mid: wall ? [] : farWall,
+                                                 lights: lights)
+            return try renderer.renderOffscreen(frame, settings: RenderSettings())
+        }
+        let rows = (groundRow - 14)...(groundRow - 10)
+        let midLit = try shot(wall: false, lights: [fire])
+        let midDark = try shot(wall: false, lights: [])
+        attach(midLit, name: "renderer-backdrop-light")
+        let litWall = average(midLit, targetX: 98...102, targetY: rows)
+        let darkWall = average(midDark, targetX: 98...102, targetY: rows)
+        XCTAssertGreaterThan(luma(litWall), luma(darkWall) + 0.06, "the far wall glows: \(litWall) against \(darkWall)")
+        XCTAssertGreaterThan(litWall.x, litWall.z, "in firelight: \(litWall)")
+        XCTAssertEqual(midLit.light(x: 100, y: groundRow - 12).x, 0, accuracy: 0.001, "not in the world's light")
+        let worldLit = try shot(wall: true, lights: [fire])
+        let worldDark = try shot(wall: true, lights: [])
+        let front = average(worldLit, targetX: 98...102, targetY: rows)
+        let unlit = average(worldDark, targetX: 98...102, targetY: rows)
+        XCTAssertEqual(luma(front), luma(unlit), accuracy: 0.005, "the world in front stays dark: \(front), \(unlit)")
+        XCTAssertEqual(front.x, unlit.x, accuracy: 0.005, "and keeps its colour")
+    }
+
     // MARK: - The test frame
 
     /// A night frame on the small screen: a stone wall across the back, the ground, one brazier at x 30 with its
-    /// light (radius 56) and flame, fog strips when the effects have fog.
-    static func nightFrame(effects: EffectLevel, style: LightStyle, actors: [ActorInstance] = []) -> FrameDesc {
+    /// light (radius 56) and flame, fog strips when the effects have fog, and any further emissive quads.
+    static func nightFrame(effects: EffectLevel, style: LightStyle, actors: [ActorInstance] = [],
+                           world extraWorld: [SpriteInstance] = [], emissives extra: [EmissiveInstance] = [],
+                           wall: Bool = true, mid: [SpriteInstance] = [], lights extraLights: [FrameLight] = [])
+        -> FrameDesc {
         let pixelScale = RendererTests.pixelScale
         let targetWidth = pixelScale.targetWidth
         let targetHeight = pixelScale.targetHeight
@@ -148,9 +229,10 @@ final class RendererTests: XCTestCase {
         let white = SIMD4<Float>(1, 1, 1, 1)
 
         var world: [SpriteInstance] = []
-        let wall = SpriteID.castleWall.size
-        for x in stride(from: 0, to: targetWidth, by: wall.width) {
-            let rect = SIMD4<Float>(Float(x), Float(groundRow - wall.height), Float(wall.width), Float(wall.height))
+        let wallSize = SpriteID.castleWall.size
+        for x in stride(from: 0, to: wall ? targetWidth : 0, by: wallSize.width) {
+            let rect = SIMD4<Float>(Float(x), Float(groundRow - wallSize.height), Float(wallSize.width),
+                                    Float(wallSize.height))
             world.append(SpriteInstance(sprite: .castleWall, frame: 0, rect: rect, tint: white, flipped: false))
         }
         let ground = SpriteID.ground.size
@@ -164,6 +246,7 @@ final class RendererTests: XCTestCase {
                                     rect: SIMD4<Float>(Float(brazierLeft), Float(groundRow - brazier.height),
                                                        Float(brazier.width), Float(brazier.height)),
                                     tint: white, flipped: false))
+        world += extraWorld
         let orange = GamePalette.fireOrange
         let light = FrameLight(circle: SIMD4<Float>(Float(brazierX), Float(lightY), 56, 1),
                                color: SIMD4<Float>(orange.x, orange.y, orange.z, 0),
@@ -189,7 +272,7 @@ final class RendererTests: XCTestCase {
         }
         var planes: [PlaneLayer] = []
         for plane in Plane.allCases {
-            let sprites = plane == .world ? world : (fogSprites[plane] ?? [])
+            let sprites = plane == .world ? world : (plane == .mid ? mid : (fogSprites[plane] ?? []))
             planes.append(PlaneLayer(offset: offsets[plane.rawValue], sprites: sprites))
         }
         let spriteCount = planes.reduce(0) { $0 + $1.sprites.count }
@@ -208,8 +291,8 @@ final class RendererTests: XCTestCase {
                          kingScreenX: 0,
                          planes: planes,
                          actors: actors,
-                         lights: [light],
-                         emissives: [flame],
+                         lights: [light] + extraLights,
+                         emissives: [flame] + extra,
                          fog: fog,
                          ambient: ambient,
                          skyTop: ambient.skyTop,
@@ -221,7 +304,8 @@ final class RendererTests: XCTestCase {
                          lightBands: FrameBuilder.lightBands,
                          bloom: effects.bloom,
                          debugLights: false,
-                         counts: FrameCounts(sprites: spriteCount, actors: actors.count, emissives: 1, lights: 1))
+                         counts: FrameCounts(sprites: spriteCount, actors: actors.count, emissives: 1 + extra.count,
+                                             lights: 1 + extraLights.count))
     }
 
     // MARK: - Helpers

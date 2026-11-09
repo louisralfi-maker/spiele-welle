@@ -18,9 +18,9 @@ enum Particles {
         }
     }
 
-    /// Additive 1-pixel embers for the emissive pass (world plane target pixels).
+    /// Additive 1-pixel embers for the emissive pass (target pixels of each fire's plane; seeded by the fire's place
+    /// on its plane, so they keep their paths while the camera moves).
     static func embers(_ frame: FrameDesc, time: Double, reduceMotion: Bool, white: AtlasCell) -> [SpriteQuad] {
-        let whole = Double(frame.layer(.world).offset.whole)
         let speed = reduceMotion ? Flicker.reducedRateScale : 1.0
         let texel = white.texels(flipped: false)
         let width = Double(frame.targetWidth)
@@ -34,7 +34,7 @@ enum Particles {
             guard count > 0, strength > 0.2 else { continue }
             let cx = Double(light.circle.x)
             let cy = Double(light.circle.y)
-            let anchor = Int64((cx + whole).rounded())
+            let anchor = Int64((cx + Double(frame.layer(light.plane).offset.whole)).rounded())
             let small = light.kind == .torch
             for index in 0..<count {
                 let seed = UInt64(bitPattern: anchor &* 977 &+ Int64(index) &* 131 &+ 7)

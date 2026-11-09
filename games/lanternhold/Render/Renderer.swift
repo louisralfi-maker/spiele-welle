@@ -71,7 +71,7 @@ final class GPUTimer: @unchecked Sendable {
     }
 }
 
-/// The low-resolution render targets of one target size (DESIGN.md "Tech plan"): seven planes in `rgba8Unorm`, light
+/// The low-resolution render targets of one target size (DESIGN.md "Tech plan"): eight planes in `rgba8Unorm`, light
 /// and emissive in `rgba16Float`, two half-resolution bloom targets. Private storage.
 final class RenderTargets {
     let width: Int
@@ -117,9 +117,10 @@ final class RenderTargets {
 }
 
 /// The custom Metal renderer (DESIGN.md "Rendering: a small custom Metal renderer"). It consumes a `FrameDesc` and
-/// holds no game rules. Per frame: the seven planes as instanced atlas quads into their own low-res targets, the
-/// light pools, the emissive parts and embers, bloom at half resolution, then one composite pass at native resolution
-/// with exact texel reads and per-plane device shifts, and the actors at device-pixel precision inside that pass.
+/// holds no game rules. Per frame: the eight planes as instanced atlas quads into their own low-res targets, the
+/// light pools, the emissive pass (glow, window glass and occluders in draw order, then embers), bloom at half
+/// resolution, then one composite pass at native resolution with exact texel reads and per-plane device shifts, and
+/// the actors at device-pixel precision inside that pass.
 /// Everything stays inside the Simulator's Apple2 family: one colour attachment per pass, no programmable blending,
 /// no sRGB targets, instances in device buffers, small uniforms by `setBytes`, per-frame buffers triple-buffered.
 @MainActor
@@ -172,8 +173,9 @@ final class Renderer {
         self.outputFormat = outputFormat
         planePipeline = try Renderer.pipeline(context, "lh_sprite_vertex", "lh_sprite_fragment", .rgba8Unorm, .over)
         skyPipeline = try Renderer.pipeline(context, "lh_sprite_vertex", "lh_sprite_fragment", .rgba8Unorm, .additive)
-        emissivePipeline = try Renderer.pipeline(context, "lh_sprite_vertex", "lh_sprite_fragment", .rgba16Float,
-                                                 .additive)
+        // Premultiplied over: glow quads carry alpha 0 and add up; occluder quads (alpha 1) clear what is under them.
+        emissivePipeline = try Renderer.pipeline(context, "lh_sprite_vertex", "lh_emissive_fragment", .rgba16Float,
+                                                 .over)
         lightPipeline = try Renderer.pipeline(context, "lh_pool_vertex", "lh_pool_fragment", .rgba16Float, .additive)
         prefilterPipeline = try Renderer.pipeline(context, "lh_fullscreen_vertex", "lh_bloom_prefilter_fragment",
                                                   .rgba16Float, .none)
@@ -415,7 +417,7 @@ final class Renderer {
         // Bloom.
         let bloomOn = frame.bloom && !settings.reducedEffects
         if bloomOn {
-            draws += encodeBloom(commands, targets: targets)
+            draws += encodeBloom(commands, targets: targets, frame: frame)
             passes += 3
         }
 
@@ -437,7 +439,7 @@ final class Renderer {
                 encoder.setRenderPipelineState(actorPipeline)
                 encoder.setVertexBuffer(buffer, offset: batches.actors.offset, index: 0)
                 encoder.setVertexBytes(&uniforms, length: MemoryLayout<CompositeUniforms>.stride, index: 1)
-                encoder.setFragmentTexture(atlas.texture, index: 10)
+                encoder.setFragmentTexture(atlas.texture, index: textures.count)
                 encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4,
                                        instanceCount: batches.actors.count)
                 draws += 1
@@ -473,13 +475,15 @@ final class Renderer {
     }
 
     /// Threshold at half resolution, then a horizontal and a vertical blur (result in `bloomA`).
-    private func encodeBloom(_ commands: any MTLCommandBuffer, targets: RenderTargets) -> Int {
+    private func encodeBloom(_ commands: any MTLCommandBuffer, targets: RenderTargets, frame: FrameDesc) -> Int {
         let halfWidth = Float(targets.bloomWidth)
         let halfHeight = Float(targets.bloomHeight)
         var draws = 0
+        let backdrop = Renderer.backdropColor(frame)
         var bloom = BloomUniforms(
             size: SIMD4<Float>(Float(targets.width), Float(targets.height), halfWidth, halfHeight),
-            params: SIMD4<Float>(Look.bloomLightShare, Look.bloomSkyShare, Look.bloomThreshold, Look.bloomKnee))
+            params: SIMD4<Float>(Look.bloomLightShare, Look.bloomSkyShare, Look.bloomThreshold, Look.bloomKnee),
+            backdrop: SIMD4<Float>(backdrop.x, backdrop.y, backdrop.z, 0))
         if let encoder = commands.makeRenderCommandEncoder(descriptor: Renderer.clearPass(targets.bloomA)) {
             encoder.label = "bloom threshold"
             encoder.setRenderPipelineState(prefilterPipeline)
@@ -524,7 +528,11 @@ final class Renderer {
                                    bloomOn: Bool, lightCount: Int) -> CompositeUniforms {
         let ambient = frame.ambient
         let world = Look.worldAmbient(ambient)
-        let far = world * Look.farShare
+        let far = Look.farAmbient(ambient)
+        let mid = Look.midAmbient(ambient)
+        let farHaze = Look.farHazeColor(ambient)
+        let midHaze = Look.midHazeColor(ambient)
+        let backdrop = Renderer.backdropColor(frame)
         var shifts = [Int32](repeating: 0, count: Plane.allCases.count)
         for layer in frame.planes {
             shifts[layer.plane.rawValue] = Int32(layer.offset.deviceShift)
@@ -543,14 +551,15 @@ final class Renderer {
                                  Float(LightField.litThreshold)),
             target: SIMD4<Float>(Float(targets.width), Float(targets.height), Float(frame.groundRow), whole),
             shiftsA: SIMD4<Int32>(shifts[0], shifts[1], shifts[2], shifts[3]),
-            shiftsB: SIMD4<Int32>(shifts[4], shifts[5], shifts[6], 0),
+            shiftsB: SIMD4<Int32>(shifts[4], shifts[5], shifts[6], shifts[7]),
             skyTop: SIMD4<Float>(frame.skyTop.x, frame.skyTop.y, frame.skyTop.z, frame.starAlpha),
             skyBottom: SIMD4<Float>(frame.skyBottom.x, frame.skyBottom.y, frame.skyBottom.z, haze),
             ambient: SIMD4<Float>(world.x, world.y, world.z, frame.bankAmbientScale),
             ambientFar: SIMD4<Float>(far.x, far.y, far.z, Look.midLightShare),
             fog: SIMD4<Float>(shareA, shareB, Look.fogGlow, 0),
             bank: SIMD4<Float>(frame.bankEdge, Look.bankFade, 0, 0),
-            light: SIMD4<Float>(Look.lightGain, Look.hotKnee, Look.foregroundLight, Look.foregroundAmbient),
+            light: SIMD4<Float>(Look.lightGain, Look.hotKnee, Look.foregroundLight,
+                               Look.foregroundAmbient(ambient)),
             bloom: SIMD4<Float>(bloomStrength, bloomOn ? 1 : 0, Float(targets.bloomWidth), Float(targets.bloomHeight)),
             grade: SIMD4<Float>(ambient.warmth, Look.saturation(ambient), Look.vignette(ambient), 0),
             debug: SIMD4<UInt32>(settings.bufferView.rawValue, settings.showLowRes ? 1 : 0, frame.debugLights ? 1 : 0,
@@ -558,7 +567,24 @@ final class Renderer {
             haze: SIMD4<Float>(Look.farHaze + haze * Look.farHazeShare, Look.midHaze(ambient),
                                Look.mist * (0.4 + ambient.fogDensity), 0),
             look: SIMD4<Float>(Look.colorise * Look.nightness(ambient), Look.glowAdd, Look.midShare,
-                               Look.fogBrightness(ambient)))
+                               Look.fogBrightness(ambient)),
+            ambientMid: SIMD4<Float>(mid.x, mid.y, mid.z, 0),
+            farHaze: SIMD4<Float>(farHaze.x, farHaze.y, farHaze.z, 0),
+            midHaze: SIMD4<Float>(midHaze.x, midHaze.y, midHaze.z, 0),
+            cloud: SIMD4<Float>(Look.cloudSun, Look.cloudFill, Look.cloudHaze, 0),
+            backdropLight: SIMD4<Float>(backdrop.x, backdrop.y, backdrop.z, 0))
+    }
+
+    /// The colour of the frame's backdrop lights (lights of the far and mid planes, such as the warden statue's bowl
+    /// fire): the brightest one's. They light only the mid plane, through the light buffer's alpha.
+    static func backdropColor(_ frame: FrameDesc) -> SIMD3<Float> {
+        var color = SIMD3<Float>(repeating: 0)
+        var strongest: Float = 0
+        for light in frame.lights.prefix(64) where light.plane != .world && light.circle.w > strongest {
+            strongest = light.circle.w
+            color = SIMD3<Float>(light.color.x, light.color.y, light.color.z)
+        }
+        return color
     }
 
     // MARK: - Instances
@@ -586,8 +612,10 @@ final class Renderer {
         emissiveQuads += Particles.embers(frame, time: settings.time, reduceMotion: settings.reduceMotion,
                                           white: layout.white)
         let lightQuads = frame.lights.prefix(64).map { light in
+            // A backdrop light carries a negative intensity: the light pass writes it to alpha only.
+            let sign: Float = light.plane == .world ? 1 : -1
             let circle = SIMD4<Float>(light.circle.x, light.circle.y, light.circle.z,
-                                      light.circle.w * Look.intensityScale(light.kind))
+                                      sign * light.circle.w * Look.intensityScale(light.kind))
             return LightQuad(circle: circle,
                              color: SIMD4<Float>(light.color.x, light.color.y, light.color.z, light.ellipseY))
         }
@@ -640,15 +668,32 @@ final class Renderer {
         return SpriteQuad(rect: sprite.rect, texel: cell.texels(flipped: sprite.flipped), tint: sprite.tint)
     }
 
-    /// An emissive part: its glow colour tints the drawn colours a little (40 %), scaled by its intensity.
+    /// The kind of an emissive quad for `lh_emissive_fragment`, in the tint's alpha (glow quads keep their alpha).
+    static let glassMode: Float = -1
+    static let occluderMode: Float = -2
+
+    /// An emissive quad. Glow: its colour tints the drawn colours a little (40 %), scaled by its intensity. Glass: the
+    /// part of the prop's sprite inside the mask, the glow colour as it is. Occluder: the whole sprite, black.
     static func quad(_ emissive: EmissiveInstance, layout: AtlasLayout) -> SpriteQuad {
         let cell = layout.cell(emissive.sprite, frame: 0)
         let rgb = SIMD3<Float>(emissive.color.x, emissive.color.y, emissive.color.z)
-        let peak = max(0.0001, max(rgb.x, max(rgb.y, rgb.z)))
-        let hue = rgb / peak
-        let tint = (SIMD3<Float>(repeating: 1) + (hue - 1) * 0.4) * peak
-        return SpriteQuad(rect: emissive.rect, texel: cell.texels(flipped: false),
-                          tint: SIMD4<Float>(tint.x, tint.y, tint.z, emissive.color.w))
+        switch emissive.kind {
+        case .glow:
+            let peak = max(0.0001, max(rgb.x, max(rgb.y, rgb.z)))
+            let hue = rgb / peak
+            let tint = (SIMD3<Float>(repeating: 1) + (hue - 1) * 0.4) * peak
+            return SpriteQuad(rect: emissive.rect, texel: cell.texels(flipped: emissive.flipped),
+                              tint: SIMD4<Float>(tint.x, tint.y, tint.z, emissive.color.w))
+        case .glass:
+            let source = emissive.source
+            let part = AtlasCell(x: cell.x + Int(source.x), y: cell.y + Int(source.y), width: Int(source.z),
+                                 height: Int(source.w))
+            return SpriteQuad(rect: emissive.rect, texel: part.texels(flipped: emissive.flipped),
+                              tint: SIMD4<Float>(rgb.x, rgb.y, rgb.z, glassMode))
+        case .occluder:
+            return SpriteQuad(rect: emissive.rect, texel: cell.texels(flipped: emissive.flipped),
+                              tint: SIMD4<Float>(0, 0, 0, occluderMode))
+        }
     }
 
     static func quad(_ actor: ActorInstance, layout: AtlasLayout) -> ActorQuad {

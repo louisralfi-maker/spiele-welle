@@ -1,4 +1,5 @@
-/// A glowing part of a prop: a flame, a window, lantern glass. Offsets are from the prop's bottom-left corner, `dy` up.
+/// A glowing part of a prop: a flame, a window glow, lantern glass. Offsets are from the prop's bottom-left corner,
+/// `dy` up, measured on the unflipped sprite.
 struct EmissivePart: Sendable, Equatable {
     var sprite: SpriteID
     var dx: Double
@@ -14,9 +15,31 @@ struct EmissivePart: Sendable, Equatable {
     var isFire: Bool
 }
 
+/// Window glass of a prop (M1b): inside this rect (sprite pixels from the bottom-left, `dy` up, unflipped; it mirrors
+/// with the prop) every dark glass pixel of the sprite (palette night0, night1 or ink) glows at dusk and night, with
+/// the ramp's torch strength. The renderer finds the glass pixels in the atlas, so the glow keeps the painted panes.
+struct GlassMask: Sendable, Equatable {
+    var dx: Double
+    var dy: Double
+    var width: Int
+    var height: Int
+    /// The glow's sRGB colour at full torch strength.
+    var color: SIMD3<Float>
+}
+
+/// Where a prop is placed from.
+enum PropAnchor: Sendable, Equatable {
+    /// `y` is the bottom edge above the ground line.
+    case ground
+    /// `y` is the distance from the screen's top row down to the sprite's top row (the foreground overhangs, flush
+    /// with the top of the screen on every phone).
+    case top
+}
+
 /// One static thing of the scene. `x` is the left edge and `y` the bottom edge above the ground line, in game pixels
-/// of the prop's own plane (a far-plane prop at x 300 shows at screen column 300 − floor(cameraX × 0.2)). `width` and
-/// `height` are the sprite's size. `lights` are in world coordinates.
+/// of the prop's own plane (a far-plane prop at x 300 shows at screen column 300 − floor(cameraX × 0.2)). `width`
+/// and `height` are the sprite's size. `lights` are in the same plane's coordinates: a mid-plane light moves with the
+/// mid plane and lights only the picture, never the battle.
 struct Prop: Sendable, Equatable {
     let id: Int
     var sprite: SpriteID
@@ -27,16 +50,29 @@ struct Prop: Sendable, Equatable {
     var height: Int
     /// Draw order inside the plane, low first.
     var z: Int
-    /// Brightness multiplier of the drawn sprite (variety among repeated props).
+    /// Brightness multiplier of the drawn sprite.
     var shade: Float
     var flipped: Bool
+    var anchor: PropAnchor
+    /// The backdrop set it belongs to (DESIGN.md "Backdrop regions").
+    var region: WorldLayout.Region
     var emissive: [EmissivePart]
+    var masks: [GlassMask]
     var lights: [LightSource]
+    /// Fades in while the camera's focus moves across this range (nil: always drawn).
+    var fade: ClosedRange<Double>?
+    /// Fades out again while the camera's focus moves across this range (nil: never).
+    var fadeOut: ClosedRange<Double>?
+    /// Moves with this plane's parallax while drawn into its own plane's picture (nil: its own plane).
+    var movesWith: Plane?
     /// False for a snuffed brazier: no lights and no fire emissives.
     var isLit: Bool
 
     init(id: Int, sprite: SpriteID, plane: Plane, x: Double, y: Double, z: Int = 0, shade: Float = 1,
-         flipped: Bool = false, emissive: [EmissivePart] = [], lights: [LightSource] = [], isLit: Bool = true) {
+         flipped: Bool = false, anchor: PropAnchor = .ground, region: WorldLayout.Region = .all,
+         emissive: [EmissivePart] = [], masks: [GlassMask] = [], lights: [LightSource] = [],
+         fade: ClosedRange<Double>? = nil, fadeOut: ClosedRange<Double>? = nil, movesWith: Plane? = nil,
+         isLit: Bool = true) {
         self.id = id
         self.sprite = sprite
         self.plane = plane
@@ -47,8 +83,14 @@ struct Prop: Sendable, Equatable {
         self.z = z
         self.shade = shade
         self.flipped = flipped
+        self.anchor = anchor
+        self.region = region
         self.emissive = emissive
+        self.masks = masks
         self.lights = lights
+        self.fade = fade
+        self.fadeOut = fadeOut
+        self.movesWith = movesWith
         self.isLit = isLit
     }
 }
@@ -115,18 +157,20 @@ struct KingState: Sendable, Equatable {
         LightSource(kind: .lantern, x: x + 9 * Double(facing), y: 16, flickerSeed: 0x4B49_4E47)
     }
 
-    /// Moves `dt` seconds at the current velocity, clamped to the world, and turns toward the walk.
+    /// Moves `dt` seconds at the current velocity, from the world's left end to the river bank, and turns toward the
+    /// walk.
     mutating func step(dt: Double) {
-        x = min(WorldLayout.width, max(0, x + velocity * dt))
+        x = min(WorldLayout.walkEnd, max(0, x + velocity * dt))
         if velocity > 0 { facing = 1 }
         if velocity < 0 { facing = -1 }
     }
 }
 
-/// The milestone 1 scene as pure data (DESIGN.md "Milestone 1 in detail", "Scene"): the darkness bank, a palisade
-/// and a stone wall with torches, two braziers, a ballista, the castle front with the great hall cut away, four town
-/// houses with lanterns, a field, the well, far mountains, gorge cliffs, foreground grass and posts; six creatures
-/// waiting outside the light, three archers on the wall, two citizens by the well and the king.
+/// The world as pure data until the simulation drives it (milestone M1b, `SceneLayout`): the gorge with its far wall,
+/// the warden statue and the beacon ruin, both defence lines built and manned, the castle that seals the gorge (the
+/// throat rock, the castle front, the keep, the courtyard, the great hall cut away, the chapel, the kitchen, the back
+/// gate), the valley town and the river; clouds, far mountains and valley hills behind, rock in front; six creatures
+/// waiting outside the light, six archers, two citizens and the king.
 struct PlaceholderScene: Sendable, Equatable {
     var seed: UInt64
     var props: [Prop]
@@ -135,7 +179,7 @@ struct PlaceholderScene: Sendable, Equatable {
     /// Where the darkness bank rests by day and how far it advances at night.
     var bankRestingEdge: Double
     var bankNightEdge: Double
-    /// Milestone 1 always shows the great hall cut away (its front wall fades only from milestone 3).
+    /// The great hall is shown cut away (its front wall fades only from milestone 3).
     var hallCutAway: Bool
 
     /// The darkness bank's edge at `hour`.
@@ -143,13 +187,26 @@ struct PlaceholderScene: Sendable, Equatable {
         DarknessBank.edge(hour: hour, restingEdge: bankRestingEdge, nightEdge: bankNightEdge)
     }
 
-    /// Every light of the scene: lit props and the king's lantern.
+    /// The battle's lights: lit world-plane props and the king's lantern (backdrop lights only light the picture).
     func lightSources() -> [LightSource] {
         var lights: [LightSource] = []
-        for prop in props where prop.isLit {
+        for prop in props where prop.isLit && prop.plane == .world {
             lights.append(contentsOf: prop.lights)
         }
         lights.append(king.lantern)
+        return lights
+    }
+
+    /// Every light of the picture with the plane its coordinates belong to: lit props on any plane and the king's
+    /// lantern.
+    func sceneLights() -> [(source: LightSource, plane: Plane)] {
+        var lights: [(source: LightSource, plane: Plane)] = []
+        for prop in props where prop.isLit {
+            for light in prop.lights {
+                lights.append((source: light, plane: prop.plane))
+            }
+        }
+        lights.append((source: king.lantern, plane: .world))
         return lights
     }
 
@@ -181,17 +238,28 @@ struct PlaceholderScene: Sendable, Equatable {
         return props[index].id
     }
 
-    /// The scene of milestone 1. The seed varies only decoration (grass spacing, shades, mirrored houses).
-    static func milestone1(seed: UInt64 = 1) -> PlaceholderScene {
+    /// The M1b world from `SceneLayout`, every instance in the order of `layout_m1b.py`'s `instances()` (cycles,
+    /// clouds, far, mid, world, foreground), so equal z keeps the mock's draw order. The seed only feeds the flicker
+    /// seeds.
+    static func world(seed: UInt64 = 1) -> PlaceholderScene {
         var builder = SceneBuilder(seed: seed)
-        builder.addFarPlane()
-        builder.addMidPlane()
-        builder.addFront()
-        builder.addCastle()
-        builder.addTown()
-        builder.addGorgeEnd()
-        builder.addForeground()
-        let actors = SceneBuilder.actors()
+        for cycle in SceneLayout.cycles {
+            builder.add(cycle)
+        }
+        let planes: [(Plane, [SceneLayout.Entry])] = [
+            (.clouds, SceneLayout.clouds), (.far, SceneLayout.far), (.mid, SceneLayout.mid),
+            (.world, SceneLayout.world), (.foreground, SceneLayout.foreground),
+        ]
+        for (plane, entries) in planes {
+            for entry in entries {
+                builder.add(entry, plane: plane)
+            }
+        }
+        var actors: [SceneActor] = []
+        for entry in SceneLayout.actors {
+            actors.append(SceneActor(id: actors.count + 1, kind: entry.kind, x: entry.x, y: entry.y,
+                                     facing: entry.facing, phase: entry.phase))
+        }
         return PlaceholderScene(seed: seed, props: builder.props, actors: actors,
                                 king: KingState(x: 760),
                                 bankRestingEdge: DarknessBank.restingEdge,
@@ -200,17 +268,18 @@ struct PlaceholderScene: Sendable, Equatable {
     }
 }
 
-/// Assembles the milestone 1 props. Every light gets its own flicker seed.
+/// Turns `SceneLayout` entries into props. Every light gets its own flicker seed; a prop's k-th emissive sprite
+/// flickers with its k-th light (a torch's flame with the torch, the castle front's brazier flames with its braziers).
 private struct SceneBuilder {
     var props: [Prop] = []
-    var random: SeededRandom
     let baseSeed: UInt64
     var lightCount: UInt64 = 0
 
+    /// The warm lamplight of window glow sprites and of window glass.
     static let windowColor = SIMD3<Float>(1.0, 0.74, 0.40)
+    static let glassColor = SIMD3<Float>(1.0, 0.76, 0.42)
 
     init(seed: UInt64) {
-        random = SeededRandom(seed: seed)
         baseSeed = seed
     }
 
@@ -219,227 +288,64 @@ private struct SceneBuilder {
         return SeededRandom.mix(baseSeed &+ lightCount &* 0x9E37_79B9)
     }
 
-    @discardableResult
-    mutating func add(_ sprite: SpriteID, _ plane: Plane, x: Double, y: Double, z: Int = 0, shade: Float = 1,
-                      flipped: Bool = false, emissive: [EmissivePart] = [], lights: [LightSource] = []) -> Int {
-        let id = props.count + 1
-        let prop = Prop(id: id, sprite: sprite, plane: plane, x: x, y: y, z: z, shade: shade, flipped: flipped,
-                        emissive: emissive, lights: lights)
-        props.append(prop)
-        return id
+    static func color(_ glow: SceneLayout.Glow) -> SIMD3<Float> {
+        switch glow {
+        case .fireWhite: return GamePalette.fireWhite
+        case .fireGold: return GamePalette.fireGold
+        case .fireOrange: return GamePalette.fireOrange
+        case .window: return windowColor
+        }
     }
 
-    /// A random shade in `low ... high`.
-    mutating func shade(_ low: Double, _ high: Double) -> Float {
-        Float(random.double(in: low...high))
+    /// One tile cycle: `count` tiles side by side.
+    mutating func add(_ cycle: SceneLayout.Cycle) {
+        var x = cycle.x
+        for index in 0..<cycle.count {
+            let sprite = cycle.sprites[index % cycle.sprites.count]
+            append(Prop(id: props.count + 1, sprite: sprite, plane: cycle.plane, x: x, y: cycle.y, z: cycle.z,
+                        shade: cycle.shade, region: cycle.region))
+            x += SceneLayout.tileWidth
+        }
     }
 
-    // MARK: Parts
-
-    func fire(_ sprite: SpriteID, dx: Double, dy: Double, color: SIMD3<Float>, seed: UInt64,
-              fadesByDay: Bool) -> EmissivePart {
-        EmissivePart(sprite: sprite, dx: dx, dy: dy, color: color, intensity: 1, flickerSeed: seed,
-                     fadesByDay: fadesByDay, isFire: true)
-    }
-
-    func window(dx: Double, dy: Double) -> EmissivePart {
-        EmissivePart(sprite: .windowGlow, dx: dx, dy: dy, color: SceneBuilder.windowColor, intensity: 1,
-                     flickerSeed: nil, fadesByDay: true, isFire: false)
-    }
-
-    /// A torch on a post centred at `cx`, the post's foot at `baseY` (radius 30).
-    mutating func torch(cx: Double, baseY: Double, z: Int = 2) {
-        let seed = nextLightSeed()
-        let flame = fire(.flame, dx: 0, dy: 12, color: GamePalette.fireGold, seed: seed, fadesByDay: true)
-        let light = LightSource(kind: .torch, x: cx, y: baseY + 15, flickerSeed: seed)
-        add(.torchPost, .world, x: cx - 2, y: baseY, z: z, emissive: [flame], lights: [light])
-    }
-
-    /// A brazier centred at `cx` on the ground (radius 56).
-    mutating func brazier(cx: Double) {
-        let seed = nextLightSeed()
-        let flame = fire(.brazierFlame, dx: 1, dy: 11, color: GamePalette.fireOrange, seed: seed, fadesByDay: false)
-        let light = LightSource(kind: .brazier, x: cx, y: 16, flickerSeed: seed)
-        add(.brazier, .world, x: cx - 5, y: 0, z: 3, emissive: [flame], lights: [light])
-    }
-
-    /// A prop with lit windows at the given offsets; each window also casts a small scene-only light.
-    mutating func building(_ sprite: SpriteID, x: Double, z: Int = 0, shade: Float = 1, flipped: Bool = false,
-                           windows: [(Double, Double)], windowRadius: Double = 14) {
-        var parts: [EmissivePart] = []
+    /// One entry on `plane`. World props get their region from where they stand, foreground props none.
+    mutating func add(_ entry: SceneLayout.Entry, plane: Plane) {
+        var region = entry.region ?? .all
+        if plane == .world {
+            region = WorldLayout.worldRegion(x: entry.x)
+        }
         var lights: [LightSource] = []
-        let width = Double(sprite.size.width)
-        for (dx, dy) in windows {
-            parts.append(window(dx: dx, dy: dy))
-            let glassX = flipped ? width - dx - 6 : dx
-            let light = LightSource(kind: .window, x: x + glassX + 3, y: dy + 4, radius: windowRadius,
-                                    color: SceneBuilder.windowColor, intensity: 0.8)
-            lights.append(light)
+        var seeds: [UInt64] = []
+        for light in entry.lights {
+            let seed = nextLightSeed()
+            seeds.append(seed)
+            let intensity = light.kind == .window ? 0.8 : 1
+            lights.append(LightSource(kind: light.kind, x: light.x, y: light.y, radius: light.radius,
+                                      intensity: intensity, flickerSeed: seed))
         }
-        add(sprite, .world, x: x, y: 0, z: z, shade: shade, flipped: flipped, emissive: parts, lights: lights)
-    }
-
-    // MARK: Planes
-
-    /// Far mountains (parallax 0.2), across the far plane's whole span.
-    mutating func addFarPlane() {
-        var x = -40.0
-        var index = 0
-        while x < 1300 {
-            let sprite: SpriteID = index % 2 == 0 ? .farMountain : .farPeak
-            let tone = shade(0.85, 1.0)
-            add(sprite, .far, x: x, y: 0, z: index % 2, shade: tone, flipped: index % 3 == 1)
-            x += 96
-            index += 1
-        }
-    }
-
-    /// Gorge cliffs in pairs along the front and the castle (parallax 0.5), rising above the screen, then low hills
-    /// where the gorge widens into the valley behind the town.
-    mutating func addMidPlane() {
-        for pair in 0..<8 {
-            let x = 30.0 + 160.0 * Double(pair)
-            add(.gorgeCliff, .mid, x: x, y: 0, z: 0, shade: 0.85)
-            add(.gorgeCliff, .mid, x: x + 48, y: 0, z: 1, shade: 1.0, flipped: true)
-        }
-        var x = 1300.0
-        var index = 0
-        while x < 2400 {
-            let tone = shade(0.9, 1.05)
-            add(.valleyHill, .mid, x: x, y: 0, z: index % 2, shade: tone, flipped: index % 2 == 1)
-            x += 130
-            index += 1
-        }
-    }
-
-    /// The front (DESIGN.md "The world": outer line 640, middle line 940): the outer line's palisade with two torches
-    /// on top and the ballista behind it; the middle line's stone wall with two torches and both brazier slots lit.
-    /// The palisade torches burn 35 px up and light the wall walk, so the ground at the palisade's foot stays dark:
-    /// that is where the creatures wait, inside the `-GWCameraX 760` shot.
-    mutating func addFront() {
-        let outer = WorldLayout.lines[2]
-        let middle = WorldLayout.lines[1]
-
-        add(.palisade, .world, x: outer.wallX, y: 0, z: 1)
-        torch(cx: outer.wallX - 4, baseY: 20)
-        torch(cx: outer.wallX + 24, baseY: 20)
-        add(.ballista, .world, x: outer.engineX, y: 0, z: 1)
-
-        add(.stoneWall, .world, x: middle.wallX, y: 0, z: 1)
-        torch(cx: middle.wallX - 4, baseY: 38)
-        torch(cx: middle.wallX + 40, baseY: 38)
-        brazier(cx: middle.brazierXs[0] + 5)
-        brazier(cx: middle.brazierXs[1] + 5)
-    }
-
-    /// The castle front: gatehouse with two towers and gate torches, the courtyard wall, the great hall cut away
-    /// (throne, hearth fire, candles), the chapel with its tower, the kitchen and the back gate; ten windows in all.
-    mutating func addCastle() {
-        add(.castleTower, .world, x: 1290, y: 0, z: -1)
-        add(.castleTower, .world, x: 1398, y: 0, z: -1, flipped: true)
-        building(.gatehouse, x: 1300, z: 0, windows: [(18, 62), (96, 62)])
-        torch(cx: 1342, baseY: 22)
-        torch(cx: 1378, baseY: 22)
-
-        for tile in 0..<7 {
-            let x = 1420.0 + 40.0 * Double(tile)
-            if tile % 2 == 1 {
-                building(.castleWall, x: x, z: -2, windows: [(17, 58)])
-            } else {
-                add(.castleWall, .world, x: x, y: 0, z: -2)
+        var parts: [EmissivePart] = []
+        var masks: [GlassMask] = []
+        for emitter in entry.emitters {
+            switch emitter {
+            case let .sprite(sprite, dx, dy, glow, fades):
+                let isWindow = glow == .window
+                var seed: UInt64?
+                if !isWindow {
+                    seed = parts.count < seeds.count ? seeds[parts.count] : nextLightSeed()
+                }
+                parts.append(EmissivePart(sprite: sprite, dx: dx, dy: dy, color: SceneBuilder.color(glow),
+                                          intensity: 1, flickerSeed: seed, fadesByDay: fades, isFire: !isWindow))
+            case let .glass(dx, dy, width, height):
+                masks.append(GlassMask(dx: dx, dy: dy, width: width, height: height, color: SceneBuilder.glassColor))
             }
         }
-
-        add(.hallInterior, .world, x: 1700, y: 0, z: -2)
-        add(.throne, .world, x: WorldLayout.throneX - 7, y: 0, z: 1)
-        let hearthSeed = nextLightSeed()
-        let hearthFire = fire(.hearthFire, dx: 5, dy: 3, color: GamePalette.fireOrange, seed: hearthSeed,
-                              fadesByDay: false)
-        let hearthLight = LightSource(kind: .hearth, x: WorldLayout.hearthX + 13, y: 10, flickerSeed: hearthSeed)
-        add(.hearth, .world, x: WorldLayout.hearthX, y: 0, z: 1, emissive: [hearthFire], lights: [hearthLight])
-        for cx in [1758.0, 1798.0, 1928.0] {
-            let seed = nextLightSeed()
-            let flame = fire(.candleFlame, dx: 1, dy: 15, color: GamePalette.fireWhite, seed: seed, fadesByDay: true)
-            let light = LightSource(kind: .candle, x: cx, y: 17, flickerSeed: seed)
-            add(.candleStand, .world, x: cx - 2, y: 0, z: 1, emissive: [flame], lights: [light])
-        }
-
-        add(.castleTower, .world, x: 2088, y: 0, z: -1)
-        // Window glows sit on the painted glass of Resources/Art (ART.md "Window glass"): three of the chapel's four
-        // lancets, the kitchen's two windows.
-        building(.chapel, x: 1960, z: 0, windows: [(18, 28), (54, 28), (89, 28)])
-        building(.kitchen, x: 2120, z: 0, windows: [(26, 32), (79, 32)])
-        add(.backGate, .world, x: 2240, y: 0, z: 0)
+        append(Prop(id: props.count + 1, sprite: entry.sprite, plane: plane, x: entry.x, y: entry.y, z: entry.z,
+                    shade: entry.shade, flipped: entry.flipped, anchor: entry.anchor, region: region,
+                    emissive: parts, masks: masks, lights: lights, fade: entry.fade, fadeOut: entry.fadeOut,
+                    movesWith: entry.movesWith))
     }
 
-    /// Four houses with two lit windows and a lantern each, a field and the well (DESIGN.md "The town").
-    mutating func addTown() {
-        let houses = WorldLayout.townPlots.filter { $0.kind == .house }
-        for plot in houses {
-            let mirrored = random.int(in: 0...1) == 1
-            let tone = shade(0.9, 1.05)
-            building(.house, x: plot.start, z: 0, shade: tone, flipped: mirrored,
-                     windows: [(9, 7), (44, 7)], windowRadius: 18)
-            let postX = plot.start + 68
-            let seed = nextLightSeed()
-            let glass = fire(.lanternGlass, dx: 1, dy: 18, color: GamePalette.fireGold, seed: seed, fadesByDay: true)
-            let light = LightSource(kind: .lantern, x: postX + 3, y: 20, radius: 28, flickerSeed: seed)
-            add(.lanternPost, .world, x: postX, y: 0, z: 1, emissive: [glass], lights: [light])
-        }
-        if let field = WorldLayout.townPlots.first(where: { $0.kind == .field }) {
-            add(.field, .world, x: field.start, y: 0, z: -1)
-            add(.field, .world, x: field.start + 80, y: 0, z: -1)
-        }
-        add(.well, .world, x: WorldLayout.wellX - 9, y: 0, z: 1)
-    }
-
-    /// The waterfall and the cliff that close the world on the right.
-    mutating func addGorgeEnd() {
-        add(.waterfall, .world, x: 3650, y: 0, z: -1)
-        add(.gorgeEndCliff, .world, x: 3680, y: 0, z: 0)
-    }
-
-    /// Grass tufts and fence posts in front of everything (parallax 1.3), across the plane's whole span.
-    mutating func addForeground() {
-        let span = WorldLayout.width * Plane.foreground.parallax + 460
-        var x = 0.0
-        var index = 0
-        while x < span {
-            let tone = shade(0.55, 0.75)
-            add(.grassTuft, .foreground, x: x.rounded(), y: -20, z: 0, shade: tone, flipped: index % 2 == 1)
-            x += 36 + random.double(in: 0...16)
-            index += 1
-        }
-        var post = 120.0
-        while post < span {
-            add(.fencePost, .foreground, x: post.rounded(), y: -24, z: 1, shade: 0.6)
-            post += 260 + random.double(in: 0...80)
-        }
-    }
-
-    // MARK: Actors
-
-    /// Six creatures waiting in the dark at the palisade's foot, three archers on the stone wall, two citizens by the
-    /// well.
-    static func actors() -> [SceneActor] {
-        var list: [SceneActor] = []
-        let creatures: [(ActorKind, Double)] = [
-            (.sootling, 556), (.sootling, 571), (.shadehound, 588), (.sootling, 606), (.shadehound, 620),
-            (.sootling, 632),
-        ]
-        for (index, entry) in creatures.enumerated() {
-            let phase = 0.37 * Double(index)
-            list.append(SceneActor(id: list.count + 1, kind: entry.0, x: entry.1, y: 0, facing: 1, phase: phase))
-        }
-        let wall = WorldLayout.lines[1]
-        for slot in 0..<3 {
-            let x = wall.wallX + 6 + 12 * Double(slot)
-            let phase = 0.5 * Double(slot)
-            list.append(SceneActor(id: list.count + 1, kind: .archer, x: x, y: 52, facing: -1, phase: phase))
-        }
-        let well = WorldLayout.wellX
-        list.append(SceneActor(id: list.count + 1, kind: .citizen, x: well - 20, y: 0, facing: 1, phase: 0.2))
-        list.append(SceneActor(id: list.count + 1, kind: .citizen, x: well + 22, y: 0, facing: -1, phase: 0.9))
-        return list
+    private mutating func append(_ prop: Prop) {
+        props.append(prop)
     }
 }

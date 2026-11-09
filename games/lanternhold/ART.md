@@ -314,7 +314,8 @@ smoke clauses).
 - The courtyard still shows only the old curtain wall and the well (barracks, smithy and lodge are later art).
 - The statue is faint by day (carved rock in the same ochre as the wall); at night its bowl fire carries it.
 - The engine needs: the `anchor: top` placement for the overhangs, window-glass masks from rects (or windowGlow sprites
-  at the listed offsets), mid-plane lights (the statue's fire), and a world width of 3900.
+  at the listed offsets), mid-plane lights (the statue's fire), and a world width of 3900. (Done in the Swift port, see
+  "M1b port" at the end.)
 
 ## M1b polish (09.11.2026, after the art director's review)
 
@@ -413,3 +414,74 @@ All with the shared finish (the clouds with a green key and without "side view",
 - The throat rock (gorgeWallHigh, cliffFlank) still comes from `rocks-a` with its vertical joints; at night its rhythm
   is calm enough, by day it reads as rock.
 - The keep's front has no rich texture (the new painting is plain); a later pass could add weathering.
+
+## M1b port (Swift, 09.11.2026)
+
+The Swift scene is `Core/SceneLayout.swift`, ported from `layout_m1b.py` instance for instance (`FrameBuilderTests`
+compares it with `tools/scenemock/swift_fixture.py`'s output). The renderer has every addition above: the clouds plane
+(parallax 0.05) with the sky's light, aerial perspective at warm hours, ground mist at 0.7, the top anchor, window glass
+as masks over the painted panes, and occlusion in the emissive pass (premultiplied over in draw order: occluder quads
+clear the glow under later sprites). On the runner (round `lh-m1b-1`, iPhone 17 Pro) the shots match the mocks within
+1 to 3 colour levels per region. Two points the port does better than the mock:
+
+- The keep's far view fades in from focus 2150 to the back gate (2330): it no longer floats above the courtyard and the
+  great hall as a second castle (`fade` in `layout_m1b.py`, also drawn by `mock.py`).
+- A backdrop light (the statue's bowl fire) lights only the mid plane: on shorter screens (154 rows above the ground,
+  or the 135-row look) the rock overhang in front of the bowl no longer glows orange.
+
+## Polish after the art review of the real screenshots (09.11.2026)
+
+The review of round `lh-m1b-3`: the port matched the mocks, but the castle never read as mighty (a cropped flat front,
+not seen from the gorge, a pale ghost from the town), the throat rock repeated like wallpaper, the gorge had little
+depth, the 0.80 dusk was a magenta wash and black herds plus black foreground bands drifted toward a silhouette look.
+No new Recraft paintings (credits unchanged): every fix is layout, renderer, or `pixelart.py`/`procart.py` work on the
+existing raws, and `tools/build-art.sh` rebuilds every changed or new sprite (the raws: copy
+`build/recraft/lh/` from the planning worktree).
+
+### Art changes
+
+| Sprite | Change | Build step |
+|---|---|---|
+| `castleFront` | towers rounded (a lit band at columns 18-26 one step lighter, columns 34-41 one step darker, checker terminators; a lit band on the crown) and 64 rows shorter (shaft rows 40-103 cut, the stub of the slit under the cut filled), so the corbelled crowns stand on screen at y 132-172; slit glass now at (29, 96), (202, 89), (29, 69), (202, 69) | `procart.py cylinder`, compose, `post --fill` |
+| `keepTop` (new, 150x130) | the keep's upper 130 rows; stands behind the gatehouse at y 40, so its crown and flag rise between the towers' crowns | compose of `castleKeep` |
+| `keepFar` (new, 98x237) | the keep's main block without the side tower and the machicolations, so the crown sits on the top window row; the valley's keep and the gorge's keep | compose of `castleKeep` |
+| `throatRock` (new, 192x240) | gorgewall-b's right part (strata, a cave) for the throat right of the castle, unlike the left's vertical joints | `convert` box 930,140,1536,740, stretch |
+| `cliffFlankB` (new, 80x240) | the rocks-a middle rock without its masonry strip: the right flank and the lowered left shoulder | `convert` box 575,60,785,748, stretch |
+| `groundB`, `groundC`, `groundD` (new) | ground tile variants: grass kept, each bottom edge either the base's big wrapping stone or plain soil, pebbles and stones reseeded with jittered spacing; the scene picks per tile boundary, so neighbours always join | `procart.py ground` |
+| `houseB`, `houseC` (new) | the cottage with a teal slate roof; with a straw thatch and a gabled dormer (its window glass at 27-29, rows 11-12) | `post --remap`, `--fill` |
+| `hallInterior` | banners 2 and 4 red-brown (tile, tileLight, woodDark), so the five read teal, red, teal, red, teal | `post --remap @rect` |
+| `castleWall` | the pale lower half's scalloped top (a snowdrift) is a plinth of dressed stone, one step darker, under a straight light course at row 47 | `post --remap @rect`, `--fill` |
+| `cloudA`-`C` | wispy undersides: each column's bottom eroded by seeded noise (up to 9 px), a checker fringe above the cut | `procart.py ragged` |
+| `fgRockA`-`C`, `fgOverhangA`-`B` | one value step lighter (rockDeep to rockDark, rockDark to rock, soilDark to soil, leafDark to leaf, leaf to meadow): olive and ochre by day; the renderer gives the foreground 0.9 of the ambient by day and 0.43 at night, so the night keeps its dark silhouettes | `post --remap` |
+| sootling, shadehound (Swift) | ash grey (`Ink.ash`) with ember cracks instead of pure black | `PlaceholderSprites` |
+
+### Layout changes (`layout_m1b.py`, ported)
+
+- `moves` and `fadeout`: an instance can be drawn into its plane's picture but move with another plane's parallax,
+  and fade out again. The valley's keep (keepFar, x 560, y -45, shade 0.72) is in the mid picture (mid haze, about
+  half the far haze) moving like the far plane, between a cliffFlank (left) and a gorge mouth (right), four windows
+  lit at night, in from focus 2150 to 2330, out from 3300 to 3550 (no sliver at the river end).
+- The keep seen from the gorge: keepFar on the mid plane at x 641 (y -59, shade 0.78, two windows), on a mid copy of
+  the high rock whose overhang is a plateau at y 88; it shows at the approach (screen 200-298) and at the right edge
+  of the front view, hidden at the gate by the front and the left flank.
+- The left throat rock is cliffFlankB 155 px low (top at y 85); the high rock's flat overhang read as a table there.
+- The right throat rock is throatRock, the right flank cliffFlankB (flipped): the gate view is no mirror.
+- The cottages are house, houseB, houseC, house.
+
+### Lessons
+
+- A front that leaves the screen cannot read as a fortress: the top edge must show the crowns. Cutting rows out of a
+  tower shaft (in the blank between two slits) keeps the painting and moves the crown onto the screen.
+- Parallax can show a far copy beside the near building (the keep from the gorge) and hide it behind the same
+  building at another view; check the gate, the courtyard and the hall when adding one.
+- One repeated ground tile shows its rhythm at the tile's own seam; edge types per boundary (stone or plain) break it
+  without any seam.
+- Saturated albedo under a warm light with gain 3 turns neon (teal to cyan); reflect part of the light as from grey.
+
+### Open points
+
+- The castle has no cast shadow and no fog band at the foot of its walls.
+- The far gorge wall's strata are as dense as the near ones (only the haze separates them).
+- The keep's windows at the gate view stay behind the gatehouse (the crown shows instead).
+- Mid-plane glass (the gorge's keep) goes into the world-aligned emissive buffer, as before: up to a game pixel off
+  while the camera moves.

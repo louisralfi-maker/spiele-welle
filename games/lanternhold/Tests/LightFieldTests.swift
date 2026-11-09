@@ -121,7 +121,7 @@ final class LightFieldTests: XCTestCase {
     }
 
     func testPlaceholderCreaturesWaitOutsideTheLightAtNight() {
-        let scene = PlaceholderScene.milestone1()
+        let scene = PlaceholderScene.world()
         let field = scene.battleField(hour: 22.8)
         let creatures = scene.actors.filter { $0.kind.isCreature }
         XCTAssertEqual(creatures.count, 6)

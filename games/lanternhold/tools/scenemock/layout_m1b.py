@@ -13,6 +13,14 @@ Coordinates
   y is then the distance from the screen's top row to the sprite's top row (0 = flush), so the lip covers the screen
   top on every phone (154 to 181 visible rows above the ground).
 - z orders instances inside one plane (low first). Actors draw on the world plane after every world prop.
+- `fade: (f0, f1)` (the far view of the keep, Swift port): the instance fades in while the camera's focus moves from f0
+  (invisible) to f1 (opaque), so it is not seen from the courtyard and the hall, where the real keep stands behind the
+  camera.
+- `fadeout: (f2, f3)`: it fades out again while the focus moves from f2 (opaque) to f3 (invisible).
+- `moves: plane` (polish after the art review): the instance is drawn into its own plane's picture (and takes that
+  plane's light and haze) but moves with the named plane's parallax. The keep seen from the valley is drawn into the
+  mid picture (mid haze, about half the far haze: it stands a few hundred metres away, not on the horizon) but moves
+  like the far plane, so it hides behind the back gate at the back-gate view and still shows at the town's left edge.
 
 Backdrop regions
 - Every far and mid instance belongs to the gorge set or the valley set. On each plane the border between them sits at
@@ -106,10 +114,21 @@ FAR = [
     # second castle in the valley). On the far plane at x 545 it sits behind the back gate at the back-gate view
     # (screen 123 to 273, showing only between the gate's towers above its wall walk, where the real keep stands) and at
     # the left edge of the town frame (focus 2900: screen 9 to 159), its foot behind the hills; z above the mountains.
-    dict(s="castleKeep", x=545, y=-62, region="valley", z=2),
+    # It fades in from focus 2150 to the back gate (2330): from the courtyard and the hall it floated above the gorge
+    # mouth as a second castle (the art review's open point).
+    # (Polish after the art review: moved into the mid plane's picture, see VALLEY_KEEP below.)
 ]
 
 # ------------------------------------------------------------------------------------------------- mid plane
+VK = dict(region="valley", moves="far", fade=(2150, 2330), fadeout=(3300, 3550))
+VK_X, VK_Y = 560, -45   # keepFar 98x237: its crenels at y 156 to 167, the top window row at y 104 to 128
+VALLEY_KEEP = [
+    dict(s="cliffFlank", x=VK_X - 70, y=-50, z=-4, shade=0.8, **VK),
+    dict(s="gorgeMouth", x=VK_X + 80, y=-60, z=-4, shade=0.8, **VK),
+    dict(s="keepFar", x=VK_X, y=VK_Y, z=-3, shade=0.72,
+         em=[("mask", 17, 150, 13, 10, "window"), ("mask", 61, 150, 12, 10, "window"),
+             ("mask", 59, 96, 13, 10, "window"), ("mask", 17, 96, 13, 10, "window")], **VK),
+]
 MID = [
     # The warden statue, carved into the wall; seen behind the king at the front (focus 600 to 1000). Its bowl fire
     # burns all night: a hearthFire in the dark hollow and a brazier light.
@@ -120,12 +139,28 @@ MID = [
     # The throat: the wall rises above the screen behind the castle front (at the gate view, x 669-909 is behind the
     # front); its right end hides behind the front.
     dict(s="gorgeWallHigh", x=690, y=0, region="gorge", z=1, shade=0.85),  # under the hazy wall's value (M1b polish)
+    # The keep seen from the gorge (polish after the art review): its crown, banner and top windows rise above a rock
+    # shoulder in the middle distance, so the castle shows from the approach (focus 1100: screen 200 to 298, above the
+    # lowered throat rock) and at the right edge of the front view (focus 760); at the gate view it hides behind the
+    # castle front and the left flank. The shoulder (a mid copy of the high rock, top at y 100) hides its foot.
+    dict(s="keepFar", x=641, y=-59, region="gorge", z=3, shade=0.78,
+         em=[("mask", 17, 150, 13, 10, "window"), ("mask", 61, 150, 12, 10, "window")]),
+    dict(s="gorgeWallHigh", x=571, y=-152, region="gorge", z=4, shade=0.85),
     # Inside the walls the cliffs still rise behind the courtyard and the hall.
     dict(s="gorgeWallB", x=862, y=0, region="gorge", z=0),
     # Where the gorge ends: seen above the kitchen from the back gate, falling away to the right behind the gate.
     dict(s="gorgeMouth", x=1030, y=0, region="gorge", z=3),
     # The windmill on a hill crest of valleyMidB (96 px high there), right of the keep.
     dict(s="windmill", x=1500, y=93, region="valley", z=1),
+    # The keep seen from the valley (polish after the art review): a solid slate keep with its teal banner in the
+    # notch of the gorge mouth, drawn into the mid picture but moving like the far plane (see `moves`). At the back-gate
+    # view it stands behind the gate (screen 123 to 273, between the gate's towers, where the real keep is); from the
+    # town (focus 2900) at the left edge (screen 9 to 159). Rock walls on both sides plug the gorge mouth: the high rock
+    # on the left (behind the mid gorge mouth at the back-gate view) and a mirrored gorge mouth on the right falling
+    # away to the valley. All stand behind the hills (z -3). It fades in from focus 2150 (no second castle above the
+    # courtyard and the hall) and out again from 3300 to 3550 (at the river end its rock showed as a sliver at the left
+    # edge). Three to five windows glow at night: a beacon for the valley.
+    *VALLEY_KEEP,
     # The river's far shore (M1b polish): seen behind the river at the world's end (focus 3720 shows mid x 1948 to
     # 2168); in front of the hills, at the ground line, so the river reads wide and closes the world.
     dict(s="riverFarBank", x=1940, y=0, region="valley", z=2),
@@ -166,25 +201,30 @@ WORLD = [
     # it rises behind the courtyard wall.
     # (Mirrored on the left so its overhang leans out over the gorge; the straight-cut strip it carries on from
     # gorgeWallC lies behind the flanks on both sides.)
-    dict(s="gorgeWallHigh", x=F - 190, y=0, z=-5, flip=True, shade=ROCK_SHADE),
-    dict(s="gorgeWallHigh", x=F + 278, y=0, z=-5, shade=ROCK_SHADE),  # its cut left edge just behind the right flank;
-                                                                     # shows other columns than the mirrored copy
+    # (polish after the art review: a rock shoulder 155 px low, its top at y 85, so the keep seen from the gorge rises
+    # above it; the high rock's flat overhang read as a table there, a gorge-wall tile showed its straight cut)
+    dict(s="cliffFlankB", x=F - 130, y=-155, z=-5, shade=ROCK_SHADE),
+    # (polish after the art review: the right side is other rock than the left, so the gate view is not a mirror and
+    # the rock no longer repeats like wallpaper: strata with a cave from gorgewall-b, its cut left edge just behind the
+    # right flank, and the rocks-a middle rock as the flank)
+    dict(s="throatRock", x=F + 278, y=0, z=-5, shade=ROCK_SHADE),
     # cliffFlank is plain rock (the left cliff of rocks-a); its straight right edge hides behind the tower bodies,
     # which start 10 px inside the front's edges. The right one stands in FRONT of the courtyard wall (z -1), so from
     # the gate view rock rises right of the right tower from the ground to above the screen; the wall run starts
     # behind it.
     dict(s="cliffFlank", x=F - 53, y=0, z=-3, shade=FLANK_SHADE),
-    dict(s="cliffFlank", x=F + 213, y=0, z=-1, flip=True, shade=FLANK_SHADE),
-    dict(s="castleKeep", x=K, y=0, z=-4,  # front elevation; only its top row of windows clears the wall walk
-         # only the lower 10 rows of each tall window glow (lamplight low in the room, not a full blob); one of the
-         # middle windows stays dark
-         em=[("mask", 69, 150, 13, 10, WIN), ("mask", 113, 150, 12, 10, WIN), ("mask", 111, 96, 13, 10, WIN),
-             ("mask", 69, 35, 13, 10, WIN), ("mask", 113, 35, 13, 10, WIN)],
-         li=[("window", K + 75, 160, 8), ("window", K + 119, 160, 8)]),
+    dict(s="cliffFlankB", x=F + 213, y=0, z=-1, flip=True, shade=FLANK_SHADE),
+    # Polish after the art review: only the keep's top 130 rows (keepTop) stand behind the gatehouse, 40 px up, so its
+    # crenellated crown and flag rise above the gatehouse between the towers' crowns (top at y 170); its top window row
+    # stays behind the gatehouse (the front's occluder hides the glass; the two small window lights are gone)
+    dict(s="keepTop", x=K, y=40, z=-4,
+         # only the lower 10 rows of each tall window glow (lamplight low in the room, not a full blob)
+         em=[("mask", 69, 30, 13, 10, WIN), ("mask", 113, 30, 12, 10, WIN)]),
     dict(s="castleFront", x=F, y=0, z=0,
          em=[("sprite", "brazierFlame", 93, 130, FIRE, False), ("sprite", "brazierFlame", 138, 130, FIRE, False),
              ("sprite", "flame", 90, 61, GOLD, True), ("sprite", "flame", 145, 61, GOLD, True),
-             ("mask", 29, 124, 6, 15, WIN), ("mask", 202, 124, 6, 15, WIN),   # right tower unmirrored at x 173
+             # the slits' glass (the towers are 64 rows shorter since the polish; right tower unmirrored at x 173)
+             ("mask", 29, 96, 6, 15, WIN), ("mask", 202, 89, 6, 15, WIN),
              ("mask", 29, 69, 6, 15, WIN), ("mask", 202, 69, 6, 15, WIN)],
          # the wall-walk braziers smaller (44, was 56) and a warm pool in the gateway, so the king at the gate is the
          # one focal point of the hero shot
@@ -217,9 +257,11 @@ WORLD = [
              ("window", B + 33, 117, 8), ("window", B + 171, 117, 8)]),
     # --- the town (moved 100 px right) ---
     *[x for n, start in enumerate((2480, 2800, 2900, 3090)) for x in (
-        dict(s="house", x=start, y=0, z=0, shade=0.97, flip=n % 2 == 1,
-             # window glass only (the four night1 panes of each half-timbered window), no soft glow sprite
-             em=[("mask", 11, 8, 5, 6, WIN), ("mask", 46, 8, 5, 6, WIN)],
+        # (polish after the art review: tile, slate, thatch with a dormer, tile; every second one mirrored)
+        dict(s=("house", "houseB", "houseC", "house")[n], x=start, y=0, z=0, shade=0.97, flip=n % 2 == 1,
+             # window glass only (the four night1 panes of each half-timbered window), no soft glow sprite; the
+             # thatched cottage's dormer window too
+             em=[("mask", 11, 8, 5, 6, WIN), ("mask", 46, 8, 5, 6, WIN)] + ([("mask", 27, 33, 3, 2, WIN)] if n == 2 else []),
              li=[("window", start + (64 - 13 - 1 if n % 2 == 1 else 13), 11, 8),
                  ("window", start + (64 - 48 - 1 if n % 2 == 1 else 48), 11, 8)]),
         dict(s="lanternPost", x=start + 68, y=0, z=1, em=[("sprite", "lanternGlass", 1, 18, GOLD, True)],
@@ -275,7 +317,8 @@ def instances():
     def add(plane, d, region=None):
         out.append(dict(s=d["s"], p=plane, x=d["x"], y=d.get("y", 0), z=d.get("z", 0), sh=d.get("shade", 1.0),
                         f=d.get("flip", False), em=d.get("em", []), li=d.get("li", []),
-                        anchor=d.get("anchor", "ground"), region=region or d.get("region")))
+                        anchor=d.get("anchor", "ground"), region=region or d.get("region"), fade=d.get("fade"),
+                        mv=d.get("moves"), fadeout=d.get("fadeout")))
 
     for plane, region, names, x0, y, z, shade, count in CYCLES:
         x = x0

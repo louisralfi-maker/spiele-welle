@@ -8,8 +8,8 @@ final class CameraTests: XCTestCase {
 
     func testParallaxFactors() {
         let factors = Plane.allCases.map(\.parallax)
-        XCTAssertEqual(factors, [0, 0.2, 0.5, 0.9, 1.0, 1.15, 1.3])
-        XCTAssertEqual(Plane.allCases.map(\.rawValue), Array(0..<7), "back to front")
+        XCTAssertEqual(factors, [0, 0.05, 0.2, 0.5, 0.9, 1.0, 1.15, 1.3])
+        XCTAssertEqual(Plane.allCases.map(\.rawValue), Array(0..<8), "back to front")
     }
 
     func testPlaneOffsetsAtTheFrontShot() {
@@ -17,8 +17,8 @@ final class CameraTests: XCTestCase {
         let camera = Camera(focusX: 760, viewWidth: 437)
         XCTAssertEqual(camera.x, 541.5)
         let expected: [(Plane, Int, Int)] = [
-            (.sky, 0, 0), (.far, 108, 2), (.mid, 270, 5), (.fogA, 487, 2), (.world, 541, 3), (.fogB, 622, 4),
-            (.foreground, 703, 6),
+            (.sky, 0, 0), (.clouds, 27, 0), (.far, 108, 2), (.mid, 270, 5), (.fogA, 487, 2), (.world, 541, 3),
+            (.fogB, 622, 4), (.foreground, 703, 6),
         ]
         for (plane, whole, shift) in expected {
             let offset = camera.offset(for: plane, scale: 6)
@@ -53,8 +53,8 @@ final class CameraTests: XCTestCase {
     func testClampingToTheWorld() {
         XCTAssertEqual(Camera(focusX: 0, viewWidth: 437).x, 0)
         XCTAssertEqual(Camera(focusX: 100, viewWidth: 437).x, 0, "the view never shows left of the world")
-        XCTAssertEqual(Camera(focusX: 5000, viewWidth: 437).x, 3800 - 437)
-        XCTAssertEqual(Camera(focusX: 3700, viewWidth: 437).maxLeft, 3363)
+        XCTAssertEqual(Camera(focusX: 5000, viewWidth: 437).x, 3900 - 437)
+        XCTAssertEqual(Camera(focusX: 3700, viewWidth: 437).maxLeft, 3463)
         XCTAssertEqual(Camera(focusX: 900, viewWidth: 5000).x, 0, "a world narrower than the view stays at 0")
         XCTAssertEqual(Camera(focusX: 1830, viewWidth: 437).focusX, 1830, accuracy: 1e-9)
 
@@ -66,7 +66,7 @@ final class CameraTests: XCTestCase {
             XCTAssertLessThanOrEqual(camera.x, camera.maxLeft + 1e-9)
             XCTAssertGreaterThanOrEqual(camera.x, 0)
         }
-        XCTAssertEqual(king.x, WorldLayout.width, "the king stops at the world's end")
+        XCTAssertEqual(king.x, WorldLayout.walkEnd, "the king stops on the river bank")
         XCTAssertEqual(camera.x, camera.maxLeft, accuracy: 1e-6)
     }
 
