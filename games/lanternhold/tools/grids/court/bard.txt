@@ -1,8 +1,9 @@
-# bard 12x28, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). A wandering bard: a floppy red cap with a long
-# white feather, ginger curls, a merry face, a spring-green doublet with cream puffed sleeves and a gold sash, dark
-# hose, soft boots, a round-bellied lute slung across his front (the neck rising forward, the pegbox bent back). Walk:
-# a light step, the lute bobbing. Idle: fingers resting on the strings, a breath. Talk: he strums, the strumming hand up
-# (6) and down (7), singing (mouth open).
+# bard 12x28, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). A wandering bard: a floppy rose-red cap
+# (dusk over tile) with a long white feather, ginger-gold curls (straw and woodLight, as his portrait), a merry face, a
+# spring-green doublet with cream puffed sleeves and a gold sash, dark hose, soft boots, a round-bellied lute slung
+# across his front, its neck angled forward at chest height (fix stage: cap and hair were one brown mass, and the neck
+# rose to his face, in front of the nose). Walk: a light step, the lute bobbing. Idle: fingers resting on the strings,
+# a breath. Talk: he strums, the strumming hand up (6) and down (7), singing (mouth open).
 id bard
 size 12x28
 frames 8
@@ -12,10 +13,10 @@ legend
     k = ink
     S = dawnRose
     s = tileLight
-    C = tileLight
-    c = tile
-    R = tile
-    r = woodDark
+    C = straw
+    c = woodLight
+    R = dusk
+    r = tile
     F = foam
     f = stonePale
     E = leafLight
@@ -37,7 +38,7 @@ part cap
     ...FFf..
     .rRRRR..
     rRRRRRR.
-    .rRRRRRc
+    .rrRRRr.
 
 part head
     .CcSSS.
@@ -102,13 +103,13 @@ part legsContactB
     BB...BB
     BBb..BBb
 
-# the lute across his front: the round belly at his hip, the neck rising forward, the pegbox bent back
+# the lute across his front: the round belly at his hip, the neck angled forward at chest height, the pegbox bent back
 part lute
-    ......nn
+    ........
+    ........
+    ........
     .......n
-    ......n.
-    .....n..
-    ....n...
+    .....nnn
     .YDDn...
     YDDDDd..
     DDnnDd..
@@ -134,9 +135,9 @@ part armBack
 
 part armFret
     .....
-    ..SS.
+    .....
+    ...SS
     .wW..
-    WW...
 
 frame 0
     armBack 2 11

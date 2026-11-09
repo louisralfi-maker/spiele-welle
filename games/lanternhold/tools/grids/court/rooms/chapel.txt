@@ -92,6 +92,14 @@ stamp saintHood
     kqqk...k.
     kqk......
 
+# the carved band of the saint's plinth (fix stage): a scroll of little flames cut into the stone either side of the
+# Flame's bowl, lit from the upper left
+stamp plinthCarving
+    .lm.lm.......lm.
+    lsml.sm.....lsml
+    .mm.mm.......mm.
+    lllllllllllllll.
+
 # gold rays round the saint's raised lantern (on the niche's starry field)
 stamp rays
     ..y...y...

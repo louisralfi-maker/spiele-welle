@@ -1,7 +1,9 @@
 # petitionerE 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md "M3"). A petitioner body: a well-off townsman, portly,
-# a neat grey beard, a red velvet cap with a gold brooch, a fine chestnut coat to the knees with a pale fur collar, gold
-# buttons and a gold chain, dark hose, buckled shoes. Walk: four frames, a self-important waddle. Idle: a breath, his
-# thumb in his belt.
+# a neat grey beard, a soft brimless cap of red velvet drooping over the back of his head with a gold brooch, a fine
+# teal gown with wide sleeves trimmed with pale fur at the collar, the cuffs and the hem, a gold chain over his
+# shoulders, the belt low at the hip, dark hose, buckled shoes. Fix stage: the red-brown cap over a dark band and the
+# long brown belted coat with a button row read as a 1940s detective in a fedora and a trench coat. Walk: four frames,
+# a self-important waddle. Idle: a breath, his hand at his belt.
 id petitionerE
 size 12x26
 frames 6
@@ -13,23 +15,25 @@ legend
     s = tileLight
     W = stonePale
     w = stoneLight
-    R = tile
-    r = woodDark
-    Q = tileLight
+    R = dusk
+    r = tile
     G = gold
-    V = rockDark
-    v = rockDeep
-    U = rock
+    g = straw
+    V = banner
+    v = roofDeep
+    U = roofLight
     F = plaster
     f = plasterDim
     N = soilDark
     B = woodDark
     b = stoneLight
+    L = woodDark
 
+# the soft cap: a velvet crown wider than his head, drooping over the back of the head, the gold brooch in front
 part cap
-    .rRRRQ.
-    rRRRRRG
-    .rrrrr.
+    ..RRRR..
+    .RRRRRRG
+    rRr.....
 
 part head
     .wSSSs
@@ -38,43 +42,45 @@ part head
     .wWWWs.
     ..wWW..
 
+# the gown's top: the fur collar, the gold chain hanging over the shoulders onto the chest, no buttons
 part torso
-    .fFFFFV.
-    fFFFFUVV
-    .vVVVVGV
-    vVVVVUVV
-    vVVVGVUV
-    vVVVVVVV
-    vrrrGrrr
-    vVVVVVUV
+    .fFFFFv.
+    fFFFFFvv
+    .vGVVVGv
+    vVVGGGVv
+    vVVVVUVv
+    vVVVVVUv
+    vVVVVVVv
+    vVVVVVUv
 
+# the gown's skirt to the knee: the belt low at the hip, the fur trim at the hem
 part coatStand
-    .vVVVVVUV
+    .LLLLGLLL
     .vVVVVVUV
     vvVVVVVUV
     vvVVVVVVUV
-    vvVVVVVVUV
+    ffFFFFFFFf
 
 part coatA
-    .vVVVVVUV.
+    .LLLLGLLL.
     .vVVVVVVUV
     vvVVVVVVUV
     vvVVVVVVVUV
-    vvVVVVVVVUV
+    ffFFFFFFFFf
 
 part coatB
-    .vVVVVVUV
+    .LLLLGLLL
     .vVVVVVUV
     .vVVVVVUV
     vvVVVVVUV
-    vvVVVVVUV
+    ffFFFFFFf
 
 part coatC
-    ..vVVVVUV
+    ..LLLGLLL
     ..vVVVVUV
     .vvVVVVUV
     vvvVVVVVUV
-    vvvVVVVVUV
+    fffFFFFFFf
 
 part legsStand
     .NN.NN
@@ -100,23 +106,27 @@ part legsContactB
     BB...BB
     BBBb.BBBb
 
+# the near arm in its wide sleeve, a pale fur cuff, the hand at his belt or swinging
 part armThumb
-    VU.
-    VUU
-    VVU
-    .SS
-
-part armSwingFwd
     VU..
     VUU.
-    .VUU
-    ..SS
+    VUUU
+    fFF.
+    .SS.
+
+part armSwingFwd
+    VU...
+    VUU..
+    .VUUU
+    ..fFF
+    ...SS
 
 part armSwingBack
-    VU.
-    VU.
-    UV.
-    SS.
+    VU..
+    VU..
+    UVV.
+    fFF.
+    SS..
 
 frame 0
     coatA 1 17

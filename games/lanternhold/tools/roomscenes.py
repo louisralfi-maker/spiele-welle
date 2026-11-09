@@ -636,7 +636,30 @@ def chapel_interior():
         if rnd(41, px, py) < 0.05:
             c.put(px, py, "gold")
     c.stamp(st["rays"], 115, 51)
-    c.blit(saint_figure(), 109, 51)
+    # fix stage: the relief is a half-figure (hood, face, beard, the lantern raised) ending at row 63 over a carved
+    # plinth (rows 64-72, its plain base to the altar), so the Flame burns before the plinth at the saint's feet; the
+    # whole figure stood in the fire and read as a burning man
+    saint = saint_figure()
+    for y in range(64 - 51, saint.h):
+        for x in range(saint.w):
+            saint.px[y][x] = None
+    c.blit(saint, 109, 51)
+    plinth = [(x, y) for (x, y) in inner if 64 <= y <= 76]
+    for (px, py) in plinth:
+        if py == 64:
+            col = "ink"
+        elif py == 65:
+            col = "stonePale"
+        elif py == 66:
+            col = "stoneLight"
+        elif py in (71, 72):
+            col = "stoneMid" if py == 71 else "stoneDark"
+        elif py > 72:
+            col = "stone" if (px + py) % 7 else "stoneMid"
+        else:
+            col = "stone"
+        c.put(px, py, col)
+    c.stamp(st["plinthCarving"], 109, 67)
 
     # --- the chancel step, the altar with the Flame's bowl, candles, the sanctuary lamp
     c.rect(100, 90, 150, 94, "stone")

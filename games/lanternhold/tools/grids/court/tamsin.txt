@@ -1,8 +1,11 @@
 # tamsin 14x28, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Tamsin, the cook: round and rosy, a teal
-# kerchief knotted at the back, an auburn curl, rosy cheeks and a broad smile, a red-brown dress with the sleeves
-# rolled up over strong forearms, a white apron with a bib tied at the waist, a long wooden ladle with an iron bowl in
-# her near fist. Walk: a rolling waddle, the skirt swinging. Idle: a breath. Talk: the ladle wagged up beside her face
-# (6), then pointed forward like a finger (7): have you heard?
+# kerchief over her auburn hair (curls at the forehead and the temple, the hair at the nape below it), knotted behind
+# the head with two short tails sticking out, a fold across it; rosy cheeks and a broad smile, a red-brown dress with
+# the sleeves rolled up over strong forearms, a white apron with a bib tied at the waist, a long wooden ladle with an
+# iron bowl in her near fist. Fix stage: the kerchief covered every hair (teal hair at device scale), and talk 6 held
+# the ladle's bowl beside her face like a beak. Walk: a rolling waddle, the skirt swinging. Idle: a breath. Talk: the
+# ladle kept low, she wags a finger of her free hand before her chest (6), then points the ladle forward like a finger
+# (7): have you heard?
 id tamsin
 size 14x28
 frames 8
@@ -29,14 +32,14 @@ legend
     B = woodDark
 
 part head
-    ..UUUU..
-    .UUUUUT.
-    tTUUUThS
-    tTUSSSSS
-    .TSSSkSS
-    ..SnSSSS
-    ..sSSsS.
-    ...sSs..
+    .....UUUU..
+    ....UUTUUT.
+    ..tTUUUThQS
+    .tTtUUhhSSS
+    t.t.hhSSkSS
+    ....hSnSSSS
+    .....sSSsS.
+    ......sSs..
 
 part torso
     ..QRRRR...
@@ -140,12 +143,18 @@ part armBack
     RQ
     sS
 
+# talk 6: the free hand raised before her chest, one finger wagging
+part handWag
+    .S
+    SS
+    R.
+
 frame 0
     armBack 2 10
     skirtA 1 17
     feetA 2 27
     torso 2 10
-    head 4 2
+    head 1 2
     armLadle 6 10
 
 frame 1
@@ -153,7 +162,7 @@ frame 1
     skirtB 1 17
     feetB 3 27
     torso 2 11
-    head 4 3
+    head 1 3
     armLadle 6 11
 
 frame 2
@@ -161,7 +170,7 @@ frame 2
     skirtC 1 17
     feetC 3 27
     torso 2 10
-    head 4 2
+    head 1 2
     armLadle 6 10
 
 frame 3
@@ -169,7 +178,7 @@ frame 3
     skirtB 1 17
     feetB 3 27
     torso 2 11
-    head 4 3
+    head 1 3
     armLadle 6 11
 
 frame 4
@@ -177,7 +186,7 @@ frame 4
     skirtStand 1 17
     feetStand 2 27
     torso 2 10
-    head 4 2
+    head 1 2
     armLadle 6 10
 
 frame 5
@@ -185,7 +194,7 @@ frame 5
     skirtStand 1 17
     feetStand 2 27
     torso 2 11
-    head 4 3
+    head 1 3
     armLadle 6 11
 
 frame 6
@@ -193,13 +202,14 @@ frame 6
     skirtStand 1 17
     feetStand 2 27
     torso 2 10
-    head 4 2
-    armLadleUp 5 4
+    head 1 2
+    armLadle 6 10
+    handWag 10 9
 
 frame 7
     armBack 2 10
     skirtStand 1 17
     feetStand 2 27
     torso 2 10
-    head 4 2
+    head 1 2
     armLadlePoint 5 10
