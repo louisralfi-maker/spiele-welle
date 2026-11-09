@@ -279,6 +279,8 @@ The renderer keeps its passes; look 2 changes these values and adds the rows mar
 | night tint (colourise) | (1.03, 0.86, 1.66) × 0.6 | (0.72, 0.95, 1.85) × 0.72 (deep blue, not violet) |
 | far / mid / near share of ambient | 0.9 / 0.7 / – | 0.85 / 0.72 / 1.05 |
 | far haze | 0.34 + haze × 0.62 toward the horizon | 0.40 + haze × 0.55 toward the hour's air (lavender at warm hours, 0.6) |
+| far haze clearing (new, fix stage) | – | the far haze × (1 − 0.5 × (1 − smoothstep(0, 64, screen row from the top))): half the haze at the top row, all of it from row 64 down (`farClear`, `farClearH`; 14.3) |
+| far key (new, fix stage) | – | before the haze, far albedo with luma from 0.55 (full at 0.75) adds albedo × 0.5 × (moon (0.55, 0.60, 0.92) × moon height × night + the hour's cloud colour) (`farKey`, `farKeyLo`; 14.3) |
 | mid haze | day 0.2, night 0.36, + haze × 0.26 | day 0.14, night 0.36, + haze × 0.25, toward air × 0.86 |
 | near haze (new plane) | – | day 0.06, night 0.20, + haze × 0.06, toward air × 0.62; point light share 0.5 |
 | moon key (new) | – | at night, near and mid albedo above luma 0.26 (smoothstep over 0.12) adds albedo × moon (0.55, 0.60, 0.92) × 0.30 × moon height |
@@ -309,7 +311,8 @@ creature value 0.2 (the mock now draws it as the engine).
 New in the port: the near plane (an atlas plane between mid and world, lit like the mid plane plus a point-light
 share), the three painted fog banks, the per-hour air and cloud colour, vignette and navy lift in the ramp, the lane's
 sky light and moon track, the region share of the fog, the fire colour falloff in the light pass, the cold
-displacement, the fog's hue in light, the moon key, the ledge light, the room rects, the people's rims. The glass test
+displacement, the fog's hue in light, the moon key, the ledge light, the room rects, the people's rims, and from the
+fix stage the far plane's haze clearing and key. The glass test
 (`lh_is_glass`) keeps `night0`, `night1`, `ink`.
 
 ## 8. The mocks (stage 1)
@@ -511,6 +514,18 @@ and lantern positions").
 - **Particles** (not drawn in the sprites): a little soot rising from brute, giant and King would complete "smoke
   figures"; one dark pixel a few times a second from the top contour, drifting left.
 - **The darkness bank** (11.5) loads without Swift changes; its eyes need one new sprite id.
+- **For the lead: SPRITES.md describes look 1's glow strips** (its lines 22 to 27 and 52 to 55; this lane may not
+  edit that file). Look 2's strips hold one cold eye a creature, `emberDim` on the top contour, `ember` only inside
+  cracks, violet for the gloomweaver and cold only for the Lightless King. Replacement text:
+  - lines 22 to 27, the last two sentences: "So the glow strip alone must still read as the creature: a dim ember
+    rim (`emberDim`) on the silhouette's top contour, `ember` only inside a few cracks, and one cold eye
+    (`wraithWhite`, at most one `wraithDim` tear under it) low in a dark socket; never two eyes (ART-look2.md 11.2,
+    ART-actors.md "Glow strip rules"). The body must read in daylight and in firelight. The engine draws the cold
+    pixels as they are: no warm tint, no torch strength, and not dimmed by day."
+  - lines 52 to 55, after the list of ids: "A dim ember rim and ember cracks in the fire ramp, one cold eye each
+    (`wraithWhite`, `wraithDim`); the gloomweaver's eye and lantern drip are cold violet; the Lightless King has no
+    eye and no ember, only `wraithDim` and `wraithGlow` (the crescent in his cowl, the thorns' tips). No palette
+    entry was added; `build-art.sh` rebuilds every strip byte for byte."
 
 ### 11.5 The Gloom's darkness bank
 
@@ -596,7 +611,8 @@ are right. What still keeps the frames from a big studio's look is the world beh
   where a slot sits to the pixel and never repeats a building.
 - **The statue and the ghost keep leave the shadow land's mid plane** (`wardenStatue` at mid x 430, `keepFar` at
   mid x 641). The statues of past lords come back at human scale in the forest mid painting; the castle is seen in
-  the cleft on the far plane. Reason: 12.1, front-night.
+  the cleft on the far plane. Reason: 12.1, front-night. (Fix stage, section 14: the warden statue comes back, cut
+  into the Throat's wall at mid x 520; the ghost keep stays out.)
 
 ### 12.4 What the renderer could add (for the engine port; none of it is art)
 
@@ -607,7 +623,7 @@ are right. What still keeps the frames from a big studio's look is the world beh
 | Wind in the trees | the forest lives, the firs bend before a wave comes | near-plane and fg sprites drawn in two or three horizontal slices, the upper slices offset by `round(sin(t*0.7 + x*0.02)) ` px (0, 1 or 2 px, whole pixels only); gusts raise the amplitude for 2 s when the Gloom's bank moves |
 | Layered drifting fog | depth and dread: the banks move against each other | the three fog planes already exist; give each its own drift (fogM −2 px/s, fogA −5 px/s, fogB −9 px/s, toward the castle at night, still at noon) and a second copy of fogA at half alpha moving the other way |
 | Fog that swallows figures | creatures come out of the fog instead of walking in from the edge | alpha of an enemy = clamp((x − bankEdge) / 60) inside the open land, drawn before fogA while under 0.6 |
-| Far-castle windows and beacon | the view back tells the state of the house | the glow strips `farCastleGlow` (from the shadow land) and `farCastlePane` (from the town) as emissives on the far plane at night; once the Great Beacon burns, its light in the slot seen from the town, with bloom (13.8, items 5 to 7) |
+| Far-castle windows and beacon | the view back tells the state of the house | the glow strips `farCastleGlow` (from the shadow land) and `farCastlePane` (from the town) as emissives on the far plane at night, each over the slot's own faint light (`farCleftGlow`, `farCleftGlowBack`, section 14.3); once the Great Beacon burns, its light in the slot seen from the town, with bloom (13.8, items 5 to 7) |
 | Cloud deck drift | the peaks stand above weather | the cloud band over the castle on its own plane (0.12) at 1 px/s, wrapping |
 | Ground mist kicked by feet | cheap life in the lane | 4 px puffs of the fog colour at each footfall in the moor, 0.4 s, alpha 0.3 |
 | Embers and ash | fire has weight; the Gloom sheds | `d2Sparks` rising from braziers (already in the mock), cold ash motes drifting from the bank's edge |
@@ -634,19 +650,34 @@ What a player now sees, walking from the spawn to the river (plates in `ci-out/l
 
 ### 13.1 Files
 
-All in `Resources/Art/`, albedo only, palette colours only, rebuilt byte for byte by `tools/build-art.sh world`
+All in `Resources/Art/`, palette colours only, rebuilt byte for byte by `tools/build-art.sh world`
 (`tools/build-art-world.sh`, the last group of `build-art.sh`: it cuts the cliffs from the old cliff sprites' shapes
 and the far castle from `castleFront`, `keepTop` and `castleBackGate`, so it runs after the buildings). The paintings
 are converted by `tools/pixelart.py --match new` with one ramp per piece and assembled by `tools/worldart.py`
 (no randomness: hashes of the position). The world lane takes about 65 s on this Mac, the whole `build-art.sh` 3:24.
 
+Albedo, with these exceptions (corrected in the fix stage): `d2FogBank`, `d2MistBand`, `d2FogLow` and `d2Smoke` are
+`#FFFFFF` alpha masks (the engine gives them their colour, 13.8 item 12); `d2Sparks` and `d2Fireflies` are
+emissive dots in the fire ramp; `farCastleGlow`, `farCastlePane`, `farCleftGlow` and `farCleftGlowBack` are glow
+strips. The table below carries the fix stage's sizes (section 14).
+
+**The sources are not in git.** The world lane reads the five paintings and their cut parts from
+`build/recraft/lh/look2/world/` (git-ignored: `wall-1.png`, `gorge-1.png`, `forest-1.png`, `trees-1.png`,
+`valley-1.png`, `parts/`). They exist in three places on this Mac: this lane's worktree
+(`.claude/worktrees/lh-look2-fable`), the lead's worktree (`.claude/worktrees/game2-planning-354541`) and the main
+checkout (`/Users/enaayla/Desktop/Spiele-Welle`), each under the same path. A later lane in a new worktree must
+copy that folder before it runs a full `build-art.sh` or `build-art.sh world`; without it the world group fails
+and no world PNG can be rebuilt. No credits are left to paint them again (13.7).
+
 | Id | Size | Plane | From | How |
 |---|---|---|---|---|
-| `weltmauer` | 888x190 | far | `wall-1` | `worldart.py wall`: the painting (384 px wide) and its mirrored second cut (420 px) side by side and run on by 150 px; the last 212 columns sink by up to 104 px (the wall's shoulder toward the valley); the cleft cut twice (sprite x 324: the view from the shadow land; x 650: the view from the valley), a slot 11 to 16 px wide with a jog every 17 rows, the right inner face lit, the left dark; in each slot the far castle |
-| `weltmauerPatch` | 38x190 | far | `weltmauer` | the unbroken wall at sprite x 631 to 669, cut before the second cleft: it hides the valley's view of the cleft until the camera is past the back gate |
-| `farCastleGlow` | 30x30 | far, glow | `castleFront` + `keepTop` | the far castle's lights seen from the shadow land: five `fireGold` cells (two tower slits, the right tower's lower slit, two watch fires on the wall walk), the real sprites' emitters divided by 8 |
-| `farCastlePane` | 30x35 | far, glow | `castleBackGate` + `keepTop` | the one lit pane high in the keep seen from the town (one cell: two panes read as eyes) |
-| `gorgeRock` | 448x211 | mid | `gorge-1` | `worldart.py gorge`: the granite wall, full height from sprite x 104 to 394; its left 104 columns rise from the ground in crags (the mouth), its right 54 step down to the cleft face's height; lit top edges |
+| `weltmauer` | 888x190 | far | `wall-1` | `worldart.py wall`: the painting (384 px wide) and its mirrored second cut (420 px) side by side and run on by 150 px; the last 212 columns sink by up to 104 px (the wall's shoulder toward the valley); fix stage: the ridge redrawn as seven massifs, the whole wall regraded to granite below a wandering snow line with couloirs (14.3); the cleft cut twice (sprite x 324: the view from the shadow land; x 650: the view from the valley), a sheer slot 40 px wide (as wide as the far castle), filled with four flat pale levels, a pillar at each lip; in each slot the far castle at 1/6 |
+| `weltmauerPatch` | 52x190 | far | `weltmauer` | the unbroken wall at sprite x 624 to 676, cut before the second cleft: it hides the valley's view of the cleft until the camera is past the back gate |
+| `farCastleGlow` | 40x46 | far, glow | `castleFront` + `keepTop` | the far castle's lights seen from the shadow land: six `fireGold` cells (the keep's pane, two tower slits, the right tower's lower slit, two watch fires on the wall walk), the real sprites' emitters divided by 6 |
+| `farCastlePane` | 40x46 | far, glow | `castleBackGate` + `keepTop` | the one lit pane high in the keep seen from the town (one cell: two panes read as eyes) |
+| `farCleftGlow`, `farCleftGlowBack` | 44x72, 44x68 | far, glow | `weltmauer` | the slot's light above and beside each far castle as an emissive mask (the slot's pale cells, the castle's cells left out): at night the slot glows faintly so the castle stands as a silhouette (14.3) |
+| `gorgeRock` | 448x211 | mid | `gorge-1` | `worldart.py gorge`: the granite face, granite ramp only, a dark body with the slabs' upper and left edges lit and seven straight joints; its left edge broken (the mouth), its right 54 columns step down to the cleft face's height |
+| `gorgeCrags` | 160x200 | near | `gorge-1` | `worldart.py gorge`, second output: five dark crags standing before the face's edge, so the mist band lies between the two depths of the mouth |
 | `cleftFace` | 448x218 | mid | `gorge-1` | `worldart.py face`: the cleft's inner face behind the castle with a broken, lit top edge |
 | `cleftFaceEnd` | 240x218 | mid | `gorge-1` | the face's end, stepping down into the valley |
 | `cleftFlank`, `cleftFlankB` | 80x240 | world | `gorge-1` | `worldart.py retex`: the painting's granite inside the alpha of `cliffFlank` / `cliffFlankB` (same size, same place), lit top and left edges, dark right edge |
@@ -660,12 +691,16 @@ are converted by `tools/pixelart.py --match new` with one ramp per piece and ass
 | `d2BushA`, `d2BushB` | 30x15, 22x12 | world, z −3 | `depthart.py` | bushes behind the actors |
 | `d2TreeBelt`, `d2FirBeltFar` | 520x58, 520x40 | mid, far | `depthart.py` | the tree belt along the valley floor; the low fir ridge at the wall's foot |
 | `laneMoorA…D`, `laneCobbleA…D`, `laneEarthA…D` | 64x26 each | world | `depthart.py` | the lane tiles, variant by a hash of the tile index |
+| `laneScreeA…D` | 64x26 each | world | `depthart.py` | fix stage, the Throat's ground: bare rock and scree in the granite ramp, two worn cart ruts, loose stones with a lit top on the near edge; no tuft, no moss |
 | `d2LaneEnd` | 48x30 | world | `depthart.py` | the grassy bank where the lane ends at the river |
-| `d2FogBank`, `d2MistBand`, `d2FogLow` | 384x40, 448x60, 320x24 | fogA, fogM, fogB | `depthart.py` | the three fog banks |
-| `d2Smoke`, `d2Fireflies`, `d2Sparks` | 26x50, 96x30, 14x24 | world | `depthart.py` | chimney smoke, fireflies, brazier sparks |
+| `d2FogBank`, `d2MistBand`, `d2FogLow` | 384x40, 448x60, 320x24 | fogA, fogM, fogB | `depthart.py` | the three fog banks: `#FFFFFF` with five flat alpha levels, no colour of their own |
+| `d2Smoke` | 26x50 | world | `depthart.py` | chimney smoke, a `#FFFFFF` alpha mask |
+| `d2Fireflies`, `d2Sparks` | 96x30, 14x24 | world, emissive | `depthart.py` | fireflies (`fireGold`, `fireWhite`), brazier sparks (`fireGold`, `fireOrange`, `ember`) |
 
 No SPRITES.md id, size or frame count changed; the old sprites look 2 no longer draws stay in the folder for look 1.
-The port adds the ids above to SPRITES.md when it wires them.
+The port adds the ids above to SPRITES.md when it wires them (none of them is in SPRITES.md yet, the fix stage's
+`gorgeCrags`, `laneScreeA…D`, `farCleftGlow` and `farCleftGlowBack` included). `wardenStatue` is look 1's sprite,
+unchanged.
 
 ### 13.2 The gorge and the view back (the shadow land, x 0 to 1240)
 
@@ -677,32 +712,40 @@ centred on X.
 | Plane | Piece | x | y | z | Notes |
 |---|---|---|---|---|---|
 | far 0.2 | `weltmauer` | −44 | −17 | −3 | its ridge 135 to 173 px above the ground line: it fills the sky's upper half in every view from 0 to the valley; the slot seen from the shadow land at far x 280, the far castle's foot 75 px above the ground (above the fog) |
-| far | `farCastleGlow` | −44 + 324 − 15 = 265 | −17 + 92 = 75 | glow | additive, `fireGold`, strength by the torch curve (off by day) |
-| far | cloud deck | `cloudA` −70 y 96, `cloudC` 170 y 106 flipped, `cloudB` 430 y 98, `cloudA` 640 y 108 flipped | | 0 | before the wall: the peaks stand above the clouds |
+| far | `farCastleGlow` | −44 + 324 − 20 = 260 | −17 + 92 = 75 | glow | additive, `fireGold`, strength by the torch curve (off by day) |
+| far | `farCleftGlow` | −44 + 324 − 22 = 258 | 75 | glow | additive, the colour `cleft` (0.11, 0.13, 0.19), the same curve; drawn under `farCastleGlow` |
+| far | cloud deck | `cloudA` −60 y 96, `cloudB` 322 y 104, `cloudC` 640 y 108 flipped | | 0 | before the wall: the peaks stand above the clouds; none before the two slots (far x 260 to 300 and 586 to 626) |
 | far | `d2FirBeltFar` | −120, 400 | 2 | 2 | a low ridge of firs at the wall's foot |
 | mid 0.5 | `shadowForest` | −128, and 96 flipped | −4 | 1 | the forest edge behind world 0 to about 420 |
-| mid | `gorgeRock` | 345 | −10 | 3 | shade 0.42; seen from the palisade (focus 550 to 650) its crags rise behind world 520 to 700 (the mouth); from 700 on the rock leaves the frame at the top: no sky, no wall, no tree |
+| mid | `gorgeRock` | 345 | −10 | 3 | shade 1.0 (fix stage: the darkness is in the file's granite, not in a shade); seen from the palisade (focus 550 to 650) its broken edge rises behind world 520 to 700 (the mouth); from 700 on the rock leaves the frame at the top: no sky, no wall, no tree |
+| mid | `wardenStatue` | 520 | −34 | 4 | fix stage: cut into the Throat's wall, shade 0.88, behind the lord at focus 917; its bowl burns all night: emitter `hearthFire` at sprite (40, 153) in `fireOrange`, a light at mid (568, 124), radius 70 |
+| near 0.75 | `gorgeCrags` | 415 | −10 | 1 | shade 1.0; before the face's edge from focus 450 to 700; the mist band (fogM) lies between it and the face |
 | fogM 0.62, fogA 0.9, fogB 1.15 | the three banks | as stage 1 | | | fog share 1.0 up to x 1120, then falling to 0.7 at the cleft |
-| near 0.75 | `firB` 24, `firD` 62 f, `deadTreeA` 150, `firA` 236, `firC` 284, `firD` 318 f, `firB` 408 f, `firD` 524, `deadTreeB` 566, `deadTreeA` 622 f, `deadTreeB` 688 f | world X of the trunk (`tree("near", name, X)`: plane x = at(0.75, X) − width / 2) | 0 | 0 | open land: firs in loose groups with gaps, none behind the beacon (470); the mouth: dead trees only; the gorge (700 to 1240): none |
-| world | the lines, the lane `laneMoor` from −64 to 1240 | | | | |
-| fg 1.3 | `d2FgFerns` | −60, 420 | −30 | 2 | none inside the gorge |
+| near 0.75 | `firB` 24, `firD` 62 f, `firC` 118, `firD` 190 f, `firA` 236, `deadTreeA` 300, `deadTreeB` 372 f, `deadTreeA` 436 f | world X of the trunk (`tree("near", name, X)`: plane x = at(0.75, X) − width / 2) | 0 | 0 | fix stage: firs only west of world 247 (a near tree taller than 75 px east of that covers the far castle somewhere between focus 150 and 470); from there to the beacon (470) dead trees only; in the Throat (470 to 1240): none |
+| world | the lines; the lane `laneMoor` from −64 to 448, `laneScree` from 448 to 1240 | | | | the Throat's ground is scree with cart ruts |
+| fg 1.3 | `d2FgFerns` | −414, 66 | −30 | 2 | ending at the beacon; none in the Throat |
+
+**The Throat** (fix stage) is the stretch from the beacon (world 470) to the castle's front (1240): scree, granite,
+fog and fire, and the warden statue in the wall. No tree, no fern, no grass, no moss.
 
 Out of look 2 on the monster side (`dropped()` in `layout_look2.py`): `gorgeWallA/B/C`, `gorgeWallHigh`,
-`gorgeMouth`, `keepFar`, `wardenStatue` and the mid `cliffFlank` on the mid plane, `farMountain` on the far plane, the
-`fgOverhang*` rock lips on the fg plane.
+`gorgeMouth`, `keepFar`, `wardenStatue` at its old place (mid x 430; it is set again at 520) and the mid `cliffFlank`
+on the mid plane, `farMountain` on the far plane, the `fgOverhang*` rock lips on the fg plane.
 
 Why it works: the wall is the one giant shape (fault 1 of 12.2); the gorge is the darkest plane behind the play plane,
 so the fog and the fire pools own the frame; the forest only shows once one walks out, which is the reward Louis
 describes. The beacon ruin (438 to 500) covers the slot between focus 400 and 470; that is accepted (the ruin is the
-place to light the beacon, the view back opens on both sides of it).
+place to light the beacon, the view back opens on both sides of it). From focus 500 on `gorgeCrags` covers it: at
+the palisade one sees only rock.
 
 ### 13.3 The cleft and the castle (1240 to 2430)
 
 | Plane | Piece | x | y | z | Notes |
 |---|---|---|---|---|---|
 | far | `weltmauer` | as above | | | its peaks stand between and above the towers; the second slot is covered here |
-| far | `weltmauerPatch` | −44 + 650 − 19 = 587 | −17 | −2 | drawn at full alpha up to camera focus 2330, fading out to 2520 |
-| far | `farCastlePane` (sprite and glow) | −44 + 650 − 15 = 591 | 75 | −1 | glow in `window`; fades in over the same span, so the lit pane never shines through the patch |
+| far | `weltmauerPatch` | −44 + 650 − 26 = 580 | −17 | −2 | drawn at full alpha up to camera focus 2330, fading out to 2520 |
+| far | `farCastlePane` (sprite and glow) | −44 + 650 − 20 = 586 | 75 | −1 | glow in `window`; fades in over the same span, so the lit pane never shines through the patch |
+| far | `farCleftGlowBack` | 584 | 75 | glow | the colour `cleft`; an emitter of `farCastlePane` at dx −2, so it fades with it |
 | mid | `cleftFace` | 740 | −95 | 2 | shade 0.42; top edge 123 px above the ground line, behind the courtyard and the hall; no strata, no bricks |
 | mid | `cleftFaceEnd` | 1188 | −95 | 2 | steps down behind the back gate |
 | world | `cleftFlankB` 1110 y −155 (shade 0.7), `cleftThroat` 1518 (0.7), `cleftFlank` 1187 (0.62), `cleftFlankB` 1453 flipped (0.62) | the old instances' places, z and shades (`SWAP` in `layout_look2.py`) | | | granite instead of `cliffFlankB`, `throatRock`, `cliffFlank` |
@@ -717,7 +760,7 @@ No near trees and no fg plants here: the castle is the hero.
 | far | `weltmauer`'s shoulder | far x 632 to 844 | | | from the town the wall fills the left third of the sky and sinks; the slot with the back of the castle at far x 606 |
 | far | `valleyVista` | 620, and 1068 flipped | −34 | 1 | before the wall's end; three ranges, the farthest almost the sky; no yellow fields, no windmill |
 | mid | `d2TreeBelt` | 1400, 1920 | −2 | 3 | the valley floor |
-| near | `poplar` 2452, `linden` 2548, `appleTree` 2606, 2658 f, 2741, `poplar` 2868, 2884 f, `linden` 2992 f, `poplar` 3170, 3186 f, `linden` 3300, `appleTree` 3448, 3523 f, `linden` 3610 f, `willow` 3684, 3790 f | world X of the trunk | 0 | 0 | never one spacing; poplars in pairs |
+| near | `appleTree` 2466, 2548 f, `linden` 2624, `appleTree` 2690 f, 2741, `poplar` 2868, 2884 f, `linden` 2992 f, `poplar` 3170, 3186 f, `linden` 3300, `appleTree` 3448, 3523 f, `linden` 3610 f, `willow` 3684, 3790 f | world X of the trunk | 0 | 0 | never one spacing; poplars in pairs; fix stage: between world 2386 and 2616 only apple trees (a poplar or a linden there covers the far castle between focus 2520 and 2700) |
 | world, z −3 | `d2BushA` 2560, `d2BushB` 2884, `d2BushA` 3080 f, `d2BushB` 3190, `d2BushA` 3440 | world X of the middle | 0 | | behind the houses' fronts |
 | world | lane `laneEarth` from 2430; `d2LaneEnd` at 3676, y −30, z 3 | | | | |
 | fg | `d2FgMeadow` at at(1.3, 2600) − 240 and at(1.3, 3360) − 240, y −26; `d2FgReeds` at at(1.3, 3760) − 80, y −24 | | | | gaps in front of the square and at the bridge stumps |
@@ -728,6 +771,7 @@ Out of look 2 in the valley: `valleyFarA/B/C`, `valleyMidA/B/C`, `windmill`, the
 
 - **The far castle is the real castle at 1/8, composed, not painted** (`mini_castle`): three far-ramp values
   (`farDeep`, `mistDark`, `moon`). Reason: the view back must show this house; a generator never repeats a building.
+  (Fix stage: at 1/6, a dark silhouette with a lit left edge before a slot of light; 14.3.)
 - **The far castle stands 75 px above the ground line.** Lower it sat in the fog and behind the fir ridge. Reason:
   the view back is the point of walking out.
 - **The wall is one line of peaks of equal height, no summit** (the predecessor's `weltmauer-1`, a pyramid, is not
@@ -761,6 +805,10 @@ Luma of the 3x renders (`scene_look2.py`, look 2):
 | court-dusk | 0.175 | | the face behind the hall 0.193 |
 | square-dusk | 0.266 | | lane track 0.154 `#242537`; plaster away from the windows `#4B4451`, 0.283 |
 
+The table is stage 2's. The fix stage changed the gorge and the wall and measured those again: the gorge's face
+0.162, its mouth with the crags 0.151 (14.2); the wall's snow and shaded rock at three hours (14.5). The frame means
+of the four scenes were not measured again.
+
 - **Cliffs at dusk (9.2, 9.9): closed.** 0.149 and 0.135, inside 0.10 to 0.16.
 - **The lane at dusk: closed without a change.** 0.154 to 0.184, inside 0.13 to 0.22, navy, not lavender.
 - **The plaster at dusk: measured and left.** It stays cool away from the windows (rule 6 of section 1: warm colour
@@ -780,12 +828,25 @@ Luma of the 3x renders (`scene_look2.py`, look 2):
 - `skyMid` (a third sky stop at dusk) and the night sky's top rows, as after stage 1.
 - The six scenes were judged by the painter; a player's eye and Louis have not seen them.
 
+**Open after the fix stage** (section 14 has the reasons).
+- The lord is painted as a man only. Louis may choose a lady of the house (the Burgherrin) instead: a second `king`
+  and `kingGlow` strip of the same size and frames is not painted, and the engine has no switch for it.
+- The review's optional findings that were left: the statues and the ruin of `shadowForest` sit in the mist at
+  night; the granite pieces' small details; the crow's wings, beak and tail and a more threatening gloomweaver; the
+  split of `valleyVista` and the `skyMid` stop; flipped paintings, tree variants and relit clouds; the brute's
+  chevrons and lantern, the giant's ribs and the bank's dither; the HUD corner's clouds.
+- `wardenStatue` (look 1's sprite, unchanged) carries ivy; the Throat has no other plant.
+- At night the wall's snow reaches 0.31, not the review's 0.45 (the ratio to the shaded rock is met).
+- In `valley-golden` (focus 2560) `cleftFace` covers the far castle's left part; the castle is faint in the golden
+  haze (0.49 against the slot's 0.72).
+
 ### 13.7 Recraft
 
 `bash tools/recraft.sh gen <prefix> recraftv4_1 2:1 1 "<prompt>"`, 1536x768, 35 credits each, raws in
 `build/recraft/lh/look2/world/` (git-ignored). The job's budget was six images. The first, `weltmauer-1.png`, was
 made by the lane before this stage (251 → 216 credits): a pyramid of peaks, not used. This stage made five and
-stopped at 41 credits; nothing is left to spend.
+stopped at 41 credits; nothing is left to spend. The fix stage (section 14) made no image: 41 credits before and
+after. The raws are not in git; where they lie and who must copy them: 13.1.
 
 | # | File | Credits | Used for |
 |---|---|---|---|
@@ -849,18 +910,23 @@ the rock for the key).
 ### 13.8 Notes for the engine port (nothing here is done in Swift)
 
 1. **Sprites.** Add the ids of 13.1 with their sizes, one frame each. `farCastleGlow` and `farCastlePane` are glow
-   strips in the sense of SPRITES.md (same size as the far castle's 30x30 and 30x35 cell block, lit cells only).
+   strips in the sense of SPRITES.md (same size as the far castle's 40x46 cell block, lit cells only);
+   `farCleftGlow` and `farCleftGlowBack` are emissive strips of the slot's light (item 5).
 2. **Planes.** Two more than look 1: `near` at parallax 0.75 (single trees) and `fogM` at 0.62 (the mist band). Order
    back to front: sky 0.05, far 0.2, mid 0.5, fogM 0.62, near 0.75, fogA 0.9, world 1.0, fogB 1.15, fg 1.3. Inside a
    plane by z as the tables give it. Take every position from `layout_look2.py` (`WORLD`, `DEPTH`, `LANES`,
    `fog_region`, `dropped`, `SWAP`); haze and ambient per plane as section 3 and 7.
 3. **Look 2 leaves out** what `dropped()` lists and draws `cleftFlank`, `cleftFlankB`, `cleftThroat` where look 1
    draws `cliffFlank`, `cliffFlankB`, `throatRock` (same x, y, z, flip, shade). Look 1 stays as it is.
-4. **Shades.** `gorgeRock`, `cleftFace` and `cleftFaceEnd` are drawn at 0.42 of their plane's ambient (`sh`), the
-   world cliffs at 0.7 and 0.62 as before. The paintings are albedo; do not darken them in the files.
-5. **The far castle's lights.** `farCastleGlow` at far (265, 75): additive in `fireGold`, strength = the torch curve
+4. **Shades.** `cleftFace` and `cleftFaceEnd` are drawn at 0.42 of their plane's ambient (`sh`), `gorgeRock` and
+   `gorgeCrags` at 1.0 (fix stage: their granite is dark in the file, so the lit slab edges keep their step),
+   `wardenStatue` at 0.88, the world cliffs at 0.7 and 0.62 as before.
+5. **The far castle's lights.** `farCastleGlow` at far (260, 75): additive in `fireGold`, strength = the torch curve
    (0 by day, 1 at night), no flicker larger than ±10 % at 2 Hz and no light radius (cells only; with bloom, 12.4, they
-   glow into the slot). `farCastlePane` at far (591, 75): additive in `window`, the same curve.
+   glow into the slot). `farCastlePane` at far (586, 75): additive in `window`, the same curve. Under each, the
+   slot's light: `farCleftGlow` at far (258, 75) and `farCleftGlowBack` at far (584, 75), additive, each pixel's own
+   colour × (0.11, 0.13, 0.19) × the torch curve, no flicker; `farCleftGlowBack` fades with `farCastlePane`
+   (item 6). By day the slot needs no emissive: its albedo is the palest on the wall.
 6. **The cross-fade past the back gate.** `weltmauerPatch` alpha = 1 − smoothstep(2330, 2520, camera focus x);
    `farCastlePane` (sprite and glow) alpha = smoothstep(2330, 2520, focus). A glow's strength is multiplied by its
    sprite's alpha (the one line in `mock.py`). Reason for the patch: at parallax 0.2 the valley's slot would
@@ -881,8 +947,51 @@ the rock for the key).
    0.45). In the gorge the banks are the only light band behind the fire pools; keep their cores at 0.45 to 0.60 V.
 10. **Particles.** `d2Sparks` over each lit brazier (the mock places one at x 602, y 22 in `shadow-night`),
     `d2Smoke` over the town's chimneys (`SMOKE`), `d2Fireflies` in the valley at dusk.
-11. **Lanes.** `LANES`: `laneMoor` −64 to 1240, `laneCobble` 1240 to 2430, `laneEarth` from 2430; variant A to D by a
-    hash of the tile index (64 px tiles, 26 rows; the top rows lie on the ground line as in the mock).
+11. **Lanes.** `LANES`: `laneMoor` −64 to 448, `laneScree` 448 to 1240 (the Throat), `laneCobble` 1240 to 2430,
+    `laneEarth` from 2430; variant A to D by a hash of the tile index (64 px tiles, 26 rows; the top rows lie on the
+    ground line as in the mock).
+12. **Blend and anchor of the masks and particles** (the numbers live in `mock.py` and `layout_look2.py`).
+    - `d2FogBank` (fogA), `d2MistBand` (fogM), `d2FogLow` (fogB): tiled without a gap and never flipped; the bottom
+      row 4, 2 and 14 px below the ground line; normal alpha blend in the hour's fog colour, alpha = the mask's
+      alpha × the hour's fog density × the plane's share (0.9 × `fogScale`, `fogMShare`, 0.6 × `fogScale`) ×
+      `fog_region(world x)`, capped at 1.
+    - `d2Smoke`: centred over a cottage's chimney (house x + 49, or + 14 when the house is flipped; `SMOKE`), its
+      bottom 46 px above the ground line; normal alpha blend, tint (0.74, 0.74, 0.76) × the world's ambient, alpha ×
+      `LOOK['smoke']`; it hides nothing behind it from the light pass.
+    - `d2Sparks`, `d2Fireflies`: additive, each pixel's colour × `fireGold`, anchor bottom left; sparks at full
+      strength over a lit brazier (the mock: x 602, 22 px above the ground line in `shadow-night`), fireflies × the
+      torch curve, 6 to 8 px above the ground line in the valley.
+    - Glow strips on the far plane: anchor bottom left on the far castle's foot (far y 75), additive, hidden where a
+      sprite drawn later in the far plane covers them (the patch).
+13. **The far plane's haze clearing and key** (fix stage; section 7's two new rows, 14.3). Without them the wall's
+    snow and shaded rock have one value at night and at dusk.
+14. **Names: what the plan called a piece and what was delivered.**
+
+    | Plan (sections 7, 9, 12) | Delivered id |
+    |---|---|
+    | `fogBank`, `mistBand`, `fogLow` | `d2FogBank`, `d2MistBand`, `d2FogLow` (one variant each) |
+    | the Weltmauer with the cleft, from both sides | `weltmauer` (both slots in one sprite), `weltmauerPatch` |
+    | the far castle, its windows | composed into `weltmauer`; `farCastleGlow`, `farCastlePane`, `farCleftGlow`, `farCleftGlowBack` |
+    | the cliffs at the cleft (throat rock, flanks, high wall) | `cleftThroat`, `cleftFlank`, `cleftFlankB`, `cleftFace`, `cleftFaceEnd` |
+    | the gorge's rock and mouth | `gorgeRock`, `gorgeCrags` |
+    | the shadow land's forest, ruins and statues | `shadowForest`, `d2FirBeltFar`, `wardenStatue` (look 1's) |
+    | near firs and dead trees | `firA` to `firD`, `deadTreeA`, `deadTreeB` |
+    | the valley's hills and distance | `valleyVista`, `d2TreeBelt` |
+    | linden, poplar, orchard, willow | `linden`, `poplar`, `appleTree`, `willow` (one each) |
+    | bushes, foreground strips | `d2BushA`, `d2BushB`, `d2FgFerns`, `d2FgMeadow`, `d2FgReeds` |
+    | lane tiles, lane end | `laneMoorA…D`, `laneScreeA…D`, `laneCobbleA…D`, `laneEarthA…D`, `d2LaneEnd` |
+    | smoke, fireflies, sparks | `d2Smoke`, `d2Fireflies`, `d2Sparks` |
+    | the Gloom's bank (11.5) | `darknessBank`, `darknessEdge`, `darknessBankGlow` |
+    | cobbled market square, lit interiors, props; cloud deck and moon | not delivered (13.6); the clouds are look 1's `cloudA…C` |
+
+15. **Texels.** The 55 world ids of 13.1 (with the fix stage's) are 871 098 texels: 21 % of one 2048² page.
+    Counted with `darknessBankGlow` (256x236, four frames) and `wardenStatue` (96x200), which look 2 also draws:
+    950 714. The fix stage added 44 816 (`gorgeCrags` 32 000, `laneScreeA…D` 6 656, `farCleftGlow` 3 168,
+    `farCleftGlowBack` 2 992) and grew `weltmauerPatch` (7 220 → 9 880), `farCastleGlow` (900 → 1 840) and
+    `farCastlePane` (1 050 → 1 840). Eleven pieces are wider than 256 px (`weltmauer` 888, `d2TreeBelt` and
+    `d2FirBeltFar` 520, `d2FgFerns` and `d2FgMeadow` 480, `gorgeRock`, `cleftFace`, `valleyVista` and `d2MistBand`
+    448, `d2FogBank` 384, `d2FogLow` 320); they fit a page whole. If the atlas needs tiles of at most 256 px, cut
+    them at load (`weltmauer` in four); that is the lead's choice, the files stay whole.
 
 ### 13.9 The mock and the plates
 
@@ -895,4 +1004,128 @@ Plates for Louis in `ci-out/look2-fable/world/` of the lead's worktree (3x, PNG 
 `1-schattenland-nacht`, `2-weltmauer-daemmerung`, `3-tal-goldene-stunde`, then stage 1 above stage 2 for the six
 scenes (`4-front-nacht-alt-neu`, `5-burg-daemmerung-alt-neu`, `6-hof-daemmerung-alt-neu`, `7-platz-daemmerung-alt-neu`,
 `8-stadt-mittag-alt-neu`, `9-fluss-goldene-stunde-alt-neu`) and `10-uebersicht`, all nine frames of stage 2 on one
-sheet.
+sheet. The fix stage rendered all of them again under the same names (the lower half of 4 to 9 is now the fixed
+world), and the nine creature plates in `ci-out/look2-fable/creatures/`.
+
+## 14. The fix stage (10.11.2026, night)
+
+Two reviewers looked at stage 2 and stage 3 (the art and its code; the plates as a player), a third tried to refute
+each finding. Eight findings held as high and are fixed here; of the optional ones the cheap and clearly right were
+taken (14.6). No Swift, no SPRITES.md id, size or frame count and no palette name changed; one palette-free colour
+was added to the mock (`cleft`). `tools/build-art.sh` rebuilds every committed PNG byte for byte (a full run,
+3:25). No Recraft image was made (41 credits before and after).
+
+### 14.1 The creatures and the lord
+
+In sections 6.1, 6.2, 11.2 and 11.3 and in ART-actors.md (rows, glow rules, the measured eye and lantern positions):
+
+- Every kind has one cold eye low in a dark socket. No pale face disc and never two eyes: two pale points on a
+  round dark head are a stock creature, a pale oval is a mask.
+- The small kinds are stooped husks with a hump and a torn hood; nothing of a child is left in them.
+- The hound has a long low neck, a hump and hands for forefeet.
+- The Lightless King wears no crown: a dead briar grows swept back out of the cowl's rim.
+- `king` and `kingGlow` are the young beardless lord with a tilted gold circlet (the old bearded king is gone from
+  every plate).
+- From the optional findings: the crow's skull is dark (its pale head was the brightest thing in a wave); the
+  giant's skull is dark with one eye.
+
+### 14.2 The gorge and the Throat
+
+Louis: only rock on the side the monsters come from, and dark. Stage 2's gorge was rock, but its face was a soft
+grey painting drawn at shade 0.42, its mouth was one flat cut-out, and the ground under it was the moor with ferns.
+
+- **`gorgeRock` is granite in the file** (`worldart.py gorge`): the granite ramp only, the body one step down, the
+  slabs' upper and left edges lit (the moon stands upper left), seven straight joints that jog where a slab ends.
+  It is drawn at shade 1.0, so the lit edges keep their step against the body. At night the face measures 0.162,
+  the mouth with the crags 0.151. It cannot go lower through the art: the mid plane's night haze alone puts 0.10 to
+  0.13 on a black pixel.
+- **`gorgeCrags`** (160x200, near plane, x 415, y −10): five dark crags before the face's broken edge. The mist band
+  lies between the two, so the mouth has depth. From focus 500 on they cover the far castle: at the palisade the
+  view is rock.
+- **The Throat** (world 470 to 1240): the lane is `laneScreeA…D` (bare rock, scree, two cart ruts, loose stones);
+  no tree on the near plane, no fern in the foreground, no grass, no moss.
+- **The warden statue** stands again, cut into the Throat's wall (mid x 520, y −34, shade 0.88), its bowl burning
+  all night (`hearthFire`, a light of radius 70). It is the one made thing between the palisade and the castle and
+  sits behind the lord at focus 917.
+
+### 14.3 The Weltmauer, the slot and the far castle
+
+Stage 2's wall was one blue-grey value with a row of equal teeth, and the castle in its slot could not be found.
+
+- **Seven massifs** (`RIDGE`, `MASSIFS`, `reprofile`): the ridge is drawn again, each massif with a summit, a
+  shoulder or second peak and a saddle (summits at rows 6 to 14, saddles at 30 to 36); the painting's teeth ride on
+  it at 0.4 of their size. The height stays even: still a rampart, not a mountain.
+- **Granite below a snow line** (`regrade`): above a wandering line (mean row 44) a massif's lit side is one snow
+  cap, its shade side dark rock with shaded snow; below it the wall is the granite ramp, lit side `rock` and
+  `rockLight`, shade side `rockDark` and `rockDeep`; snow runs down eight couloirs for at most 46 rows.
+- **The slot** (`cut_cleft`): sheer, 40 px wide at the castle (as wide as the castle), narrowing by jogs to about 27
+  toward the ridge, a horn on its left lip and a free pillar on its right; the right inner face lit, the left dark.
+  Behind the castle it is filled with flat pale levels (`foam`, `mistLight`, `farPale`, `mist`, the last thinning
+  into the sky). It is the lightest part of the wall at every hour.
+- **The far castle at 1/6** (`far_castle`, `mini_castle`; was 1/8): 40x46 cells, a dark silhouette (`stoneDark`,
+  paler faces `farDeep`) with a 1 px `moon` edge on the left. At true proportions it was a square block, because the
+  keep filled the gap between the towers. So the keep is drawn smaller (0.6 of its size from the front, 0.46 from
+  the back) and 152 px higher, its shaft running down behind the walls: it stands deeper in the cleft. The outline
+  is tower, keep, tower. The lit pane sits one cell lower than in `keepTop` (off the merlons' row).
+- **The lights.** `farCastleGlow`: six cells (the keep's pane, the left tower's slit, the right tower's two slits,
+  two watch fires). `farCastlePane`: one cell. `farCleftGlow` (44x72) and `farCleftGlowBack` (44x68) are the slot's
+  pale cells without the castle's, as emissives at night in the colour `cleft` (0.11, 0.13, 0.19) × the torch
+  curve: a faint cold light in the slot, so the castle is a silhouette at night too.
+- **Two renderer terms** (mock `LOOK2`; the port needs both, section 7). The far plane has no key light, and its
+  haze colour is brighter than lit snow, so snow and shaded rock came out as one value.
+  - `farClear` 0.5, `farClearH` 64: haze = far haze × (1 − 0.5 × (1 − smoothstep(row / 64))) + the low mist, row
+    counted from the top of the 201-row screen. The wall's top stands clear, its feet stay in the mist.
+  - `farKey` 0.5, `farKeyLo` 0.55: before the haze, lit += albedo × 0.5 × smoothstep((luma − 0.55) / 0.2) ×
+    (moon (0.55, 0.60, 0.92) × moon height × night + the hour's cloud colour). Only pale albedo takes it (snow, the
+    slot's light).
+  Look 1 renders byte for byte as before (both default to 0).
+
+### 14.4 The view kept free
+
+- Far clouds: `cloudA` −60, `cloudB` 322, `cloudC` 640 flipped; none before far x 260 to 300 and 586 to 626.
+- Sky clouds: `cloudB` from x 60 to 4, so the sky above the slot is clear.
+- Near trees in the shadow land: firs only west of world 247, dead trees to the beacon.
+- Valley: between world 2386 and 2616 only apple trees.
+
+### 14.5 Measured
+
+Luma of the 3x renders, the wall above the cloud deck (rows under 40) in `wall-dusk` at three hours:
+
+| Hour | Snow | Shaded rock |
+|---|---|---|
+| night (tod 0.95) | 0.31 | 0.15 |
+| dusk (0.8) | 0.50 | 0.24 |
+| noon (0.5) | 0.83 | 0.39 |
+
+The review asked for about 0.45 against 0.22 at night and 0.75 against 0.5 by day. The ratio of two to one is met at
+every hour; the night level is lower, because a brighter wall lifted the night frame above section 9.9's range.
+
+The castle reads as two towers and a keep with lit windows at dusk, at night and at noon (`wall-dusk`) and at the
+far left of `square-dusk`.
+
+### 14.6 The optional findings
+
+Taken: the crow's and the giant's skulls (14.1); the sky cloud off the slot (14.4); the doc corrections (13.1's
+"albedo only", the blend and anchor rules, the name table and the texel count in 13.8, the lord's open variant in
+13.6, the SPRITES.md text for the lead in 11.4).
+
+Left, each with its reason:
+
+| Finding | Why it is left |
+|---|---|
+| The statues and the ruin of `shadowForest` vanish in the mist at night | lifting the forest covers the far castle's foot; they show by day and at dusk |
+| Small details on the granite pieces | they pass their targets; a repaint needs a painting, and no credit is left |
+| The crow's wings, beak and tail; a more threatening gloomweaver | 12x10 px leave two pixels a wing; both need a new design, not a fix, and should be judged in motion first |
+| `valleyVista` split in two planes; a `skyMid` stop at dusk | the first needs a second painting; the second is one ramp colour and belongs to the port |
+| Flipped paintings, more tree variants, relit clouds | needs paintings; the flips are placed where the light's side does not show (firs, far copies) |
+| The brute's chevrons and lantern, the giant's ribs, the bank's dither | readable at 3x; each is a redesign of a rig, and the walk cycles have not been seen in motion |
+| Bright clouds under the HUD's corner | the HUD is the engine's; move or dim the cloud once the HUD's rect is fixed |
+
+### 14.7 For the lead
+
+- The paintings' raws are outside git; 13.1 says where and who must copy them. They were copied into the lead's
+  worktree and the main checkout (git-ignored there too) so they survive this worktree.
+- SPRITES.md still describes look 1's glow strips; the replacement text is in 11.4.
+- The new ids are not in SPRITES.md (13.1).
+- `wardenStatue` carries ivy; say if the Throat's one plant should go (it means repainting look 1's sprite or a
+  look-2 copy of it).
