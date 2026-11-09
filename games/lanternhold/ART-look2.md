@@ -532,3 +532,76 @@ id yet. Port: add `darknessBankGlow` (64x236 × 4) and draw one frame over each 
   scrap with an eye). The giant's ribs are thin bars over the heart and read as a cage only from 3x. The
   gloomweaver is still more sad than frightening. None of this was seen in the running game: the walk cycles were
   judged as frames on a sheet, not in motion.
+
+## 12. Direction check before stage 2 (09.11.2026, night)
+
+The six look-2 scenes were rendered as stage 1 and the critic left them (`run_look2.sh`, copies in
+`build/recraft/lh/look2/world/before/`) and held against the four target pictures. The light, the fog and the fire
+are right. What still keeps the frames from a big studio's look is the world behind them.
+
+### 12.1 What is wrong, scene by scene
+
+| Scene | What a player sees | What is missing |
+|---|---|---|
+| front-night | fog, firelight and creatures work; behind them a statue's head with a fire bowl floats in the sky like a giant face, a ghost keep fills the right half, the firs are flat cones | no Weltmauer, no gorge, no sense of where one stands; the big shapes in the sky are props, not land |
+| castle-dusk | the castle is good | the cliffs beside it are two black voids without form (value 0.097), the sky above is empty: no peaks, so the castle stands at a hill, not in a cleft of a world wall |
+| court-dusk | the hall glows well | the rock behind the courtyard is giant bricks in strata: masonry, not a mountain |
+| square-dusk | plaster, lanterns fine | the far keep is a ghost block as wide as three houses, the hills are flat lavender bands, no trees on any slope |
+| town-noon | readable | cheerful: bright green hills with yellow field patches, lollipop trees; nothing of "düster", nothing of the wall the town lives behind |
+| river-golden | acceptable | flat: a band of hills, no painted distance, no haze steps |
+
+### 12.2 The seven faults (and the fix each gets in stage 2)
+
+1. **No big shape.** Every target picture hangs on one huge form with a simple outline (the wall, the cleft, the
+   fir front). The scenes are assembled from medium props of equal weight. Fix: each region gets one giant form on
+   the far plane (the Weltmauer's outer face; its peaks over the castle; its inner face over the valley) and the
+   props shrink under it.
+2. **Value steps per plane are not held behind the play plane.** Far and mid were both about 0.24 at night, so
+   the distance was one grey. Fix: far 0.22–0.27 and smooth, mid dark against it (the gorge 0.09–0.13, the fir front
+   0.07–0.10 with lit tiers), fog between them as the light band. The eye reads dark–light–dark–light from front
+   to back.
+3. **Rock is drawn as bricks.** The old rock paintings stack rounded blocks in level courses. Granite walls break
+   along vertical joints. Fix: new rock is painted in tall slabs and chimneys with vertical fractures, few ledges,
+   a lit top edge; the stratum look is gone from the cleft, the gorge and the inner face.
+4. **Trees are symbols.** Cones and balls of one size in even rows. Fix: painted trees in three or more variants
+   per kind, heights from 60 to 130 px, leaning, broken, with gaps; rows never line up between planes.
+5. **The far distance has no haze steps.** One flat band. Fix: each backdrop carries two or three ranges in itself,
+   each a value step lighter and less saturated, the farthest almost the sky.
+6. **Colour is evenly spread.** The targets hold large quiet fields of one cold colour and spend warm colour only
+   in fire and windows. Fix: no yellow field patches in the valley, the greens two steps down (fir ramp on the
+   slopes, leaf ramp only in the town's own trees), the only warm things on the far planes are window panes.
+7. **Composition ignores the story.** The world wall, its single cleft and the castle wedged in it are the game's
+   picture and they were not on screen anywhere. Fix: section 13.2 (the gorge and the view back).
+
+### 12.3 Rule changes (the senior eye)
+
+- **Section 5, shadow land.** Was: "open shadow land right up to the cleft". Now, after Louis' words of 21:55
+  ("auf der Seite, wo die Monster kommen, nur Felsen … ziemlich düster, und wenn man bisschen rausgeht, sieht man
+  halt den Wald und die Landschaft vom Schattenreich"): a gorge of bare rock from the castle out to x 700, its
+  mouth from 700 to 520, the open land from 520 to 0. Reason: his words, and the picture is stronger; a palisade
+  across a narrow gorge reads as a defence, a palisade in an open field does not.
+- **Section 3, mid plane.** The mid plane may now be the darkest plane behind the play plane inside the gorge
+  (0.09–0.13 at night instead of 0.16–0.22). Reason: rock walls in shadow with no sky are the "only rock, dark"
+  Louis asks for; the fire pools of the middle line then own the frame.
+- **Section 9, far and mid as Recraft paintings.** Kept for the Weltmauer, the gorge rock, the forest and the
+  valley. The Weltmauer's cleft and the far castle are composed into the painting from the real castle sprites
+  (`tools/worldart.py`), not painted, so the far castle is the real one small. Reason: a generator cannot be told
+  where a slot sits to the pixel and never repeats a building.
+- **The statue and the ghost keep leave the shadow land's mid plane** (`wardenStatue` at mid x 430, `keepFar` at
+  mid x 641). The statues of past lords come back at human scale in the forest mid painting; the castle is seen in
+  the cleft on the far plane. Reason: 12.1, front-night.
+
+### 12.4 What the renderer could add (for the engine port; none of it is art)
+
+| Effect | What it gives | Roughly how |
+|---|---|---|
+| Light shafts through the cleft | the one warm gesture of dawn and dusk: the low sun falls through the slot into the shadow land (dawn) or the valley (dusk) | two or three additive quads, a soft wedge texture 64x128, anchored at the cleft's top on the far plane, alpha by `sun` low-angle weight, slow 0.05 Hz breathing; off at night |
+| Bloom on fire | braziers and the beacon glow into the fog instead of sitting on it | downsample the emissive buffer to quarter size, blur 2 passes, add at 0.35; cap so sprites keep their pixels (bloom only outside the emitter's own mask) |
+| Wind in the trees | the forest lives, the firs bend before a wave comes | near-plane and fg sprites drawn in two or three horizontal slices, the upper slices offset by `round(sin(t*0.7 + x*0.02)) ` px (0, 1 or 2 px, whole pixels only); gusts raise the amplitude for 2 s when the Gloom's bank moves |
+| Layered drifting fog | depth and dread: the banks move against each other | the three fog planes already exist; give each its own drift (fogM −2 px/s, fogA −5 px/s, fogB −9 px/s, toward the castle at night, still at noon) and a second copy of fogA at half alpha moving the other way |
+| Fog that swallows figures | creatures come out of the fog instead of walking in from the edge | alpha of an enemy = clamp((x − bankEdge) / 60) inside the open land, drawn before fogA while under 0.6 |
+| Far-castle windows and beacon | the view back tells the state of the house | `weltmauerGlow` strip as an emissive on the far plane at night; one more 3x4 px emissive at the far castle's keep top once the Great Beacon burns, with bloom |
+| Cloud deck drift | the peaks stand above weather | the cloud band over the castle on its own plane (0.12) at 1 px/s, wrapping |
+| Ground mist kicked by feet | cheap life in the lane | 4 px puffs of the fog colour at each footfall in the moor, 0.4 s, alpha 0.3 |
+| Embers and ash | fire has weight; the Gloom sheds | `d2Sparks` rising from braziers (already in the mock), cold ash motes drifting from the bank's edge |
+| Reduce Motion | accessibility | no drift, no wind, no shafts breathing; fades stay |
