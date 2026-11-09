@@ -1,0 +1,1 @@
+20 nights of the reference bot in the Debug build: 1.2752677079999999 s
