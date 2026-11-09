@@ -290,6 +290,8 @@ if L2:  # look 2: the fires' light a step deeper toward orange (pools read as fi
     COL.update(torch=TORCH2, lantern=(1.0, 0.70, 0.34), candle=(1.0, 0.72, 0.38))
     COLX.update(COL, fireArrow=ARROW2)
 UNLIT = 0.12  # an unlit creature's body: very low value, its glow strip carries it (SPRITES.md)
+UNLIT2 = 0.2  # look 2: the engine's value (EntityFrames.unlitValue), with its moon rim (kMoonRim x unlitRim 0.9)
+MOONRIM = (140, 153, 209, 255)
 def extra_props():
     """The extras hook: props from extras=<file.json>[,…] (see the header), drawn with the layout's props."""
     out = []
@@ -397,8 +399,13 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
             if fa <= 0.003: continue
         if isx:  # an extra: its frame, at shade 0.12 when unlit, then its glow strip added over the same frame
             if ximg:
-                shd = pr['sh'] * (1 if pr['lit'] else UNLIT)
+                shd = pr['sh'] * (1 if pr['lit'] else (UNLIT2 if L2 else UNLIT))
                 draw(pr['p'], ximg, int(left), int(top), (shd, shd, shd, 1.0), pr['f'])
+                if L2 and not pr['lit']:  # look 2: the engine's moonlight rim on the screen-right edge (Shaders.metal)
+                    e = -1 if pr['f'] else 1
+                    rimg = [[(MOONRIM if p is not None and not (0 <= i + e < w and row[i + e] is not None) else None)
+                             for i, p in enumerate(row)] for row in ximg]
+                    draw(pr['p'], rimg, int(left), int(top), (0.8, 0.8, 0.8, 1.0), pr['f'], add=emis)
                 if pr['glow']:
                     g = pr['gs']; draw(pr['p'], sprite(pr['glow'], pr['frame'], pr['frames']), int(left), int(top), (g, g, g, 1.0), pr['f'], add=emis)
         elif pr.get('shadow'):  # a baked cast shadow: black at the sun's strength, hides no glow (scene polish 2)
