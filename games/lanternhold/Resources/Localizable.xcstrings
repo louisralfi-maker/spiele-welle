@@ -185,6 +185,17 @@
         }
       }
     },
+    "%lld petitioners still wait. They go home unheard." : {
+      "comment" : "The pause sheet's horn confirmation while several petitioners wait",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Bittsteller warten noch. Sie gehen ungehört heim."
+          }
+        }
+      }
+    },
     "%lld s" : {
       "comment" : "Build card: the build time in seconds.",
       "localizations" : {
@@ -1256,6 +1267,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "An"
+          }
+        }
+      }
+    },
+    "One petitioner still waits and goes home unheard." : {
+      "comment" : "The pause sheet's horn confirmation while one petitioner waits",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Bittsteller wartet noch. Er geht ungehört heim."
           }
         }
       }

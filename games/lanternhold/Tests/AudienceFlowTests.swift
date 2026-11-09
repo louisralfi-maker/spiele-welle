@@ -110,6 +110,57 @@ final class AudienceFlowTests: XCTestCase {
         XCTAssertEqual(game.strip?.petitioners, 1, "the farmer still waits")
     }
 
+    /// M3 fix (C3): the pause leaves the audience as the Leave button does, so a petitioner already heard walks out
+    /// by the hall's door instead of vanishing.
+    func testThePauseLetsAHeardPetitionerWalkOut() throws {
+        let game = model([:])
+        game.performAction()
+        wait(game, seconds: 1.6)
+        game.choosePetition(0)
+        XCTAssertEqual(game.audience?.phase, .reaction)
+        game.openPause()
+        XCTAssertEqual(game.overlay, .pause)
+        XCTAssertNil(game.audience)
+        XCTAssertEqual(game.court.leavers.map(\.who), ["farmer"], "the farmer walks out")
+
+        let left = model([:])
+        left.performAction()
+        wait(left, seconds: 1.6)
+        left.choosePetition(0)
+        left.standUp()
+        XCTAssertEqual(left.court.leavers.map(\.who), ["farmer"], "the same way out as the Leave button")
+
+        let unheard = model([:])
+        unheard.performAction()
+        wait(unheard, seconds: 1.6)
+        unheard.openPause()
+        XCTAssertTrue(unheard.court.leavers.isEmpty, "not heard: he keeps his bench")
+        XCTAssertEqual(unheard.petitionersWaiting, 1)
+    }
+
+    /// M3 fix (C8): an audience opened just before the horn holds the clock; after it the horn sounds and whoever
+    /// was not heard goes home and is counted.
+    func testAnAudienceBeforeTheHornHoldsTheClock() throws {
+        let game = model(["GWClock": "18.9"])
+        XCTAssertEqual(game.petitionersWaiting, 1, "the farmer still waits at 18:54")
+        game.performAction()
+        XCTAssertEqual(game.overlay, .audience)
+        let hour = try XCTUnwrap(game.driver?.state.hour)
+        XCTAssertEqual(hour, 18.9, accuracy: 1e-9)
+        wait(game, seconds: 2)
+        XCTAssertEqual(game.driver?.state.hour, hour, "the horn waits for the audience")
+        XCTAssertEqual(game.driver?.state.unheardPetitioners, 0)
+        game.standUp()
+        XCTAssertNil(game.overlay)
+        for _ in 0..<12 { game.advance(by: 0.25) }
+        let state = try XCTUnwrap(game.driver?.state)
+        XCTAssertGreaterThanOrEqual(state.hour, 19, "the horn sounded")
+        XCTAssertEqual(state.unheardPetitioners, 1, "the farmer went home unheard")
+        XCTAssertEqual(state.court?.history.last, HeardPetition(id: "first_plough", day: 1, choice: nil))
+        XCTAssertEqual(game.petitionersWaiting, 0)
+        XCTAssertNotEqual(game.target, .throne, "no audience at night")
+    }
+
     func testTheStrangerIsHeardAtTheGate() throws {
         let game = model(["GWDay": "4", "GWSeed": "3", "GWCameraX": "\(CourtLayout.strangerAtGate)"])
         XCTAssertEqual(game.strip?.strangerAtGate, true, "the strip shows her grey lantern at the gate")

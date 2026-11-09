@@ -161,13 +161,19 @@ extension GameModel {
         }
     }
 
-    /// The king stands up (any time): the audience ends, whoever was not heard keeps waiting until the horn.
+    /// The king leaves the audience (any time): it ends, whoever was not heard keeps waiting until the horn.
     func standUp() {
+        leaveAudience(feedbackCue: true)
+    }
+
+    /// The one way out of an audience that is not "next" (the Leave button, the pause button; M3 fix, C3: the pause
+    /// ended it without letting a petitioner already heard walk out, so he vanished from the hall).
+    func leaveAudience(feedbackCue: Bool) {
         guard overlay == .audience else { return }
         if let session = court.audience, session.phase == .reaction, let state = driver?.state {
             release(session, state: state)
         }
-        endAudience(feedbackCue: true)
+        endAudience(feedbackCue: feedbackCue)
     }
 
     func endAudience(feedbackCue: Bool) {

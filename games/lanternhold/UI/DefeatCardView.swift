@@ -248,6 +248,22 @@ struct PauseSheetView: View {
                     .foregroundStyle(Theme.parchment)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
+                if model.petitionersWaiting > 0 {
+                    Label {
+                        if model.petitionersWaiting == 1 {
+                            Text("One petitioner still waits and goes home unheard.")
+                        } else {
+                            Text("\(model.petitionersWaiting) petitioners still wait. They go home unheard.")
+                        }
+                    } icon: {
+                        Image(systemName: "person.fill.questionmark")
+                    }
+                    .font(Theme.serif(.subheadline, .semibold))
+                    .foregroundStyle(Theme.fireGold)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("pause-horn-unheard")
+                }
                 HStack(spacing: 10) {
                     Button {
                         callingTheNight = false

@@ -284,6 +284,47 @@ final class GameScreensTests: XCTestCase {
         XCTAssertFalse(game.canCallTheNight, "not from the horn on")
     }
 
+    /// M3 fix (C2): the horn's confirmation knows who still waits, and the horn sends them home unheard.
+    func testTheHornSendsTheWaitingPetitionersHome() throws {
+        let game = model([:])
+        XCTAssertEqual(game.petitionersWaiting, 1, "day 1: the farmer waits")
+        game.openPause()
+        XCTAssertTrue(game.canCallTheNight)
+        game.callTheNight()
+        XCTAssertEqual(game.petitionersWaiting, 1, "a minute before the horn he still waits")
+        for _ in 0..<4 { game.advance(by: 0.25) }
+        let state = try XCTUnwrap(game.driver?.state)
+        XCTAssertGreaterThanOrEqual(state.hour, 19, "the horn sounded")
+        XCTAssertEqual(state.unheardPetitioners, 1)
+        XCTAssertEqual(state.court?.history.last, HeardPetition(id: "first_plough", day: 1, choice: nil))
+        XCTAssertEqual(game.petitionersWaiting, 0)
+    }
+
+    /// M3 fix (C4): replaying the day starts the court afresh: the bubble closes and whoever was talked to on the
+    /// day that was undone has his speech mark and his first line again.
+    func testReplayingTheDayStartsTheCourtAfresh() throws {
+        let game = model(["GWScreen": "defeat", "GWNight": "2", "GWSeed": "4"])
+        XCTAssertEqual(game.overlay, .defeat)
+        game.talkLog.note("odile", day: 2)
+        game.court.talking = "odile"
+        game.court.leavers = [CourtLeaver(who: "farmer", body: .townsfolk(.petitionerD), look: 3, from: 1800, to: CourtLeaver.hallDoor)]
+        XCTAssertEqual(game.talkLog.count("odile", day: 2), 1)
+        game.replayDay()
+        XCTAssertNil(game.overlay)
+        XCTAssertEqual(game.talkLog.count("odile", day: 2), 0, "the day is new: nobody was talked to")
+        XCTAssertNil(game.court.talking)
+        XCTAssertNil(game.talkBubble)
+        XCTAssertTrue(game.court.leavers.isEmpty, "nobody is still walking out of the day that was undone")
+        XCTAssertNil(game.audience)
+
+        let chance = model(["GWScreen": "defeat"])
+        chance.court.leavers = [CourtLeaver(who: "farmer", body: .townsfolk(.petitionerD), look: 3, from: 1800,
+                                            to: CourtLeaver.hallDoor)]
+        chance.takeSecondChance()
+        XCTAssertTrue(chance.court.leavers.isEmpty, "the second chance's dawn starts the court afresh too")
+        XCTAssertNotNil(chance.reportCard, "and its report still follows")
+    }
+
     func testTheStripTapAndTheSampleScreens() {
         let game = model([:])
         game.travel(toFraction: 0.25)

@@ -666,6 +666,7 @@ final class GameModel {
         game.secondChance(events: &chanceEvents)
         driver = game
         adPacing.lastSecondChanceNight = info.night
+        restartView(game.state)
         overlay = nil
         effects.note(chanceEvents, state: game.state, balance: game.balance, time: animationTime)
         handle(chanceEvents, state: game.state)
@@ -683,7 +684,7 @@ final class GameModel {
 
     func openPause() {
         guard kind == .world, overlay == nil || overlay?.isCard == true || overlay == .audience else { return }
-        if overlay == .audience { endAudience(feedbackCue: false) }
+        if overlay == .audience { leaveAudience(feedbackCue: false) }
         setOverlay(.pause)
     }
 
@@ -696,6 +697,13 @@ final class GameModel {
     var canCallTheNight: Bool {
         guard kind == .world, let game = driver, game.bot == nil, !game.state.defeated else { return false }
         return DayClock.phase(at: game.state.hour) == .day && game.state.hour < SimDriver.hornCallHour - 1e-6
+    }
+
+    /// The petitioners still waiting today, the Stranger at the gate included: the horn's confirmation says they go
+    /// home unheard (M3 fix, C2: calling the night early cost happiness without a word).
+    var petitionersWaiting: Int {
+        guard let state = driver?.state, let court = state.court, court.queueDay == state.day else { return 0 }
+        return court.queue.count
     }
 
     /// The pause sheet's "Sound the horn" (after its confirmation): the day plays on to 18:59 at once and the horn
@@ -741,12 +749,18 @@ final class GameModel {
         setOverlay(nil)
     }
 
-    /// After a jump in time or place: the camera cuts to the king, effects and shakes end.
+    /// After a jump in time or place: the camera cuts to the king, effects and shakes end, and the court starts
+    /// afresh (M3 fix, C4: a replayed day kept the bubble, who had been talked to, the walkers on their way out and
+    /// the smoothed places of the day that was undone).
     private func restartView(_ state: GameState) {
         camera?.jump(toFocus: state.king.x + GameModel.cameraLead(state))
         effects = BattleEffects()
         shake = ScreenShake()
         hornNight = nil
+        closeTalk()
+        talkLog = TalkLog()
+        audience = nil
+        court = CourtScene(rooms: RoomFades(kingX: state.king.x))
     }
 
     /// `-GWScreen report|finale|defeat`: that screen with sample data over the realm the other arguments made.
