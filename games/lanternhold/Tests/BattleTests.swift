@@ -88,7 +88,8 @@ final class BattleTests: XCTestCase {
         XCTAssertEqual(s.soldiers.filter { $0.state == .posted }.count, 3, "three archers on the gatehouse")
         let lit = spawn(&s, .sootling, at: 1250, still: true)
         let dark = spawn(&s, .sootling, at: 1170, still: true)
-        _ = run(&s, seconds: 0.3)
+        // Each archer looses on his own beat (M2b review), so the first arrow comes within one reload (1.4 s).
+        _ = run(&s, seconds: balance.archerPeriod + 0.1)
         XCTAssertTrue(s.creatures.contains { $0.id == lit && $0.isLit } || creature(s, id: lit) == nil)
         XCTAssertFalse(creature(s, id: dark)?.isLit ?? true)
         XCTAssertGreaterThan(s.night.arrows, 0, "archers shoot at the creature in the light")

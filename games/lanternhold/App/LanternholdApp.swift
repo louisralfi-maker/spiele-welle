@@ -17,7 +17,7 @@ struct LanternholdApp: App {
 struct RootView: View {
     private let args = DebugArgs.fromProcess()
     /// The one model of the run, made when the screen first appears (M2b review: not in a view's init).
-    @State private var model: GameModel?
+    @State private var model: GameModel? = nil
 
     var body: some View {
         if MetalContext.shared == nil {

@@ -276,7 +276,9 @@ enum Battle {
         for plot in Realm.brazierPlots { s.plots[plot].snuffed = false }
         for line in Realm.lines { s.plots[line.engine].cooldown = 0 }
         for index in s.soldiers.indices {
-            s.soldiers[index].cooldown = 0
+            // Each archer's beat starts apart from his neighbours' (M2b review), so a wall's volleys stagger.
+            let soldier = s.soldiers[index]
+            s.soldiers[index].cooldown = soldier.kind == .archer ? balance.archerStagger * Double(soldier.id % 7) : 0
             s.soldiers[index].shots = 0
         }
         if s.beaconStage == 3 && !s.beaconLit && s.day > 20 { s.beaconLit = true }
@@ -445,6 +447,9 @@ enum Battle {
     }
 
     // MARK: - Lights
+
+    /// The summoned sootlings' small offsets from their even spacing, by their place in the line.
+    static let summonJitter: [Double] = [0, 2, -2, 3, -3, 1]
 
     /// Line 1's two wall torches: at the ends of the castle front's painted wall walk (x 1306 and 1412, y 126).
     static let lineOneTorchX: [Double] = [WorldLayout.castleFrontX + 66, WorldLayout.castleFrontX + 172]
@@ -848,8 +853,8 @@ enum Battle {
         for x in summonAt {
             for k in 0..<balance.summonCount {
                 // Spread out behind him (M2b review: 5 px apart they walked as one noisy band): `summonSpacing` apart
-                // with up to ±3 px from a hash, so no draw of the random stream changes.
-                let jitter = Double(SeededRandom.hash(UInt64(s.nextID), Int64(k)) % 7) - 3
+                // with a fixed ±3 px pattern (no random draw, nothing that differs between step sizes).
+                let jitter = Battle.summonJitter[k % Battle.summonJitter.count]
                 let offset = 8 + balance.summonSpacing * Double(k) + jitter
                 spawn(&s, kind: .sootling, x: x - offset, wave: 99, balance: balance, fromWave: false)
             }
@@ -1017,23 +1022,16 @@ enum Battle {
             case .posted:
                 guard soldier.kind == .archer else { break }
                 let rally = abs(soldier.x - kingX) <= balance.rallyRadius ? balance.rallyFactor : 1
-                // An archer who had no target waits with his reload at exactly 0 (the dusk resets it to 0 too).
-                let waiting = soldier.cooldown == 0
                 soldier.cooldown -= dt * rally
                 if soldier.cooldown > 0 { break }
                 let range = balance.archerRange * (1 + rangeBonus(s, plot: soldier.postPlot, balance: balance))
+                // Each archer keeps his own beat (M2b review): with no target it runs on without an arrow, so a wall's
+                // archers stay out of step (the dusk sets their beats apart) and a target that appears is met by
+                // staggered shots, not by one volley and then more than a second of silence. The beat carries its
+                // overshoot like every shot, so it gives the same night at any step size.
                 guard let target = litTarget(s, x: soldier.x, range: range, balance: balance) else {
-                    soldier.cooldown = 0
+                    soldier.cooldown += balance.archerPeriod
                     break
-                }
-                // The volleys stagger (M2b review): a waiting archer who sees a target draws for his own share of a
-                // second first, so a wall's archers do not all loose in the same step and then fall silent together.
-                if waiting {
-                    let delay = balance.archerStagger * Double(soldier.id % 6)
-                    if delay > 0 {
-                        soldier.cooldown = delay
-                        break
-                    }
                 }
                 soldier.shots += 1
                 let fire = soldier.shots % max(1, balance.fireArrowEvery) == 0

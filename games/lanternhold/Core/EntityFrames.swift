@@ -889,13 +889,14 @@ enum EntityFrames {
     static let archerLooseSeconds = 0.3
     static let archerDrawSeconds = 0.6
 
-    /// An archer's frame on his post from his reload: loose 4 just after a shot, draw 2 ... 3 in the last moments
-    /// before the next (also while his staggered first shot waits), idle 0 ... 1 otherwise (and while no lit creature
-    /// is in range).
-    static func archerFrame(_ soldier: Soldier, balance: Balance, time: Double) -> Int {
-        if soldier.cooldown > balance.archerPeriod - archerLooseSeconds { return 4 }
-        if soldier.cooldown > 0 && soldier.cooldown < archerDrawSeconds {
-            return soldier.cooldown < archerDrawSeconds / 2 ? 3 : 2
+    /// An archer's frame on his post from his beat: loose 4 just after a shot, draw 2 ... 3 in the last moments before
+    /// the next, idle 0 ... 1 otherwise and whenever no lit creature is in reach (his beat runs on without arrows then).
+    static func archerFrame(_ soldier: Soldier, balance: Balance, time: Double, aiming: Bool = true) -> Int {
+        if aiming {
+            if soldier.cooldown > balance.archerPeriod - archerLooseSeconds { return 4 }
+            if soldier.cooldown > 0 && soldier.cooldown < archerDrawSeconds {
+                return soldier.cooldown < archerDrawSeconds / 2 ? 3 : 2
+            }
         }
         return Int((time * 2 + Double(soldier.id % 5) * 0.37).rounded(.down)) % 2
     }
@@ -1018,14 +1019,16 @@ enum EntityFrames {
                 guard let spot = archerSpot(soldier, layouts: layouts) else { continue }
                 var faceRight = false
                 var bestX = -Double.infinity
+                var aiming = false
                 for c in s.creatures where c.isLit && c.hp > 0 && abs(c.x - spot.x) <= balance.archerRange * 1.3 {
+                    aiming = true
                     if c.x > bestX {
                         bestX = c.x
                         faceRight = c.x > spot.x
                     }
                 }
-                add(.archer, frame: archerFrame(soldier, balance: balance, time: time), x: spot.x, y: spot.y,
-                    flipped: !faceRight)
+                add(.archer, frame: archerFrame(soldier, balance: balance, time: time, aiming: aiming), x: spot.x,
+                    y: spot.y, flipped: !faceRight)
             case .moving:
                 add(.archer, frame: Int((time * 2).rounded(.down)) % 2, x: soldier.x, y: 0,
                     flipped: soldier.targetX < soldier.x)
