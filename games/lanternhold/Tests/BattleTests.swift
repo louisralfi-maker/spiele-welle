@@ -434,6 +434,55 @@ final class BattleTests: XCTestCase {
         _ = run(&far, seconds: 10)
         XCTAssertGreaterThan(near.night.arrows, far.night.arrows, "soldiers within 80 px shoot 25 % faster")
     }
+    // MARK: Contact
+
+    /// Contact damage is harm × the time within reach, at any step size (round lh-m2a-fix-2 sampled the distance once a
+    /// step, and night 20's losses depended on the step).
+    func testContactTimeIsTheTimeWithinReachAtAnyStep() {
+        // A creature walking right at 12 px/s from 100, a soldier at 40 px/s from 70 overtaking it: within 8 px from
+        // 22/28 s to 38/28 s.
+        func total(step: Double) -> Double {
+            var sum = 0.0
+            for k in 0..<Int((3 / step).rounded()) {
+                let t = Double(k) * step
+                sum += Battle.contactTime(c0: 100 + 12 * t, c1: 100 + 12 * (t + step), walk: step,
+                                          s0: 70 + 40 * t, s1: 70 + 40 * (t + step), move: step, reach: 8)
+            }
+            return sum
+        }
+        XCTAssertEqual(total(step: 1 / 60), 16.0 / 28, accuracy: 1e-9)
+        XCTAssertEqual(total(step: 0.1), 16.0 / 28, accuracy: 1e-9)
+        XCTAssertEqual(total(step: 0.5), 16.0 / 28, accuracy: 1e-9)
+        XCTAssertEqual(Battle.contactTime(c0: 0, c1: 5, walk: 0.05, s0: 2, s1: 2, move: 0, reach: 8), 0.05,
+                       accuracy: 1e-12, "a creature that stops halfway strikes only while it walks")
+        XCTAssertEqual(Battle.contactTime(c0: 0, c1: 0, walk: 0.1, s0: 20, s1: 5, move: 0.05, reach: 8), 0.06,
+                       accuracy: 1e-12, "a soldier who arrives within reach halfway and stands")
+        XCTAssertEqual(Battle.contactTime(c0: 0, c1: 0, walk: 0, s0: 0, s1: 0, move: 0, reach: 8), 0,
+                       "a creature that does not walk strikes no one in passing")
+    }
+
+    func testAPassingCreatureHarmsASoldierByTheTimeInContact() {
+        func hpAfterThePass(dt: Double) -> Double {
+            var s = night()
+            s.soldiers.removeAll { $0.kind == .guardsman }
+            let index = s.soldiers.indices.first(where: { s.soldiers[$0].kind == .archer }) ?? 0
+            s.soldiers[index].state = .moving
+            s.soldiers[index].goal = .reserve
+            s.soldiers[index].y = 0
+            s.soldiers[index].x = 1500
+            s.soldiers[index].targetX = Realm.keepX
+            s.soldiers[index].postPlot = -1
+            let name = s.soldiers[index].name
+            spawn(&s, .shadehound, at: 1480)
+            _ = run(&s, seconds: 2, dt: dt)
+            return s.soldiers.first(where: { $0.name == name })?.hp ?? 0
+        }
+        let fine = hpAfterThePass(dt: 1 / 60)
+        let coarse = hpAfterThePass(dt: 0.1)
+        XCTAssertLessThan(fine, balance.archerHP, "the hound struck him in passing")
+        XCTAssertEqual(fine, coarse, accuracy: 0.05, "the same blow at both steps")
+    }
+
     // MARK: The finale (night 20)
 
     /// Night 20 at 21:00, with or without the finished Great Beacon.

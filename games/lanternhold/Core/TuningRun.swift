@@ -207,6 +207,78 @@ enum TuningRun {
         return copy
     }
 
+    /// Tenths as text ("12.3").
+    static func tenths(_ value: Double) -> String {
+        let scaled = Int((abs(value) * 10).rounded())
+        return (value < 0 ? "-" : "") + String(scaled / 10) + "." + String(scaled % 10)
+    }
+
+    /// Plays one night like `Sim.runToDawn` (the same steps, the bot before every step) and writes down every soldier
+    /// who falls: the second after nightfall, his kind, what he was doing and where, and the creatures within 24 px
+    /// one step before (`SimTests` and `tools/simtune` compare the step sizes with it).
+    static func tracedNight(_ start: GameState, bot: Autoplay, balance: Balance,
+                            nightStep: Double) -> (state: GameState, falls: [String]) {
+        var s = start
+        var player = bot
+        var events: [SimEvent] = []
+        var falls: [String] = []
+        let startDay = s.day
+        var steps = 0
+        while !s.defeated && s.day == startDay && steps < 5_000_000 {
+            events.removeAll(keepingCapacity: true)
+            var dt = nightStep
+            if DayClock.phase(at: s.hour) == .day {
+                let toHorn = (19 - s.hour) * DayClock.secondsPerHour
+                dt = max(nightStep, min(Sim.dayStep, toHorn))
+            }
+            let before = s
+            player.act(&s, dt: dt, balance: balance, events: &events)
+            Sim.step(&s, dt: dt, balance: balance, events: &events)
+            steps += 1
+            for event in events {
+                guard case .soldierFell(let name) = event,
+                      let soldier = before.soldiers.first(where: { $0.name == name }) else { continue }
+                var near: [String] = []
+                for c in before.creatures where abs(c.x - soldier.x) <= 24 {
+                    near.append("\(c.kind.rawValue)@\(Int(c.x.rounded())) \(c.action.rawValue)")
+                }
+                falls.append("\(tenths(s.nightTime)) s \(soldier.kind.rawValue) \(soldier.state.rawValue)>"
+                             + "\(soldier.goal.rawValue) x \(Int(soldier.x.rounded()))>\(Int(soldier.targetX.rounded()))"
+                             + " hp \(tenths(soldier.hp)) near [\(near.joined(separator: ", "))]")
+            }
+        }
+        return (s, falls)
+    }
+
+    /// Night 20 of one seed at the app's 1/60 s step and at the headless 0.1 s step, with the beacon and without it
+    /// (the same realm minus the last stage): one text line per run and its soldiers' falls.
+    static func stepComparison(seed: UInt64, balance: Balance) -> [String] {
+        let first = play(GameState.newRealm(seed: seed, balance: balance), bot: Autoplay.reference(), balance: balance,
+                         nights: 19)
+        guard first.fellOnNight == nil else { return ["seed \(seed): fell on night \(first.fellOnNight ?? 0)"] }
+        var lines: [String] = []
+        let runs: [(String, GameState, Autoplay)] = [
+            ("with", first.final, Autoplay.reference()),
+            ("without", withoutBeacon(first.final), Autoplay.reference(buildsBeacon: false)),
+        ]
+        for (name, eve, bot) in runs {
+            for step in [Sim.frameStep, Sim.nightStep] {
+                let run = tracedNight(eve, bot: bot, balance: balance, nightStep: step)
+                let n = run.state.night
+                var line = "seed \(seed) \(name) \(step == Sim.frameStep ? "1/60" : "0.1") s: "
+                line += run.state.defeated ? "FELL" : "held"
+                if let hour = n.defeatHour { line += " at \(Int((hour * 100).rounded()))" }
+                line += ", fallen \(n.fallen.count), killed \(n.killed), " + timeline(n)
+                if let left = n.kingLeftSecond, let slain = n.kingSlainSecond {
+                    line += " (kill after \(tenths(slain - left)) s)"
+                }
+                lines.append(line)
+                for fall in run.falls { lines.append("    " + fall) }
+            }
+        }
+        return lines
+    }
+
     /// A night's timeline in seconds after nightfall: walls falling, the hearth reached, the Lightless King leaving
     /// and falling.
     static func timeline(_ night: NightStats) -> String {

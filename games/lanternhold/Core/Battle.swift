@@ -543,11 +543,14 @@ enum Battle {
         var probe = LitProbe(sources: lights, bankEdge: s.bankEdge)
         addDarkness(&probe, s, balance: balance)
 
+        let creatureStartX = s.creatures.map { $0.x }
+        var walkTimes: [Double] = []
         if !s.creatures.isEmpty {
-            stepCreatures(&s, dt: dt, balance: balance, probe: probe, firstLight: phase == .firstLight,
-                          events: &events)
+            walkTimes = stepCreatures(&s, dt: dt, balance: balance, probe: probe, firstLight: phase == .firstLight,
+                                      events: &events)
         }
-        stepSoldiers(&s, dt: dt, balance: balance, events: &events)
+        stepSoldiers(&s, dt: dt, balance: balance, creatureStartX: creatureStartX, walkTimes: walkTimes,
+                     events: &events)
         if !s.creatures.isEmpty {
             stepEngines(&s, dt: dt, balance: balance, events: &events)
         }
@@ -596,9 +599,12 @@ enum Battle {
     }
 
     /// Creatures walk, attack walls and guards and drain the hearth. From first light (05:00) the hearth takes no more
-    /// harm: the dawn has won, and what is left waits for the sweep.
+    /// harm: the dawn has won, and what is left waits for the sweep. A creature that reaches what it attacks during the
+    /// step walks for part of it and strikes for the rest, so harm is harm × time at every step size. Returns each
+    /// creature's walking time in this step (by index; creatures summoned in it are not included).
+    @discardableResult
     private static func stepCreatures(_ s: inout GameState, dt: Double, balance: Balance, probe: LitProbe,
-                                      firstLight: Bool, events: inout [SimEvent]) {
+                                      firstLight: Bool, events: inout [SimEvent]) -> [Double] {
         let table = balance.creatures
         let harmScale = balance.creatureHarmScale
         let walls = standingWalls(s)
@@ -614,6 +620,7 @@ enum Battle {
             trapPlots.append(line.trap)
         }
         var summonAt: [Double] = []
+        var walkTimes = [Double](repeating: 0, count: s.creatures.count)
 
         for index in s.creatures.indices {
             var c = s.creatures[index]
@@ -659,16 +666,19 @@ enum Battle {
                 }
             }
             if nextX >= stopX {
+                let walkTime = speed > 0 ? min(dt, max(0, stopX - c.x) / speed) : 0
+                walkTimes[index] = walkTime
+                let attackTime = dt - walkTime
                 c.x = max(c.x, stopX)
                 switch blocker {
                 case .wall:
                     c.action = .attackingWall
                     c.target = Realm.lines[blockerLine].wall
-                    wallDamage[blockerLine] += stats.harm * harmScale * dt
+                    wallDamage[blockerLine] += stats.harm * harmScale * attackTime
                 case .guards:
                     c.action = .attackingGuards
                     c.target = -1
-                    guardDamage += stats.harm * harmScale * dt
+                    guardDamage += stats.harm * harmScale * attackTime
                     if c.x > frontContactX {
                         frontContactX = c.x
                         frontContact = index
@@ -680,10 +690,11 @@ enum Battle {
                     if !firstLight {
                         var drain = balance.hearthDrain
                         if c.kind.isBoss && balance.bossesDrainByHarm { drain = max(drain, stats.harm * harmScale) }
-                        hearthDrain += drain * dt
+                        hearthDrain += drain * attackTime
                     }
                 }
             } else {
+                walkTimes[index] = dt
                 c.x = nextX
                 c.action = .walking
                 c.target = -1
@@ -755,6 +766,7 @@ enum Battle {
             assignPosts(&s, balance: balance, fromScratch: false)
             updateGuards(&s, balance: balance)
         }
+        return walkTimes
     }
 
     /// Damage to the holding guards, front guard first. A guard steps back at 30 % while another guard still holds
@@ -898,8 +910,10 @@ enum Battle {
         return best >= 0 ? best : nil
     }
 
-    private static func stepSoldiers(_ s: inout GameState, dt: Double, balance: Balance, events: inout [SimEvent]) {
+    private static func stepSoldiers(_ s: inout GameState, dt: Double, balance: Balance, creatureStartX: [Double],
+                                     walkTimes: [Double], events: inout [SimEvent]) {
         if s.soldiers.isEmpty { return }
+        let soldierStartX = s.soldiers.map { $0.x }
         let kingX = s.king.x
         let damage = balance.archerDamage * (1 + smithyBonus(s, balance: balance))
         let table = balance.creatures
@@ -946,29 +960,78 @@ enum Battle {
             s.soldiers[index] = soldier
         }
         if arrived { refreshHolding(&s) }
-        contactDamage(&s, dt: dt, balance: balance)
+        contactDamage(&s, dt: dt, balance: balance, creatureStartX: creatureStartX, walkTimes: walkTimes,
+                      soldierStartX: soldierStartX)
     }
 
     /// Creatures walking past a soldier on the ground strike it (an archer whose wall broke, a guard marching to a new
     /// breach, soldiers waiting in the courtyard). A guard who steps back is out of the fight: creatures let him go.
-    private static func contactDamage(_ s: inout GameState, dt: Double, balance: Balance) {
+    /// The blow is harm × the time the two spend within `contactReach` of each other while the creature walks, worked
+    /// out from both paths through the step, so it does not depend on the step size (round lh-m2a-fix-2 sampled the
+    /// distance once per step instead).
+    private static func contactDamage(_ s: inout GameState, dt: Double, balance: Balance, creatureStartX: [Double],
+                                      walkTimes: [Double], soldierStartX: [Double]) {
         if s.creatures.isEmpty { return }
         let table = balance.creatures
         let reach = balance.contactReach
+        let count = min(walkTimes.count, creatureStartX.count, s.creatures.count)
+        if count == 0 { return }
         for index in s.soldiers.indices {
-            let state = s.soldiers[index].state
-            guard state == .moving || state == .reserve || state == .resting else { continue }
-            if s.soldiers[index].goal == .resting { continue }
-            let x = s.soldiers[index].x
-            if x > Realm.hearthX + 20 { continue }
+            let soldier = s.soldiers[index]
+            guard soldier.state == .moving || soldier.state == .reserve || soldier.state == .resting else { continue }
+            if soldier.goal == .resting { continue }
+            let s1 = soldier.x
+            if s1 > Realm.hearthX + 20 { continue }
+            let s0 = index < soldierStartX.count ? soldierStartX[index] : s1
+            let moveTime = balance.soldierSpeed > 0 ? min(dt, abs(s1 - s0) / balance.soldierSpeed) : 0
+            let low = min(s0, s1) - reach
+            let high = max(s0, s1) + reach
             var harm = 0.0
-            for c in s.creatures where c.action == .walking && c.hp > 0 && abs(c.x - x) <= reach {
-                harm += table[c.kind.index].harm
+            for k in 0..<count {
+                let walk = walkTimes[k]
+                guard walk > 0 else { continue }
+                let c = s.creatures[k]
+                guard c.hp > 0, !c.kind.flies else { continue }
+                if c.kind.isBoss && !balance.bossesStrikeInPassing { continue }
+                let c0 = creatureStartX[k]
+                if max(c0, c.x) < low || min(c0, c.x) > high { continue }
+                let time = contactTime(c0: c0, c1: c.x, walk: walk, s0: s0, s1: s1, move: moveTime, reach: reach)
+                if time > 0 { harm += table[c.kind.index].harm * time }
             }
             if harm > 0 {
-                s.soldiers[index].hp -= harm * balance.creatureHarmScale * dt
+                s.soldiers[index].hp -= harm * balance.creatureHarmScale
             }
         }
+    }
+
+    /// Seconds of the step in which a creature walking from `c0` to `c1` during the first `walk` seconds stands within
+    /// `reach` of a soldier going from `s0` to `s1` during the first `move` seconds (then standing). Only the creature's
+    /// walking time counts: it strikes in passing.
+    static func contactTime(c0: Double, c1: Double, walk: Double, s0: Double, s1: Double, move: Double,
+                            reach: Double) -> Double {
+        guard walk > 0 else { return 0 }
+        func creature(_ t: Double) -> Double { c0 + (c1 - c0) * min(1, t / walk) }
+        func soldier(_ t: Double) -> Double { move > 0 ? s0 + (s1 - s0) * min(1, t / move) : s1 }
+        var total = 0.0
+        var start = 0.0
+        for end in (move > 0 && move < walk) ? [move, walk] : [walk] {
+            total += overlap(from: creature(start) - soldier(start), to: creature(end) - soldier(end),
+                             length: end - start, reach: reach)
+            start = end
+        }
+        return total
+    }
+
+    /// The part of `length` seconds in which a gap changing linearly from `from` to `to` stays within ±`reach`.
+    private static func overlap(from: Double, to: Double, length: Double, reach: Double) -> Double {
+        guard length > 0 else { return 0 }
+        let change = to - from
+        if abs(change) < 1e-12 { return abs(from) <= reach ? length : 0 }
+        let a = (-reach - from) / change
+        let b = (reach - from) / change
+        let low = max(0, min(a, b))
+        let high = min(1, max(a, b))
+        return high > low ? (high - low) * length : 0
     }
 
     // MARK: Engines and projectiles

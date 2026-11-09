@@ -251,6 +251,8 @@ struct Balance: Sendable, Equatable {
     var bossesDrainByHarm = true
     /// Archers and ballistas aim at the Lightless King first whenever he can be hurt (inside the beacon's light).
     var aimAtTheKing = true
+    /// Bosses strike soldiers they walk past on the ground (contact damage), as every creature does.
+    var bossesStrikeInPassing = true
     /// Night 20 (DESIGN.md "Story"): a finished Great Beacon is lit the moment the Lightless King leaves the Gloom and
     /// burns until dawn. Inside its lit reach (radius × `LightField.litRadiusFraction` around `Realm.beaconX`, the
     /// outer and the middle line) the King's darkness fails: he counts as lit and can be hurt.

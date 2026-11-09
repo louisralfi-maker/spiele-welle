@@ -98,42 +98,46 @@ final class SimTests: XCTestCase {
         XCTAssertLessThanOrEqual(abs(fine.gold - coarse.gold), 20)
     }
 
-    /// Night 20 without the beacon is where the tuning is tight (T6): walls fall, the Lightless King marches, the
-    /// hearth is reached. The 0.1 s night step must give the app's 1/60 s timings within a few seconds. Whether the
-    /// realm falls is compared too, except when the hearth is reached within those seconds of first light (05:00, when
-    /// it stops taking harm): there a 1 s difference may rightly flip the outcome, and the arrival time is the check.
-    /// Likewise a creature that reaches the hearth only during first light may be dissolved by the sweep first in the
-    /// other run (round lh-m2a-fix-2, seed 2: 113 s against never).
-    /// Soldier losses are written to the attachment but not compared: in round lh-m2a-fix-2 they diverged on seed 3
-    /// (0 at 1/60 s, 4 at 0.1 s) in the crowd that pours through the fallen gatehouse. That step sensitivity is open
-    /// (reported to the lead); assert it here once contact damage no longer depends on the step.
+    /// Night 20 is where the tuning is tight (T6). The 0.1 s night step must give the app's 1/60 s outcome.
+    /// Without the beacon (walls fall, the Lightless King marches, the hearth is reached): the same walls at the same
+    /// times within a few seconds, the hearth reached at the same time, the same soldier losses within one, and the same
+    /// outcome, except when the hearth is reached within those seconds of first light (05:00, when it stops taking
+    /// harm): there a 1 s difference may rightly flip the outcome, and the arrival time is the check. Likewise a creature
+    /// that reaches the hearth only during first light may be dissolved by the sweep first in the other run (round
+    /// lh-m2a-fix-2, seed 2: 113 s against never).
+    /// With the beacon (the finale): the same outcome, the King slain in both runs or in neither, his fall within 3 s,
+    /// the same soldier losses within one.
+    /// Soldier losses diverged in round lh-m2a-fix-2 (seed 3: 0 at 1/60 s, 4 at 0.1 s) while contact damage sampled the
+    /// distance once per step; it is now harm × the time in contact. Every fall is written to the attachment.
     func testTheHeadlessStepKeepsNightTwentysOutcome() {
         var lines: [String] = []
+        func text(_ n: NightStats, _ fell: Bool) -> String {
+            "fell \(fell) at \(n.defeatHour.map { String(Int(($0 * 100).rounded())) } ?? "-"), fallen \(n.fallen.count)"
+                + ", killed \(n.killed), " + TuningRun.timeline(n)
+        }
         for seed: UInt64 in 1...3 {
             let first = TuningRun.play(GameState.newRealm(seed: seed, balance: balance), bot: Autoplay.reference(),
                                        balance: balance, nights: 19)
             XCTAssertNil(first.fellOnNight, "seed \(seed) reaches night 20")
             guard first.fellOnNight == nil else { continue }
+
             let eve = TuningRun.withoutBeacon(first.final)
             let bot = Autoplay.reference(buildsBeacon: false)
-            let fine = TuningRun.play(eve, bot: bot, balance: balance, nights: 1, nightStep: Sim.frameStep).final
-            let coarse = TuningRun.play(eve, bot: bot, balance: balance, nights: 1).final
-            let a = fine.night
-            let b = coarse.night
-            func text(_ n: NightStats, _ fell: Bool) -> String {
-                let walls = zip(n.wallsLost, n.wallFallSeconds).map { "\($0)@\(Int($1.rounded()))" }
-                return "fell \(fell) at \(n.defeatHour.map { String(Int(($0 * 100).rounded())) } ?? "-")"
-                    + ", walls \(walls), hearth reached \(n.hearthFirstHitSecond.map { String(Int($0.rounded())) } ?? "-")"
-                    + ", fallen \(n.fallen.count), killed \(n.killed)"
-            }
-            lines.append("seed \(seed): 1/60 s \(text(a, fine.defeated)) | 0.1 s \(text(b, coarse.defeated))")
+            let fine = TuningRun.tracedNight(eve, bot: bot, balance: balance, nightStep: Sim.frameStep)
+            let coarse = TuningRun.tracedNight(eve, bot: bot, balance: balance, nightStep: Sim.nightStep)
+            let a = fine.state.night
+            let b = coarse.state.night
+            lines.append("seed \(seed) without: 1/60 s \(text(a, fine.state.defeated)) | 0.1 s "
+                         + text(b, coarse.state.defeated))
+            for fall in fine.falls { lines.append("    1/60 s: " + fall) }
+            for fall in coarse.falls { lines.append("    0.1 s: " + fall) }
             XCTAssertEqual(a.night, 20)
             XCTAssertEqual(b.night, 20)
             let firstLight = 9 * DayClock.secondsPerHour
             let arrivals = [a.hearthFirstHitSecond, b.hearthFirstHitSecond].compactMap { $0 }
             let nearFirstLight = arrivals.contains { abs($0 - firstLight) <= 3 }
             if !nearFirstLight {
-                XCTAssertEqual(fine.defeated, coarse.defeated, "seed \(seed): the same outcome")
+                XCTAssertEqual(fine.state.defeated, coarse.state.defeated, "seed \(seed): the same outcome")
             }
             XCTAssertEqual(a.wallsLost, b.wallsLost, "seed \(seed): the same walls fall")
             for (x, y) in zip(a.wallFallSeconds, b.wallFallSeconds) {
@@ -148,6 +152,26 @@ final class SimTests: XCTestCase {
             if let x = a.defeatHour, let y = b.defeatHour {
                 XCTAssertEqual(x, y, accuracy: 0.25, "seed \(seed): the realm falls at the same hour")
             }
+            XCTAssertLessThanOrEqual(abs(a.fallen.count - b.fallen.count), 1,
+                                     "seed \(seed) without: \(a.fallen.count) fallen at 1/60 s, \(b.fallen.count) at 0.1 s")
+
+            let fineWith = TuningRun.tracedNight(first.final, bot: Autoplay.reference(), balance: balance,
+                                                 nightStep: Sim.frameStep)
+            let coarseWith = TuningRun.tracedNight(first.final, bot: Autoplay.reference(), balance: balance,
+                                                   nightStep: Sim.nightStep)
+            let c = fineWith.state.night
+            let d = coarseWith.state.night
+            lines.append("seed \(seed) with: 1/60 s \(text(c, fineWith.state.defeated)) | 0.1 s "
+                         + text(d, coarseWith.state.defeated))
+            for fall in fineWith.falls { lines.append("    1/60 s: " + fall) }
+            for fall in coarseWith.falls { lines.append("    0.1 s: " + fall) }
+            XCTAssertEqual(fineWith.state.defeated, coarseWith.state.defeated, "seed \(seed) with: the same outcome")
+            XCTAssertEqual(c.kingSlain, d.kingSlain, "seed \(seed) with: the King slain in both runs or in neither")
+            if let x = c.kingSlainSecond, let y = d.kingSlainSecond {
+                XCTAssertEqual(x, y, accuracy: 3, "seed \(seed) with: the King falls at the same time")
+            }
+            XCTAssertLessThanOrEqual(abs(c.fallen.count - d.fallen.count), 1,
+                                     "seed \(seed) with: \(c.fallen.count) fallen at 1/60 s, \(d.fallen.count) at 0.1 s")
         }
         let attachment = XCTAttachment(string: lines.joined(separator: "\n"))
         attachment.name = "night-twenty-steps"
