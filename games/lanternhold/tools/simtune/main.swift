@@ -108,6 +108,7 @@ enum SimTune {
         line += " nb\(m.t6NoBeaconRun)"
         line += " | T7 \(m.t7FellOn)"
         line += " | T8 \(Int(m.t8LastSpawnSecond.rounded()))s e\(m.t8Entities) l\(m.t8Lights)"
+        line += " | court \(m.petitionsHeard)"
         line += " | steps " + (steps.isEmpty ? "ok" : "FAIL \(steps)")
         line += " | \(Int(seconds.rounded())) s"
         return line
@@ -358,6 +359,16 @@ extension SimTune {
     }
 }
 
+// M3 fix (C1): the bots hear the court, so a run without the petitions measures another game. Started outside the
+// game's folder (or with a broken file) the catalogue is empty or short: say so and stop before any run.
+let petitionLoad = PetitionCatalog.load(directory: URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+    .appendingPathComponent("Resources/Petitions"))
+SimTune.say("simtune: \(PetitionCatalog.standard.petitions.count) petitions from \(petitionLoad.files.count) files")
+if PetitionCatalog.standard.petitions.isEmpty || !petitionLoad.problems.isEmpty {
+    for problem in petitionLoad.problems { SimTune.say("simtune: petitions: \(problem)") }
+    SimTune.say("simtune: the petitions did not load (run it from the game's folder); nothing measured")
+    exit(1)
+}
 if CommandLine.arguments.dropFirst().contains("finale") {
     SimTune.finale()
 } else {

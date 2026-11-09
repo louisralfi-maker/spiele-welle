@@ -106,15 +106,17 @@ struct Autoplay: Sendable, Equatable {
         .recruitArchers,
     ]
 
-    /// Called before every sim step.
-    mutating func act(_ s: inout GameState, dt: Double, balance: Balance, events: inout [SimEvent]) {
+    /// Called before every sim step. `petitions` is the catalogue the bot hears from (the driver passes its own: M3
+    /// fix, C1; a tuning run reads the standard one).
+    mutating func act(_ s: inout GameState, dt: Double, balance: Balance, events: inout [SimEvent],
+                      petitions: PetitionCatalog = .standard) {
         guard plan == .reference else {
             s.king.velocity = 0
             return
         }
         if s.tax != tax { Economy.setTax(&s, tax) }
         if DayClock.phase(at: s.hour) == .day {
-            if hearsPetitions { PetitionEngine.holdAudience(&s, catalog: .standard, balance: balance) }
+            if hearsPetitions { PetitionEngine.holdAudience(&s, catalog: petitions, balance: balance) }
             thinkTimer -= dt
             if thinkTimer <= 0 {
                 thinkTimer = 1

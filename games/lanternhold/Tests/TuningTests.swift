@@ -26,6 +26,13 @@ final class TuningTests: XCTestCase {
         print(TuningTests.metrics.report)
     }
 
+    /// M3 fix (C1): the runs heard the court. Without the petitions every target above would be measured on another
+    /// game and still pass or fail by itself.
+    func testTheReferenceBotHeardTheCourt() {
+        XCTAssertGreaterThan(TuningTests.metrics.petitionsHeard, 0)
+        XCTAssertTrue(TuningTests.metrics.report.contains("Court PASS"))
+    }
+
     /// 1. The reference bot with normal tax survives nights 1 to 10, the hearth untouched, at most 3 soldiers lost.
     func testTarget1ReferenceBotHoldsTheFirstTenNights() { check(1) }
 

@@ -44,6 +44,26 @@ final class AutoplayTests: XCTestCase {
         XCTAssertGreaterThan(s.gold, balance.startGold, "taxes pile up")
     }
 
+    /// M3 fix (C1): the bot hears from the catalogue it is given (the driver's), not always the standard one.
+    func testTheBotHearsFromTheDriversCatalogue() {
+        let own = PetitionTests.catalog("""
+        {"id": "only", "speaker": "farmer", "kind": "random", "text": "t", "counsel": 0,
+         "choices": [{"label": "a", "happiness": 1}, {"label": "b"}]}
+        """)
+        var driver = SimDriver(state: GameState.newRealm(seed: 1, balance: balance), balance: balance,
+                               bot: Autoplay.reference(), petitions: own)
+        XCTAssertEqual(driver.state.court?.queue.map(\.id), ["only"], "day 1 draws from the driver's catalogue")
+        var events: [SimEvent] = []
+        driver.advance(by: 0.1, events: &events)
+        XCTAssertEqual(driver.state.court?.history.map(\.id), ["only"], "and the bot hears it there")
+        XCTAssertEqual(driver.state.court?.heardCount, 1)
+
+        var s = GameState.newRealm(seed: 1, balance: balance)
+        var bot = Autoplay.reference()
+        bot.act(&s, dt: 0.1, balance: balance, events: &events, petitions: PetitionCatalog([]))
+        XCTAssertEqual(s.court?.heardCount ?? 0, 0, "an empty catalogue: nobody to hear")
+    }
+
     func testTaxVariantsSetTheirTax() {
         for tax in [TaxRate.low, .high] {
             var s = GameState.newRealm(seed: 1, balance: balance)

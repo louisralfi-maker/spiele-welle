@@ -120,7 +120,7 @@ struct SimDriver: Sendable {
             }
         }
         if var player = bot {
-            player.act(&state, dt: dt, balance: balance, events: &events)
+            player.act(&state, dt: dt, balance: balance, events: &events, petitions: petitions)
             bot = player
         }
         Sim.step(&state, dt: dt, balance: balance, events: &events)

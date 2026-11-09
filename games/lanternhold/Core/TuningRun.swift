@@ -94,6 +94,9 @@ struct TuningMetrics: Sendable {
     var t8Creatures = 0
     var t8Entities = 0
     var t8Lights = 0
+    /// The petitioners the reference bot heard over the chapter runs (M3 fix, C1): 0 means the catalogue did not load
+    /// and every tuning number was measured without the court, so `TuningTests` and `tools/simtune` fail on it.
+    var petitionsHeard = 0
     var nightLog: [String] = []
     /// Night 20 of every seed, with and without the beacon.
     var nightTwentyLog: [String] = []
@@ -163,6 +166,8 @@ struct TuningMetrics: Sendable {
         lines.append("T8 \(mark(8)) last wave left at \(fmt(t8LastSpawnSecond)) s after nightfall (target <= 84); "
                      + "sim proxy, night \(t8Night) with \(t8Creatures) creatures: \(t8Entities) sim entities "
                      + "(target < 300), \(t8Lights) battle lights (target < 40)")
+        lines.append("Court \(petitionsHeard > 0 ? "PASS" : "FAIL") the reference bot heard \(petitionsHeard) petitioners "
+                     + "in the chapter runs (target > 0: the petitions loaded)")
         lines.append("")
         lines.append("reference bot, seed 1:")
         lines.append(contentsOf: nightLog)
@@ -478,6 +483,7 @@ enum TuningRun {
         for seed in 1...max(1, seedsT6) {
             let start = GameState.newRealm(seed: UInt64(seed), balance: balance)
             let first = play(start, bot: reference, balance: balance, nights: 19)
+            m.petitionsHeard += first.final.court?.heardCount ?? 0
             var outcomes = first.outcomes
             var withResult: PlayResult?
             m.t6AllSeeds += 1
