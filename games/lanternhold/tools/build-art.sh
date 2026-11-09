@@ -1,5 +1,5 @@
 #!/bin/bash
-# Rebuilds every milestone 1 sprite in Resources/Art from the Recraft raws in build/recraft/lh/ (git-ignored; see ART.md
+# Rebuilds every milestone 1 and M1b sprite in Resources/Art from the Recraft raws in build/recraft/lh/ (git-ignored; see ART.md
 # for the prompts) and the hand-set grids in tools/grids/. One image at a time with a pause between, and a wait while the
 # CPU is at 80 °C or more (this old Mac's heat rule). Run from anywhere: bash games/lanternhold/tools/build-art.sh [name …]
 set -euo pipefail
@@ -8,6 +8,9 @@ T=games/lanternhold/tools/pixelart.py
 A=games/lanternhold/Resources/Art
 G=games/lanternhold/tools/grids
 R=build/recraft/lh
+M=build/recraft/lh/m1b         # the M1b paintings (ART.md "M1b")
+PT=build/recraft/lh/m1b/parts  # intermediate parts of composed sprites
+PROC=games/lanternhold/tools/procart.py
 SMC=/Users/enaayla/Desktop/Spiele-Welle/tools/smcread
 
 FAR=farDeep,far,moon,farPale,foam
@@ -19,6 +22,9 @@ NAT=leafDark,leaf,meadow,leafLight,soilDark,soil,soilLight,straw,strawLight,rock
 ST=ink,night0,stoneDark,stoneMid,stone,stoneLight,stonePale
 GR=leafDark,leaf,meadow,soilDark,soil,soilLight,rockDeep,rockDark,rock,rockLight,stoneDark,stoneMid,stone,stoneLight
 DOOR=night0,ink,woodDark,wood,woodLight
+ROCKG=rockDeep,rockDark,rock,rockLight,rockPale,soilDark,soil,soilLight,leafDark,leaf
+STONE=night1,ink,stoneDark,stoneMid,stone,stoneLight
+VMID=leafDark,leaf,meadow,leafLight,straw,strawLight,soilDark,daySky,foam,plaster,roofDeep
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
     [ -x "$SMC" ] || return 0
@@ -47,6 +53,46 @@ build() { # name: one sprite
     house)         python3 $T convert $R/s7-defence-1.png $A/house.png --size 64x46 --box 480,308,1080,632 --flood --only $COTTAGE --outline ink --zone ink,woodDark,tile,tileLight@0,4,63,24 --zone ink,stoneDark,stone,stoneLight,stonePale@44,0,52,12 ;;
     stoneWall)     python3 $T convert $R/s7-defence-1.png $A/stoneWall.png --size 36x52 --box 522,80,704,298 --flood --tol 60 --only $ST --fill clear:15,0,21,9 --fill stoneMid:1,49,34,50 --fill ink:35,10,35,51 --fill ink:0,49,0,51 --outline ink --outline-skip-bottom ;;
     ground)        python3 $T convert $R/s7-defence-1.png $A/ground.png --size 64x26 --box 560,673,745,737 --key none --min-count 1 --tile --only $GR ;;
+    # --- M1b: the gorge, the castle that seals it, the open valley ---
+    gorgeWall|gorgeWallA|gorgeWallB|gorgeWallC) # one panorama, seamless, cut into A-B-C
+                   mkdir -p $PT
+                   python3 $T convert $M/gorgewall-a-1.png $PT/gorgeWall.png --size 576x190 --box 0,8,1536,696 --tile --only $ROCKG --sat 1.5
+                   python3 $T split $PT/gorgeWall.png $A/gorgeWallA.png $A/gorgeWallB.png $A/gorgeWallC.png ;;
+    gorgeWallHigh) # the high rock, its left edge carried on from gorgeWallA's first columns (what follows gorgeWallC)
+                   mkdir -p $PT
+                   python3 $T convert $M/rocks-a-1.png $PT/gwh-rock.png --size 180x240 --box 16,44,540,748 --only $ROCKG,meadow --sat 1.3
+                   python3 $T compose $A/gorgeWallHigh.png --size 192x240 --layer $A/gorgeWallA.png@0,50@box=0,0,40,190 --layer $PT/gwh-rock.png@12,0 ;;
+    cliffFlank)    python3 $T convert $M/rocks-a-1.png $A/cliffFlank.png --size 80x240 --box 568,48,968,748 --only $ROCKG,$STONE --sat 1.3 ;;
+    gorgeMouth)    python3 $T convert $M/rocks-a-1.png $A/gorgeMouth.png --size 120x230 --box 1000,104,1520,748 --only $ROCKG,meadow,leafLight --sat 1.3 ;;
+    wardenStatue)  python3 $T convert $M/statue-a-1.png $A/wardenStatue.png --size 96x200 --box 0,20,768,1536 --only $ROCKG --sat 1.3 --fill night0:37,44,59,45 --fill night0:40,43,56,43 --fill night0:43,46,55,46 ;;
+    castleFront)   # towers from castlefront-b (the left one, mirrored for the right), gatehouse from castlefront-a
+                   mkdir -p $PT
+                   python3 $T convert $M/castlefront-b-1.png $PT/cf-tower.png --size 58x236 --box 80,80,315,1072 --gain 1.1 --only $CAS,leafDark,leaf --outline ink --outline-skip-bottom
+                   python3 $T convert $M/castlefront-a-1.png $PT/cf-gate.png --size 132x156 --box 295,420,735,895 --gain 0.86 --only $CAS --fill clear:0,0,29,28 --fill clear:102,0,131,28 --outline ink --outline-skip-bottom
+                   python3 $T compose $A/castleFront.png --size 240x236 --layer $PT/cf-gate.png@54,80 --layer $PT/cf-tower.png@0,0 --layer $PT/cf-tower.png@182,0@flip ;;
+    castleKeep)    # the painting's shaded left face lifted with zones (albedo is evenly lit)
+                   python3 $T convert $M/keepgate-a-1.png $A/castleKeep.png --size 150x250 --box 104,28,668,748 --only $CAS --zone $STONE@0,95,76,249@1.45 --zone $STONE@20,30,72,95@1.4 --zone $STONE,roofDeep,banner@0,0,19,130@1.4 --zone $STONE,roofDeep,banner@132,0,149,130@1.2 --outline ink --outline-skip-bottom ;;
+    castleBackGate) # the see-through gateway becomes a dark passage; keyed flower boxes refilled
+                   python3 $T convert $M/keepgate-a-1.png $A/castleBackGate.png --size 200x200 --box 824,76,1456,748 --only $CAS,tile,tileLight,gold,leaf,leafDark --outline ink --outline-skip-bottom --fill-holes night1:76,138,124,199 --fill-holes tileLight:62,118,88,125 --fill-holes tileLight:117,118,141,125 ;;
+    valleyFar|valleyFarA|valleyFarB|valleyFarC)
+                   mkdir -p $PT
+                   python3 $T convert $M/valleyfar-a-1.png $PT/valleyFar.png --size 576x90 --box 210,280,1450,560 --tile --only $FAR
+                   python3 $T split $PT/valleyFar.png $A/valleyFarA.png $A/valleyFarB.png $A/valleyFarC.png ;;
+    valleyMid|valleyMidA|valleyMidB|valleyMidC)
+                   mkdir -p $PT
+                   python3 $T convert $M/valleymid-a-1.png $PT/valleyMid.png --size 576x110 --box 0,300,1536,545 --key '#EC149C' --tile --warm 12 --only $VMID
+                   python3 $T split $PT/valleyMid.png $A/valleyMidA.png $A/valleyMidB.png $A/valleyMidC.png ;;
+    windmill)      python3 $T convert $M/props-a-1.png $A/windmill.png --size 40x60 --box 844,20,1308,492 --only stoneDark,stoneMid,stone,stoneLight,woodDark,wood,woodLight,soil,leafDark,leaf,meadow,ink --outline ink --outline-skip-bottom ;;
+    beaconRuin)    # the painted fire cage floated above the stump: set down into the broken top
+                   mkdir -p $PT
+                   python3 $T convert $M/props-a-1.png $PT/beacon-raw.png --size 64x130 --box 360,18,620,492 --only $CAS,leafDark,leaf,meadow --outline ink --outline-skip-bottom
+                   python3 $T compose $A/beaconRuin.png --size 64x130 --layer $PT/beacon-raw.png@0,29@box=0,29,64,130 --layer $PT/beacon-raw.png@0,22@box=0,22,19,29 --layer $PT/beacon-raw.png@42,22@box=42,22,64,29 --layer $PT/beacon-raw.png@17,5@box=17,0,45,29 ;;
+    riverEnd)      python3 $T convert $M/props-a-1.png $A/riverEnd.png --size 220x64 --box 28,512,1516,740 --only leafDark,leaf,meadow,leafLight,soilDark,soil,stoneDark,stoneMid,stone,stoneLight,waterDeep,daySky,foam,woodDark,wood,ink,roofDeep ;;
+    fgRockA)       python3 $PROC fgrock $A/fgRockA.png --style a ;;
+    fgRockB)       python3 $PROC fgrock $A/fgRockB.png --style b ;;
+    fgRockC)       python3 $PROC fgrock $A/fgRockC.png --style c ;;
+    fgOverhangA)   python3 $PROC overhang $A/fgOverhangA.png --style a ;;
+    fgOverhangB)   python3 $PROC overhang $A/fgOverhangB.png --style b ;;
     throne|hearth|well|lanternPost|field|palisade|ballista|brazier|torchPost)
                    python3 $T grid $G/$1.txt $A/$1.png ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;
@@ -54,7 +100,9 @@ build() { # name: one sprite
 }
 
 ALL="farMountain farPeak gorgeCliff gorgeEndCliff waterfall gatehouse castleTower castleWall backGate chapel hallInterior
-throne hearth kitchen house valleyHill well lanternPost field palisade stoneWall ballista brazier torchPost ground"
+throne hearth kitchen house valleyHill well lanternPost field palisade stoneWall ballista brazier torchPost ground
+gorgeWall gorgeWallHigh cliffFlank gorgeMouth wardenStatue castleFront castleKeep castleBackGate valleyFar valleyMid windmill
+beaconRuin riverEnd fgRockA fgRockB fgRockC fgOverhangA fgOverhangB"
 for name in ${@:-$ALL}; do
     cool
     build "$name"

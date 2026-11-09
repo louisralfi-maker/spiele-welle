@@ -40,7 +40,17 @@ Commands (run from anywhere; paths are plain file paths):
                                   (and an extra brightness gain); repeatable
           --patch grid.txt[@x,y]  overlay a hand-drawn text grid (see grid; "?" keeps a pixel); repeatable
           --fill NAME:x0,y0,x1,y1 paint a palette colour into a rect (inclusive, top-left origin); repeatable
+          --fill-holes NAME:x0,y0,x1,y1  paint only the transparent pixels inside a rect (a see-through gateway
+                                  becomes a dark passage); repeatable
           --palette path          default: palette.txt next to this file
+
+  pixelart.py split   <in.png> <out1.png> <out2.png> [...]
+        Cuts a sprite into equal-width tiles, left to right (a seamless --tile panorama becomes tiles A, B, C that join
+        in the order A-B-C-A).
+
+  pixelart.py compose <out.png> --size WxH --layer path@x,y[@flip][@box=x0,y0,x1,y1] [...]
+        Stacks finished palette sprites on a transparent canvas, later layers on top (opaque pixels only); a layer can
+        be mirrored and cropped first. For hero pieces built from parts of several paintings.
 
   pixelart.py grid    <grid.txt> <out.png>
         Builds a sprite from a text grid: a legend block "X = paletteName" lines, a line "---", then one row of
@@ -747,6 +757,14 @@ def cmd_convert(a):
                     r = next((row[i] for i in range(x + 1, tw) if row[i] is not None), None)
                     if l is not None and r is not None:
                         row[x] = l
+    for spec in a.fill_holes or []:
+        name, rect = spec.split(":")
+        x0, y0, x1, y1 = (int(v) for v in rect.split(","))
+        v = pal.index(name)
+        for y in range(max(0, y0), min(th, y1 + 1)):
+            for x in range(max(0, x0), min(tw, x1 + 1)):
+                if idx[y][x] is None:
+                    idx[y][x] = v
     for spec in a.fill or []:
         name, rect = spec.split(":")
         x0, y0, x1, y1 = (int(v) for v in rect.split(","))
@@ -796,6 +814,40 @@ def cmd_convert(a):
     opaque = sum(1 for row in idx for v in row if v is not None)
     print(f"wrote {a.output} {tw}x{th} from {info[0]}x{info[1]} content box {cbox}, "
           f"{len(used)} colours, {100 * opaque // (tw * th)} % opaque")
+
+
+def cmd_split(a):
+    img, _ = read_png(a.input)
+    n = len(a.outputs)
+    if img.w % n:
+        raise SystemExit(f"{img.w} px do not split into {n} equal tiles")
+    tw = img.w // n
+    for k, path in enumerate(a.outputs):
+        out = Image(tw, img.h, [img.get(k * tw + x, y) for y in range(img.h) for x in range(tw)])
+        write_png(path, out)
+        print(f"wrote {path} {tw}x{img.h}")
+
+
+def cmd_compose(a):
+    tw, th = (int(v) for v in a.size.lower().split("x"))
+    out = Image(tw, th)
+    for spec in a.layer:
+        parts = spec.split("@")
+        path, at = parts[0], parts[1]
+        ox, oy = (int(v) for v in at.split(","))
+        flip = "flip" in parts[2:]
+        box = next((parse_box(p[4:]) for p in parts[2:] if p.startswith("box=")), None)
+        img, _ = read_png(path)
+        x0, y0, x1, y1 = box or (0, 0, img.w, img.h)
+        for y in range(y0, y1):
+            for x in range(x0, x1):
+                p = img.get(x1 - 1 - (x - x0) if flip else x, y)
+                if p[3]:
+                    tx, ty = ox + x - x0, oy + y - y0
+                    if 0 <= tx < tw and 0 <= ty < th:
+                        out.set(tx, ty, p)
+    write_png(a.output, out)
+    print(f"wrote {a.output} {tw}x{th}")
 
 
 def read_grid(path, pal):
@@ -937,10 +989,22 @@ def main():
     v.add_argument("--window-glass", default="night1")
     v.add_argument("--window-sill", default="stoneLight")
     v.add_argument("--fill", action="append")
+    v.add_argument("--fill-holes", action="append")
     v.add_argument("--zone", action="append")
     v.add_argument("--patch", action="append")
     v.add_argument("--palette", default=DEFAULT_PALETTE)
     v.set_defaults(fn=cmd_convert)
+
+    sp = sub.add_parser("split")
+    sp.add_argument("input")
+    sp.add_argument("outputs", nargs="+")
+    sp.set_defaults(fn=cmd_split)
+
+    cp = sub.add_parser("compose")
+    cp.add_argument("output")
+    cp.add_argument("--size", required=True)
+    cp.add_argument("--layer", action="append", required=True)
+    cp.set_defaults(fn=cmd_compose)
 
     g = sub.add_parser("grid")
     g.add_argument("input")
