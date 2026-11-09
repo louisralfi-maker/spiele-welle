@@ -6,7 +6,9 @@ import XCTest
 /// 23:00 and 01:00 (the fight; each the liveliest moment of the following hour), and a morning of the same realm with
 /// the builders at work (`-GWDay 12`, the king at the outer line); `testFinale` takes night 20 with the Great Beacon.
 /// The game's clock and counts are the simulation's, read from the scene's accessibility value ("hour:21.50 seen:4
-/// shots:2"). Saves `<nn>-mid-<what>-<lang>`.
+/// shots:2"). Since M2b part 2 the night ends on the dawn report (`36-mid-report`), first light is held still as its
+/// front sweeps past the outer wall (`37-mid-firstlight`), and the finale ends on its report with the King's banner
+/// (`38-finale-report`). Saves `<nn>-mid-<what>-<lang>`.
 @MainActor
 final class MidChapterUITests: XCTestCase {
     override func setUp() async throws {
@@ -37,8 +39,29 @@ final class MidChapterUITests: XCTestCase {
                     XCTFail("\(shot.name): the night never reached hour \(shot.hour)")
                 }
             }
+            // M2b part 2: the night ends on the dawn report.
+            let report = element(night, "report-root")
+            if report.waitForExistence(timeout: 150) {
+                pause(0.6)
+                attach(XCUIScreen.main.screenshot(), "36-mid-report-\(language)")
+                XCTAssertTrue(element(night, "report-continue").exists, "the report has its Continue")
+            } else {
+                attach(XCUIScreen.main.screenshot(), "36-mid-report-missing-\(language)")
+                XCTFail("the night 12 never reached its dawn report")
+            }
         }
         night.terminate()
+
+        // First light sweeping in from the right, held still: its front at x 663 behind the outer wall.
+        let dawn = XCUIApplication()
+        dawn.launchArguments = ["-GWNight", "12", "-GWBuild", "demo", "-GWHour", "5.83", "-GWFreezeTime", "YES",
+                                "-GWCameraX", "620", "-GWAutoplay", "play"]
+        dawn.launch()
+        if waitUntilReady(dawn, name: "mid-firstlight") {
+            attach(XCUIScreen.main.screenshot(), "37-mid-firstlight-\(language)")
+            note("37-mid-firstlight-value", (element(dawn, "world-scene").value as? String) ?? "")
+        }
+        dawn.terminate()
 
         let day = XCUIApplication()
         day.launchArguments = ["-GWDay", "12", "-GWBuild", "demo", "-GWCameraX", "600"]
@@ -68,6 +91,16 @@ final class MidChapterUITests: XCTestCase {
                 } else {
                     XCTFail("\(shot.name): the night never reached hour \(shot.hour)")
                 }
+            }
+            // M2b part 2: the finale ends on the dawn report with the King's banner.
+            let report = element(app, "report-root")
+            if report.waitForExistence(timeout: 200) {
+                pause(0.6)
+                attach(XCUIScreen.main.screenshot(), "38-finale-report-\(language)")
+                XCTAssertTrue(element(app, "report-king-banner").exists, "night 20's report carries the King's banner")
+            } else {
+                attach(XCUIScreen.main.screenshot(), "38-finale-report-missing-\(language)")
+                XCTFail("night 20 never reached its dawn report")
             }
         }
         app.terminate()

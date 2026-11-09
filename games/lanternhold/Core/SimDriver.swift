@@ -168,9 +168,10 @@ struct SimDriver: Sendable {
     /// The defeat card's "Replay the day": the realm as it was at this day's dawn.
     mutating func replayDay() {
         state = dawnSnapshot
+        state.king.velocity = 0
+        dawnSnapshot = state
         accumulator = 0
         travelTarget = nil
-        state.king.velocity = 0
     }
 
     /// The pause sheet's "Restart chapter": a new realm on the morning of day 1, the player at the controls.

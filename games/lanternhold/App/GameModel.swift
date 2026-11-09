@@ -271,6 +271,7 @@ final class GameModel {
         let tracking = !game.state.creatures.isEmpty && DayClock.phase(at: game.state.hour) != .day
         let before = tracking ? game.state.creatures : []
         var stepped = 0
+        var mark = 0
         while game.stepIfDue(events: &events) {
             stepped += 1
             if var follow = camera {
@@ -278,6 +279,9 @@ final class GameModel {
                               targetVelocity: game.state.king.velocity, dt: GameModel.step, reduceMotion: reduceMotion)
                 camera = follow
             }
+            // The dawn's report and the defeat card stop the world in the step that brings them.
+            if GameModel.opensScreen(events[mark...]) { break }
+            mark = events.count
         }
         driver = game
         if !events.isEmpty {
@@ -295,6 +299,16 @@ final class GameModel {
             steps += stepped
             if before / 6 != steps / 6 {
                 refreshHUD()
+            }
+        }
+    }
+
+    /// True when one of the events opens a screen (the dawn report, the defeat card).
+    nonisolated static func opensScreen(_ events: ArraySlice<SimEvent>) -> Bool {
+        events.contains { event in
+            switch event {
+            case .dawn, .defeat: return true
+            default: return false
             }
         }
     }

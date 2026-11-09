@@ -110,9 +110,14 @@ struct FeedbackThinner: Sendable, Equatable {
             if let x = found.x, cue.isPositional, abs(x - listenerX) > cue.hearing { continue }
             if !wanted.contains(cue) { wanted.append(cue) }
         }
-        wanted.sort { FeedbackThinner.rank($0) < FeedbackThinner.rank($1) }
+        // By rank, the events' order breaking ties.
+        let ordered = wanted.enumerated().sorted { a, b in
+            let left = FeedbackThinner.rank(a.element)
+            let right = FeedbackThinner.rank(b.element)
+            return left == right ? a.offset < b.offset : left < right
+        }.map(\.element)
         var played: [FeedbackCue] = []
-        for cue in wanted where played.count < FeedbackThinner.maxPerFrame {
+        for cue in ordered where played.count < FeedbackThinner.maxPerFrame {
             if let last = lastPlayed[cue], time - last < cue.minimumGap, time >= last { continue }
             lastPlayed[cue] = time
             played.append(cue)
