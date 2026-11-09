@@ -1,0 +1,11 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: 2f63c14
+source: claude/lh-m1b-port
+03:01:57 build starts (Lanternhold)
+simulator: 98A0BFA3-CEC3-4FD6-9916-5A2149774DBF (iPhone 17 Pro, iOS 26.5)
+03:06:08 PASS build
+03:07:10 PASS unit LanternholdTests/FrameBuilderTests LanternholdTests/AtlasTests LanternholdTests/RendererTests LanternholdTests/CameraTests LanternholdTests/LightFieldTests LanternholdTests/DayClockTests LanternholdTests/ResolutionTests LanternholdTests/MetalProbeTests LanternholdTests/OffscreenRenderTests LanternholdTests/DebugArgsTests LanternholdTests/FlickerTests
+03:11:22 PASS ui LanternholdUITests/LightProbeUITests/testLightProbe LanternholdUITests/LightProbeUITests/testFilmstrip LanternholdUITests/ProbeUITests
+ALL PASSED
