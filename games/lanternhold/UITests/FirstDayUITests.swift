@@ -131,7 +131,7 @@ final class FirstDayUITests: XCTestCase {
         XCUIDevice.shared.orientation = .landscapeLeft
         // The dawn report with a lost wall, a fallen archer and an unlock.
         let report = XCUIApplication()
-        report.launchArguments = ["-GWScreen", "report", "-GWDay", "3", "-GWCameraX", "1100"]
+        report.launchArguments = ["-GWScreen", "report", "-GWDay", "8", "-GWCameraX", "1100"]
         report.launch()
         if waitUntilReady(report, name: "report") {
             let root = element(report, "report-root")

@@ -535,13 +535,16 @@ enum FrameBuilder {
 
     // MARK: - Actors
 
-    /// Creatures (with their eye glints), archers, citizens and the king last, in device pixels.
+    /// Creatures (by the game's rule, M2b review: lit, as painted; unlit at night, an opaque dark body with its glow
+    /// strip and a moonlight rim, never the eye dots or translucent ghosts "Not a copy" forbids), archers, citizens and
+    /// the king last (his lantern glass from the dusk), in device pixels.
     private static func actorInstances(scene: PlaceholderScene, field: LightField, ambient: AmbientSample,
                                        animTime: Double, camera: Camera, options: FrameOptions,
                                        geometry: Geometry) -> [ActorInstance] {
         var list: [ActorInstance] = []
         let white = SIMD4<Float>(1, 1, 1, 1)
-        let unlitAlpha = max(0, 1 - ambient.torchStrength)
+        let night = min(1, max(0, ambient.torchStrength))
+        let unlitValue = 1 - (1 - EntityFrames.unlitValue) * night
 
         for actor in scene.actors {
             let sprite = actor.kind.sprite
@@ -549,23 +552,17 @@ enum FrameBuilder {
             let flipped = actor.facing < 0
             if actor.kind.isCreature {
                 let lit = field.isLit(x: actor.x, y: actor.litY)
-                let alpha: Float = lit ? 1 : unlitAlpha
-                if alpha > 0.001 {
-                    let rect = actorRect(sprite: sprite, x: actor.x, y: actor.y, camera: camera, options: options,
-                                         geometry: geometry)
-                    if isOnScreen(rect, geometry: geometry) {
-                        let tint = SIMD4<Float>(1, 1, 1, alpha)
-                        list.append(ActorInstance(sprite: sprite, frame: frame, rect: rect, tint: tint,
-                                                  flipped: flipped, isEmissive: false, isLit: lit))
-                    }
-                }
-                let eye = actor.kind.eyeOffset
-                let eyeX = actor.x + eye.dx * Double(actor.facing)
-                let eyeRect = actorRect(sprite: .eyeGlints, x: eyeX, y: actor.y + eye.dy, camera: camera,
-                                        options: options, geometry: geometry)
-                if isOnScreen(eyeRect, geometry: geometry) {
-                    list.append(ActorInstance(sprite: .eyeGlints, frame: 0, rect: eyeRect, tint: eyeColor,
-                                              flipped: flipped, isEmissive: true, isLit: lit))
+                let rect = actorRect(sprite: sprite, x: actor.x, y: actor.y, camera: camera, options: options,
+                                     geometry: geometry)
+                guard isOnScreen(rect, geometry: geometry) else { continue }
+                let value: Float = lit ? 1 : unlitValue
+                list.append(ActorInstance(sprite: sprite, frame: frame, rect: rect,
+                                          tint: SIMD4<Float>(value, value, value, 1), flipped: flipped,
+                                          isEmissive: false, isLit: lit, lightCap: EntityFrames.creatureLightCap,
+                                          moonRim: lit ? 0 : EntityFrames.unlitRim * night))
+                if let glow = EntityFrames.glowStrip(sprite) {
+                    list.append(ActorInstance(sprite: glow, frame: frame, rect: rect, tint: white, flipped: flipped,
+                                              isEmissive: true, isLit: lit))
                 }
             } else {
                 let rect = actorRect(sprite: sprite, x: actor.x, y: actor.y, camera: camera, options: options,
@@ -585,6 +582,12 @@ enum FrameBuilder {
             let lit = field.isLit(x: king.x, y: king.litY)
             list.append(ActorInstance(sprite: .king, frame: kingFrame, rect: kingRect, tint: white,
                                       flipped: king.facing < 0, isEmissive: false, isLit: lit))
+            if night >= 0.3 {
+                let glass = 0.6 + 0.4 * (night - 0.3) / 0.7
+                list.append(ActorInstance(sprite: .kingGlow, frame: kingFrame, rect: kingRect,
+                                          tint: SIMD4<Float>(glass, glass, glass, 1), flipped: king.facing < 0,
+                                          isEmissive: true, isLit: lit))
+            }
         }
         return list
     }

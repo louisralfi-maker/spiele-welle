@@ -104,9 +104,39 @@
       "comment" : "Dawn report: citizens who left.",
       "localizations" : {
         "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld haben das Reich verlassen"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld hat das Reich verlassen"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld haben das Reich verlassen"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld left the realm"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld left the realm"
+                }
+              }
+            }
           }
         }
       }
@@ -126,9 +156,39 @@
       "comment" : "Dawn report: tax detail.",
       "localizations" : {
         "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld Steuerzahler"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Steuerzahler"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Steuerzahler"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld taxpayer"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld taxpayers"
+                }
+              }
+            }
           }
         }
       }
@@ -221,13 +281,13 @@
         }
       }
     },
-    "Archers %lld · free posts %lld · guards %lld" : {
-      "comment" : "Recruit card subtitle: counts.",
+    "Archers %lld · room on the walls for %lld more · guards %lld" : {
+      "comment" : "Recruit card subtitle: counts (archers, free archer posts on the walls and towers, guards).",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bogenschützen %1$lld · freie Posten %2$lld · Wachen %3$lld"
+            "value" : "Bogenschützen %1$lld · Platz auf den Mauern für %2$lld weitere · Wachen %3$lld"
           }
         }
       }
@@ -672,6 +732,17 @@
         }
       }
     },
+    "Houses full: build a house" : {
+      "comment" : "Dawn report: no citizen was born because every house is full.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Häuser voll: Baue ein Haus"
+          }
+        }
+      }
+    },
     "In ruins: %@" : {
       "comment" : "Build card subtitle: a destroyed wall.",
       "localizations" : {
@@ -716,17 +787,6 @@
         }
       }
     },
-    "Light radius %lld · burns all night" : {
-      "comment" : "Build card: a brazier's or fire tower's effect.",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lichtradius %lld · brennt die ganze Nacht"
-          }
-        }
-      }
-    },
     "Light the brazier" : {
       "comment" : "Accessibility label of the action button at an unlit brazier.",
       "localizations" : {
@@ -734,6 +794,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Feuerschale entzünden"
+          }
+        }
+      }
+    },
+    "Lighting the brazier" : {
+      "comment" : "Accessibility label of the greyed action button while the king lights a brazier.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feuerschale wird entzündet"
+          }
+        }
+      }
+    },
+    "Lights the ground before it · burns all night" : {
+      "comment" : "Build card: a brazier's effect.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erhellt den Boden vor sich · brennt die ganze Nacht"
+          }
+        }
+      }
+    },
+    "Lights the ground far out · burns all night" : {
+      "comment" : "Build card: a fire tower's effect.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erhellt den Boden weit hinaus · brennt die ganze Nacht"
           }
         }
       }
@@ -976,6 +1069,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mauer flicken"
+          }
+        }
+      }
+    },
+    "Patch the wall: not enough gold" : {
+      "comment" : "Accessibility label of the greyed action button: patching costs more gold than the treasury holds.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mauer flicken: nicht genug Gold"
+          }
+        }
+      }
+    },
+    "Patch the wall: ready again soon" : {
+      "comment" : "Accessibility label of the greyed action button during the patch's cooldown.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mauer flicken: gleich wieder bereit"
           }
         }
       }
@@ -1519,6 +1634,17 @@
         }
       }
     },
+    "Upgrade: %@" : {
+      "comment" : "Action button caption at a plot where something stands; %@ is the plot.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausbauen: %@"
+          }
+        }
+      }
+    },
     "Wall" : {
       "comment" : "Plot kind.",
       "localizations" : {
@@ -1581,6 +1707,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ein Freiwilliger griff zum Bogen"
+          }
+        }
+      }
+    },
+    "fallen.archer.female" : {
+      "comment" : "Dawn report: a fallen archer who is a woman (German: Bogenschützin).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, Bogenschützin"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, archer"
           }
         }
       }

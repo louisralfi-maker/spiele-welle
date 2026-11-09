@@ -27,7 +27,7 @@ struct DefeatCardView: View {
     private var content: some View {
         VStack(spacing: 12) {
             DarkeningTown()
-                .frame(height: 50)
+                .frame(height: 60)
                 .padding(.horizontal, 10)
             VStack(spacing: 4) {
                 Text("The hearth has gone out")
@@ -81,52 +81,133 @@ struct DefeatCardView: View {
     }
 }
 
-/// The town's silhouette with its windows going dark one by one (DESIGN.md "The town"): a window every 0.7 s.
+/// The town's own cottages at night, their windows going dark one by one (DESIGN.md "The town"; M2b review: flat vector
+/// houses read as placeholders beside the pixel art): the cottages and a big house cut from the renderer's atlas at whole
+/// device pixels, tinted to the night, their window glass burning fireGold until it goes out, a window every 0.7 s from
+/// the left (the side the Gloom came from).
 struct DarkeningTown: View {
     static let step = 0.7
+
+    struct Pane: Sendable {
+        let dx: Int
+        let dy: Int
+        let width: Int
+        let height: Int
+    }
+
+    struct House: Sendable {
+        let sprite: SpriteID
+        let flipped: Bool
+        /// The window glass masks of EntityFrames.town (sprite pixels from the bottom-left, dy up), left to right.
+        let panes: [Pane]
+    }
+
+    static let gap = 6
+    static let houses: [House] = [
+        House(sprite: .house, flipped: false, panes: [Pane(dx: 11, dy: 8, width: 5, height: 6),
+                                                      Pane(dx: 46, dy: 8, width: 5, height: 6)]),
+        House(sprite: .bigHouse, flipped: false, panes: [Pane(dx: 16, dy: 9, width: 5, height: 5),
+                                                         Pane(dx: 26, dy: 24, width: 5, height: 5),
+                                                         Pane(dx: 35, dy: 40, width: 3, height: 2),
+                                                         Pane(dx: 41, dy: 24, width: 5, height: 5),
+                                                         Pane(dx: 50, dy: 9, width: 5, height: 5)]),
+        House(sprite: .houseC, flipped: true, panes: [Pane(dx: 11, dy: 8, width: 5, height: 6),
+                                                      Pane(dx: 27, dy: 33, width: 3, height: 2),
+                                                      Pane(dx: 46, dy: 8, width: 5, height: 6)]),
+        House(sprite: .houseB, flipped: false, panes: [Pane(dx: 11, dy: 8, width: 5, height: 6),
+                                                       Pane(dx: 46, dy: 8, width: 5, height: 6)]),
+    ]
+
+    /// The row's size in art pixels.
+    static var artWidth: Int { houses.reduce(0) { $0 + $1.sprite.size.width } + gap * (houses.count - 1) }
+    static var artHeight: Int { houses.map(\.sprite.size.height).max() ?? 1 }
+
     @State private var start = Date()
+    @Environment(\.displayScale) private var displayScale
 
     var body: some View {
         let began = start
+        let scale = displayScale
+        let pictures = DarkeningTown.houses.map { SpriteImages.image($0.sprite) }
+        let glass = DarkeningTown.houses.map { house in house.panes.map { DarkeningTown.glass(house, $0) } }
         return TimelineView(.periodic(from: began, by: DarkeningTown.step)) { context in
             let dark = max(0, Int(context.date.timeIntervalSince(began) / DarkeningTown.step))
             Canvas { graphics, size in
-                DarkeningTown.draw(dark: dark, in: &graphics, size: size)
+                DarkeningTown.draw(dark: dark, pictures: pictures, glass: glass, in: &graphics, size: size,
+                                   displayScale: scale)
             }
         }
         .accessibilityHidden(true)
     }
 
-    /// Six houses, two windows each; the first `dark` windows (from the left, the side the Gloom came from) are out.
-    static func draw(dark: Int, in graphics: inout GraphicsContext, size: CGSize) {
-        let houses = 6
-        let slot = size.width / CGFloat(houses)
-        var window = 0
-        for index in 0..<houses {
-            let tall = index % 2 == 0
-            let width = slot * 0.62
-            let height = size.height * (tall ? 0.62 : 0.5)
-            let left = CGFloat(index) * slot + (slot - width) / 2
-            let base = size.height
-            let body = CGRect(x: left, y: base - height, width: width, height: height)
-            graphics.fill(Path(body), with: .color(Color(hex: 0x4A4262)))
-            var roof = Path()
-            roof.move(to: CGPoint(x: left - 3, y: base - height))
-            roof.addLine(to: CGPoint(x: left + width / 2, y: base - height - size.height * 0.3))
-            roof.addLine(to: CGPoint(x: left + width + 3, y: base - height))
-            roof.closeSubpath()
-            graphics.fill(roof, with: .color(Color(hex: 0x6A4A5E)))
-            for side in [CGFloat(0.22), CGFloat(0.62)] {
-                let pane = CGRect(x: left + width * side, y: base - height * 0.66, width: width * 0.16,
-                                  height: height * 0.24)
-                let lit = window >= dark
-                if lit {
-                    graphics.fill(Path(ellipseIn: pane.insetBy(dx: -7, dy: -7)),
-                                  with: .color(Theme.fireGold.opacity(0.22)))
-                }
-                graphics.fill(Path(pane), with: .color(lit ? Theme.fireGold : Color(hex: 0x15122A)))
-                window += 1
+    /// The glass of one window as a fireGold image (only the dark glass pixels inside the mask), cached.
+    @MainActor private static var glassCache: [String: CGImage] = [:]
+
+    @MainActor static func glass(_ house: House, _ pane: Pane) -> CGImage? {
+        let key = "\(house.sprite.rawValue)#\(pane.dx),\(pane.dy)"
+        if let hit = glassCache[key] { return hit }
+        let layout = AtlasLayout.shared
+        let cell = layout.cell(house.sprite, frame: 0)
+        let top = house.sprite.size.height - pane.dy - pane.height
+        var image = layout.image.cropped(x: cell.x + pane.dx, y: cell.y + top, width: pane.width, height: pane.height)
+        let glassColours: Set<UInt32> = [0x0E0B1E, 0x1C1838, 0x2A2230]
+        for y in 0..<image.height {
+            for x in 0..<image.width {
+                let c = image[x, y]
+                let rgb = UInt32(c.r) << 16 | UInt32(c.g) << 8 | UInt32(c.b)
+                image[x, y] = c.a > 127 && glassColours.contains(rgb) ? RGBA(0xFFC65A) : .clear
             }
+        }
+        guard let made = SpriteImages.cgImage(image) else { return nil }
+        glassCache[key] = made
+        return made
+    }
+
+    /// The row at whole device pixels per art pixel, bottom-aligned and centred; the first `dark` panes are out.
+    static func draw(dark: Int, pictures: [CGImage?], glass: [[CGImage?]], in graphics: inout GraphicsContext,
+                     size: CGSize, displayScale: CGFloat) {
+        let fit = min(size.width * displayScale / CGFloat(artWidth), size.height * displayScale / CGFloat(artHeight))
+        let pixel = max(1, fit.rounded(.down)) / displayScale
+        let left = ((size.width - CGFloat(artWidth) * pixel) / 2 * displayScale).rounded(.down) / displayScale
+        let base = size.height
+        var x = left
+        var window = 0
+        for (index, house) in houses.enumerated() {
+            let art = house.sprite.size
+            let width = CGFloat(art.width) * pixel
+            let height = CGFloat(art.height) * pixel
+            let rect = CGRect(x: x, y: base - height, width: width, height: height)
+            if index < pictures.count, let picture = pictures[index] {
+                var night = graphics
+                night.addFilter(.colorMultiply(Color(red: 0.36, green: 0.34, blue: 0.58)))
+                if house.flipped {
+                    night.translateBy(x: rect.midX, y: 0)
+                    night.scaleBy(x: -1, y: 1)
+                    night.translateBy(x: -rect.midX, y: 0)
+                }
+                night.draw(Image(decorative: picture, scale: 1).interpolation(.none), in: rect)
+            }
+            for (number, pane) in house.panes.enumerated() {
+                let lit = window >= dark
+                window += 1
+                guard lit, index < glass.count, number < glass[index].count, let lamp = glass[index][number] else {
+                    continue
+                }
+                let dx = house.flipped ? art.width - pane.dx - pane.width : pane.dx
+                let paneRect = CGRect(x: x + CGFloat(dx) * pixel,
+                                      y: base - CGFloat(pane.dy + pane.height) * pixel,
+                                      width: CGFloat(pane.width) * pixel, height: CGFloat(pane.height) * pixel)
+                graphics.fill(Path(ellipseIn: paneRect.insetBy(dx: -3 * pixel, dy: -3 * pixel)),
+                              with: .color(Theme.fireGold.opacity(0.18)))
+                var layer = graphics
+                if house.flipped {
+                    layer.translateBy(x: paneRect.midX, y: 0)
+                    layer.scaleBy(x: -1, y: 1)
+                    layer.translateBy(x: -paneRect.midX, y: 0)
+                }
+                layer.draw(Image(decorative: lamp, scale: 1).interpolation(.none), in: paneRect)
+            }
+            x += width + CGFloat(gap) * pixel
         }
     }
 }
@@ -164,13 +245,15 @@ struct PauseSheetView: View {
                     .foregroundStyle(Theme.parchment)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
+                // M2b review: gold means "go on" everywhere else, so here it keeps the realm; the button that wipes it
+                // is quiet with ember text and border.
                 HStack(spacing: 10) {
                     Button {
                         confirming = false
                     } label: {
                         Text("Cancel").frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(QuietButtonStyle(onDark: true))
+                    .buttonStyle(GoldButtonStyle())
                     .accessibilityIdentifier("pause-restart-cancel")
                     Button {
                         confirming = false
@@ -178,7 +261,7 @@ struct PauseSheetView: View {
                     } label: {
                         Text("Restart").frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(GoldButtonStyle())
+                    .buttonStyle(QuietButtonStyle(onDark: true, danger: true))
                     .accessibilityIdentifier("pause-restart-confirm")
                 }
             } else {

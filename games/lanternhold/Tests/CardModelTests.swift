@@ -79,6 +79,39 @@ final class CardModelTests: XCTestCase {
         XCTAssertNil(KingTargets.target(s, balance: balance), "nothing after the realm fell")
     }
 
+    func testPatchAndLightShowWhyTheyCannotActNow() {
+        // M2b review: Patch without its 10 gold or during its 8 s cooldown, and Light while he is lighting, did
+        // nothing at all; the button now shows why, greyed.
+        var s = GameFrameSupport.demoNight()
+        let wall = Realm.lines[1].wall
+        s.plots[wall].hp = 200
+        s.king.x = Realm.plots[wall].x + 10
+        XCTAssertEqual(KingTargets.target(s, balance: balance), .patch(plot: wall))
+        s.gold = 50
+        XCTAssertNil(KingTargets.hold(.patch(plot: wall), state: s, balance: balance), "it can patch now")
+        s.gold = 6
+        XCTAssertEqual(KingTargets.hold(.patch(plot: wall), state: s, balance: balance), .missingGold(4))
+        s.gold = 50
+        s.king.patchCooldown = balance.patchCooldown
+        XCTAssertEqual(KingTargets.hold(.patch(plot: wall), state: s, balance: balance), .cooldown(1))
+        s.king.patchCooldown = balance.patchCooldown / 2
+        XCTAssertEqual(KingTargets.hold(.patch(plot: wall), state: s, balance: balance), .cooldown(0.5))
+        s.king.patchCooldown = 0
+        var events: [SimEvent] = []
+        XCTAssertTrue(Sim.patch(&s, plot: wall, balance: balance, events: &events), "a patch goes through")
+        if case .cooldown? = KingTargets.hold(.patch(plot: wall), state: s, balance: balance) {
+        } else {
+            XCTFail("right after a patch the button waits for its cooldown")
+        }
+        let brazier = Realm.lines[2].braziers[1]
+        s.plots[brazier].snuffed = true
+        s.king.x = Realm.plots[brazier].x
+        XCTAssertNil(KingTargets.hold(.light(plot: brazier), state: s, balance: balance))
+        XCTAssertTrue(Sim.light(&s, plot: brazier, balance: balance))
+        XCTAssertEqual(KingTargets.hold(.light(plot: brazier), state: s, balance: balance), .busy, "already lighting")
+        XCTAssertNil(KingTargets.hold(.recruit, state: s, balance: balance))
+    }
+
     // MARK: - The build card
 
     func testAnEmptyPlotOffersItsFirstBuildWithPriceTimeAndTheMissingGold() {

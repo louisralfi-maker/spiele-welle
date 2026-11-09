@@ -246,7 +246,7 @@ enum SceneLayout {
         ActorEntry(kind: .archer, x: WorldLayout.castleFrontX + 121, y: WorldLayout.wallWalkY, facing: -1, phase: 0.6),
         ActorEntry(kind: .archer, x: WorldLayout.castleFrontX + 173, y: WorldLayout.wallWalkY, facing: 1, phase: 0.95),
         ActorEntry(kind: .citizen, x: 3002, y: 0, facing: 1, phase: 0.2),
-        ActorEntry(kind: .citizen, x: 3044, y: 0, facing: -1, phase: 0.9),
+        ActorEntry(kind: .citizenB, x: 3044, y: 0, facing: -1, phase: 0.9),
     ]
 
     // MARK: - The world plane

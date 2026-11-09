@@ -92,9 +92,10 @@ enum Texts {
             let posts = Build.posts(item, balance: b)
             return String(localized: "\(posts) archer posts · range +\(range)")
         case .brazier:
-            return String(localized: "Light radius \(Int(b.brazierRadius)) · burns all night")
+            // Player words, not game pixels (M2b review: "Light radius 56").
+            return String(localized: "Lights the ground before it · burns all night")
         case .fireTower:
-            return String(localized: "Light radius \(Int(b.fireTowerRadius)) · burns all night")
+            return String(localized: "Lights the ground far out · burns all night")
         case .ballista:
             return String(localized: "Bolts of \(Int(b.ballistaDamage)) damage that pierce \(b.ballistaPierce)")
         case .catapult:
@@ -169,10 +170,15 @@ enum Texts {
         }
     }
 
-    /// "Edda, archer".
+    /// "Edda, archer" (German "Edda, Bogenschützin": a woman's name takes the feminine form, M2b review).
     static func fallen(_ soldier: FallenSoldier) -> String {
         switch soldier.kind {
-        case .archer: return String(localized: "\(soldier.name), archer")
+        case .archer:
+            if Names.isFemale(soldier.name) {
+                return String(localized: "fallen.archer.female", defaultValue: "\(soldier.name), archer",
+                              comment: "Dawn report: a fallen archer who is a woman (German: Bogenschützin).")
+            }
+            return String(localized: "\(soldier.name), archer")
         case .guardsman: return String(localized: "\(soldier.name), guard")
         }
     }

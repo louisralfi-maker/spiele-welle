@@ -10,6 +10,19 @@ enum Names {
         "Maren", "Nolan", "Oda", "Piet", "Runa", "Stig", "Thora", "Ugo", "Vilma", "Walter", "Edwin", "Hilde",
     ]
 
+    /// The women among them (the dawn report names a fallen archer in her own form: German "Bogenschützin", M2b
+    /// review).
+    static let female: Set<String> = [
+        "Alda", "Brenna", "Dagna", "Edda", "Fenna", "Gilda", "Hedda", "Isolde", "Jessa", "Kaia", "Liv", "Mabry",
+        "Mira", "Nessa", "Orla", "Petra", "Ragna", "Sigrid", "Tova", "Una", "Vesna", "Wren", "Ylva", "Agna", "Calla",
+        "Elva", "Greta", "Ilse", "Kelda", "Maren", "Oda", "Runa", "Thora", "Vilma", "Hilde",
+    ]
+
+    /// True for a woman's name (a numbered name like "Edda 2" counts as its first name).
+    static func isFemale(_ name: String) -> Bool {
+        female.contains(String(name.split(separator: " ").first ?? Substring(name)))
+    }
+
     /// A name from the seeded stream that no living soldier carries; when all are taken, a name with a number.
     static func pick(_ rng: inout SeededRandom, avoiding used: [String]) -> String {
         let start = rng.int(in: 0...(soldiers.count - 1))

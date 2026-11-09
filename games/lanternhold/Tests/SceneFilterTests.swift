@@ -51,7 +51,7 @@ final class SceneFilterTests: XCTestCase {
         let probe = FrameBuilder.build(scene: scene, clock: clock, camera: Camera(focusX: 760, pixelScale: pixelScale),
                                        pixelScale: pixelScale, options: options)
         XCTAssertTrue(probe.layer(.world).sprites.contains { $0.sprite == .palisade }, "the probe's palisade at 640")
-        XCTAssertTrue(probe.actors.contains { $0.sprite == .eyeGlints }, "the probe's waiting creatures")
+        XCTAssertTrue(probe.actors.contains { $0.sprite == .sootlingGlow }, "the probe's waiting creatures smoulder")
     }
 
     func testAGameFrameDrawsWhatTheRealmHas() {

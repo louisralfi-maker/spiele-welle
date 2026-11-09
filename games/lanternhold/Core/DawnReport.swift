@@ -33,6 +33,9 @@ struct DawnReport: Codable, Sendable, Equatable {
     /// Night 20: the Lightless King was slain, the true ending (nil in saves from before this field, and on every other
     /// night: false).
     var kingSlain: Bool?
+    /// The houses were full: at this happiness more citizens would have been born (M2b review; nil when not, and in saves
+    /// from before this field).
+    var housesFull: Bool?
 
     /// No soldier fell tonight: the report shows a small banner.
     var noLosses: Bool { fallen.isEmpty }

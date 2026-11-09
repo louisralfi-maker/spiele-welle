@@ -104,10 +104,38 @@ final class DriverMovesTests: XCTestCase {
 /// card's two ways out, the pause sheet. Each test starts a fresh realm (`-GWReset YES`).
 @MainActor
 final class GameScreensTests: XCTestCase {
-    private func model(_ values: [String: String]) -> GameModel {
+    /// A temporary save directory per test (M2b review: the tests deleted and overwrote the simulator app's real save).
+    private var directory: URL!
+
+    override func setUp() async throws {
+        directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("lanternhold-tests-\(UUID().uuidString)", isDirectory: true)
+    }
+
+    override func tearDown() async throws {
+        if let directory { try? FileManager.default.removeItem(at: directory) }
+    }
+
+    private func model(_ values: [String: String], reset: Bool = true) -> GameModel {
         var all = values
-        all["GWReset"] = "YES"
-        return GameModel(args: DebugArgs(values: all), kind: .world)
+        if reset { all["GWReset"] = "YES" }
+        return GameModel(args: DebugArgs(values: all), kind: .world, store: SaveStore(directory: directory))
+    }
+
+    func testTheSettingsAndTheSecondChanceSurviveARelaunch() throws {
+        // DESIGN.md: the sound and haptics switches and the second chance's pacing are kept in the save.
+        let first = model(["GWScreen": "defeat"])
+        XCTAssertNil(try XCTUnwrap(first.defeatInfo).secondChanceFrom, "the first second chance is free")
+        first.takeSecondChance()
+        first.continueReport()
+        first.openPause()
+        first.setSound(false)
+        first.resume()
+        let second = model(["GWScreen": "defeat"], reset: false)
+        XCTAssertFalse(second.settings.sound, "the sound switch came back from the save")
+        XCTAssertEqual(second.day, 2, "the relaunch resumed the saved realm at its dawn")
+        XCTAssertEqual(try XCTUnwrap(second.defeatInfo).secondChanceFrom, 1 + GameModel.secondChanceGap,
+                       "the second chance taken on night 1 waits five nights, across a relaunch")
     }
 
     func testTheHammerOpensTheBuildCardAndTheOrderGoesThroughTheSimulation() throws {

@@ -1,16 +1,42 @@
 import Foundation
 
-/// Settings kept with the save (DESIGN.md "Screens": sound, haptics).
+/// Settings kept with the save (DESIGN.md "Screens": sound, haptics). Every field decodes with a default (M2b review:
+/// synthesized decoding ignores property defaults, so the first switch M6 or M7 adds would have made every older save
+/// throw and read as corrupt).
 struct SaveSettings: Codable, Sendable, Equatable {
     var sound = true
     var haptics = true
+
+    init(sound: Bool = true, haptics: Bool = true) {
+        self.sound = sound
+        self.haptics = haptics
+    }
+
+    init(from decoder: any Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        sound = try c.decodeIfPresent(Bool.self, forKey: .sound) ?? true
+        haptics = try c.decodeIfPresent(Bool.self, forKey: .haptics) ?? true
+    }
 }
 
-/// Ad pacing kept with the save (DESIGN.md "Ads").
+/// Ad pacing kept with the save (DESIGN.md "Ads"). Every field decodes with a default, like `SaveSettings`.
 struct AdPacing: Codable, Sendable, Equatable {
     var lastInterstitialDay = 0
     var lastDoubleTaxesDay = 0
     var lastSecondChanceNight = 0
+
+    init(lastInterstitialDay: Int = 0, lastDoubleTaxesDay: Int = 0, lastSecondChanceNight: Int = 0) {
+        self.lastInterstitialDay = lastInterstitialDay
+        self.lastDoubleTaxesDay = lastDoubleTaxesDay
+        self.lastSecondChanceNight = lastSecondChanceNight
+    }
+
+    init(from decoder: any Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        lastInterstitialDay = try c.decodeIfPresent(Int.self, forKey: .lastInterstitialDay) ?? 0
+        lastDoubleTaxesDay = try c.decodeIfPresent(Int.self, forKey: .lastDoubleTaxesDay) ?? 0
+        lastSecondChanceNight = try c.decodeIfPresent(Int.self, forKey: .lastSecondChanceNight) ?? 0
+    }
 }
 
 /// Which records a realm counts for (DESIGN.md "Endless": the highest night survived per mode).

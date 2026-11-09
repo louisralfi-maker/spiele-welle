@@ -134,11 +134,12 @@ enum EntityFrames {
         beacon(s, props: &props)
         courtyard(s, props: &props)
         town(s, props: &props)
-        if isDay { markers(s, layouts: layouts, props: &props) }
+        if isDay { markers(s, layouts: layouts, time: animTime, reduceMotion: options.reduceMotion, props: &props) }
         auras(s, props: &props)
         layer.props = props.props
 
-        layer.glows = glows(s, balance: balance, layouts: layouts, animTime: animTime, effects: effects,
+        let origins = projectileOrigins(s, layouts: layouts)
+        layer.glows = glows(s, balance: balance, origins: origins, animTime: animTime, effects: effects,
                             reduceMotion: options.reduceMotion)
 
         var lights = SceneFilter.sceneLights(scene)
@@ -159,8 +160,8 @@ enum EntityFrames {
         layer.lights = lights
 
         let view = ActorView(camera: camera, pixelScale: pixelScale, mode: options.actorMode)
-        layer.actors = actors(s, balance: balance, layouts: layouts, view: view, ambient: ambient, isDay: isDay,
-                              animTime: animTime, effects: effects)
+        layer.actors = actors(s, balance: balance, layouts: layouts, origins: origins, view: view, ambient: ambient,
+                              isDay: isDay, animTime: animTime, effects: effects)
         return layer
     }
 
@@ -593,8 +594,11 @@ enum EntityFrames {
         }
     }
 
-    /// By day, a plot marker on every empty, unlocked plot without a job.
-    private static func markers(_ s: GameState, layouts: [LineLayout], props: inout PropList) {
+    /// By day, a plot marker on every empty, unlocked plot without a job; it bobs a pixel up and down, each plot in its
+    /// own rhythm (M2b review: still, the small markers were the only cue for day 1's first build and a new player
+    /// could not find them; not with Reduce Motion).
+    private static func markers(_ s: GameState, layouts: [LineLayout], time: Double, reduceMotion: Bool,
+                                props: inout PropList) {
         let width = Double(SpriteID.plotMarker.size.width)
         for index in s.plots.indices where index < Realm.plots.count {
             let plot = s.plots[index]
@@ -602,7 +606,8 @@ enum EntityFrames {
             let spec = Realm.plots[index]
             var x = drawnCentre(plot: index, layouts: layouts).x
             if spec.line == 1 && spec.slot == .engine { x = spec.x }
-            props.add(.plotMarker, x: (x - width / 2).rounded(.down), z: 4)
+            let bob = reduceMotion ? 0 : Double(Int((time * 1.7 + Double(index) * 0.43).rounded(.down)) % 2)
+            props.add(.plotMarker, x: (x - width / 2).rounded(.down), y: bob, z: 4)
         }
     }
 
@@ -627,8 +632,8 @@ enum EntityFrames {
 
     // MARK: - Glow
 
-    private static func glows(_ s: GameState, balance: Balance, layouts: [LineLayout], animTime: Double,
-                              effects: BattleEffects, reduceMotion: Bool) -> [EntityGlow] {
+    private static func glows(_ s: GameState, balance: Balance, origins: [OriginKey: (dx: Double, dy: Double)],
+                              animTime: Double, effects: BattleEffects, reduceMotion: Bool) -> [EntityGlow] {
         var list: [EntityGlow] = []
         func flicker(_ seed: UInt64) -> Float {
             Float(Flicker.sample(seed: seed, time: animTime, reduceMotion: reduceMotion).intensity)
@@ -666,7 +671,6 @@ enum EntityFrames {
                                    color: rgb(SIMD3<Float>(1, 0.95, 0.85), gain * flicker(0x4245_4143)), frame: frame))
         }
         // Projectile heads and trails.
-        let origins = projectileOrigins(s, layouts: layouts)
         for p in s.projectiles {
             let path = drawnPath(p, origins: origins)
             switch p.kind {
@@ -896,7 +900,8 @@ enum EntityFrames {
         return Int((time * 2 + Double(soldier.id % 5) * 0.37).rounded(.down)) % 2
     }
 
-    private static func actors(_ s: GameState, balance: Balance, layouts: [LineLayout], view: ActorView,
+    private static func actors(_ s: GameState, balance: Balance, layouts: [LineLayout],
+                               origins: [OriginKey: (dx: Double, dy: Double)], view: ActorView,
                                ambient: AmbientSample, isDay: Bool, animTime: Double,
                                effects: BattleEffects) -> [ActorInstance] {
         var list: [ActorInstance] = []
@@ -1035,7 +1040,6 @@ enum EntityFrames {
         }
 
         // Projectiles in flight: arrows and bolts pale as moonlit shafts, fire arrows and firepots burning.
-        let origins = projectileOrigins(s, layouts: layouts)
         for p in s.projectiles {
             let path = drawnPath(p, origins: origins)
             let sprite: SpriteID

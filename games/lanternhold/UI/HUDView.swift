@@ -59,6 +59,12 @@ struct GameHUD: View {
     /// Room kept on each side of the realm strip for the pause button and the clock column.
     static let sideRoom: CGFloat = 196
 
+    /// A card or a screen is open (M2b review: the HUD's clock, numbers and strip peeked out beside and under every
+    /// card as cut fragments; the cards that spend gold show the treasury themselves).
+    private var covered: Bool { model.overlay != nil }
+    /// A whole screen is open (the dawn report, the defeat card, the pause sheet): the pause button goes too.
+    private var screen: Bool { model.overlay.map { !$0.isCard } ?? false }
+
     var body: some View {
         GeometryReader { geometry in
             let stripWidth = max(160, min(380, geometry.size.width - 2 * GameHUD.sideRoom))
@@ -67,6 +73,7 @@ struct GameHUD: View {
                     HStack {
                         Spacer(minLength: 0)
                         ClockBadge(day: model.day, time: model.clockText)
+                            .hiddenUnder(covered)
                     }
                 } else {
                     topBar
@@ -83,6 +90,7 @@ struct GameHUD: View {
                         }
                     }
                     .animation(model.reduceMotion ? nil : .easeInOut(duration: 0.35), value: model.hornNight)
+                    .hiddenUnder(covered)
                 }
                 if model.showsDebugValues || model.showsStats {
                     VStack {
@@ -116,13 +124,24 @@ struct GameHUD: View {
     private var topBar: some View {
         HStack(alignment: .top, spacing: 8) {
             PauseButton { model.openPause() }
+                .hiddenUnder(screen)
             Spacer(minLength: 0)
             VStack(alignment: .trailing, spacing: 6) {
                 ClockBadge(day: model.day, time: model.clockText)
                 RealmNumbers(gold: model.gold, happiness: model.happiness, people: model.people,
                              reduceMotion: model.reduceMotion)
             }
+            .hiddenUnder(covered)
         }
+    }
+}
+
+extension View {
+    /// Gone from sight, touch and VoiceOver while `hidden` (the HUD under a card or a screen), keeping its place.
+    func hiddenUnder(_ hidden: Bool) -> some View {
+        opacity(hidden ? 0 : 1)
+            .allowsHitTesting(!hidden)
+            .accessibilityHidden(hidden)
     }
 }
 
@@ -284,7 +303,7 @@ struct ActionArea: View {
                 .padding(.trailing, 20)
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
-            ActionButton(glyph: ActionGlyph(target), label: label) {
+            ActionButton(glyph: ActionGlyph(target), label: label, hold: model.targetHold) {
                 model.performAction()
             }
         }
@@ -293,7 +312,13 @@ struct ActionArea: View {
     private var captionText: String {
         switch target {
         case .build(let plot):
-            return Texts.slotName(Realm.plots[plot].slot)
+            // The action and the plot (M2b review: the plot alone did not tell a build from an upgrade).
+            let name = Texts.slotName(Realm.plots[plot].slot)
+            switch model.targetVerb {
+            case .upgrade?: return String(localized: "Upgrade: \(name)")
+            case .rebuild?: return String(localized: "Rebuild: \(name)")
+            default: return String(localized: "Build: \(name)")
+            }
         case .recruit:
             return String(localized: "Recruit")
         case .throne:
@@ -305,11 +330,18 @@ struct ActionArea: View {
         }
     }
 
+    private var shortOfGold: Bool {
+        if case .missingGold? = model.targetHold { return true }
+        return false
+    }
+
     private var caption: some View {
         HStack(spacing: 5) {
             Text(verbatim: captionText)
             if case .patch = target {
-                GoldAmount(amount: Balance.standard.patchCost, size: 12, color: Theme.parchment)
+                // The price turns red while the treasury cannot pay it (M2b review).
+                GoldAmount(amount: Balance.standard.patchCost, size: 12,
+                           color: shortOfGold ? Color(red: 1.0, green: 0.5, blue: 0.38) : Theme.parchment)
             }
         }
         .font(Theme.serif(.footnote, .semibold))
@@ -323,20 +355,30 @@ struct ActionArea: View {
     }
 
     private var label: Text {
-        switch target {
-        case .build(let plot):
+        switch (target, model.targetHold) {
+        case (.build(let plot), _):
             return Text("Build: \(Texts.plotTitle(slot: Realm.plots[plot].slot, line: Realm.plots[plot].line))")
+        case (_, .missingGold?):
+            return Text("Patch the wall: not enough gold")
+        case (_, .cooldown?):
+            return Text("Patch the wall: ready again soon")
+        case (_, .busy?):
+            return Text("Lighting the brazier")
         default:
             return ActionGlyph(target).label
         }
     }
 }
 
-/// The context action button (DESIGN.md "Controls"): an 88 pt circle inside a 128 pt touch area.
+/// The context action button (DESIGN.md "Controls"): an 88 pt circle inside a 128 pt touch area. Greyed while what it
+/// offers cannot be done now (`KingTargetHold`), with a ring that fills back through the Patch cooldown.
 struct ActionButton: View {
     let glyph: ActionGlyph
     let label: Text
+    var hold: KingTargetHold? = nil
     let perform: @MainActor () -> Void
+
+    private static let gold = Color(red: 0.91, green: 0.72, blue: 0.29)
 
     var body: some View {
         Button(action: perform) {
@@ -344,8 +386,17 @@ struct ActionButton: View {
                 Circle()
                     .fill(Color(red: 0.09, green: 0.07, blue: 0.14).opacity(0.8))
                 Circle()
-                    .strokeBorder(Color(red: 0.91, green: 0.72, blue: 0.29), lineWidth: 3)
+                    .strokeBorder(hold == nil ? ActionButton.gold : Color(white: 0.5), lineWidth: 3)
+                if case .cooldown(let share)? = hold {
+                    Circle()
+                        .trim(from: 0, to: CGFloat(1 - share))
+                        .stroke(ActionButton.gold, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                        .padding(1.5)
+                }
                 icon
+                    .opacity(hold == nil ? 1 : 0.45)
+                    .saturation(hold == nil ? 1 : 0.2)
             }
             .frame(width: 88, height: 88)
             .frame(width: 128, height: 128)

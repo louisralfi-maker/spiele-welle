@@ -114,16 +114,22 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertTrue(kinds.contains(.torch))
         XCTAssertTrue(kinds.contains(.lantern), "the king's lantern")
         XCTAssertTrue(desc.lights.contains { $0.kind == .hearth && $0.plane == .mid }, "the warden statue's bowl fire")
-        let eyes = desc.actors.filter { $0.sprite == .eyeGlints }
-        XCTAssertEqual(eyes.count, 6, "six creatures wait at the edge of the light")
-        XCTAssertTrue(eyes.allSatisfy { $0.isEmissive && !$0.isLit })
+        // Six creatures wait at the edge of the light, drawn by the game's rule (M2b review): an opaque dark body
+        // with its glow strip over it and a moonlight rim, no eye dots.
+        XCTAssertTrue(desc.actors.allSatisfy { $0.sprite != .eyeGlints }, "no eye dots")
         let bodies = desc.actors.filter { $0.sprite == .sootling || $0.sprite == .shadehound }
-        XCTAssertTrue(bodies.isEmpty, "unlit creatures show only their eyes at night")
+        XCTAssertEqual(bodies.count, 6)
+        XCTAssertTrue(bodies.allSatisfy { !$0.isLit && $0.tint.w == 1 && $0.tint.x < 0.4 && $0.moonRim > 0.5 },
+                      "unlit at night: an opaque body at a very low value with a moonlight rim")
+        let glows = desc.actors.filter { $0.sprite == .sootlingGlow || $0.sprite == .shadehoundGlow }
+        XCTAssertEqual(glows.count, 6, "each with its glow strip")
+        XCTAssertTrue(glows.allSatisfy(\.isEmissive))
         let archers = desc.actors.filter { $0.sprite == .archer }
         XCTAssertEqual(archers.count, 3)
         XCTAssertEqual(archers.filter(\.flipped).count, 2, "one archer of the three turned the other way")
-        let king = desc.actors.last
+        let king = desc.actors.last { $0.sprite == .king }
         XCTAssertEqual(king?.sprite, .king)
+        XCTAssertEqual(desc.actors.last?.sprite, .kingGlow, "his lantern glass burns at night, drawn last")
         XCTAssertEqual(king?.rect.z, Float(16 * 6), "texels stay s x s blocks")
         XCTAssertEqual(king?.rect.w, Float(30 * 6))
         if let king {
@@ -179,7 +185,8 @@ final class FrameBuilderTests: XCTestCase {
         XCTAssertTrue(townKinds.contains(.lantern))
         XCTAssertTrue(town.layer(.world).sprites.contains { $0.sprite == .well })
         XCTAssertTrue(town.emissives.contains { $0.kind == .glass && $0.sprite == .house }, "house windows glow")
-        XCTAssertEqual(town.actors.filter { $0.sprite == .citizen }.count, 2)
+        XCTAssertEqual(town.actors.filter { $0.sprite == .citizen || $0.sprite == .citizenB }.count, 2)
+        XCTAssertEqual(town.actors.filter { $0.sprite == .citizenB }.count, 1, "two different townsfolk at the well")
         XCTAssertTrue(town.layer(.mid).sprites.contains { $0.sprite == .keepFar }, "the keep seen from the town")
         XCTAssertTrue(town.layer(.mid).sprites.contains { $0.sprite == .windmill })
         var castleWindows = 0

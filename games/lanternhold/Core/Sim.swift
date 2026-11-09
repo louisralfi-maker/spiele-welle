@@ -96,6 +96,16 @@ enum Sim {
             unlocked.append("warTax")
         }
         let fell = stats.defeatHour != nil
+        // Growth the houses' room cut (the report teaches the player to build houses).
+        var wanted = 0
+        if people.left == 0 {
+            if people.happinessAfter >= balance.fastGrowthFrom {
+                wanted = 2
+            } else if people.happinessAfter >= balance.growthFrom {
+                wanted = 1
+            }
+        }
+        let housesFull = people.grown < wanted && s.citizens >= s.houseRoom(balance)
         if !fell { s.records.bestNight = max(s.records.bestNight, stats.night) }
         s.records.creaturesStopped += stats.killed
         if stats.fallen.isEmpty { s.records.nightsWithoutLosses += 1 }
@@ -106,7 +116,8 @@ enum Sim {
                                 happinessAfter: people.happinessAfter, happinessChanges: people.changes,
                                 citizensBefore: citizensBefore, citizensAfter: s.citizens, grown: people.grown,
                                 left: people.left, volunteer: people.volunteer, unlocked: unlocked, goldAfter: s.gold,
-                                realmFell: fell ? true : nil, kingSlain: stats.kingSlain && !fell ? true : nil)
+                                realmFell: fell ? true : nil, kingSlain: stats.kingSlain && !fell ? true : nil,
+                                housesFull: housesFull ? true : nil)
         s.lastReport = report
         events.append(.dawn(day: s.day))
     }

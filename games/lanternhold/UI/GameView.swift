@@ -9,12 +9,11 @@ import SwiftUI
 /// back paused.
 @MainActor
 struct GameView: View {
-    @State private var model: GameModel
+    /// Made once by `RootView` (M2b review: built in this view's init, every re-init made a model SwiftUI then threw
+    /// away, each one reading the save, deleting it with `-GWReset` and playing `-GWNight` headless).
+    let model: GameModel
     @Environment(\.scenePhase) private var scenePhase
-
-    init(args: DebugArgs, kind: GameModel.SceneKind) {
-        _model = State(initialValue: GameModel(args: args, kind: kind))
-    }
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
 
     var body: some View {
         ZStack {
@@ -39,6 +38,9 @@ struct GameView: View {
                 model.saveNow()
                 model.pauseForBackground()
             }
+        }
+        .onChange(of: systemReduceMotion) { _, on in
+            model.setSystemReduceMotion(on)
         }
     }
 }
@@ -111,6 +113,11 @@ final class WorldSceneCoordinator: NSObject, MTKViewDelegate {
     private var stableFrames = 0
     private var lastSize = CGSize.zero
     private var reportedReady = false
+    /// The frame rate the thermal state allows (60, or 30 when critical).
+    private var thermalRate = 60
+    /// Under the pause sheet, the dawn report and the defeat card the world is stopped and dimmed: 20 fps (DESIGN.md
+    /// "Tech plan": `isPaused` in menus; M2b review). The cards over a plot keep 60.
+    static let screenRate = 20
 
     init(model: GameModel) {
         self.model = model
@@ -146,7 +153,12 @@ final class WorldSceneCoordinator: NSObject, MTKViewDelegate {
         stableFrames += 1
         model.noteRendered(renderer.stats, interval: interval, frame: frame)
         if frames % 60 == 0 {
-            applyThermalState(to: view)
+            applyThermalState()
+        }
+        let screen = model.overlay.map { !$0.isCard } ?? false
+        let rate = min(thermalRate, screen ? WorldSceneCoordinator.screenRate : 60)
+        if view.preferredFramesPerSecond != rate {
+            view.preferredFramesPerSecond = rate
         }
         let ready = stableFrames >= WorldSceneCoordinator.readyFrames
         if ready != reportedReady || frames % 10 == 0 || model.showsDebugValues {
@@ -163,12 +175,9 @@ final class WorldSceneCoordinator: NSObject, MTKViewDelegate {
     }
 
     /// DESIGN.md "Tech plan": `.serious` drops bloom and one fog plane, `.critical` runs at 30 fps.
-    private func applyThermalState(to view: MTKView) {
+    private func applyThermalState() {
         let state = ProcessInfo.processInfo.thermalState
         model.reducedEffects = state == .serious || state == .critical
-        let rate = state == .critical ? 30 : 60
-        if view.preferredFramesPerSecond != rate {
-            view.preferredFramesPerSecond = rate
-        }
+        thermalRate = state == .critical ? 30 : 60
     }
 }

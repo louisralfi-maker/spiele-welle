@@ -46,6 +46,8 @@ struct ReportCard: Sendable, Equatable {
     var unlocked: [Unlock]
     var goldIn: Int
     var goldAfter: Int
+    /// The houses were full: more citizens would have been born (the card says to build a house).
+    var housesFull: Bool = false
 
     var happinessDelta: Int { happinessAfter - happinessBefore }
     var isFinale: Bool { night == ReportCard.finaleNight }
@@ -81,20 +83,21 @@ struct ReportCard: Sendable, Equatable {
                           reasons: report.happinessChanges.filter { $0.delta != 0 },
                           citizensBefore: report.citizensBefore, citizensAfter: report.citizensAfter,
                           grown: report.grown, left: report.left, volunteer: report.volunteer, unlocked: unlocks,
-                          goldIn: report.goldIn, goldAfter: report.goldAfter)
+                          goldIn: report.goldIn, goldAfter: report.goldAfter, housesFull: report.housesFull == true)
     }
 
     // MARK: - Samples (`-GWScreen report` and `-GWScreen finale`)
 
-    /// A night with everything on the card: a wall lost, an archer fallen, a citizen born, the middle line opening.
+    /// A night with everything on the card: a wall lost, an archer fallen, a citizen born, the outer line and the war
+    /// tax opening on day 8 (M2b review: on night 2 the middle line fell the day before it opened).
     static func sampleReport() -> DawnReport {
         let taxes = TaxBreakdown(taxpayers: 11, taxPart: 54, fields: 10, market: 0, unrest: false)
         let changes = [HappinessChange(reason: .tavern, delta: 1), HappinessChange(reason: .fallen, delta: -3)]
-        return DawnReport(day: 3, night: 2, creaturesStopped: 34, creaturesDissolved: 2, wallsLost: ["l2.wall"],
+        return DawnReport(day: 8, night: 7, creaturesStopped: 34, creaturesDissolved: 2, wallsLost: ["l2.wall"],
                           fallen: [FallenSoldier(name: "Edda", kind: .archer)], hearthLowest: 100, gloomReceded: false,
                           taxes: taxes, happinessBefore: 64, happinessAfter: 62, happinessChanges: changes,
                           citizensBefore: 15, citizensAfter: 16, grown: 1, left: 0, volunteer: false,
-                          unlocked: ["line2"], goldAfter: 93, realmFell: nil, kingSlain: nil)
+                          unlocked: ["line3", "warTax"], goldAfter: 93, realmFell: nil, kingSlain: nil)
     }
 
     /// The finale's dawn: the Lightless King slain in the Great Beacon's light, the Gloom receded, nobody fallen.

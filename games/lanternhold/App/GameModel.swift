@@ -76,7 +76,9 @@ final class GameModel {
 
     let args: DebugArgs
     let kind: SceneKind
-    let reduceMotion: Bool
+    /// Reduce Motion: `-GWReduceMotion` or the system setting, followed while the game runs (M2b review: read once at
+    /// launch, turning it on kept the shake, the camera lag and the card transitions until the next launch).
+    private(set) var reduceMotion: Bool
     /// The probe's scene, and in the game the scene the filter starts from.
     @ObservationIgnored private(set) var scene: PlaceholderScene
     /// The probe's day clock; in the game only its running seconds count (flicker, fire, particles, banners).
@@ -108,6 +110,9 @@ final class GameModel {
     @ObservationIgnored var feedback: any FeedbackHub = SilentFeedback()
     /// Creature bodies in the last drawn frame (the scene value's `seen:`, so UI tests catch the fight in view).
     @ObservationIgnored private var seenCreatures = 0
+    /// The game's view of the scene, kept while the beacon's site stays as it is (M2b review: filtered every frame,
+    /// the whole prop list with its emitters, masks and lights was copied 60 times a second).
+    @ObservationIgnored private var filteredScene: (built: Bool, scene: PlaceholderScene)?
     /// Where first light's front stands on screen (0 ... 1), nil when it is not on screen (the scene value's `dawn:`).
     @ObservationIgnored private var dawnFront: Double?
 
@@ -117,6 +122,10 @@ final class GameModel {
     private(set) var action: BrazierAction?
     /// The game's action button: what is in front of the king (nil: the button hides).
     private(set) var target: KingTarget? = nil
+    /// Why the button cannot act now (drawn greyed, with the missing gold or the cooldown), nil when it can.
+    private(set) var targetHold: KingTargetHold? = nil
+    /// At a plot: whether the hammer builds, upgrades or rebuilds (its caption says so).
+    private(set) var targetVerb: KingTargets.BuildVerb? = nil
     private(set) var debugKingX = 0
     private(set) var debugCameraX = 0.0
     private(set) var statsText = ""
@@ -141,7 +150,9 @@ final class GameModel {
     /// Bumped by every action of the player, so the open card reads the realm again.
     private(set) var revision = 0
 
-    init(args: DebugArgs, kind: SceneKind) {
+    /// `store` is where the game's save lives (the app's own by default; the tests pass a temporary one, so they never
+    /// touch the simulator app's real save).
+    init(args: DebugArgs, kind: SceneKind, store saveStore: SaveStore? = SaveStore.standard()) {
         self.args = args
         self.kind = kind
         reduceMotion = args.reduceMotion || UIAccessibility.isReduceMotionEnabled
@@ -150,7 +161,7 @@ final class GameModel {
         var dayClock: DayClock
         var loadedSettings = SaveSettings()
         if kind == .world {
-            let store = SaveStore.standard()
+            let store = saveStore
             if args.reset { store?.reset() }
             var saved: GameState?
             switch store?.read() {
@@ -623,6 +634,12 @@ final class GameModel {
         setOverlay(nil)
     }
 
+    /// The system's Reduce Motion changed (GameView follows `accessibilityReduceMotion`).
+    func setSystemReduceMotion(_ on: Bool) {
+        let value = args.reduceMotion || on
+        if value != reduceMotion { reduceMotion = value }
+    }
+
     func setSound(_ on: Bool) {
         settings.sound = on
         feedback.soundOn = on
@@ -641,7 +658,9 @@ final class GameModel {
         let seed = SeededRandom.mix(game.state.seed &+ 0x9E37_79B9_7F4A_7C15 &* UInt64(max(1, game.state.day)))
         game.restart(seed: seed)
         driver = game
-        adPacing.lastSecondChanceNight = 0
+        // The new realm starts with fresh ad pacing (M2b review: only the second chance's night was reset, so the old
+        // realm's double-taxes and interstitial days would have held the new one back).
+        adPacing = AdPacing()
         restartView(game.state)
         writeSave()
         setOverlay(nil)
@@ -704,7 +723,17 @@ final class GameModel {
             if sway != 0 {
                 view.jump(toFocus: view.focusX + sway)
             }
-            let filtered = SceneFilter.gameScene(scene, state: state)
+            let built = SceneFilter.beaconBuilt(state)
+            var filtered: PlaceholderScene
+            if let cached = filteredScene, cached.built == built {
+                filtered = cached.scene
+                filtered.king = KingState(x: state.king.x, facing: state.king.facing, velocity: state.king.velocity)
+                filtered.bankRestingEdge = state.bankEdge
+                filtered.bankNightEdge = state.bankEdge
+            } else {
+                filtered = SceneFilter.gameScene(scene, state: state)
+                filteredScene = (built: built, scene: filtered)
+            }
             var layer = EntityFrames.layer(state: state, balance: game.balance, scene: filtered, camera: view,
                                            pixelScale: pixelScale, options: options, animTime: animationTime,
                                            effects: effects)
@@ -717,9 +746,12 @@ final class GameModel {
             frameClock.advance(by: clock.elapsed)
             frame = FrameBuilder.build(scene: filtered, clock: frameClock, camera: view, pixelScale: pixelScale,
                                        options: options, entities: layer)
-            seenCreatures = frame.actors.filter { actor in
-                !actor.isEmissive && actor.sprite != .king && EntityFrames.glowStrip(actor.sprite) != nil
-            }.count
+            var seen = 0
+            for actor in frame.actors where !actor.isEmissive && actor.sprite != .king
+                && EntityFrames.glowStrip(actor.sprite) != nil {
+                seen += 1
+            }
+            seenCreatures = seen
         }
         renderedFrames += 1
         if renderedFrames % 6 == 1 {
@@ -836,10 +868,16 @@ final class GameModel {
         switch kind {
         case .world:
             var next: KingTarget?
+            var hold: KingTargetHold?
+            var verb: KingTargets.BuildVerb?
             if let game = driver, overlay == nil, game.bot == nil {
                 next = KingTargets.target(game.state, balance: game.balance)
+                hold = next.flatMap { KingTargets.hold($0, state: game.state, balance: game.balance) }
+                if case .build(let plot)? = next { verb = KingTargets.verb(game.state, plot: plot) }
             }
             if next != target { target = next }
+            if hold != targetHold { targetHold = hold }
+            if verb != targetVerb { targetVerb = verb }
         case .probe:
             var next: BrazierAction?
             var best = GameModel.actionReach

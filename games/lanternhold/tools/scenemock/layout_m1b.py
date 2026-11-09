@@ -337,7 +337,7 @@ ACTORS = [
     # on the stone wall's walk (its crenel floor, dy 42; M2b review: at 52 they stood on the merlons)
     *[("archer", x, 42, False, fl) for x, fl in ((945, True), (958, False), (971, True))],
     *[("archer", F + cx, WALKWAY_Y, False, fl) for cx, fl in ((66, True), (121, True), (173, False))],
-    ("citizen", 3002, 0, False, False), ("citizen", 3044, 0, False, True),
+    ("citizen", 3002, 0, False, False), ("citizenB", 3044, 0, False, True),
 ]
 
 
