@@ -101,7 +101,7 @@
       ],
       "text": "petition.plough_harvest.text",
       "hint": "petition.plough_harvest.hint",
-      "counsel": 0,
+      "counsel": 1,
       "choices": [
         {
           "label": "petition.plough_harvest.c1",
@@ -783,7 +783,7 @@
       ],
       "text": "petition.thief_bread.text",
       "hint": "petition.thief_bread.hint",
-      "counsel": 1,
+      "counsel": 2,
       "choices": [
         {
           "label": "petition.thief_bread.c1",
@@ -827,7 +827,7 @@
       ],
       "text": "petition.noble_hunt.text",
       "hint": "petition.noble_hunt.hint",
-      "counsel": 0,
+      "counsel": 1,
       "choices": [
         {
           "label": "petition.noble_hunt.c1",
@@ -949,7 +949,7 @@
       "kind": "random",
       "chapter": 1,
       "days": [
-        14,
+        21,
         999
       ],
       "weight": 2,

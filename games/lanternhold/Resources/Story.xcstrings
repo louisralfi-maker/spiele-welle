@@ -3176,7 +3176,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Eine Glocke ruft zum Gebet. Pfeile ersparen es. Trotzdem hat Hesper die Kerzen in der Hand. Behaltet die Glocke."
+            "value" : "Eine Glocke ruft zum Gebet. Pfeile machen es überflüssig. Trotzdem hat Hesper die Kerzen in der Hand. Behaltet die Glocke."
           }
         },
         "en" : {
@@ -4238,7 +4238,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ein Stampfen, und weg. Die Wache sagt, auf dem Weg hinaus hätten sich ihre Stiefel aufgeschnürt."
+            "value" : "Ein Stampfen, und weg. Hinterher sind der Wache am Tor rätselhafterweise beide Stiefel aufgeschnürt."
           }
         },
         "en" : {
@@ -6110,7 +6110,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dreißig Gold für ein Lied bei Sonnenaufgang. Die Flamme brannte vor der Schale und wird es danach tun. Behaltet das Gold."
+            "value" : "Dreißig Gold für ein Lied bei Sonnenaufgang. Die Flamme brannte vor der Schale und wird es auch danach tun. Behaltet das Gold."
           }
         },
         "en" : {
@@ -7730,7 +7730,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Reliquie kommt in die Kapelle, und Pilger kommen aus dem Nachbartal. Hesper nennt es einen Hühnerknochen und zündet trotzdem eine Kerze an."
+            "value" : "Die Reliquie kommt in die Kapelle, und Pilger kommen aus dem Nachbartal. Hesper nennt sie einen Hühnerknochen und zündet trotzdem eine Kerze an."
           }
         },
         "en" : {
@@ -7748,7 +7748,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hesper wirft einen Blick darauf: Huhn. Marek, unerschüttert, bietet es für fünf Gold als Suppenknochen an. Tamsin kauft."
+            "value" : "Hesper wirft einen Blick darauf: Huhn. Marek, unerschüttert, bietet ihn für fünf Gold als Suppenknochen an. Tamsin kauft."
           }
         },
         "en" : {
@@ -8324,7 +8324,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mittags brechen die Wachen das Schloss auf. Die Mütter jubeln, und der Müller schreibt einen langen Brief an jemand Wichtiges."
+            "value" : "Mittags brechen die Wachen das Schloss auf. Die Mütter jubeln, und der Müller schreibt einen langen Brief an einen sehr wichtigen Herrn."
           }
         },
         "en" : {
@@ -8432,13 +8432,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vierzig Gold sind vierzig Gold, und Kaninchen sind bloß Kaninchen. Gewährt es und richtet den Bauern mein Bedauern aus."
+            "value" : "Vierzig Gold jetzt und bis zum Frühjahr ein Tal voller Wilderer und Groll. Sogar ich ließe das Wild allen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Forty gold is forty gold, and rabbits are only rabbits. Grant it, and give the farmers my regrets."
+            "value" : "Forty gold now, and a valley of poachers and grudges by spring. Even I would keep the game common."
           }
         }
       }
@@ -8594,7 +8594,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Jagd findet nichts außer böses Blut. Drei Schreiber kündigen aus Protest. Das Gold bleibt verschwunden."
+            "value" : "Die Jagd bringt nichts als böses Blut. Drei Schreiber kündigen aus Protest. Das Gold bleibt verschwunden."
           }
         },
         "en" : {
@@ -9350,13 +9350,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Geschenke an die Krone sind so selten wie ehrliche Händler. Nehmt es, bevor er es sich anders überlegt."
+            "value" : "Eine halbe Ernte füllt die Schatzkammer für einen Tag. Ein Fest füllt die Stadt für einen Monat. Das sehe sogar ich. Feiert."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gifts to the crown are as rare as honest merchants. Take it before he changes his mind."
+            "value" : "Half a harvest fills the treasury for a day. A feast fills the town for a month. Even I can see it. Feast."
           }
         }
       }
@@ -11438,13 +11438,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ein Dieb, der backen lernt, wird Steuerzahler. Ein Dieb am Pranger wird bloß kalt. Lasst ihn arbeiten."
+            "value" : "Drei Laibe Gnade für fünf Gold. Billiger kann man sich nicht beliebt machen. Bezahlt das Brot."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A thief who learns to bake becomes a taxpayer. A thief in the stocks just becomes cold. Put him to work."
+            "value" : "Three loaves of mercy for five gold. I have never seen a cheaper way to be loved. Pay for the bread."
           }
         }
       }
@@ -11906,13 +11906,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ein müder Schütze verfehlt. Ein müder Schütze, der lehrt, macht zehn, die nicht verfehlen. Macht ihn zum Ausbilder."
+            "value" : "Jeder Schütze sagt, seine Augen ließen nach. Die meisten sagen es vor einer langen Nacht. Noch eine Saison."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A tired archer misses. A tired archer who teaches makes ten who do not. Make him drillmaster."
+            "value" : "Every archer says his eyes are going. Most of them say it before a long night. One more season."
           }
         }
       }
