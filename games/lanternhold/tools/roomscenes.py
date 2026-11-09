@@ -691,7 +691,224 @@ def chapel_interior():
         pass
     return c
 
+# --------------------------------------------------------------------------------------------- kitchenInterior
+
+def kitchen_window(c, x0, x1, top, bottom, seed):
+    """A window seen from inside: a deep plaster reveal, a wooden frame with a cross bar, panes of daylight, a sill."""
+    c.rect(x0, top, x1, bottom, "ink")
+    c.rect(x0 + 1, top + 1, x1 - 1, bottom - 1, "plasterDim")
+    c.rect(x0 + 2, top + 2, x1 - 2, bottom - 1, "woodDark")
+    gx0, gx1, gy0, gy1 = x0 + 3, x1 - 3, top + 3, bottom - 2
+    for y in range(gy0, gy1 + 1):
+        for x in range(gx0, gx1 + 1):
+            c.put(x, y, "foam" if (x - gx0) + (gy1 - y) < 3 else "daySky")
+    mx = (gx0 + gx1) // 2
+    my = (gy0 + gy1) // 2
+    c.vline(mx, gy0, gy1, "wood")
+    c.hline(gx0, gx1, my, "wood")
+    c.hline(x0 - 1, x1 + 1, bottom, "woodLight")
+    c.hline(x0 - 1, x1 + 1, bottom + 1, "wood")
+    c.hline(x0 - 1, x1 + 1, bottom + 2, "ink")
+
+
+def kitchen_interior():
+    front = art("kitchen")
+    W, H = front.w, front.h
+    c = Canvas(W, H, front.pal)
+    c.clip = alpha_set(front)
+    st = stamps("kitchen")
+    full = sorted(c.clip)
+    for (x, y) in full:
+        c.put(x, y, "woodDark")
+    # the chimney stack is outside: the same as the front's
+    c.blit(front, 70, 0, box=(70, 0, 104, 8))
+
+    # --- the roof open to the rafters: boards, rafters, the ridge beam, a purlin, the hip rafters, the tie beam
+    for (x, y) in full:
+        if 9 <= y <= 35 and not (70 <= x <= 104 and y <= 8):
+            c.put(x, y, "woodDark" if rnd(51, x, y) > 0.06 else "soilDark")
+    for x in range(10, 112, 6):
+        for y in range(12, 34):
+            if (x, y) in c.clip:
+                c.put(x, y, "wood")
+                c.put(x + 1, y, "soilDark")
+    beam(c, 20, 100, 12, h=3, seed=52)
+    beam(c, 6, 114, 22, h=3, seed=53)
+    for y in range(9, 36):
+        span = [x for x in range(W) if (x, y) in c.clip]
+        if span:
+            a, b = min(span), max(span)
+            c.put(a + 1, y, "woodLight")
+            c.put(b - 1, y, "wood")
+    beam(c, 0, W - 1, 33, h=4, seed=54, top="woodLight", body="wood", bottom="woodDark")
+    # the flue rising from the hearth into the stack, its stones smoked dark
+    c.poly([(96, 36), (108, 36), (97, 8), (80, 8)], "stoneMid")
+    for (x, y) in full:
+        if c.get(x, y) == "stoneMid" and 8 <= y <= 36:
+            if y % 4 == 0 or (x + (y // 4) * 3) % 7 == 0:
+                c.put(x, y, "stoneDark")
+            elif rnd(55, x, y) < 0.2:
+                c.put(x, y, "stone")
+    c.line(80, 8, 96, 36, "ink")
+    c.line(97, 8, 108, 36, "ink")
+    beam(c, 0, W - 1, 33, h=4, seed=54)
+
+    # --- the upper wall: lime plaster between the timbers
+    plaster(c, 0, 37, W - 1, 55, seed=56)
+    for (x0, w) in ((5, 4), (57, 3), (111, 4)):
+        post(c, x0, 37, 56, w=w, seed=x0)
+    c.line(9, 38, 20, 55, "wood")
+    c.line(10, 38, 21, 55, "woodDark")
+    c.line(110, 38, 99, 55, "wood")
+    beam(c, 0, W - 1, 55, h=3, seed=57)
+    # the two windows (at the front's windows) with herb pots on their sills
+    kitchen_window(c, 26, 40, 38, 49, seed=58)
+    kitchen_window(c, 80, 93, 38, 49, seed=59)
+    sp = st["sillPot"]
+    c.stamp(sp, 35, 49 - sp.h + 1)
+    c.stamp(sp, 82, 49 - sp.h + 1)
+    # sausages smoking from the purlin by the flue
+    for (name, x) in (("sausages", 74), ("sausages", 84)):
+        c.stamp(st[name], x, 25)
+    # herbs, garlic and a ham from the tie beam
+    for (name, x) in (("herbs", 11), ("garlic", 17), ("herbsB", 21), ("ham", 45), ("herbs", 52), ("garlic", 64),
+                      ("herbsB", 69)):
+        c.stamp(st[name], x, 37)
+    # the copper pots on their rail
+    c.hline(43, 77, 41, "stoneDark")
+    c.put(43, 40, "ink")
+    c.put(77, 40, "ink")
+    for (name, x) in (("potS", 45), ("pan", 52), ("potL", 56), ("potS", 64), ("potL", 69)):
+        c.stamp(st[name], x, 41)
+    # the shelf with plates, crocks and a jug
+    c.hline(42, 78, 53, "woodLight")
+    c.hline(42, 78, 54, "wood")
+    for bx in (45, 75):
+        c.put(bx, 55, "woodDark")
+    for (name, x) in (("plate", 43), ("plate", 46), ("crock", 51), ("jug", 55), ("crock", 61), ("plate", 66),
+                      ("plate", 69), ("crock", 74)):
+        stp = st[name]
+        c.stamp(stp, x, 52 - stp.h + 1)
+
+    # --- the lower walls: whitewash too, greyer toward a stone plinth
+    plaster(c, 0, 58, W - 1, 71, seed=60, speck=0.05)
+    for x in range(W):
+        for y in range(66, 72):
+            if rnd(64, x, y) < (y - 64) * 0.07:
+                c.put(x, y, "plasterDim")
+    ashlar(c, 0, 72, W - 1, 75, seed=65, course=(4,), width=(6, 11), faces=("stone",) * 5 + ("stoneMid", "stoneLight"))
+    c.hline(0, W - 1, 71, "stoneLight")
+    # --- the floor
+    flagstones(c, 0, 76, W - 1, 79, seed=61, grow=(1, 2))
+
+    # --- the oven-hearth under the flue: stone jambs, an oak mantel beam with its shelf, a stone hood narrowing into
+    # the flue, a sooty fireback, the crane with the cauldron over the fire, the logs on their irons
+    hx0, hx1 = 94, 112
+    hood = [(97 - (y - 38) // 1 // 4 * 0, y) for y in range(38, 52)]
+    for y in range(38, 52):
+        inset = (52 - y) // 4
+        a, b = hx0 + 1 + inset, hx1 - 1 - inset
+        c.put(a - 1, y, "ink")
+        c.put(b + 1, y, "ink")
+        for x in range(a, b + 1):
+            c.put(x, y, "stone")
+        c.put(a, y, "stoneLight")
+        c.put(b, y, "stoneMid")
+        if (y - 38) % 4 == 3:
+            c.hline(a, b, y, "stoneMid")
+        elif (y - 38) % 4 == 0:
+            for x in range(a + 1, b, 6):
+                c.put(x + ((y // 4) % 2) * 3, y, "stoneMid")
+    # the mantel beam and its shelf with a crock and a candle stub
+    c.rect(hx0 - 1, 51, hx1 + 1, 54, "ink")
+    beam(c, hx0, hx1, 52, h=2, seed=63)
+    c.hline(hx0, hx1, 54, "woodDark")
+    stp = st["crock"]
+    c.stamp(stp, 97, 50 - stp.h + 1)
+    c.stamp(st["jug"], 106, 50 - st["jug"].h + 1)
+    # the jambs (2 px each: the opening between them takes the 16 px hearth fire)
+    for (x0, x1) in ((hx0, hx0 + 1), (hx1 - 1, hx1)):
+        c.rect(x0 - (1 if x0 == hx0 else 0), 55, x1 + (1 if x1 == hx1 else 0), 77, "ink")
+        for y in range(55, 77):
+            for x in range(x0, x1 + 1):
+                col = "stoneLight" if x == x0 else "stoneMid"
+                if (y - 55) % 5 == 4:
+                    col = "stoneMid" if x == x0 else "stoneDark"
+                c.put(x, y, col)
+    # the fireback
+    fb0, fb1 = hx0 + 2, hx1 - 2
+    for y in range(55, 78):
+        for x in range(fb0, fb1 + 1):
+            if y >= 68:
+                col = "tile" if ((x + (y // 2) * 2) % 4) else "woodDark"
+                if y % 2 == 1:
+                    col = "woodDark"
+            else:
+                col = "soilDark" if rnd(62, x, y) < 0.55 else "night1"
+            c.put(x, y, col)
+    # the crane and the cauldron
+    c.vline(fb0, 56, 66, "stoneDark")
+    c.hline(fb0, fb0 + 7, 57, "stoneDark")
+    c.put(fb0 + 1, 58, "stoneDark")
+    c.vline(fb0 + 7, 58, 61, "ink")
+    cauldron = st["cauldron"]
+    c.stamp(cauldron, fb0 + 3, 62)
+    # the logs on their irons
+    c.rect(fb0, 76, fb1, 77, "stoneDark")
+    c.hline(fb0 + 1, fb1 - 1, 75, "woodDark")
+    c.hline(fb0 + 2, fb1 - 2, 74, "wood")
+    c.put(fb0 + 3, 74, "woodLight")
+    c.put(fb1 - 3, 74, "woodLight")
+    fire_at(c, "the hearth fire", "hearthFire", 95, 74, 16)
+    light_at(c, "the hearth fire", "hearth", 103, 70, 62)
+    # the peel leaning on the hearth, a basket of loaves at its foot
+    c.stamp(st["peel"], 91, 77 - st["peel"].h + 1)
+
+    # --- the table with the day's bread
+    tx0, tx1, ty = 20, 56, 66
+    c.rect(tx0, ty - 1, tx1, ty + 1, "ink")
+    c.hline(tx0 + 1, tx1 - 1, ty, "woodLight")
+    c.hline(tx0 + 1, tx1 - 1, ty + 1, "wood")
+    c.hline(tx0, tx1, ty + 2, "ink")
+    for lx in (tx0 + 2, tx1 - 4):
+        post(c, lx, ty + 3, 78, w=3, seed=lx)
+        c.hline(lx - 1, lx + 3, 79, "ink")
+    c.hline(tx0 + 5, tx1 - 5, 74, "woodDark")
+    for (name, x) in (("loaf", 22), ("loaf", 27), ("cheese", 34), ("board", 40), ("apples", 49)):
+        stp = st[name]
+        c.stamp(stp, x, ty - stp.h)
+    tc = st["tableCandle"]
+    c.stamp(tc, 46, ty - tc.h)
+    fire_at(c, "table candle", "candleFlame", 46, ty - tc.h - 1, 2)
+    light_at(c, "table candle", "candle", 47, ty - tc.h, 14)
+
+    # --- barrels and sacks, the broom, the cat on its stool by the fire, the mouse hole
+    b = st["barrel"]
+    c.stamp(b, 8, 79 - b.h + 1)
+    c.stamp(st["sack"], 58, 79 - st["sack"].h + 1)
+    c.stamp(st["sack"], 65, 79 - st["sack"].h + 1, flip=True)
+    c.stamp(st["broom"], 73, 79 - st["broom"].h + 1)
+    stool = st["stool"]
+    c.stamp(stool, 82, 79 - stool.h + 1)
+    cat = st["cat"]
+    c.stamp(cat, 80, 79 - stool.h - cat.h + 1)
+    c.stamp(st["mouseHole"], 78, 74)
+    rack = st["rack"]
+    c.stamp(rack, 76, 58)
+    spot(c, "tamsin table", 38, 1)
+    spot(c, "tamsin hearth", 88, 1)
+
+    # --- the outline
+    edge = [(x, y) for (x, y) in full if y < H - 1 and y > 8 and any((x + dx, y + dy) not in c.clip
+            for (dx, dy) in ((1, 0), (-1, 0), (0, -1)))]
+    for (x, y) in edge:
+        c.put(x, y, "ink")
+    c.hline(0, W - 1, H - 1, "ink")
+    return c
+
+
 SPRITES = {
     "hallFront": hall_front,
     "chapelInterior": chapel_interior,
+    "kitchenInterior": kitchen_interior,
 }

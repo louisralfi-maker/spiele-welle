@@ -44,7 +44,7 @@ ALL="odile brannock pip hesper tamsin bram marek seren serLudo bard envoy herald
 portraitOdile portraitBrannock portraitPip portraitHesper portraitTamsin portraitBram portraitMarek portraitSeren
 portraitSerLudo portraitBard portraitEnvoy portraitHerald portraitKing
 portraitClothes portraitFace portraitBeard portraitHair portraitHat
-hallFront chapelInterior"
+hallFront chapelInterior kitchenInterior"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do
     cool
