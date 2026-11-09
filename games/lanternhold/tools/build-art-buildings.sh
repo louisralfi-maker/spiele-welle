@@ -31,14 +31,14 @@ build() { # name: one sprite
     palisade|ballista)
                    python3 -I -B $T grid $G/$1.txt $A/$1.png ;;
     stoneWall|bastion|rubbleWood|rubbleStone|scaffold|gateWood|gateIron|gateGreat|gateBroken|archerTower|watchtower|\
-    fireTower|catapult|stakePit)
+    fireTower|catapult|stakePit|beaconBase|beaconTower|greatBeacon|beaconFire)
                    python3 -I -B $T grid $GB/$1.txt $A/$1.png ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;
     esac
 }
 
 ALL="palisade stoneWall bastion rubbleWood rubbleStone scaffold gateWood gateIron gateGreat gateBroken archerTower
-watchtower fireTower ballista catapult stakePit"
+watchtower fireTower ballista catapult stakePit beaconBase beaconTower greatBeacon beaconFire"
 for name in ${@:-$ALL}; do
     cool
     build "$name"

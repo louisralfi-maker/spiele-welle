@@ -49,11 +49,20 @@ Recraft (`bash tools/recraft.sh`, `recraftv4_1`, 35 credits per image), budget 1
 | `catapult` | 32x24 x 3 | grid | a mangonel throwing left: the stop beam end-on on a braced upright, a torsion skein, a rear post and winch; rest (a firepot with a rag wick in the cup), wind (the arm hauled down by the taut rope), throw (the arm against the padded stop, the cup empty) |
 | `stakePit` | 24x8 x 2 | grid | armed: three sharpened stakes leaning toward the Gloom; sprung: splintered stubs with soot, the points lying on the rim |
 
+| `beaconBase` | 64x130 | grid (design from `beacon-a`'s left piece) | the ruin cleared and rebuilt to a third of the tower (top at y 58): pale new courses, an unfinished top, shear legs lifting a block, cut blocks stacked beside it |
+| `beaconTower` | 64x130 | grid | the half tower (top at y 84): an unfinished top, a scaffold deck round it, a hoist with a block on its rope, two iron bands, two slits |
+| `greatBeacon` | 64x130 | grid | the full tower in the ruin's pale stone with a parapet on corbels, two teal banners, and the huge iron bowl (51 px across) on four curved ribs |
+| `beaconFire` | 24x20 x 3 | grid (fire ramp only) | glow strip: a coal bed and five tongues with white cores that trade heights, sparks |
+
 The tiers read at a glance: the palisade (20x34, brown stakes) < the stone wall (36x52, two merlons) < the bastion
 (44x64: crown on corbels, three merlons, talus, banner).
 
 The towers: an open timber frame (20x48) < a stone tower with merlons and a pennant (24x64); the brazier's iron tripod
 (10x14) < the fire tower's stone column (14x40).
+
+The beacon: the overgrown ruin with its empty cage < a clean rebuilt drum under shear legs < the half tower in its
+scaffold < the finished tower with banners and the bowl. All four share the ruin's footprint, ground line and pale
+stone, so the site visibly grows in place.
 
 The gates: plain oak doors < the same behind an iron grid < steel plates behind a heavy gold-studded grid with the
 crest.
@@ -89,6 +98,8 @@ Archer posts, flames and window glass:
 | `fireTower` | flame | `brazierFlame` at (dx 3, dy 37) over the coals; its brazier light from (cx 7, y 41) |
 | `catapult` | firepot | it leaves the cup at frame 2's cup position, about (dx 13, dy 21); in frames 0 and 1 the pot sits in the cup at (dx 27, dy 16) and (dx 27, dy 12) |
 | `ballista` | bolt | the bolt leaves from the stock's front at (dx 0, dy 10), flying left |
+| `greatBeacon` | fire | `beaconFire` (24x20) at (dx 20, dy 123): its coal bed lies on the bowl's dark mouth (night0, x 9-54 at row 4, i.e. dy 125); the beacon light from about (cx 32, y 130) |
+| `greatBeacon` | slit glass | masks (dx 23, dy 55, w 2, h 9) and (dx 38, dy 33, w 2, h 8) |
 
 ## Notes for the lead
 
