@@ -57,6 +57,8 @@ Landscape, side view, pixel art. Lighting carries the mood: warm fire against a 
 | 09.11. | **The town lies outside, in the open valley:** a wide sky, rolling hills, far mountains, a river and a windmill. On the right the world ends at a broad river with the stumps of an old bridge; this replaces the waterfall and the end cliff. | It gives the strongest contrast: the narrow, dark gorge of the war against the bright, open land that the castle protects. |
 | 09.11. | **The gorge wall is one continuous rock face** with a jagged top and a narrow strip of sky, never a row of repeated pillars. Over its last 200 px before the castle it rises and closes in. | In the first mock, the repeated cliff pairs read as hourglass pillars. |
 | 09.11. | **Target pictures:** `docs/mood/world-castle-night.jpg` and `docs/mood/world-valley-golden.jpg`. They are Recraft concepts for composition and mood, not game art. | They are the reference for the art agents and for the review lens. |
+| 09.11. | **180 rows** (not 135), from the runner screenshots of round `lh-m1-0`. | The castle must tower over the king and the gorge must feel deep: 135 rows crop both, and the battle needs the wider view (about 437 instead of 328 columns). The king stays readable at 30 px. |
+| 09.11. | **Smooth light** (not banded or dithered). | It looks the most premium at phone size: crisp pixel art under soft glowing light. Bands read as cheap rings, and dither adds grain that blurs small shapes. `banded` and `dithered` stay as debug styles. |
 
 ## Not a copy
 
