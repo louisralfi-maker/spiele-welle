@@ -30,11 +30,13 @@ build() { # name: one sprite (and its glow strip)
         python3 -I $AA build $G/$1.txt --out $A ;;
     sootling|sootlingB|shadehound|sootCrow|ashBrute|gloomweaver|ashGiant|lightlessKing)
         python3 -I -B $CA build $1 --out $A ;;
+    darknessBank)  # the Gloom's bank of look 2: darknessBank.png, darknessEdge.png and darknessBankGlow.png
+        python3 -I -B games/lanternhold/tools/bankart.py --out $A ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;
     esac
 }
 
-ALL="sootling sootlingB shadehound sootCrow ashBrute gloomweaver ashGiant lightlessKing archer guardsman builder king
+ALL="sootling sootlingB shadehound sootCrow ashBrute gloomweaver ashGiant lightlessKing darknessBank archer guardsman builder king
 citizen citizenB citizenC"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do

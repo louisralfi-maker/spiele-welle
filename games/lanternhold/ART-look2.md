@@ -262,4 +262,124 @@ is the renderer of today: ochre rock, violet nights with every plane at one valu
   little less window pool on the walls) would keep it cream-warm. The lane at dusk is nearly black away from the
   lanterns.
 - The night battle has no darkness bank in the mock (the game draws it); stage 3 should give the Gloom's bank the
-  look-2 treatment (navy soot, drifting motes, cold eye glints) together with the creatures.
+  look-2 treatment (navy soot, drifting motes, cold eye glints) together with the creatures. Done in stage 3: section 10.5.
+
+## 10. Stage 3: the creatures (09.11.2026)
+
+All eight creatures and their glow strips are repainted as lost people, at SPRITES.md's ids, sizes and frame counts.
+No Swift changed; no Recraft image was used (251 credits before and after): at 14 to 110 px a converted painting
+loses exactly what makes these figures (thin limbs, eyes, a lantern), so every creature is drawn by a small painter.
+
+### 10.1 How they are made
+
+- `tools/rig.py` is the painter: a frame is a grid of palette names plus a glow grid; shaded capsules for limbs
+  (`seg`), ellipses and polygons with cloth folds (`ell`, `poly`), two-bone limbs (`ik`, `leg`), hand-set stamps for
+  heads, hands and lanterns, `tatter` for torn hems, `crack` for ember cracks, `grid` for a whole hand-set frame,
+  and `finish`, which draws the 1 px `nightDeep` outline and the rim on the top contour. Light falls from the upper
+  left, as on every sprite.
+- `tools/creatures/<id>.py` holds one creature: its size and a `frame(k)` with a pose table. The four small ones are
+  hand-set frames, one character a pixel; the four big ones are rigs.
+- `tools/creatureart.py build <id>|all` writes the strip and the glow strip; `tools/build-art-actors.sh` calls it, so
+  `tools/build-art.sh` rebuilds them (a full run changed only these PNGs). The old creature grids in
+  `tools/grids/actors/` are look 1's sources and are no longer built.
+- `tools/creaturesheet.py <out.png> [--ids …] [--scale 4] [--bands day,fog,dark]` draws every frame as the engine
+  does: by day the albedo with the glow strip over it; unlit at value 0.2 with the moon rim on the screen-right edge
+  and the glow strip, once against the blue fog and once against the dark.
+- `tools/scenemock/run_creatures.sh` renders battle-night, battle-day, finale, giant (scene_actors.py) and front-night
+  (scene_look2.py) in look 2 with the old and the new creatures. For this, `mock.py look=2` now draws an unlit
+  creature as the engine does (value 0.2 instead of the mock's 0.12, plus the moon rim); look 1 is untouched.
+
+### 10.2 Rules (and what changed against section 6 and the fix stage)
+
+1. **Smoke flesh stays navy-black in any light.** The body ramp is `nightDeep, night0, nightBlue, nightSlate`
+   (HUSK). Light does not turn a creature grey: it reveals what is left of the person, in other ramps: rags
+   (`soilDark, moorDark, moor`), an ashen face and hands (`stoneDark, stoneMid, stone`), iron
+   (`ink, stoneDark, stoneMid`), a mantle (`night0, night1, night2`). So by day and in torchlight you see a shirt, a
+   face, a lantern; unlit you see a shape with eyes.
+2. **Hollow cold eyes that weep.** One `wraithWhite` pixel an eye and a `wraithGlow` or `wraithDim` pixel under it.
+   Two eyes wherever the head is wide enough: two close pale points read as a face, one as a lamp. The crow has one.
+3. **Glow hierarchy.** The common folk carry `emberDim` on the top contour and `ember` only inside cracks. The
+   gloomweaver's sign is violet (its dead lantern leaks it). The Lightless King is cold only (`wraithDim`,
+   `wraithGlow`), has no eyes, and carries no ember: he is the one thing in the Gloom without any warmth. This
+   replaces the fix stage's fireOrange spikes, fireGold eyes and the King's teal. Palette names and values are
+   unchanged; nothing was added.
+4. **No loose pixels.** The engine's moon rim lights every screen-right edge pixel of an unlit body, so a loose smoke
+   pixel becomes a bright speck. Smoke and wear are torn, connected cloth edges; drifting soot is the engine's
+   particle job.
+5. **Planted contacts.** A foot, fist or pole on the ground moves back exactly `walkStride` px a walk frame and is
+   then lifted and swung in one frame (three frames planted, one in the air; the other limb two frames later). The
+   strides are the engine's: sootling 3, shadehound 6, ashBrute 4, ashGiant 4, lightlessKing 5.
+6. **Attacks have an anticipation frame** that changes the silhouette (the claw above the head, the fist behind the
+   hump, the knee at the belly, the pole over the crown), then the strike, then a held frame for the big three.
+7. **Quiet hints only.** A watchman's pole and dead lantern, a shirt rag, a child's smock, a cage of ribs. Nothing
+   names who they were. The Lightless King wears a crown of uneven iron thorns, not the Burgherr's circlet, and
+   carries a candle snuffer on a pole instead of a sword: he puts lights out.
+
+### 10.3 The eight
+
+| id | who it was | silhouette and gait |
+|---|---|---|
+| `sootling` | a child | on all fours, low and long, the pale head too big and hanging; drags itself hand over hand; rears up to claw |
+| `sootlingB` | a child | upright, stooped, stick-thin, one arm far too long and dragged; whips the arm forward |
+| `shadehound` | a man | on hands and feet, elbows and knees too high, arched spine, the head low on a long neck, the jaw unhinged; bounds with all four off the ground in frame 2 |
+| `sootCrow` | cloak scraps | a rag tail, a skull face, one eye; perched it is a small hunched hood |
+| `ashBrute` | a night watchman | a hump under a patched cloak, a small skull head sunk in the shoulders, one trunk of an arm on its fist, his pole across the hump with the dead lantern swinging over his head |
+| `gloomweaver` | a lantern bearer | a narrow robe bent forward, no feet, torn strips trailing, a limp hood, two weeping eyes, thin arms holding out a dead lantern that drips violet |
+| `ashGiant` | no one knows | bent double under a sail of a torn cloak, stilt legs, hands on the ground, a hooded skull lower than the shoulders, an ember heart in a cage of ribs |
+| `lightlessKing` | (the mystery; not told) | the frame's full 64 px: mantle, train, shoulder cape, a cowl with a void ringed by a cold crescent, a thorn crown, two dead lanterns at the belt, a snuffer pole taller than himself |
+
+Frame use, exact poses and the eye and lantern positions are in ART-actors.md ("Sprites", "Glow strip rules", "Eye
+and lantern positions").
+
+### 10.4 Port notes (for the engine lane; nothing here is done in Swift)
+
+- **Nothing must change for the sprites to load**: ids, sizes, frame counts, facing (right), anchors (bottom centre)
+  and the frame meaning (walk 0-3, attack 4-5 or 4-6, crow fly 0-2 and perch 3, weaver float 0-3) are as before.
+- **Strides** stay 3, 6, 4, 4, 5: the planted contacts are drawn for them. If a stride changes, the feet slide.
+- **Glow strips** now hold cold pixels too. They must be added as they are (no warm tint, no torch strength). If
+  the engine dims glow strips by day, keep the eyes: by day a creature's eyes are its face.
+- **`unlitValue` 0.2 and the moon rim** suit the new bodies; the sheets and mocks are drawn with them. A lower value
+  would lose the big silhouettes against the night; a rim on loose pixels is no longer an issue.
+- **Body shade by id** (the non-boss tint): keep it small (0.9 to 1.0). The bodies are already near the palette's
+  darkest values and the rags are what light shows.
+- **Gloomweaver**: the engine's bob (`2 + sin`) moves the whole figure; the sprite itself only waves its strips and
+  swings the lantern 1 px, so both together read as drifting. Its violet light should sit at the lantern core
+  (9 px right of the anchor, 9 px up), not at the head.
+- **Lightless King**: the sprite fills all 64 px in height (the crown reaches the top row). Anything placed over his
+  head (health bar, aura centre) needs 2 px more. His aura centre fits the cowl: 4 px left of the anchor, 52 px up.
+- **Ash Giant**: the stomp lands in frame 5 (the foot 12 px ahead of the walk contact, the body 5 px down): the
+  screen shake and the damage belong on frame 5. The heart (5 px right of the anchor, 68 px up, radius 7) is the
+  place for a light of ember colour, radius about 20 px, brightest on frame 5; today it has none.
+- **Ash Brute**: the slam lands in frame 5 (fist at 17 px right of the anchor on the ground).
+- **Sootling and hound attacks** land on frame 5.
+- **Particles** (not drawn in the sprites): a little soot rising from brute, giant and King would complete "smoke
+  figures"; one dark pixel a few times a second from the top contour, drifting left.
+- **The darkness bank** (10.5) loads without Swift changes; its eyes need one new sprite id.
+
+### 10.5 The Gloom's darkness bank
+
+`tools/bankart.py` (in `build-art-actors.sh` as `darknessBank`) writes three PNGs into Resources/Art:
+
+- `darknessBank.png` 64x236: opaque navy soot (`nightDeep, night0, nightBlue, nightSlate`) in slow billows that lean
+  toward the castle, repeating every 64 px, the top 36 rows thinning in an ordered dither, as the placeholder does.
+- `darknessEdge.png` 32x236: the same soot thinning to the right with reaching fingers; its left column is solid
+  below row 36, so it joins the body.
+- `darknessBankGlow.png` 4 frames of 64x236: seven pairs of cold eyes at 5 to 104 px above the lane (the low ones
+  `wraithGlow` with a tear, the high ones `wraithDim`), each shut in one frame, and ten motes of cold ash.
+
+The first two have the sizes of `SpriteID.darknessBank` and `darknessEdge`, so the atlas takes them instead of the
+procedural soot with no code change (removing the two files brings the old bank back). The glow strip has no sprite
+id yet. Port: add `darknessBankGlow` (64x236 × 4) and draw one frame over each body tile as an emissive, the frame
+`(tileIndex + Int(time * 1.5)) % 4`, so the eyes blink out of step from tile to tile; with Reduce Motion hold frame
+`tileIndex % 4`. `run_creatures.sh bank` shows it in the mock (the night battle 60 px further left).
+
+### 10.6 What the mocks show, and what is open
+
+- At night the creatures are now dark people-shapes with pale eyes against the blue mist, where look 1 showed
+  ember-cracked lumps. The giant and the King read from the far side of the screen; the brute reads as a hunched
+  man with a lantern over his head.
+- In firelight a sootling's head turns pale: the face is the first thing a torch shows. That is intended.
+- Open: the small creatures have 14 px, so their rags are two or three pixels; the crow is the weakest read (a dark
+  scrap with an eye). The giant's ribs are thin bars over the heart and read as a cage only from 3x. The
+  gloomweaver is still more sad than frightening. None of this was seen in the running game: the walk cycles were
+  judged as frames on a sheet, not in motion.

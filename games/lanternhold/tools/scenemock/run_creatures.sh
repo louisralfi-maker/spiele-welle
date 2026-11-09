@@ -3,7 +3,8 @@
 # the creatures of look 1 (the art of 311831c, taken from git if missing) and with the creatures of Resources/Art, the
 # same frame and the same world: battle-night, battle-day, finale and giant of scene_actors.py and front-night of
 # scene_look2.py, into build/recraft/lh/preview/creatures/<scene>-old.png and -new.png (437x201, upscaled x3). One
-# render at a time with the heat rule (wait below 70 °C when the CPU reached 80 °C).
+# render at a time with the heat rule (wait below 70 °C when the CPU reached 80 °C). The extra scene `bank` (not in
+# the default list) is the night battle with the Gloom's darkness bank of tools/bankart.py at the left.
 # Usage: run_creatures.sh [scene ...]
 set -euo pipefail
 cd "$(dirname "$0")/../../../.."
@@ -29,6 +30,11 @@ cool() {
 one() { # scene, tag, art dirs
     if [ "$1" = front-night ]; then
         python3 -I -B $G/tools/scenemock/scene_look2.py $G front-night 2 $OUT/$1-$2.png depth=$DEPTH art=$3
+    elif [ "$1" = bank ]; then  # the night battle 60 px further left with the darkness bank (ART or BANK holds its art)
+        python3 -I -B $G/tools/scenemock/scene_actors.py battle-night $OUT/bank-in.json > /dev/null
+        python3 -I -B $G/tools/scenemock/scene_bank.py $OUT/bank-in.json $OUT/bank.json 512
+        python3 -I -B $G/tools/scenemock/mock.py $G layout=m1b focus=640 tod=0.95 look=2 depth=$DEPTH art=${BANK:+$BANK,}$3 \
+            extras=$OUT/bank.json king=off actors=off out=$OUT/$1-$2.png
     else
         read -r f t <<< "$(python3 -I -B $G/tools/scenemock/scene_actors.py "$1" $OUT/$1.json)"
         python3 -I -B $G/tools/scenemock/mock.py $G layout=m1b focus=$f tod=$t look=2 depth=$DEPTH art=$3 \
