@@ -137,7 +137,7 @@ report, story scenes and the pause sheet.
 | 19:00 | Horn | A low horn sounds; petitioners not heard leave; builders return; the Gloom stirs. |
 | 19:00 to 20:00 | Dusk (12 s) | Torches and windows light up; the darkness bank swells. |
 | 20:00 to 05:00 | Night (108 s) | The darkness bank advances; 3 to 5 waves attack; the battle runs by itself. |
-| 05:00 to 06:00 | First light (12 s) | Creatures still alive dissolve into soot as the light sweeps in from the right. |
+| 05:00 to 06:00 | First light (12 s) | The hearth takes no more harm: the realm has held the night. Creatures still alive dissolve into soot as the light sweeps in from the right. |
 
 ## Economy
 
@@ -159,8 +159,10 @@ Set at the throne: **Low**, **Normal**, **High**, and from story day 8 **War tax
 
 ### Happiness (0 to 100, starts at 60)
 
-Changes at dawn: low tax +3, normal 0, high −7, war −10 (tuned from −3 and −6); tavern +1; chapel +1; a night without
-losses +2; each fallen soldier −3; each petitioner left unheard at the horn −1. Petitions add or take 1 to 10 at once.
+Changes at dawn: low tax +3, normal 0, high −7, war −10 (tuned from −3 and −6); tavern +1; the chapel's blessing +1 (the
+chapel of the Flame is part of the castle and cannot be built; story or a petition grants the blessing from M3 on, and
+until then it never applies, so T4 was tuned without it); a night without losses +2; each fallen soldier −3; each
+petitioner left unheard at the horn −1. Petitions add or take 1 to 10 at once.
 
 | Happiness | Effect |
 |---|---|
@@ -183,8 +185,8 @@ counted as citizens), happiness 60, normal tax. Line 1's wall is the gatehouse: 
 | Palisade (wall tier 1) | 20 | 8 s | 300 HP, 2 archer posts |
 | Stone wall (tier 2) | 60 | 20 s | 800 HP, 3 archer posts |
 | Bastion (tier 3) | 140 | 35 s | 1800 HP, 4 archer posts |
-| Gate / iron gate / great gate (line 1) | stands / 90 / 180 | – / 25 s / 40 s | 4000 / 7000 / 11000 HP, 4 / 6 / 8 archer posts; a fallen gate is rebuilt for 50 |
-| Rubble rebuilt | half the tier price | half the time | a destroyed wall comes back at its tier |
+| Gate / iron gate / great gate (line 1) | stands / 90 / 180 | – / 25 s / 40 s | 4000 / 7000 / 11000 HP, 4 / 6 / 8 archer posts; a fallen gatehouse is rebuilt for half of what it cost so far: gate 50 (15 s), iron gate 95 (27.5 s), great gate 185 (47.5 s) |
+| Rubble rebuilt | half the tier price | half the time | a destroyed wall comes back at its tier (the gatehouse: see above) |
 | Archer tower / watchtower | 40 / 90 | 14 s / 22 s | 2 / 4 archer posts, range +15 % / +30 % |
 | Brazier / fire tower | 12 / 40 | 4 s / 12 s | light radius 56 / 90, burns all night, needs no fuel |
 | Ballista | 70 | 18 s | bolt 30 damage, pierces 3, every 3.5 s, range 240 |
@@ -197,7 +199,7 @@ counted as citizens), happiness 60, normal tax. Line 1's wall is the gatehouse: 
 | Tavern | 50 | 18 s | +1 happiness per dawn |
 | Builders' lodge | 60 / 120 | 20 s | 3 / 4 builders |
 | Smithy | 60 / 150 | 20 s | archer damage +25 % / +50 % |
-| Great Beacon | 120 / 220 / 360 | 30 / 40 / 60 s | three stages; the chapter's finale (tuned from 150 / 250 / 400) |
+| Great Beacon | 110 / 200 / 330 | 30 / 40 / 60 s | three stages; the chapter's finale (tuned from 150 / 250 / 400) |
 
 Builders work by day only and walk to the job. Walls damaged at night are repaired for free by builders the next day
 (40 HP per builder per second, repairs before orders). Destroyed walls must be rebuilt.
@@ -219,7 +221,10 @@ outcome comes from what was built and recruited by day.
 
 ### Light rules (`Core/LightField`)
 
-- Sources: braziers (radius 56, fire tower 90), torches on every wall tier (radius 30), fire arrows where they land
+- Sources: braziers (radius 56, fire tower 90), torches on every wall tier (radius 30, burning on the wall walk: their
+  lit reach of about 20 px lights the archers and the wall's top, such as crows flying over it or a brute rearing at a
+  palisade, but never the ground at the wall's foot; what hacks at a wall is seen only in a brazier's, a fire arrow's,
+  a firepot's or the lantern's light), fire arrows where they land
   (22 for 2.5 s), catapult fires (48 for 6 s), the king's lantern (40), the hearth fire inside the great hall (70), the
   Great Beacon when lit (600, a sweeping cone; it burns from 04:30 of night 20 and stays dark in endless). Castle and
   town windows light only the scene, not the battle.
@@ -244,13 +249,15 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 | Ash brute | 7 | 120 | 14 / 8 | 20 per s to walls | 44 px | never slower than 8; does not burn |
 | Gloomweaver | 12 | 40 | 22 / 12 | none | 30 px | carries a 50 px bubble of darkness that cancels light inside it |
 | Ash Giant (boss) | night 10 | 1000 | 10 / 7 | 60 per s; stomp shakes the screen | 110 px | |
-| The Lightless King (boss) | night 20 | 2400 | 24 (always inside his own darkness) | 150 per s, to the hearth too; 80 px darkness aura | 64 px | leaves at 20:22 (± 8 s) and marches on the hearth; calls 6 sootlings every 15 s (tuned from 12 / 9 and 40 per s) |
+| The Lightless King (boss) | night 20 | 2400 | 24 (always inside his own darkness) | 150 per s, to the hearth too; 80 px darkness aura | 64 px | leaves at 21:10 ± 0:40 (14 s ± 8 s after nightfall) and marches on the hearth; calls 6 sootlings every 15 s (tuned from 12 / 9 and 40 per s) |
 
 - Night budget `B(n) = 16 + 9 n` points (sootling 1, hound 2, crow 2, weaver 6, brute 10), split into 3 waves on nights
   1 to 4, 4 waves on 5 to 14 and 5 waves on 15 to 20; the last wave leaves by 03:00. Boss nights add the boss.
 - Creatures walk right along the ground and attack the first standing wall. A wall at 0 HP becomes rubble and is
   passable. Behind line 1 they enter the courtyard and head for the great hall.
-- The waves leave between 20:15 and 02:00 (later waves bigger), each within 10 s; the Ash Giant leaves at about 20:20.
+- The waves start leaving between 21:15 and 01:50 (15 to 70 s after nightfall; later waves bigger), each within 10 s,
+  so the last has left by about 02:40 (80 s), before 03:00; the Ash Giant leaves at about 21:40 (20 s ± 8 s after
+  nightfall). At 12 s per in-game hour, n seconds after nightfall is 20:00 plus n × 5 minutes.
 
 ### Defenders
 
@@ -259,10 +266,12 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
   light. They aim at the lit creature closest to the castle. When their wall falls they climb down and walk to a free
   post (or the keep); creatures that catch them on the way strike them.
 - **Guards**: they hold the breach nearest the front (the innermost rubble in front of the first standing wall) and
-  block it; without a breach they wait behind the gatehouse. 30 HP, 6 damage per s; below 30 % they step back behind
-  the hearth (the rest of the blow goes to the next guard).
+  block it; without a breach they wait behind the gatehouse. 30 HP, 6 damage per s; below 30 % a guard steps back
+  behind the hearth while another guard still holds (the rest of the blow goes to the next guard). The last guard
+  holding has no one to pass the blow to: he stands his ground and can fall in the breach. A guard who steps back is
+  out of the fight, and creatures let him go; guards marching out to a new breach can still be struck on the way.
 - **Ballista and catapult**: crewed by castle staff, fire by themselves.
-- **Losses**: soldiers can fall (sootlings and hounds reach archers on a broken wall; guards fight in the breach). Every
+- **Losses**: soldiers can fall (sootlings and hounds reach archers on a broken wall; the last guard in the breach). Every
   fallen soldier is named in the dawn report and costs 3 happiness. A night without losses gives +2 and a small banner
   in the report.
 
@@ -409,8 +418,10 @@ realm goes on in endless mode.
 - Unlocks after chapter 1. **Continue the realm** keeps the chapter's end state and goes on with night 21; **New realm**
   starts fresh from day 1 with random petitions only.
 - Nights scale with `B(n) = 16 + 9 n + 0.4 (n − 20)²` beyond night 20 (tuned from 0.15); random events (an eclipse with a double wave,
-  a festival, a plague of crows).
-- Records: the highest night survived per mode.
+  a festival, a plague of crows). The events are not built yet (M3 or later); T7 was tuned without them and must be
+  measured again when they arrive.
+- Records: the highest night survived per mode (chapter, endless continued, endless new), kept in the save's
+  Chronicle, so starting a new realm keeps them; a night saved by a second chance does not count as survived.
 
 ### Later chapters (updates)
 
@@ -424,7 +435,11 @@ realm goes on in endless mode.
 - Within a chapter: lines unlock, upgrades, the town grows, the story moves on.
 - Between modes: the Chronicle (a page of records: nights, endings, fallen soldiers, petitions heard).
 - `SaveGame` (Codable JSON, `version`, new fields optional): the chapter and mode, the last dawn snapshot of the whole
-  `GameState`, flags, records, settings, ad pacing, hint flags. Written at every dawn and when the app goes to the
+  `GameState` (with flags and the realm's own records), the Chronicle (records per mode, carried from save to save, so a
+  new realm keeps them), settings, ad pacing, hint flags. A field added later to any saved type, nested ones included,
+  must be optional or decoded with a default (synthesized decoding ignores property defaults); `SaveGameTests` decodes a
+  frozen version 1 save every round. Loading checks the plots against the realm (missing ones are added as on day 1,
+  extra plots or plot indices out of range make the file corrupt). Written at every dawn and when the app goes to the
   background (the dawn snapshot only). A relaunch resumes at the last dawn ("Continue: day 7, morning"). A corrupt file
   is kept as a backup and the game starts fresh (as in Comet Cargo).
 
@@ -561,7 +576,7 @@ music, also no melodic jingles: signals only.
 ## Onboarding (no text walls)
 
 Day 1 is guided by Odile's one-liners and the tapping hand from Comet Cargo: drag to walk (hand on the left), build a
-brazier and a palisade at line 1 (hand on the action button), walk to the throne (the realm strip pulses), hear the
+brazier and a stake pit in front of the gatehouse (line 1's wall stands from the start; hand on the action button), walk to the throne (the realm strip pulses), hear the
 first petition, set the tax, the horn, the first night (only a few sootlings), the dawn report. Each hint ends with the
 player's first success and never comes back. `-GWSkipOnboarding YES` turns it off.
 
@@ -760,41 +775,54 @@ same seed and time give the same hash), `SaveGameTests` (round trip, old saves, 
 4. High tax all the time drops happiness below 30 by day 8; low tax all the time keeps it above 70.
 5. Day 1 taxes buy 2 to 3 builds; by day 10 the reference bot owns 8 to 12 buildings.
 6. Night 20 with the beacon is won by the reference bot in 8 of 10 seeds; without the beacon in 3 to 6 of 10.
+   "Without" is the same realm on the eve of night 20 with the beacon's last stage taken away, so the two runs differ
+   only by the beacon. A whole run of a bot that never builds the beacon (its gold goes into the rest of the order) is
+   reported beside it, not asserted.
 7. In endless, the reference bot falls between night 35 and 60.
 8. Each night's last wave leaves by 03:00; a night with 40 creatures keeps under 300 sprite instances and 40 lights.
+   Until M2b the test is a sim-side proxy (drawn sim entities and battle lights on the night nearest 40 creatures); M2b
+   adds a `FrameBuilder` budget test with 40 creatures alive, counting sprite instances and every light, the scene's
+   windows and candles included.
 
 ### Tuning (M2a)
 
-Measured on the runner with the bots of `Core/Autoplay.swift` (round `lh-m2a-4`; Debug and `-O` give the same numbers,
-`tools/simtune` sweeps variants). Petitions and the story are not in yet (M3), so the bots hear none.
+Measured on the runner with the bots of `Core/Autoplay.swift` (the sweep of round `lh-m2a-fix-1`, confirmed by the unit
+tests of round `lh-m2a-fix-2`; Debug and `-O` give the same numbers, `tools/simtune` sweeps variants). Petitions and the
+story are not in yet (M3), so the bots hear none; the chapel's blessing never applies yet; the endless events are not
+built. Each of these moves the targets, so they must be measured again when they arrive.
 
 | Target | Measured | Target value |
 |---|---|---|
 | 1 | nights 1 to 10 held in 3 of 3 seeds, hearth never touched, 0 soldiers lost | hearth untouched, at most 3 lost |
 | 2 | the realm that builds nothing falls on night 3 (3 of 3 seeds) | night 2 or 3 |
-| 3 | beacon finished on days 17, 18, 17; with low tax not by day 20 | by day 18; low tax cannot |
-| 4 | high tax: happiness 25 at dawn 8; low tax: lowest 87 over dawns 8 to 20 | below 30; above 70 |
+| 3 | beacon finished on days 17, 17, 17; with low tax not by day 20 | by day 18; low tax cannot |
+| 4 | high tax: happiness 25 at dawn 8 (without the chapel's blessing; with it, +1 a dawn, it would be 32); low tax: lowest 87 over dawns 8 to 20 | below 30; above 70 |
 | 5 | first dawn taxes 49 gold buy 3 builds; 11 buildings by day 10 | 2 to 3; 8 to 12 |
-| 6 | night 20 won in 10 of 10 seeds with the beacon, 6 of 10 without | at least 8; 3 to 6 |
-| 7 | endless: falls on nights 53, 48, 36 (seeds 1 to 3) | 35 to 60 |
-| 8 | last wave leaves 80 s after nightfall (03:00 is 84 s); night 3 (38 creatures): 42 drawn entities, 11 lights | by 03:00; under 300 and 40 |
+| 6 | night 20 won in 10 of 10 seeds with the beacon, 5 of 10 without (the same realm, the last stage taken away; the five fall at 04:33 to 04:58). Reported, not a target: a bot that never builds the beacon and spends that gold on the rest of its order holds night 20 in 10 of 10 | at least 8; 3 to 6 |
+| 7 | endless: falls on nights 54, 37, 39 (seeds 1 to 3) | 35 to 60 |
+| 8 | last wave leaves 80 s after nightfall (03:00 is 84 s); night 3 (38 creatures): 42 drawn sim entities, 11 battle lights (a sim proxy until M2b's `FrameBuilder` budget test) | by 03:00; under 300 and 40 |
 
 Changed from the start values: tax per taxpayer 1.6 → 5; high tax −3 → −7, war tax −6 → −10; Great Beacon 150 / 250 /
-400 → 120 / 220 / 360; the Lightless King 12 / 9 px/s and 40 per s → 24 px/s and 150 per s, leaving at 20:22; endless
-growth 0.15 → 0.4. New numbers: the gatehouse (4000 / 7000 / 11000 HP), archer 20 HP, archer posts per wall tier.
+400 → 110 / 200 / 330; the Lightless King 12 / 9 px/s and 40 per s → 24 px/s and 150 per s, leaving 14 s after
+nightfall (21:10); endless growth 0.15 → 0.4. New numbers: the gatehouse (4000 / 7000 / 11000 HP), archer 20 HP, archer
+posts per wall tier.
 
 Rules fixed in M2a:
 
-- The finale: the Lightless King marches on the hearth. He breaks the outer walls around midnight and the gate between
-  03:40 and 05:25 (it varies by seed), then the Gloom floods the hall. A finished beacon is lit at 04:30, and the Gloom
-  recedes at once. Without it the realm falls in the seeds where the gate broke before about 04:30. Bosses drain the
-  hearth by their harm per second.
+- The finale: the Lightless King marches on the hearth. He breaks the outer walls before midnight and the gate between
+  about 04:00 and 05:00 (it varies by seed), then the Gloom floods the hall. A finished beacon is lit at 04:30, and the
+  Gloom recedes at once. From first light (05:00) the hearth takes no more harm, so without the beacon the realm falls
+  in the seeds where the King reaches the hearth between 04:30 and 05:00 (no seed reached it before 04:30). Bosses
+  drain the hearth by their harm per second.
+- The last guard holding a breach stands his ground and can fall there; guards who step back are let go.
+- Builders walk home when their work is done and at the horn.
 - The lit beacon lights only the finale (`beaconEndlessRadius` 0); endless relies on what was built.
 - The reference bot: a fixed build order (`Autoplay.referenceOrder`, rubble rebuilds first, waits at a locked or
   unaffordable step); at most half the people become soldiers; it replaces one fallen soldier a day while happiness is 60
   or more, keeps its gold while saving for the beacon (no patches then), and at night lights snuffed braziers, patches
   walls under attack below half strength (at most 3 a night) and otherwise stands behind the front wall.
-- Headless runs step 1 s by day and 0.1 s at night; `SimTests` checks a night against the 1/60 s step.
+- Headless runs step 1 s by day and 0.1 s at night; `SimTests` checks night 7 and night 20 without the beacon (wall
+  falls, the hearth reached, the outcome) against the 1/60 s step.
 
 ### UI (screenshots `<nn>-<what>-<lang>`, English and German)
 
