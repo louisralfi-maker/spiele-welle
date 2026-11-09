@@ -1077,7 +1077,8 @@ Open points:
    about 21:30, 23:00 and 01:00 (`30-mid-2130`, `31-mid-2300`, `32-mid-0100`), then `-GWDay 12 -GWBuild demo
    -GWCameraX 600` for the same realm by day with the builders at work (`33-mid-day`); the clock is read from the
    scene's value (`hour:`). `testFinale` (English): `-GWNight 20 -GWAutoplay play`, the beacon lit and the Lightless
-   King in its light (`34-finale-2230`, `35-finale-2345`). Since M2b part 2 the night ends on its dawn report
+   King in its light (`34-finale-2300`, `35-finale-0000`; the windows are 23:00 to 23:30 and 00:00 to 00:30 since the
+   M3 fix). Since M2b part 2 the night ends on its dawn report
    (`36-mid-report`), first light is held still as its front passes the outer wall (`37-mid-firstlight`:
    `-GWNight 12 -GWBuild demo -GWHour 5.83 -GWFreezeTime YES -GWAutoplay play`), and the finale ends on its report with
    the King's banner (`38-finale-report`). Since the M2b review the gatehouse at 22:00 with the demo's iron gate closed

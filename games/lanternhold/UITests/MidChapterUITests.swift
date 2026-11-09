@@ -94,7 +94,9 @@ final class MidChapterUITests: XCTestCase {
         app.launchArguments = ["-GWNight", "20", "-GWAutoplay", "play"]
         app.launch()
         if waitUntilReady(app, name: "finale") {
-            for shot in [(name: "34-finale-2230", hour: 22.5), (name: "35-finale-2345", hour: 23.75)] {
+            // M3 fix (M2b's open point): the windows are 23:00 to 23:30 and 00:00 to 00:30, when the Lightless King
+            // stands in the archers' reach, so both shots show arrows (at 22:30 he had not come that far).
+            for shot in [(name: "34-finale-2300", hour: 23.0), (name: "35-finale-0000", hour: 24.0)] {
                 if waitForHour(app, shot.hour, timeout: 120) != nil {
                     let best = liveliestShot(app, until: shot.hour + 0.5, timeout: 20)
                     attach(best.screenshot, "\(shot.name)-\(language)")
