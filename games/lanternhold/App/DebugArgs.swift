@@ -52,10 +52,25 @@ struct DebugArgs: Sendable, Equatable {
     var happiness: Int?
     /// `-GWReset YES`: a fresh save.
     var reset = false
+    /// `-GWTimeScale <x>` (0.25 ... 20, tests only): real time runs the game's simulation x times as fast.
+    var timeScale = 1.0
+    /// `-GWHour <h>` (0 ... 24): after the start (a day, a night, the save or a new realm, and the demo build), the
+    /// reference bot plays on headless until the clock next shows this hour.
+    var hour: Double?
+    /// `-GWScreen title|audience|report|defeat|story|finale`: opens that screen with sample data (M2b: report, defeat
+    /// and finale, the dawn report of night 20 with the Lightless King slain).
+    var screen: Screen?
+    /// `-GWSkipOnboarding YES`: no hints (the onboarding comes in M7; accepted now so tests already pass it).
+    var skipOnboarding = false
 
     /// `-GWBuild` presets.
     enum BuildPreset: String, Sendable, CaseIterable, Equatable {
         case demo
+    }
+
+    /// `-GWScreen` screens.
+    enum Screen: String, Sendable, CaseIterable, Equatable {
+        case title, audience, report, defeat, story, finale
     }
 
     /// `-GWAutoplay` modes.
@@ -76,7 +91,7 @@ struct DebugArgs: Sendable, Equatable {
         "GWScene", "GWVirtualHeight", "GWScaleOverride", "GWTimeOfDay", "GWFreezeTime", "GWFlickerTime", "GWSeed",
         "GWCameraX", "GWAutoplay", "GWActorMode", "GWLightStyle", "GWEffects", "GWShowLowRes", "GWShowBuffer",
         "GWDebugLights", "GWStats", "GWReduceMotion", "GWDay", "GWNight", "GWBuild", "GWGold", "GWHappiness",
-        "GWReset",
+        "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -143,6 +158,14 @@ struct DebugArgs: Sendable, Equatable {
             self.happiness = min(100, max(0, happiness))
         }
         reset = DebugArgs.bool(values["GWReset"])
+        if let scale = DebugArgs.double(values["GWTimeScale"]), scale > 0 {
+            timeScale = min(20, max(0.25, scale))
+        }
+        if let hour = DebugArgs.double(values["GWHour"]), hour >= 0, hour <= 24 {
+            self.hour = DayClock.wrap(hour)
+        }
+        screen = values["GWScreen"].flatMap { Screen(rawValue: $0.lowercased()) }
+        skipOnboarding = DebugArgs.bool(values["GWSkipOnboarding"])
     }
 
     init() {}

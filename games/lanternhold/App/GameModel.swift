@@ -2,8 +2,7 @@ import Foundation
 import Observation
 import UIKit
 
-/// What the action button does: light or snuff the probe's brazier in reach, or at night in the game light a snuffed
-/// brazier or patch a damaged wall.
+/// What the probe's action button does: light or snuff the brazier in reach (the game's button offers a `KingTarget`).
 enum BrazierAction: Sendable, Equatable {
     case light, snuff, patch
 }
@@ -11,9 +10,12 @@ enum BrazierAction: Sendable, Equatable {
 /// The driver of the screen (DESIGN.md "Code layout": `GameModel`, the save, the screen state, the sim driver). In the
 /// game (`-GWScene world`, the default, M2b) it owns the simulation through `SimDriver` (a fixed 60 Hz step on an
 /// accumulator; the day clock is the simulation's hour), draws it with `SceneFilter` and `EntityFrames` into the M1b
-/// world, turns the simulation's events into visual effects, and saves the dawn snapshot at every dawn and when the
-/// app goes to the background. The light probe (`-GWScene probe`) and the light lab keep milestone 1's scene as data:
-/// its clock and walking king step on the same fixed step. The renderer asks for one `FrameDesc` per drawn frame.
+/// world, turns the simulation's events into visual effects, feedback cues, the horn banner, the screen shake, the
+/// dawn report and the defeat card, and saves the dawn snapshot at every dawn and when the app goes to the background.
+/// Navigation is a state machine here (DESIGN.md "Screens"): `overlay` is the card, report, defeat card or pause sheet
+/// over the world, and while one is open the simulation does not step. The light probe (`-GWScene probe`) and the light
+/// lab keep milestone 1's scene as data: its clock and walking king step on the same fixed step. The renderer asks for
+/// one `FrameDesc` per drawn frame.
 @MainActor
 @Observable
 final class GameModel {
@@ -23,6 +25,34 @@ final class GameModel {
         /// The M1b light probe: the scene as placed for the shots, no simulation.
         case probe
         case lightLab
+    }
+
+    /// What covers the world (DESIGN.md "Screens"): the build card above a plot, the barracks' recruit card, the tax
+    /// lectern at the throne, the dawn report, the defeat card, the pause sheet.
+    enum Overlay: Sendable, Equatable {
+        case build(plot: Int)
+        case recruit
+        case taxes
+        case report(DawnReport)
+        case defeat
+        case pause
+
+        /// The three cards opened by the action button (they close with a tap beside them).
+        var isCard: Bool {
+            switch self {
+            case .build, .recruit, .taxes: return true
+            default: return false
+            }
+        }
+    }
+
+    /// The defeat card's facts.
+    struct DefeatInfo: Sendable, Equatable {
+        var night: Int
+        /// The night the second chance can be taken again; nil when it can be taken now.
+        var secondChanceFrom: Int?
+        /// "Replay the day" goes back to this day's dawn.
+        var replayDay: Int
     }
 
     /// The fixed simulation step.
@@ -38,13 +68,18 @@ final class GameModel {
     static let defaultTimeOfDay = 0.79
     /// At night at the front the game's camera aims this far left of the king, toward the Gloom (M2b).
     nonisolated static let nightLead = 60.0
+    /// The horn banner shows this many real seconds.
+    static let hornBannerSeconds = 3.6
+    /// A second chance once per five nights in the chapter, once per ten in endless (DESIGN.md "Losing a night").
+    static let secondChanceGap = 5
+    static let secondChanceGapEndless = 10
 
     let args: DebugArgs
     let kind: SceneKind
     let reduceMotion: Bool
     /// The probe's scene, and in the game the scene the filter starts from.
     @ObservationIgnored private(set) var scene: PlaceholderScene
-    /// The probe's day clock; in the game only its running seconds count (flicker, fire, particles).
+    /// The probe's day clock; in the game only its running seconds count (flicker, fire, particles, banners).
     @ObservationIgnored private(set) var clock: DayClock
     @ObservationIgnored private(set) var camera: Camera?
     @ObservationIgnored private var accumulator = 0.0
@@ -64,20 +99,47 @@ final class GameModel {
     @ObservationIgnored private(set) var effects = BattleEffects()
     @ObservationIgnored private var store: SaveStore?
     @ObservationIgnored private var chronicle: Chronicle?
+    @ObservationIgnored private var adPacing = AdPacing()
     @ObservationIgnored private var events: [SimEvent] = []
-    @ObservationIgnored private var kingAction: KingAction?
+    @ObservationIgnored private var shake = ScreenShake()
+    @ObservationIgnored private var thinner = FeedbackThinner()
+    @ObservationIgnored private var hornUntil = 0.0
+    /// The feedback hub (silent until M6).
+    @ObservationIgnored var feedback: any FeedbackHub = SilentFeedback()
     /// Creature bodies in the last drawn frame (the scene value's `seen:`, so UI tests catch the fight in view).
     @ObservationIgnored private var seenCreatures = 0
+    /// Where first light's front stands on screen (0 ... 1), nil when it is not on screen (the scene value's `dawn:`).
+    @ObservationIgnored private var dawnFront: Double?
 
     private(set) var day: Int
     private(set) var clockText: String
+    /// The probe's action button.
     private(set) var action: BrazierAction?
+    /// The game's action button: what is in front of the king (nil: the button hides).
+    private(set) var target: KingTarget?
     private(set) var debugKingX = 0
     private(set) var debugCameraX = 0.0
     private(set) var statsText = ""
-    /// The game's state for UI tests in the scene's accessibility value: "day:12 hour:21.50 alive:9 seen:4 shots:2"
-    /// (creatures alive, creature bodies in the last frame, projectiles in flight).
+    /// The game's state for UI tests in the scene's accessibility value: "day:12 hour:21.50 alive:9 seen:4 shots:2
+    /// kx:654" (creatures alive, creature bodies in the last frame, projectiles in flight, the king's x), with "dawn:0.42"
+    /// while first light's front is on screen.
     private(set) var sceneStatus = ""
+
+    // The HUD and the screens (the game).
+    private(set) var overlay: Overlay?
+    /// Where the open card's place is on screen, 0 ... 1 of the width (the card stands above it).
+    private(set) var cardAnchor = 0.5
+    private(set) var gold = 0
+    private(set) var happiness = 0
+    /// Citizens, soldiers included (DESIGN.md "Economy": people), and how many of them are soldiers.
+    private(set) var people = 0
+    private(set) var soldiers = 0
+    private(set) var strip: RealmStrip?
+    /// The horn banner shows the coming night's number while set.
+    private(set) var hornNight: Int?
+    private(set) var settings = SaveSettings()
+    /// Bumped by every action of the player, so the open card reads the realm again.
+    private(set) var revision = 0
 
     init(args: DebugArgs, kind: SceneKind) {
         self.args = args
@@ -86,6 +148,7 @@ final class GameModel {
         var world = PlaceholderScene.world(seed: args.seed)
         var start = min(WorldLayout.walkEnd, max(0, args.cameraX ?? world.king.x))
         var dayClock: DayClock
+        var loadedSettings = SaveSettings()
         if kind == .world {
             let store = SaveStore.standard()
             if args.reset { store?.reset() }
@@ -94,6 +157,8 @@ final class GameModel {
             case .loaded(let save)?:
                 saved = save.state
                 chronicle = args.reset ? nil : save.chronicle
+                loadedSettings = save.settings ?? SaveSettings()
+                adPacing = save.adPacing ?? AdPacing()
             case .corrupt?:
                 store?.keepCorrupt()
             case nil:
@@ -128,14 +193,20 @@ final class GameModel {
         day = driver?.state.day ?? dayClock.day
         clockText = GameModel.format(hour: driver?.state.hour ?? dayClock.hour)
         action = nil
-        refreshAction()
-        refreshGameStatus()
+        settings = loadedSettings
+        feedback.soundOn = settings.sound
+        feedback.hapticsOn = settings.haptics
+        applyScreen()
+        refreshHUD()
     }
 
     /// The debug values (`debug-king-x`, `debug-camera-x`, the scene value's `king:` and `cam:`) show while the king
     /// walks for the jitter test (`-GWAutoplay walk`) or the stats run; the bot playing (`play`) keeps the picture clean.
     var showsDebugValues: Bool { args.autoplay == .walk || args.stats }
     var showsStats: Bool { args.stats }
+    /// The reference bot plays for the screenshots (`-GWAutoplay play`): only the clock (and the screens) over the
+    /// picture.
+    var isShowcase: Bool { args.autoplay == .play }
 
     /// The frame options of the debug arguments, with the system's Reduce Motion.
     var options: FrameOptions {
@@ -153,11 +224,8 @@ final class GameModel {
 
     // MARK: - The game's pause rules
 
-    /// A card or the pause sheet is open: the simulation does not step (the UI sets it).
-    var isPaused: Bool {
-        get { driver?.isPaused ?? false }
-        set { driver?.isPaused = newValue }
-    }
+    /// A card, a screen or the pause sheet is open: the simulation does not step.
+    var isPaused: Bool { driver?.isPaused ?? false }
 
     /// The app became active or left it: nothing steps in the background.
     func setActive(_ active: Bool) {
@@ -167,6 +235,12 @@ final class GameModel {
     /// Writes the dawn snapshot now (the app goes to the background).
     func saveNow() {
         writeSave()
+    }
+
+    /// The app went to the background: the game comes back paused (unless a screen is already open).
+    func pauseForBackground() {
+        guard kind == .world, overlay == nil, !isShowcase, driver?.state.defeated == false else { return }
+        setOverlay(.pause)
     }
 
     // MARK: - Simulation
@@ -192,7 +266,10 @@ final class GameModel {
             clock.advance(by: seconds)
         }
         events.removeAll(keepingCapacity: true)
-        game.accumulate(seconds)
+        // `-GWTimeScale` (tests): more simulated time per real second; the driver still caps a frame's catch-up.
+        game.accumulate(seconds * args.timeScale)
+        let tracking = !game.state.creatures.isEmpty && DayClock.phase(at: game.state.hour) != .day
+        let before = tracking ? game.state.creatures : []
         var stepped = 0
         while game.stepIfDue(events: &events) {
             stepped += 1
@@ -205,17 +282,81 @@ final class GameModel {
         driver = game
         if !events.isEmpty {
             effects.note(events, state: game.state, balance: game.balance, time: animationTime)
-            for event in events {
-                if case .dawn = event { writeSave() }
-            }
+            if tracking { dissolveSwept(before: before, state: game.state, balance: game.balance) }
+            handle(events, state: game.state)
         }
         effects.prune(time: animationTime)
+        shake.prune(time: clock.elapsed)
+        if hornNight != nil && clock.elapsed > hornUntil {
+            hornNight = nil
+        }
         if stepped > 0 {
             let before = steps
             steps += stepped
             if before / 6 != steps / 6 {
                 refreshHUD()
             }
+        }
+    }
+
+    /// The frame's events beyond the visual effects: the dawn's save and report, the defeat card, the horn banner, the
+    /// screen shake and the feedback cues.
+    private func handle(_ frameEvents: [SimEvent], state: GameState) {
+        let time = clock.elapsed
+        for event in frameEvents {
+            switch event {
+            case .dawn:
+                writeSave()
+                if let report = state.lastReport, overlay != .defeat {
+                    setOverlay(.report(report))
+                }
+            case .defeat:
+                setOverlay(.defeat)
+            case .horn:
+                if !isShowcase {
+                    hornNight = state.nightNumber
+                    hornUntil = time + GameModel.hornBannerSeconds
+                }
+            case .wallBroken(let plot):
+                guard plot >= 0, plot < Realm.plots.count else { continue }
+                shake.kick(ScreenShake.strength(ScreenShake.wallBreak, at: Realm.plots[plot].x,
+                                                listenerX: state.king.x), at: time)
+            case .stomp(let x):
+                shake.kick(ScreenShake.strength(ScreenShake.stomp, at: x, listenerX: state.king.x), at: time)
+            default:
+                break
+            }
+        }
+        for cue in thinner.cues(for: frameEvents, time: time, listenerX: state.king.x) {
+            feedback.play(cue)
+        }
+    }
+
+    /// Creatures that vanished without a kill this frame (swept away at first light, receding with the Gloom when the
+    /// Lightless King fell, gone at dawn) dissolve in a puff of soot like any other (DESIGN.md "Feel").
+    private func dissolveSwept(before: [Creature], state: GameState, balance: Balance) {
+        var swept = DayClock.phase(at: state.hour) == .firstLight
+        var kills: [(kind: CreatureKind, x: Double)] = []
+        for event in events {
+            switch event {
+            case .gloomRecedes, .dawn: swept = true
+            case .creatureKilled(let kind, let x): kills.append((kind, x))
+            default: break
+            }
+        }
+        guard swept else { return }
+        var alive = Set<Int>()
+        for c in state.creatures { alive.insert(c.id) }
+        var puffs: [SimEvent] = []
+        for c in before where !alive.contains(c.id) {
+            if let match = kills.firstIndex(where: { $0.kind == c.kind && abs($0.x - c.x) < 24 }) {
+                kills.remove(at: match)
+                continue
+            }
+            puffs.append(.creatureKilled(kind: c.kind, x: c.x))
+        }
+        if !puffs.isEmpty {
+            effects.note(puffs, state: state, balance: balance, time: animationTime)
         }
     }
 
@@ -258,9 +399,10 @@ final class GameModel {
     // MARK: - Input
 
     /// The walk pad's horizontal drag in points from where the finger went down; nil when it lifts. Any drag ends
-    /// autoplay. In the game it sets the simulation's king intent.
+    /// autoplay and a walk the realm strip started. In the game it sets the simulation's king intent.
     func setDrag(offset: Double?) {
         if kind == .world {
+            guard overlay == nil else { return }
             driver?.setDrag(offset: offset, deadZone: GameModel.dragDeadZone, runDistance: GameModel.runDistance)
             return
         }
@@ -270,23 +412,251 @@ final class GameModel {
         }
     }
 
-    /// The action button: in the probe it lights or snuffs the brazier in reach; in the game it lights a snuffed
-    /// brazier or patches a damaged wall (at night).
+    /// The action button: in the probe it lights or snuffs the brazier in reach; in the game it opens the card of
+    /// what is in front of the king (a plot's build card, the barracks, the tax lectern) or, from the horn to dawn,
+    /// lights a snuffed brazier or patches a damaged wall.
     func performAction() {
         switch kind {
         case .world:
-            guard let action = kingAction, var game = driver else { return }
-            events.removeAll(keepingCapacity: true)
-            game.perform(action, events: &events)
-            driver = game
-            if !events.isEmpty {
-                effects.note(events, state: game.state, balance: game.balance, time: animationTime)
+            guard let target, var game = driver, overlay == nil else { return }
+            switch target {
+            case .build(let plot):
+                open(.build(plot: plot), anchorX: KingTargets.anchorX(target, state: game.state, balance: game.balance))
+            case .recruit:
+                open(.recruit, anchorX: KingTargets.barracksX)
+            case .throne:
+                open(.taxes, anchorX: KingTargets.throneX)
+            case .light(let plot), .patch(let plot):
+                let action: KingAction = {
+                    if case .light = target { return .light(plot: plot) }
+                    return .patch(plot: plot)
+                }()
+                var actionEvents: [SimEvent] = []
+                let done = game.perform(action, events: &actionEvents)
+                driver = game
+                if !actionEvents.isEmpty {
+                    effects.note(actionEvents, state: game.state, balance: game.balance, time: animationTime)
+                    handle(actionEvents, state: game.state)
+                }
+                if !done { feedback.play(.refused) }
+                refreshHUD()
             }
-            refreshHUD()
         case .probe:
             scene.toggleBrazier(near: scene.king.x, reach: GameModel.actionReach)
             refreshAction()
         case .lightLab:
+            break
+        }
+    }
+
+    /// A tap on the realm strip at `fraction` of its width: the king runs there (DESIGN.md "Controls").
+    func travel(toFraction fraction: Double) {
+        guard kind == .world, overlay == nil, driver != nil else { return }
+        driver?.travel(to: RealmStrip.worldX(fraction: fraction))
+        refreshHUD()
+    }
+
+    // MARK: - The screens (DESIGN.md "Screens")
+
+    private func setOverlay(_ next: Overlay?) {
+        if overlay != next { overlay = next }
+        driver?.isPaused = next != nil
+        if next != nil { driver?.setDrag(offset: nil) }
+        refreshHUD()
+    }
+
+    private func open(_ card: Overlay, anchorX: Double) {
+        if let view = camera {
+            cardAnchor = min(1, max(0, (anchorX - view.x) / max(1, view.viewWidth)))
+        }
+        feedback.play(.cardOpened)
+        setOverlay(card)
+    }
+
+    /// Closes a card (the close button, a tap beside it).
+    func closeCard() {
+        guard overlay?.isCard == true else { return }
+        feedback.play(.cardClosed)
+        setOverlay(nil)
+    }
+
+    /// The build card of the plot that is open.
+    var buildCard: BuildCard? {
+        guard case .build(let plot)? = overlay, let game = driver else { return nil }
+        _ = revision
+        let reachable = KingTargets.buildPlots(game.state, balance: game.balance, near: game.state.king.x)
+        return BuildCard.make(game.state, plot: plot, balance: game.balance, reachable: reachable)
+    }
+
+    /// The build card's arrows: another plot in reach.
+    func showPlot(_ plot: Int) {
+        guard case .build? = overlay, let game = driver, plot >= 0, plot < Realm.plots.count else { return }
+        let x = KingTargets.spotX(plot: plot, layouts: KingTargets.layouts(game.state, balance: game.balance))
+        open(.build(plot: plot), anchorX: x)
+    }
+
+    /// Orders `item` on the open card's plot through the simulation; the card closes when the order stands.
+    func order(_ item: BuildItem) {
+        guard case .build(let plot)? = overlay, var game = driver else { return }
+        var orderEvents: [SimEvent] = []
+        let result = Build.order(&game.state, plot: plot, item: item, balance: game.balance, events: &orderEvents)
+        driver = game
+        revision += 1
+        if result == .ordered {
+            handle(orderEvents, state: game.state)
+            setOverlay(nil)
+        } else {
+            feedback.play(.refused)
+            refreshHUD()
+        }
+    }
+
+    var recruitCard: RecruitCard? {
+        guard overlay == .recruit, let game = driver else { return nil }
+        _ = revision
+        return RecruitCard.make(game.state, balance: game.balance)
+    }
+
+    /// Recruits a soldier at the barracks; the card stays open for the next one.
+    func recruit(_ kind: SoldierKind) {
+        guard overlay == .recruit, var game = driver else { return }
+        var recruitEvents: [SimEvent] = []
+        let done = Build.recruit(&game.state, kind: kind, balance: game.balance, events: &recruitEvents)
+        driver = game
+        revision += 1
+        if done { handle(recruitEvents, state: game.state) } else { feedback.play(.refused) }
+        refreshHUD()
+    }
+
+    var taxCard: TaxCard? {
+        guard overlay == .taxes, let game = driver else { return nil }
+        _ = revision
+        return TaxCard.make(game.state, balance: game.balance)
+    }
+
+    /// Sets the tax at the lectern (the war tax once it is unlocked).
+    func setTax(_ rate: TaxRate) {
+        guard overlay == .taxes, var game = driver else { return }
+        let done = Economy.setTax(&game.state, rate)
+        driver = game
+        revision += 1
+        feedback.play(done ? .taxSet : .refused)
+        refreshHUD()
+    }
+
+    var reportCard: ReportCard? {
+        guard case .report(let report)? = overlay else { return nil }
+        return ReportCard.make(report)
+    }
+
+    /// The dawn report's Continue: the day begins.
+    func continueReport() {
+        guard case .report(let report)? = overlay else { return }
+        let delta = report.happinessAfter - report.happinessBefore
+        if delta > 0 { feedback.play(.happinessUp) }
+        if delta < 0 { feedback.play(.happinessDown) }
+        setOverlay(nil)
+    }
+
+    var defeatInfo: DefeatInfo? {
+        guard overlay == .defeat, let game = driver else { return nil }
+        let night = max(1, game.state.night.night > 0 ? game.state.night.night : game.state.nightNumber)
+        return DefeatInfo(night: night, secondChanceFrom: secondChanceFrom(night: night, mode: game.state.mode),
+                          replayDay: game.dawnSnapshot.day)
+    }
+
+    /// The night from which the second chance can be taken again, nil when now.
+    private func secondChanceFrom(night: Int, mode: GameMode) -> Int? {
+        let last = adPacing.lastSecondChanceNight
+        guard last > 0 else { return nil }
+        let gap = mode == .endless ? GameModel.secondChanceGapEndless : GameModel.secondChanceGap
+        return night - last >= gap ? nil : last + gap
+    }
+
+    /// The defeat card's second chance (a placeholder for the rewarded video of M7): the hearth flares up, the
+    /// creatures burn away, dawn comes at once and its report follows.
+    func takeSecondChance() {
+        guard let info = defeatInfo, info.secondChanceFrom == nil, var game = driver else { return }
+        var chanceEvents: [SimEvent] = []
+        game.secondChance(events: &chanceEvents)
+        driver = game
+        adPacing.lastSecondChanceNight = info.night
+        overlay = nil
+        effects.note(chanceEvents, state: game.state, balance: game.balance, time: animationTime)
+        handle(chanceEvents, state: game.state)
+        if overlay == nil { setOverlay(nil) }
+    }
+
+    /// The defeat card's "Replay the day": back to this day's dawn.
+    func replayDay() {
+        guard overlay == .defeat, var game = driver else { return }
+        game.replayDay()
+        driver = game
+        restartView(game.state)
+        setOverlay(nil)
+    }
+
+    func openPause() {
+        guard kind == .world, overlay == nil || overlay?.isCard == true else { return }
+        setOverlay(.pause)
+    }
+
+    func resume() {
+        guard overlay == .pause else { return }
+        setOverlay(nil)
+    }
+
+    func setSound(_ on: Bool) {
+        settings.sound = on
+        feedback.soundOn = on
+        writeSave()
+    }
+
+    func setHaptics(_ on: Bool) {
+        settings.haptics = on
+        feedback.hapticsOn = on
+        writeSave()
+    }
+
+    /// The pause sheet's "Restart chapter" (after its confirmation): a new realm on day 1; the Chronicle stays.
+    func restartChapter() {
+        guard overlay == .pause, var game = driver else { return }
+        let seed = SeededRandom.mix(game.state.seed &+ 0x9E37_79B9_7F4A_7C15 &* UInt64(max(1, game.state.day)))
+        game.restart(seed: seed)
+        driver = game
+        adPacing.lastSecondChanceNight = 0
+        restartView(game.state)
+        writeSave()
+        setOverlay(nil)
+    }
+
+    /// After a jump in time or place: the camera cuts to the king, effects and shakes end.
+    private func restartView(_ state: GameState) {
+        camera?.jump(toFocus: state.king.x + GameModel.cameraLead(state))
+        effects = BattleEffects()
+        shake = ScreenShake()
+        hornNight = nil
+    }
+
+    /// `-GWScreen report|finale|defeat`: that screen with sample data over the realm the other arguments made.
+    private func applyScreen() {
+        guard kind == .world, var game = driver else { return }
+        switch args.screen {
+        case .report?:
+            setOverlay(.report(ReportCard.sampleReport()))
+        case .finale?:
+            setOverlay(.report(ReportCard.sampleFinale()))
+        case .defeat?:
+            if DayClock.phase(at: game.state.hour) == .day {
+                game.state.hour = 2.5
+                game.state.night.night = game.state.nightNumber
+            }
+            game.state.hearth = 0
+            game.state.defeated = true
+            game.state.night.defeatHour = game.state.hour
+            driver = game
+            setOverlay(.defeat)
+        default:
             break
         }
     }
@@ -312,11 +682,19 @@ final class GameModel {
                                           options: options)
             }
             let state = game.state
-            let view = ensureCamera(pixelScale, focus: state.king.x + GameModel.cameraLead(state))
+            var view = ensureCamera(pixelScale, focus: state.king.x + GameModel.cameraLead(state))
+            let sway = shake.offset(at: clock.elapsed, reduceMotion: reduceMotion)
+            if sway != 0 {
+                view.jump(toFocus: view.focusX + sway)
+            }
             let filtered = SceneFilter.gameScene(scene, state: state)
-            let layer = EntityFrames.layer(state: state, balance: game.balance, scene: filtered, camera: view,
+            var layer = EntityFrames.layer(state: state, balance: game.balance, scene: filtered, camera: view,
                                            pixelScale: pixelScale, options: options, animTime: animationTime,
                                            effects: effects)
+            for light in DawnSweep.lights(hour: state.hour) {
+                layer.lights.append((source: light, plane: .world))
+            }
+            dawnFront = DawnSweep.screenFraction(hour: state.hour, cameraX: view.x, viewWidth: view.viewWidth)
             var frameClock = DayClock(hour: state.hour, day: state.day)
             frameClock.isFrozen = true
             frameClock.advance(by: clock.elapsed)
@@ -329,6 +707,7 @@ final class GameModel {
         renderedFrames += 1
         if renderedFrames % 6 == 1 {
             publishDebug(frame)
+            if kind == .world { refreshGameStatus() }
         }
         return frame
     }
@@ -401,11 +780,11 @@ final class GameModel {
 
     // MARK: - Saving
 
-    /// The save of the last dawn: written at every dawn and when the app goes to the background; the Chronicle counts
-    /// each dawn once.
+    /// The save of the last dawn: written at every dawn, when the app goes to the background and when a setting
+    /// changes; the Chronicle counts each dawn once. Settings and ad pacing travel with it.
     private func writeSave() {
         guard kind == .world, let store, let game = driver else { return }
-        var save = SaveGame(state: game.dawnSnapshot, chronicle: chronicle)
+        var save = SaveGame(state: game.dawnSnapshot, chronicle: chronicle, settings: settings, adPacing: adPacing)
         save.countDawn()
         chronicle = save.chronicle
         try? store.write(save)
@@ -422,23 +801,30 @@ final class GameModel {
         if text != clockText {
             clockText = text
         }
+        if let game = driver {
+            let s = game.state
+            if s.gold != gold { gold = s.gold }
+            if s.happiness != happiness { happiness = s.happiness }
+            if s.citizens != people { people = s.citizens }
+            if s.soldiers.count != soldiers { soldiers = s.soldiers.count }
+            let window = camera.map { RealmStrip.window(cameraX: $0.x, viewWidth: $0.viewWidth) }
+            let next = RealmStrip.make(s, balance: game.balance, travelTarget: game.travelTarget, window: window)
+            if next != strip { strip = next }
+        }
         refreshAction()
         refreshGameStatus()
     }
 
     private func refreshAction() {
-        var next: BrazierAction?
         switch kind {
         case .world:
-            kingAction = driver?.kingAction
-            switch kingAction {
-            case .light?: next = .light
-            case .patch?: next = .patch
-            case nil: next = nil
+            var next: KingTarget?
+            if let game = driver, overlay == nil, game.bot == nil {
+                next = KingTargets.target(game.state, balance: game.balance)
             }
-            // While the reference bot plays, it acts itself: no button over the picture.
-            if driver?.bot != nil { next = nil }
+            if next != target { target = next }
         case .probe:
+            var next: BrazierAction?
             var best = GameModel.actionReach
             for prop in scene.braziers {
                 let centre = prop.x + Double(prop.width) / 2
@@ -448,19 +834,20 @@ final class GameModel {
                     next = prop.isLit ? .snuff : .light
                 }
             }
+            if next != action { action = next }
         case .lightLab:
-            next = nil
-        }
-        if next != action {
-            action = next
+            if action != nil { action = nil }
         }
     }
 
     private func refreshGameStatus() {
         guard let game = driver else { return }
         let state = game.state
-        let text = "day:\(state.day) hour:\(String(format: "%.2f", state.hour)) alive:\(state.creatures.count) "
-            + "seen:\(seenCreatures) shots:\(state.projectiles.count)"
+        var text = "day:\(state.day) hour:\(String(format: "%.2f", state.hour)) alive:\(state.creatures.count) "
+            + "seen:\(seenCreatures) shots:\(state.projectiles.count) kx:\(Int(state.king.x.rounded()))"
+        if let front = dawnFront {
+            text += " dawn:\(String(format: "%.2f", front))"
+        }
         if text != sceneStatus {
             sceneStatus = text
         }

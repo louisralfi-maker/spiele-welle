@@ -40,6 +40,9 @@ struct SimDriver: Sendable {
     var bot: Autoplay?
     /// `-GWAutoplay walk`.
     var walker: KingWalker?
+    /// Where a tap on the realm strip sends the king (DESIGN.md "Controls"): he runs there and stops; nil when he does
+    /// not travel. Any drag cancels it.
+    var travelTarget: Double?
     /// A card or the pause sheet is open (the UI sets it).
     var isPaused = false
     /// The app is not active.
@@ -98,6 +101,16 @@ struct SimDriver: Sendable {
             state.king.velocity = walk.velocity(kingX: state.king.x, speed: balance.kingWalkSpeed)
             walker = walk
         }
+        if let target = travelTarget, bot == nil {
+            let gap = target - state.king.x
+            if abs(gap) < 0.5 || state.king.lightingPlot >= 0 {
+                state.king.velocity = 0
+                travelTarget = nil
+            } else {
+                let speed = balance.kingRunSpeed
+                state.king.velocity = max(-speed, min(speed, gap / dt))
+            }
+        }
         if var player = bot {
             player.act(&state, dt: dt, balance: balance, events: &events)
             bot = player
@@ -121,6 +134,7 @@ struct SimDriver: Sendable {
         }
         bot = nil
         walker = nil
+        travelTarget = nil
         let distance = abs(offset)
         guard distance >= deadZone else {
             state.king.velocity = 0
@@ -133,6 +147,40 @@ struct SimDriver: Sendable {
     /// What the action button offers now (at night: light a snuffed brazier, patch a damaged wall).
     var kingAction: KingAction? {
         Sim.kingAction(state, balance: balance)
+    }
+
+    /// A tap on the realm strip: the king runs to `x` (inside his walk) and stops there; autoplay ends.
+    mutating func travel(to x: Double) {
+        bot = nil
+        walker = nil
+        travelTarget = min(Realm.walkEnd, max(0, x))
+    }
+
+    /// The defeat card's second chance (DESIGN.md "Losing a night"; the rewarded video comes in M7): the hearth flares
+    /// up, every creature burns away and dawn comes at once. The new dawn is the snapshot the save writes.
+    mutating func secondChance(events: inout [SimEvent]) {
+        guard state.defeated else { return }
+        Sim.secondChance(&state, balance: balance, events: &events)
+        accumulator = 0
+        dawnSnapshot = state
+    }
+
+    /// The defeat card's "Replay the day": the realm as it was at this day's dawn.
+    mutating func replayDay() {
+        state = dawnSnapshot
+        accumulator = 0
+        travelTarget = nil
+        state.king.velocity = 0
+    }
+
+    /// The pause sheet's "Restart chapter": a new realm on the morning of day 1, the player at the controls.
+    mutating func restart(seed: UInt64) {
+        state = GameState.newRealm(seed: seed, balance: balance)
+        dawnSnapshot = state
+        accumulator = 0
+        bot = nil
+        walker = nil
+        travelTarget = nil
     }
 
     /// The action button: lights or patches. Returns true when it did something.

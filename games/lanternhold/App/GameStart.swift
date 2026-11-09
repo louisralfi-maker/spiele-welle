@@ -38,6 +38,16 @@ enum GameStart {
             applyDemo(&state, balance: balance)
             applyDemo(&dawn, balance: balance)
         }
+        if let hour = args.hour, !state.defeated {
+            // `-GWHour`: the reference bot plays on headless to that hour; a dawn on the way renews the snapshot.
+            if gap(from: state.hour, to: ClockEvent.dawnReport.hour) <= gap(from: state.hour, to: hour) {
+                Sim.run(&state, untilHour: ClockEvent.dawnReport.hour, balance: balance, bot: &bot)
+                dawn = state
+            }
+            if !state.defeated && abs(state.hour - hour) > 1e-6 {
+                Sim.run(&state, untilHour: hour, balance: balance, bot: &bot)
+            }
+        }
         applyNumbers(&state, args: args)
         applyNumbers(&dawn, args: args)
         if let x = args.cameraX {
@@ -55,6 +65,13 @@ enum GameStart {
             guardDays += 1
         }
         return s
+    }
+
+    /// Hours from `start` until the clock next shows `hour` (0 < gap ≤ 24, as `Sim.run` counts them).
+    static func gap(from start: Double, to hour: Double) -> Double {
+        var gap = DayClock.wrap(hour) - DayClock.wrap(start)
+        if gap <= 1e-9 { gap += DayClock.hoursPerDay }
+        return gap
     }
 
     /// `-GWGold` and `-GWHappiness`.
