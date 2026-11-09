@@ -2,6 +2,7 @@
 # --size 90x56 --box 1040,212,1496,600 --flood, town palette) and cleaned; the storeys hand-set: a jettied half-timbered
 # upper storey with three windows and braced bays, a ground floor of grey stone with an arched oak door, two wide
 # windows, a bench, two barrels, and a wooden sign with a gold tankard hanging from an iron bracket at the right.
+# A wall lantern (dark glass) beside the door.
 n = night0
 N = night1
 d = stoneDark
@@ -63,11 +64,11 @@ kkkknkwttttttttttttttttttttttttttttttttttttwnnnwwwttttttttttttttttttttttttttkknk
 ........kmmdddmmmmmdddmmmmmdddmmmddkkppppppkkmdddmmmdddmmmdddsssssdddmmmmmdk..k..kwkkkkwk.
 ........kddddmmmmmmmmmmmmmdddddddddkppwoowppkdddddddddmmmmmmmmmmmmmddddddddk.k...kccccook.
 ........kdsppswwwwwwwwwwwslllsdmllkppowoowoppkpppsdsppswwwwwwwwwwwppppldspppk....kgYYgogk.
-........kdpssmwNNwNNwNNwwlsssmdlmmppoowoowooppsssmdpssmwNNwNNwNNwwssllsdpssk.....kgYYggok.
-........kdsssmwNNwNNwNNwwssssmdmmmppoowoowooppsssmdsssmwNNwNNwNNwwllllsdssmk.....kgYYgogk.
-........kddmmdwwwwwwwwwwwdmmmdddddpkowLowLowkpmmmdddmmdwwwwwwwwwwwssssdddmmk.....kggggook.
-........kdddddwNNwNNwNNwwddddddddddkowLowLowkddddddddddwNNwNNwNNwwdddddddddk.....kooooook.
-........ksdsllwNNwNNwNNwwmllllmdsppkowLowLowkpppppldsppwNNwNNwNNwwdspppsdspk.....kkkkkkkk.
+........kdpssmwNNwNNwNNwwlsssmkkmmppoowoowooppsssmdpssmwNNwNNwNNwwssllsdpssk.....kgYYggok.
+........kdsssmwNNwNNwNNwwssssmdkkkppoowoowooppsssmdsssmwNNwNNwNNwwllllsdssmk.....kgYYgogk.
+........kddmmdwwwwwwwwwwwdmmmddkNkpkowLowLowkpmmmdddmmdwwwwwwwwwwwssssdddmmk.....kggggook.
+........kdddddwNNwNNwNNwwddddddkNkdkowLowLowkddddddddddwNNwNNwNNwwdddddddddk.....kooooook.
+........ksdsllwNNwNNwNNwwmllllmkkkpkowLowLowkpppppldsppwNNwNNwNNwwdspppsdspk.....kkkkkkkk.
 ........kmdlsmwwwwwwwwwwwlmmmmddpsskdlddddldkllsllsdpsmwwwwwwwwwwwdpsssmdpsk..............
 ........kmdsspppppppppppppmmmmddssskowLowLowklllllsdsspppppppppppppssssmdssk..............
 ........kdddmmmmmdddmmmdwooowddddmmkowLowLowksssssdddmmmmdddmmmmmdddmmmdddmk..............

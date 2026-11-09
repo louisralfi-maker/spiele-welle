@@ -60,9 +60,9 @@ Recraft (`bash tools/recraft.sh`, `recraftv4_1`, 35 credits per image), budget 1
 | `lodge` | 56x44 | grid (design from `court-a`) | a timber workshop on a stone base, its doors open, a shingle roof, logs, a ladder, a wheelbarrow, a saw sign |
 | `bigLodge` | 64x52 | grid (design from `court-a`) | two storeys (stone and timber), teal slate, a crane hoist with a block on its rope, stone blocks and planks |
 
-| `bigHouse` | 72x56 | Recraft `town-a` (left) for the roof and chimneys + hand-set storeys | two storeys in the cottages' half-timbering: a jettied upper storey with two windows between braced bays, a ground floor with two windows over flower boxes, an oak door, a stone plinth; a tile roof with a dormer and two chimneys |
+| `bigHouse` | 72x56 | Recraft `town-a` (left) for the roof and chimneys + hand-set storeys | two storeys in the cottages' half-timbering: a jettied upper storey with two windows between braced bays, a ground floor with two windows over flower boxes, an oak door, a stone plinth; a tile roof with a hand-drawn dormer and two chimneys |
 | `market` | 90x40 | grid (layout from `town-a`, middle) | three stalls under raspberry, teal and ochre striped awnings with scalloped valances, counters piled with produce, cloth and pots, crates and barrels |
-| `tavern` | 90x56 | Recraft `town-a` (right) for the roof with its gable + hand-set storeys | a half-timbered upper storey with three windows, a grey stone ground floor with an arched door and two wide windows, a bench, barrels, a sign with a gold tankard on an iron bracket |
+| `tavern` | 90x56 | Recraft `town-a` (right) for the roof with its gable + hand-set storeys | a half-timbered upper storey with three windows, a grey stone ground floor with an arched door, a wall lantern and two wide windows, a bench, barrels, a sign with a gold tankard on an iron bracket |
 | `plotMarker` | 10x16 | grid | a staff with a small teal flag, two stakes with a rope, a little soil heap |
 | `arrow` | 7x5 x 3 | grid | pointing right (mirrored when flying left): rising, flat, falling; pale fletching, an iron tip |
 | `fireArrow` | 7x5 x 3 | grid | as `arrow` with a pitch rag bound behind the head |
@@ -133,8 +133,8 @@ night0, night1 and ink pixel inside a mask, so a mask over an outline would glow
 | `lodge` | window glass | (11, 11, 4, 4); optional: the open doorway's dark inside (22, 1, 12, 15) as a dim warm glow |
 | `bigLodge` | window glass | (9, 26, 3, 4), (22, 26, 3, 4), (35, 26, 3, 4), (47, 26, 3, 4); optional doorway (22, 0, 14, 16) |
 | `smithy` | vent | the gable vent (20, 36, 3, 2) can glow faintly with the forge |
-| `bigHouse` | window glass | upper (26, 24, 5, 5), (41, 24, 5, 5); ground (16, 9, 5, 5), (50, 9, 5, 5); the dormer (31, 41, 6, 4) |
-| `tavern` | window glass | upper (11, 25, 5, 5), (41, 25, 5, 5), (69, 25, 5, 5); ground (15, 9, 8, 5), (56, 9, 8, 5) |
+| `bigHouse` | window glass | upper (26, 24, 5, 5), (41, 24, 5, 5); ground (16, 9, 5, 5), (50, 9, 5, 5); the dormer (35, 40, 3, 2) |
+| `tavern` | window glass | upper (11, 25, 5, 5), (41, 25, 5, 5), (69, 25, 5, 5); ground (15, 9, 8, 5), (56, 9, 8, 5); the wall lantern by the door (32, 10, 1, 2) |
 | `greatBeacon` | slit glass | masks (dx 23, dy 55, w 2, h 9) and (dx 38, dy 33, w 2, h 8) |
 
 ## Notes for the lead
