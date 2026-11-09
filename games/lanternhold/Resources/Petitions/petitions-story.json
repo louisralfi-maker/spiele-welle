@@ -351,7 +351,7 @@
       ],
       "text": "petition.refugees_gate.text",
       "hint": "petition.refugees_gate.hint",
-      "counsel": 1,
+      "counsel": 2,
       "choices": [
         {
           "label": "petition.refugees_gate.c1",
@@ -593,6 +593,9 @@
           "flags": [
             "herald_refused"
           ],
+          "night": [
+            "wave+15pct"
+          ],
           "reaction": "petition.herald_demand.r2"
         },
         {
@@ -603,7 +606,7 @@
             "herald_mocked"
           ],
           "night": [
-            "wave+20pct"
+            "wave+25pct"
           ],
           "reaction": "petition.herald_demand.r3"
         }

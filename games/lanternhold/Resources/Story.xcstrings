@@ -6020,13 +6020,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die kalten Augen des Herolds ruhen lange auf Euch. „Er wird sich an den Laternenanzünder erinnern.“ Die Fackeln flackern, als er geht."
+            "value" : "Die kalten Augen des Herolds ruhen lange auf Euch. „Er wird sich an den Laternenanzünder erinnern.“ In dieser Nacht drängt die Düsternis härter."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The herald’s cold eyes rest on you a long moment. “He will remember the lamplighter.” The torches gutter as he goes."
+            "value" : "The herald’s cold eyes rest on you a long moment. “He will remember the lamplighter.” That night the Gloom comes harder."
           }
         }
       }
@@ -9656,13 +9656,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sechs Mäuler in einem mageren Monat. Nehmt die Kinder und die Alten; die Starken schaffen es bis zur Küste. Ich weiß, wie das klingt."
+            "value" : "Sechs Mäuler eine Woche vor dem Ende, und keine einzige Mauer dafür. Die Küstenstraße ist offen. Ich weiß, wie das klingt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Six mouths in a lean month. Take the children and the old; the strong can walk to the coast. I know how that sounds."
+            "value" : "Six mouths a week before the end, and not one wall to show for them. The coast road is open. I know how that sounds."
           }
         }
       }
