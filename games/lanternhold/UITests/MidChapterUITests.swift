@@ -46,6 +46,28 @@ final class MidChapterUITests: XCTestCase {
         day.terminate()
     }
 
+    /// Night 20 of the reference bot's realm (the Great Beacon finished): the beacon flares up as the Lightless King
+    /// leaves the Gloom, his aura breaks in its light and the archers turn on him. Two shots (English only: the
+    /// picture has no text but the clock).
+    func testFinale() {
+        guard language == "en" else { return }
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = ["-GWNight", "20", "-GWAutoplay", "play"]
+        app.launch()
+        if waitUntilReady(app, name: "finale") {
+            for shot in [(name: "34-finale-2230", hour: 22.5), (name: "35-finale-2345", hour: 23.75)] {
+                if let reached = waitForHour(app, shot.hour, timeout: 120) {
+                    attach(XCUIScreen.main.screenshot(), "\(shot.name)-\(language)")
+                    note("\(shot.name)-hour", "\(shot.name): taken at hour \(String(format: "%.2f", reached))")
+                } else {
+                    XCTFail("\(shot.name): the night never reached hour \(shot.hour)")
+                }
+            }
+        }
+        app.terminate()
+    }
+
     // MARK: - Helpers
 
     /// Waits for the scene and its "ready" value (30 frames drawn at a stable size).

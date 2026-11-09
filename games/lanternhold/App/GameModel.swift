@@ -127,8 +127,9 @@ final class GameModel {
         refreshGameStatus()
     }
 
-    /// The debug values (`debug-king-x`, `debug-camera-x`) show while autoplay or the stats run.
-    var showsDebugValues: Bool { args.autoplay != nil || args.stats }
+    /// The debug values (`debug-king-x`, `debug-camera-x`, the scene value's `king:` and `cam:`) show while the king
+    /// walks for the jitter test (`-GWAutoplay walk`) or the stats run; the bot playing (`play`) keeps the picture clean.
+    var showsDebugValues: Bool { args.autoplay == .walk || args.stats }
     var showsStats: Bool { args.stats }
 
     /// The frame options of the debug arguments, with the system's Reduce Motion.

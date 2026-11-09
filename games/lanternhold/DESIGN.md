@@ -792,15 +792,15 @@ tap in Release) is checked on an A12 iPhone and a current one before the store.
 
 | Argument | Effect |
 |---|---|
-| `-GWReset YES` | fresh save |
-| `-GWScene world\|lightlab\|testpattern` | the game world (default), the light lab, or the pixel-grid test pattern |
-| `-GWDay <n>` / `-GWNight <n>` | start at that day's dawn / that night's dusk, with a scripted realm for that point |
+| `-GWReset YES` | fresh save (the save file is removed; the game starts a new realm) |
+| `-GWScene world\|probe\|lightlab\|testpattern` | the game (default: the simulation drawn into the M1b world), the M1b light probe (the scene as placed for the shots, no simulation; `LightProbeUITests` use it), the light lab, or the pixel-grid test pattern |
+| `-GWDay <n>` / `-GWNight <n>` | the seeded headless reference bot (`Autoplay.reference`, headless steps) plays a new realm to that day's morning (06:00) / that night's 20:00 and hands it over; the save is not loaded |
 | `-GWTimeOfDay <0…1>` | clock position (0 midnight, 0.25 dawn, 0.5 noon, 0.8 dusk) |
 | `-GWFreezeTime YES` | the clock stands still (flicker keeps running unless `-GWFlickerTime <s>` fixes it) |
 | `-GWCameraX <px>` | camera position; the king stands there |
-| `-GWAutoplay walk\|play` | the king walks back and forth / a bot plays whole days (builds by a fixed order, hears petitions choosing the first option, walks the walls at night) |
-| `-GWGold <n>` / `-GWHappiness <n>` | set the numbers |
-| `-GWBuild demo` | every line built at tier 2 with towers, braziers and engines |
+| `-GWAutoplay walk\|play` | the king walks back and forth / the reference bot plays live (it sets the king's intent and orders by its build order before every step; at night it lights snuffed braziers, patches and stands behind the front wall); any drag ends it |
+| `-GWGold <n>` / `-GWHappiness <n>` | set the numbers (happiness 0 to 100) |
+| `-GWBuild demo` | a built-up realm for screenshots: the iron gate, stone walls on the middle and outer line, an archer tower on lines 1 and 3 and a watchtower on line 2, braziers and two fire towers, a ballista (line 2) and a catapult (line 3), stake pits on every line, the beacon at stage 2, smithy and lodge (3 builders), two big houses, two cottages, both fields, market and tavern; 24 citizens, 14 archers, 4 guards, happiness at least 70. At night every archer stands on his post at once and no build is in progress; by day the third beacon stage and the outer line's watchtower are being built, the builders at work |
 | `-GWScreen title\|audience\|report\|defeat\|story` | open that screen with sample data |
 | `-GWSeed <n>` | seed of the random stream |
 | `-GWVirtualHeight 180\|135`, `-GWScaleOverride <s>` | pixel scale experiments |
@@ -816,7 +816,8 @@ tap in Release) is checked on an A12 iPhone and a current one before the store.
 ## Accessibility identifiers
 
 `title-continue`, `title-chapter`, `title-endless`, `settings-open`, `world-root`, `world-scene` (its value carries
-`frame:<n>` and `ready` once frames are stable after a freeze), `hud-gold`, `hud-happiness`, `hud-clock`, `hud-pause`,
+`frame:<n>` and `ready` once frames are stable after a freeze; in the game also `day:<n> hour:<h.hh>`, the
+simulation's clock), `hud-gold`, `hud-happiness`, `hud-clock`, `hud-pause`,
 `realm-strip`, `action-button`, `build-card`, `build-option-<id>`, `audience-root`, `audience-choice-<n>`,
 `audience-counsel`, `audience-leave`, `tax-<rate>`, `report-root`, `report-continue`, `report-ad-double`,
 `report-fallen`, `merchant-gift`, `defeat-root`, `defeat-second-chance`, `defeat-replay`, `story-next`, `story-skip`,
@@ -853,9 +854,10 @@ same seed and time give the same hash), `SaveGameTests` (round trip, old saves, 
    `tools/simtune` also counts seeds 1 to 20, so the bands are chosen with margin, not on a coin flip.
 7. In endless, the reference bot falls between night 35 and 60.
 8. Each night's last wave leaves by 03:00; a night with 40 creatures keeps under 300 sprite instances and 40 lights.
-   Until M2b the test is a sim-side proxy (drawn sim entities and battle lights on the night nearest 40 creatures); M2b
-   adds a `FrameBuilder` budget test with 40 creatures alive, counting sprite instances and every light, the scene's
-   windows and candles included.
+   `TuningTests` keeps the sim-side proxy (drawn sim entities and battle lights on the night nearest 40 creatures);
+   M2b's `FrameBudgetTests` counts the real frames: 40 creatures alive across the front of the manned demo realm with
+   arrows in flight and fires burning, on four screens and seven camera positions, and a whole live night 12 at the
+   app's step, every sprite instance and every light counted, the scene's windows and candles included.
 
 ### Tuning (M2a)
 
@@ -972,7 +974,11 @@ Open points:
 
 1. `testLightProbe` (milestone 1): the scenes and times of "Milestone 1" plus the pixel-grid check on the test pattern.
 2. `testFirstDay`: `-GWReset YES`, onboarding on; walk, build, audience, night, report.
-3. `testMidChapter`: `-GWDay 12 -GWBuild demo -GWAutoplay play`; a night at 23:00, the report.
+3. `testMidChapter` (`UITests/MidChapterUITests.swift`, M2b): `-GWNight 12 -GWBuild demo -GWAutoplay play`, shots at
+   about 21:30, 23:00 and 01:00 (`30-mid-2130`, `31-mid-2300`, `32-mid-0100`), then `-GWDay 12 -GWBuild demo
+   -GWCameraX 600` for the same realm by day with the builders at work (`33-mid-day`); the clock is read from the
+   scene's value (`hour:`). `testFinale` (English): `-GWNight 20 -GWAutoplay play`, the beacon lit and the Lightless
+   King in its light (`34-finale-2230`, `35-finale-2345`). The report comes with the UI step.
 4. `testAudience`: `-GWScreen audience` in every language (the longest petition) for clipping.
 5. `testFilmstrip` (English): a frame every 1.2 s through a dusk and a night, for the fun check.
 

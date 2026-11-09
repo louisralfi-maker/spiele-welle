@@ -119,7 +119,7 @@ final class SimDriverTests: XCTestCase {
         s.plots[plot].snuffed = true
         s.king.x = Realm.plots[plot].x
         var driver = SimDriver(state: s, balance: balance)
-        XCTAssertEqual(driver.kingAction, .light(plot: plot))
+        XCTAssertEqual(driver.kingAction, KingAction.light(plot: plot))
         var events: [SimEvent] = []
         XCTAssertTrue(driver.perform(.light(plot: plot), events: &events))
         for _ in 0..<6 {
