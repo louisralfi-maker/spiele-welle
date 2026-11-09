@@ -146,7 +146,7 @@ final class MidChapterUITests: XCTestCase {
         while Date().timeIntervalSince(started) < timeout {
             let text = (scene.value as? String) ?? ""
             if let hour = field(text, "hour:") {
-                let night = hour < 12 && target > 24 ? hour + 24 : hour
+                let night = hour < 12 && target >= 24 ? hour + 24 : hour
                 if night >= target { return night }
             }
             pause(0.4)
@@ -155,13 +155,15 @@ final class MidChapterUITests: XCTestCase {
     }
 
     /// Watches the scene until the clock reaches `until` (or `timeout`) and keeps the screenshot of its liveliest
-    /// moment: creatures in view count twice, projectiles in flight once (up to eight), archers drawing or loosing
-    /// once (up to three; M2b review: arrows in the air and an archer shooting in every night shot).
+    /// moment: creatures in view count twice (up to eight), projectiles in flight twice (up to ten), archers drawing or
+    /// loosing once (up to three; M2b review: arrows in the air and an archer shooting in every night shot, also in the
+    /// finale's crowds).
     private func liveliestShot(_ app: XCUIApplication, until target: Double,
                                timeout: TimeInterval) -> (screenshot: XCUIScreenshot, value: String) {
         let scene = element(app, "world-scene")
         func score(_ text: String) -> Double {
-            2 * (field(text, "seen:") ?? 0) + min(8, field(text, "shots:") ?? 0) + min(3, field(text, "aim:") ?? 0)
+            2 * min(8, field(text, "seen:") ?? 0) + 2 * min(10, field(text, "shots:") ?? 0)
+                + min(3, field(text, "aim:") ?? 0)
         }
         var bestValue = (scene.value as? String) ?? ""
         var best = XCUIScreen.main.screenshot()
@@ -175,7 +177,9 @@ final class MidChapterUITests: XCTestCase {
                 bestScore = score(text)
             }
             if let hour = field(text, "hour:") {
-                let night = hour < 12 && target > 24 ? hour + 24 : hour
+                // A window ending at midnight (24) counts the hours past midnight from 24 too (M2b review: it ran on
+                // to its timeout, so the 23:00 shot came from 01:17).
+                let night = hour < 12 && target >= 24 ? hour + 24 : hour
                 if night >= target { break }
             }
             pause(0.25)
