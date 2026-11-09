@@ -139,7 +139,7 @@ Day and night sheets of every sprite (`actorart.py sheet <id> --frames 8`): `bui
 - Step 2 (the portraits and the composed parts): done, see "Step 2: the portraits" below (the swap ramps are in
   `palette.txt`, and `pixelart.py` skips `swap` entries unless `--allow-swap`).
 - Later steps: the rooms (`hallFront`, `chapelInterior`, `kitchenInterior`) and the props (`bench`, `taxLectern`,
-  `marekCart`, `statue`, `speakerMark`); the hall mocks then get the benches, Marek his cart.
+  `marekCart`, `statue`, `speakerMark`); the hall mocks then get the benches, Marek his cart. Done in step 3 (below).
 - The lead's decisions on the seated king, sit frames, a plum ramp and a cold glow colour (above).
 - The faces stay one eye pixel, as the M2b cast; the audience card's portraits carry the expressions.
 
@@ -313,3 +313,180 @@ fit it too (they look a little big on a child, which reads as a child); the chil
   petitions need them.
 - The rebuild is float maths: byte for byte on this Mac (checked, see "Reproducible"), possibly a pixel off on
   another machine; if that ever matters, the portraits can be frozen as text grids (`actorart.py dump`).
+
+# Step 3: the castle's rooms and the court's props (09.11.2026)
+
+Every room and prop id of SPRITES.md "M3" ("The castle's rooms", "Props for the court") is real pixel art now: the
+great hall's front, the chapel of the Flame and the castle kitchen inside, the petitioners' bench, the tax lectern,
+Marek's cart, the statue of the lamplighter king and the speech mark; 8-bit RGBA, binary alpha, palette colours only,
+albedo in even daylight (no glow, no baked night, no light pools: the renderer lights the rooms). Each interior and its
+front share one silhouette pixel for pixel (checked with `roomart.py silhouette`): `hallFront` is painted inside
+`hallInterior`'s opaque pixels, `chapelInterior` inside `chapel`'s, `kitchenInterior` inside `kitchen`'s, so a front
+that fades out never changes the room's outline. The chapel's and the kitchen's fronts keep their silhouettes; where
+the interiors needed it they were touched up in albedo (below).
+
+## Credits (step 3)
+
+Recraft: **356 before, 356 after: 0 spent** (`bash tools/recraft.sh me` before and after; the task text's 391 was
+the balance before step 2). The lane has spent 35 of its 300 in all. No painting was needed: the rooms must match their
+fronts' silhouettes and the engine's anchors to the pixel, and their life is in details of 3 to 12 px, which a
+downscaled painting turns to mush (ART-buildings.md: `court-a`; step 2: `p1`).
+
+## Method and pipeline (step 3)
+
+The rooms and props are painted in code, as the buildings lane hand-set its courtyard: a small deterministic palette
+painter with material brushes for the large surfaces and hand-set stamps for the small things.
+
+| File | What it does |
+|---|---|
+| `tools/roomart.py` | the painter: a canvas of palette names with an optional clip (a front's silhouette), shapes (rects, lines, polygons, ellipses, two-centred pointed and round arches), brushes (`ashlar` dressed courses with lit tops, joints and crevices; `planks`; `beam`; `post`; `slate`; `plaster`; `flagstones` and `floorboards` in perspective), stamps from text grids, and the commands `build <id> [--out DIR]`, `list`, `silhouette <a.png> <b.png>` (exit 1 when the opaque pixels differ) and `anchors <id>`. Integer hashing only (no random module, no trigonometry in the pixels), so a rebuild writes the same bytes |
+| `tools/roomscenes.py` | one paint function per sprite (`hallFront`, `chapelInterior`, `kitchenInterior`, `bench`, `taxLectern`, `marekCart`, `statue`, `speakerMark`); each records its anchors (window glass masks, flames, lights, where the court stands) in the engine's convention, which `roomart.py anchors <id>` prints and the mocks read |
+| `tools/grids/court/rooms/hall.txt`, `chapel.txt`, `kitchen.txt`, `cart.txt`, `props.txt` | the stamps: the banner's lantern emblem, wall lanterns, the notice board, the crest, logs, the chopping block, potted bays, pigeons; the frieze, capitals, the bell, stained-glass motifs, the saint's hood and rays, the altar, the Flame's bowl, candlesticks, candle stands, sconces, the vase, the sanctuary lamp, the pew; herbs, garlic, the ham, pots, plates, crocks, the jug, loaves, the cheese, the board and knife, apples, the table candle, the barrel, sacks, the cat and its stool, the broom, the cauldron, the peel, the sill pots, sausages, the utensil rack, the mouse hole; the cart's wares; the bench, the lectern, the speech mark and the statue's plinth |
+| `tools/build-art-court.sh` | builds the eight ids with `roomart.py build` after step 1's sprites and step 2's portraits (`build-art.sh` runs the lane after the scene sprites, the buildings and the actors: `hallFront` reads `hallInterior.png`, the interiors read their fronts, the statue and the saint read `king.png`) |
+| `tools/build-art.sh` | the `chapel` and `kitchen` steps gained a `post` line each (the touch-ups below); the conversions are unchanged |
+| `tools/scenemock/scene_castle.py`, `run_castle.sh` | the context scenes (below), reusing scene_court.py's actors and mock root |
+
+**Reproducible:** one `build-art.sh` call in a scratch copy of the committed tree (`git archive` of the lane's head)
+with `Resources/Art` emptied and the Recraft raws copied from `build/recraft/lh/`: see "Rebuild check" at the end of
+this step.
+
+## Sprites (step 3)
+
+| id | size | look |
+|---|---|---|
+| `hallFront` | 260x90 | the great hall's outer wall from the courtyard, inside `hallInterior`'s silhouette: its end walls, stacks and caps are the interior's own pixels (only the middle fades); a teal slate roof with ridge tiles and iron cresting on the interior's beam ends, a stone cornice on a corbel table, dressed stone courses; the main door (left, toward the courtyard) in a pointed arch of voussoirs on quoined jambs with oak leaves, iron straps, studs and ring handles, the realm's crest above, iron wall lanterns either side, potted bays at its foot; a notice board of decrees and petitions; three tall two-light windows with dark glass in lead cames (stoneDark, so the cames stay dark when the glass glows) and stone mullions; the two banners of the realm (deep teal, gold lantern, gold hem) hung on buttresses; the hearth's firewood stacked under a lean-to with a chopping block and an axe; ivy from the corner; pigeons on the cornice; moss at the plinth |
+| `chapelInterior` | 160x96 | the chapel of the Flame inside, in `chapel`'s silhouette: a starry vault in the realm's teal with gold stars over timber ribs and a carved wall plate, a king-post truss in the chancel's gable; the belfry with its bronze bell, louvres and the spire's rafters, the bell rope with its striped grip down into the nave; cream lime-plaster walls under a red frieze of gold flames, an oak wainscot; two stone shafts with candle sconces; the four lancets at the front's lancets in stained glass (border quarries in teal and gold, a flame, a lantern, a star, a flame); the lamplighter saint as a painted relief in a starry niche (the old lamplighter in the cream and gold robe of the Flame's order, hooded, white-bearded, his lantern raised on its hooked pole, gilded rays); the altar on the chancel step with its cream and gold frontal and the Flame's emblem, the Flame's gold-rimmed stone bowl, two gold candlesticks, two iron candle stands, a vase of lilies and roses; a sanctuary lamp with red glass on its chain; five pews facing the altar; flagstones and a red runner up the nave |
+| `kitchenInterior` | 120x80 | the castle kitchen inside, in `kitchen`'s silhouette: the chimney stack as outside (the front's pixels), the room open to the rafters (ridge beam, purlin, hip rafters, the tie beam), the stone flue rising from the hearth into the stack with sausages smoking beside it; whitewashed walls between the timbers over a stone plinth; the two windows at the front's windows with daylight panes, cross bars and herb pots on the sills; herbs, garlic braids and a ham from the tie beam; copper pots and a pan on a rail; a shelf of plates, crocks and a jug; the oven-hearth under the flue: a stone hood, an oak mantel with a crock and a jug, stone jambs, a sooty fireback, the crane with the cauldron over the logs, a bread peel; the table with two loaves, a cheese, a board and knife, apples and a candle; a barrel, two flour sacks, a broom, a utensil rack; the ginger and white cat asleep on its stool by the fire; a mouse hole |
+| `bench` | 32x10 | a petitioners' bench: an oak plank seat with a teal cushion and gold tassels on turned legs with a stretcher |
+| `taxLectern` | 12x20 | the realm's ledger open on an oak desk (text lines, a red ribbon), a quill, a little stack of the day's coins on the post, a turned post on a base |
+| `marekCart` | 48x30 | Marek's cart: a striped awning in rose and cream with a scalloped valance on two poles, a barrel, a crate with a rolled rug, bolts of cloth in teal, green and red, jugs, a lantern on the pole, his sign of a gold coin on the plank bed, two spoked wheels, the shafts resting on the ground |
+| `statue` | 20x40 | the lamplighter king with his lantern raised: the king's command frame (`king` frame 8) carved colour for colour in pale stone (cloak, tunic, beard, crown and pole stay apart), the lantern's glass gilded, on a plinth with a cornice and a bronze plaque, moss at its foot |
+| `speakerMark` | 7x7 x 2 | a parchment speech bubble with a red "!" and its tail down to the speaker; frame 1 (the pulse) lit gold |
+
+### The fronts touched up (`build-art.sh`, albedo only, silhouettes unchanged)
+
+- `chapel`: the gable end's painted night shade lifted one value step (night1, stoneMid, stoneDark, night0 each one
+  step lighter in four rects round lancet 4, whose glass and frame stay dark); a small oak door with a stone lintel,
+  iron straps and rings under lancet 4, where the painting left dark mud. Before, the right third of the chapel read as
+  night by day and jumped from dark to bright when the front faded into the interior.
+- `kitchen`: the same one-step lift on the ground floor's right corner (x 93-112, rows 57-79) and the stack's top; the
+  roof's far hip and the stack's shaded half are kept.
+
+## Anchors for the engine (sprite pixels; dx from the left edge, dy up from the bottom row, as ART-buildings.md)
+
+Masks are tight to the panes (the engine glows every night0, night1 and ink pixel inside a mask). Lights are given as
+(kind, cx, y, radius) in sprite pixels; add the room's world x (hall 1700, chapel 1960, kitchen 2120, cart 1486).
+
+| sprite | what | where |
+|---|---|---|
+| `hallFront` | window glass | masks (dx 92, dy 18, w 9, h 32), (135, 18, 9, 32), (181, 18, 9, 32): the three windows' lights (mullions and cames stay dark); a window light (window, 8) at (cx 96, y 34), (139, 34), (185, 34) |
+| `hallFront` | wall lanterns | glass masks (dx 26, dy 34, w 3, h 3) and (65, 34, 3, 3); lights (lantern, 24) at (cx 27, y 35) and (66, 35) |
+| `hallFront` | door | the threshold gap under the leaves as a mask (dx 38, dy 8, w 18, h 1): warm light under the door at night |
+| `chapel` (front) | lancet glass | masks (dx 24, dy 19, w 10, h 24), (60, 19, 10, 24), (95, 19, 10, 24), (129, 20, 9, 23) over the painted panes; the layout's `windowGlow` sprites at (dx 18, 54, 89, 125; dy 28) sit half on each lancet's left frame |
+| `chapelInterior` | the Flame | `brazierFlame` at (dx 112, dy 23), its bottom row on the gold rim of the stone bowl on the altar; its light (brazier, 54) at (cx 116, y 26) |
+| `chapelInterior` | candles | `candleFlame` at (dx 108, dy 26) and (124, 26) on the altar candlesticks, lights (candle, 12) at (108, 27) and (124, 27); at (dx 99, dy 17) and (133, 17) on the candle stands, lights (candle, 12) at (99, 18) and (133, 18); at (dx 43, dy 38) and (76, 38) on the shafts' sconces, lights (candle, 14) at (43, 39) and (76, 39) |
+| `chapelInterior` | sanctuary lamp | its red glass as a mask (dx 142, dy 39, w 2, h 2), a light (lantern, 22) at (cx 142, y 39) |
+| `chapelInterior` | lancets | no masks: the stained glass is coloured albedo (it shows by day; at night it is dark, lit by the candles and the Flame) |
+| `kitchen` (front) | window glass | four panes each: (dx 30, dy 36, w 3, h 3), (34, 36, 4, 3), (29, 32, 4, 3), (34, 32, 4, 3) and (83, 36, 4, 3), (88, 36, 4, 3), (83, 32, 4, 3), (88, 32, 4, 3) |
+| `kitchenInterior` | the hearth fire | `hearthFire` at (dx 95, dy 5) on the logs between the jambs (the opening is 16 px wide); its light (hearth, 62) at (cx 103, y 9) |
+| `kitchenInterior` | table candle | `candleFlame` at (dx 46, dy 18), a light (candle, 14) at (cx 47, y 19) |
+| `kitchenInterior` | windows | no masks: the panes are daylight albedo (daySky with a foam glint), which the night ambient turns to moonlit glass |
+| `marekCart` | lantern | glass mask (dx 37, dy 20, w 1, h 2), a light (lantern, 20) at (cx 37, y 20) |
+| `bench`, `taxLectern`, `statue`, `speakerMark` | none | the bench seats two at dx 12 and 28 (the code lane's seats 1724, 1740 and 1772, 1788 at benches 1712 and 1760); the speech mark's tail is at its bottom left (dx 1-2): draw its bottom row about 2 px over the speaker's head |
+
+### Where the court stands in the new rooms (dx in the sprite, facing +1 right)
+
+| who | spot | world x | the code lane's number |
+|---|---|---|---|
+| Mother Hesper | at the altar, facing it (right) | 2058 (dx 98) | 2052: keep or move 6 px |
+| Mother Hesper | by the pews, facing left | 2012 (dx 52) | 2010 |
+| Tamsin | at the table (it stands at dx 20-56), facing right | 2158 (dx 38) | 2146 (then "the oven") |
+| Tamsin | at the hearth (dx 94-112, under the chimney on the right), facing right | 2208 (dx 88) | 2196 (then "the table") |
+
+The kitchen's hearth stands under the front's chimney (right), so Tamsin's two stops swap sides against the code lane's
+first guess. The cat is painted into `kitchenInterior` (on its stool at dx 80-91, by the fire): static.
+
+## Context scenes (step 3, `tools/scenemock/scene_castle.py`, `run_castle.sh`)
+
+Each renders `build/recraft/lh/preview/castle-<scene>.png` (437x201 upscaled x3, the look of `run_actors.sh`) and a
+device-scale crop of the room, `castle-<scene>-x6.png` (6 device px per game px). The rooms' emitters and lights come
+from their recorded anchors. A closed scene draws the front over the interior and drops the interior's furniture and
+lights (a wall hides them); an open scene draws the interior and the court. The courtyard is placed as the engine
+draws it (DESIGN.md "M2b part 1": barracks 1481, smithy 1546, the layout's well, the lodge centred at 1648), so the
+statue at 1680 stands free before the hall. About 4-7 s each; the CPU stayed under 50 °C.
+
+| scene | focus, tod | shows |
+|---|---|---|
+| `hall-closed-day` | 1716, noon | the hall's front from the courtyard beside the lodge, the king walking up to it, Pip juggling |
+| `hall-closed-night` | 1716, 0.95 | the same at night: the three windows glowing with their cames, the lanterns lighting the door, light under the door |
+| `hall-open-day` | 1820, noon | the hall open: the benches and the tax lectern, the waiting petitioners, Pip juggling, the king seated (step 1's proposal), Odile at the lectern with the speech mark (frame 1) |
+| `hall-open-night` | 1830, 0.95 | Seren in the far corner with her lantern, Odile, Hesper and Pip at the hearth, the speech mark (frame 0) over Odile |
+| `chapel-open-day` | 2040, noon | the chapel open with Mother Hesper at the altar and the king in the nave; the hall's front closed on the left, the kitchen's front (touched up) on the right |
+| `chapel-open-night` | 2040, 0.95 | the Flame, the altar candles, the stands and the sconces light the chapel warmly; the stained glass dark |
+| `kitchen-open-day` | 2170, noon | the kitchen open with Tamsin at the table, the cat asleep on its stool by the fire, the king at the door; the chapel's front (touched up) on the left |
+| `kitchen-open-night` | 2170, 0.95 | the hearth fire and the table candle; the windows moonlit |
+| `courtyard-day` | 1600, noon | Marek's cart at 1486 with Marek, Bram, the king, Brannock, the statue at 1680 before the hall's closed front |
+| `courtyard-night` | 1600, 0.95 | the same at night: the forge, the barracks' and the hall's lights, the cart's lantern |
+
+## Notes for the lead and the code lane (step 3)
+
+1. **Closed rooms hide what is inside.** While a front shows, the room's furniture (`throne`, `hearth`, the candle
+   stands, the benches, the lectern) and its figures must be hidden or drawn before the front (actors draw after
+   props), and the room's lights (the hearth's 70, the candles) should be off or very dim: through `hallFront` the
+   hearth's light would paint a warm pool on the outer wall. The mocks drop them.
+2. **The chapel's lancets** sit at the front's real lancets (glass x 24-33, 60-69, 95-104, 129-137), not at the
+   `windowGlow` offsets SPRITES.md names (dx 18, 54, 89, 125, dy 28): those place a 6x8 glow half on each lancet's
+   frame. The front's masks are in the anchor table; the interior's stained glass needs none.
+3. **The fronts changed in albedo:** `chapel.png` (the gable's night shade lifted, a door) and `kitchen.png` (the
+   ground floor's corner lifted). Their silhouettes and window glass are unchanged; the M1b shots of the chapel and the
+   kitchen will look lighter on their right sides.
+4. **Tamsin's stops** swap sides (the hearth is under the chimney on the right): table 2158, hearth 2208, both facing
+   right. Hesper's 2052 and 2010 fit (2058 and 2012 are the exact spots).
+5. **The speech mark** is a 14x7 strip of 2 frames. Lit by the night ambient it goes dark; drawn at full brightness
+   (as UI) it stays readable at night.
+6. **Dependencies:** `hallFront` copies the interior's end walls; `kitchenInterior` copies the front's stack; the
+   statue and the saint use `king.png`. `build-art.sh` builds them in that order.
+7. **World changes** of DESIGN.md's registry marked "M3 step 3" are not in SPRITES.md's M3 list and not painted: the
+   votive candles (`castle.chapel.candles`: room before the altar step at chapel dx 104-118), the missing bell
+   (`castle.chapel.bell.missing`: the bell is in `chapelInterior` at dx 24-32, rows 17-26, and the front's belfry
+   openings at x 19-26 and 32-36, rows 18-27; two small overlays would take it out), the renewed banners and the
+   tapestry (`hallInterior`), Seren's lantern, the guards on the wall walk and the dark keep window.
+
+## Lessons (step 3)
+
+- Painting an interior inside its front's opaque pixels gives the pixel-for-pixel silhouette for free; a converted
+  painting would need its outline rebuilt by hand.
+- A two-centred pointed arch: each arc is centred on the springing line and passes through its own springing point
+  (radius 0.5 w, a semicircle, to w, equilateral); centring the arcs on the opposite points made spikes.
+- A monochrome relief of a 16x30 figure in a 15 px niche reads as a ghost; painted (as medieval reliefs were) on a
+  dark starry field it reads at once.
+- Recolouring a sprite by lightness merges parts of the same value (cloak and tunic); a colour-for-colour map keeps
+  them apart.
+- A glyph in the border's colour joins the border: the speech mark's ink "!" read as an "H"; a red "!" on parchment
+  reads.
+- Firewood reads as logs only with bark rings and dark gaps between rounds of different sizes; even bright faces in
+  a grid read as coins.
+- Notes with dark text in two blocks read as a face; light text lines at odd heights read as notes.
+- Window panes seen from inside read best as daylight albedo (daySky with a foam glint): bright by day, moonlit at
+  night under the ambient; dark panes looked like night at noon.
+- A big room needs warm light in more than one place at night: candle sconces on the chapel's shafts keep the nave
+  from going black while the altar glows.
+
+## Open points (step 3)
+
+- The cat is part of `kitchenInterior` (static); a cat that wakes, stretches or follows Tamsin would need its own
+  sprite.
+- No sit frames: petitioners stand before the benches (step 1, deviation 2).
+- The interiors' windows do not glow; a faint dusk glow from inside would need an emissive strip (coloured stained
+  glass cannot glow through a mask).
+- The kitchen front's far roof hip and the stack's shaded half keep the painting's shade.
+- The step 3 world changes (note 7).
+
+## Rebuild check (step 3)
+
+One `build-art.sh` call in a scratch copy of the committed tree (`git archive` of 69b4dc2, the lane's head with every
+step 3 sprite) with `Resources/Art` emptied and the Recraft raws copied from `build/recraft/lh/` rebuilt all **166
+PNGs byte for byte** (the 158 of steps 1 and 2 and the earlier lanes, the touched-up `chapel` and `kitchen` among
+them, and the 8 new ids); no file missing, no extra file, in 6 min 57 s without a heat wait (the CPU stayed under
+55 °C). The only warnings are the old ones of `ashGiant` and `lightlessKing`. The anchor fixes after it (four candle
+lights and the sanctuary lamp's mask, see the table) change no pixel.

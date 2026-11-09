@@ -659,18 +659,18 @@ def chapel_interior():
     for cx in (ax + 2, ax + alt.w - 5):
         c.stamp(stick, cx, 90 - alt.h - stick.h + 1)
         fire_at(c, "altar candle", "candleFlame", cx + 1 - 0, 90 - alt.h - stick.h, 2)
-        light_at(c, "altar candle", "candle", cx + 1, 90 - alt.h - stick.h + 2, 12)
+        light_at(c, "altar candle", "candle", cx + 1, 90 - alt.h - stick.h - 1, 12)
     stand = st["candleStand"]
     for cx in (97, 131):
         c.stamp(stand, cx, 94 - stand.h + 1)
-        fire_at(c, "candle stand", "candleFlame", cx + 1, 94 - stand.h, 2)
-        light_at(c, "candle stand", "candle", cx + 2, 94 - stand.h + 2, 12)
+        fire_at(c, "candle stand", "candleFlame", cx + 2, 94 - stand.h, 2)
+        light_at(c, "candle stand", "candle", cx + 2, 94 - stand.h - 1, 12)
     vase = st["vase"]
     c.stamp(vase, ax + alt.w - 1, 90 - vase.h)
     lamp = st["sanctuaryLamp"]
     c.stamp(lamp, 141, 48)
-    glass_mask(c, "sanctuary lamp", 142, 48 + lamp.h - 3, 143, 48 + lamp.h - 2)
-    light_at(c, "sanctuary lamp", "lantern", 142, 48 + lamp.h - 2, 22)
+    glass_mask(c, "sanctuary lamp", 142, 48 + 7, 143, 48 + 8)
+    light_at(c, "sanctuary lamp", "lantern", 142, 48 + 8, 22)
 
     # --- the pews, facing the altar
     pew = st["pew"]
@@ -880,7 +880,7 @@ def kitchen_interior():
     tc = st["tableCandle"]
     c.stamp(tc, 46, ty - tc.h)
     fire_at(c, "table candle", "candleFlame", 46, ty - tc.h - 1, 2)
-    light_at(c, "table candle", "candle", 47, ty - tc.h, 14)
+    light_at(c, "table candle", "candle", 47, ty - tc.h - 2, 14)
 
     # --- barrels and sacks, the broom, the cat on its stool by the fire, the mouse hole
     b = st["barrel"]

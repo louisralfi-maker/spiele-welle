@@ -117,8 +117,6 @@ def scene_hall_closed(tod):
         SC.king(1678, 1 if tod < 0.9 else 6, z=8),
         SC.actor("pip", 1652, 6 if tod < 0.9 else 4, z=8),
     ]
-    if tod < 0.9:
-        ex.append(SC.actor("citizenB", 1736, 4, z=8, f=True))
     return dict(focus=1716, tod=tod, drop=HALL_FURNITURE, extras=ex)
 
 
