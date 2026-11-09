@@ -1,4 +1,4 @@
-# Lanternhold shared palette: 70 colours (53 before look 2). One line per colour: name, hex, optional tags.
+# Lanternhold shared palette: 71 colours (53 before look 2). One line per colour: name, hex, optional tags.
 # Look 2 "farbig-düster" (ART-look2.md "Palette", 09.11.2026 evening): deep blue nights, warm orange fire, dark green
 # firs, muted but colourful. Every old name is kept, so every painter and grid still works; the values moved toward the
 # direction and 17 colours are new (night blues, fir greens, mist, moor, the creatures' cold eye light).
@@ -39,9 +39,10 @@ ink         #2A2230
 stoneMid    #464957  match=#544A60
 stonePale   #BBBCBE  match=#CDC2C6
 
-# --- Weltmauer granite (was the gorge's ochre rock): warm-neutral grey with umber ---
-rockDeep    #2D2A30  match=#3E3036
-rockDark    #45403F  match=#5C4640
+# --- Weltmauer granite (was the gorge's ochre rock): warm-neutral grey with umber; rockDeep and rockDark a step
+#     lighter after the critic of stage 1 (the cliffs at the cleft read as a flat void at dusk) ---
+rockDeep    #39353D  match=#3E3036
+rockDark    #544D4B  match=#5C4640
 rock        #615950  match=#826248
 rockLight   #84796B  match=#A8845A
 rockPale    #A89C88  match=#CDAE78
@@ -58,7 +59,8 @@ roofLight   #3E7790  match=#4F92AE
 tile        #7A3F31  match=#8E4A36
 tileLight   #9E5640  match=#B8664A
 
-# --- deciduous greens (valley, town): muted, darker ---
+# --- deciduous greens (valley, town): muted, darker; leafDeep (new, after the critic) the valley's undergrowth dark ---
+leafDeep    #17241B  new
 leafDark    #223428  match=#2E4630
 leaf        #354E30  match=#4A6B3A
 leafLight   #78904E  match=#9DBF62
@@ -68,9 +70,10 @@ soilDark    #2B2421  match=#3A2A26
 soil        #463830  match=#5E4434
 soilLight   #64513F  match=#876448
 
-# --- plaster (town houses): warm, a value step down from cream ---
-plaster     #C2B294  match=#D9C9A8
-plasterDim  #9C8C72  match=#B4A284
+# --- plaster (town houses): warm, a value step down from cream; yellower after the critic of stage 1 (blue dusk
+#     ambient plus an amber pool turned the cream lilac) ---
+plaster     #C8AE84  match=#D9C9A8
+plasterDim  #A0875F  match=#B4A284
 
 # --- far mountains (cool, aerial) ---
 farDeep     #343D5E  match=#3C4468

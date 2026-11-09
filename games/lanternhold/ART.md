@@ -607,3 +607,16 @@ green firs, muted but colourful). Its first step revised `tools/palette.txt`:
   differ in structure; 666,672 of 783,768 opaque pixels changed colour (106 files; the glow strips, the beacon fire,
   the fire arrow, the shadows and the mist bank use only unchanged colours).
 - No Recraft credits spent.
+
+After the critic of stage 1 (`ART-look2.md` "Critic and fixes"), a second small revision:
+
+- **71 colours**: `rockDeep` `#2D2A30` → `#39353D` and `rockDark` `#45403F` → `#544D4B` (the cliffs at the cleft read as
+  a flat void at dusk), `plaster` `#C2B294` → `#C8AE84` and `plasterDim` `#9C8C72` → `#A0875F` (yellower: blue dusk
+  ambient plus an amber pool turned the cream lilac); new `leafDeep` `#17241B`, the valley's undergrowth dark for the
+  depth art (the night blues stay out of ground and plant albedo).
+- `pixelart.py convert` in the default (old-match) mode never lands an old painting on a look-2 colour (`new`) unless an
+  `--only` list names it; no current conversion changes by this (every one has an `--only` list).
+- Rebuilt with `build-art.sh` (the 40 sprites that use the four moved colours: the cliffs, gorge and ground pieces, the
+  foreground rocks, the warden statue, the creatures' rockDeep, the houses, kitchen, tavern, valley mid art, citizens,
+  builder, arrows). Checked against the art before pixel by pixel through the old-to-new map: 95,528 pixels in 40 files
+  changed colour, 0 structural differences.
