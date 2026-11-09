@@ -124,7 +124,8 @@ enum SceneLayout {
         // M2b review: at night its two big panes side by side read as the eyes of something huge; now one pane of the
         // left window and a glimmer low in the right one (the gorge's mid-plane glass also glows dimmer, in the haze).
         Entry(sprite: .keepFar, x: 641, y: -59, z: 3, shade: 0.78, region: .gorge,
-              emitters: [SceneLayout.glass(21, 150, 5, 7), SceneLayout.glass(65, 150, 3, 4)]),
+              emitters: [SceneLayout.glass(21, 150, 5, 7),
+                         SceneLayout.glass(SceneLayout.gorgeKeepDarkPaneX, SceneLayout.keepFarDarkPaneY, 3, 4)]),
         Entry(sprite: .gorgeWallHigh, x: 571, y: -152, z: 4, shade: 0.85, region: .gorge),
         // Inside the walls the cliffs still rise behind the courtyard and the hall.
         Entry(sprite: .gorgeWallB, x: 862, y: 0, region: .gorge),
@@ -136,6 +137,18 @@ enum SceneLayout {
         // The river's far shore, at the ground line in front of the hills: the river reads wide and closes the world.
         Entry(sprite: .riverFarBank, x: 1940, y: 0, z: 2, region: .valley),
     ]
+
+    /// The far keeps' upper right pane, the one window a world change darkens (`castle.keep.window.dark`,
+    /// `CastleRooms.scene`): the glimmer of the gorge's keep and the right window of the valley's upper row. Named here
+    /// (M3 fix, C6) so a pane that moves takes its dark twin along.
+    static let keepFarDarkPaneY = 150.0
+    static let gorgeKeepDarkPaneX = 65.0
+    static let valleyKeepDarkPaneX = 61.0
+
+    /// True for the glass of a far keep that stays dark under `castle.keep.window.dark`.
+    static func isKeepFarDarkPane(dx: Double, dy: Double) -> Bool {
+        dy == keepFarDarkPaneY && (dx == gorgeKeepDarkPaneX || dx == valleyKeepDarkPaneX)
+    }
 
     /// The keep seen from the valley (polish after the art review): a solid slate keep (`keepFar`, the keep's main
     /// block without its machicolations) with its teal banner in the notch of the gorge mouth, drawn into the mid
@@ -155,7 +168,8 @@ enum SceneLayout {
             Entry(sprite: .gorgeMouth, x: x + 80, y: -60, z: -4, shade: 0.8, region: .valley, fade: fadeIn,
                   fadeOut: fadeOut, movesWith: .far),
             Entry(sprite: .keepFar, x: x, y: -45, z: -3, shade: 0.72, region: .valley,
-                  emitters: [SceneLayout.glass(17, 150, 13, 10), SceneLayout.glass(61, 150, 12, 10),
+                  emitters: [SceneLayout.glass(17, 150, 13, 10),
+                             SceneLayout.glass(SceneLayout.valleyKeepDarkPaneX, SceneLayout.keepFarDarkPaneY, 12, 10),
                              SceneLayout.glass(59, 96, 13, 10), SceneLayout.glass(17, 96, 13, 10)],
                   fade: fadeIn, fadeOut: fadeOut, movesWith: .far),
         ]

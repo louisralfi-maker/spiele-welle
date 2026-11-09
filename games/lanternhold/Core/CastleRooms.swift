@@ -209,9 +209,8 @@ enum CastleRooms {
             case (.world, .keepTop) where darkKeep:
                 prop.masks = Array(prop.masks.prefix(1))
             case (.mid, .keepFar) where darkKeep:
-                // The upper row's right window: dx 61 on the valley's keep, the glimmer at dx 65 on the gorge's (its
-                // glass made smaller in the M2b review).
-                prop.masks = prop.masks.filter { !($0.dy == 150 && $0.dx >= 55) }
+                // The upper row's right window: the valley's pane and the gorge's glimmer, named in `SceneLayout`.
+                prop.masks = prop.masks.filter { !SceneLayout.isKeepFarDarkPane(dx: $0.dx, dy: $0.dy) }
             default:
                 break
             }

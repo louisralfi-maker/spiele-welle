@@ -222,6 +222,20 @@ final class CastleRoomsTests: XCTestCase {
         let litMasks = lit.props.first { $0.sprite == .keepTop }?.masks.count ?? 0
         let darkMasks = dark.props.first { $0.sprite == .keepTop }?.masks.count ?? 0
         XCTAssertEqual(darkMasks, litMasks - 1, "one keep window stays dark")
+        // M3 fix (C6): both far keeps (the gorge's at mid x 641, the valley's at 560) lose exactly their upper right
+        // pane.
+        for (x, paneX) in [(641.0, SceneLayout.gorgeKeepDarkPaneX), (560.0, SceneLayout.valleyKeepDarkPaneX)] {
+            let before = lit.props.first { $0.plane == .mid && $0.sprite == .keepFar && $0.x == x }?.masks ?? []
+            let after = dark.props.first { $0.plane == .mid && $0.sprite == .keepFar && $0.x == x }?.masks ?? []
+            XCTAssertGreaterThanOrEqual(before.count, 2, "the far keep at \(x) has its windows")
+            XCTAssertEqual(after.count, before.count - 1, "the far keep at \(x) loses one pane")
+            let gone = before.filter { !after.contains($0) }
+            XCTAssertEqual(gone.map(\.dx), [paneX])
+            XCTAssertEqual(gone.map(\.dy), [SceneLayout.keepFarDarkPaneY])
+            XCTAssertEqual(gone.first?.dy, before.map(\.dy).max(), "the upper row")
+            XCTAssertEqual(gone.first?.dx, before.filter { $0.dy == SceneLayout.keepFarDarkPaneY }.map(\.dx).max(),
+                           "its right pane")
+        }
     }
 
     func testACrowdedCastleFrameKeepsItsBudget() {
