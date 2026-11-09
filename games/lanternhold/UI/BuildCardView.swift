@@ -48,25 +48,39 @@ struct PointerShape: Shape {
 struct CardChrome<Header: View, Content: View>: View {
     let identifier: String
     let closeIdentifier: String
+    /// The treasury beside the title, for the cards that spend gold (the card may cover the HUD's gold).
+    var treasury: Int? = nil
     let close: @MainActor () -> Void
     @ViewBuilder let header: () -> Header
     @ViewBuilder let content: () -> Content
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 4) {
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
                 header()
-                Spacer(minLength: 0)
-                CardCloseButton(identifier: closeIdentifier, action: close)
+                Spacer(minLength: 6)
+                if let treasury {
+                    GoldAmount(amount: treasury, size: 14, color: Theme.inkSoft)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(Text("Gold"))
+                        .accessibilityValue(Text(verbatim: "\(treasury)"))
+                }
             }
+            .padding(.trailing, 44)
             CardScroll {
                 content()
             }
         }
         .padding(.leading, 16)
         .padding(.trailing, 8)
-        .padding(.vertical, 12)
+        .padding(.vertical, 10)
         .background(ParchmentBackground())
+        // The close button floats in the corner, so the header is only as tall as its title.
+        .overlay(alignment: .topTrailing) {
+            CardCloseButton(identifier: closeIdentifier, action: close)
+                .padding(.top, 2)
+                .padding(.trailing, 2)
+        }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(identifier)
     }
@@ -147,7 +161,7 @@ struct OptionRow<Trailing: View>: View {
             }
             .multilineTextAlignment(.leading)
             .padding(.horizontal, 12)
-            .padding(.vertical, 9)
+            .padding(.vertical, 6)
             .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -196,7 +210,8 @@ struct BuildCardView: View {
 
     var body: some View {
         AnchoredCard(anchor: model.cardAnchor, width: 430) {
-            CardChrome(identifier: "build-card", closeIdentifier: "build-card-close", close: { model.closeCard() }) {
+            CardChrome(identifier: "build-card", closeIdentifier: "build-card-close", treasury: model.gold,
+                       close: { model.closeCard() }) {
                 HStack(alignment: .top, spacing: 2) {
                     if let previous = card.previous {
                         arrow("chevron.left", label: Text("Previous site"), identifier: "build-card-prev") {
@@ -287,7 +302,7 @@ struct RecruitCardView: View {
 
     var body: some View {
         AnchoredCard(anchor: model.cardAnchor, width: 430) {
-            CardChrome(identifier: "recruit-card", closeIdentifier: "recruit-card-close",
+            CardChrome(identifier: "recruit-card", closeIdentifier: "recruit-card-close", treasury: model.gold,
                        close: { model.closeCard() }) {
                 CardTitle(title: String(localized: "Barracks"),
                           subtitle: String(localized: "Archers \(card.archers) · free posts \(card.freePosts) · guards \(card.guards)"))
@@ -351,12 +366,19 @@ struct TaxCardView: View {
             } content: {
                 VStack(alignment: .leading, spacing: 6) {
                     ForEach(card.options, id: \.rate) { option in
-                        OptionRow(name: Texts.taxName(option.rate), detail: detail(option),
-                                  hint: option.lockedUntil.map { String(localized: "Opens on day \($0)") },
+                        OptionRow(name: Texts.taxName(option.rate), detail: detail(option), hint: nil,
                                   hintIsWarning: false, enabled: option.lockedUntil == nil,
                                   selected: option.isCurrent, identifier: "tax-\(option.rate.rawValue)",
                                   action: { model.setTax(option.rate) }) {
-                            GoldAmount(amount: option.forecast, size: 15)
+                            if let day = option.lockedUntil {
+                                Label(String(localized: "Opens on day \(day)"), systemImage: "lock.fill")
+                                    .font(Theme.serif(.footnote, .semibold))
+                                    .foregroundStyle(Theme.woodDark)
+                                    .labelStyle(.titleAndIcon)
+                                    .fixedSize()
+                            } else {
+                                GoldAmount(amount: option.forecast, size: 15)
+                            }
                         }
                     }
                 }

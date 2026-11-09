@@ -21,8 +21,8 @@ struct ReportCardView: View {
                 footer
             }
             .frame(width: width)
-            .frame(maxHeight: geometry.size.height - 8)
             .background(ParchmentBackground())
+            .frame(maxHeight: geometry.size.height - 8)
             .frame(width: geometry.size.width, height: geometry.size.height)
         }
         .accessibilityElement(children: .contain)

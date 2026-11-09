@@ -1277,7 +1277,8 @@ state machine (`overlay`) pauses the simulation under every card and screen.
 | The shake moves the camera sideways only. | The renderer anchors the ground line; an up-down shake would need a renderer hook, and sideways reads as the thud. |
 | First light's lights are `.moon`-kind world lights (steady, no embers), never battle lights. | They are a picture of the sweep the simulation already does. |
 | Restarting the chapter takes a new seed made from the old one; the Chronicle stays. | A restart should not replay the same names and nights. |
-| Cards hug their content and scroll only when the screen is too short (`HuggingHeight` around a `ScrollView`, the indicator flashing once). | `ViewThatFits` took the whole height offered and centred short content in a tall card (round `lh-m2b-b1`). |
+| Cards hug their content and scroll only when the screen is too short (`HuggingHeight` around a `ScrollView`, the indicator flashing once); a card's background is drawn before its height limit. | A `.frame(maxHeight:)` takes all the height it is offered, so a background drawn after it filled the screen with short content centred in it (rounds `lh-m2b-b1` and `b2`). |
+| The cards' close button floats in the corner; the build and barracks cards show the treasury beside their title; a locked tax rate says so in its price column. | The header loses the close button's 44 pt row, the tax lectern's four rates fit on a 17 Pro, and the gold stays in view where a card covers the HUD's. |
 | The no-losses ribbon stands in the report's night column; only the King's banner and a second chance cross the card. | On night 20 two ribbons pushed the people below the fold. |
 | The build and recruit options show the thing's own pixel art, cut from the renderer's atlas (whole device pixels per art pixel, never smoothed). | The card reads at a glance, and the art lane's PNGs appear there by themselves once merged. |
 
@@ -1293,6 +1294,12 @@ state machine (`overlay`) pauses the simulation under every card and screen.
   button stretched it (fixed before the round came back), the night cards stretched to full height, the tax card
   scrolling (German rows on three lines), the finale's report hiding the people under two ribbons, first light blowing
   the archers out to white.
+- `lh-m2b-b2` (build, unit, ui, ui-de, release) on `e3060c8`: ALL PASSED (253 unit test lines passed, every UI test in
+  English and German, the light probe and the jitter check unchanged). The HUD sits at the top, the build card shows
+  the brazier's own pixel art and hugs its option, the finale's report shows the people again with the no-losses
+  ribbon in the night column, the defeat card's town reads with its windows going out. Still to fix: the night cards
+  and the report filled the whole height (a `.frame(maxHeight:)` takes all the height offered, and their backgrounds
+  were drawn after it), and the tax card still scrolled to its war tax (the close button's 44 pt row and a lock line).
 
 **Open points (M2b part 2)**
 

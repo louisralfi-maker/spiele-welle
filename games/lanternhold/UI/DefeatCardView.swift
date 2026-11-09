@@ -11,12 +11,13 @@ struct DefeatCardView: View {
 
     var body: some View {
         GeometryReader { geometry in
+            // The background before the height limit: `.frame(maxHeight:)` takes all the height it is offered.
             CardScroll {
                 content
             }
             .frame(width: min(460, geometry.size.width - 24))
-            .frame(maxHeight: geometry.size.height - 12)
             .background(NightBackground())
+            .frame(maxHeight: geometry.size.height - 12)
             .frame(width: geometry.size.width, height: geometry.size.height)
         }
         .accessibilityElement(children: .contain)
@@ -144,8 +145,8 @@ struct PauseSheetView: View {
                 content
             }
             .frame(width: min(420, geometry.size.width - 24))
-            .frame(maxHeight: geometry.size.height - 12)
             .background(NightBackground())
+            .frame(maxHeight: geometry.size.height - 12)
             .frame(width: geometry.size.width, height: geometry.size.height)
         }
         .accessibilityElement(children: .contain)

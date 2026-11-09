@@ -481,6 +481,8 @@ final class GameModel {
     }
 
     private func openCard(_ card: Overlay, anchorX: Double) {
+        // Acting at a place ends a walk the realm strip started.
+        driver?.travelTarget = nil
         if let view = camera {
             cardAnchor = min(1, max(0, (anchorX - view.x) / max(1, view.viewWidth)))
         }
