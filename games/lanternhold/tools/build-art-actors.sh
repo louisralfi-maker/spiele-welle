@@ -45,7 +45,9 @@ build() { # name: one sprite (and its glow strip)
     ashGiant)      # the shaded side lifted one value step (ink to rockDeep, rockDeep to stoneDark, stoneDark to stoneMid)
         mkdir -p $K
         python3 -I $T convert $R/creatures-a-1.png $K/ashGiant-conv.png --size 110x110 --box 864,16,1456,752 --fit contain --only $GI --gain 1.9
-        python3 -I $T post $K/ashGiant-conv.png $K/ashGiant-key.png --remap ink:rockDeep,rockDeep:stoneDark,stoneDark:stoneMid
+        python3 -I $T post $K/ashGiant-conv.png $K/ashGiant-lift.png --remap ink:rockDeep,rockDeep:stoneDark,stoneDark:stoneMid
+        # the flat dark bands (the painting's black) broken into a cobble of boulders like its lit stone arm
+        python3 -I $AA texture $K/ashGiant-lift.png $K/ashGiant-key.png --colour rockDeep --to stoneDark --light stoneMid --cell 6 --seed 3
         python3 -I $AA build $G/ashGiant.txt --out $A ;;
     lightlessKing) # the cloak recoloured (night0 to night1, its lit folds to night2) so it is no black band
         mkdir -p $K

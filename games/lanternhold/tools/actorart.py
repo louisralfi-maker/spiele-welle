@@ -11,6 +11,9 @@ Pure python 3 (pixelart.py's PNG and palette helpers); one sprite per run, each 
         every light (body at 0.12 plus the glow strip, as the engine draws an unlit creature) and night in firelight.
   actorart.py dump <in.png> <out.txt> [--box x0,y0,x1,y1]
         A palette PNG as a text grid with a generated legend (to start hand edits on a converted painting).
+  actorart.py texture <in.png> <out.png> --colour NAME --to NAME --light NAME [--cell 5] [--seed 1] [--rect x0,y0,x1,y1]
+        Breaks flat areas of one colour into a seeded cobble of boulders (Voronoi cells: crevices keep the colour,
+        cell interiors take --to, their upper-left rim --light), so a dark band of a converted painting gets form.
 
 Spec format (`tools/grids/actors/<id>.txt`). Directives start in column 0; their content lines are indented.
     id NAME                  output sprite id (the glow strip is NAMEGlow)
@@ -499,6 +502,46 @@ def cmd_dump(a):
     print(f"wrote {a.output} ({x1 - x0}x{y1 - y0}, {len(names)} colours)")
 
 
+def cmd_texture(a):
+    pal = Palette(a.palette, True)
+    img, _ = read_png(a.input)
+    src, mid, light = pal.color(a.colour), pal.color(a.to), pal.color(a.light)
+    cell = a.cell
+    x0, y0, x1, y1 = (int(v) for v in a.rect.split(",")) if a.rect else (0, 0, img.w - 1, img.h - 1)
+
+    def rnd(i, j, k):
+        v = (i * 73856093) ^ (j * 19349663) ^ (k * 83492791) ^ (a.seed * 2654435761)
+        v = (v ^ (v >> 13)) * 1274126177 & 0xFFFFFFFF
+        return ((v ^ (v >> 16)) & 0xFFFF) / 65535.0
+
+    seeds = {}
+    for j in range(-1, img.h // cell + 2):
+        for i in range(-1, img.w // cell + 2):
+            seeds[(i, j)] = (i * cell + rnd(i, j, 1) * cell, j * cell + rnd(i, j, 2) * cell)
+    out = Image(img.w, img.h, list(img.px))
+    for y in range(max(0, y0), min(img.h, y1 + 1)):
+        for x in range(max(0, x0), min(img.w, x1 + 1)):
+            p = img.get(x, y)
+            if not p[3] or p[:3] != src:
+                continue
+            ci, cj = int(x // cell), int(y // cell)
+            best = []
+            for j in range(cj - 1, cj + 2):
+                for i in range(ci - 1, ci + 2):
+                    sx, sy = seeds[(i, j)]
+                    best.append(((x + 0.5 - sx) ** 2 + (y + 0.5 - sy) ** 2, sx, sy))
+            best.sort()
+            d1, sx, sy = best[0]
+            d2 = best[1][0]
+            if math.sqrt(d2) - math.sqrt(d1) < 1.1:
+                continue  # crevice
+            dx, dy = x + 0.5 - sx, y + 0.5 - sy
+            c = light if (dx + dy < -cell * 0.45) else mid
+            out.set(x, y, c + (255,))
+    write_png(a.output, out)
+    print(f"wrote {a.output} (texture {a.colour} -> {a.to}/{a.light}, cell {cell})")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -520,6 +563,17 @@ def main():
     d.add_argument("--box")
     d.add_argument("--palette", default=DEFAULT_PALETTE)
     d.set_defaults(fn=cmd_dump)
+    t = sub.add_parser("texture")
+    t.add_argument("input")
+    t.add_argument("output")
+    t.add_argument("--colour", required=True)
+    t.add_argument("--to", required=True)
+    t.add_argument("--light", required=True)
+    t.add_argument("--cell", type=int, default=5)
+    t.add_argument("--seed", type=int, default=1)
+    t.add_argument("--rect")
+    t.add_argument("--palette", default=DEFAULT_PALETTE)
+    t.set_defaults(fn=cmd_texture)
     a = p.parse_args()
     a.fn(a)
 
