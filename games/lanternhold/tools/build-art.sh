@@ -67,7 +67,10 @@ build() { # name: one sprite
                    python3 $T compose $A/gorgeWallHigh.png --size 192x240 --layer $A/gorgeWallA.png@0,50@box=0,0,40,190 --layer $PT/gwh-rock.png@12,0 ;;
     cliffFlank)    # all rock now (the masonry strip and the long highlight read as a tree trunk): the left cliff of rocks-a
                    python3 $T convert $M/rocks-a-1.png $A/cliffFlank.png --size 80x240 --box 60,44,330,748 --only $ROCKG --sat 1.3 ;;
-    gorgeMouth)    python3 $T convert $M/rocks-a-1.png $A/gorgeMouth.png --size 120x230 --box 1000,104,1520,748 --only $ROCKG,meadow,leafLight --sat 1.3 ;;
+    gorgeMouth)    # M1b polish: the slope (x 38-119, rows 150-224) repainted by procart slopebands
+                   mkdir -p $PT
+                   python3 $T convert $M/rocks-a-1.png $PT/gorgeMouth-raw.png --size 120x230 --box 1000,104,1520,748 --only $ROCKG,meadow,leafLight --sat 1.3
+                   python3 $PROC slopebands $PT/gorgeMouth-raw.png $A/gorgeMouth.png --rect 38,150,119,224 ;;
     wardenStatue)  # M1b polish: carved in cool grey stone (the rock ramp remapped to the stone ramp) so it separates from the
                    # ochre gorge, in a dark arched niche (rockDeep, only behind the figure); the bowl reads as a bowl (lit
                    # rim, stone-dark hollow, underside) instead of a night0 bar across the chin; moss specks under 3 px merged

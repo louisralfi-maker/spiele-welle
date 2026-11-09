@@ -102,6 +102,11 @@ FAR = [
     dict(s="farMountain", x=100, y=36, region="gorge", z=0, shade=0.92, flip=True),
     dict(s="farMountain", x=240, y=40, region="gorge", z=0, shade=0.92),
     dict(s="farMountain", x=380, y=34, region="gorge", z=0, shade=0.92, flip=True),
+    # The keep seen from the town (M1b polish: moved from the mid plane, where it stood beside the back gate like a
+    # second castle in the valley). On the far plane at x 545 it sits behind the back gate at the back-gate view
+    # (screen 123 to 273, showing only between the gate's towers above its wall walk, where the real keep stands) and at
+    # the left edge of the town frame (focus 2900: screen 9 to 159), its foot behind the hills; z above the mountains.
+    dict(s="castleKeep", x=545, y=-62, region="valley", z=2),
 ]
 
 # ------------------------------------------------------------------------------------------------- mid plane
@@ -119,10 +124,6 @@ MID = [
     dict(s="gorgeWallB", x=862, y=0, region="gorge", z=0),
     # Where the gorge ends: seen above the kitchen from the back gate, falling away to the right behind the gate.
     dict(s="gorgeMouth", x=1030, y=0, region="gorge", z=3),
-    # The keep seen from the town: the same sprite on the mid plane, sunk 52 px so its merlons sit just under the
-    # screen top with the banner and the upper windows above the hills in the town frame (focus 2900: screen 4 to 154;
-    # at y 0 and x 1240 it was cut at the top-left corner); foot behind the hills.
-    dict(s="castleKeep", x=1345, y=-52, region="valley", z=-3, shade=0.92),
     # The windmill on a hill crest of valleyMidB (96 px high there), right of the keep.
     dict(s="windmill", x=1500, y=93, region="valley", z=1),
     # The river's far shore (M1b polish): seen behind the river at the world's end (focus 3720 shows mid x 1948 to
@@ -258,8 +259,10 @@ FG = [
 ACTORS = [
     *[("eyeGlints", x + (2 if k == "s" else 6), 9 if k == "s" else 10, True, False)
       for x, k in ((556, "s"), (571, "s"), (588, "h"), (606, "s"), (620, "h"), (632, "s"))],
-    *[("archer", 946 + 12 * k, 52, False, True) for k in range(3)],
-    *[("archer", F + cx, WALKWAY_Y, False, True) for cx in (68, 120, 170)],  # between the brazier niches
+    # staggered spacing and one turned the other way, so they do not read as clones (the scene also gives each
+    # archer its own animation phase)
+    *[("archer", x, 52, False, fl) for x, fl in ((944, True), (957, False), (972, True))],
+    *[("archer", F + cx, WALKWAY_Y, False, fl) for cx, fl in ((66, True), (121, True), (173, False))],
     ("citizen", 3002, 0, False, False), ("citizen", 3044, 0, False, True),
 ]
 

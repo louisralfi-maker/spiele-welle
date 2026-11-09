@@ -17,6 +17,8 @@ exactly reproducible.
 
   procart.py farbank   <out.png> [--seed N]                 240x30 the river's far bank for the mid plane: tree line,
                                                             reeds, the far bridge stump (M1b polish)
+  procart.py slopebands <in.png> <out.png> --rect x0,y0,x1,y1   repaints a grass slope in a finished sprite: irregular
+                                                            edge, three value bands, tuft clusters (M1b polish)
 
 Colours: rockDeep, soilDark, leafDark, with sparse rockDark rims, leaf tips and woodDark roots (all albedo).
 """
@@ -402,6 +404,77 @@ def cmd_farbank(a):
     c.save(a.output)
 
 
+def cmd_slopebands(a):
+    """M1b polish: repaints the grass slope of a finished sprite (gorgeMouth) inside a rect: the ruler-straight top
+    edge gets a seeded irregular profile (bumps and dips of 1 to 3 px), the flat meadow becomes three value bands that
+    follow the edge (leafLight lip, meadow, leaf deeper, with a noisy boundary), and lone 1 px tufts merge away."""
+    from pixelart import read_png
+    pal = Palette(a.palette, True)
+    img, _ = read_png(a.input)
+    lut = {c: n for n, c in zip(pal.names, pal.rgb)}
+    W, H = img.w, img.h
+    c = Canvas(W, H, pal)
+    for y in range(H):
+        for x in range(W):
+            p = img.get(x, y)
+            if p[3]:
+                c.px[y][x] = lut[p[:3]]
+    x0, y0, x1, y1 = (int(v) for v in a.rect.split(","))
+    rng = random.Random(a.seed * 104729)
+    jit = value_noise(rng, W + 8, 5)
+    bnd = value_noise(rng, W + 8, 7)
+    grass = {"meadow", "leaf", "leafLight", "leafDark", "soilDark"}
+    tops = {}
+    for x in range(x0, x1 + 1):
+        top = next((y for y in range(0, y1 + 1) if c.get(x, y) is not None), None)
+        if top is None or c.get(x, top) not in grass:
+            continue  # only columns whose top edge (seen from the sky) is the grass slope get the new edge
+        j = int(round(jit[x] * 2.4))
+        if j > 0:  # a dip: cut the top j pixels
+            for y in range(top, min(y1, top + j)):
+                c.px[y][x] = None
+            top += j
+        elif j < 0:  # a bump: grow -j pixels
+            for y in range(max(0, top + j), top):
+                c.px[y][x] = "meadow"
+            top += j
+        tops[x] = top
+    # columns under the crag take the slope's straight-line fit as their virtual top, so the bands run on diagonally
+    n = len(tops)
+    mx = sum(tops) / n
+    my = sum(tops.values()) / n
+    b = sum((x - mx) * (t - my) for x, t in tops.items()) / max(1e-6, sum((x - mx) ** 2 for x in tops))
+    for x in range(x0, x1 + 1):
+        top = tops.get(x, my + b * (x - mx))
+        for y in range(max(0, y0), y1 + 1):
+            nm = c.get(x, y)
+            if nm not in ("meadow", "leaf", "leafLight"):
+                continue
+            d = y - top
+            lip = 2 if (x // 3) % 4 else 3
+            deep = 16 + int(round(bnd[x] * 2))
+            if x in tops and d < lip:
+                c.px[y][x] = "leafLight"
+            else:
+                c.px[y][x] = "meadow" if d < deep else "leaf"
+        if x in tops:
+            c.px[tops[x]][x] = "leafDark"  # a dark rim along the new edge
+    # tufts: small clusters of 2-3 px (leafLight over the lip, leafDark in the deep band), never single pixels
+    for _ in range(a.tufts):
+        x = rng.randint(x0 + 2, x1 - 4)
+        top = next((y for y in range(y0, y1 + 1) if c.get(x, y) is not None), None)
+        if top is None:
+            continue
+        y = top + rng.randint(4, 30)
+        if y > y1 or c.get(x, y) not in ("meadow", "leaf"):
+            continue
+        n = "leafDark" if c.get(x, y) == "leaf" else "leaf"
+        for dx, dy in ((0, 0), (1, 0), (1, -1))[: rng.randint(2, 3)]:
+            if c.get(x + dx, y + dy) in ("meadow", "leaf"):
+                c.px[y + dy][x + dx] = n
+    c.save(a.output)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -427,6 +500,14 @@ def main():
     fb.add_argument("--seed", type=int, default=1)
     fb.add_argument("--palette", default=DEFAULT_PALETTE)
     fb.set_defaults(fn=cmd_farbank)
+    sb = sub.add_parser("slopebands")
+    sb.add_argument("input")
+    sb.add_argument("output")
+    sb.add_argument("--rect", required=True)
+    sb.add_argument("--seed", type=int, default=1)
+    sb.add_argument("--tufts", type=int, default=24)
+    sb.add_argument("--palette", default=DEFAULT_PALETTE)
+    sb.set_defaults(fn=cmd_slopebands)
     a = p.parse_args()
     a.fn(a)
 
