@@ -20,14 +20,15 @@ legend
     s = /fireOrange
     t = /ember
 
-# the lump without limbs: crest, shoulders, head with eyes, plates and seams, belly
+# the lump without limbs: a jagged crest of ash flakes, shoulders, head with eyes and an ember mouth seam, plates
+# and seams, belly
 part body
-    .....P.P...
-    ....PLPLP..
-    ..PPLLSLLP.
-    .PLLSSMSLLP
-    PLSSMrMSEDE
-    LSMMrDDMMDS
+    ..P..P.P...
+    .PLP.PLPP..
+    .PLLPLLLLP.
+    PLSSLSSLLLP
+    LSMrMSSDEDE
+    SMMDrDMDDRD
     SMDrDCRrDMD
     .DCCKCCKD..
 

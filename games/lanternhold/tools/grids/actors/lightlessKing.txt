@@ -21,6 +21,7 @@ legend
     m = stoneDark
     s = stoneMid
     l = stone
+    L = stoneLight
     r = rock
     g = woodLight
     w = woodDark
@@ -47,8 +48,8 @@ part crown
 # closed helm with the hollow face (rim and eyes glow cold)
 part helm
     ..dmmsd..
-    .dmsllsd.
-    dmslllsdd
+    .dmsLLsd.
+    dmslLlsdd
     dmslsf00d
     dmssf000d
     dmsd0E0Ed
@@ -83,8 +84,8 @@ part pauldronFar
     .dddd.
 
 part pauldron
-    .dmmsd.
-    dmsslsd
+    .dmmLd.
+    dmsLlsd
     dmsllsd
     dmssssd
     .dmmmd.
