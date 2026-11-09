@@ -311,8 +311,8 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 
 - **Archers** on walls and towers: range 150, a shot every 1.4 s, 4 damage, lit targets only, 20 HP. Every fourth arrow
   is a fire arrow that lights its landing spot (radius 22, 2.5 s): the night is full of streaks and short pools of
-  light. Arrows fly at 220 px/s; each archer keeps his own beat, started 0.2 s × (his id mod 7) apart at the horn and
-  running on while he has no target, so a wall's volleys stagger instead of loosing in one step (M2b review). They aim at the lit creature closest to the castle; on night 20 at the Lightless King first, while he can be
+  light. Arrows fly at 220 px/s; an archer who waited without a target first draws for 0.12 s × (his id mod 6) when
+  one appears, so a wall's volleys stagger instead of loosing in one step (M2b review). They aim at the lit creature closest to the castle; on night 20 at the Lightless King first, while he can be
   hurt. When their wall falls they climb down and walk to a free
   post (or the keep); creatures that catch them on the way strike them.
 - **Guards**: they hold the breach nearest the front (the innermost rubble in front of the first standing wall) and
@@ -1382,9 +1382,10 @@ This stage fixed all five confirmed high findings, the cheap medium ones and the
   stretches, then a second and a third archer in each), never in the brazier niches (1324 to 1350 and 1369 to 1396,
   `EntityFramesTests`); with the line-1 engine its stretch is left out. Line 1's two torches burn at the walk's ends
   (1306 and 1412, y 126) and have no torch posts on the facade.
-- **Schüsse fliegen** (pillar 1): each archer keeps his own beat: the horn starts it 0.2 s × (his id mod 7) apart
-  (`Balance.archerStagger`) and it runs on while he has no target (an idle pose then), so a wall's volleys stagger
-  instead of loosing in one step and falling silent together; arrows fly at 220 px/s (was 320); they are drawn on an arc
+- **Schüsse fliegen** (pillar 1): a waiting archer who sees a target first draws for 0.12 s × (his id mod 6)
+  (`Balance.archerStagger`; half a step counts as spent, so the delay is the same at any step size), so a wall's
+  volleys stagger instead of loosing in one step and falling silent together; he shows idle while nothing is in reach;
+  arrows fly at 220 px/s (was 320); they are drawn on an arc
   peaking about 30 px (picture only, 0 at both ends: every arrow still lands where the simulation lands it) with 18 px
   trails; the loose pose holds 0.3 s and the draw 0.6 s. The scene value counts archers drawing or loosing (`aim:`),
   and the night shots keep the frame with the most creatures, arrows and shooting archers.
@@ -1429,7 +1430,7 @@ This stage fixed all five confirmed high findings, the cheap medium ones and the
 | Decision | Why |
 |---|---|
 | The higher arrow arc is drawn, not simulated; the stagger and the slower arrows are the simulation's. | The hit must stay where the simulation puts it (one truth for what is seen and what is hit), while the battle itself needed arrows in the air for longer and volleys that do not fire in one step. |
-| Each archer's beat runs on without a target instead of a delayed first shot after a lull. | Round `lh-rev-f1` delayed a waiting archer's first shot by 0.15 s × (id mod 6): the headless 0.1 s step rounded that up every lull (about 0.06 s later each time), and night 20 without the beacon drifted past the step check (seed 2: the gatehouse fell at 85.1 against 80.6 s). A free-running beat carries its overshoot like every shot, so both step sizes give the same night, and the beats never fall back into step. |
+| The staggered first shot counts half a step as spent and uses 0.12 s steps of delay. | Round `lh-rev-f1` (0.15 s × id mod 6, the delay counted from the step's end): the headless 0.1 s step rounded every delay up, about 0.06 s later after each lull, and night 20 without the beacon drifted past the step check (seed 2: the gatehouse fell at 85.1 against 80.6 s). Round `lh-rev-f2` tried a free-running beat instead (no rounding), but waiting up to a whole reload for the first shot weakened the archers: the Lightless King was slain in 5 of 10 seeds (T6 needs 6) and an endless realm fell on night 23 (T7 needs 35). |
 | Line 1's posts are a fixed list, not an even spread. | Spread over the walk, two archers stood in the niche fires from the horn to dawn on the hero view of the castle. The list keeps every count clear of the niches and the engine. |
 | Line 1's torches moved to the walk's ends instead of keeping posts on the facade. | DESIGN says the torches light the archers on the walk; at the gate's height they lit the facade below it and cluttered the symmetric front. No creature or crow ever stood in either light, so the battle is the same. |
 | The picture's lantern pool sits on the painted glass; the battle's lantern stays at x + 9, y 16. | Moving the battle light would change what is lit (a tuning change for a 3 px difference); the drawn pool now matches the lantern the player sees. |
@@ -1445,7 +1446,11 @@ This stage fixed all five confirmed high findings, the cheap medium ones and the
   gatehouse at 22:00 with its two archers between the niche fires and the torches at the walk's ends, the cards and
   screens without HUD fragments, "Edda, Bogenschützin", the defeat card's cottages. The finale's shots kept frames with
   one arrow (the score counted crowds twice); the 23:00 window ran past midnight to its timeout (fixed).
-- `lh-rev-f2` (build, unit) on `241a31d`: RESULT_F2
+- `lh-rev-f2` (build, unit) on `241a31d`: build passed; unit failed T6 (the King slain 5 of 10), T7 (an endless realm
+  fell on night 23) and the step check (seed 1 without the beacon: the hearth reached at 99.7 against 108.6 s, the
+  walls alike): the free-running beat made the archers too slow to their first shot. Every new test passed (the horn,
+  the relaunch, the night button's holds, line 1's posts, the markers).
+- `lh-rev-f3` (build, unit, ui, ui-de, release) on the half-step stagger: RESULT_F3
 
 **Open points (M2b review)**
 

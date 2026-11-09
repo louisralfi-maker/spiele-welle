@@ -276,9 +276,7 @@ enum Battle {
         for plot in Realm.brazierPlots { s.plots[plot].snuffed = false }
         for line in Realm.lines { s.plots[line.engine].cooldown = 0 }
         for index in s.soldiers.indices {
-            // Each archer's beat starts apart from his neighbours' (M2b review), so a wall's volleys stagger.
-            let soldier = s.soldiers[index]
-            s.soldiers[index].cooldown = soldier.kind == .archer ? balance.archerStagger * Double(soldier.id % 7) : 0
+            s.soldiers[index].cooldown = 0
             s.soldiers[index].shots = 0
         }
         if s.beaconStage == 3 && !s.beaconLit && s.day > 20 { s.beaconLit = true }
@@ -1022,16 +1020,26 @@ enum Battle {
             case .posted:
                 guard soldier.kind == .archer else { break }
                 let rally = abs(soldier.x - kingX) <= balance.rallyRadius ? balance.rallyFactor : 1
+                // An archer who had no target waits with his reload at exactly 0 (the dusk resets it to 0 too).
+                let waiting = soldier.cooldown == 0
                 soldier.cooldown -= dt * rally
                 if soldier.cooldown > 0 { break }
                 let range = balance.archerRange * (1 + rangeBonus(s, plot: soldier.postPlot, balance: balance))
-                // Each archer keeps his own beat (M2b review): with no target it runs on without an arrow, so a wall's
-                // archers stay out of step (the dusk sets their beats apart) and a target that appears is met by
-                // staggered shots, not by one volley and then more than a second of silence. The beat carries its
-                // overshoot like every shot, so it gives the same night at any step size.
                 guard let target = litTarget(s, x: soldier.x, range: range, balance: balance) else {
-                    soldier.cooldown += balance.archerPeriod
+                    soldier.cooldown = 0
                     break
+                }
+                // The volleys stagger (M2b review): a waiting archer who sees a target draws for his own share of a
+                // second first, so a wall's archers do not all loose in the same step and fall silent together. The
+                // target turned up somewhere inside this step, so half a step counts as spent: the first shot then
+                // comes after the same delay on average at any step size (round lh-rev-f1: without it the headless
+                // 0.1 s step shot about 0.06 s later after every lull).
+                if waiting {
+                    let delay = balance.archerStagger * Double(soldier.id % 6)
+                    if delay > 0 {
+                        soldier.cooldown = delay - 0.5 * dt * rally
+                        if soldier.cooldown > 0 { break }
+                    }
                 }
                 soldier.shots += 1
                 let fire = soldier.shots % max(1, balance.fireArrowEvery) == 0

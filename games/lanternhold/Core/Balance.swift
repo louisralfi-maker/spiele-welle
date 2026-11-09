@@ -159,9 +159,9 @@ struct Balance: Sendable, Equatable {
     var fireArrowSeconds = 2.5
     /// Slower since the M2b review (was 320): a shot of 150 px now flies about 0.7 s, so arrows read in the air.
     var arrowSpeed = 220.0
-    /// At the horn each archer's beat starts `archerStagger` × (his id mod 7) seconds apart, and it runs on while he has
-    /// no target, so the volleys of a wall stagger instead of all loosing in one step (M2b review).
-    var archerStagger = 0.2
+    /// A waiting archer who sees a target first draws for `archerStagger` × (his id mod 6) seconds, so the volleys of a
+    /// wall stagger instead of all loosing in one step (M2b review; 0.12 keeps the delays off the 0.1 s step's grid).
+    var archerStagger = 0.12
     var archerHP = 20.0
     var guardHP = 30.0
     var guardDPS = 6.0

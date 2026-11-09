@@ -889,8 +889,9 @@ enum EntityFrames {
     static let archerLooseSeconds = 0.3
     static let archerDrawSeconds = 0.6
 
-    /// An archer's frame on his post from his beat: loose 4 just after a shot, draw 2 ... 3 in the last moments before
-    /// the next, idle 0 ... 1 otherwise and whenever no lit creature is in reach (his beat runs on without arrows then).
+    /// An archer's frame on his post from his reload: loose 4 just after a shot, draw 2 ... 3 in the last moments before
+    /// the next (also while his staggered first shot waits), idle 0 ... 1 otherwise and whenever no lit creature is in
+    /// reach.
     static func archerFrame(_ soldier: Soldier, balance: Balance, time: Double, aiming: Bool = true) -> Int {
         if aiming {
             if soldier.cooldown > balance.archerPeriod - archerLooseSeconds { return 4 }
