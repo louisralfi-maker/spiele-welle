@@ -636,6 +636,23 @@ final class GameModel {
         setOverlay(nil)
     }
 
+    /// The pause sheet offers "Sound the horn" by day while the player drives (not under the reference bot).
+    var canCallTheNight: Bool {
+        guard kind == .world, let game = driver, game.bot == nil, !game.state.defeated else { return false }
+        return DayClock.phase(at: game.state.hour) == .day && game.state.hour < SimDriver.hornCallHour - 1e-6
+    }
+
+    /// The pause sheet's "Sound the horn" (after its confirmation): the day plays on to 18:59 at once and the horn
+    /// sounds a moment after the sheet closes.
+    func callTheNight() {
+        guard overlay == .pause, canCallTheNight, var game = driver else { return }
+        game.callTheNight()
+        driver = game
+        revision += 1
+        setOverlay(nil)
+        refreshHUD()
+    }
+
     /// The system's Reduce Motion changed (GameView follows `accessibilityReduceMotion`).
     func setSystemReduceMotion(_ on: Bool) {
         let value = args.reduceMotion || on

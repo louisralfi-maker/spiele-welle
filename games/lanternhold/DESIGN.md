@@ -699,7 +699,8 @@ player's first success and never comes back. `-GWSkipOnboarding YES` turns it of
    was slain (`DawnReport.kingSlain`) or withdrew into the Gloom for good.
 6. **Story panels:** prologue, beats, endings (three panels each, tap to go on, skippable).
 7. **Defeat card** and **chapter end**.
-8. **Pause sheet:** resume, settings, back to the title. **Settings:** sound, haptics, reset (with confirmation).
+8. **Pause sheet:** resume, by day "Sound the horn" (after a confirmation the day plays on to dusk at once; M2b review),
+   settings, back to the title. **Settings:** sound, haptics, reset (with confirmation).
 
 Navigation is a state machine in the model, no NavigationStack.
 
@@ -845,7 +846,7 @@ simulation's clock), `hud-gold`, `hud-happiness`, `hud-clock`, `hud-pause`,
 `build-card-next` (the build card's arrows to the other plots in reach), `recruit-card`, `recruit-archer`,
 `recruit-guardsman`, `recruit-card-close`, `tax-card`, `tax-card-close`, `report-king-banner` (night 20),
 `report-banner`, `pause-sheet`, `pause-sound`, `pause-haptics`, `pause-restart`, `pause-restart-confirm`,
-`pause-restart-cancel`; `world-scene`'s value adds `kx:<x>` (the king's world x) and, while first light's front is on
+`pause-restart-cancel`, since the M2b review `pause-horn`, `pause-horn-confirm`, `pause-horn-cancel`; `world-scene`'s value adds `kx:<x>` (the king's world x) and, while first light's front is on
 screen, `dawn:<share>`; since the M2b review also `aim:<n>` (archers drawing or loosing in the frame). Debug only: `debug-king-x`, `debug-camera-x` (values for the jitter test).
 
 ## Tests
@@ -1350,8 +1351,9 @@ state machine (`overlay`) pauses the simulation under every card and screen.
 - First light's front is a soft glow in a still shot (`37-mid-firstlight`); the king and the archers near the outer
   line's fire tower stay very bright from the lantern and the fire tower themselves (the renderer's lights, not the
   sweep).
-- Reduce Motion is covered by code and `FeelTests` (no shake, no hop, no rolling numbers, no card transitions); no UI
-  run uses `-GWReduceMotion` yet.
+- Reduce Motion is covered by code (no shake, no hop, no rolling numbers, no card transitions; since the M2b review it
+  follows the system setting while the game runs); `FeelTests` checks only the shake, and no UI run uses
+  `-GWReduceMotion` yet.
 
 **Notes for the next steps**
 
@@ -1398,6 +1400,9 @@ This stage fixed all five confirmed high findings, the cheap medium ones and the
   the horn (`Look.bounceDusk` 2.2); empty plots' markers are taller (12x22, a pale staff with a bigger pennant;
   SPRITES.md amended) and bob a pixel (not with Reduce Motion); the king's glow strip
   only from the dusk, his drawn lantern pool on the painted glass (the battle's stays where the simulation holds it).
+- **Sound the horn by day** (the review's medium finding on day 1's idle minutes): the pause sheet's second button by
+  day; after a confirmation the realm plays on headless to 18:59 (`SimDriver.callTheNight`, the day's 1 s steps) and the
+  horn sounds a moment later (`ScreenFlowTests`).
 - **HUD and cards**: the clock, the numbers and the strip hide under every card and screen (the pause button under
   the screens); the tax card shows the treasury; the action button is greyed with the missing gold, a cooldown ring or
   while he lights (`KingTargetHold`), and its caption says Build, Upgrade or Rebuild; on the restart's confirmation
@@ -1428,7 +1433,7 @@ This stage fixed all five confirmed high findings, the cheap medium ones and the
 | Line 1's torches moved to the walk's ends instead of keeping posts on the facade. | DESIGN says the torches light the archers on the walk; at the gate's height they lit the facade below it and cluttered the symmetric front. No creature or crow ever stood in either light, so the battle is the same. |
 | The picture's lantern pool sits on the painted glass; the battle's lantern stays at x + 9, y 16. | Moving the battle light would change what is lit (a tuning change for a 3 px difference); the drawn pool now matches the lantern the player sees. |
 | The Ash Giant takes 4 px per walk frame (was 6) and the king 4 (was 7, SPRITES.md amended). | Their planted feet barely move in their strips, so the shorter step slides them less; the giant's true fix is a new leg pose (open point). |
-| "Sound the horn" by day was not built. | It is a new mechanic (fast-forwarding the day, a confirmation, the onboarding's day 1); it belongs with M3's audience, which fills part of the day, and needs Louis' view on skipping days. |
+| "Sound the horn" by day sits in the pause sheet beside Resume, after a confirmation; the day plays on headless to 18:59 (the builders finish what they can) and the horn sounds a moment later. | Day 1's 60 gold were spent by 07:30 and two minutes of the day had nothing left; the pause sheet is reachable from anywhere (the lectern card was full, and at the gate the hammer takes the button). It stays after M3, whose audience fills only part of the day. The onboarding (M7) shows it only after day 1's orders. |
 
 **Runner rounds (M2b review)**
 
@@ -1438,7 +1443,7 @@ This stage fixed all five confirmed high findings, the cheap medium ones and the
 
 - The Ash Giant still slides a little (its walk keys keep the planted feet in place); a second leg key pose would fix
   it.
-- "Sound the horn" by day (the review's medium finding on day 1's idle minutes) waits for M3 and Louis.
+- "Sound the horn" by day is a product change: Louis should see it once (the pause sheet's second button by day).
 - The tuning was measured again by `TuningTests` T1 to T8 on the runner (they pass); `tools/simtune`'s sweep was not
   rerun for the margins.
 

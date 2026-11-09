@@ -212,13 +212,16 @@ struct DarkeningTown: View {
     }
 }
 
-/// The pause sheet (DESIGN.md "Screens"; `pause-sheet`, `pause-resume`, `pause-sound`, `pause-haptics`,
-/// `pause-restart`, `pause-restart-confirm`, `pause-restart-cancel`): resume, the sound and haptics switches (kept in
-/// the save; sound and haptics play from M6), and restarting the chapter after a confirmation.
+/// The pause sheet (DESIGN.md "Screens"; `pause-sheet`, `pause-resume`, `pause-horn`, `pause-horn-confirm`,
+/// `pause-horn-cancel`, `pause-sound`, `pause-haptics`, `pause-restart`, `pause-restart-confirm`,
+/// `pause-restart-cancel`): resume, by day "Sound the horn" after a confirmation (the day plays on to dusk at once),
+/// the sound and haptics switches (kept in the save; sound and haptics play from M6), and restarting the chapter after a
+/// confirmation.
 @MainActor
 struct PauseSheetView: View {
     let model: GameModel
     @State private var confirming = false
+    @State private var callingTheNight = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -236,7 +239,33 @@ struct PauseSheetView: View {
 
     @ViewBuilder private var content: some View {
         VStack(spacing: 12) {
-            if confirming {
+            if callingTheNight {
+                Text("Sound the horn now?")
+                    .font(Theme.serif(.title2, .bold))
+                    .foregroundStyle(Theme.fireGold)
+                Text("The builders finish the day's work, then the night comes.")
+                    .font(Theme.serif(.subheadline))
+                    .foregroundStyle(Theme.parchment)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 10) {
+                    Button {
+                        callingTheNight = false
+                    } label: {
+                        Text("Not yet").frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(QuietButtonStyle(onDark: true))
+                    .accessibilityIdentifier("pause-horn-cancel")
+                    Button {
+                        callingTheNight = false
+                        model.callTheNight()
+                    } label: {
+                        Text("Sound the horn").frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(GoldButtonStyle())
+                    .accessibilityIdentifier("pause-horn-confirm")
+                }
+            } else if confirming {
                 Text("Restart chapter 1?")
                     .font(Theme.serif(.title2, .bold))
                     .foregroundStyle(Theme.fireGold)
@@ -268,13 +297,25 @@ struct PauseSheetView: View {
                 Text("Paused")
                     .font(Theme.serif(.title2, .bold))
                     .foregroundStyle(Theme.fireGold)
-                Button {
-                    model.resume()
-                } label: {
-                    Label("Resume", systemImage: "play.fill").frame(maxWidth: .infinity)
+                HStack(spacing: 10) {
+                    Button {
+                        model.resume()
+                    } label: {
+                        Label("Resume", systemImage: "play.fill").frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(GoldButtonStyle())
+                    .accessibilityIdentifier("pause-resume")
+                    // M2b review: by day the night can be called at once (day 1 left minutes with nothing to do).
+                    if model.canCallTheNight {
+                        Button {
+                            callingTheNight = true
+                        } label: {
+                            Label("Sound the horn", systemImage: "moon.stars.fill").frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(QuietButtonStyle(onDark: true))
+                        .accessibilityIdentifier("pause-horn")
+                    }
                 }
-                .buttonStyle(GoldButtonStyle())
-                .accessibilityIdentifier("pause-resume")
                 SettingRow(title: String(localized: "Sound"), isOn: model.settings.sound, identifier: "pause-sound") {
                     model.setSound(!model.settings.sound)
                 }

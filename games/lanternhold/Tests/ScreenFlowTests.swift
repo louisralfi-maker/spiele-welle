@@ -256,6 +256,26 @@ final class GameScreensTests: XCTestCase {
         XCTAssertNotEqual(game.driver?.state.seed, 4, "a new realm")
     }
 
+    func testThePauseSheetSoundsTheHornByDay() throws {
+        // M2b review: by day the pause sheet calls the night; the day plays on to 18:59 at once, so the brazier ordered
+        // this morning stands when the horn sounds a moment later.
+        let game = model(["GWCameraX": "1255"])
+        let plot = Realm.lines[0].braziers[0]
+        game.performAction()
+        game.order(.brazier)
+        game.openPause()
+        XCTAssertTrue(game.canCallTheNight)
+        game.callTheNight()
+        XCTAssertNil(game.overlay, "the sheet closes")
+        XCTAssertEqual(game.driver?.state.hour ?? 0, SimDriver.hornCallHour, accuracy: 0.01)
+        XCTAssertEqual(game.driver?.state.plots[plot].item, .brazier, "the builders finished the day's work")
+        for _ in 0..<4 { game.advance(by: 0.25) }
+        XCTAssertGreaterThanOrEqual(game.driver?.state.hour ?? 0, 19, "the horn sounded")
+        XCTAssertEqual(game.hornNight, 1)
+        game.openPause()
+        XCTAssertFalse(game.canCallTheNight, "not from the horn on")
+    }
+
     func testTheStripTapAndTheSampleScreens() {
         let game = model([:])
         game.travel(toFraction: 0.25)

@@ -974,6 +974,17 @@
         }
       }
     },
+    "Not yet" : {
+      "comment" : "Pause sheet: keep the day (the horn call's cancel).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch nicht"
+          }
+        }
+      }
+    },
     "Nothing more to build here." : {
       "comment" : "Build card without options.",
       "localizations" : {
@@ -1326,6 +1337,28 @@
         }
       }
     },
+    "Sound the horn" : {
+      "comment" : "Pause sheet: call the night now (by day); also the confirmation's button.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Horn blasen"
+          }
+        }
+      }
+    },
+    "Sound the horn now?" : {
+      "comment" : "Pause sheet: the horn call's confirmation title.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt ins Horn blasen?"
+          }
+        }
+      }
+    },
     "Stage 1 of 3 of the Great Beacon" : {
       "comment" : "Build card: the beacon's first stage.",
       "localizations" : {
@@ -1476,6 +1509,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Der Platz des Leuchtfeuers ist frei"
+          }
+        }
+      }
+    },
+    "The builders finish the day's work, then the night comes." : {
+      "comment" : "Pause sheet: what calling the night does.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Bauleute beenden ihr Tagwerk, dann kommt die Nacht."
           }
         }
       }
