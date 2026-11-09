@@ -54,11 +54,25 @@ Recraft (`bash tools/recraft.sh`, `recraftv4_1`, 35 credits per image), budget 1
 | `greatBeacon` | 64x130 | grid | the full tower in the ruin's pale stone with a parapet on corbels, two teal banners, and the huge iron bowl (51 px across) on four curved ribs |
 | `beaconFire` | 24x20 x 3 | grid (fire ramp only) | glow strip: a coal bed and five tongues with white cores that trade heights, sparks |
 
+| `barracks` | 64x48 | grid (design from `court-a`) | a stone ground floor, a dark timber upper storey with four windows, teal slate, an arched door under a teal banner, two wall lanterns, spear racks and round shields |
+| `smithy` | 60x48 | grid (design from `court-a`) | a forge: an open front between stone piers, a hood over a hearth of coals, an anvil, tools, a shingle gable with a chimney, a hammer sign, a lean-to with a grindstone and a barrel |
+| `masterSmithy` | 60x56 | grid (design from `court-a`) | the forge grown: a teal slate gable with a loft window, two chimneys, a bigger hearth, bellows, a quench barrel, a banner, a stone annex with iron bars |
+| `lodge` | 56x44 | grid (design from `court-a`) | a timber workshop on a stone base, its doors open, a shingle roof, logs, a ladder, a wheelbarrow, a saw sign |
+| `bigLodge` | 64x52 | grid (design from `court-a`) | two storeys (stone and timber), teal slate, a crane hoist with a block on its rope, stone blocks and planks |
+
 The tiers read at a glance: the palisade (20x34, brown stakes) < the stone wall (36x52, two merlons) < the bastion
 (44x64: crown on corbels, three merlons, talus, banner).
 
 The towers: an open timber frame (20x48) < a stone tower with merlons and a pennant (24x64); the brazier's iron tripod
 (10x14) < the fire tower's stone column (14x40).
+
+The courtyard: smithy (shingles, one chimney, a lean-to) < master smithy (teal slate, two chimneys, a stone annex,
+taller); lodge (one timber storey, shingles) < big lodge (two storeys, slate, a crane).
+
+Why the courtyard is hand-set: `court-a` came with a strong violet cast (the timber is a dark purple that maps to
+night1, the wood to grey stone) and with details far below a game pixel at the 8x downscale (spears, shield rims,
+tools). Converted with colour zones it stayed mush (`build/recraft/lh/bld/parts/barracks-b.png`), so the buildings are
+drawn with the masonry, slate, plank, window, door and banner brushes of this lane, following the painting's layout.
 
 The beacon: the overgrown ruin with its empty cage < a clean rebuilt drum under shear legs < the half tower in its
 scaffold < the finished tower with banners and the bowl. All four share the ruin's footprint, ground line and pale
@@ -99,6 +113,12 @@ Archer posts, flames and window glass:
 | `catapult` | firepot | it leaves the cup at frame 2's cup position, about (dx 13, dy 21); in frames 0 and 1 the pot sits in the cup at (dx 27, dy 16) and (dx 27, dy 12) |
 | `ballista` | bolt | the bolt leaves from the stock's front at (dx 0, dy 10), flying left |
 | `greatBeacon` | fire | `beaconFire` (24x20) at (dx 20, dy 123): its coal bed lies on the bowl's dark mouth (night0, x 9-54 at row 4, i.e. dy 125); the beacon light from about (cx 32, y 130) |
+| `barracks` | window glass | masks (dx 7, dy 25, w 6, h 6), (20, 25, 6, 6), (38, 25, 6, 6), (51, 25, 6, 6); the wall lanterns' glass (23, 14, 1, 2) and (41, 14, 1, 2) |
+| `smithy` | forge fire | `brazierFlame` at (dx 15, dy 13) on the coals (row 33, x 14-24); a small brazier-kind light from (cx 19, y 16) |
+| `masterSmithy` | forge fire | `hearthFire` at (dx 13, dy 13) on the coals (row 41, x 15-27); light from (cx 21, y 16) |
+| `masterSmithy` | window glass | loft (19, 40, 6, 6), annex (46, 15, 6, 6) |
+| `lodge` | window glass | (10, 10, 6, 6); optional: the open doorway's dark inside (22, 1, 12, 16) as a dim warm glow |
+| `bigLodge` | window glass | (8, 25, 5, 6), (21, 25, 5, 6), (34, 25, 5, 6), (46, 25, 5, 6); optional doorway (22, 0, 14, 17) |
 | `greatBeacon` | slit glass | masks (dx 23, dy 55, w 2, h 9) and (dx 38, dy 33, w 2, h 8) |
 
 ## Notes for the lead

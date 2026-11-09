@@ -1,0 +1,60 @@
+# lodge 56x44, hand-set: the builders' lodge: a timber-framed workshop of vertical boards on a low stone base, braces,
+# a window, the big doors open (a saw on the wall inside), a shingle roof with a chimney, a saw sign, stacked logs, a
+# ladder and a wheelbarrow. Design from the Recraft sheet court-a; its violet cast and fine detail did not survive the downscale (the timber came out night1, the shields and spears as mush), so it is hand-set in the castle palette: grey-violet stone in the stoneWall's block language, teal slate, dark timber.
+N = night1
+d = stoneDark
+s = stone
+l = stoneLight
+o = wood
+k = ink
+m = stoneMid
+p = stonePale
+w = woodDark
+L = woodLight
+y = straw
+Y = strawLight
+---
+.......................................kkkkkkk..........
+.......................................kmmmmmk..........
+........................................ksssk...........
+........................................kdddk...........
+......kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkklsssmkkkkk......
+......kwwwwwoowwwwwwwoowoowooowLLLLLwooolsssmowoook.....
+.....kLwLLLwLLwLLLLLwLLwLLwLLLwooooowLLLlsssmLwLLLk.....
+....kooowooowwwwwwwLLLLwooooowoowwwwwwwooooowooowLk.....
+....kLLLwLLLwLLLLLwoooowLLLLLwLLwLLwLLwLLLLLwLLLwook....
+....koowoowoowooooowooowooooowoowooowoowooowoowLLLLLk...
+...kLLLwLLwLLwLLLLLwLLLwLLLLLwLLwLLLwLLwLLLwLLwoooook...
+..kwwwwwwwwwwoooowooooowoowoooowoowooooowoowoooowoowk...
+..kLLLwLLwLLwLLLLwLLLLLwLLwLLLLwLLwLLLLLwLLwLLLLwLLwLk..
+..kwLLLwLLLLLwLLLLwLLLLwLLLLwLLLwooowLLLwLLwLLLLLwoowLk.
+.kkkkwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwkkkk.
+.....kLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLk.....
+.....kwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwkk.....
+......kwowLowLowLowwowLowLowLowLowowwLowLowLowLok.......
+......kwowLowLowLwwLowLowLowLowLowowwwowLowLowLddkkkkkk.
+......kwowLowLowwowLowLowLowLowLowowwLwwLowLowLdwk...k..
+......kwowLowLowLowLowLowLowLowLowowwLowwowLowLowwkkkok.
+......kwowLowwwwLowLowLowLowLowLowowwLowLwwLowLowLLLLok.
+......kwowLowLowLowLowLowLowLowLowowwLowLowLowLowmmmmoLk
+......kwowLwwLowLowLowLowLowLowLowowwLowLowwwwLowmmmmok.
+......kwowwowLowLowLowLowLowLowLowowwLowLowLowLowLLLoLwk
+......kwwwLowLowLowLowLowLowLowLowowwLowLowLowwowwkkokkk
+......kLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLk..k..k
+......kwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwk..k..k
+......kwowwwwwwwLowLoLNNNNNNNNNNNNwwwLowLowLowLok...kkkk
+......kwowwNNwNwLowLoLNNNNNNNNNNNNwwwLowLowLowLok...k..k
+......kwowwNNwNwLowLoLNNNNNNNNNNNNwwwLowLowLowLok...k..k
+......kwowwwwwwwLowLoLNNNmmmmmmwwNwwwLowLowLowLok...kkkk
+......kwowwNNwNwLowLoLNNNmmmmmNNNNwwwLowLowLowLok..k..k.
+......kwowwwwwwwLowLoLNNNNNNNNNNNNwwwLowLowLowLok..k..k.
+......kwoLLLLLLLLowLoLNNNNNNNNNNNNwwwLowLowLowLok..kkkk.
+......kwowLowLowLowLoLNNNNNNNNNNNNwwwLowLowLowLok..k..k.
+...kk.kwwwLowLowLowLoLNNNNNNNNNNNNwwwLowLowLowLok..k..k.
+..kYykwYywpppsdmllmdmLNNNNNNNNNNNNwsppsdslllsdsppk.kkkk.
+..kyLwwyLwsssmdmmmddmLNNNNNNNNNNNNwsssmdssskmdsssk.k..k.
+.kwwwwwwwwwmmddddddddLNNNNNNNNNNNNwdkkkkkkkmdddmmk.k..k.
+kYywwYywwYywdddddddddLNNNNNNNNNNNNwdkooLookdddddddkkkk..
+kyLkkyLwwyLwdsppsdsllLNNNNNNNNNNNNwlpkwwwkdspppppsk..k..
+.kk..kwmmwwdddmmdddmmLNNNNNNNNNNNNwdsskskdddmmmmmdk..k..
+......kddddddddddddddddddddddddddddddkmkddddddddddokkk..
