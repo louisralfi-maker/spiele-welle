@@ -120,10 +120,45 @@ final class BuildTests: XCTestCase {
         run(&s, seconds: 1)
         XCTAssertTrue(s.builders.allSatisfy { $0.task == .walking }, "both builders walk out")
         XCTAssertTrue(s.builders.allSatisfy { $0.x < Realm.lodgeX + 10 && $0.x > Realm.lodgeX - 60 })
-        run(&s, seconds: 20)
-        XCTAssertEqual(s.plots[brazier].item, .brazier)
+        var finished = false
+        for _ in 0..<300 where !finished {
+            run(&s, seconds: 0.1)
+            finished = s.plots[brazier].item == .brazier
+        }
+        XCTAssertTrue(finished)
         XCTAssertNil(s.plots[brazier].job)
-        XCTAssertTrue(s.builders.allSatisfy { abs($0.x - Realm.plots[brazier].x) < 12 }, "they stand at the plot")
+        XCTAssertTrue(s.builders.allSatisfy { abs($0.x - Realm.plots[brazier].x) < 12 }, "they built it at the plot")
+        run(&s, seconds: 0.2)
+        XCTAssertTrue(s.builders.allSatisfy { $0.task == .returning }, "with no work left they walk home")
+        run(&s, seconds: 15)
+        for (index, builder) in s.builders.enumerated() {
+            XCTAssertEqual(builder.x, Build.homeX(index), accuracy: 1e-9, "builder \(index) is home")
+            XCTAssertEqual(builder.task, .idle)
+        }
+    }
+
+    /// No builder spends the night at the front: whatever they were doing, the horn sends them home.
+    func testNoBuilderSpendsTheNightAtTheFront() {
+        var s = realm()
+        var events: [SimEvent] = []
+        Build.order(&s, plot: plot("l1.brazier.a"), item: .brazier, balance: balance, events: &events)
+        run(&s, seconds: (21 - 6) * DayClock.secondsPerHour, dt: 0.5)
+        XCTAssertEqual(s.plots[plot("l1.brazier.a")].item, .brazier)
+        for (index, builder) in s.builders.enumerated() {
+            XCTAssertEqual(builder.x, Build.homeX(index), accuracy: 1e-9, "builder \(index) at 21:00")
+            XCTAssertEqual(builder.task, .idle)
+            XCTAssertEqual(builder.plot, -1)
+        }
+
+        var dusk = realm()
+        dusk.hour = 19.5
+        dusk.builders[0] = Builder(x: 600, task: .idle, plot: -1)
+        dusk.builders[1] = Builder(x: 1250, task: .building, plot: plot("l1.brazier.a"))
+        run(&dusk, seconds: 30)
+        for (index, builder) in dusk.builders.enumerated() {
+            XCTAssertEqual(builder.x, Build.homeX(index), accuracy: 1e-9, "builder \(index) walked home at night")
+            XCTAssertEqual(builder.task, .idle)
+        }
     }
 
     func testNoBuildingAtNight() {
@@ -235,9 +270,48 @@ final class BuildTests: XCTestCase {
         s.gold = 500
         Build.order(&s, plot: plot("town.market.6"), item: .market, balance: balance, events: &events)
         run(&s, seconds: 3)
-        XCTAssertTrue(s.builders.allSatisfy { $0.task == .returning || $0.task == .idle }, "the horn sends them home")
+        for (index, builder) in s.builders.enumerated() {
+            let home = builder.x == Build.homeX(index)
+            XCTAssertTrue(builder.task == .returning || (builder.task == .idle && home), "the horn sends them home")
+        }
         let work = s.plots[plot("town.market.6")].job?.work ?? 0
         run(&s, seconds: 60)
         XCTAssertEqual(s.plots[plot("town.market.6")].job?.work ?? 0, work, "no work at night")
+        for (index, builder) in s.builders.enumerated() {
+            XCTAssertEqual(builder.x, Build.homeX(index), accuracy: 1e-9)
+            XCTAssertEqual(builder.task, .idle)
+        }
+    }
+
+    /// A fallen gatehouse is rebuilt for half of what it cost so far: a stronger gate never rebuilds cheaper or faster
+    /// than a weaker one (DESIGN.md "Prices and build times").
+    func testTheGatehouseRebuildsForHalfOfWhatItCost() {
+        let gate = Build.rebuildPrice(.gate, balance: balance)
+        let iron = Build.rebuildPrice(.ironGate, balance: balance)
+        let great = Build.rebuildPrice(.greatGate, balance: balance)
+        XCTAssertEqual(gate, 50, "a fallen gate is rebuilt for 50")
+        XCTAssertEqual(iron, (balance.price(.gate) + balance.price(.ironGate) + 1) / 2)
+        XCTAssertEqual(great, (balance.price(.gate) + balance.price(.ironGate) + balance.price(.greatGate) + 1) / 2)
+        XCTAssertLessThan(gate, iron)
+        XCTAssertLessThan(iron, great)
+        let times = [BuildItem.gate, .ironGate, .greatGate].map { Build.work($0, rebuild: true, balance: balance) }
+        XCTAssertEqual(times[0], balance.buildTime(.gate), accuracy: 1e-9, "half of the two-builder work")
+        XCTAssertLessThan(times[0], times[1])
+        XCTAssertLessThan(times[1], times[2])
+        XCTAssertEqual(Build.rebuildPrice(.stoneWall, balance: balance), (balance.price(.stoneWall) + 1) / 2,
+                       "the other walls: half their own tier")
+
+        var s = realm(day: 9)
+        var events: [SimEvent] = []
+        s.plots[Realm.lines[0].wall].item = .ironGate
+        s.plots[Realm.lines[0].wall].isRubble = true
+        s.plots[Realm.lines[0].wall].hp = 0
+        XCTAssertEqual(Build.options(s, plot: Realm.lines[0].wall, balance: balance),
+                       [BuildOption(item: .ironGate, price: iron, isRebuild: true)])
+        s.gold = 200
+        XCTAssertEqual(Build.order(&s, plot: Realm.lines[0].wall, item: .ironGate, balance: balance, events: &events),
+                       .ordered)
+        XCTAssertEqual(s.gold, 200 - iron)
+        XCTAssertEqual(s.plots[Realm.lines[0].wall].job?.total ?? 0, times[1], accuracy: 1e-9)
     }
 }

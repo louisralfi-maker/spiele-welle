@@ -17,7 +17,8 @@ struct BuildOption: Sendable, Equatable {
 
 /// Building by day (DESIGN.md "The front by day: building", "Prices and build times"): orders cost their gold at once,
 /// builders walk out and build by day only; damaged walls are repaired for free (about 40 HP per builder per second);
-/// destroyed walls are rubble and must be rebuilt for half the price in half the time; upgrades use the same card.
+/// destroyed walls are rubble and must be rebuilt for half the price in half the time (the gatehouse for half of what
+/// it cost so far); upgrades use the same card.
 enum Build {
     /// A wall's (or the gate's) hit points at full strength; 0 for things creatures do not attack.
     static func maxHP(_ item: BuildItem, balance: Balance) -> Double {
@@ -65,15 +66,33 @@ enum Build {
         return []
     }
 
-    /// Half the tier price, rounded up.
-    static func rebuildPrice(_ item: BuildItem, balance: Balance) -> Int {
-        (balance.price(item) + 1) / 2
+    /// What a wall's rubble comes back from: its own tier for the outer walls; for the gatehouse every tier it went
+    /// through (gate, then iron gate, then great gate), so a stronger gate never rebuilds cheaper than a weaker one.
+    private static func rebuildBasis(_ item: BuildItem, balance: Balance) -> (price: Int, time: Double) {
+        guard item.isGate else { return (balance.price(item), balance.buildTime(item)) }
+        var price = 0
+        var time = 0.0
+        var tier: BuildItem? = .gate
+        while let current = tier {
+            price += balance.price(current)
+            time += balance.buildTime(current)
+            if current == item { break }
+            tier = current.upgrade
+        }
+        return (price, time)
     }
 
-    /// Builder-seconds a job needs: the design's time is for two builders; a rebuild takes half.
+    /// Half the tier price, rounded up; the gatehouse half of what it cost so far (gate 50, iron gate 95, great gate
+    /// 185).
+    static func rebuildPrice(_ item: BuildItem, balance: Balance) -> Int {
+        (rebuildBasis(item, balance: balance).price + 1) / 2
+    }
+
+    /// Builder-seconds a job needs: the design's time is for two builders; a rebuild takes half (the gatehouse half
+    /// of the time of every tier it went through).
     static func work(_ item: BuildItem, rebuild: Bool, balance: Balance) -> Double {
-        let time = balance.buildTime(item) * 2
-        return rebuild ? time / 2 : time
+        if rebuild { return rebuildBasis(item, balance: balance).time }
+        return balance.buildTime(item) * 2
     }
 
     /// Orders `item` on `plot`: the gold goes at once and the builders take the job by day.
@@ -142,15 +161,21 @@ enum Build {
     static func syncBuilders(_ state: inout GameState, balance: Balance) {
         let capacity = state.builderCapacity(balance)
         while state.builders.count < capacity {
-            state.builders.append(Builder(x: Realm.lodgeX + 6 * Double(state.builders.count)))
+            state.builders.append(Builder(x: homeX(state.builders.count)))
         }
         while state.builders.count > capacity {
             state.builders.removeLast()
         }
     }
 
+    /// Where builder `index` waits: by the lodge in the courtyard.
+    static func homeX(_ index: Int) -> Double {
+        Realm.lodgeX + 6 * Double(index)
+    }
+
     /// One step of the builders. By day they take work (each idle builder the item with the fewest builders on it),
-    /// walk there and build or repair; outside the day they walk home.
+    /// walk there and build or repair, and walk home when no work is left; outside the day every builder walks home
+    /// (DESIGN.md "Day and night": the horn sends them back), so none spends the night in the creatures' path.
     static func stepBuilders(_ state: inout GameState, dt: Double, balance: Balance, events: inout [SimEvent]) {
         if state.builders.isEmpty { return }
         let isDay = DayClock.phase(at: state.hour) == .day
@@ -158,14 +183,13 @@ enum Build {
         if !isDay {
             for index in state.builders.indices {
                 var builder = state.builders[index]
-                if builder.task != .idle {
-                    builder.task = .returning
-                    builder.plot = -1
-                    let home = Realm.lodgeX + 6 * Double(index)
-                    builder.x = approach(builder.x, home, speed * dt)
-                    if builder.x == home { builder.task = .idle }
-                    state.builders[index] = builder
-                }
+                let home = homeX(index)
+                guard builder.x != home || builder.task != .idle || builder.plot >= 0 else { continue }
+                builder.task = .returning
+                builder.plot = -1
+                builder.x = approach(builder.x, home, speed * dt)
+                if builder.x == home { builder.task = .idle }
+                state.builders[index] = builder
             }
             return
         }
@@ -187,8 +211,8 @@ enum Build {
                 if let pick = choose(list, builders: state.builders) {
                     builder.plot = pick.plot
                     builder.task = .walking
-                } else if builder.task != .idle {
-                    builder.task = .returning
+                } else {
+                    builder.task = builder.x == homeX(index) ? .idle : .returning
                 }
             }
             if builder.plot >= 0 {
@@ -221,7 +245,7 @@ enum Build {
                     }
                 }
             } else if builder.task == .returning {
-                let home = Realm.lodgeX + 6 * Double(index)
+                let home = homeX(index)
                 builder.x = approach(builder.x, home, speed * dt)
                 if builder.x == home { builder.task = .idle }
             }
