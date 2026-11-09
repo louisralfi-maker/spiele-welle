@@ -1,12 +1,27 @@
 import SwiftUI
 
-/// The HUD so far (DESIGN.md "Controls", "Screens"): the day and clock top right (in the game the simulation's), the
-/// action button bottom right when there is something to do (the probe's brazier; at night in the game a snuffed
-/// brazier to light or a damaged wall to patch), and the debug readouts. Plain views only (no materials over the
-/// running scene); it respects the safe area while the scene renders under the sensor housing. The game's full HUD
-/// (gold, happiness, realm strip, cards) comes with the UI step of M2b.
+/// The HUD (DESIGN.md "Controls", "Screens"). The game's (M2b part 2): pause top left (44 pt in a 60 pt area), the realm
+/// strip at the top centre, the day and clock top right with gold, the happiness face and the people under them, the
+/// horn banner at 19:00, and the action button bottom right with a caption naming what it does. While the reference bot
+/// plays for the screenshots (`-GWAutoplay play`) only the clock sits over the picture. The light probe and the light
+/// lab keep milestone 1's HUD: the clock, the brazier button and the debug readouts. Plain views only (no materials
+/// over the running scene); it respects the safe area while the scene renders under the sensor housing.
 @MainActor
 struct HUDView: View {
+    let model: GameModel
+
+    var body: some View {
+        if model.kind == .world {
+            GameHUD(model: model)
+        } else {
+            ProbeHUD(model: model)
+        }
+    }
+}
+
+/// Milestone 1's HUD for the light probe and the light lab.
+@MainActor
+struct ProbeHUD: View {
     let model: GameModel
 
     var body: some View {
@@ -25,7 +40,7 @@ struct HUDView: View {
                 }
                 Spacer(minLength: 0)
                 if let action = model.action {
-                    ActionButton(action: action) {
+                    ActionButton(glyph: ActionGlyph(action), label: ActionGlyph(action).label) {
                         model.performAction()
                     }
                 }
@@ -34,6 +49,80 @@ struct HUDView: View {
         .padding(.horizontal, 10)
         .padding(.top, 8)
         .padding(.bottom, 2)
+    }
+}
+
+/// The game's HUD.
+@MainActor
+struct GameHUD: View {
+    let model: GameModel
+    /// Room kept on each side of the realm strip for the pause button and the clock column.
+    static let sideRoom: CGFloat = 196
+
+    var body: some View {
+        GeometryReader { geometry in
+            let stripWidth = max(160, min(380, geometry.size.width - 2 * GameHUD.sideRoom))
+            ZStack(alignment: .top) {
+                if model.isShowcase {
+                    HStack {
+                        Spacer(minLength: 0)
+                        ClockBadge(day: model.day, time: model.clockText)
+                    }
+                } else {
+                    topBar
+                    VStack(spacing: 8) {
+                        if let strip = model.strip {
+                            RealmStripView(strip: strip, reduceMotion: model.reduceMotion) { fraction in
+                                model.travel(toFraction: fraction)
+                            }
+                            .frame(width: stripWidth, height: RealmStripView.height)
+                        }
+                        if let night = model.hornNight {
+                            HornBanner(night: night)
+                                .transition(model.reduceMotion ? .identity : .opacity)
+                        }
+                    }
+                    .animation(model.reduceMotion ? nil : .easeInOut(duration: 0.35), value: model.hornNight)
+                }
+                if model.showsDebugValues || model.showsStats {
+                    VStack {
+                        Spacer(minLength: 0)
+                        HStack(alignment: .bottom) {
+                            if model.showsStats { StatsPanel(text: model.statsText) }
+                            if model.showsDebugValues {
+                                DebugValues(kingX: model.debugKingX, cameraX: model.debugCameraX)
+                            }
+                            Spacer(minLength: 0)
+                        }
+                    }
+                }
+                if let target = model.target, model.overlay == nil, !model.isShowcase {
+                    VStack {
+                        Spacer(minLength: 0)
+                        HStack {
+                            Spacer(minLength: 0)
+                            ActionArea(target: target, model: model)
+                        }
+                    }
+                }
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
+        }
+        .padding(.horizontal, 8)
+        .padding(.top, 6)
+        .padding(.bottom, 2)
+    }
+
+    private var topBar: some View {
+        HStack(alignment: .top, spacing: 8) {
+            PauseButton { model.openPause() }
+            Spacer(minLength: 0)
+            VStack(alignment: .trailing, spacing: 6) {
+                ClockBadge(day: model.day, time: model.clockText)
+                RealmNumbers(gold: model.gold, happiness: model.happiness, people: model.people,
+                             reduceMotion: model.reduceMotion)
+            }
+        }
     }
 }
 
@@ -61,9 +150,192 @@ struct ClockBadge: View {
     }
 }
 
+/// Gold, happiness and people on one capsule under the clock (DESIGN.md "Economy": the three numbers of the HUD).
+/// The numbers roll when they change and the face gives a little hop (not with Reduce Motion).
+struct RealmNumbers: View {
+    let gold: Int
+    let happiness: Int
+    let people: Int
+    let reduceMotion: Bool
+
+    var body: some View {
+        HStack(spacing: 12) {
+            HStack(spacing: 5) {
+                CoinIcon(size: 16)
+                number(gold)
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("Gold"))
+            .accessibilityValue(Text(verbatim: "\(gold)"))
+            .accessibilityIdentifier("hud-gold")
+            HStack(spacing: 5) {
+                HappinessFace(happiness: happiness, size: 18)
+                    .keyframeAnimator(initialValue: 1.0, trigger: happiness) { face, scale in
+                        face.scaleEffect(reduceMotion ? 1 : scale)
+                    } keyframes: { _ in
+                        KeyframeTrack {
+                            CubicKeyframe(1.3, duration: 0.14)
+                            CubicKeyframe(0.94, duration: 0.12)
+                            CubicKeyframe(1.0, duration: 0.14)
+                        }
+                    }
+                number(happiness)
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("Happiness"))
+            .accessibilityValue(Text(verbatim: "\(happiness)"))
+            .accessibilityIdentifier("hud-happiness")
+            HStack(spacing: 5) {
+                Image(systemName: "person.2.fill")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Theme.parchment.opacity(0.85))
+                number(people)
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("People"))
+            .accessibilityValue(Text(verbatim: "\(people)"))
+            .accessibilityIdentifier("hud-people")
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 5)
+        .background(Capsule().fill(Theme.hudFill))
+        .overlay(Capsule().strokeBorder(Theme.hudStroke, lineWidth: 1))
+        .fixedSize()
+    }
+
+    private func number(_ value: Int) -> some View {
+        Text(verbatim: "\(value)")
+            .font(Theme.rounded(15, .bold))
+            .monospacedDigit()
+            .foregroundStyle(Theme.parchment)
+            .contentTransition(reduceMotion ? .identity : .numericText(value: Double(value)))
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.35), value: value)
+    }
+}
+
+/// Pause, top left: a 44 pt button in a 60 pt touch area (DESIGN.md "Controls").
+struct PauseButton: View {
+    let action: @MainActor () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                Circle().fill(Theme.hudFill)
+                Circle().strokeBorder(Theme.hudStroke, lineWidth: 1)
+                Image(systemName: "pause.fill")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(Theme.parchment)
+            }
+            .frame(width: 44, height: 44)
+            .frame(width: 60, height: 60, alignment: .topLeading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text("Pause"))
+        .accessibilityIdentifier("hud-pause")
+    }
+}
+
+/// What the action button shows (DESIGN.md "Controls": a hammer, coins, the crown, a flame, a patch).
+enum ActionGlyph: Sendable, Equatable {
+    case build, recruit, throne, light, snuff, patch
+
+    init(_ action: BrazierAction) {
+        switch action {
+        case .light: self = .light
+        case .snuff: self = .snuff
+        case .patch: self = .patch
+        }
+    }
+
+    init(_ target: KingTarget) {
+        switch target {
+        case .build: self = .build
+        case .recruit: self = .recruit
+        case .throne: self = .throne
+        case .light: self = .light
+        case .patch: self = .patch
+        }
+    }
+
+    /// The button's VoiceOver label in the light probe.
+    var label: Text {
+        switch self {
+        case .build: return Text("Build")
+        case .recruit: return Text("Recruit at the barracks")
+        case .throne: return Text("Set the taxes")
+        case .light: return Text("Light the brazier")
+        case .snuff: return Text("Snuff the brazier")
+        case .patch: return Text("Patch the wall")
+        }
+    }
+}
+
+/// The action button with its caption above it: "Build" and the plot, "Recruit", "Taxes", "Light", "Patch" and its
+/// price.
+@MainActor
+struct ActionArea: View {
+    let target: KingTarget
+    let model: GameModel
+
+    var body: some View {
+        VStack(alignment: .trailing, spacing: 0) {
+            caption
+                .padding(.trailing, 20)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+            ActionButton(glyph: ActionGlyph(target), label: label) {
+                model.performAction()
+            }
+        }
+    }
+
+    private var captionText: String {
+        switch target {
+        case .build(let plot):
+            return Texts.slotName(Realm.plots[plot].slot)
+        case .recruit:
+            return String(localized: "Recruit")
+        case .throne:
+            return String(localized: "Taxes")
+        case .light:
+            return String(localized: "Light")
+        case .patch:
+            return String(localized: "Patch")
+        }
+    }
+
+    private var caption: some View {
+        HStack(spacing: 5) {
+            Text(verbatim: captionText)
+            if case .patch = target {
+                GoldAmount(amount: Balance.standard.patchCost, size: 12, color: Theme.parchment)
+            }
+        }
+        .font(Theme.serif(.footnote, .semibold))
+        .foregroundStyle(Theme.parchment)
+        .lineLimit(1)
+        .fixedSize()
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
+        .background(Capsule().fill(Theme.hudFill))
+        .overlay(Capsule().strokeBorder(Theme.hudStroke, lineWidth: 1))
+    }
+
+    private var label: Text {
+        switch target {
+        case .build(let plot):
+            return Text("Build: \(Texts.plotTitle(slot: Realm.plots[plot].slot, line: Realm.plots[plot].line))")
+        default:
+            return ActionGlyph(target).label
+        }
+    }
+}
+
 /// The context action button (DESIGN.md "Controls"): an 88 pt circle inside a 128 pt touch area.
 struct ActionButton: View {
-    let action: BrazierAction
+    let glyph: ActionGlyph
+    let label: Text
     let perform: @MainActor () -> Void
 
     var body: some View {
@@ -73,9 +345,7 @@ struct ActionButton: View {
                     .fill(Color(red: 0.09, green: 0.07, blue: 0.14).opacity(0.8))
                 Circle()
                     .strokeBorder(Color(red: 0.91, green: 0.72, blue: 0.29), lineWidth: 3)
-                Image(systemName: iconName)
-                    .font(.system(size: 34, weight: .bold))
-                    .foregroundStyle(iconColor)
+                icon
             }
             .frame(width: 88, height: 88)
             .frame(width: 128, height: 128)
@@ -86,28 +356,61 @@ struct ActionButton: View {
         .accessibilityLabel(label)
     }
 
-    private var iconName: String {
-        switch action {
-        case .light: return "flame.fill"
-        case .snuff: return "wind"
-        case .patch: return "hammer.fill"
+    @ViewBuilder private var icon: some View {
+        switch glyph {
+        case .recruit:
+            CoinStack(size: 40)
+        default:
+            Image(systemName: iconName)
+                .font(.system(size: 34, weight: .bold))
+                .foregroundStyle(iconColor)
         }
     }
 
-    private var label: Text {
-        switch action {
-        case .light: return Text("Light the brazier")
-        case .snuff: return Text("Snuff the brazier")
-        case .patch: return Text("Patch the wall")
+    private var iconName: String {
+        switch glyph {
+        case .build: return "hammer.fill"
+        case .recruit: return "circle.fill"
+        case .throne: return "crown.fill"
+        case .light: return "flame.fill"
+        case .snuff: return "wind"
+        case .patch: return "bandage.fill"
         }
     }
 
     private var iconColor: Color {
-        switch action {
+        switch glyph {
+        case .build: return Color(red: 0.86, green: 0.8, blue: 0.7)
+        case .recruit, .throne: return Color(red: 1.0, green: 0.8, blue: 0.36)
         case .light: return Color(red: 1.0, green: 0.78, blue: 0.35)
         case .snuff: return Color(red: 0.76, green: 0.8, blue: 0.92)
-        case .patch: return Color(red: 0.86, green: 0.8, blue: 0.7)
+        case .patch: return Color(red: 0.92, green: 0.84, blue: 0.72)
         }
+    }
+}
+
+/// The horn at 19:00 (DESIGN.md "Day and night": a low horn sounds, the Gloom stirs): a dark ribbon for a few seconds.
+struct HornBanner: View {
+    let night: Int
+
+    var body: some View {
+        VStack(spacing: 2) {
+            Text("The horn sounds")
+                .font(Theme.serif(.headline, .bold))
+                .foregroundStyle(Theme.fireGold)
+            Text("Night \(night) is coming")
+                .font(Theme.serif(.subheadline))
+                .foregroundStyle(Theme.parchment)
+        }
+        .multilineTextAlignment(.center)
+        .fixedSize(horizontal: false, vertical: true)
+        .padding(.horizontal, 36)
+        .padding(.vertical, 8)
+        .background(RibbonShape(notch: 14).fill(Theme.night1.opacity(0.88)))
+        .overlay(RibbonShape(notch: 14).stroke(Theme.gold.opacity(0.6), lineWidth: 1.2))
+        .allowsHitTesting(false)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("horn-banner")
     }
 }
 

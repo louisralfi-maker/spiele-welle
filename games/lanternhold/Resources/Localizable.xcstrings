@@ -1,6 +1,468 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@ of the taxes · happiness %@ a dawn" : {
+      "comment" : "Tax card: a rate's effect.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ der Steuern · Zufriedenheit %2$@ pro Morgen"
+          }
+        }
+      }
+    },
+    "%@ · %@" : {
+      "comment" : "Build card title: plot kind and defence line.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "%@, archer" : {
+      "comment" : "Dawn report: a fallen archer.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, Bogenschütze"
+          }
+        }
+      }
+    },
+    "%@, guard" : {
+      "comment" : "Dawn report: a fallen guard.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, Wache"
+          }
+        }
+      }
+    },
+    "%lld archer posts · range +%@" : {
+      "comment" : "Build card: a tower's effect; %@ is a percentage.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld Schützenposten · Reichweite +%2$@"
+          }
+        }
+      }
+    },
+    "%lld born" : {
+      "comment" : "Dawn report: citizens born.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld geboren"
+          }
+        }
+      }
+    },
+    "%lld builders" : {
+      "comment" : "Build card: the lodge's effect.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Bauleute"
+          }
+        }
+      }
+    },
+    "%lld damage · %lld times a night" : {
+      "comment" : "Build card: the stake pit's effect.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld Schaden · %2$lld-mal pro Nacht"
+          }
+        }
+      }
+    },
+    "%lld gold missing" : {
+      "comment" : "Card hint: not enough gold.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es fehlen %lld Gold"
+          }
+        }
+      }
+    },
+    "%lld left the realm" : {
+      "comment" : "Dawn report: citizens who left.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld haben das Reich verlassen"
+          }
+        }
+      }
+    },
+    "%lld s" : {
+      "comment" : "Build card: the build time in seconds.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld s"
+          }
+        }
+      }
+    },
+    "%lld taxpayers" : {
+      "comment" : "Dawn report: tax detail.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Steuerzahler"
+          }
+        }
+      }
+    },
+    "+%lld gold every dawn" : {
+      "comment" : "Build card: a field's effect.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%lld Gold jeden Morgen"
+          }
+        }
+      }
+    },
+    "+%lld happiness every dawn" : {
+      "comment" : "Build card: the tavern's effect.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%lld Zufriedenheit jeden Morgen"
+          }
+        }
+      }
+    },
+    "A recruit no longer pays taxes." : {
+      "comment" : "Recruit card: footnote.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wer zur Waffe greift, zahlt keine Steuern mehr."
+          }
+        }
+      }
+    },
+    "A second chance again from night %lld" : {
+      "comment" : "Defeat card: when the second chance can be taken again.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine zweite Chance wieder ab Nacht %lld"
+          }
+        }
+      }
+    },
+    "Aldric is free. The Gloom recedes." : {
+      "comment" : "Dawn report after night 20: the King was slain.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aldric ist frei. Die Düsternis weicht."
+          }
+        }
+      }
+    },
+    "An empty site" : {
+      "comment" : "Build card subtitle: nothing stands on the plot.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein leerer Bauplatz"
+          }
+        }
+      }
+    },
+    "Archer" : {
+      "comment" : "A soldier kind.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bogenschütze"
+          }
+        }
+      }
+    },
+    "Archer tower" : {
+      "comment" : "Build item.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bogenturm"
+          }
+        }
+      }
+    },
+    "Archers %lld · free posts %lld · guards %lld" : {
+      "comment" : "Recruit card subtitle: counts.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bogenschützen %1$lld · freie Posten %2$lld · Wachen %3$lld"
+          }
+        }
+      }
+    },
+    "Archers strike harder: +%@" : {
+      "comment" : "Build card: the smithy's effect; %@ is a percentage.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bogenschützen treffen härter: +%@"
+          }
+        }
+      }
+    },
+    "Back to the morning of day %lld" : {
+      "comment" : "Defeat card: what Replay the day does.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zurück zum Morgen von Tag %lld"
+          }
+        }
+      }
+    },
+    "Ballista" : {
+      "comment" : "Build item.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Balliste"
+          }
+        }
+      }
+    },
+    "Barracks" : {
+      "comment" : "Recruit card title.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kaserne"
+          }
+        }
+      }
+    },
+    "Bastion" : {
+      "comment" : "Build item.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bastion"
+          }
+        }
+      }
+    },
+    "Beacon footing" : {
+      "comment" : "Build item: the Great Beacon's first stage.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fundament des Leuchtfeuers"
+          }
+        }
+      }
+    },
+    "Beacon tower" : {
+      "comment" : "Build item: the Great Beacon's second stage.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turm des Leuchtfeuers"
+          }
+        }
+      }
+    },
+    "Big house" : {
+      "comment" : "Build item.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Großes Haus"
+          }
+        }
+      }
+    },
+    "Blessing of the Flame" : {
+      "comment" : "Dawn report: a happiness reason (the chapel).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segen der Flamme"
+          }
+        }
+      }
+    },
+    "Bolts of %lld damage that pierce %lld" : {
+      "comment" : "Build card: the ballista's effect.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bolzen mit %1$lld Schaden, durchbohren %2$lld"
+          }
+        }
+      }
+    },
+    "Brazier" : {
+      "comment" : "Build item and plot kind.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feuerschale"
+          }
+        }
+      }
+    },
+    "Build" : {
+      "comment" : "Accessibility label of the action button (build).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bauen"
+          }
+        }
+      }
+    },
+    "Build: %@" : {
+      "comment" : "Accessibility label of the action button at a plot; %@ is the plot.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bauen: %@"
+          }
+        }
+      }
+    },
+    "Builders at work on: %@, %@" : {
+      "comment" : "Build card subtitle: a job in progress and its share done.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bauleute am Werk: %1$@, %2$@"
+          }
+        }
+      }
+    },
+    "Builders' lodge" : {
+      "comment" : "Build item and plot kind.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bauhütte"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "comment" : "Pause sheet: cancel the restart.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbrechen"
+          }
+        }
+      }
+    },
+    "Catapult" : {
+      "comment" : "Build item.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Katapult"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "comment" : "Accessibility label of a card's close button.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schließen"
+          }
+        }
+      }
+    },
+    "Collected at every dawn" : {
+      "comment" : "Tax card subtitle.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eingezogen an jedem Morgen"
+          }
+        }
+      }
+    },
+    "Continue" : {
+      "comment" : "Dawn report: start the day.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weiter"
+          }
+        }
+      }
+    },
+    "Creatures stopped" : {
+      "comment" : "Dawn report row.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kreaturen aufgehalten"
+          }
+        }
+      }
+    },
     "Day %lld" : {
       "comment" : "HUD: the day number next to the clock.",
       "localizations" : {
@@ -8,6 +470,270 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tag %lld"
+          }
+        }
+      }
+    },
+    "Day %lld dawns" : {
+      "comment" : "Dawn report title.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tag %lld bricht an"
+          }
+        }
+      }
+    },
+    "Fallen" : {
+      "comment" : "Dawn report: the fallen soldiers' heading.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gefallen"
+          }
+        }
+      }
+    },
+    "Field" : {
+      "comment" : "Build item and plot kind.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feld"
+          }
+        }
+      }
+    },
+    "Fire tower" : {
+      "comment" : "Build item.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feuerturm"
+          }
+        }
+      }
+    },
+    "Firepots of %lld damage that light the dark" : {
+      "comment" : "Build card: the catapult's effect.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feuertöpfe mit %lld Schaden, erhellen das Dunkel"
+          }
+        }
+      }
+    },
+    "Gate" : {
+      "comment" : "Build item: the gatehouse's first tier.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tor"
+          }
+        }
+      }
+    },
+    "Gatehouse" : {
+      "comment" : "Defence line 1.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Torhaus"
+          }
+        }
+      }
+    },
+    "Gold" : {
+      "comment" : "HUD: accessibility label of the gold.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gold"
+          }
+        }
+      }
+    },
+    "Great Beacon" : {
+      "comment" : "Build item and plot kind.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Großes Leuchtfeuer"
+          }
+        }
+      }
+    },
+    "Great gate" : {
+      "comment" : "Build item: the gatehouse's third tier.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Großes Tor"
+          }
+        }
+      }
+    },
+    "Great lodge" : {
+      "comment" : "Build item: the lodge's second tier.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Große Bauhütte"
+          }
+        }
+      }
+    },
+    "Guard" : {
+      "comment" : "A soldier kind.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wache"
+          }
+        }
+      }
+    },
+    "Happiness" : {
+      "comment" : "HUD and dawn report.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zufriedenheit"
+          }
+        }
+      }
+    },
+    "Haptics" : {
+      "comment" : "Pause sheet switch.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haptik"
+          }
+        }
+      }
+    },
+    "He will never return." : {
+      "comment" : "Dawn report after night 20: the King withdrew.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er kehrt niemals zurück."
+          }
+        }
+      }
+    },
+    "Hearth fire at its lowest" : {
+      "comment" : "Dawn report row.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herdfeuer am schwächsten"
+          }
+        }
+      }
+    },
+    "High tax" : {
+      "comment" : "A tax rate.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hohe Steuern"
+          }
+        }
+      }
+    },
+    "Holds the breach when a wall falls" : {
+      "comment" : "Recruit card: what a guard does.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hält die Bresche, wenn eine Mauer fällt"
+          }
+        }
+      }
+    },
+    "House" : {
+      "comment" : "Build item and plot kind.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haus"
+          }
+        }
+      }
+    },
+    "In ruins: %@" : {
+      "comment" : "Build card subtitle: a destroyed wall.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Trümmern: %@"
+          }
+        }
+      }
+    },
+    "Iron gate" : {
+      "comment" : "Build item: the gatehouse's second tier.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eisentor"
+          }
+        }
+      }
+    },
+    "Its light breaks the darkness of the Gloom" : {
+      "comment" : "Build card: the Great Beacon's last stage.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sein Licht bricht das Dunkel der Düsternis"
+          }
+        }
+      }
+    },
+    "Light" : {
+      "comment" : "Action button caption at a snuffed brazier.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entzünden"
+          }
+        }
+      }
+    },
+    "Light radius %lld · burns all night" : {
+      "comment" : "Build card: a brazier's or fire tower's effect.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lichtradius %lld · brennt die ganze Nacht"
           }
         }
       }
@@ -23,6 +749,237 @@
         }
       }
     },
+    "Low tax" : {
+      "comment" : "A tax rate.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niedrige Steuern"
+          }
+        }
+      }
+    },
+    "Map of the realm" : {
+      "comment" : "Accessibility label of the realm strip.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karte des Reichs"
+          }
+        }
+      }
+    },
+    "Market" : {
+      "comment" : "Build item and plot kind.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markt"
+          }
+        }
+      }
+    },
+    "Master smithy" : {
+      "comment" : "Build item.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meisterschmiede"
+          }
+        }
+      }
+    },
+    "Middle line" : {
+      "comment" : "Defence line 2.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mittlere Linie"
+          }
+        }
+      }
+    },
+    "Next site" : {
+      "comment" : "Build card: accessibility label of the arrow to the next plot.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nächster Bauplatz"
+          }
+        }
+      }
+    },
+    "Night %lld is coming" : {
+      "comment" : "Horn banner at 19:00.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nacht %lld bricht herein"
+          }
+        }
+      }
+    },
+    "Night %lld is over" : {
+      "comment" : "Dawn report subtitle.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nacht %lld ist vorüber"
+          }
+        }
+      }
+    },
+    "No one fell" : {
+      "comment" : "Dawn report: a happiness reason.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niemand gefallen"
+          }
+        }
+      }
+    },
+    "No one fell tonight" : {
+      "comment" : "Dawn report banner.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute Nacht ist niemand gefallen"
+          }
+        }
+      }
+    },
+    "No one left to take up arms" : {
+      "comment" : "Recruit card: no taxpayers left.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niemand mehr, der zur Waffe greifen kann"
+          }
+        }
+      }
+    },
+    "None" : {
+      "comment" : "Dawn report: no walls lost.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine"
+          }
+        }
+      }
+    },
+    "Normal tax" : {
+      "comment" : "A tax rate.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normale Steuern"
+          }
+        }
+      }
+    },
+    "Nothing more to build here." : {
+      "comment" : "Build card without options.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hier gibt es nichts mehr zu bauen."
+          }
+        }
+      }
+    },
+    "Now: %@" : {
+      "comment" : "Build card subtitle: what stands on the plot.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt: %@"
+          }
+        }
+      }
+    },
+    "Off" : {
+      "comment" : "Accessibility value of a switch.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aus"
+          }
+        }
+      }
+    },
+    "On" : {
+      "comment" : "Accessibility value of a switch.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An"
+          }
+        }
+      }
+    },
+    "Opens on day %lld" : {
+      "comment" : "Build and tax card: locked until that day.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ab Tag %lld"
+          }
+        }
+      }
+    },
+    "Outer line" : {
+      "comment" : "Defence line 3.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Äußere Linie"
+          }
+        }
+      }
+    },
+    "Palisade" : {
+      "comment" : "Build item.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Palisade"
+          }
+        }
+      }
+    },
+    "Patch" : {
+      "comment" : "Action button caption at a damaged wall at night.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flicken"
+          }
+        }
+      }
+    },
     "Patch the wall" : {
       "comment" : "Accessibility label of the action button at a damaged wall at night (patch it for 10 gold).",
       "localizations" : {
@@ -34,6 +991,215 @@
         }
       }
     },
+    "Pause" : {
+      "comment" : "HUD: accessibility label of the pause button.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause"
+          }
+        }
+      }
+    },
+    "Paused" : {
+      "comment" : "Pause sheet title.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause"
+          }
+        }
+      }
+    },
+    "People" : {
+      "comment" : "HUD and dawn report: the citizens.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einwohner"
+          }
+        }
+      }
+    },
+    "Petitioners unheard" : {
+      "comment" : "Dawn report: a happiness reason.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ungehörte Bittsteller"
+          }
+        }
+      }
+    },
+    "Previous site" : {
+      "comment" : "Build card: accessibility label of the arrow to the previous plot.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorheriger Bauplatz"
+          }
+        }
+      }
+    },
+    "Rebuild: %@" : {
+      "comment" : "Build card: rebuild rubble.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wiederaufbau: %@"
+          }
+        }
+      }
+    },
+    "Recruit" : {
+      "comment" : "Action button caption at the barracks.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anwerben"
+          }
+        }
+      }
+    },
+    "Recruit at the barracks" : {
+      "comment" : "Accessibility label of the action button at the barracks.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In der Kaserne anwerben"
+          }
+        }
+      }
+    },
+    "Replay the day" : {
+      "comment" : "Defeat card button.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den Tag neu spielen"
+          }
+        }
+      }
+    },
+    "Restart" : {
+      "comment" : "Pause sheet: confirm the restart.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neu beginnen"
+          }
+        }
+      }
+    },
+    "Restart chapter" : {
+      "comment" : "Pause sheet button.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapitel neu beginnen"
+          }
+        }
+      }
+    },
+    "Restart chapter 1?" : {
+      "comment" : "Pause sheet: the restart's question.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapitel 1 neu beginnen?"
+          }
+        }
+      }
+    },
+    "Resume" : {
+      "comment" : "Pause sheet button.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weiterspielen"
+          }
+        }
+      }
+    },
+    "Room for %lld people" : {
+      "comment" : "Build card: a house's effect.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Platz für %lld Einwohner"
+          }
+        }
+      }
+    },
+    "Second chance" : {
+      "comment" : "Defeat card button.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zweite Chance"
+          }
+        }
+      }
+    },
+    "Set the taxes" : {
+      "comment" : "Accessibility label of the action button at the throne.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steuern festlegen"
+          }
+        }
+      }
+    },
+    "Shoots what the light shows, from walls and towers" : {
+      "comment" : "Recruit card: what an archer does.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schießt von Mauern und Türmen auf alles, was das Licht zeigt"
+          }
+        }
+      }
+    },
+    "Siege engine" : {
+      "comment" : "Plot kind: ballista or catapult.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geschütz"
+          }
+        }
+      }
+    },
+    "Smithy" : {
+      "comment" : "Build item and plot kind.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schmiede"
+          }
+        }
+      }
+    },
     "Snuff the brazier" : {
       "comment" : "Accessibility label of the action button at a burning brazier.",
       "localizations" : {
@@ -41,6 +1207,413 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Feuerschale löschen"
+          }
+        }
+      }
+    },
+    "Sound" : {
+      "comment" : "Pause sheet switch.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ton"
+          }
+        }
+      }
+    },
+    "Stage 1 of 3 of the Great Beacon" : {
+      "comment" : "Build card: the beacon's first stage.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stufe 1 von 3 des Großen Leuchtfeuers"
+          }
+        }
+      }
+    },
+    "Stage 2 of 3 of the Great Beacon" : {
+      "comment" : "Build card: the beacon's second stage.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stufe 2 von 3 des Großen Leuchtfeuers"
+          }
+        }
+      }
+    },
+    "Stake pit" : {
+      "comment" : "Build item.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pfahlgrube"
+          }
+        }
+      }
+    },
+    "Stone wall" : {
+      "comment" : "Build item.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steinmauer"
+          }
+        }
+      }
+    },
+    "Strength %lld · %lld archer posts" : {
+      "comment" : "Build card: a wall's or gate's effect.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stärke %1$lld · %2$lld Schützenposten"
+          }
+        }
+      }
+    },
+    "Tap to walk there" : {
+      "comment" : "Accessibility hint of the realm strip.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tippen, um dorthin zu gehen"
+          }
+        }
+      }
+    },
+    "Tavern" : {
+      "comment" : "Build item, plot kind and happiness reason.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taverne"
+          }
+        }
+      }
+    },
+    "Taxes" : {
+      "comment" : "Tax card title, action caption, dawn report row.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steuern"
+          }
+        }
+      }
+    },
+    "Taxes +%@" : {
+      "comment" : "Build card: the market's effect; %@ is a percentage.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steuern +%@"
+          }
+        }
+      }
+    },
+    "The Gloom reached the throne room on night %lld." : {
+      "comment" : "Defeat card.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Düsternis erreichte in Nacht %lld den Thronsaal."
+          }
+        }
+      }
+    },
+    "The Lightless King is slain!" : {
+      "comment" : "Dawn report banner after night 20.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Lichtlose König ist gefallen!"
+          }
+        }
+      }
+    },
+    "The Lightless King withdrew into the Gloom" : {
+      "comment" : "Dawn report banner after night 20.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Lichtlose König wich in die Düsternis zurück"
+          }
+        }
+      }
+    },
+    "The beacon site can be built" : {
+      "comment" : "Dawn report: unlocked today.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Platz des Leuchtfeuers ist frei"
+          }
+        }
+      }
+    },
+    "The fallen" : {
+      "comment" : "Dawn report: a happiness reason.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Gefallenen"
+          }
+        }
+      }
+    },
+    "The hearth flares up and dawn comes at once" : {
+      "comment" : "Defeat card: what the second chance does.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Herdfeuer lodert auf, der Morgen kommt sofort"
+          }
+        }
+      }
+    },
+    "The hearth has gone out" : {
+      "comment" : "Defeat card title.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Herdfeuer ist erloschen"
+          }
+        }
+      }
+    },
+    "The hearth went out, but a second chance brought the dawn" : {
+      "comment" : "Dawn report banner.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Herdfeuer erlosch, doch eine zweite Chance brachte den Morgen"
+          }
+        }
+      }
+    },
+    "The horn sounds" : {
+      "comment" : "Horn banner at 19:00.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Horn erschallt"
+          }
+        }
+      }
+    },
+    "The middle line can be built" : {
+      "comment" : "Dawn report: unlocked today.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die mittlere Linie kann gebaut werden"
+          }
+        }
+      }
+    },
+    "The night" : {
+      "comment" : "Dawn report section.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Nacht"
+          }
+        }
+      }
+    },
+    "The outer line can be built" : {
+      "comment" : "Dawn report: unlocked today.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die äußere Linie kann gebaut werden"
+          }
+        }
+      }
+    },
+    "The realm" : {
+      "comment" : "Dawn report section.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Reich"
+          }
+        }
+      }
+    },
+    "The war tax can be set" : {
+      "comment" : "Dawn report: unlocked today.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Kriegssteuer ist möglich"
+          }
+        }
+      }
+    },
+    "Tower" : {
+      "comment" : "Plot kind.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turm"
+          }
+        }
+      }
+    },
+    "Trap" : {
+      "comment" : "Plot kind.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Falle"
+          }
+        }
+      }
+    },
+    "Treasury" : {
+      "comment" : "Dawn report: gold after the dawn.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schatzkammer"
+          }
+        }
+      }
+    },
+    "Unrest: no taxes at this dawn" : {
+      "comment" : "Dawn report: unrest took the taxes.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unruhen: an diesem Morgen keine Steuern"
+          }
+        }
+      }
+    },
+    "Wall" : {
+      "comment" : "Plot kind.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mauer"
+          }
+        }
+      }
+    },
+    "Walls lost" : {
+      "comment" : "Dawn report row.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verlorene Mauern"
+          }
+        }
+      }
+    },
+    "War tax" : {
+      "comment" : "A tax rate and happiness reason.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kriegssteuer"
+          }
+        }
+      }
+    },
+    "Watchtower" : {
+      "comment" : "Build item.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wachturm"
+          }
+        }
+      }
+    },
+    "Your realm begins again on day 1. The Chronicle keeps its records." : {
+      "comment" : "Pause sheet: the restart's explanation.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein Reich beginnt wieder an Tag 1. Die Chronik behält ihre Rekorde."
+          }
+        }
+      }
+    },
+    "a volunteer took up the bow" : {
+      "comment" : "Dawn report: a free archer joined.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ein Freiwilliger griff zum Bogen"
+          }
+        }
+      }
+    },
+    "fields +%lld" : {
+      "comment" : "Dawn report: tax detail.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Felder +%lld"
+          }
+        }
+      }
+    },
+    "market +%lld" : {
+      "comment" : "Dawn report: tax detail.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markt +%lld"
+          }
+        }
+      }
+    },
+    "next dawn" : {
+      "comment" : "Tax card: the forecast is for the next dawn.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nächster Morgen"
           }
         }
       }

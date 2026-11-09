@@ -3,8 +3,10 @@ import QuartzCore
 import SwiftUI
 
 /// The world screen (DESIGN.md "Screens": the scene plus the HUD): the Metal scene, the walk pad on the left 45 % and
-/// the plain SwiftUI HUD on top. The light lab uses the same screen without the walk pad. In the game nothing steps
-/// while the app is not active, and the dawn snapshot is saved when it goes to the background.
+/// the plain SwiftUI HUD on top, and in the game the cards, the dawn report, the defeat card and the pause sheet over
+/// it (the walk pad rests while one is open). The light lab uses the same screen without the walk pad. In the game
+/// nothing steps while the app is not active; the dawn snapshot is saved when it goes to the background, and it comes
+/// back paused.
 @MainActor
 struct GameView: View {
     @State private var model: GameModel
@@ -21,8 +23,12 @@ struct GameView: View {
             if model.kind != .lightLab {
                 WalkPad(model: model)
                     .ignoresSafeArea()
+                    .allowsHitTesting(model.overlay == nil)
             }
             HUDView(model: model)
+            if model.kind == .world {
+                OverlayView(model: model)
+            }
         }
         .background(Color.black.ignoresSafeArea())
         .accessibilityElement(children: .contain)
@@ -31,6 +37,7 @@ struct GameView: View {
             model.setActive(phase == .active)
             if phase == .background {
                 model.saveNow()
+                model.pauseForBackground()
             }
         }
     }
