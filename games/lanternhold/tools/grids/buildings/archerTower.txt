@@ -1,0 +1,60 @@
+# archerTower 20x48, hand-set: tier 1 of the tower (lines 2 and 3). A timber frame tower: splayed front legs in the
+# palisade's stake shading, darker back legs, cross braces in two bays, a ladder up the middle, girts, stone footings, a
+# heavy deck beam with joist ends and a plank parapet between corner posts. The archers' feet stand on the deck at
+# y 42 (rows 6-7 from the top), the parapet's top is at y 47.
+s = stone
+l = stoneLight
+o = wood
+k = ink
+m = stoneMid
+w = woodDark
+L = woodLight
+---
+kL................wk
+kLkkkkkkkkkkkkkkkkwk
+kLLLLLwLLLLLwLLLLLwk
+kLoooowooooowooooowk
+kLLLLLwLLLLLwLLLLLwk
+kLwwwwwwwwwwwwwwwwwk
+kLLLLLLLLLLLLLLLLLwk
+wkwwwkwwwkwwwkwwwkww
+..kLw.w.w..w.w.Lwk..
+..kLw.w.wLLw.w.Lwk..
+..kLw.w.w..w.w.Lwk..
+..kLwow.w..w.woLwk..
+..kLwww.wLLw.wwLwk..
+..kLwwo.w..w.owLwk..
+..kLw.wow..wow.Lwk..
+..kLw.wwwLLwww.Lwk..
+..kLw.w.w..w.w.Lwk..
+..kLw.w.woow.w.Lwk..
+..kLw.w.wLLw.w.Lwk..
+..kLw.w.wwww.w.Lwk..
+..kLw.w.w..w.w.Lwk..
+..kLw.wowLLwow.Lwk..
+..kLw.oww..wwo.Lwk..
+..kLwow.w..w.woLwk..
+..kLwww.wLLw.wwLwk..
+..kLwww.w..w.wwLwk..
+.LkLwLLLLLLLLLLLwkL.
+.wkLwwwwwwwwwwwLwkw.
+.kLw..w.w..w.w..Lwk.
+.kLwo.w.w..w.w.oLwk.
+.kLwwow.wLLw.wowLwk.
+.kLw.ww.w..w.ww.Lwk.
+.kLw.wo.w..w.ow.Lwk.
+.kLw..wowLLwow..Lwk.
+.kLw..www..www..Lwk.
+.kLw..w.w..w.w..Lwk.
+.kLw..w.wLLw.w..Lwk.
+.kLw..w.woww.w..Lwk.
+.kLw..w.wwww.w..Lwk.
+.kLw..w.wLLw.w..Lwk.
+.kLw..wow..wow..Lwk.
+.kLw..oww..wwo..Lwk.
+.kLw.ow.wLLw.wo.Lwk.
+.kLw.ww.w..w.ww.Lwk.
+.kLwLLLLLLLLLLLLLwk.
+.kLwwwwwwwwwwwwwLwk.
+kllsk.w.w..w.w.kllsk
+kmmmk...w..w...kmmmk

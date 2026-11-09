@@ -1,0 +1,82 @@
+# watchtower 24x64, hand-set (design from the Recraft watchtower of beacon-a; its timber storey was mush at 24 px):
+# tier 2 of the tower. A slender stone tower in the stoneWall's block language: three merlons with pale tops on a parapet
+# band, corbels with dark holes, an arrow slit, a barred window (dark glass), an arched oak door, a talus at the foot, a
+# teal pennant on a pole. The archers stand on the parapet walk at y 52; the merlons reach y 56.
+n = night0
+N = night1
+d = stoneDark
+s = stone
+l = stoneLight
+o = wood
+b = banner
+k = ink
+m = stoneMid
+p = stonePale
+w = woodDark
+L = woodLight
+R = roofLight
+---
+..kkkkkkkkk.............
+..kkbbbbbbbk............
+..kkbRRbbbk.............
+..kkbbbbkbbk............
+..kkkkkk.kkk............
+..k.....................
+..k.....................
+kkpkkk...kkkkkk...kkkkkk
+kppppk...kppppk...kppppk
+ksssmk...klllsk...ksssmk
+kmmmdk...ksssdk...kmmmdk
+kddddk...kddddk...kddddk
+klllmdkkklllsdskkkppsdsk
+kmmmddssssssmdssssssmdsk
+kddddddmmmmmdddmmmmmdddk
+kmmmmmmmmmmmmmmmmmmmmmmk
+kkmNNsmNNsmNNsmNNsmNNskk
+..kmdsppppsdlpppldsppk..
+..kddpsmssmdplllsdpssk..
+..kddpssssmdplllsdpssk..
+..kddsssssddddllsdsssk..
+..kdddmmmmdnndssdddmmk..
+..kddddddddnnddddddddk..
+..kdsppppsdnndlllmdlpk..
+..kdpssssmdnnddmmddplk..
+..kdsssssmdnndmmmddllk..
+..kddmmmmddnndddddddsk..
+..kddddddddnnddddddddk..
+..kdspppsddppdsdsppppk..
+..kdpsssmlllllldpssssk..
+..kdssssmdssssmdssssmk..
+..kddmmmdddmmmdddmmmmk..
+..kddddddddddddddddddk..
+..kpppppsdddddddsppppk..
+..ksssssmdNNNNddpssssk..
+..ksssssmdNNNNddpsssmk..
+..ksssssmdNwwNddsssssk..
+..kmmmmmddNwNNdddmmmmk..
+..kdddddddNwNNdddddddk..
+..kdsppppdNwNNdllmdspk..
+..kdpssmsllllllmmddpsk..
+..kdssssssmdmmmdmddssk..
+..kddmmmmmddddddddddmk..
+..kddddddddddddddddddk..
+..ksppppppsdsppppsdmlk..
+..kpssssssmdpssssmdldk..
+..kpssssssmdpssssmdlmk..
+..kssmssssmdssmssmdmmk..
+..kdmmmmmmdddmmmmddddk..
+..kddddddddddddddddddk..
+..kpppppsdsppppsdspppk..
+..ksssssmdpssssmdpsssk..
+..ksssssmdsmsssmdssssk..
+..kmmmmmdddmmmmdddmmmk..
+..kddddddddddddddddddk..
+..kmdslllskkkkllmdsppk..
+..kddlssskwooLkmddpssk..
+..kddssskwoLooLkddsssk..
+..kdddmmkwoLooLkdddmmk..
+.kddddddkwoLloLkddddddk.
+.ksdspppkwoLooLkpsdsllk.
+.kmdsssskwoLooLksmdsssk.
+kmdddmmmkwoLooLkmdddmmmk
+kdddddddkwoLooLkdddddddk

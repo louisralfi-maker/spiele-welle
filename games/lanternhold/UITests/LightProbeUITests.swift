@@ -61,6 +61,9 @@ final class LightProbeUITests: XCTestCase {
             Shot(name: "20-river-day", arguments: world("0.5", camera: "3720")),
             Shot(name: "21-approach-night", arguments: world("0.95", camera: "1100")),
             Shot(name: "22-beacon-day", arguments: world("0.5", camera: "470")),
+            // Scene polish 2: the castle's cast shadow by day, the throat rock against the flattened far wall.
+            Shot(name: "23-castle-noon", arguments: world("0.5", camera: "1360")),
+            Shot(name: "24-approach-noon", arguments: world("0.5", camera: "1100")),
         ]
         for shot in shots {
             capture(shot)

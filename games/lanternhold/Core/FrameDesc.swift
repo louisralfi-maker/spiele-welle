@@ -24,6 +24,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     case beaconRuin, palisade, stoneWall, torchPost, brazier, ballista
     case cliffFlank, cliffFlankB, throatRock, castleKeep, keepTop, castleFront, castleWall, hallInterior, throne, hearth, candleStand, chapel, kitchen
     case castleBackGate, house, houseB, houseC, lanternPost, field, well, riverEnd
+    // Scene polish 2: the castle's baked cast shadows (day and the long dusk shadow) and the mist at its foot
+    case castleShadow, castleShadowLong, groundShadow, groundShadowLong, gateShadow, gateShadowLong, castleMist
     // Emissive parts
     case flame, brazierFlame, hearthFire, candleFlame, windowGlow, lanternGlass, eyeGlints
     // Actors
@@ -101,6 +103,13 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .field: return PixelSize(width: 80, height: 8)
         case .well: return PixelSize(width: 18, height: 20)
         case .riverEnd: return PixelSize(width: 220, height: 64)
+        case .castleShadow: return PixelSize(width: 13, height: 171)
+        case .castleShadowLong: return PixelSize(width: 90, height: 172)
+        case .groundShadow: return PixelSize(width: 240, height: 6)
+        case .groundShadowLong: return PixelSize(width: 80, height: 3)
+        case .gateShadow: return PixelSize(width: 9, height: 126)
+        case .gateShadowLong: return PixelSize(width: 21, height: 153)
+        case .castleMist: return PixelSize(width: 300, height: 34)
         case .flame: return PixelSize(width: 4, height: 5)
         case .brazierFlame: return PixelSize(width: 8, height: 7)
         case .hearthFire: return PixelSize(width: 16, height: 10)
@@ -141,7 +150,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .catapult: return PixelSize(width: 32, height: 24)
         case .stakePit: return PixelSize(width: 24, height: 8)
         case .beaconBase, .beaconTower, .greatBeacon: return PixelSize(width: 64, height: 130)
-        case .beaconFire: return PixelSize(width: 24, height: 20)
+        case .beaconFire: return PixelSize(width: 48, height: 32)
         case .barracks: return PixelSize(width: 64, height: 48)
         case .smithy: return PixelSize(width: 60, height: 48)
         case .masterSmithy: return PixelSize(width: 60, height: 56)
@@ -175,7 +184,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .citizen, .citizenB, .citizenC, .builder: return 6
         case .archer: return 5
         case .sootCrow, .sootCrowGlow, .gloomweaver, .gloomweaverGlow: return 4
-        case .gateWood, .gateIron, .gateGreat, .catapult, .beaconFire: return 3
+        case .beaconFire: return 4
+        case .gateWood, .gateIron, .gateGreat, .catapult: return 3
         case .arrow, .fireArrow, .bolt, .spark, .streak: return 3
         case .palisade, .stoneWall, .bastion, .ballista, .stakePit, .firepot, .shard: return 2
         default: return 1

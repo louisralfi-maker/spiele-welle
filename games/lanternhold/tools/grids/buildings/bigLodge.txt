@@ -1,0 +1,69 @@
+# bigLodge 64x52, hand-set: the lodge grown to two storeys: a stone ground floor with a wide open door, a timber
+# upper storey with four windows, a teal slate roof and a chimney, a crane hoist out from the roof's end with a block on
+# its rope, cut stone blocks and planks stacked by the door, a saw sign. Design from the Recraft sheet court-a; its violet cast and fine detail did not survive the downscale (the timber came out night1, the shields and spears as mush), so it is hand-set in the castle palette: grey-violet stone in the stoneWall's block language, teal slate, dark timber.
+N = night1
+d = stoneDark
+s = stone
+l = stoneLight
+o = wood
+b = banner
+k = ink
+m = stoneMid
+p = stonePale
+w = woodDark
+L = woodLight
+r = roofDeep
+R = roofLight
+---
+................................................................
+...........k.k..................................................
+.........kkpkpkk................................................
+.........kmmmmmk................................................
+..........ksssk.................................................
+..........kdddk.................................................
+.....kkkkkRRRRRkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk.......kkk.
+....kbrbbbrbbbbbrbbbrbbbbrbbrRRRRRrbbbrbbrrrrrbbrbbbk.....kkowk.
+....kbrbbbrbbbbbrbbbrbbbbrbbrRRRRRrbbbrbbrrrrrbbrbbbbk..kkokkk..
+....kRrRRRrRRRRRrRRRrRRRRrRRrbbbbbrRRRrRRrRRRrRRrRRRRrkkokk..k..
+...kbbbbrRRRRRrbbrbbbbrbbbbrbbrbbbbrrrrbbrbbrbbbbbrbLLowk....k..
+...kbbbbrRRRRRrbbrbbbbrbbbbrbbrbbbbrrrrbbrbbrbbbbbLLowwok....k..
+...kRRRRrbbbbbrRRrRRRRrRRRRrRRrRRRRrRRrRRrRRrRRRRRowwRrk.....k..
+..kbrbbbbbrbbrbbrrrrrrrbbbrbbbrRRRrbbbrbbbbbrRRRRRrbbrowk....k..
+.kbbrbbbbbrbbrbbrrrrrrrbbbrbbbrRRRrbbbrbbbbbrRRRRRrbbroRk....k..
+kRRRrRRRRRrRRrRRrRRRRRrRRRrRRRrbbbrRRRrRRRRRrbbbbbrRRowbk....k..
+kkkrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrorkkk...k..
+...kLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLowk......k..
+...kwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwowk......k..
+....kwwLowLowLowLowLowLowLowLoowowLowLowLowowwLowLowok.......k..
+....kwwLowLowLowLowLowLowLowLoowowLowLowLowowwLowLowok.......k..
+....kwwLwwwwwLowLowLowwwwwowLoowowwwwwwwLowowwwwwwwwok.......k..
+....kwwLwNwNwLowLowLowNwNwowLoowowwNwNwwLowowwwNwNwwok.......k..
+....kwwLwNwNwLowLowLowNwNwowLoowowwNwNwwLowowwwNwNwwok.......k..
+....kwwLwwwwwLowLowLowwwwwowLoowowwwwwwwLowowwwwwwwwok.......k..
+....kwwLwNwNwLowLowLowNwNwowLoowowwNwNwwLowowwwNwNwwok.......k..
+....kwwLwwwwwLowLowLowwwwwowLoowowwwwwwwLowowwwwwwwwok.......k..
+....kwwLLLLLLLowLowLLLLLLLLwLoowoLLLLLLLLowowLLLLLLLok.......k..
+....kwwLowLowLowLowLowLowLowLoowowLowLowLowowwLowLowok.......k..
+....kwwLowLowLowLowLowLowLowLoowowLowLowLowowwLowLowok.......k..
+...kLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLk......k..
+...kkwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwkk......k..
+.....kpppsdspppppsdsppppsdspppppsdmlllmdsppppppsdsppk........k..
+.....ksmmmdpsssssmdpssssmdpsssssmdlmmmddpssssssmdppsk........k..
+..kkkddddddpssmssmdpLLLLLLLLLLLLLLLLLLddpssssssmdpsmk....kkkkkkk
+..k.ksssdmdssssssmdswwwwwwwwwwwwwwwwwwddsssssssmdsssk....kpppppk
+...kwwwwwwddmmmmmdddmLNNNNNNNNNNNNNNwddddmmmmmmdddmmk....klllllk
+...kLLLLwwdddddddddddLNNNNNNNNNNNNNNwdddddddddddddddk....klllllk
+...kmmmmmwdspppppsdmlLNNNNNNNNNNNNNNwlmdspppsdlpppplk....kkkkkkk
+...kmmmmLwdpspsssmdlmLNNNNNNNNNNNNNNwmddpsssmdpllllsk...........
+...kLLLLLwdpssmmsmdlmLNNNNNNNNNNNNNNwmddpsssmdpllllsk...........
+...kkwwwwwdssssmsmdmmLNNNNNNNNNNNNNNwmddssssmdlllllsk...........
+.....kmmmdddmmmmmddddLNNNNNNNNNNNNNNwddddmkkkkkkkssdk...........
+.....kdddddddddddddddLNNNNNNNNNNNNNNwdddddkpppppkdddk...........
+.....klllllmdsppppsdlLNNNNNNNNNNNNNNwpsdlpklllllksppk...........
+.....kdmmdmddpmsssmdpLNNNNNNNNNNNNNNwsmdplklllllkpssk...........
+..kkkLLLLLLLLLLLLLLdlLNNNNNNNNNNNNNNwsmkkkkkkkkkkkkkk...........
+..kwwwwwwwwwwwwwwwwddLNNNNNNNNNNNNNNwmdkpppppkpppppkk...........
+..kLLLLLLLLLLLLLLLLddLNNNNNNNNNNNNNNwddklllllklllllkk...........
+..kwwwwwwwwwwwwwwwwdsLNNNNNNNNNNNNNNwdsklllllklllllkk...........
+..kLLLLLLLLLLLLLLLLddLNNNNNNNNNNNNNNwddkkkkkkkkkkkkkk...........
+..kwwwwwwwwwwwwwwwwddLNNNNNNNNNNNNNNwdddddddddddddddk...........

@@ -128,6 +128,20 @@ final class AtlasTests: XCTestCase {
         XCTAssertEqual(repeated.count, 6)
         XCTAssertEqual(repeated[5][5, 5], RGBA(0x123456))
 
+        // A longer strip of whole frames (the art lane's SPRITES.md strips) gives its first frames.
+        var long = PixelImage(width: 16 * 10, height: 30)
+        long[16, 29] = RGBA(0x00FF00)
+        long[16 * 9, 29] = RGBA(0x0000FF)
+        let firsts = AtlasBuilder.splitFrames(long, size: size, count: 6)
+        XCTAssertEqual(firsts.count, 6)
+        XCTAssertEqual(firsts[1][0, 29], RGBA(0x00FF00), "frame 1 is the strip's second frame")
+        XCTAssertFalse(firsts.contains { $0[0, 29] == RGBA(0x0000FF) }, "frames past the count are left out")
+        var pair = PixelImage(width: 40, height: 34)
+        pair[0, 33] = RGBA(0xFF0000)
+        pair[20, 33] = RGBA(0x00FF00)
+        let whole = AtlasBuilder.splitFrames(pair, size: PixelSize(width: 20, height: 34), count: 1)
+        XCTAssertEqual(whole[0][0, 33], RGBA(0xFF0000), "a two-frame wall strip shows its whole frame 0")
+
         var odd = PixelImage(width: 20, height: 34)
         odd[10, 33] = RGBA(0xABCDEF)
         let fitted = AtlasBuilder.splitFrames(odd, size: size, count: 1)

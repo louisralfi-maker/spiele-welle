@@ -1,0 +1,63 @@
+# market 90x40, hand-set (layout from the Recraft sheet town-a, middle piece; converted it was dark and muddy): three
+# stalls under striped awnings with scalloped valances (raspberry, teal and ochre with cream), timber posts, dark back
+# cloths, plank counters piled with wares (apples and pears, loaves and cabbages, bolts of cloth and clay pots), onions,
+# herbs and a cloth hanging from the canopies, crates and barrels in front.
+d = stoneDark
+o = wood
+A = dusk
+M = meadow
+b = banner
+c = parchment
+k = ink
+w = woodDark
+L = woodLight
+y = straw
+Y = strawLight
+R = roofLight
+t = tile
+T = tileLight
+f = leafDark
+e = leaf
+F = leafLight
+z = soilDark
+---
+..........................................................................................
+..........................................................................................
+....kkkkkkkkkkkkkkkkkkkkkkk.......kkkkkkkkkkkkkkkkkkkkkkk.......kkkkkkkkkkkkkkkkkkkkkkk...
+....kccAAAcccAAAcccAAAcccAk.......kccbbbcccbbbcccbbbcccbk.......kccyyycccyyycccyyycccyk...
+...kcccAAAcccAAAcccAAAcccAAk.....kcccbbbcccbbbcccbbbcccbbk.....kcccyyycccyyycccyyycccyyk..
+...kcccAAAcccAAAcccAAAcccAAk.....kcccbbbcccbbbcccbbbcccbbk.....kcccyyycccyyycccyyycccyyk..
+...kcccAAAcccAAAcccAAAcccAAk.....kcccbbbcccbbbcccbbbcccbbk.....kcccyyycccyyycccyyycccyyk..
+...kcccAAAcccAAAcccAAAcccAAk.....kcccbbbcccbbbcccbbbcccbbk.....kcccyyycccyyycccyyycccyyk..
+..kAcccAAAcccAAAcccAAAcccAAAk...kbcccbbbcccbbbcccbbbcccbbbk...kycccyyycccyyycccyyycccyyyk.
+..kAcccAAAcccAAAcccAAAcccAAAk...kbcccbbbcccbbbcccbbbcccbbbk...kycccyyycccyyycccyyycccyyyk.
+..kAcccAAAcccAAAcccAAAcccAAAk...kbcccbbbcccbbbcccbbbcccbbbk...kycccyyycccyyycccyyycccyyyk.
+.kAAcccAAAcccAAAcccAAAcccAAAck.kbbcccbbbcccbbbcccbbbcccbbbck.kyycccyyycccyyycccyyycccyyyck
+.kAAcccAAAcccAAAcccAAAcccAAAck.kbbcccbbbcccbbbcccbbbcccbbbck.kyycccyyycccyyycccyyycccyyyck
+.kAAcckkAkkckkAkkckkAkkckkAAkk.kbbcckkbkkckkbkkckkbkkckkbbkk.kyycckkykkckkykkckkykkckkyykk
+..kLwk..k..k..k..k..k..k..kk.k..kLwk..k..k..k..k..k..k..kk.k..kLwk..k..k..k..k..k..k..kk.k
+...kwwkkwkkwkkzkkwkkYkkwkkLk.....kwwkkwkkwkkzkkwkkwkkwkkLk.....kwwkkwkkwkkzkkwkkwkkAkkLk..
+...kwwzwwwYwwwzwwwzwywzwwwLk.....kwwzwwwzwwwzewwzwwwzwwwLk.....kwwzwwwzwwwzwwwzwwwzAAwLk..
+...kwwzwwwywwwzwwwzwYwzwwwLk.....kwwzwwwzwwwzFwwzwwwzwwwLk.....kwwzwwwzwwwzwwwzwwwzAAwLk..
+...kwwzwwwYwwwzwwwzwywzwwwLk.....kwwzwwwzwwwzewwzwwwzwwwLk.....kwwzwwwzwwwzwwwzwwwzAAwLk..
+...kwwzwwwcwwwzwwwzwcwzwwwLk.....kwwzwwwzwwwzFwwzwwwzwwwLk.....kwwzwwwzwwwzwwwzwwwzAAwLk..
+...kwwzwwwzwwwzwwwzwwwzwwwLk.....kwwzwwwzwwwzwwwzwwwzwwwLk.....kwwzwwwzwwwzwwwzwwwzAkwLk..
+...kwwzwwwzwwwzwwwzwwwzwwwLk.....kwwzwwwzwwwzwwwzwwwzwwwLk.....kwwzwwwzwwwzwwwzwwwzk.kLk..
+...kwwzwwwzwwwzwwwzwwwzwwwLk.....kwwzwwwzwwwzwwwzwwwzwwwLk.....kwYYYwwzwwwzwwwztwwzk.kLk..
+...kwwzwwwzwwwzwwwzwwwzwwwLk.....kwwzwwwzwwwzwwwzwwwzwwwLk.....kwYYYwwzwwwzwwwTttwzwkwLk..
+...kwwzwTcAwwwzwwMcFwwzwwwLk.....kwwzwYYzwwwzwwwzwFezwwwLk.....kwAAAwwRRRwzwwwttwwzwwwLk..
+...kwwzAATAAwwzwFFMFFwzwwwLk.....kwwzyyLywwwzwwwzeMefwwwLk.....kwAAAwwRRRwzwwtzwwtzwwwLk..
+...kwwATAATAAwzFMFFMFFzwwwLk.....kwwYYwwYYwwYYwwFewwFewwLk.....kwbbbwwcccwzwTttwTttwwwLk..
+...kwwyyyyyyywzyyyyyyyzwwwLk.....kwyyLyyyLyyyLyeMefeMefwLk.....kwbbbwwcccwzwttwwttwwwwLk..
+..kLLLwwwwwwwLLwwwwwwwLLLLLLkkkkkLLLLLLLLLLLLLLLLLLLLLLLLLk...kLLLLLLLLLLLLLLLLLLLLLLLLLk.
+..koooooooooooooooooooooooookwwwwwooooooooooooooooooooooook...koooooooooooooooooooooooook.
+...koowooowooowooowooowooowk.kLoowoowooowooowooowooowooowk.....koowooowooowooowooowooowk..
+...koowooowooowooowooowooowk.koLowoowooowooowooowooowooowk.....koowooowooowooowooowooowk..
+...koowooowooowooowooowooowk.kooLwoowooowooowooowooowooowk.....koowooowooowooowooowooowk..
+kkkowowooowooowooowooowooowk.kwwwwoowooowooowooowooowooowwkkkk.koowooowooowooowooowooowk..
+kddddowooowooowooowooowooowwkwwwwooowooowooowooowooowooowddddk.koowooowooowooowooowowwwwkk
+kooowowooowooowooowooowooowwLooowooowooowooowooowooowooowLoook.koowooowooowooowooowowLoook
+kooowowooowooowooowooowooowwoLoowooowooowooowooowooowooowLoook.koowooowooowooowooowowoLook
+kooowowooowooowooowooowooowwooLowooowooowooowooowooowooowLoook.koowooowooowooowooowowooLok
+kddddowooowooowooowooowooowwoooLwooowooowooowooowooowooowddddk.koowooowooowooowooowowoooLk
+kooowowooowooowooowooowooowwwwwwwooowooowooowooowooowooowLoook.koowooowooowooowooowowwwwwk

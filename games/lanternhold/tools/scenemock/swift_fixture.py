@@ -3,7 +3,7 @@ instance, in order, in the format the test builds from each `Prop` of `Placehold
 
     <sprite> <plane> x=<x> y=<y> z=<z> shade=<0.00> flip=<0|1> anchor=<ground|top> region=<region>
         em=[<sprite>@dx,dy:<glow>:<fades|steady> ...; glass@dx,dy,wxh ...] li=[<kind>@x,y,r ...] [fade=<f0>-<f1>]
-        [fadeout=<f2>-<f3>] [moves=<plane>]
+        [fadeout=<f2>-<f3>] [moves=<plane>] [shadow=<sun|dusk>] [mist=<0.00>]
 
 Run from games/lanternhold: python3 -I tools/scenemock/swift_fixture.py, then paste between the markers in
 Tests/FrameBuilderTests.swift.
@@ -31,6 +31,10 @@ def row(d):
         fade += f" fadeout={num(d['fadeout'][0])}-{num(d['fadeout'][1])}"
     if d.get('mv'):
         fade += f" moves={d['mv']}"
+    if d.get('shadow'):
+        fade += f" shadow={d['shadow']}"
+    if d.get('mist'):
+        fade += f" mist={d['mist']:.2f}"
     return (f"{d['s']} {d['p']} x={num(d['x'])} y={num(d['y'])} z={d['z']} shade={d['sh']:.2f} "
             f"flip={1 if d['f'] else 0} anchor={d['anchor']} region={d['region'] or 'all'} "
             f"em=[{' '.join(em)}] li=[{' '.join(li)}]{fade}")

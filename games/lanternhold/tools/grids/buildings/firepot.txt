@@ -1,0 +1,13 @@
+# firepot 5x5, 2 frames (strip 10x5), hand-set, tumbling: a round clay pot with a rag wick, upright and turned a
+# quarter; the engine adds the glow.
+k = ink
+y = straw
+Y = strawLight
+t = tile
+T = tileLight
+---
+..Y...kk..
+.kyk.kTtk.
+kTttkkttyY
+ktttkkttk.
+.kkk..kk..

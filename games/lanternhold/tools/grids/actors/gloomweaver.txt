@@ -1,0 +1,117 @@
+# gloomweaver 30x30, 4 frames: float 0-3 (SPRITES.md). A floating hooded figure woven of smoke ribbons: a tall pointed
+# hood leaning forward with darkness inside and two cold violet eyes, thin pale hands cradling a dark orb rimmed in
+# violet, a robe that comes apart into long trailing ribbons of smoke instead of legs. Key pose: Recraft `creatures-b`
+# (left piece); at 30x30 the conversion kept only the hood's slant and the orb (ART-actors.md), so the sprite is
+# hand-set after it. Float: the body bobs 2 px up and back while the ribbons ripple; the orb's glow breathes.
+id gloomweaver
+size 30x30
+frames 4
+outline night0
+# always inside its own darkness bubble, so it reads by its glow: a violetDim line on the hood's edge (as the
+# Lightless King's cold silhouette) and the smoke ribbons' top contour, beside the violet eyes and the orb's rim
+rim violetDim
+
+legend
+    0 = night0
+    1 = night1
+    2 = night2
+    m = stoneMid
+    M = moon
+    d = stoneDark
+    w = stoneLight
+    W = stonePale
+    E = night0/violetGlow
+    o = night0
+    O = night0/violetDim
+    q = night1/violetDim
+    v = night0/violetGlow
+    u = /violetDim
+    N = moon/violetDim
+
+# the figure: a tall pointed hood curling forward, the void inside with two violet eyes, narrow shoulders, a sleeve
+# reaching forward to the hands (the robe darkens to night1 at the back, smoke-lavender edges on the lit side)
+part body
+    ........2.......
+    .......22.......
+    ......122.......
+    .....1222.......
+    ....11222N......
+    ...112222N......
+    ..1112222NN.....
+    ..11222000N.....
+    .111220000N.....
+    .1122E00E0N.....
+    .11220000N......
+    111222002MM.....
+    1112222222M.....
+    11122222222MM...
+    111222222222MM..
+    1112222MM2222M..
+    11122222..M2M...
+    1112222M........
+    .11222M.........
+
+# thin pale hands cradling the dark orb (its rim glows violet, a core spark)
+part orb
+    ..qOq..
+    .OvooO.
+    WqoooqW
+    wWoooWw
+    ..qOq..
+
+part orbBright
+    ..OqO..
+    .qEvoq.
+    WOvooOW
+    wWoooWw
+    ..OqO..
+
+# the robe coming apart into smoke ribbons, trailing back and down; three ripples
+part ribbonsA
+    ........111222M.
+    .......1112.22M.
+    ......111M..2M..
+    ....111M....M...
+    ..11M..M........
+    .1M...M.........
+    1M..............
+    M...............
+
+part ribbonsB
+    ........111222M.
+    ......1111.222..
+    ....1111M...2M..
+    ..111M..M...M...
+    .1M...M.........
+    1M..M...........
+    M...............
+
+part ribbonsC
+    ........111222M.
+    .......11122.2M.
+    ....11111M..2M..
+    ..11M..1M...M...
+    .1M...1M........
+    1M...M..........
+    M...............
+    ................
+
+frame 0
+    ribbonsA 1 19
+    body 9 1
+    orb 22 14
+
+frame 1
+    ribbonsB 1 18
+    body 9 0
+    orbBright 22 13
+
+frame 2
+    ribbonsC 0 17
+    body 9 0
+    orb 22 12
+
+frame 3
+    ribbonsB 1 18
+    body 9 0
+    orbBright 22 13

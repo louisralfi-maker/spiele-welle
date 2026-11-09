@@ -3,7 +3,22 @@
 # Usage (pure python, about a minute per frame on the old Mac; run with python3 -I, one at a time):
 #   python3 -I mock.py <games/lanternhold> layout=m1b focus=760 tod=0.95 gain=3.0 lift=0.55 midHaze=0.36 \
 #       midShare=0.7 fogBright=2.4 fogGlow=0.7 out=<file.png>
-import sys, os, math, re
+# Extras hook (M2b art lane): context scenes add entities without editing the layout.
+#   extras=<file.json>[,<file.json>…]  a JSON list of props, each {s (sprite id), frame (default 0), frames (optional:
+#       the strip's frame count; else SPRITES.md's, else 1), p (plane, default world), x (left edge, plane px) or cx (foot
+#       centre), y (bottom above the ground line, as layout_m1b.py), z (default 5: after every world prop), sh (shade,
+#       default 1), f (flip), lit (default true; false draws the body at shade 0.12, as the engine draws a creature
+#       outside every light), glow (id of a glow strip, drawn additively over the same frame, lit or not), gs (glow
+#       strength, default 1), em (as layout_m1b.py; a sprite emitter may add its frame and the strip's frame count:
+#       ["sprite", id, dx, dy, colour, fades, frame, frames]), li (as layout_m1b.py, plus an optional intensity; extra
+#       light kinds fireArrow, firepot, beacon)}. A prop without
+#       s only adds its lights.
+#   king=off|<x>  no king, or the king's foot at x (default: at the focus, frame 0, with his lantern light)
+#   actors=off    without layout_m1b.ACTORS (the scale-check archers, citizens and eye glints)
+#   litCap=1.6 litNeutral=0.35  the renderer's cap on reflected firelight and its neutral share (default off)
+# sprite(name, frame) cuts frame n out of a horizontal strip PNG (frame width = PNG width / frame count; a PNG one
+# frame wide is used for every frame, as Atlas.splitFrames does).
+import sys, os, math, re, json
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 from core import *
 from pngr import read_png
@@ -16,13 +31,44 @@ LOOK = dict(lift=0.46, farShare=0.9, midLight=0.32, gain=1.55, knee=0.95, fogGlo
             bloom=0.75, bloomLight=0.16, bloomSky=0.55, thr=0.34, kneeB=0.5, farHaze=0.24, farHazeShare=0.62,
             midHazeShare=0.26, mist=0.22, colorise=0.6, glowAdd=0.06, midHaze=0.18, midShare=0.8, fogBright=1.6,
             # M1b polish (renderer additions, defaults keep the old look): aerial perspective at warm hours, clouds
-            farCool=0.0, farWarm=1.0, midWarm=1.0, midCool=0.0, cloudSun=1.1, cloudFill=1.7, cloudHaze=0.25, fogScale=1.0)
+            farCool=0.0, farWarm=1.0, midWarm=1.0, midCool=0.0, cloudSun=1.1, cloudFill=1.7, cloudHaze=0.25, fogScale=1.0,
+            # opt-in, as the renderer since the polish after the art review (Shaders.metal kLitCap, kLitNeutral): the
+            # light a world pixel reflects is capped as a whole and reflects partly as from a neutral grey; 0 = off
+            litCap=0.0, litNeutral=0.0,
+            # the renderer's other polish values (Look.midHazeDay, Look.foregroundAmbientNight); the defaults keep the old
+            # mocks: midHazeDay 0.12 and fgAmbNight = fgAmb (-1)
+            midHazeDay=0.12, fgAmbNight=-1.0,
+            # scene polish 2, opt-in (0 = off), as Shaders.metal: litCool (cool albedo reflects firelight more neutrally:
+            # neutral share litNeutral + litCool x its green-blue-over-red share), bounce (by day the dark, shadowed albedo
+            # takes the sky's cool light instead of the warm sun, between albedo lumas bounceLo and bounceHi), duskSun
+            # (at dusk the night's violet pull spares the sunlit albedo), band (a bright haze band over the far and mid
+            # planes' lowest bandH rows by day and dusk, bandWhite toward white; bandValley its share in the valley,
+            # bandWarmCut its thinning at the warm hours), bounceDusk (the bounce fades with daylight x this, capped at
+            # 1), rim (the king's cool rim on his screen-right edge pixels)
+            litCool=0.0, bounce=0.0, bounceLo=0.2, bounceHi=0.5, duskSun=0.0, band=0.0, bandH=48.0, bandWhite=0.4,
+            bandValley=0.5, bandWarmCut=0.5, bounceDusk=1.0, rim=0.0)
 for k in list(LOOK):
     if k in args: LOOK[k] = float(args[k])
 src = open(os.path.join(G, 'Core/FrameDesc.swift')).read()
 SIZES = {m.group(1): (int(m.group(2)), int(m.group(3))) for m in re.finditer(r'case \.(\w+): return PixelSize\(width: (\d+), height: (\d+)\)', src)}
+def _contract():  # SPRITES.md tables: id -> (frame width, height, frames); glow strips as their creature
+    out = {}; path = os.path.join(G, 'SPRITES.md')
+    if not os.path.exists(path): return out
+    text = open(path).read()
+    for line in text.splitlines():
+        cells = [c.strip() for c in line.strip().strip('|').split('|')]
+        if len(cells) < 3 or '`' not in cells[0]: continue
+        ids = re.findall(r'`(\w+)`', cells[0]); sizes = re.findall(r'(\d+)x(\d+)', cells[1]); n = re.match(r'(\d+)', cells[2])
+        if not ids or not sizes or not n: continue
+        for k, i in enumerate(ids):
+            w, h = sizes[k] if len(sizes) == len(ids) else sizes[0]; out[i] = (int(w), int(h), int(n.group(1)))
+    for m in re.finditer(r'`(\w+)Glow`', text):
+        if m.group(1) in out and m.group(1) + 'Glow' not in out: out[m.group(1) + 'Glow'] = out[m.group(1)]
+    return out
+CONTRACT = _contract()
 class _Sizes(dict):
-    def __missing__(self, name):  # sprites not yet in FrameDesc: the PNG header gives the size
+    def __missing__(self, name):  # sprites not yet in FrameDesc: SPRITES.md's frame size, else the PNG header
+        if name in CONTRACT: self[name] = CONTRACT[name][:2]; return self[name]
         import struct
         with open(os.path.join(G, 'Resources/Art', name + '.png'), 'rb') as fh: head = fh.read(24)
         v = struct.unpack('>II', head[16:24]); self[name] = v; return v
@@ -86,12 +132,21 @@ def grass():
             c[7 - st][x] = g[3] if st == hh - 1 else (g[1] if st < 2 else g[2])
     return c
 CACHE = {}
-def sprite(name, frame=0):
-    key = (name, frame)
+def cut_frame(name, img, frame, frames=None):
+    """Frame `frame` of a horizontal strip: frame width = PNG width / frame count (the `frames` argument, else
+    SPRITES.md's count); a PNG one frame wide (SPRITES.md's width) serves every frame, as Atlas.splitFrames does."""
+    n = int(frames) if frames else CONTRACT.get(name, (0, 0, 1))[2]
+    W = len(img[0])
+    if n <= 1 or (not frames and W == CONTRACT[name][0]): return img
+    fw = W // n; k = int(frame) % n
+    return [r[k * fw:(k + 1) * fw] for r in img]
+def sprite(name, frame=0, frames=None):
+    key = (name, frame) if frames is None else (name, frame, frames)
     if key in CACHE: return CACHE[key]
     path = os.path.join(G, 'Resources/Art', name + '.png')
     if os.path.exists(path):
         w, h, px, _ = read_png(path); img = [[p if p[3] > 0 else None for p in r] for r in px]
+        img = cut_frame(name, img, frame, frames)
     elif name == 'king': img = king(frame)
     elif name == 'archer': img = grid('archerRows')
     elif name == 'citizen': img = grid('citizenRows')
@@ -165,7 +220,38 @@ def layout_props():
             li.append((kind, x, y, r, COL[kind], 0.8 if kind == 'window' else 1))
         plane = 'fg' if d['p'] == 'fg' else d['p']
         out.append(dict(s=d['s'], p=plane, x=d['x'], y=d['y'], z=d['z'], sh=d['sh'], f=d['f'], em=em, li=li,
-                        masks=masks, anchor=d['anchor'], lp=plane, fade=d.get('fade'), mv=d.get('mv'), fadeout=d.get('fadeout')))
+                        masks=masks, anchor=d['anchor'], lp=plane, fade=d.get('fade'), mv=d.get('mv'), fadeout=d.get('fadeout'),
+                        shadow=d.get('shadow'), mist=d.get('mist')))
+    return out
+# Scene polish 2 (FrameBuilder.sunShadowAlpha, FrameBuilder.mistAlpha): a baked cast shadow is drawn black at the sun's
+# strength (the day shadow) or at the sun's strength times the evening weight (the long dusk shadow beyond it); a mist
+# bank at the hour's mist strength (the torch strength times the fog density, 0 by day).
+SHADOW_MAX = 0.55; MIST_MAX = 0.9
+def shadow_alpha(kind, amb, hour):
+    sun = min(1.0, max(0.0, (amb['sun'] + 0.12) / 0.3)); evening = ss((hour - 16.0) / 2.4)
+    return SHADOW_MAX * sun * (evening if kind == 'dusk' else 1.0)
+def mist_alpha(k, amb):
+    return MIST_MAX * k * min(1.0, max(0.0, amb['torch'])) * min(1.25, amb['fogD'] / 0.4)
+COLX = dict(COL, fireArrow=fireWhite, firepot=fireOrange, beacon=fireWhite)  # light kinds of the extras
+UNLIT = 0.12  # an unlit creature's body: very low value, its glow strip carries it (SPRITES.md)
+def extra_props():
+    """The extras hook: props from extras=<file.json>[,…] (see the header), drawn with the layout's props."""
+    out = []
+    for path in [q for q in args.get('extras', '').split(',') if q]:
+        for d in json.load(open(path)):
+            s = d.get('s'); fr = int(d.get('frame', 0)); nf = d.get('frames'); plane = d.get('p', 'world')
+            w = len(sprite(s, fr, nf)[0]) if s else 0
+            x = d['x'] if 'x' in d else d.get('cx', 0) - w // 2
+            em, masks, li = [], [], []
+            for e in d.get('em', []):  # an emitter sprite may name its frame and the strip's frame count (e[6], e[7])
+                if e[0] == 'sprite': em.append((e[1], e[2], e[3], NAMED[e[4]], e[5]) + tuple(e[6:8]))
+                else: masks.append((e[1], e[2], e[3], e[4], (1.0, 0.76, 0.42)))
+            for l in d.get('li', []):  # (kind, x, y, radius[, intensity])
+                kind, lx, ly, r = l[:4]
+                li.append((kind, lx, ly, r, COLX[kind], l[4] if len(l) > 4 else (0.8 if kind == 'window' else 1)))
+            out.append(dict(s=s, p=plane, x=x, y=d.get('y', 0), z=d.get('z', 5), sh=d.get('sh', 1.0), f=bool(d.get('f', False)),
+                            em=em, li=li, masks=masks, anchor='ground', lp=plane, extra=True, frame=fr, frames=nf,
+                            lit=d.get('lit', True), glow=d.get('glow'), gs=d.get('gs', 1.0)))
     return out
 ORDER = ['sky', 'far', 'mid', 'fogA', 'world', 'fogB', 'fg']
 def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86, 40)), houseWin=((14, 14), (44, 14))):
@@ -175,9 +261,9 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
     camx = min(WORLD_W - VIS, max(0, FOCUS - VIS / 2)); whole = {k: math.floor(camx * v) for k, v in PAR.items()}
     layers = {k: [[(0.0, 0.0, 0.0, 0.0)] * TW for _ in range(TH)] for k in ORDER}
     light = [[(0.0, 0.0, 0.0)] * TW for _ in range(TH)]; emis = [[(0.0, 0.0, 0.0)] * TW for _ in range(TH)]
-    def draw(layer, img, left, top, tint=(1, 1, 1, 1), flip=False, add=False):
+    def draw(layer, img, left, top, tint=(1, 1, 1, 1), flip=False, add=False, occlude=True):
         h = len(img); w = len(img[0]); L = layers[layer] if not add else None
-        occl = LAYOUT and layer in ('mid', 'world', 'fg')
+        occl = LAYOUT and occlude and layer in ('mid', 'world', 'fg')
         for j in range(h):
             y = top + j
             if y < 0 or y >= TH: continue
@@ -195,6 +281,7 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                     d = L[y][x]; L[y][x] = (c[0] + d[0] * (1 - a), c[1] + d[1] * (1 - a), c[2] + d[2] * (1 - a), a + d[3] * (1 - a))
                     if occl and a >= 0.5: emis[y][x] = (0.0, 0.0, 0.0)  # glow behind a sprite drawn later is hidden
     props = [] if LAB else (layout_props() if LAYOUT else build_scene(chapelWin, kitchenWin, houseWin))
+    if args.get('extras'): props += extra_props()
     lights = []
     ground = sprite('ground')
     if LAB:
@@ -234,8 +321,10 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                 p = m[j][i]
                 if p: skyAdd[top + j][left + i] = tuple(skyAdd[top + j][left + i][k] + p[k] / 255 * tint[k] * a for k in range(3))
     for pr in sorted(props, key=lambda q: (ORDER.index(q['p']), q['z'])):
-        w, h = SIZES[pr['s']]; left = pr['x'] - whole[pr.get('mv') or pr['p']]  # moves: another plane's parallax
-        if left + w < -1 or left > TW + 1: continue
+        isx = pr.get('extra'); ximg = sprite(pr['s'], pr['frame'], pr['frames']) if isx and pr['s'] else None
+        w, h = (len(ximg[0]), len(ximg)) if ximg else ((0, 0) if isx else SIZES[pr['s']])
+        left = pr['x'] - whole[pr.get('mv') or pr['p']]  # moves: another plane's parallax
+        if (ximg or not isx) and (left + w < -1 or left > TW + 1): continue
         # top-anchored lips never hang below y 139 (FrameBuilder.lipLowestBottom, polish after the art review)
         top = min(pr['y'], GROUND - 139 - h) if pr.get('anchor') == 'top' else GROUND - pr['y'] - h
         fa = 1.0
@@ -245,10 +334,23 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
         if pr.get('fadeout'):  # and out again
             f2, f3 = pr['fadeout']; fa *= 1 - min(1.0, max(0.0, (camx + VIS / 2 - f2) / (f3 - f2)))
             if fa <= 0.003: continue
-        draw(pr['p'], sprite(pr['s']), int(left), int(top), (pr['sh'], pr['sh'], pr['sh'], fa), pr['f'])
+        if isx:  # an extra: its frame, at shade 0.12 when unlit, then its glow strip added over the same frame
+            if ximg:
+                shd = pr['sh'] * (1 if pr['lit'] else UNLIT)
+                draw(pr['p'], ximg, int(left), int(top), (shd, shd, shd, 1.0), pr['f'])
+                if pr['glow']:
+                    g = pr['gs']; draw(pr['p'], sprite(pr['glow'], pr['frame'], pr['frames']), int(left), int(top), (g, g, g, 1.0), pr['f'], add=emis)
+        elif pr.get('shadow'):  # a baked cast shadow: black at the sun's strength, hides no glow (scene polish 2)
+            sa = shadow_alpha(pr['shadow'], amb, HOUR) * fa
+            if sa > 0.003: draw(pr['p'], sprite(pr['s']), int(left), int(top), (0.0, 0.0, 0.0, sa), pr['f'], occlude=False)
+        elif pr.get('mist'):  # a bank of ground mist: white at the hour's mist strength, hides no glow
+            ma = mist_alpha(pr['mist'], amb) * fa
+            if ma > 0.003: draw(pr['p'], sprite(pr['s']), int(left), int(top), (1.0, 1.0, 1.0, ma), pr['f'], occlude=False)
+        else:
+            draw(pr['p'], sprite(pr['s']), int(left), int(top), (pr['sh'], pr['sh'], pr['sh'], fa), pr['f'])
         for (dx, dy, mw, mh, col) in pr.get('masks', []):  # window glass: the sprite's dark pixels in a rect glow
             if torchS < 0.01: continue
-            img = sprite(pr['s']); rgb = [c * torchS * 0.9 for c in col]
+            img = ximg if isx else sprite(pr['s']); rgb = [c * torchS * 0.9 for c in col]
             for j in range(mh):
                 sy = h - 1 - (dy + j)
                 for i in range(mw):
@@ -256,13 +358,16 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                     if p is None or p[:3] not in GLASS: continue
                     X = int(left + (w - 1 - sx if pr['f'] else sx)); Y = int(top + sy)
                     if 0 <= X < TW and 0 <= Y < TH: e = emis[Y][X]; emis[Y][X] = (e[0] + rgb[0], e[1] + rgb[1], e[2] + rgb[2])
-        for (es, dx, dy, col, fades) in pr['em']:
+        for em_ in pr['em']:
+            es, dx, dy, col, fades = em_[:5]
             st = torchS if fades else 1.0
             if st < 0.01: continue
-            sw, sh = SIZES[es]; ex = w - dx - sw if pr['f'] else dx
+            # an extra's emitter with a frame count is cut from its strip at the strip's own frame size
+            eimg = sprite(es, em_[5], em_[6]) if len(em_) > 6 else sprite(es)
+            sw, sh = (len(eimg[0]), len(eimg)) if len(em_) > 6 else SIZES[es]; ex = w - dx - sw if pr['f'] else dx
             rgb = [c * st for c in col]; pk = max(max(rgb), 1e-4); hue = [c / pk for c in rgb]
             tint = [(1 + (hue[k] - 1) * 0.4) * pk for k in range(3)] + [1]
-            draw('world', sprite(es), int(left + ex), int(GROUND - (pr['y'] + dy) - sh), tint, add=emis)
+            draw('world', eimg, int(left + ex), int(GROUND - (pr['y'] + dy) - sh), tint, add=emis)
         for (kind, lx, ly, r, col, inten) in pr['li']:
             it = inten * (torchS if kind in FADES else 0.35 + 0.65 * torchS)
             it *= {'window': 0.4, 'candle': 0.7, 'lantern': 0.85}.get(kind, 1.0)
@@ -273,9 +378,9 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                 cx = round(VIS * share); cy = GROUND - hgt; lights.append((cx, cy, (22, 40, 64)[k], col, 1.0))
                 sw, sh = SIZES[es]; pk = max(col); hue = [c / pk for c in col]; tint = [(1 + (hue[i] - 1) * 0.4) * pk for i in range(3)] + [1]
                 draw('world', sprite(es), cx - sw // 2, cy - sh // 2, tint, add=emis)
-    else:
-        # king and his lantern
-        kx = FOCUS; lights.append((kx + 9 - whole['world'], GROUND - 16, 40, fireGold, torchS * 0.85))
+    elif args.get('king') != 'off':
+        # king and his lantern (king=<x> moves him, king=off leaves him out: a scene adds him as an extra)
+        kx = FOCUS if 'king' not in args else float(args['king']); lights.append((kx + 9 - whole['world'], GROUND - 16, 40, fireGold, torchS * 0.85))
     # fog
     fogA = (amb['fogColor'], amb['fogD'] * 0.9 * LOOK['fogScale']); fogB = (amb['fogColor'], amb['fogD'] * 0.6 * LOOK['fogScale'])
     for name, (fc, fd), fy in (('fogA', fogA, -4), ('fogB', fogB, -14)):
@@ -289,11 +394,11 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
             off = (2, 9) if kind == 's' else (6, 10)
             actors.append(('eyeGlints', x + off[0], off[1], (1.0, 0.86, 0.55, 1), True, False))
         if LAYOUT:
-            actors = [(n, x, y, (1.0, 0.86, 0.55, 1) if n == 'eyeGlints' else (1, 1, 1, 1), em, fl) for (n, x, y, em, fl) in LM.ACTORS]
+            actors = [] if args.get('actors') == 'off' else [(n, x, y, (1.0, 0.86, 0.55, 1) if n == 'eyeGlints' else (1, 1, 1, 1), em, fl) for (n, x, y, em, fl) in LM.ACTORS]
         else:
             for k in range(3): actors.append(('archer', 946 + 12 * k, 52, (1, 1, 1, 1), False, True))
             actors.append(('citizen', 2902, 0, (1, 1, 1, 1), False, False)); actors.append(('citizen', 2944, 0, (1, 1, 1, 1), False, True))
-        actors.append(('king', FOCUS, 0, (1, 1, 1, 1), False, False))
+        if args.get('king') != 'off': actors.append(('king', kx, 0, (1, 1, 1, 1), False, False))
     # light pass
     edge = 0.12
     for (cx, cy, r, col, it) in lights:
@@ -347,7 +452,25 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
     NT = (1.03, 0.86, 1.66); kcol = LOOK['colorise'] * night
     fc = amb['fogColor']; fogLum = 0.299 * fc[0] + 0.587 * fc[1] + 0.114 * fc[2]
     FB = min(LOOK['fogBright'], max(1.0, 0.45 / max(fogLum, 0.01)))
-    MH = 0.12 + (LOOK['midHaze'] - 0.12) * night
+    MH = LOOK['midHazeDay'] + (LOOK['midHaze'] - LOOK['midHazeDay']) * night
+    fgA = LOOK['fgAmb'] if LOOK['fgAmbNight'] < 0 else LOOK['fgAmb'] + (LOOK['fgAmbNight'] - LOOK['fgAmb']) * night
+    # scene polish 2: the sky's cool light at the ambient's level (bounce), how much of it by day and dusk, the band
+    day = 1 - night; bounceK = LOOK['bounce'] * min(1.0, day * LOOK['bounceDusk'])
+    BLUE = (0.6, 0.68, 1.0)  # half the sky's own colour, half a plain cool blue (the noon sky alone turned rock teal)
+    bounceW = [(stN_ + (BLUE[k] - stN_) * 0.5) * lvl for k, stN_ in enumerate(v / max(max(amb['skyTop']), 1e-3) for v in amb['skyTop'])]
+    # the band's share in the valley (Look.bandStrength: full to focus 2150, bandValley of it from the back gate on)
+    bandK = LOOK['band'] * day * (1 - (1 - LOOK['bandValley']) * ss((camx + VIS / 2 - 2150) / 180)) * (1 - LOOK['bandWarmCut'] * min(1, max(0, amb['warmth'] / 0.45))); bandC = [amb['skyBottom'][k] + (1 - amb['skyBottom'][k]) * LOOK['bandWhite'] for k in range(3)]
+    def shade_share(rgb, a):  # 1 for dark (shadowed) albedo, 0 for light (sunlit) albedo
+        if a <= 0: return 0.0
+        lu = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / a
+        return 1 - ss((lu - LOOK['bounceLo']) / max(1e-3, LOOK['bounceHi'] - LOOK['bounceLo']))
+    def lit_amb(rgb, a, ambv, share=1.0):  # the ambient a pixel takes: the sky's cool light on its shadowed share
+        if bounceK <= 0: return ambv, 1.0
+        sh = shade_share(rgb, a); t = sh * bounceK
+        return [ambv[k] + (bounceW[k] * share - ambv[k]) * t for k in range(3)], 1 - sh
+    def band_at(y):  # the bright haze band low in the gorge (rows above the ground line)
+        if bandK <= 0: return 0.0
+        return bandK * (1 - ss((GROUND - 1 - y) / LOOK['bandH']))
     # aerial perspective at warm hours (M1b polish): the far plane hazes toward a cool lavender and keeps only a share
     # of the warm light, the mid plane a larger share; w is 0 by day and at night, 1 at golden hour (warmth 0.45)
     wv0 = min(1, max(0, amb['warmth'] / 0.45)); COOL = (0.62, 0.60, 0.86)
@@ -359,9 +482,19 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
     farHC = [amb['skyBottom'][k] + (COOL[k] - amb['skyBottom'][k]) * LOOK['farCool'] * wv0 for k in range(3)]
     midHC = [amb['skyBottom'][k] + (COOL[k] - amb['skyBottom'][k]) * LOOK['midCool'] * wv0 for k in range(3)]
     stN = [v / max(max(amb['skyTop']), 1e-3) for v in amb['skyTop']]
-    def cold(rgb, ambv):
+    def cold(rgb, ambv, sun=0.0):
         a = [rgb[k] * ambv[k] for k in range(3)]; lu = 0.299 * a[0] + 0.587 * a[1] + 0.114 * a[2]
-        return [a[k] + (lu * NT[k] - a[k]) * kcol for k in range(3)]
+        kk = kcol * (1 - sun * day * LOOK['duskSun'])  # at dusk the violet pull spares the sunlit albedo
+        return [a[k] + (lu * NT[k] - a[k]) * kk for k in range(3)]
+    def lit_world(w, L):  # the renderer's cap and neutral share, when the look asks for them (else L and w unchanged)
+        if LOOK['litCap'] > 0:
+            pk = max(L); L = [v * (min(pk, LOOK['litCap']) / max(pk, 1e-4)) for v in L]
+        if LOOK['litNeutral'] > 0:
+            lu = 0.299 * w[0] + 0.587 * w[1] + 0.114 * w[2]; k = LOOK['litNeutral']
+            if LOOK['litCool'] > 0:  # cool albedo (teal cloth) reflects firelight more neutrally: no cyan or mint pools
+                hi = max(w[1], w[2]); k += LOOK['litCool'] * min(1.0, max(0.0, (hi - w[0]) / max(hi, 1e-4)))
+            w = [w[k_] + (lu - w[k_]) * k for k_ in range(3)]
+        return L, w
     def lit_light(x, y):
         l = [v * LOOK['gain'] for v in light[y][x]]; hot = max(max(l) - LOOK['knee'], 0)
         return [l[0] + 0.55 * hot, l[1] + 0.5 * hot, l[2] + 0.38 * hot]
@@ -376,26 +509,33 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
             lit = [alb[k] * (ambW[k] * LOOK['cloudSun'] * Lw + amb['skyTop'][k] * LOOK['cloudFill'] * (1 - Lw)) for k in range(3)]
             lit = [lit[k] + (amb['skyBottom'][k] - lit[k]) * LOOK['cloudHaze'] for k in range(3)]
             c = [c[k] * (1 - a_) + lit[k] * a_ for k in range(3)]
+        bnd = band_at(y)
         f = layers['far'][y][x]
         if f[3] > 0:
             hzz = min(1, max(0, farH + low * mistv)); lit = cold(f, ambF)
-            lit = [lit[k] + (farHC[k] * f[3] - lit[k]) * hzz for k in range(3)]; c = [c[k] * (1 - f[3]) + lit[k] for k in range(3)]
+            lit = [lit[k] + (farHC[k] * f[3] - lit[k]) * hzz for k in range(3)]
+            if bnd > 0: lit = [lit[k] + (bandC[k] * f[3] - lit[k]) * bnd for k in range(3)]
+            c = [c[k] * (1 - f[3]) + lit[k] for k in range(3)]
         m = layers['mid'][y][x]
         if m[3] > 0:
-            hzz = min(1, max(0, MH + midH + low * mistv * 0.5)); cm = cold(m, ambM); lit = [cm[k] + m[k] * L[k] * LOOK['midLight'] for k in range(3)]
-            lit = [lit[k] + (midHC[k] * m[3] - lit[k]) * hzz for k in range(3)]; c = [c[k] * (1 - m[3]) + lit[k] for k in range(3)]
+            hzz = min(1, max(0, MH + midH + low * mistv * 0.5)); am, sun = lit_amb(m, m[3], ambM, LOOK['midShare'])
+            cm = cold(m, am, sun); lit = [cm[k] + m[k] * L[k] * LOOK['midLight'] for k in range(3)]
+            lit = [lit[k] + (midHC[k] * m[3] - lit[k]) * hzz for k in range(3)]
+            if bnd > 0: lit = [lit[k] + (bandC[k] * m[3] - lit[k]) * bnd for k in range(3)]
+            c = [c[k] * (1 - m[3]) + lit[k] for k in range(3)]
         a = layers['fogA'][y][x]
         if a[3] > 0: c = [c[k] * (1 - a[3]) + a[k] * FB + L[k] * 0.6 * LOOK['fogGlow'] * a[3] for k in range(3)]
         w = layers['world'][y][x]
         if w[3] > 0:
-            cw = cold(w, ambW); c = [c[k] * (1 - w[3]) + cw[k] + w[k] * L[k] + L[k] * LOOK['glowAdd'] * w[3] for k in range(3)]
+            Lc, rf = lit_world(w, L); aw, sun = lit_amb(w, w[3], ambW)
+            cw = cold(w, aw, sun); c = [c[k] * (1 - w[3]) + cw[k] + rf[k] * Lc[k] + Lc[k] * LOOK['glowAdd'] * w[3] for k in range(3)]
         return [c[k] + emis[y][x][k] for k in range(3)]
     def top(c, x, y, L):
         b = layers['fogB'][y][x]
         if b[3] > 0: c = [c[k] * (1 - b[3]) + b[k] * FB + L[k] * 0.8 * LOOK['fogGlow'] * b[3] for k in range(3)]
         f = layers['fg'][y][x]
         if f[3] > 0:
-            cf = cold(f, [v * LOOK['fgAmb'] for v in ambW]); c = [c[k] * (1 - f[3]) + cf[k] + f[k] * L[k] * LOOK['fgLight'] for k in range(3)]
+            cf = cold(f, [v * fgA for v in ambW]); c = [c[k] * (1 - f[3]) + cf[k] + f[k] * L[k] * LOOK['fgLight'] for k in range(3)]
         fx = min(HW - 1.0, max(0.0, (x + 0.5) / 2 - 0.5)); fy = min(HH - 1.0, max(0.0, (y + 0.5) / 2 - 0.5)); x0, y0 = int(fx), int(fy); x1, y1 = min(HW - 1, x0 + 1), min(HH - 1, y0 + 1); tx, ty = fx - x0, fy - y0
         for k in range(3):
             c[k] += ((bl[y0][x0][k] * (1 - tx) + bl[y0][x1][k] * tx) * (1 - ty) + (bl[y1][x0][k] * (1 - tx) + bl[y1][x1][k] * tx) * ty) * LOOK['bloom']
@@ -409,14 +549,23 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
     for y in range(TH):
         for x in range(TW):
             L = lit_light(x, y); img[y][x] = top(base(x, y, L), x, y, L)
+    # scene polish 2: the king keeps a cool rim (sky by day, moon at night) on his screen-right edge pixels, so he pops
+    # against the ochre rock and dark stone (not a black outline: his sprite's own outline turns cool grey there)
+    RIM = [c * max(lvl, 0.6) for c in (0.72, 0.82, 1.0)]
     for (name, wx, wy, tint, emissive, flip) in actors:
         spr = sprite(name, 0); w, h = len(spr[0]), len(spr); anchor = round(wx - whole['world']); left = anchor - w // 2; topy = GROUND - wy - h
+        rimK = LOOK['rim'] if name == 'king' else 0.0
         for j in range(h):
             for i in range(w):
                 p = spr[j][w - 1 - i if flip else i]; x, y = left + i, topy + j
                 if p is None or not (0 <= x < TW and 0 <= y < TH): continue
                 L = lit_light(x, y); b = base(x, y, L); al = [p[k] / 255 * tint[k] for k in range(3)]
-                cl = cold(al, ambW); litc = al if emissive else [cl[k] + al[k] * L[k] + L[k] * LOOK['glowAdd'] for k in range(3)]
+                Lc, rf = lit_world(al, L)
+                cl = cold(al, ambW, 1 - shade_share(al, 1.0)) if LOOK['duskSun'] > 0 else cold(al, ambW)
+                litc = al if emissive else [cl[k] + rf[k] * Lc[k] + Lc[k] * LOOK['glowAdd'] for k in range(3)]
+                if rimK > 0 and (i + 1 >= w or spr[j][w - 2 - i if flip else i + 1] is None):
+                    fire = min(1.0, max(L) * 1.5)  # firelight (his lantern at night) outshines the rim
+                    litc = [litc[k] + (RIM[k] - litc[k]) * rimK * (1 - fire) for k in range(3)]
                 img[y][x] = top([b[k] + (litc[k] - b[k]) * tint[3] for k in range(3)], x, y, L)
     Z = 3; rows = []
     for r in img:

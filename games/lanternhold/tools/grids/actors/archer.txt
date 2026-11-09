@@ -1,0 +1,189 @@
+# archer 12x28, 5 frames: idle 0-1, draw 2-3, loose 4 (SPRITES.md). A realm archer: a brown leather hood, the teal
+# tabard with the gold lantern over brown leather sleeves and trousers, boots, a quiver of red-fletched arrows on the
+# back, a longbow. Idle: bow lowered at his side, a breath (head and shoulders down 1 px). Draw: bow raised and the
+# arrow nocked, then full draw to the cheek. Loose: the string snaps straight, the drawing hand flies back.
+id archer
+size 12x28
+frames 5
+outline ink
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    H = woodDark
+    h = wood
+    l = woodLight
+    T = banner
+    t = roofDeep
+    U = roofLight
+    G = gold
+    B = soilDark
+    b = soil
+    F = stonePale
+    f = tile
+    w = stoneLight!
+    a = stonePale!
+    A = stone!
+
+# hood and face (facing right)
+part head
+    .HHH.
+    HhhhH
+    HhlhhH
+    HhsSS.
+    HhSkS.
+    .HsSs.
+
+# quiver fletching above the back shoulder
+part quiver
+    F.
+    fF
+    H.
+
+# shoulders, tabard with the lantern emblem, belt, skirt (sleeves are the arm parts)
+part torso
+    hTTTh
+    TTUTT
+    TGTTT
+    TGTTt
+    TTTTt
+    HHGHH
+    tTTTt
+    tTUTt
+    tT.Tt
+
+part legs
+    Bb.Bb
+    Bb.Bb
+    Bb.Bb
+    Bb.Bb
+    Bb.Bb
+    Bb.Bb
+    HH.HH
+    HH.HH
+    HHhHHh
+
+part armBackDown
+    h
+    h
+    h
+    H
+    s
+
+part armFrontDown
+    h
+    h
+    H
+    h
+    S
+
+# the bow at rest, held vertically (string on the left, belly to the right)
+part bowRest
+    l.
+    wl
+    wl
+    wl
+    wl
+    wl
+    wh
+    wl
+    wl
+    wl
+    l.
+
+# raised: the bow arm straight forward at shoulder height, the bow upright in the fist
+part armFrontRaised
+    hhhS
+
+part bowRaised
+    .l
+    wl
+    wl
+    wl
+    wl
+    wh
+    wl
+    wl
+    wl
+    wl
+    .l
+
+# nocking: the drawing hand at the chest, the arrow on the string
+part armDrawNock
+    hhS
+
+part arrowNock
+    aaaA
+
+# full draw: the hand at the cheek, the string pulled back in a V, the bow bent
+part armDrawFull
+    hS
+
+part bowFull
+    ..l
+    .wl
+    w.l
+    w.l
+    ..h
+    w.l
+    w.l
+    .wl
+    ..l
+
+part arrowFull
+    faaaaA
+
+# loose: the string straight again, the drawing hand open behind the head
+part armLoose
+    S
+    h
+    h
+
+frame 0
+    quiver 2 6
+    armBackDown 2 9
+    legs 3 18
+    torso 3 9
+    head 3 2
+    armFrontDown 8 9
+    bowRest 8 8
+
+frame 1
+    quiver 2 7
+    armBackDown 2 10
+    legs 3 18
+    torso 3 10
+    head 3 3
+    armFrontDown 8 10
+    bowRest 8 9
+
+frame 2
+    quiver 2 6
+    armBackDown 2 9
+    legs 3 18
+    torso 3 9
+    head 3 2
+    armDrawNock 5 11
+    armFrontRaised 7 10
+    bowRaised 9 5
+    arrowNock 6 10
+
+frame 3
+    quiver 2 6
+    legs 3 18
+    torso 3 9
+    head 3 2
+    armDrawFull 6 7
+    armFrontRaised 7 10
+    bowFull 8 6
+    arrowFull 5 10
+
+frame 4
+    quiver 2 6
+    armLoose 2 5
+    legs 3 18
+    torso 3 9
+    head 3 2
+    armFrontRaised 7 10
+    bowRaised 9 5

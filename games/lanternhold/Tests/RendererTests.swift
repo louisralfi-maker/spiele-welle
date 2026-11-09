@@ -22,7 +22,7 @@ final class RendererTests: XCTestCase {
         XCTAssertEqual(MemoryLayout<LightPassUniforms>.stride, 32)
         XCTAssertEqual(MemoryLayout<BloomUniforms>.stride, 48)
         XCTAssertEqual(MemoryLayout<BlurUniforms>.stride, 16)
-        XCTAssertEqual(MemoryLayout<CompositeUniforms>.stride, 336)
+        XCTAssertEqual(MemoryLayout<CompositeUniforms>.stride, 400)
     }
 
     func testEveryPipelineBuilds() throws {

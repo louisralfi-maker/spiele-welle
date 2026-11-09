@@ -71,3 +71,10 @@ farPale     #B4C0D8
 # --- water, snow, foam ---
 waterDeep   #5E8FB0
 foam        #E6F0F2
+
+# --- glow strips of the creatures (M2b art lane; emissive, never albedo) ---
+emberDim    #8C2A12  emissive
+violetGlow  #B48CFF  emissive
+violetDim   #5E3A9E  emissive
+tealGlow    #9FF2E4  emissive
+tealDim     #3C8A86  emissive

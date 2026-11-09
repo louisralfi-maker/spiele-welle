@@ -33,6 +33,12 @@ exactly reproducible.
                                                             rounds a flat tower: shifts every ramp colour in the rect
                                                             by its column's band (+1 one step lighter), the band edges
                                                             dithered in a checker (polish after the art review)
+  procart.py fogbank   <out.png> [--size 300x30] [--seed N] [--ends 48] [--rise 20]
+                                                            a bank of ground mist for the foot of the castle walls
+                                                            (scene polish 2): white, its alpha in eight steps (not
+                                                            binary: the scene tints it with the hour's mist), dense in
+                                                            the bottom rows and thinning upward over `rise` rows,
+                                                            soft at both ends over `ends` px, wisps from seeded noise
 
 Colours: rockDeep, soilDark, leafDark, with sparse rockDark rims, leaf tips and woodDark roots (all albedo).
 """
@@ -618,6 +624,55 @@ def cmd_cylinder(a):
     print(f"wrote {a.output} {img.w}x{img.h} (cylinder)")
 
 
+def noise2(rng, w, h, cell):
+    """2-D smooth value noise in [0, 1] on a w x h grid, lattice points every `cell` pixels (seeded)."""
+    gw, gh = w // cell + 3, h // cell + 3
+    grid = [[rng.random() for _ in range(gw)] for _ in range(gh)]
+    out = [[0.0] * w for _ in range(h)]
+    for y in range(h):
+        fy = y / cell
+        j = int(fy)
+        ty = fy - j
+        ty = ty * ty * (3 - 2 * ty)
+        for x in range(w):
+            fx = x / cell
+            i = int(fx)
+            tx = fx - i
+            tx = tx * tx * (3 - 2 * tx)
+            top = grid[j][i] + (grid[j][i + 1] - grid[j][i]) * tx
+            bottom = grid[j + 1][i] + (grid[j + 1][i + 1] - grid[j + 1][i]) * tx
+            out[y][x] = top + (bottom - top) * ty
+    return out
+
+
+def cmd_fogbank(a):
+    """Scene polish 2: the castle stood on the ground like a cut-out at dusk and night. A low bank of mist at the foot
+    of its walls (the world plane, after the front, before the actors) seats it: thick at the bottom, thinning upward
+    in wisps, fading out at both ends so no edge shows. White with alpha in eight steps, chosen through a 4x4 Bayer
+    pattern like the drifting fog strips; the scene tints it with the hour's mist strength (0 by day)."""
+    w, h = (int(v) for v in a.size.split("x"))
+    rng = random.Random(a.seed * 7919 + 11)
+    broad = noise2(rng, w, h, 24)
+    fine = noise2(rng, w, h, 9)
+    img = Image(w, h)
+    for y in range(h):
+        up = (h - 1 - y) / max(1, a.rise)            # 0 at the bottom row, 1 at `rise` rows up
+        body = max(0.0, 1 - up)
+        body = body * body * (3 - 2 * body)
+        for x in range(w):
+            edge = min(x, w - 1 - x) / max(1, a.ends)
+            env = min(1.0, edge)
+            env = env * env * (3 - 2 * env)
+            wisp = 0.55 + 0.75 * broad[y][x] - 0.3 * fine[y][x]
+            d = min(1.0, max(0.0, body * env * wisp))
+            level = math.floor(d * 8 + bayer4(x, y) - 0.5) / 8
+            alpha = int(min(224, max(0, level * 240)))
+            if alpha > 0:
+                img.set(x, y, (255, 255, 255, alpha))
+    write_png(a.output, img)
+    print(f"wrote {a.output} {w}x{h} (fog bank)")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -672,6 +727,13 @@ def main():
     cy.add_argument("--ramp", default="night1,stoneDark,stoneMid,stone,stoneLight,stonePale")
     cy.add_argument("--palette", default=DEFAULT_PALETTE)
     cy.set_defaults(fn=cmd_cylinder)
+    fbk = sub.add_parser("fogbank")
+    fbk.add_argument("output")
+    fbk.add_argument("--size", default="300x30")
+    fbk.add_argument("--seed", type=int, default=1)
+    fbk.add_argument("--ends", type=int, default=48)
+    fbk.add_argument("--rise", type=int, default=20)
+    fbk.set_defaults(fn=cmd_fogbank)
     a = p.parse_args()
     a.fn(a)
 
