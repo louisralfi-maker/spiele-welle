@@ -75,6 +75,26 @@ def front_night(look):
     return dict(focus=900, tod=0.95, drop=[("brazier", 915)], extras=ex, king="off")
 
 
+def line_night(look):
+    """The soldiers at night on the middle line (the art pass): archers on the wall and the tower's deck, the
+    guardsmen at the wall's foot in the fire tower's light, one thrusting at a sootling, a builder at the stakes."""
+    ex = [
+        prop("fireTower", x=913, z=3, em=[("sprite", "brazierFlame", 3, 37, "fireOrange", False)], li=[("brazier", 920, 43, 90)]),
+        prop("archerTower", x=968, z=2), prop("stakePit", x=816, z=2),
+        prop("archer", cx=947, y=52, frame=3, f=True, z=8), prop("archer", cx=961, y=52, frame=4, f=True, z=8),
+        prop("archer", cx=974, y=42, frame=2, f=True, z=8), prop("archer", cx=985, y=42, frame=0, f=True, z=8),
+        prop("guardsman", cx=872, frame=7, f=True, z=9), prop("guardsman", cx=885, frame=0, f=True, z=9),
+        prop("guardsman", cx=1010, frame=3, f=True, z=9), prop("builder", cx=1026, frame=1, f=True, z=9),
+        prop("sootling", cx=855, frame=4, z=9), prop("sootlingB", cx=838, frame=1, z=9),
+        prop("shadehound", cx=812, frame=1, lit=False, z=9), prop("sootling", cx=790, frame=2, lit=False, z=9),
+        prop("arrow", cx=905, y=70, frame=1, f=True, z=10),
+        prop("brazier", x=1038, z=3, em=[("sprite", "brazierFlame", 1, 11, "fireOrange", False)], li=[("brazier", 1043, 16, 56)]),
+    ]
+    if look == 2:
+        ex += [emitter(916, 52, "d2Sparks", colour="fireGold")]
+    return dict(focus=930, tod=0.95, drop=[("brazier", 915)], extras=ex, king="off")
+
+
 # --- 2. the castle front at dusk ---------------------------------------------------------------------------------
 def castle_dusk(look):
     ex = [prop("gateWood", x=1337, z=6, frame=2)]
@@ -164,6 +184,22 @@ def hall_audience(look, lord="kingSeated"):
     return dict(focus=1800, tod=0.5, drop=[], extras=ex, king="off")
 
 
+def hall_benches(look, lord="kingSeated"):
+    """The audience with the waiting townsfolk seated on two petitioners' benches (bench 32x10 at x 1722 and 1760;
+    the seated proposals citizenSeated, citizenBSeated, citizenCSeated, 12x22, their bottoms on the floor)."""
+    def seat(s, x, frame=0):
+        return dict(prop(s, x=x, frame=frame, z=5), frames=2)
+    ex = [
+        _one("bench", x=1722, z=4), _one("bench", x=1760, z=4),
+        seat("citizenCSeated", 1724), seat("citizenSeated", 1740, 1),
+        seat("citizenBSeated", 1763), seat("citizenSeated", 1778),
+        dict(prop("petitionerD", cx=1803, frame=4, z=6), frames=6),
+        dict(prop(lord, cx=1824, frame=2, f=True, z=4, li=[("lantern", 1818.5, 22.5, 40)]), frames=4),
+        dict(prop("odile", cx=1843, frame=4, f=True, z=6), frames=8),
+    ]
+    return dict(focus=1790, tod=0.5, drop=[], extras=ex, king="off")
+
+
 # --- the castle grows (the art pass, SPRITES.md "The castle grows"): tiers 1 to 3, each also in its building state ---
 RISE_MASKS = {"keepTop2": [(71, 93, 6, 10), (120, 94, 5, 9), (139, 94, 5, 9), (23, 109, 2, 7)],
               "keepTop3": [(71, 93, 6, 10), (20, 108, 3, 8), (122, 108, 3, 8)],
@@ -231,11 +267,13 @@ SCENES = {
        for v in ("gate", "back", "far", "farback") for t in (1, 2, 3) for b in (False, True) for d in ("", "-day")},
     "hall-audience": hall_audience,
     "hall-audience-lady": lambda look: hall_audience(look, "ladySeated"),
+    "hall-benches": hall_benches,
     "hall-empty": lambda look: dict(focus=1800, tod=0.5, drop=[], extras=[], king="off"),
     "shadow-night": shadow_night,
     "wall-dusk": wall_dusk,
     "valley-golden": lambda look: town(look, 0.745, 2560, 2604),
     "front-night": front_night,
+    "line-night": line_night,
     "castle-dusk": castle_dusk,
     "court-dusk": court_dusk,
     "square-dusk": lambda look: town(look, 0.8, 3040, 3026),

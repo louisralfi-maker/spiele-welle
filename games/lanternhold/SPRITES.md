@@ -222,6 +222,15 @@ to; the code lane may take them as they are.
 | `ladySeated`, `ladySeatedGlow` | 16x30 | 4 | the lady's, frame for frame the same |
 | `portraitLady` | 48x48 | 1 | the lady's story portrait, the pair of `portraitKing` (which now shows the young lord) |
 
+### The townsfolk seated on the hall's benches
+
+| id | size | frames | notes |
+|---|---|---|---|
+| `citizenSeated`, `citizenBSeated`, `citizenCSeated` | 12x22 | 2 each | the three townsfolk waiting on a petitioners' `bench` (32x10): seated 0, a nod 1 (swap every few seconds, not a loop). The frame's bottom stands on the floor like the bench's; draw the bench first and the sitter over it (the cushion is the frame's rows 13 and 14). A bench seats two (the frames' left edges at bench x +2 and +18) or three (+0, +10, +20). They face the hall like the seated lord, the head in profile to the right: mirror the frame for a bench right of the throne. The walking townsfolk (`citizen…`, 12x26) keep standing where no bench is free |
+
+The archer, the guardsman, the builder and the three townsfolk were repainted at their sizes, frames and frame
+meanings. Two anchors moved by a pixel: the archer's arrow lies on the frame's row 9 (was 10) and leaves at the right
+edge (col 11); the guardsman's spear tip at the thrust (frame 7) stays at col 13, row 11.
 
 ### The castle grows
 

@@ -1,15 +1,17 @@
-# citizenB 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md). A townsman: short dark curly hair, a beard, a green
-# tunic with rolled sleeves over a linen shirt, a belt with a pouch, brown trousers, a sack over his far shoulder.
-# Walk: four frames, a long stride. Idle: a breath, weight shifted.
+# citizenB 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md). A townsman, repainted in stage 4 of look 2
+# (ART-look2.md section 15) at the lord's level: a tall man with short dark curls and a full beard, a green tunic
+# with rolled sleeves over a linen shirt, a belt with a pouch, brown trousers, boots, a burlap sack over his far
+# shoulder, its neck in his fist. Light from the upper left; the outline is look 2's selective one (shadow side and
+# ground contact). Walk: contact (the body 1 px down) and passing on each leg, the near arm swinging. Idle: a breath.
 id citizenB
 size 12x26
 frames 6
-outline ink
+outline ink shade
 
 legend
     k = ink
-    S = soilLight
-    s = soil
+    S = woodLight
+    s = soilLight
     n = woodDark
     N = soilDark
     E = leafDark
@@ -21,115 +23,157 @@ legend
     h = wood
     B = soilDark
     b = soil
+    m = soilLight
     l = woodLight
     c = straw
     C = strawLight
 
+# the curls, the face, the full beard (frame cols 4-8)
 part head
-    .nnn.
-    nNnnn
-    nSSSn
-    nSkSs
-    .SSSs
     .nNn.
+    nnNNN
+    NnSkS
+    .NsSs
+    .NNNs
+    ..NN.
 
-# the sack slung on his back
-part sack
-    .cC.
-    cCCc
-    cCcc
-    cccc
-    .cc.
-
+# the linen collar, the tunic, the belt with its pouch, the tunic's skirt
 part torso
-    .efee
-    effee
-    efpee
-    eEpEe
-    eepee
-    HHlHH
-    effee
-    eEeEe
+    fepeeE
+    feepeE
+    feeeeE
+    .feeEE
+    .HHHlh
+    .feeEE
+    .fe.EE
 
-part legsA
-    Bb..Bb
-    Bb..Bb
-    Bb...Bb
-    Bb...Bb
-    HH...HH
-    HHh..HHh
+# the burlap sack on his back, its neck over the shoulder in his far fist
+part sack
+    ..cCc
+    .cCCS
+    cCCcc
+    CCccq
+    Cccqq
+    cccq.
+    .cq..
 
-part legsB
-    .BbBb
-    .BbBb
-    .BbBb
-    .BbBb
-    .HHHH
-    .HHhHh
+part legsStand
+    ...bBmb..
+    ...bBmb..
+    ...bBmb..
+    ...bBmb..
+    ...bBmb..
+    ..bB.mb..
+    ..bB.mb..
+    ..HH.hH..
+    ..HH.hH..
+    ..HHHhHH.
 
-part legsC
-    Bb..Bb
-    Bb..Bb
-    .Bb.Bb
-    .Bb.Bb
-    .HHHH.
-    .HHhHHh
+part legsContactA
+    ...bBmb..
+    ...bBmb..
+    ..bB.mb..
+    ..bB..mb.
+    .bB...mb.
+    .bB...mb.
+    .bB...mb.
+    HH....hH.
+    HH....hH.
+    .HH...hHH
 
-part armBack
+part legsPassA
+    ...bBmb..
+    ...bBmb..
+    ...bBmb..
+    ...bBmb..
+    ..bB.mb..
+    .HH..mb..
+    .HH..mb..
+    .HHH.hH..
+    .....hH..
+    .....hHH.
+
+part legsContactB
+    ...bBmb..
+    ...bBmb..
+    ..mb.bB..
+    ..mb..bB.
+    .mb...bB.
+    .mb...bB.
+    .mb...bB.
+    hH....HH.
+    hH....HH.
+    .HH...HHH
+
+part legsPassB
+    ...bBmb..
+    ...bBmb..
+    ...bBmb..
+    ...bmb...
+    ..mbbB...
+    .hH.bB...
+    .hH.bB...
+    .hHHHH...
+    ....HH...
+    ....HHH..
+
+# the near arm: the rolled sleeve, the bare forearm; hanging, swung forward, swung back
+part armDown
     e
-    s
+    E
+    S
     s
 
-part armFront
-    f
-    e
-    S
-    S
+part armFwd
+    e.
+    E.
+    .S
+    .s
+
+part armBackSwing
+    .e
+    .E
+    S.
+    s.
 
 frame 0
-    sack 0 10
-    armBack 3 12
-    legsA 3 19
-    torso 3 11
-    head 3 5
-    armFront 8 11
+    legsContactA 1 15
+    torso 3 9
+    head 4 3
+    sack 0 8
+    armBackSwing 7 10
 
 frame 1
-    sack 0 11
-    armBack 3 13
-    legsB 3 19
-    torso 3 12
-    head 3 6
-    armFront 7 12
+    legsPassA 1 15
+    torso 3 8
+    head 4 2
+    sack 0 7
+    armDown 8 9
 
 frame 2
-    sack 0 10
-    armBack 3 12
-    legsC 3 19
-    torso 3 11
-    head 3 5
-    armFront 8 11
+    legsContactB 1 15
+    torso 3 9
+    head 4 3
+    sack 0 8
+    armFwd 8 10
 
 frame 3
-    sack 0 11
-    armBack 3 13
-    legsB 3 19
-    torso 3 12
-    head 3 6
-    armFront 7 12
+    legsPassB 1 15
+    torso 3 8
+    head 4 2
+    sack 0 7
+    armDown 8 9
 
 frame 4
-    sack 0 10
-    armBack 3 12
-    legsB 3 19
-    torso 3 11
-    head 3 5
-    armFront 7 11
+    legsStand 1 15
+    torso 3 8
+    head 4 2
+    sack 0 7
+    armDown 8 9
 
 frame 5
-    sack 0 11
-    armBack 3 13
-    legsB 3 19
-    torso 3 12
-    head 3 6
-    armFront 7 12
+    legsStand 1 15
+    torso 3 9
+    head 4 3
+    sack 0 8
+    armDown 8 10

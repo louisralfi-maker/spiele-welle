@@ -1,0 +1,53 @@
+# citizenBSeated 12x22, 2 frames: seated 0, a nod 1 (a PROPOSAL of the look-2 art pass, SPRITES.md "Proposals of the
+# art pass"; ART-look2.md section 15). The townsman waiting on a petitioners' bench in the great hall (bench 32x10:
+# this frame's bottom on the floor, the bench drawn behind him; the cushion's rows are this frame's rows 13 and 14).
+# He sits facing the hall like the seated lord: the green tunic from the front, the hands on his thighs, the knees
+# over the seat's edge and the shins before it, his sack set down at his feet; only the head stays in profile,
+# turned to the throne (the engine mirrors the frame for a bench on the throne's other side). The parts are
+# citizenB's (include).
+id citizenBSeated
+size 12x22
+frames 2
+outline ink shade
+include citizenB.txt
+
+# the tunic from the front: the linen collar, the sleeves down the sides, the belt and its buckle (frame cols 2-8)
+part torsoFront
+    .fepeE.
+    feepeEE
+    feeeeEE
+    feeeeEE
+    fHHlHHE
+
+# the thighs with the hands on them, the knees, the shins before the seat (darker than the lap), the boots
+part lapFront
+    SmbBmbs
+    mbB.mbB
+    .bB..bB
+    .bB..bB
+    .bB..bB
+    .bB..bB
+    .bB..bB
+    .HH..hH
+    HHH.hHH
+
+# the sack standing at his feet
+part sackFloor
+    .c.
+    cCc
+    CCq
+    CCq
+    Ccq
+    ccq
+
+frame 0
+    sackFloor 9 15
+    lapFront 2 12
+    torsoFront 2 7
+    head 4 1
+
+frame 1
+    sackFloor 9 15
+    lapFront 2 12
+    torsoFront 2 7
+    head 4 2

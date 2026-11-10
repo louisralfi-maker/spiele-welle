@@ -1,10 +1,13 @@
-# builder 12x24, 6 frames: walk 0-3, hammer 4-5 (SPRITES.md). A builder of the realm: a straw-coloured cloth cap, a
-# brown smock with rolled sleeves over a linen shirt, a tool belt, a mallet. Walk: a brisk step, the mallet over the
-# shoulder bobbing. Hammer: mallet raised high behind the head, then struck down in front.
+# builder 12x24, 6 frames: walk 0-3, hammer 4-5 (SPRITES.md). A builder of the realm, repainted in stage 4 of look 2
+# (ART-look2.md section 15) at the lord's level: a stocky bearded workman in a straw-coloured cloth cap, a brown
+# smock with rolled sleeves over a linen shirt, a tool belt with a chisel, breeches, boots, and a long-handled
+# mallet with an iron head. Light from the upper left; the outline is look 2's selective one (shadow side and ground
+# contact). Walk: contact and passing on each leg, the mallet on his shoulder. Hammer: the mallet swung up behind the
+# head, then struck down in front (its head at cols 9-11, rows 14-16).
 id builder
 size 12x24
 frames 6
-outline ink
+outline ink shade
 
 legend
     k = ink
@@ -15,138 +18,175 @@ legend
     l = woodLight
     c = straw
     C = strawLight
-    p = plaster
     q = plasterDim
+    p = plaster
     B = soilDark
     b = soil
     n = soilLight
     D = stoneDark
+    M = stoneMid
     m = stone
     L = stoneLight
     G = gold
 
-# cloth cap, face, a short beard
+# the cloth cap, the hair under it, the face, the short beard (frame cols 4-8)
 part head
     .CCc.
-    CCccc
-    cSSSs
-    .SkSs
-    .SSSs
-    .hbs.
+    CCccq
+    HhSkS
+    .hsSs
+    .Hhhb
 
+# the linen collar, the smock, the tool belt with its buckle, the smock's skirt, a chisel in the belt
 part torso
-    hhphh
-    hhqhh
-    hhphh
-    hhqhh
-    HlHGH
-    hhhhh
-    hh.hh
+    lhpphH
+    lhhphH
+    lhhhhH
+    .hhhhH
+    .BBGBB
+    .hLhHH
+    .hh.HH
 
-part legsA
-    Bb.Bb
-    Bb.Bb
-    Bb..Bb
-    HH..HH
-    HHh.HHh
+part legsStand
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ..bB.nb..
+    ..bB.nb..
+    ..HH.hH..
+    ..HH.hH..
+    ..HHHhHH.
 
-part legsB
-    .BbBb
-    .BbBb
-    .BbBb
-    .HHHH
-    .HHhHh
+part legsContactA
+    ...bBnb..
+    ..bB.nb..
+    ..bB..nb.
+    .bB...nb.
+    .bB...nb.
+    HH....hH.
+    HH....hH.
+    .HH...hHH
 
-part legsC
-    Bb..Bb
-    Bb..Bb
-    Bb.Bb.
-    HH.HH.
-    HHhHHh
+part legsPassA
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ..bB.nb..
+    .HH..nb..
+    .HHH.hH..
+    .....hH..
+    .....hHH.
 
-# sleeves rolled up: brown cuff, bare forearm
+part legsContactB
+    ...bBnb..
+    ..nb.bB..
+    ..nb..bB.
+    .nb...bB.
+    .nb...bB.
+    hH....HH.
+    hH....HH.
+    .HH...HHH
+
+part legsPassB
+    ...bBnb..
+    ...bBnb..
+    ...bnb...
+    ..nbbB...
+    .hH.bB...
+    .hHHHH...
+    ....HH...
+    ....HHH..
+
+# the far arm swinging: the rolled sleeve, the bare forearm
 part armBack
-    h
+    l
     h
     s
     s
 
-part armFront
-    h
-    h
-    S
-    S
-
-# the mallet in the front hand while walking, its head hanging by the knee
-part malletHang
-    .l.
-    .l.
-    .h.
-    LmD
-    mDD
-
-part armUp
-    S.
-    S.
-    h.
+# the near arm bent, its hand on the mallet's handle at the chest
+part armHold
     .h
+    .h
+    SS
+
+# the mallet on the shoulder: the iron head behind the neck, the handle across the chest
+part malletShoulder
+    LLm....
+    LmD....
+    mDD....
+    ...l...
+    ....l..
+    .....l.
+    ......l
+
+# swung up: both arms raised behind the head
+part armUp
+    S
+    S
+    h
+    h
 
 part malletUp
-    LmD
-    mDD
-    .l.
-    .l.
+    LLm.
+    LmD.
+    mDD.
+    ..l.
+    ...l
 
+# struck down in front
 part armDown
-    hhSS
+    hSS
 
 part malletDown
-    lllLm
-    ...mD
-    ...DD
+    l..
+    .l.
+    LLm
+    LmD
+    mDD
 
 frame 0
-    armBack 3 13
-    legsA 3 18
-    torso 3 11
-    head 3 5
-    armFront 7 11
-    malletHang 6 14
+    legsContactA 1 15
+    armBack 3 11
+    torso 3 10
+    head 4 5
+    malletShoulder 0 4
+    armHold 7 10
 
 frame 1
-    armBack 3 14
-    legsB 3 18
-    torso 3 12
-    head 3 6
-    armFront 7 12
-    malletHang 6 15
+    legsPassA 1 15
+    armBack 3 10
+    torso 3 9
+    head 4 4
+    malletShoulder 0 3
+    armHold 7 9
 
 frame 2
-    armBack 3 13
-    legsC 3 18
-    torso 3 11
-    head 3 5
-    armFront 7 11
-    malletHang 6 14
+    legsContactB 1 15
+    armBack 3 11
+    torso 3 10
+    head 4 5
+    malletShoulder 0 4
+    armHold 7 10
 
 frame 3
-    armBack 3 14
-    legsB 3 18
-    torso 3 12
-    head 3 6
-    armFront 7 12
-    malletHang 6 15
+    legsPassB 1 15
+    armBack 3 10
+    torso 3 9
+    head 4 4
+    malletShoulder 0 3
+    armHold 7 9
 
 frame 4
-    legsA 3 18
-    torso 3 11
-    head 3 5
-    malletUp 1 1
-    armUp 2 5
+    legsStand 1 15
+    torso 3 9
+    head 4 4
+    malletUp 0 0
+    armUp 3 5
 
 frame 5
-    legsA 3 18
-    torso 3 12
-    head 4 6
-    armDown 6 14
-    malletDown 7 14
+    legsStand 1 15
+    torso 3 10
+    head 5 5
+    armDown 6 12
+    malletDown 9 12
