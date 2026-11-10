@@ -5,7 +5,7 @@ import XCTest
 
 /// Look 1 pinned pixel for pixel while look 2 is ported beside it (docs/PORT-look2.md 0, decision 1, and round L2-0):
 /// six game scenes rendered offscreen with the look-1 options and hashed. The hashes were recorded on the runner before
-/// the port touched the renderer (round lh-l2-0b); every later round must give the same ones. A scene without a
+/// the port touched the renderer (round lh-l2-0d, on 17380b8); every later round must give the same ones. A scene without a
 /// recorded hash only prints its line (`GOLDEN <name> <hash> <sums>`), which is how the table is filled.
 @MainActor
 final class LookGoldenTests: XCTestCase {
@@ -23,7 +23,14 @@ final class LookGoldenTests: XCTestCase {
     ]
 
     /// The recorded hashes (FNV-1a 64 over the picture's bytes, rows top to bottom).
-    static let golden: [String: String] = [:]
+    static let golden: [String: String] = [
+        "front-night": "acd2fe8d679560b2",
+        "castle-night": "e002808da9004a19",
+        "court-dusk": "c4479f099980a9e2",
+        "square-morning": "c0ba9a8be11ba03e",
+        "town-noon": "e0e4b0352af35485",
+        "river-golden": "c0f21df86bbe85b6",
+    ]
 
     func testLookOneIsPinned() throws {
         let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
