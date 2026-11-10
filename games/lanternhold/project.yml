@@ -44,6 +44,9 @@ targets:
         MARKETING_VERSION: "0.1.0"
         CURRENT_PROJECT_VERSION: "1"
         GENERATE_INFOPLIST_FILE: YES
+        # The interface's typeface (IM Fell English, SIL OFL; Resources/Fonts): Xcode merges this file's UIAppFonts into
+        # the generated plist (docs/UI-look.md). It sits outside the source folders so it is not copied as a resource.
+        INFOPLIST_FILE: Info.plist
         INFOPLIST_KEY_CFBundleDisplayName: Lanternhold
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.strategy-games
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
