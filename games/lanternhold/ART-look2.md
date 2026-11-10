@@ -1424,3 +1424,38 @@ hour, the river end: the committed planting above, the proposed one below).
 - `chapel`, `kitchen` and `hallFront` have no lit sprite (17.4's first point stands).
 - The firs, the lanes and the plants of `depthart.py` keep their paintings; only the four town trees gained two.
 - A third willow on the river bank (`willowB` at 3738) is a proposal, seen in plate 17 only.
+
+## 19. Stage 7: the old walls, the fog, the envoys, the circlet (10.11.2026)
+
+Louis' wishes of 09.11. and 10.11., art only. Every new id is a proposal for the code lane (claude/lh-polish);
+SPRITES.md carries size, frames, anchor and the draw call. No existing id, size or frame count changed.
+Plates in `ci-out/look2-fable/art3`.
+
+### 19.1 The old walls and the anchors
+
+The trouble before: a tier stood as a narrow block at the track's far edge, the mist to both sides of it and the
+gorge's rock sliding behind it on the mid plane. It read as a thing one walks around. A piece on the mid plane would
+slide against the wall, so everything new lies on the **world plane**, behind the tier.
+
+- **The place** (`oldWall2`, `oldWall3`, 128x108, drawn always): the Throat's granite comes forward to the track in
+  two masses, a horn on the Gloom's side and a pillar on the castle's, steep toward the light, in the gorge's own
+  hand (`tools/throatart.py` takes the slabs from `gorgeRock.png` and sets the crags' edge rule: every top edge pale,
+  the side toward the light a step up, two columns of the deep tone away from it; fissures part a mass into
+  pillars). Between them lies the saddle the line stands in. Across it Lady Oriel's wall of the year 118: the
+  curtain's broken courses, the stub of the end tower at the pillar (line 2: a doorway half filled with fallen
+  stone), blocks, the old footing in the track with the breach where the track runs, a little scree. Old ashlar is
+  the defences' ashlar a step paler, with moss in the beds.
+- **The anchors** (`palisadeAnchor`, `stoneWallAnchor`, `bastionAnchor`, same canvas, drawn with their tier): the
+  footing across the track's 8 rows (so the wall visibly crosses the whole track) and the end piece that ties the
+  tier into the pillar: a return of stakes lashed to the old stub; an end tower of ashlar a step darker than the
+  wall, toothed into the granite; the bastion's higher, with corbels. The palisade stands in the old stonework,
+  the stone tiers swallow it: each upgrade rebuilds more of Oriel's wall.
+- **Why the saddle is open:** the first try set a whole shoulder of rock behind the tier. It closed the gorge and
+  swallowed the archers on the walk, who read against the mist at night. Now rock stands left and right of the walk
+  and the air above the wall stays free; the end towers begin right of the last archer's place.
+- `oldWall1` (84x60) is what is left of the first line before the gatehouse. Line 1's plot is the gate and never
+  empty, so it is scenery, not a plot state.
+
+Plates 01 and 02 (both plots unbuilt, dusk and night), 03 and 04 (a palisade on the outer line, a stone wall on the
+middle line), 05 (a stone wall and a bastion at night), 06 (the six sprites). Scenes `throat-ruins-*`,
+`throat-walls-*`, `throat-strong-*` in `scenemock/scene_look2.py`.

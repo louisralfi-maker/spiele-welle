@@ -395,3 +395,21 @@ A planting that never shows the same painting twice side by side (trunk world x;
 2884 `poplarB`, 2992 `linden`, 3170 `poplarC`, 3186 `poplar`, 3300 `lindenB`, 3448 `appleTreeC`, 3523 `appleTreeB`,
 3610 `lindenC`, 3684 `willow`, 3790 `willowC`, and a young `willowB` between them at 3738 if the river bank may
 carry a third.
+
+### The old walls in the Throat, the tiers' anchors (look 2, stage 7; ART-look2.md section 19.1)
+
+**Proposals for the code lane** (claude/lh-polish): the PNGs lie in Resources/Art, `tools/build-art.sh` rebuilds them
+(`tools/throatart.py`, in the world lane), no Swift names them yet. All six are props of the **world plane**, one
+frame each, lit like any building, without emitters. No existing id, size or frame count changed.
+
+| id | size | frames | notes |
+|---|---|---|---|
+| `oldWall2`, `oldWall3` | 128x108 | 1 | the place of the middle line (line 2, `wallX` 940) and of the outer line (line 3, `wallX` 640) as it lies before anything is built: two masses of the Throat's granite (a horn on the Gloom's side, a pillar on the castle's) and the saddle between them, across it the broken courses of Lady Oriel's wall and the stub of its end tower, fallen blocks, the old footing in the track, scree. The wall's left edge is sprite x 28, the ground line 8 rows above the bottom: `props.add("oldWall<line>", x: wallLeft - 28, y: -8, z: -2)`. **Always drawn** (empty plot, job, tier, rubble): it is the place |
+| `palisadeAnchor`, `stoneWallAnchor`, `bastionAnchor` | 128x108 | 1 | what the builders add with a tier: its footing across the track (the 8 rows under the ground line: a bank of earth with the stakes' butts; two courses of ashlar) and its end piece at the pillar (a return of three stakes lashed to the old stub; an end tower of ashlar toothed into the granite, 69 px high; the bastion's 81 px with a corbelled crown). Same canvas and origin: `x: wallLeft - 28, y: -8, z: -1`, over the old wall, behind the tower (z 0) and the tier (z 1). Drawn **while a tier of that kind stands at the line**: whole, damaged, as rubble, and under the scaffold of the upgrade that replaces it |
+| `oldWall1` | 84x60 | 1 | what is left of Oriel's first line before the gatehouse: a stretch of broken wall, half a tower, blocks. Scenery, not a plot state (line 1's plot is the gate and is never empty): proposed at `x: 1150, y: -8, z: -1`, clear of the trap plot at 1220. The ground line is 8 rows above the bottom here too |
+
+- The saddle between the two masses stays open above the walk on purpose: the watch on the wall keeps the mist
+  behind it (that is what an archer reads against at night). Both end towers begin right of the last archer's place.
+- A tower on the line's tower plot (z 0) stands before the end piece; a stone tier's end tower is higher than the
+  timber towers and shows above them.
+- The braziers, the traps and the engines keep their places; the horn stands behind the braziers' ground.

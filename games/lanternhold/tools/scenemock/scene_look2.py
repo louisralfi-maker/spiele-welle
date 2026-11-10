@@ -271,6 +271,48 @@ def castle_tier(look, tier, build, view="gate", tod=0.8):
     return dict(focus=250, tod=tod, drop=drop, extras=ex, king=306, swap=sw)
 
 
+# --- stage 7 (ART-look2.md section 19): the old walls in the Throat and the tiers' anchors -----------------------
+LINE = {2: LM.MIDDLE_LINE_X, 3: LM.OUTER_LINE_X}
+FRONT = [("palisade", 640), ("stoneWall", 940), ("torchPost", 634), ("torchPost", 662), ("torchPost", 934),
+         ("torchPost", 978), ("ballista", 676), ("brazier", 891), ("brazier", 915)]
+WALK = {"palisade": (25, (5, 15)), "stoneWall": (42, (5, 18, 31)), "bastion": (57, (6, 16, 27, 38))}
+
+
+def _layout(d):
+    return prop(d["s"], x=d["x"], y=d["y"], z=d["z"], em=d.get("em", ()), li=d.get("li", ()))
+
+
+def line_place(line, tier=None, frame=0, archers=(), torches=True):
+    """A line's place as SPRITES.md proposes it: the old wall always (z -2); with a tier its anchor (z -1) behind the
+    tier (z 1). archers: the frames of the archers on the walk, from the enemy's side."""
+    x = LINE[line]
+    ex = [prop("oldWall%d" % line, x=x - 28, y=-8, z=-2)]
+    if tier:
+        w = {"palisade": 20, "stoneWall": 36, "bastion": 44}[tier]
+        y, offs = WALK[tier]
+        ex += [prop(tier + "Anchor", x=x - 28, y=-8, z=-1), prop(tier, x=x, z=1, frame=frame)]
+        ex += [prop("archer", cx=x + o, y=y, frame=fr, f=True, z=8) for o, fr in zip(offs, archers)]
+        if torches:
+            ex += [_layout(LM.torch(x - 4, 0)), _layout(LM.torch(x + w + 6, 0))]
+    return ex
+
+
+def throat_ruins(look, tod):
+    """Both plots in the Throat before anything is built: Lady Oriel's lines as they lie, the lord before them."""
+    return dict(focus=826, tod=tod, drop=FRONT, extras=line_place(3) + line_place(2), king=810)
+
+
+def throat_walls(look, tod, outer="palisade", middle="stoneWall"):
+    """The lines built into the old walls: each tier with its anchor, the watch on the walk, fires at the foot."""
+    ex = line_place(3, outer, archers=(2, 0, 3)) + line_place(2, middle, archers=(3, 4, 2, 0))
+    ex += [_layout(LM.brazier(896)), _layout(LM.brazier(920)),
+           prop("guardsman", cx=880, frame=0, f=True, z=9), prop("guardsman", cx=1012, frame=3, f=True, z=9),
+           prop("builder", cx=700, frame=1, f=True, z=9)]
+    if tod > 0.9:
+        ex += [prop("sootling", cx=630, frame=4, z=9), prop("sootlingB", cx=617, frame=1, z=9)]
+    return dict(focus=826, tod=tod, drop=FRONT, extras=ex, king="off" if tod > 0.9 else 790)
+
+
 SCENES = {
     # the castle's tiers: tier<1|2|3>[b]-<gate|back|far|farback>[-day] (b: the building state; -day: at noon)
     **{"tier%d%s-%s%s" % (t, "b" if b else "", v, d): (lambda look, t=t, b=b, v=v, d=d: castle_tier(look, t, b, v, 0.5 if d else 0.8))
@@ -290,6 +332,14 @@ SCENES = {
     "market-dusk": lambda look: town(look, 0.8, 3285, 3300),  # stage 4: the market and the tavern at dusk
     "town-noon": lambda look: town(look, 0.5, 2800, 2790),
     "river-golden": river_golden,
+    # stage 7: the Throat's lines (ruins: nothing built; walls: a palisade and a stone wall; strong: a stone wall and
+    # a bastion), at dusk and at night
+    "throat-ruins-dusk": lambda look: throat_ruins(look, 0.8),
+    "throat-ruins-night": lambda look: throat_ruins(look, 0.95),
+    "throat-walls-dusk": lambda look: throat_walls(look, 0.8),
+    "throat-walls-night": lambda look: throat_walls(look, 0.95),
+    "throat-strong-dusk": lambda look: throat_walls(look, 0.8, "stoneWall", "bastion"),
+    "throat-strong-night": lambda look: throat_walls(look, 0.95, "stoneWall", "bastion"),
 }
 
 

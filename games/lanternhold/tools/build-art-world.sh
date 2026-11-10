@@ -67,6 +67,8 @@ build() { # name: one sprite (or one group of small ones)
         px convert $W/gorge-1.png $P/gorge.png --size 448x211 --box 0,48,1536,768 --key none --only $GRANITE --match new --gamma 0.7; cool
         wa rockover $P/gorge.png 277,64,292,74 298,64,308,74 311,64,325,74 256,116,269,127   # the painting's four grass tufts (they read as hands)
         wa gorge $P/gorge.png $A/gorgeRock.png $A/gorgeCrags.png ;;
+    oldWall1|oldWall2|oldWall3|palisadeAnchor|stoneWallAnchor|bastionAnchor)   # stage 7: the old walls in the Throat, the tiers' anchors (granite from gorgeRock.png)
+        python3 -I -B games/lanternhold/tools/throatart.py build $1 --out $A ;;
     cleftFace)   # the cleft's inner face behind the castle, with its broken top edge; its end toward the valley
         px convert $W/gorge-1.png $P/face.png --size 448x218 --key $K --only $ROCKW --match new --gain 0.9; cool
         wa rockover $P/face.png 277,72,292,82 298,76,306,82 314,72,326,82 256,124,270,135   # the same four tufts
@@ -101,6 +103,6 @@ build() { # name: one sprite (or one group of small ones)
     esac
 }
 
-ALL="weltmauer castleTiers gorgeRock cleftFace cleftFlank cleftFlankB cleftThroat shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow lindenB lindenC poplarB poplarC appleTreeB appleTreeC willowB willowC plants"
+ALL="weltmauer castleTiers gorgeRock oldWall1 oldWall2 oldWall3 palisadeAnchor stoneWallAnchor bastionAnchor cleftFace cleftFlank cleftFlankB cleftThroat shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow lindenB lindenC poplarB poplarC appleTreeB appleTreeC willowB willowC plants"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do cool; build "$name"; done
