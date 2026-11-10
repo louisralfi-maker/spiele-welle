@@ -892,6 +892,7 @@ tap in Release) is checked on an A12 iPhone and a current one before the store.
 | `-GWStats YES` | CPU and GPU ms, fps, thermal state, s |
 | `-GWReduceMotion YES` | Reduce Motion without the system setting |
 | `-GWSkipOnboarding YES` | no hints (accepted since M2b part 2, so the tests already pass it; the onboarding comes in M7) |
+| `-GWLord lord\|lady`, `-GWLordName <name>` | the lord pass: Burgherr or Burgherrin and the lord's name (cleaned like a typed one) without the name entry; the other half is the standard lord's (Robin, Burgherr) |
 
 ## Accessibility identifiers
 
@@ -909,7 +910,9 @@ simulation's clock), `hud-gold`, `hud-happiness`, `hud-clock`, `hud-pause`,
 value adds `kx:<x>` (the king's world x) and, while first light's front is on screen, `dawn:<share>`; since the M2b
 review also `aim:<n>` (archers drawing or loosing in the frame). Since M3 step 3 also: `audience-next`,
 `audience-reaction`, `audience-counsel-line`, `talk-bubble`, `report-unheard`; `realm-strip`'s value names the
-petitioners waiting. Debug only: `debug-king-x`, `debug-camera-x` (values for the jitter test).
+petitioners waiting. Since the lord pass also: `lord-entry-root`, `lord-name-field`, `lord-form-lord`,
+`lord-form-lady`, `lord-confirm`, `audience-text`, `audience-remembered`; `world-scene`'s value adds `lord:<form>`.
+Debug only: `debug-king-x`, `debug-camera-x` (values for the jitter test).
 
 ## Tests
 
@@ -1093,6 +1096,12 @@ Open points:
    (`52b-petition-townsfolk`), standing up; `-GWScreen petition` (`59-petition-herald`); Reduce Motion opens the card
    without the walk. Every button checked for 44 pt. M7 adds the other six languages.
 5. `testFilmstrip` (English): a frame every 1.2 s through a dusk and a night, for the fun check.
+6. `testTheLordIsNamed` (`UITests/LordUITests.swift`, the lord pass, English and German): a new realm without any
+   shortcut opens the name entry (`70-lord-entry`); the Burgherrin is picked and a name typed, digits and signs are
+   not kept (`71-lord-entry-typed`); the Burgherrin stands in the hall (`72-lady-hall`), sits on the throne for day
+   1's farmer (`73-lady-sitting`) and reads her name on his card (`74-lady-first-petition`, `75-lady-counsel`,
+   `76-lady-reaction`); the next launch asks nothing and the save kept the Burgherrin; then the Burgherr seated before
+   Brannock on day 2 (`77-lord-seated`). Every target checked for 44 pt.
 
 ## Milestones (internal steps to 1.0)
 
@@ -2404,6 +2413,127 @@ condition or counsel changed and no choice the bot takes changed what it does to
   arrows in the air (23:12 and 00:31).
 - `lh-m3-f3` on dcf0e13 (the quote beside the report's title): ALL PASSED (build, unit 336, ui, ui-de, release), the
   tuning report identical to f2's. The People row is back in English and German; the German quote takes two lines.
+
+### The lord pass and the story pass (10.11.2026)
+
+Louis' decisions of 09.11. (STORY.md): the player is the Burgherr or the Burgherrin of House Lantern, named by the
+player, with a circlet and no crown; the lord sits during an audience; the houses come to the hall. Both passes were
+made on `claude/lh-storypass` after merging `claude/lh-story` (STORY.md) and `claude/lh-look2-fable` (the look-2 art).
+
+**The lord (code).**
+
+- `LordIdentity` (`Core/Lord.swift`): a name and `LordForm` (`lord`, `lady`), stored in the save as `GameState.lord`.
+  A save from before the pass has none and reads as the standard lord (Robin, Burgherr). The name never leaves the
+  device: no network call, no analytics, no ad request carries it.
+- The name: letters of any script, single spaces, hyphens, apostrophes and full stops; no digits, signs, emoji or line
+  breaks (so a name can never carry a brace of the placeholders); trimmed, 16 characters at most
+  (`LordIdentity.nameLimit`). An empty field gives "Robin", which the field shows as its prompt.
+- The name entry (`UI/LordEntryView.swift`, overlay `.lordEntry`): a new realm asks once, on day 1 before its first
+  dawn, when no lord is chosen (`LordEntry.asks`). Burgherr is marked at first; "Begin" stores the lord in the realm
+  and its dawn snapshot and writes the save. A restart from the pause sheet asks again and starts from the old realm's
+  lord. The debug arguments that skip the onboarding, name the lord, let the bot play or open a sample screen never
+  ask, so every older test starts as before.
+- The placeholders of the story texts (`LordText`), the same in English and German: `{lord}` is the name, `{a|b}`
+  reads `a` for the Burgherr and `b` for the Burgherrin. Nothing nests. `StoryText.string(key, lord:)` resolves them;
+  every card, bubble, remembered line and report quote goes through it.
+- The validator counts the longest reading (every name 16 characters, every choice its longer half) against the text
+  limits and reports any brace group that is neither form.
+- Sprites: `king` or `lady` with their glow strips, `kingSeated` or `ladySeated`, and the two portraits, picked by the
+  form (SPRITES.md "The lord pass"). The ids keep the word king; no player reads them.
+- The throne: during an audience before the throne the lord sits on it (sit-down frames 0 and 1 over 0.4 s, then the
+  breath 2 and 3; Reduce Motion: seated at once), mirrored to face the petitioner. The throne's drawn middle is x 1837
+  (`WorldLayout.throneX`, the middle of the painted dais), 13 px right of `Realm.throneX`, which the simulation keeps.
+  Odile stands 21 px to the throne's right and never covers the seated lord.
+- The benches: waiting townsfolk whose body is `citizen`, `citizenB` or `citizenC` sit (two to a bench, the next one
+  nearest the throne; a nod now and then, never in step with the neighbour); other bodies and guests stand; whoever is
+  called stands up and walks.
+- Debug arguments `-GWLord lord|lady` and `-GWLordName <name>`; the scene's status carries `lord:<form>`; identifiers
+  `lord-entry-root`, `lord-name-field`, `lord-form-lord`, `lord-form-lady`, `lord-confirm`, `audience-text`,
+  `audience-remembered`.
+
+**The story (texts), STORY.md section 9.**
+
+- 9.1, words: 207 texts changed in English and German. No king, crown, Majesty or Majestät is left for the player; the
+  search leaves only the Lightless King, the Stays and the sea cliffs. Forms of address, by speaker:
+
+  | Speaker | English | German |
+  |---|---|---|
+  | townsfolk, the bard | `my {lord\|lady}` | `{Burgherr\|Burgherrin}` |
+  | soldiers, Bram | `my {lord\|lady}` | `{Herr\|Herrin}` |
+  | Odile, Tamsin | `my {lord\|lady}` | `{mein Herr\|meine Herrin}` |
+  | Brannock | `{lord\|my lady}` | `{Herr\|Herrin}` |
+  | Hesper | child of the house | Kind des Hauses |
+  | Ludo | `good my {lord\|lady}` | `{edler Herr\|edle Herrin}` |
+  | Seren | lamplighter | Laternenanzünder |
+  | Marek, Pip | Your Radiance, Your Wickship | Eure Strahlkraft, Eure Dochtheit |
+  | envoys and the houses' faces | `{Lord\|Lady} Lantern` | `{Lord\|Lady} Lantern`; Hild `{Burgherr\|Burgherrin}` |
+  | Dame Orla | young Taper | `{junger\|junge} Taper` |
+
+  German uses "Ihr" and "Euch" throughout. "Lantern" and the names of people, houses and towns are never translated.
+  Glossary: the Throat, der Schlund; the circlet, der Stirnreif; the Count, die Zählung; the Returned, die
+  Heimgekehrten; the Cleft, der Spalt; the Lamp Tithe, der Lichtzehnt; the Great Beacon, das Große Leuchtfeuer; the
+  Dark Year, das Dunkle Jahr; Lady Oriel, Burgherrin Oriel; Lord Aldric, Burgherr Aldric; Saint Taper, Sankt Taper
+  or der heilige Taper (one saint, one German name). No creature is called a child in either language.
+- 9.2, the rewritten petitions and lines, as listed there: the premise (the lamplighter inherits by blood),
+  `first_plough`, `stranger_gate`, the six from Beaconfoot, `child_question`, `hesper_giant`, `beacon_plans`,
+  `banners_new`, the statues of the lamplighter saint, Lord Aldric's texts, `haunted_cellar` (a Returned and a blue
+  door), `scout_report`, `eclipse_omen`, `captured_sootling`, `herald_alone`, Seren's two, `last_stand`, `bard_song`,
+  `chronicle`, `keep_window`, `widow_pension`, and the lines. No effect changed. One flag changed its name:
+  `captured_sootling`'s third choice lets the sootling go at the Throat gate, so it sets `gerald_freed` (was
+  `gerald_kept`), and Brannock's line asks for it. The bard is Finch and the envoy Ansel Quay, Envoy of House Brine
+  (both now have a `nameKey`; the herald is the one guest without a name).
+- 9.3, the houses' six audiences in `petitions-story.json` (chapter 1, the first choice Odile's counsel):
+
+  | id | Speaker | Days | Flags by choice |
+  |---|---|---|---|
+  | `varn_levy` | Hild Varn | 3 to 4 | `varn_with` / `varn_stung` / `varn_with` |
+  | `oxmoor_gift` | Lorenz Pell | 5 to 6 | `oxmoor_lamp` / 30 gold, `oxmoor_debt`, `oxmoor_with` / `oxmoor_refused` |
+  | `calder_audit` | Ebba Calder | 12 to 13 | `calder_with` / `calder_coddled` / `calder_refused` |
+  | `lorn_visit` | Dame Orla Lorn | 14 to 15 | `lorn_with`, `lorn_heard` / `lorn_with`, `stubs_known` / `lorn_dismissed` |
+  | `tithe_letters` | Odile | 16 | `banners_hung` and the world change `castle.hall.banners.houses` / `holds_alone` |
+  | `varn_ride` | Hild Varn | 18, needs `varn_with` | `vow_aldric` / `hild_stays` / `hild_rode` |
+
+  Only `oxmoor_gift`'s signature moves a number (30 gold now, the debt remembered). Every other choice leaves one
+  remembered line (15 new flags in `Remembered.flags`, each with its `remember.<flag>` text), so the trace test
+  holds. `oxmoor_with`, `lorn_with` and `brine_with` (set beside `coast_promise` in `envoy_tide`) only record which
+  houses stand with House Lantern. `vow_aldric`'s remembered line is neutral ("Your word is given: Aldric comes
+  home."), since Hild's first choice and `last_stand` both set it. An unheard house petition sets nothing and locks
+  nothing. The world change is registered and not drawn yet.
+- The six come on top of the day's petitioners (`"onTop": true`, `Petition.onTop`): a day draws its two to four as
+  before and the house's audience is one more, heard among the story petitions. Reason: counted against the day's
+  number they took the place of about five random petitioners in a chapter, and round `lh-sp-2` measured what that
+  did to the tuned chapter (T6 without the beacon held 3 of 20 for a band of 30 to 60 %, night 20's step check off).
+  On top, with Odile's counsel setting flags only, the reference bot's chapter is the tuned one again
+  (`testAStoryPetitionOnTopLeavesTheOthersAsDrawn`, `testTheHousesAudiencesComeOnTopAndTheirCounselMovesNothing`).
+- The four faces (`Speakers.guests`): Hild Varn, Lorenz Pell, Ebba Calder and Dame Orla Lorn are guests with a name
+  and a role line, an archetype body (`guardsman`, `petitionerE`, `petitionerD`, `citizen`) and a composed portrait
+  with one option per part, so each has one face in every realm. They stand in the hall while their petition waits
+  and can be spoken to on those days. Their own sprites, the houses' sashes and the banners are the art lane's.
+- Fourteen court lines (`lines.json`): `brannock_pole`, `bram_lanterns`, `hesper_west`, `tamsin_mother`,
+  `seren_kitchen` (needs `stranger_in`), `calder_statues`, `bard_returned`, `pip_pages` (an answer to `stubs_known`),
+  `odile_door`, `envoy_lanterns`, `orla_cleft`, `marek_letters`, `hild_father`, `tamsin_place` (day 19).
+- 9.4: the new counsel choices move no gold, no people and no night and roll no chance; no gift comes late on the
+  counsel path; every petition has a choice that costs nothing.
+
+**Left open, outside this pass.** The SF Symbol `crown.fill` on the audience card and the HUD's action button; the
+giant in `hesper_giant` and its lines, and `wedding_feast`, against STORY.md's rule 12; internal names with "king"
+(`scarecrow_king`, sprite ids, `Core/KingTargets.swift`); "Tanz" in the German `watch_feast`; the later petitions
+`quay_lanterns`, `pell_returns`, `hemmet_sentence`, `finch_list`; what STORY.md 9.2 leaves to the lead in this file
+(the chapter's title, the premise, the prologue, the endings' names, chapters 2 and 3).
+
+**Rounds.**
+
+- `lh-sp-1` on 59652fe (the lord pass; build, unit, ui, ui-de): the build, the name entry, the seated lord and the
+  benches held. Two failures waited for the texts: `testTheStoryTextsTakeTheLord` (unit) and the typed name on day
+  1's card (ui, `LordUITests`).
+- `lh-sp-2` on b6b3773 (all texts, the houses counted against the day's number): build, ui and ui-de passed, the
+  validator reports nothing. Unit failed twice in the tuning: T6 without the beacon held 3 of 20, and night 20's
+  headless step check was off for seed 2. Fixed by `onTop`, no number of the balance touched.
+- `lh-sp-3` on 11a9729: ALL PASSED (build, unit with 351 tests, ui, ui-de). T1 to T8 and the reference bot's nights
+  are line for line what `lh-sp-1` measured before any text changed; the one line that differs is the Court's: the
+  bot heard 1188 petitioners (1068 and the six houses in each of 20 runs). Screenshots 70 to 77 in English and
+  German: the name entry, the Burgherrin in the hall and on the throne, day 1's rewritten petition with her name in
+  Odile's counsel, the Burgherr seated before Brannock.
 
 ## Risks
 
