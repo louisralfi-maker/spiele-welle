@@ -23,10 +23,14 @@ final class LookGoldenTests: XCTestCase {
     ]
 
     /// The recorded hashes (FNV-1a 64 over the picture's bytes, rows top to bottom).
+    ///
+    /// Round 2 joined (10.11.2026): both looks draw from one atlas, and the newer art (ART-look2.md section 18)
+    /// repainted sprites that look 1 shows too: the palisade, the stone wall, the torch post, the brazier, the
+    /// ballista, the gates, the towers, the bastion, the cleft's face. The three town scenes draw none of them and
+    /// keep the hashes of round lh-l2-0d, which is the proof that the join left look 1's drawing alone. The front,
+    /// the castle and the court show the repainted sprites; their hashes are taken again from the join's first
+    /// round (lh-j2-1), which printed them, and hold from there on.
     static let golden: [String: String] = [
-        "front-night": "acd2fe8d679560b2",
-        "castle-night": "e002808da9004a19",
-        "court-dusk": "c4479f099980a9e2",
         "square-morning": "c0ba9a8be11ba03e",
         "town-noon": "e0e4b0352af35485",
         "river-golden": "c0f21df86bbe85b6",
