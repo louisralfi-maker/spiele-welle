@@ -14,7 +14,7 @@ HEAD, BODY = K.HEAD, K.BODY
 
 STORY = ["portraitOdile", "portraitBrannock", "portraitPip", "portraitHesper", "portraitTamsin", "portraitBram",
          "portraitMarek", "portraitSeren", "portraitSerLudo", "portraitBard", "portraitEnvoy", "portraitHerald",
-         "portraitKing"]
+         "portraitKing", "portraitLady"]
 STORY_FRAMES = {"portraitSeren": 2}
 
 # skin ramps (deep to light) from the court sprites' colours
@@ -1116,64 +1116,98 @@ def herald():
     return pic
 
 
-@builder("portraitKing")
-def king():
-    """The lamplighter king (the prologue and the endings): an old, kind face with a white beard, soft eyes and a
-    gentle smile under a gold crown a size too big with a teal stone; the realm's teal cloak with a gold clasp over a
-    red-brown tunic."""
-    P = K.face_params("round")
-    cc, cr = P["cran_c"], P["cran_r"]
+def _lord_body(q):
+    x, y, z = q
+    d = K.bust(q, -0.4)
+    m = "cloak"
+    if z > 3.0 and abs(x - 1.0) < 5.4 and y > -13.0:
+        m = "tunic"
+    clasp = sd_sphere(q, (-4.6, -11.6, 6.8), 1.4)
+    if clasp < d + 0.3:
+        d, m = min(d, clasp), "goldc"
+    return d, m
 
-    def crown_m(q):
-        x, y, z = q
-        f = Frame((0, 0, 0), roll=-6.0).to_local((x, y, z))
-        ring = smax(abs(math.hypot(f[0] + 0.4, f[2] + 1.0) - 11.4) - 0.9, abs(f[1] + 8.6) - 2.0, 0.3)
-        d = ring
-        for ang in (-0.6, 0.15, 0.9):
-            c = (11.4 * math.sin(ang) - 0.4, -11.2, 11.4 * math.cos(ang) - 1.0)
-            d = smin(d, sd_capsule(f, c, (c[0], c[1] - 3.0, c[2]), 1.3, 0.5), 0.5)
-        m = "crown"
-        gem = sd_sphere(f, (11.2 * math.sin(0.15) - 0.4, -8.6, 11.4 * math.cos(0.15) - 0.6), 1.3)
-        if gem < d + 0.2:
-            d, m = min(d, gem), "gem"
-        return d, m
 
-    def hair_m(q):
-        return smax(sd_ellipsoid(q, cc, (cr[0] + 1.2, cr[1] + 1.2, cr[2] + 1.2)),
-                    K.hairline(q, front=-5.0, temple=3.0, nape=6.4, burn=2.6, jag=0.6), 0.4), "hair"
+def _circlet(q):
+    """The narrow gold circlet of House Lantern, a size too big: it has slipped to the brow and stands off behind."""
+    f = Frame((0, 0, 0), roll=-9.0).to_local(q)
+    return smax(abs(math.hypot(f[0] + 0.4, f[2] + 1.6) - 11.9) - 0.75, abs(f[1] + 6.3) - 0.95, 0.3), "crown"
 
-    def body_m(q):
-        x, y, z = q
-        d = K.bust(q, 0.2)
-        m = "cloak"
-        if z > 3.0 and abs(x - 1.0) < 5.4 and y > -13.0:
-            m = "tunic"
-        clasp = sd_sphere(q, (-4.6, -11.6, 6.8), 1.4)
-        if clasp < d + 0.3:
-            d, m = min(d, clasp), "goldc"
-        return d, m
 
-    beard = beard_shape(P, t=1.7, lift=0.0, jag=0.8)
-
-    def beard_long(q):
-        d = beard(q)
-        d = smin(d, sd_ellipsoid(q, (0.4, 13.0, 5.8), (4.6, 7.0, 3.4)), 2.0)
-        return d
-
-    parts = [localm(HEAD, hair_m), local(HEAD, beard_long, "beard"), localm(HEAD, crown_m), localm(BODY, body_m)]
+def _lord_mats(hair, th):
     mats = dict(skin_mats(SKIN_ROSY))
     mats.update({
-        "hair": Mat(WHITE, th=[0.3, 0.66], tex=K.strands((-2.0, -11.0, -4.0), n=10, amp=0.12)),
-        "beard": Mat(["stone", "stoneLight", "stonePale", "foam"], th=[0.2, 0.46, 0.8],
-                     tex=lambda x, y, c, v: v + 0.16 * (hash01(x, y, 2) - 0.5)),
+        "hair": Mat(hair, th=th, tex=K.strands((-2.0, -11.0, -4.0), n=13, amp=0.34)),
         "crown": Mat(GOLD, th=[0.2, 0.45, 0.8]),
-        "gem": Mat(["roofDeep", "banner", "roofLight"], th=[0.3, 0.62]),
         "cloak": Mat(TEAL, th=[0.2, 0.5, 0.9], tex=K.folds(0.08)),
         "tunic": Mat(RED, th=[0.3, 0.64]),
         "goldc": Mat(GOLD, th=[0.2, 0.45, 0.8]),
     })
-    L = legend_for(SKIN_ROSY, WHITE)
+    return mats
+
+
+@builder("portraitKing")
+def king():
+    """The Burgherr (STORY.md; look 2's art pass): the lamplighter of about nineteen who became lord. A young,
+    beardless face, tousled brown hair with a cowlick, the narrow gold circlet a size too big low on his brow; the
+    realm's teal cloak with a gold clasp over the red-brown tunic."""
+    P = K.face_params("young")
+    cc, cr = P["cran_c"], P["cran_r"]
+
+    def hair_m(q):
+        x, y, z = q
+        bump = math.sin(1.15 * x + 0.3) * math.sin(1.05 * y + 1.0) * math.sin(1.2 * z + 0.6)
+        d = smax(sd_ellipsoid(q, cc, (cr[0] + 1.6, cr[1] + 1.8, cr[2] + 1.6)) - 1.5 * bump,
+                 K.hairline(q, front=-4.8, temple=3.6, nape=8.2, burn=2.4, jag=1.6), 0.4)
+        d = smin(d, sd_capsule(q, (1.0, cc[1] - cr[1] - 0.6, -1.0), (3.4, cc[1] - cr[1] - 3.4, 0.6), 1.3, 0.5), 0.8)
+        return d, "hair"
+
+    parts = [localm(HEAD, hair_m), localm(HEAD, _circlet), localm(BODY, _lord_body)]
+    L = legend_for(SKIN_ROSY, LEATHER)
     a = K.anchors(P)
-    st = eye_stamps(P, L, eyes="lidded", brows="soft", mouth=None, a=a)
+    st = eye_stamps(P, L, eyes="open", brows="level", mouth="neutral", a=a)
     st.append(ear_stamp(P, L))
-    return std_portrait(P, parts, mats, st, SKIN_ROSY)
+    return std_portrait(P, parts, _lord_mats(LEATHER, [0.5, 0.84]), st, SKIN_ROSY)
+
+
+DARKHAIR = ["night0", "soilDark", "soil", "soilLight"]
+
+
+@builder("portraitLady")
+def lady():
+    """The Burgherrin (STORY.md; a proposal of look 2's art pass): the same lamplighter of about nineteen, a young
+    woman. Dark hair drawn back into a long plait that falls over her shoulder with a gold tie, the same circlet,
+    cloak, clasp and tunic."""
+    P = K.face_params("young")
+    P.update(cheek=(5.4, 1.8, 6.2, 2.9), nose_r=(0.7, 1.05), neck_r=4.5)
+    cc, cr = P["cran_c"], P["cran_r"]
+
+    def hair_m(q):
+        d = smax(sd_ellipsoid(q, cc, (cr[0] + 1.3, cr[1] + 1.5, cr[2] + 1.5)),
+                 K.hairline(q, front=-6.0, temple=2.6, nape=6.6, burn=1.0, jag=0.3), 0.4)
+        d = smin(d, sd_ellipsoid(q, (-2.0, 1.0, -10.6), (3.6, 4.2, 3.2)), 1.6)   # gathered at the nape
+        return d, "hair"
+
+    PLAIT = [(-9.6, -13.6, -1.0), (-11.6, -9.0, 4.6), (-11.4, -3.6, 8.2), (-10.2, 2.0, 9.6), (-9.2, 7.0, 9.8)]
+
+    def plait_m(q):
+        d, m = 1e9, "hair"
+        for i, (a, b) in enumerate(zip(PLAIT, PLAIT[1:])):
+            for k in range(3):
+                t = k / 3.0
+                c = tuple(a[j] + (b[j] - a[j]) * t for j in range(3))
+                d = min(d, sd_sphere(q, c, 2.2 - 0.1 * i))
+        tie = sd_sphere(q, PLAIT[-1], 1.9)
+        if tie < d:
+            d, m = tie, "crown"
+        tail = sd_ellipsoid(q, (PLAIT[-1][0] + 0.4, PLAIT[-1][1] + 3.0, PLAIT[-1][2]), (1.5, 2.4, 1.4))
+        if tail < d:
+            d, m = tail, "hair"
+        return d, m
+
+    parts = [localm(HEAD, hair_m), localm(HEAD, _circlet), localm(BODY, _lord_body), localm(BODY, plait_m)]
+    L = legend_for(SKIN_ROSY, DARKHAIR)
+    a = K.anchors(P)
+    st = eye_stamps(P, L, eyes="open", brows="soft", mouth="neutral", a=a)
+    st.append(ear_stamp(P, L))
+    return std_portrait(P, parts, _lord_mats(DARKHAIR, [0.3, 0.6, 0.86]), st, SKIN_ROSY)

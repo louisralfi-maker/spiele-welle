@@ -1,3 +1,5 @@
+import Foundation
+
 /// Builds the immutable `FrameDesc` of one frame from the scene, the clock and the camera (DESIGN.md "Tech plan",
 /// docs/research-rendering.md 5.3). Pure: no state, no time source, the same inputs give an equal frame. Everything off
 /// screen is culled, so the instance and light counts stay inside the budget wherever the camera stands.
@@ -29,6 +31,24 @@ enum FrameBuilder {
     static let sunShadowMax: Float = 0.55
     static let mistMax: Float = 0.9
 
+    // Look 2 (DESIGN.md "Look 2 port", tools/scenemock/mock.py's LOOK2): painted fog banks instead of the stretched
+    // strip, each at its own height, denser than look 1's (× `look2FogScale`; the band between the mid and near
+    // planes at the ramp's own density) and thinner by region in the shader; window glass a step brighter; the
+    // castle's ground mist at a third (the banks do most); chimney smoke over the town's cottages.
+    static let look2FogScale: Float = 1.2
+    static let look2MistBandShare: Float = 1.0
+    static let look2FogYA = -4.0
+    static let look2FogYB = -14.0
+    static let look2MistBandY = -2.0
+    /// The mist band drifts slower than the banks (game px/s).
+    static let look2MistBandDrift = 1.5
+    static let look2GlassGain: Float = 1.3
+    static let look2CastleMist: Float = 0.35
+    static let look2SmokeTint = SIMD4<Float>(0.74, 0.74, 0.76, 0.55)
+    /// The smoke's bottom row above the ground line, and the chimney's x in the house's sprite (plain, mirrored).
+    static let look2SmokeY = 45.0
+    static let look2ChimneyX = (plain: 49.0, flipped: 14.0)
+
     /// Geometry shared by every part of one frame.
     private struct Geometry {
         let scale: Int
@@ -40,6 +60,8 @@ enum FrameBuilder {
         let offsets: [PlaneOffset]
         /// The camera's focus (the screen centre) in world game pixels.
         let focusX: Double
+        /// Look 2's weather at this moment (`WeatherSample.clear` in look 1).
+        let weather: WeatherSample
 
         func whole(_ plane: Plane) -> Double { Double(offsets[plane.rawValue].whole) }
 
@@ -78,7 +100,7 @@ enum FrameBuilder {
 
         /// A sprite drawn now on `plane` hides the glow under its opaque pixels.
         mutating func occlude(_ sprite: SpriteInstance, plane: Plane) {
-            guard plane == .mid || plane == .world || plane == .foreground else { return }
+            guard plane == .mid || plane == .near || plane == .world || plane == .foreground else { return }
             let r = sprite.rect
             let covers = glowRects.contains { g in
                 g.x < r.x + r.z && r.x < g.x + g.z && g.y < r.y + r.w && r.y < g.y + g.w
@@ -97,6 +119,8 @@ enum FrameBuilder {
                       options: FrameOptions, entities: EntityLayer? = nil) -> FrameDesc {
         let scale = pixelScale.scale
         let targetHeight = pixelScale.targetHeight
+        // The weather belongs to look 2 and to the picture alone: nothing of the simulation reads it.
+        let weather = options.look == .two ? options.weather : WeatherSample.clear
         let geometry = Geometry(scale: scale,
                                 targetWidth: pixelScale.targetWidth,
                                 targetHeight: targetHeight,
@@ -105,10 +129,13 @@ enum FrameBuilder {
                                                                     scale: scale),
                                 physicalWidth: pixelScale.physicalWidth,
                                 offsets: camera.offsets(scale: scale),
-                                focusX: camera.focusX)
+                                focusX: camera.focusX,
+                                weather: weather)
         let hour = clock.hour
-        let ambient = AmbientRamp.sample(at: hour)
+        let ambient = Weather.apply(weather, to: AmbientRamp.sample(at: hour, look: options.look))
         let animTime = options.flickerTime ?? clock.elapsed
+        let sources = entities?.lights ?? scene.sceneLights()
+        let rains = options.look == .two && weather.rain > 0 && !options.reduceMotion
         let bankEdgeX = scene.bankEdge(hour: hour)
 
         var planeSprites: [[SpriteInstance]] = Array(repeating: [], count: Plane.allCases.count)
@@ -121,7 +148,8 @@ enum FrameBuilder {
         var next = 0
         for plane in Plane.allCases {
             if plane == .world {
-                for tile in groundTiles(geometry: geometry) {
+                let tiles = options.look == .two ? laneTiles(geometry: geometry) : groundTiles(geometry: geometry)
+                for tile in tiles {
                     glow.occlude(tile, plane: .world)
                     planeSprites[plane.rawValue].append(tile)
                 }
@@ -131,7 +159,23 @@ enum FrameBuilder {
                         geometry: geometry, sprites: &planeSprites, glow: &glow)
                 next += 1
             }
+            if rains && plane == .near {
+                planeSprites[plane.rawValue] += rainStreaks(depth: 0, animTime: animTime, geometry: geometry)
+            }
+            if rains && plane == .foreground {
+                planeSprites[plane.rawValue] += rainStreaks(depth: 2, animTime: animTime, geometry: geometry)
+            }
             if plane == .world {
+                if options.look == .two {
+                    planeSprites[plane.rawValue] += smoke(props: ordered, animTime: animTime,
+                                                          reduceMotion: options.reduceMotion, geometry: geometry)
+                    planeSprites[plane.rawValue] += steam(sources: sources, geometry: geometry)
+                }
+                if rains {
+                    // Under the bank's tiles: the dark hides the rain that falls into it.
+                    planeSprites[plane.rawValue] += rainSplashes(animTime: animTime, geometry: geometry)
+                    planeSprites[plane.rawValue] += rainStreaks(depth: 1, animTime: animTime, geometry: geometry)
+                }
                 for item in entities?.emissives(worldWhole: geometry.whole(.world), groundRow: geometry.groundRow,
                                                 targetWidth: geometry.targetWidth) ?? [] {
                     glow.add(item)
@@ -140,21 +184,35 @@ enum FrameBuilder {
                     glow.occlude(tile, plane: .world)
                     planeSprites[plane.rawValue].append(tile)
                 }
+                if options.look == .two {
+                    for item in bankGlow(edgeX: bankEdgeX, geometry: geometry, animTime: animTime,
+                                         reduceMotion: options.reduceMotion) {
+                        glow.add(item)
+                    }
+                    for item in fireflies(hour: hour, animTime: animTime, reduceMotion: options.reduceMotion,
+                                          geometry: geometry) {
+                        glow.add(item)
+                    }
+                }
             }
         }
         let emissives = skyEmissives(ambient: ambient, hour: hour, geometry: geometry) + glow.items
 
         var fog: [FogLayer] = []
         if options.effects.fog {
-            let layers = fogLayers(ambient: ambient, animTime: animTime, reduceMotion: options.reduceMotion)
+            // The wind carries the fog and the mist (`WeatherSample.travel`, 0 in clear air).
+            let layers = fogLayers(ambient: ambient, animTime: animTime + weather.travel,
+                                   reduceMotion: options.reduceMotion,
+                                   look: options.look)
             for layer in layers {
-                let tiles = fogTiles(layer: layer, geometry: geometry)
+                let tiles = options.look == .two ? fogBankTiles(layer: layer, geometry: geometry)
+                                                 : fogTiles(layer: layer, geometry: geometry)
                 planeSprites[layer.plane.rawValue].append(contentsOf: tiles)
             }
             fog = layers
         }
 
-        let lights = frameLights(sources: entities?.lights ?? scene.sceneLights(), ambient: ambient,
+        let lights = frameLights(sources: sources, ambient: ambient,
                                  bankEdgeX: bankEdgeX, animTime: animTime, options: options, geometry: geometry)
         let actors = entities?.actors ?? actorInstances(scene: scene, field: scene.battleField(hour: hour),
                                                         ambient: ambient, animTime: animTime, camera: camera,
@@ -170,7 +228,7 @@ enum FrameBuilder {
         let kingScreenX = camera.kingScreenX(kingX: scene.king.x, scale: scale, mode: options.actorMode)
         let bankEdge = Float(bankEdgeX - geometry.whole(.world))
 
-        return FrameDesc(scale: scale,
+        var desc = FrameDesc(scale: scale,
                          physicalWidth: pixelScale.physicalWidth,
                          physicalHeight: pixelScale.physicalHeight,
                          targetWidth: pixelScale.targetWidth,
@@ -198,6 +256,13 @@ enum FrameBuilder {
                          bloom: options.effects.bloom,
                          debugLights: options.debugLights,
                          counts: counts)
+        desc.look = options.look
+        if options.look == .two {
+            desc.rooms = rooms(props: ordered, geometry: geometry)
+            desc.rain = Float(weather.rain)
+            desc.wetness = Float(weather.wetness)
+        }
+        return desc
     }
 
     // MARK: - Sky
@@ -207,6 +272,8 @@ enum FrameBuilder {
         var list: [EmissiveInstance] = []
         let width = geometry.targetWidth
         let ground = geometry.groundRow
+        // Clouds veil the moon and the sun (look 2's weather; 1 in clear air).
+        let veil = Float(1 - 0.8 * geometry.weather.cover)
 
         if ambient.starAlpha > 0.01 {
             let tile = SpriteID.starField.size
@@ -228,7 +295,7 @@ enum FrameBuilder {
             let lift = Int((Double(ambient.moonHeight) * 90).rounded())
             let top = max(2, ground - 70 - lift)
             let left = Int(centre.rounded()) - size.width / 2
-            let alpha = min(1, max(0, ambient.moonHeight * 3 + 0.3))
+            let alpha = min(1, max(0, ambient.moonHeight * 3 + 0.3)) * veil
             let moon = GamePalette.moon
             let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
             let color = SIMD4<Float>(moon.x, moon.y, moon.z, alpha)
@@ -242,7 +309,7 @@ enum FrameBuilder {
             let lift = Int((Double(ambient.sunHeight) * 110).rounded())
             let top = max(2, ground - 40 - lift)
             let left = Int(centre.rounded()) - size.width / 2
-            let alpha = min(1, max(0, ambient.sunHeight * 5 + 0.5))
+            let alpha = min(1, max(0, ambient.sunHeight * 5 + 0.5)) * veil
             let warm = min(1, max(0, ambient.sunHeight * 2 + 0.3))
             let low = GamePalette.ember
             let high = GamePalette.fireWhite
@@ -273,6 +340,73 @@ enum FrameBuilder {
             let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
             list.append(SpriteInstance(sprite: groundTile(index), frame: 0, rect: rect,
                                        tint: SIMD4<Float>(1, 1, 1, 1), flipped: false))
+        }
+        return list
+    }
+
+    /// Look 2: the lane's tiles under the ground line (`SceneLayout.look2LaneTile`), up to the river bank.
+    private static func laneTiles(geometry: Geometry) -> [SpriteInstance] {
+        let size = SpriteID.laneMoorA.size
+        let tile = Double(size.width)
+        let whole = geometry.whole(.world)
+        let first = Int((whole / tile).rounded(.down))
+        let last = Int(((whole + Double(geometry.targetWidth)) / tile).rounded(.down))
+        var list: [SpriteInstance] = []
+        for index in first...max(first, last) {
+            let worldX = Double(index) * tile
+            if worldX < -tile || worldX >= WorldLayout.groundTileEnd { continue }
+            let left = worldX - whole
+            guard geometry.isVisible(left: left, width: tile) else { continue }
+            let top = geometry.top(y: -Double(size.height), height: Double(size.height))
+            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            list.append(SpriteInstance(sprite: SceneLayout.look2LaneTile(index: index), frame: 0, rect: rect,
+                                       tint: SIMD4<Float>(1, 1, 1, 1), flipped: false))
+        }
+        return list
+    }
+
+    /// Look 2: chimney smoke over the town's cottages that stand (`SceneLayout.look2Smoke`), a translucent veil on
+    /// the world plane that hides no glow.
+    /// The wind leans it (`smokeLean`; with Reduce Motion by the steady wind, without the gusts).
+    private static func smoke(props: [Prop], animTime: Double, reduceMotion: Bool,
+                              geometry: Geometry) -> [SpriteInstance] {
+        let weather = geometry.weather
+        let cottages: Set<SpriteID> = [.house, .houseB, .houseC]
+        let size = SpriteID.d2Smoke.size
+        var list: [SpriteInstance] = []
+        for chimney in SceneLayout.look2Smoke {
+            let stands = props.contains {
+                $0.plane == .world && cottages.contains($0.sprite) && abs($0.x - chimney.x) < 0.5
+            }
+            guard stands else { continue }
+            let centre = chimney.x + (chimney.flipped ? look2ChimneyX.flipped : look2ChimneyX.plain)
+            let left = centre - Double(size.width / 2) - geometry.whole(.world)
+            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
+            let top = geometry.top(y: look2SmokeY, height: Double(size.height))
+            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            let column = SpriteInstance(sprite: .d2Smoke, frame: 0, rect: rect, tint: look2SmokeTint,
+                                        flipped: false)
+            let wind = reduceMotion ? weather.mean : Weather.wind(at: chimney.x, weather, time: animTime)
+            list += sheared(column, offset: Int((wind * smokeLean).rounded()), bands: 10, bend: false)
+        }
+        return list
+    }
+
+    /// Look 2: the cut-away rooms on screen (`SceneLayout.look2Interior`), at most two, each as x0, y0, x1, y1 in
+    /// world target pixels (half open). The great hall is no room while its front wall stands before it.
+    private static func rooms(props: [Prop], geometry: Geometry) -> [SIMD4<Float>] {
+        let walled = props.contains { $0.sprite == .hallFront && $0.alpha > 0.5 }
+        var list: [SIMD4<Float>] = []
+        for prop in props where prop.plane == .world && prop.alpha > 0.5 {
+            guard let box = SceneLayout.look2Interior(prop.sprite), list.count < 2 else { continue }
+            if prop.sprite == .hallInterior && walled { continue }
+            let left = prop.x - geometry.whole(.world)
+            guard geometry.isVisible(left: left, width: Double(prop.width)) else { continue }
+            let x0 = prop.flipped ? left + Double(prop.width - box.x1) : left + Double(box.x0)
+            let x1 = prop.flipped ? left + Double(prop.width - box.x0) : left + Double(box.x1)
+            let bottom = Double(geometry.groundRow) - geometry.bottom(of: prop)
+            list.append(SIMD4<Float>(Float(x0), Float(bottom - Double(box.y1)), Float(x1),
+                                     Float(bottom - Double(box.y0))))
         }
         return list
     }
@@ -334,6 +468,33 @@ enum FrameBuilder {
         return list
     }
 
+    /// Look 2 (SPRITES.md, ART-look2.md 11.5): the bank's cold eyes and dim embers, one frame of `darknessBankGlow`
+    /// over each body tile of the bank, drawn as it is: frame (tile index + time × 1.5) mod 4, with Reduce Motion the
+    /// tile index mod 4. The tiles are counted from the bank's edge, as `bankTiles` lays them.
+    private static func bankGlow(edgeX: Double, geometry: Geometry, animTime: Double,
+                         reduceMotion: Bool) -> [EmissiveInstance] {
+        let whole = geometry.whole(.world)
+        let size = SpriteID.darknessBankGlow.size
+        let width = Double(size.width)
+        let frames = SpriteID.darknessBankGlow.frameCount
+        let step = reduceMotion ? 0 : Int((animTime * 1.5).rounded(.down))
+        let top = geometry.top(y: -Double(WorldLayout.groundRowsBelow), height: Double(size.height))
+        var list: [EmissiveInstance] = []
+        var x = edgeX.rounded(.down) - Double(SpriteID.darknessEdge.size.width) - width
+        var index = 0
+        while x > -width {
+            let left = x - whole
+            if geometry.isVisible(left: left, width: width) {
+                let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+                list.append(EmissiveInstance(sprite: .darknessBankGlow, plane: .world, rect: rect,
+                                             color: SIMD4<Float>(1, 1, 1, 1), frame: (index + step) % frames))
+            }
+            x -= width
+            index += 1
+        }
+        return list
+    }
+
     // MARK: - Props
 
     /// The alpha of a baked cast shadow (scene polish 2): the sun's strength (full from a sun height of 0.18, none
@@ -385,12 +546,15 @@ enum FrameBuilder {
         // translucent veils that hide no glow.
         var hidesGlow = true
         if let shadow = prop.sunShadow {
+            // Under cloud the sun casts less of a shadow (look 2's weather; × 1 in clear air).
             let strength = sunShadowAlpha(shadow, ambient: ambient, hour: hour) * alpha * prop.alpha
+                * Float(1 - geometry.weather.cover)
             guard strength > 0.003 else { return }
             tint = SIMD4<Float>(0, 0, 0, strength)
             hidesGlow = false
         } else if let mist = prop.mist {
-            let strength = mistAlpha(mist, ambient: ambient) * alpha * prop.alpha
+            let share: Float = options.look == .two ? look2CastleMist : 1
+            let strength = mistAlpha(mist, ambient: ambient) * alpha * prop.alpha * share
             guard strength > 0.003 else { return }
             tint = SIMD4<Float>(1, 1, 1, strength)
             hidesGlow = false
@@ -400,12 +564,16 @@ enum FrameBuilder {
         if hidesGlow {
             glow.occlude(sprite, plane: prop.plane)
         }
-        sprites[prop.plane.rawValue].append(sprite)
+        // The wind sways a tree's crown and the foreground's plants; the glow's occluder stays the whole sprite.
+        let lean = hidesGlow ? swayLean(prop, animTime: animTime, options: options, geometry: geometry) : 0
+        sprites[prop.plane.rawValue] += sheared(sprite, offset: lean, bands: 6, bend: true)
 
         for part in prop.emissive {
             if part.isFire && !prop.isLit { continue }
+            // Look 2: a fading sprite's glow fades with it (the far castle's pane over the valley).
             if let emissive = emissiveInstance(part: part, prop: prop, left: left, bottom: bottom, ambient: ambient,
-                                               animTime: animTime, options: options, geometry: geometry) {
+                                               animTime: animTime, options: options, geometry: geometry,
+                                               fade: options.look == .two ? alpha : 1) {
                 glow.add(emissive)
             }
         }
@@ -413,7 +581,8 @@ enum FrameBuilder {
         guard torch > 0.01 else { return }
         let haze: Float = prop.plane == .mid && prop.region == .gorge ? gorgeMidGlass : 1
         for mask in prop.masks {
-            let rgb = mask.color * (torch * glassGain * haze)
+            let gain = options.look == .two ? glassGain * look2GlassGain : glassGain
+            let rgb = mask.color * (torch * gain * haze)
             let dx = prop.flipped ? width - mask.dx - Double(mask.width) : mask.dx
             let maskTop = geometry.top(y: bottom + mask.dy, height: Double(mask.height))
             let place = SIMD4<Float>(Float(left + dx), Float(maskTop), Float(mask.width), Float(mask.height))
@@ -428,9 +597,9 @@ enum FrameBuilder {
     /// One emissive part of a prop, or nil while it is dark (a window by day).
     private static func emissiveInstance(part: EmissivePart, prop: Prop, left: Double, bottom: Double,
                                          ambient: AmbientSample, animTime: Double, options: FrameOptions,
-                                         geometry: Geometry) -> EmissiveInstance? {
+                                         geometry: Geometry, fade: Float = 1) -> EmissiveInstance? {
         let size = part.sprite.size
-        var strength = part.intensity
+        var strength = part.intensity * fade
         if part.fadesByDay {
             strength *= ambient.torchStrength
         }
@@ -448,14 +617,75 @@ enum FrameBuilder {
         return EmissiveInstance(sprite: part.sprite, plane: prop.plane, rect: rect, color: color)
     }
 
+    // MARK: - Fireflies
+
+    /// Where the valley's fireflies stand (docs/PORT-look2.md 2.6, ART-look2.md 13.8): the left edge of each patch
+    /// of `d2Fireflies` in world pixels and its rows above the lane. The mock's two and two more toward the river.
+    static let fireflyPatches: [(x: Double, y: Double)] = [(2610, 8), (2870, 6), (3110, 6), (3390, 9)]
+    /// The hours they fly: in from 18:30, out by 21:00, half an hour each way.
+    static let fireflyHours = 18.5...21.0
+
+    /// How brightly the fireflies glow (0: none): at dusk only, none in the rain, none in a wind above 0.6.
+    static func fireflyStrength(hour: Double, weather: WeatherSample) -> Double {
+        guard fireflyHours.contains(hour) else { return 0 }
+        let rise = min(1, (hour - fireflyHours.lowerBound) / 0.5)
+        let fall = min(1, (fireflyHours.upperBound - hour) / 0.5)
+        let dry = 1 - min(1, weather.rain * 4)
+        let calm = 1 - min(1, max(0, (abs(weather.mean) - 0.45) / 0.15))
+        return max(0, min(rise, fall) * dry * calm)
+    }
+
+    /// The fireflies as glow: each patch twice, the second mirrored and a few pixels off, the two blinking against
+    /// each other, both drifting on a slow figure of eight in whole pixels. With Reduce Motion they stand and only
+    /// breathe. A pure function of the hour, the time and the weather; no light quads (the cap is for fires).
+    private static func fireflies(hour: Double, animTime: Double, reduceMotion: Bool,
+                                  geometry: Geometry) -> [EmissiveInstance] {
+        let strength = fireflyStrength(hour: hour, weather: geometry.weather)
+        guard strength > 0.01 else { return [] }
+        let size = SpriteID.d2Fireflies.size
+        let width = Double(size.width)
+        let whole = geometry.whole(.world)
+        var list: [EmissiveInstance] = []
+        for (index, patch) in fireflyPatches.enumerated() {
+            for copy in 0..<2 {
+                let phase = Double(index) * 1.7 + Double(copy) * Double.pi
+                let dx = reduceMotion ? 0 : (sin(animTime * 0.23 + phase) * 5).rounded()
+                let dy = reduceMotion ? 0 : (sin(animTime * 0.46 + phase * 2) * 2).rounded()
+                let blink = 0.6 + 0.4 * sin(animTime * (reduceMotion ? 0.8 : 2.4) + phase)
+                let left = patch.x + Double(copy) * 23 + dx - whole
+                guard geometry.isVisible(left: left, width: width) else { continue }
+                let top = geometry.top(y: patch.y + Double(copy) * 4 + dy, height: Double(size.height))
+                let rgb = GamePalette.fireGold * Float(strength * blink)
+                let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+                list.append(EmissiveInstance(sprite: .d2Fireflies, plane: .world, rect: rect,
+                                             color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1), flipped: copy == 1))
+            }
+        }
+        return list
+    }
+
     // MARK: - Fog
 
     /// The two fog planes at this hour (density from the ramp × `fogScale`; fog B thinner). The light lab uses them
     /// too.
-    static func fogLayers(ambient: AmbientSample, animTime: Double, reduceMotion: Bool) -> [FogLayer] {
+    /// Look 2 has three: the bank behind the play plane, the low mist over the lane and the mist band between the mid
+    /// and near planes (`fogBankTiles`).
+    static func fogLayers(ambient: AmbientSample, animTime: Double, reduceMotion: Bool,
+                          look: LookVersion = .one) -> [FogLayer] {
         let slow = reduceMotion ? Flicker.reducedRateScale : 1.0
         let driftA = Float(animTime * fogDriftA * slow)
         let driftB = Float(animTime * fogDriftB * slow)
+        if look == .two {
+            let density = ambient.fogDensity
+            return [
+                FogLayer(plane: .fogA, color: ambient.fogColor, density: density * 0.9 * look2FogScale,
+                         lightShare: 0.6, drift: driftA),
+                FogLayer(plane: .fogB, color: ambient.fogColor, density: density * 0.6 * look2FogScale,
+                         lightShare: 0.8, drift: driftB),
+                FogLayer(plane: .mistBand, color: ambient.fogColor, density: density * look2MistBandShare,
+                         lightShare: 0.6, drift: Float(animTime * look2MistBandDrift * slow)),
+            ]
+        }
         let back = FogLayer(plane: .fogA, color: ambient.fogColor, density: ambient.fogDensity * 0.9 * fogScale,
                             lightShare: 0.6, drift: driftA)
         let front = FogLayer(plane: .fogB, color: ambient.fogColor, density: ambient.fogDensity * 0.6 * fogScale,
@@ -485,6 +715,201 @@ enum FrameBuilder {
         return list
     }
 
+    /// Look 2: one painted bank across the visible part of its plane (`d2FogBank` behind the play plane, `d2FogLow`
+    /// over the lane, `d2MistBand` between the mid and near planes), seamless and never mirrored, moved by the drift
+    /// in whole game pixels. The tint is the fog's colour at the layer's density; the shader thins it by region.
+    private static func fogBankTiles(layer: FogLayer, geometry: Geometry) -> [SpriteInstance] {
+        let sprite: SpriteID
+        let baseY: Double
+        switch layer.plane {
+        case .fogA: (sprite, baseY) = (.d2FogBank, look2FogYA)
+        case .fogB: (sprite, baseY) = (.d2FogLow, look2FogYB)
+        default: (sprite, baseY) = (.d2MistBand, look2MistBandY)
+        }
+        let size = sprite.size
+        let tile = Double(size.width)
+        let whole = geometry.whole(layer.plane)
+        let drift = Double(layer.drift).rounded(.down).truncatingRemainder(dividingBy: tile)
+        let top = geometry.top(y: baseY, height: Double(size.height))
+        let tint = SIMD4<Float>(layer.color.x, layer.color.y, layer.color.z, min(1, layer.density))
+        let first = Int(((whole + drift) / tile).rounded(.down)) - 1
+        let count = geometry.targetWidth / size.width + 3
+        var list: [SpriteInstance] = []
+        for index in first..<(first + count) {
+            let left = Double(index) * tile - drift - whole
+            guard geometry.isVisible(left: left, width: tile) else { continue }
+            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            list.append(SpriteInstance(sprite: sprite, frame: 0, rect: rect, tint: tint, flipped: false))
+        }
+        return list
+    }
+
+    // MARK: - Weather (look 2)
+
+    /// Sprites the wind sways: the trees and the foreground's plants.
+    private static let swaying: Set<SpriteID> = [.firA, .firB, .firC, .firD, .deadTreeA, .deadTreeB, .linden, .poplar,
+                                                 .appleTree, .willow, .d2FgFerns, .d2FgMeadow, .d2FgReeds]
+
+    /// The rain's three depths (docs/PORT-look2.md 3.4): the plane, how fast it falls (game px/s), how many at full
+    /// rain and its alpha (under 0.5, so no streak is a ledge that catches the sky).
+    static let rainDepths: [(plane: Plane, speed: Double, count: Int, alpha: Float)] = [
+        (.near, 150, 110, 0.30), (.world, 220, 70, 0.40), (.foreground, 320, 28, 0.45),
+    ]
+    /// A streak's sideways run per row fallen, by slant (as `PlaceholderWeather.streakRuns` paints them).
+    static let rainSlopes = [0.0, 0.27, 0.47]
+    /// The slant of the rain: still air, wind, strong wind (by the steady wind, so gusts do not make it jump).
+    static func rainSlant(_ weather: WeatherSample) -> Int {
+        let force = abs(weather.mean)
+        return force < 0.2 ? 0 : (force < 0.6 ? 1 : 2)
+    }
+    /// How many of `full` fall in a rain of this strength: by its root, so a light rain (0.4) is still rain on a
+    /// phone (round lh-l2-3a: at 0.6 a count in proportion read as a few stray streaks).
+    static func rainCount(_ full: Int, rain: Double) -> Int {
+        Int((Double(full) * max(0, min(1, rain)).squareRoot()).rounded())
+    }
+    /// Splashes on the lane at full rain, and a splash's seconds.
+    static let rainSplashCount = 24
+    static let rainSplashTime = 0.3
+    /// The steam over a fire in the rain: the lower rows of `d2Smoke`, its alpha at full rain.
+    static let steamRows = 28
+    static let steamAlpha: Float = 0.3
+    /// The smoke's top leans this many pixels in a wind of 1.
+    static let smokeLean = 12.0
+
+    private static func unit(_ hash: UInt64) -> Double {
+        Double(hash >> 11) * 0x1.0p-53
+    }
+
+    /// How far the wind pushes a prop's top (whole pixels): only the trees and plants of the near, world and
+    /// foreground planes, never with Reduce Motion.
+    private static func swayLean(_ prop: Prop, animTime: Double, options: FrameOptions, geometry: Geometry) -> Int {
+        let weather = geometry.weather
+        guard weather != .clear, !options.reduceMotion, swaying.contains(prop.sprite),
+              prop.plane == .near || prop.plane == .world || prop.plane == .foreground else { return 0 }
+        return Weather.swayOffset(x: prop.x, weather, time: animTime)
+    }
+
+    /// `sprite` as `bands` bands of rows, the top one shifted by `offset` pixels, the bottom one not at all, the ones
+    /// between in a line (or, bent, by the square: a trunk stands and a crown moves). Bands with the same shift are
+    /// one quad. A sprite that is not drawn whole stays as it is.
+    static func sheared(_ sprite: SpriteInstance, offset: Int, bands: Int, bend: Bool) -> [SpriteInstance] {
+        let size = sprite.sprite.size
+        let rows = size.height
+        guard offset != 0, bands > 1, rows >= bands, sprite.source == nil, Int(sprite.rect.z) == size.width,
+              Int(sprite.rect.w) == rows else { return [sprite] }
+        var list: [SpriteInstance] = []
+        var start = 0
+        var shift = offset
+        for band in 1...bands {
+            var next = 0
+            if band < bands {
+                let share = 1 - Double(band) / Double(bands - 1)
+                next = Int((Double(offset) * (bend ? share * share : share)).rounded())
+                if next == shift { continue }
+            }
+            let end = rows * band / bands
+            var part = sprite
+            part.rect = SIMD4<Float>(sprite.rect.x + Float(shift), sprite.rect.y + Float(start), sprite.rect.z,
+                                     Float(end - start))
+            part.source = SIMD4<Float>(0, Float(start), sprite.rect.z, Float(end - start))
+            list.append(part)
+            start = end
+            shift = next
+        }
+        return list
+    }
+
+    /// The rain's streaks on one depth's plane: each a pure function of its index and the time. It falls from above
+    /// the screen to the plane's floor (the ground behind the near trees, the lane, the screen's bottom edge), then
+    /// starts again in another column; the columns belong to the plane's picture, so the rain stays in the world
+    /// when the camera moves.
+    private static func rainStreaks(depth: Int, animTime: Double, geometry: Geometry) -> [SpriteInstance] {
+        let weather = geometry.weather
+        let entry = rainDepths[depth]
+        let count = rainCount(entry.count, rain: weather.rain)
+        guard count > 0 else { return [] }
+        let size = SpriteID.rainStreak.size
+        let slant = rainSlant(weather)
+        let slope = rainSlopes[slant] * (weather.mean < 0 ? -1 : 1)
+        let lowest: Double
+        switch entry.plane {
+        case .foreground: lowest = Double(geometry.targetHeight)
+        case .world: lowest = Double(geometry.groundRow + 3)
+        default: lowest = Double(geometry.groundRow - 8)
+        }
+        let fall = lowest + Double(size.height)
+        let reach = abs(slope) * fall
+        let span = Double(geometry.targetWidth) + reach
+        let whole = geometry.whole(entry.plane)
+        let tint = SIMD4<Float>(1, 1, 1, entry.alpha)
+        let key = SeededRandom.hash(weather.gustSeed, Int64(depth + 1))
+        var list: [SpriteInstance] = []
+        for index in 0..<count {
+            let progress = animTime * entry.speed / fall + unit(SeededRandom.hash(key, Int64(index)))
+            let cycle = progress.rounded(.down)
+            let y = (progress - cycle) * fall - Double(size.height)
+            let turn = Int64(max(-1.0e15, min(1.0e15, cycle)))
+            let column = unit(SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))) * span
+            var x = (column - whole).truncatingRemainder(dividingBy: span)
+            if x < 0 { x += span }
+            x += slope * y - (slope > 0 ? reach : 0)
+            let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(y.rounded(.down)), Float(size.width),
+                                    Float(size.height))
+            list.append(SpriteInstance(sprite: .rainStreak, frame: depth * 3 + slant, rect: rect, tint: tint,
+                                       flipped: slope < 0))
+        }
+        return list
+    }
+
+    /// The splashes where the rain meets the lane: three frames each, then the next one somewhere else.
+    private static func rainSplashes(animTime: Double, geometry: Geometry) -> [SpriteInstance] {
+        let weather = geometry.weather
+        let count = rainCount(rainSplashCount, rain: weather.rain)
+        guard count > 0 else { return [] }
+        let size = SpriteID.rainSplash.size
+        let width = Double(geometry.targetWidth)
+        let whole = geometry.whole(.world)
+        let key = SeededRandom.hash(weather.gustSeed, 7)
+        let tint = SIMD4<Float>(1, 1, 1, 0.45)
+        var list: [SpriteInstance] = []
+        for index in 0..<count {
+            let progress = animTime / rainSplashTime + unit(SeededRandom.hash(key, Int64(index)))
+            let cycle = progress.rounded(.down)
+            let frame = min(2, Int((progress - cycle) * 3))
+            let turn = Int64(max(-1.0e15, min(1.0e15, cycle)))
+            let column = unit(SeededRandom.hash(SeededRandom.hash(key, turn), Int64(index))) * width
+            var x = (column - whole).truncatingRemainder(dividingBy: width)
+            if x < 0 { x += width }
+            let top = geometry.top(y: -Double(1 + index % 4), height: Double(size.height))
+            let rect = SIMD4<Float>(Float(x.rounded(.down)), Float(top), Float(size.width), Float(size.height))
+            list.append(SpriteInstance(sprite: .rainSplash, frame: frame, rect: rect, tint: tint, flipped: false))
+        }
+        return list
+    }
+
+    /// A wisp of steam over each large fire of the world plane while it rains (at most eight): the smoke's lower
+    /// rows, pale, a veil that hides no glow. It stands with Reduce Motion.
+    private static func steam(sources: [(source: LightSource, plane: Plane)], geometry: Geometry) -> [SpriteInstance] {
+        let rain = Float(geometry.weather.rain)
+        guard rain > 0 else { return [] }
+        let size = SpriteID.d2Smoke.size
+        let rows = min(steamRows, size.height)
+        let tint = SIMD4<Float>(0.80, 0.82, 0.86, steamAlpha * rain)
+        var list: [SpriteInstance] = []
+        for (source, plane) in sources where plane == .world && Weather.steams(source.kind) && source.intensity > 0 {
+            guard list.count < 8 else { break }
+            let left = (source.x - Double(size.width / 2) - geometry.whole(.world)).rounded(.down)
+            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
+            let top = geometry.top(y: source.y + 2, height: Double(rows)).rounded(.down)
+            var wisp = SpriteInstance(sprite: .d2Smoke, frame: 0,
+                                      rect: SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(rows)),
+                                      tint: tint, flipped: false)
+            wisp.source = SIMD4<Float>(0, Float(size.height - rows), Float(size.width), Float(rows))
+            list.append(wisp)
+        }
+        return list
+    }
+
     // MARK: - Lights
 
     /// The scene's lights for the light pass: flicker applied, torches faded by day, radii × 0.6 inside the darkness
@@ -509,7 +934,13 @@ enum FrameBuilder {
             if source.kind.flickers {
                 let flicker = Flicker.sample(seed: source.flickerSeed, time: animTime,
                                              reduceMotion: options.reduceMotion)
-                intensity *= flicker.intensity
+                let rain = geometry.weather.rain
+                if rain > 0 && Weather.hisses(source.kind) {
+                    // An open flame hisses in the rain: a little lower, its flicker wider.
+                    intensity *= (1 - 0.12 * rain) * (1 + (flicker.intensity - 1) * (1 + 0.6 * rain))
+                } else {
+                    intensity *= flicker.intensity
+                }
                 radius += Double(flicker.radiusJitter)
                 let shifted = color + flicker.colorShift
                 color = clampUnit(shifted)

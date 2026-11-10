@@ -836,3 +836,430 @@ fragment float4 lh_actor_fragment(ActorOut in [[stage_in]],
     }
     return float4(saturate(color), 1.0f);
 }
+
+// =====================================================================================================================
+// MARK: - Look 2 ("farbig-düster", DESIGN.md "Look 2 port")
+//
+// The composite of tools/scenemock/mock.py look=2 with functions of its own, so look 1 above stays as it was (its
+// pictures are pinned by LookGoldenTests). Two more planes between the mid plane and fog A: the mist band and the near
+// plane. A lower ambient lift and a deep blue night tint, haze toward the hour's air colour with each plane one step
+// darker than the one behind it, fire pools that fall off from their own colour to ember, fog that takes the light's
+// hue, a moon key on lit albedo, a sky-facing ledge light and lane, a warm fill inside cut-away rooms, rims on every
+// figure, darks lifted toward navy and a wider vignette. `CompositeUniforms` is filled as in look 1 (coordinates, the
+// sky, the light's gain and knee, the bank, bloom, debug); `Look2Uniforms` carries the rest.
+// =====================================================================================================================
+
+struct Look2Uniforms {
+    int4 shifts;      // device shifts of the mist band and the near plane, unused, unused
+    float4 ambW;      // world ambient rgb, night colourise
+    float4 ambF;      // far ambient rgb, daylight
+    float4 ambM;      // mid ambient rgb, cool bounce strength
+    float4 ambN;      // near ambient rgb, band strength
+    float4 farHC;     // far haze colour, far haze
+    float4 midHC;     // mid haze colour, mid haze
+    float4 nearHC;    // near haze colour, near haze
+    float4 bounceW;   // the sky's cool light rgb, valley mist
+    float4 bandC;     // band colour, band height in rows
+    float4 cloudC;    // the clouds' sunlight colour, nightness
+    float4 inter;     // a room's warm fill rgb, torch strength
+    float4 rim;       // the sky rim's colour, how far the moon is up
+    float4 fog;       // fog brightness, foreground ambient share, the lane's sky share, unused
+    float4 grade;     // saturation, warmth, vignette, navy lift
+    float4 roomA;     // a cut-away room in world target pixels: x0, y0, x1, y1 (x1 <= x0: none)
+    float4 roomB;
+    float4 weather;   // rain share, wetness, unused, unused
+};
+
+constant float3 kNightTint2 = float3(0.72f, 0.95f, 1.85f);
+constant float3 kBlack2 = float3(0.030f, 0.040f, 0.095f);
+constant float3 kEmber2 = float3(0.85098f, 0.28235f, 0.12157f);
+constant float3 kEmberDim2 = float3(0.54902f, 0.16471f, 0.07059f);
+constant float3 kMoonRim2 = float3(0.62f, 0.70f, 0.95f);
+constant float3 kMoonLight2 = float3(0.55f, 0.60f, 0.92f);
+constant float kFogGlow2 = 0.35f;
+constant float kFireCold2 = 0.7f;
+constant float kLitCap2 = 1.0f;
+
+// A light pool of look 2: a negative squash (color.w) marks a fire, whose colour falls off to ember toward its rim.
+vertex LightPoolOut lh_pool2_vertex(uint vid [[vertex_id]],
+                                    uint iid [[instance_id]],
+                                    device const LightQuad *lights [[buffer(0)]],
+                                    constant LightPassUniforms &u [[buffer(1)]]) {
+    LightQuad l = lights[iid];
+    float squash = max(abs(l.color.w), 0.05f);
+    float2 corner = float2(float(vid & 1u), float((vid >> 1) & 1u)) * 2.0f - 1.0f;
+    float2 extent = float2(l.circle.z, l.circle.z / squash) + 1.0f;
+    LightPoolOut out;
+    out.position = lh_ndc(l.circle.xy + corner * extent, u.target.xy);
+    out.circle = l.circle;
+    out.color = l.color;
+    return out;
+}
+
+fragment float4 lh_pool2_fragment(LightPoolOut in [[stage_in]],
+                                  constant LightPassUniforms &u [[buffer(0)]]) {
+    float2 p = in.position.xy;
+    float2 offset = float2(p.x - in.circle.x, (p.y - in.circle.y) * abs(in.color.w));
+    float r = max(in.circle.z, 0.5f);
+    float d = length(offset) / r;
+    if (d >= 1.0f) {
+        discard_fragment();
+    }
+    uint2 cell = uint2(uint(p.x) + uint(max(u.target.z, 0.0f)), uint(p.y));
+    float level = lh_light_level(d, u.style.x, u.style.y, u.target.w, lh_bayer(cell));
+    float strength = abs(in.circle.w) * level;
+    if (in.circle.w < 0.0f) {
+        return float4(0.0f, 0.0f, 0.0f, strength);
+    }
+    float3 color = in.color.rgb;
+    if (in.color.w < 0.0f) {
+        color = mix(color, kEmber2, smoothstep(0.3f, 0.75f, d));
+        color = mix(color, kEmberDim2, smoothstep(0.75f, 1.0f, d));
+    }
+    return float4(color * strength, 0.0f);
+}
+
+// Ambient-lit albedo pulled toward deep blue by its own luminance; at dusk the pull spares the sunlit share, inside a
+// room it lets go (kmul).
+static inline float3 lh2_cold(float3 rgb, float3 ambient, float sun, float kmul, constant Look2Uniforms &v) {
+    float3 a = rgb * ambient;
+    float k = v.ambW.w * (1.0f - sun * v.ambF.w) * kmul;
+    return mix(a, lh_luma(a) * kNightTint2, k);
+}
+
+// The ambient on a pixel: its shadowed share takes the sky's cool light (× the plane's share) by day and dusk.
+static inline float3 lh2_ambient(float3 ambient, float share, float shade, constant Look2Uniforms &v) {
+    return mix(ambient, v.bounceW.rgb * share, shade * v.ambM.w);
+}
+
+// Fog over `color`: inside light it takes the light's hue instead of adding to its blue, then a warm glow.
+static inline float3 lh2_fog(float3 color, float4 g, float gain, float glow, float3 light) {
+    float3 f = g.rgb * gain;
+    float peak = max(light.r, max(light.g, light.b));
+    if (peak > 0.0001f) {
+        f = mix(f, lh_luma(f) * light / peak, min(1.0f, 1.2f * peak));
+    }
+    return color * (1.0f - g.a) + f + light * (glow * kFogGlow2 * g.a);
+}
+
+// The mist's share by world x (tools/scenemock/layout_look2.py `fog_region`): thick in the shadow land, thinner from
+// the castle's front (x 1240) through the cleft, light in the valley (from x 2430).
+static inline float lh2_fog_region(PlaneCoords c, constant CompositeUniforms &u) {
+    float x = float(c.world.x) + u.target.w;
+    if (x >= 2430.0f) {
+        return 0.45f;
+    }
+    return 1.0f - 0.3f * saturate((x - 1120.0f) / 200.0f);
+}
+
+// The moon on the lit albedo of the mid and near planes at night (fir tiers, crowns, statues); `p` premultiplied.
+static inline float lh2_moon_key(float4 p, constant Look2Uniforms &v) {
+    float luma = lh_luma(p.rgb) / max(p.a, 0.0001f);
+    return 0.30f * v.rim.w * v.cloudC.w * smoothstep(0.26f, 0.38f, luma);
+}
+
+// 1 for a silhouette's top pixel on its plane (nothing above it), 0.5 for the one below it.
+static inline float lh2_ledge(texture2d<float> tex, uint2 t, float alpha) {
+    if (t.y < 1u || alpha < 0.5f) {
+        return 0.0f;
+    }
+    if (tex.read(uint2(t.x, t.y - 1u)).a < 0.5f) {
+        return 1.0f;
+    }
+    if (t.y >= 2u && tex.read(uint2(t.x, t.y - 2u)).a < 0.5f) {
+        return 0.5f;
+    }
+    return 0.0f;
+}
+
+// A ledge catches the sky: more ambient and a share of the horizon's colour.
+static inline float3 lh2_ledge_light(float3 ambient, float e, constant CompositeUniforms &u) {
+    return ambient * (1.0f + 0.4f * e) + u.skyBottom.rgb * (0.15f * e);
+}
+
+// 1 inside a cut-away room.
+static inline float lh2_room(uint2 world, constant Look2Uniforms &v) {
+    float2 p = float2(world) + 0.5f;
+    bool a = v.roomA.z > v.roomA.x && p.x >= v.roomA.x && p.x < v.roomA.z && p.y >= v.roomA.y && p.y < v.roomA.w;
+    bool b = v.roomB.z > v.roomB.x && p.x >= v.roomB.x && p.x < v.roomB.z && p.y >= v.roomB.y && p.y < v.roomB.w;
+    return (a || b) ? 1.0f : 0.0f;
+}
+
+// Point light on a surface: capped as a whole, so it keeps its hue.
+static inline float3 lh2_capped(float3 light) {
+    float peak = max(light.r, max(light.g, light.b));
+    return light * (min(peak, kLitCap2) / max(peak, 0.0001f));
+}
+
+// Sky and clouds, the far and mid planes, the mist band, the near plane, fog A, the lit world plane and its emissive
+// parts. `midVisible` returns how much of the mid plane still shows, `fogCover` the densest fog behind the world.
+static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, constant CompositeUniforms &u,
+                       constant Look2Uniforms &v,
+                       texture2d<float> skyTex, texture2d<float> cloudsTex, texture2d<float> farTex,
+                       texture2d<float> midTex, texture2d<float> mistTex, texture2d<float> nearTex,
+                       texture2d<float> fogATex, texture2d<float> worldTex, texture2d<float> emissiveTex,
+                       thread float &midVisible, thread float &fogCover) {
+    float3 color = lh_sky(c, u) + skyTex.read(c.sky).rgb;
+    float horizon = max(u.target.z, 1.0f);
+    float low = smoothstep(horizon - 70.0f, horizon, float(c.row));
+    float moonUp = v.rim.w;
+    float night = v.cloudC.w;
+    float peak = max(info.light.r, max(info.light.g, info.light.b));
+
+    float4 k = cloudsTex.read(c.clouds);
+    if (k.a > 0.0f) {
+        // Sunlit tops in the low sun's own colour, bellies the sky's top colour, the moon's light on both.
+        float3 albedo = k.rgb / max(k.a, 0.001f);
+        float sun = saturate((lh_luma(albedo) - 0.6f) / 0.3f);
+        float3 lit = albedo * (v.cloudC.rgb * sun + u.skyTop.rgb * (1.5f * (1.0f - sun))
+                               + kMoonLight2 * (0.7f * moonUp));
+        lit = mix(lit, u.skyBottom.rgb, 0.3f);
+        color = mix(color, lit, k.a);
+    }
+    float above = u.target.z - 1.0f - float(c.row);
+    float band = v.ambN.w * (1.0f - smoothstep(0.0f, max(v.bandC.w, 1.0f), above));
+
+    float4 f = farTex.read(c.distant);
+    if (f.a > 0.0f) {
+        // The far plane's haze thins toward the top of the screen (the Weltmauer's snow stands clear of the mist on
+        // its feet); its pale albedo takes a key before the haze: the moon at night, the sun's colour by day.
+        float mockRow = float(c.row) - (u.target.z - 175.0f);
+        float clear = 1.0f - 0.5f * (1.0f - smoothstep(0.0f, 64.0f, mockRow));
+        float haze = saturate(v.farHC.w * clear + low * v.bounceW.w);
+        float3 lit = lh2_cold(f.rgb, v.ambF.rgb, 0.0f, 1.0f, v);
+        float key = 0.5f * smoothstep(0.55f, 0.75f, lh_luma(f.rgb) / f.a);
+        lit += f.rgb * key * (kMoonLight2 * (moonUp * night) + v.cloudC.rgb);
+        lit = mix(lit, v.farHC.rgb * f.a, haze);
+        lit = mix(lit, v.bandC.rgb * f.a, band);
+        color = color * (1.0f - f.a) + lit;
+    }
+    float4 m = midTex.read(c.mid);
+    midVisible = 0.0f;
+    fogCover = 0.0f;
+    if (m.a > 0.0f) {
+        float haze = saturate(v.midHC.w + low * v.bounceW.w * 0.5f);
+        float shade = lh_shade(m.rgb / m.a);
+        float3 ambient = lh2_ambient(v.ambM.rgb, 0.72f, shade, v);
+        float e = lh2_ledge(midTex, c.mid, m.a);
+        if (e > 0.0f) {
+            ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
+        }
+        float3 lit = lh2_cold(m.rgb, ambient, 1.0f - shade, 1.0f, v) + m.rgb * info.backdrop * 0.3f
+            + m.rgb * kMoonLight2 * lh2_moon_key(m, v);
+        lit = mix(lit, v.midHC.rgb * m.a, haze);
+        lit = mix(lit, v.bandC.rgb * m.a, band * 0.6f);
+        color = color * (1.0f - m.a) + lit;
+        midVisible = m.a;
+    }
+    float region = lh2_fog_region(c, u);
+    float4 g = mistTex.read(mist) * region;
+    if (g.a > 0.0f) {
+        color = lh2_fog(color, g, v.fog.x * 1.8f * info.bank, 0.4f, info.light);
+        midVisible *= 1.0f - g.a;
+        fogCover = g.a;
+    }
+    float4 n = nearTex.read(near);
+    if (n.a > 0.0f) {
+        float shade = lh_shade(n.rgb / n.a);
+        float3 ambient = lh2_ambient(v.ambN.rgb, 1.05f, shade, v) * (1.0f - kFireCold2 * min(1.0f, peak * 0.75f));
+        float e = lh2_ledge(nearTex, near, n.a);
+        if (e > 0.0f) {
+            ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
+        }
+        float3 lit = lh2_cold(n.rgb, ambient, 1.0f - shade, 1.0f, v)
+            + lh_reflectance(n.rgb) * lh2_capped(info.light) * 0.5f + n.rgb * kMoonLight2 * lh2_moon_key(n, v);
+        lit = mix(lit, v.nearHC.rgb * n.a, v.nearHC.w);
+        color = color * (1.0f - n.a) + lit;
+        midVisible *= 1.0f - n.a;
+    }
+    float4 fa = fogATex.read(c.fogA) * region;
+    if (fa.a > 0.0f) {
+        color = lh2_fog(color, fa, v.fog.x * info.bank, 0.6f, info.light);
+        midVisible *= 1.0f - fa.a;
+        fogCover = max(fogCover, fa.a);
+    }
+    float4 w = worldTex.read(c.world);
+    if (w.a > 0.0f) {
+        float under = float(c.row) - u.target.z;
+        float3 light = lh2_capped(info.light);
+        float shade = lh_shade(w.rgb / w.a);
+        // Firelight displaces the cold inside its pool; a cut-away room has the warm fill of its hearth and candles
+        // and no night pull; the lane's track faces the sky; a silhouette's top edge catches it.
+        float3 ambient = lh2_ambient(v.ambW.rgb, 1.0f, shade, v) * (1.0f - kFireCold2 * min(1.0f, peak * 1.5f));
+        float room = lh2_room(c.world, v);
+        ambient = mix(ambient, v.inter.rgb, room);
+        float kmul = 1.0f - room * v.inter.w;
+        if (under >= 0.0f && under < 8.0f) {
+            ambient *= v.fog.z + 0.25f * v.weather.y;
+        } else {
+            float e = lh2_ledge(worldTex, c.world, w.a);
+            if (e > 0.0f) {
+                ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
+            }
+        }
+        ambient *= info.bank * (1.0f - 0.12f * v.weather.y);
+        float3 lit = lh2_cold(w.rgb, ambient, 1.0f - shade, kmul, v) + lh_reflectance(w.rgb) * light
+            + light * (0.06f * w.a);
+        if (under >= 0.0f && under < 7.0f && moonUp > 0.0f) {
+            lit += w.rgb * kMoonLight2 * (0.18f * moonUp * night);
+        }
+        // Weather: the wet lane's top rows throw the firelight back, column by column.
+        if (under >= 0.0f && under < 3.0f && v.weather.y > 0.0f) {
+            float column = float(c.world.x) + u.target.w;
+            float glint = 0.6f + 0.4f * fract(sin(column * 12.9898f) * 43758.5453f);
+            lit += light * (0.5f * v.weather.y * w.a * glint);
+        }
+        color = color * (1.0f - w.a) + lit;
+        midVisible *= 1.0f - w.a;
+    }
+    return color + emissiveTex.read(c.world).rgb;
+}
+
+// Fog B, the foreground, bloom and the grade of look 2.
+static float3 lh2_top(float3 color, PlaneCoords c, PixelLight info, constant CompositeUniforms &u,
+                      constant Look2Uniforms &v, texture2d<float> fogBTex, texture2d<float> fgTex,
+                      texture2d<float> bloomTex, float midVisible, float fogCover) {
+    float4 fb = fogBTex.read(c.fogB) * lh2_fog_region(c, u);
+    if (fb.a > 0.0f) {
+        color = lh2_fog(color, fb, v.fog.x * info.bank, 0.8f, info.light);
+        midVisible *= 1.0f - fb.a;
+        fogCover = max(fogCover, fb.a);
+    }
+    float4 f = fgTex.read(c.fg);
+    if (f.a > 0.0f) {
+        float3 lit = lh2_cold(f.rgb, v.ambW.rgb * (v.fog.y * info.bank), 0.0f, 1.0f, v) + f.rgb * info.light * 0.55f;
+        color = color * (1.0f - f.a) + lit;
+        midVisible *= 1.0f - f.a;
+    }
+    if (u.bloom.y > 0.5f) {
+        constexpr sampler linear_clamp(coord::normalized, filter::linear, address::clamp_to_edge);
+        color += bloomTex.sample(linear_clamp, c.bloomUV).rgb * u.bloom.x;
+    }
+    // Warm light keeps its saturation (not in dense fog: it turned the glow pink), the cold grade pushes blue, the
+    // darks lift toward navy, never to grey or black.
+    float3 gl = mix(info.light, info.backdrop, midVisible);
+    float warm = saturate(max(gl.r, max(gl.g, gl.b)) * 1.5f);
+    float warmS = warm * (1.0f - smoothstep(0.3f, 0.5f, fogCover));
+    color = mix(float3(lh_luma(color)), color, mix(v.grade.x, max(v.grade.x, 1.08f), warmS));
+    float wv = v.grade.y;
+    float3 tint = wv >= 0.0f ? float3(1.0f + 0.10f * wv, 1.0f + 0.02f * wv, 1.0f - 0.12f * wv)
+                             : float3(1.0f + 0.20f * wv, 1.0f + 0.05f * wv, 1.0f - 0.15f * wv);
+    color *= mix(tint, float3(1.0f), warm);
+    float dark = 1.0f - min(1.0f, max(lh_luma(color), 0.0f) / 0.22f);
+    color += kBlack2 * (v.grade.w * dark * dark);
+    float3 over = max(color - 0.82f, float3(0.0f));
+    color = min(color, float3(0.82f)) + 0.18f * (1.0f - exp(-over / 0.18f));
+    float2 uv = (float2(c.sky) + 0.5f) / max(u.target.xy, float2(1.0f)) * 2.0f - 1.0f;
+    float vignette = 1.0f - v.grade.z * smoothstep(0.42f, 1.25f, length(uv * float2(0.6f, 1.0f)));
+    return color * vignette;
+}
+
+fragment float4 lh_composite2_fragment(FullscreenOut in [[stage_in]],
+                                       constant CompositeUniforms &u [[buffer(0)]],
+                                       device const LightQuad *lights [[buffer(1)]],
+                                       constant Look2Uniforms &v [[buffer(2)]],
+                                       texture2d<float> skyTex [[texture(0)]],
+                                       texture2d<float> cloudsTex [[texture(1)]],
+                                       texture2d<float> farTex [[texture(2)]],
+                                       texture2d<float> midTex [[texture(3)]],
+                                       texture2d<float> fogATex [[texture(4)]],
+                                       texture2d<float> worldTex [[texture(5)]],
+                                       texture2d<float> fogBTex [[texture(6)]],
+                                       texture2d<float> fgTex [[texture(7)]],
+                                       texture2d<float> lightTex [[texture(8)]],
+                                       texture2d<float> emissiveTex [[texture(9)]],
+                                       texture2d<float> bloomTex [[texture(10)]],
+                                       texture2d<float> mistTex [[texture(12)]],
+                                       texture2d<float> nearTex [[texture(13)]]) {
+    float2 p = in.position.xy;
+    bool inset = u.debug.y != 0u && p.x < u.target.x && p.y < u.target.y;
+    PlaneCoords c = inset ? lh_inset_coords(p, u) : lh_coords(p, u);
+    uint2 mist = inset ? c.sky : uint2(lh_column(p.x, v.shifts.x, u), c.row);
+    uint2 near = inset ? c.sky : uint2(lh_column(p.x, v.shifts.y, u), c.row);
+    PixelLight info = lh_pixel_light(c, u, lightTex);
+    if (u.debug.x != 0u && !inset) {
+        float3 view = lh_debug_view(c, info, u, lightTex, emissiveTex, bloomTex, fogATex, fogBTex);
+        return float4(view, 1.0f);
+    }
+    float midVisible = 0.0f;
+    float fogCover = 0.0f;
+    float3 color = lh2_base(c, mist, near, info, u, v, skyTex, cloudsTex, farTex, midTex, mistTex, nearTex, fogATex,
+                            worldTex, emissiveTex, midVisible, fogCover);
+    color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover);
+    if (u.debug.z != 0u) {
+        color = lh_debug_lights(color, c, u, lights);
+    }
+    if (inset && (p.x >= u.target.x - 1.0f || p.y >= u.target.y - 1.0f)) {
+        color = float3(1.0f, 0.82f, 0.3f);
+    }
+    return float4(saturate(color), 1.0f);
+}
+
+// An actor of look 2. Flags: x 1 for emissive actors, y > 0 an unlit creature (a moonlight rim), z the strength of
+// the rim on its screen-right edge (0: none).
+fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
+                                   constant CompositeUniforms &u [[buffer(0)]],
+                                   device const LightQuad *lights [[buffer(1)]],
+                                   constant Look2Uniforms &v [[buffer(2)]],
+                                   texture2d<float> skyTex [[texture(0)]],
+                                   texture2d<float> cloudsTex [[texture(1)]],
+                                   texture2d<float> farTex [[texture(2)]],
+                                   texture2d<float> midTex [[texture(3)]],
+                                   texture2d<float> fogATex [[texture(4)]],
+                                   texture2d<float> worldTex [[texture(5)]],
+                                   texture2d<float> fogBTex [[texture(6)]],
+                                   texture2d<float> fgTex [[texture(7)]],
+                                   texture2d<float> lightTex [[texture(8)]],
+                                   texture2d<float> emissiveTex [[texture(9)]],
+                                   texture2d<float> bloomTex [[texture(10)]],
+                                   texture2d<float> atlas [[texture(11)]],
+                                   texture2d<float> mistTex [[texture(12)]],
+                                   texture2d<float> nearTex [[texture(13)]]) {
+    float across = dfdx(in.texel.x);
+    uint2 t = uint2(max(in.texel, float2(0.0f)));
+    float4 texel = atlas.read(t);
+    if (texel.a < 0.5f || in.tint.a <= 0.003f) {
+        discard_fragment();
+    }
+    float2 p = in.position.xy;
+    PlaneCoords c = lh_coords(p, u);
+    uint2 mist = uint2(lh_column(p.x, v.shifts.x, u), c.row);
+    uint2 near = uint2(lh_column(p.x, v.shifts.y, u), c.row);
+    PixelLight info = lh_pixel_light(c, u, lightTex);
+    float midVisible = 0.0f;
+    float fogCover = 0.0f;
+    float3 base = float3(0.0f);
+    if (in.tint.a < 0.999f) {
+        base = lh2_base(c, mist, near, info, u, v, skyTex, cloudsTex, farTex, midTex, mistTex, nearTex, fogATex,
+                        worldTex, emissiveTex, midVisible, fogCover);
+    } else {
+        fogCover = max(mistTex.read(mist).a, fogATex.read(c.fogA).a) * lh2_fog_region(c, u);
+    }
+    float3 albedo = texel.rgb * in.tint.rgb;
+    // Lit as the world: firelight displaces the cold, inside a cut-away room the figure takes its warm fill.
+    float shade = lh_shade(albedo);
+    float peak = max(info.light.r, max(info.light.g, info.light.b));
+    float room = lh2_room(c.world, v);
+    float3 ambient = mix(v.ambW.rgb, v.inter.rgb, room) * ((1.0f - kFireCold2 * min(1.0f, peak * 1.5f)) * info.bank);
+    float3 cold = lh2_cold(albedo, ambient, 1.0f - shade, 1.0f - room * v.inter.w, v);
+    float3 light = lh2_capped(info.light);
+    float3 lit = in.flags.x > 0.5f ? albedo : cold + lh_reflectance(albedo) * light + light * 0.06f;
+    // Every figure keeps a rim on its screen-right edge pixels: the sky's for the king, the creatures in light and
+    // the people, the moon's for an unlit creature. Firelight outshines it.
+    float rimStrength = in.flags.y > 0.0f ? 0.6f * v.cloudC.w : in.flags.z;
+    if (in.flags.x < 0.5f && rimStrength > 0.0f) {
+        int toward = across < 0.0f ? -1 : 1;
+        int2 side = int2(t) + int2(toward, 0);
+        if (atlas.read(uint2(max(side, int2(0)))).a < 0.5f) {
+            float3 tone = in.flags.y > 0.0f ? kMoonRim2 : v.rim.rgb;
+            lit = mix(lit, tone, rimStrength * (1.0f - saturate(peak * 1.5f)));
+        }
+    }
+    float3 color = mix(base, lit, saturate(in.tint.a));
+    midVisible *= 1.0f - saturate(in.tint.a);
+    color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover);
+    if (u.debug.z != 0u) {
+        color = lh_debug_lights(color, c, u, lights);
+    }
+    return float4(saturate(color), 1.0f);
+}

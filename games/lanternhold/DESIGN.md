@@ -892,6 +892,10 @@ tap in Release) is checked on an A12 iPhone and a current one before the store.
 | `-GWStats YES` | CPU and GPU ms, fps, thermal state, s |
 | `-GWReduceMotion YES` | Reduce Motion without the system setting |
 | `-GWSkipOnboarding YES` | no hints (accepted since M2b part 2, so the tests already pass it; the onboarding comes in M7) |
+| `-GWLook 1\|2` | the look: 2 is the default since the look 2 port; 1 is the first look, kept for the shots and hashes that pin it |
+| `-GWCastle 1\|1b\|2\|2b\|3\|3b` | look 2: the castle's tier as drawn (b: under scaffold); no play raises it yet |
+| `-GWWeather auto\|clear\|breeze\|gusty\|storm` | look 2: the weather; auto is the run's seed and day, the others hold one kind |
+| `-GWWind <0...1>`, `-GWRain <0...1>`, `-GWWetness <0...1>` | look 2: hold the steady wind (negative: from the valley), the rain or the wet ground |
 
 ## Accessibility identifiers
 
@@ -2404,6 +2408,147 @@ condition or counsel changed and no choice the bot takes changed what it does to
   arrows in the air (23:12 and 00:31).
 - `lh-m3-f3` on dcf0e13 (the quote beside the report's title): ALL PASSED (build, unit 336, ui, ui-de, release), the
   tuning report identical to f2's. The People row is back in English and German; the German quote takes two lines.
+
+### Look 2 port (10.11.2026): look 2 and the weather in the game
+
+The look-2 lane painted a new world and a mock of it (ART-look2.md, `tools/scenemock/layout_look2.py`); the plan lane
+wrote how to bring it into the game (docs/PORT-look2.md). This stage does that. One rule held throughout: the
+simulation is tuned, so the port is drawing only. No number of the battle, the economy or the court changed; T1 to T8
+read line for line what `lh-m3-f2` measured in every round below.
+
+**What is in the game**
+
+- The contract: ART-look2.md's world ids, `darknessBankGlow` and the castle's tier ids are in `SpriteID`, SPRITES.md
+  and the atlas, drawn from their PNGs (`AtlasTests.testLook2ArtIsBundled`). The lord's new ids (`lady`, `ladyGlow`,
+  `kingSeated`, `ladySeated`, `portraitLady`, the seated citizens) belong to another lane and are not registered here.
+- The switch: `-GWLook 1|2` (`LookVersion`, `FrameOptions.look`). Look 1 is pinned by golden hashes
+  (`LookGoldenTests`: FNV-1a 64 over six look-1 scenes, recorded in round `lh-l2-0d` before the port touched the
+  renderer and equal in every round since).
+- Step 3: look 2 is the game's default (`LookVersion.standard = .two`, commit 8b06671). Look 1 stays behind
+  `-GWLook 1` for what pins it: the golden hashes, the probe and light lab shots and the film strip
+  (`LightProbeUITests`) and the test pattern (`ProbeUITests`). Every other UI test now plays in look 2 with the
+  weather of its seed and day.
+- Look 2's light: its own ramp (`Core/AmbientRampLook2.swift`: the long dusk, the navy night, air, vignette, the navy
+  lift, the cloud light), value compression, the night tint, haze by plane, fire and window pools that push the cold
+  out, ledges that catch the sky, the cut-away rooms' warm fill.
+- Look 2's planes: sky, clouds, far, mid, the mist band, near, fog A, world, fog B, foreground (ten; look 1 keeps its
+  eight). The scene of `layout_look2.py`: the Weltmauer with the far castle's glow, the shadow land's firs and dead
+  trees, the Throat (gorge rock, crags, the warden statue with its bowl fire, the cleft's flanks), the lane by region
+  (moor, scree, cobbles, earth), the valley's trees and vista, the foreground strips, chimney smoke.
+- The creatures: look 2's frames and strides; the gloomweaver's violet lantern and the Ash Giant's ember heart as
+  render lights (never the battle's), the heart flaring on the stomp frame; soot and hit dust inside the particle
+  budget, none with Reduce Motion; the Lightless King's aura; a cold light keeps its colour to the rim.
+- The darkness bank: the painted bank and edge, its glow over the body tiles.
+- Fireflies in the valley (PORT 2.6): four patches of `d2Fireflies` as glow, each twice (the second mirrored), the
+  two blinking against each other and drifting in whole pixels; from 18:30 to 21:00 with half an hour's fade each
+  way, none in rain, none in a steady wind above 0.6, none in look 1. With Reduce Motion they stand and breathe.
+  They are no lights (the 64 are for fires).
+- The castle's tiers as drawn (`CastleStage`, `-GWCastle 1|1b|2|2b|3|3b`): the keep's top, the back rise, the far
+  castle's overlays and the slot's glow at tiers 2 and 3, the drum-tower front at tier 3, the scaffold states. No
+  play raises a tier yet; that is a later lane.
+- The weather (below).
+
+**Decisions**
+
+1. Look 2 has its own shader functions (`lh2_*`) and its own uniforms (`Look2Uniforms`, stride 288, fragment buffer
+   2) beside look 1's. PORT-look2.md wanted one `LookValues` struct for both; two code paths keep look 1 bit for bit
+   and make its removal a deletion.
+2. `FrameDesc.look`, `rooms`, `rain` and `wetness` are defaulted vars that only `FrameBuilder` sets, so every frame
+   built without them is the frame it was. `FrameOptions.look` defaults to `.one` (the unit tests' frames keep the
+   picture they were written for); the app's default is `LookVersion.standard`, look 2 since step 3.
+3. Rooms: at most two rectangles per frame (the hall, the chapel or kitchen beside it).
+4. The sky is two stops, the backdrop's lights keep the engine's rule; the fog region is per column.
+5. PORT's rounds L2-0 to L2-8 were bundled into fewer runner rounds (a round costs 16 to 50 minutes).
+6. The creatures' lights are frame lights built in `EntityFrames` for the picture; `LightField` and the battle never
+   see them.
+7. The castle's tier is an argument, not state: `GameState` has no tier, and the save stays as it is.
+8. Departures from the mock: the bank is opaque in the game (the mock's is translucent), so the shadow land by night
+   is the bank west of its edge and the shadow-land shot stands at x 570, where the creatures have left it.
+9. The scene's accessibility value carries `lit:` beside `seen:` (creature bodies in the frame that the battle's
+   light field lights). Inside the bank a creature is a rim and two eyes, so a shot of "the new creatures" has to
+   wait for them in the firelight: `Look2UITests.testLookTwoNight` takes the moment between 21:00 and 01:00 with the
+   most of them (lit × 3, shots × 2, seen, aiming archers). The value is read only by UI tests.
+
+**The weather** (`Core/Weather.swift`, `Tests/WeatherTests.swift`)
+
+- A pure function of the run's seed, the day, the hour and the animation time. Only `FrameBuilder` reads it, and only
+  in look 2 (`FrameOptions.weather`, `WeatherSample.clear` by default: clear air and look 1 are the frames they
+  were). `GameModel` samples it for the frame with `GameState.seed`, `day` and `hour`; nothing of `Core/Sim*`, the
+  battle or the court takes it.
+- A day runs from its dawn at 06:00 to the next. Its wind class is drawn from the seed and the day: calm 30 %, breeze
+  40 %, gusty 24 %, storm 6 % (base 0.08, 0.35, 0.55, 0.85; gusts 0.04, 0.12, 0.35, 0.15). Days 1 and 2 are a dry
+  breeze, no storm comes before day 4 and never two in a row. The wind blows toward the valley on 70 % of the days.
+  Two days' winds blend over the day's first game hour.
+- Gusts are value noise over time (4 s per lattice point) that travels with the wind (500 px per second's lead); a
+  gusty day shapes them into calm spells and sudden gusts.
+- Rain: every storm brings it, a quarter of the other days after day 2 do. It starts at a drawn hour, lasts 3 to 9
+  game hours (a storm 6 to 12) at strength 0.4 to 0.8 (a storm 1) and fades in and out over 20 s of play. The cloud
+  gathers a game hour before and clears a game hour after. Stone and lane are wet after half a game hour of rain and
+  dry over two; the ruts fill over one and drain over six (`puddles`, for the puddle sprites to come).
+- The light under it (`Weather.apply`): ambient × (1 − 0.22 r), saturation × (1 − 0.12 r), warmth × (1 − 0.6 c),
+  vignette + 0.04 r, fog + 0.15 r, haze + 0.18 r, the sky toward grey, no stars under full cloud; the moon's and the
+  sun's disc × (1 − 0.8 c), sun shadows × (1 − c). The torch strength stays: fires burn as they do.
+- Rain is instances, no pass: `rainStreak` on the near plane (110 at full rain, 150 px/s, alpha 0.30), the world
+  plane (70, 220 px/s, 0.40; under the bank's tiles, so the dark hides it) and the foreground (28, 320 px/s, 0.45),
+  slanted by the steady wind (straight under 0.2, then two steeper frames, mirrored for a wind from the valley), and
+  up to 24 `rainSplash` on the lane. The counts go by the root of the rain's strength (`FrameBuilder.rainCount`: a
+  rain of 0.5 has 0.7 of the streaks; in round `lh-l2-3a` a count in proportion left a rain of 0.6 a few stray
+  lines on a phone). Each is a pure function of its index and the time; the columns belong to the
+  plane's picture, so the rain stays in the world when the camera moves. PORT's speeds are kept in proportion but
+  lower (it asked 260 to 520 px/s; at a 201 px target those read as noise).
+- Wet ground is the composite's work (`Look2Uniforms.weather` = rain, wetness): the lane's sky light up by a quarter
+  of the wetness, ledges 2.5 times as bright when soaked, the lane's top three rows throwing firelight back column
+  by column. All of it is × 1 or + 0 at wetness 0.
+- Fire: open flames (torch, brazier, fire tower, fire arrow, firepot, beacon) burn 12 % lower at full rain and
+  flicker 1.6 times as wide; lanterns, hearths, windows and candles are sheltered. A wisp of steam (the smoke's lower
+  rows, pale) stands over the large fires. This is the frame's light only; the battle's light is untouched.
+- Wind you can see: the trees and the foreground's plants are drawn as six bands of their rows, the crown shifted by
+  whole pixels (a swing of 1 px in a breeze, a lean of 1 and a swing of 2 in a storm, each tree at its own phase),
+  the trunk standing (`SpriteInstance.source`, `FrameBuilder.sheared`); chimney smoke leans up to 12 px in ten
+  bands; the fog and the mist band travel with the wind (half speed in a calm, about 2.5 times in a storm, toward the
+  shadow land when the wind turns). The glow's occluder stays the whole sprite.
+- Reduce Motion: no streaks, no splashes, no sway, no gusts, the fog stands; the darker air, the wet sheen and the
+  steam stay.
+- Arguments: `-GWWeather auto|clear|breeze|gusty|storm`, `-GWWind`, `-GWRain`, `-GWWetness` (table above). The
+  probe has no run and shows weather only when asked. Look 2's parity shots pin `-GWWeather clear`.
+- Budget: the weather adds no pass and no texture read.
+
+**What is left of PORT-look2.md**
+
+- Art the weather waits for: `castleFlag` (banners in the wind), `lanePuddleA` to `C`, painted `rainStreak` and
+  `rainSplash`, second frames of the foreground strips. Sound hooks for rain and wind (no music, ever). The weather
+  view of `-GWShowBuffer`.
+- The effects of section 2 not built: light shafts (2.1), bloom outside the emitter (2.2), the fog's second copy
+  (2.4), `d2Sparks` over the fires (2.5; the embers of look 1 still rise), the creatures' fade out of the bank (2.9),
+  foot puffs, the particles' wind drift.
+- The upgrade logic for the castle's tiers; L2-9's cleanup (deleting look 1 and the switch, the reads view, the
+  thermal ladder, a device check on an A12).
+
+**Rounds** (each on the runner; `build unit ui ui-de`, the UI steps filtered to `Look2UITests` where named)
+
+- `lh-l2-0a` on c353fd8 (the contract): ALL PASSED, 337 unit tests.
+- `lh-l2-0b` on 5c99cbf and `lh-l2-0c` on aad5a91 (the switch, look 2's ramp): FAILED at the build (a missing
+  parameter of `AmbientRamp.sample`, then missing fields of `AmbientSample`); fixed in aad5a91 and 17380b8.
+- `lh-l2-0d` on 17380b8: ALL PASSED; look 1's six golden hashes recorded from it (631cda1).
+- `lh-l2-1a` on 631cda1 (renderer, scene and frame of look 2): FAILED one unit assertion (look 1's far keep counted
+  wrongly by the new scene test); fixed in 2a79e68.
+- `lh-l2-1b` on 2a79e68: ALL PASSED, 343 unit tests, `Look2UITests` in English and German.
+- `lh-l2-2a` on 2382254 (the creatures, the bank's glow, the castle's tiers): ALL PASSED, 346 unit tests; the most
+  a look-2 frame took was 98 instances and 16 lights (budget 1,500 and 64).
+- `lh-l2-3a` on de525ee (the weather): ALL PASSED, 358 unit tests, `Look2UITests` in English and German; T1 to T8
+  line for line as before, the bot heard 1068 petitioners; a storm's frame takes at most 326 instances; over the
+  seeds measured the days are calm 0.30, breeze 0.40, gusty 0.25, storm 0.055, rain on 0.29 of them, the wind
+  toward the valley on 0.70.
+- `lh-l2-4a` on 8b06671 (step 3, the fireflies, the rain's count, `lit:`): FAILED at the build (`sin` without
+  Foundation in `FrameBuilder`); fixed in 1efc58b.
+- `lh-l2-4b` on 1efc58b, the parity round with look 2 as the default: ALL PASSED (build, unit 359, every UI test in
+  English and German, release). The tuning report is identical to `lh-l2-3a`'s (T1 to T8, night 20's steps), the bot
+  heard 1068 petitioners, look 1's hashes hold. The live night shot (`78-look2-night-live`) was taken at 23:55 with 8
+  creatures in the frame, 4 (German run: 5) of them in the firelight, 4 shots in the air.
+  Seen in its pictures and left open: rain over the bright dusk valley is faint (`87-look2-rain-town-dusk`; the
+  code-painted streaks are as pale as the haze behind them, the painted `rainStreak` should carry a darker tail);
+  the fireflies are a few faint specks at phone size; between the Weltmauer's east end and the valley's mountains
+  the dusk sky shows as an orange wedge (`74-look2-town-dusk`), which is the layout's, for the art lane to judge.
 
 ## Risks
 

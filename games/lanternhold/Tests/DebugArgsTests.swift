@@ -15,7 +15,43 @@ final class DebugArgsTests: XCTestCase {
         XCTAssertEqual(args.actorMode, .smooth)
         XCTAssertEqual(args.lightStyle, .smooth)
         XCTAssertEqual(args.effects, .all)
-        XCTAssertEqual(args.frameOptions, FrameOptions())
+        XCTAssertEqual(args.look, LookVersion.standard)
+        XCTAssertEqual(args.frameOptions, FrameOptions(look: LookVersion.standard))
+    }
+
+    func testTheLookSwitch() {
+        XCTAssertEqual(DebugArgs(values: ["GWLook": "1"]).look, .one)
+        XCTAssertEqual(DebugArgs(values: ["GWLook": "2"]).look, .two)
+        XCTAssertEqual(DebugArgs(values: ["GWLook": "2"]).frameOptions.look, .two)
+        XCTAssertEqual(DebugArgs(values: ["GWLook": "3"]).look, LookVersion.standard, "an unknown look is ignored")
+        XCTAssertEqual(FrameOptions().look, .one, "frames built without the app's arguments keep look 1")
+        XCTAssertTrue(DebugArgs.keys.contains("GWLook"))
+    }
+
+    func testTheCastleStage() {
+        XCTAssertEqual(DebugArgs(values: [:]).castle, CastleStage(tier: 1, building: false))
+        XCTAssertEqual(DebugArgs(values: ["GWCastle": "2"]).castle, CastleStage(tier: 2, building: false))
+        XCTAssertEqual(DebugArgs(values: ["GWCastle": "3b"]).castle, CastleStage(tier: 3, building: true))
+        XCTAssertEqual(DebugArgs(values: ["GWCastle": "1B"]).castle, CastleStage(tier: 1, building: true))
+        XCTAssertEqual(DebugArgs(values: ["GWCastle": "4"]).castle, .standard, "an unknown tier is ignored")
+        XCTAssertEqual(DebugArgs(values: ["GWCastle": "b"]).castle, .standard)
+        XCTAssertEqual(CastleStage(tier: 9).tier, 3)
+        XCTAssertTrue(DebugArgs.keys.contains("GWCastle"))
+    }
+
+    func testTheWeatherArguments() {
+        XCTAssertEqual(DebugArgs(values: [:]).weather, .auto)
+        XCTAssertEqual(DebugArgs(values: ["GWWeather": "storm"]).weather, WeatherOverride(mode: .storm))
+        XCTAssertEqual(DebugArgs(values: ["GWWeather": "Clear"]).weather.mode, .clear)
+        XCTAssertEqual(DebugArgs(values: ["GWWeather": "hail"]).weather, .auto, "an unknown weather is ignored")
+        let fixed = DebugArgs(values: ["GWWeather": "gusty", "GWWind": "-0.5", "GWRain": "0.4", "GWWetness": "2"])
+        XCTAssertEqual(fixed.weather, WeatherOverride(mode: .gusty, wind: -0.5, rain: 0.4, wetness: 1))
+        XCTAssertEqual(DebugArgs(values: ["GWWind": "7"]).weather.wind, 1)
+        XCTAssertEqual(DebugArgs(values: ["GWRain": "-1"]).weather.rain, 0)
+        XCTAssertNil(DebugArgs(values: ["GWRain": "wet"]).weather.rain)
+        for key in ["GWWeather", "GWWind", "GWRain", "GWWetness"] {
+            XCTAssertTrue(DebugArgs.keys.contains(key), key)
+        }
     }
 
     func testTheFrontNightShotArguments() {

@@ -25,7 +25,7 @@ final class ProbeUITests: XCTestCase {
     private func check(virtualHeight: Int, shot: String) {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
-        app.launchArguments = ["-GWScene", "testpattern", "-GWVirtualHeight", String(virtualHeight)]
+        app.launchArguments = ["-GWScene", "testpattern", "-GWVirtualHeight", String(virtualHeight), "-GWLook", "1"]
         app.launch()
         let scene = app.descendants(matching: .any).matching(identifier: "world-scene").firstMatch
         guard scene.waitForExistence(timeout: 30) else {

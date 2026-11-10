@@ -1,34 +1,37 @@
-# throne 14x24, hand-set (started from the Recraft throne of s5-hall-1 run through the pipeline)
+# throne 14x24, hand-set (started from the Recraft throne of s5-hall-1 run through the pipeline). After the art pass
+# (ART-look2.md section 16) the back posts are gold and straw and the lit side is wood, not ink: the throne stands before the hall's
+# dark dais, where an ink frame was lost, and the posts must show behind the seated lord.
 k = ink
 w = woodDark
 o = wood
 L = woodLight
 g = gold
+s = straw
 t = banner
 T = roofLight
 D = roofDeep
 ---
 ..g........g..
-..k........k..
-..k.kkkkkk.k..
-..kkoLLLLokk..
-..kwoLggLowk..
-..kowkkkkwok..
-..kogDDDDgok..
-..kogtTTtgok..
-..kogtTttgok..
-..kogtTttgok..
-..kogtTttgok..
-..kogttttgok..
-..kogttttgok..
-..kogDttDgok..
-.kLokDttDkoLk.
-kLLLkDttDkLLLk
-kwwgTTTTTTgwwk
-kowgttttttgwok
-kowggggggggwok
-kowoooooooowok
-kowwLwwwwLwwok
-kowoooooooowok
-kowkkkkkkkkwok
+..g........s..
+..g.kkkkkk.s..
+..gkoLLLLoks..
+..gwoLggLows..
+..gowkkkkwws..
+..gogDDDDgws..
+..gogtTTtgws..
+..gogtTttgws..
+..gogtTttgws..
+..gogtTttgws..
+..gogttttgws..
+..gogttttgws..
+..gogDttDgws..
+.LLokDttDkoLk.
+LLLLkDttDkLLLk
+LwwgTTTTTTgwwk
+Lowgttttttgwok
+Lowggggggggwok
+Lowoooooooowok
+LowwLwwwwLwwok
+Lowoooooooowok
+Lowkkkkkkkkwok
 kwk........kwk

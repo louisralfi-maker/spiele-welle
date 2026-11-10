@@ -31,6 +31,27 @@ enum PlaceholderArt {
         case .ground, .groundB, .groundC, .groundD: frames = [ground(salt)]
         case .darknessBank: frames = [darknessBank(salt)]
         case .darknessEdge: frames = [darknessEdge(salt)]
+        // Look 2 (ART-look2.md 13.1): every id has its PNG; these plain stand-ins keep the game drawable without one.
+        case .weltmauer, .weltmauerPatch, .gorgeRock, .gorgeCrags, .cleftFace, .cleftFaceEnd, .cleftFlank,
+             .cleftFlankB, .cleftThroat, .keepTop2, .keepTop2Build, .keepTop3, .keepTop3Build, .castleFront3,
+             .castleFront3Build, .castleFrontScaffold, .backTop2, .backTop2Build, .backTop3, .backTop3Build,
+             .farCastle2, .farCastle2Build, .farCastle3, .farCastle3Build, .farCastleBack2, .farCastleBack2Build,
+             .farCastleBack3, .farCastleBack3Build, .farCastlePane:
+            frames = [cliff(salt, size: size)]
+        case .d2FirBeltFar, .shadowForest, .valleyVista, .d2TreeBelt, .firA, .firB, .firC, .firD, .deadTreeA,
+             .deadTreeB, .linden, .poplar, .appleTree, .willow, .d2BushA, .d2BushB, .d2LaneEnd, .d2FgFerns,
+             .d2FgMeadow, .d2FgReeds:
+            frames = [foliageStandIn(salt, size: size)]
+        case .laneMoorA, .laneMoorB, .laneMoorC, .laneMoorD, .laneScreeA, .laneScreeB, .laneScreeC, .laneScreeD,
+             .laneCobbleA, .laneCobbleB, .laneCobbleC, .laneCobbleD, .laneEarthA, .laneEarthB, .laneEarthC,
+             .laneEarthD:
+            frames = [ground(salt)]
+        case .d2FogBank, .d2MistBand, .d2FogLow, .d2Smoke: frames = [mistBank(salt, size: size)]
+        case .farCastleGlow, .farCleftGlow, .farCleftGlowBack, .farCastle2Glow, .farCastle3Glow, .farCastleBack2Glow,
+             .farCastleBack3Glow, .farCleftGlow2, .farCleftGlow2Build, .farCleftGlow3, .farCleftGlow3Build,
+             .farCleftGlowBack2, .farCleftGlowBack2Build, .farCleftGlowBack3, .farCleftGlowBack3Build,
+             .d2Fireflies, .d2Sparks, .darknessBankGlow:
+            frames = [glowStandIn(salt, size: size)]
         default:
             // M2b first (the strips of SPRITES.md), then the milestone 1 buildings and grids.
             frames = PlaceholderStructures.frames(for: sprite, salt: salt)
@@ -45,6 +66,9 @@ enum PlaceholderArt {
             }
             if frames.isEmpty {
                 frames = PlaceholderCastle.frames(for: sprite)
+            }
+            if frames.isEmpty {
+                frames = PlaceholderWeather.frames(for: sprite)
             }
             if frames.isEmpty {
                 frames = PlaceholderBuildings.frames(for: sprite, salt: salt)
@@ -418,6 +442,33 @@ enum PlaceholderArt {
             image[x, size.height - 1] = RGBA(0x0E0B1E)
         }
         return image
+    }
+
+    /// A stand-in for look-2 trees, belts and foreground plants: a plain green mass with clear upper corners.
+    static func foliageStandIn(_ salt: UInt64, size: PixelSize) -> PixelImage {
+        var p = Painter(size, salt: salt)
+        for y in 0..<size.height {
+            for x in 0..<size.width {
+                let edge = min(x, size.width - 1 - x)
+                guard y >= size.height / 3 || edge >= size.width / 4 else { continue }
+                let value = 0.6 - Double(y) / Double(max(1, size.height)) * 0.3 + (p.hash(x, y, 7) - 0.5) * 0.2
+                p.put(x, y, p.ramp(Ink.grass, value, x, y))
+            }
+        }
+        return p.image
+    }
+
+    /// A stand-in for a look-2 glow (the far castle's panes, the slot's light, sparks, fireflies, the bank's embers):
+    /// a sparse scatter of dim gold dots, so a missing PNG lights almost nothing.
+    static func glowStandIn(_ salt: UInt64, size: PixelSize) -> PixelImage {
+        var p = Painter(size, salt: salt)
+        let dots = max(1, size.width * size.height / 160)
+        for index in 0..<dots {
+            let x = min(size.width - 1, Int(p.hash(index, 1) * Double(size.width)))
+            let y = min(size.height - 1, Int(p.hash(index, 2) * Double(size.height)))
+            p.put(x, y, RGBA(0xB8742E))
+        }
+        return p.image
     }
 
     // MARK: - World ground and the Gloom

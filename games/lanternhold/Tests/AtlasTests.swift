@@ -85,6 +85,22 @@ final class AtlasTests: XCTestCase {
         XCTAssertLessThanOrEqual(layout.height, AtlasLayout.maxSide)
     }
 
+    func testLook2ArtIsBundled() {
+        // The look-2 port's contract step (SPRITES.md "Look 2: the world", "The castle grows"): every id from
+        // `weltmauer` on is drawn from its PNG, the bank's glow has four frames, and the set still fits one page.
+        let layout = AtlasLayout.shared
+        let look2 = Array(SpriteID.allCases.drop { $0 != .weltmauer })
+        XCTAssertGreaterThanOrEqual(look2.count, 87)
+        for sprite in look2 {
+            XCTAssertEqual(layout.sources[sprite], .png, "\(sprite) is drawn from its painting")
+        }
+        XCTAssertEqual(layout.cells[.darknessBankGlow]?.count, 4)
+        XCTAssertEqual(layout.sources[.darknessBank], .png)
+        XCTAssertEqual(layout.sources[.darknessEdge], .png)
+        XCTAssertLessThanOrEqual(layout.width, AtlasLayout.maxSide)
+        XCTAssertLessThanOrEqual(layout.height, AtlasLayout.maxSide)
+    }
+
     func testPlaceholdersAreDeterministic() {
         XCTAssertEqual(PlaceholderArt.frames(for: .gorgeWallA), PlaceholderArt.frames(for: .gorgeWallA))
         XCTAssertEqual(PlaceholderArt.frames(for: .fogStrip), PlaceholderArt.frames(for: .fogStrip))

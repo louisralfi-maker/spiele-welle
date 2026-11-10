@@ -22,15 +22,17 @@ final class LightProbeUITests: XCTestCase {
     }
 
     /// A world shot frozen at a time of day, the flicker fixed so every run shows the same fire. The light probe
-    /// (`-GWScene probe`, M2b) keeps the M1b scene as placed for these shots; the default scene is the game.
+    /// (`-GWScene probe`, M2b) keeps the M1b scene as placed for these shots; the default scene is the game. These
+    /// are look 1's pictures, so they pin it (`-GWLook 1`; look 2 is the default since the look 2 port).
     private func world(_ time: String, camera: String = "760") -> [String] {
         ["-GWScene", "probe", "-GWCameraX", camera, "-GWTimeOfDay", time, "-GWFreezeTime", "YES",
-         "-GWFlickerTime", "2.5"]
+         "-GWFlickerTime", "2.5", "-GWLook", "1"]
     }
 
     func testLightProbe() {
         XCUIDevice.shared.orientation = .landscapeLeft
-        let lab = ["-GWScene", "lightlab", "-GWTimeOfDay", "0.95", "-GWFreezeTime", "YES", "-GWFlickerTime", "2.5"]
+        let lab = ["-GWScene", "lightlab", "-GWTimeOfDay", "0.95", "-GWFreezeTime", "YES", "-GWFlickerTime", "2.5",
+                   "-GWLook", "1"]
         var shots: [Shot] = [
             Shot(name: "01-front-noon", arguments: world("0.5")),
             Shot(name: "02-front-golden", arguments: world("0.75")),
@@ -77,7 +79,7 @@ final class LightProbeUITests: XCTestCase {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
         app.launchArguments = ["-GWScene", "probe", "-GWAutoplay", "walk", "-GWCameraX", "700", "-GWTimeOfDay", "0.8",
-                               "-GWFreezeTime", "YES"]
+                               "-GWFreezeTime", "YES", "-GWLook", "1"]
         app.launch()
         guard waitUntilReady(app, name: "film") else { return }
         pause(3.0)

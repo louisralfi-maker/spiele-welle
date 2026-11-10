@@ -1,0 +1,43 @@
+# citizenCSeated 12x22, 2 frames: seated 0, a nod 1 (a PROPOSAL of the look-2 art pass, SPRITES.md "Proposals of the
+# art pass"; ART-look2.md section 15). The old farmer waiting on a petitioners' bench in the great hall (bench 32x10:
+# this frame's bottom on the floor, the bench drawn behind him; the cushion's rows are this frame's rows 13 and 14).
+# He sits facing the hall like the seated lord: the vest open over the blue smock, both hands on the stick that
+# stands between his knees, the shins before the seat; only the head under the straw hat stays in profile, turned to
+# the throne (the engine mirrors the frame for a bench on the throne's other side). The parts are citizenC's
+# (include).
+id citizenCSeated
+size 12x22
+frames 2
+outline ink shade
+include citizenC.txt
+
+# the vest over the smock from the front, the sleeves, both hands on the stick's top (frame cols 2-9)
+part torsoFront
+    .hhFfHH.
+    FhhFlHHD
+    FfhSSsHD
+    .FfFhfD.
+
+# the knees apart with the stick between them (the patch on the near knee), the shins, the boots
+part lapFront
+    nnb.h.nnb
+    nbB.h.cbB
+    .bB.h.bB.
+    .bB.h.bB.
+    .bB.h.bB.
+    .bB.h.bB.
+    .bB.h.bB.
+    .HH.h.hH.
+    HHH.H.hHH
+
+frame 0
+    lapFront 2 12
+    torsoFront 2 8
+    head 5 4
+    hat 2 0
+
+frame 1
+    lapFront 2 12
+    torsoFront 2 8
+    head 5 5
+    hat 2 1

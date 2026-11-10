@@ -103,6 +103,9 @@ final class GameModel {
     @ObservationIgnored private var autoplayDirection: Int
     @ObservationIgnored private var steps = 0
     @ObservationIgnored private var renderedFrames = 0
+    /// The fog's travel with the wind so far (seconds of drift time) and the clock's time it was summed at.
+    @ObservationIgnored private var weatherTravel = 0.0
+    @ObservationIgnored private var weatherTravelAt: Double?
     @ObservationIgnored private var smoothedInterval = 1.0 / 60.0
     @ObservationIgnored private var lastStatsTime = -1.0
     /// Thermal state `.serious`: the renderer drops bloom and one fog plane.
@@ -122,6 +125,8 @@ final class GameModel {
     @ObservationIgnored var feedback: any FeedbackHub = SilentFeedback()
     /// Creature bodies in the last drawn frame (the scene value's `seen:`, so UI tests catch the fight in view).
     @ObservationIgnored private var seenCreatures = 0
+    /// Those of them the battle's light field lights (the scene value's `lit:`: the creatures out of the dark).
+    @ObservationIgnored private var litCreatures = 0
     /// Archers drawing or loosing in the last drawn frame (the scene value's `aim:`).
     @ObservationIgnored private var aimingArchers = 0
     /// The game's view of the scene, kept while the beacon's site and the rooms' fades stay as they are (M2b review:
@@ -184,7 +189,7 @@ final class GameModel {
         self.args = args
         self.kind = kind
         reduceMotion = args.reduceMotion || UIAccessibility.isReduceMotionEnabled
-        var world = PlaceholderScene.world(seed: args.seed)
+        var world = PlaceholderScene.world(seed: args.seed, look: args.look, castle: args.castle)
         var start = min(WorldLayout.walkEnd, max(0, args.cameraX ?? world.king.x))
         var dayClock: DayClock
         var loadedSettings = SaveSettings()
@@ -796,9 +801,37 @@ final class GameModel {
 
     // MARK: - Frames
 
+    /// Look 2's weather for the frame (`Weather`): the run's seed and day in the game; in the probe, which has no
+    /// run, only a weather asked for with `-GWWeather`, `-GWWind`, `-GWRain` or `-GWWetness`. The picture reads it,
+    /// the simulation never does. While the clock runs, the fog's travel with the wind is summed frame by frame, so
+    /// a change of the wind never makes the fog jump; `-GWFlickerTime` keeps the closed form.
+    private func weatherSample(look: LookVersion) -> WeatherSample {
+        guard look == .two else { return .clear }
+        let seed: UInt64
+        let day: Int
+        let hour: Double
+        if kind == .world, let state = driver?.state {
+            (seed, day, hour) = (state.seed, state.day, state.hour)
+        } else {
+            guard args.weather != .auto else { return .clear }
+            (seed, day, hour) = (args.seed, clock.day, clock.hour)
+        }
+        var sample = Weather.sample(seed: seed, day: day, hour: hour, time: animationTime, override: args.weather,
+                                    reduceMotion: reduceMotion)
+        if args.flickerTime == nil, sample != .clear, !reduceMotion {
+            let now = clock.elapsed
+            let dt = min(0.1, max(0, now - (weatherTravelAt ?? now)))
+            weatherTravelAt = now
+            weatherTravel += dt * (Weather.driftRate(mean: sample.mean) - 1)
+            sample.travel = weatherTravel
+        }
+        return sample
+    }
+
     /// The frame to draw on a screen of this physical size.
     func frame(physicalWidth: Int, physicalHeight: Int) -> FrameDesc {
-        let options = self.options
+        var options = self.options
+        options.weather = weatherSample(look: options.look)
         let pixelScale = options.pixelScale(physicalWidth: physicalWidth, physicalHeight: physicalHeight)
         let frame: FrameDesc
         switch kind {
@@ -842,7 +875,7 @@ final class GameModel {
             CourtFrames.apply(&layer, state: state, catalog: .standard, scene: court,
                               view: EntityFrames.ActorView(camera: view, pixelScale: pixelScale,
                                                            mode: options.actorMode),
-                              ambient: AmbientRamp.sample(at: state.hour), animTime: animationTime,
+                              ambient: AmbientRamp.sample(at: state.hour, look: options.look), animTime: animationTime,
                               reduceMotion: reduceMotion)
             noteCourtFrame(camera: view, pixelScale: pixelScale)
             for light in DawnSweep.lights(hour: state.hour) {
@@ -855,15 +888,18 @@ final class GameModel {
             frame = FrameBuilder.build(scene: filtered, clock: frameClock, camera: view, pixelScale: pixelScale,
                                        options: options, entities: layer)
             var seen = 0
+            var lit = 0
             var aiming = 0
             for actor in frame.actors {
                 if actor.sprite == .archer {
                     if actor.frame >= 2 { aiming += 1 }
                 } else if !actor.isEmissive && actor.sprite != .king && EntityFrames.glowStrip(actor.sprite) != nil {
                     seen += 1
+                    if actor.isLit { lit += 1 }
                 }
             }
             seenCreatures = seen
+            litCreatures = lit
             aimingArchers = aiming
         }
         renderedFrames += 1
@@ -1013,7 +1049,7 @@ final class GameModel {
         guard let game = driver else { return }
         let state = game.state
         var text = "day:\(state.day) hour:\(String(format: "%.2f", state.hour)) alive:\(state.creatures.count) "
-            + "seen:\(seenCreatures) shots:\(state.projectiles.count) aim:\(aimingArchers) "
+            + "seen:\(seenCreatures) lit:\(litCreatures) shots:\(state.projectiles.count) aim:\(aimingArchers) "
             + "kx:\(Int(state.king.x.rounded()))"
         if let front = dawnFront {
             text += " dawn:\(String(format: "%.2f", front))"

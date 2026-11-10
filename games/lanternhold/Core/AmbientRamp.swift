@@ -58,6 +58,15 @@ struct AmbientSample: Sendable, Equatable {
     var warmth: Float
     /// Colour grade: saturation multiplier (1 neutral).
     var saturation: Float
+    /// Look 2 only (ART-look2.md "Light per hour"; look 1's keys leave these at rest and its shaders never read
+    /// them). The colour distance fades to.
+    var air = SIMD3<Float>(0, 0, 0)
+    /// Look 2: the vignette's strength 0 ... 1.
+    var vignette: Float = 0
+    /// Look 2: the navy lift of the darks 0 ... 1.
+    var black: Float = 0
+    /// Look 2: the light on the clouds' sunlit tops (the low sun's colour times its strength; 0 at night).
+    var cloudColor = SIMD3<Float>(0, 0, 0)
 
     /// The ambient light as one colour: `ambientColor × ambientIntensity`.
     var ambient: SIMD3<Float> { ambientColor * ambientIntensity }
@@ -88,7 +97,11 @@ struct AmbientSample: Sendable, Equatable {
             moonHeight: m(a.moonHeight, b.moonHeight),
             torchStrength: m(a.torchStrength, b.torchStrength),
             warmth: m(a.warmth, b.warmth),
-            saturation: m(a.saturation, b.saturation))
+            saturation: m(a.saturation, b.saturation),
+            air: c(a.air, b.air),
+            vignette: m(a.vignette, b.vignette),
+            black: m(a.black, b.black),
+            cloudColor: c(a.cloudColor, b.cloudColor))
     }
 }
 
@@ -176,9 +189,9 @@ enum AmbientRamp {
     }
 
     /// The two keyframes around `hour` and the smoothstep weight of the second one.
-    static func segment(at hour: Double) -> (from: Keyframe, to: Keyframe, weight: Double) {
+    static func segment(at hour: Double, look: LookVersion = .one) -> (from: Keyframe, to: Keyframe, weight: Double) {
         let h = DayClock.wrap(hour)
-        let keys = keyframes
+        let keys = look == .two ? keyframesLook2 : keyframes
         let count = keys.count
         for index in 0..<(count - 1) {
             let a = keys[index]
@@ -199,13 +212,13 @@ enum AmbientRamp {
     }
 
     /// The ambient look at `hour` (0 ..< 24, other values are wrapped).
-    static func sample(at hour: Double) -> AmbientSample {
-        let seg = segment(at: hour)
+    static func sample(at hour: Double, look: LookVersion = .one) -> AmbientSample {
+        let seg = segment(at: hour, look: look)
         return AmbientSample.mix(seg.from.sample, seg.to.sample, Float(seg.weight))
     }
 
     /// The ambient look at a `-GWTimeOfDay` position.
-    static func sample(timeOfDay: Double) -> AmbientSample {
-        sample(at: DayClock.hour(forTimeOfDay: timeOfDay))
+    static func sample(timeOfDay: Double, look: LookVersion = .one) -> AmbientSample {
+        sample(at: DayClock.hour(forTimeOfDay: timeOfDay), look: look)
     }
 }

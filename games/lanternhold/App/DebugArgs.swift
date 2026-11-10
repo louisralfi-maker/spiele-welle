@@ -64,6 +64,16 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWClock <h>` (tests): the clock of the start state is set to this hour by day (6 ... 19) without anyone
     /// playing on, so today's petitioners still wait (`-GWHour` lets the reference bot play, and it hears them).
     var clock: Double?
+    /// `-GWLook 1|2`: the look (1: the M1b to M3 picture; 2: "farbig-düster", docs/PORT-look2.md).
+    var look: LookVersion = .standard
+    /// `-GWCastle 1|1b|2|2b|3|3b` (look 2): the castle's tier as drawn, with "b" in its building state (SPRITES.md
+    /// "The castle grows"). Drawing only; nothing in play raises it yet.
+    var castle: CastleStage = .standard
+    /// `-GWWeather auto|clear|breeze|gusty|storm`, `-GWWind <-1…1>`, `-GWRain <0…1>`, `-GWWetness <0…1>` (look 2):
+    /// the weather of the picture. `auto` is the seed's; `clear` no wind and no rain; `breeze` and `gusty` that wind
+    /// toward the valley, dry; `storm` the storm at its height. The numbers fix the steady wind (no gusts), the rain
+    /// (with its cloud and wet ground) and the wetness on top of the mode.
+    var weather = WeatherOverride.auto
     /// `-GWSkipOnboarding YES`: no hints (the onboarding comes in M7; accepted now so tests already pass it).
     var skipOnboarding = false
 
@@ -95,7 +105,8 @@ struct DebugArgs: Sendable, Equatable {
         "GWScene", "GWVirtualHeight", "GWScaleOverride", "GWTimeOfDay", "GWFreezeTime", "GWFlickerTime", "GWSeed",
         "GWCameraX", "GWAutoplay", "GWActorMode", "GWLightStyle", "GWEffects", "GWShowLowRes", "GWShowBuffer",
         "GWDebugLights", "GWStats", "GWReduceMotion", "GWDay", "GWNight", "GWBuild", "GWGold", "GWHappiness",
-        "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock",
+        "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock", "GWLook", "GWCastle",
+        "GWWeather", "GWWind", "GWRain", "GWWetness",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -170,8 +181,26 @@ struct DebugArgs: Sendable, Equatable {
         }
         screen = values["GWScreen"].flatMap { Screen(rawValue: $0.lowercased()) }
         skipOnboarding = DebugArgs.bool(values["GWSkipOnboarding"])
+        if let look = DebugArgs.int(values["GWLook"]).flatMap({ LookVersion(rawValue: $0) }) {
+            self.look = look
+        }
+        if let castle = values["GWCastle"].flatMap({ CastleStage(argument: $0) }) {
+            self.castle = castle
+        }
         if let clock = DebugArgs.double(values["GWClock"]), clock >= 6, clock < 19 {
             self.clock = clock
+        }
+        if let mode = values["GWWeather"].flatMap({ WeatherOverride.Mode(rawValue: $0.lowercased()) }) {
+            weather.mode = mode
+        }
+        if let wind = DebugArgs.double(values["GWWind"]) {
+            weather.wind = min(1, max(-1, wind))
+        }
+        if let rain = DebugArgs.double(values["GWRain"]) {
+            weather.rain = min(1, max(0, rain))
+        }
+        if let wetness = DebugArgs.double(values["GWWetness"]) {
+            weather.wetness = min(1, max(0, wetness))
         }
     }
 
@@ -181,7 +210,7 @@ struct DebugArgs: Sendable, Equatable {
     var frameOptions: FrameOptions {
         FrameOptions(lightStyle: lightStyle, effects: effects, actorMode: actorMode, reduceMotion: reduceMotion,
                      virtualHeight: virtualHeight, scaleOverride: scaleOverride, flickerTime: flickerTime,
-                     debugLights: debugLights)
+                     debugLights: debugLights, look: look)
     }
 
     private static func int(_ text: String?) -> Int? {
