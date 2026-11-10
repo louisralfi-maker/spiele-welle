@@ -1129,3 +1129,87 @@ Left, each with its reason:
 - The new ids are not in SPRITES.md (13.1).
 - `wardenStatue` carries ivy; say if the Throat's one plant should go (it means repainting look 1's sprite or a
   look-2 copy of it).
+
+## 15. Stage 4: the art pass (10.11.2026, night)
+
+The people and the houses brought to the level of the creatures and the world. Art only: no Swift, no project.yml, no
+test changed. Every existing SPRITES.md id keeps its size, its frame count and its frame meanings; every new id is a
+**proposal for the code lane** and stands under "Proposals of the art pass" in SPRITES.md with its size, frames and
+anchors. `tools/build-art.sh` rebuilds every committed PNG byte for byte (a full run, about 6 minutes on this Mac; a
+second run changes nothing). No Recraft image was made (41 credits before and after).
+
+### 15.1 What was painted
+
+| step | commit | ids | how |
+|---|---|---|---|
+| the lord | f830685 | `king`, `kingGlow`, `portraitKing` repainted; `lady`, `ladyGlow`, `kingSeated`, `kingSeatedGlow`, `ladySeated`, `ladySeatedGlow`, `portraitLady` new | part grids in `tools/grids/actors/` (actorart.py), the portraits as grids |
+| the castle grows | f1b776c | tier 1 unchanged; `keepTop2`, `keepTop3`, `castleFront3`, `castleFrontScaffold`, `backTop2`, `backTop3`, `farCastle2`, `farCastle3`, `farCastleBack2`, `farCastleBack3`, each with its `…Build` state, their glows and the slot's cut-out glows, all new | `tools/castleart.py`, the lane `castleTiers` of `build-art-world.sh` |
+| soldiers and townsfolk | 1c10bae | `archer`, `guardsman`, `builder`, `citizen`, `citizenB`, `citizenC` repainted; `citizenSeated`, `citizenBSeated`, `citizenCSeated` new | part grids (actorart.py); the seated ones `include` the standing ones' parts |
+| the town | this commit | `house`, `houseB`, `houseC`, `bigHouse`, `tavern`, `market`, `well` repainted | `tools/townart.py` |
+
+**The lord and the lady.** The Burgherr is the young lamplighter of STORY.md: lanky, tousled hair, the circlet low on
+the brow, a mantle and a cloak, the hooked lantern pole. The Burgherrin is the same role in the same frame: a young
+woman with a dark plait, the same circlet, cloak and pole. Both are grown, lean figures (decision 6: nothing here has
+a child's features). Seated they face the hall, the head in profile, one hand on the lantern pole that stands at the
+throne's arm rest.
+
+**The people.** The method of the lord: lean grown figures 12 px wide, look 2's selective outline (`outline ink
+shade`: ink only right of and under the body), a lit column at the left and a shade column at the right of every
+part, two-tone legs, walk cycles with contact and passing poses. The archer wears a leather hood and the house's
+teal tabard and carries a quiver and a longbow; the guardsman a nasal helm, mail, the teal kite shield and a spear
+taller than himself; the builder a cloth cap, a smock, a tool belt and a long mallet. The townswoman (`citizen`)
+keeps her basket, the townsman (`citizenB`) his sack, the old farmer (`citizenC`) his straw hat and stick.
+
+**The town.** One painter with one vocabulary (tile, slate and thatch roofs with courses and a lit slope, lime-washed
+plaster with the eave's cast shadow, oak posts, beams and braces, shuttered windows over flower boxes, plank doors
+with iron bands, field stone plinths, coursed grey stone, vines, wood piles, barrels) instead of the flat Recraft
+conversions and hand-set grids. The three cottages differ in roof and shutters (red tile and teal; teal slate and
+red; thatch with a dormer and green); the big house has two storeys, two chimneys and a dormer; the tavern a stone
+ground floor, a jettied storey, a front gable and its tankard sign; the market three stalls whose awnings have a lit
+top, a crease and a scalloped valance; the well a shingled roof, a windlass and a bucket.
+
+### 15.2 Notes for the code lane
+
+- **Nothing breaks if nothing is done:** every repainted id has its old size, frames and anchors. Two anchors moved
+  by a pixel: the archer's arrow lies on the frame's row 9 (was 10) and leaves at col 11; the guardsman's spear tip at
+  the thrust (frame 7) stays at col 13, row 11.
+- **The window masks are unchanged.** The glass (`night1`) sits where the layout's masks light it: the cottages
+  (11,8,5,6), (46,8,5,6), `houseC`'s dormer (27,33,3,2); `bigHouse` (26,24,5,5), (41,24,5,5), (16,9,5,5), (50,9,5,5),
+  the dormer (35,40,3,2); `tavern` (11,25,5,5), (41,25,5,5), (69,25,5,5), (15,9,8,5), (56,9,8,5), the lantern
+  (32,10,1,2). The glazing bars are `woodDark`, so they stay dark inside a lit window. The tavern's gable has a dark
+  loft hatch (`night1`, cols 61-63, rows 17-19) that no mask lights: leave it dark.
+- **The lady** swaps `king` for `lady` (and the glow, the seated strips, the portrait) everywhere; the lantern's
+  anchors are the same pixel for pixel.
+- **The seated lord** (`kingSeated`, 4 frames: sit down 0-1, idle 2-3) is drawn at the throne's centre over the
+  `throne`; he covers most of the 14x24 throne, only its back posts and arms show. The hall interior's painted dais
+  is centred about world x 1837, the throne at 1824: move the throne (and the seated lord) 13 px right, or accept the
+  offset; the art was not changed for it.
+- **The benches:** a `bench` seats two (the sitters' left edges at bench x +2 and +18) or three (+0, +10, +20); draw
+  the bench first. The seated strips' frame 1 is a nod, to be shown now and then, not looped.
+- **The castle's tiers:** the table in SPRITES.md is the contract (which sprite replaces which at which anchor,
+  the masks, the far overlays and the slot's cut-out glows). Up close the castle cannot grow upward (the crowns reach
+  y 172 of 178): it grows behind the wall walk, in the towers' mass, and fully in the far view.
+- **Flipped houses:** the layout mirrors every second cottage. The painted light then comes from the right on those;
+  at the cottages' size it does not read as a fault, but nothing larger (the big house, the tavern) should be flipped.
+- **Sources kept, unused:** `grids/house-front.txt`, `grids/well.txt`, `grids/buildings/{bigHouse,market,tavern}.txt`
+  and the cottage's Recraft box are the old sources; `build-art.sh` and `build-art-buildings.sh` name them in a
+  comment and build from `townart.py` now.
+
+### 15.3 Notes for the engine port
+
+- Albedo only, as before: the houses carry no painted night. Their cast shadows (under eaves and jetties) are part
+  of the albedo and are right for any light from above.
+- In the mock the hall lights actors dimly (the room's ambient is applied to them without the hearth's and the
+  chandeliers' light): the seated lord and the waiting townsfolk read darker there than they should in the engine.
+- The spear's pale blade is faint against a pale day backdrop; the engine's rim light (12.4) would lift it.
+- New mock scenes: `hall-audience`, `hall-audience-lady`, `hall-benches`, `line-night`, `market-dusk`,
+  `tier<1|2|3>[b]-<gate|back|far|farback>[-day]` (`tools/scenemock/scene_look2.py`); `tools/artsheet.py` makes
+  strip sheets on day, dusk and fire bands.
+
+### 15.4 Open
+
+- The castle's fronts (`hallFront`, `chapel`, `kitchen`) and the defence buildings (palisade, stone wall, bastion,
+  the towers, the braziers, the beacon's stages) still stand as they were; `townart.py`'s vocabulary (coursed stone,
+  roofs, timber) is the base for them.
+- The M3 court members are not repainted.
+- The repainted walk cycles and the seated strips have not been seen in motion, only as strips and in still mocks.

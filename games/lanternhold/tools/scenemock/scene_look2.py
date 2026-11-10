@@ -277,6 +277,7 @@ SCENES = {
     "castle-dusk": castle_dusk,
     "court-dusk": court_dusk,
     "square-dusk": lambda look: town(look, 0.8, 3040, 3026),
+    "market-dusk": lambda look: town(look, 0.8, 3285, 3300),  # stage 4: the market and the tavern at dusk
     "town-noon": lambda look: town(look, 0.5, 2800, 2790),
     "river-golden": river_golden,
 }

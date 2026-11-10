@@ -32,8 +32,11 @@ build() { # name: one sprite
                    python3 -I -B $T grid $G/$1.txt $A/$1.png ;;
     stoneWall|bastion|rubbleWood|rubbleStone|scaffold|gateWood|gateIron|gateGreat|gateBroken|archerTower|watchtower|\
     fireTower|catapult|stakePit|beaconTower|greatBeacon|beaconFire|barracks|smithy|masterSmithy|lodge|bigLodge|\
-    bigHouse|market|tavern|plotMarker|arrow|fireArrow|bolt|firepot)
+    plotMarker|arrow|fireArrow|bolt|firepot)
                    python3 -I -B $T grid $GB/$1.txt $A/$1.png ;;
+    # look 2, stage 4 (ART-look2.md section 15): painted by townart.py; their grids in grids/buildings stay, unused
+    bigHouse|market|tavern)
+                   python3 -I -B games/lanternhold/tools/townart.py build $1 --out $A ;;
     # fix stage: the first stage keeps the ruin's broken shell standing behind the new pale courses (beaconRuin.png
     # without its fire cage: the body from row 34, the two broken stubs from row 22), the shear legs rising above it
     beaconBase)    mkdir -p $PB
