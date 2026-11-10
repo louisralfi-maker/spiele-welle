@@ -2326,8 +2326,73 @@ measured (the story pass after the merge will reshuffle the realms at dawn 21 ag
   gatehouse falls, 4 s apart between the step sizes), as 19 of M2a's 58 variants did.
 - Two endless realms of 20 still stand at night 70 (the gatehouse never falls); more growth (0.55) or brutes in the
   endless mix would take them, at the cost of moving the median fall earlier.
-- "Sound the horn" by day sends the petitioners still waiting home unheard at the horn (one happiness each at dawn);
-  its confirmation does not say so yet.
+- "Sound the horn" by day sends the petitioners still waiting home unheard at the horn (one happiness each at dawn).
+  Resolved in the M3 fix stage: its confirmation says so.
+
+### M3 fix stage (10.11.2026): after the review of the join
+
+The review of the join (a code lens and a player lens, then a refuter) left two confirmed findings and a list of
+optional ones. This stage fixes the two and the cheap, clearly right part of the list. One rule held throughout: the
+reference bot's path stays bit for bit what round `lh-m3-j3` measured, so no petition's id, kind, day, weight,
+condition or counsel changed and no choice the bot takes changed what it does to the simulation.
+
+**U1: a story decision leaves something you can see** (`Core/Remembered.swift`)
+
+- Every story choice now shows what it leaves behind. A choice that only sets a flag used to read "No cost" and then
+  nothing ever happened on screen. Its tile now says "Will be remembered" (or what it gives, "Next brazier free"),
+  and the reaction card's change row names the trace in one line (`remember.<flag>` in `Story.xcstrings`, 16 flags,
+  at most 56 characters in German).
+- The court answers. `Resources/Court/lines.json` marks a line as an answer (`"answer": true`: it needs `requires`
+  and `days`); answers come after Odile's hints and before the everyday lines, and they raise the speech mark, so
+  the day after a decision someone in the hall has a word on it. 10 new answer lines, 3 existing ones marked.
+- One decision has a real effect: "light first" on day 2 (`tower_request` c2) sets `brazier_gift`, and the next
+  brazier ordered costs nothing (`Build.options` shows price 0, `Build.order` takes the flag). The bot never takes
+  that choice, so the tuning is untouched.
+- The finale's dawn report quotes the speech the player chose on night 20's eve (`ReportCard.make(_:flags:)`).
+- Deferred to the story pass's retune, because they change what the bot's own choices do: a discount for the
+  promised tower, an effect for `hesper_giant` c1 and the last stand's bonuses.
+
+**U2: the audience is where the player looks for it** (`KingTargets`, `CourtLayout`)
+
+- While petitioners wait in the hall the throne owns the whole dais (x 1792 to 1870): the button says "Audience (n)"
+  anywhere between the benches and the hearth, whoever stands there. The tax lectern moved beyond the hearth (left
+  edge 1908), Odile stands a step off the throne and walks to the lectern's near side (1848 and 1894), Pip keeps the
+  hearth at night.
+- A gold mark hangs over the throne while the hall's queue is not empty (a lit frame under Reduce Motion).
+
+**The smaller fixes**
+
+- C1: the bot hears from the catalogue its driver was given, the tuning report counts the petitioners the bot heard
+  and fails on 0 ("Court"), and simtune stops before any run when the petitions did not load. A tuning run with an
+  empty court can no longer pass for a real one.
+- C2: the horn's confirmation names who still waits ("3 petitioners still wait. They go home unheard.").
+- C3: the pause leaves the audience the way the Leave button does (`GameModel.leaveAudience`), so a petitioner
+  already heard walks out instead of vanishing.
+- C4: replaying the day and the second chance start the court afresh (`restartView`: the bubble, the talk log, the
+  leavers, the audience).
+- C5: the validator reports required flags that no choice sets, and German lengths per kind of text.
+- C6: the far keeps' dark pane has a name in `SceneLayout`; the test checks both far keeps lose exactly that pane.
+- C7, C8: the second court line's precondition is asserted; an audience opened at 18:54 holds the clock and the horn
+  then counts the unheard.
+- U3, U5: the audience's button says "Leave"; the night chips are spelled out ("Tonight −50%").
+- U9: German choices where the lord pays or buys are infinitives ("Das Fernrohr kaufen"), 11 labels; the well's
+  second reaction reads as German; "Eure" is capitalised.
+- M2b's open point: the finale's shots are taken from 23:00 to 23:30 and 00:00 to 00:30 (`34-finale-2300`,
+  `35-finale-0000`).
+
+**Left open, and why**
+
+- U4, about 14 choices that are strictly worse than their neighbour: each needs a new reaction text and a judgement
+  of the story; changing the counsel's side moves the bot. For the story pass.
+- U10, king to lord in the texts: the story pass.
+- U3, U6, U7 (the lord never sits; a townsfolk portrait that does not match its figure; the chapel's cut-away): art.
+- U8, the speech mark's size: it is 7x7 real art and already glows; a bigger one is a new sprite.
+- C8's wider seeds for `testTheHeadlessStepKeepsNightTwentysOutcome`: the step check is known to be fragile near
+  first light (above); more seeds would fail on that, not on a fault. C8's play-on-from-a-save test with the bot:
+  not cheap (a second 20-night run in the unit step).
+- The gold blow-out beside the Lightless King's lantern and the archers' volleys in step: both need the renderer's
+  light sum or the battle's timing changed against pictures and the tuning; not cheap.
+- Random and endless choices that only set a flag still read "No cost"; U1 covered the story's.
 
 ## Risks
 
