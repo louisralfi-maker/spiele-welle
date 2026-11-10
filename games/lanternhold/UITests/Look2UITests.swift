@@ -4,7 +4,9 @@ import XCTest
 /// Look 2's shots of the game (DESIGN.md "Look 2 port"): the same realm as the other tests, launched with
 /// `-GWLook 2` until look 2 is the default. The shadow land at night with the creatures at the outer line (held
 /// still at 23:20 and once live, the liveliest moment between 23:00 and 23:30), the castle, the courtyard and the
-/// town at dusk, the great hall cut away at court and the audience. Later rounds add the weather's shots here.
+/// town at dusk, the great hall cut away at court and the audience, all in clear air (`-GWWeather clear`), so they
+/// stay the pictures they were; then the weather's shots: a storm at the outer line by night, rain on the castle and
+/// the town at dusk, the storm with Reduce Motion (no streaks, the wet light stays) and the lane after the rain.
 /// Saves `<nn>-look2-<what>-<lang>`.
 @MainActor
 final class Look2UITests: XCTestCase {
@@ -17,12 +19,17 @@ final class Look2UITests: XCTestCase {
     }
 
     private static let look = ["-GWLook", "2"]
+    private static let clear = ["-GWWeather", "clear"]
 
     func testLookTwo() {
         XCUIDevice.shared.orientation = .landscapeLeft
-        let demo = ["-GWBuild", "demo", "-GWFreezeTime", "YES", "-GWFlickerTime", "2.5"] + Look2UITests.look
+        let base = ["-GWBuild", "demo", "-GWFreezeTime", "YES", "-GWFlickerTime", "2.5"] + Look2UITests.look
+        let demo = base + Look2UITests.clear
+        let night = ["-GWNight", "12", "-GWHour", "23.33"] + base
+        let dusk = ["-GWDay", "12", "-GWHour", "19.2"] + base
         let stills: [(name: String, arguments: [String])] = [
-            ("70-look2-shadow-night", ["-GWNight", "12", "-GWHour", "23.33", "-GWCameraX", "470"] + demo),
+            // The bank stands at x 500 on night 12: the creatures that have left it, before the outer line.
+            ("70-look2-shadow-night", ["-GWNight", "12", "-GWHour", "23.33", "-GWCameraX", "570"] + demo),
             ("71-look2-front-night", ["-GWNight", "12", "-GWHour", "23.33", "-GWCameraX", "700"] + demo),
             ("72-look2-castle-dusk", ["-GWDay", "12", "-GWHour", "19.2", "-GWCameraX", "1360"] + demo),
             ("73-look2-court-dusk", ["-GWDay", "12", "-GWHour", "19.2", "-GWCameraX", "1650"] + demo),
@@ -34,6 +41,13 @@ final class Look2UITests: XCTestCase {
             ("82-look2-tier3-gate", ["-GWDay", "12", "-GWHour", "19.2", "-GWCameraX", "1360", "-GWCastle", "3"] + demo),
             ("83-look2-tier3b-back", ["-GWDay", "12", "-GWHour", "12", "-GWCameraX", "2330", "-GWCastle", "3b"] + demo),
             ("84-look2-tier3-far", ["-GWDay", "12", "-GWHour", "19.2", "-GWCameraX", "250", "-GWCastle", "3"] + demo),
+            ("85-look2-storm-night", ["-GWCameraX", "700", "-GWWeather", "storm"] + night),
+            ("86-look2-rain-castle-dusk", ["-GWCameraX", "1360", "-GWWeather", "breeze", "-GWRain", "0.7"] + dusk),
+            ("87-look2-rain-town-dusk", ["-GWCameraX", "2900", "-GWWeather", "gusty", "-GWRain", "0.6"] + dusk),
+            ("88-look2-storm-reduce-motion",
+             ["-GWCameraX", "700", "-GWWeather", "storm", "-GWReduceMotion", "YES"] + night),
+            ("89-look2-after-rain", ["-GWCameraX", "1360", "-GWWeather", "clear", "-GWWetness", "1"] + dusk),
+            ("90-look2-storm-shadow-dusk", ["-GWCameraX", "300", "-GWWeather", "storm"] + dusk),
         ]
         for still in stills {
             let app = XCUIApplication()
@@ -53,6 +67,7 @@ final class Look2UITests: XCTestCase {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
         app.launchArguments = ["-GWNight", "12", "-GWBuild", "demo", "-GWAutoplay", "play"] + Look2UITests.look
+            + Look2UITests.clear
         app.launch()
         if waitUntilReady(app, name: "look2-night") {
             if waitForHour(app, 23.0, timeout: 150) != nil {
@@ -72,7 +87,7 @@ final class Look2UITests: XCTestCase {
         XCUIDevice.shared.orientation = .landscapeLeft
         let hall = XCUIApplication()
         hall.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWDay", "3", "-GWSeed", "2",
-                                "-GWClock", "10", "-GWCameraX", "1840"] + Look2UITests.look
+                                "-GWClock", "10", "-GWCameraX", "1840"] + Look2UITests.look + Look2UITests.clear
         hall.launch()
         if waitUntilReady(hall, name: "look2-hall") {
             pause(1.0)
@@ -82,7 +97,7 @@ final class Look2UITests: XCTestCase {
 
         let app = XCUIApplication()
         app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWDay", "2", "-GWSeed", "1",
-                               "-GWClock", "10", "-GWCameraX", "1824"] + Look2UITests.look
+                               "-GWClock", "10", "-GWCameraX", "1824"] + Look2UITests.look + Look2UITests.clear
         app.launch()
         guard waitUntilReady(app, name: "look2-audience") else { return }
         let button = element(app, "action-button")
