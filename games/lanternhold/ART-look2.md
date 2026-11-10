@@ -1145,7 +1145,8 @@ second run changes nothing). No Recraft image was made (41 credits before and af
 | the lord | f830685 | `king`, `kingGlow`, `portraitKing` repainted; `lady`, `ladyGlow`, `kingSeated`, `kingSeatedGlow`, `ladySeated`, `ladySeatedGlow`, `portraitLady` new | part grids in `tools/grids/actors/` (actorart.py), the portraits as grids |
 | the castle grows | f1b776c | tier 1 unchanged; `keepTop2`, `keepTop3`, `castleFront3`, `castleFrontScaffold`, `backTop2`, `backTop3`, `farCastle2`, `farCastle3`, `farCastleBack2`, `farCastleBack3`, each with its `…Build` state, their glows and the slot's cut-out glows, all new | `tools/castleart.py`, the lane `castleTiers` of `build-art-world.sh` |
 | soldiers and townsfolk | 1c10bae | `archer`, `guardsman`, `builder`, `citizen`, `citizenB`, `citizenC` repainted; `citizenSeated`, `citizenBSeated`, `citizenCSeated` new | part grids (actorart.py); the seated ones `include` the standing ones' parts |
-| the town | this commit | `house`, `houseB`, `houseC`, `bigHouse`, `tavern`, `market`, `well` repainted | `tools/townart.py` |
+| the town | 69c0794 | `house`, `houseB`, `houseC`, `bigHouse`, `tavern`, `market`, `well` repainted | `tools/townart.py` |
+| the defences | the commit after 69c0794 | `palisade`, `stoneWall`, `bastion`, `archerTower`, `watchtower`, `fireTower`, `beaconTower`, `greatBeacon` relit | their grids as before, then `townart.py relight` (the function `relit` in `build-art-buildings.sh`) |
 
 **The lord and the lady.** The Burgherr is the young lamplighter of STORY.md: lanky, tousled hair, the circlet low on
 the brow, a mantle and a cloak, the hooked lantern pole. The Burgherrin is the same role in the same frame: a young
@@ -1167,6 +1168,14 @@ conversions and hand-set grids. The three cottages differ in roof and shutters (
 red; thatch with a dormer and green); the big house has two storeys, two chimneys and a dormer; the tavern a stone
 ground floor, a jettied storey, a front gable and its tankard sign; the market three stalls whose awnings have a lit
 top, a crease and a scalloped valance; the well a shingled roof, a windlass and a bucket.
+
+**The defences.** Their M2b grids were evenly lit and outlined in ink all round, which set them apart from the
+castle and the new town. They keep their grids, sizes, frames and silhouettes; a pass after the grid relights them:
+per row and per material (the stone ramp, the wood ramp) the left quarter of the body is one step lighter, the right
+third one step darker (joints and the darkest stones keep their value, so the courses still read), the ink outline at
+the left and on top becomes a lit edge, the outline at the right and at the ground stays. Banners, iron, the fire
+bowl and the arrow slits are untouched. `brazier`, `torchPost`, `beaconBase`, the gates, the engines and the rubble
+are as they were (too small for the pass, or composed over the ruin).
 
 ### 15.2 Notes for the code lane
 
@@ -1208,8 +1217,10 @@ top, a crease and a scalloped valance; the well a shingled roof, a windlass and 
 
 ### 15.4 Open
 
-- The castle's fronts (`hallFront`, `chapel`, `kitchen`) and the defence buildings (palisade, stone wall, bastion,
-  the towers, the braziers, the beacon's stages) still stand as they were; `townart.py`'s vocabulary (coursed stone,
-  roofs, timber) is the base for them.
+- The castle's fronts (`hallFront`, `chapel`, `kitchen`) were looked at beside the new town and hold as they are;
+  they were not repainted.
+- The defences are relit, not repainted: the stone wall's blocks and the bastion's courses are the M2b drawing. A
+  repaint with `townart.py`'s coursed stone would be the next step if they still look older than the castle in the
+  game. `brazier`, `torchPost`, `beaconBase`, the gates, `ballista`, `catapult` and `stakePit` are untouched.
 - The M3 court members are not repainted.
 - The repainted walk cycles and the seated strips have not been seen in motion, only as strips and in still mocks.

@@ -23,17 +23,30 @@ cool() { # wait below 70 °C when the CPU reached 80 °C
     sleep 1
 }
 
+# look 2, stage 4 (ART-look2.md section 15): the walls and towers keep their grids, sizes and frames; after the grid
+# is written, townart.py relights it in place (lit from the upper left, the ink outline only at the right and at the
+# ground). Every other sprite of this lane stays as its grid paints it.
+relit() { # name
+    case $1 in
+    palisade|stoneWall|bastion) python3 -I -B games/lanternhold/tools/townart.py relight $A/$1.png 2 ;;
+    archerTower|watchtower|fireTower|beaconTower|greatBeacon)
+                   python3 -I -B games/lanternhold/tools/townart.py relight $A/$1.png 1 ;;
+    esac
+}
+
 build() { # name: one sprite
     case $1 in
     # --- walls: frame 0 whole, frame 1 damaged. palisade and ballista keep their grids in tools/grids/ (build-art.sh
     # builds them from there too, so both scripts write the same two-frame files); stoneWall's frame 0 is the
     # milestone 1 conversion written out as a grid, with frame 1 beside it
     palisade|ballista)
-                   python3 -I -B $T grid $G/$1.txt $A/$1.png ;;
+                   python3 -I -B $T grid $G/$1.txt $A/$1.png
+                   relit $1 ;;
     stoneWall|bastion|rubbleWood|rubbleStone|scaffold|gateWood|gateIron|gateGreat|gateBroken|archerTower|watchtower|\
     fireTower|catapult|stakePit|beaconTower|greatBeacon|beaconFire|barracks|smithy|masterSmithy|lodge|bigLodge|\
     plotMarker|arrow|fireArrow|bolt|firepot)
-                   python3 -I -B $T grid $GB/$1.txt $A/$1.png ;;
+                   python3 -I -B $T grid $GB/$1.txt $A/$1.png
+                   relit $1 ;;
     # look 2, stage 4 (ART-look2.md section 15): painted by townart.py; their grids in grids/buildings stay, unused
     bigHouse|market|tavern)
                    python3 -I -B games/lanternhold/tools/townart.py build $1 --out $A ;;

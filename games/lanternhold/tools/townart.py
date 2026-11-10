@@ -5,6 +5,7 @@ reproduces its files byte for byte. Called by tools/build-art.sh (house, houseB,
 tools/build-art-buildings.sh (bigHouse, tavern, market); the well through build-art.sh too.
 
   townart.py build <id> [<id> …] --out <Resources/Art>
+  townart.py relight <sprite.png> <frames>      the defences' grids relit in place (see relight)
 
 Every id keeps its SPRITES.md size and its window glass where the layout's masks light it (night1 panes; the bars
 between them are wood and stay dark). Albedo only: evenly lit daylight colours, the light from the upper left (lit
@@ -648,6 +649,80 @@ def well():
     return im
 
 
+# --- the defences relit (look 2: the light from the upper left, the outline only on the shadow side) ---------------
+STONES = ("stoneDark", "stoneMid", "stone", "stoneLight", "stonePale")
+WOODS = ("woodDark", "wood", "woodLight", "straw", "strawLight")
+
+
+def relight(im, frames, lit=0.26, shade=0.70):
+    """Turns an evenly lit, fully outlined stone or timber sprite (the M2b grids) into look 2's: per row and per
+    material (stone, wood) the left part of the body a step lighter, the right part a step darker (joints and the
+    darkest stones keep their value, so the courses stay readable), the ink outline on the left and on top replaced
+    by a lit edge, the outline at the right and at the ground kept. Silhouette, frames and every other colour
+    (banners, iron, fire bowls, glass) stay as they are."""
+    fw = im.w // frames
+    ink = col("ink")
+    idx = {}
+    for ramp in (STONES, WOODS):
+        for i, n in enumerate(ramp):
+            idx[col(n)] = (ramp, i)
+    src = [[im.get(x, y) for x in range(im.w)] for y in range(im.h)]
+
+    def clear(x, y, x0):
+        return x < x0 or x >= x0 + fw or y < 0 or y >= im.h or src[y][x][3] == 0
+
+    def mat(x, y, dx, dy, x0):
+        for k in (1, 2, 3):
+            xx, yy = x + dx * k, y + dy * k
+            if clear(xx, yy, x0):
+                return None
+            if src[yy][xx] in idx:
+                return idx[src[yy][xx]][0]
+        return None
+
+    for f in range(frames):
+        x0 = f * fw
+        for y in range(im.h):
+            span = {}
+            for x in range(x0, x0 + fw):
+                c = src[y][x]
+                if c in idx:
+                    r = idx[c][0]
+                    a, b = span.get(r, (x, x))
+                    span[r] = (min(a, x), max(b, x))
+            for x in range(x0, x0 + fw):
+                c = src[y][x]
+                if c[3] == 0:
+                    continue
+                if c == ink:
+                    left, top = clear(x - 1, y, x0), clear(x, y - 1, x0)
+                    below = clear(x, y + 1, x0)
+                    if left and not below:
+                        r = mat(x, y, 1, 0, x0)
+                        if r:
+                            im.set(x, y, col(r[3]))
+                    elif top and not left and not clear(x + 1, y, x0):
+                        r = mat(x, y, 0, 1, x0)
+                        if r and r in span:
+                            a, b = span[r]
+                            t = (x - a) / float(max(1, b - a))
+                            if t < shade:
+                                im.set(x, y, col(r[4] if t < lit else r[3]))
+                    continue
+                if c not in idx:
+                    continue
+                r, i = idx[c]
+                a, b = span[r]
+                if b - a < 4:
+                    continue
+                t = (x - a) / float(b - a) + (0.03 if y % 2 else -0.03)
+                if t < lit:
+                    i = min(4, i + 1) if i > 0 else i
+                elif t > shade:
+                    i = i - 1 if i > 1 else i
+                im.set(x, y, col(r[i]))
+
+
 BUILD = {"house": lambda: cottage("house"), "houseB": lambda: cottage("houseB"), "houseC": lambda: cottage("houseC"),
          "bigHouse": big_house, "tavern": tavern, "market": market, "well": well}
 
@@ -655,6 +730,12 @@ BUILD = {"house": lambda: cottage("house"), "houseB": lambda: cottage("houseB"),
 
 def main():
     a = sys.argv[1:]
+    if len(a) == 3 and a[0] == "relight":                            # relight <sprite.png> <frames>, in place
+        im = PA.read_png(a[1])[0]
+        relight(im, int(a[2]))
+        PA.write_png(a[1], im)
+        print("relit %s" % os.path.basename(a[1]))
+        return
     if len(a) < 4 or a[0] != "build" or "--out" not in a:
         raise SystemExit(__doc__)
     out = a[a.index("--out") + 1]
