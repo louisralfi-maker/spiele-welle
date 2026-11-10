@@ -1,0 +1,5 @@
+Test Case '-[LanternholdUITests.Look2UITests testLookTwo]' passed (120.476 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoCourt]' passed (25.348 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoNight]' passed (50.642 seconds).
+exit=0
+screenshots: 11
