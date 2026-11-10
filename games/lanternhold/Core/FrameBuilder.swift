@@ -139,6 +139,19 @@ enum FrameBuilder {
         let bankEdgeX = scene.bankEdge(hour: hour)
         // The Gloom's fog belongs to look 2 and to the picture alone, like the weather.
         let gloom = options.look == .two && options.effects.fog ? options.gloom : nil
+        // While the fog is up, the bank's old wall of night is not drawn: the fog bank stands in its place.
+        let fogUp = gloom?.presence(hour: hour) ?? 0
+        let wall = Float(1 - fogUp)
+        // The fires of the lines cut their holes into the fog.
+        var clearings: [GloomFog.Clearing] = []
+        if gloom != nil, fogUp > 0 {
+            for item in sources where item.plane == .world {
+                if let clearing = GloomFog.clearing(of: item.source, torch: Double(ambient.torchStrength),
+                                                    bankEdge: bankEdgeX) {
+                    clearings.append(clearing)
+                }
+            }
+        }
 
         var planeSprites: [[SpriteInstance]] = Array(repeating: [], count: Plane.allCases.count)
         var glow = EmissiveList()
@@ -154,6 +167,17 @@ enum FrameBuilder {
                 for tile in tiles {
                     glow.occlude(tile, plane: .world)
                     planeSprites[plane.rawValue].append(tile)
+                }
+                if let gloom, fogUp > 0 {
+                    // The eyes in the bank's heart, behind everything that stands on the lane.
+                    let eyes = gloomEyeTiles(gloom, edgeX: bankEdgeX, hour: hour, clearings: clearings,
+                                             animTime: animTime, reduceMotion: options.reduceMotion,
+                                             geometry: geometry)
+                        + gloomEyes(gloom, edgeX: bankEdgeX, hour: hour, clearings: clearings, animTime: animTime,
+                                    reduceMotion: options.reduceMotion, geometry: geometry)
+                    for item in eyes {
+                        glow.add(item)
+                    }
                 }
             }
             while next < ordered.count && ordered[next].plane == plane {
@@ -186,24 +210,25 @@ enum FrameBuilder {
                                                 targetWidth: geometry.targetWidth) ?? [] {
                     glow.add(item)
                 }
-                for tile in bankTiles(edgeX: bankEdgeX, geometry: geometry) {
-                    glow.occlude(tile, plane: .world)
-                    planeSprites[plane.rawValue].append(tile)
+                if wall > 0.01 {
+                    for tile in bankTiles(edgeX: bankEdgeX, geometry: geometry, alpha: wall) {
+                        // A wall that is half gone hides no glow.
+                        if wall >= 0.5 {
+                            glow.occlude(tile, plane: .world)
+                        }
+                        planeSprites[plane.rawValue].append(tile)
+                    }
                 }
                 if options.look == .two {
-                    for item in bankGlow(edgeX: bankEdgeX, geometry: geometry, animTime: animTime,
-                                         reduceMotion: options.reduceMotion) {
-                        glow.add(item)
+                    if wall > 0.01 {
+                        for item in bankGlow(edgeX: bankEdgeX, geometry: geometry, animTime: animTime,
+                                             reduceMotion: options.reduceMotion, strength: wall) {
+                            glow.add(item)
+                        }
                     }
                     for item in fireflies(hour: hour, animTime: animTime, reduceMotion: options.reduceMotion,
                                           geometry: geometry) {
                         glow.add(item)
-                    }
-                    if let gloom {
-                        for item in gloomEyes(gloom, edgeX: bankEdgeX, hour: hour, animTime: animTime,
-                                              reduceMotion: options.reduceMotion, geometry: geometry) {
-                            glow.add(item)
-                        }
                     }
                 }
             }
@@ -222,22 +247,21 @@ enum FrameBuilder {
                 planeSprites[layer.plane.rawValue].append(contentsOf: tiles)
             }
             fog = layers
-            if let gloom {
-                // In front of the hour's own fog on both fog planes; the fires of the lines cut their holes.
-                var clearings: [GloomFog.Clearing] = []
-                for item in sources where item.plane == .world {
-                    if let clearing = GloomFog.clearing(of: item.source, torch: Double(ambient.torchStrength),
-                                                        bankEdge: bankEdgeX) {
-                        clearings.append(clearing)
-                    }
+            if let gloom, fogUp > 0 {
+                // In front of the hour's own fog on both fog planes. The strips are painted in the night's own
+                // colours: the lift the shader gives the hour's fog is taken out of their tint.
+                let value = 1 / max(1, Look2.fogBrightness(ambient))
+                for strip in gloomStrips {
+                    planeSprites[strip.plane.rawValue] += gloomSlices(gloom, strip: strip, edgeX: bankEdgeX,
+                                                                      hour: hour, value: value,
+                                                                      clearings: clearings, animTime: animTime,
+                                                                      reduceMotion: options.reduceMotion,
+                                                                      geometry: geometry)
                 }
-                for row in gloomRows {
-                    planeSprites[row.plane.rawValue] += gloomSlices(gloom, row: row, edgeX: bankEdgeX, hour: hour,
-                                                                    color: ambient.fogColor, clearings: clearings,
-                                                                    animTime: animTime,
-                                                                    reduceMotion: options.reduceMotion,
-                                                                    geometry: geometry)
-                }
+                planeSprites[Plane.fogB.rawValue] += gloomWisps(gloom, edgeX: bankEdgeX, hour: hour, value: value,
+                                                                clearings: clearings, animTime: animTime,
+                                                                reduceMotion: options.reduceMotion,
+                                                                geometry: geometry)
             }
         }
 
@@ -465,13 +489,13 @@ enum FrameBuilder {
     }
 
     /// The darkness bank: dark tiles from the world's left end up to its edge, drawn in front of the world props.
-    private static func bankTiles(edgeX: Double, geometry: Geometry) -> [SpriteInstance] {
+    private static func bankTiles(edgeX: Double, geometry: Geometry, alpha: Float = 1) -> [SpriteInstance] {
         let edge = edgeX.rounded(.down)
         let whole = geometry.whole(.world)
         let edgeSize = SpriteID.darknessEdge.size
         let bodySize = SpriteID.darknessBank.size
         let baseY = -Double(WorldLayout.groundRowsBelow)
-        let white = SIMD4<Float>(1, 1, 1, 1)
+        let white = SIMD4<Float>(1, 1, 1, alpha)
         var list: [SpriteInstance] = []
 
         // Body tiles laid leftward from the edge tile, so none reaches past the edge.
@@ -501,7 +525,7 @@ enum FrameBuilder {
     /// over each body tile of the bank, drawn as it is: frame (tile index + time × 1.5) mod 4, with Reduce Motion the
     /// tile index mod 4. The tiles are counted from the bank's edge, as `bankTiles` lays them.
     private static func bankGlow(edgeX: Double, geometry: Geometry, animTime: Double,
-                         reduceMotion: Bool) -> [EmissiveInstance] {
+                         reduceMotion: Bool, strength: Float = 1) -> [EmissiveInstance] {
         let whole = geometry.whole(.world)
         let size = SpriteID.darknessBankGlow.size
         let width = Double(size.width)
@@ -516,7 +540,8 @@ enum FrameBuilder {
             if geometry.isVisible(left: left, width: width) {
                 let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
                 list.append(EmissiveInstance(sprite: .darknessBankGlow, plane: .world, rect: rect,
-                                             color: SIMD4<Float>(1, 1, 1, 1), frame: (index + step) % frames))
+                                             color: SIMD4<Float>(strength, strength, strength, 1),
+                                             frame: (index + step) % frames))
             }
             x -= width
             index += 1
@@ -791,85 +816,156 @@ enum FrameBuilder {
 
     // MARK: - The Gloom's fog (look 2)
 
-    /// One row of the Gloom's fog (`GloomFog`): its plane, its mask, where its bottom stands above the ground line,
-    /// how tall the mask is drawn (stretched: its rows are a soft ramp), its share of the fog's cover, whether that
-    /// share grows with the depth in the fog (the tall body stands at the bank, not at the front), and how fast its
-    /// billows creep toward the castle (game px/s).
-    struct GloomRow: Sendable, Equatable {
+    /// One strip of the Gloom's fog (SPRITES.md "The Gloom's fog"): its plane, its painting (frame 0 the body that
+    /// repeats, frame 1 the leading face), where its bottom stands above the ground line, the share of the fog's way
+    /// its own front has come (the tall bank stays near the darkness, the creeping fog leads), and how its front
+    /// breathes: pixels either way, seconds a breath, where in the breath it starts.
+    struct GloomStrip: Sendable, Equatable {
         var plane: Plane
         var sprite: SpriteID
         var y: Double
-        var height: Int
         var share: Double
-        var byDepth: Bool
-        var creep: Double
+        var sway: Double
+        var period: Double
+        var phase: Double
     }
 
-    /// Behind the play plane the bank's tall body and its floor, in front of the actors a low veil over the lane
-    /// (thin enough that a creature in it still reads).
-    static let gloomRows = [
-        GloomRow(plane: .fogA, sprite: .d2MistBand, y: -6, height: 112, share: 0.9, byDepth: true, creep: 2.0),
-        GloomRow(plane: .fogA, sprite: .d2FogBank, y: -6, height: 52, share: 0.8, byDepth: false, creep: 3.0),
-        GloomRow(plane: .fogB, sprite: .d2FogLow, y: -14, height: 34, share: 0.9, byDepth: false, creep: 3.5),
+    /// Behind the play plane the fog bank, in front of the actors the veil and the creeping fog. On the first night
+    /// their fronts stand 64, 105 and 150 pixels past the bank's edge, close to where the art lane laid them; a hard
+    /// night carries them further up the Throat.
+    static let gloomStrips = [
+        GloomStrip(plane: .fogA, sprite: .gloomFogBack, y: 0, share: 0.43, sway: 3, period: 9, phase: 0),
+        GloomStrip(plane: .fogB, sprite: .gloomFogMid, y: 0, share: 0.7, sway: 6, period: 7, phase: 0.33),
+        GloomStrip(plane: .fogB, sprite: .gloomFogFront, y: -8, share: 1, sway: 10, period: 5, phase: 0.67),
     ]
-    /// The fog is drawn in slices this wide, each with the cover of its own place.
+    /// The fog is drawn in slices this wide, each with the hole a fire cuts where it stands.
     static let gloomSlice = 16
     /// The eyes glow a little over white, so the bloom catches them at phone size.
     static let gloomEyeGain: Float = 1.4
+    /// The painted eyes' tiles are laid leftward from this far behind the bank's edge.
+    static let gloomEyeInset = 32.0
 
-    /// One row of the Gloom's fog across the visible part of its plane: the mask laid seamlessly like the hour's
-    /// fog, cut into slices of `gloomSlice` pixels, each with the fog's cover where it stands on the lane (the plane
-    /// may move a pixel against the lane under the camera) less the hole a fire cuts there. The billows creep toward
-    /// the castle whatever the wind does, and stand still with Reduce Motion.
-    private static func gloomSlices(_ gloom: GloomFog, row: GloomRow, edgeX: Double, hour: Double,
-                                    color: SIMD3<Float>, clearings: [GloomFog.Clearing], animTime: Double,
-                                    reduceMotion: Bool, geometry: Geometry) -> [SpriteInstance] {
-        let front = gloom.front(bankEdge: edgeX, hour: hour)
+    /// The world x of a strip's front at this moment: its share of the fog's way past the bank's edge, breathing
+    /// (never with Reduce Motion).
+    static func gloomFront(_ gloom: GloomFog, strip: GloomStrip, edgeX: Double, hour: Double, animTime: Double,
+                           reduceMotion: Bool) -> Double {
+        let way = gloom.front(bankEdge: edgeX, hour: hour) - edgeX
+        let breath = reduceMotion ? 0 : strip.sway * sin(2 * Double.pi * (animTime / strip.period + strip.phase))
+        return min(GloomFog.maxFront, (edgeX + strip.share * way + breath).rounded())
+    }
+
+    /// One strip of the Gloom's fog across the screen, at the lane's own parallax: the leading face ends at the
+    /// strip's front, the body repeats behind it to the screen's left end. It is cut into slices of `gloomSlice`
+    /// pixels, each drawn with the fog's presence less the hole a fire cuts there. `value` takes the lift out that
+    /// the shader gives the hour's fog, so the painting keeps its own colours.
+    private static func gloomSlices(_ gloom: GloomFog, strip: GloomStrip, edgeX: Double, hour: Double, value: Float,
+                                    clearings: [GloomFog.Clearing], animTime: Double, reduceMotion: Bool,
+                                    geometry: Geometry) -> [SpriteInstance] {
         let world = geometry.whole(.world)
-        // Nothing of it in view: the camera looks at the castle or the valley, or it is day.
-        guard gloom.amount(hour: hour) > 0, front > world else { return [] }
-        let size = row.sprite.size
+        let front = gloomFront(gloom, strip: strip, edgeX: edgeX, hour: hour, animTime: animTime,
+                               reduceMotion: reduceMotion)
+        let size = strip.sprite.size
         let tile = Double(size.width)
         let slice = Double(gloomSlice)
-        let whole = geometry.whole(row.plane)
-        let creep = reduceMotion ? 0 : (animTime * row.creep).rounded(.down).truncatingRemainder(dividingBy: tile)
-        let top = geometry.top(y: row.y, height: Double(row.height))
-        let rgb = color * GloomFog.coldTint
-        let first = Int(((whole - creep) / tile).rounded(.down)) - 1
-        let count = geometry.targetWidth / size.width + 3
+        let top = geometry.top(y: strip.y, height: Double(size.height))
+        let whole = gloom.presence(hour: hour) * gloom.paintCover
         var list: [SpriteInstance] = []
-        for index in first..<(first + count) {
-            let tileLeft = Double(index) * tile + creep - whole
-            guard geometry.isVisible(left: tileLeft, width: tile) else { continue }
-            for k in 0..<(size.width / gloomSlice) {
-                let left = tileLeft + Double(k) * slice
-                guard geometry.isVisible(left: left, width: slice) else { continue }
-                let x = left + slice / 2 + world
-                var cover = gloom.cover(x: x, bankEdge: edgeX, hour: hour) * row.share
-                if row.byDepth { cover *= gloom.depth(x: x, bankEdge: edgeX, hour: hour) }
-                cover *= 1 - GloomFog.hole(x: x, clearings: clearings)
-                guard cover > 0.012 else { continue }
-                let rect = SIMD4<Float>(Float(left), Float(top), Float(gloomSlice), Float(row.height))
-                let source = SIMD4<Float>(Float(k * gloomSlice), 0, Float(gloomSlice), Float(size.height))
-                list.append(SpriteInstance(sprite: row.sprite, frame: 0, rect: rect,
-                                           tint: SIMD4<Float>(rgb.x, rgb.y, rgb.z, Float(min(1, cover))),
-                                           flipped: false, source: source))
+        var tileLeft = front - tile - world
+        var face = true
+        // Nothing of it in view while the camera looks at the castle or the valley.
+        while tileLeft + tile >= -1 {
+            if geometry.isVisible(left: tileLeft, width: tile) {
+                for k in 0..<(size.width / gloomSlice) {
+                    let left = tileLeft + Double(k) * slice
+                    guard geometry.isVisible(left: left, width: slice) else { continue }
+                    let x = left + slice / 2 + world
+                    let cover = whole * (1 - GloomFog.hole(x: x, clearings: clearings))
+                    guard cover > 0.012 else { continue }
+                    let rect = SIMD4<Float>(Float(left), Float(top), Float(gloomSlice), Float(size.height))
+                    let source = SIMD4<Float>(Float(k * gloomSlice), 0, Float(gloomSlice), Float(size.height))
+                    list.append(SpriteInstance(sprite: strip.sprite, frame: face ? 1 : 0, rect: rect,
+                                               tint: SIMD4<Float>(value, value, value, Float(min(1, cover))),
+                                               flipped: false, source: source))
+                }
             }
+            tileLeft -= tile
+            face = false
         }
         return list
     }
 
-    /// The cold eyes in the fog as glow on the world plane, in front of the bank's dark.
-    private static func gloomEyes(_ gloom: GloomFog, edgeX: Double, hour: Double, animTime: Double,
-                                  reduceMotion: Bool, geometry: Geometry) -> [EmissiveInstance] {
+    /// The shreds that tear off the creeping fog's nose, drawn with it (none with Reduce Motion). They hang on the
+    /// front's resting place, so its breath does not drag them.
+    private static func gloomWisps(_ gloom: GloomFog, edgeX: Double, hour: Double, value: Float,
+                                   clearings: [GloomFog.Clearing], animTime: Double, reduceMotion: Bool,
+                                   geometry: Geometry) -> [SpriteInstance] {
+        guard !reduceMotion, let strip = gloomStrips.last else { return [] }
+        let size = SpriteID.gloomWisp.size
+        let width = Double(size.width)
+        let world = geometry.whole(.world)
+        let front = gloomFront(gloom, strip: strip, edgeX: edgeX, hour: hour, animTime: animTime, reduceMotion: true)
+        let whole = gloom.presence(hour: hour) * gloom.paintCover
+        var list: [SpriteInstance] = []
+        for wisp in GloomFog.wisps(time: animTime) {
+            let left = front + wisp.offset - world
+            guard geometry.isVisible(left: left, width: width) else { continue }
+            let cover = whole * (1 - GloomFog.hole(x: left + width / 2 + world, clearings: clearings))
+            guard cover > 0.012 else { continue }
+            let top = geometry.top(y: wisp.y, height: Double(size.height))
+            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            list.append(SpriteInstance(sprite: .gloomWisp, frame: wisp.frame, rect: rect,
+                                       tint: SIMD4<Float>(value, value, value, Float(min(1, cover))),
+                                       flipped: false))
+        }
+        return list
+    }
+
+    /// The painted eyes in the bank's heart (`gloomFogEyes`, glow only): tiles laid leftward from a little behind
+    /// the bank's edge to the screen's left end, each stepping through the four frames on its own beat (standing
+    /// with Reduce Motion), dimmed where a fire clears the fog.
+    private static func gloomEyeTiles(_ gloom: GloomFog, edgeX: Double, hour: Double,
+                                      clearings: [GloomFog.Clearing], animTime: Double, reduceMotion: Bool,
+                                      geometry: Geometry) -> [EmissiveInstance] {
+        let size = SpriteID.gloomFogEyes.size
+        let tile = Double(size.width)
+        let world = geometry.whole(.world)
+        let frames = SpriteID.gloomFogEyes.frameCount
+        let step = reduceMotion ? 0 : Int((max(0, animTime) * 1.5).rounded(.down))
+        let presence = gloom.presence(hour: hour)
+        let top = geometry.top(y: 0, height: Double(size.height))
+        var list: [EmissiveInstance] = []
+        var index = 0
+        var left = edgeX.rounded() - gloomEyeInset - tile - world
+        while left + tile >= -1 {
+            if geometry.isVisible(left: left, width: tile) {
+                let strength = presence * (1 - GloomFog.hole(x: left + tile / 2 + world, clearings: clearings))
+                if strength > 0.02 {
+                    let value = Float(strength)
+                    let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+                    list.append(EmissiveInstance(sprite: .gloomFogEyes, plane: .world, rect: rect,
+                                                 color: SIMD4<Float>(value, value, value, 1),
+                                                 frame: (index + step) % frames))
+                }
+            }
+            index += 1
+            left -= tile
+        }
+        return list
+    }
+
+    /// The cold eyes that open and close in the fog as glow on the world plane, dimmed where a fire clears it.
+    private static func gloomEyes(_ gloom: GloomFog, edgeX: Double, hour: Double, clearings: [GloomFog.Clearing],
+                                  animTime: Double, reduceMotion: Bool, geometry: Geometry) -> [EmissiveInstance] {
         let size = SpriteID.eyeGlints.size
         let whole = geometry.whole(.world)
         var list: [EmissiveInstance] = []
         for eyes in gloom.eyes(bankEdge: edgeX, hour: hour, time: animTime, reduceMotion: reduceMotion) {
             let left = eyes.x - whole
             guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
+            let seen = eyes.strength * (1 - GloomFog.hole(x: eyes.x, clearings: clearings))
+            guard seen > 0.02 else { continue }
             let top = geometry.top(y: eyes.y, height: Double(size.height))
-            let rgb = GloomFog.eyeColor * (Float(eyes.strength) * gloomEyeGain)
+            let rgb = GloomFog.eyeColor * (Float(seen) * gloomEyeGain)
             let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
             list.append(EmissiveInstance(sprite: .eyeGlints, plane: .world, rect: rect,
                                          color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1)))

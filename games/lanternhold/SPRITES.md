@@ -448,3 +448,9 @@ bottom-left at the given y (0 = the ground line). E is `DarknessBank`'s edge.
 - **The old wall:** while the fog is up, the opaque `darknessBank` and `darknessEdge` tiles should not be drawn (they
   are as high as the screen and would stand in the fog as a slab); by day they can rest as today. The fog is
   120 px high, not the screen's height: the gorge stays visible above it.
+- **Wired** (claude/lh-polish, DESIGN.md "Polish after round 2", point 1): as proposed, with three changes. The
+  fronts follow the night's hardness (`GloomFog`): the bank's at 0.43 of the fog's way past E, the veil's at 0.7,
+  the creeping fog's at the whole way (64, 105 and 150 px on the first night, 172, 280 and 400 on the hardest). The
+  holes are cut by rule, not from the light buffer: every fire that counts in battle takes up to 0.85 of the fog in
+  16 px slices (`GloomFog.clearing`, `hole`). The single pairs of `eyeGlints` still roam the fog in front of the
+  painted eyes.

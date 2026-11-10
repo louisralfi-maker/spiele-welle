@@ -108,6 +108,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // line before the gatehouse; the places of the middle and the outer line, Lady Oriel's broken wall in the
     // Throat's rock; the footing and the end piece that tie a tier into that rock (on the place's canvas)
     case oldWall1, oldWall2, oldWall3, palisadeAnchor, stoneWallAnchor, bastionAnchor
+    // Stage 7 (SPRITES.md "The Gloom's fog"; look 2 only): the fog bank behind the play plane, the veil and the
+    // creeping fog before it (two frames each: the body that repeats, the leading face), the shred that tears off
+    // the front, the cold eyes in the bank's heart (an emissive)
+    case gloomFogBack, gloomFogMid, gloomFogFront, gloomWisp, gloomFogEyes
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -323,6 +327,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .oldWall1: return PixelSize(width: 84, height: 60)
         case .oldWall2, .oldWall3, .palisadeAnchor, .stoneWallAnchor, .bastionAnchor:
             return PixelSize(width: 128, height: 108)
+        case .gloomFogBack: return PixelSize(width: 192, height: 120)
+        case .gloomFogMid: return PixelSize(width: 160, height: 64)
+        case .gloomFogFront: return PixelSize(width: 128, height: 30)
+        case .gloomWisp: return PixelSize(width: 40, height: 16)
+        case .gloomFogEyes: return PixelSize(width: 64, height: 72)
         }
     }
 
@@ -364,7 +373,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .citizen, .citizenB, .citizenC, .builder: return 6
         case .archer: return 5
         case .sootCrow, .sootCrowGlow, .gloomweaver, .gloomweaverGlow: return 4
-        case .beaconFire, .darknessBankGlow: return 4
+        case .beaconFire, .darknessBankGlow, .gloomFogEyes: return 4
+        case .gloomWisp: return 6
+        case .gloomFogBack, .gloomFogMid, .gloomFogFront: return 2
         case .gateWood, .gateIron, .gateGreat, .catapult: return 3
         case .arrow, .fireArrow, .bolt, .spark, .streak, .rainSplash: return 3
         case .rainStreak: return 9

@@ -9,9 +9,9 @@ final class GloomFogTests: XCTestCase {
     private static let screen = (1311, 603)
     private static let world = PlaceholderScene.world(look: .two)
 
-    private func options(gloom: GloomFog?, look: LookVersion, reduceMotion: Bool, effects: EffectLevel)
-        -> FrameOptions {
-        var options = FrameOptions(flickerTime: 1.5)
+    private func options(gloom: GloomFog?, look: LookVersion, reduceMotion: Bool, effects: EffectLevel,
+                         time: Double = 1.5) -> FrameOptions {
+        var options = FrameOptions(flickerTime: time)
         options.look = look
         options.gloom = gloom
         options.reduceMotion = reduceMotion
@@ -32,7 +32,8 @@ final class GloomFogTests: XCTestCase {
 
     private func frame(_ s: GameState, focus: Double, gloom: GloomFog?, look: LookVersion = .two,
                        time: Double = 1.5, reduceMotion: Bool = false, effects: EffectLevel = .all) -> FrameDesc {
-        let options = self.options(gloom: gloom, look: look, reduceMotion: reduceMotion, effects: effects)
+        let options = self.options(gloom: gloom, look: look, reduceMotion: reduceMotion, effects: effects,
+                                   time: time)
         let screen = GloomFogTests.screen
         let pixelScale = options.pixelScale(physicalWidth: screen.0, physicalHeight: screen.1)
         let camera = Camera(focusX: focus, pixelScale: pixelScale)
@@ -55,6 +56,20 @@ final class GloomFogTests: XCTestCase {
 
     private func eyes(_ desc: FrameDesc) -> [EmissiveInstance] {
         desc.emissives.filter { $0.sprite == .eyeGlints }
+    }
+
+    /// The painted eyes in the bank's heart.
+    private func eyeTiles(_ desc: FrameDesc) -> [EmissiveInstance] {
+        desc.emissives.filter { $0.sprite == .gloomFogEyes }
+    }
+
+    /// The bank's old wall of night on the world plane.
+    private func wall(_ desc: FrameDesc) -> [SpriteInstance] {
+        desc.layer(.world).sprites.filter { $0.sprite == .darknessBank || $0.sprite == .darknessEdge }
+    }
+
+    private func wisps(_ desc: FrameDesc) -> [SpriteInstance] {
+        desc.layer(.fogB).sprites.filter { $0.sprite == .gloomWisp }
     }
 
     func testHarderNightsBringItEarlierFurtherAndThicker() {
@@ -237,6 +252,84 @@ final class GloomFogTests: XCTestCase {
         XCTAssertEqual(GloomFog.eyeOpen(0.8), 0)
     }
 
+    func testThePaintedFog() {
+        // The five paintings of stage 7: their cells, their frames, and stand-ins that keep a build without them
+        // alive (their PNGs win).
+        let sizes: [(SpriteID, Int, Int, Int)] = [
+            (.gloomFogBack, 192, 120, 2), (.gloomFogMid, 160, 64, 2), (.gloomFogFront, 128, 30, 2),
+            (.gloomWisp, 40, 16, 6), (.gloomFogEyes, 64, 72, 4),
+        ]
+        for (sprite, width, height, frames) in sizes {
+            XCTAssertEqual(sprite.size, PixelSize(width: width, height: height), "\(sprite)")
+            XCTAssertEqual(sprite.frameCount, frames, "\(sprite)")
+            if frames == 2 {
+                XCTAssertEqual(width % FrameBuilder.gloomSlice, 0, "\(sprite) is cut into whole slices")
+            }
+            XCTAssertEqual(PlaceholderArt.frames(for: sprite).count, frames, "\(sprite) has its stand-in")
+        }
+        XCTAssertEqual(GloomFog.wispFrames, SpriteID.gloomWisp.frameCount)
+
+        // The fog bank stands from the first quarter of the fog's way, and is gone by day.
+        let hard = GloomFog(hardness: 1)
+        let first = GloomFog(hardness: 0)
+        XCTAssertEqual(hard.presence(hour: 12), 0)
+        XCTAssertEqual(hard.presence(hour: 23), 1)
+        XCTAssertEqual(first.presence(hour: 5.5), 1)
+        XCTAssertTrue(first.presence(hour: 5.95) > 0 && first.presence(hour: 5.95) < 1, "it thins at first light")
+        XCTAssertTrue(hard.presence(hour: 18.5) > 0 && hard.presence(hour: 18.5) < 1, "it fades in at dusk")
+        XCTAssertEqual(hard.paintCover, 1)
+        XCTAssertEqual(first.paintCover, 0.825, accuracy: 1e-9)
+
+        // The strips: the tall bank stays near the darkness, the veil goes further, the creeping fog leads.
+        let strips = FrameBuilder.gloomStrips
+        XCTAssertEqual(strips.map(\.sprite), [.gloomFogBack, .gloomFogMid, .gloomFogFront])
+        XCTAssertEqual(strips.map(\.plane), [.fogA, .fogB, .fogB], "the bank behind the lane, the rest before it")
+        func front(_ fog: GloomFog, _ index: Int, hour: Double = 23, time: Double = 0, still: Bool = true) -> Double {
+            FrameBuilder.gloomFront(fog, strip: strips[index], edgeX: 500, hour: hour, animTime: time,
+                                    reduceMotion: still)
+        }
+        XCTAssertEqual(front(first, 0), 565, accuracy: 1)
+        XCTAssertEqual(front(first, 1), 605, accuracy: 1)
+        XCTAssertEqual(front(first, 2), 650)
+        XCTAssertEqual(front(hard, 2), 900)
+        XCTAssertTrue(front(hard, 0) < front(hard, 1) && front(hard, 1) < front(hard, 2))
+        XCTAssertEqual(front(hard, 2, hour: 12), 500, "at the bank's edge by day")
+        // (At 2.9 s the creeping fog's breath is all the way out.)
+        XCTAssertEqual(FrameBuilder.gloomFront(hard, strip: strips[2], edgeX: 1100, hour: 23, animTime: 2.9,
+                                               reduceMotion: false), GloomFog.maxFront, "never past the castle's mist")
+        // They breathe, each on its own beat, and stand with Reduce Motion.
+        var widest = [0.0, 0.0, 0.0]
+        for step in 0..<90 {
+            for index in 0..<3 {
+                let moved = front(hard, index, time: Double(step) * 0.25, still: false) - front(hard, index)
+                widest[index] = max(widest[index], abs(moved))
+                XCTAssertLessThanOrEqual(abs(moved), strips[index].sway + 0.5)
+            }
+            XCTAssertEqual(front(hard, 2, time: Double(step) * 0.25), 900)
+        }
+        XCTAssertEqual(widest[0], 3, accuracy: 0.5)
+        XCTAssertEqual(widest[1], 6, accuracy: 0.5)
+        XCTAssertEqual(widest[2], 10, accuracy: 0.5)
+
+        // The shreds: one or two in the air, each through its six frames once, drifting ahead and up.
+        var counts = Set<Int>()
+        var frames = Set<Int>()
+        for step in 0..<400 {
+            let list = GloomFog.wisps(time: Double(step) * 0.1)
+            XCTAssertLessThanOrEqual(list.count, GloomFog.wispPeriods.count)
+            counts.insert(list.count)
+            for wisp in list {
+                frames.insert(wisp.frame)
+                XCTAssertTrue((-30.0...(-30 + 6 * GloomFog.wispLife)).contains(wisp.offset), "\(wisp.offset)")
+                XCTAssertTrue((6.0...(30 + GloomFog.wispLife)).contains(wisp.y), "\(wisp.y)")
+            }
+        }
+        XCTAssertEqual(frames, Set(0..<GloomFog.wispFrames))
+        XCTAssertTrue(counts.contains(0) && counts.contains(1), "they come and go")
+        XCTAssertTrue(GloomFog.wispPeriods.allSatisfy { $0 > GloomFog.wispLife }, "a slot never holds two")
+        XCTAssertEqual(GloomFog.wisps(time: 7.3), GloomFog.wisps(time: 7.3))
+    }
+
     func testFramesWithTheFog() {
         let night = GameFrameSupport.demoNight(hour: 23.2)
         let hard = GloomFog(hardness: 1)
@@ -244,47 +337,91 @@ final class GloomFogTests: XCTestCase {
         let foggy = frame(night, focus: 620, gloom: hard)
         XCTAssertTrue(slices(plain, .fogA).isEmpty)
         XCTAssertTrue(slices(plain, .fogB).isEmpty)
-        XCTAssertGreaterThan(slices(foggy, .fogA).count, 10, "the bank's body and its floor behind the lane")
-        XCTAssertGreaterThan(slices(foggy, .fogB).count, 5, "the low veil in front of it")
-        XCTAssertTrue(slices(foggy, .fogA).contains { $0.sprite == .d2MistBand })
-        XCTAssertTrue(slices(foggy, .fogA).contains { $0.sprite == .d2FogBank })
-        XCTAssertTrue(slices(foggy, .fogB).allSatisfy { $0.sprite == .d2FogLow })
-        for slice in slices(foggy, .fogA) + slices(foggy, .fogB) {
-            XCTAssertTrue(slice.tint.w > 0.012 && slice.tint.w <= Float(hard.thickness), "its cover: \(slice.tint.w)")
-            XCTAssertGreaterThan(slice.tint.z, slice.tint.x, "cold")
+        let back = slices(foggy, .fogA)
+        let before = slices(foggy, .fogB)
+        XCTAssertGreaterThan(back.count, 10, "the fog bank behind the lane")
+        XCTAssertTrue(back.allSatisfy { $0.sprite == .gloomFogBack })
+        XCTAssertTrue(back.contains { $0.frame == 1 } && back.contains { $0.frame == 0 }, "its face and its body")
+        XCTAssertTrue(before.contains { $0.sprite == .gloomFogMid }, "the veil before the lane")
+        XCTAssertTrue(before.contains { $0.sprite == .gloomFogFront }, "and the creeping fog")
+        XCTAssertTrue(before.allSatisfy { $0.sprite == .gloomFogMid || $0.sprite == .gloomFogFront })
+        XCTAssertGreaterThan(before.count, back.count, "they reach further than the bank")
+        for slice in back + before {
+            XCTAssertTrue(slice.tint.w > 0.012 && slice.tint.w <= Float(hard.paintCover), "its cover: \(slice.tint.w)")
+            XCTAssertTrue(slice.tint.x > 0.3 && slice.tint.x <= 1, "the shader's lift taken out: \(slice.tint.x)")
+            XCTAssertTrue(slice.tint.x == slice.tint.y && slice.tint.y == slice.tint.z, "in its own colours")
+            XCTAssertTrue(slice.frame == 0 || slice.frame == 1)
+            XCTAssertEqual(slice.rect.w, Float(slice.sprite.size.height))
         }
+        XCTAssertTrue(back.contains { $0.tint.w == Float(hard.paintCover) }, "whole where no fire stands")
         XCTAssertEqual(foggy.layer(.fogA).sprites.first?.sprite, .d2FogBank, "the hour's own fog stays under it")
         XCTAssertEqual(foggy.layer(.fogB).sprites.first?.sprite, .d2FogLow)
         XCTAssertEqual(foggy.lights, plain.lights, "the fog is no light and dims none")
         XCTAssertEqual(foggy.actors, plain.actors)
-        XCTAssertEqual(foggy.layer(.world).sprites, plain.layer(.world).sprites)
+
+        // While the fog bank stands, the old wall of night and its own eyes are not drawn: the bank's heart has the
+        // painted eyes instead. Nothing else on the lane changes.
+        XCTAssertFalse(wall(plain).isEmpty)
+        XCTAssertTrue(wall(foggy).isEmpty, "the fog bank stands in the wall's place")
+        XCTAssertEqual(foggy.layer(.world).sprites,
+                       plain.layer(.world).sprites.filter { $0.sprite != .darknessBank && $0.sprite != .darknessEdge })
+        XCTAssertTrue(plain.emissives.contains { $0.sprite == .darknessBankGlow })
+        XCTAssertFalse(foggy.emissives.contains { $0.sprite == .darknessBankGlow })
+        XCTAssertTrue(eyeTiles(plain).isEmpty)
+        XCTAssertFalse(eyeTiles(foggy).isEmpty)
+        for tile in eyeTiles(foggy) {
+            XCTAssertTrue(tile.plane == .world && tile.kind == .glow)
+            XCTAssertTrue(tile.color.x > 0.02 && tile.color.x <= 1)
+            XCTAssertTrue((0..<4).contains(tile.frame))
+            XCTAssertEqual(tile.rect.z, 64)
+        }
         XCTAssertLessThanOrEqual(foggy.counts.instances, 1_500, "inside the budget")
         print("GLOOM instances \(foggy.counts.instances) with the fog, \(plain.counts.instances) without")
 
-        // A harder night's fog is thicker and reaches further than the first night's.
+        // A harder night's fog reaches further and is thicker than the first night's.
         let soft = frame(night, focus: 620, gloom: GloomFog(hardness: 0))
-        func weight(_ desc: FrameDesc) -> Float {
-            (slices(desc, .fogA) + slices(desc, .fogB)).reduce(0) { $0 + $1.tint.w }
+        func all(_ desc: FrameDesc) -> [SpriteInstance] {
+            slices(desc, .fogA) + slices(desc, .fogB)
         }
-        XCTAssertGreaterThan(weight(foggy), weight(soft) * 1.5)
-        XCTAssertGreaterThan(weight(soft), 0)
+        XCTAssertFalse(all(soft).isEmpty)
+        XCTAssertGreaterThan(all(foggy).count, all(soft).count)
+        XCTAssertGreaterThan(all(foggy).map(\.tint.w).max() ?? 0, all(soft).map(\.tint.w).max() ?? 1)
 
-        // Reduce Motion: it stands (no creep), and the eyes stand open.
+        // Reduce Motion: it stands (no breath, no shreds), and the eyes stand open.
         let still = frame(night, focus: 620, gloom: hard, reduceMotion: true)
         let later = frame(night, focus: 620, gloom: hard, time: 9, reduceMotion: true)
-        XCTAssertEqual(slices(still, .fogA).map(\.rect), slices(later, .fogA).map(\.rect), "it stands")
+        XCTAssertEqual(all(still).map(\.rect), all(later).map(\.rect), "it stands")
         XCTAssertEqual(eyes(still).map(\.rect), eyes(later).map(\.rect))
         XCTAssertEqual(eyes(still).count, 7)
         XCTAssertTrue(eyes(still).allSatisfy { $0.plane == .world && $0.kind == .glow && $0.color.z > $0.color.x })
-        XCTAssertNotEqual(slices(frame(night, focus: 620, gloom: hard, time: 9), .fogA).map(\.rect),
-                          slices(foggy, .fogA).map(\.rect), "it creeps")
+        XCTAssertEqual(eyeTiles(still), eyeTiles(later), "the painted eyes stand too")
+        XCTAssertTrue(wisps(still).isEmpty && wisps(later).isEmpty)
+        XCTAssertNotEqual(slices(frame(night, focus: 620, gloom: hard, time: 9), .fogB).map(\.rect),
+                          before.map(\.rect), "it breathes")
+        XCTAssertNotEqual(eyeTiles(frame(night, focus: 620, gloom: hard, time: 9)).map(\.frame),
+                          eyeTiles(foggy).map(\.frame), "the painted eyes blink")
         XCTAssertTrue(eyes(plain).isEmpty)
+
+        // A shred tears off the creeping fog's nose (the front stands at 650 on the first night).
+        var torn = 0
+        for step in 0..<24 {
+            let list = wisps(frame(night, focus: 620, gloom: GloomFog(hardness: 0), time: Double(step) * 0.5))
+            torn += list.count
+            for wisp in list {
+                XCTAssertNil(wisp.source)
+                XCTAssertTrue((0..<GloomFog.wispFrames).contains(wisp.frame))
+                XCTAssertTrue(wisp.tint.w > 0.012 && wisp.tint.w <= 0.825 + 1e-6)
+            }
+        }
+        XCTAssertGreaterThan(torn, 0, "shreds in the air")
+        XCTAssertTrue(wisps(plain).isEmpty)
 
         // Look 1, the day, a view of the castle and the cheap effect levels are the frames they were.
         XCTAssertEqual(frame(night, focus: 620, gloom: hard, look: .one),
                        frame(night, focus: 620, gloom: nil, look: .one))
         let day = GameFrameSupport.demoDay(hour: 12)
         XCTAssertEqual(frame(day, focus: 620, gloom: hard), frame(day, focus: 620, gloom: nil))
+        XCTAssertFalse(wall(frame(day, focus: 300, gloom: hard)).isEmpty, "by day the bank rests as it did")
         XCTAssertEqual(frame(night, focus: 1700, gloom: hard), frame(night, focus: 1700, gloom: nil))
         XCTAssertEqual(frame(night, focus: 2900, gloom: hard), frame(night, focus: 2900, gloom: nil))
         XCTAssertEqual(frame(night, focus: 620, gloom: hard, effects: .minimal),
@@ -295,6 +432,8 @@ final class GloomFogTests: XCTestCase {
         XCTAssertFalse(slices(frame(dusk, focus: 300, gloom: hard), .fogA).isEmpty, "a hard night's fog at 19:00")
         XCTAssertTrue(slices(frame(dusk, focus: 300, gloom: GloomFog(hardness: 0)), .fogA).isEmpty,
                       "the first night's comes later")
+        XCTAssertFalse(wall(frame(dusk, focus: 300, gloom: GloomFog(hardness: 0))).isEmpty,
+                       "and until it comes the wall of night stands")
     }
 
     func testTheArgument() {

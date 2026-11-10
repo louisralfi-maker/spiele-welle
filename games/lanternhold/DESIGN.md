@@ -2763,7 +2763,8 @@ Branch `claude/lh-polish`, made from the planning branch at f9751d1. Look 2 only
 they were (its six golden hashes hold the proof). Nothing here adds state: `GameState`, the save and the tuned
 simulation are untouched.
 
-**1. The Gloom's fog** (`Core/GloomFog.swift`, `FrameBuilder.gloomSlices`, `gloomEyes`; fbddd2e)
+**1. The Gloom's fog** (`Core/GloomFog.swift`, `FrameBuilder.gloomStrips`, `gloomSlices`, `gloomWisps`,
+`gloomEyeTiles`, `gloomEyes`; rules fbddd2e, stage 7's paintings 3473d99 wired after it)
 
 - From dusk a cold fog bank creeps out of the darkness bank and up the Throat; at first light (5:00 to 6:00) it
   pulls back into the shadow land. It is a picture only: `FrameBuilder` and `EntityFrames` read it, the simulation
@@ -2780,19 +2781,38 @@ simulation are untouched.
   | pairs of eyes | 5 | 9 | 14 |
 
   The front never passes x 1180: the castle's front keeps its own mist.
-- Drawn with the masks the art already has, in slices of 16 px, each with the cover of its own place: the tall body
-  (`d2MistBand`, 112 px, growing toward the bank) and the floor (`d2FogBank`) on fog plane A behind the actors, a low
-  veil (`d2FogLow`) on fog plane B in front of them, thin enough that a creature in it still reads. The colour is
-  the hour's fog colour, colder (`coldTint`). The billows creep toward the castle whatever the wind does.
+- Drawn with stage 7's paintings (SPRITES.md "The Gloom's fog"), all at the lane's own parallax, each a body that
+  repeats (frame 0) behind a leading face (frame 1) that ends at the strip's front:
+
+  | strip | plane | height | its front, of the fog's way past the edge | breath |
+  |---|---|---|---|---|
+  | `gloomFogBack`, the fog bank | fog A, behind the actors | 120 px | 0.43 (64 px on the first night, 172 on the hardest) | 3 px in 9 s |
+  | `gloomFogMid`, the veil | fog B, before them | 64 px | 0.7 (105 to 280 px) | 6 px in 7 s |
+  | `gloomFogFront`, the creeping fog | fog B, 8 px under the ground line | 30 px | 1 (150 to 400 px) | 10 px in 5 s |
+
+  The tall bank stays near the darkness, the low fog leads; on the first night the three fronts stand where the art
+  lane laid them. They are drawn in slices of 16 px with the alpha `presence × paintCover` (0.825 on the first
+  night, 1 on the hardest) less the fire's hole at the slice's place. The paintings carry the night's own colours:
+  the lift the shader gives the hour's fog (`Look2.fogBrightness`, up to × 2.6) is taken out of their tint, and
+  inside the bank the shader darkens them with the bank's ambient.
+- While the fog bank stands (`presence`: it fades in over the first quarter of the fog's way and out at the end of
+  first light), the bank's old wall of night (`darknessBank`, `darknessEdge`) and its glow are faded out against
+  it: the fog bank stands in their place and the gorge shows above it. By day the bank rests as it did.
+- Shreds (`gloomWisp`, six frames once in 4 s) tear off the creeping fog's nose, one every three to four seconds,
+  and drift ahead 6 px/s and up 1 px/s.
 - The fires of the lines cut holes: every light that counts in battle (brazier, fire tower, beacon, torch by its
   hour's strength) takes up to 0.85 of the fog away in the inner half of its pool, none a little past its rim
   (`GloomFog.clearing`, `hole`; at most 130 px wide). Windows, candles and the moon cut none.
-- Cold eyes (`eyeGlints` as glow, a little over white so the bloom catches them) open between the bank and the
-  middle of the fog, look, blink once, close and open elsewhere.
+- Cold eyes: in the bank's heart the painted pairs (`gloomFogEyes`, glow only, 64 px tiles laid leftward from 32 px
+  behind the edge, stepping through their four frames); between the bank and the middle of the fog single pairs
+  (`eyeGlints` as glow, a little over white so the bloom catches them) open, look, blink once, close and open
+  elsewhere. Both are added before the lane's props, so a wall hides the eyes behind it, and both dim in a fire's
+  hole.
 - The creatures step out of it: an unlit creature's body is unseen 150 px behind the bank's edge and whole from
   56 px behind it (`bodyAlpha`), so it forms inside the dark and nothing fights half seen at the outer wall. By day,
   with no fog, the bank hides no more than it did.
-- Reduce Motion: the billows stand, every second pair of eyes stands open where it is, none blinks.
+- Reduce Motion: the fronts stand (no breath), no shred tears off, the painted eyes hold one frame, every second
+  roaming pair stands open where it is, none blinks.
 - `-GWGloomFog off|<0...1>` for shots. `Tests/GloomFogTests.swift` holds the rules, the frame's budgets and that
   the simulation's state is the same with and without it.
 

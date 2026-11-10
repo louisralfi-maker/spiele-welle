@@ -72,6 +72,15 @@ struct GloomFog: Sendable, Equatable {
         return 1
     }
 
+    /// How much of the fog bank stands (0 none ... 1 whole): it fades in over the first quarter of the fog's way and
+    /// out at the end of first light. While it stands, the bank's old wall of night is not drawn.
+    func presence(hour: Double) -> Double {
+        min(1, amount(hour: hour) * 4)
+    }
+
+    /// The alpha the painted strips are drawn with where no fire clears them: thicker on a harder night.
+    var paintCover: Double { min(1, 0.6 + 0.45 * thickness) }
+
     /// The world x of the fog's front.
     func front(bankEdge: Double, hour: Double) -> Double {
         min(GloomFog.maxFront, bankEdge + reach * amount(hour: hour))
@@ -178,6 +187,37 @@ struct GloomFog: Sendable, Equatable {
             let strength = open * min(1, amount * 3) * min(1, 0.35 + fog)
             guard strength > 0.02 else { continue }
             list.append(Eyes(x: x, y: (6 + v * (14 + 30 * (1 - u))).rounded(), strength: strength))
+        }
+        return list
+    }
+
+    /// One shred torn off the fog's front.
+    struct Wisp: Sendable, Equatable {
+        /// Its left end against the fog's front (negative: behind it), its rows above the ground line, its frame.
+        var offset: Double
+        var y: Double
+        var frame: Int
+    }
+
+    /// A shred lives this long, once through its frames.
+    static let wispLife = 4.0
+    static let wispFrames = 6
+    /// Each slot tears a shred off every so many seconds: between them one every three to four seconds.
+    static let wispPeriods = [6.5, 8.3]
+
+    /// The shreds in the air at `time`: each is born with its middle 10 pixels behind the front, 6 to 30 rows above
+    /// the lane, drifts ahead 6 pixels a second and up one, and is gone after `wispLife`.
+    static func wisps(time: Double) -> [Wisp] {
+        var list: [Wisp] = []
+        for (slot, period) in wispPeriods.enumerated() {
+            let seed = SeededRandom.hash(0x7769_7370, Int64(slot))
+            let t = max(0, time) / period + unit(SeededRandom.hash(seed, 1))
+            let cycle = Int64(t.rounded(.down))
+            let age = (t - t.rounded(.down)) * period
+            guard age < wispLife else { continue }
+            let u = unit(SeededRandom.hash(seed, 16 + cycle))
+            let frame = min(wispFrames - 1, Int(age / wispLife * Double(wispFrames)))
+            list.append(Wisp(offset: (-30 + 6 * age).rounded(), y: (6 + 24 * u + age).rounded(), frame: frame))
         }
         return list
     }
