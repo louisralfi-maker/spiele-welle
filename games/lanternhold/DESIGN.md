@@ -762,6 +762,82 @@ player's first success and never comes back. `-GWSkipOnboarding YES` turns it of
 
 Navigation is a state machine in the model, no NavigationStack.
 
+### The interface in the map's style (10.11.2026)
+
+Louis loved the realm map (`docs/karte.html`) and asked for the game's interface in the same hand. Branch
+`claude/lh-ui` from f9751d1. The style guide and the screens one by one are in `docs/UI-look.md`; this section records
+the decisions.
+
+**Decisions**
+
+- **Paper from the lord's desk.** Every piece of the interface is a thing of the world: the HUD a slip of the
+  steward's ledger, the realm strip a strip cut from the map, a petition a letter, the dawn report a page of the house
+  chronicle, the name entry a page of the family book, the build cards pages of the builders' ledger. It is this
+  game's own interface, drawn from its own map.
+- **Two surfaces.** Parchment for what is inside the world, the dark desk for what is outside it (the pause sheet,
+  the defeat card). So a glance tells a letter from a menu.
+- **Palette:** the map's (desk, bone, parchment, ink, rule, wax-red rubric, gold, House Lantern's teal). Teal always
+  means the house or "marked, in force"; wax red means a heading, the main button, or a warning; gold means coin or
+  gilt. The soft ink is a shade darker than the map's (`58432B`), so that footnotes hold 4.6:1 on the shaded corner
+  of a sheet.
+- **Type:** IM Fell English (SIL OFL 1.1), three cuts in `Resources/Fonts` with `IMFell-OFL.txt`, registered through
+  a small `Info.plist` (`UIAppFonts`) that `project.yml` merges into the generated one; `Theme` registers them a
+  second time at first use if the plist ever fails. The face has no bold: bold became small capitals.
+- **Figures in Baskerville SemiBold.** IM Fell's old-style 1 reads as a capital I ("Day I"). Every number, and every
+  digit inside a sentence (`Text(inked:)`), is set in Baskerville's lining figures, which every iPhone has.
+- **Japanese and Simplified Chinese** fall back to Hiragino Mincho and the system's serif; frames, colours and
+  figures are the same. Not yet seen in a screenshot.
+- **Buttons:** the main one a plaque of wax red (52 pt), the quiet one an inked plaque, round wax seals for pause, the
+  action button and the switches. Pressing darkens; nothing moves.
+- **Icons** for gold, happiness and people are drawn in ink with a wash of colour; the face still tells its five
+  states by the mouth.
+- **Motion:** nothing was added. What moved before (rolling numbers, the face's hop, a card's fade) still stops with
+  Reduce Motion.
+- **Square corners.** Paper is cut, so sheets, slips, plaques and picture frames have 2 pt corners instead of the
+  first look's rounded cards.
+
+**Kept**
+
+- Behaviour, the model's state machine, the overlay dims, the frame-rate rules for overlays (20 fps under screens,
+  60 fps under cards, 30 fps when hot), plain fills and strokes only.
+- Every accessibility identifier, label, value and trait; the UI tests are unchanged. Touch targets of 44 pt, choices
+  and main buttons 52 pt.
+- The string catalogs: no key added, changed or removed.
+- The first look's names in `Theme` (`GoldButtonStyle`, `QuietButtonStyle`, `Theme.rounded`, `night0`, `moon`,
+  `stoneLight`, `woodDark`, `CornerGem` and the rest) with the new look behind them, so the polish and art lanes'
+  code compiles after a merge without a change.
+
+**Left for the other lanes**
+
+- The crown symbol on the audience button and the HUD (`crown.fill` in `ActionButton` and on "End the audience") is
+  untouched: `claude/lh-polish` swaps it for the circlet that `claude/lh-look2-fable` draws.
+- The fog, the castle tiers and the props.
+
+**After round `lh-ui-1`: IM Fell's lines stand taller**
+
+IM Fell's lines are about a quarter taller than the system face's, and the first restyle added rules and padding, so
+four things no longer fit their sheets in the round's pictures. All four were tightened, none by shrinking type:
+
+- **Taxes card:** the fourth rate (the locked war tax) was cut. The card's rows keep 52 pt (4 pt inside instead of 6,
+  1 pt between a row's two lines), the sheet 10 pt above and below.
+- **Dawn report:** the finale's last row (People) lay under the footer's rule, the sample's last unlock line on it.
+  The columns' rows stand 5 pt apart, a row's detail directly under it, the banner and the header are 3 to 6 pt
+  lower.
+- **Petition, German:** the request's third line was cut. The card starts 74 pt down (the ledger slip ends at 67)
+  and its paddings are 1 to 2 pt smaller.
+- **Pause sheet, English:** "Sound the horn" broke under its moon. It is one line, scaled down to 75 % at most.
+
+Also: the count in "Next petitioner (1)" is set in the figure face (`Text(inked:)`), and `PeopleShape` and
+`PeopleIcon` moved below `GoldAmount` in `Theme.swift`, because `claude/lh-polish` adds its circlet after `CoinStack`
+where they stood. This section stands at the end of "Screens" for the same reason (that lane writes before "Risks").
+A trial merge (`git merge-tree`) of `claude/lh-polish` and of `claude/lh-look2-fable` into this branch is clean.
+
+**Open**
+
+- The title screen (Screens 1) does not exist in the code yet; `docs/UI-look.md` says how it should look.
+- Story panels (Screens 6) likewise.
+- A Japanese and a Chinese screenshot round.
+
 ## Tech plan
 
 The research is in `docs/research-rendering.md` (sources, evidence labels, numbers). The decisions:
@@ -2752,64 +2828,6 @@ court was never hashed on its own.
 - `lh-j2-2` on 4b74250 (the three hashes recorded; build and unit only, since nothing but the test's table changed):
   ALL PASSED, 375 tests. All six of look 1's hashes are asserted and hold; the tuning report and night 20's step
   check are `lh-j2-1`'s byte for byte.
-
-### The interface in the map's style (10.11.2026)
-
-Louis loved the realm map (`docs/karte.html`) and asked for the game's interface in the same hand. Branch
-`claude/lh-ui` from f9751d1. The style guide and the screens one by one are in `docs/UI-look.md`; this section records
-the decisions.
-
-**Decisions**
-
-- **Paper from the lord's desk.** Every piece of the interface is a thing of the world: the HUD a slip of the
-  steward's ledger, the realm strip a strip cut from the map, a petition a letter, the dawn report a page of the house
-  chronicle, the name entry a page of the family book, the build cards pages of the builders' ledger. It is this
-  game's own interface, drawn from its own map.
-- **Two surfaces.** Parchment for what is inside the world, the dark desk for what is outside it (the pause sheet,
-  the defeat card). So a glance tells a letter from a menu.
-- **Palette:** the map's (desk, bone, parchment, ink, rule, wax-red rubric, gold, House Lantern's teal). Teal always
-  means the house or "marked, in force"; wax red means a heading, the main button, or a warning; gold means coin or
-  gilt. The soft ink is a shade darker than the map's (`58432B`), so that footnotes hold 4.6:1 on the shaded corner
-  of a sheet.
-- **Type:** IM Fell English (SIL OFL 1.1), three cuts in `Resources/Fonts` with `IMFell-OFL.txt`, registered through
-  a small `Info.plist` (`UIAppFonts`) that `project.yml` merges into the generated one; `Theme` registers them a
-  second time at first use if the plist ever fails. The face has no bold: bold became small capitals.
-- **Figures in Baskerville SemiBold.** IM Fell's old-style 1 reads as a capital I ("Day I"). Every number, and every
-  digit inside a sentence (`Text(inked:)`), is set in Baskerville's lining figures, which every iPhone has.
-- **Japanese and Simplified Chinese** fall back to Hiragino Mincho and the system's serif; frames, colours and
-  figures are the same. Not yet seen in a screenshot.
-- **Buttons:** the main one a plaque of wax red (52 pt), the quiet one an inked plaque, round wax seals for pause, the
-  action button and the switches. Pressing darkens; nothing moves.
-- **Icons** for gold, happiness and people are drawn in ink with a wash of colour; the face still tells its five
-  states by the mouth.
-- **Motion:** nothing was added. What moved before (rolling numbers, the face's hop, a card's fade) still stops with
-  Reduce Motion.
-- **Square corners.** Paper is cut, so sheets, slips, plaques and picture frames have 2 pt corners instead of the
-  first look's rounded cards.
-
-**Kept**
-
-- Behaviour, the model's state machine, the overlay dims, the frame-rate rules for overlays (20 fps under screens,
-  60 fps under cards, 30 fps when hot), plain fills and strokes only.
-- Every accessibility identifier, label, value and trait; the UI tests are unchanged. Touch targets of 44 pt, choices
-  and main buttons 52 pt.
-- The string catalogs: no key added, changed or removed.
-- The first look's names in `Theme` (`GoldButtonStyle`, `QuietButtonStyle`, `Theme.rounded`, `night0`, `moon`,
-  `stoneLight`, `woodDark`, `CornerGem` and the rest) with the new look behind them, so the polish and art lanes'
-  code compiles after a merge without a change.
-
-**Left for the other lanes**
-
-- The crown symbol on the audience button and the HUD (`crown.fill` in `ActionButton` and on "End the audience") is
-  untouched: `claude/lh-polish` swaps it for the circlet that `claude/lh-look2-fable` draws.
-- The number in "Next petitioner (1)" on the wax button is still in IM Fell's old-style figures (the line belongs to
-  that swap); it should become `Text(inked:)` when the icon lands.
-
-**Open**
-
-- The title screen (Screens 1) does not exist in the code yet; `docs/UI-look.md` says how it should look.
-- Story panels (Screens 6) likewise.
-- A Japanese and a Chinese screenshot round.
 
 ## Risks
 
