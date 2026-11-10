@@ -719,6 +719,11 @@ final class Renderer {
 
     static func quad(_ sprite: SpriteInstance, layout: AtlasLayout) -> SpriteQuad {
         let cell = layout.cell(sprite.sprite, frame: sprite.frame)
+        if let source = sprite.source {
+            let part = AtlasCell(x: cell.x + Int(source.x), y: cell.y + Int(source.y), width: Int(source.z),
+                                 height: Int(source.w))
+            return SpriteQuad(rect: sprite.rect, texel: part.texels(flipped: sprite.flipped), tint: sprite.tint)
+        }
         return SpriteQuad(rect: sprite.rect, texel: cell.texels(flipped: sprite.flipped), tint: sprite.tint)
     }
 

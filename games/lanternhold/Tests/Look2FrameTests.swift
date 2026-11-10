@@ -14,9 +14,12 @@ final class Look2FrameTests: XCTestCase {
     private static let world = PlaceholderScene.world(look: .two)
 
     /// A game frame as `GameModel` builds it, in `look`.
-    private func frame(_ s: GameState, focus: Double, look: LookVersion = .two, time: Double = 1.5) -> FrameDesc {
+    private func frame(_ s: GameState, focus: Double, look: LookVersion = .two, time: Double = 1.5,
+                       weather: WeatherSample = .clear, reduceMotion: Bool = false) -> FrameDesc {
         var options = FrameOptions(flickerTime: time)
         options.look = look
+        options.weather = weather
+        options.reduceMotion = reduceMotion
         let screen = Look2FrameTests.screen
         let pixelScale = options.pixelScale(physicalWidth: screen.0, physicalHeight: screen.1)
         let camera = Camera(focusX: focus, pixelScale: pixelScale)
@@ -284,6 +287,114 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertTrue(frame(night, focus: 400, look: .one).emissives.allSatisfy { $0.sprite != .darknessBankGlow })
     }
 
+    /// PORT-look2.md 3: the weather belongs to look 2's picture alone. Clear air is the frame as it was, look 1
+    /// never reads it, the rain is instances of the planes (none with Reduce Motion), the wind draws a tree as bands
+    /// of its rows, the people and the creatures stand where they stood, and a storm stays inside the budget.
+    func testWeatherOfLookTwo() {
+        let night = GameFrameSupport.demoNight(hour: 23.2)
+        func storm(_ time: Double = 1.5, reduceMotion: Bool = false) -> WeatherSample {
+            Weather.sample(seed: night.seed, day: night.day, hour: night.hour, time: time,
+                           override: WeatherOverride(mode: .storm), reduceMotion: reduceMotion)
+        }
+        func count(_ desc: FrameDesc, _ sprite: SpriteID, _ plane: Plane) -> Int {
+            desc.layer(plane).sprites.filter { $0.sprite == sprite }.count
+        }
+        let plain = frame(night, focus: 900)
+        XCTAssertEqual(frame(night, focus: 900, weather: .clear), plain, "clear air is the frame as it was")
+        XCTAssertEqual(plain.rain, 0)
+        XCTAssertEqual(plain.wetness, 0)
+        for plane in Plane.allCases {
+            XCTAssertEqual(count(plain, .rainStreak, plane) + count(plain, .rainSplash, plane), 0)
+            XCTAssertTrue(plain.layer(plane).sprites.allSatisfy { $0.source == nil }, "nothing sways in still air")
+        }
+        XCTAssertEqual(frame(night, focus: 900, look: .one, weather: storm()), frame(night, focus: 900, look: .one),
+                       "look 1 has no weather")
+
+        let wet = frame(night, focus: 900, weather: storm())
+        XCTAssertEqual(wet, frame(night, focus: 900, weather: storm()), "the same moment gives the same rain")
+        XCTAssertEqual(wet.rain, 1)
+        XCTAssertEqual(wet.wetness, 1)
+        for (depth, entry) in FrameBuilder.rainDepths.enumerated() {
+            let streaks = wet.layer(entry.plane).sprites.filter { $0.sprite == .rainStreak }
+            XCTAssertEqual(streaks.count, entry.count, "depth \(depth)")
+            XCTAssertTrue(streaks.allSatisfy { $0.frame == depth * 3 + 2 && !$0.flipped },
+                          "a storm toward the valley slants the rain")
+            XCTAssertTrue(streaks.allSatisfy { $0.tint.w < 0.5 }, "no streak is a ledge")
+        }
+        XCTAssertEqual(count(wet, .rainSplash, .world), FrameBuilder.rainSplashCount)
+        XCTAssertTrue(wet.layer(.world).sprites.filter { $0.sprite == .rainSplash }
+            .allSatisfy { (0...2).contains($0.frame) })
+        XCTAssertNotEqual(frame(night, focus: 900, time: 1.6, weather: storm(1.6)).layer(.world).sprites,
+                          wet.layer(.world).sprites, "the rain falls")
+        XCTAssertEqual(wet.actors, plain.actors, "the weather moves no one")
+        XCTAssertEqual(wet.lights.count, plain.lights.count)
+        XCTAssertLessThan(wet.ambient.ambientIntensity, plain.ambient.ambientIntensity)
+        XCTAssertEqual(wet.ambient.torchStrength, plain.ambient.torchStrength)
+
+        // Drizzle from the west: fewer streaks, mirrored.
+        let west = Weather.sample(seed: night.seed, day: night.day, hour: night.hour, time: 1.5,
+                                  override: WeatherOverride(mode: .clear, wind: -0.4, rain: 0.5))
+        let drizzle = frame(night, focus: 900, weather: west)
+        XCTAssertEqual(count(drizzle, .rainStreak, .world), FrameBuilder.rainDepths[1].count / 2)
+        XCTAssertTrue(drizzle.layer(.world).sprites.filter { $0.sprite == .rainStreak }
+            .allSatisfy { $0.frame == 4 && $0.flipped })
+        XCTAssertEqual(FrameBuilder.rainSlant(.clear), 0)
+
+        // Reduce Motion: no streaks, no splashes, nothing sways; the wet sheen and the darker air stay.
+        let still = frame(night, focus: 300, weather: storm(reduceMotion: true), reduceMotion: true)
+        for plane in Plane.allCases {
+            XCTAssertEqual(count(still, .rainStreak, plane) + count(still, .rainSplash, plane), 0)
+        }
+        XCTAssertTrue(still.layer(.near).sprites.allSatisfy { $0.source == nil })
+        XCTAssertEqual(still.wetness, 1)
+        XCTAssertEqual(still.rain, 1)
+
+        // The wind in the firs of the shadow land: some crown stands off its trunk at one of these moments.
+        var swayed = 0
+        for index in 0..<6 {
+            let time = 1.5 + Double(index) * 0.7
+            let blown = frame(night, focus: 300, time: time, weather: storm(time))
+            swayed += blown.layer(.near).sprites.filter { $0.source != nil }.count
+        }
+        XCTAssertGreaterThan(swayed, 0, "the firs sway in the storm")
+
+        // A sprite as bands: its rows once each, the top shifted, the foot where it stood.
+        let size = SpriteID.firA.size
+        let tree = SpriteInstance(sprite: .firA, frame: 0,
+                                  rect: SIMD4<Float>(40, 60, Float(size.width), Float(size.height)),
+                                  tint: SIMD4<Float>(1, 1, 1, 1), flipped: false)
+        XCTAssertEqual(FrameBuilder.sheared(tree, offset: 0, bands: 6, bend: true), [tree])
+        for offset in [-3, -1, 1, 2, 4] {
+            for bend in [true, false] {
+                let parts = FrameBuilder.sheared(tree, offset: offset, bands: 6, bend: bend)
+                XCTAssertGreaterThan(parts.count, 1)
+                XCTAssertEqual(parts.first?.rect.x, 40 + Float(offset))
+                XCTAssertEqual(parts.last?.rect.x, 40)
+                var row = 0
+                for part in parts {
+                    XCTAssertEqual(part.source?.y, Float(row))
+                    XCTAssertEqual(part.rect.y, 60 + Float(row))
+                    XCTAssertEqual(part.source?.w, part.rect.w)
+                    XCTAssertEqual(part.source?.z, Float(size.width))
+                    row += Int(part.rect.w)
+                }
+                XCTAssertEqual(row, size.height, "every row once")
+            }
+        }
+
+        // The budget (PORT-look2.md 4): a storm night along the whole lane.
+        var most = 0
+        var focus = 0.0
+        while focus <= WorldLayout.width {
+            let desc = frame(night, focus: focus, weather: storm())
+            most = max(most, desc.counts.instances)
+            XCTAssertLessThanOrEqual(desc.counts.lights, 64, "lights at \(focus)")
+            focus += 200
+        }
+        print("LOOK2 most instances in a storm \(most)")
+        XCTAssertLessThanOrEqual(most, 1_500, "instances in a storm")
+    }
+
     func testLookTwoRenders() throws {
         let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
         let renderer = try Renderer(context: context)
@@ -300,6 +411,24 @@ final class Look2FrameTests: XCTestCase {
         ]
         var settings = RenderSettings()
         settings.time = 1.5
+        // The weather's pictures: a storm at the outer line by night and over the town at dusk, and the lane after
+        // the rain. The wet picture differs from the dry one.
+        let weathers: [(name: String, state: GameState, focus: Double, override: WeatherOverride)] = [
+            ("storm-front-night", GameFrameSupport.demoNight(hour: 22.8), 900, WeatherOverride(mode: .storm)),
+            ("storm-town-dusk", GameFrameSupport.demoDay(hour: 19.2), 2800, WeatherOverride(mode: .storm)),
+            ("after-rain-castle-dusk", GameFrameSupport.demoDay(hour: 19.2), 1360,
+             WeatherOverride(mode: .clear, wetness: 1)),
+        ]
+        for scene in weathers {
+            let sample = Weather.sample(seed: scene.state.seed, day: scene.state.day, hour: scene.state.hour,
+                                        time: 1.5, override: scene.override)
+            let wet = try renderer.renderOffscreen(frame(scene.state, focus: scene.focus, weather: sample),
+                                                   settings: settings)
+            XCTAssertEqual(renderer.stats.passes, 16, "the weather adds no pass")
+            let dry = try renderer.renderOffscreen(frame(scene.state, focus: scene.focus), settings: settings)
+            attach(wet, name: "look2-\(scene.name)")
+            XCTAssertNotEqual(LookGoldenTests.hash(wet.pixels), LookGoldenTests.hash(dry.pixels), scene.name)
+        }
         for scene in scenes {
             let two = try renderer.renderOffscreen(frame(scene.state, focus: scene.focus), settings: settings)
             XCTAssertEqual(renderer.stats.passes, 16, "ten planes, light, emissive, bloom's three, composite")

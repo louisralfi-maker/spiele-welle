@@ -1042,7 +1042,7 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         float3 ambient = lh2_ambient(v.ambM.rgb, 0.72f, shade, v);
         float e = lh2_ledge(midTex, c.mid, m.a);
         if (e > 0.0f) {
-            ambient = lh2_ledge_light(ambient, e, u);
+            ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
         }
         float3 lit = lh2_cold(m.rgb, ambient, 1.0f - shade, 1.0f, v) + m.rgb * info.backdrop * 0.3f
             + m.rgb * kMoonLight2 * lh2_moon_key(m, v);
@@ -1064,7 +1064,7 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         float3 ambient = lh2_ambient(v.ambN.rgb, 1.05f, shade, v) * (1.0f - kFireCold2 * min(1.0f, peak * 0.75f));
         float e = lh2_ledge(nearTex, near, n.a);
         if (e > 0.0f) {
-            ambient = lh2_ledge_light(ambient, e, u);
+            ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
         }
         float3 lit = lh2_cold(n.rgb, ambient, 1.0f - shade, 1.0f, v)
             + lh_reflectance(n.rgb) * lh2_capped(info.light) * 0.5f + n.rgb * kMoonLight2 * lh2_moon_key(n, v);
@@ -1090,18 +1090,24 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         ambient = mix(ambient, v.inter.rgb, room);
         float kmul = 1.0f - room * v.inter.w;
         if (under >= 0.0f && under < 8.0f) {
-            ambient *= v.fog.z;
+            ambient *= v.fog.z + 0.25f * v.weather.y;
         } else {
             float e = lh2_ledge(worldTex, c.world, w.a);
             if (e > 0.0f) {
-                ambient = lh2_ledge_light(ambient, e, u);
+                ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
             }
         }
-        ambient *= info.bank;
+        ambient *= info.bank * (1.0f - 0.12f * v.weather.y);
         float3 lit = lh2_cold(w.rgb, ambient, 1.0f - shade, kmul, v) + lh_reflectance(w.rgb) * light
             + light * (0.06f * w.a);
         if (under >= 0.0f && under < 7.0f && moonUp > 0.0f) {
             lit += w.rgb * kMoonLight2 * (0.18f * moonUp * night);
+        }
+        // Weather: the wet lane's top rows throw the firelight back, column by column.
+        if (under >= 0.0f && under < 3.0f && v.weather.y > 0.0f) {
+            float column = float(c.world.x) + u.target.w;
+            float glint = 0.6f + 0.4f * fract(sin(column * 12.9898f) * 43758.5453f);
+            lit += light * (0.5f * v.weather.y * w.a * glint);
         }
         color = color * (1.0f - w.a) + lit;
         midVisible *= 1.0f - w.a;

@@ -39,6 +39,21 @@ final class DebugArgsTests: XCTestCase {
         XCTAssertTrue(DebugArgs.keys.contains("GWCastle"))
     }
 
+    func testTheWeatherArguments() {
+        XCTAssertEqual(DebugArgs(values: [:]).weather, .auto)
+        XCTAssertEqual(DebugArgs(values: ["GWWeather": "storm"]).weather, WeatherOverride(mode: .storm))
+        XCTAssertEqual(DebugArgs(values: ["GWWeather": "Clear"]).weather.mode, .clear)
+        XCTAssertEqual(DebugArgs(values: ["GWWeather": "hail"]).weather, .auto, "an unknown weather is ignored")
+        let fixed = DebugArgs(values: ["GWWeather": "gusty", "GWWind": "-0.5", "GWRain": "0.4", "GWWetness": "2"])
+        XCTAssertEqual(fixed.weather, WeatherOverride(mode: .gusty, wind: -0.5, rain: 0.4, wetness: 1))
+        XCTAssertEqual(DebugArgs(values: ["GWWind": "7"]).weather.wind, 1)
+        XCTAssertEqual(DebugArgs(values: ["GWRain": "-1"]).weather.rain, 0)
+        XCTAssertNil(DebugArgs(values: ["GWRain": "wet"]).weather.rain)
+        for key in ["GWWeather", "GWWind", "GWRain", "GWWetness"] {
+            XCTAssertTrue(DebugArgs.keys.contains(key), key)
+        }
+    }
+
     func testTheFrontNightShotArguments() {
         let args = DebugArgs(values: [
             "GWScene": "world", "GWCameraX": "760", "GWTimeOfDay": "0.95", "GWFreezeTime": "YES",

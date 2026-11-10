@@ -64,6 +64,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // effects): the hall's renewed banners, the tapestry of Aldric, Seren's grey lantern, the votive candles before
     // the chapel's altar, the empty belfry where the bell hung
     case hallBanner, tapestry, serenLantern, votiveCandles, bellGone
+    // Look 2's weather (docs/PORT-look2.md 3): the rain's streaks (nine frames: three depths by three slants) and
+    // the splash on the lane (three frames), painted in code until the art lane brings them
+    case rainStreak, rainSplash
     // Look 2 (SPRITES.md "Look 2: the world", ART-look2.md 13.1). Far plane: the Weltmauer with the far castle in its
     // slot, the patch that hides the baked castle from the valley, and the slot's lights
     case weltmauer, weltmauerPatch, farCastleGlow, farCastlePane, farCleftGlow, farCleftGlowBack
@@ -232,6 +235,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .serenLantern: return PixelSize(width: 7, height: 16)
         case .votiveCandles: return PixelSize(width: 14, height: 6)
         case .bellGone: return PixelSize(width: 7, height: 8)
+        case .rainStreak: return PixelSize(width: 7, height: 11)
+        case .rainSplash: return PixelSize(width: 5, height: 3)
         case .weltmauer: return PixelSize(width: 888, height: 190)
         case .weltmauerPatch: return PixelSize(width: 52, height: 190)
         case .farCastleGlow, .farCastlePane: return PixelSize(width: 40, height: 46)
@@ -326,7 +331,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .sootCrow, .sootCrowGlow, .gloomweaver, .gloomweaverGlow: return 4
         case .beaconFire, .darknessBankGlow: return 4
         case .gateWood, .gateIron, .gateGreat, .catapult: return 3
-        case .arrow, .fireArrow, .bolt, .spark, .streak: return 3
+        case .arrow, .fireArrow, .bolt, .spark, .streak, .rainSplash: return 3
+        case .rainStreak: return 9
         case .palisade, .stoneWall, .bastion, .ballista, .stakePit, .firepot, .shard: return 2
         default: return 1
         }
@@ -363,6 +369,9 @@ struct FrameOptions: Sendable, Equatable {
     /// The look (`-GWLook 1|2`). The options' own default is look 1, so the tests that build frames without the
     /// app's arguments keep the picture they were written for; the app's default is `LookVersion.standard`.
     var look: LookVersion = .one
+    /// Look 2's weather at this moment (`Weather.sample`); look 1 never reads it. Clear by default, so a frame
+    /// built without the game's weather is the frame it was.
+    var weather: WeatherSample = .clear
 
     /// The pixel scale these options give on a screen.
     func pixelScale(physicalWidth: Int, physicalHeight: Int) -> PixelScale {
@@ -382,6 +391,9 @@ struct SpriteInstance: Sendable, Equatable {
     var tint: SIMD4<Float>
     /// Mirrored horizontally.
     var flipped: Bool
+    /// The part of the sprite's cell to draw (x, y, width, height in texels from its top-left); nil draws all of
+    /// it. The wind's sway draws a tree as bands of rows, each shifted by whole pixels.
+    var source: SIMD4<Float>? = nil
 }
 
 /// One actor quad (king, people, creatures, eye glints), in **device** pixels of the drawable (origin top-left). Its
@@ -534,6 +546,9 @@ struct FrameDesc: Sendable, Equatable {
     /// Look 2: the cut-away rooms on screen (the hall's interior, the smithy's forge), at most two, each as x0, y0,
     /// x1, y1 in world target pixels. Inside them the ambient is the room's warm fill and the night's pull lets go.
     var rooms: [SIMD4<Float>] = []
+    /// Look 2: the rain (0 ... 1) and how wet stone and lane are (0 ... 1), for the composite's wet sheen.
+    var rain: Float = 0
+    var wetness: Float = 0
 
     /// The layer of one plane.
     func layer(_ plane: Plane) -> PlaneLayer {

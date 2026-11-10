@@ -69,6 +69,11 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWCastle 1|1b|2|2b|3|3b` (look 2): the castle's tier as drawn, with "b" in its building state (SPRITES.md
     /// "The castle grows"). Drawing only; nothing in play raises it yet.
     var castle: CastleStage = .standard
+    /// `-GWWeather auto|clear|breeze|gusty|storm`, `-GWWind <-1…1>`, `-GWRain <0…1>`, `-GWWetness <0…1>` (look 2):
+    /// the weather of the picture. `auto` is the seed's; `clear` no wind and no rain; `breeze` and `gusty` that wind
+    /// toward the valley, dry; `storm` the storm at its height. The numbers fix the steady wind (no gusts), the rain
+    /// (with its cloud and wet ground) and the wetness on top of the mode.
+    var weather = WeatherOverride.auto
     /// `-GWSkipOnboarding YES`: no hints (the onboarding comes in M7; accepted now so tests already pass it).
     var skipOnboarding = false
 
@@ -101,6 +106,7 @@ struct DebugArgs: Sendable, Equatable {
         "GWCameraX", "GWAutoplay", "GWActorMode", "GWLightStyle", "GWEffects", "GWShowLowRes", "GWShowBuffer",
         "GWDebugLights", "GWStats", "GWReduceMotion", "GWDay", "GWNight", "GWBuild", "GWGold", "GWHappiness",
         "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock", "GWLook", "GWCastle",
+        "GWWeather", "GWWind", "GWRain", "GWWetness",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -183,6 +189,18 @@ struct DebugArgs: Sendable, Equatable {
         }
         if let clock = DebugArgs.double(values["GWClock"]), clock >= 6, clock < 19 {
             self.clock = clock
+        }
+        if let mode = values["GWWeather"].flatMap({ WeatherOverride.Mode(rawValue: $0.lowercased()) }) {
+            weather.mode = mode
+        }
+        if let wind = DebugArgs.double(values["GWWind"]) {
+            weather.wind = min(1, max(-1, wind))
+        }
+        if let rain = DebugArgs.double(values["GWRain"]) {
+            weather.rain = min(1, max(0, rain))
+        }
+        if let wetness = DebugArgs.double(values["GWWetness"]) {
+            weather.wetness = min(1, max(0, wetness))
         }
     }
 

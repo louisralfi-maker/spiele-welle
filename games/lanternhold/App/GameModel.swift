@@ -103,6 +103,9 @@ final class GameModel {
     @ObservationIgnored private var autoplayDirection: Int
     @ObservationIgnored private var steps = 0
     @ObservationIgnored private var renderedFrames = 0
+    /// The fog's travel with the wind so far (seconds of drift time) and the clock's time it was summed at.
+    @ObservationIgnored private var weatherTravel = 0.0
+    @ObservationIgnored private var weatherTravelAt: Double?
     @ObservationIgnored private var smoothedInterval = 1.0 / 60.0
     @ObservationIgnored private var lastStatsTime = -1.0
     /// Thermal state `.serious`: the renderer drops bloom and one fog plane.
@@ -796,9 +799,37 @@ final class GameModel {
 
     // MARK: - Frames
 
+    /// Look 2's weather for the frame (`Weather`): the run's seed and day in the game; in the probe, which has no
+    /// run, only a weather asked for with `-GWWeather`, `-GWWind`, `-GWRain` or `-GWWetness`. The picture reads it,
+    /// the simulation never does. While the clock runs, the fog's travel with the wind is summed frame by frame, so
+    /// a change of the wind never makes the fog jump; `-GWFlickerTime` keeps the closed form.
+    private func weatherSample(look: LookVersion) -> WeatherSample {
+        guard look == .two else { return .clear }
+        let seed: UInt64
+        let day: Int
+        let hour: Double
+        if kind == .world, let state = driver?.state {
+            (seed, day, hour) = (state.seed, state.day, state.hour)
+        } else {
+            guard args.weather != .auto else { return .clear }
+            (seed, day, hour) = (args.seed, clock.day, clock.hour)
+        }
+        var sample = Weather.sample(seed: seed, day: day, hour: hour, time: animationTime, override: args.weather,
+                                    reduceMotion: reduceMotion)
+        if args.flickerTime == nil, sample != .clear, !reduceMotion {
+            let now = clock.elapsed
+            let dt = min(0.1, max(0, now - (weatherTravelAt ?? now)))
+            weatherTravelAt = now
+            weatherTravel += dt * (Weather.driftRate(mean: sample.mean) - 1)
+            sample.travel = weatherTravel
+        }
+        return sample
+    }
+
     /// The frame to draw on a screen of this physical size.
     func frame(physicalWidth: Int, physicalHeight: Int) -> FrameDesc {
-        let options = self.options
+        var options = self.options
+        options.weather = weatherSample(look: options.look)
         let pixelScale = options.pixelScale(physicalWidth: physicalWidth, physicalHeight: physicalHeight)
         let frame: FrameDesc
         switch kind {

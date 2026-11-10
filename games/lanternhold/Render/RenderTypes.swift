@@ -244,7 +244,7 @@ enum Look2 {
             grade: SIMD4<Float>(sample.saturation, sample.warmth, sample.vignette, sample.black),
             roomA: rooms.count > 0 ? rooms[0] : none,
             roomB: rooms.count > 1 ? rooms[1] : none,
-            weather: none)
+            weather: SIMD4<Float>(frame.rain, frame.wetness, 0, 0))
     }
 }
 

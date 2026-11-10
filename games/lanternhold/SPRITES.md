@@ -292,6 +292,18 @@ Notes for the code lane: tier 2 swaps one sprite at one anchor (`keepTop`); tier
 anchor 14 px left. The gatehouse's own tiers (gate, iron gate, great gate; DESIGN.md) can drive the castle's tier, or
 the keep's upgrade can. The look-2 mock shows every state: `scene_look2.py … tier<1|2|3>[b]-<gate|back|far|farback>[-day]`.
 
+## The weather (look 2 port, docs/PORT-look2.md 3; in `SpriteID` since 10.11.2026, painted in code until the art lane brings them)
+
+| id | size | frames | plane | what |
+|---|---|---|---|---|
+| `rainStreak` | 7x11 | 9 | near, world, foreground | a streak of rain, pale blue-grey (`#C8D2E6`, the tail `#9CA8C2`). Frame = depth x 3 + slant. Depth 0 (behind the near trees) is 4 px long, depth 1 (over the lane) 7 px, depth 2 (before everything) 11 px and two pixels wide. Slant 0 falls straight, slant 1 runs 1, 2, 3 px to the right over its length (by depth), slant 2 runs 2, 3, 5 px; the engine mirrors it for a wind from the valley. Drawn at alpha 0.30, 0.40, 0.45. Each frame stands in the cell's top-left corner. |
+| `rainSplash` | 5x3 | 3 | world | where a drop meets the lane: a dot, a small crown, two flecks flying apart. 0.3 s for the three frames. |
+
+Still to come from the art lane, not in `SpriteID` yet (PORT-look2.md 3.3 and 3.4): `castleFlag` (the banners that fly
+with the wind), `lanePuddleA` to `lanePuddleC` (the ruts' water after rain) and second frames for the foreground
+strips `d2FgFerns`, `d2FgMeadow`, `d2FgReeds`. Until then the wind sways the trees, the foreground's plants and the
+smoke as bands of their rows, and wet ground is the composite's sheen.
+
 ## Proposals of the art pass (look 2, stage 4; ART-look2.md section 15)
 
 Everything under this heading is a **proposal for the code lane** (the lord pass): the PNGs lie in Resources/Art and
