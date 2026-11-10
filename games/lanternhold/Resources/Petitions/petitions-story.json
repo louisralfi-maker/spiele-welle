@@ -67,6 +67,7 @@
         3,
         4
       ],
+      "onTop": true,
       "text": "petition.varn_levy.text",
       "hint": "petition.varn_levy.hint",
       "counsel": 0,
@@ -135,6 +136,7 @@
         5,
         6
       ],
+      "onTop": true,
       "text": "petition.oxmoor_gift.text",
       "hint": "petition.oxmoor_gift.hint",
       "counsel": 0,
@@ -424,6 +426,7 @@
         12,
         13
       ],
+      "onTop": true,
       "text": "petition.calder_audit.text",
       "hint": "petition.calder_audit.hint",
       "counsel": 0,
@@ -512,6 +515,7 @@
         14,
         15
       ],
+      "onTop": true,
       "text": "petition.lorn_visit.text",
       "hint": "petition.lorn_visit.hint",
       "counsel": 0,
@@ -701,6 +705,7 @@
         16,
         16
       ],
+      "onTop": true,
       "text": "petition.tithe_letters.text",
       "hint": "petition.tithe_letters.hint",
       "counsel": 0,
@@ -924,6 +929,7 @@
         18,
         18
       ],
+      "onTop": true,
       "requires": [
         "varn_with"
       ],

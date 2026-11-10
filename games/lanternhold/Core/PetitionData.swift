@@ -115,6 +115,10 @@ struct Petition: Codable, Sendable, Equatable {
     var chapter: Int?
     /// `[from, to]` (or `[day]`): the days it may come, both included; left out: any day.
     var days: [Int]?
+    /// A story petition that comes on top of the day's petitioners: it does not count against the day's number, so
+    /// the others are drawn as if it were not there (the houses' audiences of the story pass, which must leave the
+    /// tuned chapter as it was).
+    var onTop: Bool?
     /// The weight of a random draw (left out: 1; 0: only as a follow-up).
     var weight: Double?
     var requires: [String]?
@@ -128,8 +132,8 @@ struct Petition: Codable, Sendable, Equatable {
     var counsel: Int?
     var choices: [PetitionChoice]
 
-    static let keys: Set<String> = ["id", "speaker", "kind", "chapter", "days", "weight", "requires", "forbids",
-                                    "happinessRange", "text", "hint", "counsel", "choices"]
+    static let keys: Set<String> = ["id", "speaker", "kind", "chapter", "days", "onTop", "weight", "requires",
+                                    "forbids", "happinessRange", "text", "hint", "counsel", "choices"]
 
     /// The days it may come, or nil for any day.
     var dayRange: ClosedRange<Int>? {

@@ -81,6 +81,35 @@ final class PetitionTests: XCTestCase {
         XCTAssertEqual(sizes, [2, 3, 4], "every size comes")
     }
 
+    /// The story pass: a story petition that comes on top leaves the day's other petitioners as they were drawn
+    /// without it, so the houses' audiences do not move the tuned chapter.
+    func testAStoryPetitionOnTopLeavesTheOthersAsDrawn() {
+        let randoms = (0..<8).map { Self.random("r\($0)") }
+        func story(_ id: String, onTop: Bool) -> String {
+            let extra = onTop ? "\"onTop\": true, " : ""
+            return """
+            {"id": "\(id)", "speaker": "farmer", "kind": "story", "days": [2, 40], \(extra)"text": "t",
+             "choices": [{"label": "a", "happiness": 1}, {"label": "b"}]}
+            """
+        }
+        let plain = Self.catalog(randoms.joined(separator: ","))
+        let topped = Self.catalog(([story("house", onTop: true)] + randoms).joined(separator: ","))
+        let counted = Self.catalog(([story("house", onTop: false)] + randoms).joined(separator: ","))
+        var fewer = false
+        for day in 2...40 {
+            var a = realm(day: day)
+            var b = realm(day: day)
+            var c = realm(day: day)
+            PetitionEngine.prepare(&a, catalog: plain)
+            PetitionEngine.prepare(&b, catalog: topped)
+            PetitionEngine.prepare(&c, catalog: counted)
+            let others = a.court?.queue.map(\.id) ?? []
+            XCTAssertEqual(b.court?.queue.map(\.id), ["house"] + others, "day \(day): the house comes on top")
+            if (c.court?.queue.count ?? 0) == others.count { fewer = true }
+        }
+        XCTAssertTrue(fewer, "a counted story petition takes a place of the day's number")
+    }
+
     func testOnlyEligiblePetitionsAreDrawn() {
         let book = Self.catalog([
             Self.random("days", extra: "\"days\": [3, 4], "),

@@ -49,6 +49,24 @@ final class PetitionDataTests: XCTestCase {
         XCTAssertEqual(problems, [], problems.joined(separator: "\n"))
     }
 
+    /// The story pass (STORY.md 9.3): the houses' six audiences come on top of the day's petitioners, and Odile's
+    /// counsel in them moves no number, so the reference bot's chapter is the one that was tuned.
+    func testTheHousesAudiencesComeOnTopAndTheirCounselMovesNothing() {
+        let houses = PetitionCatalog.standard.petitions.filter { $0.onTop == true }
+        XCTAssertEqual(houses.map(\.id).sorted(),
+                       ["calder_audit", "lorn_visit", "oxmoor_gift", "tithe_letters", "varn_levy", "varn_ride"])
+        for petition in houses {
+            XCTAssertEqual(petition.kind, .story, petition.id)
+            XCTAssertEqual(petition.counsel, 0, petition.id)
+            guard let counsel = petition.choices.first?.effect else { continue }
+            var flagsOnly = PetitionEffect()
+            flagsOnly.flags = counsel.flags
+            flagsOnly.world = counsel.world
+            flagsOnly.reaction = counsel.reaction
+            XCTAssertEqual(counsel, flagsOnly, "\(petition.id): the counsel sets flags and nothing else")
+        }
+    }
+
     /// M3 fix (U1): no story choice ends with "No cost" and an empty change row: it changes a number, opens or
     /// rolls something, or sets a flag the game remembers in words.
     func testEveryStoryChoiceLeavesATrace() {
