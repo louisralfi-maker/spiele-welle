@@ -1264,8 +1264,61 @@ Plates re-rendered: 02 (the strips composited on the throne, day and fire bands,
 
 ### 16.3 Open
 
-- `hallFront`, `chapel` and `kitchen` are not repainted (15.4 stands); the hour went to 16.1 and 16.2.
+- `hallFront`, `chapel` and `kitchen` are not repainted (15.4 stands); the hour went to 16.1 and 16.2. (Done in
+  section 17.)
 - The seated strips are judged as stills only. Seated, the lord is one of the darker figures of the hall: before the
   dais's dark wood he reads by the gold posts, the cushion and the lantern, less by his own colours. A lighter dais
   front in `hallInterior` would help more than any further change of the strip.
 - The hall's `taxLectern` and the M3 court's places beside the throne follow the throne's x in the code lane.
+
+## 17. Stage 5: the castle's fronts (10.11.2026, night)
+
+### 17.1 What was repainted
+
+- **`chapel` (160x96) and `kitchen` (120x80):** painted anew by `tools/frontart.py repaint <id> <png>`, with
+  `townart.py`'s vocabulary and palette names. `build-art.sh` still converts the Recraft painting first; that
+  conversion now gives only the silhouette. Every opaque pixel is repainted, no transparent one is touched, so
+  `roomart.py silhouette` reports the same silhouette as before (10565 and 7254 opaque pixels) and
+  `chapelInterior` and `kitchenInterior` keep their outlines.
+  - The chapel: coursed ashlar without ink joints, four two-stage buttresses with a lit face, a shaded side and a
+    cast shadow on the wall, lancets with dressed jambs, hoods and pale sills, the gabled bay a step darker at the
+    right with the Flame in gold over its lancet, a pointed oak door, the bell tower with a lit front and a shaded
+    side, a slate spire and nave roof with a lit slope (`townart.roof`).
+  - The kitchen: a rubble ground floor with an arched double door, barrels, a wood pile and herb pots, a jettied
+    storey of plaster between oak posts with two shuttered windows over herb boxes, a hipped slate roof, the big
+    stone stack lit from the left.
+- **`hallFront` (260x90):** relit in `roomscenes.hall_front`, not redrawn. The wall's faces are lighter and mixed
+  (stone and stoneLight), the joints, the corbels and the plinth carry stoneDark instead of ink, the cornice, the
+  left end wall and both buttresses cast a shadow one step down the stone ramp, the right 14 columns and the
+  roof's right 20 are a step darker, the buttresses have a lit left edge. The end walls (x 0-20 and 239-259) are
+  still `hallInterior`'s own pixels.
+- **`kitchenInterior`** changed only where it shows the front's stack (its box 70,0,104,8). `chapelInterior` and
+  `hallInterior` did not change: their outer frames are their own masonry and do not clash.
+
+### 17.2 The anchors kept (ART-court.md)
+
+- Sizes, frame counts and silhouettes are unchanged.
+- The chapel's lancet glass is night1 inside the four masks (x 24-33, 60-69, 95-104 on rows 53-76; x 129-137 on
+  rows 53-75). Two saddle bars per lancet (rows 63 and 70) are stoneDark and stay dark in a lit window. The
+  belfry's louvres use night1 and ink outside any mask, as before.
+- The kitchen's panes are night1 at x 30-32, 34-36 and 84-86, 88-90 on rows 41-43 and 45-47, inside the eight
+  masks; the bars are at x 33, x 87 and row 44.
+- `hallFront`'s windows, wall lanterns and the door's threshold gap are painted by the same calls at the same
+  places as before.
+
+### 17.3 The world plates
+
+`ci-out/look2-fable/world` 1 to 10 are re-rendered from today's art under the same names (PNG at 3x and JPEG):
+the nine look-2 frames by `run_look2.sh` with `LOOKS=new` (one render at a time, about 20 s each, 72 °C at most),
+plates 4 to 9 stacked on the unchanged old frames by `stack_png.py`, plate 10 by `sheet_look2.py` with `cols=3`.
+They show the cliffs of 16.1 without the hands. `ci-out/look2-fable/art/20-burgfronten-alt-oben-neu-unten` shows
+the three fronts old above new, beside the tavern and the big house.
+
+### 17.4 Open
+
+- The three fronts are judged on the day sheet only. No mock scene shows them at dusk beside the castle's tiers
+  (the court scene shows the hall cut away), and they have not been seen with lit windows.
+- The chapel keeps the old painting's stepped left outline; where the tower's foot meets the nave's west corner
+  it reads as plain wall.
+- `hallFront`'s lean-to, door, banners and stamps keep their ink outlines on all sides.
+- The points of 15.4 on the defences, the M3 court members and motion stand.
