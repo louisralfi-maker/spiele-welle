@@ -49,6 +49,13 @@ Piston Empire went through all of this for its 1.0 (live since 04.11.2026). Its 
     - archive and export on the runner with `xcodebuild -exportArchive` and an export options plist with method `app-store-connect` and destination `upload`, plus `-allowProvisioningUpdates` and the `-authenticationKeyPath/-authenticationKeyID/-authenticationKeyIssuerID` flags;
     - processing takes 10 to 30 minutes;
     - the build number goes up with every upload.
+    - **Proven 10.11.2026 (Lanternhold 1.0.0 build 86, round tf-lh-1):**
+      - `scripts/ci/run-check.sh` has the step `testflight`. Run it as `remote-check.sh <game> tf-<label> <outdir> build unit testflight ui ui-de`.
+      - It uploads only if every earlier step passed. The build number is the workflow's run number.
+      - The secrets ASC_KEY_ID, ASC_ISSUER_ID and ASC_PRIVATE_KEY reach the job only on `ci/tf-*` branches. The published log has both ids blanked.
+      - The team key is "Spiele-Welle" (Admin). Archiving with automatic signing worked on the first try, and so did the cloud-signed export.
+      - Each game needs: an AppIcon (1024, no alpha, `ASSETCATALOG_COMPILER_APPICON_NAME`), `PrivacyInfo.xcprivacy`, and `ITSAppUsesNonExemptEncryption = NO`.
+      - In App Store Connect's TestFlight, an internal group "Louis" with automatic distribution brings every build to his iPhone. He accepts the first invitation from the TestFlight e-mail.
 11. **Review notes:** how to play, that there is no login, and that the ads are Google AdMob test ads in review builds only if that applies.
 12. **Submit:** ask Louis in chat first: "Spiel X ist fertig, alle Angaben gesetzt. Darf ich einreichen?" Submit only after his go.
     - The go covers that one submission. The legal answers (privacy, age, export, content rights) are statements in his name.
