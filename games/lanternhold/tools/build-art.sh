@@ -250,8 +250,12 @@ build() { # name: one sprite
     fgOverhangA|fgOverhangB)
                    python3 $PROC overhang $A/$1.png --style $(echo "${1#fgOverhang}" | tr 'AB' 'ab')
                    python3 $T post $A/$1.png $A/$1.png --remap $FGLIFT ;;
-    throne|hearth|lanternPost|field|brazier|torchPost)
+    throne|hearth|lanternPost|field)
                    python3 $T grid $G/$1.txt $A/$1.png ;;
+    # look 2, stage 6 (ART-look2.md section 18): the two small lights repainted like the defences
+    brazier|torchPost)
+                   python3 $T grid $G/$1.txt $A/$1.png
+                   python3 -I -B games/lanternhold/tools/defenceart.py repaint $A/$1.png $1 ;;
     # the two M2b lanes and the M3 court lane: whole, or one sprite of theirs
     buildings)     bash $BLD ;;
     actors)        bash $ACT ;;
