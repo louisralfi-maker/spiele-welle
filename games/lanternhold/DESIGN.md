@@ -2680,6 +2680,75 @@ giant in `hesper_giant` and its lines, and `wedding_feast`, against STORY.md's r
   German: the name entry, the Burgherrin in the hall and on the throne, day 1's rewritten petition with her name in
   Odile's counsel, the Burgherr seated before Brannock.
 
+### Round 2 joined (10.11.2026)
+
+The join brought round 2's four lanes, all built from 9d34f9a, together on `claude/game2-planning-354541`:
+`claude/lh-port` (6fdd242: look 2 as the default, the weather, the castle's tiers as drawn, the world and creature
+sprite ids; round `lh-l2-4b`), `claude/lh-storypass` (c7f6cfa: the lord pass and the story pass; round `lh-sp-3`),
+`claude/lh-look2-fable` (72293ae: the newer art, ART-look2.md section 18) and `claude/lh-quests` (b225ffd: docs only,
+docs/QUESTS.md and docs/karte.html).
+
+**The merge**
+
+- `claude/lh-port` merged cleanly (9983934).
+- `claude/lh-storypass` conflicted in five files, resolved so both sides stay (e08f2c3):
+  - `Core/FrameDesc.swift`: the port's rain and look-2 world ids first, then the lord pass's ids (the lady, the seated
+    lords, `portraitLady`, the seated townsfolk); both groups in `size`.
+  - `App/DebugArgs.swift`: the port's `-GWLook`, `-GWCastle`, `-GWWeather`, `-GWWind`, `-GWRain`, `-GWWetness` beside
+    the lord pass's `-GWLord` and `-GWLordName`.
+  - `App/GameModel.swift`: the debug value carries `lit:` (port) and `lord:` (lord pass).
+  - SPRITES.md: the port's sections, then the lord pass's, then the art pass's proposals.
+  - DESIGN.md: one arguments table and both lanes' sections in order.
+- `claude/lh-look2-fable` conflicted in SPRITES.md only (787ce14): the port's and the lord pass's sections stay, the
+  art pass's two new proposal sections follow the proposals' head. `claude/lh-quests` merged cleanly (429404e).
+- Clashes in meaning, fixed after the merges:
+  - Both lanes numbered their screenshots 70 to 77. The port keeps 70 to 90; the lord pass's are 91 to 98
+    (`91-lord-entry` to `98-lord-seated`; `UITests/LordUITests.swift`, 398c255). Where the lord pass's rounds above
+    speak of 70 to 77, these are meant.
+  - Look 1's golden hashes (see below).
+- The atlas holds all of it: 286 sprite ids, 1669 px high at 2048 px wide (`AtlasLayout.maxSide` 2048).
+
+**Wired from the newer art** (6f8e1a0, look 2 only; SPRITES.md carries the status)
+
+- The town's lit rooms: `houseLit`, `houseBLit`, `houseCLit`, `bigHouseLit`, `tavernLit`. `EntityFrames.litRooms`
+  gives a look-2 house its room sprite as an emissive part in place of the glass masks, so the windows show the
+  painted room at dusk and by night. An emissive part can now follow its prop's mirroring (`EmissivePart.mirrors`),
+  which the mirrored cottages need. `testTheTownAtNightOfLookTwo` holds it.
+- Two more paintings of every town tree: `lindenB`, `lindenC`, `poplarB`, `poplarC`, `appleTreeB`, `appleTreeC`,
+  `willowB`, `willowC`, planted in look 2's town in place of repeats (`SceneLayoutLook2`), swaying like the others.
+- The repainted sprites (the M3 court, the defences, the gates, the towers, the dais in light oak) need no code: a
+  PNG of the same name wins.
+
+**Look 1's golden hashes.** Both looks draw from one atlas and one world layout, so the repainted sprites and the lord
+on the moved throne (`WorldLayout.throneX` 1824 to 1837) reach look 1 too. Of the six pinned scenes the three town
+scenes (`square-morning`, `town-noon`, `river-golden`) keep the hashes of round `lh-l2-0d`: look 1's drawing is
+untouched. `front-night`, `castle-night` and `court-dusk` show the repainted defences, gates and towers and the hall
+with the seated lord; their upper bands' sums are the old ones, and the court's picture differs from the port's in
+3600 px, all on the dais. Their hashes were recorded again from round `lh-j2-1` (4b74250, `Tests/LookGoldenTests`)
+and are asserted from there on. The golden test lived in the port lane only, so the lord pass's change to look 1's
+court was never hashed on its own.
+
+**Left open**
+
+- `hayCart`, `barrels` and `noticeBoard` are painted and bundled but not registered: nothing says yet where they
+  stand. `willowB` is registered and bundled but not planted (the river bank has two willows; SPRITES.md proposes a
+  young third between them, at world 3738).
+- The lit rooms do not flicker with their hearths, and the chapel, the kitchen and the hall's front have no lit-room
+  sprite. The static scene's cottages keep their glass masks.
+- Seen in the dusk shots of the town (`74`, `87`), and already in the port's round `lh-l2-4b`: a brown wedge between
+  two far mountain layers under the cloud band. It is the port's or the art's to look at.
+- What the lanes left open themselves stands as written in their sections above.
+
+**Rounds.**
+
+- `lh-j2-1` on e0e5ea7: ALL PASSED (build, unit with 375 tests, ui, ui-de, release; 10:49 to 11:58 UTC). T1 to T8
+  give the lanes' numbers (T6 with the beacon 20 of 20, without 10 held; T7 17 of 20 in the band; T8 79.9 s), the
+  Court line is the story pass's (1188 petitioners), the tuning report is `lh-sp-3`'s line for line, and night 20's
+  step check is identical to both lanes'. Look 2's budgets: most instances 98, most lights 16, 322 instances in a
+  storm. Look 1's three town hashes held; the other three were printed, not yet asserted. Screenshots in English
+  and German: the name entry with a typed name (`92`), the Burgherrin seated for day 1's farmer (`94`), the Burgherr
+  seated before Brannock (`98`), the town at dusk with its lit rooms (`74`) and in the rain (`87`).
+
 ## Risks
 
 | Risk | What we do |
