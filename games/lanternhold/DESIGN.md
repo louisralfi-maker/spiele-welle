@@ -1101,11 +1101,11 @@ Open points:
    without the walk. Every button checked for 44 pt. M7 adds the other six languages.
 5. `testFilmstrip` (English): a frame every 1.2 s through a dusk and a night, for the fun check.
 6. `testTheLordIsNamed` (`UITests/LordUITests.swift`, the lord pass, English and German): a new realm without any
-   shortcut opens the name entry (`70-lord-entry`); the Burgherrin is picked and a name typed, digits and signs are
-   not kept (`71-lord-entry-typed`); the Burgherrin stands in the hall (`72-lady-hall`), sits on the throne for day
-   1's farmer (`73-lady-sitting`) and reads her name on his card (`74-lady-first-petition`, `75-lady-counsel`,
-   `76-lady-reaction`); the next launch asks nothing and the save kept the Burgherrin; then the Burgherr seated before
-   Brannock on day 2 (`77-lord-seated`). Every target checked for 44 pt.
+   shortcut opens the name entry (`91-lord-entry`); the Burgherrin is picked and a name typed, digits and signs are
+   not kept (`92-lord-entry-typed`); the Burgherrin stands in the hall (`93-lady-hall`), sits on the throne for day
+   1's farmer (`94-lady-sitting`) and reads her name on his card (`95-lady-first-petition`, `96-lady-counsel`,
+   `97-lady-reaction`); the next launch asks nothing and the save kept the Burgherrin; then the Burgherr seated before
+   Brannock on day 2 (`98-lord-seated`). Every target checked for 44 pt.
 
 ## Milestones (internal steps to 1.0)
 

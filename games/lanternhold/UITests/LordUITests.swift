@@ -5,7 +5,7 @@ import XCTest
 /// any shortcut, so the name entry opens; it picks the Burgherrin, types a name and begins; the Burgherrin stands in
 /// the hall, sits down on the throne for the tutorial's farmer and reads her name on his card; the next launch asks
 /// nothing. Then the Burgherr seated before Brannock on day 2. Every target is checked for 44 pt.
-/// Saves `<nn>-<what>-<lang>`: 70 to 77.
+/// Saves `<nn>-<what>-<lang>`: 91 to 98 (70 to 77 until round 2 was joined: look 2's shots have those numbers).
 @MainActor
 final class LordUITests: XCTestCase {
     override func setUp() async throws {
@@ -38,7 +38,7 @@ final class LordUITests: XCTestCase {
             return
         }
         pause(0.6)
-        attach(XCUIScreen.main.screenshot(), "70-lord-entry-\(language)")
+        attach(XCUIScreen.main.screenshot(), "91-lord-entry-\(language)")
         let lady = element(app, "lord-form-lady")
         let field = element(app, "lord-name-field")
         let begin = element(app, "lord-confirm")
@@ -53,7 +53,7 @@ final class LordUITests: XCTestCase {
         field.typeText(typedName + "7!")
         pause(0.5)
         XCTAssertEqual(field.value as? String, typedName, "digits and signs are not kept")
-        attach(XCUIScreen.main.screenshot(), "71-lord-entry-typed-\(language)")
+        attach(XCUIScreen.main.screenshot(), "92-lord-entry-typed-\(language)")
         field.typeText("\n")
         pause(0.6)
         if !begin.isHittable { app.swipeUp() }
@@ -61,7 +61,7 @@ final class LordUITests: XCTestCase {
         XCTAssertTrue(waitForGone(entry, timeout: 8), "Begin closes the entry")
         XCTAssertTrue(waitForStatus(app, "lord:lady", timeout: 8), "the Burgherrin holds the realm")
         pause(0.8)
-        attach(XCUIScreen.main.screenshot(), "72-lady-hall-\(language)")
+        attach(XCUIScreen.main.screenshot(), "93-lady-hall-\(language)")
 
         // The tutorial's farmer: she sits down on the throne, he gets up from the bench and walks up.
         let button = element(app, "action-button")
@@ -71,14 +71,14 @@ final class LordUITests: XCTestCase {
         }
         button.tap()
         pause(0.7)
-        attach(XCUIScreen.main.screenshot(), "73-lady-sitting-\(language)")
+        attach(XCUIScreen.main.screenshot(), "94-lady-sitting-\(language)")
         let card = element(app, "audience-root")
         guard card.waitForExistence(timeout: 10) else {
             XCTFail("the audience card did not open")
             return
         }
         pause(0.8)
-        attach(XCUIScreen.main.screenshot(), "74-lady-first-petition-\(language)")
+        attach(XCUIScreen.main.screenshot(), "95-lady-first-petition-\(language)")
         let text = element(app, "audience-text")
         XCTAssertTrue(text.exists, "the petition's text")
         XCTAssertFalse(text.label.contains("{"), "no placeholder shows: \(text.label)")
@@ -89,7 +89,7 @@ final class LordUITests: XCTestCase {
             XCTAssertTrue(line.waitForExistence(timeout: 6), "Odile's line shows")
             pause(0.5)
             XCTAssertTrue(line.label.contains(typedName), "Odile reads the name from the family book: \(line.label)")
-            attach(XCUIScreen.main.screenshot(), "75-lady-counsel-\(language)")
+            attach(XCUIScreen.main.screenshot(), "96-lady-counsel-\(language)")
         } else {
             XCTFail("no counsel on day 1")
         }
@@ -97,7 +97,7 @@ final class LordUITests: XCTestCase {
         let next = element(app, "audience-next")
         if next.waitForExistence(timeout: 6) {
             pause(0.5)
-            attach(XCUIScreen.main.screenshot(), "76-lady-reaction-\(language)")
+            attach(XCUIScreen.main.screenshot(), "97-lady-reaction-\(language)")
             next.tap()
         } else {
             XCTFail("no reaction after the choice")
@@ -137,7 +137,7 @@ final class LordUITests: XCTestCase {
             return
         }
         pause(0.8)
-        attach(XCUIScreen.main.screenshot(), "77-lord-seated-\(language)")
+        attach(XCUIScreen.main.screenshot(), "98-lord-seated-\(language)")
         element(app, "audience-leave").tap()
         XCTAssertTrue(waitForGone(card, timeout: 6))
         app.terminate()
