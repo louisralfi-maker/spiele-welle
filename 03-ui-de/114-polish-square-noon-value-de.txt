@@ -1,0 +1,1 @@
+frame:230 ready day:12 hour:12.00 alive:0 seen:0 lit:0 shots:0 aim:0 kx:3030 lord:lord
