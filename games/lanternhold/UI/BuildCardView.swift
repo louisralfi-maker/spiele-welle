@@ -349,7 +349,10 @@ struct TaxCardView: View {
     let model: GameModel
 
     var body: some View {
-        AnchoredCard(anchor: model.cardAnchor, width: 480) {
+        // 512 pt wide: the German war tax ("180 % der Steuern · Zufriedenheit −10 pro Morgen" beside "Ab Tag 8")
+        // then stays on one line and all four rates fit the card (at 480 pt it broke and the row's foot was cut;
+        // round lh-ui-2).
+        AnchoredCard(anchor: model.cardAnchor, width: 512) {
             CardChrome(identifier: "tax-card", closeIdentifier: "tax-card-close", treasury: model.gold,
                        close: { model.closeCard() }) {
                 HStack(alignment: .lastTextBaseline) {

@@ -819,7 +819,9 @@ IM Fell's lines are about a quarter taller than the system face's, and the first
 four things no longer fit their sheets in the round's pictures. All four were tightened, none by shrinking type:
 
 - **Taxes card:** the fourth rate (the locked war tax) was cut. The card's rows keep 52 pt (4 pt inside instead of 6,
-  1 pt between a row's two lines), the sheet 10 pt above and below.
+  1 pt between a row's two lines), the sheet 10 pt above and below. Round `lh-ui-2` showed the German war tax still
+  breaking into a third line beside "Ab Tag 8" (8 pt short), which pushed the row's foot under the edge: the tax
+  card is 512 pt wide instead of 480.
 - **Dawn report:** the finale's last row (People) lay under the footer's rule, the sample's last unlock line on it.
   The columns' rows stand 5 pt apart, a row's detail directly under it, the banner and the header are 3 to 6 pt
   lower.
