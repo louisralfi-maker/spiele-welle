@@ -107,7 +107,7 @@ enum FrameBuilder {
                                 offsets: camera.offsets(scale: scale),
                                 focusX: camera.focusX)
         let hour = clock.hour
-        let ambient = AmbientRamp.sample(at: hour)
+        let ambient = AmbientRamp.sample(at: hour, look: options.look)
         let animTime = options.flickerTime ?? clock.elapsed
         let bankEdgeX = scene.bankEdge(hour: hour)
 

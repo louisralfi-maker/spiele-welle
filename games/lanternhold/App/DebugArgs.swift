@@ -64,6 +64,8 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWClock <h>` (tests): the clock of the start state is set to this hour by day (6 ... 19) without anyone
     /// playing on, so today's petitioners still wait (`-GWHour` lets the reference bot play, and it hears them).
     var clock: Double?
+    /// `-GWLook 1|2`: the look (1: the M1b to M3 picture; 2: "farbig-düster", docs/PORT-look2.md).
+    var look: LookVersion = .standard
     /// `-GWSkipOnboarding YES`: no hints (the onboarding comes in M7; accepted now so tests already pass it).
     var skipOnboarding = false
 
@@ -95,7 +97,7 @@ struct DebugArgs: Sendable, Equatable {
         "GWScene", "GWVirtualHeight", "GWScaleOverride", "GWTimeOfDay", "GWFreezeTime", "GWFlickerTime", "GWSeed",
         "GWCameraX", "GWAutoplay", "GWActorMode", "GWLightStyle", "GWEffects", "GWShowLowRes", "GWShowBuffer",
         "GWDebugLights", "GWStats", "GWReduceMotion", "GWDay", "GWNight", "GWBuild", "GWGold", "GWHappiness",
-        "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock",
+        "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock", "GWLook",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -170,6 +172,9 @@ struct DebugArgs: Sendable, Equatable {
         }
         screen = values["GWScreen"].flatMap { Screen(rawValue: $0.lowercased()) }
         skipOnboarding = DebugArgs.bool(values["GWSkipOnboarding"])
+        if let look = DebugArgs.int(values["GWLook"]).flatMap({ LookVersion(rawValue: $0) }) {
+            self.look = look
+        }
         if let clock = DebugArgs.double(values["GWClock"]), clock >= 6, clock < 19 {
             self.clock = clock
         }
@@ -181,7 +186,7 @@ struct DebugArgs: Sendable, Equatable {
     var frameOptions: FrameOptions {
         FrameOptions(lightStyle: lightStyle, effects: effects, actorMode: actorMode, reduceMotion: reduceMotion,
                      virtualHeight: virtualHeight, scaleOverride: scaleOverride, flickerTime: flickerTime,
-                     debugLights: debugLights)
+                     debugLights: debugLights, look: look)
     }
 
     private static func int(_ text: String?) -> Int? {

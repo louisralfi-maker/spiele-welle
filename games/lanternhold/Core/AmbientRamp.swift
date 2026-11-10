@@ -88,7 +88,11 @@ struct AmbientSample: Sendable, Equatable {
             moonHeight: m(a.moonHeight, b.moonHeight),
             torchStrength: m(a.torchStrength, b.torchStrength),
             warmth: m(a.warmth, b.warmth),
-            saturation: m(a.saturation, b.saturation))
+            saturation: m(a.saturation, b.saturation),
+            air: c(a.air, b.air),
+            vignette: m(a.vignette, b.vignette),
+            black: m(a.black, b.black),
+            cloudColor: c(a.cloudColor, b.cloudColor))
     }
 }
 
@@ -176,9 +180,9 @@ enum AmbientRamp {
     }
 
     /// The two keyframes around `hour` and the smoothstep weight of the second one.
-    static func segment(at hour: Double) -> (from: Keyframe, to: Keyframe, weight: Double) {
+    static func segment(at hour: Double, look: LookVersion = .one) -> (from: Keyframe, to: Keyframe, weight: Double) {
         let h = DayClock.wrap(hour)
-        let keys = keyframes
+        let keys = look == .two ? keyframesLook2 : keyframes
         let count = keys.count
         for index in 0..<(count - 1) {
             let a = keys[index]

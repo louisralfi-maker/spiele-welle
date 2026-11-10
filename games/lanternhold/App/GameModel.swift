@@ -842,7 +842,7 @@ final class GameModel {
             CourtFrames.apply(&layer, state: state, catalog: .standard, scene: court,
                               view: EntityFrames.ActorView(camera: view, pixelScale: pixelScale,
                                                            mode: options.actorMode),
-                              ambient: AmbientRamp.sample(at: state.hour), animTime: animationTime,
+                              ambient: AmbientRamp.sample(at: state.hour, look: options.look), animTime: animationTime,
                               reduceMotion: reduceMotion)
             noteCourtFrame(camera: view, pixelScale: pixelScale)
             for light in DawnSweep.lights(hour: state.hour) {

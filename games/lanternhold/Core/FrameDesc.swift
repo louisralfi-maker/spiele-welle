@@ -360,6 +360,9 @@ struct FrameOptions: Sendable, Equatable {
     var flickerTime: Double?
     /// Light radius rings and ids (`-GWDebugLights`).
     var debugLights = false
+    /// The look (`-GWLook 1|2`). The options' own default is look 1, so the tests that build frames without the
+    /// app's arguments keep the picture they were written for; the app's default is `LookVersion.standard`.
+    var look: LookVersion = .one
 
     /// The pixel scale these options give on a screen.
     func pixelScale(physicalWidth: Int, physicalHeight: Int) -> PixelScale {

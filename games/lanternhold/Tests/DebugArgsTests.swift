@@ -15,7 +15,17 @@ final class DebugArgsTests: XCTestCase {
         XCTAssertEqual(args.actorMode, .smooth)
         XCTAssertEqual(args.lightStyle, .smooth)
         XCTAssertEqual(args.effects, .all)
-        XCTAssertEqual(args.frameOptions, FrameOptions())
+        XCTAssertEqual(args.look, LookVersion.standard)
+        XCTAssertEqual(args.frameOptions, FrameOptions(look: LookVersion.standard))
+    }
+
+    func testTheLookSwitch() {
+        XCTAssertEqual(DebugArgs(values: ["GWLook": "1"]).look, .one)
+        XCTAssertEqual(DebugArgs(values: ["GWLook": "2"]).look, .two)
+        XCTAssertEqual(DebugArgs(values: ["GWLook": "2"]).frameOptions.look, .two)
+        XCTAssertEqual(DebugArgs(values: ["GWLook": "3"]).look, LookVersion.standard, "an unknown look is ignored")
+        XCTAssertEqual(FrameOptions().look, .one, "frames built without the app's arguments keep look 1")
+        XCTAssertTrue(DebugArgs.keys.contains("GWLook"))
     }
 
     func testTheFrontNightShotArguments() {

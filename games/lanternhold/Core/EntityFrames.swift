@@ -125,7 +125,7 @@ enum EntityFrames {
                       effects: BattleEffects = BattleEffects()) -> EntityLayer {
         var layer = EntityLayer()
         var props = PropList()
-        let ambient = AmbientRamp.sample(at: s.hour)
+        let ambient = AmbientRamp.sample(at: s.hour, look: options.look)
         let isDay = DayClock.phase(at: s.hour) == .day
         let battleLights = Battle.lightSources(s, balance: balance)
         let layouts = (0..<Realm.lines.count).map { lineLayout($0, state: s, balance: balance) }
