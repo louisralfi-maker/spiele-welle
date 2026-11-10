@@ -834,11 +834,26 @@ Also: the count in "Next petitioner (1)" is set in the figure face (`Text(inked:
 where they stood. This section stands at the end of "Screens" for the same reason (that lane writes before "Risks").
 A trial merge (`git merge-tree`) of `claude/lh-polish` and of `claude/lh-look2-fable` into this branch is clean.
 
+**Rounds** (each on the runner: `build unit ui ui-de release`; times in UTC, 10.11.2026)
+
+- `lh-ui-1` on 5f7f7d3: ALL PASSED (build 14:19, unit 14:27, ui 14:48, ui-de 15:07, release 15:12). Its pictures
+  showed the four sheets above.
+- `lh-ui-2` on 7f6a5f6: ALL PASSED (15:49, 15:56, 16:18, 16:37, 16:45). Its pictures showed the German war tax.
+- `lh-ui-3` on 903eee8: FAILED 1. The English `ui` step failed once in `testFirstDay`
+  (`FirstDayUITests.swift:147`, "Continue closes the report"): the tap on `report-continue` was sent and the report
+  stayed for the six seconds the test waits. Build, unit, the German `ui-de` and release passed (17:02, 17:09,
+  17:47, 17:53).
+- `lh-ui-4` on 903eee8, the same commit again: ALL PASSED (build 18:22, unit 18:30, ui 18:51, ui-de 19:09,
+  release 19:15). Nothing was changed between the two rounds, the test included.
+
 **Open**
 
 - The title screen (Screens 1) does not exist in the code yet; `docs/UI-look.md` says how it should look.
 - Story panels (Screens 6) likewise.
 - A Japanese and a Chinese screenshot round.
+- The Continue tap that was lost once in round `lh-ui-3` (one of eight runs of `testFirstDay` across the four
+  rounds, four English and four German). No cause was found: the restyle leaves `continueReport()`, the overlay
+  switch and the button's identifier as they were, and the report's picture is the same as in the passing rounds.
 
 ## Tech plan
 
