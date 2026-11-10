@@ -271,7 +271,8 @@ struct PlaceholderScene: Sendable, Equatable {
     /// (`SceneLayout.look2`: the Weltmauer and the far castle's glow, the shadow land's firs, the Throat's rock and
     /// the warden statue in its wall, the valley's vista and trees, the foreground), then the castle's cliffs in
     /// granite, last as in the mock.
-    static func world(seed: UInt64 = 1, look: LookVersion = .one) -> PlaceholderScene {
+    static func world(seed: UInt64 = 1, look: LookVersion = .one,
+                      castle: CastleStage = .standard) -> PlaceholderScene {
         var builder = SceneBuilder(seed: seed)
         let planes: [(Plane, [SceneLayout.Entry])] = [
             (.clouds, SceneLayout.clouds), (.far, SceneLayout.far), (.mid, SceneLayout.mid),
@@ -281,11 +282,15 @@ struct PlaceholderScene: Sendable, Equatable {
             for (plane, entries) in planes {
                 for entry in entries
                 where !SceneLayout.dropsInLook2(sprite: entry.sprite, plane: plane, x: entry.x) {
-                    builder.add(entry, plane: plane)
+                    for staged in SceneLayout.look2Castle(castle, plane: plane, entry: entry) {
+                        builder.add(staged, plane: plane)
+                    }
                 }
             }
             for item in SceneLayout.look2 {
-                builder.add(item.entry, plane: item.plane)
+                for staged in SceneLayout.look2Castle(castle, plane: item.plane, entry: item.entry) {
+                    builder.add(staged, plane: item.plane)
+                }
             }
             for entry in SceneLayout.world {
                 guard let granite = SceneLayout.look2Cliffs[entry.sprite] else { continue }

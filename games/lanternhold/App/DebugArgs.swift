@@ -66,6 +66,9 @@ struct DebugArgs: Sendable, Equatable {
     var clock: Double?
     /// `-GWLook 1|2`: the look (1: the M1b to M3 picture; 2: "farbig-düster", docs/PORT-look2.md).
     var look: LookVersion = .standard
+    /// `-GWCastle 1|1b|2|2b|3|3b` (look 2): the castle's tier as drawn, with "b" in its building state (SPRITES.md
+    /// "The castle grows"). Drawing only; nothing in play raises it yet.
+    var castle: CastleStage = .standard
     /// `-GWSkipOnboarding YES`: no hints (the onboarding comes in M7; accepted now so tests already pass it).
     var skipOnboarding = false
 
@@ -97,7 +100,7 @@ struct DebugArgs: Sendable, Equatable {
         "GWScene", "GWVirtualHeight", "GWScaleOverride", "GWTimeOfDay", "GWFreezeTime", "GWFlickerTime", "GWSeed",
         "GWCameraX", "GWAutoplay", "GWActorMode", "GWLightStyle", "GWEffects", "GWShowLowRes", "GWShowBuffer",
         "GWDebugLights", "GWStats", "GWReduceMotion", "GWDay", "GWNight", "GWBuild", "GWGold", "GWHappiness",
-        "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock", "GWLook",
+        "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock", "GWLook", "GWCastle",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -174,6 +177,9 @@ struct DebugArgs: Sendable, Equatable {
         skipOnboarding = DebugArgs.bool(values["GWSkipOnboarding"])
         if let look = DebugArgs.int(values["GWLook"]).flatMap({ LookVersion(rawValue: $0) }) {
             self.look = look
+        }
+        if let castle = values["GWCastle"].flatMap({ CastleStage(argument: $0) }) {
+            self.castle = castle
         }
         if let clock = DebugArgs.double(values["GWClock"]), clock >= 6, clock < 19 {
             self.clock = clock

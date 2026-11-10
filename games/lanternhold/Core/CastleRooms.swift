@@ -206,7 +206,7 @@ enum CastleRooms {
             case (.world, .candleStand) where WorldLayout.room(at: prop.x + 2) == .greatHall:
                 prop.emissive = []
                 prop.lights = prop.lights.map { dimmed($0, hall) }
-            case (.world, .keepTop) where darkKeep:
+            case (.world, _) where darkKeep && SceneLayout.keepTops.contains(prop.sprite):
                 prop.masks = Array(prop.masks.prefix(1))
             case (.mid, .keepFar) where darkKeep:
                 // The upper row's right window: the valley's pane and the gorge's glimmer, named in `SceneLayout`.

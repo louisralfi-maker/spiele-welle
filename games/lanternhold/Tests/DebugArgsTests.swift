@@ -28,6 +28,17 @@ final class DebugArgsTests: XCTestCase {
         XCTAssertTrue(DebugArgs.keys.contains("GWLook"))
     }
 
+    func testTheCastleStage() {
+        XCTAssertEqual(DebugArgs(values: [:]).castle, CastleStage(tier: 1, building: false))
+        XCTAssertEqual(DebugArgs(values: ["GWCastle": "2"]).castle, CastleStage(tier: 2, building: false))
+        XCTAssertEqual(DebugArgs(values: ["GWCastle": "3b"]).castle, CastleStage(tier: 3, building: true))
+        XCTAssertEqual(DebugArgs(values: ["GWCastle": "1B"]).castle, CastleStage(tier: 1, building: true))
+        XCTAssertEqual(DebugArgs(values: ["GWCastle": "4"]).castle, .standard, "an unknown tier is ignored")
+        XCTAssertEqual(DebugArgs(values: ["GWCastle": "b"]).castle, .standard)
+        XCTAssertEqual(CastleStage(tier: 9).tier, 3)
+        XCTAssertTrue(DebugArgs.keys.contains("GWCastle"))
+    }
+
     func testTheFrontNightShotArguments() {
         let args = DebugArgs(values: [
             "GWScene": "world", "GWCameraX": "760", "GWTimeOfDay": "0.95", "GWFreezeTime": "YES",

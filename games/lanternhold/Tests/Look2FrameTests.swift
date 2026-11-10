@@ -59,6 +59,79 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertEqual(old.filter { $0.sprite == .weltmauer }.count, 0)
     }
 
+    /// The castle's tiers as drawn (SPRITES.md "The castle grows"): tier 1 is the scene as it was; tiers 2 and 3
+    /// swap the keep's top, add the rise behind the back gate and the far castle's overlays in the Weltmauer's two
+    /// slots; tier 3 rebuilds the front 14 px wider on the left with every flame and light where it was.
+    func testTheCastleTiers() {
+        XCTAssertEqual(PlaceholderScene.world(look: .two, castle: CastleStage(tier: 1)), Look2FrameTests.world)
+        XCTAssertEqual(PlaceholderScene.world(look: .one, castle: CastleStage(tier: 3)), GameFrameSupport.world,
+                       "look 1 has no tiers")
+        let first = Look2FrameTests.world.props
+        func only(_ props: [Prop], _ sprite: SpriteID, _ plane: Plane = .world) -> Prop? {
+            let found = props.filter { $0.sprite == sprite && $0.plane == plane }
+            XCTAssertEqual(found.count, 1, "\(sprite)")
+            return found.first
+        }
+        func none(_ props: [Prop], _ sprite: SpriteID) {
+            XCTAssertEqual(props.filter { $0.sprite == sprite }.count, 0, "\(sprite)")
+        }
+        guard let keep = only(first, .keepTop), let front = only(first, .castleFront),
+              let gate = only(first, .castleBackGate), let wall = only(first, .weltmauer, .far),
+              let pane = only(first, .farCastlePane, .far) else { return }
+
+        let scaffold = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 1, building: true)).props
+        XCTAssertEqual(scaffold.count, first.count + 1)
+        XCTAssertEqual(only(scaffold, .castleFrontScaffold)?.x, front.x)
+
+        let second = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 2)).props
+        XCTAssertEqual(second.count, first.count + 3, "the back rise and the two far overlays")
+        none(second, .keepTop)
+        XCTAssertEqual(only(second, .keepTop2)?.x, keep.x)
+        XCTAssertEqual(only(second, .keepTop2)?.masks.count, 4)
+        XCTAssertEqual(only(second, .castleFront), front, "tier 2 keeps the gatehouse")
+        XCTAssertEqual(only(second, .backTop2)?.x, gate.x + 50)
+        XCTAssertEqual(only(second, .backTop2)?.y, 40)
+        XCTAssertEqual(only(second, .farCastle2, .far)?.x, wall.x + 300)
+        XCTAssertEqual(only(second, .farCastle2, .far)?.y, wall.y + 92)
+        XCTAssertEqual(only(second, .farCastle2, .far)?.emissive.map(\.sprite), [.farCastle2Glow])
+        XCTAssertEqual(only(second, .farCastleBack2, .far)?.x, pane.x - 4)
+        XCTAssertEqual(only(second, .farCastleBack2, .far)?.fade, pane.fade)
+        XCTAssertEqual(only(second, .weltmauer, .far)?.emissive.map(\.sprite), [.farCleftGlow2, .farCastleGlow])
+        XCTAssertEqual(only(second, .farCastlePane, .far)?.emissive.map(\.sprite),
+                       [.farCleftGlowBack2, .farCastlePane])
+
+        let building = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 2, building: true)).props
+        XCTAssertEqual(only(building, .keepTop2Build)?.masks.count, 0, "no lit panes while it is built")
+        XCTAssertEqual(only(building, .farCastle2Build, .far)?.emissive.count, 0)
+        XCTAssertEqual(only(building, .weltmauer, .far)?.emissive.first?.sprite, .farCleftGlow2Build)
+
+        let third = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3)).props
+        XCTAssertEqual(third.count, first.count + 3)
+        none(third, .keepTop)
+        none(third, .castleFront)
+        XCTAssertEqual(only(third, .keepTop3)?.masks.count, 3)
+        guard let drums = only(third, .castleFront3) else { return }
+        XCTAssertEqual(drums.x, front.x - 14)
+        XCTAssertEqual(drums.width, 268)
+        XCTAssertEqual(drums.lights, front.lights, "the gate's fires light the same ground")
+        XCTAssertEqual(drums.emissive.map(\.sprite), front.emissive.map(\.sprite))
+        XCTAssertEqual(drums.emissive.map { drums.x + $0.dx }, front.emissive.map { front.x + $0.dx })
+        XCTAssertEqual(drums.masks.count, 4)
+        XCTAssertEqual(only(third, .backTop3)?.masks.count, 3)
+        XCTAssertEqual(only(third, .farCastle3, .far)?.emissive.map(\.sprite), [.farCastle3Glow])
+        for prop in third + building + scaffold {
+            XCTAssertGreaterThan(prop.width * prop.height, 0, "\(prop.sprite) has a size")
+        }
+
+        // The game's scene keeps the tier's keep (its rooms dim its panes as they dim tier 1's).
+        let state = GameFrameSupport.demoDay(hour: 19.2)
+        for stage in [CastleStage(tier: 2), CastleStage(tier: 3, building: true)] {
+            let world = PlaceholderScene.world(look: .two, castle: stage)
+            let scene = SceneFilter.gameScene(world, state: state)
+            XCTAssertNotNil(scene.props.first { SceneLayout.keepTops.contains($0.sprite) })
+        }
+    }
+
     func testTheLaneByRegion() {
         let moor: Set<SpriteID> = [.laneMoorA, .laneMoorB, .laneMoorC, .laneMoorD]
         let scree: Set<SpriteID> = [.laneScreeA, .laneScreeB, .laneScreeC, .laneScreeD]

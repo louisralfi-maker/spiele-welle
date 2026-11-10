@@ -30,6 +30,10 @@ final class Look2UITests: XCTestCase {
             ("75-look2-town-noon", ["-GWDay", "12", "-GWHour", "12", "-GWCameraX", "2900"] + demo),
             ("76-look2-river-golden", ["-GWDay", "12", "-GWHour", "18", "-GWCameraX", "3720"] + demo),
             ("77-look2-throat-dawn", ["-GWNight", "12", "-GWHour", "5.83", "-GWCameraX", "1000"] + demo),
+            ("81-look2-tier2-gate", ["-GWDay", "12", "-GWHour", "19.2", "-GWCameraX", "1360", "-GWCastle", "2"] + demo),
+            ("82-look2-tier3-gate", ["-GWDay", "12", "-GWHour", "19.2", "-GWCameraX", "1360", "-GWCastle", "3"] + demo),
+            ("83-look2-tier3b-back", ["-GWDay", "12", "-GWHour", "12", "-GWCameraX", "2330", "-GWCastle", "3b"] + demo),
+            ("84-look2-tier3-far", ["-GWDay", "12", "-GWHour", "19.2", "-GWCameraX", "250", "-GWCastle", "3"] + demo),
         ]
         for still in stills {
             let app = XCUIApplication()

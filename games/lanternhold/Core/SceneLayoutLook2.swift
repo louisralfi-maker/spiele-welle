@@ -174,3 +174,149 @@ extension SceneLayout {
         return family[variant]
     }
 }
+
+/// The castle's growth as it is drawn (SPRITES.md "The castle grows", ART-look2.md section 15): tier 1 to 3, each also
+/// in its building state (the tier under construction on the one before). Drawing only: look 2's scene shows the
+/// stage it is given (`-GWCastle 1|1b|2|2b|3|3b`); what raises the tier in play is a later lane's.
+struct CastleStage: Sendable, Equatable {
+    var tier = 1
+    var building = false
+
+    /// Tier 1 as built: the castle of M1b to M3.
+    static let standard = CastleStage()
+
+    init(tier: Int = 1, building: Bool = false) {
+        self.tier = min(3, max(1, tier))
+        self.building = building
+    }
+
+    /// "1", "2", "3", with a "b" for the building state; nil for anything else.
+    init?(argument: String) {
+        var text = argument.lowercased()
+        let building = text.hasSuffix("b")
+        if building { text.removeLast() }
+        guard let tier = Int(text), (1...3).contains(tier) else { return nil }
+        self.init(tier: tier, building: building)
+    }
+}
+
+extension SceneLayout {
+    /// The lit panes of the tiers' sprites (dx, dy from the sprite's bottom-left, width, height), as
+    /// tools/scenemock/scene_look2.py `RISE_MASKS`.
+    private static let castleMasks: [SpriteID: [(Double, Double, Int, Int)]] = [
+        .keepTop2: [(71, 93, 6, 10), (120, 94, 5, 9), (139, 94, 5, 9), (23, 109, 2, 7)],
+        .keepTop3: [(71, 93, 6, 10), (20, 108, 3, 8), (122, 108, 3, 8)],
+        .keepTop3Build: [(71, 93, 6, 10), (23, 109, 2, 7)],
+        .backTop2: [(22, 94, 5, 9), (36, 93, 6, 10), (52, 94, 5, 9), (79, 109, 2, 7)],
+        .backTop3: [(46, 93, 6, 10), (19, 108, 3, 8), (77, 108, 3, 8)],
+        .backTop3Build: [(36, 93, 6, 10), (79, 109, 2, 7)],
+        .castleFront3: [(39, 127, 4, 12), (39, 93, 4, 12), (223, 127, 4, 12), (223, 93, 4, 12)],
+        .castleFront3Build: [(39, 127, 4, 12), (39, 93, 4, 12)],
+    ]
+
+    private static func castleGlass(_ sprite: SpriteID) -> [Emitter] {
+        (castleMasks[sprite] ?? []).map { Emitter.glass(dx: $0.0, dy: $0.1, width: $0.2, height: $0.3) }
+    }
+
+    /// The sprites of a stage: the rise behind the gatehouse and behind the back gate, the far castle from the shadow
+    /// land and from the valley with their lit panes (none while building), and the slot's glow cut around them.
+    private struct CastleSprites {
+        let keep: SpriteID
+        let back: SpriteID
+        let far: SpriteID
+        let farBack: SpriteID
+        let farGlow: SpriteID?
+        let farBackGlow: SpriteID?
+        let cleft: SpriteID
+        let cleftBack: SpriteID
+    }
+
+    /// Nil at tier 1.
+    private static func castleSprites(_ stage: CastleStage) -> CastleSprites? {
+        switch (stage.tier, stage.building) {
+        case (2, false):
+            return CastleSprites(keep: .keepTop2, back: .backTop2, far: .farCastle2, farBack: .farCastleBack2,
+                                 farGlow: .farCastle2Glow, farBackGlow: .farCastleBack2Glow,
+                                 cleft: .farCleftGlow2, cleftBack: .farCleftGlowBack2)
+        case (2, true):
+            return CastleSprites(keep: .keepTop2Build, back: .backTop2Build, far: .farCastle2Build,
+                                 farBack: .farCastleBack2Build, farGlow: nil, farBackGlow: nil,
+                                 cleft: .farCleftGlow2Build, cleftBack: .farCleftGlowBack2Build)
+        case (3, false):
+            return CastleSprites(keep: .keepTop3, back: .backTop3, far: .farCastle3, farBack: .farCastleBack3,
+                                 farGlow: .farCastle3Glow, farBackGlow: .farCastleBack3Glow,
+                                 cleft: .farCleftGlow3, cleftBack: .farCleftGlowBack3)
+        case (3, true):
+            return CastleSprites(keep: .keepTop3Build, back: .backTop3Build, far: .farCastle3Build,
+                                 farBack: .farCastleBack3Build, farGlow: nil, farBackGlow: nil,
+                                 cleft: .farCleftGlow3Build, cleftBack: .farCleftGlowBack3Build)
+        default:
+            return nil
+        }
+    }
+
+    /// A far castle's lit panes as an emitter over its sprite (none for nil).
+    private static func castleGlow(_ sprite: SpriteID?) -> [Emitter] {
+        guard let sprite else { return [] }
+        return [Emitter.sprite(sprite, dx: 0, dy: 0, glow: .fireGold, fades: true)]
+    }
+
+    /// The keep's sprites behind the gatehouse, at every tier (the keep's windows go dark with its rooms).
+    static let keepTops: Set<SpriteID> = [.keepTop, .keepTop2, .keepTop2Build, .keepTop3, .keepTop3Build]
+
+    /// Look 2: what stands for `entry` on `plane` at the castle's `stage` (SPRITES.md "The castle grows"; the mock's
+    /// `castle_tier`). Tier 1 as built returns the entry as it is. Tier 2 swaps the keep's top for the taller keep,
+    /// tier 3 for the inner wall and rebuilds the front's towers as drums (the sprite is 14 px wider on the left, so
+    /// every emitter and light keeps its world x); both add the rise behind the back gate, the far castle's overlay
+    /// in each slot of the Weltmauer and the slot's glow cut around it. Tier 1 building adds the front's scaffold.
+    static func look2Castle(_ stage: CastleStage, plane: Plane, entry: Entry) -> [Entry] {
+        let tiers = castleSprites(stage)
+        switch (plane, entry.sprite) {
+        case (.world, .keepTop):
+            guard let tiers else { return [entry] }
+            return [Entry(sprite: tiers.keep, x: entry.x, y: entry.y, z: entry.z, emitters: castleGlass(tiers.keep))]
+        case (.world, .castleFront):
+            if stage.tier == 1 {
+                // The scaffold stands before the front (and before the gate's leaves, which are drawn earlier).
+                return stage.building ? [entry, Entry(sprite: .castleFrontScaffold, x: entry.x, y: 0, z: entry.z)]
+                                      : [entry]
+            }
+            guard stage.tier == 3 else { return [entry] }
+            let sprite: SpriteID = stage.building ? .castleFront3Build : .castleFront3
+            var emitters: [Emitter] = []
+            for emitter in entry.emitters {
+                if case let .sprite(id, dx, dy, glow, fades) = emitter {
+                    emitters.append(Emitter.sprite(id, dx: dx + 14, dy: dy, glow: glow, fades: fades))
+                }
+            }
+            return [Entry(sprite: sprite, x: entry.x - 14, y: entry.y, z: entry.z,
+                          emitters: emitters + castleGlass(sprite), lights: entry.lights)]
+        case (.world, .castleBackGate):
+            guard let tiers else { return [entry] }
+            return [Entry(sprite: tiers.back, x: entry.x + 50, y: 40, z: -4, emitters: castleGlass(tiers.back)), entry]
+        case (.far, .weltmauer):
+            guard let tiers else { return [entry] }
+            var wall = entry
+            wall.emitters = swapped(entry.emitters, .farCleftGlow, for: tiers.cleft)
+            return [wall, Entry(sprite: tiers.far, x: entry.x + 324 - 24, y: entry.y + 92, z: -1,
+                                emitters: castleGlow(tiers.farGlow))]
+        case (.far, .farCastlePane):
+            guard let tiers else { return [entry] }
+            var pane = entry
+            pane.emitters = swapped(entry.emitters, .farCleftGlowBack, for: tiers.cleftBack)
+            return [pane, Entry(sprite: tiers.farBack, x: entry.x - 4, y: entry.y, z: entry.z,
+                                emitters: castleGlow(tiers.farBackGlow), fade: entry.fade)]
+        default:
+            return [entry]
+        }
+    }
+
+    private static func swapped(_ emitters: [Emitter], _ old: SpriteID, for new: SpriteID) -> [Emitter] {
+        emitters.map { (emitter: Emitter) -> Emitter in
+            if case let .sprite(id, dx, dy, glow, fades) = emitter, id == old {
+                return Emitter.sprite(new, dx: dx, dy: dy, glow: glow, fades: fades)
+            }
+            return emitter
+        }
+    }
+}
