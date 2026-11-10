@@ -2539,6 +2539,16 @@ read line for line what `lh-m3-f2` measured in every round below.
   line for line as before, the bot heard 1068 petitioners; a storm's frame takes at most 326 instances; over the
   seeds measured the days are calm 0.30, breeze 0.40, gusty 0.25, storm 0.055, rain on 0.29 of them, the wind
   toward the valley on 0.70.
+- `lh-l2-4a` on 8b06671 (step 3, the fireflies, the rain's count, `lit:`): FAILED at the build (`sin` without
+  Foundation in `FrameBuilder`); fixed in 1efc58b.
+- `lh-l2-4b` on 1efc58b, the parity round with look 2 as the default: ALL PASSED (build, unit 359, every UI test in
+  English and German, release). The tuning report is identical to `lh-l2-3a`'s (T1 to T8, night 20's steps), the bot
+  heard 1068 petitioners, look 1's hashes hold. The live night shot (`78-look2-night-live`) was taken at 23:55 with 8
+  creatures in the frame, 4 (German run: 5) of them in the firelight, 4 shots in the air.
+  Seen in its pictures and left open: rain over the bright dusk valley is faint (`87-look2-rain-town-dusk`; the
+  code-painted streaks are as pale as the haze behind them, the painted `rainStreak` should carry a darker tail);
+  the fireflies are a few faint specks at phone size; between the Weltmauer's east end and the valley's mountains
+  the dusk sky shows as an orange wedge (`74-look2-town-dusk`), which is the layout's, for the art lane to judge.
 
 ## Risks
 
