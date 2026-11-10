@@ -2748,6 +2748,9 @@ court was never hashed on its own.
   storm. Look 1's three town hashes held; the other three were printed, not yet asserted. Screenshots in English
   and German: the name entry with a typed name (`92`), the Burgherrin seated for day 1's farmer (`94`), the Burgherr
   seated before Brannock (`98`), the town at dusk with its lit rooms (`74`) and in the rain (`87`).
+- `lh-j2-2` on 4b74250 (the three hashes recorded; build and unit only, since nothing but the test's table changed):
+  ALL PASSED, 375 tests. All six of look 1's hashes are asserted and hold; the tuning report and night 20's step
+  check are `lh-j2-1`'s byte for byte.
 
 ## Risks
 
