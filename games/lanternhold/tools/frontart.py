@@ -4,6 +4,7 @@ town's level (tools/townart.py's vocabulary) inside their old silhouettes. Pure 
 colours only; no randomness (hashes of the position), so a run reproduces its files byte for byte.
 
   frontart.py repaint <chapel|kitchen> <sprite.png>     in place
+  frontart.py repaint hallInterior <sprite.png>         in place: only the dais's wood, lighter (section 18)
 
 The sprite on disk (the Recraft conversion of build-art.sh) gives only the silhouette: every opaque pixel is painted
 anew, no transparent one is touched, so chapelInterior and kitchenInterior (roomscenes.py paints them inside the
@@ -312,7 +313,38 @@ def kitchen(src):
     return finish(im, src)
 
 
-BUILD = {"chapel": chapel, "kitchen": kitchen}
+def hallInterior(src):
+    """Stage 6 (ART-look2.md section 18): the hall's dais in light oak, so the seated lord reads before it. The
+    conversion's dais is two dark boxes with the carpet between them. Here it is two low steps: lit treads in straw,
+    risers in woodLight with a board joint every 7 px, a shadow line under each nosing, the right end a step darker.
+    Only the dais's own wood is painted (rows 68 to 80, x 112 to 145); the carpet, the wall behind, the floor before
+    it and the shadow at its foot (row 81) stay, and so does every transparent pixel."""
+    im = src
+    keep = tuple(col(n) for n in ("banner", "roofDeep", "roofLight", "tile", "tileLight", "gold"))
+    for y in range(68, 81):
+        for x in range(112, 146):
+            c = im.get(x, y)
+            if c[3] == 0 or c in keep:
+                continue
+            if y in (68, 74):
+                n = "straw"                                         # the two treads
+            elif y == 69:
+                n = "woodLight"
+            elif y in (70, 75):
+                n = "wood"                                          # the shadow under the nosing
+            elif y == 80:
+                n = "wood"
+            else:
+                n = "wood" if (x - 112 + (3 if y > 74 else 0)) % 7 == 0 else "woodLight"
+            if x == 112 and y not in (70, 75, 80):
+                n = "straw"                                         # the lit left end
+            if x >= 143:
+                n = DOWN.get(n, "wood") if n != "straw" else "woodLight"
+            px(im, x, y, n)
+    return im
+
+
+BUILD = {"chapel": chapel, "kitchen": kitchen, "hallInterior": hallInterior}
 
 
 def main():

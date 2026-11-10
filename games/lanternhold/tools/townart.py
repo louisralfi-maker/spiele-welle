@@ -649,6 +649,206 @@ def well():
     return im
 
 
+# --- the town at night (look 2, stage 6; ART-look2.md section 18) ---------------------------------------------------
+# The lit rooms behind the glass: one emissive sprite per house (<id>Lit), the house's size, clear but for the glass
+# pixels inside the layout's window masks. Drawn over the house at night in place of the masks' flat colour, it shows
+# a room in each window: a wall that is brightest near its candle or hearth, a curtain, a shelf, a table, and the
+# people as shapes left dark. One letter per pixel of a window's glass box; the glazing bars (and every `.`) stay dark.
+LIT = {"W": "fireWhite", "G": "fireGold", "O": "fireOrange", "E": "ember", "T": "tileLight", "t": "tile",
+       "S": "strawLight", "s": "straw", "w": "wood", "d": "dusk"}
+ROOMS = {
+    "house": (
+        (11, 32, ("TG.GO", "tG.GG", ".....", "TG.GG", "tG.WG", "TO.wO")),      # a red curtain, a candle on the table
+        (46, 32, ("OG.GO", "GG.GG", ".....", "GG..G", "GG...", "OG...")),      # someone at the window
+    ),
+    "houseB": (
+        (11, 32, ("G..GG", "ww.ww", ".....", "OG.GO", "GG.GG", "GW.GO")),      # a jug on a shelf, a candle below
+        (46, 32, ("SS.GS", "Ss.GS", ".....", "SS.Gs", "sS.GS", "Ss.Gs")),      # linen curtains, a bright gap
+    ),
+    "houseC": (
+        (11, 32, ("EO.OO", "OO.OG", ".....", "OO.GG", "OG.GW", "EO.wG")),      # the hearth's glow from low on the right
+        (46, 32, ("OG.GO", "GG.GG", ".....", "GG.GG", "G..GO", "...GO")),      # a cat on the sill
+        (27, 11, ("EOE", "OGO")),                                              # the dormer: a child's candle
+    ),
+    "bigHouse": (
+        (26, 27, ("OG.GG", "G..WG", ".....", "...GG", "...GO")),               # the merchant standing, a hanging lamp
+        (41, 27, ("dG.Gd", "dG.Gd", ".....", "dG.Od", "dO.Od")),               # rose curtains half drawn
+        (16, 42, ("OO.GO", "OG.GG", ".....", "GW.GG", "ww.ww")),               # a table, a candle on it
+        (50, 42, ("TT.TO", "TO.OO", ".....", "OO.OG", "TO.OO")),               # the kitchen's banked fire, dim
+        (35, 14, ("OGO", "EOE")),                                              # the dormer
+    ),
+    "tavern": (
+        (11, 26, ("sS.Ss", "SS.SS", ".....", "Ss.SS", "sS.Ss")),               # a guest room behind linen
+        (41, 26, ("tT.Tt", "TO.OT", ".....", "TO.OT", "tT.Tt")),               # a guest asleep, the fire low
+        (69, 26, ("GG.GO", "GG..G", ".....", "GG...", "OG...")),               # a guest standing at the window
+        (15, 42, ("GG.GG.GO", "G..GG..G", "........", "O..GW..O", "...ww...")),  # two drinkers over a candle
+        (56, 42, ("WG.G..GG", "GG....GO", "........", "GG....ww", "OG....ww")),  # a lamp, the innkeeper, the kegs
+        (32, 44, ("W", "G")),                                                  # the door lantern's flame
+    ),
+}
+# light outside the glass: at night a warm line lies under the tavern's door, on its step
+SPILL = {"tavern": ((36, 54, "tEOOOOEt"),)}
+
+
+def lit(kind):
+    base = BUILD[kind]()
+    im = PA.Image(base.w, base.h)
+    glass = (col("night0"), col("night1"), col("ink"))
+    for x0, y0, rows in ROOMS[kind]:
+        for j, row in enumerate(rows):
+            for i, ch in enumerate(row):
+                if ch == ".":
+                    continue
+                if base.get(x0 + i, y0 + j) not in glass:
+                    raise SystemExit("%sLit: (%d, %d) is not glass" % (kind, x0 + i, y0 + j))
+                px(im, x0 + i, y0 + j, LIT[ch])
+    for x0, y0, run in SPILL.get(kind, ()):
+        for k, ch in enumerate(run):
+            px(im, x0 + k, y0, LIT[ch])
+    return im
+
+
+# The square's props: a hay cart at rest, three barrels, the lord's notice board.
+def cask(im, x0, y1, w, h):
+    """A standing barrel seen a little from above: the head's rim, two iron hoops, lit staves, the right in shade."""
+    top = y1 - h + 1
+    for y in range(top, y1 + 1):
+        for x in range(x0, x0 + w):
+            i = x - x0
+            c = "woodLight" if i == 0 else "woodDark" if i >= w - 2 else "woodLight" if i == 2 and w > 5 else "wood"
+            px(im, x, y, c)
+    for y in (top + 1, y1 - 1):
+        rect(im, x0, y, x0 + w - 1, y, "stoneMid")
+        px(im, x0 + 1, y, "stoneLight")
+        px(im, x0 + w - 1, y, "stoneDark")
+    rect(im, x0, top, x0 + w - 1, top, "straw")
+    px(im, x0, top, "woodLight"); px(im, x0 + w - 1, top, "wood")
+    rect(im, x0, y1, x0 + w - 1, y1, "woodDark")
+    im.set(x0, top, (0, 0, 0, 0)); im.set(x0 + w - 1, top, (0, 0, 0, 0))
+    im.set(x0, y1, (0, 0, 0, 0)); im.set(x0 + w - 1, y1, (0, 0, 0, 0))
+
+
+def barrels():
+    im = PA.Image(26, 14)
+    cask(im, 0, 13, 8, 12)
+    cask(im, 9, 13, 7, 10)
+    # a pewter mug left on the big barrel
+    rect(im, 3, 0, 4, 1, "stoneLight"); px(im, 4, 1, "stone"); px(im, 5, 0, "stoneMid"); px(im, 3, 0, "stonePale")
+    # the third barrel lies end on, chocked with a wedge: an iron hoop round the head's boards, the bung
+    R = ("..RRRRR..", ".R.....R.", "R.......R", "R.......R", "R.......R", "R.......R", "R.......R", ".R.....R.", "..RRRRR..")
+    for j, row in enumerate(R):
+        for i, ch in enumerate(row):
+            x, y = 17 + i, 5 + j
+            if ch == "R":
+                c = "stoneLight" if i + j < 6 else "stoneDark" if i + j > 10 else "stoneMid"
+            elif (i < 2 and j in (1, 7)) or (i > 6 and j in (1, 7)):
+                continue
+            else:
+                c = "woodLight" if i < 4 else "wood"
+                if i in (3, 6) and j not in (1, 7):
+                    c = "woodDark" if i == 6 else "wood"
+                if i == 7 or j == 7:
+                    c = "woodDark"
+            px(im, x, y, c)
+    px(im, 21, 9, "stoneLight"); px(im, 22, 9, "woodDark")                    # the bung
+    px(im, 16, 13, "wood"); px(im, 16, 12, "woodLight"); px(im, 25, 13, "woodDark")
+    return im
+
+
+def hay_cart():
+    im = PA.Image(40, 24)
+    # the load: a mound of hay over the bed, lit from the upper left, strands and wisps over the rail
+    spans = ((21, 27), (18, 31), (15, 34), (13, 36), (12, 37), (11, 37), (11, 37), (11, 37))
+    for y, (a, b) in zip(range(2, 10), spans):
+        for x in range(a, b + 1):
+            t = (x - a) / float(b - a)
+            v = h01(71, (x + y) // 2, y)                                     # strands two pixels long
+            c = "straw"
+            if y == 2 or x <= a + 1 or (t < 0.5 and y < 5) or (v < 0.16 and t < 0.7):
+                c = "strawLight"
+            if t > 0.84 or (v > 0.84 and t > 0.3) or (y >= 8 and v > 0.55):
+                c = "soilLight"
+            if x == b and y > 3:
+                c = "soil"
+            px(im, x, y, c)
+    for x, y in ((33, 2), (34, 1), (35, 0)):                                 # a hay fork's handle
+        px(im, x, y, "woodLight")
+    px(im, 32, 3, "wood")
+    # the bed: a top rail, two boards, the frame's underside; corner stakes
+    rect(im, 10, 10, 38, 10, "woodLight")
+    rect(im, 10, 11, 38, 13, "wood")
+    for x in range(10, 39):
+        if (x - 10) % 7 == 6:
+            px(im, x, 11, "woodDark"); px(im, x, 13, "woodDark")
+        if (x - 10) % 7 == 3:
+            px(im, x, 12, "woodDark")
+    rect(im, 10, 12, 14, 12, "woodLight")
+    rect(im, 34, 11, 38, 13, "woodDark"); rect(im, 34, 12, 36, 12, "wood")
+    rect(im, 11, 14, 37, 14, "woodDark")
+    rect(im, 10, 7, 10, 14, "woodLight"); px(im, 10, 7, "straw")
+    rect(im, 38, 7, 38, 14, "woodDark"); px(im, 38, 7, "wood")
+    rect(im, 39, 10, 39, 14, "ink")
+    for x, y in ((14, 10), (15, 11), (20, 10), (28, 10), (29, 11), (29, 12), (36, 10)):   # wisps over the rail
+        px(im, x, y, "straw" if (x + y) % 2 else "strawLight")
+    # the shafts and the prop the cart rests on
+    rect(im, 0, 13, 9, 13, "woodLight"); rect(im, 1, 14, 9, 14, "woodDark")
+    rect(im, 6, 15, 6, 22, "wood"); rect(im, 7, 15, 7, 22, "woodDark"); px(im, 6, 15, "woodLight")
+    rect(im, 6, 23, 7, 23, "ink")
+    # the wheel: eight spokes in a wooden rim, the iron hub
+    W = ("...RRRRR...", ".RR..s..RR.", ".Rs..s..sR.", "R..s.s.s..R", "R...sss...R", "RssssHssssR",
+         "R...sss...R", "R..s.s.s..R", ".Rs..s..sR.", ".RR..s..RR.", "...RRRRR...")
+    for j, row in enumerate(W):
+        for i, ch in enumerate(row):
+            x, y = 23 + i, 13 + j
+            if ch == "R":
+                c = "woodLight" if i + j < 8 else "woodDark" if i + j > 12 else "wood"
+                if j == 10:
+                    c = "ink"
+            elif ch == "s":
+                c = "woodLight" if i + j < 10 else "wood"
+            elif ch == "H":
+                c = "stoneLight"
+            else:
+                c = "soilDark" if y <= 14 and 0 < i < 10 else None            # the bed's shadow behind the wheel's top
+            if c:
+                px(im, x, y, c)
+    return im
+
+
+def notice_board():
+    im = PA.Image(20, 26)
+    # a slate roof in the realm's teal over the board
+    for y, (a, b) in zip(range(0, 4), ((3, 16), (2, 17), (1, 18), (0, 19))):
+        for x in range(a, b + 1):
+            c = "roofLight" if y == 0 or x == a else "roofDeep" if (x + y * 2) % 4 == 0 or b - x < 3 else "banner"
+            px(im, x, y, c)
+        px(im, b, y, "ink")
+    rect(im, 0, 4, 19, 4, "woodDark"); px(im, 19, 4, "ink")
+    # two oak posts
+    for x in (2, 16):
+        rect(im, x, 5, x, 24, "woodLight"); rect(im, x + 1, 5, x + 1, 24, "woodDark")
+        px(im, x, 5, "wood")
+        rect(im, x, 25, x + 1, 25, "ink")
+    rect(im, 18, 5, 18, 24, "ink")
+    # the board: three planks in a frame
+    rect(im, 4, 7, 15, 18, "wood")
+    rect(im, 4, 7, 15, 7, "woodLight")
+    for y in (11, 15):
+        rect(im, 4, y, 15, y, "woodDark")
+    rect(im, 4, 18, 15, 18, "woodDark")
+    rect(im, 4, 8, 4, 17, "woodLight")
+    # the notices: a long proclamation with a seal, two fresh bills, an old yellowed one
+    rect(im, 5, 8, 8, 13, "parchment"); rect(im, 6, 9, 7, 9, "stoneMid"); rect(im, 6, 11, 8, 11, "stone")
+    px(im, 8, 13, "plaster"); px(im, 6, 13, "tile"); px(im, 5, 8, "stoneLight")
+    rect(im, 10, 8, 14, 10, "parchment"); rect(im, 11, 9, 13, 9, "stoneMid"); px(im, 14, 10, "plaster"); px(im, 12, 8, "stoneLight")
+    rect(im, 10, 12, 13, 14, "plaster"); rect(im, 11, 13, 12, 13, "soilLight"); px(im, 13, 14, "plasterDim")
+    rect(im, 6, 15, 9, 17, "parchment"); rect(im, 7, 16, 8, 16, "stoneMid"); px(im, 6, 15, "stoneLight"); px(im, 9, 17, "plaster")
+    px(im, 12, 16, "plasterDim"); px(im, 13, 16, "plaster"); px(im, 13, 17, "plasterDim")      # a torn scrap
+    # grass at the posts' feet
+    px(im, 1, 24, "leaf"); px(im, 4, 24, "leafDark"); px(im, 15, 24, "leaf"); px(im, 4, 25, "leafDark"); px(im, 15, 25, "leafDark")
+    return im
+
+
 # --- the defences relit (look 2: the light from the upper left, the outline only on the shadow side) ---------------
 STONES = ("stoneDark", "stoneMid", "stone", "stoneLight", "stonePale")
 WOODS = ("woodDark", "wood", "woodLight", "straw", "strawLight")
@@ -725,6 +925,8 @@ def relight(im, frames, lit=0.26, shade=0.70):
 
 BUILD = {"house": lambda: cottage("house"), "houseB": lambda: cottage("houseB"), "houseC": lambda: cottage("houseC"),
          "bigHouse": big_house, "tavern": tavern, "market": market, "well": well}
+BUILD.update({k + "Lit": (lambda k=k: lit(k)) for k in ("house", "houseB", "houseC", "bigHouse", "tavern")})
+BUILD.update({"hayCart": hay_cart, "barrels": barrels, "noticeBoard": notice_board})
 
 
 

@@ -790,7 +790,8 @@ Out of look 2 in the valley: `valleyFarA/B/C`, `valleyMidA/B/C`, `windmill`, the
 - **The stand-ins of `depthart.py` are promoted to game art** (plants, lanes, fog, particles) instead of being
   repainted. Reason: they pass the targets in every scene; the five paintings went to the big shapes, where the
   frames failed. Section 9.5's "three variants each" holds for firs (four) and lanes (four); linden, poplar, apple
-  tree and willow have one painting each and vary by flip and spacing. More variants are open.
+  tree and willow have one painting each and vary by flip and spacing. More variants are open. (Two more of each
+  are painted in section 18.5.)
 - **A fading sprite takes its glow along** (`mock.py`, look 2 only; look 1 renders byte for byte): the far pane's
   light fades in with the pane.
 
@@ -823,7 +824,7 @@ of the four scenes were not measured again.
 - `cleftFace`'s top edge runs fairly level behind the hall; a few deeper notches would break it.
 - The mirrored `shadowForest` copy: the seam at mid x 96 does not show, the second statue pair does if one looks for
   it. A second forest painting would end that.
-- One painting each for linden, poplar, apple tree and willow (see 13.5).
+- One painting each for linden, poplar, apple tree and willow (see 13.5). (Three each since section 18.5.)
 - The wall behind the whole town or only at its left (13.5).
 - `skyMid` (a third sky stop at dusk) and the night sky's top rows, as after stage 1.
 - The six scenes were judged by the painter; a player's eye and Louis have not seen them.
@@ -1234,7 +1235,8 @@ read as five-fingered hands. `worldart.py rockover <png> x0,y0,x1,y1 ...` paints
 the colour of the cell above the box. `build-art-world.sh` runs it on the converted parts before the pieces are
 assembled (the boxes stand in the script). Changed: `cleftFace`, `cleftFaceEnd`, `cleftFlankB`, `cleftThroat`,
 `gorgeRock`. `cleftFlank` and `gorgeCrags` never had a tuft. The dark dead bush on `cleftFace` and `cleftFaceEnd`
-stays: it is dark and reads as a shrub. Plates 07, 08 and 10 of `ci-out/look2-fable/art` are re-rendered; the
+stays: it is dark and reads as a shrub. (Painted out in section 18.3.) Plates 07, 08 and 10 of
+`ci-out/look2-fable/art` are re-rendered; the
 plates of `ci-out/look2-fable/world` still show the old cliffs.
 
 ### 16.2 The lord and the lady sit on the throne
@@ -1268,7 +1270,7 @@ Plates re-rendered: 02 (the strips composited on the throne, day and fire bands,
   section 17.)
 - The seated strips are judged as stills only. Seated, the lord is one of the darker figures of the hall: before the
   dais's dark wood he reads by the gold posts, the cushion and the lantern, less by his own colours. A lighter dais
-  front in `hallInterior` would help more than any further change of the strip.
+  front in `hallInterior` would help more than any further change of the strip. (Done in section 18.3.)
 - The hall's `taxLectern` and the M3 court's places beside the throne follow the throne's x in the code lane.
 
 ## 17. Stage 5: the castle's fronts (10.11.2026, night)
@@ -1321,4 +1323,104 @@ the three fronts old above new, beside the tavern and the big house.
 - The chapel keeps the old painting's stepped left outline; where the tower's foot meets the nave's west corner
   it reads as plain wall.
 - `hallFront`'s lean-to, door, banners and stamps keep their ink outlines on all sides.
-- The points of 15.4 on the defences, the M3 court members and motion stand.
+- The points of 15.4 on the defences, the M3 court members and motion stand. (The defences and the court are
+  repainted in section 18; motion is still unseen.)
+
+## 18. Stage 6: the court, the defences, the town at night, the trees (10.11.2026)
+
+Art only, in five steps, each a commit. Ids, sizes, frame counts and anchors are as SPRITES.md and ART-court.md had
+them; `tools/build-art.sh` rebuilds every committed PNG byte for byte (checked before each commit: the md5 over
+`Resources/Art/*.png` and `git status` are the same before and after a full run). No Recraft credit was used.
+Previews: `ci-out/look2-fable/art2` 01 to 17 (PNG at 3x and JPEG).
+
+### 18.1 The M3 court (a95f5d3)
+
+Odile, Brannock, Pip, Hesper, Tamsin, Bram, Marek, Seren, Ser Ludo, the bard, the envoy, the herald, `petitionerD`
+and `petitionerE` are redrawn in their grids (`tools/grids/court/`) at the level of tonight's lord:
+
+- lean bodies with the selective outline (ink at the right and at the ground, a lit left edge), a lit and a shade
+  column on every cloth, faces of three tones;
+- `grids/court/kit.txt` holds the lord's legs with neutral letters (`legs*` 9x13 for the 30 px figures, `short*`
+  9x10 for the 26 px ones). A spec takes them with `include kit.txt` and names six colours, so every member walks
+  the lord's cycle in its own cloth;
+- Pip is a child of about 17 px in his old frame; the herald's rim light is set by hand (his tabard is paler than
+  the rim rule's light);
+- `hesperGlow` and `serenGlow` are byte for byte the old files, and the lantern and the candle stand where the glow
+  expects them.
+
+Plates 01 to 03 (old above new, and the new ones at dusk and by fire).
+
+### 18.2 The defences (5554681)
+
+`tools/defenceart.py repaint <sprite.png> <id>` runs in `build-art-buildings.sh` after a defence's grid is written.
+The grid still gives the silhouette, the frames and the features; the tool paints the materials inside it:
+
+- **stone:** coursed ashlar as on the town's stone (courses of 4 rows, stones of 6 to 8 px, lit top edges on the
+  lit side only, soft shadowed beds instead of dark joint rows), shaded as a body (a round tower has a lit band left
+  of the middle and turns two steps darker to the right; a flat wall has a lit left edge and a darker right
+  quarter), a lit cap on every top edge, a cast shadow under a projecting crown, moss and damp at the foot;
+- **timber:** the grid's members lit from the upper left, with grain, the ink between members softened;
+- **iron:** fire baskets, the great bowl, the portcullis, fittings: lit left, a step darker right.
+
+Slits, holes, soot, banners and glass stay as the grid sets them. In a damaged frame every pixel that differs from
+frame 0 stays the grid's (cracks, knocked-out stones, pale breaks). The alpha of every pixel is the grid's.
+Repainted: `palisade`, the stone wall, the bastion, the archer tower, the watchtower, the fire tower, the beacon's
+three stages, the gates, `ballista`, `catapult`, `stakePit`, `brazier`, `torchPost`. Plates 04 to 07.
+
+### 18.3 The dais and the bush (c57391e)
+
+- **`hallInterior`:** `frontart.py repaint hallInterior` paints only the dais's wood (rows 68 to 80, x 112 to 145)
+  as two low steps in light oak: treads in straw, risers in woodLight with a board joint every 7 px, a shadow line
+  under each nosing, the right end a step darker. The carpet, the wall, the floor and the shadow at the foot stay.
+  The seated lord now reads by his own colours (16.3's open point). Plate 08.
+- **`cleftFace`, `cleftFaceEnd`:** the dark dead bush on the ledge and its trunk are painted over with rock
+  (`worldart.py rockover`, two more boxes in `build-art-world.sh`). Plate 09.
+
+### 18.4 The town at night and the square's props (d4037bd)
+
+- **`houseLit`, `houseBLit`, `houseCLit`, `bigHouseLit`, `tavernLit`** (`townart.py lit`): one emissive sprite per
+  house, the house's size, clear but for the window glass inside the house's masks (the tool stops if a pixel is
+  not glass). Each window shows a room: a wall that is brightest near its candle or hearth, a curtain, a shelf, a
+  table, a cat on a sill; people are shapes left dark. The tavern has three guest rooms, the taproom with two
+  drinkers and the innkeeper before the kegs, the door lantern's flame and one row of light on the step.
+- **`hayCart` 40x24, `barrels` 26x14, `noticeBoard` 20x26:** props for the square and the lanes.
+- Plates 10 to 13. In the mock the lit sprites are drawn over unmirrored houses only (the mock does not mirror an
+  emitter's sprite); the game must mirror them with the house.
+
+### 18.5 Two more paintings of every town tree (b632add)
+
+`tools/treeart.py build <id> … --out <Resources/Art>` paints `lindenB`, `lindenC` (52x92), `poplarB`, `poplarC`
+(14x116), `appleTreeB`, `appleTreeC` (42x48), `willowB`, `willowC` (52x68) in the hand of the four `trees-1`
+paintings and in their five greens and three barks:
+
+- a crown is built of lobes painted back to front, each with a lit cap toward the upper left, a mid band and a
+  dark underside, the silhouette scalloped and broken on the lit side; a trunk follows a path of widths, with a
+  root flare and a shadow row at the foot; limbs show in the holes of the crown;
+- `lindenB` is slim and tall, `lindenC` old, broad and only 72 px high; `poplarB` is younger and fuller (99 px),
+  `poplarC` lean with a notch and a bent tip; `appleTreeB` has a flat crown on two winding stems, `appleTreeC` a
+  round crown with seven apples (tile, set on the crown's darkest green only); `willowB` is young and short,
+  `willowC` old with the curtain down to the water;
+- every variant lies on its first painting's canvas with the trunk at the canvas centre and the foot on the bottom
+  row, so the code swaps the id and nothing else. A shorter tree has clear rows on top.
+
+The rule of 13.4 holds (between world 2386 and 2616 only apple trees). `lindenC` takes the first linden's place at
+2624: it is 20 px lower and leaves more of the far castle free there. SPRITES.md carries a planting that never sets one painting beside itself.
+Plates 14 (the twelve trees by day and at dusk, a citizen for scale) and 15 to 17 (town at noon, valley at golden
+hour, the river end: the committed planting above, the proposed one below).
+
+### 18.6 Notes for the code lanes
+
+- Nothing in Swift names the new ids. The lit rooms, the props and the tree variants are proposals; SPRITES.md has
+  the draw call and the places.
+- `<id>Lit` replaces the house's `.mask` emitters (with both, the glass doubles); the window lights stay.
+- The mock's layout (`layout_look2.py`) knows the new trees' widths but still plants the first paintings; the
+  plates 15 to 17 were rendered with the proposed planting swapped in by a scratch script.
+
+### 18.7 Open
+
+- Nothing of this stage has been seen in motion or on the runner: the court's walk cycles, the trees' sway slices
+  on the new crowns, the lit rooms' fade at dusk.
+- The lit rooms are stills; a flicker of the hearth rooms would be the engine's work (a second glow value).
+- `chapel`, `kitchen` and `hallFront` have no lit sprite (17.4's first point stands).
+- The firs, the lanes and the plants of `depthart.py` keep their paintings; only the four town trees gained two.
+- A third willow on the river bank (`willowB` at 3738) is a proposal, seen in plate 17 only.

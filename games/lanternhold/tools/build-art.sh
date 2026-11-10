@@ -81,7 +81,9 @@ build() { # name: one sprite
     hallInterior)  python3 $T convert $R/s5-hall-1.png $A/hallInterior.png --size 260x90 --box 210,0,1358,356 --only $CAS,strawLight --gain 1.1 --warm 22 --outline ink
                    # polish after the art review: five identical teal banners; the second and fourth are a red-brown house
                    # colour now (teal, red, teal, red, teal), the gold emblems kept
-                   python3 $T post $A/hallInterior.png $A/hallInterior.png --remap banner:tile,roofDeep:woodDark,roofLight:tileLight@84,25,101,61 --remap banner:tile,roofDeep:woodDark,roofLight:tileLight@159,25,177,61 ;;
+                   python3 $T post $A/hallInterior.png $A/hallInterior.png --remap banner:tile,roofDeep:woodDark,roofLight:tileLight@84,25,101,61 --remap banner:tile,roofDeep:woodDark,roofLight:tileLight@159,25,177,61
+                   # look 2, stage 6 (ART-look2.md section 18): the dais in light oak, so the seated lord reads before it
+                   python3 games/lanternhold/tools/frontart.py repaint hallInterior $A/hallInterior.png ;;
     kitchen)       python3 $T convert $R/s6-town-1.png $A/kitchen.png --size 120x80 --box 864,10,1148,296 --only $TOWN --outline ink
                    # M3 art step 3 (ART-court.md): the ground floor's painted night shade on its right corner and the
                    # stack's top lifted one value step (albedo is evenly lit; kitchenInterior is painted in this silhouette)
@@ -97,6 +99,11 @@ build() { # name: one sprite
     # of it (a teal slate roof; a straw thatch with a dormer, its glass at 27-29, rows 11-12), the well the grid
     # grids/well.txt; those sources stay in the repo, unused.
     house|houseB|houseC|well)
+                   python3 -I -B games/lanternhold/tools/townart.py build $1 --out $A ;;
+    # Look 2, stage 6 (ART-look2.md section 18), proposals for the code lane: the town at night. <id>Lit is a house's
+    # lit rooms (an emissive sprite of the house's size, clear but for the window glass; the big house's and the
+    # tavern's in the buildings lane), and the square's props: a hay cart, three barrels, the lord's notice board
+    houseLit|houseBLit|houseCLit|hayCart|barrels|noticeBoard)
                    python3 -I -B games/lanternhold/tools/townart.py build $1 --out $A ;;
     # stoneWall's milestone 1 conversion (`convert $R/s7-defence-1.png --size 36x52 --box 522,80,704,298 --flood --tol 60
     # --only $ST --fill clear:15,0,21,9 --fill stoneMid:1,49,34,50 --fill ink:35,10,35,51 --fill ink:0,49,0,51 --outline
@@ -250,8 +257,12 @@ build() { # name: one sprite
     fgOverhangA|fgOverhangB)
                    python3 $PROC overhang $A/$1.png --style $(echo "${1#fgOverhang}" | tr 'AB' 'ab')
                    python3 $T post $A/$1.png $A/$1.png --remap $FGLIFT ;;
-    throne|hearth|lanternPost|field|brazier|torchPost)
+    throne|hearth|lanternPost|field)
                    python3 $T grid $G/$1.txt $A/$1.png ;;
+    # look 2, stage 6 (ART-look2.md section 18): the two small lights repainted like the defences
+    brazier|torchPost)
+                   python3 $T grid $G/$1.txt $A/$1.png
+                   python3 -I -B games/lanternhold/tools/defenceart.py repaint $A/$1.png $1 ;;
     # the two M2b lanes and the M3 court lane: whole, or one sprite of theirs
     buildings)     bash $BLD ;;
     actors)        bash $ACT ;;
@@ -276,7 +287,7 @@ ALL="farMountain farPeak gorgeCliff gorgeEndCliff waterfall gatehouse castleTowe
 throne hearth kitchen house valleyHill well lanternPost field brazier torchPost ground
 gorgeWall gorgeWallHigh cliffFlank gorgeMouth wardenStatue castleFront castleKeep castleBackGate valleyFar valleyMid windmill
 beaconRuin riverEnd riverFarBank clouds fgRockA fgRockB fgRockC fgOverhangA fgOverhangB
-houseB houseC keepFar keepTop throatRock cliffFlankB groundB groundC groundD castleShadow castleMist buildings actors court world"
+houseB houseC houseLit houseBLit houseCLit hayCart barrels noticeBoard keepFar keepTop throatRock cliffFlankB groundB groundC groundD castleShadow castleMist buildings actors court world"
 for name in ${@:-$ALL}; do
     case $name in buildings|actors|court|world) ;; *) cool ;; esac
     build "$name"

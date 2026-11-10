@@ -1,119 +1,121 @@
-# seren 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Seren, the Stranger: tall in a long grey
-# hooded cloak (a cool blue-grey, so it parts from the hall's violet stone) worn to threads at the hem, a pale clasp at the throat, the hood deep
-# over a face that stays in shadow (only a pale chin), a grey iron lantern held low on a short chain in the near hand,
-# its glass pale (serenGlow: its cold grey-white light). Walk: a quiet glide, the lantern swaying. Idle: still, the
-# lantern sways. Talk: the lantern lifted to the height of the hood (6), then lowered, her free hand opening (7).
+# seren 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Seren, the Stranger, repainted in look 2
+# (ART-look2.md section 18) at the lord's level: tall and narrow in a long hooded cloak of cool blue-grey (the far
+# ramp, so she parts from the hall's violet stone), its lit side at her back, a fold down the front, the hem worn to
+# threads; a pale clasp at the throat; the hood's brim hangs over a face that stays in its shadow (only a pale chin);
+# a grey iron lantern held low on a short chain in the near hand, its glass pale (serenGlow: its cold grey-white
+# light). The lantern arm's parts and places are the old ones, so the glow strip is the old one pixel for pixel.
+# Light from the upper left; the outline is look 2's selective one. Walk: a quiet glide, the lantern swaying. Idle:
+# still, the lantern sways. Talk: the lantern lifted to the height of the hood (6), then lowered, her free hand
+# opening (7).
 id seren
 size 14x30
 frames 8
-outline ink
+outline ink shade
 
 legend
     k = ink
     O = night0
     o = night1
     c = stonePale
-    C = farPale
+    M = moon
     F = far
     f = farDeep
-    n = night2
     I = stoneDark/moon
     i = stone/farPale
     j = stoneDark
     J = stonePale
     Y = stonePale/foam
     y = stoneLight/foam
-    z = /moon
     S = stonePale
     B = night1
 
 part hood
-    ..fFFF..
-    .fFFFFC.
-    fFFFFFfC
-    fFFFFfOo
-    fFFFFfOo
-    ffFFFfoc
-    ffFFFFc.
+    ..MFFf..
+    .MFFFFf.
+    MFFFFFFf
+    MFFFFffF
+    MFFFfOOo
+    .MFFfOoc
+    .MFFFfc.
 
 part cloakTop
-    .ffFFJFC
-    ffFFFFFC
-    ffFFFFFC
-    ffFFFFFC
-    ffFFFFCF
-    ffFFFFCF
-    ffFFFFFF
+    .MFFFJf
+    MFFFFFf
+    MFFFFFf
+    MFFFfFf
+    MFFFfFf
+    MFFFfFf
+    MFFFfFf
 
 part skirtStand
-    .ffFFFFFC
-    .ffFFFFFC
-    .ffFFFFFC
-    fffFFFFFC
-    fffFFCFFF
-    fffFFCFFF
-    fffFFCFFFF
-    fffFFCFFFF
-    ffFFFCFFFF
-    fFfFfFfFfF
-    .f.f.f.f.f
+    .MFFFfFf.
+    .MFFFfFf.
+    .MFFFfFf.
+    MMFFFfFf.
+    MFFFFfFFf
+    MFFFFfFFf
+    MFFFFfFFf
+    MFFFFfFFf
+    MFFFFfFFf
+    MFFfFfFFf
+    M.F.f.F.f
 
 part skirtA
-    .ffFFFFFC.
-    .ffFFFFFFC
-    .ffFFFFFFC
-    fffFFFFFFC
-    fffFFFCFFF
-    fffFFFCFFF
-    fffFFFCFFFF
-    fffFFFCFFFF
-    ffFFFFCFFFF
-    fFfFfFfFfFf
-    .f.f.f.f.f.
+    .MFFFfFf..
+    .MFFFfFFf.
+    .MFFFfFFf.
+    MMFFFfFFf.
+    MFFFFFfFFf
+    MFFFFFfFFf
+    MFFFFFfFFf
+    MFFFFFfFFf
+    MFFFFFfFFf
+    MFFfFFfFFf
+    M.F.f.F.f.
 
 part skirtB
-    .ffFFFFC
-    .ffFFFFC
-    .ffFFFFC
-    fffFFFFC
-    fffFFCFF
-    fffFFCFF
-    fffFFCFFF
-    fffFFCFFF
-    ffFFFCFFF
-    fFfFfFfFf
-    .f.f.f.f.
+    .MFFfFf.
+    .MFFfFf.
+    .MFFfFf.
+    MMFFfFf.
+    MFFFfFFf
+    MFFFfFFf
+    MFFFfFFf
+    MFFFfFFf
+    MFFFfFFf
+    MFFfFfFf
+    M.F.f.F.
 
 part skirtC
-    ..ffFFFFC
-    ..ffFFFFC
-    .fffFFFFC
-    ffffFFFFC
-    ffffFCFFF
-    ffffFCFFF
-    ffffFCFFFF
-    ffffFCFFFF
-    fffFFCFFFF
-    fFfFfFfFfF
-    .f.f.f.f.f
+    ..MFFFfFf.
+    ..MFFFfFf.
+    .MMFFFfFf.
+    .MFFFFfFf.
+    MMFFFFfFFf
+    MFFFFFfFFf
+    MFFFFFfFFf
+    MFFFFFfFFf
+    MFFFFFfFFf
+    MFFfFFfFFf
+    .M.F.f.F.f
 
 part feetStand
-    ..BB.BB
+    ..B.B
 
 part feetA
-    .BB..BB
+    B...B
 
 part feetB
-    ...BBB
+    .B.B
 
 part feetC
-    ..BB.BB
+    .B...B
 
 # the near arm in the cloak, the lantern hanging on its short chain below the fist
 part armLantern
-    fF...
-    fFF..
-    fFFF.
+    FF...
+    FFf..
+    fFFf.
     .fFS.
     ...j.
     ..iIi
@@ -123,9 +125,9 @@ part armLantern
     ..II.
 
 part armLanternSway
-    fF....
-    fFF...
-    fFFF..
+    FF....
+    FFf...
+    fFFf..
     .fFS..
     ....j.
     ...iIi
@@ -151,56 +153,56 @@ part handOpen
 
 frame 0
     skirtA 2 18
-    feetA 3 29
+    feetA 3 28
     cloakTop 3 11
     hood 3 4
     armLantern 7 12
 
 frame 1
     skirtB 3 18
-    feetB 3 29
+    feetB 3 28
     cloakTop 3 12
     hood 3 5
     armLanternSway 7 13
 
 frame 2
     skirtC 2 18
-    feetC 3 29
+    feetC 3 28
     cloakTop 3 11
     hood 3 4
     armLantern 7 12
 
 frame 3
     skirtB 3 18
-    feetB 3 29
+    feetB 3 28
     cloakTop 3 12
     hood 3 5
     armLanternSway 7 13
 
 frame 4
     skirtStand 2 18
-    feetStand 3 29
+    feetStand 3 28
     cloakTop 3 11
     hood 3 4
     armLantern 7 12
 
 frame 5
     skirtStand 2 18
-    feetStand 3 29
+    feetStand 3 28
     cloakTop 3 11
     hood 3 4
     armLanternSway 7 12
 
 frame 6
     skirtStand 2 18
-    feetStand 3 29
+    feetStand 3 28
     cloakTop 3 11
     hood 3 4
     armLanternUp 6 6
 
 frame 7
     skirtStand 2 18
-    feetStand 3 29
+    feetStand 3 28
     cloakTop 3 11
     hood 3 4
     armLantern 7 12

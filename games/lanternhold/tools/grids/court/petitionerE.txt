@@ -1,13 +1,14 @@
-# petitionerE 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md "M3"). A petitioner body: a well-off townsman, portly,
-# a neat grey beard, a soft brimless cap of red velvet drooping over the back of his head with a gold brooch, a fine
-# teal gown with wide sleeves trimmed with pale fur at the collar, the cuffs and the hem, a gold chain over his
-# shoulders, the belt low at the hip, dark hose, buckled shoes. Fix stage: the red-brown cap over a dark band and the
-# long brown belted coat with a button row read as a 1940s detective in a fedora and a trench coat. Walk: four frames,
-# a self-important waddle. Idle: a breath, his hand at his belt.
+# petitionerE 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md "M3"). A well-off townsman, repainted in look 2
+# (ART-look2.md section 18) at the lord's level: portly, a neat grey beard, a brimless soft cap of red velvet drooping
+# over the back of his head with a gold brooch, a teal gown to the knees with wide sleeves and pale fur at the collar,
+# the cuffs and the hem, a gold chain over the shoulders, the belt low at the hip with a gold buckle, buckled shoes.
+# Light from the upper left; the outline is look 2's selective one. Walk: a self-important waddle (contact 1 px down,
+# passing). Idle: a breath, his hand at his belt.
 id petitionerE
 size 12x26
 frames 6
-outline ink
+outline ink shade
+include kit.txt
 
 legend
     k = ink
@@ -19,159 +20,102 @@ legend
     r = tile
     G = gold
     g = straw
-    V = banner
-    v = roofDeep
     U = roofLight
-    F = plaster
+    T = banner
+    t = roofDeep
+    F = parchment
     f = plasterDim
-    N = soilDark
-    B = woodDark
-    b = stoneLight
     L = woodDark
+    1 = soil
+    2 = soilDark
+    3 = soilLight
+    4 = soil
+    5 = woodDark
+    6 = wood
 
-# the soft cap: a velvet crown wider than his head, drooping over the back of the head, the gold brooch in front
-part cap
-    ..RRRR..
-    .RRRRRRG
-    rRr.....
-
+# the velvet cap drooping over the back of the head, its brooch, the face, the neat beard
 part head
-    .wSSSs
-    .wSSkS
-    ..SSSSS
-    .wWWWs.
-    ..wWW..
+    .RRR..
+    RRRRG.
+    rRSkS.
+    rrWSSs
+    ..WWw.
+    ...w..
 
-# the gown's top: the fur collar, the gold chain hanging over the shoulders onto the chest, no buttons
-part torso
-    .fFFFFv.
-    fFFFFFvv
-    .vGVVVGv
-    vVVGGGVv
-    vVVVVUVv
-    vVVVVVUv
-    vVVVVVVv
-    vVVVVVUv
+# the gown over the belly: the fur collar, the chain, the low belt, the fur hem at the knees
+part gown
+    .FFFf..
+    UTGTGt.
+    UTTGTTt
+    UTTTTTt
+    UTTTTTt
+    UTTTTTt
+    LLLLGLL
+    UTTTTTt
+    UTTTTTt
+    FFFFFFf
 
-# the gown's skirt to the knee: the belt low at the hip, the fur trim at the hem
-part coatStand
-    .LLLLGLLL
-    .vVVVVVUV
-    vvVVVVVUV
-    vvVVVVVVUV
-    ffFFFFFFFf
+# the near arm: a wide sleeve, a fur cuff, the hand
+part armDown
+    UT.
+    UTt
+    UTt
+    .Ff
+    .S.
 
-part coatA
-    .LLLLGLLL.
-    .vVVVVVVUV
-    vvVVVVVVUV
-    vvVVVVVVVUV
-    ffFFFFFFFFf
+part armFwd
+    UT..
+    UTt.
+    .UTt
+    ..Ff
+    ..S.
 
-part coatB
-    .LLLLGLLL
-    .vVVVVVUV
-    .vVVVVVUV
-    vvVVVVVUV
-    ffFFFFFFf
+part armBack
+    .UT
+    .UTt
+    UTt.
+    Ff..
+    S...
 
-part coatC
-    ..LLLGLLL
-    ..vVVVVUV
-    .vvVVVVUV
-    vvvVVVVVUV
-    fffFFFFFFf
-
-part legsStand
-    .NN.NN
-    .NN.NN
-    .BB.BB
-    BBBbBBBb
-
-part legsContactA
-    NN...NN
-    NN...NN
-    BB...BB
-    BBBb.BBBb
-
-part legsPass
-    ..NNNN
-    ..NNNN
-    ..BBBB
-    .BBBbBBb
-
-part legsContactB
-    .NN..NN
-    NN...NN
-    BB...BB
-    BBBb.BBBb
-
-# the near arm in its wide sleeve, a pale fur cuff, the hand at his belt or swinging
-part armThumb
-    VU..
-    VUU.
-    VUUU
-    fFF.
-    .SS.
-
-part armSwingFwd
-    VU...
-    VUU..
-    .VUUU
-    ..fFF
-    ...SS
-
-part armSwingBack
-    VU..
-    VU..
-    UVV.
-    fFF.
-    SS..
+# idle: the hand at the belt
+part armBelt
+    UT.
+    UTt
+    .Ff
+    .S.
 
 frame 0
-    coatA 1 17
-    legsContactA 2 22
-    torso 2 9
-    head 3 5
-    cap 3 3
-    armSwingFwd 6 10
+    shortContactA 1 15
+    gown 2 10
+    head 3 4
+    armBack 5 11
 
 frame 1
-    coatB 2 17
-    legsPass 2 22
-    torso 2 10
-    head 3 6
-    cap 3 4
-    armThumb 6 11
+    shortPassA 1 15
+    gown 2 9
+    head 3 3
+    armDown 6 10
 
 frame 2
-    coatC 1 17
-    legsContactB 2 22
-    torso 2 9
-    head 3 5
-    cap 3 3
-    armSwingBack 6 10
+    shortContactB 1 15
+    gown 2 10
+    head 3 4
+    armFwd 6 11
 
 frame 3
-    coatB 2 17
-    legsPass 2 22
-    torso 2 10
-    head 3 6
-    cap 3 4
-    armThumb 6 11
+    shortPassB 1 15
+    gown 2 9
+    head 3 3
+    armDown 6 10
 
 frame 4
-    coatStand 1 17
-    legsStand 2 22
-    torso 2 9
-    head 3 5
-    cap 3 3
-    armThumb 6 10
+    shortStand 1 15
+    gown 2 9
+    head 3 3
+    armBelt 6 11
 
 frame 5
-    coatStand 1 17
-    legsStand 2 22
-    torso 2 10
-    head 3 6
-    cap 3 4
-    armThumb 6 11
+    shortStand 1 15
+    gown 2 10
+    head 3 4
+    armBelt 6 12

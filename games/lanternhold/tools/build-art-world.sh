@@ -70,6 +70,7 @@ build() { # name: one sprite (or one group of small ones)
     cleftFace)   # the cleft's inner face behind the castle, with its broken top edge; its end toward the valley
         px convert $W/gorge-1.png $P/face.png --size 448x218 --key $K --only $ROCKW --match new --gain 0.9; cool
         wa rockover $P/face.png 277,72,292,82 298,76,306,82 314,72,326,82 256,124,270,135   # the same four tufts
+        wa rockover $P/face.png 109,39,124,59 102,47,108,66   # stage 6 (section 18): the dark dead bush on the ledge and its trunk
         wa face $P/face.png $A/cleftFace.png $A/cleftFaceEnd.png ;;
     cleftFlank)  cliff cleftFlank cliffFlank 100,48,340,768 ;;
     cleftFlankB) cliff cleftFlankB cliffFlankB 700,48,940,768 "60,132,75,145" ;;   # one tuft
@@ -92,11 +93,14 @@ build() { # name: one sprite (or one group of small ones)
     poplar) tree poplar 992,28,1068,672 14x116 $LEAFW ;;
     appleTree) tree appleTree 1080,432,1292,672 42x48 $LEAFW ;;
     willow) tree willow 1308,396,1516,672 52x68 $LEAFW ;;
+    # stage 6 (section 18): two more paintings of every town tree, painted by tools/treeart.py on the first one's canvas
+    lindenB|lindenC|poplarB|poplarC|appleTreeB|appleTreeC|willowB|willowC)
+        python3 -I -B games/lanternhold/tools/treeart.py build $1 --out $A ;;
     plants) python3 -I -B $DA $A $PLANTS ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;
     esac
 }
 
-ALL="weltmauer castleTiers gorgeRock cleftFace cleftFlank cleftFlankB cleftThroat shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow plants"
+ALL="weltmauer castleTiers gorgeRock cleftFace cleftFlank cleftFlankB cleftThroat shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow lindenB lindenC poplarB poplarC appleTreeB appleTreeC willowB willowC plants"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do cool; build "$name"; done

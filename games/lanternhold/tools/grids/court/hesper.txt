@@ -1,16 +1,18 @@
-# hesper 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Mother Hesper, priestess of the Flame: an
-# old woman with dark skin and white hair, a broad gold-ochre mantle of her order over her shoulders and down her back
-# with a rounded hood pushed back from her face, the cream robe showing in front with a gold hem, and a short crook
-# staff whose iron cup carries the little flame at her chest, before the chin (hesperGlow: the flame, flickering
-# through four shapes; it lights her face). Fix stage (ART-court.md): the cream hooded robe with the flame on a pole
-# above her head read as a faceless ghost and carried an unwanted image; the mantle breaks the silhouette, the face
-# shows, the flame burns low. Walk: slow, the staff carried before her. Idle: a breath, the flame flickers. Talk: she
-# lifts the staff and the flame flares up beside her face, the head drawn back (6), then lowers it, her free hand on
-# her heart (7).
+# hesper 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Mother Hesper, priestess of the Flame,
+# repainted in look 2 (ART-look2.md section 18) at the lord's level: an old woman, a little stooped, the dark face
+# with a lit cheek, one eye and the nose, white hair at the crown and the temple; the gold-ochre mantle of her order
+# over both shoulders and down her back to the hem, its rounded hood pushed back with its inside dark beside the face;
+# the cream robe in front with a gold hem; a short crook staff in her near hand, its iron cup at her chest with the
+# little flame before her chin (hesperGlow). The staff, the cup and the flame are the fix stage's parts at the fix
+# stage's places, so the flame's anchors of ART-court.md hold pixel for pixel. Light from the upper left; the outline
+# is look 2's selective one. Walk: a slow shuffle (the hem wide at the contact, narrow in passing), the staff carried
+# before her and set down a pixel lower on frames 1 and 3. Idle: a breath, the flame flickers. Talk: the staff lifted
+# 2 px and the flame flaring up tall beside her face, the head drawn back a pixel (6); then lowered, her free hand
+# on her heart (7).
 id hesper
 size 14x30
 frames 8
-outline ink
+outline ink shade
 
 legend
     k = ink
@@ -33,116 +35,83 @@ legend
     I = stone
     i = stoneMid
     B = woodDark
+    b = soil
     F = strawLight/fireWhite
     f = gold/fireGold
     o = straw/fireOrange
 
-# the head: the rounded hood of the mantle pushed back (its inside dark beside the face), white hair at the crown and
-# the temple, the face 4-5 px wide: a lit cheek (rockLight), the eye, the nose, the mouth
+# the head: the hood pushed back behind it (its inside dark beside the face), white hair at the crown and the temple,
+# the dark face with its lit cheek (frame cols 2-9)
 part head
-    ..gLLg...
-    .gLLLgee.
-    DgLLgneSS
-    DgLgnESkS
-    DggnsrSSS
-    DggnsSsS.
-    DgDgnss..
+    ...Lee..
+    .LLgeeS.
+    LLgneSkS
+    LggnErSS
+    DggnsSs.
+    .Dgdss..
 
 # talk 6: the head drawn back a pixel as the flame flares up before it
 part headBack
-    .gLLg....
-    gLLLgee..
-    gLLgneSS.
-    gLgnESkS.
-    ggnsrSSS.
-    ggnsSsS..
-    gDgnss...
+    ..Lee...
+    LLgeeS..
+    LgneSkS.
+    LgnErSS.
+    DgnsSs..
+    .Ddss...
 
-# the shoulders and the chest: the mantle over both shoulders with its gold-edged front falling from the neck over the
-# near shoulder, the cream robe in front, the near arm's sleeve reaching to the staff, the hand on it
+# the mantle over the shoulders with its gold edge, the cream robe in front, the near sleeve reaching to the staff
 part upper
-    .DDgGDgGGq...
-    DggLLLLGqW...
-    DggLLLGqwWwS.
-    DggLLGGqwWWs.
-    DggLLGqwWWW..
-    DggLgGqwWWW..
-    DggggGqwWWW..
+    .LLgGWw..
+    LLggGWWWS
+    LggDGWwws
+    LggDGWw..
+    LgDgGWw..
+    LgDgGWw..
+    LgDgGWw..
 
 # talk 7: the far hand laid on the heart
 part upperHeart
-    .DDgGDgGGq...
-    DggLLLLGqW...
-    DggLLLGqwWwS.
-    DggLLGGsSWWs.
-    DggLLGqwWWW..
-    DggLgGqwWWW..
-    DggggGqwWWW..
+    .LLgGWw..
+    LLggGWWWS
+    LggDGSsws
+    LggDGWw..
+    LgDgGWw..
+    LgDgGWw..
+    LgDgGWw..
 
-# the long robe and the mantle's back fall: standing, and the three walk shapes (the hem swings, the feet peek out)
-part lowerStand
-    DgggGqwWWWW
-    DgggGqwWWWW
-    DgggGqwWwWW
-    DgggGqwWwWW
-    DgggGqwWwWW
-    DgggGqwWwWW
-    DgDgGqwWwWW
-    DgDgGqwWwWW
-    DgDgGqwWwWW
-    DgDgGqwWwWW
-    DgDgGGGGGGG
+# the mantle's back fall and the robe to the hem: while a foot passes, and at the contact of a step
+part lowerPass
+    LgDgGWw..
+    LgDgGWw..
+    LgDgGWwq.
+    LgDggGWq.
+    LgDggGWq.
+    LggDgGWwq
+    LggDgGWwq
+    LggDgGWwq
+    LggDgGWWq
+    DDgDdGGGG
 
-part lowerA
-    DgggGqwWWWW
-    DgggGqwWWWW
-    DgggGqwWwWW
-    DgggGqwWwWW
-    DgggGqwWwWW
-    DgggGqqwWwW
-    DgDgGqqwWwW
-    DgDgGqqwWwW
-    .DgDGqqwWwW
-    .DgDGqqwWwW
-    .DgDGGGGGGG
-
-part lowerB
-    DgggGqwWWWW
-    DgggGqwWWWW
-    DgggGqwWwWW
-    DgggGqwWwWW
-    DgggGqwWwWW
-    .DggGqwWwWW
-    .DgDGqwWwWW
-    .DgDGqwWwWW
-    .DgDGqwWwWW
-    .DgDGqwWwWW
-    .DgDGGGGGGG
-
-part lowerC
-    DgggGqwWWWW
-    DgggGqwWWWW
-    DgggGqwWwWW
-    DgggGqwWwWW
-    DgggGqwWWwW
-    DgggGqwWWwW
-    DgDgGqwWWwW
-    DgDgGqwWWwW
-    DgDgGqwWWwW
-    DgDgGqwWWwW
-    DgDgGGGGGGG
-
-part feetStand
-    .BB.BBB
+part lowerContact
+    .LgDgGWw..
+    .LgDgGWw..
+    .LgDgGWwq.
+    .LgDggGWq.
+    LLgDggGWwq
+    LggDggGWwq
+    LggDgggGWwq
+    LggDgggGWwq
+    LggDgggGWWq
+    DDgDdgGGGGG
 
 part feetA
-    BB....BBB
+    BB.....bB
 
 part feetB
-    ..BBBB
+    bB.....BB
 
-part feetC
-    .BBB.BBB
+part feetTogether
+    Bb.B
 
 # the crook staff: its iron cup on the forward bend of the crook, the shaft (two lengths, for the bob frames)
 part staff
@@ -183,22 +152,6 @@ part staffShort
     .t.
     .T.
 
-part staffShorter
-    IiI
-    .T.
-    .t.
-    .T.
-    .T.
-    .t.
-    .T.
-    .T.
-    .t.
-    .T.
-    .T.
-    .t.
-    .T.
-    .T.
-
 # the flame in the cup (body pixels are warm albedo under the glow, so by day a dimmed glow still reads as flame)
 part flame0
     .o.
@@ -228,66 +181,72 @@ part flameHigh
     .Ff
     oFf
 
+# talk 6: the near sleeve lifted with the staff
+part sleeveUp
+    WWWS
+    .wws
+
 frame 0
-    lowerA 0 18
-    feetA 1 29
-    upper 0 11
-    head 3 4
+    feetA 2 28
+    lowerContact 1 18
+    upper 2 11
+    head 2 5
     staff 11 12
     flame0 11 9
 
 frame 1
-    lowerB 0 18
-    feetB 2 29
-    upper 0 12
-    head 3 5
+    feetTogether 5 28
+    lowerPass 2 18
+    upper 2 11
+    head 2 5
     staffShort 11 13
     flame1 11 10
 
 frame 2
-    lowerC 0 18
-    feetC 1 29
-    upper 0 11
-    head 3 4
+    feetB 2 28
+    lowerContact 1 18
+    upper 2 11
+    head 2 5
     staff 11 12
     flame2 11 9
 
 frame 3
-    lowerB 0 18
-    feetB 2 29
-    upper 0 12
-    head 3 5
+    feetTogether 5 28
+    lowerPass 2 18
+    upper 2 11
+    head 2 5
     staffShort 11 13
     flame3 11 10
 
 frame 4
-    lowerStand 0 18
-    feetStand 1 29
-    upper 0 11
-    head 3 4
+    feetTogether 5 28
+    lowerPass 2 18
+    upper 2 11
+    head 2 5
     staff 11 12
     flame0 11 9
 
 frame 5
-    lowerStand 0 18
-    feetStand 1 29
-    upper 0 12
-    head 3 5
+    feetTogether 5 28
+    lowerPass 2 18
+    upper 2 12
+    head 2 6
     staffShort 11 13
     flame2 11 10
 
 frame 6
-    lowerStand 0 18
-    feetStand 1 29
-    upper 0 11
-    headBack 3 4
+    feetTogether 5 28
+    lowerPass 2 18
+    upper 2 11
+    headBack 2 5
+    sleeveUp 7 10
     staff 11 10
     flameHigh 11 5
 
 frame 7
-    lowerStand 0 18
-    feetStand 1 29
-    upperHeart 0 11
-    head 3 4
+    feetTogether 5 28
+    lowerPass 2 18
+    upperHeart 2 11
+    head 2 5
     staff 11 12
     flame3 11 9

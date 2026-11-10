@@ -1,13 +1,15 @@
-# bard 12x28, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). A wandering bard: a floppy rose-red cap
-# (dusk over tile) with a long white feather, ginger-gold curls (straw and woodLight, as his portrait), a merry face, a
-# spring-green doublet with cream puffed sleeves and a gold sash, dark hose, soft boots, a round-bellied lute slung
-# across his front, its neck angled forward at chest height (fix stage: cap and hair were one brown mass, and the neck
-# rose to his face, in front of the nose). Walk: a light step, the lute bobbing. Idle: fingers resting on the strings,
-# a breath. Talk: he strums, the strumming hand up (6) and down (7), singing (mouth open).
+# bard 12x28, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). The wandering bard, repainted in look 2
+# (ART-look2.md section 18) at the lord's level: a floppy rose-red cap with a long white feather curving back,
+# ginger-gold curls, a spring-green doublet with cream puffed sleeves and a gold sash, dark hose; a round-bellied
+# lute across his front, its sound hole dark, the neck angled forward at chest height with the fretting hand on it.
+# Light from the upper left; the outline is look 2's selective one. Walk: a light step (contact 1 px down, passing),
+# the lute bobbing. Idle: fingers on the strings, a breath. Talk: strumming, the hand up (6) and down (7), singing
+# with an open mouth.
 id bard
 size 12x28
 frames 8
-outline ink
+outline ink shade
+include kit.txt
 
 legend
     k = ink
@@ -25,196 +27,115 @@ legend
     W = parchment
     w = plaster
     G = gold
-    D = woodLight
+    L = woodLight
     d = wood
-    n = woodDark
-    Y = strawLight
-    N = soilDark
-    B = soilDark
-    b = woodDark
+    N = woodDark
+    o = soilDark
+    1 = night1
+    2 = night0
+    3 = night2
+    4 = night1
+    5 = woodDark
+    6 = wood
 
-part cap
-    .....FF.
-    ...FFf..
-    .rRRRR..
-    rRRRRRR.
-    .rrRRRr.
-
+# the cap with its feather, the curls, the face
 part head
-    .CcSSS.
-    CcSSkS.
-    CcSSSSS
-    .csSSs.
-    ..sSs..
-    ...s...
+    F......
+    fF.....
+    .FRRr..
+    RRfRRr.
+    rCCSkS.
+    .cCSSSs
+    .cCsSs.
 
+# singing: the mouth open
 part headSing
-    .CcSSS.
-    CcSSkS.
-    CcSSSSS
-    .csSkS.
-    ..sSs..
-    ...s...
+    F......
+    fF.....
+    .FRRr..
+    RRfRRr.
+    rCCSkS.
+    .cCSSSs
+    .cCsk..
 
+# the doublet: the far puffed sleeve, the gold sash across the chest
 part torso
-    .WlEEe.
-    WWlEEEe
-    WwlEEEe
-    WwlEEEe
-    .lEEEEe
-    .GGGGGG
-    .lEEEEe
-    .lEEEEe
-    .llEEEe
+    WEeGl
+    WWGel
+    .Geel
+    .Eeel
+    .Eeel
+    .Eeel
+    .elll
 
-part legsStand
-    .NN.NN
-    .NN.NN
-    .NN.NN
-    .NN.NN
-    .NN.NN
-    .BB.BB
-    .BBbBBb
-
-part legsContactA
-    NN...NN
-    NN...NN
-    NN...NN
-    NN....NN
-    NN....NN
-    BB....BB
-    BBb...BBb
-
-part legsPass
-    ..NNNN
-    ..NNNN
-    ..NN.NN
-    ..NN.NN
-    ..NN.NN
-    ..BB.BB
-    ..BBbBBb
-
-part legsContactB
-    .NN..NN
-    .NN..NN
-    .NN..NN
-    NN...NN
-    NN...NN
-    BB...BB
-    BBb..BBb
-
-# the lute across his front: the round belly at his hip, the neck angled forward at chest height, the pegbox bent back
+# the lute: the pegs, the neck with the fretting hand, the belly with its sound hole
 part lute
-    ........
-    ........
-    ........
-    .......n
-    .....nnn
-    .YDDn...
-    YDDDDd..
-    DDnnDd..
-    DDnnDd..
-    dDDDd...
-    .ddd....
+    .....Nd
+    ...SdN.
+    ..LdN..
+    .LLoLd.
+    .LLLLd.
+    ..Ldd..
 
+# the near arm: a cream puffed sleeve, the hand on the strings
 part armStrum
-    WW.
-    Ww.
-    .SS
-
-part armStrumUp
-    .SS
-    WW.
-    Ww.
-
-part armBack
-    W.
-    W.
-    w.
-    S.
-
-part armFret
-    .....
-    .....
-    ...SS
-    .wW..
+    WW
+    Ww
+    .w
+    .S
 
 frame 0
-    armBack 2 11
-    legsContactA 2 21
-    torso 2 12
-    head 3 6
-    cap 2 2
-    lute 4 9
-    armFret 5 10
-    armStrum 4 15
+    legsContactA 1 14
+    torso 3 9
+    head 2 2
+    lute 4 12
+    armStrum 4 11
 
 frame 1
-    armBack 2 12
-    legsPass 2 21
-    torso 2 13
-    head 3 7
-    cap 2 3
-    lute 4 10
-    armFret 5 11
-    armStrum 4 16
+    legsPassA 1 14
+    torso 3 8
+    head 2 1
+    lute 4 11
+    armStrum 4 10
 
 frame 2
-    armBack 2 11
-    legsContactB 2 21
-    torso 2 12
-    head 3 6
-    cap 2 2
-    lute 4 9
-    armFret 5 10
-    armStrum 4 15
+    legsContactB 1 14
+    torso 3 9
+    head 2 2
+    lute 4 12
+    armStrum 4 11
 
 frame 3
-    armBack 2 12
-    legsPass 2 21
-    torso 2 13
-    head 3 7
-    cap 2 3
-    lute 4 10
-    armFret 5 11
-    armStrum 4 16
+    legsPassB 1 14
+    torso 3 8
+    head 2 1
+    lute 4 11
+    armStrum 4 10
 
 frame 4
-    armBack 2 11
-    legsStand 2 21
-    torso 2 12
-    head 3 6
-    cap 2 2
-    lute 4 9
-    armFret 5 10
-    armStrum 4 15
+    legsStand 1 14
+    torso 3 8
+    head 2 1
+    lute 4 11
+    armStrum 4 10
 
 frame 5
-    armBack 2 12
-    legsStand 2 21
-    torso 2 13
-    head 3 7
-    cap 2 3
-    lute 4 10
-    armFret 5 11
-    armStrum 4 16
+    legsStand 1 14
+    torso 3 9
+    head 2 2
+    lute 4 11
+    armStrum 4 11
 
 frame 6
-    armBack 2 11
-    legsStand 2 21
-    torso 2 12
-    headSing 3 6
-    cap 2 2
-    lute 4 9
-    armFret 5 10
-    armStrumUp 4 14
+    legsStand 1 14
+    torso 3 8
+    headSing 2 1
+    lute 4 11
+    armStrum 4 9
 
 frame 7
-    armBack 2 11
-    legsStand 2 21
-    torso 2 12
-    headSing 3 6
-    cap 2 2
-    lute 4 9
-    armFret 5 10
-    armStrum 4 16
+    legsStand 1 14
+    torso 3 8
+    headSing 2 1
+    lute 4 11
+    armStrum 4 11

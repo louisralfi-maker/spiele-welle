@@ -23,14 +23,15 @@ cool() { # wait below 70 °C when the CPU reached 80 °C
     sleep 1
 }
 
-# look 2, stage 4 (ART-look2.md section 15): the walls and towers keep their grids, sizes and frames; after the grid
-# is written, townart.py relights it in place (lit from the upper left, the ink outline only at the right and at the
-# ground). Every other sprite of this lane stays as its grid paints it.
+# look 2, stage 6 (ART-look2.md section 18): the defences keep their grids, sizes and frames; after the grid is
+# written, defenceart.py paints its materials new in place (coursed stone shaded as a body, timber with grain, iron lit
+# from the left; the ink outline only at the right and at the ground). It replaces stage 4's relight (townart.py
+# relight). Every other sprite of this lane stays as its grid paints it.
 relit() { # name
     case $1 in
-    palisade|stoneWall|bastion) python3 -I -B games/lanternhold/tools/townart.py relight $A/$1.png 2 ;;
-    archerTower|watchtower|fireTower|beaconTower|greatBeacon)
-                   python3 -I -B games/lanternhold/tools/townart.py relight $A/$1.png 1 ;;
+    palisade|stoneWall|bastion|archerTower|watchtower|fireTower|beaconTower|greatBeacon|gateWood|gateIron|gateGreat|\
+    gateBroken|ballista|catapult|stakePit)
+                   python3 -I -B games/lanternhold/tools/defenceart.py repaint $A/$1.png $1 ;;
     esac
 }
 
@@ -48,12 +49,13 @@ build() { # name: one sprite
                    python3 -I -B $T grid $GB/$1.txt $A/$1.png
                    relit $1 ;;
     # look 2, stage 4 (ART-look2.md section 15): painted by townart.py; their grids in grids/buildings stay, unused
-    bigHouse|market|tavern)
+    bigHouse|market|tavern|bigHouseLit|tavernLit)   # …Lit: the lit rooms at night (stage 6, ART-look2.md section 18)
                    python3 -I -B games/lanternhold/tools/townart.py build $1 --out $A ;;
     # fix stage: the first stage keeps the ruin's broken shell standing behind the new pale courses (beaconRuin.png
     # without its fire cage: the body from row 34, the two broken stubs from row 22), the shear legs rising above it
     beaconBase)    mkdir -p $PB
                    python3 -I -B $T grid $GB/beaconBase.txt $PB/beaconBase-front.png
+                   python3 -I -B games/lanternhold/tools/defenceart.py repaint $PB/beaconBase-front.png beaconBase-front
                    python3 -I -B $T compose $A/beaconBase.png --size 64x130 --layer $A/beaconRuin.png@0,34@box=0,34,64,130 \
                        --layer $A/beaconRuin.png@0,22@box=0,22,18,34 --layer $A/beaconRuin.png@42,22@box=42,22,64,34 \
                        --layer $PB/beaconBase-front.png@0,0 ;;
@@ -63,7 +65,7 @@ build() { # name: one sprite
 
 ALL="palisade stoneWall bastion rubbleWood rubbleStone scaffold gateWood gateIron gateGreat gateBroken archerTower
 watchtower fireTower ballista catapult stakePit beaconBase beaconTower greatBeacon beaconFire
-barracks smithy masterSmithy lodge bigLodge bigHouse market tavern plotMarker arrow fireArrow bolt firepot"
+barracks smithy masterSmithy lodge bigLodge bigHouse market tavern bigHouseLit tavernLit plotMarker arrow fireArrow bolt firepot"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do
     cool

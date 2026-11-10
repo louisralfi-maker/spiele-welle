@@ -1,233 +1,194 @@
-# marek 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Marek, the travelling merchant: a wide
-# dark hat with a long rose feather sweeping back, a sly smile under a curled black moustache, a long green coat to the
-# shins with gold buttons and a gold-trimmed collar, a satchel on a strap across his chest riding on his hip, gold
-# rings on his fingers, dark boots. Walk: a jaunty step, the coat tails swinging. Idle: a breath, thumb in his strap.
-# Talk (sly and charming): he tips his hat (6), then turns an open palm up with a ring glinting (7): a bargain.
+# marek 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Marek, the travelling merchant, repainted in
+# look 2 (ART-look2.md section 18) at the lord's level: a wide floppy dark hat with a long rose feather sweeping back,
+# a sly face (medium brown skin) with a curled black moustache, a long green coat to the shins with gold buttons down
+# its front, a leather satchel with a gold buckle on a strap across the chest, riding on his back hip, a gold ring.
+# Light from the upper left; the outline is look 2's selective one. Walk: a jaunty step (contact 1 px down with the
+# coat tails wide, passing). Idle: his thumb in the strap, a breath. Talk: he tips his hat (6), then turns an open
+# palm up with the ring glinting (7): a bargain.
 id marek
 size 14x30
 frames 8
-outline ink
+outline ink shade
+include kit.txt
 
 legend
     k = ink
     S = woodLight
     s = wood
-    M = night1
-    H = woodDark
-    h = soilDark
-    j = soil
-    F = dusk
-    f = tile
-    L = leaf
-    l = leafDark
-    E = leafLight
+    n = soilDark
+    H = soilDark
+    h = soil
+    D = dusk
+    d = dawnRose
+    E = meadow
+    C = leaf
+    c = leafDark
     G = gold
     g = straw
-    A = woodLight
-    a = wood
-    d = woodDark
+    L = soilLight
+    l = soil
     B = woodDark
-    b = soilDark
+    1 = soil
+    2 = soilDark
+    3 = soilLight
+    4 = soil
+    5 = woodDark
+    6 = wood
 
-part hat
-    FF............
-    FFFf...hHHh...
-    .ffFF.hHHHHh..
-    ....ffhHHHHHh.
-    .hhhhhHHHHHHHH
-    hh.hhhhhhhhh.h
-
-part hatTipped
-    FF............
-    FFFf...hHHh...
-    .ffFF.hHHHHh..
-    ....ffhHHHHHh.
-    ..hhhhHHHHHHHH
-    ...hhhhhhhh.hh
-
+# the hat's floppy crown and wide brim, the feather sweeping back, the face with its curled moustache
 part head
-    .hSSSs.
-    .hSSkSS
-    ..SSSSSS
-    ..SMMMs.
-    ...sSs..
+    dD.......
+    .dDhhH...
+    ..DhhHH..
+    hhhHHHHHH
+    ...nSkS..
+    ...nskks.
+    ....ss...
 
+# the coat's body, the gold buttons down its front
 part torso
-    .lLLGLE.
-    lLdLLLGE
-    lLLdLLGL
-    lLLLdLLL
-    lLLLLdGL
-    lLLLLLdL
-    lddddGdd
-    lLLLLLGL
+    ECCcG
+    ECCcc
+    ECCcG
+    ECCcc
+    ECCcG
+    ECCcc
+    ECCcG
+    ECCcc
 
-part coatStand
-    .lLLLLLGL.
-    .lLLLLLLGL
-    .lLLLLLLLL
-    llLLLLLLLL
-    llLLLLLLLL
-    llLLLLLLLLL
-    llLLLLELLLL
-    .lLLLLELLL.
-
-part coatA
-    .lLLLLLGL..
-    .lLLLLLLGL.
-    .lLLLLLLLLL
-    llLLLLLLLLL
-    llLLLLLLLLLL
-    llLLLLLLLLLL
-    llLLLLELLLLL
-    .lLLLLELLLL.
-
-part coatB
-    .lLLLLLGL
-    .lLLLLLLG
-    .lLLLLLLL
-    .lLLLLLLL
-    llLLLLLLL
-    llLLLLLLL
-    llLLLLELL
-    .lLLLLELL
-
-part coatC
-    ..lLLLLGL
-    ..lLLLLLG
-    .llLLLLLL
-    .llLLLLLL
-    lllLLLLLL
-    lllLLLLLLL
-    lllLLLELLL
-    .llLLLELLL
-
+# the strap across the chest and the satchel on the back hip
 part satchel
-    dddd
-    AAAa
-    AAGa
-    aAAa
-    .aa.
+    .....l.
+    ....l..
+    ...l...
+    .Ll....
+    LLGl...
+    LLll...
+    Llll...
+    .ll....
 
-part legsStand
-    .Bb.Bb
-    .HH.HH
-    .HHhHHh
+# the coat's skirt to the shins: while a foot passes, and at the contact (the tails swung wide)
+part skirtPass
+    .ECCcG.
+    .ECCcc.
+    .ECCcG.
+    EECCcc.
+    EECcCcG
+    EECcCcc
+    EECcCcG
+    EECcCcc
+    .ccccc.
 
-part legsContactA
-    Bb...Bb
-    HH...HH
-    HHh..HHh
+part skirtContact
+    ..ECCcG..
+    ..ECCcc..
+    .EECCcG..
+    .EECcCcc.
+    EEECcCcG.
+    EECCcCCcc
+    EECCcCCcG
+    .ccccccc.
 
-part legsPass
-    ..BbBb
-    ..HHHH
-    ..HHHHh
+part armDown
+    EC
+    EC
+    EC
+    Ec
+    GS
 
-part legsContactB
-    .Bb..Bb
-    HH...HH
-    HHh..HHh
+part armFwd
+    EC.
+    EC.
+    .EC
+    .Ec
+    ..S
 
-part armThumb
-    lL.
-    lLL
-    lLL
-    LlS
+part armBack
+    .EC
+    .EC
+    EC.
+    Ec.
+    S..
 
-part armSwingFwd
-    lL..
-    lLL.
-    .lLL
-    ..SG
+# idle: the thumb in the strap
+part armStrap
+    EC.
+    EC.
+    .ES
 
-part armSwingBack
-    lL.
-    lL.
-    Ll.
-    SG.
+# talk 6: the hat tipped
+part armHat
+    ..S
+    .Ec
+    EC.
+    EC.
 
-part armTip
-    ...SG
-    ..lLS
-    .lLL.
-    lLL..
-    lL...
-
+# talk 7: the open palm, the ring glinting
 part armPalm
-    ......
-    lLLLSG
-    lLL.SS
-    lL....
+    EC...
+    ECcSS
+    ...G.
 
 frame 0
-    coatA 1 19
-    legsContactA 3 27
-    torso 3 11
-    satchel 2 17
-    head 4 6
-    hat 0 0
-    armSwingFwd 7 12
+    legsContactA 2 16
+    skirtContact 2 18
+    torso 4 10
+    satchel 1 10
+    head 2 3
+    armBack 6 11
 
 frame 1
-    coatB 2 19
-    legsPass 3 27
-    torso 3 12
-    satchel 2 18
-    head 4 7
-    hat 0 1
-    armThumb 7 13
+    legsPassA 2 16
+    skirtPass 3 17
+    torso 4 9
+    satchel 1 9
+    head 2 2
+    armDown 7 10
 
 frame 2
-    coatC 1 19
-    legsContactB 3 27
-    torso 3 11
-    satchel 2 17
-    head 4 6
-    hat 0 0
-    armSwingBack 7 12
+    legsContactB 2 16
+    skirtContact 2 18
+    torso 4 10
+    satchel 1 10
+    head 2 3
+    armFwd 7 11
 
 frame 3
-    coatB 2 19
-    legsPass 3 27
-    torso 3 12
-    satchel 2 18
-    head 4 7
-    hat 0 1
-    armThumb 7 13
+    legsPassB 2 16
+    skirtPass 3 17
+    torso 4 9
+    satchel 1 9
+    head 2 2
+    armDown 7 10
 
 frame 4
-    coatStand 1 19
-    legsStand 3 27
-    torso 3 11
-    satchel 2 17
-    head 4 6
-    hat 0 0
-    armThumb 7 12
+    legsStand 2 16
+    skirtPass 3 17
+    torso 4 9
+    satchel 1 9
+    head 2 2
+    armStrap 7 10
 
 frame 5
-    coatStand 1 19
-    legsStand 3 27
-    torso 3 12
-    satchel 2 18
-    head 4 7
-    hat 0 1
-    armThumb 7 13
+    legsStand 2 16
+    skirtPass 3 18
+    torso 4 10
+    satchel 1 10
+    head 2 3
+    armStrap 7 11
 
 frame 6
-    coatStand 1 19
-    legsStand 3 27
-    torso 3 11
-    satchel 2 17
-    head 4 6
-    hatTipped 0 0
-    armTip 9 3
+    legsStand 2 16
+    skirtPass 3 17
+    torso 4 9
+    satchel 1 9
+    head 2 2
+    armHat 8 4
 
 frame 7
-    coatStand 1 19
-    legsStand 3 27
-    torso 3 11
-    satchel 2 17
-    head 4 6
-    hat 0 0
-    armPalm 7 12
+    legsStand 2 16
+    skirtPass 3 17
+    torso 4 9
+    satchel 1 9
+    head 2 2
+    armPalm 7 10

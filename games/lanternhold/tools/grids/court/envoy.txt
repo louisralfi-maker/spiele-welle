@@ -1,227 +1,192 @@
-# envoy 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). The envoy from the coast (a teaser for
-# chapter 2): dark skin, a close black beard, a sea-blue round cap with a silver shell brooch, a long sea-blue coat
-# with a white collar, white cuffs and silver buttons, a leather scroll case with gold caps slung across his back (its
-# end showing over his shoulder), grey hose, dark boots. Walk: an upright, measured step. Idle: hands folded, a breath.
-# Talk: he holds out a sealed scroll (6), then opens his palm (7).
+# envoy 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). The envoy of the coast, repainted in look 2
+# (ART-look2.md section 18) at the lord's level: dark skin and a close black beard, a sea-blue round cap with a silver
+# brooch, a long sea-blue coat to the shins with a white collar and silver buttons down its front, grey hose; a
+# leather scroll case with gold caps slung along his back, its cap showing over the shoulder (a teaser for chapter
+# 2's coast). Light from the upper left; the outline is look 2's selective one. Walk: an upright, measured step
+# (contact 1 px down, passing). Idle: hands folded, a breath. Talk: he holds out a sealed scroll (6), then opens his
+# palm (7).
 id envoy
 size 14x30
 frames 8
-outline ink
+outline ink shade
+include kit.txt
 
 legend
     k = ink
     S = soilLight
     s = soil
     K = night1
-    U = waterDeep
-    u = far
+    L = waterDeep
+    U = banner
     V = farDeep
     P = stonePale
     F = foam
     f = stonePale
-    C = woodDark
-    c = soilDark
+    C = woodLight
+    c = wood
     G = gold
     W = parchment
     w = plaster
     r = tile
-    M = stone
-    m = stoneMid
-    B = woodDark
-    b = soilDark
+    1 = stone
+    2 = stoneMid
+    3 = stoneLight
+    4 = stone
+    5 = woodDark
+    6 = wood
 
-part cap
-    .uUUUU.
-    uUUUUUP
-    VuuuuuV
-
+# the round cap with its brooch, the face, the close beard
 part head
-    .KSSSs.
-    .KSSkSS
-    ..SSSSSS
-    ..KKKKs.
-    ...KKK..
+    .LLU..
+    LLUUPV
+    .KSkS.
+    .KSSSs
+    .KKKK.
+    ..KK..
 
-part scroll
-    .GG
-    GCC
-    CCc
-    CCc
-    CCc
-    CCc
-    CCc
-    CCc
-    CCc
-    GGG
-
+# the white collar, the coat's body, the silver buttons
 part torso
-    .uUFFU.
-    uUUUFFU
-    uUUUUPU
-    uUUUUUU
-    uUUUUPU
-    uuUUUUU
-    uuUUUPU
-    VuuuuuV
+    .FFf.
+    LUUPV
+    LUUUV
+    LUUPV
+    LUUUV
+    LUUPV
+    LUUUV
+    LUUPV
 
-part coatStand
-    .uUUUUPU.
-    .uUUUUUU.
-    .uUUUUPUU
-    uuUUUUUUU
-    uuUUUUUUU
-    uuUUUUUUU
-    VVVVVVVVVV
+# the scroll case along the back, its gold cap over the shoulder
+part case
+    .G
+    .C
+    Cc
+    Cc
+    Cc
+    Cc
+    C.
+    G.
 
-part coatA
-    .uUUUUPU..
-    .uUUUUUUU.
-    .uUUUUPUUU
-    uuUUUUUUUU
-    uuUUUUUUUU
-    uuUUUUUUUUU
-    VVVVVVVVVVV
+# the coat's skirt to the shins: while a foot passes, and at the contact
+part skirtPass
+    .LUUUV.
+    .LUUPV.
+    .LUUUV.
+    LLUUPV.
+    LLUVUUV
+    LLUVUPV
+    LLUVUUV
+    LLUVUPV
+    .VVVVV.
 
-part coatB
-    .uUUUUPU
-    .uUUUUUU
-    .uUUUUPU
-    uuUUUUUU
-    uuUUUUUU
-    uuUUUUUU
-    VVVVVVVVV
+part skirtContact
+    ..LUUUV..
+    ..LUUPV..
+    .LLUUUV..
+    .LLUVUPV.
+    LLLUVUUV.
+    LLUUVUUPV
+    LLUUVUUUV
+    .VVVVVVV.
 
-part coatC
-    ..uUUUUP
-    ..uUUUUU
-    .uuUUUUPU
-    uuuUUUUUU
-    uuuUUUUUU
-    uuuUUUUUU
-    VVVVVVVVVV
+part armDown
+    LU
+    LU
+    LU
+    LV
+    .S
 
-part legsStand
-    .Mm.Mm
-    .Mm.Mm
-    .BB.BB
-    .BBbBBb
+part armFwd
+    LU.
+    LU.
+    .LU
+    .LV
+    ..S
 
-part legsContactA
-    Mm...Mm
-    Mm...Mm
-    BB...BB
-    BBb..BBb
-
-part legsPass
-    ..MmMm
-    ..MmMm
-    ..BBBB
-    ..BBBBb
-
-part legsContactB
-    .Mm..Mm
-    Mm...Mm
-    BB...BB
-    BBb..BBb
-
-part armFolded
-    uU..
-    uUU.
-    uUUF
-    .FSS
-
-part armSwingFwd
-    uU..
-    uUU.
-    .uUF
-    ..FS
-
-part armSwingBack
-    uU.
-    uU.
-    UF.
+part armBack
+    .LU
+    .LU
+    LU.
+    LV.
     S..
 
-part armScroll
-    ......
-    uUUUFS
-    uUU.WW
-    uU...w
+# idle: the hands folded before him
+part armFold
+    LU.
+    LU.
+    LUV
+    .SS
 
+# talk 6: the sealed scroll held out
+part armScroll
+    LU....
+    LUVSWW
+    ....r.
+
+# talk 7: the open palm
 part armPalm
-    .....
-    uUUFSS
-    uUU.SS
-    uU....
+    LU...
+    LUVSS
 
 frame 0
-    scroll 1 8
-    coatA 1 19
-    legsContactA 3 26
-    torso 3 11
-    head 4 6
-    cap 4 4
-    armSwingFwd 7 12
+    case 2 10
+    legsContactA 2 16
+    skirtContact 2 18
+    torso 4 10
+    head 4 4
+    armBack 6 11
 
 frame 1
-    scroll 1 9
-    coatB 2 19
-    legsPass 3 26
-    torso 3 12
-    head 4 7
-    cap 4 5
-    armFolded 7 13
+    case 2 9
+    legsPassA 2 16
+    skirtPass 3 17
+    torso 4 9
+    head 4 3
+    armDown 7 10
 
 frame 2
-    scroll 1 8
-    coatC 1 19
-    legsContactB 3 26
-    torso 3 11
-    head 4 6
-    cap 4 4
-    armSwingBack 7 12
+    case 2 10
+    legsContactB 2 16
+    skirtContact 2 18
+    torso 4 10
+    head 4 4
+    armFwd 7 11
 
 frame 3
-    scroll 1 9
-    coatB 2 19
-    legsPass 3 26
-    torso 3 12
-    head 4 7
-    cap 4 5
-    armFolded 7 13
+    case 2 9
+    legsPassB 2 16
+    skirtPass 3 17
+    torso 4 9
+    head 4 3
+    armDown 7 10
 
 frame 4
-    scroll 1 8
-    coatStand 1 19
-    legsStand 3 26
-    torso 3 11
-    head 4 6
-    cap 4 4
-    armFolded 7 12
+    case 2 9
+    legsStand 2 16
+    skirtPass 3 17
+    torso 4 9
+    head 4 3
+    armFold 7 10
 
 frame 5
-    scroll 1 9
-    coatStand 1 19
-    legsStand 3 26
-    torso 3 12
-    head 4 7
-    cap 4 5
-    armFolded 7 13
+    case 2 10
+    legsStand 2 16
+    skirtPass 3 18
+    torso 4 10
+    head 4 4
+    armFold 7 11
 
 frame 6
-    scroll 1 8
-    coatStand 1 19
-    legsStand 3 26
-    torso 3 11
-    head 4 6
-    cap 4 4
-    armScroll 7 12
+    case 2 9
+    legsStand 2 16
+    skirtPass 3 17
+    torso 4 9
+    head 4 3
+    armScroll 7 10
 
 frame 7
-    scroll 1 8
-    coatStand 1 19
-    legsStand 3 26
-    torso 3 11
-    head 4 6
-    cap 4 4
-    armPalm 7 12
+    case 2 9
+    legsStand 2 16
+    skirtPass 3 17
+    torso 4 9
+    head 4 3
+    armPalm 7 10

@@ -345,3 +345,40 @@ The castle's tiers are registered since the look-2 port: see "The castle grows" 
 The archer, the guardsman, the builder and the three townsfolk were repainted at their sizes, frames and frame
 meanings. Two anchors moved by a pixel: the archer's arrow lies on the frame's row 9 (was 10) and leaves at the right
 edge (col 11); the guardsman's spear tip at the thrust (frame 7) stays at col 13, row 11.
+
+### The town at night, the square's props (look 2, stage 6; ART-look2.md section 18)
+
+Proposals like the ones above: the PNGs lie in Resources/Art, `tools/build-art.sh` rebuilds them, no Swift names them.
+
+| id | size | frames | notes |
+|---|---|---|---|
+| `houseLit`, `houseBLit`, `houseCLit` | 64x46 | 1 | the cottage's lit rooms: an emissive sprite of the house's size, clear but for the window glass inside the house's masks. Each window shows a room (a wall that is brightest near its candle or hearth, a curtain, a shelf, a table, a cat on the sill; people are shapes left dark). Draw it over the house as `.sprite(<id>Lit, dx: 0, dy: 0, glow: .fireWhite, fades: true)` **in place of** the house's `.mask` emitters (with both, the glass doubles); mirror it with a mirrored house. The window lights (`li`) stay |
+| `bigHouseLit` | 72x56 | 1 | the big house's five windows the same way (a standing figure under a hanging lamp, rose curtains, a table with a candle, the kitchen's banked fire, the dormer) |
+| `tavernLit` | 90x56 | 1 | the tavern's: three guest rooms above (linen, a low fire, a guest at the window), the taproom below (two drinkers over a candle; a lamp, the innkeeper, the kegs), the door lantern's flame (the mask (32,10,1,2)), and one row of light on the step under the door (dx 36 to 43, dy 1): the only pixels outside the glass |
+| `hayCart` | 40x24 | 1 | a two-wheeled hay cart at rest on its prop, the shafts to the left: a prop for the square or a lane (ground line at the frame's bottom, no collision) |
+| `barrels` | 26x14 | 1 | two standing barrels (a pewter mug on the bigger one) and a third lying end on: beside the tavern or the market |
+| `noticeBoard` | 20x26 | 1 | the lord's notice board: two oak posts, a board with four notices under a small slate roof in the realm's teal. A place for the day's news (a decree, a recruit call) if the code wants one |
+
+### Two more paintings of every town tree (look 2, stage 6; ART-look2.md section 18)
+
+Proposals too. Each lies on its first painting's canvas with the trunk at the canvas centre and the foot on the
+bottom row, so it takes the first painting's place at the same trunk x, flipped or not; a shorter tree has clear rows
+on top. Near plane, 1 frame, no masks, no emitters; they sway as their first painting does (`willowB` and `willowC`
+in their lower half). `tools/treeart.py` paints them.
+
+| id | size | the tree stands in | notes |
+|---|---|---|---|
+| `lindenB` | 52x92 | rows 0 to 91, x 4 to 46 | a slim, tall linden: an egg-shaped crown on a thin trunk |
+| `lindenC` | 52x92 | rows 20 to 91, x 0 to 51 | an old, broad linden with a low crown on a thick trunk, 72 px high (20 px lower than `linden`) |
+| `poplarB` | 14x116 | rows 17 to 115 | a younger poplar, 99 px high and fuller in the belly |
+| `poplarC` | 14x116 | rows 1 to 115 | a lean poplar with a notch in its flank, its tip bent to the right |
+| `appleTreeB` | 42x48 | rows 3 to 47 | a flat, wide crown on two stems that wind round each other |
+| `appleTreeC` | 42x48 | rows 0 to 47 | a round crown on a bent trunk, seven red apples in it |
+| `willowB` | 52x68 | rows 14 to 67, x 5 to 47 | a young willow, 54 px high, its strands short of the ground |
+| `willowC` | 52x68 | rows 0 to 67 | an old willow: a thick, bent trunk, the curtain down to the water |
+
+A planting that never shows the same painting twice side by side (trunk world x; the flips stay as they are):
+2466 `appleTree`, 2548 `appleTreeB`, 2624 `lindenC`, 2690 `appleTreeC`, 2741 `appleTree`, 2868 `poplar`,
+2884 `poplarB`, 2992 `linden`, 3170 `poplarC`, 3186 `poplar`, 3300 `lindenB`, 3448 `appleTreeC`, 3523 `appleTreeB`,
+3610 `lindenC`, 3684 `willow`, 3790 `willowC`, and a young `willowB` between them at 3738 if the river bank may
+carry a third.
