@@ -416,3 +416,35 @@ building, without emitters. No existing id, size or frame count changed.
 - A tower on the line's tower plot (z 0) stands before the end piece; a stone tier's end tower is higher than the
   timber towers and shows above them.
 - The braziers, the traps and the engines keep their places; the horn stands behind the braziers' ground.
+
+### The Gloom's fog (look 2, stage 7; ART-look2.md section 19.2)
+
+**Proposals for the code lane** (claude/lh-polish): the PNGs lie in Resources/Art, `tools/build-art.sh` rebuilds them
+(`tools/gloomart.py`, in the world lane), no Swift names them yet. `darknessBank`, `darknessEdge` and
+`darknessBankGlow` are untouched and keep working. All five use world parallax; every anchor is the sprite's
+bottom-left at the given y (0 = the ground line). E is `DarknessBank`'s edge.
+
+| id | size | frames | notes |
+|---|---|---|---|
+| `gloomFogBack` | 192x120 | 2 | the bank: six rows of low rolls, pale crests, a heart that darkens to night toward the lane. Frame 0 repeats seamlessly, frame 1 is the leading face (its left column goes on from frame 0). y 0. Drawn **behind the world plane** (after fog layer A), at least behind every creature. Front at E + 64 |
+| `gloomFogEyes` | 64x72 | 4 | the cold eyes in the bank's heart, an **emissive** only (like `darknessBankGlow`): nine pairs, each shut in one frame. y 0, on the 64 px tiles the bank's glow uses today (tile k's right end at E - 32 - 64k), frame `(k + Int(time * 1.5)) % 4`, strength 1. Drawn after the back strip, before the creatures |
+| `gloomFogMid` | 160x64 | 2 | a thin veil **before the world plane** (creatures, walls), built like the bank. y 0. Front at E + 104 |
+| `gloomFogFront` | 128x30 | 2 | the fog creeping along the lane, before the veil. y -8 (its lowest 8 rows lie under the ground line). Front at E + 136 |
+| `gloomWisp` | 40x16 | 6 | a shred that tears off the front; the six frames are its life, frame 0 whole, frame 5 two flecks. Drawn with the front strip |
+
+- **Laying a strip:** frame 1 at `x = front - width`, frame 0 at `front - 2 * width`, `front - 3 * width` ... to
+  the screen's left edge. Face and tiles move together (the face does not slide against its body).
+- **Drawing:** unlit. The paint is the fog's own night colour at flat alpha levels (no dither): plain alpha-over,
+  not multiplied by the ambient. The light cuts holes: the strip's alpha and colour are scaled by
+  `h = 1 - 0.9 * smoothstep((light - 0.06) / 0.5)`, light = the strongest channel of the light buffer at the pixel.
+  A torch, a brazier or the lord's lantern then stands in a clear pool and the fog closes around it.
+- **Motion:** the three fronts breathe against each other, e.g. back ±3 px in 9 s, veil ±6 px in 7 s, front ±10 px
+  in 5 s, out of phase. A wisp is born every 3 to 5 s at the front strip's nose (x about E + 126, 6 to 30 px above
+  the lane), drifts ahead at about 6 px/s and 1 px/s up, plays its six frames once in about 4 s and is gone.
+- **Creatures** keep their spawn at the edge. They stand behind the veil and the creeping fog until E + 104 and
+  E + 136, so they step out of the fog without any change to them.
+- **When:** the strips fade in while the bank swells (19 to 20 h), lead the advance through the night and thin away
+  at dawn. By day the bank rests as it does today.
+- **The old wall:** while the fog is up, the opaque `darknessBank` and `darknessEdge` tiles should not be drawn (they
+  are as high as the screen and would stand in the fog as a slab); by day they can rest as today. The fog is
+  120 px high, not the screen's height: the gorge stays visible above it.

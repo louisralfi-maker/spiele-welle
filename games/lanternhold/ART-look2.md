@@ -1459,3 +1459,35 @@ slide against the wall, so everything new lies on the **world plane**, behind th
 Plates 01 and 02 (both plots unbuilt, dusk and night), 03 and 04 (a palisade on the outer line, a stone wall on the
 middle line), 05 (a stone wall and a bastion at night), 06 (the six sprites). Scenes `throat-ruins-*`,
 `throat-walls-*`, `throat-strong-*` in `scenemock/scene_look2.py`.
+
+### 19.2 The fog
+
+Before: the Gloom was `darknessBank`, an opaque wall of night as high as the screen with one-pixel eyes. It reads as
+the end of the world, not as weather that comes up a gorge. Now the Gloom is a **fog bank in layers** that the
+engine can move; the old wall and its glow are untouched (`tools/gloomart.py`, five new ids).
+
+- **The bank** (`gloomFogBack`, 2 frames of 192x120): six rows of low rolls. The crests are the far ridges' grey
+  violet with a rim of moonlight on the upper left, the rows under them darken step by step to the night's own
+  colour at the lane, where the creatures come from. That reads at night against the Throat's rock in both
+  directions: pale crest on dark rock above, dark heart behind the creatures' ember rims below.
+- **The leading face** (frame 1 of every strip): the rows end one after the other, the dark heart first and the
+  pale crest last, so the face leans forward over the lane; each row ends in round noses that step down to it.
+  Five tries: a sheer cut and a straight ramp both read as a slab; the noses read as something that rolls.
+- **The veil and the creeping fog** (`gloomFogMid` 160x64, `gloomFogFront` 128x30) lie before the creatures, thin,
+  their fronts 40 and 72 px ahead of the bank's. A creature is seen through the veil while it is inside the bank,
+  wades in the creeping fog before it, and stands free when it has left both: it steps out of the fog.
+- **The shred** (`gloomWisp`, 6 frames of 40x16): tears off the nose and thins away.
+- **The eyes** (`gloomFogEyes`, 4 frames of 64x72, emissive): nine pairs in the heart's height. The near ones are
+  two pixels wide with a white spark and a dim lid, the far ones one dim pixel; each pair is shut in one frame and
+  a slit in the frame before, so the bank blinks unevenly. The old glow's one-pixel eyes vanished on the fog.
+- **Flat paint for the light:** every pixel is one palette colour at one of a few alpha levels, no dither. The
+  strips are drawn unlit (their paint is the night's), and the light at the pixel scales them away
+  (`h = 1 - 0.9 * smoothstep((light - 0.06) / 0.5)`). Plate 09 shows it: the torches, the brazier and the lord's
+  lantern stand in clear pools, the fog closes behind them.
+- The first try was a pale cumulus in the mist's colours: a cloud, friendly. The fix was the dark heart, flatter
+  rolls and a lower, thinner veil.
+
+The mock renderer gained two planes for this (look 2 only, `gloomA` behind the world plane and `gloomB` before
+it, with the hole rule above); scenes `throat-fog-dusk`, `throat-fog-night`, `throat-fog-wall`. Plates 07 (the
+bank coming up the Throat at night, the creatures stepping out toward the outer line), 08 (dusk, the bank further
+back), 09 (the fog at the palisade, the light holes), 10 (the strips: body and face of each, the shred, the eyes).
