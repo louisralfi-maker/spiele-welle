@@ -203,13 +203,13 @@ enum AmbientRamp {
     }
 
     /// The ambient look at `hour` (0 ..< 24, other values are wrapped).
-    static func sample(at hour: Double) -> AmbientSample {
-        let seg = segment(at: hour)
+    static func sample(at hour: Double, look: LookVersion = .one) -> AmbientSample {
+        let seg = segment(at: hour, look: look)
         return AmbientSample.mix(seg.from.sample, seg.to.sample, Float(seg.weight))
     }
 
     /// The ambient look at a `-GWTimeOfDay` position.
-    static func sample(timeOfDay: Double) -> AmbientSample {
-        sample(at: DayClock.hour(forTimeOfDay: timeOfDay))
+    static func sample(timeOfDay: Double, look: LookVersion = .one) -> AmbientSample {
+        sample(at: DayClock.hour(forTimeOfDay: timeOfDay), look: look)
     }
 }
