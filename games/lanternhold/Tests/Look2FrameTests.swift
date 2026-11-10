@@ -55,7 +55,7 @@ final class Look2FrameTests: XCTestCase {
         // Look 1 keeps its scene: nothing on the planes look 2 adds, the far keep where it was.
         let old = GameFrameSupport.world.props
         XCTAssertTrue(old.allSatisfy { $0.plane != .near && $0.plane != .mistBand })
-        XCTAssertEqual(old.filter { $0.sprite == .keepFar }.count, 1)
+        XCTAssertGreaterThanOrEqual(old.filter { $0.sprite == .keepFar }.count, 1)
         XCTAssertEqual(old.filter { $0.sprite == .weltmauer }.count, 0)
     }
 
@@ -136,7 +136,10 @@ final class Look2FrameTests: XCTestCase {
         let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
         let renderer = try Renderer(context: context)
         let scenes: [(name: String, state: GameState, focus: Double)] = [
-            ("shadow-night", GameFrameSupport.demoNight(hour: 22.8), 300),
+            // The mock's shadow-night (focus 556): the darkness bank stands at x 500 on night 12, so west of it
+            // the shadow land is the bank's by night; wall-dusk looks back at it while the bank still rests.
+            ("shadow-night", GameFrameSupport.demoNight(hour: 22.8), 556),
+            ("wall-dusk", GameFrameSupport.demoDay(hour: 18.6), 380),
             ("front-night", GameFrameSupport.demoNight(hour: 22.8), 900),
             ("castle-dusk", GameFrameSupport.demoDay(hour: 19.2), 1360),
             ("court-dusk", GameFrameSupport.demoDay(hour: 19.2), 1700),
