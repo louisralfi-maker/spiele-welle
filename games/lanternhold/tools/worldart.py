@@ -27,6 +27,10 @@ position), so a run reproduces its files byte for byte. Called by tools/build-ar
   retex <shape> <rock> <out>
                          a cliff in an old sprite's silhouette: the rock painting inside the old sprite's alpha, lit
                          top and left edges, a dark right edge (the cleft's flanks keep their sizes and positions)
+  rockover <part> <x0,y0,x1,y1> …
+                         paints the rock over a converted part's boxes (inclusive), in place: every column of a box
+                         takes the colour of the cell above the box. The gorge painting has four dry-grass tufts on
+                         two ledges; converted they are pale five-fingered hands on the cliffs (review finding A7)
 """
 import os
 import sys
@@ -692,8 +696,21 @@ def cmd_retex(a):
     print(f"wrote {a[2]} {out.w}x{out.h}")
 
 
+def cmd_rockover(a):
+    img = load(a[0])
+    for box in a[1:]:
+        x0, y0, x1, y1 = (int(v) for v in box.split(","))
+        for x in range(x0, x1 + 1):
+            p = img.get(x, y0 - 1)
+            for y in range(y0, y1 + 1):
+                img.set(x, y, p)
+    PA.write_png(a[0], img)
+    print(f"rock over {len(a) - 1} boxes of {a[0]}")
+
+
 if __name__ == "__main__":
-    cmds = dict(wall=cmd_wall, gorge=cmd_gorge, face=cmd_face, slope=cmd_slope, main=cmd_main, retex=cmd_retex, taper=cmd_taper)
+    cmds = dict(wall=cmd_wall, gorge=cmd_gorge, face=cmd_face, slope=cmd_slope, main=cmd_main, retex=cmd_retex, taper=cmd_taper,
+                rockover=cmd_rockover)
     if len(sys.argv) < 2 or sys.argv[1] not in cmds:
         raise SystemExit(__doc__)
     cmds[sys.argv[1]](sys.argv[2:])

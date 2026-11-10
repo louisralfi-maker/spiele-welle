@@ -48,9 +48,10 @@ tree() { # name box size ramp [more options]: one tree of the sheet
     wa main $P/$n.png $A/$n.png
 }
 fir() { tree $1 $2 $3 $FIRW --warm 28 --gain 1.25 --zone fir0,fir1@$4; }   # the painting's firs are navy: warmed onto the fir ramp
-cliff() { # name old-sprite box: the painting's granite in an old cliff sprite's silhouette
+cliff() { # name old-sprite box [tuft boxes]: the painting's granite in an old cliff sprite's silhouette
     local size; size=$(px info $A/$2.png | sed -n '1s/.*: \([0-9]*x[0-9]*\),.*/\1/p')
     px convert $W/gorge-1.png $P/$1.png --box $3 --size $size --key none --only $GRANITE --match new --gamma 0.7; cool
+    if [ -n "${4:-}" ]; then wa rockover $P/$1.png $4; fi
     wa retex $A/$2.png $P/$1.png $A/$1.png
 }
 
@@ -64,13 +65,15 @@ build() { # name: one sprite (or one group of small ones)
         python3 -I -B $CA tiers $A ;;
     gorgeRock)   # the gorge's wall on the monster side: bare granite out of sight; gorgeCrags, five crags before its mouth (near plane)
         px convert $W/gorge-1.png $P/gorge.png --size 448x211 --box 0,48,1536,768 --key none --only $GRANITE --match new --gamma 0.7; cool
+        wa rockover $P/gorge.png 277,64,292,74 298,64,308,74 311,64,325,74 256,116,269,127   # the painting's four grass tufts (they read as hands)
         wa gorge $P/gorge.png $A/gorgeRock.png $A/gorgeCrags.png ;;
     cleftFace)   # the cleft's inner face behind the castle, with its broken top edge; its end toward the valley
         px convert $W/gorge-1.png $P/face.png --size 448x218 --key $K --only $ROCKW --match new --gain 0.9; cool
+        wa rockover $P/face.png 277,72,292,82 298,76,306,82 314,72,326,82 256,124,270,135   # the same four tufts
         wa face $P/face.png $A/cleftFace.png $A/cleftFaceEnd.png ;;
     cleftFlank)  cliff cleftFlank cliffFlank 100,48,340,768 ;;
-    cleftFlankB) cliff cleftFlankB cliffFlankB 700,48,940,768 ;;
-    cleftThroat) cliff cleftThroat throatRock 880,48,1456,768 ;;
+    cleftFlankB) cliff cleftFlankB cliffFlankB 700,48,940,768 "60,132,75,145" ;;   # one tuft
+    cleftThroat) cliff cleftThroat throatRock 880,48,1456,768 "24,73,38,84 44,73,58,84 64,73,78,84 0,132,14,145" ;;   # all four
     shadowForest)  # the shadow land's forest edge on the mid plane: firs, two lantern statues, a ruin, a tower stump
         px convert $W/forest-1.png $P/forestLow.png --size 224x104 --key $K --only $WOODS --zone fir0,fir1,fir2,fir3,fir4,rock,rockLight@0,0,224,66 --match new; cool
         px convert $W/forest-1.png $P/forestTop.png --size 224x104 --key $K --only $CROWNS --warm 28 --gain 1.25 --match new; cool
