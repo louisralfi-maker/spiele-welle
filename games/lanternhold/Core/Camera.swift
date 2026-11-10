@@ -1,8 +1,10 @@
 /// The parallax planes, back to front (DESIGN.md "Tech plan", docs/research-rendering.md 5.1). Each plane is one
 /// low-resolution layer drawn at its own integer camera offset. `sky` holds the stars, the moon and the sun (fixed to
-/// the screen), `clouds` the cloud bands (M1b, lit by the sky's own light).
+/// the screen), `clouds` the cloud bands (M1b, lit by the sky's own light). Look 2 adds two planes between the mid
+/// plane and the play plane (DESIGN.md "Look 2 port"): `mistBand`, the painted mist between the distance and the near
+/// trees, and `near`, the trees and crags close behind the lane. Look 1 leaves both empty and never draws them.
 enum Plane: Int, Sendable, CaseIterable, Equatable, Comparable {
-    case sky, clouds, far, mid, fogA, world, fogB, foreground
+    case sky, clouds, far, mid, mistBand, near, fogA, world, fogB, foreground
 
     /// Parallax factor: how far the plane moves per game pixel of camera movement.
     var parallax: Double {
@@ -11,6 +13,8 @@ enum Plane: Int, Sendable, CaseIterable, Equatable, Comparable {
         case .clouds: return 0.05
         case .far: return 0.2
         case .mid: return 0.5
+        case .mistBand: return 0.62
+        case .near: return 0.75
         case .fogA: return 0.9
         case .world: return 1.0
         case .fogB: return 1.15

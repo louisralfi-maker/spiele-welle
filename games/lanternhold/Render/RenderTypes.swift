@@ -74,6 +74,180 @@ struct CompositeUniforms: Sendable {
     var rim: SIMD4<Float>
 }
 
+/// `Look2Uniforms`: what look 2's composite needs on top of `CompositeUniforms` (see `Shaders.metal`).
+struct Look2Uniforms: Sendable {
+    var shifts: SIMD4<Int32>
+    var ambW: SIMD4<Float>
+    var ambF: SIMD4<Float>
+    var ambM: SIMD4<Float>
+    var ambN: SIMD4<Float>
+    var farHC: SIMD4<Float>
+    var midHC: SIMD4<Float>
+    var nearHC: SIMD4<Float>
+    var bounceW: SIMD4<Float>
+    var bandC: SIMD4<Float>
+    var cloudC: SIMD4<Float>
+    var inter: SIMD4<Float>
+    var rim: SIMD4<Float>
+    var fog: SIMD4<Float>
+    var grade: SIMD4<Float>
+    var roomA: SIMD4<Float>
+    var roomB: SIMD4<Float>
+    var weather: SIMD4<Float>
+}
+
+/// Look 2's knobs ("farbig-düster", docs/ART-look2.md "Engine values"): the values of tools/scenemock/mock.py's LOOK2,
+/// which the mock's scenes were judged with. The light gain, the hot knee, the bloom's strength, threshold and knee and
+/// the sky's share of the bloom are the same as look 1's and stay in `Look`.
+enum Look2 {
+    /// The ambient's level is `lift + (1 − lift) × I`: a lower lift than look 1, so the night is dark and the fires
+    /// carry the picture.
+    static let lift: Float = 0.30
+    /// The night pulls ambient-lit albedo this far (× nightness) toward a deep blue by its own luminance.
+    static let colorise: Float = 0.72
+    /// Each plane's share of the world's ambient: one step darker than the one in front of it.
+    static let farShare: Float = 0.85
+    static let midShare: Float = 0.72
+    static let nearShare: Float = 1.05
+    /// How much the far and mid ambient cool at the warm hours.
+    static let farCoolAmbient: Float = 0.7
+    static let midCoolAmbient: Float = 0.3
+    /// Haze toward the hour's air colour: the far plane's (plus the ramp's haze × its share), the mid and near planes'
+    /// by day and at night, and how dark the mid and near planes' air is against the far one's.
+    static let farHaze: Float = 0.40
+    static let farHazeShare: Float = 0.55
+    static let midHazeDay: Float = 0.14
+    static let midHazeNight: Float = 0.36
+    static let midHazeShare: Float = 0.25
+    static let nearHazeDay: Float = 0.06
+    static let nearHazeNight: Float = 0.20
+    static let nearHazeShare: Float = 0.06
+    static let midAir: Float = 0.86
+    static let nearAir: Float = 0.62
+    static let farCool: Float = 0.6
+    static let lavender = SIMD3<Float>(0.62, 0.60, 0.86)
+    static let mist: Float = 0.25
+    /// Fog: the banks are lifted until their luminance reaches `fogGoal` (never above `fogBright`). Their densities
+    /// are `FrameBuilder`'s (`look2FogScale`).
+    static let fogBright: Float = 2.6
+    static let fogGoal: Float = 0.65
+    /// The foreground's share of the ambient by day and at night.
+    static let fgAmbient: Float = 0.55
+    static let fgAmbientNight: Float = 0.45
+    /// Bloom: the share of point light fed into it (look 1: 0.16).
+    static let bloomLightShare: Float = 0.10
+    /// The cool bounce on shadowed albedo, the dusk factor, the bright band low in the gorge.
+    static let bounce: Float = 0.3
+    static let bounceDusk: Float = 2.2
+    static let bounceBlue = SIMD3<Float>(0.6, 0.68, 1.0)
+    static let band: Float = 0.2
+    static let bandHeight: Float = 40
+    static let bandWhite: Float = 0.3
+    static let bandValley: Float = 0.5
+    static let bandWarmCut: Float = 0.5
+    /// Windows: radius × this, intensity `windowIntensity` instead of look 1's 0.4; every other pool × `fire` (window
+    /// glass, the castle's mist and the smoke are `FrameBuilder`'s).
+    static let windowRadius: Float = 1.25
+    static let windowIntensity: Float = 0.5
+    static let fire: Float = 1.15
+    /// The lane's sky-facing rows take the ambient × this at night (1 by day).
+    static let groundSky: Float = 1.2
+    /// The warm fill inside cut-away rooms: its colour, and its strength read like a ramp key's intensity.
+    static let interior = GamePalette.hex(0xB07850)
+    static let interiorLevel: Float = 0.30
+    /// Rims on the screen-right edge: the king and the creatures, the people; the rim's colour.
+    static let rim: Float = 0.6
+    static let peopleRim: Float = 0.35
+    static let rimBlue = SIMD3<Float>(0.72, 0.82, 1.0)
+
+    private static func smooth(_ t: Float) -> Float {
+        let x = min(1, max(0, t))
+        return x * x * (3 - 2 * x)
+    }
+
+    /// The ambient's level at this hour.
+    static func level(_ sample: AmbientSample) -> Float {
+        lift + (1 - lift) * min(1, max(0, sample.ambientIntensity))
+    }
+
+    /// The ambient light on the world plane.
+    static func worldAmbient(_ sample: AmbientSample) -> SIMD3<Float> {
+        let color = sample.ambientColor
+        let peak = max(0.001, max(color.x, max(color.y, color.z)))
+        return color / peak * level(sample)
+    }
+
+    /// How bright the fog banks are drawn at this hour.
+    static func fogBrightness(_ sample: AmbientSample) -> Float {
+        let fog = sample.fogColor
+        let luma = 0.299 * fog.x + 0.587 * fog.y + 0.114 * fog.z
+        return min(fogBright, max(1, fogGoal / max(0.01, luma)))
+    }
+
+    /// A light's intensity scale in look 2: look 1's scale, with windows at `windowIntensity` and every other pool
+    /// × `fire`. (The mock leaves the king's own lantern without the × 1.15; the engine's light list cannot tell his
+    /// lantern from another one, so his takes it too.)
+    static func intensityScale(_ kind: LightKind) -> Float {
+        kind == .window ? windowIntensity : Look.intensityScale(kind) * fire
+    }
+
+    /// Every value of look 2's composite for `frame`; `focus` is the camera's focus in world game pixels.
+    static func uniforms(_ frame: FrameDesc, focus: Double) -> Look2Uniforms {
+        let sample = frame.ambient
+        let lvl = level(sample)
+        let world = worldAmbient(sample)
+        let night = Look.nightness(sample)
+        let day = 1 - night
+        let warm = min(1, max(0, sample.warmth / 0.45))
+        let far = Look.cooled(world * farShare, by: farCoolAmbient * warm)
+        let mid = Look.cooled(world * midShare, by: midCoolAmbient * warm)
+        let near = world * nearShare
+        let air = sample.air
+        let farAir = air + (lavender - air) * (farCool * warm)
+        let haze = sample.haze
+        let farH = farHaze + haze * farHazeShare
+        let midH = midHazeDay + (midHazeNight - midHazeDay) * night + haze * midHazeShare
+        let nearH = nearHazeDay + (nearHazeNight - nearHazeDay) * night + haze * nearHazeShare
+        let top = sample.skyTop
+        let sky = top / max(0.001, max(top.x, max(top.y, top.z)))
+        let bounceColor = (sky + (bounceBlue - sky) * 0.5) * lvl
+        let bounceK = bounce * min(1, day * bounceDusk)
+        let valley = smooth(Float((focus - 2150) / 180))
+        let bandK = band * day * (1 - (1 - bandValley) * valley) * (1 - bandWarmCut * warm)
+        let bandColor = sample.skyBottom + (SIMD3<Float>(repeating: 1) - sample.skyBottom) * bandWhite
+        let moonUp = min(1, max(0, sample.moonHeight / 0.6))
+        let torch = min(1, max(0, sample.torchStrength))
+        let fillPeak = max(interior.x, max(interior.y, interior.z))
+        let fill = interior / fillPeak * (lift + (1 - lift) * interiorLevel)
+        let inter = world * 0.8 + (fill - world * 0.8) * torch
+        let rimColor = rimBlue * max(lvl, 0.6)
+        let cloud = sample.cloudColor
+        let none = SIMD4<Float>(0, 0, 0, 0)
+        let rooms = frame.rooms
+        return Look2Uniforms(
+            shifts: SIMD4<Int32>(Int32(frame.layer(.mistBand).offset.deviceShift),
+                                 Int32(frame.layer(.near).offset.deviceShift), 0, 0),
+            ambW: SIMD4<Float>(world.x, world.y, world.z, colorise * night),
+            ambF: SIMD4<Float>(far.x, far.y, far.z, day),
+            ambM: SIMD4<Float>(mid.x, mid.y, mid.z, bounceK),
+            ambN: SIMD4<Float>(near.x, near.y, near.z, bandK),
+            farHC: SIMD4<Float>(farAir.x, farAir.y, farAir.z, farH),
+            midHC: SIMD4<Float>(air.x * midAir, air.y * midAir, air.z * midAir, midH),
+            nearHC: SIMD4<Float>(air.x * nearAir, air.y * nearAir, air.z * nearAir, nearH),
+            bounceW: SIMD4<Float>(bounceColor.x, bounceColor.y, bounceColor.z, mist * (0.4 + sample.fogDensity)),
+            bandC: SIMD4<Float>(bandColor.x, bandColor.y, bandColor.z, bandHeight),
+            cloudC: SIMD4<Float>(cloud.x, cloud.y, cloud.z, night),
+            inter: SIMD4<Float>(inter.x, inter.y, inter.z, torch),
+            rim: SIMD4<Float>(rimColor.x, rimColor.y, rimColor.z, moonUp),
+            fog: SIMD4<Float>(fogBrightness(sample), fgAmbient + (fgAmbientNight - fgAmbient) * night,
+                              1 + (groundSky - 1) * night, 0),
+            grade: SIMD4<Float>(sample.saturation, sample.warmth, sample.vignette, sample.black),
+            roomA: rooms.count > 0 ? rooms[0] : none,
+            roomB: rooms.count > 1 ? rooms[1] : none,
+            weather: none)
+    }
+}
+
 /// The look's knobs (DESIGN.md "Lighting model"): how the ambient ramp, the point lights, the fog, the bloom and the
 /// grade combine into warm fire against a cold blue-violet night. Colour maths stays in sRGB space.
 enum Look {

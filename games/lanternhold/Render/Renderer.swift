@@ -139,6 +139,15 @@ final class Renderer {
     private let blurPipeline: any MTLRenderPipelineState
     private let compositePipeline: any MTLRenderPipelineState
     private let actorPipeline: any MTLRenderPipelineState
+    /// Look 2 ("farbig-düster", DESIGN.md "Look 2 port"): fire pools that fall off to ember, and a composite and an
+    /// actor pass of their own. Look 1's pipelines stay as they are.
+    private let lightPipeline2: any MTLRenderPipelineState
+    private let compositePipeline2: any MTLRenderPipelineState
+    private let actorPipeline2: any MTLRenderPipelineState
+
+    /// The planes look 1 draws and composites, in the order of its texture slots 0 to 7. Look 2 adds the mist band
+    /// (slot 12) and the near plane (slot 13).
+    static let lookOnePlanes: [Plane] = [.sky, .clouds, .far, .mid, .fogA, .world, .fogB, .foreground]
 
     private(set) var targets: RenderTargets?
     private var buffers: [(any MTLBuffer)?] = Array(repeating: nil, count: Renderer.framesInFlight)
@@ -183,6 +192,11 @@ final class Renderer {
         compositePipeline = try Renderer.pipeline(context, "lh_fullscreen_vertex", "lh_composite_fragment",
                                                   outputFormat, .none)
         actorPipeline = try Renderer.pipeline(context, "lh_actor_vertex", "lh_actor_fragment", outputFormat, .none)
+        lightPipeline2 = try Renderer.pipeline(context, "lh_pool2_vertex", "lh_pool2_fragment", .rgba16Float,
+                                               .additive)
+        compositePipeline2 = try Renderer.pipeline(context, "lh_fullscreen_vertex", "lh_composite2_fragment",
+                                                   outputFormat, .none)
+        actorPipeline2 = try Renderer.pipeline(context, "lh_actor_vertex", "lh_actor2_fragment", outputFormat, .none)
         for _ in 0..<Renderer.framesInFlight {
             inFlight.signal()
         }
@@ -374,10 +388,14 @@ final class Renderer {
         var draws = 0
         let size = SIMD4<Float>(Float(targets.width), Float(targets.height), 0, 0)
 
+        let lookTwo = frame.look == .two
         for plane in Plane.allCases {
+            // The mist band and the near plane exist in look 2 only.
+            if !lookTwo && !Renderer.lookOnePlanes.contains(plane) { continue }
             let texture = targets.planes[plane.rawValue]
             if plane == .sky {
-                draws += quadPass(commands, texture, skyPipeline, buffer, [batches.planes[0], batches.sky], size)
+                draws += quadPass(commands, texture, skyPipeline, buffer,
+                                  [batches.planes[Plane.sky.rawValue], batches.sky], size)
             } else {
                 draws += quadPass(commands, texture, planePipeline, buffer, [batches.planes[plane.rawValue]], size)
             }
@@ -398,7 +416,7 @@ final class Renderer {
         if let encoder = commands.makeRenderCommandEncoder(descriptor: Renderer.clearPass(targets.light)) {
             encoder.label = "light"
             if batches.lights.count > 0 {
-                encoder.setRenderPipelineState(lightPipeline)
+                encoder.setRenderPipelineState(lookTwo ? lightPipeline2 : lightPipeline)
                 encoder.setVertexBuffer(buffer, offset: batches.lights.offset, index: 0)
                 encoder.setVertexBytes(&lightUniforms, length: MemoryLayout<LightPassUniforms>.stride, index: 1)
                 encoder.setFragmentBytes(&lightUniforms, length: MemoryLayout<LightPassUniforms>.stride, index: 0)
@@ -426,17 +444,25 @@ final class Renderer {
                                          lightCount: batches.lights.count)
         if let encoder = commands.makeRenderCommandEncoder(descriptor: output) {
             encoder.label = "composite"
-            let textures: [any MTLTexture] = targets.planes + [targets.light, targets.emissive, targets.bloomA]
-            encoder.setRenderPipelineState(compositePipeline)
+            let textures: [any MTLTexture] = Renderer.lookOnePlanes.map { targets.planes[$0.rawValue] }
+                + [targets.light, targets.emissive, targets.bloomA]
+            encoder.setRenderPipelineState(lookTwo ? compositePipeline2 : compositePipeline)
             encoder.setFragmentBytes(&uniforms, length: MemoryLayout<CompositeUniforms>.stride, index: 0)
             encoder.setFragmentBuffer(buffer, offset: batches.lights.offset, index: 1)
             for (index, texture) in textures.enumerated() {
                 encoder.setFragmentTexture(texture, index: index)
             }
+            if lookTwo {
+                let focus = frame.cameraX + Double(max(0, frame.targetWidth - 1)) / 2
+                var look2 = Look2.uniforms(frame, focus: focus)
+                encoder.setFragmentBytes(&look2, length: MemoryLayout<Look2Uniforms>.stride, index: 2)
+                encoder.setFragmentTexture(targets.planes[Plane.mistBand.rawValue], index: 12)
+                encoder.setFragmentTexture(targets.planes[Plane.near.rawValue], index: 13)
+            }
             encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
             draws += 1
             if batches.actors.count > 0 && settings.bufferView == .none {
-                encoder.setRenderPipelineState(actorPipeline)
+                encoder.setRenderPipelineState(lookTwo ? actorPipeline2 : actorPipeline)
                 encoder.setVertexBuffer(buffer, offset: batches.actors.offset, index: 0)
                 encoder.setVertexBytes(&uniforms, length: MemoryLayout<CompositeUniforms>.stride, index: 1)
                 encoder.setFragmentTexture(atlas.texture, index: textures.count)
@@ -482,7 +508,8 @@ final class Renderer {
         let backdrop = Renderer.backdropColor(frame)
         var bloom = BloomUniforms(
             size: SIMD4<Float>(Float(targets.width), Float(targets.height), halfWidth, halfHeight),
-            params: SIMD4<Float>(Look.bloomLightShare, Look.bloomSkyShare, Look.bloomThreshold, Look.bloomKnee),
+            params: SIMD4<Float>(frame.look == .two ? Look2.bloomLightShare : Look.bloomLightShare,
+                                 Look.bloomSkyShare, Look.bloomThreshold, Look.bloomKnee),
             backdrop: SIMD4<Float>(backdrop.x, backdrop.y, backdrop.z, 0))
         if let encoder = commands.makeRenderCommandEncoder(descriptor: Renderer.clearPass(targets.bloomA)) {
             encoder.label = "bloom threshold"
@@ -537,6 +564,7 @@ final class Renderer {
         for layer in frame.planes {
             shifts[layer.plane.rawValue] = Int32(layer.offset.deviceShift)
         }
+        func shift(_ plane: Plane) -> Int32 { shifts[plane.rawValue] }
         var shareA: Float = 0.6
         var shareB: Float = 0.8
         for layer in frame.fog {
@@ -556,8 +584,8 @@ final class Renderer {
             screen: SIMD4<Float>(Float(frame.physicalWidth), Float(frame.physicalHeight), Float(frame.scale),
                                  Float(LightField.litThreshold)),
             target: SIMD4<Float>(Float(targets.width), Float(targets.height), Float(frame.groundRow), whole),
-            shiftsA: SIMD4<Int32>(shifts[0], shifts[1], shifts[2], shifts[3]),
-            shiftsB: SIMD4<Int32>(shifts[4], shifts[5], shifts[6], shifts[7]),
+            shiftsA: SIMD4<Int32>(shift(.sky), shift(.clouds), shift(.far), shift(.mid)),
+            shiftsB: SIMD4<Int32>(shift(.fogA), shift(.world), shift(.fogB), shift(.foreground)),
             skyTop: SIMD4<Float>(frame.skyTop.x, frame.skyTop.y, frame.skyTop.z, frame.starAlpha),
             skyBottom: SIMD4<Float>(frame.skyBottom.x, frame.skyBottom.y, frame.skyBottom.z, haze),
             ambient: SIMD4<Float>(world.x, world.y, world.z, frame.bankAmbientScale),
@@ -622,15 +650,28 @@ final class Renderer {
         }
         emissiveQuads += Particles.embers(frame, time: settings.time, reduceMotion: settings.reduceMotion,
                                           white: layout.white)
+        let lookTwo = frame.look == .two
         let lightQuads = frame.lights.prefix(64).map { light in
             // A backdrop light carries a negative intensity: the light pass writes it to alpha only.
             let sign: Float = light.plane == .world ? 1 : -1
-            let circle = SIMD4<Float>(light.circle.x, light.circle.y, light.circle.z,
-                                      sign * light.circle.w * Look.intensityScale(light.kind))
+            guard lookTwo else {
+                let circle = SIMD4<Float>(light.circle.x, light.circle.y, light.circle.z,
+                                          sign * light.circle.w * Look.intensityScale(light.kind))
+                return LightQuad(circle: circle,
+                                 color: SIMD4<Float>(light.color.x, light.color.y, light.color.z, light.ellipseY))
+            }
+            // Look 2: a window's pool is wider and softer; every other light is a fire, marked by a negative squash,
+            // whose pool falls off from its own colour to ember.
+            let window = light.kind == .window
+            let circle = SIMD4<Float>(light.circle.x, light.circle.y,
+                                      light.circle.z * (window ? Look2.windowRadius : 1),
+                                      sign * light.circle.w * Look2.intensityScale(light.kind))
+            let squash = max(light.ellipseY, 0.05)
             return LightQuad(circle: circle,
-                             color: SIMD4<Float>(light.color.x, light.color.y, light.color.z, light.ellipseY))
+                             color: SIMD4<Float>(light.color.x, light.color.y, light.color.z,
+                                                 window ? squash : -squash))
         }
-        let actorQuads = frame.actors.map { Renderer.quad($0, layout: layout) }
+        let actorQuads = frame.actors.map { Renderer.quad($0, layout: layout, look: frame.look) }
 
         var batches = Batches()
         var offset = 0
@@ -713,12 +754,25 @@ final class Renderer {
     static let rimmed: Set<SpriteID> = [.king, .sootling, .sootlingB, .shadehound, .sootCrow, .ashBrute, .gloomweaver,
                                         .ashGiant, .lightlessKing]
 
+    /// The people of the realm, who keep a fainter sky rim in look 2.
+    static let people: Set<SpriteID> = [.archer, .guardsman, .builder, .citizen, .citizenB, .citizenC]
+
     /// Flags: x 1 for an emissive actor, y the moonlight rim of an unlit creature (its strength, M2b review), z 1 for
     /// the cool rim, w the cap on reflected point light (0: `kLitCap`).
-    static func quad(_ actor: ActorInstance, layout: AtlasLayout) -> ActorQuad {
+    ///
+    /// Look 2: x as above, y > 0 an unlit creature (the moon's rim, by the night), z the strength of the sky's rim:
+    /// `Look2.rim` for the king and the creatures, `Look2.peopleRim` for the people of the realm.
+    static func quad(_ actor: ActorInstance, layout: AtlasLayout, look: LookVersion = .one) -> ActorQuad {
         let cell = layout.cell(actor.sprite, frame: actor.frame)
-        let rim: Float = rimmed.contains(actor.sprite) ? 1 : 0
-        let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, actor.lightCap)
+        guard look == .two else {
+            let rim: Float = rimmed.contains(actor.sprite) ? 1 : 0
+            let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, actor.lightCap)
+            return ActorQuad(rect: actor.rect, texel: cell.texels(flipped: actor.flipped), tint: actor.tint,
+                             flags: flags)
+        }
+        let rim: Float = rimmed.contains(actor.sprite) ? Look2.rim
+            : (people.contains(actor.sprite) ? Look2.peopleRim : 0)
+        let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, 0)
         return ActorQuad(rect: actor.rect, texel: cell.texels(flipped: actor.flipped), tint: actor.tint, flags: flags)
     }
 

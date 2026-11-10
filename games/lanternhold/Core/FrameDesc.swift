@@ -528,6 +528,12 @@ struct FrameDesc: Sendable, Equatable {
     let bloom: Bool
     let debugLights: Bool
     let counts: FrameCounts
+    /// The look the renderer composites this frame with (DESIGN.md "Look 2 port"); `FrameBuilder` sets it from
+    /// `FrameOptions.look`.
+    var look: LookVersion = .one
+    /// Look 2: the cut-away rooms on screen (the hall's interior, the smithy's forge), at most two, each as x0, y0,
+    /// x1, y1 in world target pixels. Inside them the ambient is the room's warm fill and the night's pull lets go.
+    var rooms: [SIMD4<Float>] = []
 
     /// The layer of one plane.
     func layer(_ plane: Plane) -> PlaneLayer {

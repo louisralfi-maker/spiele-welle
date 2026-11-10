@@ -8,8 +8,8 @@ final class CameraTests: XCTestCase {
 
     func testParallaxFactors() {
         let factors = Plane.allCases.map(\.parallax)
-        XCTAssertEqual(factors, [0, 0.05, 0.2, 0.5, 0.9, 1.0, 1.15, 1.3])
-        XCTAssertEqual(Plane.allCases.map(\.rawValue), Array(0..<8), "back to front")
+        XCTAssertEqual(factors, [0, 0.05, 0.2, 0.5, 0.62, 0.75, 0.9, 1.0, 1.15, 1.3])
+        XCTAssertEqual(Plane.allCases.map(\.rawValue), Array(0..<10), "back to front")
     }
 
     func testPlaneOffsetsAtTheFrontShot() {
