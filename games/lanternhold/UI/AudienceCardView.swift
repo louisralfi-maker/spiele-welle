@@ -237,7 +237,7 @@ struct AudienceCardView: View {
                     Label {
                         Text(String(localized: "End the audience"))
                     } icon: {
-                        CircletIcon(size: 24)
+                        CircletIcon(ink: true)
                     }
                 }
             }

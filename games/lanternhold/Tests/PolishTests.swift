@@ -144,7 +144,7 @@ final class PolishTests: XCTestCase {
 
     func testThePolishSpritesHaveTheirPlaceholders() {
         let polish: [SpriteID] = [.hayCart, .barrels, .noticeBoard, .oldWall1, .oldWall2, .oldWall3,
-                                  .palisadeAnchor, .stoneWallAnchor, .bastionAnchor]
+                                  .palisadeAnchor, .stoneWallAnchor, .bastionAnchor, .circletIcon, .circletIconInk]
         for sprite in polish {
             let frames = PlaceholderArt.frames(for: sprite)
             XCTAssertEqual(frames.count, sprite.frameCount, "\(sprite)")
@@ -155,6 +155,26 @@ final class PolishTests: XCTestCase {
             }
             // Each is drawn from its painting.
             XCTAssertEqual(AtlasLayout.shared.sources[sprite], .png, "\(sprite)")
+        }
+    }
+
+    /// The interface's circlet (SPRITES.md "The circlet icon"): 24x16, one frame, from its painting, with clear
+    /// rows above and below the band (the image's frame is the layout box).
+    func testTheCircletIconsAreInTheAtlas() {
+        let layout = AtlasLayout.shared
+        for sprite in [SpriteID.circletIcon, .circletIconInk] {
+            XCTAssertEqual(sprite.size, PixelSize(width: 24, height: 16), "\(sprite)")
+            XCTAssertEqual(layout.sources[sprite], .png, "\(sprite)")
+            let cell = layout.cell(sprite, frame: 0)
+            let pixels = layout.image.cropped(x: cell.x, y: cell.y, width: cell.width, height: cell.height)
+            var drawn = 0
+            for y in 0..<pixels.height {
+                for x in 0..<pixels.width where pixels[x, y].a > 0 {
+                    drawn += 1
+                }
+            }
+            XCTAssertGreaterThan(drawn, 24, "\(sprite) draws a circlet")
+            XCTAssertLessThan(drawn, 24 * 16, "\(sprite) leaves the ground clear")
         }
     }
 

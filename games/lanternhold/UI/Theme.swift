@@ -135,48 +135,29 @@ struct CoinStack: View {
     }
 }
 
-/// The lord's circlet (polish after round 2): the realm has a castle lord and no king, so the audience's sign is a
-/// circlet, not a crown. A drawn stand-in until the art lane's icon lands: a slim band seen from the front, three
-/// low points, one stone cut out of the band.
-struct CircletShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        let w = rect.width
-        let h = rect.height
-        func point(_ x: CGFloat, _ y: CGFloat) -> CGPoint {
-            CGPoint(x: rect.minX + x * w, y: rect.minY + y * h)
-        }
-        var path = Path()
-        path.move(to: point(0.04, 0.50))
-        path.addLine(to: point(0.24, 0.58))
-        path.addLine(to: point(0.31, 0.36))
-        path.addLine(to: point(0.38, 0.58))
-        path.addLine(to: point(0.50, 0.14))
-        path.addLine(to: point(0.62, 0.58))
-        path.addLine(to: point(0.69, 0.36))
-        path.addLine(to: point(0.76, 0.58))
-        path.addLine(to: point(0.96, 0.50))
-        path.addLine(to: point(0.92, 0.80))
-        path.addQuadCurve(to: point(0.08, 0.80), control: point(0.50, 0.98))
-        path.closeSubpath()
-        // The stone.
-        path.move(to: point(0.50, 0.60))
-        path.addLine(to: point(0.57, 0.72))
-        path.addLine(to: point(0.50, 0.84))
-        path.addLine(to: point(0.43, 0.72))
-        path.closeSubpath()
-        return path
-    }
-}
-
-/// The circlet in the foreground style, `size` points wide.
+/// The lord's circlet (polish after round 2; SPRITES.md "The circlet icon"): the realm has a castle lord and no
+/// king, so the audience's sign is a circlet, not a crown. The painted icon, 24x16 art pixels, `scale` points to the
+/// art pixel (whole numbers only: a part pixel blurs or drops rows). The gold one keeps its own colours (for dark
+/// grounds); the ink one is one colour and takes the foreground style.
 struct CircletIcon: View {
-    var size: CGFloat = 34
+    var ink = false
+    var scale: CGFloat = 1
 
     var body: some View {
-        CircletShape()
-            .fill(.foreground, style: FillStyle(eoFill: true))
-            .frame(width: size, height: size * 0.72)
-            .accessibilityHidden(true)
+        let sprite: SpriteID = ink ? .circletIconInk : .circletIcon
+        let size = sprite.size
+        Group {
+            if let image = SpriteImages.image(sprite) {
+                Image(decorative: image, scale: 1)
+                    .renderingMode(ink ? .template : .original)
+                    .resizable()
+                    .interpolation(.none)
+            } else {
+                Color.clear
+            }
+        }
+        .frame(width: CGFloat(size.width) * scale, height: CGFloat(size.height) * scale)
+        .accessibilityHidden(true)
     }
 }
 

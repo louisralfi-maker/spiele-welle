@@ -440,8 +440,8 @@ struct ActionButton: View {
         case .recruit:
             CoinStack(size: 40)
         case .throne:
-            CircletIcon(size: 46)
-                .foregroundStyle(iconColor)
+            // The painted circlet in its own gold, 2 pt to the art pixel (48x32 pt).
+            CircletIcon(scale: 2)
         default:
             Image(systemName: iconName)
                 .font(.system(size: 34, weight: .bold))

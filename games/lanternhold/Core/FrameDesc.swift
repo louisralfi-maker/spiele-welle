@@ -117,6 +117,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     case hildVarn, lorenzPell, ebbaCalder, orlaLorn
     case portraitHildVarn, portraitLorenzPell, portraitEbbaCalder, portraitOrlaLorn
     case bannerVarn, bannerBrine, bannerOxmoor, bannerCalder, bannerLorn
+    // Stage 7 (SPRITES.md "The circlet icon"): interface art, never in the world: the lord's circlet in gold (the
+    // HUD's audience button) and in ink alone (the audience card's gold button)
+    case circletIcon, circletIconInk
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -342,6 +345,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
             return PixelSize(width: 48, height: 48)
         case .bannerVarn, .bannerBrine, .bannerOxmoor, .bannerCalder, .bannerLorn:
             return PixelSize(width: 20, height: 41)
+        case .circletIcon, .circletIconInk: return PixelSize(width: 24, height: 16)
         }
     }
 

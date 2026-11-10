@@ -2850,8 +2850,10 @@ simulation are untouched.
 - `willowB` is planted between the two willows at the river.
 - The lit rooms flicker: at 0.4 of a fire's flicker and 0.35 of its pace, every house with its own seed; with
   Reduce Motion as faint and slow as the fires' reduced flicker.
-- The audience button and the audience card carry the lord's circlet in place of the crown symbol (a shape drawn
-  in `UI/Theme.swift` until the painted icon lands).
+- The audience button and the audience card carry the lord's circlet in place of the crown symbol: the painted
+  icon of stage 7 (9a143fe; `circletIcon` in gold at 48x32 pt on the audience button, `circletIconInk` at 24x16 pt
+  in the button's ink on "End the audience"), two sprites of 24x16 through the atlas (`CircletIcon` in
+  `UI/Theme.swift`).
 - Rain over a bright scene: a pale streak before a day sky was lost, so the brighter the air, the darker the rain
   falls (slate by day, a little denser; pale as painted from dusk on). Alpha stays under 0.5.
 - Fireflies at phone size: each fly is drawn over white (the bloom gives it a halo) and four more times one pixel

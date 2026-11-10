@@ -1,5 +1,5 @@
 /// The placeholders of the polish after round 2 (DESIGN.md "Polish after round 2"): plain stand-ins for the square's
-/// props, the houses' envoys and the houses' banners (their PNGs win).
+/// props, the houses' envoys, the houses' banners and the circlet icon (their PNGs win).
 enum PlaceholderPolish {
     static func frames(for sprite: SpriteID, salt: UInt64) -> [PixelImage] {
         switch sprite {
@@ -10,8 +10,32 @@ enum PlaceholderPolish {
             return PlaceholderCourt.frames(for: .portraitEnvoy)
         case .bannerVarn, .bannerBrine, .bannerOxmoor, .bannerCalder, .bannerLorn:
             return [clothStandIn(salt, size: sprite.size)]
+        case .circletIcon: return [circletStandIn(RGBA(0xE8B84A), size: sprite.size)]
+        case .circletIconInk: return [circletStandIn(RGBA(0x2A1A12), size: sprite.size)]
         default: return []
         }
+    }
+
+    /// A plain circlet for the icon whose painting is missing: a band with three low points.
+    static func circletStandIn(_ color: RGBA, size: PixelSize) -> PixelImage {
+        var p = Painter(size, salt: 0)
+        let middle = size.width / 2
+        let bandTop = size.height * 5 / 8
+        for y in bandTop..<max(bandTop + 1, size.height - 2) {
+            for x in 1..<max(2, size.width - 1) {
+                p.put(x, y, color)
+            }
+        }
+        for (centre, rise) in [(middle, bandTop - 2), (middle - size.width / 4, bandTop / 2 + 2),
+                               (middle + size.width / 4, bandTop / 2 + 2)] {
+            for y in max(0, rise)..<bandTop {
+                let half = (y - rise) / 2
+                for x in max(0, centre - half)...min(size.width - 1, centre + half) {
+                    p.put(x, y, color)
+                }
+            }
+        }
+        return p.image
     }
 
     /// A plain hanging cloth on a rod for a banner whose painting is missing.

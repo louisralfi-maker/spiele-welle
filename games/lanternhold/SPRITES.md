@@ -543,3 +543,8 @@ Swift names it yet. Interface art, not world art: no plane, no light, no anchor.
 - `CircletShape` and `CircletIcon` in `UI/Theme.swift` fall away.
 - The gold icon uses `fireGold` and `fireWhite` (the lit rim, one glint). It is never drawn in the lit world, so
   the rule that albedo keeps off the fire ramp does not touch it.
+- **Wired** (claude/lh-polish): both are `SpriteID`s (`circletIcon`, `circletIconInk`, 24x16, one frame) and come
+  through the atlas and `SpriteImages.image(_:frame:)`. `CircletIcon(scale: 2)` in `UI/HUDView.swift` draws the gold
+  one at 48x32 pt without a tint; `CircletIcon(ink: true)` in `UI/AudienceCardView.swift` draws the ink one at
+  24x16 pt as a template in the button's ink. `CircletShape` is gone. The `@2x` and `@3x` files lie unused in the
+  bundle.
