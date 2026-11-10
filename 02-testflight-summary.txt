@@ -1,0 +1,8 @@
+** ARCHIVE SUCCEEDED **
+** EXPORT SUCCEEDED **
+== archive with automatic signing, build 86
+== exit 0
+== export and upload to App Store Connect
+2026-11-10 20:32:07.331 xcodebuild[58385:173203] Progress 100%: Uploaded package is processing.
+2026-11-10 20:32:07.384 xcodebuild[58385:173203] Progress 100%: Upload succeeded.
+Uploaded Lanternhold
