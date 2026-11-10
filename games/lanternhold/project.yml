@@ -41,9 +41,11 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.louisherwick.lanternhold
         PRODUCT_NAME: Lanternhold
         TARGETED_DEVICE_FAMILY: "1"
-        MARKETING_VERSION: "0.1.0"
+        MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
         GENERATE_INFOPLIST_FILE: YES
+        # Resources/Assets.xcassets: the 1024 pt icon (the lit castle gate at night, from the art pass), single size.
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_KEY_CFBundleDisplayName: Lanternhold
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.strategy-games
         INFOPLIST_KEY_UILaunchScreen_Generation: YES

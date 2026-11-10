@@ -5,6 +5,7 @@
 #   ui [<filter>...]     the same for the UI tests (all of <Name>UITests without a filter), in English
 #   ui-de [<filter>...]  the same in German
 #   release              unsigned Release build for a device
+#   testflight           signed Release archive, uploaded to App Store Connect for TestFlight (ci/tf-* rounds only)
 #   sh <command>         any command from the game's folder; it may write files to $CI_OUT
 # The game's folder is games/<slug>; its project.yml's "name:" is the project, scheme and app name. A failed step does not
 # stop the later ones, except a failed build. Everything lands in ci-out/ at the repo root, whose summary.txt ends with
@@ -116,6 +117,79 @@ release() {
         -destination generic/platform=iOS -derivedDataPath build/RelMain -jobs "$NPROC" CODE_SIGNING_ALLOWED=NO build
 }
 
+testflight() {
+    # Archives the Release build and uploads it to App Store Connect; it shows up in TestFlight after Apple's processing
+    # (10 to 30 minutes). The App Store Connect API key comes from the repo secrets ASC_KEY_ID, ASC_ISSUER_ID and
+    # ASC_PRIVATE_KEY, which sim-check.yml hands over on ci/tf-* branches only. The key file lives in a temporary folder
+    # outside the repo during this step only. The log in ci-out has both ids blanked and never holds the key.
+    N=$((N + 1))
+    D=$(printf '%02d-testflight' "$N")
+    if [ -z "${ASC_KEY_ID:-}" ] || [ -z "${ASC_ISSUER_ID:-}" ] || [ -z "${ASC_PRIVATE_KEY:-}" ]; then
+        note "$(stamp) FAIL testflight: the secrets ASC_KEY_ID, ASC_ISSUER_ID and ASC_PRIVATE_KEY are not all there (ci/tf-* only)"
+        FAILED=$((FAILED + 1))
+        return
+    fi
+    [ -d "$PROJECT" ] || { brew install xcodegen >"$CI_OUT/xcodegen.log" 2>&1; xcodegen generate >>"$CI_OUT/xcodegen.log" 2>&1; }
+    if [ -f Package.resolved ]; then mkdir -p "$PINS" && cp Package.resolved "$PINS/"; fi
+    TF="${RUNNER_TEMP:-/tmp}/tf"
+    rm -rf "$TF"
+    mkdir -p "$TF/key"
+    chmod 700 "$TF/key"
+    KEY="$TF/key/AuthKey_$ASC_KEY_ID.p8"
+    ( umask 077; printf '%s\n' "$ASC_PRIVATE_KEY" >"$KEY" )
+    AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
+    BUILD_NO=${GITHUB_RUN_NUMBER:-1}
+    ARCHIVE="$TF/$NAME.xcarchive"
+    cat >"$TF/ExportOptions.plist" <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>method</key><string>app-store-connect</string>
+    <key>destination</key><string>upload</string>
+    <key>teamID</key><string>XLKZ9W7C7T</string>
+    <key>signingStyle</key><string>automatic</string>
+    <key>uploadSymbols</key><true/>
+    <key>manageAppVersionAndBuildNumber</key><false/>
+</dict>
+</plist>
+PLIST
+    archive() {
+        xcodebuild -project "$PROJECT" -scheme "$SCHEME" -configuration Release -destination generic/platform=iOS \
+            -archivePath "$ARCHIVE" -derivedDataPath build/TF -jobs "$NPROC" "${AUTH[@]}" \
+            CURRENT_PROJECT_VERSION="$BUILD_NO" "$@" archive
+    }
+    {
+        echo "== archive with automatic signing, build $BUILD_NO"
+        archive
+        RC=$?
+        if [ "$RC" -ne 0 ]; then
+            # A team without a registered device gets no development profile; the export signs for the store anyway.
+            echo "== archive again without signing (exit $RC before); the export signs it"
+            rm -rf "$ARCHIVE"
+            archive CODE_SIGNING_ALLOWED=NO
+            RC=$?
+        fi
+        if [ "$RC" -eq 0 ]; then
+            echo "== export and upload to App Store Connect"
+            xcodebuild -exportArchive -archivePath "$ARCHIVE" -exportOptionsPlist "$TF/ExportOptions.plist" \
+                -exportPath "$TF/export" "${AUTH[@]}"
+            RC=$?
+        fi
+        echo "== exit $RC"
+    } >"$TF/testflight.log" 2>&1
+    rm -rf "$TF/key"
+    grep -v 'PRIVATE KEY' "$TF/testflight.log" | sed -e "s/$ASC_KEY_ID/[key-id]/g" -e "s/$ASC_ISSUER_ID/[issuer-id]/g" >"$CI_OUT/$D.log"
+    grep -E ' error: |^error: |ERROR|Error Domain|ITMS-|\*\* .* \*\*|Upload succeeded|Uploaded|^== ' "$CI_OUT/$D.log" | sort -u | head -80 >"$CI_OUT/$D-summary.txt"
+    gzip -9 -f "$CI_OUT/$D.log"
+    if [ "$RC" -eq 0 ]; then
+        note "$(stamp) PASS testflight: version $(sed -n 's/^ *MARKETING_VERSION: *"\{0,1\}\([^"]*\)"\{0,1\}$/\1/p' project.yml | head -1) build $BUILD_NO uploaded"
+    else
+        note "$(stamp) FAIL testflight (exit $RC), see $D-summary.txt and $D.log.gz"
+        FAILED=$((FAILED + 1))
+    fi
+}
+
 STEPS=$(git log -1 --format=%B HEAD | sed -n 's/^do: //p')
 [ -n "$STEPS" ] || { note "FAILED: no steps in the commit message"; exit 1; }
 while IFS= read -r LINE; do
@@ -125,6 +199,7 @@ while IFS= read -r LINE; do
         build) build ;;
         unit|ui|ui-de) tests "$CMD" "$@" ;;
         release) release ;;
+        testflight) testflight ;;
         sh) simulator; other sh bash -c "${LINE#sh }" ;;
         *) note "FAIL unknown step: $LINE"; FAILED=$((FAILED + 1)) ;;
     esac

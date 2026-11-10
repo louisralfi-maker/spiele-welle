@@ -19,6 +19,12 @@ jobs:
         with:
           fetch-depth: 1
       - name: Run the steps
+        env:
+          # The App Store Connect API key for run-check.sh's testflight step. Only rounds on ci/tf-* branches get it;
+          # forks never do. The values never go into ci-out (see testflight in run-check.sh).
+          ASC_KEY_ID: ${{ startsWith(github.ref_name, 'ci/tf-') && secrets.ASC_KEY_ID || '' }}
+          ASC_ISSUER_ID: ${{ startsWith(github.ref_name, 'ci/tf-') && secrets.ASC_ISSUER_ID || '' }}
+          ASC_PRIVATE_KEY: ${{ startsWith(github.ref_name, 'ci/tf-') && secrets.ASC_PRIVATE_KEY || '' }}
         run: scripts/ci/run-check.sh
       - name: Publish the results
         if: always()
