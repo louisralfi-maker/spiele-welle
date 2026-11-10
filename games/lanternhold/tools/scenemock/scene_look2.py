@@ -164,7 +164,71 @@ def hall_audience(look, lord="kingSeated"):
     return dict(focus=1800, tod=0.5, drop=[], extras=ex, king="off")
 
 
+# --- the castle grows (the art pass, SPRITES.md "The castle grows"): tiers 1 to 3, each also in its building state ---
+RISE_MASKS = {"keepTop2": [(71, 93, 6, 10), (120, 94, 5, 9), (139, 94, 5, 9), (23, 109, 2, 7)],
+              "keepTop3": [(71, 93, 6, 10), (20, 108, 3, 8), (122, 108, 3, 8)],
+              "keepTop3Build": [(71, 93, 6, 10), (23, 109, 2, 7)],
+              "backTop2": [(22, 94, 5, 9), (36, 93, 6, 10), (52, 94, 5, 9), (79, 109, 2, 7)],
+              "backTop3": [(46, 93, 6, 10), (19, 108, 3, 8), (77, 108, 3, 8)],
+              "backTop3Build": [(36, 93, 6, 10), (79, 109, 2, 7)],
+              "castleFront3": [(39, 127, 4, 12), (39, 93, 4, 12), (223, 127, 4, 12), (223, 93, 4, 12)],
+              "castleFront3Build": [(39, 127, 4, 12), (39, 93, 4, 12)]}
+
+
+def _one(s, **kw):
+    d = prop(s, **kw)
+    d["frames"] = 1
+    return d
+
+
+def castle_tier(look, tier, build, view="gate", tod=0.8):
+    """The castle at tier 1 to 3 (build: the tier's scaffolding state, that is the tier being built on the one
+    before). view: gate (from the Throat, close), back (the back gate from the valley, close), far (the slot from
+    the shadow land), farback (the slot from the valley)."""
+    B_, K_ = 2230, 1286
+    ex, drop = [], []
+    rise = None if tier == 1 else "%s%d%s" % ("keepTop" if view == "gate" else "backTop", tier, "Build" if build else "")
+    if view == "gate":
+        ex += [prop("gateWood", x=1337, z=6, frame=2)]
+        ex += [prop("archer", cx=F + cx, y=LM.WALKWAY_Y, frame=fr, f=fl, z=8) for cx, fr, fl in ((66, 2, True), (173, 3, False))]
+        if rise:
+            drop.append(("keepTop", K_))
+            ex.append(_one(rise, x=K_, y=40, z=-4, em=[mask(*m) for m in RISE_MASKS.get(rise, [])]))
+        if tier == 3:
+            name = "castleFront3Build" if build else "castleFront3"
+            drop.append(("castleFront", F))
+            ex.append(_one(name, x=F - 14, z=0,
+                           em=[("sprite", "brazierFlame", 107, 130, "fireOrange", False), ("sprite", "brazierFlame", 152, 130, "fireOrange", False),
+                               ("sprite", "flame", 104, 61, "fireGold", True), ("sprite", "flame", 159, 61, "fireGold", True)]
+                              + [mask(*m) for m in RISE_MASKS[name]],
+                           li=[("brazier", F + 97, 136, 44), ("brazier", F + 142, 136, 44), ("torch", F + 92, 64, 30),
+                               ("torch", F + 147, 64, 30), ("lantern", F + 120, 40, 34)]))
+        if tier == 1 and build:
+            ex.append(_one("castleFrontScaffold", x=F, z=0.5))
+            ex.append(prop("builder", cx=F + 78, y=LM.WALKWAY_Y, frame=1, z=8))
+        return dict(focus=1360, tod=tod, drop=drop, extras=ex, king=1356)
+    if view == "back":
+        if rise:
+            ex.append(_one(rise, x=B_ + 50, y=40, z=-4, em=[mask(*m) for m in RISE_MASKS.get(rise, [])]))
+        return dict(focus=2330, tod=tod, drop=drop, extras=ex, king=2420)
+    far = "farCastle%s%d%s" % ("Back" if view == "farback" else "", tier, "Build" if build else "")
+    cleft = 650 if view == "farback" else 324            # layout_look2's CLEFT_BACK, CLEFT_FRONT; WALL_X -44, WALL_Y -17
+    if tier > 1:
+        d = _one(far, x=-44 + cleft - 24, y=-17 + 92, z=-0.5,
+                 em=[] if build else [("sprite", far + "Glow", 0, 0, "fireGold", True)])
+        d["p"] = "far"
+        ex.append(d)
+    sw = {} if tier == 1 else {"farCleftGlowBack" if view == "farback" else "farCleftGlow":
+                               "farCleftGlow%s%d%s" % ("Back" if view == "farback" else "", tier, "Build" if build else "")}
+    if view == "farback":
+        return dict(focus=2560, tod=tod, drop=drop, extras=ex, king=2604, swap=sw)
+    return dict(focus=250, tod=tod, drop=drop, extras=ex, king=306, swap=sw)
+
+
 SCENES = {
+    # the castle's tiers: tier<1|2|3>[b]-<gate|back|far|farback>[-day] (b: the building state; -day: at noon)
+    **{"tier%d%s-%s%s" % (t, "b" if b else "", v, d): (lambda look, t=t, b=b, v=v, d=d: castle_tier(look, t, b, v, 0.5 if d else 0.8))
+       for v in ("gate", "back", "far", "farback") for t in (1, 2, 3) for b in (False, True) for d in ("", "-day")},
     "hall-audience": hall_audience,
     "hall-audience-lady": lambda look: hall_audience(look, "ladySeated"),
     "hall-empty": lambda look: dict(focus=1800, tod=0.5, drop=[], extras=[], king="off"),
@@ -187,8 +251,15 @@ def main():
     drop = sc.get("drop", [])
     instances = LM.instances
 
+    swap = sc.get("swap", {})                                # emitter sprites replaced by name (the far tiers' slot glow)
+
     def patched():
         return [d for d in instances() if not any(d["s"] == s and abs(d["x"] - x) < 0.5 for s, x in drop)]
+
+    if swap and look == 2:                                   # the look-2 world list (the Weltmauer and its slot glows)
+        import layout_look2 as LL2
+        LL2.WORLD[:] = [dict(d, em=[(e[0], swap.get(e[1], e[1])) + tuple(e[2:]) if e[0] == "sprite" else e for e in d["em"]])
+                        if d.get("em") else d for d in LL2.WORLD]
 
     LM.instances = patched
     path = os.path.splitext(out)[0] + ".json"

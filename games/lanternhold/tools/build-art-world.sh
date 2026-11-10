@@ -12,6 +12,7 @@ cd "$(dirname "$0")/../../.."
 T=games/lanternhold/tools/pixelart.py
 WA=games/lanternhold/tools/worldart.py
 DA=games/lanternhold/tools/depthart.py
+CA=games/lanternhold/tools/castleart.py
 A=games/lanternhold/Resources/Art
 W=build/recraft/lh/look2/world
 P=$W/parts
@@ -59,6 +60,8 @@ build() { # name: one sprite (or one group of small ones)
         px convert $W/wall-1.png $P/wallA.png --size 384x182 --key $K --only $FARW --match new; cool
         px convert $W/wall-1.png $P/wallB.png --size 420x190 --box 0,0,1400,768 --key $K --only $FARW --match new; cool
         wa wall $P/wallA.png $P/wallB.png $A/castleFront.png $A/keepTop.png $A/castleBackGate.png $A ;;
+    castleTiers) # the castle's tiers 2 and 3 with their building states (the art pass; from castleFront, keepTop, castleBackGate and the slots' glow)
+        python3 -I -B $CA tiers $A ;;
     gorgeRock)   # the gorge's wall on the monster side: bare granite out of sight; gorgeCrags, five crags before its mouth (near plane)
         px convert $W/gorge-1.png $P/gorge.png --size 448x211 --box 0,48,1536,768 --key none --only $GRANITE --match new --gamma 0.7; cool
         wa gorge $P/gorge.png $A/gorgeRock.png $A/gorgeCrags.png ;;
@@ -91,6 +94,6 @@ build() { # name: one sprite (or one group of small ones)
     esac
 }
 
-ALL="weltmauer gorgeRock cleftFace cleftFlank cleftFlankB cleftThroat shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow plants"
+ALL="weltmauer castleTiers gorgeRock cleftFace cleftFlank cleftFlankB cleftThroat shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow plants"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do cool; build "$name"; done
