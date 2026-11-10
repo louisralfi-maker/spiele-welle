@@ -234,7 +234,11 @@ struct AudienceCardView: View {
                 if card.waiting > 0 {
                     Label(String(localized: "Next petitioner (\(card.waiting))"), systemImage: "person.fill.badge.plus")
                 } else {
-                    Label(String(localized: "End the audience"), systemImage: "crown.fill")
+                    Label {
+                        Text(String(localized: "End the audience"))
+                    } icon: {
+                        CircletIcon(size: 24)
+                    }
                 }
             }
             .buttonStyle(GoldButtonStyle())

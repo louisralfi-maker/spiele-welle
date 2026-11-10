@@ -259,8 +259,8 @@ struct PauseButton: View {
     }
 }
 
-/// What the action button shows (DESIGN.md "Controls": a hammer, coins, the crown, a flame, a patch; M3: the tax
-/// lectern's book and a speech bubble).
+/// What the action button shows (DESIGN.md "Controls": a hammer, coins, the lord's circlet, a flame, a patch; M3:
+/// the tax lectern's book and a speech bubble).
 enum ActionGlyph: Sendable, Equatable {
     case build, recruit, throne, light, snuff, patch, lectern, talk
 
@@ -439,6 +439,9 @@ struct ActionButton: View {
         switch glyph {
         case .recruit:
             CoinStack(size: 40)
+        case .throne:
+            CircletIcon(size: 46)
+                .foregroundStyle(iconColor)
         default:
             Image(systemName: iconName)
                 .font(.system(size: 34, weight: .bold))
@@ -450,7 +453,7 @@ struct ActionButton: View {
         switch glyph {
         case .build: return "hammer.fill"
         case .recruit: return "circle.fill"
-        case .throne: return "crown.fill"
+        case .throne: return "circle.fill"
         case .lectern: return "book.fill"
         case .talk: return "bubble.left.fill"
         case .light: return "flame.fill"
