@@ -75,7 +75,9 @@ build() { # name: one sprite
                        --fill ink:126,83,139,94 --fill woodDark:127,84,138,94 --fill wood:128,84,129,94 \
                        --fill woodLight:128,84,128,94 --fill wood:131,84,132,94 --fill wood:134,84,135,94 \
                        --fill wood:137,84,137,94 --fill ink:132,84,133,94 --fill stoneDark:127,88,138,88 \
-                       --fill stoneDark:127,92,138,92 --fill gold:131,90,131,90 --fill gold:134,90,134,90 ;;
+                       --fill stoneDark:127,92,138,92 --fill gold:131,90,131,90 --fill gold:134,90,134,90
+                   # look 2 (ART-look2.md section 17): the front repainted at the town's level inside this silhouette
+                   python3 games/lanternhold/tools/frontart.py repaint chapel $A/chapel.png ;;
     hallInterior)  python3 $T convert $R/s5-hall-1.png $A/hallInterior.png --size 260x90 --box 210,0,1358,356 --only $CAS,strawLight --gain 1.1 --warm 22 --outline ink
                    # polish after the art review: five identical teal banners; the second and fourth are a red-brown house
                    # colour now (teal, red, teal, red, teal), the gold emblems kept
@@ -84,7 +86,9 @@ build() { # name: one sprite
                    # M3 art step 3 (ART-court.md): the ground floor's painted night shade on its right corner and the
                    # stack's top lifted one value step (albedo is evenly lit; kitchenInterior is painted in this silhouette)
                    python3 $T post $A/kitchen.png $A/kitchen.png --remap night0:stoneMid,night1:stone,roofDeep:stoneMid@93,57,112,79 \
-                       --remap night0:stoneMid,night1:stone,roofDeep:stoneMid,banner:stone@94,1,101,8 ;;
+                       --remap night0:stoneMid,night1:stone,roofDeep:stoneMid,banner:stone@94,1,101,8
+                   # look 2 (ART-look2.md section 17): the front repainted at the town's level inside this silhouette
+                   python3 games/lanternhold/tools/frontart.py repaint kitchen $A/kitchen.png ;;
     valleyHill)    python3 $T convert $R/s6-town-1.png $A/valleyHill.png --size 150x46 --box 800,565,1450,706 --only $NAT --outline leafDark --outline-skip-bottom ;;
     # Look 2, stage 4 (ART-look2.md section 15): the three cottages, the well (and in the buildings lane the big house,
     # the market and the tavern) are painted by tools/townart.py at the creatures' level: the same sizes, the window

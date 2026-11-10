@@ -346,10 +346,17 @@ def hall_front():
     c.blit(interior, 239, 0, box=(239, 0, W - 1, H - 1))
     X0, X1 = 21, 238
     # the wall: dressed stone courses, lighter than the interior's back wall (outside, in daylight)
-    ashlar(c, X0, 32, X1, 82, seed=11, course=(6, 5), width=(10, 17), faces=("stone",) * 9 + ("stoneMid",),
-           deep_share=0.18, pits=0.02)
+    # (look 2, ART-look2.md section 17: the light from the upper left; no ink in the joints, the cornice's and the
+    # left end wall's cast shadows, the right end a step darker)
+    ashlar(c, X0, 32, X1, 82, seed=11, course=(6, 5), width=(10, 17),
+           faces=("stone",) * 5 + ("stoneLight",) * 4 + ("stoneMid",), deep="stoneDark", deep_share=0.18, pits=0.02)
+    down = {"stonePale": "stoneLight", "stoneLight": "stone", "stone": "stoneMid", "stoneMid": "stoneDark"}
+    c.recolour(X0, 32, X1, 36, down)
+    c.recolour(X0 + 1, 37, X0 + 3, 81, down)
+    c.recolour(X1 - 13, 37, X1, 81, down)
     # the roof: teal slate to the eave, the ridge tiles and iron cresting on top (the interior's beam ends)
     slate(c, X0, 17, X1, 26, seed=5, row=3, width=(4, 7))
+    c.recolour(X1 - 19, 17, X1, 26, {"roofLight": "banner", "banner": "roofDeep"})
     c.hline(X0, X1, 26, "roofDeep")
     for x in range(X0, X1 + 1):
         tops = [y for y in range(H) if (x, y) in c.clip]
@@ -370,30 +377,38 @@ def hall_front():
     c.hline(X0, X1, 28, "stonePale")
     c.hline(X0, X1, 29, "stoneLight")
     c.hline(X0, X1, 30, "stoneMid")
-    c.hline(X0, X1, 31, "ink")
+    c.hline(X0, X1, 31, "stoneDark")
     for x in range(X0 + 4, X1 - 3, 8):
         c.rect(x, 32, x + 2, 33, "stoneLight")
+        c.put(x, 32, "stonePale")
         c.put(x + 2, 33, "stone")
-        c.hline(x, x + 2, 34, "ink")
-        c.vline(x + 3, 32, 34, "ink")
-        c.vline(x - 1, 32, 34, "ink")
+        c.hline(x, x + 2, 34, "stoneDark")
+        c.vline(x + 3, 32, 34, "stoneDark")
     # the plinth
-    c.hline(X0, X1, 82, "ink")
+    c.hline(X0, X1, 82, "stoneDark")
     for x in range(X0, X1 + 1):
         c.put(x, 83, "stonePale")
         for y in range(84, 88):
-            c.put(x, y, "stone" if y < 87 else "stoneMid")
+            c.put(x, y, "stoneLight" if y == 84 else "stone" if y < 87 else "stoneMid")
         if (x - X0) % 15 == 7:
             for y in range(84, 88):
-                c.put(x, y, "ink")
+                c.put(x, y, "stoneDark")
         c.put(x, 88, "stoneMid")
+    c.recolour(X1 - 13, 83, X1, 88, down)
     c.hline(X0, X1, 89, "night0")
-    c.vline(X0, 17, 88, "ink")
-    c.vline(X1, 17, 88, "ink")
+    c.vline(X0, 17, 26, "ink")
+    c.vline(X1, 17, 26, "ink")
+    c.vline(X0, 27, 88, "stoneDark")
+    c.vline(X1, 27, 88, "stoneDark")
 
     # --- buttresses between the windows, the banners hung on them
     for bx in (113, 159):
         buttress(c, bx, 8, 35, 82, 70)
+        c.recolour(bx, 35, bx, 69, {"ink": "stonePale"})             # look 2: a lit left edge, a lit cap, no ink
+        c.recolour(bx - 1, 70, bx - 1, 82, {"ink": "stonePale"})
+        c.recolour(bx + 1, 35, bx + 6, 35, {"ink": "stoneLight"})
+        c.recolour(bx + 8, 36, bx + 9, 69, down)                     # and its cast shadow on the wall
+        c.recolour(bx + 9, 71, bx + 10, 81, down)
     banner(c, 111, 38, w=12, length=24)
     banner(c, 157, 38, w=12, length=24)
 
