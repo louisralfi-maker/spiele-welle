@@ -2901,6 +2901,47 @@ banners in the open hall). UI: `UITests/PolishUITests.swift`, `testPolish`, `tes
 | `119-polish-banners-all`, `120-polish-banners-two` | the great hall on day 12 with the five houses' banners, and with Varn's and Lorn's |
 | `121-polish-envoy-hall`, `122-polish-envoy-audience` | day 3: Hild Varn waits in the hall, then her audience card |
 
+**Rounds.**
+
+- `lh-po-1` on fe84b61 (the fog, the walls, the tiers and the list, before the houses and the painted circlet):
+  FAILED: 1. Build, ui, ui-de and release passed; unit ran 394 tests and one failed, a mistake of the test's own:
+  `testTheSquaresPropsAndTheYoungWillow` took the first `.well`, and look 2's world has two (the castle
+  courtyard's at x 1600, the square's at 3013). It now takes the one inside `WorldLayout.marketSquare`. T1 to T8,
+  the tuning report and night 20's step check were already `lh-j2-1`'s.
+- `lh-po-2` on e8ece32 (everything above, the houses' faces and banners and the painted circlet included): ALL
+  PASSED (build, unit with 399 tests, ui, ui-de, release; 16:59 to 18:01 UTC). No warnings from the code.
+  - The simulation did not move: T1 to T8 pass with the joined round's numbers (T1 hearth 100, no losses; T2 nights
+    [3, 3, 3]; T3 days [17, 16, 17]; T4 27 and 83; T5 3 builds, 11 buildings by day 10; T6 with the beacon 20 of 20,
+    the King slain 20, without 10 held; T7 17 of 20 in the band; T8 79.9 s, 39 sim entities, 11 battle lights), and
+    the tuning report and night 20's step check are `lh-j2-1`'s byte for byte. The castle's tier follows the
+    gatehouse, whose price and strength the tuning already held.
+  - Budgets: the frame budget's most is 161 instances and 15 lights (at the bank: 161 with the fog, 78 without);
+    night 12 live 107 instances, 17 lights, 23 creatures at once; look 2's scenes 99 instances and 16 lights, 322
+    instances in a storm; 20 nights of the reference bot in 2.6 s (Debug).
+  - The atlas is 2048 x 1788 of at most 2048 x 2048: about 260 rows are left, so the next large sprites need a
+    second page or smaller cells.
+  - Screenshots, English and German (`100` to `117` are byte for byte `lh-po-1`'s, so the stills hold still):
+    - the fog (`100` to `104`): the bank stands dark up the Throat with pairs of cold eyes and a siege tower in
+      it, the creeping fog runs pale along the ground, three creatures stand at the stake pit in the firelight
+      just outside the bank (`101`); it pulls back at dawn (`103`) and stands still with Reduce Motion (`104`).
+      The creatures are small at this zoom, and the pale fog ends in a straight edge where a rock spire stands
+      in front of it;
+    - the old walls (`105` to `109`): a new realm's crumbled ruins between the rock spires, the reference bot's
+      realm with a ruin on one line and a gate on the other (`107`), the demo realm's stone walls set into the
+      spires with the archers on them (`108`, `109`). In `105` to `107` the right-hand ruin stands partly
+      behind the build button;
+    - the castle (`110` to `112`): the first tier at dusk with its braziers, then the third tier going up, with
+      scaffolding over the gate and the right-hand tower, from the Throat and from the valley;
+    - the market square (`113`, `114`): the notice board, the well and the hay cart under the oak, lamps and
+      fireflies at dusk; the cart is a dark shape at dusk and clear at noon. The tavern's barrels are outside
+      this frame;
+    - the rain (`115` to `117`): grey streaks over the town and over the river meadows by day; at dusk (`116`)
+      the streaks are faint;
+    - the circlet (`118`): the painted gold band with its blue stone on the audience button;
+    - the houses (`119` to `122`): five banners of five houses under the hall's beams, then Varn's and Lorn's
+      between the realm's own; Hild Varn waits at the hall's door on day 3, and her card shows her own portrait.
+      "Tochter des Hauses Varn" and the three answers fit in German.
+
 ## Risks
 
 | Risk | What we do |
