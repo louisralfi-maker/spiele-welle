@@ -1,0 +1,19 @@
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (119.729 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:147: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - Continue closes the report
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' failed (105.366 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (57.004 seconds).
+Test Suite 'FirstDayUITests' failed at 2026-11-10 17:14:28.490.
+Test Case '-[LanternholdUITests.LightProbeUITests testFilmstrip]' passed (16.480 seconds).
+Test Case '-[LanternholdUITests.LightProbeUITests testLightProbe]' passed (222.173 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwo]' passed (207.340 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoCourt]' passed (23.012 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoNight]' passed (67.913 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (61.874 seconds).
+Test Case '-[LanternholdUITests.MidChapterUITests testFinale]' passed (89.032 seconds).
+Test Case '-[LanternholdUITests.MidChapterUITests testMidChapter]' passed (177.221 seconds).
+Test Case '-[LanternholdUITests.ProbeUITests testPixelGrid135]' passed (8.844 seconds).
+Test Case '-[LanternholdUITests.ProbeUITests testPixelGrid180]' passed (8.398 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-10 17:29:10.818.
+Test Suite 'All tests' failed at 2026-11-10 17:29:10.819.
+exit=65
+screenshots: 96
