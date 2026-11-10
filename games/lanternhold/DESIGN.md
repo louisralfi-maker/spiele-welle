@@ -893,7 +893,8 @@ tap in Release) is checked on an A12 iPhone and a current one before the store.
 | `-GWReduceMotion YES` | Reduce Motion without the system setting |
 | `-GWSkipOnboarding YES` | no hints (accepted since M2b part 2, so the tests already pass it; the onboarding comes in M7) |
 | `-GWLook 1\|2` | the look: 2 is the default since the look 2 port; 1 is the first look, kept for the shots and hashes that pin it |
-| `-GWCastle 1\|1b\|2\|2b\|3\|3b` | look 2: the castle's tier as drawn (b: under scaffold); no play raises it yet |
+| `-GWCastle 1\|1b\|2\|2b\|3\|3b` | look 2: fixes the castle's tier as drawn (b: under scaffold); without it the castle stands as the realm built it (it grows with its gatehouse, "Polish after round 2") |
+| `-GWBuild raise` | the demo realm, and by day the great gate 45 % built with a builder at it: the castle's third tier under scaffolding. Use it with `-GWClock` (the hour set, not played: the builders would finish the gate in under four hours) |
 | `-GWWeather auto\|clear\|breeze\|gusty\|storm` | look 2: the weather; auto is the run's seed and day, the others hold one kind |
 | `-GWWind <0...1>`, `-GWRain <0...1>`, `-GWWetness <0...1>` | look 2: hold the steady wind (negative: from the valley), the rain or the wet ground |
 | `-GWGloomFog off\|<0...1>` | look 2: the fog out of the Gloom; without it tonight's (the night's number and the fog modifier), a number holds how hard it comes (0 the first night's, 1 a late fog night's), `off` leaves it out |
@@ -2455,7 +2456,7 @@ read line for line what `lh-m3-f2` measured in every round below.
   They are no lights (the 64 are for fires).
 - The castle's tiers as drawn (`CastleStage`, `-GWCastle 1|1b|2|2b|3|3b`): the keep's top, the back rise, the far
   castle's overlays and the slot's glow at tiers 2 and 3, the drum-tower front at tier 3, the scaffold states. No
-  play raises a tier yet; that is a later lane.
+  play raised a tier in the port; since the polish after round 2 the gatehouse does (see there).
 - The weather (below).
 
 **Decisions**
@@ -2471,7 +2472,8 @@ read line for line what `lh-m3-f2` measured in every round below.
 5. PORT's rounds L2-0 to L2-8 were bundled into fewer runner rounds (a round costs 16 to 50 minutes).
 6. The creatures' lights are frame lights built in `EntityFrames` for the picture; `LightField` and the battle never
    see them.
-7. The castle's tier is an argument, not state: `GameState` has no tier, and the save stays as it is.
+7. The castle's tier is an argument, not state: `GameState` has no tier, and the save stays as it is. (Since the
+   polish after round 2 the tier is read from the gatehouse's plot; still no new state.)
 8. Departures from the mock: the bank is opaque in the game (the mock's is translucent), so the shadow land by night
    is the bank west of its edge and the shadow-land shot stands at x 570, where the creatures have left it.
 9. The scene's accessibility value carries `lit:` beside `seen:` (creature bodies in the frame that the battle's
@@ -2739,6 +2741,8 @@ court was never hashed on its own.
 - Seen in the dusk shots of the town (`74`, `87`), and already in the port's round `lh-l2-4b`: a brown wedge between
   two far mountain layers under the cloud band. It is the port's or the art's to look at.
 - What the lanes left open themselves stands as written in their sections above.
+- The first three points are closed in "Polish after round 2" (the props stand, the young willow is planted, the
+  rooms flicker, the wedge is closed); the chapel, the kitchen and the hall's front still have no lit-room sprite.
 
 **Rounds.**
 
@@ -2752,6 +2756,109 @@ court was never hashed on its own.
 - `lh-j2-2` on 4b74250 (the three hashes recorded; build and unit only, since nothing but the test's table changed):
   ALL PASSED, 375 tests. All six of look 1's hashes are asserted and hold; the tuning report and night 20's step
   check are `lh-j2-1`'s byte for byte.
+
+### Polish after round 2 (10.11.2026)
+
+Branch `claude/lh-polish`, made from the planning branch at f9751d1. Look 2 only: look 1's frames are the frames
+they were (its six golden hashes hold the proof). Nothing here adds state: `GameState`, the save and the tuned
+simulation are untouched.
+
+**1. The Gloom's fog** (`Core/GloomFog.swift`, `FrameBuilder.gloomSlices`, `gloomEyes`; fbddd2e)
+
+- From dusk a cold fog bank creeps out of the darkness bank and up the Throat; at first light (5:00 to 6:00) it
+  pulls back into the shadow land. It is a picture only: `FrameBuilder` and `EntityFrames` read it, the simulation
+  never does (the battle's light field, the bank's edge and every creature's path are what they were).
+- One number drives it, the night's hardness (0 to 1): `(min(night, 20) - 1) / 19 × 0.7`, plus 0.3 under the M3
+  night modifier `fog`. The harder the night, the earlier, further and thicker:
+
+  | | first night | night 12 | hardest |
+  |---|---|---|---|
+  | starts to creep | 19:15 | 18:51 | 18:15 |
+  | stands whole | 20:30 | 20:18 | 20:00 |
+  | reach past the bank's edge | 150 px | 251 px | 400 px |
+  | thickest cover | 0.5 | 0.66 | 0.9 |
+  | pairs of eyes | 5 | 9 | 14 |
+
+  The front never passes x 1180: the castle's front keeps its own mist.
+- Drawn with the masks the art already has, in slices of 16 px, each with the cover of its own place: the tall body
+  (`d2MistBand`, 112 px, growing toward the bank) and the floor (`d2FogBank`) on fog plane A behind the actors, a low
+  veil (`d2FogLow`) on fog plane B in front of them, thin enough that a creature in it still reads. The colour is
+  the hour's fog colour, colder (`coldTint`). The billows creep toward the castle whatever the wind does.
+- The fires of the lines cut holes: every light that counts in battle (brazier, fire tower, beacon, torch by its
+  hour's strength) takes up to 0.85 of the fog away in the inner half of its pool, none a little past its rim
+  (`GloomFog.clearing`, `hole`; at most 130 px wide). Windows, candles and the moon cut none.
+- Cold eyes (`eyeGlints` as glow, a little over white so the bloom catches them) open between the bank and the
+  middle of the fog, look, blink once, close and open elsewhere.
+- The creatures step out of it: an unlit creature's body is unseen 150 px behind the bank's edge and whole from
+  56 px behind it (`bodyAlpha`), so it forms inside the dark and nothing fights half seen at the outer wall. By day,
+  with no fog, the bank hides no more than it did.
+- Reduce Motion: the billows stand, every second pair of eyes stands open where it is, none blinks.
+- `-GWGloomFog off|<0...1>` for shots. `Tests/GloomFogTests.swift` holds the rules, the frame's budgets and that
+  the simulation's state is the same with and without it.
+
+**2. The old walls and the tiers' anchors** (stage 7 of the art, 6115c72; wired in 9bffdd5)
+
+- The older wall's ruins stand in the Throat as scene props, always drawn: `oldWall3` at the outer line (x 612),
+  `oldWall2` at the middle line (x 912), both 8 px into the ground at z -2, and `oldWall1` (84 × 60) at x 1150 before
+  the gatehouse. An empty plot of line 2 or 3 so shows what the tier will be built into.
+- A built tier of line 2 or 3 stands in its anchor (`EntityFrames.wallAnchor`: `palisadeAnchor`, `stoneWallAnchor`,
+  `bastionAnchor`, 128 × 108, at the ruin's place, z -1, behind the tier). The anchor stays under an upgrade's
+  scaffold and when the tier lies as rubble; the first build's scaffold stands before the bare ruin.
+- Until the art landed a ruin painted in code stood there (fb2897c); it is retired (id, size, painter, tests).
+
+**3. The castle grows** (`Core/CastleGrowth.swift`, `GameModel.growCastle`; 84ee833)
+
+- The castle's tier follows its gatehouse: the gate is tier 1, the iron gate tier 2, the great gate tier 3
+  (`CastleStage.grown`). While the builders raise the gatehouse by day the next tier stands under scaffolding (the
+  keep's top, the back rise and the far castle in their building states), and whole when they are done. A fallen
+  gate keeps the tier; rebuilding it is no growth.
+- Cost, time and effect are the gatehouse's own, which the economy was tuned with: the iron gate 90 gold and the
+  great gate 180 gold (25 s and 40 s for two builders), strength 4 000 / 7 000 / 11 000, archer posts 4 / 6 / 8. So the
+  effect is modest and already in T1 to T8; the build card now says what the order does ("The castle grows ·
+  strength 7000 · 6 archer posts", German "Die Burg wächst · Stärke … · … Schützenposten"; the other six languages
+  come with M7's pass).
+- No state: the stage is read from the gate's plot each time the play changes it, and the scene is laid out again
+  when it differs. `-GWCastle` still fixes the stage for shots; `-GWBuild raise` shows the third tier under way.
+- A separate keep upgrade with its own price was weighed and left out: a second sink beside the gatehouse would
+  move the gold curve the tuning stands on.
+
+**4. The polish list** (5f721da, c2b2dd3)
+
+- The square: `noticeBoard` (x 2990) and `hayCart` (x 3040) stand on the market square behind the actors, the
+  `barrels` beside the tavern (28 px left of it, with the tavern, so a realm without one has none).
+- `willowB` is planted between the two willows at the river.
+- The lit rooms flicker: at 0.4 of a fire's flicker and 0.35 of its pace, every house with its own seed; with
+  Reduce Motion as faint and slow as the fires' reduced flicker.
+- The audience button and the audience card carry the lord's circlet in place of the crown symbol (a shape drawn
+  in `UI/Theme.swift` until the painted icon lands).
+- Rain over a bright scene: a pale streak before a day sky was lost, so the brighter the air, the darker the rain
+  falls (slate by day, a little denser; pale as painted from dusk on). Alpha stays under 0.5.
+- Fireflies at phone size: each fly is drawn over white (the bloom gives it a halo) and four more times one pixel
+  off at 0.28: a bright dot in a soft cross.
+- The brown wedge of the town's dusk shots: the far wall falls from 139 to 12 px between far x 658 and 694 and the
+  valley vista's slope only reached that height at 732, so a wedge of horizon sky stood open under the cloud deck.
+  Both vistas stand 64 px further left (556 and 1004): the wall ends behind the fir slopes.
+
+**Tests.** `Tests/GloomFogTests.swift` and `Tests/PolishTests.swift` (the fog's rules, the ruins and anchors, the
+castle's stage through play and through the arguments, the props, the flicker, the rain's shade, the fireflies, the
+vistas). UI: `UITests/PolishUITests.swift`, `testPolish` and `testPolishCirclet`, English and German, every shot
+held still:
+
+| Shot | What |
+|---|---|
+| `100-polish-fog-dusk` | day 12 at 19:48, the fog creeping out of the bank |
+| `101-polish-fog-night` | night 12 at 23:20, the bank up the Throat, the creatures stepping out |
+| `102-polish-fog-hard-night` | the same with `-GWGloomFog 1` |
+| `103-polish-fog-dawn` | 5:30, pulling back |
+| `104-polish-fog-reduce-motion` | 101 with Reduce Motion |
+| `105-polish-ruins-dusk`, `106-polish-ruins-noon` | a new realm: the ruins on the middle and the outer line |
+| `107-polish-ruin-and-wall-day7` | the reference bot's realm on day 7 |
+| `108-polish-walls-dusk`, `109-polish-walls-noon` | the demo realm's stone walls in their anchors |
+| `110-polish-castle-tier1-dusk` | a new realm's castle (tier 2 is `72`, tier 3 `82`) |
+| `111-polish-castle-raise-noon`, `112-polish-castle-raise-back` | `-GWBuild raise`: tier 3 under scaffolding, from the Throat and from the valley |
+| `113-polish-square-dusk`, `114-polish-square-noon` | the market square with its props; fireflies at dusk |
+| `115-polish-rain-town-noon`, `116-polish-rain-square-dusk`, `117-polish-rain-river-day` | rain over bright scenes |
+| `118-polish-circlet-button` | the circlet on the audience button |
 
 ## Risks
 
