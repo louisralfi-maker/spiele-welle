@@ -1,3 +1,5 @@
+import Foundation
+
 /// Builds the immutable `FrameDesc` of one frame from the scene, the clock and the camera (DESIGN.md "Tech plan",
 /// docs/research-rendering.md 5.3). Pure: no state, no time source, the same inputs give an equal frame. Everything off
 /// screen is culled, so the instance and light counts stay inside the budget wherever the camera stands.
