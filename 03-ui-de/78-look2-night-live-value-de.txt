@@ -1,0 +1,1 @@
+frame:2760 ready day:12 hour:23.92 alive:13 seen:8 lit:4 shots:4 aim:1 kx:654 lord:lord
