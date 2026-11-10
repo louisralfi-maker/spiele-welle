@@ -67,9 +67,6 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // Look 2's weather (docs/PORT-look2.md 3): the rain's streaks (nine frames: three depths by three slants) and
     // the splash on the lane (three frames), painted in code until the art lane brings them
     case rainStreak, rainSplash
-    // Polish after round 2 (look 2): the ruin of the older wall on a line's empty wall plot, painted in code until
-    // the art lane brings it
-    case wallRuin
     // Look 2 (SPRITES.md "Look 2: the world", ART-look2.md 13.1). Far plane: the Weltmauer with the far castle in its
     // slot, the patch that hides the baked castle from the valley, and the slot's lights
     case weltmauer, weltmauerPatch, farCastleGlow, farCastlePane, farCleftGlow, farCleftGlowBack
@@ -107,6 +104,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     case lindenB, lindenC, poplarB, poplarC, appleTreeB, appleTreeC, willowB, willowC
     // Polish after round 2 (SPRITES.md "The town at night, the square's props"; look 2 only): the square's props
     case hayCart, barrels, noticeBoard
+    // Stage 7 (SPRITES.md "The old walls in the Throat, the tiers' anchors"; look 2 only): what is left of the first
+    // line before the gatehouse; the places of the middle and the outer line, Lady Oriel's broken wall in the
+    // Throat's rock; the footing and the end piece that tie a tier into that rock (on the place's canvas)
+    case oldWall1, oldWall2, oldWall3, palisadeAnchor, stoneWallAnchor, bastionAnchor
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -252,7 +253,6 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bellGone: return PixelSize(width: 7, height: 8)
         case .rainStreak: return PixelSize(width: 7, height: 11)
         case .rainSplash: return PixelSize(width: 5, height: 3)
-        case .wallRuin: return PixelSize(width: 44, height: 22)
         case .weltmauer: return PixelSize(width: 888, height: 190)
         case .weltmauerPatch: return PixelSize(width: 52, height: 190)
         case .farCastleGlow, .farCastlePane: return PixelSize(width: 40, height: 46)
@@ -320,6 +320,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .hayCart: return PixelSize(width: 40, height: 24)
         case .barrels: return PixelSize(width: 26, height: 14)
         case .noticeBoard: return PixelSize(width: 20, height: 26)
+        case .oldWall1: return PixelSize(width: 84, height: 60)
+        case .oldWall2, .oldWall3, .palisadeAnchor, .stoneWallAnchor, .bastionAnchor:
+            return PixelSize(width: 128, height: 108)
         }
     }
 

@@ -402,15 +402,18 @@ enum EntityFrames {
         }
     }
 
-    /// A line's wall by its plot: whole, damaged, rubble, under scaffolding. In look 2 a plot that never carried a
-    /// wall shows the ruin of the older one (polish after round 2), also under the scaffolding of its first wall.
+    /// A line's wall by its plot: whole, damaged, rubble, under scaffolding. In look 2 the line's place is the scene's
+    /// (`SceneLayout.look2`: Lady Oriel's broken wall in the Throat's rock, always drawn), and a tier stands in its
+    /// anchor (stage 7): the footing across the track and the end piece that ties it into the rock, on the place's
+    /// canvas, while the tier is whole, damaged, rubble or under the scaffold of the upgrade that replaces it.
     private static func wall(_ s: GameState, plot index: Int, layout: LineLayout, balance: Balance,
                              look: LookVersion, props: inout PropList) {
         let plot = s.plots[index]
-        if look == .two && plot.item == nil {
-            props.add(.wallRuin, x: wallRuinX(line: layout.line), z: -1, shade: wallRuinShade)
-        }
         if let item = plot.item {
+            if look == .two, let anchor = wallAnchor(item) {
+                props.add(anchor, x: layout.wallLeft - SceneLayout.look2OldWallInset,
+                          y: -SceneLayout.look2OldWallDrop, z: -1)
+            }
             if plot.isRubble {
                 let rubble: SpriteID = item == .palisade ? .rubbleWood : .rubbleStone
                 props.add(rubble, x: layout.wallLeft - 2, z: 1)
@@ -425,13 +428,14 @@ enum EntityFrames {
         }
     }
 
-    /// The older wall's ruin lies centred on the first wall's footprint (a palisade's), a little in the shade.
-    static let wallRuinShade: Float = 0.9
-
-    /// The left edge of line `line`'s ruin (line 2 or 3) in world pixels.
-    static func wallRuinX(line: Int) -> Double {
-        let centre = Realm.wallX[line - 1] + Double(SpriteID.palisade.size.width) / 2
-        return (centre - Double(SpriteID.wallRuin.size.width) / 2).rounded(.down)
+    /// The anchor a wall tier of line 2 or 3 stands in (look 2), nil for anything else.
+    static func wallAnchor(_ item: BuildItem) -> SpriteID? {
+        switch item {
+        case .palisade: return .palisadeAnchor
+        case .stoneWall: return .stoneWallAnchor
+        case .bastion: return .bastionAnchor
+        default: return nil
+        }
     }
 
     private static func tower(_ s: GameState, plot index: Int, layout: LineLayout, props: inout PropList) {

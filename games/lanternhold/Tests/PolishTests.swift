@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import Lanternhold
 
-/// The polish after round 2 (DESIGN.md "Polish after round 2"): the ruins of the older wall on the empty line plots,
+/// The polish after round 2 (DESIGN.md "Polish after round 2"): the old walls in the Throat and the tiers' anchors,
 /// the castle that grows with its gatehouse, the market square's props, the willow, the rooms' soft flicker, the far
 /// plane's closed notch. Look 2 only: look 1 is pinned by `LookGoldenTests`.
 @MainActor
@@ -49,72 +49,113 @@ final class PolishTests: XCTestCase {
 
     // MARK: The old walls
 
-    func testTheOlderWallsRuinsStandOnTheEmptyLinePlots() throws {
+    func testTheOldWallsStandInTheThroatAndATierInItsAnchor() throws {
+        // The places: Lady Oriel's lines on the world plane behind everything built, in the scene, always drawn.
+        let old: Set<SpriteID> = [.oldWall1, .oldWall2, .oldWall3]
+        let places = PolishTests.world.props.filter { old.contains($0.sprite) }
+        XCTAssertEqual(places.count, 3)
+        let first = try XCTUnwrap(places.first { $0.sprite == .oldWall1 })
+        let middle = try XCTUnwrap(places.first { $0.sprite == .oldWall2 })
+        let outer = try XCTUnwrap(places.first { $0.sprite == .oldWall3 })
+        XCTAssertEqual(middle.x, Realm.wallX[1] - 28, "the wall's left edge is sprite x 28")
+        XCTAssertEqual(outer.x, Realm.wallX[2] - 28)
+        XCTAssertEqual(middle.x, 912)
+        XCTAssertEqual(outer.x, 612)
+        XCTAssertEqual(first.x, SceneLayout.look2OldWallOneX)
+        XCTAssertLessThanOrEqual(first.x + Double(first.width), WorldLayout.castleFrontX, "before the castle's front")
+        for place in places {
+            XCTAssertEqual(place.plane, .world)
+            XCTAssertEqual(place.y, -8, "the old footing lies in the track, 8 rows under the ground line")
+            XCTAssertEqual(place.shade, 1)
+            XCTAssertTrue(place.lights.isEmpty)
+            XCTAssertTrue(place.emissive.isEmpty)
+        }
+        XCTAssertEqual([middle.z, outer.z, first.z], [-2, -2, -1])
+        XCTAssertEqual(PixelSize(width: middle.width, height: middle.height), PixelSize(width: 128, height: 108))
+        XCTAssertEqual(PixelSize(width: first.width, height: first.height), PixelSize(width: 84, height: 60))
+
+        // The game keeps them whatever stands on the plots; look 1 has none of it.
         var s = GameState.newRealm(seed: 7)
         let second = Realm.lines[1].wall
         let third = Realm.lines[2].wall
         XCTAssertNil(s.plots[second].item)
         XCTAssertNil(s.plots[third].item)
-        XCTAssertEqual(EntityFrames.wallRuinX(line: 2), 928)
-        XCTAssertEqual(EntityFrames.wallRuinX(line: 3), 628)
+        let kept = SceneFilter.gameScene(PolishTests.world, state: s).props
+        XCTAssertEqual(kept.filter { $0.sprite == .oldWall2 || $0.sprite == .oldWall3 }.count, 2)
+        let demo = SceneFilter.gameScene(PolishTests.world, state: GameFrameSupport.demoNight()).props
+        XCTAssertEqual(demo.filter { $0.sprite == .oldWall2 || $0.sprite == .oldWall3 }.count, 2)
+        let stage7: Set<SpriteID> = [.oldWall1, .oldWall2, .oldWall3, .palisadeAnchor, .stoneWallAnchor,
+                                     .bastionAnchor]
+        XCTAssertTrue(GameFrameSupport.world.props.allSatisfy { !stage7.contains($0.sprite) })
 
-        let ruins = layer(s).props.filter { $0.sprite == .wallRuin }
-        XCTAssertEqual(ruins.map(\.x).sorted(), [628, 928], "one ruin on each empty line")
-        for ruin in ruins {
-            XCTAssertEqual(ruin.plane, .world)
-            XCTAssertEqual(ruin.y, 0, "it stands on the ground")
-            XCTAssertEqual(ruin.z, -1, "behind the wall that will stand there")
-            XCTAssertEqual(ruin.shade, EntityFrames.wallRuinShade)
-            XCTAssertEqual(ruin.width, SpriteID.wallRuin.size.width)
-            XCTAssertTrue(ruin.lights.isEmpty)
+        // An empty plot has no anchor, and none under the scaffold of its first wall.
+        func anchors(_ state: GameState, look: LookVersion = .two) -> [Prop] {
+            layer(state, look: look).props.filter { stage7.contains($0.sprite) }
         }
-        XCTAssertTrue(layer(s, look: .one).props.allSatisfy { $0.sprite != .wallRuin }, "look 1 has none")
-
-        // The ruin is centred on the first wall's footprint.
-        let palisade = Double(SpriteID.palisade.size.width)
-        let centre = try XCTUnwrap(ruins.first { $0.x == 928 }).x + Double(SpriteID.wallRuin.size.width) / 2
-        XCTAssertEqual(centre, Realm.wallX[1] + palisade / 2)
-
-        // The first wall's scaffolding rises over the ruin; the wall itself takes its place.
+        XCTAssertTrue(anchors(s).isEmpty)
         let total = Build.work(.palisade, rebuild: false, balance: .standard)
         s.plots[second].job = BuildJob(target: .palisade, work: total * 0.5, total: total, isRebuild: false, order: 1)
-        XCTAssertEqual(layer(s).props.filter { $0.sprite == .wallRuin }.count, 2)
+        XCTAssertTrue(anchors(s).isEmpty)
+
+        // The palisade stands in its anchor: on the place's canvas, over it, behind the tower and the tier.
         var events: [SimEvent] = []
         Build.complete(&s, plot: second, balance: .standard, events: &events)
         XCTAssertEqual(s.plots[second].item, .palisade)
-        XCTAssertEqual(layer(s).props.filter { $0.sprite == .wallRuin }.map(\.x), [628])
+        var found = anchors(s)
+        XCTAssertEqual(found.map(\.sprite), [.palisadeAnchor])
+        let anchor = try XCTUnwrap(found.first)
+        XCTAssertEqual(anchor.x, middle.x)
+        XCTAssertEqual(anchor.y, middle.y)
+        XCTAssertEqual(anchor.z, -1)
+        XCTAssertEqual(anchor.plane, .world)
+        XCTAssertEqual(anchor.frame, 0)
+        XCTAssertTrue(anchor.lights.isEmpty)
+        let tier = try XCTUnwrap(layer(s).props.first { $0.sprite == .palisade })
+        XCTAssertEqual(tier.x, anchor.x + 28)
+        XCTAssertGreaterThan(tier.z, anchor.z)
+        XCTAssertTrue(anchors(s, look: .one).isEmpty, "look 1 has none")
 
-        // A wall that fell lies as its own rubble, not as the old ruin.
+        // It stays under the scaffold of the upgrade that replaces it, and when the wall lies as rubble.
+        let upgrade = Build.work(.stoneWall, rebuild: false, balance: .standard)
+        s.plots[second].job = BuildJob(target: .stoneWall, work: upgrade * 0.5, total: upgrade, isRebuild: false,
+                                       order: 2)
+        XCTAssertEqual(anchors(s).map(\.sprite), [.palisadeAnchor])
+        s.plots[second].job = nil
         s.plots[second].isRubble = true
         s.plots[second].hp = 0
-        let fallen = layer(s).props
-        XCTAssertEqual(fallen.filter { $0.sprite == .wallRuin }.map(\.x), [628])
-        XCTAssertEqual(fallen.filter { $0.sprite == .rubbleWood }.count, 1)
+        XCTAssertEqual(anchors(s).map(\.sprite), [.palisadeAnchor])
+        XCTAssertEqual(layer(s).props.filter { $0.sprite == .rubbleWood }.count, 1)
 
-        // The demo realm's lines are built: no ruin.
-        XCTAssertTrue(layer(GameFrameSupport.demoNight()).props.allSatisfy { $0.sprite != .wallRuin })
+        // Each tier has its own: the stone wall's end tower, the bastion's higher one.
+        s.plots[second].isRubble = false
+        s.plots[second].item = .stoneWall
+        s.plots[second].hp = Build.maxHP(.stoneWall, balance: .standard)
+        s.plots[third].item = .bastion
+        s.plots[third].hp = Build.maxHP(.bastion, balance: .standard)
+        found = anchors(s).sorted { $0.x < $1.x }
+        XCTAssertEqual(found.map(\.sprite), [.bastionAnchor, .stoneWallAnchor])
+        XCTAssertEqual(found.map(\.x), [outer.x, middle.x])
+        XCTAssertEqual(EntityFrames.wallAnchor(.palisade), .palisadeAnchor)
+        XCTAssertEqual(EntityFrames.wallAnchor(.stoneWall), .stoneWallAnchor)
+        XCTAssertEqual(EntityFrames.wallAnchor(.bastion), .bastionAnchor)
+        XCTAssertNil(EntityFrames.wallAnchor(.gate), "the gatehouse needs none")
+        XCTAssertNil(EntityFrames.wallAnchor(.archerTower))
     }
 
     func testThePolishSpritesHaveTheirPlaceholders() {
-        for sprite in [SpriteID.wallRuin, .hayCart, .barrels, .noticeBoard] {
+        let polish: [SpriteID] = [.hayCart, .barrels, .noticeBoard, .oldWall1, .oldWall2, .oldWall3,
+                                  .palisadeAnchor, .stoneWallAnchor, .bastionAnchor]
+        for sprite in polish {
             let frames = PlaceholderArt.frames(for: sprite)
             XCTAssertEqual(frames.count, sprite.frameCount, "\(sprite)")
+            XCTAssertEqual(sprite.frameCount, 1, "\(sprite)")
             for frame in frames {
                 XCTAssertEqual(PixelSize(width: frame.width, height: frame.height), sprite.size, "\(sprite)")
+                XCTAssertFalse(frame.isEmpty, "\(sprite)")
             }
+            // Each is drawn from its painting.
+            XCTAssertEqual(AtlasLayout.shared.sources[sprite], .png, "\(sprite)")
         }
-        XCTAssertEqual(SpriteID.wallRuin.size, PixelSize(width: 44, height: 22))
-        // The ruin's painting is no empty picture: stone above the ground row, a breach in the middle.
-        let ruin = PlaceholderPolish.wallRuin(1)
-        var solid = 0
-        for y in 0..<ruin.height {
-            for x in 0..<ruin.width where ruin[x, y].a > 0 {
-                solid += 1
-            }
-        }
-        XCTAssertGreaterThan(solid, 200)
-        XCTAssertLessThan(solid, ruin.width * ruin.height - 150, "broken, not a block")
-        XCTAssertEqual(ruin[21, 6].a, 0, "the breach is open")
     }
 
     // MARK: The castle grows
@@ -252,7 +293,7 @@ final class PolishTests: XCTestCase {
         XCTAssertTrue(others[0] < willow.x && willow.x < others[1])
 
         // Look 1 has none of it.
-        let added: Set<SpriteID> = [.noticeBoard, .hayCart, .barrels, .willowB, .wallRuin]
+        let added: Set<SpriteID> = [.noticeBoard, .hayCart, .barrels, .willowB]
         XCTAssertTrue(GameFrameSupport.world.props.allSatisfy { !added.contains($0.sprite) })
         XCTAssertTrue(layer(GameFrameSupport.demoNight(), look: .one, focus: 3300).props
             .allSatisfy { !added.contains($0.sprite) })

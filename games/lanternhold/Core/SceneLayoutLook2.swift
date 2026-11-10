@@ -79,6 +79,14 @@ extension SceneLayout {
         // toward the valley. No tree on its edge: a tree there gives the cliff a scale, and a small one.
         (.mid, Entry(sprite: .cleftFace, x: 740, y: -95, z: 2, shade: 0.42)),
         (.mid, Entry(sprite: .cleftFaceEnd, x: 1188, y: -95, z: 2, shade: 0.42)),
+        // Stage 7 (ART-look2.md 19.1), the old walls in the Throat, on the world plane behind everything built: the
+        // places of the outer and the middle line (two masses of granite, the saddle between them, across it Lady
+        // Oriel's broken wall; a wall's left edge is sprite x 28, the ground line 8 rows above the bottom), always
+        // drawn, and what is left of her first line before the gatehouse. A tier's anchor lies over its place
+        // (`EntityFrames.wall`, z -1), the towers (z 0) and the tiers (z 1) before both.
+        (.world, Entry(sprite: .oldWall3, x: Realm.wallX[2] - look2OldWallInset, y: -look2OldWallDrop, z: -2)),
+        (.world, Entry(sprite: .oldWall2, x: Realm.wallX[1] - look2OldWallInset, y: -look2OldWallDrop, z: -2)),
+        (.world, Entry(sprite: .oldWall1, x: look2OldWallOneX, y: -look2OldWallDrop, z: -1)),
     ]
 
     private static let look2Depth: [(plane: Plane, entry: Entry)] = [
@@ -155,6 +163,13 @@ extension SceneLayout {
 
     /// The far x of the valley's first vista (the second, mirrored, joins it 448 px on).
     static let look2VistaX = 556.0
+
+    /// The old walls' canvas (and the anchors'): a line's wall begins 28 px right of its left edge, and its bottom
+    /// lies 8 rows under the ground line (the old footing in the track). The first line's rest stands before the
+    /// gatehouse, left of the castle's front.
+    static let look2OldWallInset = 28.0
+    static let look2OldWallDrop = 8.0
+    static let look2OldWallOneX = 1150.0
 
     /// Where the square's props stand (their left edges in world pixels): the notice board ends 3 px before the
     /// well (3013 to 3031), the hay cart begins 9 px after it and ends before house 5 (3090).

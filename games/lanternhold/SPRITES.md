@@ -398,9 +398,12 @@ carry a third.
 
 ### The old walls in the Throat, the tiers' anchors (look 2, stage 7; ART-look2.md section 19.1)
 
-**Proposals for the code lane** (claude/lh-polish): the PNGs lie in Resources/Art, `tools/build-art.sh` rebuilds them
-(`tools/throatart.py`, in the world lane), no Swift names them yet. All six are props of the **world plane**, one
-frame each, lit like any building, without emitters. No existing id, size or frame count changed.
+**Registered and placed since the polish after round 2** (claude/lh-polish), as proposed here: the six ids are
+`SpriteID` cases after the square's props; `oldWall2`, `oldWall3` and `oldWall1` are entries of `SceneLayout.look2`
+(always drawn, also in game mode), a tier's anchor is drawn by `EntityFrames.wall` while `plot.item` is that tier
+(`EntityFrames.wallAnchor`). Look 2 only. The PNGs lie in Resources/Art, `tools/build-art.sh` rebuilds them
+(`tools/throatart.py`, in the world lane). All six are props of the **world plane**, one frame each, lit like any
+building, without emitters. No existing id, size or frame count changed.
 
 | id | size | frames | notes |
 |---|---|---|---|
