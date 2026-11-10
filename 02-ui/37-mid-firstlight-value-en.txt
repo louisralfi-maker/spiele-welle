@@ -1,0 +1,1 @@
+frame:180 ready day:12 hour:5.83 alive:0 seen:0 lit:0 shots:0 aim:0 kx:620 lord:lord dawn:0.62
