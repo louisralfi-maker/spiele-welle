@@ -124,6 +124,12 @@ testflight() {
     # outside the repo during this step only. The log in ci-out has both ids blanked and never holds the key.
     N=$((N + 1))
     D=$(printf '%02d-testflight' "$N")
+    # Only a build whose earlier steps all passed goes to Louis' phone: put build and unit (at least) before it.
+    if [ "$FAILED" -gt 0 ]; then
+        note "$(stamp) SKIP testflight: $FAILED earlier step(s) failed, nothing uploaded"
+        FAILED=$((FAILED + 1))
+        return
+    fi
     if [ -z "${ASC_KEY_ID:-}" ] || [ -z "${ASC_ISSUER_ID:-}" ] || [ -z "${ASC_PRIVATE_KEY:-}" ]; then
         note "$(stamp) FAIL testflight: the secrets ASC_KEY_ID, ASC_ISSUER_ID and ASC_PRIVATE_KEY are not all there (ci/tf-* only)"
         FAILED=$((FAILED + 1))
