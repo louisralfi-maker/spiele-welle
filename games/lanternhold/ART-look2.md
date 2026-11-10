@@ -1577,3 +1577,70 @@ icons large; the six files at their own pixels. The label's font in the plate is
 - The envoys' portraits are fixed paintings without swap ramps, as `portraitEnvoy` is.
 - The icon was judged in the plate only: whether 24x16 pt is large enough beside the label on a phone is to be
   seen on the runner.
+
+## 20. Stage 8: the great hall and touching the world (10.11.2026)
+
+Louis on 10.11.: the action button is "cringe", you should touch the characters themselves, the interface matters as
+much as the picture, the throne room should be much bigger and painted at the craft of the great pixel-art kingdoms.
+Those games are the bar for craft, scale and feel only. The hall stays ours: a side-view great hall in look 2 with
+the hearth as the realm's heart, the lamplighter lord, the Weltmauer beyond the windows (DESIGN.md "Not a copy").
+
+### 20.1 The great hall
+
+- `greatHall`, 600x201 (`tools/hallart.py`): five bays under an open timber roof between clustered wall shafts and
+  depressed arches, a carved string course and a wainscot along the nave.
+  - **The door bay:** the iron-bound door between two torches, a timber gallery over it with the realm's cloth and
+    two newel candles, a window behind the gallery.
+  - **Two window bays:** tall traceried windows with transparent lights (the night and the Weltmauer stand behind
+    them), a bench and two candle stands under each, the realm's banners between, a chandelier of six candles over
+    each.
+  - **The dais,** three steps up: the throne under a cloth of estate with the lantern, a round window over it, the
+    arms over crossed spears, a long carpet from the door to the throne.
+  - **The hearth,** the hall's far end and its brightest place: a hood of pale stone up to the roof with the
+    lantern cut in relief, a mantel with four candles, the firebox with fire dogs and logs.
+- `hallPillarNear`, 46x201: a pillar of the near arcade, drawn in front and dark, for depth.
+- `hallFire`, six frames of 34x28: the great fire on the fire ramp.
+- Nothing in it has a child's features; the seated and standing folk are the grown townsfolk of the earlier stages.
+
+### 20.2 The marks
+
+`tapTalk`, `tapThrone`, `tapBuild`, `tapRepair`, `tapRecruit`, `tapLight`: two frames of 15x18 each, a parchment
+tag in an ink line and a gold rim with a 9x9 glyph in ink and wax red; the second frame is the pressed one (darker
+paper, a dull rim; nothing moves). The highlight on the thing is a one-pixel gold rim and a small warm pool of light
+at its feet, both the engine's, no sprite. Small and calm: no bobbing, no pulse, no arrows.
+
+### 20.3 The previews (`ci-out/hall`, PNG and JPEG)
+
+| file | shows |
+|---|---|
+| `01-audience-old-above-new` | today's hall on today's screen above the great hall at the audience framing: the lord seated, a petitioner walking up, the court in its places |
+| `02-hall-wide-night` | the whole hall late at night: the chandeliers out, the hearth, the door torches, the lord's lantern, the near pillars |
+| `03-tap-marks-in-the-hall` | the waiting with rim, pool and `tapTalk` (one pressed), the empty throne with `tapThrone` |
+| `04-tap-marks-at-the-front` | a plot, a townsman, a cold brazier (pressed) and a damaged wall with their marks |
+| `05-screen-without-action-button` | today's screen with the button above the same screen without it |
+| `06-audience-card-over-the-hall` | the parchment letter in the upper left, the choices along the floor, the hall as the stage |
+
+`tools/scenemock/scene_hall.py` renders the scenes (its own small renderer: the hall is a stage, not the open
+world). 05 and 06 add the interface as a page in the look of docs/UI-look.md, photographed once; that page is not in
+the repo.
+
+### 20.4 Notes for the code lane
+
+- Ids, sizes, places, anchors, layers, the camera and the second atlas page: SPRITES.md "The great hall as a stage"
+  and "The marks of 'touch the world'". The controls: DESIGN.md "Controls 2: touch the world".
+- The hall is albedo like the rooms of M3. Its light comes from the anchors (`hallart.py anchors greatHall`); the
+  previews use the mock's four steps and are darker in the nave than the engine may want. The interior ambient is
+  the engine's to set.
+- The banners in the hall are painted in the houses' outline at five places, so a house's banner covers one whole.
+- The windows are holes: the stage needs the sky and `weltmauer` behind it, or a flat night colour.
+- `hallInterior` and every older id are untouched.
+
+### 20.5 Open
+
+- Nothing of this was seen in the engine or on the runner; the pictures are the mock's.
+- The lit world in the previews of the front is a quick stand-in (no town, no fog); only the marks are the subject.
+- Whether the card moves to the upper left with the choices below is the lead's and Louis' call; the picture shows
+  that the stage stays in sight that way.
+- The tax lectern has no mark of its own.
+- The characters are the existing 30 px sprites. In a hall this tall they read small when the whole hall is in
+  view; the audience framing answers that with the larger scale, not with new sprites.
