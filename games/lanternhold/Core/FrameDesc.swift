@@ -64,6 +64,31 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // effects): the hall's renewed banners, the tapestry of Aldric, Seren's grey lantern, the votive candles before
     // the chapel's altar, the empty belfry where the bell hung
     case hallBanner, tapestry, serenLantern, votiveCandles, bellGone
+    // Look 2 (SPRITES.md "Look 2: the world", ART-look2.md 13.1). Far plane: the Weltmauer with the far castle in its
+    // slot, the patch that hides the baked castle from the valley, and the slot's lights
+    case weltmauer, weltmauerPatch, farCastleGlow, farCastlePane, farCleftGlow, farCleftGlowBack
+    // Far and mid: the fir belt, the shadow land's forest, the Throat's rock, the cleft's faces, the valley
+    case d2FirBeltFar, shadowForest, gorgeRock, cleftFace, cleftFaceEnd, valleyVista, d2TreeBelt
+    // Near plane (0.75): the Throat's crags and the trees of both lands
+    case gorgeCrags, firA, firB, firC, firD, deadTreeA, deadTreeB, linden, poplar, appleTree, willow
+    // World plane: the cleft's flanks at the castle, bushes, the lane's end and the four lanes (variants A to D)
+    case cleftFlank, cleftFlankB, cleftThroat, d2BushA, d2BushB, d2LaneEnd
+    case laneMoorA, laneMoorB, laneMoorC, laneMoorD, laneScreeA, laneScreeB, laneScreeC, laneScreeD
+    case laneCobbleA, laneCobbleB, laneCobbleC, laneCobbleD, laneEarthA, laneEarthB, laneEarthC, laneEarthD
+    // Foreground plane
+    case d2FgFerns, d2FgMeadow, d2FgReeds
+    // White alpha masks the engine colours (fog banks, the mist band, chimney smoke) and additive effects
+    case d2FogBank, d2MistBand, d2FogLow, d2Smoke, d2Fireflies, d2Sparks
+    // The darkness bank's emissive strip (4 frames, ART-look2.md 11.5)
+    case darknessBankGlow
+    // The castle's tiers 2 and 3 and their building states (SPRITES.md "The castle grows"; drawing only)
+    case keepTop2, keepTop2Build, keepTop3, keepTop3Build, castleFront3, castleFront3Build, castleFrontScaffold
+    case backTop2, backTop2Build, backTop3, backTop3Build
+    case farCastle2, farCastle2Build, farCastle3, farCastle3Build
+    case farCastleBack2, farCastleBack2Build, farCastleBack3, farCastleBack3Build
+    case farCastle2Glow, farCastle3Glow, farCastleBack2Glow, farCastleBack3Glow
+    case farCleftGlow2, farCleftGlow2Build, farCleftGlow3, farCleftGlow3Build
+    case farCleftGlowBack2, farCleftGlowBack2Build, farCleftGlowBack3, farCleftGlowBack3Build
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -207,6 +232,59 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .serenLantern: return PixelSize(width: 7, height: 16)
         case .votiveCandles: return PixelSize(width: 14, height: 6)
         case .bellGone: return PixelSize(width: 7, height: 8)
+        case .weltmauer: return PixelSize(width: 888, height: 190)
+        case .weltmauerPatch: return PixelSize(width: 52, height: 190)
+        case .farCastleGlow, .farCastlePane: return PixelSize(width: 40, height: 46)
+        case .farCleftGlow, .farCleftGlow2, .farCleftGlow2Build, .farCleftGlow3, .farCleftGlow3Build:
+            return PixelSize(width: 44, height: 72)
+        case .farCleftGlowBack, .farCleftGlowBack2, .farCleftGlowBack2Build, .farCleftGlowBack3,
+             .farCleftGlowBack3Build:
+            return PixelSize(width: 44, height: 68)
+        case .d2FirBeltFar: return PixelSize(width: 520, height: 40)
+        case .shadowForest: return PixelSize(width: 224, height: 104)
+        case .gorgeRock: return PixelSize(width: 448, height: 211)
+        case .cleftFace: return PixelSize(width: 448, height: 218)
+        case .cleftFaceEnd: return PixelSize(width: 240, height: 218)
+        case .valleyVista: return PixelSize(width: 448, height: 160)
+        case .d2TreeBelt: return PixelSize(width: 520, height: 58)
+        case .gorgeCrags: return PixelSize(width: 160, height: 200)
+        case .firA: return PixelSize(width: 29, height: 130)
+        case .firB: return PixelSize(width: 30, height: 118)
+        case .firC: return PixelSize(width: 34, height: 106)
+        case .firD: return PixelSize(width: 27, height: 84)
+        case .deadTreeA: return PixelSize(width: 17, height: 72)
+        case .deadTreeB: return PixelSize(width: 17, height: 70)
+        case .linden: return PixelSize(width: 52, height: 92)
+        case .poplar: return PixelSize(width: 14, height: 116)
+        case .appleTree: return PixelSize(width: 42, height: 48)
+        case .willow: return PixelSize(width: 52, height: 68)
+        case .cleftFlank, .cleftFlankB: return PixelSize(width: 80, height: 240)
+        case .cleftThroat: return PixelSize(width: 192, height: 240)
+        case .d2BushA: return PixelSize(width: 30, height: 15)
+        case .d2BushB: return PixelSize(width: 22, height: 12)
+        case .d2LaneEnd: return PixelSize(width: 48, height: 30)
+        case .laneMoorA, .laneMoorB, .laneMoorC, .laneMoorD, .laneScreeA, .laneScreeB, .laneScreeC, .laneScreeD,
+             .laneCobbleA, .laneCobbleB, .laneCobbleC, .laneCobbleD, .laneEarthA, .laneEarthB, .laneEarthC,
+             .laneEarthD:
+            return PixelSize(width: 64, height: 26)
+        case .d2FgFerns: return PixelSize(width: 480, height: 64)
+        case .d2FgMeadow: return PixelSize(width: 480, height: 58)
+        case .d2FgReeds: return PixelSize(width: 160, height: 40)
+        case .d2FogBank: return PixelSize(width: 384, height: 40)
+        case .d2MistBand: return PixelSize(width: 448, height: 60)
+        case .d2FogLow: return PixelSize(width: 320, height: 24)
+        case .d2Smoke: return PixelSize(width: 26, height: 50)
+        case .d2Fireflies: return PixelSize(width: 96, height: 30)
+        case .d2Sparks: return PixelSize(width: 14, height: 24)
+        case .darknessBankGlow: return PixelSize(width: 64, height: 236)
+        case .keepTop2, .keepTop2Build, .keepTop3, .keepTop3Build: return PixelSize(width: 150, height: 140)
+        case .castleFront3, .castleFront3Build: return PixelSize(width: 268, height: 236)
+        case .castleFrontScaffold: return PixelSize(width: 240, height: 236)
+        case .backTop2, .backTop2Build, .backTop3, .backTop3Build: return PixelSize(width: 100, height: 140)
+        case .farCastle2, .farCastle2Build, .farCastle3, .farCastle3Build, .farCastleBack2, .farCastleBack2Build,
+             .farCastleBack3, .farCastleBack3Build, .farCastle2Glow, .farCastle3Glow, .farCastleBack2Glow,
+             .farCastleBack3Glow:
+            return PixelSize(width: 48, height: 48)
         }
     }
 
@@ -246,7 +324,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .citizen, .citizenB, .citizenC, .builder: return 6
         case .archer: return 5
         case .sootCrow, .sootCrowGlow, .gloomweaver, .gloomweaverGlow: return 4
-        case .beaconFire: return 4
+        case .beaconFire, .darknessBankGlow: return 4
         case .gateWood, .gateIron, .gateGreat, .catapult: return 3
         case .arrow, .fireArrow, .bolt, .spark, .streak: return 3
         case .palisade, .stoneWall, .bastion, .ballista, .stakePit, .firepot, .shard: return 2

@@ -23,8 +23,10 @@ into its own notes (ART.md or DESIGN.md) and reports it, and the lead updates th
   draws the body opaque at a very low value (`EntityFrames.unlitValue`, 0.2 at full night, never a translucent ghost),
   a cool moonlight rim on its screen-right edge pixels (`Renderer.rimmed`, the king's rim pass; firelight outshines
   it), and the glow strip over it. In light the whole body shows. So the glow strip alone must still read as the
-  creature: an ember rim on the silhouette's top contour, one connected crack network and the eyes, which are not the
-  main read (ART-actors.md "Glow strip rules"). The body must read in daylight and in firelight.
+  creature: a dim ember rim (`emberDim`) on the silhouette's top contour, `ember` only inside a few cracks, and one
+  cold eye (`wraithWhite`, at most one `wraithDim` tear under it) low in a dark socket; never two eyes (ART-look2.md
+  11.2, ART-actors.md "Glow strip rules"). The body must read in daylight and in firelight. The engine draws the cold
+  pixels as they are: no warm tint, no torch strength, and not dimmed by day.
 
 ## Actors
 
@@ -50,9 +52,21 @@ into its own notes (ART.md or DESIGN.md) and reports it, and the lead updates th
 | `lightlessKing` | 64x64 | 7 | walk 0-3, attack 4-6 |
 
 Glow strips: `sootlingGlow`, `sootlingBGlow`, `shadehoundGlow`, `sootCrowGlow`, `ashBruteGlow`, `gloomweaverGlow`,
-`ashGiantGlow`, `lightlessKingGlow`. Ember eyes and cracks in the fire ramp; the gloomweaver's eyes and orb are cold
-violet and the Lightless King's are a cold pale teal (add tagged `emissive` palette entries for these if needed, and
-check that `build-art.sh` still rebuilds every committed sprite byte for byte).
+`ashGiantGlow`, `lightlessKingGlow`. A dim ember rim and ember cracks in the fire ramp, one cold eye each
+(`wraithWhite`, `wraithDim`); the gloomweaver's eye and lantern drip are cold violet; the Lightless King has no eye and
+no ember, only `wraithDim` and `wraithGlow` (the crescent in his cowl, the thorns' tips). No palette entry was added;
+`build-art.sh` rebuilds every strip byte for byte.
+
+Look 2 keeps every id, size, frame count and anchor above. What the engine changes with look 2 (ART-look2.md 11.4):
+the walk strides are 3, 6, 4, 4 and 5 px per frame (sootlings, shadehound, ash brute, ash giant, Lightless King); the
+gloomweaver's light sits at its lantern's core (9 px right of the centre, 9 px up); the Lightless King's aura is
+centred 4 px left of his centre and 52 px up, and things over his head sit 2 px higher; the ash giant's heart is a
+small ember light (5 px right, 68 px up), brightest on frame 5, and its stomp's kick, dust and cue fall on frame 5 (the
+damage time is untouched).
+
+| id | size | frames | frame use |
+|---|---|---|---|
+| `darknessBankGlow` | 64x236 | 4 | the darkness bank's emissive strip (ART-look2.md 11.5): pairs of cold eyes and dim embers in the bank's body. One frame over each `darknessBank` tile, drawn as it is: frame (tile index + time x 1.5) mod 4, with Reduce Motion tile index mod 4 |
 
 ## Buildings (frame 0 whole, frame 1 damaged below 50 % HP, unless the table says otherwise)
 
@@ -205,34 +219,39 @@ fades out (code lane), so the front's silhouette and the interior's must match.
 | `statue` | 20x40 | 1 | a world change: a stone statue of the lamplighter king with his lantern, in the courtyard |
 | `speakerMark` | 7x7 | 2 | a small speech mark over a court member who has something new to say (frame 1 pulses) |
 
-## Proposals of the art pass (look 2, stage 4; ART-look2.md section 15)
+## Look 2: the world (ART-look2.md 13.1, 14; in `SpriteID` since the look-2 port's contract step, 10.11.2026)
 
-Everything under this heading is a **proposal for the code lane**: the PNGs lie in Resources/Art and
-`tools/build-art.sh` rebuilds them, but no Swift names them yet. Sizes, frames and anchors are what the art was painted
-to; the code lane may take them as they are.
+One frame each. Albedo, except: the fog banks, the mist band and the smoke are `#FFFFFF` alpha masks the engine
+colours; sparks and fireflies are additive dots in the fire ramp; the far castle's glows and the slot's glows are
+emissive strips. Where each stands is `tools/scenemock/layout_look2.py` (the mock is the reference) and
+docs/PORT-look2.md 1.7. Look 1's sprites that look 2 no longer draws stay in the folder for `-GWLook 1`.
 
-### The lady, and both lords seated
-
-| id | size | frames | notes |
+| id | size | plane | notes |
 |---|---|---|---|
-| `lady` | 16x30 | 10 | the Burgherrin: the same role, size, frames and anchors as `king` (walk 0-5, idle 6-7, command 8-9), a young woman with a dark plait, the same circlet, cloak and lantern pole. The player's choice of form swaps `king` for `lady` everywhere |
-| `ladyGlow` | 16x30 | 10 | as `kingGlow`, pixel for pixel the same positions |
-| `kingSeated` | 16x30 | 4 | the lord on the hall's `throne`: sit down 0-1 (standing up is 1, 0), seated idle 2-3 (a breath). Drawn like the walking sprite: centred on x, feet on the ground line; place it at the throne's centre (x 1824), over the throne. Seated he is drawn turned to the right like the walking sprite (his back at the throne's back, the thighs on the cushion, the shins before the seat's front, the hand on the lantern pole behind his knee; the throne's posts, arm rests and cushion show around him, so the `throne` must be drawn under him): mirror the frame to turn him to the speaker. In the hall's painting the dais is centred on x 1837, 13 px right of the throne's x 1824: the mocks stand the throne and him there (ART-look2.md 16) |
-| `kingSeatedGlow` | 16x30 | 4 | the lantern glass does not move in the four frames: the light at (+5.5, 22.5) from the frame's centre and the ground |
-| `ladySeated`, `ladySeatedGlow` | 16x30 | 4 | the lady's, frame for frame the same |
-| `portraitLady` | 48x48 | 1 | the lady's story portrait, the pair of `portraitKing` (which now shows the young lord) |
+| `weltmauer` | 888x190 | far | the Weltmauer with the cleft cut twice (sprite x 324 from the shadow land, x 650 from the valley) and the far castle baked into each slot |
+| `weltmauerPatch` | 52x190 | far | the unbroken wall over the second cleft until the camera is past the back gate |
+| `farCastleGlow`, `farCastlePane` | 40x46 | far, emissive | the far castle's lit panes from the shadow land; its one pane from the town |
+| `farCleftGlow`, `farCleftGlowBack` | 44x72, 44x68 | far, emissive | the slot's faint night light around each far castle |
+| `d2FirBeltFar` | 520x40 | far | the low fir ridge at the wall's foot |
+| `valleyVista` | 448x160 | far | the valley's three ranges of fir slopes |
+| `shadowForest` | 224x104 | mid | the shadow land's forest edge (two copies join) |
+| `gorgeRock` | 448x211 | mid | the Throat's granite face before the castle |
+| `cleftFace`, `cleftFaceEnd` | 448x218, 240x218 | mid | the cleft's inner face behind the castle and its end toward the valley |
+| `d2TreeBelt` | 520x58 | mid | the tree belt along the valley floor |
+| `gorgeCrags` | 160x200 | near | five crags before the face's edge |
+| `firA`, `firB`, `firC`, `firD` | 29x130, 30x118, 34x106, 27x84 | near | the shadow land's firs |
+| `deadTreeA`, `deadTreeB` | 17x72, 17x70 | near | bare trees |
+| `linden`, `poplar`, `appleTree`, `willow` | 52x92, 14x116, 42x48, 52x68 | near | the town's trees |
+| `cleftFlank`, `cleftFlankB`, `cleftThroat` | 80x240, 80x240, 192x240 | world | the cleft's rock at the castle, in the shapes and places of `cliffFlank`, `cliffFlankB` and `throatRock` |
+| `d2BushA`, `d2BushB` | 30x15, 22x12 | world, z -3 | bushes behind the actors |
+| `d2LaneEnd` | 48x30 | world | the grassy bank where the lane ends at the river |
+| `laneMoorA…D`, `laneScreeA…D`, `laneCobbleA…D`, `laneEarthA…D` | 64x26 each | world | the lane's tiles: moor from x -64, scree from 448, cobble from 1240, earth from 2430; the variant by a hash of the tile index |
+| `d2FgFerns`, `d2FgMeadow`, `d2FgReeds` | 480x64, 480x58, 160x40 | foreground | the shadow land's ferns, the valley's meadow, the river's reeds |
+| `d2FogBank`, `d2MistBand`, `d2FogLow` | 384x40, 448x60, 320x24 | fog A, mist band, fog B | the three fog banks, alpha masks |
+| `d2Smoke` | 26x50 | world | chimney smoke, an alpha mask |
+| `d2Fireflies`, `d2Sparks` | 96x30, 14x24 | world, additive | fireflies in the valley at dusk; a brazier's sparks |
 
-### The townsfolk seated on the hall's benches
-
-| id | size | frames | notes |
-|---|---|---|---|
-| `citizenSeated`, `citizenBSeated`, `citizenCSeated` | 12x22 | 2 each | the three townsfolk waiting on a petitioners' `bench` (32x10): seated 0, a nod 1 (swap every few seconds, not a loop). The frame's bottom stands on the floor like the bench's; draw the bench first and the sitter over it (the cushion is the frame's rows 13 and 14). A bench seats two (the frames' left edges at bench x +2 and +18) or three (+0, +10, +20). They face the hall like the seated lord, the head in profile to the right: mirror the frame for a bench right of the throne. The walking townsfolk (`citizen…`, 12x26) keep standing where no bench is free |
-
-The archer, the guardsman, the builder and the three townsfolk were repainted at their sizes, frames and frame
-meanings. Two anchors moved by a pixel: the archer's arrow lies on the frame's row 9 (was 10) and leaves at the right
-edge (col 11); the guardsman's spear tip at the thrust (frame 7) stays at col 13, row 11.
-
-### The castle grows
+## The castle grows (ART-look2.md section 15; in `SpriteID` since the contract step; drawing only, the upgrade logic is a later lane)
 
 Three tiers. Tier 1 is today's castle, unchanged. Tiers 2 and 3 are sprites that stand with the existing ones; each
 has a building state (`…Build`: timber scaffolds, ladders, a crane, half-laid courses) for the days the tier is under
@@ -272,3 +291,30 @@ far view through the Weltmauer's slot.
 Notes for the code lane: tier 2 swaps one sprite at one anchor (`keepTop`); tier 3 swaps two and moves the front's
 anchor 14 px left. The gatehouse's own tiers (gate, iron gate, great gate; DESIGN.md) can drive the castle's tier, or
 the keep's upgrade can. The look-2 mock shows every state: `scene_look2.py … tier<1|2|3>[b]-<gate|back|far|farback>[-day]`.
+
+## Proposals of the art pass (look 2, stage 4; ART-look2.md section 15)
+
+Everything under this heading is a **proposal for the code lane** (the lord pass): the PNGs lie in Resources/Art and
+`tools/build-art.sh` rebuilds them, but no Swift names them yet. Sizes, frames and anchors are what the art was painted
+to; the code lane may take them as they are.
+
+### The lady, and both lords seated
+
+| id | size | frames | notes |
+|---|---|---|---|
+| `lady` | 16x30 | 10 | the Burgherrin: the same role, size, frames and anchors as `king` (walk 0-5, idle 6-7, command 8-9), a young woman with a dark plait, the same circlet, cloak and lantern pole. The player's choice of form swaps `king` for `lady` everywhere |
+| `ladyGlow` | 16x30 | 10 | as `kingGlow`, pixel for pixel the same positions |
+| `kingSeated` | 16x30 | 4 | the lord on the hall's `throne`: sit down 0-1 (standing up is 1, 0), seated idle 2-3 (a breath). Drawn like the walking sprite: centred on x, feet on the ground line; place it at the throne's centre (x 1824), over the throne. Seated he is drawn turned to the right like the walking sprite (his back at the throne's back, the thighs on the cushion, the shins before the seat's front, the hand on the lantern pole behind his knee; the throne's posts, arm rests and cushion show around him, so the `throne` must be drawn under him): mirror the frame to turn him to the speaker. In the hall's painting the dais is centred on x 1837, 13 px right of the throne's x 1824: the mocks stand the throne and him there (ART-look2.md 16) |
+| `kingSeatedGlow` | 16x30 | 4 | the lantern glass does not move in the four frames: the light at (+5.5, 22.5) from the frame's centre and the ground |
+| `ladySeated`, `ladySeatedGlow` | 16x30 | 4 | the lady's, frame for frame the same |
+| `portraitLady` | 48x48 | 1 | the lady's story portrait, the pair of `portraitKing` (which now shows the young lord) |
+
+### The townsfolk seated on the hall's benches
+
+| id | size | frames | notes |
+|---|---|---|---|
+| `citizenSeated`, `citizenBSeated`, `citizenCSeated` | 12x22 | 2 each | the three townsfolk waiting on a petitioners' `bench` (32x10): seated 0, a nod 1 (swap every few seconds, not a loop). The frame's bottom stands on the floor like the bench's; draw the bench first and the sitter over it (the cushion is the frame's rows 13 and 14). A bench seats two (the frames' left edges at bench x +2 and +18) or three (+0, +10, +20). They face the hall like the seated lord, the head in profile to the right: mirror the frame for a bench right of the throne. The walking townsfolk (`citizen…`, 12x26) keep standing where no bench is free |
+
+The archer, the guardsman, the builder and the three townsfolk were repainted at their sizes, frames and frame
+meanings. Two anchors moved by a pixel: the archer's arrow lies on the frame's row 9 (was 10) and leaves at the right
+edge (col 11); the guardsman's spear tip at the thrust (frame 7) stays at col 13, row 11.
