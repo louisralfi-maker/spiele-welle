@@ -1,0 +1,1 @@
+frame:2040 ready day:12 hour:23.43 alive:18 seen:3 shots:1 aim:0 kx:654
