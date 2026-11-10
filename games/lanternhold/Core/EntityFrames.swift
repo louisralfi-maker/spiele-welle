@@ -141,7 +141,8 @@ enum EntityFrames {
         let battleLights = Battle.lightSources(s, balance: balance)
         let layouts = (0..<Realm.lines.count).map { lineLayout($0, state: s, balance: balance) }
 
-        defenceLines(s, balance: balance, layouts: layouts, battleLights: battleLights, isDay: isDay, props: &props)
+        defenceLines(s, balance: balance, layouts: layouts, battleLights: battleLights, isDay: isDay,
+                     look: options.look, props: &props)
         beacon(s, props: &props)
         courtyard(s, props: &props)
         town(s, look: options.look, props: &props)
@@ -353,13 +354,14 @@ enum EntityFrames {
     // MARK: - The defence lines
 
     private static func defenceLines(_ s: GameState, balance: Balance, layouts: [LineLayout],
-                                     battleLights: [LightSource], isDay: Bool, props: inout PropList) {
+                                     battleLights: [LightSource], isDay: Bool, look: LookVersion,
+                                     props: inout PropList) {
         for (index, layout) in layouts.enumerated() {
             let slots = Realm.lines[index]
             if index == 0 {
                 gate(s, balance: balance, isDay: isDay, props: &props)
             } else {
-                wall(s, plot: slots.wall, layout: layout, balance: balance, props: &props)
+                wall(s, plot: slots.wall, layout: layout, balance: balance, look: look, props: &props)
                 tower(s, plot: slots.tower, layout: layout, props: &props)
             }
             for plot in slots.braziers {
@@ -400,9 +402,14 @@ enum EntityFrames {
         }
     }
 
+    /// A line's wall by its plot: whole, damaged, rubble, under scaffolding. In look 2 a plot that never carried a
+    /// wall shows the ruin of the older one (polish after round 2), also under the scaffolding of its first wall.
     private static func wall(_ s: GameState, plot index: Int, layout: LineLayout, balance: Balance,
-                             props: inout PropList) {
+                             look: LookVersion, props: inout PropList) {
         let plot = s.plots[index]
+        if look == .two && plot.item == nil {
+            props.add(.wallRuin, x: wallRuinX(line: layout.line), z: -1, shade: wallRuinShade)
+        }
         if let item = plot.item {
             if plot.isRubble {
                 let rubble: SpriteID = item == .palisade ? .rubbleWood : .rubbleStone
@@ -416,6 +423,15 @@ enum EntityFrames {
             let width = max(layout.wallRight - layout.wallLeft, Double(wallSprite(job.target).size.width))
             scaffold(&props, centre: layout.wallLeft + width / 2, width: width)
         }
+    }
+
+    /// The older wall's ruin lies centred on the first wall's footprint (a palisade's), a little in the shade.
+    static let wallRuinShade: Float = 0.9
+
+    /// The left edge of line `line`'s ruin (line 2 or 3) in world pixels.
+    static func wallRuinX(line: Int) -> Double {
+        let centre = Realm.wallX[line - 1] + Double(SpriteID.palisade.size.width) / 2
+        return (centre - Double(SpriteID.wallRuin.size.width) / 2).rounded(.down)
     }
 
     private static func tower(_ s: GameState, plot index: Int, layout: LineLayout, props: inout PropList) {
