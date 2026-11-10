@@ -10,6 +10,12 @@ houses' audiences and flags (`claude/lh-storypass`), look 2 (`claude/lh-port`), 
 Words used here: a **sending** is one quest (German: **Aussendung**). The game itself never says
 "quest" or "mission". It counts lanterns: "Lantern 39 is out", "Lantern 39 is home".
 
+## Louis' decisions (10.11.2026, 11:10)
+
+1. **Size at launch: the full table**, all thirteen sendings of chapter 1 (the small set of six is the fallback only if time runs out).
+2. **A lost lantern stays lost:** its hook stays empty for the rest of the chapter and one keep window stays dark.
+3. **The map opens only at the table** in the chapel: looking and sending both happen there.
+
 ## 1. The concept in five sentences
 
 **The Lantern Table** (German: **Der Laternentisch**).
