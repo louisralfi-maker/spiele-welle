@@ -335,7 +335,11 @@ final class Look2FrameTests: XCTestCase {
         let west = Weather.sample(seed: night.seed, day: night.day, hour: night.hour, time: 1.5,
                                   override: WeatherOverride(mode: .clear, wind: -0.4, rain: 0.5))
         let drizzle = frame(night, focus: 900, weather: west)
-        XCTAssertEqual(count(drizzle, .rainStreak, .world), FrameBuilder.rainDepths[1].count / 2)
+        XCTAssertEqual(count(drizzle, .rainStreak, .world),
+                       FrameBuilder.rainCount(FrameBuilder.rainDepths[1].count, rain: 0.5))
+        XCTAssertEqual(FrameBuilder.rainCount(70, rain: 0.5), 49, "by the root: half the rain is 0.7 of the streaks")
+        XCTAssertEqual(FrameBuilder.rainCount(70, rain: 1), 70)
+        XCTAssertEqual(FrameBuilder.rainCount(70, rain: 0), 0)
         XCTAssertTrue(drizzle.layer(.world).sprites.filter { $0.sprite == .rainStreak }
             .allSatisfy { $0.frame == 4 && $0.flipped })
         XCTAssertEqual(FrameBuilder.rainSlant(.clear), 0)
@@ -393,6 +397,35 @@ final class Look2FrameTests: XCTestCase {
         }
         print("LOOK2 most instances in a storm \(most)")
         XCTAssertLessThanOrEqual(most, 1_500, "instances in a storm")
+    }
+
+    /// The valley's fireflies (docs/PORT-look2.md 2.6): at dusk, in the valley, in look 2, in still dry air.
+    func testFirefliesOfLookTwo() {
+        func flies(_ desc: FrameDesc) -> [EmissiveInstance] {
+            desc.emissives.filter { $0.sprite == .d2Fireflies }
+        }
+        let dusk = GameFrameSupport.demoDay(hour: 19.2)
+        let town = frame(dusk, focus: 2900)
+        XCTAssertFalse(flies(town).isEmpty, "fireflies in the valley at dusk")
+        XCTAssertLessThanOrEqual(flies(town).count, 2 * FrameBuilder.fireflyPatches.count)
+        XCTAssertTrue(flies(town).allSatisfy { $0.plane == .world && $0.kind == .glow })
+        XCTAssertEqual(town.lights.count, frame(dusk, focus: 2900, time: 3.1).lights.count, "they are no lights")
+        XCTAssertNotEqual(flies(frame(dusk, focus: 2900, time: 9)), flies(town), "they drift and blink")
+        XCTAssertTrue(flies(frame(dusk, focus: 2900, look: .one)).isEmpty, "look 1 has none")
+        XCTAssertTrue(flies(frame(dusk, focus: 700)).isEmpty, "none in the Throat")
+        XCTAssertTrue(flies(frame(GameFrameSupport.demoDay(hour: 12), focus: 2900)).isEmpty, "none at noon")
+        XCTAssertTrue(flies(frame(GameFrameSupport.demoNight(hour: 23.2), focus: 2900)).isEmpty, "none at night")
+        let storm = Weather.sample(seed: dusk.seed, day: dusk.day, hour: dusk.hour, time: 1.5,
+                                   override: WeatherOverride(mode: .storm))
+        XCTAssertTrue(flies(frame(dusk, focus: 2900, weather: storm)).isEmpty, "none in a storm")
+        let still = frame(dusk, focus: 2900, reduceMotion: true)
+        XCTAssertEqual(flies(still).count, flies(town).count, "Reduce Motion keeps them")
+        XCTAssertEqual(flies(frame(dusk, focus: 2900, time: 9, reduceMotion: true)).map(\.rect),
+                       flies(still).map(\.rect), "and they stand")
+        XCTAssertEqual(FrameBuilder.fireflyStrength(hour: 18.5, weather: .clear), 0)
+        XCTAssertEqual(FrameBuilder.fireflyStrength(hour: 19.5, weather: .clear), 1)
+        XCTAssertEqual(FrameBuilder.fireflyStrength(hour: 21, weather: .clear), 0)
+        XCTAssertEqual(FrameBuilder.fireflyStrength(hour: 22, weather: .clear), 0)
     }
 
     func testLookTwoRenders() throws {

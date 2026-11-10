@@ -8,7 +8,7 @@ enum LookVersion: Int, Sendable, CaseIterable, Equatable {
     case two = 2
 
     /// The look a build renders without `-GWLook` (look 2 since the parity round, DESIGN.md "Look 2 port").
-    static let standard: LookVersion = .one
+    static let standard: LookVersion = .two
 }
 
 extension AmbientRamp {

@@ -2,8 +2,9 @@ import UIKit
 import XCTest
 
 /// Look 2's shots of the game (DESIGN.md "Look 2 port"): the same realm as the other tests, launched with
-/// `-GWLook 2` until look 2 is the default. The shadow land at night with the creatures at the outer line (held
-/// still at 23:20 and once live, the liveliest moment between 23:00 and 23:30), the castle, the courtyard and the
+/// `-GWLook 2` (the default since the port's last round; said all the same). The shadow land at night with the
+/// creatures at the outer line (held still at 23:20 and once live, the moment between 21:00 and 01:00 with the most
+/// creatures out of the dark and in the fires' light), the castle, the courtyard and the
 /// town at dusk, the great hall cut away at court and the audience, all in clear air (`-GWWeather clear`), so they
 /// stay the pictures they were; then the weather's shots: a storm at the outer line by night, rain on the castle and
 /// the town at dusk, the storm with Reduce Motion (no streaks, the wet light stays) and the lane after the rain.
@@ -62,7 +63,8 @@ final class Look2UITests: XCTestCase {
         }
     }
 
-    /// The night played live by the reference bot: the liveliest moment between 23:00 and 23:30.
+    /// The night played live by the reference bot: the liveliest moment between 21:00 and 01:00 (the bank hides
+    /// the creatures until they step into the fires' light, so the shot waits for the wave at the outer line).
     func testLookTwoNight() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
@@ -70,13 +72,13 @@ final class Look2UITests: XCTestCase {
             + Look2UITests.clear
         app.launch()
         if waitUntilReady(app, name: "look2-night") {
-            if waitForHour(app, 23.0, timeout: 150) != nil {
-                let best = liveliestShot(app, until: 23.5, timeout: 20)
+            if waitForHour(app, 21.0, timeout: 90) != nil {
+                let best = liveliestShot(app, until: 25, timeout: 110)
                 attach(best.screenshot, "78-look2-night-live-\(language)")
                 note("78-look2-night-live-value", best.value)
             } else {
                 attach(XCUIScreen.main.screenshot(), "78-look2-night-live-late-\(language)")
-                XCTFail("look 2: the night never reached 23:00")
+                XCTFail("look 2: the night never reached 21:00")
             }
         }
         app.terminate()
@@ -151,14 +153,14 @@ final class Look2UITests: XCTestCase {
         return nil
     }
 
-    /// The screenshot of the liveliest moment until the clock reaches `until` (creatures in view and projectiles in
-    /// flight count twice, archers drawing once), as in `MidChapterUITests`.
+    /// The screenshot of the liveliest moment until the clock reaches `until` (creatures in the light count three
+    /// times, projectiles in flight twice, creatures in view and archers drawing once), after `MidChapterUITests`.
     private func liveliestShot(_ app: XCUIApplication, until target: Double,
                                timeout: TimeInterval) -> (screenshot: XCUIScreenshot, value: String) {
         let scene = element(app, "world-scene")
         func score(_ text: String) -> Double {
-            2 * min(8, field(text, "seen:") ?? 0) + 2 * min(10, field(text, "shots:") ?? 0)
-                + min(3, field(text, "aim:") ?? 0)
+            3 * min(8, field(text, "lit:") ?? 0) + min(8, field(text, "seen:") ?? 0)
+                + 2 * min(10, field(text, "shots:") ?? 0) + min(3, field(text, "aim:") ?? 0)
         }
         var bestValue = (scene.value as? String) ?? ""
         var best = XCUIScreen.main.screenshot()
@@ -175,7 +177,7 @@ final class Look2UITests: XCTestCase {
                 let night = hour < 12 && target >= 24 ? hour + 24 : hour
                 if night >= target { break }
             }
-            pause(0.25)
+            pause(0.2)
         }
         return (best, bestValue)
     }

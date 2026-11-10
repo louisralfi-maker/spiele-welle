@@ -187,6 +187,10 @@ enum FrameBuilder {
                                          reduceMotion: options.reduceMotion) {
                         glow.add(item)
                     }
+                    for item in fireflies(hour: hour, animTime: animTime, reduceMotion: options.reduceMotion,
+                                          geometry: geometry) {
+                        glow.add(item)
+                    }
                 }
             }
         }
@@ -611,6 +615,53 @@ enum FrameBuilder {
         return EmissiveInstance(sprite: part.sprite, plane: prop.plane, rect: rect, color: color)
     }
 
+    // MARK: - Fireflies
+
+    /// Where the valley's fireflies stand (docs/PORT-look2.md 2.6, ART-look2.md 13.8): the left edge of each patch
+    /// of `d2Fireflies` in world pixels and its rows above the lane. The mock's two and two more toward the river.
+    static let fireflyPatches: [(x: Double, y: Double)] = [(2610, 8), (2870, 6), (3110, 6), (3390, 9)]
+    /// The hours they fly: in from 18:30, out by 21:00, half an hour each way.
+    static let fireflyHours = 18.5...21.0
+
+    /// How brightly the fireflies glow (0: none): at dusk only, none in the rain, none in a wind above 0.6.
+    static func fireflyStrength(hour: Double, weather: WeatherSample) -> Double {
+        guard fireflyHours.contains(hour) else { return 0 }
+        let rise = min(1, (hour - fireflyHours.lowerBound) / 0.5)
+        let fall = min(1, (fireflyHours.upperBound - hour) / 0.5)
+        let dry = 1 - min(1, weather.rain * 4)
+        let calm = 1 - min(1, max(0, (abs(weather.mean) - 0.45) / 0.15))
+        return max(0, min(rise, fall) * dry * calm)
+    }
+
+    /// The fireflies as glow: each patch twice, the second mirrored and a few pixels off, the two blinking against
+    /// each other, both drifting on a slow figure of eight in whole pixels. With Reduce Motion they stand and only
+    /// breathe. A pure function of the hour, the time and the weather; no light quads (the cap is for fires).
+    private static func fireflies(hour: Double, animTime: Double, reduceMotion: Bool,
+                                  geometry: Geometry) -> [EmissiveInstance] {
+        let strength = fireflyStrength(hour: hour, weather: geometry.weather)
+        guard strength > 0.01 else { return [] }
+        let size = SpriteID.d2Fireflies.size
+        let width = Double(size.width)
+        let whole = geometry.whole(.world)
+        var list: [EmissiveInstance] = []
+        for (index, patch) in fireflyPatches.enumerated() {
+            for copy in 0..<2 {
+                let phase = Double(index) * 1.7 + Double(copy) * Double.pi
+                let dx = reduceMotion ? 0 : (sin(animTime * 0.23 + phase) * 5).rounded()
+                let dy = reduceMotion ? 0 : (sin(animTime * 0.46 + phase * 2) * 2).rounded()
+                let blink = 0.6 + 0.4 * sin(animTime * (reduceMotion ? 0.8 : 2.4) + phase)
+                let left = patch.x + Double(copy) * 23 + dx - whole
+                guard geometry.isVisible(left: left, width: width) else { continue }
+                let top = geometry.top(y: patch.y + Double(copy) * 4 + dy, height: Double(size.height))
+                let rgb = GamePalette.fireGold * Float(strength * blink)
+                let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+                list.append(EmissiveInstance(sprite: .d2Fireflies, plane: .world, rect: rect,
+                                             color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1), flipped: copy == 1))
+            }
+        }
+        return list
+    }
+
     // MARK: - Fog
 
     /// The two fog planes at this hour (density from the ramp × `fogScale`; fog B thinner). The light lab uses them
@@ -709,6 +760,11 @@ enum FrameBuilder {
         let force = abs(weather.mean)
         return force < 0.2 ? 0 : (force < 0.6 ? 1 : 2)
     }
+    /// How many of `full` fall in a rain of this strength: by its root, so a light rain (0.4) is still rain on a
+    /// phone (round lh-l2-3a: at 0.6 a count in proportion read as a few stray streaks).
+    static func rainCount(_ full: Int, rain: Double) -> Int {
+        Int((Double(full) * max(0, min(1, rain)).squareRoot()).rounded())
+    }
     /// Splashes on the lane at full rain, and a splash's seconds.
     static let rainSplashCount = 24
     static let rainSplashTime = 0.3
@@ -768,7 +824,7 @@ enum FrameBuilder {
     private static func rainStreaks(depth: Int, animTime: Double, geometry: Geometry) -> [SpriteInstance] {
         let weather = geometry.weather
         let entry = rainDepths[depth]
-        let count = Int((Double(entry.count) * weather.rain).rounded())
+        let count = rainCount(entry.count, rain: weather.rain)
         guard count > 0 else { return [] }
         let size = SpriteID.rainStreak.size
         let slant = rainSlant(weather)
@@ -806,7 +862,7 @@ enum FrameBuilder {
     /// The splashes where the rain meets the lane: three frames each, then the next one somewhere else.
     private static func rainSplashes(animTime: Double, geometry: Geometry) -> [SpriteInstance] {
         let weather = geometry.weather
-        let count = Int((Double(rainSplashCount) * weather.rain).rounded())
+        let count = rainCount(rainSplashCount, rain: weather.rain)
         guard count > 0 else { return [] }
         let size = SpriteID.rainSplash.size
         let width = Double(geometry.targetWidth)
