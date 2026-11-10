@@ -1,0 +1,10 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: 631cda1
+source: claude/lh-port
+07:24:49 build starts (Lanternhold)
+simulator: 98A0BFA3-CEC3-4FD6-9916-5A2149774DBF (iPhone 17 Pro, iOS 26.5)
+07:29:15 PASS build
+07:32:43 FAIL unit LanternholdTests/LookGoldenTests LanternholdTests/Look2FrameTests LanternholdTests/RendererTests LanternholdTests/CameraTests LanternholdTests/FrameBuilderTests (exit 65), see 01-unit/log.txt
+FAILED: 1
