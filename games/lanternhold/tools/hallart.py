@@ -911,11 +911,117 @@ def hall_fire():
     return c
 
 
+# ------------------------------------------------------------------------------------- the marks of "touch the world"
+
+TAG = (
+    "..ooooooooooo..",
+    ".oGGGGGGGGGGGo.",
+    "oGpppppppppppGo",
+    "oGpppppppppppGo",
+    "oGpppppppppppGo",
+    "oGpppppppppppGo",
+    "oGpppppppppppGo",
+    "oGpppppppppppGo",
+    "oGpppppppppppGo",
+    "oGpppppppppppGo",
+    "oGpppppppppppGo",
+    "oGpppppppppppGo",
+    "oGpppppppppppGo",
+    ".oGGGGGGGGGGGo.",
+    "..ooooooooooo..",
+    ".....oGGGo.....",
+    "......oGo......",
+    ".......o.......",
+)
+GLYPHS = {
+    "tapTalk": (          # a speech bubble: speak with the one who waits
+        ".iiiiiii.",
+        "i.......i",
+        "i.......i",
+        "i.r.r.r.i",
+        "i.......i",
+        ".i.iiiii.",
+        ".i.i.....",
+        ".ii......",
+        ".i.......",
+    ),
+    "tapThrone": (        # the circlet: take the seat, hold the audience
+        ".........",
+        "....r....",
+        "i...i...i",
+        "ii.iii.ii",
+        "iiiiiiiii",
+        "i.i.r.i.i",
+        "iiiiiiiii",
+        ".........",
+        ".........",
+    ),
+    "tapBuild": (         # a hammer: build or upgrade at a plot
+        ".........",
+        ".iiiiii..",
+        ".iiiiiii.",
+        ".iiiiii..",
+        "...rr....",
+        "...rr....",
+        "...rr....",
+        "...rr....",
+        "...rr....",
+    ),
+    "tapRepair": (        # a wall with a crack: repair
+        "iiiiiiiii",
+        "i...ir..i",
+        "iiiiriiii",
+        "i.i.r.i.i",
+        "iiiiiriii",
+        "i...i.r.i",
+        "iiiiiriii",
+        "i.i..ri.i",
+        "iiiiiiiii",
+    ),
+    "tapRecruit": (       # a head and shoulders, a plus: recruit
+        "..iii..r.",
+        ".iiiiirrr",
+        ".iiiii.r.",
+        "..iii....",
+        ".........",
+        ".iiiii...",
+        "iiiiiii..",
+        "iiiiiii..",
+        "iiiiiii..",
+    ),
+    "tapLight": (         # a flame: light the brazier
+        "....i....",
+        "....ii...",
+        "...iii...",
+        "..iirii..",
+        "..irrri..",
+        ".iirgrii.",
+        ".iirgrii.",
+        "..iirii..",
+        "...iii...",
+    ),
+}
+
+
+def tap_mark(name):
+    """A small parchment tag in the interface's ink and gold, floating above a thing the lord can touch: two frames
+    of 15x18, idle and pressed. Pressing darkens the plaque, nothing moves (docs/UI-look.md). Drawn unlit."""
+    def paint():
+        c = Canvas(30, 18)
+        for f, fill in enumerate(("parchment", "plaster")):
+            bitmap(c, TAG, f * 15, 0, {"o": "ink", "G": "gold" if f == 0 else "straw", "p": fill})
+            bitmap(c, GLYPHS[name], f * 15 + 3, 3, {"i": "ink", "r": "tile", "g": "gold"})
+        return c
+    return paint
+
+
 SPRITES = {
     "greatHall": great_hall,
     "hallPillarNear": hall_pillar_near,
     "hallFire": hall_fire,
 }
+for _name in GLYPHS:
+    SPRITES[_name] = tap_mark(_name)
 
 
 def main():

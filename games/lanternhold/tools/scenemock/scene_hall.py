@@ -6,7 +6,7 @@ dark and with a parallax, the night sky and the Weltmauer behind the hall's tran
 
     python3 -I -B scene_hall.py <games/lanternhold> <scene> <out.png>
 
-Scenes (SCENES at the foot): audience-old, audience, wide, marks-hall, marks-front, walk-old.
+Scenes (main() at the foot): audience-old, audience, audience-card, wide, marks-hall, marks-front, front-old, walk-old.
 Pure python, one render at a time (the heat rule). The pictures are previews, not the engine: the light is the
 renderer's rule of thumb (mock.py's falloff and four steps)."""
 import math
@@ -33,10 +33,10 @@ FIRE_WHITE, FIRE_GOLD, FIRE_ORANGE, EMBER = hexc("FFF2C2"), hexc("FFC65A"), hexc
 NIGHT_DEEP, NIGHT_SLATE, NIGHT_HAZE = hexc("0A1124"), hexc("1E2B52"), hexc("2F3F72")
 HEARTH = (1.0, 0.62, 0.25)
 AMB_IN = (0.30, 0.32, 0.47)     # the hall at night: moonlight through the windows, a little bounce
-AMB_OUT = (0.21, 0.24, 0.42)
+AMB_OUT = (0.34, 0.38, 0.60)
 KIND = dict(candle=(14, FIRE_GOLD, 0.55), stand=(30, FIRE_GOLD, 0.8), chandelier=(64, FIRE_GOLD, 0.95),
             torch=(34, (1.0, 0.7, 0.3), 0.9), hearth=(120, HEARTH, 1.5), lantern=(44, FIRE_GOLD, 1.1),
-            brazier=(56, FIRE_ORANGE, 1.1), pool=(13, FIRE_GOLD, 0.55))
+            brazier=(56, FIRE_ORANGE, 1.1), pool=(20, FIRE_GOLD, 0.7))
 TORCH = ("..o..", ".ogo.", ".ogo.", "ogwgo", "ogwgo", ".gwg.")
 SMALL_FIRE = ("....o....", "...og.o..", "..ogg.o..", ".oggwgo..", ".ogwwgoo.", "ogwwwwgo.", "ogwwwwggo")
 FLAME = {"w": FIRE_WHITE, "g": FIRE_GOLD, "o": FIRE_ORANGE, "e": EMBER}
@@ -92,7 +92,7 @@ class Stage:
         self.draw(img, x, feet - img[1], over, flip)
         return x, feet - img[1]
 
-    def rim(self, img, cx, feet, flip=False, colour=FIRE_GOLD):
+    def rim(self, img, cx, feet, flip=False, colour=(0.86, 0.63, 0.27)):
         """The touchable's warm rim: one pixel round the sprite's outline, unlit."""
         w, h, rows = img
         x0, y0 = int(round(cx - w / 2.0)), feet - h
@@ -224,7 +224,7 @@ def sky(welt, wall_top, shift, ground=None):
 # ------------------------------------------------------------------------------------------------------ the hall
 
 def new_hall(chandeliers=True, stands=(0, 1, 2, 3), hearth=1.0, lord="seated", court=True, queue=True, walker=318,
-             marks=None, pressed=None):
+             marks=None, pressed=None, who=None):
     st = Stage(HA.W, HA.H, AMB_IN)
     st.draw(load("greatHall"), 0, 0)
     floor, dais, wall = HA.FLOOR, HA.FLOOR - HA.RISE, HA.WALL + 6
@@ -265,8 +265,8 @@ def new_hall(chandeliers=True, stands=(0, 1, 2, 3), hearth=1.0, lord="seated", c
             if "talk" in marks:
                 st.rim(img, cx, wall)
         if "talk" in marks:
-            st.light("pool", 184, wall + 1)
-            st.light("pool", 293, wall + 1)
+            st.light("pool", 184, wall - 5)
+            st.light("pool", 293, wall - 5)
             mark("tapTalk", 184, wall - 22)
     st.stand(fr("pip", 6, 12), 350, wall + 2)
     # the dais: the throne, the lord, the court in its places
@@ -278,7 +278,7 @@ def new_hall(chandeliers=True, stands=(0, 1, 2, 3), hearth=1.0, lord="seated", c
         st.light("lantern", HA.THRONE_X - 5.5, dais - 22.5)
     elif "throne" in marks:
         st.rim(throne, HA.THRONE_X, dais)
-        st.light("pool", HA.THRONE_X, dais + 1)
+        st.light("pool", HA.THRONE_X, dais - 5)
         mark("tapThrone", HA.THRONE_X, dais - 24, pressed == "throne")
     if court:
         st.stand(load("taxLectern"), 385, dais)
@@ -287,11 +287,13 @@ def new_hall(chandeliers=True, stands=(0, 1, 2, 3), hearth=1.0, lord="seated", c
         st.stand(fr("hesper", 0, 14), 497, dais)
         st.stand(fr("hesperGlow", 0, 14), 497, dais, over=True)
     if walker:
-        img = fr("petitionerD", 1 if lord == "seated" else 4, 12)
+        img = fr(*who) if who else fr("petitionerD", 1 if lord == "seated" else 4, 12)
         st.stand(img, walker, floor)
+        if who:                                  # the one who has the word stands in the glow
+            st.light("pool", walker, floor - 8, 30)
         if "talk" in marks:
             st.rim(img, walker, floor)
-            st.light("pool", walker, floor + 1)
+            st.light("pool", walker, floor - 5)
             mark("tapTalk", walker, floor - 26, pressed == "talk")
     if isinstance(lord, int):
         st.stand(fr("king", 0, 16), lord, floor)
@@ -333,7 +335,7 @@ def old_hall(lord="seated"):
     return st
 
 
-def front():
+def front(marks=True):
     """The front at night: an open plot, a damaged wall, a cold brazier, a townsman to recruit; every touchable with
     its rim, its pool and its mark."""
     st = Stage(437, 201, AMB_OUT)
@@ -347,9 +349,10 @@ def front():
 
     def touch(img, cx, name, press=False, flip=False):
         st.stand(img, cx, floor, flip=flip)
-        st.rim(img, cx, floor, flip=flip)
-        st.light("pool", cx, floor + 1)
-        mark(name, cx, floor - img[1], press)
+        if marks:
+            st.rim(img, cx, floor, flip=flip)
+            st.light("pool", cx, floor - 5)
+            mark(name, cx, floor - img[1], press)
 
     touch(load("plotMarker"), 86, "tapBuild")
     touch(fr("citizen", 4, 12), 150, "tapRecruit")
@@ -373,6 +376,10 @@ def main():
         st = new_hall()
         st.near = [254]
         render(st, (232, 50, 328, 151), 4, hall_sky)
+    elif SCENE == "audience-card":
+        st = new_hall(walker=338, who=("tamsin", 0, 14))
+        st.near = [254]
+        render(st, (232, 50, 328, 151), 4, hall_sky)
     elif SCENE == "wide":
         st = new_hall(chandeliers=False, stands=(2,), lord=300, queue=False, walker=None)
         st.near = [161, 254]
@@ -382,7 +389,9 @@ def main():
         st.near = [254]
         render(st, (163, 0, 437, 201), 3, hall_sky)
     elif SCENE == "marks-front":
-        render(front(), (0, 0, 437, 201), 3, sky(welt, 2, 40, ground=201))
+        render(front(), (0, 0, 437, 201), 3, sky(welt, 22, 40, ground=201))
+    elif SCENE == "front-old":
+        render(front(marks=False), (0, 0, 437, 201), 3, sky(welt, 22, 40, ground=201))
     else:
         raise SystemExit("unknown scene " + SCENE)
 

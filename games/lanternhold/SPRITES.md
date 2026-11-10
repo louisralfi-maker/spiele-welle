@@ -624,3 +624,37 @@ and the marks in the 376 columns that remain. It costs 1 MB as RGBA and leaves p
 
 **Open, for the lead:** whether the world still shows the small cut-away (`hallInterior`) from the street once the
 stage exists, or the hall's closed front.
+
+### The marks of "touch the world" (look 2, stage 8; ART-look2.md section 20)
+
+**Proposals for the code lane**: `tools/hallart.py` (the court lane of `tools/build-art.sh`), no Swift names them
+yet. They replace the action button (DESIGN.md "Controls 2: touch the world"). A mark is a small parchment tag in
+the interface's ink and gold (docs/UI-look.md) that floats above a thing the lord can touch.
+
+| id | size | frames | above |
+|---|---|---|---|
+| `tapTalk` | 30x18 | 2 of 15x18 | a speech bubble: a petitioner who waits, a member of the court or a townsman with a word |
+| `tapThrone` | 30x18 | 2 of 15x18 | the circlet: the empty throne, when an audience can be held |
+| `tapBuild` | 30x18 | 2 of 15x18 | a hammer: an open plot, a building that can grow |
+| `tapRepair` | 30x18 | 2 of 15x18 | a wall with a wax-red crack: a damaged wall or building |
+| `tapRecruit` | 30x18 | 2 of 15x18 | a head and shoulders with a plus: where the lord can recruit |
+| `tapLight` | 30x18 | 2 of 15x18 | a flame: a cold brazier |
+
+- **Frames:** 0 idle (parchment in a gold rim), 1 pressed (the plaque a step darker, the rim dull). Pressing
+  darkens the plaque, nothing moves, as on every button of the interface. No bobbing, no pulse.
+- **Place:** the tip of the tag's pointer (frame x 7, row 17) stands 3 px above the thing's top row, over the x
+  where the lord will stand. On a bench it stands over the first in line.
+- **Drawn unlit**, like the flames: it is a piece of the interface in the world and must read in the dark. It keeps
+  whole pixels: 30x36 pt at the world's scale, 40x48 pt in the audience framing.
+- **The highlight on the thing itself needs no sprite:**
+  - a **rim** of one pixel outside the sprite's outline at its left, right and top (not below), in `gold`, unlit;
+    the engine takes it from the sprite's alpha;
+  - a **pool**: a point light 5 px above the floor line at the thing's feet, radius 20, `fireGold`, strength 0.7,
+    and 1.4 times that while the finger is down on it. The one who has the word in an audience keeps a pool of
+    radius 30.
+- **When:** rim and pool on every thing in view that offers something now. At most four marks in view, the nearest
+  to the lord first; of a row of damaged walls only the nearest carries the mark, the others keep their rim.
+- **The touch area** is the thing and its mark together, at least 44x44 pt (DESIGN.md "Controls 2").
+- **Texture space:** the six strips (180x18 together) lie on the hall's second page.
+- **Open, for the lead:** the tax lectern has no mark of its own. Odile stands at it, so her `tapTalk` can lead to
+  the tithe; a seventh mark with a coin is a quarter of an hour of art if wanted.
