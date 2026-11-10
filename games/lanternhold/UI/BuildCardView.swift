@@ -44,7 +44,8 @@ struct PointerShape: Shape {
     }
 }
 
-/// The frame every card shares: a header (title, subtitle, arrows, close) and a body that scrolls only when it must.
+/// The frame every card shares, a page of the builders' ledger (docs/UI-look.md): a header (title, subtitle, arrows,
+/// close) over an ink rule and a body that scrolls only when it must.
 struct CardChrome<Header: View, Content: View>: View {
     let identifier: String
     let closeIdentifier: String
@@ -60,20 +61,22 @@ struct CardChrome<Header: View, Content: View>: View {
                 header()
                 Spacer(minLength: 6)
                 if let treasury {
-                    GoldAmount(amount: treasury, size: 14, color: Theme.inkSoft)
+                    GoldAmount(amount: treasury, size: 14)
                         .accessibilityElement(children: .ignore)
                         .accessibilityLabel(Text("Gold"))
                         .accessibilityValue(Text(verbatim: "\(treasury)"))
                 }
             }
             .padding(.trailing, 44)
+            InkRule()
+                .padding(.trailing, 8)
             CardScroll {
                 content()
             }
         }
         .padding(.leading, 16)
         .padding(.trailing, 8)
-        .padding(.vertical, 10)
+        .padding(.vertical, 11)
         .background(ParchmentBackground())
         // The close button floats in the corner, so the header is only as tall as its title.
         .overlay(alignment: .topTrailing) {
@@ -93,13 +96,13 @@ struct CardTitle: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(verbatim: title)
-                .font(Theme.serif(.title3, .bold))
+            Text(inked: title, .title3)
+                .font(Theme.caps(.title3))
                 .foregroundStyle(Theme.ink)
                 .fixedSize(horizontal: false, vertical: true)
             if let subtitle {
-                Text(verbatim: subtitle)
-                    .font(Theme.serif(.subheadline))
+                Text(inked: subtitle, .subheadline)
+                    .font(Theme.italic(.subheadline))
                     .foregroundStyle(Theme.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -108,8 +111,8 @@ struct CardTitle: View {
     }
 }
 
-/// One choice of a card: a name, what it does, a hint when it cannot be taken; price and time on the right. At least
-/// 52 pt high (DESIGN.md "Controls": choice buttons 52 pt).
+/// One choice of a card on an inked plaque: a name, what it does, a hint when it cannot be taken; price and time on the
+/// right. At least 52 pt high (DESIGN.md "Controls": choice buttons 52 pt).
 struct OptionRow<Trailing: View>: View {
     let name: String
     let detail: String
@@ -137,21 +140,21 @@ struct OptionRow<Trailing: View>: View {
                                 .font(.system(size: 14, weight: .bold))
                                 .foregroundStyle(Theme.teal)
                         }
-                        Text(verbatim: name)
-                            .font(Theme.serif(.headline, .semibold))
+                        Text(inked: name, .headline)
+                            .font(Theme.caps(.headline))
                             .foregroundStyle(Theme.ink.opacity(enabled ? 1 : 0.55))
                     }
-                    Text(verbatim: detail)
+                    Text(inked: detail, .subheadline)
                         .font(Theme.serif(.subheadline))
                         .foregroundStyle(Theme.inkSoft.opacity(enabled ? 1 : 0.7))
                     if let hint {
                         HStack(spacing: 4) {
                             Image(systemName: hintIsWarning ? "exclamationmark.circle.fill" : "lock.fill")
                                 .font(.system(size: 11, weight: .bold))
-                            Text(verbatim: hint)
+                            Text(inked: hint, .footnote)
                         }
-                        .font(Theme.serif(.footnote, .semibold))
-                        .foregroundStyle(hintIsWarning ? Theme.ember : Theme.woodDark)
+                        .font(Theme.serif(.footnote))
+                        .foregroundStyle(hintIsWarning ? Theme.rubric : Theme.inkSoft)
                     }
                 }
                 .fixedSize(horizontal: false, vertical: true)
@@ -163,16 +166,8 @@ struct OptionRow<Trailing: View>: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color.white.opacity(enabled ? 0.42 : 0.18))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .strokeBorder(selected ? Theme.teal : Theme.woodDark.opacity(enabled ? 0.45 : 0.25),
-                                  lineWidth: selected ? 2 : 1)
-            )
-            .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .background(PlaqueBackground(enabled: enabled, marked: selected))
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .disabled(!enabled)
@@ -192,7 +187,7 @@ struct PriceAndTime: View {
                 Image(systemName: "hourglass")
                     .font(.system(size: 11, weight: .semibold))
                 Text("\(seconds) s")
-                    .font(Theme.rounded(13, .semibold))
+                    .font(Theme.figures(14))
                     .monospacedDigit()
             }
             .foregroundStyle(Theme.inkSoft)
@@ -238,7 +233,7 @@ struct BuildCardView: View {
                     }
                     if card.options.isEmpty {
                         Text("Nothing more to build here.")
-                            .font(Theme.serif(.subheadline))
+                            .font(Theme.italic(.subheadline))
                             .foregroundStyle(Theme.inkSoft)
                     }
                 }
@@ -282,8 +277,8 @@ struct BuildCardView: View {
                        action: @escaping @MainActor () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: symbol)
-                .font(.system(size: 17, weight: .bold))
-                .foregroundStyle(Theme.woodDark)
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(Theme.ink)
                 .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
         }
@@ -318,7 +313,7 @@ struct RecruitCardView: View {
                         }
                     }
                     Text("A recruit no longer pays taxes.")
-                        .font(Theme.serif(.footnote))
+                        .font(Theme.italic(.footnote))
                         .foregroundStyle(Theme.inkSoft)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -359,7 +354,7 @@ struct TaxCardView: View {
                     CardTitle(title: String(localized: "Taxes"), subtitle: nil)
                     Spacer(minLength: 8)
                     Text("Taxes at the next dawn")
-                        .font(Theme.serif(.caption, .semibold))
+                        .font(Theme.italic(.caption))
                         .foregroundStyle(Theme.inkSoft)
                         .multilineTextAlignment(.trailing)
                         .fixedSize(horizontal: false, vertical: true)
@@ -372,11 +367,15 @@ struct TaxCardView: View {
                                   selected: option.isCurrent, identifier: "tax-\(option.rate.rawValue)",
                                   action: { model.setTax(option.rate) }) {
                             if let day = option.lockedUntil {
-                                Label(String(localized: "Opens on day \(day)"), systemImage: "lock.fill")
-                                    .font(Theme.serif(.footnote, .semibold))
-                                    .foregroundStyle(Theme.woodDark)
-                                    .labelStyle(.titleAndIcon)
-                                    .fixedSize()
+                                Label {
+                                    Text(inked: String(localized: "Opens on day \(day)"), .footnote)
+                                } icon: {
+                                    Image(systemName: "lock.fill")
+                                }
+                                .font(Theme.serif(.footnote))
+                                .foregroundStyle(Theme.inkSoft)
+                                .labelStyle(.titleAndIcon)
+                                .fixedSize()
                             } else {
                                 GoldAmount(amount: option.forecast, size: 15)
                             }

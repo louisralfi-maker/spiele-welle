@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// A court member's line in a speech bubble over his head (DESIGN.md "Talking"; M3 step 3; `talk-bubble`): a small
-/// parchment with his name and the line, its tail pointing down at him, following him on screen. A tap closes it
+/// A court member's line in a speech bubble over his head (DESIGN.md "Talking"; M3 step 3; `talk-bubble`): a slip of
+/// parchment with his name as a rubric and the line, its tail pointing down at him, following him on screen. A tap closes it
 /// (walking away closes it too, `GameModel.stepCourt`).
 @MainActor
 struct TalkBubbleView: View {
@@ -22,10 +22,11 @@ struct TalkBubbleView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         if let key = bubble.nameKey {
                             Text(verbatim: model.story(key))
-                                .font(Theme.serif(.caption, .bold))
-                                .foregroundStyle(Theme.goldDeep)
+                                .font(Theme.caps(.caption))
+                                .tracking(0.8)
+                                .foregroundStyle(Theme.rubric)
                         }
-                        Text(verbatim: model.story(bubble.textKey))
+                        Text(inked: model.story(bubble.textKey), .subheadline)
                             .font(Theme.serif(.subheadline))
                             .foregroundStyle(Theme.ink)
                             .fixedSize(horizontal: false, vertical: true)
@@ -36,23 +37,23 @@ struct TalkBubbleView: View {
                     .frame(width: width, alignment: .leading)
                     .frame(minHeight: 44)
                     .background(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        RoundedRectangle(cornerRadius: 2, style: .continuous)
                             .fill(Theme.parchment)
                     )
                     .overlay(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .strokeBorder(Theme.woodDark.opacity(0.8), lineWidth: 1.5)
+                        RoundedRectangle(cornerRadius: 2, style: .continuous)
+                            .strokeBorder(Theme.rule, lineWidth: 1.2)
                     )
-                    .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityHint(Text("Tap to close"))
                 .accessibilityIdentifier("talk-bubble")
                 TailShape()
                     .fill(Theme.parchment)
-                    .overlay(TailShape().stroke(Theme.woodDark.opacity(0.8), lineWidth: 1.5))
+                    .overlay(TailShape().stroke(Theme.rule, lineWidth: 1.2))
                     .frame(width: 14, height: 9)
-                    .offset(x: tail - width / 2, y: -1.5)
+                    .offset(x: tail - width / 2, y: -1.2)
                     .accessibilityHidden(true)
             }
             .shadow(color: .black.opacity(0.35), radius: 6, x: 0, y: 3)
