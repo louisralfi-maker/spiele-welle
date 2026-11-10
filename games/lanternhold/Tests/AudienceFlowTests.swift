@@ -25,6 +25,8 @@ final class AudienceFlowTests: XCTestCase {
     private func model(_ values: [String: String]) -> GameModel {
         var all = values
         all["GWReset"] = "YES"
+        // The lord pass: a fresh realm would open on the name entry (`LordEntryTests` covers it).
+        if all["GWSkipOnboarding"] == nil { all["GWSkipOnboarding"] = "YES" }
         return GameModel(args: DebugArgs(values: all), kind: .world, store: SaveStore(directory: directory))
     }
 

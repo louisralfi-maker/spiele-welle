@@ -11,6 +11,12 @@ enum StoryText {
         bundle.localizedString(forKey: key, value: key, table: table)
     }
 
+    /// The text of `key` in the player's language with the lord's name and form filled in (`LordText`: `{lord}` and
+    /// `{a|b}`). Every story text the game shows goes through this.
+    static func string(_ key: String, lord: LordIdentity, bundle: Bundle = .main) -> String {
+        LordText.resolve(string(key, bundle: bundle), lord: lord)
+    }
+
     /// The text of `key` in one language ("en", "de") as the app bundle compiled it; nil when that language lacks it.
     static func string(_ key: String, language: String, bundle: Bundle = .main) -> String? {
         guard let path = bundle.path(forResource: language, ofType: "lproj"), let localized = Bundle(path: path) else {

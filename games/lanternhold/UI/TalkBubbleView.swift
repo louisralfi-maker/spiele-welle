@@ -21,11 +21,11 @@ struct TalkBubbleView: View {
                 } label: {
                     VStack(alignment: .leading, spacing: 2) {
                         if let key = bubble.nameKey {
-                            Text(verbatim: StoryText.string(key))
+                            Text(verbatim: model.story(key))
                                 .font(Theme.serif(.caption, .bold))
                                 .foregroundStyle(Theme.goldDeep)
                         }
-                        Text(verbatim: StoryText.string(bubble.textKey))
+                        Text(verbatim: model.story(bubble.textKey))
                             .font(Theme.serif(.subheadline))
                             .foregroundStyle(Theme.ink)
                             .fixedSize(horizontal: false, vertical: true)

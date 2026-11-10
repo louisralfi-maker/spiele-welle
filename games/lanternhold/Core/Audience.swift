@@ -234,7 +234,7 @@ struct AudienceCard: Sendable, Equatable {
             return .own(own, frame: Speakers.portraitFrame(speaker, day: day, flags: flags))
         }
         if let recipe = Speakers.recipe(speaker, look: look) { return .composed(recipe) }
-        return .own(.portraitKing, frame: 0)
+        return .own(LordIdentity.standard.portrait, frame: 0)
     }
 }
 

@@ -45,6 +45,16 @@ struct LordIdentity: Codable, Sendable, Equatable {
     /// full stops; no digits, symbols, emoji or line breaks (so a name can never carry a `{` of the text
     /// placeholders); trimmed, at most `nameLimit` characters. Nothing left: the default name.
     static func clean(_ raw: String) -> String {
+        var name = typed(raw)
+        while let last = name.last, last == " " || last == "-" {
+            name.removeLast()
+        }
+        return name.isEmpty ? defaultName : name
+    }
+
+    /// The same filter while the name is being typed (the name entry's field): a space or hyphen at the end stays, so
+    /// a second word can follow, and an empty field stays empty (the field shows the default name as its prompt).
+    static func typed(_ raw: String) -> String {
         var kept = ""
         var lastWasSpace = true
         for character in raw {
@@ -63,11 +73,7 @@ struct LordIdentity: Codable, Sendable, Equatable {
                 }
             }
         }
-        var name = String(kept.prefix(nameLimit))
-        while let last = name.last, last == " " || last == "-" {
-            name.removeLast()
-        }
-        return name.isEmpty ? defaultName : name
+        return String(kept.prefix(nameLimit))
     }
 
     // MARK: Sprites

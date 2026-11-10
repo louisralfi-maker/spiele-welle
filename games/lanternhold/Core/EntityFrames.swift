@@ -803,6 +803,7 @@ enum EntityFrames {
     static func glowStrip(_ sprite: SpriteID) -> SpriteID? {
         switch sprite {
         case .king: return .kingGlow
+        case .lady: return .ladyGlow
         case .sootling: return .sootlingGlow
         case .sootlingB: return .sootlingBGlow
         case .shadehound: return .shadehoundGlow
@@ -1062,17 +1063,18 @@ enum EntityFrames {
                 emissive: true)
         }
 
-        // The king last: his body and the glow of his lantern.
+        // The lord last (the Burgherr or the Burgherrin, `GameState.lord`): the body and the glow of the lantern.
         let king = s.king
+        let lord = s.lordOrDefault
         let kingFrame = kingFrame(king, balance: balance, time: time)
-        add(.king, frame: kingFrame, x: king.x, y: 0, flipped: king.facing < 0)
+        add(lord.body, frame: kingFrame, x: king.x, y: 0, flipped: king.facing < 0)
         // The glass lights with the torches from the dusk and burns full at night; by day the painted cream glass and
         // the teal crown stone show in the sun (M2b review: the strip at half its colour read as a dead olive lantern
         // and a grey jewel). An emissive actor's pixels replace what lies behind them, so it dims by its colour, never
         // by its alpha (the rock would show through the glass).
         if night >= 0.3 {
             let glass = Float(0.6 + 0.4 * (night - 0.3) / 0.7)
-            add(.kingGlow, frame: kingFrame, x: king.x, y: 0, flipped: king.facing < 0,
+            add(lord.glow, frame: kingFrame, x: king.x, y: 0, flipped: king.facing < 0,
                 tint: SIMD4<Float>(glass, glass, glass, 1), emissive: true)
         }
         return list

@@ -39,8 +39,8 @@ enum KingTargetHold: Sendable, Equatable {
 enum KingTargets {
     /// The barracks' door: the middle of the drawn barracks in the courtyard.
     static let barracksX = EntityFrames.barracksLeft + Double(SpriteID.barracks.size.width) / 2
-    /// The throne in the great hall.
-    static let throneX = Realm.throneX
+    /// The throne in the great hall (its drawn middle, where the lord sits for the audience).
+    static let throneX = WorldLayout.throneX
     /// The tax lectern's middle (M3: its own place, Odile's desk beyond the hearth).
     static let lecternX = CourtLayout.lecternX + Double(SpriteID.taxLectern.size.width) / 2
     /// A court member counts this much farther than he stands, so the lectern, the throne or a plot beside him wins a

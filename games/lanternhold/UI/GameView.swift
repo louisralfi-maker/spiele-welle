@@ -34,6 +34,8 @@ struct GameView: View {
             }
         }
         .background(Color.black.ignoresSafeArea())
+        // The lord pass: the story texts' `{lord}` and `{a|b}` read the realm's lord (`StoryText.string(_:lord:)`).
+        .environment(\.lordIdentity, model.lord)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("world-root")
         .onChange(of: scenePhase) { _, phase in

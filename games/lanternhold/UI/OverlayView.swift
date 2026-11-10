@@ -45,6 +45,11 @@ struct OverlayView: View {
                 dim(0.5, closes: false)
                 PauseSheetView(model: model)
                     .transition(transition)
+            case .lordEntry?:
+                // The lord pass: a new realm asks who holds it before the first day starts.
+                dim(0.6, closes: false)
+                LordEntryView(model: model)
+                    .transition(transition)
             case .audience?:
                 // M3: the hall stays in view (a light veil only); the card opens when the petitioner has walked up.
                 dim(0.08, closes: false)

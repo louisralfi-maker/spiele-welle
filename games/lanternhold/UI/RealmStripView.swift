@@ -35,7 +35,7 @@ struct RealmStripView: View {
         }
         .frame(height: RealmStripView.height)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text("Map of the realm"))
+        .accessibilityLabel(Text("Map of the valley"))
         .accessibilityValue(snapshot.petitioners > 0 ? Text("Petitioners waiting: \(snapshot.petitioners)")
                                                      : Text(verbatim: ""))
         .accessibilityHint(Text("Tap to walk there"))

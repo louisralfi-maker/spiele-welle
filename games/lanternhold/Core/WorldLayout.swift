@@ -119,8 +119,9 @@ enum WorldLayout {
         return nil
     }
 
-    /// The great hall's throne and hearth fire.
-    static let throneX = 1824.0
+    /// The great hall's throne (its middle: before the middle of the hall's painted dais, ART-look2.md 16.2; the
+    /// lord pass moved it 13 px right of `Realm.throneX`, the simulation's own place, which stayed) and hearth fire.
+    static let throneX = 1837.0
     static let hearthX = 1870.0
 
     // MARK: - The town

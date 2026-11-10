@@ -21,6 +21,8 @@ struct CourtFigure: Sendable, Equatable {
     var petition: String?
     /// A waiting petitioner's look (the composed portrait and the name of townsfolk).
     var look: Int?
+    /// The seated strip of a petitioner who waits on a bench (the lord pass; nil: he stands).
+    var seated: SpriteID? = nil
 }
 
 /// A prop of the court: the benches, the tax lectern, Marek's cart on his days, the statue once a petition raised it.
@@ -53,11 +55,12 @@ struct CourtRoutine: Sendable, Equatable {
 ///   day, and any day he brings a petition), by day only.
 /// - Seren: waiting at the front gate on the day her petition comes, then from the moment she is let in
 ///   (`stranger_in`) in the great hall's far corner, gone once handed over (`seren_handed_over`).
-/// - Guests stand in the hall on their petition's day while they wait; townsfolk petitioners stand at the benches'
-///   four places, the next one nearest the throne, more of them behind. Court members who petition stay at their round
+/// - Guests stand in the hall on their petition's day while they wait; townsfolk petitioners take the benches'
+///   four places, the next one nearest the throne (seated where a seated strip of their body exists, `seatedStrip`;
+///   the others stand there), more of them stand behind. Court members who petition stay at their round
 ///   (the audience calls them up). Heard petitioners have left the queue, so they are not placed.
 enum CourtLayout {
-    /// Where the heard petitioner stands before the throne (x 1824).
+    /// Where the heard petitioner stands before the throne (the throne's middle is x 1837, `WorldLayout.throneX`).
     static let audienceSpot = 1800.0
     /// The tax lectern (its left edge): Odile's desk beyond the hearth, well away from the throne (M3 fix, U2: beside
     /// the throne the lectern, the throne and Odile lay within 16 px, so "Taxes" hid the audience).
@@ -65,9 +68,20 @@ enum CourtLayout {
     /// The dais: from the benches' end to the hearth. While petitioners wait in the hall the throne owns all of it
     /// (`KingTargets.target`), whoever stands there.
     static let dais: ClosedRange<Double> = 1792...1870
-    /// The two benches' left edges, and the four waiting places at them, the next petitioner nearest the throne.
+    /// The two benches' left edges, and the four waiting places at them, the next petitioner nearest the throne. A
+    /// bench seats two: the sitters' 12 px frames stand at the bench's x + 2 and + 18 (ART-look2.md 15.2), so their
+    /// middles are at + 8 and + 24.
     static let benches: [Double] = [1712, 1760]
-    static let seats: [Double] = [1788, 1772, 1740, 1724]
+    static let seats: [Double] = [1784, 1768, 1736, 1720]
+    /// The seated strip of a waiting body (frame 0 sits, frame 1 nods), nil for a body that has none and stands.
+    static func seatedStrip(_ body: SpriteID) -> SpriteID? {
+        switch body {
+        case .citizen: return .citizenSeated
+        case .citizenB: return .citizenBSeated
+        case .citizenC: return .citizenCSeated
+        default: return nil
+        }
+    }
     /// Standing places for guests and for petitioners beyond the four.
     static let standing: [Double] = [1706, 1754, 1698, 1748, 1690]
     static let serenCorner = 1950.0
@@ -85,9 +99,10 @@ enum CourtLayout {
     static let courtOrder = ["odile", "brannock", "pip", "hesper", "tamsin", "bram", "marek", "seren"]
 
     static let routines: [String: CourtRoutine] = [
-        // M3 fix (U2): Odile stands a step off the throne (the king's place is 1824, she never covers him) and walks
-        // round the hearth to her lectern's near side (1894, the lectern from 1908), where she faces it.
-        "odile": CourtRoutine(stops: [1848, 1894], faces: [-1, 1], dwell: [14, 6], night: 1860, nightFacing: -1),
+        // M3 fix (U2) and the lord pass: Odile stands a step off the throne (its middle is 1837; she is 21 px to its
+        // right, as in the art's hall scenes, and never covers the seated lord) and walks round the hearth to her
+        // lectern's near side (1894, the lectern from 1908), where she faces it.
+        "odile": CourtRoutine(stops: [1858, 1894], faces: [-1, 1], dwell: [14, 6], night: 1860, nightFacing: -1),
         "brannock": CourtRoutine(stops: [1428, 1470], faces: [-1, 1], dwell: [9, 9], night: 1424, nightFacing: -1,
                                  offset: 5),
         "pip": CourtRoutine(stops: [1612, 1690, 1770, 1700], faces: [1, 1, -1, -1], dwell: [5, 4, 7, 3], night: 1880,
@@ -214,6 +229,7 @@ enum CourtLayout {
                   let speaker = Speakers.speaker(petition.speaker) else { continue }
             let body = speaker.body
             let x: Double
+            var seated: SpriteID?
             switch speaker.role {
             case .court:
                 continue
@@ -223,6 +239,7 @@ enum CourtLayout {
                 if seat < seats.count {
                     x = seats[seat]
                     seat += 1
+                    seated = seatedStrip(body.sprite)
                 } else {
                     x = standingSpot()
                 }
@@ -230,7 +247,8 @@ enum CourtLayout {
             list.append(CourtFigure(who: speaker.id, sprite: body.sprite, glow: body.glow, x: x, facing: 1, pose: .idle,
                                     frame: frame(body, walking: false, walked: 0,
                                                  seconds: seconds + Double(seat + stand)),
-                                    room: WorldLayout.room(at: x), petition: petition.id, look: petitioner.look))
+                                    room: WorldLayout.room(at: x), petition: petition.id, look: petitioner.look,
+                                    seated: seated))
         }
         return list
     }

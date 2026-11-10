@@ -38,6 +38,8 @@ final class GameModel {
         case pause
         /// M3: the audience at the throne or the gate (`GameModel+Court.swift`; the card is `audience`).
         case audience
+        /// The lord pass: a new realm asks for the lord's name and Burgherr or Burgherrin (`GameModel+Lord.swift`).
+        case lordEntry
 
         /// The three cards opened by the action button (they close with a tap beside them).
         var isCard: Bool {
@@ -52,7 +54,7 @@ final class GameModel {
         /// on under its card (the walk up, the fades, the court breathing), and the pause sheet ends it.
         var isScreen: Bool {
             switch self {
-            case .report, .defeat, .pause: return true
+            case .report, .defeat, .pause, .lordEntry: return true
             case .build, .recruit, .taxes, .audience: return false
             }
         }
@@ -144,8 +146,8 @@ final class GameModel {
     private(set) var debugCameraX = 0.0
     private(set) var statsText = ""
     /// The game's state for UI tests in the scene's accessibility value: "day:12 hour:21.50 alive:9 seen:4 shots:2
-    /// kx:654" (creatures alive, creature bodies in the last frame, projectiles in flight, the king's x), with "dawn:0.42"
-    /// while first light's front is on screen.
+    /// kx:654 lord:lady" (creatures alive, creature bodies in the last frame, projectiles in flight, the lord's x,
+    /// Burgherr or Burgherrin), with "dawn:0.42" while first light's front is on screen.
     private(set) var sceneStatus = ""
 
     // The HUD and the screens (the game).
@@ -237,6 +239,9 @@ final class GameModel {
         feedback.soundOn = settings.sound
         feedback.hapticsOn = settings.haptics
         applyScreen()
+        if overlay == nil, let state = driver?.state, LordEntry.asks(args: args, state: state) {
+            setOverlay(.lordEntry)
+        }
         refreshHUD()
     }
 
@@ -746,7 +751,8 @@ final class GameModel {
         adPacing = AdPacing()
         restartView(game.state)
         writeSave()
-        setOverlay(nil)
+        // The lord pass: a new realm asks who holds it (the old realm's name and choice stand in the entry).
+        setOverlay(args.skipOnboarding ? nil : .lordEntry)
     }
 
     /// After a jump in time or place: the camera cuts to the king, effects and shakes end, and the court starts
@@ -859,7 +865,7 @@ final class GameModel {
             for actor in frame.actors {
                 if actor.sprite == .archer {
                     if actor.frame >= 2 { aiming += 1 }
-                } else if !actor.isEmissive && actor.sprite != .king && EntityFrames.glowStrip(actor.sprite) != nil {
+                } else if !actor.isEmissive && !actor.sprite.isLord && EntityFrames.glowStrip(actor.sprite) != nil {
                     seen += 1
                 }
             }
@@ -1014,7 +1020,7 @@ final class GameModel {
         let state = game.state
         var text = "day:\(state.day) hour:\(String(format: "%.2f", state.hour)) alive:\(state.creatures.count) "
             + "seen:\(seenCreatures) shots:\(state.projectiles.count) aim:\(aimingArchers) "
-            + "kx:\(Int(state.king.x.rounded()))"
+            + "kx:\(Int(state.king.x.rounded())) lord:\(state.lordOrDefault.form.rawValue)"
         if let front = dawnFront {
             text += " dawn:\(String(format: "%.2f", front))"
         }

@@ -50,7 +50,7 @@ struct ReportCardView: View {
             if let speech = card.speechKey {
                 // M3 fix (U1): the finale quotes the speech of the last stand. It stands beside the title, where the
                 // card has room: as a row of its own it pushed the realm's last row out of the card (round f1).
-                Text(StoryText.string(speech))
+                Text(verbatim: model.story(speech))
                     .font(Theme.serif(.footnote, .semibold).italic())
                     .foregroundStyle(Theme.teal)
                     .multilineTextAlignment(.trailing)
@@ -129,7 +129,7 @@ struct ReportCardView: View {
 
     private var realmColumn: some View {
         VStack(alignment: .leading, spacing: 8) {
-            SectionTitle(text: String(localized: "The realm"))
+            SectionTitle(text: String(localized: "The valley"))
             ReportRow(label: String(localized: "Taxes"), detail: taxDetail) {
                 GoldAmount(amount: card.goldIn, size: 14)
             }
@@ -210,7 +210,7 @@ struct ReportCardView: View {
     private var peopleDetail: String? {
         var parts: [String] = []
         if card.grown > 0 { parts.append(String(localized: "\(card.grown) born")) }
-        if card.left > 0 { parts.append(String(localized: "\(card.left) left the realm")) }
+        if card.left > 0 { parts.append(String(localized: "\(card.left) left the valley")) }
         if card.volunteer { parts.append(String(localized: "a volunteer took up the bow")) }
         if card.housesFull { parts.append(String(localized: "Houses full: build a house")) }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")

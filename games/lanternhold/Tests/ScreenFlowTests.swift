@@ -119,6 +119,8 @@ final class GameScreensTests: XCTestCase {
     private func model(_ values: [String: String], reset: Bool = true) -> GameModel {
         var all = values
         if reset { all["GWReset"] = "YES" }
+        // The lord pass: a fresh realm would open on the name entry (`LordEntryTests` covers it).
+        if all["GWSkipOnboarding"] == nil { all["GWSkipOnboarding"] = "YES" }
         return GameModel(args: DebugArgs(values: all), kind: .world, store: SaveStore(directory: directory))
     }
 

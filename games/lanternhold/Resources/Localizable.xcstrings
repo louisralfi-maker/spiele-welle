@@ -111,7 +111,7 @@
         }
       }
     },
-    "%lld left the realm" : {
+    "%lld left the valley" : {
       "comment" : "Dawn report: citizens who left.",
       "localizations" : {
         "de" : {
@@ -120,13 +120,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld hat das Reich verlassen"
+                  "value" : "%lld hat das Tal verlassen"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld haben das Reich verlassen"
+                  "value" : "%lld haben das Tal verlassen"
                 }
               }
             }
@@ -138,13 +138,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld left the realm"
+                  "value" : "%lld left the valley"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld left the realm"
+                  "value" : "%lld left the valley"
                 }
               }
             }
@@ -453,6 +453,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Turm des Leuchtfeuers"
+          }
+        }
+      }
+    },
+    "Begin" : {
+      "comment" : "Name entry: the button that starts the game.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beginnen"
           }
         }
       }
@@ -952,6 +963,17 @@
         }
       }
     },
+    "Lady Lantern" : {
+      "comment" : "Name entry: the choice to play the lady (Burgherrin).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Burgherrin"
+          }
+        }
+      }
+    },
     "Leave" : {
       "comment" : "Audience card: the king leaves the audience (it ends; the others keep waiting).",
       "localizations" : {
@@ -1018,6 +1040,17 @@
         }
       }
     },
+    "Lord Lantern" : {
+      "comment" : "Name entry: the choice to play the lord (Burgherr).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Burgherr"
+          }
+        }
+      }
+    },
     "Low tax" : {
       "comment" : "A tax rate.",
       "localizations" : {
@@ -1029,13 +1062,13 @@
         }
       }
     },
-    "Map of the realm" : {
-      "comment" : "Accessibility label of the realm strip.",
+    "Map of the valley" : {
+      "comment" : "Accessibility label of the valley strip.",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Karte des Reichs"
+            "value" : "Karte des Tals"
           }
         }
       }
@@ -1223,6 +1256,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Odile rät"
+          }
+        }
+      }
+    },
+    "Odile writes the name into the family book." : {
+      "comment" : "Name entry: what the name is for.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile schreibt den Namen ins Familienbuch."
           }
         }
       }
@@ -1799,13 +1843,13 @@
         }
       }
     },
-    "The Gloom reached the throne room on night %lld." : {
+    "The Gloom reached the hearth on night %lld." : {
       "comment" : "Defeat card.",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Düsternis erreichte in Nacht %lld den Thronsaal."
+            "value" : "Die Düsternis erreichte in Nacht %lld das Herdfeuer."
           }
         }
       }
@@ -1975,13 +2019,13 @@
         }
       }
     },
-    "The realm" : {
+    "The valley" : {
       "comment" : "Dawn report section.",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Das Reich"
+            "value" : "Das Tal"
           }
         }
       }
@@ -1993,6 +2037,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Die Kriegssteuer ist möglich"
+          }
+        }
+      }
+    },
+    "The watch begins again on day 1. The Chronicle keeps its records." : {
+      "comment" : "Pause sheet: the restart's explanation.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Wacht beginnt wieder an Tag 1. Die Chronik behält ihre Rekorde."
           }
         }
       }
@@ -2129,6 +2184,17 @@
         }
       }
     },
+    "Who holds the lantern now?" : {
+      "comment" : "Name entry of a new game: title.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wer trägt nun die Laterne?"
+          }
+        }
+      }
+    },
     "Will be remembered" : {
       "comment" : "Audience card: a choice that changes no number but that the court remembers.",
       "localizations" : {
@@ -2140,13 +2206,13 @@
         }
       }
     },
-    "Your realm begins again on day 1. The Chronicle keeps its records." : {
-      "comment" : "Pause sheet: the restart's explanation.",
+    "Your name" : {
+      "comment" : "Name entry: accessibility label of the name field.",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dein Reich beginnt wieder an Tag 1. Die Chronik behält ihre Rekorde."
+            "value" : "Euer Name"
           }
         }
       }
