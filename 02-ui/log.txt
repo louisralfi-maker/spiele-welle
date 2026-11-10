@@ -1,0 +1,7 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/LordUITests.swift:91: error: -[LanternholdUITests.LordUITests testTheLordIsNamed] : XCTAssertTrue failed - Odile reads the name from the family book: Odile counsels: Every answer costs gold or goodwill, my king. This one costs a blessing, and blessings are free. Bless the plough.
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' failed (72.470 seconds).
+Test Suite 'LordUITests' failed at 2026-11-10 07:09:09.776.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-10 07:09:09.777.
+Test Suite 'Selected tests' failed at 2026-11-10 07:09:09.777.
+exit=65
+screenshots: 8
