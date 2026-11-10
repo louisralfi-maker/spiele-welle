@@ -481,6 +481,9 @@ no emissive), three-quarter right, lit from the left.
 - Brine's face stays the existing `envoy` and `portraitEnvoy`.
 - Orla's sprite is as wide as the others (14 px), so she and the child stand close; a child of its own that walks
   beside her is open.
+- **Wired** (claude/lh-polish, DESIGN.md "Polish after round 2", point 5): as proposed. The four are guests with
+  `.court` bodies and their own portraits (`Speakers.house`); the composed styles and the stand-in bodies are gone.
+  They wait standing (a court body has no seated strip), so Dame Orla no longer takes a bench.
 
 ### The houses' banners (look 2, stage 7; ART-look2.md section 19.3)
 
@@ -505,3 +508,8 @@ no Swift names them yet. Props of the **world plane**, one frame each, lit like 
   `oxmoor_with`, `calder_with`, `lorn_with`); otherwise the realm's painted banner shows at that place.
 - `hallFront` (z 2) covers them like the rest of the interior; they hang inside the room's box, so the hall's
   light falls on them. No light of their own.
+- **Wired** (claude/lh-polish, DESIGN.md "Polish after round 2", point 5): places, order and z as proposed
+  (`CourtFrames.houseBanners`, `houseBannerY`), with one change to the "when": a house's banner hangs once the lord
+  has had the banners hung (the world change `castle.hall.banners.houses`, which `tithe_letters` sets on day 16,
+  STORY.md section 5) and the house stands with him (its `_with` flag). The realm's renewed banner (`hallBanner`,
+  z 1) is left out at a place where a house's banner hangs. `-GWHouses` hangs them for shots.

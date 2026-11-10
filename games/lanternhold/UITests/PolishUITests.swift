@@ -6,7 +6,8 @@ import XCTest
 /// on a hard night, pulling back at first light and with Reduce Motion; the older wall's ruins in a new realm, a
 /// ruin beside a built tier on day 7 and the demo realm's walls in their anchors; the castle in its first tier and
 /// under scaffolding (`-GWBuild raise`; tiers 2 and 3 are shots 72 and 82); the market square with its props at dusk
-/// and at noon; rain over the town by day; the circlet on the audience button.
+/// and at noon; rain over the town by day; the circlet on the audience button; the houses' banners in the great
+/// hall (`-GWHouses`) and a house's face before the throne.
 /// Saves `<nn>-polish-<what>-<lang>` from 100.
 @MainActor
 final class PolishUITests: XCTestCase {
@@ -83,6 +84,51 @@ final class PolishUITests: XCTestCase {
             } else {
                 attach(XCUIScreen.main.screenshot(), "118-polish-circlet-missing-\(language)")
                 XCTFail("polish: no audience button at the throne")
+            }
+        }
+        app.terminate()
+    }
+
+    /// The houses (stage 7): the great hall on day 12 with the five houses' banners and with two (the March's and
+    /// Lorn's), then day 3 (seed 1), when Hild Varn of the March waits on top and walks up to the throne.
+    func testPolishHouses() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let hall = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWDay", "12", "-GWClock", "10",
+                    "-GWCameraX", "1830", "-GWLook", "2", "-GWWeather", "clear"]
+        let stills: [(name: String, arguments: [String])] = [
+            ("119-polish-banners-all", hall + ["-GWHouses", "all"]),
+            ("120-polish-banners-two", hall + ["-GWHouses", "varn,lorn"]),
+        ]
+        for still in stills {
+            let app = XCUIApplication()
+            app.launchArguments = still.arguments
+            app.launch()
+            if waitUntilReady(app, name: still.name) {
+                pause(1.0)
+                attach(XCUIScreen.main.screenshot(), "\(still.name)-\(language)")
+            }
+            app.terminate()
+        }
+        let app = XCUIApplication()
+        app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWDay", "3", "-GWSeed", "1",
+                               "-GWClock", "10", "-GWCameraX", "1824", "-GWLook", "2", "-GWWeather", "clear"]
+        app.launch()
+        if waitUntilReady(app, name: "polish-envoy") {
+            let button = element(app, "action-button")
+            if button.waitForExistence(timeout: 8) {
+                pause(0.6)
+                attach(XCUIScreen.main.screenshot(), "121-polish-envoy-hall-\(language)")
+                button.tap()
+                if element(app, "audience-root").waitForExistence(timeout: 10) {
+                    pause(0.8)
+                    attach(XCUIScreen.main.screenshot(), "122-polish-envoy-audience-\(language)")
+                } else {
+                    attach(XCUIScreen.main.screenshot(), "122-polish-envoy-missing-\(language)")
+                    XCTFail("polish: the audience card did not open")
+                }
+            } else {
+                attach(XCUIScreen.main.screenshot(), "121-polish-envoy-missing-\(language)")
+                XCTFail("polish: no audience button at the throne on day 3")
             }
         }
         app.terminate()

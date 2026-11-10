@@ -158,6 +158,74 @@ final class PolishTests: XCTestCase {
         }
     }
 
+    // MARK: The houses' faces and banners
+
+    func testTheHousesFacesAreGuestsWithABodyAndAPortraitOfTheirOwn() throws {
+        let faces: [(id: String, body: SpriteID, portrait: SpriteID)] = [
+            ("hildVarn", .hildVarn, .portraitHildVarn), ("lorenzPell", .lorenzPell, .portraitLorenzPell),
+            ("ebbaCalder", .ebbaCalder, .portraitEbbaCalder), ("orlaLorn", .orlaLorn, .portraitOrlaLorn),
+        ]
+        for face in faces {
+            let speaker = try XCTUnwrap(Speakers.speaker(face.id), face.id)
+            XCTAssertEqual(speaker.role, .guest, face.id)
+            XCTAssertEqual(speaker.body, .court(face.body), "\(face.id): walk 0 ... 3, idle 4 ... 5, talk 6 ... 7")
+            XCTAssertEqual(speaker.portrait, face.portrait, face.id)
+            XCTAssertEqual(speaker.nameKey, "speaker.\(face.id).name")
+            XCTAssertTrue(Speakers.canTalk(face.id), face.id)
+            XCTAssertTrue(face.body.isCourtBody, face.id)
+            XCTAssertEqual(face.body.frameCount, 8, face.id)
+            XCTAssertEqual(face.body.size, SpriteID.envoy.size, face.id)
+            XCTAssertEqual(face.portrait.frameCount, 1, face.id)
+            XCTAssertEqual(face.portrait.size, SpriteID.portraitEnvoy.size, face.id)
+            XCTAssertNil(Speakers.recipe(face.id, look: 4), "\(face.id): a painted face, not a composed one")
+            XCTAssertEqual(AudienceCard.portrait(speaker: face.id, look: 4, day: 3, flags: []),
+                           .own(face.portrait, frame: 0), face.id)
+            XCTAssertNil(CourtLayout.seatedStrip(face.body), "\(face.id) waits standing")
+        }
+    }
+
+    func testTheHousesSpritesHaveTheirPlaceholders() {
+        let bodies: [SpriteID] = [.hildVarn, .lorenzPell, .ebbaCalder, .orlaLorn]
+        let portraits: [SpriteID] = [.portraitHildVarn, .portraitLorenzPell, .portraitEbbaCalder, .portraitOrlaLorn]
+        let banners = CourtFrames.houseBanners.map { $0.sprite }
+        XCTAssertEqual(banners.count, 5)
+        for sprite in bodies + portraits + banners {
+            let frames = PlaceholderArt.frames(for: sprite)
+            XCTAssertEqual(frames.count, sprite.frameCount, "\(sprite)")
+            for frame in frames {
+                XCTAssertEqual(PixelSize(width: frame.width, height: frame.height), sprite.size, "\(sprite)")
+                XCTAssertFalse(frame.isEmpty, "\(sprite)")
+            }
+            // Each is drawn from its painting.
+            XCTAssertEqual(AtlasLayout.shared.sources[sprite], .png, "\(sprite)")
+        }
+        for banner in banners {
+            XCTAssertEqual(banner.size, PixelSize(width: 20, height: 41), "\(banner)")
+            XCTAssertEqual(banner.frameCount, 1, "\(banner)")
+        }
+    }
+
+    func testTheHousesArgumentHangsTheirBanners() {
+        XCTAssertTrue(DebugArgs.keys.contains("GWHouses"))
+        XCTAssertEqual(DebugArgs(values: [:]).houses, [])
+        XCTAssertEqual(DebugArgs(values: ["GWHouses": "all"]).houses, ["brine", "calder", "varn", "lorn", "oxmoor"])
+        XCTAssertEqual(DebugArgs(values: ["GWHouses": " Varn, lorn ,nobody"]).houses, ["varn", "lorn"])
+        XCTAssertEqual(DebugArgs(values: ["GWHouses": "nobody"]).houses, [])
+        let plain = GameStart.realm(args: DebugArgs(values: ["GWReset": "YES"]), saved: nil)
+        XCTAssertFalse(plain.state.court?.world.contains(CourtFrames.houseBannersHung) ?? false)
+        XCTAssertFalse(plain.state.flags.contains("varn_with"))
+        let start = GameStart.realm(args: DebugArgs(values: ["GWReset": "YES", "GWHouses": "varn,lorn"]), saved: nil)
+        for realm in [start.state, start.dawn] {
+            XCTAssertEqual(realm.court?.world.contains(CourtFrames.houseBannersHung), true)
+            XCTAssertEqual(realm.flags.filter { $0.hasSuffix("_with") }, ["lorn_with", "varn_with"])
+            XCTAssertEqual(realm.flags, realm.flags.sorted())
+            XCTAssertEqual(CourtFrames.houseBannerPlaces(world: realm.court?.world ?? [], flags: realm.flags), [2, 3])
+        }
+        var twice = start.state
+        GameStart.applyHouses(&twice, args: DebugArgs(values: ["GWHouses": "varn"]))
+        XCTAssertEqual(twice, start.state, "a house that stands already is not added again")
+    }
+
     // MARK: The castle grows
 
     func testTheCastleGrowsWithItsGatehouse() {

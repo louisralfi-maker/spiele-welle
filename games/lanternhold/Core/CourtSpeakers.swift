@@ -7,7 +7,8 @@
 enum SpeakerRole: String, Sendable, Equatable {
     /// Lives in the castle: Odile, Brannock, Pip, Mother Hesper, Tamsin, Bram, Marek, Seren.
     case court
-    /// Comes on some days: Ser Ludo, the bard, the envoy from the coast, the Lightless King's herald.
+    /// Comes on some days: Ser Ludo, the bard, the envoy from the coast, the Lightless King's herald, the faces of
+    /// the houses (Hild Varn, Steward Pell, Auditor Calder, Dame Orla Lorn).
     case guest
     /// A petitioner from the town or the road (farmer, townswoman, ...): a body of the townsfolk and a composed
     /// portrait.
@@ -147,9 +148,9 @@ struct Speaker: Sendable, Equatable {
     var id: String
     var role: SpeakerRole
     var body: SpeakerBody
-    /// The court's and the M3 guests' own portrait (nil for townsfolk and the houses' faces, who get a composed one).
+    /// The court's and the guests' own portrait (nil for townsfolk, who get a composed one).
     var portrait: SpriteID?
-    /// Townsfolk and the houses' faces: the styles they are drawn in, for women and for men (one may be nil).
+    /// Townsfolk: the styles they are drawn in, for women and for men (one may be nil).
     var female: PortraitStyle?
     var male: PortraitStyle?
     /// Story.xcstrings keys: the name over the card (the court and named guests) and the role under it.
@@ -186,22 +187,13 @@ enum Speakers {
                 nameKey: "speaker.envoy.name", roleKey: "speaker.envoy.role"),
         Speaker(id: "herald", role: .guest, body: .court(.herald, glow: .heraldGlow), portrait: .portraitHerald,
                 nameKey: nil, roleKey: "speaker.herald.role"),
-        // The faces of the houses (STORY.md section 5, 9.3). Until the art lane draws them they walk as the M3
-        // archetype bodies (soldier, noble, townswoman, widow) and their portraits are composed from one fixed
-        // choice of parts, in the house's colour: the same face whatever the petitioner's look.
-        house("hildVarn", .guardsman, female: PortraitStyle(
-            clothes: [PortraitPart.mailAndSurcoat], faces: [PortraitPart.young], hair: [PortraitPart.braids],
-            skins: [.light], hairColors: [.darkBrown], cloths: [.green])),
-        house("lorenzPell", .petitionerE, male: PortraitStyle(
-            clothes: [PortraitPart.fineCoat], faces: [PortraitPart.long], beards: [PortraitPart.moustache],
-            hair: [PortraitPart.shortHair], hats: [PortraitPart.featherCap],
-            skins: [.pale], hairColors: [.black], cloths: [.redBrown])),
-        house("ebbaCalder", .petitionerD, female: PortraitStyle(
-            clothes: [PortraitPart.fineCoat], faces: [PortraitPart.long], hair: [PortraitPart.bun],
-            skins: [.medium], hairColors: [.black], cloths: [.blue])),
-        house("orlaLorn", .citizen, female: PortraitStyle(
-            clothes: [PortraitPart.robe], faces: [PortraitPart.old], hair: [PortraitPart.bun],
-            skins: [.pale], hairColors: [.grey], cloths: [.plum])),
+        // The faces of the houses (STORY.md section 5, 9.3; SPRITES.md "The house envoys"): guests like the envoy
+        // from the coast, each with a body and a story portrait of her or his own. Dame Orla's great-grandchild
+        // stands in her frame.
+        house("hildVarn", .hildVarn, portrait: .portraitHildVarn),
+        house("lorenzPell", .lorenzPell, portrait: .portraitLorenzPell),
+        house("ebbaCalder", .ebbaCalder, portrait: .portraitEbbaCalder),
+        house("orlaLorn", .orlaLorn, portrait: .portraitOrlaLorn),
     ]
 
     /// The townsfolk archetypes: a body of the townsfolk (SPRITES.md "Actors" and "M3") and the parts their portraits
@@ -318,10 +310,9 @@ enum Speakers {
                 nameKey: "speaker.\(id).name", roleKey: "speaker.\(id).role")
     }
 
-    /// A named guest without a portrait strip of his own: an archetype's body and one composed face.
-    private static func house(_ id: String, _ body: SpriteID, female: PortraitStyle? = nil,
-                              male: PortraitStyle? = nil) -> Speaker {
-        Speaker(id: id, role: .guest, body: .townsfolk(body), portrait: nil, female: female, male: male,
+    /// A house's face: a named guest with the guests' body strip and a story portrait.
+    private static func house(_ id: String, _ body: SpriteID, portrait: SpriteID) -> Speaker {
+        Speaker(id: id, role: .guest, body: .court(body), portrait: portrait,
                 nameKey: "speaker.\(id).name", roleKey: "speaker.\(id).role")
     }
 
@@ -388,8 +379,8 @@ enum Speakers {
         }
     }
 
-    /// The composed portrait of a townsfolk petitioner or of a house's face (nil for everyone with a portrait strip
-    /// of his own: the court and the M3 guests).
+    /// The composed portrait of a townsfolk petitioner (nil for everyone with a portrait of his own: the court and
+    /// the guests, the houses' faces among them).
     static func recipe(_ id: String, look: Int) -> PortraitRecipe? {
         guard let speaker = speaker(id), speaker.portrait == nil else { return nil }
         let female = isFemale(id, look: look)

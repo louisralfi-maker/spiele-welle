@@ -133,6 +133,22 @@ enum CourtFrames {
     /// The renewed banners over the hall's five (`castle.banners.new`): their left edges, their bottom 28 px up.
     static let bannerXs: [Double] = [1745, 1784, 1821, 1859, 1896]
     static let bannerY = 28.0
+    /// The houses' banners (SPRITES.md "The houses' banners"; STORY.md section 5): once the lord had them hung
+    /// (`tithe_letters`, the world change `houseBannersHung`), the banner of every house that stands with him (its
+    /// flag) hangs over the hall's painted banner at its place and hides it; left to right Brine, Calder, Varn (over
+    /// the throne), Lorn, Oxmoor. Their left edges, their bottom 25 px up, behind the throne.
+    static let houseBannersHung = "castle.hall.banners.houses"
+    static let houseBanners: [(flag: String, sprite: SpriteID, x: Double)] = [
+        ("brine_with", .bannerBrine, 1744), ("calder_with", .bannerCalder, 1783), ("varn_with", .bannerVarn, 1821),
+        ("lorn_with", .bannerLorn, 1858), ("oxmoor_with", .bannerOxmoor, 1895),
+    ]
+    static let houseBannerY = 25.0
+
+    /// The places (0 ... 4, left to right) where a house's banner hangs.
+    static func houseBannerPlaces(world: [String], flags: [String]) -> [Int] {
+        guard world.contains(houseBannersHung) else { return [] }
+        return houseBanners.indices.filter { flags.contains(houseBanners[$0].flag) }
+    }
     static let tapestryX = 1764.0
     static let tapestryY = 30.0
     /// Seren's grey lantern on the hall's far wall (`castle.seren.lantern`), its glass and its cold light.
@@ -337,8 +353,15 @@ enum CourtFrames {
         }
         let world = s.court?.world ?? []
         if hall > 0 {
+            // A house's banner takes the place of the realm's renewed one.
+            let houses = houseBannerPlaces(world: world, flags: s.flags)
             if world.contains("castle.banners.new") {
-                for x in bannerXs { prop(.hallBanner, x: x, y: bannerY) }
+                for (place, x) in bannerXs.enumerated() where !houses.contains(place) {
+                    prop(.hallBanner, x: x, y: bannerY)
+                }
+            }
+            for place in houses {
+                prop(houseBanners[place].sprite, x: houseBanners[place].x, y: houseBannerY, z: -1)
             }
             if world.contains("castle.hall.tapestry") { prop(.tapestry, x: tapestryX, y: tapestryY) }
             if world.contains("castle.seren.lantern") {

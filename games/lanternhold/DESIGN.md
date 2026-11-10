@@ -898,6 +898,7 @@ tap in Release) is checked on an A12 iPhone and a current one before the store.
 | `-GWWeather auto\|clear\|breeze\|gusty\|storm` | look 2: the weather; auto is the run's seed and day, the others hold one kind |
 | `-GWWind <0...1>`, `-GWRain <0...1>`, `-GWWetness <0...1>` | look 2: hold the steady wind (negative: from the valley), the rain or the wet ground |
 | `-GWGloomFog off\|<0...1>` | look 2: the fog out of the Gloom; without it tonight's (the night's number and the fog modifier), a number holds how hard it comes (0 the first night's, 1 a late fog night's), `off` leaves it out |
+| `-GWHouses all\|varn,brine,oxmoor,calder,lorn` | shots: these houses stand with the lord and the banners are hung, so theirs hang in the great hall ("Polish after round 2", point 5) |
 | `-GWLord lord\|lady`, `-GWLordName <name>` | the lord pass: Burgherr or Burgherrin and the lord's name (cleaned like a typed one) without the name entry; the other half is the standard lord's (Robin, Burgherr) |
 
 ## Accessibility identifiers
@@ -2859,10 +2860,26 @@ simulation are untouched.
   valley vista's slope only reached that height at 732, so a wedge of horizon sky stood open under the cloud deck.
   Both vistas stand 64 px further left (556 and 1004): the wall ends behind the fir slopes.
 
+**5. The houses' faces and banners** (stage 7 of the art, 8822299)
+
+- The four houses' faces are guests like the envoy from the coast, each with a painted body (14 × 30, walk 0 to 3,
+  idle 4 to 5, talk 6 to 7) and a story portrait: `hildVarn`, `lorenzPell`, `ebbaCalder`, `orlaLorn` (Dame Orla
+  with her great-grandchild in her frame) and `portraitHildVarn` and so on. Their stand-ins (the archetype bodies
+  and one composed face each) are gone. They wait standing, as every guest does. Brine's face stays the envoy.
+- The houses' banners (`bannerBrine`, `bannerCalder`, `bannerVarn`, `bannerLorn`, `bannerOxmoor`, 20 × 41) hang in
+  the great hall over the realm's painted banners, left to right in that order, Varn's over the throne
+  (`CourtFrames.houseBanners`: x 1744, 1783, 1821, 1858, 1895, y 25, z -1: over the interior, behind the throne and
+  the court). A house's banner hangs once the lord had the banners hung (`tithe_letters` on day 16 sets the world
+  change `castle.hall.banners.houses`) and while the house stands with him (`varn_with`, `brine_with`,
+  `oxmoor_with`, `calder_with`, `lorn_with`). At such a place the realm's renewed banner (`castle.banners.new`) is
+  left out. No state: both are read from the flags and the world changes the story already keeps.
+- `-GWHouses` sets the flags and the world change for shots.
+
 **Tests.** `Tests/GloomFogTests.swift` and `Tests/PolishTests.swift` (the fog's rules, the ruins and anchors, the
 castle's stage through play and through the arguments, the props, the flicker, the rain's shade, the fireflies, the
-vistas). UI: `UITests/PolishUITests.swift`, `testPolish` and `testPolishCirclet`, English and German, every shot
-held still:
+vistas, the houses' faces, their placeholders and `-GWHouses`), `Tests/CastleRoomsTests.swift` (the houses'
+banners in the open hall). UI: `UITests/PolishUITests.swift`, `testPolish`, `testPolishCirclet` and
+`testPolishHouses`, English and German; `testPolish`'s shots are held still:
 
 | Shot | What |
 |---|---|
@@ -2879,6 +2896,8 @@ held still:
 | `113-polish-square-dusk`, `114-polish-square-noon` | the market square with its props; fireflies at dusk |
 | `115-polish-rain-town-noon`, `116-polish-rain-square-dusk`, `117-polish-rain-river-day` | rain over bright scenes |
 | `118-polish-circlet-button` | the circlet on the audience button |
+| `119-polish-banners-all`, `120-polish-banners-two` | the great hall on day 12 with the five houses' banners, and with Varn's and Lorn's |
+| `121-polish-envoy-hall`, `122-polish-envoy-audience` | day 3: Hild Varn waits in the hall, then her audience card |
 
 ## Risks
 

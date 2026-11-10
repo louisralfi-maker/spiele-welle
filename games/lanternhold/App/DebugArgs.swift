@@ -81,6 +81,9 @@ struct DebugArgs: Sendable, Equatable {
     /// tonight's (the night's number and the fog modifier of the night plan); a number fixes how hard it comes (0
     /// the first night's ... 1 a late fog night's); `off` leaves it out.
     var gloomFog = GloomFogOverride.auto
+    /// `-GWHouses all|varn,brine,oxmoor,calder,lorn` (screenshots, "Polish after round 2"): these houses stand with
+    /// the lord and the banners are hung, so theirs hang in the great hall (`CourtFrames.houseBanners`).
+    var houses: [String] = []
     /// `-GWSkipOnboarding YES`: no hints (the onboarding comes in M7) and no name entry on a new realm: the lord is
     /// the standard one, or the one `-GWLord` and `-GWLordName` name.
     var skipOnboarding = false
@@ -125,7 +128,7 @@ struct DebugArgs: Sendable, Equatable {
         "GWCameraX", "GWAutoplay", "GWActorMode", "GWLightStyle", "GWEffects", "GWShowLowRes", "GWShowBuffer",
         "GWDebugLights", "GWStats", "GWReduceMotion", "GWDay", "GWNight", "GWBuild", "GWGold", "GWHappiness",
         "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock", "GWLook", "GWCastle",
-        "GWWeather", "GWWind", "GWRain", "GWWetness", "GWLord", "GWLordName", "GWGloomFog",
+        "GWWeather", "GWWind", "GWRain", "GWWetness", "GWLord", "GWLordName", "GWGloomFog", "GWHouses",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -228,6 +231,11 @@ struct DebugArgs: Sendable, Equatable {
             } else if let hardness = DebugArgs.double(text) {
                 gloomFog = .fixed(min(1, max(0, hardness)))
             }
+        }
+        if let text = values["GWHouses"]?.lowercased(), !text.isEmpty {
+            let known = CourtFrames.houseBanners.map { String($0.flag.dropLast("_with".count)) }
+            let named = text.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+            houses = named.contains("all") ? known : known.filter { named.contains($0) }
         }
         lord = values["GWLord"].flatMap { LordForm(rawValue: $0.trimmingCharacters(in: .whitespaces).lowercased()) }
         if let name = values["GWLordName"]?.trimmingCharacters(in: .whitespaces), !name.isEmpty {

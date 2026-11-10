@@ -207,7 +207,8 @@ final class PetitionDataTests: XCTestCase {
                     if speaker.role == .townsfolk {
                         XCTAssertNotNil(Speakers.townsfolkName(speaker.id, look: look))
                     } else {
-                        // A house's face: named, and the same face whatever the look.
+                        // A named face without a painting of its own (none since the houses' faces were painted):
+                        // the same face whatever the look.
                         XCTAssertNotNil(speaker.nameKey, speaker.id)
                         XCTAssertNil(Speakers.townsfolkName(speaker.id, look: look))
                         XCTAssertEqual(recipe, first, "\(speaker.id) has one face")
@@ -217,7 +218,8 @@ final class PetitionDataTests: XCTestCase {
         }
         XCTAssertEqual(Speakers.speaker("hildVarn")?.role, .guest)
         XCTAssertTrue(Speakers.canTalk("orlaLorn"))
-        XCTAssertEqual(Speakers.recipe("orlaLorn", look: 7)?.hairColor, .grey)
+        XCTAssertNil(Speakers.recipe("orlaLorn", look: 7), "her face is painted")
+        XCTAssertEqual(Speakers.speaker("orlaLorn")?.portrait, .portraitOrlaLorn)
         XCTAssertEqual(Speakers.nameKey("envoy", day: 9, flags: []), "speaker.envoy.name")
         XCTAssertEqual(Speakers.nameKey("seren", day: 5, flags: []), "speaker.stranger.name")
         XCTAssertEqual(Speakers.nameKey("seren", day: 15, flags: []), "speaker.seren.name")

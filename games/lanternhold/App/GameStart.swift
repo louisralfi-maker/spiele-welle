@@ -2,7 +2,8 @@
 /// `-GWDay n` / `-GWNight n` let the seeded headless reference bot play a new realm up to that day's morning or that
 /// night's 20:00 and hand it over, otherwise the save's last dawn resumes (or a new realm begins); then `-GWBuild
 /// demo` raises a built-up realm for screenshots (`raise`: the same with the great gate under way), `-GWGold` and
-/// `-GWHappiness` set the numbers, `-GWLord` and `-GWLordName` name the lord and `-GWCameraX` puts the lord there.
+/// `-GWHappiness` set the numbers, `-GWHouses` hangs the houses' banners, `-GWLord` and `-GWLordName` name the lord
+/// and `-GWCameraX` puts the lord there.
 enum GameStart {
     struct Result: Sendable {
         /// The realm the game plays from now.
@@ -61,6 +62,8 @@ enum GameStart {
         }
         applyNumbers(&state, args: args)
         applyNumbers(&dawn, args: args)
+        applyHouses(&state, args: args)
+        applyHouses(&dawn, args: args)
         if let lord = args.lordIdentity {
             state.lord = lord
             dawn.lord = lord
@@ -93,6 +96,21 @@ enum GameStart {
     static func applyNumbers(_ s: inout GameState, args: DebugArgs) {
         if let gold = args.gold { s.gold = max(0, gold) }
         if let happiness = args.happiness { s.happiness = min(100, max(0, happiness)) }
+    }
+
+    /// `-GWHouses`: the named houses stand with the lord and the banners are hung in the great hall.
+    static func applyHouses(_ s: inout GameState, args: DebugArgs) {
+        guard !args.houses.isEmpty else { return }
+        var court = s.court ?? CourtState()
+        if !court.world.contains(CourtFrames.houseBannersHung) {
+            court.world.append(CourtFrames.houseBannersHung)
+            court.world.sort()
+        }
+        s.court = court
+        for flag in args.houses.map({ $0 + "_with" }) where !s.flags.contains(flag) {
+            s.flags.append(flag)
+        }
+        s.flags.sort()
     }
 
     /// `-GWBuild demo`: a built-up realm for screenshots. Stone walls on the middle and outer line, the iron gate,

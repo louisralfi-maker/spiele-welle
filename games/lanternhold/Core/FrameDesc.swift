@@ -112,6 +112,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // creeping fog before it (two frames each: the body that repeats, the leading face), the shred that tears off
     // the front, the cold eyes in the bank's heart (an emissive)
     case gloomFogBack, gloomFogMid, gloomFogFront, gloomWisp, gloomFogEyes
+    // Stage 7 (SPRITES.md "The house envoys", "The houses' banners"): the four houses' faces as guests with a body
+    // (walk 0-3, idle 4-5, talk 6-7) and a story portrait of their own, and the five houses' banners in the hall
+    case hildVarn, lorenzPell, ebbaCalder, orlaLorn
+    case portraitHildVarn, portraitLorenzPell, portraitEbbaCalder, portraitOrlaLorn
+    case bannerVarn, bannerBrine, bannerOxmoor, bannerCalder, bannerLorn
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -332,6 +337,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .gloomFogFront: return PixelSize(width: 128, height: 30)
         case .gloomWisp: return PixelSize(width: 40, height: 16)
         case .gloomFogEyes: return PixelSize(width: 64, height: 72)
+        case .hildVarn, .lorenzPell, .ebbaCalder, .orlaLorn: return PixelSize(width: 14, height: 30)
+        case .portraitHildVarn, .portraitLorenzPell, .portraitEbbaCalder, .portraitOrlaLorn:
+            return PixelSize(width: 48, height: 48)
+        case .bannerVarn, .bannerBrine, .bannerOxmoor, .bannerCalder, .bannerLorn:
+            return PixelSize(width: 20, height: 41)
         }
     }
 
@@ -339,7 +349,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     var isCourtBody: Bool {
         switch self {
         case .odile, .brannock, .pip, .hesper, .tamsin, .bram, .marek, .seren, .serLudo, .bard, .envoy, .herald,
-             .hesperGlow, .serenGlow, .heraldGlow:
+             .hesperGlow, .serenGlow, .heraldGlow, .hildVarn, .lorenzPell, .ebbaCalder, .orlaLorn:
             return true
         default:
             return false
