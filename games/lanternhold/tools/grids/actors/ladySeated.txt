@@ -1,7 +1,9 @@
 # ladySeated 16x30, 4 frames: sit down 0-1, seated idle 2-3, frame for frame kingSeated's (a PROPOSAL of the look-2 art
-# pass, SPRITES.md "Proposals of the art pass"). The Burgherrin on the hall's throne, from the front with the head in
-# profile: the kirtle lies over her lap and knees, the plait over her shoulder. The lantern glass: cols 13-14,
-# rows 6-7. The parts are the king's, the lady's and the seated king's (include).
+# pass, SPRITES.md "Proposals of the art pass"). The Burgherrin on the hall's throne, turned to the hall like the
+# seated king (ART-look2.md section 16): her back at the throne's back, the kirtle over her lap and falling from the
+# knees, the shins and boots before the seat's front, the plait down the cloak, her hand on the pole that stands behind
+# her knee. The lantern glass: cols 13-14, rows 6-7. The parts are the king's, the lady's and the seated king's
+# (include).
 id ladySeated
 size 16x30
 frames 4
@@ -10,39 +12,45 @@ include king.txt
 include lady.txt
 include kingSeated.txt
 
-part bodyFront
-    ..uUGTT..
-    .uUQQRTt.
-    .UQQRRRT.
-    .UQQRRRT.
-    .UTQRRrT.
-    .UTQRRrT.
-    .UTHGHHT.
-    UTQQRRRrT
-    USQQQQRrT
-    TQQQQQQRt
-    .QQQQQRr.
+part bodySit
+    ....uUTQR
+    ....UTGQR
+    ....UTRRR
+    ....UTRRr
+    ....UTRR.
+    ....UTRR.
+    ....UTHGH
+    ....UTRRR
+    ...UTTRRR
+    ...TtTQRR
+    ....tT...
 
-# the kirtle's fall from the knees (frame cols 4-9), darker than the lap, the ankles and the boots
-part legsFront
-    RRRRRr
-    RRRrRr
-    rRRrRr
-    bD..bD
-    pH..pH
-    pH..pH
-    HH..HH
+# the kirtle over the lap and from the knee, the shin and the boot under it
+part legsSit
+    QQRr..
+    RRRRr.
+    RRrRr.
+    ..RRr.
+    ..rRr.
+    ..LbD.
+    ..LbD.
+    ..LbD.
+    ..pHH.
+    ..pHH.
+    ..pHHH
 
-part legsFrontLow
-    QQRRRr
-    RRRRRr
-    RRRrRr
-    RRRrRr
-    rRRrRr
-    bD..bD
-    pH..pH
-    pH..pH
-    HH..HH
+part legsHalf
+    RQ.....
+    RRRQ...
+    rRRRRr.
+    .rrRRr.
+    ...RRr.
+    ...rRr.
+    ...LbD.
+    ...LbD.
+    ...pHH.
+    ...pHH.
+    ...pHHH
 
 frame 0
     legsCrouch 2 18
@@ -55,29 +63,29 @@ frame 0
     armHold 7 11
 
 frame 1
-    legsFrontLow 4 21
-    bodyFront 3 10
+    pole 10 2
+    bodySit 0 10
     head 4 3
     circlet 3 5
     plait 3 9
-    pole 10 2
-    handPole 9 15
+    legsHalf 7 19
+    armHold 7 12
 
 frame 2
-    legsFront 4 23
-    bodyFront 3 12
+    pole 10 2
+    bodySit 0 12
     head 4 5
     circlet 3 7
     plait 3 11
-    pole 10 2
-    handPole 9 17
+    legsSit 8 19
+    armHold 7 14
 
 frame 3
-    legsFront 4 23
-    bodyFront 3 11
-    bodyFront 3 12
+    pole 10 2
+    bodySit 0 11
+    bodySit 0 12
     head 4 4
     circlet 3 6
     plait 3 10
-    pole 10 2
-    handPole 9 17
+    legsSit 8 19
+    armHold 7 14

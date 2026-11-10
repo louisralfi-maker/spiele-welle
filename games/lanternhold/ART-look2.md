@@ -1224,3 +1224,48 @@ are as they were (too small for the pass, or composed over the ruin).
   game. `brazier`, `torchPost`, `beaconBase`, the gates, `ballista`, `catapult` and `stakePit` are untouched.
 - The M3 court members are not repainted.
 - The repainted walk cycles and the seated strips have not been seen in motion, only as strips and in still mocks.
+
+## 16. The fixes after the art pass (10.11.2026, night)
+
+### 16.1 The hands on the cliffs (review finding A7)
+
+The granite painting `gorge-1.png` has four pale dry-grass tufts on two ledges. Cut into the cleft's pieces they
+read as five-fingered hands. `worldart.py rockover <png> x0,y0,x1,y1 ...` paints rock over a box: every column takes
+the colour of the cell above the box. `build-art-world.sh` runs it on the converted parts before the pieces are
+assembled (the boxes stand in the script). Changed: `cleftFace`, `cleftFaceEnd`, `cleftFlankB`, `cleftThroat`,
+`gorgeRock`. `cleftFlank` and `gorgeCrags` never had a tuft. The dark dead bush on `cleftFace` and `cleftFaceEnd`
+stays: it is dark and reads as a shrub. Plates 07, 08 and 10 of `ci-out/look2-fable/art` are re-rendered; the
+plates of `ci-out/look2-fable/world` still show the old cliffs.
+
+### 16.2 The lord and the lady sit on the throne
+
+Louis: the lord sits on the throne during audiences, and the sheet showed figures that seemed to stand beside it.
+Three causes, three fixes:
+
+- **The pose.** `kingSeated` and `ladySeated` were drawn from the front with straight shins and hid the throne
+  whole. They are redrawn in the game's side view (`grids/actors/kingSeated.txt`, `ladySeated.txt`; 16x30, 4 frames,
+  the frames' meaning and the lantern glass at cols 13-14, rows 6-7 unchanged, so the glow strips and the light
+  anchor hold): the back at the throne's back with the cloak pressed narrow between, the thighs level on the
+  cushion, the knees bent at the seat's edge, the shins and boots before the seat's front, the hand on the lantern
+  pole that stands behind the knee against the seat. Frame 1 is half lowered with sloping thighs. The lady's kirtle
+  lies over the lap and falls from the knee.
+- **The throne.** `throne` (14x24) had an ink frame that was lost before the hall's dark dais. Its back posts are
+  now gold (lit side) and straw, its lit edge wood, so the posts and finials stand behind the sitter's back and
+  head. Size and id unchanged.
+- **The place.** The hall's painted dais is centred on x 1837; the throne stood at x 1817 to 1831, before the
+  dais's left end, with the dais's carpet beside it like a second seat. The mock scenes `hall-audience`,
+  `hall-audience-lady` and `hall-benches` now stand the throne at x 1830 (centre 1837), the seated lord on it and
+  Odile 20 px right of the centre (`THRONE_X`, `_throned` in `scene_look2.py`). **For the code lane:** move the
+  throne and the seated lord 13 px right (centre 1837), as 15.2 already asks; at 1824 the game shows him beside
+  the dais's middle.
+
+Plates re-rendered: 02 (the strips composited on the throne, day and fire bands, at 6x like the first sheet), 04, 05,
+06 and 14.
+
+### 16.3 Open
+
+- `hallFront`, `chapel` and `kitchen` are not repainted (15.4 stands); the hour went to 16.1 and 16.2.
+- The seated strips are judged as stills only. Seated, the lord is one of the darker figures of the hall: before the
+  dais's dark wood he reads by the gold posts, the cushion and the lantern, less by his own colours. A lighter dais
+  front in `hallInterior` would help more than any further change of the strip.
+- The hall's `taxLectern` and the M3 court's places beside the throne follow the throne's x in the code lane.

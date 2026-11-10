@@ -169,19 +169,31 @@ def wall_dusk(look):
 
 
 # --- stage 4, the art pass (look 2 only; ART-look2.md section 15) -------------------------------------------------
+THRONE_X = 1830  # the throne's left edge before the middle of the hall's painted dais (the layout's: 1817)
+
+
+def _throned(lord):
+    """The throne at THRONE_X, the seated lord (or lady) on it turned to the hall, Odile behind the throne's side."""
+    cx = THRONE_X + 7
+    return [
+        dict(prop("throne", x=THRONE_X, z=1), frames=1),
+        dict(prop(lord, cx=cx, frame=2, f=True, z=5, li=[("lantern", cx - 5.5, 22.5, 40)]), frames=4),
+        dict(prop("odile", cx=cx + 20, frame=4, f=True, z=6), frames=8),
+    ]
+
+
 def hall_audience(look, lord="kingSeated"):
-    """The audience in the great hall: the lord (or the lady) seated on the throne (x 1817-1831, centre 1824), turned
-    to the petitioners, the lantern's light at the glass (dx 5.5, dy 22.5); Odile at the side, the townsfolk waiting
-    at the benches, one petitioner speaking."""
+    """The audience in the great hall: the lord (or the lady) seated on the throne, turned to the petitioners, the
+    lantern's light at the glass (dx 5.5, dy 22.5); Odile at the side, the townsfolk waiting at the benches, one
+    petitioner speaking. The throne stands before the middle of the hall's painted dais (THRONE_X, centre 1837:
+    ART-look2.md 15.2 and 16), not at the layout's x 1817 where it stood before the dais's left end."""
     ex = [
         prop("citizenC", cx=1738, frame=4, z=5), prop("citizen", cx=1751, frame=5, z=5),
         dict(prop("petitionerE", cx=1766, frame=4, z=6), frames=6),
         prop("citizenB", cx=1779, frame=4, z=5, f=True),
-        dict(prop("petitionerD", cx=1800, frame=4, z=6), frames=6),
-        dict(prop(lord, cx=1824, frame=2, f=True, z=4, li=[("lantern", 1818.5, 22.5, 40)]), frames=4),
-        dict(prop("odile", cx=1843, frame=4, f=True, z=6), frames=8),
-    ]
-    return dict(focus=1800, tod=0.5, drop=[], extras=ex, king="off")
+        dict(prop("petitionerD", cx=1810, frame=4, z=6), frames=6),
+    ] + _throned(lord)
+    return dict(focus=1800, tod=0.5, drop=[("throne", 1817)], extras=ex, king="off")
 
 
 def hall_benches(look, lord="kingSeated"):
@@ -193,11 +205,9 @@ def hall_benches(look, lord="kingSeated"):
         _one("bench", x=1722, z=4), _one("bench", x=1760, z=4),
         seat("citizenCSeated", 1724), seat("citizenSeated", 1740, 1),
         seat("citizenBSeated", 1763), seat("citizenSeated", 1778),
-        dict(prop("petitionerD", cx=1803, frame=4, z=6), frames=6),
-        dict(prop(lord, cx=1824, frame=2, f=True, z=4, li=[("lantern", 1818.5, 22.5, 40)]), frames=4),
-        dict(prop("odile", cx=1843, frame=4, f=True, z=6), frames=8),
-    ]
-    return dict(focus=1790, tod=0.5, drop=[], extras=ex, king="off")
+        dict(prop("petitionerD", cx=1810, frame=4, z=6), frames=6),
+    ] + _throned(lord)
+    return dict(focus=1790, tod=0.5, drop=[("throne", 1817)], extras=ex, king="off")
 
 
 # --- the castle grows (the art pass, SPRITES.md "The castle grows"): tiers 1 to 3, each also in its building state ---
