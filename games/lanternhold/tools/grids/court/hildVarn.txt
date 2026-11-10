@@ -1,0 +1,219 @@
+# hildVarn 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "The house envoys"; ART-look2.md section 19.3).
+# Hild Varn, the lord of Cairnwatch's daughter, twenty and blunt, come with the levy: a dark brown braid down her
+# back with a green tie, a mail shirt (collar and sleeves) under Varn's green surcoat with the grey cairn on its
+# chest, a belt with a gold buckle, a sword on the far hip (the hilt before her, the scabbard's end behind), brown
+# breeches and boots. Light from the upper left; the outline is look 2's selective one. Walk: a soldier's stride
+# (contact 1 px down, passing), the braid swinging behind. Idle: her hand on the pommel, a breath. Talk: her fist
+# to her chest (6), then she points ahead, at the outer line (7).
+id hildVarn
+size 14x30
+frames 8
+outline ink shade
+include kit.txt
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    H = wood
+    h = woodDark
+    L = leafLight
+    G = meadow
+    g = leaf
+    d = leafDark
+    M = stoneLight
+    m = stone
+    n = stoneMid
+    Y = gold
+    B = woodDark
+    b = soil
+    W = stonePale
+    1 = soil
+    2 = soilDark
+    3 = soilLight
+    4 = soil
+    5 = woodDark
+    6 = wood
+
+# bare-headed: the hair drawn back, the open young face
+part head
+    .hHH..
+    hHHHH.
+    hHSSS.
+    hhSkS.
+    .hSSSs
+    ..sSs.
+
+# the braid down the back, its green tie; swung out at a step
+part braid
+    h
+    H
+    h
+    H
+    h
+    G
+
+part braidSwing
+    .h
+    .H
+    .h
+    H.
+    h.
+    G.
+
+# the mail collar, the surcoat with the cairn, the belt and its buckle
+part torso
+    .mMm.
+    LGGgd
+    LGWgd
+    LWWgd
+    LGGgd
+    BBYBb
+    LGGgd
+    LGGgd
+
+# the surcoat's skirt, split before: while a foot passes, and at the contact
+part tabardPass
+    LGGgd
+    LGGgd
+    LGGgd
+    dGg.d
+
+part tabardContact
+    .LGGgd.
+    .LGGgd.
+    LLGGggd
+    LG.Gg.d
+
+# the sword on the far hip: the scabbard's end behind her, the hilt before her
+part scabbard
+    ...b
+    ..b.
+    .b..
+    .b..
+    b...
+    W...
+
+part hilt
+    .Y
+    b.
+
+# the near arm in its mail sleeve
+part armDown
+    Mm
+    Mm
+    Mn
+    mn
+    .S
+
+part armFwd
+    Mm.
+    Mm.
+    .Mm
+    .mn
+    ..S
+
+part armBack
+    .Mm
+    .Mm
+    Mm.
+    mn.
+    S..
+
+# idle: the hand on the pommel
+part armHilt
+    Mm..
+    Mm..
+    Mmn.
+    .mnS
+
+# talk 6: the fist to the chest
+part armFist
+    ..Mm
+    .SMm
+    .mmn
+
+# talk 7: she points ahead
+part armPoint
+    Mm....
+    MmmmnS
+
+frame 0
+    scabbard 0 17
+    legsContactA 2 16
+    tabardContact 3 18
+    torso 4 10
+    head 4 4
+    braidSwing 2 9
+    hilt 9 15
+    armBack 6 11
+
+frame 1
+    scabbard 0 16
+    legsPassA 2 16
+    tabardPass 4 17
+    torso 4 9
+    head 4 3
+    braid 3 8
+    hilt 9 14
+    armDown 7 10
+
+frame 2
+    scabbard 0 17
+    legsContactB 2 16
+    tabardContact 3 18
+    torso 4 10
+    head 4 4
+    braidSwing 2 9
+    hilt 9 15
+    armFwd 7 11
+
+frame 3
+    scabbard 0 16
+    legsPassB 2 16
+    tabardPass 4 17
+    torso 4 9
+    head 4 3
+    braid 3 8
+    hilt 9 14
+    armDown 7 10
+
+frame 4
+    scabbard 0 16
+    legsStand 2 16
+    tabardPass 4 17
+    torso 4 9
+    head 4 3
+    braid 3 8
+    hilt 9 14
+    armHilt 7 10
+
+frame 5
+    scabbard 0 16
+    legsStand 2 16
+    tabardPass 4 18
+    torso 4 10
+    head 4 4
+    braid 3 9
+    hilt 9 14
+    armHilt 7 10
+
+frame 6
+    scabbard 0 16
+    legsStand 2 16
+    tabardPass 4 17
+    torso 4 9
+    head 4 3
+    braid 3 8
+    hilt 9 14
+    armFist 5 10
+
+frame 7
+    scabbard 0 16
+    legsStand 2 16
+    tabardPass 4 17
+    torso 4 9
+    head 4 3
+    braid 3 8
+    hilt 9 14
+    armPoint 7 10

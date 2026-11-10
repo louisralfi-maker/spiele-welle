@@ -1491,3 +1491,43 @@ The mock renderer gained two planes for this (look 2 only, `gloomA` behind the w
 it, with the hole rule above); scenes `throat-fog-dusk`, `throat-fog-night`, `throat-fog-wall`. Plates 07 (the
 bank coming up the Throat at night, the creatures stepping out toward the outer line), 08 (dusk, the bank further
 back), 09 (the fog at the palisade, the light holes), 10 (the strips: body and face of each, the shred, the eyes).
+
+### 19.3 The four houses' envoys and the banners
+
+Before: the houses' faces walked as stand-in bodies (a guardsman, two petitioners, a townswoman) and spoke through
+composed portraits, and the hall hung five banners of the realm whatever the houses did. Now each envoy has a body
+and a face, and each house a banner (thirteen new ids).
+
+- **The bodies** (`hildVarn`, `lorenzPell`, `ebbaCalder`, `orlaLorn`; the guests' 14x30, 8 frames, hand-set part
+  grids in `tools/grids/court/`): each reads by one colour and one thing in the hand at the hall's distance. Hild:
+  Varn's green surcoat over mail, the braid, the sword. Pell: Oxmoor's red with gold, the feathered cap, the belly,
+  the gilded lamp he offers. Ebba: tall, narrow and blue-black, the writing board and the white quill. Orla: small,
+  bent and plum under a grey shawl, and her great-grandchild with the tall stick painted into her frame (STORY.md
+  has the child carry it; one sprite, no code for a second walker).
+- **The portraits** (`portraitHildVarn`, `portraitLorenzPell`, `portraitEbbaCalder`, `portraitOrlaLorn`; 48x48):
+  built as the story portraits are. A builder each in `tools/portraitstory.py` on the shared head template, rendered
+  as a draft, frozen into a text grid in `tools/grids/court/portraits/` and finished by hand there (the build reads
+  the grid). By hand: Hild's braid and the cairn on her chest; Pell's thin moustache, the pleats of his ruff, the
+  medal on his chain; Ebba's silver buttons and the shine on her hair; Orla's lines, her knot and the bell at her
+  throat. Black hair rendered slate grey and was set two steps darker in the grids.
+- **A lesson for the next portrait:** the head's neck stands in front of the upper chest on this template, so skin
+  ran down to the bust's lower edge under every open collar. A collar must be a ring before the neck
+  (`K.around_neck` with radius plus thickness of about 9.5 or more), or the chest is repainted in the grid.
+- **The banners** (`bannerVarn`, `bannerBrine`, `bannerOxmoor`, `bannerCalder`, `bannerLorn`; 20x41,
+  `tools/bannerart.py`): the hall's five realm banners are paint inside `hallInterior`, which keeps its size and
+  bytes. A house's banner is a sprite that hangs over one of them and hides it: the same line under the beam, the
+  same 18 px of cloth, the rectangle four rows longer and the point three rows lower than the painted ones, so every
+  painted banner lies inside it. The cloth is painted as the hall's banners are (a flat field, a shade under the
+  beam and down the right edge), the charge sits where the realm's lantern sits, and a hem in the charge's metal
+  runs along the point, which the realm's banners do not have. The arms are the realm map's. Three tries for the
+  small charges: the fish read only as three bodies with forked tails in a column, the cairn only as flat stones
+  with dark beds between them.
+- **Six new palette colours**, the first since look 2's palette: `plumDeep`, `plum`, `plumLight` (Lorn; ART-court.md
+  had asked for a plum since Odile's robe) and `crimsonDeep`, `crimson`, `crimsonLight` (Oxmoor's red; the roof
+  reds are too brown beside the hearth). They carry a new tag `hand`: `pixelart.py`'s `Palette` leaves them out of
+  every conversion unless an `--only` list names them, so no other painting changed (the full build proves it), and
+  `portraitart.py freeze` knows their letters. Only the banners, Orla and Pell use them.
+
+Plates 11 (the audience with the four envoys, all five banners up), 12 (the same, close), 13 (only Varn's and
+Oxmoor's banners up, the realm's at the other places), 14 (the four bodies, all frames), 15 (the four portraits),
+16 (the five banners). Scenes `hall-houses`, `hall-houses-two` in `scenemock/scene_look2.py`.

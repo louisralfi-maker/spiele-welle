@@ -1,0 +1,192 @@
+# ebbaCalder 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "The house envoys"; ART-look2.md section
+# 19.3). Auditor Ebba Calder of Blackwater, thirty, precise and unafraid: tall and narrow, a long face, black hair
+# in a tight bun at the nape, a long blue-black coat to the shins with a white collar and silver buttons (Calder's
+# black and silver), black hose and shoes; a writing board with a sheet on it before her chest in the far hand, a
+# white quill in the near one. Light from the upper left; the outline is look 2's selective one. Walk: an upright,
+# even step (contact 1 px down, passing), the quill hand swinging. Idle: the quill poised over the sheet, a breath.
+# Talk: she writes a figure down (6), then points the quill at the lord (7).
+id ebbaCalder
+size 14x30
+frames 8
+outline ink shade
+include kit.txt
+
+legend
+    k = ink
+    S = plasterDim
+    s = woodLight
+    K = night1
+    c = far
+    C = night2
+    n = night1
+    P = stonePale
+    F = foam
+    f = stonePale
+    Q = foam!
+    W = parchment
+    w = plaster
+    B = woodLight
+    b = wood
+    1 = stoneDark
+    2 = night1
+    3 = stoneMid
+    4 = stoneDark
+    5 = night0
+    6 = stoneDark
+
+# the black hair drawn into a tight bun at the nape, the long face
+part head
+    ...KK..
+    ..KKKK.
+    KKKKSS.
+    KKKSkS.
+    ..KSSSs
+    ...SSs.
+    ...sS..
+
+# the white collar, the coat, its silver buttons
+part torso
+    .FFf.
+    cCCPn
+    cCCCn
+    cCCPn
+    cCCCn
+    cCCPn
+    cCCCn
+    cCCPn
+
+# the coat's skirt to the shins: while a foot passes, and at the contact
+part skirtPass
+    .cCCCn.
+    .cCCPn.
+    .cCCCn.
+    ccCCPn.
+    ccCnCCn
+    ccCnCPn
+    ccCnCCn
+    ccCnCPn
+    .nnnnn.
+
+part skirtContact
+    ..cCCCn..
+    ..cCCPn..
+    .ccCCCn..
+    .ccCnCPn.
+    cccCnCCn.
+    ccCCnCCPn
+    ccCCnCCCn
+    .nnnnnnn.
+
+# the writing board before the chest, a sheet on it, the far hand under it
+part board
+    BWW
+    BWw
+    BWW
+    bbs
+
+# the near arm; the quill in its hand
+part armDown
+    cC
+    cC
+    cC
+    cn
+    .S
+    .Q
+
+part armFwd
+    cC.
+    cC.
+    .cC
+    .cn
+    ..S
+    ..Q
+
+part armBack
+    .cC
+    .cC
+    cC.
+    cn.
+    S..
+    Q..
+
+# idle: the quill poised over the sheet
+part armPoised
+    cC.Q
+    cC.Q
+    cCnS
+
+# talk 6: she writes
+part armWrite
+    cC...
+    cC..Q
+    cCnQ.
+    ..nS.
+
+# talk 7: the quill pointed at the lord
+part armQuill
+    cC....
+    cCnSQQ
+
+frame 0
+    legsContactA 2 16
+    skirtContact 2 18
+    torso 4 10
+    head 3 3
+    board 8 12
+    armBack 6 11
+
+frame 1
+    legsPassA 2 16
+    skirtPass 3 17
+    torso 4 9
+    head 3 2
+    board 8 11
+    armDown 7 10
+
+frame 2
+    legsContactB 2 16
+    skirtContact 2 18
+    torso 4 10
+    head 3 3
+    board 8 12
+    armFwd 7 11
+
+frame 3
+    legsPassB 2 16
+    skirtPass 3 17
+    torso 4 9
+    head 3 2
+    board 8 11
+    armDown 7 10
+
+frame 4
+    legsStand 2 16
+    skirtPass 3 17
+    torso 4 9
+    head 3 2
+    board 8 11
+    armPoised 7 9
+
+frame 5
+    legsStand 2 16
+    skirtPass 3 18
+    torso 4 10
+    head 3 3
+    board 8 12
+    armPoised 7 10
+
+frame 6
+    legsStand 2 16
+    skirtPass 3 17
+    torso 4 9
+    head 3 2
+    board 8 11
+    armWrite 7 9
+
+frame 7
+    legsStand 2 16
+    skirtPass 3 17
+    torso 4 9
+    head 3 2
+    board 8 11
+    armQuill 7 9
