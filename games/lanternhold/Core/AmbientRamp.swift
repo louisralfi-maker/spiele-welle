@@ -58,6 +58,15 @@ struct AmbientSample: Sendable, Equatable {
     var warmth: Float
     /// Colour grade: saturation multiplier (1 neutral).
     var saturation: Float
+    /// Look 2 only (ART-look2.md "Light per hour"; look 1's keys leave these at rest and its shaders never read
+    /// them). The colour distance fades to.
+    var air = SIMD3<Float>(0, 0, 0)
+    /// Look 2: the vignette's strength 0 ... 1.
+    var vignette: Float = 0
+    /// Look 2: the navy lift of the darks 0 ... 1.
+    var black: Float = 0
+    /// Look 2: the light on the clouds' sunlit tops (the low sun's colour times its strength; 0 at night).
+    var cloudColor = SIMD3<Float>(0, 0, 0)
 
     /// The ambient light as one colour: `ambientColor × ambientIntensity`.
     var ambient: SIMD3<Float> { ambientColor * ambientIntensity }
