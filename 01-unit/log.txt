@@ -1,0 +1,22 @@
+2026-11-10 07:23:32.631307+0000 Lanternhold[9187:36731] fopen failed for data file: errno = 2 (No such file or directory)
+IOSurfaceClientSetSurfaceNotify failed e00002c7
+2026-11-10 07:23:33.867477+0000 Lanternhold[9187:36731] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.DayClockTests testAFullDayCrossesEveryEventAndCountsTheDay]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.DayClockTests testEightSortedKeyframesThatTheRampHits]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DayClockTests testFrameStepsMatchOneBigStep]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.DayClockTests testNightIsDarkerThanDay]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.DayClockTests testPauseAndFreezeStopTheHourButNotElapsedTime]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.DayClockTests testPhaseProgress]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.DayClockTests testPhasesFollowTheDesignTable]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.DayClockTests testRampIsContinuousBetweenConsecutiveFrames]' passed (0.128 seconds).
+Test Case '-[LanternholdTests.DayClockTests testTheStartingEventDoesNotFireAgain]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DayClockTests testTimeOfDayMapsToHours]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DayClockTests testTwelveSecondsPerHourAndAHundredFiftySixSecondDay]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DayClockTests testWarmFireAgainstColdAmbient]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testDefaults]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testMalformedValuesKeepTheDefaults]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheFrontNightShotArguments]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheLookSwitch]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.LookGoldenTests testLookOneIsPinned]' passed (5.957 seconds).
+exit=0
+screenshots: 0
