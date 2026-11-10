@@ -200,7 +200,7 @@ final class CastleRoomsTests: XCTestCase {
                        "castle.courtyard.stall", "castle.seren.lantern"]
         let yard = realm(day: 2, hour: 10, kingX: 1500, world: changes)
         let courtyard = Self.frame(yard, focus: 1500, court: CourtScene(rooms: RoomFades(kingX: 1500)))
-        XCTAssertTrue(sprites(courtyard.desc).contains(.statue), "the statue of the lamplighter king")
+        XCTAssertTrue(sprites(courtyard.desc).contains(.statue), "the statue of the lamplighter saint")
         XCTAssertTrue(sprites(courtyard.desc).contains(.marekCart), "the stall every day")
         XCTAssertEqual(courtyard.desc.actors.filter { $0.sprite == .guardsman && $0.rect.y < 600 }.count, 2,
                        "two guards on the wall walk (the others wait on the ground)")

@@ -55,6 +55,24 @@
         }
       }
     },
+    "line.bard_returned" : {
+      "comment" : "Court talk: bard.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Küche, Wäsche, warmes Brot, eine Treppe, eine blaue Tür. Ich sammle, was die Heimgekehrten sagen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kitchen, washing, warm bread, a stair, a blue door. I collect what the Returned say."
+          }
+        }
+      }
+    },
     "line.bard_rhyme" : {
       "comment" : "Court talk: bard.",
       "extractionState" : "manual",
@@ -213,6 +231,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Big one tonight. Sharpened everything twice."
+          }
+        }
+      }
+    },
+    "line.bram_lanterns" : {
+      "comment" : "Court talk: bram.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neun Laternen heute früh vom Stein geholt. Scharniere auf der falschen Seite. Nicht unsere Arbeit."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nine lanterns off the stone this morning. Hinges on the wrong side. Not our work."
           }
         }
       }
@@ -433,6 +469,24 @@
         }
       }
     },
+    "line.brannock_pole" : {
+      "comment" : "Court talk: brannock.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Stange. Nein."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That pole. No."
+          }
+        }
+      }
+    },
     "line.brannock_promised" : {
       "comment" : "Court talk: brannock.",
       "extractionState" : "manual",
@@ -645,6 +699,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The dark window in the keep. The lads look up at it before the watch. Thank you, {lord|my lady}."
+          }
+        }
+      }
+    },
+    "line.calder_statues" : {
+      "comment" : "Court talk: ebbaCalder.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vierzig Burgherren in Eurem Buch. Sechzig Statuen, ehe der Nebel beginnt. Einer von uns irrt sich."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forty lords in your book. Sixty statues before the fog. One of us is wrong."
+          }
+        }
+      }
+    },
+    "line.envoy_lanterns" : {
+      "comment" : "Court talk: envoy.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Saltgate treiben das ganze Jahr graue Laternen an. Kein Lichtzieher von uns hat sie gemacht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grey lanterns wash up at Saltgate all year. No chandler of ours made them."
           }
         }
       }
@@ -1027,6 +1117,42 @@
         }
       }
     },
+    "line.hesper_west" : {
+      "comment" : "Court talk: hesper.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bei Dämmerung neigt sich die Flamme nach Westen. Ich rede mir nicht mehr ein, es sei der Luftzug."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "At dusk the Flame leans west. I have stopped telling myself it is the draught."
+          }
+        }
+      }
+    },
+    "line.hild_father" : {
+      "comment" : "Court talk: hildVarn.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vater sagt, eine Mauer ist so gut wie der, der sie im Morgengrauen zählt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Father says a wall is as good as whoever counts it at dawn."
+          }
+        }
+      }
+    },
     "line.ludo_goose" : {
       "comment" : "Court talk: serLudo.",
       "extractionState" : "manual",
@@ -1189,6 +1315,24 @@
         }
       }
     },
+    "line.marek_letters" : {
+      "comment" : "Court talk: marek.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goldenacre schreibt an alle, Eure Strahlkraft. Ich trage die Briefe nur aus."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goldenacre writes to everyone, Your Radiance. I only carry the letters."
+          }
+        }
+      }
+    },
     "line.marek_spyglass_hint" : {
       "comment" : "Court talk: marek, a hint about marek_spyglass.",
       "extractionState" : "manual",
@@ -1275,6 +1419,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "At an audience, ask for my counsel. I give it freely. It is the only free thing in this castle."
+          }
+        }
+      }
+    },
+    "line.odile_door" : {
+      "comment" : "Court talk: odile.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Pläne setzen die Tür des Leuchtfeuers an die Westseite. Burgherrin Oriel machte keine Fehler."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The plans put the beacon’s door on the west side. Lady Oriel did not make mistakes."
           }
         }
       }
@@ -1509,6 +1671,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "You promised Brannock a war tax. The lectern is right there, my {lord|lady}. I merely mention it."
+          }
+        }
+      }
+    },
+    "line.orla_cleft" : {
+      "comment" : "Court talk: orlaLorn.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Euer Haus kam aus dem Spalt herab, {junger|junge} Taper. Meines sah es kommen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your house came down out of the Cleft, young Taper. Mine watched it come."
           }
         }
       }
@@ -1783,6 +1963,24 @@
         }
       }
     },
+    "line.pip_pages" : {
+      "comment" : "Court talk: pip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elf Seiten fehlen im großen Buch. Ich habe es gefragt, warum. Bücher sind furchtbare Klatschmäuler."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eleven pages gone from the big book. I asked it why. Books are terrible gossips."
+          }
+        }
+      }
+    },
     "line.pip_refugees_hint" : {
       "comment" : "Court talk: pip, a hint about refugees_gate.",
       "extractionState" : "manual",
@@ -1923,6 +2121,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The light is going, lamplighter. Open, or watch me wait."
+          }
+        }
+      }
+    },
+    "line.seren_kitchen" : {
+      "comment" : "Court talk: seren.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fragt, was dort draußen ist, und ich sage: eine Küche. Ich habe es mit anderen Wörtern versucht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask what is out there and I say: a kitchen. I have tried other words."
           }
         }
       }
@@ -2269,6 +2485,24 @@
         }
       }
     },
+    "line.tamsin_mother" : {
+      "comment" : "Court talk: tamsin.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meine Mutter ging einmal hinein. Alles, was sie je davon sagte: Das Brot war noch warm."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My mother went in once. All she ever said of it was: the bread was still warm."
+          }
+        }
+      }
+    },
     "line.tamsin_oven_hint" : {
       "comment" : "Court talk: tamsin, a hint about tamsin_oven.",
       "extractionState" : "manual",
@@ -2301,6 +2535,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pip stole a whole pie yesterday and blamed the Gloom. The Gloom has crumbs in its beard, apparently."
+          }
+        }
+      }
+    },
+    "line.tamsin_place" : {
+      "comment" : "Court talk: tamsin.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ich habe wieder für ihn gedeckt. Sagt, ich soll aufhören, und ich höre auf."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I laid his place again. Tell me to stop and I will."
           }
         }
       }
@@ -3723,6 +3975,150 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "My {lord|lady}, the scouts say the Gloom is massing deeper than usual tonight, like a held breath. Twenty gold would buy extra stakes and pitch for the Throat’s floor. Or we trust the walls, as we always have."
+          }
+        }
+      }
+    },
+    "petition.calder_audit.c1" : {
+      "comment" : "Petition calder_audit: choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steht heute Nacht bei den Schützen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stand with the archers tonight."
+          }
+        }
+      }
+    },
+    "petition.calder_audit.c2" : {
+      "comment" : "Petition calder_audit: choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seht vom Bergfried aus zu."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watch from the keep."
+          }
+        }
+      }
+    },
+    "petition.calder_audit.c3" : {
+      "comment" : "Petition calder_audit: choice 3.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Mauer ist kein Ort für Gäste."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The wall is no place for guests."
+          }
+        }
+      }
+    },
+    "petition.calder_audit.hint" : {
+      "comment" : "Petition calder_audit: Odile's counsel.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie glaubt nur Büchern. Gebt ihr eine Nacht, die sich eintragen lässt. Bei den Schützen, {mein Herr|meine Herrin}, nicht hinter Glas."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "She believes ledgers. Give her a night worth entering in one. With the archers, my {lord|lady}, not behind glass."
+          }
+        }
+      }
+    },
+    "petition.calder_audit.r1" : {
+      "comment" : "Petition calder_audit: reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ebba Calder fragt, wo sie stehen soll und welcher Haken ihrer ist. Brannock reicht ihr eine nummerierte Laterne. Die Nummer schreibt sie zuerst auf."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ebba Calder asks where to stand and which hook is hers. Brannock hands her a numbered lantern. She writes the number down first."
+          }
+        }
+      }
+    },
+    "petition.calder_audit.r2" : {
+      "comment" : "Petition calder_audit: reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie dankt Euch genau so viel, wie ein Fenster verdient. Die ganze Nacht brennt ihre Kerze im Bergfried. Sie schreibt sehr wenig."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "She thanks you exactly as much as a window deserves. All night her candle burns in the keep. She writes very little."
+          }
+        }
+      }
+    },
+    "petition.calder_audit.r3" : {
+      "comment" : "Petition calder_audit: reaction to choice 3.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Dann schreibe ich, dass man es mir nicht gezeigt hat“, sagt sie ohne Groll und klappt ihr Buch zu. Es klingt leise und endgültig."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Then I shall write that I was not shown,” she says, without heat, and closes her ledger. It makes a small, final sound."
+          }
+        }
+      }
+    },
+    "petition.calder_audit.text" : {
+      "comment" : "Petition calder_audit (ebbaCalder, story days 12-13): the request.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ebba Calder, Prüferin aus Stillmere. Zehn Generationen der Seestädte haben Euren Lichtzehnt gezahlt und keinen Schatten gesehen, {Lord|Lady} Lantern. Die Syndizi zahlen erst wieder, wenn einer von uns einen sieht. Ich bitte um eine Nacht auf Eurer Mauer und schreibe auf, was ich sehe."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ebba Calder, auditor of Stillmere. Ten generations of lake towns have paid your Lamp Tithe and seen no shadow, {Lord|Lady} Lantern. The syndics voted to stop until one of us does. I ask to stand one night on your wall and write down what I see."
           }
         }
       }
@@ -7057,6 +7453,150 @@
         }
       }
     },
+    "petition.lorn_visit.c1" : {
+      "comment" : "Petition lorn_visit: choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erzählt mir von der Glocke."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tell me about the bell."
+          }
+        }
+      }
+    },
+    "petition.lorn_visit.c2" : {
+      "comment" : "Petition lorn_visit: choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile, seht im Familienbuch nach."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile, check the family book."
+          }
+        }
+      }
+    },
+    "petition.lorn_visit.c3" : {
+      "comment" : "Petition lorn_visit: choice 3.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dankt ihr und geleitet sie hinaus."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thank her and see her out."
+          }
+        }
+      }
+    },
+    "petition.lorn_visit.hint" : {
+      "comment" : "Petition lorn_visit: Odile's counsel.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Greybell sagt das seit Jahrhunderten und wird dafür ausgelacht. Sie ist über achtzig und kam selbst. Fragt nach der Glocke."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Greybell has said so for centuries and been laughed at for it. She is past eighty and came herself. Ask about the bell."
+          }
+        }
+      }
+    },
+    "petition.lorn_visit.r1" : {
+      "comment" : "Petition lorn_visit: reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie erzählt langsam: eine graue Glocke, ein Riss, fein wie ein Haar, ein Seil, an dem niemand zog. Das Kind mit ihrem Stock kennt es auswendig und hört doch zu."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "She tells it slowly: a grey bell, a hair-fine crack, a rope nobody pulled. The child with her stick knows it by heart and still listens."
+          }
+        }
+      }
+    },
+    "petition.lorn_visit.r2" : {
+      "comment" : "Petition lorn_visit: reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile schlägt das Jahr 412 auf und hält inne. Elf Stummel in der Bindung, sauber geschnitten. „Aha“, sagt Dame Orla. „Ein Messer hat dieses Haus also doch.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile turns to the year 412 and stops. Eleven stubs in the binding, cut clean. “So,” says Dame Orla. “This house does keep a knife.”"
+          }
+        }
+      }
+    },
+    "petition.lorn_visit.r3" : {
+      "comment" : "Petition lorn_visit: reaction to choice 3.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Aldrics Großmutter hat mich auch hinausgeleitet“, sagt sie und steht ohne Hilfe auf. „Sie wurde wenigstens rot.“ Das Kind nimmt den Stock und sieht sich nicht um."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Aldric’s grandmother saw me out too,” she says, rising unaided. “She at least blushed.” The child takes the stick and does not look back."
+          }
+        }
+      }
+    },
+    "petition.lorn_visit.text" : {
+      "comment" : "Petition lorn_visit (orlaLorn, story days 14-15): the request.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setzt Euch, {junger|junge} Taper, ich sitze schon. Orla Lorn von Greybell. Euer Haus kam aus dem Spalt herab, nicht zu ihm hinauf. Meines sah zu. Wir hüten die erste Glocke Eures Saals. Burgherr Edric schickte sie im Dunklen Jahr fort, weil sie läutete, ohne dass eine Hand am Seil war."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sit, young Taper, I already have. Orla Lorn of Greybell. Your house came down out of the Cleft, not up to it. Mine watched. We keep your hall’s first bell. Lord Edric sent it away in the Dark Year, because it rang with no hand on the rope."
+          }
+        }
+      }
+    },
     "petition.ludo_arrives.c1" : {
       "comment" : "Petition ludo_arrives: choice 1.",
       "extractionState" : "manual",
@@ -8018,7 +8558,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Eure Strahlkraft, seht: ein Fingerknochen des heiligen Kienspan, des ersten Laternenanzünders, gesegnet und beglaubigt. Die Kapelle wäre geehrt. Vierzig Gold, eine Kleinigkeit für einen Heiligen. Die Urkunde habe ich eigenhändig verfasst."
+            "value" : "Eure Strahlkraft, seht: ein Fingerknochen des heiligen Taper, des ersten Laternenanzünders, gesegnet und beglaubigt. Die Kapelle wäre geehrt. Vierzig Gold, eine Kleinigkeit für einen Heiligen. Die Urkunde habe ich eigenhändig verfasst."
           }
         },
         "en" : {
@@ -8997,6 +9537,150 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "I held the old lord’s gate for twenty winters. My knees are done, my arm is not. Give me a spear and a place by the gate, and I ask no pay but soup."
+          }
+        }
+      }
+    },
+    "petition.oxmoor_gift.c1" : {
+      "comment" : "Petition oxmoor_gift: choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Lampe bleibt. Keine Unterschrift."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the lamp. Sign nothing."
+          }
+        }
+      }
+    },
+    "petition.oxmoor_gift.c2" : {
+      "comment" : "Petition oxmoor_gift: choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unterschreiben."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign."
+          }
+        }
+      }
+    },
+    "petition.oxmoor_gift.c3" : {
+      "comment" : "Petition oxmoor_gift: choice 3.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beides zurück, mit Dank."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send both back, kindly."
+          }
+        }
+      }
+    },
+    "petition.oxmoor_gift.hint" : {
+      "comment" : "Petition oxmoor_gift: Odile's counsel.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Geschenk mit einem Papier darunter ist eine Schuld. Behaltet die Lampe, {mein Herr|meine Herrin}. Von Lampen verstehen wir etwas. Unterschreibt nichts."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A gift with a paper under it is a debt. Keep the lamp, my {lord|lady}. Lamps we understand. Sign nothing."
+          }
+        }
+      }
+    },
+    "petition.oxmoor_gift.r1" : {
+      "comment" : "Petition oxmoor_gift: reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pell verneigt sich, als hätte er genau das erhofft. Odile trägt die Lampe am ausgestreckten Arm hinaus und zählt ihr Silber zweimal."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pell bows as if this were the answer he had hoped for. Odile carries the lamp out at arm’s length and counts its silver twice."
+          }
+        }
+      }
+    },
+    "petition.oxmoor_gift.r2" : {
+      "comment" : "Petition oxmoor_gift: reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dreißig Gold auf dem Tisch, noch warm von seiner Hand. Pell löscht Euren Namen mit großer Sorgfalt ab. Odile sagt den Rest des Tages kein Wort."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thirty gold on the table, still warm from his hand. Pell blots your name with great care. Odile says nothing for the rest of the day."
+          }
+        }
+      }
+    },
+    "petition.oxmoor_gift.r3" : {
+      "comment" : "Petition oxmoor_gift: reaction to choice 3.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Goldenacre wird sich dieser Höflichkeit erinnern“, sagt Pell und lächelt mit allen Zähnen. Odile bringt ihn selbst bis ans Tor."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Goldenacre will remember the courtesy,” says Pell, smiling with every tooth. Odile walks him to the gate herself."
+          }
+        }
+      }
+    },
+    "petition.oxmoor_gift.text" : {
+      "comment" : "Petition oxmoor_gift (lorenzPell, story days 5-6): the request.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lorenz Pell, Verwalter der Lady Petra Oxmoor von Goldenacre. Meine Herrin schickt eine Silberlampe für Eure Tafel, {Lord|Lady} Lantern, und ein kleines Papier: dreißig Gold noch heute, geliehen auf das Tal. Eine Förmlichkeit unter Freunden. Die Feder ist schon eingetaucht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lorenz Pell, steward to Lady Petra Oxmoor of Goldenacre. My lady sends a silver lamp for your table, {Lord|Lady} Lantern, and one small paper: thirty gold today, lent against the valley. A formality between friends. The pen is already inked."
           }
         }
       }
@@ -11755,6 +12439,114 @@
         }
       }
     },
+    "petition.tithe_letters.c1" : {
+      "comment" : "Petition tithe_letters: choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hängt die Banner auf."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hang the banners."
+          }
+        }
+      }
+    },
+    "petition.tithe_letters.c2" : {
+      "comment" : "Petition tithe_letters: choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hängt keines auf. Wir halten allein."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hang none. We hold alone."
+          }
+        }
+      }
+    },
+    "petition.tithe_letters.hint" : {
+      "comment" : "Petition tithe_letters: Odile's counsel.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine kahle Wand sagt dem Tal, dass wir allein sind. Schon ein Banner sagt etwas anderes. Hängt sie auf."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A bare wall tells the valley we are alone. Even one banner says otherwise. Hang them."
+          }
+        }
+      }
+    },
+    "petition.tithe_letters.r1" : {
+      "comment" : "Petition tithe_letters: reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bis Mittag hängen sie über den Bänken, weniger als Haken da sind. Odile staubt die leeren Haken trotzdem ab. „Für später“, sagt sie."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By noon they hang over the benches, fewer than the hooks. Odile dusts the empty hooks all the same. “For later,” she says."
+          }
+        }
+      }
+    },
+    "petition.tithe_letters.r2" : {
+      "comment" : "Petition tithe_letters: reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile faltet jedes Banner in seinen alten Falten und legt es in die Truhe. „Allein ist billiger“, sagt sie. „Besser habe ich nicht gesagt.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile folds each banner along its old creases and lays it in the chest. “Alone is cheaper,” she says. “I did not say better.”"
+          }
+        }
+      }
+    },
+    "petition.tithe_letters.text" : {
+      "comment" : "Petition tithe_letters (odile, story days 16): the request.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{Mein Herr|Meine Herrin}, die Zehntbriefe sind da. Die Häuser, die noch zahlen, haben ihre Banner mitgeschickt, wie es Brauch ist. Hängt sie im Saal auf, und jeder Bittsteller sieht, wer zu uns steht. Und wer nicht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My {lord|lady}, the tithe letters are in. The houses that still pay have sent their banners with them, as the custom is. Hang them in the hall, and every petitioner sees who stands with us. And who does not."
+          }
+        }
+      }
+    },
     "petition.tower_request.c1" : {
       "comment" : "Petition tower_request: choice 1.",
       "extractionState" : "manual",
@@ -12075,6 +12867,294 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The last quiet night, child of the house. The Flame has burned low and blue since the bargain, as if it held its breath. Tomorrow he comes himself. I would light a candle tonight for what we paid."
+          }
+        }
+      }
+    },
+    "petition.varn_levy.c1" : {
+      "comment" : "Petition varn_levy: choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Willkommen. Nehmt die mittlere Linie."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome. Take the middle line."
+          }
+        }
+      }
+    },
+    "petition.varn_levy.c2" : {
+      "comment" : "Petition varn_levy: choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sagt Eurem Vater, ich kann zählen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tell your father I can count."
+          }
+        }
+      }
+    },
+    "petition.varn_levy.c3" : {
+      "comment" : "Petition varn_levy: choice 3.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erst Suppe, dann Mauern."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soup first, then walls."
+          }
+        }
+      }
+    },
+    "petition.varn_levy.hint" : {
+      "comment" : "Petition varn_levy: Odile's counsel.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie ist zwanzig, und Lord Varn zählt nach, was er uns schickt. Die mittlere Linie, {mein Herr|meine Herrin}. Die äußere soll sie sich verdienen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "She is twenty, and Lord Varn counts what he sends us. The middle line, my {lord|lady}. Let her earn the outer one."
+          }
+        }
+      }
+    },
+    "petition.varn_levy.r1" : {
+      "comment" : "Petition varn_levy: reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild sieht zur mittleren Linie, dann zu Euch. „Ein klarer Befehl“, sagt sie. „Damit kann Highcairn arbeiten.“ Bis Mittag steht ihr Aufgebot."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild looks at the middle line, then at you. “A clear order,” she says. “Highcairn can work with that.” By noon her levy is posted."
+          }
+        }
+      }
+    },
+    "petition.varn_levy.r2" : {
+      "comment" : "Petition varn_levy: reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild schreibt es Wort für Wort auf, im Stehen. „Das gefällt ihm, oder es gefällt ihm nicht.“ Vor der Dämmerung reitet sie damit nach Norden. Das Aufgebot bleibt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild writes it down word for word, standing. “He will like that, or he will not.” She rides north with it before dusk. The levy stays."
+          }
+        }
+      }
+    },
+    "petition.varn_levy.r3" : {
+      "comment" : "Petition varn_levy: reaction to choice 3.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamsin macht die Bergsoldaten satt, ehe jemand fragt, wo sie schlafen. Hild isst im Stehen und sagt dann: „Jetzt die Mauern.“ Sie lächelt beinahe."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamsin feeds the hill soldiers before anyone asks where they sleep. Hild eats standing, then says: “Now the walls.” She is almost smiling."
+          }
+        }
+      }
+    },
+    "petition.varn_levy.text" : {
+      "comment" : "Petition varn_levy (hildVarn, story days 3-4): the request.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild Varn von Highcairn, {Burgherr|Burgherrin}. Ich bringe das halbe Herbstaufgebot und einen Brief meines Vaters. Die andere Hälfte folgt, schreibt er, sobald {der neue Herr|die neue Herrin} gezeigt hat, dass {er|sie} zählen kann. Für mich bitte ich um eines: einen Platz an der äußeren Linie."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild Varn of Highcairn, {Lord|Lady} Lantern. I bring half the autumn levy and my father’s letter. The other half follows, he writes, once the new {lord|lady} has shown a head for counting. For myself I ask one thing: a place on the outer line."
+          }
+        }
+      }
+    },
+    "petition.varn_ride.c1" : {
+      "comment" : "Petition varn_ride: choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach der letzten Nacht gehen wir beide."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After the last night, we both go."
+          }
+        }
+      }
+    },
+    "petition.varn_ride.c2" : {
+      "comment" : "Petition varn_ride: choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nein. Ich brauche Euch auf der Mauer."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No. I need you on the wall."
+          }
+        }
+      }
+    },
+    "petition.varn_ride.c3" : {
+      "comment" : "Petition varn_ride: choice 3.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geht. Nehmt eine nummerierte Laterne."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go. Take a numbered lantern."
+          }
+        }
+      }
+    },
+    "petition.varn_ride.hint" : {
+      "comment" : "Petition varn_ride: Odile's counsel.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zwei Nächte vor der schlimmsten will sie Reiter hinausführen. Schlagt es ihr nicht ab. Vertagt es, und meint es ernst."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Two nights before the worst one, and she wants to take riders out. Do not refuse her. Postpone her, and mean it."
+          }
+        }
+      }
+    },
+    "petition.varn_ride.r1" : {
+      "comment" : "Petition varn_ride: reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild mustert Euch, wie sie eine Mauer mustert. „Wir beide“, sagt sie. „Ich nehme Euch beim Wort.“ Sie geht zurück an ihre Linie."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild studies you the way she studies a wall. “Both of us,” she says. “I will hold you to that.” She goes back to her line."
+          }
+        }
+      }
+    },
+    "petition.varn_ride.r2" : {
+      "comment" : "Petition varn_ride: reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Ein klarer Befehl“, sagt Hild, und mehr nicht. Bei Dämmerung steht sie noch vor dem Horn auf der Mauer, das Gesicht zum Dunkel."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“A clear order,” says Hild, and that is all. At dusk she is on the wall before the horn, her face to the dark."
+          }
+        }
+      }
+    },
+    "petition.varn_ride.r3" : {
+      "comment" : "Petition varn_ride: reaction to choice 3.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne einundvierzig zieht bei Dämmerung durchs Tor, drei Reiter darunter. Brannock sieht ihr nach, bis sie ein Funke ist und dann keiner mehr."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern forty-one goes out through the gate at dusk, three riders under it. Brannock watches until it is a spark, and then is not."
+          }
+        }
+      }
+    },
+    "petition.varn_ride.text" : {
+      "comment" : "Petition varn_ride (hildVarn, story days 18): the request.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{Burgherr|Burgherrin}. Burgherr Aldric trug mich auf den Schultern, als ich sechs war. Hier reden alle von ihm, und keiner geht nachsehen. Gebt mir zwei Reiter und eine nummerierte Laterne. Ich reite heute Nacht am dunklen Leuchtfeuer vorbei und finde ihn."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{Lord|Lady} Lantern. Lord Aldric carried me on his shoulders when I was six. Here everyone speaks of him and nobody goes to look. Give me two riders and a numbered lantern. I will ride out past the dark beacon tonight and find him."
           }
         }
       }
@@ -13465,6 +14545,24 @@
         }
       }
     },
+    "remember.banners_hung" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Banner der Häuser hängen in Eurem Saal."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The houses’ banners hang in your hall."
+          }
+        }
+      }
+    },
     "remember.beacon_doubted" : {
       "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
       "extractionState" : "manual",
@@ -13519,6 +14617,60 @@
         }
       }
     },
+    "remember.calder_coddled" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stillmeres Prüferin sah die Nacht durch Glas."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stillmere’s auditor saw the night through glass."
+          }
+        }
+      }
+    },
+    "remember.calder_refused" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Stillmeres Buch steht: nicht gezeigt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stillmere’s ledger says: not shown."
+          }
+        }
+      }
+    },
+    "remember.calder_with" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ebba Calder steht heute Nacht auf der Mauer."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ebba Calder stands tonight’s watch."
+          }
+        }
+      }
+    },
     "remember.giant_unwarned" : {
       "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
       "extractionState" : "manual",
@@ -13533,6 +14685,150 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nobody warned the town."
+          }
+        }
+      }
+    },
+    "remember.hild_rode" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild Varn ritt aus, unter Laterne einundvierzig."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild Varn rode out under lantern forty-one."
+          }
+        }
+      }
+    },
+    "remember.hild_stays" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild Varn bleibt auf der Mauer, auf Euren Befehl."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild Varn stays on the wall, by your order."
+          }
+        }
+      }
+    },
+    "remember.holds_alone" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Saal hängt kein Banner außer Eurem."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No banner hangs in the hall but your own."
+          }
+        }
+      }
+    },
+    "remember.lorn_dismissed" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dame Orla geht ungehört heim."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dame Orla goes home unheard."
+          }
+        }
+      }
+    },
+    "remember.lorn_heard" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Greybell wurde angehört, dieses eine Mal."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Greybell was listened to, for once."
+          }
+        }
+      }
+    },
+    "remember.oxmoor_debt" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oxmoor hält ein Papier mit Eurem Namen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oxmoor holds a paper with your name on it."
+          }
+        }
+      }
+    },
+    "remember.oxmoor_lamp" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oxmoors Lampe bleibt. Euer Name bleibt Eurer."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oxmoor’s lamp stays. Your name stays yours."
+          }
+        }
+      }
+    },
+    "remember.oxmoor_refused" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oxmoor achtet Euch und verzeiht es nicht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oxmoor respects you, and will not forgive it."
           }
         }
       }
@@ -13699,6 +14995,24 @@
         }
       }
     },
+    "remember.stubs_known" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elf Seiten sind aus dem Familienbuch geschnitten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eleven pages are cut from the family book."
+          }
+        }
+      }
+    },
     "remember.tower_promised" : {
       "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
       "extractionState" : "manual",
@@ -13713,6 +15027,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brannock holds you to the tower."
+          }
+        }
+      }
+    },
+    "remember.varn_stung" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild Varn trägt Eure Antwort nach Norden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild Varn carries your answer north."
+          }
+        }
+      }
+    },
+    "remember.varn_with" : {
+      "comment" : "Audience card after a choice: what the court remembers of it (one line of the change row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Aufgebot des Hauses Varn steht zu Euch."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "House Varn’s levy stands with you."
           }
         }
       }
@@ -13742,13 +15092,31 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Seren nimmt Euch beim Wort."
+            "value" : "Euer Wort ist gegeben: Aldric kommt heim."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Seren holds you to your word."
+            "value" : "Your word is given: Aldric comes home."
+          }
+        }
+      }
+    },
+    "speaker.bard.name" : {
+      "comment" : "Audience card: the name of bard.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finch"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finch"
           }
         }
       }
@@ -13879,6 +15247,60 @@
         }
       }
     },
+    "speaker.ebbaCalder.name" : {
+      "comment" : "Audience card: the name of ebbaCalder.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ebba Calder"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ebba Calder"
+          }
+        }
+      }
+    },
+    "speaker.ebbaCalder.role" : {
+      "comment" : "Audience card: the role under the name (ebbaCalder).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüferin aus Stillmere"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auditor of Stillmere"
+          }
+        }
+      }
+    },
+    "speaker.envoy.name" : {
+      "comment" : "Audience card: the name of envoy.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ansel Quay"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ansel Quay"
+          }
+        }
+      }
+    },
     "speaker.envoy.role" : {
       "comment" : "Audience card: the role under the name (envoy).",
       "extractionState" : "manual",
@@ -13886,13 +15308,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gesandter der Küste"
+            "value" : "Gesandter des Hauses Brine"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Envoy from the coast"
+            "value" : "Envoy of House Brine"
           }
         }
       }
@@ -13983,6 +15405,78 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Priestess of the Flame"
+          }
+        }
+      }
+    },
+    "speaker.hildVarn.name" : {
+      "comment" : "Audience card: the name of hildVarn.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild Varn"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hild Varn"
+          }
+        }
+      }
+    },
+    "speaker.hildVarn.role" : {
+      "comment" : "Audience card: the role under the name (hildVarn).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tochter des Hauses Varn"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daughter of House Varn"
+          }
+        }
+      }
+    },
+    "speaker.lorenzPell.name" : {
+      "comment" : "Audience card: the name of lorenzPell.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lorenz Pell"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lorenz Pell"
+          }
+        }
+      }
+    },
+    "speaker.lorenzPell.role" : {
+      "comment" : "Audience card: the role under the name (lorenzPell).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwalter des Hauses Oxmoor"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steward of House Oxmoor"
           }
         }
       }
@@ -14091,6 +15585,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chancellor"
+          }
+        }
+      }
+    },
+    "speaker.orlaLorn.name" : {
+      "comment" : "Audience card: the name of orlaLorn.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dame Orla Lorn"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dame Orla Lorn"
+          }
+        }
+      }
+    },
+    "speaker.orlaLorn.role" : {
+      "comment" : "Audience card: the role under the name (orlaLorn).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haus Lorn von Greybell"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "House Lorn of Greybell"
           }
         }
       }

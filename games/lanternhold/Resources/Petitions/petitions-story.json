@@ -59,6 +59,42 @@
       ]
     },
     {
+      "id": "varn_levy",
+      "speaker": "hildVarn",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        3,
+        4
+      ],
+      "text": "petition.varn_levy.text",
+      "hint": "petition.varn_levy.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.varn_levy.c1",
+          "flags": [
+            "varn_with"
+          ],
+          "reaction": "petition.varn_levy.r1"
+        },
+        {
+          "label": "petition.varn_levy.c2",
+          "flags": [
+            "varn_stung"
+          ],
+          "reaction": "petition.varn_levy.r2"
+        },
+        {
+          "label": "petition.varn_levy.c3",
+          "flags": [
+            "varn_with"
+          ],
+          "reaction": "petition.varn_levy.r3"
+        }
+      ]
+    },
+    {
       "id": "stranger_gate",
       "speaker": "seren",
       "kind": "story",
@@ -87,6 +123,44 @@
             "stranger_turned_away"
           ],
           "reaction": "petition.stranger_gate.r2"
+        }
+      ]
+    },
+    {
+      "id": "oxmoor_gift",
+      "speaker": "lorenzPell",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        5,
+        6
+      ],
+      "text": "petition.oxmoor_gift.text",
+      "hint": "petition.oxmoor_gift.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.oxmoor_gift.c1",
+          "flags": [
+            "oxmoor_lamp"
+          ],
+          "reaction": "petition.oxmoor_gift.r1"
+        },
+        {
+          "label": "petition.oxmoor_gift.c2",
+          "gold": 30,
+          "flags": [
+            "oxmoor_debt",
+            "oxmoor_with"
+          ],
+          "reaction": "petition.oxmoor_gift.r2"
+        },
+        {
+          "label": "petition.oxmoor_gift.c3",
+          "flags": [
+            "oxmoor_refused"
+          ],
+          "reaction": "petition.oxmoor_gift.r3"
         }
       ]
     },
@@ -342,6 +416,42 @@
       ]
     },
     {
+      "id": "calder_audit",
+      "speaker": "ebbaCalder",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        12,
+        13
+      ],
+      "text": "petition.calder_audit.text",
+      "hint": "petition.calder_audit.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.calder_audit.c1",
+          "flags": [
+            "calder_with"
+          ],
+          "reaction": "petition.calder_audit.r1"
+        },
+        {
+          "label": "petition.calder_audit.c2",
+          "flags": [
+            "calder_coddled"
+          ],
+          "reaction": "petition.calder_audit.r2"
+        },
+        {
+          "label": "petition.calder_audit.c3",
+          "flags": [
+            "calder_refused"
+          ],
+          "reaction": "petition.calder_audit.r3"
+        }
+      ]
+    },
+    {
       "id": "refugees_gate",
       "speaker": "refugee",
       "kind": "story",
@@ -390,6 +500,44 @@
             "refugees_turned_away"
           ],
           "reaction": "petition.refugees_gate.r3"
+        }
+      ]
+    },
+    {
+      "id": "lorn_visit",
+      "speaker": "orlaLorn",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        14,
+        15
+      ],
+      "text": "petition.lorn_visit.text",
+      "hint": "petition.lorn_visit.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.lorn_visit.c1",
+          "flags": [
+            "lorn_with",
+            "lorn_heard"
+          ],
+          "reaction": "petition.lorn_visit.r1"
+        },
+        {
+          "label": "petition.lorn_visit.c2",
+          "flags": [
+            "lorn_with",
+            "stubs_known"
+          ],
+          "reaction": "petition.lorn_visit.r2"
+        },
+        {
+          "label": "petition.lorn_visit.c3",
+          "flags": [
+            "lorn_dismissed"
+          ],
+          "reaction": "petition.lorn_visit.r3"
         }
       ]
     },
@@ -541,6 +689,38 @@
             "seren_outside"
           ],
           "reaction": "petition.seren_at_gate.r2"
+        }
+      ]
+    },
+    {
+      "id": "tithe_letters",
+      "speaker": "odile",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        16,
+        16
+      ],
+      "text": "petition.tithe_letters.text",
+      "hint": "petition.tithe_letters.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.tithe_letters.c1",
+          "flags": [
+            "banners_hung"
+          ],
+          "world": [
+            "castle.hall.banners.houses"
+          ],
+          "reaction": "petition.tithe_letters.r1"
+        },
+        {
+          "label": "petition.tithe_letters.c2",
+          "flags": [
+            "holds_alone"
+          ],
+          "reaction": "petition.tithe_letters.r2"
         }
       ]
     },
@@ -732,6 +912,45 @@
             "wave-50pct"
           ],
           "reaction": "petition.truce_end.r2"
+        }
+      ]
+    },
+    {
+      "id": "varn_ride",
+      "speaker": "hildVarn",
+      "kind": "story",
+      "chapter": 1,
+      "days": [
+        18,
+        18
+      ],
+      "requires": [
+        "varn_with"
+      ],
+      "text": "petition.varn_ride.text",
+      "hint": "petition.varn_ride.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.varn_ride.c1",
+          "flags": [
+            "vow_aldric"
+          ],
+          "reaction": "petition.varn_ride.r1"
+        },
+        {
+          "label": "petition.varn_ride.c2",
+          "flags": [
+            "hild_stays"
+          ],
+          "reaction": "petition.varn_ride.r2"
+        },
+        {
+          "label": "petition.varn_ride.c3",
+          "flags": [
+            "hild_rode"
+          ],
+          "reaction": "petition.varn_ride.r3"
         }
       ]
     },

@@ -307,7 +307,8 @@
           "happiness": 1,
           "flags": [
             "tide_judged",
-            "coast_promise"
+            "coast_promise",
+            "brine_with"
           ],
           "reaction": "petition.envoy_tide.r1"
         },
