@@ -665,6 +665,7 @@ FREEZE_LETTERS = {
     "soilDark": "o", "soil": "e", "soilLight": "E", "rockDeep": "x", "rockDark": "X", "rock": "q", "rockLight": "Q",
     "rockPale": "z", "roofDeep": "n", "banner": "B", "roofLight": "N", "daySky": "a", "waterDeep": "A", "foam": "h",
     "farDeep": "F", "far": "f", "farPale": "v", "leafDark": "3", "leaf": "4", "meadow": "6", "leafLight": "5",
+    "plumDeep": "u", "plum": "U", "plumLight": "V", "crimsonDeep": "i", "crimson": "I", "crimsonLight": "J",
 }
 
 

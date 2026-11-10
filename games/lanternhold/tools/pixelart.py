@@ -340,6 +340,8 @@ class Palette:
                 continue  # an old painting never lands on a look-2 colour unless an --only list names it
             if "swap" in self.tags[i] and not allow_swap:
                 continue
+            if "hand" in self.tags[i] and name not in only:
+                continue  # the houses' heraldic colours are set by hand, never chosen by a conversion
             self.allowed.append(i)
         self.labs = [lab(c) for c in self.mrgb]
         self.cache = {}

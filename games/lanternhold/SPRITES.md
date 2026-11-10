@@ -454,3 +454,54 @@ bottom-left at the given y (0 = the ground line). E is `DarknessBank`'s edge.
   holes are cut by rule, not from the light buffer: every fire that counts in battle takes up to 0.85 of the fog in
   16 px slices (`GloomFog.clearing`, `hole`). The single pairs of `eyeGlints` still roam the fog in front of the
   painted eyes.
+
+### The house envoys (look 2, stage 7; ART-look2.md section 19.3)
+
+**Proposals for the code lane** (claude/lh-polish): the PNGs lie in Resources/Art, `tools/build-art.sh` rebuilds them
+(the court lane, `tools/build-art-court.sh`), no Swift names them yet. The bodies have the guests' size and frames
+(`envoy`, `herald`): 14x30, 8 frames, walk 0-3, idle 4-5, talk 6-7, facing right, the feet on the bottom row, no
+glow strip. The portraits are story portraits like `portraitEnvoy`: 48x48, one frame, fixed colours (no swap ramp,
+no emissive), three-quarter right, lit from the left.
+
+| id | size | frames | notes |
+|---|---|---|---|
+| `hildVarn` | 14x30 | 8 | Hild Varn of Cairnwatch, twenty: a brown braid with a green tie, a mail shirt under Varn's green surcoat with the cairn, a sword on the far hip. Idle: her hand on the pommel. Talk: her fist to her chest (6), she points ahead (7) |
+| `lorenzPell` | 14x30 | 8 | Steward Lorenz Pell of Oxmoor: a red cap with a white feather, a black moustache, a ruff, a coat in Oxmoor's red with gold cuffs, sash and hem, a purse. Idle: the hands folded over the belly. Talk: he holds out the gilded lamp (6), then the paper to sign (7) |
+| `ebbaCalder` | 14x30 | 8 | Auditor Ebba Calder of Blackwater: tall and narrow, black hair in a tight bun, a long blue-black coat with a white collar and silver buttons, a writing board and a white quill. Idle: the quill over the sheet. Talk: she writes (6), then points the quill at the lord (7) |
+| `orlaLorn` | 14x30 | 8 | Dame Orla Lorn of Greybell, past eighty, **and her great-grandchild in the same frame**: she is bent, a white bun, a grey shawl, a robe in Lorn's plum, her hand on the child's shoulder; the child before her carries her tall stick. Talk: she points at the lord over the child's head (6), then nods (7) |
+| `portraitHildVarn` | 48x48 | 1 | the brown hair drawn back, the braid over the near shoulder with its green tie, freckles, a mail collar, the green surcoat with the cairn |
+| `portraitLorenzPell` | 48x48 | 1 | the red cap with its brooch and feather, black hair, a thin moustache, a smile, a pleated ruff, the red coat, a gold chain with a medal |
+| `portraitEbbaCalder` | 48x48 | 1 | black hair in a knot, a white quill behind the ear, brown skin, a level look, a standing white collar, the blue-black coat with silver buttons |
+| `portraitOrlaLorn` | 48x48 | 1 | white hair in a knot, a lined face, a small smile, a grey shawl, the plum robe with a silver bell at the throat |
+
+- **Wiring** (`Core/CourtSpeakers.swift`): the four `house(…)` speakers become guests like the envoy, for example
+  `Speaker(id: "hildVarn", role: .guest, body: .court(.hildVarn), portrait: .portraitHildVarn, nameKey: …, roleKey: …)`;
+  the stand-in bodies (`guardsman`, `petitionerE`, `petitionerD`, `citizen`) and the composed styles fall away. The
+  bodies need `FrameDesc` entries like the envoy's (8 frames of 14x30).
+- Brine's face stays the existing `envoy` and `portraitEnvoy`.
+- Orla's sprite is as wide as the others (14 px), so she and the child stand close; a child of its own that walks
+  beside her is open.
+
+### The houses' banners (look 2, stage 7; ART-look2.md section 19.3)
+
+**Proposals for the code lane** (claude/lh-polish): `tools/bannerart.py` (the court lane of `tools/build-art.sh`),
+no Swift names them yet. Props of the **world plane**, one frame each, lit like the hall, without emitters.
+
+| id | size | frames | arms |
+|---|---|---|---|
+| `bannerVarn` | 20x41 | 1 | a grey cairn on green |
+| `bannerBrine` | 20x41 | 1 | a white wave on sea blue |
+| `bannerOxmoor` | 20x41 | 1 | a golden sheaf on red |
+| `bannerCalder` | 20x41 | 1 | three silver fish on black |
+| `bannerLorn` | 20x41 | 1 | a grey bell on plum |
+
+- **Places:** `hallInterior` (260x90, at world x 1700) has five banners of the realm painted between its columns. A
+  house's banner hangs over one of them and hides it completely. The sprite's left edge is at hallInterior x
+  **44, 83, 121, 158, 195**, its top at row 24, so the entry is
+  `Entry(sprite: .banner<House>, x: 1700 + left, y: 25, z: -1)`: above the interior (z -2), behind the throne (z 1).
+- **Which banner where** (proposal, left to right): Brine, Calder, Varn, Lorn, Oxmoor. Varn's hangs in the middle,
+  over the throne.
+- **When:** a banner is drawn while its house stands with the lord (the flags `varn_with`, `brine_with`,
+  `oxmoor_with`, `calder_with`, `lorn_with`); otherwise the realm's painted banner shows at that place.
+- `hallFront` (z 2) covers them like the rest of the interior; they hang inside the room's box, so the hall's
+  light falls on them. No light of their own.

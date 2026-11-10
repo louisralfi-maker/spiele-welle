@@ -369,6 +369,27 @@ def throat_fog_wall(look):
     return dict(focus=610, tod=0.95, drop=FRONT, extras=ex, king="off")
 
 
+# --- stage 7: the four houses' envoys before the throne and the five houses' banners (ART-look2.md 19.3) -----------
+HALL_X = 1700                             # hallInterior's left edge in the layout
+BANNER_X = (44, 83, 121, 158, 195)        # each banner sprite's left edge inside hallInterior (bannerart.py place)
+BANNERS = ("bannerBrine", "bannerCalder", "bannerVarn", "bannerLorn", "bannerOxmoor")
+
+
+def hall_houses(look, focus=1806, banners=BANNERS):
+    """The audience with the four houses' envoys before the throne (Hild Varn speaking, Steward Pell, Auditor Calder
+    and Dame Orla Lorn with her great-grandchild waiting) and the houses' banners over the realm's painted ones: each
+    20x41 sprite at hallInterior x 44, 83, 121, 158, 195, its bottom 25 px above the floor, drawn right above the
+    interior. banners: the five places' sprites from the left (None leaves the realm's banner showing)."""
+    ex = [dict(prop(b, x=HALL_X + x, y=25, z=-1), frames=1) for b, x in zip(banners, BANNER_X) if b]
+    ex += [
+        dict(prop("orlaLorn", cx=1757, frame=4, z=6), frames=8),
+        dict(prop("ebbaCalder", cx=1776, frame=5, z=6), frames=8),
+        dict(prop("lorenzPell", cx=1793, frame=4, z=6), frames=8),
+        dict(prop("hildVarn", cx=1811, frame=6, z=6), frames=8),
+    ] + _throned("kingSeated")
+    return dict(focus=focus, tod=0.5, drop=[("throne", 1817)], extras=ex, king="off")
+
+
 SCENES = {
     # the castle's tiers: tier<1|2|3>[b]-<gate|back|far|farback>[-day] (b: the building state; -day: at noon)
     **{"tier%d%s-%s%s" % (t, "b" if b else "", v, d): (lambda look, t=t, b=b, v=v, d=d: castle_tier(look, t, b, v, 0.5 if d else 0.8))
@@ -400,6 +421,10 @@ SCENES = {
     "throat-fog-dusk": lambda look: throat_fog(look, 0.84, edge=340, focus=470),
     "throat-fog-night": lambda look: throat_fog(look, 0.95),
     "throat-fog-wall": throat_fog_wall,
+    # stage 7: the houses' envoys and banners in the hall (-two has only Varn's and Oxmoor's banners up, the realm's
+    # own showing at the other places)
+    "hall-houses": hall_houses,
+    "hall-houses-two": lambda look: hall_houses(look, 1806, (None, None, "bannerVarn", None, "bannerOxmoor")),
 }
 
 

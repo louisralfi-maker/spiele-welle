@@ -1,0 +1,219 @@
+# orlaLorn 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "The house envoys"; ART-look2.md section 19.3).
+# Dame Orla Lorn of Greybell, past eighty, and the great-grandchild who carries her stick, in one frame: she is
+# small and bent, a white bun, a pale face pushed forward, a dark grey shawl over the hump of her back, a robe in Lorn's
+# plum to the floor, her near hand on the child's shoulder; the child before her in a straw tunic, bare-headed and
+# brown-haired, holds the tall stick upright with both hands, its knob above its head. Light from the upper left;
+# the outline is look 2's selective one. Walk: small steps, the child a half step ahead (the hem and the child's
+# legs alternate, both 1 px down at the contact). Idle: a breath. Talk: she lifts her head and points at the lord
+# over the child's head (6), then her hand is back on the child and she nods (7).
+id orlaLorn
+size 14x30
+frames 8
+outline ink shade
+
+legend
+    k = ink
+    S = parchment
+    s = dawnRose
+    H = stonePale
+    h = stoneLight
+    g = stone
+    L = stone
+    M = stoneMid
+    m = stoneDark
+    V = plumLight
+    P = plum
+    D = plumDeep
+    B = woodDark
+    b = soil
+    c = wood
+    C = woodLight!
+    e = wood!
+    T = dawnRose
+    t = tileLight
+    Y = strawLight
+    y = straw
+    N = stoneMid
+    n = stone
+
+# the white bun, the pale face pushed forward
+part head
+    .Hh...
+    hHHH..
+    .hHSS.
+    .ghSkS
+    ..gSSs
+    ...ss.
+
+# the shawl over the hump of the back, its fringe
+part shawl
+    ..LLL..
+    .LLMMM.
+    LLMMMMm
+    LMMMMmm
+    .LmMmMm
+
+# the robe to the floor: while a foot passes, and at the contact (the hem a little wider)
+part robePass
+    .VPPPD..
+    .VPPPD..
+    .VPPPPD.
+    .VPPPPD.
+    VVPPPPD.
+    VPPPDPD.
+    VPPPDPD.
+    VPPPDPD.
+    VPPPDPD.
+    VPPPDPD.
+    DDDDDDD.
+
+part robeContact
+    .VPPPD...
+    .VPPPD...
+    .VPPPPD..
+    .VPPPPD..
+    VVPPPPD..
+    VPPPDPD..
+    VPPPDPPD.
+    VPPPDPPD.
+    VPPPDPPD.
+    DDDDDDDD.
+
+part feetA
+    Bb...bB
+
+part feetB
+    .BB.bB
+
+# the near arm, its hand on the child's shoulder
+part armChild
+    PP..
+    VPP.
+    .DP.
+    ..S.
+
+# talk 6: she points at the lord over the child's head
+part armPoint
+    PPPDSS
+
+# the great-grandchild: the head, the tunic and the arms on the stick, the legs
+part childHead
+    .cc
+    ccT
+    cTT
+    .Tt
+
+part childBody
+    YYy.
+    YyyT
+    YyyT
+    Yyy.
+    yyy.
+
+part childLegsStand
+    n.N
+    n.N
+    n.N
+    B.B
+
+part childLegsStep
+    n.N
+    n.N
+    n..N
+    B..B
+
+part childLegsPass
+    .nN
+    .nN
+    .nN
+    .BB
+
+# her stick, taller than the child, its knob on top
+part stick
+    CC
+    .C
+    .C
+    .C
+    .e
+    .e
+    .e
+    .e
+    .e
+    .e
+    .e
+    .e
+    .e
+    .e
+    .e
+    .e
+    .e
+
+frame 0
+    robeContact 1 19
+    feetA 1 28
+    shawl 1 14
+    head 3 10
+    childLegsStep 9 25
+    childBody 9 20
+    childHead 9 16
+    stick 11 12
+    armChild 6 16
+
+frame 1
+    robePass 1 17
+    feetB 2 28
+    shawl 1 13
+    head 3 9
+    childLegsPass 9 25
+    childBody 9 19
+    childHead 9 15
+    stick 11 11
+    armChild 6 15
+
+frame 2 = 0
+
+frame 3 = 1
+
+frame 4
+    robePass 1 17
+    feetB 2 28
+    shawl 1 13
+    head 3 9
+    childLegsStand 9 25
+    childBody 9 20
+    childHead 9 16
+    stick 11 11
+    armChild 6 16
+
+frame 5
+    robePass 1 17
+    feetB 2 28
+    shawl 1 14
+    head 3 10
+    childLegsStand 9 25
+    childBody 9 20
+    childHead 9 16
+    stick 11 11
+    armChild 6 16
+
+frame 6
+    robePass 1 17
+    feetB 2 28
+    shawl 1 13
+    head 3 8
+    childLegsStand 9 25
+    childBody 9 20
+    childHead 9 16
+    stick 11 11
+    armPoint 5 15
+
+frame 7
+    robePass 1 17
+    feetB 2 28
+    shawl 1 14
+    head 4 10
+    childLegsStand 9 25
+    childBody 9 20
+    childHead 9 16
+    stick 11 11
+    armChild 6 16

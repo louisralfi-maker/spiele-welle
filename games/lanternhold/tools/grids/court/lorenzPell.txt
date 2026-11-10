@@ -1,0 +1,182 @@
+# lorenzPell 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "The house envoys"; ART-look2.md section
+# 19.3). Steward Lorenz Pell of Oxmoor, smooth and generous with small gifts: a pale face, black hair and a drooping
+# black moustache, a soft red cap with a white feather, a white ruff, a rich coat in Oxmoor's red to the knee with
+# gold cuffs, a gold sash and a gold hem over a well-fed belly, a purse at the belt, dark hose and shoes. Light from
+# the upper left; the outline is look 2's selective one. Walk: an unhurried step (contact 1 px down, passing).
+# Idle: the hands folded over the belly, a breath. Talk: he holds out the gilded lamp (6), then the paper to sign,
+# its seal hanging (7).
+id lorenzPell
+size 14x30
+frames 8
+outline ink shade
+include kit.txt
+
+legend
+    k = ink
+    S = parchment
+    s = dawnRose
+    K = night1
+    r = crimsonLight
+    R = crimson
+    D = crimsonDeep
+    Y = gold
+    y = straw
+    F = foam
+    f = stonePale
+    W = parchment
+    w = strawLight
+    1 = stoneMid
+    2 = stoneDark
+    3 = stone
+    4 = stoneMid
+    5 = night1
+    6 = stoneDark
+
+# the feathered cap, the pale face, the moustache, the soft chin
+part head
+    F.....
+    .FrR..
+    rRRRRD
+    .KSkS.
+    .KSSSs
+    ..SKKs
+    ..sSS.
+
+# the ruff, the coat over the belly, the gold sash
+part torso
+    .FFf..
+    rRRRD.
+    rRRRRD
+    rRRRRD
+    rRRRRD
+    rRRRRD
+    rRRRRD
+    YyYYYy
+
+# the coat's skirt to the knee, its gold hem: while a foot passes, and at the contact
+part skirtPass
+    .rRRRD.
+    .rRRRD.
+    rrRRRD.
+    rrRDRRD
+    rrRDRRD
+    yYYyYYy
+
+part skirtContact
+    ..rRRRD..
+    .rrRRRD..
+    .rrRDRRD.
+    rrRRDRRRD
+    yYYYyYYYy
+
+# the purse at the belt
+part purse
+    y.
+    YY
+
+part armDown
+    rR
+    rR
+    rR
+    YY
+    .S
+
+part armFwd
+    rR.
+    rR.
+    .rR
+    .YY
+    ..S
+
+part armBack
+    .rR
+    .rR
+    rR.
+    YY.
+    S..
+
+# idle: the hands folded over the belly
+part armFold
+    rR.
+    rR.
+    rRY
+    .SS
+
+# talk 6: the gilded lamp held out by its ring
+part armLamp
+    rR....
+    rRYS..
+    ...yY.
+    ...Ww.
+    ...YY.
+
+# talk 7: the paper to sign, its seal hanging
+part armPaper
+    rR....
+    rRYSWW
+    ....WW
+    ....D.
+
+frame 0
+    legsContactA 2 16
+    skirtContact 2 18
+    torso 4 10
+    purse 5 18
+    head 4 3
+    armBack 6 11
+
+frame 1
+    legsPassA 2 16
+    skirtPass 3 17
+    torso 4 9
+    purse 5 17
+    head 4 2
+    armDown 7 10
+
+frame 2
+    legsContactB 2 16
+    skirtContact 2 18
+    torso 4 10
+    purse 5 18
+    head 4 3
+    armFwd 7 11
+
+frame 3
+    legsPassB 2 16
+    skirtPass 3 17
+    torso 4 9
+    purse 5 17
+    head 4 2
+    armDown 7 10
+
+frame 4
+    legsStand 2 16
+    skirtPass 3 17
+    torso 4 9
+    purse 5 17
+    head 4 2
+    armFold 7 10
+
+frame 5
+    legsStand 2 16
+    skirtPass 3 18
+    torso 4 10
+    purse 5 18
+    head 4 3
+    armFold 7 11
+
+frame 6
+    legsStand 2 16
+    skirtPass 3 17
+    torso 4 9
+    purse 5 17
+    head 4 2
+    armLamp 7 10
+
+frame 7
+    legsStand 2 16
+    skirtPass 3 17
+    torso 4 9
+    purse 5 17
+    head 4 2
+    armPaper 7 10

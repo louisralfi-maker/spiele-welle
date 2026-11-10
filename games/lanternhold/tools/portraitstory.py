@@ -14,7 +14,8 @@ HEAD, BODY = K.HEAD, K.BODY
 
 STORY = ["portraitOdile", "portraitBrannock", "portraitPip", "portraitHesper", "portraitTamsin", "portraitBram",
          "portraitMarek", "portraitSeren", "portraitSerLudo", "portraitBard", "portraitEnvoy", "portraitHerald",
-         "portraitKing", "portraitLady"]
+         "portraitKing", "portraitLady", "portraitHildVarn", "portraitLorenzPell", "portraitEbbaCalder",
+         "portraitOrlaLorn"]
 STORY_FRAMES = {"portraitSeren": 2}
 
 # skin ramps (deep to light) from the court sprites' colours
@@ -1211,3 +1212,254 @@ def lady():
     st = eye_stamps(P, L, eyes="open", brows="soft", mouth="neutral", a=a)
     st.append(ear_stamp(P, L))
     return std_portrait(P, parts, _lord_mats(DARKHAIR, [0.3, 0.6, 0.86]), st, SKIN_ROSY)
+
+
+# ------------------------------------------------------------------------------------- the four houses' envoys
+# (STORY.md section 5; look 2, stage 7). Their bodies are tools/grids/court/hildVarn.txt, lorenzPell.txt,
+# ebbaCalder.txt and orlaLorn.txt; the houses' colours are the banners' (tools/bannerart.py).
+
+PLUM = ["plumDeep", "plum", "plumLight"]
+CRIMSON = ["crimsonDeep", "crimson", "crimsonLight"]
+BROWNHAIR = ["woodDark", "wood", "woodLight"]
+
+
+@builder("portraitHildVarn")
+def hild_varn():
+    """Hild Varn, twenty, blunt, the lord of Varn's daughter, come with the levy: a young face with a firm jaw, level
+    brows and a set mouth, freckles; brown hair drawn back hard into a short thick braid down her nape (tied green);
+    a mail collar and mail shoulders under Varn's green surcoat with the grey cairn on the chest."""
+    P = K.face_params("young")
+    P.update(jaw_r=(7.5, 7.5, 7.8), mand=((6.6, 6.0, -0.6), (2.2, 9.4, 6.0), 1.7), chin=(0.0, 9.1, 6.8, 2.3))
+    cc, cr = P["cran_c"], P["cran_r"]
+
+    def hair_m(q):
+        d = smax(sd_ellipsoid(q, cc, (cr[0] + 1.1, cr[1] + 1.2, cr[2] + 1.2)),
+                 K.hairline(q, front=-7.2, temple=3.2, nape=5.6, burn=0.8, jag=0.3), 0.4)
+        d = smin(d, sd_ellipsoid(q, (-3.0, 0.5, -11.0), (3.4, 3.6, 3.0)), 1.4)    # gathered behind
+        return d, "hair"
+
+    BRAID = [(-3.4, 1.6, -11.6), (-4.2, 5.4, -12.8), (-4.6, 9.2, -13.2), (-4.6, 12.6, -12.8)]
+
+    def braid_m(q):
+        d, m = 1e9, "hair"
+        for i, (a, b) in enumerate(zip(BRAID, BRAID[1:])):
+            for k in range(3):
+                t = k / 3.0
+                c = tuple(a[j] + (b[j] - a[j]) * t for j in range(3))
+                d = min(d, sd_sphere(q, c, 2.3 - 0.15 * i))
+        tie = sd_sphere(q, BRAID[-1], 2.0)
+        if tie < d:
+            d, m = tie, "tie"
+        tail = sd_ellipsoid(q, (BRAID[-1][0], BRAID[-1][1] + 2.6, BRAID[-1][2]), (1.4, 2.2, 1.4))
+        if tail < d:
+            d, m = tail, "hair"
+        return d, m
+
+    def body_m(q):
+        x, y, z = q
+        d = K.bust(q, 0.4)
+        m = "mail"
+        # the surcoat: a sleeveless green tabard over the mail, its neck cut square, the mail showing at the
+        # shoulders and the arms
+        if abs(x - 0.6) < 10.4 and y > -12.4 and z > -3.0:
+            m = "green"
+        col = K.around_neck(q, -13.6, 7.8, 2.8)       # the mail collar, standing in front of the neck
+        if col < d:
+            d, m = col, "mail"
+        return d, m
+
+    parts = [localm(HEAD, hair_m), localm(HEAD, braid_m), localm(BODY, body_m)]
+    mats = dict(skin_mats(SKIN_ROSY))
+    mats.update({
+        "hair": Mat(BROWNHAIR, th=[0.3, 0.68], tex=K.strands((-1.0, -12.0, -1.0), n=12, amp=0.14)),
+        "tie": Mat(["leaf", "meadow"], th=[0.5]),
+        "mail": Mat(["stoneDark", "stoneMid", "stone", "stoneLight"], th=[0.2, 0.45, 0.72], tex=K.mail_tex),
+        "green": Mat(GREEN, th=[0.2, 0.48, 0.86], tex=K.folds(0.08)),
+    })
+    L = legend_for(SKIN_ROSY, BROWNHAIR, {"S": "stoneLight", "s": "stone", "p": "stonePale"})
+    a = K.anchors(P)
+    st = eye_stamps(P, L, eyes="open", brows="level", mouth="thin", a=a)
+    st.append(ear_stamp(P, L))
+    ex, ey = a["eyeN"]
+    st += [
+        ((ex - 3, ey + 3), ["2.2", ".2."], L),               # freckles
+        ((a["eyeF"][0], a["eyeF"][1] + 3), ["2"], L),
+        ((26, 42), ["..p..", ".SSs.", ".SsS.", "SSSss"], L),   # the cairn of Varn
+    ]
+    return std_portrait(P, parts, mats, st, SKIN_ROSY)
+
+
+@builder("portraitLorenzPell")
+def lorenz_pell():
+    """Steward Lorenz Pell of Oxmoor, smooth, generous with small gifts: a round, well-fed face with half-lidded eyes
+    and a small smile under a thin black moustache, black hair to the collar; a crimson cap set aslant with a gold
+    brooch and a white feather curling back over it; a white ruff, Oxmoor's crimson coat, the gold chain."""
+    P = K.face_params("round")
+    cc, cr = P["cran_c"], P["cran_r"]
+    my, mz = P["mouth"]
+
+    def hair_m(q):
+        d = smax(sd_ellipsoid(q, cc, (cr[0] + 1.3, cr[1] + 1.0, cr[2] + 1.4)),
+                 K.hairline(q, front=-6.6, temple=4.4, nape=8.0, burn=1.6, jag=0.3), 0.5)
+        return d, "hair"
+
+    def cap_m(q):
+        x, y, z = q
+        f = Frame((0, 0, 0), roll=8.0, pitch=-10.0).to_local((x + 0.4, y + 8.6, z + 1.0))
+        band = sd_torus(f, (0, 0, 0), 10.8, 1.2)
+        g = Frame((0, 0, 0), roll=14.0, pitch=-12.0).to_local((x + 1.6, y + 11.8, z + 1.6))
+        crown = sd_ellipsoid(g, (0, 0, 0), (12.4, 3.6, 12.0))
+        d, m = (crown, "cap") if crown < band - 0.15 else (band, "capBand")
+        br = sd_sphere(q, (5.4, -9.0, 9.2), 1.4)
+        if br < d:
+            d, m = br, "goldc"
+        vane = chain(q, [(5.4, -10.0, 9.0), (4.4, -14.6, 7.4), (1.6, -18.4, 5.0), (-2.6, -20.4, 2.6)], 1.3, 0.5, 0.5)
+        if vane < d:
+            d, m = vane, "feather"
+        return d, m
+
+    def stache(q):
+        d = 1e9
+        for s in (-1, 1):
+            pts = [(0.0, my - 1.4, mz + 1.9), (s * 1.8, my - 1.3, mz + 1.5), (s * 3.3, my - 0.6, mz + 0.5)]
+            d = min(d, chain(q, pts, 0.95, 0.5, 0.4))
+        return d
+
+    def chainf(q):
+        pts = [(-10.0, -11.6, 2.2), (-6.0, -8.8, 7.0), (-2.0, -6.8, 9.2), (1.2, -6.4, 9.8)]
+        pts2 = [(1.2, -6.4, 9.8), (4.4, -7.6, 9.0), (7.6, -10.0, 5.8), (10.0, -11.8, 1.8)]
+        return min(chain(q, pts, 0.7), chain(q, pts2, 0.7))
+
+    def body_m(q):
+        x, y, z = q
+        d = K.bust(q, 0.8)
+        m = "coat"
+        ruff = K.around_neck(q, -14.8, 7.4, 2.5)
+        if ruff < d:
+            d, m = ruff, "ruff"
+        return d, m
+
+    parts = [localm(HEAD, hair_m), localm(HEAD, cap_m), local(HEAD, stache, "stache"), localm(BODY, body_m),
+             local(BODY, chainf, "goldc")]
+    mats = dict(skin_mats(SKIN_ROSY))
+    mats.update({
+        "hair": Mat(BLACK, th=[0.25, 0.5, 0.84]),
+        "stache": Mat(BLACK, th=[0.25, 0.5, 0.84]),
+        "cap": Mat(CRIMSON, th=[0.3, 0.64], tex=K.folds(0.08, slant=-0.4)),
+        "capBand": Mat(["crimsonDeep", "crimson"], th=[0.6]),
+        "feather": Mat(WHITE, th=[0.3, 0.6]),
+        "coat": Mat(CRIMSON, th=[0.28, 0.7], tex=K.folds(0.10)),
+        "ruff": Mat(WHITE, th=[0.3, 0.62], tex=lambda x, y, c, v: v + (0.16 if x % 2 else -0.14)),
+        "goldc": Mat(GOLD, th=[0.2, 0.45, 0.8]),
+    })
+    L = legend_for(SKIN_ROSY, BLACK, {"r": "dusk"})
+    a = K.anchors(P)
+    st = eye_stamps(P, L, eyes="lidded", brows="soft", mouth="smile", a=a)
+    st.append(ear_stamp(P, L))
+    ex, ey = a["eyeN"]
+    st += [((ex - 4, ey + 3), [".r.", "rr."], L)]       # a well-fed cheek
+    return std_portrait(P, parts, mats, st, SKIN_ROSY)
+
+
+@builder("portraitEbbaCalder")
+def ebba_calder():
+    """Auditor Ebba Calder, thirty, precise, unafraid because she does not believe: a level, cool face with medium
+    brown skin, black hair parted and drawn tight into a low knot at the nape, a white quill behind her ear; Calder's
+    blue-black coat with a standing white collar and silver buttons."""
+    P = dict(K.FACE)
+    P.update(jaw_r=(7.0, 7.9, 7.6), cheek=(5.4, 0.8, 6.0, 2.3), nose_r=(0.8, 1.15), wings=(1.4, 3.7, 11.2, 1.05),
+             chin=(0.0, 10.2, 6.8, 2.2), mand=((6.0, 6.2, -0.6), (1.5, 10.6, 6.0), 1.5), neck_r=5.0, lip_w=2.1)
+    cc, cr = P["cran_c"], P["cran_r"]
+
+    def hair_m(q):
+        d = smax(sd_ellipsoid(q, cc, (cr[0] + 0.9, cr[1] + 0.9, cr[2] + 0.9)),
+                 K.hairline(q, front=-8.0, temple=3.6, nape=5.4, burn=0.6), 0.4)
+        d = smin(d, sd_sphere(q, (-3.2, 3.4, -12.2), 3.7), 0.9)       # the knot at the nape
+        return d, "hair"
+
+    def quill_m(q):
+        d = chain(q, [(-10.4, -0.6, 0.6), (-11.2, -4.6, -2.6), (-12.4, -8.6, -6.0), (-13.4, -11.6, -8.6)],
+                  0.5, 1.25, 0.4)
+        return d, "feather"
+
+    def body_m(q):
+        x, y, z = q
+        d = K.bust(q, -0.8)
+        m = "coat"
+        col = K.around_neck(q, -14.4, 7.6, 2.0)       # the standing collar, closed in front of the neck
+        if col < d:
+            d, m = col, "collar"
+        for by in (-9.6, -5.6, -1.6):
+            if sd_sphere(q, (2.6, by, 9.4), 0.9) < 0.4:
+                m = "silver"
+        return d, m
+
+    parts = [localm(HEAD, hair_m), localm(HEAD, quill_m), localm(BODY, body_m)]
+    mats = dict(skin_mats(SKIN_MEDIUM, th=(0.14, 0.40, 0.90)))
+    mats.update({
+        "hair": Mat(BLACK, th=[0.25, 0.5, 0.84], tex=K.strands((1.0, -12.5, 2.0), n=12, amp=0.12)),
+        "feather": Mat(WHITE, th=[0.3, 0.6]),
+        "coat": Mat(["night1", "night2", "farDeep", "far"], th=[0.2, 0.5, 0.88], tex=K.folds(0.08)),
+        "collar": Mat(WHITE, th=[0.3, 0.62]),
+        "silver": Mat(["stone", "stoneLight", "stonePale"], th=[0.3, 0.6]),
+    })
+    L = legend_for(SKIN_MEDIUM, BLACK)
+    a = K.anchors(P)
+    st = eye_stamps(P, L, eyes="open", brows="level", mouth="thin", a=a)
+    st.append(ear_stamp(P, L))
+    return std_portrait(P, parts, mats, st, SKIN_MEDIUM)
+
+
+@builder("portraitOrlaLorn")
+def orla_lorn():
+    """Dame Orla Lorn, past eighty, who sits down unasked and calls the lord "young Taper": an old, lined face with
+    bright eyes and a small smile, thin white hair in a soft knot at the back of her head; a dark grey wool shawl
+    over Lorn's plum robe, closed with a small silver bell."""
+    P = K.face_params("old")
+    cc, cr = P["cran_c"], P["cran_r"]
+
+    def hair_m(q):
+        x, y, z = q
+        bump = math.sin(1.7 * x + 0.4) * math.sin(1.8 * y + 1.1) * math.sin(1.7 * z + 0.5)
+        d = smax(sd_ellipsoid(q, cc, (cr[0] + 1.2, cr[1] + 1.1, cr[2] + 1.3)) - 0.45 * bump,
+                 K.hairline(q, front=-8.2, temple=3.4, nape=5.2, burn=0.6, jag=0.6), 0.5)
+        d = smin(d, sd_sphere(q, (-2.6, -8.6, -12.0), 4.0), 1.0)      # the knot
+        return d, "hair"
+
+    def body_m(q):
+        x, y, z = q
+        d = K.bust(q, -1.6)
+        m = "shawl"
+        # the plum robe in a V between the shawl's edges
+        v = abs(x - 1.2) - (y + 13.0) * 0.34
+        if z > 2.0 and y > -12.5 and v < 0.0:
+            m = "plum"
+        roll = K.around_neck(q, -13.6, 8.6, 3.0)
+        if roll < d:
+            d, m = roll, "shawl"
+        return d, m
+
+    parts = [localm(HEAD, hair_m), localm(BODY, body_m)]
+    mats = dict(skin_mats(SKIN_ROSY, th=(0.16, 0.46, 0.95)))
+    mats.update({
+        "hair": Mat(WHITE, th=[0.3, 0.66], tex=K.strands((-1.0, -12.0, -1.0), n=12, amp=0.14)),
+        "shawl": Mat(["stoneDark", "stoneMid", "stone"], th=[0.3, 0.72], tex=K.folds(0.12, slant=0.6)),
+        "plum": Mat(PLUM, th=[0.3, 0.66], tex=K.folds(0.08)),
+    })
+    L = legend_for(SKIN_ROSY, WHITE, {"S": "stoneLight", "p": "stonePale", "s": "stone"})
+    a = K.anchors(P)
+    st = eye_stamps(P, L, eyes="open", brows=None, mouth="smile", a=a)
+    st.append(ear_stamp(P, L))
+    ex, ey = a["eyeN"]
+    fx, fy = a["eyeF"]
+    mx, my = a["mouth"]
+    st += [
+        ((ex - 3, ey - 3), [".cccc"], L),             # white brows
+        ((fx - 1, fy - 3), ["cc."], L),
+        ((ex - 5, ey + 1), ["2.", ".2"], L),          # crow's feet
+        ((ex - 2, ey + 3), [".22."], L),              # the bag under the eye
+        ((ex - 2, ey - 6), ["222."], L),              # a line across the forehead
+        ((mx - 4, my - 1), ["2", "2"], L),            # the fold from the nose to the mouth
+        ((26, 40), [".S.", "SpS", "SSs", ".s."], L),  # the silver bell of Lorn
+    ]
+    return std_portrait(P, parts, mats, st, SKIN_ROSY)
