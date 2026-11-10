@@ -1,8 +1,8 @@
 /// Where a game launch begins (M2b, DESIGN.md "Debug launch arguments"): `-GWReset YES` clears the save,
 /// `-GWDay n` / `-GWNight n` let the seeded headless reference bot play a new realm up to that day's morning or that
 /// night's 20:00 and hand it over, otherwise the save's last dawn resumes (or a new realm begins); then `-GWBuild
-/// demo` raises a built-up realm for screenshots, `-GWGold` and `-GWHappiness` set the numbers and `-GWCameraX` puts
-/// the king there.
+/// demo` raises a built-up realm for screenshots, `-GWGold` and `-GWHappiness` set the numbers, `-GWLord` and
+/// `-GWLordName` name the lord and `-GWCameraX` puts the lord there.
 enum GameStart {
     struct Result: Sendable {
         /// The realm the game plays from now.
@@ -58,6 +58,10 @@ enum GameStart {
         }
         applyNumbers(&state, args: args)
         applyNumbers(&dawn, args: args)
+        if let lord = args.lordIdentity {
+            state.lord = lord
+            dawn.lord = lord
+        }
         if let x = args.cameraX {
             state.king.x = min(Realm.walkEnd, max(0, x))
         }

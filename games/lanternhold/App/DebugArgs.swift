@@ -64,8 +64,13 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWClock <h>` (tests): the clock of the start state is set to this hour by day (6 ... 19) without anyone
     /// playing on, so today's petitioners still wait (`-GWHour` lets the reference bot play, and it hears them).
     var clock: Double?
-    /// `-GWSkipOnboarding YES`: no hints (the onboarding comes in M7; accepted now so tests already pass it).
+    /// `-GWSkipOnboarding YES`: no hints (the onboarding comes in M7) and no name entry on a new realm: the lord is
+    /// the standard one, or the one `-GWLord` and `-GWLordName` name.
     var skipOnboarding = false
+    /// `-GWLord lord|lady`: Burgherr or Burgherrin, without the name entry (the lord pass).
+    var lord: LordForm?
+    /// `-GWLordName <name>`: the lord's name, cleaned like a typed one, without the name entry.
+    var lordName: String?
 
     /// `-GWBuild` presets.
     enum BuildPreset: String, Sendable, CaseIterable, Equatable {
@@ -95,7 +100,7 @@ struct DebugArgs: Sendable, Equatable {
         "GWScene", "GWVirtualHeight", "GWScaleOverride", "GWTimeOfDay", "GWFreezeTime", "GWFlickerTime", "GWSeed",
         "GWCameraX", "GWAutoplay", "GWActorMode", "GWLightStyle", "GWEffects", "GWShowLowRes", "GWShowBuffer",
         "GWDebugLights", "GWStats", "GWReduceMotion", "GWDay", "GWNight", "GWBuild", "GWGold", "GWHappiness",
-        "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock",
+        "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock", "GWLord", "GWLordName",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -173,6 +178,17 @@ struct DebugArgs: Sendable, Equatable {
         if let clock = DebugArgs.double(values["GWClock"]), clock >= 6, clock < 19 {
             self.clock = clock
         }
+        lord = values["GWLord"].flatMap { LordForm(rawValue: $0.trimmingCharacters(in: .whitespaces).lowercased()) }
+        if let name = values["GWLordName"]?.trimmingCharacters(in: .whitespaces), !name.isEmpty {
+            lordName = name
+        }
+    }
+
+    /// The lord these arguments name (`-GWLord`, `-GWLordName`; the other half is the standard's), nil when they
+    /// name none.
+    var lordIdentity: LordIdentity? {
+        guard lord != nil || lordName != nil else { return nil }
+        return LordIdentity(name: lordName ?? LordIdentity.defaultName, form: lord ?? .lord)
     }
 
     init() {}

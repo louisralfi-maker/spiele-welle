@@ -205,11 +205,11 @@ fades out (code lane), so the front's silhouette and the interior's must match.
 | `statue` | 20x40 | 1 | a world change: a stone statue of the lamplighter king with his lantern, in the courtyard |
 | `speakerMark` | 7x7 | 2 | a small speech mark over a court member who has something new to say (frame 1 pulses) |
 
-## Proposals of the art pass (look 2, stage 4; ART-look2.md section 15)
+## The lord pass: the lady, both lords seated, the seated townsfolk (registered in `Core/FrameDesc.swift`)
 
-Everything under this heading is a **proposal for the code lane**: the PNGs lie in Resources/Art and
-`tools/build-art.sh` rebuilds them, but no Swift names them yet. Sizes, frames and anchors are what the art was painted
-to; the code lane may take them as they are.
+Painted in the art pass of look 2 (ART-look2.md sections 15 and 16) and taken as painted by the lord pass (DESIGN.md
+"The lord pass and the story pass"). `LordIdentity` (Core/Lord.swift) picks `king` or `lady` and their glow, seated
+and portrait sprites by the player's choice of Burgherr or Burgherrin.
 
 ### The lady, and both lords seated
 
@@ -217,7 +217,7 @@ to; the code lane may take them as they are.
 |---|---|---|---|
 | `lady` | 16x30 | 10 | the Burgherrin: the same role, size, frames and anchors as `king` (walk 0-5, idle 6-7, command 8-9), a young woman with a dark plait, the same circlet, cloak and lantern pole. The player's choice of form swaps `king` for `lady` everywhere |
 | `ladyGlow` | 16x30 | 10 | as `kingGlow`, pixel for pixel the same positions |
-| `kingSeated` | 16x30 | 4 | the lord on the hall's `throne`: sit down 0-1 (standing up is 1, 0), seated idle 2-3 (a breath). Drawn like the walking sprite: centred on x, feet on the ground line; place it at the throne's centre (x 1824), over the throne. Seated he is drawn turned to the right like the walking sprite (his back at the throne's back, the thighs on the cushion, the shins before the seat's front, the hand on the lantern pole behind his knee; the throne's posts, arm rests and cushion show around him, so the `throne` must be drawn under him): mirror the frame to turn him to the speaker. In the hall's painting the dais is centred on x 1837, 13 px right of the throne's x 1824: the mocks stand the throne and him there (ART-look2.md 16) |
+| `kingSeated` | 16x30 | 4 | the lord on the hall's `throne`: sit down 0-1 (standing up is 1, 0), seated idle 2-3 (a breath). Drawn like the walking sprite: centred on x, feet on the ground line; place it at the throne's centre (x 1837), over the throne. Seated he is drawn turned to the right like the walking sprite (his back at the throne's back, the thighs on the cushion, the shins before the seat's front, the hand on the lantern pole behind his knee; the throne's posts, arm rests and cushion show around him, so the `throne` must be drawn under him): mirror the frame to turn him to the speaker. The throne stands on the middle of the dais since the lord pass (centre x 1837, the prop's left edge 1830; ART-look2.md 16); the simulation's `Realm.throneX` (1824, where a new lord starts and the bot sends him) did not move |
 | `kingSeatedGlow` | 16x30 | 4 | the lantern glass does not move in the four frames: the light at (+5.5, 22.5) from the frame's centre and the ground |
 | `ladySeated`, `ladySeatedGlow` | 16x30 | 4 | the lady's, frame for frame the same |
 | `portraitLady` | 48x48 | 1 | the lady's story portrait, the pair of `portraitKing` (which now shows the young lord) |
@@ -227,6 +227,20 @@ to; the code lane may take them as they are.
 | id | size | frames | notes |
 |---|---|---|---|
 | `citizenSeated`, `citizenBSeated`, `citizenCSeated` | 12x22 | 2 each | the three townsfolk waiting on a petitioners' `bench` (32x10): seated 0, a nod 1 (swap every few seconds, not a loop). The frame's bottom stands on the floor like the bench's; draw the bench first and the sitter over it (the cushion is the frame's rows 13 and 14). A bench seats two (the frames' left edges at bench x +2 and +18) or three (+0, +10, +20). They face the hall like the seated lord, the head in profile to the right: mirror the frame for a bench right of the throne. The walking townsfolk (`citizen…`, 12x26) keep standing where no bench is free |
+
+In the game: the lord sits from the moment an audience opens before the throne (frames 0 and 1 over the first 0.4 s,
+then the breath 2 and 3; with Reduce Motion the breath's first frame at once) and is mirrored to face the petitioner
+on the audience spot. Townsfolk whose body is `citizen`, `citizenB` or `citizenC` wait seated on the benches (two to
+a bench, the frames' centres at bench x +8 and +24), everyone else stands as before; whoever is called stands up and
+walks.
+
+## Proposals of the art pass (look 2, stage 4; ART-look2.md section 15)
+
+Everything under this heading is a **proposal for the code lane**: the PNGs lie in Resources/Art and
+`tools/build-art.sh` rebuilds them, but no Swift names them yet. Sizes, frames and anchors are what the art was painted
+to; the code lane may take them as they are.
+
+The lady, both lords seated and the seated townsfolk are registered since the lord pass: see "The lord pass" above.
 
 The archer, the guardsman, the builder and the three townsfolk were repainted at their sizes, frames and frame
 meanings. Two anchors moved by a pixel: the archer's arrow lies on the frame's row 9 (was 10) and leaves at the right

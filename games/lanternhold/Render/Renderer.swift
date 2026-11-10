@@ -707,10 +707,10 @@ final class Renderer {
         }
     }
 
-    /// Actors that keep a cool rim on their screen-right edge (scene polish 2): the king, and every creature, so an
+    /// Actors that keep a cool rim on their screen-right edge (scene polish 2): the lord (walking or seated), and every creature, so an
     /// unlit body's edge reads against the dark ground where its glow strip has no pixel (SPRITES.md "Unlit
     /// creatures"); firelight outshines it.
-    static let rimmed: Set<SpriteID> = [.king, .sootling, .sootlingB, .shadehound, .sootCrow, .ashBrute, .gloomweaver,
+    static let rimmed: Set<SpriteID> = [.king, .lady, .kingSeated, .ladySeated, .sootling, .sootlingB, .shadehound, .sootCrow, .ashBrute, .gloomweaver,
                                         .ashGiant, .lightlessKing]
 
     /// Flags: x 1 for an emissive actor, y the moonlight rim of an unlit creature (its strength, M2b review), z 1 for

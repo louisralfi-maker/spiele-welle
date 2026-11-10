@@ -20,7 +20,7 @@ enum PlaceholderCourt {
             return (0..<sprite.frameCount).map { part(sprite, frame: $0) }
         case .portraitOdile, .portraitBrannock, .portraitPip, .portraitHesper, .portraitTamsin, .portraitBram,
              .portraitMarek, .portraitSeren, .portraitSerLudo, .portraitBard, .portraitEnvoy, .portraitHerald,
-             .portraitKing:
+             .portraitKing, .portraitLady:
             return (0..<sprite.frameCount).map { storyPortrait(sprite, frame: $0) }
         case .hallFront: return [hallFront()]
         case .chapelInterior: return [chapelInterior()]
@@ -1136,6 +1136,10 @@ enum PlaceholderCourt {
             recipe.hat = PortraitPart.hood
             recipe.cloth = .ochre
             recipe.skin = .medium
+        case .portraitLady:
+            recipe.face = PortraitPart.young
+            recipe.hair = PortraitPart.longHair
+            recipe.female = true
         default:
             recipe.hair = PortraitPart.tousled
         }

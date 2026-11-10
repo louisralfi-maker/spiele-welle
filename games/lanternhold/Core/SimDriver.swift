@@ -210,15 +210,25 @@ struct SimDriver: Sendable {
         travelTarget = nil
     }
 
-    /// The pause sheet's "Restart chapter": a new realm on the morning of day 1, the player at the controls.
+    /// The pause sheet's "Restart chapter": a new realm on the morning of day 1, the player at the controls. The lord
+    /// stays who he or she was until the name entry answers again.
     mutating func restart(seed: UInt64) {
+        let lord = state.lord
         state = GameState.newRealm(seed: seed, balance: balance)
+        state.lord = lord
         PetitionEngine.prepare(&state, catalog: petitions)
         dawnSnapshot = state
         accumulator = 0
         bot = nil
         walker = nil
         travelTarget = nil
+    }
+
+    /// The name entry's answer (the lord pass): the lord of the realm now and of its last dawn, so the save has it
+    /// at once and a replayed day keeps it.
+    mutating func setLord(_ lord: LordIdentity) {
+        state.lord = lord
+        dawnSnapshot.lord = lord
     }
 
     /// The action button: lights or patches. Returns true when it did something.

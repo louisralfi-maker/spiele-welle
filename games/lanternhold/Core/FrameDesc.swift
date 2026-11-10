@@ -64,6 +64,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // effects): the hall's renewed banners, the tapestry of Aldric, Seren's grey lantern, the votive candles before
     // the chapel's altar, the empty belfry where the bell hung
     case hallBanner, tapestry, serenLantern, votiveCandles, bellGone
+    // The lord pass (SPRITES.md "The lord pass"): the Burgherrin (the Burgherr's frames) and her glow strip, the lord
+    // seated on the throne (sit down 0-1, seated idle 2-3) with the glow strips, her portrait, and the three
+    // townsfolk seated on a petitioners' bench (seated 0, a nod 1)
+    case lady, ladyGlow, kingSeated, kingSeatedGlow, ladySeated, ladySeatedGlow, portraitLady
+    case citizenSeated, citizenBSeated, citizenCSeated
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -207,6 +212,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .serenLantern: return PixelSize(width: 7, height: 16)
         case .votiveCandles: return PixelSize(width: 14, height: 6)
         case .bellGone: return PixelSize(width: 7, height: 8)
+        case .lady, .ladyGlow, .kingSeated, .kingSeatedGlow, .ladySeated, .ladySeatedGlow:
+            return PixelSize(width: 16, height: 30)
+        case .portraitLady: return PixelSize(width: 48, height: 48)
+        case .citizenSeated, .citizenBSeated, .citizenCSeated: return PixelSize(width: 12, height: 22)
         }
     }
 
@@ -239,7 +248,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .portraitSeren, .speakerMark: return 2
         case .portraitClothes, .portraitHair, .portraitHat: return 8
         case .portraitFace, .portraitBeard: return 6
-        case .king, .kingGlow: return 10
+        case .king, .kingGlow, .lady, .ladyGlow: return 10
+        case .kingSeated, .kingSeatedGlow, .ladySeated, .ladySeatedGlow: return 4
+        case .citizenSeated, .citizenBSeated, .citizenCSeated: return 2
         case .guardsman: return 9
         case .ashBrute, .ashBruteGlow, .ashGiant, .ashGiantGlow, .lightlessKing, .lightlessKingGlow: return 7
         case .sootling, .sootlingB, .sootlingGlow, .sootlingBGlow, .shadehound, .shadehoundGlow: return 6
