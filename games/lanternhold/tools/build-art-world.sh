@@ -70,6 +70,7 @@ build() { # name: one sprite (or one group of small ones)
     cleftFace)   # the cleft's inner face behind the castle, with its broken top edge; its end toward the valley
         px convert $W/gorge-1.png $P/face.png --size 448x218 --key $K --only $ROCKW --match new --gain 0.9; cool
         wa rockover $P/face.png 277,72,292,82 298,76,306,82 314,72,326,82 256,124,270,135   # the same four tufts
+        wa rockover $P/face.png 109,39,124,59 102,47,108,66   # stage 6 (section 18): the dark dead bush on the ledge and its trunk
         wa face $P/face.png $A/cleftFace.png $A/cleftFaceEnd.png ;;
     cleftFlank)  cliff cleftFlank cliffFlank 100,48,340,768 ;;
     cleftFlankB) cliff cleftFlankB cliffFlankB 700,48,940,768 "60,132,75,145" ;;   # one tuft

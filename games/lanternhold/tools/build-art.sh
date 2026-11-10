@@ -81,7 +81,9 @@ build() { # name: one sprite
     hallInterior)  python3 $T convert $R/s5-hall-1.png $A/hallInterior.png --size 260x90 --box 210,0,1358,356 --only $CAS,strawLight --gain 1.1 --warm 22 --outline ink
                    # polish after the art review: five identical teal banners; the second and fourth are a red-brown house
                    # colour now (teal, red, teal, red, teal), the gold emblems kept
-                   python3 $T post $A/hallInterior.png $A/hallInterior.png --remap banner:tile,roofDeep:woodDark,roofLight:tileLight@84,25,101,61 --remap banner:tile,roofDeep:woodDark,roofLight:tileLight@159,25,177,61 ;;
+                   python3 $T post $A/hallInterior.png $A/hallInterior.png --remap banner:tile,roofDeep:woodDark,roofLight:tileLight@84,25,101,61 --remap banner:tile,roofDeep:woodDark,roofLight:tileLight@159,25,177,61
+                   # look 2, stage 6 (ART-look2.md section 18): the dais in light oak, so the seated lord reads before it
+                   python3 games/lanternhold/tools/frontart.py repaint hallInterior $A/hallInterior.png ;;
     kitchen)       python3 $T convert $R/s6-town-1.png $A/kitchen.png --size 120x80 --box 864,10,1148,296 --only $TOWN --outline ink
                    # M3 art step 3 (ART-court.md): the ground floor's painted night shade on its right corner and the
                    # stack's top lifted one value step (albedo is evenly lit; kitchenInterior is painted in this silhouette)
