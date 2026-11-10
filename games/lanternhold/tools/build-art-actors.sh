@@ -1,24 +1,19 @@
 #!/bin/bash
-# Rebuilds the M2b actors and creatures (SPRITES.md) and their glow strips in Resources/Art: the small ones from the
-# hand-set part grids in tools/grids/actors/ (tools/actorart.py), the four big creatures from their Recraft key poses in
-# build/recraft/lh/actors/ (git-ignored; prompts in ART-actors.md), converted by pixelart.py and cut into parts. One
-# sprite at a time with a pause between, and a wait while the CPU is at 80 °C or more (this old Mac's heat rule).
+# Rebuilds the actors and the creatures (SPRITES.md) and their glow strips in Resources/Art. The people come from the
+# hand-set part grids in tools/grids/actors/ (tools/actorart.py). The eight creatures are look 2's lost people
+# (ART-look2.md, "Stage 3: the creatures"): each is a small painter in tools/creatures/<id>.py, drawn by tools/rig.py
+# and written by tools/creatureart.py; no Recraft image is involved. The creature grids still lying in
+# tools/grids/actors/ (sootling, shadehound, ashBrute and the others) are look 1's sources and are no longer built.
+# One sprite at a time with a pause between, and a wait while the CPU is at 80 °C or more (this old Mac's heat rule).
 # A full run reproduces the committed files byte for byte. Run from anywhere:
 #   bash games/lanternhold/tools/build-art-actors.sh [name …]
 set -euo pipefail
 cd "$(dirname "$0")/../../.."
-T=games/lanternhold/tools/pixelart.py
 AA=games/lanternhold/tools/actorart.py
+CA=games/lanternhold/tools/creatureart.py
 A=games/lanternhold/Resources/Art
 G=games/lanternhold/tools/grids/actors
-R=build/recraft/lh/actors          # the Recraft key-pose sheets (ART-actors.md)
-K=build/recraft/lh/actors/keys     # converted key poses, the parts' source images
 SMC=/Users/enaayla/Desktop/Spiele-Welle/tools/smcread
-# palette subsets of the key-pose conversions
-GI=ink,rockDeep,soilDark,woodDark,stoneDark,stoneMid,stone,stoneLight,rockDark,rock,tile,wood
-BR=ink,rockDeep,stoneDark,stoneMid,stone,stoneLight,stonePale,tile
-LK=ink,night0,stoneDark,stoneMid,stone,stoneLight,banner,roofDeep,roofLight,rock,woodLight,soilLight,straw,woodDark,rockDeep
-GW=night0,night1,night2,ink,stoneDark,stoneMid,stone,stoneLight,stonePale,moon
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
     [ -x "$SMC" ] || return 0
@@ -31,44 +26,18 @@ cool() { # wait below 70 °C when the CPU reached 80 °C
 
 build() { # name: one sprite (and its glow strip)
     case $1 in
-    sootling|sootlingB|shadehound|sootCrow|archer|guardsman|builder|king|citizen|citizenB|citizenC)
+    archer|guardsman|builder|king|lady|kingSeated|ladySeated|citizen|citizenB|citizenC|citizenSeated|citizenBSeated|citizenCSeated)
         python3 -I $AA build $G/$1.txt --out $A ;;
-    ashBrute)      # two key poses of brute-b at one common scale (15.8 sheet px per game px)
-        mkdir -p $K
-        python3 -I $T convert $R/brute-b-1.png $K/ashBrute-walk.png --size 38x33 --box 144,176,752,704 --only $BR --gain 0.95
-        python3 -I $T convert $R/brute-b-1.png $K/ashBrute-attack.png --size 33x44 --box 892,8,1420,704 --only $BR --gain 0.95
-        # M2b review: the ash plates one value step darker (lit, the pale plates read as a pink boulder)
-        for KEY in walk attack; do
-            python3 -I $T post $K/ashBrute-$KEY.png $K/ashBrute-$KEY.png --remap stonePale:stoneLight,stoneLight:stone,stone:stoneMid
-        done
-        python3 -I $AA build $G/ashBrute.txt --out $A ;;
-    gloomweaver)   # the conversion is the reference the hand-set grid follows (hood slant, orb); the sprite is the grid
-        mkdir -p $K
-        python3 -I $T convert $R/creatures-b-1.png $K/gloomweaver-conv.png --size 30x30 --box 150,12,690,744 --fit contain --key '#1CE49C' --tol 70 --only $GW
-        python3 -I $AA build $G/gloomweaver.txt --out $A ;;
-    ashGiant)      # the shaded side lifted one value step (ink to rockDeep, rockDeep to stoneDark, stoneDark to stoneMid)
-        mkdir -p $K
-        python3 -I $T convert $R/creatures-a-1.png $K/ashGiant-conv.png --size 110x110 --box 864,16,1456,752 --fit contain --only $GI --gain 1.9
-        python3 -I $T post $K/ashGiant-conv.png $K/ashGiant-lift.png --remap ink:rockDeep,rockDeep:stoneDark,stoneDark:stoneMid
-        # the flat dark bands (the painting's black) broken into a cobble of boulders like its lit stone arm
-        python3 -I $AA texture $K/ashGiant-lift.png $K/ashGiant-key.png --colour rockDeep --to stoneDark --light stoneMid --cell 6 --seed 3
-        # fix stage: long ember fissures along the boulders' joints (crown to chest, chest to waist, across the
-        # shoulder and down the stone arm, down the left leg, chest to the left flank), the lone red specks grown
-        # into 3-4 px cracks; tile glows emberDim (glowmap), so unlit the colossus reads by its cracks, not as a mass
-        python3 -I $AA cracks $K/ashGiant-key.png $K/ashGiant-cracks.png --seed tile --along rockDeep,stoneDark --min 3 --max 4 \
-            --path 40,22:58,30 --path 58,30:50,52 --path 58,30:80,46 --path 80,46:86,75 --path 40,56:30,85 --path 48,36:28,50
-        python3 -I $AA build $G/ashGiant.txt --out $A ;;
-    lightlessKing) # the cloak recoloured (night0 to night1, its lit folds to night2) so it is no black band
-        mkdir -p $K
-        python3 -I $T convert $R/creatures-b-1.png $K/lightlessKing-conv.png --size 64x64 --box 700,24,1262,746 --fit contain --pad 2,6,2,0 --key '#1CE49C' --tol 70 --only $LK --gain 1.1
-        python3 -I $T post $K/lightlessKing-conv.png $K/lightlessKing-key.png --remap night0:night1,stoneDark:night2,ink:night0
-        python3 -I $AA build $G/lightlessKing.txt --out $A ;;
+    sootling|sootlingB|shadehound|sootCrow|ashBrute|gloomweaver|ashGiant|lightlessKing)
+        python3 -I -B $CA build $1 --out $A ;;
+    darknessBank)  # the Gloom's bank of look 2: darknessBank.png, darknessEdge.png and darknessBankGlow.png
+        python3 -I -B games/lanternhold/tools/bankart.py --out $A ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;
     esac
 }
 
-ALL="sootling sootlingB shadehound sootCrow ashBrute gloomweaver ashGiant lightlessKing archer guardsman builder king
-citizen citizenB citizenC"
+ALL="sootling sootlingB shadehound sootCrow ashBrute gloomweaver ashGiant lightlessKing darknessBank archer guardsman builder king
+lady kingSeated ladySeated citizen citizenB citizenC citizenSeated citizenBSeated citizenCSeated"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do
     cool

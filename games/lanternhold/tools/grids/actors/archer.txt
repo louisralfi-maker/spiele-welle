@@ -1,11 +1,15 @@
-# archer 12x28, 5 frames: idle 0-1, draw 2-3, loose 4 (SPRITES.md). A realm archer: a brown leather hood, the teal
-# tabard with the gold lantern over brown leather sleeves and trousers, boots, a quiver of red-fletched arrows on the
-# back, a longbow. Idle: bow lowered at his side, a breath (head and shoulders down 1 px). Draw: bow raised and the
-# arrow nocked, then full draw to the cheek. Loose: the string snaps straight, the drawing hand flies back.
+# archer 12x28, 5 frames: idle 0-1, draw 2-3, loose 4 (SPRITES.md). A realm archer, repainted in stage 4 of look 2
+# (ART-look2.md section 15) at the lord's level: a lean bowman in a brown leather hood whose cowl lies over the
+# shoulders, the house's teal tabard with the gold lantern over leather sleeves, a belt, two-tone breeches, boots, a
+# quiver of red-fletched arrows across the back and a longbow as tall as his trunk. Light from the upper left; the
+# outline is look 2's selective one (shadow side and ground contact). Idle: the bow lowered at his side, a breath
+# (head, trunk and bow 1 px down). Draw: the bow raised and half drawn, then the full draw to the jaw with the bow
+# bent. Loose: the string straight, the drawing hand flown back. The bow hand stays at col 10, row 10 and the bow at
+# cols 9-10 as before; the arrow lies one row higher (row 9, on the bow hand) and reaches col 11.
 id archer
 size 12x28
 frames 5
-outline ink
+outline ink shade
 
 legend
     k = ink
@@ -18,172 +22,201 @@ legend
     t = roofDeep
     U = roofLight
     G = gold
-    B = soilDark
+    J = strawLight
+    D = soilDark
+    d = soil
     b = soil
+    L = soilLight
     F = stonePale
     f = tile
     w = stoneLight!
     a = stonePale!
     A = stone!
+    r = tile!
 
-# hood and face (facing right)
+# the hood (frame cols 3-8): lit crown, the brim over the brow, the face in its shadow, the eye, the jaw
 part head
-    .HHH.
-    HhhhH
-    HhlhhH
-    HhsSS.
-    HhSkS.
-    .HsSs.
+    .hlh.
+    hhlhH
+    hhhHH
+    HhSkS
+    HhsSs
+    .Hhs.
 
-# quiver fletching above the back shoulder
+# the quiver across the back, the fletchings above the shoulder
 part quiver
-    F.
+    .F
     fF
-    H.
+    Ff
+    hH
+    hH
 
-# shoulders, tabard with the lantern emblem, belt, skirt (sleeves are the arm parts)
+# the cowl over the shoulders, the tabard with the lantern, the belt, the split skirt (the sleeves are the arm parts)
 part torso
-    hTTTh
-    TTUTT
-    TGTTT
-    TGTTt
-    TTTTt
-    HHGHH
-    tTTTt
-    tTUTt
-    tT.Tt
+    .hhhHH
+    LUUTTb
+    bUGTTb
+    bUJTt.
+    .UGTt.
+    .HHGH.
+    .UTTtt
+    .UT.Tt
 
 part legs
-    Bb.Bb
-    Bb.Bb
-    Bb.Bb
-    Bb.Bb
-    Bb.Bb
-    Bb.Bb
-    HH.HH
-    HH.HH
-    HHhHHh
+    .dDLb..
+    .dDLb..
+    .dDLb..
+    .dDLb..
+    .dDLb..
+    .dD.Lb.
+    dD..Lb.
+    dD..Lb.
+    HH..hH.
+    HH..hH.
+    HHH.hHH
 
 part armBackDown
-    h
-    h
-    h
+    L
+    b
+    b
     H
     s
 
 part armFrontDown
-    h
-    h
-    H
-    h
-    S
+    b..
+    b..
+    D..
+    .H.
+    ..S
 
-# the bow at rest, held vertically (string on the left, belly to the right)
+# the bow at rest, upright at his side (string on the left, belly to the right)
 part bowRest
-    l.
-    wl
-    wl
-    wl
-    wl
-    wl
-    wh
-    wl
-    wl
-    wl
-    l.
+    .l.
+    w.l
+    w.l
+    w.l
+    w.l
+    w.l
+    w.h
+    w.l
+    w.l
+    w.l
+    w.l
+    w.l
+    .l.
 
-# raised: the bow arm straight forward at shoulder height, the bow upright in the fist
+# raised: the bow arm straight forward, the bracer, the fist on the grip
 part armFrontRaised
-    hhhS
+    bbHS
 
 part bowRaised
-    .l
-    wl
-    wl
-    wl
-    wl
-    wh
-    wl
-    wl
-    wl
-    wl
-    .l
+    .l.
+    w.l
+    w.l
+    w.l
+    w.l
+    w.l
+    w.h
+    w.l
+    w.l
+    w.l
+    w.l
+    w.l
+    .l.
 
-# nocking: the drawing hand at the chest, the arrow on the string
+# half draw: the string in a shallow V, the hand on the nock at the chest
+part bowHalf
+    ..l.
+    .w.l
+    .w.l
+    w..l
+    w..l
+    w..l
+    w..h
+    w..l
+    w..l
+    w..l
+    .w.l
+    .w.l
+    ..l.
+
 part armDrawNock
-    hhS
+    ...s
+    Lbb.
 
 part arrowNock
-    aaaA
+    raaaA
 
-# full draw: the hand at the cheek, the string pulled back in a V, the bow bent
-part armDrawFull
-    hS
-
+# full draw: the hand at the jaw, the elbow back, the string in a deep V, the bow bent
 part bowFull
-    ..l
-    .wl
-    w.l
-    w.l
-    ..h
-    w.l
-    w.l
-    .wl
-    ..l
+    ...l..
+    ...wl.
+    ..w..l
+    ..w..l
+    .w...l
+    w....l
+    .w...h
+    .w...l
+    ..w..l
+    ..w..l
+    ...w.l
+    ...wl.
+    ...l..
+
+part armDrawFull
+    LbS
 
 part arrowFull
-    faaaaA
+    raaaaaA
 
-# loose: the string straight again, the drawing hand open behind the head
+# loose: the drawing hand open behind the shoulder
 part armLoose
-    S
-    h
-    h
+    s.
+    .b
 
 frame 0
-    quiver 2 6
+    quiver 1 5
+    legs 2 16
+    torso 2 8
     armBackDown 2 9
-    legs 3 18
-    torso 3 9
     head 3 2
-    armFrontDown 8 9
-    bowRest 8 8
+    bowRest 8 7
+    armFrontDown 7 9
 
 frame 1
-    quiver 2 7
+    quiver 1 6
+    legs 2 16
+    torso 2 9
     armBackDown 2 10
-    legs 3 18
-    torso 3 10
     head 3 3
-    armFrontDown 8 10
-    bowRest 8 9
+    bowRest 8 8
+    armFrontDown 7 10
 
 frame 2
-    quiver 2 6
-    armBackDown 2 9
-    legs 3 18
-    torso 3 9
+    quiver 1 5
+    legs 2 16
+    torso 2 8
     head 3 2
-    armDrawNock 5 11
+    bowHalf 7 4
+    armDrawNock 3 9
     armFrontRaised 7 10
-    bowRaised 9 5
-    arrowNock 6 10
+    arrowNock 7 9
 
 frame 3
-    quiver 2 6
-    legs 3 18
-    torso 3 9
+    quiver 1 5
+    legs 2 16
+    torso 2 8
+    bowFull 5 4
     head 3 2
-    armDrawFull 6 7
+    armDrawFull 2 9
     armFrontRaised 7 10
-    bowFull 8 6
-    arrowFull 5 10
+    arrowFull 5 9
 
 frame 4
-    quiver 2 6
-    armLoose 2 5
-    legs 3 18
-    torso 3 9
+    quiver 1 5
+    armLoose 0 7
+    legs 2 16
+    torso 2 8
     head 3 2
+    bowRaised 8 4
     armFrontRaised 7 10
-    bowRaised 9 5

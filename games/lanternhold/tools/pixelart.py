@@ -45,6 +45,8 @@ Commands (run from anywhere; paths are plain file paths):
           --fill-holes NAME:x0,y0,x1,y1  paint only the transparent pixels inside a rect (a see-through gateway
                                   becomes a dark passage); repeatable
           --palette path          default: palette.txt next to this file
+          --match old|new         match against each colour's match= value (default: the sprite keeps the indices it
+                                  had before the look-2 palette revision) or against its current value (new paintings)
 
   pixelart.py split   <in.png> <out1.png> <out2.png> [...]
         Cuts a sprite into equal-width tiles, left to right (a seamless --tile panorama becomes tiles A, B, C that join
@@ -301,10 +303,18 @@ def lab(rgb):
     return (116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz))
 
 
+# Which colour a painting's pixels are matched against (look 2, ART-look2.md "Palette"): a palette line may carry a
+# tag `match=#RRGGBB`, the colour's value before the look-2 revision. By default every conversion matches against it,
+# so each sprite keeps exactly the palette indices it had (its zones, fills, remaps and clusters were tuned on them)
+# and only the output colours change; `convert --match new` matches against the current values (new paintings).
+MATCH = "old"
+
+
 class Palette:
     def __init__(self, path, allow_emissive=False, exclude=(), only=(), allow_swap=False):
         self.names = []
         self.rgb = []
+        self.mrgb = []  # the value paintings are matched against (the match= tag, else the colour itself)
         self.tags = []
         with open(path) as fh:
             for line in fh:
@@ -312,9 +322,12 @@ class Palette:
                 if not s or s.startswith("#"):
                     continue
                 parts = s.split()
+                tags = set(parts[2:])
+                m = next((t[6:] for t in tags if t.startswith("match=")), None)
                 self.names.append(parts[0])
                 self.rgb.append(parse_hex(parts[1]))
-                self.tags.append(set(parts[2:]))
+                self.mrgb.append(parse_hex(m) if m and MATCH == "old" else parse_hex(parts[1]))
+                self.tags.append(tags)
         self.allowed = []
         for i, name in enumerate(self.names):
             if only and name not in only:
@@ -323,10 +336,12 @@ class Palette:
                 continue
             if "emissive" in self.tags[i] and not allow_emissive:
                 continue
+            if MATCH == "old" and "new" in self.tags[i] and not only:
+                continue  # an old painting never lands on a look-2 colour unless an --only list names it
             if "swap" in self.tags[i] and not allow_swap:
                 continue
             self.allowed.append(i)
-        self.labs = [lab(c) for c in self.rgb]
+        self.labs = [lab(c) for c in self.mrgb]
         self.cache = {}
 
     def index(self, name):
@@ -622,7 +637,7 @@ def outline(idx, w, h, pal, how, skip_bottom):
             if fixed is not None:
                 new[y][x] = fixed
             else:
-                r, g, b = pal.rgb[v]
+                r, g, b = pal.mrgb[v]  # darkened from the matched value, so the outline keeps its old index
                 new[y][x] = pal.nearest((int(r * 0.42), int(g * 0.38), int(b * 0.5)))
     return new
 
@@ -724,6 +739,8 @@ def put(idx, w, h, x, y, v, only_opaque=False):
 
 
 def cmd_convert(a):
+    global MATCH
+    MATCH = a.match
     tw, th = (int(v) for v in a.size.lower().split("x"))
     pal = Palette(a.palette, a.allow_emissive, set(a.exclude.split(",")) if a.exclude else set(),
                   set(a.only.split(",")) if a.only else set(), a.allow_swap)
@@ -1124,6 +1141,7 @@ def main():
     v.add_argument("--zone", action="append")
     v.add_argument("--patch", action="append")
     v.add_argument("--palette", default=DEFAULT_PALETTE)
+    v.add_argument("--match", default="old", choices=["old", "new"])
     v.set_defaults(fn=cmd_convert)
 
     sp = sub.add_parser("split")

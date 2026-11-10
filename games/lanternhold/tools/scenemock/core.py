@@ -72,3 +72,42 @@ def ambient(hour):
         va, vb = a[i], b[i]
         out[f] = lerp3(va, vb, t) if isinstance(va, tuple) else va + (vb - va) * t
     return out
+# Look 2 (ART-look2.md "Light per hour"): eleven keyframes with a long dusk and a deep blue night. Each also sets the
+# air (the colour distance fades to), the vignette, the navy lift of the darks and the light on the clouds' sunlit
+# tops (cloud: the low sun's colour times its strength, exempt from the cold grade; 0 at night, when the moon lights
+# them). Opt-in: mock.py look=2. After the critic of stage 1 (ART-look2.md "Critic and fixes"): the night a value step
+# lighter toward look2-4-farbe (sky, air and fog), fewer stars under a moonlit cloud deck, an orange afterglow at
+# dusk instead of mauve, a golden hour that keeps the greens green, a little more colour at noon.
+def _k2(name, hour, skyTop, skyBottom, amb, ambI, fog, fogD, haze, stars, sun, moon, torch, warmth, sat, air, vig, black,
+        cloud):
+    return dict(name=name, hour=hour, skyTop=skyTop, skyBottom=skyBottom, ambColor=amb, ambI=ambI, fogColor=fog,
+                fogD=fogD, haze=haze, stars=stars, sun=sun, moon=moon, torch=torch, warmth=warmth, sat=sat, air=air,
+                vig=vig, black=black, cloud=cloud)
+KEYS2 = [
+ _k2('pre-dawn',   4.6, (0.10,0.11,0.26), (0.27,0.30,0.52), (0.40,0.46,0.82), 0.15, (0.36,0.40,0.70), 0.50, 0.45, 0.3, -0.30, 0.30, 1.0, -0.25, 0.80, (0.24,0.29,0.54), 0.34, 1.0, (0.08,0.08,0.14)),
+ _k2('dawn',       5.9, (0.26,0.30,0.52), (0.88,0.62,0.56), (0.90,0.72,0.70), 0.40, (0.66,0.60,0.66), 0.55, 0.60, 0.1,  0.02, 0.05, 0.7,  0.18, 0.88, (0.66,0.60,0.68), 0.26, 0.5, (0.94,0.68,0.58)),
+ _k2('morning',    7.4, (0.38,0.52,0.70), (0.82,0.78,0.72), (1.00,0.92,0.84), 0.74, (0.80,0.80,0.80), 0.28, 0.45, 0.0,  0.30, -0.2, 0.1,  0.08, 0.92, (0.76,0.78,0.80), 0.18, 0.2, (0.85,0.80,0.74)),
+ _k2('noon',      12.0, (0.34,0.50,0.66), (0.66,0.74,0.78), (0.96,0.96,0.94), 0.92, (0.74,0.78,0.82), 0.10, 0.32, 0.0,  1.00, -0.6, 0.0,  0.00, 0.96, (0.68,0.75,0.80), 0.16, 0.2, (0.92,0.92,0.90)),
+ _k2('afternoon', 16.2, (0.34,0.48,0.66), (0.78,0.74,0.66), (1.00,0.90,0.78), 0.84, (0.80,0.76,0.70), 0.14, 0.38, 0.0,  0.50, -0.4, 0.0,  0.14, 0.96, (0.74,0.72,0.70), 0.18, 0.2, (0.90,0.81,0.70)),
+ _k2('golden',    17.8, (0.30,0.34,0.56), (0.96,0.64,0.38), (1.00,0.82,0.64), 0.66, (0.90,0.64,0.46), 0.28, 0.55, 0.0,  0.14, -0.1, 0.2,  0.32, 1.00, (0.82,0.62,0.52), 0.22, 0.3, (1.15,0.84,0.55)),
+ _k2('sunset',    18.8, (0.16,0.17,0.40), (0.92,0.46,0.30), (0.92,0.66,0.46), 0.44, (0.52,0.40,0.48), 0.32, 0.45, 0.05,-0.02, 0.00, 0.6,  0.32, 1.02, (0.50,0.40,0.50), 0.28, 0.5, (1.40,0.77,0.41)),
+ _k2('dusk',      19.5, (0.11,0.13,0.33), (0.69,0.39,0.31), (0.44,0.56,0.82), 0.30, (0.38,0.41,0.70), 0.38, 0.42, 0.2, -0.15, 0.15, 1.0,  0.08, 0.95, (0.34,0.37,0.62), 0.30, 0.8, (0.85,0.44,0.35)),
+ _k2('blue hour', 20.3, (0.11,0.14,0.33), (0.31,0.36,0.66), (0.40,0.50,0.90), 0.18, (0.36,0.41,0.78), 0.42, 0.40, 0.25,-0.40, 0.40, 1.0, -0.22, 0.86, (0.27,0.33,0.63), 0.34, 1.0, (0.06,0.06,0.10)),
+ _k2('night',     21.4, (0.11,0.13,0.32), (0.29,0.33,0.62), (0.36,0.45,0.88), 0.14, (0.36,0.40,0.80), 0.45, 0.40, 0.3, -0.60, 0.60, 1.0, -0.30, 0.82, (0.25,0.31,0.60), 0.34, 1.0, (0.00,0.00,0.00)),
+]
+def ambient2(hour, keys=None):
+    keys = keys or KEYS2
+    h = hour % 24
+    for a, b in zip(keys, keys[1:]):
+        if a['hour'] <= h < b['hour']:
+            t = ss((h - a['hour']) / (b['hour'] - a['hour'])); break
+    else:
+        a, b = keys[-1], keys[0]
+        hh = h + 24 if h < b['hour'] else h
+        t = ss((hh - a['hour']) / (b['hour'] + 24 - a['hour']))
+    out = {}
+    for f, va in a.items():
+        if f in ('name', 'hour'): continue
+        vb = b[f]
+        out[f] = lerp3(va, vb, t) if isinstance(va, tuple) else va + (vb - va) * t
+    return out

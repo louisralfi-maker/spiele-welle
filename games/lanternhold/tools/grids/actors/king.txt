@@ -1,161 +1,214 @@
-# king 16x30, 10 frames: walk 0-5, idle 6-7, command 8-9 (SPRITES.md). The lamplighter king: a gold crown a size too
-# big with a teal stone, a white beard and kind face, the realm's teal cloak with a gold clasp over a warm red-brown
-# tunic, a belt, brown breeches, boots, and his old lamplighter's lantern hanging from a hooked pole in his near hand
-# (DESIGN.md "Not a copy"). Walk: six frames (contact, down, passing on each leg), the cloak hem and the lantern swing.
-# Idle: a breath and a slow sway of the lantern. Command: he lifts the pole high, the lantern raised to give an order.
-# kingGlow: the lantern glass and a glint on the crown's stone.
+# king 16x30, 10 frames: walk 0-5, idle 6-7, command 8-9 (SPRITES.md). The Burgherr of House Lantern (STORY.md; ART-look2.md
+# 6.2, 14 and "Stage 4: the art pass"): the lamplighter of about nineteen who became lord. A lanky youth, five and a
+# half heads tall (the head 5 px of 28), beardless, tousled brown hair with a cowlick, a narrow gold circlet a size
+# too big (7 px on a 5 px head) that sits low on his brow and stands off behind, the house's teal cloak with a gold
+# clasp over a red-brown tunic, a belt, dark breeches, boots, and the house's lantern on a hooked pole taller than
+# himself in his near hand. Light from the upper left; the outline is look 2's selective one (shadow side and ground
+# contact). Walk: contact, down, passing on each leg, the cloak hem and the lantern swinging. Idle: a breath and a
+# slow sway of the lantern. Command: the pole lifted high. The lantern glass keeps its pixels of the fix stage
+# (cols 13-14; rows 5-6 on frames 0, 2, 3, 5, 6; 7-8 on 1, 4, 7; 4-5 on 8; 3-4 on 9), so the engine's light anchor holds.
+# kingGlow: the lantern glass and one fireWhite glint on the circlet's front (col 8, row 3; row 4 on frames 1, 4, 7).
 id king
 size 16x30
 frames 10
-outline ink
+outline ink shade
 
 legend
     k = ink
     S = dawnRose
     s = tileLight
-    W = foam
-    w = stonePale
-    v = stoneLight
     G = gold
-    C = strawLight
     g = straw
-    j = banner/fireWhite
+    J = strawLight/fireWhite
     T = roofDeep
-    t = roofDeep
+    t = nightBlue
     U = banner
+    u = roofLight
     R = tile
-    r = woodDark
     Q = tileLight
+    r = woodDark
     H = woodDark
-    B = soilDark
+    D = soilDark
+    d = soil
     b = soil
+    L = soilLight
     p = wood
     P = woodLight
     i = stoneDark
+    m = stoneMid
     I = stone
     Y = strawLight/fireGold
     Z = parchment/fireWhite
 
-# the crown, a size too big, with a teal stone (glints at night)
-part crown
-    .G.C.G.
-    .GgjgG.
-    GCGGGCG
-    gGGGGGg
-
+# the head (frame cols 4-8): tousled hair with a cowlick, the eye, the jaw, the neck
 part head
-    .wSSS.
-    wSSkSs
-    wSSSSS
-    WWSWWs
-    vWWWWW
-    .vWWW.
-    ..vW..
+    ..pp.
+    .pPpH
+    ..pHH
+    Hp...
+    HHSkS
+    .HsSs
+    ..ss.
 
-# shoulders, cloak down the back to the calves, tunic in front, gold clasp, belt. M2b review: the cloak is roofDeep
-# with banner teal only on its lit folds (all banner teal, it read beige by his own lantern and pale sage by a fire)
+# the circlet (frame cols 3-9): the back stands off behind the hair, the front lies on the brow and juts out past it
+part circlet
+    .gG....
+    ...GGJG
+
+# mantle over the shoulders with the gold clasp, the cloak down the back, the tunic with its belt
 part body
-    ...UTRQ.
-    ..tTGRRQ
-    ..tTURRR
-    .tTTURRQ
-    .tTTTRrR
-    .tTTUHGH
-    tTTUTRRR
-    tTTUTRrQ
-    tTTUTRRR
-    ttTTURrR
-    ttTTT...
-    .ttTT...
+    ...uUUTQR
+    ..uUTTGQR
+    ..UTtTQRR
+    ..UTtTRRR
+    ..UTtTRRr
+    ..UTtTRRr
+    .UUTtTHGH
+    .UTTtTRRR
+    .UTtTTRRr
+    .UTtTTRrR
+    UUTtT....
+    UTTtT....
+    UTTtT....
+    UTtTT....
 
 part hem0
-    tt.
-    t..
+    .TTtT
+    .Tt.t
 
 part hem1
-    .tt
-    .t.
+    UTTtT
+    TT.tt
+
+part hem2
+    ..TtT
+    ..Tt.
 
 part legsStand
-    Bb.Bb
-    Bb.Bb
-    Bb.Bb
-    Bb.Bb
-    Bb.Bb
-    HH.HH
-    HH.HH
-    HHrHHr
+    ...dDLb..
+    ...dDLb..
+    ...dDLb..
+    ...dDLb..
+    ...dDLb..
+    ...dDLb..
+    ...dDLb..
+    ..dD.Lb..
+    ..dD.Lb..
+    ..HH.pH..
+    ..HH.pH..
+    ..HH.pH..
+    ..HHHpHH.
 
 part legsContactA
-    Bb..Bb.
-    Bb..Bb.
-    Bb...Bb
-    Bb...Bb
-    Bb...Bb
-    HH...HH
-    HH...HH
-    HHr..HHr
+    ...dDLb..
+    ...dDLb..
+    ...dDLb..
+    ..dD.Lb..
+    ..dD..Lb.
+    ..dD..Lb.
+    .dD...Lb.
+    .dD...Lb.
+    .dD...Lb.
+    HH....pH.
+    HH....pH.
+    HH....pH.
+    .HH...pHH
 
 part legsDownA
-    .Bb.Bb.
-    .Bb.Bb.
-    Bb..Bb.
-    Bb...Bb
-    Bb...Bb
-    HH...HH
-    HH...HH
-    HHr..HHr
+    ...dDLb..
+    ...dDLb..
+    ..dD.Lb..
+    ..dD..Lb.
+    .dD...Lb.
+    .dD...Lb.
+    .dD...Lb.
+    dD....Lb.
+    HH....pH.
+    HH....pH.
+    .HH...pH.
+    ..H...pHH
 
 part legsPassA
-    .BbBb.
-    .BbBb.
-    .BbBb.
-    .Bb.Bb
-    .BbHHr
-    .HH...
-    .HH...
-    .HHr..
+    ...dDLb..
+    ...dDLb..
+    ...dDLb..
+    ...dDLb..
+    ....DLb..
+    ...dDLb..
+    ..dD.Lb..
+    ..dD.Lb..
+    .HH..Lb..
+    .HH..pH..
+    .HHH.pH..
+    .....pH..
+    .....pHH.
 
 part legsContactB
-    Bb..Bb.
-    Bb..Bb.
-    .Bb..Bb
-    .Bb..Bb
-    Bb...Bb
-    HH...HH
-    HH...HH
-    HHr..HHr
+    ...dDLb..
+    ...dDLb..
+    ...LbdD..
+    ..Lb.dD..
+    ..Lb..dD.
+    ..Lb..dD.
+    .Lb...dD.
+    .Lb...dD.
+    .Lb...dD.
+    pH....HH.
+    pH....HH.
+    pH....HH.
+    .HH...HHH
+
+part legsDownB
+    ...dDLb..
+    ...LbdD..
+    ..Lb.dD..
+    ..Lb..dD.
+    .Lb...dD.
+    .Lb...dD.
+    .Lb...dD.
+    Lb....dD.
+    pH....HH.
+    pH....HH.
+    .HH...HH.
+    ..H...HHH
 
 part legsPassB
-    .BbBb.
-    .BbBb.
-    .BbBb.
-    Bb.Bb.
-    HHrBb.
-    ...HH.
-    ...HH.
-    ...HHr
+    ...dDLb..
+    ...dDLb..
+    ...dDLb..
+    ...dDLb..
+    ...dDLb..
+    ...dLb...
+    ..LbdD...
+    ..LbdD...
+    .pH.dD...
+    .pH.HH...
+    .pHHHH...
+    ....HH...
+    ....HHH..
 
 # the near arm and hand on the pole
 part armHold
-    RR.
-    QSS
+    QR..
+    QQR.
+    .RQS
+    ...S
 
 part armRaise
-    ..S
-    .QS
-    QR.
-    R..
+    ..QS
+    .QRS
+    QR..
+    R...
 
-# the pole with its hook, the lantern hanging from the hook (its glass glows: kingGlow)
+# the pole with its iron hook, the lantern hanging from the hook (its glass glows: kingGlow)
 part pole
-    .III.
-    I...I
-    p.iiii
+    .II..
+    I..m.
+    p..mm.
+    p.Imii
     p.iZZi
     p.iYYi
-    p.iiii
-    p.....
+    p.miii
     P.....
     p.....
     p.....
@@ -169,42 +222,50 @@ part pole
     p.....
     p.....
     p.....
+    P.....
     p.....
     p.....
     p.....
+    p.....
+    p.....
+    m.....
 
 part poleSwing
-    .III.
-    I...I
-    p...I
-    p.iiii
+    .II..
+    I..m.
+    p..m..
+    p..mm.
+    p.Imii
     p.iZZi
     p.iYYi
-    p.iiii
+    p.miii
     P.....
     p.....
     p.....
     p.....
     p.....
     p.....
-    p.....
     P.....
     p.....
     p.....
     p.....
     p.....
     p.....
+    P.....
     p.....
     p.....
+    p.....
+    p.....
+    m.....
 
 part poleHigh
-    .III.
-    I...I
-    p.iiii
+    .II..
+    I..m.
+    p..mm.
+    p.Imii
     p.iZZi
     p.iYYi
-    p.iiii
-    p.....
+    p.miii
     P.....
     p.....
     p.....
@@ -213,95 +274,102 @@ part poleHigh
     p.....
     p.....
     P.....
+    p.....
+    p.....
+    p.....
+    p.....
+    p.....
+    P.....
+    p.....
     p.....
     p.....
 
 frame 0
-    hem0 1 21
-    legsContactA 4 21
-    body 2 11
-    head 5 5
-    crown 4 2
-    pole 10 3
-    armHold 8 14
+    legsContactA 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    pole 10 1
+    armHold 7 9
 
 frame 1
-    hem1 1 22
-    legsDownA 4 21
-    body 2 12
-    head 5 6
-    crown 4 3
-    poleSwing 10 4
-    armHold 8 15
+    legsDownA 2 17
+    body 0 8
+    hem1 0 22
+    head 4 1
+    circlet 3 3
+    poleSwing 10 2
+    armHold 7 10
 
 frame 2
-    hem0 2 22
-    legsPassA 4 21
-    body 2 11
-    head 5 5
-    crown 4 2
-    pole 10 3
-    armHold 8 14
+    legsPassA 2 16
+    body 0 7
+    hem2 0 21
+    head 4 0
+    circlet 3 2
+    pole 10 1
+    armHold 7 9
 
 frame 3
-    hem1 1 21
-    legsContactB 4 21
-    body 2 11
-    head 5 5
-    crown 4 2
-    pole 10 3
-    armHold 8 14
+    legsContactB 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    pole 10 1
+    armHold 7 9
 
 frame 4
-    hem0 1 22
-    legsDownA 4 21
-    body 2 12
-    head 5 6
-    crown 4 3
-    poleSwing 10 4
-    armHold 8 15
+    legsDownB 2 17
+    body 0 8
+    hem1 0 22
+    head 4 1
+    circlet 3 3
+    poleSwing 10 2
+    armHold 7 10
 
 frame 5
-    hem1 2 22
-    legsPassB 4 21
-    body 2 11
-    head 5 5
-    crown 4 2
-    pole 10 3
-    armHold 8 14
+    legsPassB 2 16
+    body 0 7
+    hem2 0 21
+    head 4 0
+    circlet 3 2
+    pole 10 1
+    armHold 7 9
 
 frame 6
-    hem0 1 21
-    legsStand 5 21
-    body 2 11
-    head 5 5
-    crown 4 2
-    pole 10 3
-    armHold 8 14
+    legsStand 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    pole 10 1
+    armHold 7 9
 
 frame 7
-    hem0 1 22
-    legsStand 5 21
-    body 2 12
-    head 5 6
-    crown 4 3
-    poleSwing 10 4
-    armHold 8 15
+    legsStand 2 16
+    body 0 8
+    hem0 0 22
+    head 4 1
+    circlet 3 3
+    poleSwing 10 2
+    armHold 7 10
 
 frame 8
-    hem0 1 21
-    legsStand 5 21
-    body 2 11
-    head 5 5
-    crown 4 2
-    poleHigh 10 1
-    armRaise 8 10
+    legsStand 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    poleHigh 10 0
+    armRaise 7 6
 
 frame 9
-    hem1 1 21
-    legsStand 5 21
-    body 2 11
-    head 5 5
-    crown 4 2
-    poleHigh 10 0
-    armRaise 8 9
+    legsStand 2 16
+    body 0 7
+    hem2 0 21
+    head 4 0
+    circlet 3 2
+    poleHigh 10 -1
+    armRaise 7 5

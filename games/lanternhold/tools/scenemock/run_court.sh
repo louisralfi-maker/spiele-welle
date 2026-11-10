@@ -2,8 +2,9 @@
 # Renders the M3 court art lane's context scenes (scene_court.py) into build/recraft/lh/preview/court-<name>.png
 # (437x201, upscaled x3) and a device-scale crop of the court in each (court-<name>-x6.png: 6 device px per game px,
 # as the iPhone 17 Pro shows the game), one render at a time with the heat rule (wait below 70 °C when the CPU reached
-# 80 °C) and a pause between renders. The seated king is a proposal of this lane: built first from
-# tools/grids/court/proposals/ into build/recraft/lh/court/proposals/ (never into Resources/Art).
+# 80 °C) and a pause between renders. Proposals of this lane, if any lie in tools/grids/court/proposals/, are built
+# first into build/recraft/lh/court/proposals/ (never into Resources/Art); the seated lord was one until the art pass
+# painted kingSeated into Resources/Art (tools/grids/actors/kingSeated.txt, ART-look2.md section 15).
 # Usage: run_court.sh [name ...]
 set -euo pipefail
 cd "$(dirname "$0")/../../../.."
@@ -19,7 +20,7 @@ cool() {
         echo "CPU $t °C, waiting"; while t=$("$SMC" | sed -n 's/.*TCXC=\([0-9]*\).*/\1/p'); [ "$t" -ge 70 ]; do sleep 10; done
     fi
 }
-for p in $G/tools/grids/court/proposals/*.txt; do python3 -I $G/tools/actorart.py build "$p" --out $PROP; done
+for p in $G/tools/grids/court/proposals/*.txt; do [ -e "$p" ] || continue; python3 -I $G/tools/actorart.py build "$p" --out $PROP; done
 # the device-scale crop per scene: the box (game px of the 437x201 frame) around the court
 crop() {
     case $1 in
