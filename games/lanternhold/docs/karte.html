@@ -1,0 +1,410 @@
+<title>Karte der Morgenlande</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap">
+<style>
+/* Layout: a dark writing desk; on it one parchment sheet that scrolls sideways, a parchment note that sticks to the lower edge, and the index of places below. */
+:root{
+  color-scheme:dark;
+  --desk:#1d1712; --desk2:#2a2119; --bone:#e4d6b4; --bone-dim:#b3a27f;
+  --parch:#e3d0a0; --parch-deep:#c9ae76; --ink:#38281a; --ink-soft:#6a5236;
+  --teal:#1f5c5e; --gold:#d19a2c; --gold-hi:#f4c85a; --rubric:#8c3423;
+  --serif:"IM Fell English","Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --caps:"IM Fell English SC","IM Fell English","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+}
+*{box-sizing:border-box}
+body{background:var(--desk);color:var(--bone);font-family:var(--serif);font-size:17px;line-height:1.5;margin:0}
+.wrap{max-width:1280px;margin:0 auto;padding-block:22px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-direction:column;gap:4px}
+h1{font-family:var(--caps);font-weight:400;font-size:clamp(28px,6vw,44px);line-height:1.1;margin:0;letter-spacing:.03em;color:var(--bone);text-wrap:balance}
+.sub{margin:0;font-style:italic;color:var(--bone-dim);max-width:62ch}
+.hint{margin:0;color:var(--bone-dim);font-size:15px}
+.scroller{overflow-x:auto;overflow-y:hidden;border-radius:3px;background:var(--desk2);box-shadow:0 10px 30px rgba(0,0,0,.55),0 0 0 1px #000;-webkit-overflow-scrolling:touch}
+.scroller:focus-visible{outline:3px solid var(--gold-hi);outline-offset:3px}
+.sheet{position:relative;width:max(100%,1200px);aspect-ratio:1600/1100;background:var(--parch)}
+.sheet svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hit{position:absolute;transform:translate(-50%,-50%);width:max(44px,calc(var(--w)*1%));height:max(44px,calc(var(--h)*1%));padding:0;border:0;border-radius:999px;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hit:focus-visible{outline:3px solid var(--gold-hi);outline-offset:1px;box-shadow:0 0 0 7px rgba(20,16,26,.55)}
+.hit:hover{box-shadow:inset 0 0 0 2px rgba(209,154,44,.55)}
+.card{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:5;align-self:center;width:min(100%,680px);
+  background:linear-gradient(160deg,#ecdcb1,#dcc690 60%,#cdb47c);color:var(--ink);padding:14px 18px 16px;border:1px solid #5d4526;outline:1px solid #5d4526;outline-offset:-5px;border-radius:2px;box-shadow:0 8px 26px rgba(0,0,0,.6)}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;margin-top:-6px}
+.kind{margin:0;font-family:var(--caps);letter-spacing:.08em;font-size:14px;color:var(--rubric)}
+.card h2{font-family:var(--caps);font-weight:400;font-size:26px;line-height:1.15;margin:0 0 6px;text-wrap:balance}
+.card p.txt{margin:0;font-size:17px;line-height:1.45;max-width:64ch}
+.btn-close{font:inherit;font-size:15px;font-style:italic;color:var(--ink);background:transparent;border:1px solid var(--ink-soft);border-radius:2px;min-height:40px;padding:4px 12px;cursor:pointer}
+.btn-close:hover{background:rgba(56,40,26,.1)}
+.btn-close:focus-visible,.ort:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.orte{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px 28px}
+.orte section{min-width:0;display:flex;flex-direction:column;gap:2px}
+.orte h3{font-family:var(--caps);font-weight:400;font-size:15px;letter-spacing:.12em;color:var(--gold);margin:0 0 4px;padding-bottom:6px;border-bottom:1px solid #4a3b2b}
+.ort{font:inherit;text-align:left;color:var(--bone);background:transparent;border:0;border-radius:2px;min-height:44px;padding:6px 8px;cursor:pointer;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.ort small{font-size:14px;font-style:italic;color:var(--bone-dim)}
+.ort:hover{background:#2c231a}
+.ort[aria-pressed="true"]{background:#33281c;color:var(--gold-hi);box-shadow:inset 3px 0 0 var(--gold)}
+.ort:focus-visible{outline-color:var(--gold-hi)}
+footer{color:var(--bone-dim);font-size:14px;font-style:italic;border-top:1px solid #4a3b2b;padding-top:12px}
+svg text{font-family:var(--serif)}
+.sc{font-family:var(--caps)}
+#hl .ring{fill:none;stroke:var(--gold-hi);stroke-width:3.5}
+#hl .glow{fill:rgba(244,200,90,.16);stroke:#fff3c8;stroke-width:1.2}
+#hl .pulse{fill:none;stroke:var(--gold-hi);stroke-width:3;transform-box:fill-box;transform-origin:center;animation:pulse 2.4s ease-out infinite}
+@keyframes pulse{from{transform:scale(1);opacity:.85}to{transform:scale(1.7);opacity:0}}
+@media (prefers-reduced-motion:reduce){#hl .pulse{animation:none;opacity:0}}
+</style>
+<div class="wrap">
+  <header>
+    <h1>Karte der Morgenlande</h1>
+    <p class="sub">samt der Weltmauer, dem Spalt und dem Rand des Schattenlands, gezeichnet zu Lanternhold im tausendsten Jahr nach dem Entzünden.</p>
+    <p class="hint">Tippe einen Ort an, um seine Geschichte zu lesen. Die Karte lässt sich seitwärts schieben.</p>
+  </header>
+  <div class="scroller" id="scroller" tabindex="0" role="region" aria-label="Die Karte, seitwärts verschiebbar">
+    <div class="sheet" id="sheet">
+      <svg id="map" viewBox="0 0 1600 1100" role="img" aria-label="Alte Karte: im Westen das Schattenland, davor die Weltmauer mit dem Spalt und der Burg Lanternhold, östlich das Tal Wenddale und die Morgenlande bis zum Östlichen Meer."></svg>
+    </div>
+  </div>
+  <section class="card" id="card" aria-live="polite">
+    <div class="card-head"><p class="kind" id="ckind"></p><button class="btn-close" id="cclose" type="button">Schließen</button></div>
+    <h2 id="cname"></h2>
+    <p class="txt" id="ctext"></p>
+  </section>
+  <nav class="orte" id="orte" aria-label="Alle Orte der Karte"></nav>
+  <footer>Lanternhold. Was westlich der Mauer liegt, steht hier nur so weit, wie die Hauschronik es kennt.</footer>
+</div>
+<script>
+(function(){
+/* ---------- helpers: seeded random, rough lines, shapes ---------- */
+const W=1600,H=1100;
+let seed=20261110;
+const R=()=>(seed=seed*16807%2147483647)/2147483647;
+const rr=(a,b)=>a+(b-a)*R();
+const f=n=>Math.round(n*10)/10;
+const S=[];const add=s=>S.push(s);
+const INK='#38281a',SOFT='#6a5236',PAR='#e3d0a0',BONE='#e0d3b3';
+function rough(p,it,amp){for(let k=0;k<it;k++){const q=[];for(let i=0;i<p.length-1;i++){const a=p[i],b=p[i+1],o=rr(-1,1)*amp;q.push(a,[(a[0]+b[0])/2-(b[1]-a[1])*o,(a[1]+b[1])/2+(b[0]-a[0])*o]);}q.push(p[p.length-1]);p=q;}return p}
+const pth=(p,z)=>'M'+p.map(a=>f(a[0])+' '+f(a[1])).join('L')+(z?'Z':'');
+function inside(x,y,p){let c=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const a=p[i],b=p[j];if((a[1]>y)!=(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])c=!c}return c}
+function blob(cx,cy,rx,ry,n,j){const p=[];for(let i=0;i<n;i++){const t=i/n*6.2832,k=1+rr(-j,j);p.push([cx+Math.cos(t)*rx*k,cy+Math.sin(t)*ry*k])}p.push(p[0]);return rough(p,2,.13)}
+const lerp=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
+const el=(cx,cy,rx,ry,fill,op)=>`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}" opacity="${op}"/>`;
+
+/* ---------- the continent ---------- */
+const land=rough([[-30,150],[200,140],[435,152],[600,160],[800,150],[950,165],[1040,215],[1110,275],[1230,295],[1360,350],[1440,440],[1475,540],[1425,630],[1480,720],[1445,790],[1380,860],[1300,905],[1150,925],[1095,912],[1000,935],[850,945],[700,950],[560,955],[430,960],[250,965],[-30,955]],4,.11);
+const landD=pth(land,1);
+const isles=[blob(1538,392,24,15,7,.3),blob(1562,468,13,9,6,.3),blob(1392,236,15,9,6,.3)];
+const onLand=(x,y)=>inside(x,y,land);
+const southCoast=x=>{let b=land[0],d=1e9;for(const p of land){if(p[1]>800&&Math.abs(p[0]-x)<d){d=Math.abs(p[0]-x);b=p}}return b};
+
+add(`<defs>
+<filter id="pp" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+<feTurbulence type="fractalNoise" baseFrequency=".007 .01" numOctaves="5" seed="11"/>
+<feColorMatrix values="0 0 0 0 .40 0 0 0 0 .27 0 0 0 0 .10 .95 0 0 0 -.37" result="a"/>
+<feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="2" seed="3"/>
+<feColorMatrix values="0 0 0 0 .25 0 0 0 0 .17 0 0 0 0 .08 .9 0 0 0 -.33" result="b"/>
+<feMerge><feMergeNode in="a"/><feMergeNode in="b"/></feMerge></filter>
+<filter id="bl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="16"/></filter>
+<filter id="bl2" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="24"/></filter>
+<linearGradient id="dk" x1="0" x2="1"><stop offset="0" stop-color="#0c0911" stop-opacity=".98"/><stop offset=".22" stop-color="#14101c" stop-opacity=".94"/><stop offset=".55" stop-color="#1b1625" stop-opacity=".85"/><stop offset=".76" stop-color="#221c2b" stop-opacity=".62"/><stop offset=".9" stop-color="#221c2b" stop-opacity=".28"/><stop offset="1" stop-color="#221c2b" stop-opacity="0"/></linearGradient>
+<radialGradient id="vg" cx=".56" cy=".5" r=".78"><stop offset=".55" stop-color="#5a3c17" stop-opacity="0"/><stop offset="1" stop-color="#3a240b" stop-opacity=".55"/></radialGradient>
+<radialGradient id="lg"><stop offset="0" stop-color="#fff0b8" stop-opacity=".95"/><stop offset=".35" stop-color="#f4c85a" stop-opacity=".5"/><stop offset="1" stop-color="#f4c85a" stop-opacity="0"/></radialGradient>
+<clipPath id="cl"><path d="${landD}"/></clipPath>
+</defs>`);
+
+/* parchment, sea, coast */
+add(`<rect width="${W}" height="${H}" fill="${PAR}"/><rect width="${W}" height="${H}" fill="#93a99c" opacity=".5"/>`);
+add(`<g fill="none" stroke="#3f6a69" stroke-linejoin="round">`);
+[[30,.09],[19,.12],[9,.2]].forEach(a=>{add(`<path d="${landD}" stroke-width="${a[0]}" opacity="${a[1]}"/>`);isles.forEach(p=>add(`<path d="${pth(p,1)}" stroke-width="${a[0]*.6}" opacity="${a[1]}"/>`))});
+add(`</g>`);
+
+/* reserved sea corners: cartouche, legend strip, compass */
+const freeSea=(x,y)=>!(x>1050&&y<245)&&!(y>962&&x>590&&x<1395)&&Math.hypot(x-1462,y-990)>124&&!(y<150&&x<1060)&&x>470&&x<1585&&y>20&&y<1085;
+add(`<g fill="none" stroke="#45696a" stroke-width="1.1" stroke-linecap="round" opacity=".6">`);
+for(let i=0;i<420;i++){const x=rr(470,1590),y=rr(20,1085);if(!freeSea(x,y)||onLand(x,y)||onLand(x-14,y)||onLand(x+26,y)||onLand(x+6,y-16)||onLand(x+6,y+16))continue;const s=rr(4,6);add(`<path d="M${f(x)} ${f(y)}q${f(s)} ${f(-s)} ${f(2*s)} 0t${f(2*s)} 0"/>`)}
+add(`</g>`);
+
+/* the ice in the north */
+add(`<g fill="#f2eee0" stroke="#7c8a8a" stroke-width="1" stroke-linejoin="round">`);
+for(let i=0;i<64;i++){const x=rr(476,1045),y=rr(24,138);if(onLand(x,y+16)||onLand(x+20,y+10)||onLand(x-20,y+10))continue;add(`<path d="${pth(blob(x,y,rr(9,26),rr(5,12),6,.4),1)}" opacity="${f(rr(.75,1))}"/>`)}
+add(`</g>`);
+
+/* land */
+add(`<path d="${landD}" fill="#e6d4a6"/>`);
+isles.forEach(p=>add(`<path d="${pth(p,1)}" fill="#e6d4a6" stroke="${INK}" stroke-width="1.3"/>`));
+
+/* watercolour washes on the land */
+add(`<g clip-path="url(#cl)"><g filter="url(#bl)">`+
+ el(1150,560,310,270,'#a7b468',.2)+el(705,565,120,80,'#6f9440',.55)+el(800,600,90,60,'#7f9a48',.35)+
+ el(965,575,95,75,'#5f8440',.4)+el(1240,712,150,92,'#d9a733',.45)+el(700,290,120,95,'#9a8a58',.35)+
+ el(1085,395,140,85,'#7ea7a0',.28)+el(640,930,90,30,'#8fb0aa',.3)+el(900,300,120,80,'#b0b070',.2)+
+ `</g></g>`);
+add(`<rect width="${W}" height="${H}" filter="url(#pp)"/>`);
+add(`<path d="${landD}" fill="none" stroke="${INK}" stroke-width="1.7" stroke-linejoin="round"/>`);
+
+/* lakes and rivers */
+const wend=rough([[735,395],[772,462],[750,535],[700,590],[712,640],[790,668],[900,676],[1010,706],[1065,800],[1095,930]],3,.09);
+const lakeRiver=rough([[1165,402],[1250,420],[1330,410],[1400,440],[1490,448]],3,.1);
+const brook=rough([[640,250],[655,205],[690,150]],2,.12);
+add(`<g clip-path="url(#cl)" fill="none" stroke-linecap="round" stroke-linejoin="round">`);
+[wend,lakeRiver,brook].forEach((p,i)=>{const d=pth(p);add(`<path d="${d}" stroke="#3f6166" stroke-width="${i?3:4.2}"/><path d="${d}" stroke="#c4d6c8" stroke-width="${i?1.1:1.8}"/>`)});
+add(`</g>`);
+[[1085,395,86,42,11],[985,318,30,15,7],[1035,452,25,12,7],[1205,462,20,10,6]].forEach(l=>{const p=blob(l[0],l[1],l[2],l[3],l[4],.2);
+ add(`<path d="${pth(p,1)}" fill="#a7bdb0" stroke="${INK}" stroke-width="1.4"/>`);
+ for(let k=1;k<3;k++)add(`<path d="${pth(p.map(q=>[l[0]+(q[0]-l[0])*(1-k*.22),l[1]+(q[1]-l[1])*(1-k*.22)]),1)}" fill="none" stroke="#3f6166" stroke-width=".8" opacity="${.6-k*.15}"/>`)});
+
+/* ---------- the Morninglands: roads, hills, woods, fields ---------- */
+const SG=southCoast(640);                       /* Saltgate sits on the south coast */
+const roads=[[[590,548],[640,588],[700,592],[770,574],[860,560],[965,580]],[[965,580],[1050,640],[1150,690],[1240,705]],
+ [[770,574],[800,480],[790,400],[700,305]],[[700,305],[830,330],[940,347],[1000,350],[1085,341],[1150,340]],
+ [[680,596],[684,650],[668,760],[645,850],[SG[0],SG[1]-16]],[[1240,705],[1330,640],[1400,560]]].map(r=>rough(r,3,.06));
+add(`<g fill="none" stroke="#7a4a28" stroke-width="1.5" stroke-dasharray="5 4" stroke-linecap="round" opacity=".85">`+roads.map(r=>`<path d="${pth(r)}"/>`).join('')+`</g>`);
+const lines=[].concat(wend,lakeRiver,brook,...roads);
+const near=(x,y,d)=>lines.some(p=>Math.hypot(p[0]-x,p[1]-y)<d);
+const LK=[[1085,395,100,54],[985,318,40,22],[1035,452,34,19],[1205,462,29,17]];
+const KO=[[598,500,775,550],[568,594,690,622],[772,598,934,633],[795,484,905,536],[672,258,835,314],[940,540,1100,594],[1128,312,1280,354],[1030,462,1400,524],[1165,664,1315,754],[SG[0]-50,SG[1]-52,SG[0]+125,SG[1]],[905,648,990,674],[704,592,800,614],[585,625,660,668],[612,452,705,500]];
+const VIL=[[870,240,0],[930,425,0],[1300,385,0],[1330,592,0],[1130,612,0],[900,800,0],[1250,842,0],[790,868,0],[1400,700,1],[830,742,1],[1000,238,1],[1180,790,0]];
+VIL.forEach(v=>KO.push([v[0]-15,v[1]-16,v[0]+15,v[1]+7]));
+const okL=(x,y)=>x>594&&onLand(x,y)&&onLand(x,y+12)&&onLand(x,y-12)&&onLand(x+12,y)&&!KO.some(k=>x>k[0]&&x<k[2]&&y>k[1]&&y<k[3])&&!LK.some(l=>((x-l[0])/l[2])**2+((y-l[1])/l[3])**2<1)&&!near(x,y,11);
+function scatter(n,gen,ok,minD){const pts=[];for(let i=0;i<n*8&&pts.length<n;i++){const p=gen();if(!ok(p[0],p[1]))continue;if(pts.some(q=>Math.hypot(q[0]-p[0],(q[1]-p[1])*1.5)<minD))continue;pts.push(p)}return pts.sort((a,b)=>a[1]-b[1])}
+const inEl=(cx,cy,rx,ry)=>()=>{const t=rr(0,6.2832),k=Math.sqrt(R());return[cx+Math.cos(t)*rx*k,cy+Math.sin(t)*ry*k]};
+const hill=(x,y,w)=>{const h=w*rr(.8,1.1);let s=`<path d="M${f(x-w)} ${f(y)}Q${f(x-w*.2)} ${f(y-h*1.5)} ${f(x+w)} ${f(y)}" fill="#e0cd9a" stroke="${INK}" stroke-width="1.2"/>`;
+ [.16,.28,.4].forEach(t=>{const bx=(1-t)*(1-t)*(x-w)+2*t*(1-t)*(x-w*.2)+t*t*(x+w),by=y-2*t*(1-t)*h*1.5;s+=`<path d="M${f(bx+1)} ${f(by+2)}l${f(-2-t*4)} ${f(4+t*8)}" stroke="${INK}" stroke-width=".8" opacity=".7"/>`});return s};
+const tree=(x,y,s,c)=>`<path d="M${f(x)} ${f(y)}v${f(-s*.6)}" stroke="${INK}" stroke-width="1"/><circle cx="${f(x)}" cy="${f(y-s)}" r="${f(s*.62)}" fill="${c||'#8b9c52'}" stroke="${INK}" stroke-width=".9"/>`;
+const G=[];   /* everything on the land, painted north to south */
+scatter(30,inEl(700,292,120,104),okL,25).forEach(p=>G.push([p[1],hill(p[0],p[1],rr(13,21))]));
+scatter(34,()=>[rr(596,622),rr(175,940)],(x,y)=>okL(x,y)&&(y<490||y>640),20).forEach(p=>G.push([p[1],hill(p[0],p[1],rr(10,16))]));
+scatter(13,inEl(965,578,92,66),okL,30).forEach(p=>G.push([p[1],hill(p[0],p[1],rr(14,20))]));
+scatter(70,inEl(968,578,118,90),okL,13).forEach(p=>G.push([p[1]+1,tree(p[0],p[1],rr(5.5,7.5),R()<.3?'#6f8a45':'#8b9c52')]));
+scatter(14,()=>[rr(1100,1420),rr(300,470)],okL,34).forEach(p=>G.push([p[1],hill(p[0],p[1],rr(11,17))]));
+scatter(95,()=>[rr(610,1470),rr(165,945)],okL,30).forEach(p=>G.push([p[1],tree(p[0],p[1],rr(4.5,6.5))]));
+/* orchards of Wenddale, in rows */
+[[592,632,5,3],[622,460,6,3]].forEach(o=>{for(let j=0;j<o[3];j++)for(let i=0;i<o[2];i++){const x=o[0]+i*14,y=o[1]+j*14;G.push([y,`<path d="M${x} ${y}v-4" stroke="${INK}" stroke-width=".8"/><circle cx="${x}" cy="${y-6}" r="3.6" fill="#7d9a3c" stroke="${INK}" stroke-width=".8"/><circle cx="${x+1.4}" cy="${y-6.6}" r=".9" fill="#b03a26"/>`])}});
+/* poplars along the Wend */
+wend.forEach((p,i)=>{if(i%3==1&&p[1]>430&&p[0]<830)G.push([p[1],`<ellipse cx="${f(p[0]+9)}" cy="${f(p[1]-9)}" rx="2.7" ry="8.5" fill="#6f8a45" stroke="${INK}" stroke-width=".8"/>`])});
+/* the grain fields of Goldenacre */
+scatter(46,inEl(1240,712,158,94),(x,y)=>onLand(x+16,y)&&onLand(x,y+14)&&!(x>1168&&x<1312&&y>670&&y<750)&&!near(x,y,12),27).forEach(p=>{const a=rr(-14,14);
+ G.push([p[1]-20,`<g transform="translate(${f(p[0])} ${f(p[1])}) rotate(${f(a)})"><path d="M-12-6h24v12h-24z" fill="#e3b440" fill-opacity=".6" stroke="${INK}" stroke-width=".8"/><path d="M-12-2h24M-12 2h24" stroke="${INK}" stroke-width=".5" opacity=".6"/></g>`])});
+/* grass, small towns and castles without names */
+scatter(120,()=>[rr(610,1470),rr(165,945)],okL,24).forEach(p=>G.push([p[1]-30,`<path d="M${f(p[0])} ${f(p[1])}l-2.2-5m2.2 5v-6m0 6l2.2-5" stroke="${SOFT}" stroke-width=".8" fill="none" opacity=".65"/>`]));
+VIL.forEach(v=>G.push([v[1],`<g transform="translate(${v[0]} ${v[1]})" fill="#ead9ad" stroke="${INK}" stroke-width="1" stroke-linejoin="round">`+(v[2]?`<path d="M-7 0v-8h2.5v2h2.5v-5h4v5h2.5v-2h2.5v8z"/><path d="M0-11v-5l4 1.5-4 1.5" fill="#8c3423" stroke-width=".7"/>`:`<path d="M-8 0v-4.5l3.5-3.5 3.5 3.5v4.5zM0 0v-6.5l4-4 4 4v6.5z"/>`)+`</g>`]));
+G.sort((a,b)=>a[0]-b[0]).forEach(g=>add(g[1]));
+
+/* ---------- the shadow land: only what the chronicle knows ---------- */
+const road=rough([[440,540],[385,543],[330,530],[270,538],[210,555],[150,548],[90,560],[30,556],[-12,560]],3,.05);
+const roadY=x=>{for(let i=0;i<road.length-1;i++){const a=road[i],b=road[i+1];if(x<=a[0]&&x>=b[0])return a[1]+(b[1]-a[1])*(a[0]-x)/(a[0]-b[0]||1)}return 550};
+const dim=x=>Math.max(0,Math.min(1,x/430));
+add(`<rect x="-2" y="0" width="526" height="${H}" fill="url(#dk)"/><g filter="url(#bl2)" fill="#07050b">`);
+for(let i=0;i<20;i++)add(`<circle cx="${f(rr(-30,70))}" cy="${f(rr(0,H))}" r="${f(rr(40,95))}" opacity=".55"/>`);
+add(`</g>`);
+const KS=[[40,262,410,348],[14,392,262,496],[206,490,426,520],[286,566,432,602],[150,566,292,592],[12,205,160,262],[90,676,262,716]];
+const moor=(x,y)=>((x-175)/150)**2+((y-700)/95)**2<1;
+const okS=(x,y)=>onLand(x,y+8)&&onLand(x,y-14)&&Math.abs(y-roadY(x))>21&&!moor(x,y)&&!KS.some(k=>x>k[0]&&x<k[2]&&y>k[1]&&y<k[3])&&R()<.25+dim(x)*.9;
+scatter(420,()=>[rr(50,436),rr(165,952)],okS,14).forEach(p=>{const s=rr(4.6,7),x=p[0],y=p[1];
+ add(`<path d="M${f(x)} ${f(y-s*2.4)}L${f(x-s*.6)} ${f(y-s*.5)}L${f(x-s*.2)} ${f(y-s*.6)}L${f(x-s*.8)} ${f(y+s*.4)}L${f(x+s*.8)} ${f(y+s*.4)}L${f(x+s*.2)} ${f(y-s*.6)}L${f(x+s*.6)} ${f(y-s*.5)}Z" fill="#2a2434" stroke="#8d829a" stroke-width=".8" stroke-linejoin="round" opacity="${f(.22+dim(x)*.75)}"/>`)});
+/* the edge of the dead moor */
+scatter(85,inEl(175,700,150,95),(x,y)=>onLand(x,y)&&!(x>90&&x<262&&y>676&&y<716)&&Math.abs(y-roadY(x))>14,15).forEach(p=>{const x=p[0],y=p[1],o=f(.25+dim(x)*.9),w=rr(8,17);
+ add(`<path d="M${f(x)} ${f(y)}h${f(w)}`+(R()<.45?`M${f(x+w/2)} ${f(y)}l-2-6m2 6v-7m0 7l2-6`:'')+`" fill="none" stroke="#a79db3" stroke-width="1" opacity="${o}"/>`)});
+/* fog that does not lift */
+add(`<g filter="url(#bl2)" fill="#b8aecb">`);
+for(let i=0;i<18;i++)add(el(f(rr(30,430)),f(rr(170,945)),f(rr(50,115)),f(rr(9,22)),'#b8aecb',f(rr(.1,.24))));
+add(el(408,540,46,15,'#c9c0d8',.34)+`</g>`);
+/* the road with two ruts, and the statues that face the Cleft */
+for(let i=0;i<road.length-1;i++){const a=road[i],b=road[i+1],o=f(.22+dim(a[0])*.7);[-2.3,2.3].forEach(d=>add(`<path d="M${f(a[0])} ${f(a[1]+d)}L${f(b[0])} ${f(b[1]+d)}" stroke="#d6c9aa" stroke-width="1.1" opacity="${o}"/>`))}
+[392,352,312,272,232,192,152,112,72].forEach((x,i)=>{const y=roadY(x)-7;
+ add(`<g transform="translate(${x} ${f(y)})" opacity="${f(.3+dim(x)*.75)}" fill="#b9afa1" stroke="#f0e7d3" stroke-width=".7" stroke-linejoin="round"><path d="M-5 0h10v3h-10z"/>`+(i==6?'':`<path d="M-3.6 0L-2.4-11Q-2.6-16.5 .4-16.5Q3-16.3 2.6-11.5L3.8 0Z"/><path d="M2.4-10.4l4-.5" fill="none" stroke-width="1.1"/><path d="M5.6-10.8h3v4.4h-3z" fill="#857c70"/>`)+`</g>`)});
+
+/* ---------- die Weltmauer: one unbroken wall, one cleft ---------- */
+const CY=540;
+const peak=(x,y,w,h)=>{const t=[x+rr(-.18,.18)*w,y-h],l=[x-w,y],r=[x+w,y];
+ const L=rough([l,[x-w*.5,y-h*.45],t],2,.09),Rt=rough([t,[x+w*.52,y-h*.42],r],2,.09),rid=rough([t,[t[0]-w*.12,y-h*.55],[t[0]+rr(-.25,.1)*w,y]],2,.14);
+ const a=lerp(t,l,.2),b=lerp(t,r,.2),m=k=>f(a[0]+(b[0]-a[0])*k);
+ return `<path d="${pth(L.concat(Rt.slice(1)),1)}" fill="#dac89b" stroke="${INK}" stroke-width="1.3" stroke-linejoin="round"/><path d="${pth(L.concat(rid.slice(1)),1)}" fill="#33261f" opacity=".5"/><path d="${pth(rid)}M${f(t[0]+w*.17)} ${f(y-h*.55)}l${f(w*.15)} ${f(h*.2)}M${f(t[0]+w*.32)} ${f(y-h*.33)}l${f(w*.13)} ${f(h*.17)}" fill="none" stroke="${INK}" stroke-width=".7" opacity=".6"/>`+
+ `<path d="M${f(a[0])} ${f(a[1])}L${f(t[0])} ${f(t[1])}L${f(b[0])} ${f(b[1])}L${m(.74)} ${f(b[1]-h*.07)}L${m(.52)} ${f(b[1]+h*.05)}L${m(.3)} ${f(a[1]-h*.06)}Z" fill="#f7f2e4" stroke="${INK}" stroke-width=".6" stroke-linejoin="round"/>`};
+const pk=[];
+for(let y=196;y<=940;y+=31)[455,497,539].forEach((cx,i)=>pk.push([cx+rr(-9,9),y+rr(-5,5)+(i==1?15:0),rr(38,52),rr(74,104)]));
+pk.sort((a,b)=>a[1]-b[1]);
+add(`<defs><clipPath id="sc"><rect x="380" y="${CY+9}" width="260" height="600"/></clipPath></defs>`);
+add(pk.filter(p=>p[1]<CY-8).map(p=>peak(p[0],p[1],p[2],p[3])).join(''));
+add(`<g clip-path="url(#sc)">`+pk.filter(p=>p[1]>CY+12).map(p=>peak(p[0],p[1],p[2],p[3])).join('')+`</g>`);
+/* the Cleft: split from summit to root, a bowshot wide */
+const rimN=rough([[412,CY-8],[470,CY-9],[530,CY-8],[592,CY-7]],3,.035),rimS=rough([[592,CY+8],[530,CY+9],[470,CY+9],[412,CY+8]],3,.035);
+add(`<path d="${pth(rimN.concat(rimS),1)}" fill="#201b27" stroke="${INK}" stroke-width="1.3" stroke-linejoin="round"/>`);
+add(`<g stroke="${INK}" stroke-width="1" opacity=".85">`);
+for(let x=416;x<590;x+=3.6)add(`<path d="M${f(x)} ${f(CY+9+rr(-1,1))}l${f(rr(-1.2,1.2))} ${f(rr(7,17))}"/>`);
+add(`</g><path d="M414 ${CY-1.7}H590M414 ${CY+1.7}H590" stroke="#a79b86" stroke-width=".8" stroke-dasharray="7 3" opacity=".8"/>`);
+[468,505,542].forEach(x=>add(`<path d="M${x} ${CY-5}v10" stroke="#e9dcb8" stroke-width="1.6"/>`));   /* the three lines in the Throat */
+/* sea cliffs where the wall ends */
+add(`<g stroke="${INK}" stroke-width="1" opacity=".8">`);
+for(let x=420;x<588;x+=4.2){const c=southCoast(x);add(`<path d="M${f(x)} ${f(c[1]+1)}v${f(rr(7,16))}"/>`)}
+add(`</g>`);
+
+/* ---------- lettering ---------- */
+const T=(x,y,s,txt,o)=>{o=o||{};return `<text x="${x}" y="${y}" font-size="${s}" text-anchor="${o.a||'middle'}" fill="${o.c||INK}"${o.sc?' class="sc"':''}${o.i?' font-style="italic"':''}${o.ls?` letter-spacing="${o.ls}"`:''}${o.r?` transform="rotate(${o.r} ${x} ${y})"`:''}${o.op?` opacity="${o.op}"`:''}${o.h===0?'':` stroke="${o.hc||'#e6d4a6'}" stroke-width="${o.h||4}" stroke-opacity=".82" paint-order="stroke" stroke-linejoin="round"`}>${txt}</text>`};
+const DK={c:BONE,hc:'#15111c'};
+const pale=(o)=>Object.assign({},DK,o);
+
+/* ---------- arms ---------- */
+const CH={
+ varn:`<g fill="#bdbbb0" stroke="#45443f" stroke-width=".5"><ellipse cx="0" cy="5" rx="6" ry="2.6"/><ellipse cx="0" cy="1" rx="4.4" ry="2.3"/><ellipse cx="0" cy="-2.8" rx="2.8" ry="1.9"/></g>`,
+ brine:`<path d="M-7 0q3.5-7 7 0t7 0" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path d="M-6 5q3-4 6 0t6 0" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".75"/>`,
+ oxmoor:`<path d="M0 8V-1M0 1l-4.5-8M0 1l4.5-8M0 1l-2.2-9M0 1l2.2-9M0 1v-9.5M-3.2 2.4h6.4" fill="none" stroke="#f3c64e" stroke-width="1.3" stroke-linecap="round"/>`,
+ calder:[-5.5,0,5.5].map(y=>`<path transform="translate(-.5 ${y})" d="M-5 0q4-3 8 0q-4 3-8 0zM3 0l3-2.2v4.4z" fill="#dfe4e8"/>`).join(''),
+ lorn:`<path d="M-5.5 4.5h11q-2.2-2-2.2-6.5a3.3 3.3 0 0 0-6.6 0q0 4.5-2.2 6.5z" fill="#c2c0b6" stroke="#45443f" stroke-width=".5"/><circle cx="0" cy="6.2" r="1.3" fill="#c2c0b6"/><path d="M0-5v-2.4" stroke="#c2c0b6" stroke-width="1.3"/>`,
+ lantern:`<path d="M-2.2-6.5q2.2-4.6 4.4 0" fill="none" stroke="#e8b23a" stroke-width="1.1"/><path d="M-4-6.5h8l1 2.2v8.3l-1.2 2h-7.6l-1.2-2v-8.3z" fill="#e8b23a" stroke="#7a5310" stroke-width=".5"/><path d="M-2.7-3.7h5.4v7.3h-5.4z" fill="#174446"/><path d="M0 3.1q-2.4-2.3 0-5.8q2.4 3.5 0 5.8z" fill="#fff0b8"/>`};
+const BG={varn:'#3d6a38',brine:'#2e6f96',oxmoor:'#9a2a22',calder:'#1b1a1c',lorn:'#6b3159',lantern:'#1f5c5e'};
+const shield=(x,y,s,k)=>`<g transform="translate(${f(x)} ${f(y)}) scale(${s})"><path d="M-10-12h20v12q0 9-10 13q-10-4-10-13z" fill="${BG[k]}" stroke="${INK}" stroke-width="${f(1.4/s)}"/>${CH[k]}</g>`;
+
+/* ---------- places: icons and names ---------- */
+const ic=(x,y,s,body)=>`<g transform="translate(${f(x)} ${f(y)}) scale(${s})" fill="#eedfb6" stroke="${INK}" stroke-width="${f(1.2/s)}" stroke-linejoin="round">${body}</g>`;
+const TOWN=`<path d="M-13 0v-6l4-4 4 4v6zM-4 0v-10l5-5 5 5v10zM7 0v-7l4-4 4 4v7z"/><path d="M-13-6l4-4 4 4zM-4-10l5-5 5 5zM7-7l4-4 4 4z" fill="#8c3423"/>`;
+const KEEP=`<path d="M-11 0v-9h3v2h3v-8h10v8h3v-2h3v9z"/><path d="M-5-15l5-7 5 7z" fill="#8c3423"/><path d="M-2 0v-5a2 2 0 0 1 4 0v5z" fill="${INK}"/>`;
+const seat=(x,y,k,name,house,lx,ly,anchor)=>shield(x-27,y-11,.95,k)+T(lx,ly,22,name,{a:anchor,sc:1,ls:.5})+T(lx,ly+15,14,house,{a:anchor,i:1,c:SOFT});
+
+/* Lanternhold, the cork in the door */
+add(`<circle cx="590" cy="${CY-30}" r="34" fill="url(#lg)"/>`+ic(590,CY+11,1,`<path d="M-18 0V-14h4v-3h4v3h4V-26h12v12h4v-3h4v3h4V0Z"/><path d="M-7-26L0-37L7-26Z" fill="#1f5c5e"/><path d="M-3 0v-7a3 3 0 0 1 6 0v7z" fill="${INK}"/><circle cx="0" cy="-41" r="2.8" fill="#f4c85a" stroke="#8a5a12" stroke-width=".8"/>`));
+add(T(613,531,26,'Lanternhold',{a:'start',sc:1,ls:1,h:5}));
+/* Tallowford, the stumps of the bridge, the windmill */
+add(ic(640,590,.9,TOWN)+T(628,616,20,'Tallowford',{sc:1}));
+add(`<path d="M690 587v7M696 588v7M704 589v7M710 590v7" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/>`+T(716,608,15,'alte Brücke',{a:'start',i:1}));
+add(ic(822,525,1,`<path d="M-4.5 0l1.6-12h5.8L4.5 0z"/><path d="M0-12l-10-7M0-12l10-7M0-12l-10 7M0-12l10 7" stroke-width="1.5"/><circle cx="0" cy="-12" r="1.4" fill="${INK}"/>`)+T(838,523,15,'Windmühle',{a:'start',i:1}));
+add(T(852,625,27,'Wenddale',{i:1,ls:3})+T(946,667,15,'die Wend',{i:1,c:'#2f5459',r:3}));
+/* the five seats */
+add(hill(712,306,24)+ic(712,297,.9,KEEP)+seat(712,300,'varn','Highcairn','Haus Varn',732,296,'start'));
+add(ic(968,580,.8,KEEP+`<path d="M9 0v-13h5v13z"/><path d="M9-13l2.5-4 2.5 4z" fill="#6b3159"/>`)+seat(968,582,'lorn','Greybell','Haus Lorn',988,572,'start'));
+add(ic(1152,350,.9,TOWN)+`<path d="M1108 388q6 5 13 0zM1114 388v-9l5 6" fill="#eedfb6" stroke="${INK}" stroke-width="1"/>`+seat(1152,350,'calder','Stillmere','Haus Calder',1170,339,'start'));
+add(ic(1240,706,1,TOWN)+seat(1240,706,'oxmoor','Goldenacre','Haus Oxmoor',1240,729,'middle'));
+add(ic(SG[0],SG[1]-13,.85,TOWN)+ic(SG[0]-27,SG[1]-3,1,`<path d="M-3 0L-1.9-19h3.8L3 0Z"/><path d="M-2.4-7h4.8M-2.1-13h4.2" stroke-width=".9"/><circle cx="0" cy="-21.5" r="2.2" fill="#f4c85a"/><path d="M-9-22h4M5-22h4M-6-28l2.5 3M6-28l-2.5 3" stroke="#b8791a" stroke-width="1"/>`)+shield(SG[0]+28,SG[1]-27,.95,'brine')+T(SG[0]+44,SG[1]-23,22,'Saltgate',{a:'start',sc:1,ls:.5})+T(SG[0]+44,SG[1]-8,14,'Haus Brine',{a:'start',i:1,c:SOFT}));
+/* the wall, the cleft, the lands */
+add(T(505,322,26,'DIE WELTMAUER',{sc:1,ls:7,r:-90,h:6})+T(500,509,17,'Der Spalt',{i:1,h:5})+T(498,581,17,'Der Schlund',{i:1,h:5}));
+add(T(1215,484,17,'DIE',{sc:1,ls:8,op:.88})+T(1215,516,32,'MORGENLANDE',{sc:1,ls:9,op:.88}));
+add(T(760,88,26,'DAS EIS',{sc:1,ls:12,c:'#44565b',hc:'#dfe2d2'})+T(1550,610,20,'Das Östliche Meer',{i:1,ls:3,r:90,c:'#2f5459',h:0})+T(500,990,15,'die Seeklippen',{i:1,c:'#2f5459',h:0}));
+/* beyond the wall */
+add(`<g transform="translate(428 ${CY+9})" fill="#8f8799" stroke="#f0e7d3" stroke-width=".9" stroke-linejoin="round"><path d="M-5.5 0L-4-21l1.8 2.6 1.7-3.8 1.6 2.8 2.2-2.2L5.5 0Z"/><path d="M-5.2-1v-5h2.4v5z" fill="#15111c" stroke="none"/></g>`);
+add(`<g transform="translate(414 568)" fill="#6f667a" stroke="#f0e7d3" stroke-width=".8" stroke-linejoin="round"><path d="M-9 0v-4l3.2-3.2 3.2 3.2v4zM-1 0v-5l3.6-3.6 3.6 3.6v5z"/></g>`);
+add(T(410,512,18,'Das Große Leuchtfeuer',pale({a:'end',i:1}))+T(398,592,17,'Beaconfoot',pale({a:'end',sc:1}))+T(222,585,15,'die Moorstraße',pale({i:1,op:.85}))+T(176,703,20,'Das tote Moor',pale({i:1,c:'#d3c8e0',op:.9})));
+add(T(225,293,17,'DAS',pale({sc:1,ls:6,op:.85}))+T(225,331,30,'SCHATTENLAND',pale({sc:1,ls:6})));
+['Weiter reicht keine Kunde.','Reiter, die drei Tage','hineinritten, fanden','kein Ende.'].forEach((l,i)=>add(T(26,414+i*20,16,l,pale({a:'start',i:1,op:.8}))));
+add(`<g transform="translate(60 238)" opacity=".8"><path d="M-13 0a13 13 0 0 1 26 0z" fill="#a4532a"/><path d="M-24 0h48M-19-9l-5-3M19-9l5-3M-9-17l-3-5M9-17l3-5M0-20v-6" stroke="#c98a55" stroke-width="1.1" fill="none"/></g>`+T(20,262,14,'Hier sinkt die Sonne.',pale({a:'start',i:1,op:.75})));
+
+/* ---------- cartouche, arms of House Lantern, compass, scale, legend ---------- */
+const PB='#ecdcb1';
+add(`<g transform="translate(1362 108)"><path d="M-208-72h416l-9 12 9 12v96l-9 12 9 12h-416l9-12-9-12v-96l9-12z" fill="${PB}" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/><path d="M-190-62h380v124h-380z" fill="none" stroke="${INK}" stroke-width=".8"/>`+
+ [[-190,-62],[190,-62],[-190,62],[190,62]].map(c=>`<circle cx="${c[0]}" cy="${c[1]}" r="4" fill="#8c3423" stroke="${INK}" stroke-width=".8"/>`).join('')+
+ T(0,-22,36,'Die Morgenlande',{sc:1,ls:2,h:0})+`<path d="M-120-8h240" stroke="#8c3423" stroke-width="1"/><path d="M-6-8l6-5 6 5-6 5z" fill="#8c3423"/>`+
+ T(0,14,16,'samt der Weltmauer, dem Spalt',{i:1,h:0})+T(0,33,16,'und dem Rand des Schattenlands',{i:1,h:0})+
+ T(0,54,12.5,'Gezeichnet zu Lanternhold im Jahr 1000 nach dem Entzünden',{h:0,c:SOFT})+`</g>`);
+add(T(1070,50,15,'Haus Lantern',{i:1})+shield(1070,104,3.1,'lantern')+
+ `<path d="M1000 156q70 13 140 0l-7 11 7 11q-70 13-140 0l7-11z" fill="${PB}" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/>`+T(1070,178,15,'Hütet das Licht',{sc:1,ls:.6,h:0}));
+
+/* compass: sunrise in the east, sunset over the shadow land */
+(function(){const cx=1462,cy=990;let c=`<g transform="translate(${cx} ${cy})">`;
+ c+=`<circle cx="-96" r="19" fill="#c3c4a2"/><circle cx="96" r="19" fill="#c3c4a2"/><circle r="74" fill="${PB}" fill-opacity=".7" stroke="${INK}" stroke-width="1.3"/><circle r="65" fill="none" stroke="${INK}" stroke-width=".6"/>`;
+ for(let i=0;i<32;i++)c+=`<path d="M0-65V-${i%4?69:74}" transform="rotate(${i*11.25})" stroke="${INK}" stroke-width="${i%4?.7:1.2}"/>`;
+ const pt=(a,l,w,col)=>`<g transform="rotate(${a})"><path d="M0 ${-l}L${w} ${-w}L0 0Z" fill="${col}" stroke="${INK}" stroke-width=".7"/><path d="M0 ${-l}L${-w} ${-w}L0 0Z" fill="${PB}" stroke="${INK}" stroke-width=".7"/></g>`;
+ [45,135,225,315].forEach(a=>c+=pt(a,40,7,SOFT));[0,90,180,270].forEach(a=>c+=pt(a,62,9.5,a==90?'#c98f22':a==270?'#2a2233':INK));
+ c+=`<circle r="6" fill="#1f5c5e" stroke="${INK}" stroke-width=".8"/><circle r="2.2" fill="#f4c85a"/>`;
+ /* east: the rising sun */
+ c+=`<g transform="translate(96 0)"><circle r="8.5" fill="#f0bd45" stroke="#8a5a12" stroke-width=".9"/>`;
+ for(let i=0;i<12;i++)c+=`<path d="M0-11v-${i%2?4:6.5}" transform="rotate(${i*30})" stroke="#b8791a" stroke-width="1.1"/>`;
+ c+=`</g>`;
+ /* west: the sun going down into the dark */
+ c+=`<g transform="translate(-96 2)"><path d="M-9.5 0a9.5 9.5 0 0 1 19 0z" fill="#3a2e47" stroke="${INK}" stroke-width=".9"/><path d="M-17 0h34M-13 4h26M-8 8h16" stroke="${INK}" stroke-width="1"/></g>`;
+ c+=`</g>`;add(c);
+ add(T(cx,cy-80,19,'N',{sc:1,h:3,hc:'#c3c4a2'})+T(cx,cy+96,17,'S',{sc:1,h:3,hc:'#c3c4a2'})+T(cx+96,cy+31,13,'Aufgang',{i:1,h:3,hc:'#c3c4a2'})+T(cx-96,cy+33,13,'Untergang',{i:1,h:3,hc:'#c3c4a2'}));
+})();
+
+/* scale: Highcairn lies three days' ride north of the castle */
+(function(){const x=1108,y=1050,u=88;let s=`<g stroke="${INK}" stroke-width="1">`;
+ for(let i=0;i<3;i++)s+=`<rect x="${x+i*u}" y="${y}" width="${u}" height="9" fill="${i%2?PB:INK}"/>`;
+ s+=`</g>`;for(let i=0;i<4;i++)s+=T(x+i*u,y-6,14,String(i),{h:3,hc:'#c3c4a2'});
+ add(s+T(x+u*1.5,y+25,15,'Tagesritte',{i:1,h:3,hc:'#c3c4a2'}))})();
+
+/* legend */
+(function(){const x=690,y=978;let s=`<rect x="${x}" y="${y}" width="398" height="106" fill="${PB}" fill-opacity=".93" stroke="${INK}" stroke-width="1.4"/><rect x="${x+5}" y="${y+5}" width="388" height="96" fill="none" stroke="${INK}" stroke-width=".6"/>`;
+ s+=T(x+199,y+23,15,'ZEICHEN',{sc:1,ls:5,h:0,c:'#8c3423'});
+ const row=(cx,cy,g,t)=>g+T(cx+24,cy+5,15,t,{a:'start',h:0});
+ s+=row(x+26,y+44,ic(x+26,y+50,.62,KEEP),'Burg')+row(x+26,y+66,ic(x+26,y+72,.6,TOWN),'Stadt')+row(x+26,y+88,shield(x+26,y+87,.62,'lantern'),'Sitz eines Hauses');
+ s+=row(x+190,y+44,`<path d="M${x+176} ${y+45}h28" stroke="#7a4a28" stroke-width="1.6" stroke-dasharray="5 4"/>`,'Straße');
+ s+=row(x+190,y+66,`<g transform="translate(${x+190} ${y+74}) scale(.95)" fill="#b9afa1" stroke="${INK}" stroke-width=".8"><path d="M-5 0h10v3h-10z"/><path d="M-3.6 0L-2.4-11Q-2.6-16.5 .4-16.5Q3-16.3 2.6-11.5L3.8 0Z"/><path d="M5.6-10.8h3v4.4h-3z"/></g>`,'Statue mit Steinlaterne');
+ s+=row(x+190,y+88,`<g transform="translate(${x+190} ${y+95}) scale(.8)" fill="#8f8799" stroke="${INK}" stroke-width="1"><path d="M-5.5 0L-4-21l1.8 2.6 1.7-3.8 1.6 2.8 2.2-2.2L5.5 0Z"/></g>`,'Leuchtfeuer, erloschen');
+ add(s)})();
+
+/* old folds, darkened edges, the frame */
+add(`<path d="M800 0V${H}M0 552H${W}" stroke="#4a3010" stroke-width="2.2" opacity=".12"/><path d="M803 0V${H}M0 555H${W}" stroke="#fff6d8" stroke-width="1.4" opacity=".13"/>`);
+add(`<rect width="${W}" height="${H}" fill="url(#vg)"/>`);
+add(`<rect x="9" y="9" width="${W-18}" height="${H-18}" fill="none" stroke="${INK}" stroke-width="3"/><rect x="16" y="16" width="${W-32}" height="${H-32}" fill="none" stroke="${INK}" stroke-width="1"/>`);
+add(`<g id="hl" display="none"><circle class="glow" r="30"/><circle class="ring" r="30"/><circle class="pulse" r="30"/></g>`);
+document.getElementById('map').innerHTML=S.join('');
+
+/* ---------- the places and their stories (from the story bible) ---------- */
+const GR=['An der Weltmauer','Im Schattenland','Wenddale','Die Morgenlande und ihre Häuser'];
+const P=[
+{id:'lanternhold',g:0,n:'Lanternhold',k:'Burg im Spalt',x:590,y:526,r:36,hx:604,hy:526,w:70,h:60,
+ t:'Die Burg sitzt wie ein Korken im östlichen Ende des Spalts. Wer sie hält, hält die Tür zwischen zwei Welten. Seit tausend Jahren hütet Haus Lantern hier das Herdfeuer, das seit Tapers Laterne nie erloschen ist.'},
+{id:'hauslantern',g:0,n:'Haus Lantern',k:'Goldene Laterne auf Petrol',x:1070,y:110,r:56,w:100,h:140,
+ t:'Das Haus zählt seine Jahre seit dem Entzünden, als ein Lampenanzünder namens Taper seine Laterne in den Spalt stellte und nicht wich. Es hat nie eine Krone getragen: „Ein Stirnreif für die, die eine Tür hüten, eine Krone für die, die Länder beherrschen.“ Seine Worte lauten: „Hütet das Licht.“'},
+{id:'weltmauer',g:0,n:'Die Weltmauer',k:'Gebirge am Westrand der Welt',x:497,y:322,r:74,w:64,h:290,
+ t:'Sie läuft am Westrand des Kontinents vom Eis im Norden bis zu den Seeklippen im Süden. Ihre Gipfel stehen über dem Wetter, der Schnee verlässt sie nie, und kein Vogel überquert sie. Niemand hat sie gebaut. Die Menschen unter ihr sprechen von ihr wie vom Himmel.'},
+{id:'spalt',g:0,n:'Der Spalt',k:'Die einzige Tür in der Mauer',x:500,y:510,r:30,w:90,h:36,
+ t:'Die eine Stelle, an der der Stein vom Gipfel bis zur Wurzel gespalten ist. Der Spalt ist etwa einen Bogenschuss breit und einen langen Vormittag lang. Nichts mit Beinen oder Flügeln kommt über die Mauer, also kommen die Schatten hier hindurch.'},
+{id:'schlund',g:0,n:'Der Schlund',k:'Der Spalt westlich der Burg',x:498,y:574,r:30,w:90,h:36,
+ t:'Westlich der Burg heißt der Spalt Schlund: schwarzer Granit, Geröll und alte Karrenspuren, kein Baum, kein Gras, kein Moos. Die Sonne erreicht den Boden nur für ein paar Minuten am Mittag. Hier werden die Nächte ausgefochten, an drei Linien.'},
+{id:'leuchtfeuer',g:0,n:'Das Große Leuchtfeuer',k:'Turm an der Mündung des Schlunds',x:428,y:536,r:24,hx:428,hy:520,w:50,h:44,
+ t:'Lady Oriel die Maurerin entzündete es im Jahr 118 am Herdfeuer der Halle, hinausgetragen in einer Laterne: „Ein Feuer in zwei Schalen.“ Solange es brannte, hielt das Dunkel Abstand von der Mündung. Im tausendsten Herbst ist es erloschen, und Lord Aldric ritt hinaus, um es neu zu entzünden.'},
+{id:'beaconfoot',g:0,n:'Beaconfoot',k:'Weiler der Feuerhüter',x:412,y:566,r:22,hx:396,hy:584,w:60,h:44,
+ t:'Der Weiler der Feuerhüter liegt an der Mündung des Schlunds, zu Füßen des Turms. Seit das Leuchtfeuer dunkel ist, haben sich seine Leute in die Höhlen des Schlunds geflüchtet.'},
+{id:'schattenland',g:1,n:'Das Schattenland',k:'Jenseits der Mauer',x:225,y:318,r:84,w:340,h:74,
+ t:'Niemand diesseits der Mauer hat eine Karte davon. Was man weiß, passt auf eine Seite der Hauschronik: Es ist ein Land und kein Abgrund, mit Tannen, Nebel, der sich nie hebt, und einem toten Moor. Die Sonne geht jeden Abend darin unter, und niemand hat sie dort je aufgehen sehen.'},
+{id:'moorstrasse',g:1,n:'Die Moorstraße',k:'Straße der Statuen',x:232,y:538,r:44,hx:232,hy:546,w:210,h:46,
+ t:'Eine Straße mit zwei Karrenspuren führt von der Mündung hinaus. Stirbt ein Burgherr, wird ihm hier eine Statue mit steinerner Laterne gesetzt, einen Platz weiter draußen als die letzte, das Gesicht zur Heimat, „damit die Toten die Straße hüten“. Ein einziger Sockel ist leer: der von Lord Corwin dem Reiter.'},
+{id:'totesmoor',g:1,n:'Das tote Moor',k:'So weit die Chronik reicht',x:176,y:698,r:56,w:190,h:60,
+ t:'Hinter den Tannen beginnt das tote Moor. Im Jahr 703 ritt Lord Corwin der Reiter mit zweihundert Laternen hinein, um das Ende des Schattenlands zu finden. Ein Pferd kam zurück.'},
+{id:'wenddale',g:2,n:'Wenddale',k:'Das Tal im Windschatten der Mauer',x:852,y:616,r:44,w:160,h:40,
+ t:'Östlich der Burg öffnet sich der Spalt in ein grünes Tal: Obstgärten, eine Windmühle, Pappeln und der Fluss Wend. Es ist das einzige Land, über das Haus Lantern herrscht.'},
+{id:'tallowford',g:2,n:'Tallowford',k:'Die Stadt unter der Burg',x:640,y:590,r:27,hx:630,hy:602,w:70,h:50,
+ t:'Die Stadt begann als Lager der Kerzenzieher und Ölpresser, die die Lampen der Burg speisten, und sie riecht bis heute nach Wachs. Bei Einbruch der Nacht zündet der Lampenanzünder jede Lampe von Burg und Stadt an einer Flamme vom Herdfeuer an.'},
+{id:'bruecke',g:2,n:'Die alte Brücke',k:'Furt über die Wend',x:700,y:592,r:19,hx:724,hy:600,w:60,h:40,
+ t:'Von der Brücke über die Wend stehen nur noch die Stümpfe. Sie fiel, bevor irgendjemandes Großmutter geboren war, und kein Burgherr hat je das Geld gefunden, sie wieder aufzurichten. Die Furt daneben ist echt.'},
+{id:'windmuehle',g:2,n:'Die Windmühle',k:'Mühle von Wenddale',x:822,y:515,r:22,hx:842,hy:516,w:80,h:44,
+ t:'An der Mühle lebt der alte Hemmet. Vor vierzig Jahren ging er mit einer Patrouille ins Schattenland und kam als einer der Heimgekehrten zurück. Seither hat er einen einzigen Satz darüber gesagt: „Die Wäsche hing noch auf der Leine.“'},
+{id:'morgenlande',g:3,n:'Die Morgenlande',k:'Wo die Sonne aufgeht',x:1215,y:503,r:90,w:380,h:60,
+ t:'Ebenen, Seen, Hügel, eine Küste, kleine Städte und Burgen. Die meisten hier haben die Mauer nie aus der Nähe gesehen und keiner einen Schatten. Jedes Haus schuldet Haus Lantern den Lichtzehnt, einen jährlichen Anteil an Öl, Korn, Holz und Soldaten. Die Abmachung ist tausend Jahre alt und wurde nie aufgeschrieben.'},
+{id:'highcairn',g:3,n:'Highcairn',k:'Sitz von Haus Varn',x:712,y:296,r:30,hx:752,hy:296,w:180,h:56,
+ t:'Hügelherren unter der Mauer, drei Tage nördlich der Burg: Stein, Schafe und ein langes Gedächtnis. Ihr Wappen ist ein grauer Steinhaufen auf Grün. Varn schickt jeden Herbst ein Aufgebot Soldaten an den Spalt, länger als die eigenen Aufzeichnungen reichen.'},
+{id:'saltgate',g:3,n:'Saltgate',k:'Sitz von Haus Brine',x:SG[0],y:SG[1]-14,r:30,hx:SG[0]+40,hy:SG[1]-24,w:190,h:56,
+ t:'Die Küste, wo die Mauer in Seeklippen endet: Fischer, Leuchtturmwärter und ein Hafen, der bessere Zeiten gesehen hat. Das Wappen ist eine weiße Welle auf Seeblau. Lady Maris Brine zahlt ihren Zehnt in Lampenöl. Seit einem Jahr spült das Meer hier graue Laternen an, von einer Machart, die an der Küste niemand kennt.'},
+{id:'goldenacre',g:3,n:'Goldenacre',k:'Sitz von Haus Oxmoor',x:1240,y:700,r:32,hx:1240,hy:714,w:150,h:84,
+ t:'Die Kornebene, reich und weit von der Mauer. Das Wappen ist eine goldene Garbe auf Rot. Lady Petra Oxmoor zahlt den größten Zehnt und hat ausgerechnet, was tausend Jahre davon ergeben.'},
+{id:'stillmere',g:3,n:'Stillmere',k:'Sitz von Haus Calder',x:1152,y:344,r:30,hx:1192,hy:342,w:180,h:56,
+ t:'Die Seestädte, geführt von Zünften und Kontobüchern. Das Wappen zeigt drei silberne Fische auf Schwarz. Seit zehn Generationen hat in Stillmere niemand einen Schatten gesehen, und die Syndizi haben beschlossen, den Zehnt auszusetzen, bis es jemand tut.'},
+{id:'greybell',g:3,n:'Greybell',k:'Sitz von Haus Lorn',x:968,y:574,r:30,hx:1006,hy:574,w:180,h:56,
+ t:'Ein kleines, armes, stolzes Haus in den bewaldeten Hügeln östlich des Tals. Das Wappen ist eine graue Glocke auf Pflaume. Lorn behauptet, älter zu sein als Haus Lantern, und wird dafür seit Jahrhunderten ausgelacht. Es hütet die erste Glocke der Halle, die Lord Edric im Dunklen Jahr fortschickte.'}
+];
+
+/* ---------- interaction ---------- */
+const $=id=>document.getElementById(id);
+const sheet=$('sheet'),scroller=$('scroller'),card=$('card'),hl=$('hl'),orte=$('orte');
+const still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+const mk=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt)e.textContent=txt;return e};
+/* smooth where the browser really animates; if nothing has moved after a moment, jump */
+function glide(get,set,to,smooth){const from=get();set(to,smooth?'smooth':'auto');
+ if(smooth)setTimeout(()=>{if(Math.abs(get()-from)<1&&Math.abs(to-from)>4)set(to,'auto')},350)}
+function centre(p,smooth){const x=Math.min(Math.max(0,p.x/W*sheet.offsetWidth-scroller.clientWidth/2),scroller.scrollWidth-scroller.clientWidth);
+ glide(()=>scroller.scrollLeft,(v,b)=>scroller.scrollTo({left:v,behavior:b}),x,smooth&&!still)}
+function pick(id,fromList){const p=P.find(q=>q.id===id);if(!p)return;
+ hl.setAttribute('transform',`translate(${f(p.x)} ${f(p.y)})`);hl.removeAttribute('display');
+ hl.querySelectorAll('circle').forEach(c=>c.setAttribute('r',p.r));
+ $('ckind').textContent=p.k;$('cname').textContent=p.n;$('ctext').textContent=p.t;card.hidden=false;
+ document.querySelectorAll('.ort,.hit').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.id===id)));
+ if(fromList){centre(p,true);const r=sheet.getBoundingClientRect(),py=r.top+p.y/H*r.height;
+  glide(()=>window.scrollY,(v,b)=>window.scrollTo({top:v,behavior:b}),Math.max(0,window.scrollY+py-window.innerHeight*.38),!still)}}
+const secs=GR.map(g=>{const s=mk('section');s.appendChild(mk('h3','',g));orte.appendChild(s);return s});
+P.forEach(p=>{
+ const b=mk('button','hit');b.type='button';b.dataset.id=p.id;b.setAttribute('aria-label',p.n+', '+p.k);
+ b.style.left=((p.hx||p.x)/W*100)+'%';b.style.top=((p.hy||p.y)/H*100)+'%';b.style.setProperty('--w',p.w/W*100);b.style.setProperty('--h',p.h/H*100);
+ b.addEventListener('click',()=>pick(p.id,false));sheet.appendChild(b);
+ const l=mk('button','ort');l.type='button';l.dataset.id=p.id;l.appendChild(mk('span','',p.n));l.appendChild(mk('small','',p.k));
+ l.addEventListener('click',()=>pick(p.id,true));secs[p.g].appendChild(l)});
+$('cclose').addEventListener('click',()=>{card.hidden=true});
+pick('lanternhold',false);
+requestAnimationFrame(()=>centre(P[0],false));
+})();
+</script>
