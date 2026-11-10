@@ -1,13 +1,15 @@
-# brannock 16x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Brannock, captain of the guard: broad and
-# bareheaded (the guards wear helms), cropped grey hair, a thick square grey beard, a scar across his cheek, steel
-# pauldrons and mail under the realm's teal surcoat with the gold lantern, a heavy belt, a sword on his far hip (the
-# hilt forward at the belt, the scabbard slanting back behind his legs), mail chausses and boots. Walk: a heavy stride,
-# the arms swinging. Idle: his hand on the pommel, a breath. Talk: a gauntleted fist raised (6), then the open hand
-# thrust forward (7): the front needs this.
+# brannock 16x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Brannock, captain of the guard, repainted
+# in look 2 (ART-look2.md section 18) at the lord's level: a broad grown man, bald (the guards wear helms), a grey
+# fringe at the nape, a short square iron-grey beard, a scar beside the eye; steel pauldrons and mail under the
+# realm's teal surcoat with the gold lantern, a heavy belt with a gold buckle, the sword's hilt forward at the belt
+# and its scabbard slanting back behind his legs, mail chausses, boots. Light from the upper left; the outline is
+# look 2's selective one. Walk: a heavy stride (contact 1 px down, passing), the near arm swinging, the scabbard
+# bobbing. Idle: his hand on the pommel, a breath. Talk: a mailed fist raised (6), the open hand thrust forward (7).
 id brannock
 size 16x30
 frames 8
-outline ink
+outline ink shade
+include kit.txt
 
 legend
     k = ink
@@ -28,221 +30,170 @@ legend
     P = stonePale
     H = woodDark
     h = wood
-    B = soilDark
-    b = soil
+    1 = stone
+    2 = stoneMid
+    3 = stoneLight
+    4 = stone
+    5 = woodDark
+    6 = wood
 
+# the bald crown, the grey fringe, the scar beside the eye, the square beard (frame cols 5-10)
 part head
-    ..SSSs..
-    .vSSSSs.
-    vwSSSXSs
-    vwSSSkSs
-    .vSSSXSSS
-    .vwWWWWs.
-    .wWWWWWw.
-    ..wWWWw..
-    ...www...
+    .SSS..
+    SSSSs.
+    wSXkS.
+    wwSSSS
+    .wWWWs
+    .wWWW.
+    ..ww..
 
+# the pauldrons, the surcoat with the gold lantern over mail, the belt
 part torso
-    .LLmmmmLL.
-    LPLTTTTmPL
-    mmTTGTTTTm
-    MTTGGGTTTt
-    MTTGgGTTTt
-    MTTGGGTTTt
-    MtTTTTTTTt
-    MtTTTTTTTt
-    HHHHHHGHHH
+    .PLmmL..
+    PLUTTLm.
+    LUTTGTtM
+    mUTGGGtM
+    .UTGgGt.
+    .UTTTTt.
+    .UTTTTt.
+    .HHHGHH.
 
+# the surcoat's skirt over the thighs, split in front
 part skirt
-    tTTTTTUTTt
-    tTTTTTUTTt
-    tTTTT.UTTt
+    UTTTTt
+    UTTTTt
+    UTT.Tt
+    UT..Tt
 
-part skirtStride
-    tTTTTTUTTt.
-    tTTTTTUTTTt
-    tTTTT..UTTt
-
+# the scabbard behind the legs, a gold chape at its end
 part scabbard
-    .......hH
-    ......hH.
-    .....hH..
-    ....hH...
-    ...hH....
-    ..hH.....
-    .hH......
-    GH.......
+    ...hH
+    ..hH.
+    ..hH.
+    .hH..
+    .hH..
+    G....
 
+# the hilt forward at the belt: crossguard, grip, pommel
 part hilt
-    ...G
-    ..H.
-    .m..
-    mm..
+    ..G
+    .H.
+    P..
 
-part legsStand
-    .MMm.MMm
-    .MMm.MMm
-    .MMm.MMm
-    .MMm.MMm
-    .MMm.MMm
-    .HHH.HHH
-    .HHH.HHH
-    .HHHhHHHh
+# the near arm in mail, the gauntlet
+part armDown
+    Lm
+    Lm
+    Lm
+    Lm
+    PL
+    Lm
 
-part legsContactA
-    .MMm..MMm
-    .MMm..MMm
-    MMm...MMm
-    MMm....MMm
-    MMm....MMm
-    HHH....HHH
-    HHH....HHH
-    HHHh...HHHh
-
-part legsPass
-    ..MMmMMm.
-    ..MMmMMm.
-    ..MMmMMm.
-    ..MMm.MMm
-    ..MMm.MMm
-    ..HHH.HHH
-    ..HHH.HHHh
-    ..HHHh....
-
-part legsContactB
-    .MMm..MMm
-    .MMm..MMm
-    .MMm..MMm
-    MMm...MMm
-    MMm....MMm
-    HHH....HHH
-    HHH....HHH
-    HHHh...HHHh
+part armFwd
+    Lm..
+    Lm..
+    .Lm.
+    .Lm.
+    ..PL
+    ..Lm
 
 part armBack
-    mM
-    mM
-    MM
-    hH
+    .Lm
+    .Lm
+    Lm.
+    Lm.
+    PL.
+    Lm.
 
-part armBackFwd
-    mM.
-    mMm
-    .Mh
-    ..H
-
-part armRest
-    PLm.
-    Lmm.
-    mMm.
-    .mMh
-    ..hH
-
-part armSwingFwd
-    PLm..
+# idle: the hand on the pommel
+part armPommel
+    Lm...
+    Lm...
     Lmm..
-    mMm..
-    .mMm.
-    ..mhH
-    ...HH
+    .LmPL
 
-part armSwingBack
-    PLm.
-    Lmm.
-    mMm.
-    mM..
-    hH..
-    H...
-
+# talk 6: the mailed fist raised
 part armFist
-    ...hH
-    ..mhH
-    PLmm.
-    Lmm..
-    mM...
+    ..PL
+    ..Lm
+    .Lm.
+    Lm..
+    Lm..
 
-part armOpen
-    .....
-    PLmmhh
-    LmmmhH
-    mM...
+# talk 7: the open hand thrust forward
+part armThrust
+    Lm....
+    LmmmPS
+    .....S
 
 frame 0
-    scabbard 1 17
-    legsContactA 3 22
-    armBack 3 11
-    skirtStride 3 19
-    torso 3 10
-    hilt 10 15
-    head 5 2
-    armSwingFwd 9 11
+    scabbard 1 18
+    legsContactA 3 16
+    skirt 5 18
+    torso 4 10
+    head 5 3
+    hilt 11 15
+    armBack 7 11
 
 frame 1
-    scabbard 1 18
-    legsPass 3 22
-    armBack 3 12
-    skirt 3 20
-    torso 3 11
-    hilt 10 16
-    head 5 3
-    armRest 9 12
+    scabbard 1 16
+    legsPassA 3 16
+    skirt 5 17
+    torso 4 9
+    head 5 2
+    hilt 11 14
+    armDown 8 10
 
 frame 2
-    scabbard 1 17
-    legsContactB 3 22
-    armBackFwd 3 11
-    skirtStride 3 19
-    torso 3 10
-    hilt 10 15
-    head 5 2
-    armSwingBack 9 11
+    scabbard 1 18
+    legsContactB 3 16
+    skirt 5 18
+    torso 4 10
+    head 5 3
+    hilt 11 15
+    armFwd 8 11
 
 frame 3
-    scabbard 1 18
-    legsPass 3 22
-    armBack 3 12
-    skirt 3 20
-    torso 3 11
-    hilt 10 16
-    head 5 3
-    armRest 9 12
+    scabbard 1 16
+    legsPassB 3 16
+    skirt 5 17
+    torso 4 9
+    head 5 2
+    hilt 11 14
+    armDown 8 10
 
 frame 4
     scabbard 1 17
-    legsStand 3 22
-    armBack 3 11
-    skirt 3 19
-    torso 3 10
-    hilt 10 15
+    legsStand 3 16
+    skirt 5 17
+    torso 4 9
     head 5 2
-    armRest 9 11
+    hilt 11 14
+    armPommel 8 10
 
 frame 5
     scabbard 1 17
-    legsStand 3 22
-    armBack 3 12
-    skirt 3 19
-    torso 3 11
-    hilt 10 16
+    legsStand 3 16
+    skirt 5 18
+    torso 4 10
     head 5 3
-    armRest 9 12
+    hilt 11 14
+    armPommel 8 11
 
 frame 6
     scabbard 1 17
-    legsStand 3 22
-    armBack 3 11
-    skirt 3 19
-    torso 3 10
-    hilt 10 15
+    legsStand 3 16
+    skirt 5 17
+    torso 4 9
     head 5 2
-    armFist 10 7
+    hilt 11 14
+    armFist 9 5
 
 frame 7
     scabbard 1 17
-    legsStand 3 22
-    armBack 3 11
-    skirt 3 19
-    torso 3 10
-    hilt 10 15
+    legsStand 3 16
+    skirt 5 17
+    torso 4 9
     head 5 2
-    armOpen 9 11
+    hilt 11 14
+    armThrust 8 10

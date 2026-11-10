@@ -1,215 +1,183 @@
-# tamsin 14x28, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Tamsin, the cook: round and rosy, a teal
-# kerchief over her auburn hair (curls at the forehead and the temple, the hair at the nape below it), knotted behind
-# the head with two short tails sticking out, a fold across it; rosy cheeks and a broad smile, a red-brown dress with
-# the sleeves rolled up over strong forearms, a white apron with a bib tied at the waist, a long wooden ladle with an
-# iron bowl in her near fist. Fix stage: the kerchief covered every hair (teal hair at device scale), and talk 6 held
-# the ladle's bowl beside her face like a beak. Walk: a rolling waddle, the skirt swinging. Idle: a breath. Talk: the
-# ladle kept low, she wags a finger of her free hand before her chest (6), then points the ladle forward like a finger
-# (7): have you heard?
+# tamsin 14x28, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Tamsin, the cook, repainted in look 2
+# (ART-look2.md section 18) at the lord's level: a stout grown woman, a teal kerchief with a fold across it, knotted
+# behind the head with two short tails, auburn hair at the forehead and the nape, a red-brown dress with rolled
+# sleeves over bare forearms, a cream apron with a bib tied at the waist, a long wooden ladle with an iron bowl
+# hanging from her fist. Light from the upper left; the outline is look 2's selective one. Walk: a rolling step
+# (contact with the hem wide and the body 1 px down, passing). Idle: a breath. Talk: the ladle kept low while she
+# wags a finger of her free hand before her chest (6), then the ladle pointed forward like a finger (7).
 id tamsin
 size 14x28
 frames 8
-outline ink
+outline ink shade
 
 legend
     k = ink
     S = dawnRose
     s = tileLight
-    n = dusk
     U = roofLight
     T = banner
     t = roofDeep
-    h = tile
+    n = tile
+    N = woodDark
     R = tile
-    r = woodDark
     Q = tileLight
+    r = woodDark
     A = parchment
     a = plaster
-    L = stoneLight
-    l = stone
-    D = woodLight
-    d = wood
-    B = woodDark
+    q = plasterDim
+    l = woodLight
+    h = wood
+    H = woodDark
+    I = stoneLight
+    i = stoneMid
 
+# the kerchief, its knot and two tails behind the head, the auburn hair at the forehead and the nape
 part head
-    .....UUUU..
-    ....UUTUUT.
-    ..tTUUUThQS
-    .tTtUUhhSSS
-    t.t.hhSSkSS
-    ....hSnSSSS
-    .....sSSsS.
-    ......sSs..
+    ..UUT..
+    tUTTTT.
+    .TUTnn.
+    t.nNSkS
+    ..NsSSs
+    ...ssS.
 
-part torso
-    ..QRRRR...
-    .QRRRRAR..
-    RRRRRAAAR.
-    RRRRRAAAAR
-    rRRRRAAAAR
-    rRRRRAAAAR
-    raaaaaaaaa
+# the bodice with the apron's bib
+part bodice
+    .QRAAr
+    QRRAAr
+    QRRAAr
+    QRRAAr
+    QRAAAq
+    .hAAAq
 
-part skirtStand
-    .rRRRRAAAAa.
-    rrRRRRAAAAa.
-    rrRRRRAAAAAa
-    rrRRRRAAAAAa
-    rrRRRRAAaAAa
-    rrRRRRAAaAAa
-    rrRRRRAAaAAa
-    rrRRRRAAaAAa
-    rrRRRRRAAAAa
-    .rRRRRRRRRRR
+# the skirt while a foot passes: the apron down the front
+part skirtPass
+    .QRAAAq.
+    QRRAAAqr
+    QRRAAaqr
+    QRRAAaqr
+    QRRAAaqr
+    QRRAAaqr
+    QRRAAaqr
+    QRRAAaqr
+    QRRRAaqr
+    QRRRRRRr
+    .rRRRRr.
 
-part skirtA
-    .rRRRRAAAAa..
-    rrRRRRAAAAAa.
-    rrRRRRAAAAAa.
-    rrRRRRAAAAAAa
-    rrRRRRAAAaAAa
-    rrRRRRAAAaAAa
-    rrRRRRAAAaAAa
-    rrRRRRAAAaAAa
-    rrRRRRRAAAAAa
-    .rRRRRRRRRRRR
-
-part skirtB
-    .rRRRRAAAAa.
-    rrRRRRAAAAa.
-    rrRRRRAAAAa.
-    rrRRRRAAAAAa
-    rrRRRRAAaAAa
-    rrRRRRAAaAAa
-    rrRRRRAAaAAa
-    rrRRRRAAaAAa
-    rrRRRRRAAAAa
-    .rRRRRRRRRRR
-
-part skirtC
-    ..rRRRRAAAa.
-    .rrRRRRAAAa.
-    .rrRRRRAAAAa
-    rrrRRRRAAAAa
-    rrrRRRRAaAAa
-    rrrRRRRAaAAa
-    rrrRRRRAaAAa
-    rrrRRRRAaAAa
-    rrrRRRRRAAAa
-    .rrRRRRRRRRR
-
-part feetStand
-    .BBB.BBB
+# the skirt at the contact of a step: the hem swung wide
+part skirtContact
+    .QRAAAq..
+    QRRAAAqr.
+    QRRAAaqr.
+    QRRAAaqr.
+    QRRRAAaqr
+    QRRRAAaqr
+    QRRRAAaqRr
+    QRRRAAaqRr
+    QRRRRRRRRr
+    .rRRRRRRr.
 
 part feetA
-    BBB...BBB
+    HH.....hHH
 
 part feetB
-    ..BBBBB
+    hH.....HHH
 
-part feetC
-    .BBBBBB
+part feetTogether
+    HhHH
 
-# the near arm, sleeve rolled up, the long ladle hanging from her fist at her side
-part armLadle
-    QR..
-    RRR.
-    RQSS
-    .sSS
-    ...D
-    ...D
-    ...d
-    ..lL
-    ..LL
-
-part armLadleUp
-    ......LLL
-    ......lLl
-    .....D...
-    ....D....
-    ..SSD....
-    QRSS.....
-    RR.......
-
-part armLadlePoint
-    .........
-    .........
-    QR.......
-    RRSSDDDLl
-    RRSs...lL
-
+# the far arm swinging behind
 part armBack
-    RR
-    RQ
-    sS
+    Q
+    R
+    S
+    s
 
-# talk 6: the free hand raised before her chest, one finger wagging
-part handWag
-    .S
-    SS
+# the near arm: the rolled sleeve, the bare forearm, the ladle hanging from the fist
+part armLadle
     R.
+    RS
+    .S
+    .l
+    .l
+    .h
+    .l
+    .l
+    II
+    Ii
+
+# talk 6: a finger of the free hand wagged before the chest
+part finger
+    S
+    S
+    s
+
+# talk 7: the ladle pointed forward
+part armPoint
+    R....I
+    RSllhI
+    .....i
 
 frame 0
-    armBack 2 10
-    skirtA 1 17
-    feetA 2 27
-    torso 2 10
-    head 1 2
-    armLadle 6 10
+    feetA 2 26
+    skirtContact 3 16
+    armBack 3 11
+    bodice 4 10
+    head 3 4
+    armLadle 9 11
 
 frame 1
-    armBack 2 11
-    skirtB 1 17
-    feetB 3 27
-    torso 2 11
-    head 1 3
-    armLadle 6 11
+    feetTogether 6 26
+    skirtPass 3 15
+    armBack 3 10
+    bodice 4 9
+    head 3 3
+    armLadle 9 10
 
 frame 2
-    armBack 2 10
-    skirtC 1 17
-    feetC 3 27
-    torso 2 10
-    head 1 2
-    armLadle 6 10
+    feetB 2 26
+    skirtContact 3 16
+    armBack 3 11
+    bodice 4 10
+    head 3 4
+    armLadle 9 11
 
 frame 3
-    armBack 2 11
-    skirtB 1 17
-    feetB 3 27
-    torso 2 11
-    head 1 3
-    armLadle 6 11
+    feetTogether 6 26
+    skirtPass 3 15
+    armBack 3 10
+    bodice 4 9
+    head 3 3
+    armLadle 9 10
 
 frame 4
-    armBack 2 10
-    skirtStand 1 17
-    feetStand 2 27
-    torso 2 10
-    head 1 2
-    armLadle 6 10
+    feetTogether 6 26
+    skirtPass 3 15
+    armBack 3 10
+    bodice 4 9
+    head 3 3
+    armLadle 9 10
 
 frame 5
-    armBack 2 11
-    skirtStand 1 17
-    feetStand 2 27
-    torso 2 11
-    head 1 3
-    armLadle 6 11
+    feetTogether 6 26
+    skirtPass 3 15
+    armBack 3 11
+    bodice 4 10
+    head 3 4
+    armLadle 9 11
 
 frame 6
-    armBack 2 10
-    skirtStand 1 17
-    feetStand 2 27
-    torso 2 10
-    head 1 2
-    armLadle 6 10
-    handWag 10 9
+    feetTogether 6 26
+    skirtPass 3 15
+    armBack 3 10
+    bodice 4 9
+    head 3 3
+    armLadle 9 10
+    finger 11 8
 
 frame 7
-    armBack 2 10
-    skirtStand 1 17
-    feetStand 2 27
-    torso 2 10
-    head 1 2
-    armLadlePoint 5 10
+    feetTogether 6 26
+    skirtPass 3 15
+    armBack 3 10
+    bodice 4 9
+    head 3 3
+    armPoint 8 10

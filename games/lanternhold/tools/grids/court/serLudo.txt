@@ -1,17 +1,19 @@
-# serLudo 16x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Ser Ludo, the wandering knight (comic): a
-# great bucket helm far too big for him, dented on top, its breathing slits dark, sitting low on his shoulders, a long
-# rose plume drooping wilted down its back; a skinny frame in a too-long yellow surcoat with a red chevron over mail,
-# thin legs in baggy mail, big boots; a battered heater shield on his near arm (red, a yellow bend, a dent in its rim,
-# a crack), a small sword at the hip. Walk: a proud high-stepping march, the helm wobbling. Idle: chest out, a breath.
-# Talk: he lifts the visor and two earnest eyes peer out (6), then thrusts his sword up heroically, the visor down (7).
+# serLudo 16x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Ser Ludo, the hedge knight, repainted in
+# look 2 (ART-look2.md section 18) at the lord's level, and still comic: a great bucket helm far too big for him,
+# dented on top, its eye slit and breathing holes dark, sitting on his shoulders; a long rose plume drooping wilted
+# down its back; a skinny frame in a yellow surcoat with a red chevron, mail on thin legs, big boots; a battered red
+# heater shield with a yellow bend before him, a small sword at the hip. Light from the upper left; the outline is
+# look 2's selective one. Walk: a proud march (contact, where the helm sinks a pixel deeper onto his shoulders, and a
+# high step on each leg). Idle: chest out, a breath. Talk: he lifts the visor and two earnest eyes peer out (6), then
+# thrusts his sword up beside the helm (7).
 id serLudo
 size 16x30
 frames 8
-outline ink
+outline ink shade
+include kit.txt
 
 legend
     k = ink
-    O = night0
     P = stonePale
     L = stoneLight
     m = stone
@@ -21,198 +23,178 @@ legend
     f = tile
     Y = strawLight
     y = straw
+    G = gold
     R = tile
+    Q = tileLight
     r = woodDark
-    W = woodLight
-    w = wood
     S = dawnRose
     s = tileLight
     B = woodDark
     b = soilDark
-    x = stonePale!
+    1 = stone
+    2 = stoneMid
+    3 = stoneLight
+    4 = stone
+    5 = woodDark
+    6 = wood
 
+# the bucket helm: a dent in its top, the eye slit, two breathing holes
 part helm
-    ..mLLm.m..
-    .mLPPLmLm.
-    mLPPLLLLLm
-    mLPLLLLLLm
-    mLLOOOOOOO
-    mLLLLLLLLm
-    mLLOOLOOLm
-    mmLLLLLLLm
-    .mmmMMMMm.
+    .PL.LL.
+    PLLLLLm
+    PLLLLLm
+    PLLkkkk
+    PLLLLLm
+    PLLLkLk
+    PLLLLLm
+    .mmmmmD
 
+# talk 6: the visor lifted, two earnest eyes
 part helmOpen
-    ..mLLm.m..
-    .mLPPLmLm.
-    mLPPLLLLLm
-    mLPLLLLLLm
-    mLLmSSkSSk
-    mLLmSSSSSs
-    mLLOOLOOLm
-    mmLLLLLLLm
-    .mmmMMMMm.
+    .PL.LL.
+    PLLPPPP
+    PLLPPPP
+    PLLSkSk
+    PLLSSSs
+    PLLLkLk
+    PLLLLLm
+    .mmmmmD
 
+# the wilted plume, drooping down the helm's back
 part plume
-    .FF.
-    FFFf
-    Ff.f
-    f...
-    f...
+    ...Ff
+    ..Ff.
+    .Ff..
+    .F...
+    Ff...
+    F....
 
-part torso
-    ..YYYYY..
-    .yYYYYYY.
-    yyYRYYYY.
-    yyRYRYYY.
-    yRYYYRYY.
-    yyYYYYRY.
-    rrrrrrrr.
-    yyYYYYYY.
-    yyYYYYYY.
-    yYYYYYYY.
+# the yellow surcoat with its red chevron, the belt
+part surcoat
+    YyyyG
+    YyyyG
+    RyyyR
+    YRyRG
+    YyRyG
+    YyyyG
+    BBBBb
+    YyyyG
+    .YyG.
 
-part legsStand
-    .Mm..Mm.
-    .Mm..Mm.
-    .Mm..Mm.
-    .Mm..Mm.
-    .BBB.BBB
-    BBBB.BBBb
+# the far arm in baggy mail
+part armFar
+    L
+    m
+    m
+    M
+    S
 
-part legsContactA
-    Mm....Mm.
-    Mm.....Mm
-    Mm.....Mm
-    Mm.....Mm
-    BBB....BBB
-    BBBB...BBBb
-
-part legsHigh
-    ...MmMm..
-    ...Mm.Mm.
-    ...Mm..BBB
-    ...Mm..BBBb
-    ..BBB.....
-    .BBBB.....
-
-part legsContactB
-    .Mm...Mm.
-    .Mm....Mm
-    Mm.....Mm
-    Mm.....Mm
-    BBB....BBB
-    BBBB...BBBb
-
-part legsHighB
-    ...MmMm..
-    ..Mm..Mm.
-    .BBB..Mm.
-    BBBB..Mm.
-    ......BBB
-    .....BBBBb
-
-part shield
-    rRRRRRr
-    RRRRYYR
-    RRRYYRr
-    RRYYRRR
-    .RYRRR.
-    .rRRRr.
-    ..rRr..
-    ...r...
-
-part sword
-    m.
-    m.
-    .w
-
-part swordUp
-    P.
-    P.
-    P.
-    P.
-    LL
-    mL
-    Lm
-
-part armShield
-    mM
-    mM
-    Mm
-
-part armUp
+part armFarBack
+    .L
     .m
-    mM
+    m.
+    M.
+    S.
+
+# the small sword at the hip
+part swordHip
+    ...G
+    ..Lm
+    .Lm.
+    Lm..
+
+# the battered heater shield: red, a yellow bend, a dent
+part shield
+    QRRRr
+    QRRyr
+    QRyRr
+    QyRRr
+    yRRrr
+    .RRr.
+    ..r..
+
+# talk 7: the sword thrust up beside the helm
+part swordUp
+    .P.
+    .L.
+    .L.
+    .L.
+    .L.
+    .L.
+    .L.
+    .L.
+    GGG
+    .S.
+    m..
 
 frame 0
-    plume 1 4
-    legsContactA 3 24
-    torso 4 14
-    sword 3 21
-    helm 3 5
-    shield 9 15
-    armShield 8 15
+    swordHip 2 17
+    legsContactA 3 16
+    armFarBack 3 12
+    surcoat 5 11
+    helm 4 4
+    plume 0 3
+    shield 10 12
 
 frame 1
-    plume 1 5
-    legsHigh 3 24
-    torso 4 14
-    sword 3 21
-    helm 3 6
-    shield 9 16
-    armShield 8 16
+    swordHip 2 16
+    legsPassA 3 16
+    armFar 4 11
+    surcoat 5 10
+    helm 4 2
+    plume 0 1
+    shield 10 11
 
 frame 2
-    plume 1 4
-    legsContactB 3 24
-    torso 4 14
-    sword 3 21
-    helm 3 5
-    shield 9 15
-    armShield 8 15
+    swordHip 2 17
+    legsContactB 3 16
+    armFarBack 3 12
+    surcoat 5 11
+    helm 4 4
+    plume 0 3
+    shield 10 12
 
 frame 3
-    plume 1 5
-    legsHighB 3 24
-    torso 4 14
-    sword 3 21
-    helm 3 6
-    shield 9 16
-    armShield 8 16
+    swordHip 2 16
+    legsPassB 3 16
+    armFar 4 11
+    surcoat 5 10
+    helm 4 2
+    plume 0 1
+    shield 10 11
 
 frame 4
-    plume 1 4
-    legsStand 3 24
-    torso 4 14
-    sword 3 21
-    helm 3 5
-    shield 9 15
-    armShield 8 15
+    swordHip 2 16
+    legsStand 3 16
+    armFar 4 11
+    surcoat 5 10
+    helm 4 2
+    plume 0 1
+    shield 10 11
 
 frame 5
-    plume 1 5
-    legsStand 3 24
-    torso 4 15
-    sword 3 22
-    helm 3 6
-    shield 9 16
-    armShield 8 16
+    swordHip 2 16
+    legsStand 3 16
+    armFar 4 12
+    surcoat 5 10
+    helm 4 3
+    plume 0 2
+    shield 10 12
 
 frame 6
-    plume 1 4
-    legsStand 3 24
-    torso 4 14
-    sword 3 21
-    helmOpen 3 5
-    shield 9 15
-    armShield 8 15
+    swordHip 2 16
+    legsStand 3 16
+    armFar 4 11
+    surcoat 5 10
+    helmOpen 4 2
+    plume 0 1
+    shield 10 11
 
 frame 7
-    plume 1 4
-    legsStand 3 24
-    torso 4 14
-    helm 3 5
-    shield 9 15
-    swordUp 13 0
-    armUp 12 7
+    legsStand 3 16
+    armFar 4 11
+    surcoat 5 10
+    helm 4 2
+    plume 0 1
+    shield 10 12
+    swordUp 11 0

@@ -1,16 +1,17 @@
-# herald 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). The Lightless King's herald: a gaunt
-# figure the colour of ash, a black iron circlet with three spikes (the King's broken crown in small), hollow dark eye
-# sockets with cold teal eyes, a black mantle over ragged ash-grey robes, a tall black pole held before him with a
-# tattered black banner hanging from its crossbar with the King's sign on it, a small cracked crown. heraldGlow (as
-# lightlessKingGlow): the eyes tealGlow, a tealDim rim on the top contour with tealGlow on the spikes and the pole's
-# point, the crown on the banner and its torn edge tealDim. Walk: a stiff, deliberate step, the banner swaying. Idle:
-# utterly still but for a breath. Talk: the banner thrust forward (6), then the bony free hand raised, pointing (7):
-# hand over the Stranger.
+# herald 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). The Lightless King's herald, repainted in
+# look 2 (ART-look2.md section 18) at the lord's level: a gaunt figure the colour of ash, a black iron circlet with
+# three spikes (the King's broken crown in small), hollow dark eye sockets with cold teal eyes, a black mantle (a
+# night-blue edge of light at its back) over ragged ash-grey robes, a tall black pole held before him with a tattered
+# black banner hanging from its crossbar with the King's sign on it, a small cracked crown. heraldGlow (as
+# lightlessKingGlow): the eyes tealGlow at the old pixels (ART-court.md's anchors hold), a tealDim rim on the top
+# contour with tealGlow on the spikes and the pole's point (set by hand here: look 2's selective outline has no pixel
+# above the body for the rim directive), the crown on the banner and its torn edge tealDim. Light from the upper
+# left. Walk: a stiff, deliberate step, the banner swaying. Idle: utterly still but for a breath. Talk: the banner
+# thrust up (6), then the bony free hand raised, pointing (7).
 id herald
 size 14x30
 frames 8
-outline ink
-rim tealDim tealGlow
+outline ink shade
 
 legend
     k = ink
@@ -18,8 +19,10 @@ legend
     o = night0
     A = stoneLight
     a = stone
-    M = stoneMid
+    M = stone
+    m = stoneMid
     D = stoneDark
+    2 = night2
     N = night1
     n = night0
     K = night1
@@ -28,93 +31,93 @@ legend
     Q = stoneDark/tealDim
     I = stoneDark
     i = stoneMid
-    P = stoneMid
+    Z = /tealGlow
+    z = /tealDim
 
+# the circlet's three spikes with their cold rim, the ash face, the hollow sockets with their eyes
 part head
-    .I.I.I.
+    .Z.Z.Z.
+    .IzIzIz
     .IIIIII
-    .aAAAAA
-    .aoOAOA
-    ..aAAAa
-    ..aAoA.
+    .AAAAaa
+    .AoOaOa
+    ..AAAaa
+    ..AaoA.
     ...aa..
 
 part mantle
-    .NNNNNN.
-    NNNNNNNN
-    NNnNNNNN
-    NNnNNNNN
-    aNNnNNNN
-    aMMNnNNN
-    aMMMMMMM
+    z2NNNn.
+    2NNNNNn
+    2NNnNNn
+    2NNnNNn
+    A2NNnNn
+    AM2NNnn
+    AMMM22n
 
 part robeStand
-    .aMMMaMM.
-    .aMMMaMMM
-    .aMMMaMMM
-    aaMMMaMMM
-    aaMMMaMMM
-    aaMMMaMMMM
-    aaMMMaMMMM
-    aaMMMaMMMM
-    aaMMMMaMMM
-    aMaMaMaMaM
-    .a..a.a..a
+    .AMMMmM.
+    .AMMMmMm
+    .AMMMmMm
+    AAMMMmMm
+    AMMMMmMm
+    AMMMMmMMm
+    AMMMMmMMm
+    AMMMMmMMm
+    AMmMMmMMm
+    A.M.m.M.m
 
 part robeA
-    .aMMMaMM..
-    .aMMMaMMM.
-    .aMMMaMMMM
-    aaMMMaMMMM
-    aaMMMaMMMM
-    aaMMMMaMMMM
-    aaMMMMaMMMM
-    aaMMMMaMMMM
-    aaMMMMaMMMM
-    aMaMaMaMaMa
-    .a..a.a..a.
+    .AMMMmM..
+    .AMMMmMm.
+    .AMMMmMMm
+    AAMMMmMMm
+    AMMMMmMMm
+    AMMMMMmMMm
+    AMMMMMmMMm
+    AMMMMMmMMm
+    AMmMMMmMMm
+    A.M.m.M.m.
 
 part robeB
-    .aMMMaMM
-    .aMMMaMM
-    .aMMMaMM
-    aaMMMaMMM
-    aaMMMaMMM
-    aaMMMaMMM
-    aaMMMaMMM
-    aaMMMaMMM
-    aaMMMMaMM
-    aMaMaMaMa
-    .a..a.a..
+    .AMMmM.
+    .AMMmMm
+    .AMMmMm
+    AAMMmMm
+    AMMMmMm
+    AMMMmMMm
+    AMMMmMMm
+    AMMMmMMm
+    AMmMmMMm
+    A.M.m.M.
 
 part robeC
-    ..aMMMaM.
-    ..aMMMaMM
-    .aaMMMaMM
-    .aaMMMaMMM
-    aaaMMMaMMM
-    aaaMMMaMMM
-    aaaMMMaMMM
-    aaaMMMaMMM
-    aaaMMMMaMM
-    aMaMaMaMaM
-    .a..a..a.a
+    ..AMMMmM.
+    ..AMMMmMm
+    .AAMMMmMm
+    .AMMMMmMm
+    AAMMMMmMMm
+    AMMMMMmMMm
+    AMMMMMmMMm
+    AMMMMMmMMm
+    AMmMMMmMMm
+    .A.M.m.M.m
 
 part feetStand
-    .DD.DD
+    D.D
 
 part feetA
-    DD...DD
+    D...D
 
 part feetB
-    ..DDD.
+    D.D
 
 part feetC
-    .DD.DD
+    D...D
 
-# the pole with its point and crossbar, the tattered banner hanging in front
+# the pole with its point and crossbar, the tattered banner hanging in front (the cold rim over them)
 part banner
-    I....
+    Z....
+    Izzzz
     IiiiI
     IKKKK
     IQKQK
@@ -142,82 +145,112 @@ part banner
     I....
     I....
     I....
+
+# talk 6: the banner thrust up, its point at the frame's top
+part bannerUp
+    Izzzz
+    IiiiI
+    IKKKK
+    IQKQK
+    IQQQK
+    IKKKK
+    IKKjK
+    IKKKK
+    IKjKK
+    IKKKK
+    IJKJK
+    I.J.J
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
+    I....
     I....
 
 part armPole
     NN.
-    NNN
-    .Na
+    NNn
+    .NA
     ..a
 
 part armPoint
-    ....a
-    ...aA
-    ..aa.
-    NNN..
+    ....A
+    ...Aa
+    ..Aa.
+    2NN..
     NN...
 
 frame 0
-    robeA 1 19
-    feetA 1 29
-    mantle 2 12
-    head 3 5
-    banner 9 1
+    robeA 2 19
+    feetA 3 28
+    mantle 3 12
+    head 3 4
+    banner 9 0
     armPole 7 13
 
 frame 1
-    robeB 2 19
-    feetB 2 29
-    mantle 2 13
-    head 3 6
-    banner 9 1
+    robeB 3 19
+    feetB 4 28
+    mantle 3 13
+    head 3 5
+    banner 9 0
     armPole 7 14
 
 frame 2
-    robeC 1 19
-    feetC 2 29
-    mantle 2 12
-    head 3 5
-    banner 9 1
+    robeC 2 19
+    feetC 4 28
+    mantle 3 12
+    head 3 4
+    banner 9 0
     armPole 7 13
 
 frame 3
-    robeB 2 19
-    feetB 2 29
-    mantle 2 13
-    head 3 6
-    banner 9 1
+    robeB 3 19
+    feetB 4 28
+    mantle 3 13
+    head 3 5
+    banner 9 0
     armPole 7 14
 
 frame 4
-    robeStand 1 19
-    feetStand 2 29
-    mantle 2 12
-    head 3 5
-    banner 9 1
+    robeStand 2 19
+    feetStand 4 28
+    mantle 3 12
+    head 3 4
+    banner 9 0
     armPole 7 13
 
 frame 5
-    robeStand 1 19
-    feetStand 2 29
-    mantle 2 13
-    head 3 6
-    banner 9 1
+    robeStand 2 19
+    feetStand 4 28
+    mantle 3 13
+    head 3 5
+    banner 9 0
     armPole 7 14
 
 frame 6
-    robeStand 1 19
-    feetStand 2 29
-    mantle 2 12
-    head 3 5
-    banner 9 0
+    robeStand 2 19
+    feetStand 4 28
+    mantle 3 12
+    head 3 4
+    bannerUp 9 0
     armPole 7 12
 
 frame 7
-    robeStand 1 19
-    feetStand 2 29
-    mantle 2 12
-    head 3 5
-    banner 9 1
+    robeStand 2 19
+    feetStand 4 28
+    mantle 3 12
+    head 3 4
+    banner 9 0
     armPole 7 13
     armPoint 7 8

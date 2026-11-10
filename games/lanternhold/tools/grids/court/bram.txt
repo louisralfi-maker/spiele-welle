@@ -1,231 +1,186 @@
-# bram 16x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Bram, the smith: a huge man with a bald head,
-# a short black beard, soot on his brow and cheek, bare arms like hams (soot to the elbows), a dark shirt under a long
-# leather apron with a bib, dark trousers, heavy boots, his big smith's hammer over his near shoulder (the iron head
-# behind his neck, never in front of the face; ART-actors.md lessons). Walk: heavy steps, the free arm swinging. Idle:
-# a slow breath. Talk (few words): he swings the hammer down and points with it (6), then rests its head in his other
-# hand... no: holds it low before him (7).
+# bram 16x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Bram, the smith, repainted in look 2
+# (ART-look2.md section 18) at the lord's level: a huge grown man, bald, a short black beard, soot on his brow and
+# cheek, bare arms with soot to the elbows (the near arm bent, the fist on the hammer's handle at his chest), a dark
+# shirt under a long leather apron with a bib, the smith's hammer over his near shoulder, its iron head behind his
+# neck (never before the face). Light from the upper left; the outline is look 2's selective one. Walk: heavy steps
+# (contact 1 px down, passing), the far arm swinging. Idle: a slow breath. Talk: he swings the hammer down and points
+# with it (6), then holds it low before him (7).
 id bram
 size 16x30
 frames 8
-outline ink
+outline ink shade
+include kit.txt
 
 legend
     k = ink
     S = dawnRose
     s = tileLight
-    m = stone
-    H = night1
-    h = ink
+    b = soil
+    K = soilDark
+    D = soilDark
+    d = soil
     A = woodLight
     a = wood
-    d = woodDark
-    N = soilDark
-    n = soil
-    I = stoneMid
-    i = stone
-    J = stoneLight
-    D = woodLight
-    B = soilDark
-    b = soil
-    F = woodDark
-    f = soilDark
+    H = woodDark
+    h = wood
+    l = woodLight
+    I = stone
+    L = stoneLight
+    i = stoneMid
+    1 = soil
+    2 = soilDark
+    3 = soilLight
+    4 = soil
+    5 = woodDark
+    6 = wood
 
+# the bald head, soot on the brow and the cheek, the short black beard (frame cols 6-11)
 part head
-    ..SSSS..
-    .SSSSSSs
-    .SmmSSSs
-    .sSSSkSS
-    ..SmSSSSS
-    ..HHHHHs.
-    ..HHHHHH.
-    ...HHHH..
+    .SSS..
+    SSSSs.
+    SbSkS.
+    SSbSSS
+    .KKKKs
+    .kKKK.
+    ..kK..
 
+# the shirt, the apron's bib, the tie at the waist
 part torso
-    ..NNNNNNN..
-    .NNNdNNNNN.
-    NNNNdaAAANN
-    NNNNdaAAAAN
-    NNNNdaAAAAN
-    nNNNdaAAAAN
-    nNNNdaAAAAN
-    nNNNdaAAAAN
-    nNNdddddddN
-    .nNdaAAAAAd
+    .dDAAaD.
+    SDAAAaDD
+    SDAAAaDD
+    sdAAAaD.
+    .dAAAaD.
+    .dAAAaD.
+    .hhhhhH.
 
-part apronSkirt
-    .ndaAAAAAd
-    .ndaAAAAAd
-    .ndaAAAAAd
-    ..daAAAAAd
+# the long leather apron over the thighs and the knees
+part apron
+    AAAAaH
+    AAAAaH
+    AAAaaH
+    AAAaaH
+    AAAaaH
+    AAaaaH
+    .AaaH.
 
-part apronStride
-    .ndaAAAAAd.
-    .ndaAAAAAAd
-    .ndaAAAAAAd
-    ..daAAAAAAd
+# the far arm, swinging
+part armFarDown
+    S
+    S
+    b
+    S
 
-part legsStand
-    .BBb.BBb
-    .BBb.BBb
-    .BBb.BBb
-    .BBb.BBb
-    .FFF.FFF
-    .FFFfFFFf
+part armFarBack
+    .S
+    .S
+    b.
+    S.
 
-part legsContactA
-    BBb...BBb
-    BBb....BBb
-    BBb....BBb
-    BBb....BBb
-    FFF....FFF
-    FFFf...FFFf
+part armFarFwd
+    S.
+    S.
+    .b
+    .S
 
-part legsPass
-    ..BBbBBb.
-    ..BBbBBb.
-    ..BBb.BBb
-    ..BBb.BBb
-    ..FFF.FFF
-    ..FFFf.FFFf
+# the near arm bent, soot to the elbow, the fist on the handle at the chest
+part armBent
+    SS...
+    Ss.Ss
+    Sb.b.
+    .bb..
 
-part legsContactB
-    .BBb..BBb
-    .BBb...BBb
-    BBb....BBb
-    BBb....BBb
-    FFF....FFF
-    FFFf...FFFf
+# the hammer over the near shoulder: the iron head behind the neck, the handle down to the fist
+part hammer
+    IL.......
+    ILIl.....
+    Iii.ll...
+    ......ll.
 
-# the hammer over his shoulder: the iron head behind his neck, the handle over the shoulder to his fist at the chest
-part hammerShoulder
-    IiJJ......
-    IIiJ......
-    IIii......
-    ....D.....
-    .....D....
-    ......D...
-    .......D..
-    ........D.
-    .........D
+# talk 6: the hammer swung down and pointing
+part armPoint
+    SS.....I
+    SsbSllLI
+    .......i
 
-# the near arm, bent: a huge upper arm hanging from the shoulder, the forearm rising to the fist on the handle
-part armHold
-    .SS..
-    SSs..
-    SSs.S
-    SmsSS
-    sSmSs
-    .sSs.
-
-part armBack
-    sS
-    SS
-    Sm
-    sS
-    ss
-
-part armBackFwd
-    sS.
-    SSs
-    .mS
-    .sS
-
-part hammerForward
-    ..........
-    ..DDDDIIii
-    SSSS..IJJi
-    SSSS..IIii
-
-part armForward
-    .SSs....
-    SSSSs...
-    SSSSSs..
-    sSmSSS..
-
-part hammerLow
-    ..D..
-    ..D..
-    ..D..
-    ..D..
-    IiJJi
-    IIIii
-
+# talk 7: the hammer held low before him
 part armLow
-    .SSs.
-    SSSSs
-    SSSSS
-    sSmSS
-    .sSSS
-    ..SSS
+    SS..
+    Ss..
+    .Sb.
+    ..S.
+    ..l.
+    ..l.
+    ..l.
+    .ILI
+    .Iii
 
 frame 0
-    armBack 4 11
-    legsContactA 3 24
-    apronStride 4 20
-    torso 3 10
+    armFarBack 3 11
+    legsContactA 4 16
+    apron 5 18
+    torso 4 10
     head 6 3
-    armHold 8 10
-    hammerShoulder 1 4
+    hammer 2 8
+    armBent 9 11
 
 frame 1
-    armBack 4 12
-    legsPass 3 24
-    apronSkirt 4 21
-    torso 3 11
-    head 6 4
-    armHold 8 11
-    hammerShoulder 1 5
+    armFarDown 4 10
+    legsPassA 4 16
+    apron 5 17
+    torso 4 9
+    head 6 2
+    hammer 2 7
+    armBent 9 10
 
 frame 2
-    armBackFwd 4 11
-    legsContactB 3 24
-    apronStride 4 20
-    torso 3 10
+    armFarFwd 4 11
+    legsContactB 4 16
+    apron 5 18
+    torso 4 10
     head 6 3
-    armHold 8 10
-    hammerShoulder 1 4
+    hammer 2 8
+    armBent 9 11
 
 frame 3
-    armBack 4 12
-    legsPass 3 24
-    apronSkirt 4 21
-    torso 3 11
-    head 6 4
-    armHold 8 11
-    hammerShoulder 1 5
+    armFarDown 4 10
+    legsPassB 4 16
+    apron 5 17
+    torso 4 9
+    head 6 2
+    hammer 2 7
+    armBent 9 10
 
 frame 4
-    armBack 4 11
-    legsStand 3 24
-    apronSkirt 4 20
-    torso 3 10
-    head 6 3
-    armHold 8 10
-    hammerShoulder 1 4
+    armFarDown 4 10
+    legsStand 4 16
+    apron 5 17
+    torso 4 9
+    head 6 2
+    hammer 2 7
+    armBent 9 10
 
 frame 5
-    armBack 4 12
-    legsStand 3 24
-    apronSkirt 4 20
-    torso 3 11
-    head 6 4
-    armHold 8 11
-    hammerShoulder 1 5
+    armFarDown 4 11
+    legsStand 4 16
+    apron 5 18
+    torso 4 10
+    head 6 3
+    hammer 2 8
+    armBent 9 11
 
 frame 6
-    armBack 4 11
-    legsStand 3 24
-    apronSkirt 4 20
-    torso 3 10
-    head 6 3
-    armForward 8 10
-    hammerForward 6 11
+    armFarDown 4 10
+    legsStand 4 16
+    apron 5 17
+    torso 4 9
+    head 6 2
+    armPoint 8 10
 
 frame 7
-    armBack 4 11
-    legsStand 3 24
-    apronSkirt 4 20
-    torso 3 10
-    head 6 3
-    hammerLow 10 14
-    armLow 8 10
+    armFarDown 4 10
+    legsStand 4 16
+    apron 5 17
+    torso 4 9
+    head 6 2
+    armLow 9 10
