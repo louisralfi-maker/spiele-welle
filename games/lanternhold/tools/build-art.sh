@@ -100,6 +100,11 @@ build() { # name: one sprite
     # grids/well.txt; those sources stay in the repo, unused.
     house|houseB|houseC|well)
                    python3 -I -B games/lanternhold/tools/townart.py build $1 --out $A ;;
+    # Look 2, stage 6 (ART-look2.md section 18), proposals for the code lane: the town at night. <id>Lit is a house's
+    # lit rooms (an emissive sprite of the house's size, clear but for the window glass; the big house's and the
+    # tavern's in the buildings lane), and the square's props: a hay cart, three barrels, the lord's notice board
+    houseLit|houseBLit|houseCLit|hayCart|barrels|noticeBoard)
+                   python3 -I -B games/lanternhold/tools/townart.py build $1 --out $A ;;
     # stoneWall's milestone 1 conversion (`convert $R/s7-defence-1.png --size 36x52 --box 522,80,704,298 --flood --tol 60
     # --only $ST --fill clear:15,0,21,9 --fill stoneMid:1,49,34,50 --fill ink:35,10,35,51 --fill ink:0,49,0,51 --outline
     # ink --outline-skip-bottom`) is frame 0 of the buildings lane's grid now, beside the damaged frame
@@ -282,7 +287,7 @@ ALL="farMountain farPeak gorgeCliff gorgeEndCliff waterfall gatehouse castleTowe
 throne hearth kitchen house valleyHill well lanternPost field brazier torchPost ground
 gorgeWall gorgeWallHigh cliffFlank gorgeMouth wardenStatue castleFront castleKeep castleBackGate valleyFar valleyMid windmill
 beaconRuin riverEnd riverFarBank clouds fgRockA fgRockB fgRockC fgOverhangA fgOverhangB
-houseB houseC keepFar keepTop throatRock cliffFlankB groundB groundC groundD castleShadow castleMist buildings actors court world"
+houseB houseC houseLit houseBLit houseCLit hayCart barrels noticeBoard keepFar keepTop throatRock cliffFlankB groundB groundC groundD castleShadow castleMist buildings actors court world"
 for name in ${@:-$ALL}; do
     case $name in buildings|actors|court|world) ;; *) cool ;; esac
     build "$name"

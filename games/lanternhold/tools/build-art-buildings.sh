@@ -49,7 +49,7 @@ build() { # name: one sprite
                    python3 -I -B $T grid $GB/$1.txt $A/$1.png
                    relit $1 ;;
     # look 2, stage 4 (ART-look2.md section 15): painted by townart.py; their grids in grids/buildings stay, unused
-    bigHouse|market|tavern)
+    bigHouse|market|tavern|bigHouseLit|tavernLit)   # …Lit: the lit rooms at night (stage 6, ART-look2.md section 18)
                    python3 -I -B games/lanternhold/tools/townart.py build $1 --out $A ;;
     # fix stage: the first stage keeps the ruin's broken shell standing behind the new pale courses (beaconRuin.png
     # without its fire cage: the body from row 34, the two broken stubs from row 22), the shear legs rising above it
@@ -65,7 +65,7 @@ build() { # name: one sprite
 
 ALL="palisade stoneWall bastion rubbleWood rubbleStone scaffold gateWood gateIron gateGreat gateBroken archerTower
 watchtower fireTower ballista catapult stakePit beaconBase beaconTower greatBeacon beaconFire
-barracks smithy masterSmithy lodge bigLodge bigHouse market tavern plotMarker arrow fireArrow bolt firepot"
+barracks smithy masterSmithy lodge bigLodge bigHouse market tavern bigHouseLit tavernLit plotMarker arrow fireArrow bolt firepot"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do
     cool

@@ -272,3 +272,16 @@ far view through the Weltmauer's slot.
 Notes for the code lane: tier 2 swaps one sprite at one anchor (`keepTop`); tier 3 swaps two and moves the front's
 anchor 14 px left. The gatehouse's own tiers (gate, iron gate, great gate; DESIGN.md) can drive the castle's tier, or
 the keep's upgrade can. The look-2 mock shows every state: `scene_look2.py … tier<1|2|3>[b]-<gate|back|far|farback>[-day]`.
+
+### The town at night, the square's props (look 2, stage 6; ART-look2.md section 18)
+
+Proposals like the ones above: the PNGs lie in Resources/Art, `tools/build-art.sh` rebuilds them, no Swift names them.
+
+| id | size | frames | notes |
+|---|---|---|---|
+| `houseLit`, `houseBLit`, `houseCLit` | 64x46 | 1 | the cottage's lit rooms: an emissive sprite of the house's size, clear but for the window glass inside the house's masks. Each window shows a room (a wall that is brightest near its candle or hearth, a curtain, a shelf, a table, a cat on the sill; people are shapes left dark). Draw it over the house as `.sprite(<id>Lit, dx: 0, dy: 0, glow: .fireWhite, fades: true)` **in place of** the house's `.mask` emitters (with both, the glass doubles); mirror it with a mirrored house. The window lights (`li`) stay |
+| `bigHouseLit` | 72x56 | 1 | the big house's five windows the same way (a standing figure under a hanging lamp, rose curtains, a table with a candle, the kitchen's banked fire, the dormer) |
+| `tavernLit` | 90x56 | 1 | the tavern's: three guest rooms above (linen, a low fire, a guest at the window), the taproom below (two drinkers over a candle; a lamp, the innkeeper, the kegs), the door lantern's flame (the mask (32,10,1,2)), and one row of light on the step under the door (dx 36 to 43, dy 1): the only pixels outside the glass |
+| `hayCart` | 40x24 | 1 | a two-wheeled hay cart at rest on its prop, the shafts to the left: a prop for the square or a lane (ground line at the frame's bottom, no collision) |
+| `barrels` | 26x14 | 1 | two standing barrels (a pewter mug on the bigger one) and a third lying end on: beside the tavern or the market |
+| `noticeBoard` | 20x26 | 1 | the lord's notice board: two oak posts, a board with four notices under a small slate roof in the realm's teal. A place for the day's news (a decree, a recruit call) if the code wants one |
