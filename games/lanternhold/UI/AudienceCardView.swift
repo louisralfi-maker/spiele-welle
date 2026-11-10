@@ -1,11 +1,12 @@
 import SwiftUI
 
 /// The audience card (DESIGN.md "The throne: audiences and decisions", "Screens: Audience"; M3 step 3; `audience-root`,
-/// `audience-choice-<n>`, `audience-counsel`, `audience-leave`, `audience-next`): a wide parchment over the hall that
-/// stands between the HUD and the figures, its pointer down to the petitioner before the throne, so the hall and the
-/// speaker stay in view. The portrait (whole device pixels per art pixel on a framed tile), the name and the role, the
-/// request; 2 or 3 choice tiles side by side (52 pt and more) with what they cost or bring, greyed with the reason
-/// when they cannot be taken; Odile's counsel (it marks the choice she favours); Leave (the lord
+/// `audience-choice-<n>`, `audience-counsel`, `audience-leave`, `audience-next`): a letter laid before the lord
+/// (docs/UI-look.md), a wide parchment over the hall that stands between the HUD and the figures, its pointer down to
+/// the petitioner before the throne, so the hall and the speaker stay in view. The portrait in an inked frame (whole
+/// device pixels per art pixel), the name in small capitals and the role as a rubric, the request; 2 or 3 choices
+/// side by side as inked plaques (52 pt and more) with what they cost or bring, greyed with the reason when they
+/// cannot be taken; Odile's counsel (it marks the choice she favours); Leave (the lord
 /// never sat down, so "Stand up" promised a picture the hall does not show; M3 fix, U3). After a choice the card
 /// shows the king's word, the reaction and what changed, and the button to the next petitioner. The text scrolls
 /// when the screen is too short; the choices stay in view.
@@ -14,8 +15,8 @@ struct AudienceCardView: View {
     let card: AudienceCard
     let model: GameModel
 
-    /// The card stands under the HUD's clock and numbers.
-    static let topRoom: CGFloat = 78
+    /// The card stands under the HUD's ledger slip (the slip ends 67 pt down; the first look's pills ended at 70).
+    static let topRoom: CGFloat = 74
     /// Odile's counsel shows as a note at the top while the strip hides: right of the pause button, left of the
     /// clock and numbers.
     static let noteLeft: CGFloat = 70
@@ -59,17 +60,18 @@ struct AudienceCardView: View {
     }
 
     private var content: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 7) {
             HStack(alignment: .top, spacing: 12) {
                 PortraitTile(portrait: card.portrait, side: 72)
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 3) {
                     header
+                    InkRule()
                     CardScroll {
                         VStack(alignment: .leading, spacing: 6) {
                             if card.phase == .reaction {
                                 reaction
                             } else {
-                                Text(verbatim: model.story(card.textKey))
+                                Text(inked: model.story(card.textKey), .subheadline)
                                     .font(Theme.serif(.subheadline))
                                     .foregroundStyle(Theme.ink)
                                     .fixedSize(horizontal: false, vertical: true)
@@ -87,8 +89,8 @@ struct AudienceCardView: View {
                 choices
             }
         }
-        .padding(.leading, 12)
-        .padding(.trailing, 10)
+        .padding(.leading, 14)
+        .padding(.trailing, 12)
         .padding(.vertical, 10)
         .background(ParchmentBackground())
         .accessibilityElement(children: .contain)
@@ -112,12 +114,13 @@ struct AudienceCardView: View {
         HStack(alignment: .center, spacing: 8) {
             VStack(alignment: .leading, spacing: 0) {
                 Text(verbatim: name)
-                    .font(Theme.serif(.headline, .bold))
+                    .font(Theme.caps(.headline))
                     .foregroundStyle(Theme.ink)
                 if let role {
                     Text(verbatim: role)
-                        .font(Theme.serif(.footnote))
-                        .foregroundStyle(Theme.inkSoft)
+                        .font(Theme.caps(.caption))
+                        .tracking(0.8)
+                        .foregroundStyle(Theme.rubric)
                 }
             }
             .fixedSize(horizontal: false, vertical: true)
@@ -130,16 +133,17 @@ struct AudienceCardView: View {
                     HStack(spacing: 6) {
                         PortraitTile(portrait: .own(.portraitOdile, frame: 0), side: 40)
                         Text("Counsel")
-                            .font(Theme.serif(.subheadline, .semibold))
-                            .foregroundStyle(Theme.ink)
+                            .font(Theme.caps(.subheadline))
+                            .foregroundStyle(Theme.teal)
                             .lineLimit(1)
                     }
                     .padding(.leading, 3)
                     .padding(.trailing, 12)
                     .frame(minHeight: 46)
-                    .background(Capsule().fill(Color.white.opacity(0.35)))
-                    .overlay(Capsule().strokeBorder(Theme.teal.opacity(0.7), lineWidth: 1.2))
-                    .contentShape(Capsule())
+                    .background(RoundedRectangle(cornerRadius: 2, style: .continuous).fill(Theme.plaque.opacity(0.8)))
+                    .overlay(RoundedRectangle(cornerRadius: 2, style: .continuous)
+                        .strokeBorder(Theme.teal, lineWidth: 1.2))
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("Odile's counsel"))
@@ -149,14 +153,15 @@ struct AudienceCardView: View {
                 model.standUp()
             } label: {
                 Text("Leave")
-                    .font(Theme.serif(.subheadline, .semibold))
-                    .foregroundStyle(Theme.ink.opacity(0.85))
+                    .font(Theme.caps(.subheadline))
+                    .foregroundStyle(Theme.ink)
                     .lineLimit(1)
                     .padding(.horizontal, 12)
                     .frame(minWidth: 44, minHeight: 44)
-                    .background(Capsule().fill(Color.white.opacity(0.22)))
-                    .overlay(Capsule().strokeBorder(Theme.woodDark.opacity(0.45), lineWidth: 1))
-                    .contentShape(Capsule())
+                    .background(RoundedRectangle(cornerRadius: 2, style: .continuous).fill(Theme.plaque.opacity(0.5)))
+                    .overlay(RoundedRectangle(cornerRadius: 2, style: .continuous)
+                        .strokeBorder(Theme.rule.opacity(0.7), lineWidth: 1))
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .accessibilityIdentifier("audience-leave")
@@ -185,14 +190,14 @@ struct AudienceCardView: View {
     private var reaction: some View {
         VStack(alignment: .leading, spacing: 4) {
             if let chosen = chosenLabel {
-                Text(verbatim: chosen)
-                    .font(Theme.serif(.footnote, .semibold))
+                Text(inked: chosen, .footnote)
+                    .font(Theme.serif(.footnote))
                     .foregroundStyle(Theme.teal)
                     .fixedSize(horizontal: false, vertical: true)
             }
             if let key = card.reactionKey {
-                Text(verbatim: model.story(key))
-                    .font(Theme.serif(.subheadline).italic())
+                Text(inked: model.story(key), .subheadline)
+                    .font(Theme.italic(.subheadline))
                     .foregroundStyle(Theme.ink)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -210,7 +215,7 @@ struct AudienceCardView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     ForEach(outcome.unlocked, id: \.self) { unlock in
                         Label(AudienceTexts.unlock(unlock), systemImage: "key.fill")
-                            .font(Theme.serif(.footnote, .semibold))
+                            .font(Theme.serif(.footnote))
                             .foregroundStyle(Theme.teal)
                             .labelStyle(.titleAndIcon)
                             .fixedSize(horizontal: false, vertical: true)
@@ -219,7 +224,7 @@ struct AudienceCardView: View {
                     // still leaves a trace on the card.
                     ForEach(card.remembered, id: \.self) { key in
                         Label(model.story(key), systemImage: "bookmark.fill")
-                            .font(Theme.serif(.footnote, .semibold))
+                            .font(Theme.serif(.footnote))
                             .foregroundStyle(Theme.teal)
                             .labelStyle(.titleAndIcon)
                             .fixedSize(horizontal: false, vertical: true)
@@ -232,7 +237,12 @@ struct AudienceCardView: View {
                 model.nextPetitioner()
             } label: {
                 if card.waiting > 0 {
-                    Label(String(localized: "Next petitioner (\(card.waiting))"), systemImage: "person.fill.badge.plus")
+                    Label {
+                        // The count in the figure face: IM Fell's old-style 1 reads as an I on the wax.
+                        Text(inked: String(localized: "Next petitioner (\(card.waiting))"), .headline)
+                    } icon: {
+                        Image(systemName: "person.fill.badge.plus")
+                    }
                 } else {
                     Label {
                         Text(String(localized: "End the audience"))
@@ -247,33 +257,33 @@ struct AudienceCardView: View {
     }
 }
 
-/// Odile's one line of counsel (the Counsel button): a small parchment at the top of the screen, where the realm
-/// strip rests during the audience, with her portrait and her line in teal, as if she leaned in to the king.
+/// Odile's one line of counsel (the Counsel button): a slip of parchment ruled in House Lantern's teal at the top of
+/// the screen, where the realm strip rests during the audience, with her portrait and her line in her hand, as if
+/// she leaned in to the king.
 struct CounselNote: View {
     let text: String
 
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
             PortraitTile(portrait: .own(.portraitOdile, frame: 0), side: 40)
-            (Text("Odile counsels").font(Theme.serif(.footnote, .bold)).foregroundStyle(Theme.teal)
-                + Text(verbatim: ": ").font(Theme.serif(.footnote, .bold)).foregroundStyle(Theme.teal)
-                + Text(verbatim: text).font(Theme.serif(.footnote).italic()).foregroundStyle(Theme.ink))
+            (Text("Odile counsels").font(Theme.caps(.footnote)).foregroundStyle(Theme.teal)
+                + Text(verbatim: ": ").font(Theme.caps(.footnote)).foregroundStyle(Theme.teal)
+                + Text(verbatim: text).font(Theme.italic(.footnote)).foregroundStyle(Theme.ink))
                 .lineLimit(4)
                 .minimumScaleFactor(0.8)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(ParchmentBackground(corner: 11))
-        .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous).strokeBorder(Theme.teal.opacity(0.6),
-                                                                                     lineWidth: 1.2))
+        .background(SlipBackground(teal: true))
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("audience-counsel-line")
     }
 }
 
-/// One choice of the audience: its words, what it costs or brings, the reason it cannot be taken; at least 52 pt high
-/// (DESIGN.md "Controls": choice buttons 52 pt). Odile's favourite carries her seal once the counsel is read.
+/// One choice of the audience on an inked plaque: its words, what it costs or brings, the reason it cannot be taken;
+/// at least 52 pt high (DESIGN.md "Controls": choice buttons 52 pt). Odile's favourite carries her seal and a teal
+/// rule once the counsel is read.
 struct ChoiceTile: View {
     let option: AudienceCard.Option
     let action: @MainActor () -> Void
@@ -283,8 +293,8 @@ struct ChoiceTile: View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .top, spacing: 4) {
-                    Text(verbatim: StoryText.string(option.labelKey, lord: lord))
-                        .font(Theme.serif(.subheadline, .semibold))
+                    Text(inked: StoryText.string(option.labelKey, lord: lord), .subheadline)
+                        .font(Theme.serif(.subheadline))
                         .foregroundStyle(Theme.ink.opacity(option.enabled ? 1 : 0.5))
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 0)
@@ -304,27 +314,19 @@ struct ChoiceTile: View {
                     HStack(spacing: 4) {
                         Image(systemName: "exclamationmark.circle.fill")
                             .font(.system(size: 11, weight: .bold))
-                        Text(verbatim: AudienceTexts.blocker(block))
+                        Text(inked: AudienceTexts.blocker(block), .footnote)
+                            .font(Theme.serif(.footnote))
                     }
-                    .font(Theme.serif(.footnote, .semibold))
-                    .foregroundStyle(Theme.ember)
+                    .foregroundStyle(Theme.rubric)
                     .fixedSize(horizontal: false, vertical: true)
                 }
             }
             .multilineTextAlignment(.leading)
             .padding(.horizontal, 10)
-            .padding(.vertical, 7)
+            .padding(.vertical, 6)
             .frame(maxWidth: .infinity, minHeight: 52, alignment: .topLeading)
-            .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color.white.opacity(option.enabled ? 0.45 : 0.18))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .strokeBorder(option.favoured ? Theme.teal : Theme.woodDark.opacity(option.enabled ? 0.5 : 0.25),
-                                  lineWidth: option.favoured ? 2 : 1)
-            )
-            .contentShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .background(PlaqueBackground(enabled: option.enabled, marked: option.favoured))
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .disabled(!option.enabled)
@@ -369,7 +371,7 @@ struct EffectChips: View {
                     .accessibilityLabel(Text("Happiness \(Texts.signed(happiness))"))
             }
             if citizens != 0 {
-                chip(Texts.signed(citizens)) { symbol("person.2.fill") }
+                chip(Texts.signed(citizens)) { PeopleIcon(size: size + 2) }
                     .accessibilityLabel(Text("People \(Texts.signed(citizens))"))
             }
             if archers != 0 {
@@ -396,8 +398,8 @@ struct EffectChips: View {
                     Image(systemName: "bookmark.fill")
                         .font(.system(size: size - 2, weight: .semibold))
                     if changesNothing {
-                        Text(verbatim: rememberedText)
-                            .font(Theme.serif(.footnote, .semibold))
+                        Text(inked: rememberedText, .footnote)
+                            .font(Theme.serif(.footnote))
                     }
                 }
                 .foregroundStyle(Theme.teal)
@@ -405,7 +407,7 @@ struct EffectChips: View {
                 .accessibilityLabel(Text(verbatim: rememberedText))
             } else if saysNoCost && changesNothing {
                 Text("No cost")
-                    .font(Theme.serif(.footnote))
+                    .font(Theme.italic(.footnote))
                     .foregroundStyle(Theme.inkSoft)
             }
         }
@@ -426,10 +428,10 @@ struct EffectChips: View {
                 Image(systemName: "water.waves")
                     .font(.system(size: size - 2, weight: .semibold))
                 Text(AudienceTexts.tonight(Texts.signed(percent) + "%"))
-                    .font(Theme.rounded(size, .bold))
+                    .font(Theme.figures(size + 1))
                     .monospacedDigit()
             }
-            .foregroundStyle(percent > 0 ? Theme.ember : Theme.teal)
+            .foregroundStyle(percent > 0 ? Theme.rubric : Theme.teal)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text("Tonight's attack \(Texts.signed(percent) + "%")"))
         case .fewer(_, let count)?:
@@ -437,7 +439,7 @@ struct EffectChips: View {
                 Image(systemName: "pawprint.fill")
                     .font(.system(size: size - 2, weight: .semibold))
                 Text(AudienceTexts.tonight(Texts.signed(-count)))
-                    .font(Theme.rounded(size, .bold))
+                    .font(Theme.figures(size + 1))
                     .monospacedDigit()
             }
             .foregroundStyle(Theme.teal)
@@ -446,7 +448,7 @@ struct EffectChips: View {
         case .fog?:
             Image(systemName: "cloud.fog.fill")
                 .font(.system(size: size - 1, weight: .semibold))
-                .foregroundStyle(Theme.ember)
+                .foregroundStyle(Theme.rubric)
                 .accessibilityLabel(Text("Fog tonight"))
         case nil:
             EmptyView()
@@ -456,14 +458,14 @@ struct EffectChips: View {
     private func symbol(_ name: String) -> some View {
         Image(systemName: name)
             .font(.system(size: size - 2, weight: .semibold))
-            .foregroundStyle(Theme.woodDark)
+            .foregroundStyle(Theme.ink)
     }
 
     private func chip<Icon: View>(_ value: String, @ViewBuilder icon: () -> Icon) -> some View {
         HStack(spacing: 3) {
             icon()
             Text(verbatim: value)
-                .font(Theme.rounded(size, .bold))
+                .font(Theme.figures(size + 2))
                 .monospacedDigit()
                 .foregroundStyle(Theme.ink)
         }

@@ -1,7 +1,9 @@
+import Foundation
 import SwiftUI
 
 /// The dawn report (DESIGN.md "Screens"; `report-root`, `report-continue`, `report-fallen`, `report-king-banner`): a
-/// parchment over the dawn with the night (creatures stopped, walls lost, the fallen by name), the realm (taxes in,
+/// page of the house chronicle (docs/UI-look.md: the day as a rubric under a wash of dawn, two ledger columns with
+/// leaders, the treasury under a rule) with the night (creatures stopped, walls lost, the fallen by name), the realm (taxes in,
 /// happiness and why, people), what opens today and the treasury; a banner for no losses, a large one after night 20
 /// for the Lightless King slain or withdrawn, one when a second chance brought the dawn. Continue starts the day. The
 /// ad buttons come in M7.
@@ -31,17 +33,14 @@ struct ReportCardView: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            Image(systemName: "sun.horizon.fill")
-                .font(.system(size: 26, weight: .semibold))
-                .foregroundStyle(LinearGradient(colors: [Theme.fireGold, Theme.fireOrange], startPoint: .top,
-                                                endPoint: .bottom))
-                .accessibilityHidden(true)
+            DawnMark(size: 36)
             VStack(alignment: .leading, spacing: 1) {
-                Text("Day \(card.day) dawns")
-                    .font(Theme.serif(.title2, .bold))
-                    .foregroundStyle(Theme.ink)
-                Text("Night \(card.night) is over")
-                    .font(Theme.serif(.subheadline))
+                // The same keys as `Text("Day \(n) dawns")`; the digits stand in the ledger's figures.
+                Text(inked: String(localized: "Day \(card.day) dawns"), .title2)
+                    .font(Theme.caps(.title2))
+                    .foregroundStyle(Theme.rubric)
+                Text(inked: String(localized: "Night \(card.night) is over"), .subheadline)
+                    .font(Theme.italic(.subheadline))
                     .foregroundStyle(Theme.inkSoft)
             }
             .fixedSize(horizontal: false, vertical: true)
@@ -51,7 +50,7 @@ struct ReportCardView: View {
                 // M3 fix (U1): the finale quotes the speech of the last stand. It stands beside the title, where the
                 // card has room: as a row of its own it pushed the realm's last row out of the card (round f1).
                 Text(verbatim: model.story(speech))
-                    .font(Theme.serif(.footnote, .semibold).italic())
+                    .font(Theme.italic(.footnote))
                     .foregroundStyle(Theme.teal)
                     .multilineTextAlignment(.trailing)
                     .lineLimit(3)
@@ -62,18 +61,24 @@ struct ReportCardView: View {
             }
         }
         .padding(.horizontal, 20)
-        .padding(.top, 12)
-        .padding(.bottom, 8)
+        .padding(.top, 10)
+        .padding(.bottom, 6)
         .background(
-            UnevenRoundedRectangle(topLeadingRadius: 14, topTrailingRadius: 14, style: .continuous)
-                .fill(LinearGradient(colors: [Theme.dawnRose.opacity(0.55), Theme.fireGold.opacity(0.18)],
-                                     startPoint: .topLeading, endPoint: .bottomTrailing))
-                .padding(2)
+            // A wash of dawn across the head of the page, inside the frame's inner rule.
+            Rectangle()
+                .fill(LinearGradient(colors: [Theme.dawnRose.opacity(0.5), Theme.goldHi.opacity(0.14), Color.clear],
+                                     startPoint: .top, endPoint: .bottom))
+                .padding(.horizontal, 6)
+                .padding(.top, 6)
+                .accessibilityHidden(true)
         )
+        .overlay(alignment: .bottom) {
+            InkRule().padding(.horizontal, 20)
+        }
     }
 
     private var sections: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             ForEach(Array(bigBanners.enumerated()), id: \.offset) { index, banner in
                 ReportBanner(banner: banner, large: index == 0 && card.isFinale)
             }
@@ -85,17 +90,20 @@ struct ReportCardView: View {
             }
         }
         .padding(.horizontal, 20)
-        .padding(.vertical, 8)
+        .padding(.vertical, 6)
     }
 
+    // The columns' rows stand 5 pt apart and a row's detail directly under it: IM Fell's lines are taller than the
+    // system's, and at 8 and 2 pt the finale's last row (People) fell under the footer's rule (round lh-ui-1).
     private var nightColumn: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 5) {
             SectionTitle(text: String(localized: "The night"))
             ReportRow(label: String(localized: "Creatures stopped")) {
                 Text(verbatim: "\(card.creaturesStopped)")
             }
             ReportRow(label: String(localized: "Walls lost")) {
                 Text(verbatim: wallsLost)
+                    .font(Theme.serif(.subheadline))
             }
             if let lowest = card.hearthLowest {
                 ReportRow(label: String(localized: "Hearth fire at its lowest")) {
@@ -109,13 +117,14 @@ struct ReportCardView: View {
             if !card.fallen.isEmpty {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Fallen")
-                        .font(Theme.serif(.subheadline, .semibold))
-                        .foregroundStyle(Theme.ember)
+                        .font(Theme.caps(.footnote))
+                        .tracking(1)
+                        .foregroundStyle(Theme.rubric)
                     ForEach(Array(card.fallen.enumerated()), id: \.offset) { _, soldier in
                         HStack(spacing: 6) {
                             Image(systemName: "shield.lefthalf.filled")
                                 .font(.system(size: 11, weight: .semibold))
-                            Text(verbatim: Texts.fallen(soldier))
+                            Text(inked: Texts.fallen(soldier), .subheadline)
                         }
                         .font(Theme.serif(.subheadline))
                         .foregroundStyle(Theme.ink)
@@ -128,7 +137,7 @@ struct ReportCardView: View {
     }
 
     private var realmColumn: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 5) {
             SectionTitle(text: String(localized: "The valley"))
             ReportRow(label: String(localized: "Taxes"), detail: taxDetail) {
                 GoldAmount(amount: card.goldIn, size: 14)
@@ -155,8 +164,8 @@ struct ReportCardView: View {
                     Image(systemName: "key.fill")
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(Theme.goldDeep)
-                    Text(verbatim: Texts.unlock(unlock))
-                        .font(Theme.serif(.subheadline, .semibold))
+                    Text(inked: Texts.unlock(unlock), .subheadline)
+                        .font(Theme.serif(.subheadline))
                         .foregroundStyle(Theme.teal)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -167,9 +176,10 @@ struct ReportCardView: View {
     private var footer: some View {
         HStack(spacing: 12) {
             Text("Treasury")
-                .font(Theme.serif(.subheadline, .semibold))
+                .font(Theme.caps(.subheadline))
+                .tracking(0.6)
                 .foregroundStyle(Theme.inkSoft)
-            GoldAmount(amount: card.goldAfter, size: 16)
+            GoldAmount(amount: card.goldAfter, size: 17)
             Spacer(minLength: 8)
             Button {
                 model.continueReport()
@@ -181,7 +191,10 @@ struct ReportCardView: View {
         }
         .padding(.horizontal, 20)
         .padding(.top, 6)
-        .padding(.bottom, 14)
+        .padding(.bottom, 12)
+        .overlay(alignment: .top) {
+            InkRule().padding(.horizontal, 20)
+        }
     }
 
     /// The banners across the card: the King's and a second chance; no losses stands in the night's column.
@@ -217,24 +230,74 @@ struct ReportCardView: View {
     }
 }
 
-/// A small heading inside a card.
+/// A small heading inside a card: a rubric in small capitals over an ink rule.
 struct SectionTitle: View {
     let text: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(verbatim: text.uppercased())
-                .font(.system(.caption, design: .serif, weight: .bold))
-                .tracking(1.2)
-                .foregroundStyle(Theme.woodDark.opacity(0.85))
-            Rectangle()
-                .fill(Theme.goldDeep.opacity(0.45))
-                .frame(height: 1)
+        VStack(alignment: .leading, spacing: 2) {
+            Text(verbatim: text)
+                .font(Theme.caps(.footnote))
+                .tracking(1)
+                .foregroundStyle(Theme.rubric)
+            InkRule()
         }
     }
 }
 
-/// A line of the report: a label, its value on the right, and a smaller line of detail under it.
+/// The dawn as a mark at the head of the chronicle's page: half a sun of gold leaf on an ink horizon, its rays in ink.
+struct DawnMark: View {
+    var size: CGFloat = 36
+
+    var body: some View {
+        ZStack {
+            SunDisc()
+                .fill(LinearGradient(colors: [Theme.goldHi, Theme.gold], startPoint: .top, endPoint: .bottom))
+            SunDisc()
+                .stroke(Theme.ink, style: StrokeStyle(lineWidth: 1.3, lineJoin: .round))
+            SunRays()
+                .stroke(Theme.ink, style: StrokeStyle(lineWidth: 1.3, lineCap: .round))
+        }
+        .frame(width: size, height: size * 0.66)
+        .accessibilityHidden(true)
+    }
+}
+
+/// The half disc of the rising sun, standing on the bottom of its frame.
+struct SunDisc: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let horizon = rect.maxY - 1
+        path.addArc(center: CGPoint(x: rect.midX, y: horizon), radius: rect.width * 0.25, startAngle: .degrees(180),
+                    endAngle: .degrees(360), clockwise: false)
+        path.closeSubpath()
+        return path
+    }
+}
+
+/// Five rays over the sun and the horizon under it.
+struct SunRays: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let horizon = rect.maxY - 1
+        let centre = CGPoint(x: rect.midX, y: horizon)
+        let radius = rect.width * 0.25
+        for step in 1...5 {
+            let angle = Double.pi + Double.pi * Double(step) / 6
+            let inner = radius + rect.width * 0.07
+            let outer = radius + rect.width * (step % 2 == 1 ? 0.2 : 0.15)
+            path.move(to: CGPoint(x: centre.x + CGFloat(cos(angle)) * inner, y: centre.y + CGFloat(sin(angle)) * inner))
+            path.addLine(to: CGPoint(x: centre.x + CGFloat(cos(angle)) * outer,
+                                     y: centre.y + CGFloat(sin(angle)) * outer))
+        }
+        path.move(to: CGPoint(x: rect.minX + 1, y: horizon))
+        path.addLine(to: CGPoint(x: rect.maxX - 1, y: horizon))
+        return path
+    }
+}
+
+/// A line of the report, as a ledger writes it: a label, a leader of ink dots, its value on the right, and a smaller
+/// line of detail under it.
 struct ReportRow<Value: View>: View {
     let label: String
     var detail: String?
@@ -247,22 +310,22 @@ struct ReportRow<Value: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(verbatim: label)
                     .font(Theme.serif(.subheadline))
                     .foregroundStyle(Theme.ink)
                     .fixedSize(horizontal: false, vertical: true)
-                Spacer(minLength: 6)
+                Leader()
                 value()
-                    .font(Theme.rounded(15, .bold))
+                    .font(Theme.figures(16))
                     .monospacedDigit()
                     .foregroundStyle(Theme.ink)
                     .fixedSize()
             }
             if let detail {
-                Text(verbatim: detail)
-                    .font(Theme.serif(.footnote))
+                Text(inked: detail, .footnote)
+                    .font(Theme.italic(.footnote))
                     .foregroundStyle(Theme.inkSoft)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -271,8 +334,8 @@ struct ReportRow<Value: View>: View {
     }
 }
 
-/// The report's banners: the Lightless King slain (gold on the realm's teal), withdrawn (moonlit), a second chance
-/// (ember), no losses (a small teal ribbon).
+/// The report's banners, ribbons as a map's cartouche wears them: the Lightless King slain (gold on the realm's teal),
+/// withdrawn (the dark of the desk), a second chance (wax red), no losses (a small teal ribbon).
 struct ReportBanner: View {
     let banner: ReportCard.Banner
     let large: Bool
@@ -280,18 +343,18 @@ struct ReportBanner: View {
     var body: some View {
         VStack(spacing: 2) {
             Text(verbatim: title)
-                .font(large ? Theme.serif(.title2, .bold) : Theme.serif(.subheadline, .bold))
+                .font(large ? Theme.caps(.title2) : Theme.caps(.subheadline))
                 .foregroundStyle(titleColor)
             if let line {
                 Text(verbatim: line)
-                    .font(large ? Theme.serif(.subheadline) : Theme.serif(.footnote))
-                    .foregroundStyle(Theme.parchment)
+                    .font(large ? Theme.italic(.subheadline) : Theme.italic(.footnote))
+                    .foregroundStyle(Theme.sealWords)
             }
         }
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
         .padding(.horizontal, 30)
-        .padding(.vertical, large ? 10 : 5)
+        .padding(.vertical, large ? 7 : 5)
         .frame(maxWidth: .infinity)
         .background(RibbonShape(notch: large ? 16 : 10).fill(fill))
         .overlay(RibbonShape(notch: large ? 16 : 10).stroke(Theme.gold.opacity(0.7), lineWidth: 1))
@@ -318,19 +381,19 @@ struct ReportBanner: View {
 
     private var titleColor: Color {
         switch banner {
-        case .kingSlain: return Theme.fireGold
-        case .kingWithdrew: return Theme.parchment
-        case .secondChance: return Theme.parchment
-        case .noLosses: return Theme.parchment
+        case .kingSlain: return Theme.goldHi
+        case .kingWithdrew: return Theme.sealWords
+        case .secondChance: return Theme.sealWords
+        case .noLosses: return Theme.sealWords
         }
     }
 
     private var fill: Color {
         switch banner {
         case .kingSlain: return Theme.teal
-        case .kingWithdrew: return Theme.night2
-        case .secondChance: return Theme.ember
-        case .noLosses: return Theme.teal.opacity(0.9)
+        case .kingWithdrew: return Theme.desk2
+        case .secondChance: return Theme.rubric
+        case .noLosses: return Theme.teal
         }
     }
 }

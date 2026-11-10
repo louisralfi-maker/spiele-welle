@@ -3,7 +3,7 @@ import SwiftUI
 
 /// The game's own pixel art on the cards (M2b part 2): a sprite cut from the atlas the renderer uses (the art lane's PNG
 /// when the bundle has one, else the procedural placeholder), drawn with whole device pixels per art pixel where it
-/// fits and never smoothed, on a small dusk tile with a wooden frame.
+/// fits and never smoothed, on a small dusk tile in an inked frame.
 @MainActor
 enum SpriteImages {
     private static var cache: [String: CGImage] = [:]
@@ -80,7 +80,7 @@ struct SpriteThumbnail: View {
         let whole = (devicePixels / largest).rounded(.down)
         let scale = whole >= 1 ? whole / displayScale : inner / largest
         ZStack {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
+            RoundedRectangle(cornerRadius: 2, style: .continuous)
                 .fill(LinearGradient(colors: [Color(hex: 0x3B3566), Color(hex: 0x6E5A7E), Color(hex: 0xC98A6A)],
                                      startPoint: .top, endPoint: .bottom))
             if let image = SpriteImages.image(sprite) {
@@ -90,8 +90,8 @@ struct SpriteThumbnail: View {
                     .frame(width: CGFloat(size.width) * scale, height: CGFloat(size.height) * scale)
                     .frame(width: inner, height: inner, alignment: .bottom)
             }
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .strokeBorder(Theme.woodDark.opacity(0.8), lineWidth: 1.5)
+            RoundedRectangle(cornerRadius: 2, style: .continuous)
+                .strokeBorder(Theme.ink, lineWidth: 1.5)
         }
         .frame(width: side, height: side)
         .accessibilityHidden(true)

@@ -46,6 +46,9 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         # Resources/Assets.xcassets: the 1024 pt icon (the lit castle gate at night, from the art pass), single size.
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # The interface's typeface (IM Fell English, SIL OFL; Resources/Fonts): Xcode merges this file's UIAppFonts into
+        # the generated plist (docs/UI-look.md). It sits outside the source folders so it is not copied as a resource.
+        INFOPLIST_FILE: Info.plist
         INFOPLIST_KEY_CFBundleDisplayName: Lanternhold
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.strategy-games
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
