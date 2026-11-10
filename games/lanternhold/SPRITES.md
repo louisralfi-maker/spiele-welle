@@ -488,3 +488,33 @@ no Swift names them yet. Props of the **world plane**, one frame each, lit like 
   `oxmoor_with`, `calder_with`, `lorn_with`); otherwise the realm's painted banner shows at that place.
 - `hallFront` (z 2) covers them like the rest of the interior; they hang inside the room's box, so the hall's
   light falls on them. No light of their own.
+
+### The circlet icon (look 2, stage 7; ART-look2.md section 19.4)
+
+**Proposal for the code lane** (claude/lh-polish): `tools/iconart.py` (the court lane of `tools/build-art.sh`), no
+Swift names it yet. Interface art, not world art: no plane, no light, no anchor. It stands where the drawn
+`CircletIcon` stands, centred.
+
+| id | files | art size | frames | for |
+|---|---|---|---|---|
+| `circletIcon` | `circletIcon.png` (24x16), `circletIcon@2x.png` (48x32), `circletIcon@3x.png` (72x48) | 24x16 | 1 | gold, for dark grounds: the HUD's action button (the `.throne` glyph) |
+| `circletIconInk` | `circletIconInk.png`, `circletIconInk@2x.png`, `circletIconInk@3x.png` (the same sizes) | 24x16 | 1 | ink alone, the stone cut out: the gold "End the audience" button of the audience card |
+
+- **Sizes:** the 2x and 3x files are the 1x file with every art pixel a square of 2x2 and 3x3. The circlet fills
+  all 24 columns and rows 2 to 13 of 16, so the image's frame is the layout box.
+- **Where:** `CircletIcon(size: 46)` in `UI/HUDView.swift` becomes `circletIcon` at **48x32 pt** (2 pt per art
+  pixel, the world's pixel size on the phone); `CircletIcon(size: 24)` in `UI/AudienceCardView.swift` becomes
+  `circletIconInk` at **24x16 pt** (1 pt per art pixel). If either should be bigger, the next size is the next whole
+  multiple (72x48 pt, 48x32 pt), never one between: a part pixel blurs or drops rows.
+- **How**, two ways, the code lane's choice:
+  - the three files lie loose in the bundle, so `UIImage(named: "circletIcon")` takes the file for the screen and
+    gives a 24x16 pt image with hard edges; the card draws it as it is, the HUD with
+    `.resizable().interpolation(.none).frame(width: 48, height: 32)`;
+  - or as a `SpriteID` through `SpriteImages.image(_:frame:)`, as `PortraitTile` draws the portraits. That reads
+    the 1x file alone; the `@2x` and `@3x` files may then stay out of the bundle.
+- **States:** the held button's `.opacity(0.45)` and `.saturation(0.2)` work on the image as on the shape.
+  `iconColor` no longer tints the throne glyph, the icon has its own colours. `circletIconInk` is one colour, so
+  `.renderingMode(.template)` gives it any tint.
+- `CircletShape` and `CircletIcon` in `UI/Theme.swift` fall away.
+- The gold icon uses `fireGold` and `fireWhite` (the lit rim, one glint). It is never drawn in the lit world, so
+  the rule that albedo keeps off the fire ramp does not touch it.
