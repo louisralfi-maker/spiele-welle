@@ -61,8 +61,8 @@ struct ReportCardView: View {
             }
         }
         .padding(.horizontal, 20)
-        .padding(.top, 13)
-        .padding(.bottom, 8)
+        .padding(.top, 10)
+        .padding(.bottom, 6)
         .background(
             // A wash of dawn across the head of the page, inside the frame's inner rule.
             Rectangle()
@@ -78,7 +78,7 @@ struct ReportCardView: View {
     }
 
     private var sections: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             ForEach(Array(bigBanners.enumerated()), id: \.offset) { index, banner in
                 ReportBanner(banner: banner, large: index == 0 && card.isFinale)
             }
@@ -90,11 +90,13 @@ struct ReportCardView: View {
             }
         }
         .padding(.horizontal, 20)
-        .padding(.vertical, 8)
+        .padding(.vertical, 6)
     }
 
+    // The columns' rows stand 5 pt apart and a row's detail directly under it: IM Fell's lines are taller than the
+    // system's, and at 8 and 2 pt the finale's last row (People) fell under the footer's rule (round lh-ui-1).
     private var nightColumn: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 5) {
             SectionTitle(text: String(localized: "The night"))
             ReportRow(label: String(localized: "Creatures stopped")) {
                 Text(verbatim: "\(card.creaturesStopped)")
@@ -135,7 +137,7 @@ struct ReportCardView: View {
     }
 
     private var realmColumn: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 5) {
             SectionTitle(text: String(localized: "The valley"))
             ReportRow(label: String(localized: "Taxes"), detail: taxDetail) {
                 GoldAmount(amount: card.goldIn, size: 14)
@@ -188,8 +190,8 @@ struct ReportCardView: View {
             .accessibilityIdentifier("report-continue")
         }
         .padding(.horizontal, 20)
-        .padding(.top, 8)
-        .padding(.bottom, 14)
+        .padding(.top, 6)
+        .padding(.bottom, 12)
         .overlay(alignment: .top) {
             InkRule().padding(.horizontal, 20)
         }
@@ -308,7 +310,7 @@ struct ReportRow<Value: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(verbatim: label)
                     .font(Theme.serif(.subheadline))
@@ -352,7 +354,7 @@ struct ReportBanner: View {
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
         .padding(.horizontal, 30)
-        .padding(.vertical, large ? 10 : 5)
+        .padding(.vertical, large ? 7 : 5)
         .frame(maxWidth: .infinity)
         .background(RibbonShape(notch: large ? 16 : 10).fill(fill))
         .overlay(RibbonShape(notch: large ? 16 : 10).stroke(Theme.gold.opacity(0.7), lineWidth: 1))

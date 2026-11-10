@@ -56,7 +56,7 @@ struct CardChrome<Header: View, Content: View>: View {
     @ViewBuilder let content: () -> Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 7) {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 header()
                 Spacer(minLength: 6)
@@ -76,7 +76,7 @@ struct CardChrome<Header: View, Content: View>: View {
         }
         .padding(.leading, 16)
         .padding(.trailing, 8)
-        .padding(.vertical, 11)
+        .padding(.vertical, 10)
         .background(ParchmentBackground())
         // The close button floats in the corner, so the header is only as tall as its title.
         .overlay(alignment: .topTrailing) {
@@ -133,7 +133,7 @@ struct OptionRow<Trailing: View>: View {
                     SpriteThumbnail(sprite: sprite)
                         .opacity(enabled ? 1 : 0.6)
                 }
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 1) {
                     HStack(spacing: 6) {
                         if selected {
                             Image(systemName: "checkmark.seal.fill")
@@ -164,7 +164,9 @@ struct OptionRow<Trailing: View>: View {
             }
             .multilineTextAlignment(.leading)
             .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            // IM Fell's lines stand taller than the system's: 4 pt keeps a two-line row at the 52 pt of the rule,
+            // so the four tax rates fit their card without scrolling (round lh-ui-1 cut the fourth).
+            .padding(.vertical, 4)
             .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
             .background(PlaqueBackground(enabled: enabled, marked: selected))
             .contentShape(Rectangle())

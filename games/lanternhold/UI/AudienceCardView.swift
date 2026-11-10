@@ -15,8 +15,8 @@ struct AudienceCardView: View {
     let card: AudienceCard
     let model: GameModel
 
-    /// The card stands under the HUD's clock and numbers.
-    static let topRoom: CGFloat = 78
+    /// The card stands under the HUD's ledger slip (the slip ends 67 pt down; the first look's pills ended at 70).
+    static let topRoom: CGFloat = 74
     /// Odile's counsel shows as a note at the top while the strip hides: right of the pause button, left of the
     /// clock and numbers.
     static let noteLeft: CGFloat = 70
@@ -60,10 +60,10 @@ struct AudienceCardView: View {
     }
 
     private var content: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 7) {
             HStack(alignment: .top, spacing: 12) {
                 PortraitTile(portrait: card.portrait, side: 72)
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 3) {
                     header
                     InkRule()
                     CardScroll {
@@ -91,7 +91,7 @@ struct AudienceCardView: View {
         }
         .padding(.leading, 14)
         .padding(.trailing, 12)
-        .padding(.vertical, 12)
+        .padding(.vertical, 10)
         .background(ParchmentBackground())
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("audience-root")
@@ -237,7 +237,12 @@ struct AudienceCardView: View {
                 model.nextPetitioner()
             } label: {
                 if card.waiting > 0 {
-                    Label(String(localized: "Next petitioner (\(card.waiting))"), systemImage: "person.fill.badge.plus")
+                    Label {
+                        // The count in the figure face: IM Fell's old-style 1 reads as an I on the wax.
+                        Text(inked: String(localized: "Next petitioner (\(card.waiting))"), .headline)
+                    } icon: {
+                        Image(systemName: "person.fill.badge.plus")
+                    }
                 } else {
                     Label(String(localized: "End the audience"), systemImage: "crown.fill")
                 }
@@ -314,7 +319,7 @@ struct ChoiceTile: View {
             }
             .multilineTextAlignment(.leading)
             .padding(.horizontal, 10)
-            .padding(.vertical, 7)
+            .padding(.vertical, 6)
             .frame(maxWidth: .infinity, minHeight: 52, alignment: .topLeading)
             .background(PlaqueBackground(enabled: option.enabled, marked: option.favoured))
             .contentShape(Rectangle())

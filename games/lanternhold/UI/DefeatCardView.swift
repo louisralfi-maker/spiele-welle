@@ -339,7 +339,10 @@ struct PauseSheetView: View {
                         Button {
                             callingTheNight = true
                         } label: {
-                            Label("Sound the horn", systemImage: "moon.stars.fill").frame(maxWidth: .infinity)
+                            Label("Sound the horn", systemImage: "moon.stars.fill")
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
+                                .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(QuietButtonStyle(onDark: true))
                         .accessibilityIdentifier("pause-horn")
