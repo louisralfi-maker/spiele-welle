@@ -154,6 +154,76 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(variants.count, 2, "the moor's tiles vary")
     }
 
+    /// Round 2 joined (SPRITES.md "The town at night", "Two more paintings of every town tree"): in look 2 a town
+    /// house's windows show its lit rooms, one emissive sprite on the house's own quad and mirrored with it, in place
+    /// of the glass masks; by day they are dark; look 1 keeps its glass. The valley's trees stand in three paintings,
+    /// never the same one twice side by side.
+    func testTheTownAtNightOfLookTwo() {
+        let rooms: [SpriteID: SpriteID] = [.house: .houseLit, .houseB: .houseBLit, .houseC: .houseCLit,
+                                           .bigHouse: .bigHouseLit, .tavern: .tavernLit]
+        let lit = Set(rooms.values)
+        func close(_ a: SIMD4<Float>, _ b: SIMD4<Float>) -> Bool {
+            abs(a.x - b.x) < 0.01 && abs(a.y - b.y) < 0.01 && abs(a.z - b.z) < 0.01 && abs(a.w - b.w) < 0.01
+        }
+        let night = GameFrameSupport.demoNight(hour: 22.8)
+        var seen = Set<SpriteID>()
+        var mirrored = 0
+        for focus in [2560.0, 2900.0, 3300.0] {
+            let desc = frame(night, focus: focus)
+            let houses = desc.layer(.world).sprites.filter { rooms[$0.sprite] != nil }
+            let glows = desc.emissives.filter { lit.contains($0.sprite) }
+            XCTAssertFalse(houses.isEmpty, "houses at \(focus)")
+            XCTAssertEqual(glows.count, houses.count, "one sprite of lit rooms per house at \(focus)")
+            for glow in glows {
+                XCTAssertEqual(glow.kind, .glow)
+                XCTAssertEqual(glow.plane, .world)
+                let house = houses.first { rooms[$0.sprite] == glow.sprite && close($0.rect, glow.rect) }
+                XCTAssertNotNil(house, "\(glow.sprite) lies on its house at \(focus)")
+                XCTAssertEqual(house?.flipped, glow.flipped, "\(glow.sprite) mirrors with its house at \(focus)")
+                seen.insert(glow.sprite)
+                if glow.flipped { mirrored += 1 }
+            }
+            XCTAssertFalse(desc.emissives.contains { $0.kind == .glass && rooms[$0.sprite] != nil },
+                           "the rooms stand in place of the glass at \(focus)")
+        }
+        XCTAssertTrue(seen.contains(.bigHouseLit) && seen.contains(.tavernLit), "the demo town's houses: \(seen)")
+        XCTAssertGreaterThanOrEqual(seen.count, 3, "and a cottage: \(seen)")
+        XCTAssertGreaterThanOrEqual(mirrored, 1, "a mirrored cottage's rooms are mirrored")
+
+        let noon = frame(GameFrameSupport.demoDay(hour: 12), focus: 2900)
+        XCTAssertFalse(noon.emissives.contains { lit.contains($0.sprite) }, "dark by day")
+        let old = frame(night, focus: 2900, look: .one)
+        XCTAssertFalse(old.emissives.contains { lit.contains($0.sprite) }, "look 1 has no lit rooms")
+        XCTAssertTrue(old.emissives.contains { $0.kind == .glass && rooms[$0.sprite] != nil }, "it keeps its glass")
+        XCTAssertNil(EntityFrames.litRooms(of: .house, look: .one))
+        XCTAssertNil(EntityFrames.litRooms(of: .market, look: .two))
+        for (house, sprite) in rooms {
+            let part = EntityFrames.litRooms(of: house, look: .two)
+            XCTAssertEqual(part?.sprite, sprite)
+            XCTAssertEqual(part?.mirrors, true)
+            XCTAssertEqual(part?.fadesByDay, true)
+            XCTAssertNil(part?.flickerSeed, "the rooms keep still")
+            XCTAssertEqual(sprite.size, house.size, "\(sprite) has its house's size")
+        }
+
+        let kinds: Set<SpriteID> = [.linden, .lindenB, .lindenC, .poplar, .poplarB, .poplarC, .appleTree, .appleTreeB,
+                                    .appleTreeC, .willow, .willowB, .willowC]
+        let trees = Look2FrameTests.world.props.filter { $0.plane == .near && kinds.contains($0.sprite) }
+            .sorted { $0.x < $1.x }
+        XCTAssertEqual(trees.count, 16, "the valley's trees")
+        for index in trees.indices.dropFirst() {
+            XCTAssertNotEqual(trees[index].sprite, trees[index - 1].sprite, "two of one painting at \(trees[index].x)")
+        }
+        let planted = Set(trees.map(\.sprite))
+        XCTAssertGreaterThanOrEqual(planted.count, 11,
+                                    "three paintings of the linden, the poplar and the apple tree, two willows")
+        for (first, variant) in [(SpriteID.linden, SpriteID.lindenB), (.linden, .lindenC), (.poplar, .poplarB),
+                                 (.poplar, .poplarC), (.appleTree, .appleTreeB), (.appleTree, .appleTreeC),
+                                 (.willow, .willowB), (.willow, .willowC)] {
+            XCTAssertEqual(variant.size, first.size, "\(variant) lies on \(first)'s canvas")
+        }
+    }
+
     func testFramesOfLookTwo() {
         var most = 0
         var mostLights = 0

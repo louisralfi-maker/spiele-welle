@@ -144,7 +144,7 @@ enum EntityFrames {
         defenceLines(s, balance: balance, layouts: layouts, battleLights: battleLights, isDay: isDay, props: &props)
         beacon(s, props: &props)
         courtyard(s, props: &props)
-        town(s, props: &props)
+        town(s, look: options.look, props: &props)
         if isDay { markers(s, layouts: layouts, time: animTime, reduceMotion: options.reduceMotion, props: &props) }
         auras(s, look: options.look, props: &props)
         layer.props = props.props
@@ -555,9 +555,29 @@ enum EntityFrames {
         }
     }
 
+    /// The lit rooms of a town house (round 2 joined; SPRITES.md "The town at night"): in look 2 an emissive sprite
+    /// of the house's size, painted over its glass, shows a room in every window at dusk and night (a wall brightest
+    /// near its candle, a curtain, someone at the window). It is drawn in place of the house's glass masks (with
+    /// both, the glass doubles), keeps still like a window and mirrors with its house. Look 1 has none.
+    static func litRooms(of house: SpriteID, look: LookVersion) -> EmissivePart? {
+        guard look == .two else { return nil }
+        let sprite: SpriteID
+        switch house {
+        case .house: sprite = .houseLit
+        case .houseB: sprite = .houseBLit
+        case .houseC: sprite = .houseCLit
+        case .bigHouse: sprite = .bigHouseLit
+        case .tavern: sprite = .tavernLit
+        default: return nil
+        }
+        return EmissivePart(sprite: sprite, dx: 0, dy: 0, color: GamePalette.fireWhite, intensity: 1, flickerSeed: nil,
+                            fadesByDay: true, isFire: false, mirrors: true)
+    }
+
     /// The town by plot state: the cottages exactly as the scene drew them (tile, slate, thatch with a dormer, tile;
-    /// every second one mirrored), big houses, the fields, the market, the tavern.
-    private static func town(_ s: GameState, props: inout PropList) {
+    /// every second one mirrored), big houses, the fields, the market, the tavern. In look 2 a house's windows show
+    /// its lit rooms (`litRooms`) instead of the glass masks' flat glow.
+    private static func town(_ s: GameState, look: LookVersion, props: inout PropList) {
         let cottages: [SpriteID] = [.house, .houseB, .houseC, .house]
         var houseIndex = 0
         for (index, spec) in WorldLayout.townPlots.enumerated() where index < Realm.townPlots.count {
@@ -569,14 +589,18 @@ enum EntityFrames {
                 let mirrored = houseIndex % 2 == 1
                 var masks = [glass(11, 8, 5, 6), glass(46, 8, 5, 6)]
                 if sprite == .houseC { masks.append(glass(27, 33, 3, 2)) }
-                props.add(sprite, x: spec.start, z: 0, flipped: mirrored, shade: 0.97, masks: masks,
+                let rooms = litRooms(of: sprite, look: look)
+                props.add(sprite, x: spec.start, z: 0, flipped: mirrored, shade: 0.97,
+                          emissive: rooms.map { [$0] } ?? [], masks: rooms == nil ? masks : [],
                           lights: [windowLight(spec.start + (mirrored ? 50 : 13), 11),
                                    windowLight(spec.start + (mirrored ? 15 : 48), 11)])
             case .bigHouse?:
                 let left = centre - 36
+                let rooms = litRooms(of: .bigHouse, look: look)
+                let masks = [glass(26, 24, 5, 5), glass(41, 24, 5, 5), glass(16, 9, 5, 5), glass(50, 9, 5, 5),
+                             glass(35, 40, 3, 2)]
                 props.add(.bigHouse, x: left, z: 0, flipped: houseIndex % 2 == 1,
-                          masks: [glass(26, 24, 5, 5), glass(41, 24, 5, 5), glass(16, 9, 5, 5), glass(50, 9, 5, 5),
-                                  glass(35, 40, 3, 2)],
+                          emissive: rooms.map { [$0] } ?? [], masks: rooms == nil ? masks : [],
                           lights: [windowLight(left + 28, 26), windowLight(left + 43, 26), windowLight(left + 18, 11),
                                    windowLight(left + 52, 11)])
             case .field?:
@@ -585,9 +609,11 @@ enum EntityFrames {
             case .market?:
                 props.add(.market, x: spec.start, z: 0)
             case .tavern?:
+                let rooms = litRooms(of: .tavern, look: look)
+                let masks = [glass(11, 25, 5, 5), glass(41, 25, 5, 5), glass(69, 25, 5, 5), glass(15, 9, 8, 5),
+                             glass(56, 9, 8, 5), glass(32, 10, 1, 2)]
                 props.add(.tavern, x: spec.start, z: 0,
-                          masks: [glass(11, 25, 5, 5), glass(41, 25, 5, 5), glass(69, 25, 5, 5), glass(15, 9, 8, 5),
-                                  glass(56, 9, 8, 5), glass(32, 10, 1, 2)],
+                          emissive: rooms.map { [$0] } ?? [], masks: rooms == nil ? masks : [],
                           lights: [windowLight(spec.start + 19, 11, radius: 12), windowLight(spec.start + 60, 11, radius: 12),
                                    windowLight(spec.start + 43, 27)])
             default:

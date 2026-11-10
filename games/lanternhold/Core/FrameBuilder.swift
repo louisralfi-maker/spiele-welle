@@ -614,7 +614,8 @@ enum FrameBuilder {
         let rect = SIMD4<Float>(Float(x), Float(top), Float(size.width), Float(size.height))
         let rgb = part.color * strength
         let color = SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1)
-        return EmissiveInstance(sprite: part.sprite, plane: prop.plane, rect: rect, color: color)
+        return EmissiveInstance(sprite: part.sprite, plane: prop.plane, rect: rect, color: color,
+                                flipped: part.mirrors && prop.flipped)
     }
 
     // MARK: - Fireflies
@@ -748,7 +749,9 @@ enum FrameBuilder {
 
     /// Sprites the wind sways: the trees and the foreground's plants.
     private static let swaying: Set<SpriteID> = [.firA, .firB, .firC, .firD, .deadTreeA, .deadTreeB, .linden, .poplar,
-                                                 .appleTree, .willow, .d2FgFerns, .d2FgMeadow, .d2FgReeds]
+                                                 .appleTree, .willow, .lindenB, .lindenC, .poplarB, .poplarC,
+                                                 .appleTreeB, .appleTreeC, .willowB, .willowC, .d2FgFerns,
+                                                 .d2FgMeadow, .d2FgReeds]
 
     /// The rain's three depths (docs/PORT-look2.md 3.4): the plane, how fast it falls (game px/s), how many at full
     /// rain and its alpha (under 0.5, so no streak is a ledge that catches the sky).

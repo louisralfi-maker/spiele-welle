@@ -97,6 +97,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // townsfolk seated on a petitioners' bench (seated 0, a nod 1)
     case lady, ladyGlow, kingSeated, kingSeatedGlow, ladySeated, ladySeatedGlow, portraitLady
     case citizenSeated, citizenBSeated, citizenCSeated
+    // Round 2 joined (SPRITES.md "The town at night", "Two more paintings of every town tree"; look 2 only): a
+    // house's lit rooms, an emissive sprite of the house's size drawn over it at night in place of its glass masks,
+    // and the second and third painting of each town tree on the first one's canvas
+    case houseLit, houseBLit, houseCLit, bigHouseLit, tavernLit
+    case lindenB, lindenC, poplarB, poplarC, appleTreeB, appleTreeC, willowB, willowC
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -299,6 +304,13 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
             return PixelSize(width: 16, height: 30)
         case .portraitLady: return PixelSize(width: 48, height: 48)
         case .citizenSeated, .citizenBSeated, .citizenCSeated: return PixelSize(width: 12, height: 22)
+        case .houseLit, .houseBLit, .houseCLit: return PixelSize(width: 64, height: 46)
+        case .bigHouseLit: return PixelSize(width: 72, height: 56)
+        case .tavernLit: return PixelSize(width: 90, height: 56)
+        case .lindenB, .lindenC: return PixelSize(width: 52, height: 92)
+        case .poplarB, .poplarC: return PixelSize(width: 14, height: 116)
+        case .appleTreeB, .appleTreeC: return PixelSize(width: 42, height: 48)
+        case .willowB, .willowC: return PixelSize(width: 52, height: 68)
         }
     }
 

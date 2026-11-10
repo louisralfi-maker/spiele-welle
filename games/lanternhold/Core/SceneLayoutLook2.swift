@@ -106,25 +106,27 @@ extension SceneLayout {
         // sizes and kinds and never keep one spacing; poplars stand in pairs. Between world 2386 and 2616 only apple
         // trees (48 px): a poplar or a linden there covers the far castle between focus 2520 and 2700. Behind world
         // 2466, 2548, 2624, 2690, 2741, 2868, 2884, 2992, 3170, 3186, 3300, 3448, 3523, 3610; the willows on the
-        // near bank at the river end behind 3684 and 3790.
+        // near bank at the river end behind 3684 and 3790. Round 2 joined: every kind stands in three paintings
+        // (SPRITES.md "Two more paintings of every town tree"), planted so that no painting stands twice side by
+        // side; a variant lies on its first painting's canvas, so the places and the flips are as they were.
         (.mid, Entry(sprite: .d2TreeBelt, x: 1400, y: -2, z: 3)),
         (.mid, Entry(sprite: .d2TreeBelt, x: 1920, y: -2, z: 3)),
         (.near, Entry(sprite: .appleTree, x: 1883, y: 0)),
-        (.near, Entry(sprite: .appleTree, x: 1945, y: 0, flipped: true)),
-        (.near, Entry(sprite: .linden, x: 1997, y: 0)),
-        (.near, Entry(sprite: .appleTree, x: 2051, y: 0, flipped: true)),
+        (.near, Entry(sprite: .appleTreeB, x: 1945, y: 0, flipped: true)),
+        (.near, Entry(sprite: .lindenC, x: 1997, y: 0)),
+        (.near, Entry(sprite: .appleTreeC, x: 2051, y: 0, flipped: true)),
         (.near, Entry(sprite: .appleTree, x: 2089, y: 0)),
         (.near, Entry(sprite: .poplar, x: 2199, y: 0)),
-        (.near, Entry(sprite: .poplar, x: 2211, y: 0, flipped: true)),
+        (.near, Entry(sprite: .poplarB, x: 2211, y: 0, flipped: true)),
         (.near, Entry(sprite: .linden, x: 2273, y: 0, flipped: true)),
-        (.near, Entry(sprite: .poplar, x: 2425, y: 0)),
+        (.near, Entry(sprite: .poplarC, x: 2425, y: 0)),
         (.near, Entry(sprite: .poplar, x: 2437, y: 0, flipped: true)),
-        (.near, Entry(sprite: .linden, x: 2504, y: 0)),
-        (.near, Entry(sprite: .appleTree, x: 2620, y: 0)),
-        (.near, Entry(sprite: .appleTree, x: 2676, y: 0, flipped: true)),
-        (.near, Entry(sprite: .linden, x: 2736, y: 0, flipped: true)),
+        (.near, Entry(sprite: .lindenB, x: 2504, y: 0)),
+        (.near, Entry(sprite: .appleTreeC, x: 2620, y: 0)),
+        (.near, Entry(sprite: .appleTreeB, x: 2676, y: 0, flipped: true)),
+        (.near, Entry(sprite: .lindenC, x: 2736, y: 0, flipped: true)),
         (.near, Entry(sprite: .willow, x: 2792, y: 0)),
-        (.near, Entry(sprite: .willow, x: 2871, y: 0, flipped: true)),
+        (.near, Entry(sprite: .willowC, x: 2871, y: 0, flipped: true)),
         // Bushes on the world plane behind the actors (z −3: behind the houses' fronts).
         (.world, Entry(sprite: .d2BushA, x: 2545, y: 0, z: -3)),
         (.world, Entry(sprite: .d2BushB, x: 2873, y: 0, z: -3)),

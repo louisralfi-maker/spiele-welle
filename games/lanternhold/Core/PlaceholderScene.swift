@@ -13,6 +13,9 @@ struct EmissivePart: Sendable, Equatable {
     var fadesByDay: Bool
     /// Goes out when the prop is snuffed (flames).
     var isFire: Bool
+    /// The sprite itself mirrors with its prop, not only its place (round 2 joined: a house's lit rooms, painted
+    /// pixel for pixel over its glass). A flame keeps its painting on a mirrored post.
+    var mirrors = false
 }
 
 /// Window glass of a prop (M1b): inside this rect (sprite pixels from the bottom-left, `dy` up, unflipped; it mirrors
