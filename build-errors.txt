@@ -1,0 +1,4 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/FrameBuilder.swift:650:46: error: cannot find 'sin' in scope
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/FrameBuilder.swift:651:46: error: cannot find 'sin' in scope
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/FrameBuilder.swift:652:41: error: cannot find 'sin' in scope
