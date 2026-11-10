@@ -56,9 +56,13 @@ extension SceneLayout {
         (.far, Entry(sprite: .cloudA, x: -60, y: 96)),
         (.far, Entry(sprite: .cloudB, x: 322, y: 104)),
         (.far, Entry(sprite: .cloudC, x: 640, y: 108, flipped: true)),
-        // The valley's painted distance, before the wall's end.
-        (.far, Entry(sprite: .valleyVista, x: 620, y: -34, z: 1)),
-        (.far, Entry(sprite: .valleyVista, x: 1068, y: -34, z: 1, flipped: true)),
+        // The valley's painted distance, before the wall's end. Polish after round 2: both stand 64 px further left
+        // (they stood at 620 and 1068). The wall falls from 139 to 12 px above the ground line between far x 658 and
+        // 694 and its tail rises again; the vista's slope only reached 104 at far x 732, so a wedge of the horizon's
+        // sky stood open between them under the cloud deck (brown at dusk, in every valley view). From 556 the
+        // slope reaches 101 where the wall falls through it: the wall ends behind the fir slopes.
+        (.far, Entry(sprite: .valleyVista, x: look2VistaX, y: -34, z: 1)),
+        (.far, Entry(sprite: .valleyVista, x: look2VistaX + 448, y: -34, z: 1, flipped: true)),
         // The mid plane, the shadow land: the forest edge, twice, then the gorge's rock (the mouth's steps over
         // world 520 to 700).
         (.mid, Entry(sprite: .shadowForest, x: -128, y: -4, z: 1)),
@@ -127,12 +131,20 @@ extension SceneLayout {
         (.near, Entry(sprite: .lindenC, x: 2736, y: 0, flipped: true)),
         (.near, Entry(sprite: .willow, x: 2792, y: 0)),
         (.near, Entry(sprite: .willowC, x: 2871, y: 0, flipped: true)),
+        // Polish after round 2: the young willow between the two (behind world 3738), before them.
+        (.near, Entry(sprite: .willowB, x: 2832, y: 0, z: 1)),
         // Bushes on the world plane behind the actors (z −3: behind the houses' fronts).
         (.world, Entry(sprite: .d2BushA, x: 2545, y: 0, z: -3)),
         (.world, Entry(sprite: .d2BushB, x: 2873, y: 0, z: -3)),
         (.world, Entry(sprite: .d2BushA, x: 3065, y: 0, z: -3, flipped: true)),
         (.world, Entry(sprite: .d2BushB, x: 3179, y: 0, z: -3)),
         (.world, Entry(sprite: .d2BushA, x: 3425, y: 0, z: -3)),
+        // Polish after round 2, the square's props (SPRITES.md "the square's props"): the lord's notice board left
+        // of the well, where the townsfolk stop (world 3010), a hay cart at rest right of it, its shafts toward the
+        // well. Behind the actors like the well; nothing collides with them. The tavern's barrels stand with the
+        // tavern (`EntityFrames.town`).
+        (.world, Entry(sprite: .noticeBoard, x: look2NoticeBoardX, y: 0, z: 1)),
+        (.world, Entry(sprite: .hayCart, x: look2HayCartX, y: 0, z: 1)),
         // The foreground meadow (gaps in front of the square) and reeds at the bank.
         (.foreground, Entry(sprite: .d2FgMeadow, x: 3074, y: -26, z: 2)),
         (.foreground, Entry(sprite: .d2FgMeadow, x: 4062, y: -26, z: 2)),
@@ -140,6 +152,16 @@ extension SceneLayout {
         // Where the lane ends at the river: a grassy bank over the river end's soil block.
         (.world, Entry(sprite: .d2LaneEnd, x: 3676, y: -30, z: 3)),
     ]
+
+    /// The far x of the valley's first vista (the second, mirrored, joins it 448 px on).
+    static let look2VistaX = 556.0
+
+    /// Where the square's props stand (their left edges in world pixels): the notice board ends 3 px before the
+    /// well (3013 to 3031), the hay cart begins 9 px after it and ends before house 5 (3090).
+    static let look2NoticeBoardX = 2990.0
+    static let look2HayCartX = 3040.0
+    /// The tavern's barrels stand this far left of its plot's start, in the gap between the market and the tavern.
+    static let look2BarrelsOffset = -28.0
 
     /// The cottages whose chimneys smoke in look 2 (`layout_look2.SMOKE`): the house's x and whether it is mirrored.
     static let look2Smoke: [(x: Double, flipped: Bool)] = [(2480, false), (2800, true), (3090, false)]

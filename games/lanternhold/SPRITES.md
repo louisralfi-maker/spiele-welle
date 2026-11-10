@@ -349,10 +349,17 @@ edge (col 11); the guardsman's spear tip at the thrust (frame 7) stays at col 13
 ### The town at night, the square's props (look 2, stage 6; ART-look2.md section 18)
 
 The five lit-room sprites are **registered and drawn since the round 2 join** (10.11.2026): `EntityFrames.litRooms`
-gives a town house its lit rooms in look 2, one emissive part of the house's size (`mirrors: true`, fading by day,
-no flicker) in place of its glass masks; look 1 keeps the masks. `hayCart`, `barrels` and `noticeBoard` stay
-proposals: their PNGs lie in Resources/Art, `tools/build-art.sh` rebuilds them, no Swift names them, and nobody has
-set their places yet.
+gives a town house its lit rooms in look 2, one emissive part of the house's size (`mirrors: true`, fading by day)
+in place of its glass masks; look 1 keeps the masks. Since the polish after round 2 the rooms flicker softly: 0.4 of
+a fire's flicker (± 6 %) at 0.35 of its pace, every house with its own seed (`EmissivePart.flickerAmount` and
+`flickerPace`; with Reduce Motion ± 1.5 %).
+
+`hayCart`, `barrels` and `noticeBoard` are **registered and placed since the polish after round 2** (10.11.2026;
+look 2 only, world plane, z 1: behind the actors like the well, no collision). The notice board stands at world
+2990 (left of the well, where the townsfolk stop at 3010), the hay cart at 3040 (right of the well, before house 5);
+both are scene entries (`SceneLayoutLook2.swift`). The barrels stand with the tavern, 28 px left of its plot (3292,
+in the gap between the market and the tavern; `EntityFrames.town`). A plain wooden mass stands in for each while its
+PNG is missing (`PlaceholderPolish.woodStandIn`).
 
 | id | size | frames | notes |
 |---|---|---|---|
@@ -366,7 +373,8 @@ set their places yet.
 ### Two more paintings of every town tree (look 2, stage 6; ART-look2.md section 18)
 
 **Registered and planted since the round 2 join** (10.11.2026; `SceneLayoutLook2.swift`, the planting below; the
-young `willowB` is registered and bundled but not planted yet). Each lies on its first painting's canvas with the trunk at the canvas centre and the foot on the
+young `willowB` stands between the two willows since the polish after round 2: near x 2832, behind world 3738,
+z 1, before them). Each lies on its first painting's canvas with the trunk at the canvas centre and the foot on the
 bottom row, so it takes the first painting's place at the same trunk x, flipped or not; a shorter tree has clear rows
 on top. Near plane, 1 frame, no masks, no emitters; they sway as their first painting does (`willowB` and `willowC`
 in their lower half). `tools/treeart.py` paints them.

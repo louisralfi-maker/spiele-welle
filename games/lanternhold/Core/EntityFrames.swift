@@ -576,8 +576,10 @@ enum EntityFrames {
     /// The lit rooms of a town house (round 2 joined; SPRITES.md "The town at night"): in look 2 an emissive sprite
     /// of the house's size, painted over its glass, shows a room in every window at dusk and night (a wall brightest
     /// near its candle, a curtain, someone at the window). It is drawn in place of the house's glass masks (with
-    /// both, the glass doubles), keeps still like a window and mirrors with its house. Look 1 has none.
-    static func litRooms(of house: SpriteID, look: LookVersion) -> EmissivePart? {
+    /// both, the glass doubles) and mirrors with its house. Polish after round 2: the rooms flicker softly, as
+    /// candle light does (`roomFlicker` of a fire's flicker at `roomFlickerPace` of its speed), every house with
+    /// its own seed from its place `x`, so no two breathe together. Look 1 has none.
+    static func litRooms(of house: SpriteID, look: LookVersion, at x: Double = 0) -> EmissivePart? {
         guard look == .two else { return nil }
         let sprite: SpriteID
         switch house {
@@ -588,9 +590,17 @@ enum EntityFrames {
         case .tavern: sprite = .tavernLit
         default: return nil
         }
-        return EmissivePart(sprite: sprite, dx: 0, dy: 0, color: GamePalette.fireWhite, intensity: 1, flickerSeed: nil,
-                            fadesByDay: true, isFire: false, mirrors: true)
+        return EmissivePart(sprite: sprite, dx: 0, dy: 0, color: GamePalette.fireWhite, intensity: 1,
+                            flickerSeed: SeededRandom.hash(roomFlickerSalt, Int64(x.rounded())),
+                            fadesByDay: true, isFire: false, mirrors: true,
+                            flickerAmount: roomFlicker, flickerPace: roomFlickerPace)
     }
+
+    /// How much of a fire's flicker a lit room shows (a fire's is ± 15 %, a room's ± 6 %) and how fast it runs
+    /// (0.35: about two and a half lattice points a second, a candle's slow breath).
+    static let roomFlicker: Float = 0.4
+    static let roomFlickerPace = 0.35
+    private static let roomFlickerSalt: UInt64 = 0x726F_6F6D_7321
 
     /// The town by plot state: the cottages exactly as the scene drew them (tile, slate, thatch with a dormer, tile;
     /// every second one mirrored), big houses, the fields, the market, the tavern. In look 2 a house's windows show
@@ -607,14 +617,14 @@ enum EntityFrames {
                 let mirrored = houseIndex % 2 == 1
                 var masks = [glass(11, 8, 5, 6), glass(46, 8, 5, 6)]
                 if sprite == .houseC { masks.append(glass(27, 33, 3, 2)) }
-                let rooms = litRooms(of: sprite, look: look)
+                let rooms = litRooms(of: sprite, look: look, at: spec.start)
                 props.add(sprite, x: spec.start, z: 0, flipped: mirrored, shade: 0.97,
                           emissive: rooms.map { [$0] } ?? [], masks: rooms == nil ? masks : [],
                           lights: [windowLight(spec.start + (mirrored ? 50 : 13), 11),
                                    windowLight(spec.start + (mirrored ? 15 : 48), 11)])
             case .bigHouse?:
                 let left = centre - 36
-                let rooms = litRooms(of: .bigHouse, look: look)
+                let rooms = litRooms(of: .bigHouse, look: look, at: left)
                 let masks = [glass(26, 24, 5, 5), glass(41, 24, 5, 5), glass(16, 9, 5, 5), glass(50, 9, 5, 5),
                              glass(35, 40, 3, 2)]
                 props.add(.bigHouse, x: left, z: 0, flipped: houseIndex % 2 == 1,
@@ -627,13 +637,17 @@ enum EntityFrames {
             case .market?:
                 props.add(.market, x: spec.start, z: 0)
             case .tavern?:
-                let rooms = litRooms(of: .tavern, look: look)
+                let rooms = litRooms(of: .tavern, look: look, at: spec.start)
                 let masks = [glass(11, 25, 5, 5), glass(41, 25, 5, 5), glass(69, 25, 5, 5), glass(15, 9, 8, 5),
                              glass(56, 9, 8, 5), glass(32, 10, 1, 2)]
                 props.add(.tavern, x: spec.start, z: 0,
                           emissive: rooms.map { [$0] } ?? [], masks: rooms == nil ? masks : [],
                           lights: [windowLight(spec.start + 19, 11, radius: 12), windowLight(spec.start + 60, 11, radius: 12),
                                    windowLight(spec.start + 43, 27)])
+                if look == .two {
+                    // Polish after round 2: the tavern's barrels, in the gap between the market and the tavern.
+                    props.add(.barrels, x: spec.start + SceneLayout.look2BarrelsOffset, z: 1)
+                }
             default:
                 break
             }

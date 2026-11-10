@@ -758,7 +758,7 @@ No near trees and no fg plants here: the castle is the hero.
 | Plane | Piece | x | y | z | Notes |
 |---|---|---|---|---|---|
 | far | `weltmauer`'s shoulder | far x 632 to 844 | | | from the town the wall fills the left third of the sky and sinks; the slot with the back of the castle at far x 606 |
-| far | `valleyVista` | 620, and 1068 flipped | −34 | 1 | before the wall's end; three ranges, the farthest almost the sky; no yellow fields, no windmill |
+| far | `valleyVista` | 556, and 1004 flipped (620 and 1068 until the polish after round 2: the slope did not reach the wall's falling end, and a wedge of horizon sky stood open between them) | −34 | 1 | before the wall's end; three ranges, the farthest almost the sky; no yellow fields, no windmill |
 | mid | `d2TreeBelt` | 1400, 1920 | −2 | 3 | the valley floor |
 | near | `appleTree` 2466, 2548 f, `linden` 2624, `appleTree` 2690 f, 2741, `poplar` 2868, 2884 f, `linden` 2992 f, `poplar` 3170, 3186 f, `linden` 3300, `appleTree` 3448, 3523 f, `linden` 3610 f, `willow` 3684, 3790 f | world X of the trunk | 0 | 0 | never one spacing; poplars in pairs; fix stage: between world 2386 and 2616 only apple trees (a poplar or a linden there covers the far castle between focus 2520 and 2700) |
 | world, z −3 | `d2BushA` 2560, `d2BushB` 2884, `d2BushA` 3080 f, `d2BushB` 3190, `d2BushA` 3440 | world X of the middle | 0 | | behind the houses' fronts |

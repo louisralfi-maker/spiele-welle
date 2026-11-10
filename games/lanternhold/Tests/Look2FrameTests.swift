@@ -202,7 +202,8 @@ final class Look2FrameTests: XCTestCase {
             XCTAssertEqual(part?.sprite, sprite)
             XCTAssertEqual(part?.mirrors, true)
             XCTAssertEqual(part?.fadesByDay, true)
-            XCTAssertNil(part?.flickerSeed, "the rooms keep still")
+            XCTAssertNotNil(part?.flickerSeed, "the rooms flicker softly (polish after round 2)")
+            XCTAssertEqual(part?.flickerAmount, EntityFrames.roomFlicker)
             XCTAssertEqual(sprite.size, house.size, "\(sprite) has its house's size")
         }
 
@@ -210,13 +211,12 @@ final class Look2FrameTests: XCTestCase {
                                     .appleTreeC, .willow, .willowB, .willowC]
         let trees = Look2FrameTests.world.props.filter { $0.plane == .near && kinds.contains($0.sprite) }
             .sorted { $0.x < $1.x }
-        XCTAssertEqual(trees.count, 16, "the valley's trees")
+        XCTAssertEqual(trees.count, 17, "the valley's trees (the young willow since the polish after round 2)")
         for index in trees.indices.dropFirst() {
             XCTAssertNotEqual(trees[index].sprite, trees[index - 1].sprite, "two of one painting at \(trees[index].x)")
         }
         let planted = Set(trees.map(\.sprite))
-        XCTAssertGreaterThanOrEqual(planted.count, 11,
-                                    "three paintings of the linden, the poplar and the apple tree, two willows")
+        XCTAssertEqual(planted.count, 12, "three paintings of the linden, the poplar, the apple tree and the willow")
         for (first, variant) in [(SpriteID.linden, SpriteID.lindenB), (.linden, .lindenC), (.poplar, .poplarB),
                                  (.poplar, .poplarC), (.appleTree, .appleTreeB), (.appleTree, .appleTreeC),
                                  (.willow, .willowB), (.willow, .willowC)] {
@@ -477,7 +477,8 @@ final class Look2FrameTests: XCTestCase {
         let dusk = GameFrameSupport.demoDay(hour: 19.2)
         let town = frame(dusk, focus: 2900)
         XCTAssertFalse(flies(town).isEmpty, "fireflies in the valley at dusk")
-        XCTAssertLessThanOrEqual(flies(town).count, 2 * FrameBuilder.fireflyPatches.count)
+        XCTAssertLessThanOrEqual(flies(town).count,
+                                 2 * FrameBuilder.fireflyPatches.count * FrameBuilder.fireflyDots.count)
         XCTAssertTrue(flies(town).allSatisfy { $0.plane == .world && $0.kind == .glow })
         XCTAssertEqual(town.lights.count, frame(dusk, focus: 2900, time: 3.1).lights.count, "they are no lights")
         XCTAssertNotEqual(flies(frame(dusk, focus: 2900, time: 9)), flies(town), "they drift and blink")

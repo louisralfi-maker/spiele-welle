@@ -162,10 +162,12 @@ enum FrameBuilder {
                 next += 1
             }
             if rains && plane == .near {
-                planeSprites[plane.rawValue] += rainStreaks(depth: 0, animTime: animTime, geometry: geometry)
+                planeSprites[plane.rawValue] += rainStreaks(depth: 0, animTime: animTime, ambient: ambient,
+                                                            geometry: geometry)
             }
             if rains && plane == .foreground {
-                planeSprites[plane.rawValue] += rainStreaks(depth: 2, animTime: animTime, geometry: geometry)
+                planeSprites[plane.rawValue] += rainStreaks(depth: 2, animTime: animTime, ambient: ambient,
+                                                            geometry: geometry)
             }
             if plane == .world {
                 if options.look == .two {
@@ -175,8 +177,10 @@ enum FrameBuilder {
                 }
                 if rains {
                     // Under the bank's tiles: the dark hides the rain that falls into it.
-                    planeSprites[plane.rawValue] += rainSplashes(animTime: animTime, geometry: geometry)
-                    planeSprites[plane.rawValue] += rainStreaks(depth: 1, animTime: animTime, geometry: geometry)
+                    planeSprites[plane.rawValue] += rainSplashes(animTime: animTime, ambient: ambient,
+                                                                 geometry: geometry)
+                    planeSprites[plane.rawValue] += rainStreaks(depth: 1, animTime: animTime, ambient: ambient,
+                                                                geometry: geometry)
                 }
                 for item in entities?.emissives(worldWhole: geometry.whole(.world), groundRow: geometry.groundRow,
                                                 targetWidth: geometry.targetWidth) ?? [] {
@@ -629,8 +633,11 @@ enum FrameBuilder {
             strength *= ambient.torchStrength
         }
         if let seed = part.flickerSeed {
-            let flicker = Flicker.sample(seed: seed, time: animTime, reduceMotion: options.reduceMotion)
-            strength *= Float(flicker.intensity)
+            let flicker = Flicker.sample(seed: seed, time: animTime * part.flickerPace,
+                                         reduceMotion: options.reduceMotion)
+            // A fire's own flicker untouched (look 1's golden frames), a share of it for a lit room.
+            let swing = Float(flicker.intensity)
+            strength *= part.flickerAmount == 1 ? swing : 1 + (swing - 1) * part.flickerAmount
         }
         guard strength > 0.01 else { return nil }
         let dx = prop.flipped ? Double(prop.width) - part.dx - Double(size.width) : part.dx
@@ -661,6 +668,15 @@ enum FrameBuilder {
         return max(0, min(rise, fall) * dry * calm)
     }
 
+    /// Polish after round 2, the fireflies at phone size: a fly is one game pixel, so each patch is drawn brighter
+    /// than white (`fireflyGain`: the bloom gives it a halo) and four more times one pixel off at `fireflyHalo` of
+    /// its glow: a bright dot in a soft cross, three game pixels wide.
+    static let fireflyGain = 2.2
+    static let fireflyHalo = 0.28
+    static let fireflyDots: [(dx: Double, dy: Double, share: Double)] = [
+        (0, 0, 1), (-1, 0, fireflyHalo), (1, 0, fireflyHalo), (0, -1, fireflyHalo), (0, 1, fireflyHalo),
+    ]
+
     /// The fireflies as glow: each patch twice, the second mirrored and a few pixels off, the two blinking against
     /// each other, both drifting on a slow figure of eight in whole pixels. With Reduce Motion they stand and only
     /// breathe. A pure function of the hour, the time and the weather; no light quads (the cap is for fires).
@@ -681,10 +697,13 @@ enum FrameBuilder {
                 let left = patch.x + Double(copy) * 23 + dx - whole
                 guard geometry.isVisible(left: left, width: width) else { continue }
                 let top = geometry.top(y: patch.y + Double(copy) * 4 + dy, height: Double(size.height))
-                let rgb = GamePalette.fireGold * Float(strength * blink)
-                let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
-                list.append(EmissiveInstance(sprite: .d2Fireflies, plane: .world, rect: rect,
-                                             color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1), flipped: copy == 1))
+                for dot in fireflyDots {
+                    let rgb = GamePalette.fireGold * Float(strength * blink * fireflyGain * dot.share)
+                    let rect = SIMD4<Float>(Float(left + dot.dx), Float(top + dot.dy), Float(size.width),
+                                            Float(size.height))
+                    list.append(EmissiveInstance(sprite: .d2Fireflies, plane: .world, rect: rect,
+                                                 color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1), flipped: copy == 1))
+                }
             }
         }
         return list
@@ -883,6 +902,21 @@ enum FrameBuilder {
     static func rainCount(_ full: Int, rain: Double) -> Int {
         Int((Double(full) * max(0, min(1, rain)).squareRoot()).rounded())
     }
+    /// Polish after round 2, the rain over a bright scene: a pale streak before an overcast day sky or a sunlit
+    /// wall is the scene's own tone and is lost. So the brighter the air, the darker the rain falls: slate by day
+    /// (`rainDayShade`, a little denser), pale as painted from dusk on, where the fires light it.
+    static let rainDayShade = SIMD3<Float>(0.34, 0.40, 0.54)
+    static let rainDayAlpha: Float = 1.08
+    /// How much of the day's shade the rain takes in this air (0 from dusk through the night ... 1 by day).
+    static func rainShade(_ ambient: AmbientSample) -> Float {
+        Float(AmbientRamp.smoothstep(Double((ambient.ambientIntensity - 0.26) / 0.34)))
+    }
+    /// A streak's or a splash's tint in this air; its alpha stays under 0.5 (no streak is a ledge).
+    static func rainTint(alpha: Float, ambient: AmbientSample) -> SIMD4<Float> {
+        let shade = rainShade(ambient)
+        let rgb = SIMD3<Float>(1, 1, 1) + (rainDayShade - SIMD3<Float>(1, 1, 1)) * shade
+        return SIMD4<Float>(rgb.x, rgb.y, rgb.z, min(0.49, alpha * (1 + (rainDayAlpha - 1) * shade)))
+    }
     /// Splashes on the lane at full rain, and a splash's seconds.
     static let rainSplashCount = 24
     static let rainSplashTime = 0.3
@@ -939,7 +973,8 @@ enum FrameBuilder {
     /// the screen to the plane's floor (the ground behind the near trees, the lane, the screen's bottom edge), then
     /// starts again in another column; the columns belong to the plane's picture, so the rain stays in the world
     /// when the camera moves.
-    private static func rainStreaks(depth: Int, animTime: Double, geometry: Geometry) -> [SpriteInstance] {
+    private static func rainStreaks(depth: Int, animTime: Double, ambient: AmbientSample,
+                                    geometry: Geometry) -> [SpriteInstance] {
         let weather = geometry.weather
         let entry = rainDepths[depth]
         let count = rainCount(entry.count, rain: weather.rain)
@@ -957,7 +992,7 @@ enum FrameBuilder {
         let reach = abs(slope) * fall
         let span = Double(geometry.targetWidth) + reach
         let whole = geometry.whole(entry.plane)
-        let tint = SIMD4<Float>(1, 1, 1, entry.alpha)
+        let tint = rainTint(alpha: entry.alpha, ambient: ambient)
         let key = SeededRandom.hash(weather.gustSeed, Int64(depth + 1))
         var list: [SpriteInstance] = []
         for index in 0..<count {
@@ -978,7 +1013,8 @@ enum FrameBuilder {
     }
 
     /// The splashes where the rain meets the lane: three frames each, then the next one somewhere else.
-    private static func rainSplashes(animTime: Double, geometry: Geometry) -> [SpriteInstance] {
+    private static func rainSplashes(animTime: Double, ambient: AmbientSample,
+                                     geometry: Geometry) -> [SpriteInstance] {
         let weather = geometry.weather
         let count = rainCount(rainSplashCount, rain: weather.rain)
         guard count > 0 else { return [] }
@@ -986,7 +1022,7 @@ enum FrameBuilder {
         let width = Double(geometry.targetWidth)
         let whole = geometry.whole(.world)
         let key = SeededRandom.hash(weather.gustSeed, 7)
-        let tint = SIMD4<Float>(1, 1, 1, 0.45)
+        let tint = rainTint(alpha: 0.45, ambient: ambient)
         var list: [SpriteInstance] = []
         for index in 0..<count {
             let progress = animTime / rainSplashTime + unit(SeededRandom.hash(key, Int64(index)))

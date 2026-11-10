@@ -128,7 +128,8 @@ WORLD = [
     dict(s="cloudA", p="far", x=-60, y=96, z=0), dict(s="cloudB", p="far", x=322, y=104, z=0),
     dict(s="cloudC", p="far", x=640, y=108, z=0, f=True),
     # the valley's painted distance, before the wall's end
-    dict(s="valleyVista", p="far", x=620, y=-34, z=1), dict(s="valleyVista", p="far", x=1068, y=-34, z=1, f=True),
+    # Polish after round 2: 64 px further left (were 620 and 1068), so the slope closes the notch at the wall's end.
+    dict(s="valleyVista", p="far", x=556, y=-34, z=1), dict(s="valleyVista", p="far", x=1004, y=-34, z=1, f=True),
     # --- mid plane, the shadow land: the forest edge, twice, then the gorge's rock
     dict(s="shadowForest", p="mid", x=-128, y=-4, z=1), dict(s="shadowForest", p="mid", x=96, y=-4, z=1, f=True),
     dict(s="gorgeRock", p="mid", x=GORGE_X, y=GORGE_Y, z=3, sh=GORGE_SHADE),

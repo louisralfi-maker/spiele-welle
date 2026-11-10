@@ -16,6 +16,10 @@ struct EmissivePart: Sendable, Equatable {
     /// The sprite itself mirrors with its prop, not only its place (round 2 joined: a house's lit rooms, painted
     /// pixel for pixel over its glass). A flame keeps its painting on a mirrored post.
     var mirrors = false
+    /// The share of a fire's flicker this part shows (polish after round 2: a lit room's candle light breathes at
+    /// 0.4 of it) and the speed its flicker runs at (1: a fire's).
+    var flickerAmount: Float = 1
+    var flickerPace = 1.0
 }
 
 /// Window glass of a prop (M1b): inside this rect (sprite pixels from the bottom-left, `dy` up, unflipped; it mirrors
