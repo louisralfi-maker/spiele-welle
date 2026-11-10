@@ -1,0 +1,16 @@
+seed 1 without: 1/60 s fell true at 467, fallen 0, killed 123, walls l3.wall@31,l2.wall@48,l1.wall@85 hearth reached @102 King left @4 | 0.1 s fell true at 467, fallen 0, killed 123, walls l3.wall@31,l2.wall@47,l1.wall@85 hearth reached @102 King left @4
+seed 1 with: 1/60 s fell false at -, fallen 0, killed 76, walls l3.wall@44 King left @4 slain @69 at x 908 (light left 15 s) | 0.1 s fell false at -, fallen 0, killed 76, walls l3.wall@44 King left @4 slain @69 at x 907 (light left 15 s)
+seed 2 without: 1/60 s fell false at -, fallen 1, killed 148, walls l3.wall@31,l2.wall@50,l1.wall@92 hearth reached @100 King left @3 | 0.1 s fell false at -, fallen 1, killed 131, walls l3.wall@31,l2.wall@49,l1.wall@96 hearth reached @104 King left @3
+    1/60 s: 44.4 s guardsman moving>holding x 913>652 hp 0.1 near [lightlessKing@917 walking, sootling@935 attackingWall, sootling@935 attackingWall, sootling@936 attackingWall, sootling@930 attackingWall, sootling@929 attackingWall, sootling@929 attackingWall, sootling@933 attackingWall]
+    0.1 s: 44.0 s guardsman moving>holding x 912>652 hp 2.1 near [lightlessKing@916 walking, sootling@935 attackingWall, sootling@935 attackingWall, sootling@936 attackingWall, sootling@930 attackingWall, sootling@929 attackingWall, sootling@929 attackingWall, sootling@933 attackingWall]
+seed 2 with: 1/60 s fell false at -, fallen 1, killed 80, walls l3.wall@44 King left @3 slain @68 at x 893 (light left 16 s) | 0.1 s fell false at -, fallen 1, killed 80, walls l3.wall@44 King left @3 slain @68 at x 891 (light left 17 s)
+    1/60 s: 59.8 s guardsman moving>holding x 799>652 hp 0.5 near [lightlessKing@801 walking]
+    0.1 s: 59.7 s guardsman moving>holding x 800>652 hp 8.2 near [lightlessKing@799 walking]
+seed 3 without: 1/60 s fell true at 463, fallen 0, killed 116, walls l3.wall@32,l2.wall@49,l1.wall@85 hearth reached @102 King left @4 | 0.1 s fell true at 469, fallen 0, killed 118, walls l3.wall@32,l2.wall@49,l1.wall@86 hearth reached @102 King left @4
+seed 3 with: 1/60 s fell false at -, fallen 3, killed 54, walls l3.wall@45 King left @4 slain @65 at x 858 (light left 19 s) | 0.1 s fell false at -, fallen 3, killed 53, walls l3.wall@45 King left @4 slain @65 at x 856 (light left 19 s)
+    1/60 s: 61.0 s guardsman moving>holding x 810>652 hp 2.3 near [lightlessKing@812 walking, shadehound@790 walking]
+    1/60 s: 61.0 s guardsman moving>holding x 810>652 hp 2.3 near [lightlessKing@812 walking, shadehound@790 walking]
+    1/60 s: 61.0 s guardsman moving>holding x 810>652 hp 2.3 near [lightlessKing@812 walking, shadehound@790 walking]
+    0.1 s: 61.0 s guardsman moving>holding x 812>652 hp 12.7 near [lightlessKing@810 walking]
+    0.1 s: 61.0 s guardsman moving>holding x 812>652 hp 12.7 near [lightlessKing@810 walking]
+    0.1 s: 61.0 s guardsman moving>holding x 812>652 hp 12.7 near [lightlessKing@810 walking]
