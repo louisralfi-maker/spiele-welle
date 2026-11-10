@@ -176,6 +176,7 @@ final class PolishTests: XCTestCase {
             XCTAssertGreaterThan(drawn, 24, "\(sprite) draws a circlet")
             XCTAssertLessThan(drawn, 24 * 16, "\(sprite) leaves the ground clear")
         }
+        print("ATLAS \(layout.image.width) x \(layout.image.height) of at most \(AtlasLayout.maxSide)")
     }
 
     // MARK: The houses' faces and banners
@@ -352,7 +353,10 @@ final class PolishTests: XCTestCase {
             XCTAssertTrue(prop.lights.isEmpty && prop.emissive.isEmpty)
         }
         // On the square: the board before the well, the cart after it, both clear of the houses beside it.
-        let well = try only(.well)
+        // (The castle's courtyard has a well of its own.)
+        let wells = props.filter { $0.sprite == .well && WorldLayout.marketSquare.contains($0.x) }
+        XCTAssertEqual(wells.count, 1, "one well on the square")
+        let well = try XCTUnwrap(wells.first)
         XCTAssertGreaterThanOrEqual(board.x, WorldLayout.marketSquare.lowerBound)
         XCTAssertLessThanOrEqual(board.x + Double(board.width), well.x)
         XCTAssertGreaterThanOrEqual(cart.x, well.x + Double(well.width))
