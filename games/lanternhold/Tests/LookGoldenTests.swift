@@ -22,15 +22,24 @@ final class LookGoldenTests: XCTestCase {
         ("river-golden", 18.0, 3720, false),
     ]
 
-    /// The recorded hashes (FNV-1a 64 over the picture's bytes, rows top to bottom).
+    /// The recorded hashes (FNV-1a 64 over the picture's bytes, rows top to bottom; printed without leading zeros).
     ///
-    /// Round 2 joined (10.11.2026): both looks draw from one atlas, and the newer art (ART-look2.md section 18)
-    /// repainted sprites that look 1 shows too: the palisade, the stone wall, the torch post, the brazier, the
-    /// ballista, the gates, the towers, the bastion, the cleft's face. The three town scenes draw none of them and
-    /// keep the hashes of round lh-l2-0d, which is the proof that the join left look 1's drawing alone. The front,
-    /// the castle and the court show the repainted sprites; their hashes are taken again from the join's first
-    /// round (lh-j2-1), which printed them, and hold from there on.
+    /// Round 2 joined (10.11.2026): both looks draw from one atlas and one world layout, so two things of round 2
+    /// reach look 1 too. The newer art (ART-look2.md section 18) repainted sprites that look 1 shows: the palisade,
+    /// the stone wall, the torch post, the brazier, the ballista, the gates, the towers, the bastion, the cleft's
+    /// face, the hall's dais. And the lord pass seats the lord on the throne and moved it 13 px (`WorldLayout.throneX`
+    /// 1824 to 1837, with Odile's stop and the benches).
+    ///
+    /// The three town scenes show none of that and keep the hashes of round lh-l2-0d: the proof that the join left
+    /// look 1's drawing alone. The front, the castle and the court show it; their hashes were recorded again from
+    /// the join's first round (lh-j2-1, on e0e5ea7), and every later round must give the same ones. In the front
+    /// and the castle the upper two bands' sums are the old ones, in the court the upper three (the sky and the
+    /// far layers did not move). Before the join the three hashes were acd2fe8d679560b2 (front), e002808da9004a19
+    /// (castle) and c4479f099980a9e2 (court).
     static let golden: [String: String] = [
+        "front-night": "9b01af38246bc805",
+        "castle-night": "f85bb5b965601d8",
+        "court-dusk": "7847cdaa53452732",
         "square-morning": "c0ba9a8be11ba03e",
         "town-noon": "e0e4b0352af35485",
         "river-golden": "c0f21df86bbe85b6",
