@@ -21,7 +21,7 @@ enum Theme {
     /// The lighter slip of a plaque on the sheet.
     static let plaque = Color(hex: 0xF4E9CB)
     static let ink = Color(hex: 0x38281A)
-    static let inkSoft = Color(hex: 0x6A5236)
+    static let inkSoft = Color(hex: 0x58432B)
     /// The ink rules of a frame.
     static let rule = Color(hex: 0x5D4526)
     /// House Lantern's teal: Odile's hand, what is chosen, what opens.
