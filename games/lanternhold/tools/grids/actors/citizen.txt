@@ -1,15 +1,17 @@
-# citizen 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md). A townswoman: a cream headscarf, a red-brown dress with
-# a pale apron, a basket on her arm. Walk: four frames, the skirt hem swinging. Idle: a breath.
+# citizen 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md). A townswoman, repainted in stage 4 of look 2
+# (ART-look2.md section 15) at the lord's level: a grown woman in a cream headscarf tied under the chin, a red-brown
+# dress to the ankles with a pale apron, a woven basket in the crook of her near arm. Light from the upper left; the
+# outline is look 2's selective one (shadow side and ground contact). Walk: contact (the hem wide, the feet apart,
+# the body 1 px down) and passing (the hem narrow) on each foot. Idle: a breath.
 id citizen
 size 12x26
 frames 6
-outline ink
+outline ink shade
 
 legend
     k = ink
     S = dawnRose
     s = tileLight
-    n = woodDark
     W = parchment
     w = plaster
     q = plasterDim
@@ -24,92 +26,116 @@ legend
     g = straw
     G = strawLight
 
+# the headscarf round the face and under the chin, its end on the shoulder (frame cols 4-8)
 part head
-    .WWW.
-    WwwwW
-    wSSSw
-    wSkSs
-    .SSSs
-    .wSs.
+    .WWw.
+    WWwwq
+    WwSkS
+    qwsSs
+    .qws.
+    .qq..
 
-part torso
-    .QRR.
-    QRRRR
-    RQRRR
-    RRAAr
-    RrAAr
-    rhhhr
-    RRAAR
-    RRAAaR
-    RRAAaR
-    RRAaRRR
-    rRRRRRr
+# the bodice with the apron's bib, the apron's tie at the waist
+part bodice
+    QRRRr
+    QRAAr
+    QRAAr
+    .RAAr
+    .hhhH
 
-part legsA
-    .H..H
-    .H..H
-    HH..HH
+# the skirt while a foot passes: narrow, the apron down the front
+part skirtPass
+    .QRAAr.
+    .QRAAr.
+    QRRAAar
+    QRRAAar
+    QRRAAar
+    QRRAAar
+    QRRAAar
+    QRRRAar
+    QRRRRRr
+    .rRRRr.
 
-part legsB
-    ..HH.
-    ..HH.
-    .HHHH
+# the skirt at the contact of a step: the hem swung wide
+part skirtContact
+    ..QRAAr..
+    .QRRAAar.
+    .QRRAAar.
+    .QRRAAar.
+    QRRRAAaRr
+    QRRRAAaRr
+    QRRRRAaRr
+    QRRRRRRRr
+    .rRRRRRr.
 
-part legsC
-    .H.H.
-    .H.H.
-    HHHH.
+part feetA
+    HH....hHH
+
+part feetB
+    hH....HHH
+
+part feetTogether
+    HhHH
 
 part armBack
-    R
     Q
+    R
+    R
     s
 
-# the near arm with the basket in the crook of the elbow
+# the near arm bent, the basket hanging from its crook
 part armBasket
     R...
-    Rgg.
-    GlgG
+    RSS.
+    .hh.
+    GgGg
+    gGgh
     .gg.
 
 frame 0
-    armBack 3 8
-    legsA 3 23
-    torso 3 12
-    head 3 6
-    armBasket 7 13
+    feetA 2 24
+    skirtContact 2 15
+    armBack 3 11
+    bodice 4 10
+    head 4 4
+    armBasket 8 11
 
 frame 1
-    armBack 3 9
-    legsB 3 23
-    torso 3 12
-    head 3 7
-    armBasket 7 14
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 10
+    bodice 4 9
+    head 4 3
+    armBasket 8 10
 
 frame 2
-    armBack 3 8
-    legsC 3 23
-    torso 3 12
-    head 3 6
-    armBasket 7 13
+    feetB 2 24
+    skirtContact 2 15
+    armBack 3 11
+    bodice 4 10
+    head 4 4
+    armBasket 8 11
 
 frame 3
-    armBack 3 9
-    legsB 3 23
-    torso 3 12
-    head 3 7
-    armBasket 7 14
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 10
+    bodice 4 9
+    head 4 3
+    armBasket 8 10
 
 frame 4
-    armBack 3 8
-    legsB 3 23
-    torso 3 12
-    head 3 6
-    armBasket 7 13
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 10
+    bodice 4 9
+    head 4 3
+    armBasket 8 10
 
 frame 5
-    armBack 3 9
-    legsB 3 23
-    torso 3 12
-    head 3 7
-    armBasket 7 14
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 11
+    bodice 4 10
+    head 4 4
+    armBasket 8 11

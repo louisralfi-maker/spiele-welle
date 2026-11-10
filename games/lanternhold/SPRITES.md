@@ -204,3 +204,71 @@ fades out (code lane), so the front's silhouette and the interior's must match.
 | `marekCart` | 48x30 | 1 | Marek's cart in the courtyard on his days: goods, barrels, a striped awning |
 | `statue` | 20x40 | 1 | a world change: a stone statue of the lamplighter king with his lantern, in the courtyard |
 | `speakerMark` | 7x7 | 2 | a small speech mark over a court member who has something new to say (frame 1 pulses) |
+
+## Proposals of the art pass (look 2, stage 4; ART-look2.md section 15)
+
+Everything under this heading is a **proposal for the code lane**: the PNGs lie in Resources/Art and
+`tools/build-art.sh` rebuilds them, but no Swift names them yet. Sizes, frames and anchors are what the art was painted
+to; the code lane may take them as they are.
+
+### The lady, and both lords seated
+
+| id | size | frames | notes |
+|---|---|---|---|
+| `lady` | 16x30 | 10 | the Burgherrin: the same role, size, frames and anchors as `king` (walk 0-5, idle 6-7, command 8-9), a young woman with a dark plait, the same circlet, cloak and lantern pole. The player's choice of form swaps `king` for `lady` everywhere |
+| `ladyGlow` | 16x30 | 10 | as `kingGlow`, pixel for pixel the same positions |
+| `kingSeated` | 16x30 | 4 | the lord on the hall's `throne`: sit down 0-1 (standing up is 1, 0), seated idle 2-3 (a breath). Drawn like the walking sprite: centred on x, feet on the ground line; place it at the throne's centre (x 1824), over the throne. Seated he is drawn turned to the right like the walking sprite (his back at the throne's back, the thighs on the cushion, the shins before the seat's front, the hand on the lantern pole behind his knee; the throne's posts, arm rests and cushion show around him, so the `throne` must be drawn under him): mirror the frame to turn him to the speaker. In the hall's painting the dais is centred on x 1837, 13 px right of the throne's x 1824: the mocks stand the throne and him there (ART-look2.md 16) |
+| `kingSeatedGlow` | 16x30 | 4 | the lantern glass does not move in the four frames: the light at (+5.5, 22.5) from the frame's centre and the ground |
+| `ladySeated`, `ladySeatedGlow` | 16x30 | 4 | the lady's, frame for frame the same |
+| `portraitLady` | 48x48 | 1 | the lady's story portrait, the pair of `portraitKing` (which now shows the young lord) |
+
+### The townsfolk seated on the hall's benches
+
+| id | size | frames | notes |
+|---|---|---|---|
+| `citizenSeated`, `citizenBSeated`, `citizenCSeated` | 12x22 | 2 each | the three townsfolk waiting on a petitioners' `bench` (32x10): seated 0, a nod 1 (swap every few seconds, not a loop). The frame's bottom stands on the floor like the bench's; draw the bench first and the sitter over it (the cushion is the frame's rows 13 and 14). A bench seats two (the frames' left edges at bench x +2 and +18) or three (+0, +10, +20). They face the hall like the seated lord, the head in profile to the right: mirror the frame for a bench right of the throne. The walking townsfolk (`citizen…`, 12x26) keep standing where no bench is free |
+
+The archer, the guardsman, the builder and the three townsfolk were repainted at their sizes, frames and frame
+meanings. Two anchors moved by a pixel: the archer's arrow lies on the frame's row 9 (was 10) and leaves at the right
+edge (col 11); the guardsman's spear tip at the thrust (frame 7) stays at col 13, row 11.
+
+### The castle grows
+
+Three tiers. Tier 1 is today's castle, unchanged. Tiers 2 and 3 are sprites that stand with the existing ones; each
+has a building state (`…Build`: timber scaffolds, ladders, a crane, half-laid courses) for the days the tier is under
+construction. All are painted by `tools/castleart.py` (lane `castleTiers` of `build-art-world.sh`). F = 1240
+(`castleFront`), K = 1286 (`keepTop`), B = 2230 (`castleBackGate`); y is px above the ground line; masks are
+(dx, dy from the sprite's bottom, w, h) and light the `night1` panes like the layout's other window masks.
+
+Up close the towers' crowns already reach the top of the view (y 172 of 178), so the castle cannot grow upward there.
+It grows in what stands behind the wall walk (seen between the towers), in the mass of its towers, and, in full, in the
+far view through the Weltmauer's slot.
+
+| tier | from the Throat (the gate) | behind the back gate | far, from the shadow land | far, from the valley |
+|---|---|---|---|---|
+| 1 | `keepTop`, `castleFront` | nothing | baked in `weltmauer` | `farCastlePane` |
+| 1, building | + `castleFrontScaffold` | | | |
+| 2, building | `keepTop2Build` for `keepTop` | `backTop2Build` | `farCastle2Build` | `farCastleBack2Build` |
+| 2 | `keepTop2` for `keepTop` | `backTop2` | `farCastle2` | `farCastleBack2` |
+| 3, building | `keepTop3Build`, `castleFront3Build` for `castleFront` | `backTop3Build` | `farCastle3Build` | `farCastleBack3Build` |
+| 3 | `keepTop3`, `castleFront3` for `castleFront` | `backTop3` | `farCastle3` | `farCastleBack3` |
+
+| id | size | anchor | notes |
+|---|---|---|---|
+| `keepTop2` | 150x140 | (K, y 40), z −4, as `keepTop` | the keep one storey taller (its crown at y 164, was 144) with three lit windows under it, the flag, and a slim round tower at its left shoulder (crown at y 177). Masks (71,93,6,10), (120,94,5,9), (139,94,5,9), (23,109,2,7) |
+| `keepTop2Build` | 150x140 | the same | the new storey half laid inside scaffolds, a crane hoisting a stone, the tower begun. No masks |
+| `keepTop3` | 150x140 | the same | the second curtain wall (merlons at y 146, a corbel table under them, a banner) between two inner towers (crowns at y 177), the keep's crown and flag between them. Masks (71,93,6,10), (20,108,3,8), (122,108,3,8) |
+| `keepTop3Build` | 150x140 | the same | tier 2's keep and tower stand; the wall half laid, the right inner tower half high in its scaffold with a crane. Masks (71,93,6,10), (23,109,2,7) |
+| `castleFront3` | 268x236 | (F − 14, y 0), z 0 | `castleFront` with its two towers rebuilt as massive drums: shafts 60 px (were 43), crowns 72 px wide with deep machicolations, two string courses, battered plinths. The gatehouse, the gateway, the wall walk and the turrets are `castleFront`'s pixels, 14 px further right in the sprite: every emitter, light and hit box of `castleFront` keeps its world x (sprite dx + 14). The towers' slit masks move: (39,127,4,12), (39,93,4,12), (223,127,4,12), (223,93,4,12) replace `castleFront`'s four. The baked shadow of the left tower on the gatehouse still fits |
+| `castleFront3Build` | 268x236 | the same | the left drum stands, the right one is half laid inside a scaffold with a crane (the sky shows over it). Masks (39,127,4,12), (39,93,4,12) |
+| `castleFrontScaffold` | 240x236 | (F, y 0), drawn directly before `castleFront` (after the gate's leaves) | tier 1's building state and a spare for any gatehouse work: scaffold bays left and right of the gateway up to the wall walk, cut stones, a crane on the wall walk. Transparent elsewhere; it never covers the gateway (x 97 to 143) |
+| `backTop2`, `backTop2Build`, `backTop3`, `backTop3Build` | 100x140 | (B + 50, y 40), z −4 (behind `castleBackGate`) | the same rise seen from the town above the back gate's curtain (visible between its towers, y 122 to 178). Masks: `backTop2` (22,94,5,9), (36,93,6,10), (52,94,5,9), (79,109,2,7); `backTop3` (46,93,6,10), (19,108,3,8), (77,108,3,8); `backTop3Build` (36,93,6,10), (79,109,2,7) |
+| `farCastle2`, `farCastle2Build`, `farCastle3`, `farCastle3Build` | 48x48 | far plane: x = weltmauer x + 324 − 24, y = weltmauer y + 92 (the baked far castle's foot), drawn over `weltmauer` | the far castle grown, as a silhouette before the slot's light. The baked tier-1 castle lies inside it pixel for pixel, so the overlay only adds: the taller keep and its tower (2), the inner wall and two towers (3); the building states show lattices of poles and a crane's jib |
+| `farCastleBack2`, `…2Build`, `…3`, `…3Build` | 48x48 | far plane: x = weltmauer x + 650 − 24, same y, drawn over `farCastlePane` with its fade | the same from the valley (mirrored) |
+| `farCastle2Glow`, `farCastle3Glow`, `farCastleBack2Glow`, `farCastleBack3Glow` | 48x48 | at their far castle's place | the added lit panes (emitters like `farCastleGlow`, in addition to it). The building states have none |
+| `farCleftGlow2`, `…2Build`, `…3`, `…3Build` | 44x72 | as `farCleftGlow` | the slot's night glow with that tier's castle cut out of it: it replaces `farCleftGlow` while the tier stands (otherwise the glow lies on the new towers) |
+| `farCleftGlowBack2`, `…2Build`, `…3`, `…3Build` | 44x68 | as `farCleftGlowBack` | the same for the valley's view |
+
+Notes for the code lane: tier 2 swaps one sprite at one anchor (`keepTop`); tier 3 swaps two and moves the front's
+anchor 14 px left. The gatehouse's own tiers (gate, iron gate, great gate; DESIGN.md) can drive the castle's tier, or
+the keep's upgrade can. The look-2 mock shows every state: `scene_look2.py … tier<1|2|3>[b]-<gate|back|far|farback>[-day]`.

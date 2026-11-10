@@ -1,0 +1,164 @@
+# lady 16x30, 10 frames: walk 0-5, idle 6-7, command 8-9, frame for frame the king's (a PROPOSAL of the look-2 art
+# pass, SPRITES.md "Proposals of the art pass"; STORY.md: the player chooses Burgherr or Burgherrin). The Burgherrin of
+# House Lantern: the same lamplighter of about nineteen, a young woman. Dark hair drawn back into a long plait that
+# hangs down the cloak with a gold tie, the same narrow circlet a size too big, the house's teal cloak and gold clasp,
+# a red-brown kirtle to the knee with a belt, breeches and boots under it, the hooked lantern pole. Her legs, arm,
+# circlet and pole are the king's parts (include), so the lantern glass and the glint sit on the king's pixels.
+# ladyGlow: the lantern glass and the glint on the circlet's front.
+id lady
+size 16x30
+frames 10
+outline ink shade
+include king.txt
+
+legend
+    h = soilDark
+    n = soil
+
+# the head (frame cols 4-8): dark hair drawn back, full at the nape
+part head
+    .....
+    .nnhh
+    ..nhh
+    hn...
+    hhSkS
+    hhsSs
+    .hss.
+
+# the plait down the back over the cloak, a gold tie at its end
+part plait
+    hn
+    nh
+    hn
+    nh
+    hn
+    nh
+    gG
+    .h
+
+part plaitSwing
+    hn.
+    nh.
+    hn.
+    nh.
+    .hn
+    .nh
+    .gG
+    ..h
+
+# narrower shoulders, a waist, the kirtle flaring to the knee
+part body
+    ....uUTQR.
+    ...uUTGQR.
+    ..UUTtRRR.
+    ..UTtTRRr.
+    ..UTtTRR..
+    ..UTtTRR..
+    .UUTtTHGH.
+    .UTTtTRRR.
+    .UTtTTRRRr
+    .UTtTQRRRr
+    UUTtTQRRrR
+    UTTtTRRRRr
+    UTTtTRrRRr
+    UTtTT.....
+
+frame 0
+    legsContactA 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    plait 3 6
+    pole 10 1
+    armHold 7 9
+
+frame 1
+    legsDownA 2 17
+    body 0 8
+    hem1 0 22
+    head 4 1
+    circlet 3 3
+    plaitSwing 3 7
+    poleSwing 10 2
+    armHold 7 10
+
+frame 2
+    legsPassA 2 16
+    body 0 7
+    hem2 0 21
+    head 4 0
+    circlet 3 2
+    plait 3 6
+    pole 10 1
+    armHold 7 9
+
+frame 3
+    legsContactB 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    plait 3 6
+    pole 10 1
+    armHold 7 9
+
+frame 4
+    legsDownB 2 17
+    body 0 8
+    hem1 0 22
+    head 4 1
+    circlet 3 3
+    plaitSwing 3 7
+    poleSwing 10 2
+    armHold 7 10
+
+frame 5
+    legsPassB 2 16
+    body 0 7
+    hem2 0 21
+    head 4 0
+    circlet 3 2
+    plait 3 6
+    pole 10 1
+    armHold 7 9
+
+frame 6
+    legsStand 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    plait 3 6
+    pole 10 1
+    armHold 7 9
+
+frame 7
+    legsStand 2 16
+    body 0 8
+    hem0 0 22
+    head 4 1
+    circlet 3 3
+    plait 3 7
+    poleSwing 10 2
+    armHold 7 10
+
+frame 8
+    legsStand 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    plait 3 6
+    poleHigh 10 0
+    armRaise 7 6
+
+frame 9
+    legsStand 2 16
+    body 0 7
+    hem2 0 21
+    head 4 0
+    circlet 3 2
+    plaitSwing 3 6
+    poleHigh 10 -1
+    armRaise 7 5

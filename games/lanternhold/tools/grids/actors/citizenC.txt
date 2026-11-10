@@ -1,144 +1,190 @@
-# citizenC 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md). An old farmer: a wide straw hat, a grey beard, a blue
-# smock under a brown vest, patched breeches, a crooked walking stick. Walk: four frames, slow, leaning on the stick.
-# Idle: a breath, both hands on the stick.
+# citizenC 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md). An old farmer, repainted in stage 4 of look 2
+# (ART-look2.md section 15) at the lord's level: a stooped old man under a wide straw hat, grey side hair and a long
+# grey beard, a blue smock under a brown vest, patched breeches, boots, a crooked walking stick in his near hand and
+# the other hand behind his back. Light from the upper left; the outline is look 2's selective one (shadow side and
+# ground contact). Walk: short steps, contact (the body 1 px down) and passing on each leg, the stick planted and
+# drawn after. Idle: a breath on the stick.
 id citizenC
 size 12x26
 frames 6
-outline ink
+outline ink shade
 
 legend
     k = ink
-    S = rockPale
-    s = rockLight
+    S = dawnRose
+    s = tileLight
     v = stoneLight
     w = stonePale
     c = straw
     C = strawLight
-    g = woodLight
+    q = plasterDim
     F = waterDeep
     f = far
     D = farDeep
     H = woodDark
     h = wood
+    l = woodLight
     B = soilDark
     b = soil
     n = soilLight
-    l = woodLight
 
+# the wide straw hat: the crown, the brim lit on the left, its underside in shadow
 part hat
-    ...CCC...
-    ..CcccC..
-    CCcCcCcCC
-    .ccccccc.
+    ...CCc...
+    ..CCccq..
+    CCCcCccqq
+    .cqqqqqq.
 
+# the face under the brim, the grey side hair, the long beard (frame cols 5-8)
 part head
-    .SSS.
-    SSkSs
-    vwSSs
-    .vwv.
+    vSkS
+    vwSs
+    .wwv
+    .vw.
 
+# the vest over the smock, the stooped back lit, the smock's skirt
 part torso
-    .FfF.
-    HFfFH
-    HhFhH
-    HhFhH
-    HhfhH
-    HhFhH
-    FffFF
-    FFfFf
+    .hFfhH
+    hhFfhH
+    lhFfHH
+    .hFfHH
+    .FFfDD
+    .Ff.fD
 
-part legsA
-    Bb..Bn
-    Bb..Bn
-    Bb...Bn
-    HH...HH
-    HHh..HHh
+part legsStand
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ..bB.cb..
+    ..bB.nb..
+    ..HH.hH..
+    ..HH.hH..
+    ..HHHhHH.
 
-part legsB
-    .BbBn
-    .BbBn
-    .BbBn
-    .HHHH
-    .HHhHh
+part legsContactA
+    ...bBnb..
+    ...bBnb..
+    ..bB.nb..
+    ..bB.cb..
+    ..bB..nb.
+    .bB...nb.
+    .HH...hH.
+    .HH...hH.
+    .HHH..hHH
 
-part legsC
-    Bn.Bb
-    Bn.Bb
-    .BnBb.
-    .HHHH.
-    .HHhHHh
+part legsPassA
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ...bBcb..
+    ..bB.nb..
+    ..HH.nb..
+    ..HHHhH..
+    .....hH..
+    .....hHH.
 
+part legsContactB
+    ...bBnb..
+    ...bBnb..
+    ..nb.bB..
+    ..cb.bB..
+    ..nb..bB.
+    .nb...bB.
+    .hH...HH.
+    .hH...HH.
+    .hHH..HHH
+
+part legsPassB
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ...bcb...
+    ..nbbB...
+    ..hHbB...
+    ..hHHH...
+    ....HH...
+    ....HHH..
+
+# the far arm, its hand behind his back
 part armBack
-    F
-    f
-    s
+    .F
+    .f
+    f.
+    s.
 
+# the near arm reaching to the stick
 part armStick
-    FS.
-    .S.
+    FfS
 
+# the crooked stick, planted
 part stick
-    h
-    g
-    h
-    h
-    h
-    h
-    h
-    h
-    h
-    H
+    .l
+    .h
+    .h
+    .h
+    h.
+    h.
+    h.
+    h.
+    .h
+    .h
+    .h
+    .h
+    .h
+    .h
+    .H
 
 frame 0
-    armBack 3 11
-    legsA 3 20
+    legsContactA 1 16
     torso 3 12
-    head 4 8
-    hat 1 5
-    stick 10 15
-    armStick 8 14
+    armBack 2 13
+    head 5 8
+    hat 2 4
+    stick 9 10
+    armStick 8 13
 
 frame 1
-    armBack 3 12
-    legsB 3 20
-    torso 3 13
-    head 4 9
-    hat 1 6
-    stick 9 15
-    armStick 7 15
+    legsPassA 1 16
+    torso 3 11
+    armBack 2 12
+    head 5 7
+    hat 2 3
+    stick 8 10
+    armStick 7 12
 
 frame 2
-    armBack 3 11
-    legsC 3 20
+    legsContactB 1 16
     torso 3 12
-    head 4 8
-    hat 1 5
-    stick 10 15
-    armStick 8 14
+    armBack 2 13
+    head 5 8
+    hat 2 4
+    stick 9 10
+    armStick 8 13
 
 frame 3
-    armBack 3 12
-    legsB 3 20
-    torso 3 13
-    head 4 9
-    hat 1 6
-    stick 9 15
-    armStick 7 15
+    legsPassB 1 16
+    torso 3 11
+    armBack 2 12
+    head 5 7
+    hat 2 3
+    stick 8 10
+    armStick 7 12
 
 frame 4
-    armBack 3 11
-    legsB 3 20
-    torso 3 12
-    head 4 8
-    hat 1 5
-    stick 9 15
-    armStick 7 14
+    legsStand 1 16
+    torso 3 11
+    armBack 2 12
+    head 5 7
+    hat 2 3
+    stick 9 10
+    armStick 8 12
 
 frame 5
-    armBack 3 12
-    legsB 3 20
-    torso 3 13
-    head 4 9
-    hat 1 6
-    stick 9 15
-    armStick 7 15
+    legsStand 1 16
+    torso 3 12
+    armBack 2 13
+    head 5 8
+    hat 2 4
+    stick 9 10
+    armStick 8 13

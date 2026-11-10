@@ -1,78 +1,92 @@
-# Lanternhold shared palette: 53 colours plus the 12 portrait swap colours. One line per colour: name, hex, optional tags.
-# The 20 DESIGN.md "Look" tokens come first, then the albedo mid-tones the art needs.
-# Tag "emissive": the fire ramp; pixelart.py never maps painted albedo onto these unless --allow-emissive
-# (the engine draws flames and glow as separate emissive sprites, and later builds emissive masks from these colours).
-# Tag "swap": the composed portraits' swap ramps (SPRITES.md "M3"); pixelart.py never maps a painting onto these unless
-# --allow-swap, and only the composed portrait parts use them (the code maps each ramp to the petitioner's target ramp).
+# Lanternhold shared palette: 71 colours (53 before look 2) plus the 12 portrait swap colours. One line per colour:
+# name, hex, optional tags.
+# Look 2 "farbig-düster" (ART-look2.md "Palette", 09.11.2026 evening): deep blue nights, warm orange fire, dark green
+# firs, muted but colourful. Every old name is kept, so every painter and grid still works; the values moved toward the
+# direction and 17 colours are new (night blues, fir greens, mist, moor, the creatures' cold eye light).
+# Tags:
+#   emissive        the fire ramp and the creatures' glow; pixelart.py never maps painted albedo onto these unless
+#                   --allow-emissive (the engine draws flames and glow as separate emissive sprites)
+#   match=#RRGGBB   the colour's value before look 2. pixelart.py convert matches paintings against it by default, so
+#                   every existing sprite keeps exactly its palette indices (its zones, fills and remaps were tuned on
+#                   them) and only its colours change; new paintings pass --match new
+#   new             added for look 2
+#   swap            the composed portraits' swap ramps (SPRITES.md "M3"); pixelart.py never maps a painting onto
+#                   these unless --allow-swap, and only the composed portrait parts use them (the code maps each
+#                   ramp to the petitioner's target ramp, so their values never move with a look)
+# Fixed: night0, night1 and ink are the window glass colours Shaders.metal (lh_is_glass) and mock.py (GLASS) light
+# inside window masks; they keep their values until the engine port moves the glass test.
 # Painted art is ALBEDO: evenly lit daylight colours. The engine adds dusk, night, firelight and fog.
 
-# --- DESIGN.md tokens ---
+# --- DESIGN.md tokens (night0, night1, ink fixed: window glass) ---
 night0      #0E0B1E
 night1      #1C1838
-night2      #2E2A5C
-moon        #8C98D0
-stoneDark   #3A3346
-stone       #6B6078
-stoneLight  #A99CA8
-wood        #7A4E2E
+night2      #262E5C  match=#2E2A5C
+moon        #7E89B6  match=#8C98D0
+stoneDark   #2F303E  match=#3A3346
+stone       #5E6170  match=#6B6078
+stoneLight  #969AA2  match=#A99CA8
+wood        #66422F  match=#7A4E2E
 fireWhite   #FFF2C2  emissive
 fireGold    #FFC65A  emissive
 fireOrange  #FF8A2A  emissive
 ember       #D9481F  emissive
-dawnRose    #F2A6A0
-dusk        #C8587A
-daySky      #9CCBDD
-meadow      #6E9A4A
-banner      #2F6E8E
-gold        #E8B84A
-parchment   #F1E3C4
+dawnRose    #E0A28C  match=#F2A6A0
+dusk        #A04A60  match=#C8587A
+daySky      #86A6B6  match=#9CCBDD
+meadow      #4F6A3C  match=#6E9A4A
+banner      #2B6584  match=#2F6E8E
+gold        #E0AE48  match=#E8B84A
+parchment   #DED2B8  match=#F1E3C4
 ink         #2A2230
 
-# --- castle stone (cool grey-violet) ---
-stoneMid    #544A60
-stonePale   #CDC2C6
+# --- castle stone: cool slate, a step bluer and darker than before ---
+stoneMid    #464957  match=#544A60
+stonePale   #BBBCBE  match=#CDC2C6
 
-# --- gorge rock (ochre by day) ---
-rockDeep    #3E3036
-rockDark    #5C4640
-rock        #826248
-rockLight   #A8845A
-rockPale    #CDAE78
+# --- Weltmauer granite (was the gorge's ochre rock): warm-neutral grey with umber; rockDeep and rockDark a step
+#     lighter after the critic of stage 1 (the cliffs at the cleft read as a flat void at dusk) ---
+rockDeep    #39353D  match=#3E3036
+rockDark    #544D4B  match=#5C4640
+rock        #615950  match=#826248
+rockLight   #84796B  match=#A8845A
+rockPale    #A89C88  match=#CDAE78
 
-# --- wood, straw, thatch ---
-woodDark    #4A2E22
-woodLight   #A0703F
-straw       #C49A52
-strawLight  #E0C07A
+# --- wood, straw, thatch: less orange ---
+woodDark    #3A261E  match=#4A2E22
+woodLight   #8A6340  match=#A0703F
+straw       #A68A54  match=#C49A52
+strawLight  #C4A872  match=#E0C07A
 
-# --- roofs: realm teal slate and town tiles ---
-roofDeep    #1F4660
-roofLight   #4F92AE
-tile        #8E4A36
-tileLight   #B8664A
+# --- roofs: realm teal slate and town tiles, deeper ---
+roofDeep    #1B3A4E  match=#1F4660
+roofLight   #3E7790  match=#4F92AE
+tile        #7A3F31  match=#8E4A36
+tileLight   #9E5640  match=#B8664A
 
-# --- greens ---
-leafDark    #2E4630
-leaf        #4A6B3A
-leafLight   #9DBF62
+# --- deciduous greens (valley, town): muted, darker; leafDeep (new, after the critic) the valley's undergrowth dark ---
+leafDeep    #17241B  new
+leafDark    #223428  match=#2E4630
+leaf        #354E30  match=#4A6B3A
+leafLight   #78904E  match=#9DBF62
 
 # --- earth ---
-soilDark    #3A2A26
-soil        #5E4434
-soilLight   #876448
+soilDark    #2B2421  match=#3A2A26
+soil        #463830  match=#5E4434
+soilLight   #64513F  match=#876448
 
-# --- plaster (town houses) ---
-plaster     #D9C9A8
-plasterDim  #B4A284
+# --- plaster (town houses): warm, a value step down from cream; yellower after the critic of stage 1 (blue dusk
+#     ambient plus an amber pool turned the cream lilac) ---
+plaster     #C8AE84  match=#D9C9A8
+plasterDim  #A0875F  match=#B4A284
 
 # --- far mountains (cool, aerial) ---
-farDeep     #3C4468
-far         #5A6890
-farPale     #B4C0D8
+farDeep     #343D5E  match=#3C4468
+far         #4E5A82  match=#5A6890
+farPale     #A3ADC5  match=#B4C0D8
 
 # --- water, snow, foam ---
-waterDeep   #5E8FB0
-foam        #E6F0F2
+waterDeep   #3D6680  match=#5E8FB0
+foam        #D4DCE2  match=#E6F0F2
 
 # --- glow strips of the creatures (M2b art lane; emissive, never albedo) ---
 emberDim    #8C2A12  emissive
@@ -80,6 +94,33 @@ violetGlow  #B48CFF  emissive
 violetDim   #5E3A9E  emissive
 tealGlow    #9FF2E4  emissive
 tealDim     #3C8A86  emissive
+
+# --- look 2, new: night blues (the Gloom's soot, deep shade in the shadow land, painted night darks) ---
+nightDeep   #0A1124  new
+nightBlue   #121C3B  new
+nightSlate  #1E2B52  new
+nightHaze   #2F3F72  new
+
+# --- look 2, new: firs, dark greens toward blue (the shadow land, the Weltmauer's slopes) ---
+fir0        #0E1B1D  new
+fir1        #15302C  new
+fir2        #213F37  new
+fir3        #30574A  new
+fir4        #47705A  new
+
+# --- look 2, new: mist, cool light greys for fog banks painted into backdrops (the engine tints them) ---
+mistDark    #6A7393  new
+mist        #98A1BB  new
+mistLight   #C5CBD9  new
+
+# --- look 2, new: the dead moor (peat, dead grass) ---
+moorDark    #2A2922  new
+moor        #4A4536  new
+
+# --- look 2, new: the creatures' hollow eyes, a cold dead light against their ember cracks (stage 3; emissive) ---
+wraithWhite #E4F2FF  emissive new
+wraithGlow  #7FB0D8  emissive new
+wraithDim   #34557A  emissive new
 
 # --- the composed portraits' swap ramps (SPRITES.md "M3", exact values; 1 deep to 4 light). Faces use only skin for
 # skin, hair and beards only hair, clothes and the cloth parts of hats only cloth; the code maps each colour to the

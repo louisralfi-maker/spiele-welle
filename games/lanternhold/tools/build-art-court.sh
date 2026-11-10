@@ -46,7 +46,7 @@ build() { # name: one sprite (and its glow strip)
 
 ALL="odile brannock pip hesper tamsin bram marek seren serLudo bard envoy herald petitionerD petitionerE
 portraitOdile portraitBrannock portraitPip portraitHesper portraitTamsin portraitBram portraitMarek portraitSeren
-portraitSerLudo portraitBard portraitEnvoy portraitHerald portraitKing
+portraitSerLudo portraitBard portraitEnvoy portraitHerald portraitKing portraitLady
 portraitClothes portraitFace portraitBeard portraitHair portraitHat
 hallFront chapelInterior kitchenInterior bench taxLectern marekCart statue speakerMark"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh

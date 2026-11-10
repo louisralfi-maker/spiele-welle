@@ -1,11 +1,14 @@
-# guardsman 14x28, 9 frames: idle 0-1, walk 2-5, strike 6-8 (SPRITES.md). A guard of the realm in mail: a steel
-# nasal helm, a mail shirt over brown leather, a teal kite shield with a gold rim and the gold lantern on the near arm,
-# a spear in the far hand. Idle: spear upright, a breath. Walk: a marching step with the shield bobbing. Strike: the
-# spear drawn back to the hip (anticipation), thrust flat forward over the shield (hit), pulled back (recovery).
+# guardsman 14x28, 9 frames: idle 0-1, walk 2-5, strike 6-8 (SPRITES.md). A guard of the realm, repainted in stage 4
+# of look 2 (ART-look2.md section 15) at the lord's level: a tall man in a steel nasal helm and a mail coif, a mail
+# shirt with a leather belt over dark breeches, boots, the house's teal kite shield with its gold rim and the gold
+# lantern on the near arm, a spear taller than himself in the far hand. Light from the upper left; the outline is
+# look 2's selective one (shadow side and ground contact). Idle: the spear planted, a breath. Walk: contact and
+# passing on each leg, the spear carried. Strike: the spear drawn back at the hip (anticipation), the lunge with the
+# spear flat over the lowered shield (hit; the tip at col 13, row 11 as before), the recovery.
 id guardsman
 size 14x28
 frames 9
-outline ink
+outline ink shade
 
 legend
     k = ink
@@ -19,207 +22,262 @@ legend
     U = roofLight
     G = gold
     g = straw
+    J = strawLight
     B = soilDark
     b = soil
+    n = soilLight
     D = stoneDark
     M = stoneMid
     m = stone
     L = stoneLight
     P = stonePale
-    x = stoneLight!
-    X = stonePale!
-    y = wood!
-    Y = woodDark!
 
-# nasal helm and face, a mail coif at the neck
+# the nasal helm (frame cols 5-9): a glint on the crown, the dark rim, the face under it, the nasal bar, the coif
 part head
-    .LLP.
-    LmmLP
-    DDDDDm
-    .MsSD.
+    ..PL..
+    .PLmM.
+    .LmmMD
+    .DDDDD
     .MSkSD
-    .MsSS.
-    .MMM..
+    .MsSs.
+    .MMss.
 
+# the coif's mantle on the shoulders, the mail shirt, the belt, the mail skirt with its ragged hem
 part torso
-    MmmmM
-    mLmLm
-    MMmMM
-    mMMMm
-    MMmMM
-    HHGHH
-    MmMmM
-    MMmMM
+    .MmmMD
+    LmMmMD
+    mLmMmD
+    MmMmMD
+    mMmMmD
+    hHHGHH
+    MmMmMD
+    mMmMmD
+    M.mM.D
 
 part legsIdle
-    Bb.Bb
-    Bb.Bb
-    Bb.Bb
-    Bb.Bb
-    Bb.Bb
-    HH.HH
-    HH.HH
-    HH.HH
-    HHhHHh
+    .bBnb..
+    .bBnb..
+    .bBnb..
+    .bBnb..
+    .bBnb..
+    .bB.nb.
+    bB..nb.
+    bB..nb.
+    HH..hH.
+    HH..hH.
+    HHH.hHH
 
-part legsWalkA
-    Bb..Bb
-    Bb..Bb
-    Bb...Bb
-    Bb...Bb
-    .Bb..Bb
-    .HH..HH
-    .HH..HH
-    HH...HH
-    HHh..HHh
+part legsContactA
+    ...bBnb..
+    ...bBnb..
+    ..bB.nb..
+    ..bB..nb.
+    .bB...nb.
+    .bB...nb.
+    .bB...nb.
+    HH....hH.
+    HH....hH.
+    HH....hH.
+    .HH...hHH
 
-part legsWalkB
-    .BbBb.
-    .BbBb.
-    .BbBb.
-    .Bb.Bb
-    .Bb.Bb
-    .HH.HH
-    .HH.HH
-    .HH.HH
-    .HHhHHh
+part legsPassA
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ..bB.nb..
+    ..bB.nb..
+    .HH..nb..
+    .HH..hH..
+    .HHH.hH..
+    .....hH..
+    .....hHH.
 
-part legsWalkC
-    Bb..Bb
-    Bb..Bb
-    Bb..Bb.
-    Bb...Bb
-    Bb...Bb
-    HH...HH
-    HH...HH
-    HH...HH
-    HHh..HHh
+part legsContactB
+    ...bBnb..
+    ...bBnb..
+    ..nb.bB..
+    ..nb..bB.
+    .nb...bB.
+    .nb...bB.
+    .nb...bB.
+    hH....HH.
+    hH....HH.
+    hH....HH.
+    .HH...HHH
 
+part legsPassB
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ...bnb...
+    ..nbbB...
+    .hH.bB...
+    .hH.HH...
+    .hHHHH...
+    ....HH...
+    ....HHH..
+
+# the lunge: the far leg stretched back, the near knee bent over the forward foot
 part legsLunge
-    Bb...Bb
-    Bb...Bb
-    Bb....Bb
-    Bb....Bb
-    Bb.....Bb
-    HH.....HH
-    HH.....HH
-    HH.....HH
-    HHh....HHh
+    ....bBnb...
+    ....bBnnb..
+    ...bB..nb..
+    ..bB...nb..
+    ..bB....nb.
+    .bB.....nb.
+    .bB.....nb.
+    bB......hH.
+    HH......hH.
+    HH......hH.
+    .HH.....hHH
 
-# the kite shield on the near arm: teal, gold rim and the gold lantern
+# the kite shield on the near arm: the gold rim, the teal field, the gold lantern
 part shield
-    .GGG.
-    GTUTG
-    GTGTG
-    GTGTG
-    GtTtG
-    .GtG.
-    ..G..
+    GGGGg
+    GUTTg
+    GUGTg
+    GUJtg
+    GTGtg
+    GTTtg
+    .GTtg
+    .GTg.
+    ..Gg.
+    ..g..
 
-# the spear upright in the far hand (shaft, steel head)
+# the spear planted upright: a leaf blade, the ash shaft down to the ground
 part spearUp
-    X
-    x
-    x
-    y
-    y
-    y
-    y
-    y
-    y
-    y
-    y
-    y
-    y
-    y
-    y
-    y
-    y
-    y
-    y
-    Y
+    .P.
+    PLm
+    .L.
+    .h.
+    .h.
+    .l.
+    .h.
+    .h.
+    .h.
+    .h.
+    .h.
+    .l.
+    .h.
+    .h.
+    .h.
+    .h.
+    .h.
+    .l.
+    .h.
+    .h.
+    .h.
+    .h.
+    .h.
+    .l.
+    .h.
+    .h.
+    .h.
 
-part handFar
-    S
+# carried on the march: the butt off the ground
+part spearCarry
+    .P.
+    PLm
+    .L.
+    .h.
+    .h.
+    .l.
+    .h.
+    .h.
+    .h.
+    .h.
+    .h.
+    .l.
+    .h.
+    .h.
+    .h.
+    .h.
+    .h.
+    .l.
+    .h.
+    .h.
+    .h.
+    .h.
+    .h.
+    .l.
+    .h.
 
-# strike: the spear drawn back level at the hip, then thrust forward over the shield
+# level at the hip, drawn back (the shield hides its front)
 part spearBack
-    yyyyyyxX
+    hhhlhhhhhLP
 
+# the thrust: flat over the shield, the blade past it
 part spearThrust
-    yyyyyyyxX
+    hhlhhhhhhLPP
 
+# the mail sleeve and the hand on the shaft
 part armThrust
     MmS
 
 frame 0
-    spearUp 11 1
-    handFar 10 13
-    legsIdle 4 18
-    torso 4 10
-    head 3 3
-    shield 7 10
+    spearUp 10 0
+    legsIdle 4 16
+    torso 4 8
+    head 4 1
+    shield 8 9
 
 frame 1
-    spearUp 11 2
-    handFar 10 14
-    legsIdle 4 18
-    torso 4 11
-    head 3 4
-    shield 7 11
+    spearUp 10 0
+    legsIdle 4 16
+    torso 4 9
+    head 4 2
+    shield 8 10
 
 frame 2
-    spearUp 11 1
-    handFar 10 13
-    legsWalkA 3 18
-    torso 4 10
-    head 3 3
-    shield 7 10
+    spearCarry 10 1
+    legsContactA 2 16
+    torso 4 9
+    head 4 2
+    shield 8 10
 
 frame 3
-    spearUp 11 2
-    handFar 10 14
-    legsWalkB 3 18
-    torso 4 11
-    head 3 4
-    shield 7 11
+    spearCarry 10 0
+    legsPassA 2 16
+    torso 4 8
+    head 4 1
+    shield 8 9
 
 frame 4
-    spearUp 11 1
-    handFar 10 13
-    legsWalkC 3 18
-    torso 4 10
-    head 3 3
-    shield 7 10
+    spearCarry 10 1
+    legsContactB 2 16
+    torso 4 9
+    head 4 2
+    shield 8 10
 
 frame 5
-    spearUp 11 2
-    handFar 10 14
-    legsWalkB 3 18
-    torso 4 11
-    head 3 4
-    shield 7 11
+    spearCarry 10 0
+    legsPassB 2 16
+    torso 4 8
+    head 4 1
+    shield 8 9
 
 frame 6
-    legsIdle 3 18
-    torso 3 10
-    head 2 3
-    spearBack 1 11
-    handFar 6 11
-    shield 6 11
+    legsIdle 3 16
+    torso 3 8
+    head 3 1
+    spearBack 0 12
+    armThrust 3 12
+    shield 7 9
 
 frame 7
-    legsLunge 2 18
-    torso 5 11
-    head 4 4
-    shield 8 12
-    spearThrust 5 11
-    armThrust 8 11
+    legsLunge 1 16
+    torso 4 9
+    head 5 2
+    spearThrust 2 11
+    armThrust 6 11
+    shield 8 13
 
 frame 8
-    legsWalkA 3 18
-    torso 4 10
-    head 3 3
-    spearBack 3 11
-    handFar 8 11
-    shield 7 11
+    legsContactA 2 16
+    torso 4 9
+    head 4 2
+    spearBack 1 12
+    armThrust 4 12
+    shield 8 10

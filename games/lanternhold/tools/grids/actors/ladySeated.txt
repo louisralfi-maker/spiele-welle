@@ -1,0 +1,91 @@
+# ladySeated 16x30, 4 frames: sit down 0-1, seated idle 2-3, frame for frame kingSeated's (a PROPOSAL of the look-2 art
+# pass, SPRITES.md "Proposals of the art pass"). The Burgherrin on the hall's throne, turned to the hall like the
+# seated king (ART-look2.md section 16): her back at the throne's back, the kirtle over her lap and falling from the
+# knees, the shins and boots before the seat's front, the plait down the cloak, her hand on the pole that stands behind
+# her knee. The lantern glass: cols 13-14, rows 6-7. The parts are the king's, the lady's and the seated king's
+# (include).
+id ladySeated
+size 16x30
+frames 4
+outline ink shade
+include king.txt
+include lady.txt
+include kingSeated.txt
+
+part bodySit
+    ....uUTQR
+    ....UTGQR
+    ....UTRRR
+    ....UTRRr
+    ....UTRR.
+    ....UTRR.
+    ....UTHGH
+    ....UTRRR
+    ...UTTRRR
+    ...TtTQRR
+    ....tT...
+
+# the kirtle over the lap and from the knee, the shin and the boot under it
+part legsSit
+    QQRr..
+    RRRRr.
+    RRrRr.
+    ..RRr.
+    ..rRr.
+    ..LbD.
+    ..LbD.
+    ..LbD.
+    ..pHH.
+    ..pHH.
+    ..pHHH
+
+part legsHalf
+    RQ.....
+    RRRQ...
+    rRRRRr.
+    .rrRRr.
+    ...RRr.
+    ...rRr.
+    ...LbD.
+    ...LbD.
+    ...pHH.
+    ...pHH.
+    ...pHHH
+
+frame 0
+    legsCrouch 2 18
+    body 0 9
+    hem0 0 23
+    head 4 2
+    circlet 3 4
+    plait 3 8
+    pole 10 2
+    armHold 7 11
+
+frame 1
+    pole 10 2
+    bodySit 0 10
+    head 4 3
+    circlet 3 5
+    plait 3 9
+    legsHalf 7 19
+    armHold 7 12
+
+frame 2
+    pole 10 2
+    bodySit 0 12
+    head 4 5
+    circlet 3 7
+    plait 3 11
+    legsSit 8 19
+    armHold 7 14
+
+frame 3
+    pole 10 2
+    bodySit 0 11
+    bodySit 0 12
+    head 4 4
+    circlet 3 6
+    plait 3 10
+    legsSit 8 19
+    armHold 7 14

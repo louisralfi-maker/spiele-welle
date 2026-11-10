@@ -30,7 +30,7 @@ for the portraits (step 2), where a 48x48 head needs a painting.
 | `tools/grids/court/<id>.txt` | the part grids, one per sprite, in `actorart.py`'s spec format (ART-actors.md "Pipeline"); the header comment of each says who it is and what every frame shows |
 | `tools/build-art-court.sh [name …]` | the third lane script: rebuilds the 14 sprites and their glow strips with `actorart.py build`, one at a time with the heat rule; `--list` names them for `build-art.sh` |
 | `tools/build-art.sh` | runs the court lane after the buildings and actors lanes (group name `court`, or one sprite by its name) |
-| `tools/grids/court/proposals/kingSeated.txt` | a proposal, not a contract sprite (see "Deviations"): built only into `build/recraft/lh/court/proposals/` by `run_court.sh` |
+| `tools/grids/court/proposals/` | proposals of this lane, built only into `build/recraft/lh/court/proposals/` by `run_court.sh`. Empty since the art pass: the seated lord is now `tools/grids/actors/kingSeated.txt`, built into Resources/Art (ART-look2.md section 15) |
 | `tools/scenemock/scene_court.py`, `run_court.sh` | the context scenes (below); `zoom.py` cuts a box of a mock and scales it to device scale (6 device px per game px) |
 
 **Reproducible:** a full `build-art.sh` run in a scratch copy of the tree with `Resources/Art` emptied (the Recraft raws
@@ -72,7 +72,7 @@ so by day a dimmed glow still reads as flame, glass and eyes.
 | hesper | fix stage: flame (+5.5, 19) in frames 0, 2, 4, 7; (+5.5, 18) in the bob frames 1, 3, 5; (+5.5, 22) in talk 6 (the staff lifted, the flame tall) | 7 glow pixels (10 in talk 6) before her chin, was (+5.5, 27.5) on a pole above her head; a small light (candle-sized) would sit there and light her face |
 | seren | lantern glass (+3, 10) in frames 0, 2, 4, 7; (+4, 9) swaying in 1, 3 and (+4, 10) in 5; (+3, 21) raised in talk 6 | 17 glow pixels: a cold light, if the engine gives her one, would be grey-white, not firelight |
 | herald | eyes (-0.5, 21) and (+1.5, 21); 20 in the bob frames 1, 3, 5 | the rim follows the top contour (circlet spikes, pole point, crossbar) |
-| kingSeated (proposal) | lantern glass (+5.5, 22.5), as the standing king's idle frames | crown glint as the king's |
+| kingSeated (proposal; the art pass's, 4 frames) | lantern glass (+5.5, 22.5) on all four frames | circlet glint at (0, 24), (0, 23), (0, 21), (0, 22) |
 
 ## Context scenes (`tools/scenemock/scene_court.py`, `run_court.sh`)
 
@@ -102,6 +102,9 @@ Day and night sheets of every sprite (`actorart.py sheet <id> --frames 8`): `bui
    tunic and lantern pole with the thighs forward on the throne's cushion (y 8) and the shins to the floor
    (`tools/grids/court/proposals/kingSeated.txt`, built only for the mocks). If the lead takes it into the contract,
    `build-art-court.sh` builds it into Resources/Art with one line.
+   *Superseded by the art pass (ART-look2.md section 15):* `kingSeated` is now the young lord, 4 frames (sit down
+   0-1, seated idle 2-3), with `ladySeated` beside it, built by the actors lane into Resources/Art; SPRITES.md
+   "Proposals of the art pass" has the sizes and anchors. `portraitKing` shows the young lord, `portraitLady` the lady.
 2. **Sitting on the benches.** The petitioner bodies (and the townsfolk) have no sit frame, so the mocks show them
    standing at the benches' place. A sit frame (a 7th frame, the body on a bench 8 px high) would let them wait seated;
    until then they can wait standing in a queue.

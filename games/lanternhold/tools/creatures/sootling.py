@@ -1,0 +1,82 @@
+"""Sootling: a small stooped husk that drags itself along the ground. The back is its highest point; the hooded head
+hangs in front of it, long and narrow, the hood's peak torn and standing at the nape, the jaw dropped. One hollow
+socket with a single point of cold light, low and toward the front, and one tear under it. A rag on its back. It
+rears up to claw. (Fix stage, ART-look2.md 14: no pale face, never two eyes, nothing of a child.)"""
+from rig import grid
+
+SIZE = (14, 14, 6)
+F = [
+    # crawl 0-3 at 3 px a frame: the reaching hand is planted and moves back 3 px, then the other arm reaches
+    ["..............", "..............", "..............", "..............",
+     "....HH........",
+     "...hHHhh......",
+     "...hhhhh.Hh...",
+     "..rhhhhhhHHHh.",
+     "..rrhhhhhhnnh.",
+     ".rr.hkhh.hnnh.",
+     ".r..h.hh.hnE..",
+     "....h..hh.dw..",
+     "...hh...hh....",
+     "...h.....hhh.."],
+    ["..............", "..............", "..............", "..............", "..............",
+     "....HH........",
+     "...hHHhhh.....",
+     "...hhhhhhHh...",
+     "..rrhhhhhHHHh.",
+     ".rrrhkhhhhnnh.",
+     ".r..hhhh.hnnh.",
+     "...hh.h..hnE..",
+     "..hh..hh..dw..",
+     "..h...hhh....."],
+    ["..............", "..............", "..............", "..............",
+     "....HH........",
+     "...hHHhh......",
+     "...hhhhh.Hh...",
+     "..rhhhhhhHHHh.",
+     ".rrrhhhhhhnnh.",
+     ".r..hkhh.hnnh.",
+     "....hh.h.hnE..",
+     "...hh..hh.dw..",
+     "..hh....hh....",
+     "..h......hhh.."],
+    ["..............", "..............", "..............", "..............", "..............",
+     "....HH........",
+     "...hHHhhh.....",
+     "...hhhhhhHh...",
+     "..rrhhhhhHHHh.",
+     ".rr.hkhhhhnnh.",
+     ".r..hhhh.hnnh.",
+     "....h.hh.hnE..",
+     "...hh.hh..dw..",
+     "...h..hhh....."],
+    # attack 4-5: rears up with the claw high, the head thrown up; strikes down, the head low again
+    ["..............", "..............",
+     "....Hh...h.h..",
+     "....HHHh..h...",
+     "....hnnh..h...",
+     "....hnnh..h...",
+     "....hnE..h....",
+     "...hHdw..h....",
+     "..rhhhhhh.....",
+     "..rrhkhh.h....",
+     ".rr.hhh...h...",
+     ".r..hh....hh..",
+     "...hh.h.......",
+     "...h..hh......"],
+    ["..............", "..............", "..............",
+     ".....Hh.......",
+     ".....HHHh.....",
+     ".....hnnh.....",
+     "....hhnnh.....",
+     "...hHhnE..hh..",
+     "..rhhhdwhhhhh.",
+     "..rrhkhh...hh.",
+     ".rr.hhh....h.h",
+     ".r..hh.....h.h",
+     "...hh.h.......",
+     "...h..hh......"],
+]
+
+
+def frame(k):
+    return grid(14, 14, F[k], seed=3)

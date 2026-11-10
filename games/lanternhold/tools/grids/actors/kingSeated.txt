@@ -1,0 +1,108 @@
+# kingSeated 16x30, 4 frames: sit down 0-1, seated idle 2-3 (a PROPOSAL of the look-2 art pass, SPRITES.md "Proposals
+# of the art pass"; it replaces the M3 lane's bearded proposal of grids/court/proposals). The Burgherr on the hall's
+# throne (14x24, drawn from the front; the cushion's rows at y 7 and 6 above the floor are this frame's rows 22 and
+# 23), the frame centred on the throne. Redrawn after the art pass (ART-look2.md section 16): from the front he read
+# as a man standing before the throne and hid it whole. Now he sits turned to the hall, as every figure of the game is
+# drawn: his back at the throne's back (the cloak between, pooling on the seat), the thighs level on the cushion, the
+# knees bent at the seat's edge, the shins and boots before the seat's front; the throne's back panel, post, finials,
+# arm rest and cushion show around him. The lantern pole stands behind his knee against the seat, his hand on the shaft.
+# The engine mirrors the frame to turn him. Frame 0: in profile before the seat, the knees bent. Frame 1: half
+# lowered, the thighs sloping. Frame 2: seated. Frame 3: a breath (head and shoulders 1 px up). Standing up is 1, 0.
+# The lantern glass does not move: cols 13-14, rows 6-7 (the light at (+5.5, 22.5)).
+# The parts are the king's (include).
+id kingSeated
+size 16x30
+frames 4
+outline ink shade
+include king.txt
+
+# the seated trunk (frame cols 3-8): the tunic in the king's columns, the cloak pressed narrow between his back and
+# the throne's (so the throne's post and finial stand free behind him), its end on the seat
+part bodySit
+    ....uUTQR
+    ....UTGQR
+    ....UTQRR
+    ....UTRRR
+    ....UTRRr
+    ....UTRRr
+    ....UTHGH
+    ....UTRRR
+    ...UTTRRr
+    ...TtTTrr
+    ....tT...
+
+# the lap (frame cols 8-13): the thigh level on the cushion, lit from above, the knee, the shin and the boot before
+# the seat's front, the far leg behind
+part legsSit
+    LLLb..
+    bbLLD.
+    ddLbD.
+    ..LbD.
+    ..LbD.
+    ..LbD.
+    ..LbD.
+    ..LbD.
+    ..pHH.
+    ..pHH.
+    ..pHHH
+
+# half lowered: the thighs slope to the knees
+part legsHalf
+    bL.....
+    bLLL...
+    dbLLLD.
+    .ddLbD.
+    ...LbD.
+    ...LbD.
+    ...LbD.
+    ...LbD.
+    ...pHH.
+    ...pHH.
+    ...pHHH
+
+part legsCrouch
+    ...dDLb..
+    ...dDLLb.
+    ....dDLb.
+    ....dDLb.
+    ....dDLb.
+    ...dDLb..
+    ...dDLb..
+    ...HHpH..
+    ...HHpH..
+    ...HHpH..
+    ...HHHpHH
+
+frame 0
+    legsCrouch 2 18
+    body 0 9
+    hem0 0 23
+    head 4 2
+    circlet 3 4
+    pole 10 2
+    armHold 7 11
+
+frame 1
+    pole 10 2
+    bodySit 0 10
+    head 4 3
+    circlet 3 5
+    legsHalf 7 19
+    armHold 7 12
+
+frame 2
+    pole 10 2
+    bodySit 0 12
+    head 4 5
+    circlet 3 7
+    legsSit 8 19
+    armHold 7 14
+
+frame 3
+    pole 10 2
+    bodySit 0 11
+    bodySit 0 12
+    head 4 4
+    circlet 3 6
+    legsSit 8 19
+    armHold 7 14
