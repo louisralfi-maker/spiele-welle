@@ -1531,3 +1531,49 @@ and a face, and each house a banner (thirteen new ids).
 Plates 11 (the audience with the four envoys, all five banners up), 12 (the same, close), 13 (only Varn's and
 Oxmoor's banners up, the realm's at the other places), 14 (the four bodies, all frames), 15 (the four portraits),
 16 (the five banners). Scenes `hall-houses`, `hall-houses-two` in `scenemock/scene_look2.py`.
+
+### 19.4 The circlet icon
+
+Before: the audience button and the HUD's action button showed a crown, then a drawn stand-in of the code lane (a
+band from the front with three low points). The lord of Lanternhold wears no crown: `portraitKing` and
+`portraitLady` wear a narrow gold band. The icon is that band (two new ids, `tools/iconart.py`, hand-set grids).
+
+- **The view:** a little from above, so the band reads as a ring for a head: the far side a thin line with its
+  inner face in shade, the near side the lit rim over two rows of gold, and nothing inside it. 24x16 art pixels.
+- **Three tries.** A plain band read as a finger ring or a halo. Three points on the near side read as a crown
+  again. Kept: one low point at the brow that holds a small stone in the realm's teal, and one glint on the rim.
+- **`circletIcon`** (gold, for dark grounds: the HUD's button): the rim in the fire's gold, the face in `gold`, the
+  lower edge and the far side in the wood browns and `straw`. It also holds on parchment, less well.
+- **`circletIconInk`** (the gold "End the audience" button, where gold on gold would not read): the same outline in
+  ink alone, the stone cut out so the button's gold shows through, the far side one pixel thin so the near band
+  reads as near. One colour, so the interface may tint it.
+- **Sizes:** each id is three files, 1x (24x16), `@2x` (48x32) and `@3x` (72x48), whole multiples. Proposed at
+  48x32 pt in the HUD's 88 pt circle and at 24x16 pt beside the button's label, where its 12 rows stand about as high as
+  the label's capitals (SPRITES.md "The circlet icon").
+
+Plate 17: the HUD's button over the hall and the card's gold button, both at 3 px per point (a 3x iPhone); the two
+icons large; the six files at their own pixels. The label's font in the plate is a stand-in.
+
+### 19.5 Notes for the code lanes
+
+- claude/lh-polish has wired the old walls and the anchors (9bffdd5) and the fog (fe84b61) and has merged the
+  envoys' and banners' art (c477e3b). Not wired when this was written: the envoys' bodies and portraits, the houses'
+  banners, the icon.
+- **The atlas:** the code lane's `FrameDesc.swift` (fe84b61) has 300 ids in 655 cells and packs to 1754 of 2048
+  rows (the packer's rule: tallest first, 2 px of padding). With the four bodies, the four portraits, the five
+  banners and both icons as ids it is 698 cells and 1768 rows.
+- The ids of stage 7 by painter: `tools/throatart.py` (the old walls, the anchors; the world lane),
+  `tools/gloomart.py` (the fog; the world lane), `tools/bannerart.py` and `tools/iconart.py` (the court lane), the
+  envoys in `tools/grids/court/`. `tools/build-art.sh` rebuilds all of them byte for byte.
+
+### 19.6 Open
+
+- This lane saw nothing of stage 7 in the engine or on the runner. The plates are the mock's.
+- The fog: its motion, the light holes and the unlit drawing are the engine's; the mock shows stills.
+- `oldWall1` is scenery beside the gate, not a state of line 1's plot.
+- Orla's great-grandchild is painted into her frame; a child that walks by itself would be a new sprite and a
+  second walker.
+- Which house's banner hangs where is a proposal (Brine, Calder, Varn, Lorn, Oxmoor), the lead's to settle.
+- The envoys' portraits are fixed paintings without swap ramps, as `portraitEnvoy` is.
+- The icon was judged in the plate only: whether 24x16 pt is large enough beside the label on a phone is to be
+  seen on the runner.

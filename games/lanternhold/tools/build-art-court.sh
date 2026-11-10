@@ -8,7 +8,8 @@
 # (step 3), painted by tools/roomart.py (roomscenes.py, the stamps in tools/grids/court/rooms/; hallFront is painted
 # inside hallInterior's silhouette, so build-art.sh builds the scene sprites first); and the four houses' envoys
 # (bodies and portraits, built like the guests') and the five houses' hall banners (tools/bannerart.py) of look 2's
-# stage 7 (ART-look2.md 19.3). One sprite at a time with a pause between,
+# stage 7 (ART-look2.md 19.3), and the interface's circlet icon (tools/iconart.py, ART-look2.md 19.4; each id is three
+# files: 1x, @2x, @3x). One sprite at a time with a pause between,
 # and a wait while the CPU is at 80 °C or more (this old Mac's heat rule). A full run reproduces the committed files
 # byte for byte. The proposals in tools/grids/court/proposals/ (the seated king) are not
 # contract sprites: tools/scenemock/run_court.sh builds them into build/ for the mocks only. Run from anywhere:
@@ -19,6 +20,7 @@ AA=games/lanternhold/tools/actorart.py
 PA=games/lanternhold/tools/portraitart.py
 RA=games/lanternhold/tools/roomart.py
 BA=games/lanternhold/tools/bannerart.py
+IA=games/lanternhold/tools/iconart.py
 A=games/lanternhold/Resources/Art
 G=games/lanternhold/tools/grids/court
 SMC=/Users/enaayla/Desktop/Spiele-Welle/tools/smcread
@@ -43,6 +45,8 @@ build() { # name: one sprite (and its glow strip)
         python3 -I -B $AA build $G/portraits/$1.txt --out $A ;;
     banner*)
         python3 -I -B $BA build "$1" --out $A ;;
+    circletIcon*)
+        python3 -I -B $IA build "$1" --out $A ;;
     hallFront|chapelInterior|kitchenInterior|bench|taxLectern|marekCart|statue|speakerMark)
         python3 -I -B $RA build "$1" --out $A ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;
@@ -54,6 +58,7 @@ portraitOdile portraitBrannock portraitPip portraitHesper portraitTamsin portrai
 portraitSerLudo portraitBard portraitEnvoy portraitHerald portraitKing portraitLady
 hildVarn lorenzPell ebbaCalder orlaLorn portraitHildVarn portraitLorenzPell portraitEbbaCalder portraitOrlaLorn
 bannerVarn bannerBrine bannerOxmoor bannerCalder bannerLorn
+circletIcon circletIconInk
 portraitClothes portraitFace portraitBeard portraitHair portraitHat
 hallFront chapelInterior kitchenInterior bench taxLectern marekCart statue speakerMark"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
