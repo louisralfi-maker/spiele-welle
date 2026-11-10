@@ -93,11 +93,14 @@ build() { # name: one sprite (or one group of small ones)
     poplar) tree poplar 992,28,1068,672 14x116 $LEAFW ;;
     appleTree) tree appleTree 1080,432,1292,672 42x48 $LEAFW ;;
     willow) tree willow 1308,396,1516,672 52x68 $LEAFW ;;
+    # stage 6 (section 18): two more paintings of every town tree, painted by tools/treeart.py on the first one's canvas
+    lindenB|lindenC|poplarB|poplarC|appleTreeB|appleTreeC|willowB|willowC)
+        python3 -I -B games/lanternhold/tools/treeart.py build $1 --out $A ;;
     plants) python3 -I -B $DA $A $PLANTS ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;
     esac
 }
 
-ALL="weltmauer castleTiers gorgeRock cleftFace cleftFlank cleftFlankB cleftThroat shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow plants"
+ALL="weltmauer castleTiers gorgeRock cleftFace cleftFlank cleftFlankB cleftThroat shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow lindenB lindenC poplarB poplarC appleTreeB appleTreeC willowB willowC plants"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do cool; build "$name"; done

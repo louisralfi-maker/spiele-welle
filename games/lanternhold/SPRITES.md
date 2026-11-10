@@ -285,3 +285,27 @@ Proposals like the ones above: the PNGs lie in Resources/Art, `tools/build-art.s
 | `hayCart` | 40x24 | 1 | a two-wheeled hay cart at rest on its prop, the shafts to the left: a prop for the square or a lane (ground line at the frame's bottom, no collision) |
 | `barrels` | 26x14 | 1 | two standing barrels (a pewter mug on the bigger one) and a third lying end on: beside the tavern or the market |
 | `noticeBoard` | 20x26 | 1 | the lord's notice board: two oak posts, a board with four notices under a small slate roof in the realm's teal. A place for the day's news (a decree, a recruit call) if the code wants one |
+
+### Two more paintings of every town tree (look 2, stage 6; ART-look2.md section 18)
+
+Proposals too. Each lies on its first painting's canvas with the trunk at the canvas centre and the foot on the
+bottom row, so it takes the first painting's place at the same trunk x, flipped or not; a shorter tree has clear rows
+on top. Near plane, 1 frame, no masks, no emitters; they sway as their first painting does (`willowB` and `willowC`
+in their lower half). `tools/treeart.py` paints them.
+
+| id | size | the tree stands in | notes |
+|---|---|---|---|
+| `lindenB` | 52x92 | rows 0 to 91, x 4 to 46 | a slim, tall linden: an egg-shaped crown on a thin trunk |
+| `lindenC` | 52x92 | rows 20 to 91, x 0 to 51 | an old, broad linden with a low crown on a thick trunk: 72 px high, so it may stand where a full linden covers the far castle (world 2386 to 2616) |
+| `poplarB` | 14x116 | rows 17 to 115 | a younger poplar, 99 px high and fuller in the belly |
+| `poplarC` | 14x116 | rows 1 to 115 | a lean poplar with a notch in its flank, its tip bent to the right |
+| `appleTreeB` | 42x48 | rows 3 to 47 | a flat, wide crown on two stems that wind round each other |
+| `appleTreeC` | 42x48 | rows 0 to 47 | a round crown on a bent trunk, seven red apples in it |
+| `willowB` | 52x68 | rows 14 to 67, x 5 to 47 | a young willow, 54 px high, its strands short of the ground |
+| `willowC` | 52x68 | rows 0 to 67 | an old willow: a thick, bent trunk, the curtain down to the water |
+
+A planting that never shows the same painting twice side by side (trunk world x; the flips stay as they are):
+2466 `appleTree`, 2548 `appleTreeB`, 2624 `lindenC`, 2690 `appleTreeC`, 2741 `appleTree`, 2868 `poplar`,
+2884 `poplarB`, 2992 `linden`, 3170 `poplarC`, 3186 `poplar`, 3300 `lindenB`, 3448 `appleTreeC`, 3523 `appleTreeB`,
+3610 `lindenC`, 3684 `willow`, 3790 `willowC`, and a young `willowB` between them at 3738 if the river bank may
+carry a third.

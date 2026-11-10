@@ -90,7 +90,10 @@ def fog_region(x):
 # ------------------------------------------------------------------------------------------------ depth instances
 def _w(name):
     return {"firA": 29, "firB": 30, "firC": 34, "firD": 27, "deadTreeA": 17, "deadTreeB": 17,
-            "linden": 52, "poplar": 14, "appleTree": 42, "willow": 52, "d2BushA": 30, "d2BushB": 22}[name]
+            "linden": 52, "poplar": 14, "appleTree": 42, "willow": 52, "d2BushA": 30, "d2BushB": 22,
+            # stage 6 (ART-look2.md section 18): every town tree's two variants stand on the first one's canvas
+            "lindenB": 52, "lindenC": 52, "poplarB": 14, "poplarC": 14, "appleTreeB": 42, "appleTreeC": 42,
+            "willowB": 52, "willowC": 52}[name]
 
 
 def tree(plane, name, X, y=0, z=0, shade=1.0, flip=False):
