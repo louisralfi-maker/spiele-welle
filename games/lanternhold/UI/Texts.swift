@@ -82,7 +82,12 @@ enum Texts {
     /// What a thing does, in a few words (DESIGN.md "Prices and build times").
     static func effect(_ item: BuildItem, balance b: Balance) -> String {
         switch item {
-        case .gate, .ironGate, .greatGate, .palisade, .stoneWall, .bastion:
+        case .ironGate, .greatGate:
+            // Polish after round 2: the castle grows with its gatehouse (`CastleStage.grown`).
+            let strength = Int(Build.maxHP(item, balance: b).rounded())
+            let posts = Build.posts(item, balance: b)
+            return String(localized: "The castle grows · strength \(strength) · \(posts) archer posts")
+        case .gate, .palisade, .stoneWall, .bastion:
             let strength = Int(Build.maxHP(item, balance: b).rounded())
             let posts = Build.posts(item, balance: b)
             return String(localized: "Strength \(strength) · \(posts) archer posts")

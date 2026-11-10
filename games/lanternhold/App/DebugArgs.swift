@@ -45,7 +45,8 @@ struct DebugArgs: Sendable, Equatable {
     var day: Int?
     /// `-GWNight <n>`: the same to that night's 20:00.
     var night: Int?
-    /// `-GWBuild demo`: a built-up realm for screenshots.
+    /// `-GWBuild demo`: a built-up realm for screenshots. `-GWBuild raise`: the same, and by day the builders raise
+    /// the great gate (the castle's third tier under scaffolding, "Polish after round 2").
     var build: BuildPreset?
     /// `-GWGold <n>`, `-GWHappiness <n>` (0 ... 100): set the numbers.
     var gold: Int?
@@ -67,8 +68,10 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWLook 1|2`: the look (1: the M1b to M3 picture; 2: "farbig-düster", docs/PORT-look2.md).
     var look: LookVersion = .standard
     /// `-GWCastle 1|1b|2|2b|3|3b` (look 2): the castle's tier as drawn, with "b" in its building state (SPRITES.md
-    /// "The castle grows"). Drawing only; nothing in play raises it yet.
+    /// "The castle grows"). Without the argument the game's castle stands as the realm built it: it grows with its
+    /// gatehouse (`CastleStage.grown`, "Polish after round 2"); with it the stage is fixed (`castleFixed`).
     var castle: CastleStage = .standard
+    var castleFixed = false
     /// `-GWWeather auto|clear|breeze|gusty|storm`, `-GWWind <-1…1>`, `-GWRain <0…1>`, `-GWWetness <0…1>` (look 2):
     /// the weather of the picture. `auto` is the seed's; `clear` no wind and no rain; `breeze` and `gusty` that wind
     /// toward the valley, dry; `storm` the storm at its height. The numbers fix the steady wind (no gusts), the rain
@@ -95,6 +98,7 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWBuild` presets.
     enum BuildPreset: String, Sendable, CaseIterable, Equatable {
         case demo
+        case raise
     }
 
     /// `-GWScreen` screens.
@@ -201,6 +205,7 @@ struct DebugArgs: Sendable, Equatable {
         }
         if let castle = values["GWCastle"].flatMap({ CastleStage(argument: $0) }) {
             self.castle = castle
+            castleFixed = true
         }
         if let clock = DebugArgs.double(values["GWClock"]), clock >= 6, clock < 19 {
             self.clock = clock

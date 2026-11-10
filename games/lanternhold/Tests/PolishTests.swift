@@ -94,4 +94,146 @@ final class PolishTests: XCTestCase {
         XCTAssertLessThan(solid, ruin.width * ruin.height - 150, "broken, not a block")
         XCTAssertEqual(ruin[21, 6].a, 0, "the breach is open")
     }
+
+    // MARK: The castle grows
+
+    func testTheCastleGrowsWithItsGatehouse() {
+        let balance = Balance.standard
+        var s = GameState.newRealm(seed: 7)
+        let plot = Realm.lines[0].wall
+        s.gold = 1000
+        XCTAssertEqual(s.plots[plot].item, .gate)
+        XCTAssertEqual(CastleStage.tier(of: nil), 1)
+        XCTAssertEqual(CastleStage.tier(of: .gate), 1)
+        XCTAssertEqual(CastleStage.tier(of: .ironGate), 2)
+        XCTAssertEqual(CastleStage.tier(of: .greatGate), 3)
+        XCTAssertEqual(CastleStage.tier(of: .stoneWall), 1, "only the gatehouse counts")
+        XCTAssertEqual(CastleStage.grown(s), CastleStage(tier: 1))
+
+        var events: [SimEvent] = []
+        XCTAssertEqual(Build.options(s, plot: plot, balance: balance).map(\.item), [.ironGate])
+        XCTAssertEqual(Build.order(&s, plot: plot, item: .ironGate, balance: balance, events: &events), .ordered)
+        XCTAssertEqual(s.gold, 1000 - balance.price(.ironGate), "the second tier costs the iron gate's price")
+        XCTAssertEqual(CastleStage.grown(s), CastleStage(tier: 2, building: true), "under scaffolding")
+        Build.complete(&s, plot: plot, balance: balance, events: &events)
+        XCTAssertEqual(CastleStage.grown(s), CastleStage(tier: 2))
+        XCTAssertEqual(s.plots[plot].hp, balance.gateHP[1], "the gatehouse is stronger")
+
+        XCTAssertEqual(Build.order(&s, plot: plot, item: .greatGate, balance: balance, events: &events), .ordered)
+        XCTAssertEqual(CastleStage.grown(s), CastleStage(tier: 3, building: true))
+        Build.complete(&s, plot: plot, balance: balance, events: &events)
+        XCTAssertEqual(CastleStage.grown(s), CastleStage(tier: 3))
+        XCTAssertEqual(s.plots[plot].hp, balance.gateHP[2])
+        XCTAssertTrue(Build.options(s, plot: plot, balance: balance).isEmpty, "the third tier is the last")
+
+        // A fallen gate keeps the castle's tier, and rebuilding it is no growth.
+        s.plots[plot].isRubble = true
+        s.plots[plot].hp = 0
+        XCTAssertEqual(CastleStage.grown(s), CastleStage(tier: 3))
+        XCTAssertEqual(Build.order(&s, plot: plot, item: .greatGate, balance: balance, events: &events), .ordered)
+        XCTAssertEqual(s.plots[plot].job?.isRebuild, true)
+        XCTAssertEqual(CastleStage.grown(s), CastleStage(tier: 3))
+
+        // The upgrade's price, time and effect are the gate's own (the simulation is as it was tuned).
+        XCTAssertEqual(balance.price(.ironGate), 90)
+        XCTAssertEqual(balance.price(.greatGate), 180)
+        XCTAssertEqual(balance.buildTime(.ironGate), 25)
+        XCTAssertEqual(balance.buildTime(.greatGate), 40)
+        XCTAssertEqual(balance.gateHP, [4000, 7000, 11000])
+        XCTAssertEqual(balance.gatePosts, [4, 6, 8])
+    }
+
+    func testTheRaisePresetAndTheFixedStage() {
+        let balance = Balance.standard
+        let plot = Realm.lines[0].wall
+        XCTAssertEqual(DebugArgs(values: ["GWBuild": "raise"]).build, .raise)
+        XCTAssertFalse(DebugArgs(values: [:]).castleFixed)
+        XCTAssertFalse(DebugArgs(values: ["GWCastle": "9"]).castleFixed, "a malformed stage fixes nothing")
+        let fixed = DebugArgs(values: ["GWCastle": "2b"])
+        XCTAssertTrue(fixed.castleFixed)
+        XCTAssertEqual(fixed.castle, CastleStage(tier: 2, building: true))
+
+        // By day the builders raise the great gate: the third tier under scaffolding.
+        var day = GameFrameSupport.demoDay(hour: 12)
+        XCTAssertEqual(CastleStage.grown(day), CastleStage(tier: 2), "the demo realm has the iron gate")
+        GameStart.applyRaise(&day, balance: balance)
+        let job = day.plots[plot].job
+        XCTAssertEqual(job?.target, .greatGate)
+        XCTAssertEqual(job?.isRebuild, false)
+        XCTAssertEqual((job?.work ?? 0) / (job?.total ?? 1), GameStart.raiseShare, accuracy: 1e-9)
+        XCTAssertEqual(CastleStage.grown(day), CastleStage(tier: 3, building: true))
+        XCTAssertEqual(day.builders.last?.plot, plot)
+        XCTAssertEqual(day.builders.last?.task, .building)
+        XCTAssertEqual(day.plots[plot].item, .ironGate, "the iron gate holds until the great one stands")
+
+        // Nothing by night.
+        var night = GameFrameSupport.demoNight()
+        GameStart.applyRaise(&night, balance: balance)
+        XCTAssertNil(night.plots[plot].job)
+        XCTAssertEqual(CastleStage.grown(night), CastleStage(tier: 2))
+
+        // Through the launch arguments.
+        let begin = GameStart.realm(args: DebugArgs(values: ["GWBuild": "raise"]), saved: nil)
+        XCTAssertEqual(CastleStage.grown(begin.state), CastleStage(tier: 3, building: true))
+        XCTAssertEqual(CastleStage.grown(begin.dawn), CastleStage(tier: 2), "the dawn snapshot is the demo realm")
+        let demo = GameStart.realm(args: DebugArgs(values: ["GWBuild": "demo"]), saved: nil)
+        XCTAssertEqual(CastleStage.grown(demo.state), CastleStage(tier: 2))
+    }
+}
+
+/// The castle in the game (the polish after round 2): the scene is laid out with the stage the realm built, and again
+/// when the builders start on the gatehouse; `-GWCastle` fixes it; look 1 has no tiers.
+@MainActor
+final class CastleGrowthModelTests: XCTestCase {
+    private var directory: URL!
+
+    override func setUp() async throws {
+        directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("lanternhold-tests-\(UUID().uuidString)", isDirectory: true)
+    }
+
+    override func tearDown() async throws {
+        if let directory { try? FileManager.default.removeItem(at: directory) }
+    }
+
+    private func model(_ values: [String: String]) -> GameModel {
+        var all = values
+        all["GWReset"] = "YES"
+        all["GWSkipOnboarding"] = "YES"
+        return GameModel(args: DebugArgs(values: all), kind: .world, store: SaveStore(directory: directory))
+    }
+
+    private func keeps(_ game: GameModel) -> [SpriteID] {
+        game.scene.props.map(\.sprite).filter { SceneLayout.keepTops.contains($0) }
+    }
+
+    func testTheSceneStandsAsTheRealmBuiltIt() {
+        XCTAssertEqual(keeps(model([:])), [.keepTop], "a new realm: the first tier")
+        XCTAssertEqual(keeps(model(["GWBuild": "demo"])), [.keepTop2], "the iron gate: the second tier")
+        XCTAssertEqual(keeps(model(["GWBuild": "raise"])), [.keepTop3Build], "the great gate under way")
+        XCTAssertEqual(keeps(model(["GWBuild": "demo", "GWCastle": "1"])), [.keepTop], "-GWCastle fixes the stage")
+        XCTAssertEqual(keeps(model(["GWBuild": "demo", "GWCastle": "3"])), [.keepTop3])
+        let old = model(["GWBuild": "raise", "GWLook": "1"])
+        XCTAssertEqual(old.scene.props, PlaceholderScene.world(seed: old.args.seed, look: .one).props,
+                       "look 1 has no tiers")
+    }
+
+    func testTheCastleGrowsWhileThePlayBuildsTheGatehouse() throws {
+        let game = model(["GWCameraX": "1255", "GWGold": "300"])
+        XCTAssertEqual(keeps(game), [.keepTop])
+        _ = game.frame(physicalWidth: 2622, physicalHeight: 1206)
+        XCTAssertEqual(keeps(game), [.keepTop])
+        // The hammer at the first brazier's plot opens the build card; the gatehouse is its neighbour.
+        game.performAction()
+        game.showPlot(Realm.lines[0].wall)
+        XCTAssertEqual(game.overlay, .build(plot: Realm.lines[0].wall))
+        XCTAssertEqual(try XCTUnwrap(game.buildCard).options.map(\.item), [.ironGate])
+        game.order(.ironGate)
+        XCTAssertNil(game.overlay, "the order stands")
+        XCTAssertEqual(keeps(game), [.keepTop], "the scene is laid out again with the next frame")
+        let kingX = game.scene.king.x
+        _ = game.frame(physicalWidth: 2622, physicalHeight: 1206)
+        XCTAssertEqual(keeps(game), [.keepTop2Build], "the second tier under scaffolding")
+        XCTAssertEqual(game.scene.king.x, kingX, "the lord stays where he is")
+    }
 }

@@ -1898,6 +1898,17 @@
         }
       }
     },
+    "The castle grows · strength %lld · %lld archer posts" : {
+      "comment" : "Build card: the effect of a greater gatehouse (the castle's next tier).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Burg wächst · Stärke %1$lld · %2$lld Schützenposten"
+          }
+        }
+      }
+    },
     "The castle keeps one builder" : {
       "comment" : "Audience card: a choice greyed because the castle keeps at least one builder.",
       "localizations" : {

@@ -134,6 +134,8 @@ final class GameModel {
     /// The game's view of the scene, kept while the beacon's site and the rooms' fades stay as they are (M2b review:
     /// filtered every frame, the whole prop list with its emitters, masks and lights was copied 60 times a second).
     @ObservationIgnored private var filteredScene: (built: Bool, rooms: CastleRooms.SceneKey, scene: PlaceholderScene)?
+    /// The castle's stage the scene was laid out with (look 2; `growCastle`).
+    @ObservationIgnored private var castleStage = CastleStage.standard
     /// Where first light's front stands on screen (0 ... 1), nil when it is not on screen (the scene value's `dawn:`).
     @ObservationIgnored private var dawnFront: Double?
 
@@ -192,6 +194,7 @@ final class GameModel {
         self.kind = kind
         reduceMotion = args.reduceMotion || UIAccessibility.isReduceMotionEnabled
         var world = PlaceholderScene.world(seed: args.seed, look: args.look, castle: args.castle)
+        var stage = args.castle
         var start = min(WorldLayout.walkEnd, max(0, args.cameraX ?? world.king.x))
         var dayClock: DayClock
         var loadedSettings = SaveSettings()
@@ -211,6 +214,13 @@ final class GameModel {
                 break
             }
             let begin = GameStart.realm(args: args, saved: saved, balance: .standard)
+            // Polish after round 2: the castle stands as the realm built it (`growCastle`).
+            if args.look == .two, !args.castleFixed {
+                stage = CastleStage.grown(begin.state)
+                if stage != args.castle {
+                    world = PlaceholderScene.world(seed: args.seed, look: args.look, castle: stage)
+                }
+            }
             var simDriver = SimDriver(state: begin.state, balance: .standard,
                                       bot: args.autoplay == .play ? begin.bot : nil, dawnSnapshot: begin.dawn)
             if args.autoplay == .walk { simDriver.walker = KingWalker.around(begin.state.king.x) }
@@ -227,6 +237,7 @@ final class GameModel {
         }
         world.king.x = start
         scene = world
+        castleStage = stage
         clock = dayClock
         court = CourtScene(rooms: RoomFades(kingX: start))
         autoplay = args.autoplay == .walk && kind == .probe
@@ -851,6 +862,21 @@ final class GameModel {
         return GloomFog(night: args.night ?? clock.day, fogNight: false)
     }
 
+    /// Polish after round 2: in look 2 the game's castle stands as the realm built it (`CastleStage.grown`: it grows
+    /// with its gatehouse), so the scene is laid out again when the stage changes: when the builders start on the
+    /// gatehouse and when they are done. `-GWCastle` fixes the stage. The picture alone: the simulation reads none
+    /// of it.
+    private func growCastle(_ state: GameState) {
+        guard args.look == .two, !args.castleFixed else { return }
+        let stage = CastleStage.grown(state)
+        guard stage != castleStage else { return }
+        castleStage = stage
+        var world = PlaceholderScene.world(seed: args.seed, look: args.look, castle: stage)
+        world.king = scene.king
+        scene = world
+        filteredScene = nil
+    }
+
     /// The frame to draw on a screen of this physical size.
     func frame(physicalWidth: Int, physicalHeight: Int) -> FrameDesc {
         var options = self.options
@@ -872,6 +898,7 @@ final class GameModel {
                                           options: options)
             }
             let state = game.state
+            growCastle(state)
             var view = ensureCamera(pixelScale, focus: state.king.x + GameModel.cameraLead(state))
             let sway = shake.offset(at: clock.elapsed, reduceMotion: reduceMotion)
             if sway != 0 {

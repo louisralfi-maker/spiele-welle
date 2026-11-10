@@ -1,8 +1,8 @@
 /// Where a game launch begins (M2b, DESIGN.md "Debug launch arguments"): `-GWReset YES` clears the save,
 /// `-GWDay n` / `-GWNight n` let the seeded headless reference bot play a new realm up to that day's morning or that
 /// night's 20:00 and hand it over, otherwise the save's last dawn resumes (or a new realm begins); then `-GWBuild
-/// demo` raises a built-up realm for screenshots, `-GWGold` and `-GWHappiness` set the numbers, `-GWLord` and
-/// `-GWLordName` name the lord and `-GWCameraX` puts the lord there.
+/// demo` raises a built-up realm for screenshots (`raise`: the same with the great gate under way), `-GWGold` and
+/// `-GWHappiness` set the numbers, `-GWLord` and `-GWLordName` name the lord and `-GWCameraX` puts the lord there.
 enum GameStart {
     struct Result: Sendable {
         /// The realm the game plays from now.
@@ -34,9 +34,12 @@ enum GameStart {
             state = GameState.newRealm(seed: args.seed, balance: balance)
             dawn = state
         }
-        if args.build == .demo {
+        if let preset = args.build {
             applyDemo(&state, balance: balance)
             applyDemo(&dawn, balance: balance)
+            if preset == .raise {
+                applyRaise(&state, balance: balance)
+            }
         }
         if let hour = args.hour, !state.defeated {
             // `-GWHour`: the reference bot plays on headless to that hour; a dawn on the way renews the snapshot (run
@@ -173,5 +176,23 @@ enum GameStart {
             Battle.assignPosts(&s, balance: balance, fromScratch: true)
             Battle.updateGuards(&s, balance: balance, instant: true)
         }
+    }
+
+    /// How far the great gate has come under `-GWBuild raise`.
+    static let raiseShare = 0.45
+
+    /// `-GWBuild raise` (after `applyDemo`): by day the builders raise the great gate, so the castle shows its third
+    /// tier under scaffolding ("Polish after round 2"). The last builder works at the gatehouse. Nothing by night.
+    static func applyRaise(_ s: inout GameState, balance: Balance) {
+        guard DayClock.phase(at: s.hour) == .day else { return }
+        let plot = Realm.lines[0].wall
+        let total = Build.work(.greatGate, rebuild: false, balance: balance)
+        s.orderCounter += 1
+        s.plots[plot].job = BuildJob(target: .greatGate, work: total * raiseShare, total: total, isRebuild: false,
+                                     order: s.orderCounter)
+        guard let index = s.builders.indices.last else { return }
+        s.builders[index].plot = plot
+        s.builders[index].x = Realm.plots[plot].x + Double(index % 4) * 5 - 7
+        s.builders[index].task = .building
     }
 }
