@@ -77,6 +77,9 @@ struct CourtScene: Sendable, Equatable {
     var talkX: Double? = nil
     var marks: Set<String> = []
     var drawn: [String: Double] = [:]
+    /// Real seconds since the lord sat down on the throne for the audience in progress (the lord pass): the sit-down
+    /// frames play over the first `CourtFrames.sitSeconds`. nil: seated and settled (Reduce Motion, tests).
+    var lordSeated: Double? = nil
 
     init(rooms: RoomFades) {
         self.rooms = rooms
@@ -97,6 +100,11 @@ struct DrawnFigure: Sendable, Equatable {
     var look: Int?
     var petition: String?
     var talking: Bool
+    /// A petitioner waiting seated on a bench: the seated strip drawn instead of the body (`frame` is its frame).
+    var seated: SpriteID? = nil
+
+    /// The strip that is drawn.
+    var sprite: SpriteID { seated ?? body.sprite }
 }
 
 /// The court in the castle (DESIGN.md "The castle": the court lives there and walks small routines; M3 step 3): every
@@ -116,6 +124,11 @@ enum CourtFrames {
     /// The throne's mark while petitioners wait (M3 fix, U2): above the lord's head when he stands at the throne, in
     /// gold (the speech mark's parchment times this tint).
     static let throneMarkY = 36.0
+    /// The lord sits down over this long (the seated strips' frames 0 and 1, half each), then breathes (2 and 3).
+    static let sitSeconds = 0.4
+    /// A seated petitioner nods (the seated strips' frame 1) for `nodSeconds` every `nodEvery` seconds.
+    static let nodEvery = 6.0
+    static let nodSeconds = 0.5
     static let throneMarkGold = SIMD3<Float>(1.0, 0.80, 0.34)
     /// The renewed banners over the hall's five (`castle.banners.new`): their left edges, their bottom 28 px up.
     static let bannerXs: [Double] = [1745, 1784, 1821, 1859, 1896]
@@ -196,7 +209,9 @@ enum CourtFrames {
             let target = talking ? (scene.talkX ?? figure.x) : figure.x
             let x = scene.drawn[figureKey] ?? target
             var facing = figure.facing
-            let frame: Int
+            var frame: Int
+            // Seated only at rest on the bench: whoever walks to his place or is spoken to stands.
+            var seated: SpriteID?
             if talking {
                 frame = talkFrame(body, animTime: animTime, key: figureKey)
                 facing = s.king.x >= x ? 1 : -1
@@ -205,13 +220,16 @@ enum CourtFrames {
                 facing = target > x ? 1 : -1
             } else if figure.pose == .walk {
                 frame = figure.frame
+            } else if let strip = figure.seated {
+                seated = strip
+                frame = seatedFrame(animTime: animTime, key: figureKey)
             } else {
                 frame = idleFrame(body, animTime: animTime, key: figureKey)
             }
             list.append(DrawnFigure(who: figure.who, key: figureKey, body: body, x: x, y: 0, facing: facing,
                                     frame: frame,
                                     alpha: scene.rooms.visibility(x: x), look: figure.look, petition: figure.petition,
-                                    talking: talking))
+                                    talking: talking, seated: seated))
         }
         if let session = scene.audience, let body = Speakers.speaker(session.speaker)?.body {
             let x = session.walkerX
@@ -247,6 +265,19 @@ enum CourtFrames {
         body.idle.lowerBound + Int(max(0, animTime + phase(key)) / breathSeconds) % max(1, body.idle.count)
     }
 
+    /// A seated petitioner: frame 0, and the nod (frame 1) now and then, never in step with his neighbour.
+    static func seatedFrame(animTime: Double, key: String) -> Int {
+        let time = max(0, animTime) + phase(key) * nodEvery / 0.8
+        return time.truncatingRemainder(dividingBy: nodEvery) < nodSeconds && time >= nodEvery ? 1 : 0
+    }
+
+    /// The lord on the throne: he sits down (frames 0 and 1) over `sitSeconds`, then breathes (2 and 3). `seconds`
+    /// nil: settled at once.
+    static func lordSeatedFrame(seconds: Double?, animTime: Double) -> Int {
+        if let seconds, seconds < sitSeconds { return seconds < sitSeconds / 2 ? 0 : 1 }
+        return 2 + Int(max(0, animTime) / breathSeconds) % 2
+    }
+
     /// Talk frames (a gesture while speaking); a body without them idles.
     static func talkFrame(_ body: SpeakerBody, animTime: Double, key: String) -> Int {
         guard let talk = body.talk else { return idleFrame(body, animTime: animTime, key: key) }
@@ -257,7 +288,8 @@ enum CourtFrames {
 
     /// Adds the court to the simulation's layer: the rooms' fronts, interiors, flames and lights; the court's props
     /// and world changes; the hearth's glow and light only while the hall is open; the figures as actors, drawn before
-    /// the king (he stays in front), each with its glow strip, and the speech marks.
+    /// the lord (he stays in front; seated on the throne during the audience there), each with its glow strip, and the
+    /// speech marks.
     static func apply(_ layer: inout EntityLayer, state s: GameState, catalog: PetitionCatalog, scene: CourtScene,
                       view: EntityFrames.ActorView, ambient: AmbientSample, animTime: Double, reduceMotion: Bool) {
         let rooms = scene.rooms
@@ -352,15 +384,15 @@ enum CourtFrames {
         }
         let glass = 0.5 + 0.5 * torch
         for figure in figures(state: s, catalog: catalog, scene: scene, animTime: animTime) {
-            add(figure.body.sprite, frame: figure.frame, x: figure.x, y: figure.y, facing: figure.facing,
+            add(figure.sprite, frame: figure.frame, x: figure.x, y: figure.y, facing: figure.facing,
                 alpha: figure.alpha)
-            if let strip = figure.body.glow {
+            if figure.seated == nil, let strip = figure.body.glow {
                 add(strip, frame: figure.frame, x: figure.x, y: figure.y, facing: figure.facing, alpha: figure.alpha,
                     shade: glass, emissive: true)
             }
             if scene.marks.contains(figure.who) && figure.petition == nil {
                 let pulse = reduceMotion ? 1 : Int(max(0, animTime) / 0.6) % 2
-                let height = Double(figure.body.sprite.size.height)
+                let height = Double(figure.sprite.size.height)
                 add(.speakerMark, frame: pulse, x: figure.x + 2, y: height + 2, facing: 1, alpha: figure.alpha,
                     emissive: true)
             }
@@ -369,7 +401,7 @@ enum CourtFrames {
         // gold, pulsing; held on its lit frame with Reduce Motion), so the place of the audience shows from across
         // the hall. Not while the audience runs, and not over a shut hall.
         if scene.audience == nil && hall > 0.003 && !AudienceRules.hall(s, catalog: catalog).isEmpty {
-            let rect = view.rect(.speakerMark, x: Realm.throneX, y: throneMarkY)
+            let rect = view.rect(.speakerMark, x: WorldLayout.throneX, y: throneMarkY)
             if view.isOnScreen(rect) {
                 let pulse = reduceMotion ? 1 : Int(max(0, animTime) / 0.6) % 2
                 actors.append(ActorInstance(sprite: .speakerMark, frame: pulse, rect: rect,
@@ -385,7 +417,22 @@ enum CourtFrames {
                 add(.guardsman, frame: frame, x: x, y: WorldLayout.wallWalkY, facing: -1, alpha: 1)
             }
         }
-        if let king = layer.actors.lastIndex(where: { $0.sprite == .king }) {
+        // The lord pass: during the audience at the throne the lord sits on it (the seated strips have the walking
+        // strips' size and lantern anchor, so the actor's place holds and only the strip and the frame change).
+        if scene.audience?.place == .throne {
+            let lord = s.lordOrDefault
+            let frame = lordSeatedFrame(seconds: reduceMotion ? nil : scene.lordSeated, animTime: animTime)
+            for index in layer.actors.indices {
+                if layer.actors[index].sprite == lord.body {
+                    layer.actors[index].sprite = lord.seated
+                    layer.actors[index].frame = frame
+                } else if layer.actors[index].sprite == lord.glow {
+                    layer.actors[index].sprite = lord.seatedGlow
+                    layer.actors[index].frame = frame
+                }
+            }
+        }
+        if let king = layer.actors.lastIndex(where: { $0.sprite.isLord }) {
             layer.actors.insert(contentsOf: actors, at: king)
         } else {
             layer.actors += actors

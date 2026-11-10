@@ -672,7 +672,7 @@ final class FrameBuilderTests: XCTestCase {
         "castleWall world x=1660 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
         "well world x=1600 y=0 z=1 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
         "hallInterior world x=1700 y=0 z=-2 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
-        "throne world x=1817 y=0 z=1 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
+        "throne world x=1830 y=0 z=1 shade=1.00 flip=0 anchor=ground region=castle em=[] li=[]",
         "hearth world x=1870 y=0 z=1 shade=1.00 flip=0 anchor=ground region=castle em=[hearthFire@5,3:fireOrange:steady] li=[hearth@1883,10,70]",
         "candleStand world x=1756 y=0 z=1 shade=1.00 flip=0 anchor=ground region=castle em=[candleFlame@1,15:fireWhite:fades] li=[candle@1758,17,12]",
         "candleStand world x=1796 y=0 z=1 shade=1.00 flip=0 anchor=ground region=castle em=[candleFlame@1,15:fireWhite:fades] li=[candle@1798,17,12]",

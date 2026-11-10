@@ -8,6 +8,10 @@ enum Remembered {
         "tower_promised", Build.brazierGiftFlag, "stranger_in", "stranger_turned_away", "arrows_refused",
         "vigil_kept", "giant_unwarned", "beacon_doubted", "vow_aldric", "seren_doubted", "seren_outside",
         "pip_joke_told", "pip_joke_saved", "speech_dawn", "speech_aldric", "speech_honest",
+        // The houses' audiences (STORY.md 9.3).
+        "varn_with", "varn_stung", "oxmoor_lamp", "oxmoor_debt", "oxmoor_refused", "calder_with", "calder_coddled",
+        "calder_refused", "lorn_heard", "stubs_known", "lorn_dismissed", "banners_hung", "holds_alone", "hild_stays",
+        "hild_rode",
     ]
     /// The last stand's speeches (day 20): the finale's dawn report quotes the one the king gave.
     static let speeches: [String] = ["speech_dawn", "speech_aldric", "speech_honest"]

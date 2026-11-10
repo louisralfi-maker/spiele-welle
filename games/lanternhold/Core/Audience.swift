@@ -177,7 +177,7 @@ struct AudienceCard: Sendable, Equatable {
     var speaker: String
     var role: SpeakerRole
     /// The name over the card: a key (the court and named guests; Seren "The Stranger" until revealed), or a
-    /// townsfolk petitioner's own name; neither for the unnamed guests (the bard, the envoy, the herald).
+    /// townsfolk petitioner's own name; neither for the one unnamed guest (the herald).
     var nameKey: String?
     var plainName: String?
     var roleKey: String
@@ -234,7 +234,7 @@ struct AudienceCard: Sendable, Equatable {
             return .own(own, frame: Speakers.portraitFrame(speaker, day: day, flags: flags))
         }
         if let recipe = Speakers.recipe(speaker, look: look) { return .composed(recipe) }
-        return .own(.portraitKing, frame: 0)
+        return .own(LordIdentity.standard.portrait, frame: 0)
     }
 }
 

@@ -47,7 +47,7 @@ struct AudienceCardView: View {
                 if card.phase == .hearing, card.counselShown, let hint = card.hintKey {
                     let noteWidth = max(220, geometry.size.width - AudienceCardView.noteLeft
                                         - AudienceCardView.noteRight)
-                    CounselNote(text: StoryText.string(hint))
+                    CounselNote(text: model.story(hint))
                         .frame(width: noteWidth, alignment: .leading)
                         .frame(maxHeight: AudienceCardView.topRoom - 10, alignment: .top)
                         .offset(x: AudienceCardView.noteLeft, y: 5)
@@ -69,10 +69,11 @@ struct AudienceCardView: View {
                             if card.phase == .reaction {
                                 reaction
                             } else {
-                                Text(verbatim: StoryText.string(card.textKey))
+                                Text(verbatim: model.story(card.textKey))
                                     .font(Theme.serif(.subheadline))
                                     .foregroundStyle(Theme.ink)
                                     .fixedSize(horizontal: false, vertical: true)
+                                    .accessibilityIdentifier("audience-text")
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -97,14 +98,14 @@ struct AudienceCardView: View {
     // MARK: - The header
 
     private var name: String {
-        if let key = card.nameKey { return StoryText.string(key) }
+        if let key = card.nameKey { return model.story(key) }
         if let plain = card.plainName { return plain }
-        return StoryText.string(card.roleKey)
+        return model.story(card.roleKey)
     }
 
     private var role: String? {
         if card.nameKey == nil && card.plainName == nil { return nil }
-        return StoryText.string(card.roleKey)
+        return model.story(card.roleKey)
     }
 
     private var header: some View {
@@ -178,7 +179,7 @@ struct AudienceCardView: View {
 
     private var chosenLabel: String? {
         guard let outcome = card.outcome, outcome.choice >= 0, outcome.choice < card.options.count else { return nil }
-        return StoryText.string(card.options[outcome.choice].labelKey)
+        return model.story(card.options[outcome.choice].labelKey)
     }
 
     private var reaction: some View {
@@ -190,7 +191,7 @@ struct AudienceCardView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             if let key = card.reactionKey {
-                Text(verbatim: StoryText.string(key))
+                Text(verbatim: model.story(key))
                     .font(Theme.serif(.subheadline).italic())
                     .foregroundStyle(Theme.ink)
                     .fixedSize(horizontal: false, vertical: true)
@@ -217,7 +218,7 @@ struct AudienceCardView: View {
                     // M3 fix (U1): what the court remembers of the choice, so a decision that changes no number
                     // still leaves a trace on the card.
                     ForEach(card.remembered, id: \.self) { key in
-                        Label(StoryText.string(key), systemImage: "bookmark.fill")
+                        Label(model.story(key), systemImage: "bookmark.fill")
                             .font(Theme.serif(.footnote, .semibold))
                             .foregroundStyle(Theme.teal)
                             .labelStyle(.titleAndIcon)
@@ -272,12 +273,13 @@ struct CounselNote: View {
 struct ChoiceTile: View {
     let option: AudienceCard.Option
     let action: @MainActor () -> Void
+    @Environment(\.lordIdentity) private var lord
 
     var body: some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .top, spacing: 4) {
-                    Text(verbatim: StoryText.string(option.labelKey))
+                    Text(verbatim: StoryText.string(option.labelKey, lord: lord))
                         .font(Theme.serif(.subheadline, .semibold))
                         .foregroundStyle(Theme.ink.opacity(option.enabled ? 1 : 0.5))
                         .fixedSize(horizontal: false, vertical: true)
@@ -346,9 +348,10 @@ struct EffectChips: View {
     var remembers = false
     /// A Story.xcstrings key that says what exactly (the free brazier), instead of "Will be remembered".
     var noteKey: String?
+    @Environment(\.lordIdentity) private var lord
 
     private var rememberedText: String {
-        noteKey.map { StoryText.string($0) } ?? String(localized: "Will be remembered")
+        noteKey.map { StoryText.string($0, lord: lord) } ?? String(localized: "Will be remembered")
     }
 
     var body: some View {

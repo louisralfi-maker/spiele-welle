@@ -184,22 +184,27 @@ enum CourtValidator {
         return true
     }
 
-    /// A text key: it has English and German, and each stays within its limit.
+    /// A text key: it has English and German, and each stays within its limit. The lord pass: the length is the
+    /// longest the text can get (`LordText.longest`: every `{lord}` a name of `LordIdentity.nameLimit` characters,
+    /// every `{a|b}` its longer half), and a brace group that is neither form is a problem.
     static func text(_ key: String, limit: Limit, what: String, table: StoryTable) -> [String] {
         var out: [String] = []
-        if let english = table.english[key], !english.isEmpty {
-            if english.count > limit.english {
-                out.append("\(what): \(key) is \(english.count) characters in English (at most \(limit.english))")
+        let sides: [(name: String, text: String?, limit: Int)] = [
+            ("English", table.english[key], limit.english), ("German", table.german[key], limit.german)
+        ]
+        for side in sides {
+            guard let text = side.text, !text.isEmpty else {
+                out.append("\(what): \(key) has no \(side.name) text")
+                continue
             }
-        } else {
-            out.append("\(what): \(key) has no English text")
-        }
-        if let german = table.german[key], !german.isEmpty {
-            if german.count > limit.german {
-                out.append("\(what): \(key) is \(german.count) characters in German (at most \(limit.german))")
+            let length = LordText.longest(text)
+            if length > side.limit {
+                out.append("\(what): \(key) is \(length) characters in \(side.name) (at most \(side.limit))")
             }
-        } else {
-            out.append("\(what): \(key) has no German text")
+            for broken in LordText.problems(text) {
+                out.append("\(what): \(key) has a brace group that is neither {lord} nor {a|b} in \(side.name): "
+                    + broken)
+            }
         }
         return out
     }

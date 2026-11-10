@@ -147,9 +147,9 @@ struct Speaker: Sendable, Equatable {
     var id: String
     var role: SpeakerRole
     var body: SpeakerBody
-    /// The court's and the guests' own portrait (nil for townsfolk, who get a composed one).
+    /// The court's and the M3 guests' own portrait (nil for townsfolk and the houses' faces, who get a composed one).
     var portrait: SpriteID?
-    /// Townsfolk: the styles they are drawn in, for women and for men (one may be nil).
+    /// Townsfolk and the houses' faces: the styles they are drawn in, for women and for men (one may be nil).
     var female: PortraitStyle?
     var male: PortraitStyle?
     /// Story.xcstrings keys: the name over the card (the court and named guests) and the role under it.
@@ -180,12 +180,28 @@ enum Speakers {
     static let guests: [Speaker] = [
         Speaker(id: "serLudo", role: .guest, body: .court(.serLudo), portrait: .portraitSerLudo,
                 nameKey: "speaker.serLudo.name", roleKey: "speaker.serLudo.role"),
-        Speaker(id: "bard", role: .guest, body: .court(.bard), portrait: .portraitBard, nameKey: nil,
-                roleKey: "speaker.bard.role"),
-        Speaker(id: "envoy", role: .guest, body: .court(.envoy), portrait: .portraitEnvoy, nameKey: nil,
-                roleKey: "speaker.envoy.role"),
+        Speaker(id: "bard", role: .guest, body: .court(.bard), portrait: .portraitBard,
+                nameKey: "speaker.bard.name", roleKey: "speaker.bard.role"),
+        Speaker(id: "envoy", role: .guest, body: .court(.envoy), portrait: .portraitEnvoy,
+                nameKey: "speaker.envoy.name", roleKey: "speaker.envoy.role"),
         Speaker(id: "herald", role: .guest, body: .court(.herald, glow: .heraldGlow), portrait: .portraitHerald,
                 nameKey: nil, roleKey: "speaker.herald.role"),
+        // The faces of the houses (STORY.md section 5, 9.3). Until the art lane draws them they walk as the M3
+        // archetype bodies (soldier, noble, townswoman, widow) and their portraits are composed from one fixed
+        // choice of parts, in the house's colour: the same face whatever the petitioner's look.
+        house("hildVarn", .guardsman, female: PortraitStyle(
+            clothes: [PortraitPart.mailAndSurcoat], faces: [PortraitPart.young], hair: [PortraitPart.braids],
+            skins: [.light], hairColors: [.darkBrown], cloths: [.green])),
+        house("lorenzPell", .petitionerE, male: PortraitStyle(
+            clothes: [PortraitPart.fineCoat], faces: [PortraitPart.long], beards: [PortraitPart.moustache],
+            hair: [PortraitPart.shortHair], hats: [PortraitPart.featherCap],
+            skins: [.pale], hairColors: [.black], cloths: [.redBrown])),
+        house("ebbaCalder", .petitionerD, female: PortraitStyle(
+            clothes: [PortraitPart.fineCoat], faces: [PortraitPart.long], hair: [PortraitPart.bun],
+            skins: [.medium], hairColors: [.black], cloths: [.blue])),
+        house("orlaLorn", .citizen, female: PortraitStyle(
+            clothes: [PortraitPart.robe], faces: [PortraitPart.old], hair: [PortraitPart.bun],
+            skins: [.pale], hairColors: [.grey], cloths: [.plum])),
     ]
 
     /// The townsfolk archetypes: a body of the townsfolk (SPRITES.md "Actors" and "M3") and the parts their portraits
@@ -302,6 +318,13 @@ enum Speakers {
                 nameKey: "speaker.\(id).name", roleKey: "speaker.\(id).role")
     }
 
+    /// A named guest without a portrait strip of his own: an archetype's body and one composed face.
+    private static func house(_ id: String, _ body: SpriteID, female: PortraitStyle? = nil,
+                              male: PortraitStyle? = nil) -> Speaker {
+        Speaker(id: id, role: .guest, body: .townsfolk(body), portrait: nil, female: female, male: male,
+                nameKey: "speaker.\(id).name", roleKey: "speaker.\(id).role")
+    }
+
     private static func folk(_ id: String, _ body: SpriteID, female: PortraitStyle? = nil,
                              male: PortraitStyle? = nil) -> Speaker {
         Speaker(id: id, role: .townsfolk, body: .townsfolk(body), portrait: nil, female: female, male: male,
@@ -365,9 +388,10 @@ enum Speakers {
         }
     }
 
-    /// The composed portrait of a townsfolk petitioner (nil for the court and the guests).
+    /// The composed portrait of a townsfolk petitioner or of a house's face (nil for everyone with a portrait strip
+    /// of his own: the court and the M3 guests).
     static func recipe(_ id: String, look: Int) -> PortraitRecipe? {
-        guard let speaker = speaker(id), speaker.role == .townsfolk else { return nil }
+        guard let speaker = speaker(id), speaker.portrait == nil else { return nil }
         let female = isFemale(id, look: look)
         guard let style = female ? speaker.female : speaker.male else { return nil }
         var rng = stream(id, look: look)

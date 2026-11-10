@@ -395,7 +395,7 @@
           "happiness": 2,
           "flags": [
             "jar_judged",
-            "gerald_kept"
+            "gerald_freed"
           ],
           "reaction": "petition.captured_sootling.r3"
         }

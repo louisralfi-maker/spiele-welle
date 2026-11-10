@@ -80,11 +80,14 @@ enum PetitionEngine {
         var rng = SeededRandom(seed: queueSeed(s.seed, day: day))
         let target = day <= 1 ? firstDay : fewest + rng.int(in: 0...(most - fewest))
         var picked: [Petitioner] = []
+        // Story petitions that come on top (`Petition.onTop`) are not counted against the day's number.
+        var onTop = 0
         func has(_ id: String) -> Bool { picked.contains { $0.id == id } }
         if s.mode == .chapter {
             for petition in catalog.petitions where isStoryDue(petition, s, court: court) {
                 let face = look(s.seed, day: day, id: petition.id)
                 picked.append(Petitioner(id: petition.id, reason: .story, look: face))
+                if petition.onTop == true { onTop += 1 }
             }
         }
         for entry in court.scheduled where entry.day == day && !has(entry.id) {
@@ -95,7 +98,7 @@ enum PetitionEngine {
         for petition in catalog.petitions where isDrawable(petition, s, court: court) && !has(petition.id) {
             pool.append(petition)
         }
-        while picked.count < target && !pool.isEmpty {
+        while picked.count - onTop < target && !pool.isEmpty {
             var total = 0.0
             for petition in pool { total += petition.drawWeight }
             guard total > 0 else { break }

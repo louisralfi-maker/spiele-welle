@@ -49,6 +49,24 @@ final class PetitionDataTests: XCTestCase {
         XCTAssertEqual(problems, [], problems.joined(separator: "\n"))
     }
 
+    /// The story pass (STORY.md 9.3): the houses' six audiences come on top of the day's petitioners, and Odile's
+    /// counsel in them moves no number, so the reference bot's chapter is the one that was tuned.
+    func testTheHousesAudiencesComeOnTopAndTheirCounselMovesNothing() {
+        let houses = PetitionCatalog.standard.petitions.filter { $0.onTop == true }
+        XCTAssertEqual(houses.map(\.id).sorted(),
+                       ["calder_audit", "lorn_visit", "oxmoor_gift", "tithe_letters", "varn_levy", "varn_ride"])
+        for petition in houses {
+            XCTAssertEqual(petition.kind, .story, petition.id)
+            XCTAssertEqual(petition.counsel, 0, petition.id)
+            guard let counsel = petition.choices.first?.effect else { continue }
+            var flagsOnly = PetitionEffect()
+            flagsOnly.flags = counsel.flags
+            flagsOnly.world = counsel.world
+            flagsOnly.reaction = counsel.reaction
+            XCTAssertEqual(counsel, flagsOnly, "\(petition.id): the counsel sets flags and nothing else")
+        }
+    }
+
     /// M3 fix (U1): no story choice ends with "No cost" and an empty change row: it changes a number, opens or
     /// rolls something, or sets a flag the game remembers in words.
     func testEveryStoryChoiceLeavesATrace() {
@@ -170,11 +188,13 @@ final class PetitionDataTests: XCTestCase {
                 XCTAssertEqual(glow.size, speaker.body.sprite.size)
                 XCTAssertEqual(glow.frameCount, frames)
             }
-            switch speaker.role {
-            case .court, .guest:
-                XCTAssertEqual(speaker.portrait?.size, PixelSize(width: 48, height: 48), speaker.id)
-            case .townsfolk:
-                XCTAssertNil(speaker.portrait)
+            if speaker.role == .court { XCTAssertNotNil(speaker.portrait, speaker.id) }
+            if let portrait = speaker.portrait {
+                XCTAssertEqual(portrait.size, PixelSize(width: 48, height: 48), speaker.id)
+                XCTAssertNotEqual(speaker.role, .townsfolk, speaker.id)
+                XCTAssertNil(Speakers.recipe(speaker.id, look: 3), "\(speaker.id) has a portrait of his own")
+            } else {
+                let first = Speakers.recipe(speaker.id, look: 0)
                 for look in 0..<40 {
                     let recipe = try XCTUnwrap(Speakers.recipe(speaker.id, look: look), speaker.id)
                     XCTAssertTrue((0..<SpriteID.portraitClothes.frameCount).contains(recipe.clothes))
@@ -184,10 +204,21 @@ final class PetitionDataTests: XCTestCase {
                     XCTAssertTrue((0..<SpriteID.portraitHat.frameCount).contains(recipe.hat))
                     if recipe.female { XCTAssertEqual(recipe.beard, PortraitPart.noBeard) }
                     XCTAssertEqual(Speakers.recipe(speaker.id, look: look), recipe, "the same look, the same face")
-                    XCTAssertNotNil(Speakers.townsfolkName(speaker.id, look: look))
+                    if speaker.role == .townsfolk {
+                        XCTAssertNotNil(Speakers.townsfolkName(speaker.id, look: look))
+                    } else {
+                        // A house's face: named, and the same face whatever the look.
+                        XCTAssertNotNil(speaker.nameKey, speaker.id)
+                        XCTAssertNil(Speakers.townsfolkName(speaker.id, look: look))
+                        XCTAssertEqual(recipe, first, "\(speaker.id) has one face")
+                    }
                 }
             }
         }
+        XCTAssertEqual(Speakers.speaker("hildVarn")?.role, .guest)
+        XCTAssertTrue(Speakers.canTalk("orlaLorn"))
+        XCTAssertEqual(Speakers.recipe("orlaLorn", look: 7)?.hairColor, .grey)
+        XCTAssertEqual(Speakers.nameKey("envoy", day: 9, flags: []), "speaker.envoy.name")
         XCTAssertEqual(Speakers.nameKey("seren", day: 5, flags: []), "speaker.stranger.name")
         XCTAssertEqual(Speakers.nameKey("seren", day: 15, flags: []), "speaker.seren.name")
         XCTAssertEqual(Speakers.nameKey("seren", day: 9, flags: [Speakers.serenRevealedFlag]), "speaker.seren.name")

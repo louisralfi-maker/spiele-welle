@@ -8,8 +8,15 @@ import Foundation
 enum PlaceholderPeople {
     static func frames(for sprite: SpriteID) -> [PixelImage] {
         switch sprite {
-        case .king: return (0..<10).map { king($0) }
-        case .kingGlow: return (0..<10).map { kingGlow($0) }
+        case .king, .lady: return (0..<10).map { king($0) }
+        case .kingGlow, .ladyGlow: return (0..<10).map { kingGlow($0) }
+        // The lord pass: the seated lord stands in for himself (the idle breath), the seated townsfolk are the
+        // standing ones cut at the frame's height. The paintings of `Resources/Art` replace all of these.
+        case .kingSeated, .ladySeated: return [6, 7, 6, 7].map { king($0) }
+        case .kingSeatedGlow, .ladySeatedGlow: return [6, 7, 6, 7].map { kingGlow($0) }
+        case .citizenSeated: return [4, 5].map { townsfolk($0, variant: 0) }
+        case .citizenBSeated: return [4, 5].map { townsfolk($0, variant: 1) }
+        case .citizenCSeated: return [4, 5].map { townsfolk($0, variant: 2) }
         case .citizen: return (0..<6).map { townsfolk($0, variant: 0) }
         case .citizenB: return (0..<6).map { townsfolk($0, variant: 1) }
         case .citizenC: return (0..<6).map { townsfolk($0, variant: 2) }

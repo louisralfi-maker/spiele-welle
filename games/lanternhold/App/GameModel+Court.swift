@@ -12,8 +12,9 @@ struct TalkBubble: Sendable, Equatable {
 }
 
 /// The court's part of the screen state machine (M3 step 3): the audience at the throne and at the gate (the clock
-/// stands still; one petitioner after the other walks up; the card's request, choices, Odile's counsel, the reaction;
-/// the king may stand up at any time and the rest keep waiting), talking to the court (a line in a bubble over the
+/// stands still; the lord sits on the throne; one petitioner after the other walks up; the card's request, choices,
+/// Odile's counsel, the reaction; the lord may stand up at any time and the rest keep waiting), talking to the court
+/// (a line in a bubble over the
 /// speaker, closed by a tap or by walking away), and the court's own clock: the rooms' fades, the walks, the leavers
 /// and the smoothed places step with real seconds, so they also move while a card stops the simulation.
 extension GameModel {
@@ -29,6 +30,7 @@ extension GameModel {
         }
         court.leavers = leavers
         if var session = court.audience {
+            if let seated = court.lordSeated { court.lordSeated = seated + max(0, seconds) }
             let arrived = session.step(dt: seconds)
             court.audience = session
             if arrived { refreshAudienceCard() }
@@ -95,6 +97,8 @@ extension GameModel {
             game.state.king.facing = session.spotX < game.state.king.x ? -1 : 1
         }
         court.audience = session
+        // The lord sits down on the throne (at once with Reduce Motion).
+        court.lordSeated = place == .throne && !reduceMotion ? 0 : nil
         court.rooms.step(kingX: driver?.state.king.x ?? state.king.x, dt: 0, reduceMotion: true)
         refreshAudienceCard()
         feedback.play(.cardOpened)
@@ -178,6 +182,7 @@ extension GameModel {
 
     func endAudience(feedbackCue: Bool) {
         court.audience = nil
+        court.lordSeated = nil
         audience = nil
         if feedbackCue { feedback.play(.cardClosed) }
         setOverlay(nil)

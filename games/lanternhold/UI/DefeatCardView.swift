@@ -33,7 +33,7 @@ struct DefeatCardView: View {
                 Text("The hearth has gone out")
                     .font(Theme.serif(.title2, .bold))
                     .foregroundStyle(Theme.fireGold)
-                Text("The Gloom reached the throne room on night \(info.night).")
+                Text("The Gloom reached the hearth on night \(info.night).")
                     .font(Theme.serif(.subheadline))
                     .foregroundStyle(Theme.parchment)
             }
@@ -285,7 +285,7 @@ struct PauseSheetView: View {
                 Text("Restart chapter 1?")
                     .font(Theme.serif(.title2, .bold))
                     .foregroundStyle(Theme.fireGold)
-                Text("Your realm begins again on day 1. The Chronicle keeps its records.")
+                Text("The watch begins again on day 1. The Chronicle keeps its records.")
                     .font(Theme.serif(.subheadline))
                     .foregroundStyle(Theme.parchment)
                     .multilineTextAlignment(.center)

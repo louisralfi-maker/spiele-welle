@@ -874,7 +874,7 @@
       "id": "brannock_gerald",
       "speaker": "brannock",
       "requires": [
-        "gerald_kept"
+        "gerald_freed"
       ],
       "text": "line.brannock_gerald"
     },
@@ -1116,6 +1116,139 @@
       ],
       "text": "line.bram_arrows_refused",
       "answer": true
+    },
+    {
+      "id": "brannock_pole",
+      "speaker": "brannock",
+      "days": [
+        7,
+        20
+      ],
+      "text": "line.brannock_pole"
+    },
+    {
+      "id": "bram_lanterns",
+      "speaker": "bram",
+      "days": [
+        6,
+        20
+      ],
+      "text": "line.bram_lanterns"
+    },
+    {
+      "id": "hesper_west",
+      "speaker": "hesper",
+      "days": [
+        8,
+        20
+      ],
+      "text": "line.hesper_west"
+    },
+    {
+      "id": "tamsin_mother",
+      "speaker": "tamsin",
+      "days": [
+        5,
+        20
+      ],
+      "text": "line.tamsin_mother"
+    },
+    {
+      "id": "seren_kitchen",
+      "speaker": "seren",
+      "days": [
+        15,
+        20
+      ],
+      "requires": [
+        "stranger_in"
+      ],
+      "forbids": [
+        "seren_handed_over"
+      ],
+      "text": "line.seren_kitchen"
+    },
+    {
+      "id": "calder_statues",
+      "speaker": "ebbaCalder",
+      "days": [
+        12,
+        13
+      ],
+      "text": "line.calder_statues"
+    },
+    {
+      "id": "bard_returned",
+      "speaker": "bard",
+      "days": [
+        6,
+        999
+      ],
+      "text": "line.bard_returned"
+    },
+    {
+      "id": "pip_pages",
+      "speaker": "pip",
+      "days": [
+        14,
+        17
+      ],
+      "requires": [
+        "stubs_known"
+      ],
+      "text": "line.pip_pages",
+      "answer": true
+    },
+    {
+      "id": "odile_door",
+      "speaker": "odile",
+      "days": [
+        13,
+        20
+      ],
+      "text": "line.odile_door"
+    },
+    {
+      "id": "envoy_lanterns",
+      "speaker": "envoy",
+      "text": "line.envoy_lanterns"
+    },
+    {
+      "id": "orla_cleft",
+      "speaker": "orlaLorn",
+      "days": [
+        14,
+        15
+      ],
+      "text": "line.orla_cleft"
+    },
+    {
+      "id": "marek_letters",
+      "speaker": "marek",
+      "days": [
+        5,
+        20
+      ],
+      "text": "line.marek_letters"
+    },
+    {
+      "id": "hild_father",
+      "speaker": "hildVarn",
+      "days": [
+        3,
+        18
+      ],
+      "text": "line.hild_father"
+    },
+    {
+      "id": "tamsin_place",
+      "speaker": "tamsin",
+      "days": [
+        19,
+        19
+      ],
+      "weight": 2,
+      "text": "line.tamsin_place"
     }
   ]
 }

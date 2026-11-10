@@ -11,7 +11,11 @@ final class RealmWorldTests: XCTestCase {
         XCTAssertEqual(Realm.beaconX, WorldLayout.beaconX)
         XCTAssertEqual(Realm.beaconUnlockDay, WorldLayout.beaconUnlockDay)
         XCTAssertEqual(Realm.hearthX, WorldLayout.hearthX)
-        XCTAssertEqual(Realm.throneX, WorldLayout.throneX)
+        // The lord pass: the drawn throne moved to the middle of the hall's painted dais; the simulation's place (where
+        // a realm starts and the bot hears petitions) stayed, so no tuned run changed.
+        XCTAssertEqual(Realm.throneX, 1824)
+        XCTAssertEqual(WorldLayout.throneX, 1837)
+        XCTAssertEqual(KingTargets.throneX, WorldLayout.throneX)
     }
 
     func testTheDefenceLinesStandWhereTheWorldDrawsThem() {

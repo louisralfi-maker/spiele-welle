@@ -74,8 +74,13 @@ struct DebugArgs: Sendable, Equatable {
     /// toward the valley, dry; `storm` the storm at its height. The numbers fix the steady wind (no gusts), the rain
     /// (with its cloud and wet ground) and the wetness on top of the mode.
     var weather = WeatherOverride.auto
-    /// `-GWSkipOnboarding YES`: no hints (the onboarding comes in M7; accepted now so tests already pass it).
+    /// `-GWSkipOnboarding YES`: no hints (the onboarding comes in M7) and no name entry on a new realm: the lord is
+    /// the standard one, or the one `-GWLord` and `-GWLordName` name.
     var skipOnboarding = false
+    /// `-GWLord lord|lady`: Burgherr or Burgherrin, without the name entry (the lord pass).
+    var lord: LordForm?
+    /// `-GWLordName <name>`: the lord's name, cleaned like a typed one, without the name entry.
+    var lordName: String?
 
     /// `-GWBuild` presets.
     enum BuildPreset: String, Sendable, CaseIterable, Equatable {
@@ -106,7 +111,7 @@ struct DebugArgs: Sendable, Equatable {
         "GWCameraX", "GWAutoplay", "GWActorMode", "GWLightStyle", "GWEffects", "GWShowLowRes", "GWShowBuffer",
         "GWDebugLights", "GWStats", "GWReduceMotion", "GWDay", "GWNight", "GWBuild", "GWGold", "GWHappiness",
         "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock", "GWLook", "GWCastle",
-        "GWWeather", "GWWind", "GWRain", "GWWetness",
+        "GWWeather", "GWWind", "GWRain", "GWWetness", "GWLord", "GWLordName",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -202,6 +207,17 @@ struct DebugArgs: Sendable, Equatable {
         if let wetness = DebugArgs.double(values["GWWetness"]) {
             weather.wetness = min(1, max(0, wetness))
         }
+        lord = values["GWLord"].flatMap { LordForm(rawValue: $0.trimmingCharacters(in: .whitespaces).lowercased()) }
+        if let name = values["GWLordName"]?.trimmingCharacters(in: .whitespaces), !name.isEmpty {
+            lordName = name
+        }
+    }
+
+    /// The lord these arguments name (`-GWLord`, `-GWLordName`; the other half is the standard's), nil when they
+    /// name none.
+    var lordIdentity: LordIdentity? {
+        guard lord != nil || lordName != nil else { return nil }
+        return LordIdentity(name: lordName ?? LordIdentity.defaultName, form: lord ?? .lord)
     }
 
     init() {}
