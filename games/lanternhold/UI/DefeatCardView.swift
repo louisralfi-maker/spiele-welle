@@ -4,6 +4,8 @@ import SwiftUI
 /// The defeat card (DESIGN.md "Losing a night", "The town": if the realm falls, the card shows the town's windows going
 /// dark one by one; `defeat-root`, `defeat-second-chance`, `defeat-replay`): the second chance (the rewarded video of
 /// M7; until then the button gives it at once, once per five nights) and "Replay the day" (back to this day's dawn).
+/// It lies on the dark of the desk, not on a sheet (docs/UI-look.md: the realm's papers are parchment; what stands
+/// outside the day, the pause and the defeat, is the desk under them).
 @MainActor
 struct DefeatCardView: View {
     let info: GameModel.DefeatInfo
@@ -31,11 +33,11 @@ struct DefeatCardView: View {
                 .padding(.horizontal, 10)
             VStack(spacing: 4) {
                 Text("The hearth has gone out")
-                    .font(Theme.serif(.title2, .bold))
-                    .foregroundStyle(Theme.fireGold)
-                Text("The Gloom reached the hearth on night \(info.night).")
-                    .font(Theme.serif(.subheadline))
-                    .foregroundStyle(Theme.parchment)
+                    .font(Theme.caps(.title2))
+                    .foregroundStyle(Theme.goldHi)
+                Text(inked: String(localized: "The Gloom reached the hearth on night \(info.night)."), .subheadline)
+                    .font(Theme.italic(.subheadline))
+                    .foregroundStyle(Theme.bone)
             }
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
@@ -56,9 +58,9 @@ struct DefeatCardView: View {
                 .opacity(info.secondChanceFrom != nil ? 0.5 : 1)
                 .accessibilityIdentifier("defeat-second-chance")
                 if let from = info.secondChanceFrom {
-                    Text("A second chance again from night \(from)")
-                        .font(Theme.serif(.footnote))
-                        .foregroundStyle(Theme.moon)
+                    Text(inked: String(localized: "A second chance again from night \(from)"), .footnote)
+                        .font(Theme.italic(.footnote))
+                        .foregroundStyle(Theme.boneDim)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 Button {
@@ -66,7 +68,7 @@ struct DefeatCardView: View {
                 } label: {
                     VStack(spacing: 2) {
                         Label("Replay the day", systemImage: "arrow.counterclockwise")
-                        Text("Back to the morning of day \(info.replayDay)")
+                        Text(inked: String(localized: "Back to the morning of day \(info.replayDay)"), .footnote)
                             .font(Theme.serif(.footnote))
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -216,7 +218,7 @@ struct DarkeningTown: View {
 /// `pause-horn-cancel`, `pause-sound`, `pause-haptics`, `pause-restart`, `pause-restart-confirm`,
 /// `pause-restart-cancel`): resume, by day "Sound the horn" after a confirmation (the day plays on to dusk at once),
 /// the sound and haptics switches (kept in the save; sound and haptics play from M6), and restarting the chapter after a
-/// confirmation.
+/// confirmation. On the dark of the desk, as the defeat card is.
 @MainActor
 struct PauseSheetView: View {
     let model: GameModel
@@ -241,11 +243,13 @@ struct PauseSheetView: View {
         VStack(spacing: 12) {
             if callingTheNight {
                 Text("Sound the horn now?")
-                    .font(Theme.serif(.title2, .bold))
-                    .foregroundStyle(Theme.fireGold)
+                    .font(Theme.caps(.title2))
+                    .foregroundStyle(Theme.goldHi)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text("The builders finish the day's work, then the night comes.")
                     .font(Theme.serif(.subheadline))
-                    .foregroundStyle(Theme.parchment)
+                    .foregroundStyle(Theme.bone)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                 if model.petitionersWaiting > 0 {
@@ -253,13 +257,15 @@ struct PauseSheetView: View {
                         if model.petitionersWaiting == 1 {
                             Text("One petitioner still waits and goes home unheard.")
                         } else {
-                            Text("\(model.petitionersWaiting) petitioners still wait. They go home unheard.")
+                            let waiting = model.petitionersWaiting
+                            Text(inked: String(localized: "\(waiting) petitioners still wait. They go home unheard."),
+                                 .subheadline)
                         }
                     } icon: {
                         Image(systemName: "person.fill.questionmark")
                     }
-                    .font(Theme.serif(.subheadline, .semibold))
-                    .foregroundStyle(Theme.fireGold)
+                    .font(Theme.serif(.subheadline))
+                    .foregroundStyle(Theme.goldHi)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier("pause-horn-unheard")
@@ -282,16 +288,19 @@ struct PauseSheetView: View {
                     .accessibilityIdentifier("pause-horn-confirm")
                 }
             } else if confirming {
-                Text("Restart chapter 1?")
-                    .font(Theme.serif(.title2, .bold))
-                    .foregroundStyle(Theme.fireGold)
-                Text("The watch begins again on day 1. The Chronicle keeps its records.")
-                    .font(Theme.serif(.subheadline))
-                    .foregroundStyle(Theme.parchment)
+                Text(inked: String(localized: "Restart chapter 1?"), .title2)
+                    .font(Theme.caps(.title2))
+                    .foregroundStyle(Theme.goldHi)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
-                // M2b review: gold means "go on" everywhere else, so here it keeps the realm; the button that wipes it
-                // is quiet with ember text and border.
+                Text(inked: String(localized: "The watch begins again on day 1. The Chronicle keeps its records."),
+                     .subheadline)
+                    .font(Theme.serif(.subheadline))
+                    .foregroundStyle(Theme.bone)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                // M2b review: the main button means "go on" everywhere else, so here it keeps the realm; the button
+                // that wipes it is quiet with wax-red words and rule.
                 HStack(spacing: 10) {
                     Button {
                         confirming = false
@@ -310,9 +319,13 @@ struct PauseSheetView: View {
                     .accessibilityIdentifier("pause-restart-confirm")
                 }
             } else {
-                Text("Paused")
-                    .font(Theme.serif(.title2, .bold))
-                    .foregroundStyle(Theme.fireGold)
+                VStack(spacing: 3) {
+                    Text("Paused")
+                        .font(Theme.caps(.title2))
+                        .tracking(1)
+                        .foregroundStyle(Theme.goldHi)
+                    FlourishRule(color: Theme.boneDim.opacity(0.5), gem: Theme.gold)
+                }
                 HStack(spacing: 10) {
                     Button {
                         model.resume()
@@ -353,7 +366,8 @@ struct PauseSheetView: View {
     }
 }
 
-/// A switch row of the pause sheet: the whole row toggles (at least 48 pt high).
+/// A switch row of the pause sheet: the whole row toggles (at least 48 pt high). The switch is a seal in a slot: wax
+/// red on the right when it is on, set grey on the left when it is off.
 struct SettingRow: View {
     let title: String
     let isOn: Bool
@@ -364,25 +378,27 @@ struct SettingRow: View {
         Button(action: toggle) {
             HStack {
                 Text(verbatim: title)
-                    .font(Theme.serif(.headline, .semibold))
-                    .foregroundStyle(Theme.parchment)
+                    .font(Theme.caps(.headline))
+                    .foregroundStyle(Theme.bone)
                 Spacer(minLength: 8)
                 ZStack(alignment: isOn ? .trailing : .leading) {
-                    Capsule()
-                        .fill(isOn ? Theme.gold : Theme.night0)
-                        .frame(width: 48, height: 28)
-                        .overlay(Capsule().strokeBorder(Theme.gold.opacity(0.6), lineWidth: 1))
-                    Circle()
-                        .fill(Theme.parchment)
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(isOn ? Theme.gold.opacity(0.35) : Theme.desk)
+                        .frame(width: 50, height: 28)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .strokeBorder(isOn ? Theme.goldHi.opacity(0.9) : Theme.boneDim.opacity(0.6), lineWidth: 1)
+                        )
+                    WaxSeal(spent: !isOn)
                         .frame(width: 22, height: 22)
                         .padding(3)
                 }
             }
             .padding(.horizontal, 14)
             .frame(minHeight: 50)
-            .background(RoundedRectangle(cornerRadius: 11, style: .continuous).fill(Theme.night1.opacity(0.85)))
-            .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous)
-                .strokeBorder(Theme.gold.opacity(0.3), lineWidth: 1))
+            .background(RoundedRectangle(cornerRadius: 2, style: .continuous).fill(Theme.desk2.opacity(0.85)))
+            .overlay(RoundedRectangle(cornerRadius: 2, style: .continuous)
+                .strokeBorder(Theme.boneDim.opacity(0.4), lineWidth: 1))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

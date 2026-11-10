@@ -13,8 +13,9 @@ extension EnvironmentValues {
     }
 }
 
-/// The name entry of a new realm (DESIGN.md "The lord pass and the story pass"): Burgherr or Burgherrin as two
-/// portraits, the name in a text field (letters only, at most `LordIdentity.nameLimit` characters, "Robin" when left
+/// The name entry of a new realm (DESIGN.md "The lord pass and the story pass"), a page of the family book
+/// (docs/UI-look.md: the question as a rubric, the name in the book's hand on a ruled line): Burgherr or Burgherrin as
+/// two portraits, the name in a text field (letters only, at most `LordIdentity.nameLimit` characters, "Robin" when left
 /// empty) and "Begin". Low and wide, so it stays whole above the keyboard in landscape; it scrolls when it does not.
 @MainActor
 struct LordEntryView: View {
@@ -36,7 +37,7 @@ struct LordEntryView: View {
                 content
             }
             .frame(width: min(540, geometry.size.width - 24))
-            .background(NightBackground())
+            .background(ParchmentBackground())
             .frame(maxHeight: geometry.size.height - 12)
             .frame(width: geometry.size.width, height: geometry.size.height)
         }
@@ -47,8 +48,8 @@ struct LordEntryView: View {
     @ViewBuilder private var content: some View {
         VStack(spacing: 8) {
             Text("Who holds the lantern now?")
-                .font(Theme.serif(.title3, .bold))
-                .foregroundStyle(Theme.fireGold)
+                .font(Theme.caps(.title3))
+                .foregroundStyle(Theme.rubric)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityAddTraits(.isHeader)
@@ -57,8 +58,8 @@ struct LordEntryView: View {
                 formTile(.lady)
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Odile writes the name into the family book.")
-                        .font(Theme.serif(.footnote))
-                        .foregroundStyle(Theme.parchment.opacity(0.85))
+                        .font(Theme.italic(.footnote))
+                        .foregroundStyle(Theme.teal)
                         .fixedSize(horizontal: false, vertical: true)
                     field
                     Button {
@@ -79,10 +80,10 @@ struct LordEntryView: View {
 
     private var field: some View {
         TextField("", text: $name,
-                  prompt: Text(verbatim: LordIdentity.defaultName).foregroundStyle(Theme.parchment.opacity(0.45)))
-            .font(Theme.serif(.title3, .semibold))
-            .foregroundStyle(Theme.parchment)
-            .tint(Theme.fireGold)
+                  prompt: Text(verbatim: LordIdentity.defaultName).foregroundStyle(Theme.inkSoft.opacity(0.6)))
+            .font(Theme.italic(.title3))
+            .foregroundStyle(Theme.ink)
+            .tint(Theme.teal)
             .textInputAutocapitalization(.words)
             .autocorrectionDisabled()
             .submitLabel(.done)
@@ -94,16 +95,25 @@ struct LordEntryView: View {
             }
             .padding(.horizontal, 12)
             .frame(minHeight: 48)
-            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.black.opacity(0.35)))
+            .background(RoundedRectangle(cornerRadius: 2, style: .continuous).fill(Theme.plaque.opacity(0.6)))
             .overlay(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .strokeBorder(Theme.gold.opacity(typing ? 0.95 : 0.55), lineWidth: 1.5)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .strokeBorder(typing ? Theme.teal : Theme.rule.opacity(0.45), lineWidth: typing ? 1.5 : 1)
             )
+            // The ruled line of the family book the name is written on.
+            .overlay(alignment: .bottom) {
+                Rectangle()
+                    .fill(typing ? Theme.teal : Theme.ink)
+                    .frame(height: 1.5)
+                    .padding(.horizontal, 9)
+                    .padding(.bottom, 9)
+                    .accessibilityHidden(true)
+            }
             .accessibilityLabel(Text("Your name"))
             .accessibilityIdentifier("lord-name-field")
     }
 
-    /// One of the two portraits; the chosen one stands in a gold frame.
+    /// One of the two portraits; the chosen one stands on a lit plaque in House Lantern's teal frame.
     private func formTile(_ choice: LordForm) -> some View {
         let chosen = form == choice
         let portrait = LordIdentity(name: "", form: choice).portrait
@@ -115,22 +125,15 @@ struct LordEntryView: View {
             VStack(spacing: 4) {
                 PortraitTile(portrait: .own(portrait, frame: 0), side: 76)
                 (choice == .lady ? Text("Lady Lantern") : Text("Lord Lantern"))
-                    .font(Theme.serif(.subheadline, .semibold))
-                    .foregroundStyle(chosen ? Theme.fireGold : Theme.parchment.opacity(0.8))
+                    .font(Theme.caps(.footnote))
+                    .foregroundStyle(chosen ? Theme.teal : Theme.inkSoft)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
-            .padding(6)
+            .padding(7)
             .frame(minWidth: 96, minHeight: 44)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color.black.opacity(chosen ? 0.3 : 0.12))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(chosen ? Theme.fireGold : Theme.gold.opacity(0.25), lineWidth: chosen ? 2.5 : 1)
-            )
-            .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .background(PlaqueBackground(enabled: chosen, marked: chosen))
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(choice == .lady ? Text("Lady Lantern") : Text("Lord Lantern"))
