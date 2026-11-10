@@ -1,0 +1,11 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/AmbientRamp.swift:78:29: error: extra arguments at positions #14, #15, #16, #17 in call
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/AmbientRamp.swift:92:22: error: value of type 'AmbientSample' has no member 'air'
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/AmbientRamp.swift:92:29: error: value of type 'AmbientSample' has no member 'air'
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/AmbientRamp.swift:93:27: error: value of type 'AmbientSample' has no member 'vignette'
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/AmbientRamp.swift:93:39: error: value of type 'AmbientSample' has no member 'vignette'
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/AmbientRamp.swift:94:24: error: value of type 'AmbientSample' has no member 'black'
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/AmbientRamp.swift:94:33: error: value of type 'AmbientSample' has no member 'black'
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/AmbientRamp.swift:95:29: error: value of type 'AmbientSample' has no member 'cloudColor'
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/AmbientRamp.swift:95:43: error: value of type 'AmbientSample' has no member 'cloudColor'
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/AmbientRampLook2.swift:23:35: error: extra arguments at positions #14, #15, #16, #17 in call
