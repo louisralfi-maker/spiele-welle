@@ -204,3 +204,21 @@ fades out (code lane), so the front's silhouette and the interior's must match.
 | `marekCart` | 48x30 | 1 | Marek's cart in the courtyard on his days: goods, barrels, a striped awning |
 | `statue` | 20x40 | 1 | a world change: a stone statue of the lamplighter king with his lantern, in the courtyard |
 | `speakerMark` | 7x7 | 2 | a small speech mark over a court member who has something new to say (frame 1 pulses) |
+
+## Proposals of the art pass (look 2, stage 4; ART-look2.md section 15)
+
+Everything under this heading is a **proposal for the code lane**: the PNGs lie in Resources/Art and
+`tools/build-art.sh` rebuilds them, but no Swift names them yet. Sizes, frames and anchors are what the art was painted
+to; the code lane may take them as they are.
+
+### The lady, and both lords seated
+
+| id | size | frames | notes |
+|---|---|---|---|
+| `lady` | 16x30 | 10 | the Burgherrin: the same role, size, frames and anchors as `king` (walk 0-5, idle 6-7, command 8-9), a young woman with a dark plait, the same circlet, cloak and lantern pole. The player's choice of form swaps `king` for `lady` everywhere |
+| `ladyGlow` | 16x30 | 10 | as `kingGlow`, pixel for pixel the same positions |
+| `kingSeated` | 16x30 | 4 | the lord on the hall's `throne`: sit down 0-1 (standing up is 1, 0), seated idle 2-3 (a breath). Drawn like the walking sprite: centred on x, feet on the ground line; place it at the throne's centre (x 1824), over the throne. Seated he faces the hall, the head in profile: mirror the frame to turn him to the speaker |
+| `kingSeatedGlow` | 16x30 | 4 | the lantern glass does not move in the four frames: the light at (+5.5, 22.5) from the frame's centre and the ground |
+| `ladySeated`, `ladySeatedGlow` | 16x30 | 4 | the lady's, frame for frame the same |
+| `portraitLady` | 48x48 | 1 | the lady's story portrait, the pair of `portraitKing` (which now shows the young lord) |
+

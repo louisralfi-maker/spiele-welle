@@ -1,0 +1,102 @@
+# kingSeated 16x30, 4 frames: sit down 0-1, seated idle 2-3 (a PROPOSAL of the look-2 art pass, SPRITES.md "Proposals
+# of the art pass"; it replaces the M3 lane's bearded proposal of grids/court/proposals). The Burgherr on the hall's
+# throne (14x24, drawn from the front; the cushion's rows at y 7 and 6 above the floor are this frame's rows 22 and
+# 23), the frame centred on the throne. Seated he faces the hall like the throne does: the mantle on both shoulders,
+# the tunic open between, his right hand on the arm rest, the left on the lantern pole that stands at the other arm
+# rest, the knees over the seat's edge and the shins before it; only the head stays in profile, turned to whoever
+# speaks (the engine mirrors the frame to turn him). Frame 0: in profile before the seat, the knees bent. Frame 1:
+# turned to the front, half lowered. Frame 2: seated. Frame 3: a breath (head and shoulders 1 px up). Standing up is
+# 1, 0. The lantern glass does not move: cols 13-14, rows 6-7 (the light at (+5.5, 22.5)).
+# The parts are the king's (include).
+id kingSeated
+size 16x30
+frames 4
+outline ink shade
+include king.txt
+
+# the body from the front (frame cols 3-11): shoulders, chest, belt, the hand on the arm rest, the lap, the knees
+part bodyFront
+    .uUUGTTT.
+    uUUQQRTTt
+    uUQQRRRTt
+    UUQQRRRTt
+    UTQQRRRrT
+    UTQQRRRrT
+    UTHHGHHHT
+    UTRQRRRrT
+    USRQRRRrT
+    TLLRrLLTt
+    .LL..LL..
+
+# the shins before the seat, apart (frame cols 4-9), darker than the lap that catches the light, and the boots
+part legsFront
+    bD..bD
+    bD..bD
+    bD..bD
+    bD..bD
+    pH..pH
+    pH..pH
+    HH..HH
+
+part legsFrontLow
+    Lb..Lb
+    Lb..Lb
+    bD..bD
+    bD..bD
+    bD..bD
+    bD..bD
+    pH..pH
+    pH..pH
+    HH..HH
+
+# the cuff and the fist on the pole's shaft
+part handPole
+    QS
+    Rs
+
+part legsCrouch
+    ...dDLb..
+    ...dDLLb.
+    ....dDLb.
+    ....dDLb.
+    ....dDLb.
+    ...dDLb..
+    ...dDLb..
+    ...HHpH..
+    ...HHpH..
+    ...HHpH..
+    ...HHHpHH
+
+frame 0
+    legsCrouch 2 18
+    body 0 9
+    hem0 0 23
+    head 4 2
+    circlet 3 4
+    pole 10 2
+    armHold 7 11
+
+frame 1
+    legsFrontLow 4 21
+    bodyFront 3 10
+    head 4 3
+    circlet 3 5
+    pole 10 2
+    handPole 9 15
+
+frame 2
+    legsFront 4 23
+    bodyFront 3 12
+    head 4 5
+    circlet 3 7
+    pole 10 2
+    handPole 9 17
+
+frame 3
+    legsFront 4 23
+    bodyFront 3 11
+    bodyFront 3 12
+    head 4 4
+    circlet 3 6
+    pole 10 2
+    handPole 9 17

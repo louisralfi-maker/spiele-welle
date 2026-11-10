@@ -77,13 +77,16 @@ committed scene sprites byte for byte with the new palette (checked in a copy of
 | `archer` | 12x28 × 5 | hand-set parts | idle 0-1 (a breath: head, shoulders and bow 1 px down), draw 2-3 (bow raised, arrow nocked at the chest; full draw to the cheek, the bow bent, the string in a V), loose 4 (string straight, drawing hand flung back) | brown leather hood, the teal tabard with the gold lantern, belt, red-fletched quiver, longbow |
 | `guardsman` | 14x28 × 9 | hand-set parts | idle 0-1, walk 2-5 (march, the shield bobbing), strike 6-8 (spear drawn back level; thrust over the shield on a lunge; pulled back) | nasal helm, mail (soft two-tone rings), teal kite shield with a gold rim and the gold lantern, spear |
 | `builder` | 12x24 × 6 | hand-set parts | walk 0-3, hammer 4-5 (mallet high behind the head; struck down in front) | straw cloth cap, brown smock over a linen shirt, tool belt, the mallet in his hand by the knee while walking |
-| `king` | 16x30 × 10 | hand-set parts | walk 0-5 (contact, down, passing on each leg; the lantern swings 1 px on frames 1 and 4), idle 6-7 (a breath, the lantern sways), command 8-9 (the pole lifted 2 and 3 px, lantern raised) | the young lord of House Lantern (ART-look2.md 6.2): beardless, brown hair, a plain gold circlet a size too big that has slipped 1 px toward his brow (no stone), one pixel longer in the leg, the teal cloak with a gold clasp over a red-brown tunic, the lamplighter's lantern on its hooked pole (DESIGN.md "Not a copy"; the pole is held in his hand, the lantern hangs from the hook at head height) |
+| `king` | 16x30 × 10 | hand-set parts, `outline ink shade` (art pass) | walk 0-5 (contact, down, passing on each leg; the lantern swings 1 px on frames 1 and 4), idle 6-7 (a breath, the lantern sways), command 8-9 (the pole lifted 2 and 3 px, lantern raised) | the Burgherr (STORY.md): a lamplighter of about nineteen, lanky (the head 5 of 28 rows), tousled brown hair with a cowlick, a narrow gold circlet a little too big that sits low over the brow, a short teal mantle with a gold clasp and a cloak down his back over a red-brown tunic, a belt, soil-brown hose and boots, the lamplighter's lantern on its hooked pole taller than himself (the iron hook, the lantern hanging from it at head height). No beard, no tall crown |
+| `lady` (proposal) | 16x30 × 10 | hand-set parts, includes `king.txt` | frame for frame the king's | the Burgherrin: the same age, role and things; dark hair drawn back into a long plait with a gold tie that swings on the down frames, narrower shoulders, a kirtle to the knee |
+| `kingSeated`, `ladySeated` (proposals) | 16x30 × 4 | hand-set parts, include `king.txt` | sit down 0-1, seated idle 2-3 | on the hall's throne, from the front with the head in profile (ART-look2.md section 15) |
 | `citizen` | 12x26 × 6 | hand-set parts | walk 0-3, idle 4-5 | townswoman: cream headscarf, red-brown dress, pale apron, a basket on her arm |
 | `citizenB` | 12x26 × 6 | hand-set parts | walk 0-3, idle 4-5 | townsman: dark skin, dark curly hair and beard, green tunic, a sack on his back |
 | `citizenC` | 12x26 × 6 | hand-set parts | walk 0-3, idle 4-5 | old farmer: wide straw hat, grey beard, blue smock under a brown vest, a crooked walking stick |
 
 Glow strips: `sootlingGlow`, `sootlingBGlow`, `shadehoundGlow`, `sootCrowGlow`, `ashBruteGlow`, `gloomweaverGlow`,
-`ashGiantGlow`, `lightlessKingGlow`, `kingGlow` (same size and frames as their sprite).
+`ashGiantGlow`, `lightlessKingGlow`, `kingGlow` and the proposals `ladyGlow`, `kingSeatedGlow`, `ladySeatedGlow` (same size and
+frames as their sprite).
 
 ### Glow strip rules
 
@@ -127,7 +130,7 @@ bottom row. Every creature has one eye.
 | gloomweaver | eye (3, 21); lantern core (9, 9) | the core at x 10, 9, 8 in frames 1, 2, 3; the engine's bob moves all of it |
 | ashGiant | eye (32, 73), tear below; heart centre (5, 68), radius 7 | walk 1 and 3: (32, 74); stomp 4: (25, 76); 5: (39, 67); 6: (36, 71) |
 | lightlessKing | no eyes; cowl crescent (-6..-3, 50..54); thorn tips up to (-19, 58) behind and row 63 on the down frames | the sprite fills the frame's 64 px |
-| king | lantern glass x 5-6: dy 23-24 (frames 0, 2, 3, 5, 6), 21-22 (1, 4, 7), 24-25 (8), 25-26 (9); circlet glint (1, 24), (1, 23) on frames 1, 4, 7 | the light should sit at about (+5.5, 23.5), not `x + 9, y 16` |
+| king | lantern glass x 5-6: dy 23-24 (frames 0, 2, 3, 5, 6), 21-22 (1, 4, 7), 24-25 (8), 25-26 (9); circlet glint (0, 26), (0, 25) on frames 1, 4, 7 (art pass; was (1, 24) and (1, 23)) | the light should sit at about (+5.5, 23.5), not `x + 9, y 16`. `lady` (a proposal) has the same positions; `kingSeated` and `ladySeated` (proposals): glass x 5-6, dy 22-23 on all four frames, the glint at (0, 24), (0, 23), (0, 21), (0, 22) |
 
 The glow strips make the old `eyeGlints` sprite unnecessary for these creatures. Positions are of look 2 (stage 3).
 

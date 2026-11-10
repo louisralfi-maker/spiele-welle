@@ -23,7 +23,8 @@ OLD = ('gain=3.0 lift=0.55 midHaze=0.36 midShare=0.7 fogBright=2.4 fogGlow=0.7 f
        'litCool=0.6 bounce=0.5 bounceDusk=2.2 duskSun=1 band=0.45 rim=0.5').split()
 F = LM.CASTLE_FRONT_X
 GLOW = {"sootling": "sootlingGlow", "sootlingB": "sootlingBGlow", "shadehound": "shadehoundGlow",
-        "sootCrow": "sootCrowGlow", "ashBrute": "ashBruteGlow", "king": "kingGlow"}
+        "sootCrow": "sootCrowGlow", "ashBrute": "ashBruteGlow", "king": "kingGlow", "lady": "ladyGlow",
+        "kingSeated": "kingSeatedGlow", "ladySeated": "ladySeatedGlow", "hesper": "hesperGlow"}
 
 
 def prop(s, x=None, cx=None, y=0, z=5, frame=0, f=False, lit=True, em=(), li=(), sh=1.0, glow=None):
@@ -147,7 +148,26 @@ def wall_dusk(look):
     return dict(focus=250, tod=0.8, drop=[], extras=[], king=306)
 
 
+# --- stage 4, the art pass (look 2 only; ART-look2.md section 15) -------------------------------------------------
+def hall_audience(look, lord="kingSeated"):
+    """The audience in the great hall: the lord (or the lady) seated on the throne (x 1817-1831, centre 1824), turned
+    to the petitioners, the lantern's light at the glass (dx 5.5, dy 22.5); Odile at the side, the townsfolk waiting
+    at the benches, one petitioner speaking."""
+    ex = [
+        prop("citizenC", cx=1738, frame=4, z=5), prop("citizen", cx=1751, frame=5, z=5),
+        dict(prop("petitionerE", cx=1766, frame=4, z=6), frames=6),
+        prop("citizenB", cx=1779, frame=4, z=5, f=True),
+        dict(prop("petitionerD", cx=1800, frame=4, z=6), frames=6),
+        dict(prop(lord, cx=1824, frame=2, f=True, z=4, li=[("lantern", 1818.5, 22.5, 40)]), frames=4),
+        dict(prop("odile", cx=1843, frame=4, f=True, z=6), frames=8),
+    ]
+    return dict(focus=1800, tod=0.5, drop=[], extras=ex, king="off")
+
+
 SCENES = {
+    "hall-audience": hall_audience,
+    "hall-audience-lady": lambda look: hall_audience(look, "ladySeated"),
+    "hall-empty": lambda look: dict(focus=1800, tod=0.5, drop=[], extras=[], king="off"),
     "shadow-night": shadow_night,
     "wall-dusk": wall_dusk,
     "valley-golden": lambda look: town(look, 0.745, 2560, 2604),

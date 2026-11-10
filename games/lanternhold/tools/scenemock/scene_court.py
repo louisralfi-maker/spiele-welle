@@ -40,7 +40,7 @@ LOOK = ('gain=3.0 lift=0.55 midHaze=0.36 midShare=0.7 fogBright=2.4 fogGlow=0.7 
 
 # frame counts of the M3 strips (SPRITES.md "M3": court and guests 8, petitioners 6) and the earlier actors used here
 FRAMES = dict(odile=8, brannock=8, pip=8, hesper=8, tamsin=8, bram=8, marek=8, seren=8, serLudo=8, bard=8, envoy=8,
-              herald=8, petitionerD=6, petitionerE=6, kingSeated=2, king=10, citizen=6, citizenB=6, citizenC=6,
+              herald=8, petitionerD=6, petitionerE=6, kingSeated=4, king=10, citizen=6, citizenB=6, citizenC=6,
               guardsman=9, builder=6, archer=5)
 GLOW = {"hesper": "hesperGlow", "seren": "serenGlow", "herald": "heraldGlow", "king": "kingGlow",
         "kingSeated": "kingSeatedGlow"}
@@ -61,10 +61,11 @@ def king(cx, frame, f=False, z=6):
 
 
 def king_seated(f=True):
-    """The king on the throne (x 1817-1831, centre 1824), turned to the petitioners (left); his lantern light at the
-    glass, which stands where the standing king's does."""
+    """The lord on the throne (x 1817-1831, centre 1824), turned to the petitioners (left), in the seated idle
+    (frame 2 of the art pass's kingSeated, 4 frames: 0-1 sit down, 2-3 idle; ART-look2.md section 15); his lantern
+    light at the glass (dx 5.5, dy 22.5 on all four frames)."""
     cx = 1824
-    return actor("kingSeated", cx, 0, f=f, z=4, li=[["lantern", cx + (-5.5 if f else 5.5), 23, 40]])
+    return actor("kingSeated", cx, 2, f=f, z=4, li=[["lantern", cx + (-5.5 if f else 5.5), 22.5, 40]])
 
 
 def hesper_flame(cx, frame, f=False):

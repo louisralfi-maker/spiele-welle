@@ -24,10 +24,14 @@ Spec format (`tools/grids/actors/<id>.txt`). Directives start in column 0; their
     id NAME                  output sprite id (the glow strip is NAMEGlow)
     size WxH                 one frame
     frames N
-    outline COLOUR           optional: transparent pixels 4-adjacent to the body become COLOUR (a 1 px outline)
+    outline COLOUR [shade]   optional: transparent pixels 4-adjacent to the body become COLOUR (a 1 px outline); with
+                             "shade" only the pixels right of and below the body (look 2's selective outline: the
+                             shadow side and the ground contact, the lit upper left stays open)
     rim GLOW [TIP]           optional, with an outline: the top contour (the outline pixel above each column's topmost
                              body pixel) glows GLOW in every frame, a smouldering edge that carries the silhouette at
                              night; TIP lights the rim over 1 px wide spikes (crest flakes, ears, stake points)
+    include FILE             optional: takes the legend and the parts of another spec beside this one (a second sprite
+                             of the same figure: the lord seated); later legend entries and parts replace them
     image NAME PATH          optional: a palette PNG (e.g. a converted key pose) that parts can be cut from
     glowmap COLOUR=GLOW …    image parts: pixels of that body colour glow (the ember cracks of a converted painting)
     legend                   lines "X = body" or "X = body/glow" or "X = /glow" (palette names; "." is transparent);
@@ -69,6 +73,7 @@ class Spec:
         self.w = self.h = 0
         self.frames = 1
         self.outline = None
+        self.shade_only = False
         self.rim = None
         self.legend = {".": (None, None)}
         self.parts = {}
@@ -88,7 +93,19 @@ class Spec:
         target = None
         with open(self.path) as fh:
             lines = fh.read().splitlines()
-        for raw in lines:
+        expanded = []
+        for raw in lines:  # include FILE: the legend and the parts of another spec (its other directives are skipped)
+            if raw.startswith("include "):
+                keep = False
+                with open(os.path.join(base, raw.split()[1])) as fh:
+                    for inc in fh.read().splitlines():
+                        if inc.strip() and not inc[0].isspace() and not inc.startswith("#"):
+                            keep = inc.split()[0] in ("legend", "part")
+                        if keep:
+                            expanded.append(inc)
+            else:
+                expanded.append(raw)
+        for raw in expanded:
             if not raw.strip() or raw.lstrip().startswith("#"):
                 continue
             if not raw[0].isspace():
@@ -103,6 +120,7 @@ class Spec:
                     self.frames = int(words[1])
                 elif key == "outline":
                     self.outline = self.colour(words[1])
+                    self.shade_only = len(words) > 2 and words[2] == "shade"
                 elif key == "rim":
                     self.rim = (self.colour(words[1]), self.colour(words[2]) if len(words) > 2 else None)
                 elif key == "image":
@@ -306,7 +324,8 @@ class Spec:
                     for x in range(self.w):
                         if body[y][x] is not None:
                             continue
-                        for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                        for nx, ny in (((x - 1, y), (x, y - 1)) if self.shade_only
+                                       else ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1))):
                             if 0 <= nx < self.w and 0 <= ny < self.h and body[ny][nx] is not None \
                                     and len(body[ny][nx]) == 3:
                                 add.append((x, y))

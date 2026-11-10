@@ -26,7 +26,7 @@ cool() { # wait below 70 °C when the CPU reached 80 °C
 
 build() { # name: one sprite (and its glow strip)
     case $1 in
-    archer|guardsman|builder|king|citizen|citizenB|citizenC)
+    archer|guardsman|builder|king|lady|kingSeated|ladySeated|citizen|citizenB|citizenC)
         python3 -I $AA build $G/$1.txt --out $A ;;
     sootling|sootlingB|shadehound|sootCrow|ashBrute|gloomweaver|ashGiant|lightlessKing)
         python3 -I -B $CA build $1 --out $A ;;
@@ -37,7 +37,7 @@ build() { # name: one sprite (and its glow strip)
 }
 
 ALL="sootling sootlingB shadehound sootCrow ashBrute gloomweaver ashGiant lightlessKing darknessBank archer guardsman builder king
-citizen citizenB citizenC"
+lady kingSeated ladySeated citizen citizenB citizenC"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do
     cool
