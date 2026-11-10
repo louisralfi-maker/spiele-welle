@@ -834,10 +834,28 @@ final class GameModel {
         return sample
     }
 
+    /// Look 2's fog out of the Gloom for the frame (`GloomFog`, "Polish after round 2"): tonight's in the game (the
+    /// night's number and the fog modifier of the night plan); in the probe, which has no run, the night `-GWNight`
+    /// names or the clock's day. `-GWGloomFog <0…1>` fixes how hard it comes, `-GWGloomFog off` leaves it out. The
+    /// picture reads it, the simulation never does.
+    private func gloomFog(look: LookVersion) -> GloomFog? {
+        guard look == .two else { return nil }
+        switch args.gloomFog {
+        case .off: return nil
+        case .fixed(let hardness): return GloomFog(hardness: hardness)
+        case .auto: break
+        }
+        if kind == .world, let state = driver?.state {
+            return GloomFog(night: state.nightNumber, fogNight: NightPlanModifiers.bankShift(state) > 0)
+        }
+        return GloomFog(night: args.night ?? clock.day, fogNight: false)
+    }
+
     /// The frame to draw on a screen of this physical size.
     func frame(physicalWidth: Int, physicalHeight: Int) -> FrameDesc {
         var options = self.options
         options.weather = weatherSample(look: options.look)
+        options.gloom = gloomFog(look: options.look)
         let pixelScale = options.pixelScale(physicalWidth: physicalWidth, physicalHeight: physicalHeight)
         let frame: FrameDesc
         switch kind {

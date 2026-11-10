@@ -896,6 +896,7 @@ tap in Release) is checked on an A12 iPhone and a current one before the store.
 | `-GWCastle 1\|1b\|2\|2b\|3\|3b` | look 2: the castle's tier as drawn (b: under scaffold); no play raises it yet |
 | `-GWWeather auto\|clear\|breeze\|gusty\|storm` | look 2: the weather; auto is the run's seed and day, the others hold one kind |
 | `-GWWind <0...1>`, `-GWRain <0...1>`, `-GWWetness <0...1>` | look 2: hold the steady wind (negative: from the valley), the rain or the wet ground |
+| `-GWGloomFog off\|<0...1>` | look 2: the fog out of the Gloom; without it tonight's (the night's number and the fog modifier), a number holds how hard it comes (0 the first night's, 1 a late fog night's), `off` leaves it out |
 | `-GWLord lord\|lady`, `-GWLordName <name>` | the lord pass: Burgherr or Burgherrin and the lord's name (cleaned like a typed one) without the name entry; the other half is the standard lord's (Robin, Burgherr) |
 
 ## Accessibility identifiers

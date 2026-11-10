@@ -137,6 +137,8 @@ enum FrameBuilder {
         let sources = entities?.lights ?? scene.sceneLights()
         let rains = options.look == .two && weather.rain > 0 && !options.reduceMotion
         let bankEdgeX = scene.bankEdge(hour: hour)
+        // The Gloom's fog belongs to look 2 and to the picture alone, like the weather.
+        let gloom = options.look == .two && options.effects.fog ? options.gloom : nil
 
         var planeSprites: [[SpriteInstance]] = Array(repeating: [], count: Plane.allCases.count)
         var glow = EmissiveList()
@@ -193,6 +195,12 @@ enum FrameBuilder {
                                           geometry: geometry) {
                         glow.add(item)
                     }
+                    if let gloom {
+                        for item in gloomEyes(gloom, edgeX: bankEdgeX, hour: hour, animTime: animTime,
+                                              reduceMotion: options.reduceMotion, geometry: geometry) {
+                            glow.add(item)
+                        }
+                    }
                 }
             }
         }
@@ -210,6 +218,23 @@ enum FrameBuilder {
                 planeSprites[layer.plane.rawValue].append(contentsOf: tiles)
             }
             fog = layers
+            if let gloom {
+                // In front of the hour's own fog on both fog planes; the fires of the lines cut their holes.
+                var clearings: [GloomFog.Clearing] = []
+                for item in sources where item.plane == .world {
+                    if let clearing = GloomFog.clearing(of: item.source, torch: Double(ambient.torchStrength),
+                                                        bankEdge: bankEdgeX) {
+                        clearings.append(clearing)
+                    }
+                }
+                for row in gloomRows {
+                    planeSprites[row.plane.rawValue] += gloomSlices(gloom, row: row, edgeX: bankEdgeX, hour: hour,
+                                                                    color: ambient.fogColor, clearings: clearings,
+                                                                    animTime: animTime,
+                                                                    reduceMotion: options.reduceMotion,
+                                                                    geometry: geometry)
+                }
+            }
         }
 
         let lights = frameLights(sources: sources, ambient: ambient,
@@ -741,6 +766,94 @@ enum FrameBuilder {
             guard geometry.isVisible(left: left, width: tile) else { continue }
             let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
             list.append(SpriteInstance(sprite: sprite, frame: 0, rect: rect, tint: tint, flipped: false))
+        }
+        return list
+    }
+
+    // MARK: - The Gloom's fog (look 2)
+
+    /// One row of the Gloom's fog (`GloomFog`): its plane, its mask, where its bottom stands above the ground line,
+    /// how tall the mask is drawn (stretched: its rows are a soft ramp), its share of the fog's cover, whether that
+    /// share grows with the depth in the fog (the tall body stands at the bank, not at the front), and how fast its
+    /// billows creep toward the castle (game px/s).
+    struct GloomRow: Sendable, Equatable {
+        var plane: Plane
+        var sprite: SpriteID
+        var y: Double
+        var height: Int
+        var share: Double
+        var byDepth: Bool
+        var creep: Double
+    }
+
+    /// Behind the play plane the bank's tall body and its floor, in front of the actors a low veil over the lane
+    /// (thin enough that a creature in it still reads).
+    static let gloomRows = [
+        GloomRow(plane: .fogA, sprite: .d2MistBand, y: -6, height: 112, share: 0.9, byDepth: true, creep: 2.0),
+        GloomRow(plane: .fogA, sprite: .d2FogBank, y: -6, height: 52, share: 0.8, byDepth: false, creep: 3.0),
+        GloomRow(plane: .fogB, sprite: .d2FogLow, y: -14, height: 34, share: 0.9, byDepth: false, creep: 3.5),
+    ]
+    /// The fog is drawn in slices this wide, each with the cover of its own place.
+    static let gloomSlice = 16
+    /// The eyes glow a little over white, so the bloom catches them at phone size.
+    static let gloomEyeGain: Float = 1.4
+
+    /// One row of the Gloom's fog across the visible part of its plane: the mask laid seamlessly like the hour's
+    /// fog, cut into slices of `gloomSlice` pixels, each with the fog's cover where it stands on the lane (the plane
+    /// may move a pixel against the lane under the camera) less the hole a fire cuts there. The billows creep toward
+    /// the castle whatever the wind does, and stand still with Reduce Motion.
+    private static func gloomSlices(_ gloom: GloomFog, row: GloomRow, edgeX: Double, hour: Double,
+                                    color: SIMD3<Float>, clearings: [GloomFog.Clearing], animTime: Double,
+                                    reduceMotion: Bool, geometry: Geometry) -> [SpriteInstance] {
+        let front = gloom.front(bankEdge: edgeX, hour: hour)
+        let world = geometry.whole(.world)
+        // Nothing of it in view: the camera looks at the castle or the valley, or it is day.
+        guard gloom.amount(hour: hour) > 0, front > world else { return [] }
+        let size = row.sprite.size
+        let tile = Double(size.width)
+        let slice = Double(gloomSlice)
+        let whole = geometry.whole(row.plane)
+        let creep = reduceMotion ? 0 : (animTime * row.creep).rounded(.down).truncatingRemainder(dividingBy: tile)
+        let top = geometry.top(y: row.y, height: Double(row.height))
+        let rgb = color * GloomFog.coldTint
+        let first = Int(((whole - creep) / tile).rounded(.down)) - 1
+        let count = geometry.targetWidth / size.width + 3
+        var list: [SpriteInstance] = []
+        for index in first..<(first + count) {
+            let tileLeft = Double(index) * tile + creep - whole
+            guard geometry.isVisible(left: tileLeft, width: tile) else { continue }
+            for k in 0..<(size.width / gloomSlice) {
+                let left = tileLeft + Double(k) * slice
+                guard geometry.isVisible(left: left, width: slice) else { continue }
+                let x = left + slice / 2 + world
+                var cover = gloom.cover(x: x, bankEdge: edgeX, hour: hour) * row.share
+                if row.byDepth { cover *= gloom.depth(x: x, bankEdge: edgeX, hour: hour) }
+                cover *= 1 - GloomFog.hole(x: x, clearings: clearings)
+                guard cover > 0.012 else { continue }
+                let rect = SIMD4<Float>(Float(left), Float(top), Float(gloomSlice), Float(row.height))
+                let source = SIMD4<Float>(Float(k * gloomSlice), 0, Float(gloomSlice), Float(size.height))
+                list.append(SpriteInstance(sprite: row.sprite, frame: 0, rect: rect,
+                                           tint: SIMD4<Float>(rgb.x, rgb.y, rgb.z, Float(min(1, cover))),
+                                           flipped: false, source: source))
+            }
+        }
+        return list
+    }
+
+    /// The cold eyes in the fog as glow on the world plane, in front of the bank's dark.
+    private static func gloomEyes(_ gloom: GloomFog, edgeX: Double, hour: Double, animTime: Double,
+                                  reduceMotion: Bool, geometry: Geometry) -> [EmissiveInstance] {
+        let size = SpriteID.eyeGlints.size
+        let whole = geometry.whole(.world)
+        var list: [EmissiveInstance] = []
+        for eyes in gloom.eyes(bankEdge: edgeX, hour: hour, time: animTime, reduceMotion: reduceMotion) {
+            let left = eyes.x - whole
+            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
+            let top = geometry.top(y: eyes.y, height: Double(size.height))
+            let rgb = GloomFog.eyeColor * (Float(eyes.strength) * gloomEyeGain)
+            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            list.append(EmissiveInstance(sprite: .eyeGlints, plane: .world, rect: rect,
+                                         color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1)))
         }
         return list
     }

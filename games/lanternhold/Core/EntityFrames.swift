@@ -176,9 +176,11 @@ enum EntityFrames {
         layer.lights = lights
 
         let view = ActorView(camera: camera, pixelScale: pixelScale, mode: options.actorMode)
+        // The Gloom's fog (look 2, the picture alone): the creatures step out of it.
+        let gloom = options.look == .two && options.effects.fog ? options.gloom : nil
         layer.actors = actors(s, balance: balance, layouts: layouts, origins: origins, view: view, ambient: ambient,
                               isDay: isDay, animTime: animTime, effects: effects, look: options.look,
-                              reduceMotion: options.reduceMotion)
+                              reduceMotion: options.reduceMotion, gloom: gloom)
         return layer
     }
 
@@ -986,7 +988,7 @@ enum EntityFrames {
                                origins: [OriginKey: (dx: Double, dy: Double)], view: ActorView,
                                ambient: AmbientSample, isDay: Bool, animTime: Double,
                                effects: BattleEffects, look: LookVersion = .one,
-                               reduceMotion: Bool = false) -> [ActorInstance] {
+                               reduceMotion: Bool = false, gloom: GloomFog? = nil) -> [ActorInstance] {
         var list: [ActorInstance] = []
         let time = s.simTime
         func add(_ sprite: SpriteID, frame: Int, x: Double, y: Double, flipped: Bool = false,
@@ -1063,8 +1065,16 @@ enum EntityFrames {
             }
             let shade = c.kind.isBoss ? 1 : creatureShade(c.id, look: look)
             let body = (c.isLit ? 1 : value) * shade
-            add(sprite, frame: frame, x: c.x, y: y, flipped: flipped, tint: SIMD4<Float>(body, body, body, 1),
-                lit: c.isLit, lightCap: creatureLightCap, moonRim: c.isLit ? 0 : unlitRim * night)
+            // The Gloom's fog (look 2): an unlit body forms inside the dark and steps out of the fog whole; its
+            // glow is there before it. The picture only: the simulation knows where it is all along.
+            var seen: Float = 1
+            if let gloom, !c.isLit {
+                seen = Float(gloom.bodyAlpha(x: c.x, bankEdge: s.bankEdge, hour: s.hour))
+            }
+            if seen > 0.02 {
+                add(sprite, frame: frame, x: c.x, y: y, flipped: flipped, tint: SIMD4<Float>(body, body, body, seen),
+                    lit: c.isLit, lightCap: creatureLightCap, moonRim: c.isLit ? 0 : unlitRim * night * seen)
+            }
             if let glow = glowStrip(sprite) {
                 add(glow, frame: frame, x: c.x, y: y, flipped: flipped, emissive: true, lit: c.isLit)
             }

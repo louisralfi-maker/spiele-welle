@@ -395,6 +395,9 @@ struct FrameOptions: Sendable, Equatable {
     /// Look 2's weather at this moment (`Weather.sample`); look 1 never reads it. Clear by default, so a frame
     /// built without the game's weather is the frame it was.
     var weather: WeatherSample = .clear
+    /// Look 2: tonight's fog out of the Gloom (`GloomFog`, "Polish after round 2"); look 1 never reads it. None by
+    /// default, so a frame built without the game's night is the frame it was.
+    var gloom: GloomFog? = nil
 
     /// The pixel scale these options give on a screen.
     func pixelScale(physicalWidth: Int, physicalHeight: Int) -> PixelScale {
