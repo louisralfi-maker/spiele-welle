@@ -2394,6 +2394,17 @@ condition or counsel changed and no choice the bot takes changed what it does to
   light sum or the battle's timing changed against pictures and the tuning; not cheap.
 - Random and endless choices that only set a flag still read "No cost"; U1 covered the story's.
 
+**Rounds**
+
+- `lh-m3-f1` on 62ac439 (U1, U2, C5, C7, U3, U5): ALL PASSED. Its finale report showed the speech quote as a row of
+  its own pushing the realm's People row out of the card.
+- `lh-m3-f2` on cfe83a9 (all fixes): ALL PASSED. 336 unit tests; T1 to T8 line for line what `lh-m3-j3` measured (T6
+  with the beacon 20 of 20 won and slain, without it 10 of 20 held; T7 17 of 20); Court: the bot heard 1068
+  petitioners; the validator reports nothing; both finale shots show the Lightless King in the archers' reach with
+  arrows in the air (23:12 and 00:31).
+- `lh-m3-f3` on dcf0e13 (the quote beside the report's title): ALL PASSED (build, unit 336, ui, ui-de, release), the
+  tuning report identical to f2's. The People row is back in English and German; the German quote takes two lines.
+
 ## Risks
 
 | Risk | What we do |
