@@ -181,8 +181,16 @@ final class GameScreensTests: XCTestCase {
         XCTAssertEqual(barracks.recruitCard?.archers, 4)
         XCTAssertEqual(barracks.gold, 50)
         XCTAssertEqual(barracks.soldiers, 6)
-        let throne = model([:])
-        XCTAssertEqual(throne.target, .throne)
+        // M3: a petitioner waits on day 1, so the crown opens the audience; the tax lectern beside the throne keeps
+        // the tax card.
+        let crown = model([:])
+        XCTAssertEqual(crown.target, .throne)
+        crown.performAction()
+        XCTAssertEqual(crown.overlay, .audience)
+        crown.standUp()
+        XCTAssertNil(crown.overlay)
+        let throne = model(["GWCameraX": "\(KingTargets.lecternX)"])
+        XCTAssertEqual(throne.target, .lectern)
         throne.performAction()
         XCTAssertEqual(throne.overlay, .taxes)
         throne.setTax(.low)

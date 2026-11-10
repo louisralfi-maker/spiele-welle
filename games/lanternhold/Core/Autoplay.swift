@@ -12,7 +12,8 @@ enum BotStep: Sendable, Equatable {
 /// tax and buys along a fixed build order (rubble rebuilds first; at a locked or unaffordable step it waits and saves);
 /// at night the king lights snuffed braziers, patches walls under attack and otherwise stands behind the front wall.
 /// Variants: the bot that builds nothing, the low-tax and high-tax bots, and one that leaves out the beacon.
-/// Petitions are left out (M3).
+/// By day the reference bots hear every petitioner first, with a fixed policy (M3, `PetitionEngine.holdAudience`:
+/// Odile's counsel when it can be taken, else the cheapest choice); the bot that builds nothing hears none.
 struct Autoplay: Sendable, Equatable {
     enum Plan: String, Sendable {
         case reference, buildsNothing
@@ -35,6 +36,8 @@ struct Autoplay: Sendable, Equatable {
     var guardTarget = 0
     var refillDay = 0
     var refillFrom = 60
+    /// Hears today's petitioners by day (M3); off, they wait until the horn and go home unheard.
+    var hearsPetitions = true
 
     static func reference(tax: TaxRate = .normal, buildsBeacon: Bool = true) -> Autoplay {
         Autoplay(plan: .reference, tax: tax, buildsBeacon: buildsBeacon)
@@ -111,6 +114,7 @@ struct Autoplay: Sendable, Equatable {
         }
         if s.tax != tax { Economy.setTax(&s, tax) }
         if DayClock.phase(at: s.hour) == .day {
+            if hearsPetitions { PetitionEngine.holdAudience(&s, catalog: .standard, balance: balance) }
             thinkTimer -= dt
             if thinkTimer <= 0 {
                 thinkTimer = 1
@@ -179,7 +183,7 @@ struct Autoplay: Sendable, Equatable {
                     cursor += 1
                     continue
                 }
-                if s.day < Realm.plots[plot].unlockDay || s.plots[plot].job != nil { return }
+                if !s.isUnlocked(plot: plot) || s.plots[plot].job != nil { return }
                 if s.gold < balance.price(item) { return }
                 let result = Build.order(&s, plot: plot, item: item, balance: balance, events: &events)
                 if result != .ordered { return }

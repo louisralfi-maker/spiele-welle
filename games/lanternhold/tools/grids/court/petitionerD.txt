@@ -1,0 +1,169 @@
+# petitionerD 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md "M3"). A petitioner body: a young townswoman, bare-headed
+# with a long blond braid down her back, a rose shawl around her shoulders, a lavender dress, a basket of bread and a
+# few flowers held before her in both hands. Walk: four frames, a light quick step, the braid swinging. Idle: a breath,
+# the basket held close.
+id petitionerD
+size 12x26
+frames 6
+outline ink
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    H = strawLight
+    h = straw
+    j = woodLight
+    R = dusk
+    r = tile
+    V = moon
+    v = far
+    w = farPale
+    G = straw
+    g = woodLight
+    d = wood
+    W = parchment
+    F = leafLight
+    f = dusk
+    B = woodDark
+
+part head
+    .hHHH.
+    hHHHHH
+    hHHSSS
+    hhSSkS
+    .hSSSSS
+    .hsSSs.
+    ..sS..
+
+part braid
+    hH
+    jh
+    hH
+    .j
+
+part torso
+    .rRRRR.
+    rRRRRRR
+    rRRRRRR
+    .vVVVVV
+    .vVVVVV
+    .vVVVwV
+
+part skirtStand
+    .vVVVVwV.
+    .vVVVVwVV
+    vvVVVVwVV
+    vvVVVVwVV
+    vvVVVVwVV
+    vvVVVVVwVV
+    vvVVVVVwVV
+    vvVVVVVwVV
+
+part skirtA
+    .vVVVVwV..
+    .vVVVVwVV.
+    vvVVVVwVVV
+    vvVVVVVwVV
+    vvVVVVVwVV
+    vvVVVVVwVVV
+    vvVVVVVwVVV
+    vvVVVVVwVVV
+
+part skirtB
+    .vVVVVwV
+    .vVVVVwV
+    .vVVVVwV
+    vvVVVVwVV
+    vvVVVVwVV
+    vvVVVVwVV
+    vvVVVVwVV
+    vvVVVVwVV
+
+part skirtC
+    ..vVVVwV.
+    ..vVVVwV.
+    .vvVVVwVV
+    .vvVVVwVV
+    vvvVVVwVV
+    vvvVVVVwV
+    vvvVVVVwVV
+    vvvVVVVwVV
+
+part feetStand
+    .BB.BB
+
+part feetA
+    BB...BB
+
+part feetB
+    ..BBB
+
+part feetC
+    .BBBB
+
+# both hands holding the basket before her: bread loaves and a flower
+part basket
+    ..f.F.
+    .WWfWF
+    GgGgGG
+    gGgGgg
+    .gggg.
+
+part arms
+    rR..
+    .rRSS
+
+frame 0
+    braid 2 11
+    skirtA 1 17
+    feetA 2 25
+    torso 2 11
+    head 3 4
+    basket 6 12
+    arms 4 13
+
+frame 1
+    braid 1 12
+    skirtB 2 17
+    feetB 3 25
+    torso 2 12
+    head 3 5
+    basket 6 13
+    arms 4 14
+
+frame 2
+    braid 2 11
+    skirtC 1 17
+    feetC 3 25
+    torso 2 11
+    head 3 4
+    basket 6 12
+    arms 4 13
+
+frame 3
+    braid 1 12
+    skirtB 2 17
+    feetB 3 25
+    torso 2 12
+    head 3 5
+    basket 6 13
+    arms 4 14
+
+frame 4
+    braid 2 11
+    skirtStand 1 17
+    feetStand 2 25
+    torso 2 11
+    head 3 4
+    basket 6 12
+    arms 4 13
+
+frame 5
+    braid 2 12
+    skirtStand 1 17
+    feetStand 2 25
+    torso 2 12
+    head 3 5
+    basket 6 13
+    arms 4 14

@@ -1,6 +1,17 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@ (%@)" : {
+      "comment" : "Dawn report: a townsfolk petitioner's name and role.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (%2$@)"
+          }
+        }
+      }
+    },
     "%@ of the taxes · happiness %@ a dawn" : {
       "comment" : "Tax card: a rate's effect.",
       "localizations" : {
@@ -141,6 +152,39 @@
         }
       }
     },
+    "%lld more archers needed" : {
+      "comment" : "Audience card: a choice greyed for lack of archers.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es fehlen %lld Bogenschützen"
+          }
+        }
+      }
+    },
+    "%lld more guards needed" : {
+      "comment" : "Audience card: a choice greyed for lack of guards.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es fehlen %lld Wachen"
+          }
+        }
+      }
+    },
+    "%lld more taxpayers needed" : {
+      "comment" : "Audience card: a choice greyed for lack of taxpayers.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es fehlen %lld Steuerzahler"
+          }
+        }
+      }
+    },
     "%lld s" : {
       "comment" : "Build card: the build time in seconds.",
       "localizations" : {
@@ -226,6 +270,17 @@
         }
       }
     },
+    "A risk" : {
+      "comment" : "VoiceOver: a choice decided partly by chance.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Wagnis"
+          }
+        }
+      }
+    },
     "A second chance again from night %lld" : {
       "comment" : "Defeat card: when the second chance can be taken again.",
       "localizations" : {
@@ -281,6 +336,17 @@
         }
       }
     },
+    "Archers %@" : {
+      "comment" : "VoiceOver: a choice's archers, signed.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bogenschützen %@"
+          }
+        }
+      }
+    },
     "Archers %lld · room on the walls for %lld more · guards %lld" : {
       "comment" : "Recruit card subtitle: counts (archers, free archer posts on the walls and towers, guards).",
       "localizations" : {
@@ -299,6 +365,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bogenschützen treffen härter: +%@"
+          }
+        }
+      }
+    },
+    "Audience (%lld)" : {
+      "comment" : "Action button caption at the throne: hold audience; the number of petitioners waiting.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Audienz (%lld)"
           }
         }
       }
@@ -435,6 +512,17 @@
         }
       }
     },
+    "Builders %@" : {
+      "comment" : "VoiceOver: a choice's builders, signed.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bauleute %@"
+          }
+        }
+      }
+    },
     "Builders at work on: %@, %@" : {
       "comment" : "Build card subtitle: a job in progress and its share done.",
       "localizations" : {
@@ -501,6 +589,17 @@
         }
       }
     },
+    "Counsel" : {
+      "comment" : "Audience card: the button for Odile's counsel.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rat"
+          }
+        }
+      }
+    },
     "Creatures stopped" : {
       "comment" : "Dawn report row.",
       "localizations" : {
@@ -530,6 +629,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tag %lld bricht an"
+          }
+        }
+      }
+    },
+    "End the audience" : {
+      "comment" : "Audience card after the last choice.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Audienz beenden"
           }
         }
       }
@@ -578,6 +688,17 @@
         }
       }
     },
+    "Fog tonight" : {
+      "comment" : "VoiceOver: a choice brings fog to the coming night.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute Nacht Nebel"
+          }
+        }
+      }
+    },
     "Gate" : {
       "comment" : "Build item: the gatehouse's first tier.",
       "localizations" : {
@@ -607,6 +728,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gold"
+          }
+        }
+      }
+    },
+    "Gold %@" : {
+      "comment" : "VoiceOver: a choice's gold, signed.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gold %@"
           }
         }
       }
@@ -655,6 +787,17 @@
         }
       }
     },
+    "Guards %@" : {
+      "comment" : "VoiceOver: a choice's guards, signed.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wachen %@"
+          }
+        }
+      }
+    },
     "Happiness" : {
       "comment" : "HUD and dawn report.",
       "localizations" : {
@@ -662,6 +805,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zufriedenheit"
+          }
+        }
+      }
+    },
+    "Happiness %@" : {
+      "comment" : "VoiceOver: a choice's happiness, signed.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zufriedenheit %@"
           }
         }
       }
@@ -706,6 +860,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hohe Steuern"
+          }
+        }
+      }
+    },
+    "Hold audience" : {
+      "comment" : "VoiceOver: the action button at the throne while petitioners wait.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Audienz halten"
           }
         }
       }
@@ -886,6 +1051,17 @@
         }
       }
     },
+    "Next petitioner (%lld)" : {
+      "comment" : "Audience card after a choice: the next petitioner walks up; the number still waiting.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nächster Bittsteller (%lld)"
+          }
+        }
+      }
+    },
     "Next site" : {
       "comment" : "Build card: accessibility label of the arrow to the next plot.",
       "localizations" : {
@@ -915,6 +1091,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nacht %lld ist vorüber"
+          }
+        }
+      }
+    },
+    "No cost" : {
+      "comment" : "Audience card: a choice that changes no number.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kostet nichts"
           }
         }
       }
@@ -1003,6 +1190,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jetzt: %@"
+          }
+        }
+      }
+    },
+    "Odile counsels" : {
+      "comment" : "Audience card: the heading over Odile's line.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile rät"
+          }
+        }
+      }
+    },
+    "Odile's choice" : {
+      "comment" : "VoiceOver: the seal on the choice Odile favours.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odiles Wahl"
+          }
+        }
+      }
+    },
+    "Odile's counsel" : {
+      "comment" : "VoiceOver: the audience card's counsel button.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odiles Rat"
           }
         }
       }
@@ -1139,6 +1359,17 @@
         }
       }
     },
+    "People %@" : {
+      "comment" : "VoiceOver: a choice's people, signed.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einwohner %@"
+          }
+        }
+      }
+    },
     "Petitioners unheard" : {
       "comment" : "Dawn report: a happiness reason.",
       "localizations" : {
@@ -1146,6 +1377,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ungehörte Bittsteller"
+          }
+        }
+      }
+    },
+    "Petitioners waiting: %lld" : {
+      "comment" : "VoiceOver: the realm strip's value.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wartende Bittsteller: %lld"
           }
         }
       }
@@ -1271,6 +1513,17 @@
         }
       }
     },
+    "Sent home unheard" : {
+      "comment" : "Dawn report: petitioners who went home unheard at the horn.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ungehört heimgeschickt"
+          }
+        }
+      }
+    },
     "Set the taxes" : {
       "comment" : "Accessibility label of the action button at the throne.",
       "localizations" : {
@@ -1359,6 +1612,17 @@
         }
       }
     },
+    "Speak with %@" : {
+      "comment" : "VoiceOver: the action button at the front gate; %@ is the Stranger.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit %@ reden"
+          }
+        }
+      }
+    },
     "Stage 1 of 3 of the Great Beacon" : {
       "comment" : "Build card: the beacon's first stage.",
       "localizations" : {
@@ -1392,6 +1656,17 @@
         }
       }
     },
+    "Stand up" : {
+      "comment" : "Audience card: the king stands up from the throne (the audience ends).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufstehen"
+          }
+        }
+      }
+    },
     "Stone wall" : {
       "comment" : "Build item.",
       "localizations" : {
@@ -1410,6 +1685,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stärke %1$lld · %2$lld Schützenposten"
+          }
+        }
+      }
+    },
+    "Talk" : {
+      "comment" : "VoiceOver: the talk action.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sprechen"
+          }
+        }
+      }
+    },
+    "Talk to %@" : {
+      "comment" : "VoiceOver: the action button beside a court member; %@ is the name.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit %@ sprechen"
+          }
+        }
+      }
+    },
+    "Tap to close" : {
+      "comment" : "VoiceOver hint: the speech bubble.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zum Schließen tippen"
           }
         }
       }
@@ -1524,6 +1832,39 @@
         }
       }
     },
+    "The castle keeps one builder" : {
+      "comment" : "Audience card: a choice greyed because the castle keeps at least one builder.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Burg behält einen Handwerker"
+          }
+        }
+      }
+    },
+    "The chapel's blessing is lifted" : {
+      "comment" : "Audience card: a petition lifted the chapel's blessing.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Segen der Kapelle ist aufgehoben"
+          }
+        }
+      }
+    },
+    "The chapel's blessing: +1 happiness every dawn" : {
+      "comment" : "Audience card: a petition granted the chapel's blessing.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segen der Kapelle: +1 Zufriedenheit jeden Morgen"
+          }
+        }
+      }
+    },
     "The fallen" : {
       "comment" : "Dawn report: a happiness reason.",
       "localizations" : {
@@ -1630,6 +1971,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Die Kriegssteuer ist möglich"
+          }
+        }
+      }
+    },
+    "Tonight %lld fewer creatures" : {
+      "comment" : "VoiceOver: a choice takes creatures out of the coming night.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute Nacht %lld Kreaturen weniger"
+          }
+        }
+      }
+    },
+    "Tonight's attack %@" : {
+      "comment" : "VoiceOver: a choice makes the coming night's attack smaller or bigger; a signed percentage.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angriff heute Nacht %@"
           }
         }
       }

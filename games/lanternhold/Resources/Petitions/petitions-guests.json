@@ -1,0 +1,325 @@
+{
+  "petitions": [
+    {
+      "id": "ludo_arrives",
+      "speaker": "serLudo",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        3,
+        12
+      ],
+      "weight": 3,
+      "forbids": [
+        "ludo_met"
+      ],
+      "text": "petition.ludo_arrives.text",
+      "hint": "petition.ludo_arrives.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.ludo_arrives.c1",
+          "gold": -10,
+          "happiness": 1,
+          "flags": [
+            "ludo_met",
+            "ludo_stays"
+          ],
+          "reaction": "petition.ludo_arrives.r1"
+        },
+        {
+          "label": "petition.ludo_arrives.c2",
+          "flags": [
+            "ludo_met",
+            "ludo_dared"
+          ],
+          "schedule": [
+            {
+              "id": "ludo_returns",
+              "inDays": 2
+            }
+          ],
+          "reaction": "petition.ludo_arrives.r2"
+        },
+        {
+          "label": "petition.ludo_arrives.c3",
+          "happiness": -1,
+          "flags": [
+            "ludo_met"
+          ],
+          "reaction": "petition.ludo_arrives.r3"
+        }
+      ]
+    },
+    {
+      "id": "ludo_returns",
+      "speaker": "serLudo",
+      "kind": "random",
+      "chapter": 1,
+      "weight": 0,
+      "requires": [
+        "ludo_dared"
+      ],
+      "text": "petition.ludo_returns.text",
+      "hint": "petition.ludo_returns.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.ludo_returns.c1",
+          "gold": -10,
+          "flags": [
+            "ludo_lantern"
+          ],
+          "chance": {
+            "p": 0.5,
+            "then": {
+              "happiness": 2,
+              "night": [
+                "sootlings-5"
+              ],
+              "reaction": "petition.ludo_returns.r1a"
+            },
+            "else": {
+              "happiness": 1,
+              "reaction": "petition.ludo_returns.r1b"
+            }
+          }
+        },
+        {
+          "label": "petition.ludo_returns.c2",
+          "happiness": -1,
+          "flags": [
+            "ludo_gone"
+          ],
+          "reaction": "petition.ludo_returns.r2"
+        }
+      ]
+    },
+    {
+      "id": "ludo_tourney",
+      "speaker": "serLudo",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        9,
+        999
+      ],
+      "weight": 2,
+      "requires": [
+        "ludo_stays"
+      ],
+      "forbids": [
+        "tourney_judged"
+      ],
+      "text": "petition.ludo_tourney.text",
+      "hint": "petition.ludo_tourney.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.ludo_tourney.c1",
+          "gold": -20,
+          "happiness": 4,
+          "flags": [
+            "tourney_judged",
+            "tourney_held"
+          ],
+          "world": [
+            "town.festival.tent"
+          ],
+          "reaction": "petition.ludo_tourney.r1"
+        },
+        {
+          "label": "petition.ludo_tourney.c2",
+          "happiness": 1,
+          "flags": [
+            "tourney_judged"
+          ],
+          "reaction": "petition.ludo_tourney.r2"
+        },
+        {
+          "label": "petition.ludo_tourney.c3",
+          "happiness": -1,
+          "flags": [
+            "tourney_judged"
+          ],
+          "reaction": "petition.ludo_tourney.r3"
+        }
+      ]
+    },
+    {
+      "id": "bard_song",
+      "speaker": "bard",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        8,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "bard_judged"
+      ],
+      "text": "petition.bard_song.text",
+      "hint": "petition.bard_song.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.bard_song.c1",
+          "gold": -20,
+          "happiness": 2,
+          "flags": [
+            "bard_judged",
+            "ballad"
+          ],
+          "reaction": "petition.bard_song.r1"
+        },
+        {
+          "label": "petition.bard_song.c2",
+          "gold": -40,
+          "happiness": 3,
+          "flags": [
+            "bard_judged",
+            "ballad"
+          ],
+          "reaction": "petition.bard_song.r2"
+        },
+        {
+          "label": "petition.bard_song.c3",
+          "flags": [
+            "bard_judged"
+          ],
+          "schedule": [
+            {
+              "id": "bard_satire",
+              "inDays": 4
+            }
+          ],
+          "reaction": "petition.bard_song.r3"
+        }
+      ]
+    },
+    {
+      "id": "bard_satire",
+      "speaker": "bard",
+      "kind": "random",
+      "chapter": 1,
+      "weight": 0,
+      "text": "petition.bard_satire.text",
+      "hint": "petition.bard_satire.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.bard_satire.c1",
+          "gold": -30,
+          "flags": [
+            "satire_bought"
+          ],
+          "reaction": "petition.bard_satire.r1"
+        },
+        {
+          "label": "petition.bard_satire.c2",
+          "happiness": -3,
+          "flags": [
+            "satire_sung"
+          ],
+          "reaction": "petition.bard_satire.r2"
+        },
+        {
+          "label": "petition.bard_satire.c3",
+          "happiness": -2,
+          "flags": [
+            "satire_sung"
+          ],
+          "reaction": "petition.bard_satire.r3"
+        }
+      ]
+    },
+    {
+      "id": "envoy_coast",
+      "speaker": "envoy",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        9,
+        999
+      ],
+      "weight": 2,
+      "forbids": [
+        "envoy_met"
+      ],
+      "text": "petition.envoy_coast.text",
+      "hint": "petition.envoy_coast.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.envoy_coast.c1",
+          "gold": 40,
+          "citizens": -2,
+          "archers": -2,
+          "flags": [
+            "envoy_met",
+            "coast_helped"
+          ],
+          "reaction": "petition.envoy_coast.r1"
+        },
+        {
+          "label": "petition.envoy_coast.c2",
+          "flags": [
+            "envoy_met"
+          ],
+          "reaction": "petition.envoy_coast.r2"
+        },
+        {
+          "label": "petition.envoy_coast.c3",
+          "gold": -15,
+          "happiness": 1,
+          "flags": [
+            "envoy_met",
+            "coast_helped"
+          ],
+          "reaction": "petition.envoy_coast.r3"
+        }
+      ]
+    },
+    {
+      "id": "envoy_tide",
+      "speaker": "envoy",
+      "kind": "random",
+      "chapter": 1,
+      "days": [
+        13,
+        999
+      ],
+      "weight": 2,
+      "requires": [
+        "envoy_met"
+      ],
+      "forbids": [
+        "tide_judged"
+      ],
+      "text": "petition.envoy_tide.text",
+      "hint": "petition.envoy_tide.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.envoy_tide.c1",
+          "gold": 15,
+          "happiness": 1,
+          "flags": [
+            "tide_judged",
+            "coast_promise"
+          ],
+          "reaction": "petition.envoy_tide.r1"
+        },
+        {
+          "label": "petition.envoy_tide.c2",
+          "gold": 15,
+          "flags": [
+            "tide_judged"
+          ],
+          "reaction": "petition.envoy_tide.r2"
+        }
+      ]
+    }
+  ]
+}

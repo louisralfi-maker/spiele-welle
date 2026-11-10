@@ -40,6 +40,10 @@ struct PlayResult: Sendable {
 /// The eight tuning targets of DESIGN.md "Tuning targets", measured with the bots. `TuningTests` asserts them and
 /// attaches `report`; `tools/simtune` prints them for balance variants on the runner.
 struct TuningMetrics: Sendable {
+    /// The seeds T6 and T7 count (M3 join: their bands are shares of 20 seeds, DESIGN.md "Tuning targets"; ten seeds
+    /// and three endless seeds left the result to a few draws).
+    static let targetSeeds = 20
+
     var t1Survived = true
     var t1HearthMin = 100.0
     var t1LossesMax = 0
@@ -66,8 +70,8 @@ struct TuningMetrics: Sendable {
     /// with the hearth's lowest strength 64.
     var t6WithoutMargins: [String] = []
     var t6Seeds = 0
-    /// Seeds beyond the first ten (`measure(seedsT6:)` above 10, `tools/simtune`): the same three counts over all
-    /// seeds, to see whether the bands hold with margin.
+    /// The same three counts over all seeds (since the M3 join every seed counts, so they equal the ones above;
+    /// `tools/simtune` prints both).
     var t6AllSeeds = 0
     var t6AllWithBeacon = 0
     var t6AllKingSlain = 0
@@ -75,12 +79,16 @@ struct TuningMetrics: Sendable {
     var t6AllKillSeconds: [Int] = []
     var t6AllKillLightLeft: [Int] = []
     /// Reported, not a target: a whole run of a bot that never builds the beacon (its gold goes into the rest of the
-    /// order), night 20 held in this many seeds, and the night or hour (× 100) each seed fell (0 = held all 20).
+    /// order), night 20 held in this many of the first ten seeds, and the night or hour (× 100) each seed fell (0 = held
+    /// all 20).
     var t6NoBeaconRun = 0
     var t6NoBeaconFalls: [Int] = []
     /// Night 20 without the beacon: the hour the realm fell (× 100, so 435 is 04:21), 0 when it held.
     var t6FallHours: [Int] = []
+    /// The night each endless seed fell (0: still standing at the cap; a seed that fell in the chapter gives its night).
     var t7FellOn: [Int] = []
+    /// The endless seeds that fell between night 35 and 60.
+    var t7InBand: Int { t7FellOn.filter { $0 >= 35 && $0 <= 60 }.count }
     var t8LastSpawnSecond = 0.0
     var t8Night = 0
     var t8Creatures = 0
@@ -103,11 +111,16 @@ struct TuningMetrics: Sendable {
             return normal && low
         case 4: return t4HighTaxDay8 < 30 && t4LowTaxMin > 70
         case 5: return t5FirstBuilds >= 2 && t5FirstBuilds <= 3 && t5BuildingsDay10 >= 8 && t5BuildingsDay10 <= 12
+        // Shares of at least `targetSeeds` seeds: won with the beacon in at least 80 %, the King slain in at least 60 %,
+        // the same realm without the beacon's last stage held in 30 to 60 %.
         case 6:
-            return t6Seeds == 10 && t6WithBeacon >= 8 && t6KingSlain >= 6 && t6WithoutBeacon >= 3
-                && t6WithoutBeacon <= 6
-        // The target is measured on the first three endless seeds; more seeds are reported (`tools/simtune`).
-        case 7: return !t7FellOn.isEmpty && t7FellOn.prefix(3).allSatisfy { $0 >= 35 && $0 <= 60 }
+            guard t6Seeds >= TuningMetrics.targetSeeds else { return false }
+            return 10 * t6WithBeacon >= 8 * t6Seeds && 10 * t6KingSlain >= 6 * t6Seeds
+                && 10 * t6WithoutBeacon >= 3 * t6Seeds && 10 * t6WithoutBeacon <= 6 * t6Seeds
+        // At least 80 % of at least `targetSeeds` endless seeds fall between night 35 and 60.
+        case 7:
+            guard t7FellOn.count >= TuningMetrics.targetSeeds else { return false }
+            return 10 * t7InBand >= 8 * t7FellOn.count
         // A sim-side proxy: drawn sim entities and battle lights. The renderer's sprite instances and the scene lights
         // are measured by a FrameBuilder budget test in M2b.
         case 8: return t8LastSpawnSecond <= 84 && t8Entities < 300 && t8Lights < 40
@@ -132,20 +145,21 @@ struct TuningMetrics: Sendable {
                      + "dawns 8-20: \(t4LowTaxMin) (target > 70)")
         lines.append("T5 \(mark(5)) first dawn taxes \(t5FirstTaxes) buy \(t5FirstBuilds) builds (target 2-3); "
                      + "buildings by day 10: \(t5BuildingsDay10) (target 8-12)")
-        lines.append("T6 \(mark(6)) night 20 won with the beacon \(t6WithBeacon)/\(t6Seeds) (target >= 8), the King "
-                     + "slain \(t6KingSlain)/\(t6Seeds) (target >= 6) after \(t6KillSeconds) s at x \(t6KillXs) (0 = he "
+        lines.append("T6 \(mark(6)) night 20 over \(t6Seeds) seeds: won with the beacon \(t6WithBeacon) (target >= 80 %), "
+                     + "the King slain \(t6KingSlain) (target >= 60 %) after \(t6KillSeconds) s at x \(t6KillXs) (0 = he "
                      + "lived; target about 25-70 s at the outer or middle line) with about \(t6KillLightLeft) s of "
                      + "the beacon's light left (-1 = he lived), without "
-                     + "(same realm, last stage taken away) \(t6WithoutBeacon)/\(t6Seeds) (target 3-6), falls at "
+                     + "(same realm, last stage taken away) held \(t6WithoutBeacon) (target 30-60 %), falls at "
                      + "\(t6FallHours), margins \(t6WithoutMargins) (F = fell n s before 05:00, H = held, hearth "
                      + "lowest); reported only: a bot that never builds the beacon holds night 20 in "
-                     + "\(t6NoBeaconRun)/\(t6Seeds), falls \(t6NoBeaconFalls) (night × 1000 + hour × 100)")
+                     + "\(t6NoBeaconRun)/\(t6NoBeaconFalls.count), falls \(t6NoBeaconFalls) (night × 1000 + hour × 100)")
         if t6AllSeeds > t6Seeds {
             lines.append("   T6 over seeds 1-\(t6AllSeeds): won with the beacon \(t6AllWithBeacon), the King slain "
                          + "\(t6AllKingSlain) after \(t6AllKillSeconds) s with \(t6AllKillLightLeft) s of light left, "
                          + "without \(t6AllWithoutBeacon)")
         }
-        lines.append("T7 \(mark(7)) endless: falls on nights \(t7FellOn) (target 35-60; 0 = still standing at the cap)")
+        lines.append("T7 \(mark(7)) endless over \(t7FellOn.count) seeds: falls on nights \(t7FellOn), \(t7InBand) "
+                     + "between 35 and 60 (target >= 80 %; 0 = still standing at the cap)")
         lines.append("T8 \(mark(8)) last wave left at \(fmt(t8LastSpawnSecond)) s after nightfall (target <= 84); "
                      + "sim proxy, night \(t8Night) with \(t8Creatures) creatures: \(t8Entities) sim entities "
                      + "(target < 300), \(t8Lights) battle lights (target < 40)")
@@ -447,24 +461,27 @@ enum TuningRun {
         return line
     }
 
-    /// Measures all eight targets. `endlessCap` bounds the endless runs; `seedsT6` is 10 for the real target;
-    /// `noBeaconRuns` also plays whole runs of a bot that never builds the beacon (reported, not asserted).
-    static func measure(balance: Balance, seedsT6: Int = 10, endlessSeeds: Int = 3, endlessCap: Int = 70,
+    /// Measures all eight targets. T6 counts every seed of `seedsT6` and T7 the first `endlessSeeds` of them, played on
+    /// into endless (both 20 for the targets, whose bands are shares: DESIGN.md "Tuning targets"); `endlessCap` bounds
+    /// the endless runs; `noBeaconRuns` also plays whole runs of a bot that never builds the beacon for the first ten
+    /// seeds (reported, not asserted).
+    static func measure(balance: Balance, seedsT6: Int = TuningMetrics.targetSeeds,
+                        endlessSeeds: Int = TuningMetrics.targetSeeds, endlessCap: Int = 70,
                         noBeaconRuns: Bool = true) -> TuningMetrics {
         var m = TuningMetrics()
         let reference = Autoplay.reference()
 
-        // Chapter runs: nights 1 to 19 for every seed, then night 20 with and without the beacon.
+        // Chapter runs: nights 1 to 19 for every seed, then night 20 with and without the beacon. Every seed counts for
+        // T6 (until the M3 join only the first ten did, and the rest filled the "all seeds" counts, which now match).
         var dawn21: [GameState] = []
         var seed1Outcomes: [NightOutcome] = []
         for seed in 1...max(1, seedsT6) {
-            // The target counts the first ten seeds; the rest only fill the "all seeds" counts.
-            let counted = seed <= 10
             let start = GameState.newRealm(seed: UInt64(seed), balance: balance)
             let first = play(start, bot: reference, balance: balance, nights: 19)
             var outcomes = first.outcomes
             var withResult: PlayResult?
             m.t6AllSeeds += 1
+            m.t6Seeds += 1
             if first.fellOnNight == nil {
                 let withRun = play(first.final, bot: reference, balance: balance, nights: 1)
                 let withoutRun = play(withoutBeacon(first.final), bot: Autoplay.reference(buildsBeacon: false),
@@ -472,26 +489,30 @@ enum TuningRun {
                 let finale = withRun.final.night
                 let killSecond = finale.kingSlainSecond.map { Int(($0 - (finale.kingLeftSecond ?? 0)).rounded()) } ?? 0
                 let lightLeft = finale.kingSlain ? Int((finale.kingLightLeft ?? 0).rounded()) : -1
-                if withRun.fellOnNight == nil { m.t6AllWithBeacon += 1 }
-                if withoutRun.fellOnNight == nil { m.t6AllWithoutBeacon += 1 }
-                if finale.kingSlain { m.t6AllKingSlain += 1 }
+                if withRun.fellOnNight == nil {
+                    m.t6AllWithBeacon += 1
+                    m.t6WithBeacon += 1
+                }
+                if withoutRun.fellOnNight == nil {
+                    m.t6AllWithoutBeacon += 1
+                    m.t6WithoutBeacon += 1
+                }
+                if finale.kingSlain {
+                    m.t6AllKingSlain += 1
+                    m.t6KingSlain += 1
+                }
                 m.t6AllKillSeconds.append(killSecond)
                 m.t6AllKillLightLeft.append(lightLeft)
-                if counted {
-                    if withRun.fellOnNight == nil { m.t6WithBeacon += 1 }
-                    if withoutRun.fellOnNight == nil { m.t6WithoutBeacon += 1 }
-                    if finale.kingSlain { m.t6KingSlain += 1 }
-                    m.t6KillSeconds.append(killSecond)
-                    m.t6KillXs.append(finale.kingSlain ? Int((finale.kingSlainX ?? 0).rounded()) : 0)
-                    m.t6KillLightLeft.append(lightLeft)
-                    if let o = withoutRun.outcomes.last {
-                        if let hour = o.defeatHour {
-                            var before = (ClockEvent.firstLight.hour - hour) * DayClock.secondsPerHour
-                            if hour >= 20 { before += DayClock.hoursPerDay * DayClock.secondsPerHour }
-                            m.t6WithoutMargins.append("F\(Int(before.rounded()))")
-                        } else {
-                            m.t6WithoutMargins.append("H\(Int(o.hearthLowest.rounded()))")
-                        }
+                m.t6KillSeconds.append(killSecond)
+                m.t6KillXs.append(finale.kingSlain ? Int((finale.kingSlainX ?? 0).rounded()) : 0)
+                m.t6KillLightLeft.append(lightLeft)
+                if let o = withoutRun.outcomes.last {
+                    if let hour = o.defeatHour {
+                        var before = (ClockEvent.firstLight.hour - hour) * DayClock.secondsPerHour
+                        if hour >= 20 { before += DayClock.hoursPerDay * DayClock.secondsPerHour }
+                        m.t6WithoutMargins.append("F\(Int(before.rounded()))")
+                    } else {
+                        m.t6WithoutMargins.append("H\(Int(o.hearthLowest.rounded()))")
                     }
                 }
                 outcomes.append(contentsOf: withRun.outcomes)
@@ -501,7 +522,7 @@ enum TuningRun {
                     line += " | with: " + logLine(o) + " | " + timeline(finale)
                 }
                 if let o = withoutRun.outcomes.last {
-                    if counted { m.t6FallHours.append(o.defeatHour.map { Int(($0 * 100).rounded()) } ?? 0) }
+                    m.t6FallHours.append(o.defeatHour.map { Int(($0 * 100).rounded()) } ?? 0)
                     line += " | without: " + (o.survived ? "held" : "FELL")
                     line += " hearth \(Int(o.hearthLowest.rounded())) walls lost \(o.wallsLost) fallen \(o.fallen)"
                     if let hour = o.defeatHour { line += " at \(Int((hour * 100).rounded()))" }
@@ -510,20 +531,17 @@ enum TuningRun {
                     line += " l2 \(first.final.plots[Realm.lines[1].wall].item?.rawValue ?? "-")"
                     line += " l3 \(first.final.plots[Realm.lines[2].wall].item?.rawValue ?? "-")"
                 }
-                if counted { m.nightTwentyLog.append(line) }
+                m.nightTwentyLog.append(line)
             } else {
-                if counted { m.nightTwentyLog.append("seed \(seed): fell on night \(first.fellOnNight ?? 0)") }
+                m.nightTwentyLog.append("seed \(seed): fell on night \(first.fellOnNight ?? 0)")
                 m.t6AllKillSeconds.append(0)
                 m.t6AllKillLightLeft.append(-1)
-                if counted {
-                    m.t6KillSeconds.append(0)
-                    m.t6KillXs.append(0)
-                    m.t6KillLightLeft.append(-1)
-                    m.t6WithoutMargins.append("-")
-                }
+                m.t6KillSeconds.append(0)
+                m.t6KillXs.append(0)
+                m.t6KillLightLeft.append(-1)
+                m.t6WithoutMargins.append("-")
             }
-            if counted { m.t6Seeds += 1 }
-            if noBeaconRuns && counted {
+            if noBeaconRuns && seed <= 10 {
                 let run = play(start, bot: Autoplay.reference(buildsBeacon: false), balance: balance, nights: 20)
                 if let night = run.fellOnNight {
                     let hour = run.outcomes.last?.defeatHour ?? 0

@@ -54,12 +54,20 @@ struct SimDriver: Sendable {
     private(set) var steps = 0
     /// The realm at its last dawn (what the save writes).
     private(set) var dawnSnapshot: GameState
+    /// The petitions (M3): the driver draws each day's petitioners (`PetitionEngine.prepare`) after every step.
+    let petitions: PetitionCatalog
 
-    init(state: GameState, balance: Balance = .standard, bot: Autoplay? = nil, dawnSnapshot: GameState? = nil) {
-        self.state = state
+    init(state: GameState, balance: Balance = .standard, bot: Autoplay? = nil, dawnSnapshot: GameState? = nil,
+         petitions: PetitionCatalog = .standard) {
+        var start = state
+        PetitionEngine.prepare(&start, catalog: petitions)
+        var snapshot = dawnSnapshot ?? start
+        PetitionEngine.prepare(&snapshot, catalog: petitions)
+        self.state = start
         self.balance = balance
         self.bot = bot
-        self.dawnSnapshot = dawnSnapshot ?? state
+        self.dawnSnapshot = snapshot
+        self.petitions = petitions
     }
 
     /// True while the simulation may step.
@@ -116,6 +124,7 @@ struct SimDriver: Sendable {
             bot = player
         }
         Sim.step(&state, dt: dt, balance: balance, events: &events)
+        PetitionEngine.prepare(&state, catalog: petitions)
         steps += 1
         for event in events[first...] {
             if case .dawn = event {
@@ -187,6 +196,7 @@ struct SimDriver: Sendable {
     mutating func secondChance(events: inout [SimEvent]) {
         guard state.defeated else { return }
         Sim.secondChance(&state, balance: balance, events: &events)
+        PetitionEngine.prepare(&state, catalog: petitions)
         accumulator = 0
         dawnSnapshot = state
     }
@@ -203,6 +213,7 @@ struct SimDriver: Sendable {
     /// The pause sheet's "Restart chapter": a new realm on the morning of day 1, the player at the controls.
     mutating func restart(seed: UInt64) {
         state = GameState.newRealm(seed: seed, balance: balance)
+        PetitionEngine.prepare(&state, catalog: petitions)
         dawnSnapshot = state
         accumulator = 0
         bot = nil

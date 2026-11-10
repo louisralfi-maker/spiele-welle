@@ -60,10 +60,13 @@ struct GameHUD: View {
     static let sideRoom: CGFloat = 196
 
     /// A card or a screen is open (M2b review: the HUD's clock, numbers and strip peeked out beside and under every
-    /// card as cut fragments; the cards that spend gold show the treasury themselves).
-    private var covered: Bool { model.overlay != nil }
-    /// A whole screen is open (the dawn report, the defeat card, the pause sheet): the pause button goes too.
-    private var screen: Bool { model.overlay.map { !$0.isCard } ?? false }
+    /// card as cut fragments; the cards that spend gold show the treasury themselves). The audience is neither (M3):
+    /// its card stands below the HUD, whose numbers roll in their place after a choice, and the strip rests for
+    /// Odile's counsel.
+    private var covered: Bool { model.overlay != nil && model.overlay != .audience }
+    /// A whole screen is open (the dawn report, the defeat card, the pause sheet): the pause button goes too. During
+    /// the audience it stays, since the pause sheet ends the audience (M3).
+    private var screen: Bool { model.overlay?.isScreen ?? false }
 
     var body: some View {
         GeometryReader { geometry in
@@ -78,7 +81,8 @@ struct GameHUD: View {
                 } else {
                     topBar
                     VStack(spacing: 8) {
-                        if let strip = model.strip {
+                        // M3: the strip rests during the audience (Odile's counsel shows there).
+                        if let strip = model.strip, model.overlay != .audience {
                             RealmStripView(strip: strip, reduceMotion: model.reduceMotion) { fraction in
                                 model.travel(toFraction: fraction)
                             }
@@ -255,9 +259,10 @@ struct PauseButton: View {
     }
 }
 
-/// What the action button shows (DESIGN.md "Controls": a hammer, coins, the crown, a flame, a patch).
+/// What the action button shows (DESIGN.md "Controls": a hammer, coins, the crown, a flame, a patch; M3: the tax
+/// lectern's book and a speech bubble).
 enum ActionGlyph: Sendable, Equatable {
-    case build, recruit, throne, light, snuff, patch
+    case build, recruit, throne, light, snuff, patch, lectern, talk
 
     init(_ action: BrazierAction) {
         switch action {
@@ -272,6 +277,8 @@ enum ActionGlyph: Sendable, Equatable {
         case .build: self = .build
         case .recruit: self = .recruit
         case .throne: self = .throne
+        case .lectern: self = .lectern
+        case .talk, .stranger: self = .talk
         case .light: self = .light
         case .patch: self = .patch
         }
@@ -282,7 +289,8 @@ enum ActionGlyph: Sendable, Equatable {
         switch self {
         case .build: return Text("Build")
         case .recruit: return Text("Recruit at the barracks")
-        case .throne: return Text("Set the taxes")
+        case .throne, .lectern: return Text("Set the taxes")
+        case .talk: return Text("Talk")
         case .light: return Text("Light the brazier")
         case .snuff: return Text("Snuff the brazier")
         case .patch: return Text("Patch the wall")
@@ -291,7 +299,7 @@ enum ActionGlyph: Sendable, Equatable {
 }
 
 /// The action button with its caption above it: "Build" and the plot, "Recruit", "Taxes", "Light", "Patch" and its
-/// price.
+/// price; M3: "Audience (n)" at the throne while petitioners wait, a court member's name for talking.
 @MainActor
 struct ActionArea: View {
     let target: KingTarget
@@ -322,7 +330,14 @@ struct ActionArea: View {
         case .recruit:
             return String(localized: "Recruit")
         case .throne:
+            let waiting = model.strip?.petitioners ?? 0
+            return waiting > 0 ? String(localized: "Audience (\(waiting))") : String(localized: "Taxes")
+        case .lectern:
             return String(localized: "Taxes")
+        case .talk(let who):
+            return speakerName(who)
+        case .stranger:
+            return speakerName("seren")
         case .light:
             return String(localized: "Light")
         case .patch:
@@ -358,6 +373,12 @@ struct ActionArea: View {
         switch (target, model.targetHold) {
         case (.build(let plot), _):
             return Text("Build: \(Texts.plotTitle(slot: Realm.plots[plot].slot, line: Realm.plots[plot].line))")
+        case (.throne, _) where (model.strip?.petitioners ?? 0) > 0:
+            return Text("Hold audience")
+        case (.talk(let who), _):
+            return Text("Talk to \(speakerName(who))")
+        case (.stranger, _):
+            return Text("Speak with \(speakerName("seren"))")
         case (_, .missingGold?):
             return Text("Patch the wall: not enough gold")
         case (_, .cooldown?):
@@ -367,6 +388,13 @@ struct ActionArea: View {
         default:
             return ActionGlyph(target).label
         }
+    }
+
+    /// A court member's or guest's name (the role for the unnamed guests).
+    private func speakerName(_ who: String) -> String {
+        let flags = model.driver?.state.flags ?? []
+        return StoryText.name(speaker: who, look: nil, day: model.day, flags: flags)
+            ?? StoryText.role(speaker: who) ?? who
     }
 }
 
@@ -423,6 +451,8 @@ struct ActionButton: View {
         case .build: return "hammer.fill"
         case .recruit: return "circle.fill"
         case .throne: return "crown.fill"
+        case .lectern: return "book.fill"
+        case .talk: return "bubble.left.fill"
         case .light: return "flame.fill"
         case .snuff: return "wind"
         case .patch: return "bandage.fill"
@@ -432,7 +462,8 @@ struct ActionButton: View {
     private var iconColor: Color {
         switch glyph {
         case .build: return Color(red: 0.86, green: 0.8, blue: 0.7)
-        case .recruit, .throne: return Color(red: 1.0, green: 0.8, blue: 0.36)
+        case .recruit, .throne, .lectern: return Color(red: 1.0, green: 0.8, blue: 0.36)
+        case .talk: return Color(red: 0.95, green: 0.89, blue: 0.77)
         case .light: return Color(red: 1.0, green: 0.78, blue: 0.35)
         case .snuff: return Color(red: 0.76, green: 0.8, blue: 0.92)
         case .patch: return Color(red: 0.92, green: 0.84, blue: 0.72)

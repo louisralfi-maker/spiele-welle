@@ -1,0 +1,248 @@
+# brannock 16x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Brannock, captain of the guard: broad and
+# bareheaded (the guards wear helms), cropped grey hair, a thick square grey beard, a scar across his cheek, steel
+# pauldrons and mail under the realm's teal surcoat with the gold lantern, a heavy belt, a sword on his far hip (the
+# hilt forward at the belt, the scabbard slanting back behind his legs), mail chausses and boots. Walk: a heavy stride,
+# the arms swinging. Idle: his hand on the pommel, a breath. Talk: a gauntleted fist raised (6), then the open hand
+# thrust forward (7): the front needs this.
+id brannock
+size 16x30
+frames 8
+outline ink
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    X = tile
+    W = stoneLight
+    w = stone
+    v = stoneMid
+    T = banner
+    t = roofDeep
+    U = roofLight
+    G = gold
+    g = straw
+    M = stoneMid
+    m = stone
+    L = stoneLight
+    P = stonePale
+    H = woodDark
+    h = wood
+    B = soilDark
+    b = soil
+
+part head
+    ..SSSs..
+    .vSSSSs.
+    vwSSSXSs
+    vwSSSkSs
+    .vSSSXSSS
+    .vwWWWWs.
+    .wWWWWWw.
+    ..wWWWw..
+    ...www...
+
+part torso
+    .LLmmmmLL.
+    LPLTTTTmPL
+    mmTTGTTTTm
+    MTTGGGTTTt
+    MTTGgGTTTt
+    MTTGGGTTTt
+    MtTTTTTTTt
+    MtTTTTTTTt
+    HHHHHHGHHH
+
+part skirt
+    tTTTTTUTTt
+    tTTTTTUTTt
+    tTTTT.UTTt
+
+part skirtStride
+    tTTTTTUTTt.
+    tTTTTTUTTTt
+    tTTTT..UTTt
+
+part scabbard
+    .......hH
+    ......hH.
+    .....hH..
+    ....hH...
+    ...hH....
+    ..hH.....
+    .hH......
+    GH.......
+
+part hilt
+    ...G
+    ..H.
+    .m..
+    mm..
+
+part legsStand
+    .MMm.MMm
+    .MMm.MMm
+    .MMm.MMm
+    .MMm.MMm
+    .MMm.MMm
+    .HHH.HHH
+    .HHH.HHH
+    .HHHhHHHh
+
+part legsContactA
+    .MMm..MMm
+    .MMm..MMm
+    MMm...MMm
+    MMm....MMm
+    MMm....MMm
+    HHH....HHH
+    HHH....HHH
+    HHHh...HHHh
+
+part legsPass
+    ..MMmMMm.
+    ..MMmMMm.
+    ..MMmMMm.
+    ..MMm.MMm
+    ..MMm.MMm
+    ..HHH.HHH
+    ..HHH.HHHh
+    ..HHHh....
+
+part legsContactB
+    .MMm..MMm
+    .MMm..MMm
+    .MMm..MMm
+    MMm...MMm
+    MMm....MMm
+    HHH....HHH
+    HHH....HHH
+    HHHh...HHHh
+
+part armBack
+    mM
+    mM
+    MM
+    hH
+
+part armBackFwd
+    mM.
+    mMm
+    .Mh
+    ..H
+
+part armRest
+    PLm.
+    Lmm.
+    mMm.
+    .mMh
+    ..hH
+
+part armSwingFwd
+    PLm..
+    Lmm..
+    mMm..
+    .mMm.
+    ..mhH
+    ...HH
+
+part armSwingBack
+    PLm.
+    Lmm.
+    mMm.
+    mM..
+    hH..
+    H...
+
+part armFist
+    ...hH
+    ..mhH
+    PLmm.
+    Lmm..
+    mM...
+
+part armOpen
+    .....
+    PLmmhh
+    LmmmhH
+    mM...
+
+frame 0
+    scabbard 1 17
+    legsContactA 3 22
+    armBack 3 11
+    skirtStride 3 19
+    torso 3 10
+    hilt 10 15
+    head 5 2
+    armSwingFwd 9 11
+
+frame 1
+    scabbard 1 18
+    legsPass 3 22
+    armBack 3 12
+    skirt 3 20
+    torso 3 11
+    hilt 10 16
+    head 5 3
+    armRest 9 12
+
+frame 2
+    scabbard 1 17
+    legsContactB 3 22
+    armBackFwd 3 11
+    skirtStride 3 19
+    torso 3 10
+    hilt 10 15
+    head 5 2
+    armSwingBack 9 11
+
+frame 3
+    scabbard 1 18
+    legsPass 3 22
+    armBack 3 12
+    skirt 3 20
+    torso 3 11
+    hilt 10 16
+    head 5 3
+    armRest 9 12
+
+frame 4
+    scabbard 1 17
+    legsStand 3 22
+    armBack 3 11
+    skirt 3 19
+    torso 3 10
+    hilt 10 15
+    head 5 2
+    armRest 9 11
+
+frame 5
+    scabbard 1 17
+    legsStand 3 22
+    armBack 3 12
+    skirt 3 19
+    torso 3 11
+    hilt 10 16
+    head 5 3
+    armRest 9 12
+
+frame 6
+    scabbard 1 17
+    legsStand 3 22
+    armBack 3 11
+    skirt 3 19
+    torso 3 10
+    hilt 10 15
+    head 5 2
+    armFist 10 7
+
+frame 7
+    scabbard 1 17
+    legsStand 3 22
+    armBack 3 11
+    skirt 3 19
+    torso 3 10
+    hilt 10 15
+    head 5 2
+    armOpen 9 11

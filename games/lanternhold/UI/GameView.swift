@@ -26,6 +26,10 @@ struct GameView: View {
             }
             HUDView(model: model)
             if model.kind == .world {
+                // M3: a court member's line in a bubble over him.
+                if let bubble = model.talkBubble, model.overlay == nil {
+                    TalkBubbleView(bubble: bubble, model: model)
+                }
                 OverlayView(model: model)
             }
         }
@@ -155,7 +159,8 @@ final class WorldSceneCoordinator: NSObject, MTKViewDelegate {
         if frames % 60 == 0 {
             applyThermalState()
         }
-        let screen = model.overlay.map { !$0.isCard } ?? false
+        // The audience keeps 60: its hall lives on under the card (M3).
+        let screen = model.overlay?.isScreen ?? false
         let rate = min(thermalRate, screen ? WorldSceneCoordinator.screenRate : 60)
         if view.preferredFramesPerSecond != rate {
             view.preferredFramesPerSecond = rate

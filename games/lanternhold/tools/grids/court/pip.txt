@@ -1,0 +1,198 @@
+# pip 12x22, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Pip, the fool: small (his cap tops out at row 3,
+# so the balls he juggles fly above it inside the frame), a two-horned cap (the back horn teal, the front horn red)
+# with a gold bell on each drooping tip, a cheeky face with a rosy cheek, a parchment ruff, a motley tunic split teal
+# and red with a dagged hem, the hose the other way round (red back leg, teal front leg), pointed shoes. Walk: a bouncy
+# skip, the bells swinging. Idle: rocking on his heels. Talk: he juggles three balls (gold, white, teal) in an arc over
+# his cap, both hands up beside his head (6 and 7 are two beats of the toss).
+id pip
+size 12x22
+frames 8
+outline ink
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    n = dusk
+    T = banner
+    t = roofDeep
+    U = roofLight
+    R = dusk
+    r = tile
+    G = gold
+    W = parchment
+    w = plasterDim
+    H = woodDark
+    A = gold
+    C = foam
+    E = roofLight
+
+part hat
+    .tT....RR.
+    GtTt..rRRG
+    ..tTT.rR..
+    ...tTTRR..
+
+part hatSwing
+    tT.....RR.
+    GtTt..rRR.
+    ..tTT.rR.G
+    ...tTTRR..
+
+part head
+    ..TSSs.
+    .tSSkS.
+    .sSnSSS
+    ..sSsS.
+
+part ruff
+    WwWwW
+
+part torso
+    .TTRRR.
+    TTTRRRR
+    tTTGRRr
+    tTTRRRr
+    TtTRrRr
+    .T.R.r.
+
+part legsStand
+    .rr.TT.
+    .rr.TT.
+    .rr.TT.
+    HHH.HHH.
+    H...HHHH
+
+part legsContactA
+    rr...TT.
+    rr....TT
+    rr....TT
+    HHH...HHH
+    H.....HHHH
+
+part legsPass
+    ..rrTT.
+    ..rrTT.
+    ..rr.TT
+    .HHHHHH
+    .H..HHHH
+
+part legsContactB
+    .rr..TT.
+    rr...TT.
+    rr...TT.
+    HHH..HHH
+    H....HHHH
+
+part armBack
+    T
+    T
+    S
+
+part armFront
+    R.
+    rR
+    .S
+
+part armFrontFwd
+    R..
+    .rR
+    ..S
+
+part armFrontBack
+    R.
+    r.
+    S.
+
+# talk: both hands up beside his head, the balls flying over his cap
+part handsUp
+    S.......S
+    T.......R
+    T.......R
+
+part handsUp2
+    .S.....S.
+    .T.....R.
+    T.......R
+
+part balls1
+    ...A.....
+    .........
+    C.......E
+
+part balls2
+    .....C...
+    .........
+    .A.....E.
+
+frame 0
+    armBack 3 11
+    legsContactA 2 17
+    torso 2 11
+    ruff 3 10
+    head 2 6
+    hat 1 3
+    armFrontFwd 6 11
+
+frame 1
+    armBack 3 12
+    legsPass 2 17
+    torso 2 12
+    ruff 3 11
+    head 2 7
+    hatSwing 1 4
+    armFront 6 12
+
+frame 2
+    armBack 3 11
+    legsContactB 2 17
+    torso 2 11
+    ruff 3 10
+    head 2 6
+    hat 1 3
+    armFrontBack 6 11
+
+frame 3
+    armBack 3 12
+    legsPass 2 17
+    torso 2 12
+    ruff 3 11
+    head 2 7
+    hatSwing 1 4
+    armFront 6 12
+
+frame 4
+    armBack 3 11
+    legsStand 2 17
+    torso 2 11
+    ruff 3 10
+    head 2 6
+    hat 1 3
+    armFront 6 11
+
+frame 5
+    armBack 3 12
+    legsStand 2 17
+    torso 2 12
+    ruff 3 11
+    head 2 7
+    hatSwing 1 4
+    armFront 6 12
+
+frame 6
+    legsStand 2 17
+    torso 2 11
+    ruff 3 10
+    head 2 6
+    hat 1 3
+    handsUp 1 7
+    balls1 1 0
+
+frame 7
+    legsStand 2 17
+    torso 2 11
+    ruff 3 10
+    head 2 6
+    hat 1 3
+    handsUp2 1 6
+    balls2 1 0

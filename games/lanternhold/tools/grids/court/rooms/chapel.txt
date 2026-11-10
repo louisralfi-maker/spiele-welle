@@ -1,0 +1,210 @@
+# The chapel of the Flame inside (chapelInterior): hand-set details stamped by roomscenes.py. "." is transparent.
+legend
+    k = ink
+    W = stonePale
+    d = stoneDark
+    m = stoneMid
+    s = stone
+    l = stoneLight
+    p = stonePale
+    N = night1
+    n = night0
+    g = gold
+    y = strawLight
+    Y = straw
+    D = woodDark
+    w = wood
+    L = woodLight
+    b = banner
+    B = roofDeep
+    r = roofLight
+    P = parchment
+    q = plaster
+    Q = plasterDim
+    t = tile
+    T = tileLight
+    o = dusk
+    O = dawnRose
+    e = leafDark
+    f = leaf
+    h = meadow
+
+# the frieze under the wall plate: a gold flame stencilled on red every 6 px
+stamp frieze
+    ..g..
+    .gyg.
+    ..g..
+
+# a shaft's capital and base
+stamp capital
+    kkkkkkk
+    kpplssk
+    .kplsk.
+
+stamp shaftBase
+    .kplsk.
+    kpplssk
+    kkkkkkk
+    kpplssk
+
+# the chapel's bell, bronze, hanging from its headstock
+stamp bell
+    ...kkk...
+    ..kyLwk..
+    ..kYyLk..
+    .kyYyLwk.
+    .kyYyLwk.
+    .kyYLLwk.
+    kyyYLLLwk
+    kwwwwwwwk
+    .kkkkkkk.
+    ....k....
+
+# stained-glass motifs (the glass's middle field)
+stamp flame
+    ..y..
+    .yYy.
+    .gYg.
+    oggTo
+    otTto
+    .ooo.
+
+stamp lantern
+    ..g..
+    .ggg.
+    gyYyg
+    gYyYg
+    .ggg.
+
+stamp star
+    ..g..
+    .gyg.
+    gyYyg
+    .gyg.
+    ..g..
+
+# the saint's hood (cream, the Flame's order), stamped over the king's crown rows in saint_figure
+stamp saintHood
+    ...kkkk..
+    ..kqPPPk.
+    .kqPPPPPk
+    .kqPkkkPk
+    kqqk...k.
+    kqk......
+
+# the carved band of the saint's plinth (fix stage): a scroll of little flames cut into the stone either side of the
+# Flame's bowl, lit from the upper left
+stamp plinthCarving
+    .lm.lm.......lm.
+    lsml.sm.....lsml
+    .mm.mm.......mm.
+    lllllllllllllll.
+
+# gold rays round the saint's raised lantern (on the niche's starry field)
+stamp rays
+    ..y...y...
+    ...y.y....
+    y........y
+    .y......y.
+
+# the altar: a stone slab on a block under a cream and gold frontal with the Flame's emblem
+stamp altar
+    kkkkkkkkkkkkkkkkkkkkkkk
+    kpppppppppppppppppppplk
+    kkkkkkkkkkkkkkkkkkkkkkk
+    .kgggggggggggggggggggk.
+    .kPPPPPPPPPgPPPPPPPPqk.
+    .kPPPPPPPPgygPPPPPPqqk.
+    .kPPPPPPPPgYgPPPPPPqqk.
+    .kPPPPPPPgyYygPPPPPqqk.
+    .kPPPPPPPPgggPPPPPPPqk.
+    .kgggggggggggggggggggk.
+    .kPqPqPqPqPqPqPqPqPqPk.
+    .ksssssssssssssssssssk.
+    kkkkkkkkkkkkkkkkkkkkkkk
+
+# the Flame's stone bowl: a gold rim round its dark mouth (the flame sprite stands on it), a stem, a foot
+stamp bowl
+    kkkkkkkkk
+    kgDDDDDgk
+    .kpllssk.
+    ..kplsk..
+    ...kpk...
+    ..kplsk..
+
+# a gold candlestick with its candle (the candle flame stands on its top)
+stamp candlestick
+    .P.
+    .P.
+    .q.
+    kgk
+    .y.
+    .g.
+    .g.
+    kgk
+
+# a tall iron candle stand on the floor
+stamp candleStand
+    ..P..
+    ..P..
+    ..q..
+    .kgk.
+    kgygk
+    ..d..
+    ..d..
+    ..d..
+    ..m..
+    ..d..
+    ..d..
+    ..d..
+    ..m..
+    ..d..
+    .kdk.
+    kd.dk
+
+# a vase of lilies and roses on the altar's end
+stamp vase
+    O.P.o
+    hPfOh
+    .fhf.
+    .kbk.
+    kbrbk
+    .kbk.
+
+# the sanctuary lamp hanging from the wall plate on its chain; its red glass glows at night
+stamp sanctuaryLamp
+    .k..
+    .d..
+    .k..
+    .d..
+    .k..
+    .d..
+    kggk
+    gNNg
+    gNNg
+    .gg.
+    ..g.
+
+# a pew seen end-on (facing right, toward the altar): the backrest at the left, the seat, the legs
+stamp pew
+    .kk........
+    kLwk.......
+    kLwk.......
+    kLwk.......
+    kLwk.......
+    kLwkkkkkkk.
+    kLwLLLLLLLk
+    kLwwwwwwwwk
+    kLwkDDDDkwk
+    kLwk....kwk
+    kLwk....kwk
+    kkkk....kkk
+
+# an iron candle sconce on a shaft (the candle flame stands on its top)
+stamp sconce
+    ..P..
+    ..P..
+    ..q..
+    kgggk
+    .kdk.
+    ..k..

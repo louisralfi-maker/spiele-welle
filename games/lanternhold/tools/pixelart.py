@@ -29,6 +29,8 @@ Commands (run from anywhere; paths are plain file paths):
           --exclude n1,n2         palette names this image must not use
           --only n1,n2            restrict the palette to these names
           --allow-emissive        allow the fire ramp colours (flames painted into albedo: avoid)
+          --allow-swap            allow the portrait swap ramps (tag "swap": skin1-4, hair1-4, cloth1-4; only the
+                                  composed portrait parts use them, so no other conversion may pick them)
           --orphans 2             orphan clean-up passes
           --outline none|darken|NAME   1 px outline on opaque pixels touching transparency (inside the size)
           --outline-skip-bottom   no outline along the bottom row (things standing on the ground)
@@ -309,7 +311,7 @@ MATCH = "old"
 
 
 class Palette:
-    def __init__(self, path, allow_emissive=False, exclude=(), only=()):
+    def __init__(self, path, allow_emissive=False, exclude=(), only=(), allow_swap=False):
         self.names = []
         self.rgb = []
         self.mrgb = []  # the value paintings are matched against (the match= tag, else the colour itself)
@@ -336,6 +338,8 @@ class Palette:
                 continue
             if MATCH == "old" and "new" in self.tags[i] and not only:
                 continue  # an old painting never lands on a look-2 colour unless an --only list names it
+            if "swap" in self.tags[i] and not allow_swap:
+                continue
             self.allowed.append(i)
         self.labs = [lab(c) for c in self.mrgb]
         self.cache = {}
@@ -739,7 +743,7 @@ def cmd_convert(a):
     MATCH = a.match
     tw, th = (int(v) for v in a.size.lower().split("x"))
     pal = Palette(a.palette, a.allow_emissive, set(a.exclude.split(",")) if a.exclude else set(),
-                  set(a.only.split(",")) if a.only else set())
+                  set(a.only.split(",")) if a.only else set(), a.allow_swap)
     box = parse_box(a.box) if a.box else None
     img, info = read_png(a.input, box)
     if a.key != "none":
@@ -769,7 +773,7 @@ def cmd_convert(a):
         names, rect = parts[0], parts[1]
         zgain = float(parts[2]) if len(parts) > 2 else 1.0
         x0, y0, x1, y1 = (int(v) for v in rect.split(","))
-        zpal = Palette(a.palette, a.allow_emissive, set(), set(names.split(",")))
+        zpal = Palette(a.palette, a.allow_emissive, set(), set(names.split(",")), a.allow_swap)
         for y in range(max(0, y0), min(th, y1 + 1)):
             for x in range(max(0, x0), min(gw, x1 + 1)):
                 c = grid[y][x]
@@ -1122,6 +1126,7 @@ def main():
     v.add_argument("--exclude")
     v.add_argument("--only")
     v.add_argument("--allow-emissive", action="store_true")
+    v.add_argument("--allow-swap", action="store_true")
     v.add_argument("--orphans", type=int, default=2)
     v.add_argument("--outline", default="none")
     v.add_argument("--outline-skip-bottom", action="store_true")

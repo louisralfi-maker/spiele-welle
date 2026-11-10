@@ -1,0 +1,233 @@
+# marek 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). Marek, the travelling merchant: a wide
+# dark hat with a long rose feather sweeping back, a sly smile under a curled black moustache, a long green coat to the
+# shins with gold buttons and a gold-trimmed collar, a satchel on a strap across his chest riding on his hip, gold
+# rings on his fingers, dark boots. Walk: a jaunty step, the coat tails swinging. Idle: a breath, thumb in his strap.
+# Talk (sly and charming): he tips his hat (6), then turns an open palm up with a ring glinting (7): a bargain.
+id marek
+size 14x30
+frames 8
+outline ink
+
+legend
+    k = ink
+    S = woodLight
+    s = wood
+    M = night1
+    H = woodDark
+    h = soilDark
+    j = soil
+    F = dusk
+    f = tile
+    L = leaf
+    l = leafDark
+    E = leafLight
+    G = gold
+    g = straw
+    A = woodLight
+    a = wood
+    d = woodDark
+    B = woodDark
+    b = soilDark
+
+part hat
+    FF............
+    FFFf...hHHh...
+    .ffFF.hHHHHh..
+    ....ffhHHHHHh.
+    .hhhhhHHHHHHHH
+    hh.hhhhhhhhh.h
+
+part hatTipped
+    FF............
+    FFFf...hHHh...
+    .ffFF.hHHHHh..
+    ....ffhHHHHHh.
+    ..hhhhHHHHHHHH
+    ...hhhhhhhh.hh
+
+part head
+    .hSSSs.
+    .hSSkSS
+    ..SSSSSS
+    ..SMMMs.
+    ...sSs..
+
+part torso
+    .lLLGLE.
+    lLdLLLGE
+    lLLdLLGL
+    lLLLdLLL
+    lLLLLdGL
+    lLLLLLdL
+    lddddGdd
+    lLLLLLGL
+
+part coatStand
+    .lLLLLLGL.
+    .lLLLLLLGL
+    .lLLLLLLLL
+    llLLLLLLLL
+    llLLLLLLLL
+    llLLLLLLLLL
+    llLLLLELLLL
+    .lLLLLELLL.
+
+part coatA
+    .lLLLLLGL..
+    .lLLLLLLGL.
+    .lLLLLLLLLL
+    llLLLLLLLLL
+    llLLLLLLLLLL
+    llLLLLLLLLLL
+    llLLLLELLLLL
+    .lLLLLELLLL.
+
+part coatB
+    .lLLLLLGL
+    .lLLLLLLG
+    .lLLLLLLL
+    .lLLLLLLL
+    llLLLLLLL
+    llLLLLLLL
+    llLLLLELL
+    .lLLLLELL
+
+part coatC
+    ..lLLLLGL
+    ..lLLLLLG
+    .llLLLLLL
+    .llLLLLLL
+    lllLLLLLL
+    lllLLLLLLL
+    lllLLLELLL
+    .llLLLELLL
+
+part satchel
+    dddd
+    AAAa
+    AAGa
+    aAAa
+    .aa.
+
+part legsStand
+    .Bb.Bb
+    .HH.HH
+    .HHhHHh
+
+part legsContactA
+    Bb...Bb
+    HH...HH
+    HHh..HHh
+
+part legsPass
+    ..BbBb
+    ..HHHH
+    ..HHHHh
+
+part legsContactB
+    .Bb..Bb
+    HH...HH
+    HHh..HHh
+
+part armThumb
+    lL.
+    lLL
+    lLL
+    LlS
+
+part armSwingFwd
+    lL..
+    lLL.
+    .lLL
+    ..SG
+
+part armSwingBack
+    lL.
+    lL.
+    Ll.
+    SG.
+
+part armTip
+    ...SG
+    ..lLS
+    .lLL.
+    lLL..
+    lL...
+
+part armPalm
+    ......
+    lLLLSG
+    lLL.SS
+    lL....
+
+frame 0
+    coatA 1 19
+    legsContactA 3 27
+    torso 3 11
+    satchel 2 17
+    head 4 6
+    hat 0 0
+    armSwingFwd 7 12
+
+frame 1
+    coatB 2 19
+    legsPass 3 27
+    torso 3 12
+    satchel 2 18
+    head 4 7
+    hat 0 1
+    armThumb 7 13
+
+frame 2
+    coatC 1 19
+    legsContactB 3 27
+    torso 3 11
+    satchel 2 17
+    head 4 6
+    hat 0 0
+    armSwingBack 7 12
+
+frame 3
+    coatB 2 19
+    legsPass 3 27
+    torso 3 12
+    satchel 2 18
+    head 4 7
+    hat 0 1
+    armThumb 7 13
+
+frame 4
+    coatStand 1 19
+    legsStand 3 27
+    torso 3 11
+    satchel 2 17
+    head 4 6
+    hat 0 0
+    armThumb 7 12
+
+frame 5
+    coatStand 1 19
+    legsStand 3 27
+    torso 3 12
+    satchel 2 18
+    head 4 7
+    hat 0 1
+    armThumb 7 13
+
+frame 6
+    coatStand 1 19
+    legsStand 3 27
+    torso 3 11
+    satchel 2 17
+    head 4 6
+    hatTipped 0 0
+    armTip 9 3
+
+frame 7
+    coatStand 1 19
+    legsStand 3 27
+    torso 3 11
+    satchel 2 17
+    head 4 6
+    hat 0 0
+    armPalm 7 12

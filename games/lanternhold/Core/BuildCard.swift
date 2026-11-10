@@ -39,7 +39,7 @@ struct BuildCard: Sendable, Equatable {
     static func make(_ s: GameState, plot: Int, balance: Balance, reachable: [Int] = []) -> BuildCard {
         let spec = Realm.plots[plot]
         let state = s.plots[plot]
-        let locked = s.day < spec.unlockDay
+        let locked = !s.isUnlocked(plot: plot)
         var options: [Option] = []
         for offer in Build.options(s, plot: plot, balance: balance) {
             let availability: Availability

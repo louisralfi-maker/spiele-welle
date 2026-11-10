@@ -4,8 +4,12 @@ import XCTest
 /// The eight tuning targets of DESIGN.md "Tuning targets", measured once with the bots (`TuningRun.measure`) and
 /// attached as `tuning-report.txt`. `tools/tune.py` mirrors the economy half on a Mac without Xcode.
 final class TuningTests: XCTestCase {
-    /// Three endless seeds, as the harness runs (seed 3 sits near the lower edge of T7).
-    private static let metrics: TuningMetrics = TuningRun.measure(balance: .standard, endlessSeeds: 3,
+    /// Twenty seeds for T6 and twenty endless seeds for T7, whose bands are shares (M3 join: with ten seeds and three
+    /// endless seeds a single draw moved them out of their bands); a realm still standing at night 66 counts as out of
+    /// T7's band, as it would at 70.
+    private static let metrics: TuningMetrics = TuningRun.measure(balance: .standard,
+                                                                  seedsT6: TuningMetrics.targetSeeds,
+                                                                  endlessSeeds: TuningMetrics.targetSeeds,
                                                                   endlessCap: 66)
 
     private func check(_ target: Int) {
@@ -37,11 +41,12 @@ final class TuningTests: XCTestCase {
     /// 5. Day 1 taxes buy 2 to 3 builds; by day 10 the reference bot owns 8 to 12 buildings.
     func testTarget5PaceOfBuilding() { check(5) }
 
-    /// 6. Night 20 is won in 8 of 10 seeds with the beacon, in 3 to 6 without it ("without": the same realm with the
-    /// beacon's last stage taken away; a whole run that never builds the beacon is reported, not asserted).
+    /// 6. Over 20 seeds night 20 is won in at least 80 % with the beacon and the Lightless King slain in at least 60 %;
+    /// without it 30 to 60 % hold ("without": the same realm with the beacon's last stage taken away; a whole run that
+    /// never builds the beacon is reported, not asserted).
     func testTarget6NightTwentyAndTheBeacon() { check(6) }
 
-    /// 7. In endless, the reference bot falls between night 35 and 60.
+    /// 7. In endless, the reference bot falls between night 35 and 60 in at least 80 % of 20 seeds.
     func testTarget7EndlessFallsBetweenThirtyFiveAndSixty() { check(7) }
 
     /// 8. Each night's last wave leaves by 03:00; a night with about 40 creatures keeps under 300 entities and 40 lights

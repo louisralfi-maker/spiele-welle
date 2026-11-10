@@ -63,6 +63,7 @@ enum Sim {
             switch event {
             case .horn:
                 Battle.prepareDusk(&s, balance: balance)
+                PetitionEngine.horn(&s)
                 events.append(.horn)
             case .nightfall:
                 Battle.planNight(&s, balance: balance)
@@ -119,6 +120,7 @@ enum Sim {
                                 realmFell: fell ? true : nil, kingSlain: stats.kingSlain && !fell ? true : nil,
                                 housesFull: housesFull ? true : nil)
         s.lastReport = report
+        PetitionEngine.dawn(&s)
         events.append(.dawn(day: s.day))
     }
 

@@ -1,4 +1,5 @@
-# Lanternhold shared palette: 71 colours (53 before look 2). One line per colour: name, hex, optional tags.
+# Lanternhold shared palette: 71 colours (53 before look 2) plus the 12 portrait swap colours. One line per colour:
+# name, hex, optional tags.
 # Look 2 "farbig-düster" (ART-look2.md "Palette", 09.11.2026 evening): deep blue nights, warm orange fire, dark green
 # firs, muted but colourful. Every old name is kept, so every painter and grid still works; the values moved toward the
 # direction and 17 colours are new (night blues, fir greens, mist, moor, the creatures' cold eye light).
@@ -9,6 +10,9 @@
 #                   every existing sprite keeps exactly its palette indices (its zones, fills and remaps were tuned on
 #                   them) and only its colours change; new paintings pass --match new
 #   new             added for look 2
+#   swap            the composed portraits' swap ramps (SPRITES.md "M3"); pixelart.py never maps a painting onto
+#                   these unless --allow-swap, and only the composed portrait parts use them (the code maps each
+#                   ramp to the petitioner's target ramp, so their values never move with a look)
 # Fixed: night0, night1 and ink are the window glass colours Shaders.metal (lh_is_glass) and mock.py (GLASS) light
 # inside window masks; they keep their values until the engine port moves the glass test.
 # Painted art is ALBEDO: evenly lit daylight colours. The engine adds dusk, night, firelight and fog.
@@ -117,3 +121,19 @@ moor        #4A4536  new
 wraithWhite #E4F2FF  emissive new
 wraithGlow  #7FB0D8  emissive new
 wraithDim   #34557A  emissive new
+
+# --- the composed portraits' swap ramps (SPRITES.md "M3", exact values; 1 deep to 4 light). Faces use only skin for
+# skin, hair and beards only hair, clothes and the cloth parts of hats only cloth; the code maps each colour to the
+# petitioner's target ramp, so no other art may use them ---
+skin1       #6B3A2A  swap
+skin2       #A0583E  swap
+skin3       #D08A62  swap
+skin4       #F0BC94  swap
+hair1       #2E1C16  swap
+hair2       #4E3020  swap
+hair3       #74482C  swap
+hair4       #9C6A40  swap
+cloth1      #5A3E1C  swap
+cloth2      #8A6430  swap
+cloth3      #B88E48  swap
+cloth4      #E0BC72  swap

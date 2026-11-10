@@ -2,16 +2,20 @@
 # Rebuilds every sprite in Resources/Art: the milestone 1 and M1b scene sprites here, from the Recraft raws in
 # build/recraft/lh/ (git-ignored; see ART.md for the prompts) and the hand-set grids in tools/grids/, then the M2b
 # buildings (build-art-buildings.sh, ART-buildings.md), the actors and creatures (build-art-actors.sh,
-# ART-actors.md) and the world art of look 2 (build-art-world.sh, ART-look2.md section 13). One image at a time with a pause between, and a wait while the CPU is at 80 °C or more (this old
-# Mac's heat rule). A full run reproduces every committed PNG byte for byte. Run from anywhere:
+# ART-actors.md), the M3 court and guests (build-art-court.sh, ART-court.md) and the world art of look 2
+# (build-art-world.sh, ART-look2.md section 13). One image at a time with a pause between, and a wait while the CPU
+# is at 80 °C or more (this old Mac's heat rule). A full run reproduces every committed PNG byte for byte. Run from
+# anywhere:
 #   bash games/lanternhold/tools/build-art.sh [name …]
-# A name of either lane goes to its script (stoneWall, palisade and ballista belong to the buildings lane: their
-# frame 0 is the milestone 1 sprite, frame 1 the damaged one); the group names `buildings`, `actors` and `world` run a
+# A name of a lane goes to its script (stoneWall, palisade and ballista belong to the buildings lane: their
+# frame 0 is the milestone 1 sprite, frame 1 the damaged one); the group names `buildings`, `actors`, `court` and
+# `world` run a
 # lane whole.
 set -euo pipefail
 cd "$(dirname "$0")/../../.."
 BLD=games/lanternhold/tools/build-art-buildings.sh
 ACT=games/lanternhold/tools/build-art-actors.sh
+CRT=games/lanternhold/tools/build-art-court.sh
 WLD=games/lanternhold/tools/build-art-world.sh
 T=games/lanternhold/tools/pixelart.py
 A=games/lanternhold/Resources/Art
@@ -60,12 +64,27 @@ build() { # name: one sprite
                    # of dressed stone now, one step darker, under a straight light course at row 47
                    python3 $T post $A/castleWall.png $A/castleWall.png --remap stoneLight:stoneMid@0,45,39,46 --remap stoneLight:stone,stone:stoneMid,stonePale:stoneLight@0,48,39,88 --fill stoneLight:0,47,39,47 ;;
     backGate)      python3 $T convert $R/s3-castle-1.png $A/backGate.png --size 60x84 --box 1245,400,1518,695 --only $CAS --outline ink --zone $DOOR@21,48,38,83@1.35 ;;
-    chapel)        python3 $T convert $R/s4-chapel-1.png $A/chapel.png --size 160x96 --box 130,75,715,668 --only $CAS,plaster,plasterDim,parchment --gain 1.15 --outline ink ;;
+    chapel)        python3 $T convert $R/s4-chapel-1.png $A/chapel.png --size 160x96 --box 130,75,715,668 --only $CAS,plaster,plasterDim,parchment --gain 1.15 --outline ink
+                   # M3 art step 3 (ART-court.md): the gable end's painted night shade lifted one value step (albedo is
+                   # evenly lit; it read as night beside the bright chapelInterior painted in this silhouette), lancet
+                   # 4 and its frame kept; a small oak door under the lancet where the painting left mud
+                   M3L=night1:stoneMid,stoneMid:stone,stoneDark:stoneMid,night0:stoneDark
+                   python3 $T post $A/chapel.png $A/chapel.png --remap $M3L@112,22,158,49 --remap $M3L@112,50,125,94 \
+                       --remap $M3L@141,50,158,94 --remap $M3L@126,79,140,94 \
+                       --fill ink:126,80,139,80 --fill stonePale:126,81,139,81 --fill stoneLight:126,82,139,82 \
+                       --fill ink:126,83,139,94 --fill woodDark:127,84,138,94 --fill wood:128,84,129,94 \
+                       --fill woodLight:128,84,128,94 --fill wood:131,84,132,94 --fill wood:134,84,135,94 \
+                       --fill wood:137,84,137,94 --fill ink:132,84,133,94 --fill stoneDark:127,88,138,88 \
+                       --fill stoneDark:127,92,138,92 --fill gold:131,90,131,90 --fill gold:134,90,134,90 ;;
     hallInterior)  python3 $T convert $R/s5-hall-1.png $A/hallInterior.png --size 260x90 --box 210,0,1358,356 --only $CAS,strawLight --gain 1.1 --warm 22 --outline ink
                    # polish after the art review: five identical teal banners; the second and fourth are a red-brown house
                    # colour now (teal, red, teal, red, teal), the gold emblems kept
                    python3 $T post $A/hallInterior.png $A/hallInterior.png --remap banner:tile,roofDeep:woodDark,roofLight:tileLight@84,25,101,61 --remap banner:tile,roofDeep:woodDark,roofLight:tileLight@159,25,177,61 ;;
-    kitchen)       python3 $T convert $R/s6-town-1.png $A/kitchen.png --size 120x80 --box 864,10,1148,296 --only $TOWN --outline ink ;;
+    kitchen)       python3 $T convert $R/s6-town-1.png $A/kitchen.png --size 120x80 --box 864,10,1148,296 --only $TOWN --outline ink
+                   # M3 art step 3 (ART-court.md): the ground floor's painted night shade on its right corner and the
+                   # stack's top lifted one value step (albedo is evenly lit; kitchenInterior is painted in this silhouette)
+                   python3 $T post $A/kitchen.png $A/kitchen.png --remap night0:stoneMid,night1:stone,roofDeep:stoneMid@93,57,112,79 \
+                       --remap night0:stoneMid,night1:stone,roofDeep:stoneMid,banner:stone@94,1,101,8 ;;
     valleyHill)    python3 $T convert $R/s6-town-1.png $A/valleyHill.png --size 150x46 --box 800,565,1450,706 --only $NAT --outline leafDark --outline-skip-bottom ;;
     house)         python3 $T convert $R/s7-defence-1.png $A/house.png --size 64x46 --box 480,308,1080,632 --flood --only $COTTAGE --outline ink --zone ink,woodDark,tile,tileLight@0,4,63,24 --zone ink,stoneDark,stone,stoneLight,stonePale@44,0,52,12 --patch $G/house-front.txt@2,29
                    python3 $T post $A/house.png $A/house.png --remap parchment:plaster ;;  # M1b polish: clean half-timbering
@@ -232,12 +251,14 @@ build() { # name: one sprite
                    python3 $T post $A/$1.png $A/$1.png --remap $FGLIFT ;;
     throne|hearth|well|lanternPost|field|brazier|torchPost)
                    python3 $T grid $G/$1.txt $A/$1.png ;;
-    # the two M2b lanes: whole, or one sprite of theirs
+    # the two M2b lanes and the M3 court lane: whole, or one sprite of theirs
     buildings)     bash $BLD ;;
     actors)        bash $ACT ;;
+    court)         bash $CRT ;;
     world)         bash $WLD ;;
     *)             if [[ " $LANE_B " == *" $1 "* ]]; then bash $BLD "$1"
                    elif [[ " $LANE_A " == *" $1 "* ]]; then bash $ACT "$1"
+                   elif [[ " $LANE_C " == *" $1 "* ]]; then bash $CRT "$1"
                    elif [[ " $LANE_W " == *" $1 "* ]]; then bash $WLD "$1"
                    else echo "unknown sprite $1" >&2; return 1; fi ;;
     esac
@@ -245,16 +266,17 @@ build() { # name: one sprite
 
 LANE_B=$(bash $BLD --list)
 LANE_A=$(bash $ACT --list)
+LANE_C=$(bash $CRT --list)
 LANE_W=$(bash $WLD --list)
-# the scene sprites first (the buildings lane composes beaconBase over beaconRuin), then the lanes whole (the world
+# the scene sprites first (the buildings lane composes beaconBase over beaconRuin), then the four lanes whole (the world
 # lane last: it cuts the cleft's rock in the shapes of cliffFlank, cliffFlankB and throatRock and the far castle from
 # castleFront and castleBackGate)
 ALL="farMountain farPeak gorgeCliff gorgeEndCliff waterfall gatehouse castleTower castleWall backGate chapel hallInterior
 throne hearth kitchen house valleyHill well lanternPost field brazier torchPost ground
 gorgeWall gorgeWallHigh cliffFlank gorgeMouth wardenStatue castleFront castleKeep castleBackGate valleyFar valleyMid windmill
 beaconRuin riverEnd riverFarBank clouds fgRockA fgRockB fgRockC fgOverhangA fgOverhangB
-houseB houseC keepFar keepTop throatRock cliffFlankB groundB groundC groundD castleShadow castleMist buildings actors world"
+houseB houseC keepFar keepTop throatRock cliffFlankB groundB groundC groundD castleShadow castleMist buildings actors court world"
 for name in ${@:-$ALL}; do
-    case $name in buildings|actors|world) ;; *) cool ;; esac
+    case $name in buildings|actors|court|world) ;; *) cool ;; esac
     build "$name"
 done

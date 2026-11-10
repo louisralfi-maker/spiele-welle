@@ -116,8 +116,8 @@ enum SimTune {
     static func main() {
         let clock = ContinuousClock()
         let list = variants()
-        say("simtune: \(list.count) variants (T6 also over seeds 1-20, T7 over endless seeds 1-6; the targets count "
-            + "seeds 1-10 and 1-3)")
+        say("simtune: \(list.count) variants (T6 over seeds 1-20 as the target counts them; T7 over endless seeds 1-6 "
+            + "only, to save time, so its mark needs the target's 20 and stays '.')")
         var standardReport = ""
         for variant in list {
             var metrics = TuningMetrics()
@@ -146,4 +146,220 @@ enum SimTune {
     }
 }
 
-SimTune.main()
+// MARK: - The finale sweep (`run.sh finale`, M3 join)
+
+/// Night 20 over seeds 1 to 20 for variants of the Lightless King: when he leaves the Gloom, the seeded spread of that
+/// second and his walk in his own darkness. Nights 1 to 19 do not depend on any of them, so each seed's eve is played
+/// once with the standard balance and every variant plays only night 20 from it, with the beacon and without its last
+/// stage (as `TuningRun.measure` does). The variants in T6's bands (won with the beacon on every seed, 30 to 60 % held
+/// without) and the standard also get night 20's step check (seeds 1 to 3), the draw test (night 20 without the beacon
+/// with the King leaving at the earliest and at the latest second the spread allows: the seeds whose outcome flips
+/// hang on the draw, not on the realm) and T7 over 20 endless seeds with each endless growth of `quadratics`.
+extension SimTune {
+    struct KingVariant {
+        let name: String
+        let second: Double
+        let jitter: Double
+        let dark: Double
+
+        init(second: Double, jitter: Double, dark: Double) {
+            self.second = second
+            self.jitter = jitter
+            self.dark = dark
+            name = "s\(Int(second))j\(Int(jitter))d\(Int(dark))"
+        }
+
+        func balance(quadratic: Double? = nil) -> Balance {
+            var b = Balance.standard
+            b.kingSecond = second
+            b.kingJitter = jitter
+            b.creatures[CreatureKind.lightlessKing.index].unlitSpeed = dark
+            if let quadratic { b.endlessQuadratic = quadratic }
+            return b
+        }
+    }
+
+    /// The standard first, then the departures around T6's band. Round lh-m3-j1 swept 10 s with the jitter narrowed to
+    /// 4, 3, 2, 1 and 0, the departure at 8, 6, 4 and 3 s with ± 2 and ± 1, and his dark walk at 25 to 28 px/s: without
+    /// the beacon 30 to 60 % held from about 6 s on, the step check passed at 4 ± 1 and 3 ± 2, and the dark walk was too
+    /// steep (25 px/s held 11 or 13 of 20, 26 px/s 5). This sweep fills the departures between with ± 1, ± 0 and ± 2.
+    static func kingVariants() -> [KingVariant] {
+        var list: [KingVariant] = [KingVariant(second: 10, jitter: 8, dark: 24)]
+        for jitter in [1.0, 0, 2] {
+            for second in [7.0, 6, 5, 4, 3] {
+                list.append(KingVariant(second: second, jitter: jitter, dark: 24))
+            }
+        }
+        return list
+    }
+
+    /// The endless growths T7 is measured with for every variant in T6's bands (0.4 is the standard).
+    static let quadratics: [Double] = [0.4, 0.45, 0.5, 0.55]
+
+    /// One seed's realm at dawn 20.
+    struct Eve {
+        let seed: UInt64
+        let state: GameState
+    }
+
+    /// Night 20 of every eve for one balance.
+    struct FinaleResult {
+        var seeds = 0
+        var won = 0
+        var slain = 0
+        var held = 0
+        var kill: [Int] = []
+        var lightLeft: [Int] = []
+        var departures: [Int] = []
+        var hearthReached: [Int] = []
+        var margins: [String] = []
+        /// Per seed, the realm at dawn 21 after night 20 with the beacon (nil when it fell): T7 starts there.
+        var dawns: [GameState?] = []
+    }
+
+    static func finaleNight(_ eves: [Eve], balance: Balance) -> FinaleResult {
+        var r = FinaleResult()
+        for eve in eves {
+            r.seeds += 1
+            let withRun = TuningRun.play(eve.state, bot: Autoplay.reference(), balance: balance, nights: 1)
+            let finale = withRun.final.night
+            if withRun.fellOnNight == nil {
+                r.won += 1
+                r.dawns.append(withRun.final)
+            } else {
+                r.dawns.append(nil)
+            }
+            if let slain = finale.kingSlainSecond {
+                r.slain += 1
+                r.kill.append(Int((slain - (finale.kingLeftSecond ?? 0)).rounded()))
+                r.lightLeft.append(Int((finale.kingLightLeft ?? 0).rounded()))
+            } else {
+                r.kill.append(0)
+                r.lightLeft.append(-1)
+            }
+            let withoutRun = TuningRun.play(TuningRun.withoutBeacon(eve.state),
+                                            bot: Autoplay.reference(buildsBeacon: false), balance: balance, nights: 1)
+            let night = withoutRun.final.night
+            r.departures.append(Int((night.kingLeftSecond ?? -1).rounded()))
+            r.hearthReached.append(Int((night.hearthFirstHitSecond ?? -1).rounded()))
+            if withoutRun.fellOnNight == nil {
+                r.held += 1
+                r.margins.append("H\(Int((withoutRun.outcomes.last?.hearthLowest ?? 0).rounded()))")
+            } else {
+                var before = 0.0
+                if let hour = withoutRun.outcomes.last?.defeatHour {
+                    before = (ClockEvent.firstLight.hour - hour) * DayClock.secondsPerHour
+                    if hour >= 20 { before += DayClock.hoursPerDay * DayClock.secondsPerHour }
+                }
+                r.margins.append("F\(Int(before.rounded()))")
+            }
+        }
+        return r
+    }
+
+    /// Night 20 without the beacon with the King leaving at the earliest and at the latest second of the spread: how
+    /// many seeds hold in each, and how many end differently.
+    static func drawTest(_ eves: [Eve], variant: KingVariant) -> (early: Int, late: Int, flips: Int) {
+        let first = KingVariant(second: max(1, variant.second - variant.jitter), jitter: 0, dark: variant.dark)
+        let last = KingVariant(second: variant.second + variant.jitter, jitter: 0, dark: variant.dark)
+        var early = 0
+        var late = 0
+        var flips = 0
+        for eve in eves {
+            let eveWithout = TuningRun.withoutBeacon(eve.state)
+            let a = TuningRun.play(eveWithout, bot: Autoplay.reference(buildsBeacon: false), balance: first.balance(),
+                                   nights: 1)
+            let b = TuningRun.play(eveWithout, bot: Autoplay.reference(buildsBeacon: false), balance: last.balance(),
+                                   nights: 1)
+            let heldEarly = a.fellOnNight == nil
+            let heldLate = b.fellOnNight == nil
+            if heldEarly { early += 1 }
+            if heldLate { late += 1 }
+            if heldEarly != heldLate { flips += 1 }
+        }
+        return (early, late, flips)
+    }
+
+    /// T7 from these dawns: the night each endless realm falls (0: still standing at the cap; 20: fell on night 20).
+    static func endlessFalls(_ result: FinaleResult, balance: Balance, cap: Int = 70) -> [Int] {
+        var falls: [Int] = []
+        for dawn in result.dawns {
+            guard var state = dawn else {
+                falls.append(20)
+                continue
+            }
+            state.mode = .endless
+            let run = TuningRun.play(state, bot: Autoplay.reference(), balance: balance, nights: max(0, cap - 20))
+            falls.append(run.fellOnNight ?? 0)
+        }
+        return falls
+    }
+
+    static func t7Text(_ falls: [Int]) -> String {
+        let inBand = falls.filter { $0 >= 35 && $0 <= 60 }.count
+        let fell = falls.filter { $0 > 0 }.sorted()
+        let median = fell.isEmpty ? 0 : fell[fell.count / 2]
+        return "T7 \(falls) in 35-60: \(inBand)/\(falls.count), standing at the cap \(falls.count - fell.count), "
+            + "median fall \(median)"
+    }
+
+    static func finale() {
+        let began = Date()
+        func elapsed(_ since: Date) -> Int { Int(Date().timeIntervalSince(since).rounded()) }
+        let standard = Balance.standard
+        var eves: [Eve] = []
+        var lost: [UInt64] = []
+        for seed: UInt64 in 1...20 {
+            let run = TuningRun.play(GameState.newRealm(seed: seed, balance: standard), bot: Autoplay.reference(),
+                                     balance: standard, nights: 19)
+            if run.fellOnNight == nil {
+                eves.append(Eve(seed: seed, state: run.final))
+            } else {
+                lost.append(seed)
+            }
+        }
+        say("finale: \(eves.count) eves of night 20 (seeds that fell before it: \(lost)) in \(elapsed(began)) s")
+        say("columns: variant (s second, j jitter, d dark speed) | with the beacon: won, slain, kill seconds after he "
+            + "left, seconds of light left | without: held, his departure second, the hearth first reached (second), "
+            + "margins (F = fell n s before first light, H = held, hearth lowest) | step check | draw test | T7")
+        var candidates: [KingVariant] = []
+        for variant in kingVariants() {
+            let started = Date()
+            let balance = variant.balance()
+            let r = finaleNight(eves, balance: balance)
+            var line = variant.name.padding(toLength: 9, withPad: " ", startingAt: 0)
+            line += " | with \(r.won)/\(r.seeds) slain \(r.slain) kill\(r.kill) left\(r.lightLeft)"
+            line += " | without held \(r.held)/\(r.seeds) dep\(r.departures) hearth\(r.hearthReached) \(r.margins)"
+            let inBand = r.seeds > 0 && r.won == r.seeds && 10 * r.held >= 3 * r.seeds && 10 * r.held <= 6 * r.seeds
+            let isStandard = variant.second == standard.kingSecond && variant.jitter == standard.kingJitter
+                && variant.dark == standard.creature(.lightlessKing).unlitSpeed
+            var extra: [String] = []
+            // Every variant in the bands, and the standard: the step check, the draw test and T7 with each growth.
+            if isStandard || inBand {
+                var failures: [String] = []
+                for seed: UInt64 in 1...3 {
+                    failures += TuningRun.nightTwentyStepCheck(seed: seed, balance: balance).failures
+                }
+                line += " | steps " + (failures.isEmpty ? "ok" : "FAIL \(failures)")
+                let draw = drawTest(eves, variant: variant)
+                line += " | draw: held \(draw.early) leaving first, \(draw.late) leaving last, \(draw.flips) flip"
+                // Night 20 does not depend on the endless growth, so its dawns serve every growth.
+                for quadratic in quadratics {
+                    let falls = endlessFalls(r, balance: variant.balance(quadratic: quadratic))
+                    extra.append("    \(variant.name) q\(quadratic): " + t7Text(falls))
+                }
+                if inBand && failures.isEmpty { candidates.append(variant) }
+            }
+            line += " | \(elapsed(started)) s"
+            say(line)
+            for text in extra { say(text) }
+        }
+        say("finale: candidates \(candidates.map { $0.name }), done in \(elapsed(began)) s")
+    }
+}
+
+if CommandLine.arguments.dropFirst().contains("finale") {
+    SimTune.finale()
+} else {
+    SimTune.main()
+}

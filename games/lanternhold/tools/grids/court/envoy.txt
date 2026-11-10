@@ -1,0 +1,227 @@
+# envoy 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (SPRITES.md "M3"). The envoy from the coast (a teaser for
+# chapter 2): dark skin, a close black beard, a sea-blue round cap with a silver shell brooch, a long sea-blue coat
+# with a white collar, white cuffs and silver buttons, a leather scroll case with gold caps slung across his back (its
+# end showing over his shoulder), grey hose, dark boots. Walk: an upright, measured step. Idle: hands folded, a breath.
+# Talk: he holds out a sealed scroll (6), then opens his palm (7).
+id envoy
+size 14x30
+frames 8
+outline ink
+
+legend
+    k = ink
+    S = soilLight
+    s = soil
+    K = night1
+    U = waterDeep
+    u = far
+    V = farDeep
+    P = stonePale
+    F = foam
+    f = stonePale
+    C = woodDark
+    c = soilDark
+    G = gold
+    W = parchment
+    w = plaster
+    r = tile
+    M = stone
+    m = stoneMid
+    B = woodDark
+    b = soilDark
+
+part cap
+    .uUUUU.
+    uUUUUUP
+    VuuuuuV
+
+part head
+    .KSSSs.
+    .KSSkSS
+    ..SSSSSS
+    ..KKKKs.
+    ...KKK..
+
+part scroll
+    .GG
+    GCC
+    CCc
+    CCc
+    CCc
+    CCc
+    CCc
+    CCc
+    CCc
+    GGG
+
+part torso
+    .uUFFU.
+    uUUUFFU
+    uUUUUPU
+    uUUUUUU
+    uUUUUPU
+    uuUUUUU
+    uuUUUPU
+    VuuuuuV
+
+part coatStand
+    .uUUUUPU.
+    .uUUUUUU.
+    .uUUUUPUU
+    uuUUUUUUU
+    uuUUUUUUU
+    uuUUUUUUU
+    VVVVVVVVVV
+
+part coatA
+    .uUUUUPU..
+    .uUUUUUUU.
+    .uUUUUPUUU
+    uuUUUUUUUU
+    uuUUUUUUUU
+    uuUUUUUUUUU
+    VVVVVVVVVVV
+
+part coatB
+    .uUUUUPU
+    .uUUUUUU
+    .uUUUUPU
+    uuUUUUUU
+    uuUUUUUU
+    uuUUUUUU
+    VVVVVVVVV
+
+part coatC
+    ..uUUUUP
+    ..uUUUUU
+    .uuUUUUPU
+    uuuUUUUUU
+    uuuUUUUUU
+    uuuUUUUUU
+    VVVVVVVVVV
+
+part legsStand
+    .Mm.Mm
+    .Mm.Mm
+    .BB.BB
+    .BBbBBb
+
+part legsContactA
+    Mm...Mm
+    Mm...Mm
+    BB...BB
+    BBb..BBb
+
+part legsPass
+    ..MmMm
+    ..MmMm
+    ..BBBB
+    ..BBBBb
+
+part legsContactB
+    .Mm..Mm
+    Mm...Mm
+    BB...BB
+    BBb..BBb
+
+part armFolded
+    uU..
+    uUU.
+    uUUF
+    .FSS
+
+part armSwingFwd
+    uU..
+    uUU.
+    .uUF
+    ..FS
+
+part armSwingBack
+    uU.
+    uU.
+    UF.
+    S..
+
+part armScroll
+    ......
+    uUUUFS
+    uUU.WW
+    uU...w
+
+part armPalm
+    .....
+    uUUFSS
+    uUU.SS
+    uU....
+
+frame 0
+    scroll 1 8
+    coatA 1 19
+    legsContactA 3 26
+    torso 3 11
+    head 4 6
+    cap 4 4
+    armSwingFwd 7 12
+
+frame 1
+    scroll 1 9
+    coatB 2 19
+    legsPass 3 26
+    torso 3 12
+    head 4 7
+    cap 4 5
+    armFolded 7 13
+
+frame 2
+    scroll 1 8
+    coatC 1 19
+    legsContactB 3 26
+    torso 3 11
+    head 4 6
+    cap 4 4
+    armSwingBack 7 12
+
+frame 3
+    scroll 1 9
+    coatB 2 19
+    legsPass 3 26
+    torso 3 12
+    head 4 7
+    cap 4 5
+    armFolded 7 13
+
+frame 4
+    scroll 1 8
+    coatStand 1 19
+    legsStand 3 26
+    torso 3 11
+    head 4 6
+    cap 4 4
+    armFolded 7 12
+
+frame 5
+    scroll 1 9
+    coatStand 1 19
+    legsStand 3 26
+    torso 3 12
+    head 4 7
+    cap 4 5
+    armFolded 7 13
+
+frame 6
+    scroll 1 8
+    coatStand 1 19
+    legsStand 3 26
+    torso 3 11
+    head 4 6
+    cap 4 4
+    armScroll 7 12
+
+frame 7
+    scroll 1 8
+    coatStand 1 19
+    legsStand 3 26
+    torso 3 11
+    head 4 6
+    cap 4 4
+    armPalm 7 12

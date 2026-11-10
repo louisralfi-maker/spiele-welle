@@ -1,0 +1,490 @@
+{
+  "petitions": [
+    {
+      "id": "eclipse_omen",
+      "speaker": "hesper",
+      "kind": "endless",
+      "chapter": 1,
+      "weight": 1,
+      "text": "petition.eclipse_omen.text",
+      "hint": "petition.eclipse_omen.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.eclipse_omen.c1",
+          "gold": -20,
+          "flags": [
+            "signal_fires"
+          ],
+          "reaction": "petition.eclipse_omen.r1"
+        },
+        {
+          "label": "petition.eclipse_omen.c2",
+          "happiness": 2,
+          "night": [
+            "wave+15pct"
+          ],
+          "reaction": "petition.eclipse_omen.r2"
+        },
+        {
+          "label": "petition.eclipse_omen.c3",
+          "chance": {
+            "p": 0.5,
+            "then": {
+              "reaction": "petition.eclipse_omen.r3a"
+            },
+            "else": {
+              "night": [
+                "wave+30pct"
+              ],
+              "reaction": "petition.eclipse_omen.r3b"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "watch_feast",
+      "speaker": "townswoman",
+      "kind": "endless",
+      "chapter": 1,
+      "weight": 1,
+      "happinessRange": [
+        60,
+        100
+      ],
+      "text": "petition.watch_feast.text",
+      "hint": "petition.watch_feast.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.watch_feast.c1",
+          "gold": -30,
+          "happiness": 4,
+          "world": [
+            "town.festival.tent"
+          ],
+          "reaction": "petition.watch_feast.r1"
+        },
+        {
+          "label": "petition.watch_feast.c2",
+          "gold": -10,
+          "happiness": 2,
+          "reaction": "petition.watch_feast.r2"
+        },
+        {
+          "label": "petition.watch_feast.c3",
+          "happiness": -2,
+          "reaction": "petition.watch_feast.r3"
+        }
+      ]
+    },
+    {
+      "id": "crow_plague",
+      "speaker": "farmer",
+      "kind": "endless",
+      "chapter": 1,
+      "weight": 1,
+      "text": "petition.crow_plague.text",
+      "hint": "petition.crow_plague.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.crow_plague.c1",
+          "happiness": -1,
+          "night": [
+            "crows-4"
+          ],
+          "reaction": "petition.crow_plague.r1"
+        },
+        {
+          "label": "petition.crow_plague.c2",
+          "gold": -10,
+          "happiness": 1,
+          "world": [
+            "town.scarecrow"
+          ],
+          "reaction": "petition.crow_plague.r2"
+        },
+        {
+          "label": "petition.crow_plague.c3",
+          "happiness": -2,
+          "reaction": "petition.crow_plague.r3"
+        }
+      ]
+    },
+    {
+      "id": "veteran_bow",
+      "speaker": "soldier",
+      "kind": "endless",
+      "chapter": 1,
+      "weight": 1,
+      "text": "petition.veteran_bow.text",
+      "hint": "petition.veteran_bow.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.veteran_bow.c1",
+          "happiness": 2,
+          "archers": -1,
+          "reaction": "petition.veteran_bow.r1"
+        },
+        {
+          "label": "petition.veteran_bow.c2",
+          "happiness": -1,
+          "reaction": "petition.veteran_bow.r2"
+        },
+        {
+          "label": "petition.veteran_bow.c3",
+          "gold": -10,
+          "happiness": 1,
+          "reaction": "petition.veteran_bow.r3"
+        }
+      ]
+    },
+    {
+      "id": "chronicle",
+      "speaker": "odile",
+      "kind": "endless",
+      "chapter": 1,
+      "weight": 2,
+      "forbids": [
+        "chronicle_begun"
+      ],
+      "text": "petition.chronicle.text",
+      "hint": "petition.chronicle.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.chronicle.c1",
+          "gold": -20,
+          "happiness": 2,
+          "flags": [
+            "chronicle_begun"
+          ],
+          "reaction": "petition.chronicle.r1"
+        },
+        {
+          "label": "petition.chronicle.c2",
+          "flags": [
+            "chronicle_begun"
+          ],
+          "reaction": "petition.chronicle.r2"
+        }
+      ]
+    },
+    {
+      "id": "child_question",
+      "speaker": "child",
+      "kind": "endless",
+      "chapter": 1,
+      "weight": 1,
+      "text": "petition.child_question.text",
+      "hint": "petition.child_question.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.child_question.c1",
+          "happiness": 1,
+          "reaction": "petition.child_question.r1"
+        },
+        {
+          "label": "petition.child_question.c2",
+          "happiness": 1,
+          "flags": [
+            "stars_promised"
+          ],
+          "reaction": "petition.child_question.r2"
+        },
+        {
+          "label": "petition.child_question.c3",
+          "happiness": -1,
+          "reaction": "petition.child_question.r3"
+        }
+      ]
+    },
+    {
+      "id": "marek_oil",
+      "speaker": "marek",
+      "kind": "endless",
+      "chapter": 1,
+      "weight": 1,
+      "text": "petition.marek_oil.text",
+      "hint": "petition.marek_oil.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.marek_oil.c1",
+          "gold": -25,
+          "night": [
+            "sootlings-6"
+          ],
+          "reaction": "petition.marek_oil.r1"
+        },
+        {
+          "label": "petition.marek_oil.c2",
+          "flags": [
+            "oil_declined"
+          ],
+          "reaction": "petition.marek_oil.r2"
+        }
+      ]
+    },
+    {
+      "id": "mill_wheel",
+      "speaker": "builder",
+      "kind": "endless",
+      "chapter": 1,
+      "weight": 1,
+      "text": "petition.mill_wheel.text",
+      "hint": "petition.mill_wheel.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.mill_wheel.c1",
+          "gold": -15,
+          "happiness": 1,
+          "reaction": "petition.mill_wheel.r1"
+        },
+        {
+          "label": "petition.mill_wheel.c2",
+          "happiness": -2,
+          "reaction": "petition.mill_wheel.r2"
+        }
+      ]
+    },
+    {
+      "id": "fence_feud",
+      "speaker": "farmer",
+      "kind": "endless",
+      "chapter": 1,
+      "weight": 1,
+      "text": "petition.fence_feud.text",
+      "hint": "petition.fence_feud.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.fence_feud.c1",
+          "flags": [
+            "fence_judged"
+          ],
+          "reaction": "petition.fence_feud.r1"
+        },
+        {
+          "label": "petition.fence_feud.c2",
+          "happiness": 1,
+          "reaction": "petition.fence_feud.r2"
+        },
+        {
+          "label": "petition.fence_feud.c3",
+          "chance": {
+            "p": 0.5,
+            "then": {
+              "happiness": 2,
+              "reaction": "petition.fence_feud.r3a"
+            },
+            "else": {
+              "happiness": 1,
+              "reaction": "petition.fence_feud.r3b"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "tax_grumble",
+      "speaker": "townsman",
+      "kind": "endless",
+      "chapter": 1,
+      "weight": 2,
+      "happinessRange": [
+        0,
+        45
+      ],
+      "text": "petition.tax_grumble.text",
+      "hint": "petition.tax_grumble.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.tax_grumble.c1",
+          "gold": -30,
+          "happiness": 3,
+          "reaction": "petition.tax_grumble.r1"
+        },
+        {
+          "label": "petition.tax_grumble.c2",
+          "happiness": -1,
+          "reaction": "petition.tax_grumble.r2"
+        }
+      ]
+    },
+    {
+      "id": "border_scouts",
+      "speaker": "soldier",
+      "kind": "endless",
+      "chapter": 1,
+      "weight": 1,
+      "text": "petition.border_scouts.text",
+      "hint": "petition.border_scouts.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.border_scouts.c1",
+          "gold": -20,
+          "night": [
+            "wave-10pct"
+          ],
+          "reaction": "petition.border_scouts.r1"
+        },
+        {
+          "label": "petition.border_scouts.c2",
+          "flags": [
+            "scouts_ignored"
+          ],
+          "reaction": "petition.border_scouts.r2"
+        }
+      ]
+    },
+    {
+      "id": "pilgrims",
+      "speaker": "widow",
+      "kind": "endless",
+      "chapter": 1,
+      "weight": 1,
+      "text": "petition.pilgrims.text",
+      "hint": "petition.pilgrims.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.pilgrims.c1",
+          "gold": 25,
+          "happiness": -1,
+          "reaction": "petition.pilgrims.r1"
+        },
+        {
+          "label": "petition.pilgrims.c2",
+          "happiness": 2,
+          "reaction": "petition.pilgrims.r2"
+        },
+        {
+          "label": "petition.pilgrims.c3",
+          "flags": [
+            "pilgrims_refused"
+          ],
+          "reaction": "petition.pilgrims.r3"
+        }
+      ]
+    },
+    {
+      "id": "wall_frost",
+      "speaker": "builder",
+      "kind": "endless",
+      "chapter": 1,
+      "weight": 1,
+      "text": "petition.wall_frost.text",
+      "hint": "petition.wall_frost.hint",
+      "counsel": 0,
+      "choices": [
+        {
+          "label": "petition.wall_frost.c1",
+          "gold": -15,
+          "reaction": "petition.wall_frost.r1"
+        },
+        {
+          "label": "petition.wall_frost.c2",
+          "chance": {
+            "p": 0.6,
+            "then": {
+              "reaction": "petition.wall_frost.r2a"
+            },
+            "else": {
+              "night": [
+                "wave+15pct"
+              ],
+              "reaction": "petition.wall_frost.r2b"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "lantern_night",
+      "speaker": "pip",
+      "kind": "endless",
+      "chapter": 1,
+      "weight": 1,
+      "forbids": [
+        "lantern_night_held"
+      ],
+      "text": "petition.lantern_night.text",
+      "hint": "petition.lantern_night.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.lantern_night.c1",
+          "gold": -20,
+          "happiness": 3,
+          "flags": [
+            "lantern_night_held"
+          ],
+          "world": [
+            "town.lanterns.extra"
+          ],
+          "reaction": "petition.lantern_night.r1"
+        },
+        {
+          "label": "petition.lantern_night.c2",
+          "happiness": 1,
+          "flags": [
+            "lantern_night_held"
+          ],
+          "reaction": "petition.lantern_night.r2"
+        },
+        {
+          "label": "petition.lantern_night.c3",
+          "happiness": -1,
+          "reaction": "petition.lantern_night.r3"
+        }
+      ]
+    },
+    {
+      "id": "ludo_old",
+      "speaker": "serLudo",
+      "kind": "endless",
+      "chapter": 1,
+      "weight": 1,
+      "forbids": [
+        "ludo_old_met"
+      ],
+      "text": "petition.ludo_old.text",
+      "hint": "petition.ludo_old.hint",
+      "counsel": 1,
+      "choices": [
+        {
+          "label": "petition.ludo_old.c1",
+          "gold": -10,
+          "happiness": 2,
+          "flags": [
+            "ludo_old_met"
+          ],
+          "reaction": "petition.ludo_old.r1"
+        },
+        {
+          "label": "petition.ludo_old.c2",
+          "happiness": 1,
+          "flags": [
+            "ludo_old_met"
+          ],
+          "reaction": "petition.ludo_old.r2"
+        },
+        {
+          "label": "petition.ludo_old.c3",
+          "flags": [
+            "ludo_old_met"
+          ],
+          "reaction": "petition.ludo_old.r3"
+        }
+      ]
+    }
+  ]
+}

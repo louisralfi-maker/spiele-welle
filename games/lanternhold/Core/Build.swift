@@ -100,7 +100,7 @@ enum Build {
     static func order(_ state: inout GameState, plot: Int, item: BuildItem, balance: Balance,
                       events: inout [SimEvent]) -> OrderResult {
         let spec = Realm.plots[plot]
-        if state.day < spec.unlockDay { return .locked(day: spec.unlockDay) }
+        if !state.isUnlocked(plot: plot) { return .locked(day: spec.unlockDay) }
         guard let option = options(state, plot: plot, balance: balance).first(where: { $0.item == item }) else {
             return .notOffered
         }

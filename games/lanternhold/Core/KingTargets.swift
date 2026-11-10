@@ -2,8 +2,9 @@
 /// names what is in front of him; M2b part 2).
 ///
 /// - By day: a plot's build card (hammer: build, upgrade or rebuild; also at a plot that is still locked, so its card
-///   tells the unlock day), the barracks' recruit card (coins) and the throne's tax card (crown; the audience comes in
-///   M3, and talking to the court in M3 too).
+///   tells the unlock day), the barracks' recruit card (coins), the throne (crown: the audience while petitioners wait
+///   in the hall, else the tax card), and from M3 the tax lectern beside it, the Stranger at the front gate and the
+///   court member or guest in talking reach (a speech bubble).
 /// - From the horn to dawn: light a snuffed brazier or patch a damaged wall (`Sim.kingAction`); the barracks still
 ///   recruit (`Build.recruit` posts a recruit at once at night).
 ///
@@ -12,7 +13,14 @@
 enum KingTarget: Sendable, Equatable {
     case build(plot: Int)
     case recruit
+    /// The throne: the audience while petitioners wait in the hall, else the tax card (M3).
     case throne
+    /// The tax lectern beside the throne, its own place (M3).
+    case lectern
+    /// A court member or guest to talk to, by day (M3).
+    case talk(who: String)
+    /// The Stranger asking at the front gate (M3).
+    case stranger
     case light(plot: Int)
     case patch(plot: Int)
 }
@@ -33,6 +41,11 @@ enum KingTargets {
     static let barracksX = EntityFrames.barracksLeft + Double(SpriteID.barracks.size.width) / 2
     /// The throne in the great hall (the tax lectern stands beside it).
     static let throneX = Realm.throneX
+    /// The tax lectern's middle (M3: its own place beside the throne).
+    static let lecternX = CourtLayout.lecternX + Double(SpriteID.taxLectern.size.width) / 2
+    /// A court member counts this much farther than he stands, so the lectern, the throne or a plot beside him wins a
+    /// close call (Odile steps up to the lectern now and then).
+    static let talkBias = 6.0
 
     /// Where the lines' parts are drawn now.
     static func layouts(_ s: GameState, balance: Balance) -> [LineLayout] {
@@ -95,6 +108,15 @@ enum KingTargets {
         }
         consider(.recruit, abs(x - barracksX))
         consider(.throne, abs(x - throneX))
+        // M3: the lectern, the Stranger at the gate, the court to talk to (`CourtTalk`, closer than the reach).
+        consider(.lectern, abs(x - lecternX))
+        if AudienceRules.gate(s, catalog: .standard) != nil {
+            consider(.stranger, abs(x - CourtLayout.strangerAtGate))
+        }
+        // People walk, places stand: a court member yields a close call to the place beside him (`talkBias`).
+        if let near = CourtTalk.nearest(s, figures: CourtLayout.figures(s, catalog: .standard), lines: .standard) {
+            consider(.talk(who: near.who), abs(near.x - x) + talkBias)
+        }
         return best
     }
 
@@ -122,7 +144,7 @@ enum KingTargets {
             return nil
         case .light:
             return s.king.lightingPlot >= 0 ? .busy : nil
-        case .build, .recruit, .throne:
+        case .build, .recruit, .throne, .lectern, .talk, .stranger:
             return nil
         }
     }
@@ -136,6 +158,12 @@ enum KingTargets {
             return barracksX
         case .throne:
             return throneX
+        case .lectern:
+            return lecternX
+        case .stranger:
+            return CourtLayout.strangerAtGate
+        case .talk(let who):
+            return CourtLayout.figures(s, catalog: .standard).first { $0.who == who }?.x ?? s.king.x
         }
     }
 }

@@ -65,9 +65,11 @@ and four target pictures, `docs/mood/look2-1-weltmauer.jpg` to `look2-4-farbe.jp
     and deciduous trees (linden, poplars, orchards) in the town, so the contrast stays strong.
   - The player reads at a glance where the monsters come from: dark and foggy on the left, warm and bright on the
     right, the Weltmauer filling the sky behind the castle.
-- **The story: the House of the Lantern.** For a thousand years the House of the Lantern has held the cleft, generation
-  after generation. Nobody knows what the shadows are; everybody fears them. Behind the wall lies a huge continent with
-  other families, lands, small towns and castles.
+- **The story: House Lantern.** For a thousand years House Lantern has held the cleft, generation after generation.
+  Nobody knows what the shadows are; everybody fears them. Behind the wall lies a huge continent with other families,
+  lands, small towns and castles.
+  - The name is Louis' choice: **House Lantern** in English, **Haus Lantern** in German and the same word in every
+    language. Like Lanternhold, the name "Lantern" is never translated.
   - **The player is the Burgherr**, the lord of Lanternhold, not a king: a narrow gold circlet instead of a crown. The
     other lands have their own rulers.
   - **The other families are mixed:** some are allies, some envy the house, some think the shadows are a myth and want
@@ -315,7 +317,7 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 | Ash brute | 7 | 120 | 14 / 8 | 20 per s to walls | 44 px | never slower than 8; does not burn |
 | Gloomweaver | 12 | 40 | 22 / 12 | none | 30 px | carries a 50 px bubble of darkness that cancels light inside it |
 | Ash Giant (boss) | night 10 | 1000 | 10 / 7 | 60 per s; stomp shakes the screen | 110 px | |
-| The Lightless King (boss) | night 20 | 700 | 24 in his own darkness / 12 in the Great Beacon's light | 150 per s, to the hearth too; 80 px darkness aura | 64 px | leaves at 20:50 ± 0:40 (10 s ± 8 s after nightfall; provisional, see the Tuning) and marches on the hearth; calls 6 sootlings every 15 s; can be hurt only inside the lit beacon's light, where his aura fails, he counts as lit and slows to his lit speed (see "The finale"); tuned from 2400 HP, 12 / 9 px/s and 40 per s |
+| The Lightless King (boss) | night 20 | 700 | 24 in his own darkness / 12 in the Great Beacon's light | 150 per s, to the hearth too; 80 px darkness aura | 64 px | leaves at 20:20 ± 0:05 (4 s ± 1 s after nightfall since the M3 join; 20:50 ± 0:40 before, see "M3 join") and marches on the hearth; calls 6 sootlings every 15 s; can be hurt only inside the lit beacon's light, where his aura fails, he counts as lit and slows to his lit speed (see "The finale"); tuned from 2400 HP, 12 / 9 px/s and 40 per s |
 
 - Night budget `B(n) = 16 + 9 n` points (sootling 1, hound 2, crow 2, weaver 6, brute 10), split into 3 waves on nights
   1 to 4, 4 waves on 5 to 14 and 5 waves on 15 to 20; the last wave leaves by 03:00. Boss nights add the boss.
@@ -431,8 +433,8 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 | The Stranger (Seren, name revealed on day 15) | came from the Gloom's edge with a grey lantern | quiet, mysterious |
 
 - **Talking:** the action button on a court member shows one speech-bubble line (gossip, a joke, or a hint about
-  today's petitions, for example "Tamsin says Marek's arrows bend in the rain"). About 60 lines in 1.0, chosen by day
-  and flags.
+  today's petitions, for example "Tamsin says Marek's arrows bend in the rain"). About 60 lines in 1.0 (118 since M3
+  step 2), chosen by day and flags.
 - **Guests** come on some days: Marek's cart, a wandering knight (Ser Ludo, comic), a bard, an envoy from the coast (a
   teaser for chapter 2), refugees from the Gloom's border. They stand in the courtyard or the hall and most of them
   come to the audience.
@@ -480,7 +482,9 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 - Random petitions are drawn by weight among the eligible ones, never the same one twice in five days.
 - Text keys live in `Resources/Story.xcstrings` (manual keys, English source, all eight languages). A unit test checks
   every key in every language, every `schedule` id, every `world` id and every `speaker`.
-- 1.0 needs at least 80 petitions: 20 story, 45 random (town, front, guests, comic), 15 for endless only.
+- 1.0 needs at least 80 petitions: 20 story, 45 random (town, front, guests, comic), 15 for endless only. M3 step 2
+  wrote 83: 18 story, 50 random, 15 endless only ("M3 in detail: the audience's content").
+- The full schema, the queue's rules, the speakers, the world change ids and the night modifiers: "M3 in detail".
 - Random petitioners get composed portraits (face, hair, hat, beard and clothes parts with palette swaps); story
   characters have their own portraits.
 
@@ -533,7 +537,8 @@ Each is a short scene of three panels; then the realm goes on in endless mode.
 
 - Unlocks after chapter 1. **Continue the realm** keeps the chapter's end state and goes on with night 21; **New realm**
   starts fresh from day 1 with random petitions only.
-- Nights scale with `B(n) = 16 + 9 n + 0.4 (n − 20)²` beyond night 20 (tuned from 0.15); random events (an eclipse with a double wave,
+- Nights scale with `B(n) = 16 + 9 n + 0.5 (n − 20)²` beyond night 20 (tuned from 0.15 to 0.4 in M2a, to 0.5 in the M3
+  join); random events (an eclipse with a double wave,
   a festival, a plague of crows). The events are not built yet (M3 or later); T7 was tuned without them and must be
   measured again when they arrive.
 - Records: the highest night survived per mode (chapter, endless continued, endless new), kept in the save's
@@ -873,7 +878,8 @@ tap in Release) is checked on an A12 iPhone and a current one before the store.
 | `-GWAutoplay walk\|play` | the king walks back and forth / the reference bot plays live (it sets the king's intent and orders by its build order before every step; at night it lights snuffed braziers, patches and stands behind the front wall); any drag ends it |
 | `-GWGold <n>` / `-GWHappiness <n>` | set the numbers (happiness 0 to 100) |
 | `-GWBuild demo` | a built-up realm for screenshots: the iron gate, stone walls on the middle and outer line, an archer tower on lines 1 and 3 and a watchtower on line 2, braziers and a fire tower in front of the outer wall (it lights the approach, so the fight shows in its light), a ballista (line 2) and a catapult (line 3), stake pits on every line, the beacon at stage 2, smithy and lodge (3 builders), two big houses, two cottages, both fields, market and tavern; 24 citizens, 14 archers, 4 guards, happiness at least 70. At night every archer stands on his post at once and no build is in progress; by day the third beacon stage and the outer line's watchtower are being built, the builders at work |
-| `-GWScreen title\|audience\|report\|defeat\|story\|finale` | open that screen with sample data (M2b part 2: `report`, a night with a lost wall, a fallen archer and an unlock; `finale`, night 20's report with the Lightless King slain; `defeat`, the hearth out on the night the other arguments reach, at 02:30 when they reach a day) |
+| `-GWScreen title\|audience\|report\|defeat\|story\|finale\|petition` | open that screen with sample data (M2b part 2: `report`, a night with a lost wall, a fallen archer and an unlock; `finale`, night 20's report with the Lightless King slain; `defeat`, the hearth out on the night the other arguments reach, at 02:30 when they reach a day; M3: `petition`, the herald of the Lightless King before the throne on day 17 at the golden hour, the Stranger let in and revealed) |
+| `-GWClock <h>` | tests (M3): the start state's clock set to that hour of the same day (6 to 19) without anyone playing on, so today's petitioners still wait (`-GWHour` lets the reference bot play, and it hears them) |
 | `-GWTimeScale <x>` | tests only: the game's simulation runs x times as fast (0.25 to 20; the driver's quarter-second catch-up cap stays) |
 | `-GWHour <h>` | after the start (a day, a night, the save or a new realm, then the demo build) the reference bot plays on headless until the clock next shows h; a dawn on the way renews the snapshot (`-GWNight 12 -GWBuild demo -GWHour 5.83 -GWFreezeTime YES` holds first light's front at the outer wall) |
 | `-GWSeed <n>` | seed of the random stream |
@@ -899,8 +905,11 @@ simulation's clock), `hud-gold`, `hud-happiness`, `hud-clock`, `hud-pause`,
 `build-card-next` (the build card's arrows to the other plots in reach), `recruit-card`, `recruit-archer`,
 `recruit-guardsman`, `recruit-card-close`, `tax-card`, `tax-card-close`, `report-king-banner` (night 20),
 `report-banner`, `pause-sheet`, `pause-sound`, `pause-haptics`, `pause-restart`, `pause-restart-confirm`,
-`pause-restart-cancel`, since the M2b review `pause-horn`, `pause-horn-confirm`, `pause-horn-cancel`; `world-scene`'s value adds `kx:<x>` (the king's world x) and, while first light's front is on
-screen, `dawn:<share>`; since the M2b review also `aim:<n>` (archers drawing or loosing in the frame). Debug only: `debug-king-x`, `debug-camera-x` (values for the jitter test).
+`pause-restart-cancel`, since the M2b review `pause-horn`, `pause-horn-confirm`, `pause-horn-cancel`; `world-scene`'s
+value adds `kx:<x>` (the king's world x) and, while first light's front is on screen, `dawn:<share>`; since the M2b
+review also `aim:<n>` (archers drawing or loosing in the frame). Since M3 step 3 also: `audience-next`,
+`audience-reaction`, `audience-counsel-line`, `talk-bubble`, `report-unheard`; `realm-strip`'s value names the
+petitioners waiting. Debug only: `debug-king-x`, `debug-camera-x` (values for the jitter test).
 
 ## Tests
 
@@ -923,15 +932,18 @@ same seed and time give the same hash), `SaveGameTests` (round trip, old saves, 
 3. The reference bot finishes all three beacon stages by day 18 with normal tax; with low tax all the time it cannot.
 4. High tax all the time drops happiness below 30 by day 8; low tax all the time keeps it above 70.
 5. Day 1 taxes buy 2 to 3 builds; by day 10 the reference bot owns 8 to 12 buildings.
-6. Night 20 with the beacon is won by the reference bot in at least 8 of 10 seeds and the Lightless King is slain in at
-   least 6 of 10 (his kill times are reported: about 25 to 70 s after he leaves the Gloom); without the beacon it is won
-   in 3 to 6 of 10. "Without" is the same realm on the eve of night 20 with the beacon's last stage taken away, so the
-   two runs differ only by the beacon. A whole run of a bot that never builds the beacon (its gold goes into the rest of
-   the order) is reported beside it, not asserted. Margins are reported per seed: the seconds of the beacon's light the
-   King had left where he fell (his walk to its edge plus the walls in his way, `Battle.kingLightLeft`), and without
-   the beacon the seconds before first light at which the realm fell or the hearth's lowest strength where it held;
-   `tools/simtune` also counts seeds 1 to 20, so the bands are chosen with margin, not on a coin flip.
-7. In endless, the reference bot falls between night 35 and 60.
+6. Over seeds 1 to 20 (since the M3 join; ten seeds before), night 20 with the beacon is won by the reference bot in at
+   least 80 % and the Lightless King is slain in at least 60 % (his kill times are reported: about 25 to 70 s after he
+   leaves the Gloom); without the beacon 30 to 60 % hold. "Without" is the same realm on the eve of night 20 with the
+   beacon's last stage taken away, so the two runs differ only by the beacon. A whole run of a bot that never builds
+   the beacon (its gold goes into the rest of the order) is reported beside it for the first ten seeds, not asserted.
+   Margins are reported per seed: the seconds of the beacon's light the King had left where he fell (his walk to its
+   edge plus the walls in his way, `Battle.kingLightLeft`), and without the beacon the seconds before first light at
+   which the realm fell or the hearth's lowest strength where it held.
+   The bands are shares of 20 seeds, so a single draw no longer decides them (`tools/simtune finale` sweeps the
+   finale's numbers over the same 20 seeds).
+7. In endless, the reference bot falls between night 35 and 60 in at least 80 % of 20 endless seeds (the realms of
+   seeds 1 to 20 at dawn 21, played on; three seeds before the M3 join, all three in the band).
 8. Each night's last wave leaves by 03:00; a night with 40 creatures keeps under 300 sprite instances and 40 lights.
    `TuningTests` keeps the sim-side proxy (drawn sim entities and battle lights on the night nearest 40 creatures);
    M2b's `FrameBudgetTests` counts the real frames: 40 creatures alive across the front of the manned demo realm with
@@ -1040,7 +1052,8 @@ Open points:
 - T7 hangs on whether an endless realm ever loses its gatehouse: when it does not, it holds past night 70 with the
   hearth untouched. The finale's numbers were chosen on T6; T7 only decided 700 against 600 HP. A steadier endless
   measure (more seeds as the target, or endless growth that also adds brutes) belongs to the endless work in M3, and the
-  King's leaving at 10 s after nightfall stays provisional until then.
+  King's leaving at 10 s after nightfall stays provisional until then. (The M3 join measures T7 over 20 seeds, raises
+  the endless growth to 0.5 and moves the King to 4 ± 1 s.)
 - With these bots the King always falls at the middle line, never at the outer line (its palisade falls in seconds).
 - The realm's world numbers (`Realm.worldWidth` 3900, `walkEnd` 3760, the town plots 100 px right) landed together
   with the M1b world (merge of `lh-m1b-port`, 09.11.). `Tests/RealmWorldTests` pins every copy in `Realm` to
@@ -1070,7 +1083,14 @@ Open points:
    the King's banner (`38-finale-report`). Since the M2b review the gatehouse at 22:00 with the demo's iron gate closed
    (`39-mid-gate-2200`: `-GWNight 12 -GWBuild demo -GWHour 22 -GWFreezeTime YES -GWCameraX 1360 -GWAutoplay play`), and
    the liveliest frame also counts archers drawing or loosing (`aim:`).
-4. `testAudience`: `-GWScreen audience` in every language (the longest petition) for clipping.
+4. `testAudience` (`UITests/AudienceUITests.swift`, M3 step 3, English and German): day 3 (seed 2, `-GWClock 10`)
+   walked through the castle: the courtyard with Brannock, Bram, Marek and his cart, Pip (`58-courtyard-court`), the
+   great hall shut from the courtyard (`60-hall-front`), open inside with Odile and three petitioners at the benches
+   (`51-hall-court`), the kitchen opened (`57-kitchen-open`) and a line from Tamsin in a bubble (`55-talk`), the chapel
+   opened (`56-chapel-open`); day 2 on the throne: Brannock's story petition with his portrait (`52-petition`), Odile's
+   counsel (`53-counsel`), the reaction (`54-reaction`), the next petitioner's composed portrait
+   (`52b-petition-townsfolk`), standing up; `-GWScreen petition` (`59-petition-herald`); Reduce Motion opens the card
+   without the walk. Every button checked for 44 pt. M7 adds the other six languages.
 5. `testFilmstrip` (English): a frame every 1.2 s through a dusk and a night, for the fun check.
 
 ## Milestones (internal steps to 1.0)
@@ -1526,6 +1546,787 @@ This stage fixed all five confirmed high findings, the cheap medium ones and the
   trouble); the picture separates the crowd by drawing it left to right with a shade by id.
 - The finale's shots: at 22:30 the Lightless King has not reached the archers' reach yet, so `34-finale-2230` shows no
   arrow; windows from 23:00 to 00:30, when the archers turn on him, would show the arrows the review asked for.
+
+### M3 in detail: the petition engine and the court's state (step 1, 09.11.2026)
+
+Step 1 of M3 builds the audience's rules as pure, deterministic code with tests. The audience card, talking and the
+court on screen come in the UI step; step 3 draws the castle's world changes, M4 the town's.
+
+**What was built**
+
+- **Petition data** (`Core/PetitionData.swift`): `Petition`, `PetitionChoice`, `PetitionEffect`, `PetitionChance`,
+  `PetitionCatalog`. The files are `Resources/Petitions/petitions-<group>.json`, each `{"petitions": [ … ]}`. The loader
+  decodes every petition on its own: in the app a broken petition costs only itself (a Debug build prints the problem),
+  and `PetitionDataTests` fails on any problem. `PetitionCatalog.standard` is the app bundle's set; without a bundle (a
+  command-line run started in the game's folder) it reads `Resources/Petitions`.
+- **The engine** (`Core/PetitionEngine.swift`): `prepare` draws today's queue, `hear` applies a choice, `horn` sends the
+  waiting home, `dawn` spends the night modifiers and prunes the history, `blocker` says why a choice is greyed,
+  `waiting` lists today's petitioners with their petitions, `botChoice` and `holdAudience` are the reference bot's.
+- **The court's state** (`Core/PetitionCourtState.swift`): `GameState.court: CourtState?` holds today's queue
+  (`Petitioner`: the petition, why it came, its look), the history of shown petitions (`HeardPetition`, the last ten
+  days), every petition ever heard, the count heard, the follow-ups, the world changes, the night modifiers, what
+  petitions unlocked and the builders they added. The story's own state lives in `GameState.flags`.
+- **Night modifiers** (`Core/PetitionNight.swift`): `NightModifier` parses the ids, `NightPlanModifiers` folds tonight's
+  and is read by `Battle.planNight` and `Battle.bankEdge`.
+- **The court** (`Core/CourtSpeakers.swift`, `CourtLayout.swift`, `CourtLines.swift`, `CourtWorld.swift`,
+  `CourtText.swift`, `CourtValidator.swift`): every speaker with body and portrait, the court's places, the court's talk,
+  the world change registry, the story text lookup (`StoryText`), the content validator.
+- **Sprites**: every M3 id of SPRITES.md is a `SpriteID` with its size and frames, with readable placeholders
+  (`Render/PlaceholderCourt.swift`): the court and guests with walk, idle and talk frames and their glow strips, the
+  petitioner bodies, the story portraits and the portrait parts drawn in the swap ramps, the rooms and the props.
+  `Render/PortraitComposer.swift` composes a townsfolk portrait from the parts and the target ramps (from the atlas, so
+  the art lane's PNGs show by themselves). The atlas stays one page.
+- **Hooks in existing files** (a few lines each): `Sim` (`PetitionEngine.horn` at the horn, `.dawn` at dawn), `Battle`
+  (`composition` takes a budget scale; `planNight` and `bankEdge` read tonight's modifiers), `GameState` (`court`,
+  `lodgeBuilders`, `builderCapacity` with the petitions' builders, `isUnlocked` with early unlocks), `Build.order`,
+  `BuildCard`, `RealmStrip` and `Autoplay` ask `isUnlocked`, `Autoplay.hearsPetitions`, `SimDriver` draws each day's
+  petitioners, `PlaceholderArt` asks `PlaceholderCourt`.
+- **Content**: five sample petitions (`petitions-samples.json`: the day-1 tutorial `first_plough`, `well_repair` and its
+  follow-up `well_dispute` with a chance, `crow_rags` with a night modifier, `old_sergeant` with a guard), eleven court
+  lines (`Resources/Court/lines.json`) and `Resources/Story.xcstrings` in English and German with every speaker's name
+  and role. The content step writes the rest (step 2 replaced the samples with the full content, see the next
+  section).
+- **Tests** (new files): `PetitionTests`, `PetitionNightTests`, `PetitionDataTests` (its attachment
+  `petition-validator` lists every problem), `CourtTests`, and `CourtSheetTests`, which attaches `m3-sprites`: every
+  M3 sprite as the atlas draws it (the placeholders until the art lane's PNGs land), composed portraits of every
+  townsfolk archetype included.
+
+**The petition schema**
+
+| Field | Type | Rule |
+|---|---|---|
+| `id` | string | unique; lowercase letters, digits and `_` |
+| `speaker` | string | a speaker id (see "Speakers") |
+| `kind` | `story`, `random`, `endless` | story: on its days in the chapter until heard; random: by weight in the chapter and in endless; endless: by weight in endless only |
+| `chapter` | int, optional | 1 (left out: 1) |
+| `days` | `[day]` or `[from, to]`, optional | both included; left out: any day. A story petition needs it, or a `schedule` that leads to it |
+| `weight` | number, optional | the random draw's weight (left out: 1); 0: only as a follow-up |
+| `requires`, `forbids` | flag lists, optional | every required flag set and no forbidden one |
+| `happinessRange` | `[low, high]`, optional | within 0 to 100, both included; checked for random draws and story days |
+| `text` | key | the request: at most 240 English characters |
+| `hint` | key, optional | Odile's one-line counsel (the Counsel button): at most 140 |
+| `counsel` | int, optional | the index (from 0) of the choice Odile's counsel favours (usually right, not always); the reference bot takes it when it can |
+| `choices` | 2 or 3 | each `{"label": key, effects…, "reaction": key}`: label at most 40, reaction at most 140; at least one choice costs neither gold nor people, so a poor realm can always answer |
+
+| Effect (in a choice or a chance's side) | Rule |
+|---|---|
+| `gold` | added. A cost must be affordable, else the choice is greyed (`ChoiceBlock.gold`); gold never drops below 0 (a chance's side is not checked in advance) |
+| `happiness` | added, kept within 0 to 100; at most ±10 per effect |
+| `citizens` | +n new people move in (also beyond the houses' room: growth waits for room); −n people leave, taxpayers first (needs n taxpayers) |
+| `archers`, `guards` | +n new people arrive as soldiers of that kind (like the volunteer at dawn, names from the seeded stream); −n soldiers of that kind lay down their arms and go back to the town as taxpayers, the last recruited first (needs n of them) |
+| `builders` | castle staff beyond the lodge (`CourtState.extraBuilders`: a new lodge keeps them); the castle keeps at least one |
+| `flags` | `name` sets a flag, `-name` clears it |
+| `world` | a registered change id (see "World changes"); `-id` takes it away again |
+| `schedule` | `[{"id": …, "inDays": n}]`, n at least 1: that petition comes on that day if its `requires` and `forbids` still hold (its `days`, `weight`, `happinessRange` and the five-day rule do not count); one that cannot come is dropped |
+| `unlock` | `warTax`; `blessing` (the chapel's blessing, +1 happiness every dawn), `-blessing` lifts it; `line2`, `line3`, `beacon` open those plots before their day |
+| `night` | modifier ids for the coming night (see "Night modifiers") |
+| `chance` | `{"p": 0 < p < 1, "then": {…}, "else": {…}}`: rolled with the simulation's seeded stream when chosen; the side's `reaction` replaces the choice's |
+| `reaction` | the text after the choice |
+
+`CourtValidator` checks every file against this schema (an unknown key, a typo the decoder would skip, is a problem),
+every reference (speaker, follow-up, world id, unlock, night modifier), every text key in English and German and the
+English limits; `PetitionDataTests` runs it over the bundle's files and the source `Story.xcstrings`.
+
+**The rules of the queue** (`PetitionEngine.prepare`, called from 06:00 to the horn)
+
+- Day 1 brings one petitioner (the tutorial in the chapter), every other day 2 to 4: story petitions on their days
+  first, follow-ups due today next, then random ones drawn by weight among the eligible until the day's number is
+  reached. Story petitions and follow-ups are never dropped, even past 4; when too few are eligible the day has fewer.
+- Eligible random petitions: kind `random` (and `endless` only in endless), weight above 0, chapter 1, on their days,
+  their flags and happiness range allowing, and not shown in the last five days (a petition shown on day d, heard or
+  sent home, may come again from day d + 5).
+- A story petition comes on each day of its range until it is heard (so `[4, 5]` gives a second chance), never in
+  endless. A new realm in endless therefore hears random petitions only.
+- The draw uses its own stream made from the seed and the day (`queueSeed`), so the queue never moves the simulation's
+  random stream: the same seed gives the same queue, and adding content does not reshuffle the nights. Each
+  petitioner's look (31 bits from the seed, the day and the petition) chooses a townsfolk's portrait and name.
+- The queue is drawn once a day and lives in the save; the dawn snapshot holds it.
+- At the horn the petitioners still waiting go home unheard (`PetitionEngine.horn`): each costs 1 happiness at dawn
+  (`Balance.happinessPerUnheard`), shown in the dawn report's realm column ("Petitioners unheard −n"), and counts as
+  shown for the five-day rule.
+
+**Night modifiers** (a choice's `night`, for the night after the day it was heard; spent at dawn)
+
+| Id | What the battle does |
+|---|---|
+| `crows-n`, `hounds-n`, `brutes-n`, `weavers-n`, `sootlings-n` (n 1 to 9) | `planNight` takes n creatures of that kind out of tonight's plan (never fewer than none) |
+| `wave-Ppct`, `wave+Ppct` (P 1 to 50) | tonight's budget P % smaller or bigger, every kind in its share; several add up, at most ±50 % |
+| `fog` | the darkness bank comes 60 px further tonight (`bankEdge`; its edge at most 660), so the lights inside it shrink to 0.6 of their radius |
+
+Without a modifier the night is planned exactly as before (the same random draws), so T1 to T8 move only by what
+petitions change.
+
+**World changes** (`CourtWorld.registry`; the content step adds ids there with a line here)
+
+| Id | Where | Drawn in | What |
+|---|---|---|---|
+| `castle.statue` | courtyard, x 1680 | M3 step 3 | a stone statue of the lamplighter king with his lantern (`statue`) |
+| `castle.guards.wall` | castle front, x 1340 | M3 step 3 | two guards posted on the wall walk by day |
+| `castle.banners.new` | great hall | M3 step 3 | the hall's banners renewed, bright teal with gold lanterns |
+| `castle.hall.tapestry` | great hall | M3 step 3 | a tapestry of the old king Aldric |
+| `castle.chapel.bell.missing` | chapel | M3 step 3 | the chapel's bell gone from its gable |
+| `castle.chapel.candles` | chapel | M3 step 3 | votive candles before the altar |
+| `castle.keep.window.dark` | keep | M3 step 3 | one keep window dark at night |
+| `castle.courtyard.stall` | courtyard, x 1486 | M3 step 3 | Marek's cart stays every day |
+| `castle.seren.lantern` | great hall, x 1950 | M3 step 3 | Seren's grey lantern hangs in the far corner |
+| `town.well.repaired` | market, x 3022 | M4 | the well rebuilt: roof, rope, bucket |
+| `town.bridge.mended` | x 3430 | M4 | a footbridge over the brook |
+| `town.festival.tent` | market square | M4 | a striped festival tent |
+| `town.statue` | market square | M4 | a statue |
+| `town.barn.burnt` | first field | M4 | the barn burnt black |
+| `town.market.stall` | market | M4 | an extra stall |
+| `town.lanterns.extra` | lanes | M4 | more lanterns at night |
+| `town.window.dark` | a cottage | M4 | a dark window: a family left |
+| `town.garden` | first house | M4 | flower boxes and a vegetable garden |
+| `town.scarecrow` | far field | M4 | a scarecrow |
+
+**Speakers** (`Speakers`): the court `odile`, `brannock`, `pip`, `hesper`, `tamsin`, `bram`, `marek`, `seren` and the
+guests `serLudo`, `bard`, `envoy`, `herald` have their own bodies (8 frames: walk 0-3, idle 4-5, talk 6-7) and
+portraits; Seren is "The Stranger" (`speaker.stranger.name`) with the hooded portrait until day 15 or the flag
+`seren_revealed`. Townsfolk archetypes walk in a townsfolk body and get a composed portrait chosen from their look:
+
+| Archetype | Body | Portrait (clothes; faces; beards; hair; hats) |
+|---|---|---|
+| `farmer` (man) | `citizenC` | smock, tunic; old, square, long, round; full, long, stubble, short; short, tousled, bald; straw hat, wool cap, none |
+| `farmwife` | `citizen` | dress with apron, smock; round, long, old, young; –; bun, braids, long; headscarf, straw hat, none |
+| `townswoman` | `petitionerD` | dress with apron; round, long, young; –; long, bun, braids, curly; headscarf, none, flower wreath |
+| `townsman` | `petitionerE` | tunic, fine coat; round, long, square, young; none, stubble, short, moustache; short, curly, tousled; none, wool cap, feather cap |
+| `merchant` | `petitionerE` | fine coat; round, long, square; short, full, moustache; short, curly, bald; feather cap, none |
+| `soldier` | `guardsman` | mail and surcoat (teal); square, long, old; stubble, short, full, moustache; short, bald; helm, none |
+| `builder` | `builder` | leather apron; round, square; stubble, full, short; short, tousled, bald; wool cap, none |
+| `widow` | `citizen` | dress with apron, robe; old; –; bun, long (grey); headscarf, hood |
+| `child` (girl or boy) | `citizen` (no child body yet) | smock, tunic; child; –; child's mop, braids; none, flower wreath or wool cap |
+| `noble` (man) | `petitionerE` | fine coat, robe; long, round, square; none, short, moustache; curly, short, long; feather cap, none |
+| `refugee` (woman or man) | `citizenB` | rags; long, old, young, round; stubble or none; long, braids or tousled, short; hood, headscarf, none |
+
+Every archetype also chooses its skin, hair and cloth target ramps (SPRITES.md). A townsfolk petitioner's name comes from
+`Speakers.womensNames` or `mensNames` by the look (names are never translated).
+
+**The court's places** (`CourtLayout.figures(day:hour:flags:queue:catalog:)`, pure)
+
+| Who | By day (06:00 to the horn) | At night |
+|---|---|---|
+| Odile | beside the throne at 1856, stepping to the tax lectern (1846) | by the hearth, 1860 |
+| Brannock | between 1428 (the gatehouse's back) and 1470 | at the gate, 1424 |
+| Pip | wandering 1612, 1690 (courtyard), 1770, 1700 (hall) | by the hearth, 1916 |
+| Mother Hesper | the chapel's altar 2058 and pews 2012 (step 3: the art lane's spots; first 2052 and 2010) | tending the hearth, 1900 |
+| Tamsin | the kitchen's table 2158 and the oven-hearth under the chimney 2208, both facing right (step 3; first 2146 and 2196) | the kitchen, 2170 |
+| Bram | the smithy, 1566 to 1588 | the smithy, 1580 |
+| Marek | by his cart (1486) at 1542 on his days: every third day and any day he brings a petition | gone |
+| Seren | at the front gate (1352) the day her petition waits; from `stranger_in` the hall's far corner (1950); gone after `seren_handed_over` | the corner |
+| Guests | standing in the hall (1706, 1754, …) while their petition waits | gone |
+| Townsfolk petitioners | at the benches' four places 1788, 1772, 1740, 1724 (the next one nearest the throne), more standing behind | gone (sent home at the horn) |
+
+Rounds walk at 16 px/s (Pip 22) with a walk frame every 7 px and a breath every 0.8 s, offset so the court never moves
+in step. Court members who petition stay at their round; the audience calls them up. `CourtLayout.props` gives the two
+benches (1712, 1760), the tax lectern (1834), Marek's cart on his days and the statue once `castle.statue` shows.
+
+**Court lines** (`Resources/Court/lines.json`, `{"lines": [ … ]}`): `id` (lowercase), `speaker` (a court member or a
+guest), `days` (optional `[from, to]`), `requires`, `forbids`, `weight` (optional, above 0), `text` (a key, at most 120
+English characters), `about` (optional petition id: a hint, said only while that petition waits today). The lines a
+speaker may say today come in a fixed order: hints about today's waiting petitions first, then the rest, each group in a
+weighted order drawn from the seed, the day and the speaker; talking again goes on through the list
+(`CourtLineBook.line(for:state:nth:)`). `hasHint` puts the speech mark over a court member with a hint.
+
+**Story.xcstrings keys**: `petition.<id>.text`, `.hint`, `.c1` … `.c3` (labels), `.r1` … `.r3` (reactions), `.r1a` and
+`.r1b` (a chance's then and else); `line.<id>`; `speaker.<id>.name` and `.role`, `speaker.stranger.name`. Manual keys with
+English and German values (`extractionState` manual); `StoryText.string` reads them.
+
+**Decisions taken (M3 step 1)**
+
+| Decision | Why |
+|---|---|
+| The drivers draw the queue (`SimDriver` after every step, the bot before it acts), not `Sim` itself; `Sim` only sends the waiting home at the horn and spends the night's modifiers at dawn. | The simulation stays free of the catalogue, and every test that steps `Sim` without a court plays exactly as before (no unheard petitioners); every path the game takes (new realm, save, `-GWDay`, replay, restart, second chance) goes through a driver. |
+| The queue has its own stream from the seed and the day; only `chance` rolls `GameState.rng`. | The same seed gives the same queue, and adding or reordering petitions never reshuffles the nights the tuning measured. |
+| `hint` is Odile's counsel line and `counsel` the index of the choice she favours. | DESIGN's example already had `hint`; the bot needs the choice, the card needs the line. Hints from the rest of the court about today's petitions are court lines with `about`. |
+| Unheard petitioners cost 1 happiness each at dawn and count as shown. | The rule stood in "Happiness" and in `Economy` already; the report's realm column already names the reason. |
+| `archers` and `guards` add new people as soldiers; taking them sends soldiers home as taxpayers. | The volunteer at dawn sets the pattern; a petition that wants a man to leave the realm adds `citizens: -1`. |
+| `unlock` opens `warTax`, the chapel's `blessing` (`-blessing` lifts it) and the plots of `line2`, `line3`, `beacon` early; the days in `Realm` stay. | No build is locked by anything but a plot's day; an unheard story petition must never lock the chapter (the war tax still unlocks at dawn 8 and the beacon on day 11 by themselves, see the open points). |
+| Night modifiers are a small set: fewer of a kind, a smaller or bigger budget, fog. | Each is honoured by code that already exists (the plan and the bank edge), and each is visible in the battle. |
+| The bot hears every petitioner first thing each day, wherever the king stands. | The tuning bot needs no walk to the throne; the live bot (`-GWAutoplay play`) is for night shots. |
+| Seren waits at the front gate on the day of her petition. | "At dusk a stranger asks to be let in": she stands outside until she is. |
+| Petition files are `petitions-<group>.json`; the lines file is `lines.json`. | An Xcode group copies resources flat into the bundle: the prefix finds the petition files and keeps the names apart from every other resource. |
+| Frame 0 of beard, hair and hat holds one texel of alpha 1 in the placeholders. | The contract leaves it empty and the composer skips it, but `AtlasTests` wants no empty placeholder frame. |
+
+**Notes for the content step**
+
+- The reference bot hears every petition (Odile's counsel when it can pay, else the cheapest), so counsel choices move
+  T1 to T8. Keep each day's net small: the counsel choices' happiness over days 1 to 7 below +5 in all (T4's high-tax
+  realm reaches 25 by dawn 8 without petitions; the bar is below 30), gold close to nothing over the chapter (T3's
+  beacon by day 18 had one day of margin), no night modifiers in counsel choices on days 19 and 20 (T6), and endless
+  petitions move T7. If a target fails, change petition values, never `Balance`, and write it here.
+- The tutorial (day 1) counsel choice must change neither gold nor the night: `AutoplayTests` pins the first
+  morning's gold and `SimTests` night 1's creatures.
+- Story beats: day 4's stranger is a story petition by `seren` (she waits at the gate) whose yes sets `stranger_in`;
+  the war tax still unlocks by itself at dawn 8 (`Realm.warTaxDay`) and the beacon site on day 11 (`Realm.plots`): when
+  Brannock's and Odile's petitions take them over, remove those automatic unlocks in the same step (step 2 kept them,
+  see its decisions).
+- Run `PetitionDataTests` (the validator) after every batch; its attachment `petition-validator` lists every problem.
+
+**Notes for the UI step**
+
+- The audience: `PetitionEngine.waiting(state, catalog: .standard)` gives today's petitioners in order with their
+  petitions; `Speakers.speaker(id)` the body, portrait sprite (`portraitFrame` for Seren) or the composed portrait
+  (`Speakers.recipe(id, look:)` and `PortraitComposer.compose(recipe, atlas:)`); `StoryText.name` and `.role` the card's
+  header; `PetitionEngine.blocker(choice, state)` greys a choice with its reason; `PetitionEngine.hear(&state, choice:,
+  at:, catalog:, balance:)` returns the `PetitionOutcome` (reaction key and every change, for the HUD's numbers). The
+  clock stands still while the card is open (`GameModel.isPaused`).
+- The hall: `CourtLayout.figures(state, catalog:)` places the court, the guests and the petitioners (sprite, frame,
+  facing, room); `CourtLayout.props(state, catalog:)` the benches, the lectern, the cart and the statue;
+  `CourtLayout.audienceSpot` (1800) is where the heard petitioner stands before the throne.
+- Talking: a `KingTarget` for the court member in reach, `CourtLineBook.standard.line(for:state:nth:)` for the line,
+  `hasHint` for the speech mark (`speakerMark`). The throne opens the audience while petitioners wait; the tax lectern
+  keeps its own place (1834).
+
+**Open points**
+
+- `tools/simtune/run.sh` compiles a fixed list of Core files; since the bot hears petitions it needs
+  `Core/Petition*.swift` added to its list (this step must not edit `tools/`). With them it reads `Resources/Petitions`
+  from the game's folder and measures with the petitions, as `TuningTests` does.
+- `tools/tune.py` mirrors the economy without petitions.
+- There is no child body in the sprite contract: a child petitioner walks as `citizen`.
+- The Chronicle does not count petitions heard yet (`CourtState.heardCount` holds the realm's count).
+- A line unlocked early by a petition is still named in the dawn report on its normal day.
+
+**Tuning with petitions** (round `lh-m3-a1`: the five samples, every reference bot hearing every petitioner with the
+fixed policy; the realm that builds nothing hears none)
+
+| Target | Measured with the samples (M2a without petitions) | Target value |
+|---|---|---|
+| 1 | nights 1 to 10 held in 3 of 3 seeds, hearth never touched, 0 soldiers lost (the same) | hearth untouched, at most 3 lost |
+| 2 | falls on night 3 (3 of 3, the same) | night 2 or 3 |
+| 3 | beacon finished on days 16, 16, 16 (17); with low tax not by day 20 | by day 18; low tax cannot |
+| 4 | high tax: 28 at dawn 8 (25: the tutorial's +1 and the well's +2); low tax: lowest 84 over dawns 8 to 20 (92) | below 30; above 70 |
+| 5 | first dawn taxes 49 buy 3 builds; 12 buildings by day 10 (11) | 2 to 3; 8 to 12 |
+| 6 | with the beacon won 10 of 10, the King slain 10 of 10, 58 to 69 s after he left the Gloom, 8 to 22 s of light left; without 4 of 10 (5) | at least 8 won and 6 slain; 3 to 6 |
+| 7 | endless falls on nights 46, 52, 41 (56, 45, 42) | 35 to 60 |
+| 8 | last wave 79.9 s after nightfall; night 3 (37 creatures): 41 sim entities, 11 battle lights | by 84 s; under 300 and 40 |
+
+Every target holds without a change to `Balance` or to the samples. Margins to watch: T5 now sits on its upper edge
+(happiness 80, and with it the builders' 20 %, comes one dawn earlier with the samples' +3), and T4's high-tax realm
+keeps 2 points. More generous counsel choices break T5 first: the content step should either keep the counsel
+austere or ask the lead to widen T5 (a petition-rich realm builds faster by design).
+
+**Runner rounds (M3 step 1)**
+
+- `lh-m3-a1` (build, unit) on `840dccd`: ALL PASSED on the first build (293 unit test lines, every new test; the
+  validator found no problem with the bundle's files against the source `Story.xcstrings`; T1 to T8 as above).
+- `lh-m3-a2` (build, unit, ui) on `4d03999`: ALL PASSED (294 unit test lines, every UI test in English; T1 to T8
+  unchanged). `m3-sprites` shows every placeholder readable: each court member and guest by colour and outline (Odile's
+  plum robe and bun, Brannock's teal surcoat, Pip's bell cap, Hesper's staff flame, Tamsin's apron, Bram's hammer,
+  Marek's hat and green coat, Seren's hood and grey lantern, Ser Ludo's helmet, the herald's banner), the story
+  portraits, varied composed portraits for every archetype, the rooms and the props. In `45-report` the first day's
+  dawn report names "Petitioners unheard −1": the UI test never sat on the throne, so the tutorial's farmer went home
+  at the horn. The light probe, the mid-chapter, finale and first-day shots are unchanged (nothing of the court is drawn
+  yet).
+- `lh-m3-a3` (build, unit, ui) on `0dee55b` (the per-step checks copy nothing while nothing changes): ALL PASSED,
+  the final round of this step: 294 unit tests, every UI test in English, T1 to T8 as above, the validator without a
+  problem; no compiler warning from the game's code.
+
+### M3 in detail: the audience's content (step 2, 09.11.2026)
+
+Step 2 wrote what the audience says: chapter 1's story, the random petitions of the town, the front, the court and the
+guests, the endless-only petitions, Odile's counsel for every petition, a reaction for every choice and the court's
+talk, all in English and German (the other six languages come in M7).
+
+**What was written**
+
+- **83 petitions** in six files: `petitions-story.json` (18 story petitions, follow-ups included), `petitions-town.json`
+  (21), `petitions-front.json` (10), `petitions-court.json` (12, petitions by court members), `petitions-guests.json` (7:
+  Ser Ludo, the bard, the envoy) and `petitions-endless.json` (15). By kind: 18 story, 50 random, 15 endless only. The
+  five samples live on in them (`first_plough` in story with its flag `plough_blessed`; `well_repair` and `well_dispute`
+  in town; `crow_rags` and `old_sergeant` in front, now once per realm); `petitions-samples.json` is gone.
+- **118 court lines** (`Resources/Court/lines.json`): Odile 15, Brannock 19, Pip 19, Hesper 14, Tamsin 17, Bram 8,
+  Marek 8, Seren 8, Ser Ludo 3, the envoy 3, the bard 2, the herald 2. 29 are hints (`about`), Tamsin's the most; 13
+  echo a choice the king made (Gerald in his jar, the scarecrow with Brannock's face, verse nine, the dark keep window).
+- **Story.xcstrings**: 734 petition and line keys beside the 33 speaker keys, English and German; about 11,900 English
+  and 11,600 German words (German runs 13 % longer in characters). Voices: Odile dry and sarcastic ("my king"), Brannock
+  gruff ("Majesty"), Pip jokes ("Your Wickship", German "Eure Dochtheit"), Mother Hesper calm and ominous, Tamsin
+  gossip with hints, Bram in few words, Marek sly ("Your Radiance", "Eure Strahlkraft"), Seren quiet ("king"), the
+  herald cold ("lamplighter"). German addresses the king with "Ihr" and "Euch".
+- The files were generated from authoring modules with a checker that mirrors `CourtValidator` (in this step's scratch
+  space; `tools/` was not this lane's to edit). The JSON files and Story.xcstrings are the source from now on: edit them
+  directly, and `PetitionDataTests` checks every change.
+
+**The story of chapter 1** (story petitions come on each day of their range until heard; the counsel in bold)
+
+| Days | Petition | Speaker | The choices |
+|---|---|---|---|
+| 1 | `first_plough` | farmer | **bless the plough** (+1, `plough_blessed`) / kings bless no tools (−1); Odile's counsel explains the card |
+| 2–3 | `tower_request` | Brannock | **promise the tower** (`tower_promised`) / light first (`light_first`); the building tutorial's end |
+| 4–5 | `stranger_gate` | Seren, hooded, at the front gate | **open** (`stranger_in`, `castle.seren.lantern`) / keep it shut (`stranger_turned_away`) |
+| 6–7 | `marek_arrows` | Marek | **buy, 15 gold** (`cheap_arrows`, `bad_arrows` next day) / Bram makes our arrows / let Bram test one (70 %: +10, `marek_caught`; else bought). Odile is wrong here; Tamsin's and Bram's hints know better |
+| +1 | `bad_arrows` | Bram | **reforge, 5 gold** (`arrows_reforged`) / shoot them anyway (`wave+15pct`) / send them back (50 %: +15, `marek_caught`; else −1) |
+| 8–9 | `war_tax` | Brannock | **promise the war tax** (`war_tax_promised`) / bleed the guilds once (+40, −4, `guilds_levied`) / the town pays enough (+2, `war_tax_refused`) |
+| 10 | `hesper_giant` | Mother Hesper | **a vigil alone** / call the town to the chapel (−10, +3, `castle.chapel.candles`) / do not frighten them (−1): the Ash Giant's night |
+| 11–12 | `beacon_plans` | Odile | **build it** (`beacon_vowed`) / show the town the plans (+2) / the walls first; every choice `unlock`s the beacon. She reads that its light breaks any darkness of the Gloom |
+| 13–14 | `refugees_gate` | refugee | let all six in (+6 people, `refugees_in`) / only the children and the old (+3, −2, `refugees_some`), both bring `ash_cough` in 3 days / **turn them away** (−3, `refugees_turned_away`). Odile's coldest counsel; Pip and Tamsin say otherwise |
+| +3 | `ash_cough` | farmwife | **pay the herb-wife** (−15, +1) / send the sick away (−2 people, −2) / it will pass (50 %: −4, −1 person, `town.window.dark`); skipped when `herbs_grown` (the widow's herb garden) |
+| 15–16 | `seren_reveal` (needs `stranger_in`) | Seren | **then we bring him home** / tell the town (50 %: +4 or −4) / why only now; all set `seren_revealed`. She kept the Great Beacon, rode with Aldric, and the Gloom made him the Lightless King: only the beacon's light can hurt him |
+| 15–16 | `seren_at_gate` (without `stranger_in`) | Seren, at the gate | **open this time** (`stranger_in`, the lantern) / say the rest from there (`seren_outside`); both set `seren_revealed` and tell the same truth |
+| 17 | `herald_demand` (needs `stranger_in`) | the herald | hand her over (+2, `seren_handed_over`, `truce`, the lantern taken down, `wave-50pct`) / **she stays** (−2, `wave+15pct`, `herald_refused`) / let him come and try (+3, `wave+25pct`, `herald_mocked`) |
+| 17 | `herald_alone` (without `stranger_in`) | the herald | pay 60 gold of tribute (`truce`, `tribute_paid`, `wave-50pct`) / **not a coin** (−1, `herald_refused`) |
+| +1 | `truce_drill` (needs `truce`) | Brannock | drill the young (−20, +2 archers) / **let the town rest** (+2); both `wave-50pct` |
+| +2 | `truce_end` (needs `truce`) | Mother Hesper | **light a candle for what we paid** (`castle.chapel.candles`) / no regrets; both `wave-50pct` |
+| 19 | `pip_farewell` | Pip | **tell the joke** (+2, `pip_joke_told`) / save it for after (`pip_joke_saved`) |
+| 20 | `last_stand` | Brannock | the last morning's word to the men: **"We hold until dawn"** / "We bring our old king home" / "I was never meant to be king" (`speech_dawn`, `speech_aldric`, `speech_honest`; nothing else) |
+
+The herald's "three nights" are the handover's night and the nights of its two follow-ups (17, 18, 19), never night 20.
+
+**Follow-up chains**: `marek_arrows` (buy, or a test that lands the bad lot) → `bad_arrows` +1 day; `refugees_gate`
+(all, or the children and the old) → `ash_cough` +3 (dropped with `herbs_grown`); `herald_demand` or `herald_alone`
+(the bargain) → `truce_drill` +1 and `truce_end` +2; `well_repair` (refused) → `well_dispute` +3; `ludo_arrives` (dared
+to slay the Gloom) → `ludo_returns` +2; `bard_song` (no ballad) → `bard_satire` +4. Petitions that need an earlier
+choice: `plough_harvest` (`plough_blessed`), `seren_watch` (`stranger_in`, days 6 to 14), `ludo_tourney`
+(`ludo_stays`), `envoy_tide` (`envoy_met`).
+
+**The flags the story uses**
+
+| Flag | Set by | Read by |
+|---|---|---|
+| `stranger_in` | `stranger_gate`, `seren_at_gate` (open) | `CourtLayout` (Seren in the hall's corner), `seren_reveal`, `herald_demand`, `seren_watch`, Seren's and the court's lines |
+| `stranger_turned_away` | `stranger_gate` (shut) | Pip's line |
+| `seren_revealed` | `seren_reveal`, `seren_at_gate` | `Speakers` (her name and face before day 15), lines |
+| `seren_handed_over` | `herald_demand` (hand over) | `CourtLayout` (she is gone), the endings (no Bright Crown), lines |
+| `truce`, `tribute_paid` | the herald's bargain | `truce_drill`, `truce_end` |
+| `herald_refused`, `herald_mocked` | the herald refused | Brannock's and Pip's lines |
+| `cheap_arrows`, `marek_caught`, `arrows_reforged`, `arrows_refused` | Marek's arrows | `bad_arrows`, lines |
+| `war_tax_promised`, `guilds_levied`, `war_tax_refused` | `war_tax` | Odile's lines |
+| `beacon_vowed`, `beacon_shown`, `beacon_doubted` | `beacon_plans` | the beacon lines of Odile, Pip, Hesper and Bram |
+| `refugees_in`, `refugees_some`, `refugees_turned_away` | `refugees_gate` | Odile's line; free for the endings |
+| `vow_aldric`, `aldric_known`, `seren_doubted`, `seren_outside` | the reveal | free for the endings |
+| `pip_joke_told`, `pip_joke_saved`, `speech_dawn`, `speech_aldric`, `speech_honest` | days 19 and 20 | Pip's line; free for the ending scenes (Pip may tell the saved joke) |
+| `plough_blessed`, `herbs_grown`, `ludo_stays`, `ludo_dared`, `envoy_met` | random petitions | the petitions above |
+
+Every random petition sets a flag of its own in each choice and forbids it, so it comes once per realm
+(`well_fixed`, `bridge_done`, `goat_judged`, ...); three come back after five days while their problem stays unsolved
+(`well_repair`, `footbridge`, `lantern_lanes` when refused). Many flags only record a choice (`gerald_kept`,
+`scarecrow_brannock`, `ballad`, `bell_melted`, ...) and let the court's lines answer it.
+
+**The random petitions**
+
+- Town (21): the well and its quarrel, the blessed plough's harvest, a goat in the chapel, a wedding (happiness 55 and
+  up), the footbridge, a market statue (50 and up), a barn set alight by our own fire arrow, lanterns for the lanes, a
+  family leaving (45 and below), the widow's garden, the children's Brannock scarecrow, a ribbon merchant's stall, an
+  alehouse brawl, the miller's hoard (60 and below), amulets of the Flame, a hungry thief, the hunting rights, a
+  whispering cellar, the masons' courtyard statue, a border family (from day 21: endless, or a new realm's later days).
+- Front (10): the crow rags, the old sergeant, a deserter, a scout's pitch, the archers' pay, a child who wants to be an
+  archer (a lamp-runner, German "Lampenkind"), the tar pits, guards on the wall walk, Gerald the sootling in a pickle
+  jar, the widow's penny.
+- Court (12): Bram's chapel bell, Tamsin's oven, Hesper's offering bowl (the chapel's blessing), Pip's Minister of Jokes,
+  Odile's eighteen missing gold, Marek's spyglass, relic (Saint Taper's "fingerbone") and cart, the old banners, the
+  widow's tapestry of Aldric, the dark keep window, Seren's night on the wall.
+- Guests (7): Ser Ludo (arrives days 3 to 12, his great lantern, his tournament), the bard (a ballad, then a satire),
+  the envoy from the coast (the black tide climbing to the lighthouse: chapter 2's teaser; archers for silver, then a
+  promise for salt fish).
+- When they come: day 1 brings the tutorial only, day 2 the tower and the well (the only random petition open then); 7
+  random petitions are open on day 3, 18 on day 5, 37 on day 8 and about 45 from day 11. 37 random petitions also come
+  in endless (day 21 on), unless heard already.
+- Endless only (15): the eclipse omen, the Feast of the Long Watch, a plague of crows, a tired veteran, Odile's
+  Chronicle, a child asking about the stars, Marek's fire oil, the mill wheel, the walking fence, the tired town (45 and
+  below), the scouts' warning, pilgrims, frost in the mortar, Pip's Night of Lanterns, Ser Ludo's dragon tooth. Twelve
+  can come again (the five-day rule spaces them), three come once; an endless realm hears about two to three a day.
+
+**Counsel**: Odile is usually right and always in character, but not always right: she counsels buying Marek's arrows
+(Tamsin and Bram know better), sending the refugees on to the coast, flat bread over a new oven, keeping the gold
+instead of the chapel's blessing, and declining Marek's spyglass, which is honest four times in five. She is warm
+where it is cheap (the widow's penny, the thief's bread, the harvest feast, the tapestry) and thrifty everywhere else.
+
+**World changes, night modifiers, unlocks**: every registered world id is used. Castle: `castle.statue`
+(`castle_statue`), `castle.guards.wall` (`guards_on_wall`), `castle.banners.new` (`banners_new`), `castle.hall.tapestry`
+(`tapestry_aldric`), `castle.chapel.bell.missing` (`bell_for_arrows`), `castle.chapel.candles` (`hesper_giant`,
+`truce_end`), `castle.keep.window.dark` (`keep_window`), `castle.courtyard.stall` (`marek_stall`),
+`castle.seren.lantern` (`stranger_gate`, `seren_at_gate`; taken down by the handover). Town: `town.well.repaired`,
+`town.bridge.mended`, `town.festival.tent` (the wedding, the harvest feast, the tournament, the Long Watch feast),
+`town.statue`, `town.barn.burnt`, `town.market.stall`, `town.lanterns.extra`, `town.window.dark` (a family leaves, the
+cough takes old Hemmet), `town.garden`, `town.scarecrow`. Night modifiers: `crows-2`, `crows-4`, `hounds-2`, `hounds-3`,
+`brutes-2`, `sootlings-5`, `sootlings-6`, `fog`, `wave-10pct`, `wave-25pct`, `wave-50pct` (the truce), `wave+15pct`,
+`wave+20pct`, `wave+30pct`. Unlocks: `warTax` (`war_tax`) and `beacon` (`beacon_plans`) beside the dawns that open them
+anyway, `blessing` (`hesper_bowl`, 30 gold), `-blessing` (the bell melted down).
+
+**Decisions taken (content step)**
+
+| Decision | Why |
+|---|---|
+| The war tax still unlocks at dawn 8 and the beacon site on day 11; Brannock's and Odile's petitions `unlock` them too, which changes nothing beside those dawns. | An unheard or refused story petition must never lock the chapter. The texts are written for it: "The old law now allows a war tax"; "I took the liberty of having the site cleared this morning". |
+| Odile counsels sending the refugees on. | The reference bot follows her, and people who join late in the chapter made its eve of night 20 stronger than measured (rounds `lh-m3-c1` and `c2`). It is her one hard moment where she is plainly not right, and Pip's and Tamsin's lines answer it; the half measure stays a choice. |
+| Refusing the herald costs a harder night 17 (`wave+15pct`, mocking him `wave+25pct`). | His threat ("refuse, and he comes himself") gets teeth, so the bargain's three quiet nights weigh against a real price; it also tempers the reference bot's eve after round `c2`. |
+| No counsel choice rolls a chance, and counsel night modifiers come only on days 4 to 14. | A chance rolls the simulation's random stream and would reshuffle the nights T1, T6 and T7 measure; the late nights and the finale stay as the battle was tuned. |
+| Late in the chapter the reference bot gains no townsfolk and no gold gifts: Odile pays for the thief's bread, keeps the hunting rights common and picks the harvest feast; the border family comes after the chapter. | Round `lh-m3-c1`: with them the eve of night 20 was so strong that the realm without the beacon held the finale in 9 of 10 seeds (T6 wants 3 to 6). |
+| Counsel stays thrifty in days 1 to 10; feel-good petitions with a price open on day 8. | T4's high-tax realm had 2 points of margin and T1 needs the middle line's stone wall before the brutes of night 7. |
+| Random petitions come once per realm unless their problem stays unsolved. | 50 random petitions for about 45 random places in a chapter: nobody asks twice. Endless has repeatable petitions of its own. |
+| The herald's three quiet nights are his own night plus two follow-ups with `wave-50pct` in every choice. | A night modifier lasts one night; follow-ups reach the next ones, and night 20 stays the finale. |
+| Refugee and child petitioners speak as "we" or without words that give a gender. | Their portraits and names are drawn as a woman or a man, a girl or a boy. |
+| Seren's name is never spoken by the court before the reveal. | The card calls her "The Stranger" until day 15 or `seren_revealed`; the lines say "our guest". |
+
+**Notes for the UI step**
+
+- Who shows which portrait: court members petition with their own portraits (Brannock: `tower_request`, `war_tax`,
+  `guards_on_wall`, `truce_drill`, `last_stand`; Odile: `beacon_plans`, `odile_ledger`, `banners_new`, `chronicle`;
+  Hesper: `hesper_giant`, `hesper_bowl`, `keep_window`, `truce_end`, `eclipse_omen`; Pip: `pip_minister`,
+  `pip_farewell`, `lantern_night`; Tamsin: `tamsin_oven`; Bram: `bad_arrows`, `bell_for_arrows`; Marek: `marek_arrows`,
+  `marek_spyglass`, `marek_relic`, `marek_stall`, `marek_oil`; Seren: `stranger_gate` and `seren_watch` hooded,
+  `seren_reveal` and `seren_at_gate` revealed). Guests: Ser Ludo (`ludo_arrives`, `ludo_returns`, `ludo_tourney`,
+  `ludo_old`), the bard (`bard_song`, `bard_satire`), the envoy (`envoy_coast`, `envoy_tide`), the herald
+  (`herald_demand`, `herald_alone`). Everyone else is townsfolk with a composed portrait and a name from the lists.
+- Seren waits at the front gate for `stranger_gate` and `seren_at_gate`; the herald stands in the hall.
+- The castle's world ids to draw in M3 step 3 are the nine above; the town's ten come in M4.
+- The longest request is 217 characters in English and 267 in German (`ludo_old`); labels at most 35 and 40, reactions
+  131 and 154, court lines 105 and 129 (the cards scroll; check the German audience screenshot).
+- Each court member has a day-1 line (except Marek, who is away on day 1, and Seren).
+
+**Tuning with the content** (the reference bot hears every petitioner with Odile's counsel when it can, else the
+cheapest choice)
+
+Measured first with an economy mirror (tools/tune.py's economy with the queue, the bot's policy and every economic
+effect ported; no battle). It reproduces the runner's numbers for no petitions and for the five samples exactly (T4 25
+and 28, T5 11 and 12) and finishes the beacon one day earlier than the runner. With the content: T4's high-tax realm at
+dawn 8 is 27 (28 with the samples); the build order stands where the samples had it at dawn 7 in 9 of 10 seeds (the
+middle line's stone wall before night 7); T5 11 buildings by day 10 on seed 1 (12 with the samples); the beacon on the
+mirror's day 15 or 16; the eve of night 20 one build step short of the samples' (step 34 against 35, 20 buildings, 32
+people, 12 archers). Endless counsel moves no soldiers and no nights; it spends about 350 gold over 40 nights that the
+endless bot cannot use (over 4,000 in its treasury) and adds the border family's two people. The mirror cannot see the
+battle: round `lh-m3-c1` showed that gifts of people and gold late in the chapter, and counsel night modifiers on the
+late nights, made the eve of night 20 much stronger than measured (see the decisions).
+
+**Runner rounds (M3 step 2)**
+
+- `lh-m3-c1` (build, unit) on `4a3e0ce`, the content as first written: build passed; T1 to T5 and T8 passed (T3 days
+  16, 16, 16; T4 27, low tax 79; T5 49 gold buy 3, 11 buildings by day 10) and the validator found no problem. Failed:
+  T6 (without the beacon 9 of 10 held; the outer line had a stone wall in 8 eves), T7 (falls on nights 40, never, 38)
+  and night 20's step check (seed 2 reached the hearth at 104 against 114 s, around first light).
+- `lh-m3-c2` on `26a0652` (no late townsfolk or gold gifts in the bot's path, counsel night modifiers only to day 14,
+  thriftier endless counsel): the same passes; T6 7 of 10 without the beacon (margins H54, H100, H100, F0, F4, H100,
+  H57, F5, H100, H100), T7 50, never, 49, and seed 1's step check reached the hearth in one of its two runs only, 5 s
+  before first light. Seed 1's eve equals the samples' round `lh-m3-a3` (19 buildings, 29 people, 11 archers), which
+  held 4 of 10.
+- `lh-m3-c3` on `a0910d2` (Odile sends the refugees on; refusing the herald costs a harder night 17): build passed, 292
+  unit tests passed and 2 failed. Passed: T1 to T5 and T8 (T3 days 17, 16, 17; T4 27, low tax 83; T5 49 gold buy 3, 11
+  buildings), night 20's step check, every petition, court and data test, the validator without a problem. Failed: T6
+  (with the beacon 10 of 10 won and the King slain in 10 of 10, 58 to 65 s after he left, with 12 to 22 s of light left;
+  without it 9 of 10 held, margins H92, H36, H100, H100, H89, H100, H100, H96, F1, H62) and T7 (falls on nights 45, 65,
+  51: seed 2 five nights past 60).
+
+**Why T6 and T7 stay out of their bands** (the lead to decide)
+
+- The eve's economy is not the cause. In round `c3` seed 1's eve is weaker than the samples' (8 archers against 11,
+  the beacon a day later), and that realm held night 20 without the beacon, where the samples' realm fell.
+- The deciding draw is the Lightless King's departure, 10 s ± 8 s after nightfall, rolled from the simulation's stream
+  when night 20 is planned: without the beacon the realm falls when he reaches the hearth before first light (108 s),
+  which happens about 95 to 100 s after he leaves. His mean departure was 8.2 s in the samples' round (4 of 10 held)
+  and 12.9, 10.4 and 10.3 s in rounds `c1` to `c3` (9, 7 and 9 held); the gatehouse fell about 82 s after he left in
+  both. Whatever the reference bot hears moves the simulation's stream (soldiers' names, the night plans of modified
+  nights), so every change of content redraws all ten departures, and the counsel path cannot steer them without a
+  night modifier on day 20, which T6 rules out. T7 is the same kind of draw (whether an endless realm ever loses its
+  gatehouse): seed 2 stood past the cap in `c1` and `c2` and fell on night 65 in `c3`.
+- Proposal: count T6's "without" band and T7 over more seeds (`TuningRun.measure` takes `seedsT6`, and tools/simtune
+  already runs 20), or widen the bands now that the audience moves the stream every day. Retuning the finale (the
+  King's departure and its jitter, first light) is core balance, which this step did not touch.
+
+**Open points**
+
+- T6's "without" count and T7 are out of band (above); everything else passes. (Resolved in "M3 join": 20 seeds as
+  shares, the King at 4 ± 1 s, the endless growth 0.5.)
+- An endless realm hears about two to three petitioners a day: twelve repeatable endless petitions and the five-day
+  rule. A few more repeatable ones would fill four.
+- The war tax and the beacon site still open by themselves at dawn 8 and on day 11; the petitions' unlocks change
+  nothing beside them.
+- No child body yet: child petitioners walk as `citizen`.
+- The endings (M5) read `seren_handed_over`; the other story flags above are free for their scenes.
+- The other six languages come in M7. The longest German request (`ludo_old`, 267 characters) wants the UI step's
+  audience screenshot.
+- The content's generator stays outside the repo (`tools/` was not this lane's): edit the JSON files and
+  Story.xcstrings directly; `PetitionDataTests` checks them.
+- `tools/simtune/run.sh` still lacks `Core/Petition*.swift` (step 1's open point).
+
+### M3 in detail: the audience on screen, the court alive, the rooms cut away (step 3, 09.11.2026)
+
+Step 3 puts the audience, the court and the castle's rooms on screen on top of steps 1 and 2: the throne opens the
+audience, a petitioner after the other walks up to a parchment card over the hall, the court walks its rounds and
+talks, the great hall, the chapel and the kitchen open when the king steps in, and the castle shows what petitions
+changed. The simulation is untouched: the reference bot hears petitions exactly as in step 2, so T1 to T8 measure the
+same numbers.
+
+**What was built**
+
+- **The throne** (`KingTarget.throne`): while petitioners wait in the hall the crown (caption "Audience (n)") opens the
+  audience; with nobody waiting it still opens the tax card. The **tax lectern** is its own target
+  (`KingTarget.lectern`, the book; `KingTargets.lecternX` 1840, the `taxLectern` prop at 1834). A court member counts
+  6 px farther than he stands (`KingTargets.talkBias`), so the lectern, the throne or a plot beside him wins a close
+  call.
+- **The audience** (`Core/Audience.swift`, `App/GameModel+Court.swift`, `UI/AudienceCardView.swift`): the clock stops
+  (`Overlay.audience`), the king sits on the throne (his x set to 1824, facing the petitioner) and the camera settles on
+  him under the card. `AudienceRules.hall` is today's queue in its order without the Stranger at the gate. The first
+  petitioner walks from where he waits (townsfolk at the benches, guests where they stand, a court member from his
+  round, by the hall's door when that is elsewhere) to the audience spot (1800) in 0.5 to 1.4 s; the card opens when he
+  arrives (at once with Reduce Motion). Hearing a choice goes through `PetitionEngine.hear` (position in the queue), the
+  HUD's numbers roll, the card shows the king's word, the reaction and what changed (gold, happiness, people, soldiers,
+  builders, tonight's attack, what was opened), and "Next petitioner (n)" lets the next one walk up while the heard
+  townsfolk or guest walks out by the hall's door and fades (`CourtLeaver`); a court member walks back to his round.
+  "Stand up" ends the audience at any time; whoever was not heard keeps waiting until the horn. The pause sheet ends it
+  too.
+- **The card** stands between the HUD and the figures (`GameModel.figureTop`, from the frame's pixel scale), as wide as
+  the screen allows (780 pt at most), its pointer down to the speaker (`GameModel.stageAnchor`), so the hall, the king
+  and the petitioner stay in view below it. The portrait (`UI/PortraitTile.swift`: 48x48 at whole device pixels per art
+  pixel, 4 on a 3x screen, on a framed dusk tile): story characters and guests their own (Seren hooded until day 15 or
+  `seren_revealed`), townsfolk a portrait composed from the contract's parts with the swap ramps by the petitioner's
+  look (`PortraitComposer.compose(recipe, atlas:)`, cached per recipe). The name and the role (the unnamed guests show
+  their role as the name), the request; the choices as 2 or 3 tiles side by side (52 pt and more) with what they cost or
+  bring (`EffectChips`: a coin, the face, people, archers, guards, builders, a moon for tonight's attack, a die where a
+  chance decides part of it, "No cost"), greyed with the reason (`ChoiceBlock`: gold missing, taxpayers, archers,
+  guards, the castle's last builder). The text scrolls when the screen is too short (German, Dynamic Type); the choices
+  stay in view. **Counsel** (Odile's mini portrait) shows her line in a small parchment note at the top of the screen,
+  where the realm strip rests during the audience, and puts her seal on the choice she favours.
+- **The Stranger at the gate** (`KingTarget.stranger`, `AudiencePlace.gate`): on the days her petition waits and she
+  is not let in, Seren stands in the castle's front gateway (1352); the speech bubble there opens the same card with
+  her hooded portrait ("The Stranger"). Let in, she walks in through the gate and takes her corner of the hall; turned
+  away, she walks back into the gorge. She waits all day, not only at dusk (see the decisions).
+- **Talking** (`KingTarget.talk`, `Core/CourtTalk.swift`, `UI/TalkBubbleView.swift`): by day, within 28 px of a court
+  member or guest who has a line today, the speech bubble (caption: his name) opens his next line of today
+  (`CourtLineBook.line(for:state:nth:)` with `TalkLog`, not saved) in a parchment bubble over his head, following him on
+  screen; he stops, turns to the king and gestures with his talk frames. A tap on the bubble closes it, so do walking
+  52 px away, a card and the horn. The **speech mark** (`speakerMark`, drawn at full brightness so it reads at night,
+  frame 1 pulsing every 0.6 s, still with Reduce Motion) stands over a member with a hint about one of today's
+  petitions until the king has talked to him today.
+- **The court drawn** (`Core/CourtFrames.swift`): every figure of `CourtLayout.figures` as an actor before the king
+  (he stays in front), its glow strip over it (Hesper's flame, Seren's lantern, the herald's eyes; dimmed by day like
+  the king's glass), breathing on the animation clock (so the court lives while the audience stops the simulation),
+  walking its round, talking with talk frames. `CourtMotion` smooths where they stand: a member walks back to his round
+  at 42 px/s after an audience or a talk, a jump farther than 240 px (Seren let in) is taken at once, and Reduce Motion
+  takes every change at once. Today's petitioners wait at the benches; guests stand in the hall; Marek and his cart on
+  his days. Figures inside a shut room do not show; they fade in with it.
+- **The rooms cut away** (`Core/CastleRooms.swift`): `RoomFades` opens the great hall, the chapel and the kitchen
+  while the king stands inside (`WorldLayout.rooms`) and shuts them when he leaves, over 0.25 s of real time (at once
+  with Reduce Motion). The hall's front (`hallFront`, z 2 over the throne, hearth, candles, benches and lectern) and
+  the scene's chapel and kitchen fronts fade; a front that is gone is not drawn at all, so it never clears the glow of
+  the interior behind it. `chapelInterior` and `kitchenInterior` are drawn behind their fronts while open. The art
+  lane's anchors (ART-court.md): the fronts' window glass masks (the chapel's four lancets at their real panes, not the
+  probe's window sprites; the kitchen's eight panes; the hall's three windows, its two lanterns and the light under its
+  door), the Flame in its bowl, the altar candles, stands and sconces, the sanctuary lamp, the oven-hearth's fire and
+  the table candle, with their lights. A shut room's warm light is out: the hearth's glow and its light (visual only;
+  the battle keeps its light) and the hall's candles show only while the hall is open, so no pool paints the outer
+  wall. The light probe (`-GWScene probe`) keeps the M1b scene with the hall cut away.
+- **World changes in the castle** (each drawn while its id shows): `castle.statue` (the statue at 1680),
+  `castle.courtyard.stall` (Marek's cart every day, its lantern lit at dusk), `castle.guards.wall` (two guards on the
+  wall walk by day, 1324 and 1396), `castle.banners.new` (five renewed banners over the hall's own), `castle.hall.tapestry`
+  (Aldric on the back wall, 1764), `castle.seren.lantern` (her grey lantern on the hall's far wall with a cold light),
+  `castle.chapel.candles` (votive candles before the altar step, lit), `castle.chapel.bell.missing` (the belfry's
+  louvres where the bell hung, the rope left hanging), `castle.keep.window.dark` (one keep window unlit on the castle
+  front's keep, the far keep and the keep above the valley). The five without a contract sprite are procedural
+  (`hallBanner`, `tapestry`, `serenLantern`, `votiveCandles`, `bellGone`, `Render/PlaceholderCastle.swift`).
+- **The realm strip** marks the petitioners waiting for the throne (a parchment bubble with their number over the
+  hall, above the bar) and the Stranger at the gate (her grey lantern); its VoiceOver value names the count. It rests
+  during the audience.
+- **The dawn report** names who went home unheard at the last horn ("Sent home unheard": "Agnes (Farmer's wife),
+  Brannock"), from the court's history and the same looks (`UnheardPetitioners`), beside the happiness reason.
+- **Placeholders** (`Render/PlaceholderCourt.swift`): the rooms' stand-ins now sit inside their rooms' outlines
+  (measured from `hallInterior`, `chapel` and `kitchen`) with their windows, altar, oven and candles at the art lane's
+  anchors, so the screenshots before the art lane's merge show the glow where the art will have it.
+- **Debug arguments**: `-GWScreen petition` and `-GWClock` (see the table). **Hooks in existing files**: `GameModel`
+  (the court's state, `withDriver`, the throne, lectern, talk and gate actions, the camera settling under a card, the
+  court's frame and clock), `KingTargets`, `RealmStrip`, `CourtLayout` (Hesper's and Tamsin's stops), `FrameDesc` (the
+  five procedural ids), `PlaceholderArt`, `GameStart`, `DebugArgs`, `HUDView`, `OverlayView`, `GameView`,
+  `RealmStripView`, `ReportCardView`.
+
+**Decisions taken (M3 step 3)**
+
+| Decision | Why |
+|---|---|
+| The audience card stands above the figures, between the HUD and their heads, with a pointer down to the speaker; not in the lower half. | In the lower half it hid the petitioner, the king and the benches, the story moment itself. Above them the hall stays in view and the HUD's numbers roll in their place after a choice. |
+| Odile's counsel is a small note at the top of the screen, where the strip rests during the audience. | Under the request it pushed the choices out of the card on a 17 Pro (round `lh-m3-b1`: the line was scrolled away). The top is empty during the audience: no travel is possible then. |
+| The throne without petitioners still opens the tax card; the lectern is its own target beside it. | The crown never does nothing, M2b's players find the taxes where they were, and the lectern serves while petitioners wait. |
+| A court member yields a close call to a place beside him (6 px). | Odile steps to the lectern now and then: without the bias the lectern's book and her bubble swapped under the king's feet. |
+| The Stranger waits at the gate all day (days 4 and 5), with the same card. | A dusk-only window would last 3 in-game hours (36 s) and is easy to miss; she stands in the gateway, the strip shows her lantern, and the horn still sends her away. |
+| Talking does not stop the clock and is a bubble, not a card; by day only. | A line is a moment in passing; at night the court keeps the hearth and the king the walls (and the night's action button stays light and patch). |
+| The speech mark shows a hint about today's petitions until the king heard the member today. | "Something new to say" that a player can act on; gossip without a hint does not nag. |
+| The audience's walk, the rooms' fades, the leavers and the court's breathing run on real time while the simulation stops. | The audience pauses the clock, but the hall must not freeze into a still picture. |
+| A court member who petitions comes in by the hall's door when his round is elsewhere. | Brannock's round is in the courtyard: crossing it in a second would be a sprint; the door is off screen from the throne. |
+| Figures inside a shut room are not drawn, and the room's warm light is out. | The art lane's note: a wall hides them; a hearth pool on the outer wall read as a fire outside. |
+| The five castle world changes without a contract sprite are procedural sprites. | SPRITES.md "M3" has no sprite for them and the art lane did not paint them; the lead can hand them over (their ids, sizes and places are above). |
+
+**Tests (M3 step 3)**
+
+- New unit tests (24, all passing): `AudienceTests` (the throne hears the hall and the Stranger waits at the gate, the
+  walk up and the card on arrival, the card's choices with their costs and reasons, hearing through the session and
+  who went home unheard, the leavers), `AudienceFlowTests` (the crown, a choice heard, standing up with the rest
+  waiting, the lectern's taxes, the pause, Reduce Motion, the Stranger at the gate, talking, `-GWScreen petition`),
+  `CastleRoomsTests` (a front fades in a quarter second and swaps at once with Reduce Motion, the shut hall hides its
+  court and the open hall shows it, the chapel and the kitchen open with their interiors lit, the court walks, talks
+  and carries its marks, the castle's world changes, a crowded castle frame within the budget), `PortraitCardTests`
+  and `TalkTests`. `ScreenFlowTests` and `FirstDayUITests` follow the throne's new split (the crown opens the
+  audience while petitioners wait; the taxes at the lectern).
+- UI test 4 `testAudience` (`UITests/AudienceUITests.swift`, English and German): the court in the courtyard (58), the
+  hall's front from the courtyard (60), the hall with the court and three petitioners (51), the kitchen opened (57),
+  a line from Tamsin (55), the chapel opened (56), the audience: Brannock's card (52), Odile's counsel (53), the
+  reaction (54), the next petitioner, a townswoman with her composed portrait (52b), standing up; the herald's sample
+  (59); night 3 in the hall and the chapel (51b, 56b, for the look); Reduce Motion (the card within 1.5 s). Every
+  button it taps is checked for 44 pt.
+
+**Runner rounds (M3 step 3)**
+
+- `lh-m3-b1` (build, unit, ui with `AudienceUITests` and `FirstDayUITests`, ui-de with `AudienceUITests`, release) on
+  `b7b3424`, the first draft: build passed on the first try; ui, ui-de and release passed. Unit failed the walk-up
+  test (`CourtFrames.key` gave a court member the petition's key and a townsfolk petitioner his own, so the walker
+  was drawn twice: `"p:tower"` against `"brannock"`) and T6 and T7 as in round `lh-m3-c3`. Its screenshots showed
+  Odile's line scrolled out of the card, the strip's petitioner bubble under the king's mark, the king covering a
+  bench and the herald's sample dim at 06:00.
+- `lh-m3-b2` (build, unit, ui and ui-de with both tests) on `b9b3366` (the walker's key, the counsel note at the top,
+  the strip's bubble above the bar, seed 2 and the lectern for 51, the herald at 17:48, the placeholders at the art
+  lane's anchors): build, ui and ui-de passed; unit failed only T6 and T7, the same numbers.
+- `lh-m3-b3` (build, unit, ui, ui-de, release, every UI test) on `381da66`: build passed without a compiler warning;
+  316 unit tests passed and 2 failed, T6 and T7 exactly as in round `c3` (T6 with the beacon 10 of 10 won and the
+  King slain in 10 of 10 after 58 to 65 s; without it 9 of 10 held, margins H92, H36, H100, H100, H89, H100, H100,
+  H96, F1, H62; T7 falls on nights 45, 65, 51); every step-3 test passed; ui 9 of 9 and ui-de 9 of 9 passed
+  (`testAudience` 140 s); release passed. German fits on every card, bubble and caption of the shots 51 to 60.
+
+**Open points and notes for the lead**
+
+- T6 and T7 still fail exactly as in round `lh-m3-c3` (the content step's open point, unchanged by this step: the
+  same numbers in rounds `lh-m3-b1` to `b3`). They wait for the lead's decision on the bands or the seeds. (Decided
+  and resolved in "M3 join".)
+- The art lane's room PNGs (`hallFront`, `chapelInterior`, `kitchenInterior`, the touched-up `chapel` and `kitchen`)
+  are on `claude/lh-m3-art`; the anchors here are theirs. The bell overlay (`bellGone`) is painted in the colours of
+  their `chapelInterior` behind the bell; if they repaint the belfry it must follow.
+- The seated king (the art lane's `kingSeated` proposal) and sit frames for the benches are not in the contract: the
+  king stands at the throne during the audience and the petitioners stand at the benches.
+- The cart's lantern mask, the hall's glass masks and the room fires use the art lane's anchors; on this branch's
+  placeholders they now match too.
+- Reduce Motion: no walks, no fades (the fronts swap), no card transitions; the speech mark holds still.
+
+### M3 join (09.11.2026): the art, the M2b review's fixes and the finale's draw
+
+The join brought M3's three lanes and the planning branch together on `claude/lh-m3`: M3's code (steps 1 to 3), M3's art
+(`claude/lh-m3-art` after its review and fix stage) and `claude/game2-planning-354541` (the M2b review's fix stage with
+M2a's battle restored, round `lh-rev-f4`, and Louis' decisions of 09.11. evening).
+
+**The merge**
+
+- `claude/lh-m3-art` merged cleanly (tools, Resources/Art, ART-court.md). Hesper's moved flame needs nothing in the
+  code: the glow strip draws over the body, and no light sits at her flame.
+- `claude/game2-planning-354541` conflicted in five files, resolved so both sides stay:
+  - `GameModel`: M3's court state beside the review's save store, holds, build verbs, the horn by day and the cached
+    filtered scene. The cache now also keys on the rooms' fades and the dark keep window
+    (`CastleRooms.SceneKey`), so `CastleRooms.scene` runs only when a room fades or the keep window changes, not 60
+    times a second.
+  - `FrameDesc`: M3's sprites beside the review's 18x6 streak.
+  - `HUDView`: M3's throne, talk and Stranger labels in the review's `(target, hold)` form.
+  - `Localizable.xcstrings`: merged key by key (33 M3 keys, 13 review keys, 2 review renames, no key changed on both
+    sides).
+  - DESIGN.md: both sides' sections in order (the M2b review before M3's three steps).
+- Clashes in meaning, fixed in the merge:
+  - `KingTargets.hold` (new on the review side) covers M3's lectern, talk and Stranger targets.
+  - The review hides the HUD under every card and screen, drops the pause button under the screens and draws the
+    world at 20 fps under them, all keyed on "not a card". M3's audience is neither: its card stands below the HUD,
+    whose numbers roll there after a choice, the pause sheet ends the audience, and the hall lives on under the card.
+    `Overlay.isScreen` (the dawn report, the defeat card, the pause sheet) now decides the pause button and the 20
+    fps; the HUD's clock and numbers stay during the audience (the strip still rests for Odile's counsel).
+  - The review made the gorge keep's glass smaller (its right pane at dx 65); the dark keep window
+    (`castle.keep.window.dark`) now darkens it there too.
+  - `AudienceFlowTests` use a temporary save store, as the review's `GameScreensTests` do.
+  - "Sound the horn" by day plays the day on headless to 18:59; petitioners still waiting go home unheard at the horn
+    as on any day.
+- `tools/simtune/run.sh` compiles M3's core: the petitions the reference bot hears (`Core/Petition*.swift`) and, since
+  the review's line-1 torches read `WorldLayout`, `WorldLayout`, `Camera` and `PixelScale`. Started in the game's
+  folder, it reads `Resources/Petitions`. `run.sh finale` sweeps the Lightless King's departure, its jitter and his
+  walk in the dark on night 20 over seeds 1 to 20 (`SimTune.finale`).
+
+**T6 and T7 over 20 seeds** (the lead's decision on step 2's open point)
+
+Both targets now count 20 seeds and state their bands as shares (`TuningMetrics.targetSeeds`; "Tuning targets" 6 and
+7): T6 with the beacon won in at least 80 % and the King slain in at least 60 %, without it 30 to 60 % held; T7 at
+least 80 % of 20 endless seeds falling between nights 35 and 60. Measured on the merged code (round `lh-m3-j1`, the
+same numbers as `lh-m3-b3` on seeds 1 to 10):
+
+- T6 with the beacon: won 20 of 20, the King slain 20 of 20, 58 to 65 s after he left, with 12 to 22 s of light left.
+- T6 without: **18 of 20 held (90 %)**; only seeds 9 (F1) and 15 (F7) fell. The draw decided it: with the King leaving
+  at the earliest second of 10 ± 8 (2 s) 6 of 20 held, at the latest (18 s) all 20, and 14 of 20 seeds flipped
+  between the two. The finale was too easy without the beacon, and the beacon has to matter.
+- T7: falls on nights 45, 65, 51, 0, 0, 39, 46, 0, 49, 61, 66, 47, 46, 62, 50, 51, 49, 44, 47, 46: **13 of 20 in the
+  band**, three realms still standing at the cap and four falling at 61 to 66, the median fall 49.
+
+The sweep (`tools/simtune/run.sh finale`, rounds `lh-m3-j1` and `j2`; nights 1 to 19 do not depend on the King, so
+each seed's eve is played once and every variant plays night 20 from it): held without the beacon, of 20 (with the
+beacon every variant won 20 of 20 and slew the King in all 20, 56 to 65 s after he left).
+
+| Departure | ± 0 | ± 1 | ± 2 |
+|---|---|---|---|
+| 10 s | 14 | 15 | 18 (± 3: 17, ± 4: 18, ± 8: 18) |
+| 8 s | | 13 | 14 |
+| 7 s | 13 | 12 | 13 |
+| 6 s | 10 | 10 | 10 |
+| 5 s | 8 | 8 | 10 |
+| 4 s | 12 | **10** | 9 |
+| 3 s | 6 | 8 | 9 |
+
+His walk in the dark at 10 s: 25 px/s held 13 (± 1) and 11 (± 2), 26 px/s 5 and 5, 27 px/s 0 and 2, 28 px/s 0. Night
+20's step check (seeds 1 to 3) passed at 10 ± 8, 7 ± 1, 4 ± 1, 3 ± 0 and 3 ± 2; it failed at 6 s and 5 s with every
+jitter (seed 1 without the beacon: the hearth reached 4 s apart between the step sizes, 108.8 against 104.7 s, the
+courtyard phase after the gatehouse falls, as in M2a's sweep), at 4 ± 0, 4 ± 2 and 3 ± 1, and at 25 px/s.
+
+**Decision: the King leaves at 4 ± 1 s (20:20 ± 0:05; `Balance.kingSecond` 4, `kingJitter` 1).**
+
+- The jitter narrowed from ± 8 to ± 1 s and the departure 6 s earlier: without the beacon **10 of 20 hold (50 %)**,
+  the middle of the band; with it 20 of 20 won and the King slain in all 20, 59 to 64 s after he left, with 11 to 22 s
+  of light left; the step check passes. Margins without the beacon: H98, H1, H100, F1, F5, F0, H100, F2, F5, F1, H100,
+  H100, H97, H26, F3, F9, F3, F14, H100, H100.
+- The outcome now hangs on the realm, not the draw: over the whole ± 1 window 6 (leaving at 3 s) to 8 (at 5 s) of 20
+  hold, against 6 to 20 over 10 ± 8. The seeds that still flip inside the window are the realms that fall or hold
+  within a few seconds of first light (F0 to F5, H1), where any change of the night moves them.
+- Why not less: 7 ± 1 s, the smallest shift into the band, lands on its upper edge (12 of 20 = 60 %) only through its
+  draws (± 0 and ± 2 hold 13, out of the band), so any content change would push it out; 6 s and 5 s lie inside the
+  band with every jitter but fail the step check. 4 ± 1 s is the smallest shift inside the band with every jitter that
+  passes the step check.
+- Not his walk: one pixel per second moves the share by 6 to 8 seeds (25 px/s 11 or 13, 26 px/s 5), and 25 px/s
+  fails the step check. Not first light: it times every night, so T1 to T8 would all move.
+
+**T7: tuned, not widened.** At 4 ± 1 s and the old endless growth (0.4) T7 falls on 46, 65, 43, 47, 0, 34, 58, 51, 49,
+61, 59, 57, 34, 46, 50, 49, 47, 47, 51, 50: 15 of 20 in the band (75 %). Over all 14 finale variants of round `j2`
+(each reshuffles the realms at dawn 21) T7 kept 12 to 15 of 20 in the band, every variant with one to three realms
+still standing at the cap, most with falls at 61 to 66, the median fall 49 to 51: a tail of realms that never lose
+their gatehouse, which is systematic, not noise. The endless growth over the same 14 variants:
+
+| `endlessQuadratic` | In the band, of 20 | Variants failing T7 | Standing at the cap | Median fall |
+|---|---|---|---|---|
+| 0.4 | 12 to 15 (mean 13.6) | 14 of 14 | 1 to 3 (mean 2.1) | 49 to 51 |
+| 0.45 | 15 to 18 (16.4) | 3 | 2 to 4 (2.7) | 45 to 47 |
+| **0.5** | 16 to 19 (17.7) | 0 | 0 to 3 (1.4) | 45 to 48 |
+| 0.55 | 17 to 20 (18.6) | 0 | 0 to 3 (1.4) | 44 to 47 |
+
+**Decision: `endlessQuadratic` 0.4 → 0.5**, the smallest growth that keeps T7 in its band for every finale variant
+measured (the story pass after the merge will reshuffle the realms at dawn 21 again). With 4 ± 1 s: falls on 46, 46,
+48, 43, 55, 37, 52, 50, 39, 53, 53, 49, 38, 49, 38, 0, 63, 44, 45, 0: **17 of 20 in the band (85 %)**, the median fall
+48. It changes only the nights after 20, so T1 to T6 and T8 do not move.
+
+**Runner rounds (M3 join)**
+
+- `lh-m3-j1` (build, unit, ui, ui-de, release, `sh bash tools/simtune/run.sh finale`) on `8467449`, the merged branch
+  with T6 and T7 over 20 seeds: build passed without a compiler warning from the game's code; unit failed only T6
+  (without the beacon 18 of 20 held) and T7 (13 of 20 in the band), every other test passed (the step check, T1 to T5
+  and T8 as in `lh-m3-b3`); ui, ui-de and release passed; simtune compiled the core in 78 s and swept 31 variants in
+  65 s. The audience's shots show the HUD's clock and numbers above the card and the art lane's court and portraits.
+- `lh-m3-j2` (`sh bash tools/simtune/run.sh finale`) on `3a44971`: the departures 7 to 3 s with ± 1, ± 0 and ± 2 and T7
+  with each endless growth (the tables above), 560 s.
+- `lh-m3-j3` (build, unit, ui, ui-de, release) on `98ac27e` with 4 ± 1 s and 0.5: **ALL PASSED**. 323 unit tests,
+  exactly the sweep's numbers: T6 with the beacon 20 of 20 won and the King slain in 20, 59 to 64 s after he left,
+  with 11 to 22 s of light left; without it 10 of 20 held, the falls at 03:52 to 05:00; T7 17 of 20 in the band; T1
+  to T5 and T8 unchanged; night 20's step check passed. `TuningTests` takes 294 s with 20 seeds and 20 endless seeds
+  (90 s before), the unit step 8 minutes. ui 9 of 9 and ui-de 9 of 9 passed; release passed. In `34-finale-2230`
+  arrows now fly at the King (3 in flight, 2 archers drawing), since he leaves 30 minutes earlier.
+
+**Open points (M3 join)**
+
+- Reported, not a target: a bot that never builds the beacon and spends that gold on the rest of its order still holds
+  night 20 in 10 of 10 (the first ten seeds). The beacon decides the ending and, against the same realm without its
+  last stage, survival in half the seeds; a realm built for defence instead holds ("The finale").
+- The story pass after the merge (king to lord, the families in the audiences) rewrites the content, and every content
+  change redraws night 20 and the realms at dawn 21: run `tools/simtune/run.sh finale` again. T6 sits in the middle
+  of its band (10 of 20), T7 at 17 of 20.
+- Night 20's step check stays fragile near first light: at 6 s and 5 s it failed on seed 1 (the courtyard after the
+  gatehouse falls, 4 s apart between the step sizes), as 19 of M2a's 58 variants did.
+- Two endless realms of 20 still stand at night 70 (the gatehouse never falls); more growth (0.55) or brutes in the
+  endless mix would take them, at the cost of moving the median fall earlier.
+- "Sound the horn" by day sends the petitioners still waiting home unheard at the horn (one happiness each at dawn);
+  its confirmation does not say so yet.
 
 ## Risks
 
