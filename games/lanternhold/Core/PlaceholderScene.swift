@@ -265,18 +265,41 @@ struct PlaceholderScene: Sendable, Equatable {
     /// The M1b world from `SceneLayout`, every instance in the order of `layout_m1b.py`'s `instances()` (cycles,
     /// clouds, far, mid, world, foreground), so equal z keeps the mock's draw order. The seed only feeds the flicker
     /// seeds.
-    static func world(seed: UInt64 = 1) -> PlaceholderScene {
+    ///
+    /// Look 2 (DESIGN.md "Look 2 port", tools/scenemock/layout_look2.py): the same world without the tile cycles and
+    /// the backdrop pieces look 2 replaces (`SceneLayout.dropsInLook2`), then look 2's own entries
+    /// (`SceneLayout.look2`: the Weltmauer and the far castle's glow, the shadow land's firs, the Throat's rock and
+    /// the warden statue in its wall, the valley's vista and trees, the foreground), then the castle's cliffs in
+    /// granite, last as in the mock.
+    static func world(seed: UInt64 = 1, look: LookVersion = .one) -> PlaceholderScene {
         var builder = SceneBuilder(seed: seed)
-        for cycle in SceneLayout.cycles {
-            builder.add(cycle)
-        }
         let planes: [(Plane, [SceneLayout.Entry])] = [
             (.clouds, SceneLayout.clouds), (.far, SceneLayout.far), (.mid, SceneLayout.mid),
             (.world, SceneLayout.world), (.foreground, SceneLayout.foreground),
         ]
-        for (plane, entries) in planes {
-            for entry in entries {
-                builder.add(entry, plane: plane)
+        if look == .two {
+            for (plane, entries) in planes {
+                for entry in entries
+                where !SceneLayout.dropsInLook2(sprite: entry.sprite, plane: plane, x: entry.x) {
+                    builder.add(entry, plane: plane)
+                }
+            }
+            for item in SceneLayout.look2 {
+                builder.add(item.entry, plane: item.plane)
+            }
+            for entry in SceneLayout.world {
+                guard let granite = SceneLayout.look2Cliffs[entry.sprite] else { continue }
+                builder.add(SceneLayout.Entry(sprite: granite, x: entry.x, y: entry.y, z: entry.z,
+                                              shade: entry.shade, flipped: entry.flipped), plane: .world)
+            }
+        } else {
+            for cycle in SceneLayout.cycles {
+                builder.add(cycle)
+            }
+            for (plane, entries) in planes {
+                for entry in entries {
+                    builder.add(entry, plane: plane)
+                }
             }
         }
         var actors: [SceneActor] = []
@@ -302,6 +325,8 @@ private struct SceneBuilder {
     /// The warm lamplight of window glow sprites and of window glass.
     static let windowColor = SIMD3<Float>(1.0, 0.74, 0.40)
     static let glassColor = SIMD3<Float>(1.0, 0.76, 0.42)
+    /// Look 2: the cold light in the Weltmauer's cleft.
+    static let cleftColor = SIMD3<Float>(0.11, 0.13, 0.19)
 
     init(seed: UInt64) {
         baseSeed = seed
@@ -318,6 +343,7 @@ private struct SceneBuilder {
         case .fireGold: return GamePalette.fireGold
         case .fireOrange: return GamePalette.fireOrange
         case .window: return windowColor
+        case .cleft: return cleftColor
         }
     }
 
@@ -352,7 +378,7 @@ private struct SceneBuilder {
         for emitter in entry.emitters {
             switch emitter {
             case let .sprite(sprite, dx, dy, glow, fades):
-                let isWindow = glow == .window
+                let isWindow = glow == .window || glow == .cleft
                 var seed: UInt64?
                 if !isWindow {
                     seed = parts.count < seeds.count ? seeds[parts.count] : nextLightSeed()

@@ -22,6 +22,8 @@ enum SceneLayout {
     /// The colour of an emissive sprite.
     enum Glow: Sendable, Equatable {
         case fireWhite, fireGold, fireOrange, window
+        /// Look 2: the cold light in the Weltmauer's cleft (steady, like a window).
+        case cleft
     }
 
     /// A light in the instance's plane coordinates.

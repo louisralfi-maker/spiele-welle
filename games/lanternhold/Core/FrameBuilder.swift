@@ -29,6 +29,24 @@ enum FrameBuilder {
     static let sunShadowMax: Float = 0.55
     static let mistMax: Float = 0.9
 
+    // Look 2 (DESIGN.md "Look 2 port", tools/scenemock/mock.py's LOOK2): painted fog banks instead of the stretched
+    // strip, each at its own height, denser than look 1's (× `look2FogScale`; the band between the mid and near
+    // planes at the ramp's own density) and thinner by region in the shader; window glass a step brighter; the
+    // castle's ground mist at a third (the banks do most); chimney smoke over the town's cottages.
+    static let look2FogScale: Float = 1.2
+    static let look2MistBandShare: Float = 1.0
+    static let look2FogYA = -4.0
+    static let look2FogYB = -14.0
+    static let look2MistBandY = -2.0
+    /// The mist band drifts slower than the banks (game px/s).
+    static let look2MistBandDrift = 1.5
+    static let look2GlassGain: Float = 1.3
+    static let look2CastleMist: Float = 0.35
+    static let look2SmokeTint = SIMD4<Float>(0.74, 0.74, 0.76, 0.55)
+    /// The smoke's bottom row above the ground line, and the chimney's x in the house's sprite (plain, mirrored).
+    static let look2SmokeY = 45.0
+    static let look2ChimneyX = (plain: 49.0, flipped: 14.0)
+
     /// Geometry shared by every part of one frame.
     private struct Geometry {
         let scale: Int
@@ -78,7 +96,7 @@ enum FrameBuilder {
 
         /// A sprite drawn now on `plane` hides the glow under its opaque pixels.
         mutating func occlude(_ sprite: SpriteInstance, plane: Plane) {
-            guard plane == .mid || plane == .world || plane == .foreground else { return }
+            guard plane == .mid || plane == .near || plane == .world || plane == .foreground else { return }
             let r = sprite.rect
             let covers = glowRects.contains { g in
                 g.x < r.x + r.z && r.x < g.x + g.z && g.y < r.y + r.w && r.y < g.y + g.w
@@ -121,7 +139,8 @@ enum FrameBuilder {
         var next = 0
         for plane in Plane.allCases {
             if plane == .world {
-                for tile in groundTiles(geometry: geometry) {
+                let tiles = options.look == .two ? laneTiles(geometry: geometry) : groundTiles(geometry: geometry)
+                for tile in tiles {
                     glow.occlude(tile, plane: .world)
                     planeSprites[plane.rawValue].append(tile)
                 }
@@ -132,6 +151,9 @@ enum FrameBuilder {
                 next += 1
             }
             if plane == .world {
+                if options.look == .two {
+                    planeSprites[plane.rawValue] += smoke(props: ordered, geometry: geometry)
+                }
                 for item in entities?.emissives(worldWhole: geometry.whole(.world), groundRow: geometry.groundRow,
                                                 targetWidth: geometry.targetWidth) ?? [] {
                     glow.add(item)
@@ -146,9 +168,11 @@ enum FrameBuilder {
 
         var fog: [FogLayer] = []
         if options.effects.fog {
-            let layers = fogLayers(ambient: ambient, animTime: animTime, reduceMotion: options.reduceMotion)
+            let layers = fogLayers(ambient: ambient, animTime: animTime, reduceMotion: options.reduceMotion,
+                                   look: options.look)
             for layer in layers {
-                let tiles = fogTiles(layer: layer, geometry: geometry)
+                let tiles = options.look == .two ? fogBankTiles(layer: layer, geometry: geometry)
+                                                 : fogTiles(layer: layer, geometry: geometry)
                 planeSprites[layer.plane.rawValue].append(contentsOf: tiles)
             }
             fog = layers
@@ -170,7 +194,7 @@ enum FrameBuilder {
         let kingScreenX = camera.kingScreenX(kingX: scene.king.x, scale: scale, mode: options.actorMode)
         let bankEdge = Float(bankEdgeX - geometry.whole(.world))
 
-        return FrameDesc(scale: scale,
+        var desc = FrameDesc(scale: scale,
                          physicalWidth: pixelScale.physicalWidth,
                          physicalHeight: pixelScale.physicalHeight,
                          targetWidth: pixelScale.targetWidth,
@@ -198,6 +222,11 @@ enum FrameBuilder {
                          bloom: options.effects.bloom,
                          debugLights: options.debugLights,
                          counts: counts)
+        desc.look = options.look
+        if options.look == .two {
+            desc.rooms = rooms(props: ordered, geometry: geometry)
+        }
+        return desc
     }
 
     // MARK: - Sky
@@ -273,6 +302,67 @@ enum FrameBuilder {
             let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
             list.append(SpriteInstance(sprite: groundTile(index), frame: 0, rect: rect,
                                        tint: SIMD4<Float>(1, 1, 1, 1), flipped: false))
+        }
+        return list
+    }
+
+    /// Look 2: the lane's tiles under the ground line (`SceneLayout.look2LaneTile`), up to the river bank.
+    private static func laneTiles(geometry: Geometry) -> [SpriteInstance] {
+        let size = SpriteID.laneMoorA.size
+        let tile = Double(size.width)
+        let whole = geometry.whole(.world)
+        let first = Int((whole / tile).rounded(.down))
+        let last = Int(((whole + Double(geometry.targetWidth)) / tile).rounded(.down))
+        var list: [SpriteInstance] = []
+        for index in first...max(first, last) {
+            let worldX = Double(index) * tile
+            if worldX < -tile || worldX >= WorldLayout.groundTileEnd { continue }
+            let left = worldX - whole
+            guard geometry.isVisible(left: left, width: tile) else { continue }
+            let top = geometry.top(y: -Double(size.height), height: Double(size.height))
+            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            list.append(SpriteInstance(sprite: SceneLayout.look2LaneTile(index: index), frame: 0, rect: rect,
+                                       tint: SIMD4<Float>(1, 1, 1, 1), flipped: false))
+        }
+        return list
+    }
+
+    /// Look 2: chimney smoke over the town's cottages that stand (`SceneLayout.look2Smoke`), a translucent veil on
+    /// the world plane that hides no glow.
+    private static func smoke(props: [Prop], geometry: Geometry) -> [SpriteInstance] {
+        let cottages: Set<SpriteID> = [.house, .houseB, .houseC]
+        let size = SpriteID.d2Smoke.size
+        var list: [SpriteInstance] = []
+        for chimney in SceneLayout.look2Smoke {
+            let stands = props.contains {
+                $0.plane == .world && cottages.contains($0.sprite) && abs($0.x - chimney.x) < 0.5
+            }
+            guard stands else { continue }
+            let centre = chimney.x + (chimney.flipped ? look2ChimneyX.flipped : look2ChimneyX.plain)
+            let left = centre - Double(size.width / 2) - geometry.whole(.world)
+            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
+            let top = geometry.top(y: look2SmokeY, height: Double(size.height))
+            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            list.append(SpriteInstance(sprite: .d2Smoke, frame: 0, rect: rect, tint: look2SmokeTint, flipped: false))
+        }
+        return list
+    }
+
+    /// Look 2: the cut-away rooms on screen (`SceneLayout.look2Interior`), at most two, each as x0, y0, x1, y1 in
+    /// world target pixels (half open). The great hall is no room while its front wall stands before it.
+    private static func rooms(props: [Prop], geometry: Geometry) -> [SIMD4<Float>] {
+        let walled = props.contains { $0.sprite == .hallFront && $0.alpha > 0.5 }
+        var list: [SIMD4<Float>] = []
+        for prop in props where prop.plane == .world && prop.alpha > 0.5 {
+            guard let box = SceneLayout.look2Interior(prop.sprite), list.count < 2 else { continue }
+            if prop.sprite == .hallInterior && walled { continue }
+            let left = prop.x - geometry.whole(.world)
+            guard geometry.isVisible(left: left, width: Double(prop.width)) else { continue }
+            let x0 = prop.flipped ? left + Double(prop.width - box.x1) : left + Double(box.x0)
+            let x1 = prop.flipped ? left + Double(prop.width - box.x0) : left + Double(box.x1)
+            let bottom = Double(geometry.groundRow) - geometry.bottom(of: prop)
+            list.append(SIMD4<Float>(Float(x0), Float(bottom - Double(box.y1)), Float(x1),
+                                     Float(bottom - Double(box.y0))))
         }
         return list
     }
@@ -390,7 +480,8 @@ enum FrameBuilder {
             tint = SIMD4<Float>(0, 0, 0, strength)
             hidesGlow = false
         } else if let mist = prop.mist {
-            let strength = mistAlpha(mist, ambient: ambient) * alpha * prop.alpha
+            let share: Float = options.look == .two ? look2CastleMist : 1
+            let strength = mistAlpha(mist, ambient: ambient) * alpha * prop.alpha * share
             guard strength > 0.003 else { return }
             tint = SIMD4<Float>(1, 1, 1, strength)
             hidesGlow = false
@@ -404,8 +495,10 @@ enum FrameBuilder {
 
         for part in prop.emissive {
             if part.isFire && !prop.isLit { continue }
+            // Look 2: a fading sprite's glow fades with it (the far castle's pane over the valley).
             if let emissive = emissiveInstance(part: part, prop: prop, left: left, bottom: bottom, ambient: ambient,
-                                               animTime: animTime, options: options, geometry: geometry) {
+                                               animTime: animTime, options: options, geometry: geometry,
+                                               fade: options.look == .two ? alpha : 1) {
                 glow.add(emissive)
             }
         }
@@ -413,7 +506,8 @@ enum FrameBuilder {
         guard torch > 0.01 else { return }
         let haze: Float = prop.plane == .mid && prop.region == .gorge ? gorgeMidGlass : 1
         for mask in prop.masks {
-            let rgb = mask.color * (torch * glassGain * haze)
+            let gain = options.look == .two ? glassGain * look2GlassGain : glassGain
+            let rgb = mask.color * (torch * gain * haze)
             let dx = prop.flipped ? width - mask.dx - Double(mask.width) : mask.dx
             let maskTop = geometry.top(y: bottom + mask.dy, height: Double(mask.height))
             let place = SIMD4<Float>(Float(left + dx), Float(maskTop), Float(mask.width), Float(mask.height))
@@ -428,9 +522,9 @@ enum FrameBuilder {
     /// One emissive part of a prop, or nil while it is dark (a window by day).
     private static func emissiveInstance(part: EmissivePart, prop: Prop, left: Double, bottom: Double,
                                          ambient: AmbientSample, animTime: Double, options: FrameOptions,
-                                         geometry: Geometry) -> EmissiveInstance? {
+                                         geometry: Geometry, fade: Float = 1) -> EmissiveInstance? {
         let size = part.sprite.size
-        var strength = part.intensity
+        var strength = part.intensity * fade
         if part.fadesByDay {
             strength *= ambient.torchStrength
         }
@@ -452,10 +546,24 @@ enum FrameBuilder {
 
     /// The two fog planes at this hour (density from the ramp × `fogScale`; fog B thinner). The light lab uses them
     /// too.
-    static func fogLayers(ambient: AmbientSample, animTime: Double, reduceMotion: Bool) -> [FogLayer] {
+    /// Look 2 has three: the bank behind the play plane, the low mist over the lane and the mist band between the mid
+    /// and near planes (`fogBankTiles`).
+    static func fogLayers(ambient: AmbientSample, animTime: Double, reduceMotion: Bool,
+                          look: LookVersion = .one) -> [FogLayer] {
         let slow = reduceMotion ? Flicker.reducedRateScale : 1.0
         let driftA = Float(animTime * fogDriftA * slow)
         let driftB = Float(animTime * fogDriftB * slow)
+        if look == .two {
+            let density = ambient.fogDensity
+            return [
+                FogLayer(plane: .fogA, color: ambient.fogColor, density: density * 0.9 * look2FogScale,
+                         lightShare: 0.6, drift: driftA),
+                FogLayer(plane: .fogB, color: ambient.fogColor, density: density * 0.6 * look2FogScale,
+                         lightShare: 0.8, drift: driftB),
+                FogLayer(plane: .mistBand, color: ambient.fogColor, density: density * look2MistBandShare,
+                         lightShare: 0.6, drift: Float(animTime * look2MistBandDrift * slow)),
+            ]
+        }
         let back = FogLayer(plane: .fogA, color: ambient.fogColor, density: ambient.fogDensity * 0.9 * fogScale,
                             lightShare: 0.6, drift: driftA)
         let front = FogLayer(plane: .fogB, color: ambient.fogColor, density: ambient.fogDensity * 0.6 * fogScale,
@@ -481,6 +589,35 @@ enum FrameBuilder {
             guard geometry.isVisible(left: left, width: tile) else { continue }
             let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
             list.append(SpriteInstance(sprite: .fogStrip, frame: 0, rect: rect, tint: tint, flipped: index % 2 != 0))
+        }
+        return list
+    }
+
+    /// Look 2: one painted bank across the visible part of its plane (`d2FogBank` behind the play plane, `d2FogLow`
+    /// over the lane, `d2MistBand` between the mid and near planes), seamless and never mirrored, moved by the drift
+    /// in whole game pixels. The tint is the fog's colour at the layer's density; the shader thins it by region.
+    private static func fogBankTiles(layer: FogLayer, geometry: Geometry) -> [SpriteInstance] {
+        let sprite: SpriteID
+        let baseY: Double
+        switch layer.plane {
+        case .fogA: (sprite, baseY) = (.d2FogBank, look2FogYA)
+        case .fogB: (sprite, baseY) = (.d2FogLow, look2FogYB)
+        default: (sprite, baseY) = (.d2MistBand, look2MistBandY)
+        }
+        let size = sprite.size
+        let tile = Double(size.width)
+        let whole = geometry.whole(layer.plane)
+        let drift = Double(layer.drift).rounded(.down).truncatingRemainder(dividingBy: tile)
+        let top = geometry.top(y: baseY, height: Double(size.height))
+        let tint = SIMD4<Float>(layer.color.x, layer.color.y, layer.color.z, min(1, layer.density))
+        let first = Int(((whole + drift) / tile).rounded(.down)) - 1
+        let count = geometry.targetWidth / size.width + 3
+        var list: [SpriteInstance] = []
+        for index in first..<(first + count) {
+            let left = Double(index) * tile - drift - whole
+            guard geometry.isVisible(left: left, width: tile) else { continue }
+            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            list.append(SpriteInstance(sprite: sprite, frame: 0, rect: rect, tint: tint, flipped: false))
         }
         return list
     }

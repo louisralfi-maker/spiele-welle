@@ -184,7 +184,7 @@ final class GameModel {
         self.args = args
         self.kind = kind
         reduceMotion = args.reduceMotion || UIAccessibility.isReduceMotionEnabled
-        var world = PlaceholderScene.world(seed: args.seed)
+        var world = PlaceholderScene.world(seed: args.seed, look: args.look)
         var start = min(WorldLayout.walkEnd, max(0, args.cameraX ?? world.king.x))
         var dayClock: DayClock
         var loadedSettings = SaveSettings()
