@@ -468,42 +468,6 @@ struct CoinStack: View {
     }
 }
 
-/// Two people, head and shoulders, one a step behind the other.
-struct PeopleShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let w = rect.width
-        let h = rect.height
-        func person(centre: CGFloat, head: CGFloat, top: CGFloat, half: CGFloat, foot: CGFloat) {
-            let cx = rect.minX + w * centre
-            path.addEllipse(in: CGRect(x: cx - w * head / 2, y: rect.minY + h * top, width: w * head, height: w * head))
-            let shoulders = rect.minY + h * top + w * head + h * 0.05
-            let base = rect.minY + h * foot
-            path.move(to: CGPoint(x: cx - w * half, y: base))
-            path.addCurve(to: CGPoint(x: cx + w * half, y: base),
-                          control1: CGPoint(x: cx - w * half, y: shoulders - (base - shoulders) * 0.35),
-                          control2: CGPoint(x: cx + w * half, y: shoulders - (base - shoulders) * 0.35))
-            path.closeSubpath()
-        }
-        person(centre: 0.7, head: 0.3, top: 0.08, half: 0.26, foot: 0.92)
-        person(centre: 0.34, head: 0.36, top: 0.0, half: 0.32, foot: 1.0)
-        return path
-    }
-}
-
-/// The people of the valley as an icon.
-struct PeopleIcon: View {
-    var size: CGFloat = 16
-    var color: Color = Theme.ink
-
-    var body: some View {
-        PeopleShape()
-            .fill(color)
-            .frame(width: size, height: size * 0.86)
-            .accessibilityHidden(true)
-    }
-}
-
 /// The happiness face (DESIGN.md "Economy": a face with five states): joyful from 80, content from 60, calm from 30,
 /// sullen from 15, angry below (unrest). A wash of colour inside an ink line, the features in ink.
 struct HappinessFace: View {
@@ -609,6 +573,42 @@ struct GoldAmount: View {
                 .foregroundStyle(color)
         }
         .fixedSize()
+    }
+}
+
+/// Two people, head and shoulders, one a step behind the other.
+struct PeopleShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        let h = rect.height
+        func person(centre: CGFloat, head: CGFloat, top: CGFloat, half: CGFloat, foot: CGFloat) {
+            let cx = rect.minX + w * centre
+            path.addEllipse(in: CGRect(x: cx - w * head / 2, y: rect.minY + h * top, width: w * head, height: w * head))
+            let shoulders = rect.minY + h * top + w * head + h * 0.05
+            let base = rect.minY + h * foot
+            path.move(to: CGPoint(x: cx - w * half, y: base))
+            path.addCurve(to: CGPoint(x: cx + w * half, y: base),
+                          control1: CGPoint(x: cx - w * half, y: shoulders - (base - shoulders) * 0.35),
+                          control2: CGPoint(x: cx + w * half, y: shoulders - (base - shoulders) * 0.35))
+            path.closeSubpath()
+        }
+        person(centre: 0.7, head: 0.3, top: 0.08, half: 0.26, foot: 0.92)
+        person(centre: 0.34, head: 0.36, top: 0.0, half: 0.32, foot: 1.0)
+        return path
+    }
+}
+
+/// The people of the valley as an icon.
+struct PeopleIcon: View {
+    var size: CGFloat = 16
+    var color: Color = Theme.ink
+
+    var body: some View {
+        PeopleShape()
+            .fill(color)
+            .frame(width: size, height: size * 0.86)
+            .accessibilityHidden(true)
     }
 }
 
