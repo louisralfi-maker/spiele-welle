@@ -45,7 +45,21 @@ struct ReportCardView: View {
                     .foregroundStyle(Theme.inkSoft)
             }
             .fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 0)
+            .layoutPriority(1)
+            Spacer(minLength: 8)
+            if let speech = card.speechKey {
+                // M3 fix (U1): the finale quotes the speech of the last stand. It stands beside the title, where the
+                // card has room: as a row of its own it pushed the realm's last row out of the card (round f1).
+                Text(StoryText.string(speech))
+                    .font(Theme.serif(.footnote, .semibold).italic())
+                    .foregroundStyle(Theme.teal)
+                    .multilineTextAlignment(.trailing)
+                    .lineLimit(3)
+                    .minimumScaleFactor(0.85)
+                    .frame(maxWidth: 360, alignment: .trailing)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("report-speech")
+            }
         }
         .padding(.horizontal, 20)
         .padding(.top, 12)
@@ -62,15 +76,6 @@ struct ReportCardView: View {
         VStack(alignment: .leading, spacing: 10) {
             ForEach(Array(bigBanners.enumerated()), id: \.offset) { index, banner in
                 ReportBanner(banner: banner, large: index == 0 && card.isFinale)
-            }
-            if let speech = card.speechKey {
-                // M3 fix (U1): the finale quotes the speech the king gave at the last stand.
-                Label(StoryText.string(speech), systemImage: "bookmark.fill")
-                    .font(Theme.serif(.subheadline, .semibold))
-                    .foregroundStyle(Theme.teal)
-                    .labelStyle(.titleAndIcon)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityIdentifier("report-speech")
             }
             HStack(alignment: .top, spacing: 14) {
                 nightColumn
