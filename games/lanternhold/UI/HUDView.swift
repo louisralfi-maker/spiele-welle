@@ -2,7 +2,9 @@ import SwiftUI
 
 /// The HUD (DESIGN.md "Controls", "Screens"). The game's (M2b part 2): pause top left (44 pt in a 60 pt area), the realm
 /// strip at the top centre, the day and clock top right with gold, the happiness face and the people under them, the
-/// horn banner at 19:00, and the action button bottom right with a caption naming what it does. While the reference bot
+/// horn banner at 19:00, and the action button bottom right with a caption naming what it does. In the map's style
+/// (docs/UI-look.md): the clock and the three numbers are one slip of the steward's ledger, the strip a strip of map,
+/// pause and the action button wax seals, the caption a slip of parchment. While the reference bot
 /// plays for the screenshots (`-GWAutoplay play`) only the clock sits over the picture. The light probe and the light
 /// lab keep milestone 1's HUD: the clock, the brazier button and the debug readouts. Plain views only (no materials
 /// over the running scene); it respects the safe area while the scene renders under the sensor housing.
@@ -130,11 +132,19 @@ struct GameHUD: View {
             PauseButton { model.openPause() }
                 .hiddenUnder(screen)
             Spacer(minLength: 0)
-            VStack(alignment: .trailing, spacing: 6) {
-                ClockBadge(day: model.day, time: model.clockText)
+            // One slip of the ledger: the day and the hour over a rule, the three numbers under it.
+            VStack(alignment: .trailing, spacing: 9) {
+                ClockBadge(day: model.day, time: model.clockText, framed: false)
+                    .frame(height: 20)
                 RealmNumbers(gold: model.gold, happiness: model.happiness, people: model.people,
-                             reduceMotion: model.reduceMotion)
+                             reduceMotion: model.reduceMotion, framed: false)
             }
+            .overlay(alignment: .top) {
+                InkRule().padding(.top, 24)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(SlipBackground())
             .hiddenUnder(covered)
         }
     }
@@ -149,37 +159,44 @@ extension View {
     }
 }
 
-/// "Day 3  22:48" on a dark capsule (`hud-clock`).
+/// "Day 3  22:48" (`hud-clock`): the day as a rubric in small capitals, the hour in the ledger's figures. On its own
+/// slip of parchment, or bare as the first line of the HUD's ledger.
 struct ClockBadge: View {
     let day: Int
     let time: String
+    var framed = true
 
     var body: some View {
         HStack(spacing: 8) {
-            Text("Day \(day)")
+            Text(inked: String(localized: "Day \(day)"), size: 15)
+                .font(Theme.hand(15, .caps))
+                .tracking(0.6)
+                .foregroundStyle(Theme.rubric)
             Text(verbatim: time)
+                .font(Theme.figures(16))
                 .monospacedDigit()
+                .foregroundStyle(Theme.ink)
         }
-        .font(.system(size: 15, weight: .semibold, design: .rounded))
-        .foregroundStyle(Color(red: 0.95, green: 0.89, blue: 0.77))
         .lineLimit(1)
         .fixedSize()
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(Capsule().fill(Color(red: 0.05, green: 0.04, blue: 0.09).opacity(0.62)))
-        .overlay(Capsule().strokeBorder(Color(red: 0.91, green: 0.72, blue: 0.29).opacity(0.45), lineWidth: 1))
+        .padding(.horizontal, framed ? 12 : 0)
+        .padding(.vertical, framed ? 5 : 0)
+        .background {
+            if framed { SlipBackground() }
+        }
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("hud-clock")
     }
 }
 
-/// Gold, happiness and people on one capsule under the clock (DESIGN.md "Economy": the three numbers of the HUD).
-/// The numbers roll when they change and the face gives a little hop (not with Reduce Motion).
+/// Gold, happiness and people under the clock (DESIGN.md "Economy": the three numbers of the HUD), each with its icon
+/// drawn in ink. The numbers roll when they change and the face gives a little hop (not with Reduce Motion).
 struct RealmNumbers: View {
     let gold: Int
     let happiness: Int
     let people: Int
     let reduceMotion: Bool
+    var framed = true
 
     var body: some View {
         HStack(spacing: 12) {
@@ -209,9 +226,7 @@ struct RealmNumbers: View {
             .accessibilityValue(Text(verbatim: "\(happiness)"))
             .accessibilityIdentifier("hud-happiness")
             HStack(spacing: 5) {
-                Image(systemName: "person.2.fill")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(Theme.parchment.opacity(0.85))
+                PeopleIcon(size: 17)
                 number(people)
             }
             .accessibilityElement(children: .ignore)
@@ -219,36 +234,37 @@ struct RealmNumbers: View {
             .accessibilityValue(Text(verbatim: "\(people)"))
             .accessibilityIdentifier("hud-people")
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 5)
-        .background(Capsule().fill(Theme.hudFill))
-        .overlay(Capsule().strokeBorder(Theme.hudStroke, lineWidth: 1))
+        .padding(.horizontal, framed ? 12 : 0)
+        .padding(.vertical, framed ? 5 : 0)
+        .background {
+            if framed { SlipBackground() }
+        }
         .fixedSize()
     }
 
     private func number(_ value: Int) -> some View {
         Text(verbatim: "\(value)")
-            .font(Theme.rounded(15, .bold))
+            .font(Theme.figures(17))
             .monospacedDigit()
-            .foregroundStyle(Theme.parchment)
+            .foregroundStyle(Theme.ink)
             .contentTransition(reduceMotion ? .identity : .numericText(value: Double(value)))
             .animation(reduceMotion ? nil : .easeOut(duration: 0.35), value: value)
     }
 }
 
-/// Pause, top left: a 44 pt button in a 60 pt touch area (DESIGN.md "Controls").
+/// Pause, top left: a 44 pt wax seal in a 60 pt touch area (DESIGN.md "Controls").
 struct PauseButton: View {
     let action: @MainActor () -> Void
 
     var body: some View {
         Button(action: action) {
             ZStack {
-                Circle().fill(Theme.hudFill)
-                Circle().strokeBorder(Theme.hudStroke, lineWidth: 1)
+                WaxSeal()
                 Image(systemName: "pause.fill")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundStyle(Theme.parchment)
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(Theme.sealWords)
             }
+            .shadow(color: .black.opacity(0.4), radius: 2, x: 0, y: 1)
             .frame(width: 44, height: 44)
             .frame(width: 60, height: 60, alignment: .topLeading)
             .contentShape(Rectangle())
@@ -352,21 +368,20 @@ struct ActionArea: View {
 
     private var caption: some View {
         HStack(spacing: 5) {
-            Text(verbatim: captionText)
+            Text(inked: captionText, .footnote)
+                .font(Theme.caps(.footnote))
+                .foregroundStyle(Theme.ink)
             if case .patch = target {
                 // The price turns red while the treasury cannot pay it (M2b review).
                 GoldAmount(amount: Balance.standard.patchCost, size: 12,
-                           color: shortOfGold ? Color(red: 1.0, green: 0.5, blue: 0.38) : Theme.parchment)
+                           color: shortOfGold ? Theme.rubric : Theme.ink)
             }
         }
-        .font(Theme.serif(.footnote, .semibold))
-        .foregroundStyle(Theme.parchment)
         .lineLimit(1)
         .fixedSize()
         .padding(.horizontal, 10)
         .padding(.vertical, 4)
-        .background(Capsule().fill(Theme.hudFill))
-        .overlay(Capsule().strokeBorder(Theme.hudStroke, lineWidth: 1))
+        .background(SlipBackground())
     }
 
     private var label: Text {
@@ -398,27 +413,26 @@ struct ActionArea: View {
     }
 }
 
-/// The context action button (DESIGN.md "Controls"): an 88 pt circle inside a 128 pt touch area. Greyed while what it
-/// offers cannot be done now (`KingTargetHold`), with a ring that fills back through the Patch cooldown.
+/// The context action button (DESIGN.md "Controls"): an 88 pt wax seal inside a 128 pt touch area, the lord's seal on
+/// what is done. Its wax is grey while what it offers cannot be done now (`KingTargetHold`), with a ring that fills
+/// back through the Patch cooldown.
 struct ActionButton: View {
     let glyph: ActionGlyph
     let label: Text
     var hold: KingTargetHold? = nil
     let perform: @MainActor () -> Void
 
-    private static let gold = Color(red: 0.91, green: 0.72, blue: 0.29)
-
     var body: some View {
         Button(action: perform) {
             ZStack {
+                WaxSeal(spent: hold != nil)
+                    .shadow(color: .black.opacity(0.45), radius: 3, x: 0, y: 2)
                 Circle()
-                    .fill(Color(red: 0.09, green: 0.07, blue: 0.14).opacity(0.8))
-                Circle()
-                    .strokeBorder(hold == nil ? ActionButton.gold : Color(white: 0.5), lineWidth: 3)
+                    .strokeBorder(hold == nil ? Theme.goldHi.opacity(0.9) : Theme.boneDim.opacity(0.6), lineWidth: 2)
                 if case .cooldown(let share)? = hold {
                     Circle()
                         .trim(from: 0, to: CGFloat(1 - share))
-                        .stroke(ActionButton.gold, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                        .stroke(Theme.goldHi, style: StrokeStyle(lineWidth: 3, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                         .padding(1.5)
                 }
@@ -471,25 +485,27 @@ struct ActionButton: View {
     }
 }
 
-/// The horn at 19:00 (DESIGN.md "Day and night": a low horn sounds, the Gloom stirs): a dark ribbon for a few seconds.
+/// The horn at 19:00 (DESIGN.md "Day and night": a low horn sounds, the Gloom stirs): a dark ribbon for a few seconds,
+/// lettered in gold like the map's headings.
 struct HornBanner: View {
     let night: Int
 
     var body: some View {
         VStack(spacing: 2) {
             Text("The horn sounds")
-                .font(Theme.serif(.headline, .bold))
-                .foregroundStyle(Theme.fireGold)
-            Text("Night \(night) is coming")
-                .font(Theme.serif(.subheadline))
-                .foregroundStyle(Theme.parchment)
+                .font(Theme.caps(.headline))
+                .tracking(1)
+                .foregroundStyle(Theme.goldHi)
+            Text(inked: String(localized: "Night \(night) is coming"), .subheadline)
+                .font(Theme.italic(.subheadline))
+                .foregroundStyle(Theme.bone)
         }
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
         .padding(.horizontal, 36)
         .padding(.vertical, 8)
-        .background(RibbonShape(notch: 14).fill(Theme.night1.opacity(0.88)))
-        .overlay(RibbonShape(notch: 14).stroke(Theme.gold.opacity(0.6), lineWidth: 1.2))
+        .background(RibbonShape(notch: 14).fill(Theme.desk.opacity(0.92)))
+        .overlay(RibbonShape(notch: 14).stroke(Theme.gold.opacity(0.8), lineWidth: 1.2))
         .allowsHitTesting(false)
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("horn-banner")
