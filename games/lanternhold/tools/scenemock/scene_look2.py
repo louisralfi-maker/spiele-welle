@@ -313,6 +313,62 @@ def throat_walls(look, tod, outer="palisade", middle="stoneWall"):
     return dict(focus=826, tod=tod, drop=FRONT, extras=ex, king="off" if tod > 0.9 else 790)
 
 
+def gloom_fog(edge, left=0, wisps=()):
+    """The Gloom's fog as SPRITES.md proposes it, the bank's edge (DarknessBank's) at `edge`: the back strip behind
+    the world plane with its leading face 64 px past the edge, the bank's eyes over its full-height body, the veil
+    and the creeping fog before the world plane with their fronts 104 and 136 px past the edge, each strip's frame 1
+    at its front and frame 0 tiled leftward to `left`. wisps: (x, y, frame) of the shreds before the front."""
+    ex = []
+
+    def lay(s, plane, w, front, y, z):
+        ex.append(dict(s=s, p=plane, x=front - w, y=y, z=z, frame=1, frames=2))
+        x = front - 2 * w
+        while x + w > left:
+            ex.append(dict(s=s, p=plane, x=x, y=y, z=z, frame=0, frames=2))
+            x -= w
+
+    lay("gloomFogBack", "gloomA", 192, edge + 64, 0, 0)
+    lay("gloomFogMid", "gloomB", 160, edge + 104, 0, 1)
+    lay("gloomFogFront", "gloomB", 128, edge + 136, -8, 2)
+    x, k = edge - 32 - 64, 0                           # the eyes: on the tiles FrameBuilder.bankGlow lays today
+    while x + 64 > left:
+        ex.append(dict(glow="gloomFogEyes", s="gloomFogEyes", x=x, y=0, z=2, frame=k % 4, frames=4, gs=1.0))
+        x -= 64
+        k += 1
+    ex += [dict(s="gloomWisp", p="gloomB", x=wx, y=wy, z=3, frame=fr, frames=6) for wx, wy, fr in wisps]
+    return ex
+
+
+def throat_fog(look, tod, edge=400, focus=490):
+    """The Gloom coming up the Throat: the fog bank before the outer line, eyes in it, the creatures stepping out of
+    its face toward the palisade's torches, shreds tearing off before it."""
+    e = edge
+    ex = line_place(3, "palisade", archers=(2, 0, 3))
+    ex += [prop("sootling", cx=e - 60, frame=2, lit=False, z=9), prop("shadehound", cx=e - 24, frame=0, lit=False, z=9),
+           prop("ashBrute", cx=e + 16, frame=1, lit=False, z=9), prop("sootlingB", cx=e + 52, frame=3, lit=False, z=9),
+           prop("sootling", cx=e + 82, frame=0, lit=False, z=9), prop("shadehound", cx=e + 112, frame=2, lit=False, z=9),
+           prop("sootlingB", cx=e + 140, frame=1, lit=False, z=9), prop("sootling", cx=e + 158, frame=4, z=9),
+           prop("sootCrow", cx=e + 24, y=70, frame=1, lit=False, z=9), prop("sootCrow", cx=e + 100, y=52, frame=0, lit=False, z=9)]
+    ex += gloom_fog(e, left=focus - 240, wisps=((e + 138, 5, 0), (e + 152, 14, 3), (e + 72, 44, 1), (e + 96, 30, 4)))
+    return dict(focus=focus, tod=tod, drop=FRONT, extras=ex, king="off")
+
+
+def throat_fog_wall(look):
+    """A late night: the bank's edge 80 px before the outer line, the veil and the creeping fog through the stakes;
+    the torches, the brazier and the lord's lantern cut their holes into it."""
+    e = 560
+    ex = line_place(3, "palisade", archers=(3, 2, 4))
+    ex += [_layout(LM.brazier(700)),
+           prop("sootling", cx=e - 70, frame=2, lit=False, z=9), prop("ashBrute", cx=e - 28, frame=1, lit=False, z=9),
+           prop("shadehound", cx=e + 14, frame=0, lit=False, z=9), prop("sootlingB", cx=e + 40, frame=3, lit=False, z=9),
+           prop("sootling", cx=e + 60, frame=4, z=9), prop("sootlingB", cx=e + 72, frame=1, z=9),
+           prop("sootCrow", cx=e - 6, y=64, frame=1, lit=False, z=9), prop("sootCrow", cx=e + 52, y=46, frame=0, lit=False, z=9),
+           prop("guardsman", cx=684, frame=3, f=True, z=9),
+           prop("king", cx=742, frame=8, f=True, z=10, li=[("lantern", 736.5, 25, 40)])]
+    ex += gloom_fog(e, left=360, wisps=((e + 150, 6, 1), (e + 168, 12, 4), (e + 84, 40, 2)))
+    return dict(focus=610, tod=0.95, drop=FRONT, extras=ex, king="off")
+
+
 SCENES = {
     # the castle's tiers: tier<1|2|3>[b]-<gate|back|far|farback>[-day] (b: the building state; -day: at noon)
     **{"tier%d%s-%s%s" % (t, "b" if b else "", v, d): (lambda look, t=t, b=b, v=v, d=d: castle_tier(look, t, b, v, 0.5 if d else 0.8))
@@ -340,6 +396,10 @@ SCENES = {
     "throat-walls-night": lambda look: throat_walls(look, 0.95),
     "throat-strong-dusk": lambda look: throat_walls(look, 0.8, "stoneWall", "bastion"),
     "throat-strong-night": lambda look: throat_walls(look, 0.95, "stoneWall", "bastion"),
+    # stage 7: the Gloom's fog coming up the Throat before the outer line, at dusk's end and at night
+    "throat-fog-dusk": lambda look: throat_fog(look, 0.84, edge=340, focus=470),
+    "throat-fog-night": lambda look: throat_fog(look, 0.95),
+    "throat-fog-wall": throat_fog_wall,
 }
 
 

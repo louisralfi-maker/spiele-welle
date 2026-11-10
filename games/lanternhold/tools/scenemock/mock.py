@@ -13,6 +13,9 @@
 #       ["sprite", id, dx, dy, colour, fades, frame, frames]), li (as layout_m1b.py, plus an optional intensity; extra
 #       light kinds fireArrow, firepot, beacon)}. A prop without
 #       s only adds its lights.
+#       Look 2 only: the planes gloomA (behind the world plane) and gloomB (before it) take the Gloom's fog strips
+#       (gloomFogBack, gloomFogMid, gloomFogFront, gloomWisp; SPRITES.md): drawn unlit in their own paint, world
+#       parallax, their alpha cut by the light at the pixel (gloomHole, gloomLo, gloomHi).
 #   king=off|<x>  no king, or the king's foot at x (default: at the focus, frame 0, with his lantern light)
 #   actors=off    without layout_m1b.ACTORS (the scale-check archers, citizens and eye glints)
 #   litCap=1.6 litNeutral=0.35  the renderer's cap on reflected firelight and its neutral share (default off)
@@ -77,7 +80,7 @@ LOOK2 = dict(lift=0.30, colorise=0.72, farShare=0.85, midShare=0.72, nearShare=1
              farHaze=0.40, farHazeShare=0.55, midHazeDay=0.14, midHazeNight=0.36, midHazeShare=0.25, nearHazeDay=0.06,
              nearHazeNight=0.20, nearHazeShare=0.06, midAir=0.86, nearAir=0.62, farCool=0.6, mist=0.25,
              fogMShare=1.0, fogMBright=1.8, fogScale=1.2, fogBright=2.6, fogGoal=0.65,
-             fogGlow=0.35, gain=3.0, knee=0.95,
+             fogGlow=0.35, gain=3.0, knee=0.95, gloomHole=0.9, gloomLo=0.06, gloomHi=0.5,
              glowAdd=0.06, fgLight=0.55, fgAmb=0.55, fgAmbNight=0.45, bloom=0.75, bloomLight=0.10, bloomSky=0.55,
              thr=0.34, kneeB=0.5, litCap=1.0, litNeutral=0.35, litCool=0.6, bounce=0.3, bounceLo=0.2, bounceHi=0.5,
              bounceDusk=2.2, duskSun=1.0, band=0.2, bandH=40.0, bandWhite=0.3, bandValley=0.5, bandWarmCut=0.5, rim=0.6,
@@ -280,7 +283,7 @@ def build_scene(chapelWin, kitchenWin, houseWin):
 PAR = dict(sky=0.05 if LAYOUT else 0, far=0.2, mid=0.5, fogA=0.9, world=1.0, fogB=1.15, fg=1.3)
 if L2:  # look 2: the mist band between the mid and near planes, the near plane between the mid plane and the world
     import layout_look2 as LL
-    PAR.update(fogM=0.62, near=0.75)
+    PAR.update(fogM=0.62, near=0.75, gloomA=1.0, gloomB=1.0)
 GLASS = {(0x0E, 0x0B, 0x1E, 255), (0x1C, 0x18, 0x38, 255), (0x2A, 0x22, 0x30, 255)}
 GLASS = {g[:3] for g in GLASS}
 NAMED = dict(fireWhite=fireWhite, fireGold=fireGold, fireOrange=fireOrange, window=WIN)
@@ -338,7 +341,7 @@ def extra_props():
     return out
 ORDER = ['sky', 'far', 'mid', 'fogA', 'world', 'fogB', 'fg']
 if L2:
-    ORDER = ['sky', 'far', 'mid', 'fogM', 'near', 'fogA', 'world', 'fogB', 'fg']
+    ORDER = ['sky', 'far', 'mid', 'fogM', 'near', 'fogA', 'gloomA', 'world', 'gloomB', 'fogB', 'fg']
 def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86, 40)), houseWin=((14, 14), (44, 14))):
     TW, TH = 438, 201; GROUND = TH - 26; VIS = 437
     amb = ambient2(HOUR) if L2 else ambient(HOUR); torchS = amb['torch']
@@ -750,6 +753,10 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                 wl = min(1.0, 1.2 * pk); lf = 0.299 * f[0] + 0.587 * f[1] + 0.114 * f[2]
                 f = [f[k] + (lf * L[k] / pk - f[k]) * wl for k in range(3)]
             return [c[k] * (1 - a) + f[k] + L[k] * glowK * LOOK['fogGlow'] * a for k in range(3)]
+        def gloom_over(c, g, L):  # the Gloom's fog (extras on gloomA and gloomB): its paint is its own night colour,
+            h = 1 - LOOK['gloomHole'] * ss((max(L) - LOOK['gloomLo']) / LOOK['gloomHi'])  # drawn unlit; a light pool
+            a = g[3] * h                                                              # cuts a hole into its alpha
+            return [c[k] * (1 - a) + g[k] * h for k in range(3)]
         def moon_key(p):  # the moon on the lit albedo of the near and mid planes at night (fir tiers, crowns, statues)
             if moonUp <= 0 or LOOK['moonKey'] <= 0: return 0.0
             lu = (0.299 * p[0] + 0.587 * p[1] + 0.114 * p[2]) / max(p[3], 1e-4)
@@ -805,6 +812,8 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                 c = [c[k] * (1 - n[3]) + lit[k] for k in range(3)]
             a = layers['fogA'][y][x]
             if a[3] > 0: c = fog_lit(c, a, FB, 0.6, L)
+            ga = layers['gloomA'][y][x]
+            if ga[3] > 0: c = gloom_over(c, ga, L)
             w = layers['world'][y][x]
             if w[3] > 0:
                 Lc, rf = lit_world(w, L); aw, sun = lit_amb(w, w[3], ambW); iv = inter[y][x]; kmul = 1.0
@@ -825,6 +834,8 @@ def render(chapelWin=((30, 52), (77, 52), (124, 52)), kitchenWin=((28, 40), (86,
                     c = [c[k] + (tone[k] - c[k]) * k_ for k in range(3)]
             return [c[k] + emis[y][x][k] for k in range(3)]
         def top(c, x, y, L):
+            gb = layers['gloomB'][y][x]
+            if gb[3] > 0: c = gloom_over(c, gb, L)
             b = layers['fogB'][y][x]
             if b[3] > 0: c = fog_lit(c, b, FB, 0.8, L)
             f = layers['fg'][y][x]
