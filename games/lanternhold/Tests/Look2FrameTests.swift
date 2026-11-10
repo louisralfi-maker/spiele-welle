@@ -132,6 +132,85 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertTrue(old.layer(.mistBand).sprites.isEmpty)
     }
 
+    /// PORT-look2.md 1.8: the creatures' look-2 lights are render lights only, their soot and hit dust stay inside the
+    /// particle budget and stop with Reduce Motion, the bank glows, and look 1 has none of it.
+    func testCreaturesOfLookTwo() {
+        var s = GameFrameSupport.demoNight(hour: 23.2)
+        s.creatures = [
+            GameFrameSupport.creature(.gloomweaver, x: 640, id: 1, lit: false),
+            GameFrameSupport.creature(.ashGiant, x: 700, id: 2, lit: true, action: .attackingWall),
+            GameFrameSupport.creature(.ashBrute, x: 720, id: 3, lit: true, action: .attackingWall),
+            GameFrameSupport.creature(.lightlessKing, x: 600, id: 4, lit: false)
+        ]
+        // At 0.45 s the giant (id 2) shows its stomp frame 5 and the brute (id 3) frame 6; at 0.3 s the giant shows 4.
+        s.simTime = 0.45
+        XCTAssertEqual(EntityFrames.creatureFrame(s.creatures[1], time: 0.45), 5)
+        XCTAssertEqual(EntityFrames.creatureFrame(s.creatures[1], time: 0.3), 4)
+        let lights = EntityFrames.creatureLights(s, time: 0.45)
+        XCTAssertEqual(lights.count, 2)
+        let lantern = lights.first { $0.kind == .moon }
+        XCTAssertEqual(lantern?.x, 649)
+        XCTAssertEqual(lantern?.radius, 16)
+        XCTAssertFalse(lantern?.kind.affectsBattle ?? true, "the weaver's lantern lights no creature")
+        let heart = lights.first { $0.kind == .torch }
+        XCTAssertEqual(heart?.x, 705)
+        XCTAssertEqual(heart?.y, 68)
+        XCTAssertEqual(heart?.intensity, 1.1, "the heart flares on the stomp frame")
+        XCTAssertEqual(EntityFrames.creatureLights(s, time: 0.3).first { $0.kind == .torch }?.intensity, 0.6)
+        var crowd = s
+        crowd.creatures = (0..<20).map {
+            GameFrameSupport.creature(.gloomweaver, x: 600 + Double($0), id: $0, lit: false)
+        }
+        XCTAssertEqual(EntityFrames.creatureLights(crowd, time: 1).count, EntityFrames.maxCreatureLights)
+
+        func layer(_ look: LookVersion, reduceMotion: Bool = false) -> EntityLayer {
+            var options = FrameOptions(flickerTime: 1.5)
+            options.look = look
+            options.reduceMotion = reduceMotion
+            let screen = Look2FrameTests.screen
+            let pixelScale = options.pixelScale(physicalWidth: screen.0, physicalHeight: screen.1)
+            let scene = SceneFilter.gameScene(Look2FrameTests.world, state: s)
+            return EntityFrames.layer(state: s, balance: .standard, scene: scene,
+                                      camera: Camera(focusX: 660, pixelScale: pixelScale), pixelScale: pixelScale,
+                                      options: options, animTime: 1.5, effects: BattleEffects())
+        }
+        let new = layer(.two)
+        let old = layer(.one)
+        let still = layer(.two, reduceMotion: true)
+        XCTAssertEqual(new.lights.count, old.lights.count + 2, "two creature lights join the picture's lights")
+        XCTAssertEqual(still.lights.count, new.lights.count)
+        let flakes = new.actors.filter { $0.sprite == .shard }.count
+        // Two flakes each from the giant, the brute and the Lightless King, two motes of dust each from the stomp and
+        // the slam.
+        XCTAssertEqual(flakes, 10)
+        XCTAssertLessThanOrEqual(flakes, EntityFrames.maxSootParticles)
+        XCTAssertEqual(old.actors.filter { $0.sprite == .shard }.count, 0)
+        XCTAssertEqual(still.actors.filter { $0.sprite == .shard }.count, 0, "no soot with Reduce Motion")
+        XCTAssertEqual(new.actors.count - flakes, old.actors.count, "the same bodies in both looks")
+        // The Lightless King's aura sits 4 px left in look 2.
+        let aura = new.props.filter { $0.sprite == .gloomBubble }.map(\.x).sorted()
+        let auraOld = old.props.filter { $0.sprite == .gloomBubble }.map(\.x).sorted()
+        XCTAssertEqual(aura.count, 3, "the King's two halves and the weaver's bubble")
+        XCTAssertEqual(aura.reduce(0, +), auraOld.reduce(0, +) - 8, "the weaver's bubble stays")
+
+        for id in 0..<60 {
+            XCTAssertTrue((0.9...1).contains(EntityFrames.creatureShade(id, look: .two)))
+            XCTAssertTrue((0.85...1).contains(EntityFrames.creatureShade(id)))
+        }
+
+        // The bank's glow: one frame over each of its body tiles, in look 2 only.
+        let night = GameFrameSupport.demoNight(hour: 23.2)
+        let bank = frame(night, focus: 400)
+        let tiles = bank.layer(.world).sprites.filter { $0.sprite == .darknessBank }
+        let glow = bank.emissives.filter { $0.sprite == .darknessBankGlow }
+        XCTAssertGreaterThanOrEqual(tiles.count, 3)
+        XCTAssertEqual(glow.count, tiles.count)
+        XCTAssertEqual(Set(glow.map(\.rect.x)), Set(tiles.map(\.rect.x)))
+        XCTAssertTrue(glow.allSatisfy { (0..<4).contains($0.frame) && $0.kind == .glow })
+        XCTAssertEqual(Set(glow.map(\.frame)).count, min(4, glow.count), "neighbouring tiles show different frames")
+        XCTAssertTrue(frame(night, focus: 400, look: .one).emissives.allSatisfy { $0.sprite != .darknessBankGlow })
+    }
+
     func testLookTwoRenders() throws {
         let context = try XCTUnwrap(MetalContext.shared, "No Metal device: see MetalProbeTests")
         let renderer = try Renderer(context: context)

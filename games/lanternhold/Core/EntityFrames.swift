@@ -116,6 +116,17 @@ enum EntityFrames {
     static let gateNear = 260.0
     /// At most this many effect particles per frame (the frame budget).
     static let maxEffectParticles = 24
+    /// Look 2 (DESIGN.md "Look 2 port", creatures): at most this many soot flakes and hit-dust motes, out of
+    /// `maxEffectParticles`; at most this many creature lights (render lights only).
+    static let maxSootParticles = 10
+    static let maxCreatureLights = 8
+    /// The gloomweaver's dead lantern (9 px right of its anchor, 9 px up) and the Ash Giant's heart (5 px right, 68
+    /// px up), ART-look2.md 11.4.
+    static let weaverLantern = (dx: 9.0, dy: 9.0)
+    static let giantHeart = (dx: 5.0, dy: 68.0)
+    static let weaverViolet = SIMD3<Float>(0.60, 0.42, 1.0)
+    /// The Lightless King's aura sits on his cowl in look 2: 4 px left of his anchor.
+    static let kingAuraDX = -4.0
 
     // MARK: - The layer
 
@@ -135,7 +146,7 @@ enum EntityFrames {
         courtyard(s, props: &props)
         town(s, props: &props)
         if isDay { markers(s, layouts: layouts, time: animTime, reduceMotion: options.reduceMotion, props: &props) }
-        auras(s, props: &props)
+        auras(s, look: options.look, props: &props)
         layer.props = props.props
 
         let origins = projectileOrigins(s, layouts: layouts)
@@ -157,11 +168,17 @@ enum EntityFrames {
             }
             lights.append((source: light, plane: .world))
         }
+        if options.look == .two {
+            for light in creatureLights(s, time: s.simTime) {
+                lights.append((source: light, plane: .world))
+            }
+        }
         layer.lights = lights
 
         let view = ActorView(camera: camera, pixelScale: pixelScale, mode: options.actorMode)
         layer.actors = actors(s, balance: balance, layouts: layouts, origins: origins, view: view, ambient: ambient,
-                              isDay: isDay, animTime: animTime, effects: effects)
+                              isDay: isDay, animTime: animTime, effects: effects, look: options.look,
+                              reduceMotion: options.reduceMotion)
         return layer
     }
 
@@ -613,15 +630,17 @@ enum EntityFrames {
 
     /// The darkness the Lightless King carries while he is outside the beacon's light (two mirrored halves, his aura's
     /// width) and each gloomweaver's bubble.
-    private static func auras(_ s: GameState, props: inout PropList) {
+    private static func auras(_ s: GameState, look: LookVersion = .one, props: inout PropList) {
         let width = Double(SpriteID.gloomBubble.size.width)
+        let kingDX = look == .two ? kingAuraDX : 0
         for c in s.creatures where c.hp > 0 {
             switch c.kind {
             // Behind the walls, braziers and scaffolds (z 0, M2b review: at z 5 it veiled them like a smudge of dirt);
             // a cold void, its soft edge from the sprite's own alpha.
             case .lightlessKing where !c.isLit:
-                props.add(.gloomBubble, x: (c.x - width).rounded(.down), y: -4, z: 0, flipped: true, alpha: 0.9)
-                props.add(.gloomBubble, x: c.x.rounded(.down), y: -4, z: 0, alpha: 0.9)
+                props.add(.gloomBubble, x: (c.x + kingDX - width).rounded(.down), y: -4, z: 0, flipped: true,
+                          alpha: 0.9)
+                props.add(.gloomBubble, x: (c.x + kingDX).rounded(.down), y: -4, z: 0, alpha: 0.9)
             case .gloomweaver:
                 props.add(.gloomBubble, x: (c.x - width / 2).rounded(.down), y: -6, z: 0, alpha: 0.72)
             default:
@@ -816,8 +835,43 @@ enum EntityFrames {
     }
 
     /// A creature body's shade by its id, 0.85 ... 1 (neighbours in a crowd read apart).
-    static func creatureShade(_ id: Int) -> Float {
-        0.85 + 0.15 * Float(SeededRandom.hash(0x5348_4144, Int64(id)) % 1000) / 999
+    /// Look 2's bodies are painted darker, so they stay within 0.9 ... 1 (PORT-look2.md 1.8).
+    static func creatureShade(_ id: Int, look: LookVersion = .one) -> Float {
+        let share = Float(SeededRandom.hash(0x5348_4144, Int64(id)) % 1000) / 999
+        return look == .two ? 0.9 + 0.1 * share : 0.85 + 0.15 * share
+    }
+
+    /// The gloomweaver's float above its lane (game px).
+    static func weaverBob(_ c: Creature, time: Double) -> Double {
+        2 + (sin(time * 2.2 + Double(c.id)) * 1.5).rounded()
+    }
+
+    /// True while a creature strikes (its attack frames run).
+    static func isStriking(_ c: Creature) -> Bool {
+        c.action == .attackingWall || c.action == .attackingGuards || c.action == .atHearth
+    }
+
+    /// Look 2's creature lights (PORT-look2.md 1.8): the gloomweaver's violet lantern and the Ash Giant's ember
+    /// heart, brightest on its stomp frame 5. Render lights only: they are added to the picture's lights and never
+    /// to the battle's (`Battle.lightSources`), so no creature is lit or unlit by them. At most
+    /// `maxCreatureLights`, the most advanced creatures first.
+    static func creatureLights(_ s: GameState, time: Double) -> [LightSource] {
+        var list: [LightSource] = []
+        let creatures = s.creatures.filter { $0.hp > 0 && ($0.kind == .gloomweaver || $0.kind == .ashGiant) }
+            .sorted { ($0.x, $0.id) > ($1.x, $1.id) }
+        for c in creatures.prefix(maxCreatureLights) {
+            let seed = SeededRandom.mix(UInt64(c.id) &* 0x9E37_79B9 &+ 0x4352_4C54)
+            if c.kind == .gloomweaver {
+                list.append(LightSource(kind: .moon, x: c.x + weaverLantern.dx,
+                                        y: c.y + weaverBob(c, time: time) + weaverLantern.dy, radius: 16,
+                                        color: weaverViolet, intensity: 0.8, flickerSeed: seed))
+            } else {
+                let stomp = isStriking(c) && creatureFrame(c, time: time) == 5
+                list.append(LightSource(kind: .torch, x: c.x + giantHeart.dx, y: c.y + giantHeart.dy, radius: 20,
+                                        color: GamePalette.ember, intensity: stomp ? 1.1 : 0.6, flickerSeed: seed))
+            }
+        }
+        return list
     }
 
     /// A creature's sprite (the two sootlings alternate by creature id).
@@ -904,7 +958,8 @@ enum EntityFrames {
     private static func actors(_ s: GameState, balance: Balance, layouts: [LineLayout],
                                origins: [OriginKey: (dx: Double, dy: Double)], view: ActorView,
                                ambient: AmbientSample, isDay: Bool, animTime: Double,
-                               effects: BattleEffects) -> [ActorInstance] {
+                               effects: BattleEffects, look: LookVersion = .one,
+                               reduceMotion: Bool = false) -> [ActorInstance] {
         var list: [ActorInstance] = []
         let time = s.simTime
         func add(_ sprite: SpriteID, frame: Int, x: Double, y: Double, flipped: Bool = false,
@@ -974,17 +1029,56 @@ enum EntityFrames {
             let sprite = creatureSprite(c)
             let frame = creatureFrame(c, time: time)
             var y = c.y
-            if c.kind == .gloomweaver { y += 2 + (sin(time * 2.2 + Double(c.id)) * 1.5).rounded() }
+            if c.kind == .gloomweaver { y += weaverBob(c, time: time) }
             var flipped = false
             if c.kind == .sootCrow && c.target >= 0 && c.target < Realm.plots.count {
                 flipped = Realm.plots[c.target].x < c.x
             }
-            let shade = c.kind.isBoss ? 1 : creatureShade(c.id)
+            let shade = c.kind.isBoss ? 1 : creatureShade(c.id, look: look)
             let body = (c.isLit ? 1 : value) * shade
             add(sprite, frame: frame, x: c.x, y: y, flipped: flipped, tint: SIMD4<Float>(body, body, body, 1),
                 lit: c.isLit, lightCap: creatureLightCap, moonRim: c.isLit ? 0 : unlitRim * night)
             if let glow = glowStrip(sprite) {
                 add(glow, frame: frame, x: c.x, y: y, flipped: flipped, emissive: true, lit: c.isLit)
+            }
+        }
+
+        // Look 2 (PORT-look2.md 1.8): the brute, the giant and the Lightless King shed a soot flake a few times a
+        // second from their top contour, drifting left; the brute's slam (its fist 17 px right of the anchor) and
+        // the giant's stomp raise dust from attack frame 5 on. The picture only: the simulation's damage runs as it
+        // did. They count against `maxEffectParticles`; none with Reduce Motion.
+        var shed = 0
+        if look == .two && !reduceMotion {
+            let sootTint = SIMD4<Float>(0.2, 0.18, 0.26, 1)
+            let dustTint = SIMD4<Float>(0.66, 0.62, 0.6, 1)
+            for index in order.reversed() where shed < maxSootParticles {
+                let c = s.creatures[index]
+                guard c.kind == .ashBrute || c.kind == .ashGiant || c.kind == .lightlessKing else { continue }
+                let height = Double(creatureSprite(c).size.height)
+                // One flake every 0.3 s, each living 0.6 s; the creatures shed out of step by their ids.
+                let clock = time + Double(c.id % 3) * 0.1
+                let slot = Int((clock / 0.3).rounded(.down))
+                for back in 0..<2 where shed < maxSootParticles {
+                    let k = slot - back
+                    let age = min(1, max(0, (clock - Double(k) * 0.3) / 0.6))
+                    let h = SeededRandom.hash(UInt64(c.id) &* 0x9E37_79B9 &+ 0x534F_4F54, Int64(k))
+                    let across = Double(h % 1000) / 999 - 0.5
+                    let up = Double((h >> 12) % 1000) / 999
+                    add(.shard, frame: Int((h >> 24) % 2), x: c.x + across * height * 0.35 - 8 * age,
+                        y: c.y + height * (0.74 + 0.16 * up) + 6 * age - 2, tint: sootTint, lit: c.isLit)
+                    shed += 1
+                }
+                guard c.kind != .lightlessKing, isStriking(c), shed + 2 <= maxSootParticles else { continue }
+                // Attack frames 4, 5, 6 at six a second: the dust flies from the start of frame 5 to the end of 6.
+                let beat = ((time + Double(c.id % 7) * 0.13) * 6).truncatingRemainder(dividingBy: 3)
+                guard beat >= 1 else { continue }
+                let age = (beat - 1) / 2
+                let reach = c.kind == .ashBrute ? 17.0 : 26.0
+                for side in [-1.0, 1.0] {
+                    add(.shard, frame: side < 0 ? 0 : 1, x: c.x + reach + side * (2 + 9 * age),
+                        y: c.y + 7 * age - 9 * age * age, flipped: side < 0, tint: dustTint, lit: c.isLit)
+                    shed += 1
+                }
             }
         }
 
@@ -1038,7 +1132,8 @@ enum EntityFrames {
         }
 
         // Effect particles: sparks and shards.
-        effectParticles(effects, animTime: animTime) { sprite, frame, x, y, flipped, tint, emissive, lit in
+        effectParticles(effects, animTime: animTime, budget: maxEffectParticles - shed) { sprite, frame, x, y, flipped,
+                                                                                           tint, emissive, lit in
             add(sprite, frame: frame, x: x, y: y, flipped: flipped, tint: tint, emissive: emissive, lit: lit)
         }
 
@@ -1120,9 +1215,9 @@ enum EntityFrames {
     }
 
     /// The particles of the running effects, at most `maxEffectParticles`.
-    private static func effectParticles(_ effects: BattleEffects, animTime: Double,
+    private static func effectParticles(_ effects: BattleEffects, animTime: Double, budget: Int = maxEffectParticles,
                                         add: (SpriteID, Int, Double, Double, Bool, SIMD4<Float>, Bool, Bool) -> Void) {
-        var budget = maxEffectParticles
+        var budget = budget
         let teal = SIMD4<Float>(0.75, 1.0, 1.0, 1)
         let ember = SIMD4<Float>(1.0, 0.7, 0.4, 1)
         let soot = SIMD4<Float>(0.5, 0.45, 0.6, 1)

@@ -162,6 +162,12 @@ enum FrameBuilder {
                     glow.occlude(tile, plane: .world)
                     planeSprites[plane.rawValue].append(tile)
                 }
+                if options.look == .two {
+                    for item in bankGlow(edgeX: bankEdgeX, geometry: geometry, animTime: animTime,
+                                         reduceMotion: options.reduceMotion) {
+                        glow.add(item)
+                    }
+                }
             }
         }
         let emissives = skyEmissives(ambient: ambient, hour: hour, geometry: geometry) + glow.items
@@ -420,6 +426,33 @@ enum FrameBuilder {
             let top = geometry.top(y: baseY, height: Double(edgeSize.height))
             let rect = SIMD4<Float>(Float(edgeLeft), Float(top), Float(edgeSize.width), Float(edgeSize.height))
             list.append(SpriteInstance(sprite: .darknessEdge, frame: 0, rect: rect, tint: white, flipped: false))
+        }
+        return list
+    }
+
+    /// Look 2 (SPRITES.md, ART-look2.md 11.5): the bank's cold eyes and dim embers, one frame of `darknessBankGlow`
+    /// over each body tile of the bank, drawn as it is: frame (tile index + time × 1.5) mod 4, with Reduce Motion the
+    /// tile index mod 4. The tiles are counted from the bank's edge, as `bankTiles` lays them.
+    private static func bankGlow(edgeX: Double, geometry: Geometry, animTime: Double,
+                         reduceMotion: Bool) -> [EmissiveInstance] {
+        let whole = geometry.whole(.world)
+        let size = SpriteID.darknessBankGlow.size
+        let width = Double(size.width)
+        let frames = SpriteID.darknessBankGlow.frameCount
+        let step = reduceMotion ? 0 : Int((animTime * 1.5).rounded(.down))
+        let top = geometry.top(y: -Double(WorldLayout.groundRowsBelow), height: Double(size.height))
+        var list: [EmissiveInstance] = []
+        var x = edgeX.rounded(.down) - Double(SpriteID.darknessEdge.size.width) - width
+        var index = 0
+        while x > -width {
+            let left = x - whole
+            if geometry.isVisible(left: left, width: width) {
+                let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+                list.append(EmissiveInstance(sprite: .darknessBankGlow, plane: .world, rect: rect,
+                                             color: SIMD4<Float>(1, 1, 1, 1), frame: (index + step) % frames))
+            }
+            x -= width
+            index += 1
         }
         return list
     }
