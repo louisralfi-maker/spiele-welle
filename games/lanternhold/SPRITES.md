@@ -296,7 +296,7 @@ in their lower half). `tools/treeart.py` paints them.
 | id | size | the tree stands in | notes |
 |---|---|---|---|
 | `lindenB` | 52x92 | rows 0 to 91, x 4 to 46 | a slim, tall linden: an egg-shaped crown on a thin trunk |
-| `lindenC` | 52x92 | rows 20 to 91, x 0 to 51 | an old, broad linden with a low crown on a thick trunk: 72 px high, so it may stand where a full linden covers the far castle (world 2386 to 2616) |
+| `lindenC` | 52x92 | rows 20 to 91, x 0 to 51 | an old, broad linden with a low crown on a thick trunk, 72 px high (20 px lower than `linden`) |
 | `poplarB` | 14x116 | rows 17 to 115 | a younger poplar, 99 px high and fuller in the belly |
 | `poplarC` | 14x116 | rows 1 to 115 | a lean poplar with a notch in its flank, its tip bent to the right |
 | `appleTreeB` | 42x48 | rows 3 to 47 | a flat, wide crown on two stems that wind round each other |
