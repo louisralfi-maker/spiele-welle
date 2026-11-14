@@ -182,16 +182,17 @@ extension SceneLayout {
         (.mid, Entry(sprite: .throatStepA, x: look2StepX[0], y: -4, z: 0, region: .gorge)),
         (.mid, Entry(sprite: .throatStepB, x: look2StepX[1], y: -4, z: 2, region: .gorge)),
         (.mid, Entry(sprite: .throatStepC, x: look2StepX[2], y: 0, z: 3, anchor: .top, region: .castle)),
-        // The castle's warm light grazes the wall's foot at dusk and night: lanterns of the mid plane behind the
-        // bailey's forge, the keep's door, the chapel, the kitchen and the back gate (mid x `109.25 + world / 2`;
-        // backdrop lights: they light the picture only), high enough to show over the roofs.
+        // The castle's warm light grazes the wall at dusk and night: lanterns of the mid plane behind the bailey's
+        // forge, the keep's door, the chapel, the kitchen and the back gate (mid x `109.25 + world / 2`; backdrop
+        // lights: they light the picture only), their pools centred over the roofs (the buildings stand 60 to 80
+        // rows high), so the warmth shows on the rock above them.
         (.mid, Entry(sprite: .cleftWallA, x: look2CleftX[0], y: 0, z: 3, anchor: .top, region: .castle,
-                     lights: [Light(kind: .lantern, x: 884, y: 40, radius: 84),
-                              Light(kind: .lantern, x: 1024, y: 44, radius: 92)])),
+                     lights: [Light(kind: .lantern, x: 884, y: 92, radius: 96),
+                              Light(kind: .lantern, x: 1024, y: 98, radius: 104)])),
         (.mid, Entry(sprite: .cleftWallB, x: look2CleftX[1], y: 0, z: 3, anchor: .top, region: .castle,
-                     lights: [Light(kind: .lantern, x: 1129, y: 40, radius: 80),
-                              Light(kind: .lantern, x: 1194, y: 36, radius: 70),
-                              Light(kind: .lantern, x: 1274, y: 40, radius: 76)])),
+                     lights: [Light(kind: .lantern, x: 1129, y: 94, radius: 96),
+                              Light(kind: .lantern, x: 1194, y: 88, radius: 84),
+                              Light(kind: .lantern, x: 1274, y: 92, radius: 92)])),
         (.mid, Entry(sprite: .cleftWallC, x: look2CleftX[2], y: 0, z: 3, anchor: .top, region: .castle)),
         // The cold shaft of light that falls through the slit by day (at the sun's strength; none at night).
         (.mid, Entry(sprite: .cleftShaft, x: look2ShaftX, y: 0, z: 4, anchor: .top, region: .castle,
