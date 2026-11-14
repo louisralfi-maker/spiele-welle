@@ -220,3 +220,9 @@ people bar now says: poor and even at first, visibly richer in three stages (ham
 Notes went to people (a second cloth state), stage, world, town, panels and craft. Presence comes into build 2 only
 if its step has passed its gate by Sunday; the rest is build 3.
 Started 14.11.2026 14:36 as task `wftfwoyny` (run `wf_511c43f9-6d6`). Never resume it; after a stop, write a continuation.
+
+**14.11. 14:45, Louis on the director's two doubts:** there is one front only (the gorge), so the night is no run
+between walls (`docs/REALM.md` section 3 corrected; the front lane's brief had it wrong, a note went there). The
+collector can be hired from the first day and comes into build 2; the lord still collects and knocks himself
+(`docs/TOWN.md` section 2). New: a lamplighter who lights the street lanterns at dusk "wie im alten Prag"
+(`docs/TOWN.md` section 7; the house's founder was one). Notes went to front, stage, town, people and world.

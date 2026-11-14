@@ -51,6 +51,10 @@ section 3 is the number, this is its picture.
 
 ## 3. Being there counts (the night)
 
+- **One front** (Louis, 14.11. 14:45; DESIGN.md says it too: one front, on the left). The Gloom comes only out of the
+  gorge, so the night is never a run between two walls. At dusk the lord goes to the wall and stands with his people.
+  His moves are in depth along that one line: forward to the outer line or the furthest beacon, at the gate, or back
+  into the yard when something got through (crows over the wall, a breach). One or two such moves a night.
 - **Presence.** At night defenders within about 90 px of the lord loose and strike 15 % faster and take 20 % less harm.
 - **Braziers.** A dead brazier he passes within about 20 px is relit from his lantern, free (at most one in 4 s). The
   old "Light" action goes.
@@ -110,7 +114,7 @@ The director's own reading on 14.11. (the hits as a bar for craft, never a model
 | no way in | the first minute teaches by doing | the title is the world, the first sootling, Odile's counsel |
 | long walks | short ways or a mount | the lord hurries; the collector later |
 
-Open questions the director watches: whether presence makes the night a chore (running back and forth) and whether
+Open questions the director watches: whether presence makes the night a chore (too many moves along the one line) and whether
 taxes on foot cost too much of a 156 s day. Both are judged on the device with build 2.
 
 ## 7. Builds and lanes
