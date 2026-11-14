@@ -157,6 +157,8 @@ struct AudienceCardView: View {
                 Spacer(minLength: 4)
                 if card.phase == .hearing && card.hintKey != nil && !card.counselShown {
                     counselButton
+                        .fixedSize()
+                        .layoutPriority(1)
                 }
             }
             InkRule()
@@ -200,7 +202,7 @@ struct AudienceCardView: View {
             } else {
                 HStack(alignment: .bottom, spacing: 8) {
                     ForEach(card.options, id: \.index) { option in
-                        ChoiceTile(option: option) {
+                        ChoiceTile(option: option, compact: true) {
                             model.choosePetition(option.index)
                         }
                         .background(ParchmentBackground(ruled: false))
@@ -471,6 +473,8 @@ struct CounselNote: View {
 /// rule once the counsel is read.
 struct ChoiceTile: View {
     let option: AudienceCard.Option
+    /// The hall stage: the plaques along the floor band keep below the walk line (two lines at most, a smaller hand).
+    var compact = false
     let action: @MainActor () -> Void
     @Environment(\.lordIdentity) private var lord
 
@@ -478,9 +482,11 @@ struct ChoiceTile: View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .top, spacing: 4) {
-                    Text(inked: StoryText.string(option.labelKey, lord: lord), .subheadline)
-                        .font(Theme.serif(.subheadline))
+                    Text(inked: StoryText.string(option.labelKey, lord: lord), compact ? .footnote : .subheadline)
+                        .font(Theme.serif(compact ? .footnote : .subheadline))
                         .foregroundStyle(Theme.ink.opacity(option.enabled ? 1 : 0.5))
+                        .lineLimit(compact ? 2 : nil)
+                        .minimumScaleFactor(compact ? 0.85 : 1)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 0)
                     if option.favoured {
@@ -492,7 +498,7 @@ struct ChoiceTile: View {
                 }
                 EffectChips(gold: option.gold, happiness: option.happiness, citizens: option.citizens,
                             archers: option.archers, guards: option.guards, builders: option.builders,
-                            risky: option.risky, size: 13, night: option.night,
+                            risky: option.risky, size: compact ? 12 : 13, night: option.night,
                             remembers: option.remembers, noteKey: option.noteKey)
                     .opacity(option.enabled ? 1 : 0.6)
                 if let block = option.blocker {
@@ -508,7 +514,7 @@ struct ChoiceTile: View {
             }
             .multilineTextAlignment(.leading)
             .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .padding(.vertical, compact ? 4 : 6)
             .frame(maxWidth: .infinity, minHeight: 52, alignment: .topLeading)
             .background(PlaqueBackground(enabled: option.enabled, marked: option.favoured))
             .contentShape(Rectangle())

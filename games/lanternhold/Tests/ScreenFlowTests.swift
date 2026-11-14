@@ -328,10 +328,16 @@ final class GameScreensTests: XCTestCase {
     }
 
     func testTheStripTapAndTheSampleScreens() {
-        let game = model([:])
+        let game = model(["GWCameraX": "1500"])
         game.travel(toFraction: 0.25)
         XCTAssertEqual(game.driver?.travelTarget ?? 0, Realm.worldWidth / 4, accuracy: 1e-9)
         XCTAssertNotNil(game.strip)
+        // The hall stage: from inside the great hall the strip sends the lord out by the door and on to that point.
+        let inside = model([:])
+        XCTAssertEqual(inside.stage, .hall)
+        inside.travel(toFraction: 0.25)
+        XCTAssertEqual(inside.stageChange?.to, .world)
+        XCTAssertEqual(inside.stageChange?.travelOn ?? 0, Realm.worldWidth / 4, accuracy: 1e-9)
         XCTAssertTrue(model(["GWScreen": "report"]).reportCard?.fallen.isEmpty == false)
         XCTAssertEqual(model(["GWScreen": "finale"]).reportCard?.banners.first, .kingSlain)
         let showcase = model(["GWNight": "1", "GWAutoplay": "play"])

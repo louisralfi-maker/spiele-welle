@@ -1038,6 +1038,10 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         float mockRow = float(c.row) - (u.target.z - 175.0f);
         float clear = 1.0f - 0.5f * (1.0f - smoothstep(0.0f, 64.0f, mockRow));
         float haze = saturate(v.farHC.w * clear + low * v.bounceW.w);
+        // The hall stage (stage lane): seen through an interior's windows the Weltmauer keeps more of its form.
+        if (v.weather.z > 0.0f) {
+            haze *= 0.55f;
+        }
         float3 lit = lh2_cold(f.rgb, v.ambF.rgb, 0.0f, 1.0f, v);
         float key = 0.5f * smoothstep(0.55f, 0.75f, lh_luma(f.rgb) / f.a);
         lit += f.rgb * key * (kMoonLight2 * (moonUp * night) + v.cloudC.rgb);
@@ -1141,7 +1145,9 @@ static float3 lh2_top(float3 color, PlaneCoords c, PixelLight info, constant Com
     }
     float4 f = fgTex.read(c.fg);
     if (f.a > 0.0f) {
-        float3 lit = lh2_cold(f.rgb, v.ambW.rgb * (v.fog.y * info.bank), 0.0f, 1.0f, v) + f.rgb * info.light * 0.55f;
+        // The hall stage (stage lane): an interior's near pillars stand before every light: a faint touch only.
+        float fgLight = v.weather.z > 0.0f ? 0.1f : 0.55f;
+        float3 lit = lh2_cold(f.rgb, v.ambW.rgb * (v.fog.y * info.bank), 0.0f, 1.0f, v) + f.rgb * info.light * fgLight;
         color = color * (1.0f - f.a) + lit;
         midVisible *= 1.0f - f.a;
     }

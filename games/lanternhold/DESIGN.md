@@ -3228,6 +3228,89 @@ banners in the open hall). UI: `UITests/PolishUITests.swift`, `testPolish`, `tes
       between the realm's own; Hild Varn waits at the hall's door on day 3, and her card shows her own portrait.
       "Tochter des Hauses Varn" and the three answers fit in German.
 
+### The hall stage and touch the world (14.11.2026)
+
+The stage lane of the rebuild after TestFlight build 86 (docs/REVIEW-look-2.md; the world lane rebuilds the outdoor
+world in its own branch). Each step has its own heading below.
+
+#### Step stage-1: the great hall as its own stage
+
+The hall is a stage of its own, not a cut-away in the strip (REVIEW-look-2.md 2.6, the hall rows of 2.7, H4, H9,
+H10). The files: `Core/HallStage.swift` (the stage, the lord's walk in the hall, the change of stage, the framing),
+`Core/HallLayout.swift` (the hall's places, lights and windows in hall px), `Core/HallCourt.swift` (who is in the
+hall and where, the audience moved onto the stage, the hall's targets, the hall answering its lord),
+`Core/HallFrames.swift` (the hall's frame), `Core/HallWorld.swift` (the world's side: the door target, the old slot
+shut, who no longer stands in the world), `App/GameModel+Hall.swift` (the state machine), `UI/HallStageViews.swift`
+(the veil, the horn's slip) and the audience card's hall layout in `UI/AudienceCardView.swift`. `CastleRooms.swift`
+and `WorldLayout` are not touched: the hall's old world slot (x 1700 to 1960) is passed to `RoomFades` as nowhere
+(`HallRules.roomsX`), so its cut-away never opens in the world, and the old places stay unused there.
+
+- **In:** at the hall's door at world x 1830 (the world lane paints the forebuilding and its door there). Until "touch
+  the world" the action button offers it within 22 px (`KingTarget.hallDoor`, captions "The great hall" and "Leave
+  the hall", a door glyph); `GameModel.enterHall()` is the hook the next step's tap target `touch-door-hall` calls.
+  The lord walks to the door (the simulation's travel), the door opens (`door_creak`, 0.22 s), the screen goes
+  through dark in 0.35 s (0.16 to black, 0.03 held, 0.16 back; `StageChange`), and at full dark he stands inside at
+  hall x 68 while the door shuts behind him (`door_latch`, a soft haptic). Reduce Motion: a cut, no veil.
+- **Out:** the inner door (the action button within 20 px of x 68), walking left past hall x 40, or a tap on the
+  realm strip, which sends him out by the door and on to that point. The same change in reverse; outside he stands
+  at 1830 facing right, the world's camera cut to him. A real drag calls off a walk to a door.
+- **The clock runs in the hall:** the realm's king stands at the door (1830) in the simulation, which never reads
+  the stage; only the audience (and the cards) stop it. The drag walks the lord in the hall (walk 36, run 80 px/s).
+- **The horn:** inside, the waiting go home by the door (whoever leaves the hall's list walks out to x 68 and fades;
+  whoever joins later walks in from it) and a slip at the door says "The horn" until he goes out or the day comes.
+  The lord stays where he is.
+- **Launch:** `-GWStage world|hall` and `-GWHallX <x>`. Without `-GWStage` a lord standing in the hall's old slot
+  starts inside before his throne (`HallLayout.firstMorningX`, 404): a new realm's first morning, the tests' old
+  `-GWCameraX 1824` and a dawn at the hall's door; never under the reference bot. `-GWScreen petition` opens its
+  audience in the hall; `-GWPetition <id>` puts another petition there (the longest letters).
+- **World-scene's value** carries `stage:world|hall` and inside `hx:<x>` (the lord's hall x); `kx:` stays the
+  simulation's.
+- **Sound:** `GameModel.soundPlace` reports `.hall` on the stage (`SoundPlace.of(stage:worldX:)`; outside the old
+  slot is the bailey). Once the door opens the place is already the stage he goes to, so through the dark the wind
+  falls away and the hall's fire and room tone come up over the director's 1.2 s crossfade: the ear arrives before
+  the eye. `tools/soundsynth.py door_creak door_latch` makes the two files (pure Python, 79 KB together).
+- **The court lives in the hall** (`HallCourt.specs`, SPRITES.md "The great hall as a stage"): Odile at x 397
+  between the throne and the nave, turning now and then to the throne (she keeps 12 px from her lectern at 385);
+  Mother Hesper at the hearth (497, 485); Pip at the foot of the steps while his round is in the hall; the Stranger
+  in the far corner once let in; two guards at the door facing it and by day a third under the arms; today's
+  townsfolk on the benches' six seats (first in line nearest the throne, seated where their body has a seated strip),
+  guests and the rest standing on the wall line. Court members who petition from outside come in from the door's
+  side when called and go out by the door afterwards.
+- **The camera:** walking, one scale step above the world's (s 7 on the iPhone 17 Pro: 375 x 172, bottom-anchored,
+  camera x 0 to 225, following the lord); the audience, s 8 with the left edge at hall x 232 (the throne at 56 % of
+  the width) and the top at row 50, the move eased over 0.6 s through fractional scales (`FrameDesc.zoom`, read by
+  the composite; Reduce Motion: a cut). The targets keep the walking size while the move runs.
+- **The audience card in the hall (H4):** the letter in the upper left (portrait, name and role, Odile's counsel
+  button, the request; once read, Odile's line in her teal inside the letter), from the safe area's left edge to
+  Odile's left edge (`HallLayout.letterEdgeX`, 386: 344 pt on the 17 Pro) and from the top to above the
+  petitioner's head; the choices and Leave as plaques along the floor band below the walk line; after a choice what
+  changed and the way on along the floor. The letter scrolls when a long German request needs it. The pause seal
+  rests during the hall's audience (the letter lies where it sits; Leave ends the audience). The gate's audience in
+  the world keeps the old card.
+- **The hall big and alive (H9, H10):** the windows show the hour's sky with its stars and the Weltmauer on the far
+  plane at parallax 0.3; by day soft shafts fall from the two tall windows (in the morning down to the left, in the
+  afternoon down to the right, none round noon, clouds and rain take them) with dust drifting in them (frozen under
+  Reduce Motion) and a pool of light where they land; the upper wall fades into the roof's dark (an interior ramp on
+  the ambient, `InteriorLight`: the hall's ambient is 58 % of the open air's by day, 82 % at night, warmed by the
+  stone; the floor gets no sky lift and no moon); plaster and wash patches over the brick (`hallWash`); the near
+  arcade's pillars at parallax 1.25 in front. Light is the realm's state: the hearth's fire and its glow follow the
+  hearth's strength (the small fire below a third), with a long warm pool on the flags; a bench's candle stands burn
+  while someone waits on it; the chandeliers burn by day; the door's torches from the dusk; the one who has the word
+  stands in a warm pool.
+- **The hall answers its lord:** for 1.4 s after he came in by the door the two door guards stand straight (no
+  breath, a pixel taller); for 2.6 s the waiting turn their heads to him; whom he passes within 20 px looks at him,
+  and a seated petitioner he passes within 9 px bows his head (the nod frame).
+- **Targets in the hall** (`HallTargets`, until touch the world): the inner door; the lectern within 8 px of it
+  (the taxes can be set while people wait); the throne anywhere on the floor before and on the dais while
+  petitioners wait (326 to 470), else the nearest of throne, lectern and the court in talking reach.
+- **Tests:** `HallStageTests` (the change's timing and the cut, in and out by the door and past it, the strip's walk
+  out and on, the framings at s 7 and s 8, the eased move, the letter's room, the court's places, the world's door
+  target, the hall's targets, the frame and its light, the hearth's pool, the horn, the hall answering its lord, the
+  sound's place, the arguments); `AudienceFlowTests`, `ScreenFlowTests` and `LordTests` hold their audiences in the
+  hall. UI: `HallUITests` (130 to 142: the door, in, the walk, the audience, the counsel, the reaction, the stills by
+  day, afternoon, dusk and night, the longest German letter, the horn, Reduce Motion); `AudienceUITests` and
+  `FirstDayUITests` reach the hall by its door.
+
 ## Risks
 
 | Risk | What we do |

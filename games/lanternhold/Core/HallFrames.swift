@@ -48,17 +48,26 @@ enum HallFrames {
     static let nightShare: Float = 0.82
     /// By day the hall's ambient warms this far toward the stone and oak's bounce.
     static let bounceWarm = SIMD3<Float>(1.0, 0.9, 0.78)
-    static let bounceShare: Float = 0.18
+    static let bounceShare: Float = 0.3
+    /// At night the hall keeps a dim warm fill of its hearth and candles (the old cut-away rooms' colour) against the
+    /// moon's blue: this share of the night ambient, at this level.
+    static let nightWarm: Float = 0.45
+    static let nightFillLevel: Float = 0.3
     /// The night's pull toward blue inside, against outdoors.
-    static let nightPull: Float = 0.85
+    static let nightPull: Float = 0.6
     /// The upper wall's ramp into the roof's dark: its strength and the hall row where it ends.
     static let rampStrength: Float = 0.62
     static let rampEndRow = 118
     /// The shafts: their colour, their strength at full sun, the floor pool where they land.
     static let shaftColor = SIMD3<Float>(1.0, 0.92, 0.76)
+    static let goldenShaft = SIMD3<Float>(1.0, 0.70, 0.40)
     static let shaftStrength: Float = 0.42
     static let shaftPoolRow = 186
     static let motesPerShaft = 11
+    /// A near pillar fades to this while the lord stands behind it: fully from `pillarFade`'s lower bound (game px
+    /// on screen between the pillar's middle and his), back to whole at its upper bound.
+    static let pillarSeen = 0.32
+    static let pillarFade: ClosedRange<Double> = 26...42
     /// The great fire's frames a second.
     static let fireRate = 8.0
     /// The one who has the word stands in a warm pool of this radius.
@@ -70,8 +79,12 @@ enum HallFrames {
         let night = Look.nightness(ambient)
         let share = dayShare + (nightShare - dayShare) * night
         let warm = world + (world * bounceWarm - world) * (bounceShare * (1 - night))
+        let fillPeak = max(0.001, max(Look2.interior.x, max(Look2.interior.y, Look2.interior.z)))
+        let fill = Look2.interior / fillPeak * nightFillLevel
+        let lit = warm * share
+        let ambient = lit + (fill - lit) * (nightWarm * night)
         let row = groundRow - (HallLayout.floorRow - rampEndRow)
-        return InteriorLight(ambient: warm * share, nightPull: nightPull, rampStrength: rampStrength,
+        return InteriorLight(ambient: ambient, nightPull: nightPull, rampStrength: rampStrength,
                              rampEndRow: Float(row))
     }
 
@@ -384,7 +397,7 @@ enum HallFrames {
             for (index, cx) in HallLayout.chandeliers.enumerated() {
                 let seed: UInt64 = 0x4348_414E &+ UInt64(index) &* 16
                 candles(HallLayout.chandelierCandles.map { (x: cx + $0.x, row: $0.row) }, seed: seed)
-                light(.candle, x: cx, row: HallLayout.chandelierRow, radius: 64, intensity: 0.85, seed: seed)
+                light(.candle, x: cx, row: HallLayout.chandelierRow, radius: 44, intensity: 0.55, seed: seed)
             }
         }
         // A stand's candles burn beside a bench while someone waits on it.
@@ -408,6 +421,9 @@ enum HallFrames {
         // By day the sun's shafts from the two tall windows, dust in them, and their light on the floor.
         let beams = shafts(hour: s.hour, ambient: ambient, weather: input.weather)
         let shaft = SpriteID.hallShaft.size
+        // The low sun's gold in the morning's and the evening's shafts.
+        let golden = min(1, max(0, ambient.warmth / 0.45))
+        let shaftColor = HallFrames.shaftColor + (HallFrames.goldenShaft - HallFrames.shaftColor) * golden
         for (strengthShare, mirrored) in [(beams.morning, true), (beams.afternoon, false)] where strengthShare > 0.01 {
             let k = Float(strengthShare) * shaftStrength
             for (index, windowLeft) in HallLayout.windowLefts.enumerated() {
@@ -445,14 +461,20 @@ enum HallFrames {
 
         // The near arcade's pillars, in front of everything.
         let pillar = SpriteID.hallPillarNear.size
+        // A pillar the lord stands behind lets him show through (it fades to `pillarSeen`), so the near arcade gives
+        // depth as he walks past and never hides him where he stops.
+        let lordAt = input.court.audience?.place == .throne ? HallLayout.throneX : input.scene.walker.x
         for p in HallLayout.nearPillars {
             let planeX = HallLayout.nearParallax * p - (HallLayout.nearParallax - 1) / 2 * viewWidth
             let x = (planeX - Double(pillar.width) / 2).rounded(.down) - g.whole(.foreground)
             guard x + Double(pillar.width) >= -1, x <= Double(g.targetWidth) + 1 else { continue }
+            let apart = abs(HallLayout.nearParallax * (p - lordAt))
+            let k = min(1, max(0, (apart - pillarFade.lowerBound) / (pillarFade.upperBound - pillarFade.lowerBound)))
+            let alpha = Float(pillarSeen + (1 - pillarSeen) * k)
             sprites[Plane.foreground.rawValue].append(SpriteInstance(
                 sprite: .hallPillarNear, frame: 0,
                 rect: SIMD4<Float>(Float(x), Float(g.row(0)), Float(pillar.width), Float(pillar.height)),
-                tint: white, flipped: false))
+                tint: SIMD4<Float>(1, 1, 1, alpha), flipped: false))
         }
 
         // The figures by their row (the dais and the wall line behind the walk line), then the lord.

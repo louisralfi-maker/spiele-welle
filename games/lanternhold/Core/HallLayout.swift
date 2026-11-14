@@ -134,9 +134,10 @@ enum HallLayout {
     static let washPatches: [(x: Double, row: Int)] = [(80, 92), (140, 36), (124, 104), (256, 40), (316, 100),
                                                         (440, 100), (476, 96), (536, 128)]
 
-    /// The Weltmauer behind the windows (on a plane at parallax 0.3): its top row on the hall, and where its left
-    /// edge stands (plane x) when the camera's left edge is at 0.
-    static let weltmauerTop = 56
+    /// The Weltmauer behind the windows (on a plane at parallax 0.3): its top row on the hall (its peaks stand in
+    /// the tall windows' lower half, the sky above them), and where its left edge stands (plane x) when the camera's
+    /// left edge is at 0.
+    static let weltmauerTop = 86
     static let weltmauerLeft = -150.0
     static let weltmauerParallax = 0.3
 }

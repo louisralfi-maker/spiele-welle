@@ -658,3 +658,21 @@ the interface's ink and gold (docs/UI-look.md) that floats above a thing the lor
 - **Texture space:** the six strips (180x18 together) lie on the hall's second page.
 - **Open, for the lead:** the tax lectern has no mark of its own. Odile stands at it, so her `tapTalk` can lead to
   the tithe; a seventh mark with a coin is a quarter of an hour of art if wanted.
+
+### The hall stage's light and wear (stage lane, 14.11.2026; DESIGN.md "The hall stage and touch the world")
+
+Registered in `SpriteID` with the stage-8 hall (`greatHall`, `hallPillarNear`, `hallFire`, the six marks); made by
+`python3 -I -B tools/hallstage.py` (pure Python, palette names only, the same bytes on every run). They only add
+light and wear to tools/hallart.py's hall.
+
+| id | size | frames | notes |
+|---|---|---|---|
+| `hallShaft` | 83x120 | 1 | the light of one tall window's two lights falling onto the nave floor, slanting down to the right (the afternoon; mirrored for the morning). White, its alpha the beam's strength in ordered-dither steps: drawn as an emissive glow in the daylight's colour from hall row 72 (the lancets' spring), its left edge on the window's (x 169 and 285) |
+| `hallMote` | 1x1 | 1 | one speck of dust, drawn emissive inside a shaft (11 per shaft, drifting down slowly, frozen under Reduce Motion) |
+| `hallWash` | 512x44 | 8 of 64x44 | limewash and plaster patches, each cut for its own place on the hall's ashlar (never over a banner, a window, a shaft or the wainscot): frame `n` at `HallLayout.washPatches[n]` (top-left in hall px); a crumbling edge, the joints showing through where it is thin, a one-pixel shadow under its lower edge |
+
+- Layers: the patches on the world plane right over `greatHall`; the shafts and the motes in the emissive pass over
+  the world plane (benches and props in a shaft catch its light); the figures and the near pillars stay in front.
+- The atlas page: the hall's sprites take it from about 1730 to about 1850 rows of 2048 (one page still; about 200
+  rows are left for the world lane's new pieces before the second page SPRITES.md "The great hall as a stage"
+  proposes is needed).

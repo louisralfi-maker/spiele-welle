@@ -126,7 +126,7 @@ final class HallUITests: XCTestCase {
             ("136-hall-day-benches", HallUITests.day3 + ["-GWClock", "9.5", "-GWHallX", "240"] + frozen),
             ("137-hall-afternoon", HallUITests.day3 + ["-GWClock", "15.5", "-GWHallX", "200"] + frozen),
             ("138-hall-dusk-door", HallUITests.day3 + ["-GWClock", "18.6", "-GWHallX", "120"] + frozen),
-            ("139-hall-night", ["-GWNight", "3", "-GWSeed", "2", "-GWHallX", "250"] + frozen),
+            ("139-hall-night", ["-GWNight", "3", "-GWSeed", "2", "-GWHour", "23", "-GWHallX", "250"] + frozen),
             ("140-hall-hearth-night", ["-GWNight", "3", "-GWSeed", "2", "-GWHallX", "470"] + frozen),
         ]
         for shot in shots {
