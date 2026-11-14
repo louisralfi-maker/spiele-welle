@@ -55,8 +55,11 @@ enum TownShow {
     static let backIn = 2.1
     static let doorShuts = 2.35
     static let shutters: [Double] = [2.55, 2.7]
-    /// The lord stands this far from the door's middle to knock (his fist lands on the door's near half).
-    static let knockStand = 8.0
+    /// The lord stands this far from the door's middle to knock (his fist, 3 to 4 px ahead of him, lands on the door's
+    /// near half) ...
+    static let knockStand = 6.0
+    /// ... and this far when he only walks up to a household that still owes: beside it, so its toss is seen.
+    static let collectStand = 18.0
     /// He holds out his hand for the coins from here until the last coin is in it.
     static let receiveFrom = 1.15
 
@@ -194,6 +197,11 @@ enum TownShow {
     /// Where the lord stands to knock at a door: on his own side of it, `knockStand` from its middle.
     static func knockSpot(doorX: Double, kingX: Double) -> Double {
         kingX <= doorX ? doorX - knockStand : doorX + knockStand
+    }
+
+    /// Where he stops when a touch sends him to a household that still owes: on his side, `collectStand` off.
+    static func collectSpot(doorX: Double, kingX: Double) -> Double {
+        kingX <= doorX ? doorX - collectStand : doorX + collectStand
     }
 
     // MARK: - The gold in the air

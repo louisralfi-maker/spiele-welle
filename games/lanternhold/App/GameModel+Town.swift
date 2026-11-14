@@ -121,7 +121,8 @@ extension GameModel {
         } else {
             purpose = .refused
         }
-        let target = purpose == .collect ? spot.doorX : TownShow.knockSpot(doorX: spot.doorX, kingX: state.king.x)
+        let target = purpose == .collect ? TownShow.collectSpot(doorX: spot.doorX, kingX: state.king.x)
+            : TownShow.knockSpot(doorX: spot.doorX, kingX: state.king.x)
         townRun.walk = TownWalk(plot: plot, spot: target, purpose: purpose)
         townRun.refused = nil
         withDriver { sim in

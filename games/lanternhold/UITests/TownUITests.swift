@@ -50,7 +50,7 @@ final class TownUITests: XCTestCase {
         checkTarget(door, "the chandler's door")
         door.tap()
         XCTAssertTrue(waitFor(status, "paid:", contains: chandler, timeout: 15), "the toss (\(statusText(status)))")
-        pause(0.25)
+        pause(0.3)
         attach(XCUIScreen.main.screenshot(), "51-toss-\(language)")
         note("51-toss", statusText(status))
         pause(2)
@@ -86,7 +86,10 @@ final class TownUITests: XCTestCase {
         attach(XCUIScreen.main.screenshot(), "52c-shutters-\(language)")
         XCTAssertEqual(cooperDoor.value as? String, "shut", "once a day")
 
-        // The night: the cooper's window stays dark behind its shutters.
+        // The night: the cooper's window stays dark behind its shutters. The lord steps away to the well, so his own
+        // lantern does not light the house.
+        tapStrip(strip, worldX: 3060)
+        XCTAssertTrue(waitForKing(app, near: 3060, within: 14, timeout: 20), "at the well")
         let scene = element(app, "world-scene")
         let night = Date()
         while Date().timeIntervalSince(night) < 120 && (hour(scene) ?? 0) < 20.6 {
@@ -110,9 +113,9 @@ final class TownUITests: XCTestCase {
         XCTAssertTrue(list(status, "owing:").contains(chandler), "her coins wait (\(statusText(status)))")
         let gold = element(app, "hud-gold")
         XCTAssertEqual(gold.value as? String, "44")
-        // The lord steps out of the hall toward the gate: she waits in the courtyard.
+        // The lord steps out of the hall toward the gate: she waits in the courtyard; he stops beside her.
         let strip = element(app, "realm-strip")
-        tapStrip(strip, worldX: 1600)
+        tapStrip(strip, worldX: 1712)
         XCTAssertTrue(waitFor(status, "paid:", contains: chandler, timeout: 20), "the toss (\(statusText(status)))")
         pause(0.25)
         attach(XCUIScreen.main.screenshot(), "54-first-morning-\(language)")
