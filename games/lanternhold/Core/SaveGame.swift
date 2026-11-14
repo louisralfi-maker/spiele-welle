@@ -19,25 +19,8 @@ struct SaveSettings: Codable, Sendable, Equatable {
     }
 }
 
-/// Ad pacing kept with the save (DESIGN.md "Ads"). Every field decodes with a default, like `SaveSettings`.
-struct AdPacing: Codable, Sendable, Equatable {
-    var lastInterstitialDay = 0
-    var lastDoubleTaxesDay = 0
-    var lastSecondChanceNight = 0
-
-    init(lastInterstitialDay: Int = 0, lastDoubleTaxesDay: Int = 0, lastSecondChanceNight: Int = 0) {
-        self.lastInterstitialDay = lastInterstitialDay
-        self.lastDoubleTaxesDay = lastDoubleTaxesDay
-        self.lastSecondChanceNight = lastSecondChanceNight
-    }
-
-    init(from decoder: any Decoder) throws {
-        let c = try decoder.container(keyedBy: CodingKeys.self)
-        lastInterstitialDay = try c.decodeIfPresent(Int.self, forKey: .lastInterstitialDay) ?? 0
-        lastDoubleTaxesDay = try c.decodeIfPresent(Int.self, forKey: .lastDoubleTaxesDay) ?? 0
-        lastSecondChanceNight = try c.decodeIfPresent(Int.self, forKey: .lastSecondChanceNight) ?? 0
-    }
-}
+// The ad pacing kept with the save (`AdPacing`, DESIGN.md "Ads") lives in Core/AdPacing.swift with its rules (the ads
+// lane, 14.11.2026).
 
 /// Which records a realm counts for (DESIGN.md "Endless": the highest night survived per mode).
 enum ChronicleTrack: String, Codable, Sendable, CaseIterable {

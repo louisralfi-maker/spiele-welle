@@ -1,0 +1,60 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NSUserTrackingUsageDescription" : {
+      "comment" : "Privacy - Tracking Usage Description (the App Tracking Transparency question)",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Damit die wenigen Anzeigen, die du siehst, zu deinen Interessen passen. Das Spiel läuft so oder so genauso."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lets the few ads you see match your interests. The game plays the same either way."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permite que los pocos anuncios que ves se ajusten a tus intereses. El juego es igual en cualquier caso."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permet d’adapter les quelques publicités que vous voyez à vos centres d’intérêt. Le jeu reste le même dans tous les cas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permette di adattare i pochi annunci che vedi ai tuoi interessi. Il gioco è uguale in ogni caso."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "表示される少数の広告を、あなたの興味に合ったものにするために使用します。どちらを選んでもゲームは変わりません。"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permite que os poucos anúncios que você vê combinem com seus interesses. O jogo é o mesmo em qualquer caso."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用于让你看到的少量广告更符合你的兴趣。无论是否允许，游戏体验都完全相同。"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
