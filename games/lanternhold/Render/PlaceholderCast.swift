@@ -20,6 +20,22 @@ enum PlaceholderCast {
             }
         case .nobleLord, .nobleLady, .footman:
             return PlaceholderCourt.frames(for: .envoy)
+        case .lamplighter, .lamplighterGlow, .collector, .coach, .elderSeated:
+            // people-2: the townsfolk's figure on the frame's canvas (bottom centre); the coach a plain block
+            let size = sprite.size
+            return (0..<sprite.frameCount).map { frame in
+                var canvas = PixelImage(width: size.width, height: size.height)
+                if sprite == .coach {
+                    for y in 6..<size.height - 4 { for x in 4..<size.width - 4 { canvas[x, y] = RGBA(0x8E2B2A) } }
+                    return canvas
+                }
+                let figure = PlaceholderPeople.townsfolk(frame % 6, variant: frame % 3)
+                let fitted = figure.cropped(x: (figure.width - min(figure.width, size.width)) / 2,
+                                            y: max(0, figure.height - size.height),
+                                            width: min(figure.width, size.width), height: min(figure.height, size.height))
+                canvas.copy(fitted, x: (size.width - fitted.width) / 2, y: size.height - fitted.height)
+                return canvas
+            }
         default:
             return []
         }

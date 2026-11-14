@@ -9,10 +9,11 @@ import XCTest
 final class PeopleCastTests: XCTestCase {
     func testTheCastHasItsContract() {
         let expected: [SpriteID: (Int, Int, Int)] = [
-            .elder: (12, 26, 6), .washerwoman: (12, 26, 8), .labourer: (12, 26, 6),
+            .elder: (12, 26, 6), .washerwoman: (12, 26, 10), .labourer: (12, 26, 6),
             .farmerHoe: (12, 26, 14), .farmerScythe: (12, 26, 14),
-            .childA: (10, 18, 10), .childB: (10, 18, 10), .childC: (10, 18, 10),
+            .childA: (12, 18, 12), .childB: (12, 18, 12), .childC: (10, 18, 10),
             .nobleLord: (14, 30, 10), .nobleLady: (14, 30, 10), .footman: (14, 30, 8),
+            .lamplighter: (36, 30, 12), .collector: (34, 24, 8), .elderSeated: (12, 22, 2),
         ]
         XCTAssertEqual(Set(expected.keys), Set(PeopleCast.bodies))
         for (sprite, value) in expected {
@@ -23,6 +24,10 @@ final class PeopleCastTests: XCTestCase {
             XCTAssertEqual(sprite.size, PixelSize(width: 12, height: 26), "\(sprite) keeps its contract")
             XCTAssertEqual(sprite.frameCount, 6)
         }
+        XCTAssertEqual(SpriteID.lamplighterGlow.size, SpriteID.lamplighter.size, "the pole's flame on his frames")
+        XCTAssertEqual(SpriteID.lamplighterGlow.frameCount, SpriteID.lamplighter.frameCount)
+        XCTAssertEqual(SpriteID.coach.size, PixelSize(width: 60, height: 34))
+        XCTAssertEqual(SpriteID.coach.frameCount, 1)
     }
 
     @MainActor
@@ -67,7 +72,7 @@ final class PeopleCastTests: XCTestCase {
         XCTAssertEqual(PeopleCast.ClothState(standing: 7), .town)
         XCTAssertEqual(PeopleCast.ClothState(standing: 10), .town)
         let workers: [SpriteID] = [.citizen, .citizenB, .citizenC, .elder, .washerwoman, .labourer, .farmerHoe,
-                                   .farmerScythe, .citizenSeated, .citizenBSeated, .citizenCSeated]
+                                   .farmerScythe, .citizenSeated, .citizenBSeated, .citizenCSeated, .elderSeated]
         for body in workers {
             XCTAssertEqual(PeopleCast.dressed(body, .hamlet), body)
             XCTAssertNotEqual(PeopleCast.dressed(body, .village), body, "\(body) has a village state")
@@ -80,8 +85,8 @@ final class PeopleCastTests: XCTestCase {
         for noble in PeopleCast.nobles {
             XCTAssertEqual(PeopleCast.dressed(noble, .town), noble, "the inner lands never change")
         }
-        XCTAssertEqual(PeopleCast.dressedBodies.count, 25)
-        XCTAssertEqual(Set(PeopleCast.dressedBodies).count, 25)
+        XCTAssertEqual(PeopleCast.dressedBodies.count, 27)
+        XCTAssertEqual(Set(PeopleCast.dressedBodies).count, 27)
         let layout = AtlasLayout.shared
         for sprite in PeopleCast.dressedBodies {
             guard let body = PeopleCast.body(dressedAs: sprite) else { return XCTFail("\(sprite) has no body") }
@@ -107,7 +112,7 @@ final class PeopleCastTests: XCTestCase {
         var s = GameFrameSupport.demoDay(hour: 10)
         s.happiness = 60
         var seen: [SpriteID] = []
-        PeopleCast.townLife(s, time: 3, cloth: .town) { sprite, _, _, _, _ in seen.append(sprite) }
+        PeopleCast.townLife(s, time: 3, context: TownDay.Context(cloth: .town)) { seen.append($0.sprite) }
         XCTAssertTrue(seen.contains(.washerwomanTown), "Wenna in the town's cloth")
         XCTAssertFalse(seen.contains(.washerwoman))
     }
@@ -123,89 +128,20 @@ final class PeopleCastTests: XCTestCase {
         XCTAssertTrue(PeopleCast.Frames.bow.allSatisfy { $0 < SpriteID.nobleLord.frameCount })
     }
 
-    func testTheWalkersTakeTurnsAndKeepTheirStep() {
-        XCTAssertEqual(Array(PeopleCast.townWalkers.prefix(3)), [.citizen, .elder, .labourer],
-                       "even a small town shows three different lives")
-        XCTAssertTrue(PeopleCast.townWalkers.contains(.citizenB))
-        XCTAssertTrue(PeopleCast.townWalkers.contains(.citizenC))
-        XCTAssertFalse(PeopleCast.townWalkers.contains(.washerwoman), "Wenna is at the well")
-        var day = GameFrameSupport.demoDay(hour: 10)
-        let frames = Set(stride(from: 0.0, to: 8, by: 0.1).compactMap { PeopleCast.washer(day, time: $0)?.frame })
-        XCTAssertEqual(frames, [4, 5, 6, 7], "she wrings the linen and straightens")
-        XCTAssertEqual(PeopleCast.washer(day, time: 1)?.x, WorldLayout.wellX + 16, "on the well's far side")
-        XCTAssertEqual(PeopleCast.washer(day, time: 1)?.flipped, true, "facing the well")
-        day.hour = 21
-        XCTAssertNil(PeopleCast.washer(day, time: 1), "home at night")
+    func testEveryBodyKeepsItsPaceAndStep() {
         XCTAssertEqual(PeopleCast.pace(.citizen), 1)
         XCTAssertLessThan(PeopleCast.pace(.elder), PeopleCast.pace(.labourer), "the old man shuffles slowest")
         XCTAssertLessThan(PeopleCast.pace(.labourer), 1, "the lame man is slower than the others")
         XCTAssertEqual(PeopleCast.stride(.citizen), 4, "the townsfolk keep the lord's step")
-        for sprite in [SpriteID.citizen, .elder, .childA] {
+        for sprite in [SpriteID.citizen, .elder, .childA, .lamplighter, .collector, .petitionerD] {
             let step = PeopleCast.stride(sprite)
             let frames = (0..<8).map { PeopleCast.walkFrame(sprite, x: 400 + Double($0) * step + 0.5) }
             XCTAssertEqual(frames, [0, 1, 2, 3, 0, 1, 2, 3], "\(sprite): one frame per stride")
         }
-    }
-
-    func testFarmersWorkTheFieldsByDayAndGreetTheLord() throws {
-        var s = GameFrameSupport.demoDay(hour: 10)
-        XCTAssertFalse(PeopleCast.fields(s).isEmpty, "the demo town has fields")
-        s.king.x = 1000
-        let working = PeopleCast.fieldWorkers(s, time: 3)
-        XCTAssertEqual(Set(working.map(\.sprite)), [.farmerHoe, .farmerScythe])
-        XCTAssertTrue(working.allSatisfy { (6...9).contains($0.frame) }, "at work or straightening the back")
-        let rhythm = Set(stride(from: 0.0, to: 20, by: 0.05).map { PeopleCast.workFrame(time: $0) })
-        XCTAssertEqual(rhythm, [6, 7, 8, 9], "strokes and the pause that straightens the back")
-
-        let gorm = try XCTUnwrap(working.first { $0.sprite == .farmerHoe })
-        s.king.x = gorm.x - 20
-        let greeted = try XCTUnwrap(PeopleCast.fieldWorkers(s, time: 3).first { $0.sprite == .farmerHoe })
-        XCTAssertEqual(greeted.frame, 8, "he straightens when the lord comes by")
-        XCTAssertTrue(greeted.flipped, "and turns to the lord on his left")
-
-        s.king.x = 1000
-        s.hour = 5.5
-        XCTAssertTrue(PeopleCast.fieldWorkers(s, time: 3).isEmpty, "nobody out before first light")
-        s.hour = 19.5
-        XCTAssertTrue(PeopleCast.fieldWorkers(s, time: 3).isEmpty, "everybody home after the horn")
-        s.hour = PeopleCast.fieldsHome + 0.05
-        let home = PeopleCast.fieldWorkers(s, time: 3)
-        XCTAssertFalse(home.isEmpty)
-        XCTAssertTrue(home.allSatisfy { PeopleCast.Frames.carry.contains($0.frame) }, "home with the harvest")
-        s.hour = PeopleCast.fieldsOut + 0.02
-        let out = PeopleCast.fieldWorkers(s, time: 3)
-        XCTAssertTrue(out.allSatisfy { PeopleCast.Frames.walk.contains($0.frame) }, "out with the tools at first light")
-    }
-
-    func testChildrenAreOutWhileTheTownIsContentAndFenTrailsTheLord() throws {
-        var s = GameFrameSupport.demoDay(hour: 11)
-        s.king.x = 1500
-        s.king.velocity = 0
-        s.happiness = 20
-        XCTAssertTrue(PeopleCast.children(s, time: 2).isEmpty, "a sullen town keeps its children in")
-        s.happiness = 60
-        let playing = PeopleCast.children(s, time: 2)
-        XCTAssertEqual(Set(playing.map(\.sprite)), [.childA, .childB, .childC])
-        XCTAssertTrue(playing.allSatisfy { abs($0.x - WorldLayout.wellX) <= 80 }, "round the well")
-        for time in stride(from: 0.0, to: 30, by: 0.1) {
-            for child in PeopleCast.children(s, time: time) {
-                XCTAssertTrue((0...9).contains(child.frame), "\(child.sprite) frame \(child.frame)")
-            }
-        }
-
-        s.king.x = 3000
-        s.king.velocity = 36
-        s.king.facing = 1
-        let fen = try XCTUnwrap(PeopleCast.children(s, time: 2).first { $0.sprite == .childC })
-        XCTAssertEqual(fen.x, 3000 - PeopleCast.trailOffset, accuracy: 0.001, "at the lord's heels")
-        XCTAssertTrue(PeopleCast.Frames.run.contains(fen.frame), "running after him")
-        s.king.x = 2300
-        let waiting = try XCTUnwrap(PeopleCast.children(s, time: 2).first { $0.sprite == .childC })
-        XCTAssertEqual(waiting.x, PeopleCast.townSpan.lowerBound, "he waits at the town's edge")
-        XCTAssertTrue(PeopleCast.Frames.fidget.contains(waiting.frame))
-
-        s.hour = 22
-        XCTAssertTrue(PeopleCast.children(s, time: 2).isEmpty, "nobody plays at night")
+        // The collector's cart runs ahead of him: his feet, not the frame's middle, stand on his x.
+        XCTAssertEqual(PeopleCast.drawX(.collector, feet: 100, flipped: false), 100 + 17 - 8.5)
+        XCTAssertEqual(PeopleCast.drawX(.collector, feet: 100, flipped: true), 100 - 17 + 8.5)
+        XCTAssertEqual(PeopleCast.drawX(.lamplighter, feet: 100, flipped: true), 100, "the lamplighter's feet are centred")
     }
 
     func testTheCastWalksInLookTwosTownOnly() {

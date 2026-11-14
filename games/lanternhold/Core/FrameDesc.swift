@@ -129,6 +129,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
          citizenCSeatedVillage, elderVillage, washerwomanVillage, labourerVillage, farmerHoeVillage, farmerScytheVillage
     case citizenTown, citizenBTown, citizenCTown, citizenSeatedTown, citizenBSeatedTown, citizenCSeatedTown, elderTown,
          washerwomanTown, labourerTown, farmerHoeTown, farmerScytheTown, childATown, childBTown, childCTown
+    // The people lane, people-2 (docs/PEOPLE.md section 5, `TownDay`, `TownLamps`): Silas Moth the lamplighter and his
+    // pole's flame, Saul Bracken the collector with his handcart, the noble's coach, Old Hemmet on the bench (and its
+    // cloth states)
+    case lamplighter, lamplighterGlow, collector, coach, elderSeated, elderSeatedVillage, elderSeatedTown
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -364,6 +368,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
              .citizenCSeatedTown, .elderTown, .washerwomanTown, .labourerTown, .farmerHoeTown, .farmerScytheTown,
              .childATown, .childBTown, .childCTown:
             return PeopleCast.size(of: self)
+        case .lamplighter, .lamplighterGlow, .collector, .coach, .elderSeated, .elderSeatedVillage, .elderSeatedTown:
+            return PeopleCast.size(of: self)
         }
     }
 
@@ -406,6 +412,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .citizen, .citizenB, .citizenC, .builder: return 6
         case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe, .childA, .childB, .childC, .nobleLord,
              .nobleLady, .footman:
+            return PeopleCast.frameCount(of: self)
+        case .lamplighter, .lamplighterGlow, .collector, .coach, .elderSeated:
             return PeopleCast.frameCount(of: self)
         case .archer: return 5
         case .sootCrow, .sootCrowGlow, .gloomweaver, .gloomweaverGlow: return 4

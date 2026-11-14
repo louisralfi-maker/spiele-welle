@@ -3,25 +3,36 @@ import Foundation
 /// The cast of Lanternhold (docs/PEOPLE.md, docs/SPRITES-people.md; the people lane, 14.11.2026, after Louis: "die
 /// Leute, die arbeiten, schon richtig verbraucht, vom Leben geprägt … lebensfrohe Kinder … abgehobene reiche Adelige").
 /// The bodies beyond the three townsfolk (the elder, the washerwoman, the labourer, two farmers at work, three children,
-/// a lord and a lady of the inner lands and their footman), their sizes and frames, and who of them is out in the town
-/// by day. Picture only: nothing here touches the simulation, the economy or the tuning targets.
+/// a lord and a lady of the inner lands and their footman; from people-2 the lamplighter, the collector and the elder
+/// seated on his bench), their sizes and frames, their cloth by the realm's stage, their pace and step. Who of them is
+/// where through the day is `TownDay` (and `TownLamps`), from the households of `TownHouseholds`. Picture only:
+/// nothing here touches the simulation, the economy or the tuning targets.
 enum PeopleCast {
     /// The working people beyond the three townsfolk (the citizen contract: 12x26, walk 0-3, idle 4-5, work frames on).
     static let workers: [SpriteID] = [.elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe]
-    /// The children (10x18: run 0-3, fidget 4-5, skip 6-9).
+    /// The children (run 0-3, fidget 4-5, skip 6-9; Nib and Wren, 12x18 from people-2, also a stick raised 10 and thrust
+    /// 11; Fen 10x18).
     static let children: [SpriteID] = [.childA, .childB, .childC]
     /// The nobles of the inner lands and their footman (the guests' contract: 14x30, walk 0-3, idle 4-5, talk 6-7; the
     /// two noble bodies bow 8-9).
     static let nobles: [SpriteID] = [.nobleLord, .nobleLady, .footman]
+    /// People-2's people (docs/PEOPLE.md "Three more", section 5): Silas Moth the lamplighter (36x30), Saul Bracken
+    /// the collector with his handcart (34x24), Old Hemmet seated on the bench (12x22).
+    static let townBodies: [SpriteID] = [.lamplighter, .collector, .elderSeated]
     /// Every body of this file, in the order of `SpriteID`.
-    static let bodies: [SpriteID] = workers + children + nobles
+    static let bodies: [SpriteID] = workers + children + nobles + townBodies
 
     /// A body's frame size (`SpriteID.size` asks here for the cast's ids and their cloth states).
     static func size(of sprite: SpriteID) -> PixelSize {
         if let body = body(dressedAs: sprite) { return body.size }
         switch sprite {
-        case .childA, .childB, .childC: return PixelSize(width: 10, height: 18)
+        case .childA, .childB: return PixelSize(width: 12, height: 18)
+        case .childC: return PixelSize(width: 10, height: 18)
         case .nobleLord, .nobleLady, .footman: return PixelSize(width: 14, height: 30)
+        case .lamplighter, .lamplighterGlow: return PixelSize(width: 36, height: 30)
+        case .collector: return PixelSize(width: 34, height: 24)
+        case .coach: return PixelSize(width: 60, height: 34)
+        case .elderSeated: return PixelSize(width: 12, height: 22)
         default: return PixelSize(width: 12, height: 26)
         }
     }
@@ -30,8 +41,11 @@ enum PeopleCast {
     static func frameCount(of sprite: SpriteID) -> Int {
         switch sprite {
         case .farmerHoe, .farmerScythe: return 14
-        case .childA, .childB, .childC, .nobleLord, .nobleLady: return 10
-        case .washerwoman, .footman: return 8
+        case .childA, .childB, .lamplighter, .lamplighterGlow: return 12
+        case .childC, .nobleLord, .nobleLady, .washerwoman: return 10
+        case .footman, .collector: return 8
+        case .elderSeated: return 2
+        case .coach: return 1
         default: return 6
         }
     }
@@ -48,15 +62,27 @@ enum PeopleCast {
         static let carry = 10...13
         /// The washerwoman at the well.
         static let wring = 6...7
+        /// The washerwoman in her doorway at the horn: the hand cupped at the mouth (8), the arm beckoning (9).
+        static let call = 8...9
         /// The children.
         static let run = 0...3
         static let fidget = 4...5
         static let skip = 6...9
+        /// Nib and Wren with their sticks: raised over the head (10), thrust level ahead in a lunge (11).
+        static let stickRaise = 10
+        static let stickStrike = 11
         /// The nobles and the footman (the footman's: the purse held out).
         static let talk = 6...7
         /// The two noble bodies: the hand on the chest (8), the head inclined (9). Played when the realm is a town
         /// and the inner lands come to court it (`bowFrame`).
         static let bow = 8...9
+        /// The lamplighter: the pole raised to a lantern (6), the wick at its glass (7); the snuffer raised (8),
+        /// lowered on the glass (9); at the hearth the wick held into the Flame (10), the head bowed to it (11).
+        static let reachLight = 6...7
+        static let reachSnuff = 8...9
+        static let hearth = 10...11
+        /// The collector at a door: the hand held out (6), the coin through the strongbox's slot and a nod (7).
+        static let take = 6...7
     }
 
     // MARK: - Cloth states (docs/PEOPLE.md section 7, docs/REALM.md section 2)
@@ -88,6 +114,7 @@ enum PeopleCast {
         .labourer: (.labourerVillage, .labourerTown), .farmerHoe: (.farmerHoeVillage, .farmerHoeTown),
         .farmerScythe: (.farmerScytheVillage, .farmerScytheTown),
         .childA: (nil, .childATown), .childB: (nil, .childBTown), .childC: (nil, .childCTown),
+        .elderSeated: (.elderSeatedVillage, .elderSeatedTown),
     ]
 
     /// Every cloth-state sprite (registered after `bodies` in `SpriteID`).
@@ -139,12 +166,9 @@ enum PeopleCast {
         return Frames.bow.upperBound
     }
 
-    // MARK: - The walkers (EntityFrames.townsfolk)
+    // MARK: - The walkers (look 1's `EntityFrames.townsfolk`; look 2's passers-by are `TownDay`)
 
-    /// The bodies of the town's walkers, in turn (look 2; look 1 keeps its three townsfolk): Mother Corra, Old Hemmet
-    /// and Brede first, so even a small town shows three different lives, then Dun and Ned. Wenna does not walk: she
-    /// is at the well (`washer`).
-    /// In the cloth of `launchCloth` (the hamlet's, until the join passes the realm's standing).
+    /// The bodies of people-1's walkers in turn (kept for `EntityFrames.townsfolk`, which look 2 no longer calls).
     static let townWalkers: [SpriteID] = [.citizen, .elder, .labourer, .citizenB, .citizenC].map {
         dressed($0, launchCloth)
     }
@@ -162,11 +186,12 @@ enum PeopleCast {
 
     /// Game px per walk frame: the step each body was painted for, so its planted foot stays put (measured on the
     /// grids: the planted foot travels from the front of one contact to the back of the next in two frames). The
-    /// cast's grown-ups 3, Old Hemmet's shuffle 2.5, the children's run 5; the three townsfolk keep the base game's 4
-    /// (look 1 is pinned to it).
+    /// cast's grown-ups 3, Old Hemmet's shuffle 2.5, the children's run 5, the lamplighter's long legs and the collector
+    /// leaning into his cart 4; the three townsfolk and the two petitioner bodies keep the base game's 4 (look 1 is
+    /// pinned to it).
     static func stride(_ sprite: SpriteID) -> Double {
         switch body(dressedAs: sprite) ?? sprite {
-        case .citizen, .citizenB, .citizenC: return 4
+        case .citizen, .citizenB, .citizenC, .petitionerD, .petitionerE, .lamplighter, .collector: return 4
         case .elder: return 2.5
         case .childA, .childB, .childC: return 5
         default: return 3
@@ -178,206 +203,42 @@ enum PeopleCast {
         Int((max(0, x) / stride(sprite)).rounded(.down)) % 4
     }
 
-    // MARK: - Life in the town by day
+    // MARK: - Life in the town (look 2)
 
-    /// Who else is out by day, drawn after the walkers: the farmers on every built field (out at first light, home with
-    /// the harvest before the horn; they straighten and turn to the lord when he comes by, because they choose to),
-    /// Wenna wringing linen at the well, the children at the market square while the town is content, and Fen the
-    /// lamp-runner trailing the lord through the town. `add(sprite, frame, x, y, flipped)` as the walkers'. `cloth` is
-    /// the realm's stage as the people wear it (the hamlet until the join passes the town's standing: docs/lanes/people.md).
-    static func townLife(_ s: GameState, time: Double, cloth: ClothState = launchCloth,
-                         add: (SpriteID, Int, Double, Double, Bool) -> Void) {
-        var figures = fieldWorkers(s, time: time)
-        if let wenna = washer(s, time: time) { figures.append(wenna) }
-        figures += children(s, time: time)
-        for figure in figures { add(dressed(figure.sprite, cloth), figure.frame, figure.x, 0, figure.flipped) }
-    }
-
-    /// Where Wenna Brisk stands at the well, on its far side from the notice board, facing it (world x of her feet).
-    static let washerX = WorldLayout.wellX + 16
-
-    /// Wenna at the well by day: she wrings the linen (twice round, 0.6 s a turn), then straightens with a breath.
-    static func washer(_ s: GameState, time: Double) -> Figure? {
-        guard DayClock.phase(at: s.hour) == .day else { return nil }
-        let cycle = 4.0
-        var u = time.truncatingRemainder(dividingBy: cycle)
-        if u < 0 { u += cycle }
-        let frame: Int
-        if u < 2.4 {
-            frame = Frames.wring.lowerBound + Int((u / 0.6).rounded(.down)) % 2
-        } else {
-            frame = Frames.idle.lowerBound + Int(((u - 2.4) * 2).rounded(.down)) % 2
-        }
-        return Figure(sprite: .washerwoman, frame: frame, x: washerX, flipped: true)
-    }
-
-    /// One figure as drawn: the body, its frame, the foot's world x, mirrored (facing left).
+    /// One figure: the body, its frame, its feet's world x, mirrored (facing left); a glow strip is `emissive`.
     struct Figure: Sendable, Equatable {
         var sprite: SpriteID
         var frame: Int
         var x: Double
         var flipped: Bool
+        var emissive = false
     }
 
-    /// The farmers leave home at this hour, start back with the harvest at that one.
-    static let fieldsOut = 6.2
-    static let fieldsHome = 17.4
-    /// Their walking pace (px/s), the townsfolk's.
-    static let farmerSpeed = 16.0
-    /// How near the lord comes before a farmer straightens and turns to him (px).
-    static let greetDistance = 36.0
-
-    /// The built fields, left to right: their middle x.
-    static func fields(_ s: GameState) -> [Double] {
-        var list: [Double] = []
-        for (index, spec) in WorldLayout.townPlots.enumerated() where index < Realm.townPlots.count {
-            let plot = Realm.townPlots[index]
-            guard plot < s.plots.count, s.plots[plot].item == .field else { continue }
-            list.append((spec.start + spec.end) / 2)
+    /// The column of a frame its feet stand on (from the frame's left edge, facing right): the middle for every body
+    /// but the collector, whose handcart runs ahead of him.
+    static func feetColumn(_ sprite: SpriteID) -> Double {
+        switch sprite {
+        case .collector: return 8.5
+        default: return Double(sprite.size.width) / 2
         }
-        return list
     }
 
-    /// The farmers at work: Gorm with the hoe and his sister Hedda with the scythe beside him, on the first built field
-    /// (both in one view, so the hoe and the scythe are seen together).
-    static func fieldWorkers(_ s: GameState, time: Double) -> [Figure] {
-        let fields = fields(s)
-        guard let first = fields.first, DayClock.phase(at: s.hour) == .day else { return [] }
-        let homes = WorldLayout.townPlots.filter { $0.kind == .house }.map { ($0.start + $0.end) / 2 }
-        let spots: [(SpriteID, Double, Double)] = [(.farmerHoe, first - 30, 0), (.farmerScythe, first + 28, 3.7)]
-        var list: [Figure] = []
-        for (sprite, spot, phase) in spots {
-            let home = homes.min { abs($0 - spot) < abs($1 - spot) } ?? spot
-            if let figure = farmer(sprite, spot: spot, home: home, phase: phase, s: s, time: time) {
-                list.append(figure)
-            }
-        }
-        return list
+    /// The x to draw a frame at (the engine centres a frame on it) for feet at `feet`.
+    static func drawX(_ sprite: SpriteID, feet: Double, flipped: Bool) -> Double {
+        let shift = Double(sprite.size.width) / 2 - feetColumn(sprite)
+        return feet + (flipped ? -shift : shift)
     }
 
-    /// One farmer's day: walking out from home with the tool on the shoulder, at work (strokes and a pause to
-    /// straighten the back), straightening and turning to the lord when he is near, home with the harvest.
-    static func farmer(_ sprite: SpriteID, spot: Double, home: Double, phase: Double, s: GameState,
-                       time: Double) -> Figure? {
-        let distance = abs(spot - home)
-        let toField: Double = spot >= home ? 1 : -1
-        let walk = distance / farmerSpeed
-        let out = (s.hour - fieldsOut) * DayClock.secondsPerHour
-        let back = (s.hour - fieldsHome) * DayClock.secondsPerHour
-        if out < 0 { return nil }
-        if out < walk {
-            let x = home + toField * out * farmerSpeed
-            return Figure(sprite: sprite, frame: walkFrame(sprite, x: x), x: x, flipped: toField < 0)
+    /// Everyone out in the town (`TownDay.figures`), each body in the cloth of `context.cloth` and placed for the
+    /// engine. The hook in `EntityFrames.actors` (look 2, day and night: the lamplighter and the children's run home
+    /// are at dusk). `cloth` is the realm's stage (the hamlet until the join passes the town's standing).
+    static func townLife(_ s: GameState, time: Double, context: TownDay.Context = TownDay.Context(),
+                         add: (Figure) -> Void) {
+        for figure in TownDay.figures(s, time: time, context: context) {
+            var drawn = figure
+            drawn.sprite = dressed(figure.sprite, context.cloth)
+            drawn.x = drawX(figure.sprite, feet: figure.x, flipped: figure.flipped)
+            add(drawn)
         }
-        if back >= 0 {
-            guard back < walk else { return nil }
-            let x = spot - toField * back * farmerSpeed
-            return Figure(sprite: sprite, frame: Frames.carry.lowerBound + walkFrame(sprite, x: x), x: x,
-                          flipped: toField > 0)
-        }
-        let lord = s.king.x
-        if abs(lord - spot) < greetDistance {
-            return Figure(sprite: sprite, frame: Frames.straighten.lowerBound, x: spot, flipped: lord < spot)
-        }
-        return Figure(sprite: sprite, frame: workFrame(time: time + phase), x: spot, flipped: false)
-    }
-
-    /// The work's rhythm: eight strokes (raised 0.5 s, struck 0.35 s), then the pause that straightens the back (the
-    /// tool planted 0.5 s, upright 1.6 s, planted again 0.4 s).
-    static func workFrame(time: Double) -> Int {
-        let stroke = 0.85
-        let strokes = 8.0
-        let pause = 2.5
-        let cycle = stroke * strokes + pause
-        var u = time.truncatingRemainder(dividingBy: cycle)
-        if u < 0 { u += cycle }
-        if u < stroke * strokes {
-            return u.truncatingRemainder(dividingBy: stroke) < 0.5 ? Frames.work.lowerBound : Frames.work.upperBound
-        }
-        let p = u - stroke * strokes
-        if p < 0.5 || p >= 2.1 { return Frames.straighten.lowerBound }
-        return Frames.straighten.upperBound
-    }
-
-    /// How many children are out at the square: none in a sullen town, Nib from 35 happiness, Wren from 50; Fen the
-    /// lamp-runner from 30, at the lord's heels while the lord is in the town, else at the square with the others.
-    static func childCount(happiness: Int) -> Int {
-        if happiness >= 50 { return 3 }
-        if happiness >= 35 { return 2 }
-        if happiness >= 30 { return 1 }
-        return 0
-    }
-
-    /// The town's stretch Fen keeps to (world x), and where the lord may be for Fen to follow him: when the lord walks
-    /// out of the town Fen waits at its edge until he is far out of sight, then goes back to the square.
-    static let townSpan: ClosedRange<Double> = 2440...3700
-    static let trailSpan: ClosedRange<Double> = 2140...3700
-    /// Fen keeps this far on the lord's castle side: behind him walking out, ahead of him walking home.
-    static let trailOffset = 26.0
-
-    /// The children by day: Nib and Wren playing round the well (running laps, Wren skipping every second one, a
-    /// fidget at each end), Fen trailing the lord or playing with them.
-    static func children(_ s: GameState, time: Double) -> [Figure] {
-        guard DayClock.phase(at: s.hour) == .day else { return [] }
-        let count = childCount(happiness: s.happiness)
-        guard count > 0 else { return [] }
-        var list: [Figure] = []
-        let lord = s.king
-        let fenTrails = trailSpan.contains(lord.x)
-        if fenTrails {
-            let wanted = lord.x - trailOffset
-            let x = min(townSpan.upperBound, max(townSpan.lowerBound, wanted))
-            let frame = lord.velocity != 0 && x == wanted
-                ? walkFrame(.childC, x: x)
-                : Frames.fidget.lowerBound + Int((time * 2).rounded(.down)) % 2
-            list.append(Figure(sprite: .childC, frame: frame, x: x, flipped: lord.facing < 0))
-        }
-        // At the square: Nib first, then Wren, then Fen when he is not with the lord.
-        var players: [SpriteID] = []
-        if count >= 2 { players.append(.childA) }
-        if count >= 3 { players.append(.childB) }
-        if !fenTrails { players.append(.childC) }
-        if count < 2 { players = fenTrails ? [] : [.childC] }
-        for (index, sprite) in players.enumerated() {
-            list.append(lap(sprite, time: time + Double(index) * 2.3,
-                            centre: WorldLayout.wellX + Double(index) * 16 - 14, skipsEveryOther: sprite == .childB))
-        }
-        return list
-    }
-
-    /// A child's lap round the well: out and back over 120 px, running at 30 px/s (or skipping at 22 every second
-    /// lap), 0.8 s of fidgeting at each end.
-    static func lap(_ sprite: SpriteID, time: Double, centre: Double, skipsEveryOther: Bool) -> Figure {
-        let half = 60.0
-        let run = 2 * half / 30
-        let skip = 2 * half / 22
-        let rest = 0.8
-        let legA = run
-        let legB = skipsEveryOther ? skip : run
-        let cycle = legA + rest + legB + rest
-        var u = time.truncatingRemainder(dividingBy: cycle)
-        if u < 0 { u += cycle }
-        let left = centre - half
-        let right = centre + half
-        if u < legA {
-            let x = left + (right - left) * u / legA
-            return Figure(sprite: sprite, frame: walkFrame(sprite, x: x), x: x, flipped: false)
-        }
-        u -= legA
-        if u < rest {
-            return Figure(sprite: sprite, frame: Frames.fidget.lowerBound + Int((u * 3).rounded(.down)) % 2, x: right,
-                          flipped: false)
-        }
-        u -= rest
-        if u < legB {
-            let x = right - (right - left) * u / legB
-            let frame = skipsEveryOther
-                ? Frames.skip.lowerBound + Int((max(0, x) / 4).rounded(.down)) % 4
-                : walkFrame(sprite, x: x)
-            return Figure(sprite: sprite, frame: frame, x: x, flipped: true)
-        }
-        u -= legB
-        return Figure(sprite: sprite, frame: Frames.fidget.lowerBound + Int((u * 3).rounded(.down)) % 2, x: left,
-                      flipped: true)
     }
 }

@@ -53,6 +53,15 @@ enum SceneFilter {
         props.reserveCapacity(base.props.count)
         for prop in base.props {
             if isSimOwned(prop, beaconBuilt: built) { continue }
+            // The street lanterns keep their posts; their glass and pools burn as the lamplighter lit them
+            // (`TownLamps.light`, the people lane).
+            if TownLamps.isStreetLantern(prop) {
+                var stripped = prop
+                stripped.emissive = []
+                stripped.lights = []
+                props.append(stripped)
+                continue
+            }
             if prop.sprite == .hearth && prop.plane == .world {
                 var stripped = prop
                 stripped.emissive = []

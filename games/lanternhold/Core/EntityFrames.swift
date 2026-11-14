@@ -146,6 +146,9 @@ enum EntityFrames {
         beacon(s, props: &props)
         courtyard(s, props: &props)
         town(s, look: options.look, props: &props)
+        let townDay = TownDay.Context(reduceMotion: options.reduceMotion,
+                                      hearth: max(0, min(1, s.hearth / max(1, balance.hearthStrength))))
+        if options.look == .two { TownDay.props(s, context: townDay, props: &props) }
         if isDay { markers(s, layouts: layouts, time: animTime, reduceMotion: options.reduceMotion, props: &props) }
         auras(s, look: options.look, props: &props)
         layer.props = props.props
@@ -155,6 +158,9 @@ enum EntityFrames {
                             reduceMotion: options.reduceMotion)
 
         var lights = SceneFilter.sceneLights(scene)
+        // The street lanterns burn as the lamplighter lit them (`TownLamps`; `SceneFilter` hands them over).
+        TownLamps.light(s, look: options.look, context: townDay, torch: ambient.torchStrength, animTime: animTime,
+                        glows: &layer.glows, lights: &lights)
         for light in props.lights {
             lights.append((source: light, plane: .world))
         }
@@ -1034,16 +1040,17 @@ enum EntityFrames {
                                       isEmissive: emissive, isLit: lit, lightCap: lightCap, moonRim: moonRim))
         }
 
-        // Townsfolk walking between their houses, the fields and the market by day; in look 2 the cast of the people
-        // lane walks with them, and the farmers, the children and Fen the lamp-runner are out (`PeopleCast`).
-        if isDay {
+        // Look 2: the town lives by its people (the people lane, `TownDay`, `TownLamps`): the households through the
+        // day, the lamplighter at dusk and first light. Look 1: townsfolk walking between their houses, the fields and
+        // the market by day.
+        if look == .two {
+            let hearth = max(0, min(1, s.hearth / max(1, balance.hearthStrength)))
+            PeopleCast.townLife(s, time: time, context: TownDay.Context(reduceMotion: reduceMotion, hearth: hearth)) {
+                add($0.sprite, frame: $0.frame, x: $0.x, y: 0, flipped: $0.flipped, emissive: $0.emissive)
+            }
+        } else if isDay {
             townsfolk(s, time: time, look: look) { sprite, frame, x, y, flipped in
                 add(sprite, frame: frame, x: x, y: y, flipped: flipped)
-            }
-            if look == .two {
-                PeopleCast.townLife(s, time: time) { sprite, frame, x, y, flipped in
-                    add(sprite, frame: frame, x: x, y: y, flipped: flipped)
-                }
             }
         }
 
