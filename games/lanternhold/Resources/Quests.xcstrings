@@ -92,19 +92,19 @@
       }
     },
     "errand.highcairn_count.hook1" : {
-      "comment" : "Sending 5: first line of its slip.",
+      "comment" : "Sending 5: first line of its slip (Highcairn's levy comes in two halves; the second for the castle's Count).",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lord Harrow schickt den Rest des Aufgebots, wenn wir zählen können."
+            "value" : "Lord Harrow schickt den Rest des Aufgebots für unsere Zählung."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lord Harrow sends the rest of the levy once we can count."
+            "value" : "Lord Harrow sends the rest of the levy for our Count."
           }
         }
       }
@@ -818,13 +818,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Laterne {lantern} ist heim. Lord Harrow las unsere Zählung zweimal und zählte dann selbst die Laternen an unseren Sätteln. „{Der Laternenanzünder|Die Laternenanzünderin} kann zählen“, sagte er. Der Rest des Aufgebots wartet an seinem Tor."
+            "value" : "Laterne {lantern} ist heim. Lord Harrow las unsere Zählung zweimal und zählte dann selbst die Laternen an unseren Sätteln. „Haus Lantern zählt noch immer genau“, sagte er. Der Rest des Aufgebots wartet an seinem Tor."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lantern {lantern} is home. Lord Harrow read our Count twice, then counted the lanterns on our saddles himself. “The lamplighter can count,” he said. The rest of the levy waits at his gate."
+            "value" : "Lantern {lantern} is home. Lord Harrow read our Count twice, then counted the lanterns on our saddles himself. “House Lantern still counts true,” he said. The rest of the levy waits at his gate."
           }
         }
       }

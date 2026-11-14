@@ -84,9 +84,9 @@ final class ErrandDataTests: XCTestCase {
         XCTAssertEqual(QuestText.fill("{n} of {total}", ["n": "2", "total": "3"]), "2 of 3")
         XCTAssertEqual(QuestText.fill("no braces", ["n": "2"]), "no braces")
         let lady = LordIdentity(name: "Mara", form: .lady)
-        let filled = LordText.resolve(QuestText.fill("{Der Laternenanzünder|Die Laternenanzünderin} {lantern}",
-                                                     ["lantern": "40"]), lord: lady)
-        XCTAssertEqual(filled, "Die Laternenanzünderin 40")
+        let filled = LordText.resolve(QuestText.fill("{Der Herr|Die Herrin} von Laterne {lantern}", ["lantern": "40"]),
+                                      lord: lady)
+        XCTAssertEqual(filled, "Die Herrin von Laterne 40")
         XCTAssertTrue(QuestText.count("table.nights", 1).contains("1"))
         XCTAssertTrue(QuestText.count("table.nights", 3).contains("3"))
     }

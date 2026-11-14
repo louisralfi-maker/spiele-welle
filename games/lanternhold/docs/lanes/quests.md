@@ -60,6 +60,10 @@ Content decisions inside the spec, for the story lane and the critic to see:
   reaction that shows Mother Hesper's hearth leaning west (STORY.md). The light on the moor is the story lane's to
   confirm (QUESTS.md 7.5).
 - The lost-lantern report says "Lantern {lantern} did not come home" in digits, not "Forty".
+- The house's new origin (director's note 15:03, docs/HOUSE.md): no text of the lane calls the lord a lamplighter or
+  talks down to the lord. Harrow's word in `report.highcairn_true.text` is "House Lantern still counts true" (it was
+  "The lamplighter can count"), and the slip's first line no longer says "once we can count". Pip keeps "Your
+  Wickship" (`report.oil_round.text`), which HOUSE.md allows. No text names the lord.
 - A sending's slip has two hook keys (`errand.<id>.hook1`, `.hook2`) instead of one key with a line break, so each
   line has its own limit (60 / 80).
 - Reports are not petitions in `Resources/Petitions` with a new `kind` (QUESTS.md 4.1 proposed that): they live in
