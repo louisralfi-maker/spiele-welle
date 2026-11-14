@@ -3529,6 +3529,24 @@
         }
       }
     },
+    "table.ready" : {
+      "comment" : "A touched hook: its lantern is at home, dark on the rail.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} hängt an ihrem Haken"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} hangs on its hook"
+          }
+        }
+      }
+    },
     "table.report" : {
       "comment" : "Heading of a report card a party brought home.",
       "extractionState" : "manual",
@@ -3543,6 +3561,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Report"
+          }
+        }
+      }
+    },
+    "table.reserved" : {
+      "comment" : "A touched hook: lantern 41, kept for Hild Varn's ride (sending 13).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} wartet auf einen Ritt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} waits for one ride"
           }
         }
       }
