@@ -4,7 +4,9 @@ import XCTest
 /// The people lane's shots (docs/PEOPLE.md): the town by day in look 2 with the cast in the running game, held still
 /// (`-GWFreezeTime YES`). The market square on the demo realm's day 12 (happiness 70: the children out, Wenna at the
 /// well, the walkers, Fen at the lord's heels, the lord standing where the camera is); the near field with Gorm at his
-/// hoe; the lord passing the field, Gorm straightened and turned to him.
+/// hoe and Hedda at her scythe beside him; the lord passing the field, Gorm straightened and turned to him; the
+/// afternoon square; then the square and the field again with the town in the town's cloth (`-GWCloth town`: the
+/// realm's third stage, docs/PEOPLE.md section 7; the bodies and their walks unchanged).
 /// Saves `<nn>-people-<what>-<lang>` from 130.
 @MainActor
 final class PeopleUITests: XCTestCase {
@@ -22,9 +24,11 @@ final class PeopleUITests: XCTestCase {
                     "-GWWeather", "clear"]
         let stills: [(name: String, arguments: [String])] = [
             ("130-people-square-day", ["-GWHour", "10.5", "-GWCameraX", "3080"] + base),
-            ("131-people-field-work", ["-GWHour", "9.5", "-GWCameraX", "2560"] + base),
+            ("131-people-field-work", ["-GWHour", "9.5", "-GWCameraX", "2600"] + base),
             ("132-people-field-greet", ["-GWHour", "9.5", "-GWCameraX", "2630"] + base),
             ("133-people-square-afternoon", ["-GWHour", "15.2", "-GWCameraX", "3000"] + base),
+            ("134-people-square-town-cloth", ["-GWHour", "10.5", "-GWCameraX", "3080", "-GWCloth", "town"] + base),
+            ("135-people-field-town-cloth", ["-GWHour", "9.5", "-GWCameraX", "2600", "-GWCloth", "town"] + base),
         ]
         for still in stills {
             let app = XCUIApplication()

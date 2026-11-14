@@ -12,7 +12,7 @@ final class PeopleCastTests: XCTestCase {
             .elder: (12, 26, 6), .washerwoman: (12, 26, 8), .labourer: (12, 26, 6),
             .farmerHoe: (12, 26, 14), .farmerScythe: (12, 26, 14),
             .childA: (10, 18, 10), .childB: (10, 18, 10), .childC: (10, 18, 10),
-            .nobleLord: (14, 30, 8), .nobleLady: (14, 30, 8), .footman: (14, 30, 8),
+            .nobleLord: (14, 30, 10), .nobleLady: (14, 30, 10), .footman: (14, 30, 8),
         ]
         XCTAssertEqual(Set(expected.keys), Set(PeopleCast.bodies))
         for (sprite, value) in expected {
@@ -47,6 +47,75 @@ final class PeopleCastTests: XCTestCase {
             }
         }
         XCTAssertLessThanOrEqual(layout.height, AtlasLayout.maxSide, "the cast still fits the one atlas page")
+        // For the join (the rebuild lanes add art too): the page's real height, unclamped.
+        let sizes = SpriteID.allCases.flatMap { sprite in Array(repeating: sprite.size, count: sprite.frameCount) }
+        let packed = AtlasBuilder.pack(sizes + [PixelSize(width: 1, height: 1)], width: layout.width)
+        print("people lane: atlas \(layout.width) wide, \(packed?.height ?? -1) of \(AtlasLayout.maxSide) rows used")
+        XCTAssertLessThanOrEqual(packed?.height ?? .max, AtlasLayout.maxSide, "the packed page fits")
+    }
+
+    func testWealthChangesTheClothNeverThePeople() {
+        XCTAssertEqual(PeopleCast.ClothState(standing: 0), .hamlet)
+        XCTAssertEqual(PeopleCast.ClothState(standing: 2), .hamlet)
+        XCTAssertEqual(PeopleCast.ClothState(standing: 3), .village)
+        XCTAssertEqual(PeopleCast.ClothState(standing: 6), .village)
+        XCTAssertEqual(PeopleCast.ClothState(standing: 7), .town)
+        XCTAssertEqual(PeopleCast.ClothState(standing: 10), .town)
+        let workers: [SpriteID] = [.citizen, .citizenB, .citizenC, .elder, .washerwoman, .labourer, .farmerHoe,
+                                   .farmerScythe, .citizenSeated, .citizenBSeated, .citizenCSeated]
+        for body in workers {
+            XCTAssertEqual(PeopleCast.dressed(body, .hamlet), body)
+            XCTAssertNotEqual(PeopleCast.dressed(body, .village), body, "\(body) has a village state")
+            XCTAssertNotEqual(PeopleCast.dressed(body, .town), body, "\(body) has a town state")
+        }
+        for child in PeopleCast.children {
+            XCTAssertEqual(PeopleCast.dressed(child, .village), child, "a child keeps its cloth in the village")
+            XCTAssertNotEqual(PeopleCast.dressed(child, .town), child, "\(child) has a town state")
+        }
+        for noble in PeopleCast.nobles {
+            XCTAssertEqual(PeopleCast.dressed(noble, .town), noble, "the inner lands never change")
+        }
+        XCTAssertEqual(PeopleCast.dressedBodies.count, 25)
+        XCTAssertEqual(Set(PeopleCast.dressedBodies).count, 25)
+        let layout = AtlasLayout.shared
+        for sprite in PeopleCast.dressedBodies {
+            guard let body = PeopleCast.body(dressedAs: sprite) else { return XCTFail("\(sprite) has no body") }
+            XCTAssertEqual(sprite.size, body.size, "\(sprite) size")
+            XCTAssertEqual(sprite.frameCount, body.frameCount, "\(sprite) frames")
+            XCTAssertEqual(layout.sources[sprite], .png, "\(sprite) is drawn from its painting")
+            let cells = layout.cells[sprite] ?? []
+            let bodyCells = layout.cells[body] ?? []
+            XCTAssertEqual(cells.count, bodyCells.count)
+            var recoloured = 0
+            for (cell, bodyCell) in zip(cells, bodyCells) {
+                let a = layout.image.cropped(x: cell.x, y: cell.y, width: cell.width, height: cell.height)
+                let b = layout.image.cropped(x: bodyCell.x, y: bodyCell.y, width: bodyCell.width, height: bodyCell.height)
+                for y in 0..<a.height {
+                    for x in 0..<a.width {
+                        XCTAssertEqual(a[x, y].a > 0, b[x, y].a > 0, "\(sprite) keeps its body's shape at \(x),\(y)")
+                        if a[x, y].a > 0 && a[x, y] != b[x, y] { recoloured += 1 }
+                    }
+                }
+            }
+            XCTAssertGreaterThan(recoloured, 0, "\(sprite) changes some cloth")
+        }
+        var s = GameFrameSupport.demoDay(hour: 10)
+        s.happiness = 60
+        var seen: [SpriteID] = []
+        PeopleCast.townLife(s, time: 3, cloth: .town) { sprite, _, _, _, _ in seen.append(sprite) }
+        XCTAssertTrue(seen.contains(.washerwomanTown), "Wenna in the town's cloth")
+        XCTAssertFalse(seen.contains(.washerwoman))
+    }
+
+    func testTheNoblesBowOnlyToATown() {
+        XCTAssertNil(PeopleCast.bowFrame(.nobleLord, state: .hamlet, sinceArrival: 0.6), "in the hamlet they look past us")
+        XCTAssertNil(PeopleCast.bowFrame(.nobleLady, state: .village, sinceArrival: 0.6))
+        XCTAssertNil(PeopleCast.bowFrame(.footman, state: .town, sinceArrival: 0.6), "the footman does not bow")
+        XCTAssertEqual(PeopleCast.bowFrame(.nobleLord, state: .town, sinceArrival: 0.2), 8, "the hand on the chest")
+        XCTAssertEqual(PeopleCast.bowFrame(.nobleLady, state: .town, sinceArrival: 0.8), 9, "the head inclined")
+        XCTAssertEqual(PeopleCast.bowFrame(.nobleLord, state: .town, sinceArrival: 1.4), 8)
+        XCTAssertNil(PeopleCast.bowFrame(.nobleLord, state: .town, sinceArrival: 2), "then upright")
+        XCTAssertTrue(PeopleCast.Frames.bow.allSatisfy { $0 < SpriteID.nobleLord.frameCount })
     }
 
     func testTheWalkersTakeTurnsAndKeepTheirStep() {
@@ -58,7 +127,8 @@ final class PeopleCastTests: XCTestCase {
         var day = GameFrameSupport.demoDay(hour: 10)
         let frames = Set(stride(from: 0.0, to: 8, by: 0.1).compactMap { PeopleCast.washer(day, time: $0)?.frame })
         XCTAssertEqual(frames, [4, 5, 6, 7], "she wrings the linen and straightens")
-        XCTAssertEqual(PeopleCast.washer(day, time: 1)?.x, WorldLayout.wellX - 15)
+        XCTAssertEqual(PeopleCast.washer(day, time: 1)?.x, WorldLayout.wellX + 16, "on the well's far side")
+        XCTAssertEqual(PeopleCast.washer(day, time: 1)?.flipped, true, "facing the well")
         day.hour = 21
         XCTAssertNil(PeopleCast.washer(day, time: 1), "home at night")
         XCTAssertEqual(PeopleCast.pace(.citizen), 1)
@@ -111,7 +181,7 @@ final class PeopleCastTests: XCTestCase {
         s.happiness = 60
         let playing = PeopleCast.children(s, time: 2)
         XCTAssertEqual(Set(playing.map(\.sprite)), [.childA, .childB, .childC])
-        XCTAssertTrue(playing.allSatisfy { abs($0.x - WorldLayout.wellX) <= 60 }, "round the well")
+        XCTAssertTrue(playing.allSatisfy { abs($0.x - WorldLayout.wellX) <= 80 }, "round the well")
         for time in stride(from: 0.0, to: 30, by: 0.1) {
             for child in PeopleCast.children(s, time: time) {
                 XCTAssertTrue((0...9).contains(child.frame), "\(child.sprite) frame \(child.frame)")

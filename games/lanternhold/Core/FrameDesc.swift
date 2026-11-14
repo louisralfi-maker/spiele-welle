@@ -123,6 +123,12 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // The people lane (docs/PEOPLE.md, docs/SPRITES-people.md, `PeopleCast`): working people marked by life (Old
     // Hemmet, Wenna Brisk, Brede Hask, Gorm and Hedda Ashby at work), three children, the nobles of the inner lands
     case elder, washerwoman, labourer, farmerHoe, farmerScythe, childA, childB, childC, nobleLord, nobleLady, footman
+    // The people lane's cloth states (docs/PEOPLE.md section 7, `PeopleCast.ClothState`): the same bodies in the
+    // village's and the town's cloth (wealth changes the cloth, never the people)
+    case citizenVillage, citizenBVillage, citizenCVillage, citizenSeatedVillage, citizenBSeatedVillage,
+         citizenCSeatedVillage, elderVillage, washerwomanVillage, labourerVillage, farmerHoeVillage, farmerScytheVillage
+    case citizenTown, citizenBTown, citizenCTown, citizenSeatedTown, citizenBSeatedTown, citizenCSeatedTown, elderTown,
+         washerwomanTown, labourerTown, farmerHoeTown, farmerScytheTown, childATown, childBTown, childCTown
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -352,6 +358,12 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe, .childA, .childB, .childC, .nobleLord,
              .nobleLady, .footman:
             return PeopleCast.size(of: self)
+        case .citizenVillage, .citizenBVillage, .citizenCVillage, .citizenSeatedVillage, .citizenBSeatedVillage,
+             .citizenCSeatedVillage, .elderVillage, .washerwomanVillage, .labourerVillage, .farmerHoeVillage,
+             .farmerScytheVillage, .citizenTown, .citizenBTown, .citizenCTown, .citizenSeatedTown, .citizenBSeatedTown,
+             .citizenCSeatedTown, .elderTown, .washerwomanTown, .labourerTown, .farmerHoeTown, .farmerScytheTown,
+             .childATown, .childBTown, .childCTown:
+            return PeopleCast.size(of: self)
         }
     }
 
@@ -379,6 +391,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     /// walls whole 0 and damaged 1; gates closed 0, closed damaged 1, open 2; projectiles rising 0, flat 1, falling 2.
     var frameCount: Int {
         if isCourtBody { return 8 }
+        if let body = PeopleCast.body(dressedAs: self) { return body.frameCount }
         switch self {
         case .petitionerD, .petitionerE: return 6
         case .portraitSeren, .speakerMark: return 2

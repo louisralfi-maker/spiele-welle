@@ -763,7 +763,7 @@ final class Renderer {
 
     /// The people of the realm, who keep a fainter sky rim in look 2.
     static let people: Set<SpriteID> = Set([SpriteID.archer, .guardsman, .builder, .citizen, .citizenB, .citizenC]
-                                           + PeopleCast.bodies)
+                                           + PeopleCast.bodies + PeopleCast.dressedBodies)
 
     /// Flags: x 1 for an emissive actor, y the moonlight rim of an unlit creature (its strength, M2b review), z 1 for
     /// the cool rim, w the cap on reflected point light (0: `kLitCap`).
