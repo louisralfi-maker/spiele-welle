@@ -68,8 +68,8 @@ struct SweepKit {
         for pair in stride(from: 0, to: arguments.count, by: 2) {
             let key = arguments[pair]
             let value = arguments[pair + 1]
-            guard key.hasPrefix("-GW"), key.count > 3, key.dropFirst().unicodeScalars.allSatisfy(plain.contains),
-                  !value.isEmpty, value.unicodeScalars.allSatisfy(plain.contains) else { return nil }
+            guard key.hasPrefix("-GW"), key.count > 3, key.dropFirst().unicodeScalars.allSatisfy({ plain.contains($0) }),
+                  !value.isEmpty, value.unicodeScalars.allSatisfy({ plain.contains($0) }) else { return nil }
             let name = String(key.dropFirst())
             guard values[name] == nil else { return nil }
             values[name] = value
