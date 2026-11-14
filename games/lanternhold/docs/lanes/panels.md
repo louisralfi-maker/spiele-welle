@@ -320,7 +320,10 @@ Continue, the first hook goes wherever night 20's report is closed.
   "Chapter ı" in IM Fell's old-style figure); the lord at the low hearth stood dark on a dark wall (only a hooked outline
   showed), now the chair stands before the fire-lit stones and the head and shoulders read; the fog round the King
   calmer.
-- `lh-pn2-3` (59aa8a9): build, unit EndingsTests, SlidesPaletteTests and SlidesTests, ui EndingsUITests: see below.
+- `lh-pn2-3` (59aa8a9, the last code-bearing commit): build, unit EndingsTests, SlidesPaletteTests and SlidesTests,
+  ui EndingsUITests: **ALL PASSED**. Upright copies in `ci-out/upright-pn2-3/` of this worktree (git-ignored): the
+  card's "Chapter 1" now in the ledger's figures, the lord at the low hearth reads against the fire. After it only these
+  notes changed.
 
 ### My own verdict, and what is weakest
 
