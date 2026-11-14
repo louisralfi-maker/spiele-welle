@@ -1,0 +1,2 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/AdPacingTests.swift:137:34: error: main actor-isolated class property 'secondChanceGap' can not be referenced from a nonisolated autoclosure
