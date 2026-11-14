@@ -1708,14 +1708,17 @@ world", step stage-1). The art is used as painted; the engine adds its light, it
   small islands of thicker plaster carry a one-pixel shadow. The two patches beside the throne's sconce moved: one
   high on the dais end above the arms (430, 30), one on the gallery's wall left of its window (14, 30).
 - **The near pillar** (`hallPillarNear`, redrawn 30 px wide): one only, at hall x 150 between the door and the first
-  bench, so the walking framing never shows two and it is off screen in the audience. It takes 0.62 of the hall's
+  bench, so the walking framing never shows two and it is off screen in the audience. It takes 0.8 of the hall's
   ambient (with its roof ramp) instead of near black, and a rim on its outer pixels: by day the tall window's cool
-  light (right 0.30/0.34/0.40, left 0.13/0.15/0.18 × daylight), at night the door torches' warm light on the left and
-  the moon's on the right. Where the lord stands behind it, it opens in a 4x4 ordered dither round his body (open
-  inside 55 % of an ellipse 15 x 27 px, solid outside), so its outline and rim stay: no glassy slab.
+  light (right 0.42/0.46/0.54, left 0.18/0.20/0.24 × daylight), at night the door torches' warm light on the left
+  (0.52/0.30/0.12) and the moon's on the right. Where the lord stands behind it, it opens in a 4x4 ordered dither
+  round his body (open inside 55 % of an ellipse 12 x 24 px, solid outside; only while he overlaps the shaft, growing
+  as he moves behind it), so its outline and rim stay: no glassy slab and no notch when he stands beside it.
 - **Soft pools:** inside the hall every light falls off smoothly to nothing (light style 3: (1 − d)² without the lit
-  edge's step), so no pool ends in a hard disc. The bench stands' candles are round pools of 24 px centred on their
-  flames (they smeared into a bar along the wainscot's cap).
+  edge's step), so no pool ends in a hard disc. The bench stands' candles are round pools of 20 px just below their
+  flames (centred on them, the wainscot's pale cap still carried the two stands' light as one bar). On cool cloth the
+  composite turns warm light toward its own luminance (by `saturate((b − r) × 2.5)`, three quarters at most), so a
+  candle or the lantern brightens the teal instead of greening it.
 - **The hearth by day:** its glow and pool shrink by 35 % and lose half their strength in full daylight, a warm cone
   round the fire's mouth with grey stone beyond; at night it is as before.
 - **The night:** the moon (when up, less under clouds) comes through the two tall windows as pale shafts (the day's
@@ -1723,7 +1726,8 @@ world", step stage-1). The art is used as painted; the engine adds its light, it
   window on the far wall; the door torches lay a flat pool on the flags before the door.
 - **The lord's lantern** is a warm white (1.0/0.86/0.66) indoors, so it warms the teal cloth instead of greening it;
   on the throne it sits low and flat at his lap. **The lectern's candle** (the white stick on its book rest) burns
-  and keys the lord in his chair in the same warm white (director's correction 2).
+  and keys the lord in his chair in the same warm white, a low flat pool on the chair's seat (director's correction
+  2).
 - **The banners** (director's correction 4): the realm's banner hangs at every second place only (hall x 137, 253,
   368); at 211 and 327 a two-candle iron sconce like the one under the arms hangs on the bare ashlar instead
   (`greatHall` rebuilt by tools/hallart.py, `wall_sconce`, centred at 220 and 336 in the gaps between the windows

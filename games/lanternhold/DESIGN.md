@@ -3352,25 +3352,31 @@ lantern over the teal cloth). What changed (new logic in `Core/HallLight.swift`)
   feather, each pixel one step warmer than the stone under it, so the ashlar reads through; the two patches beside the
   throne's sconce moved up to the dais end above the arms and to the gallery's wall.
 - **One near pillar** (`hallPillarNear` redrawn 30 px wide, at hall x 150): never two in the walking framing, none in
-  the audience. The composite gives it 0.62 of the hall's ambient, a rim of light on its edges (the window's cool light
+  the audience. The composite gives it 0.8 of the hall's ambient, a rim of light on its edges (the window's cool light
   by day, the torches' warm and the moon's cool light at night) and, instead of the alpha fade, a window in a 4x4
-  ordered dither round the lord's body where he stands behind it (`InteriorLight.pillarHole`, `rimLeft`,
+  ordered dither round the lord's body (half sizes 12 x 24, open inside 55 %) that opens only while he stands behind
+  the shaft and grows as he moves behind it (`HallLight.holeOpening`; `InteriorLight.pillarHole`, `rimLeft`,
   `rimRight`, `pillarAmbient`; `Look2Uniforms.hallHole`, `hallRimL`, `hallRimR`).
 - **Soft light:** inside the hall the renderer draws every pool with light style 3, a smooth falloff to nothing
-  without the lit edge's step (no hard discs, no bars). The bench stands' candles are round 24 px pools on their
-  flames and burn whenever anyone waits at a bench (`HallCourt.occupiedBenches`: on it or within 40 px).
+  without the lit edge's step (no hard discs, no bars). The bench stands' candles are round 20 px pools just below
+  their flames (centred there, the two stands' light ran along the wainscot's pale cap as one bar) and burn whenever
+  anyone waits at a bench (`HallCourt.occupiedBenches`: on it or within 40 px). On cool cloth (the teal banners, the
+  cloth of estate) the composite lets warm light warm the luminance instead of cutting the blue, so no candle or
+  lantern turns the teal olive green.
 - **The hearth by day** shrinks by 35 % and loses half its strength in full daylight (`HallLight.hearthDay…`); at
   night it is as before.
 - **The night:** the moon through the windows (pale `hallShaft`s, a cool pool where they land, a cool fill round each
   window) and the door torches' pool on the flags.
 - **The throne:** the lantern indoors is a warm white (1.0, 0.86, 0.66), low and flat at his lap on the throne, so the
-  cloth of estate keeps its blue; the lectern's candle burns and keys the lord in his chair.
+  cloth of estate keeps its blue; the lectern's candle burns and keys the lord in his chair (a low, flat pool of 28 px
+  on the chair's seat, so it does not climb the cloth behind him).
 - **The banners:** the realm's banner hangs at every second place (137, 253, 368); at the other two a wall sconce burns
   (`HallLayout.wallSconces`, painted into `greatHall`), out while a house's banner covers its place.
 - **The waiting:** the bench by the door fills first (seats 192, 184, 176, then 308, 300, 292), so the waiting are
   clear of the action button when the lord comes in and the greeting shows; who cannot sit (no seated strip: the
-  soldier, the merchant, the townswoman, the builder) stands beside the first bench (`HallLayout.besideBenches` 218,
-  148, 136) instead of before an empty seat; the petitioner called hurries at 110 px/s.
+  soldier, the merchant, the townswoman, the builder) stands beside a bench (`HallLayout.besideBenches` 218, then 262
+  by the second bench) instead of before an empty seat, never between the door and the first bench where the near
+  pillar sweeps the wall; the first standing guest waits at 272; the petitioner called hurries at 110 px/s.
 - **The plaques:** one height per row (the tallest's), words top-aligned; Odile's seal sits on the plaque's corner
   and never takes the words' width.
 - **Proof screenshots** (`HallUITests.proofs`): 131a the dark half way (`-GWStageSlow 10`), 131b the greeting and 131c
