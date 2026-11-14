@@ -1,0 +1,12 @@
+base normal: taxes 2550 happiness 2270 killed 1495 fallen 1 walls 4 buildings 26
+base high: taxes 1344 happiness 769 killed 1514
+fletcher (pitch, fireArrowBurn 1.0, stands from dawn 5): creatures stopped -2‰ while it stands, -2‰ over the run; taxes 0‰ happiness 0‰ killed -2‰ fallen 1/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+founder (bell, soldierSpeed 0.1, stands from dawn 8): creatures stopped 0‰ while it stands, 0‰ over the run; taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+glazier (glass, lightRadius 0.05, stands from dawn 5): creatures stopped -1‰ while it stands, -1‰ over the run; taxes 0‰ happiness 0‰ killed -1‰ fallen 1/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+ironwright (gateBands, gateStrength 0.05, stands from dawn 8): creatures stopped 0‰ while it stands, 0‰ over the run; taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+lampmaker (lanterns, unrestLine 3.0, stands from dawn 7): taxes 26‰ while it stands, 12‰ over the run; taxes 26‰ happiness 0‰ killed 0‰ fallen 3/3 walls 2/2 hearth lost 0/0 buildings 24/24 nights held 28/28
+limeburner (mortar, patchShare 0.05, stands from dawn 5): creatures stopped 0‰ while it stands, 0‰ over the run; taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+mason (statue, houseCoin 1.0, stands from dawn 8): taxes 44‰ while it stands, 29‰ over the run; taxes 44‰ happiness 0‰ killed 0‰ fallen 1/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+painter (portrait, happinessOnce 3.0, stands from dawn 6): happiness 26‰ while it stands, 21‰ over the run; taxes 5‰ happiness 26‰ killed 19‰ fallen 0/1 walls 2/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+weaver (banners, guardHold 0.05, stands from dawn 5): creatures stopped 0‰ while it stands, 0‰ over the run; taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+wheelwright (carts, builderWalk 0.1, stands from dawn 5): buildings 0‰ while it stands, 0‰ over the run; taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28

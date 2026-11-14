@@ -1,0 +1,8 @@
+screenshot 1206 x 2622 raw pixels, image scale 3.0, orientation 2
+expected s = 8 (virtual height 135)
+row changes 75, spacings [8], ok true
+column changes 164, spacings [8], ok true
+block offsets 0, 0; pixels checked 790533; unknown 0; wrong 0
+red cell sample (217, 38, 26); blue cell sample (26, 51, 217)
+verdict: PASS
+ready signal: yes
