@@ -63,7 +63,8 @@ def smoke(X, Z):
     """The Gloom's smoke over the near side: rolling banks, higher toward us, lapping at the wall's foot."""
     b = fbm(X * 0.0065 / Z ** 0.4, Z * 4.2, 551, 3)
     roll = max(0.0, b - 0.32) * 1.7
-    return 0.012 + 0.07 * roll * (0.45 + 0.55 * min(1.0, (ZW - Z) * 1.3))
+    near = max(0.0, 1.45 - Z) * 2.2
+    return 0.012 + 0.07 * roll * (0.45 + 0.55 * min(1.0, (ZW - Z) * 1.3)) * (1.0 + near)
 
 
 def project(X, Z, h):
@@ -495,7 +496,9 @@ def creature(c, name, frames, frame, x0, base, flip=False, sink=0):
                 body[(x0 + x, y0 + y)] = P("night0")
     for (x, y) in list(body):
         if (x - 1, y) not in body or (x, y - 1) not in body:
-            body[(x, y)] = P("far")
+            body[(x, y)] = P("moon")
+        elif (x - 2, y) not in body or (x, y - 2) not in body:
+            body[(x, y)] = P("nightBlue")
     for y in range(h - sink):
         for x in range(w):
             sx = w - 1 - x if flip else x
