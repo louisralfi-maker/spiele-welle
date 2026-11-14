@@ -229,7 +229,8 @@ The bar asks the same change of character in the lines (English and German). For
 
 Louis, 14.11.2026: "Wir machen unsere Burg, Königreich, Stadt, Land immer wohlhabender." The realm's three stages
 (REALM.md section 2: hamlet at standing 0 to 2, village 3 to 6, town 7 to 10) change everyone's cloth alike: patched and
-faded in the hamlet, mended and whole in the village, good wool with a little colour in the town. **Wealth changes the
+faded in the hamlet, mended and whole in the village (every patch gone, the undyed wool washed a value step lighter),
+good wool with a little colour in the town. **Wealth changes the
 cloth, never the people:** face, back, hands, posture, walk and the mark stay as life made them. In the sprites a state
 is the same body with only cloth pixels recoloured (`tools/peoplestates.py`, the `#@state` lines in each grid; the
 alpha of every frame is the body's, which a unit test checks). The town's dyes are muted and local (madder red, fir
@@ -238,14 +239,14 @@ children's bright red.
 
 | who | hamlet (as drawn) | village: mended and whole | town: good wool, a little colour |
 |---|---|---|---|
-| Mother Corra | an earth-brown dress with a darn at the back, a grey-cream apron, the faded teal shawl | the darn worked into the cloth | a madder-red dress, a fresh apron; the shawl stays her husband's, faded (her mark) |
-| Dun Rook | a soot-grey tunic with a brown patch over the belly, boots worn through at the toes | the patch and the toes mended | a tunic of fir-green wool; the rag on his arm stays |
-| Ned Thatch | an old brown vest, breeches patched at both knees | the knees mended | a vest of the house's blue over a clean shirt |
-| Old Hemmet | an old brown cape with a patch, the smock pale with flour | the patch mended | a cape of wine-red wool; the smock stays a miller's |
-| Wenna Brisk | a rock-grey skirt with a brown patch, a grey apron | the patch mended | an indigo skirt, a fresh apron; her raw arms stay |
-| Brede Hask | a leather jerkin with a patch, rock-grey breeches, a grey sweat rag | the jerkin mended | breeches of fir-green wool, a clean brow rag; the rags on his foot stay |
-| Gorm Ashby | an earth smock darned pale at the back, rags round the shins | the darn worked into the smock | a smock of moss-green wool, brown wool hose for the rags |
-| Hedda Ashby | an earth-brown skirt with a patch, an undyed apron | the patch mended | a madder-red skirt, a fresh apron; the white hair stays |
+| Mother Corra | an earth-brown dress with a darn at the back, a grey-cream apron, the faded teal shawl | the darn worked in, the dress washed a step lighter, the apron fresh | a madder-red dress, a fresh apron; the shawl stays her husband's, faded (her mark) |
+| Dun Rook | a soot-grey tunic with a brown patch over the belly, boots worn through at the toes | the patch and the toes mended, the tunic washed a step lighter | a tunic of fir-green wool; the rag on his arm stays |
+| Ned Thatch | an old brown vest, breeches patched at both knees | the knees mended, the vest oiled a step lighter | a vest of the house's blue over a clean shirt |
+| Old Hemmet | an old brown cape with a patch, the smock pale with flour | the patch mended, the cape brushed a step lighter | a cape of wine-red wool; the smock stays a miller's |
+| Wenna Brisk | a rock-grey skirt with a brown patch, a grey apron | the patch mended, the skirt washed a step lighter | an indigo skirt, a fresh apron; her raw arms stay |
+| Brede Hask | a leather jerkin with a patch, rock-grey breeches, a grey sweat rag | the jerkin mended, the breeches washed a step lighter | breeches of fir-green wool, a clean brow rag; the rags on his foot stay |
+| Gorm Ashby | an earth smock darned pale at the back, rags round the shins | the darn worked in, the smock washed a step lighter | a smock of moss-green wool, brown wool hose for the rags |
+| Hedda Ashby | an earth-brown skirt with a patch, an undyed apron | the patch mended, the skirt washed a step lighter | a madder-red skirt, a fresh apron; the white hair stays |
 | Nib Brisk | the washed linen tunic, the red kerchief and patch | as in the hamlet | the tunic dyed a pale blue; the red stays his |
 | Wren Ashby | a linen smock under the red pinafore | as in the hamlet | a primrose smock under the red pinafore |
 | Fen | the oiled jerkin, soil-brown breeches | as in the hamlet | breeches and belts of the house's blue |

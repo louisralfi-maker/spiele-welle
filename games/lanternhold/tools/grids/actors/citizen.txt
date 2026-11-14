@@ -12,7 +12,7 @@ outline ink shade
 
 # Cloth states (docs/PEOPLE.md section 7, tools/peoplestates.py): the realm's stage changes the cloth, never the
 # body. Hamlet is this grid as drawn; village and town remap cloth characters only.
-#@state village  p=soil            # the darn at the back of the skirt mended into the cloth
+#@state village  p=soilLight n=woodLight b=soilLight B=soil q=plaster   # whole: the darn worked in, the dress washed a step lighter, the apron fresh
 #@state town     n=tileLight b=tile B=woodDark p=tile q=plaster   # a madder-red dress, the apron fresh; the shawl stays her husband's, faded
 
 legend
