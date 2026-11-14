@@ -496,9 +496,11 @@ final class TownShowTests: XCTestCase {
 
     @MainActor
     func testTheSpritesKeepTheirContract() {
-        for sprite in TownSprites.figures {
+        for sprite in TownSprites.households + [.townGorm] {
             XCTAssertEqual(sprite.size, PixelSize(width: 12, height: 26), "\(sprite): the citizen contract")
         }
+        XCTAssertEqual(SpriteID.townNib.size, PixelSize(width: 10, height: 18), "the children's contract")
+        XCTAssertEqual(SpriteID.townNib.frameCount, 9)
         XCTAssertEqual(SpriteID.townCorra.frameCount, 15)
         XCTAssertEqual(SpriteID.townDun.frameCount, 11)
         XCTAssertEqual(SpriteID.townGorm.frameCount, 4)
