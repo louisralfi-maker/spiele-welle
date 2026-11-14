@@ -136,6 +136,7 @@ final class AdDirectorTests: XCTestCase {
         ads.attach(game)
         let info = try XCTUnwrap(game.defeatInfo)
         XCTAssertTrue(ads.secondChanceOffered(info))
+        XCTAssertEqual(GameModel.secondChanceGap, AdPacing.secondChanceGap, "the defeat card reads the same rule")
         ads.takeSecondChance()
         XCTAssertEqual(stub.rewardedShown, 1)
         guard case .report(let dawn)? = game.overlay else { return XCTFail("the dawn's report follows") }

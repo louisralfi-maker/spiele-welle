@@ -134,7 +134,6 @@ final class AdPacingTests: XCTestCase {
         let endless = AdPacing(lastSecondChanceNight: 22)
         XCTAssertEqual(endless.secondChanceFrom(night: 30, mode: .endless), 32)
         XCTAssertNil(endless.secondChanceFrom(night: 32, mode: .endless))
-        XCTAssertEqual(GameModel.secondChanceGap, AdPacing.secondChanceGap, "the defeat card reads the same rule")
     }
 
     func testMarekComesEveryThirdDawnWithFortyPercentOfItsTaxesAtLeastFifteen() {
