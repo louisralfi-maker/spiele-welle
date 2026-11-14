@@ -87,7 +87,11 @@ struct TableListView: View {
                     .foregroundStyle(Theme.inkSoft)
                 rail(realm)
                 InkRule()
-                road(realm)
+                // Three parties on the road must not push the buttons off the screen (round lh-q2-2, shot 45).
+                ScrollView(.vertical, showsIndicators: false) {
+                    road(realm)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
             Spacer(minLength: 4)
             statusProbe(realm)
