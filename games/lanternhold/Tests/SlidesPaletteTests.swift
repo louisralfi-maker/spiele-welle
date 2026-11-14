@@ -2,9 +2,10 @@ import Foundation
 import XCTest
 @testable import Lanternhold
 
-/// The lantern slides are palette art (panels lane, critic look 1 of panels-1, blocker 2; artbar.md 1 "Palette colours
-/// only"): every pixel of every slide is one of tools/palette.txt's colours, opaque, at 320 x 160. The set below is
-/// palette.txt's, printed by `python3 -I tools/slides/slidecheck.py --swift`; renew it when the palette changes.
+/// The lantern slides, the prologue's and the endings', are palette art (panels lane, critic look 1 of panels-1,
+/// blocker 2; artbar.md 1 "Palette colours only"): every pixel of every slide is one of tools/palette.txt's colours,
+/// opaque, at 320 x 160. The set below is palette.txt's, printed by `python3 -I tools/slides/slidecheck.py --swift`;
+/// renew it when the palette changes.
 @MainActor
 final class SlidesPaletteTests: XCTestCase {
     static let palette: Set<UInt32> = [
@@ -24,8 +25,10 @@ final class SlidesPaletteTests: XCTestCase {
 
     func testEverySlideIsPaletteArt() throws {
         XCTAssertEqual(Self.palette.count, 89, "the palette's 89 distinct colours are all there")
-        let names = SlideShow.prologue.pictureNames
-        XCTAssertEqual(names.count, 5)
+        // The prologue's five and the endings' eleven (panels-2).
+        let endings = ChapterEnding.allCases.flatMap { $0.pictures.flatMap(\.names) }
+        let names = SlideShow.prologue.pictureNames + endings
+        XCTAssertEqual(names.count, 16)
         for name in names {
             let url = try XCTUnwrap(SlideText.pictureURL(name), "\(name).png is in the bundle")
             let image = try XCTUnwrap(PNGDecoder.load(url: url), "\(name) decodes")

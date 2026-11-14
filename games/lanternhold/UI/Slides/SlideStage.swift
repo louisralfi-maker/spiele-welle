@@ -29,6 +29,12 @@ final class SlideStage {
     private(set) var turn = 0
     /// The lord whose picture and name the slides show (set when the show starts).
     private(set) var lord = LordIdentity.standard
+    /// The chapter's end card while it lies on the stage after an ending's last slide (panels-2): the realm's tale,
+    /// "Begin again" and "Hold the realm". The world stays covered and still under it.
+    var endCard: RealmTale?
+
+    /// The stage covers the world: a show is up or the end card lies there (the world draws at the screens' 20 fps).
+    var coversWorld: Bool { isShowing || endCard != nil }
 
     /// When the current slide came in, on `clock`.
     @ObservationIgnored private(set) var cameAt = 0.0

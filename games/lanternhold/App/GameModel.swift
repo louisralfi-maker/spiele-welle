@@ -265,6 +265,8 @@ final class GameModel {
         if overlay == nil, let state = driver?.state, LordEntry.asks(args: args, state: state) {
             setOverlay(.lordEntry)
         }
+        // Panels lane: a realm saved at the finale's dawn that never chose how to go on gets its ending again.
+        resumeChapterEndAtLaunch()
         refreshHUD()
     }
 
@@ -700,6 +702,8 @@ final class GameModel {
         if delta > 0 { feedback.play(.happinessUp) }
         if delta < 0 { feedback.play(.happinessDown) }
         setOverlay(nil)
+        // Panels lane: after the finale's dawn the chapter ends (its ending's slides, then the end card).
+        endChapterIfFinale(report)
     }
 
     var defeatInfo: DefeatInfo? {

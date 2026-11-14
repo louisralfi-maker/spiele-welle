@@ -52,6 +52,21 @@ struct Slide: Sendable, Equatable {
     /// The string catalog of both keys ("Panels": this lane's own; the endings may read "Story").
     var table: String = SlideShow.table
     var timing: SlideTiming = .standard
+    /// More lines under the first, one key each (an ending's middle slide: the lord's leaning, then the houses).
+    var moreKeys: [String] = []
+    /// What `%@` in the words stands for (the houses' names, already joined for the player's language).
+    var fill: String? = nil
+
+    /// Every key of the words, the first line's first.
+    var textKeys: [String] { [textKey] + moreKeys }
+}
+
+/// The lantern's light on the stage. Each ending has its own (panels-2), so a player who sees a second ending feels the
+/// difference before reading a word: the prologue's warm lantern; the Open Lantern's rose and gold of the first true
+/// dawn; the Shuttered Lantern's cold grey first light; the Guttering Lantern's low red ember that dips as a wick does
+/// before it drowns.
+enum SlideLamp: String, Sendable, Equatable, CaseIterable {
+    case lantern, dawn, grey, ember
 }
 
 /// A row of slides shown one after the other on the slide stage (`SlideStageView`).
@@ -68,6 +83,10 @@ struct SlideShow: Sendable, Equatable, Identifiable {
     var slides: [Slide]
     /// A small "Skip" in the corner ends the show at once.
     var skippable = true
+    /// The lantern's light on the stage while this show plays.
+    var lamp: SlideLamp = .lantern
+    /// The VoiceOver hint of the last slide (what its tap leads to).
+    var lastHintKey = "slides.begin"
 
     /// Every picture the show may need, for the tests and the preload.
     var pictureNames: [String] { slides.flatMap(\.picture.names) }
@@ -100,6 +119,14 @@ enum SlideText {
         LordText.resolve(bundle.localizedString(forKey: key, value: key, table: table), lord: lord)
     }
 
+    /// A slide's words for this lord: its lines one under the other, `%@` filled (the houses' names).
+    static func words(_ slide: Slide, lord: LordIdentity, bundle: Bundle = .main) -> String {
+        let text = slide.textKeys.map { string($0, table: slide.table, lord: lord, bundle: bundle) }
+            .joined(separator: "\n")
+        guard let fill = slide.fill else { return text }
+        return text.replacingOccurrences(of: "%@", with: fill)
+    }
+
     /// The text of `key` in one language ("en", "de") as the app bundle compiled it; nil when that language lacks it.
     static func string(_ key: String, table: String = SlideShow.table, language: String,
                        bundle: Bundle = .main) -> String? {
@@ -125,6 +152,8 @@ enum SlideText {
 /// UI test from before the slides starts as it did.
 struct SlideArgs: Sendable, Equatable {
     static let keys = ["GWSlides", "GWPrologue"]
+    /// `-GWSlides end`: the chapter's end card alone (`ending1` to `ending3` play an ending, then the card).
+    static let endCard = "end"
 
     /// The show to open at launch.
     var show: String?

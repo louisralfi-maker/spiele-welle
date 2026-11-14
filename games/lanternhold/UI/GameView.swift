@@ -165,7 +165,7 @@ final class WorldSceneCoordinator: NSObject, MTKViewDelegate {
         }
         // The audience keeps 60: its hall lives on under the card (M3).
         // Panels lane: the slide stage covers the world like a screen.
-        let screen = (model.overlay?.isScreen ?? false) || model.slides.isShowing
+        let screen = (model.overlay?.isScreen ?? false) || model.slides.coversWorld
         let rate = min(thermalRate, screen ? WorldSceneCoordinator.screenRate : 60)
         if view.preferredFramesPerSecond != rate {
             view.preferredFramesPerSecond = rate

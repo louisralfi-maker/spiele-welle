@@ -39,12 +39,20 @@ extension GameModel {
         presentSlides(.prologue)
     }
 
-    /// `-GWSlides <show>`: that show at once over whatever the other arguments made (once per run).
+    /// `-GWSlides <show>`: that show at once over whatever the other arguments made (once per run): `prologue`; an
+    /// ending (`ending1` the Open Lantern, `ending2` the Shuttered, `ending3` the Guttering) with its sample tale and
+    /// the end card after it; `end` the end card alone (the Open Lantern's sample).
     func openSlidesFromLaunch() {
         guard !slides.launchHandled else { return }
         slides.launchHandled = true
-        guard let id = SlideArgs.fromProcess().show, let show = SlideShow.named(id) else { return }
-        presentSlides(show)
+        guard let id = SlideArgs.fromProcess().show else { return }
+        if let ending = ChapterEnding(rawValue: id) {
+            presentEnding(RealmTale.sample(ending, lord: lord))
+        } else if id == SlideArgs.endCard {
+            openEndCard(RealmTale.sample(.openLantern, lord: lord))
+        } else if let show = SlideShow.named(id) {
+            presentSlides(show)
+        }
     }
 
     /// A tap on the stage: the next glass slides in with a soft click, or the show ends after the last.

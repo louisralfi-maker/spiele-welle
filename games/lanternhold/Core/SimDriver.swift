@@ -231,6 +231,13 @@ struct SimDriver: Sendable {
         dawnSnapshot.lord = lord
     }
 
+    /// Panels lane (the chapter's end card, "Hold the realm"): the realm goes on in the Long Watch, now and in its last
+    /// dawn, so the save counts it as endless at once.
+    mutating func holdTheRealm() {
+        state.mode = .endless
+        dawnSnapshot.mode = .endless
+    }
+
     /// The action button: lights or patches. Returns true when it did something.
     @discardableResult
     mutating func perform(_ action: KingAction, events: inout [SimEvent]) -> Bool {

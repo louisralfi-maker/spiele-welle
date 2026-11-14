@@ -16,9 +16,14 @@ struct SlideStageHost: View {
             if model.slides.isShowing {
                 SlideStageView(model: model, stage: model.slides)
                     .transition(.opacity)
+            } else if let tale = model.slides.endCard {
+                // The chapter's end card lies on the same dark stage, in the ending's own light (panels-2).
+                ChapterEndView(model: model, tale: tale)
+                    .transition(.opacity)
             }
         }
         .animation(.easeInOut(duration: model.reduceMotion ? 0.3 : 0.6), value: model.slides.isShowing)
+        .animation(.easeInOut(duration: model.reduceMotion ? 0.3 : 0.6), value: model.slides.endCard)
         .onAppear { model.openSlidesFromLaunch() }
     }
 }
@@ -41,10 +46,12 @@ struct SlideStageView: View {
     @State private var wordsShown = false
 
     private var reduceMotion: Bool { model.reduceMotion }
+    /// The lantern's light of the show on the stage (each ending has its own).
+    private var look: SlideLampLook { SlideLampLook.of(stage.show?.lamp ?? .lantern) }
 
     var body: some View {
         ZStack {
-            SlideSurround()
+            SlideSurround(look: look)
                 .ignoresSafeArea()
             GeometryReader { geometry in
                 let layout = SlideLayout(size: geometry.size, displayScale: displayScale, lineHeight: lineHeight)
@@ -100,8 +107,8 @@ struct SlideStageView: View {
             .buttonStyle(SlideTapStyle())
             .accessibilityLabel(Text(verbatim: slide.map { words(of: $0).replacingOccurrences(of: "\n", with: " ") } ?? ""))
             .accessibilityValue(Text(verbatim: position))
-            .accessibilityHint(Text(verbatim: SlideText.string(stage.isLast ? "slides.begin" : "slides.next",
-                                                                lord: stage.lord)))
+            .accessibilityHint(Text(verbatim: SlideText.string(stage.isLast ? (stage.show?.lastHintKey ?? "slides.begin")
+                                                                    : "slides.next", lord: stage.lord)))
             .accessibilityIdentifier("story-next")
             Spacer(minLength: layout.bottom)
         }
@@ -112,7 +119,7 @@ struct SlideStageView: View {
         let size = layout.picture
         return ZStack {
             // The spill of the lantern's light on the wall around the gate.
-            SlideBeam(size: size, reduceMotion: reduceMotion)
+            SlideBeam(size: size, reduceMotion: reduceMotion, look: look)
                 .allowsHitTesting(false)
             ZStack {
                 Color(red: 0.03, green: 0.03, blue: 0.05)
@@ -122,7 +129,7 @@ struct SlideStageView: View {
                         .id(stage.turn)
                         .transition(glassTransition(width: size.width + layout.bar))
                 }
-                SlideLight(size: size, reduceMotion: reduceMotion)
+                SlideLight(size: size, reduceMotion: reduceMotion, look: look)
                     .allowsHitTesting(false)
             }
             .frame(width: size.width, height: size.height)
@@ -186,7 +193,7 @@ struct SlideStageView: View {
     // MARK: Words and timing
 
     private func words(of slide: Slide) -> String {
-        SlideText.string(slide.textKey, table: slide.table, lord: stage.lord)
+        SlideText.words(slide, lord: stage.lord)
     }
 
     private var position: String {
@@ -280,12 +287,77 @@ enum SlidePalette {
     static let lozenge = Theme.gold
 }
 
+/// One lamp's light on the stage (`SlideLamp`): the spill on the wall, the centre light on the glass, the vignette at
+/// its edge, the dust in the beam and the room's own dark. The prologue's lantern keeps panels-1's values exactly.
+struct SlideLampLook: Equatable {
+    var lamp: Color
+    /// The spill's strength near the gate and how far out it reaches (fraction of its ellipse).
+    var spill: Double
+    var reach: Double
+    /// The centre light over the glass (screen blend).
+    var centre: Double
+    /// The vignette at the glass's edge, and its strength there and at the very rim.
+    var edge: Color
+    var edgeDeep: Color
+    var edgeStrength: Double
+    var edgeDeepStrength: Double
+    var dust: Color
+    var room: Color
+    var roomWarm: Color
+    /// The light dips now and then, as a wick does before it drowns (the Guttering Lantern; still under Reduce Motion).
+    var gutters = false
+
+    static func of(_ lamp: SlideLamp) -> SlideLampLook {
+        switch lamp {
+        case .lantern:
+            return SlideLampLook(lamp: SlidePalette.lamp, spill: 0.20, reach: 0.5, centre: 0.09,
+                                 edge: Color(red: 0.16, green: 0.07, blue: 0.02),
+                                 edgeDeep: Color(red: 0.05, green: 0.02, blue: 0.01), edgeStrength: 0.38,
+                                 edgeDeepStrength: 0.78, dust: SlidePalette.dust, room: SlidePalette.room,
+                                 roomWarm: SlidePalette.roomWarm)
+        case .dawn:
+            // The first true dawn: rose and gold, the widest and brightest spill, a soft rose vignette.
+            return SlideLampLook(lamp: Color(red: 1.0, green: 0.76, blue: 0.62), spill: 0.30, reach: 0.58,
+                                 centre: 0.12, edge: Color(red: 0.22, green: 0.09, blue: 0.08),
+                                 edgeDeep: Color(red: 0.09, green: 0.03, blue: 0.04), edgeStrength: 0.30,
+                                 edgeDeepStrength: 0.68, dust: Color(red: 1.0, green: 0.90, blue: 0.84),
+                                 room: Color(red: 0.040, green: 0.030, blue: 0.045),
+                                 roomWarm: Color(red: 0.13, green: 0.07, blue: 0.07))
+        case .grey:
+            // A cold grey first light: a narrow, pale blue spill, a slate vignette, the room nearly without warmth.
+            return SlideLampLook(lamp: Color(red: 0.72, green: 0.80, blue: 0.93), spill: 0.15, reach: 0.44,
+                                 centre: 0.07, edge: Color(red: 0.04, green: 0.06, blue: 0.10),
+                                 edgeDeep: Color(red: 0.01, green: 0.02, blue: 0.04), edgeStrength: 0.42,
+                                 edgeDeepStrength: 0.82, dust: Color(red: 0.86, green: 0.91, blue: 1.0),
+                                 room: Color(red: 0.020, green: 0.025, blue: 0.040),
+                                 roomWarm: Color(red: 0.035, green: 0.045, blue: 0.065))
+        case .ember:
+            // A low red ember: a small dim spill, a heavy dark vignette, sparks for dust, and the gutter's dips.
+            return SlideLampLook(lamp: Color(red: 1.0, green: 0.46, blue: 0.22), spill: 0.17, reach: 0.46,
+                                 centre: 0.06, edge: Color(red: 0.14, green: 0.03, blue: 0.01),
+                                 edgeDeep: Color(red: 0.04, green: 0.01, blue: 0.0), edgeStrength: 0.46,
+                                 edgeDeepStrength: 0.86, dust: Color(red: 1.0, green: 0.62, blue: 0.36),
+                                 room: Color(red: 0.025, green: 0.018, blue: 0.020),
+                                 roomWarm: Color(red: 0.07, green: 0.03, blue: 0.02), gutters: true)
+        }
+    }
+
+    /// 1 most of the time; now and then a dip toward 0.6 and back, irregular (three slow waves multiplied).
+    func gutter(_ time: TimeInterval) -> Double {
+        guard gutters else { return 1 }
+        let wave = sin(time * 1.7) * sin(time * 2.9 + 1.3) * sin(time * 0.61 + 0.4)
+        return 1 - min(0.4, max(0, wave - 0.3) * 2.4)
+    }
+}
+
 /// The dark room the lantern throws its slides into.
 struct SlideSurround: View {
+    var look = SlideLampLook.of(.lantern)
+
     var body: some View {
-        LinearGradient(colors: [SlidePalette.room, SlidePalette.roomWarm.opacity(0.9), SlidePalette.room],
+        LinearGradient(colors: [look.room, look.roomWarm.opacity(0.9), look.room],
                        startPoint: .top, endPoint: .bottom)
-            .background(SlidePalette.room)
+            .background(look.room)
     }
 }
 
@@ -294,18 +366,22 @@ private func breath(_ time: TimeInterval, phase: Double = 0) -> Double {
     sin((time / 5.5) * 2 * .pi + phase)
 }
 
-/// The lantern's light spilling onto the wall around the gate, a soft warm halo that breathes very slightly.
+/// The lantern's light spilling onto the wall around the gate, a soft halo in the show's own light that breathes very
+/// slightly (and gutters, for the Guttering Lantern).
 struct SlideBeam: View {
     let size: CGSize
     let reduceMotion: Bool
+    var look = SlideLampLook.of(.lantern)
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 20.0, paused: reduceMotion)) { context in
-            let b = reduceMotion ? 0 : breath(context.date.timeIntervalSinceReferenceDate)
-            EllipticalGradient(colors: [SlidePalette.lamp.opacity(0.20), SlidePalette.lamp.opacity(0.07), .clear],
-                               center: .center, startRadiusFraction: 0.18, endRadiusFraction: 0.5)
+            let time = context.date.timeIntervalSinceReferenceDate
+            let b = reduceMotion ? 0 : breath(time)
+            let g = reduceMotion ? 1 : look.gutter(time)
+            EllipticalGradient(colors: [look.lamp.opacity(look.spill), look.lamp.opacity(look.spill * 0.35), .clear],
+                               center: .center, startRadiusFraction: 0.18, endRadiusFraction: look.reach)
                 .frame(width: size.width * 1.55, height: size.height * 1.7)
-                .opacity(0.88 + 0.12 * b)
+                .opacity((0.88 + 0.12 * b) * g)
         }
         .frame(width: size.width, height: size.height)
     }
@@ -342,23 +418,26 @@ struct SlideGlass: View {
 struct SlideLight: View {
     let size: CGSize
     let reduceMotion: Bool
+    var look = SlideLampLook.of(.lantern)
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: reduceMotion)) { context in
             let time = reduceMotion ? 12.0 : context.date.timeIntervalSinceReferenceDate
             let b = reduceMotion ? 0 : breath(time, phase: 1.1)
+            let g = reduceMotion ? 1 : look.gutter(time)
             ZStack {
                 // a little brighter at the centre, without lifting the picture's darks
-                EllipticalGradient(colors: [SlidePalette.lamp.opacity(0.09 + 0.015 * b), .clear],
+                EllipticalGradient(colors: [look.lamp.opacity((look.centre + 0.015 * b) * g), .clear],
                                    center: .center, startRadiusFraction: 0, endRadiusFraction: 0.55)
                     .blendMode(.screen)
                 EllipticalGradient(stops: [
                     .init(color: .clear, location: 0),
                     .init(color: .clear, location: 0.52),
-                    .init(color: Color(red: 0.16, green: 0.07, blue: 0.02).opacity(0.38 + 0.05 * b), location: 0.82),
-                    .init(color: Color(red: 0.05, green: 0.02, blue: 0.01).opacity(0.78 + 0.05 * b), location: 1),
+                    .init(color: look.edge.opacity(look.edgeStrength + 0.05 * b + (1 - g) * 0.4), location: 0.82),
+                    .init(color: look.edgeDeep.opacity(min(1, look.edgeDeepStrength + 0.05 * b + (1 - g) * 0.3)),
+                          location: 1),
                 ], center: .center, startRadiusFraction: 0, endRadiusFraction: 0.72)
-                SlideDust(time: time)
+                SlideDust(time: time, colour: look.dust)
                     .blendMode(.plusLighter)
             }
             .frame(width: size.width, height: size.height)
@@ -370,6 +449,7 @@ struct SlideLight: View {
 /// at the centre of the light.
 struct SlideDust: View {
     let time: TimeInterval
+    var colour = SlidePalette.dust
     static let count = 26
 
     var body: some View {
@@ -389,7 +469,7 @@ struct SlideDust: View {
                 guard alpha > 0.02 else { continue }
                 let r = mote.radius
                 let rect = CGRect(x: x * size.width - r, y: y * size.height - r, width: r * 2, height: r * 2)
-                context.fill(Path(ellipseIn: rect), with: .color(SlidePalette.dust.opacity(alpha)))
+                context.fill(Path(ellipseIn: rect), with: .color(colour.opacity(alpha)))
             }
         }
         .allowsHitTesting(false)

@@ -1,6 +1,330 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "end.alone" : {
+      "comment" : "The end card, under 'Stood by you', when no house stood with the realm.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haus Lantern allein"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "House Lantern alone"
+          }
+        }
+      }
+    },
+    "end.begin" : {
+      "comment" : "The end card's main button: a new realm from day 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neu beginnen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Begin again"
+          }
+        }
+      }
+    },
+    "end.begin.hint" : {
+      "comment" : "VoiceOver hint of 'Begin again'.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein neues Reich vom ersten Tag an."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A new realm from the first day."
+          }
+        }
+      }
+    },
+    "end.chapter" : {
+      "comment" : "The end card's first line, after the lord's name: the chapter that ended.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapitel 1, Das dunkle Leuchtfeuer"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chapter 1, The Dark Beacon"
+          }
+        }
+      }
+    },
+    "end.fallen" : {
+      "comment" : "The end card's ledger: soldiers fallen in this realm.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gefallen auf den Mauern"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fallen on the walls"
+          }
+        }
+      }
+    },
+    "end.hold" : {
+      "comment" : "The end card's second button: this realm goes on in the endless Long Watch.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Reich halten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold the realm"
+          }
+        }
+      }
+    },
+    "end.hold.hint" : {
+      "comment" : "VoiceOver hint of 'Hold the realm'.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Reich geht weiter in die Lange Wacht, ab Nacht 21."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This realm goes on into the Long Watch, from night 21."
+          }
+        }
+      }
+    },
+    "end.judgments" : {
+      "comment" : "The end card's ledger: petitions heard and judged.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesprochene Urteile"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Judgments spoken"
+          }
+        }
+      }
+    },
+    "end.leaning.honestLamp" : {
+      "comment" : "The end card: the name of the lord's way (tells the truth).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die ehrliche Lampe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Honest Lamp"
+          }
+        }
+      }
+    },
+    "end.leaning.openHand" : {
+      "comment" : "The end card: the name of the lord's way (lets people in).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die offene Hand"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Open Hand"
+          }
+        }
+      }
+    },
+    "end.leaning.shutGate" : {
+      "comment" : "The end card: the name of the lord's way (takes no risk).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das verschlossene Tor"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Shut Gate"
+          }
+        }
+      }
+    },
+    "end.lord" : {
+      "comment" : "The end card's first line: the lord's name. {lord} is the typed name; {a|b}: Burgherr | Burgherrin.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{Burgherr|Burgherrin} {lord}"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{lord}, {Lord|Lady} Lantern"
+          }
+        }
+      }
+    },
+    "end.name.ending1" : {
+      "comment" : "The end card's title: the ending's name (was The Bright Crown).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die offene Laterne"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Open Lantern"
+          }
+        }
+      }
+    },
+    "end.name.ending2" : {
+      "comment" : "The end card's title: the ending's name (was The Iron Crown).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die verschlossene Laterne"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Shuttered Lantern"
+          }
+        }
+      }
+    },
+    "end.name.ending3" : {
+      "comment" : "The end card's title: the ending's name (was The Ash Crown).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die verlöschende Laterne"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Guttering Lantern"
+          }
+        }
+      }
+    },
+    "end.nights" : {
+      "comment" : "The end card's ledger: nights the realm held.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gehaltene Nächte"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nights held"
+          }
+        }
+      }
+    },
+    "end.stood" : {
+      "comment" : "The end card: heading over the houses' banners (who stood with the realm).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An Eurer Seite"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stood by you"
+          }
+        }
+      }
+    },
+    "end.way" : {
+      "comment" : "The end card's ledger: the lord's leaning, by its name.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Euer Weg"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your way"
+          }
+        }
+      }
+    },
     "slides.begin" : {
       "comment" : "VoiceOver hint on the last story slide: a tap ends the slides and the day begins.",
       "extractionState" : "manual",
@@ -15,6 +339,366 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Begins the day"
+          }
+        }
+      }
+    },
+    "slides.end" : {
+      "comment" : "VoiceOver hint on the last slide of an ending: a tap shows the chapter's end card.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt das Ende des Kapitels"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows the chapter's end"
+          }
+        }
+      }
+    },
+    "slides.ending1.1" : {
+      "comment" : "The Open Lantern (the King slain, Aldric freed), slide 1 of 3: the iron crown on the stone, Aldric under the black mantle at first light.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die eiserne Krone rollte über den Stein.\nUnter dem Mantel lag Aldric, grau, mager, und er atmete."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The iron crown rolled across the stone.\nUnder the mantle lay Aldric, grey, thin, and breathing."
+          }
+        }
+      }
+    },
+    "slides.ending1.3" : {
+      "comment" : "The Open Lantern, slide 3 of 3: west from the Throat's mouth at dawn, a ruined castle older than ours with the house's lantern cut over its gate. Aldric calls the lord cousin.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hinter den Tannen lag eine Burgruine, unsere Laterne über dem Tor.\n„Sie hatten die Krone bereit, Vetter“, sagte Aldric."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Past the firs stood a ruined castle, our lantern on its gate.\n“They had the crown ready, cousin,” said Aldric."
+          }
+        }
+      }
+    },
+    "slides.ending1.lean.honestLamp" : {
+      "comment" : "The Open Lantern, slide 2, line 1: the lord told the truth (the honest lamp).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr sagtet der Stadt die Wahrheit, und sie stand im Licht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You told the town the truth, and it stood in the light."
+          }
+        }
+      }
+    },
+    "slides.ending1.lean.openHand" : {
+      "comment" : "The Open Lantern, slide 2, line 1: the lord let people in (the open hand).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr hieltet das Tor offen, und das Tal kam herein."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You kept the gate open, and the valley came through it."
+          }
+        }
+      }
+    },
+    "slides.ending1.lean.shutGate" : {
+      "comment" : "The Open Lantern, slide 2, line 1: the lord took no risk (the shut gate).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr hieltet das Tor geschlossen, und die Stadt dahinter schlief."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You kept the gate shut, and the town behind it slept."
+          }
+        }
+      }
+    },
+    "slides.ending2.1" : {
+      "comment" : "The Shuttered Lantern (the King held off until dawn), slide 1 of 3: the King walks back into the fog with his snuffer.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er fiel nicht. Im ersten Licht wandte er sich um\nund ging zurück in den Nebel, und das Löschhorn ging mit ihm."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "He did not fall. At first light he turned\nand walked back into the fog, and the snuffer went with him."
+          }
+        }
+      }
+    },
+    "slides.ending2.3" : {
+      "comment" : "The Shuttered Lantern, slide 3 of 3: Bram washes the herald's banner; under the soot the old arms in gold thread, the house's lantern under half a sun.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram wusch das Banner des Herolds. Unter dem Ruß: Goldfaden,\nunsere Laterne unter halber Sonne. Niemand wusste, wer sie stickte."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram washed the herald's banner. Under the soot, gold thread:\nour lantern beneath half a sun. Nobody knew who had sewn it."
+          }
+        }
+      }
+    },
+    "slides.ending2.lean.honestLamp" : {
+      "comment" : "The Shuttered Lantern, slide 2, line 1: the honest lamp.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr sagtet ihnen, was kommt. Sie blieben trotzdem."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You told them what was coming. They stayed anyway."
+          }
+        }
+      }
+    },
+    "slides.ending2.lean.openHand" : {
+      "comment" : "The Shuttered Lantern, slide 2, line 1: the open hand.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr ließt sie alle herein. Die Tür hielt trotzdem."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You let them in, every one. The door held all the same."
+          }
+        }
+      }
+    },
+    "slides.ending2.lean.shutGate" : {
+      "comment" : "The Shuttered Lantern, slide 2, line 1: the shut gate.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr verriegeltet das Tor und hieltet es verriegelt. Es hielt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You barred the gate and kept it barred. It held."
+          }
+        }
+      }
+    },
+    "slides.ending3.1" : {
+      "comment" : "The Guttering Lantern (the town unhappy), slide 1 of 3: Tallowford in winter, half its windows dark because people left.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Tür hielt. Die Hälfte der Fenster von Tallowford\nblieb in jenem Winter dunkel, und nicht wegen der Toten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The door held. Half the windows of Tallowford\nstayed dark that winter, and not for the dead."
+          }
+        }
+      }
+    },
+    "slides.ending3.3" : {
+      "comment" : "The Guttering Lantern, slide 3 of 3: among the creatures' rags a small coat in the house's teal, of an old weave; Tamsin folds it. Quiet: never say what it means.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter den Lumpen lag ein Kindermantel in unserem Blaugrün, uralt gewebt.\nTamsin faltete ihn und sagte nichts."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Among the rags lay a child's coat in our teal, an ancient weave.\nTamsin folded it and said nothing."
+          }
+        }
+      }
+    },
+    "slides.ending3.lean.honestLamp" : {
+      "comment" : "The Guttering Lantern, slide 2, line 1: the honest lamp.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr sagtet ihnen die Wahrheit. Sie war mehr, als sie tragen konnten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You told them the truth. It was more than they could carry."
+          }
+        }
+      }
+    },
+    "slides.ending3.lean.openHand" : {
+      "comment" : "The Guttering Lantern, slide 2, line 1: the open hand.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr öffnetet das Tor für alle, und das Brot wurde knapp."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You opened the gate to all, and the bread ran short."
+          }
+        }
+      }
+    },
+    "slides.ending3.lean.shutGate" : {
+      "comment" : "The Guttering Lantern, slide 2, line 1: the shut gate.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr hieltet das Tor zu. Die Stadt lernte, ihre Türen zu schließen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You kept the gate shut. The town learned to shut its doors."
+          }
+        }
+      }
+    },
+    "slides.houses.all" : {
+      "comment" : "An ending's slide 2, line 2: all five houses' banners hung.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Banner aller fünf Häuser hingen in unserem Saal."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The banners of all five houses hung in our hall."
+          }
+        }
+      }
+    },
+    "slides.houses.alone" : {
+      "comment" : "An ending's slide 2, line 2: the lord hung no house's banner.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In unserem Saal hing kein Banner außer unserem."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No banner hung in our hall but our own."
+          }
+        }
+      }
+    },
+    "slides.houses.few" : {
+      "comment" : "An ending's slide 2, line 2: banners were hung, but no house stood with the realm.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein paar Banner hingen im Saal. Kein Haus ritt zu uns."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A few banners hung in our hall. No house rode to us."
+          }
+        }
+      }
+    },
+    "slides.houses.some" : {
+      "comment" : "An ending's slide 2, line 2: the houses whose banners hung in the hall. %@ is their names joined as a list (never translated: Varn, Brine, Oxmoor, Calder, Lorn).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Banner von %@ hingen in unserem Saal."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The banners of %@ hung in our hall."
           }
         }
       }
@@ -141,6 +825,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "{lord}, {Lord|Lady} Lantern"
+          }
+        }
+      }
+    },
+    "slides.seren.lantern" : {
+      "comment" : "The Shuttered Lantern, slide 2, line 2, when Seren was handed over to the herald: her grey lantern stayed on the wall.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serens graue Laterne stand auf der Mauer und brannte noch."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seren's grey lantern stood on the wall, still burning."
           }
         }
       }
