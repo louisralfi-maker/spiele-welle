@@ -20,7 +20,7 @@
       }
     },
     "front.report.relit" : {
-      "comment" : "Dawn report, front half: dead braziers that caught again from the lord's lantern as the lord passed. The lord was the castle's lamplighter (STORY.md), hence the old habit.",
+      "comment" : "Dawn report, front half: dead braziers that caught again from the lord's lantern (as the lord passed them, or while the lord stood on their wall). Short and dry; no he or she in English.",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -29,13 +29,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Eine Feuerschale an Eurer Laterne neu entfacht. Alte Gewohnheit."
+                  "value" : "Eine Feuerschale fing an Eurer Laterne Feuer."
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld Feuerschalen an Eurer Laterne neu entfacht. Alte Gewohnheit."
+                  "value" : "%lld Feuerschalen fingen an Eurer Laterne Feuer."
                 }
               }
             }
@@ -47,13 +47,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "One brazier relit from your lantern. Old habit."
+                  "value" : "One brazier caught from your lantern."
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld braziers relit from your lantern. Old habit."
+                  "value" : "%lld braziers caught from your lantern."
                 }
               }
             }
@@ -62,7 +62,7 @@
       }
     },
     "front.report.there" : {
-      "comment" : "Dawn report, front half: the lord's presence lay on the fighting defenders for most of the night (docs/REALM.md 3). Short and dry; no he or she in English.",
+      "comment" : "Dawn report, front half: the lord stood where the fighting was, and the harm the lord's presence kept off the defenders came to at least one soldier's life (docs/REALM.md 3). Shown only on such nights. Short and dry; no he or she in English.",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -74,7 +74,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You stood where it burned. Your people held longer for it."
+            "value" : "You stood where it burned. Your people held longer."
           }
         }
       }
