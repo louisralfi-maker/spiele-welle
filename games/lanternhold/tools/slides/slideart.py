@@ -66,7 +66,7 @@ def slide1():
         rough = (fbm(x * 0.33, 3.1, 33, 3) - 0.5) * 3.5
         ridge[x] = min(40.0, max(5.0, ridge[x] + rough))
     face_hi = hexc("#36407A")
-    face_lo = hexc("#1F2750")
+    face_lo = hexc("#161C3E")
     rib = hexc("#424E8A")
     rib_lt = hexc("#56629E")
     gully = hexc("#1A2046")
@@ -78,7 +78,7 @@ def slide1():
     def wall(x, y, depth):
         big = fbm(x * 0.05, y * 0.008, 39, 2)
         crack = fbm(x * 0.28, y * 0.018, 41, 2)
-        base = mix(face_hi, face_lo, smooth(4, 85, depth))
+        base = mix(face_hi, face_lo, smooth(10, 95, depth))
         if big > 0.6:
             base = mix(base, rib_lt if big > 0.68 and depth < 50 else rib, 0.7)
         elif big < 0.42:
@@ -269,7 +269,8 @@ def castle_far(c, cx, base):
     lit_ = hexc("#8A6A78")
     stone = hexc("#5A5684")
     shade = hexc("#2E3060")
-    c.wash(cx, base - 6, 12, 14, P("fireOrange"), 1.0, mask=lambda x, y: luma(c.get(x, y)) < 0.1)
+    c.wash(cx, base - 6, 14, 18, P("fireOrange"), 1.5, mask=lambda x, y: luma(c.get(x, y)) < 0.1)
+    c.wash(cx, base + 2, 26, 7, P("fireOrange"), 0.8)
     # curtain wall across the cleft, crenellated
     c.rect(cx - 8, base - 6, cx + 8, base, stone)
     for x in range(cx - 8, cx + 9, 2):
@@ -367,12 +368,13 @@ def town(c):
 def road_lights(c):
     """Lanterns along the road from the town toward the cleft."""
     road = hexc("#2A3060")
-    pts = [(212, 147), (196, 144), (180, 141), (164, 139), (148, 137), (132, 136)]
+    pts = [(212, 147), (196, 144), (180, 141), (164, 139), (148, 137), (134, 135), (124, 130), (117, 125),
+           (112, 121)]
     for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
         n = abs(x1 - x0)
         for k in range(n):
             c.put(round(x0 + (x1 - x0) * k / n), round(y0 + (y1 - y0) * k / n) + 1, road)
-    for (x, y) in pts[1:-1]:
+    for (x, y) in pts[1:-2]:
         c.put(x, y, P("fireGold"))
         c.glow(x - 1, y, P("fireOrange"), 0.25)
         c.glow(x + 1, y, P("fireOrange"), 0.25)
@@ -643,18 +645,15 @@ def banner(c):
     from below by the brazier."""
     pole = P("woodDark")
     pole_lt = P("wood")
-    px = 296
+    px = 297
     c.rect(px, 0, px + 1, 134, pole)
     c.rect(px, 0, px, 134, pole_lt)
-    # the crossbar
     c.rect(px - 22, 9, px + 30, 10, pole)
     c.rect(px - 22, 9, px + 30, 9, pole_lt)
     teal, teal_dk, teal_lt = P("banner"), P("roofDeep"), P("roofLight")
     warm = lit((96, 108, 150), [(262, 126, 130, P("fireOrange"), 1.2)], steps=0)
-    x0, x1 = px - 19, px + 28
+    x0, x1 = px - 20, px + 28
     for x in range(x0, x1 + 1):
-        sway = int(2.2 * math.sin((x - x0) * 0.25))
-        bottom = 104 - (8 if (x - x0) % 16 < 8 and False else 0)
         tail = abs(((x - x0) % 24) - 12)
         bottom = 96 + tail
         for y in range(11, bottom + 1):
@@ -666,27 +665,31 @@ def banner(c):
                 col = teal_lt
             if y > bottom - 2:
                 col = P("gold") if (x + y) % 3 else teal_dk
-            c.put(x + (sway if y > 30 else 0) * (y - 30) // 70, y, warm(x, y, col))
-    # the gold lantern on the cloth
+            c.put(x, y, warm(x, y, col))
     lantern = """
-......g......
-.....g.g.....
-......g......
-....ggggg....
-...gg...gg...
-..ggggggggg..
-..g.yyyyy.g..
-..g.yyWyy.g..
-..g.yWWWy.g..
-..g.yyWyy.g..
-..g.yyyyy.g..
-..ggggggggg..
-...gg...gg...
-....ggggg....
+.......g.......
+......g.g......
+.......g.......
+.....ggggg.....
+....gg...gg....
+...ggggggggg...
+...g.......g...
+..ggggggggggg..
+..g.yyyyyyy.g..
+..g.yyyWyyy.g..
+..g.yyWWWyy.g..
+..g.yWWWWWy.g..
+..g.yyWWWyy.g..
+..g.yyyWyyy.g..
+..g.yyyyyyy.g..
+..ggggggggggg..
+...g.......g...
+...ggggggggg...
+.....ggggg.....
 """
     gold_lit = lit((150, 150, 170), [(262, 126, 130, P("fireOrange"), 1.0)], steps=0)
-    grid(c, lantern, px - 6, 36, {"g": lambda x, y: gold_lit(x, y, P("gold")),
-                                  "y": lambda x, y: gold_lit(x, y, hexc("#B8862E")),
+    grid(c, lantern, px - 7, 32, {"g": lambda x, y: gold_lit(x, y, P("gold")),
+                                  "y": lambda x, y: gold_lit(x, y, hexc("#9A6E28")),
                                   "W": lambda x, y: gold_lit(x, y, P("strawLight"))})
 
 
@@ -839,18 +842,18 @@ def dead_tree(c, x, base, hgt, seed):
 STATUE = """
 .......hhhh.......
 ......hhhhhR......
-......hHssHR......
+......hsssHR......
 ......hssssR......
-......hHssHR......
+......hhssHR......
 .......hhhR.......
 ....mmmmmmmmmR....
 ...mmmmmmmmmmmR...
 ..mmmmmmmmmmmmmR..
-..mmmaaLLLaammmR..
-..mmaa.LYL.aammR..
-..mma..LLL..ammR..
-..mmm...L...mmmR..
-..mmmm.....mmmmR..
+..mmmaa.L.aammmR..
+..mmaa.LLL.aammR..
+..mma..LYL..ammR..
+..mmm..LYL..mmmR..
+..mmm..LLL..mmmR..
 ..mmmmmmmmmmmmmR..
 ..mmmmdmmmdmmmmR..
 ..mmmmdmmmdmmmmR..
@@ -883,7 +886,7 @@ def statue_front(c, cx, base):
     lines = STATUE.strip("\n").split("\n")
     legend = {"h": hexc("#232A54"), "H": hexc("#3A4478"), "s": hexc("#0E1230"), "R": hexc("#9AA4DA"),
               "m": hexc("#283060"), "a": hexc("#323A6C"), "d": hexc("#1A2046"), "L": hexc("#141832"),
-              "Y": hexc("#3A4A7A"), "P": hexc("#4A548C"), "p": hexc("#2C3464"), "q": hexc("#1A2044")}
+              "Y": hexc("#232C58"), "P": hexc("#4A548C"), "p": hexc("#2C3464"), "q": hexc("#1A2044")}
     x0 = cx - 9
     y0 = base - len(lines) + 1
     grid(c, STATUE, x0, y0, legend)
@@ -1030,13 +1033,39 @@ def slide4(form):
     c = Canvas(hexc("#140E0C"))
     hall_light = lit((128, 96, 80), [(HEARTH[0], HEARTH[1], 150, P("fireOrange"), 1.05),
                                      (HEARTH[0], HEARTH[1], 60, P("fireGold"), 0.6),
-                                     (282, 44, 110, P("fireOrange"), 0.45)], steps=0)
+                                     (303, 50, 110, P("fireOrange"), 0.55)], steps=0)
     # the dark of the roof over the hall
     for y in range(H):
         for x in range(W):
             c.put(x, y, mix(hexc("#120C0A"), hexc("#2A1A12"), smooth(0, 120, y)))
+    # the hall's own walls either side, in dressed stone, and the timber of the roof over all
+    for y in range(0, 108):
+        for x in list(range(0, 32)) + list(range(288, W)):
+            row = y // 7
+            off = (row * 5) % 13
+            joint = (y % 7 == 6) or ((x + off) % 13 == 0)
+            base = P("stoneDark") if joint else (P("stoneMid") if h2((x + off) // 13, row, 411) > 0.5 else P("stone"))
+            c.put(x, y, hall_light(x, y, base))
     # the great hall behind them: its back wall, the banners, the beams, the dais
     blit(c, sprite("hallInterior"), 30, 16, shade=hall_light)
+    for y in range(0, 14):
+        for x in range(W):
+            beam = 4 <= y <= 9
+            col = P("woodDark") if beam else hexc("#1A100C")
+            if beam and (y == 4):
+                col = P("wood")
+            if not beam and (x // 22) % 2 == 0 and y < 4:
+                col = P("woodDark")
+            c.put(x, y, hall_light(x, y, col) if beam else col)
+    # a torch in its sconce on the right wall
+    c.rect(303, 52, 304, 60, P("woodDark"))
+    grid(c, """
+.w.
+wyw
+yoy
+.o.
+""", 302, 47, {"w": P("fireWhite"), "y": P("fireGold"), "o": P("fireOrange")})
+    c.halo(303, 50, 14, P("fireOrange"), 0.25, steps=0)
     # the floor coming toward us under the two in front
     for y in range(106, H):
         t = (y - 106) / 54.0
