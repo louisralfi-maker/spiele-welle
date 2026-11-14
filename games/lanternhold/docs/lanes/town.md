@@ -359,3 +359,36 @@ with plaster where they hung. The atlas gains 12 strips, 79 frames. No pouch any
    `CardModelTests.testTheTaxLecternForecastsEachRate`, `FeedbackCue.taxSet`.
 6. **The people lane:** if its bodies change after 5427d45, copy them into `tools/grids/town/base/` again and rebuild
    (`taxart.py build`); the poses only add arms, a bow and props.
+
+### Rounds (by the director's notes of 18:46 and 19:35: filtered rounds while working, one gate round)
+
+- **lh-t2-1** (85a9f24; build, nine unit classes): build FAIL in the tests only (the renderer's rim sets read from a
+  nonisolated autoclosure); the app compiled without a warning in the town's files.
+- **lh-t2-2** (da9c246; the same): build PASS; unit FAIL on `AtlasTests.testLook2ArtIsBundled` (the PNGs were not
+  committed yet) and the toss test's fixed 11 gold (house 3 owes 10 at 50 happiness); every other test passed.
+- **lh-t2-3** (47d7a60; build, three unit classes, `ui TownUITests`): **ALL PASSED**. Its shots showed three faults,
+  all fixed: the lord ran onto the door and hid the household's toss (he now stops 18 px off), his knocking fist met
+  the door frame (he knocks from 6 px), the night shot was washed out by his own lantern (the test walks him to the
+  well).
+- **lh-t2-4** (a51ac31; build, all unit tests, `ui TownUITests FirstDayUITests`): unit FAIL in `ScreenFlowTests` and
+  `TalkTests` (eight assertions on the lectern target, the tax card, the bare throne): changed to "the lectern is
+  furniture"; both UI classes passed.
+- **lh-t2-5** (aedac32; the same): unit FAIL 1 and `testTaxesOnFoot` FAIL 1, both from `-GWTown owed` working the
+  ledger out again at the launch's happiness (the chandler owed 17): it now keeps the dawn's parts unless the paying
+  places changed; every other UI test passed (the grown town, the first morning, Reduce Motion, the first day).
+- **lh-t2-6** (b46ac8e; build, all unit tests, `ui TownUITests FirstDayUITests`): **ALL PASSED** (462 unit tests, 0
+  failed; 6 UI tests). Its `tuning-report.txt` and `town-neutrality-seed1.txt` are byte for byte those of lh-t1f1-3:
+  T1 to T8 did not move.
+
+### Open, and what waits
+
+- **The collector on screen** (the director's note of 14:45: the handcart leaving and coming back, the households
+  paying him at the door, the touch at his post): not built in this step. Core has him (`collectorX`,
+  `TownEvent.paidCollector`, `.collectorBack`); without the audience lane's offer nobody can hire him in build 2.
+- **The town's wandering townsfolk** (`EntityFrames.townsfolk`, visual only) walk through a doorway while a household
+  tosses or bows; the people lane's town life replaces them after the join.
+- **The old HUD's action button** ("Upgrade: House" and the hammer) shows while the lord stands at a house plot and
+  can cover the stall; the stage lane rebuilds the HUD (not restyled here).
+- **German** is written for the two new keys and not looked at (the director's note of 19:35); the six other
+  languages for `town.access.knock` and `town.access.door` come in the i18n pass.
+- **The join**: the hook table and "How the join re-hooks the door touch" above; the dead tax-card code list.
