@@ -142,41 +142,41 @@ part legsPassB
 frame 0
     legsContactA 1 15
     torso 2 10
-    beam 0 4
+    beam 0 5
     head 4 4
     armUp 8 9
 
 frame 1
     legsPassA 1 15
     torso 2 11
-    beam 0 5
+    beam 0 6
     head 4 5
     armUp 8 10
 
 frame 2
     legsContactB 1 15
     torso 2 10
-    beam 0 4
+    beam 0 5
     head 4 4
     armUp 8 9
 
 frame 3
     legsPassB 1 15
     torso 2 9
-    beam 0 3
+    beam 0 4
     head 4 3
     armUp 8 8
 
 frame 4
     legsStand 1 15
     torso 2 9
-    beam 0 3
+    beam 0 4
     head 4 3
     armUp 8 8
 
 frame 5
     legsStand 1 15
     torso 2 10
-    beam 0 4
+    beam 0 5
     head 4 4
     armUp 8 9
