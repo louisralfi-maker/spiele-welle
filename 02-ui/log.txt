@@ -1,0 +1,12 @@
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (113.969 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (49.515 seconds).
+Test Case '-[LanternholdUITests.TownUITests testReduceMotion]' passed (12.701 seconds).
+Test Case '-[LanternholdUITests.TownUITests testStallFieldAndBigHouse]' passed (21.874 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TownUITests.swift:58: error: -[LanternholdUITests.TownUITests testTaxesOnFoot] : XCTAssertEqual failed: ("38") is not equal to ("37") - the chandler's 16 coins reached the purse as they landed
+Test Case '-[LanternholdUITests.TownUITests testTaxesOnFoot]' failed (75.149 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheFirstMorning]' passed (17.317 seconds).
+Test Suite 'TownUITests' failed at 2026-11-14 22:38:16.840.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-14 22:38:16.842.
+Test Suite 'Selected tests' failed at 2026-11-14 22:38:16.843.
+exit=65
+screenshots: 21
