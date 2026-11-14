@@ -3386,7 +3386,13 @@ lantern over the teal cloth). What changed (new logic in `Core/HallLight.swift`)
 - **New launch arguments:** `-GWHearth <0…1>` (the hearth's strength at the start) and `-GWStageSlow <factor>` (the
   change of stage runs that many times slower).
 - **Tests:** `HallStageTests` (the painted range, the pillar's window and rims, the light after the look, who cannot
-  sit, the arguments).
+  sit, the arguments); `RendererTests` (the look-2 uniforms' stride, 336); `LordTests` (the seated farmer among the
+  stage's figures: the bench by the door is out of the throne's framing).
+- **Rounds** (the gate by the director's notes of 14.11. 18:46 and 19:35, one round, English): `lh-s1f1-1` (build,
+  the hall's unit classes, ui Hall) failed one assertion (the night frame now has the moon's shafts); `lh-s1f1-2`
+  (build, unit, ui Hall, FirstDay, Audience, Lord) failed two unit tests (the uniforms' stride, the farmer out of
+  frame), the UI classes passed; **`lh-s1f1-3` build, unit, ui Hall, FirstDay, Audience and Lord ALL PASSED on
+  704cc29.** The atlas gains no rows (the narrower pillar shares the hall's shelf; `hallWash` keeps its size).
 
 ## Risks
 
