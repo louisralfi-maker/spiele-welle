@@ -6,7 +6,7 @@ import Foundation
 enum PlaceholderCast {
     static func frames(for sprite: SpriteID) -> [PixelImage] {
         // a cloth state (docs/PEOPLE.md section 7) stands in as its body
-        if let body = PeopleCast.body(dressedAs: sprite) { return frames(for: body) }
+        if let body = PeopleCast.body(dressedAs: sprite) { return PlaceholderArt.frames(for: body) }
         switch sprite {
         case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe:
             let variant = sprite == .washerwoman ? 0 : (sprite == .labourer ? 1 : 2)
