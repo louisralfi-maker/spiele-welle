@@ -140,7 +140,8 @@ struct RecruitCard: Sendable, Equatable {
 
 /// The tax lectern beside the throne (DESIGN.md "Taxes": Low, Normal, High and from story day 8 War tax, set any time
 /// by day): each rate with its share of the taxes, its happiness change at dawn and the taxes it would bring at the
-/// next dawn as the realm stands now.
+/// next dawn as the realm stands now. Since the taxes went on foot (town-1) the rate changes nothing and every forecast
+/// is the one day's taxes; town-2 takes the card away (docs/TOWN.md "The interface").
 struct TaxCard: Sendable, Equatable {
     struct Option: Sendable, Equatable {
         var rate: TaxRate
@@ -165,8 +166,8 @@ struct TaxCard: Sendable, Equatable {
             trial.tax = rate
             let forecast = Economy.taxes(trial, happiness: s.happiness, balance: balance).total
             let locked = rate == .war && !s.warTaxUnlocked
-            options.append(Option(rate: rate, percent: Int((balance.rate(rate) * 100).rounded()),
-                                  happiness: balance.happinessChange(rate), forecast: forecast,
+            options.append(Option(rate: rate, percent: rate.lecternPercent,
+                                  happiness: rate.lecternHappiness, forecast: forecast,
                                   isCurrent: s.tax == rate, lockedUntil: locked ? Realm.warTaxDay : nil))
         }
         return TaxCard(options: options, current: s.tax)

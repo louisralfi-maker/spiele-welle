@@ -8,8 +8,9 @@ enum BotStep: Sendable, Equatable {
     case recruitGuards(Int)
 }
 
-/// The reference bot (DESIGN.md "Debug launch arguments": `-GWAutoplay play`; "Tuning targets"). By day it sets its
-/// tax and buys along a fixed build order (rubble rebuilds first; at a locked or unaffordable step it waits and saves);
+/// The reference bot (DESIGN.md "Debug launch arguments": `-GWAutoplay play`; "Tuning targets"). At dawn it collects
+/// the town's taxes as its habit says (`tax` names it: `TownHabit`, docs/TOWN.md section 1) and by day buys along a
+/// fixed build order (rubble rebuilds first; at a locked or unaffordable step it waits and saves);
 /// at night the king lights snuffed braziers, patches walls under attack and otherwise stands behind the front wall.
 /// Variants: the bot that builds nothing, the low-tax and high-tax bots, and one that leaves out the beacon.
 /// By day the reference bots hear every petitioner first, with a fixed policy (M3, `PetitionEngine.holdAudience`:
@@ -20,6 +21,9 @@ struct Autoplay: Sendable, Equatable {
     }
 
     var plan: Plan
+    /// The bot's habit in the town, named by the old lectern's rate (`TownHabit`): normal collects everything at dawn,
+    /// low leaves the houses alone, high knocks at every house, war knocks twice. The bot that builds nothing collects
+    /// everything.
     var tax: TaxRate = .normal
     var buildsBeacon = true
     /// The next step of the build order.
@@ -110,11 +114,11 @@ struct Autoplay: Sendable, Equatable {
     /// fix, C1; a tuning run reads the standard one).
     mutating func act(_ s: inout GameState, dt: Double, balance: Balance, events: inout [SimEvent],
                       petitions: PetitionCatalog = .standard) {
+        morning(&s, balance: balance)
         guard plan == .reference else {
             s.king.velocity = 0
             return
         }
-        if s.tax != tax { Economy.setTax(&s, tax) }
         if DayClock.phase(at: s.hour) == .day {
             if hearsPetitions { PetitionEngine.holdAudience(&s, catalog: petitions, balance: balance) }
             thinkTimer -= dt
@@ -133,6 +137,16 @@ struct Autoplay: Sendable, Equatable {
     }
 
     // MARK: Day
+
+    /// The bot's habit in the town for `plan` (the bot that builds nothing collects everything, as the old dawn gave it).
+    var habit: TownHabit { plan == .reference ? TownHabit(tax) : .collect }
+
+    /// The bot's morning in the town: it collects (and knocks) as its habit says, at once (`Town.morning`; nothing
+    /// happens a second time the same day). `act` begins with it, and `TuningRun.play` calls it right after each dawn,
+    /// so the gold and happiness it logs at a dawn are what the old dawn sum gave.
+    func morning(_ s: inout GameState, balance: Balance) {
+        Town.morning(&s, habit: habit, balance: balance)
+    }
 
     /// True when the plot already has this item or a later tier of it (or it is being built).
     private static func alreadyHas(_ s: GameState, plot: Int, item: BuildItem) -> Bool {

@@ -193,6 +193,7 @@ enum TuningRun {
         while played < nights {
             let night = s.nightNumber
             let report = Sim.runToDawn(&s, balance: balance, bot: &player, nightStep: nightStep)
+            player.morning(&s, balance: balance)
             played += 1
             let stats = s.night
             let outcome = NightOutcome(night: night, survived: !s.defeated, hearthLowest: stats.hearthLowest,

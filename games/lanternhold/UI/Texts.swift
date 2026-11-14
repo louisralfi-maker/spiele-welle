@@ -147,6 +147,7 @@ enum Texts {
         case .noLosses: return String(localized: "No one fell")
         case .fallen: return String(localized: "The fallen")
         case .unheard: return String(localized: "Petitioners unheard")
+        case .leftAlone: return TownText.string("town.reason.leftAlone")
         }
     }
 

@@ -15,6 +15,8 @@ struct DawnReport: Codable, Sendable, Equatable {
     var hearthLowest: Double
     /// Night 20: the Lightless King fell in the Great Beacon's light and the Gloom receded at once.
     var gloomReceded: Bool
+    /// The day's taxes as this dawn worked them out. Since the taxes went on foot (town-1) they are owed, not paid: the
+    /// households toss them to the lord by day (`GameState.town`).
     var taxes: TaxBreakdown
     var happinessBefore: Int
     var happinessAfter: Int
@@ -36,6 +38,9 @@ struct DawnReport: Codable, Sendable, Equatable {
     /// The houses were full: at this happiness more citizens would have been born (M2b review; nil when not, and in saves
     /// from before this field).
     var housesFull: Bool?
+    /// The taxes on foot (town-1): what the town did yesterday, what was collected, left to the people, knocked for (nil
+    /// on the first dawn and in saves from before the taxes went on foot). `taxes` is what the households owe today.
+    var town: TownSummary? = nil
 
     /// No soldier fell tonight: the report shows a small banner.
     var noLosses: Bool { fallen.isEmpty }

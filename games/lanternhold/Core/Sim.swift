@@ -64,6 +64,7 @@ enum Sim {
             case .horn:
                 Battle.prepareDusk(&s, balance: balance)
                 PetitionEngine.horn(&s)
+                Town.horn(&s, balance: balance)
                 events.append(.horn)
             case .nightfall:
                 Battle.planNight(&s, balance: balance)
@@ -74,7 +75,9 @@ enum Sim {
                 dawn(&s, balance: balance, events: &events)
             }
         }
+        let kingFrom = s.king.x
         stepKing(&s, dt: dt, balance: balance, events: &events)
+        Town.step(&s, from: kingFrom, balance: balance)
         Build.stepBuilders(&s, dt: dt, balance: balance, events: &events)
         if DayClock.phase(at: s.hour) != .day || !s.creatures.isEmpty {
             Battle.step(&s, dt: dt, balance: balance, events: &events)
@@ -118,7 +121,7 @@ enum Sim {
                                 citizensBefore: citizensBefore, citizensAfter: s.citizens, grown: people.grown,
                                 left: people.left, volunteer: people.volunteer, unlocked: unlocked, goldAfter: s.gold,
                                 realmFell: fell ? true : nil, kingSlain: stats.kingSlain && !fell ? true : nil,
-                                housesFull: housesFull ? true : nil)
+                                housesFull: housesFull ? true : nil, town: people.town)
         s.lastReport = report
         PetitionEngine.dawn(&s)
         events.append(.dawn(day: s.day))
