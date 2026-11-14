@@ -164,6 +164,19 @@ def smoke_folk(c):
                                 (30, GROUND - 8, 52, "farDeep")):
         lay = Layer()
         person(lay, x, feet, hgt, P(col), shoulders=0.58, hips=0.75, head=0.8, arms="down", robe=True, robe_hem=1.5)
+        # thinning already: below the knees the robe narrows into a wisp that trails back toward the fog
+        cut = feet - hgt * 0.3
+        for (px, py) in list(lay.px):
+            if py > cut:
+                t = (py - cut) / (feet - cut)
+                centre = x - t * t * 10
+                half = max(0.6, (1 - t) * hgt * 0.12)
+                if abs(px - centre) > half:
+                    del lay.px[(px, py)]
+        for (px, py) in list(lay.px):
+            if py > cut:
+                t = (py - cut) / (feet - cut)
+                lay.put(int(round(px - t * t * 10 + (x - px) * 0)), py, P(col))
         lay.paste(c)
         hx = int(x)
         hy = int(feet - hgt + hgt * 0.08)
