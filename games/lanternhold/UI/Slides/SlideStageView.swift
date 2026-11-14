@@ -152,7 +152,7 @@ struct SlideStageView: View {
             .foregroundStyle(SlidePalette.words)
             .multilineTextAlignment(.center)
             .lineSpacing(2)
-            .lineLimit(3)
+            .lineLimit(2)
             .minimumScaleFactor(0.7)
             .shadow(color: .black.opacity(0.8), radius: 3, x: 0, y: 1)
             .frame(width: layout.wordsWidth, height: layout.words)
