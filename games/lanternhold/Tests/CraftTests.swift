@@ -528,6 +528,7 @@ final class CraftTests: XCTestCase {
         add(attachment)
     }
 
+    /// The sums of some nights of runs.
     private struct Measure {
         var taxes = 0
         var happiness = 0
@@ -536,79 +537,96 @@ final class CraftTests: XCTestCase {
         var wallsLost = 0
         var hearthLost = 0.0
         var buildings = 0
-        var citizens = 0
         var survived = 0
+
+        init(_ runs: [[NightOutcome]], from first: Int = 1) {
+            for run in runs {
+                for night in run where night.night >= first {
+                    taxes += night.taxes
+                    happiness += night.happiness
+                    killed += night.killed
+                    fallen += night.fallen
+                    wallsLost += night.wallsLost
+                    hearthLost += 100 - night.hearthLowest
+                    survived += night.survived ? 1 : 0
+                }
+                buildings += run.last?.buildings ?? 0
+            }
+        }
     }
 
-    /// Fourteen nights of `bot` with `work` commissioned on day 1 (it stands from dawn 2), summed over the seeds.
-    private func measure(_ work: String?, bot: Autoplay, seeds: [UInt64]) -> Measure {
-        var m = Measure()
-        for seed in seeds {
+    static let measuredNights = 14
+
+    /// The nights of `bot` over the seeds, with the craftsman's work commissioned on the first day he can come (it
+    /// stands from the dawn `days` later; its price is left out, so this is the most the effect can do).
+    private func runs(_ craftsman: Craftsman?, bot: Autoplay, seeds: [UInt64]) -> [[NightOutcome]] {
+        seeds.map { seed in
             var s = GameState.newRealm(seed: seed)
-            if let work {
+            if let c = craftsman {
                 var craft = CraftState()
-                craft.works = [CraftOrder(id: work, orderedDay: 1, readyDay: 2)]
+                craft.works = [CraftOrder(id: c.id, orderedDay: c.from, readyDay: c.from + c.days)]
                 s.craft = craft
             }
-            let run = TuningRun.play(s, bot: bot, balance: .standard, nights: 14)
-            for night in run.outcomes {
-                m.taxes += night.taxes
-                m.happiness += night.happiness
-                m.killed += night.killed
-                m.fallen += night.fallen
-                m.wallsLost += night.wallsLost
-                m.hearthLost += 100 - night.hearthLowest
-                m.survived += night.survived ? 1 : 0
-            }
-            m.buildings += run.outcomes.last?.buildings ?? 0
-            m.citizens += run.outcomes.last?.citizens ?? 0
+            return TuningRun.play(s, bot: bot, balance: .standard, nights: Self.measuredNights).outcomes
         }
-        return m
     }
 
-    /// No effect moves its system by more than about 5 % (docs/TOWN.md section 4): each work is measured against the
-    /// same realm without it over 14 nights and two seeds, on the number its system makes (the statue and the road
-    /// lanterns: taxes; the portrait: happiness; the handcarts: buildings; the night's works: creatures stopped).
+    /// No effect moves its system by more than about 5 % (docs/TOWN.md section 4): each work, commissioned on the first
+    /// day its craftsman can come, is measured against the same realm without it over 14 nights and two seeds, on the
+    /// number its system makes over the nights it stands (the statue and the road lanterns: taxes; the portrait:
+    /// happiness; the handcarts: buildings; the night's works: creatures stopped). The whole run is reported too.
     func testNoWorkMovesItsSystemMoreThanAboutFivePercent() {
         let seeds: [UInt64] = [1, 2]
-        let normal = measure(nil, bot: .reference(), seeds: seeds)
-        let high = measure(nil, bot: .reference(tax: .high), seeds: seeds)
-        var lines = ["base normal: taxes \(normal.taxes) happiness \(normal.happiness) killed \(normal.killed) fallen "
-                     + "\(normal.fallen) walls \(normal.wallsLost) buildings \(normal.buildings)",
-                     "base high: taxes \(high.taxes) happiness \(high.happiness) killed \(high.killed)"]
-        func share(_ value: Double, _ base: Double) -> Double { base == 0 ? 0 : (value - base) / base }
+        let normal = runs(nil, bot: .reference(), seeds: seeds)
+        let high = runs(nil, bot: .reference(tax: .high), seeds: seeds)
+        let n = Measure(normal)
+        let h = Measure(high)
+        var lines = ["base normal: taxes \(n.taxes) happiness \(n.happiness) killed \(n.killed) fallen \(n.fallen) "
+                     + "walls \(n.wallsLost) buildings \(n.buildings)",
+                     "base high: taxes \(h.taxes) happiness \(h.happiness) killed \(h.killed)"]
+        func share(_ value: Int, _ base: Int) -> Double { base == 0 ? 0 : Double(value - base) / Double(base) }
         func pct(_ x: Double) -> String { String(Int((x * 1000).rounded())) + "‰" }
         for c in book.craftsmen {
-            let bot: Autoplay = c.effect == .unrestLine ? .reference(tax: .high) : .reference()
-            let base = c.effect == .unrestLine ? high : normal
-            let m = measure(c.id, bot: bot, seeds: seeds)
+            let highTax = c.effect == .unrestLine
+            let baseRuns = highTax ? high : normal
+            let workRuns = runs(c, bot: highTax ? .reference(tax: .high) : .reference(), seeds: seeds)
+            let ready = c.from + c.days
+            let base = Measure(baseRuns, from: ready)
+            let with = Measure(workRuns, from: ready)
+            let wholeBase = Measure(baseRuns)
+            let whole = Measure(workRuns)
             let system: String
             let moved: Double
+            let movedWhole: Double
             var countTolerance = 0.0
             switch c.effect {
             case .houseCoin, .unrestLine:
                 system = "taxes"
-                moved = share(Double(m.taxes), Double(base.taxes))
+                moved = share(with.taxes, base.taxes)
+                movedWhole = share(whole.taxes, wholeBase.taxes)
             case .happinessOnce:
                 system = "happiness"
-                moved = share(Double(m.happiness), Double(base.happiness))
+                moved = share(with.happiness, base.happiness)
+                movedWhole = share(whole.happiness, wholeBase.happiness)
             case .builderWalk:
                 system = "buildings"
-                moved = share(Double(m.buildings), Double(base.buildings))
+                moved = share(with.buildings, base.buildings)
+                movedWhole = moved
                 countTolerance = 1 / Double(max(1, base.buildings))
             case .soldierSpeed, .lightRadius, .patchShare, .guardHold, .fireArrowBurn, .gateStrength:
                 system = "creatures stopped"
-                moved = share(Double(m.killed), Double(base.killed))
+                moved = share(with.killed, base.killed)
+                movedWhole = share(whole.killed, wholeBase.killed)
             }
-            lines.append("\(c.id) (\(c.work), \(c.effect.rawValue) \(c.amount)): \(system) \(pct(moved)); taxes "
-                         + "\(pct(share(Double(m.taxes), Double(base.taxes)))) happiness "
-                         + "\(pct(share(Double(m.happiness), Double(base.happiness)))) killed "
-                         + "\(pct(share(Double(m.killed), Double(base.killed)))) fallen \(m.fallen)/\(base.fallen) "
-                         + "walls \(m.wallsLost)/\(base.wallsLost) hearth lost \(Int(m.hearthLost))/"
-                         + "\(Int(base.hearthLost)) buildings \(m.buildings)/\(base.buildings) nights held "
-                         + "\(m.survived)/\(base.survived)")
-            XCTAssertLessThanOrEqual(abs(moved), max(0.06, countTolerance), "\(c.id) moves \(system) by \(pct(moved))")
-            XCTAssertGreaterThanOrEqual(m.survived, base.survived, "\(c.id): a work never costs a night")
+            lines.append("\(c.id) (\(c.work), \(c.effect.rawValue) \(c.amount), stands from dawn \(ready)): \(system) "
+                         + "\(pct(moved)) while it stands, \(pct(movedWhole)) over the run; taxes "
+                         + "\(pct(share(with.taxes, base.taxes))) happiness \(pct(share(with.happiness, base.happiness))) "
+                         + "killed \(pct(share(with.killed, base.killed))) fallen \(with.fallen)/\(base.fallen) walls "
+                         + "\(with.wallsLost)/\(base.wallsLost) hearth lost \(Int(with.hearthLost))/\(Int(base.hearthLost)) "
+                         + "buildings \(with.buildings)/\(base.buildings) nights held \(whole.survived)/\(wholeBase.survived)")
+            XCTAssertLessThanOrEqual(abs(moved), max(0.06, countTolerance),
+                                     "\(c.id) moves \(system) by \(pct(moved)) while it stands")
+            XCTAssertGreaterThanOrEqual(whole.survived, wholeBase.survived, "\(c.id): a work never costs a night")
         }
         let attachment = XCTAttachment(string: lines.joined(separator: "\n"))
         attachment.name = "craft-effect-sizes"
