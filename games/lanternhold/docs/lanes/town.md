@@ -331,7 +331,7 @@ with plaster where they hung. The atlas gains 12 strips, 79 frames. No pouch any
 | `UI/ReportCardView.swift` | `taxDetail` asks `TownText.reportDetail` first | the taxes row |
 | `Core/Town/Town.swift` (this lane's) | `firstMorningX`, `meetX`; `step` meets at `meetX` | the first morning in the courtyard |
 | `Tests/TownTests.swift` | the first morning's toss in the courtyard | the same |
-| `Tests/CardModelTests.swift`, `Tests/AudienceFlowTests.swift` | no throne target without petitioners; the lectern is furniture | no tax card |
+| `Tests/CardModelTests.swift`, `Tests/AudienceFlowTests.swift`, `Tests/ScreenFlowTests.swift`, `Tests/TalkTests.swift` | no throne target without petitioners; the lectern is furniture (Odile at her lectern talks) | no tax card |
 | `UITests/FirstDayUITests.swift` | the lectern part (43-taxes) removed | no tax card |
 
 ### How the join re-hooks the door touch (the rebuilt town and the stage lane's touch)

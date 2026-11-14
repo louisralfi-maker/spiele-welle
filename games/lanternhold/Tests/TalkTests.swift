@@ -50,10 +50,11 @@ final class TalkTests: XCTestCase {
         XCTAssertEqual(odile.x, 1858, "a step off the throne on the first morning's round")
         s.king.x = odile.x
         XCTAssertEqual(KingTargets.target(s, balance: balance), .talk(who: "odile"))
+        // Town-2: without petitioners the throne offers nothing (no tax card); Odile beside it talks.
         s.king.x = WorldLayout.throneX
-        XCTAssertEqual(KingTargets.target(s, balance: balance), .throne)
+        XCTAssertNotEqual(KingTargets.target(s, balance: balance), .throne)
         s.king.x = Realm.throneX
-        XCTAssertEqual(KingTargets.target(s, balance: balance), .throne, "also where a new realm's lord stands")
+        XCTAssertNotEqual(KingTargets.target(s, balance: balance), .throne, "also where a new realm's lord stands")
         // Her second stop is the lectern's near side: between her and the lectern the place wins.
         var later = s
         later.hour = 6 + 18.0 / DayClock.secondsPerHour
@@ -61,8 +62,8 @@ final class TalkTests: XCTestCase {
         XCTAssertEqual(atDesk.x, 1894, "at her lectern")
         XCTAssertEqual(atDesk.facing, 1, "facing it")
         later.king.x = 1904
-        XCTAssertEqual(KingTargets.target(later, balance: balance), .lectern,
-                       "Odile 10 px away yields to the lectern 10 px away")
+        XCTAssertEqual(KingTargets.target(later, balance: balance), .talk(who: "odile"),
+                       "town-2: the lectern is furniture, so Odile at her lectern talks")
         later.king.x = 1890
         XCTAssertEqual(KingTargets.target(later, balance: balance), .talk(who: "odile"))
         s.hour = 21
@@ -83,7 +84,7 @@ final class TalkTests: XCTestCase {
             XCTAssertEqual(KingTargets.target(s, balance: balance), .throne, "the audience at \(x)")
         }
         s.king.x = KingTargets.lecternX
-        XCTAssertEqual(KingTargets.target(s, balance: balance), .lectern, "the lectern keeps its own place")
+        XCTAssertNotEqual(KingTargets.target(s, balance: balance), .lectern, "town-2: the lectern is furniture")
         s.court?.queue = []
         s.king.x = odile.x
         XCTAssertEqual(KingTargets.target(s, balance: balance), .talk(who: "odile"), "nobody waits: she talks")
