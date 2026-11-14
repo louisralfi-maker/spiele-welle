@@ -1,0 +1,22 @@
+2026-11-14 15:54:48.777005+0000 Lanternhold[10828:42841] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.FrontPresenceTests testACreatureThatReachesTheLordThrowsHimBackAndShakesHim]' passed (0.033 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testADeadBrazierCatchesAsTheLordPassesAtMostOneInFourSeconds]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testAfterAThrowNoCreatureThrowsHimAgainForTheGrace]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testAnOldSaveLoadsWithoutTheRule]' passed (0.045 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testAPassingCreatureHarmsASoldierLessUnderPresence]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testArchersUnderPresenceLooseFaster]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testBehindAWallOrTheGuardsAndBeforeACrowHeIsSafe]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testGuardsUnderPresenceTakeLessHarmAndStrikeHarder]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testPatchingIsADeedAtTheWallHeStandsAt]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testPresenceReachesDefendersNearTheLordAtNight]' passed (0.055 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testTheDawnCarriesTheNightsTallyAndStartsAfresh]' passed (0.042 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testTheFrontLinesReadInEnglishAndGerman]' passed (0.024 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testTheOldLightActionStillWorksWithTheRule]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testThePresentBotPlaysANightByTheRule]' passed (1.569 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testTheReferenceBotIgnoresTheRulesNumbers]' passed (1.490 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testTheReportsFrontLines]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testTheRuleRoundTripsAndPartialStatesDecodeWithDefaults]' passed (0.039 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testUpOnAWallHeIsAboveTheLeapingHounds]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testWithoutTheRuleTheOldRallyHolds]' passed (0.001 seconds).
+exit=0
+screenshots: 0
