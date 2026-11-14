@@ -309,3 +309,43 @@ vignette, the dust and the room's own dark.
 Unchanged from panels-1: `let slides = SlideStage()` in `GameModel`, `presentPrologueAfterEntry()` in `confirmLord`,
 `SlideStageHost(model: model)` in `GameView` (it now also shows the end card). If the rebuild moves the dawn report's
 Continue, the first hook goes wherever night 20's report is closed.
+
+### Rounds (by the director's notes of 14.11. 18:46 and 19:35: short rounds, the gate one round, English only)
+
+- `lh-pn2-1` (387d031, code only, before the pictures): build PASSED; unit EndingsTests and SlidesTests: one failure,
+  the picture test (the pictures were not in that commit yet); the other 16 tests passed.
+- `lh-pn2-2` (2ae120d, the gate: build, all unit tests, ui EndingsUITests and SlidesUITests): **ALL PASSED**.
+  Screenshots 71 to 86; upright copies in `ci-out/upright-pn2-2/` of this worktree (git-ignored). Judged on them and
+  fixed after it (59aa8a9): the end card's first line now sets its figures in the ledger's face ("Chapter 1" read as
+  "Chapter ı" in IM Fell's old-style figure); the lord at the low hearth stood dark on a dark wall (only a hooked outline
+  showed), now the chair stands before the fire-lit stones and the head and shoulders read; the fog round the King
+  calmer.
+- `lh-pn2-3` (59aa8a9): build, unit EndingsTests, SlidesPaletteTests and SlidesTests, ui EndingsUITests: see below.
+
+### My own verdict, and what is weakest
+
+- The flow is complete: night 20's report, Continue, the ending the realm earned on its own light, the end card with
+  the realm's own numbers, Hold the realm (the Long Watch) or Begin again. The three lights differ at a glance: the
+  Open Lantern's rose spill, the Shuttered Lantern's cold slate, the Guttering Lantern's near-black red that dips.
+- The end card is clean and in the house's style (the chronicle's page, leaders, the houses' real banners, wax red).
+- The pictures are palette art (13 to 25 colours), one subject and one light each, the people seen mostly from behind
+  or in silhouette (no stiff frontal line-ups, faces only where they carry the line: Aldric's). They read at phone
+  size. Against a strong pixel artist's bar they are plain: big flat areas, simple figures, few hand-placed details.
+  Weakest, in order: `slideGutter1`'s cleft (a geometric V of flat rock above the game's houses), `slideShut2` (quiet to
+  the point of empty: the fog in long flat bands, the raven tiny), `slideGutter3` (Tamsin is a dark hooded mass; her
+  kerchief and face do not read, only the coat), `slideOpen1` (seen from above the figure can still read as standing
+  for a moment; the floor is plain). Strongest: `slideOpen2` (the court's silhouettes at sunrise), `slideShut3` (Bram
+  and the banner), `slideShut1` (the game's own King walking into the fog with the thinning folk).
+- German is written for every key and held to 72 characters a line by the unit tests, but not looked at on screen (the
+  director's note of 19:35); `EndingsUITests` runs in German with `GW_LANG=de` at the join.
+
+### Open, and what waits for the join
+
+- The six other languages for the new keys (one pass after the join).
+- DESIGN.md "Debug launch arguments": `-GWSlides ending1|ending2|ending3|end`; DESIGN.md "Screens" 7 (chapter end) and
+  "Endless" can point to this card and to "Hold the realm".
+- Endless itself beyond the mode switch (events, a title entry, the run ending on a fall in endless) is not built; the
+  straw crown (VERDICT.md section 2, build 3) can use the same stage, a fourth `ChapterEnding` and the same card.
+- The words of the endings are STORY.md's, cut to two lines; `docs/house-rewrite.json` has no change for them. The
+  speech line "I was never meant for this" (Story.xcstrings) changes to "I am afraid too. I stay." in the rewrite; the
+  honest lamp's line on slide 2 does not quote it, so it holds either way.
