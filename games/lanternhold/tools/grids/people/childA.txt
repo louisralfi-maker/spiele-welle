@@ -18,9 +18,9 @@ legend
     c = straw
     R = crimsonLight
     r = crimson
-    W = parchment
     w = plaster
     q = plasterDim
+    n = soilLight
     l = woodLight
     h = wood
 
@@ -34,28 +34,28 @@ part head
 # the red kerchief, the tunic too big for him
 part body
     .RRr.
-    Wwwwq
-    Wwwwq
-    Wwwwq
-    .Wwwq
+    wqqqn
+    wqqqn
+    wqqqn
+    .wqqn
 
 # the near arm, the sleeve over the hand, the stick held high and forward
 part armStick
-    w..l
-    .wl.
+    q..l
+    .ql.
     ..h.
 
 # the stick over the shoulder (fidget)
 part armShoulder
     ..l
     .h.
-    w..
     q..
+    n..
 
 # the arms thrown up (skip)
 part armsUp
-    w.
-    .w
+    q.
+    .q
 
 part legsStand
     .sS.

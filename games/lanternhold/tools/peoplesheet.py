@@ -8,8 +8,9 @@ Pure python 3 (pixelart.py's PNG helpers), one sheet per run, small and quick; r
         a warm lantern pool around the lord). Each item is `id:frame` (a leading `-` mirrors it); the frame size comes
         from the tables of SPRITES.md and docs/SPRITES-people.md.
   peoplesheet.py strip <out.png> <id> --frames 0-3 [--scale 6] [--step 4] [--loops 2]
-        One walk (or any run of frames) as a film strip: on top the frames in a row, under them the same frames
-        advanced by --step game px each like the engine's walk (one frame per 4 px), so a sliding foot shows.
+        One walk (or any run of frames) as a film strip: on top the frames in a row; under them the feet alone (the
+        last four body rows), each frame advanced by --step game px like the engine's walk (one frame per stride) and
+        tinted in turn, so a planted foot that slides shows as a smear instead of one print.
   peoplesheet.py zoom <out.png> <id> [--scale 8]
         Every frame of one sprite at 800 % on a checker, for the 400 % check.
 """
@@ -188,24 +189,42 @@ def cmd_strip(a):
     w, h, n = con[a.id]
     seq = frames_arg(a.frames) * a.loops
     cell = w + 6
-    W = max(cell * len(seq), a.step * len(seq) + w) + 12
+    W = max(cell * len(seq), int(a.step * len(seq)) + w) + 12
     band = h + 6
-    H = 2 * (band + 6)
+    feet = 4
+    H = band + 6 + feet + 10
     canvas = [[None] * W for _ in range(H)]
-    for half in range(2):
-        gy = band + half * (band + 6)
-        for y in range(gy - band, gy + 6):
-            for x in range(W):
-                if y >= gy:
-                    canvas[y][x] = (0.39, 0.32, 0.25) if (x // 4 + y) % 2 else (0.34, 0.28, 0.22)
-                else:
-                    canvas[y][x] = (0.80, 0.82, 0.80) if half == 0 else (0.72, 0.74, 0.72)
-        for i, k in enumerate(seq):
-            fr = frame_of(con, a.id, k)
-            x0 = 6 + i * cell if half == 0 else 6 + i * a.step
-            paste(canvas, fr, x0, gy, "day", None)
+    gy = band
+    for y in range(H):
+        for x in range(W):
+            if gy <= y < gy + 6:
+                canvas[y][x] = (0.39, 0.32, 0.25) if (x // 4 + y) % 2 else (0.34, 0.28, 0.22)
+            elif y < gy:
+                canvas[y][x] = (0.80, 0.82, 0.80)
+            else:
+                canvas[y][x] = (0.72, 0.74, 0.72)
+    for i, k in enumerate(seq):
+        paste(canvas, frame_of(con, a.id, k), 6 + i * cell, gy, "day", None)
+    # the footprints: the bottom body rows of every frame at its advancing place, tinted in turn
+    tints = [(1.0, 0.55, 0.45), (0.45, 0.65, 1.0), (0.55, 0.95, 0.55), (1.0, 0.9, 0.4)]
+    fy = gy + 6 + feet + 3
+    for i, k in enumerate(seq):
+        fr = frame_of(con, a.id, k)
+        rows = [r for r in range(h) if any(p[3] for p in fr[r])]
+        last = rows[-1] if rows else h - 1
+        x0 = 6 + int(i * a.step)
+        for j in range(feet):
+            r = last - (feet - 1) + j
+            if r < 0:
+                continue
+            for x in range(w):
+                p = fr[r][x]
+                if p[3] and 0 <= x0 + x < W:
+                    t = tints[i % 4]
+                    canvas[fy - feet + 1 + j][x0 + x] = tuple(min(1.0, v / 255 * 0.5 + t[c] * 0.5)
+                                                              for c, v in enumerate(p[:3]))
     write_png(a.output, scaled(canvas, a.scale))
-    print(f"wrote {a.output} ({a.id} frames {seq})")
+    print(f"wrote {a.output} ({a.id} frames {seq}, {a.step} px a frame)")
 
 
 def cmd_zoom(a):
@@ -240,7 +259,7 @@ def main():
     p.add_argument("id")
     p.add_argument("--frames", default="0-3")
     p.add_argument("--scale", type=int, default=6)
-    p.add_argument("--step", type=int, default=4)
+    p.add_argument("--step", type=float, default=4)
     p.add_argument("--loops", type=int, default=2)
     p.set_defaults(fn=cmd_strip)
     p = sub.add_parser("zoom")

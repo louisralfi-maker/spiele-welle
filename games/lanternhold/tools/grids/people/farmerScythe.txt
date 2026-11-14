@@ -57,27 +57,27 @@ part torso
     .hhhhH
 
 part skirtPass
-    .nbwqB.
-    .nbwqB.
-    nbbwqbB
-    nbbwqbB
-    nbbwqbB
-    nbbwqbB
-    nbbbwqB
-    nbbbwqB
-    nbbbbbB
-    .BbbbB.
+    .lnwqb.
+    .lnwqb.
+    lnnwqnb
+    lnnwqnb
+    lnnwqnb
+    lnnwqnb
+    lnnnwqb
+    lnnnwqb
+    lnnnnnb
+    .bnnnb.
 
 part skirtContact
-    ..nbwqB..
-    .nbbwqbB.
-    .nbbwqbB.
-    .nbbwqbB.
-    nbbbbwqbB
-    nbbbbwqbB
-    nbbbbwqbB
-    nbbbbbbbB
-    .BbbbbbB.
+    ..lnwqb..
+    .lnnwqnb.
+    .lnnwqnb.
+    .lnnwqnb.
+    lnnnnwqnb
+    lnnnnwqnb
+    lnnnnwqnb
+    lnnnnnnnb
+    .bnnnnnb.
 
 part feetA
     HH....hHH

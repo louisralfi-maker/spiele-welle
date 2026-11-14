@@ -73,9 +73,10 @@ On the bench he sits with a hand on each knee.
 **Old Hemmet** (`elder`, 12x26). *Silhouette:* the lowest grown-up in town: a hump of smock with the head hanging
 below its top, a stick ahead of him. *Posture:* bent nearly double, the far hand resting at the small of his back.
 *Pace:* a shuffle, half the townsfolk's speed, the feet a hand apart (2 px a frame), the body rocking down on each
-contact, the stick planted ahead and drawn after. *Cloth:* a long smock of undyed wool gone grey-pale with flour
-(`plaster` on the lit hump, `plasterDim`, the fold under it `soilLight`), a rope belt (`straw`), dark breeches,
-clogs; a white fringe and beard (`stonePale`). *Tell:* the bend.
+contact, the stick planted ahead and drawn after. *Cloth:* an old brown wool cape over the hump (`woodLight` on its
+lit top, `wood`, `woodDark`), under it a long smock of undyed wool gone grey-pale with flour (`plaster`, `plasterDim`,
+`soilLight`), a rope belt (`straw`), dark breeches, clogs; a white fringe and beard (`stonePale`): the pale head stands
+out against the dark hump. *Tell:* the bend.
 
 **Wenna Brisk** (`washerwoman`, 12x26). *Silhouette:* broad and heavy, leaning back against a big basket of wet linen
 on her near hip, the skirt kilted up to show bare shins and clogs. *Pace:* a heavy rolling step, the stance wide on the
@@ -101,8 +102,8 @@ and the moment he straightens his back with a hand on it and lifts his face.
 
 **Hedda Ashby** (`farmerScythe`, 12x26). *Silhouette:* upright and wiry in a long skirt, a scythe on her shoulder
 with its long curved blade hanging behind her head. *Pace:* the townsfolk's. *Cloth:* a brown kerchief (`soilLight`,
-`soil`), an undyed blouse with the sleeves rolled, a laced earth bodice (`soil`, `soilDark`), a long brown skirt with
-an undyed apron, clogs. *Tell:* white hair (`stonePale`) framing a young face and a white plait (`foam`, `stonePale`)
+`soil`), an undyed blouse with the sleeves rolled, a laced earth bodice (`soil`, `soilDark`), a long skirt a step
+lighter (`woodLight` lit, `soilLight`, `soil`) with an undyed apron, clogs. *Tell:* white hair (`stonePale`) framing a young face and a white plait (`foam`, `stonePale`)
 down her back. Home at evening with a sheaf before her (`strawLight`, `straw`, a `wood` band).
 
 ## 3. The children (three)
@@ -113,7 +114,8 @@ square while the town is content (the interface bar: the town shows happiness, t
 
 **Pim Brisk** (`childA`), 7, Wenna's youngest. *Silhouette:* a mop of straw hair, a brother's linen tunic far too big
 (the sleeves over his hands, the hem to his knees), bare feet, a stick held high for a sword. *Cloth:* `strawLight`,
-`straw` hair; the tunic `parchment`, `plaster`, `plasterDim`. *Tell:* the red kerchief at his neck (`crimsonLight`,
+`straw` hair; the tunic `plaster` lit, `plasterDim`, `soilLight` in the shade (a value below his hair, so his face
+reads between them). *Tell:* the red kerchief at his neck (`crimsonLight`,
 `crimson`). *Pace:* he only runs.
 
 **Wren Ashby** (`childB`), 9, Gorm's daughter. *Silhouette:* dark hair in plaits that fly out behind when she runs and
