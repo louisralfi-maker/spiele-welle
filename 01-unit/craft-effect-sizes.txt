@@ -1,0 +1,12 @@
+base normal: taxes 2550 happiness 2270 killed 1495 fallen 1 walls 4 buildings 26
+base high: taxes 1344 happiness 769 killed 1514
+fletcher (pitch, fireArrowBurn 1.0): creatures stopped -2‰; taxes 0‰ happiness 0‰ killed -2‰ fallen 1/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+founder (bell, soldierSpeed 0.1): creatures stopped 0‰; taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+glazier (glass, lightRadius 0.05): creatures stopped -1‰; taxes 0‰ happiness 0‰ killed -1‰ fallen 1/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+ironwright (gateBands, gateStrength 0.05): creatures stopped 0‰; taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+lampmaker (lanterns, unrestLine 3.0): taxes 12‰; taxes 12‰ happiness 0‰ killed 0‰ fallen 3/3 walls 2/2 hearth lost 0/0 buildings 24/24 nights held 28/28
+limeburner (mortar, patchShare 0.05): creatures stopped 0‰; taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+mason (statue, houseCoin 1.0): taxes 64‰; taxes 64‰ happiness 0‰ killed 5‰ fallen 2/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+painter (portrait, happinessOnce 3.0): happiness 32‰; taxes 7‰ happiness 32‰ killed 14‰ fallen 0/1 walls 2/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+weaver (banners, guardHold 0.05): creatures stopped 0‰; taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28
+wheelwright (carts, builderWalk 0.1): buildings 0‰; taxes 0‰ happiness 0‰ killed 0‰ fallen 1/1 walls 4/4 hearth lost 0/0 buildings 26/26 nights held 28/28

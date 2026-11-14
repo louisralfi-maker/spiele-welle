@@ -1,0 +1,3 @@
+Test Case '-[LanternholdUITests.CraftUITests testTheCraftsmansOffer]' passed (70.091 seconds).
+exit=0
+screenshots: 5
