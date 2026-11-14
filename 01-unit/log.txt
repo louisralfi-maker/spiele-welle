@@ -1,0 +1,20 @@
+2026-11-14 23:41:25.387931+0000 Lanternhold[10695:41876] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.ErrandDataTests testABrokenEntryCostsOnlyItself]' passed (0.034 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testAReportChoiceRoundTrips]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testPlaceholdersAndCounts]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheBuildCompiledEveryTableKeyInEnglishAndGerman]' passed (0.017 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheBundledTableLoadsWithoutProblems]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheSourceFolderHoldsOnlyTableFilesTheBundleHas]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheThreeSendingsOfRoundOne]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheValidatorCatchesTheUsualMistakes]' passed (0.129 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheValidatorFindsNothingWrongWithTheContent]' passed (0.020 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testALanternStandsWhereItWent]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testEveryPartyHasItsCarvedPiece]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testTheArtShipsAtItsSizesWithHardEdges]' passed (0.086 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testTheLineOfLightNeverTellsTheRoll]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testTheMapHasEveryCarvedPlaceAndItsRoad]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testThePictureLightsTheRoadAndThePins]' passed (0.027 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testTheRailTellsWhoIsHomeAwayOrLost]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TableBoardTests testTheStagesSetUpTheRailAndAReport]' passed (0.002 seconds).
+exit=0
+screenshots: 0

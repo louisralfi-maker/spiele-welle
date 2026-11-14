@@ -1,0 +1,10 @@
+Test Case '-[LanternholdUITests.TableUITests testTheLongestAndTheLostReportFit]' passed (40.995 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheMiddleOfTheChapterFillsTheHooks]' passed (38.869 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheRailTellsWhoIsAway]' passed (16.055 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TableUITests.swift:267: error: -[LanternholdUITests.TableUITests testTheTableSendsPipAndReadsHisReport] : XCTAssertGreaterThanOrEqual failed: ("43.99999999999997") is less than ("44.0") - Tallowford's pin is 43.99999999999997 pt high
+Test Case '-[LanternholdUITests.TableUITests testTheTableSendsPipAndReadsHisReport]' failed (42.125 seconds).
+Test Suite 'TableUITests' failed at 2026-11-14 23:44:16.666.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-14 23:44:16.669.
+Test Suite 'Selected tests' failed at 2026-11-14 23:44:16.669.
+exit=65
+screenshots: 10
