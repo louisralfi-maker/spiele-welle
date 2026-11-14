@@ -462,8 +462,8 @@ enum HallFrames {
         let lecternFlame = HallLight.lecternFlame
         candles([lecternFlame], seed: 0x4C45_4354)
         light(.candle, x: lecternFlame.x + HallLight.lecternLight.dx, row: lecternFlame.row + HallLight.lecternLight.drow,
-              radius: HallLight.lecternRadius, intensity: HallLight.lecternLevel, color: lanternColor, squash: 1,
-              seed: 0x4C45_4354)
+              radius: HallLight.lecternRadius, intensity: HallLight.lecternLevel, color: lanternColor,
+              squash: Float(HallLight.lecternSquash), seed: 0x4C45_4354)
         let shaft = SpriteID.hallShaft.size
         // The door's torches from the dusk.
         if torch > 0.02 {
@@ -543,10 +543,12 @@ enum HallFrames {
         // Where the lord stands behind it the composite opens it in a dither round his body (`InteriorLight`), so
         // the near arcade gives depth as he walks past and never hides him where he stops.
         let pillar = SpriteID.hallPillarNear.size
+        var pillarCentres: [Double] = []
         for p in HallLayout.nearPillars {
             let planeX = HallLayout.nearParallax * p - (HallLayout.nearParallax - 1) / 2 * viewWidth
             let x = (planeX - Double(pillar.width) / 2).rounded(.down) - g.whole(.foreground)
             guard x + Double(pillar.width) >= -1, x <= Double(g.targetWidth) + 1 else { continue }
+            pillarCentres.append(x + Double(pillar.width) / 2)
             sprites[Plane.foreground.rawValue].append(SpriteInstance(
                 sprite: .hallPillarNear, frame: 0,
                 rect: SIMD4<Float>(Float(x), Float(g.row(0)), Float(pillar.width), Float(pillar.height)),
@@ -685,11 +687,18 @@ enum HallFrames {
         if abs(zoom - Double(framing.targetScale)) > 1e-6 { desc.zoom = zoom }
         if options.look == .two {
             var inside = interior(ambient, groundRow: groundRow)
-            // The near pillar's window round the lord's body and its rims (fix round 1).
+            // The near pillar's window round the lord's body and its rims (fix round 1): it opens only while he stands
+            // behind the shaft, growing as he moves behind it (no notch in the pillar when he stands beside it).
             let body = Double(lord.body.size.height)
-            inside.pillarHole = SIMD4<Float>(Float(lordX - g.whole(.world)),
-                                             Float(g.row(HallLayout.floorRow) - lordLift - body * 0.5),
-                                             Float(HallLight.holeHalf.width), Float(HallLight.holeHalf.height))
+            let lordScreen = lordX - g.whole(.world)
+            let apart = pillarCentres.map { abs($0 - lordScreen) }.min() ?? .infinity
+            let open = HallLight.holeOpening(apart: apart)
+            if open > 0 {
+                inside.pillarHole = SIMD4<Float>(Float(lordScreen),
+                                                 Float(g.row(HallLayout.floorRow) - lordLift - body * 0.5),
+                                                 Float(HallLight.holeHalf.width * open),
+                                                 Float(HallLight.holeHalf.height * open))
+            }
             let rims = HallLight.pillarRims(ambient)
             inside.rimLeft = rims.left
             inside.rimRight = rims.right

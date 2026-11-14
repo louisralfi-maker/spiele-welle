@@ -1117,6 +1117,14 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         float kmul = 1.0f - room * v.inter.w;
         // The hall stage (stage lane): an interior's floor faces a roof, not the sky (no night lift, no moon on it).
         bool inside = v.weather.z > 0.0f;
+        if (inside) {
+            // Fix round 1: on cool cloth (the teal banners and the cloth of estate) warm light warms the luminance
+            // instead of cutting the blue, so a lantern or a candle never turns the teal olive green.
+            float3 wa = w.rgb / w.a;
+            float cool = saturate((wa.b - wa.r) * 2.5f);
+            float3 neutral = float3(lh_luma(light)) * float3(1.06f, 1.0f, 0.92f);
+            light = mix(light, neutral, 0.75f * cool);
+        }
         if (under >= 0.0f && under < 8.0f && !inside) {
             ambient *= v.fog.z + 0.25f * v.weather.y;
         } else if (!inside) {

@@ -52,12 +52,13 @@ enum HallLayout {
     /// him), its seat nearest the throne first in line.
     static let benches: [Double] = [184, 300]
     static let seats: [Double] = [192, 184, 176, 308, 300, 292]
-    /// Townsfolk who cannot sit (their body has no seated strip) stand beside the first bench, never in front of an
-    /// empty one: between its right stand and the noble's place, left of its left stand, then toward the door.
-    static let besideBenches: [Double] = [218, 148, 136]
+    /// Townsfolk who cannot sit (their body has no seated strip) stand beside a bench, never in front of an empty
+    /// one: between the first bench's right stand and the noble's place, then left of the second bench's left stand.
+    /// Never between the door and the first bench: the near pillar sweeps that wall as the camera moves.
+    static let besideBenches: [Double] = [218, 262]
     /// Where guests and petitioners beyond the six seats stand, on the wall line: the first guest near the second
     /// bench (his walk to the throne stays under a second), the rest by the door bay.
-    static let standing: [Double] = [268, 140, 118, 280, 106, 94]
+    static let standing: [Double] = [272, 140, 118, 284, 106, 94]
     /// A noble guest never sits on the benches with the working people (the people bar, director's note 14.11.
     /// 14:20): he stands apart between the window bays, his footman a step behind him (an anchor for the people
     /// lane's footman).

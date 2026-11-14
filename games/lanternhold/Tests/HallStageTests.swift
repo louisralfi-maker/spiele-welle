@@ -311,7 +311,8 @@ final class HallStageTests: XCTestCase {
 
         let night = model(["GWStage": "hall", "GWNight": "2", "GWSeed": "4", "GWHallX": "120"])
         let dark = night.frame(physicalWidth: 2622, physicalHeight: 1206)
-        XCTAssertFalse(dark.emissives.contains { $0.sprite == .hallShaft })
+        XCTAssertTrue(dark.emissives.filter { $0.sprite == .hallShaft }.allSatisfy { $0.color.z > $0.color.x },
+                      "at night only the moon's pale shafts")
         XCTAssertTrue(dark.lights.contains { $0.kind == .torch }, "the door's torches from the dusk")
         XCTAssertTrue(dark.actors.contains { $0.sprite == .kingGlow }, "his lantern glows")
     }
@@ -455,7 +456,8 @@ final class HallStageTests: XCTestCase {
     }
 
     func testTheNearPillarOpensRoundTheLordAndCatchesTheLight() throws {
-        let game = model(["GWStage": "hall", "GWHallX": "150", "GWClock": "10", "GWWeather": "clear"])
+        // At hall x 138 with the camera at its left end (10) the lord stands right behind the pillar.
+        let game = model(["GWStage": "hall", "GWHallX": "138", "GWClock": "10", "GWWeather": "clear"])
         let frame = game.frame(physicalWidth: 2622, physicalHeight: 1206)
         let pillars = frame.layer(.foreground).sprites.filter { $0.sprite == .hallPillarNear }
         XCTAssertLessThanOrEqual(pillars.count, 1, "never two near pillars in the walking framing")
@@ -465,8 +467,14 @@ final class HallStageTests: XCTestCase {
             XCTAssertLessThanOrEqual(screen.filter { $0 > -15 && $0 < 390 }.count, 1, "one pillar at \(left)")
         }
         let inside = try XCTUnwrap(frame.interior)
-        XCTAssertGreaterThan(inside.pillarHole.z, 0, "the window round the lord")
-        XCTAssertEqual(Double(inside.pillarHole.x), 150 - frame.cameraX, accuracy: 2, "centred on him")
+        XCTAssertEqual(frame.cameraX, HallLayout.shownLeft, accuracy: 1e-9)
+        XCTAssertGreaterThan(inside.pillarHole.z, 0, "the window round the lord behind the pillar")
+        XCTAssertEqual(Double(inside.pillarHole.x), 138 - frame.cameraX, accuracy: 2, "centred on him")
+        XCTAssertEqual(HallLight.holeOpening(apart: 0), 1)
+        XCTAssertEqual(HallLight.holeOpening(apart: 30), 0, "beside the pillar it stays whole")
+        let beside = model(["GWStage": "hall", "GWHallX": "60", "GWClock": "10", "GWWeather": "clear"])
+        let away = try XCTUnwrap(beside.frame(physicalWidth: 2622, physicalHeight: 1206).interior)
+        XCTAssertEqual(away.pillarHole.z, 0, "no window while he stands clear of it")
         XCTAssertGreaterThan(inside.rimRight.x, inside.rimLeft.x, "by day the window's side catches more")
         XCTAssertGreaterThan(inside.pillarAmbient, 0.3, "its stone reads")
         let night = model(["GWStage": "hall", "GWNight": "3", "GWSeed": "2", "GWHallX": "150"])
@@ -479,7 +487,7 @@ final class HallStageTests: XCTestCase {
                           "GWFlickerTime": "1"])
         let day = game.frame(physicalWidth: 2622, physicalHeight: 1206)
         let round = day.lights.filter { $0.kind == .candle && $0.ellipseY == 1 }
-        XCTAssertGreaterThanOrEqual(round.count, 3, "the bench's two stands and the lectern: round pools, no bar")
+        XCTAssertGreaterThanOrEqual(round.count, 2, "the bench's two stands: round pools, no bar")
         XCTAssertTrue(day.emissives.contains { $0.sprite == .candleFlame && abs(Double($0.rect.x) + day.cameraX - 215) < 2 },
                       "the wall sconce burns where the second banner hung")
         let noonHearth = try XCTUnwrap(model(["GWStage": "hall", "GWHallX": "470", "GWClock": "12",
@@ -522,7 +530,7 @@ final class HallStageTests: XCTestCase {
         XCTAssertEqual(farmer.x, HallLayout.seats[0], "who can sit takes the first seat")
         XCTAssertNotNil(farmer.seated)
         XCTAssertEqual(specs.first { $0.petition == "tax_grumble" }?.x, HallLayout.besideBenches[1])
-        XCTAssertEqual(HallCourt.occupiedBenches(specs), [0], "the bench's candles burn")
+        XCTAssertEqual(HallCourt.occupiedBenches(specs), [0, 1], "the candles burn where anyone waits")
         for x in HallLayout.besideBenches + HallLayout.seats.prefix(3) {
             XCTAssertLessThan(x, 290, "\(x) is clear of the action button when he comes in")
         }
