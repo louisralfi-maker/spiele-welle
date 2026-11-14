@@ -12,7 +12,7 @@ man rennt dorthin, wo es brennt." Spec: REALM.md section 3.
 ### What exists (all new files of this lane)
 
 - `Core/Front/FrontTuning.swift`: every number of the rule in one place, carried as `Balance.front` (presence radius 90,
-  speed ×1.25, harm ×0.6; relight reach 48 px, one in 4 s; touch 6 px, throw 60 px, shaken 8 s, grace 1.5 s; the
+  speed ×1.25, harm ×0.5; relight reach 48 px, one in 4 s; touch 6 px, throw 60 px, shaken 8 s, grace 1.5 s; the
   present bot's values; the dawn report's thresholds). Tuned on the runner from the spec's starting values (below).
 - `Core/Front/FrontState.swift`: the saved state (`FrontState`: shaken, grace and relight timers, the last throw and
   the last relight as stamps for the picture, tonight's tally), the report's front half (`FrontNightReport`) and its
@@ -37,7 +37,7 @@ man rennt dorthin, wo es brennt." Spec: REALM.md section 3.
 
 - **Presence.** At night (dusk, night, first light), unless he is shaken, archers and guards within 90 px of the lord
   (along the ground, as the old rally) loose and strike ×1.25 as fast (their cooldowns; the guards' blows) and take
-  ×0.6 of the harm (in the breach and in passing). It replaces the old rally while the rule is on: the rally (DESIGN.md
+  ×0.5 of the harm (in the breach and in passing): a quarter faster, twice as long. It replaces the old rally while the rule is on: the rally (DESIGN.md
   "The king at night": 80 px, ×1.25) is the same idea without the harm, and two bonuses for one thing would stack. The
   engines are crewed by castle staff and get nothing.
 - **Braziers.** A dead brazier within 48 px of him catches from his lantern, free, at most one in 4 s; the existing
@@ -143,32 +143,45 @@ changed nothing at reach 48):
 | 36 px | 269 / 217 | −24 % |
 | 48 px (both braziers of the wall) | 213 / 217 | +2 % |
 
-**The presence numbers** at reach 48 (round lh-f1-3; fewer defenders lost than the reference, budgets pooled):
+**The presence numbers** at reach 48 (rounds lh-f1-3 and lh-f1-4; how many fewer defenders the present bot lost than
+the reference, budgets x1, x1.5, x2 pooled; T13's band is 25 to 40 %):
 
-| speed \ harm | 0.6 | 0.7 | 0.8 | 0.9 | 1.0 |
-|---|---|---|---|---|---|
-| 1.0 | 3 % | −7 % | −22 % | −26 % | −36 % |
-| 1.1 | 15 % | 5 % | −3 % | −8 % | −12 % |
-| 1.15 | 21 % | 9 % | 2 % | −3 % | −10 % |
-| 1.2 | 23 % | 14 % | 2 % | 1 % | −9 % |
-| 1.25 | **28 %** | 17 % | 13 % | 6 % | −2 % |
+| speed \ harm | 0.5 | 0.55 | 0.6 | 0.65 | 0.7 | 0.8 | 0.9 | 1.0 |
+|---|---|---|---|---|---|---|---|---|
+| 1.0 | | | 3 % | | −7 % | −22 % | −26 % | −36 % |
+| 1.1 | | | 15 % | | 5 % | −3 % | −8 % | −12 % |
+| 1.15 (spec) | | | 21 % | | 9 % | 2 % | −3 % | −10 % |
+| 1.2 | 36 % | 29 % | 23 % | 15 % | 14 % | 2 % | 1 % | −9 % |
+| 1.25 | **34 %** | 30 % | 28 % | 20 % | 17 % | 13 % | 6 % | −2 % |
+| 1.3 | 29 % | 24 % | 24 % | 21 % | 17 % | | | |
+| 1.35 | 35 % | 30 % | 27 % | 22 % | 20 % | | | |
 
-The radius does not matter between 70 and 110 (a wall's archers and its tower stand within 50 px of its front edge).
-The shaken spell's length (4, 8, 12 s) hardly matters to the bot, which is thrown about once in ten nights.
+The grid is not smooth (a lost wall more or less in a few nights moves it by several points), so the choice sits where
+its neighbours pass too. The radius hardly matters between 60 and 120 (31 to 34 %: a wall's archers and its tower stand
+within 50 px of its front edge). Relighting at most one brazier in 2 s gives 26 %, in 6 s 23 %; a reach of 40 px 4 %,
+of 56 px the same as 48. The bot standing 14 px behind the face (where the reference stands) 20 %. The shaken spell's
+length (4, 8, 12 s) hardly matters to the bot, which is thrown about once in ten nights. Fetching dead braziers
+anywhere instead of near its place, or never joining the guards, changes nothing in the band.
 
-**Chosen: radius 90, speed ×1.25, harm ×0.6, relight reach 48, the bot on the wall's front edge.** The smallest
-presence in the grid that reaches the band: as fast as the old rally it replaces, and 40 % less harm. T13: the present
-bot lost 156 defenders, the reference 217: **28 % fewer** (x1: 7/15, x1.5: 44/64, x2: 105/138); no clear loss held.
-Presence matters where a night is close and fades where it is lost anyway: at 3 times the budget 7 % fewer, at 4 to 6
-times about the same, and at 6 times the reference lost 5 nights clearly and the present bot all 5 of them too.
+**Chosen: radius 90, speed ×1.25, harm ×0.5, relight reach 48, the bot on the wall's front edge.** As fast as the old
+rally it replaces, and half the harm: near the lord his people shoot a quarter faster and hold twice as long. Harm ×0.6
+reached the band at its lower edge (28 %, round lh-f1-4) with its neighbours outside it; ×0.5 sits in the middle and
+every neighbour passes (29 to 36 %), which T13 needs when it is measured again on the joined game.
 
-**What the present bot does in a night** (the chore guard, round lh-f1-3 at the chosen values): at dusk it runs from
+**T13 (round lh-f1-5): PASS.** The present bot lost 144 defenders, the reference 217: **34 % fewer** (x1: 7/15, x1.5:
+43/64, x2: 94/138). The reference lost 5 nights clearly (all at six times the budget: seeds 2 and 4 night 13, 5 and 7
+night 14, 9 night 12, each 20 to 24 s before first light); the present bot lost all 5 too (21 to 23 s before). Presence
+matters where a night is close and fades where it is lost anyway: 13 % fewer at three times the budget, 6, 3 and 2 % at
+four, five and six times. Whole runs from day 1 at the game's own nights: seeds 1 to 3 lost 0, 1, 2 defenders on nights
+3 to 14 with the reference and 0, 1, 0 with the present bot; neither fell.
+
+**What the present bot does in a night** (the chore guard, the same at harm ×0.6 and ×0.5): at dusk it runs from
 the throne to the front wall (about 12 s) and stands on its front edge. From there its lantern keeps the two braziers in
 front of that wall burning (it relights one to four a night as the crows snuff them) and its presence lies on the
 wall's and the tower's archers (96 to 99 % of the fighting covered). It patches about once in ten nights, fetches a
 brazier further away about once in ten nights and is thrown back about once in ten. When the wall falls it steps back
 to the next one, and when that falls to the hearth. At the game's own budget 101 of 120 nights take that single move to
-the wall, 10 take two and 9 take three; at twice the budget 87, 28 and 5. One or two good moves carry the night;
+the wall, 9 take two and 10 take three; at twice the budget 87, 28 and 5. One or two good moves carry the night;
 nothing has it sprint between walls.
 
 ### Rounds
@@ -178,7 +191,8 @@ nothing has it sprint between walls.
 | lh-f1-1 | 1537e18 | build; unit Front, Save, Battle, Tuning; sweep | the rule's tests and T1 to T8 passed (tuning report identical to lh-snd-2's); T13 failed (−48 %), the bot's night test had no fighting on night 9; the sweep did not compile (simtune's file list was already short of AmbientRampLook2 and Lord) |
 | lh-f1-2 | 67a4672 | build; unit FrontPresenceTests; sweep | ALL PASSED; the on-the-wall rule ended the palisade throws; the first variants (table above) |
 | lh-f1-3 | 1c8c5ec | sweep | ALL PASSED; the light and the presence grids (tables above) |
-| lh-f1-4 | 5e97d4e | build, unit, ui, ui-de, release; sweep | (running) |
+| lh-f1-4 | 5e97d4e | build, unit, ui, ui-de, release; sweep | ALL PASSED (434 unit tests); T13 28 % at harm ×0.6; T1 to T8 identical to lh-snd-2; the fine grid |
+| lh-f1-5 | 85112db | build, unit, ui, ui-de, release; sweep | **ALL PASSED** (434 unit tests, UI in English and German, Release); T13 34 % at harm ×0.5; T1 to T8 identical to lh-snd-2 line for line |
 
 ### Open, and waiting for the join
 
@@ -191,6 +205,13 @@ nothing has it sprint between walls.
 - **`tools/simtune`** does not compile on the base either (its file list lacks `AmbientRampLook2.swift` and `Lord.swift`);
   this lane only added its own three files to the list. `tools/frontsweep` shows the fix (the extra file and a stand-in
   for `LordIdentity`).
+- **At overwhelming nights** (four to six times the budget, outside T13) the present bot falls in 5 or 6 nights a
+  budget that the reference holds (and holds none it loses): the reference relights every brazier of every line with the
+  old Light action, untouchable, while the present bot leaves the braziers of the lines behind it to the crows. Fetching
+  braziers anywhere brings it to 3, and to 2 nights held that the reference lost. Not a target; worth a look when the
+  hearth (section 4) makes such nights matter.
+- **The game's own budget is easy for both bots** (15 and 7 defenders lost over 120 nights): T13's band lives on the
+  bigger budgets. A human player's realm is weaker than the reference bot's, so the player meets those nights.
 - **On the device** (REALM.md section 6): whether standing at the front wall all night feels like being there or like
   waiting. The rule rewards one or two moves; the hearth (section 4) and the beacons (section 5) bring the reasons to
   move in later steps of this lane.
