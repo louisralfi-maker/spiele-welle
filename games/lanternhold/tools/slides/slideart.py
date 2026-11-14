@@ -22,8 +22,11 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from paint import GAME  # noqa: E402
+import slide_gutter  # noqa: E402
 import slide_hall  # noqa: E402
+import slide_open  # noqa: E402
 import slide_ride  # noqa: E402
+import slide_shut  # noqa: E402
 import slide_throat  # noqa: E402
 import slide_wall  # noqa: E402
 
@@ -33,6 +36,10 @@ SLIDES = {"slidePrologue1": slide_wall.slide1, "slidePrologue2": slide_throat.sl
           "slidePrologue3": slide_ride.slide3,
           "slidePrologue4Lord": lambda: slide_hall.slide4("lord"),
           "slidePrologue4Lady": lambda: slide_hall.slide4("lady")}
+# The endings (panels-2): slide_open.py, slide_shut.py, slide_gutter.py, three slides each (two of them twice, for the
+# lord and the lady).
+for _module in (slide_open, slide_shut, slide_gutter):
+    SLIDES.update(_module.SLIDES)
 
 
 def main():
@@ -41,8 +48,9 @@ def main():
     if "--preview" in sys.argv:
         preview = sys.argv[sys.argv.index("--preview") + 1]
     canvas = SLIDES[name]()
-    os.makedirs(OUT, exist_ok=True)
-    canvas.save(os.path.join(OUT, name + ".png"))
+    if "--preview-only" not in sys.argv:
+        os.makedirs(OUT, exist_ok=True)
+        canvas.save(os.path.join(OUT, name + ".png"))
     if preview:
         os.makedirs(preview, exist_ok=True)
         canvas.save_preview(os.path.join(preview, name + ".png"), 3)
