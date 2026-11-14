@@ -423,6 +423,7 @@ final class TownShowTests: XCTestCase {
 
     // MARK: - The sprites
 
+    @MainActor
     func testTheSpritesKeepTheirContract() {
         for sprite in TownSprites.figures {
             XCTAssertEqual(sprite.size, PixelSize(width: 12, height: 26), "\(sprite): the citizen contract")
