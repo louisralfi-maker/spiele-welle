@@ -65,6 +65,82 @@ final class TableSaveTests: XCTestCase {
         XCTAssertEqual(b.table?.reports.map(\.report), ["lantern_lost"])
     }
 
+    /// A saved table holds report ids this catalogue no longer knows (renamed at the join, say): they never hold the
+    /// table up. Nothing is "read first" for them, `read` passes over them, and when the table opens they go, their
+    /// lantern back on its hook (a lost one stays lost), with nothing applied or recorded as read.
+    func testAReportTheCatalogueNoLongerKnowsDoesNotHoldTheTable() throws {
+        var state = GameState.newRealm(seed: 13, balance: balance)
+        state.day = 5
+        state.hour = 9
+        state.gold = 100
+        state.flags = ["varn_with"]
+        let object = try JSONSerialization.jsonObject(with: try SaveGame(state: state).encoded())
+        var save = try XCTUnwrap(object as? [String: Any])
+        var realm = try XCTUnwrap(save["state"] as? [String: Any])
+        let lanterns: [[String: Any]] = [["number": 38, "state": "back"], ["number": 39],
+                                         ["number": 40, "state": "lost"], ["number": 41, "reserved": true]]
+        let reports: [[String: Any]] = [
+            ["report": "oil_round_v0", "errand": "oil_round", "lantern": 38, "place": "tallowford", "day": 4],
+            ["report": "lantern_lost_v0", "errand": "beacon_statues", "lantern": 40, "place": "beacon", "day": 4,
+             "lost": true],
+        ]
+        let saved: [String: Any] = ["chapter": 1, "lanterns": lanterns, "sent": ["beacon_statues"],
+                                    "reports": reports]
+        realm["table"] = saved
+        save["state"] = realm
+        let loaded = try XCTUnwrap(load(try JSONSerialization.data(withJSONObject: save))).state
+        XCTAssertEqual(loaded.table?.reports.count, 2, "the save keeps what it holds")
+
+        let oil = try XCTUnwrap(catalog.errand("oil_round"))
+        let count = try XCTUnwrap(catalog.errand("highcairn_count"))
+        let savedTable = try XCTUnwrap(loaded.table)
+        XCTAssertNil(ErrandEngine.nextReport(savedTable, catalog: catalog))
+        XCTAssertEqual(ErrandEngine.blockers(oil, order: 0, loaded, catalog: catalog), [], "nothing waits to be read")
+        XCTAssertEqual(ErrandEngine.blockers(count, order: 0, loaded, catalog: catalog), [])
+        var reading = loaded
+        XCTAssertNil(ErrandEngine.read(&reading, choice: 0, catalog: catalog, balance: balance))
+        XCTAssertTrue(reading == loaded, "a report without a card is never answered")
+        var sending = loaded
+        XCTAssertEqual(ErrandEngine.send(&sending, errand: "oil_round", order: 0, catalog: catalog,
+                                         balance: balance)?.lantern, 39, "38 is not on its hook yet, 40 is gone")
+
+        var opened = loaded
+        ErrandEngine.uncover(&opened, catalog: catalog)
+        let table = try XCTUnwrap(opened.table)
+        XCTAssertEqual(table.reports, [])
+        XCTAssertEqual(table.read, [], "nothing was answered")
+        XCTAssertEqual(table.lantern(38)?.state, .hook, "its lantern hangs again")
+        XCTAssertEqual(table.lantern(40)?.state, .lost, "a lost lantern's hook stays empty for the chapter")
+        XCTAssertEqual(table.sent, ["beacon_statues"])
+        var rest = opened
+        rest.table = loaded.table
+        XCTAssertTrue(rest == loaded, "the rest of the realm is untouched")
+        XCTAssertEqual(ErrandEngine.send(&opened, errand: "oil_round", order: 0, catalog: catalog,
+                                         balance: balance)?.lantern, 38)
+        var again = loaded
+        XCTAssertEqual(ErrandEngine.tidy(&again, catalog: catalog), 2)
+        let tidied = again
+        XCTAssertEqual(ErrandEngine.tidy(&again, catalog: catalog), 0)
+        XCTAssertTrue(again == tidied, "a tidy table stays as it is")
+
+        // An unknown report before a known one: the known one is read first, and only it holds the table.
+        var mixed = loaded
+        mixed.table?.lanterns[0].state = .back
+        mixed.table?.lanterns[1].state = .back
+        mixed.table?.reports = [
+            WaitingReport(report: "oil_round_v0", errand: "oil_round", lantern: 38, place: "tallowford", day: 4),
+            WaitingReport(report: "oil_round", errand: "oil_round", lantern: 39, place: "tallowford", day: 4),
+        ]
+        let mixedTable = try XCTUnwrap(mixed.table)
+        XCTAssertEqual(ErrandEngine.nextReport(mixedTable, catalog: catalog), 1)
+        XCTAssertEqual(ErrandEngine.blockers(count, order: 0, mixed, catalog: catalog), [.reportWaits])
+        let outcome = try XCTUnwrap(ErrandEngine.read(&mixed, choice: 0, catalog: catalog, balance: balance))
+        XCTAssertEqual(outcome.petition, "oil_round")
+        XCTAssertEqual(mixed.table?.reports.map(\.report), ["oil_round_v0"])
+        XCTAssertEqual(mixed.table?.lantern(39)?.state, .hook)
+        XCTAssertEqual(ErrandEngine.blockers(count, order: 0, mixed, catalog: catalog), [])
+    }
+
     /// A table written before a field existed (here: almost every field) loads with the fields' defaults.
     func testAnOlderTableWithoutNewerFieldsLoads() throws {
         let state = GameState.newRealm(seed: 12, balance: balance)

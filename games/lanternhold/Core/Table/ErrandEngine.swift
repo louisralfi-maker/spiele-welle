@@ -4,7 +4,7 @@ enum SendBlock: Sendable, Equatable {
     case notOffered
     /// Sendings leave from 06:00 to 18:00, never at night or after the realm fell.
     case closed
-    /// A report waits: reports are read first (QUESTS.md 2.5).
+    /// A report waits: reports are read first (QUESTS.md 2.5). Only a report the catalogue has a card for counts.
     case reportWaits
     /// The order needs a flag the realm lacks, or has one it must not have.
     case needs(String)
@@ -118,7 +118,7 @@ enum ErrandEngine {
         guard index >= 0, index < errand.orders.count, isOffered(errand, s) else { return [.notOffered] }
         guard sendHours.contains(s.hour) else { return [.closed] }
         let table = s.table ?? .start(catalog)
-        guard table.reports.isEmpty else { return [.reportWaits] }
+        guard nextReport(table, catalog: catalog) == nil else { return [.reportWaits] }
         let order = errand.orders[index]
         var list: [SendBlock] = []
         for flag in order.requires ?? [] where !s.flags.contains(flag) { list.append(.needs(flag)) }
@@ -192,11 +192,32 @@ enum ErrandEngine {
 
     // MARK: - Sending
 
-    /// The table uncovered: the rail at the chapter's start (the table screen calls it when it opens). Nothing else
-    /// changes.
+    /// The table uncovered: the rail at the chapter's start (the table screen calls it when it opens), and a saved
+    /// table tidied (`tidy`). Nothing else changes.
     static func uncover(_ s: inout GameState, catalog: ErrandCatalog) {
-        guard s.table == nil, s.mode == .chapter, s.day >= firstDay else { return }
-        s.table = .start(catalog)
+        if s.table == nil, s.mode == .chapter, s.day >= firstDay { s.table = .start(catalog) }
+        tidy(&s, catalog: catalog)
+    }
+
+    /// Drops the waiting reports the catalogue has no card for: a saved table may hold a report id that a later
+    /// version renamed or moved, and such a report could never be read. Its lantern hangs on its hook again (one
+    /// that was lost stays lost); nothing is applied and nothing is recorded as read. Returns how many went. A table
+    /// whose every report has a card is left exactly as it was (the table screen calls this when it opens, through
+    /// `uncover`; until then `blockers`, `read` and the screen pass over such a report).
+    @discardableResult
+    static func tidy(_ s: inout GameState, catalog: ErrandCatalog) -> Int {
+        guard var table = s.table, table.reports.contains(where: { catalog.report($0.report) == nil }) else {
+            return 0
+        }
+        let kept = table.reports.filter { catalog.report($0.report) != nil }
+        let dropped = table.reports.filter { catalog.report($0.report) == nil }
+        table.reports = kept
+        for waiting in dropped where table.lantern(waiting.lantern)?.state == .back
+            && !kept.contains(where: { $0.lantern == waiting.lantern }) {
+            setLantern(&table, waiting.lantern, .hook)
+        }
+        s.table = table
+        return dropped.count
     }
 
     /// Sends a party with `order` of the sending `id`: the lantern leaves its hook, the cost is paid, the people go,
@@ -381,18 +402,25 @@ enum ErrandEngine {
         catalog.report(waiting.report)
     }
 
+    /// The position of the oldest waiting report the catalogue has a card for, or nil. A report without a card never
+    /// holds the table up (`tidy` drops it when the table opens).
+    static func nextReport(_ table: TableState, catalog: ErrandCatalog) -> Int? {
+        table.reports.firstIndex { catalog.report($0.report) != nil }
+    }
+
     /// Why a report choice cannot be taken now (it costs gold or people the realm lacks), or nil.
     static func readBlock(_ choice: ReportChoice, _ s: GameState) -> ChoiceBlock? {
         PetitionEngine.blocker(PetitionChoice(label: choice.label, effect: effect(choice, day: s.day)), s)
     }
 
-    /// Answers the waiting report at `position` (the oldest by default) with `choice`, by day: the report leaves the
-    /// table, its lantern hangs on its hook again, the choice's effect applies. Nil when there is no such report or
-    /// choice, at night, or when the choice is blocked.
+    /// Answers the waiting report at `position` (by default the oldest the catalogue has a card for) with `choice`,
+    /// by day: the report leaves the table, its lantern hangs on its hook again, the choice's effect applies. Nil when
+    /// there is no such report or choice, at night, or when the choice is blocked.
     @discardableResult
-    static func read(_ s: inout GameState, at position: Int = 0, choice: Int, catalog: ErrandCatalog,
+    static func read(_ s: inout GameState, at position: Int? = nil, choice: Int, catalog: ErrandCatalog,
                      balance: Balance) -> PetitionOutcome? {
-        guard DayClock.phase(at: s.hour) == .day, !s.defeated, var table = s.table, position >= 0,
+        guard DayClock.phase(at: s.hour) == .day, !s.defeated, var table = s.table,
+              let position = position ?? nextReport(table, catalog: catalog), position >= 0,
               position < table.reports.count else { return nil }
         let waiting = table.reports[position]
         guard let report = catalog.report(waiting.report), choice >= 0, choice < report.choices.count else {

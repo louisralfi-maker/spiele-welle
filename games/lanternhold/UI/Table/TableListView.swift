@@ -188,9 +188,10 @@ struct TableListView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     if let note = reaction {
                         reactionCard(note)
-                    } else if let realm, let waiting = realm.table?.reports.first,
-                              let report = catalog.report(waiting.report) {
-                        reportCard(waiting, report, realm)
+                    } else if let realm, let table = realm.table,
+                              let next = ErrandEngine.nextReport(table, catalog: catalog),
+                              let report = catalog.report(table.reports[next].report) {
+                        reportCard(table.reports[next], report, realm)
                     } else if let realm {
                         slips(realm)
                     }
@@ -441,7 +442,7 @@ struct TableListView: View {
 
     private func reactionCard(_ note: ReactionNote) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(note.title)
+            Text(note.title.hasSuffix(".") ? String(note.title.dropLast()) : note.title)
                 .font(Theme.caps(.headline))
                 .foregroundStyle(Theme.ink)
                 .fixedSize(horizontal: false, vertical: true)

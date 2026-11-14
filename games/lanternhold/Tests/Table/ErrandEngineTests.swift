@@ -349,6 +349,27 @@ final class ErrandEngineTests: XCTestCase {
         XCTAssertEqual(ErrandEngine.blockers(count, order: 0, s, catalog: table), [])
     }
 
+    /// A party whose report this catalogue has no card for comes home as any other: it never holds the table, and
+    /// when the table opens its lantern hangs again.
+    func testAReportWithoutACardNeverHoldsTheTable() throws {
+        let small = catalog([errand("a", number: 1, ErrandOrder(nights: 1, goes: ["pip"], report: "gone")),
+                             errand("b", number: 2, ErrandOrder(nights: 1, lend: ErrandLend(citizens: 1),
+                                                                report: "r"))])
+        var s = realm(day: 2)
+        XCTAssertNotNil(ErrandEngine.send(&s, errand: "a", order: 0, catalog: small, balance: balance))
+        dawn(&s, day: 3)
+        XCTAssertEqual(s.table?.reports.map(\.report), ["gone"])
+        XCTAssertEqual(s.table?.lantern(38)?.state, .back)
+        let b = try XCTUnwrap(small.errand("b"))
+        XCTAssertEqual(ErrandEngine.blockers(b, order: 0, s, catalog: small), [], "no report to read first")
+        var reading = s
+        XCTAssertNil(ErrandEngine.read(&reading, choice: 0, catalog: small, balance: balance))
+        ErrandEngine.uncover(&s, catalog: small)
+        XCTAssertEqual(s.table?.reports, [])
+        XCTAssertEqual(s.table?.lantern(38)?.state, .hook)
+        XCTAssertEqual(ErrandEngine.send(&s, errand: "b", order: 0, catalog: small, balance: balance)?.lantern, 38)
+    }
+
     func testReadingPipsReportLightsTheLanes() throws {
         var s = realm(day: 2)
         XCTAssertNotNil(ErrandEngine.send(&s, errand: "oil_round", order: 0, catalog: table, balance: balance))
