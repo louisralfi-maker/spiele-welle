@@ -17,7 +17,6 @@ enum TownFrames {
                       reduceMotion: Bool, refused: TownShow.Refused? = nil) {
         guard s.town != nil else { return }
         let scene = TownShow.scene(s, balance: balance, reduceMotion: reduceMotion, refused: refused)
-        let isDay = DayClock.phase(at: s.hour) == .day
 
         // The houses.
         var count = 0
@@ -42,9 +41,9 @@ enum TownFrames {
 
         // The figures, before the lord (and before whatever the court put before him).
         var figures: [ActorInstance] = []
-        for figure in scene.figures where isDay || figure.alpha > 0 {
+        for figure in scene.figures where figure.alpha > 0.003 {
             let rect = view.rect(figure.sprite, x: figure.x, y: 0)
-            guard view.isOnScreen(rect), figure.alpha > 0.003 else { continue }
+            guard view.isOnScreen(rect) else { continue }
             figures.append(ActorInstance(sprite: figure.sprite, frame: figure.frame, rect: rect,
                                          tint: SIMD4<Float>(1, 1, 1, min(1, figure.alpha)), flipped: figure.flipped,
                                          isEmissive: false, isLit: true))

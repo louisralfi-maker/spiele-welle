@@ -243,7 +243,12 @@ mark; the world explains itself.
   as they land); a deeper bow, it steps back, the door shuts, then the two shutters close (two dull knocks). The house's
   window stays dark that night (no lit room, no glass glow, no window light); the next dawn opens the shutters and
   nobody there waves that day. A touch on a door that owes walks him past it (he takes the toss); a touch on a door
-  that is shut to him (knocked as often as allowed, unrest) gets one knock and nothing opens. By day only.
+  that is shut to him (knocked as often as allowed, unrest) gets one knock and nothing opens. By day only. He stops
+  beside a household that still owes (18 px from its door), so its toss is seen; he knocks from 6 px, the fist on the
+  door.
+- **The child** (TOWN.md section 6): from 60 happiness, on one day in three for each house (`(day + plot) % 3 == 1`),
+  Nib Brisk holds the coins up in the door instead of the grown-ups, runs out ten pixels toward the lord, throws them
+  and skips home (`TownShow.byChild`, `childFigure`); her coins leave the hand 0.22 s later.
 - **The first morning** (critic look 2 on town-1): the chandler's household, Mother Corra, waits in the courtyard before
   the hall door (`Town.firstMorningX`, 1690); the lord meets her as he steps out of the hall, she tosses her 16 coins
   and walks home to the town (right, fading after six seconds).
@@ -272,7 +277,8 @@ mark; the world explains itself.
   Kerzenzieher anklopfen", value `knock` or `shut`, a VoiceOver action), and `town-status`.
 - `Render/PlaceholderTown.swift`: stand-ins while a PNG is missing.
 - `tools/taxart.py` and `tools/grids/town/`: the art (below). `tools/taxsound.py`: `Resources/Sound/knock.wav`.
-- `Tests/TownShowTests.swift` (14 tests), `UITests/TownUITests.swift` (3 tests).
+- `Tests/TownShowTests.swift` (16 tests), `UITests/TownUITests.swift` (4 tests: the taxes on foot from the sign to
+  the night, the first morning, the grown town with the big house, the stall and the farmer, Reduce Motion).
 - Two keys in `Resources/Town.xcstrings` (English and German, VoiceOver only): `town.access.knock`, `town.access.door`.
 
 ### The art (Louis' art bar)
@@ -290,6 +296,7 @@ outline, light from the upper left. No generated image is involved.
 | `townHemmet` | 12x26 | 11 | Old Hemmet, house 5 (the weaver's), bent double, his stick leaning on him; a flick, a lifted hand, a nod |
 | `townWenna` | 12x26 | 11 | Wenna Brisk at the market stall, the raw red forearms |
 | `townGorm` | 12x26 | 4 | Gorm Ashby at the field: wait 0-1 with the knotted cloth, count 2-3 |
+| `townNib` | 10x18 | 9 | Nib Brisk, the child: run out 0-3 with the coins, hold them up in the door 4, throw 5, skip home 6-8 |
 | `kingKnock`, `ladyKnock` | 16x30 | 3 | the lord's knock: fist raised 0, knock 1, hand held out 2; the pole in the far hand behind him; the same anchor as `king`/`lady` |
 | `townCoin` | 3x3 | 4 | a coin turning: face, three quarters, edge, three quarters |
 | `townCottage` | 64x46 | 4 | over a cottage: the open door 0; the closed shutters of `house` 1, `houseB` 2, `houseC` 3 |
@@ -298,7 +305,8 @@ outline, light from the upper left. No generated image is involved.
 The overlays are cut from the houses' own paintings: the open door is the door leaf's rectangle (cottage cols 26-36,
 rows 29-42; big house cols 30-40, rows 41-52) as a dark room with the leaf seen edge-on at the hinge side; the closed
 shutters are each window's painted open leaves moved over its 7 px glass (the same pixels, a dark seam between them)
-with plaster where they hung. The atlas gains 11 strips, 70 frames.
+with plaster where they hung. The atlas gains 12 strips, 79 frames. No pouch anywhere (STORY.md rule 12, the art bar's
+"never its coin pouch"): the households hold their coins in cupped hands, the farmer in a knotted cloth.
 
 ### The hooks in existing files (for the join to apply again)
 
