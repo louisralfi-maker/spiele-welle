@@ -230,7 +230,7 @@ def floor(c):
 
 # --- the court -------------------------------------------------------------------------------------------------------
 
-def court_member(c, name, x0, y0, flip, body, size=32):
+def court_member(c, name, x0, y0, flip, body, size=32, lift=0):
     """A member of the court a little behind the two in front: the portrait carried down by area vote, the body drawn
     on below it in the portrait's own cloth, lit by the hearth from the side that faces it. The half ring opens toward
     us: those at its ends stand nearer and larger, those by the hearth smaller."""
@@ -242,7 +242,7 @@ def court_member(c, name, x0, y0, flip, body, size=32):
 
     def light(x, y):
         d = dist(x, y, FIRE)
-        return 0 if d < 72 else -1 if d < 110 else -2
+        return (0 if d < 72 else -1 if d < 110 else -2) + (lift if y < y0 + size else 0)
     lit_steps(lay, light, rim=(FIRE[0], FIRE[1], 2))
     lay.paste(c)
 
@@ -350,8 +350,10 @@ def heir(c, form, x0, y0):
     lay.poly([(x0 + 32, top), (x0 + 47, top - 4), (x0 + 50, H + 2), (x0 + 33, H + 2)], teal)
     # folds down the cloak
     for fx, sway in ((x0 + 6, -2), (x0 + 13, 1), (x0 + 41, 2)):
+        lay.line([(fx + 1, top + 4), (fx + sway + 1, top + 30), (fx + sway * 2 + 1, H)], teal_lt)
         lay.line([(fx, top + 2), (fx + sway, top + 30), (fx + sway * 2, H)], teal_dk)
     lay.line([(x0 + 3, top + 4), (x0 + 2, H)], teal_lt)
+    lay.line([(x0 + 17, top + 3), (x0 + 18, H)], teal_dk)
     # the tunic's belt
     for x in range(x0 + 21, x0 + 34):
         lay.put(x, top + 30, P("woodDark"))
@@ -409,7 +411,8 @@ def odile(c, x0, y0):
     # mirrored: her front faces left
     lay.poly([(x0 + 1, top - 6), (x0 + 47, top - 6), (x0 + 50, H + 2), (x0 - 2, H + 2)], dress)
     lay.poly([(x0 + 17, top), (x0 + 24, top), (x0 + 23, H + 2), (x0 + 16, H + 2)], P("dusk"))
-    for fx, sway in ((x0 + 7, -1), (x0 + 33, 1), (x0 + 41, 2)):
+    for fx, sway in ((x0 + 7, -1), (x0 + 30, 1), (x0 + 38, 2)):
+        lay.line([(fx - 1, top + 4), (fx + sway * 2 - 1, H)], P("stone"))
         lay.line([(fx, top + 2), (fx + sway * 2, H)], dress_dk)
     # the keys of the house at her girdle
     for x in range(x0 + 2, x0 + 46):
@@ -486,7 +489,7 @@ def slide4(form):
     fire(c)
     floor(c)
     # the court in a half ring, close: the hearth's light on the sides that face it
-    court_member(c, "portraitHesper", 74, 58, False, body_hesper, 27)
+    court_member(c, "portraitHesper", 74, 58, False, body_hesper, 27, lift=1)
     court_member(c, "portraitBram", 230, 58, True, body_bram, 28)
     court_member(c, "portraitPip", 40, 64, False, body_pip, 30)
     court_member(c, "portraitBrannock", -2, 58, False, body_brannock, 36)
