@@ -12,8 +12,10 @@ only; they are light and may run on any Mac (no build, no simulator). Run them f
 | `export.py` | Writes `source/` (git-ignored): `story.en.json`, `story.de.json`, `chunks.json` and `chunks/chunk-NN.json`. |
 | `check.py` | Checks one language: keys, placeholders, length budgets, English left over, punctuation. Exit code 1 on any error. |
 | `merge.py` | Writes finished languages into `Story.xcstrings`; English, German and the key order stay byte for byte. |
-| `i18nlib.py` | The shared rules (kinds of text, budgets, placeholders); the same rules as `Core/CourtValidator.swift`. |
+| `changed.py` | After the catalog changed: the keys each language must translate again (new, changed, gone), written to `source/changed/<code>.json` in the chunk form. |
+| `i18nlib.py` | The shared rules (kinds of text, budgets, placeholders); the same rules as `Core/CourtValidator.swift` and `Core/StoryLanguages.swift`. |
 | `lang/<code>/` | The translations: one or more JSON files per language, each an object of key to text. Committed. |
+| `base/<code>.json` | What each language was translated from (a hash of the English and German per key). merge.py writes it. Committed. |
 
 ## How a translator works
 
@@ -42,7 +44,25 @@ only; they are light and may run on any Mac (no build, no simulator). Run them f
 9. **Prove it in the game** on the runner: the unit round (PetitionDataTests read the catalog) and screenshots of an
    audience, the court talk and a report in that language, judged for clipping and voice.
 
-If the catalog changes after a translation started (a story fix), run the export again: chunk numbers may move, but
+## When keys change later (a story fix, the house rewrite, a new petition)
+
+The same tools, only the changed keys:
+
+1. `python3 tools/i18n/changed.py --since <commit of the last merge>` lists per language the new, changed and gone
+   keys and writes `source/changed/<code>.json`: for each key the English (and with `--since` the English before),
+   the German, the current translation, the context and the budget. `check.py <code>` also warns on every changed
+   key ("the English or German changed since this was translated").
+2. The translator edits only those keys in `lang/<code>/story.<code>.json` (adds the new ones, deletes the gone
+   ones), with the glossary, and runs `check.py <code>` to OK.
+3. `merge.py <code> ...` writes the catalog and the new stamp (`base/<code>.json`); `changed.py` then says "nothing
+   to translate". An English change that needs no new translation (a typo) is accepted with `changed.py <code>
+   --stamp`.
+4. The unit round on the runner (`StoryLanguagesTests`, `PetitionDataTests`).
+
+If a branch that changed `Story.xcstrings` joins this one, do not resolve the catalog by hand: take the other side's
+catalog (its English and German), run `merge.py` again (the six languages come from `lang/`), then `changed.py`.
+
+If the catalog changes while a first translation is still running, run the export again: chunk numbers may move, but
 translations are kept by key, not by chunk, and `check.py` reads every file in the language's folder whatever its
 name, so it shows exactly which keys are new or gone.
 

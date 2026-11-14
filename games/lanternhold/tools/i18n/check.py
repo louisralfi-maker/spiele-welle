@@ -296,6 +296,10 @@ def run(lang, chunk=None, catalog_text=False, catalog=lib.CATALOG, lang_root=lib
         errs, warns = problems_for(lang, key, translation[key], english.get(key, ""), german.get(key, ""))
         errors += ["%s: %s" % (key, e) for e in errs]
         warnings += ["%s: %s" % (key, w) for w in warns]
+    if lang in lib.TARGETS:
+        stale = set(lib.stale_keys(lang, data) or [])
+        warnings += ["%s: the English or German changed since this was translated (changed.py %s lists them; "
+                     "merge.py stamps them once retranslated)" % (key, lang) for key in wanted if key in stale]
     scope = "chunk %d (%d keys)" % (chunk, len(wanted)) if chunk is not None else "%d keys" % len(wanted)
     summary = "check %s from %s, %s: %d checked, %d missing, %d extra, %d errors, %d warnings" % (
         lang, source, scope, checked, len(missing), len(extra), len(errors), len(warnings))

@@ -118,6 +118,13 @@ def main():
     with os.fdopen(handle, "wb") as stream:
         stream.write(out)
     os.replace(temp, args.catalog)
+    # What each merged language now follows (changed.py compares it with later catalogs).
+    if os.path.abspath(args.catalog) == os.path.abspath(lib.CATALOG):
+        for lang in translations:
+            lib.write_base(lang, result)
+        for lang in args.remove:
+            if os.path.exists(lib.base_path(lang)):
+                os.remove(lib.base_path(lang))
     where = os.path.abspath(args.catalog)
     if where.startswith(lib.GAME + os.sep):
         where = os.path.relpath(where, lib.GAME)

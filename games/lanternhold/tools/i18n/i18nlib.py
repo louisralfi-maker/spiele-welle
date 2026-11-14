@@ -373,6 +373,56 @@ def load_translation(lang, root=LANG_ROOT):
     return merged, problems
 
 
+# ---------------------------------------------------------------------------------------------------------------------
+# What each language was translated from: base/<code>.json, key -> a short hash of the English and German the
+# translation follows. merge.py writes it; changed.py and check.py compare it with the catalog.
+
+BASE_ROOT = os.path.join(HERE, "base")
+
+
+def source_hash(english, german):
+    import hashlib
+    return hashlib.sha1((english + "\u0000" + german).encode("utf-8")).hexdigest()[:12]
+
+
+def source_hashes(data):
+    english = texts(data, "en")
+    german = texts(data, "de")
+    return {key: source_hash(english.get(key, ""), german.get(key, "")) for key in data["strings"]}
+
+
+def base_path(lang, root=BASE_ROOT):
+    return os.path.join(root, lang + ".json")
+
+
+def load_base(lang, root=BASE_ROOT):
+    """key -> hash, or None when the language has no stamp yet."""
+    try:
+        with open(base_path(lang, root), encoding="utf-8") as handle:
+            return json.load(handle)["sources"]
+    except (OSError, ValueError, KeyError):
+        return None
+
+
+def write_base(lang, data, root=BASE_ROOT):
+    os.makedirs(root, exist_ok=True)
+    body = {"what": "the English and German (hashed) each %s text was translated from; merge.py and "
+                    "changed.py --stamp write it" % lang,
+            "sources": source_hashes(data)}
+    with open(base_path(lang, root), "w", encoding="utf-8") as handle:
+        json.dump(body, handle, ensure_ascii=False, indent=1)
+        handle.write("\n")
+
+
+def stale_keys(lang, data, root=BASE_ROOT):
+    """Keys whose English or German changed since the language was stamped (None without a stamp)."""
+    base = load_base(lang, root)
+    if base is None:
+        return None
+    now = source_hashes(data)
+    return [key for key in data["strings"] if key in base and base[key] != now[key]]
+
+
 def read_chunks(path=None):
     with open(path or os.path.join(SOURCE, "chunks.json"), encoding="utf-8") as handle:
         return json.load(handle)
