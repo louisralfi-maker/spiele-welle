@@ -805,7 +805,7 @@ coin soft (at most every 0.25 s); a wall hit medium (every 0.3 s); a wall breaki
 - Rounds: `lh-snd-1` ALL PASSED on 72b7a99 (build, unit with 411 tests and the 12 of `SoundTests`, ui, ui-de,
   release; T1 to T8 and night 20's step check unmoved). The commits after it harden three of the new tests (no
   tuple key paths, a tolerant throttle count, a fire check clear of the middle line's torches) and write this
-  section; `lh-snd-2` (build, unit) checks them.
+  section; `lh-snd-2` (build, unit) ALL PASSED on 9e5ba1f.
 - Open: Louis has not heard the sounds yet (TestFlight); volumes are first guesses. Happiness up and down have no
   sound (Louis' list did not ask for one). Positional cues are heard at one volume within their hearing range, not
   fainter with distance.
