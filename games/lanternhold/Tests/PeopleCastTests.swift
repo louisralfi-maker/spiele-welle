@@ -50,7 +50,12 @@ final class PeopleCastTests: XCTestCase {
         // For the join (the rebuild lanes add art too): the page's real height, unclamped.
         let sizes = SpriteID.allCases.flatMap { sprite in Array(repeating: sprite.size, count: sprite.frameCount) }
         let packed = AtlasBuilder.pack(sizes + [PixelSize(width: 1, height: 1)], width: layout.width)
-        print("people lane: atlas \(layout.width) wide, \(packed?.height ?? -1) of \(AtlasLayout.maxSide) rows used")
+        let rows = "people lane: atlas \(layout.width) wide, \(packed?.height ?? -1) of \(AtlasLayout.maxSide) rows used"
+        print(rows)
+        let attachment = XCTAttachment(string: rows)
+        attachment.name = "atlas-rows"
+        attachment.lifetime = .keepAlways
+        add(attachment)
         XCTAssertLessThanOrEqual(packed?.height ?? .max, AtlasLayout.maxSide, "the packed page fits")
     }
 

@@ -40,13 +40,15 @@ final class LookGoldenTests: XCTestCase {
     /// The people lane (14.11.2026, docs/PEOPLE.md): the three townsfolk were repainted as worn working people at
     /// their sizes and frames, and look 1 walks them too, so the two town scenes that show them were recorded again
     /// from round lh-p1-2 (on 289e3d0); look 1's drawing and its walkers are unchanged (the cast's new bodies are look 2
-    /// only). Before, square-morning was c0ba9a8be11ba03e and town-noon e0e4b0352af35485.
+    /// only). Before, square-morning was c0ba9a8be11ba03e and town-noon e0e4b0352af35485. Fix round 1 of the people
+    /// lane repainted Dun's rag and Ned's crown (both walk in look 1's town): recorded again from round lh-p1f1-1 (on
+    /// b5a4a91); in between they were 48f861adaf7d4de4 and 72f6c186577a8bc6.
     static let golden: [String: String] = [
         "front-night": "9b01af38246bc805",
         "castle-night": "f85bb5b965601d8",
         "court-dusk": "7847cdaa53452732",
-        "square-morning": "48f861adaf7d4de4",
-        "town-noon": "72f6c186577a8bc6",
+        "square-morning": "c7130032235b207b",
+        "town-noon": "54216a62b8b99dca",
         "river-golden": "c0f21df86bbe85b6",
     ]
 

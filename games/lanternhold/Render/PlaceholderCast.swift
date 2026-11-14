@@ -2,9 +2,11 @@ import Foundation
 
 /// Procedural stand-ins for the people lane's cast (docs/SPRITES-people.md, `PeopleCast`) when a PNG is missing: the
 /// working people as the townsfolk, the children as the townsfolk cut to their frame, the nobles and the footman as
-/// the envoy (the same canvas and frames). The paintings of `Resources/Art` replace all of these.
+/// the envoy (the same canvas and frames); a cloth state as its body. The paintings of `Resources/Art` replace all of these.
 enum PlaceholderCast {
     static func frames(for sprite: SpriteID) -> [PixelImage] {
+        // a cloth state (docs/PEOPLE.md section 7) stands in as its body
+        if let body = PeopleCast.body(dressedAs: sprite) { return frames(for: body) }
         switch sprite {
         case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe:
             let variant = sprite == .washerwoman ? 0 : (sprite == .labourer ? 1 : 2)
