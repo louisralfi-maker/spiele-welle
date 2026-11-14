@@ -82,7 +82,9 @@ What that means in each language:
 - **ja:** the Japanese of a carefully translated European historical novel: polite keigo from the court, the plain
   form from the lord, no samurai vocabulary (殿 or 殿様 for the lord, 拙者, ござる, 御意) and no anime role-speech (〜じゃ,
   〜でござる, 〜ですわ, 〜なのだ). Common kanji (常用漢字), kana where kanji would be heavy; katakana only for names
-  and the fixed loanwords of this file (ランタン, サー, デイム, マザー).
+  and the fixed loanwords of this file (ランタン, サー, デイム, マザー, and the everyday things with no native word a
+  reader would know: パン, スープ, パイ, ランプ for Oxmoor's silver lamp, セージ, キャベツ, ジャム, ビー玉). Every other
+  loanword gets a native word (窓越し, 長靴, 飾り紐, 松やに, 錫, 焼き菓子, 火種, 歌, 薄荷).
 - **zh-Hans:** modern standard written Chinese with a light literary touch, as in a good translation of a European
   historical novel: 您 for the lord, short sentences, four-character idioms only now and then. No internet slang, no
   wuxia or palace-drama clichés (在下, 汝, 尔等, 本王, 奴婢, 娘娘, 微臣), mainland vocabulary only.
@@ -146,7 +148,7 @@ Examples from the catalog:
 | The court, guests and petitioners to the lord | vous | usted | voi | o senhor / a senhora (prefer dropping the pronoun; the verb shows it) | keigo; no pronoun, or 城主様 as "you" (never あなた, 君, お前) | 您 |
 | The narrator to the lord (reactions, remembered lines, endings) | vous | usted (drop the pronoun where the verb is clear) | voi | você | no pronoun; あなた only where a subject is unavoidable | 你 |
 | The lord to adults | vous | usted, ustedes | voi | você; o senhor / a senhora to the old (Dame Orla, Mother Hesper, old Hemmet, the widow) | plain form (常体); です・ます to the old (same four) | 你; 您 to the old (same four) |
-| The lord to a child, and to Pip once at his farewell (`petition.pip_farewell.c1`, as the German "du") | tu | tú | tu | você (as to everyone; the warmth is in the words) | plain form, softer (〜ね, 〜よ) | 你 |
+| The lord to a child, and to Pip at his farewell (both choices, `petition.pip_farewell.c1` and `.c2`, as the German "du") | tu | tú | tu | você (as to everyone; the warmth is in the words) | plain form, softer (〜ね, 〜よ) | 你 |
 | Dame Orla to the lord (she sits down unasked) | vous | usted | voi | você (an old woman to a young one) | plain form, the only speaker who uses it to the lord | 你, the only speaker who uses it to the lord |
 | Among court members, about each other | names as in English | names | names | names | bare names, offices where the English gives them (ブラノック隊長) | bare names, offices where given (布兰诺克队长) |
 | Townsfolk about court members | as English | as English | as English | as English | オディール様, マザー・ヘスパー, ブラノック隊長; Pip and Marek bare | 奥黛尔大人, 赫斯珀嬷嬷, 布兰诺克队长; Pip and Marek bare |
@@ -181,6 +183,14 @@ foreign "Lord / Lady" for the other houses and for the outsiders who address the
 | The town calling the lord by trade | lamplighter | lampiste | farolero / farolera | lampionaio / lampionaia | acendedor / acendedora de lampiões | 灯り番 | 点灯人 |
 
 Titles at the start of a sentence take a capital; inside a sentence follow section 6, "Titles".
+
+Settled after the first translation (14.11.2026, translator and editor agreeing):
+
+- **Brannock on day 20** (`petition.last_stand.text` and `.r3`): the English gives him "my {lord|lady}" once, the
+  night STORY.md saves it for. **pt-BR** marks it with {meu senhor|minha senhora}. fr, es, it, ja and zh-Hans keep
+  the soldiers' form of the table, as the German keeps {Herr|Herrin} (ja bare 城主).
+- **Dame Orla names the old lords** in the narration's form, because she is the one speaker who does not defer: ja
+  城主エドリック (not エドリック様).
 
 ---
 
@@ -276,7 +286,7 @@ both throat and gorge. 喉谷 is always the full compound; 谷 alone is the gree
 | the family book | das Familienbuch | le livre de famille | el libro de familia | il libro di famiglia | o livro da família | 家系の書 | 家谱 |
 | the Chronicle | die Chronik | la Chronique | la Crónica | la Cronaca | a Crônica | 年代記 | 编年史 |
 | the Long Watch (the endless mode) | die Lange Wacht | la Longue Veille | la Larga Vigilia | la Lunga Veglia | a Longa Vigília | 長き見張り | 漫长守望 |
-| a lord's watch ("in Lady Ysmay's watch") | Wacht | la veille | la vigilia | la veglia | a vigília | 〜様の代 | 〜大人守城之时 |
+| a lord's watch ("in Lady Ysmay's watch") | Wacht | la veille | la vigilia | ai tempi di … («ai tempi di Lady Ysmay»; never «la veglia di», which reads as a wake and is Hesper's vigil) | a vigília | 〜様の代 | 〜大人守城之时 |
 | the vigil (Hesper's) | die Wache | la veillée | la vela | la veglia | a vigília | 夜通しの祈り | 守夜 |
 | the Night of Lanterns | die Nacht der Laternen | la Nuit des lanternes | la Noche de los Faroles | la Notte delle Lanterne | a Noite das Lanternas | ランタンの夜 | 提灯之夜 |
 | the Feast of the Long Watch | das Fest der Langen Wacht | la fête de la Longue Veille | la fiesta de la Larga Vigilia | la festa della Lunga Veglia | a festa da Longa Vigília | 長き見張りの祭り | 守望节 |
@@ -347,7 +357,7 @@ Names stay as in English in the Latin-script languages; ja and zh-Hans as in sec
 | Farmer | Bauer | Paysan | Campesino | Contadino | Camponês | 農夫 | 农夫 |
 | Farmer's wife | Bäuerin | Paysanne | Campesina | Contadina | Camponesa | 農婦 | 农妇 |
 | Merchant | Händler | Marchand | Mercader | Mercante | Mercador | 商人 | 商人 |
-| Noble | Edelmann | Noble | Noble | Nobile | Nobre | 貴族 | 贵族 |
+| Noble | Edelmann | Gentilhomme | Hidalgo | Nobile | Nobre | 貴族 | 贵族 |
 | Refugee | Flüchtling | Réfugié | Refugiado | Profugo | Refugiado | 避難民 | 难民 |
 | Soldier | Soldat | Soldat | Soldado | Soldato | Soldado | 兵士 | 士兵 |
 | Townsman | Bürger | Habitant | Vecino | Cittadino | Morador | 町の男 | 镇民 |
@@ -424,6 +434,9 @@ Note: "the weavers" of the market petitions are human cloth-weavers (tisserands,
 | the guilds, guild masters | die Zünfte, Zunftmeister | les guildes, maîtres de guilde | los gremios, maestros de gremio | le corporazioni, capi delle corporazioni | as guildas, mestres de guilda | 組合, 組合の親方 | 行会, 行会会首 |
 | the syndics (of Stillmere) | die Syndizi | les syndics | los síndicos | i sindaci | os síndicos | 参事たち | 理事们 |
 | gold, silver, copper (money) | Gold, Silber, Kupfer | pièces d’or, d’argent, un sou | monedas de oro, de plata, un cobre | monete d’oro, d’argento, un soldo | moedas de ouro, de prata, um tostão | 金貨, 銀貨, 銅貨 | 金币, 银币, 铜板 |
+| Oxmoor's silver lamp (oxmoor_gift, remember.oxmoor_lamp) | die Silberlampe | la lampe d’argent | la lámpara de plata | la lampada d’argento | o candeeiro de prata (never "lâmpada": today a light bulb) | 銀のランプ | 银灯 |
+| the feast's bonfire (watch_feast) | das Feuer | le feu de joie | la hoguera | il falò | a fogueira | 焚き火 (never 篝火, which is the brazier) | 篝火 (the brazier is 火盆) |
+| the court (the household, "the whole court looked") | der Hof | la cour | la corte | la corte | a corte | 城の者 | 城堡上下, 城堡里上上下下, 满堂 (never 宫廷 or 朝廷: royal) |
 
 ### Ser Ludo's boasts (translated, as the German does)
 
@@ -542,9 +555,15 @@ notes.
 
 - **Latin-script languages** spell numbers as the English does: words where the English has words ("Twenty gold" →
   vingt pièces d’or, veinte monedas de oro, venti monete d’oro, vinte moedas de ouro), figures where it has figures.
-- **Japanese and Chinese** write amounts the player acts on (gold, people, days, nights, a lantern's number) in
-  half-width Arabic figures: 金貨20枚, 20金币, 3日, 41番のランタン, 41号提灯. Round or idiomatic numbers stay in
-  characters: 千年, 一千年, 三度, 九百年.
+- **Japanese** writes amounts the player acts on (gold, people, days, nights, a lantern's number) in half-width
+  Arabic figures: 金貨20枚, 3日, 41番のランタン, 6人. The court's hints about the same people use the same figures as
+  the card (the refugees' 6人 and 9晩 in Tamsin's and Pip's lines, 2人 in every choice that sends two archers or
+  guards, Odile's 納税者が3人). Round or idiomatic numbers, ages and narrated counts stay in characters: 千年, 三度,
+  九百年, 六つ, 二人で行こう.
+- **Chinese** (amended 14.11.2026, translator and editor agreeing; Chinese typesetting writes characters in
+  narration and dialogue): half-width figures only for gold, years and lantern numbers (20金币, 412年, 41号提灯).
+  Counts of people, days and nights are characters, in speech and in narration: 两名弓手, 只剩六个人, 六张嘴,
+  安睡三夜, 躲了九夜. Round or idiomatic numbers stay in characters too (一千年, 九百年).
 - Money: gold, silver, copper as in section 6 ("Smaller words"). Never a real currency (no euro, peso, real, yen,
   yuan, livre, ducat, florin).
 - Times of day by light, not clock, as the English does: at dusk, at dawn, at the horn, at first light.
