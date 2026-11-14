@@ -109,7 +109,8 @@ final class TownTests: XCTestCase {
         let day = Town.ledger(s, taxes: taxes, balance: balance)
         XCTAssertEqual(day.places.map(\.taxpayers), [8, 4, 4, 4], "room 8, 4, 4, 4")
         XCTAssertEqual(taxes.taxPart, 108)
-        XCTAssertEqual(day.places.map(\.owed), [43, 22, 22, 22], "108 by 8, 4, 4, 4: the big house owes the most")
+        XCTAssertEqual(day.places.map(\.owed), [43, 22, 22, 21],
+                       "108 by 8, 4, 4, 4: 43.2 and three times 21.6; the two coins left go to the first two .6")
         XCTAssertEqual(day.owedTotal, taxes.total)
     }
 

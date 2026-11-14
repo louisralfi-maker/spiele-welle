@@ -52,6 +52,49 @@ DESIGN.md "Taxes" for the player's side. The numbers are starting values: the la
 - **The first morning** (onboarding lane, after the join): one townsman walks into the courtyard, tosses the lord his
   coins and walks home to the town. That is the whole tutorial for taxes.
 
+### The numbers in Core (town-1, 14.11.2026)
+
+`Core/Town/` holds the rules (`Town`), the ledger (`TownState` in `GameState.town`, saved), the numbers (`TownRules`,
+`Balance.town`) and the words (`TownText`, `Resources/Town.xcstrings`). `tools/tune.py` mirrors them.
+
+- **What is owed.** Every dawn works out the day's taxes as before at the one rate the lectern called Normal:
+  `round(taxpayers × 5 × mood) + 5 a field + 15 % of the tax part for the market` (`Economy.taxes`), at the happiness
+  before the dawn's change. The taxpayers are spread over the houses by their room (cottage 4, big house 8), largest
+  remainder; the tax part is split over the houses by those taxpayers, largest remainder, ties to the earlier house
+  from left to right; each field owes its 5, the market its share. The parts always add up to the day's taxes. A new
+  realm's first dawn (day 2, 9 taxpayers at 60 happiness): 3, 2, 2, 2 taxpayers owe 16, 11, 11, 11 gold. Day 1 owes
+  nothing: the realm starts with its 60 gold, and the first coins wait on the morning of day 2.
+- **Collecting.** By day (from the dawn to the horn) a household tosses its whole part when the lord passes within
+  28 px of its door (`collectReach`; the whole way of a step is checked). The door is the plot's centre until the
+  rebuilt town brings its door anchors. Gold rises at once; the dawn itself puts nothing into the purse.
+- **Left alone.** At the horn every part nobody came for stays with the people. Each house that owed, was left alone
+  and had its door open (no unrest) brings +1 happiness at the next dawn, at most +3 for all of them ("Houses left
+  alone" in the report's reasons). A field or the market left alone keeps its gold too but brings no happiness.
+- **The knock.** Only at a house that has paid today, by day, doors open: the household hands over 40 % of its part
+  more (rounded, at least 1 coin), happiness falls by 2 at once. Once per house and day. Every house knocked once:
+  the old High tax within 4 % in gold (+40 % of the tax part; the market's share does not grow), −8 against −7 in mood.
+- **The war levy.** From story day 8 (the old war tax's unlock, which a petition can also grant) a second knock at
+  the same door the same day: 40 % again, −1 happiness. Every house knocked twice: the old War tax within 4 % in gold,
+  −12 against −10 in mood. Never a third knock.
+- **Unrest.** Below 15 at the dawn nobody owes that day (every part 0, the doors shut). Below 15 by day (a knock, a
+  petition) the doors shut until it lifts: no toss, no knock; at a horn in unrest nobody counts as left alone.
+- **Double taxes.** `Town.grantDoubleTaxes(&state)` (the ads lane's reward): from then until the next dawn every toss
+  and every knock counts twice; once a day; refused before the first dawn and after the horn.
+- **The picture's numbers** (for town-2): the household waves from 60 happiness, throws the coins at the lord's feet
+  below 30; one coin in the air for every 4 gold, at least 3 and at most 7 (`Town.coins`).
+- **The dawn report** (`DawnReport.town`, `TownText.reportLines`): what reached the purse yesterday, what the people
+  kept, how many houses were left alone, at whose door the lord knocked (and twice), "double taxes", or in unrest
+  only that every door stayed shut. The households are named by their trade: chandler, oil-presser, cooper, weaver
+  (houses 1, 3, 4, 5). `DawnReport.taxes` is what the town owes today.
+- **The rate.** No rate is left in the economy: the old rates and their happiness are gone from `Balance`, and the
+  lectern's rate (`GameState.tax`) changes nothing until town-2 takes the card away. The bots name their habit by the
+  old rate (`TownHabit`): normal collects everything at dawn; low leaves the two houses that owe least alone
+  (`lowHabitSpares`: the old Low's gold, 1334 against 1372 over 20 days in the mirror, +2 happiness a day against +3;
+  three houses would leave it under half and undefended); high knocks once at every house; war twice.
+- **The targets.** The reference bots collect everything at dawn and play the game of before line for line (T1, T2,
+  T3 with normal tax, T5 to T8: `TownNeutralityTests`). T3 with low tax and T4 moved by the bots' new habits only:
+  see the lane notes (`docs/lanes/town.md`) for the numbers before and after.
+
 ## 2. The treasury and the collector (build 3)
 
 - **Treasury:** built once at the castle (about 90 gold, from day 5). Gold is seen there: chests and piles that grow
