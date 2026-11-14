@@ -96,6 +96,15 @@ struct DebugArgs: Sendable, Equatable {
     var sound: Bool?
     /// True when the launch carried any `-GW` argument.
     var hasArguments = false
+    /// `-GWStage world|hall` (the hall stage, stage lane, 14.11.2026): the launch starts in the world strip or in the
+    /// great hall. Without it a lord standing in the hall's old slot (a new realm's first morning) starts inside.
+    var stage: StageKind?
+    /// `-GWHallX <x>` (0 ... 600): where the lord stands in the hall when the launch starts there (default before his
+    /// throne, `HallLayout.firstMorningX`).
+    var hallX: Double?
+    /// `-GWPetition <id>` (with `-GWScreen petition`): that petition before the throne instead of the herald's (the
+    /// hall stage's screenshots of the longest letters).
+    var petition: String?
 
     /// `-GWGloomFog` values.
     enum GloomFogOverride: Sendable, Equatable {
@@ -134,6 +143,7 @@ struct DebugArgs: Sendable, Equatable {
         "GWDebugLights", "GWStats", "GWReduceMotion", "GWDay", "GWNight", "GWBuild", "GWGold", "GWHappiness",
         "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock", "GWLook", "GWCastle",
         "GWWeather", "GWWind", "GWRain", "GWWetness", "GWLord", "GWLordName", "GWGloomFog", "GWHouses", "GWSound",
+        "GWStage", "GWHallX", "GWPetition",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -243,6 +253,13 @@ struct DebugArgs: Sendable, Equatable {
             let known = CourtFrames.houseBanners.map { String($0.flag.dropLast("_with".count)) }
             let named = text.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             houses = named.contains("all") ? known : known.filter { named.contains($0) }
+        }
+        stage = values["GWStage"].flatMap { StageKind(rawValue: $0.trimmingCharacters(in: .whitespaces).lowercased()) }
+        if let x = DebugArgs.double(values["GWHallX"]) {
+            hallX = min(HallLayout.width, max(0, x))
+        }
+        if let id = values["GWPetition"]?.trimmingCharacters(in: .whitespaces), !id.isEmpty {
+            petition = id
         }
         lord = values["GWLord"].flatMap { LordForm(rawValue: $0.trimmingCharacters(in: .whitespaces).lowercased()) }
         if let name = values["GWLordName"]?.trimmingCharacters(in: .whitespaces), !name.isEmpty {

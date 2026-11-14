@@ -23,6 +23,9 @@ enum KingTarget: Sendable, Equatable {
     case stranger
     case light(plot: Int)
     case patch(plot: Int)
+    /// The great hall's door in the world (the hall stage, stage lane, 14.11.2026): the lord goes in and the stage
+    /// changes. The hall's throne, lectern and court are inside it now; `HallTargets` offers them on the stage.
+    case hallDoor
 }
 
 /// Why an offered night action cannot be done right now: the button shows it greyed (M2b review: Patch offered without
@@ -148,7 +151,7 @@ enum KingTargets {
             return nil
         case .light:
             return s.king.lightingPlot >= 0 ? .busy : nil
-        case .build, .recruit, .throne, .lectern, .talk, .stranger:
+        case .build, .recruit, .throne, .lectern, .talk, .stranger, .hallDoor:
             return nil
         }
     }
@@ -168,6 +171,8 @@ enum KingTargets {
             return CourtLayout.strangerAtGate
         case .talk(let who):
             return CourtLayout.figures(s, catalog: .standard).first { $0.who == who }?.x ?? s.king.x
+        case .hallDoor:
+            return HallLayout.worldDoorX
         }
     }
 }

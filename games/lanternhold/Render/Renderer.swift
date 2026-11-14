@@ -580,8 +580,10 @@ final class Renderer {
         let bounce = Look.bounceColor(ambient)
         let bandColor = Look.bandColor(ambient)
         let rim = Look.rimColor(ambient)
+        // The hall stage (stage lane): the eased move into the audience framing reads at a fractional scale.
+        let scale = Float(frame.zoom ?? Double(frame.scale))
         return CompositeUniforms(
-            screen: SIMD4<Float>(Float(frame.physicalWidth), Float(frame.physicalHeight), Float(frame.scale),
+            screen: SIMD4<Float>(Float(frame.physicalWidth), Float(frame.physicalHeight), scale,
                                  Float(LightField.litThreshold)),
             target: SIMD4<Float>(Float(targets.width), Float(targets.height), Float(frame.groundRow), whole),
             shiftsA: SIMD4<Int32>(shift(.sky), shift(.clouds), shift(.far), shift(.mid)),

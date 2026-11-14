@@ -22,7 +22,8 @@ extension GameModel {
 
     /// One frame of real time for the court (`advanceGame`).
     func stepCourt(_ seconds: Double, state: GameState) {
-        court.rooms.step(kingX: state.king.x, dt: seconds, reduceMotion: reduceMotion)
+        // The hall stage: the great hall's old slot in the world never opens (`HallRules.roomsX`).
+        court.rooms.step(kingX: HallRules.roomsX(state.king.x), dt: seconds, reduceMotion: reduceMotion)
         var leavers: [CourtLeaver] = []
         for leaver in court.leavers {
             var walking = leaver
@@ -40,9 +41,17 @@ extension GameModel {
                                                                                  catalog: .standard),
                                        dt: seconds, reduceMotion: reduceMotion)
         if let who = court.talking {
-            let away = abs(state.king.x - (court.talkX ?? state.king.x)) > CourtTalk.leaveDistance
-            let gone = !figures.contains { $0.who == who }
-            if away || gone || DayClock.phase(at: state.hour) != .day { closeTalk() }
+            if stage == .hall {
+                // The hall stage: the lord's walk in the hall and the hall's court.
+                let x = hall?.walker.x ?? 0
+                let away = abs(x - (court.talkX ?? x)) > CourtTalk.leaveDistance
+                let gone = !currentHallFigures(state).contains { $0.who == who && $0.petition == nil }
+                if away || gone || DayClock.phase(at: state.hour) != .day { closeTalk() }
+            } else {
+                let away = abs(state.king.x - (court.talkX ?? state.king.x)) > CourtTalk.leaveDistance
+                let gone = !figures.contains { $0.who == who }
+                if away || gone || DayClock.phase(at: state.hour) != .day { closeTalk() }
+            }
         }
     }
 
@@ -85,24 +94,46 @@ extension GameModel {
     /// Opens the audience at the throne or at the gate (the action button): the clock stops, the king sits on the
     /// throne (or turns to the Stranger) and the first petitioner walks up; the card opens when he arrives.
     func openAudience(_ place: AudiencePlace) {
-        guard kind == .world, overlay == nil, let state = driver?.state else { return }
-        let figures = CourtLayout.figures(state, catalog: .standard)
-        guard let session = AudienceSession.begin(place, state: state, catalog: .standard, figures: figures,
-                                                  reduceMotion: reduceMotion) else { return }
+        guard kind == .world, overlay == nil, stageChange == nil, let state = driver?.state else { return }
+        guard let session = beginSession(place, state: state) else { return }
         closeTalk()
-        withDriver { game in
-            game.travelTarget = nil
-            game.state.king.velocity = 0
-            if place == .throne { game.state.king.x = KingTargets.throneX }
-            game.state.king.facing = session.spotX < game.state.king.x ? -1 : 1
+        if stage == .hall {
+            // The hall stage: the realm's king keeps the door in the simulation; the lord sits on the hall's throne.
+            withDriver { game in
+                game.travelTarget = nil
+                game.state.king.velocity = 0
+            }
+            if var scene = hall {
+                scene.walker = HallWalker(x: HallLayout.throneX, facing: -1)
+                hall = scene
+            }
+        } else {
+            withDriver { game in
+                game.travelTarget = nil
+                game.state.king.velocity = 0
+                if place == .throne { game.state.king.x = KingTargets.throneX }
+                game.state.king.facing = session.spotX < game.state.king.x ? -1 : 1
+            }
         }
         court.audience = session
         // The lord sits down on the throne (at once with Reduce Motion).
         court.lordSeated = place == .throne && !reduceMotion ? 0 : nil
-        court.rooms.step(kingX: driver?.state.king.x ?? state.king.x, dt: 0, reduceMotion: true)
+        court.rooms.step(kingX: HallRules.roomsX(driver?.state.king.x ?? state.king.x), dt: 0, reduceMotion: true)
         refreshAudienceCard()
         feedback.play(.audienceOpened)
         setOverlay(.audience)
+    }
+
+    /// The next audience at `place`: `AudienceSession.begin` from the court's places, moved onto the hall stage when the
+    /// lord holds it there (the walker sets out from his bench, his place or the door's side, and stops before the
+    /// hall's throne).
+    func beginSession(_ place: AudiencePlace, state: GameState) -> AudienceSession? {
+        let figures = CourtLayout.figures(state, catalog: .standard)
+        guard let session = AudienceSession.begin(place, state: state, catalog: .standard, figures: figures,
+                                                  reduceMotion: reduceMotion) else { return nil }
+        guard stage == .hall, place == .throne else { return session }
+        return HallCourt.adapt(session, state: state, catalog: .standard, drawn: hall?.drawn ?? [:],
+                               reduceMotion: reduceMotion)
     }
 
     /// The card of the audience in progress (nil while the petitioner walks up).
@@ -154,10 +185,7 @@ extension GameModel {
         guard overlay == .audience, let session = court.audience, session.phase == .reaction,
               let state = driver?.state else { return }
         release(session, state: state)
-        if session.place == .throne,
-           let next = AudienceSession.begin(.throne, state: state, catalog: .standard,
-                                            figures: CourtLayout.figures(state, catalog: .standard),
-                                            reduceMotion: reduceMotion) {
+        if session.place == .throne, let next = beginSession(.throne, state: state) {
             court.audience = next
             refreshAudienceCard()
             feedback.play(.audienceOpened)
@@ -201,6 +229,15 @@ extension GameModel {
                                              from: session.spotX,
                                              to: letIn ? Realm.gateBackX + 12 : WorldLayout.castleFrontX + 24))
         case .throne:
+            if stage == .hall {
+                // The hall stage: the hall's own court walks back to its place by itself; everyone else goes out
+                // by the hall's door.
+                let residents = HallCourt.residents(day: state.day, hour: state.hour, flags: state.flags)
+                guard !residents.contains(speaker.id) else { return }
+                court.leavers.append(CourtLeaver(who: speaker.id, body: speaker.body, look: session.petitioner.look,
+                                                 from: session.spotX, to: HallLayout.doorX))
+                return
+            }
             guard speaker.role != .court else { return }
             court.leavers.append(CourtLeaver(who: speaker.id, body: speaker.body, look: session.petitioner.look,
                                              from: session.spotX, to: CourtLeaver.hallDoor))
@@ -208,8 +245,10 @@ extension GameModel {
     }
 
     /// `-GWScreen petition`: the herald of the Lightless King before the throne on day 17 at the golden hour (the
-    /// Stranger let in and revealed, her lantern in the hall), the audience open.
+    /// Stranger let in and revealed, her lantern in the hall), the audience open. `-GWPetition <id>` puts that petition
+    /// there instead (the hall stage: the longest letters in the hall's card).
     func openPetitionSample() {
+        let id = args.petition.flatMap { PetitionCatalog.standard.petition($0) != nil ? $0 : nil } ?? "herald_demand"
         withDriver { game in
             var s = game.state
             s.day = 17
@@ -221,8 +260,7 @@ extension GameModel {
             s.flags.sort()
             var court = s.court ?? CourtState()
             court.queueDay = 17
-            court.queue = [Petitioner(id: "herald_demand", reason: .story,
-                                      look: PetitionEngine.look(s.seed, day: 17, id: "herald_demand"))]
+            court.queue = [Petitioner(id: id, reason: .story, look: PetitionEngine.look(s.seed, day: 17, id: id))]
             if !court.world.contains("castle.seren.lantern") {
                 court.world.append("castle.seren.lantern")
                 court.world.sort()
@@ -232,7 +270,9 @@ extension GameModel {
             s.king.velocity = 0
             game.state = s
         }
-        court = CourtScene(rooms: RoomFades(kingX: KingTargets.throneX))
+        court = CourtScene(rooms: RoomFades(kingX: HallRules.roomsX(KingTargets.throneX)))
+        // The hall stage: the audience is held in the great hall.
+        enterHallNow(at: HallLayout.firstMorningX, facing: 1, greeted: true)
         openAudience(.throne)
     }
 
@@ -244,12 +284,26 @@ extension GameModel {
         guard overlay == nil, let state = driver?.state, DayClock.phase(at: state.hour) == .day,
               let line = CourtTalk.line(who, state: state, lines: .standard, log: talkLog) else { return }
         talkLog.note(who, day: state.day)
+        let height = Double(Speakers.speaker(who)?.body.sprite.size.height ?? 30)
+        if stage == .hall {
+            // The hall stage: the speaker as the hall draws him, the bubble over his head on the hall's framing.
+            let figure = currentHallFigures(state).first { $0.who == who && $0.petition == nil }
+            let x = figure?.x ?? hallLordX
+            court.talking = who
+            court.talkX = x
+            court.marks.remove(who)
+            let headRow = Double(HallLayout.floorRow) - (figure?.y ?? 0) - height
+            talkBubble = TalkBubble(who: who, nameKey: Speakers.nameKey(who, day: state.day, flags: state.flags),
+                                    textKey: line.text, anchorX: hallScreenFraction(x),
+                                    headY: hallScreenY(row: headRow))
+            feedback.play(.cardOpened)
+            return
+        }
         let figure = CourtFrames.figures(state: state, catalog: .standard, scene: court, animTime: animationTime)
             .first { $0.who == who }
         court.talking = who
         court.talkX = figure?.x ?? state.king.x
         court.marks.remove(who)
-        let height = Double(Speakers.speaker(who)?.body.sprite.size.height ?? 30)
         var anchorX = 0.5
         var headY = figureTop
         if let pixelScale = lastPixelScale, let view = camera {

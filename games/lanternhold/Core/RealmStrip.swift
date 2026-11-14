@@ -52,6 +52,9 @@ struct RealmStrip: Sendable, Equatable {
     /// front gate.
     var petitioners = 0
     var strangerAtGate = false
+    /// The hall stage (stage lane, 14.11.2026): the lord is inside the great hall; the strip marks the hall instead of
+    /// a window of the world.
+    var inHall = false
 
     /// Where the waiting petitioners and the Stranger are marked.
     static let hallPosition = fraction(Realm.throneX)

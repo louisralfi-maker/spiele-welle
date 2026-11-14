@@ -766,6 +766,57 @@ def engine():
     return fade(normalize(soft(x)), 0.001, 0.08)
 
 
+def door_creak():
+    """The great hall's door opening (the hall stage, 14.11.2026): old oak on iron hinges, a slow stick-slip creak
+    that climbs a little as the door swings, the wood's body under it and the porch's stone around it. Lighter and
+    shorter than the gate: a door a man opens, not a portcullis."""
+    rng = Rng(131)
+    total = secs(0.95)
+    x = zeros(total)
+    length = 0.62
+    m = secs(length)
+    pulses = zeros(m)
+    t = 0.02
+    while t < length:
+        k = t / length
+        rate = 34 + 52 * k * k + 9 * math.sin(7.0 * t) + rng.uniform(-5, 5)
+        pulses[secs(t)] = rng.uniform(0.5, 1.0) * (0.55 + 0.45 * math.sin(math.pi * k))
+        t += 1.0 / rate
+    hinge = [a + 0.55 * b + 0.3 * c for a, b, c in zip(biquad(pulses, "bp", lambda u: 760 + 260 * u / length, 9.0),
+                                                     biquad(pulses, "bp", lambda u: 1580 + 420 * u / length, 8.0),
+                                                     biquad(pulses, "bp", 2950, 6.0))]
+    env = [math.sin(math.pi * min(1.0, i / m)) ** 0.6 for i in range(m)]
+    add_into(x, mul(hinge, env), secs(0.04), 9.0)
+    # The door's weight leaving the frame: a soft woody knock and a breath of air through the gap.
+    n = secs(0.25)
+    add_into(x, grain(n, 118, 0.06), 0, 0.3)
+    add_into(x, lowpass([rng.bipolar() * math.exp(-i / (0.02 * SR)) for i in range(n)], 700), 0, 0.25)
+    air = biquad(noise(secs(0.7), rng), "bp", 900, 0.6)
+    air_env = [math.sin(math.pi * i / len(air)) ** 2 for i in range(len(air))]
+    add_into(x, mul(air, air_env), secs(0.08), 0.08)
+    x = reverb(x, wet=0.22, size=0.9)
+    return fade(normalize(lowpass(x, 6000)), 0.003, 0.12)
+
+
+def door_latch():
+    """The door shutting behind the lord: the oak meeting its frame (a low thud), the iron latch falling into its
+    keeper (a bright clack with a short ring), and the hall's stone answering."""
+    rng = Rng(132)
+    x = zeros(secs(0.85))
+    n = secs(0.4)
+    thud = [a + 1.2 * b for a, b in zip(grain(n, 74, 0.09),
+                                        lowpass([rng.bipolar() * math.exp(-i / (0.035 * SR)) for i in range(n)], 420))]
+    add_into(x, thud, 0, 1.6)
+    at = secs(0.07)
+    add_into(x, grain(secs(0.06), 2350, 0.008, rng, noisy=0.35), at, 0.55)
+    add_into(x, grain(secs(0.05), 3400, 0.006, rng, noisy=0.25), at + secs(0.004), 0.3)
+    ring = [a + 0.6 * b for a, b in zip(grain(secs(0.3), 1180, 0.07), grain(secs(0.3), 1790, 0.05))]
+    add_into(x, ring, at + secs(0.006), 0.22)
+    add_into(x, grain(secs(0.05), 2100, 0.007, rng, noisy=0.3), at + secs(0.085), 0.18)
+    x = reverb(x, wet=0.3, size=1.15)
+    return fade(normalize(lowpass(x, 7000)), 0.001, 0.15)
+
+
 SOUNDS = [
     ("amb_day", amb_day), ("amb_night", amb_night), ("amb_rain", amb_rain), ("amb_fire", amb_fire),
     ("amb_hall", amb_hall),
@@ -774,6 +825,7 @@ SOUNDS = [
     ("creature_hit", creature_hit), ("dissolve", dissolve), ("wall_hit", wall_hit), ("wall_break", wall_break),
     ("gate", gate), ("step_1", step_1), ("step_2", step_2), ("parchment", parchment), ("tap", tap),
     ("seal", seal), ("decline", decline), ("engine", engine),
+    ("door_creak", door_creak), ("door_latch", door_latch),
 ]
 
 

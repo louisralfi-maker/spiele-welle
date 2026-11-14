@@ -224,10 +224,20 @@ enum Look2 {
         let cloud = sample.cloudColor
         let none = SIMD4<Float>(0, 0, 0, 0)
         let rooms = frame.rooms
+        // The hall stage (stage lane): an interior's own ambient and night pull on the world plane and the figures,
+        // and the upper wall's ramp into the roof's dark (in `weather.zw`); the windows keep the hour's far plane.
+        var worldA = SIMD4<Float>(world.x, world.y, world.z, colorise * night)
+        var weatherV = SIMD4<Float>(frame.rain, frame.wetness, 0, 0)
+        if let inside = frame.interior {
+            worldA = SIMD4<Float>(inside.ambient.x, inside.ambient.y, inside.ambient.z,
+                                  colorise * night * inside.nightPull)
+            weatherV.z = inside.rampStrength
+            weatherV.w = inside.rampEndRow
+        }
         return Look2Uniforms(
             shifts: SIMD4<Int32>(Int32(frame.layer(.mistBand).offset.deviceShift),
                                  Int32(frame.layer(.near).offset.deviceShift), 0, 0),
-            ambW: SIMD4<Float>(world.x, world.y, world.z, colorise * night),
+            ambW: worldA,
             ambF: SIMD4<Float>(far.x, far.y, far.z, day),
             ambM: SIMD4<Float>(mid.x, mid.y, mid.z, bounceK),
             ambN: SIMD4<Float>(near.x, near.y, near.z, bandK),
@@ -244,7 +254,7 @@ enum Look2 {
             grade: SIMD4<Float>(sample.saturation, sample.warmth, sample.vignette, sample.black),
             roomA: rooms.count > 0 ? rooms[0] : none,
             roomB: rooms.count > 1 ? rooms[1] : none,
-            weather: SIMD4<Float>(frame.rain, frame.wetness, 0, 0))
+            weather: weatherV)
     }
 }
 

@@ -60,11 +60,21 @@ final class AudienceUITests: XCTestCase {
         pause(0.8)
         attach(XCUIScreen.main.screenshot(), "60-hall-front-\(language)")
 
-        tapStrip(strip, worldX: 1840)
-        XCTAssertTrue(waitForKing(app, near: 1840, within: 14, timeout: 20), "the king stepped into the hall")
+        // The hall stage (14.11.2026): the great hall is a stage of its own; the button at its door takes him in.
+        tapStrip(strip, worldX: 1830)
+        XCTAssertTrue(waitForKing(app, near: 1830, within: 14, timeout: 20), "the king walked to the hall's door")
+        let door = element(app, "action-button")
+        if door.waitForExistence(timeout: 6) {
+            checkTarget(door, "hall door")
+            door.tap()
+            XCTAssertTrue(waitForStage(app, "hall", timeout: 10), "in by the door")
+        } else {
+            XCTFail("no door at the hall")
+        }
         pause(0.9)
         attach(XCUIScreen.main.screenshot(), "51-hall-court-\(language)")
 
+        // A tap on the strip from inside: out by the door and on to the kitchen.
         tapStrip(strip, worldX: 2183)
         XCTAssertTrue(waitForKing(app, near: 2183, within: 14, timeout: 20), "the king stepped into the kitchen")
         pause(0.9)
@@ -222,6 +232,16 @@ final class AudienceUITests: XCTestCase {
         while Date().timeIntervalSince(started) < timeout {
             if abs(kingX(app) - x) <= tolerance { return true }
             pause(0.3)
+        }
+        return false
+    }
+
+    private func waitForStage(_ app: XCUIApplication, _ stage: String, timeout: TimeInterval) -> Bool {
+        let started = Date()
+        while Date().timeIntervalSince(started) < timeout {
+            let text = (element(app, "world-scene").value as? String) ?? ""
+            if text.contains("stage:\(stage)") { return true }
+            pause(0.2)
         }
         return false
     }

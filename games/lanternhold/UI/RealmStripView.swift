@@ -189,6 +189,21 @@ struct RealmStripView: View {
             map.fill(diamond, with: .color(Theme.goldHi))
             map.stroke(diamond, with: .color(ink), lineWidth: 0.75)
         }
+        // The hall stage: inside the great hall, its roof and lit door in gold over the castle, under the lord's mark.
+        if strip.inHall {
+            let hx = x(RealmStrip.hallPosition)
+            var hall = Path()
+            hall.move(to: CGPoint(x: hx - 7, y: ground - 1))
+            hall.addLine(to: CGPoint(x: hx - 7, y: ground - 8))
+            hall.addLine(to: CGPoint(x: hx, y: ground - 14))
+            hall.addLine(to: CGPoint(x: hx + 7, y: ground - 8))
+            hall.addLine(to: CGPoint(x: hx + 7, y: ground - 1))
+            hall.closeSubpath()
+            map.fill(hall, with: .color(Theme.goldHi))
+            map.stroke(hall, with: .color(ink), lineWidth: 1)
+            let door = Path(roundedRect: CGRect(x: hx - 2, y: ground - 6, width: 4, height: 5), cornerRadius: 1.5)
+            map.fill(door, with: .color(Theme.rubric))
+        }
         let kx = x(strip.king)
         var mark = Path()
         mark.move(to: CGPoint(x: kx - 5.5, y: top + 2.5))
