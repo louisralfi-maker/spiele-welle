@@ -2,8 +2,8 @@ import SwiftUI
 
 // The ads' views (DESIGN.md "Ads"; docs/UI-look.md). Each is one small view another screen places, so the join can place
 // it again in the redrawn screens: `DawnReportAds` and `ReportTreasury` in the dawn report, `SecondChanceOffer` on the
-// defeat card, `PrivacyChoicesRow` in the settings, `AdLayer` over the world (Marek's card, the stub's log). Every offer names its
-// reward on its button, says plainly that a video ad plays and shows only while a video is ready. Strings:
+// defeat card, `PrivacyChoicesRow` in the settings, `AdLayer` over the world (Marek's card, the stub's log). Every offer
+// names its reward on its button, says plainly that a video ad plays and shows only while a video is ready. Strings:
 // Resources/Ads.xcstrings (table "Ads").
 
 /// The dawn report's ads (the report's footer, before Continue): "Double taxes today" while the offer is open and a
