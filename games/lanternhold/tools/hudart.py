@@ -17,14 +17,16 @@ Sprites (each a horizontal strip of equal frames, AtlasBuilder.splitFrames cuts 
   hudHollow    9x9, 2 frames: a hollow of the tally board, empty and holding a small coin (no ink edge: it is cut
                into the board's wood, which the world lane draws)
   hudHollowTen 11x11, 2 frames: the same for the big coin
-  hudFace      9x9, 4 frames: glad, even, grim, unrest (the mouth tells it; unrest also flushes red and frowns)
+  hudFace      9x9, 4 frames: glad, even, grim, unrest; a townsman's head in his hood (FACE_STYLE "hood"; the
+               rivals "cap", a head in profile, and "disc", the first round face, stay buildable with --face)
+  hudDawn      11x9: the dawn sign, a half sun on the horizon; the day line is this sign and the day's number
   hudPeople    13x9: two heads and shoulders, one a step behind the other
   hudGear      10x10: the gear in the corner (opens the pause sheet)
 
 The row of the lantern moment is 9 game pixels high (figures, coin, face, people); the big coin and its hollow are
 board and flight pieces only.
 
-  hudart.py build <id> [--out DIR]   writes DIR/<id>.png (default games/lanternhold/Resources/Art)
+  hudart.py build <id> [--out DIR] [--face hood|cap|disc]   writes DIR/<id>.png (default games/lanternhold/Resources/Art)
   hudart.py list                     the ids
   hudart.py advance                  the figure advance and the row's spacing, for the stage lane
 
@@ -56,6 +58,12 @@ LEGEND = {
     "l": "woodLight",   # a hollow's lit lower wall
     "r": "tileLight",   # unrest's flush
     "R": "tile",
+    "c": "banner",      # a townsman's hood, the realm's blue cloth
+    "C": "roofDeep",    # the hood in shade
+    "m": "crimsonLight",  # unrest's hood, red-brown
+    "M": "crimson",
+    "p": "leaf",        # the cap of the second rival
+    "P": "leafDark",
 }
 
 # --- the figures, 5x7 bone bodies; the ink edge is added around them ------------------------------------------------
@@ -88,11 +96,11 @@ FIG_HAND = {
           "...XX",
           "...XX",
           "XXXX."],
-    "4": ["XX...",
-          "XX.XX",
+    "4": ["...XX",
+          "..XXX",
+          ".X.XX",
           "XX.XX",
           "XXXXX",
-          "...XX",
           "...XX",
           "...XX"],
     "5": ["XXXXX",
@@ -210,11 +218,11 @@ COIN = ["..hhg..",
 
 COIN_TEN = ["..hhhgg..",
             ".hwhgggs.",
-            "hhsgggsgs",
-            "hggsgsggs",
-            "hgggsgggd",
-            "gggsgsggd",
-            "ggsgggsgd",
+            "hhdgggdgs",
+            "hggdgdggs",
+            "hgggdgggd",
+            "gggdgdggd",
+            "ggdgggdgd",
             ".ggggssd.",
             "..sdddd.."]
 
@@ -248,6 +256,96 @@ FACES = {
                ".riiir.",
                "..rrr.."],
 }
+
+# the face rival "hood" (the pick): a townsman's head in his hood, the face in bone. The mood is told by the mass of
+# colour and the silhouette first: glad throws the hood back (a broad bone face, raised, smiling), even wears it as
+# it is, grim pulls it down over the brow (the eyes in its shadow, the head bowed, little bone shows), unrest wears
+# the red-brown hood and shouts (an open mouth, the brows down).
+FACES_HOOD = {
+    "glad": ["..ccc..",
+             ".cXXXc.",
+             "cXiXiXc",
+             "cXXXXXc",
+             "ciXXXic",
+             "cXiiiXc",
+             "CcXXXcC"],
+    "even": ["..ccc..",
+             ".ccccc.",
+             "ccXXXcc",
+             "cXiXiXc",
+             "cXXXXXc",
+             "cciiicc",
+             "CcccccC"],
+    "grim": ["..ccc..",
+             ".ccccc.",
+             "ccccccc",
+             "cCiCiCc",
+             "cCxxxCc",
+             "ccCiCcc",
+             "CcccccC"],
+    "unrest": ["..mmm..",
+               ".mMMMm.",
+               "miXXXim",
+               "mXiXiXm",
+               "mXiiiXm",
+               "mmiiimm",
+               "MmmmmmM"],
+}
+
+# the face rival "cap": a townsman in profile under a green cap, looking right. Glad lifts the chin, even looks
+# ahead, grim bows the head (the cap's peak over the eye), unrest shouts with the mouth wide and the cap gone red.
+FACES_CAP = {
+    "glad": ["..ppp..",
+             ".ppppp.",
+             ".PXXXX.",
+             ".XXiXX.",
+             ".XXXXXX",
+             ".XXXii.",
+             "..XXX.."],
+    "even": [".ppp...",
+             "pppppp.",
+             ".PXXX..",
+             ".XXiXX.",
+             ".XXXXXX",
+             ".XXXXi.",
+             "..XXX.."],
+    "grim": [".......",
+             ".ppp...",
+             "ppppppp",
+             ".PXiXX.",
+             ".XXXXX.",
+             ".XXXiXX",
+             "..XXX.."],
+    "unrest": [".mmm...",
+               "mmmmmm.",
+               ".MXiX..",
+               ".XXXXXX",
+               ".XXXii.",
+               ".XXXii.",
+               "..XXXX."],
+}
+
+FACE_STYLES = {"disc": FACES, "hood": FACES_HOOD, "cap": FACES_CAP}
+FACE_STYLE = "hood"     # the pick; `hudart.py build hudFace --face cap` (or disc) switches
+
+# the dawn sign (the day line under the row: the sign and the day's number, no word): a half sun with five rays in a fan on
+# the horizon, bone with the ink edge; the gap above the horizon becomes ink, so the line stands apart
+DAWN = ["X...X...X",
+        ".X..X..X.",
+        "...XXX...",
+        "..XXXXX..",
+        ".XXXXXXX.",
+        ".........",
+        "XXXXXXXXX"]
+
+# the dawn sign's rival: three rays only (it read as a covered dish, the top ray as its knob; kept for the director)
+DAWN_RIVAL = ["....X....",
+              ".X.....X.",
+              "...XXX...",
+              "..XXXXX..",
+              ".XXXXXXX.",
+              ".........",
+              "XXXXXXXXX"]
 
 # one of the people: a round head over the shoulders (6x7); the sign is two of them, the far one a step behind and
 # in shade, each with its own ink edge so the near one stands clear of the far one
@@ -398,7 +496,7 @@ def figures(pal, style="hand"):
     return [edged(grid_image(glyphs[c], pal), pal) for c in FIGURE_ORDER]
 
 
-def frames_for(sprite, pal, style="hand"):
+def frames_for(sprite, pal, style="hand", face=None):
     if sprite == "hudFigures":
         return figures(pal, style)
     if sprite == "hudArrow":
@@ -412,7 +510,10 @@ def frames_for(sprite, pal, style="hand"):
     if sprite == "hudHollowTen":
         return [grid_image(HOLLOW_TEN, pal), hollow_with_coin(HOLLOW_TEN, COIN_TEN, pal)]
     if sprite == "hudFace":
-        return [edged(grid_image(FACES[k], pal), pal) for k in ("glad", "even", "grim", "unrest")]
+        faces = FACE_STYLES[face or FACE_STYLE]
+        return [edged(grid_image(faces[k], pal), pal) for k in ("glad", "even", "grim", "unrest")]
+    if sprite == "hudDawn":
+        return [edged(grid_image(DAWN, pal), pal)]
     if sprite == "hudPeople":
         return [people(pal)]
     if sprite == "hudGear":
@@ -421,7 +522,7 @@ def frames_for(sprite, pal, style="hand"):
 
 
 SPRITES = ["hudFigures", "hudArrow", "hudCoin", "hudCoinTen", "hudHollow", "hudHollowTen", "hudFace", "hudPeople",
-           "hudGear"]
+           "hudGear", "hudDawn"]
 
 
 def palette():
@@ -434,6 +535,7 @@ def main():
     b = sub.add_parser("build")
     b.add_argument("id")
     b.add_argument("--out", default=os.path.join(HERE, "..", "Resources", "Art"))
+    b.add_argument("--face", choices=sorted(FACE_STYLES), help="hudFace only: which face (default %s)" % FACE_STYLE)
     sub.add_parser("list")
     sub.add_parser("advance")
     a = ap.parse_args()
@@ -444,7 +546,7 @@ def main():
         print("figure advance %d, sign-to-figure gap %d, group space %d" % (ADVANCE, GAP, SPACE))
         return
     pal = palette()
-    img = strip(frames_for(a.id, pal))
+    img = strip(frames_for(a.id, pal, face=a.face))
     path = os.path.join(a.out, a.id + ".png")
     write_png(path, img)
     print("wrote", path, "%dx%d" % (img.w, img.h))
