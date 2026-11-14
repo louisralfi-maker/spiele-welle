@@ -19,13 +19,15 @@ struct FrontTuning: Sendable, Equatable {
     /// his presence.
     var presenceRadius = 90.0
     /// Under presence they loose and strike this many times as fast (their cooldowns run this much faster). The spec
-    /// started at 1.15; T13 needs 1.25 (as fast as the old rally, which it replaces).
-    var presenceSpeed = 1.25
-    /// Under presence they take this share of the harm: they hold half as long again. The spec started at 0.8. Round
-    /// lh-f1-5 chose 0.5 with the bot on the wall's front edge (1 px); fix round 1 found that edge an outlier: anywhere
-    /// deeper on the wall (5 to 19 px) the same rule saves 13 to 15 points more, so 0.5 overshot T13's band there (42 to
-    /// 47 %). At 0.65 T13 is 30 to 33 % at every spot from 5 to 19 px (round lh-f1f1-4, the grid in docs/lanes/front.md).
-    var presenceHarm = 0.65
+    /// started at 1.15; round lh-f1-5 chose 1.25 (as fast as the old rally, which it replaces); fix round 1 took 1.3,
+    /// where every harm share from 0.55 to 0.7 keeps T13 in its band (the curve is flatter than at 1.25).
+    var presenceSpeed = 1.3
+    /// Under presence they take this share of the harm. The spec started at 0.8. Round lh-f1-5 chose 0.5 with the bot
+    /// on the wall's front edge (1 px); fix round 1 found that edge an outlier: anywhere deeper on the wall (5 to 19 px)
+    /// the same rule saves 13 to 15 points more, so 0.5 overshot T13's band there (42 to 47 %; round lh-f1f1-4, the
+    /// grid in docs/lanes/front.md). At speed 1.3 and 0.6 T13 sits in the band's middle with every neighbour inside it
+    /// (round lh-f1f1-5: 0.55 39 %, 0.6 35 %, 0.65 32 %, 0.7 26 %).
+    var presenceHarm = 0.6
     /// The harm share never goes below this (a guard at his floor would otherwise divide by nothing in
     /// `Battle.hurtGuards`); not a tuning value.
     static let leastHarmShare = 0.05

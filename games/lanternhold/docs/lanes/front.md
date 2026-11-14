@@ -230,3 +230,114 @@ nothing has it sprint between walls.
 - **On the device** (REALM.md section 6): whether standing at the front wall all night feels like being there or like
   waiting. The rule rewards one or two moves; the hearth (section 4) and the beacons (section 5) bring the reasons to
   move in later steps of this lane.
+
+## front-1, fix round 1 (14.11.2026, evening)
+
+The critic's verdict: /Users/enaayla/Desktop/Spiele-Welle/.claude/worktrees/game2-planning-354541/ci-out/director/front-1-presence-critic1.md
+(one blocker, four highs). Rounds by the director's notes of 14.11. 18:46 and 19:35: no `ui`, `ui-de` or `release`;
+no UI class changed, so the gate is `build unit`, with the sweep as an `sh` step in the same round.
+
+### The blocker: the house canon
+
+`Resources/Front.xcstrings`, `front.report.relit`: "One brazier caught from your lantern." / "%lld braziers caught from
+your lantern."; German "Eine Feuerschale fing an Eurer Laterne Feuer." / "%lld Feuerschalen fingen an Eurer Laterne
+Feuer." The comment no longer names a lamplighter (HOUSE.md section 1: the lord never was one). `front.report.there` is
+now "You stood where it burned. Your people held longer." (German unchanged).
+
+### High 1: the braziers by belonging
+
+- **The rule.** While the lord stands on a standing wall (`FrontNight.wallUnder`, between its face and its back), the
+  dead braziers of that wall's line catch from his lantern, one in 4 s, the nearest first. Elsewhere a dead brazier
+  within 24 px catches as he passes (`relightReach` 24, the spec's "about 20"). `FrontNight.catches(s, plot:, at:,
+  tuning:)` answers both. `relightOwnWall` turns the first half off for the sweep.
+- **No px cliff any more** (round lh-f1f1-2, the standard bot): wall + passing 16 px 32 %, 24 px 32 %, 32 px 33 %.
+  Passing alone at 24 px gives 4 % (the old cliff), passing alone at 48 px (round lh-f1-5's rule) 34 %. The rule no
+  longer depends on where the world draws the braziers, and the player can read it: his wall's fires burn.
+- **A spot dependency found instead, and fixed by values.** With the rule by belonging, where the bot stands on the
+  wall moved T13: the front edge (1 px, round lh-f1-5's spot) is an outlier, every deeper spot behaves alike. The grid
+  (round lh-f1f1-4, fewer losses pooled over x1, x1.5, x2; per budget in brackets):
+
+| harm \ spot | 1 px | 5 px | 10 px | 14 px | 19 px |
+|---|---|---|---|---|---|
+| 0.5 | 32 % (53/30/30) | 47 % (73/58/38) | 47 % (73/59/38) | 45 % (73/58/36) | 42 % (73/53/34) |
+| 0.55 | 29 % | 43 % | 43 % | 42 % | 39 % |
+| 0.6 | 26 % | 40 % | 41 % | 39 % | 38 % |
+| **0.65** | 18 % | **31 %** | **33 %** | **32 %** | **30 %** |
+| 0.7 | 15 % | 24 % | 25 % | 24 % | 23 % |
+| 0.75 | 12 % | 19 % | 21 % | 19 % | 18 % |
+
+  **Chosen: harm ×0.65 and the bot on the wall walk, 10 px behind the face** (within every wall; a palisade is 20 px).
+  T13 is 30 to 33 % wherever on the wall the lord stands from 5 to 19 px, which is what a human player does; only
+  standing on the very front edge gives less. Speed stays ×1.25, radius 90. Near the lord his people shoot a quarter
+  faster and take a third less harm, closer to the spec's 20 % than round lh-f1-5's half.
+
+### High 2: the parked night and the hard nights
+
+- **The bot goes back for rear braziers** (`botRearBraziers`, `botQuietReach` 200, `botMaxRearTrips` 3): when the
+  front is quiet (no creature on the ground within 200 px in front of its place or behind it, none at a wall or the
+  guards) it walks back to the nearest spot a dead brazier of a rear line catches from (on that line's wall, or 23 px
+  from the brazier in passing), waits there up to one relight for the second brazier of the line, and returns. It
+  happens almost never: 0 nights at x1 and x1.5, 2 of 120 at x2, 6 at x6 (round lh-f1f1-1). While creatures come the
+  front is not quiet, and when they stop, the rear braziers still burn (the crows go for the leftmost burning brazier,
+  and the lord keeps relighting the front pair). "Rear trips whenever the way is safe" (`botRearOnlyWhenQuiet` off) and
+  "fetch anywhere" change nothing in T13 either (32 %, round lh-f1f1-2); on the falls ladder they hold 2 more nights the
+  reference lost and fall in 3 fewer the reference held (12 instead of 15 over x3 to x6). Kept as built, off the
+  critical path.
+- **Reported lines now in the T13 report** (`FrontMetrics.report`): T13 per budget in its first line; "present fell
+  where the reference held / held where it fell" per budget; how often the dawn report's presence line shows; rear
+  trips and lives kept in the bot table. The sweep asks the falls ladder at x3 to x6 (`ladder`).
+- **The hard nights under the rule** (`FrontHardNights`, `FrontTuningRun.hardSeed`; all twenty seeds in the sweep, one
+  seed as a unit test): T6 and T7 played from the reference bot's own eves, once by the reference under the old rules,
+  once by the present bot under the rule (numbers below, "Rounds").
+- **Night 20 without the beacon's last stage, diagnosed** (round lh-f1f1-2/3, the sweep's `night20`; held of 20):
+
+| who | held | why |
+|---|---|---|
+| reference, old rules | 10 | margins F0 to F14: close |
+| reference under the rule (keeps its Light action) | 6 | thrown back 19 times a night as it walks into the creatures to light braziers |
+| present bot | 2 | its walls fall a few seconds earlier and the creatures reach the hearth 5 to 10 s earlier (F6 to F16) |
+| present bot, no presence at all | 2 | presence changes nothing on this night |
+| present bot, presence harm 1 | 2 | |
+| present bot, relight every 1 s | 3 | |
+| present bot, last stand 20, 46, 90 or 150 px in front of the hearth | 2 | thrown 2 to 3 times; nothing gained |
+| present bot, never thrown (and its safety checks off) | 5 | it then fetches braziers anywhere |
+
+  With the beacon every variant holds 20 of 20 and slays the King in 20. So: the rule makes night 20 without the
+  beacon's last stage much harder (the beacon is the designed way through), because the lord can no longer walk
+  untouchable into the crowd to keep every brazier lit. Presence is not the cause. **For the director and the join:**
+  T6's "without" band (30 to 60 %) is the reference bot's and holds; a player under the rule meets 10 to 30 %. Worth a
+  look when the hearth (REALM.md section 4: a hearth that burns low) and the beacons (section 5) change the night's
+  end, and when T6 is measured on the joined game with the rule on.
+
+### High 3: the "there" line earns its place
+
+- `FrontNightStats.withheldLives` / `FrontNightReport.withheldLives`: the harm presence kept off, each blow over the
+  full strength of the soldier it was meant for (no more than he had left), via `FrontNight.withheld(&s, raw:, taken:,
+  hp:, maxHP:)` from the two harm hooks in `Battle` (new hooks, table below).
+- "There" shows only after 10 s of fighting, with presence over at least 60 % of it **and** at least one soldier's life
+  kept (`reportThereLives` 1.0); otherwise no line. "Away" as before.
+- How often (round lh-f1f1-1, at harm ×0.5): at x1 "there" on 6 of 31 nights with fighting (was nearly all), x1.5 13 of
+  51, x2 23 of 59. At harm ×0.65 less is kept per blow, so it shows still more rarely (final numbers under "Rounds").
+
+### Smaller things
+
+- `LordAura` clamps the harm share at `FrontTuning.leastHarmShare` 0.05 (no division by nothing in `hurtGuards`).
+- The lane notes (front-1 above): the patch is paid by the count (PAY.md); the touch overlap (a hold on the lord
+  raises the lantern, a tap on the wall's face opens the count); the saved stamps count as seen after a load; with the
+  rule on the old rally is gone by day too.
+
+### New hooks of this round (apply them again at the join)
+
+| File | Place | Hook | Why |
+|---|---|---|---|
+| `Core/Battle.swift` `hurtGuards` | the holders' loop | `let hpBefore = soldier.hp`, `var raw = left`, in the retreat branch `raw = max(0, room) / share`; after `s.soldiers[index] = soldier`: `FrontNight.withheld(&s, raw: raw, taken: hpBefore - soldier.hp, hp: hpBefore, maxHP: soldier.maxHP)` | the harm presence kept off |
+| `Core/Battle.swift` `contactDamage` | the hp loss | `let raw = harm * balance.creatureHarmScale`, `hpBefore`, `maxHP`; `hp -= raw * aura.harm(at: s1)`; `FrontNight.withheld(&s, raw:, taken: raw * aura.harm(at: s1), hp: hpBefore, maxHP: maxHP)` | the same in passing |
+
+Both do nothing without `GameState.front`, and `raw * share` is the old product to the bit, so T1 to T8 stay line for
+line (proved below).
+
+### New values (all in `FrontTuning`)
+
+`relightOwnWall` true, `relightReach` 24 (was 48), `presenceHarm` 0.65 (was 0.5), `leastHarmShare` 0.05,
+`botBehindWall` 10 (was 1), `botLastStand` 1, `botRearBraziers` true, `botQuietReach` 200, `botRearOnlyWhenQuiet`
+true, `botMaxRearTrips` 3, `reportThereLives` 1.0.

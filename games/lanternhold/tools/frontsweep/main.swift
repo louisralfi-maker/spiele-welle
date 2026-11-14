@@ -161,8 +161,8 @@ if doVariants {
     }))
     list.append(("relight every 3 s", variant { $0.relightEvery = 3 }))
     list.append(("relight every 1 s", variant { $0.relightEvery = 1 }))
-    for speed in [1.2, 1.25, 1.3] {
-        for harm in [0.55, 0.6, 0.65, 0.7, 0.75] {
+    for speed in [1.25, 1.3, 1.35] {
+        for harm in [0.5, 0.55, 0.6, 0.65, 0.7] {
             list.append(("s\(speed) h\(harm)", variant {
                 $0.presenceSpeed = speed
                 $0.presenceHarm = harm
@@ -180,10 +180,17 @@ if doVariants {
     say("(\(elapsed()))")
     say("")
     say("== the falls ladder \(ladder): nights the present bot loses where the reference holds")
-    for (name, b) in [("standard", standard), ("bot: no rear trips", variant { $0.botRearBraziers = false }),
-                      ("bot: rear trips unlimited", variant { $0.botMaxRearTrips = 99 }),
-                      ("bot: last stand -46", variant { $0.botLastStand = -46 }),
-                      ("bot: last stand -90", variant { $0.botLastStand = -90 }),
+    for (name, b) in [("standard", standard),
+                      ("s1.25 h0.65 (round lh-f1f1-5)", variant {
+                          $0.presenceSpeed = 1.25
+                          $0.presenceHarm = 0.65
+                      }),
+                      ("s1.25 h0.5 stand 1 (lh-f1-5)", variant {
+                          $0.presenceSpeed = 1.25
+                          $0.presenceHarm = 0.5
+                          $0.botBehindWall = 1
+                      }),
+                      ("bot: rear trips, way safe", variant { $0.botRearOnlyWhenQuiet = false }),
                       ("light: passing 48 only (old)", variant {
                           $0.relightOwnWall = false
                           $0.relightReach = 48
@@ -197,9 +204,9 @@ if doVariants {
 // round lh-f1f1-2). The grid asks the harm share against the spot (all within a palisade's 20 px), at speed 1.25.
 if doGrid {
     say("")
-    say("== the spot on the wall against the harm share, budgets \(stresses) (fewer losses; T13's band 25-40 %)")
+    say("== the spot on the wall against the harm share at speed \(standard.front.presenceSpeed), budgets \(stresses) (fewer losses; T13's band 25-40 %)")
     let spots: [Double] = [1, 5, 10, 14, 19]
-    let harms: [Double] = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75]
+    let harms: [Double] = [0.5, 0.55, 0.6, 0.65, 0.7]
     var header = "harm \\ spot".padding(toLength: 12, withPad: " ", startingAt: 0)
     for spot in spots { header += " | " + "\(Int(spot)) px".padding(toLength: 22, withPad: " ", startingAt: 0) }
     say(header)
@@ -209,7 +216,7 @@ if doGrid {
             let m = measure(variant {
                 $0.presenceHarm = harm
                 $0.botBehindWall = spot
-            }, stresses: stresses)
+            }, stresses: stresses)  // at the standard speed
             var budgets: [String] = []
             for k in stresses { budgets.append(m.reduction(at: k).map(pct) ?? "-") }
             let cell = "\(pct(m.reduction)) (" + budgets.joined(separator: " ") + ")"
@@ -334,8 +341,10 @@ if doNight20 {
 
 if doHard {
     let hardSeeds = TuningMetrics.targetSeeds
-    for (name, b) in [("standard", standard), ("bot: last stand -46", variant { $0.botLastStand = -46 }),
-                      ("bot: last stand -90", variant { $0.botLastStand = -90 })] {
+    for (name, b) in [("standard", standard), ("s1.25 h0.65 (round lh-f1f1-5)", variant {
+                          $0.presenceSpeed = 1.25
+                          $0.presenceHarm = 0.65
+                      })] {
         say("")
         say("== the hard nights (T6 and T7 under the rule), \(name)")
         var list = [FrontHardSeed?](repeating: nil, count: hardSeeds)
