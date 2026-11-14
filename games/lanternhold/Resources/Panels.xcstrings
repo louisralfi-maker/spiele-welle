@@ -1,0 +1,168 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "slides.begin" : {
+      "comment" : "VoiceOver hint on the last story slide: a tap ends the slides and the day begins.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beginnt den Tag"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Begins the day"
+          }
+        }
+      }
+    },
+    "slides.next" : {
+      "comment" : "VoiceOver hint on a story slide: a tap shows the next slide.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nächstes Bild"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next slide"
+          }
+        }
+      }
+    },
+    "slides.position" : {
+      "comment" : "VoiceOver value of a story slide. {n} is its number, {count} how many there are.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bild {n} von {count}"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slide {n} of {count}"
+          }
+        }
+      }
+    },
+    "slides.prologue.1" : {
+      "comment" : "Prologue, slide 1 of 4 (two short lines, split by the line break): the Worldwall from far off at dusk, one cleft with a small castle in it.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Mauer aus Bergen teilt die Welt.\nSie hat nur eine Tür."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A wall of mountains parts the world.\nIt has one door."
+          }
+        }
+      }
+    },
+    "slides.prologue.2" : {
+      "comment" : "Prologue, slide 2 of 4: from the castle wall, looking west into the Throat; fog with cold eyes at its far end. 'it' is the door.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seit tausend Jahren hält Haus Lantern sie.\nNiemand weiß, was auf der anderen Seite wartet."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For a thousand years House Lantern has held it.\nNobody knows what waits on the other side."
+          }
+        }
+      }
+    },
+    "slides.prologue.3" : {
+      "comment" : "Prologue, slide 3 of 4: the dark beacon at the Throat's mouth, Lord Aldric riding out with twelve lights.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In diesem Herbst erlosch das Große Leuchtfeuer.\nBurgherr Aldric ritt aus, um es zu entzünden. Er kam nicht zurück."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This autumn the Great Beacon went dark.\nLord Aldric rode out to light it. He did not come back."
+          }
+        }
+      }
+    },
+    "slides.prologue.4" : {
+      "comment" : "Prologue, slide 4 of 4: the warm hall, the young lamplighter with the circlet. {a|b}: Burgherr | Burgherrin.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Stirnreif ging an {den Letzten|die Letzte} seines Blutes.\n{An den, der|An die, die} die Lampen anzündet."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The circlet passed to the last of his blood.\nThe one who lights the lamps."
+          }
+        }
+      }
+    },
+    "slides.prologue.4.label" : {
+      "comment" : "The paper label on the last prologue slide: the name Odile wrote into the family book. {lord} is the typed name (up to 16 letters); {a|b}: Burgherr | Burgherrin.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{Burgherr|Burgherrin} {lord}"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{lord}, {Lord|Lady} Lantern"
+          }
+        }
+      }
+    },
+    "slides.skip" : {
+      "comment" : "The small button in the corner of the story slides that ends them at once.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Überspringen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

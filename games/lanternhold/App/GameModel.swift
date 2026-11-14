@@ -164,6 +164,8 @@ final class GameModel {
 
     // The HUD and the screens (the game).
     private(set) var overlay: Overlay? = nil
+    /// Panels lane: the slide stage over everything (the prologue, later the endings; `UI/Slides/`).
+    let slides = SlideStage()
     /// Where the open card's place is on screen, 0 ... 1 of the width (the card stands above it).
     private(set) var cardAnchor = 0.5
     private(set) var gold = 0
