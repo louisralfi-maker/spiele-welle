@@ -120,7 +120,8 @@ taxes on foot cost too much of a 156 s day. Both are judged on the device with b
 ## 7. Builds and lanes
 
 - **Build 2 (Monday 16.11.):** taxes on foot; presence if its step passes its gate in time.
-- **Build 3:** the hearth, the beacons, the wealth stages in the picture, with the town's growth and the craftsmen.
+- **Build 3:** the hearth, the beacons, the wealth stages in the picture, with the town's growth and the craftsmen,
+  and the drill yard (`docs/YARD.md`, 14.11. 16:04).
 - **Core first** in a lane of its own (front, branch `claude/lh-front`, `docs/workflows/front-lane.js`); the screen
   side is hooked at the join, in the rebuilt gorge and hall.
 - **People lane:** a second, better cloth state for every working figure (section 2).

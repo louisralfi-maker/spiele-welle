@@ -245,3 +245,11 @@ director's decisions on the highs and on section 12's questions are in `docs/wor
 with critic 3, in the planning worktree). Never resume it; after a stop, write a continuation.
 The second house round started 14.11.2026 15:44 as task `wz57nek4b` (run `wf_d2951a3c-d0c`). The editor commits on
 the planning branch with the paths named on the commit; the lead does the same while it runs.
+
+**The drill yard, 14.11.2026 16:04.** Louis asked for a barracks at the wall where the soldiers train and are upgraded
+(fire arrows, a better bow) and left the decision and the whole plan to the director. Decided: yes, for build 3. The
+plan is `docs/YARD.md`: three stages (barracks, drill yard, armoury), recruit or trained, two works (the pitch kettle,
+the pavises), the soldiers' day, recruiting at the muster board, target T16. Nothing of it is in build 2. Core comes as
+a second front round after the lane's present steps; the picture in the second rounds of the world and people lanes;
+the words with build 3's batch. Notes went to the world, people, stage and front lanes: keep the room and the ids, no
+work now.
