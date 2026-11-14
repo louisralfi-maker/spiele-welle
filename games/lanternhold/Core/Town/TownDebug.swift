@@ -1,9 +1,9 @@
 /// The town's debug starts (`-GWTown owed|paid|knock`, town-2), for the screenshots and the UI tests of the taxes on
 /// foot. They change today's ledger only (and the purse with it), after the start's other arguments:
 ///
-/// - `owed`: nobody has collected today: the ledger is worked out again for the realm as it stands (after a
-///   `-GWBuild demo`) and the gold the bot's morning took is taken out of the purse (a `-GWDay` start's bot collects
-///   at dawn). On the first morning nothing changes.
+/// - `owed`: nobody has collected today: every part is owed again and the gold the bot's morning took is taken out of
+///   the purse (a `-GWDay` start's bot collects at dawn); when the paying places changed after the dawn (a `-GWBuild
+///   demo`), the ledger is worked out again for the realm as it stands. On the first morning nothing changes.
 /// - `paid`: the lord collected every part long ago (no toss in the air, every door shut).
 /// - `knock`: that, and the first house was knocked at long ago: its shutters are closed and its window stays dark
 ///   tonight.
@@ -15,13 +15,15 @@ enum TownDebug {
     static func apply(_ s: inout GameState, mode: Mode, balance: Balance) {
         guard var town = s.town, var day = town.today else { return }
         let long = s.simTime - 3600
-        if mode == .owed && !Town.isFirstMorning(day) {
-            // The ledger again for the realm as it stands now (a `-GWBuild demo` raised fields and a market after the
-            // dawn), the purse without what was collected of the old one.
+        let places = Town.payingPlaces(s).map(\.plot)
+        if mode == .owed && !Town.isFirstMorning(day) && places != day.places.map(\.plot) {
+            // The paying places changed after the dawn (a `-GWBuild demo` raised fields and a market): the ledger again
+            // for the realm as it stands now (at the dawn's happiness), the purse without what was collected.
             for place in day.places {
                 s.gold = max(0, s.gold - (place.collectorGold == nil ? place.tossGold : 0) - place.knockGold)
             }
-            var fresh = Town.ledger(s, taxes: Economy.taxes(s, happiness: s.happiness, balance: balance),
+            let happiness = s.lastReport?.happinessBefore ?? s.happiness
+            var fresh = Town.ledger(s, taxes: Economy.taxes(s, happiness: happiness, balance: balance),
                                     balance: balance)
             fresh.doubled = day.doubled
             fresh.collectorOut = day.collectorOut
