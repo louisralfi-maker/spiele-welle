@@ -98,7 +98,9 @@ def problems_for(lang, key, text, english, german):
             warnings.append("the English turns on lord or lady here and this text never does: check a Burgherrin")
 
     # Length.
-    if kind:
+    if not kind:
+        errors.append("no budget: the key's name follows none of the kinds (i18nlib.kind_of, StoryLanguages.kind)")
+    else:
         budget = lib.limit(kind, lang)
         length = lib.longest(text, lang)
         if length > budget:
