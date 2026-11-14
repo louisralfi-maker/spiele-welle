@@ -83,6 +83,18 @@ final class EndingsTests: XCTestCase {
         let open = RealmTale.sample(.openLantern, lord: LordIdentity(name: "Mira", form: .lady)).show()
         XCTAssertEqual(open.slides[1].picture.name(for: .lady), "slideOpen2Lady")
         XCTAssertEqual(open.slides[1].picture.name(for: .lord), "slideOpen2Lord")
+        // The Shuttered Lantern's middle picture follows its second line (critic 1 of panels-2, high 3): Seren's grey
+        // lantern only when she was handed over, otherwise the house's banners on the shut gate.
+        var shut = RealmTale.sample(.shutteredLantern, lord: .standard)
+        XCTAssertTrue(shut.serenHandedOver)
+        XCTAssertEqual(shut.show().slides[1].picture, .fixed("slideShut2"))
+        shut.serenHandedOver = false
+        XCTAssertEqual(shut.show().slides[1].picture, .fixed(ChapterEnding.shutGatePicture))
+        XCTAssertNotEqual(shut.secondLineKey, "slides.seren.lantern")
+        let gate = try XCTUnwrap(SlideText.pictureURL(ChapterEnding.shutGatePicture), "the gate's picture is there")
+        XCTAssertEqual(UIImage(contentsOfFile: gate.path)?.cgImage?.width, SlideShow.pictureWidth)
+        XCTAssertEqual(ChapterEnding.shutteredLantern.pictureNames,
+                       ["slideShut1", "slideShut2", "slideShut3", "slideShut2Gate"])
     }
 
     func testTheMiddleSlideNamesTheLeaningThenTheHousesOrSeren() {
@@ -113,7 +125,7 @@ final class EndingsTests: XCTestCase {
         var keys = ["slides.end", "slides.seren.lantern", "slides.houses.some", "slides.houses.all",
                     "slides.houses.few", "slides.houses.alone", "end.chapter", "end.lord", "end.nights",
                     "end.judgments", "end.fallen", "end.way", "end.stood", "end.alone", "end.begin", "end.hold",
-                    "end.begin.hint", "end.hold.hint"]
+                    "end.begin.hint", "end.hold.hint", "end.begin.ask", "end.begin.ends", "end.cancel"]
         for ending in ChapterEnding.allCases {
             keys += [ending.firstKey, ending.thirdKey, ending.nameKey]
             keys += Leaning.allCases.map(ending.leaningKey)

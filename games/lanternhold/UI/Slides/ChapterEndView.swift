@@ -5,14 +5,17 @@ import UIKit
 /// slides away and a page of the house chronicle lies in the lantern's beam on the same dark stage, in the ending's own
 /// light. It tells the realm's tale in the few things a player cares about: the nights held, the judgments spoken, the
 /// fallen, the lord's way (the leaning's name) and who stood by (the banners of the houses, drawn as the hall hangs
-/// them, or House Lantern alone). Then "Begin again" (a new realm) in wax red and "Hold the realm" (the Long Watch)
-/// as a quiet plaque. Identifiers: `end-root`, `end-ending` (value: the ending's id), `end-nights`, `end-judgments`,
-/// `end-fallen`, `end-way`, `end-stood`, `end-begin`, `end-hold`.
+/// them, or House Lantern alone). Then "Hold the realm" (the Long Watch) as the main button and "Begin again" (a new
+/// realm) as a quiet plaque in wax red that asks first. Identifiers: `end-root`, `end-ending` (value: the ending's id),
+/// `end-nights`, `end-judgments`, `end-fallen`, `end-way`, `end-stood`, `end-begin`, `end-hold`, `end-begin-ask`,
+/// `end-begin-cancel`, `end-begin-confirm`.
 @MainActor
 struct ChapterEndView: View {
     let model: GameModel
     let tale: RealmTale
     @State private var shown = false
+    /// "Begin again" was tapped once: the card asks before this realm ends.
+    @State private var askingToBegin = false
 
     private var look: SlideLampLook { SlideLampLook.of(tale.ending.lamp) }
     private var reduceMotion: Bool { model.reduceMotion }
@@ -144,7 +147,18 @@ struct ChapterEndView: View {
         .accessibilityIdentifier("end-stood")
     }
 
-    private var buttons: some View {
+    @ViewBuilder private var buttons: some View {
+        if askingToBegin {
+            beginQuestion
+        } else {
+            choices
+        }
+    }
+
+    /// Critic 1 of panels-2, high 5: the main button goes on (the realm is kept), as the main button does everywhere in
+    /// the game; the button that ends this realm is quiet with wax-red words and asks first, as the pause sheet's
+    /// "Restart chapter" does.
+    private var choices: some View {
         HStack(spacing: 14) {
             Spacer(minLength: 0)
             if model.canHoldTheRealm {
@@ -155,21 +169,64 @@ struct ChapterEndView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
-                .buttonStyle(QuietButtonStyle())
+                .buttonStyle(GoldButtonStyle())
                 .accessibilityHint(Text(verbatim: text("end.hold.hint")))
                 .accessibilityIdentifier("end-hold")
             }
             Button {
-                model.beginAgain()
+                askingToBegin = true
             } label: {
                 Text(verbatim: text("end.begin"))
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
-            .buttonStyle(GoldButtonStyle())
+            .buttonStyle(QuietButtonStyle(danger: true))
             .accessibilityHint(Text(verbatim: text("end.begin.hint")))
             .accessibilityIdentifier("end-begin")
             Spacer(minLength: 0)
+        }
+    }
+
+    /// The second tap: a new realm ends this one. Cancel is the main button.
+    private var beginQuestion: some View {
+        VStack(spacing: 6) {
+            Text(verbatim: text("end.begin.ask"))
+                .font(Theme.caps(.headline))
+                .foregroundStyle(Theme.rubric)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
+                .accessibilityIdentifier("end-begin-ask")
+            Text(verbatim: text("end.begin.ends"))
+                .font(Theme.serif(.subheadline))
+                .foregroundStyle(Theme.inkSoft)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 14) {
+                Spacer(minLength: 0)
+                Button {
+                    askingToBegin = false
+                } label: {
+                    Text(verbatim: text("end.cancel"))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                .buttonStyle(GoldButtonStyle())
+                .accessibilityIdentifier("end-begin-cancel")
+                Button {
+                    askingToBegin = false
+                    model.beginAgain()
+                } label: {
+                    Text(verbatim: text("end.begin"))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                .buttonStyle(QuietButtonStyle(danger: true))
+                .accessibilityHint(Text(verbatim: text("end.begin.hint")))
+                .accessibilityIdentifier("end-begin-confirm")
+                Spacer(minLength: 0)
+            }
+            .padding(.top, 2)
         }
     }
 }

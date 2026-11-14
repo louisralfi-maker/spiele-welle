@@ -45,8 +45,8 @@ extension GameModel {
     /// tuned by T7), so the end card offers to hold the realm. Its events (eclipse, festival, crows) are not built.
     var canHoldTheRealm: Bool { true }
 
-    /// "Begin again": a new realm on day 1, as the pause sheet's "Restart chapter" makes it (the Chronicle stays; the
-    /// name entry asks who holds it).
+    /// "Begin again", after the card asked (`end-begin-confirm`): a new realm on day 1, as the pause sheet's "Restart
+    /// chapter" makes it (the Chronicle stays; the name entry asks who holds it).
     func beginAgain() {
         guard slides.endCard != nil else { return }
         slides.endCard = nil

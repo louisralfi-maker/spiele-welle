@@ -154,6 +154,8 @@ struct SlideArgs: Sendable, Equatable {
     static let keys = ["GWSlides", "GWPrologue"]
     /// `-GWSlides end`: the chapter's end card alone (`ending1` to `ending3` play an ending, then the card).
     static let endCard = "end"
+    /// `-GWSlides ending2gate`: the Shuttered Lantern with Seren kept (its middle slide shows the shut gate).
+    static let shutGate = "ending2gate"
 
     /// The show to open at launch.
     var show: String?

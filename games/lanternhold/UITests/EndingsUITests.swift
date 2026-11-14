@@ -5,8 +5,9 @@ import XCTest
 /// join):
 /// - `testTheThreeEndings`: `-GWSlides ending1|ending2|ending3`, each with its sample tale. Every slide is saved, the
 ///   end card after the last (71 to 82). The Open Lantern (the Burgherrin) ends with "Hold the realm" and the realm
-///   runs on; the Shuttered Lantern is skipped from its first slide straight to the card; the Guttering Lantern (the
-///   Burgherr) ends with "Begin again" and day 1 of a new realm.
+///   runs on; the Shuttered Lantern is skipped from its first slide straight to the card (and with Seren kept its
+///   middle slide shows the shut gate, 77g); the Guttering Lantern (the Burgherr) ends with "Begin again", which asks
+///   first (83a: Cancel, then Begin again again) and leads to day 1 of a new realm.
 /// - `testTheFinaleEndsTheChapter`: the finale's dawn report (`-GWScreen finale`), Continue, the ending it earned
 ///   (83), Skip, the end card with this realm's own tale (84).
 /// Saves `<nn>-<what>-<lang>`.
@@ -20,7 +21,11 @@ final class EndingsUITests: XCTestCase {
         ProcessInfo.processInfo.environment["GW_LANG"] ?? "en"
     }
 
-    private var typedName: String { language == "de" ? "Annegret" : "Mira" }
+    /// The typed name fits the form (critic 1 of panels-2: "Mira, Lord Lantern" looked like a bug).
+    private func typedName(lady: Bool) -> String {
+        if lady { return language == "de" ? "Annegret" : "Mira" }
+        return language == "de" ? "Gerold" : "Oswin"
+    }
 
     func testTheThreeEndings() {
         XCUIDevice.shared.orientation = .landscapeLeft
@@ -63,15 +68,41 @@ final class EndingsUITests: XCTestCase {
         }
         app.terminate()
 
+        // The Shuttered Lantern with Seren kept: its middle slide shows the shut gate, not her lantern.
+        app = launch(["-GWSlides", "ending2gate", "-GWLord", "lord"])
+        if waitForStage(app, "ending2gate") != nil {
+            pause(2.6)
+            let next = element(app, "story-next")
+            next.tap()
+            pause(1.9)
+            attach(XCUIScreen.main.screenshot(), "77g-shut-2-gate-\(language)")
+            XCTAssertFalse(next.label.contains("Seren"), "without Seren handed over the words speak of the banners")
+        }
+        app.terminate()
+
         // The Guttering Lantern, the Burgherr: three slides, the end card, "Begin again".
         app = launch(["-GWSlides", "ending3", "-GWLord", "lord"])
         if let stage = waitForStage(app, "ending3") {
             _ = tapThrough(app, names: ["80-gutter-1", "81-gutter-2-lord", "82-gutter-3"])
             XCTAssertTrue(waitForGone(stage, timeout: 6))
             checkEndCard(app, ending: "ending3", shot: "83-gutter-end")
+            // "Begin again" asks first; Cancel keeps the realm, the second "Begin again" ends it.
             let begin = element(app, "end-begin")
             checkTarget(begin, "Begin again")
             begin.tap()
+            let cancel = element(app, "end-begin-cancel")
+            XCTAssertTrue(cancel.waitForExistence(timeout: 4), "Begin again asks before the realm ends")
+            pause(0.8)
+            attach(XCUIScreen.main.screenshot(), "83a-gutter-begin-ask-\(language)")
+            checkTarget(cancel, "Cancel")
+            cancel.tap()
+            XCTAssertTrue(element(app, "end-begin").waitForExistence(timeout: 4), "Cancel keeps the card and the realm")
+            XCTAssertTrue(element(app, "end-root").exists)
+            element(app, "end-begin").tap()
+            let confirm = element(app, "end-begin-confirm")
+            XCTAssertTrue(confirm.waitForExistence(timeout: 4))
+            checkTarget(confirm, "Begin again (confirm)")
+            confirm.tap()
             XCTAssertTrue(waitForGone(element(app, "end-root"), timeout: 6))
             XCTAssertTrue(waitForStatus(app, "day:1 ", timeout: 10), "a new realm on day 1")
             pause(1.0)
@@ -106,8 +137,9 @@ final class EndingsUITests: XCTestCase {
 
     private func launch(_ extra: [String]) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-GWReset", "YES", "-GWSeed", "1", "-GWSkipOnboarding", "YES", "-GWLordName", typedName]
-            + extra
+        let lady = !zip(extra, extra.dropFirst()).contains { $0 == "-GWLord" && $1 == "lord" }
+        app.launchArguments = ["-GWReset", "YES", "-GWSeed", "1", "-GWSkipOnboarding", "YES", "-GWLordName",
+                               typedName(lady: lady)] + extra
         app.launch()
         return app
     }

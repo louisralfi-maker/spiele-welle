@@ -20,7 +20,7 @@
       }
     },
     "end.begin" : {
-      "comment" : "The end card's main button: a new realm from day 1.",
+      "comment" : "The end card's quiet button (it asks first): a new realm from day 1.",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -33,6 +33,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Begin again"
+          }
+        }
+      }
+    },
+    "end.begin.ask" : {
+      "comment" : "The end card, after 'Begin again' was tapped once: the question.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein neues Reich beginnen?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Begin a new realm?"
+          }
+        }
+      }
+    },
+    "end.begin.ends" : {
+      "comment" : "The end card, under the question: what a new realm means.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Reich endet hier. Die Chronik bewahrt seine Taten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This realm ends here. The Chronicle keeps its records."
           }
         }
       }
@@ -51,6 +87,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A new realm from the first day."
+          }
+        }
+      }
+    },
+    "end.cancel" : {
+      "comment" : "The end card's question: keep this realm (the main button).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbrechen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
           }
         }
       }
@@ -92,7 +146,7 @@
       }
     },
     "end.hold" : {
-      "comment" : "The end card's second button: this realm goes on in the endless Long Watch.",
+      "comment" : "The end card's main button: this realm goes on in the endless Long Watch.",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -566,13 +620,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unter den Lumpen lag ein Kindermantel in unserem Blaugrün, uralt gewebt.\nTamsin faltete ihn und sagte nichts."
+            "value" : "Unter den Lumpen lag ein Kindermantel in unserem Blaugrün.\nKein Webstuhl hier hat ihn gewebt. Tamsin faltete ihn und schwieg."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Among the rags lay a child's coat in our teal, an ancient weave.\nTamsin folded it and said nothing."
+            "value" : "Among the rags lay a child's coat in our teal.\nNo loom here wove it. Tamsin folded it and said nothing."
           }
         }
       }

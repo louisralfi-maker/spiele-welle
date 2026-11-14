@@ -48,6 +48,15 @@ enum ChapterEnding: String, CaseIterable, Sendable {
         }
     }
 
+    /// The Shuttered Lantern's middle picture when Seren was not handed over (critic 1 of panels-2, high 3): the
+    /// house's banners hanging wet and grey on the shut gate, so the picture follows the words.
+    static let shutGatePicture = "slideShut2Gate"
+
+    /// Every picture this ending may show (the Shuttered Lantern's middle slide has two).
+    var pictureNames: [String] {
+        pictures.flatMap(\.names) + (self == .shutteredLantern ? [ChapterEnding.shutGatePicture] : [])
+    }
+
     /// The ending's name on the end card ("The Open Lantern").
     var nameKey: String { "end.name.\(rawValue)" }
     /// The first slide's words (what happened) and the third's (the first big hint).
@@ -179,6 +188,13 @@ struct RealmTale: Sendable, Equatable {
         return "slides.houses.some"
     }
 
+    /// The middle slide's picture follows its second line: in the Shuttered Lantern Seren's grey lantern on the wall
+    /// only when she was handed over, otherwise the house's banners wet and grey on the shut gate.
+    var middlePicture: SlidePicture {
+        if ending == .shutteredLantern && !serenHandedOver { return .fixed(ChapterEnding.shutGatePicture) }
+        return ending.pictures[1]
+    }
+
     /// The houses' names joined as the player's language joins a list ("Varn and Brine", „Varn und Brine“).
     func housesList(language: String? = nil) -> String {
         let formatter = ListFormatter()
@@ -194,7 +210,7 @@ struct RealmTale: Sendable, Equatable {
         let fill = second == "slides.houses.some" ? housesList(language: language) : nil
         return SlideShow(id: ending.rawValue, slides: [
             Slide(picture: pictures[0], textKey: ending.firstKey, timing: .ending),
-            Slide(picture: pictures[1], textKey: ending.leaningKey(leaning), timing: .ending, moreKeys: [second],
+            Slide(picture: middlePicture, textKey: ending.leaningKey(leaning), timing: .ending, moreKeys: [second],
                   fill: fill),
             Slide(picture: pictures[2], textKey: ending.thirdKey, timing: .ending),
         ], skippable: true, lamp: ending.lamp, lastHintKey: "slides.end")

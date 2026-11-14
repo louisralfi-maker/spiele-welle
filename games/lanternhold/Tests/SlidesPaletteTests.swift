@@ -25,10 +25,10 @@ final class SlidesPaletteTests: XCTestCase {
 
     func testEverySlideIsPaletteArt() throws {
         XCTAssertEqual(Self.palette.count, 89, "the palette's 89 distinct colours are all there")
-        // The prologue's five and the endings' eleven (panels-2).
-        let endings = ChapterEnding.allCases.flatMap { $0.pictures.flatMap(\.names) }
+        // The prologue's five and the endings' twelve (panels-2; the shut gate since its fix round 1).
+        let endings = ChapterEnding.allCases.flatMap(\.pictureNames)
         let names = SlideShow.prologue.pictureNames + endings
-        XCTAssertEqual(names.count, 16)
+        XCTAssertEqual(names.count, 17)
         for name in names {
             let url = try XCTUnwrap(SlideText.pictureURL(name), "\(name).png is in the bundle")
             let image = try XCTUnwrap(PNGDecoder.load(url: url), "\(name) decodes")

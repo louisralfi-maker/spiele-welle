@@ -119,9 +119,9 @@ ENDINGS = [
      "Ihr sagtet ihnen die Wahrheit. Sie war mehr, als sie tragen konnten."),
     ("slides.ending3.3", "The Guttering Lantern, slide 3 of 3: among the creatures' rags a small coat in the house's "
      "teal, of an old weave; Tamsin folds it. Quiet: never say what it means.",
-     "Among the rags lay a child's coat in our teal, an ancient weave.\nTamsin folded it and said nothing.",
-     "Unter den Lumpen lag ein Kindermantel in unserem Blaugrün, uralt gewebt.\nTamsin faltete ihn und sagte "
-     "nichts."),
+     "Among the rags lay a child's coat in our teal.\nNo loom here wove it. Tamsin folded it and said nothing.",
+     "Unter den Lumpen lag ein Kindermantel in unserem Blaugrün.\nKein Webstuhl hier hat ihn gewebt. Tamsin "
+     "faltete ihn und schwieg."),
     ("slides.houses.some", "An ending's slide 2, line 2: the houses whose banners hung in the hall. %@ is their names "
      "joined as a list (never translated: Varn, Brine, Oxmoor, Calder, Lorn).",
      "The banners of %@ hung in our hall.",
@@ -163,10 +163,17 @@ ENDINGS = [
      "An Eurer Seite"),
     ("end.alone", "The end card, under 'Stood by you', when no house stood with the realm.",
      "House Lantern alone", "Haus Lantern allein"),
-    ("end.begin", "The end card's main button: a new realm from day 1.", "Begin again", "Neu beginnen"),
+    ("end.begin", "The end card's quiet button (it asks first): a new realm from day 1.", "Begin again",
+     "Neu beginnen"),
+    ("end.begin.ask", "The end card, after 'Begin again' was tapped once: the question.", "Begin a new realm?",
+     "Ein neues Reich beginnen?"),
+    ("end.begin.ends", "The end card, under the question: what a new realm means.",
+     "This realm ends here. The Chronicle keeps its records.",
+     "Dieses Reich endet hier. Die Chronik bewahrt seine Taten."),
+    ("end.cancel", "The end card's question: keep this realm (the main button).", "Cancel", "Abbrechen"),
     ("end.begin.hint", "VoiceOver hint of 'Begin again'.", "A new realm from the first day.",
      "Ein neues Reich vom ersten Tag an."),
-    ("end.hold", "The end card's second button: this realm goes on in the endless Long Watch.", "Hold the realm",
+    ("end.hold", "The end card's main button: this realm goes on in the endless Long Watch.", "Hold the realm",
      "Das Reich halten"),
     ("end.hold.hint", "VoiceOver hint of 'Hold the realm'.", "This realm goes on into the Long Watch, from night 21.",
      "Dieses Reich geht weiter in die Lange Wacht, ab Nacht 21."),
