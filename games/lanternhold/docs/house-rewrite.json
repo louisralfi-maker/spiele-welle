@@ -35,10 +35,10 @@
   {
    "key": "line.herald_throne",
    "en_old": "The King beneath the Gloom remembers this hall. He remembers the throne. He remembers it was his.",
-   "en_new": "The King beneath the Gloom remembers this fire. He remembers it in his own hall, long before yours.",
+   "en_new": "The King beneath the Gloom remembers this fire. He remembers it in his own hall, a thousand years before yours.",
    "de_old": "Der König unter der Düsternis erinnert sich an diesen Saal. An den Thron. Daran, dass er seiner war.",
-   "de_new": "Der König unter der Düsternis erinnert sich an dieses Feuer. Es brannte in seinem Saal, lange vor Eurem.",
-   "why": "The dark's claim is the fire, never the hall or the chair (HOUSE.md 6.4). \"He remembers the throne. It was his.\" read with the day-15 belief (the King is Aldric) as a usurper charge, and Lady Oriel built this hall in year 118, so it was never the old King's. \"It was his\" alone could still read as Aldric's fire; naming his own hall, long before ours, rules Aldric out."
+   "de_new": "Der König unter der Düsternis erinnert sich an dieses Feuer. Es brannte in seinem Saal, tausend Jahre vor Eurem.",
+   "why": "The dark's claim is the fire, never the hall or the chair (HOUSE.md 6.4). \"He remembers the throne. It was his.\" read with the day-15 belief (the King is Aldric) as a usurper charge, and Lady Oriel built this hall in year 118, so it was never the old King's. \"It was his\" alone could still read as Aldric's fire; naming his own hall, a thousand years before ours, rules Aldric out (\"long before\" could still read as Aldric's years in this hall before the lord) and echoes the dark's telling (HOUSE.md 6.4)."
   },
   {
    "key": "line.seren_gate",
@@ -341,8 +341,8 @@
    "en_old": "Back in my kitchen, {lord}? My {lord|lady}, I mean. Mind the cat, the oven and the soup, in that order.",
    "en_new": "Back in my kitchen, {Lord|Lady} {lord}? Good. Mind the cat, the oven and the soup, in that order.",
    "de_old": "Wieder in meiner Küche, {lord}? {Mein Herr|Meine Herrin}, meine ich. Achtet auf Katze, Ofen und Suppe, in dieser Reihenfolge.",
-   "de_new": "Wieder in meiner Küche, {lord} von Lantern? Gut so, {mein Herr|meine Herrin}. Achtet auf Katze, Ofen und Suppe, in dieser Reihenfolge.",
-   "why": "Tamsin called the lord by the bare name and corrected herself, as to the kitchen child. Warmth stays, respect is shown (HOUSE.md 1). German does not address a lord by title and first name, so the name stands with the house and she addresses \"{mein Herr|meine Herrin}\"; the question comes first, so it never sounds like scolding at the door."
+   "de_new": "Wieder in meiner Küche, {Burgherr|Burgherrin} {lord}? Gut so. Achtet auf Katze, Ofen und Suppe, in dieser Reihenfolge.",
+   "why": "Tamsin called the lord by the bare name and corrected herself, as to the kitchen child. Warmth stays, respect is shown (HOUSE.md 1). German names a lord by title and first name, as the strings already say \"Burgherr Aldric\"; \"{lord} von Lantern\" without a title was not idiomatic, and {lord} must stay, so the title is \"{Burgherr|Burgherrin}\". The question comes first, so it never sounds like scolding at the door."
   },
   {
    "key": "petition.marek_relic.text",
@@ -438,7 +438,7 @@
   {
    "line": 239,
    "old": "  \"lamplighter\" and does not mean it as an insult. An old lady of House Lorn says the Lanterns \"came",
-   "new": "  \"heir of the thief\" as one states a title. An old lady of House Lorn says the Lanterns \"came"
+   "new": "  \"heir of the thief\" (the fire, never the chair) as one states a title. An old lady of House Lorn says the Lanterns \"came"
   },
   {
    "line": 255,
@@ -568,7 +568,7 @@
   {
    "line": 347,
    "old": "| The herald | exactly what the lord is | \"lamplighter\" |",
-   "new": "| The herald | the heir of a thief | \"heir of the thief\" |"
+   "new": "| The herald | the heir of a thief (the fire, never the chair) | \"heir of the thief\", by the borrowed fire |"
   },
   {
    "line": 359,
@@ -648,7 +648,7 @@
   {
    "line": 519,
    "old": "\"lamplighter\" as one states a title. Tell: it does not flinch from the hearth fire. It looks at it too",
-   "new": "\"heir of the thief\" as one states a title. Tell: it does not flinch from the hearth fire. It looks at it too"
+   "new": "\"heir of the thief\" (the fire, never the chair) as one states a title. Tell: it does not flinch from the hearth fire. It looks at it too"
   },
   {
    "line": 523,
@@ -678,7 +678,7 @@
   {
    "line": 599,
    "old": "| 2 | For a thousand years House Lantern has held it. / Nobody knows what waits on the other side. | Seen from the castle wall, looking west: black rock walls of the Throat, no plant anywhere, and at the far end a narrow slit of grey-violet fog with cold eyes in it. A teal banner with the gold lantern at the frame's edge. |",
-   "new": "| 2 | Saint Taper struck the Light from the bare rock. / For a thousand years his house has held the door. | Seen from the castle wall, looking west: black rock walls of the Throat, no plant anywhere, and at the far end a narrow slit of grey-violet fog with cold eyes in it. A teal banner with the gold lantern at the frame's edge. |"
+   "new": "| 2 | Saint Taper struck the Light from the bare rock. / For a thousand years House Lantern has kept the door. | Seen from the castle wall, looking west: black rock walls of the Throat, no plant anywhere, and at the far end a narrow slit of grey-violet fog with cold eyes in it. A teal banner with the gold lantern at the frame's edge. |"
   },
   {
    "line": 601,
@@ -795,7 +795,7 @@
   {
    "line": 2062,
    "old": "  herald cold (\"lamplighter\"). German addresses the king with \"Ihr\" and \"Euch\".",
-   "new": "  herald cold (\"heir of the thief\"). German addresses the king with \"Ihr\" and \"Euch\"."
+   "new": "  herald cold (\"heir of the thief\"). German addresses the lord with \"Ihr\" and \"Euch\"."
   },
   {
    "line": 2088,

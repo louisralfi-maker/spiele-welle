@@ -69,7 +69,11 @@ DESIGN_ALLOWED = {}  # DESIGN.md line -> reason
 # "Thief" is always tied to the fire, never to the chair or the hall (HOUSE.md 6.4): after apply, a value that says
 # the house's "thief" must also say fire/Feuer/Flame, unless it directly follows a text that does (key -> reason).
 # (The clerk in odile_ledger is another thief and is not the lord's house.)
-THIEF = re.compile(r'heir of (a |the )?thief|des Diebes', re.I)
+# The forms: "heir of (a|the) thief", "before the thief", "a thief"; „des Diebes", „eines Diebes", „vor dem Dieb",
+# „ein Dieb" (critic 4: 9.4's "Before the thief" / „Vor dem Dieb", 9.3's „Ein Dieb"). "Hunt the thief" / „den Dieb"
+# and „die Diebe" (odile_ledger, lantern_lanes) are other thieves and match none of them.
+THIEF = re.compile(r'heir of (a |the )?thief|before the thief|\ba thief\b|\b(ein|d)es Diebes|\bvor dem Dieb\b|'
+                   r'\bein Dieb\b', re.I)
 THIEF_FIRE = re.compile(r'fire|flame|Feuer|Flamme', re.I)
 THIEF_SEAT = re.compile(r'throne|chair|seat|Thron|Stuhl|Sitz', re.I)
 THIEF_FOLLOWS = {'petition.herald_demand.r2': 'the reaction to herald_demand.text, which says "by {his|her} '
