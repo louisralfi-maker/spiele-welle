@@ -336,3 +336,17 @@ Wenn ja, mach es."
   for the build: a stale cache gives a wrong verdict. Cancelling other lanes' waiting rounds: they are theirs.
 - **The quota is the second brake.** Faster rounds mean more work per hour, so 99 % comes earlier than 01:30. If Louis
   sleeps then, the night is lost. He is asked to reset before he goes to bed.
+
+**Faster screen tests, 14.11.2026 18:53.** Louis: "Können wir nicht die Tests noch mehr beschleunigen, vielleicht dass
+das Game schneller läuft, schneller Screenshots?"
+
+- **Measured.** Every picture is one launch of the app: 96 launches for 17 tests in 25.2 minutes, 16 s a picture
+  (lh-s1-5). The world lane's sweep class alone runs 27 minutes that way. The app reads all its test switches in one
+  place (`App/DebugArgs.swift`), and `-GWTimeScale` (up to 20 times) exists but is used once.
+- **The speed kit** (one Opus agent, branch `claude/lh-speed`, report `ci-out/director/speed-kit.md`): a whole sweep
+  in one launch, 3 s a picture or less, additive, proven on the runner by the same pixels as the old way; a patch for
+  the world lane's sweep; recipes for the played tests (`-GWTimeScale`, fewer launches); the build's flags, measured.
+- **German rounds only for screens with words.** With `docs/HUD.md` the walked world carries no words, so its sweeps
+  are never run with `ui-de`.
+- **Order of adoption:** the world lane first, once the proof is in and looked at; every other class at the join, in
+  one pass. No lane changes anything before that.
