@@ -12,8 +12,9 @@ man rennt dorthin, wo es brennt." Spec: REALM.md section 3.
 ### What exists (all new files of this lane)
 
 - `Core/Front/FrontTuning.swift`: every number of the rule in one place, carried as `Balance.front` (presence radius 90,
-  speed ×1.25, harm ×0.5; relight reach 48 px, one in 4 s; touch 6 px, throw 60 px, shaken 8 s, grace 1.5 s; the
-  present bot's values; the dawn report's thresholds). Tuned on the runner from the spec's starting values (below).
+  speed ×1.25, harm ×0.5; a wall's braziers catch while he stands on it, elsewhere within 24 px in passing, one in 4 s
+  (fix round 1); touch 6 px, throw 60 px, shaken 8 s, grace 1.5 s; the present bot's values; the dawn report's
+  thresholds). Tuned on the runner from the spec's starting values (below).
 - `Core/Front/FrontState.swift`: the saved state (`FrontState`: shaken, grace and relight timers, the last throw and
   the last relight as stamps for the picture, tonight's tally), the report's front half (`FrontNightReport`) and its
   lines (`FrontLine`). Every field decodes with a default; a bad plot or an unknown creature kind is dropped on load.
@@ -40,10 +41,13 @@ man rennt dorthin, wo es brennt." Spec: REALM.md section 3.
   ×0.5 of the harm (in the breach and in passing): a quarter faster, twice as long. It replaces the old rally while the rule is on: the rally (DESIGN.md
   "The king at night": 80 px, ×1.25) is the same idea without the harm, and two bonuses for one thing would stack. The
   engines are crewed by castle staff and get nothing.
-- **Braziers.** A dead brazier within 48 px of him catches from his lantern, free, at most one in 4 s; the existing
-  `SimEvent.brazierLit(plot:)` fires, so the lantern sound already plays. By day nothing (braziers burn all day). The
-  braziers stand 20 to 45 px in front of their wall's face, so the lord standing on a wall's front edge keeps both of
-  that wall's fires burning; the ones further back catch as he passes.
+- **Braziers** (since fix round 1, a rule by belonging). While he stands on a standing wall (between its face and its
+  back, the gatehouse's passage included: `FrontNight.wallUnder`), the dead braziers of that wall's line
+  (`Realm.lines[i].braziers`) catch from his lantern: his wall's fires burn, wherever the world draws them. Elsewhere a
+  dead brazier within 24 px catches as he passes (the spec: about 20). Free, at most one in 4 s, the nearest first; the
+  existing `SimEvent.brazierLit(plot:)` fires, so the lantern sound already plays. A wall in rubble is no wall. By day
+  nothing (braziers burn all day). Round lh-f1-5 used a reach of 48 px instead, which fitted only today's brazier
+  positions (the critic: 40 px lost the whole effect).
 - **The old Light action** (`Sim.light`, `KingAction.light`, the old screen's button) still works and is marked as
   going. The reference bot lights with it: it must stay in Core for T1 to T8 (or they must be measured again); only the
   player's button goes.
@@ -69,19 +73,21 @@ man rennt dorthin, wo es brennt." Spec: REALM.md section 3.
 | `Core/Sim.swift` `dawn` | right after `s.lastReport = report` | `FrontNight.dawn(&s)` | the tally into the report |
 | `Core/Sim.swift` | doc comments of `KingAction.light`, `Sim.light` | "going at the join" | marks the old action |
 | `Core/Battle.swift` `stepCreatures` | the guards' strike at the front contact | `let aura = LordAura(s, balance: balance)`; `rally = aura.speed(at: soldier.x)` | presence or the old rally |
-| `Core/Battle.swift` `hurtGuards` | the holders' loop | `aura`, `share = aura.harm(at: soldier.x)`; `left * share`, `max(0, room) / share` | the guards' harm share |
+| `Core/Battle.swift` `hurtGuards` | the holders' loop | `aura`, `share = aura.harm(at: soldier.x)`; `left * share`, `max(0, room) / share`; `hpBefore`, `raw` and, after `s.soldiers[index] = soldier`, `FrontNight.withheld(&s, raw:, taken:, hp:, maxHP:)` | the guards' harm share; the harm presence kept off (fix round 1) |
 | `Core/Battle.swift` `stepSoldiers` | `let kingX = s.king.x` and the archers' rally | `let aura = LordAura(...)`; `rally = aura.speed(at: soldier.x)` | presence or the old rally |
-| `Core/Battle.swift` `contactDamage` | before the soldier loop; the hp loss | `let aura = LordAura(...)`; `* aura.harm(at: s1)` | harm in passing |
+| `Core/Battle.swift` `contactDamage` | before the soldier loop; the hp loss | `let aura = LordAura(...)`; `raw = harm * creatureHarmScale`, `hp -= raw * aura.harm(at: s1)`, then `FrontNight.withheld(...)` | harm in passing; the harm kept off (fix round 1) |
 | `tools/simtune/run.sh` | `SRC` | the three files `Core/Front/FrontTuning.swift FrontState.swift FrontNight.swift` | simtune compiles the core |
 
 Under the old rules every hook computes exactly the old numbers (`x * 1.0`, `x / 1.0` and the rally's own expression),
-so T1 to T8 are the same line for line (see the rounds).
+and `FrontNight.withheld` does nothing without `GameState.front`, so T1 to T8 are the same line for line (see the
+rounds).
 
 ### For the join: what the screen shows and which touch calls what
 
 - **Turn the rule on** for the player's realm: `FrontNight.adopt(&start)` and `FrontNight.adopt(&snapshot)` in
   `SimDriver.init`, and `FrontNight.adopt(&state)` in `SimDriver.restart`. A loaded old save gets it there too. The
-  bots (`-GWAutoplay play` included) may stay without it.
+  bots (`-GWAutoplay play` included) may stay without it. With the rule on, the old rally is gone by day too (it worked
+  at any hour; presence is a thing of the night), on purpose.
 - **Every frame** read `FrontNight.picture(state, balance:)`:
   - `underPresence` (soldier ids): those people straighten and shout, a warm rim on them (REALM.md section 3). No
     circle, no number, no HUD. Reduce Motion: the rim without the straightening bob.
@@ -89,21 +95,30 @@ so T1 to T8 are the same line for line (see the rounds).
     haptic and a dull thud (the wallHit sound, low rate). Reduce Motion: no slide, a short cross-fade.
   - `shakenLeft`, `shakenShare`: he stoops and the lantern sways while shaken; he straightens when it ends. The
     lantern's radius stays (it is the stage lane's).
-  - `lastRelight` (a new `at`): a spark arcs from his lantern to the brazier (up to 48 px, over the wall's face), the
-    brazier flares. The sound comes from `SimEvent.brazierLit` already. This is how the player learns the rule: stand
-    at the wall and its fires catch.
-  - `patch` (`FrontPatchOffer`): coins over the damaged wall where he stands; a touch on that wall raises the price, a
-    second touch calls `FrontNight.patch(&state, plot: offer.plot, balance:, events:)` (add a one-line wrapper on
-    `SimDriver`). Not `ready`: the coins shake; not `affordable`: dull coins and the refuse sound.
-- **No Light button and no prompt.** Walking past a dead brazier relights it.
+  - `lastRelight` (a new `at`): a spark leaves his lantern and the brazier flares; on his wall it crosses the parapet
+    to the wall's own fire (at the gatehouse up to about 165 px), in passing it is a short hop. The sound comes from
+    `SimEvent.brazierLit` already. This is how the player learns the rule: stand on the wall and its fires catch.
+  - `patch` (`FrontPatchOffer`): the damaged wall where he stands is paid by **the count** (PAY.md, the director's note
+    of 16:16): a touch on that wall's face opens the count, and when the last coin lands the count calls
+    `FrontNight.patch(&state, plot: offer.plot, balance:, events:)` once (add a one-line wrapper on `SimDriver`). Core
+    gives the count only `price` and the order; no pay picture of this lane's own. Not `ready`: the board shakes; not
+    `affordable`: the refuse sound.
+  - **Touch overlap.** The stage lane's "Raise the lantern" is a hold on the lord (0.35 s or longer), and the lord stands
+    on exactly the wall a touch patches. A hold that starts on the lord raises the lantern and never patches; a tap on
+    the wall's face away from the lord (or a tap on the lord shorter than the hold) opens the count.
+  - **The stamps after a load.** `lastThrow` and `lastRelight` are saved. After loading a save (and after a restart)
+    the screen takes the stored `at` values as already seen, so it never replays the last throw or spark.
+- **No Light button and no prompt.** Standing on a wall keeps its braziers burning; walking past a dead brazier
+  relights it.
 - **Events.** Nothing new in `SimEvent` (its switch in `Feedback.cue` is exhaustive and other lanes edit it): diff the
   `at` stamps, or add `.lordThrown(fromX:toX:)` and `.lordSteadied` at the join with their `Feedback` rows.
-- **The dawn report:** `FrontText.lines(report)` gives up to three short lines (where he stood, braziers relit, throws);
-  put them in the night half after the fallen. The card has no field for them yet (`ReportCard` is the rebuild's).
+- **The dawn report:** `FrontText.lines(report)` gives up to three short lines (where he stood, braziers caught,
+  throws); put them in the night half after the fallen. The card has no field for them yet (`ReportCard` is the
+  rebuild's). "There" comes only on a night his presence kept off at least one soldier's life of harm (fix round 1).
 - **Strings:** `Resources/Front.xcstrings`, English and German; the six other languages follow in the i18n pass (4 keys,
   2 of them plural).
 
-### Tuning and T13
+### Tuning and T13 (as of round lh-f1-5; the fix round's numbers are under "front-1, fix round 1")
 
 **The measure.** Every night 3 to 14 of seeds 1 to 10 is played twice from the reference bot's eve (the morning before
 it, the realm and the bot as they were): once by the reference bot under the old rules, once by the present bot under

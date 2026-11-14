@@ -14,7 +14,8 @@ let arguments = Array(CommandLine.arguments.dropFirst())
 var doProbe = arguments.contains("probe")
 var doVariants = arguments.contains("variants")
 var doHard = arguments.contains("hard")
-if !doProbe && !doVariants && !doHard {
+var doNight20 = arguments.contains("night20")
+if !doProbe && !doVariants && !doHard && !doNight20 {
     doProbe = true
     doVariants = true
     doHard = true
@@ -144,6 +145,18 @@ if doVariants {
     list.append(("bot: one rear trip", variant { $0.botMaxRearTrips = 1 }))
     list.append(("bot: rear trips unlimited", variant { $0.botMaxRearTrips = 99 }))
     list.append(("bot: never the guards", variant { $0.botJoinsGuards = false }))
+    list.append(("bot: fetch anywhere", variant { $0.botRelightDetour = 2000 }))
+    list.append(("bot: rear trips, way safe", variant { $0.botRearOnlyWhenQuiet = false }))
+    list.append(("bot: rear safe, any number", variant {
+        $0.botRearOnlyWhenQuiet = false
+        $0.botMaxRearTrips = 99
+    }))
+    list.append(("relight 2 s + rear safe", variant {
+        $0.relightEvery = 2
+        $0.botRearOnlyWhenQuiet = false
+    }))
+    list.append(("relight every 3 s", variant { $0.relightEvery = 3 }))
+    list.append(("relight every 1 s", variant { $0.relightEvery = 1 }))
     for speed in [1.2, 1.25, 1.3] {
         for harm in [0.45, 0.5, 0.55, 0.6] {
             list.append(("s\(speed) h\(harm)", variant {
@@ -165,11 +178,130 @@ if doVariants {
     say("== the falls ladder \(ladder): nights the present bot loses where the reference holds")
     for (name, b) in [("standard", standard), ("bot: no rear trips", variant { $0.botRearBraziers = false }),
                       ("bot: rear trips unlimited", variant { $0.botMaxRearTrips = 99 }),
+                      ("bot: rear trips, way safe", variant { $0.botRearOnlyWhenQuiet = false }),
+                      ("relight 2 s + rear safe", variant {
+                          $0.relightEvery = 2
+                          $0.botRearOnlyWhenQuiet = false
+                      }),
                       ("light: passing 48 only (old)", variant {
                           $0.relightOwnWall = false
                           $0.relightReach = 48
                       })] {
         say(row(name, measure(b, stresses: ladder)))
+    }
+    say("(\(elapsed()))")
+}
+
+// Night 20 under the rule, diagnosed (fix round 1: the present bot held night 20 without the beacon's last stage in 2 of
+// 20 seeds, the reference in 10). Each seed's eve (the reference's chapter) once; then night 20 without and with the
+// beacon's last stage by the reference under the old rules, by the reference under the rule (its Light action still
+// works) and by the present bot with variants of the rule and its habits.
+if doNight20 {
+    let n20 = TuningMetrics.targetSeeds
+    var eves20 = [GameState?](repeating: nil, count: n20)
+    DispatchQueue.concurrentPerform(iterations: n20) { index in
+        let start = GameState.newRealm(seed: UInt64(index + 1), balance: standard)
+        let chapter = TuningRun.play(start, bot: Autoplay.reference(), balance: standard, nights: 19)
+        lock.lock()
+        eves20[index] = chapter.fellOnNight == nil ? chapter.final : nil
+        lock.unlock()
+    }
+    say("")
+    say("== night 20 diagnosed: \(eves20.compactMap { $0 }.count) eves (\(elapsed()))")
+
+    struct Night20: Sendable {
+        var held = false
+        var margin = ""
+        var snuffed = 0
+        var relit = 0
+        var throwsBack = 0
+        var walls = ""
+        var lost = 0
+        var slain = false
+        var moves = 0
+        var trips = 0
+    }
+
+    func playNight(_ eve: GameState, bare: Bool, how: String, balance: Balance) -> Night20 {
+        var s = bare ? TuningRun.withoutBeacon(eve) : eve
+        var r = Night20()
+        var tally = PresentTally()
+        if how == "reference" || how == "reference under the rule" {
+            if how == "reference under the rule" { FrontNight.adopt(&s) }
+            var bot = Autoplay.reference(buildsBeacon: !bare)
+            Sim.runToDawn(&s, balance: balance, bot: &bot)
+        } else {
+            var bot = PresentBot(day: Autoplay.reference(buildsBeacon: !bare))
+            FrontTuningRun.runToDawn(&s, balance: balance, bot: &bot)
+            tally = bot.tally
+        }
+        r.held = !s.defeated
+        if let m = FrontTuningRun.margin(s) { r.margin = "F\(Int(m.rounded()))" } else {
+            r.margin = "H\(Int(s.night.hearthLowest.rounded()))"
+        }
+        r.snuffed = s.night.braziersSnuffed
+        r.relit = s.front?.night.relit ?? 0
+        if let report = s.lastReport?.front, !s.defeated { r.relit = report.relit; r.throwsBack = report.throwsBack }
+        if s.defeated { r.throwsBack = s.front?.night.throwsBack ?? 0 }
+        r.walls = TuningRun.timeline(s.night)
+        r.lost = s.night.fallen.count
+        r.slain = s.night.kingSlain
+        r.moves = tally.moves
+        r.trips = tally.relightTrips
+        return r
+    }
+
+    let cases: [(String, String, Balance)] = [
+        ("reference (old rules)", "reference", standard),
+        ("reference under the rule", "reference under the rule", standard),
+        ("present: standard", "present", standard),
+        ("present: relight every 2 s", "present", variant { $0.relightEvery = 2 }),
+        ("present: relight every 1 s", "present", variant { $0.relightEvery = 1 }),
+        ("present: fetch anywhere", "present", variant { $0.botRelightDetour = 2000 }),
+        ("present: rear trips, way safe", "present", variant { $0.botRearOnlyWhenQuiet = false }),
+        ("present: rear trips safe, any", "present", variant {
+            $0.botRearOnlyWhenQuiet = false
+            $0.botMaxRearTrips = 99
+        }),
+        ("present: no throws", "present", variant { $0.touchReach = -1_000_000 }),
+        ("present: stand 14", "present", variant { $0.botBehindWall = 14 }),
+        ("present: harm 1 (rally)", "present", variant { $0.presenceHarm = 1 }),
+        ("present: no presence", "present", variant { $0.presenceRadius = -1 }),
+        ("present: 2 s + rear safe", "present", variant {
+            $0.relightEvery = 2
+            $0.botRearOnlyWhenQuiet = false
+        }),
+    ]
+    for (name, how, b) in cases {
+        var bare = [Night20?](repeating: nil, count: n20)
+        var full = [Night20?](repeating: nil, count: n20)
+        DispatchQueue.concurrentPerform(iterations: n20 * 2) { job in
+            let index = job / 2
+            guard let eve = eves20[index] else { return }
+            let one = playNight(eve, bare: job % 2 == 0, how: how, balance: b)
+            lock.lock()
+            if job % 2 == 0 { bare[index] = one } else { full[index] = one }
+            lock.unlock()
+        }
+        let b0 = bare.compactMap { $0 }
+        let f0 = full.compactMap { $0 }
+        let k = Double(max(1, b0.count))
+        func mean(_ list: [Night20], _ f: (Night20) -> Int) -> String {
+            TuningRun.tenths(Double(list.reduce(0) { $0 + f($1) }) / k)
+        }
+        var line = "\(name.padding(toLength: 30, withPad: " ", startingAt: 0)) without: held \(b0.filter { $0.held }.count)"
+        line += "/\(b0.count) snuffed \(mean(b0) { $0.snuffed }) relit \(mean(b0) { $0.relit }) throws "
+        line += "\(mean(b0) { $0.throwsBack }) lost \(mean(b0) { $0.lost }) moves \(mean(b0) { $0.moves }) trips "
+        line += "\(mean(b0) { $0.trips }) | with: held \(f0.filter { $0.held }.count) slain \(f0.filter { $0.slain }.count) "
+        line += "lost \(mean(f0) { $0.lost }) | margins without \(b0.map { $0.margin })"
+        say(line)
+        if name == "reference (old rules)" || name == "present: standard" || name == "reference under the rule" {
+            for (index, one) in bare.enumerated() {
+                guard let one else { continue }
+                say("    seed \(index + 1) without: \(one.held ? "held" : "FELL") \(one.margin) snuffed \(one.snuffed) relit "
+                    + "\(one.relit) throws \(one.throwsBack) | \(one.walls)")
+            }
+        }
     }
     say("(\(elapsed()))")
 }

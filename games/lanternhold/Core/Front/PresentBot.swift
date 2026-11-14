@@ -213,7 +213,7 @@ struct PresentBot: Sendable {
                                balance: Balance) -> (plot: Int, spot: Double, rear: Bool)? {
         guard let front = s.front else { return nil }
         let tuning = balance.front
-        let quiet = rearAllowed && frontQuiet(s, stand: stand, balance: balance)
+        let quiet = rearAllowed && (!tuning.botRearOnlyWhenQuiet || frontQuiet(s, stand: stand, balance: balance))
         var best: (plot: Int, spot: Double, rear: Bool)?
         var bestDistance = Double.infinity
         for plot in Realm.brazierPlots where s.plots[plot].item != nil && s.plots[plot].snuffed {
