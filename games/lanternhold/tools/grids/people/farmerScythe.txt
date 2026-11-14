@@ -3,9 +3,10 @@
 # and upright: bareheaded, an undyed blouse with the sleeves rolled under a laced earth-brown bodice, a long brown
 # skirt with an undyed apron, clogs. Her mark: her hair went white in one night, the night her husband's lantern did
 # not come back at the Count; the white crown and fringe frame her young face and a white plait hangs down her
-# back. Light from the upper left; look 2's selective outline. Walk: the scythe on the near shoulder, its blade hooked over her head behind;
-# contact (1 px down) and passing. Idle: a breath. Mow: the snath across the body, swung back with the blade behind her
-# heels (6) and through with the blade cutting before her feet (7), the upper body turning a pixel with it.
+# back. Light from the upper left; look 2's selective outline. Walk: the scythe on the near shoulder, its blade hooked
+# over her head behind; contact (1 px down) and passing. Idle: a breath. Mow: the snath across the body, swung back
+# with the blade behind her heels (6) and through with the blade cutting before her feet (7), the upper body turning
+# a pixel with it.
 # Straighten: leaning on the upright scythe, the far hand at the small of her back (8), then the near forearm across
 # her brow (9). Carry: a sheaf held before her, the same steps.
 id farmerScythe

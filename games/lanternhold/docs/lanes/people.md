@@ -14,12 +14,12 @@ bringt Charakterwechsel mit rein." The rule: `docs/BARS.md` section 3. Who is wh
   lady's body, their footman), fitted to STORY.md's houses and guests; how each is drawn (silhouette, posture, pace,
   cloth by palette name, the tell); where they are in the game; their voices in English and German.
 - Art, all hand-set part grids through `tools/actorart.py` (no generated picture anywhere):
-  - repainted at their sizes and frames: `citizen` (Mother Corra), `citizenB` (Dun Rook), `citizenC` (Aldo Fenn) and
+  - repainted at their sizes and frames: `citizen` (Mother Corra), `citizenB` (Dun Rook), `citizenC` (Ned Thatch) and
     their seated forms `citizenSeated`, `citizenBSeated`, `citizenCSeated` (`tools/grids/actors/`);
   - new at the citizen contract: `elder` (Old Hemmet, the shuffle), `washerwoman` (Wenna Brisk, with wring frames),
     `labourer` (Brede Hask, the limp), `farmerHoe` (Gorm Ashby) and `farmerScythe` (Hedda Ashby), each farmer with work,
     straighten and carry frames (`tools/grids/people/`);
-  - three children `childA` (Pim), `childB` (Wren), `childC` (Fen) at 10x18: run, fidget, skip;
+  - three children `childA` (Nib), `childB` (Wren), `childC` (Fen) at 10x18: run, fidget, skip;
   - at the guests' contract: `nobleLord`, `nobleLady`, `footman`.
   - `tools/build-art-people.sh` rebuilds all of them byte for byte; `tools/peoplesheet.py` draws the proof sheets.
 - Code: `Core/PeopleCast.swift` (the bodies' sizes and frames, the walkers' bodies, pace and step, the farmers at work,
@@ -63,8 +63,8 @@ call `PeopleCast.townLife` once and take the walkers' bodies, pace and step from
 ### Proof (ci-out/people in the worktree, git-ignored)
 
 - `lineup-day.png`, `lineup-dusk.png` (6x, nearest neighbour) and `lineup-phone.png` (3x): left to right the lord, a
-  guard, the footman beside him, the lord and the lady of the inner lands, Fen facing Old Hemmet, Pim facing Wenna,
-  Wren, Gorm, Hedda, Brede, Mother Corra, Dun, Aldo, Master Edwy, Ilse; standing on the valley's earth lane before
+  guard, the footman beside him, the lord and the lady of the inner lands, Fen facing Old Hemmet, Nib facing Wenna,
+  Wren, Gorm, Hedda, Brede, Mother Corra, Dun, Ned, Master Edwy, Ilse; standing on the valley's earth lane before
   the town's houses. The light is an approximation of the renderer's (albedo times the hour's ambient, a warm pool
   round the lord at dusk).
 - `strips/`: one strip per walk and per work (the frames in a row, under them the footprints advanced by the stride).
@@ -85,3 +85,74 @@ call `PeopleCast.townLife` once and take the walkers' bodies, pace and step from
   Wenna a few px off the notice board and widen the children's laps.
 - The art is simple, hand-set and of one vocabulary with the base game's townsfolk; it is not yet at the level of the
   best sprites in the game. The washerwoman's wring and Hedda's mow are the weakest poses at 400 %.
+
+## people-1, fix round 1 (the critic's look 1: six highs, no blocker)
+
+### What changed
+
+- **H1, the children are the bright thing:** Nib's (was Pim) tunic washed white (`foam`, `parchment`, `plaster`: a
+  value step above any grown-up's cloth) with the whole red kerchief and a red patch; Wren's red pinafore over a clean
+  linen smock; Fen's jerkin oiled a step lighter over a linen collar. `crimsonLight` is the children's alone: the
+  nobles' and the footman's lit crimson is `dusk` now.
+- **H2, the marks:** Wenna's bare red elbow and forearm laid across the linen of the basket on her hip (her shins
+  weathered, not red); Dun's whole near forearm and hand in a 2 px linen rag; Hedda bareheaded, her white crown,
+  fringe and plait on a brown bodice.
+- **H3, the silhouettes:** Brede's beam angled on the far shoulder, back end high, near hand up under it; the lady's
+  cloth at her chest in the walk and pressed inside her face's outline in the idle; Gorm's hoe a thin edge-on blade
+  with a lit edge in every pose.
+- **H4, the work poses:** the mow with the snath across Hedda's body, back swing (blade behind the heels) and
+  through swing (blade before the feet), the upper body a pixel each way, the apron straight (`skirtWork`); the
+  upright scythe's blade curved over her head; the wring a twisted sheet held level between two red fists, its
+  banding moving on a pixel, a drop falling.
+- **H5, the names:** Pim is Nib Brisk, Aldo Fenn is Ned Thatch (checked against STORY.md, the docs and the petitions:
+  no Nib, Ned or Thatch anywhere; Odo was close to Odile, Wat is a recruit name in YARD.md).
+- **H6, the director's notes:**
+  - cloth states for the eight working bodies and the three seated forms (village and town) and the three children
+    (town), cloth pixels only (`tools/peoplestates.py`, `#@state` lines in the grids; PEOPLE.md section 7 says what
+    each wears at each stage; SPRITES-people.md "Cloth states"); the six-figure line-up in all states;
+  - the nobles' bow (frames 8-9 of `nobleLord` and `nobleLady`), played only when the realm is a town
+    (`PeopleCast.bowFrame`; PEOPLE.md section 4);
+  - the collector (Saul Wicket), the lamplighter (Silas Moth) and the jailer (Old Kell) in PEOPLE.md with name, mark,
+    silhouette and frames. Their sheets open people-2 (see "What waits").
+- **Smaller things of the critic:** Wenna on the well's far side from the notice board, facing it; the children's laps
+  120 px with their centres spread; Gorm and Hedda side by side on the first field (shot 131 frames both);
+  `DayClock.secondsPerHour` instead of a copy; Brede's rag foot a step darker on its shadow side; Ned's bald crown
+  shaded weathered brown instead of salmon.
+- **Code:** `PeopleCast.ClothState` (from the standing), `wardrobe`, `dressed`, `body(dressedAs:)`, `dressedBodies`,
+  `launchCloth` (`-GWCloth village|town`, read once in PeopleCast so DebugArgs stays untouched), `townLife(cloth:)`,
+  the walkers dressed, `pace` and `stride` through the body; tests for the states (alpha frame by frame), the bow and
+  the unclamped atlas height; UI shots 134-135 (the square and the field in the town's cloth).
+
+### New hooks in existing files (add to the table above at the join)
+
+| file | place | the hook | why |
+|---|---|---|---|
+| `Core/FrameDesc.swift` | `enum SpriteID`, after the cast's case line | two `case` lines with the 25 state ids and their comment | the ids (the PNG names) |
+| `Core/FrameDesc.swift` | `var size`, after the cast's case | `case .citizenVillage, … .childCTown: return PeopleCast.size(of: self)` | the switch is exhaustive; PeopleCast answers with the body's size |
+| `Core/FrameDesc.swift` | `var frameCount`, after `if isCourtBody { return 8 }` | `if let body = PeopleCast.body(dressedAs: self) { return body.frameCount }` | a state has its body's frames |
+| `Render/Renderer.swift` | `static let people` | `+ PeopleCast.bodies + PeopleCast.dressedBodies` | the people's rim for the states |
+
+No new hook in `EntityFrames`: `PeopleCast.townWalkers` and `townLife` dress themselves from `launchCloth`.
+**At the join:** pass the realm's stage: `PeopleCast.townLife(s, time: time, cloth: PeopleCast.ClothState(standing:
+<the town's standing>))`, and dress the walkers the same way (`PeopleCast.dressed(body, state)` in place of
+`townWalkers`' launch value); the hall's seated petitioners (`CourtLayout.seatedStrip`) take
+`PeopleCast.dressed(.citizenSeated, state)` and its kin; a noble who comes before the lord plays
+`PeopleCast.bowFrame(sprite, state:, sinceArrival:)` before the talk.
+
+### What waits (people-2 and the join)
+
+- **The collector's and the lamplighter's sheets** (PEOPLE.md section 2, "Three more"): the first work of people-2
+  with their rounds (the director's 14:45 note puts the rounds there; the figures are named and specified now). The
+  collector needs a wider frame for the handcart; the lamplighter a glow strip for the pole's tip. Director: please
+  confirm that the sheets open people-2.
+- **The court's ties** (15:03): one idle per court member that can be played toward another person (a nod, a turned
+  shoulder, something handed over). The court sheets are existing files that the stage lane's hall may repaint; people-2.
+- **The lord's cloak in two states** (14:35) and the lord as the heir of the guardian house with a circlet that fits
+  (15:03): a repaint of `king`/`lady` and their seated forms (existing sheets, `kingGlow` anchors): people-2, after the
+  director says which lane owns the lord's sheet now.
+- The jailer (Old Kell), the first widow, the brother with the bow, the straw lord, the tally-board pose, the lantern
+  moment and the soldier looks: build 3, people-2 (the director's notes 15:44 to 18:26).
+- A running-game shot of a noble in the hall: the hall is being rebuilt by the stage lane; the noble petitioner walks
+  as Ser Aubrey there today but no UI test reaches him without driving an audience. At the join.
+- The look-1 golden hashes were recorded again (Dun's rag and Ned's crown are in look 1's town); record again at the
+  join if the rebuilt town changes those scenes.
