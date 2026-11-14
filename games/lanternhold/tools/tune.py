@@ -6,13 +6,16 @@ second. For quick checks on the old Mac, which never builds Swift (CLAUDE.md "Th
 Since town-1 the dawn works out the day's taxes at the one rate and splits them over the paying places (each house by
 its taxpayers, largest remainder; each field; the market); the bots collect at dawn by habit: normal collects
 everything, low leaves the two houses that owe least alone (+1 happiness each at the next dawn, at most +3), high
-knocks once at every house (40 % more, -2 happiness at once each). Core/Town/Town.swift is the source.
+knocks once at every house (40 % more, -2 happiness at once each; the war levy's second knock once the realm opens it
+on story day 8). On the first morning the town's first house owes the 16 that make the purse's 44 the 60 of before,
+and every habit takes them at once (fix round 1). The bots never hire the collector, so he is left out.
+Core/Town/Town.swift is the source.
 
 It reads its numbers from the Swift sources, so it cannot drift from them:
   Core/Balance.swift          the `var name = value` lines and the ItemStats rows (prices, build times)
   Core/Town/TownRules.swift   the `var name = value` lines (the knock, the houses left alone)
   Core/Autoplay.swift         the reference build order (.build("plot", .item), .recruitArchers, .recruitGuards(n))
-  Core/Realm.swift            the unlock days
+  Core/Realm.swift            the unlock days (the lines, the beacon, the war levy)
 
 The battle is left out: no losses, no rubble, no patches (the runner's TuningTests measure those). Builders are a
 capacity of builder-seconds per day. Usage: python3 tools/tune.py [--days 20] [--set taxPerPayer=5.5 ...] [--quiet]
@@ -71,7 +74,8 @@ def load_unlocks():
     text = read("Core/Realm.swift")
     lines = [int(v) for v in re.search(r"lineUnlockDays: \[Int\] = \[([^\]]*)\]", text).group(1).split(",")]
     beacon = int(re.search(r"beaconUnlockDay = (\d+)", text).group(1))
-    return {"l1": lines[0], "l2": lines[1], "l3": lines[2], "beacon": beacon}
+    war = int(re.search(r"warTaxDay = (\d+)", text).group(1))
+    return {"l1": lines[0], "l2": lines[1], "l3": lines[2], "beacon": beacon, "war": war}
 
 
 # Upgrade chains and tiers, as in BuildItem.
@@ -106,10 +110,15 @@ class Realm:
     def __init__(self, v, items, arrays, unlocks, tax):
         self.v, self.items, self.arrays, self.unlocks, self.tax = v, items, arrays, unlocks, tax
         self.habit = HABIT[tax]
-        self.today = None                     # [{plot, kind, owed, collected, knocks}], None before the first dawn
+        # Town.firstMorning: the first house owes the rest of the 60 of before; [{plot, kind, owed, collected, knocks}]
+        self.today = [{"plot": "town.house.1", "kind": "house", "owed": int(v["firstMorningGold"]), "collected": False,
+                       "knocks": 0}]
+        self.first_morning = True
+        self.first_morning_gold = 0           # what the bot took on the first morning (not counted as income)
+        self.war_unlocked = False             # GameState.warTaxUnlocked: Sim's dawn opens it on story day 8
         self.spared_yesterday = 0
         self.unrest_today = False
-        self.income = 0                       # every coin the town paid over the run (tosses and knocks)
+        self.income = 0                       # every coin the town paid over the run's dawns (tosses and knocks)
         self.knocks = 0
         self.gold = int(v["startGold"])
         self.happiness = int(v["startHappiness"])
@@ -298,11 +307,14 @@ class Realm:
         if self.doors_open() and place["owed"] > 0 and not place["collected"]:
             place["collected"] = True
             self.gold += place["owed"]
-            self.income += place["owed"]
+            if self.first_morning:
+                self.first_morning_gold += place["owed"]
+            else:
+                self.income += place["owed"]
 
     def knock(self, place):
         v = self.v
-        allowed = 2 if self.day >= 8 else 1
+        allowed = 2 if self.war_unlocked else 1
         if not self.doors_open() or place["kind"] != "house" or not place["collected"] or place["knocks"] >= allowed:
             return False
         levy = place["knocks"] >= 1
@@ -316,10 +328,11 @@ class Realm:
         return True
 
     def morning(self):
-        """Town.morning: the bot's habit at dawn."""
+        """Town.morning: the bot's habit at dawn; on the first morning every habit only collects."""
         if not self.doors_open():
             return
-        if self.habit == "spare":
+        habit = "collect" if self.first_morning else self.habit
+        if habit == "spare":
             houses = sorted((p for p in self.today if p["kind"] == "house" and p["owed"] > 0),
                             key=lambda p: (p["owed"], TOWN.index(p["plot"])))
             spared = {p["plot"] for p in houses[:int(self.v["lowHabitSpares"])]}
@@ -328,8 +341,8 @@ class Realm:
         for place in self.today:
             if place["plot"] not in spared:
                 self.collect(place)
-        if self.habit in ("knock", "levy"):
-            times = 1 if self.habit == "knock" else 2
+        if habit in ("knock", "levy"):
+            times = 1 if habit == "knock" else 2
             for place in self.today:
                 while place["knocks"] < times and self.knock(place):
                     pass
@@ -372,7 +385,10 @@ class Realm:
             self.citizens += 1
             self.archers += 1
         self.day += 1
+        if self.day >= self.unlocks["war"]:
+            self.war_unlocked = True
         self.today = ledger
+        self.first_morning = False
         self.unrest_today = unrest
         self.morning()
         self.log.append((self.day, total, self.gold, self.happiness, self.citizens, self.archers, self.guards,
@@ -386,6 +402,7 @@ def round_half_away(x):
 
 def simulate(v, items, arrays, unlocks, order, tax="normal", days=20, builds_beacon=True):
     realm = Realm(v, items, arrays, unlocks, tax)
+    realm.morning()                           # the bot's first step: the first morning's coins
     for _ in range(days):
         realm.run_day(order, builds_beacon)
         realm.dawn()
@@ -445,7 +462,9 @@ def main():
          "%s" % normal.buildings_day10),
     ]
     print("town over %d days: normal collects %d gold; low (two houses left alone) %d; high (knocks at every house, %d "
-          "knocks) %d" % (args.days, normal.income, low.income, high.knocks, high.income))
+          "knocks) %d; every bot took the first morning's %d and started its first build with %d" % (
+              args.days, normal.income, low.income, high.knocks, high.income, normal.first_morning_gold,
+              int(v["startGold"]) + normal.first_morning_gold))
     failed = 0
     for name, ok, value in checks:
         print("%s %-36s %s" % ("PASS" if ok else "FAIL", name, value))
