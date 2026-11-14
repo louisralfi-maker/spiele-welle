@@ -1,0 +1,6 @@
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepDusk]' passed (166.020 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepFog]' passed (107.613 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepNight]' passed (163.966 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepNoon]' passed (182.551 seconds).
+exit=0
+screenshots: 51
