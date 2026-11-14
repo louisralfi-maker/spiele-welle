@@ -6,7 +6,7 @@ their pixels, palette and grid are the houses' own. No generated image is involv
 
   taxart.py build [name ...] [--out DIR]
         Writes Resources/Art/<id>.png (or DIR): the figures townCorra, townDun, townBrede, townHemmet, townWenna,
-        townGorm, the lord's knock kingKnock and ladyKnock, the coin townCoin (grids), and the overlays townCottage and
+        townGorm, townNib (the child), the lord's knock kingKnock and ladyKnock, the coin townCoin (grids), and the overlays townCottage and
         townBigHouse (from house.png, houseB.png, houseC.png, bigHouse.png). Without names: all of them.
   taxart.py proof <out.png> [--art DIR] [--scale 6]
         A proof sheet: every frame of every sprite, and the moments in context (the sign, the toss, the knock, the
@@ -31,8 +31,8 @@ GAME = os.path.dirname(HERE)
 ART = os.path.join(GAME, "Resources", "Art")
 GRIDS = os.path.join(HERE, "grids", "town")
 
-FIGURES = ["townCorra", "townDun", "townBrede", "townHemmet", "townWenna", "townGorm", "kingKnock", "ladyKnock",
-           "townCoin"]
+FIGURES = ["townCorra", "townDun", "townBrede", "townHemmet", "townWenna", "townGorm", "townNib", "kingKnock",
+           "ladyKnock", "townCoin"]
 OVERLAYS = ["townCottage", "townBigHouse"]
 
 # The houses' doors and windows (columns and rows of the paintings, from the top left; ends inclusive).
@@ -206,7 +206,7 @@ def cmd_proof(a):
         if not os.path.exists(path):
             continue
         img, _ = read_png(path)
-        w = {"kingKnock": 16, "ladyKnock": 16, "townCoin": 3}.get(name, 12)
+        w = {"kingKnock": 16, "ladyKnock": 16, "townCoin": 3, "townNib": 10}.get(name, 12)
         x = 2
         for f in frames_of(path, w):
             paste(canvas, f, x, y)

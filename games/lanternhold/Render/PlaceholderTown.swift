@@ -9,7 +9,7 @@ enum PlaceholderTown {
         switch sprite {
         case .townCorra, .townWenna:
             return (0..<count).map { PlaceholderPeople.townsfolk(4 + $0 % 2, variant: 0) }
-        case .townDun, .townGorm:
+        case .townDun, .townGorm, .townNib:
             return (0..<count).map { PlaceholderPeople.townsfolk(4 + $0 % 2, variant: 1) }
         case .townBrede, .townHemmet:
             return (0..<count).map { PlaceholderPeople.townsfolk(4 + $0 % 2, variant: 2) }

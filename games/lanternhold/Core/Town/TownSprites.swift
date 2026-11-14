@@ -8,8 +8,9 @@ enum TownSprites {
     /// Mother Corra at the chandler's (house 1), Dun Rook at the oil-presser's (house 3), Brede Hask at the cooper's
     /// (house 4), Old Hemmet at the weaver's (house 5), Wenna Brisk at the market stall.
     static let households: [SpriteID] = [.townCorra, .townDun, .townBrede, .townHemmet, .townWenna]
-    /// Every figure of the town's taxes: the households and Gorm Ashby, the farmer at the field.
-    static let figures: [SpriteID] = households + [.townGorm]
+    /// Every figure of the town's taxes: the households, Gorm Ashby the farmer at the field, and Nib Brisk, the child
+    /// who sometimes runs out with the coins.
+    static let figures: [SpriteID] = households + [.townGorm, .townNib]
     /// Every sprite of this file.
     static let all: [SpriteID] = figures + [.kingKnock, .ladyKnock, .townCoin, .townCottage, .townBigHouse]
 
@@ -41,6 +42,15 @@ enum TownSprites {
         static let count = 2
     }
 
+    /// The child's frames (10x18, the children's contract): running out with the coins 0 ... 3, holding them up in the
+    /// door 4, the throw 5, skipping home 6 ... 8.
+    enum ChildFrame {
+        static let run = 0
+        static let hold = 4
+        static let toss = 5
+        static let skip = 6
+    }
+
     /// The lord's knock (16x30, the lord's contract): the fist raised, the knock, the hand held out for the coins.
     enum KnockFrame {
         static let ready = 0
@@ -60,6 +70,7 @@ enum TownSprites {
         switch sprite {
         case .townCorra, .townDun, .townBrede, .townHemmet, .townWenna, .townGorm:
             return PixelSize(width: 12, height: 26)
+        case .townNib: return PixelSize(width: 10, height: 18)
         case .kingKnock, .ladyKnock: return PixelSize(width: 16, height: 30)
         case .townCoin: return PixelSize(width: 3, height: 3)
         case .townCottage: return PixelSize(width: 64, height: 46)
@@ -74,6 +85,7 @@ enum TownSprites {
         case .townCorra: return 15
         case .townDun, .townBrede, .townHemmet, .townWenna: return 11
         case .townGorm: return 4
+        case .townNib: return 9
         case .kingKnock, .ladyKnock: return 3
         case .townCoin: return 4
         case .townCottage: return 4

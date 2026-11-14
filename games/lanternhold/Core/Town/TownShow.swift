@@ -41,6 +41,13 @@ enum TownShow {
     /// The first morning's household walks home at this pace for this long (fading at the end).
     static let walkHomePace = 16.0
     static let walkHome = 6.0
+    /// The child (docs/TOWN.md section 6): runs this far out toward the lord until `childOutUntil`, throws until
+    /// `childThrowUntil` (its coins leave the hand `childDelay` later than a grown-up's), skips home by `childHomeUntil`.
+    static let childRun = 10.0
+    static let childOutUntil = 0.36
+    static let childThrowUntil = 0.56
+    static let childHomeUntil = 1.3
+    static let childDelay = 0.22
 
     /// The knock after `knockedAt`: the three knocks, the door opening, the bow, the coins, the door shutting, the
     /// shutters (left, then right).
@@ -221,14 +228,29 @@ enum TownShow {
     }
 
     /// When each coin of a payment is in the lord's hand (sim seconds after its start).
-    static func arrivals(count: Int, kind: TownPlaceKind, manner: TossManner, knock: Bool) -> [Double] {
+    static func arrivals(count: Int, kind: TownPlaceKind, manner: TossManner, knock: Bool,
+                         delay: Double = 0) -> [Double] {
         (0..<count).map { index in
             let i = Double(index)
             if knock { return coinsFrom + i * knockCoinGap + knockFlight }
             if kind == .field { return release + i * countGap + countFlight }
             if manner == .throwDown { return release + i * coinGap + flight * 0.8 + restAtFeet + hopUp }
-            return release + i * coinGap + flight
+            return delay + release + i * coinGap + flight
         }
+    }
+
+    /// From 60 happiness on, on one day in three for each house, the household's child runs out with the coins instead
+    /// of the grown-ups (docs/TOWN.md section 6: the children are the bright thing). Never on the first morning.
+    static func byChild(_ s: GameState, place: TownPlace, day: TownDay, rules: TownRules) -> Bool {
+        place.kind == .house && !Town.isFirstMorning(day) && manner(s, place: place, rules: rules) == .wave
+            && (day.day + place.plot) % 3 == 1
+    }
+
+    /// When each coin of a place's toss is in the lord's hand (sim seconds after `tossedAt`).
+    static func tossTimes(_ s: GameState, place: TownPlace, day: TownDay, rules: TownRules) -> [Double] {
+        arrivals(count: Town.coins(for: place.tossGold, rules: rules), kind: place.kind,
+                 manner: manner(s, place: place, rules: rules), knock: false,
+                 delay: byChild(s, place: place, day: day, rules: rules) ? childDelay : 0)
     }
 
     /// The gold of the coins still in the air at `now`: held back from the purse the player sees until they land.
@@ -240,8 +262,7 @@ enum TownShow {
         for place in day.places {
             if let at = place.tossedAt, place.collectorGold == nil, place.tossGold > 0, now >= at {
                 let count = Town.coins(for: place.tossGold, rules: rules)
-                let times = arrivals(count: count, kind: place.kind, manner: manner(s, place: place, rules: rules),
-                                     knock: false)
+                let times = tossTimes(s, place: place, day: day, rules: rules)
                 for (share, time) in zip(coinShares(place.tossGold, count: count), times) where now - at < time {
                     held += share
                 }
@@ -286,9 +307,7 @@ enum TownShow {
         func passed(_ time: Double) -> Bool { time > from && time <= to }
         for place in day.places {
             if let at = place.tossedAt, place.collectorGold == nil, place.tossGold > 0 {
-                let count = Town.coins(for: place.tossGold, rules: rules)
-                let times = arrivals(count: count, kind: place.kind, manner: manner(s, place: place, rules: rules),
-                                     knock: false)
+                let times = tossTimes(s, place: place, day: day, rules: rules)
                 if let last = times.last, passed(at + last) { list.append(.counted) }
             }
             if let at = place.knockedAt {
@@ -352,12 +371,14 @@ enum TownShow {
             let towardLord = king.x < standX
             let from = (x: standX + (towardLord ? -3.0 : 3.0), y: handY)
 
-            // Waiting with the coins.
+            let child = byChild(s, place: place, day: day, rules: rules)
+            // Waiting with the coins (the child holds them up).
             if place.owes && doorsOpen {
                 let breath = Int(((now + Double(place.plot) * 0.37) / 0.9).rounded(.down)) % 2
-                let frame = place.kind == .field ? TownSprites.FarmerFrame.wait + breath : TownSprites.Frame.wait + breath
-                scene.figures.append(Figure(plot: place.plot, sprite: sprite, frame: frame, x: standX,
-                                            flipped: towardLord))
+                var frame = place.kind == .field ? TownSprites.FarmerFrame.wait + breath : TownSprites.Frame.wait + breath
+                if child { frame = TownSprites.ChildFrame.hold }
+                scene.figures.append(Figure(plot: place.plot, sprite: child ? .townNib : sprite, frame: frame,
+                                            x: standX, flipped: towardLord))
                 if place.kind == .house && !courtyard { doors.insert(place.plot) }
                 continue
             }
@@ -367,17 +388,20 @@ enum TownShow {
                 let t = now - at
                 let manner = manner(s, place: place, rules: rules)
                 let count = Town.coins(for: place.tossGold, rules: rules)
-                let times = arrivals(count: count, kind: place.kind, manner: manner, knock: false)
+                let times = tossTimes(s, place: place, day: day, rules: rules)
                 // Once a knock has begun the household is inside (it opens again for the knock).
                 let knocked = place.knockedAt.map { now >= $0 } ?? false
-                if !knocked, let look = tossFigure(place: place, sprite: sprite, t: t, manner: manner, coins: count,
-                                                   standX: standX, towardLord: towardLord, courtyard: courtyard,
-                                                   reduceMotion: reduceMotion) {
+                let look = child ? childFigure(place: place, t: t, standX: standX, towardLord: towardLord,
+                                               reduceMotion: reduceMotion)
+                    : tossFigure(place: place, sprite: sprite, t: t, manner: manner, coins: count, standX: standX,
+                                 towardLord: towardLord, courtyard: courtyard, reduceMotion: reduceMotion)
+                if !knocked, let look {
                     scene.figures.append(look)
                     if place.kind == .house && !courtyard { doors.insert(place.plot) }
                 }
+                let origin = child ? (x: standX + (towardLord ? -1.0 : 1.0) * (childRun + 2), y: 9.0) : from
                 for (index, arrive) in times.enumerated() where t < arrive {
-                    if let coin = tossCoin(index: index, t: t, arrive: arrive, from: from, hand: hand, king: king,
+                    if let coin = tossCoin(index: index, t: t, arrive: arrive, from: origin, hand: hand, king: king,
                                            kind: place.kind, manner: manner, reduceMotion: reduceMotion) {
                         scene.coins.append(coin)
                     }
@@ -487,6 +511,32 @@ enum TownShow {
         guard t < stay + stepIn else { return nil }
         let alpha: Float = t < stay || reduceMotion ? 1 : Float(max(0, 1 - (t - stay) / stepIn))
         return Figure(plot: place.plot, sprite: sprite, frame: frame, x: standX, flipped: flipped, alpha: alpha)
+    }
+
+    /// The child's run out with the coins at `t` after the toss (nil once it is back inside): out toward the lord,
+    /// the throw, skipping home, then in.
+    static func childFigure(place: TownPlace, t: Double, standX: Double, towardLord: Bool,
+                            reduceMotion: Bool) -> Figure? {
+        let out = (towardLord ? -1.0 : 1.0) * childRun
+        if t < childOutUntil {
+            return Figure(plot: place.plot, sprite: .townNib,
+                          frame: TownSprites.ChildFrame.run + Int((t / 0.09).rounded(.down)) % 4,
+                          x: standX + out * t / childOutUntil, flipped: towardLord)
+        }
+        if t < childThrowUntil {
+            return Figure(plot: place.plot, sprite: .townNib, frame: TownSprites.ChildFrame.toss, x: standX + out,
+                          flipped: towardLord)
+        }
+        if t < childHomeUntil {
+            let u = (t - childThrowUntil) / (childHomeUntil - childThrowUntil)
+            let frame = TownSprites.ChildFrame.skip + Int(((t - childThrowUntil) / 0.12).rounded(.down)) % 3
+            return Figure(plot: place.plot, sprite: .townNib, frame: frame, x: standX + out * (1 - u),
+                          flipped: !towardLord)
+        }
+        guard t < childHomeUntil + stepIn else { return nil }
+        let alpha: Float = reduceMotion ? 1 : Float(max(0, 1 - (t - childHomeUntil) / stepIn))
+        return Figure(plot: place.plot, sprite: .townNib, frame: TownSprites.ChildFrame.hold, x: standX,
+                      flipped: towardLord, alpha: alpha)
     }
 
     /// One coin of a toss at `t` (nil before it leaves the hand).

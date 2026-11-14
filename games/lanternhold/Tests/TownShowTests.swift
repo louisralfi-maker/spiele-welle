@@ -199,6 +199,42 @@ final class TownShowTests: XCTestCase {
         XCTAssertFalse(back.flipped, "the lord is to the left; it turns away from him")
     }
 
+    func testSometimesTheChildRunsOutWithTheCoins() throws {
+        var s = morning(happiness: 80)
+        let day = try XCTUnwrap(s.town?.today)
+        let place = try XCTUnwrap(day.places.first { $0.plot == house3 })
+        XCTAssertTrue(TownShow.byChild(s, place: place, day: day, rules: rules), "day 2, the oil-presser's")
+        let chandlers = try XCTUnwrap(day.places.first(where: { $0.plot == house1 }))
+        XCTAssertFalse(TownShow.byChild(s, place: chandlers, day: day, rules: rules))
+        var plain = s
+        plain.happiness = 50
+        XCTAssertFalse(TownShow.byChild(plain, place: place, day: day, rules: rules), "only from 60 on")
+        let door = try spot(s, house3).doorX
+        s.king.x = door - 22
+        s.king.facing = 1
+        let waiting = try XCTUnwrap(TownShow.scene(s, balance: balance, reduceMotion: false).figures
+            .first { $0.plot == house3 })
+        XCTAssertEqual(waiting.sprite, .townNib)
+        XCTAssertEqual(waiting.frame, TownSprites.ChildFrame.hold, "the coins held up in the door")
+        Town.collect(&s, plot: house3, balance: balance)
+        let running = try XCTUnwrap(TownShow.scene(at(s, s.simTime + 0.2), balance: balance, reduceMotion: false)
+            .figures.first { $0.plot == house3 })
+        XCTAssertLessThan(running.x, door, "she runs out toward the lord")
+        XCTAssertLessThan(running.frame, 4)
+        let throwing = TownShow.scene(at(s, s.simTime + 0.45), balance: balance, reduceMotion: false)
+        XCTAssertEqual(throwing.figures.first { $0.plot == house3 }?.frame, TownSprites.ChildFrame.toss)
+        let home = TownShow.scene(at(s, s.simTime + 1.0), balance: balance, reduceMotion: false)
+        let skipping = try XCTUnwrap(home.figures.first { $0.plot == house3 })
+        XCTAssertGreaterThanOrEqual(skipping.frame, TownSprites.ChildFrame.skip)
+        XCTAssertFalse(skipping.flipped, "home is to her right")
+        let paid = try XCTUnwrap(s.town?.today?.places.first(where: { $0.plot == house3 }))
+        let times = TownShow.tossTimes(s, place: paid, day: try XCTUnwrap(s.town?.today), rules: rules)
+        XCTAssertEqual(times.first ?? 0, TownShow.childDelay + TownShow.release + TownShow.flight, accuracy: 1e-9)
+        XCTAssertEqual(TownShow.goldInFlight(at(s, s.simTime + times.last! + 0.01), balance: balance), 0)
+        XCTAssertNil(TownShow.scene(at(s, s.simTime + 2), balance: balance, reduceMotion: false).figures
+            .first { $0.plot == house3 })
+    }
+
     func testReduceMotionFadesTheCoinsInAtTheLord() throws {
         var s = morning()
         s.king.x = try spot(s, house1).doorX - 15
