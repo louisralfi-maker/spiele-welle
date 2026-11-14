@@ -1718,4 +1718,65 @@ cleftWallC cleftShaft gateRockL gateRockR d2FogBank d2MistBand d2FogLow bankShee
 gloomFogBack gloomFogMid gloomFogFront` (one
 sprite per run, each under 15 s on the old Mac; the script waits at 80 °C). The Weltmauer's `noslot` and `mistleft`
 run inside its `weltmauer` step.
+
+### 21.6 Fix round 1 (the critic's 6 of 10 and the director's five corrections, 14.11.2026)
+
+What the critic and the director saw on round lh-w1-6, and what each piece became:
+
+- **The bank by day was a black wall, at night a flat void** (blocker 1, high 1). The sheets were painted in the
+  night's own colours and opaque, and B (on the lane's plane) reached almost to the screen's top, so the bank was one
+  dark mass with eyes in rows. Now each sheet is painted in a light cool ramp of *values* (A: mistDark to foam, B:
+  nightSlate to mist, C: nightDeep to mistDark) and the engine tints it by the hour (`FrameBuilder.bankTint`): by
+  day a grey-violet veil, A at about 0.6 alpha (the moor's firs show through it dimly), B darker, C the darkest roll
+  at the foot; at night navy, A with a moonlit crest. The crests step down: A's billows stand near the screen's top,
+  B's at about half the screen (the firs' tops show above it, through A), C's around the ground line. Inside, the
+  fog lies in bands that follow the crest and darken downward, their edges rolling in long flat swells (six value
+  steps in clean clusters; the first try swirled them in round blots and read as camouflage). Each crest has a lit
+  shell, a step lighter where it falls away from the light. Tiling: a translucent veil cannot be laid as overlapping
+  copies (the overlaps stack into stripes), so each sheet is a body tile periodic over 192 px with complementary
+  dithered feathers at both ends, plus a face frame; every pixel is held by exactly one tile. Pure dark only where
+  the world ends (`bankEnd`, the last 80 px). The eyes: one pair per sprite frame (near and far, open and half shut),
+  five slots 128 px apart, each opening at a jittered place and height, blinking, shutting and opening elsewhere;
+  never in rows, at most four on a screen.
+- **The cloud deck's underside was a ruler** (blocker 2). The three cloud sprites of the deck had flat bottoms in a
+  line, and the far plane's horizon haze began right under them. Now one painted deck (`cloudDeck`): round billows
+  in two ranks shaded as a height field of domes (so the light runs across them and creases where two meet; discs
+  shaded one by one read as bubbles), an underside of lobes and rags with 16 to 20 px of swing, and a 48 px veil of
+  mist under it in sixteen dithered alpha steps, so the haze below begins gradually.
+- **The Weltmauer was an icicle curtain** (high 5; the director's snow speckle). The painting's snow below the snow
+  line hung in the gullies for 46 rows and eight couloirs ran down from the saddles, both in a pixel-pair speckle.
+  Slanted snow shelves were tried (as dashes, then as tapering wedges) and read as scratches and blades. What stays:
+  no snow below the line, no patch under 6 px, a clean hem of one or two rows; the snow is the caps on the massifs'
+  upper faces, the ridgelines are the lit and the shaded sides of the rock. The far wall is the calmest plane.
+- **The cleft wall read as tree trunks and a fence** (high 3; the director's "muddy behind the gatehouse" and "the
+  slit reads as autumn leaves"). The height field's buttresses were 30 to 120 px wide with a chimney at every
+  boundary and a slow noise swell, so the face was vertical stripes of smeared value. Now: buttresses 50 to 150 px
+  with only a third of the boundaries deep chimneys; chiselled slabs (cells 36 x 74 px around jittered seeds, their
+  borders leaning) that turn toward the light or away from it in two families, so the face takes the light in broad
+  flat planes with crisp, quiet edges (a step between slabs turns the normal at most 0.55, and the lightest ramp step
+  is kept for snow and rims); two long ledges that step at each buttress, a lit shelf over a set-back undershadow,
+  with snow drifts of 8 to 30 px on the high one. (Tried and dropped: five bands across the whole face, which read as
+  scaffolding, and small cells, which read as masonry.) The sky: the rock stands to the screen's top except in two
+  wedges cut as stairs of blocks, a wide one over the gatehouse and a narrow one over the bailey where the moon stands
+  at night (an emitter of `cleftWallA`; the open sky's moon gives way inside the walls). The water: each thread's
+  crack, wet streak and spray are painted on the rock, the falling water is `cleftWater`, scrolling. The shaft is
+  stronger (twelve alpha levels to 154, at the sun's full strength) with fourteen dust motes. A backdrop light behind
+  the gatehouse's top warms the rock beside the towers at dusk and night.
+- **The gate's plinths were triangle cards** (high 2). Now shoulders of bedrock (108x80 and 64x70) that bulge past
+  each tower's outer edge and climb over its foot in ledges, a course of ashlar on each ledge (the tower's courses
+  step down into the rock), the same chiselled granite, a continuous lit edge only on the faces that look up or west.
+- **The old walls' granite stood on the walk line** (high 4; the director's warm crags with a pale outline). The
+  horn and the pillar were 66 and 100 rows of the old gorge painting's warm granite with a pale rim on every top
+  pixel. Now broken footings of at most 36 rows, painted by `rockfield` in a `footing` ramp (the cleft's granite with
+  cool grey shade), a lit edge only on the sun's side.
+- **The fog's mesh at phone size** (the director): the hour's fog and the Gloom's strips have sixteen alpha steps
+  (eight before), and the strips' colour steps are clean clusters instead of an ordered dither.
+- **Kept** as the critic asked: the Throat's empty walk line, the seamless castle zone, the full-height wall, the
+  soft fog bands of the Throat at night and dawn, the bank's feathered face, the warm fire pools in the cold mist,
+  the rhythm from the open moor to the enclosed castle. Step B's height stays (the director: "fine as it is").
+
+Rebuild these with `build-art-world.sh bankSheetA bankSheetB bankSheetC bankEnd darknessBankGlow cloudDeck d2FogBank
+d2MistBand d2FogLow gloomFogBack gloomFogMid gloomFogFront throatStepC cleftWallA cleftWallB cleftWallC cleftShaft
+gateRockL gateRockR cleftWater oldWall2 oldWall3 stoneWallAnchor bastionAnchor weltmauer` (the Weltmauer needs
+`build/recraft/lh/look2/world/wall-1.png`).
 <!-- END world lane: section 21 -->

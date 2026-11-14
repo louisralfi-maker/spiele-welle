@@ -36,7 +36,7 @@ PLANTS="d2FgFerns d2FgMeadow d2FgReeds d2BushA d2BushB d2TreeBelt d2FirBeltFar l
 # darkness bank's sheets, the rock of the Throat and the cleft and the gate's granite (tools/cleftart.py, rockfield.py)
 # Fix round 1: the world's end, the bank's eyes (one pair, four frames) and the cloud deck over the Weltmauer
 FOG="d2FogBank d2MistBand d2FogLow bankSheetA bankSheetB bankSheetC bankEnd darknessBankGlow cloudDeck"
-ROCK="throatStepA throatStepB throatStepC cleftWallA cleftWallB cleftWallC cleftShaft gateRockL gateRockR"
+ROCK="throatStepA throatStepB throatStepC cleftWallA cleftWallB cleftWallC cleftShaft gateRockL gateRockR cleftWater"
 R=games/lanternhold/tools/retired-art
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
@@ -87,7 +87,7 @@ build() { # name: one sprite (or one group of small ones)
         python3 -I -B games/lanternhold/tools/fogart.py build $1 --out $A ;;
     # cleftFace, cleftFaceEnd, cleftFlank, cleftFlankB, cleftThroat: retired by the world rebuild (REVIEW-look-2.md
     # B6, H1); the files lie in tools/retired-art, their recipe in git before 14.11.2026
-    throatStepA|throatStepB|throatStepC|cleftWallA|cleftWallB|cleftWallC|cleftShaft|gateRockL|gateRockR)
+    throatStepA|throatStepB|throatStepC|cleftWallA|cleftWallB|cleftWallC|cleftShaft|gateRockL|gateRockR|cleftWater)
         python3 -I -B games/lanternhold/tools/cleftart.py build $1 --out $A ;;
     d2FogBank|d2MistBand|d2FogLow|bankSheetA|bankSheetB|bankSheetC|bankEnd|darknessBankGlow|cloudDeck)
         python3 -I -B games/lanternhold/tools/fogart.py build $1 --out $A ;;

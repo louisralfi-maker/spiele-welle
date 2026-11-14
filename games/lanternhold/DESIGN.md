@@ -3325,6 +3325,44 @@ warm valley beyond the back gate).
   crag and the outer line's trap), 0.69 (x ~380, the dead moor), 0.80 (x ~250, the moor's west end at today's day
   edge of the bank) and 0.91 (x ~110, inside today's bank, freed when the fog line moves out). The moor's backdrops
   (firs, forest, the Weltmauer and its mist, the cloud deck) go on to x 0 without a wall.
+
+#### Step world-1, fix round 1 (the critic's 6 of 10, the director's five corrections)
+
+The critic (`ci-out/director/world-1-rock-fog-critic1.md`) did not pass round lh-w1-6: two blockers (the day bank a
+black wall, the cloud deck's ruler-straight underside) and six highs; the director added five corrections (the far
+wall's snow as speckle, the fog's mesh at phone size, the slit as autumn leaves, the warm crags in another palette,
+the muddy wall behind the gatehouse). Where they differ the director's note wins: step B's height stays.
+
+- **The darkness bank** (`Core/DarknessBankLook.swift`, `FrameBuilder.bankSheetTiles`, `bankEyes`, `bankEndTile`):
+  the sheets are painted in a light cool ramp of values and tinted by the hour (`bankTint`, by `Look.nightness`): by
+  day a translucent grey-violet veil (A at 0.62 alpha, so the moor shows through it; B darker at 0.84; C the darkest
+  at 0.96), at night navy (A with a moonlit crest). Their crests step down the screen: A's near the top, B's at
+  about half the screen, C's around the ground line. Each sheet is a face frame and body tiles every 192 px westward
+  with complementary dithered feathers, so every pixel is held by one tile (translucent overlapping copies stacked
+  into stripes). Pure dark only where the world ends: `bankEnd` on fog B at world 0, drawn black. The eyes
+  (`bankEyePairs`): five slots 128 px apart behind the edge, each a pair (`darknessBankGlow`, now 9x3 x 4: near and
+  far, open and half shut) that opens at a jittered place and height, blinks, shuts and opens elsewhere; at most four
+  on a screen, never in rows; fainter by day; three still with Reduce Motion. The old 64 px glow tiles are gone.
+- **The cloud deck**: one painted `cloudDeck` (far x −100, y 22) instead of the deck's three clouds; its underside
+  hangs in lobes and rags and feathers 48 px into the wall's haze.
+- **The Weltmauer**: no snow in its gullies below the snow line (it read as an icicle curtain); the snow is the caps
+  with a clean hem, no patch under 6 px.
+- **The cleft wall**: chiselled slabs, fewer and deeper chimneys, two long stepped ledges with snow drifts on the high
+  one; the sky only in two wedges (over the gatehouse, over the bailey); at night the moon stands in the second
+  (`cleftWallA`'s emitter, `SceneLayout.Glow.moon`; the sky's moon fades with `cleftShare`); falling water
+  (`cleftWater`, 4 frames at 6 a second, `FrameBuilder.cleftWater`, still with Reduce Motion); the shaft at the sun's
+  full strength (`look2ShaftShare` 1) with dust motes; a backdrop light behind the gatehouse's top (`throatStepC`).
+- **The gate's rock**: shoulders of bedrock (`gateRockL` 108x80 at front − 54, `gateRockR` 64x70 at front + 196) with
+  the tower's ashlar stepping into their ledges and a lit edge only on the faces toward the light.
+- **The old walls**: the granite masses of lines 2 and 3 cut to footings of at most 36 rows in cool granite; the
+  anchors' toothing stops at that height. The masonry of Lady Oriel's walls is as it was.
+- **Fog**: sixteen alpha steps in the hour's fog and the Gloom's strips, the strips' colour in clean clusters.
+- **Tests**: `WorldRebuildFixTests` (the bank's tint by the hour and its tiling, the world's end, the eyes, the deck's
+  underside from the atlas, the moon in the wedge, the falling water); the B4 test knows the bank's face frames, its
+  body tiles' complementary overlap and `bankEnd`; Look2FrameTests and GloomFogTests look for the eyes over a few
+  seconds (they open and shut). The sweep adds `w-0600|1000-fog-a|b` and `-fog-rm-a|b` (flicker times 2.5 and 9.5):
+  the fog moves between a and b, and stands still with Reduce Motion.
+- **The atlas**: 2048 wide, about 1830 rows of 2048 used after this round (1757 before).
 <!-- END world lane: World rebuild (14.11.2026) -->
 
 ## Risks
