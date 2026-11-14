@@ -644,8 +644,9 @@ final class CraftTests: XCTestCase {
         let hb = Measure(hard)
         lines.append("hard nights (soldierShare 0.8), base: killed \(hb.killed) fallen \(hb.fallen) walls \(hb.wallsLost) "
                      + "hearth lost \(Int(hb.hearthLost)) nights held \(hb.survived)")
-        for c in book.craftsmen where [.soldierSpeed, .lightRadius, .patchShare, .guardHold, .fireArrowBurn,
-                                       .gateStrength].contains(c.effect) {
+        let nightWorks: Set<CraftEffect> = [.soldierSpeed, .lightRadius, .patchShare, .guardHold, .fireArrowBurn,
+                                            .gateStrength]
+        for c in book.craftsmen where nightWorks.contains(c.effect) {
             let m = Measure(runs(c, bot: stress, seeds: seeds))
             lines.append("hard nights, \(c.id) (\(c.work)): killed \(pct(share(m.killed, hb.killed))) fallen "
                          + "\(m.fallen)/\(hb.fallen) walls \(m.wallsLost)/\(hb.wallsLost) hearth lost "
