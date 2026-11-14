@@ -7,7 +7,7 @@ import XCTest
 /// `TableNeutralityTests` proves that player plays exactly as before); here the reference realm is run again only as
 /// the yardstick the sender and greedy cells are measured against.
 final class TableTuningTests: XCTestCase {
-    private static let tuning: TableTuning = TableTuning.measure()
+    static let tuning: TableTuning = TableTuning.measure()
 
     private func check(_ cell: String) {
         let m = TableTuningTests.tuning

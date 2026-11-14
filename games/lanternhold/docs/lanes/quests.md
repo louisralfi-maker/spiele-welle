@@ -200,3 +200,108 @@ No new hook. `TableListView.swift` and `ErrandEngine.swift` are the lane's own f
   Upright shots: `ci-out/upright/qf1-1-*.jpg` (the reaction's title without its full stop, "Zurück am Morgen von
   Tag 3", the new German oil reaction; all fit).
 - From now on: short rounds only, by the director's note of 14.11. 18:46.
+
+## quests-2: all thirteen sendings, and the numbers (QUESTS.md 3, 4.3, 4.4; rounds `lh-q2-*`)
+
+### What exists
+
+- **All thirteen sendings** in `Resources/Errands/errands-ch1.json`, English and German in `Resources/Quests.xcstrings`
+  (204 keys, 103 new): slips (title, two hook lines), order labels, twenty report cards with their choices and
+  reactions. New: 2 `mill_herbs`, 3 `ford_planks`, 4 `hemmet_sentence` (with `hemmet_gone` when the cough came and no
+  herbs grew, home day 17 or later), 6 `goldenacre_cart` (`goldenacre_paid` / `goldenacre_list`), 7 `saltgate_grey`,
+  8 `stillmere_proof` (`stillmere_written` / `stillmere_struck`), 9 `greybell_bell`, 10 `beaconfoot_smoke`
+  (`beaconfoot_road` / `beaconfoot_caves`), 12 `ludo_number` (with its own lost report `ludo_lost`), 13 `lantern_41`.
+  Each card carries one thing seen: Hemmet's empty washing line (and, if the cough took him, one shirt on it), Lady
+  Oriel's mason's mark under the moss on the stumps, Hemmet saying his sentence again "as if I had got it wrong", Pell
+  offering three houses "a share of our tithe once the door changes hands", the grey lanterns on the tideline with every
+  hinge on the wrong side, the syndics' question "who carved the twenty?", the bell ringing once on the road with nobody
+  near the rope, a pot still on the cold fire at Beaconfoot, the grandmother counting days in soot, Ludo's number 17 not
+  struck through, his helmet on the west door's step facing home ("too big for the hook as well").
+- **Sending 13** is not offered: `ErrandEngine.follow` puts Hild's party on lantern 41 at the first dawn of its days
+  (19) once `hild_rode` is set (or when the table first opens after that), sent on day 18 at dusk as `varn_ride` says,
+  nothing paid or lent, home day `ErrandEngine.neverHome`: it stays out on the Moor Road, a new place of kind `beyond`
+  (the bare wood). `Errand.staysOut`, `TablePlaceKind.beyond`; Hild says no court line while she is out (the existing
+  hook). The list shows "Gone past the beacon" (`table.beyond`) under her lantern.
+- **The validator** covers all thirteen: followed sendings (never offered, a reserved lantern, one order that costs,
+  lends, risks and brings nothing, no report), the bare wood (no nights, only a party that stays out), "the counsel can
+  never apply" (a sealed order whose counsel gives people or gold but whose report is read after day 14), every lost
+  report's choices free (also `ludo_lost`), and every title and hook of a sending shown but not offered.
+- **The bots** (`Core/Table/TableBot.swift`): `TableBot.sender` reads each report with Odile's counsel (else a choice
+  that neither costs nor gives people or gold) and sends every offered order whose seal holds today and that it can
+  pay, lowest number first; `TableBot.greedy` reads for the most people, then gold, and sends whatever it can pay, red
+  chips too, the second order first. Both ride on the reference bot, once a day after the audience, and keep the full
+  days (T11), the sendings starved for a hook (T11) and a log.
+- **The tuning** (`Core/Table/TableTuning.swift`, `Tests/Table/TableTuningTests.swift`): the reference (no table),
+  sender and greedy bots over the twenty tuning seeds, run side by side on every core (`DispatchQueue.concurrentPerform`,
+  each run a pure value); the cells of QUESTS.md 4.4: T1, T3, T4, T5, T6, T7 (sender endless to night 66), T8 (sim
+  proxy) for the sender, T6 (without the beacon) for the greedy bot, T10 and T11; the rest reported. Attachment
+  `table-tuning`.
+- **The tuned values** (by values only; `Balance` and every petition untouched):
+  - Odile's seal also on 3 `ford_planks`, 6 `goldenacre_cart` order 2 (the lamp tithe list) and 8 `stillmere_proof`
+    order 1 (as she wrote it). With QUESTS.md's five seals alone the sender never had more than two lanterns out (a
+    model of its calendar over every story-day draw: 0 full days; T11 asks for 3).
+  - 11's stair takes two nights (two dusks of counting; the lamp room stays one, faster and deadly), 3's planks three
+    nights (two to lay, one home). The sender's calendar is then the same in every seed: day 2 oil, day 5 the true
+    count (nights 5 and 6), day 8 the mill and Beaconfoot's road, day 11 the planks, Marek and the stair (all three
+    lanterns out on days 11, 12 and 13), day 13 Stillmere; Greybell (no seal) never.
+  - Sending 1's counsel is now "Keep it for the wall" (on day 3 the next brazier is free), not the lanes (+1
+    happiness): with the lanes the sender's high-tax realm would sit one point above the reference (T4 "not above").
+    The lanes stay the warm choice for the player.
+  - Ford planks: Odile counsels the toll (+15 gold, −1 happiness) while it pays (read by day 14), else the free choice.
+- **Neutrality** (director's note 19:35, join rehearsal): the pinned line is one constant, `TableNeutralityLine.pinned`
+  (`Tests/Table/TableNeutralityLine.swift`, how to re-pin in its comment); only `testTodaysLineIsUnchanged` reads it.
+  The seed-1 check now compares the run with the table against the run without it, line for line and dawn for dawn.
+- German report openings say "Laterne {lantern} ist zurück" (also the chip `table.home`), not "ist heim" and not "ist
+  heimgekehrt" (that collides with "die Heimgekehrten", the Returned).
+
+### Decided for the story lane (QUESTS.md 7.5)
+
+1. **Lord Edric had the table's west planed away** in the Dark Year, the winter he cut the eleven leaves: confirmed.
+   It fits Edric the Shut and asks nothing new of STORY.md.
+2. **The keepers chalked every lantern that went west** on the beacon's west door, and struck a number through when
+   its lantern came back east. A number not struck through never came home. Ludo's knight's number is 17 (the report
+   says the number, never whose it is: his secret stays Pip's, HOUSE.md 8.4).
+3. **Road lanterns 38 to 41:** the house numbers every lantern it owns in one Count. 1 to 37 hang at the gatehouse, one
+   per post of the wall; 38 to 41 are the road lanterns left on the chapel's rail after Aldric's ride. No text needs
+   more than the digits.
+4. **What the first bell does on night 20** (if `bell_rings`): it rings once by itself at the moment the Lightless King
+   leaves the Gloom, as it rang in the Dark Year when Edric sent it away: the hall hears that he has come before the
+   wall sees him. With `bell_tied` it shivers against the rope and makes no sound. A sound and a line for the finale,
+   no number: nothing changes in the battle. Not built here (the finale is not this lane's); recorded for the story
+   and finale lanes.
+5. **What is seen from the lamp room:** past the sixty statues, the moor's edge, and far out one low, steady light that
+   never flickers and burned all night, in the direction the statues face from. Nobody names it. Mother Hesper's hearth
+   leans west when she hears of it. Chapter 2 walks toward it (it is where the old seat lies, STORY.md option A); chapter
+   1 never says so.
+
+No new key touches the lord's origin: no text calls the lord a lamplighter or talks down; Pip's "Your Wickship", Marek's
+"Your Radiance" and Ludo's "good my lord" are the forms the house rules keep.
+
+### Hooks into existing files (apply again at the join)
+
+| File | Place | Why |
+| --- | --- | --- |
+| `Core/Autoplay.swift` | `planDay`: the refill counts `s.archerCount + s.archersOnTheRoad` and `s.guardCount + s.guardsOnTheRoad` (target and comparison); `.recruitArchers` subtracts `s.archersOnTheRoad` from the free posts; `.recruitGuards` adds `s.guardsOnTheRoad` | the reference bot (and with it both table bots and `-GWAutoplay`) does not recruit in place of soldiers out with a road lantern; 0 without the table, so the reference realm is unchanged |
+
+The other hooks of quests-1 stand as they were (`GameState.table`, `Sim.dawn`'s `ErrandEngine.dawn` call, which now
+also follows sending 13 with the standard catalogue by default, `DebugArgs.Screen.table`, `RootView`'s debug layer,
+`CourtLineBook.lines(for:state:)`). `PetitionData.swift`, `PetitionEngine.swift`, `CourtWorld.swift`, `Remembered.swift`,
+`DESIGN.md`, `Localizable.xcstrings` and `Story.xcstrings` are untouched.
+
+### Tests
+
+- `Tests/Table/TableSendingsTests.swift`: the thirteen (numbers, places, seals, chips, costs, nights); every report
+  brought home by something; sending by sending (the mill's herbs keep the cough away; the planks bridge the ford and
+  shorten Greybell and Goldenacre; Hemmet's sentence or the sails tied; Marek pays the loan or carries the list, call
+  back keeps the debt; Stillmere's honest and struck reports; the first bell and its bearers; Ludo with a scout or alone
+  on red, his own lost report); lantern 41 follows Hild's ride and stays out; the risks of 2.7, one test each (lent
+  soldiers never stand on the wall through two real nights and come home whole; three lanterns out block every other
+  slip; only a chip loses a lantern, and its soldiers with it; Saltgate late, never lost; no sending locks a story
+  petition, schedules, unlocks or rolls, and no named person is lost except on red); the validator's new rules; the
+  two bots' policies.
+- `Tests/Table/TableTuningTests.swift`: the 4.4 cells above, the bots used the table (the sender sent at least six,
+  read its reports, lost nothing; the greedy bot sent more and lost lanterns on red), attachment `table-tuning`.
+- `ErrandEngineTests`, `ErrandDataTests`, `TableNeutralityTests` updated for the new values (offers by day, the stair's
+  seal days 11 to 15, the oil's counsel, the stair home after two dusks, twelve places).
+
+### Rounds

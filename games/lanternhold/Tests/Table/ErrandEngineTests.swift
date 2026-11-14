@@ -81,9 +81,11 @@ final class ErrandEngineTests: XCTestCase {
                        ["mill_herbs", "highcairn_count"],
                        "sending 1's window closed on day 6; Marek's cart waits for Oxmoor's audience")
         XCTAssertEqual(ErrandEngine.offers(realm(day: 11, flags: ["varn_with"]), catalog: table).map(\.id),
-                       ["mill_herbs", "ford_planks", "highcairn_count", "beaconfoot_smoke", "beacon_statues"],
-                       "the beacon site opens on day 11; sendings 4, 6, 7 and 12 wait for their people")
-        XCTAssertEqual(ErrandEngine.offers(realm(day: 16), catalog: table).map(\.id), ["beacon_statues"])
+                       ["ford_planks", "highcairn_count", "beacon_statues"],
+                       "the beacon site opens on day 11; the mill and Beaconfoot closed on day 10; sendings 4, 6, 7 "
+                       + "and 12 wait for their people")
+        XCTAssertEqual(ErrandEngine.offers(realm(day: 14), catalog: table).map(\.id), ["beacon_statues"])
+        XCTAssertEqual(ErrandEngine.offers(realm(day: 16), catalog: table).map(\.id), [])
         XCTAssertEqual(ErrandEngine.offers(realm(day: 17), catalog: table).map(\.id), [])
         var endless = realm(day: 3)
         endless.mode = .endless
@@ -425,8 +427,10 @@ final class ErrandEngineTests: XCTestCase {
 
     func testTheCounselGivesNoPeopleOrGoldAfterDayFourteen() throws {
         let levy = try XCTUnwrap(table.report("highcairn_true"))
-        XCTAssertEqual(ErrandEngine.counsel(levy, realm(day: 13)), 0, "the second half of the levy")
-        XCTAssertNil(ErrandEngine.counsel(levy, realm(day: 15)), "no archers from the counsel after day 14")
+        XCTAssertEqual(ErrandEngine.counsel(levy, realm(day: 7)), 1, "Odile: Hild's word, not Varn's bows")
+        let toll = try XCTUnwrap(table.report("ford_planks"))
+        XCTAssertEqual(ErrandEngine.counsel(toll, realm(day: 14)), 1, "the toll while it pays")
+        XCTAssertNil(ErrandEngine.counsel(toll, realm(day: 15)), "no gold from the counsel after day 14")
         let statues = try XCTUnwrap(table.report("beacon_statues"))
         XCTAssertEqual(ErrandEngine.counsel(statues, realm(day: 15)), 0, "its late side gives happiness only")
     }

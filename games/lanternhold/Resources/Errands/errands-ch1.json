@@ -24,13 +24,13 @@
       ]
     },
     {
-      "id": "mill_herbs", "number": 2, "place": "windmill", "chapter": 1, "days": [6, 12],
+      "id": "mill_herbs", "number": 2, "place": "windmill", "chapter": 1, "days": [6, 10],
       "orders": [
         { "seal": true, "nights": 1, "lend": { "guards": 1 }, "report": "mill_herbs" }
       ]
     },
     {
-      "id": "ford_planks", "number": 3, "place": "old_bridge", "chapter": 1, "days": [9, 14],
+      "id": "ford_planks", "number": 3, "place": "old_bridge", "chapter": 1, "days": [9, 12],
       "orders": [
         { "seal": true, "nights": 3, "cost": { "gold": -12 }, "lend": { "guards": 1, "builders": 1 },
           "report": "ford_planks" }
@@ -60,7 +60,7 @@
       "atReturn": { "flags": ["varn_road"] }
     },
     {
-      "id": "goldenacre_cart", "number": 6, "place": "goldenacre", "chapter": 1, "days": [7, 13],
+      "id": "goldenacre_cart", "number": 6, "place": "goldenacre", "chapter": 1, "days": [8, 12],
       "heard": ["oxmoor_gift"],
       "orders": [
         { "label": "errand.goldenacre_cart.o1", "nights": 4, "nightsWith": { "ford_bridged": 3 },
@@ -72,7 +72,7 @@
       "atReturn": { "flags": ["oxmoor_road", "pell_read"] }
     },
     {
-      "id": "saltgate_grey", "number": 7, "place": "saltgate", "chapter": 1, "days": [10, 15],
+      "id": "saltgate_grey", "number": 7, "place": "saltgate", "chapter": 1, "days": [10, 12],
       "requires": ["envoy_met"],
       "orders": [
         { "nights": 3, "cost": { "gold": -10 }, "lend": { "archers": 1 }, "goes": ["envoy"], "risk": 0.15,
@@ -101,17 +101,17 @@
       "atReturn": { "flags": ["lorn_road"], "world": ["castle.chapel.bell.first"] }
     },
     {
-      "id": "beaconfoot_smoke", "number": 10, "place": "beaconfoot", "chapter": 1, "days": [8, 11],
+      "id": "beaconfoot_smoke", "number": 10, "place": "beaconfoot", "chapter": 1, "days": [8, 10],
       "orders": [
         { "label": "errand.beaconfoot_smoke.o1", "seal": true, "nights": 1, "cost": { "gold": -4 },
           "lend": { "archers": 1 }, "report": "beaconfoot_road" },
-        { "label": "errand.beaconfoot_smoke.o2", "nights": 1, "cost": { "gold": -4 }, "lend": { "archers": 2 },
+        { "label": "errand.beaconfoot_smoke.o2", "nights": 2, "cost": { "gold": -4 }, "lend": { "archers": 2 },
           "risk": 0.10, "report": "beaconfoot_caves" }
       ],
       "atReturn": { "flags": ["beaconfoot_seen"] }
     },
     {
-      "id": "beacon_statues", "number": 11, "place": "beacon", "chapter": 1, "days": [11, 16],
+      "id": "beacon_statues", "number": 11, "place": "beacon", "chapter": 1, "days": [11, 14],
       "unlocked": ["beacon"],
       "orders": [
         { "label": "errand.beacon_statues.o1", "seal": true, "nights": 2, "lend": { "archers": 1 },
@@ -122,7 +122,7 @@
       "atReturn": { "flags": ["statues_counted"], "world": ["table.west.1"] }
     },
     {
-      "id": "ludo_number", "number": 12, "place": "beacon", "chapter": 1, "days": [12, 15],
+      "id": "ludo_number", "number": 12, "place": "beacon", "chapter": 1, "days": [12, 14],
       "requires": ["ludo_stays"], "world": ["table.west.1"], "lostReport": "ludo_lost",
       "orders": [
         { "label": "errand.ludo_number.o1", "nights": 1, "lend": { "archers": 1 }, "goes": ["serLudo"],
@@ -184,7 +184,7 @@
       ]
     },
     {
-      "id": "highcairn_true", "speaker": "soldier", "text": "report.highcairn_true.text", "counsel": 0,
+      "id": "highcairn_true", "speaker": "soldier", "text": "report.highcairn_true.text", "counsel": 1,
       "choices": [
         { "label": "report.highcairn_true.c1", "archers": 2, "reaction": "report.highcairn_true.r1" },
         { "label": "report.highcairn_true.c2", "happiness": 1, "flags": ["varn_vouch"],

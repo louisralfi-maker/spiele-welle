@@ -405,6 +405,18 @@ struct TableTuning: Sendable {
         lines.append("sender, night 20 by seed: " + sender.map { (run: TableSeedRun) -> String in
             "\(run.seed):\(run.with?.fellOnNight == nil ? "won" : "FELL")/\(run.without?.fellOnNight == nil ? "held" : "fell")"
         }.joined(separator: " "))
+        lines.append("")
+        lines.append("night 20 without the beacon's last stage, by seed (held/fell, patches; at dawn 20: gold, archers, "
+                     + "guards, happiness, buildings), reference | sender:")
+        for run in reference {
+            func cell(_ r: TableSeedRun?) -> String {
+                guard let r, let o = r.without?.outcomes.last else { return "-" }
+                let dawn = r.first.final
+                return (o.survived ? "held" : "fell") + " p\(o.patches) | \(dawn.gold)g \(dawn.archerCount)a "
+                    + "\(dawn.guardCount)gd \(dawn.happiness)h \(dawn.buildingsBuilt)b"
+            }
+            lines.append("seed \(run.seed): \(cell(run))  ||  \(cell(sender.first { $0.seed == run.seed }))")
+        }
         return lines.joined(separator: "\n")
     }
 }

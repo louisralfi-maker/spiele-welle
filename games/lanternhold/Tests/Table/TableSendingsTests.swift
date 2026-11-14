@@ -89,6 +89,15 @@ final class TableSendingsTests: XCTestCase {
         XCTAssertEqual(try order("greybell_bell").lend, ErrandLend(guards: 1, citizens: 2))
         XCTAssertEqual(try order("beacon_statues", 0).nights, 2, "the stair counts at two dusks")
         XCTAssertEqual(try order("beacon_statues", 1).nights, 1)
+        XCTAssertEqual(try order("beaconfoot_smoke", 1).nights, 2, "the caves take a night more than the road")
+        let windows = Dictionary(uniqueKeysWithValues: table.errands.map { ($0.id, $0.dayRange) })
+        XCTAssertEqual(windows["mill_herbs"], 6...10)
+        XCTAssertEqual(windows["ford_planks"], 9...12)
+        XCTAssertEqual(windows["goldenacre_cart"], 8...12)
+        XCTAssertEqual(windows["saltgate_grey"], 10...12)
+        XCTAssertEqual(windows["beaconfoot_smoke"], 8...10)
+        XCTAssertEqual(windows["beacon_statues"], 11...14)
+        XCTAssertEqual(windows["ludo_number"], 12...14)
         XCTAssertEqual(try order("stillmere_proof", 1).atReturn?.gold, 20)
     }
 
@@ -339,13 +348,13 @@ final class TableSendingsTests: XCTestCase {
 
     /// The hook: three lanterns for thirteen sendings; with three out every other slip waits for a hook.
     func testThreeLanternsOutBlockEveryOtherSlip() throws {
-        var s = realm(day: 11, flags: ["varn_with"])
+        var s = realm(day: 10, flags: ["varn_with"])
         for id in ["mill_herbs", "ford_planks", "beaconfoot_smoke"] {
             XCTAssertNotNil(ErrandEngine.send(&s, errand: id, order: 0, catalog: table, balance: balance), id)
         }
         XCTAssertTrue(s.table?.allRoadLanternsOut ?? false)
         let rest = ErrandEngine.offers(s, catalog: table)
-        XCTAssertEqual(rest.map(\.id), ["highcairn_count", "beacon_statues"])
+        XCTAssertEqual(rest.map(\.id), ["highcairn_count"])
         for errand in rest {
             for index in errand.orders.indices {
                 XCTAssertTrue(ErrandEngine.blockers(errand, order: index, s, catalog: table).contains(.noLantern),
@@ -372,6 +381,8 @@ final class TableSendingsTests: XCTestCase {
                                                       balance: balance))
         XCTAssertTrue(sending.lost)
         dawn(&s, day: 10)
+        XCTAssertEqual(s.table?.lantern(38)?.state, .out, "two nights in the caves")
+        dawn(&s, day: 11)
         XCTAssertEqual(s.archerCount, archers - 2, "both scouts stay in the caves")
         XCTAssertEqual(s.citizens, citizens - 2)
         XCTAssertEqual(s.table?.lantern(38)?.state, .lost)
@@ -508,8 +519,10 @@ final class TableSendingsTests: XCTestCase {
         XCTAssertEqual(again, realm5, "once a day")
 
         let truth = try XCTUnwrap(table.report("highcairn_true"))
-        XCTAssertEqual(sender.choice(truth, realm(day: 7)), 0, "Odile's counsel: the levy")
-        XCTAssertEqual(sender.choice(truth, realm(day: 15)), 1, "after day 14 the free choice")
+        XCTAssertEqual(sender.choice(truth, realm(day: 7)), 1, "Odile's counsel: Hild's word")
+        let planks = try XCTUnwrap(table.report("ford_planks"))
+        XCTAssertEqual(sender.choice(planks, realm(day: 14)), 1, "the toll while the counsel may give gold")
+        XCTAssertEqual(sender.choice(planks, realm(day: 15)), 0, "after day 14 the choice that gives nothing")
         let caves = try XCTUnwrap(table.report("beaconfoot_caves"))
         XCTAssertEqual(TableBot.greedy.choice(caves, realm(day: 10)), 0, "the most people")
     }
