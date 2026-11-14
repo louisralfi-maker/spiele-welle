@@ -379,6 +379,55 @@ final class HallStageTests: XCTestCase {
         XCTAssertEqual(odile?.facing, 1, "Odile turns to him beside her")
     }
 
+    // MARK: - The director's notes: the hearth's strengths, the noble's place, the anchors
+
+    func testTheHearthsThreeStrengthsAndTheFlare() throws {
+        XCTAssertEqual(HallFrames.hearthState(1), .bright)
+        XCTAssertEqual(HallFrames.hearthState(0.5), .low)
+        XCTAssertEqual(HallFrames.hearthState(0.2), .embers)
+        XCTAssertEqual(HallFrames.hearthState(0), .out)
+        var scene = HallScene(walker: HallWalker(x: 100, facing: 1))
+        XCTAssertEqual(HallFrames.flareBoost(scene: scene), 0)
+        scene.since = 10
+        scene.flareAt = 10
+        XCTAssertEqual(HallFrames.flareBoost(scene: scene), 0.6, accuracy: 1e-9)
+        scene.since = 10.4
+        XCTAssertEqual(HallFrames.flareBoost(scene: scene), 0.3, accuracy: 1e-9)
+        scene.since = 11
+        XCTAssertEqual(HallFrames.flareBoost(scene: scene), 0)
+        let game = model(["GWStage": "hall", "GWHallX": "500", "GWFlickerTime": "1"])
+        let calm = game.frame(physicalWidth: 2622, physicalHeight: 1206)
+        game.flareHearth()
+        XCTAssertNotNil(game.hall?.flareAt)
+        let flared = game.frame(physicalWidth: 2622, physicalHeight: 1206)
+        let before = try XCTUnwrap(calm.lights.first { $0.kind == .hearth }?.circle.w)
+        let after = try XCTUnwrap(flared.lights.first { $0.kind == .hearth }?.circle.w)
+        XCTAssertGreaterThan(after, before, "the flame answers the pole")
+    }
+
+    func testANobleStandsApartAndTheAnchorsAreKept() throws {
+        var s = realm(day: 3, hour: 10)
+        var court = s.court ?? CourtState()
+        court.queueDay = 3
+        court.queue = [Petitioner(id: "varn_levy", reason: .story, look: 1),
+                       Petitioner(id: "first_plough", reason: .story, look: 2)]
+        s.court = court
+        let specs = HallCourt.specs(s, catalog: .standard)
+        let noble = try XCTUnwrap(specs.first { $0.who == "hildVarn" })
+        XCTAssertEqual(noble.x, HallLayout.nobleSpot, "the noble stands apart")
+        XCTAssertNil(noble.seated, "a noble never sits on the benches")
+        XCTAssertEqual(specs.first { $0.petition == "first_plough" }?.x, HallLayout.seats[0])
+        for x in HallLayout.standing + HallLayout.seats {
+            XCTAssertGreaterThanOrEqual(abs(x - HallLayout.nobleSpot), 12, "\(x) keeps from the noble")
+            XCTAssertGreaterThanOrEqual(abs(x - HallLayout.footmanSpot), 12, "\(x) keeps from the footman")
+        }
+        XCTAssertGreaterThanOrEqual(HallLayout.collectorPost - HallLayout.doorGuards[1].x, 22)
+        XCTAssertGreaterThanOrEqual(HallLayout.collectorPost - HallLayout.doorX, 22)
+        XCTAssertTrue((492...572).contains(HallLayout.lamplighterSpot), "the lamplighter stands at the hearth")
+        XCTAssertEqual(HallLayout.tablePlaces.count, 8)
+        XCTAssertTrue(HallLayout.tablePlaces.allSatisfy { $0 >= HallLayout.daisX }, "the table stands on the dais")
+    }
+
     // MARK: - Sound and arguments
 
     func testTheHallIsHeardInsideAndTheDoorCreaks() {

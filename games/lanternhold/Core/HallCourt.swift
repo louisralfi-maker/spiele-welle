@@ -89,6 +89,7 @@ enum HallCourt {
         }
         var seat = 0
         var stand = 0
+        var nobleTaken = false
         for queued in AudienceRules.hall(s, catalog: catalog) {
             guard let speaker = Speakers.speaker(queued.petition.speaker) else { continue }
             let body = speaker.body
@@ -102,7 +103,13 @@ enum HallCourt {
                 // A member of the hall's court waits at his place; one from outside comes in when called.
                 continue
             case .guest:
-                x = standingSpot(&stand)
+                // A noble stands apart, the first of them at the noble's place.
+                if HallLayout.nobles.contains(speaker.id) && !nobleTaken {
+                    x = HallLayout.nobleSpot
+                    nobleTaken = true
+                } else {
+                    x = standingSpot(&stand)
+                }
             case .townsfolk:
                 if seat < HallLayout.seats.count {
                     x = HallLayout.seats[seat]

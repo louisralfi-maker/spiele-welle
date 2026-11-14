@@ -211,6 +211,8 @@ struct HallScene: Sendable, Equatable {
     var hornSlip = false
     /// Where the last step sound was played (one every `stepPixels`).
     var stepMark = 0.0
+    /// When (in `since`) the hearth last flared: the lamplighter's pole took fire at it (`GameModel.flareHearth()`).
+    var flareAt: Double?
 
     static let stepPixels = 14.0
 

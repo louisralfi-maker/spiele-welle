@@ -3305,6 +3305,17 @@ and `WorldLayout` are not touched: the hall's old world slot (x 1700 to 1960) is
 - **The hall answers its lord:** for 1.4 s after he came in by the door the two door guards stand straight (no
   breath, a pixel taller); for 2.6 s the waiting turn their heads to him; whom he passes within 20 px looks at him,
   and a seated petitioner he passes within 9 px bows his head (the nod frame).
+- **From the director's notes (14.11.):** the hearth shows three strengths by the hearth's value (docs/REALM.md:
+  bright from two thirds, low from one third, embers below; `HallFrames.hearthState`), and flares when the
+  lamplighter's pole takes fire (`GameModel.flareHearth()`, 0.6 brighter, gone in 0.8 s). A noble guest never sits on
+  the benches: the first noble waiting stands apart between the window bays (`HallLayout.nobleSpot` 236, a footman's
+  anchor at 249). Anchors kept for later builds, nothing drawn there yet: the tax collector's post by the door (124),
+  the stair to the lord's chamber (foot at 16, the door on the gallery at 30, row 80, a candle in the window behind
+  the gallery at 67, row 72), the table by the hearth (eight places on the dais, 444 to 528) and the lamplighter's
+  place at the hearth (518); the walk line from the hearth to the door carries no furniture. Not done here: the
+  hall's three states of furnishing (the painted hall is the rich one), the chamber's door and the table drawn, the
+  hearth taking a touch (stage-2's touch system); the tax lectern still opens the old tax card through the action
+  button until the town lane's taxes on foot and the ledger replace it.
 - **Targets in the hall** (`HallTargets`, until touch the world): the inner door; the lectern within 8 px of it
   (the taxes can be set while people wait); the throne anywhere on the floor before and on the dais while
   petitioners wait (326 to 470), else the nearest of throne, lectern and the court in talking reach.

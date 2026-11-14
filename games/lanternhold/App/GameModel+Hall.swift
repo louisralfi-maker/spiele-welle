@@ -156,6 +156,14 @@ extension GameModel {
         refreshAction()
     }
 
+    /// The hook for the lamplighter's dusk (director's note, 14.11. 15:19): his pole takes fire at the Eternal Light in
+    /// the hearth, and the flame answers with a small flare.
+    func flareHearth() {
+        guard stage == .hall, var scene = hall else { return }
+        scene.flareAt = scene.since
+        hall = scene
+    }
+
     /// The horn sounded: inside, a slip at the door says so (the waiting go home by the door with the next step).
     func hallHeardTheHorn() {
         guard stage == .hall, var scene = hall else { return }

@@ -76,6 +76,27 @@ enum HallFrames {
     /// The one who has the word stands in a warm pool of this radius.
     static let speakerPool = 30.0
 
+    /// The hearth's three strengths (docs/REALM.md sections 3 and 4) and out: bright from two thirds, low from one
+    /// third, embers below it.
+    enum HearthState: Sendable, Equatable {
+        case bright, low, embers, out
+    }
+
+    static func hearthState(_ strength: Double) -> HearthState {
+        if strength <= 0.01 { return .out }
+        if strength < HallLayout.smallFireBelow { return .embers }
+        return strength < 2.0 / 3.0 ? .low : .bright
+    }
+
+    /// The flare when the lamplighter's pole takes fire at the hearth: 0.6 at once, gone over `flareSeconds`.
+    static let flareSeconds = 0.8
+    static func flareBoost(scene: HallScene) -> Double {
+        guard let at = scene.flareAt else { return 0 }
+        let age = scene.since - at
+        guard age >= 0, age < flareSeconds else { return 0 }
+        return 0.6 * (1 - age / flareSeconds)
+    }
+
     /// The hall's interior light for the hour's outdoor ambient: dimmer by day, warmed a little by the stone and oak.
     static func interior(_ ambient: AmbientSample, groundRow: Int) -> InteriorLight {
         let world = Look2.worldAmbient(ambient)
@@ -355,25 +376,34 @@ enum HallFrames {
         let lectern = SpriteID.taxLectern.size
         put(.taxLectern, x: HallLayout.lecternX - Double(lectern.width / 2), row: HallLayout.daisRow - lectern.height)
 
-        // The hearth: the great fire, or the small one when the hearth is low; its pool on the wall and on the flags.
+        // The hearth in its three strengths (docs/REALM.md: bright, low, embers): the great fire, the great fire
+        // burning low, or the small fire's embers; its pool on the wall and on the flags; a flare when the
+        // lamplighter's pole takes fire at it (`HallScene.flareAt`).
         let fireSeed: UInt64 = 0x4841_4C4C
-        let fireFlicker = Float(flicker(fireSeed).intensity)
-        if strength >= HallLayout.smallFireBelow {
+        let flare = Float(flareBoost(scene: input.scene))
+        let fireFlicker = Float(flicker(fireSeed).intensity) * (1 + flare)
+        let state = hearthState(strength)
+        switch state {
+        case .bright, .low:
             let size = SpriteID.hallFire.size
             let rate = reduceMotion ? fireRate * Flicker.reducedRateScale : fireRate
             let frame = Int((max(0, animTime) * rate).rounded(.down)) % max(1, SpriteID.hallFire.frameCount)
+            let level: Float = state == .bright ? 0.85 + 0.15 * Float(strength) : 0.62
             glow(.hallFire, x: HallLayout.hearthX - Double(size.width / 2),
                  row: HallLayout.fireBottomRow - size.height + 1,
-                 color: SIMD3<Float>(repeating: (0.75 + 0.25 * Float(strength)) * fireFlicker), frame: frame)
-        } else if strength > 0.01 {
+                 color: SIMD3<Float>(repeating: level * fireFlicker), frame: frame)
+        case .embers:
             let size = SpriteID.hearthFire.size
             glow(.hearthFire, x: HallLayout.hearthX - Double(size.width / 2),
-                 row: HallLayout.fireBottomRow - size.height + 1, color: SIMD3<Float>(repeating: fireFlicker))
+                 row: HallLayout.fireBottomRow - size.height + 1,
+                 color: SIMD3<Float>(1.0, 0.55, 0.32) * (0.75 * fireFlicker))
+        case .out:
+            break
         }
-        if strength > 0.01 {
+        if state != .out {
             light(.hearth, x: HallLayout.hearthLight.x, row: HallLayout.hearthLight.row,
                   radius: HallLayout.hearthRadius.base + HallLayout.hearthRadius.perStrength * strength,
-                  intensity: 1.25 * (0.4 + 0.6 * strength), seed: fireSeed)
+                  intensity: 1.25 * (0.4 + 0.6 * strength) * (1 + 0.5 * Double(flare)), seed: fireSeed)
             // The long warm pool on the flags: a pool of its own kind (a hearth light would send embers up out of
             // the floor), in the fire's colour, scaled back up by the candle's share of look 2.
             light(.candle, x: HallLayout.floorPool.x, row: HallLayout.floorPool.row,

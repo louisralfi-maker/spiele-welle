@@ -46,9 +46,31 @@ enum HallLayout {
     /// The two benches' middles, under the tall windows; three seats each, the first in line nearest the throne.
     static let benches: [Double] = [184, 300]
     static let seats: [Double] = [308, 300, 292, 192, 184, 176]
-    /// Where guests and petitioners beyond the six seats stand, on the wall line between the window bays and by the
-    /// door bay.
-    static let standing: [Double] = [228, 256, 140, 118, 268, 106]
+    /// Where guests and petitioners beyond the six seats stand, on the wall line by the door bay and beyond the
+    /// second bench.
+    static let standing: [Double] = [140, 118, 268, 106, 280, 94]
+    /// A noble guest never sits on the benches with the working people (the people bar, director's note 14.11.
+    /// 14:20): he stands apart between the window bays, his footman a step behind him (an anchor for the people
+    /// lane's footman).
+    static let nobleSpot = 236.0
+    static let footmanSpot = 249.0
+    static let nobles: Set<String> = ["hildVarn", "lorenzPell", "ebbaCalder", "orlaLorn", "envoy"]
+
+    // MARK: - Anchors kept for later builds (the director's notes of 14.11.2026; nothing is drawn there yet)
+
+    /// The tax collector's post by the hall's door, inside, with his strongbox (docs/TOWN.md section 2).
+    static let collectorPost = 124.0
+    /// The stair up to the lord's chamber: its foot by the gallery's left newel, the chamber's door on the gallery,
+    /// and the chamber's window (the one behind the gallery) where a candle can be lit by data (docs/HOUSE.md 3).
+    static let chamberStair = 16.0
+    static let chamberDoor = (x: 30.0, row: 80)
+    static let chamberCandle = (x: 67.0, row: 72)
+    /// The table by the hearth for the special evenings: eight places on the dais, the court and one guest
+    /// (docs/HOUSE.md 4).
+    static let tablePlaces: [Double] = [444, 456, 468, 480, 492, 504, 516, 528]
+    /// Where the lamplighter stands at the hearth to light his pole at the Eternal Light (the flame flares; the walk
+    /// line from here to the door stays free of furniture).
+    static let lamplighterSpot = 518.0
     /// The four candle stands, one each side of a bench (their candles burn while someone waits on it).
     static let stands: [Double] = [160, 208, 276, 324]
     /// The door's guards (facing it) and the guard under the arms by day.
