@@ -1,0 +1,21 @@
+2026-11-14 21:13:55.966912+0000 Lanternhold[8960:36913] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.EndingsTests testBeginAgainStartsANewRealm]' passed (0.068 seconds).
+Test Case '-[LanternholdTests.EndingsTests testEachEndingIsThreeSlidesOnItsOwnLightWithItsPictures]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.EndingsTests testEachLampHasItsOwnLight]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.EndingsTests testEveryWordIsThereAndFitsTwoLinesAtFullSize]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.EndingsTests testOnlyTheFinalesDawnEndsTheChapter]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.EndingsTests testTheEndingFollowsTheFinaleTheTownAndSeren]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EndingsTests testTheFinaleLeadsThroughTheEndingToTheEndCardAndTheLongWatch]' passed (0.029 seconds).
+Test Case '-[LanternholdTests.EndingsTests testTheLeaningIsReadFromTheFlagsAndTheSpeechDecides]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EndingsTests testTheMiddleSlideNamesTheLeaningThenTheHousesOrSeren]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.EndingsTests testTheTaleOfARealmAtTheFinalesDawn]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SlidesPaletteTests testEverySlideIsPaletteArt]' passed (0.400 seconds).
+Test Case '-[LanternholdTests.SlidesTests testEveryPictureIsInTheBundleAtItsSize]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheArgumentsOpenAShowAndDecideThePrologue]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheNameEntryLeadsIntoThePrologueWhenTheLaunchPlaysIt]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.SlidesTests testThePrologueIsFourSlidesAndTheLastShowsTheChosenLord]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheRealmStandsStillUnderAShowAndGoesOnAfter]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheStageTurnsHoldsAndEnds]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheWordsAreThereInEnglishAndGermanAndFitTwoShortLines]' passed (0.001 seconds).
+exit=0
+screenshots: 0
