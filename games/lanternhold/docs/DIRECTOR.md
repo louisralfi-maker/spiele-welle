@@ -417,3 +417,9 @@ schneller geht."
   throne, the lantern pool's colour, the five identical banners, the hearth light's hard edge.
 - **The queue at 21:30:** an agent that started before the 19:35 note still sends one full round as its gate
   (people 20:24, world 21:17). Quota 63 % at 21:34, about 9 % an hour.
+- **The speed kit is proven (22:36):** `claude/lh-speed` (cb12b7d the kit, da894be the round scripts, 2a8bd2b the
+  proof class). A sweep of stills runs 2.5 to 5.7 times as fast, and 72 of 72 compared pairs have the same pixels
+  (`lh-spd-1`, `lh-spd-3`). The world sweep's 31 shots went from 475 s to 149 s. The world lane takes it now
+  (`ci-out/director/notes-world.md`, the patch `speed-kit-world.patch`); every other lane at the join. Not proven:
+  the tap fallback, a German run, shots with `-GWStage`, `-GWScreen` or the ads lane's `AdDirector`. The build
+  flags saved 21 s and are not kept.
