@@ -348,16 +348,27 @@ final class Look2FrameTests: XCTestCase {
             XCTAssertTrue((0.85...1).contains(EntityFrames.creatureShade(id)))
         }
 
-        // The bank's glow: its cold eyes and embers on 64 px tiles in the bank's heart, in look 2 only; since the
-        // world rebuild the bank itself is three sheets of fog (the old wall of night is look 1's).
+        // The bank's eyes in look 2 only; since the world rebuild the bank itself is three sheets of fog (the old
+        // wall of night is look 1's). Fix round 1: the eyes come in pairs (one `darknessBankGlow` each), a few at a
+        // time, at depths and heights of their own, never in rows.
         let night = GameFrameSupport.demoNight(hour: 23.2)
         let bank = frame(night, focus: 400)
         XCTAssertGreaterThanOrEqual(bank.layer(.world).sprites.filter { $0.sprite == .bankSheetB }.count, 2)
-        XCTAssertTrue(bank.layer(.world).sprites.allSatisfy { $0.sprite != .darknessBank && $0.sprite != .darknessEdge })
-        let glow = bank.emissives.filter { $0.sprite == .darknessBankGlow }
-        XCTAssertGreaterThanOrEqual(glow.count, 3)
-        XCTAssertTrue(glow.allSatisfy { (0..<4).contains($0.frame) && $0.kind == .glow })
-        XCTAssertEqual(Set(glow.map(\.frame)).count, min(4, glow.count), "neighbouring tiles show different frames")
+        XCTAssertTrue(bank.layer(.world).sprites.allSatisfy {
+            $0.sprite != .darknessBank && $0.sprite != .darknessEdge
+        })
+        var seen = 0
+        for step in 0..<12 {
+            let glow = frame(night, focus: 200, time: 1.5 + Double(step) * 0.9).emissives
+                .filter { $0.sprite == .darknessBankGlow }
+            seen += glow.count
+            XCTAssertLessThanOrEqual(glow.count, 4, "at most four pairs on a screen")
+            XCTAssertTrue(glow.allSatisfy { (0..<4).contains($0.frame) && $0.kind == .glow })
+            for (a, b) in zip(glow, glow.dropFirst()) {
+                XCTAssertGreaterThanOrEqual(abs(a.rect.x - b.rect.x), 40, "never two pairs side by side")
+            }
+        }
+        XCTAssertGreaterThan(seen, 6, "the bank's eyes show")
         XCTAssertTrue(frame(night, focus: 400, look: .one).emissives.allSatisfy { $0.sprite != .darknessBankGlow })
     }
 

@@ -217,7 +217,8 @@ enum FrameBuilder {
                 if options.look == .two {
                     // World rebuild: the darkness bank's sheet on the lane's plane (it stands with the fog too).
                     for sheet in bankSheets where sheet.plane == .world {
-                        for tile in bankSheetTiles(sheet, edgeX: bankEdgeX, value: 1, animTime: animTime,
+                        let tint = bankTint(sheet.sprite, ambient: ambient)
+                        for tile in bankSheetTiles(sheet, edgeX: bankEdgeX, tint: tint, animTime: animTime,
                                                    reduceMotion: options.reduceMotion, geometry: geometry) {
                             glow.occlude(tile, plane: .world)
                             planeSprites[plane.rawValue].append(tile)
@@ -234,8 +235,9 @@ enum FrameBuilder {
                 }
                 if options.look == .two {
                     if wall > 0.01 {
-                        for item in bankGlow(edgeX: bankEdgeX, geometry: geometry, animTime: animTime,
-                                             reduceMotion: options.reduceMotion, strength: wall) {
+                        // Fix round 1: the bank's eyes come in pairs, a few at a time, at depths of their own.
+                        for item in bankEyes(edgeX: bankEdgeX, animTime: animTime, reduceMotion: options.reduceMotion,
+                                             strength: wall, ambient: ambient, geometry: geometry) {
                             glow.add(item)
                         }
                     }
@@ -286,10 +288,18 @@ enum FrameBuilder {
             // night's own colours, so the lift the shader gives a fog plane is taken out of their tint.
             let value = 1 / max(1, Look2.fogBrightness(ambient))
             for sheet in bankSheets where sheet.plane != .world {
-                planeSprites[sheet.plane.rawValue] += bankSheetTiles(sheet, edgeX: bankEdgeX, value: value,
+                var tint = bankTint(sheet.sprite, ambient: ambient)
+                tint.x *= value
+                tint.y *= value
+                tint.z *= value
+                planeSprites[sheet.plane.rawValue] += bankSheetTiles(sheet, edgeX: bankEdgeX, tint: tint,
                                                                      animTime: animTime,
                                                                      reduceMotion: options.reduceMotion,
                                                                      geometry: geometry)
+            }
+            // Fix round 1: where the world ends the dark is whole (the last 80 px, before everything).
+            if let end = bankEndTile(geometry: geometry) {
+                planeSprites[Plane.fogB.rawValue].append(end)
             }
         }
 
@@ -555,34 +565,6 @@ enum FrameBuilder {
         return list
     }
 
-    /// Look 2 (SPRITES.md, ART-look2.md 11.5): the bank's cold eyes and dim embers, one frame of `darknessBankGlow`
-    /// over each body tile of the bank, drawn as it is: frame (tile index + time × 1.5) mod 4, with Reduce Motion the
-    /// tile index mod 4. The tiles are counted from the bank's edge, as `bankTiles` lays them.
-    private static func bankGlow(edgeX: Double, geometry: Geometry, animTime: Double,
-                         reduceMotion: Bool, strength: Float = 1) -> [EmissiveInstance] {
-        let whole = geometry.whole(.world)
-        let size = SpriteID.darknessBankGlow.size
-        let width = Double(size.width)
-        let frames = SpriteID.darknessBankGlow.frameCount
-        let step = reduceMotion ? 0 : Int((animTime * 1.5).rounded(.down))
-        let top = geometry.top(y: -Double(WorldLayout.groundRowsBelow), height: Double(size.height))
-        var list: [EmissiveInstance] = []
-        var x = edgeX.rounded(.down) - Double(SpriteID.darknessEdge.size.width) - width
-        var index = 0
-        while x > -width {
-            let left = x - whole
-            if geometry.isVisible(left: left, width: width) {
-                let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
-                list.append(EmissiveInstance(sprite: .darknessBankGlow, plane: .world, rect: rect,
-                                             color: SIMD4<Float>(strength, strength, strength, 1),
-                                             frame: (index + step) % frames))
-            }
-            x -= width
-            index += 1
-        }
-        return list
-    }
-
     // MARK: - Props
 
     /// The alpha of a baked cast shadow (scene polish 2): the sun's strength (full from a sun height of 0.18, none
@@ -739,16 +721,15 @@ enum FrameBuilder {
 
     /// The darkness bank (REVIEW-look-2.md 2.5, B4): three sheets of feathered fog at the lane's own parallax (like
     /// the Gloom's strips), so they move with the bank's edge as one soft volume. On fog A behind the creatures the
-    /// tall sheet whose core stands above every screen's top, on the lane's plane after its props the sheet that
-    /// hides what stands in the bank, on fog B before everything a low roll; their faces breathe against each other.
+    /// tall, thin sheet whose billowing crest stands near the screen's top, on the lane's plane after its props the
+    /// darker sheet whose crest lies at about half the screen (it hides what stands low in the bank), on fog B before
+    /// everything the darkest, low roll; their faces breathe against each other. Fix round 1: each a face and body
+    /// tiles that hold every pixel once (`bankSheetTiles`), tinted by the hour (`bankTint`).
     static let bankSheets = [
         BankSheet(plane: .fogA, sprite: .bankSheetA, face: 24, sway: 3, period: 11, phase: 0),
         BankSheet(plane: .world, sprite: .bankSheetB, face: 8, sway: 4, period: 8, phase: 0.4),
         BankSheet(plane: .fogB, sprite: .bankSheetC, face: 44, sway: 7, period: 6, phase: 0.75),
     ]
-    /// The sheets of one plane lie this far apart (tools/fogart.py `STRIDE`): each one's face falls inside the core
-    /// of the one east of it, so only the first face shows.
-    static let bankStride = 100.0
     /// The sheets' bottom: four rows under the lowest screen row.
     static let bankSheetY = -Double(WorldLayout.groundRowsBelow) - 4
 
@@ -759,26 +740,61 @@ enum FrameBuilder {
         return (edgeX + sheet.face + breath).rounded()
     }
 
-    /// One plane's sheets across the screen, laid westward from the face to the screen's left end and returned west
-    /// first (each later, eastern sheet's core covers the face of the one before it).
-    private static func bankSheetTiles(_ sheet: BankSheet, edgeX: Double, value: Float, animTime: Double,
+    /// One plane's sheets across the screen (fix round 1): the leading face (frame 1) with its right end at the face,
+    /// then body tiles (frame 0) every `width − fogOverlap` px westward to the screen's left end, returned west
+    /// first.
+    /// Neighbours overlap by `fogOverlap` px with complementary dithered feathers, so each pixel is held by exactly
+    /// one tile and a translucent sheet stays one even veil. `tint` is the hour's (`bankTint`).
+    private static func bankSheetTiles(_ sheet: BankSheet, edgeX: Double, tint: SIMD4<Float>, animTime: Double,
                                        reduceMotion: Bool, geometry: Geometry) -> [SpriteInstance] {
         let size = sheet.sprite.size
         let width = Double(size.width)
+        let period = width - Double(fogOverlap)
         let world = geometry.whole(.world)
         let face = bankFace(sheet, edgeX: edgeX, animTime: animTime, reduceMotion: reduceMotion)
         let top = geometry.top(y: bankSheetY, height: Double(size.height))
-        let tint = SIMD4<Float>(value, value, value, 1)
         var list: [SpriteInstance] = []
         var left = face - width - world
+        var frame = 1
         while left + width >= -1 {
             if geometry.isVisible(left: left, width: width) {
                 let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
-                list.append(SpriteInstance(sprite: sheet.sprite, frame: 0, rect: rect, tint: tint, flipped: false))
+                list.append(SpriteInstance(sprite: sheet.sprite, frame: frame, rect: rect, tint: tint, flipped: false))
             }
-            left -= bankStride
+            left -= period
+            frame = 0
         }
         return list.reversed()
+    }
+
+    /// The bank's eyes as glow on the world plane (fix round 1, `bankEyePairs`): drawn after the sheet on the lane, so
+    /// no fog of its own hides them; the low roll on fog B veils the lowest.
+    private static func bankEyes(edgeX: Double, animTime: Double, reduceMotion: Bool, strength: Float,
+                                 ambient: AmbientSample, geometry: Geometry) -> [EmissiveInstance] {
+        let size = SpriteID.darknessBankGlow.size
+        let whole = geometry.whole(.world)
+        var list: [EmissiveInstance] = []
+        for eye in bankEyePairs(edgeX: edgeX, time: animTime, reduceMotion: reduceMotion) {
+            let left = eye.x - whole
+            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
+            let value = bankEyeStrength(eye, ambient: ambient) * strength
+            guard value > 0.02 else { continue }
+            let top = geometry.top(y: eye.y, height: Double(size.height))
+            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            list.append(EmissiveInstance(sprite: .darknessBankGlow, plane: .world, rect: rect,
+                                         color: SIMD4<Float>(value, value, value, 1), frame: eye.frame))
+        }
+        return list
+    }
+
+    /// Where the world ends (x 0) the dark is whole: `bankEnd` on fog B, drawn black (fix round 1).
+    private static func bankEndTile(geometry: Geometry) -> SpriteInstance? {
+        let size = SpriteID.bankEnd.size
+        let left = -geometry.whole(.world)
+        guard geometry.isVisible(left: left, width: Double(size.width)) else { return nil }
+        let top = geometry.top(y: bankSheetY, height: Double(size.height))
+        let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+        return SpriteInstance(sprite: .bankEnd, frame: 0, rect: rect, tint: SIMD4<Float>(0, 0, 0, 1), flipped: false)
     }
 
     /// How deep the camera stands in the cleft (0 outside ... 1 between the gatehouse and the back gate): the moon

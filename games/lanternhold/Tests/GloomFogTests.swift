@@ -370,7 +370,11 @@ final class GloomFogTests: XCTestCase {
         XCTAssertEqual(wall(foggy), wall(plain), "the bank's sheets stand in the fog")
         XCTAssertTrue(wall(foggy).allSatisfy { $0.sprite == .bankSheetB }, "no old wall of night in look 2")
         XCTAssertEqual(foggy.layer(.world).sprites, plain.layer(.world).sprites)
-        XCTAssertTrue(plain.emissives.contains { $0.sprite == .darknessBankGlow })
+        // (Fix round 1: the bank's eyes open and shut, so they are looked for over a few seconds.)
+        XCTAssertTrue((0..<10).contains { step in
+            frame(night, focus: 620, gloom: nil, time: 1.5 + Double(step) * 0.8).emissives
+                .contains { $0.sprite == .darknessBankGlow }
+        })
         XCTAssertFalse(foggy.emissives.contains { $0.sprite == .darknessBankGlow })
         XCTAssertTrue(eyeTiles(plain).isEmpty)
         XCTAssertFalse(eyeTiles(foggy).isEmpty)

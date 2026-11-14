@@ -54,11 +54,11 @@ extension SceneLayout {
                      fade: 2330...2520)),
         // A cloud deck before the wall: the peaks stand above the clouds. No cloud before the two slots. World rebuild
         // (H6): over the shadow land and the Throat the deck lies across the wall at half the screen's height (rows
-        // 40 to 90 on the runner's phone), so the wall rises out of it and past the screen's top; a third cloud closes
-        // the deck between the first two. The valley's cloud (far x 640) stays where it was.
-        (.far, Entry(sprite: .cloudA, x: -60, y: 70)),
-        (.far, Entry(sprite: .cloudC, x: 150, y: 62, flipped: true)),
-        (.far, Entry(sprite: .cloudB, x: 322, y: 74)),
+        // 40 to 90 on the runner's phone), so the wall rises out of it and past the screen's top. Fix round 1 (the
+        // critic: "the deck's underside is a ruler-straight line"): one painted deck, far x -100 to 620, its billows
+        // standing on y 72, its underside hanging in lobes and rags 4 to 20 px below, a veil of mist feathering 48 px
+        // under it into the wall's haze (`cloudDeck`, tools/fogart.py). The valley's cloud (far x 640) stays.
+        (.far, Entry(sprite: .cloudDeck, x: look2DeckX, y: look2DeckY)),
         (.far, Entry(sprite: .cloudC, x: 640, y: 108, flipped: true)),
         // The valley's painted distance, before the wall's end. Polish after round 2: both stand 64 px further left
         // (they stood at 620 and 1068). The wall falls from 139 to 12 px above the ground line between far x 658 and
@@ -169,6 +169,9 @@ extension SceneLayout {
 
     /// How much higher the Weltmauer stands than in the look-2 port (H6: its peaks above the screen's top).
     static let look2WallRise = 30.0
+    /// The cloud deck's left edge (far x) and its bottom (its billows stand 50 rows higher, on y 72).
+    static let look2DeckX = -100.0
+    static let look2DeckY = 22.0
 
     /// The rock of the Throat and the cleft (docs/REVIEW-look-2.md 2.3, 2.5, B5, B6, H1; tools/cleftart.py), all on
     /// the mid plane: the Throat's far wall climbs in three steps from world 720 to 1240, each darker and taller (A

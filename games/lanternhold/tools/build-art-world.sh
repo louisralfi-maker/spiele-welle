@@ -34,7 +34,8 @@ VISTA=fir0,fir1,fir2,fir3,fir4,leafDark,leaf,farDeep,far,mistDark,moon,mist,farP
 PLANTS="d2FgFerns d2FgMeadow d2FgReeds d2BushA d2BushB d2TreeBelt d2FirBeltFar laneMoorA laneMoorB laneMoorC laneMoorD laneCobbleA laneCobbleB laneCobbleC laneCobbleD laneEarthA laneEarthB laneEarthC laneEarthD laneScreeA laneScreeB laneScreeC laneScreeD d2LaneEnd d2Smoke d2Fireflies d2Sparks"
 # World rebuild, step world-1 (14.11.2026): the hour's fog (tools/fogart.py, it replaced depthart's three banks), the
 # darkness bank's sheets, the rock of the Throat and the cleft and the gate's granite (tools/cleftart.py, rockfield.py)
-FOG="d2FogBank d2MistBand d2FogLow bankSheetA bankSheetB bankSheetC"
+# Fix round 1: the world's end, the bank's eyes (one pair, four frames) and the cloud deck over the Weltmauer
+FOG="d2FogBank d2MistBand d2FogLow bankSheetA bankSheetB bankSheetC bankEnd darknessBankGlow cloudDeck"
 ROCK="throatStepA throatStepB throatStepC cleftWallA cleftWallB cleftWallC cleftShaft gateRockL gateRockR"
 R=games/lanternhold/tools/retired-art
 
@@ -88,7 +89,7 @@ build() { # name: one sprite (or one group of small ones)
     # B6, H1); the files lie in tools/retired-art, their recipe in git before 14.11.2026
     throatStepA|throatStepB|throatStepC|cleftWallA|cleftWallB|cleftWallC|cleftShaft|gateRockL|gateRockR)
         python3 -I -B games/lanternhold/tools/cleftart.py build $1 --out $A ;;
-    d2FogBank|d2MistBand|d2FogLow|bankSheetA|bankSheetB|bankSheetC)
+    d2FogBank|d2MistBand|d2FogLow|bankSheetA|bankSheetB|bankSheetC|bankEnd|darknessBankGlow|cloudDeck)
         python3 -I -B games/lanternhold/tools/fogart.py build $1 --out $A ;;
     shadowForest)  # the shadow land's forest edge on the mid plane: firs, two lantern statues, a ruin, a tower stump
         px convert $W/forest-1.png $P/forestLow.png --size 224x104 --key $K --only $WOODS --zone fir0,fir1,fir2,fir3,fir4,rock,rockLight@0,0,224,66 --match new; cool

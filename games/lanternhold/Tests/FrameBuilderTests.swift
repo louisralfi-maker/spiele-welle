@@ -728,7 +728,7 @@ extension FrameBuilderTests {
     /// The fog sprites of look 2 whose ends could show: the hour's three banks, the darkness bank's sheets and the
     /// Gloom's strips.
     static let fogSprites: Set<SpriteID> = [.d2FogBank, .d2MistBand, .d2FogLow, .bankSheetA, .bankSheetB, .bankSheetC,
-                                            .gloomFogBack, .gloomFogMid, .gloomFogFront]
+                                            .gloomFogBack, .gloomFogMid, .gloomFogFront, .bankEnd]
 
     /// B4: no fog ends in a straight line. The art: every fog sprite feathers out at both ends (its outermost columns
     /// clear, its cover growing over the feather; the Gloom's strips run out clear at their leading face and repeat
@@ -754,7 +754,17 @@ extension FrameBuilderTests {
             let face = layout.cell(sprite, frame: 1)
             XCTAssertEqual(cover(face, face.width - 1), 0, "\(sprite): its leading face runs out clear")
         }
-        for sprite in tiles {
+        // Fix round 1: the bank's face frame starts like a body tile, and the world's end runs out clear eastward.
+        for sprite in sheets {
+            let face = layout.cell(sprite, frame: 1)
+            XCTAssertEqual(cover(face, 0), 0, "\(sprite): its face frame's west column is clear")
+            XCTAssertEqual(cover(face, face.width - 1), 0, "\(sprite): its leading face runs out clear")
+        }
+        let end = layout.cell(.bankEnd, frame: 0)
+        XCTAssertEqual(cover(end, end.width - 1), 0, "the world's end thins out to nothing")
+        XCTAssertEqual(cover(end, 0), end.height * 255, "where the world ends the dark is whole")
+        // The hour's tiles and (fix round 1) the bank's body tiles hold every pixel of their overlap exactly once.
+        for sprite in tiles + sheets {
             let cell = layout.cell(sprite, frame: 0)
             let period = cell.width - FrameBuilder.fogOverlap
             var both = 0
@@ -816,6 +826,8 @@ extension FrameBuilderTests {
         switch item.sprite {
         case .d2FogBank, .d2MistBand, .d2FogLow, .bankSheetA, .bankSheetB, .bankSheetC:
             return true
+        case .bankEnd:
+            return !west
         case .gloomFogBack, .gloomFogMid, .gloomFogFront:
             guard !west, item.frame == 1 else { return false }
             guard let source = item.source else { return true }
