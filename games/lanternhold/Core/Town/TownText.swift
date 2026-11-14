@@ -117,6 +117,21 @@ enum TownText {
     }
 }
 
+extension TownText {
+    /// The report's taxes row in one line about yesterday (town-2; the interface bar: one line, the windows and the
+    /// waving tell the rest): in unrest that the doors stayed shut; else at whose door the lord knocked (the war
+    /// levy first), else what the people kept, else what the collector brought; nil when there is nothing to tell
+    /// beyond the amount (every part collected by the lord himself).
+    static func reportDetail(_ summary: TownSummary, lookup: (String) -> String = { TownText.string($0) }) -> String? {
+        let lines = reportLines(summary, lookup: lookup)
+        for prefix in ["town.report.unrest", "town.report.levied", "town.report.knocked", "town.report.kept",
+                       "town.report.collector"] {
+            if let line = lines.first(where: { $0.key.hasPrefix(prefix) }) { return line.text }
+        }
+        return nil
+    }
+}
+
 /// The old tax lectern's labels (60, 100, 140, 180 % and +3, 0, −7, −10 at dawn). Since the taxes went on foot (town-1)
 /// no rate exists in the economy: only the lectern card still shows these, until town-2 takes the card away.
 extension TaxRate {

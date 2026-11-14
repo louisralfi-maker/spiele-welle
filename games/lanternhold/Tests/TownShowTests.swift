@@ -423,6 +423,24 @@ final class TownShowTests: XCTestCase {
                 && $0.source.x <= spotLeft + 64 })
     }
 
+    // MARK: - The dawn report
+
+    func testTheReportsTaxesRowTellsYesterdayInOneLine() throws {
+        let english: (String) -> String = { TownText.string($0, language: "en") ?? $0 }
+        var summary = TownSummary.paidInFull(day: 4, gold: 49)
+        XCTAssertNil(TownText.reportDetail(summary, lookup: english), "all collected: the amount says it")
+        summary.kept = 11
+        summary.spared = [house5]
+        XCTAssertEqual(TownText.reportDetail(summary, lookup: english), "Left to the people: 11")
+        summary.knockedAt = [house4]
+        XCTAssertEqual(TownText.reportDetail(summary, lookup: english), "Knocked at the cooper's",
+                       "the knock is told before what the people kept")
+        summary.unrest = true
+        XCTAssertEqual(TownText.reportDetail(summary, lookup: english), "Unrest: every door stayed shut")
+        let report = ReportCard.sampleReport()
+        XCTAssertEqual(ReportCard.make(report).town, report.town, "the card carries yesterday's town")
+    }
+
     // MARK: - The sprites
 
     @MainActor
