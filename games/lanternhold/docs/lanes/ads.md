@@ -137,6 +137,8 @@ chance again from night %lld"; nothing uses them now (the i18n pass may drop the
 | `lh-ad1-2` | `406047f` | the same | ALL PASSED: 439 unit tests (28 of them the ads'), `AdsUITests` (5) in English and German, `FirstDayUITests.testScreens` |
 | `lh-ad1-3` | `0c82c44` | build, unit, ui, ui-de, release (the full round) | ALL PASSED: 439 unit tests, 21 UI tests in English and in German, the Release build |
 | `lh-ad1-4` | `f3d7321` | build, unit, ui, ui-de, release (the full round) | ALL PASSED: 439 unit tests, 21 UI tests in English and in German, the Release build |
+| `lh-ad1f1-1` | `a1c08b5` | build, unit (AdPacing, AdDirector, AdMode, SaveGame), ui (ads), ui-de (ads) | ALL PASSED on the first try (fix round 1) |
+| `lh-ad1f1-2` | `8e7282f` | build, unit, ui, ui-de, release (the full round) | ALL PASSED: 449 unit tests (10 new), 21 UI tests in English and in German, the Release build |
 
 Judged from `lh-ad1-2`'s shots (upright copies in the lane's report folder): the report's offer and the doubled note fit
 the footer in English and German, the defeat card's second chance reads well in both; Marek's card failed the bar: its
@@ -219,3 +221,13 @@ Two blockers and four highs, all fixed:
 
 New hooks in this round: `UI/ReportCardView.swift` (the treasury line, in the table above). The protocol change
 (`showingChanged`) and everything else stay inside `Ads/`, `Core/AdPacing.swift` and the ads' tests.
+
+Judged from `lh-ad1f1-1`'s and `lh-ad1f1-2`'s shots (upright copies in the lane's report folder): the day-9 report offers
+"Double taxes today / Watch a short video ad" ("Steuern heute verdoppeln / Kurzen Werbeclip ansehen") with no figure;
+after the video the note "Taxes doubled / Every tax counts twice today" ("Steuern verdoppelt / Heute zählt jede Steuer
+doppelt") fits on one line each in both languages, and the report's one treasury reads 85 + 51 = 136, the figure the HUD
+shows after Continue. The day-4 report a second chance brought shows no offer. Marek's slip comes after the video.
+
+Open after fix round 1: nothing of the critic's list. What waits for the join is listed above (the town's flag, the
+bridge set to 0, Marek's cart, the settings row, the story panels' chapter end and beat dawns, six languages, a real
+device check of Google's flow).
