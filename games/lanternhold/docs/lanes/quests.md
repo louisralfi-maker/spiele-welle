@@ -259,6 +259,8 @@ No new hook. `TableListView.swift` and `ErrandEngine.swift` are the lane's own f
     happiness): with the lanes the sender's high-tax realm would sit one point above the reference (T4 "not above").
     The lanes stay the warm choice for the player.
   - Ford planks: Odile counsels the toll (+15 gold, −1 happiness) while it pays (read by day 14), else the free choice.
+  - Round 4: the planks go with a builder and a carter (one bearer), not a guard: the sealed path's soldiers away on
+    nights 11 to 15 drop from eight soldier-nights to five (the stair's scout two, Stillmere's rider three).
   - Round 2 (after `lh-q2-1`): the middle of the chapter crowds. Windows 2 `mill_herbs` 6–10, 3 `ford_planks` 9–12,
     6 `goldenacre_cart` 8–12, 7 `saltgate_grey` 10–12, 10 `beaconfoot_smoke` 8–10, 11 `beacon_statues` 11–14,
     12 `ludo_number` 12–14 (QUESTS.md had 6–12, 9–14, 7–13, 10–15, 8–11, 11–16, 12–15); the caves take two nights. With
@@ -344,3 +346,42 @@ also follows sending 13 with the standard catalogue by default, `DebugArgs.Scree
   and T11 greedy. The variants (`table-variants`, seven sets of values) moved T6 only within noise (3 to 8) and T11
   greedy not at all; the night-20 diagnostics showed the sender's realm a building ahead with few patches left, which
   led to the beds rule above. TuningTests' T1 to T8 passed unchanged.
+- `lh-q2-3` on `d25391c` (build, unit all, ui `TableUITests`): build and `TableUITests` passed; unit 476 passed, 2
+  failed: T6 sender (without the beacon held 3) and T7 sender (15 of 20 in band). With the beds rule the sender's
+  beacon days equal the reference's ([17, 16, 17]) and T10 is closer (gold −16, soldiers 0, happiness +1). The greedy
+  cell, now reported: median 0 unsent, 0 to 2 slips that waited for a hook.
+- `lh-q2-4` on `fb7eb8e` (build, unit all, ui `TableUITests`; the gate by the director's notes of 14.11. 18:46 and
+  19:35): **ALL PASSED**. 479 unit tests, no build warning from the lane's files, the table validator reports nothing
+  over 211 keys, `TuningTests`' T1 to T8 unchanged, `TableUITests` passed both tests (Pip on days 2 and 3; day 11 with
+  three lanterns out). The table's tuning (`table-tuning`): T1, T3 ([17, 16, 17] as the reference), T4 (27 = 27), T5
+  (11), T6 (sender: won 20, King slain 19, without the beacon held 6; greedy without held 5, at or below the
+  reference's 10), T7 (17 of 20 in band), T8, T10 (gold −6.5, soldiers 0, happiness −1.5) and the sender's T11 (3 full
+  days in all 20 seeds) pass; the greedy T11 cell is reported (median 0).
+  Upright shots: `ci-out/upright/q2-4-*.jpg` in the lane's worktree (git-ignored).
+
+### Night 20 without the beacon is chaos-fragile (for the director and the critic)
+
+The probes of round 4 (`table-variants`, the sender only): with only Pip's oil under the seal (5 gold, nobody off the
+wall) the sender's realm held night 20 without the beacon in 5 of 20 seeds; with the oil and the true count 8; the
+shipped values without the stair 8, without Stillmere 6; shipped 6. The reference holds 10. Night 20 without the
+beacon ends within a few seconds of first light in most seeds (the tuning report's margins F0 to F14), so any change to
+a realm, even five gold on day 2, redraws the seeds. The shipped values pass at 6, the band's floor; a later change
+anywhere in the game can move the sender's cell out of the band by chance. Advice: judge this cell for table bots over
+the probes (their mean, about 6.6 of 20, sits inside 30 to 60 %), or over more seeds, rather than over one draw. The
+same holds for T7 (13, 15, 17 and 18 of 20 in band over the rounds with almost the same values).
+
+### Open, and what waits for the join or later steps
+
+- **T11 greedy** (reported, not asserted): the finding above, for the director to decide.
+- `TableTuningVariantsTests` (about a minute per unit round) holds the probes for the critic's look; remove it once
+  the values are final (the tool `TableVariant` / `TableTuning.variants` stays).
+- `Remembered` and `CourtWorld` lists (QUESTS.md 4.5: the five `<house>_road` flags, `statues_sixty`, `bell_rings`,
+  `ludo_knighted`, `hemmet_gone`; `castle.chapel.bell.first`, `table.west.*`, `table.span`), Pip's court line on day 2,
+  the chapel's table and rail, Hild's token on the bare wood: the real table screen's step and the join.
+- `tools/simtune` does not compile since quests-1 (its source list lacks `Core/Table` and what it needs): for the join.
+- The first bell on night 20 is decided (above), not built: the finale's lane.
+- Hemmet's sails tied (`hemmet_gone`) shows only when Finch is sent on day 16 after the refugees came and no herbs grew
+  (home on day 17, the cough's day): narrow by the story's own clock.
+- German: every key has German within its budget (unit-tested); not reviewed, by the director's note of 19:35. The six
+  other languages after the join.
+
