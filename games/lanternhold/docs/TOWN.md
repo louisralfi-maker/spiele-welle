@@ -103,7 +103,7 @@ docs/lanes/craft.md). The director's starting list stands below the final one.
   |---|---|---|---|---|---|---|
   | Dagmar Flint, stonemason (Highcairn) | a statue of the lord, pole raised, on the market square | each house pays 1 coin more at dawn while happiness is 60 or more | 90 | 2 | 6 | yes |
   | Severin Quell, portrait painter (Stillmere) | the lord's portrait in the great hall, the first of a gallery | +3 happiness once, when it is hung | 45 | 1 | 5 | yes |
-  | Benedek Rook, bell-founder (Greybell) | a bell in the gate tower, rung at dusk and when a wall falls | soldiers on the ground move 10 % faster | 75 | 2 | 6 | yes |
+  | Benedek Rook, bell-founder (Greybell) | a bell in the gate tower, rung at dusk and in a fight | the lord's rally (soldiers near the lord shoot and strike a quarter harder) reaches 10 % further | 75 | 2 | 6 | yes |
   | Merle Tidewell, glazier (Saltgate) | glass hoods on every brazier and fire tower | their light reaches 5 % further | 50 | 1 | 4, once a brazier or fire tower stands | |
   | Cuno Marl, limeburner (Kilnhollow) | tubs of mortar with trowels on the wall walks | every patch mends 30 % of the wall instead of 25 % | 35 | 1 | 4 | |
   | Tekla Morrow, banner weaver (Wendmouth) | long teal banners with the gold lantern on the walls | a holding guard steps back at 25 % of his strength instead of 30 % | 50 | 1 | 4 | |
@@ -116,7 +116,8 @@ docs/lanes/craft.md). The director's starting list stands below the final one.
 - **What changed from the director's list:** the fountain went (+1 happiness each dawn is the tavern's whole effect and
   moves happiness far more than 5 %); the clockmaker went (reading the hour in the world is the stage lanes'
   interface, not a work's effect); the limeburner (the king's own Patch) and the ironwright (the gate) came; the
-  bell moves the soldiers on the ground, because the archers already start each night ready; the glass is 5 %, not 8 %.
+  bell carries the lord's rally further (the archers already start each night ready, so a sooner first volley had nothing
+  to move, and faster soldiers let more of them fall on hard nights); the glass is 5 %, not 8 %.
 - The director's starting list:
 
   | craftsman | work, seen where | effect |

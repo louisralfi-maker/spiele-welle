@@ -242,13 +242,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bronze ist teuer. Soldaten, die zu spät an die Bresche kommen, auch. Ich würde die Glocke kaufen."
+            "value" : "Bronze ist teuer. Soldaten, die Euch nicht hören, sind teurer. Ich würde die Glocke kaufen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bronze is dear. So are soldiers who reach the breach too late. I would buy the bell."
+            "value" : "Bronze is dear. Soldiers who cannot hear their lord are dearer. I would buy the bell."
           }
         }
       }
@@ -350,13 +350,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Eine Glocke ist eine Laterne für die Ohren. Zwei Tage und eine Grube in Eurem Hof, und im Torturm hängt eine Glocke. Läutet sie zur Dämmerung und wenn eine Mauer fällt, laufen Eure Soldaten, bevor das Geschrei beginnt."
+            "value" : "Eine Glocke ist eine Laterne für die Ohren. Zwei Tage und eine Grube in Eurem Hof, und im Torturm hängt eine Glocke. Läutet sie im Kampf, und Eure Soldaten hören Euch von weiter her und kämpfen umso härter."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A bell is a lantern for the ears. Two days and a pit in your courtyard, and a bell hangs in the gate tower. Rung at dusk and when a wall gives, it has your soldiers moving before the shouting starts."
+            "value" : "A bell is a lantern for the ears. Two days and a pit in your courtyard, and a bell hangs in the gate tower. Ring it in a fight, and your soldiers hear you from further off, and fight the harder for it."
           }
         }
       }

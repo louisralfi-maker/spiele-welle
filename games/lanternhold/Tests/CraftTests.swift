@@ -388,9 +388,9 @@ final class CraftTests: XCTestCase {
             return CraftWorks.balance(base, for: s)
         }
         var expected = base
-        expected.soldierSpeed *= 1 + 0.1
-        XCTAssertEqual(with("founder").soldierSpeed, expected.soldierSpeed, accuracy: 1e-9)
-        XCTAssertEqual(with("founder"), expected, "the bell changes only the soldiers' speed")
+        expected.rallyRadius *= 1 + 0.1
+        XCTAssertEqual(with("founder").rallyRadius, 88, accuracy: 1e-9)
+        XCTAssertEqual(with("founder"), expected, "the bell changes only the rally's reach")
 
         expected = base
         expected.brazierRadius *= 1 + 0.05
@@ -621,7 +621,7 @@ final class CraftTests: XCTestCase {
                 moved = share(with.buildings, base.buildings)
                 movedWhole = moved
                 countTolerance = 1 / Double(max(1, base.buildings))
-            case .soldierSpeed, .lightRadius, .patchShare, .guardHold, .fireArrowBurn, .gateStrength:
+            case .rallyReach, .lightRadius, .patchShare, .guardHold, .fireArrowBurn, .gateStrength:
                 system = "creatures stopped"
                 moved = share(with.killed, base.killed)
                 movedWhole = share(whole.killed, wholeBase.killed)
@@ -644,13 +644,16 @@ final class CraftTests: XCTestCase {
         let hb = Measure(hard)
         lines.append("hard nights (soldierShare 0.8), base: killed \(hb.killed) fallen \(hb.fallen) walls \(hb.wallsLost) "
                      + "hearth lost \(Int(hb.hearthLost)) nights held \(hb.survived)")
-        let nightWorks: Set<CraftEffect> = [.soldierSpeed, .lightRadius, .patchShare, .guardHold, .fireArrowBurn,
+        let nightWorks: Set<CraftEffect> = [.rallyReach, .lightRadius, .patchShare, .guardHold, .fireArrowBurn,
                                             .gateStrength]
         for c in book.craftsmen where nightWorks.contains(c.effect) {
             let m = Measure(runs(c, bot: stress, seeds: seeds))
             lines.append("hard nights, \(c.id) (\(c.work)): killed \(pct(share(m.killed, hb.killed))) fallen "
                          + "\(m.fallen)/\(hb.fallen) walls \(m.wallsLost)/\(hb.wallsLost) hearth lost "
                          + "\(Int(m.hearthLost))/\(Int(hb.hearthLost)) nights held \(m.survived)/\(hb.survived)")
+            // A guard, not a measure: no work makes the hard nights worse (a fall or two may move either way).
+            XCTAssertLessThanOrEqual(m.fallen, hb.fallen + 2, "\(c.id): more soldiers fall on hard nights")
+            XCTAssertGreaterThanOrEqual(m.survived, hb.survived, "\(c.id): a work never costs a hard night")
         }
         let attachment = XCTAttachment(string: lines.joined(separator: "\n"))
         attachment.name = "craft-effect-sizes"

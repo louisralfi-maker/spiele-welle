@@ -7,8 +7,8 @@ enum CraftEffect: String, Codable, Sendable, CaseIterable {
     case houseCoin
     /// The portrait: `amount` happiness once, when it is hung.
     case happinessOnce
-    /// The bell: soldiers on the ground move `amount` (a share) faster.
-    case soldierSpeed
+    /// The bell: the lord's rally (soldiers near the lord shoot and strike harder) reaches `amount` (a share) further.
+    case rallyReach
     /// The glass: braziers and fire towers light `amount` (a share) further.
     case lightRadius
     /// The mortar: a patch mends `amount` more of the wall (0.25 of its strength becomes 0.30).

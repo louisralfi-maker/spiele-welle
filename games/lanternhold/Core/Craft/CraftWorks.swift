@@ -24,8 +24,8 @@ enum CraftWorks {
     /// One work's change of the balance (the statue and the portrait work elsewhere).
     static func apply(_ effect: CraftEffect, amount: Double, to b: inout Balance) {
         switch effect {
-        case .soldierSpeed:
-            b.soldierSpeed *= 1 + amount
+        case .rallyReach:
+            b.rallyRadius *= 1 + amount
         case .lightRadius:
             b.brazierRadius *= 1 + amount
             b.fireTowerRadius *= 1 + amount

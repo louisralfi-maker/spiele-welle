@@ -51,7 +51,7 @@ listed below so the join can apply them again to the rebuilt game.
 |---|---|---|---|---|---|---|---|
 | mason | Dagmar Flint, stonemason, Highcairn | a statue of the lord, pole raised, on the market square | each house pays 1 coin more at dawn while happiness is 60 or more | 90 | 2 | 6 | yes |
 | painter | Severin Quell, portrait painter, Stillmere | the lord's portrait in the great hall, the first of a gallery | +3 happiness once, when it is hung | 45 | 1 | 5 | yes |
-| founder | Benedek Rook, bell-founder, Greybell | a bell in the gate tower, rung at dusk and when a wall falls | soldiers on the ground move 10 % faster | 75 | 2 | 6 | yes |
+| founder | Benedek Rook, bell-founder, Greybell | a bell in the gate tower, rung at dusk and in a fight | the lord's rally (soldiers near the lord shoot and strike a quarter harder) reaches 10 % further: 88 px instead of 80 | 75 | 2 | 6 | yes |
 | glazier | Merle Tidewell, glazier, Saltgate | glass hoods on every brazier and fire tower | their light reaches 5 % further | 50 | 1 | 4 (needs a brazier or fire tower) | |
 | limeburner | Cuno Marl, limeburner, Kilnhollow | tubs of mortar with trowels along the wall walks | every patch mends 30 % of the wall instead of 25 % | 35 | 1 | 4 | |
 | weaver | Tekla Morrow, banner weaver, Wendmouth | long teal banners with the gold lantern on the walls | a holding guard steps back at 25 % of his strength instead of 30 % | 50 | 1 | 4 | |
@@ -69,7 +69,8 @@ Ludo; nobody at home has"; "in Goldenacre we gild everything, gates included".
 Changed from the director's list, and why: the fountain (+1 happiness a dawn is the tavern's whole effect, far over
 5 %) and the clockmaker (a sundial is interface, not an effect; the stage lanes read the hour in the world) went; the
 limeburner (the king's own Patch) and the ironwright (the gate) came. The bell's "first volley sooner" had nothing to
-move (archers start the night ready), so the bell moves the soldiers on the ground. The works of pride are the
+move (archers start the night ready); the lane's first answer, soldiers on the ground 10 % faster, let more soldiers
+fall on hard nights (round lh-c1-4: 11 against 4 over two seeds), so the bell now carries the lord's rally further. The works of pride are the
 statue, the portrait and the bell.
 
 ### The hooks (apply again at the join)
