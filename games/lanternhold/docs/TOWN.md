@@ -95,7 +95,9 @@ docs/lanes/craft.md). The director's starting list stands below the final one.
 - **Bots never commission.** The reference bot's audience passes him by, and a realm the craftsmen visit plays line for
   line as one they never visit (a unit test, 14 nights, three seeds, normal and high tax). T1 to T8 do not move.
 - **Effects.** Each lives in Core behind its flag (the work standing) with a unit test; each is measured with the
-  reference bots against the same realm without it (14 nights, two seeds) and moves its system by at most about 5 %.
+  reference bots against the same realm without it (14 nights, two seeds) and moves its system by at most about 5 %
+  (round lh-c1-2: the statue +4.4 % taxes while it stands, the road lanterns +2.6 % taxes for the high-tax bot, the
+  portrait +2.6 % happiness; the night's works move the reference bot's comfortable nights by nothing measurable).
 
   | craftsman (from) | work, seen where | effect | gold | days | first day | pride |
   |---|---|---|---|---|---|---|

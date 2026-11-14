@@ -95,7 +95,27 @@ statue, the portrait and the bell.
 
 ### Rounds
 
-(filled in below as they run)
+- **lh-c1-1** (75c1009: build, the unit tests the hooks touch, CraftUITests en and de): build, both UI runs PASS; unit
+  FAIL on one number: the statue, commissioned on day 1 and free, moved taxes by 6.4 % over 14 nights. Every other
+  craft test passed, the neutrality test among them, and every petition, audience, save, start, court, economy and
+  autoplay test. The shots showed two faults, fixed in 5948f07: the mason's portrait read as a bald man in a leather
+  cap (headscarf and shirt in a cloth tone next to the skin: now a grey bun and a blue dress; the wheelwright's and the
+  ironwright's shirts likewise), and six reactions promised the work tonight while it stands from the next dawn.
+- **lh-c1-2** (668b9a3: build, CraftTests) ALL PASSED. The effect sizes, each work commissioned on the first day its
+  craftsman can come (price left out), against the same realm without it, reference bot, seeds 1 and 2, 14 nights,
+  over the nights it stands (over the whole run):
+
+  | work | its system | moved |
+  |---|---|---|
+  | statue | taxes | +4.4 % (+2.9 %) |
+  | road lanterns (high-tax bot) | taxes | +2.6 % (+1.2 %) |
+  | portrait | happiness | +2.6 % (+2.1 %) |
+  | handcarts | buildings | 0 |
+  | bell, glass, mortar, banners, pitch, gate bands | creatures stopped | 0 to -0.2 % |
+
+  No work cost a night. The night's works move nothing measurable in these runs because the reference bot holds
+  nights 5 to 14 with the hearth untouched; their mechanism is tested directly (`testTheBalanceWorksChangeTheirOneValue`,
+  `testTheMortarMakesEveryPatchMendMore`, `testTheRoadLanternsHoldUnrestOffAtDawnThroughTheSimulation`).
 
 ### What is open, and what waits for the join
 
