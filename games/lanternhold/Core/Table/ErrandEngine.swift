@@ -330,6 +330,13 @@ enum ErrandEngine {
         s.table = table
     }
 
+    /// The dawn report's row for the dawn that began `day`: each lantern that came home, came late or was lost then
+    /// (QUESTS.md 5.3: "Lanterns home: 39 (Highcairn)", "Did not come home: 40").
+    static func dawnRows(_ s: GameState, day: Int) -> [LanternReturn] {
+        guard let dawn = s.table?.dawn, dawn.day == day else { return [] }
+        return dawn.returns
+    }
+
     /// The report a party brings home: the first alternative whose condition holds at this dawn, else the order's.
     static func report(for sending: Sending, _ s: GameState) -> String {
         for alt in sending.altReport {

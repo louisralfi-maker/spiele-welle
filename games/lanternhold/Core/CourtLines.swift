@@ -148,8 +148,10 @@ struct CourtLineBook: Sendable, Equatable {
     }
 
     func lines(for speaker: String, state: GameState) -> [CourtLine] {
-        lines(for: speaker, day: state.day, flags: state.flags, waiting: CourtLayout.todaysQueue(state).map(\.id),
-              seed: state.seed)
+        // The Lantern Table (docs/QUESTS.md 2.2): whoever carries a lantern is away and says nothing at court.
+        if state.table?.isAway(speaker) == true { return [] }
+        return lines(for: speaker, day: state.day, flags: state.flags,
+                     waiting: CourtLayout.todaysQueue(state).map(\.id), seed: state.seed)
     }
 
     /// The `nth` line the king hears from `speaker` today (talking again goes on through the list and round again);

@@ -306,6 +306,37 @@ final class ErrandEngineTests: XCTestCase {
         XCTAssertEqual(s.table?.reports.first?.names.count, 2)
     }
 
+    /// Pip's service is missing while he carries a lantern: no court line from him (QUESTS.md 2.2), and he talks
+    /// again once he is home.
+    func testPipSaysNothingAtCourtWhileHeIsAway() throws {
+        let book = CourtLineBook.standard
+        for day in 2...6 {
+            var s = realm(day: day)
+            guard !book.lines(for: "pip", state: s).isEmpty else { continue }
+            XCTAssertNotNil(ErrandEngine.send(&s, errand: "oil_round", order: 0, catalog: table, balance: balance))
+            XCTAssertEqual(book.lines(for: "pip", state: s), [], "day \(day): Pip is on the road")
+            XCTAssertNil(book.line(for: "pip", state: s))
+            dawn(&s, day: day + 1)
+            XCTAssertFalse(s.table?.isAway("pip") ?? true)
+            XCTAssertEqual(book.lines(for: "pip", state: s),
+                           book.lines(for: "pip", day: s.day, flags: s.flags,
+                                      waiting: CourtLayout.todaysQueue(s).map(\.id), seed: s.seed),
+                           "home again, his lines are his own")
+            return
+        }
+        XCTFail("Pip has no line on days 2 to 6")
+    }
+
+    /// The dawn report's row for a day: the lanterns that came home, came late or were lost at that dawn.
+    func testTheDawnRowsBelongToTheirDay() throws {
+        var s = realm(day: 2)
+        XCTAssertEqual(ErrandEngine.dawnRows(s, day: 3), [])
+        XCTAssertNotNil(ErrandEngine.send(&s, errand: "oil_round", order: 0, catalog: table, balance: balance))
+        dawn(&s, day: 3)
+        XCTAssertEqual(ErrandEngine.dawnRows(s, day: 3).map(\.lantern), [38])
+        XCTAssertEqual(ErrandEngine.dawnRows(s, day: 4), [], "an older dawn's row is not today's")
+    }
+
     /// Reports are read first: nothing new leaves while one waits.
     func testReportsAreReadFirst() throws {
         var s = realm(day: 4)
