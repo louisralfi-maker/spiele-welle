@@ -83,7 +83,8 @@ docs/lanes/craft.md). The director's starting list stands below the final one.
   petition in the queue except the houses' audiences that come on top, until the next one is due. Then one travelling
   craftsman joins the audience after the petitioners, drawn with his own seeded stream among those not yet met whose
   first day has come (and whose needs stand: the glazier comes once a brazier or fire tower stands). One a day at most.
-  A chapter meets five or six; who depends on the realm's seed; the rest come in the Long Watch.
+  A chapter meets about five (days 5, 7, 12, 14 and 16 when the story is heard on its first days; a "not now"
+  return takes a free day of its own); who comes depends on the realm's seed, and the rest come in the Long Watch.
 - **The offer** is an audience card: his portrait, name and trade, two lines in his voice (what the work is and what it
   does), the price on the commission, Odile's counsel. Answers: **commission it** (the gold is paid at once; the work
   stands from the dawn one or two days later; the castle's builders are not needed), **not now** (he comes back once,
