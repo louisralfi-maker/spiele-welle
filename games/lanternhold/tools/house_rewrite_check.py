@@ -7,10 +7,11 @@ Burgherrin readings, with `{lord}` counted as a 16-character name); choice label
 never more; English keeps the story's text limits (request 240, reaction 140, counsel 140, court line 120); `{lord}`,
 printf placeholders and line breaks are kept; a value that had male and female forms still has them (except the keys in
 FORMS_DROPPED, each with its reason); every brace is a `{lord}` or a `{a|b}` pair; every bible line matches STORY.md
-exactly, and a prologue panel's text (STORY.md section 8) grows at most 25 % (more than 15 % is flagged for the panels
-lane); every design line matches DESIGN.md exactly. Then it applies the list in memory and proves that no English or
+exactly, and a prologue panel's text (STORY.md section 8) grows at most 15 %, except panel 2, which carries "made"
+(the director, 14.11.: up to 25 % for that key, more than 15 % flagged for the panels lane); every design line matches DESIGN.md exactly. Then it applies the list in memory and proves that no English or
 German value calls the lord a lamplighter (nor a child of the house, nor "young Taper", nor says the circlet is too
-big or that the lord was never meant for it), and that no DESIGN.md line still states the old premise. It prints the
+big or that the lord was never meant for it), that the house's "thief" is always tied to the fire and never to the
+chair or the hall, and that no DESIGN.md line still states the old premise. It prints the
 counts and exits 0 only when everything holds. It changes no file.
 
 Run from its home games/lanternhold/tools/:   python3 tools/house_rewrite_check.py
@@ -64,8 +65,18 @@ DESIGN_PREMISE = FORBIDDEN + [
     ('nobody counted on', re.compile(r'nobody counted on', re.I)),
 ]
 DESIGN_ALLOWED = {}  # DESIGN.md line -> reason
-PROLOGUE_GROWTH = 1.25
-PROLOGUE_FLAG = 1.15
+
+# "Thief" is always tied to the fire, never to the chair or the hall (HOUSE.md 6.4): after apply, a value that says
+# the house's "thief" must also say fire/Feuer/Flame, unless it directly follows a text that does (key -> reason).
+# (The clerk in odile_ledger is another thief and is not the lord's house.)
+THIEF = re.compile(r'heir of (a |the )?thief|des Diebes', re.I)
+THIEF_FIRE = re.compile(r'fire|flame|Feuer|Flamme', re.I)
+THIEF_SEAT = re.compile(r'throne|chair|seat|Thron|Stuhl|Sitz', re.I)
+THIEF_FOLLOWS = {'petition.herald_demand.r2': 'the reaction to herald_demand.text, which says "by {his|her} '
+                                              'borrowed fire" just before it'}
+PROLOGUE_MADE_PANEL = '2'  # the panel that carries "made" (HOUSE.md 6.8); only it may grow up to 25 %
+PROLOGUE_MADE_GROWTH = 1.25
+PROLOGUE_GROWTH = 1.15
 
 
 def resolve(text, lady):
@@ -195,7 +206,8 @@ def main():
         if '\n' in b['new']:
             problems.append('bible line %d: new must be one line' % n)
 
-    # Prologue panels (STORY.md section 8): the text column may grow 25 % at most; over 15 % is flagged.
+    # Prologue panels (STORY.md section 8): the text column may grow 15 % at most; panel 2 ("made") up to 25 %,
+    # and over 15 % there is flagged for the panels lane.
     pro_start = next((i for i, s in enumerate(story) if s.startswith('## 8. The prologue')), None)
     pro_end = next((i for i, s in enumerate(story) if pro_start is not None and i > pro_start and s.startswith('## ')),
                    len(story))
@@ -209,10 +221,13 @@ def main():
             problems.append('bible line %d: prologue row must keep its columns' % n)
             continue
         lo, ln = len(cells_old[2].strip()), len(cells_new[2].strip())
-        flag = ln > lo * PROLOGUE_FLAG
-        prologue.append((n, cells_old[1].strip(), lo, ln, flag))
-        if ln > lo * PROLOGUE_GROWTH:
-            problems.append('bible line %d: prologue panel text %d chars > old %d + 25 %%' % (n, ln, lo))
+        panel = cells_old[1].strip()
+        made = panel == PROLOGUE_MADE_PANEL
+        flag = made and ln > lo * PROLOGUE_GROWTH
+        prologue.append((n, panel, lo, ln, flag))
+        if ln > lo * (PROLOGUE_MADE_GROWTH if made else PROLOGUE_GROWTH):
+            problems.append('bible line %d: prologue panel %s text %d chars > old %d + %d %%'
+                            % (n, panel, ln, lo, 25 if made else 15))
 
     design_seen = set()
     for i, b in enumerate(design_list):
@@ -248,6 +263,17 @@ def main():
                     left += 1
                     problems.append('after apply, %s %s still says "%s": %s' % (k, lang, name, v))
 
+    thief_keys = 0
+    for k, langs in sorted(applied.items()):
+        for lang, v in langs.items():
+            if not THIEF.search(v):
+                continue
+            thief_keys += lang == 'en'
+            if THIEF_SEAT.search(v):
+                problems.append('after apply, %s %s ties "thief" to the chair or the hall: %s' % (k, lang, v))
+            if not THIEF_FIRE.search(v) and k not in THIEF_FOLLOWS:
+                problems.append('after apply, %s %s says "thief" without the fire: %s' % (k, lang, v))
+
     story_after = list(story)
     for b in bible:
         if isinstance(b.get('line'), int) and 1 <= b['line'] <= len(story_after):
@@ -270,6 +296,8 @@ def main():
     print('  strings: %d keys (%d English and %d German values change)' % (len(entries), changes['en'], changes['de']))
     print('  bible:   %d STORY.md lines' % len(bible))
     print('  scanned: %d keys x en+de after apply; forbidden words left: %d' % (len(applied), left))
+    print('  "thief" values (en): %d, each tied to the fire or following one that is (%d by reason)'
+          % (thief_keys, len(THIEF_FOLLOWS)))
     print('  STORY.md lines still saying "lamplighter" after apply (old title, option B, the town\'s lamplighter): %d'
           % len(bible_left))
     for n, s in bible_left:

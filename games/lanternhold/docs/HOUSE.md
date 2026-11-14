@@ -87,8 +87,9 @@ STORY.md where they differ. The story editor's detail follows from section 6.
    Cleft and held it there nine nights until the dark broke on it. People gathered to it, and he took no title.
 4. **"Stolen", as the dark tells it:** the Light was the hearth of the King's own hall. A son of that hall ran with
    his father's fire and never brought it back. So the herald greets "the heir of the thief", in perfect courtesy.
-   **"Thief" is always tied to the fire, never to the chair or the hall** ("by {his|her} borrowed fire"; "Whose fire
-   is this, herald?"; `line.herald_throne` now "remembers this fire… it was his"). From day 15 the court believes the
+   **"Thief" is always tied to the fire, never to the chair or the hall** ("by {his|her} borrowed fire" in both
+   `herald_demand` and `herald_alone`; "Whose fire is this, herald?"; `line.herald_throne` now "remembers this fire…
+   in his own hall, long before yours"). The check proves it. From day 15 the court believes the
    King is Aldric; a "thief" tied to the chair would read as "you took Aldric's seat", which section 1 rules out.
 5. **Why the dark wants it back:** it is theirs. Without it the people left behind thinned into smoke, and they come for
    the hearth every night (STORY.md section 3, unchanged). They never touch a Lantern: the lord is their lords' blood,
@@ -99,11 +100,12 @@ STORY.md where they differ. The story editor's detail follows from section 6.
 7. **No new plot:** the secret, the King as Aldric from day 15, night 20, the three endings and "Keep the light, and
    carry it home" all stand. The herald's banner (gold thread, our lantern under half a sun) now also says "his house".
 8. **Every player hears "made" first, in the prologue.** Panel 2 (STORY.md section 8, in the bible list) becomes:
-   "Saint Taper struck a light from the bare rock. / For a thousand years his house has held the door." /
-   „Sankt Taper schlug ein Licht aus dem nackten Fels. / Seit tausend Jahren hält sein Haus die Tür.“ (92 to 98
-   characters, within 15 %). Panel 1 already says the Wall "has one door"; the cold eyes in panel 2's picture still say
-   that something waits beyond. **For the panels lane:** panel 4, changed in fix round 1, grew 18 % (76 to 90); it
-   stays within 25 % and is flagged by the check.
+   "Saint Taper struck the Light from the bare rock. / For a thousand years his house has held the door." /
+   „Sankt Taper schlug das Licht aus dem nackten Fels. / Seit tausend Jahren hält sein Haus die Tür.“ (92 to 100
+   characters, within 15 %; only this panel may grow up to 25 %). Panel 1 already says the Wall "has one door"; the
+   cold eyes in panel 2's picture still say that something waits beyond. Panel 4 becomes "The circlet passed to the
+   last of his blood. / The heir of the guardian house." / „Der Stirnreif ging an das letzte seines Blutes. /
+   {Der Erbe|Die Erbin} des Hüterhauses.“ (76 to 78), so every other panel holds 15 %.
    **Hesper's bonus, in the hall.** Every dusk the town's lamplighter lights his pole at the Flame and walks out
    through the gate (TOWN.md section 7; the director's note of 15:19). Hesper stands by the hearth and nods to him.
    Once, at dusk of day 6, if the lord is in the hall, she says as he goes: "Carry it gently. Saint Taper struck it
@@ -178,7 +180,8 @@ Every beat is seen or overheard in the world; none needs a menu. Days are story 
 ### 8.3 Hesper and Seren: two keepers, two fires (build 3)
 
 - Day 5 (`stranger_in`): Hesper moves her stool to the far side of the hearth from the grey lantern.
-- Day 7: overheard. Hesper: "Your lantern makes my Flame lean." Seren: "It leaned before I came."
+- Day 7: overheard. Hesper: "Your lantern makes my Flame lean." / „Eure Laterne lässt meine Flamme sich neigen.“
+  Seren: "It leaned before I came." / „Sie neigte sich schon, bevor ich kam.“
 - Day 11: a cup of warm water stands by the grey lantern at dawn. Seren drinks her soup cold; she drinks the water.
 - Day 15, after the reveal: the two sit in the chapel, apart, neither speaking, until supper.
 - Day 17: at the herald's demand Hesper stands up and in front of Seren, before Brannock does.
@@ -193,7 +196,8 @@ Every beat is seen or overheard in the world; none needs a menu. Days are story 
 ### 8.2 Odile and Brannock: a feud over the books (build 3)
 
 - Day 2: when Brannock comes in for `tower_request`, Odile leaves the hall by the side door with her ledger.
-- Day 6: overheard on the stair. Odile: "Arrows are not a feeling, captain." Brannock: "Neither is a ledger."
+- Day 6: overheard on the stair. Odile: "Arrows are not a feeling, captain." / „Pfeile sind kein Gefühl,
+  Hauptmann.“ Brannock: "Neither is a ledger." / „Ein Kassenbuch auch nicht.“
 - Day 8: at the lectern they stand at its two ends. The quarrel turns at supper (evening 9.2, where the lord tips it).
 - Day 13: at `refugees_gate` Brannock backs Odile's cold counsel without a word. She looks at him and does not leave.
 - Day 17: if `odile_brannock_truce` and the lord pays oil (the herald's price or the wall), Odile opens her drawer
@@ -240,8 +244,8 @@ STORY.md's "Tamsin and Aldric's place at table" (day 19) its scene.
 | Tamsin | Tomorrow is tomorrow. Tonight, tell me what to do with his place. | Morgen ist morgen. Heute Abend sagt Ihr mir, was mit seinem Platz geschieht. |
 
 With `vow_aldric` Tamsin's first line is instead: "You gave your word. I lay it gladly." / „Ihr habt Euer Wort
-gegeben. Ich decke gern." and her last: "Tomorrow you bring him home. Tonight, tell me how his place should stand." /
-„Morgen holt Ihr ihn heim. Heute Abend sagt Ihr mir, wie sein Platz stehen soll." On the day this evening plays,
+gegeben. Ich decke gern.“ and her last: "Tomorrow you bring him home. Tonight, tell me how his place should stand." /
+„Morgen holt Ihr ihn heim. Heute Abend sagt Ihr mir, wie sein Platz stehen soll.“ On the day this evening plays,
 `l.tamsin_place` does not play; the evening is its scene.
 
 - "Leave it laid. He comes home." / "Lasst gedeckt. Er kommt heim." → `aldric_place_kept`: the place stays laid on
@@ -253,7 +257,7 @@ gegeben. Ich decke gern." and her last: "Tomorrow you bring him home. Tonight, t
 
 ### 9.4 Day 17: The herald at the table (build 3; the double game)
 
-The herald does not leave after its audience. At dusk it sits at the far end of the table and offers, quietly, the
+The herald does not leave after his audience. At dusk he sits at the far end of the table and offers, quietly, the
 pact behind the public demand. With `herald_demand` choice 1 (Seren handed over) the herald leaves with her before
 dusk and this evening does not play; the day stays ordinary.
 
@@ -261,20 +265,22 @@ dusk and this evening does not play; the day stays ordinary.
 |---|---|---|
 | Herald | The old courtesy grants a herald one meal at the hearth he is sent to. I will not eat it. | Die alte Sitte gewährt einem Herold ein Mahl am Herd, an den er gesandt ist. Ich werde es nicht essen. |
 | Tamsin | Then it goes cold in front of you. I lay for everyone. | Dann wird es eben vor Euch kalt. Ich decke für jeden. |
-| Herald | In the hall I asked for little. Here I ask for less, heir of the thief: leave the beacon's bowl cold on the last night. | Im Saal verlangte ich wenig. Hier verlange ich weniger, {Erbe\|Erbin} des Diebes: Lasst die Schale des Leuchtfeuers in der letzten Nacht kalt. |
+| Herald | In the hall I asked for little. Here I ask only this, heir of the thief: leave the beacon's bowl cold on the last night. | Im Saal verlangte ich wenig. Hier verlange ich nur dies, {Erbe\|Erbin} des Diebes: Lasst die Schale des Leuchtfeuers in der letzten Nacht kalt. |
 | Herald | Then he takes back his fire and passes your town by. | Dann holt er sich sein Feuer zurück und zieht an Eurer Stadt vorbei. |
-| Brannock | Say the word, {lord\|my lady}, and it leaves by the window. | Ein Wort, {Herr\|Herrin}, und es geht durchs Fenster. |
-| Pip | It is looking at the Flame again. It has not blinked once. | Es starrt schon wieder in die Flamme. Es hat kein einziges Mal geblinzelt. |
+| Brannock | Say the word, {lord\|my lady}, and he leaves by the window. | Ein Wort, {Herr\|Herrin}, und er geht durchs Fenster. |
+| Pip | He is looking at the Flame again. He has not blinked once. | Er starrt schon wieder in die Flamme. Er hat kein einziges Mal geblinzelt. |
 | Herald | He has waited a long time. He can wait for a yes. | Er hat lange gewartet. Auf ein Ja wartet er gern. |
 
 - "Say I agree. When does he come?" / "Angenommen, ja. Wann kommt er?" → `double_game`. The herald: "When your horn
   sounds the last time. Up the middle line, where the stakes are thinnest." / „Wenn Euer Horn zum letzten Mal ruft.
   Die mittlere Linie hinauf, wo die Pfähle am dünnsten stehen.“
-  - **The gain, seen:** on night 20 the first push comes up the middle line and breaks on Brannock's doubled
+  - **The gain, seen before and on the night:** at dawn of day 18 Brannock and two lads carry a second brazier to
+    the middle line; it stays there and burns at every dusk. Brannock: "Middle line. I was listening." / „Die
+    mittlere Linie. Ich habe zugehört.“ On night 20 the first push comes up the middle line and breaks on those doubled
     braziers. One tuning value (the realm lane sets it, at most about 5 % of the night's pressure). The rest of the
     night is unchanged.
   - **The price, seen:** whoever sat nearest saw the lord nod: Seren if she is inside, else Hild if she is at the
-    table (`pact_seen`). The next day she says: "You sat at table with it and nodded. Tell me it was a mask." /
+    table (`pact_seen`). The next day she says: "You sat at table with him and nodded. Tell me it was a mask." /
     „Ihr saßt mit ihm am Tisch und nicktet. Sagt mir, dass es eine Maske war.“ On days 18 and 19 she stands apart,
     seen in the world: not at the table, alone at the far end of the wall walk.
   - **Night 20.** When the first push breaks on the braziers, the herald, standing beside the King on the middle
@@ -282,7 +288,7 @@ dusk and this evening does not play; the day stays ordinary.
     borrowed fire." / „Ein Ja an Eurem eigenen Tisch, {Erbe|Erbin} des Diebes. Euer Haus hält sein Wort, wie es
     fremdes Feuer hütet.“ The King says nothing; he never speaks. Brannock answers nothing. Then she steps back to
     the lord's side: "A mask, then." / „Also eine Maske.“ Seren carries the flame to the beacon as always.
-- "Tamsin, take its bowl away." / "Tamsin, nehmt ihm die Schale weg." → `herald_unfed`: the herald rises and leaves no
+- "Tamsin, take his bowl away." / "Tamsin, nehmt ihm die Schale weg." → `herald_unfed`: the herald rises and leaves no
   footprints; at dawn the bowl lies broken on the kitchen step, where Tamsin threw it (seen).
 - "Whose fire is this, herald?" / "Wessen Feuer ist das, Herold?" → `herald_asked`: "His. Before the thief. Ask your
   book where its eleven pages went." / „Seines. Vor dem Dieb. Fragt Euer Buch, wohin seine elf Seiten gingen.“ Sets
@@ -294,14 +300,14 @@ The choice is never counsel. Only `double_game` touches night 20, by the one val
 ### 9.2 Day 8: The ledger and the tower (build 3, after 9.5 and 9.4; an evening of the court)
 
 Plays at dusk of the `war_tax` day only if the morning set the gold: choice 1 (the tax, set at the lectern) or 2 (the
-guilds, forty gold already in). With choice 3 there is no evening; Brannock's silence (r3) is the thread, and it runs
+guilds, forty gold already in); "that gold" fits both. With choice 3 there is no evening; Brannock's silence (r3) is the thread, and it runs
 as `feud_kept`. The quarrel is over what the gold is for, not whether there is any. No gold moves at the table: the
 treasury stays exactly as `war_tax` left it (STORY.md 9.4).
 
 | Who | English | German |
 |---|---|---|
-| Brannock | Forty gold. That is one tower and arrows for a month. | Vierzig Gold. Das ist ein Turm und Pfeile für einen Monat. |
-| Odile | Forty gold is the widow's penny for nine years, captain. | Vierzig Gold sind die Witwenrente für neun Jahre, Hauptmann. |
+| Brannock | That gold is one tower and arrows for a month. | Das Gold ist ein Turm und Pfeile für einen Monat. |
+| Odile | That gold is the widow's penny for nine years, captain. | Das Gold ist die Witwenrente für neun Jahre, Hauptmann. |
 | Brannock | The widow is a widow because we had no tower. | Die Witwe ist Witwe, weil wir keinen Turm hatten. |
 | Odile | That was beneath you. | Das war unter Eurer Würde. |
 | Pip | Shall I fetch the second table? You could have one each. | Soll ich den zweiten Tisch holen? Dann hat jeder einen. |
@@ -407,10 +413,10 @@ Gerald is there.
 One line each, planted after day 18; nobody weighs a match in chapter 1, and both seeds play whatever the lord's form
 (STORY.md section 10 rule 12: no marriage petitions).
 - **Hild Varn** after `varn_ride`: "I have written three letters home and sent none." / „Ich habe drei Briefe nach
-  Hause geschrieben und keinen abgeschickt."
+  Hause geschrieben und keinen abgeschickt.“
 - **Ansel Quay** after `envoy_tide`: "My lady asks what I think of Lanternhold. I wrote: the door is narrow, and the
   hall is warm." / „Meine Herrin fragt, was ich von Lanternhold halte. Ich schrieb: Die Tür ist schmal, und der Saal
-  ist warm."
+  ist warm.“
 
 ## 12. Decided and open
 
@@ -423,15 +429,20 @@ One line each, planted after day 18; nobody weighs a match in chapter 1, and bot
 6. Seren says "Lantern" (German too); after day 15 "lord".
 7. Evening 9.4 plays the same dusk as the herald's audience, day 17.
 8. Both chapter-2 seeds play whatever the lord's form.
-9. New text goes into build 3's string batch: `line.hesper_lamplighter`, prologue panel 2, the jailer's two lines,
-   the brother's visit, evenings 9.5, 9.4 (with the herald's night-20 line, Seren's or Hild's two lines) and 9.2.
+9. New text goes into build 3's string batch: `line.hesper_lamplighter`, prologue panels 2 and 4, the jailer's two
+   lines, the brother's visit, the overheard pairs of 8.3 (day 7) and 8.2 (day 6), evenings 9.5, 9.4 (with
+   Brannock's day-18 line, the herald's night-20 line, Seren's or Hild's two lines) and 9.2.
    The texts of the later parts (`well_dispute` c3, the softer `deserter`, 9.1, 9.3, Finch, Brisk) wait for them.
 10. Build 3 ships evenings 9.5 and 9.4, then 9.2; threads 8.3 and 8.2; the brother's visit and the dark cell.
 11. "The fire is on loan" is kept for chapter 2; in 9.3 Hesper answers what the Flame says.
-12. The King never speaks; the bitter line on night 20 is the herald's.
+12. The King never speaks; the bitter line on night 20 is the herald's. The herald is "he", as in the strings.
+13. "Thief" is tied to the fire in every herald text, `herald_alone` included; the check proves it.
 
 **Open:**
-- The double game when neither Seren nor Hild is inside on day 17: as written, nobody saw the nod and the gain comes
-  without the price. Keep, or let Brannock be the one who saw?
+- The double game's witness. In build 3 Hild is never at the table (only 9.1's `hild_walked` puts her there, and
+  9.1 is later), so the witness is Seren or nobody: on the `herald_alone` path a nod costs nothing. Brannock sits at
+  every table and already "answers nothing" on night 20. Keep, or let Brannock be the fallback witness?
 - The tuning value for the first push of night 20 (`double_game`): the realm lane picks it, at most about 5 %.
 - Six languages (fr, es, it, pt-BR, ja, zh-Hans) must translate all 46 keys of the list again before build 2.
+- Build 2 has "stolen" (the herald) but not yet "made" (the prologue panel and Hesper's line come in build 3); only
+  Marek's "who kindled the Flame" hints at the house's telling. Acceptable for one build.

@@ -11,10 +11,10 @@
   {
    "key": "petition.herald_alone.text",
    "en_old": "The King beneath the Gloom greets the lamplighter. The woman with the grey lantern is not here, he sees. So he asks less: sixty gold of lamp oil, poured out on the Throat’s floor at dusk. Pour it, and your town sleeps three nights.",
-   "en_new": "The King beneath the Gloom greets the heir of the thief. The woman with the grey lantern is not here, he sees. So he asks less: sixty gold of lamp oil, poured out on the Throat’s floor at dusk. Pour it, and your town sleeps three nights.",
+   "en_new": "The King beneath the Gloom greets the heir of the thief by {his|her} borrowed fire. The grey lantern is not here, he sees. So he asks less: sixty gold of lamp oil, poured on the Throat’s floor at dusk. Pour it, and your town sleeps three nights.",
    "de_old": "Der König unter der Düsternis grüßt {den Laternenanzünder|die Laternenanzünderin}. Die Frau mit der grauen Laterne ist nicht hier, sieht er. Also verlangt er Geringeres: Lampenöl für sechzig Gold, bei Dämmerung auf dem Grund des Schlunds ausgegossen. Gießt es aus, und Eure Stadt schläft drei Nächte.",
-   "de_new": "Der König unter der Düsternis grüßt {den Erben|die Erbin} des Diebes. Die Frau mit der grauen Laterne ist nicht hier, sieht er. Also verlangt er Geringeres: Lampenöl für sechzig Gold, bei Dämmerung auf dem Grund des Schlunds ausgegossen. Gießt es aus, und Eure Stadt schläft drei Nächte.",
-   "why": "The herald of the Lightless King addresses the heir of a thief (HOUSE.md 1 and 7), never a lamplighter."
+   "de_new": "Der König unter der Düsternis grüßt {den Erben des Diebes an seinem|die Erbin des Diebes an ihrem} geliehenen Feuer. Die graue Laterne ist nicht hier, sieht er. Also verlangt er Geringeres: Lampenöl für sechzig Gold, bei Dämmerung auf dem Grund des Schlunds ausgegossen. Gießt es aus, und Eure Stadt schläft drei Nächte.",
+   "why": "The herald of the Lightless King addresses the heir of a thief (HOUSE.md 1 and 7), never a lamplighter. \"Thief\" is tied to the fire, as in herald_demand (HOUSE.md 6.4): on this path the player never sees herald_demand, and has heard on day 15 that the King is Aldric, so a bare \"heir of the thief\" would read as a usurper charge."
   },
   {
    "key": "petition.herald_demand.text",
@@ -35,10 +35,10 @@
   {
    "key": "line.herald_throne",
    "en_old": "The King beneath the Gloom remembers this hall. He remembers the throne. He remembers it was his.",
-   "en_new": "The King beneath the Gloom remembers this fire. He remembers its old hearth. He remembers it was his.",
+   "en_new": "The King beneath the Gloom remembers this fire. He remembers it in his own hall, long before yours.",
    "de_old": "Der König unter der Düsternis erinnert sich an diesen Saal. An den Thron. Daran, dass er seiner war.",
-   "de_new": "Der König unter der Düsternis erinnert sich an dieses Feuer. An seinen alten Herd. Daran, dass es seines war.",
-   "why": "The dark's claim is the fire, never the hall or the chair (HOUSE.md 6.4). \"He remembers the throne. It was his.\" read with the day-15 belief (the King is Aldric) as a usurper charge, and Lady Oriel built this hall in year 118, so it was never the old King's."
+   "de_new": "Der König unter der Düsternis erinnert sich an dieses Feuer. Es brannte in seinem Saal, lange vor Eurem.",
+   "why": "The dark's claim is the fire, never the hall or the chair (HOUSE.md 6.4). \"He remembers the throne. It was his.\" read with the day-15 belief (the King is Aldric) as a usurper charge, and Lady Oriel built this hall in year 118, so it was never the old King's. \"It was his\" alone could still read as Aldric's fire; naming his own hall, long before ours, rules Aldric out."
   },
   {
    "key": "line.seren_gate",
@@ -291,10 +291,10 @@
   {
    "key": "petition.lantern_lanes.r1",
    "en_old": "That evening you light the first one yourself, out of habit. The whole lane cheers, and you nearly drop the pole.",
-   "en_new": "That evening you light the first one from the house’s own flame. The whole lane cheers, and you nearly drop the pole.",
+   "en_new": "That evening you light the first one from the house’s own flame. The whole lane cheers, and you nearly drop the staff.",
    "de_old": "An diesem Abend zündet Ihr die erste selbst an, aus alter Gewohnheit. Die ganze Gasse jubelt, und Euch fällt fast die Stange aus der Hand.",
-   "de_new": "An diesem Abend zündet Ihr die erste mit der Flamme des Hauses an. Die ganze Gasse jubelt, und Euch fällt fast die Stange aus der Hand.",
-   "why": "'Out of habit' implied the lord's old trade of lamplighter. Now the lord lights it from the house's flame."
+   "de_new": "An diesem Abend zündet Ihr die erste mit der Flamme des Hauses an. Die ganze Gasse jubelt, und Euch fällt fast der Stab aus der Hand.",
+   "why": "'Out of habit' implied the lord's old trade of lamplighter. Now the lord lights it from the house's flame, with the house's lantern on its hooked staff (HOUSE.md 7; a pole is the lamplighter's tool)."
   },
   {
    "key": "petition.tower_request.r2",
@@ -341,8 +341,8 @@
    "en_old": "Back in my kitchen, {lord}? My {lord|lady}, I mean. Mind the cat, the oven and the soup, in that order.",
    "en_new": "Back in my kitchen, {Lord|Lady} {lord}? Good. Mind the cat, the oven and the soup, in that order.",
    "de_old": "Wieder in meiner Küche, {lord}? {Mein Herr|Meine Herrin}, meine ich. Achtet auf Katze, Ofen und Suppe, in dieser Reihenfolge.",
-   "de_new": "{lord} von Lantern wieder in meiner Küche? Gut so, {mein Herr|meine Herrin}. Achtet auf Katze, Ofen und Suppe, in dieser Reihenfolge.",
-   "why": "Tamsin called the lord by the bare name and corrected herself, as to the kitchen child. Warmth stays, respect is shown (HOUSE.md 1). German does not address a lord by title and first name, so the name stands with the house and she addresses \"{mein Herr|meine Herrin}\"."
+   "de_new": "Wieder in meiner Küche, {lord} von Lantern? Gut so, {mein Herr|meine Herrin}. Achtet auf Katze, Ofen und Suppe, in dieser Reihenfolge.",
+   "why": "Tamsin called the lord by the bare name and corrected herself, as to the kitchen child. Warmth stays, respect is shown (HOUSE.md 1). German does not address a lord by title and first name, so the name stands with the house and she addresses \"{mein Herr|meine Herrin}\"; the question comes first, so it never sounds like scolding at the door."
   },
   {
    "key": "petition.marek_relic.text",
@@ -678,12 +678,12 @@
   {
    "line": 599,
    "old": "| 2 | For a thousand years House Lantern has held it. / Nobody knows what waits on the other side. | Seen from the castle wall, looking west: black rock walls of the Throat, no plant anywhere, and at the far end a narrow slit of grey-violet fog with cold eyes in it. A teal banner with the gold lantern at the frame's edge. |",
-   "new": "| 2 | Saint Taper struck a light from the bare rock. / For a thousand years his house has held the door. | Seen from the castle wall, looking west: black rock walls of the Throat, no plant anywhere, and at the far end a narrow slit of grey-violet fog with cold eyes in it. A teal banner with the gold lantern at the frame's edge. |"
+   "new": "| 2 | Saint Taper struck the Light from the bare rock. / For a thousand years his house has held the door. | Seen from the castle wall, looking west: black rock walls of the Throat, no plant anywhere, and at the far end a narrow slit of grey-violet fog with cold eyes in it. A teal banner with the gold lantern at the frame's edge. |"
   },
   {
    "line": 601,
    "old": "| 4 | The circlet passed to the last of his blood. / The one who lights the lamps. | The hall, warm: the hearth fire, the empty seat, the court in a half ring. In the middle a young lamplighter with a wick pole, soot on one cheek, the gold circlet slipped over one eyebrow. Odile is holding out a folded strip of paper. |",
-   "new": "| 4 | The circlet passed to the last of his blood. / The heir of the house that keeps the light. | The hall, warm: the hearth fire, the empty seat, the court in a half ring. In the middle the young heir in the house's mended teal cloak, the gold circlet sitting true, the hooked lantern in hand. Odile stands a step behind the heir. |"
+   "new": "| 4 | The circlet passed to the last of his blood. / The heir of the guardian house. | The hall, warm: the hearth fire, the empty seat, the court in a half ring. In the middle the young heir in the house's mended teal cloak, the gold circlet sitting true, the hooked lantern in hand. Odile stands a step behind the heir. |"
   },
   {
    "line": 615,
