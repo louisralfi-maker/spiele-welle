@@ -48,7 +48,7 @@ SAME_ALLOWED_SUFFIX = (".name",)
 QUOTES = {
     "en": ("“”", "„«»"),
     "de": ("„“", "”«»"),
-    "fr": ("«»", "“”„"),
+    "fr": ("«»“”", "„"),
     "es": ("«»“”", "„"),
     "it": ("«»“”", "„"),
     "pt-BR": ("“”", "«»„"),
@@ -159,6 +159,8 @@ def punctuation(lang, text, plain, warnings):
         errors.append("quotation marks %s (this language uses %s)" % (" ".join(used), " ".join(allowed)))
     if lang in lib.LATIN and lang != "en" and "'" in text:
         errors.append("a straight ' (use ’)")
+    if lang in ("fr", "es", "it") and ("“" in text or "”" in text) and "«" not in text:
+        errors.append("“ ” stand only inside « » (this language quotes with « »)")
 
     if lang == "fr":
         for match in re.finditer(r"[;:!?]+", text):
