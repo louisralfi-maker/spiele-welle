@@ -324,8 +324,9 @@ def slide2(form):
 
 G3_ALLOWED = ["night0", "night1", "nightDeep", "nightBlue", "nightSlate", "farDeep", "far", "mistDark", "mist",
               "mistLight", "stoneDark", "stoneMid", "stone", "woodDark", "wood", "woodLight", "soilDark", "soil",
-              "tile", "tileLight", "crimsonDeep", "crimson", "emberDim", "ember", "fireOrange", "fireGold", "banner",
-              "roofDeep", "roofLight", "tealDim", "ink", "plumDeep", "rockDeep", "rockDark"]
+              "soilLight", "tile", "tileLight", "crimsonDeep", "crimson", "emberDim", "ember", "fireOrange",
+              "fireGold", "banner", "roofDeep", "roofLight", "tealDim", "ink", "plumDeep", "rockDeep", "rockDark",
+              "plasterDim", "straw"]
 
 BRAZIER = (226, 116)
 FLOOR3 = 124
@@ -333,6 +334,164 @@ FLOOR3 = 124
 
 def fire_d(x, y):
     return math.hypot(x + 0.5 - BRAZIER[0], (y + 0.5 - BRAZIER[1]) * 1.3) + (fbm(x * 0.09, y * 0.09, 1613, 2) - 0.5) * 8
+
+
+KNEEL = 133            # the floor line where Tamsin kneels, nearer than the brazier
+
+TAMSIN_FACE = """
+..kkkkkk....
+.kCCCCCRk...
+kCCCCCCCRk..
+kCCCCCCCCRk.
+kCChhsSSSOk.
+kChhssseSOk.
+kChhsssSSOOk
+.kChssssSOk.
+.kChssmmSOk.
+..kChsssOk..
+...kkssOk...
+.....kkk....
+"""
+
+
+def tamsin_and_coat(c):
+    """Tamsin on her knees on the walk, side on and facing the brazier, bent over a small heap of the night's rags;
+    with both hands she lifts the small coat half out of it by its shoulders, the hem still in the rags. Her face,
+    her hands and the coat are lit by the brazier in steps; her back is in the dark. The teal kerchief and the rust
+    dress go dark in the night; the coat in the house's teal is the one colour in the picture."""
+    parts = {}
+    lay = Layer()
+
+    def put(key, pts=None, ellipse=None, capsule=None):
+        sub = Layer()
+        if pts:
+            sub.poly(pts, P("night0"))
+        if ellipse:
+            sub.ellipse(*ellipse, P("night0"))
+        if capsule:
+            sub.capsule(*capsule, P("night0"))
+        for k in sub.px:
+            lay.px[k] = P("night0")
+            parts[k] = key
+    # the skirt spread on the stones behind and under her, the folded legs under it
+    put("skirt", pts=[(108, KNEEL), (162, KNEEL), (161, KNEEL - 10), (150, KNEEL - 19), (128, KNEEL - 21),
+                      (114, KNEEL - 12)])
+    # the back bent forward over the heap, the shoulders rounded
+    put("dress", pts=[(124, KNEEL - 18), (150, KNEEL - 16), (163, KNEEL - 33), (163, KNEEL - 42), (155, KNEEL - 48),
+                      (141, KNEEL - 45), (129, KNEEL - 34)])
+    put("dress", ellipse=(153, KNEEL - 42, 9, 7))
+    # the apron over her front, patched
+    put("apron", pts=[(156, KNEEL - 33), (163, KNEEL - 36), (165, KNEEL - 14), (162, KNEEL - 8), (156, KNEEL - 11)])
+    # the head bowed over the coat, the kerchief over the hair, its knot at the nape
+    put("kerchief", ellipse=(162, KNEEL - 52, 7.2, 6.6))
+    put("kerchief", pts=[(155, KNEEL - 52), (149, KNEEL - 46), (152, KNEEL - 44), (157, KNEEL - 48)])
+    # the arms reaching down to the coat: the far arm, then the near one over it
+    put("sleeve", capsule=((160, KNEEL - 42), (170, KNEEL - 32), 3.4, 3.0))
+    put("arm", capsule=((170, KNEEL - 32), (177, KNEEL - 33), 2.6, 2.2))
+    put("sleeve", capsule=((154, KNEEL - 40), (163, KNEEL - 27), 3.8, 3.2))
+    put("arm", capsule=((163, KNEEL - 27), (174, KNEEL - 27), 2.8, 2.3))
+    src_keys = dict(parts)
+    # light: whole parts a step up toward the fire, a hard rim on every edge that faces it
+    for (x, y) in list(lay.px):
+        key = src_keys[(x, y)]
+        d = fire_d(x, y)
+        near = 2 if d < 40 else 1 if d < 70 else 0
+        right_open = (x + 1, y) not in lay.px
+        right2 = (x + 2, y) not in lay.px
+        top_open = (x, y - 1) not in lay.px
+        if key == "skirt":
+            col = ["night0", "night1", "crimsonDeep"][near] if not (right_open or top_open) else \
+                ("crimson" if near else "crimsonDeep")
+        elif key == "dress":
+            col = "night1" if x < 146 else "crimsonDeep"
+            if right_open:
+                col = "ember"
+            elif right2 or (top_open and x > 146):
+                col = "crimson"
+        elif key == "apron":
+            col = "soil" if x < 160 else "soilLight"
+            if right_open:
+                col = "ember"
+            elif x >= 163:
+                col = "plasterDim"
+        elif key == "kerchief":
+            col = "night1" if x < 160 else "roofDeep"
+            if right_open:
+                col = "ember"
+            elif right2 or (top_open and x > 160):
+                col = "crimson"
+        elif key == "sleeve":
+            col = "crimsonDeep" if not right_open else "ember"
+            if top_open and not right_open:
+                col = "crimson"
+        else:  # the forearms, sleeves rolled: skin
+            col = "tileLight" if top_open else "tile"
+            if right_open:
+                col = "fireOrange"
+        lay.px[(x, y)] = P(col)
+    # the patch on the apron: an older cloth set in, a shade darker
+    for (x, y) in ((158, KNEEL - 22), (159, KNEEL - 22), (158, KNEEL - 21), (159, KNEEL - 21), (158, KNEEL - 20),
+                   (159, KNEEL - 20)):
+        if (x, y) in lay.px:
+            lay.px[(x, y)] = P("soilDark")
+    lay.outline(P("night0"), skip_bottom=True)
+    lay.paste(c)
+    # the face, bowed toward the coat, lit by the brazier: brow, eye, nose, the mouth shut, the chin
+    legend = {"k": "night0", "C": "roofDeep", "R": "ember", "h": "woodDark", "s": "tile", "S": "tileLight",
+              "O": "fireOrange", "e": "night0", "m": "crimsonDeep"}
+    rows = TAMSIN_FACE.strip("\n").split("\n")
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                c.c[KNEEL - 59 + y][159 + x] = P(legend[ch])
+    # the rags of the night heaped before her: grey cloth torn to strips, its edges toward the fire catching it
+    heap = Layer()
+    for (hx, hy, rx, ry, seed) in ((186, KNEEL - 3, 19, 6, 1641), (196, KNEEL - 6, 12, 5, 1643),
+                                   (176, KNEEL - 5, 10, 4, 1645)):
+        for yy in range(int(hy - ry), int(hy + 2)):
+            for xx in range(int(hx - rx), int(hx + rx) + 1):
+                torn = fbm(xx * 0.35, yy * 0.4, seed, 2)
+                if ((xx - hx) / rx) ** 2 + ((yy - hy) / ry) ** 2 <= 1 - (0.35 if torn > 0.62 else 0):
+                    heap.put(xx, yy, P("stoneDark" if torn > 0.48 else "night1"))
+    for (x, y), col in list(heap.px.items()):
+        d = fire_d(x, y)
+        if (x, y - 1) not in heap.px or (x + 1, y) not in heap.px:
+            heap.px[(x, y)] = P("tile" if d < 34 else "stoneMid")
+        elif d < 30 and col == P("stoneDark"):
+            heap.px[(x, y)] = P("crimsonDeep")
+    # strips trailing from it across the stones
+    for (x0, y0, ln, dx) in ((168, KNEEL, 10, -1), (204, KNEEL - 1, 9, 1), (198, KNEEL + 1, 7, 1)):
+        for i in range(ln):
+            heap.put(x0 + i * dx, y0 + (i // 4), P("stoneDark"))
+    heap.outline(P("night0"), skip_bottom=True)
+    heap.paste(c)
+    # the coat, half lifted out of the heap by its shoulders: small, the house's teal, sleeves hanging, the hood
+    # fallen back, its hem still in the rags; the brazier lights its side toward it
+    coat = Layer()
+    cx0, cy0 = 176, KNEEL - 33
+    coat.poly([(cx0, cy0 + 3), (cx0 + 16, cy0 + 3), (cx0 + 19, cy0 + 27), (cx0 - 3, cy0 + 27)], P("banner"))
+    coat.ellipse(cx0 + 8, cy0 + 2, 6, 3.0, P("roofDeep"))
+    coat.poly([(cx0, cy0 + 3), (cx0 - 5, cy0 + 17), (cx0 - 2, cy0 + 18), (cx0 + 3, cy0 + 9)], P("roofDeep"))
+    coat.poly([(cx0 + 16, cy0 + 3), (cx0 + 21, cy0 + 17), (cx0 + 18, cy0 + 18), (cx0 + 13, cy0 + 9)], P("banner"))
+    for y in range(cy0 + 5, cy0 + 27):
+        coat.put(cx0 + 8, y, P("roofDeep"))
+    for y in range(cy0 + 8, cy0 + 26, 5):
+        coat.put(cx0 + 10, y, P("tealDim"))
+    for (x, y), col in list(coat.px.items()):
+        if (x + 1, y) not in coat.px:
+            coat.px[(x, y)] = P("roofLight")
+    coat.outline(P("night0"), skip_bottom=False)
+    # the hem sinks into the heap: the heap's top covers the coat's lowest rows
+    for (x, y) in list(coat.px):
+        if (x, y) in heap.px and y > cy0 + 21:
+            del coat.px[(x, y)]
+    coat.paste(c)
+    # her two hands at the coat's shoulders, the knuckles lit, one wrapped in a rag (a burn from the kitchen)
+    cluster(c, cx0 - 2, cy0 + 1, [".kk.", "kSOk", "ksOk", ".kk."], {"k": "night0", "S": "tileLight", "s": "tile",
+                                                                     "O": "fireOrange"})
+    cluster(c, cx0 + 14, cy0 + 1, [".kkk.", "kmmOk", "ksSOk", ".kkk."], {"k": "night0", "m": "stoneMid",
+                                                                         "S": "tileLight", "s": "tile",
+                                                                         "O": "fireOrange"})
 
 
 def slide3():
@@ -378,14 +537,12 @@ def slide3():
                 if joint and lv == 0:
                     col = "nightDeep"
             c.c[y][x] = P(col)
-    # the rags of the night heaped along the walk: grey, torn, their edges toward the fire catching it
+    # the rest of the night's rags along the walk at the left, grey and torn, their edges toward the fire catching it
     rags = Layer()
-    for k in range(8):
-        x = int(12 + k * 26 + h1(k, 1601) * 10)
-        if 100 < x < 250:
-            continue
-        rx = 10 + h1(k, 1602) * 9
-        ry = 4 + h1(k, 1603) * 5
+    for k in range(4):
+        x = int(14 + k * 24 + h1(k, 1601) * 10)
+        rx = 9 + h1(k, 1602) * 8
+        ry = 3 + h1(k, 1603) * 4
         for yy in range(int(FLOOR3 + 8 - ry), FLOOR3 + 9):
             for xx in range(int(x - rx), int(x + rx) + 1):
                 torn = fbm(xx * 0.4, yy * 0.3, 1604, 2)
@@ -393,9 +550,8 @@ def slide3():
                     rags.put(xx, yy, P("stoneDark" if torn > 0.45 else "night1"))
     for (x, y), col in list(rags.px.items()):
         if (x, y - 1) not in rags.px:
-            rags.px[(x, y)] = P("stoneMid") if fire_d(x, y) > 58 else P("tile")
+            rags.px[(x, y)] = P("stoneMid")
     rags.paste(c)
-    cluster(c, 52, FLOOR3 + 1, [".kk.", "k..k", "kkkk", ".kk."], {"k": "night0"})
     # the brazier, its fire low: an iron bowl on legs, coals and a few tongues of flame
     bx, by = BRAZIER
     cluster(c, bx - 12, by - 8 - 4, [".......G.........G......",
@@ -414,56 +570,7 @@ def slide3():
                                  "...kk...............kk...",
                                  "..kk.................kk.."],
             {"k": "night0", "o": "ember", "O": "fireOrange", "G": "fireGold"})
-    # Tamsin on her knees, side on, facing the fire: a stout dark shape, the kerchief knotted at her nape, her back
-    # bowed, her skirt spread on the snow behind her; both arms out holding the small coat up to the light
-    t = Layer()
-    tx, base = 140, FLOOR3 + 12
-    body = P("night0")
-    t.poly([(tx - 36, base), (tx + 4, base), (tx + 2, base - 16), (tx - 26, base - 14)], body)
-    t.ellipse(tx - 12, base - 22, 15, 14, body)
-    t.ellipse(tx - 6, base - 38, 13, 12, body)
-    t.ellipse(tx + 1, base - 56, 7.5, 8.0, body)
-    t.poly([(tx - 6, base - 60), (tx - 14, base - 52), (tx - 9, base - 50)], body)
-    t.poly([(tx - 8, base - 54), (tx - 15, base - 46), (tx - 12, base - 45)], body)
-    t.capsule((tx + 2, base - 44), (tx + 20, base - 48), 3.6, 3.0, body)
-    t.capsule((tx, base - 38), (tx + 20, base - 40), 3.4, 2.8, body)
-    # the face in profile toward the fire: brow, nose, the lips pressed shut, the chin
-    for (dx, dy) in ((7, -61), (8, -60), (8, -59), (9, -58), (10, -57), (9, -56), (8, -55), (9, -54), (8, -53),
-                     (7, -52)):
-        t.put(tx + dx, base + dy, body)
-    # the fire's light on every edge that faces it: the face, the knuckles, the kerchief's front, the shoulder
-    for (x, y), col in list(t.px.items()):
-        if (x + 1, y) not in t.px or ((x, y - 1) not in t.px and x > tx - 4):
-            t.px[(x, y)] = P("fireOrange" if y < base - 50 and x > tx + 4 else "ember")
-        elif (x + 2, y) not in t.px and y < base - 30:
-            t.px[(x, y)] = P("crimson")
-    t.paste(c)
-    c.c[base - 57][tx + 5] = P("tile")
-    # the coat: small, in the house's teal, held up by its shoulders, sleeves hanging, a hood fallen back, a torn hem;
-    # the fire lights its side toward it
-    coat = Layer()
-    cx0, cy0 = tx + 18, base - 52
-    coat.poly([(cx0, cy0 + 4), (cx0 + 20, cy0 + 4), (cx0 + 23, cy0 + 30), (cx0 - 3, cy0 + 30)], P("banner"))
-    coat.ellipse(cx0 + 10, cy0 + 3, 7, 3.5, P("roofDeep"))
-    coat.poly([(cx0, cy0 + 4), (cx0 - 6, cy0 + 20), (cx0 - 3, cy0 + 21), (cx0 + 3, cy0 + 10)], P("roofDeep"))
-    coat.poly([(cx0 + 20, cy0 + 4), (cx0 + 26, cy0 + 20), (cx0 + 23, cy0 + 21), (cx0 + 17, cy0 + 10)], P("banner"))
-    for y in range(cy0 + 6, cy0 + 29):
-        coat.put(cx0 + 10, y, P("roofDeep"))
-    for y in range(cy0 + 9, cy0 + 28, 5):
-        coat.put(cx0 + 12, y, P("tealDim"))
-    for x in range(cx0 - 3, cx0 + 24):
-        if h1(x, 1615) > 0.55:
-            coat.put(x, cy0 + 30, P("roofDeep"))
-        if h1(x, 1617) > 0.8:
-            coat.px.pop((x, cy0 + 29), None)
-    for (x, y), col in list(coat.px.items()):
-        if (x + 1, y) not in coat.px:
-            coat.px[(x, y)] = P("roofLight")
-    coat.outline(P("night0"), skip_bottom=False)
-    coat.paste(c)
-    # her two hands at the coat's shoulders, the knuckles lit
-    for (hx, hy) in ((cx0 + 1, cy0 + 4), (cx0 + 19, cy0 + 4)):
-        cluster(c, hx - 2, hy - 2, [".kk.", "kOOk", ".kk."], {"k": "night0", "O": "ember"})
+    tamsin_and_coat(c)
     snow_flakes(c, 60, 1611, colour="mistDark", bright="mist", y_max=FLOOR3)
     return c.finish(G3_ALLOWED, protect=("fireGold", "fireOrange", "ember", "roofLight", "banner", "tealDim"))
 
