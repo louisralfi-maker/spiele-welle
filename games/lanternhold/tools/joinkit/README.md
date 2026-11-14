@@ -51,3 +51,9 @@ merge_xcstrings.py BASE OURS THEIRS [-o OUT] [--prefer ours|theirs] [--report FI
 As a git merge driver (optional, per command, never in git config):
 `git -c merge.xcstrings.driver='python3 -I tools/joinkit/merge_xcstrings.py %O %A %B --mark-stale' merge ...`
 with `*.xcstrings merge=xcstrings` in `.git/info/attributes`.
+
+## A quick look before the join
+
+`git merge-tree --write-tree --name-only <join-head> <lane-branch>` (git 2.38+) shows in a second whether a lane
+still merges cleanly into the join, without touching any worktree: one line (the tree) means clean, more lines
+name the conflicting files.
