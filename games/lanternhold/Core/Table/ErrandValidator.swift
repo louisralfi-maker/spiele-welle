@@ -41,10 +41,14 @@ enum ErrandValidator {
             out += check(errand, catalog: catalog, known: known, petitions: petitions, table: table)
         }
         var used: Set<String> = [ErrandCatalog.lostReportID]
+        var lostReports: Set<String> = [ErrandCatalog.lostReportID]
         for errand in catalog.errands {
-            if let lost = errand.lostReport { used.insert(lost) }
+            if let lost = errand.lostReport {
+                used.insert(lost)
+                lostReports.insert(lost)
+            }
             for order in errand.orders {
-                used.insert(order.report)
+                if !order.report.isEmpty { used.insert(order.report) }
                 for alt in order.altReport ?? [] { used.insert(alt.report) }
             }
         }
@@ -55,7 +59,8 @@ enum ErrandValidator {
             if !used.contains(report.id) { out.append("report \(report.id): no order brings it home") }
             out += check(report, table: table)
         }
-        if let lost = catalog.report(ErrandCatalog.lostReportID) {
+        for id in lostReports.sorted() {
+            guard let lost = catalog.report(id) else { continue }
             for (index, choice) in lost.choices.enumerated() where !CourtValidator.costsNothing(choice.effect) {
                 out.append("report \(lost.id) choice \(index + 1): both choices of a lost lantern are free")
             }
@@ -178,8 +183,8 @@ enum ErrandValidator {
         if !CourtValidator.isName(place.id) {
             out.append("place \(place.id): the id must be lowercase letters, digits and _")
         }
-        if place.kind == .home {
-            if place.nights != 0 { out.append("place \(place.id): home takes no nights") }
+        if !place.kind.takesNights {
+            if place.nights != 0 { out.append("place \(place.id): \(place.kind.rawValue) takes no nights") }
         } else if !nightsLimit.contains(place.nights) {
             out.append("place \(place.id): nights \(place.nights) outside \(nightsLimit)")
         }
@@ -196,8 +201,29 @@ enum ErrandValidator {
         if errand.number < 1 { note("number \(errand.number) below 1") }
         if let place = catalog.place(errand.place) {
             if place.kind == .home { note("nobody is sent home") }
+            if place.kind == .beyond && !errand.staysOutThisChapter {
+                note("only a party that stays out this chapter stands beyond the beacon")
+            }
         } else {
             note("unknown place \(errand.place)")
+        }
+        if errand.staysOutThisChapter {
+            if !errand.isFollowed { note("a party that stays out is never offered: it follows a petition") }
+            if let lantern = errand.lantern {
+                if !catalog.reserved.contains(lantern) { note("a party that stays out takes a reserved lantern") }
+            } else {
+                note("a party that stays out names its lantern")
+            }
+            if errand.orders.count != 1 { note("a party that stays out has one order") }
+            for order in errand.orders {
+                if !order.report.isEmpty { note("a party that stays out brings no report home") }
+                if order.cost != nil || !(order.lend ?? ErrandLend()).isEmpty || (order.risk ?? 0) > 0
+                    || order.seal == true || order.atReturn != nil || order.atLoss != nil {
+                    note("a party that stays out costs, lends, risks and brings nothing")
+                }
+            }
+        } else if errand.isFollowed {
+            note("a sending the table only follows must stay out (staysOut)")
         }
         if let chapter = errand.chapter, chapter != catalog.chapter { note("chapter \(chapter) is not the table's") }
         if !CourtValidator.validDays(errand.days) { note("days must be [day] or [from, to], from day 1") }
@@ -223,10 +249,9 @@ enum ErrandValidator {
         if let lost = errand.lostReport, catalog.report(lost) == nil { note("lostReport \(lost) is no report") }
         if errand.orders.isEmpty || errand.orders.count > 2 { note("needs one or two orders") }
         if let effect = errand.atReturn { out += check(effect, place: "\(id) atReturn", returnOnly: true) }
-        if errand.offered != false {
-            out += text(errand.titleKey, limit: titleLimit, what: "\(id) title", table: table)
-            for key in errand.hookKeys { out += text(key, limit: hookLimit, what: "\(id) hook", table: table) }
-        }
+        // Every sending is shown on the table, a followed one too (its party on the road).
+        out += text(errand.titleKey, limit: titleLimit, what: "\(id) title", table: table)
+        for key in errand.hookKeys { out += text(key, limit: hookLimit, what: "\(id) hook", table: table) }
         for (index, order) in errand.orders.enumerated() {
             out += check(order, index: index, of: errand, catalog: catalog, known: known, table: table)
         }
@@ -279,15 +304,30 @@ enum ErrandValidator {
             if !sealCanHold(order, days: errand.dayRange) {
                 note("the seal can never hold: every day's nights away include night 7, 10 or 17 to 20")
             }
-            if let report = catalog.report(order.report), report.counsel == nil {
-                note("a sealed order's report needs a counsel choice")
+            if let report = catalog.report(order.report) {
+                if let counsel = report.counsel, counsel >= 0, counsel < report.choices.count {
+                    let gives = report.choices[counsel].effect
+                    let gain = [gives.citizens, gives.archers, gives.guards, gives.builders].contains { ($0 ?? 0) > 0 }
+                        || (gives.gold ?? 0) > 0
+                    let shortest = min(order.nights, (order.nightsWith ?? [:]).values.min() ?? order.nights)
+                    if gain && errand.dayRange.lowerBound + max(1, shortest) > ErrandEngine.counselGainLastDay {
+                        note("the counsel can never apply: it gives people or gold, and the report is read after day "
+                             + "\(ErrandEngine.counselGainLastDay)")
+                    }
+                } else {
+                    note("a sealed order's report needs a counsel choice")
+                }
             }
         }
         for flag in (order.requires ?? []) + (order.forbids ?? []) where !CourtValidator.isName(flag) {
             note("the flag \(flag) must be lowercase letters, digits and _")
         }
         for flag in order.requires ?? [] where !known.contains(flag) { note("the flag \(flag) is never set") }
-        if catalog.report(order.report) == nil { note("report \(order.report) is missing") }
+        if order.report.isEmpty {
+            if !errand.staysOutThisChapter { note("an order needs a report") }
+        } else if catalog.report(order.report) == nil {
+            note("report \(order.report) is missing")
+        }
         for alt in order.altReport ?? [] where catalog.report(alt.report) == nil {
             note("altReport \(alt.report) is missing")
         }

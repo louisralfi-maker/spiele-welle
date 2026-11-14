@@ -13,13 +13,39 @@
     { "id": "stillmere", "kind": "house", "nights": 3 },
     { "id": "goldenacre", "kind": "house", "nights": 4 },
     { "id": "beaconfoot", "kind": "west", "nights": 1 },
-    { "id": "beacon", "kind": "west", "nights": 1 }
+    { "id": "beacon", "kind": "west", "nights": 1 },
+    { "id": "moor_road", "kind": "beyond", "nights": 0 }
   ],
   "errands": [
     {
       "id": "oil_round", "number": 1, "place": "tallowford", "chapter": 1, "days": [2, 6],
       "orders": [
         { "seal": true, "nights": 1, "cost": { "gold": -5 }, "goes": ["pip"], "report": "oil_round" }
+      ]
+    },
+    {
+      "id": "mill_herbs", "number": 2, "place": "windmill", "chapter": 1, "days": [6, 12],
+      "orders": [
+        { "seal": true, "nights": 1, "lend": { "guards": 1 }, "report": "mill_herbs" }
+      ]
+    },
+    {
+      "id": "ford_planks", "number": 3, "place": "old_bridge", "chapter": 1, "days": [9, 14],
+      "orders": [
+        { "seal": true, "nights": 3, "cost": { "gold": -12 }, "lend": { "guards": 1, "builders": 1 },
+          "report": "ford_planks" }
+      ],
+      "atReturn": { "flags": ["ford_bridged"], "world": ["table.span"] }
+    },
+    {
+      "id": "hemmet_sentence", "number": 4, "place": "windmill", "chapter": 1, "days": [10, 16],
+      "requires": ["hemmet_met"], "heard": ["bard_song"],
+      "orders": [
+        { "nights": 1, "cost": { "gold": -4 }, "goes": ["bard"], "report": "hemmet_sentence",
+          "altReport": [
+            { "report": "hemmet_gone", "fromDay": 17, "requires": ["refugees_in"], "forbids": ["herbs_grown"] },
+            { "report": "hemmet_gone", "fromDay": 17, "requires": ["refugees_some"], "forbids": ["herbs_grown"] }
+          ] }
       ]
     },
     {
@@ -34,25 +60,127 @@
       "atReturn": { "flags": ["varn_road"] }
     },
     {
+      "id": "goldenacre_cart", "number": 6, "place": "goldenacre", "chapter": 1, "days": [7, 13],
+      "heard": ["oxmoor_gift"],
+      "orders": [
+        { "label": "errand.goldenacre_cart.o1", "nights": 4, "nightsWith": { "ford_bridged": 3 },
+          "cost": { "gold": -30, "flags": ["-oxmoor_debt", "oxmoor_square"] }, "goes": ["marek"],
+          "requires": ["oxmoor_debt"], "report": "goldenacre_paid" },
+        { "label": "errand.goldenacre_cart.o2", "seal": true, "nights": 4, "nightsWith": { "ford_bridged": 3 },
+          "cost": { "gold": -5 }, "goes": ["marek"], "report": "goldenacre_list" }
+      ],
+      "atReturn": { "flags": ["oxmoor_road", "pell_read"] }
+    },
+    {
+      "id": "saltgate_grey", "number": 7, "place": "saltgate", "chapter": 1, "days": [10, 15],
+      "requires": ["envoy_met"],
+      "orders": [
+        { "nights": 3, "cost": { "gold": -10 }, "lend": { "archers": 1 }, "goes": ["envoy"], "risk": 0.15,
+          "late": true, "report": "saltgate_grey" }
+      ],
+      "atReturn": { "flags": ["brine_road", "grey_lantern"] }
+    },
+    {
+      "id": "stillmere_proof", "number": 8, "place": "stillmere", "chapter": 1, "days": [13, 15],
+      "requiresAny": ["calder_with", "calder_coddled"],
+      "orders": [
+        { "label": "errand.stillmere_proof.o1", "seal": true, "nights": 3,
+          "cost": { "gold": -6, "flags": ["statues_sixty"] }, "lend": { "archers": 1 }, "report": "stillmere_written" },
+        { "label": "errand.stillmere_proof.o2", "nights": 3, "cost": { "gold": -6 }, "lend": { "archers": 1 },
+          "report": "stillmere_struck", "atReturn": { "gold": 20, "flags": ["statues_struck"] } }
+      ],
+      "atReturn": { "flags": ["calder_road"] }
+    },
+    {
+      "id": "greybell_bell", "number": 9, "place": "greybell", "chapter": 1, "days": [15, 16],
+      "requires": ["lorn_heard"],
+      "orders": [
+        { "nights": 3, "nightsWith": { "ford_bridged": 2 }, "lend": { "guards": 1, "citizens": 2 },
+          "report": "greybell_bell" }
+      ],
+      "atReturn": { "flags": ["lorn_road"], "world": ["castle.chapel.bell.first"] }
+    },
+    {
+      "id": "beaconfoot_smoke", "number": 10, "place": "beaconfoot", "chapter": 1, "days": [8, 11],
+      "orders": [
+        { "label": "errand.beaconfoot_smoke.o1", "seal": true, "nights": 1, "cost": { "gold": -4 },
+          "lend": { "archers": 1 }, "report": "beaconfoot_road" },
+        { "label": "errand.beaconfoot_smoke.o2", "nights": 1, "cost": { "gold": -4 }, "lend": { "archers": 2 },
+          "risk": 0.10, "report": "beaconfoot_caves" }
+      ],
+      "atReturn": { "flags": ["beaconfoot_seen"] }
+    },
+    {
       "id": "beacon_statues", "number": 11, "place": "beacon", "chapter": 1, "days": [11, 16],
       "unlocked": ["beacon"],
       "orders": [
-        { "label": "errand.beacon_statues.o1", "seal": true, "nights": 1, "lend": { "archers": 1 },
+        { "label": "errand.beacon_statues.o1", "seal": true, "nights": 2, "lend": { "archers": 1 },
           "report": "beacon_statues" },
         { "label": "errand.beacon_statues.o2", "nights": 1, "lend": { "archers": 1 }, "risk": 0.25,
           "report": "beacon_statues_lamp", "atReturn": { "world": ["table.west.2"] } }
       ],
       "atReturn": { "flags": ["statues_counted"], "world": ["table.west.1"] }
+    },
+    {
+      "id": "ludo_number", "number": 12, "place": "beacon", "chapter": 1, "days": [12, 15],
+      "requires": ["ludo_stays"], "world": ["table.west.1"], "lostReport": "ludo_lost",
+      "orders": [
+        { "label": "errand.ludo_number.o1", "nights": 1, "lend": { "archers": 1 }, "goes": ["serLudo"],
+          "report": "ludo_number" },
+        { "label": "errand.ludo_number.o2", "nights": 1, "goes": ["serLudo"], "risk": 0.25, "report": "ludo_number",
+          "atReturn": { "flags": ["ludo_alone"] } }
+      ],
+      "atReturn": { "flags": ["ludo_number"] }
+    },
+    {
+      "id": "lantern_41", "number": 13, "place": "moor_road", "chapter": 1, "days": [19, 20],
+      "requires": ["hild_rode"], "lantern": 41, "offered": false, "staysOut": true,
+      "orders": [
+        { "nights": 1, "goes": ["hildVarn"], "report": "" }
+      ]
     }
   ],
   "reports": [
     {
-      "id": "oil_round", "speaker": "pip", "text": "report.oil_round.text", "counsel": 0,
+      "id": "oil_round", "speaker": "pip", "text": "report.oil_round.text", "counsel": 1,
       "choices": [
         { "label": "report.oil_round.c1", "happiness": 1, "world": ["town.lanterns.extra"],
           "reaction": "report.oil_round.r1" },
         { "label": "report.oil_round.c2", "night": ["sootlings-2"], "reaction": "report.oil_round.r2",
           "instead": { "flags": ["brazier_gift"], "reaction": "report.oil_round.r2b" } }
+      ]
+    },
+    {
+      "id": "mill_herbs", "speaker": "soldier", "text": "report.mill_herbs.text", "counsel": 0,
+      "choices": [
+        { "label": "report.mill_herbs.c1", "flags": ["herbs_grown", "hemmet_met"], "world": ["town.garden"],
+          "reaction": "report.mill_herbs.r1" },
+        { "label": "report.mill_herbs.c2", "happiness": 1, "flags": ["hemmet_met"], "reaction": "report.mill_herbs.r2" }
+      ]
+    },
+    {
+      "id": "ford_planks", "speaker": "builder", "text": "report.ford_planks.text", "counsel": 1,
+      "choices": [
+        { "label": "report.ford_planks.c1", "happiness": 2, "reaction": "report.ford_planks.r1" },
+        { "label": "report.ford_planks.c2", "gold": 15, "happiness": -1, "reaction": "report.ford_planks.r2" }
+      ]
+    },
+    {
+      "id": "hemmet_sentence", "speaker": "bard", "text": "report.hemmet_sentence.text", "counsel": 1,
+      "choices": [
+        { "label": "report.hemmet_sentence.c1", "happiness": 2, "flags": ["song_sung", "sentence_hemmet"],
+          "reaction": "report.hemmet_sentence.r1" },
+        { "label": "report.hemmet_sentence.c2", "flags": ["sentence_filed", "sentence_hemmet"],
+          "reaction": "report.hemmet_sentence.r2" }
+      ]
+    },
+    {
+      "id": "hemmet_gone", "speaker": "bard", "text": "report.hemmet_gone.text", "counsel": 0,
+      "choices": [
+        { "label": "report.hemmet_gone.c1", "flags": ["hemmet_gone"], "world": ["town.window.dark"],
+          "reaction": "report.hemmet_gone.r1" },
+        { "label": "report.hemmet_gone.c2", "flags": ["hemmet_gone"], "world": ["town.window.dark"],
+          "reaction": "report.hemmet_gone.r2" }
       ]
     },
     {
@@ -72,6 +200,67 @@
       ]
     },
     {
+      "id": "goldenacre_list", "speaker": "marek", "text": "report.goldenacre_list.text", "counsel": 1,
+      "choices": [
+        { "label": "report.goldenacre.c1", "happiness": 1, "flags": ["pell_shamed"], "reaction": "report.goldenacre.r1" },
+        { "label": "report.goldenacre.c2", "flags": ["pell_filed"], "reaction": "report.goldenacre.r2" }
+      ]
+    },
+    {
+      "id": "goldenacre_paid", "speaker": "marek", "text": "report.goldenacre_paid.text", "counsel": 1,
+      "choices": [
+        { "label": "report.goldenacre.c1", "happiness": 1, "flags": ["pell_shamed"], "reaction": "report.goldenacre.r1" },
+        { "label": "report.goldenacre.c2", "flags": ["pell_filed"], "reaction": "report.goldenacre.r2" }
+      ]
+    },
+    {
+      "id": "saltgate_grey", "speaker": "soldier", "text": "report.saltgate_grey.text",
+      "choices": [
+        { "label": "report.saltgate_grey.c1", "flags": ["coast_promise", "brine_with"],
+          "reaction": "report.saltgate_grey.r1" },
+        { "label": "report.saltgate_grey.c2", "gold": -10, "flags": ["coast_helped"],
+          "reaction": "report.saltgate_grey.r2" }
+      ]
+    },
+    {
+      "id": "stillmere_written", "speaker": "soldier", "text": "report.stillmere_written.text", "counsel": 0,
+      "choices": [
+        { "label": "report.stillmere.c1", "happiness": 1, "reaction": "report.stillmere_written.r1" },
+        { "label": "report.stillmere.c2", "flags": ["calder_answer_burnt"], "reaction": "report.stillmere_written.r2" }
+      ]
+    },
+    {
+      "id": "stillmere_struck", "speaker": "soldier", "text": "report.stillmere_struck.text",
+      "choices": [
+        { "label": "report.stillmere.c1", "happiness": 1, "reaction": "report.stillmere_struck.r1" },
+        { "label": "report.stillmere.c2", "flags": ["calder_answer_burnt"], "reaction": "report.stillmere_struck.r2" }
+      ]
+    },
+    {
+      "id": "greybell_bell", "speaker": "child", "text": "report.greybell_bell.text",
+      "choices": [
+        { "label": "report.greybell_bell.c1", "happiness": 3, "flags": ["bell_rings"],
+          "reaction": "report.greybell_bell.r1" },
+        { "label": "report.greybell_bell.c2", "flags": ["bell_tied"], "reaction": "report.greybell_bell.r2" }
+      ]
+    },
+    {
+      "id": "beaconfoot_road", "speaker": "soldier", "text": "report.beaconfoot_road.text", "counsel": 0,
+      "choices": [
+        { "label": "report.beaconfoot_road.c1", "happiness": 1, "reaction": "report.beaconfoot_road.r1" },
+        { "label": "report.beaconfoot_road.c2", "reaction": "report.beaconfoot_road.r2" }
+      ]
+    },
+    {
+      "id": "beaconfoot_caves", "speaker": "soldier", "text": "report.beaconfoot_caves.text",
+      "choices": [
+        { "label": "report.beaconfoot_caves.c1", "citizens": 3, "flags": ["beaconfoot_found"],
+          "reaction": "report.beaconfoot_caves.r1" },
+        { "label": "report.beaconfoot_caves.c2", "gold": -4, "flags": ["beaconfoot_fed"],
+          "reaction": "report.beaconfoot_caves.r2" }
+      ]
+    },
+    {
       "id": "beacon_statues", "speaker": "soldier", "text": "report.beacon_statues.text", "counsel": 0,
       "choices": [
         { "label": "report.beacon_statues.c1", "night": ["brutes-2"], "reaction": "report.beacon_statues.r1",
@@ -88,6 +277,21 @@
           "instead": { "happiness": 1, "reaction": "report.beacon_statues_lamp.r1b" } },
         { "label": "report.beacon_statues_lamp.c2", "happiness": 1, "flags": ["statues_told"],
           "reaction": "report.beacon_statues_lamp.r2" }
+      ]
+    },
+    {
+      "id": "ludo_number", "speaker": "serLudo", "text": "report.ludo_number.text",
+      "choices": [
+        { "label": "report.ludo_number.c1", "guards": 1, "flags": ["ludo_knighted"],
+          "reaction": "report.ludo_number.r1" },
+        { "label": "report.ludo_number.c2", "happiness": 1, "reaction": "report.ludo_number.r2" }
+      ]
+    },
+    {
+      "id": "ludo_lost", "speaker": "brannock", "text": "report.ludo_lost.text", "counsel": 0,
+      "choices": [
+        { "label": "report.lantern_lost.c1", "flags": ["mourning_kept"], "reaction": "report.ludo_lost.r1" },
+        { "label": "report.ludo_lost.c2", "flags": ["ludo_helmet"], "reaction": "report.ludo_lost.r2" }
       ]
     },
     {

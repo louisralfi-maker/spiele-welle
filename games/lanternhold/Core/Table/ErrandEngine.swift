@@ -52,6 +52,8 @@ enum ErrandEngine {
     /// A lost lantern: happiness at that dawn, and the keep window that stays dark.
     static let lossHappiness = -2
     static let darkWindow = "castle.keep.window.dark"
+    /// The home day of a party that does not come home this chapter (sending 13): far past any day a realm reaches.
+    static let neverHome = 10_000
 
     // MARK: - The table's offers
 
@@ -197,6 +199,41 @@ enum ErrandEngine {
     static func uncover(_ s: inout GameState, catalog: ErrandCatalog) {
         if s.table == nil, s.mode == .chapter, s.day >= firstDay { s.table = .start(catalog) }
         tidy(&s, catalog: catalog)
+        follow(&s, catalog: catalog)
+    }
+
+    /// The sendings the table is not offered but shows (sending 13): once their conditions hold on one of their days,
+    /// their party is out on their fixed lantern, as the petition that sent it said (Hild rides at the dusk before
+    /// the first of `days`). Nothing is paid, lent or rolled; a party that stays out this chapter never comes home.
+    /// Runs when the table opens and at every dawn of a realm with a table; returns the sendings it put on the road.
+    @discardableResult
+    static func follow(_ s: inout GameState, catalog: ErrandCatalog) -> [String] {
+        guard var table = s.table, s.mode == .chapter, !s.defeated else { return [] }
+        var followed: [String] = []
+        for errand in catalog.errands where errand.isFollowed && !errand.orders.isEmpty {
+            guard (errand.chapter ?? PetitionEngine.chapter) == PetitionEngine.chapter,
+                  errand.dayRange.contains(s.day), !table.sent.contains(errand.id), conditionsHold(errand, s),
+                  let number = freeLantern(errand, table: table) else { continue }
+            let order = errand.orders[0]
+            let left = max(firstDay, errand.dayRange.lowerBound - 1)
+            let home = errand.staysOutThisChapter ? neverHome : left + max(1, order.nights)
+            var atReturn: [PetitionEffect] = []
+            if let effect = errand.atReturn { atReturn.append(effect) }
+            if let effect = order.atReturn { atReturn.append(effect) }
+            table.out.append(Sending(errand: errand.id, order: 0, lantern: number, place: errand.place, sentDay: left,
+                                     sentAt: -1, dueDay: home, homeDay: home, lost: false, late: false,
+                                     sealed: false, goes: order.goes ?? [], report: order.report,
+                                     altReport: order.altReport ?? [],
+                                     lostReport: errand.lostReport ?? ErrandCatalog.lostReportID,
+                                     atReturn: atReturn))
+            table.out.sort { $0.lantern < $1.lantern }
+            setLantern(&table, number, .out)
+            table.sent.append(errand.id)
+            table.sent.sort()
+            followed.append(errand.id)
+        }
+        if !followed.isEmpty { s.table = table }
+        return followed
     }
 
     /// Drops the waiting reports the catalogue has no card for: a saved table may hold a report id that a later
@@ -298,9 +335,17 @@ enum ErrandEngine {
     // MARK: - The dawn
 
     /// The parties due at this dawn come home or are counted lost (from `Sim.dawn`, after the night is accounted and
-    /// before the economy and the dawn report, so the report and the save see them). Nothing happens without parties
-    /// out.
-    static func dawn(_ s: inout GameState, balance: Balance) {
+    /// before the economy and the dawn report, so the report and the save see them); then the table follows what a
+    /// petition sent out (sending 13). Nothing happens without a table, and a table with nobody out and nothing to
+    /// follow is left as it was.
+    static func dawn(_ s: inout GameState, balance: Balance, catalog: ErrandCatalog = .standard) {
+        guard s.table != nil else { return }
+        bringHome(&s, balance: balance)
+        follow(&s, catalog: catalog)
+    }
+
+    /// The parties due at this dawn come home or are counted lost.
+    static func bringHome(_ s: inout GameState, balance: Balance) {
         guard var table = s.table, !table.out.isEmpty else { return }
         var returns: [LanternReturn] = []
         var staying: [Sending] = []

@@ -151,7 +151,8 @@ struct TableListView: View {
                         .font(Theme.serif(.caption))
                         .foregroundStyle(Theme.inkSoft)
                         .lineLimit(2)
-                    Text(inked: QuestText.text("table.homeday", values: ["n": String(sending.homeDay)]), .caption)
+                    Text(inked: sending.homeDay >= ErrandEngine.neverHome ? QuestText.text("table.beyond")
+                         : QuestText.text("table.homeday", values: ["n": String(sending.homeDay)]), .caption)
                         .font(Theme.italic(.caption))
                         .foregroundStyle(Theme.inkSoft)
                 }

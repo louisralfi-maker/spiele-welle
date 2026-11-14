@@ -78,9 +78,11 @@ final class ErrandEngineTests: XCTestCase {
         XCTAssertEqual(ErrandEngine.offers(realm(day: 5, flags: ["varn_with"]), catalog: table).map(\.id),
                        ["oil_round", "highcairn_count"], "by their number on the table")
         XCTAssertEqual(ErrandEngine.offers(realm(day: 7, flags: ["varn_with"]), catalog: table).map(\.id),
-                       ["highcairn_count"], "sending 1's window closed on day 6")
+                       ["mill_herbs", "highcairn_count"],
+                       "sending 1's window closed on day 6; Marek's cart waits for Oxmoor's audience")
         XCTAssertEqual(ErrandEngine.offers(realm(day: 11, flags: ["varn_with"]), catalog: table).map(\.id),
-                       ["highcairn_count", "beacon_statues"], "the beacon site opens on day 11")
+                       ["mill_herbs", "ford_planks", "highcairn_count", "beaconfoot_smoke", "beacon_statues"],
+                       "the beacon site opens on day 11; sendings 4, 6, 7 and 12 wait for their people")
         XCTAssertEqual(ErrandEngine.offers(realm(day: 16), catalog: table).map(\.id), ["beacon_statues"])
         XCTAssertEqual(ErrandEngine.offers(realm(day: 17), catalog: table).map(\.id), [])
         var endless = realm(day: 3)
@@ -182,7 +184,8 @@ final class ErrandEngineTests: XCTestCase {
         }
         let statues = try XCTUnwrap(table.errand("beacon_statues"))
         for day in 11...16 {
-            XCTAssertTrue(ErrandEngine.sealHolds(statues, order: 0, realm(day: day)), "the stair on day \(day)")
+            XCTAssertEqual(ErrandEngine.sealHolds(statues, order: 0, realm(day: day)), day <= 15,
+                           "the stair's two dusks on day \(day) (from day 16 they would cross night 17)")
             XCTAssertFalse(ErrandEngine.sealHolds(statues, order: 1, realm(day: day)), "the lamp room risks")
         }
         let oil = try XCTUnwrap(table.errand("oil_round"))
@@ -386,7 +389,8 @@ final class ErrandEngineTests: XCTestCase {
         XCTAssertEqual(s.table?.reports, [])
         XCTAssertEqual(s.table?.lantern(38)?.state, .hook, "back on its hook")
         XCTAssertEqual(s.table?.read, [ReadReport(report: "oil_round", errand: "oil_round", day: 3, choice: 0)])
-        XCTAssertEqual(ErrandEngine.counsel(try XCTUnwrap(table.report("oil_round")), s), 0)
+        XCTAssertEqual(ErrandEngine.counsel(try XCTUnwrap(table.report("oil_round")), s), 1,
+                       "Odile would keep the oil for the wall (the next brazier free on day 3)")
     }
 
     // MARK: - 2.6: a night changed only on days 4 to 14
@@ -481,6 +485,8 @@ final class ErrandEngineTests: XCTestCase {
         XCTAssertNotNil(ErrandEngine.send(&stair, errand: "beacon_statues", order: 0, catalog: table,
                                           balance: balance))
         dawn(&stair, day: 13)
+        XCTAssertEqual(stair.table?.reports, [], "the stair takes two dusks")
+        dawn(&stair, day: 14)
         XCTAssertTrue(stair.court?.shows("table.west.1") ?? false)
         XCTAssertFalse(stair.court?.shows("table.west.2") ?? true, "the stair does not see the moor")
         XCTAssertEqual(stair.table?.reports.map(\.report), ["beacon_statues"])

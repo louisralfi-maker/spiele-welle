@@ -5,34 +5,11 @@ import XCTest
 /// The rule that carries the Lantern Table (docs/QUESTS.md 4): a realm that never sends a lantern plays exactly as it
 /// does today. With the table's files loaded, the table uncovered on day 2 and every slip read at every step of every
 /// day (offers, blockers, the seal) but nobody sent, the reference bot's chapter is bit for bit the one without: the
-/// realm at every dawn is equal, and seed 1's nights read line for line what the tuning report printed in rounds
-/// `lh-snd-1` and `lh-snd-2` (the integration branch, build 86 plus sound), the line the tuning has held since
-/// `lh-m3-j3`'s targets.
+/// realm at every dawn is equal and every night's line the same. `testTodaysLineIsUnchanged` also checks the one pinned
+/// line (`TableNeutralityLine`, rounds `lh-snd-1` and `lh-snd-2`), so a change to the game itself shows there alone.
 final class TableNeutralityTests: XCTestCase {
-    /// The tuning report's "reference bot, seed 1" (rounds lh-snd-1 and lh-snd-2, identical): nights 1 to 19 with one
-    /// reference bot, night 20 with a fresh one, as `TuningRun.measure` plays it.
-    static let todaysLine: [String] = [
-        "night 1: held, spawned 25, killed 25, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 70, taxes 49, happiness 63, citizens 15, archers 3, guards 2, buildings 3",
-        "night 2: held, spawned 34, killed 34, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 91, taxes 61, happiness 67, citizens 16, archers 3, guards 2, buildings 4",
-        "night 3: held, spawned 38, killed 38, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 70, taxes 61, happiness 68, citizens 16, archers 4, guards 2, buildings 7",
-        "night 4: held, spawned 45, killed 45, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 58, taxes 50, happiness 69, citizens 17, archers 6, guards 2, buildings 8",
-        "night 5: held, spawned 48, killed 48, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 1, patches 0 | gold 95, taxes 62, happiness 71, citizens 18, archers 6, guards 2, buildings 9",
-        "night 6: held, spawned 55, killed 55, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 1, patches 0 | gold 79, taxes 69, happiness 74, citizens 20, archers 7, guards 2, buildings 9",
-        "night 7: held, spawned 49, killed 48, dissolved 1, walls lost 0, fallen 0, hearth 100, snuffed 1, patches 0 | gold 89, taxes 75, happiness 75, citizens 21, archers 7, guards 2, buildings 9",
-        "night 8: held, spawned 62, killed 62, dissolved 0, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 111, taxes 77, happiness 79, citizens 23, archers 8, guards 3, buildings 10",
-        "night 9: held, spawned 71, killed 70, dissolved 1, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 121, taxes 85, happiness 84, citizens 26, archers 9, guards 3, buildings 10",
-        "night 10: held, spawned 61, killed 57, dissolved 4, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 1 | gold 131, taxes 115, happiness 89, citizens 28, archers 9, guards 3, buildings 11",
-        "night 11: held, spawned 70, killed 69, dissolved 1, walls lost 0, fallen 0, hearth 100, snuffed 0, patches 0 | gold 213, taxes 132, happiness 93, citizens 28, archers 9, guards 3, buildings 12",
-        "night 12: held, spawned 66, killed 60, dissolved 6, walls lost 1, fallen 0, hearth 100, snuffed 2, patches 0 | gold 227, taxes 134, happiness 97, citizens 28, archers 9, guards 3, buildings 13",
-        "night 13: held, spawned 64, killed 54, dissolved 10, walls lost 0, fallen 0, hearth 100, snuffed 12, patches 0 | gold 312, taxes 135, happiness 99, citizens 28, archers 9, guards 3, buildings 13",
-        "night 14: held, spawned 78, killed 70, dissolved 8, walls lost 1, fallen 0, hearth 100, snuffed 11, patches 0 | gold 236, taxes 139, happiness 100, citizens 28, archers 9, guards 3, buildings 13",
-        "night 15: held, spawned 75, killed 66, dissolved 9, walls lost 1, fallen 1, hearth 100, snuffed 0, patches 0 | gold 330, taxes 139, happiness 98, citizens 28, archers 9, guards 2, buildings 13",
-        "night 16: held, spawned 79, killed 71, dissolved 8, walls lost 1, fallen 4, hearth 100, snuffed 2, patches 0 | gold 424, taxes 138, happiness 87, citizens 26, archers 6, guards 2, buildings 13",
-        "night 17: held, spawned 110, killed 102, dissolved 8, walls lost 2, fallen 1, hearth 100, snuffed 5, patches 0 | gold 127, taxes 127, happiness 83, citizens 27, archers 8, guards 1, buildings 16",
-        "night 18: held, spawned 114, killed 106, dissolved 8, walls lost 2, fallen 1, hearth 100, snuffed 13, patches 1 | gold 143, taxes 135, happiness 83, citizens 28, archers 8, guards 1, buildings 17",
-        "night 19: held, spawned 112, killed 98, dissolved 14, walls lost 1, fallen 0, hearth 100, snuffed 5, patches 3 | gold 164, taxes 145, happiness 91, citizens 28, archers 8, guards 2, buildings 18",
-        "night 20: held, spawned 101, killed 67, dissolved 34, walls lost 1, fallen 2, hearth 100, snuffed 4, patches 1 | gold 161, taxes 117, happiness 86, citizens 28, archers 12, guards 0, buildings 19",
-    ]
+    /// The line the tuning runs walk today: `TableNeutralityLine.pinned`, the one constant the join re-pins.
+    static var todaysLine: [String] { TableNeutralityLine.pinned }
 
     /// One dawn of a run: the realm then (or at its fall) and its line in the tuning report's words.
     struct Dawn {
@@ -134,11 +111,11 @@ final class TableNeutralityTests: XCTestCase {
         XCTAssertNil(last.final.table, "the bot never touches the table")
         var seen = Set<String>()
         let mine = Self.chapter(seed: 1, visit: false, seen: &seen).map(\.line)
-        XCTAssertEqual(mine, Self.todaysLine, "the test's loop is Sim.runToDawn's")
+        XCTAssertEqual(mine, lines, "the test's loop is Sim.runToDawn's")
     }
 
-    /// With the table's files loaded and read every day, and nobody sent, seed 1 walks today's line and every dawn
-    /// is the realm of the run without the table.
+    /// With the table's files loaded and read every day, and nobody sent, seed 1 walks the line of the run without
+    /// the table, and every dawn is that run's realm (no pinned number: the run without the table is the reference).
     func testWithTheTableLoadedAndNobodySentSeedOneWalksTodaysLine() {
         let catalog = ErrandCatalog.standard
         XCTAssertGreaterThanOrEqual(catalog.errands.count, 3, "the table's files loaded")
@@ -147,7 +124,8 @@ final class TableNeutralityTests: XCTestCase {
         var none = Set<String>()
         let without = Self.chapter(seed: 1, visit: false, catalog: catalog, seen: &none)
         attach("table-neutral-seed1", with.map(\.line))
-        XCTAssertEqual(with.map(\.line), Self.todaysLine)
+        XCTAssertEqual(with.map(\.line), without.map(\.line), "line for line the run without the table")
+        XCTAssertEqual(with.count, 20, "the whole chapter")
         XCTAssertEqual(with.count, without.count)
         for (a, b) in zip(with, without) {
             var plain = a.state
@@ -158,8 +136,10 @@ final class TableNeutralityTests: XCTestCase {
             plain.table = nil
             XCTAssertTrue(plain == b.state, "day \(b.state.day): the realm is the one without the table")
         }
-        XCTAssertTrue(seen.isSuperset(of: ["oil_round", "highcairn_count", "beacon_statues"]),
-                      "every slip of round 1 was on the table on its days (\(seen.sorted()))")
+        XCTAssertTrue(seen.isSuperset(of: ["oil_round", "mill_herbs", "ford_planks", "highcairn_count",
+                                           "goldenacre_cart", "stillmere_proof", "greybell_bell", "beaconfoot_smoke",
+                                           "beacon_statues"]),
+                      "every slip the reference realm's flags open was on the table on its days (\(seen.sorted()))")
     }
 
     /// The same for the other seeds T1 and T3 count, and one more.

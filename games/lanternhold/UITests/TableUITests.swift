@@ -3,7 +3,7 @@ import XCTest
 
 /// The Lantern Table's plain list (docs/QUESTS.md 7.2, round `lh-q-1`; `-GWScreen table`): on day 2 the table offers
 /// Pip's oil for the Round; one tap sends him (lantern 38 leaves its hook), "Call back" undoes it while the screen is
-/// open, he goes again; the reference bot plays on to dawn 3; Pip is home and his report waits first; its counsel
+/// open, he goes again; the reference bot plays on to dawn 3; Pip is home and his report waits first; its first
 /// choice lights Tallowford's lanes and the lantern hangs again. Every button is checked for 44 pt. Saves
 /// `<nn>-table-<what>-<lang>`: 40 to 43.
 @MainActor

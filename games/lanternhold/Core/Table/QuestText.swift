@@ -58,7 +58,7 @@ enum QuestText {
         var keys: [(key: String, limit: CourtValidator.Limit)] = []
         for key in ["table.title", "table.hooks", "table.out", "table.home", "table.lost", "table.late", "table.send",
                     "table.callback", "table.nolantern", "table.report", "table.homeday", "table.nothing",
-                    "table.cloth", "table.firstreport", "table.closed", "table.playdawn"] {
+                    "table.cloth", "table.firstreport", "table.closed", "table.playdawn", "table.beyond"] {
             keys.append((key, ui))
         }
         for key in ["table.nights.one", "table.nights.other", "table.back", "table.risk.dark", "table.risk.few",

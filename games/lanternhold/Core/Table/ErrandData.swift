@@ -7,9 +7,13 @@ import Foundation
 // reads like an audience card.
 
 /// The kind of a carved place: Lanternhold itself (the hook rail is drawn above it), the valley in the table's middle
-/// third, a house of the Morninglands east, the west under the dark beacon (QUESTS.md 3.1).
+/// third, a house of the Morninglands east, the west under the dark beacon (QUESTS.md 3.1), and the bare planed wood
+/// beyond it (the Moor Road), where only a party that does not come home this chapter stands (sending 13).
 enum TablePlaceKind: String, Codable, Sendable, Equatable, CaseIterable {
-    case home, valley, house, west
+    case home, valley, house, west, beyond
+
+    /// Home and the bare wood take no nights: nobody is sent home, and nobody comes back from beyond this chapter.
+    var takesNights: Bool { self != .home && self != .beyond }
 }
 
 /// One carved place on the table (its name is `place.<id>.name` in `Quests.xcstrings`; proper names stay as they are
@@ -184,11 +188,15 @@ struct Errand: Codable, Sendable, Equatable {
     var atReturn: PetitionEffect?
     /// The report of a lantern that did not come home (left out: the table's `lantern_lost`).
     var lostReport: String?
+    /// True: the party does not come home this chapter (sending 13, Hild's ride under lantern 41). Only for a sending
+    /// that is not offered: the table follows a petition's choice (`ErrandEngine.follow`), its order costs nothing and
+    /// names no report.
+    var staysOut: Bool?
 
     init(id: String, number: Int, place: String, chapter: Int? = nil, days: [Int], requires: [String]? = nil,
          requiresAny: [String]? = nil, forbids: [String]? = nil, heard: [String]? = nil, world: [String]? = nil,
          unlocked: [String]? = nil, lantern: Int? = nil, offered: Bool? = nil, orders: [ErrandOrder],
-         atReturn: PetitionEffect? = nil, lostReport: String? = nil) {
+         atReturn: PetitionEffect? = nil, lostReport: String? = nil, staysOut: Bool? = nil) {
         self.id = id
         self.number = number
         self.place = place
@@ -205,7 +213,12 @@ struct Errand: Codable, Sendable, Equatable {
         self.orders = orders
         self.atReturn = atReturn
         self.lostReport = lostReport
+        self.staysOut = staysOut
     }
+
+    /// Shown at the table but never offered there (sending 13 follows `varn_ride`'s third choice).
+    var isFollowed: Bool { offered == false }
+    var staysOutThisChapter: Bool { staysOut == true }
 
     var dayRange: ClosedRange<Int> {
         let first = days.first ?? 0
@@ -223,7 +236,7 @@ struct Errand: Codable, Sendable, Equatable {
 
     static let keys: Set<String> = ["id", "number", "place", "chapter", "days", "requires", "requiresAny", "forbids",
                                     "heard", "world", "unlocked", "lantern", "offered", "orders", "atReturn",
-                                    "lostReport"]
+                                    "lostReport", "staysOut"]
 }
 
 /// One button of a report card: its label key and effect, written side by side like a petition's choice, and the

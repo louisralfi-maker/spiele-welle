@@ -34,7 +34,10 @@ final class ErrandDataTests: XCTestCase {
         XCTAssertEqual(ErrandCatalog.standard, loaded.catalog, "the game plays with it")
         XCTAssertEqual(loaded.catalog.lanterns, [38, 39, 40])
         XCTAssertEqual(loaded.catalog.reserved, [41])
-        XCTAssertEqual(loaded.catalog.places.count, 11, "eleven carved places, Lanternhold among them")
+        XCTAssertEqual(loaded.catalog.places.filter { $0.kind != .beyond }.count, 11,
+                       "eleven carved places, Lanternhold among them")
+        XCTAssertEqual(loaded.catalog.places.filter { $0.kind == .beyond }.map(\.id), ["moor_road"],
+                       "and the bare wood beyond the beacon")
         XCTAssertNotNil(loaded.catalog.report(ErrandCatalog.lostReportID))
     }
 

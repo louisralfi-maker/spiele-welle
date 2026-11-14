@@ -91,6 +91,348 @@
         }
       }
     },
+    "errand.beaconfoot_smoke.hook1" : {
+      "comment" : "Sending 10: first line (Beaconfoot, the keepers' hamlet at the Throat's mouth).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Wache sah Rauch unter dem dunklen Leuchtfeuer, bei Beaconfoot."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The watch saw smoke under the dark beacon, at Beaconfoot."
+          }
+        }
+      }
+    },
+    "errand.beaconfoot_smoke.hook2" : {
+      "comment" : "Sending 10: second line.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dort kocht noch jemand."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Somebody is still cooking there."
+          }
+        }
+      }
+    },
+    "errand.beaconfoot_smoke.o1" : {
+      "comment" : "Sending 10: order.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von der Straße aus schauen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Look from the road."
+          }
+        }
+      }
+    },
+    "errand.beaconfoot_smoke.o2" : {
+      "comment" : "Sending 10: order.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In die Höhlen gehen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go into the caves."
+          }
+        }
+      }
+    },
+    "errand.beaconfoot_smoke.title" : {
+      "comment" : "Sending 10: title on its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rauch bei Beaconfoot"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smoke at Beaconfoot"
+          }
+        }
+      }
+    },
+    "errand.ford_planks.hook1" : {
+      "comment" : "Sending 3: first line of its slip (the Wend is the valley's river).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Furt über die Wend holt sich jedes Frühjahr einen Karren."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The ford over the Wend takes a cart every spring."
+          }
+        }
+      }
+    },
+    "errand.ford_planks.hook2" : {
+      "comment" : "Sending 3: second line of its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Stümpfe der alten Brücke stehen noch. Es fehlen nur Planken."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The old bridge's stumps still stand. They want planks."
+          }
+        }
+      }
+    },
+    "errand.ford_planks.title" : {
+      "comment" : "Sending 3: title on its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planken auf die Stümpfe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Planks on the Stumps"
+          }
+        }
+      }
+    },
+    "errand.goldenacre_cart.hook1" : {
+      "comment" : "Sending 6: first line (Lorenz Pell is House Oxmoor's steward).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marek trägt Pells Briefe nach Osten und liest sie unterwegs."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marek carries Pell's letters east and reads them on the way."
+          }
+        }
+      }
+    },
+    "errand.goldenacre_cart.hook2" : {
+      "comment" : "Sending 6: second line.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebt ihm unsere mit, dann liest er ihre."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send ours with him, and he will read theirs."
+          }
+        }
+      }
+    },
+    "errand.goldenacre_cart.o1" : {
+      "comment" : "Sending 6: order (the thirty gold of Oxmoor's loan).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Darlehen zurückzahlen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pay the loan back."
+          }
+        }
+      }
+    },
+    "errand.goldenacre_cart.o2" : {
+      "comment" : "Sending 6: order (the Lamp Tithe every house owes).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Liste des Lichtzehnts mitgeben"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carry the lamp tithe list."
+          }
+        }
+      }
+    },
+    "errand.goldenacre_cart.title" : {
+      "comment" : "Sending 6: title on its slip (Marek, the travelling merchant).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mareks Karren nach Goldenacre"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marek's Cart to Goldenacre"
+          }
+        }
+      }
+    },
+    "errand.greybell_bell.hook1" : {
+      "comment" : "Sending 9: first line (Lord Edric the Shut, year 412, the Dark Year).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Burgherr Edric schickte unsere erste Glocke fort. Sie läutete von selbst."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lord Edric sent our first bell away. It rang by itself."
+          }
+        }
+      }
+    },
+    "errand.greybell_bell.hook2" : {
+      "comment" : "Sending 9: second line (Dame Orla Lorn of Greybell).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dame Orla sagt, es ist Zeit, dass sie heimkommt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dame Orla says it is time it came home."
+          }
+        }
+      }
+    },
+    "errand.greybell_bell.title" : {
+      "comment" : "Sending 9: title on its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die erste Glocke"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The First Bell"
+          }
+        }
+      }
+    },
+    "errand.hemmet_sentence.hook1" : {
+      "comment" : "Sending 4: first line of its slip (Finch, the bard; the Returned each say one thing).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finch schreibt auf, was die Heimgekehrten sagen, Wort für Wort."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finch writes down what the Returned say, word for word."
+          }
+        }
+      }
+    },
+    "errand.hemmet_sentence.hook2" : {
+      "comment" : "Sending 4: second line of its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hemmet an der Mühle sagt seit vierzig Jahren nur einen Satz."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hemmet at the mill has said one thing for forty years."
+          }
+        }
+      }
+    },
+    "errand.hemmet_sentence.title" : {
+      "comment" : "Sending 4: title on its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hemmets Satz"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hemmet's Sentence"
+          }
+        }
+      }
+    },
     "errand.highcairn_count.hook1" : {
       "comment" : "Sending 5: first line of its slip (Highcairn's levy comes in two halves; the second for the castle's Count).",
       "extractionState" : "manual",
@@ -181,6 +523,204 @@
         }
       }
     },
+    "errand.lantern_41.hook1" : {
+      "comment" : "Sending 13: first line (Hild Varn's own words in the audience varn_ride).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebt mir zwei Reiter und eine nummerierte Laterne."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Give me two riders and a numbered lantern."
+          }
+        }
+      }
+    },
+    "errand.lantern_41.hook2" : {
+      "comment" : "Sending 13: second line.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ich reite heute Nacht am dunklen Leuchtfeuer vorbei und finde ihn."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I will ride out past the dark beacon tonight and find him."
+          }
+        }
+      }
+    },
+    "errand.lantern_41.title" : {
+      "comment" : "Sending 13: title of Hild Varn's ride (shown on the table, never offered).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne einundvierzig"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern Forty-One"
+          }
+        }
+      }
+    },
+    "errand.ludo_number.hook1" : {
+      "comment" : "Sending 12: first line.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ser Ludo bittet, die Westtür des Leuchtfeuers zu lesen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ser Ludo asks to read the beacon's west door."
+          }
+        }
+      }
+    },
+    "errand.ludo_number.hook2" : {
+      "comment" : "Sending 12: second line (the beacon's keepers).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Hüter schrieben jede Laterne, die nach Westen ging, mit Kreide daran."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The keepers chalked there every lantern that went west."
+          }
+        }
+      }
+    },
+    "errand.ludo_number.o1" : {
+      "comment" : "Sending 12: order.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit einem Späher gehen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go with a scout."
+          }
+        }
+      }
+    },
+    "errand.ludo_number.o2" : {
+      "comment" : "Sending 12: order.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihn allein gehen lassen, wie er bittet"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let him go alone, as he asks."
+          }
+        }
+      }
+    },
+    "errand.ludo_number.title" : {
+      "comment" : "Sending 12: title on its slip (Ser Ludo, the wandering knight).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ludos Nummer"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ludo's Number"
+          }
+        }
+      }
+    },
+    "errand.mill_herbs.hook1" : {
+      "comment" : "Sending 2: first line of its slip (Hemmet is one of the Returned).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der alte Hemmet an der Mühle zieht grauen Salbei gegen den Aschehusten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Old Hemmet at the mill grows grey sage for the ash cough."
+          }
+        }
+      }
+    },
+    "errand.mill_herbs.hook2" : {
+      "comment" : "Sending 2: second line of its slip (Tamsin, the cook).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamsin hat einen Korb, aber keine Beine übrig."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamsin has a basket and no legs to spare."
+          }
+        }
+      }
+    },
+    "errand.mill_herbs.title" : {
+      "comment" : "Sending 2: title on its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kräuter von der Mühle"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herbs from the Mill"
+          }
+        }
+      }
+    },
     "errand.oil_round.hook1" : {
       "comment" : "Sending 1: first line of its slip.",
       "extractionState" : "manual",
@@ -231,6 +771,150 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Oil for the Round"
+          }
+        }
+      }
+    },
+    "errand.saltgate_grey.hook1" : {
+      "comment" : "Sending 7: first line (Saltgate is House Brine's harbour).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Saltgate spült das Meer graue Laternen an, mit jeder Flut mehr."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grey lanterns wash ashore at Saltgate, more with each tide."
+          }
+        }
+      }
+    },
+    "errand.saltgate_grey.hook2" : {
+      "comment" : "Sending 7: second line (Ansel Quay, House Brine's envoy).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ansel Quay zeigt einem der Unseren, wo."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ansel Quay will show one of ours where."
+          }
+        }
+      }
+    },
+    "errand.saltgate_grey.title" : {
+      "comment" : "Sending 7: title on its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die grauen Laternen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Grey Lanterns"
+          }
+        }
+      }
+    },
+    "errand.stillmere_proof.hook1" : {
+      "comment" : "Sending 8: first line (Ebba Calder, Stillmere's auditor, stood a night on the wall).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ebba Calder hat ihren Bericht versiegelt: eine Nacht, sechzig Statuen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ebba Calder has sealed her report: one night, sixty statues."
+          }
+        }
+      }
+    },
+    "errand.stillmere_proof.hook2" : {
+      "comment" : "Sending 8: second line (only proof in a Calder hand counts there).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stillmere zahlt nur für Beweise von eigener Hand."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stillmere pays for proof in one of its own hands."
+          }
+        }
+      }
+    },
+    "errand.stillmere_proof.o1" : {
+      "comment" : "Sending 8: order.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "So schicken, wie sie es schrieb"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send it as she wrote it."
+          }
+        }
+      }
+    },
+    "errand.stillmere_proof.o2" : {
+      "comment" : "Sending 8: order.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Statuen herausstreichen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strike the statues from it."
+          }
+        }
+      }
+    },
+    "errand.stillmere_proof.title" : {
+      "comment" : "Sending 8: title on its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beweis für Stillmere"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proof for Stillmere"
           }
         }
       }
@@ -339,6 +1023,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lanternhold"
+          }
+        }
+      }
+    },
+    "place.moor_road.name" : {
+      "comment" : "Table: the bare wood at the table's west edge, where lantern 41's token stands.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Moorweg"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Moor Road"
           }
         }
       }
@@ -524,19 +1226,19 @@
       }
     },
     "report.beacon_statues.text" : {
-      "comment" : "Sending 11 (from the stair), the scout's report.",
+      "comment" : "Sending 11: the scout's report from the beacon's stair (two dusks).",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Laterne {lantern} ist heim. Von der Treppe aus zählte ich die steinernen Herren am Moorweg, jeder mit seiner Steinlaterne, alle uns zugewandt. Sechzig, und ein leerer Sockel. Das Buch sagt vierzig."
+            "value" : "Laterne {lantern} ist zurück. Zwei Dämmerungen auf der Treppe, und zweimal zählte ich die steinernen Herren am Moorweg, jeder mit seiner Steinlaterne, alle uns zugewandt. Sechzig, und ein leerer Sockel. Das Buch sagt vierzig."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lantern {lantern} is home. From the stair I counted the stone lords along the Moor Road, each with its stone lantern, all facing us. Sixty, and one empty plinth. The book says forty."
+            "value" : "Lantern {lantern} is home. Two dusks on the stair, and I counted the stone lords on the Moor Road twice, each with its stone lantern, all facing us. Sixty, and one empty plinth. The book says forty."
           }
         }
       }
@@ -632,19 +1334,667 @@
       }
     },
     "report.beacon_statues_lamp.text" : {
-      "comment" : "Sending 11 (from the lamp room), the scout's report.",
+      "comment" : "Sending 11: the scout's report from the lamp room.",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Laterne {lantern} ist heim, und ich hatte nicht mehr daran geglaubt. Von der Lampenstube sieht man über die sechzig Statuen hinaus: den Rand des Moors und weit draußen ein niedriges Licht, das nie flackert. Es brannte die ganze Nacht."
+            "value" : "Laterne {lantern} ist zurück, und ich hatte nicht mehr daran geglaubt. Von der Lampenstube sieht man über die sechzig Statuen hinaus: den Rand des Moors und weit draußen ein niedriges Licht, das nie flackert. Es brannte die ganze Nacht."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lantern {lantern} is home, and I did not think it would be. From the lamp room you see past the sixty statues: the moor's edge, and far out one low light that never flickers. It burned all night."
+          }
+        }
+      }
+    },
+    "report.beaconfoot_caves.c1" : {
+      "comment" : "Sending 10: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie hinter die Mauer holen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bring them inside the wall."
+          }
+        }
+      }
+    },
+    "report.beaconfoot_caves.c2" : {
+      "comment" : "Sending 10: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brot dalassen. Sie kommen nicht"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave them bread. They will not come."
+          }
+        }
+      }
+    },
+    "report.beaconfoot_caves.r1" : {
+      "comment" : "Sending 10: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brannock geht selbst, mit Laterne und Decke. Bei Dämmerung sitzt die Großmutter an Tamsins Feuer und zählt noch leise vor sich hin."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brannock goes himself with a lantern and a blanket. By dusk the grandmother sits at Tamsin's fire, still counting under her breath."
+          }
+        }
+      }
+    },
+    "report.beaconfoot_caves.r2" : {
+      "comment" : "Sending 10: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mittags geht ein Sack Brot den Schlund hinauf. Am Morgen ist er fort, und auf dem Stein steht ein neuer Rußstrich."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A sack of bread goes up the Throat at noon. By morning it is gone, and a new soot mark stands on the stone."
+          }
+        }
+      }
+    },
+    "report.beaconfoot_caves.text" : {
+      "comment" : "Sending 10: the scouts' report from the caves.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist zurück, und wir beide mit ihr. Tief in den Höhlen waren drei von den Leuten der Hüter: eine Großmutter und zwei Jungen, dünn wie Dochte. Mit Fremden wollten sie nicht kommen. Sie zählen die Tage mit Ruß auf den Fels."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home, and both of us with it. Deep in the caves were three of the keepers' people: a grandmother and two boys, thin as wicks. They would not come with strangers. They count the days on the rock in soot."
+          }
+        }
+      }
+    },
+    "report.beaconfoot_road.c1" : {
+      "comment" : "Sending 10: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dem Tor sagen, dass sie kommen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tell the gate to expect them."
+          }
+        }
+      }
+    },
+    "report.beaconfoot_road.c2" : {
+      "comment" : "Sending 10: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch nichts sagen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Say nothing yet."
+          }
+        }
+      }
+    },
+    "report.beaconfoot_road.r1" : {
+      "comment" : "Sending 10: reaction (Brannock, captain of the guard).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brannock lässt jeden Abend eine Lampe ans Schlundtor hängen, niedrig, wo ein Kind sie sieht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brannock has a lamp hung at the Throat gate each dusk, low, where a child would see it."
+          }
+        }
+      }
+    },
+    "report.beaconfoot_road.r2" : {
+      "comment" : "Sending 10: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es wird nichts gesagt. In der Dämmerung bezieht der Späher ungefragt den Westposten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing is said. At dusk the scout takes the west post without being asked."
+          }
+        }
+      }
+    },
+    "report.beaconfoot_road.text" : {
+      "comment" : "Sending 10: the scout's report from the road.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist zurück. Ich blieb auf der Straße, wie befohlen. Ein kaltes Feuer auf dem Platz der Hüter, ein Topf noch darauf. Spuren von sechs oder sieben, die in den Fels führen, kleine darunter. Auf mein Rufen antwortete keiner."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home. I kept to the road, as ordered. A cold fire in the keepers' square, a pot still on it. Tracks of six or seven going into the rock, small ones among them. Nobody answered when I called."
+          }
+        }
+      }
+    },
+    "report.ford_planks.c1" : {
+      "comment" : "Sending 3: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Für alle öffnen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open it to all."
+          }
+        }
+      }
+    },
+    "report.ford_planks.c2" : {
+      "comment" : "Sending 3: choice (Odile's counsel while it pays: a toll).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einen Zollpfahl setzen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set a toll post."
+          }
+        }
+      }
+    },
+    "report.ford_planks.r1" : {
+      "comment" : "Sending 3: reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bis Mittag ist ein Bauernkarren hinüber, dann eine Hochzeit, dann jedes Kind aus Tallowford, zweimal."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By noon a farmer's cart has crossed, then a wedding, then every child in Tallowford, twice."
+          }
+        }
+      }
+    },
+    "report.ford_planks.r2" : {
+      "comment" : "Sending 3: reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Am anderen Ende steht bald ein Zollpfahl. Die Fuhrleute zahlen und murren bis zum Markt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A toll post goes up at the far end. The carters pay, and grumble all the way to market."
+          }
+        }
+      }
+    },
+    "report.ford_planks.text" : {
+      "comment" : "Sending 3: the builder's report (Lady Oriel built the castle's lines in year 118).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist zurück. Die Planken sind verdübelt und tragen einen beladenen Karren; wir sind zweimal hinübergefahren. Unter dem Moos auf den Stümpfen fanden wir ein Steinmetzzeichen: eine Laterne, gehauen von Burgherrin Oriels Leuten. Wer darf hinüber?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home. The span is pegged and holds a laden cart; we drove one over twice to be sure. Under the moss on the stumps we found a mason's mark: a lantern, cut by Lady Oriel's people. Who may cross?"
+          }
+        }
+      }
+    },
+    "report.goldenacre.c1" : {
+      "comment" : "Sending 6: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pells Brief im Saal vorlesen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read Pell's letter aloud in the hall."
+          }
+        }
+      }
+    },
+    "report.goldenacre.c2" : {
+      "comment" : "Sending 6: choice (Odile keeps the family book).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Familienbuch verschließen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lock it in the family book."
+          }
+        }
+      }
+    },
+    "report.goldenacre.r1" : {
+      "comment" : "Sending 6: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marek liest ihn mit Pells Stimme vor, bis zum kleinen Hüsteln. Der Saal lacht, und bei Dämmerung weiß die Stadt, was Goldenacre geboten hat."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marek reads it in Pell's own voice, down to the little cough. The hall laughs, and by dusk the town knows what Goldenacre offered."
+          }
+        }
+      }
+    },
+    "report.goldenacre.r2" : {
+      "comment" : "Sending 6: reaction (Odile, dry).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile schließt den Brief ins Familienbuch und das Buch in ihre Truhe. „Soll er schreiben“, sagt sie. „Tinte hält sich.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile locks the letter in the family book, and the book in her chest. “Let him write,” she says. “Ink keeps.”"
+          }
+        }
+      }
+    },
+    "report.goldenacre_list.text" : {
+      "comment" : "Sending 6: Marek's report after the tithe list ('Your Radiance' is his flattery).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist zurück, Eure Strahlkraft, und Eure Zehntliste, von Lady Petra ungelesen unterschrieben. In derselben Nacht schrieb Pell an drei Häuser. Ich las die Briefe, versteht sich. Er bietet jedem einen Anteil am Zehnt des Tals, sobald die Tür den Herrn wechselt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home, Your Radiance, and your tithe list, signed by Lady Petra unread. Pell wrote to three houses that night. I read the letters, naturally. He offers each a share of the valley's tithe once the door changes hands."
+          }
+        }
+      }
+    },
+    "report.goldenacre_paid.text" : {
+      "comment" : "Sending 6: Marek's report after paying the loan back.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist zurück. Ich zählte Pell dreißig Gold auf den Tisch, Münze für Münze, unter Lady Petras Augen. Sie zerriss das Papier selbst. Pell lächelte die ganze Zeit. Auf dem Rückweg las ich seine Briefe: Er bietet drei Häusern einen Anteil an unserem Zehnt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home. I counted thirty gold onto Pell's desk, coin by coin, while Lady Petra watched. She tore the paper herself. Pell smiled throughout. On the road back I read his letters: he offers three houses a share of our tithe."
+          }
+        }
+      }
+    },
+    "report.greybell_bell.c1" : {
+      "comment" : "Sending 9: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufhängen. Läuten lassen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hang it. Let it ring."
+          }
+        }
+      }
+    },
+    "report.greybell_bell.c2" : {
+      "comment" : "Sending 9: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufhängen und den Klöppel binden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hang it and tie the clapper."
+          }
+        }
+      }
+    },
+    "report.greybell_bell.r1" : {
+      "comment" : "Sending 9: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram hängt sie bis zum Abend in den Kapellengiebel. Sie läutet nicht. Die kleine Lampenläuferin sitzt bis zum Horn darunter und wartet."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram hangs it in the chapel gable by evening. It does not ring. The lamp-runner sits under it until the horn, waiting."
+          }
+        }
+      }
+    },
+    "report.greybell_bell.r2" : {
+      "comment" : "Sending 9: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram bindet den Klöppel mit gutem Seil und einem Schmiedeknoten. In der Nacht zittert die Glocke einmal dagegen, und das Seil hält."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram ties the clapper with good rope and a smith's knot. In the night the bell shivers against it once, and the rope holds."
+          }
+        }
+      }
+    },
+    "report.greybell_bell.text" : {
+      "comment" : "Sending 9: the report of Dame Orla's great-grandchild, a girl, who comes with the bell as the lord's lamp-runner.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist zurück, und die Glocke, und ich! Urgroßmutter sagt, ich bin jetzt Eure Lampenläuferin. Unterwegs hat die Glocke in der Nacht einmal geläutet, und keiner war am Seil. Die Träger hätten sie fast fallen lassen. Wo kommt sie hin?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home, and the bell, and me! Great-grandmother says I am your lamp-runner now. On the road the bell rang once in the night, with nobody near the rope. The bearers nearly dropped it. Where does it go?"
+          }
+        }
+      }
+    },
+    "report.hemmet_gone.c1" : {
+      "comment" : "Sending 4: choice (the Flame is the hearth fire).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seinen Namen an der Flamme sagen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Say his name at the Flame."
+          }
+        }
+      }
+    },
+    "report.hemmet_gone.c2" : {
+      "comment" : "Sending 4: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Hemd auf der Leine lassen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave the shirt on the line."
+          }
+        }
+      }
+    },
+    "report.hemmet_gone.r1" : {
+      "comment" : "Sending 4: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mutter Hesper sagt ihn in der Dämmerung. In Tallowford bleibt ein Fenster für ihn dunkel, und keiner fragt, wessen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mother Hesper says it at dusk. In Tallowford a window stays dark for him, and nobody asks whose."
+          }
+        }
+      }
+    },
+    "report.hemmet_gone.r2" : {
+      "comment" : "Sending 4: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niemand nimmt es ab. Im Herbst nicken die Fuhrleute dem Mühlenhemd zu, wie man einem alten Mann an seiner Tür zunickt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nobody takes it down. By autumn the carters nod to the mill shirt as they pass, the way one nods to an old man at his door."
+          }
+        }
+      }
+    },
+    "report.hemmet_gone.text" : {
+      "comment" : "Sending 4: Finch's report when the cough took Hemmet first.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist zurück, aber ohne Satz. Die Flügel der Mühle waren festgebunden. Der Husten hat Hemmet vor zwei Tagen geholt. Seine Wäscheleine war noch gespannt, ein Hemd daran."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home, and I bring no sentence. The mill's sails were tied. The cough took Hemmet two days ago. His washing line was still up, with one shirt on it."
+          }
+        }
+      }
+    },
+    "report.hemmet_sentence.c1" : {
+      "comment" : "Sending 4: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Saal singen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sing it in the hall."
+          }
+        }
+      }
+    },
+    "report.hemmet_sentence.c2" : {
+      "comment" : "Sending 4: choice (Odile keeps the family book).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ins Familienbuch schreiben"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Write it in the family book."
+          }
+        }
+      }
+    },
+    "report.hemmet_sentence.r1" : {
+      "comment" : "Sending 4: reaction (the sayings of the Returned in a row).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finch singt die Sätze hintereinander: eine Küche, die Wäsche, warmes Brot, eine Treppe, eine blaue Tür. Der Saal lacht über die Weise, dann nicht mehr."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finch sings the sayings in a row: a kitchen, the washing, warm bread, a stair, a blue door. The hall laughs at the tune, then stops."
+          }
+        }
+      }
+    },
+    "report.hemmet_sentence.r2" : {
+      "comment" : "Sending 4: reaction (Tamsin's mother was one of the Returned).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile schreibt ihn ins Familienbuch, unter den von Tamsins Mutter: „Das Brot war noch warm.“ Darunter lässt sie Platz."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile writes it in the family book, under the one Tamsin's mother said: “The bread was still warm.” She leaves room below."
+          }
+        }
+      }
+    },
+    "report.hemmet_sentence.text" : {
+      "comment" : "Sending 4: Finch's report.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist zurück. Hemmet gab mir seinen Satz bei einem Becher von etwas, das ich nicht nenne: „Die Wäsche hing noch auf der Leine.“ Dann nahm er meine Hand und sagte es noch einmal, langsamer, als hätte ich es falsch verstanden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home. Hemmet gave me his sentence over a cup of something I will not name: “The washing was still on the line.” Then he took my hand and said it again, slower, as if I had got it wrong."
           }
         }
       }
@@ -728,7 +2078,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Laterne {lantern} ist heim. Lord Varn las unsere geschönte Zählung und zählte dann selbst die Laternen an unseren Sätteln. Lange sagte er nichts. Dann sagte er, er werde einen Bogenschützen schicken, nicht zwei."
+            "value" : "Laterne {lantern} ist zurück. Lord Varn las unsere geschönte Zählung und zählte dann selbst die Laternen an unseren Sätteln. Lange sagte er nichts. Dann sagte er, er werde einen Bogenschützen schicken, nicht zwei."
           }
         },
         "en" : {
@@ -782,13 +2132,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zwei Bogenschützen aus Highcairn reiten in der nächsten Dämmerung ein, graue Steinmale auf den Mänteln. Hild Varn stellt sie selbst auf."
+            "value" : "Zwei Bogenschützen aus Highcairn reiten bei Einbruch der Dämmerung ein, graue Steinmale auf den Mänteln. Hild Varn stellt sie selbst auf."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Two of Highcairn's archers ride in at the next dusk, grey cairns on their cloaks. Hild Varn posts them herself."
+            "value" : "Two of Highcairn's archers ride in at dusk, grey cairns on their cloaks. Hild Varn posts them herself."
           }
         }
       }
@@ -818,7 +2168,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Laterne {lantern} ist heim. Lord Varn las unsere Zählung zweimal und zählte dann selbst die Laternen an unseren Sätteln. „Haus Lantern zählt noch immer ehrlich“, sagte er. Der Rest des Aufgebots wartet an seinem Tor."
+            "value" : "Laterne {lantern} ist zurück. Lord Varn las unsere Zählung zweimal und zählte dann selbst die Laternen an unseren Sätteln. „Haus Lantern zählt noch immer ehrlich“, sagte er. Der Rest des Aufgebots wartet an seinem Tor."
           }
         },
         "en" : {
@@ -915,6 +2265,258 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lantern {lantern} did not come home. The watch at the gate waited until full light. I have written the names down for the Flame."
+          }
+        }
+      }
+    },
+    "report.ludo_lost.c2" : {
+      "comment" : "Sending 12: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seinen Helm an den Haken hängen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hang his helmet on the hook."
+          }
+        }
+      }
+    },
+    "report.ludo_lost.r1" : {
+      "comment" : "Sending 12: reaction (the Flame is the hearth fire).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In der Dämmerung liest Mutter Hesper seinen Namen an der Flamme: Ser Ludo von den Sieben Hügeln, wie er ihn nannte."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "At dusk Mother Hesper reads his name at the Flame: Ser Ludo of the Seven Hills, as he gave it."
+          }
+        }
+      }
+    },
+    "report.ludo_lost.r2" : {
+      "comment" : "Sending 12: reaction (his helmet was always far too big).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram hängt den Helm, wo die Laterne war. Auch für den Haken ist er zu groß."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram hangs the helmet where the lantern was. It is too big for the hook as well."
+          }
+        }
+      }
+    },
+    "report.ludo_lost.text" : {
+      "comment" : "Sending 12: Brannock's report when Ser Ludo, sent alone, does not come back.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ser Ludo kam nicht vom Leuchtfeuer zurück. Im ersten Licht stand sein Helm auf der Stufe der Westtür, nach Hause gewandt. Laterne {lantern} war nicht dabei."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ser Ludo did not come back from the beacon. At first light his helmet stood on the step of the west door, facing home. Lantern {lantern} was not with it."
+          }
+        }
+      }
+    },
+    "report.ludo_number.c1" : {
+      "comment" : "Sending 12: choice (he joins the house's guard).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihn zum Ritter dieses Hauses machen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Make him a knight of this house."
+          }
+        }
+      }
+    },
+    "report.ludo_number.c2" : {
+      "comment" : "Sending 12: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihm die Nummer überlassen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Give him the number to keep."
+          }
+        }
+      }
+    },
+    "report.ludo_number.r1" : {
+      "comment" : "Sending 12: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ser Ludo kniet am Herd, und der Helm fällt herunter. Als er aufsteht, lächelt niemand im Saal, Pip am wenigsten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ser Ludo kneels at the hearth and the helmet falls off. When he rises, nobody in the hall smiles, and Pip least of all."
+          }
+        }
+      }
+    },
+    "report.ludo_number.r2" : {
+      "comment" : "Sending 12: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ser Ludo schreibt die Siebzehn mit Kreide in seinen Helm, wo nur er sie sieht. Danach trägt er ihn gerader."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ser Ludo chalks seventeen inside his helmet, where only he will see it. He wears it straighter after that."
+          }
+        }
+      }
+    },
+    "report.ludo_number.text" : {
+      "comment" : "Sending 12: Ser Ludo's report (sincere, grand; he does not say whose number it is).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist zurück, {edler Herr|edle Herrin}, und ich mit ihr! Die Tür war, wie die Hüter sie verließen. Unten auf der Westseite, in alter Kreide: siebzehn. Jede Zahl ringsum ist durchgestrichen. Diese nicht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home, good my {lord|lady}, and I with it! The door was as the keepers left it. Low on the west side, in old chalk: seventeen. Every number round it is struck through. That one is not."
+          }
+        }
+      }
+    },
+    "report.mill_herbs.c1" : {
+      "comment" : "Sending 2: choice (a herb bed in the town garden; keeps the ash cough away).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den Kindern zum Pflanzen geben"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Give it to the children to plant."
+          }
+        }
+      }
+    },
+    "report.mill_herbs.c2" : {
+      "comment" : "Sending 2: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Für die Kranken auf der Mauer trocknen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dry it for the sick on the wall."
+          }
+        }
+      }
+    },
+    "report.mill_herbs.r1" : {
+      "comment" : "Sending 2: reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bis zur Dämmerung haben die Kinder ein Salbeibeet beim ersten Haus und einen Streit, wessen Reihe am geradesten ist."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By dusk the children have a sage bed by the first house, and a quarrel over whose row is straightest."
+          }
+        }
+      }
+    },
+    "report.mill_herbs.r2" : {
+      "comment" : "Sending 2: reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamsin hängt den Salbei büschelweise über die Tür der Wachstube. Eine Woche riecht die Mauer danach, und keiner beschwert sich."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamsin hangs the sage in bunches over the barracks door. The wall smells of it for a week, and nobody complains."
+          }
+        }
+      }
+    },
+    "report.mill_herbs.text" : {
+      "comment" : "Sending 2: the guard's report.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist zurück, und Tamsins Korb ist voll. Der alte Hemmet hat den Salbei selbst geschnitten und wollte nichts dafür. Von der Mühle zum Apfelbaum hat er eine Wäscheleine gespannt. Nichts hängt daran."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home, and Tamsin's basket is full. Old Hemmet cut the sage himself and would take nothing for it. He has a washing line strung from the mill to the apple tree. Nothing hangs on it."
           }
         }
       }
@@ -1016,13 +2618,247 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Laterne {lantern} ist heim, Eure Dochtheit, und ich auch, worauf keiner gewettet hat. Zwei Fässer neues Öl, ein Karren, ein Narr mit Blasen. Die Lichtzieher fragen, wo es brennen soll."
+            "value" : "Laterne {lantern} ist zurück, Eure Dochtheit, und ich auch, worauf keiner gewettet hat. Zwei Fässer neues Öl, ein Karren, ein Narr mit Blasen. Die Lichtzieher fragen, wo es brennen soll."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lantern {lantern} is home, Your Wickship, and so am I, which nobody bet on. Two barrels of new oil, one cart, one fool with blisters. The chandlers ask where it should burn."
+          }
+        }
+      }
+    },
+    "report.saltgate_grey.c1" : {
+      "comment" : "Sending 7: choice (shelter behind the wall if the coast falls).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Küste unser Tor versprechen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Promise the coast our gate."
+          }
+        }
+      }
+    },
+    "report.saltgate_grey.c2" : {
+      "comment" : "Sending 7: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nichts versprechen. Ölgeld schicken"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Promise nothing. Send oil money."
+          }
+        }
+      }
+    },
+    "report.saltgate_grey.r1" : {
+      "comment" : "Sending 7: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ansel Quay reitet nach Süden, das Versprechen in den Mantel genäht. Bram stellt die graue Laterne zu den anderen und sagt gar nichts."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ansel Quay rides south with the promise sewn into his coat. Bram sets the grey lantern by the others and says nothing at all."
+          }
+        }
+      }
+    },
+    "report.saltgate_grey.r2" : {
+      "comment" : "Sending 7: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ansel Quay zählt das Ölgeld zweimal und dankt Euch zweimal. Bram stellt die graue Laterne aufs Regal, die Scharniere zur Wand."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ansel Quay counts the oil money twice and thanks you twice. Bram puts the grey lantern on his shelf, hinges to the wall."
+          }
+        }
+      }
+    },
+    "report.saltgate_grey.text" : {
+      "comment" : "Sending 7: the archer's report (Bram, the smith, keeps the broken lanterns on a shelf).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist zurück, mit einer grauen daneben für Brams Regal. In Saltgate liegen sie wie Treibholz am Flutsaum, Hunderte. Jedes Scharnier sitzt auf der falschen Seite. Ansel Quay fragt, was er Lady Maris sagen darf."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home, with a grey one beside it for Bram's shelf. At Saltgate they lie along the tideline like driftwood, hundreds of them. Every hinge is on the wrong side. Ansel Quay asks what he may tell Lady Maris."
+          }
+        }
+      }
+    },
+    "report.stillmere.c1" : {
+      "comment" : "Sending 8: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Antwort im Saal aufhängen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hang the answer in the hall."
+          }
+        }
+      }
+    },
+    "report.stillmere.c2" : {
+      "comment" : "Sending 8: choice.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbrennen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Burn it."
+          }
+        }
+      }
+    },
+    "report.stillmere_struck.r1" : {
+      "comment" : "Sending 8: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die höfliche Antwort hängt am Herd. Ebba Calder geht jeden Morgen auf dem Weg zur Mauer daran vorbei und sieht nie auf."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The polite answer hangs by the hearth. Ebba Calder passes it each morning on her way to the wall and never looks up."
+          }
+        }
+      }
+    },
+    "report.stillmere_struck.r2" : {
+      "comment" : "Sending 8: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie brennt schnell; viel war nicht daran. Ebba Calder zählt wieder die Statuen, laut."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It burns quickly; there was little to it. Ebba Calder goes back to counting the statues, aloud."
+          }
+        }
+      }
+    },
+    "report.stillmere_struck.text" : {
+      "comment" : "Sending 8: the archer's report after the struck report.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist zurück, mit zwanzig Gold von den Syndizi. Der Bericht gefiel ihnen: eine Nacht, viele Schatten, nichts, was das Buch stört. Ihre Antwort ist kurz und höflich. Ebba Calder schweigt, seit sie las, was wir schickten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home, with twenty gold from the syndics. They liked the report: one night, many shadows, nothing to trouble the book. Their answer is short and polite. Ebba Calder has not spoken since she read what we sent."
+          }
+        }
+      }
+    },
+    "report.stillmere_written.r1" : {
+      "comment" : "Sending 8: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie hängt am Herd unter ihren drei Siegeln. Ebba Calder liest sie jeden Morgen auf dem Weg zur Mauer und zählt von vorn."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It hangs by the hearth under its three seals. Ebba Calder reads it each morning on her way to the wall, and counts again."
+          }
+        }
+      }
+    },
+    "report.stillmere_written.r2" : {
+      "comment" : "Sending 8: reaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuerst schmelzen die Siegel. Ebba Calder sieht die Frage brennen und schreibt dann etwas in ihr eigenes Buch, das sie Euch nicht zeigt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The seals melt first. Ebba Calder watches the question burn, then writes something in her own book that she does not show you."
+          }
+        }
+      }
+    },
+    "report.stillmere_written.text" : {
+      "comment" : "Sending 8: the archer's report after the honest report (the house has forty lords, the road sixty statues).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist zurück. Die Syndizi ließen Ebbas Bericht vorlesen, ganz. Bei „sechzig Statuen“ lachte einer, und keiner lachte mit. Ihre Antwort kommt unter drei Siegeln, mit einer Frage: Wer hat die zwanzig gemeißelt?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home. The syndics had Ebba's report read aloud, all of it. At “sixty statues” one of them laughed, and nobody laughed with him. Their answer comes under three seals, with a question: who carved the twenty?"
           }
         }
       }
@@ -1131,6 +2967,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "{n} bearers"
+          }
+        }
+      }
+    },
+    "table.beyond" : {
+      "comment" : "Table: the line under a party that does not come home this chapter (Hild's lantern 41).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fort, jenseits des Leuchtfeuers"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gone past the beacon"
           }
         }
       }
@@ -1460,13 +3314,13 @@
       }
     },
     "table.home" : {
-      "comment" : "The party came home with this numbered lantern (digits).",
+      "comment" : "Table: a lantern that came home (chip and dawn row).",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Laterne {lantern} ist heim"
+            "value" : "Laterne {lantern} ist zurück"
           }
         },
         "en" : {
