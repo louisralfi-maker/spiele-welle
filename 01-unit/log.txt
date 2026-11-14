@@ -1,0 +1,45 @@
+2026-11-14 21:57:02.119276+0000 Lanternhold[10409:42051] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.AudienceFlowTests testAnAudienceBeforeTheHornHoldsTheClock]' passed (0.036 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testStandingUpLeavesTheRestWaitingAndTheLecternSetsTheTaxes]' passed (0.258 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testTalkingToTheCourt]' passed (0.038 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testTheCrownOpensTheAudienceAndAChoiceIsHeard]' passed (0.093 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testThePauseEndsTheAudienceAndReduceMotionOpensTheCardAtOnce]' passed (0.086 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testThePauseLetsAHeardPetitionerWalkOut]' passed (0.266 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testThePetitionSample]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testTheStrangerIsHeardAtTheGate]' passed (0.341 seconds).
+Test Case '-[LanternholdTests.HallStageTests testANobleStandsApartAndTheAnchorsAreKept]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheAudienceFramingEasesInOverSixTenthsOfASecond]' passed (0.039 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheCameraNeverShowsPastThePaintedHall]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheChangeGoesThroughDarkInAThirdOfASecondAndCutsWithReduceMotion]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheCourtLivesInTheHall]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheFixRoundsArguments]' passed (0.214 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHallAnswersItsLord]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHallIsHeardInsideAndTheDoorCreaks]' passed (0.003 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/HallStageTests.swift:314: error: -[LanternholdTests.HallStageTests testTheHallsFrameAndItsLight] : XCTAssertFalse failed
+Test Case '-[LanternholdTests.HallStageTests testTheHallsFrameAndItsLight]' failed (0.219 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHallsLightAfterTheLook]' passed (0.241 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHallsTargets]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHearthsPoolFollowsTheHearthsStrength]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHearthsThreeStrengthsAndTheFlare]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHornSendsTheWaitingHomeAndHangsASlipAtTheDoor]' passed (0.029 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheLettersRoomLeavesTheThronePetitionerAndHearthInSight]' passed (0.063 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheLordGoesInByTheDoorAndOutPastIt]' passed (0.162 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheNearPillarOpensRoundTheLordAndCatchesTheLight]' passed (0.203 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheRealmStripSendsTheLordOutAndOn]' passed (0.189 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheStageArguments]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheWalkingFramingIsOneStepAboveTheWorldAndTheAudienceTwo]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheWorldOffersTheDoorAndKeepsTheHallsPeopleInside]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.HallStageTests testWhoCannotSitStandsBesideTheBench]' passed (0.008 seconds).
+Test Suite 'HallStageTests' failed at 2026-11-14 21:57:08.724.
+Test Case '-[LanternholdTests.LordTests testOnlyAFreshRealmAsksForTheLord]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.LordTests testTheDebugArgumentsNameTheLord]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.LordTests testTheLordsSpritesAndTheSittingDown]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LordTests testTheNameIsFilteredTrimmedAndCut]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.LordTests testThePlaceholdersTakeTheNameAndTheForm]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.LordTests testTheSaveKeepsTheLordAndOldSavesReadAsTheBurgherr]' passed (0.104 seconds).
+Test Case '-[LanternholdTests.LordTests testTheValidatorCountsTheLongestNameAndReportsBrokenBraces]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.LordTests testWaitingTownsfolkSitOnTheBenches]' passed (0.014 seconds).
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-14 21:57:08.873.
+Test Suite 'Selected tests' failed at 2026-11-14 21:57:08.873.
+exit=65
+screenshots: 0
