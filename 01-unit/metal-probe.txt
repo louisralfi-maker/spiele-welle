@@ -1,0 +1,18 @@
+device: Apple iOS simulator GPU
+apple2: true
+apple3: false
+apple4: false
+apple5: false
+apple6: false
+apple7: false
+apple8: false
+apple9: false
+apple10: false
+mac2: false
+common1: true
+common2: false
+common3: false
+metal3: false
+maxBufferLength: 268435456
+hasUnifiedMemory: false
+maxThreadsPerThreadgroup: 512
