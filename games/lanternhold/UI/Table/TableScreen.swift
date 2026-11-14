@@ -98,6 +98,7 @@ struct TableScreen: View {
             TablePixels(image: TablePictureCache.image(picture, map: map), unit: unit)
             if !covered {
                 lightGlow(picture, unit: unit)
+                pinGlows(picture, unit: unit)
                 ForEach(lanterns, id: \.id) { lantern in
                     lanternGlow(lantern, unit: unit)
                 }
@@ -108,7 +109,7 @@ struct TableScreen: View {
                 tags(realm, lanterns: lanterns, unit: unit)
             }
             if reaction != nil || report != nil {
-                Color.black.opacity(0.45)
+                Color.black.opacity(0.32)
                     .allowsHitTesting(false)
                 letter(realm, report: report, unit: unit)
             }
@@ -244,7 +245,7 @@ struct TableScreen: View {
                 hookNote = lantern.number
                 tick += 1
             } label: {
-                Color.clear.frame(width: 44, height: 44).contentShape(Rectangle())
+                Color.clear.frame(width: 46, height: 46).contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .position(x: (CGFloat(point.x) + 0.5) * unit, y: (CGFloat(point.y) - 2) * unit)
@@ -263,6 +264,19 @@ struct TableScreen: View {
         return words
     }
 
+    /// A soft warm light over each pin where a sending waits; it breathes unless Reduce Motion is on.
+    private func pinGlows(_ picture: TablePicture, unit: CGFloat) -> some View {
+        ZStack(alignment: .topLeading) {
+            ForEach(map.pinned.filter { picture.pins[$0.id] == .lit }, id: \.id) { place in
+                TablePinGlow(still: still, radius: unit * 13)
+                    .position(x: (CGFloat(place.pin.x) + 0.5) * unit, y: (CGFloat(place.pin.y) + 0.5) * unit)
+            }
+        }
+        .frame(width: CGFloat(map.width) * unit, height: CGFloat(map.height) * unit, alignment: .topLeading)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+
     /// Every pin can be touched (44 pt): its tag shows, and a waiting sending's slip opens.
     private func pinButtons(_ realm: GameState?, picture: TablePicture, unit: CGFloat) -> some View {
         ZStack(alignment: .topLeading) {
@@ -277,7 +291,7 @@ struct TableScreen: View {
                     }
                     tick += 1
                 } label: {
-                    Color.clear.frame(width: 44, height: 44).contentShape(Rectangle())
+                    Color.clear.frame(width: 46, height: 46).contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .position(x: (CGFloat(place.pin.x) + 0.5) * unit, y: (CGFloat(place.pin.y) + 0.5) * unit)
@@ -332,14 +346,16 @@ struct TableScreen: View {
         .padding(.vertical, 2)
         .background(SlipBackground())
         .fixedSize()
+        // A lantern and its carved piece stand right of the pin: their tag hangs above them instead.
+        let side: TableMap.TagSide = raised && place.tag == .right ? .above : place.tag
         let gap: CGFloat = (raised ? 9 : 6) * unit
         let x = (CGFloat(place.pin.x) + 0.5) * unit
         let y = (CGFloat(place.pin.y) + 0.5) * unit
         return Color.clear
             .frame(width: 1, height: 1)
-            .overlay(alignment: place.tag.alignment) {
-                label.offset(x: place.tag == .right ? 6 * unit : place.tag == .left ? -6 * unit : 0,
-                             y: place.tag == .above ? -gap : place.tag == .below ? 6 * unit : 0)
+            .overlay(alignment: side.alignment) {
+                label.offset(x: side == .right ? 6 * unit : side == .left ? -6 * unit : 0,
+                             y: side == .above ? -gap : side == .below ? 6 * unit : 0)
             }
             .position(x: x, y: y)
             .accessibilityIdentifier("table-tag-\(place.id)")
@@ -377,21 +393,32 @@ struct TableScreen: View {
         let table = realm.map { $0.table ?? .start(catalog) }
         VStack(alignment: .trailing, spacing: 6) {
             if let table { rail(table, realm: realm, layout) }
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 8) {
-                    if let note = reaction {
-                        reactionActions(note)
-                    } else if let realm, let found = waitingReport(realm) {
-                        choices(found.0, found.1, realm)
-                    } else if let realm {
-                        slips(realm)
+            TableHugging {
+                ScrollViewReader { reader in
+                    ScrollView(.vertical, showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            if let note = reaction {
+                                reactionActions(note)
+                            } else if let realm, let found = waitingReport(realm) {
+                                choices(found.0, found.1, realm)
+                            } else if let realm {
+                                slips(realm)
+                            }
+                        }
+                        .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .scrollBounceBehavior(.basedOnSize)
+                    .onChange(of: selected) { _, open in
+                        guard let open else { return }
+                        withAnimation(still ? nil : .easeOut(duration: 0.25)) {
+                            reader.scrollTo("open-\(open)", anchor: .bottom)
+                        }
                     }
                 }
-                .padding(10)
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
             .background(ParchmentBackground())
-            .frame(maxHeight: .infinity)
+            Spacer(minLength: 0)
             HStack(spacing: 8) {
                 statusProbe(realm)
                 Spacer(minLength: 0)
@@ -599,6 +626,7 @@ struct TableScreen: View {
                     ForEach(Array(errand.orders.enumerated()), id: \.offset) { index, _ in
                         orderTile(errand, index, realm)
                     }
+                    Color.clear.frame(height: 1).id("open-\(errand.id)")
                 }
                 .padding(.horizontal, 8)
                 .padding(.bottom, 8)
@@ -624,7 +652,6 @@ struct TableScreen: View {
                         .foregroundStyle(blocks.isEmpty ? Theme.ink : Theme.inkSoft)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 0)
-                    if sealed { TablePixels(image: TableArt.image("tableSeal"), unit: 2) }
                 }
                 TableChipRow(chips: TableChips.order(order, realm, blocks: blocks, sealed: sealed))
             }
@@ -822,5 +849,42 @@ enum TableRailCache {
         guard let image = SpriteImages.cgImage(TableRailPicture.compose(hooks)) else { return nil }
         last = (numbers, states, image)
         return image
+    }
+}
+
+/// The light over a pin where a sending waits.
+struct TablePinGlow: View {
+    let still: Bool
+    let radius: CGFloat
+    @State private var bright = false
+
+    var body: some View {
+        Circle()
+            .fill(RadialGradient(colors: [Color(hex: 0xF4C85A, opacity: 0.55), Color(hex: 0xF4C85A, opacity: 0)],
+                                 center: .center, startRadius: 0, endRadius: radius))
+            .frame(width: radius * 2, height: radius * 2)
+            .blendMode(.plusLighter)
+            .opacity(still ? 0.85 : (bright ? 1 : 0.55))
+            .onAppear {
+                guard !still else { return }
+                withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) { bright = true }
+            }
+    }
+}
+
+/// Sizes its one child to the child's ideal height, never taller than offered: a scroll view inside hugs short
+/// content and scrolls only when the column is too short (the theme's `HuggingHeight`, kept here so the table needs
+/// nothing new from shared files).
+struct TableHugging: Layout {
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        guard let child = subviews.first else { return .zero }
+        let ideal = child.sizeThatFits(ProposedViewSize(width: proposal.width, height: nil))
+        let height = min(ideal.height, proposal.height ?? ideal.height)
+        return CGSize(width: proposal.width ?? ideal.width, height: max(0, height))
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        subviews.first?.place(at: bounds.origin, anchor: .topLeading,
+                              proposal: ProposedViewSize(width: bounds.width, height: bounds.height))
     }
 }

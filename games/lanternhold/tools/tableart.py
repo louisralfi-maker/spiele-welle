@@ -170,9 +170,7 @@ def oak_field(g, r):
     for y in range(H):
         for x in range(W):
             g.set(x, y, "wood")
-    # the waxed oak keeps its grain quiet: a few long darker lines between the carvings
-    for top, bottom in zip([RIM] + SEAMS, SEAMS + [H - RIM]):
-        flowing_grain(g, PLANED, W - RIM, top + 2, bottom - 1, r, "soil", 11, 1.2, 140, cover=0.45)
+    # the waxed oak keeps its grain quiet: the carving is what shows; only the plank seams run through it
     for sy in SEAMS:
         for x in range(W):
             g.set(x, sy, "woodDark")
@@ -182,7 +180,7 @@ def oak_field(g, r):
 
 def bare_west(g, r):
     """Lord Edric's planed third: raw oak lighter than the waxed east, its grain flowing round two knots."""
-    knots = [(30, 46, 3), (60, 108, 2)]
+    knots = [(60, 108, 2)]
     for y in range(RIM, H - RIM):
         for x in range(RIM, PLANED):
             g.set(x, y, "straw")
@@ -351,54 +349,74 @@ def sea(g):
         for yy in range(y + 1, H - RIM):
             g.set(x, yy, "soil")
         g.set(x, y, "woodDark")
-    rows = [(MAP["coast"] + 5, 0), (MAP["coast"] + 8, 5)]
+    rows = [(MAP["coast"] + 3, 0), (MAP["coast"] + 5, 4)]
     for row, shift in rows:
-        for x in range(128 + shift, W - RIM - 5, 10):
-            if abs(x + 2 - mouth) <= 5 or row <= shore_y(x) + 1 or row <= shore_y(x + 4) + 1:
+        for x in range(127 + shift, W - RIM - 4, 8):
+            if abs(x + 2 - mouth) <= 4 or row <= shore_y(x) + 1 or row <= shore_y(x + 3) + 1:
                 continue
-            for (dx, dy) in ((0, 0), (1, 1), (2, 1), (3, 1), (4, 0)):
+            for (dx, dy) in ((0, 0), (1, 0), (2, 0), (3, 0)):
                 if row + dy < H - RIM:
                     g.set(x + dx, row + dy, "wood")
+            g.set(x + 1, row - 1, "woodLight")
+            g.set(x + 2, row - 1, "woodLight")
 
 
-def hill(g, x, y, w):
-    """A low carved hill: an arc lit on the west, shaded on the east."""
-    top = max(2, round(w / 3.2))
+def hill(g, x, y, w, h=None):
+    """A carved down: a smooth mound, its west shoulder lit, its east side and foot in shade."""
+    h = h or max(3, round(w / 3))
     for dx in range(w):
         t = dx / (w - 1)
-        yy = y - round(math.sin(t * math.pi) * top)
-        g.set(x + dx, yy, "straw" if t < 0.5 else "woodDark")
-        for fill in range(yy + 1, y + 1):
-            if 0.05 < t < 0.95:
-                g.set(x + dx, fill, "woodLight" if t < 0.5 else "soil")
+        top = y - round(math.sin(t * math.pi) ** 0.8 * h)
+        for yy in range(top, y + 1):
+            if t < 0.42:
+                n = "straw" if yy == top else ("woodLight" if yy < top + 2 or t < 0.25 else "tile")
+            elif t < 0.6:
+                n = "woodLight" if yy == top else "tile"
+            else:
+                n = "woodDark" if yy == top or dx == w - 1 else "soil"
+            g.set(x + dx, yy, n)
+    # its shadow on the field, to the east
+    for dx in range(w // 2, w + 1):
+        g.set(x + dx, y + 1, "soil")
 
 
-def tree(g, x, y):
-    g.stamp([".s.", "sLD", ".D."], {"s": "straw", "L": "woodLight", "D": "soil"}, x, y)
+CROWN = [".LL.", "LssD", "sssD", ".DD."]
 
 
-def wood_patch(g, r, cx, cy, n, spread):
-    pts = []
-    tries = 0
-    while len(pts) < n and tries < 400:
-        tries += 1
-        x = cx + r.range(-spread, spread)
-        y = cy + r.range(-spread // 2, spread // 2)
-        if all(abs(x - px) >= 3 or abs(y - py) >= 3 for (px, py) in pts):
-            if ((x - cx) / (spread + 0.5)) ** 2 + ((y - cy) / (spread / 2 + 0.5)) ** 2 <= 1:
-                pts.append((x, y))
-    for (x, y) in sorted(pts, key=lambda p: p[1]):
-        tree(g, x, y)
+def forest(g, r, cx, cy, rx, ry):
+    """A wood: round crowns packed close, back to front, lit from the west, its edge falling into shade."""
+    spots = []
+    y = cy - ry
+    row = 0
+    while y <= cy + ry:
+        x = cx - rx + (2 if row % 2 else 0)
+        while x <= cx + rx:
+            if ((x - cx) / (rx + 0.5)) ** 2 + ((y - cy) / (ry + 0.5)) ** 2 <= 1:
+                spots.append((x + r.range(-1, 1), y))
+            x += 4
+        y += 3
+        row += 1
+    for (x, y) in spots:
+        g.stamp(CROWN, {"L": "straw", "s": "woodLight", "D": "soil"}, x - 2, y - 2)
+    # the wood's foot: one dark row under the front crowns
+    front = {}
+    for (x, y) in spots:
+        for dx in range(-1, 3):
+            front[x + dx] = max(front.get(x + dx, -1), y + 2)
+    for x, y in front.items():
+        if g.get(x, y) not in ("banner", "roofDeep", "roofLight"):
+            g.set(x, y, "soilDark")
 
 
 def land(g, r):
-    for (x, y, w) in [(134, 20, 11), (162, 16, 13), (186, 26, 13), (206, 40, 11), (222, 24, 13), (262, 22, 13),
-                      (270, 64, 11), (238, 78, 13), (282, 98, 9), (196, 92, 11), (226, 112, 11), (148, 66, 11),
-                      (278, 42, 11), (198, 60, 9), (256, 104, 9)]:
-        hill(g, x, y, w)
-    for (cx, cy, n, s) in [(226, 64, 9, 7), (262, 86, 8, 6), (209, 131, 6, 6), (240, 132, 5, 5), (194, 80, 5, 4),
-                           (282, 18, 5, 5), (178, 46, 4, 4)]:
-        wood_patch(g, r, cx, cy, n, s)
+    # the downs north of the valley under Highcairn, and the long downs of the Morninglands
+    for (x, y, w, h) in [(130, 22, 15, 5), (160, 18, 17, 6), (188, 30, 13, 4), (218, 26, 19, 6), (260, 24, 15, 5),
+                         (276, 66, 13, 4), (236, 84, 17, 5), (196, 96, 11, 3), (152, 68, 11, 3), (278, 104, 11, 3),
+                         (200, 46, 11, 3)]:
+        hill(g, x, y, w, h)
+    for (cx, cy, rx, ry) in [(228, 64, 9, 5), (262, 88, 7, 4), (206, 130, 8, 3), (190, 80, 4, 3), (282, 16, 7, 3),
+                             (184, 50, 4, 3), (240, 130, 5, 2)]:
+        forest(g, r, cx, cy, rx, ry)
 
 
 def roads(g):
@@ -674,11 +692,11 @@ PIN = [
 ENAMEL = [
     ".........",
     ".........",
-    "...ee....",
-    "..eEee...",
+    "...eee...",
+    "..eEeee..",
+    "..eeeeD..",
     "..eeeDD..",
-    "...eDD...",
-    ".........",
+    "...DDD...",
     ".........",
     ".........",
 ]
@@ -752,14 +770,14 @@ def lantern():
 TOKEN_LEGEND = {"K": "woodDark", "H": "strawLight", "s": "straw", "m": "woodLight", "d": "wood", "b": "gold",
                 "B": "stoneLight", "n": "stone"}
 RIDER = [
-    "......KK....",
-    ".....KHsK...",
-    "..K..KssK...",
-    ".KHK.KsmK...",
-    "KHHsKKsmKK..",
-    "KHssssssmmK.",
-    ".KsssssmmmK.",
-    ".KsK...KmK..",
+    "....KK......",
+    "...KHsK.....",
+    "...KssK..KK.",
+    "..KHssK.KHsK",
+    ".KHHsssKKssK",
+    "KHssssssssmK",
+    "KsssssssmmK.",
+    ".KsK..KmK...",
     "KKKKKKKKKKKK",
     "KHHsssssmmdK",
 ]
@@ -895,7 +913,7 @@ RAIL_LANTERN = [
 def rail_lanterns():
     """The dark road lantern on its hook (frame 0) and the blank one Bram hangs on a lost lantern's hook (frame 1)."""
     g = Grid(18, 14)
-    g.stamp(RAIL_LANTERN, {"K": "ink", "g": "straw", "w": "woodDark", "n": "night2", "s": "stoneLight", "m": "stone"},
+    g.stamp(RAIL_LANTERN, {"K": "ink", "g": "straw", "w": "woodDark", "n": "soilDark", "s": "stone", "m": "rockDark"},
             0, 0)
     g.stamp(RAIL_LANTERN, {"K": "stoneDark", "g": "stone", "w": "stoneMid", "n": "stoneMid", "s": "stoneMid",
                            "m": "stoneMid"}, 9, 0)
@@ -966,12 +984,12 @@ def digits():
 SEAL = [
     "..ddddd..",
     ".dLLbbbd.",
-    "dLLbbbbbd",
-    "dLbbBbbbd",
-    "dbbBBBbbd",
-    "dbbbBbbdd",
-    "dbbbbbbdd",
-    ".ddbbddd.",
+    "dLbBBBbbd",
+    "dLBbLbBbd",
+    "dbBLbbBbd",
+    "dbBbbbBdd",
+    "dbbBBBbdd",
+    ".ddbbbdd.",
     "..ddddd..",
 ]
 

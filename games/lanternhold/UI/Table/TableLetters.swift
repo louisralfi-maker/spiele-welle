@@ -39,16 +39,18 @@ struct TableReportLetter: View {
                 Spacer(minLength: 0)
             }
             InkRule()
-            ScrollView(.vertical, showsIndicators: false) {
-                Text(inked: QuestText.text(report.text, lord: lord, values: ["lantern": String(waiting.lantern)]),
-                     .callout)
-                    .font(Theme.serif(.callout))
-                    .foregroundStyle(Theme.ink)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .accessibilityIdentifier("table-report-text")
+            TableHugging {
+                ScrollView(.vertical, showsIndicators: false) {
+                    Text(inked: QuestText.text(report.text, lord: lord, values: ["lantern": String(waiting.lantern)]),
+                         .callout)
+                        .font(Theme.serif(.callout))
+                        .foregroundStyle(Theme.ink)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityIdentifier("table-report-text")
+                }
+                .scrollBounceBehavior(.basedOnSize)
             }
-            .frame(maxHeight: 150)
         }
         .padding(14)
         .background(ParchmentBackground())
