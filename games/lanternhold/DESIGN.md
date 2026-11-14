@@ -3371,6 +3371,15 @@ the muddy wall behind the gatehouse). Where they differ the director's note wins
   seconds (they open and shut). The sweep adds `w-0600|1000-fog-a|b` and `-fog-rm-a|b` (flicker times 2.5 and 9.5):
   the fog moves between a and b, and stands still with Reduce Motion.
 - **The atlas**: 2048 wide, about 1830 rows of 2048 used after this round (1757 before).
+- **Rounds:** lh-w1f1-1 on ce5f433 (the bank and the deck; build, unit filters, sweep) ALL PASSED; lh-w1f1-2 on d2483f5
+  failed one atlas test (the 3 px wide `cleftWater` placeholder drew nothing; it takes the glow stand-in now);
+  lh-w1f1-3 on 9f91703 and lh-w1f1-4 on 12ee227 (build, unit, ui, ui-de, release) ALL PASSED. The drift proof of
+  lh-w1f1-4: in the fog band at camera 1000, 49 % of the pixels change between the frames 7 s apart, none with Reduce
+  Motion (fires keep their calm Reduce-Motion flicker, as everywhere).
+- **Open after fix round 1:** the soot crows and other creatures inside the bank show their glow (an EntityFrames
+  matter, not the bank's art); at night the HUD strip covers the screen's top centre, so the moon stands low in its
+  wedge to be seen under it; the cleft's ledge drifts and threads of water are the brightest marks on the wall at
+  night; step B keeps its height (the director).
 <!-- END world lane: World rebuild (14.11.2026) -->
 
 ## Risks
