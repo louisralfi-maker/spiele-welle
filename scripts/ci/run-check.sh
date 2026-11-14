@@ -53,8 +53,10 @@ build() {
     [ "$BUILT" = 1 ] && return 0
     note "$(stamp) build starts ($NAME)"
     simulator
-    brew install xcodegen >"$CI_OUT/xcodegen.log" 2>&1
+    # xcodegen: brew only when the runner lacks it (GitHub's macOS images have none so far, so this saves nothing yet).
+    command -v xcodegen >/dev/null 2>&1 || brew install xcodegen >"$CI_OUT/xcodegen.log" 2>&1
     xcodegen generate >>"$CI_OUT/xcodegen.log" 2>&1
+    note "$(stamp) project generated"
     # Package pins, when the game has any (games/<slug>/Package.resolved): the same versions on every run.
     if [ -f Package.resolved ]; then mkdir -p "$PINS" && cp Package.resolved "$PINS/"; fi
     run_build() {
