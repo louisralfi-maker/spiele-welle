@@ -26,8 +26,11 @@ five quick sketches (the lantern, the beam, the seal and others): "Such du aus, 
 
 - **Touch the lord:** he raises the house's lantern and **the world stands still**. Everything dims a little and
   nothing moves but the flame. It is the pause, the purse and the map in one touch.
-- **Above him,** in one row: the coin with the gold, the face (mood), the people with their count. Under it, small:
-  the day ("Day 12", „Tag 12"). The hour is never a figure.
+- **Above him,** in one row: the coin with the gold, the face (mood), the people with their count. The face is a
+  townsman's head in a hood: thrown back when glad, worn when even, pulled low when grim, red and shouting in unrest.
+- **Under the row,** centred: the day, as the dawn sign (a half sun on the horizon) and its number. No word and no
+  letter stands on the walked world, so nothing there is translated and no pixel font is needed; the dawn report
+  teaches the sign. The hour is never a figure. The day line's bottom is 8 game px above the lord's head.
 - **Top centre:** the realm strip (stage-3, H5). A touch on a point lowers the lantern and he walks there.
 - **In a corner,** small: the gear. It opens the pause sheet.
 - **Any other touch** lowers the lantern and the world runs on. There is no pause button anywhere.
@@ -57,9 +60,13 @@ The ledger slip top right, the pause seal top left, the realm strip as a standin
 
 ## 6. Builds, lanes and the gate
 
-- **Build 2 (Monday 16.11.2026):** the stage lane, in stage-3-interface. It draws the small kit itself as interface
-  art in the manner of `tools/iconart.py`: figures 0 to 9, plus and minus, the face in four moods (glad, even, grim,
-  unrest), the people, the two arrows, the gear. The coin is PAY.md's small coin.
+- **Build 2 (Monday 16.11.2026):** the stage lane, in stage-3-interface. **The kit is drawn** (14.11.2026, 20:10;
+  `tools/hudart.py`, branch `claude/lh-hudart`, commits 479a4c9 and 0b687b5, judged by the director on real
+  screenshots at noon, dusk and night): figures 0 to 9, plus and minus, the two arrows, the small coin and the big
+  coin (ten) with their tally hollows for PAY.md, the hood face in four moods, the people, the dawn sign, the gear.
+  Ten strips, 30 frames, a row of 9 game px (18 pt). The stage lane takes the two commits and wires them in; it draws
+  nothing of the kit itself. The proofs and the note with sizes and spacing: `ci-out/director/hud-kit/` and
+  `ci-out/director/hud-kit.md`.
 - **If the round is at risk, cut in this order:** the lantern's breathing (section 4); the change notes; the strip's
   hiding (it then stands at 60 %). Sections 2 and 5 and the gold at the lord are never cut.
 - **Build 3:** the cards on the world are looked at again under rule 2; a call becomes a small pennant at the
