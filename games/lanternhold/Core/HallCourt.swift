@@ -196,21 +196,19 @@ enum HallCourt {
 }
 
 /// What the action button offers in the hall (until "touch the world" replaces it): the inner door near where the lord
-/// comes in (by day and by night), and by day the tax lectern when he stands at it, the throne (the audience while
-/// petitioners wait, anywhere before and on the dais; else the tax card), a member of the court or a guest to talk to
-/// (a court member yields a close call to the place beside him, as in the world).
+/// comes in (by day and by night), and by day the throne (the audience while petitioners wait, anywhere before and on
+/// the dais, the lectern beside it included; else the tax card), the tax lectern when nobody waits (it becomes the
+/// ledger's furniture when the town lane's taxes on foot land, director's note 14.11.), a member of the court or a
+/// guest to talk to (a court member yields a close call to the place beside him, as in the world).
 enum HallTargets {
-    /// While petitioners wait, the throne owns the floor before the dais and the dais itself, but for the lectern's
-    /// own place beside it (the taxes can be set while people wait).
+    /// While petitioners wait, the throne owns the floor before the dais and the dais itself.
     static let throneZone: ClosedRange<Double> = 326...470
-    static let lecternHold = 8.0
 
     static func target(_ s: GameState, x: Double, figures: [DrawnFigure], lines: CourtLineBook,
                        balance: Balance) -> KingTarget? {
         guard !s.defeated else { return nil }
         if x <= HallLayout.doorX + HallRules.innerDoorReach { return .hallDoor }
         guard DayClock.phase(at: s.hour) == .day else { return nil }
-        if abs(x - HallLayout.lecternX) <= lecternHold { return .lectern }
         if throneZone.contains(x) && !AudienceRules.hall(s, catalog: .standard).isEmpty { return .throne }
         var best: KingTarget?
         var bestDistance = Double.infinity

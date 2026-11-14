@@ -93,7 +93,14 @@ final class AudienceFlowTests: XCTestCase {
         XCTAssertEqual(game.strip?.petitioners, waiting, "nobody was heard")
         XCTAssertNil(game.audience)
 
-        let lectern = model(["GWStage": "hall", "GWHallX": "\(HallLayout.lecternX)"])
+        // The hall stage: the lectern beside the throne, once nobody waits.
+        let lectern = model(["GWStage": "hall", "GWReduceMotion": "YES"])
+        lectern.performAction()
+        lectern.choosePetition(0)
+        lectern.nextPetitioner()
+        XCTAssertNil(lectern.overlay, "the farmer was heard")
+        lectern.hall?.walker = HallWalker(x: HallLayout.lecternX, facing: -1)
+        lectern.refreshAction()
         XCTAssertEqual(lectern.target, .lectern, "the tax lectern keeps its own place beside the throne")
         lectern.performAction()
         XCTAssertEqual(lectern.overlay, .taxes)

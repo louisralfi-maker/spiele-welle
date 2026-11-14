@@ -269,7 +269,11 @@ final class HallStageTests: XCTestCase {
         let figures: [DrawnFigure] = []
         XCTAssertEqual(HallTargets.target(s, x: 404, figures: figures, lines: .standard, balance: .standard), .throne)
         XCTAssertEqual(HallTargets.target(s, x: HallLayout.lecternX, figures: figures, lines: .standard,
-                                          balance: .standard), .lectern, "the taxes while people wait")
+                                          balance: .standard), .throne, "while people wait the throne owns the dais")
+        var heard = s
+        heard.court?.queue = []
+        XCTAssertEqual(HallTargets.target(heard, x: HallLayout.lecternX, figures: figures, lines: .standard,
+                                          balance: .standard), .lectern, "nobody waits: the lectern")
         XCTAssertEqual(HallTargets.target(s, x: HallLayout.doorX, figures: figures, lines: .standard,
                                           balance: .standard), .hallDoor)
         XCTAssertNil(HallTargets.target(s, x: 240, figures: figures, lines: .standard, balance: .standard))

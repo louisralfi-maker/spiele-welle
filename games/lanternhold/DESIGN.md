@@ -3316,9 +3316,13 @@ and `WorldLayout` are not touched: the hall's old world slot (x 1700 to 1960) is
   hall's three states of furnishing (the painted hall is the rich one), the chamber's door and the table drawn, the
   hearth taking a touch (stage-2's touch system); the tax lectern still opens the old tax card through the action
   button until the town lane's taxes on foot and the ledger replace it.
-- **Targets in the hall** (`HallTargets`, until touch the world): the inner door; the lectern within 8 px of it
-  (the taxes can be set while people wait); the throne anywhere on the floor before and on the dais while
-  petitioners wait (326 to 470), else the nearest of throne, lectern and the court in talking reach.
+- **The interface art kit** of `claude/lh-hudart` (director's note 14.11. 20:00) is taken as it is: its ten strips in
+  `Resources/Art/hud*.png` and `tools/hudart.py` (cherry-picked 479a4c9 and 0b687b5); nothing wires them yet (no
+  `SpriteID`, so the atlas does not take them): stage-3-interface does.
+- **Targets in the hall** (`HallTargets`, until touch the world): the inner door; while petitioners wait the
+  throne anywhere on the floor before and on the dais (326 to 470, the lectern beside it included: the lectern
+  becomes the ledger's furniture when the town lane's taxes on foot land); else the nearest of throne, lectern and
+  the court in talking reach.
 - **Tests:** `HallStageTests` (the change's timing and the cut, in and out by the door and past it, the strip's walk
   out and on, the framings at s 7 and s 8, the eased move, the letter's room, the court's places, the world's door
   target, the hall's targets, the frame and its light, the hearth's pool, the horn, the hall answering its lord, the
