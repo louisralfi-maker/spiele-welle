@@ -1,0 +1,295 @@
+frontsweep: compiled in 128 s
+frontsweep: 120 eves from 10 seeds, nights 3-14 (2 s)
+frontsweep: reference nights at budgets [1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0] (16 s)
+
+== T13 at the standard balance, budgets [1.0, 1.5, 2.0]
+T13 PASS nights 3-14, seeds 1-10, budget ["x1.0", "x1.5", "x2.0"]: the present bot lost 148 defenders, the reference 217: 32 % fewer (target 25-40 %, reference at least 40; per budget x1.0 53 %, x1.5 30 %, x2.0 30 %); of the 5 nights the reference lost clearly (F >= 20 s before first light, budgets ["x1.0", "x1.5", "x2.0", "x3.0", "x4.0", "x5.0", "x6.0"]) the present bot held 0 (target 0)
+
+per budget: reference lost | present lost | fewer | reference fell (clear) | present fell | present fell where the reference held | walls lost ref/present
+  x1.0: 15 | 7 | 53 % | 0 (0) | 0 | 0 | 16/19
+  x1.5: 64 | 45 | 30 % | 0 (0) | 0 | 0 | 32/29
+  x2.0: 138 | 96 | 30 % | 0 (0) | 0 | 0 | 40/36
+  x3.0: 310 | 272 | 12 % | 0 (0) | 0 | 0 | 84/88
+  x4.0: 442 | 411 | 7 % | 13 (0) | 18 | 5 | 114/118
+  x5.0: 528 | 518 | 2 % | 24 (0) | 28 | 5 | 135/143
+  x6.0: 640 | 643 | 0 % | 39 (5) | 44 | 5 | 157/172
+
+reported only, per budget: present fell where the reference held | present held where the reference fell | of those the reference lost clearly
+  x1.0: 0 | 0 | 0
+  x1.5: 0 | 0 | 0
+  x2.0: 0 | 0 | 0
+  x3.0: 0 | 0 | 0
+  x4.0: 5 | 0 | 0 (seed.night: 2.14, 3.13, 6.13, 7.12, 10.14)
+  x5.0: 5 | 1 | 0 (seed.night: 4.12, 6.12, 8.11, 10.12, 10.13)
+  x6.0: 5 | 0 | 0 (seed.night: 2.6, 3.6, 4.9, 10.8, 10.12)
+
+the dawn report's presence line, per budget: nights with 10 s of fighting or more | "there" (clearly there and a life kept) | "away" | none
+  x1.0: 31 | 6 | 0 | 25
+  x1.5: 51 | 13 | 0 | 38
+  x2.0: 59 | 23 | 1 | 35
+  x3.0: 91 | 39 | 8 | 44
+  x4.0: 110 | 65 | 20 | 25
+  x5.0: 119 | 68 | 21 | 30
+  x6.0: 120 | 76 | 23 | 21
+
+per night (all budgets): reference lost / present lost
+  n3 26/28, n4 0/0, n5 15/27, n6 38/79, n7 130/113, n8 111/107, n9 142/135, n10 185/176, n11 244/220, n12 405/361, n13 410/359, n14 431/387
+
+the present bot in a night, per budget (means): moves | patch trips | brazier trips (of them back to a rear line) | relit | throws | shaken s | run s | with the guards s | lives kept | presence over the fighting | nights by moves 0/1/2/3+ | nights with a rear trip
+  x1.0: 1.2 | 0.1 | 0.0 (0.0) | 0.8 | 0.0 | 0.1 | 12.1 | 0.2 | 0.1 | 99 % | 0/101/9/10 | 0
+  x1.5: 1.3 | 0.1 | 0.0 (0.0) | 1.5 | 0.1 | 0.5 | 12.5 | 0.2 | 0.2 | 97 % | 0/91/19/10 | 0
+  x2.0: 1.3 | 0.1 | 0.0 (0.0) | 3.5 | 0.1 | 0.5 | 12.7 | 0.1 | 0.5 | 96 % | 0/87/28/5 | 2
+  x3.0: 1.8 | 0.5 | 0.1 (0.1) | 6.0 | 0.2 | 1.3 | 15.7 | 0.2 | 1.0 | 90 % | 0/56/28/36 | 10
+  x4.0: 2.1 | 0.7 | 0.1 (0.1) | 7.8 | 0.2 | 1.7 | 17.4 | 0.3 | 1.6 | 83 % | 0/36/39/45 | 13
+  x5.0: 2.2 | 1.0 | 0.1 (0.1) | 9.2 | 0.4 | 2.7 | 18.5 | 0.1 | 2.0 | 80 % | 0/26/41/53 | 11
+  x6.0: 2.4 | 1.1 | 0.1 (0.1) | 9.4 | 0.4 | 3.0 | 19.8 | 0.0 | 2.2 | 76 % | 0/19/33/68 | 6
+
+the nights the reference lost clearly: seed 2 night 13 x6.0: reference F23, present F22; seed 4 night 13 x6.0: reference F21, present F21; seed 5 night 14 x6.0: reference F20, present F22; seed 7 night 14 x6.0: reference F24, present F23; seed 9 night 12 x6.0: reference F21, present F21
+
+a night of the present bot: seed 5, night 14, budget x2.0 (reference lost 8, held; present lost 8, held)
+  dusk: to the middle wall, x 941
+  t 73 s: to the gatehouse, x 1301
+  t 104 s: to the hearth, x 1871
+
+every pair: seed night budget: reference lost/fell, present lost/fell, moves, throws
+  1.3x1.0 0/0 m1 t0  1.3x1.5 0/0 m1 t0  1.3x2.0 0/0 m1 t0  1.3x3.0 0/0 m1 t0  1.3x4.0 0/0 m1 t0  1.3x5.0 0/0 m1 t0  1.3x6.0 0/0 m1 t0  1.4x1.0 0/0 m1 t0
+  1.4x1.5 0/0 m1 t0  1.4x2.0 0/0 m1 t0  1.4x3.0 0/0 m1 t0  1.4x4.0 0/0 m1 t0  1.4x5.0 0/0 m1 t0  1.4x6.0 0/0 m1 t0  1.5x1.0 0/0 m1 t0  1.5x1.5 0/0 m1 t0
+  1.5x2.0 0/0 m1 t0  1.5x3.0 0/0 m1 t0  1.5x4.0 0/0 m1 t0  1.5x5.0 0/0 m1 t0  1.5x6.0 0/0 m1 t0  1.6x1.0 0/0 m1 t0  1.6x1.5 0/0 m1 t0  1.6x2.0 0/0 m1 t0
+  1.6x3.0 0/0 m1 t0  1.6x4.0 0/0 m1 t0  1.6x5.0 0/0 m1 t0  1.6x6.0 0/6 m3 t1  1.7x1.0 0/0 m1 t0  1.7x1.5 0/0 m1 t0  1.7x2.0 0/0 m1 t0  1.7x3.0 0/0 m3 t0
+  1.7x4.0 3/0 m3 t0  1.7x5.0 4/4 m2 t0  1.7x6.0 4/5 m2 t0  1.8x1.0 0/0 m1 t0  1.8x1.5 0/0 m1 t0  1.8x2.0 0/0 m1 t0  1.8x3.0 3/3 m2 t0  1.8x4.0 0/0 m3 t0
+  1.8x5.0 3/1 m2 t0  1.8x6.0 6/4 m2 t0  1.9x1.0 0/0 m1 t0  1.9x1.5 0/0 m1 t0  1.9x2.0 0/0 m1 t0  1.9x3.0 0/0 m2 t0  1.9x4.0 1/1 m2 t0  1.9x5.0 4/4 m2 t0
+  1.9x6.0 6/4 m2 t0  1.10x1.0 0/0 m1 t0  1.10x1.5 0/0 m1 t0  1.10x2.0 0/0 m1 t0  1.10x3.0 0/0 m1 t0  1.10x4.0 4/4 m2 t0  1.10x5.0 7/6 m2 t0  1.10x6.0 10/10 m3 t0
+  1.11x1.0 0/0 m1 t0  1.11x1.5 0/0 m1 t0  1.11x2.0 0/0 m1 t0  1.11x3.0 4/2 m2 t0  1.11x4.0 1/4 m2 t0  1.11x5.0 8/3 m2 t0  1.11x6.0 4/4 m2 t0  1.12x1.0 0/0 m2 t0
+  1.12x1.5 0/0 m1 t0  1.12x2.0 4/4 m2 t1  1.12x3.0 10/8 m3 t1  1.12x4.0 10/10 m3 t1  1.12x5.0 10F4/8F3 m3 t1  1.12x6.0 10F9/5F7 m3 t1  1.13x1.0 0/0 m3 t0  1.13x1.5 1/0 m3 t0
+  1.13x2.0 4/1 m2 t0  1.13x3.0 10/7 m3 t0  1.13x4.0 8F2/7F6 m3 t1  1.13x5.0 10F11/10F11 m3 t1  1.13x6.0 8F19/8F20 m3 t1  1.14x1.0 0/0 m2 t1  1.14x1.5 4/1 m2 t0  1.14x2.0 3/3 m2 t0
+  1.14x3.0 6/3 m2 t0  1.14x4.0 10/10 m3 t0  1.14x5.0 8F0/8F1 m3 t0  1.14x6.0 10F11/10F11 m3 t1  2.3x1.0 0/0 m1 t0  2.3x1.5 0/0 m1 t0  2.3x2.0 0/0 m1 t0  2.3x3.0 0/0 m1 t0
+  2.3x4.0 0/0 m1 t0  2.3x5.0 0/0 m1 t0  2.3x6.0 0/0 m1 t0  2.4x1.0 0/0 m1 t0  2.4x1.5 0/0 m1 t0  2.4x2.0 0/0 m1 t0  2.4x3.0 0/0 m1 t0  2.4x4.0 0/0 m1 t0
+  2.4x5.0 0/0 m1 t0  2.4x6.0 0/0 m1 t0  2.5x1.0 0/0 m1 t0  2.5x1.5 0/0 m1 t0  2.5x2.0 0/0 m1 t0  2.5x3.0 0/0 m1 t0  2.5x4.0 0/0 m1 t0  2.5x5.0 3/0 m2 t1
+  2.5x6.0 3/7 m3 t1  2.6x1.0 0/0 m1 t0  2.6x1.5 0/0 m1 t0  2.6x2.0 0/0 m1 t0  2.6x3.0 0/0 m2 t1  2.6x4.0 0/0 m1 t0  2.6x5.0 3/0 m2 t1  2.6x6.0 6/7F4 m3 t2
+  2.7x1.0 0/0 m1 t0  2.7x1.5 0/0 m1 t0  2.7x2.0 0/0 m1 t0  2.7x3.0 0/0 m1 t0  2.7x4.0 0/0 m1 t0  2.7x5.0 4/3 m2 t0  2.7x6.0 1/7 m3 t0  2.8x1.0 0/0 m1 t0
+  2.8x1.5 0/0 m1 t0  2.8x2.0 0/0 m1 t0  2.8x3.0 0/0 m1 t0  2.8x4.0 4/4 m4 t0  2.8x5.0 6/6 m3 t0  2.8x6.0 4/6 m2 t0  2.9x1.0 0/0 m1 t0  2.9x1.5 0/0 m1 t0
+  2.9x2.0 0/0 m1 t0  2.9x3.0 0/0 m1 t0  2.9x4.0 0/0 m3 t0  2.9x5.0 3/6 m2 t0  2.9x6.0 6/6 m3 t0  2.10x1.0 0/0 m1 t0  2.10x1.5 0/0 m1 t0  2.10x2.0 0/0 m3 t0
+  2.10x3.0 0/0 m3 t0  2.10x4.0 9/7 m3 t0  2.10x5.0 9/7 m3 t0  2.10x6.0 9F14/9F15 m3 t0  2.11x1.0 0/0 m1 t0  2.11x1.5 0/0 m1 t0  2.11x2.0 0/0 m1 t0  2.11x3.0 4/4 m2 t0
+  2.11x4.0 7/9 m3 t0  2.11x5.0 7/9 m3 t0  2.11x6.0 7F5/7F8 m3 t0  2.12x1.0 0/0 m1 t0  2.12x1.5 3/3 m3 t1  2.12x2.0 4/4 m2 t1  2.12x3.0 4/3 m2 t0  2.12x4.0 8F0/9F7 m3 t1
+  2.12x5.0 7F5/9F8 m3 t0  2.12x6.0 9F18/7F18 m3 t1  2.13x1.0 0/0 m3 t0  2.13x1.5 0/0 m3 t0  2.13x2.0 6/6 m2 t0  2.13x3.0 9/9 m3 t0  2.13x4.0 9F6/9F12 m3 t0  2.13x5.0 9F19/9F18 m3 t1
+  2.13x6.0 9F23/9F22 m3 t1  2.14x1.0 1/1 m2 t0  2.14x1.5 4/3 m2 t0  2.14x2.0 4/1 m2 t0  2.14x3.0 6/6 m2 t0  2.14x4.0 9/9F0 m3 t2  2.14x5.0 9F2/9F4 m3 t1  2.14x6.0 9F16/9F19 m3 t2
+  3.3x1.0 0/0 m1 t0  3.3x1.5 0/0 m1 t0  3.3x2.0 0/0 m1 t0  3.3x3.0 1/0 m3 t0  3.3x4.0 1/0 m3 t1  3.3x5.0 2/1 m2 t0  3.3x6.0 1/2 m2 t1  3.4x1.0 0/0 m1 t0
+  3.4x1.5 0/0 m1 t0  3.4x2.0 0/0 m1 t0  3.4x3.0 0/0 m1 t0  3.4x4.0 0/0 m1 t0  3.4x5.0 0/0 m1 t0  3.4x6.0 0/0 m1 t0  3.5x1.0 0/0 m1 t0  3.5x1.5 0/0 m1 t0
+  3.5x2.0 0/0 m1 t0  3.5x3.0 0/0 m1 t0  3.5x4.0 0/0 m1 t0  3.5x5.0 0/0 m1 t0  3.5x6.0 3/0 m2 t0  3.6x1.0 0/0 m1 t0  3.6x1.5 0/0 m1 t0  3.6x2.0 0/0 m1 t0
+  3.6x3.0 0/0 m1 t0  3.6x4.0 0/0 m1 t0  3.6x5.0 0/0 m2 t1  3.6x6.0 0/7F4 m3 t1  3.7x1.0 0/0 m1 t0  3.7x1.5 0/0 m1 t0  3.7x2.0 0/0 m1 t0  3.7x3.0 3/0 m3 t0
+  3.7x4.0 4/6 m2 t0  3.7x5.0 4/4 m2 t0  3.7x6.0 8/4 m2 t0  3.8x1.0 0/0 m1 t0  3.8x1.5 0/0 m1 t0  3.8x2.0 0/0 m1 t0  3.8x3.0 0/0 m2 t0  3.8x4.0 3/3 m2 t0
+  3.8x5.0 4/4 m2 t0  3.8x6.0 4/6 m2 t0  3.9x1.0 0/0 m1 t0  3.9x1.5 0/0 m1 t0  3.9x2.0 0/0 m1 t0  3.9x3.0 3/2 m3 t0  3.9x4.0 4/4 m2 t0  3.9x5.0 4/9 m3 t0
+  3.9x6.0 7/7 m3 t0  3.10x1.0 0/0 m1 t0  3.10x1.5 0/0 m1 t0  3.10x2.0 0/0 m1 t0  3.10x3.0 0/3 m2 t0  3.10x4.0 4/1 m2 t0  3.10x5.0 0/6 m2 t0  3.10x6.0 6/6 m2 t0
+  3.11x1.0 0/0 m1 t0  3.11x1.5 0/0 m1 t0  3.11x2.0 0/0 m2 t0  3.11x3.0 4/3 m2 t0  3.11x4.0 4/6 m2 t0  3.11x5.0 3/1 m2 t0  3.11x6.0 8/7 m3 t0  3.12x1.0 0/0 m2 t0
+  3.12x1.5 0/0 m1 t0  3.12x2.0 4/3 m2 t0  3.12x3.0 6/4 m2 t0  3.12x4.0 10/10 m3 t1  3.12x5.0 10F4/7F3 m3 t0  3.12x6.0 10F17/8F17 m3 t0  3.13x1.0 0/0 m1 t0  3.13x1.5 1/1 m2 t0
+  3.13x2.0 4/3 m2 t0  3.13x3.0 4/1 m2 t0  3.13x4.0 10/10F0 m3 t1  3.13x5.0 9F1/7F1 m3 t0  3.13x6.0 10F16/10F18 m3 t0  3.14x1.0 2/0 m3 t0  3.14x1.5 0/1 m2 t0  3.14x2.0 6/6 m2 t1
+  3.14x3.0 8/5 m3 t1  3.14x4.0 8F2/7F7 m3 t1  3.14x5.0 10F13/10F15 m3 t1  3.14x6.0 8F19/8F21 m3 t1  4.3x1.0 0/0 m1 t0  4.3x1.5 0/0 m1 t0  4.3x2.0 0/0 m1 t0  4.3x3.0 0/0 m1 t0
+  4.3x4.0 0/0 m1 t0  4.3x5.0 0/0 m1 t0  4.3x6.0 0/0 m1 t0  4.4x1.0 0/0 m1 t0  4.4x1.5 0/0 m1 t0  4.4x2.0 0/0 m1 t0  4.4x3.0 0/0 m1 t0  4.4x4.0 0/0 m1 t0
+  4.4x5.0 0/0 m1 t0  4.4x6.0 0/0 m1 t1  4.5x1.0 0/0 m1 t0  4.5x1.5 0/0 m1 t0  4.5x2.0 0/0 m1 t0  4.5x3.0 0/0 m1 t0  4.5x4.0 0/0 m1 t0  4.5x5.0 0/0 m1 t0
+  4.5x6.0 0/0 m1 t0  4.6x1.0 0/0 m1 t0  4.6x1.5 0/0 m1 t0  4.6x2.0 0/0 m1 t0  4.6x3.0 0/0 m1 t0  4.6x4.0 0/0 m1 t0  4.6x5.0 0/0 m1 t0  4.6x6.0 0/0 m2 t3
+  4.7x1.0 0/0 m1 t0  4.7x1.5 0/0 m1 t0  4.7x2.0 0/0 m1 t0  4.7x3.0 0/0 m1 t0  4.7x4.0 4/4 m2 t0  4.7x5.0 4/1 m2 t0  4.7x6.0 4/4 m2 t0  4.8x1.0 0/0 m1 t0
+  4.8x1.5 0/0 m1 t0  4.8x2.0 0/0 m1 t0  4.8x3.0 0/0 m1 t0  4.8x4.0 0/0 m3 t0  4.8x5.0 6/6 m2 t0  4.8x6.0 6/3 m2 t0  4.9x1.0 0/0 m1 t0  4.9x1.5 0/0 m1 t0
+  4.9x2.0 0/0 m1 t0  4.9x3.0 0/0 m1 t0  4.9x4.0 4/4 m2 t0  4.9x5.0 8/4 m2 t0  4.9x6.0 6/6F3 m3 t0  4.10x1.0 0/0 m1 t0  4.10x1.5 0/0 m1 t0  4.10x2.0 0/0 m1 t0
+  4.10x3.0 0/0 m3 t0  4.10x4.0 6/4 m2 t0  4.10x5.0 6/7 m3 t0  4.10x6.0 7/7 m3 t0  4.11x1.0 0/0 m1 t0  4.11x1.5 0/0 m1 t0  4.11x2.0 0/0 m1 t0  4.11x3.0 6/4 m2 t0
+  4.11x4.0 4/1 m2 t0  4.11x5.0 9/7 m3 t0  4.11x6.0 9F5/9F10 m3 t0  4.12x1.0 1/1 m2 t0  4.12x1.5 4/4 m2 t1  4.12x2.0 0/0 m3 t0  4.12x3.0 9/7 m3 t1  4.12x4.0 9F7/9F5 m3 t1
+  4.12x5.0 9/9F8 m3 t1  4.12x6.0 9F10/9F16 m3 t0  4.13x1.0 0/0 m1 t0  4.13x1.5 3/0 m3 t0  4.13x2.0 6/3 m2 t0  4.13x3.0 9/7 m3 t0  4.13x4.0 9/7 m3 t0  4.13x5.0 7F6/9F9 m3 t0
+  4.13x6.0 7F21/7F21 m3 t1  4.14x1.0 0/0 m1 t0  4.14x1.5 1/1 m2 t1  4.14x2.0 6/3 m2 t0  4.14x3.0 9/9 m3 t2  4.14x4.0 9F1/9F5 m3 t1  4.14x5.0 7F7/7F8 m3 t1  4.14x6.0 9F19/7F18 m3 t0
+  5.3x1.0 0/0 m1 t0  5.3x1.5 0/0 m1 t0  5.3x2.0 0/0 m1 t0  5.3x3.0 0/0 m1 t0  5.3x4.0 0/0 m1 t0  5.3x5.0 0/0 m1 t0  5.3x6.0 0/0 m1 t0  5.4x1.0 0/0 m1 t0
+  5.4x1.5 0/0 m1 t0  5.4x2.0 0/0 m1 t0  5.4x3.0 0/0 m1 t0  5.4x4.0 0/0 m1 t0  5.4x5.0 0/0 m1 t0  5.4x6.0 0/0 m1 t0  5.5x1.0 0/0 m1 t0  5.5x1.5 0/0 m1 t0
+  5.5x2.0 0/0 m1 t0  5.5x3.0 0/0 m1 t0  5.5x4.0 0/0 m1 t0  5.5x5.0 0/0 m1 t0  5.5x6.0 0/0 m2 t1  5.6x1.0 0/0 m1 t0  5.6x1.5 0/0 m1 t0  5.6x2.0 0/0 m1 t0
+  5.6x3.0 0/0 m1 t0  5.6x4.0 0/0 m1 t0  5.6x5.0 0/7 m3 t4  5.6x6.0 6/5 m3 t6  5.7x1.0 0/0 m1 t0  5.7x1.5 0/0 m1 t0  5.7x2.0 0/0 m1 t0  5.7x3.0 4/3 m2 t0
+  5.7x4.0 4/5 m3 t0  5.7x5.0 7/1 m2 t0  5.7x6.0 7/7 m3 t0  5.8x1.0 0/0 m1 t0  5.8x1.5 0/0 m1 t0  5.8x2.0 0/0 m1 t0  5.8x3.0 0/0 m1 t0  5.8x4.0 0/0 m2 t0
+  5.8x5.0 3/0 m3 t0  5.8x6.0 1/4 m2 t0  5.9x1.0 0/0 m1 t0  5.9x1.5 0/0 m1 t0  5.9x2.0 0/0 m1 t0  5.9x3.0 0/0 m1 t0  5.9x4.0 6/4 m2 t0  5.9x5.0 7/7 m3 t0
+  5.9x6.0 7/9 m3 t0  5.10x1.0 0/0 m1 t0  5.10x1.5 0/0 m1 t0  5.10x2.0 0/0 m1 t0  5.10x3.0 0/0 m2 t0  5.10x4.0 1/3 m2 t0  5.10x5.0 3/6 m2 t0  5.10x6.0 10/9 m3 t0
+  5.11x1.0 0/0 m1 t0  5.11x1.5 0/0 m1 t0  5.11x2.0 0/0 m1 t0  5.11x3.0 4/6 m2 t0  5.11x4.0 6/6 m2 t0  5.11x5.0 4/6 m2 t0  5.11x6.0 8/1 m3 t0  5.12x1.0 0/0 m3 t0
+  5.12x1.5 0/0 m3 t0  5.12x2.0 6/5 m2 t0  5.12x3.0 4/7 m3 t0  5.12x4.0 6/7 m3 t1  5.12x5.0 8/7 m3 t1  5.12x6.0 10F5/10F4 m3 t1  5.13x1.0 3/3 m3 t1  5.13x1.5 0/0 m2 t1
+  5.13x2.0 0/0 m1 t0  5.13x3.0 10/10 m3 t2  5.13x4.0 10F1/10F2 m3 t0  5.13x5.0 6/5 m3 t1  5.13x6.0 8F9/6F14 m3 t0  5.14x1.0 0/0 m3 t0  5.14x1.5 4/4 m2 t1  5.14x2.0 8/8 m3 t0
+  5.14x3.0 8/7 m3 t1  5.14x4.0 6F4/6F3 m3 t0  5.14x5.0 8F17/8F19 m3 t1  5.14x6.0 8F20/6F22 m3 t0  6.3x1.0 0/0 m1 t0  6.3x1.5 0/0 m1 t0  6.3x2.0 0/0 m1 t0  6.3x3.0 1/0 m3 t0
+  6.3x4.0 2/1 m2 t0  6.3x5.0 1/1 m2 t1  6.3x6.0 1/2 m2 t0  6.4x1.0 0/0 m1 t0  6.4x1.5 0/0 m1 t0  6.4x2.0 0/0 m1 t0  6.4x3.0 0/0 m1 t0  6.4x4.0 0/0 m1 t0
+  6.4x5.0 0/0 m1 t0  6.4x6.0 0/0 m1 t0  6.5x1.0 0/0 m1 t0  6.5x1.5 0/0 m1 t0  6.5x2.0 0/0 m1 t0  6.5x3.0 0/0 m1 t0  6.5x4.0 0/0 m1 t0  6.5x5.0 0/0 m1 t0
+  6.5x6.0 0/3 m2 t2  6.6x1.0 0/0 m1 t0  6.6x1.5 0/0 m1 t0  6.6x2.0 0/0 m1 t0  6.6x3.0 0/0 m1 t0  6.6x4.0 0/0 m1 t0  6.6x5.0 0/6 m3 t1  6.6x6.0 6/8 m2 t1
+  6.7x1.0 0/0 m1 t0  6.7x1.5 0/0 m1 t0  6.7x2.0 0/0 m1 t0  6.7x3.0 1/1 m2 t0  6.7x4.0 0/0 m1 t0  6.7x5.0 4/6 m2 t0  6.7x6.0 5/5 m3 t0  6.8x1.0 0/0 m1 t0
+  6.8x1.5 0/0 m1 t0  6.8x2.0 0/0 m1 t0  6.8x3.0 0/0 m1 t0  6.8x4.0 6/6 m2 t0  6.8x5.0 4/4 m2 t0  6.8x6.0 9/9 m3 t0  6.9x1.0 0/0 m1 t0  6.9x1.5 0/0 m1 t0
+  6.9x2.0 0/0 m1 t0  6.9x3.0 0/0 m1 t0  6.9x4.0 0/0 m2 t0  6.9x5.0 6/4 m2 t0  6.9x6.0 6/4 m2 t0  6.10x1.0 0/0 m1 t0  6.10x1.5 0/0 m2 t0  6.10x2.0 0/0 m1 t0
+  6.10x3.0 0/0 m1 t0  6.10x4.0 6/6 m2 t0  6.10x5.0 4/6 m2 t0  6.10x6.0 8/8 m3 t0  6.11x1.0 0/0 m1 t0  6.11x1.5 0/0 m1 t0  6.11x2.0 0/1 m2 t0  6.11x3.0 6/6 m2 t0
+  6.11x4.0 8/8 m3 t0  6.11x5.0 8/5 m3 t0  6.11x6.0 10F14/10F12 m3 t0  6.12x1.0 0/0 m1 t0  6.12x1.5 0/0 m3 t0  6.12x2.0 6/3 m2 t0  6.12x3.0 6/7 m3 t1  6.12x4.0 10/7 m3 t0
+  6.12x5.0 10/7F2 m3 t1  6.12x6.0 10F12/7F11 m3 t1  6.13x1.0 0/0 m3 t0  6.13x1.5 0/1 m2 t0  6.13x2.0 4/1 m2 t0  6.13x3.0 6/3 m2 t0  6.13x4.0 10/10F5 m3 t1  6.13x5.0 10/7 m3 t1
+  6.13x6.0 10F11/7F15 m3 t1  6.14x1.0 0/0 m1 t0  6.14x1.5 4/6 m2 t0  6.14x2.0 4/4 m2 t1  6.14x3.0 10/8 m3 t0  6.14x4.0 10F9/10F16 m3 t1  6.14x5.0 10F14/10F11 m3 t1  6.14x6.0 10F19/10F19 m3 t1
+  7.3x1.0 0/0 m1 t0  7.3x1.5 0/0 m1 t0  7.3x2.0 0/0 m1 t0  7.3x3.0 0/0 m1 t0  7.3x4.0 0/0 m1 t0  7.3x5.0 0/0 m1 t0  7.3x6.0 0/0 m1 t0  7.4x1.0 0/0 m1 t0
+  7.4x1.5 0/0 m1 t0  7.4x2.0 0/0 m1 t0  7.4x3.0 0/0 m1 t0  7.4x4.0 0/0 m1 t0  7.4x5.0 0/0 m1 t0  7.4x6.0 0/0 m1 t0  7.5x1.0 0/0 m1 t0  7.5x1.5 0/0 m1 t0
+  7.5x2.0 0/0 m1 t0  7.5x3.0 0/0 m1 t0  7.5x4.0 0/0 m1 t0  7.5x5.0 3/4 m3 t2  7.5x6.0 3/6 m2 t1  7.6x1.0 0/0 m1 t0  7.6x1.5 0/0 m1 t0  7.6x2.0 0/0 m1 t0
+  7.6x3.0 0/0 m1 t0  7.6x4.0 0/0 m1 t1  7.6x5.0 0/6 m3 t3  7.6x6.0 6F7/8F5 m3 t1  7.7x1.0 0/0 m1 t0  7.7x1.5 0/0 m1 t0  7.7x2.0 0/0 m1 t0  7.7x3.0 0/0 m2 t0
+  7.7x4.0 4/3 m2 t0  7.7x5.0 6/6 m2 t0  7.7x6.0 7/7 m3 t0  7.8x1.0 0/0 m1 t0  7.8x1.5 0/0 m1 t0  7.8x2.0 0/0 m1 t0  7.8x3.0 0/0 m1 t0  7.8x4.0 0/3 m2 t0
+  7.8x5.0 3/3 m3 t0  7.8x6.0 4/3 m2 t0  7.9x1.0 0/0 m1 t0  7.9x1.5 0/0 m1 t0  7.9x2.0 0/0 m1 t0  7.9x3.0 0/0 m1 t0  7.9x4.0 3/3 m3 t0  7.9x5.0 10/6 m2 t0
+  7.9x6.0 8/10 m3 t0  7.10x1.0 0/0 m1 t0  7.10x1.5 0/0 m1 t0  7.10x2.0 0/0 m1 t0  7.10x3.0 0/1 m2 t0  7.10x4.0 4/4 m2 t0  7.10x5.0 1/1 m2 t0  7.10x6.0 4/1 m2 t0
+  7.11x1.0 0/0 m1 t0  7.11x1.5 0/0 m1 t0  7.11x2.0 0/0 m1 t0  7.11x3.0 4/4 m2 t0  7.11x4.0 6/4 m2 t0  7.11x5.0 8/6 m3 t0  7.11x6.0 8F7/8F8 m3 t0  7.12x1.0 3/1 m2 t0
+  7.12x1.5 0/0 m3 t0  7.12x2.0 6/3 m2 t0  7.12x3.0 10/10 m3 t1  7.12x4.0 8/10F5 m3 t1  7.12x5.0 10F9/10F13 m3 t0  7.12x6.0 10F12/10F15 m3 t1  7.13x1.0 0/0 m1 t0  7.13x1.5 4/1 m2 t0
+  7.13x2.0 4/4 m2 t1  7.13x3.0 6/9 m3 t0  7.13x4.0 9F1/9F2 m3 t1  7.13x5.0 9F4/7F2 m3 t1  7.13x6.0 9F11/9F17 m3 t1  7.14x1.0 0/0 m1 t0  7.14x1.5 4/1 m2 t0  7.14x2.0 4/1 m2 t0
+  7.14x3.0 10/10 m3 t0  7.14x4.0 10/7 m3 t0  7.14x5.0 8F14/8F19 m3 t1  7.14x6.0 10F24/10F23 m3 t1  8.3x1.0 0/0 m1 t0  8.3x1.5 0/0 m1 t0  8.3x2.0 0/0 m1 t0  8.3x3.0 1/0 m1 t0
+  8.3x4.0 1/2 m2 t1  8.3x5.0 1/1 m2 t1  8.3x6.0 1/2 m2 t1  8.4x1.0 0/0 m1 t0  8.4x1.5 0/0 m1 t0  8.4x2.0 0/0 m1 t0  8.4x3.0 0/0 m1 t0  8.4x4.0 0/0 m1 t0
+  8.4x5.0 0/0 m1 t0  8.4x6.0 0/0 m1 t0  8.5x1.0 0/0 m1 t0  8.5x1.5 0/0 m1 t0  8.5x2.0 0/0 m1 t0  8.5x3.0 0/0 m1 t0  8.5x4.0 0/0 m1 t0  8.5x5.0 0/0 m1 t0
+  8.5x6.0 0/0 m1 t0  8.6x1.0 0/0 m1 t0  8.6x1.5 0/0 m1 t0  8.6x2.0 0/0 m1 t0  8.6x3.0 0/0 m1 t0  8.6x4.0 0/2 m2 t1  8.6x5.0 0/6 m3 t3  8.6x6.0 0/0 m2 t1
+  8.7x1.0 0/0 m1 t0  8.7x1.5 0/0 m1 t0  8.7x2.0 0/0 m1 t0  8.7x3.0 0/0 m1 t0  8.7x4.0 0/0 m2 t0  8.7x5.0 4/1 m2 t0  8.7x6.0 8/5 m2 t0  8.8x1.0 0/0 m1 t0
+  8.8x1.5 0/0 m1 t0  8.8x2.0 0/0 m1 t0  8.8x3.0 0/0 m1 t0  8.8x4.0 0/0 m3 t0  8.8x5.0 0/0 m1 t0  8.8x6.0 4/5 m2 t0  8.9x1.0 0/0 m1 t0  8.9x1.5 0/0 m1 t0
+  8.9x2.0 0/0 m1 t0  8.9x3.0 1/0 m3 t0  8.9x4.0 0/0 m1 t0  8.9x5.0 0/0 m3 t0  8.9x6.0 4/5 m2 t0  8.10x1.0 0/0 m1 t0  8.10x1.5 0/0 m1 t0  8.10x2.0 0/0 m1 t0
+  8.10x3.0 4/2 m2 t0  8.10x4.0 4/4 m2 t0  8.10x5.0 8/9 m3 t0  8.10x6.0 5/5 m3 t0  8.11x1.0 0/0 m1 t0  8.11x1.5 0/0 m1 t0  8.11x2.0 0/0 m1 t0  8.11x3.0 4/4 m2 t0
+  8.11x4.0 4/4 m2 t0  8.11x5.0 9/9F0 m3 t0  8.11x6.0 9F4/8F7 m3 t0  8.12x1.0 0/0 m1 t0  8.12x1.5 4/1 m2 t0  8.12x2.0 4/2 m2 t0  8.12x3.0 8/8 m3 t1  8.12x4.0 9/6 m3 t0
+  8.12x5.0 9F6/9F12 m3 t2  8.12x6.0 9F17/9F13 m3 t0  8.13x1.0 0/0 m1 t0  8.13x1.5 2/2 m2 t0  8.13x2.0 4/8 m3 t1  8.13x3.0 9/9 m3 t0  8.13x4.0 9/9 m3 t0  8.13x5.0 9F12/9F16 m3 t0
+  8.13x6.0 9F16/9F19 m3 t1  8.14x1.0 0/0 m2 t0  8.14x1.5 3/3 m3 t1  8.14x2.0 4/1 m2 t0  8.14x3.0 9/8 m3 t1  8.14x4.0 9/9 m3 t1  8.14x5.0 9/9 m3 t1  8.14x6.0 8F3/9F12 m3 t1
+  9.3x1.0 0/0 m1 t0  9.3x1.5 0/0 m1 t0  9.3x2.0 0/0 m1 t0  9.3x3.0 1/0 m3 t0  9.3x4.0 3/1 m2 t0  9.3x5.0 1/3 m2 t0  9.3x6.0 1/3 m2 t1  9.4x1.0 0/0 m1 t0
+  9.4x1.5 0/0 m1 t0  9.4x2.0 0/0 m1 t0  9.4x3.0 0/0 m1 t0  9.4x4.0 0/0 m1 t0  9.4x5.0 0/0 m1 t0  9.4x6.0 0/0 m1 t0  9.5x1.0 0/0 m1 t0  9.5x1.5 0/0 m1 t0
+  9.5x2.0 0/0 m1 t0  9.5x3.0 0/0 m1 t0  9.5x4.0 0/0 m1 t0  9.5x5.0 0/0 m1 t0  9.5x6.0 0/3 m2 t1  9.6x1.0 0/0 m1 t0  9.6x1.5 0/0 m1 t0  9.6x2.0 0/0 m1 t0
+  9.6x3.0 0/0 m1 t0  9.6x4.0 0/0 m1 t0  9.6x5.0 0/0 m2 t1  9.6x6.0 5/0 m1 t0  9.7x1.0 0/0 m1 t0  9.7x1.5 0/0 m1 t0  9.7x2.0 0/0 m1 t0  9.7x3.0 0/0 m2 t0
+  9.7x4.0 4/4 m2 t0  9.7x5.0 4/3 m2 t0  9.7x6.0 6/7 m3 t0  9.8x1.0 0/0 m1 t0  9.8x1.5 0/0 m1 t0  9.8x2.0 0/0 m1 t0  9.8x3.0 0/0 m2 t0  9.8x4.0 3/3 m2 t0
+  9.8x5.0 4/6 m2 t0  9.8x6.0 8/8 m3 t0  9.9x1.0 0/0 m1 t0  9.9x1.5 0/0 m1 t0  9.9x2.0 0/0 m1 t0  9.9x3.0 0/0 m1 t0  9.9x4.0 3/0 m3 t0  9.9x5.0 3/5 m2 t0
+  9.9x6.0 6/6 m3 t0  9.10x1.0 0/0 m1 t0  9.10x1.5 0/0 m1 t0  9.10x2.0 0/0 m1 t0  9.10x3.0 6/0 m3 t0  9.10x4.0 4/3 m2 t0  9.10x5.0 6/3 m2 t0  9.10x6.0 7/7 m3 t0
+  9.11x1.0 0/0 m1 t0  9.11x1.5 0/0 m1 t0  9.11x2.0 0/0 m1 t0  9.11x3.0 4/4 m4 t0  9.11x4.0 7/3 m2 t0  9.11x5.0 7F2/7F2 m3 t0  9.11x6.0 7F10/7F15 m3 t0  9.12x1.0 0/0 m3 t0
+  9.12x1.5 4/4 m2 t1  9.12x2.0 4/1 m2 t0  9.12x3.0 9/5 m3 t1  9.12x4.0 9F5/9F6 m3 t1  9.12x5.0 9F5/9F6 m3 t1  9.12x6.0 7F21/7F21 m3 t0  9.13x1.0 3/0 m3 t0  9.13x1.5 4/1 m2 t0
+  9.13x2.0 6/3 m2 t0  9.13x3.0 9/9 m3 t2  9.13x4.0 9F6/9F7 m3 t1  9.13x5.0 9F8/9F9 m3 t1  9.13x6.0 9F15/9F17 m3 t1  9.14x1.0 2/0 m3 t0  9.14x1.5 6/3 m2 t0  9.14x2.0 7/7 m3 t1
+  9.14x3.0 7/7 m3 t1  9.14x4.0 7F6/7F5 m3 t1  9.14x5.0 7F13/7F15 m3 t1  9.14x6.0 7F19/7F21 m3 t1  10.3x1.0 0/0 m1 t0  10.3x1.5 0/0 m1 t0  10.3x2.0 0/0 m1 t0  10.3x3.0 1/0 m1 t0
+  10.3x4.0 3/3 m2 t1  10.3x5.0 1/3 m2 t0  10.3x6.0 1/3 m2 t1  10.4x1.0 0/0 m1 t0  10.4x1.5 0/0 m1 t0  10.4x2.0 0/0 m1 t0  10.4x3.0 0/0 m1 t0  10.4x4.0 0/0 m1 t0
+  10.4x5.0 0/0 m1 t0  10.4x6.0 0/0 m1 t0  10.5x1.0 0/0 m1 t0  10.5x1.5 0/0 m1 t0  10.5x2.0 0/0 m1 t0  10.5x3.0 0/0 m1 t0  10.5x4.0 0/0 m1 t0  10.5x5.0 0/0 m1 t0
+  10.5x6.0 0/4 m2 t2  10.6x1.0 0/0 m1 t0  10.6x1.5 0/0 m1 t0  10.6x2.0 0/0 m1 t0  10.6x3.0 0/0 m1 t0  10.6x4.0 0/0 m2 t1  10.6x5.0 0/3 m2 t5  10.6x6.0 6F5/8F2 m2 t1
+  10.7x1.0 0/0 m1 t0  10.7x1.5 0/0 m1 t0  10.7x2.0 0/0 m1 t0  10.7x3.0 0/0 m1 t0  10.7x4.0 2/0 m3 t0  10.7x5.0 0/3 m3 t0  10.7x6.0 6/4 m2 t0  10.8x1.0 0/0 m1 t0
+  10.8x1.5 0/0 m1 t0  10.8x2.0 0/0 m1 t0  10.8x3.0 0/0 m1 t0  10.8x4.0 3/0 m2 t0  10.8x5.0 4/1 m2 t0  10.8x6.0 6/6F0 m3 t0  10.9x1.0 0/0 m1 t0  10.9x1.5 0/0 m1 t0
+  10.9x2.0 0/0 m1 t0  10.9x3.0 0/0 m1 t0  10.9x4.0 4/1 m4 t0  10.9x5.0 6/6 m2 t0  10.9x6.0 6/8 m3 t0  10.10x1.0 0/0 m1 t0  10.10x1.5 0/0 m1 t0  10.10x2.0 0/0 m2 t0
+  10.10x3.0 3/3 m3 t0  10.10x4.0 4/4 m2 t0  10.10x5.0 7F1/7 m3 t0  10.10x6.0 9/7 m3 t0  10.11x1.0 0/0 m1 t0  10.11x1.5 0/0 m1 t0  10.11x2.0 0/0 m1 t0  10.11x3.0 4/6 m2 t0
+  10.11x4.0 6/6 m2 t0  10.11x5.0 7/4 m3 t0  10.11x6.0 7F8/7F17 m3 t0  10.12x1.0 0/0 m2 t0  10.12x1.5 0/0 m3 t0  10.12x2.0 6/3 m2 t0  10.12x3.0 4/9 m3 t1  10.12x4.0 9/9 m3 t0
+  10.12x5.0 9/9F6 m3 t0  10.12x6.0 9/9F0 m3 t1  10.13x1.0 0/0 m1 t0  10.13x1.5 0/0 m3 t0  10.13x2.0 6/3 m2 t0  10.13x3.0 9/9 m3 t2  10.13x4.0 6/4 m3 t0  10.13x5.0 9/7F2 m3 t1
+  10.13x6.0 9F5/8F13 m3 t0  10.14x1.0 0/1 m2 t0  10.14x1.5 4/4 m2 t1  10.14x2.0 4/1 m2 t0  10.14x3.0 9/7 m3 t0  10.14x4.0 9/9F2 m3 t1  10.14x5.0 9F2/9F3 m3 t2  10.14x6.0 9F8/9F16 m3 t0
+
+whole runs from day 1 at the game's own nights (losses on nights 3-14, fell on night; 0 = held):
+  seed 1: reference lost 0, fell 0; present lost 0, fell 0
+  seed 2: reference lost 1, fell 0; present lost 1, fell 0
+  seed 3: reference lost 2, fell 0; present lost 0, fell 0
+(19 s)
+
+== around the standard values, at budgets [1.0, 1.5, 2.0] (present lost / reference lost per budget)
+standard                   PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 96/138 30 %
+light: passing 24 only     fail fewer 4 % (209/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.5 (rear 0.0) | relit 1.6 | throws 0.1 | presence over the fighting 97 % | x1.0 11/15 27 %, x1.5 67/64 -5 %, x2.0 131/138 5 %
+light: passing 48 only (ol PASS fewer 34 % (144/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 43/64 33 %, x2.0 94/138 32 %
+light: wall + passing 16   PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 96/138 30 %
+light: wall + passing 32   PASS fewer 33 % (146/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 43/64 33 %, x2.0 96/138 30 %
+relight every 2 s          PASS fewer 26 % (160/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 3.9 | throws 0.0 | presence over the fighting 98 % | x1.0 6/15 60 %, x1.5 48/64 25 %, x2.0 106/138 23 %
+relight every 6 s          fail fewer 22 % (170/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.7 | throws 0.1 | presence over the fighting 98 % | x1.0 7/15 53 %, x1.5 62/64 3 %, x2.0 101/138 27 %
+bot: stand 10 on the wall  fail fewer 47 % (115/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 2.0 | throws 0.0 | presence over the fighting 97 % | x1.0 4/15 73 %, x1.5 26/64 59 %, x2.0 85/138 38 %
+bot: stand 14 on the wall  fail fewer 45 % (119/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 2.0 | throws 0.0 | presence over the fighting 98 % | x1.0 4/15 73 %, x1.5 27/64 58 %, x2.0 88/138 36 %
+bot: no rear trips         PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 96/138 30 %
+bot: quiet reach 120       PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 96/138 30 %
+bot: quiet reach 300       PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 96/138 30 %
+bot: one rear trip         PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 96/138 30 %
+bot: rear trips unlimited  PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 96/138 30 %
+bot: never the guards      PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.2 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 96/138 30 %
+bot: last stand -20        PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.1 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 96/138 30 %
+bot: last stand -46        PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.1 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 96/138 30 %
+bot: last stand -90        PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.1 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 96/138 30 %
+bot: fetch anywhere        PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.2 (rear 0.0) | relit 1.9 | throws 0.1 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 96/138 30 %
+bot: rear trips, way safe  PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.1 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 96/138 30 %
+bot: rear safe, any number PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.1 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 96/138 30 %
+relight 2 s + rear safe    PASS fewer 26 % (160/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 3.9 | throws 0.0 | presence over the fighting 98 % | x1.0 6/15 60 %, x1.5 48/64 25 %, x2.0 106/138 23 %
+relight every 3 s          PASS fewer 27 % (159/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 2.3 | throws 0.1 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 49/64 23 %, x2.0 103/138 25 %
+relight every 1 s          PASS fewer 27 % (158/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 4.3 | throws 0.1 | presence over the fighting 97 % | x1.0 6/15 60 %, x1.5 48/64 25 %, x2.0 104/138 25 %
+s1.2 h0.45                 PASS fewer 37 % (137/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 2.0 | throws 0.0 | presence over the fighting 97 % | x1.0 11/15 27 %, x1.5 38/64 41 %, x2.0 88/138 36 %
+s1.2 h0.5                  PASS fewer 36 % (138/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 2.0 | throws 0.0 | presence over the fighting 97 % | x1.0 11/15 27 %, x1.5 38/64 41 %, x2.0 89/138 36 %
+s1.2 h0.55                 PASS fewer 29 % (153/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 2.0 | throws 0.0 | presence over the fighting 97 % | x1.0 11/15 27 %, x1.5 40/64 38 %, x2.0 102/138 26 %
+s1.2 h0.6                  fail fewer 23 % (167/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 2.0 | throws 0.0 | presence over the fighting 97 % | x1.0 11/15 27 %, x1.5 47/64 27 %, x2.0 109/138 21 %
+s1.25 h0.45                PASS fewer 33 % (145/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 93/138 33 %
+s1.25 h0.5                 PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 96/138 30 %
+s1.25 h0.55                PASS fewer 29 % (155/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 45/64 30 %, x2.0 103/138 25 %
+s1.25 h0.6                 PASS fewer 26 % (160/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 46/64 28 %, x2.0 107/138 22 %
+s1.3 h0.45                 PASS fewer 33 % (145/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 44/64 31 %, x2.0 94/138 32 %
+s1.3 h0.5                  PASS fewer 28 % (157/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 44/64 31 %, x2.0 106/138 23 %
+s1.3 h0.55                 fail fewer 24 % (166/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 47/64 27 %, x2.0 112/138 19 %
+s1.3 h0.6                  fail fewer 23 % (167/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 47/64 27 %, x2.0 113/138 18 %
+radius 60                  PASS fewer 29 % (154/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 1.9 | throws 0.0 | presence over the fighting 97 % | x1.0 7/15 53 %, x1.5 46/64 28 %, x2.0 101/138 27 %
+radius 120                 PASS fewer 32 % (148/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 2.0 | throws 0.0 | presence over the fighting 97 % | x1.0 8/15 47 %, x1.5 45/64 30 %, x2.0 95/138 31 %
+spec numbers s1.15 h0.8    fail fewer 3 % (210/217) | clear held 0 | held where ref fell 0 | fell where ref held 0 | moves 1.3 | brazier trips 0.0 (rear 0.0) | relit 2.1 | throws 0.1 | presence over the fighting 97 % | x1.0 9/15 40 %, x1.5 63/64 2 %, x2.0 138/138 0 %
+(63 s)
+
+== the falls ladder [3.0, 4.0, 5.0, 6.0]: nights the present bot loses where the reference holds
+standard                   fail fewer 4 % (1844/1920) | clear held 0 | held where ref fell 1 | fell where ref held 15 | moves 2.1 | brazier trips 0.1 (rear 0.1) | relit 8.1 | throws 0.3 | presence over the fighting 81 % | x3.0 272/310 12 %, x4.0 411/442 7 %, x5.0 518/528 2 %, x6.0 643/640 0 %
+bot: no rear trips         fail fewer 4 % (1844/1920) | clear held 0 | held where ref fell 1 | fell where ref held 15 | moves 2.1 | brazier trips 0.0 (rear 0.0) | relit 8.1 | throws 0.3 | presence over the fighting 81 % | x3.0 272/310 12 %, x4.0 411/442 7 %, x5.0 518/528 2 %, x6.0 643/640 0 %
+bot: rear trips unlimited  fail fewer 4 % (1844/1920) | clear held 0 | held where ref fell 1 | fell where ref held 15 | moves 2.1 | brazier trips 0.1 (rear 0.1) | relit 8.1 | throws 0.3 | presence over the fighting 81 % | x3.0 272/310 12 %, x4.0 411/442 7 %, x5.0 518/528 2 %, x6.0 643/640 0 %
+bot: last stand -46        fail fewer 4 % (1844/1920) | clear held 0 | held where ref fell 1 | fell where ref held 10 | moves 2.1 | brazier trips 0.1 (rear 0.1) | relit 8.1 | throws 0.9 | presence over the fighting 81 % | x3.0 272/310 12 %, x4.0 411/442 7 %, x5.0 518/528 2 %, x6.0 643/640 0 %
+bot: last stand -90        fail fewer 4 % (1844/1920) | clear held 0 | held where ref fell 1 | fell where ref held 10 | moves 2.1 | brazier trips 0.1 (rear 0.1) | relit 8.1 | throws 0.9 | presence over the fighting 81 % | x3.0 272/310 12 %, x4.0 411/442 7 %, x5.0 518/528 2 %, x6.0 643/640 0 %
+light: passing 48 only (ol fail fewer 5 % (1821/1920) | clear held 0 | held where ref fell 1 | fell where ref held 16 | moves 2.1 | brazier trips 0.1 (rear 0.1) | relit 8.2 | throws 0.3 | presence over the fighting 81 % | x3.0 270/310 13 %, x4.0 414/442 6 %, x5.0 509/528 4 %, x6.0 628/640 2 %
+(75 s)
+
+== night 20 diagnosed: 20 eves (76 s)
+reference (old rules)          without: held 10/20 snuffed 5.7 relit 0.0 throws 0.0 lost 0.8 moves 0.0 trips 0.0 | with: held 20 slain 20 lost 2.7 | margins without ["H98", "H1", "H100", "F1", "F5", "F0", "H100", "F2", "F5", "F1", "H100", "H100", "H97", "H26", "F3", "F9", "F3", "F14", "H100", "H100"]
+reference under the rule       without: held 6/20 snuffed 6.0 relit 1.4 throws 18.9 lost 0.5 moves 0.0 trips 0.0 | with: held 20 slain 20 lost 2.6 | margins without ["F4", "F2", "F1", "F5", "F9", "F1", "F1", "F5", "F10", "H39", "H86", "H100", "F1", "H100", "F9", "F15", "F2", "F12", "H100", "H94"]
+present: standard              without: held 2/20 snuffed 7.5 relit 2.9 throws 0.2 lost 1.9 moves 4.1 trips 0.0 | with: held 20 slain 20 lost 2.4 | margins without ["F13", "F6", "F12", "F6", "F6", "F16", "F6", "F7", "F14", "F13", "F11", "F6", "F11", "F8", "F16", "F15", "F8", "F16", "H100", "H50"]
+    seed 1 without: FELL F13 snuffed 9 relit 3 throws 0 | walls l3.wall@31,l2.wall@49,l1.wall@85 hearth reached @93 King left @4
+    seed 2 without: FELL F6 snuffed 9 relit 3 throws 0 | walls l3.wall@35,l2.wall@52,l1.wall@92 hearth reached @100 King left @3
+    seed 3 without: FELL F12 snuffed 4 relit 1 throws 0 | walls l3.wall@29,l2.wall@46,l1.wall@83 hearth reached @91 King left @3
+    seed 4 without: FELL F6 snuffed 7 relit 1 throws 0 | walls l3.wall@34,l2.wall@50,l1.wall@89 hearth reached @98 King left @5
+    seed 5 without: FELL F6 snuffed 7 relit 5 throws 0 | walls l3.wall@30,l2.wall@46,l1.wall@85 hearth reached @97 King left @5
+    seed 6 without: FELL F16 snuffed 4 relit 0 throws 0 | walls l3.wall@33,l2.wall@49,l1.wall@82 hearth reached @90 King left @4
+    seed 7 without: FELL F6 snuffed 3 relit 0 throws 0 | walls l3.wall@35,l2.wall@52,l1.wall@89 hearth reached @98 King left @5
+    seed 8 without: FELL F7 snuffed 6 relit 2 throws 0 | walls l3.wall@33,l2.wall@50,l1.wall@83 hearth reached @92 King left @5
+    seed 9 without: FELL F14 snuffed 11 relit 5 throws 1 | walls l3.wall@30,l2.wall@47,l1.wall@84 hearth reached @92 King left @4
+    seed 10 without: FELL F13 snuffed 11 relit 5 throws 1 | walls l3.wall@30,l2.wall@47,l1.wall@85 hearth reached @93 King left @3
+    seed 11 without: FELL F11 snuffed 9 relit 3 throws 0 | walls l3.wall@34,l2.wall@51,l1.wall@88 hearth reached @96 King left @4
+    seed 12 without: FELL F6 snuffed 11 relit 5 throws 0 | walls l3.wall@34,l2.wall@51,l1.wall@92 hearth reached @100 King left @5
+    seed 13 without: FELL F11 snuffed 11 relit 5 throws 0 | walls l3.wall@33,l2.wall@50,l1.wall@87 hearth reached @95 King left @4
+    seed 14 without: FELL F8 snuffed 7 relit 4 throws 0 | walls l3.wall@33,l2.wall@50,l1.wall@89 hearth reached @97 King left @5
+    seed 15 without: FELL F16 snuffed 12 relit 6 throws 0 | walls l3.wall@34,l2.wall@50,l1.wall@83 hearth reached @90 King left @4
+    seed 16 without: FELL F15 snuffed 4 relit 1 throws 0 | walls l3.wall@32,l2.wall@48,l1.wall@82 hearth reached @90 King left @4
+    seed 17 without: FELL F8 snuffed 9 relit 3 throws 0 | walls l3.wall@31,l2.wall@49,l1.wall@89 hearth reached @97 King left @4
+    seed 18 without: FELL F16 snuffed 4 relit 0 throws 1 | walls l3.wall@31,l2.wall@49,l1.wall@82 hearth reached @90 King left @4
+    seed 19 without: held H100 snuffed 6 relit 2 throws 0 | walls l3.wall@35,l2.wall@54,l1.wall@96 hearth reached @113 King left @4
+    seed 20 without: held H50 snuffed 6 relit 3 throws 0 | walls l3.wall@33,l2.wall@50,l1.wall@90 hearth reached @106 King left @5
+present: no throws             without: held 5/20 snuffed 6.5 relit 2.9 throws 0.0 lost 0.7 moves 5.6 trips 0.8 | with: held 20 slain 20 lost 2.3 | margins without ["F13", "H4", "F12", "F0", "F6", "F13", "F6", "F5", "F9", "F13", "H100", "H100", "F0", "F7", "F16", "F16", "F7", "F11", "H100", "H19"]
+present: last stand -20        without: held 2/20 snuffed 7.5 relit 2.9 throws 2.4 lost 1.9 moves 4.1 trips 0.0 | with: held 20 slain 20 lost 2.4 | margins without ["F13", "F6", "F12", "F6", "F5", "F16", "F6", "F6", "F14", "F13", "F11", "F6", "F11", "F8", "F16", "F15", "F8", "F16", "H100", "H54"]
+present: last stand -46        without: held 2/20 snuffed 7.6 relit 2.9 throws 2.5 lost 2.0 moves 4.1 trips 0.0 | with: held 20 slain 20 lost 2.4 | margins without ["F13", "F5", "F12", "F6", "F4", "F15", "F6", "F6", "F13", "F13", "F10", "F5", "F10", "F8", "F16", "F15", "F7", "F15", "H100", "H78"]
+    seed 1 without: FELL F13 snuffed 9 relit 3 throws 2 | walls l3.wall@31,l2.wall@49,l1.wall@85 hearth reached @93 King left @4
+    seed 2 without: FELL F5 snuffed 9 relit 3 throws 2 | walls l3.wall@35,l2.wall@52,l1.wall@92 hearth reached @100 King left @3
+    seed 3 without: FELL F12 snuffed 4 relit 1 throws 1 | walls l3.wall@29,l2.wall@46,l1.wall@83 hearth reached @91 King left @3
+    seed 4 without: FELL F6 snuffed 7 relit 1 throws 3 | walls l3.wall@34,l2.wall@50,l1.wall@89 hearth reached @98 King left @5
+    seed 5 without: FELL F4 snuffed 7 relit 5 throws 4 | walls l3.wall@30,l2.wall@46,l1.wall@85 hearth reached @97 King left @5
+    seed 6 without: FELL F15 snuffed 4 relit 0 throws 2 | walls l3.wall@33,l2.wall@49,l1.wall@82 hearth reached @90 King left @4
+    seed 7 without: FELL F6 snuffed 4 relit 0 throws 2 | walls l3.wall@35,l2.wall@52,l1.wall@89 hearth reached @98 King left @5
+    seed 8 without: FELL F6 snuffed 6 relit 2 throws 4 | walls l3.wall@33,l2.wall@50,l1.wall@83 hearth reached @92 King left @5
+    seed 9 without: FELL F13 snuffed 11 relit 5 throws 3 | walls l3.wall@30,l2.wall@47,l1.wall@84 hearth reached @92 King left @4
+    seed 10 without: FELL F13 snuffed 11 relit 5 throws 3 | walls l3.wall@30,l2.wall@47,l1.wall@85 hearth reached @93 King left @3
+    seed 11 without: FELL F10 snuffed 9 relit 3 throws 2 | walls l3.wall@34,l2.wall@51,l1.wall@88 hearth reached @96 King left @4
+    seed 12 without: FELL F5 snuffed 11 relit 5 throws 3 | walls l3.wall@34,l2.wall@51,l1.wall@92 hearth reached @100 King left @5
+    seed 13 without: FELL F10 snuffed 11 relit 5 throws 3 | walls l3.wall@33,l2.wall@50,l1.wall@87 hearth reached @95 King left @4
+    seed 14 without: FELL F8 snuffed 7 relit 4 throws 1 | walls l3.wall@33,l2.wall@50,l1.wall@89 hearth reached @98 King left @5
+    seed 15 without: FELL F16 snuffed 12 relit 6 throws 2 | walls l3.wall@34,l2.wall@50,l1.wall@83 hearth reached @91 King left @4
+    seed 16 without: FELL F15 snuffed 4 relit 1 throws 1 | walls l3.wall@32,l2.wall@48,l1.wall@82 hearth reached @90 King left @4
+    seed 17 without: FELL F7 snuffed 9 relit 3 throws 3 | walls l3.wall@31,l2.wall@49,l1.wall@89 hearth reached @97 King left @4
+    seed 18 without: FELL F15 snuffed 4 relit 0 throws 2 | walls l3.wall@31,l2.wall@49,l1.wall@82 hearth reached @90 King left @4
+    seed 19 without: held H100 snuffed 6 relit 2 throws 3 | walls l3.wall@35,l2.wall@54,l1.wall@96 hearth reached @113 King left @4
+    seed 20 without: held H78 snuffed 6 relit 3 throws 4 | walls l3.wall@33,l2.wall@50,l1.wall@90 hearth reached @106 King left @5
+present: last stand -90        without: held 2/20 snuffed 7.6 relit 2.9 throws 2.8 lost 2.0 moves 4.1 trips 0.0 | with: held 20 slain 20 lost 2.4 | margins without ["F13", "F5", "F11", "F6", "F4", "F15", "F6", "F6", "F13", "F13", "F10", "F5", "F10", "F8", "F16", "F15", "F7", "F15", "H100", "H88"]
+present: last stand -150       without: held 2/20 snuffed 7.6 relit 2.9 throws 3.0 lost 1.8 moves 4.1 trips 0.0 | with: held 20 slain 20 lost 2.4 | margins without ["F13", "F5", "F11", "F6", "F4", "F15", "F6", "F6", "F13", "F13", "F11", "F5", "F10", "F8", "F15", "F15", "F7", "F15", "H100", "H86"]
+present: -46, no throws        without: held 5/20 snuffed 6.5 relit 2.9 throws 0.0 lost 0.8 moves 5.6 trips 0.8 | with: held 20 slain 20 lost 2.3 | margins without ["F13", "H18", "F11", "F0", "F4", "F12", "F6", "F5", "F8", "F13", "H100", "H100", "F0", "F6", "F15", "F16", "F6", "F10", "H100", "H93"]
+present: -46, never the guards without: held 2/20 snuffed 7.6 relit 2.9 throws 2.5 lost 2.0 moves 4.0 trips 0.0 | with: held 20 slain 20 lost 2.4 | margins without ["F13", "F5", "F12", "F6", "F4", "F15", "F6", "F6", "F13", "F13", "F10", "F5", "F10", "F8", "F16", "F15", "F7", "F15", "H100", "H78"]
+present: relight every 1 s     without: held 3/20 snuffed 9.4 relit 5.3 throws 0.2 lost 1.2 moves 4.1 trips 0.0 | with: held 20 slain 20 lost 2.4 | margins without ["F2", "F6", "F12", "F6", "F6", "F16", "F6", "F6", "F14", "F13", "H100", "F10", "F14", "F8", "F16", "F15", "F16", "F16", "H100", "H69"]
+(77 s)
+
+== the hard nights (T6 and T7 under the rule), standard
+hard nights under the rule (reported only; seeds 1-20, from the reference bot's eves; 0 fell in the chapter):
+  T6 night 20 with the beacon: held by the reference 20/20, by the present bot 20/20 (T6: >= 80 %); the King slain 20 / 20 (T6: >= 60 %); defenders lost 53 / 47
+  T6 without the beacon's last stage: held by the reference 10/20, by the present bot 2/20 (T6: 30-60 %)
+  T7 endless (cap 70): the reference falls on [46, 46, 48, 43, 55, 37, 52, 50, 39, 53, 53, 49, 38, 49, 38, 0, 63, 44, 45, 0], 17 in 35-60; the present bot falls on [47, 0, 52, 53, 0, 34, 0, 57, 32, 0, 0, 0, 0, 53, 0, 0, 53, 47, 60, 0], 8 in 35-60 (T7: >= 80 %; 0 = standing at the cap)
+  the present bot fell on night 20 where the reference held: seeds [1, 2, 3, 7, 11, 12, 13, 14]; fell earlier in endless: seeds [6, 9, 17]
+(84 s)
+
+== the hard nights (T6 and T7 under the rule), bot: last stand -46
+hard nights under the rule (reported only; seeds 1-20, from the reference bot's eves; 0 fell in the chapter):
+  T6 night 20 with the beacon: held by the reference 20/20, by the present bot 20/20 (T6: >= 80 %); the King slain 20 / 20 (T6: >= 60 %); defenders lost 53 / 47
+  T6 without the beacon's last stage: held by the reference 10/20, by the present bot 2/20 (T6: 30-60 %)
+  T7 endless (cap 70): the reference falls on [46, 46, 48, 43, 55, 37, 52, 50, 39, 53, 53, 49, 38, 49, 38, 0, 63, 44, 45, 0], 17 in 35-60; the present bot falls on [47, 0, 52, 53, 0, 34, 0, 57, 32, 0, 0, 0, 0, 53, 0, 0, 53, 47, 60, 0], 8 in 35-60 (T7: >= 80 %; 0 = standing at the cap)
+  the present bot fell on night 20 where the reference held: seeds [1, 2, 3, 7, 11, 12, 13, 14]; fell earlier in endless: seeds [6, 9, 17]
+(91 s)
+
+== the hard nights (T6 and T7 under the rule), bot: last stand -90
+hard nights under the rule (reported only; seeds 1-20, from the reference bot's eves; 0 fell in the chapter):
+  T6 night 20 with the beacon: held by the reference 20/20, by the present bot 20/20 (T6: >= 80 %); the King slain 20 / 20 (T6: >= 60 %); defenders lost 53 / 47
+  T6 without the beacon's last stage: held by the reference 10/20, by the present bot 2/20 (T6: 30-60 %)
+  T7 endless (cap 70): the reference falls on [46, 46, 48, 43, 55, 37, 52, 50, 39, 53, 53, 49, 38, 49, 38, 0, 63, 44, 45, 0], 17 in 35-60; the present bot falls on [47, 0, 52, 53, 0, 34, 0, 57, 32, 0, 0, 0, 0, 53, 0, 0, 53, 47, 60, 0], 8 in 35-60 (T7: >= 80 %; 0 = standing at the cap)
+  the present bot fell on night 20 where the reference held: seeds [1, 2, 3, 7, 11, 12, 13, 14]; fell earlier in endless: seeds [6, 9, 17]
+(99 s)
+frontsweep: exit 0 after 228 s
