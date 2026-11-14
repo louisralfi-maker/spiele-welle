@@ -1,0 +1,30 @@
+The Lantern Table's tuning (docs/QUESTS.md 4.4) over 20 seeds: the reference bot (no table), the sender bot (Odile's seal only) and the greedy bot (everything, second orders)
+T1 PASS nights 1-10, seeds 1-3, hearth untouched, at most 3 lost: reference survived true hearth 100.0 losses 0 | sender survived true hearth 100.0 losses 0 | greedy (reported) survived true hearth 100.0 losses 0
+T2 (reference, the table's files loaded) builds nothing: falls on nights [3, 3, 3] (target 2 or 3)
+T3 PASS beacon day, seeds 1-3: reference [17, 16, 17] | sender [17, 16, 17] (within one day, never past 18) | greedy (reported) [15, 16, 18]
+T4 PASS high tax, happiness at dawn 8: reference 27 | sender 27 (under 30, not above the reference)
+T5 PASS buildings by day 10, seed 1: reference 11 | sender 11 (8-12) | greedy (reported) 11
+T6 FAIL/PASS night 20: reference won 20, King slain 20, without held 10 | sender won 20 (all), King slain 19 (>= 60 %), without held 3 (30-60 %) | greedy won 20, without held 8 (at or below the reference)
+T7 PASS sender endless to night 66: falls on nights [46, 46, 44, 43, 42, 44, 0, 0, 45, 48, 45, 44, 39, 48, 42, 56, 37, 49, 49, 47], 18 between 35 and 60 (target >= 80 %; 0 = standing)
+T8 PASS sim proxy, seeds 1-3: last wave at 79.9 s / 79.9 s (<= 84), entities 103 / 103 (< 300), battle lights 20 / 19 (< 40), reference / sender; the party at the gate and the table screen's images are round 2's (nothing is drawn yet)
+T10 PASS sender at dusk of day 20 against the reference, median of 20 seeds: gold -8.5 (within 25), soldiers 0.0 (within 2), happiness -0.5 (within 3); per seed gold [-31, 15, -50, -7, -52, 27, 4, 22, -6, -12, -25, -38, -7, -8, 51, -26, -41, -9, -38, 18], soldiers [-6, -1, 4, -4, 0, 1, -1, 1, 2, 1, -2, 0, 0, 0, 1, 0, 0, 1, -1, 0], happiness [-30, -15, 10, -14, -4, 3, -12, 3, 13, 12, -14, -11, -1, 0, -2, 1, 4, 20, 1, -6]
+T11 PASS/FAIL sender: days 9-15 with all three road lanterns out, median 3.0 (>= 3), per seed [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3] | greedy: offered sendings unsent for want of a hook, median 0.0 (>= 2), per seed [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+
+lanterns lost over the chapter: sender [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], greedy [0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1]
+
+sender, what went (day:sending.order) and the full days, seeds 1-5:
+seed 1: 2:oil_round.1 5:highcairn_count.1 8:mill_herbs.1 8:beaconfoot_smoke.1 11:ford_planks.1 11:goldenacre_cart.2 11:beacon_statues.1 13:stillmere_proof.1 | full days [11, 12, 13] | reports read 8 | dusk 20: gold 23 soldiers 8 happiness 61
+seed 2: 2:oil_round.1 5:highcairn_count.1 8:mill_herbs.1 8:beaconfoot_smoke.1 11:ford_planks.1 11:goldenacre_cart.2 11:beacon_statues.1 13:stillmere_proof.1 | full days [11, 12, 13] | reports read 8 | dusk 20: gold 54 soldiers 13 happiness 75
+seed 3: 2:oil_round.1 5:highcairn_count.1 8:mill_herbs.1 8:beaconfoot_smoke.1 11:ford_planks.1 11:goldenacre_cart.2 11:beacon_statues.1 13:stillmere_proof.1 | full days [11, 12, 13] | reports read 8 | dusk 20: gold 9 soldiers 14 happiness 97
+seed 4: 2:oil_round.1 5:highcairn_count.1 8:mill_herbs.1 8:beaconfoot_smoke.1 11:ford_planks.1 11:goldenacre_cart.2 11:beacon_statues.1 13:stillmere_proof.1 | full days [11, 12, 13] | reports read 8 | dusk 20: gold 46 soldiers 11 happiness 86
+seed 5: 2:oil_round.1 5:highcairn_count.1 8:mill_herbs.1 8:beaconfoot_smoke.1 11:ford_planks.1 11:goldenacre_cart.2 11:beacon_statues.1 13:stillmere_proof.1 | full days [11, 12, 13] | reports read 8 | dusk 20: gold 3 soldiers 13 happiness 89
+
+greedy, what went (day:sending.order) and the full days, seeds 1-5:
+seed 1: 2:oil_round.1 5:highcairn_count.2 6:mill_herbs.1 8:goldenacre_cart.2 8:beaconfoot_smoke.2 9:ford_planks.1 10:hemmet_sentence.1 11:beacon_statues.2 12:ludo_number.2 13:stillmere_proof.2 15:greybell_bell.1 | full days [10, 11] | reports read 11 | unsent for want of a hook [] | dusk 20: gold 44 soldiers 14 happiness 81
+seed 2: 2:oil_round.1 5:highcairn_count.2 6:mill_herbs.1 7:goldenacre_cart.2 8:beaconfoot_smoke.2 9:ford_planks.1 11:saltgate_grey.1 11:beacon_statues.2 12:hemmet_sentence.1 13:stillmere_proof.2 15:greybell_bell.1 | full days [11] | reports read 11 | unsent for want of a hook [] | dusk 20: gold 17 soldiers 13 happiness 89
+seed 3: 2:oil_round.1 5:highcairn_count.2 6:mill_herbs.1 7:goldenacre_cart.2 8:beaconfoot_smoke.2 9:ford_planks.1 11:beacon_statues.2 13:stillmere_proof.2 14:hemmet_sentence.1 15:greybell_bell.1 | full days [] | reports read 10 | unsent for want of a hook [] | dusk 20: gold 20 soldiers 11 happiness 75
+seed 4: 2:oil_round.1 5:highcairn_count.2 6:mill_herbs.1 8:goldenacre_cart.2 8:beaconfoot_smoke.2 9:ford_planks.1 11:beacon_statues.2 12:ludo_number.2 13:saltgate_grey.1 13:stillmere_proof.2 16:greybell_bell.1 | full days [11] | reports read 11 | unsent for want of a hook [] | dusk 20: gold 34 soldiers 14 happiness 86
+seed 5: 2:oil_round.1 6:mill_herbs.1 6:highcairn_count.2 7:goldenacre_cart.2 9:beaconfoot_smoke.2 10:ford_planks.1 10:saltgate_grey.1 11:beacon_statues.2 12:ludo_number.2 13:stillmere_proof.2 15:greybell_bell.1 | full days [10, 11, 12] | reports read 11 | unsent for want of a hook [] | dusk 20: gold 43 soldiers 13 happiness 90
+
+reference, dusk of day 20 by seed: 1:54g/14s/91h 2:39g/14s/90h 3:59g/10s/87h 4:53g/15s/100h 5:55g/13s/93h 6:21g/13s/86h 7:3g/14s/99h 8:20g/14s/91h 9:59g/14s/86h 10:32g/13s/87h 11:44g/15s/99h 12:52g/14s/98h 13:9g/14s/85h 14:58g/14s/94h 15:6g/13s/83h 16:41g/14s/94h 17:45g/14s/90h 18:27g/14s/79h 19:50g/15s/88h 20:32g/14s/94h
+sender, night 20 by seed: 1:won/fell 2:won/fell 3:won/fell 4:won/fell 5:won/fell 6:won/held 7:won/fell 8:won/fell 9:won/fell 10:won/fell 11:won/fell 12:won/fell 13:won/held 14:won/held 15:won/fell 16:won/fell 17:won/fell 18:won/fell 19:won/fell 20:won/fell

@@ -1,0 +1,74 @@
+2026-11-14 20:27:21.400744+0000 Lanternhold[8641:36046] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.ErrandDataTests testABrokenEntryCostsOnlyItself]' passed (0.027 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testAReportChoiceRoundTrips]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testPlaceholdersAndCounts]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheBuildCompiledEveryTableKeyInEnglishAndGerman]' passed (0.017 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheBundledTableLoadsWithoutProblems]' passed (0.018 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheSourceFolderHoldsOnlyTableFilesTheBundleHas]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheThreeSendingsOfRoundOne]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheValidatorCatchesTheUsualMistakes]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheValidatorFindsNothingWrongWithTheContent]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testALostLanternStaysLostForTheChapter]' passed (0.018 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testANightChoiceAppliesOnlyOnDaysFourToFourteen]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testAReportWithoutACardNeverHoldsTheTable]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testASendingTakesTheLowestLanternItsPeopleAndItsGold]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testAtMostThreeLanternsAndFortyOneStaysOnItsHook]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testCallBackUndoesASendingWhileTheClockStands]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testFromTheLampRoomTheScoutSeesFurther]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testLateNightsWithAltReportsBearersAndBuilders]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testPipComesHomeAtTheDawnAndHisReportWaits]' passed (0.168 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testPipSaysNothingAtCourtWhileHeIsAway]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testReadingPipsReportLightsTheLanes]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testReportsAreReadFirst]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testSoldiersComeBackAtTheReturnDawnWhetherOrNotTheReportIsRead]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testTheClothComesOffOnDayTwoAndOffersFollowTheirDays]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testTheCounselGivesNoPeopleOrGoldAfterDayFourteen]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testTheDawnRowsBelongToTheirDay]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testTheRiskIsRolledOnceWhenTheLanternLeavesFromItsOwnStream]' passed (0.032 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testTheRoundedCountAndTheTruthSentAfterIt]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testTheSealHoldsOnlyOnDaysItsRulesAllow]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testTheTrueCountBringsTwoArchersNamedFromTheTablesStream]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testWhatIsMissingBlocksTheOrderAndTurnsItsChipRed]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TableNeutralityTests testNobodySentChangesNothingOnTheTuningSeeds]' passed (14.273 seconds).
+Test Case '-[LanternholdTests.TableNeutralityTests testTodaysLineIsUnchanged]' passed (3.823 seconds).
+Test Case '-[LanternholdTests.TableNeutralityTests testWithTheTableLoadedAndNobodySentSeedOneWalksTodaysLine]' passed (4.147 seconds).
+Test Case '-[LanternholdTests.TableSaveTests testAnOlderTableWithoutNewerFieldsLoads]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.TableSaveTests testARealmThatNeverTouchedTheTableWritesNoTable]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TableSaveTests testAReportTheCatalogueNoLongerKnowsDoesNotHoldTheTable]' passed (0.155 seconds).
+Test Case '-[LanternholdTests.TableSaveTests testPartiesOutAndReportsComeBackFromTheSave]' passed (0.028 seconds).
+Test Case '-[LanternholdTests.TableSaveTests testTheFrozenVersionOneSaveHasNoTable]' passed (0.019 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testEveryReportIsBroughtHomeBySomething]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testHemmetsSentenceOrTheSailsTied]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testLanternFortyOneFollowsHildsRideAndStaysOut]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testLentSoldiersAreNotOnTheWall]' passed (0.455 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testLudoGoesWithAScoutOrAloneOnARedChip]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testMareksCartPaysTheLoanOrCarriesTheList]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testNoSendingCanLockTheChapterOrLoseANamedPersonUnasked]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testOnlyAChipCanLoseALanternAndItsSoldiers]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testSaltgatesDarkRoadIsLateNeverLost]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testStillmerePaysForStruckStatues]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testTheFirstBellComesHomeWithItsBearers]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testTheMillHerbsKeepTheCoughAway]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testThePlanksBridgeTheFordAndShortenTheEastRoads]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testTheSenderSendsOnlyUnderTheSealAndTheGreedyTakesTheSecondOrder]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testTheTableHoldsAllThirteenSendings]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testTheValidatorKnowsTheBareWoodAndTheFollowedRide]' passed (0.050 seconds).
+Test Case '-[LanternholdTests.TableSendingsTests testThreeLanternsOutBlockEveryOtherSlip]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testReportIsAttached]' passed (81.399 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testT10TheTableIsATrade]' passed (0.005 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/Table/TableTuningTests.swift:16: error: -[LanternholdTests.TableTuningTests testT11TheHookMatters] : XCTAssertTrue failed - T11 greedy: T11 PASS/FAIL sender: days 9-15 with all three road lanterns out, median 3.0 (>= 3), per seed [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3] | greedy: offered sendings unsent for want of a hook, median 0.0 (>= 2), per seed [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+Test Case '-[LanternholdTests.TableTuningTests testT11TheHookMatters]' failed (0.054 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testT1TheSenderHoldsTheFirstTenNights]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testT3TheSendersBeacon]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testT4HighTaxWithTheSender]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testT5TheSendersPaceOfBuilding]' passed (0.004 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/Table/TableTuningTests.swift:16: error: -[LanternholdTests.TableTuningTests testT6NightTwenty] : XCTAssertTrue failed - T6 sender: T6 FAIL/PASS night 20: reference won 20, King slain 20, without held 10 | sender won 20 (all), King slain 19 (>= 60 %), without held 3 (30-60 %) | greedy won 20, without held 8 (at or below the reference)
+Test Case '-[LanternholdTests.TableTuningTests testT6NightTwenty]' failed (0.045 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testT7TheSendersEndless]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testT8TheSendersBudgets]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.TableTuningTests testTheBotsUsedTheTable]' passed (0.001 seconds).
+Test Suite 'TableTuningTests' failed at 2026-11-14 20:29:08.057.
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-14 20:29:08.058.
+Test Suite 'Selected tests' failed at 2026-11-14 20:29:08.058.
+exit=65
+screenshots: 0

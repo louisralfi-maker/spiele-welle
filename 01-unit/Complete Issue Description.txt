@@ -1,0 +1,1 @@
+XCTAssertTrue failed - T11 greedy: T11 PASS/FAIL sender: days 9-15 with all three road lanterns out, median 3.0 (>= 3), per seed [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3] | greedy: offered sendings unsent for want of a hook, median 0.0 (>= 2), per seed [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
