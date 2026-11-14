@@ -507,12 +507,18 @@ struct ChoiceTile: View {
                             risky: option.risky, size: compact ? 12 : 13, night: option.night,
                             remembers: option.remembers, noteKey: option.noteKey)
                     .opacity(option.enabled ? 1 : 0.6)
+                    // Fix round 2 of step stage-1: on the floor band every line keeps to one line (German must not
+                    // raise the row toward the petitioner's feet): words two lines, what it costs one, the reason one.
+                    .lineLimit(compact ? 1 : nil)
+                    .minimumScaleFactor(compact ? 0.75 : 1)
                 if let block = option.blocker {
                     HStack(spacing: 4) {
                         Image(systemName: "exclamationmark.circle.fill")
                             .font(.system(size: 11, weight: .bold))
                         Text(inked: AudienceTexts.blocker(block), .footnote)
                             .font(Theme.serif(.footnote))
+                            .lineLimit(compact ? 1 : nil)
+                            .minimumScaleFactor(compact ? 0.75 : 1)
                     }
                     .foregroundStyle(Theme.rubric)
                     .fixedSize(horizontal: false, vertical: true)

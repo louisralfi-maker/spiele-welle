@@ -363,15 +363,22 @@ final class HallStageTests: XCTestCase {
         let guards = entering.filter { $0.who == "guard" && $0.x < 120 }
         XCTAssertEqual(guards.count, 2)
         for guardsman in guards {
-            XCTAssertEqual(guardsman.frame, 0, "standing straight: no breath")
-            XCTAssertEqual(guardsman.y, Double(HallLayout.floorRow - HallLayout.wallRow) + 1, "a pixel taller")
+            XCTAssertEqual(guardsman.frame, 0, "at attention: no breath, the spear upright")
+            XCTAssertEqual(guardsman.y, Double(HallLayout.floorRow - HallLayout.wallRow) + 2, "two pixels taller")
+            XCTAssertNotNil(HallFrames.guardGlint(guardsman, since: 0.5), "the spear's head glints as it snaps")
         }
+        XCTAssertNil(HallFrames.guardGlint(guards[0], since: 1.5), "a glint, not a lamp")
         let farmer = try XCTUnwrap(entering.first { $0.petition == "first_plough" })
         XCTAssertEqual(farmer.facing, -1, "he turns his head to the lord at the door")
+        XCTAssertTrue(farmer.onBench, "behind the bench's front")
+        XCTAssertNil(farmer.seated, "he rises from his seat")
+        XCTAssertEqual(farmer.y, Double(HallLayout.floorRow - HallLayout.wallRow) - HallCourt.sunk + HallCourt.rise,
+                       "half way up")
 
         let later = HallFrames.drawnFigures(specs, scene: scene, court: court, residents: residents,
                                             lordX: HallLayout.doorX, since: 10, animTime: 3)
         XCTAssertEqual(later.first { $0.petition == "first_plough" }?.facing, 1, "then back to the throne")
+        XCTAssertNotNil(later.first { $0.petition == "first_plough" }?.seated, "sitting again")
         XCTAssertEqual(later.first { $0.who == "guard" && $0.x < 120 }?.y,
                        Double(HallLayout.floorRow - HallLayout.wallRow), "the guards stand easy again")
 
@@ -514,7 +521,8 @@ final class HallStageTests: XCTestCase {
         _ = s
     }
 
-    func testWhoCannotSitStandsBesideTheBench() throws {
+    func testEveryTownspersonSitsBehindTheBench() throws {
+        // Fix round 2: everyone who waits takes a seat, with a seated strip or drawn lower behind the bench's front.
         var s = realm(day: 3, hour: 10)
         var court = s.court ?? CourtState()
         court.queueDay = 3
@@ -524,16 +532,62 @@ final class HallStageTests: XCTestCase {
         s.court = court
         let specs = HallCourt.specs(s, catalog: .standard)
         let soldier = try XCTUnwrap(specs.first { $0.petition == "veteran_bow" })
-        XCTAssertNil(soldier.seated)
-        XCTAssertEqual(soldier.x, HallLayout.besideBenches[0], "beside the bench, not before an empty seat")
+        XCTAssertNil(soldier.seated, "no seated strip")
+        XCTAssertTrue(soldier.sits, "and still he sits")
+        XCTAssertEqual(soldier.x, HallLayout.seats[0])
         let farmer = try XCTUnwrap(specs.first { $0.petition == "first_plough" })
-        XCTAssertEqual(farmer.x, HallLayout.seats[0], "who can sit takes the first seat")
+        XCTAssertEqual(farmer.x, HallLayout.seats[1])
         XCTAssertNotNil(farmer.seated)
-        XCTAssertEqual(specs.first { $0.petition == "tax_grumble" }?.x, HallLayout.besideBenches[1])
-        XCTAssertEqual(HallCourt.occupiedBenches(specs), [0, 1], "the candles burn where anyone waits")
+        XCTAssertEqual(specs.first { $0.petition == "tax_grumble" }?.x, HallLayout.seats[2])
+        XCTAssertEqual(HallCourt.occupiedBenches(specs), [0], "the candles burn where anyone waits")
         for x in HallLayout.besideBenches + HallLayout.seats.prefix(3) {
             XCTAssertLessThan(x, 290, "\(x) is clear of the action button when he comes in")
         }
+        XCTAssertEqual(HallLayout.besideBenches.count, 1, "at most one stands at a bench")
+
+        let scene = HallScene(walker: HallWalker(x: 300, facing: 1))
+        let figures = HallFrames.drawnFigures(specs, scene: scene, court: CourtScene(rooms: RoomFades(kingX: -1_000)),
+                                              residents: [], lordX: 300, since: 60, animTime: 2)
+        let sitting = try XCTUnwrap(figures.first { $0.petition == "veteran_bow" })
+        XCTAssertTrue(sitting.onBench)
+        XCTAssertEqual(sitting.y, Double(HallLayout.floorRow - HallLayout.wallRow) - HallCourt.sunk, "5 px lower")
+        let game = model(["GWStage": "hall", "GWHallX": "240", "GWClock": "10", "GWWeather": "clear"])
+        var queued = try XCTUnwrap(game.driver?.state)
+        queued.day = s.day
+        queued.hour = s.hour
+        queued.court = s.court
+        game.withDriver { $0.state = queued }
+        let frame = game.frame(physicalWidth: 2622, physicalHeight: 1206)
+        let benches = frame.actors.filter { $0.sprite == .bench }
+        XCTAssertEqual(benches.count, 2, "the benches' fronts over who sits on them")
+        let behind = frame.actors.filter { $0.cropBottom > 0 }
+        XCTAssertTrue(behind.allSatisfy { $0.cropBottom == Int(HallCourt.sunk) }, "the legs below the wall line cut off")
+        if let first = frame.actors.firstIndex(where: { $0.sprite == .bench }),
+           let sitter = frame.actors.firstIndex(where: { $0.cropBottom > 0 }) {
+            XCTAssertLessThan(sitter, first, "the bench is drawn over him")
+        }
+    }
+
+    func testTheLanternLightsWallAndFloorAndTheClothStaysDark() throws {
+        // Fix round 2: one round pool on the lantern's head and an ellipse 40 x 8 on the carpet; the pillar's band.
+        let game = model(["GWStage": "hall", "GWNight": "3", "GWSeed": "2", "GWHallX": "250", "GWFlickerTime": "1"])
+        let frame = game.frame(physicalWidth: 2622, physicalHeight: 1206)
+        let lanterns = frame.lights.filter { $0.kind == .lantern }
+        XCTAssertEqual(lanterns.count, 2)
+        let head = try XCTUnwrap(lanterns.max { $0.circle.z < $1.circle.z })
+        XCTAssertEqual(Double(head.circle.z), HallLight.lanternRadius, accuracy: 3)
+        XCTAssertEqual(head.ellipseY, 1, "round: the wall above the wainscot too")
+        let floor = try XCTUnwrap(lanterns.min { $0.circle.z < $1.circle.z })
+        XCTAssertEqual(Double(floor.circle.z) * 2, 40, accuracy: 4)
+        XCTAssertEqual(Double(floor.circle.z) * 2 / Double(floor.ellipseY), 8, accuracy: 2, "a flat ellipse")
+        XCTAssertGreaterThan(floor.circle.y, head.circle.y + 15, "on the floor under him")
+        let inside = try XCTUnwrap(frame.interior)
+        XCTAssertLessThan(inside.pillarBand, 0, "at night the torches' side")
+        let day = try XCTUnwrap(model(["GWStage": "hall", "GWHallX": "200", "GWClock": "10", "GWWeather": "clear"])
+            .frame(physicalWidth: 2622, physicalHeight: 1206).interior)
+        XCTAssertGreaterThan(day.pillarBand, 0, "by day the window's side")
+        XCTAssertEqual(HallLight.shaftShare(windowLeft: 285, audience: 1), 0, "under the letter only the pool")
+        XCTAssertEqual(HallLight.shaftShare(windowLeft: 285, audience: 0), 1)
     }
 
     func testTheFixRoundsArguments() {

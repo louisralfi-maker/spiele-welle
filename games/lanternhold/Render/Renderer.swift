@@ -775,16 +775,24 @@ final class Renderer {
     /// `Look2.rim` for the king and the creatures, `Look2.peopleRim` for the people of the realm.
     static func quad(_ actor: ActorInstance, layout: AtlasLayout, look: LookVersion = .one) -> ActorQuad {
         let cell = layout.cell(actor.sprite, frame: actor.frame)
+        var rect = actor.rect
+        var texel = cell.texels(flipped: actor.flipped)
+        // The hall stage (stage lane, fix round 2 of step stage-1): a strip cut off at its bottom (a petitioner sitting
+        // behind a bench).
+        if actor.cropBottom > 0, cell.height > actor.cropBottom {
+            let rows = Float(actor.cropBottom)
+            rect.w -= rect.w * rows / Float(cell.height)
+            texel.w -= rows
+        }
         guard look == .two else {
             let rim: Float = rimmed.contains(actor.sprite) ? 1 : 0
             let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, actor.lightCap)
-            return ActorQuad(rect: actor.rect, texel: cell.texels(flipped: actor.flipped), tint: actor.tint,
-                             flags: flags)
+            return ActorQuad(rect: rect, texel: texel, tint: actor.tint, flags: flags)
         }
         let rim: Float = rimmed.contains(actor.sprite) ? Look2.rim
             : (people.contains(actor.sprite) ? Look2.peopleRim : 0)
         let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, 0)
-        return ActorQuad(rect: actor.rect, texel: cell.texels(flipped: actor.flipped), tint: actor.tint, flags: flags)
+        return ActorQuad(rect: rect, texel: texel, tint: actor.tint, flags: flags)
     }
 
     /// Rounded up to 256 bytes (buffer offsets and readback rows).

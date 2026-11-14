@@ -89,4 +89,37 @@ enum HallLight {
         let right = windowCool * day + moonCool * moon
         return (left, right)
     }
+
+    // MARK: - Fix round 2 (the art director's second look)
+
+    /// The near pillar's soft band of light on its key side (`InteriorLight.pillarBand`): by day the tall window's on
+    /// the right, from the dusk the door torches' on the left (the nearest fire: the hearth is 380 px away).
+    static let pillarBandStrength: Float = 1.2
+
+    static func pillarBand(_ ambient: AmbientSample) -> Float {
+        let day = Look.daylight(ambient)
+        let torch = Float(min(1, max(0, ambient.torchStrength)))
+        return day >= torch ? pillarBandStrength * day : -pillarBandStrength * torch
+    }
+
+    /// The lord's lantern indoors: one round pool on the wall, the wainscot and the floor alike, centred on the
+    /// lantern's head (round 1's flattened pool lit the wainscot only and its top edge followed the cap rail), and a
+    /// flattened ellipse 40 x 8 px on the carpet under it, where its light lands.
+    static let lanternRadius = 36.0
+    static let lanternFloor = (radius: 20.0, squash: 5.0, share: 0.8)
+
+    /// The door's guards come to attention when the lord comes in: 2 px taller, still, the spear upright, its head
+    /// catching the light as it snaps (a glint), from `attention.lowerBound` to its upper bound in seconds.
+    static let attention: ClosedRange<Double> = 0.12...2.2
+    static let attentionRise = 2.0
+    static let glintSeconds = 0.8
+    /// The spear's head in the guard's strip (frame 0, unflipped): its column from the anchor and its row from the
+    /// strip's top.
+    static let spearTip = (dx: 4.0, row: 0)
+
+    /// While the audience framing is up the day's shafts from windows under the letter fade out (their beams seemed
+    /// to fall out of the letter's lower edge), keeping their pool on the floor.
+    static func shaftShare(windowLeft: Double, audience: Double) -> Double {
+        windowLeft + 30 <= HallLayout.letterEdgeX ? 1 - audience : 1
+    }
 }

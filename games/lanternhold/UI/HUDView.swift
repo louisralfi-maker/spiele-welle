@@ -329,14 +329,37 @@ struct ActionArea: View {
     let model: GameModel
 
     var body: some View {
-        VStack(alignment: .trailing, spacing: 0) {
-            caption
-                .padding(.trailing, 20)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
-            ActionButton(glyph: ActionGlyph(target), label: label, hold: model.targetHold) {
-                model.performAction()
+        if captionBeside {
+            // The hall stage at the throne (fix round 2 of step stage-1): the caption stands left of the button, low
+            // over the floor, so the hearth's fire above the button stays in sight (on the first morning it covered
+            // the firebox). The camera stands at the hall's end wall there and cannot move the fire out from under
+            // the button; stage-2 removes the button.
+            HStack(alignment: .bottom, spacing: -14) {
+                caption
+                    .padding(.bottom, 24)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+                actionButton
             }
+        } else {
+            VStack(alignment: .trailing, spacing: 0) {
+                caption
+                    .padding(.trailing, 20)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+                actionButton
+            }
+        }
+    }
+
+    private var captionBeside: Bool {
+        guard model.stage == .hall, case .throne = target else { return false }
+        return true
+    }
+
+    private var actionButton: some View {
+        ActionButton(glyph: ActionGlyph(target), label: label, hold: model.targetHold) {
+            model.performAction()
         }
     }
 

@@ -493,6 +493,9 @@ struct ActorInstance: Sendable, Equatable {
     var lightCap: Float = 0
     /// The strength of a moonlight rim on its screen-right edge (unlit creatures at night; 0: none, or the king's).
     var moonRim: Float = 0
+    /// The hall stage (stage lane, fix round 2 of step stage-1): game rows cut off the strip's bottom (a petitioner
+    /// sitting behind a bench: the legs below the wall line); 0: the whole frame.
+    var cropBottom: Int = 0
 }
 
 /// One quad of the emissive pass (flames, window glass, lantern glass, stars, sun, moon), added after lighting; it
@@ -662,6 +665,9 @@ struct InteriorLight: Sendable, Equatable {
     var rimLeft = SIMD3<Float>(repeating: 0)
     var rimRight = SIMD3<Float>(repeating: 0)
     var pillarAmbient: Float = 0.6
+    /// Fix round 2: the soft band of light 4 px wide on the pillar's key side (> 0: the right edge in `rimRight`'s
+    /// light, < 0: the left in `rimLeft`'s; its size the strength; 0: rims only).
+    var pillarBand: Float = 0
 
     /// The rows over which the upper wall fades into the roof's dark.
     static let rampRows: Float = 95

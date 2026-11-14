@@ -8,7 +8,7 @@ import XCTest
 /// afternoon's shafts, at dusk and at night, and the longest German letter in the hall's card. Every button is
 /// checked for 44 pt. Saves `<nn>-hall-<what>-<lang>`: 130 to 145 (fix round 1 added the proofs: 131a the dark half
 /// way, 131b and 131c the greeting and the room settled again, 143 out past the door, 144a and 144b the low hearth and
-/// the embers, 145 Reduce Motion).
+/// the embers, 145 Reduce Motion; fix round 2 132b, the lord passing the first bench).
 @MainActor
 final class HallUITests: XCTestCase {
     override func setUp() async throws {
@@ -132,6 +132,8 @@ final class HallUITests: XCTestCase {
         let frozen = ["-GWFreezeTime", "YES", "-GWStage", "hall"]
         let shots: [(name: String, arguments: [String])] = [
             ("136-hall-day-benches", HallUITests.day3 + ["-GWClock", "9.5", "-GWHallX", "240"] + frozen),
+            // Fix round 2: the lord beside the first bench: who sits there looks up at him, the nearest bows.
+            ("132b-hall-pass-bench", HallUITests.day3 + ["-GWClock", "10", "-GWHallX", "196"] + frozen),
             ("137-hall-afternoon", HallUITests.day3 + ["-GWClock", "15.5", "-GWHallX", "200"] + frozen),
             ("138-hall-dusk-door", HallUITests.day3 + ["-GWClock", "18.6", "-GWHallX", "120"] + frozen),
             ("139-hall-night", ["-GWNight", "3", "-GWSeed", "2", "-GWHour", "23", "-GWHallX", "250"] + frozen),

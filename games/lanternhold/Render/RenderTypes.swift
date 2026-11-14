@@ -243,7 +243,7 @@ enum Look2 {
             weatherV.w = inside.rampEndRow
             hallHole = inside.pillarHole
             hallRimL = SIMD4<Float>(inside.rimLeft.x, inside.rimLeft.y, inside.rimLeft.z, inside.pillarAmbient)
-            hallRimR = SIMD4<Float>(inside.rimRight.x, inside.rimRight.y, inside.rimRight.z, 0)
+            hallRimR = SIMD4<Float>(inside.rimRight.x, inside.rimRight.y, inside.rimRight.z, inside.pillarBand)
         }
         return Look2Uniforms(
             shifts: SIMD4<Int32>(Int32(frame.layer(.mistBand).offset.deviceShift),

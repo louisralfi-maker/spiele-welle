@@ -1109,22 +1109,29 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         float under = float(c.row) - u.target.z;
         float3 light = lh2_capped(info.light);
         float shade = lh_shade(w.rgb / w.a);
+        // The hall stage (stage lane): an interior's floor faces a roof, not the sky (no night lift, no moon on it).
+        bool inside = v.weather.z > 0.0f;
+        float firePeak = peak;
+        if (inside) {
+            // Fix round 2 of step stage-1: teal cloth (the banners, the cloth of estate) swallows warm light: a dim
+            // neutral touch only, so the lantern leaves no cyan halo round the lord's head (round 1 brightened its
+            // luminance) and never an olive green (before round 1); the cloth stays the dark ground of his silhouette.
+            // Grey stone takes warm light whole, so the lantern's pool reaches the wall above the wainscot.
+            float3 wa = w.rgb / w.a;
+            float cool = saturate((wa.b - wa.r - 0.10f) * 4.0f);
+            float lpeak = max(light.r, max(light.g, light.b));
+            float warmth = smoothstep(0.1f, 0.4f, (light.r - light.b) / max(lpeak, 0.0001f));
+            float absorb = cool * warmth;
+            float3 neutral = float3(lh_luma(light)) * float3(1.04f, 1.0f, 0.94f);
+            light = mix(light, neutral * 0.3f, absorb);
+            firePeak *= 1.0f - 0.8f * absorb;
+        }
         // Firelight displaces the cold inside its pool; a cut-away room has the warm fill of its hearth and candles
         // and no night pull; the lane's track faces the sky; a silhouette's top edge catches it.
-        float3 ambient = lh2_ambient(v.ambW.rgb, 1.0f, shade, v) * (1.0f - kFireCold2 * min(1.0f, peak * 1.5f));
+        float3 ambient = lh2_ambient(v.ambW.rgb, 1.0f, shade, v) * (1.0f - kFireCold2 * min(1.0f, firePeak * 1.5f));
         float room = lh2_room(c.world, v);
         ambient = mix(ambient, v.inter.rgb, room);
         float kmul = 1.0f - room * v.inter.w;
-        // The hall stage (stage lane): an interior's floor faces a roof, not the sky (no night lift, no moon on it).
-        bool inside = v.weather.z > 0.0f;
-        if (inside) {
-            // Fix round 1: on cool cloth (the teal banners and the cloth of estate) warm light warms the luminance
-            // instead of cutting the blue, so a lantern or a candle never turns the teal olive green.
-            float3 wa = w.rgb / w.a;
-            float cool = saturate((wa.b - wa.r) * 2.5f);
-            float3 neutral = float3(lh_luma(light)) * float3(1.06f, 1.0f, 0.92f);
-            light = mix(light, neutral, 0.75f * cool);
-        }
         if (under >= 0.0f && under < 8.0f && !inside) {
             ambient *= v.fog.z + 0.25f * v.weather.y;
         } else if (!inside) {
@@ -1181,16 +1188,30 @@ static float3 lh2_top(float3 color, PlaneCoords c, PixelLight info, constant Com
                                   : v.ambW.rgb * (v.fog.y * info.bank);
         float3 lit = lh2_cold(f.rgb, fgAmbient, 0.0f, 1.0f, v) + f.rgb * info.light * fgLight;
         if (inside) {
-            uint last = uint(max(u.target.x, 1.0f)) - 1u;
-            uint2 t = c.fg;
-            float l1 = t.x >= 1u ? fgTex.read(uint2(t.x - 1u, t.y)).a : 0.0f;
-            float l2 = t.x >= 2u ? fgTex.read(uint2(t.x - 2u, t.y)).a : 0.0f;
-            float r1 = t.x + 1u <= last ? fgTex.read(uint2(t.x + 1u, t.y)).a : 0.0f;
-            float r2 = t.x + 2u <= last ? fgTex.read(uint2(t.x + 2u, t.y)).a : 0.0f;
-            float left = l1 < 0.5f ? 1.0f : (l2 < 0.5f ? 0.4f : 0.0f);
-            float right = r1 < 0.5f ? 1.0f : (r2 < 0.5f ? 0.4f : 0.0f);
+            // Fix round 2 of step stage-1: the near pillar is a round shaft, not a slab. Its key side (the window's by
+            // day, the door torches' at night; `hallRimR.a` > 0 the right, < 0 the left) catches a soft band of light
+            // 4 px wide on the stone, both edges keep their thin rims, and the whole pier darkens toward the roof (a
+            // value ramp of its own, like the walls behind it).
+            int last = int(max(u.target.x, 1.0f)) - 1;
+            int2 t = int2(c.fg);
+            int dl = 6;
+            int dr = 6;
+            for (int k = 1; k <= 5; k++) {
+                if (dl > 5 && (t.x - k < 0 || fgTex.read(uint2(uint(t.x - k), uint(t.y))).a < 0.5f)) { dl = k; }
+                if (dr > 5 && (t.x + k > last || fgTex.read(uint2(uint(t.x + k), uint(t.y))).a < 0.5f)) { dr = k; }
+            }
+            float left = dl == 1 ? 1.0f : (dl == 2 ? 0.4f : 0.0f);
+            float right = dr == 1 ? 1.0f : (dr == 2 ? 0.4f : 0.0f);
             float ramp = lh2_interior_ramp(c.row, v);
+            float band = v.hallRimR.a;
+            int keyD = band >= 0.0f ? dr : dl;
+            float3 keyLight = band >= 0.0f ? v.hallRimR.rgb : v.hallRimL.rgb;
+            float bandShare = keyD == 1 ? 1.0f : (keyD == 2 ? 0.8f : (keyD == 3 ? 0.55f : (keyD == 4 ? 0.3f
+                : (keyD == 5 ? 0.12f : 0.0f))));
+            lit += f.rgb * keyLight * (abs(band) * bandShare * ramp);
             lit += (v.hallRimL.rgb * left + v.hallRimR.rgb * right) * ramp;
+            float height = float(c.row) / max(u.target.y, 1.0f);
+            lit *= mix(0.5f, 1.0f, smoothstep(0.05f, 0.8f, height));
         }
         color = color * (1.0f - f.a) + lit;
         midVisible *= 1.0f - f.a;

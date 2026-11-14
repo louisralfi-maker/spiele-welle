@@ -13,8 +13,11 @@ struct HallFigureSpec: Sendable, Equatable {
     /// Walking its round now, and how far along the leg (for the walk frame).
     var walking = false
     var walked = 0.0
-    /// The seated strip of a petitioner waiting on a bench (nil: he stands).
+    /// The seated strip of a petitioner waiting on a bench (nil: he stands, or sits behind the bench's front).
     var seated: SpriteID? = nil
+    /// Fix round 2 of step stage-1: he waits on a bench's seat (with his seated strip, or his standing body drawn
+    /// `HallCourt.sunk` px lower behind the bench's front).
+    var sits = false
     var petition: String? = nil
     var look: Int? = nil
 
@@ -99,6 +102,7 @@ enum HallCourt {
             if residents.contains(speaker.id) { continue }
             var x: Double
             var seated: SpriteID?
+            var sits = false
             switch speaker.role {
             case .court:
                 // A member of the hall's court waits at his place; one from outside comes in when called.
@@ -112,12 +116,14 @@ enum HallCourt {
                     x = standingSpot(&stand)
                 }
             case .townsfolk:
-                // Who can sit takes the next seat; who cannot stands beside the bench (fix round 1: a soldier or a
-                // merchant on a seat stood in front of the empty bench).
-                if let strip = CourtLayout.seatedStrip(body.sprite), seat < HallLayout.seats.count {
+                // Every townsperson takes the next seat (fix round 2: two benches stood empty beside the waiting),
+                // with his seated strip or behind the bench's front; beyond the six seats one stands at the first
+                // bench's end, the rest by the door bay.
+                if seat < HallLayout.seats.count {
                     x = HallLayout.seats[seat]
                     seat += 1
-                    seated = strip
+                    seated = CourtLayout.seatedStrip(body.sprite)
+                    sits = true
                 } else if beside < HallLayout.besideBenches.count {
                     x = HallLayout.besideBenches[beside]
                     beside += 1
@@ -126,7 +132,7 @@ enum HallCourt {
                 }
             }
             list.append(HallFigureSpec(who: speaker.id, key: key, body: body, x: x, row: HallLayout.wallRow,
-                                       facing: 1, seated: seated, petition: queued.petition.id,
+                                       facing: 1, seated: seated, sits: sits, petition: queued.petition.id,
                                        look: queued.petitioner.look))
         }
         return list
@@ -159,13 +165,17 @@ enum HallCourt {
 
     // MARK: - The hall answers its lord
 
-    /// For this long after the lord came in by the door, the door's guards stand straight (no breath, a pixel taller)
-    /// and the waiting turn their heads to him.
-    static let straightenSeconds = 1.4
-    static let greetSeconds = 2.6
-    /// Whom he passes this close looks at him; a seated petitioner he passes this close bows his head (the nod).
-    static let noticeDistance = 20.0
+    /// For this long after the lord came in by the door the waiting rise half way from their bench and turn to him
+    /// (the door's guards come to attention: `HallLight.attention`).
+    static let greetSeconds = 3.0
+    /// Whom he passes this close looks at him (Pip and Odile too); a seated petitioner he passes this close bows his
+    /// head (the nod, or a pixel lower).
+    static let noticeDistance = 24.0
     static let bowDistance = 9.0
+    /// Who sits without a seated strip is drawn this far below his place, behind the bench's front; greeting the lord
+    /// he rises this far again (fix round 2).
+    static let sunk = 5.0
+    static let rise = 3.0
 
     // MARK: - The audience on the stage
 

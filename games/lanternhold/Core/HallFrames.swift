@@ -64,10 +64,9 @@ enum HallFrames {
     static let shaftStrength: Float = 0.42
     static let shaftPoolRow = 186
     static let motesPerShaft = 11
-    /// The lord's lantern indoors: a smaller pool than in the open (the hall is framed a step closer, and a wide pool
-    /// greened the cloth of estate behind him), in a warm white that warms what it falls on instead of adding yellow
-    /// (fix round 1: gold light on the teal cloth read olive green). On the throne it sits low and flat at his lap.
-    static let lanternRadius = 30.0
+    /// The lord's lantern indoors: in a warm white that warms what it falls on instead of adding yellow (fix round 1:
+    /// gold light on the teal cloth read olive green); its pools are `HallLight.lanternRadius` and
+    /// `HallLight.lanternFloor` (fix round 2). On the throne it sits low and flat at his lap.
     static let lanternColor = SIMD3<Float>(1.0, 0.82, 0.58)
     /// Its strength indoors: day share and night share (the walls are close: at the open air's strength its centre
     /// burned white on the wainscot).
@@ -88,6 +87,14 @@ enum HallFrames {
         if strength <= 0.01 { return .out }
         if strength < HallLayout.smallFireBelow { return .embers }
         return strength < 2.0 / 3.0 ? .low : .bright
+    }
+
+    /// The glint on a door guard's spear as he comes to attention (0 ... 1; nil: none).
+    static func guardGlint(_ figure: DrawnFigure, since: Double) -> Double? {
+        guard figure.who == "guard", figure.key != "guard:arms" else { return nil }
+        let age = since - HallLight.attention.lowerBound
+        guard age >= 0, age < HallLight.glintSeconds else { return nil }
+        return 1 - age / HallLight.glintSeconds
     }
 
     /// The flare when the lamplighter's pole takes fire at the hearth: 0.6 at once, gone over `flareSeconds`.
@@ -149,6 +156,7 @@ enum HallFrames {
             var frame: Int
             var seated: SpriteID?
             var lift = spec.lift
+            var onBench = false
             let near = abs(lordX - x)
             let toLord = lordX >= x ? 1 : -1
             if talking {
@@ -160,18 +168,37 @@ enum HallFrames {
                 lift = max(HallLayout.lift(at: x), spec.row == HallLayout.wallRow ? spec.lift : 0)
             } else if spec.walking {
                 frame = CourtLayout.frame(spec.body, walking: true, walked: spec.walked, seconds: 0)
-            } else if let strip = spec.seated {
-                seated = strip
-                frame = CourtFrames.seatedFrame(animTime: animTime, key: spec.key)
-                if !audience && (since < HallCourt.greetSeconds || near < HallCourt.noticeDistance) {
+            } else if spec.sits {
+                // Fix round 2: on a bench, behind its front. When the lord comes in the waiting rise half way and turn
+                // to him; whom he passes close looks at him and bows (the seated strip's nod, or a pixel lower).
+                onBench = true
+                let greets = !audience && since < HallCourt.greetSeconds
+                let notices = !audience && near < HallCourt.noticeDistance
+                if greets {
+                    frame = CourtFrames.idleFrame(spec.body, animTime: animTime, key: spec.key)
+                    lift = spec.lift - HallCourt.sunk + HallCourt.rise
                     facing = toLord
-                    if near < HallCourt.bowDistance { frame = 1 }
+                } else if let strip = spec.seated {
+                    seated = strip
+                    frame = CourtFrames.seatedFrame(animTime: animTime, key: spec.key)
+                    if notices {
+                        facing = toLord
+                        if near < HallCourt.bowDistance { frame = 1 }
+                    }
+                } else {
+                    frame = CourtFrames.idleFrame(spec.body, animTime: animTime, key: spec.key)
+                    lift = spec.lift - HallCourt.sunk
+                    if notices {
+                        facing = toLord
+                        if near < HallCourt.bowDistance { lift -= 1 }
+                    }
                 }
             } else if spec.who == "guard" {
                 frame = CourtFrames.idleFrame(spec.body, animTime: animTime, key: spec.key)
-                if since > 0.12 && since < HallCourt.straightenSeconds {
+                // Fix round 2: at attention when the lord comes in, 2 px taller (the spear's glint in the frame).
+                if HallLight.attention.contains(since) {
                     frame = spec.body.idle.lowerBound
-                    lift += 1
+                    lift += HallLight.attentionRise
                 }
             } else {
                 frame = CourtFrames.idleFrame(spec.body, animTime: animTime, key: spec.key)
@@ -180,7 +207,7 @@ enum HallFrames {
             }
             list.append(DrawnFigure(who: spec.who, key: spec.key, body: spec.body, x: x, y: lift, facing: facing,
                                     frame: frame, alpha: 1, look: spec.look, petition: spec.petition,
-                                    talking: talking, seated: seated))
+                                    talking: talking, seated: seated, onBench: onBench))
         }
         if let session = court.audience, let body = Speakers.speaker(session.speaker)?.body {
             let x = session.walkerX
@@ -410,7 +437,7 @@ enum HallFrames {
             let dayLevel = 1 - HallLight.hearthDayLevelCut * daylight
             light(.hearth, x: HallLayout.hearthLight.x, row: HallLayout.hearthLight.row,
                   radius: (HallLayout.hearthRadius.base + HallLayout.hearthRadius.perStrength * strength) * dayRadius,
-                  intensity: 1.25 * (0.4 + 0.6 * strength) * (1 + 0.5 * Double(flare)) * dayLevel, seed: fireSeed)
+                  intensity: 1.25 * (0.2 + 0.8 * strength) * (1 + 0.5 * Double(flare)) * dayLevel, seed: fireSeed)
             // The long warm pool on the flags: a pool of its own kind (a hearth light would send embers up out of
             // the floor), in the fire's colour, scaled back up by the candle's share of look 2; it falls off before
             // the hall's end wall.
@@ -504,6 +531,7 @@ enum HallFrames {
         }
         // By day the sun's shafts from the two tall windows, dust in them, and their light on the floor.
         let beams = shafts(hour: s.hour, ambient: ambient, weather: input.weather)
+        let audienceShare = HallFraming.eased(input.scene.zoom)
         // The low sun's gold in the morning's and the evening's shafts.
         let golden = min(1, max(0, ambient.warmth / 0.45))
         let shaftColor = HallFrames.shaftColor + (HallFrames.goldenShaft - HallFrames.shaftColor) * golden
@@ -512,10 +540,14 @@ enum HallFrames {
             for (index, windowLeft) in HallLayout.windowLefts.enumerated() {
                 let x = mirrored ? windowLeft - Double(shaft.width - 30) : windowLeft
                 let rect = g.rect(x: x, row: HallLayout.shaftTop, size: shaft)
-                emissives.append(EmissiveInstance(sprite: .hallShaft, plane: .world, rect: rect,
-                                                  color: SIMD4<Float>(shaftColor.x * k, shaftColor.y * k,
-                                                                      shaftColor.z * k, 1),
-                                                  flipped: mirrored))
+                // Fix round 2: under the audience's letter only the pool stays.
+                let beam = k * Float(HallLight.shaftShare(windowLeft: windowLeft, audience: audienceShare))
+                if beam > 0.002 {
+                    emissives.append(EmissiveInstance(sprite: .hallShaft, plane: .world, rect: rect,
+                                                      color: SIMD4<Float>(shaftColor.x * beam, shaftColor.y * beam,
+                                                                          shaftColor.z * beam, 1),
+                                                      flipped: mirrored))
+                }
                 let reach = HallLayout.shaftSlant * Double(shaftPoolRow - HallLayout.shaftTop)
                 let poolX = windowLeft + 15 + (mirrored ? -reach : reach)
                 light(.window, x: poolX, row: shaftPoolRow, radius: 30, intensity: 1.1 * Double(k),
@@ -533,7 +565,8 @@ enum HallFrames {
                     let down = HallLayout.shaftSlant * (rowF - Double(HallLayout.shaftTop))
                     let mx = windowLeft + across + (mirrored ? -down : down)
                     let fade = Float(sin(along * Double.pi)) * (0.55 + 0.45 * Float(Particles.unit(seed, 4)))
-                    let c = shaftColor * (k * 1.6 * fade)
+                    let c = shaftColor * (beam * 1.6 * fade)
+                    guard beam > 0.002 else { continue }
                     let rect = SIMD4<Float>(Float(mx.rounded(.down) - g.whole(.world)), Float(g.row(Int(rowF))),
                                             1, 1)
                     emissives.append(EmissiveInstance(sprite: .hallMote, plane: .world, rect: rect,
@@ -562,20 +595,48 @@ enum HallFrames {
         var actors: [ActorInstance] = []
         let glass = Float(0.5 + 0.5 * torch)
         func addActor(_ sprite: SpriteID, frame: Int, x: Double, lift: Double, facing: Int, alpha: Double = 1,
-                      shade: Float = 1, emissive: Bool = false) {
+                      shade: Float = 1, emissive: Bool = false, crop: Int = 0) {
             guard alpha > 0.003 else { return }
             let rect = g.actor(sprite, x: x, lift: lift)
             guard g.onScreen(rect) else { return }
             actors.append(ActorInstance(sprite: sprite, frame: frame, rect: rect,
                                         tint: SIMD4<Float>(shade, shade, shade, Float(min(1, alpha))),
-                                        flipped: facing < 0, isEmissive: emissive, isLit: true))
+                                        flipped: facing < 0, isEmissive: emissive, isLit: true, cropBottom: crop))
         }
         let ordered = input.figures.enumerated().sorted { a, b in
             a.element.y != b.element.y ? a.element.y > b.element.y : a.offset < b.offset
         }.map(\.element)
-        for figure in ordered {
+        // Fix round 2: who waits on a bench sits behind its front (the bench's seat and legs drawn over the body, the
+        // legs below the wall line cut off), so any body reads as seated; the benches go in after everyone at the wall
+        // and before the walk line.
+        let wallLift = Double(HallLayout.floorRow - HallLayout.wallRow)
+        let back = ordered.filter { $0.onBench || $0.y >= 0.5 }
+        let front = ordered.filter { !($0.onBench || $0.y >= 0.5) }
+        var benchesDrawn = false
+        func benchFronts() {
+            guard !benchesDrawn else { return }
+            benchesDrawn = true
+            for cx in HallLayout.benches {
+                addActor(.bench, frame: 0, x: cx, lift: wallLift, facing: 1)
+            }
+        }
+        for figure in back + front {
+            if !(figure.onBench || figure.y >= 0.5) { benchFronts() }
+            let crop = figure.onBench ? max(0, Int((wallLift - figure.y).rounded())) : 0
             addActor(figure.sprite, frame: figure.frame, x: figure.x, lift: figure.y, facing: figure.facing,
-                     alpha: figure.alpha)
+                     alpha: figure.alpha, crop: crop)
+            if figure.who == "guard", let glint = guardGlint(figure, since: input.scene.since) {
+                let row = HallLayout.floorRow - Int(figure.y.rounded()) - figure.sprite.size.height
+                    + HallLight.spearTip.row
+                let tipX = figure.x + HallLight.spearTip.dx * Double(figure.facing) - (figure.facing < 0 ? 1 : 0)
+                for (dy, share) in [(1, 1.0), (2, 0.45)] {
+                    let c = GamePalette.fireWhite * Float(glint * share)
+                    emissives.append(EmissiveInstance(
+                        sprite: .hallMote, plane: .world,
+                        rect: SIMD4<Float>(Float(tipX.rounded(.down) - g.whole(.world)), Float(g.row(row - dy)), 1, 1),
+                        color: SIMD4<Float>(c.x, c.y, c.z, 1)))
+                }
+            }
             if figure.seated == nil, let strip = figure.body.glow {
                 addActor(strip, frame: figure.frame, x: figure.x, lift: figure.y, facing: figure.facing,
                          alpha: figure.alpha, shade: glass, emissive: true)
@@ -587,6 +648,7 @@ enum HallFrames {
                          alpha: figure.alpha, emissive: true)
             }
         }
+        benchFronts()
         if let session = input.court.audience, session.phase != .approach {
             light(.candle, x: session.spotX, row: HallLayout.floorRow - 5, radius: speakerPool, intensity: 0.7,
                   color: GamePalette.fireGold)
@@ -646,10 +708,16 @@ enum HallFrames {
                   color: lanternColor,
                   squash: Float(throneLantern.squash), seed: 0x4C4F_5244)
         } else {
-            light(.lantern, x: lordX + EntityFrames.kingGlass.dx * Double(lordFacing),
-                  row: HallLayout.floorRow - Int((lordLift + EntityFrames.kingGlass.dy).rounded()),
-                  radius: lanternRadius, intensity: lanternLevel.day + lanternLevel.night * night,
-                  color: lanternColor, seed: 0x4C4F_5244)
+            // Fix round 2: one round pool over the wall, the wainscot and the floor, and its ellipse on the carpet.
+            let glassX = lordX + EntityFrames.kingGlass.dx * Double(lordFacing)
+            let level = lanternLevel.day + lanternLevel.night * night
+            light(.lantern, x: glassX, row: HallLayout.floorRow - Int((lordLift + EntityFrames.kingGlass.dy).rounded()),
+                  radius: HallLight.lanternRadius, intensity: level, color: lanternColor, squash: 1,
+                  seed: 0x4C4F_5244)
+            let floorPool = HallLight.lanternFloor
+            light(.lantern, x: glassX, row: HallLayout.floorRow - Int(lordLift.rounded()), radius: floorPool.radius,
+                  intensity: level * floorPool.share, color: lanternColor, squash: Float(floorPool.squash),
+                  seed: 0x4C4F_5244)
         }
 
         var planes: [PlaneLayer] = []
@@ -708,6 +776,7 @@ enum HallFrames {
             inside.rimLeft = rims.left
             inside.rimRight = rims.right
             inside.pillarAmbient = HallLight.pillarAmbient
+            inside.pillarBand = HallLight.pillarBand(ambient)
             desc.interior = inside
         }
         return desc
