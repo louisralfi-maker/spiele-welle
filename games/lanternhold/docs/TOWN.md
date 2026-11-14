@@ -156,3 +156,8 @@ are the people lane's work (`docs/PEOPLE.md`, branch `claude/lh-people`).
 - In unrest (happiness below 15) nobody lights them: the street stays dark.
 - Picture only. One small rule is kept for build 3 if it stays one value: in a broken night (REALM.md section 4) a
   town with its lanterns lit loses one house fewer.
+- **Lit at the Eternal Light** (Louis, 14.11. 15:19: "wenn der das immer bei dem ewigen Licht anzündet und dann
+  losläuft"). The Flame in the hall's hearth is the Eternal Light (`docs/HOUSE.md` section 1). Every dusk the
+  lamplighter comes into the hall, lights his pole at it and walks out through the gate into the town: the player sees
+  it each evening. So every street lantern burns a piece of the Eternal Light. Picture only: the lanterns burn as the
+  hearth does (bright, low, embers; REALM.md section 4), and with the hearth out there is nothing to light them with.
