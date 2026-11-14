@@ -636,6 +636,21 @@ final class CraftTests: XCTestCase {
                                      "\(c.id) moves \(system) by \(pct(moved)) while it stands")
             XCTAssertGreaterThanOrEqual(whole.survived, wholeBase.survived, "\(c.id): a work never costs a night")
         }
+        // Reported, not asserted: the night's works on harder nights (a bot that keeps four in five people at work, so
+        // few soldiers), where walls fall, guards hold breaches and the king patches.
+        var stress = Autoplay.reference()
+        stress.soldierShare = 0.8
+        let hard = runs(nil, bot: stress, seeds: seeds)
+        let hb = Measure(hard)
+        lines.append("hard nights (soldierShare 0.8), base: killed \(hb.killed) fallen \(hb.fallen) walls \(hb.wallsLost) "
+                     + "hearth lost \(Int(hb.hearthLost)) nights held \(hb.survived)")
+        for c in book.craftsmen where [.soldierSpeed, .lightRadius, .patchShare, .guardHold, .fireArrowBurn,
+                                       .gateStrength].contains(c.effect) {
+            let m = Measure(runs(c, bot: stress, seeds: seeds))
+            lines.append("hard nights, \(c.id) (\(c.work)): killed \(pct(share(m.killed, hb.killed))) fallen "
+                         + "\(m.fallen)/\(hb.fallen) walls \(m.wallsLost)/\(hb.wallsLost) hearth lost "
+                         + "\(Int(m.hearthLost))/\(Int(hb.hearthLost)) nights held \(m.survived)/\(hb.survived)")
+        }
         let attachment = XCTAttachment(string: lines.joined(separator: "\n"))
         attachment.name = "craft-effect-sizes"
         attachment.lifetime = .keepAlways
