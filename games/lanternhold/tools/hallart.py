@@ -816,62 +816,83 @@ def great_hall():
     return c
 
 
+def lighter(v, n=1):
+    if v in STONE:
+        return STONE[min(len(STONE) - 1, STONE.index(v) + n)]
+    return v
+
+
 def hall_pillar_near():
-    """A pier of the near arcade, seen close: the code draws it in front of the actors, darker and with a parallax."""
-    w, h = 46, 201
+    """A pier of the near arcade, seen close (fix round 1 of step stage-1: two thirds of the old 46 px): the code draws
+    it in front of the actors at a parallax, in the hall's shade, with a rim of the light on its sides and a dithered
+    window where the lord stands behind it. A round shaft of drums at low contrast (the key from the left like the
+    hall's own shafts), a capital with its abacus, the springers of two arches, a moulded base on a plinth."""
+    w, h = 30, 201
     c = Canvas(w, h)
-    cols = ["ink", "stonePale", "stoneLight", "stoneLight", "stoneLight", "stoneLight", "stone", "stone", "stone",
-            "stone", "stone", "stone", "stone", "stone", "stoneMid", "stoneMid", "stoneMid", "stoneMid", "stoneMid",
-            "stoneDark", "stoneDark", "ink"]
+    mid = 15
+    # The shaft: 14 px, a cylinder in five tones; the drums' joints one step darker, a lit lip under each.
+    cols = ["ink", "stoneLight", "stoneLight", "stone", "stone", "stone", "stone", "stone", "stone", "stoneMid",
+            "stoneMid", "stoneMid", "stoneDark", "ink"]
+    left = mid - len(cols) // 2
+    drum = 19
     for y in range(44, 183):
         for i, col in enumerate(cols):
             v = col
-            if (y - 44) % 23 == 22 and 0 < i < 21:
-                v = darker(col)
-            elif 0 < i < 21 and rnd(71, i, y) < 0.02:
-                v = darker(col)
-            c.put(12 + i, y, v)
-    # the capital
-    for y in range(28, 44):
-        half = 11 + (43 - y) * 6 // 15
-        if y in (28, 29, 30):
-            half = 18
-        for x in range(23 - half, 23 + half):
-            t = (x - (23 - half)) / float(2 * half)
-            v = "stoneLight" if t < 0.3 else ("stone" if t < 0.65 else "stoneMid")
-            if y in (28, 34, 40):
+            k = (y - 44) % drum
+            if 0 < i < len(cols) - 1:
+                if k == drum - 1:
+                    v = darker(col)
+                elif k == 0 and 1 < i < 9:
+                    v = lighter(col) if col == "stone" else col
+                elif rnd(71, i, y) < 0.025:
+                    v = darker(col)
+            c.put(left + i, y, v)
+    # The capital: a bell flaring from the shaft to the abacus, its necking ring, the abacus on top.
+    for y in range(30, 44):
+        if y <= 32:
+            half = 12
+        elif y >= 41:
+            half = 8
+        else:
+            half = 8 + (41 - y) * 4 // 8
+        for x in range(mid - half, mid + half):
+            t = (x - (mid - half)) / float(2 * half)
+            v = "stoneLight" if t < 0.28 else ("stone" if t < 0.66 else "stoneMid")
+            if y == 30:
                 v = "stonePale" if t < 0.5 else "stoneLight"
-            if y in (30, 36, 43):
+            if y == 32 or y == 42:
                 v = "stoneDark"
-            if x in (23 - half, 23 + half - 1):
+            if y == 41:
+                v = "stoneLight" if t < 0.5 else "stone"
+            if x in (mid - half, mid + half - 1):
                 v = "ink"
             c.put(x, y, v)
-    # the springers of two arches
+    # The springers of the two arches above it, in ashlar, the right half in shade.
     body = set()
-    for y in range(0, 28):
-        spread = int(round(5 * ((27 - y) / 27.0) ** 1.6))
-        for x in range(5 - spread, 41 + spread):
+    for y in range(0, 30):
+        spread = int(round(4 * ((29 - y) / 29.0) ** 1.6))
+        for x in range(3 - spread, 27 + spread):
             if 0 <= x < w:
                 body.add((x, y))
     c.clip = body
-    ashlar(c, 0, 0, w - 1, 27, seed=72, course=(6, 5), width=(8, 13))
+    ashlar(c, 0, 0, w - 1, 29, seed=72, course=(6, 5), width=(7, 11))
     c.clip = None
     for (x, y) in body:
         if (x - 1, y) not in body or (x + 1, y) not in body:
             c.put(x, y, "ink")
-        elif x > 30:
+        elif x > 19:
             c.put(x, y, darker(c.get(x, y)))
-    # the base
+    # The base: a torus over a plinth.
     for y in range(183, h):
-        half = 13 if y < 187 else (15 if y < 191 else 18)
-        for x in range(23 - half, 23 + half):
-            t = (x - (23 - half)) / float(2 * half)
-            v = "stoneLight" if t < 0.3 else ("stone" if t < 0.65 else "stoneMid")
-            if y in (183, 187, 191):
+        half = 8 if y < 186 else (10 if y < 190 else 12)
+        for x in range(mid - half, mid + half):
+            t = (x - (mid - half)) / float(2 * half)
+            v = "stoneLight" if t < 0.28 else ("stone" if t < 0.66 else "stoneMid")
+            if y in (183, 186, 190):
                 v = "stonePale" if t < 0.5 else "stoneLight"
-            if y in (186, 190):
+            if y in (185, 189):
                 v = "stoneDark"
-            if x in (23 - half, 23 + half - 1):
+            if x in (mid - half, mid + half - 1):
                 v = "ink"
             c.put(x, y, v)
     return c

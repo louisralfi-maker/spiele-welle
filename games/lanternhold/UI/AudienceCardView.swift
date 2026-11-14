@@ -209,16 +209,19 @@ struct AudienceCardView: View {
                     .padding(.vertical, 6)
                     .background(ParchmentBackground(ruled: false))
             } else {
-                HStack(alignment: .bottom, spacing: 8) {
+                // One height for the row (the tallest plaque's), the words top-aligned (fix round 1: German wraps
+                // stepped the plaques' tops).
+                HStack(alignment: .top, spacing: 8) {
                     ForEach(card.options, id: \.index) { option in
                         ChoiceTile(option: option, compact: true) {
                             model.choosePetition(option.index)
                         }
                         .background(ParchmentBackground(ruled: false))
                     }
-                    leaveButton
+                    leaveButton(stretch: true)
                         .background(ParchmentBackground(ruled: false))
                 }
+                .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
@@ -247,7 +250,8 @@ struct AudienceCardView: View {
         .accessibilityIdentifier("audience-counsel")
     }
 
-    private var leaveButton: some View {
+    /// Leave; `stretch`: as high as the row of plaques it ends (the hall stage's floor band).
+    private func leaveButton(stretch: Bool) -> some View {
         Button {
             model.standUp()
         } label: {
@@ -257,7 +261,7 @@ struct AudienceCardView: View {
                 .lineLimit(1)
                 .fixedSize()
                 .padding(.horizontal, 14)
-                .frame(minWidth: 52, minHeight: 52)
+                .frame(minWidth: 52, minHeight: 52, maxHeight: stretch ? .infinity : nil)
                 .background(PlaqueBackground())
                 .contentShape(Rectangle())
         }
@@ -497,12 +501,6 @@ struct ChoiceTile: View {
                         .minimumScaleFactor(compact ? 0.85 : 1)
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 0)
-                    if option.favoured {
-                        Image(systemName: "checkmark.seal.fill")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(Theme.teal)
-                            .accessibilityLabel(Text("Odile's choice"))
-                    }
                 }
                 EffectChips(gold: option.gold, happiness: option.happiness, citizens: option.citizens,
                             archers: option.archers, guards: option.guards, builders: option.builders,
@@ -523,8 +521,19 @@ struct ChoiceTile: View {
             .multilineTextAlignment(.leading)
             .padding(.horizontal, 10)
             .padding(.vertical, compact ? 4 : 6)
-            .frame(maxWidth: .infinity, minHeight: 52, alignment: .topLeading)
+            .frame(maxWidth: .infinity, minHeight: 52, maxHeight: compact ? .infinity : nil, alignment: .topLeading)
             .background(PlaqueBackground(enabled: option.enabled, marked: option.favoured))
+            // Odile's seal sits on the plaque's corner, in its padding: it never takes the words' width (fix round 1:
+            // the chosen plaque wrapped and grew).
+            .overlay(alignment: .topTrailing) {
+                if option.favoured {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(Theme.teal)
+                        .padding(2)
+                        .accessibilityLabel(Text("Odile's choice"))
+                }
+            }
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

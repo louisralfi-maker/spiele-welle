@@ -353,7 +353,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .circletIcon, .circletIconInk: return PixelSize(width: 24, height: 16)
         // The hall stage (stage lane).
         case .greatHall: return PixelSize(width: 600, height: 201)
-        case .hallPillarNear: return PixelSize(width: 46, height: 201)
+        case .hallPillarNear: return PixelSize(width: 30, height: 201)
         case .hallFire: return PixelSize(width: 34, height: 28)
         case .tapTalk, .tapThrone, .tapBuild, .tapRepair, .tapRecruit, .tapLight: return PixelSize(width: 15, height: 18)
         case .hallShaft: return PixelSize(width: 83, height: 120)
@@ -655,6 +655,13 @@ struct InteriorLight: Sendable, Equatable {
     /// `rampEndRow` (target rows) upward over `InteriorLight.rampRows` rows; 0: none.
     var rampStrength: Float
     var rampEndRow: Float
+    /// The near pillars (fix round 1 of step stage-1): the dithered window where the lord stands behind one (centre x,
+    /// y in world target px, half width, half height; zero: none), the rims of light on their left and right edges,
+    /// and the share of the hall's ambient they take.
+    var pillarHole = SIMD4<Float>(repeating: 0)
+    var rimLeft = SIMD3<Float>(repeating: 0)
+    var rimRight = SIMD3<Float>(repeating: 0)
+    var pillarAmbient: Float = 0.6
 
     /// The rows over which the upper wall fades into the roof's dark.
     static let rampRows: Float = 95

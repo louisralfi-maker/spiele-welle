@@ -89,6 +89,7 @@ enum HallCourt {
         }
         var seat = 0
         var stand = 0
+        var beside = 0
         var nobleTaken = false
         for queued in AudienceRules.hall(s, catalog: catalog) {
             guard let speaker = Speakers.speaker(queued.petition.speaker) else { continue }
@@ -111,10 +112,15 @@ enum HallCourt {
                     x = standingSpot(&stand)
                 }
             case .townsfolk:
-                if seat < HallLayout.seats.count {
+                // Who can sit takes the next seat; who cannot stands beside the bench (fix round 1: a soldier or a
+                // merchant on a seat stood in front of the empty bench).
+                if let strip = CourtLayout.seatedStrip(body.sprite), seat < HallLayout.seats.count {
                     x = HallLayout.seats[seat]
                     seat += 1
-                    seated = CourtLayout.seatedStrip(body.sprite)
+                    seated = strip
+                } else if beside < HallLayout.besideBenches.count {
+                    x = HallLayout.besideBenches[beside]
+                    beside += 1
                 } else {
                     x = standingSpot(&stand)
                 }
@@ -138,11 +144,15 @@ enum HallCourt {
         abs(x - HallLayout.benches[0]) < abs(x - HallLayout.benches[1]) ? 0 : 1
     }
 
-    /// The benches someone waits on now (their stands' candles burn).
+    /// Someone waiting this close to a bench's middle waits at it.
+    static let benchReach = 40.0
+
+    /// The benches someone waits on or beside now (their stands' candles burn whenever anyone waits there).
     static func occupiedBenches(_ specs: [HallFigureSpec]) -> Set<Int> {
         var set = Set<Int>()
         for spec in specs where spec.petition != nil && spec.row == HallLayout.wallRow {
-            if HallLayout.seats.contains(spec.x) { set.insert(bench(ofSeat: spec.x)) }
+            let index = bench(ofSeat: spec.x)
+            if abs(spec.x - HallLayout.benches[index]) <= benchReach { set.insert(index) }
         }
         return set
     }
@@ -159,8 +169,9 @@ enum HallCourt {
 
     // MARK: - The audience on the stage
 
-    /// The petitioner's walk in the hall: 80 px a second, 0.5 to 2 s.
-    static let walkSpeed = 80.0
+    /// The petitioner's walk in the hall: 110 px a second (he hurries when called; the first in line now rises from
+    /// the bench by the door), 0.5 to 2 s.
+    static let walkSpeed = 110.0
     static let shortestWalk = 0.5
     static let longestWalk = 2.0
 

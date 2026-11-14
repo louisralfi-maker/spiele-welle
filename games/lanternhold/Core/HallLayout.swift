@@ -9,6 +9,10 @@ import Foundation
 enum HallLayout {
     static let width = 600.0
     static let height = 201
+    /// The painted hall between its two dark end strips: the camera never shows past it, so the hall never ends in a
+    /// void (fix round 1).
+    static let shownLeft = 10.0
+    static let shownRight = 590.0
     /// The nave's walk line (the long carpet), the wall line (benches, guards, the waiting), Pip's row, the dais.
     static let floorRow = 175
     static let wallRow = 169
@@ -43,9 +47,14 @@ enum HallLayout {
     /// Where the lord stands on a new realm's first morning: before his throne, ready to sit (in front of its chair, a
     /// step clear of Odile at 397).
     static let firstMorningX = 412.0
-    /// The two benches' middles, under the tall windows; three seats each, the first in line nearest the throne.
+    /// The two benches' middles, under the tall windows; three seats each. The bench by the door fills first (fix
+    /// round 1: the far bench stood under the action button when the lord came in, and nobody saw the room turn to
+    /// him), its seat nearest the throne first in line.
     static let benches: [Double] = [184, 300]
-    static let seats: [Double] = [308, 300, 292, 192, 184, 176]
+    static let seats: [Double] = [192, 184, 176, 308, 300, 292]
+    /// Townsfolk who cannot sit (their body has no seated strip) stand beside the first bench, never in front of an
+    /// empty one: between its right stand and the noble's place, left of its left stand, then toward the door.
+    static let besideBenches: [Double] = [218, 148, 136]
     /// Where guests and petitioners beyond the six seats stand, on the wall line: the first guest near the second
     /// bench (his walk to the throne stays under a second), the rest by the door bay.
     static let standing: [Double] = [268, 140, 118, 280, 106, 94]
@@ -128,8 +137,9 @@ enum HallLayout {
     static let hearthLight = (x: 532.0, row: 128)
     static let hearthRadius = (base: 60.0, perStrength: 60.0)
     static let smallFireBelow = 1.0 / 3.0
-    /// The long warm pool the hearth lays on the flags before it.
-    static let floorPool = (x: 520.0, row: 184, radius: 120.0, squash: 3.2)
+    /// The long warm pool the hearth lays on the flags before it, reaching back toward the dais's steps and falling
+    /// off before the end wall (fix round 1).
+    static let floorPool = (x: 498.0, row: 184, radius: 90.0, squash: 3.0)
     static let chandeliers: [Double] = [184, 300]
     static let chandelierRow = 39
     static let chandelierCandles: [(x: Double, row: Int)] = [(-16, 39), (-10, 35), (-4, 42), (4, 34), (10, 41),
@@ -149,13 +159,15 @@ enum HallLayout {
     /// The shaft's top row (the lancets' spring), its slant (px across per row down) as painted (tools/hallstage.py).
     static let shaftTop = 72
     static let shaftSlant = 0.44
-    /// The near arcade's pillars (`hallPillarNear`, parallax 1.25): their hall x.
-    static let nearPillars: [Double] = [161, 254]
+    /// The near arcade's pillar (`hallPillarNear`, parallax 1.25): its hall x. One only, between the door and the
+    /// first bench, so the walking framing never shows two and the room is never cut into thirds (fix round 1); it is
+    /// off screen in the audience's framing.
+    static let nearPillars: [Double] = [150]
     static let nearParallax = 1.25
 
     /// The plaster patches (`hallWash`'s eight frames): each frame's top-left on the hall (tools/hallstage.py).
     static let washPatches: [(x: Double, row: Int)] = [(80, 92), (140, 36), (124, 104), (256, 40), (316, 100),
-                                                        (440, 100), (476, 96), (536, 128)]
+                                                        (430, 30), (14, 30), (536, 128)]
 
     /// The Weltmauer behind the windows (on a plane at parallax 0.3): its top row on the hall (its peaks stand in
     /// the tall windows' lower half, the sky above them), and where its left edge stands (plane x) when the camera's

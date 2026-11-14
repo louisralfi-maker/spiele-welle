@@ -105,6 +105,12 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWPetition <id>` (with `-GWScreen petition`): that petition before the throne instead of the herald's (the
     /// hall stage's screenshots of the longest letters).
     var petition: String?
+    /// `-GWHearth <0 ... 1>` (stage lane, fix round 1): the hearth's strength at the start, a share of its full (the
+    /// hall's weak and middle hearth in the screenshots).
+    var hearth: Double?
+    /// `-GWStageSlow <factor>` (stage lane, fix round 1): the change of stage runs this many times slower, so a
+    /// screenshot catches the dark (1: as played).
+    var stageSlow = 1.0
 
     /// `-GWGloomFog` values.
     enum GloomFogOverride: Sendable, Equatable {
@@ -143,7 +149,7 @@ struct DebugArgs: Sendable, Equatable {
         "GWDebugLights", "GWStats", "GWReduceMotion", "GWDay", "GWNight", "GWBuild", "GWGold", "GWHappiness",
         "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock", "GWLook", "GWCastle",
         "GWWeather", "GWWind", "GWRain", "GWWetness", "GWLord", "GWLordName", "GWGloomFog", "GWHouses", "GWSound",
-        "GWStage", "GWHallX", "GWPetition",
+        "GWStage", "GWHallX", "GWPetition", "GWHearth", "GWStageSlow",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -260,6 +266,12 @@ struct DebugArgs: Sendable, Equatable {
         }
         if let id = values["GWPetition"]?.trimmingCharacters(in: .whitespaces), !id.isEmpty {
             petition = id
+        }
+        if let share = DebugArgs.double(values["GWHearth"]) {
+            hearth = min(1, max(0, share))
+        }
+        if let slow = DebugArgs.double(values["GWStageSlow"]), slow >= 1 {
+            stageSlow = min(40, slow)
         }
         lord = values["GWLord"].flatMap { LordForm(rawValue: $0.trimmingCharacters(in: .whitespaces).lowercased()) }
         if let name = values["GWLordName"]?.trimmingCharacters(in: .whitespaces), !name.isEmpty {

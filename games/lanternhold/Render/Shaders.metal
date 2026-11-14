@@ -238,6 +238,12 @@ static inline float lh_bayer(uint2 p) {
 static inline float lh_light_level(float d, uint style, uint bands, float edge, float dither) {
     float t = saturate(1.0f - d);
     t = t * t;
+    // The hall stage (stage lane, fix round 1 of step stage-1): an interior has no lit edge for creatures to respect,
+    // so its pools fall off smoothly to nothing (no step at the threshold: no hard disc on the wall, no bar along a
+    // ledge).
+    if (style == 3u) {
+        return t;
+    }
     if (style == 0u) {
         return t >= edge ? t : t * 0.55f;
     }
@@ -870,6 +876,10 @@ struct Look2Uniforms {
     float4 roomA;     // a cut-away room in world target pixels: x0, y0, x1, y1 (x1 <= x0: none)
     float4 roomB;
     float4 weather;   // rain share, wetness, unused, unused
+    // The hall stage (stage lane, fix round 1 of step stage-1): the near pillars.
+    float4 hallHole;  // a dithered window where the lord stands behind one: centre x, y (world target px), half sizes
+    float4 hallRimL;  // the rim of light on their left edge (rgb), the share of the hall's ambient on them (a)
+    float4 hallRimR;  // the rim on their right edge (rgb), unused
 };
 
 constant float3 kNightTint2 = float3(0.72f, 0.95f, 1.85f);
@@ -1144,10 +1154,36 @@ static float3 lh2_top(float3 color, PlaneCoords c, PixelLight info, constant Com
         fogCover = max(fogCover, fb.a);
     }
     float4 f = fgTex.read(c.fg);
+    bool inside = v.weather.z > 0.0f;
+    if (f.a > 0.0f && inside && v.hallHole.z > 0.0f) {
+        // The hall stage (fix round 1): where the lord stands behind a near pillar it opens in an ordered dither
+        // around his body, solid outside it, so its outline and rim stay and he is never behind a glassy slab.
+        float2 d = (float2(c.world) + 0.5f - v.hallHole.xy) / max(v.hallHole.zw, float2(1.0f));
+        float open = 1.0f - smoothstep(0.55f, 1.0f, length(d));
+        if (open > lh_bayer(c.fg)) {
+            f = float4(0.0f);
+        }
+    }
     if (f.a > 0.0f) {
-        // The hall stage (stage lane): an interior's near pillars stand before every light: a faint touch only.
-        float fgLight = v.weather.z > 0.0f ? 0.1f : 0.55f;
-        float3 lit = lh2_cold(f.rgb, v.ambW.rgb * (v.fog.y * info.bank), 0.0f, 1.0f, v) + f.rgb * info.light * fgLight;
+        // The hall stage (stage lane): an interior's near pillars stand before every light: a faint touch only; they
+        // take a share of the hall's ambient (its roof ramp too) and a rim of the window's, the torches' or the
+        // moon's light on their edges (fix round 1: no flat black bars).
+        float fgLight = inside ? 0.1f : 0.55f;
+        float3 fgAmbient = inside ? v.ambW.rgb * (v.hallRimL.a * info.bank) * lh2_interior_ramp(c.row, v)
+                                  : v.ambW.rgb * (v.fog.y * info.bank);
+        float3 lit = lh2_cold(f.rgb, fgAmbient, 0.0f, 1.0f, v) + f.rgb * info.light * fgLight;
+        if (inside) {
+            uint last = uint(max(u.target.x, 1.0f)) - 1u;
+            uint2 t = c.fg;
+            float l1 = t.x >= 1u ? fgTex.read(uint2(t.x - 1u, t.y)).a : 0.0f;
+            float l2 = t.x >= 2u ? fgTex.read(uint2(t.x - 2u, t.y)).a : 0.0f;
+            float r1 = t.x + 1u <= last ? fgTex.read(uint2(t.x + 1u, t.y)).a : 0.0f;
+            float r2 = t.x + 2u <= last ? fgTex.read(uint2(t.x + 2u, t.y)).a : 0.0f;
+            float left = l1 < 0.5f ? 1.0f : (l2 < 0.5f ? 0.4f : 0.0f);
+            float right = r1 < 0.5f ? 1.0f : (r2 < 0.5f ? 0.4f : 0.0f);
+            float ramp = lh2_interior_ramp(c.row, v);
+            lit += (v.hallRimL.rgb * left + v.hallRimR.rgb * right) * ramp;
+        }
         color = color * (1.0f - f.a) + lit;
         midVisible *= 1.0f - f.a;
     }

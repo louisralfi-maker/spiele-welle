@@ -167,7 +167,16 @@ enum HallFraming {
 
     /// The audience framing's left edge for a view `width` columns wide.
     static func audienceLeft(width: Double) -> Double {
-        Camera.clampedLeft(HallLayout.throneX - throneShare * width, viewWidth: width, worldWidth: HallLayout.width)
+        clamped(HallLayout.throneX - throneShare * width, width: width)
+    }
+
+    /// A left edge kept inside the painted hall (`HallLayout.shownLeft ... shownRight`), so neither end strip shows;
+    /// a view wider than the painted hall is centred on it.
+    static func clamped(_ left: Double, width: Double) -> Double {
+        let low = HallLayout.shownLeft
+        let high = HallLayout.shownRight - width
+        guard high >= low else { return (HallLayout.shownLeft + HallLayout.shownRight - width) / 2 }
+        return min(high, max(low, left))
     }
 
     /// The eased share of the move (0 walking, 1 the audience framing) for its linear progress.
@@ -182,6 +191,7 @@ enum HallFraming {
         -> (scale: Double, left: Double, targetScale: Int) {
         let (walk, audience) = scales(pixelScale)
         let e = eased(progress)
+        let walkLeft = clamped(walkLeft, width: viewWidth(pixelScale, scale: Double(walk)))
         if e <= 0 { return (Double(walk), walkLeft, walk) }
         let audienceWidth = viewWidth(pixelScale, scale: Double(audience))
         let goalLeft = audienceLeft(width: audienceWidth)
@@ -189,7 +199,7 @@ enum HallFraming {
         let scale = Double(walk) + Double(audience - walk) * e
         let left = walkLeft + (goalLeft - walkLeft) * e
         let width = viewWidth(pixelScale, scale: scale)
-        return (scale, Camera.clampedLeft(left, viewWidth: width, worldWidth: HallLayout.width), walk)
+        return (scale, clamped(left, width: width), walk)
     }
 }
 

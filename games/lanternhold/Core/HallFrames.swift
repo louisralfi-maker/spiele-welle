@@ -64,13 +64,12 @@ enum HallFrames {
     static let shaftStrength: Float = 0.42
     static let shaftPoolRow = 186
     static let motesPerShaft = 11
-    /// A near pillar fades to this while the lord stands behind it: fully from `pillarFade`'s lower bound (game px
-    /// on screen between the pillar's middle and his), back to whole at its upper bound.
-    static let pillarSeen = 0.32
-    static let pillarFade: ClosedRange<Double> = 26...42
     /// The lord's lantern indoors: a smaller pool than in the open (the hall is framed a step closer, and a wide pool
-    /// greened the cloth of estate behind him).
+    /// greened the cloth of estate behind him), in a warm white that warms what it falls on instead of adding yellow
+    /// (fix round 1: gold light on the teal cloth read olive green). On the throne it sits low and flat at his lap.
     static let lanternRadius = 30.0
+    static let lanternColor = SIMD3<Float>(1.0, 0.86, 0.66)
+    static let throneLantern = (radius: 24.0, squash: 1.9, below: 6.0)
     /// The great fire's frames a second.
     static let fireRate = 8.0
     /// The one who has the word stands in a warm pool of this radius.
@@ -401,13 +400,20 @@ enum HallFrames {
             break
         }
         if state != .out {
+            // By day the windows outshine it: a smaller, weaker glow round the fire's mouth, the stone grey beyond
+            // (fix round 1: at 11:00 the whole dais end read orange, like a filter).
+            let daylight = Double(Look.daylight(ambient))
+            let dayRadius = 1 - HallLight.hearthDayRadiusCut * daylight
+            let dayLevel = 1 - HallLight.hearthDayLevelCut * daylight
             light(.hearth, x: HallLayout.hearthLight.x, row: HallLayout.hearthLight.row,
-                  radius: HallLayout.hearthRadius.base + HallLayout.hearthRadius.perStrength * strength,
-                  intensity: 1.25 * (0.4 + 0.6 * strength) * (1 + 0.5 * Double(flare)), seed: fireSeed)
+                  radius: (HallLayout.hearthRadius.base + HallLayout.hearthRadius.perStrength * strength) * dayRadius,
+                  intensity: 1.25 * (0.4 + 0.6 * strength) * (1 + 0.5 * Double(flare)) * dayLevel, seed: fireSeed)
             // The long warm pool on the flags: a pool of its own kind (a hearth light would send embers up out of
-            // the floor), in the fire's colour, scaled back up by the candle's share of look 2.
+            // the floor), in the fire's colour, scaled back up by the candle's share of look 2; it falls off before
+            // the hall's end wall.
             light(.candle, x: HallLayout.floorPool.x, row: HallLayout.floorPool.row,
-                  radius: HallLayout.floorPool.radius * (0.55 + 0.45 * strength), intensity: 1.05 * strength,
+                  radius: HallLayout.floorPool.radius * (0.55 + 0.45 * strength) * dayRadius,
+                  intensity: 1.05 * strength * dayLevel,
                   color: GamePalette.fireOrange, squash: Float(HallLayout.floorPool.squash), seed: fireSeed &+ 1)
         }
         let candle = GamePalette.fireWhite
@@ -433,13 +439,24 @@ enum HallFrames {
                 light(.candle, x: cx, row: HallLayout.chandelierRow, radius: 44, intensity: 0.55, seed: seed)
             }
         }
-        // A stand's candles burn beside a bench while someone waits on it.
+        // A stand's candles burn beside a bench while someone waits on it or beside it, each stand in a round pool
+        // centred on its flames that warms the wainscot below (fix round 1: the old flat pools smeared into a bar
+        // along the wainscot's cap).
         let benches = HallCourt.occupiedBenches(input.specs)
         for (index, sx) in HallLayout.stands.enumerated() where benches.contains(index / 2) {
             let seed: UInt64 = 0x5354_414E &+ UInt64(index) &* 16
             candles(HallLayout.standCandles.map { (x: sx + $0.dx, row: $0.row) }, seed: seed)
-            light(.candle, x: sx, row: HallLayout.standRow, radius: 26, intensity: 0.9, seed: seed)
+            light(.candle, x: sx, row: HallLight.standFlameRow, radius: HallLight.standRadius,
+                  intensity: HallLight.standLevel, squash: 1, seed: seed)
         }
+        // The lectern's candle beside the throne: a warm key on the lord in his chair and the throne's back, so he
+        // is the audience's first figure (director's note 14.11. 22:17, correction 2).
+        let lecternFlame = HallLight.lecternFlame
+        candles([lecternFlame], seed: 0x4C45_4354)
+        light(.candle, x: lecternFlame.x + HallLight.lecternLight.dx, row: lecternFlame.row + HallLight.lecternLight.drow,
+              radius: HallLight.lecternRadius, intensity: HallLight.lecternLevel, color: lanternColor, squash: 1,
+              seed: 0x4C45_4354)
+        let shaft = SpriteID.hallShaft.size
         // The door's torches from the dusk.
         if torch > 0.02 {
             for (index, t) in HallLayout.torches.enumerated() {
@@ -449,11 +466,33 @@ enum HallFrames {
                 glow(.flame, x: t.x - Double(size.width / 2), row: t.row - size.height + 1,
                      color: GamePalette.fireGold * f)
                 light(.torch, x: t.x, row: t.row, radius: 34, intensity: 0.95 * torch, seed: seed)
+                // Their pool reaches the flags before the door (fix round 1).
+                light(.candle, x: t.x, row: HallLight.torchPoolRow, radius: HallLight.torchPoolRadius,
+                      intensity: HallLight.torchPoolLevel * torch, color: GamePalette.fireGold,
+                      squash: Float(HallLight.torchPoolSquash), seed: seed &+ 32)
+            }
+        }
+        // At night the moon through the two tall windows: pale shafts on the flags, a cool fill on the far wall round
+        // each window, so the nave keeps its banners, benches and guards in the dark (fix round 1).
+        let moon = HallLight.moonlight(ambient, weather: input.weather)
+        if moon > 0.01 {
+            let mk = Float(moon) * HallLight.moonShaft
+            let moonColor = HallLight.moonColor
+            for windowLeft in HallLayout.windowLefts {
+                let rect = g.rect(x: windowLeft, row: HallLayout.shaftTop, size: shaft)
+                emissives.append(EmissiveInstance(sprite: .hallShaft, plane: .world, rect: rect,
+                                                  color: SIMD4<Float>(moonColor.x * mk, moonColor.y * mk,
+                                                                      moonColor.z * mk, 1),
+                                                  flipped: false))
+                let reach = HallLayout.shaftSlant * Double(shaftPoolRow - HallLayout.shaftTop)
+                light(.window, x: windowLeft + 15 + reach, row: shaftPoolRow, radius: 30,
+                      intensity: HallLight.moonPool * moon, color: moonColor, squash: 2.6)
+                light(.window, x: windowLeft + 15, row: HallLight.moonFillRow, radius: HallLight.moonFillRadius,
+                      intensity: HallLight.moonFill * moon, color: moonColor)
             }
         }
         // By day the sun's shafts from the two tall windows, dust in them, and their light on the floor.
         let beams = shafts(hour: s.hour, ambient: ambient, weather: input.weather)
-        let shaft = SpriteID.hallShaft.size
         // The low sun's gold in the morning's and the evening's shafts.
         let golden = min(1, max(0, ambient.warmth / 0.45))
         let shaftColor = HallFrames.shaftColor + (HallFrames.goldenShaft - HallFrames.shaftColor) * golden
@@ -492,22 +531,18 @@ enum HallFrames {
             }
         }
 
-        // The near arcade's pillars, in front of everything.
+        // The near arcade's pillar, in front of everything (one, so the room is never cut into thirds; fix round 1).
+        // Where the lord stands behind it the composite opens it in a dither round his body (`InteriorLight`), so
+        // the near arcade gives depth as he walks past and never hides him where he stops.
         let pillar = SpriteID.hallPillarNear.size
-        // A pillar the lord stands behind lets him show through (it fades to `pillarSeen`), so the near arcade gives
-        // depth as he walks past and never hides him where he stops.
-        let lordAt = input.court.audience?.place == .throne ? HallLayout.throneX : input.scene.walker.x
         for p in HallLayout.nearPillars {
             let planeX = HallLayout.nearParallax * p - (HallLayout.nearParallax - 1) / 2 * viewWidth
             let x = (planeX - Double(pillar.width) / 2).rounded(.down) - g.whole(.foreground)
             guard x + Double(pillar.width) >= -1, x <= Double(g.targetWidth) + 1 else { continue }
-            let apart = abs(HallLayout.nearParallax * (p - lordAt))
-            let k = min(1, max(0, (apart - pillarFade.lowerBound) / (pillarFade.upperBound - pillarFade.lowerBound)))
-            let alpha = Float(pillarSeen + (1 - pillarSeen) * k)
             sprites[Plane.foreground.rawValue].append(SpriteInstance(
                 sprite: .hallPillarNear, frame: 0,
                 rect: SIMD4<Float>(Float(x), Float(g.row(0)), Float(pillar.width), Float(pillar.height)),
-                tint: SIMD4<Float>(1, 1, 1, alpha), flipped: false))
+                tint: SIMD4<Float>(1, 1, 1, 1), flipped: false))
         }
 
         // The figures by their row (the dais and the wall line behind the walk line), then the lord.
@@ -591,9 +626,16 @@ enum HallFrames {
                          emissive: true)
             }
         }
-        light(.lantern, x: lordX + EntityFrames.kingGlass.dx * Double(lordFacing),
-              row: HallLayout.floorRow - Int((lordLift + EntityFrames.kingGlass.dy).rounded()), radius: lanternRadius,
-              intensity: 0.3 + 0.7 * night, seed: 0x4C4F_5244)
+        if input.court.audience?.place == .throne {
+            light(.lantern, x: lordX + EntityFrames.kingGlass.dx * Double(lordFacing),
+                  row: HallLayout.floorRow - Int((lordLift + throneLantern.below).rounded()),
+                  radius: throneLantern.radius, intensity: 0.3 + 0.7 * night, color: lanternColor,
+                  squash: Float(throneLantern.squash), seed: 0x4C4F_5244)
+        } else {
+            light(.lantern, x: lordX + EntityFrames.kingGlass.dx * Double(lordFacing),
+                  row: HallLayout.floorRow - Int((lordLift + EntityFrames.kingGlass.dy).rounded()),
+                  radius: lanternRadius, intensity: 0.3 + 0.7 * night, color: lanternColor, seed: 0x4C4F_5244)
+        }
 
         var planes: [PlaneLayer] = []
         for plane in Plane.allCases {
@@ -633,7 +675,19 @@ enum HallFrames {
                              counts: counts)
         desc.look = options.look
         if abs(zoom - Double(framing.targetScale)) > 1e-6 { desc.zoom = zoom }
-        if options.look == .two { desc.interior = interior(ambient, groundRow: groundRow) }
+        if options.look == .two {
+            var inside = interior(ambient, groundRow: groundRow)
+            // The near pillar's window round the lord's body and its rims (fix round 1).
+            let body = Double(lord.body.size.height)
+            inside.pillarHole = SIMD4<Float>(Float(lordX - g.whole(.world)),
+                                             Float(g.row(HallLayout.floorRow) - lordLift - body * 0.5),
+                                             Float(HallLight.holeHalf.width), Float(HallLight.holeHalf.height))
+            let rims = HallLight.pillarRims(ambient)
+            inside.rimLeft = rims.left
+            inside.rimRight = rims.right
+            inside.pillarAmbient = HallLight.pillarAmbient
+            desc.interior = inside
+        }
         return desc
     }
 }

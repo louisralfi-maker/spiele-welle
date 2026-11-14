@@ -226,7 +226,8 @@ final class HallStageTests: XCTestCase {
         XCTAssertEqual(farmer.x, HallLayout.seats[0], "the first in line nearest the throne")
         XCTAssertEqual(farmer.row, HallLayout.wallRow)
         XCTAssertNotNil(farmer.seated, "seated on the bench")
-        XCTAssertEqual(HallCourt.occupiedBenches(specs), [1], "the bench he waits on has its candles lit")
+        XCTAssertEqual(HallCourt.occupiedBenches(specs), [0], "the bench he waits on has its candles lit")
+        XCTAssertEqual(HallCourt.bench(ofSeat: HallLayout.seats[0]), 0, "the bench by the door fills first")
 
         let night = realm(day: 1, hour: 22)
         let late = HallCourt.specs(night, catalog: .standard)
@@ -421,7 +422,7 @@ final class HallStageTests: XCTestCase {
         XCTAssertEqual(noble.x, HallLayout.nobleSpot, "the noble stands apart")
         XCTAssertNil(noble.seated, "a noble never sits on the benches")
         XCTAssertEqual(specs.first { $0.petition == "first_plough" }?.x, HallLayout.seats[0])
-        for x in HallLayout.standing + HallLayout.seats {
+        for x in HallLayout.standing + HallLayout.seats + HallLayout.besideBenches {
             XCTAssertGreaterThanOrEqual(abs(x - HallLayout.nobleSpot), 12, "\(x) keeps from the noble")
             XCTAssertGreaterThanOrEqual(abs(x - HallLayout.footmanSpot), 12, "\(x) keeps from the footman")
         }
@@ -430,6 +431,110 @@ final class HallStageTests: XCTestCase {
         XCTAssertTrue((492...572).contains(HallLayout.lamplighterSpot), "the lamplighter stands at the hearth")
         XCTAssertEqual(HallLayout.tablePlaces.count, 8)
         XCTAssertTrue(HallLayout.tablePlaces.allSatisfy { $0 >= HallLayout.daisX }, "the table stands on the dais")
+    }
+
+    // MARK: - Fix round 1 (the art director's first look)
+
+    func testTheCameraNeverShowsPastThePaintedHall() {
+        let walkWidth = HallFraming.viewWidth(pro, scale: 7)
+        let farRight = HallFraming.framing(pro, walkLeft: HallLayout.width - walkWidth, progress: 0)
+        XCTAssertEqual(farRight.left + walkWidth, HallLayout.shownRight, accuracy: 1e-9, "the hearth's end wall")
+        XCTAssertEqual(HallFraming.framing(pro, walkLeft: 0, progress: 0).left, HallLayout.shownLeft,
+                       "the door's end wall")
+        for progress in stride(from: 0.0, through: 1.0, by: 0.1) {
+            let framing = HallFraming.framing(pro, walkLeft: 225, progress: progress)
+            let width = HallFraming.viewWidth(pro, scale: framing.scale)
+            XCTAssertGreaterThanOrEqual(framing.left, HallLayout.shownLeft - 1e-9)
+            XCTAssertLessThanOrEqual(framing.left + width, HallLayout.shownRight + 1e-9, "\(progress)")
+        }
+        let wide = PixelScale(physicalWidth: 4000, physicalHeight: 600)
+        let huge = HallFraming.viewWidth(wide, scale: Double(HallFraming.scales(wide).walk))
+        if huge > HallLayout.shownRight - HallLayout.shownLeft {
+            XCTAssertEqual(HallFraming.clamped(0, width: huge) + huge / 2, 300, accuracy: 1e-9, "centred")
+        }
+    }
+
+    func testTheNearPillarOpensRoundTheLordAndCatchesTheLight() throws {
+        let game = model(["GWStage": "hall", "GWHallX": "150", "GWClock": "10", "GWWeather": "clear"])
+        let frame = game.frame(physicalWidth: 2622, physicalHeight: 1206)
+        let pillars = frame.layer(.foreground).sprites.filter { $0.sprite == .hallPillarNear }
+        XCTAssertLessThanOrEqual(pillars.count, 1, "never two near pillars in the walking framing")
+        XCTAssertTrue(pillars.allSatisfy { $0.tint.w == 1 }, "no glassy fade by alpha")
+        for left in stride(from: 10.0, through: 215, by: 5) {
+            let screen = HallLayout.nearPillars.map { HallLayout.nearParallax * ($0 - left) - 0.125 * 374.57 }
+            XCTAssertLessThanOrEqual(screen.filter { $0 > -15 && $0 < 390 }.count, 1, "one pillar at \(left)")
+        }
+        let inside = try XCTUnwrap(frame.interior)
+        XCTAssertGreaterThan(inside.pillarHole.z, 0, "the window round the lord")
+        XCTAssertEqual(Double(inside.pillarHole.x), 150 - frame.cameraX, accuracy: 2, "centred on him")
+        XCTAssertGreaterThan(inside.rimRight.x, inside.rimLeft.x, "by day the window's side catches more")
+        XCTAssertGreaterThan(inside.pillarAmbient, 0.3, "its stone reads")
+        let night = model(["GWStage": "hall", "GWNight": "3", "GWSeed": "2", "GWHallX": "150"])
+        let dark = try XCTUnwrap(night.frame(physicalWidth: 2622, physicalHeight: 1206).interior)
+        XCTAssertGreaterThan(dark.rimLeft.x, dark.rimLeft.z, "at night the torches warm its left edge")
+    }
+
+    func testTheHallsLightAfterTheLook() throws {
+        let game = model(["GWStage": "hall", "GWHallX": "200", "GWClock": "10", "GWWeather": "clear",
+                          "GWFlickerTime": "1"])
+        let day = game.frame(physicalWidth: 2622, physicalHeight: 1206)
+        let round = day.lights.filter { $0.kind == .candle && $0.ellipseY == 1 }
+        XCTAssertGreaterThanOrEqual(round.count, 3, "the bench's two stands and the lectern: round pools, no bar")
+        let noonHearth = try XCTUnwrap(model(["GWStage": "hall", "GWHallX": "470", "GWClock": "12",
+                                              "GWWeather": "clear", "GWFlickerTime": "1"])
+            .frame(physicalWidth: 2622, physicalHeight: 1206).lights.first { $0.kind == .hearth })
+        let nightHearth = try XCTUnwrap(model(["GWStage": "hall", "GWNight": "3", "GWSeed": "2", "GWHallX": "470",
+                                               "GWFlickerTime": "1"])
+            .frame(physicalWidth: 2622, physicalHeight: 1206).lights.first { $0.kind == .hearth })
+        XCTAssertLessThan(noonHearth.circle.z, nightHearth.circle.z - 20, "by day a smaller glow round the fire")
+        XCTAssertLessThan(noonHearth.circle.w, nightHearth.circle.w, "and a weaker one")
+        let pool = HallLayout.floorPool
+        XCTAssertLessThanOrEqual(pool.x + pool.radius, HallLayout.shownRight, "the pool falls off before the end wall")
+        let lantern = try XCTUnwrap(day.lights.first { $0.kind == .lantern })
+        XCTAssertGreaterThan(lantern.color.z, 0.5, "a warm white, not gold: it never greens the teal cloth")
+        let s = try XCTUnwrap(game.driver?.state)
+        let ambient = AmbientRamp.sample(at: 23, look: .two)
+        if HallLight.moonlight(ambient, weather: WeatherSample.clear) > 0.01 {
+            var night = s
+            night.hour = 23
+            game.withDriver { $0.state = night }
+            let moonlit = game.frame(physicalWidth: 2622, physicalHeight: 1206)
+            XCTAssertTrue(moonlit.emissives.contains { $0.sprite == .hallShaft }, "the moon's shafts")
+        }
+        _ = s
+    }
+
+    func testWhoCannotSitStandsBesideTheBench() throws {
+        var s = realm(day: 3, hour: 10)
+        var court = s.court ?? CourtState()
+        court.queueDay = 3
+        court.queue = [Petitioner(id: "veteran_bow", reason: .story, look: 1),
+                       Petitioner(id: "first_plough", reason: .story, look: 2),
+                       Petitioner(id: "tax_grumble", reason: .story, look: 3)]
+        s.court = court
+        let specs = HallCourt.specs(s, catalog: .standard)
+        let soldier = try XCTUnwrap(specs.first { $0.petition == "veteran_bow" })
+        XCTAssertNil(soldier.seated)
+        XCTAssertEqual(soldier.x, HallLayout.besideBenches[0], "beside the bench, not before an empty seat")
+        let farmer = try XCTUnwrap(specs.first { $0.petition == "first_plough" })
+        XCTAssertEqual(farmer.x, HallLayout.seats[0], "who can sit takes the first seat")
+        XCTAssertNotNil(farmer.seated)
+        XCTAssertEqual(specs.first { $0.petition == "tax_grumble" }?.x, HallLayout.besideBenches[1])
+        XCTAssertEqual(HallCourt.occupiedBenches(specs), [0], "the bench's candles burn")
+        for x in HallLayout.besideBenches + HallLayout.seats.prefix(3) {
+            XCTAssertLessThan(x, 290, "\(x) is clear of the action button when he comes in")
+        }
+    }
+
+    func testTheFixRoundsArguments() {
+        XCTAssertEqual(DebugArgs(values: ["GWHearth": "0.25"]).hearth, 0.25)
+        XCTAssertEqual(DebugArgs(values: ["GWHearth": "3"]).hearth, 1)
+        XCTAssertEqual(DebugArgs(values: ["GWStageSlow": "10"]).stageSlow, 10)
+        XCTAssertEqual(DebugArgs(values: [:]).stageSlow, 1)
+        let low = model(["GWStage": "hall", "GWNight": "3", "GWSeed": "2", "GWHearth": "0.25"])
+        let strength = (low.driver?.state.hearth ?? 0) / (low.driver?.balance.hearthStrength ?? 1)
+        XCTAssertEqual(strength, 0.25, accuracy: 0.01)
+        XCTAssertEqual(HallFrames.hearthState(strength), .embers)
     }
 
     // MARK: - Sound and arguments

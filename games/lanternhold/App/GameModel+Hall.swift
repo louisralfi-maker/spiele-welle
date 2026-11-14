@@ -298,7 +298,7 @@ extension GameModel {
             stageChange = change
             return
         }
-        let result = change.step(dt: dt, reduceMotion: reduceMotion)
+        let result = change.step(dt: dt / max(1, args.stageSlow), reduceMotion: reduceMotion)
         if result.switchNow {
             switch change.to {
             case .hall: enterHallNow(at: HallLayout.doorX, facing: 1, greeted: false)

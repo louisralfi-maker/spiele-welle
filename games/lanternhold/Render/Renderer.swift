@@ -403,12 +403,14 @@ final class Renderer {
         }
 
         // Light pools.
-        let style: UInt32
+        var style: UInt32
         switch frame.lightStyle {
         case .smooth: style = 0
         case .banded: style = 1
         case .dithered: style = 2
         }
+        // The hall stage (stage lane, fix round 1 of step stage-1): an interior's pools fall off to nothing.
+        if frame.interior != nil { style = 3 }
         let whole = Float(max(0, frame.layer(.world).offset.whole))
         var lightUniforms = LightPassUniforms(
             target: SIMD4<Float>(Float(targets.width), Float(targets.height), whole, Float(LightField.litThreshold)),

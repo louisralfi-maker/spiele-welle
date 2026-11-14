@@ -64,6 +64,8 @@ enum GameStart {
         applyNumbers(&dawn, args: args)
         applyHouses(&state, args: args)
         applyHouses(&dawn, args: args)
+        // The hall stage (stage lane): `-GWHearth`, the hearth's strength now.
+        if let share = args.hearth { state.hearth = share * balance.hearthStrength }
         if let lord = args.lordIdentity {
             state.lord = lord
             dawn.lord = lord

@@ -6,6 +6,7 @@ to it.
 
     python3 -I -B tools/hallstage.py            # writes the three PNGs into Resources/Art
     python3 -I -B tools/hallstage.py places     # prints the plaster patches' places for Core/HallLayout.swift
+    python3 -I -B tools/hallstage.py wash       # writes only hallWash.png
 
 Pure Python, integer hashes, palette names only (tools/palette.txt): every run writes the same bytes. One small
 image at a time, so the old Mac stays cool.
@@ -15,10 +16,11 @@ image at a time, so the old Mac stays cool.
   morning). White: the engine draws it as an emissive glow in the daylight's colour, so its alpha is the beam's
   strength, in ordered-dither steps like the light pools.
 - `hallMote` (1x1): one speck of dust in a shaft.
-- `hallWash` (8 frames of 64x44): limewash and plaster patches, each cut for its own place on the wall (the places
-  below): only where the hall's ashlar shows (never over a banner, a window, a shaft or the wainscot), a pale warm
-  plaster in palette tones, a crumbling edge, the joints of the stone showing through where the wash is thin, and a
-  one-pixel shadow under its lower edge.
+- `hallWash` (8 frames of 64x44): limewash stains, each cut for its own place on the wall (the places below): only
+  where the hall's ashlar shows (never over a banner, a window, a shaft or the wainscot), a ragged outline with an
+  ordered-dither feather, each pixel one step warmer than the stone under it (the blocks and joints read through),
+  and a few small islands of thicker plaster (fix round 1 of step stage-1: the old patches covered whole blocks and
+  read as square light blocks).
 """
 import os
 import sys
@@ -41,17 +43,18 @@ SHAFT_SLANT = 0.44
 SHAFT_W = 30 + int(SHAFT_SLANT * SHAFT_LEN) + 1
 
 WASH_W, WASH_H = 64, 44
-# Each patch: the frame's top-left on the hall (x, row), the blob's centre in the frame, its half sizes, a seed. At
-# different heights so they never read as a band: right of the door, high and low in both window bays, on the dais
-# end beside the arms, left of the hearth's hood and right of its firebox.
+# Each patch: the frame's top-left on the hall (x, row), the stain's centre in the frame, its half sizes, a seed. At
+# different heights so they never read as a band: right of the door, high and low in both window bays, high on the
+# dais end above the arms, high on the gallery's wall left of its window, right of the hearth's firebox. None beside
+# a sconce or a candle (fix round 1: a patch beside the throne's sconce turned into an orange square in its light).
 WASH = (
     (80, 92, 32, 26, 14, 12, 1),
     (140, 36, 26, 22, 15, 9, 2),
     (124, 104, 28, 22, 16, 9, 3),
     (256, 40, 32, 20, 17, 10, 4),
     (316, 100, 32, 22, 13, 11, 5),
-    (440, 100, 26, 20, 14, 11, 6),
-    (476, 96, 14, 24, 10, 12, 7),
+    (430, 30, 30, 18, 14, 9, 6),
+    (14, 30, 22, 20, 12, 10, 7),
     (536, 128, 32, 22, 18, 10, 8),
 )
 # The hall's ashlar (tools/hallart.py `wall`): the stone ramp. The wash goes only there.
@@ -140,99 +143,83 @@ def mote():
     save("hallMote", [[(255, 255, 255, 255)]])
 
 
-def blocks(hall, fx, fy, pal):
-    """The ashlar's blocks inside a patch's frame, as sets of frame pixels: the courses lie between the rows where
-    the ink joints run across, the blocks of a course between its upright joints. A block that holds anything but
-    the stone ramp (a banner, a window, the wainscot) is left out."""
-    ink = pal["ink"]
-    stone = {pal[n] for n in STONE}
+def noise(seed, x, y, cell):
+    """Smooth value noise in -1 ... 1: integer hashes on a grid of `cell` px, blended bilinearly (smoothstepped)."""
+    gx, gy = x // cell, y // cell
+    tx, ty = (x % cell) / float(cell), (y % cell) / float(cell)
+    tx, ty = tx * tx * (3 - 2 * tx), ty * ty * (3 - 2 * ty)
 
-    def is_ink(x, y):
-        p = hall[fy + y][fx + x]
-        return p[3] == 255 and (p[0], p[1], p[2]) == ink
+    def corner(i, j):
+        return h(seed, gx + i, gy + j, cell) / 32767.5 - 1.0
 
-    def is_joint(x, y):
-        p = hall[fy + y][fx + x]
-        return p[3] == 255 and (p[0], p[1], p[2]) in (ink, pal["stoneMid"], pal["stoneDark"])
+    top = corner(0, 0) + (corner(1, 0) - corner(0, 0)) * tx
+    bottom = corner(0, 1) + (corner(1, 1) - corner(0, 1)) * tx
+    return top + (bottom - top) * ty
 
-    # A bed joint is a row that is mostly ink and the blocks' shaded lowest course of pixels.
-    joint_rows = [y for y in range(WASH_H) if sum(is_joint(x, y) for x in range(WASH_W)) * 10 >= WASH_W * 6]
-    courses = []
-    top = 0
-    for y in joint_rows + [WASH_H]:
-        if y - top >= 3:
-            courses.append((top, y - 1))
-        top = y + 1
-    found = []
-    for (y0, y1) in courses:
-        rows = y1 - y0 + 1
-        # A head joint: a column that is ink or the blocks' shade almost all the way down the course.
-        joints = [x for x in range(WASH_W) if sum(is_joint(x, y) for y in range(y0, y1 + 1)) * 5 >= rows * 4]
-        left = 0
-        for x in joints + [WASH_W]:
-            if x - left >= 3 and left > 0 and x < WASH_W:
-                block = {(bx, by) for bx in range(left, x) for by in range(y0, y1 + 1)}
-                plain = sum(1 for (bx, by) in block
-                            if hall[fy + by][fx + bx][3] == 255
-                            and tuple(hall[fy + by][fx + bx][:3]) in stone)
-                if plain * 10 >= len(block) * 9:
-                    found.append(block)
-            left = x + 1
-    return found
+
+# The walls end at this hall row (the dais's flags below it share the stone ramp).
+WALL_BOTTOM = 152
+# The wash over each tone of the ashlar (fix round 1, critic look 1: "light the patch with the wall underneath it"):
+# a warm limewash stain one step warmer and at most one step lighter than the stone it lies on, so the blocks, their
+# highlights and the joints read through it and it never becomes a lighter block of its own. The thin edge only warms.
+WASH_CORE = {"ink": "rockDeep", "stoneDark": "rockDark", "stoneMid": "rock", "stone": "rockLight",
+             "stoneLight": "rockPale", "stonePale": "stonePale"}
+WASH_EDGE = {"ink": "ink", "stoneDark": "rockDeep", "stoneMid": "rockDark", "stone": "rock",
+             "stoneLight": "rockPale", "stonePale": "stonePale"}
 
 
 def wash(places_only=False):
-    """Plaster laid over whole blocks round a centre, so its edge follows the joints; a few blocks inside left bare
-    (the plaster fell off), the joints between covered blocks filled, a pale top edge and a shadow under it."""
+    """Limewash stains over the ashlar (fix round 1): a noisy ellipse, so the outline is ragged (no straight run
+    longer than three or four pixels), with one to two pixels of ordered-dither feather at its edge; each pixel takes
+    the wash tone of the stone under it (`WASH_CORE` inside, `WASH_EDGE` in the feather), and a few small islands of
+    thicker plaster sit where the stain is thickest, each with a one-pixel shadow under it. Only over the stone ramp
+    and its ink joints: never over a banner, a window, the wood or the wainscot."""
     pal = palette()
+    names = {v: k for k, v in pal.items() if k in WASH_CORE}
     hall_w, hall_h, hall, _ = read_png(os.path.join(ART, "greatHall.png"))
-    base, warm, light, worn = pal["rockPale"], pal["stoneLight"], pal["stonePale"], pal["stoneLight"]
-    shadow = pal["stoneMid"]
     frames = []
     for (fx, fy, cx, cy, rx, ry, seed) in WASH:
-        covered = set()
-        for i, block in enumerate(blocks(hall, fx, fy, pal)):
-            mx = sum(x for x, _ in block) / len(block)
-            my = sum(y for _, y in block) / len(block)
-            wobble = (h(seed, i, 3) % 100) / 100.0 * 0.5
-            d = ((mx - cx) / rx) ** 2 + ((my - cy) / ry) ** 2
-            if d > 0.75 + wobble:
-                continue
-            # Inside, now and then a bare block where the plaster fell away.
-            if d < 0.5 and h(seed, i, 5) % 9 == 0:
-                continue
-            covered |= block
-        # The joints between two covered pixels are plastered over too.
-        mask = set(covered)
+        img = blank(WASH_W, WASH_H)
+        thick = set()
+        count = 0
         for y in range(WASH_H):
             for x in range(WASH_W):
-                if (x, y) in covered:
+                p = hall[fy + y][fx + x]
+                # Only on the walls: the flags of the dais (from hall row 152) are the same stone ramp.
+                if p[3] != 255 or fy + y >= WALL_BOTTOM:
                     continue
-                horiz = (x - 1, y) in covered and (x + 1, y) in covered
-                vert = (x, y - 1) in covered and (x, y + 1) in covered
-                if horiz or vert:
-                    p = hall[fy + y][fx + x]
-                    if p[3] == 255:
-                        mask.add((x, y))
-        img = blank(WASH_W, WASH_H)
-        for (x, y) in mask:
-            n = h(seed, x // 4, y // 3, 11) % 100
-            colour = base if n < 62 else (warm if n < 90 else worn)
-            if (x, y - 1) not in mask:
-                colour = light if h(seed, x, y, 17) % 4 == 0 else base
-            elif (x - 1, y) not in mask and h(seed, x, y, 19) % 2:
-                colour = warm
-            img[y][x] = colour + (255,)
-        # A one-pixel shadow under the plaster's lower edge, on the stone below it.
-        for (x, y) in mask:
+                name = names.get((p[0], p[1], p[2]))
+                if name is None:
+                    continue
+                d = ((x - cx) / float(rx)) ** 2 + ((y - cy) / float(ry)) ** 2
+                ragged = 0.42 * noise(seed, x, y, 5) + 0.22 * noise(seed + 50, x, y, 2)
+                cover = 1.0 - (d + ragged)
+                if cover <= 0:
+                    continue
+                if cover < 0.32:
+                    # The feather: an ordered dither between the bare stone and the thin edge.
+                    if cover / 0.32 * 16 <= BAYER[(y + fy) % 4][(x + fx) % 4]:
+                        continue
+                    tone = WASH_EDGE[name]
+                else:
+                    # Thin wash warms the stone; only where it is thick does it lighten it a step.
+                    tone = WASH_CORE[name] if cover > 0.55 or name != "stone" else WASH_EDGE[name]
+                    if cover > 0.62 and name in ("stone", "stoneLight") and noise(seed + 90, x, y, 3) > 0.25:
+                        thick.add((x, y))
+                img[y][x] = pal[tone] + (255,)
+                count += 1
+        # The islands of thicker plaster: only clusters of three or more, so no lone pixel sparkles.
+        for (x, y) in thick:
+            near = sum((x + i, y + j) in thick for i in (-1, 0, 1) for j in (-1, 0, 1)) - 1
+            if near < 2:
+                continue
+            img[y][x] = pal["rockPale"] + (255,)
             below = (x, y + 1)
-            if below not in mask and y + 1 < WASH_H:
-                p = hall[fy + y + 1][fx + x]
-                if p[3] == 255:
-                    img[y + 1][x] = shadow + (255,)
+            if below not in thick and y + 1 < WASH_H and img[y + 1][x][3] == 255:
+                img[y + 1][x] = pal["rockDark"] + (255,)
         frames.append(img)
         if places_only:
-            print("        (%d, %d), // %d px" % (fx, fy, len(mask)))
+            print("        (%d, %d), // %d px" % (fx, fy, count))
     if places_only:
         return
     strip = blank(WASH_W * len(frames), WASH_H)
@@ -246,6 +233,9 @@ def wash(places_only=False):
 def main(argv):
     if argv and argv[0] == "places":
         wash(places_only=True)
+        return 0
+    if argv and argv[0] == "wash":
+        wash()
         return 0
     shaft()
     mote()

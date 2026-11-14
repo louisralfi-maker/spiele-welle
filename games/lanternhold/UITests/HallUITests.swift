@@ -6,7 +6,9 @@ import XCTest
 /// nave, the audience at the throne with the letter in the upper left and the choices along the floor band, the horn's
 /// slip at the door, out by walking past the door, and Reduce Motion's cut; stills of the hall by day, in the
 /// afternoon's shafts, at dusk and at night, and the longest German letter in the hall's card. Every button is
-/// checked for 44 pt. Saves `<nn>-hall-<what>-<lang>`: 130 to 142.
+/// checked for 44 pt. Saves `<nn>-hall-<what>-<lang>`: 130 to 145 (fix round 1 added the proofs: 131a the dark half
+/// way, 131b and 131c the greeting and the room settled again, 143 out past the door, 144a and 144b the low hearth and
+/// the embers, 145 Reduce Motion).
 @MainActor
 final class HallUITests: XCTestCase {
     override func setUp() async throws {
@@ -26,6 +28,7 @@ final class HallUITests: XCTestCase {
         stills()
         theHorn()
         reduceMotion()
+        proofs()
     }
 
     /// Day 3 at 10:00 (seed 2: three wait on the benches): to the hall's door in the world, in, a walk down the nave,
@@ -50,10 +53,15 @@ final class HallUITests: XCTestCase {
         attach(XCUIScreen.main.screenshot(), "130-hall-door-\(language)")
         button.tap()
         XCTAssertTrue(waitForField(app, "stage:hall", timeout: 6), "in by the door")
-        // The hall answers its lord: the guards stand straight, the waiting turn their heads.
+        // The hall answers its lord: the guards stand straight, the waiting turn their heads (131b); a few seconds
+        // later they stand easy and look to the throne again (131c).
         pause(0.5)
         attach(XCUIScreen.main.screenshot(), "131-hall-enter-\(language)")
         XCTAssertEqual(field(app, "hx:"), 68, "he stands inside at the door")
+        pause(0.3)
+        attach(XCUIScreen.main.screenshot(), "131b-hall-greet-\(language)")
+        pause(2.6)
+        attach(XCUIScreen.main.screenshot(), "131c-hall-settled-\(language)")
 
         let scene = element(app, "world-scene")
         let from = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.12, dy: 0.62))
@@ -174,17 +182,72 @@ final class HallUITests: XCTestCase {
         app.terminate()
     }
 
-    /// Reduce Motion: in by the door without the dark.
+    /// Reduce Motion: in by the door without the dark, the morning's shafts with their dust held still.
     private func reduceMotion() {
         let app = XCUIApplication()
-        app.launchArguments = HallUITests.base + ["-GWStage", "world", "-GWCameraX", "1830", "-GWReduceMotion", "YES"]
+        app.launchArguments = HallUITests.base + HallUITests.day3
+            + ["-GWClock", "9.5", "-GWStage", "world", "-GWCameraX", "1830", "-GWReduceMotion", "YES"]
         app.launch()
         guard waitUntilReady(app, name: "hall-reduce-motion") else { return }
         let button = element(app, "action-button")
         XCTAssertTrue(button.waitForExistence(timeout: 8), "the door")
         button.tap()
         XCTAssertTrue(waitForField(app, "stage:hall", timeout: 2), "a cut")
+        pause(0.6)
+        attach(XCUIScreen.main.screenshot(), "145-hall-reduce-motion-\(language)")
         app.terminate()
+    }
+
+    /// The step's proofs (fix round 1): the dark of the change caught half way (the change ten times slower), out
+    /// past the door and standing at 1830 facing right, the hearth burning low and as embers at night.
+    private func proofs() {
+        let slow = XCUIApplication()
+        slow.launchArguments = HallUITests.base + HallUITests.day3
+            + ["-GWClock", "10", "-GWStage", "world", "-GWCameraX", "1830", "-GWStageSlow", "10"]
+        slow.launch()
+        if waitUntilReady(slow, name: "hall-dark") {
+            let button = element(slow, "action-button")
+            if button.waitForExistence(timeout: 8) {
+                button.tap()
+                // The door opens for 2.2 s, the dark comes over 1.6 s: half dark about 3 s after the touch.
+                pause(2.9)
+                attach(XCUIScreen.main.screenshot(), "131a-hall-dark-\(language)")
+                XCTAssertTrue(waitForField(slow, "stage:hall", timeout: 8), "in through the slow dark")
+            } else {
+                XCTFail("no door for the slow change")
+            }
+        }
+        slow.terminate()
+
+        let out = XCUIApplication()
+        out.launchArguments = HallUITests.base + HallUITests.day3
+            + ["-GWClock", "10", "-GWStage", "hall", "-GWHallX", "76"]
+        out.launch()
+        if waitUntilReady(out, name: "hall-exit") {
+            XCTAssertTrue(waitForField(out, "stage:hall", timeout: 6))
+            let scene = element(out, "world-scene")
+            let from = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.30, dy: 0.62))
+            let to = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.20, dy: 0.62))
+            from.press(forDuration: 0.05, thenDragTo: to, withVelocity: .default, thenHoldForDuration: 1.6)
+            XCTAssertTrue(waitForField(out, "stage:world", timeout: 8), "out past the door")
+            pause(0.8)
+            attach(XCUIScreen.main.screenshot(), "143-hall-exit-world-\(language)")
+            XCTAssertEqual(field(out, "kx:") ?? 0, 1830, accuracy: 1, "he stands at the hall's door in the world")
+        }
+        out.terminate()
+
+        let frozen = ["-GWFreezeTime", "YES", "-GWStage", "hall"]
+        for (name, share) in [("144a-hall-hearth-low", "0.5"), ("144b-hall-hearth-embers", "0.25")] {
+            let app = XCUIApplication()
+            app.launchArguments = HallUITests.base + ["-GWNight", "3", "-GWSeed", "2", "-GWHallX", "470",
+                                                      "-GWHearth", share] + frozen
+            app.launch()
+            guard waitUntilReady(app, name: name) else { continue }
+            XCTAssertTrue(waitForField(app, "stage:hall", timeout: 6), "\(name) in the hall")
+            pause(1.0)
+            attach(XCUIScreen.main.screenshot(), "\(name)-\(language)")
+            app.terminate()
+        }
     }
 
     // MARK: - Helpers
