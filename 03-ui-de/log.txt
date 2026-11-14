@@ -1,0 +1,23 @@
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (102.707 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (94.033 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (45.993 seconds).
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (124.605 seconds).
+Test Case '-[LanternholdUITests.LightProbeUITests testFilmstrip]' passed (16.125 seconds).
+Test Case '-[LanternholdUITests.LightProbeUITests testLightProbe]' passed (209.466 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwo]' passed (182.312 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoCourt]' passed (21.978 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoNight]' passed (66.803 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/LordUITests.swift:55: error: -[LanternholdUITests.LordUITests testTheLordIsNamed] : XCTAssertEqual failed: ("Optional("Annegret!")") is not equal to ("Optional("Annegret")") - digits and signs are not kept
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' failed (56.272 seconds).
+Test Suite 'LordUITests' failed at 2026-11-14 19:34:18.099.
+Test Case '-[LanternholdUITests.MidChapterUITests testFinale]' passed (0.114 seconds).
+Test Case '-[LanternholdUITests.MidChapterUITests testMidChapter]' passed (170.760 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolish]' passed (177.915 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishCirclet]' passed (10.216 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishHouses]' passed (33.132 seconds).
+Test Case '-[LanternholdUITests.ProbeUITests testPixelGrid135]' passed (6.844 seconds).
+Test Case '-[LanternholdUITests.ProbeUITests testPixelGrid180]' passed (7.568 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-14 19:41:04.658.
+Test Suite 'All tests' failed at 2026-11-14 19:41:04.660.
+exit=65
+screenshots: 131

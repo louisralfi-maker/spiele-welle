@@ -1,0 +1,24 @@
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (115.325 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:119: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - the crown did not open the audience
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:138: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no book at the tax lectern
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' failed (111.888 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (53.836 seconds).
+Test Suite 'FirstDayUITests' failed at 2026-11-14 18:57:59.931.
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (133.909 seconds).
+Test Case '-[LanternholdUITests.LightProbeUITests testFilmstrip]' passed (17.278 seconds).
+Test Case '-[LanternholdUITests.LightProbeUITests testLightProbe]' passed (217.044 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwo]' passed (189.433 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoCourt]' passed (23.579 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoNight]' passed (66.760 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (58.642 seconds).
+Test Case '-[LanternholdUITests.MidChapterUITests testFinale]' passed (89.499 seconds).
+Test Case '-[LanternholdUITests.MidChapterUITests testMidChapter]' passed (172.571 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolish]' passed (185.920 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishCirclet]' passed (10.567 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishHouses]' passed (36.180 seconds).
+Test Case '-[LanternholdUITests.ProbeUITests testPixelGrid135]' passed (7.405 seconds).
+Test Case '-[LanternholdUITests.ProbeUITests testPixelGrid180]' passed (7.809 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-14 19:18:16.555.
+Test Suite 'All tests' failed at 2026-11-14 19:18:16.555.
+exit=65
+screenshots: 132

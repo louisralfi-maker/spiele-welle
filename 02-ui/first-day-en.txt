@@ -1,0 +1,1 @@
+scene after the report: frame:5210 ready day:2 hour:6.40 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1830 lord:lord stage:hall hx:377

@@ -1,0 +1,64 @@
+Application, 0x101c83a20, pid: 32548, label: 'Lanternhold' <App element pid: 32548>
+  Window (Main), 0x101c83c90, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 32548, elementOrHash.elementID: 4383076192.3>
+    Other, 0x101c84280, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 32548, elementOrHash.elementID: 4385248208.4>
+      Other, 0x101c843a0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 32548, elementOrHash.elementID: 4385596304.5>
+        Other, 0x101c83fe0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 32548, elementOrHash.elementID: 4383185920.6>
+          Other, 0x101c84100, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 32548, elementOrHash.elementID: 4384451776.7>
+            Other, 0x101c844c0, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-root' <AX element pid: 32548, elementOrHash.elementID: 4384445328.8>
+              Other, 0x101c845e0, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:2130 ready d... <AX element pid: 32548, elementOrHash.elementID: 4383284400.9>
+              Other, 0x101c84700, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 32548, elementOrHash.elementID: 4384420560.10>
+              Other, 0x101c84820, {{0.0, 0.0}, {393.3, 402.0}} <AX element pid: 32548, elementOrHash.elementID: 4384436544.11>
+              Button, 0x101c84940, {{70.0, 6.0}, {60.0, 60.0}}, identifier: 'hud-pause', label: 'Pause' <AX element pid: 32548, elementOrHash.elementID: 4384438544.12>
+                Other, 0x101c84a60, {{70.0, 6.0}, {44.0, 44.0}} <AX element pid: 32548, elementOrHash.elementID: 4384437328.20>
+                Image, 0x101c84b80, {{70.0, 6.0}, {60.0, 60.0}}, identifier: 'pause.fill', label: 'Pause' <AX element pid: 32548, elementOrHash.elementID: 4384438112.21>
+              StaticText, 0x101c84ca0, {{708.7, 12.3}, {83.3, 19.3}}, identifier: 'hud-clock', label: 'Day 1, 14:06' <AX element pid: 32548, elementOrHash.elementID: 4384441808.13>
+                StaticText, 0x101c84dc0, {{708.7, 12.3}, {38.7, 19.3}}, label: 'Day 1' <AX element pid: 32548, elementOrHash.elementID: 4384439440.22>
+                StaticText, 0x101c84ee0, {{755.3, 12.8}, {36.7, 18.3}}, label: '14:06' <AX element pid: 32548, elementOrHash.elementID: 4384440960.23>
+              Other, 0x101c85000, {{651.0, 41.0}, {38.0, 19.7}}, identifier: 'hud-gold', label: 'Gold', value: 48 <AX element pid: 32548, elementOrHash.elementID: 4384444544.14>
+                Other, 0x101c85120, {{651.0, 43.0}, {16.0, 16.0}} <AX element pid: 32548, elementOrHash.elementID: 4384443680.24>
+                StaticText, 0x101c85240, {{672.0, 41.0}, {17.0, 19.7}}, label: '48' <AX element pid: 32548, elementOrHash.elementID: 4384444112.25>
+              Other, 0x101c85360, {{701.0, 41.0}, {40.0, 19.7}}, identifier: 'hud-happiness', label: 'Happiness', value: 60 <AX element pid: 32548, elementOrHash.elementID: 4384447216.15>
+                Other, 0x101c85480, {{701.0, 41.8}, {18.0, 18.0}} <AX element pid: 32548, elementOrHash.elementID: 4384446000.26>
+                StaticText, 0x101c855a0, {{724.0, 41.0}, {17.0, 19.7}}, label: '60' <AX element pid: 32548, elementOrHash.elementID: 4384446432.27>
+              Other, 0x101c856c0, {{753.3, 41.0}, {38.7, 19.7}}, identifier: 'hud-people', label: 'People', value: 14 <AX element pid: 32548, elementOrHash.elementID: 4384449888.16>
+                Other, 0x101c857e0, {{753.3, 43.7}, {16.0, 14.3}} <AX element pid: 32548, elementOrHash.elementID: 4384448672.28>
+                StaticText, 0x101c85900, {{775.0, 41.0}, {17.0, 19.7}}, label: '14' <AX element pid: 32548, elementOrHash.elementID: 4384449104.29>
+              Other, 0x101c85a20, {{651.0, 36.0}, {141.0, 1.0}} <AX element pid: 32548, elementOrHash.elementID: 4384451344.17>
+              Button, 0x101c85b40, {{266.0, 6.0}, {342.0, 44.0}}, identifier: 'realm-strip', label: 'Map of the valley', value: Petitioners waitin... <AX element pid: 32548, elementOrHash.elementID: 4384448000.18>
+              Other, 0x101c85c60, {{62.0, 0.0}, {750.0, 382.0}} <AX element pid: 32548, elementOrHash.elementID: 4385999472.107>
+              Other, 0x101c85d80, {{200.3, 54.0}, {512.0, 295.0}}, identifier: 'tax-card' <AX element pid: 32548, elementOrHash.elementID: 4386061024.108>
+                StaticText, 0x101c85ea0, {{216.2, 68.0}, {51.0, 26.7}}, label: 'Taxes' <AX element pid: 32548, elementOrHash.elementID: 4385999904.110>
+                StaticText, 0x101c85fc0, {{496.6, 75.3}, {111.7, 16.7}}, label: 'Taxes at the next dawn' <AX element pid: 32548, elementOrHash.elementID: 4385977168.111>
+                Other, 0x101c860e0, {{626.3, 72.7}, {33.9, 18.3}}, label: 'Gold', value: 48 <AX element pid: 32548, elementOrHash.elementID: 4385978464.112>
+                  Other, 0x101c86200, {{626.3, 75.0}, {14.0, 14.0}} <AX element pid: 32548, elementOrHash.elementID: 4385977600.116>
+                  StaticText, 0x101c86320, {{644.2, 72.7}, {16.0, 18.3}}, label: '48' <AX element pid: 32548, elementOrHash.elementID: 4385978032.117>
+                Other, 0x101c86440, {{216.3, 101.7}, {480.0, 1.0}} <AX element pid: 32548, elementOrHash.elementID: 4385979568.113>
+                ScrollView, 0x101c86560, {{216.3, 109.7}, {488.0, 229.3}} <AX element pid: 32548, elementOrHash.elementID: 4429640704.114>
+                  Other, 0x101c86680, {{216.3, 109.7}, {488.0, 229.3}} <AX element pid: 32548, elementOrHash.elementID: 4385956736.118>
+                    Button, 0x101c867a0, {{216.3, 109.7}, {480.0, 52.3}}, identifier: 'tax-low', label: 'Low tax, 60% of the taxes · happiness +3 a dawn, 29' <AX element pid: 32548, elementOrHash.elementID: 4385998176.120>
+                      StaticText, 0x101c868c0, {{228.3, 113.7}, {63.3, 23.0}}, label: 'Low tax' <AX element pid: 32548, elementOrHash.elementID: 4385980000.125>
+                      StaticText, 0x101c869e0, {{228.3, 137.7}, {249.0, 20.3}}, label: '60% of the taxes · happiness +3 a dawn' <AX element pid: 32548, elementOrHash.elementID: 4385980432.126>
+                      Other, 0x101c86b00, {{648.3, 128.3}, {15.0, 15.0}} <AX element pid: 32548, elementOrHash.elementID: 4385980864.127>
+                      StaticText, 0x101c86c20, {{667.3, 126.0}, {17.0, 19.7}}, label: '29' <AX element pid: 32548, elementOrHash.elementID: 4385997072.128>
+                    Button, 0x101c86d40, {{216.3, 168.0}, {480.0, 52.3}}, identifier: 'tax-normal', label: 'Normal tax, 100% of the taxes · happiness ±0 a dawn, 49', Selected <AX element pid: 32548, elementOrHash.elementID: 4386057312.121>
+                      Image, 0x101c86e60, {{229.3, 175.3}, {16.3, 16.3}}, identifier: 'checkmark.seal.fill', label: 'Verified', Selected <AX element pid: 32548, elementOrHash.elementID: 4386016672.129>
+                      StaticText, 0x101c86f80, {{252.7, 172.0}, {91.0, 23.0}}, label: 'Normal tax' <AX element pid: 32548, elementOrHash.elementID: 4386017104.130>
+                      StaticText, 0x101c870a0, {{228.3, 196.0}, {256.7, 20.3}}, label: '100% of the taxes · happiness ±0 a dawn' <AX element pid: 32548, elementOrHash.elementID: 4386052032.131>
+                      Other, 0x101c871c0, {{648.3, 186.7}, {15.0, 15.0}} <AX element pid: 32548, elementOrHash.elementID: 4386052464.132>
+                      StaticText, 0x101c872e0, {{667.3, 184.3}, {17.0, 19.7}}, label: '49' <AX element pid: 32548, elementOrHash.elementID: 4386052896.133>
+                    Button, 0x101c87400, {{216.3, 226.3}, {480.0, 52.3}}, identifier: 'tax-high', label: 'High tax, 140% of the taxes · happiness −7 a dawn, 68' <AX element pid: 32548, elementOrHash.elementID: 4386035232.122>
+                      StaticText, 0x101c87520, {{228.3, 230.3}, {69.7, 23.0}}, label: 'High tax' <AX element pid: 32548, elementOrHash.elementID: 4386021520.134>
+                      StaticText, 0x101c87640, {{228.3, 254.3}, {256.7, 20.3}}, label: '140% of the taxes · happiness −7 a dawn' <AX element pid: 32548, elementOrHash.elementID: 4386021952.135>
+                      Other, 0x101c87760, {{648.3, 245.0}, {15.0, 15.0}} <AX element pid: 32548, elementOrHash.elementID: 4386022384.136>
+                      StaticText, 0x101c87880, {{667.3, 242.7}, {17.0, 19.7}}, label: '68' <AX element pid: 32548, elementOrHash.elementID: 4386022816.137>
+                    Button, 0x101c879a0, {{216.3, 284.7}, {480.0, 52.3}}, identifier: 'tax-war', label: 'War tax, 180% of the taxes · happiness −10 a dawn, Opens on day 8', Disabled <AX element pid: 32548, elementOrHash.elementID: 4386040544.123>
+                      StaticText, 0x101c87ac0, {{228.3, 288.7}, {62.0, 23.0}}, label: 'War tax', Disabled <AX element pid: 32548, elementOrHash.elementID: 4386036800.138>
+                      StaticText, 0x101c87be0, {{228.3, 312.7}, {264.0, 20.3}}, label: '180% of the taxes · happiness −10 a dawn', Disabled <AX element pid: 32548, elementOrHash.elementID: 4386037232.139>
+                      Image, 0x101c87d00, {{576.0, 302.7}, {9.3, 13.7}}, identifier: 'lock.fill', label: 'Lock', Disabled <AX element pid: 32548, elementOrHash.elementID: 4386037664.140>
+                      StaticText, 0x101c87e20, {{576.0, 301.9}, {108.3, 18.0}}, label: 'Opens on day 8', Disabled <AX element pid: 32548, elementOrHash.elementID: 4386038768.141>
+                  Other, 0x101c87f40, {{671.3, 109.7}, {30.0, 229.3}}, label: 'Vertical scroll bar, 1 page', value: 0% <AX element pid: 32548, elementOrHash.elementID: 4384582752.119>
+                    Other, 0x101c88060, {{698.3, 329.0}, {3.0, 7.0}} <AX element pid: 32548, elementOrHash.elementID: 4384489392.124>
+                  Other, 0x101c88180, {{671.3, 109.7}, {30.0, 229.3}}, label: 'Vertical scroll bar, 1 page', value: 0% <AX element pid: 32548, elementOrHash.elementID: 4384582752.119>
+                    Other, 0x101c882a0, {{698.3, 329.0}, {3.0, 7.0}} <AX element pid: 32548, elementOrHash.elementID: 4384489392.124>
+                Button, 0x101c883c0, {{666.3, 56.0}, {44.0, 44.0}}, identifier: 'tax-card-close', label: 'Close' <AX element pid: 32548, elementOrHash.elementID: 4386059920.115>
+              Other, 0x101c884e0, {{447.3, 349.0}, {18.0, 9.0}} <AX element pid: 32548, elementOrHash.elementID: 4386062128.109>
