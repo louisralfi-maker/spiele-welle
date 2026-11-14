@@ -46,9 +46,9 @@ enum HallLayout {
     /// The two benches' middles, under the tall windows; three seats each, the first in line nearest the throne.
     static let benches: [Double] = [184, 300]
     static let seats: [Double] = [308, 300, 292, 192, 184, 176]
-    /// Where guests and petitioners beyond the six seats stand, on the wall line by the door bay and beyond the
-    /// second bench.
-    static let standing: [Double] = [140, 118, 268, 106, 280, 94]
+    /// Where guests and petitioners beyond the six seats stand, on the wall line: the first guest near the second
+    /// bench (his walk to the throne stays under a second), the rest by the door bay.
+    static let standing: [Double] = [268, 140, 118, 280, 106, 94]
     /// A noble guest never sits on the benches with the working people (the people bar, director's note 14.11.
     /// 14:20): he stands apart between the window bays, his footman a step behind him (an anchor for the people
     /// lane's footman).
