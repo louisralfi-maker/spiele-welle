@@ -1157,7 +1157,10 @@ final class GameModel {
             if s.citizens != people { people = s.citizens }
             if s.soldiers.count != soldiers { soldiers = s.soldiers.count }
             let window = camera.map { RealmStrip.window(cameraX: $0.x, viewWidth: $0.viewWidth) }
-            let next = RealmStrip.make(s, balance: game.balance, travelTarget: game.travelTarget, window: window)
+            var next = RealmStrip.make(s, balance: game.balance, travelTarget: game.travelTarget,
+                                       window: stage == .hall ? nil : window)
+            // The hall stage: inside, the strip marks the hall.
+            next.inHall = stage == .hall
             if next != strip { strip = next }
             refreshCourt(s)
         }

@@ -84,7 +84,7 @@ extension GameModel {
         if let state = driver?.state {
             cutWorldCamera(toFocus: state.king.x + GameModel.cameraLead(state))
         }
-        if let travelOn { driver?.travel(to: travelOn) }
+        if let travelOn { withDriver { $0.travel(to: travelOn) } }
     }
 
     // MARK: - The change of stage
@@ -105,7 +105,7 @@ extension GameModel {
             }
             feedback.play(.doorOpened)
         } else {
-            driver?.travel(to: HallRules.doorX)
+            withDriver { $0.travel(to: HallRules.doorX) }
         }
         stageChange = change
         refreshHUD()
@@ -151,7 +151,7 @@ extension GameModel {
             scene.walker.setDrag(offset: offset, deadZone: GameModel.dragDeadZone, runDistance: GameModel.runDistance)
             hall = scene
         } else {
-            driver?.setDrag(offset: offset, deadZone: GameModel.dragDeadZone, runDistance: GameModel.runDistance)
+            withDriver { $0.setDrag(offset: offset, deadZone: GameModel.dragDeadZone, runDistance: GameModel.runDistance) }
         }
         refreshAction()
     }
