@@ -27,10 +27,15 @@ final class FrontTuningTests: XCTestCase {
         XCTAssertTrue(m.passes, String(line))
     }
 
+    /// The second half has teeth: at the falls ladder's budget the reference does lose nights clearly.
+    func testTheReferenceLosesSomeNightsClearly() {
+        XCTAssertFalse(FrontTuningTests.metrics.clearLosses.isEmpty)
+    }
+
     /// The chore guard: the present bot carries a night with a move or two, not by running between walls.
     func testThePresentBotDoesNotSprintBetweenWalls() {
         let m = FrontTuningTests.metrics
-        let moves = m.pairs.map { $0.tally.moves }
+        let moves = m.bandPairs.map { $0.tally.moves }
         let mean = Double(moves.reduce(0, +)) / Double(max(1, moves.count))
         XCTAssertLessThanOrEqual(mean, 2.5, "moves a night on average")
         XCTAssertLessThanOrEqual(moves.max() ?? 0, 6, "the busiest night")

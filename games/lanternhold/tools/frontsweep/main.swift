@@ -103,92 +103,68 @@ func row(_ name: String, _ m: FrontMetrics) -> String {
 
 say("")
 say("== T13 at the standard balance, budgets \(stresses)")
-var t13 = measure(standard, stresses: stresses)
+var t13 = measure(standard, stresses: stresses + FrontTuningRun.defaultFallStresses)
+t13.stresses = stresses
+t13.fallStresses = FrontTuningRun.defaultFallStresses
 for seed in 1...3 { t13.wholeRuns.append(FrontTuningRun.wholeRun(seed: seed, balance: standard, nights: nights)) }
 say(t13.report)
 say("(\(elapsed()))")
 
-// Stage A: the light. Where the lord can relight from and how far the bot fetches a dead brazier.
 func variant(_ change: (inout FrontTuning) -> Void) -> Balance {
     var b = standard
     change(&b.front)
     return b
 }
-var best: (name: String, balance: Balance, metrics: FrontMetrics)?
+
+// Around the chosen values (lh-f1-3: reach 48, the bot on the wall's front edge, speed 1.25, harm 0.6): the presence
+// numbers on a finer grid, and the light and the bot's habits once more.
 if doVariants {
     say("")
-    say("== stage A, the light, at budgets \(stresses) (present lost / reference lost per budget)")
-    for reach in [20.0, 24, 36, 48] {
-        for detour in [120.0, 2000] {
-            for safe in [40.0, 100] {
-                let name = "reach \(Int(reach)) detour \(Int(detour)) safe \(Int(safe))"
-                let b = variant {
-                    $0.relightReach = reach
-                    $0.botRelightDetour = detour
-                    $0.botRelightSafe = safe
-                    $0.botBehindWall = 1
-                }
-                let m = measure(b, stresses: stresses)
-                say(row(name, m))
-                if best == nil || m.preLosses < best!.metrics.preLosses { best = (name, b, m) }
-            }
-        }
-    }
-    say("(\(elapsed()))")
-}
-
-// Stage B: the presence numbers on the best light of stage A.
-var chosen: (name: String, balance: Balance, metrics: FrontMetrics)?
-if doVariants, let light = best {
-    say("")
-    say("== stage B, the presence numbers on \(light.name), at budgets \(stresses)")
-    func near(_ name: String, _ change: (inout FrontTuning) -> Void) -> (String, Balance) {
-        var b = light.balance
-        change(&b.front)
-        return (name, b)
-    }
-    var list: [(String, Balance)] = []
-    for speed in [1.0, 1.1, 1.15, 1.2, 1.25] {
-        for harm in [0.6, 0.7, 0.8, 0.9, 1.0] {
-            list.append(near("s\(speed) h\(harm)") {
+    say("== around the standard values, at budgets \(stresses) (present lost / reference lost per budget)")
+    var list: [(String, Balance)] = [("standard", standard)]
+    for speed in [1.2, 1.25, 1.3, 1.35] {
+        for harm in [0.5, 0.55, 0.6, 0.65, 0.7] {
+            list.append(("s\(speed) h\(harm)", variant {
                 $0.presenceSpeed = speed
                 $0.presenceHarm = harm
-            })
+            }))
         }
     }
-    for r in [70.0, 110] { list.append(near("s1.15 h0.8 radius \(Int(r))") { $0.presenceRadius = r }) }
-    list.append(near("rally numbers r80 s1.25 h1") {
+    for r in [60.0, 120] { list.append(("radius \(Int(r))", variant { $0.presenceRadius = r })) }
+    for reach in [40.0, 56] { list.append(("reach \(Int(reach))", variant { $0.relightReach = reach })) }
+    list.append(("relight every 2 s", variant { $0.relightEvery = 2 }))
+    list.append(("relight every 6 s", variant { $0.relightEvery = 6 }))
+    list.append(("bot: stand 14", variant { $0.botBehindWall = 14 }))
+    list.append(("bot: brazier trips anywhere", variant { $0.botRelightDetour = 2000 }))
+    list.append(("bot: never the guards", variant { $0.botJoinsGuards = false }))
+    list.append(("rally numbers r80 s1.25 h1", variant {
         $0.presenceRadius = 80
         $0.presenceSpeed = 1.25
         $0.presenceHarm = 1
-    })
-    list.append(near("bot: never the guards") { $0.botJoinsGuards = false })
-    list.append(near("shaken 4 s") { $0.shakenSeconds = 4 })
-    list.append(near("shaken 12 s") { $0.shakenSeconds = 12 })
+    }))
+    list.append(("spec numbers s1.15 h0.8", variant {
+        $0.presenceSpeed = 1.15
+        $0.presenceHarm = 0.8
+    }))
     for (name, b) in list {
-        let m = measure(b, stresses: stresses)
-        say(row(name, m))
-        // The candidate: in the band, no clear loss held, nearest the band's middle.
-        if FrontMetrics.band.contains(m.reduction) && m.clearLossesHeld.isEmpty {
-            let middle = (FrontMetrics.band.lowerBound + FrontMetrics.band.upperBound) / 2
-            if chosen == nil || abs(m.reduction - middle) < abs(chosen!.metrics.reduction - middle) {
-                chosen = (light.name + " " + name, b, m)
-            }
-        }
+        say(row(name, measure(b, stresses: stresses)))
     }
     say("(\(elapsed()))")
-    if let c = chosen {
-        say("")
-        say("== the candidate: \(c.name)")
-        say(FrontMetrics(seeds: c.metrics.seeds, nights: c.metrics.nights, stresses: c.metrics.stresses,
-                         pairs: c.metrics.pairs).report.components(separatedBy: "\nevery pair:").first ?? "")
+    say("")
+    say("== the falls ladder (x6): nights the reference loses clearly, and the bot's habits at the largest budget")
+    for (name, b) in [("standard", standard), ("bot: brazier trips anywhere", variant { $0.botRelightDetour = 2000 }),
+                      ("s1.3 h0.55", variant {
+                          $0.presenceSpeed = 1.3
+                          $0.presenceHarm = 0.55
+                      })] {
+        say(row(name, measure(b, stresses: FrontTuningRun.defaultFallStresses)))
     }
+    say("(\(elapsed()))")
 }
 
 if doProbe {
-    let probeBalance = chosen?.balance ?? best?.balance ?? standard
     say("")
-    say("== the budgets probe (\(chosen?.name ?? best?.name ?? "standard")) at budgets \(probeStresses)")
-    say(summary(measure(probeBalance, stresses: probeStresses)))
+    say("== the budgets probe (standard) at budgets \(probeStresses)")
+    say(summary(measure(standard, stresses: probeStresses)))
     say("(\(elapsed()))")
 }

@@ -27,9 +27,11 @@ struct FrontPair: Sendable {
 }
 
 /// T13 (docs/REALM.md section 3): over nights 3 to 14 the present bot loses 25 to 40 % fewer defenders than the
-/// reference bot, and presence never wins a night that the reference loses clearly. The reference bot loses nobody on
-/// the game's own nights 3 to 14 (T1: none on nights 1 to 10 in three seeds), so the nights are also played with a
-/// bigger budget (`stresses`, a realm caught short); the band holds over the losses of all of them together.
+/// reference bot, and presence never wins a night that the reference loses clearly. The reference bot loses almost
+/// nobody on the game's own nights 3 to 14 (T1: none on nights 1 to 10 in three seeds), so the nights are also played
+/// with a bigger budget (`stresses`, a realm caught short); the band holds over the losses of all of them together. The
+/// reference loses no night at up to three times the budget, so the second half is also asked at `fallStresses` (six
+/// times: the reference falls in about a third of those nights, a few of them clearly).
 struct FrontMetrics: Sendable {
     /// The band of T13: the present bot's losses this much below the reference's.
     static let band = 0.25...0.40
@@ -40,21 +42,29 @@ struct FrontMetrics: Sendable {
 
     var seeds: Int
     var nights: ClosedRange<Int>
+    /// The budgets the band counts.
     var stresses: [Double]
     var pairs: [FrontPair] = []
+    /// The budgets only the second half counts (never a clear loss held).
+    var fallStresses: [Double] = []
     /// Whole runs from day 1 at the game's own nights (reported): per seed the losses of nights 3 to 14 of the reference
     /// and the present bot, and the night each fell (0 = held).
     var wholeRuns: [String] = []
 
-    var refLosses: Int { pairs.reduce(0) { $0 + $1.refFallen } }
-    var preLosses: Int { pairs.reduce(0) { $0 + $1.preFallen } }
+    /// The pairs at the band's budgets.
+    var bandPairs: [FrontPair] { pairs.filter { stresses.contains($0.stress) } }
+    var refLosses: Int { bandPairs.reduce(0) { $0 + $1.refFallen } }
+    var preLosses: Int { bandPairs.reduce(0) { $0 + $1.preFallen } }
     /// How much fewer defenders the present bot lost (0.3 = 30 % fewer).
     var reduction: Double { refLosses > 0 ? 1 - Double(preLosses) / Double(refLosses) : 0 }
 
-    /// The nights the reference lost clearly and the present bot held: T13 allows none.
-    var clearLossesHeld: [FrontPair] {
-        pairs.filter { $0.refFell && ($0.refMargin ?? 0) >= FrontMetrics.clearMargin && !$0.preFell }
+    /// The nights the reference lost clearly (at every budget, the falls ladder included).
+    var clearLosses: [FrontPair] {
+        pairs.filter { $0.refFell && ($0.refMargin ?? 0) >= FrontMetrics.clearMargin }
     }
+
+    /// The nights the reference lost clearly and the present bot held: T13 allows none.
+    var clearLossesHeld: [FrontPair] { clearLosses.filter { !$0.preFell } }
 
     var passes: Bool {
         refLosses >= FrontMetrics.minReferenceLosses && FrontMetrics.band.contains(reduction) && clearLossesHeld.isEmpty
@@ -76,12 +86,14 @@ struct FrontMetrics: Sendable {
         lines.append("T13 \(passes ? "PASS" : "FAIL") nights \(nights.lowerBound)-\(nights.upperBound), seeds 1-\(seeds), "
                      + "budget \(stresses.map(FrontMetrics.stressText)): the present bot lost \(preLosses) defenders, the "
                      + "reference \(refLosses): \(FrontMetrics.pct(reduction)) fewer (target 25-40 %, reference at least "
-                     + "\(FrontMetrics.minReferenceLosses)); clear losses (F >= \(Int(FrontMetrics.clearMargin)) s) the "
-                     + "present bot held: \(clearLossesHeld.count) (target 0)")
+                     + "\(FrontMetrics.minReferenceLosses)); of the \(clearLosses.count) nights the reference lost clearly "
+                     + "(F >= \(Int(FrontMetrics.clearMargin)) s before first light, budgets "
+                     + "\((stresses + fallStresses).map(FrontMetrics.stressText))) the present bot held "
+                     + "\(clearLossesHeld.count) (target 0)")
         lines.append("")
         lines.append("per budget: reference lost | present lost | fewer | reference fell (clear) | present fell | "
                      + "present fell where the reference held | walls lost ref/present")
-        for k in stresses {
+        for k in stresses + fallStresses {
             let set = pairs.filter { $0.stress == k }
             let ref = set.reduce(0) { $0 + $1.refFallen }
             let pre = set.reduce(0) { $0 + $1.preFallen }
@@ -106,7 +118,7 @@ struct FrontMetrics: Sendable {
         lines.append("the present bot in a night, per budget (means): moves | patch trips | brazier trips | relit | "
                      + "throws | shaken s | run s | with the guards s | presence over the fighting | nights by moves "
                      + "0/1/2/3+")
-        for k in stresses {
+        for k in stresses + fallStresses {
             let set = pairs.filter { $0.stress == k }
             let n = Double(max(1, set.count))
             func mean(_ f: (FrontPair) -> Double) -> String { FrontMetrics.one(set.reduce(0) { $0 + f($1) } / n) }
@@ -121,6 +133,16 @@ struct FrontMetrics: Sendable {
                          + "\(mean { $0.tally.guardSeconds }) | "
                          + "\(fight > 0 ? FrontMetrics.pct(present / fight) : "-") | "
                          + buckets.map(String.init).joined(separator: "/"))
+        }
+        if !clearLosses.isEmpty {
+            lines.append("")
+            var told: [String] = []
+            for p in clearLosses {
+                told.append("seed \(p.seed) night \(p.night) \(FrontMetrics.stressText(p.stress)): reference "
+                            + "\(FrontMetrics.margin(true, p.refMargin)), present "
+                            + "\(FrontMetrics.margin(p.preFell, p.preMargin))")
+            }
+            lines.append("the nights the reference lost clearly: " + told.joined(separator: "; "))
         }
         if let sample = sampleNight {
             lines.append("")
@@ -152,10 +174,10 @@ struct FrontMetrics: Sendable {
         return lines.joined(separator: "\n")
     }
 
-    /// The pair the report tells as a story: the busiest night (most reference losses) of the largest budget the
-    /// present bot held, else the first pair.
+    /// The pair the report tells as a story: the busiest night (most reference losses) of the band's largest budget
+    /// the present bot held, else the first pair.
     var sampleNight: FrontPair? {
-        let held = pairs.filter { !$0.preFell }
+        let held = bandPairs.filter { !$0.preFell }
         let top = held.max { a, b in
             (a.stress, a.refFallen, a.tally.moves) < (b.stress, b.refFallen, b.tally.moves)
         }
@@ -168,8 +190,10 @@ struct FrontMetrics: Sendable {
 enum FrontTuningRun {
     static let defaultSeeds = 10
     static let defaultNights = 3...14
-    /// The night budgets T13 counts (`Balance.budgetBase` and `budgetPerNight` times these).
+    /// The night budgets T13's band counts (`Balance.budgetBase` and `budgetPerNight` times these).
     static let defaultStresses: [Double] = [1.0, 1.5, 2.0]
+    /// The budgets only its second half counts: nights big enough that the reference loses some of them clearly.
+    static let defaultFallStresses: [Double] = [6.0]
 
     /// The balance of a night `k` times as big.
     static func stressed(_ balance: Balance, _ k: Double) -> Balance {
@@ -271,11 +295,12 @@ enum FrontTuningRun {
     /// T13 at `balance`: every eve of `nights` of seeds 1 to `seeds`, each night at every budget of `stresses`; with
     /// `wholeRunSeeds`, also whole runs from day 1 at the game's own nights (reported).
     static func measure(balance: Balance = .standard, seeds: Int = defaultSeeds, nights: ClosedRange<Int> = defaultNights,
-                        stresses: [Double] = defaultStresses, wholeRunSeeds: Int = 0) -> FrontMetrics {
-        var m = FrontMetrics(seeds: seeds, nights: nights, stresses: stresses)
+                        stresses: [Double] = defaultStresses, fallStresses: [Double] = defaultFallStresses,
+                        wholeRunSeeds: Int = 0) -> FrontMetrics {
+        var m = FrontMetrics(seeds: seeds, nights: nights, stresses: stresses, fallStresses: fallStresses)
         for seed in 1...max(1, seeds) {
             for eve in eves(seed: seed, balance: balance, nights: nights) {
-                for k in stresses {
+                for k in stresses + fallStresses {
                     m.pairs.append(pair(eve, balance: stressed(balance, k), stress: k))
                 }
             }

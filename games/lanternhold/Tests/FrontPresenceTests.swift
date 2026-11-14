@@ -108,13 +108,15 @@ final class FrontPresenceTests: XCTestCase {
         var far = near
         near.king.x = 1310
         far.king.x = 1800
-        spawn(&near, .ashBrute, at: 1255, still: true)
-        spawn(&far, .ashBrute, at: 1255, still: true)
-        run(&near, seconds: 10)
-        run(&far, seconds: 10)
+        // An Ash Giant standing still in the brazier's light: tough enough to take every arrow of half a minute.
+        spawn(&near, .ashGiant, at: 1255, still: true)
+        spawn(&far, .ashGiant, at: 1255, still: true)
+        run(&near, seconds: 30)
+        run(&far, seconds: 30)
+        XCTAssertFalse(near.creatures.isEmpty, "the giant still stands")
         XCTAssertGreaterThan(near.night.arrows, far.night.arrows, "the archers near the lord shoot faster")
         let ratio = Double(near.night.arrows) / Double(max(1, far.night.arrows))
-        XCTAssertEqual(ratio, tuning.presenceSpeed, accuracy: 0.12)
+        XCTAssertEqual(ratio, tuning.presenceSpeed, accuracy: 0.06)
     }
 
     func testGuardsUnderPresenceTakeLessHarmAndStrikeHarder() throws {
@@ -200,6 +202,7 @@ final class FrontPresenceTests: XCTestCase {
         let brazier = Realm.lines[0].braziers[0]
         s.plots[brazier].snuffed = true
         s.king.x = Realm.plots[brazier].x + 30
+        s.front?.relightCooldown = 10  // the lantern just lit another: passing relights nothing for now
         XCTAssertEqual(Sim.kingAction(s, balance: balance), .light(plot: brazier), "the old screen's button")
         XCTAssertTrue(Sim.light(&s, plot: brazier, balance: balance))
         run(&s, seconds: 1.2)
