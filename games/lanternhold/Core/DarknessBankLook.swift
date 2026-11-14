@@ -85,8 +85,8 @@ extension FrameBuilder {
 
     /// The strength of a pair's glow: near pairs bright, far ones dim, all of them fainter by day.
     static func bankEyeStrength(_ eye: BankEye, ambient: AmbientSample) -> Float {
-        let depth: Float = eye.near ? 1 : 0.55
-        let hour: Float = 0.5 + 0.5 * Look.nightness(ambient)
+        let depth: Float = eye.near ? 1.7 : 1.1
+        let hour: Float = 0.55 + 0.45 * Look.nightness(ambient)
         return depth * hour * Float(min(1, eye.open * 1.4))
     }
 

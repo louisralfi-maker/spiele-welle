@@ -196,9 +196,9 @@ extension SceneLayout {
         // lights: they light the picture only), their pools centred over the roofs (the buildings stand 60 to 80
         // rows high), so the warmth shows on the rock above them.
         // Fix round 1: at night the moon stands in the wedge of sky over the bailey (mid 1010: seen from world 1600
-        // to 2100), its top six rows under the wall's top.
+        // to 2100), low in the wedge (its top 22 rows under the wall's top, clear of the screen's top edge).
         (.mid, Entry(sprite: .cleftWallA, x: look2CleftX[0], y: 0, z: 3, anchor: .top, region: .castle,
-                     emitters: [.sprite(.moon, dx: look2SlitMoonX - look2CleftX[0] - 7, dy: 180, glow: .moon,
+                     emitters: [.sprite(.moon, dx: look2SlitMoonX - look2CleftX[0] - 7, dy: 164, glow: .moon,
                                         fades: true)],
                      lights: [Light(kind: .lantern, x: 884, y: 92, radius: 96),
                               Light(kind: .lantern, x: 1024, y: 98, radius: 104)])),

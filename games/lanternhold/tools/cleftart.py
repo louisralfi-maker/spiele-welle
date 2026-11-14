@@ -67,7 +67,7 @@ SLIT_ROWS = 24
 # with rock"): the wall stands to the screen's top except in two wedges, over the gatehouse (seen when the camera is on
 # the gate) and over the bailey (seen from world 1600 to 2100, where the moon stands in it at night). (centre, half
 # width at the top, depth in rows, seed)
-WEDGES = [(792, 62, 46, 521), (1010, 34, 30, 523)]
+WEDGES = [(792, 62, 46, 521), (1010, 38, 50, 523)]
 
 
 def slit(gx):
@@ -156,11 +156,11 @@ def snow_caps(img, field, gx0, rows=96):
             row = m.band_row(by, tilt, gs, gx, field.column(x, int(by)))
             if row > rows or h01(m.seed, gs, int((gx + 37 * gs) // 57)) < 0.45:
                 continue
-            drift = vnoise(709 + gs, gx / 11.0)
-            if drift < 0.5:
+            drift = vnoise(709 + gs, gx / 6.0)
+            if drift < 0.6:
                 continue
             r0 = int(math.floor(row))
-            deep = 2 + (1 if drift > 0.68 else 0)
+            deep = 2 + (1 if drift > 0.8 else 0)
             for k in range(deep + 1):
                 y = r0 - deep + 1 + k
                 if 0 <= y < img.h and img.get(x, y)[3] and field.inside(x, y):
@@ -246,29 +246,41 @@ def shaft():
     return img
 
 
-WATER_W, WATER_FRAMES = 3, 4
+WATER_W, WATER_FRAMES = 5, 4
+WATER_JOGS = (46, 92)   # the rows where a thread strikes a ledge, splashes and goes on a pixel or two aside
 
 
 def water():
-    """cleftWater (fix round 1, the critic: "water threads are dashed lines with no spray"): one thread of falling water,
-    3 x WATER_LEN, four frames that scroll it down 3 px each (the engine plays them at 6 a second, none with Reduce
-    Motion): a continuous line of mist and mistLight, a pixel wide where it leaves the crack and two lower down, with
-    brighter foam runs that travel down it; it frays into droplets in its last rows over the spray."""
+    """cleftWater (fix round 1, the critic: "water threads are dashed lines with no spray"): one thread of falling
+    water, 5 x WATER_LEN, four frames that scroll it down 3 px each (the engine plays them at 6 a second, none with
+    Reduce Motion). It leaves its crack a pixel wide, widens to two, strikes two ledges on the way (a splash of foam,
+    then it goes on a pixel or two aside), runs in broken foam and mist (falling water, not a pole) and frays into
+    droplets over its spray."""
     w, h = WATER_W, WATER_LEN
     img = PA.Image(w * WATER_FRAMES, h)
     foam, light, mist = col("foam"), col("mistLight"), col("mist")
     for f in range(WATER_FRAMES):
         for y in range(h):
             yy = y - f * 3
-            run = h01(741, (yy // 7) % 41)
-            wide = y > 36 + 20 * h01(743, (yy // 11) % 29)
-            c = foam if run > 0.72 else light if run > 0.3 else mist
-            lean = 1 if y > 70 and h01(745, (y // 23)) < 0.4 else 0
-            if y > h - 10 and h01(747, f, y) < 0.45:
-                continue   # it frays over the spray
-            img.set(f * w + lean, y, c)
-            if wide and lean == 0:
-                img.set(f * w + 1, y, mist if c != mist else light)
+            x = 1 + (1 if y >= WATER_JOGS[0] else 0) + (1 if y >= WATER_JOGS[1] else 0)
+            run = h01(741, (yy // 5) % 53)
+            if run < 0.18 and 6 < y < h - 12:
+                c = None                                       # a gap: the water falls in strands
+            else:
+                c = foam if run > 0.78 else light if run > 0.42 else mist
+            wide = y > 30
+            if y > h - 10 and h01(747, f, y) < 0.5:
+                c = None                                       # it frays over the spray
+            if c:
+                img.set(f * w + x, y, c)
+                if wide:
+                    img.set(f * w + x + 1, y, mist if c == foam else light if c == mist else mist)
+            for j in WATER_JOGS:                                # the splash where it strikes a ledge
+                if j - 1 <= y <= j + 1:
+                    for dx in (-1, 0, 1, 2):
+                        xx = x + dx
+                        if 0 <= xx < w and h01(749, f, y, dx) < (0.85 if dx in (0, 1) else 0.5):
+                            img.set(f * w + xx, y, foam if dx in (0, 1) and y == j else light)
     return img
 
 
@@ -282,9 +294,9 @@ GATE = {
     # third of the tower's height, that bulges out past the tower's outer edge and climbs over its foot in ledges, so
     # the tower's line is broken by rock; the tower's lowest courses step down into notches of it.
     "gateRockL": (108, 80, 1186, 1201,
-                  [(1186, 2), (1189, 9), (1194, 14), (1199, 17), (1202, 27), (1207, 31), (1213, 34), (1217, 35),
-                   (1220, 47), (1225, 53), (1231, 57), (1238, 61), (1244, 66), (1249, 71), (1254, 70), (1256, 61),
-                   (1265, 59), (1267, 47), (1277, 45), (1279, 33), (1289, 31), (1292, 18), (1294, 2)],
+                  [(1186, 2), (1188, 12), (1191, 19), (1194, 23), (1196, 36), (1200, 42), (1204, 46), (1207, 57),
+                   (1212, 61), (1218, 63), (1224, 67), (1230, 69), (1236, 71), (1242, 73), (1249, 76), (1253, 74),
+                   (1256, 61), (1265, 59), (1267, 47), (1277, 45), (1279, 33), (1289, 31), (1292, 18), (1294, 2)],
                   # the steps over the tower's face (from, to, the step's top): a course of ashlar in each
                   [(1250, 1255, 70), (1257, 1265, 60), (1268, 1277, 46), (1280, 1289, 32)]),
     "gateRockR": (64, 70, 1436, 1467,
@@ -318,7 +330,7 @@ def gate_rock(name):
     massif = RF.Massif(seed, gx0 - 40, gx0 + w + 40, h, 20, 44, relief=0.8, ledge_gap=(12, 22), sheets=False,
                        bands=bands, facets=0.26, chimneys=0.15, swell=2.0)
     field = RF.Field(massif, gx0, w, h, top, margin=24)
-    img = RF.paint(field, "gate", rim=0.0, seed=seed, contrast=1.1, lit_rim=True, clamp=0.6)
+    img = RF.paint(field, "footing", rim=0.0, seed=seed, contrast=1.1, lit_rim=True, clamp=0.6)
     # the tower's lowest courses step down into the rock: on each step over the tower's face a course of ashlar,
     # four rows high, its blocks 5 to 9 px long, lit on top and on the west, mortar between them, the rock's lip
     # casting a row of shadow under it

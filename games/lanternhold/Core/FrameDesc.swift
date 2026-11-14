@@ -359,7 +359,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bankSheetC: return PixelSize(width: 256, height: 56)
         case .bankEnd: return PixelSize(width: 96, height: 208)
         case .cloudDeck: return PixelSize(width: 720, height: 80)
-        case .cleftWater: return PixelSize(width: 3, height: 132)
+        case .cleftWater: return PixelSize(width: 5, height: 132)
         case .moorRuin: return PixelSize(width: 50, height: 36)
         case .hildVarn, .lorenzPell, .ebbaCalder, .orlaLorn: return PixelSize(width: 14, height: 30)
         case .portraitHildVarn, .portraitLorenzPell, .portraitEbbaCalder, .portraitOrlaLorn:

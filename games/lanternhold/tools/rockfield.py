@@ -48,8 +48,9 @@ RAMPS = {
     "slate": ["nightSlate", "stoneDark", "stoneMid", "stone", "mistDark", "stoneLight"],
     "far": ["nightSlate", "farDeep", "far", "mistDark", "mist", "farPale"],
     "gate": ["nightDeep", "rockDeep", "rockDark", "rock", "rockLight", "rockPale"],
-    # fix round 1: the old walls' footings, the cleft's granite with the shade in cool greys (the director)
-    "footing": ["nightDeep", "stoneDark", "rockDark", "rock", "rockLight", "rockPale"],
+    # fix round 1: the old walls' footings and the gate's bedrock, the cleft's granite with the shade in cool greys
+    # (the director: "warm only where a fire lights them")
+    "footing": ["nightDeep", "stoneDark", "stoneMid", "rock", "rockLight", "rockPale"],
 }
 COLD = {"cleft": ["nightBlue", "stoneDark", "stoneMid", "stone", "stoneLight", "mistLight"],
         "gate": ["nightDeep", "stoneDark", "stoneMid", "stone", "stoneLight", "mistLight"]}
@@ -199,7 +200,7 @@ class Massif:
                 if y >= row:
                     k += 1
                 # a band breaks here and there (its gaps a buttress wide at most)
-                if h01(self.seed, gs, int((gx + 37 * gs) // 57)) < 0.45:
+                if h01(self.seed, gs, int((gx + 37 * gs) // 41)) < 0.5:
                     continue
                 z += shelf * r * ss((y - row) / 2.4 + 0.5)
                 z -= under * r * ss((y - row - 3.5) / 1.0 + 0.5)
@@ -381,9 +382,12 @@ def paint(field, ramp_name, gain=1.0, lift=0.0, dither=0.0, snow_rows=0, snow_sh
                 # or west (toward the light), none on the shaded east slopes; two pixels where the edge is steep
                 west_open = not field.inside(x - 1, y)
                 rising = field.inside(x + 1, y - 1) or not field.inside(x + 1, y)
+                second = field.inside(x, y - 1) and not field.inside(x, y - 2) and not field.inside(x - 1, y - 1) \
+                    and field.inside(x + 1, y - 1)
                 if (edge_top and (rising or west_open)) or (west_open and field.inside(x, y - 1) and
-                                                             not field.inside(x - 1, y - 1)):
-                    c = snow[1] if snow_rows and y < snow_rows else ramp[min(n - 1, max(k, n - 3) + 2)]
+                                                             not field.inside(x - 1, y - 1)) or second:
+                    # (fix round 1: on a slope the edge is two pixels deep, so it reads as one line, not dots)
+                    c = snow[1] if snow_rows and y < snow_rows else ramp[min(n - 1, max(k, n - 3) + 2 - second)]
             elif rim and edge_top and h01(seed, gx) < rim:
                 c = snow[1] if snow_rows and y < snow_rows else ramp[min(n - 1, k + 2)]
             if mist_left and gx < mist_left[1]:

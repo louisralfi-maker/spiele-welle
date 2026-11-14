@@ -321,20 +321,23 @@ def cloud_deck():
     w, h = DECK_W, DECK_H
     img = PA.Image(w, h)
     sd = 611
-    pal = {k: WA.col(k) for k in ("parchment", "mistLight", "farPale", "mist", "moon", "mistDark")}
+    pal = {k: WA.col(k) for k in ("mistLight", "farPale", "mist", "moon", "mistDark")}
     L = (-0.62, -0.78)
 
     def env(x):  # the deck's strength along it: whole in the middle, puffs toward both ends
         return ss((x - 10) / 110.0) * ss((w - 10 - x) / 160.0)
 
     discs = []   # (cx, cy, r, rank)
-    for rank, (gap, rmin, rmax, lift) in enumerate(((22, 11, 21, 0), (15, 6, 12, 7))):
+    for rank, (gap, rmin, rmax, lift) in enumerate(((15, 7, 17, 0), (14, 4, 9, 6))):
         x, k = 4.0 + 7 * rank, 0
         while x < w - 4:
             e = env(x)
-            r = (rmin + (rmax - rmin) * h01(sd + rank, k)) * (0.45 + 0.55 * e)
+            # sizes vary along the deck in swells (a few big heads among many small ones), never in a regular row
+            swell = 0.55 + 0.45 * pn(sd + 30 + rank, x / 47.0, 999)
+            r = (rmin + (rmax - rmin) * h01(sd + rank, k) ** 1.4) * (0.45 + 0.55 * e) * (0.6 + 0.6 * swell)
             if e > 0.08 or h01(sd + 5 + rank, k) < 0.55:
-                cy = DECK_BASE + lift - r * (0.55 + 0.25 * h01(sd + 9 + rank, k)) + 4 * (1 - e)
+                cy = DECK_BASE + lift - r * (0.35 + 0.45 * h01(sd + 9 + rank, k)) + 4 * (1 - e) \
+                    - 6 * (swell - 0.5)
                 discs.append((x, cy, r, rank))
             x += gap * (0.6 + 0.6 * h01(sd + 3 + rank, k)) * (0.7 + 0.3 * e) + r * 0.4
             k += 1
@@ -346,49 +349,64 @@ def cloud_deck():
     # the billows as a height field: each disc a dome, the deck the highest dome at each pixel (front discs stand
     # 6 px nearer); the normal of that field takes the light, so the shading runs across the billows and creases
     # where two meet (no bubble rings)
-    zf = [[None] * w for _ in range(h)]
+    # the billows' silhouette (the union of the discs), and the front rank's own tops inside it: a cloud is shaded
+    # from its top contour down (a lit rim that is broad where the contour faces the light, thin where it turns
+    # away, then the body, then the shaded belly), and the front lobes draw their own lit arcs inside the mass;
+    # shading each disc as a sphere read as soap bubbles
+    inside = [[False] * w for _ in range(h)]
+    front = [[None] * w for _ in range(h)]       # rows under a front lobe's own top
     for (cx, cy, r, rank) in discs:
         for y in range(max(0, int(cy - r - 1)), min(h, int(cy + r + 2))):
             for x in range(max(0, int(cx - r - 1)), min(w, int(cx + r + 2))):
-                dd = (x + 0.5 - cx) ** 2 + (y + 0.5 - cy) ** 2
-                if dd <= r * r:
-                    z = math.sqrt(r * r - dd) + 6 * rank
-                    if zf[y][x] is None or z > zf[y][x]:
-                        zf[y][x] = z
-    LX, LY, LZ = -0.5, -0.66, 0.56
-
-    def zat(x, y, z0):
-        if 0 <= x < w and 0 <= y < h and zf[y][x] is not None:
-            return zf[y][x]
-        return z0 - 4
+                dx, dy = x + 0.5 - cx, y + 0.5 - cy
+                if dx * dx + dy * dy <= r * r:
+                    inside[y][x] = True
+                    if rank == 1:
+                        top_here = cy - math.sqrt(max(0.0, r * r - dx * dx))
+                        dd = y + 0.5 - top_here
+                        if front[y][x] is None or dd < front[y][x]:
+                            front[y][x] = dd
+    tops = []
+    for x in range(w):
+        t = next((y for y in range(h) if inside[y][x]), None)
+        if t is None and env(x) > 0.05:
+            t = DECK_BASE - 2
+        tops.append(t)
 
     for y in range(h):
         for x in range(w):
             e = env(x)
             u = under(x)
             col, a = None, 0.0
-            z0 = zf[y][x]
-            if z0 is not None or (y >= DECK_BASE - 2 and y <= u and e > 0.05):
-                if z0 is not None:
-                    gx = (zat(x + 1, y, z0) - zat(x - 1, y, z0)) * 0.5
-                    gy = (zat(x, y + 1, z0) - zat(x, y - 1, z0)) * 0.5
-                    nn = math.sqrt(gx * gx + gy * gy + 1)
-                    lit = (-gx * LX - gy * LY + LZ) / nn
-                    crease = (zat(x - 2, y, z0) + zat(x + 2, y, z0) + zat(x, y - 2, z0) + zat(x, y + 2, z0)) / 4 - z0
-                    q = lit - 0.08 * max(0.0, crease) + 0.12 * (WA.vnoise2(sd + 17, x / 6.0, y / 4.0) - 0.5)
-                    col = "parchment" if q > 0.84 else "mistLight" if q > 0.66 else "farPale" if q > 0.38 else "mist"
+            body = inside[y][x] or (y >= DECK_BASE - 2 and y <= u and e > 0.05)
+            if body and tops[x] is not None:
+                d = y - tops[x]
+                tl = tops[max(0, x - 2)] if tops[max(0, x - 2)] is not None else tops[x]
+                tr = tops[min(w - 1, x + 2)] if tops[min(w - 1, x + 2)] is not None else tops[x]
+                slope = tr - tl                          # > 0: the contour falls to the east (it faces the light)
+                rim = 2 + max(0, min(3, slope))
+                wob = 1.2 * (WA.vnoise2(sd + 17, x / 7.0, y / 3.0) - 0.5)
+                if d + wob < rim:
+                    col = "mistLight" if slope >= 0 else "farPale"
+                elif d + wob < rim + 6:
+                    col = "farPale"
                 else:
-                    q = WA.vnoise2(sd + 19, x / 9.0, y / 4.0)
-                    col = "farPale" if q > 0.5 else "mist"
+                    col = "mist"
+                fd = front[y][x]
+                if fd is not None and fd < 2.2 and d > 2:
+                    col = "mistLight" if fd < 1.2 else "farPale"   # a front lobe's lit arc
                 if u - y < 2.5 and y > DECK_BASE - 2:
-                    col = "moon" if WA.vnoise2(sd + 21, x / 5.0, y / 3.0) > 0.4 else "mist"
-                a = 1.0 if e > 0.3 or z0 is not None else ss(e / 0.3)
+                    col = "mistDark" if WA.vnoise2(sd + 21, x / 5.0, y / 3.0) > 0.4 else "moon"
+                elif u - y < 5 and y > DECK_BASE - 2 and col == "mist":
+                    col = "moon"
+                a = 1.0 if e > 0.3 or inside[y][x] else ss(e / 0.3)
             elif y > u and e > 0.02:
                 # the veil of mist under the deck: 48 px down, thinning in dithered steps; rags hang in it
+                # (fix: its rags lie in long flat wisps; streaks that ran down read as a curtain)
                 g = y - u
-                rag = pn2(sd + 23, x / 6.0, y / 9.0, 9999)
-                a = (1 - ss(g / 48.0)) * (0.5 + 0.5 * rag) * 0.6 * e
-                col = "mistLight" if g < 4 and rag > 0.6 else "mist" if g < 16 else "mistDark"
+                rag = pn2(sd + 23, x / 23.0, y / 3.5, 9999)
+                a = (1 - ss(g / 48.0)) ** 1.4 * (0.35 + 0.65 * rag) * 0.5 * e
+                col = "farPale" if g < 4 and rag > 0.6 else "mist" if g < 18 else "mistDark"
             if col is None:
                 continue
             qa = a * (BANK_LEVELS - 1) + (bay(x + 2, y + 1) - 0.5)

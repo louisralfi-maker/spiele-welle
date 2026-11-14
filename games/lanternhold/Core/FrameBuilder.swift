@@ -613,9 +613,11 @@ enum FrameBuilder {
             let share = (geometry.focusX - fadeOut.lowerBound) / max(1, fadeOut.upperBound - fadeOut.lowerBound)
             alpha *= Float(1 - min(1, max(0, share)))
         }
-        if options.look == .two && prop.plane == .far {
+        if options.look == .two && (prop.plane == .far || prop.plane == .clouds) {
             // World rebuild (B5, H1): inside the walls the cleft wall fills the view up to its slit of sky, and the
             // far plane is gone (it fades while the gatehouse and the steps cover it, and comes back at the back gate).
+            // Fix round 1 (the director: "the slit at dusk reads as autumn leaves"): the high clouds go with it, so
+            // the wedges of sky show the sky's own gradient, the stars and the moon.
             alpha *= Float(1 - cleftShare(focus: geometry.focusX))
         }
         guard alpha > 0.003 else { return }
