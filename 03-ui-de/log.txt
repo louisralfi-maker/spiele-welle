@@ -1,0 +1,23 @@
+Test Case '-[LanternholdUITests.AdsUITests testDoubleTaxes]' passed (20.816 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testInterstitialOnARealDawn]' passed (13.524 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testMerchantsGift]' passed (14.514 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testSecondChance]' passed (16.550 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testWithoutAdsNoOffer]' passed (24.253 seconds).
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (101.650 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (97.776 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (50.053 seconds).
+Test Case '-[LanternholdUITests.LightProbeUITests testFilmstrip]' passed (16.377 seconds).
+Test Case '-[LanternholdUITests.LightProbeUITests testLightProbe]' passed (236.452 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwo]' passed (199.866 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoCourt]' passed (22.585 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoNight]' passed (67.027 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (56.819 seconds).
+Test Case '-[LanternholdUITests.MidChapterUITests testFinale]' passed (0.136 seconds).
+Test Case '-[LanternholdUITests.MidChapterUITests testMidChapter]' passed (177.127 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolish]' passed (198.348 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishCirclet]' passed (10.806 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishHouses]' passed (35.421 seconds).
+Test Case '-[LanternholdUITests.ProbeUITests testPixelGrid135]' passed (7.311 seconds).
+Test Case '-[LanternholdUITests.ProbeUITests testPixelGrid180]' passed (7.966 seconds).
+exit=0
+screenshots: 124
