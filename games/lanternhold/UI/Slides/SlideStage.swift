@@ -18,8 +18,11 @@ final class SlideStage {
         case finished
     }
 
-    /// The show on the stage; nil while the stage is dark and gone.
+    /// The show on the stage, or the last one while the stage fades back into the dark (nil before the first).
     private(set) var show: SlideShow?
+    /// Whether a show is up: taps count, the realm stands still. False again the moment it ends, while its last slide
+    /// stays drawn for the fade.
+    private(set) var isShowing = false
     /// The slide showing, 0 based.
     private(set) var index = 0
     /// Counts every slide that came in (also across shows), so the view animates each change.
@@ -37,8 +40,6 @@ final class SlideStage {
 
     init() {}
 
-    var isShowing: Bool { show != nil }
-
     /// The slide showing.
     var slide: Slide? {
         guard let show, show.slides.indices.contains(index) else { return nil }
@@ -54,20 +55,21 @@ final class SlideStage {
     /// A show already up is not interrupted: the call is refused (false) and `onFinish` is not kept.
     @discardableResult
     func present(_ show: SlideShow, lord: LordIdentity, onFinish: @escaping () -> Void) -> Bool {
-        guard self.show == nil, !show.slides.isEmpty else { return false }
+        guard !isShowing, !show.slides.isEmpty else { return false }
         self.lord = lord
         self.onFinish = onFinish
         index = 0
         turn += 1
         cameAt = clock()
         self.show = show
+        isShowing = true
         return true
     }
 
     /// A tap on the stage: the next slide, or the end after the last.
     @discardableResult
     func next() -> Step {
-        guard let show, let slide else { return .ignored }
+        guard isShowing, let show, let slide else { return .ignored }
         guard clock() - cameAt >= slide.timing.hold else { return .ignored }
         if index + 1 < show.slides.count {
             index += 1
@@ -82,7 +84,7 @@ final class SlideStage {
     /// "Skip": the show ends at once (false when nothing is showing or the show cannot be skipped).
     @discardableResult
     func skip() -> Bool {
-        guard let show, show.skippable else { return false }
+        guard isShowing, let show, show.skippable else { return false }
         finish()
         return true
     }
@@ -90,8 +92,7 @@ final class SlideStage {
     private func finish() {
         let done = onFinish
         onFinish = nil
-        show = nil
-        index = 0
+        isShowing = false
         done?()
     }
 }

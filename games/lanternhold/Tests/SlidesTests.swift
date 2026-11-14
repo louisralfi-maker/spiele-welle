@@ -114,11 +114,12 @@ final class SlidesTests: XCTestCase {
         now += 1
         XCTAssertEqual(stage.next(), .finished, "the tap after the last slide ends the show")
         XCTAssertFalse(stage.isShowing)
-        XCTAssertNil(stage.slide)
+        XCTAssertEqual(stage.index, 3, "the last slide stays drawn while the stage fades")
         XCTAssertEqual(finished, 1, "the end runs once")
         XCTAssertEqual(stage.next(), .ignored)
 
         XCTAssertTrue(stage.present(.prologue, lord: .standard) { finished += 1 })
+        XCTAssertEqual(stage.index, 0, "a new show starts at its first slide")
         XCTAssertTrue(stage.skip(), "Skip ends it at once")
         XCTAssertFalse(stage.isShowing)
         XCTAssertEqual(finished, 2)
