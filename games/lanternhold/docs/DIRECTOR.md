@@ -304,3 +304,13 @@ fix round.
 
 **Quota, 14.11.2026 17:14.** Louis: "Bis 99% und dann resete ich." The 80 % stop is lifted for the week to 21.11.: work
 up to 99 %, tell him when 95 % is near, and after his reset check every workflow before going on.
+
+**The HUD, 14.11.2026 18:26.** Louis: "das UI sieht auch scheiße aus", and he asked for five proposals. He saw five
+quick sketches (`ci-out/hud-proposals`, not in git), found none a hit and left the choice to the director. The
+finding: build 86 lays smooth parchment on a world of pixels and keeps three framed things on the picture; no better
+frame mends that. The decision is `docs/HUD.md`: nothing stands on the walked world; a touch on the lord raises his
+lantern and the world stands still (pause, purse, mood, people, the realm strip, the gear); the gold shows above him
+only while coins move; the time is told by the world and by his lantern before the horn. It is the interface bar
+spelled out, not a new system, so it is in build 2 through stage-3-interface, with a cut order. Notes went to the
+stage, town, craft and people lanes. No sketch goes to Louis again: he sees it in a real screenshot after the
+director's look. Lesson: a quick vector sketch of an interface is not a picture for Louis.

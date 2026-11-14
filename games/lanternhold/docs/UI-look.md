@@ -93,6 +93,8 @@ desk 12:1, seal words on wax 6.6:1.
 
 ## The screens
 
+- **Replaced on 14.11.2026 by `docs/HUD.md`:** nothing stands on the walked world; the HUD and the pause seal below
+  are gone, the realm strip comes only when called. The rest of this file holds.
 - **HUD:** top right one slip of the steward's ledger: "Day 3" as a rubric in small capitals with the hour in figures,
   a rule, then coin, face and people with their numbers. Top left the pause seal. Bottom right the lord's seal with
   the action's symbol, its caption on a slip above. The horn at 19:00 is a dark ribbon lettered in gold.
