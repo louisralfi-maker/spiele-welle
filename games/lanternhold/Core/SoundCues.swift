@@ -292,7 +292,7 @@ struct SoundWatch: Sendable, Equatable {
     private var plotHP: [Double] = []
     private var creatureHP: [Int: Double] = [:]
     private var kingX = 0.0
-    private var walked = 0.0
+    private var walked = SoundWatch.walkStride - 4
     private var hour = 0.0
     private var day = 0
 
