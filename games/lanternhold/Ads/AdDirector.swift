@@ -8,6 +8,11 @@ import Observation
 /// for the interstitial. Consent comes first (`AdConsent`, Google only): refreshed silently at launch, asked at the
 /// first dawn report.
 ///
+/// A rewarded video in three moments: the reward is banked and saved in the SDK's reward callback (`grant`, while the
+/// ad's end card may still show); when the ad has gone, the pacing notes it (`AdPacing.videoShown`, watched or closed
+/// early), and only then does the player see and hear what came in (`payoff`: the coins' sound, the slip, the treasury
+/// counting up).
+///
 /// The views (`Ads/AdViews.swift`) read `AdDirector.shared`; the tests make their own with a stub and a counted clock.
 @MainActor
 @Observable
@@ -15,13 +20,14 @@ final class AdDirector {
     /// The app's director, by this launch's arguments (`AdMode.current`).
     static let shared = AdDirector(mode: AdMode.current)
 
-    /// The double taxes taken on a dawn: the report shows it in place of the offer.
+    /// The double taxes taken on a dawn report, once their video has gone: the report shows the note in place of the
+    /// offer, and its treasury counts up by the bridge's gold.
     struct Doubled: Sendable, Equatable {
-        /// The report they were taken on (a day number alone would match the same day of a restarted realm).
+        /// The report they were taken on.
         var report: DawnReport
+        /// What came into the treasury at once: this dawn's taxes once more, the bridge until the town's taxes on foot
+        /// read the flag (`AdPacing.taxesDoubled(day:)`); 0 then.
         var gold: Int
-        /// The treasury after the gold came in (the report's own figure is from before).
-        var treasury: Int
     }
 
     let mode: AdMode
@@ -32,7 +38,7 @@ final class AdDirector {
 
     /// A full-screen ad was asked for and has not gone yet: the offers hide and a second tap does nothing.
     private(set) var presenting = false
-    /// Today's double taxes, once taken.
+    /// Today's double taxes, once their video has gone.
     private(set) var doubled: Doubled?
     /// Marek's card is open over the world (`AdLayer`); the world stands still under it.
     private(set) var merchantCardOpen = false
@@ -46,6 +52,7 @@ final class AdDirector {
 
     /// The report whose double taxes showed: if it closes without them, the next offer waits two dawns.
     @ObservationIgnored private var doubleTaxesShownOn: DawnReport?
+    /// The video on screen gave its reward: its payoff runs when it has gone.
     @ObservationIgnored private var rewardGranted = false
     /// The interstitial's Continue, waiting for the ad to go.
     @ObservationIgnored private var pendingProceed: (@MainActor () -> Void)?
@@ -67,6 +74,8 @@ final class AdDirector {
             case .google: self.provider = GoogleAdProvider()
             }
         }
+        // An ad on screen holds the world, even one that came after the show timeout had let the day begin.
+        self.provider.showingChanged = { [weak self] _ in self?.holdWorld() }
         if mode == .google {
             let provider = self.provider
             let made = AdConsent(startAds: { provider.start() })
@@ -123,12 +132,23 @@ final class AdDirector {
 
     // MARK: - Double taxes (the dawn report)
 
-    /// The gold a video would add on this report (its taxes once more), nil when the offer is not open or no video is
-    /// ready.
-    func doubleTaxesOffer(for report: DawnReport) -> Int? {
-        guard let model, rewardedReady, doubled?.report != report,
-              model.adPacing.doubleTaxesOpen(day: report.day, taxes: report.goldIn) else { return nil }
-        return report.goldIn
+    /// The report offers "Double taxes today": the rules open it on this dawn (`AdPacing.doubleTaxesOpen`: it owes
+    /// taxes, no story dawn, one video per dawn, every second dawn) and a video is ready.
+    func doubleTaxesOffered(for report: DawnReport) -> Bool {
+        guard let model, rewardedReady, let state = model.driver?.state else { return false }
+        return model.adPacing.doubleTaxesOpen(day: report.day, taxes: report.goldIn,
+                                              storyDawn: AdPacing.isStoryDawn(day: report.day, mode: state.mode))
+    }
+
+    /// Today's taxes count twice (the flag for the day, `AdPacing.taxesDoubled(day:)`).
+    func taxesDoubled(on report: DawnReport) -> Bool {
+        model?.adPacing.taxesDoubled(day: report.day) ?? false
+    }
+
+    /// The gold the report's treasury adds once the double taxes' video has gone (`ReportTreasury`).
+    func treasuryGain(on report: DawnReport) -> Int {
+        guard let doubled, doubled.report == report else { return 0 }
+        return doubled.gold
     }
 
     /// The offer is on screen: if the report closes without it, the next one waits two dawns.
@@ -137,14 +157,21 @@ final class AdDirector {
     }
 
     func takeDoubleTaxes(_ report: DawnReport) {
-        guard let gold = doubleTaxesOffer(for: report) else { return }
-        watch { [weak self] in
+        guard doubleTaxesOffered(for: report) else { return }
+        // The bridge: this build still pays the day's taxes at dawn, before the report, so "every tax of today counts
+        // twice" pays them once more now. At the join the town's taxes on foot read the flag instead
+        // (`Town.grantDoubleTaxes`, docs/lanes/ads.md): then this is 0.
+        let bridge = report.goldIn
+        watch(day: report.day, grant: { [weak self] in
             guard let self, let model = self.model else { return }
-            model.withDriver { $0.bankReward(gold: gold) }
-            model.adPacing.rewardedWatched(.doubleTaxes, day: report.day, at: self.clock.now)
-            self.doubled = Doubled(report: report, gold: gold, treasury: model.driver?.state.gold ?? 0)
+            model.adPacing.rewardGiven(.doubleTaxes, day: report.day)
+            model.withDriver { $0.bankReward(gold: bridge) }
+            model.saveNow()
+        }, payoff: { [weak self] in
+            guard let self, let model = self.model else { return }
+            self.doubled = Doubled(report: report, gold: bridge)
             self.landed(model)
-        }
+        })
     }
 
     // MARK: - Second chance (the defeat card)
@@ -155,14 +182,16 @@ final class AdDirector {
     }
 
     func takeSecondChance() {
-        guard let model, let info = model.defeatInfo, secondChanceOffered(info) else { return }
-        watch { [weak self] in
+        guard let model, let info = model.defeatInfo, secondChanceOffered(info),
+              let day = model.driver?.state.day else { return }
+        // The realm falls only at night, and dawn brings the next day: the video belongs to that dawn.
+        let dawn = day + 1
+        watch(day: dawn, grant: { [weak self] in
             guard let self, let model = self.model else { return }
             model.takeSecondChance()
-            let day = model.driver?.state.day ?? 0
-            model.adPacing.rewardedWatched(.secondChance, day: day, night: info.night, at: self.clock.now)
+            model.adPacing.rewardGiven(.secondChance, day: model.driver?.state.day ?? dawn, night: info.night)
             model.saveNow()
-        }
+        }, payoff: {})
     }
 
     // MARK: - Marek's gift
@@ -193,18 +222,27 @@ final class AdDirector {
         model?.feedback.play(.cardClosed)
     }
 
+    /// The card's gift can no longer be had (no video ready, the cart gone): the card closes, never a dead button.
+    func merchantOfferLost() {
+        guard merchantCardOpen, !presenting, merchantOffer == nil else { return }
+        closeMerchantCard()
+    }
+
     func takeMerchantGift() {
         guard let gift = merchantOffer else { return }
-        watch { [weak self] in
+        watch(day: gift.day, grant: { [weak self] in
             guard let self, let model = self.model else { return }
             model.withDriver { $0.bankReward(gold: gift.gold) }
-            model.adPacing.rewardedWatched(.merchantGift, day: gift.day, at: self.clock.now)
+            model.adPacing.rewardGiven(.merchantGift, day: gift.day)
             self.lastGift = gift
-            self.landed(model)
+            model.saveNow()
+        }, payoff: { [weak self] in
+            guard let self, let model = self.model else { return }
             self.merchantCardOpen = false
             self.holdWorld()
+            self.landed(model)
             self.showGiftSlip(gift)
-        }
+        })
     }
 
     // MARK: - The interstitial
@@ -218,7 +256,7 @@ final class AdDirector {
             proceed()
             return
         }
-        if doubleTaxesShownOn == report && doubled?.report != report {
+        if doubleTaxesShownOn == report && !model.adPacing.taxesDoubled(day: report.day) {
             model.adPacing.doubleTaxesPassed(day: report.day)
         }
         doubleTaxesShownOn = nil
@@ -250,7 +288,11 @@ final class AdDirector {
         presenting = true
         pendingProceed = proceed
         let shown = provider.showInterstitial { [weak self] in
-            self?.adGone()
+            guard let self else { return }
+            // The 6 minutes count from the ad's end.
+            self.model?.adPacing.lastAdAt = self.clock.now
+            self.model?.saveNow()
+            self.adGone()
         }
         if shown {
             model.adPacing.interstitialShown(moment, at: now)
@@ -279,17 +321,21 @@ final class AdDirector {
         }
     }
 
-    /// The world stands still under Marek's card and the consent form (the dawn report's screens hold it already).
+    /// The world stands still under Marek's card, the consent form and any ad on screen (the dawn report's screens
+    /// hold it already).
     private func holdWorld() {
         guard let model else { return }
-        let hold = formShowing || merchantCardOpen || model.overlay != nil
+        let hold = formShowing || merchantCardOpen || provider.isShowingAd || model.overlay != nil
         model.withDriver { $0.isPaused = hold }
     }
 
     // MARK: - Showing a rewarded video
 
-    /// Plays a rewarded video; `grant` runs only when it was watched to its end.
-    private func watch(grant: @escaping @MainActor () -> Void) {
+    /// Plays a rewarded video. `grant` runs in the reward callback, only when it was watched to its end (bank and save
+    /// there). When the video has gone, watched or closed early, the pacing notes it for `day`'s dawn (`videoShown`:
+    /// the 6 minutes, no interstitial on that dawn); then `payoff` runs if the reward was granted (what the player sees
+    /// and hears), otherwise Marek's card closes if its gift can no longer be had.
+    private func watch(day: Int, grant: @escaping @MainActor () -> Void, payoff: @escaping @MainActor () -> Void) {
         guard !presenting else { return }
         presenting = true
         rewardGranted = false
@@ -298,7 +344,19 @@ final class AdDirector {
             self.rewardGranted = true
             grant()
         }, onClose: { [weak self] in
-            self?.adGone()
+            guard let self else { return }
+            let granted = self.rewardGranted
+            self.rewardGranted = false
+            if let model = self.model {
+                model.adPacing.videoShown(day: day, at: self.clock.now)
+                model.saveNow()
+            }
+            self.adGone()
+            if granted {
+                payoff()
+            } else {
+                self.merchantOfferLost()
+            }
         })
         if shown {
             watchShowing()
@@ -316,11 +374,11 @@ final class AdDirector {
         }
     }
 
-    /// Gold landed: the HUD, the coins' sound, the save (the dawn snapshot holds it, `SimDriver.bankReward`).
+    /// Gold landed, in front of the player: the HUD and the coins' sound (the save and the dawn snapshot hold it since
+    /// the reward, `SimDriver.bankReward`).
     private func landed(_ model: GameModel) {
         model.refreshHUD()
         model.feedback.play(.taxesCounted)
-        model.saveNow()
     }
 
     // MARK: - Debug

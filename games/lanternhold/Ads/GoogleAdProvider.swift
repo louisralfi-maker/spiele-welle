@@ -12,6 +12,8 @@ final class GoogleAdProvider: NSObject, AdProvider, FullScreenContentDelegate {
     private(set) var isRewardedReady = false
     private(set) var isInterstitialReady = false
     private(set) var isShowingAd = false
+    /// Told when an ad comes on screen and when it has gone (`AdDirector` holds the world meanwhile).
+    @ObservationIgnored var showingChanged: (@MainActor (Bool) -> Void)?
 
     @ObservationIgnored private var rewarded: RewardedAd?
     @ObservationIgnored private var interstitial: InterstitialAd?
@@ -155,6 +157,7 @@ final class GoogleAdProvider: NSObject, AdProvider, FullScreenContentDelegate {
     func adWillPresentFullScreenContent(_ ad: FullScreenPresentingAd) {
         GoogleAdProvider.debugLog("presenting \(ad is RewardedAd ? "rewarded" : "interstitial")")
         isShowingAd = true
+        showingChanged?(true)
     }
 
     func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
@@ -168,7 +171,9 @@ final class GoogleAdProvider: NSObject, AdProvider, FullScreenContentDelegate {
     }
 
     private func finishShowing(_ ad: FullScreenPresentingAd) {
+        let wasShowing = isShowingAd
         isShowingAd = false
+        if wasShowing { showingChanged?(false) }
         pendingReward = nil
         let close = pendingClose
         pendingClose = nil

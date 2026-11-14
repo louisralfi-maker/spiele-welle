@@ -48,6 +48,7 @@ final class AdPacingTests: XCTestCase {
         XCTAssertEqual(AdPacing().interstitial(InterstitialMoment(day: 6, storyDawn: true), now: t0), .held(.storyDawn))
         XCTAssertTrue(AdPacing.isStoryDawn(day: 6, mode: .chapter), "Marek's arrows (DESIGN.md \"Story\")")
         XCTAssertTrue(AdPacing.isStoryDawn(day: 21, mode: .chapter), "the dawn that ends the chapter")
+        XCTAssertTrue(AdPacing.isStoryDawn(day: 2, mode: .chapter), "the first report: Brannock's tower")
         XCTAssertFalse(AdPacing.isStoryDawn(day: 5, mode: .chapter))
         XCTAssertFalse(AdPacing.isStoryDawn(day: 6, mode: .endless), "endless has no beats")
     }
@@ -58,6 +59,24 @@ final class AdPacingTests: XCTestCase {
         // Even with the minutes long past (the report left open): never on the dawn of a rewarded video.
         XCTAssertEqual(pacing.interstitial(InterstitialMoment(day: 9), now: t0 + hour), .held(.afterRewarded))
         XCTAssertEqual(pacing.interstitial(InterstitialMoment(day: 10), now: t0 + hour), .allowed)
+    }
+
+    func testAVideoClosedEarlyCountsAsAnAdButGivesNothing() {
+        // Day 9: the double taxes' video closed after five seconds, then Continue.
+        var pacing = AdPacing()
+        pacing.videoShown(day: 9, at: t0)
+        XCTAssertEqual(pacing.interstitial(InterstitialMoment(day: 9), now: t0 + 5), .held(.afterRewarded),
+                       "never an interstitial right after a video, watched or not")
+        XCTAssertEqual(pacing.interstitial(InterstitialMoment(day: 12), now: t0 + 300), .held(.tooFewMinutes),
+                       "the 6 minutes count from any ad")
+        XCTAssertEqual(pacing.lastAdAt, t0)
+        // No reward, so the offer's own memory is untouched and the offer stays open.
+        XCTAssertFalse(pacing.taxesDoubled(day: 9))
+        XCTAssertEqual(pacing.lastDoubleTaxesDay, 0)
+        XCTAssertEqual(pacing.lastRewardGivenDay, 0)
+        XCTAssertTrue(pacing.doubleTaxesOpen(day: 9, taxes: 40, storyDawn: false), "the offer comes back")
+        XCTAssertEqual(pacing.merchantTakenDay, 0)
+        XCTAssertEqual(pacing.lastSecondChanceNight, 0)
     }
 
     func testNeverAtNight() {
@@ -110,18 +129,55 @@ final class AdPacingTests: XCTestCase {
 
     func testDoubleTaxesAtMostEverySecondDawn() {
         var pacing = AdPacing()
-        XCTAssertTrue(pacing.doubleTaxesOpen(day: 2, taxes: 40), "the first report may offer it")
-        pacing.rewardedWatched(.doubleTaxes, day: 2, at: t0)
-        XCTAssertFalse(pacing.doubleTaxesOpen(day: 3, taxes: 40))
-        XCTAssertTrue(pacing.doubleTaxesOpen(day: 4, taxes: 40))
+        XCTAssertTrue(pacing.doubleTaxesOpen(day: 3, taxes: 40, storyDawn: false), "the first plain dawn may offer it")
+        pacing.rewardedWatched(.doubleTaxes, day: 3, at: t0)
+        XCTAssertFalse(pacing.doubleTaxesOpen(day: 4, taxes: 40, storyDawn: false))
+        XCTAssertTrue(pacing.doubleTaxesOpen(day: 5, taxes: 40, storyDawn: false))
         // Passed by with Continue counts the same: no offer on the next dawn.
-        pacing.doubleTaxesPassed(day: 4)
-        XCTAssertFalse(pacing.doubleTaxesOpen(day: 5, taxes: 40))
-        XCTAssertTrue(pacing.doubleTaxesOpen(day: 6, taxes: 40))
+        pacing.doubleTaxesPassed(day: 5)
+        XCTAssertFalse(pacing.doubleTaxesOpen(day: 6, taxes: 40, storyDawn: false))
+        XCTAssertTrue(pacing.doubleTaxesOpen(day: 7, taxes: 40, storyDawn: false))
     }
 
-    func testDoubleTaxesOnlyOnADawnThatBroughtTaxes() {
-        XCTAssertFalse(AdPacing().doubleTaxesOpen(day: 6, taxes: 0), "unrest: nothing to double")
+    func testDoubleTaxesOnlyOnADawnThatOwesTaxes() {
+        XCTAssertFalse(AdPacing().doubleTaxesOpen(day: 7, taxes: 0, storyDawn: false), "unrest: nothing to double")
+    }
+
+    func testDoubleTaxesNeverOnAStoryDawn() {
+        XCTAssertFalse(AdPacing().doubleTaxesOpen(day: 4, taxes: 40, storyDawn: true), "the stranger's dawn")
+        XCTAssertTrue(AdPacing().doubleTaxesOpen(day: 5, taxes: 40, storyDawn: false))
+        for day in [2, 4, 6, 8] {
+            XCTAssertFalse(AdPacing().doubleTaxesOpen(day: day, taxes: 40,
+                                                      storyDawn: AdPacing.isStoryDawn(day: day, mode: .chapter)),
+                           "day \(day)")
+        }
+        XCTAssertTrue(AdPacing().doubleTaxesOpen(day: 4, taxes: 40, storyDawn: AdPacing.isStoryDawn(day: 4, mode: .endless)),
+                      "endless has no story dawns")
+    }
+
+    func testOneVideoPerDawn() {
+        // The second chance's video brought the dawn of day 5: its report offers no second video.
+        var pacing = AdPacing()
+        pacing.rewardedWatched(.secondChance, day: 5, night: 4, at: t0)
+        XCTAssertEqual(pacing.lastRewardGivenDay, 5)
+        XCTAssertFalse(pacing.doubleTaxesOpen(day: 5, taxes: 40, storyDawn: false), "no second video on that dawn")
+        XCTAssertTrue(pacing.doubleTaxesOpen(day: 7, taxes: 40, storyDawn: false), "a later dawn offers it again")
+    }
+
+    func testTheDoubleTaxesFlagHoldsForItsDayAndClearsAtTheNextDawn() {
+        var pacing = AdPacing()
+        XCTAssertFalse(pacing.taxesDoubled(day: 9), "no flag before the video")
+        pacing.rewardGiven(.doubleTaxes, day: 9)
+        XCTAssertEqual(pacing.taxesDoubledDay, 9)
+        XCTAssertTrue(pacing.taxesDoubled(day: 9), "every tax of day 9 counts twice")
+        XCTAssertFalse(pacing.doubleTaxesOpen(day: 9, taxes: 40, storyDawn: false), "once a day")
+        XCTAssertFalse(pacing.taxesDoubled(day: 10), "the next dawn clears it")
+        XCTAssertFalse(pacing.taxesDoubled(day: 8))
+        XCTAssertFalse(AdPacing().taxesDoubled(day: 0), "day 0 is never doubled")
+        // Saved: a relaunch on day 9 still doubles; the next day does not.
+        let back = try? JSONDecoder().decode(AdPacing.self, from: JSONEncoder().encode(pacing))
+        XCTAssertEqual(back?.taxesDoubled(day: 9), true)
+        XCTAssertEqual(back?.taxesDoubled(day: 10), false)
     }
 
     func testASecondChanceOncePerFiveNightsAndOncePerTenInEndless() {
@@ -138,34 +194,43 @@ final class AdPacingTests: XCTestCase {
 
     func testMarekComesEveryThirdDawnWithFortyPercentOfItsTaxesAtLeastFifteen() {
         XCTAssertEqual((1...12).filter(AdPacing.isMerchantDay), [3, 6, 9, 12])
-        XCTAssertEqual(AdPacing().merchantGift(day: 6, hour: 6, dawnTaxes: 80), MerchantGift(day: 6, gold: 32))
-        XCTAssertEqual(AdPacing().merchantGift(day: 9, hour: 6, dawnTaxes: 101)?.gold, 40, "40.4 rounds to 40")
-        XCTAssertEqual(AdPacing().merchantGift(day: 3, hour: 6, dawnTaxes: 20)?.gold, 15, "at least 15")
-        XCTAssertEqual(AdPacing().merchantGift(day: 3, hour: 6, dawnTaxes: 0)?.gold, 15, "an unrest dawn too")
-        XCTAssertNil(AdPacing().merchantGift(day: 7, hour: 9, dawnTaxes: 80), "not his day")
+        XCTAssertEqual(AdPacing().merchantGift(day: 6, hour: 6, taxes: 80), MerchantGift(day: 6, gold: 32))
+        XCTAssertEqual(AdPacing().merchantGift(day: 9, hour: 6, taxes: 101)?.gold, 40, "40.4 rounds to 40")
+        XCTAssertEqual(AdPacing().merchantGift(day: 3, hour: 6, taxes: 20)?.gold, 15, "at least 15")
+        XCTAssertEqual(AdPacing().merchantGift(day: 3, hour: 6, taxes: 0)?.gold, 15, "in unrest too")
+        XCTAssertNil(AdPacing().merchantGift(day: 7, hour: 9, taxes: 80), "not his day")
     }
 
     func testMarekLeavesAtTheHornAndGivesOncePerDay() {
         var pacing = AdPacing()
-        XCTAssertNotNil(pacing.merchantGift(day: 6, hour: 18.9, dawnTaxes: 50))
-        XCTAssertNil(pacing.merchantGift(day: 6, hour: 19, dawnTaxes: 50), "gone with the horn")
-        XCTAssertNil(pacing.merchantGift(day: 6, hour: 23, dawnTaxes: 50), "not at night")
+        XCTAssertNotNil(pacing.merchantGift(day: 6, hour: 18.9, taxes: 50))
+        XCTAssertNil(pacing.merchantGift(day: 6, hour: 19, taxes: 50), "gone with the horn")
+        XCTAssertNil(pacing.merchantGift(day: 6, hour: 23, taxes: 50), "not at night")
         pacing.rewardedWatched(.merchantGift, day: 6, at: t0)
         XCTAssertEqual(pacing.merchantTakenDay, 6)
-        XCTAssertNil(pacing.merchantGift(day: 6, hour: 12, dawnTaxes: 50), "once")
-        XCTAssertNotNil(pacing.merchantGift(day: 9, hour: 12, dawnTaxes: 50), "back on his next day")
+        XCTAssertNil(pacing.merchantGift(day: 6, hour: 12, taxes: 50), "once")
+        XCTAssertNotNil(pacing.merchantGift(day: 9, hour: 12, taxes: 50), "back on his next day")
     }
 
-    func testMarekReadsTheTaxesOfTodaysReport() {
+    func testMarekReadsTheRealmsDayOfTaxesNotADawnSum() {
+        // From build 2 the dawn pays no sum (docs/TOWN.md): the gift reads what the realm owes in a day at the Normal
+        // rate, whatever the report says and whatever rate was set.
         var state = GameState.newRealm(seed: 5)
-        var report = ReportCard.sampleReport()
-        report.day = 6
         state.day = 6
         state.hour = 10
+        state.lastReport = nil
+        let owed = AdPacing.dayOfTaxes(state)
+        XCTAssertGreaterThan(owed, 0, "a new realm owes taxes")
+        XCTAssertEqual(owed, Economy.taxes(state, happiness: state.happiness, balance: .standard).total)
+        XCTAssertEqual(AdPacing().merchantGift(state)?.gold, AdPacing.merchantGold(taxes: owed), "no report needed")
+        var report = ReportCard.sampleReport()
+        report.day = 6
         state.lastReport = report
-        XCTAssertEqual(AdPacing().merchantGift(state)?.gold, AdPacing.merchantGold(taxes: report.goldIn))
-        state.lastReport?.day = 5
-        XCTAssertEqual(AdPacing().merchantGift(state)?.gold, AdPacing.merchantMinimum, "an old report brings nothing")
+        XCTAssertEqual(AdPacing().merchantGift(state)?.gold, AdPacing.merchantGold(taxes: owed), "the report is not read")
+        state.tax = .high
+        XCTAssertEqual(AdPacing.dayOfTaxes(state), owed, "always the Normal rate")
+        state.happiness = 10
+        XCTAssertEqual(AdPacing().merchantGift(state)?.gold, AdPacing.merchantMinimum, "unrest: the 15-gold floor")
     }
 
     // MARK: - Saved
@@ -173,6 +238,9 @@ final class AdPacingTests: XCTestCase {
     func testThePacingRoundTripsAndAnOlderBlockDecodesWithDefaults() throws {
         var pacing = AdPacing(lastInterstitialDay: 9, lastDoubleTaxesDay: 8, lastSecondChanceNight: 4)
         pacing.rewardedWatched(.merchantGift, day: 12, at: t0 + 0.25)
+        pacing.rewardGiven(.doubleTaxes, day: 15)
+        pacing.videoShown(day: 15, at: t0 + 600)
+        XCTAssertEqual(pacing.taxesDoubledDay, 15)
         pacing.interstitialShown(InterstitialMoment(day: 21, place: .chapterEnd(chapter: 1)), at: t0 + 900)
         let data = try JSONEncoder().encode(pacing)
         XCTAssertEqual(try JSONDecoder().decode(AdPacing.self, from: data), pacing)

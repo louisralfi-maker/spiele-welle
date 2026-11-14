@@ -12,6 +12,9 @@ protocol AdProvider: AnyObject {
     var isInterstitialReady: Bool { get }
     /// A full-screen ad is on screen.
     var isShowingAd: Bool { get }
+    /// Told when a full-screen ad comes on screen (true) and when it has gone (false): the director holds the world
+    /// while one shows, even one that came after the game had stopped waiting for it.
+    var showingChanged: (@MainActor (Bool) -> Void)? { get set }
     /// Consent allows ads: start the SDK and preload (once; later calls do nothing).
     func start()
     /// Plays a rewarded video. `onReward` runs when it was watched to its end, and only then; `onClose` runs when it
@@ -30,6 +33,7 @@ final class NoAdProvider: AdProvider {
     var isRewardedReady: Bool { false }
     var isInterstitialReady: Bool { false }
     var isShowingAd: Bool { false }
+    var showingChanged: (@MainActor (Bool) -> Void)?
     func start() {}
     func showRewarded(onReward: @escaping @MainActor () -> Void, onClose: @escaping @MainActor () -> Void) -> Bool {
         false
@@ -39,6 +43,8 @@ final class NoAdProvider: AdProvider {
 
 /// `-GWAdStub YES` (debug builds, the ads' UI tests and unit tests): a rewarded "video" is always ready, ends at once
 /// and grants; an interstitial is always ready and ends at once. It counts what it showed (`AdLayer`'s `ads-log`).
+/// The tests can make a video close early without its reward (`grants`), or stay on screen until `finish()`
+/// (`closesAtOnce`), as Google's does: the reward comes while the ad's end card still shows, the close afterwards.
 @MainActor
 @Observable
 final class StubAdProvider: AdProvider {
@@ -48,25 +54,50 @@ final class StubAdProvider: AdProvider {
     /// Tests: no video ready (the offers must vanish, never a dead button).
     var rewardedReady = true
     var interstitialReady = true
+    /// Tests: false, the player closes the video before its end: `onClose` runs, `onReward` never.
+    var grants = true
+    /// Tests: false, the ad stays on screen after its reward until `finish()`.
+    var closesAtOnce = true
+    @ObservationIgnored var showingChanged: (@MainActor (Bool) -> Void)?
+    private(set) var isShowingAd = false
+    @ObservationIgnored private var pendingClose: (@MainActor () -> Void)?
 
-    var isRewardedReady: Bool { rewardedReady }
-    var isInterstitialReady: Bool { interstitialReady }
-    var isShowingAd: Bool { false }
+    var isRewardedReady: Bool { rewardedReady && !isShowingAd }
+    var isInterstitialReady: Bool { interstitialReady && !isShowingAd }
 
     func start() { started = true }
 
     func showRewarded(onReward: @escaping @MainActor () -> Void, onClose: @escaping @MainActor () -> Void) -> Bool {
-        guard rewardedReady else { return false }
+        guard rewardedReady, !isShowingAd else { return false }
         rewardedShown += 1
-        onReward()
-        onClose()
+        come()
+        if grants { onReward() }
+        pendingClose = onClose
+        if closesAtOnce { finish() }
         return true
     }
 
     func showInterstitial(onClose: @escaping @MainActor () -> Void) -> Bool {
-        guard interstitialReady else { return false }
+        guard interstitialReady, !isShowingAd else { return false }
         interstitialsShown += 1
-        onClose()
+        come()
+        pendingClose = onClose
+        if closesAtOnce { finish() }
         return true
+    }
+
+    /// The ad on screen goes (its close runs).
+    func finish() {
+        guard isShowingAd else { return }
+        isShowingAd = false
+        showingChanged?(false)
+        let close = pendingClose
+        pendingClose = nil
+        close?()
+    }
+
+    private func come() {
+        isShowingAd = true
+        showingChanged?(true)
     }
 }

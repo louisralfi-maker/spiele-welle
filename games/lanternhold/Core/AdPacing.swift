@@ -3,12 +3,13 @@ import Foundation
 /// The three rewarded offers (DESIGN.md "Ads (AdMob, no purchases)"). Each names its reward on its button, says plainly
 /// that a video plays and shows only while a video is ready; without one the game goes on with no dead button.
 enum AdOffer: String, Codable, Sendable, CaseIterable {
-    /// The dawn report: this dawn's taxes come in a second time (at most every second dawn).
+    /// The dawn report: every tax of this day counts twice (`AdPacing.taxesDoubled(day:)`; at most every second dawn,
+    /// never on a story dawn, never after another video on the same dawn).
     case doubleTaxes
     /// The defeat card: the hearth is rekindled, every creature inside the castle burns away and dawn comes at once
     /// (once per five nights, once per ten in endless; DESIGN.md "Losing a night").
     case secondChance
-    /// Marek's cart on his days: +40 % of that dawn's taxes, at least 15 gold, until the horn.
+    /// Marek's cart on his days: 40 % of a day's taxes, at least 15 gold, until the horn.
     case merchantGift
 }
 
@@ -66,7 +67,7 @@ enum InterstitialHold: String, Sendable, Equatable, CaseIterable {
     case chapterEndShown
     case beforeDayFour
     case storyDawn
-    /// A rewarded video was watched on this dawn (never right after one).
+    /// A rewarded video was shown on this dawn, watched to its end or closed early (never right after one).
     case afterRewarded
     /// Fewer than three in-game days since the last interstitial.
     case tooFewDays
@@ -89,13 +90,16 @@ struct MerchantGift: Sendable, Equatable {
 /// The ads' rules and their memory (DESIGN.md "Ads (AdMob, no purchases)", "Losing a night"), kept with the save
 /// (`SaveGame.adPacing`). Pure: no SDK, no UIKit, no clock of its own; the real time comes in as `now` from an
 /// injected `AdClock`. The app's `AdDirector` asks it which offer is open and whether an interstitial may come, and
-/// tells it what was shown.
+/// tells it what was shown (`videoShown`, on the close of every rewarded video that was shown) and what was given
+/// (`rewardGiven`, only when a video was watched to its end).
 ///
-/// - **Double taxes** at the dawn report: at most every second dawn (taken, or passed by with Continue), and only on a
-///   dawn that brought taxes.
+/// - **Double taxes** at the dawn report: a flag for the day (`taxesDoubled(day:)`: every tax payment of that day counts
+///   twice; set by the reward, read as false from the next dawn on). At most every second dawn (taken, or passed by with
+///   Continue), only on a dawn that owes taxes, never on a story dawn, never when another video already gave its reward
+///   on that dawn (one video per dawn).
 /// - **Second chance** on the defeat card: once per five nights, once per ten in endless.
-/// - **Merchant's gift** on Marek's days (every third dawn): +40 % of that dawn's taxes, at least 15 gold, once, by
-///   day until the horn.
+/// - **Merchant's gift** on Marek's days (every third day): 40 % of a day's taxes at the Normal rate (read from the realm,
+///   never from a dawn sum), at least 15 gold, once, by day until the horn.
 /// - **Interstitial** only on the dawn report's Continue: at most every third in-game day, at least 6 real minutes
 ///   after any ad, never before day 4, never on a story dawn, never right after a rewarded video, never at night, at
 ///   the throne or in a story scene; after a chapter's ending at most once.
@@ -111,7 +115,7 @@ struct AdPacing: Codable, Sendable, Equatable {
     static let secondChanceGapEndless = 10
     /// Marek's days: every third day (as his cart in the courtyard, `CourtLayout.marekEvery`).
     static let merchantEvery = 3
-    /// The gift: 40 % of that dawn's taxes, at least 15 gold.
+    /// The gift: 40 % of a day's taxes, at least 15 gold.
     static let merchantShare = 0.4
     static let merchantMinimum = 15
     /// The cart stands from the dawn report to the horn.
@@ -121,10 +125,11 @@ struct AdPacing: Codable, Sendable, Equatable {
     static let interstitialDayGap = 3
     static let firstInterstitialDay = 4
     static let secondsBetweenAds: TimeInterval = 6 * 60
-    /// The dawns of chapter 1 that carry a story beat (DESIGN.md "Story": the table's days from 4 on, and day 21,
-    /// whose dawn ends the chapter). Days 1 to 3 need no entry (no interstitial before day 4). The story panels can
-    /// name their own beats at the join (`InterstitialMoment.storyDawn`).
-    static let storyDays: Set<Int> = [4, 6, 8, 10, 11, 13, 15, 17, 19, 20, 21]
+    /// The dawns of chapter 1 that carry a story beat (DESIGN.md "Story": the table's days, and day 21, whose dawn ends
+    /// the chapter). Day 2 is the first dawn report (Brannock's tower; the consent form and the tracking question come
+    /// there too): no double taxes on it. The story panels can name their own beats at the join
+    /// (`InterstitialMoment.storyDawn`, `doubleTaxesOpen(day:taxes:storyDawn:)`).
+    static let storyDays: Set<Int> = [1, 2, 4, 6, 8, 10, 11, 13, 15, 17, 19, 20, 21]
 
     /// The day of the last interstitial (0: none yet).
     var lastInterstitialDay = 0
@@ -134,21 +139,30 @@ struct AdPacing: Codable, Sendable, Equatable {
     var lastSecondChanceNight = 0
     /// The day Marek's gift was last taken (0: never).
     var merchantTakenDay = 0
-    /// The day of the dawn a rewarded video was last watched on (0: never): no interstitial on that dawn's Continue.
+    /// The day of the dawn a rewarded video was last shown on, watched to its end or closed early (0: never): no
+    /// interstitial on that dawn's Continue.
     var lastRewardedDay = 0
-    /// When the last ad of any kind was shown, by the injected clock (nil: none yet).
+    /// The day of the dawn whose rewarded video last gave its reward (0: never): one video per dawn, so the double
+    /// taxes are not offered again on a dawn a second chance brought.
+    var lastRewardGivenDay = 0
+    /// The day whose taxes all count twice (0: none). Set by the double taxes' reward; any other day reads it as false,
+    /// so the next dawn clears it. The town lane's collect reads it at the join (`taxesDoubled(day:)`).
+    var taxesDoubledDay = 0
+    /// When the last ad of any kind went off the screen, by the injected clock (nil: none yet).
     var lastAdAt: TimeInterval?
     /// The chapters whose ending has had its interstitial.
     var chapterEndings: [Int] = []
 
     init(lastInterstitialDay: Int = 0, lastDoubleTaxesDay: Int = 0, lastSecondChanceNight: Int = 0,
-         merchantTakenDay: Int = 0, lastRewardedDay: Int = 0, lastAdAt: TimeInterval? = nil,
-         chapterEndings: [Int] = []) {
+         merchantTakenDay: Int = 0, lastRewardedDay: Int = 0, lastRewardGivenDay: Int = 0, taxesDoubledDay: Int = 0,
+         lastAdAt: TimeInterval? = nil, chapterEndings: [Int] = []) {
         self.lastInterstitialDay = lastInterstitialDay
         self.lastDoubleTaxesDay = lastDoubleTaxesDay
         self.lastSecondChanceNight = lastSecondChanceNight
         self.merchantTakenDay = merchantTakenDay
         self.lastRewardedDay = lastRewardedDay
+        self.lastRewardGivenDay = lastRewardGivenDay
+        self.taxesDoubledDay = taxesDoubledDay
         self.lastAdAt = lastAdAt
         self.chapterEndings = chapterEndings
     }
@@ -160,15 +174,28 @@ struct AdPacing: Codable, Sendable, Equatable {
         lastSecondChanceNight = try c.decodeIfPresent(Int.self, forKey: .lastSecondChanceNight) ?? 0
         merchantTakenDay = try c.decodeIfPresent(Int.self, forKey: .merchantTakenDay) ?? 0
         lastRewardedDay = try c.decodeIfPresent(Int.self, forKey: .lastRewardedDay) ?? 0
+        lastRewardGivenDay = try c.decodeIfPresent(Int.self, forKey: .lastRewardGivenDay) ?? 0
+        taxesDoubledDay = try c.decodeIfPresent(Int.self, forKey: .taxesDoubledDay) ?? 0
         lastAdAt = try c.decodeIfPresent(TimeInterval.self, forKey: .lastAdAt)
         chapterEndings = try c.decodeIfPresent([Int].self, forKey: .chapterEndings) ?? []
     }
 
+    // MARK: - Double taxes: the flag for the day
+
+    /// Every tax payment of `day` counts twice: the double taxes' video was watched on that day's dawn. False on any
+    /// other day, so the flag is gone from the next dawn on.
+    func taxesDoubled(day: Int) -> Bool {
+        taxesDoubledDay > 0 && taxesDoubledDay == day
+    }
+
     // MARK: - Which offer is open
 
-    /// Double taxes at this dawn: open on a dawn that brought taxes, at most every second dawn.
-    func doubleTaxesOpen(day: Int, taxes: Int) -> Bool {
-        taxes > 0 && day - lastDoubleTaxesDay >= AdPacing.doubleTaxesEvery
+    /// Double taxes at this dawn: open on a dawn that owes taxes (`taxes`: what this day owes; today the report's sum,
+    /// at the join the town's ledger for the day), never on a story dawn, never twice on one day, never after another
+    /// video gave its reward on this dawn (one video per dawn), and at most every second dawn.
+    func doubleTaxesOpen(day: Int, taxes: Int, storyDawn: Bool) -> Bool {
+        taxes > 0 && !storyDawn && !taxesDoubled(day: day) && lastRewardGivenDay != day
+            && day - lastDoubleTaxesDay >= AdPacing.doubleTaxesEvery
     }
 
     /// The night from which the second chance can be taken again; nil when it can be taken now.
@@ -183,23 +210,32 @@ struct AdPacing: Codable, Sendable, Equatable {
         day > 0 && day % merchantEvery == 0
     }
 
-    /// The gift for a dawn that brought `taxes`: 40 % of them, at least 15 gold.
+    /// The gift for a realm whose day of taxes is `taxes`: 40 % of them, at least 15 gold.
     static func merchantGold(taxes: Int) -> Int {
         max(merchantMinimum, Int((Double(max(0, taxes)) * merchantShare).rounded()))
     }
 
-    /// Marek's gift while his cart stands (his day, by day until the horn, not yet taken); nil otherwise.
-    /// `dawnTaxes`: what this day's dawn brought (the report's taxes).
-    func merchantGift(day: Int, hour: Double, dawnTaxes: Int) -> MerchantGift? {
-        guard AdPacing.isMerchantDay(day), merchantTakenDay != day,
-              hour >= AdPacing.merchantArrives - 1e-6, hour < AdPacing.merchantLeaves else { return nil }
-        return MerchantGift(day: day, gold: AdPacing.merchantGold(taxes: dawnTaxes))
+    /// What the realm's households owe in one day at the Normal rate, at its present happiness (`Economy.taxes`; 0 in
+    /// unrest). Marek's base: it needs no dawn sum, so it holds when the taxes go on foot (docs/TOWN.md: "At every dawn
+    /// Core works out the day's taxes exactly as today at the Normal rate").
+    static func dayOfTaxes(_ state: GameState, balance: Balance = .standard) -> Int {
+        var normal = state
+        normal.tax = .normal
+        return Economy.taxes(normal, happiness: state.happiness, balance: balance).total
     }
 
-    /// The realm's gift right now, from its state: today's dawn report gives the taxes.
-    func merchantGift(_ state: GameState) -> MerchantGift? {
-        let taxes = state.lastReport.map { $0.day == state.day ? $0.goldIn : 0 } ?? 0
-        return merchantGift(day: state.day, hour: state.hour, dawnTaxes: taxes)
+    /// Marek's gift while his cart stands (his day, by day until the horn, not yet taken); nil otherwise.
+    /// `taxes`: the realm's day of taxes (`dayOfTaxes`).
+    func merchantGift(day: Int, hour: Double, taxes: Int) -> MerchantGift? {
+        guard AdPacing.isMerchantDay(day), merchantTakenDay != day,
+              hour >= AdPacing.merchantArrives - 1e-6, hour < AdPacing.merchantLeaves else { return nil }
+        return MerchantGift(day: day, gold: AdPacing.merchantGold(taxes: taxes))
+    }
+
+    /// The realm's gift right now, from its state: 40 % of its day of taxes at the Normal rate.
+    func merchantGift(_ state: GameState, balance: Balance = .standard) -> MerchantGift? {
+        guard AdPacing.isMerchantDay(state.day), merchantTakenDay != state.day else { return nil }
+        return merchantGift(day: state.day, hour: state.hour, taxes: AdPacing.dayOfTaxes(state, balance: balance))
     }
 
     /// The dawns of chapter 1 with a story beat; endless has none.
@@ -236,18 +272,34 @@ struct AdPacing: Codable, Sendable, Equatable {
         return .allowed
     }
 
-    // MARK: - What was shown
+    // MARK: - What was shown and given
 
-    /// A rewarded video was watched to its end and its reward given. `day`: the day of the dawn it belongs to (for the
-    /// second chance, the dawn it brought); `night`: the night a second chance saved.
-    mutating func rewardedWatched(_ offer: AdOffer, day: Int, night: Int = 0, at now: TimeInterval) {
+    /// A rewarded video went off the screen, watched to its end or closed early (and, on the safe side, one that was
+    /// asked for and failed to come): the 6 minutes start again and that dawn's Continue brings no interstitial. `day`:
+    /// the day of the dawn it belongs to (for the second chance, the dawn it would bring). The offer's own memory is
+    /// `rewardGiven`'s.
+    mutating func videoShown(day: Int, at now: TimeInterval) {
         lastAdAt = now
-        lastRewardedDay = day
+        lastRewardedDay = max(lastRewardedDay, day)
+    }
+
+    /// A rewarded video was watched to its end and its reward given: the offer's own memory. `day`: as `videoShown`;
+    /// `night`: the night a second chance saved.
+    mutating func rewardGiven(_ offer: AdOffer, day: Int, night: Int = 0) {
+        lastRewardGivenDay = max(lastRewardGivenDay, day)
         switch offer {
-        case .doubleTaxes: lastDoubleTaxesDay = day
+        case .doubleTaxes:
+            lastDoubleTaxesDay = day
+            taxesDoubledDay = day
         case .merchantGift: merchantTakenDay = day
         case .secondChance: lastSecondChanceNight = max(lastSecondChanceNight, night)
         }
+    }
+
+    /// A rewarded video watched to its end: `rewardGiven` and `videoShown` at once (the tests' shorthand).
+    mutating func rewardedWatched(_ offer: AdOffer, day: Int, night: Int = 0, at now: TimeInterval) {
+        rewardGiven(offer, day: day, night: night)
+        videoShown(day: day, at: now)
     }
 
     /// The report closed with its double taxes offered and not taken: the next offer waits two dawns.

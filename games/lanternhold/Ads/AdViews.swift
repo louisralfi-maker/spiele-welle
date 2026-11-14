@@ -1,14 +1,14 @@
 import SwiftUI
 
 // The ads' views (DESIGN.md "Ads"; docs/UI-look.md). Each is one small view another screen places, so the join can place
-// it again in the redrawn screens: `DawnReportAds` in the dawn report, `SecondChanceOffer` on the defeat card,
-// `PrivacyChoicesRow` in the settings, `AdLayer` over the world (Marek's card, the stub's log). Every offer names its
+// it again in the redrawn screens: `DawnReportAds` and `ReportTreasury` in the dawn report, `SecondChanceOffer` on the
+// defeat card, `PrivacyChoicesRow` in the settings, `AdLayer` over the world (Marek's card, the stub's log). Every offer names its
 // reward on its button, says plainly that a video ad plays and shows only while a video is ready. Strings:
 // Resources/Ads.xcstrings (table "Ads").
 
-/// The dawn report's ads (the report's footer, before Continue): "Double taxes" with the gold it brings while the offer
-/// is open and a video is ready; after the video the gold that came in and the treasury now. Place it on every report:
-/// the first report asks for consent (`AdDirector.reportAppeared`) before any ad is requested.
+/// The dawn report's ads (the report's footer, before Continue): "Double taxes today" while the offer is open and a
+/// video is ready; after the video a note that every tax of today counts twice. Place it on every report: the first
+/// report asks for consent (`AdDirector.reportAppeared`) before any ad is requested.
 @MainActor
 struct DawnReportAds: View {
     let model: GameModel
@@ -21,11 +21,11 @@ struct DawnReportAds: View {
                 .frame(width: 0, height: 0)
                 .accessibilityHidden(true)
             if let report {
-                if let done = director.doubled, done.report == report {
-                    DoubledTaxesNote(done: done)
+                if director.doubled?.report == report || director.taxesDoubled(on: report) {
+                    DoubledTaxesNote()
                         .transition(transition)
-                } else if let gold = director.doubleTaxesOffer(for: report) {
-                    DoubleTaxesButton(gold: gold) {
+                } else if director.doubleTaxesOffered(for: report) {
+                    DoubleTaxesButton {
                         director.takeDoubleTaxes(report)
                     }
                     .onAppear { director.noteDoubleTaxesShown(report) }
@@ -48,9 +48,9 @@ struct DawnReportAds: View {
     }
 }
 
-/// "Double taxes +64" over "Watch a short video ad", on a plaque with the play mark in wax red.
+/// "Double taxes today" over "Watch a short video ad", on a plaque with the play mark in wax red. No figure: the
+/// reward is a flag for the day (every tax of today counts twice), not a dawn sum.
 struct DoubleTaxesButton: View {
-    let gold: Int
     let action: @MainActor () -> Void
 
     var body: some View {
@@ -62,10 +62,9 @@ struct DoubleTaxesButton: View {
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 1) {
                     HStack(alignment: .firstTextBaseline, spacing: 5) {
-                        Text("Double taxes", tableName: "Ads", comment: "Dawn report: the rewarded video's button.")
+                        Text("Double taxes today", tableName: "Ads",
+                             comment: "Dawn report: the rewarded video's button (every tax of today counts twice).")
                             .font(Theme.caps(.subheadline))
-                        Text(verbatim: "+\(gold)")
-                            .font(Theme.figures(relativeTo: .subheadline))
                         CoinIcon(size: 12)
                             .alignmentGuide(.firstTextBaseline) { $0[.bottom] - 1 }
                     }
@@ -83,27 +82,25 @@ struct DoubleTaxesButton: View {
             .frame(minHeight: 52)
         }
         .buttonStyle(OfferPlaqueStyle())
-        .accessibilityLabel(Text("Double taxes: +\(gold) gold. Watch a short video ad.", tableName: "Ads",
+        .accessibilityLabel(Text("Double taxes today: every tax counts twice. Watch a short video ad.", tableName: "Ads",
                                  comment: "VoiceOver: the dawn report's rewarded video."))
         .accessibilityIdentifier("report-ad-double")
     }
 }
 
-/// After the video: the gold that came in a second time and the treasury now, in House Lantern's teal.
+/// After the video: today every tax counts twice, in House Lantern's teal (the report's own treasury counts up,
+/// `ReportTreasury`; one treasury figure on the card).
 struct DoubledTaxesNote: View {
-    let done: AdDirector.Doubled
-
     var body: some View {
         HStack(spacing: 7) {
             Image(systemName: "checkmark.seal.fill")
                 .font(.system(size: 17, weight: .semibold))
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 1) {
-                Text(inked: String(localized: "Taxes doubled: +\(done.gold)", table: "Ads",
-                                   comment: "Dawn report: the double taxes came in."), .subheadline)
+                Text("Taxes doubled", tableName: "Ads", comment: "Dawn report: the double taxes' video was watched.")
                     .font(Theme.caps(.subheadline))
-                Text(inked: String(localized: "Treasury now \(done.treasury)", table: "Ads",
-                                   comment: "Dawn report: the treasury after the double taxes."), .footnote)
+                Text("Every tax counts twice today", tableName: "Ads",
+                     comment: "Dawn report: what the double taxes do (a flag for the day).")
                     .font(Theme.italic(.footnote))
             }
             .lineLimit(1)
@@ -113,10 +110,34 @@ struct DoubledTaxesNote: View {
         .padding(.horizontal, 6)
         .frame(minHeight: 44)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text("Taxes doubled: +\(done.gold) gold. Treasury now \(done.treasury).", tableName: "Ads",
-                                 comment: "VoiceOver: the double taxes came in."))
-        .accessibilityValue(Text(verbatim: "\(done.treasury)"))
+        .accessibilityLabel(Text("Taxes doubled: every tax counts twice today.", tableName: "Ads",
+                                 comment: "VoiceOver: the double taxes' video was watched."))
         .accessibilityIdentifier("report-ad-doubled")
+    }
+}
+
+/// The dawn report's treasury figure (the report's footer, after "Treasury"; a hook in place of its `GoldAmount`): the
+/// report's own figure, and once the double taxes' video has gone it counts up by the gold that came in
+/// (`AdDirector.treasuryGain`). With Reduce Motion the new figure simply stands there.
+@MainActor
+struct ReportTreasury: View {
+    /// The report's treasury after the dawn (`ReportCard.goldAfter`).
+    let gold: Int
+    let model: GameModel
+
+    var body: some View {
+        let director = AdDirector.shared
+        let gain: Int = {
+            if case .report(let open)? = model.overlay { return director.treasuryGain(on: open) }
+            return 0
+        }()
+        let total = gold + gain
+        GoldAmount(amount: total, size: 17)
+            .contentTransition(model.reduceMotion ? ContentTransition.identity : .numericText(value: Double(total)))
+            .animation(model.reduceMotion ? nil : .easeOut(duration: 1.1), value: total)
+            .accessibilityElement(children: .combine)
+            .accessibilityValue(Text(verbatim: "\(total)"))
+            .accessibilityIdentifier("report-treasury")
     }
 }
 
@@ -226,6 +247,10 @@ struct AdLayer: View {
         }
         .animation(model.reduceMotion ? nil : .easeOut(duration: 0.22), value: director.merchantCardOpen)
         .animation(model.reduceMotion ? nil : .easeOut(duration: 0.3), value: director.giftLanded)
+        // A video that stops being ready (an expired ad) while the card is open: the card closes, no dead button.
+        .onChange(of: director.rewardedReady) { _, ready in
+            if !ready { director.merchantOfferLost() }
+        }
     }
 }
 
@@ -252,7 +277,7 @@ struct GiftLandedSlip: View {
 
 /// Marek's card (DESIGN.md "Ads": his cart at the back gate on every third dawn; the join wires the cart, until then
 /// `-GWMerchant YES` opens it): a letter from the courtyard, his portrait, his line, what the video gives in plain
-/// words, "Not now" and the gift's wax-red button.
+/// words, "Not now" and the gift's wax-red button. The gift is 40 % of a day's taxes (`AdPacing.dayOfTaxes`).
 @MainActor
 struct MerchantGiftCard: View {
     /// The HUD's ledger (top right) reaches this far down; the card stands in the room below it.

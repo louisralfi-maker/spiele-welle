@@ -23,24 +23,35 @@
         }
       }
     },
-    "Double taxes" : {
-      "comment" : "Dawn report: the rewarded video's button (its gold follows in figures).",
+    "Double taxes today" : {
+      "comment" : "Dawn report: the rewarded video's button (every tax of today counts twice).",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Steuern verdoppeln"
+            "value" : "Steuern heute verdoppeln"
           }
         }
       }
     },
-    "Double taxes: +%lld gold. Watch a short video ad." : {
+    "Double taxes today: every tax counts twice. Watch a short video ad." : {
       "comment" : "VoiceOver: the dawn report's rewarded video.",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Steuern verdoppeln: +%lld Gold. Kurzen Werbeclip ansehen."
+            "value" : "Steuern heute verdoppeln: Jede Steuer zählt doppelt. Kurzen Werbeclip ansehen."
+          }
+        }
+      }
+    },
+    "Every tax counts twice today" : {
+      "comment" : "Dawn report: what the double taxes do (a flag for the day).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute zählt jede Steuer doppelt"
           }
         }
       }
@@ -133,35 +144,24 @@
         }
       }
     },
-    "Taxes doubled: +%lld" : {
-      "comment" : "Dawn report: the double taxes came in (the gold follows).",
+    "Taxes doubled" : {
+      "comment" : "Dawn report: the double taxes' video was watched.",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Steuern verdoppelt: +%lld"
+            "value" : "Steuern verdoppelt"
           }
         }
       }
     },
-    "Taxes doubled: +%lld gold. Treasury now %lld." : {
-      "comment" : "VoiceOver: the double taxes came in.",
+    "Taxes doubled: every tax counts twice today." : {
+      "comment" : "VoiceOver: the double taxes' video was watched.",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Steuern verdoppelt: +%1$lld Gold. Schatzkammer jetzt %2$lld."
-          }
-        }
-      }
-    },
-    "Treasury now %lld" : {
-      "comment" : "Dawn report: the treasury after the double taxes.",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Schatzkammer jetzt %lld"
+            "value" : "Steuern verdoppelt: Heute zählt jede Steuer doppelt."
           }
         }
       }

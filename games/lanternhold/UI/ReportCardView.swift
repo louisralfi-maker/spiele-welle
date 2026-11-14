@@ -179,7 +179,8 @@ struct ReportCardView: View {
                 .font(Theme.caps(.subheadline))
                 .tracking(0.6)
                 .foregroundStyle(Theme.inkSoft)
-            GoldAmount(amount: card.goldAfter, size: 17)
+            // The ads (Ads/AdViews.swift): the treasury counts up when the double taxes came in.
+            ReportTreasury(gold: card.goldAfter, model: model)
             Spacer(minLength: 8)
             // The ads (Ads/AdViews.swift): double taxes, and the first report's consent.
             DawnReportAds(model: model)
