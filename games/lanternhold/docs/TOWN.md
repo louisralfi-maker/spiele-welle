@@ -135,7 +135,8 @@ What follows is the first plan; where it differs, the lines above win.
   sets the standing's scale again so that T12 holds.
 - **Farmers are seen:** out at first light, at work by day (hoe, scythe, sacks), home before the horn. No food and no
   rationing: a field is income and life, never a thing to manage (Louis, 08.11.).
-- **By touch:** a touch on a building shows its price as coins over the door; a second touch pays.
+- **By touch:** a touch on a building shows its price as coins; holding or tapping counts them out, coin by coin
+  (`docs/PAY.md`, 14.11. 16:13: the count).
 - **Target T12 (new):** a player who grows the town fully by night 14 earns 25 to 35 % more taxes than one who does not,
   and still cannot skip the defence. Bots that do not grow the town give today's numbers.
 
@@ -235,3 +236,8 @@ are the people lane's work (`docs/PEOPLE.md`, branch `claude/lh-people`).
 - In unrest (happiness below 15) nobody lights them: the street stays dark.
 - Picture only. One small rule is kept for build 3 if it stays one value: in a broken night (REALM.md section 4) a
   town with its lanterns lit loses one house fewer.
+- **Lit at the Eternal Light** (Louis, 14.11. 15:19: "wenn der das immer bei dem ewigen Licht anzündet und dann
+  losläuft"). The Flame in the hall's hearth is the Eternal Light (`docs/HOUSE.md` section 1). Every dusk the
+  lamplighter comes into the hall, lights his pole at it and walks out through the gate into the town: the player sees
+  it each evening. So every street lantern burns a piece of the Eternal Light. Picture only: the lanterns burn as the
+  hearth does (bright, low, embers; REALM.md section 4), and with the hearth out there is nothing to light them with.

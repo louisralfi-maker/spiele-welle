@@ -234,3 +234,105 @@ enter and never must (the lord's chamber, a dungeon); special evenings with a gu
 spec is `docs/HOUSE.md`. Notes went to quests, panels, i18n, people, stage and world. A story editor writes the exact
 rewrite list on `claude/lh-house` (`docs/workflows/house-lane.js`); it is applied to the texts in one pass after the
 translations, never by the running lanes.
+
+The house lane started 14.11.2026 15:05 as task `wa3dtuo3c` (run `wf_4a940724-d4f`). Never resume it; after a stop, write a continuation.
+
+**House lane, 14.11.2026 15:44.** The story editor delivered (run `wf_4a940724-d4f`, done): HOUSE.md sections 6 to 12,
+`docs/house-rewrite.json` (45 keys, 73 STORY.md lines) and `tools/house_rewrite_check.py` (ALL PASSED). Critic 2: 7 of
+ten, no blocker, eight highs. This session's write hook blocks the Write tool in other worktrees and the editor did not
+go around it, so the house files live on the planning branch now; `claude/lh-house` stays at cb4b7b4, unused. The
+director's decisions on the highs and on section 12's questions are in `docs/workflows/house-lane-2.js` (fix round 2
+with critic 3, in the planning worktree). Never resume it; after a stop, write a continuation.
+The second house round started 14.11.2026 15:44 as task `wz57nek4b` (run `wf_d2951a3c-d0c`). The editor commits on
+the planning branch with the paths named on the commit; the lead does the same while it runs.
+
+**The drill yard, 14.11.2026 16:04.** Louis asked for a barracks at the wall where the soldiers train and are upgraded
+(fire arrows, a better bow) and left the decision and the whole plan to the director. Decided: yes, for build 3. The
+plan is `docs/YARD.md`: three stages (barracks, drill yard, armoury), recruit or trained, two works (the pitch kettle,
+the pavises), the soldiers' day, recruiting at the muster board, target T16. Nothing of it is in build 2. Core comes as
+a second front round after the lane's present steps; the picture in the second rounds of the world and people lanes;
+the words with build 3's batch. Notes went to the world, people, stage and front lanes: keep the room and the ids, no
+work now.
+
+**The house texts passed their gate, 14.11.2026 16:16.** The second house round (`wz57nek4b`) ended with critic 4: 8
+of ten, pass, no blocker, five highs. The director took all five and every smaller note; one Opus editor fixed them
+(fix round 4, commit e5684b4; report `ci-out/director/house-1-story-fix4.md`). Decided there: Pip opens evening 9.4
+after the herald walked out ("He left the hall. He did not leave the house."); on the `herald_alone` path Brannock is
+the witness of the double game (no step behind the lord at the dusks of days 18 and 19, then "A mask, then." on night
+20); `line.herald_throne` says "a thousand years before yours"; prologue panel 2 names House Lantern; 9.2's third
+choice is "Tamsin, more pie. Then the wall." The director added the three stale voice lines of DESIGN.md (2059 to
+2061) to the design list. The list is final: 46 keys, 76 bible lines, 18 design lines; the check prints ALL PASSED.
+Still to do: the apply pass (strings, bible, design, on top of the i18n and quests branches), the second pass for the
+46 keys in six languages, the code mentions for the join (fix report), and the tuning value for night 20's first push
+(front lane, build 3). Whether the corrected words reach build 2 is decided on Sunday 15.11.
+
+**The count, 14.11.2026 16:13.** Louis asked how buying can feel as good as in Kingdom Two Crowns, where holding or
+tapping throws coin after coin, without copying it. The answer is `docs/PAY.md`: a touch brings up a tally board with
+one hollow per coin; holding or tapping counts the coins onto it, each with a rising clink and a tick in the hand;
+letting go early pays nothing; the last coin seals it, the one who was paid lights the site lantern, and the work
+starts at once. Ours: the lord pays a person hand to hand, no coin touches the ground, and every purchase ends with a
+light. Core is untouched (one order when the last coin lands). Build 2 gets the plain form if the stage lane can take
+it without risk for Monday (decided on Sunday 15.11.); build 3 gets all of it, with the foreman, Brannock and Bram
+holding the board. TOWN.md section 3 and YARD.md sections 2, 4 and 6 point to it. Notes went to the stage, town, craft,
+front, people and world lanes.
+
+**The first widow and the straw crown, 14.11.2026 16:39.** Louis' two ideas, decided in `docs/VERDICT.md`: a young
+widow as the first petitioner after the first fallen soldier (a purse, words, or a cold answer; an empty treasury greys
+the purse), and a fourth, early ending: three dawns in unrest in a row, with a straw lord hung and then burnt as the
+two warnings, end in three lantern slides ("They hanged the lord of House Lantern from a lantern"). Neither is a new
+system. Build 3. The words wait for the house texts' apply pass. The age rating answers must be weighed before any
+submission.
+
+**Scope, 14.11.2026 16:39.** Louis asked whether his ideas overload the project. The director's rule from now on:
+
+- **Build 2 (Monday 16.11.) is closed.** It ships what the running lanes hold: the rebuilt castle, taxes on foot, the
+  touch. Nothing new enters, whatever its size.
+- **Build 3 is full.** If time is short, in this order: (1) whatever build 2 left out; (2) the treasury, the town's
+  growth, the craftsmen, the count in full; (3) the house texts and the first widow; (4) the drill yard with training
+  and the kettle; (5) the straw crown; (6) the hearth, the beacons, the lord's chamber, the dungeon, the armoury, the
+  pavises, evening 9.2. From (4) on a thing may slip to build 4 without asking Louis.
+- **Every new idea is sorted at once:** one that uses what exists (a petition, a line, a prop) joins build 3's list;
+  one that needs a system of its own goes to "later" and is told to Louis as such.
+- **Quota, 16:39:** weekly 29 % (21 % at 15:45, with five workflows running). No sixth workflow before the rebuild
+  joins.
+
+**world-1 (the rock and the fog), 14.11.2026 17:12.** The lane's report is in (round lh-w1-6 ALL PASSED on 9e9cda9,
+head e9ec11f). The director's own look: about 7 of ten, a clear step up from build 86 (the wall of rock, the warden's
+niche, the bank at night). Five corrections went to the lane's notes: the far wall's speckled snow, the fog's dither
+mesh, the slit of sky at dusk, the warm crags' palette, the muddy cleft wall at dusk. Louis sees a picture after the
+fix round.
+
+**Quota, 14.11.2026 17:14.** Louis: "Bis 99% und dann resete ich." The 80 % stop is lifted for the week to 21.11.: work
+up to 99 %, tell him when 95 % is near, and after his reset check every workflow before going on.
+
+**The HUD, 14.11.2026 18:26.** Louis: "das UI sieht auch scheiße aus", and he asked for five proposals. He saw five
+quick sketches (`ci-out/hud-proposals`, not in git), found none a hit and left the choice to the director. The
+finding: build 86 lays smooth parchment on a world of pixels and keeps three framed things on the picture; no better
+frame mends that. The decision is `docs/HUD.md`: nothing stands on the walked world; a touch on the lord raises his
+lantern and the world stands still (pause, purse, mood, people, the realm strip, the gear); the gold shows above him
+only while coins move; the time is told by the world and by his lantern before the horn. It is the interface bar
+spelled out, not a new system, so it is in build 2 through stage-3-interface, with a cut order. Notes went to the
+stage, town, craft and people lanes. No sketch goes to Louis again: he sees it in a real screenshot after the
+director's look. Lesson: a quick vector sketch of an interface is not a picture for Louis.
+
+
+**Speed, 14.11.2026 18:46.** Louis: "Können wir den Entwicklungsprozess beschleunigen, ohne dass der Mac abschmiert?
+Wenn ja, mach es."
+
+- **Measured.** The Mac is not the brake: 33 °C, fans off, load 1.3 with five workflows running. GitHub is. There are
+  five Mac slots, and a full round holds one for 70 to 90 minutes (lh-s1-5: build 6, unit 7, ui 26, ui-de 24,
+  release 6). Four lanes sent full rounds, so a round waited 4 to 90 minutes for a slot: a median of 71 minutes from
+  push to verdict. A round with a filter runs 6 to 12 minutes.
+- **The rule, in every code lane's notes:** short rounds while working; the gate as up to three rounds side by side
+  (a `build unit`; b the lane's UI test classes; c the same in German, only when words changed); never the whole `ui`,
+  `ui-de` or `release` in a lane; no second round while the first waits.
+- **Joins:** the whole check goes out as five rounds side by side (a `build unit release`; b and c the UI classes in
+  English in two halves; d and e the same in German): about 25 minutes instead of 75.
+- **The join kit** (one Opus agent, branch `claude/lh-joinkit`, report `ci-out/director/join-rehearsal.md`): a trial
+  merge of all lane branches now, the conflicts by lane, a three-way merge tool for the `.xcstrings` files, and one
+  `build unit` round on the trial merge. Nothing is merged for real.
+- **Left out, and why.** Core's tests on Linux runners: Core needs only Foundation and two `mix` calls, but with the
+  rule a Core round is 8 minutes, so the port is not worth its risk before Monday (a candidate for build 3). A cache
+  for the build: a stale cache gives a wrong verdict. Cancelling other lanes' waiting rounds: they are theirs.
+- **The quota is the second brake.** Faster rounds mean more work per hour, so 99 % comes earlier than 01:30. If Louis
+  sleeps then, the night is lost. He is asked to reset before he goes to bed.
