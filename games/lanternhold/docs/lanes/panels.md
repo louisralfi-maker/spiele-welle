@@ -169,9 +169,10 @@ Unchanged: the four hooks of step panels-1 (table above). Fix round 1 touched on
   bottom right in English and German and touches nothing; after it slide 1's far lands lost their ruled bands, the
   one-pixel slivers in its smoke and the wide warm strips on the cleft's sides, its creatures got the moon's rim; slide
   3's horse its lower head and shading; slide 4 lit folds and Hesper's face a step up; the words keep to two lines.
-- `lh-pn1f1-2` (cc4df38): the full round (build, unit, ui, ui-de, release). Result below.
-- `lh-pn1f1-3` (2f705df, pictures and painter only since cc4df38): build, unit SlidesTests and SlidesPaletteTests, ui and
-  ui-de SlidesUITests. Result below.
+- `lh-pn1f1-2` (cc4df38): the full round (build, unit, ui, ui-de, release): ALL PASSED.
+- `lh-pn1f1-3` (2f705df, the last code-bearing commit; since cc4df38 only slide 1's picture and its painter changed):
+  build, unit SlidesTests and SlidesPaletteTests, ui and ui-de SlidesUITests: ALL PASSED. Upright copies of its
+  screenshots: `ci-out/upright-f1-3/` of this worktree (git-ignored). After it only these notes changed.
 
 ### My own verdict, and what is weakest
 
