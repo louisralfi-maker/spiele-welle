@@ -353,7 +353,7 @@ enum FrameBuilder {
                          emissives: emissives,
                          fog: fog,
                          ambient: ambient,
-                         skyTop: ambient.skyTop + (ambient.skyBottom - ambient.skyTop) * Float(cleftDusk * cleftDuskWarmth),
+                         skyTop: ambient.skyTop + (ambient.skyBottom - ambient.skyTop) * (Float(cleftDusk) * cleftDuskWarmth),
                          skyBottom: ambient.skyBottom,
                          starAlpha: skyAmbient.starAlpha,
                          bankEdge: bankEdge,

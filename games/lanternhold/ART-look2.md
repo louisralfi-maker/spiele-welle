@@ -1645,13 +1645,13 @@ the repo.
 - The characters are the existing 30 px sprites. In a hall this tall they read small when the whole hall is in
   view; the audience framing answers that with the larger scale, not with new sprites.
 
-<!-- BEGIN world lane: section 21 -->
-## 21. The world rebuild, step world-1: the rock and the fog (14.11.2026)
+<!-- BEGIN world lane: section 22 -->
+## 22. The world rebuild, step world-1: the rock and the fog (14.11.2026)
 
 The answer to docs/REVIEW-look-2.md B4, B5, B6, H1, H2, H6 and M1. Code and layout: DESIGN.md "World rebuild
 (14.11.2026)"; ids and places: SPRITES.md "The rock and the fog".
 
-### 21.1 Why a height field
+### 22.1 Why a height field
 
 The first try painted the cleft wall as stripes (a column's lit strip, front and shade, with straight benches
 across the whole face): on the runner it read as a fence of planks under the mid plane's haze. Granite reads as
@@ -1674,7 +1674,7 @@ with one light from the upper left:
   ledges of the top 60 rows; a cold rim on every edge against the sky; the threads of water land in small solid
   puffs of spray.
 
-### 21.2 The pieces
+### 22.2 The pieces
 
 | piece | ramp | what to look for |
 |---|---|---|
@@ -1689,7 +1689,7 @@ with one light from the upper left:
 The first bank sheets were a trapezoid of night with a straight sloped face and a 6 px edge; a chain of round
 billows read as soap bubbles. The swirled density is what reads as fog.
 
-### 21.3 Against the art bar (Louis, 14.11.: "dass man gar nicht sieht, dass es von einer KI gemacht wurde")
+### 22.3 Against the art bar (Louis, 14.11.: "dass man gar nicht sieht, dass es von einer KI gemacht wurde")
 
 Checked at 400 % and at phone size. Redrawn because of it:
 
@@ -1704,14 +1704,14 @@ Checked at 400 % and at phone size. Redrawn because of it:
   Gloom's strips). They are the renderer's fog (white or night masks the engine tints and covers by alpha), and the
   review's M1 asks for ordered dither between their 6 to 8 steps; their edges must be soft, the rock's must not.
 
-### 21.4 Values
+### 22.4 Values
 
 The cleft wall is the castle's backdrop: by day it sits at about the castle stone's value, so the buildings separate
 by hue (warm granite behind cool slate) and detail; at dusk the mid plane's haze makes it lighter than the
 buildings' shaded walls, so they stand as silhouettes against it; at night it is blue with its ledges still
 readable. The steps grow paler and cooler toward the west, the world plane keeps the strongest contrast.
 
-### 21.5 Rebuild
+### 22.5 Rebuild
 
 `bash games/lanternhold/tools/build-art-world.sh throatStepA throatStepB throatStepC cleftWallA cleftWallB
 cleftWallC cleftShaft gateRockL gateRockR d2FogBank d2MistBand d2FogLow bankSheetA bankSheetB bankSheetC
@@ -1719,7 +1719,7 @@ gloomFogBack gloomFogMid gloomFogFront` (one
 sprite per run, each under 15 s on the old Mac; the script waits at 80 °C). The Weltmauer's `noslot` and `mistleft`
 run inside its `weltmauer` step.
 
-### 21.6 Fix round 1 (the critic's 6 of 10 and the director's five corrections, 14.11.2026)
+### 22.6 Fix round 1 (the critic's 6 of 10 and the director's five corrections, 14.11.2026)
 
 What the critic and the director saw on round lh-w1-6, and what each piece became:
 
@@ -1784,4 +1784,65 @@ Rebuild these with `build-art-world.sh bankSheetA bankSheetB bankSheetC bankEnd 
 d2MistBand d2FogLow gloomFogBack gloomFogMid gloomFogFront throatStepC cleftWallA cleftWallB cleftWallC cleftShaft
 gateRockL gateRockR cleftWater oldWall2 oldWall3 stoneWallAnchor bastionAnchor weltmauer` (the Weltmauer needs
 `build/recraft/lh/look2/world/wall-1.png`).
-<!-- END world lane: section 21 -->
+### 22.7 Fix round 2 (the critic's 6.5 of 10, look 2; 15.11.2026)
+
+The critic saw round lh-w1f1-4 (`ci-out/director/world-1-rock-fog-critic2.md`): the cleft wall's water read as poles
+and street lamps, its ledges and cracks as ruler lines that made the granite a grid of flat polygons (two blockers),
+and six highs. What each became:
+
+- **The ledges** (blocker 2). No bands any more: every band, however broken, read as a line across the wall, because
+  the eye joins pieces at one height. Instead short ledges are scattered over the face (`pods`, 44 over the whole
+  wall, denser high up where the snow lies): each a lens 8 to 26 px long, thick in the middle and thin at both ends,
+  with a lean of its own (up to 1 in 4), a shelf that catches the light and a soft undercut (a pronounced undercut
+  made dark slots that read as eyes and windows; tried in the round). Snow lies on about half the high ones, a drift
+  of its own length (3 to 14 px) mounded in its middle.
+- **The cracks and the faces** (blocker 2). The slabs no longer meet in steps (each step was a hairline of white or
+  black along a straight border). They meet in creases (the height runs on, the plane turns), on a grid that is
+  warped by kinked (piecewise-linear) noise, staggered by column and sheared by slab, so a border is a broken
+  polyline and no border runs on across the columns. Some borders carry a crack, a groove a pixel or two wide that
+  breaks off and tapers along its length. A slow swell on every face gives it two or three values. The slit's cold
+  light falls on whole facets (the seam of the cold light followed a jagged line across the planes and read as torn
+  lilac patches). Check: no horizontal line longer than 52 px (the critic's 240 px) anywhere on the wall
+  (`WorldRebuildFix2Tests`; it joins aligned pieces as the eye does).
+- **The water** (blocker 1). Two threads (they were three), far apart (mid 893 and 1258), high on the wall. Each
+  springs from a dark notch with a lit lip and a wet stain, falls in an S over two short ledges of its own and ends in
+  spray on a third, above the roofs. At each landing the water strikes the ledge in a small splash and comes on from
+  under the ledge's lip a pixel or more aside, so it never crosses a ledge; the nearby ledges stop short of its
+  column. Its bed is a step darker than the rock. The falling water is mist with a mistLight head on each strand and
+  mistDark on its shade side (about two thirds of the old white), one pixel under the notch and two below, in strands
+  of four or five rows with gaps, scrolling down in six frames (a period of 18 rows, so it loops cleanly). The
+  shaft of light falls clear of both.
+- **The wall's end** toward the valley: a broken ridge of crags (runs of 4 to 16 px, most steep, some shoulders, a
+  few teeth that stand up), never a diagonal.
+- **The Throat's steps** (high 3). The warden statue's stepped backing must stand in rock, so the tor rises behind the
+  statue; west of it the tor climbs in broken crag steps (a face, a ledge, a tooth, never one slope) to a shoulder at
+  70 % of the screen. C stands at full height from its west crag and is a value darker in the Throat (`cleft_gain`),
+  so the climb reads: A low and pale, the tor's shoulder, C full and darkest.
+- **The gate's rock** (high 4). No outline: the light catches the edges that face it in pieces (3 to 8 px, a third of
+  them dark, one pixel deep; `rim_broken`), and the stick line (an old ledge of the shoulder) is gone. Both rocks are
+  shoulders: a broad slope out of the cleft's floor, then three tongues that climb over the tower's outer edge, the
+  highest to half the shaft, with a course of the tower's ashlar on each notch between them. The east rock is no
+  spire any more but the same shoulder, low toward the bailey.
+- **Dusk in the cleft** (high 5): no moon in the wedge until the night's moon is up (`wedgeMoonShare`), no stars, and
+  the wedge's sky warmed toward the horizon's colour (`cleftDuskShare`), so dusk and night differ. The castle's warm
+  graze on the wall's foot: `cleftGraze`, a white mask in three stepped bands with jagged tops, drawn as glow in the
+  fire's colour at the torches' strength behind the buildings (they hide it), so the warmth shows in the gaps and as
+  a rim over the roofs.
+- **The night bank** (high 1): the sheets stand apart in value at night (A light and thinner, so the moor's firs
+  show through it; B a clear step darker; C the dark roll), the eyes keep one period a fifth apart per slot (two or
+  three pairs open on every frame, above the low roll's crest), and the world's end hides every glow inside its dark
+  (the lord's lantern at the end made a warm half disc at the screen's edge).
+- **The Weltmauer and the deck** (high 2): the slot patch's edges wander instead of a dithered blend column (the
+  dotted seam); the painting's fine streaks are smoothed across and the wall is cut into buttresses by arêtes that
+  run down from the summits at slants of their own, lit on the west flank and shaded on the east, with a darker
+  gully between (`cleftart.py ridges`); no high clouds in the gaps between the peaks (they were the blue bubbles
+  and, at dusk, the orange blobs); the deck has towers of big billows 8 to 22 rows higher where its mass swells, its
+  front lobes at heights of their own, and the haze under it fades downward following the underside's lobes instead
+  of hanging in drips.
+- **Framing** (high 6): the moon stands 36 rows under the screen's top (the HUD's stat panel ends at row 33 of 201)
+  in a wedge 68 rows deep; the cobbles give way to the earth lane stone by stone over the tile past the castle
+  (`laneCobbleEnd`, `tools/lanejoin.py`).
+
+Rebuild: `build-art-world.sh weltmauer throatStepB throatStepC cleftWallA cleftWallB cleftWallC cleftWater cleftGraze
+gateRockL gateRockR cloudDeck laneCobbleEnd` (after `plants`, which makes the lane tiles `laneCobbleEnd` is made of).
+<!-- END world lane: section 22 -->

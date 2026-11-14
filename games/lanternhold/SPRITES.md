@@ -660,7 +660,7 @@ the interface's ink and gold (docs/UI-look.md) that floats above a thing the lor
   the tithe; a seventh mark with a coin is a quarter of an hour of art if wanted.
 
 <!-- BEGIN world lane: world rebuild, step world-1 -->
-## The rock and the fog (world rebuild, step world-1, 14.11.2026; ART-look2.md section 21)
+## The rock and the fog (world rebuild, step world-1, 14.11.2026; ART-look2.md section 22)
 
 In `SpriteID` (look 2 only). Painted by `tools/cleftart.py` on `tools/rockfield.py` (the granite as a lit height
 field) and by `tools/fogart.py`; `tools/build-art-world.sh` rebuilds them byte for byte. Light from the upper left.
@@ -668,16 +668,16 @@ field) and by `tools/fogart.py`; `tools/build-art-world.sh` rebuilds them byte f
 | id | size | plane | where (x in the plane's own px) | notes |
 |---|---|---|---|---|
 | `throatStepA` | 224x104 | mid, ground, y -4 | 360 | the Throat's far wall where it begins: low (88 rows at most), far and pale (`far` ramp), its west talus paling into the mist |
-| `throatStepB` | 224x176 | mid, ground, y -4 | 450 | the second step, darker and taller (`stone` ramp), the warden statue's niche at x 568; its east end sinks under C |
-| `throatStepC` | 224x200 | mid, top-anchored | 600 | the third step, the cleft's own granite: a crag falls to the lane at its west end, then it fills the sky behind the gatehouse |
+| `throatStepB` | 224x176 | mid, ground, y -4 | 450 | the tor, darker and taller (`stone` ramp): fix round 2: its west side climbs in broken crag steps to a shoulder at 70 % of the screen (104 rows over the ground line); only behind the warden statue (its niche at x 568) does it rise to hold the statue's stepped backing; its east end sinks under C |
+| `throatStepC` | 224x200 | mid, top-anchored | 600 | the third step, the cleft's own granite: a crag falls to the lane at its west end, then it stands at full height (fix round 2: no lower shoulder) behind the gatehouse, a value darker in the Throat (`cleft_gain`) |
 | `cleftWallA`, `cleftWallB`, `cleftWallC` | 256x200, 256x200, 192x200 | mid, top-anchored | 824, 1080, 1336 | the cleft's far wall behind the whole castle, with C one painting cut in four (no join shows). Fix round 1: the rock stands to the screen's top except in two wedges of sky (over the gatehouse at mid 792, over the bailey at mid 1010, where `cleftWallA`'s emitter puts the moon at night, its top 22 rows down); buttresses (a third of their boundaries deep chimneys), chiselled slabs that turn toward the light or away from it, two long ledges that step at each buttress (a lit shelf over an undershadow) with snow drifts on the high one, the slit's cold slate light on the face's top; the beds of three threads of water at 902, 1131 and 1268 (a crack, a wet streak, spray on a ledge); C steps down to the valley floor by 1528 |
 | `cleftShaft` | 64x200 | mid, top-anchored, z 4 | 1104 | `#FFFFFF` alpha mask in twelve levels (fix round 1: stronger, at the sun's full strength) with fourteen dust motes: the cold shaft of light through the slit, drawn at the sun's strength (`Prop.sunShaft`) |
-| `cleftWater` | 5x132, 4 frames | mid, after the mid props | 901, 1130, 1267 (crack rows 44, 36, 52 under the wall's top) | fix round 1: one thread of falling water in strands of foam, mistLight and mist, one and then two pixels wide, striking two ledges (a splash, then a pixel aside), fraying over its spray; the frames scroll it down 3 px each, played at 6 a second (`FrameBuilder.cleftWater`; frame 0 with Reduce Motion) |
-| `gateRockL`, `gateRockR` | 108x80, 64x70 | world, z 1 | castle front − 54, + 196 (tier 3: 11 and 12 px further out) | fix round 1: a shoulder of bedrock at each tower's outer foot, up to a third of the tower's height, bulging past the outer edge and climbing over the tower's foot in ledges, a course of ashlar on each ledge (the tower's courses step down into the rock), a continuous lit edge on the faces that look up or west |
+| `cleftWater` | 14x54, 12 frames | mid, after the mid props | notch at 893 (row 26) and 1258 (row 30), frame x = notch − 5 | fix round 2: the two threads of falling water, frames 0-5 the first, 6-11 the second: mist with a mistLight head per strand and mistDark on the shade side, one then two pixels wide, in an S over two ledges of its own into spray on a third, strands of 4-5 rows scrolling 3 rows a frame over an 18-row pattern; 6 a second, frame 0 with Reduce Motion |
+| `gateRockL`, `gateRockR` | 108x80, 64x70 | world, z 1 | castle front − 54, + 196 (tier 3: 11 and 12 px further out) | fix round 2: shoulders of bedrock with three tongues that climb over each tower's outer edge (the highest to half the shaft), a course of the tower's ashlar on each notch, creased faces, the lit edge in broken pieces (no outline); the east one a low shoulder toward the bailey, no spire |
 | `bankSheetA`, `bankSheetB`, `bankSheetC` | 256x208, 256x124, 256x56, 2 frames each | fog A, world, fog B | the face (frame 1) with its right end at the bank's edge plus the sheet's reach, body tiles (frame 0) every 192 px westward (`FrameBuilder.bankSheetTiles`) | fix round 1: painted in a light cool ramp of values, tinted by the hour (`FrameBuilder.bankTint`: grey-violet and translucent by day, navy at night). The body periodic over 192 px with complementary dithered feathers at both ends (each pixel held by one tile), the face leaning back toward the top and torn into wisps; each crest a lit shell, the body in six value steps in clean clusters, the alpha in sixteen dithered steps. A's crest near the screen's top, B's at about half the screen, C a low roll at the foot |
 | `bankEnd` | 96x208 | fog B | world 0 | fix round 1: where the world ends the dark is whole: night0, opaque for 20 columns, thinning out by column 92 in sixteen dithered steps; drawn black |
 | `darknessBankGlow` | 9x3, 4 frames | world (emissive) | `FrameBuilder.bankEyePairs` | fix round 1 (it was a 64x236 strip of eyes in rows): one pair of the bank's eyes: 0 near and open (two lit diamonds 6 px apart), 1 near and half shut, 2 far and open (two points 4 px apart), 3 far and half shut. Five slots 128 px apart behind the bank's edge, each opening at a place and height of its own, blinking, shutting and opening elsewhere; at most four on a screen; three still with Reduce Motion |
-| `cloudDeck` | 720x80 | far, y 22 | far x −100 | fix round 1: the cloud deck over the Weltmauer: lumpy masses of billows in two ranks, shaded from their top contour (a lit rim of mistLight, broad where the contour faces the light, then farPale, mist, moon), the front lobes' lit arcs inside the mass, an underside of lobes and rags (16 to 20 px of swing) and under it flat wisps of mist feathering 48 px down in sixteen dithered steps; both ends part into puffs. It replaces the three clouds of the deck (`cloudA`, `cloudC`, `cloudB` at far x −60, 150, 322) |
+| `cloudDeck` | 720x100 | far, y 22 | far x −100 | the cloud deck over the Weltmauer (its billows stand on row 50, 72 rows over the ground line): fix round 2: towers of big billows 8 to 22 rows higher where the deck's mass swells, the front lobes at heights of their own (no scallop row), the veil under it a horizontal fade that follows the underside's lobes (no drips) |
 
 The far castle in the Weltmauer's first slot is gone (`cleftart.py noslot`), and the Weltmauer's first 320 columns
 sink into a bank of painted mist toward the west (`cleftart.py mistleft`). Fix round 1: below its snow line no snow hangs in the
@@ -685,4 +685,14 @@ gullies or couloirs any more (`worldart.py regrade`, `clean_snow`: no patch unde
 massifs' upper faces with a clean hem. The old walls' granite (`oldWall2`, `oldWall3`) is cut to broken footings of
 at most 36 rows (the horn west of the wall 16) in the cleft's granite with cool grey shade (`throatart.py footing_rock`), and the anchors' toothing
 stops at the footing's height.
+Fix round 2 adds:
+
+| id | size | plane | where | notes |
+|---|---|---|---|---|
+| `cleftGraze` | 192x96 | mid (emissive), bottom on the ground line | mid 700 to 1300, every 192 px, every second one mirrored | the castle's warm light on the cleft wall's foot: a white mask in three stepped bands (alpha 110, 64, 30 over the lowest 44, 70, 92 rows) with jagged tops, drawn as glow in `fireOrange` × the torches' strength × 0.55 behind the buildings; none by day |
+| `laneCobbleEnd` | 64x26 | world, lane tile | world 2432 | where the castle's cobbles give way to the valley's earth lane: `laneEarthA` with `laneCobbleB`'s stones laid over it, thinning stone by stone over 48 px (`tools/lanejoin.py`) |
+
+The Weltmauer's slot patch has wandering edges (no dithered blend column), and the wall is cut into buttresses by
+arêtes with lit west and shaded east flanks (`cleftart.py ridges`, between `noslot` and `mistleft`). Look 1's high
+clouds (`cloudA`, `cloudB`, `cloudC` on the sky plane) and look 2's high deck on the clouds plane are gone from look 2.
 <!-- END world lane: world rebuild, step world-1 -->
