@@ -625,6 +625,11 @@ enum FrameBuilder {
             let share = (geometry.focusX - fadeOut.lowerBound) / max(1, fadeOut.upperBound - fadeOut.lowerBound)
             alpha *= Float(1 - min(1, max(0, share)))
         }
+        if options.look == .two && prop.plane == .far {
+            // World rebuild (B5, H1): inside the walls the cleft wall fills the view up to its slit of sky, and the
+            // far plane is gone (it fades while the gatehouse and the steps cover it, and comes back at the back gate).
+            alpha *= Float(1 - cleftShare(focus: geometry.focusX))
+        }
         guard alpha > 0.003 else { return }
         let bottom = geometry.bottom(of: prop)
         let top = geometry.top(y: bottom, height: height)
@@ -959,6 +964,12 @@ enum FrameBuilder {
     ]
     /// The fog is drawn in slices this wide, each with the hole a fire cuts where it stands.
     static let gloomSlice = 16
+
+    /// World rebuild (B4): how many parts a slice is cut into where the fire's hole changes the cover by `step`
+    /// across it: whole below 0.06, halves below 0.18, quarters above.
+    static func gloomSubSlices(_ step: Double) -> Int {
+        step > 0.18 ? 4 : step > 0.06 ? 2 : 1
+    }
     /// The eyes glow a little over white, so the bloom catches them at phone size.
     static let gloomEyeGain: Float = 1.4
     /// The painted eyes' tiles are laid leftward from this far behind the bank's edge.
@@ -997,14 +1008,24 @@ enum FrameBuilder {
                 for k in 0..<(size.width / gloomSlice) {
                     let left = tileLeft + Double(k) * slice
                     guard geometry.isVisible(left: left, width: slice) else { continue }
-                    let x = left + slice / 2 + world
-                    let cover = whole * (1 - GloomFog.hole(x: x, clearings: clearings))
-                    guard cover > 0.012 else { continue }
-                    let rect = SIMD4<Float>(Float(left), Float(top), Float(gloomSlice), Float(size.height))
-                    let source = SIMD4<Float>(Float(k * gloomSlice), 0, Float(gloomSlice), Float(size.height))
-                    list.append(SpriteInstance(sprite: strip.sprite, frame: face ? 1 : 0, rect: rect,
-                                               tint: SIMD4<Float>(value, value, value, Float(min(1, cover))),
-                                               flipped: false, source: source))
+                    // World rebuild (B4): where a fire's hole changes the cover steeply across a slice, the slice is
+                    // cut finer (8 or 4 px), so the fog thins toward the fire in small steps, never in 16 px columns.
+                    let ends = abs(GloomFog.hole(x: left + world, clearings: clearings)
+                                   - GloomFog.hole(x: left + slice + world, clearings: clearings)) * whole
+                    let parts = gloomSubSlices(ends)
+                    let width = gloomSlice / parts
+                    for part in 0..<parts {
+                        let partLeft = left + Double(part * width)
+                        let x = partLeft + Double(width) / 2 + world
+                        let cover = whole * (1 - GloomFog.hole(x: x, clearings: clearings))
+                        guard cover > 0.012 else { continue }
+                        let rect = SIMD4<Float>(Float(partLeft), Float(top), Float(width), Float(size.height))
+                        let source = SIMD4<Float>(Float(k * gloomSlice + part * width), 0, Float(width),
+                                                  Float(size.height))
+                        list.append(SpriteInstance(sprite: strip.sprite, frame: face ? 1 : 0, rect: rect,
+                                                   tint: SIMD4<Float>(value, value, value, Float(min(1, cover))),
+                                                   flipped: false, source: source))
+                    }
                 }
             }
             tileLeft -= tile

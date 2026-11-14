@@ -7,6 +7,7 @@ sprite per run of `build` (each under 15 s on the old Mac).
 
   cleftart.py build <id> --out <Art dir>
   cleftart.py noslot <weltmauer.png>        the Weltmauer without the far castle in its first slot (in place)
+  cleftart.py mistleft <weltmauer.png>      then: the Weltmauer sinks into the fog toward the west (in place)
 
   throatStepA    224x104, mid plane, ground: the Throat's far wall where it begins, far and pale (the far ramp), low
                  (88 rows at most), its west end a talus that pales into the mist band. mid x 360.
@@ -127,7 +128,7 @@ def cleft_piece(name):
     light of the slit on the face's top, snow on the high ledges, the threads of water with their wet streaks."""
     gx0, w = PIECES[name]
     field = RF.Field(cleft_massif(), gx0, w, CLEFT_H, cleft_top)
-    img = RF.paint(field, "cleft", snow_rows=70, snow_share=0.75, cold_rows=90, seed=601,
+    img = RF.paint(field, "cleft", snow_rows=60, snow_share=0.75, cold_rows=90, seed=601, contrast=1.15,
                    wet=[(wt[0], wt[1]) for wt in WATER])
     for wt in WATER:
         if gx0 - 2 <= wt[0] < gx0 + w + 2:
@@ -263,6 +264,39 @@ def noslot(path):
     print("wrote", path)
 
 
+MIST_COLS = 320  # the Weltmauer's columns that sink into the fog toward the west (far x -44 ... 276)
+
+
+def mistleft(path):
+    """The Weltmauer sinks into the fog toward the west (REVIEW-look-2.md 2.1, 2.5): over its first MIST_COLS columns a
+    bank of mist rises from its foot, slowly at first and steeply near the west end (there it hides the whole wall),
+    its top rolling in humps of two sizes. Under the top the rock dissolves into the mist by an ordered dither over
+    some 30 rows, so the top is soft and never a line; the mist is darker where it is thin and paler where it is
+    dense (low and to the west). In place; run once, after `noslot`, on the wall the build makes."""
+    img = PA.read_png(path)[0]
+    out = PA.Image(img.w, img.h, list(img.px))
+    light, mist, dark = col("mistLight"), col("mist"), col("mistDark")
+    for x in range(min(MIST_COLS, img.w)):
+        u = (MIST_COLS - x) / float(MIST_COLS)          # 1 at the west end, 0 where the mist ends
+        rise = img.h * 1.1 * RF.ss(u) ** 1.6
+        rise += (10 + 26 * u) * vnoise(907, x / 29.0) + (4 + 8 * u) * vnoise(909, x / 8.0) - 6
+        top = img.h - rise                                # the mist's top row in this column
+        for y in range(img.h):
+            p = img.get(x, y)
+            if not p[3] or y < top:
+                continue
+            down = y - top
+            share = RF.ss(down / 30.0) * (0.45 + 0.55 * RF.ss(u * 1.8))
+            if bay(x, y) >= share:
+                continue
+            dense = RF.ss(down / 70.0) * (0.5 + 0.5 * u)
+            q = dense * 2 + (bay(x + 2, y + 1) - 0.5) * 0.9
+            c = dark if q < 0.6 else mist if q < 1.45 else light
+            out.set(x, y, (c[0], c[1], c[2], p[3]))
+    PA.write_png(path, out)
+    print("wrote", path)
+
+
 def build(name, out):
     if name in PIECES:
         img = cleft_piece(name)
@@ -285,6 +319,9 @@ def main():
     a = sys.argv[1:]
     if len(a) >= 2 and a[0] == "noslot":
         noslot(a[1])
+        return
+    if len(a) >= 2 and a[0] == "mistleft":
+        mistleft(a[1])
         return
     if len(a) >= 4 and a[0] == "build" and a[2] == "--out":
         build(a[1], a[3])

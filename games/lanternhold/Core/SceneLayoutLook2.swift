@@ -10,7 +10,9 @@
 extension SceneLayout {
     /// Look 1's world-plane cliffs at the castle. Look 2 leaves them out: since the world rebuild nothing stands on the
     /// walk line before the gatehouse (docs/REVIEW-look-2.md B6), the cleft wall rises behind it on the mid plane.
-    static let look1Cliffs: Set<SpriteID> = [.cliffFlank, .cliffFlankB, .throatRock]
+    /// With the rock go the shadows the front threw onto it beside the east tower (they would darken the cleft wall
+    /// far behind as a vertical band); the ground's and the gatehouse's own shadows stay.
+    static let look1Cliffs: Set<SpriteID> = [.cliffFlank, .cliffFlankB, .throatRock, .castleShadow, .castleShadowLong]
 
     /// Look-1 sprites look 2 leaves out on the mid plane (the old gorge walls, the far keep, the valley's hills and
     /// the statue at its old place) and on the far plane.
@@ -50,9 +52,13 @@ extension SceneLayout {
                      emitters: [.sprite(.farCleftGlowBack, dx: -2, dy: 0, glow: .cleft, fades: true),
                                 .sprite(.farCastlePane, dx: 0, dy: 0, glow: .window, fades: true)],
                      fade: 2330...2520)),
-        // A cloud deck before the wall: the peaks stand above the clouds. No cloud before the two slots.
-        (.far, Entry(sprite: .cloudA, x: -60, y: 96)),
-        (.far, Entry(sprite: .cloudB, x: 322, y: 104)),
+        // A cloud deck before the wall: the peaks stand above the clouds. No cloud before the two slots. World rebuild
+        // (H6): over the shadow land and the Throat the deck lies across the wall at half the screen's height (rows
+        // 40 to 90 on the runner's phone), so the wall rises out of it and past the screen's top; a third cloud closes
+        // the deck between the first two. The valley's cloud (far x 640) stays where it was.
+        (.far, Entry(sprite: .cloudA, x: -60, y: 70)),
+        (.far, Entry(sprite: .cloudC, x: 150, y: 62, flipped: true)),
+        (.far, Entry(sprite: .cloudB, x: 322, y: 74)),
         (.far, Entry(sprite: .cloudC, x: 640, y: 108, flipped: true)),
         // The valley's painted distance, before the wall's end. Polish after round 2: both stand 64 px further left
         // (they stood at 620 and 1068). The wall falls from 139 to 12 px above the ground line between far x 658 and
@@ -175,13 +181,15 @@ extension SceneLayout {
         (.mid, Entry(sprite: .throatStepB, x: look2StepX[1], y: -4, z: 2, region: .gorge)),
         (.mid, Entry(sprite: .throatStepC, x: look2StepX[2], y: 0, z: 3, anchor: .top, region: .castle)),
         // The castle's warm light grazes the wall's foot at dusk and night: lanterns of the mid plane behind the
-        // bailey, the keep's door, the chapel and the back gate (backdrop lights: they light the picture only).
+        // bailey's forge, the keep's door, the chapel, the kitchen and the back gate (mid x `109.25 + world / 2`;
+        // backdrop lights: they light the picture only), high enough to show over the roofs.
         (.mid, Entry(sprite: .cleftWallA, x: look2CleftX[0], y: 0, z: 3, anchor: .top, region: .castle,
-                     lights: [Light(kind: .lantern, x: 852, y: 16, radius: 64),
-                              Light(kind: .lantern, x: 1024, y: 18, radius: 72)])),
+                     lights: [Light(kind: .lantern, x: 884, y: 40, radius: 84),
+                              Light(kind: .lantern, x: 1024, y: 44, radius: 92)])),
         (.mid, Entry(sprite: .cleftWallB, x: look2CleftX[1], y: 0, z: 3, anchor: .top, region: .castle,
-                     lights: [Light(kind: .lantern, x: 1129, y: 16, radius: 64),
-                              Light(kind: .lantern, x: 1274, y: 16, radius: 60)])),
+                     lights: [Light(kind: .lantern, x: 1129, y: 40, radius: 80),
+                              Light(kind: .lantern, x: 1194, y: 36, radius: 70),
+                              Light(kind: .lantern, x: 1274, y: 40, radius: 76)])),
         (.mid, Entry(sprite: .cleftWallC, x: look2CleftX[2], y: 0, z: 3, anchor: .top, region: .castle)),
         // The cold shaft of light that falls through the slit by day (at the sun's strength; none at night).
         (.mid, Entry(sprite: .cleftShaft, x: look2ShaftX, y: 0, z: 4, anchor: .top, region: .castle,

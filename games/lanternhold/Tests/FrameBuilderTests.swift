@@ -824,4 +824,69 @@ extension FrameBuilderTests {
             return false
         }
     }
+
+    /// The backdrop pieces of the far and the mid plane whose ends could stand in the view as a vertical seam.
+    static let backdrops: Set<SpriteID> = [.shadowForest, .throatStepA, .throatStepB, .throatStepC, .cleftWallA,
+                                           .cleftWallB, .cleftWallC, .weltmauer, .weltmauerPatch, .valleyVista,
+                                           .d2FirBeltFar, .d2TreeBelt]
+
+    /// B5 (and B6, H1): from the Throat through the castle to the valley (camera centres 1200 to 2500 in 20 px steps)
+    /// no backdrop piece ends in a vertical seam in the view. Wherever a piece's end column stands inside the view,
+    /// every row its art holds there is covered by a piece drawn in front of it (later on its own plane, or on the mid
+    /// plane for the far one), or its art is clear there. Inside the walls the far plane is gone (the cleft wall
+    /// fills the view up to its slit of sky) and the cleft wall is the mid plane.
+    func testNoBackdropEndsInASeamFromTheThroatToTheValley() {
+        let layout = AtlasLayout.shared
+        func opaque(_ item: SpriteInstance, column: Int, row: Int) -> Bool {
+            let cell = layout.cell(item.sprite, frame: item.frame)
+            guard column >= 0, column < cell.width, row >= 0, row < cell.height else { return false }
+            let x = item.flipped ? cell.width - 1 - column : column
+            return layout.image[cell.x + x, cell.y + row].a > 128
+        }
+        func covers(_ item: SpriteInstance, x: Int, y: Int) -> Bool {
+            let column = x - Int(item.rect.x.rounded())
+            let row = y - Int(item.rect.y.rounded())
+            return item.tint.w > 0.9 && opaque(item, column: column, row: row)
+        }
+        var options = FrameOptions(flickerTime: 2.5)
+        options.look = .two
+        let world = PlaceholderScene.world(look: .two)
+        var checked = 0
+        var focus = 1200.0
+        while focus <= 2500 {
+            let desc = frame(timeOfDay: 0.5, focus: focus, options: options, scene: world)
+            let mid = desc.layer(.mid).sprites
+            if focus >= 1400 && focus <= 2300 {
+                XCTAssertTrue(desc.layer(.far).sprites.isEmpty, "the far plane shows inside the walls at \(focus)")
+                let cleft: Set<SpriteID> = [.throatStepC, .cleftWallA, .cleftWallB, .cleftWallC]
+                let centre = desc.targetWidth / 2
+                let row = desc.targetHeight / 2
+                XCTAssertTrue(mid.contains { cleft.contains($0.sprite) && covers($0, x: centre, y: row) },
+                              "the cleft wall stands behind the castle at \(focus)")
+            }
+            for plane in [Plane.far, .mid] {
+                let sprites = desc.layer(plane).sprites
+                for (index, item) in sprites.enumerated() where FrameBuilderTests.backdrops.contains(item.sprite) {
+                    guard item.tint.w > 0.5, item.source == nil else { continue }
+                    let left = Int(item.rect.x.rounded())
+                    let width = Int(item.rect.z)
+                    for (column, edge) in [(0, left), (width - 1, left + width - 1)] {
+                        guard edge > 0 && edge < desc.targetWidth - 1 else { continue }
+                        checked += 1
+                        let front = Array(sprites[(index + 1)...]) + (plane == .far ? mid : [])
+                        var open = 0
+                        for row in 0..<Int(item.rect.w) where opaque(item, column: column, row: row) {
+                            let y = Int(item.rect.y.rounded()) + row
+                            guard y >= 0 && y < desc.targetHeight else { continue }
+                            if !front.contains(where: { covers($0, x: edge, y: y) }) { open += 1 }
+                        }
+                        XCTAssertLessThanOrEqual(open, 2, "\(item.sprite) (\(plane)) ends in the view at column "
+                                                 + "\(edge) with \(open) open rows (camera centre \(focus))")
+                    }
+                }
+            }
+            focus += 20
+        }
+        XCTAssertGreaterThan(checked, 20, "ends were checked")
+    }
 }

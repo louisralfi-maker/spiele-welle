@@ -49,9 +49,12 @@ final class GloomFogTests: XCTestCase {
                                   options: options, entities: layer)
     }
 
-    /// The slices of the Gloom's fog on a plane (the hour's own fog is whole tiles).
+    /// The slices of the Gloom's fog on a plane (the hour's own fog is whole tiles); since the world rebuild a slice
+    /// beside a fire may be cut into halves or quarters (`FrameBuilder.gloomSubSlices`).
     private func slices(_ desc: FrameDesc, _ plane: Plane) -> [SpriteInstance] {
-        desc.layer(plane).sprites.filter { $0.source != nil && Int($0.rect.z) == FrameBuilder.gloomSlice }
+        desc.layer(plane).sprites.filter {
+            $0.source != nil && Int($0.rect.z) > 0 && FrameBuilder.gloomSlice % Int($0.rect.z) == 0
+        }
     }
 
     private func eyes(_ desc: FrameDesc) -> [EmissiveInstance] {
@@ -448,5 +451,34 @@ final class GloomFogTests: XCTestCase {
         XCTAssertEqual(DebugArgs(values: ["GWGloomFog": "thick"]).gloomFog, .auto, "an unknown value is ignored")
         XCTAssertTrue(DebugArgs.keys.contains("GWGloomFog"))
         XCTAssertNil(FrameOptions().gloom, "a frame built without the game's night has no fog")
+    }
+
+    // MARK: - World rebuild, step world-1 (B4)
+
+    /// Beside a fire the fog thins in small steps: no two neighbouring pieces of one strip differ in cover by more
+    /// than 30 % of the whole, and the slices are cut finer where the hole is steep.
+    func testTheFogThinsTowardAFireInSmallSteps() {
+        XCTAssertEqual(FrameBuilder.gloomSubSlices(0.02), 1)
+        XCTAssertEqual(FrameBuilder.gloomSubSlices(0.1), 2)
+        XCTAssertEqual(FrameBuilder.gloomSubSlices(0.3), 4)
+        let night = GameFrameSupport.demoNight(hour: 23.2)
+        let hard = GloomFog(hardness: 1)
+        var finer = 0
+        for focus in [560.0, 620, 700, 800] {
+            let desc = frame(night, focus: focus, gloom: hard)
+            for plane in [Plane.fogA, .fogB] {
+                let pieces = slices(desc, plane)
+                finer += pieces.filter { Int($0.rect.z) < FrameBuilder.gloomSlice }.count
+                let bySprite = Dictionary(grouping: pieces, by: \.sprite)
+                for (_, strip) in bySprite {
+                    let sorted = strip.sorted { $0.rect.x < $1.rect.x }
+                    for (a, b) in zip(sorted, sorted.dropFirst()) where a.rect.x + a.rect.z == b.rect.x {
+                        XCTAssertLessThanOrEqual(abs(a.tint.w - b.tint.w), Float(hard.paintCover) * 0.3 + 0.001,
+                                                 "a step in the fog at \(b.rect.x) (camera centre \(focus))")
+                    }
+                }
+            }
+        }
+        XCTAssertGreaterThan(finer, 0, "the slices beside the fires are cut finer")
     }
 }

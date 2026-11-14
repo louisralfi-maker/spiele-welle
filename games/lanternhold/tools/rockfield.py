@@ -104,9 +104,11 @@ class Massif:
             step = 1.5 + 4.5 * h01(self.seed, j, k, 10)
             if h01(self.seed, j, k, 11) < 0.32:
                 step = -(1.0 + 3.0 * h01(self.seed, j, k, 12))
-            s0 = 0.30 * h01(self.seed, j, k, 13) - 0.1
-            s1 = 1.1 - 0.4 * h01(self.seed, j, k, 14)
-            out.append((y, (h01(self.seed, j, k, 15) - 0.5) * 0.5, s0, s1, step))
+            # a ledge runs over a quarter to two thirds of its buttress, nearly level (long tilted ledges read as
+            # scratches across the face)
+            s0 = -0.05 + 0.5 * h01(self.seed, j, k, 13)
+            s1 = min(1.05, s0 + 0.25 + 0.4 * h01(self.seed, j, k, 14))
+            out.append((y, (h01(self.seed, j, k, 15) - 0.5) * 0.14, s0, s1, step))
             y += lo + (hi - lo) * h01(self.seed, j, k, 16)
             k += 1
         self.cache_ledges[j] = out
@@ -196,7 +198,7 @@ class Field:
 LIGHT = (-0.52, -0.66, 0.54)   # toward the light: west, up, out
 
 
-def shade(field, x, y, light=LIGHT, sky_fall=0.5, ambient=0.17):
+def shade(field, x, y, light=LIGHT, sky_fall=0.5, ambient=0.14):
     """The light on a rock pixel: 0 (black) ... about 1, and the normal's y (negative: the face looks up)."""
     z0 = field.at(x, y)
     zl = field.at(x - 1, y)
@@ -242,7 +244,7 @@ def shade(field, x, y, light=LIGHT, sky_fall=0.5, ambient=0.17):
     # the sky light falls off down the face (deep in the cleft); the up-facing faces take more of it
     t = y / float(field.h)
     sky = (1.0 - sky_fall * t ** 1.2) * (1.0 + 0.25 * max(0.0, -ny))
-    v = (ambient * ao + 0.86 * diff * lit * (0.85 + 0.15 * ao)) * sky
+    v = (ambient * ao + 0.92 * diff * lit * (0.85 + 0.15 * ao)) * sky
     return v, ny, lit
 
 
@@ -280,9 +282,10 @@ def paint(field, ramp_name, gain=1.0, lift=0.0, dither=0.45, snow_rows=0, snow_s
                 line = cold_rows * (0.35 + 0.65 * vnoise(seed * 71, gx / 23.0)) + 24 * max(0.0, v - 0.45)
                 if y < line - 12 or (y < line + 12 and bay(gx + 2, y + 1) < (line + 12 - y) / 24.0):
                     c = cold[k]
-            if snow_rows and y < snow_rows and ny < -0.32:
+            if snow_rows and y < snow_rows and ny < -0.42:
+                # snow lies in patches on the ledges that look up, more of it higher up
                 share = (snow_rows - y) / float(snow_rows)
-                if vnoise2(seed * 61, gx / 5.0, y / 3.0) < snow_share * share + 0.15 * (-ny):
+                if vnoise2(seed * 61, gx / 9.0, y / 4.0) < snow_share * share * 0.85 + 0.1 * (-ny) - 0.08:
                     c = snow[2] if (lit and v > 0.62) else snow[1] if v > 0.4 else snow[0]
             if rim and not field.inside(x, y - 1) and h01(seed, gx) < rim:
                 c = snow[1] if snow_rows and y < snow_rows else ramp[min(n - 1, k + 2)]
@@ -305,11 +308,12 @@ def thread(img, gx0, seed, gx, y0, y1, spray):
     y = y0
     while y < y1:
         if 0 <= x < img.w and img.get(x, y)[3]:
+            # mostly pale mist with brighter runs, broken where the water leaves the rock; it thins as it falls
             r = h01(seed, gx, y // 3, 39)
-            gap = h01(seed, gx, y // 9, 45) < 0.12
-            if r > 0.12 and not gap:
-                img.set(x, y, light if r > 0.62 else foam if r > 0.35 else mist)
-            if r > 0.8 and 0 <= x + 1 < img.w and img.get(x + 1, y)[3]:
+            gap = h01(seed, gx, y // 7, 45) < 0.16 + 0.2 * (y - y0) / max(1.0, y1 - y0)
+            if r > 0.15 and not gap:
+                img.set(x, y, foam if r > 0.86 else light if r > 0.55 else mist)
+            if r > 0.85 and 0 <= x + 1 < img.w and img.get(x + 1, y)[3]:
                 img.set(x + 1, y, mist)
         y += 1
         if h01(seed, gx, y, 41) < 0.018:

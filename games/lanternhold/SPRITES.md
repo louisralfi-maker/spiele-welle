@@ -235,19 +235,19 @@ docs/PORT-look2.md 1.7. Look 1's sprites that look 2 no longer draws stay in the
 | `d2FirBeltFar` | 520x40 | far | the low fir ridge at the wall's foot |
 | `valleyVista` | 448x160 | far | the valley's three ranges of fir slopes |
 | `shadowForest` | 224x104 | mid | the shadow land's forest edge (two copies join) |
-| `gorgeRock` | 448x211 | mid | the Throat's granite face before the castle |
-| `cleftFace`, `cleftFaceEnd` | 448x218, 240x218 | mid | the cleft's inner face behind the castle and its end toward the valley |
+| `gorgeRock` | 448x211 | mid | the Throat's granite face before the castle (retired by the world rebuild: `tools/retired-art`, the old walls' granite) |
+| `cleftFace`, `cleftFaceEnd` | 448x218, 240x218 | mid | the cleft's inner face behind the castle and its end toward the valley (retired by the world rebuild) |
 | `d2TreeBelt` | 520x58 | mid | the tree belt along the valley floor |
-| `gorgeCrags` | 160x200 | near | five crags before the face's edge |
+| `gorgeCrags` | 160x200 | near | five crags before the face's edge (retired by the world rebuild) |
 | `firA`, `firB`, `firC`, `firD` | 29x130, 30x118, 34x106, 27x84 | near | the shadow land's firs |
 | `deadTreeA`, `deadTreeB` | 17x72, 17x70 | near | bare trees |
 | `linden`, `poplar`, `appleTree`, `willow` | 52x92, 14x116, 42x48, 52x68 | near | the town's trees |
-| `cleftFlank`, `cleftFlankB`, `cleftThroat` | 80x240, 80x240, 192x240 | world | the cleft's rock at the castle, in the shapes and places of `cliffFlank`, `cliffFlankB` and `throatRock` |
+| `cleftFlank`, `cleftFlankB`, `cleftThroat` | 80x240, 80x240, 192x240 | world | the cleft's rock at the castle, in the shapes and places of `cliffFlank`, `cliffFlankB` and `throatRock` (retired by the world rebuild: nothing stands on the walk line) |
 | `d2BushA`, `d2BushB` | 30x15, 22x12 | world, z -3 | bushes behind the actors |
 | `d2LaneEnd` | 48x30 | world | the grassy bank where the lane ends at the river |
 | `laneMoorA…D`, `laneScreeA…D`, `laneCobbleA…D`, `laneEarthA…D` | 64x26 each | world | the lane's tiles: moor from x -64, scree from 448, cobble from 1240, earth from 2430; the variant by a hash of the tile index |
 | `d2FgFerns`, `d2FgMeadow`, `d2FgReeds` | 480x64, 480x58, 160x40 | foreground | the shadow land's ferns, the valley's meadow, the river's reeds |
-| `d2FogBank`, `d2MistBand`, `d2FogLow` | 384x40, 448x60, 320x24 | fog A, mist band, fog B | the three fog banks, alpha masks |
+| `d2FogBank`, `d2MistBand`, `d2FogLow` | 384x40, 448x60, 320x24 | fog A, mist band, fog B | the three fog banks, alpha masks (repainted by the world rebuild: feathered tiles that overlap by 64 px) |
 | `d2Smoke` | 26x50 | world | chimney smoke, an alpha mask |
 | `d2Fireflies`, `d2Sparks` | 96x30, 14x24 | world, additive | fireflies in the valley at dusk; a brazier's sparks |
 
@@ -658,3 +658,23 @@ the interface's ink and gold (docs/UI-look.md) that floats above a thing the lor
 - **Texture space:** the six strips (180x18 together) lie on the hall's second page.
 - **Open, for the lead:** the tax lectern has no mark of its own. Odile stands at it, so her `tapTalk` can lead to
   the tithe; a seventh mark with a coin is a quarter of an hour of art if wanted.
+
+<!-- BEGIN world lane: world rebuild, step world-1 -->
+## The rock and the fog (world rebuild, step world-1, 14.11.2026; ART-look2.md section 21)
+
+In `SpriteID` (look 2 only). Painted by `tools/cleftart.py` on `tools/rockfield.py` (the granite as a lit height
+field) and by `tools/fogart.py`; `tools/build-art-world.sh` rebuilds them byte for byte. Light from the upper left.
+
+| id | size | plane | where (x in the plane's own px) | notes |
+|---|---|---|---|---|
+| `throatStepA` | 224x104 | mid, ground, y -4 | 360 | the Throat's far wall where it begins: low (88 rows at most), far and pale (`far` ramp), its west talus paling into the mist |
+| `throatStepB` | 224x176 | mid, ground, y -4 | 450 | the second step, darker and taller (`stone` ramp), the warden statue's niche at x 568; its east end sinks under C |
+| `throatStepC` | 224x200 | mid, top-anchored | 600 | the third step, the cleft's own granite: a crag falls to the lane at its west end, then it fills the sky behind the gatehouse |
+| `cleftWallA`, `cleftWallB`, `cleftWallC` | 256x200, 256x200, 192x200 | mid, top-anchored | 824, 1080, 1336 | the cleft's far wall behind the whole castle, with C one painting cut in four (no join shows): a jagged slit of sky in the top 24 rows, buttresses, chimneys, ledges with snow up high, the slit's cold slate light on the face's top dithering into the warm granite, threads of water at 902, 1131 and 1268; C steps down to the valley floor by 1528 |
+| `cleftShaft` | 64x200 | mid, top-anchored, z 4 | 1104 | `#FFFFFF` alpha mask in eight levels: the cold shaft of light through the slit, drawn at the sun's strength (`Prop.sunShaft`) |
+| `gateRockL`, `gateRockR` | 72x60, 56x50 | world, z 1 | castle front − 40, + 206 (tier 3: 11 and 12 px further out) | the granite plinths the towers grow out of (H2), highest at each tower's outer edge |
+| `bankSheetA`, `bankSheetB`, `bankSheetC` | 256x220, 256x176, 256x96 | fog A, world, fog B | laid every 100 px westward from the bank's edge (`FrameBuilder.bankSheets`) | the darkness bank in the night's colours: a 48 px west feather, a core, a leading face that leans out at the foot; the core's top and the face swirled by noise into billows and wisps, the cover growing over 14 to 22 px in eight dithered steps; the east end clear |
+
+The far castle in the Weltmauer's first slot is gone (`cleftart.py noslot`), and the Weltmauer's first 320 columns
+sink into a bank of painted mist toward the west (`cleftart.py mistleft`).
+<!-- END world lane: world rebuild, step world-1 -->
