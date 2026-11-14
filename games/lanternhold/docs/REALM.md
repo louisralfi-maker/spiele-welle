@@ -51,6 +51,10 @@ section 3 is the number, this is its picture.
 
 ## 3. Being there counts (the night)
 
+- **One front** (Louis, 14.11. 14:45; DESIGN.md says it too: one front, on the left). The Gloom comes only out of the
+  gorge, so the night is never a run between two walls. At dusk the lord goes to the wall and stands with his people.
+  His moves are in depth along that one line: forward to the outer line or the furthest beacon, at the gate, or back
+  into the yard when something got through (crows over the wall, a breach). One or two such moves a night.
 - **Presence.** At night defenders within about 90 px of the lord loose and strike 15 % faster and take 20 % less harm.
 - **Braziers.** A dead brazier he passes within about 20 px is relit from his lantern, free (at most one in 4 s). The
   old "Light" action goes.
@@ -59,8 +63,8 @@ section 3 is the number, this is its picture.
   presence.
 - **Raise the lantern** (the stage lane's notes, item 3) stays as it is: the two do not share state.
 - **The picture** (after the join): people near him straighten and shout, a warm rim on them. No HUD.
-- **Bots and targets.** The reference bots get no presence, so T1 to T8 hold line for line. A new "present" bot walks
-  to the wall the wave lands on. **T13:** over nights 3 to 14 it loses 25 to 40 % fewer defenders than the reference,
+- **Bots and targets.** The reference bots get no presence, so T1 to T8 hold line for line. A new "present" bot goes
+  to the wall at dusk and stays with the defenders. **T13:** over nights 3 to 14 it loses 25 to 40 % fewer defenders than the reference,
   and presence never wins a night the reference loses clearly.
 
 ## 4. The hearth (losing)
@@ -101,16 +105,16 @@ The director's own reading on 14.11. (the hits as a bar for craft, never a model
 
 | thin today | what the hits do | our answer |
 |---|---|---|
-| the night plays itself | the night tests the day and the player is in it | sections 3 and 4, raise the lantern, the flame leans |
+| the night plays itself | the night tests the day and the player is in it | sections 3 and 4, raise the lantern, the flame shows the danger |
 | the day has no pressure | the day is too short for everything | taxes on foot, the knock, feeding the hearth, the beacon to relight |
 | nothing in front, nothing to find | the map opens piece by piece | section 5; fields and farmsteads behind |
 | growth ends early | every session leaves something visibly bigger | section 2 |
 | a lost night is all or nothing | a loss costs something you love and you go on | section 4 |
 | judgments echo too quietly | a choice comes back with a face | the ledger; the people remember (build 3) |
 | no way in | the first minute teaches by doing | the title is the world, the first sootling, Odile's counsel |
-| long walks | short ways or a mount | the lord hurries; the collector later |
+| long walks | short ways or a mount | the lord hurries; the collector from the first day |
 
-Open questions the director watches: whether presence makes the night a chore (running back and forth) and whether
+Open questions the director watches: whether presence makes the night a chore (too many moves along the one line) and whether
 taxes on foot cost too much of a 156 s day. Both are judged on the device with build 2.
 
 ## 7. Builds and lanes

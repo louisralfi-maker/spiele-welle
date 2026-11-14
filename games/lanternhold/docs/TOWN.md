@@ -21,7 +21,7 @@ DESIGN.md "Taxes" for the player's side. The numbers are starting values: the la
 1. **Demanding more happens at the house.** "Wenn man nachfordert und auf die Tür drückt, klopft der König dran."
 2. **Craftsmen offer works that are beautiful and useful:** every work is seen in the world and does one small thing.
 3. **Build 2 (Monday 16.11.2026)** has the taxes on foot and no tax menu. **Build 3** (some days later) has the
-   treasury with the collector, the growing town and the craftsmen.
+   treasury, the growing town and the craftsmen. (14:45: the collector moves into build 2, section 2.)
 
 ## 1. Taxes on foot (build 2)
 
@@ -95,7 +95,22 @@ DESIGN.md "Taxes" for the player's side. The numbers are starting values: the la
   T3 with normal tax, T5 to T8: `TownNeutralityTests`). T3 with low tax and T4 moved by the bots' new habits only:
   see the lane notes (`docs/lanes/town.md`) for the numbers before and after.
 
-## 2. The treasury and the collector (build 3)
+## 2. The collector (build 2) and the treasury (build 3)
+
+**Changed 14.11.2026 14:45.** Louis: "Wir können auch direkt 'nen Steuereintreiber einstellen. Aber wir können trotzdem
+auch nochmal extra eintreiben. Morgens geht der Steuereintreiber los, bringt es zurück." So:
+
+- The collector needs no treasury and can be hired **from the first day**. He offers himself at the first audience,
+  as the craftsmen do: one coin in eight. He comes into build 2.
+- At dawn he sets out from the hall door with his strongbox on a handcart, walks every door and is back by noon. The
+  player sees him go and come back; the gold arrives when he does.
+- **The lord can still collect himself.** A house he reaches before the collector pays him in full. The knock
+  (demanding more) stays his own deed, also at a house the collector has already been to.
+- A touch on the collector at his post by the hall door sends him away or takes him on again, from the next morning.
+- Walking the town is therefore a choice and never a duty: it saves the wage and it is the only way to demand more.
+
+What follows is the first plan; where it differs, the lines above win.
+
 
 - **Treasury:** built once at the castle (about 90 gold, from day 5). Gold is seen there: chests and piles that grow
   with the purse.
@@ -204,3 +219,19 @@ are the people lane's work (`docs/PEOPLE.md`, branch `claude/lh-people`).
 - The farmer does not toss: he leaves his hoe, comes to the fence and counts his coins out of a knotted cloth into the
   lord's hand.
 - A noble guest never pays himself: his footman does.
+
+## 7. The lamplighter (Louis, 14.11.2026 14:45)
+
+"Abends wär noch einer cool, der wie im alten Prag mit diesen langen Kerzen die Straßenlaternen anmacht."
+
+- The town has a lamplighter with a name: a townsman and a figure of his own. (Changed 14.11. 15:05: the lord's house
+  never were lamplighters, `docs/HOUSE.md` section 1.) Each evening he lights his pole at the hearth in the hall and
+  carries the house's light out into the street. The people lane draws and names the figure.
+- One hour before the horn (18:00) the lamplighter leaves the castle gate with a long lighting pole and lights the
+  street lanterns one by one down the road; the last one burns as the horn sounds. Each gives a small warm pool.
+- At first light the same walk back, putting them out with the snuffer on the pole.
+- This is the evening's clock: when the lamplighter walks, the day is ending. No clock on the HUD.
+- The town starts with about four lanterns. The lamp-maker's work (section 4) adds more, out to the fields.
+- In unrest (happiness below 15) nobody lights them: the street stays dark.
+- Picture only. One small rule is kept for build 3 if it stays one value: in a broken night (REALM.md section 4) a
+  town with its lanterns lit loses one house fewer.
