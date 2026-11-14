@@ -28,6 +28,7 @@ import slide_open  # noqa: E402
 import slide_open1  # noqa: E402
 import slide_ride  # noqa: E402
 import slide_shut  # noqa: E402
+import slide_shutgate  # noqa: E402
 import slide_throat  # noqa: E402
 import slide_town  # noqa: E402
 import slide_wall  # noqa: E402
@@ -40,7 +41,7 @@ SLIDES = {"slidePrologue1": slide_wall.slide1, "slidePrologue2": slide_throat.sl
           "slidePrologue4Lady": lambda: slide_hall.slide4("lady")}
 # The endings (panels-2): slide_open.py, slide_shut.py, slide_gutter.py, three slides each (two of them twice, for the
 # lord and the lady).
-for _module in (slide_open, slide_open1, slide_shut, slide_gutter, slide_town):
+for _module in (slide_open, slide_open1, slide_shut, slide_shutgate, slide_gutter, slide_town):
     SLIDES.update(_module.SLIDES)
 
 

@@ -3,8 +3,8 @@ not fall. Its light is a cold grey first light, the colour of ash and frost; one
 
   slideShut1   the Lightless King, the game's own figure, walking back into the Gloom's fog at first light with the
                snuffer; the faint smoke folk going with him; the outer line's broken wall behind, a brazier smoking
-  slideShut2   on the wall in the grey morning: a grey lantern standing on the coping, still burning (Seren's, if she
-               was handed over; the leaning and the houses are said under it)
+  slideShut2   (slide_shutgate.py) Seren's grey lantern in a crenel in the grey morning, or the shut gate with the
+               house's wet banners (slideShut2Gate) when she was not handed over
   slideShut3   Bram, stooped, before the herald's banner on its rack: half still black with soot, half washed, and
                under the black in gold thread our lantern beneath half a sun
 
@@ -262,77 +262,7 @@ def grey_lantern(lay, cx, base, sc):
     lay.ellipse(cx, cap_top - 3 * sc, 1.4 * sc, 1.2 * sc, P("mist"))
 
 
-def slide2():
-    c = Canvas(P("mist"))
-    # the grey morning over the Throat seen from the wall: fog filling it in soft long bands
-    ramp = ["mistLight", "mist", "mistDark", "far", "farDeep"]
-    for y in range(0, H):
-        for x in range(W):
-            v = abs(y - 72) / 62.0 + (fbm(x * 0.006, y * 0.04, 1201, 3) - 0.5) * 0.5
-            c.c[y][x] = P(ramp[max(0, min(4, int(v * 3.0)))])
-    for (side, seed) in ((-1, 1203), (1, 1205)):
-        for y in range(0, 120):
-            edge = 46 + 24 * fbm(y * 0.03, 0.5, seed, 2) - y * 0.1
-            for kk in range(int(edge)):
-                x = kk if side < 0 else W - 1 - kk
-                d = edge - kk
-                c.c[y][x] = P("mistDark" if d < 2 else "far" if d < 14 else "farDeep")
-    # far off in the middle the Great Beacon, cold, its bowl empty
-    tower = Layer()
-    tx, tb = 222, 94
-    tower.poly([(tx - 4, tb), (tx + 4, tb), (tx + 3, tb - 24), (tx - 3, tb - 24)], P("far"))
-    tower.poly([(tx - 8, tb - 29), (tx + 8, tb - 29), (tx + 5, tb - 25), (tx - 5, tb - 25)], P("far"))
-    tower.paste(c)
-    # the wall walk's coping running away from us to the right: big stones, their tops frosted, the face in shade
-    back = lambda x: 116 - x * 0.03  # noqa: E731
-    front = lambda x: 146 - x * 0.12  # noqa: E731
-    vp_x = 900.0
-    for x in range(W):
-        bt, ft = back(x), front(x)
-        for y in range(int(bt), H):
-            if y < ft:
-                # the top: joints running toward the far end
-                col = "stonePale" if y < bt + 1 else "stoneLight"
-            elif y < ft + 1:
-                col = "stone"
-            else:
-                col = "stoneMid" if y < ft + 14 else "stoneDark"
-            c.c[y][x] = P(col)
-    # the joints between the coping stones, each a clean dark line from the front edge back toward the far end
-    for jx in (18, 132, 222, 290):
-        for y in range(int(back(jx)), int(front(jx))):
-            t = (y - back(jx)) / max(1.0, front(jx) - back(jx))
-            x = int(round(jx + (t - 0.5) * 6))
-            if 0 <= x < W:
-                c.c[y][x] = P("stoneMid")
-        for y in range(int(front(jx)) + 1, H):
-            x = int(round(jx + 3))
-            if 0 <= x < W:
-                c.c[y][x] = P("night1")
-    # frost lying in little drifts on the coping, an arrow left there
-    for f in range(14):
-        fx = int(h1(f, 1215) * 300) + 10
-        fy = int(back(fx) + 2 + h1(f, 1216) * (front(fx) - back(fx) - 4))
-        for d in range(2 + int(h1(f, 1217) * 4)):
-            if 0 <= fx + d < W:
-                c.c[fy][fx + d] = P("foam")
-    for i in range(22):
-        x = 148 + i
-        c.c[int(front(x)) - 4 - i // 8][x] = P("wood" if i < 18 else "stoneMid")
-    # a raven further along the wall, turned toward the lantern
-    rx = 262
-    cluster(c, rx, int(back(rx)) - 2, ["...kk..", "..kkkk.", "kkkkkkk", ".kkkkkk", "..k.k.."], {"k": "night0"})
-    # the grey lantern standing on the coping near us, its cold light pale on the frost round its foot
-    lx, lb = 84, 132
-    for y in range(int(back(lx)), int(front(lx))):
-        for x in range(30, 140):
-            d = math.hypot((x - lx) / 46.0, (y - lb + 1) / 7.0)
-            if d < 1 and c.c[y][x] in (P("stoneLight"), P("stonePale"), P("foam"), P("stoneMid")):
-                c.c[y][x] = P("foam") if d < 0.42 else P("mistLight")
-    lan = Layer()
-    grey_lantern(lan, lx, lb, 1.7)
-    lan.paste(c)
-    return c.finish(S2_ALLOWED, protect=("wraithWhite", "wraithGlow", "foam", "stonePale"))
+# slideShut2 itself lives in slide_shutgate.py (fix round 1), with slideShut2Gate; grey_lantern stays here.
 
 
 # --- slide 3: Bram and the herald's banner --------------------------------------------------------------------------
@@ -512,6 +442,5 @@ def slide3():
 
 SLIDES = {
     "slideShut1": slide1,
-    "slideShut2": slide2,
     "slideShut3": slide3,
 }
