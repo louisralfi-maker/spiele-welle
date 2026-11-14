@@ -3,9 +3,10 @@ import XCTest
 
 /// The ads with the stub (`-GWAdStub YES`: a rewarded "video" ends at once and grants, an interstitial ends at once;
 /// DESIGN.md "Ads"): each rewarded offer names its reward, is 44 pt or more, and its reward lands (double taxes in the
-/// dawn report, the second chance on the defeat card, Marek's gift on his card); a real dawn on day 9 brings the
-/// interstitial on Continue; without ads no offer shows. English in the ui round, German in ui-de. Shots
-/// `ads-<nn>-<what>-<lang>`. The stub's count is in `ads-log`'s value ("rewarded:1 interstitial:0 verdict:…").
+/// dawn report of a real dawn, the second chance on the defeat card, Marek's gift on his card); the dawn a second
+/// chance brought offers no second video; a real dawn on day 9 brings the interstitial on Continue; without ads no
+/// offer shows. English in the ui round, German in ui-de. Shots `ads-<nn>-<what>-<lang>`. The stub's count is in
+/// `ads-log`'s value ("rewarded:1 interstitial:0 verdict:…").
 @MainActor
 final class AdsUITests: XCTestCase {
     override func setUp() async throws {
@@ -21,30 +22,39 @@ final class AdsUITests: XCTestCase {
     func testDoubleTaxes() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
-        app.launchArguments = stub + ["-GWScreen", "report", "-GWDay", "8", "-GWCameraX", "1100"]
+        // Night 8 played to 05:54: the dawn of day 9 (no story beat) comes live with the realm's own taxes.
+        app.launchArguments = stub + ["-GWNight", "8", "-GWBuild", "demo", "-GWHour", "5.9", "-GWCameraX", "1100"]
         app.launch()
         guard waitUntilReady(app, name: "ads-double") else { return }
+        XCTAssertTrue(element(app, "report-root").waitForExistence(timeout: 30), "the dawn report of day 9")
         let offer = element(app, "report-ad-double")
         XCTAssertTrue(offer.waitForExistence(timeout: 10), "the report offers double taxes")
         checkTarget(offer, "double taxes")
-        XCTAssertEqual(reward(offer.label), 64, "the button names its reward: the sample's 64 gold (\(offer.label))")
+        XCTAssertFalse(offer.label.contains("+"), "a flag for the day: no dawn sum on the button (\(offer.label))")
+        let treasury = element(app, "report-treasury")
+        let before = number(treasury)
+        XCTAssertGreaterThan(before, 0, "the report's treasury")
         pause(0.6)
         attach(XCUIScreen.main.screenshot(), "ads-01-double-offer-\(language)")
         offer.tap()
         let done = element(app, "report-ad-doubled")
-        XCTAssertTrue(done.waitForExistence(timeout: 6), "the taxes came in again")
-        XCTAssertFalse(offer.exists, "the offer gives way to what came in")
-        let treasury = Int((done.value as? String) ?? "") ?? -1
+        XCTAssertTrue(done.waitForExistence(timeout: 6), "today every tax counts twice")
+        XCTAssertFalse(offer.exists, "the offer gives way to the note")
+        // Until the town's taxes on foot read the flag, the day's taxes come in once more: the report's one treasury
+        // figure counts up.
+        XCTAssertTrue(waitForNumber(treasury, above: before, timeout: 4), "the treasury counts up (\(number(treasury)))")
+        let after = number(treasury)
         XCTAssertTrue(log(app).contains("rewarded:1"), log(app))
-        pause(0.5)
+        pause(1.4)
         attach(XCUIScreen.main.screenshot(), "ads-02-double-done-\(language)")
         element(app, "report-continue").tap()
         XCTAssertTrue(waitForGone(element(app, "report-root"), timeout: 6), "Continue starts the day")
         let gold = element(app, "hud-gold")
         XCTAssertTrue(gold.waitForExistence(timeout: 6))
-        XCTAssertTrue(waitForValue(gold, "\(treasury)", timeout: 4),
-                      "the HUD has the gold that landed (\(gold.value as? String ?? "?") for \(treasury))")
+        XCTAssertTrue(waitForValue(gold, "\(after)", timeout: 4),
+                      "the HUD has the treasury the report showed (\(gold.value as? String ?? "?") for \(after))")
         XCTAssertTrue(log(app).contains("interstitial:0"), "never right after a rewarded video: \(log(app))")
+        XCTAssertTrue(log(app).contains("verdict:afterRewarded"), log(app))
         app.terminate()
     }
 
@@ -67,6 +77,8 @@ final class AdsUITests: XCTestCase {
         XCTAssertTrue(element(app, "report-banner").exists, "the report says a second chance brought the dawn")
         XCTAssertTrue(log(app).contains("rewarded:1"), log(app))
         pause(0.6)
+        XCTAssertFalse(element(app, "report-ad-double").exists,
+                       "one video per dawn (and day 4 is a story dawn): no double taxes after the second chance")
         attach(XCUIScreen.main.screenshot(), "ads-04-second-chance-dawn-\(language)")
         element(app, "report-continue").tap()
         XCTAssertTrue(waitForGone(report, timeout: 6))
@@ -154,6 +166,20 @@ final class AdsUITests: XCTestCase {
         guard let plus = label.firstIndex(of: "+") else { return -1 }
         let digits = label[label.index(after: plus)...].prefix { $0.isNumber }
         return Int(digits) ?? -1
+    }
+
+    /// An element's value as a number (the report's treasury), -1 when it has none.
+    private func number(_ element: XCUIElement) -> Int {
+        Int((element.value as? String) ?? "") ?? -1
+    }
+
+    private func waitForNumber(_ element: XCUIElement, above floor: Int, timeout: TimeInterval) -> Bool {
+        let started = Date()
+        while Date().timeIntervalSince(started) < timeout {
+            if number(element) > floor { return true }
+            pause(0.3)
+        }
+        return false
     }
 
     private func log(_ app: XCUIApplication) -> String {
