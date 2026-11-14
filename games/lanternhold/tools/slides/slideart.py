@@ -714,7 +714,8 @@ def slide3():
     # the moon behind the high cloud
     c.halo(236, 22, 26, hexc("#4A5498"), 0.35, steps=0)
     c.disc(236, 22, 7, P("foam"))
-    c.disc(238, 21, 2, P("farPale"))
+    for (x, y) in ((233, 20), (234, 20), (238, 24), (239, 23), (235, 25)):
+        c.put(x, y, mix(P("foam"), P("farPale"), 0.6))
     moonlit_clouds(c)
     # far ridge and a row of firs behind the fog
     ridge = [HORIZON - 16 - 8 * fbm(x * 0.012, 0.3, 311, 3) for x in range(W)]
