@@ -356,6 +356,7 @@ private struct SceneBuilder {
         case .fireOrange: return GamePalette.fireOrange
         case .window: return windowColor
         case .cleft: return cleftColor
+        case .moon: return GamePalette.moon
         }
     }
 
@@ -390,7 +391,7 @@ private struct SceneBuilder {
         for emitter in entry.emitters {
             switch emitter {
             case let .sprite(sprite, dx, dy, glow, fades):
-                let isWindow = glow == .window || glow == .cleft
+                let isWindow = glow == .window || glow == .cleft || glow == .moon
                 var seed: UInt64?
                 if !isWindow {
                     seed = parts.count < seeds.count ? seeds[parts.count] : nextLightSeed()

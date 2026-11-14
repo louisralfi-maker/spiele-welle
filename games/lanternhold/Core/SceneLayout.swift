@@ -24,6 +24,8 @@ enum SceneLayout {
         case fireWhite, fireGold, fireOrange, window
         /// Look 2: the cold light in the Weltmauer's cleft (steady, like a window).
         case cleft
+        /// World rebuild, fix round 1: the moon in the wedge of sky over the bailey (steady, at night).
+        case moon
     }
 
     /// A light in the instance's plane coordinates.

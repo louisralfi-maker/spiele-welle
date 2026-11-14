@@ -184,12 +184,19 @@ extension SceneLayout {
     static let look2Rock: [(plane: Plane, entry: Entry)] = [
         (.mid, Entry(sprite: .throatStepA, x: look2StepX[0], y: -4, z: 0, region: .gorge)),
         (.mid, Entry(sprite: .throatStepB, x: look2StepX[1], y: -4, z: 2, region: .gorge)),
-        (.mid, Entry(sprite: .throatStepC, x: look2StepX[2], y: 0, z: 3, anchor: .top, region: .castle)),
+        // Fix round 1 (the director: "the castle's light is seen on the rock"): a backdrop light behind the
+        // gatehouse's top warms the rock beside and above the towers at dusk and night.
+        (.mid, Entry(sprite: .throatStepC, x: look2StepX[2], y: 0, z: 3, anchor: .top, region: .castle,
+                     lights: [Light(kind: .lantern, x: 790, y: 128, radius: 104)])),
         // The castle's warm light grazes the wall at dusk and night: lanterns of the mid plane behind the bailey's
         // forge, the keep's door, the chapel, the kitchen and the back gate (mid x `109.25 + world / 2`; backdrop
         // lights: they light the picture only), their pools centred over the roofs (the buildings stand 60 to 80
         // rows high), so the warmth shows on the rock above them.
+        // Fix round 1: at night the moon stands in the wedge of sky over the bailey (mid 1010: seen from world 1600
+        // to 2100), its top six rows under the wall's top.
         (.mid, Entry(sprite: .cleftWallA, x: look2CleftX[0], y: 0, z: 3, anchor: .top, region: .castle,
+                     emitters: [.sprite(.moon, dx: look2SlitMoonX - look2CleftX[0] - 7, dy: 180, glow: .moon,
+                                        fades: true)],
                      lights: [Light(kind: .lantern, x: 884, y: 92, radius: 96),
                               Light(kind: .lantern, x: 1024, y: 98, radius: 104)])),
         (.mid, Entry(sprite: .cleftWallB, x: look2CleftX[1], y: 0, z: 3, anchor: .top, region: .castle,
@@ -206,17 +213,20 @@ extension SceneLayout {
     static let look2CleftX: [Double] = [824, 1080, 1336]
     static let look2CleftEnd = 1528.0
     static let look2ShaftX = 1104.0
-    static let look2ShaftShare: Float = 0.85
+    /// The middle of the wedge of sky over the bailey, where the moon stands at night (tools/cleftart.py `WEDGES`).
+    static let look2SlitMoonX = 1010.0
+    static let look2ShaftShare: Float = 1.0   // fix round 1: a stronger shaft (0.85 before)
 
-    /// The granite the gatehouse's towers grow out of (H2, tools/cleftart.py): a plinth at each tower's outer foot,
-    /// in front of the tower, highest right at its outer edge (world 1249 and 1470) and falling under the tower in a
-    /// ragged stair, so the masonry climbs out of the rock. Tier 3's drums stand 11 px (west) and 12 px (east) further
-    /// out, and the rock with them.
+    /// The granite the gatehouse's towers grow out of (H2, tools/cleftart.py): a shoulder of bedrock at each tower's
+    /// outer foot, in front of the tower, highest at its outer edge (world 1249 and 1470), bulging past it and
+    /// climbing over the tower's foot in ledges with a course of ashlar on each, so the masonry steps down into the
+    /// rock (fix round 1: wider, up to a third of the tower's height). Tier 3's drums stand 11 px (west) and 12 px
+    /// (east) further out, and the rock with them.
     static func look2GateRock(front: Double, tier: Int) -> [Entry] {
         let west = tier == 3 ? 11.0 : 0
         let east = tier == 3 ? 12.0 : 0
-        return [Entry(sprite: .gateRockL, x: front - 40 - west, y: 0, z: 1),
-                Entry(sprite: .gateRockR, x: front + 206 + east, y: 0, z: 1)]
+        return [Entry(sprite: .gateRockL, x: front - 54 - west, y: 0, z: 1),
+                Entry(sprite: .gateRockR, x: front + 196 + east, y: 0, z: 1)]
     }
 
     /// The old walls' canvas (and the anchors'): a line's wall begins 28 px right of its left edge, and its bottom

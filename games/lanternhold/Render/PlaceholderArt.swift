@@ -49,7 +49,7 @@ enum PlaceholderArt {
              .laneEarthD:
             frames = [ground(salt)]
         case .d2FogBank, .d2MistBand, .d2FogLow, .d2Smoke, .gloomFogBack, .gloomFogMid, .gloomFogFront, .gloomWisp,
-             .cleftShaft, .bankSheetA, .bankSheetB, .bankSheetC, .bankEnd, .cloudDeck:
+             .cleftShaft, .bankSheetA, .bankSheetB, .bankSheetC, .bankEnd, .cloudDeck, .cleftWater:
             frames = [mistBank(salt, size: size)]
         case .farCastleGlow, .farCleftGlow, .farCleftGlowBack, .farCastle2Glow, .farCastle3Glow, .farCastleBack2Glow,
              .farCastleBack3Glow, .farCleftGlow2, .farCleftGlow2Build, .farCleftGlow3, .farCleftGlow3Build,

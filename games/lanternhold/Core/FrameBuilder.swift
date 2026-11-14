@@ -189,6 +189,11 @@ enum FrameBuilder {
                         geometry: geometry, sprites: &planeSprites, glow: &glow)
                 next += 1
             }
+            if plane == .mid && options.look == .two {
+                // Fix round 1: the threads of water falling down the cleft wall, in front of it.
+                planeSprites[plane.rawValue] += cleftWater(animTime: animTime, reduceMotion: options.reduceMotion,
+                                                           geometry: geometry)
+            }
             if rains && plane == .near {
                 planeSprites[plane.rawValue] += rainStreaks(depth: 0, animTime: animTime, ambient: ambient,
                                                             geometry: geometry)
@@ -385,13 +390,12 @@ enum FrameBuilder {
             let size = SpriteID.moon.size
             let centre = Double(width) * 0.72
             let lift = Int((Double(ambient.moonHeight) * 90).rounded())
-            var top = max(2, ground - 70 - lift)
-            if cleft > 0 {
-                // World rebuild: in the cleft the sky is a slit at the screen's top, and the moon stands in it.
-                top = Int((Double(top) + (Double(cleftMoonTop) - Double(top)) * cleft).rounded())
-            }
+            let top = max(2, ground - 70 - lift)
             let left = Int(centre.rounded()) - size.width / 2
-            let alpha = min(1, max(0, ambient.moonHeight * 3 + 0.3)) * veil
+            // World rebuild, fix round 1: inside the walls the sky is two wedges between the rock, and the moon stands
+            // in the one over the bailey (an emitter of the cleft wall, `SceneLayout.look2Rock`); the open sky's
+            // moon gives way to it.
+            let alpha = min(1, max(0, ambient.moonHeight * 3 + 0.3)) * veil * Float(1 - cleft)
             let moon = GamePalette.moon
             let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
             let color = SIMD4<Float>(moon.x, moon.y, moon.z, alpha)
@@ -797,15 +801,35 @@ enum FrameBuilder {
         return SpriteInstance(sprite: .bankEnd, frame: 0, rect: rect, tint: SIMD4<Float>(0, 0, 0, 1), flipped: false)
     }
 
-    /// How deep the camera stands in the cleft (0 outside ... 1 between the gatehouse and the back gate): the moon
-    /// moves into the slit of sky and the sun stands behind the rock.
+    /// The cleft's threads of water (fix round 1; tools/cleftart.py `WATER`): each thread's mid x and the row of its
+    /// crack under the wall's top (the wall is anchored at the screen's top, so the row is the screen's).
+    static let cleftThreads: [(x: Double, row: Double)] = [(902, 44), (1131, 36), (1268, 52)]
+
+    /// The water falling down the cleft wall from each crack to its spray: `cleftWater` scrolling down at six frames a
+    /// second, still with Reduce Motion.
+    private static func cleftWater(animTime: Double, reduceMotion: Bool, geometry: Geometry) -> [SpriteInstance] {
+        let size = SpriteID.cleftWater.size
+        let frames = SpriteID.cleftWater.frameCount
+        let frame = reduceMotion ? 0 : Int((max(0, animTime) * 6).rounded(.down)) % frames
+        let whole = geometry.whole(.mid)
+        var list: [SpriteInstance] = []
+        for thread in cleftThreads {
+            let left = thread.x - 1 - whole
+            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
+            let rect = SIMD4<Float>(Float(left), Float(thread.row + 1), Float(size.width), Float(size.height))
+            list.append(SpriteInstance(sprite: .cleftWater, frame: frame, rect: rect, tint: SIMD4<Float>(1, 1, 1, 1),
+                                       flipped: false))
+        }
+        return list
+    }
+
+    /// How deep the camera stands in the cleft (0 outside ... 1 between the gatehouse and the back gate): the open
+    /// sky's moon gives way to the one in the wedge of sky and the sun stands behind the rock.
     static func cleftShare(focus: Double) -> Double {
         let enter = AmbientRamp.smoothstep((focus - 1240) / 140)
         let leave = AmbientRamp.smoothstep((focus - 2300) / 160)
         return enter * (1 - leave)
     }
-    /// The moon's top row while it stands in the cleft's slit (its lower part hides behind the slit's teeth).
-    static let cleftMoonTop = 3
 
     /// The alpha of a shaft of light: the sun's strength (as the cast shadows', `sunShadowAlpha`) times its share.
     static func sunShaftAlpha(_ share: Float, ambient: AmbientSample) -> Float {

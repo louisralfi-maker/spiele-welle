@@ -119,8 +119,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     case throatStepA, throatStepB, throatStepC, cleftWallA, cleftWallB, cleftWallC, cleftShaft
     case gateRockL, gateRockR, bankSheetA, bankSheetB, bankSheetC
     // World rebuild, fix round 1 (SPRITES.md "The rock and the fog"): where the world ends the dark is whole (fog B,
-    // drawn black), and the deck of cloud across the Weltmauer with its ragged underside and veil of mist (far plane)
-    case bankEnd, cloudDeck
+    // drawn black), the deck of cloud across the Weltmauer with its ragged underside and veil of mist (far plane), and
+    // a thread of falling water on the cleft wall (mid plane, four frames)
+    case bankEnd, cloudDeck, cleftWater
     // Stage 7 (SPRITES.md "The house envoys", "The houses' banners"): the four houses' faces as guests with a body
     // (walk 0-3, idle 4-5, talk 6-7) and a story portrait of their own, and the five houses' banners in the hall
     case hildVarn, lorenzPell, ebbaCalder, orlaLorn
@@ -351,13 +352,14 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .cleftWallA, .cleftWallB: return PixelSize(width: 256, height: 200)
         case .cleftWallC: return PixelSize(width: 192, height: 200)
         case .cleftShaft: return PixelSize(width: 64, height: 200)
-        case .gateRockL: return PixelSize(width: 72, height: 60)
-        case .gateRockR: return PixelSize(width: 56, height: 50)
+        case .gateRockL: return PixelSize(width: 108, height: 80)
+        case .gateRockR: return PixelSize(width: 64, height: 70)
         case .bankSheetA: return PixelSize(width: 256, height: 208)
         case .bankSheetB: return PixelSize(width: 256, height: 124)
         case .bankSheetC: return PixelSize(width: 256, height: 56)
         case .bankEnd: return PixelSize(width: 96, height: 208)
         case .cloudDeck: return PixelSize(width: 720, height: 80)
+        case .cleftWater: return PixelSize(width: 3, height: 132)
         case .hildVarn, .lorenzPell, .ebbaCalder, .orlaLorn: return PixelSize(width: 14, height: 30)
         case .portraitHildVarn, .portraitLorenzPell, .portraitEbbaCalder, .portraitOrlaLorn:
             return PixelSize(width: 48, height: 48)
@@ -409,6 +411,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .gloomWisp: return 6
         case .gloomFogBack, .gloomFogMid, .gloomFogFront: return 2
         case .bankSheetA, .bankSheetB, .bankSheetC: return 2
+        case .cleftWater: return 4
         case .gateWood, .gateIron, .gateGreat, .catapult: return 3
         case .arrow, .fireArrow, .bolt, .spark, .streak, .rainSplash: return 3
         case .rainStreak: return 9

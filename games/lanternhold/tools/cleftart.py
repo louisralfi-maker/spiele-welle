@@ -23,9 +23,10 @@ sprite per run of `build` (each under 15 s on the old Mac).
                  valley floor. mid x 824, 1080, 1336.
   cleftShaft     64x200 white alpha mask: the cold shaft of light that falls through the slit by day (the engine
                  draws it at the sun's strength). mid x 1104.
-  gateRockL      72x60, world plane: the granite plinth the gatehouse's west tower grows out of, highest at the
-                 tower's outer edge (world 1249), falling under the tower in a ragged stair. world x 1200.
-  gateRockR      56x50, world plane: the same at the east tower's outer edge (world 1470). world x 1446.
+  gateRockL      104x80, world plane: the bedrock shoulder the gatehouse's west tower grows out of, highest at the
+                 tower's outer edge (world 1249), climbing over its foot in ledges; ashlar set into it. world x 1186.
+  gateRockR      60x70, world plane: the same at the east tower's outer edge (world 1470). world x 1440.
+  cleftWater     3x132, 4 frames: one thread of falling water, scrolling (fix round 1).
 
 Light from the upper left, as everywhere. All of C and the walls are painted on one canvas in mid-plane x, so their
 joins are seamless; the steps are canvases of their own.
@@ -61,29 +62,29 @@ PIECES = {"throatStepC": (600, 224), "cleftWallA": (824, 256), "cleftWallB": (10
 SLIT_ROWS = 24
 
 
+# Fix round 1 (the director: "the slit of sky at dusk reads as autumn leaves; give it one clear shape, a wedge of sky
+# between two rock edges, wider over the gate, with a cloud or the first star; where the camera shows no slit, close it
+# with rock"): the wall stands to the screen's top except in two wedges, over the gatehouse (seen when the camera is on
+# the gate) and over the bailey (seen from world 1600 to 2100, where the moon stands in it at night). (centre, half
+# width at the top, depth in rows, seed)
+WEDGES = [(792, 62, 46, 521), (1010, 34, 30, 523)]
+
+
 def slit(gx):
-    """Rows from the canvas top where the rock begins along the slit: a jagged edge of teeth of every size, notches
-    between them, and here and there a chockstone that bridges the slit up to the top row."""
-    base = 8 + 10 * vnoise(501, gx / 31.0) + 5 * vnoise(503, gx / 9.0)
-    # teeth: a walk of irregular widths, each tooth its own height and lean
-    k, x0 = 0, -40.0
-    while True:
-        wdt = 4 + 13 * h01(505, k)
-        if x0 + wdt > gx:
-            break
-        x0 += wdt
-        k += 1
-    u = (gx - x0) / wdt
-    lean = 0.25 + 0.5 * h01(506, k)
-    shape = u / lean if u < lean else (1 - u) / (1 - lean)
-    tip = base - (3 + 9 * h01(507, k))
-    t = base - (base - tip) * shape ** 0.7
-    b = int((gx + 13) // 53)
-    if h01(508, b) < 0.25:
-        v = ((gx + 13) % 53) / 53.0
-        if 0.35 < v < 0.5 + 0.18 * h01(509, b):
-            t = min(t, 1 + 2 * abs(math.sin(gx * 0.7)))  # a chockstone wedged across the slit
-    return max(0.0, min(SLIT_ROWS, t))
+    """Rows from the canvas top where the rock begins: 0 where the wall closes the sky; in a wedge a V between two
+    rock edges, each a stair of blocks (a few rows high, its own lean), the west edge a little steeper."""
+    t = 0.0
+    for (c, half, depth, sd) in WEDGES:
+        d = gx - c
+        if abs(d) >= half:
+            continue
+        u = 1 - abs(d) / float(half)
+        # the edges: a stair of blocks (each 3 to 8 px wide), so the V is cut in rock, not drawn with a ruler
+        k = int((gx - c + 400) // (3 + 5 * h01(sd, int((gx - c + 400) // 6))))
+        stair = 3.0 * (h01(sd + 1, k) - 0.5)
+        shape = u ** (1.25 if d < 0 else 1.0)
+        t = max(t, depth * shape + stair * min(1.0, u * 4))
+    return max(0.0, t)
 
 
 def cleft_top(gx):
@@ -112,15 +113,21 @@ def cleft_top(gx):
     return t
 
 
-WATER = [  # the cleft's threads of water: (gx, from row, to row, [(spray row, radius)])
-    (902, 52, 186, [(118, 3), (176, 5)]),
-    (1131, 38, 190, [(96, 3), (150, 4), (182, 6)]),
-    (1268, 64, 186, [(132, 4), (178, 5)]),
+# the cleft's threads of water: (gx, from row, to row, [(spray row, radius)]); each falls WATER_LEN rows from its
+# crack to a ledge, where it lands in spray (fix round 1: the engine draws the falling water as `cleftWater`)
+WATER_LEN = 132
+WATER = [
+    (902, 44, 44 + WATER_LEN, [(44 + WATER_LEN, 5)]),
+    (1131, 36, 36 + WATER_LEN, [(36 + WATER_LEN, 6)]),
+    (1268, 52, 52 + WATER_LEN, [(52 + WATER_LEN, 5)]),
 ]
+# fix round 1: long ledges across the wall (row, tilt, shelf, undercut, gap seed): a lit top plane and an undershadow
+CLEFT_BANDS = [(58, 0.03, 6.0, 2.5, 2), (128, -0.025, 7.0, 3.0, 4)]
 
 
 def cleft_massif():
-    return RF.Massif(601, CLEFT_X0 - 40, CLEFT_X1 + 40, CLEFT_H, 30, 120, relief=1.0, sheets=False)
+    return RF.Massif(601, CLEFT_X0 - 40, CLEFT_X1 + 40, CLEFT_H, 50, 150, relief=1.0, sheets=False,
+                     bands=CLEFT_BANDS, facets=0.3, chimneys=0.3, swell=3.0, ledge_gap=(40, 90))
 
 
 def cleft_piece(name):
@@ -128,12 +135,36 @@ def cleft_piece(name):
     light of the slit on the face's top, snow on the high ledges, the threads of water with their wet streaks."""
     gx0, w = PIECES[name]
     field = RF.Field(cleft_massif(), gx0, w, CLEFT_H, cleft_top)
-    img = RF.paint(field, "cleft", snow_rows=60, snow_share=0.75, cold_rows=90, seed=601, contrast=1.15,
-                   wet=[(wt[0], wt[1]) for wt in WATER])
+    img = RF.paint(field, "cleft", snow_rows=24, snow_share=0.5, cold_rows=90, seed=601, contrast=1.2,
+                   wet=[(wt[0], wt[1]) for wt in WATER], caps=True, lit_rim=True, clamp=0.55)
     for wt in WATER:
         if gx0 - 2 <= wt[0] < gx0 + w + 2:
             RF.thread(img, gx0, 601, *wt)
+    snow_caps(img, field, gx0)
     return img
+
+
+def snow_caps(img, field, gx0, rows=96):
+    """Fix round 1 (the critic: "no snow"; the director: "few large snow fields that lie on ledges, no patch under 6
+    px"): snow lies on the long ledges' shelves high on the wall, in drifts 8 to 30 px long and 2 or 3 rows deep, a
+    foam top, mistLight under it and a stoneLight lip where it overhangs; nowhere else on the face."""
+    m = cleft_massif()
+    foam, light, lip = col("foam"), col("mistLight"), col("stoneLight")
+    for (by, tilt, shelf, under, gs) in CLEFT_BANDS:
+        for x in range(img.w):
+            gx = gx0 + x
+            row = m.band_row(by, tilt, gs, gx, field.column(x, int(by)))
+            if row > rows or h01(m.seed, gs, int((gx + 37 * gs) // 57)) < 0.45:
+                continue
+            drift = vnoise(709 + gs, gx / 11.0)
+            if drift < 0.5:
+                continue
+            r0 = int(math.floor(row))
+            deep = 2 + (1 if drift > 0.68 else 0)
+            for k in range(deep + 1):
+                y = r0 - deep + 1 + k
+                if 0 <= y < img.h and img.get(x, y)[3] and field.inside(x, y):
+                    img.set(x, y, foam if k == 0 else light if k < deep else lip)
 
 
 # ---------------------------------------------------------------------------------------------- the steps
@@ -192,7 +223,7 @@ def shaft():
     slit toward the lower right (light from the upper left) and fades out before the cleft's floor."""
     w, h = 64, 200
     img = PA.Image(w, h)
-    levels = [0, 18, 36, 54, 72, 90, 108, 126]
+    levels = [0, 14, 28, 42, 56, 70, 84, 98, 112, 126, 140, 154]   # fix round 1: stronger, in finer steps
     for y in range(h):
         cx = 14 + y * 0.18
         half = 7 + y * 0.06
@@ -205,6 +236,39 @@ def shaft():
             k = max(0, min(len(levels) - 1, int(round(q))))
             if levels[k]:
                 img.set(x, y, (255, 255, 255, levels[k]))
+    # fix round 1: dust motes hanging in the beam, single bright specks inside its core
+    for m in range(14):
+        y = int(18 + 108 * h01(731, m))
+        cx = 14 + y * 0.18
+        x = int(cx + (h01(733, m) - 0.5) * (8 + y * 0.06))
+        if 0 <= x < w:
+            img.set(x, y, (255, 255, 255, 235))
+    return img
+
+
+WATER_W, WATER_FRAMES = 3, 4
+
+
+def water():
+    """cleftWater (fix round 1, the critic: "water threads are dashed lines with no spray"): one thread of falling water,
+    3 x WATER_LEN, four frames that scroll it down 3 px each (the engine plays them at 6 a second, none with Reduce
+    Motion): a continuous line of mist and mistLight, a pixel wide where it leaves the crack and two lower down, with
+    brighter foam runs that travel down it; it frays into droplets in its last rows over the spray."""
+    w, h = WATER_W, WATER_LEN
+    img = PA.Image(w * WATER_FRAMES, h)
+    foam, light, mist = col("foam"), col("mistLight"), col("mist")
+    for f in range(WATER_FRAMES):
+        for y in range(h):
+            yy = y - f * 3
+            run = h01(741, (yy // 7) % 41)
+            wide = y > 36 + 20 * h01(743, (yy // 11) % 29)
+            c = foam if run > 0.72 else light if run > 0.3 else mist
+            lean = 1 if y > 70 and h01(745, (y // 23)) < 0.4 else 0
+            if y > h - 10 and h01(747, f, y) < 0.45:
+                continue   # it frays over the spray
+            img.set(f * w + lean, y, c)
+            if wide and lean == 0:
+                img.set(f * w + 1, y, mist if c != mist else light)
     return img
 
 
@@ -212,21 +276,31 @@ def shaft():
 
 GATE = {
     # w, h, world x of the sprite's left edge, seed, the profile: (world x, rows above the bottom) points the rock's top
-    # runs through, west to east. The towers' outer edges stand at world 1249 and 1470 (tier 3: 14 px further out).
-    "gateRockL": (72, 60, 1200, 1201, [(1200, 2), (1203, 7), (1206, 10), (1211, 14), (1216, 22), (1221, 25),
-                                        (1226, 33), (1232, 36), (1238, 43), (1244, 50), (1249, 55), (1253, 47),
-                                        (1257, 41), (1260, 31), (1264, 27), (1267, 17), (1270, 10), (1272, 3)]),
-    "gateRockR": (56, 50, 1446, 1467, [(1446, 2), (1448, 7), (1452, 15), (1456, 25), (1460, 30), (1464, 37),
-                                        (1468, 44), (1470, 47), (1474, 41), (1479, 33), (1484, 30), (1489, 20),
-                                        (1494, 13), (1499, 6), (1502, 2)]),
+    # runs through, west to east; the masonry blocks set into it: (world x, rows above the bottom, width, height).
+    # The towers' outer edges stand at world 1249 and 1470 (tier 3: 11 and 12 px further out). Fix round 1 (the
+    # critic: "a separate triangle card leaned on a ruler-straight tower edge"): a broad shoulder of bedrock, up to a
+    # third of the tower's height, that bulges out past the tower's outer edge and climbs over its foot in ledges, so
+    # the tower's line is broken by rock; the tower's lowest courses step down into notches of it.
+    "gateRockL": (108, 80, 1186, 1201,
+                  [(1186, 2), (1189, 9), (1194, 14), (1199, 17), (1202, 27), (1207, 31), (1213, 34), (1217, 35),
+                   (1220, 47), (1225, 53), (1231, 57), (1238, 61), (1244, 66), (1249, 71), (1254, 70), (1256, 61),
+                   (1265, 59), (1267, 47), (1277, 45), (1279, 33), (1289, 31), (1292, 18), (1294, 2)],
+                  # the steps over the tower's face (from, to, the step's top): a course of ashlar in each
+                  [(1250, 1255, 70), (1257, 1265, 60), (1268, 1277, 46), (1280, 1289, 32)]),
+    "gateRockR": (64, 70, 1436, 1467,
+                  [(1436, 2), (1438, 16), (1447, 18), (1449, 30), (1457, 32), (1459, 44), (1465, 46), (1467, 58),
+                   (1470, 62), (1474, 58), (1478, 50), (1482, 40), (1485, 26), (1488, 18), (1492, 10), (1496, 4),
+                   (1499, 1)],
+                  [(1439, 1447, 17), (1450, 1457, 31), (1460, 1465, 45)]),
 }
 
 
 def gate_rock(name):
-    """The granite the gatehouse's towers grow out of (H2): a broad plinth of the cleft's rock at a tower's outer foot,
-    highest right at the tower's outer edge (the masonry climbs out of it), falling under the tower in a ragged stair
-    and down to the lane outside in blocks; lit from the upper left, its top edges rimmed with cold light."""
-    w, h, gx0, seed, prof = GATE[name]
+    """The granite the gatehouse's towers grow out of (H2): a broad shoulder of the cleft's bedrock at a tower's outer
+    foot, highest at the tower's outer edge, bulging past it and climbing over the tower's foot in ledges; long ledges
+    with lit shelves and undershadows, faceted blocks, a continuous lit edge on the faces that look up or west (none on
+    the shaded slopes); the tower's lowest ashlar steps down into notches of it."""
+    w, h, gx0, seed, prof, blocks = GATE[name]
 
     def top(gx):
         for (xa, ya), (xb, yb) in zip(prof, prof[1:]):
@@ -236,12 +310,46 @@ def gate_rock(name):
                 break
         else:
             hg = 0.0
-        hg += 2.5 * (h01(seed, int(gx // 3)) - 0.5) + 1.5 * (vnoise(seed + 2, gx / 2.5) - 0.5)
+        # the edge in blocks: every few columns a step, never a smooth slope
+        hg += 2.0 * (h01(seed, int(gx // 4)) - 0.5)
         return h - max(0.0, hg) if hg > 1 else h + 1
 
-    massif = RF.Massif(seed, gx0 - 40, gx0 + w + 40, h, 9, 22, relief=0.7, ledge_gap=(7, 15), sheets=False)
+    bands = [(h - 24, 0.05, 4.0, 3.0, 11), (h - 46, -0.04, 4.5, 3.0, 12)]
+    massif = RF.Massif(seed, gx0 - 40, gx0 + w + 40, h, 20, 44, relief=0.8, ledge_gap=(12, 22), sheets=False,
+                       bands=bands, facets=0.26, chimneys=0.15, swell=2.0)
     field = RF.Field(massif, gx0, w, h, top, margin=24)
-    return RF.paint(field, "gate", rim=0.8, seed=seed, contrast=1.1)
+    img = RF.paint(field, "gate", rim=0.0, seed=seed, contrast=1.1, lit_rim=True, clamp=0.6)
+    # the tower's lowest courses step down into the rock: on each step over the tower's face a course of ashlar,
+    # four rows high, its blocks 5 to 9 px long, lit on top and on the west, mortar between them, the rock's lip
+    # casting a row of shadow under it
+    for (x0w, x1w, step) in blocks:
+        top_y = h - step
+        x = x0w - gx0
+        k = 0
+        while x < x1w - gx0:
+            bw = 5 + int(5 * h01(seed, k, 91))
+            for dx in range(bw):
+                xx = x + dx
+                if xx >= x1w - gx0 or not (0 <= xx < w):
+                    continue
+                for dy in range(4):
+                    y = top_y + dy
+                    if not (0 <= y < h) or not img.get(xx, y)[3]:
+                        continue
+                    c = "stone"
+                    if dy == 0:
+                        c = "stoneLight"
+                    if dx == 0:
+                        c = "stoneLight" if dy < 3 else "stone"
+                    if dx == bw - 1 or dy == 3:
+                        c = "stoneDark"
+                    img.set(xx, y, col(c))
+                y = top_y + 4
+                if 0 <= y < h and img.get(xx, y)[3]:
+                    img.set(xx, y, col("rockDeep"))
+            x += bw
+            k += 1
+    return img
 
 
 # ---------------------------------------------------------------------------------------------- the Weltmauer
@@ -310,6 +418,8 @@ def build(name, out):
         img = shaft()
     elif name in ("gateRockL", "gateRockR"):
         img = gate_rock(name)
+    elif name == "cleftWater":
+        img = water()
     else:
         raise SystemExit("unknown sprite " + name)
     path = os.path.join(out, name + ".png")

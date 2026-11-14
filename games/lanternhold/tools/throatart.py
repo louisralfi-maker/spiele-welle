@@ -9,9 +9,10 @@ of the position), so a run reproduces its files byte for byte.
 The story (STORY.md): Lady Oriel the Mason built the three lines in the year 118. What stands of them today is a
 ruin; the lord's lines are built into it.
 
-  oldWall2, oldWall3   the place of the middle and of the outer line as it lies before anything is built: two masses
-                       of the Throat's granite (a horn left of the track's crossing, a tall pillar right of it) with
-                       a low saddle between them. In the saddle lies what is left of the old wall: the broken courses
+  oldWall2, oldWall3   the place of the middle and of the outer line as it lies before anything is built: two
+                       footings of the Throat's granite (a horn left of the track's crossing, the stump of a pillar
+                       right of it; since the world rebuild's fix round 1 never higher than 36 rows) with a low
+                       saddle between them. In the saddle lies what is left of the old wall: the broken courses
                        of its curtain, the stub of its round end tower against the pillar, fallen blocks, the old
                        footing in the track, a little scree. Drawn always: it is the place.
   oldWall1             what is left of Oriel's first line before the gatehouse (the gatehouse stands on it): a stretch
@@ -154,6 +155,33 @@ def rock(sh, inside, seed, off):
             elif not bk(x, y - 3) and h01(seed, x // 2, 5) < 0.5:
                 i = max(i, 2)
             sh.put(x, y, GRANITE[i], "R")
+
+
+FOOT_CAP = 36   # fix round 1: the footings' highest row above the ground
+
+
+def footing_rock(sh, tops, seed):
+    """The granite footings (fix round 1, the director: "the warm crags stand in another palette than the new granite
+    and look cut out; their shadow side takes the granite's cool greys, warm only where a fire lights them, a pale
+    edge only on the sun side"): the rows under `tops` painted as the cleft's granite (tools/rockfield.py), lit from
+    the upper left, cool grey in the shade, a continuous lit edge on the faces that look up or west only."""
+    import rockfield as RF
+    up = UP
+
+    def top(gx):
+        t = tops.get(gx - OX, 0)
+        return up - t if t > 0 else up + 1
+
+    massif = RF.Massif(seed * 7 + 3, -40, W + 40, up, 14, 34, relief=0.7, ledge_gap=(10, 20), sheets=False,
+                       facets=0.24, chimneys=0.25, swell=2.0)
+    field = RF.Field(massif, 0, W, up, top, margin=16)
+    img = RF.paint(field, "footing", rim=0.0, seed=seed, contrast=1.1, lit_rim=True, clamp=0.6)
+    for y in range(up):
+        for x in range(W):
+            p = img.get(x, y)
+            if p[3]:
+                sh.img.set(x, y, p)
+                sh.mat[y][x] = "R"
 
 
 def runs(cells):
@@ -301,15 +329,22 @@ def old_wall(line):
     tops = {}
     for lx in range(-OX, W - OX):
         hh = run(prof, (lx // 2) * 2)
+        # world rebuild, fix round 1 (the critic: "the old walls' granite still stands on the walk line as slabs
+        # facing the camera"): the horn and the pillar are broken footings now, never higher than FOOT_CAP rows,
+        # their tops jagged in blocks; the masonry of the old wall stands as it stood
+        if hh > FOOT_CAP * 0.6:
+            hh = FOOT_CAP * 0.6 + (hh - FOOT_CAP * 0.6) * 0.18
         j = int(h01(seed, lx // 4) * 5) - 2 + (1 if h01(seed, lx // 2, 3) < 0.3 else 0)
-        tops[lx] = max(0, min(UP, int(round(hh)) + (j if hh > 8 else 0)))
+        tops[lx] = max(0, min(FOOT_CAP, int(round(hh)) + (j if hh > 8 else 0)))
 
     def in_rock(x, y):
         lx, u = x - OX, UP - 1 - y
         return 0 <= u < tops.get(lx, 0)
 
-    rock(sh, in_rock, seed, TEX[line])
+    footing_rock(sh, tops, seed)
     for n, (lx, top, length) in enumerate(FISSURE[line]):
+        top = min(top, FOOT_CAP - 4)
+        length = min(length, top)
         x = sx(lx)
         for k in range(length):
             y = sy(top - k)
@@ -401,7 +436,7 @@ def stone_anchor(kind):
         plinth(sh, -2, w + 2, seed, tone=0)
         body = box(34, 52, 0, 64) + merlons(34, 52, 64, 7, 4, 5)
         ashlar(sh, body, seed + 1, tone=-1, bl=7)
-        teeth(sh, 51, 6, 58, seed + 2)
+        teeth(sh, 51, 6, FOOT_CAP - 6, seed + 2)   # fix round 1: as high as the footing
         for u in range(46, 54):                               # a slit toward the Gloom
             sh.put(sx(38), sy(u), "night0", "F")
             sh.put(sx(37), sy(u), "stoneMid", "S")
@@ -420,7 +455,7 @@ def stone_anchor(kind):
             sh.put(sx(lx), sy(69), "stoneDark", "S")
             sh.put(sx(lx + 1), sy(69), "stoneDark", "S")
             sh.put(sx(lx), sy(68), "stoneDark", "S")
-        teeth(sh, 59, 8, 66, seed + 2)
+        teeth(sh, 59, 8, FOOT_CAP - 6, seed + 2)
         for u in range(50, 61):                               # the slit
             sh.put(sx(47), sy(u), "night0", "F")
             sh.put(sx(48), sy(u), "night0", "F")
