@@ -314,3 +314,25 @@ only while coins move; the time is told by the world and by his lantern before t
 spelled out, not a new system, so it is in build 2 through stage-3-interface, with a cut order. Notes went to the
 stage, town, craft and people lanes. No sketch goes to Louis again: he sees it in a real screenshot after the
 director's look. Lesson: a quick vector sketch of an interface is not a picture for Louis.
+
+
+**Speed, 14.11.2026 18:46.** Louis: "Können wir den Entwicklungsprozess beschleunigen, ohne dass der Mac abschmiert?
+Wenn ja, mach es."
+
+- **Measured.** The Mac is not the brake: 33 °C, fans off, load 1.3 with five workflows running. GitHub is. There are
+  five Mac slots, and a full round holds one for 70 to 90 minutes (lh-s1-5: build 6, unit 7, ui 26, ui-de 24,
+  release 6). Four lanes sent full rounds, so a round waited 4 to 90 minutes for a slot: a median of 71 minutes from
+  push to verdict. A round with a filter runs 6 to 12 minutes.
+- **The rule, in every code lane's notes:** short rounds while working; the gate as up to three rounds side by side
+  (a `build unit`; b the lane's UI test classes; c the same in German, only when words changed); never the whole `ui`,
+  `ui-de` or `release` in a lane; no second round while the first waits.
+- **Joins:** the whole check goes out as five rounds side by side (a `build unit release`; b and c the UI classes in
+  English in two halves; d and e the same in German): about 25 minutes instead of 75.
+- **The join kit** (one Opus agent, branch `claude/lh-joinkit`, report `ci-out/director/join-rehearsal.md`): a trial
+  merge of all lane branches now, the conflicts by lane, a three-way merge tool for the `.xcstrings` files, and one
+  `build unit` round on the trial merge. Nothing is merged for real.
+- **Left out, and why.** Core's tests on Linux runners: Core needs only Foundation and two `mix` calls, but with the
+  rule a Core round is 8 minutes, so the port is not worth its risk before Monday (a candidate for build 3). A cache
+  for the build: a stale cache gives a wrong verdict. Cancelling other lanes' waiting rounds: they are theirs.
+- **The quota is the second brake.** Faster rounds mean more work per hour, so 99 % comes earlier than 01:30. If Louis
+  sleeps then, the night is lost. He is asked to reset before he goes to bed.
