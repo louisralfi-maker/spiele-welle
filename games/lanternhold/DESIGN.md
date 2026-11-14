@@ -3342,7 +3342,9 @@ the muddy wall behind the gatehouse). Where they differ the director's note wins
   into stripes). Pure dark only where the world ends: `bankEnd` on fog B at world 0, drawn black. The eyes
   (`bankEyePairs`): five slots 128 px apart behind the edge, each a pair (`darknessBankGlow`, now 9x3 x 4: near and
   far, open and half shut) that opens at a jittered place and height, blinks, shuts and opens elsewhere; at most four
-  on a screen, never in rows; fainter by day; three still with Reduce Motion. The old 64 px glow tiles are gone.
+  on a screen, never in rows; fainter by day; three still with Reduce Motion; with or without the Gloom's fog. The
+  old 64 px glow tiles are gone, and so are the Gloom's painted eye tiles of the bank's heart (`gloomFogEyes`): with
+  the sheet on the lane lower they stood above it in rows (round lh-w1f1-3); the Gloom's own roaming eyes stay.
 - **The cloud deck**: one painted `cloudDeck` (far x −100, y 22) instead of the deck's three clouds: lumpy masses
   shaded from their top contour (a lit rim, broad where the contour faces the light), the front lobes' lit arcs, an
   underside of lobes and rags, and flat wisps of mist feathering 48 px into the wall's haze.
@@ -3359,8 +3361,9 @@ the muddy wall behind the gatehouse). Where they differ the director's note wins
 - **The gate's rock**: shoulders of bedrock (`gateRockL` 108x80 at front − 54, `gateRockR` 64x70 at front + 196) with
   the tower's ashlar stepping into their ledges, cool grey in the shade (the `footing` ramp) and a lit edge two
   pixels deep on the slopes that face the light only.
-- **The old walls**: the granite masses of lines 2 and 3 cut to footings of at most 36 rows in cool granite; the
-  anchors' toothing stops at that height. The masonry of Lady Oriel's walls is as it was.
+- **The old walls**: the granite masses of lines 2 and 3 cut to footings of at most 36 rows (the horn on the Gloom's
+  side 16) in cool granite; the anchors' toothing stops at that height. The lit edge of all the rock (`rockfield`
+  `lit_rim`) lies only on the faces that look up or west, two pixels deep on slopes. The masonry of Lady Oriel's walls is as it was.
 - **Fog**: sixteen alpha steps in the hour's fog and the Gloom's strips, the strips' colour in clean clusters.
 - **Tests**: `WorldRebuildFixTests` (the bank's tint by the hour and its tiling, the world's end, the eyes, the deck's
   underside from the atlas, the moon in the wedge, the falling water); the B4 test knows the bank's face frames, its

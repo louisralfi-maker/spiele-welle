@@ -158,6 +158,7 @@ def rock(sh, inside, seed, off):
 
 
 FOOT_CAP = 36   # fix round 1: the footings' highest row above the ground
+HORN_CAP = 16   # and the horn's, west of the wall
 
 
 def footing_rock(sh, tops, seed):
@@ -335,7 +336,9 @@ def old_wall(line):
         if hh > FOOT_CAP * 0.6:
             hh = FOOT_CAP * 0.6 + (hh - FOOT_CAP * 0.6) * 0.18
         j = int(h01(seed, lx // 4) * 5) - 2 + (1 if h01(seed, lx // 2, 3) < 0.3 else 0)
-        tops[lx] = max(0, min(FOOT_CAP, int(round(hh)) + (j if hh > 8 else 0)))
+        # the horn on the Gloom's side, beside the line's braziers, is only a stump of rubble rock (16 rows)
+        cap = HORN_CAP if lx < 2 else FOOT_CAP
+        tops[lx] = max(0, min(cap, int(round(hh)) + (j if hh > 8 else 0)))
 
     def in_rock(x, y):
         lx, u = x - OX, UP - 1 - y
@@ -598,7 +601,7 @@ def moor_ruin():
     pier_r = [cell(lx, u) for lx in range(29, 36) for u in range(0, hold(right, lx))]
     springer = [cell(lx, u) for lx in range(12, 16) for u in range(18 + (lx - 12), 22 + (lx - 12) // 2)]
     for cells, sd in ((pier_l, 1), (pier_r, 2)):
-        ashlar(sh, knock(cells, seed + sd, 0.12), seed + 3 + sd, tone=1, bl=6, moss=1.2, ground=g)
+        ashlar(sh, knock(cells, seed + sd, 0.12), seed + 3 + sd, tone=0, bl=6, moss=1.6, ground=g)
         edge(sh, cells)
     ashlar(sh, springer, seed + 7, tone=1, bl=4, ground=g)
     edge(sh, springer)

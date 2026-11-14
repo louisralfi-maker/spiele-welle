@@ -381,7 +381,7 @@ def paint(field, ramp_name, gain=1.0, lift=0.0, dither=0.0, snow_rows=0, snow_sh
                 # fix round 1 (the critic: "single white rim dots"): a continuous lit edge on the faces that look up
                 # or west (toward the light), none on the shaded east slopes; two pixels where the edge is steep
                 west_open = not field.inside(x - 1, y)
-                rising = field.inside(x + 1, y - 1) or not field.inside(x + 1, y)
+                rising = field.inside(x + 1, y)   # the column to the east stands as high or higher
                 second = field.inside(x, y - 1) and not field.inside(x, y - 2) and not field.inside(x - 1, y - 1) \
                     and field.inside(x + 1, y - 1)
                 if (edge_top and (rising or west_open)) or (west_open and field.inside(x, y - 1) and

@@ -427,7 +427,7 @@ bottom-left at the given y (0 = the ground line). E is `DarknessBank`'s edge.
 | id | size | frames | notes |
 |---|---|---|---|
 | `gloomFogBack` | 192x120 | 2 | the bank: six rows of low rolls, pale crests, a heart that darkens to night toward the lane. Frame 0 repeats seamlessly, frame 1 is the leading face (its left column goes on from frame 0). y 0. Drawn **behind the world plane** (after fog layer A), at least behind every creature. Front at E + 64 |
-| `gloomFogEyes` | 64x72 | 4 | the cold eyes in the bank's heart, an **emissive** only (like `darknessBankGlow`): nine pairs, each shut in one frame. y 0, on the 64 px tiles the bank's glow uses today (tile k's right end at E - 32 - 64k), frame `(k + Int(time * 1.5)) % 4`, strength 1. Drawn after the back strip, before the creatures |
+| `gloomFogEyes` | 64x72 | 4 | (not drawn since the world rebuild's fix round 1: with the bank's sheet lower its pairs stood above it in rows 64 px apart; the bank's own eyes stand in the fog instead) the cold eyes in the bank's heart, an **emissive** only (like `darknessBankGlow`): nine pairs, each shut in one frame. y 0, on the 64 px tiles the bank's glow uses today (tile k's right end at E - 32 - 64k), frame `(k + Int(time * 1.5)) % 4`, strength 1. Drawn after the back strip, before the creatures |
 | `gloomFogMid` | 160x64 | 2 | a thin veil **before the world plane** (creatures, walls), built like the bank. y 0. Front at E + 104 |
 | `gloomFogFront` | 128x30 | 2 | the fog creeping along the lane, before the veil. y -8 (its lowest 8 rows lie under the ground line). Front at E + 136 |
 | `gloomWisp` | 40x16 | 6 | a shred that tears off the front; the six frames are its life, frame 0 whole, frame 5 two flecks. Drawn with the front strip |
@@ -683,6 +683,6 @@ The far castle in the Weltmauer's first slot is gone (`cleftart.py noslot`), and
 sink into a bank of painted mist toward the west (`cleftart.py mistleft`). Fix round 1: below its snow line no snow hangs in the
 gullies or couloirs any more (`worldart.py regrade`, `clean_snow`: no patch under 6 px); the snow is the caps on the
 massifs' upper faces with a clean hem. The old walls' granite (`oldWall2`, `oldWall3`) is cut to broken footings of
-at most 36 rows in the cleft's granite with cool grey shade (`throatart.py footing_rock`), and the anchors' toothing
+at most 36 rows (the horn west of the wall 16) in the cleft's granite with cool grey shade (`throatart.py footing_rock`), and the anchors' toothing
 stops at the footing's height.
 <!-- END world lane: world rebuild, step world-1 -->

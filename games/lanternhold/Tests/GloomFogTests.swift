@@ -364,8 +364,9 @@ final class GloomFogTests: XCTestCase {
         XCTAssertEqual(foggy.lights, plain.lights, "the fog is no light and dims none")
         XCTAssertEqual(foggy.actors, plain.actors)
 
-        // World rebuild: the darkness bank's soft sheets stand in the fog too (the fog creeps out of them); only the
-        // bank's own eyes give way: the bank's heart has the painted eyes instead. Nothing on the lane changes.
+        // World rebuild: the darkness bank's soft sheets stand in the fog too (the fog creeps out of them), and since
+        // fix round 1 its own eyes too (the painted eye tiles of the bank's heart stood above the lower sheet in rows
+        // and are gone). Nothing on the lane changes.
         XCTAssertFalse(wall(plain).isEmpty)
         XCTAssertEqual(wall(foggy), wall(plain), "the bank's sheets stand in the fog")
         XCTAssertTrue(wall(foggy).allSatisfy { $0.sprite == .bankSheetB }, "no old wall of night in look 2")
@@ -375,15 +376,12 @@ final class GloomFogTests: XCTestCase {
             frame(night, focus: 620, gloom: nil, time: 1.5 + Double(step) * 0.8).emissives
                 .contains { $0.sprite == .darknessBankGlow }
         })
-        XCTAssertFalse(foggy.emissives.contains { $0.sprite == .darknessBankGlow })
+        XCTAssertTrue((0..<10).contains { step in
+            frame(night, focus: 620, gloom: hard, time: 1.5 + Double(step) * 0.8).emissives
+                .contains { $0.sprite == .darknessBankGlow }
+        }, "the bank's eyes in the fog")
         XCTAssertTrue(eyeTiles(plain).isEmpty)
-        XCTAssertFalse(eyeTiles(foggy).isEmpty)
-        for tile in eyeTiles(foggy) {
-            XCTAssertTrue(tile.plane == .world && tile.kind == .glow)
-            XCTAssertTrue(tile.color.x > 0.02 && tile.color.x <= 1)
-            XCTAssertTrue((0..<4).contains(tile.frame))
-            XCTAssertEqual(tile.rect.z, 64)
-        }
+        XCTAssertTrue(eyeTiles(foggy).isEmpty, "no painted eye tiles in rows")
         XCTAssertLessThanOrEqual(foggy.counts.instances, 1_500, "inside the budget")
         print("GLOOM instances \(foggy.counts.instances) with the fog, \(plain.counts.instances) without")
 
@@ -407,8 +405,8 @@ final class GloomFogTests: XCTestCase {
         XCTAssertTrue(wisps(still).isEmpty && wisps(later).isEmpty)
         XCTAssertNotEqual(slices(frame(night, focus: 620, gloom: hard, time: 9), .fogB).map(\.rect),
                           before.map(\.rect), "it breathes")
-        XCTAssertNotEqual(eyeTiles(frame(night, focus: 620, gloom: hard, time: 9)).map(\.frame),
-                          eyeTiles(foggy).map(\.frame), "the painted eyes blink")
+        XCTAssertNotEqual(eyes(frame(night, focus: 620, gloom: hard, time: 9)).map(\.rect), eyes(foggy).map(\.rect),
+                          "the eyes in the fog open elsewhere")
         XCTAssertTrue(eyes(plain).isEmpty)
 
         // A shred tears off the creeping fog's nose (the front stands at 650 on the first night).

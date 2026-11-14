@@ -173,13 +173,11 @@ enum FrameBuilder {
                     planeSprites[plane.rawValue].append(tile)
                 }
                 if let gloom, fogUp > 0 {
-                    // The eyes in the bank's heart, behind everything that stands on the lane.
-                    let eyes = gloomEyeTiles(gloom, edgeX: bankEdgeX, hour: hour, clearings: clearings,
-                                             animTime: animTime, reduceMotion: options.reduceMotion,
-                                             geometry: geometry)
-                        + gloomEyes(gloom, edgeX: bankEdgeX, hour: hour, clearings: clearings, animTime: animTime,
-                                    reduceMotion: options.reduceMotion, geometry: geometry)
-                    for item in eyes {
+                    // The eyes in the fog, behind everything that stands on the lane. (World rebuild, fix round 1:
+                    // the painted eye tiles of the bank's heart are gone; with the bank's sheet lower they stood
+                    // above it in rows, 64 px apart. The bank keeps its own eyes in the fog, `bankEyes`.)
+                    for item in gloomEyes(gloom, edgeX: bankEdgeX, hour: hour, clearings: clearings,
+                                          animTime: animTime, reduceMotion: options.reduceMotion, geometry: geometry) {
                         glow.add(item)
                     }
                 }
@@ -239,12 +237,11 @@ enum FrameBuilder {
                     }
                 }
                 if options.look == .two {
-                    if wall > 0.01 {
-                        // Fix round 1: the bank's eyes come in pairs, a few at a time, at depths of their own.
-                        for item in bankEyes(edgeX: bankEdgeX, animTime: animTime, reduceMotion: options.reduceMotion,
-                                             strength: wall, ambient: ambient, geometry: geometry) {
-                            glow.add(item)
-                        }
+                    // Fix round 1: the bank's eyes come in pairs, a few at a time, at depths of their own, with or
+                    // without the Gloom's fog.
+                    for item in bankEyes(edgeX: bankEdgeX, animTime: animTime, reduceMotion: options.reduceMotion,
+                                         strength: 1, ambient: ambient, geometry: geometry) {
+                        glow.add(item)
                     }
                     for item in fireflies(hour: hour, animTime: animTime, reduceMotion: options.reduceMotion,
                                           geometry: geometry) {
@@ -1016,8 +1013,6 @@ enum FrameBuilder {
     }
     /// The eyes glow a little over white, so the bloom catches them at phone size.
     static let gloomEyeGain: Float = 1.4
-    /// The painted eyes' tiles are laid leftward from this far behind the bank's edge.
-    static let gloomEyeInset = 32.0
 
     /// The world x of a strip's front at this moment: its share of the fog's way past the bank's edge, breathing
     /// (never with Reduce Motion).
@@ -1100,39 +1095,6 @@ enum FrameBuilder {
             list.append(SpriteInstance(sprite: .gloomWisp, frame: wisp.frame, rect: rect,
                                        tint: SIMD4<Float>(value, value, value, Float(min(1, cover))),
                                        flipped: false))
-        }
-        return list
-    }
-
-    /// The painted eyes in the bank's heart (`gloomFogEyes`, glow only): tiles laid leftward from a little behind
-    /// the bank's edge to the screen's left end, each stepping through the four frames on its own beat (standing
-    /// with Reduce Motion), dimmed where a fire clears the fog.
-    private static func gloomEyeTiles(_ gloom: GloomFog, edgeX: Double, hour: Double,
-                                      clearings: [GloomFog.Clearing], animTime: Double, reduceMotion: Bool,
-                                      geometry: Geometry) -> [EmissiveInstance] {
-        let size = SpriteID.gloomFogEyes.size
-        let tile = Double(size.width)
-        let world = geometry.whole(.world)
-        let frames = SpriteID.gloomFogEyes.frameCount
-        let step = reduceMotion ? 0 : Int((max(0, animTime) * 1.5).rounded(.down))
-        let presence = gloom.presence(hour: hour)
-        let top = geometry.top(y: 0, height: Double(size.height))
-        var list: [EmissiveInstance] = []
-        var index = 0
-        var left = edgeX.rounded() - gloomEyeInset - tile - world
-        while left + tile >= -1 {
-            if geometry.isVisible(left: left, width: tile) {
-                let strength = presence * (1 - GloomFog.hole(x: left + tile / 2 + world, clearings: clearings))
-                if strength > 0.02 {
-                    let value = Float(strength)
-                    let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
-                    list.append(EmissiveInstance(sprite: .gloomFogEyes, plane: .world, rect: rect,
-                                                 color: SIMD4<Float>(value, value, value, 1),
-                                                 frame: (index + step) % frames))
-                }
-            }
-            index += 1
-            left -= tile
         }
         return list
     }
