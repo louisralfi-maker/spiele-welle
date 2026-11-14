@@ -116,8 +116,8 @@ func variant(_ change: (inout FrontTuning) -> Void) -> Balance {
     return b
 }
 
-// Around the chosen values (lh-f1-3: reach 48, the bot on the wall's front edge, speed 1.25, harm 0.6): the presence
-// numbers on a finer grid, and the light and the bot's habits once more.
+// Around the chosen values (rounds lh-f1-3 and lh-f1-4: reach 48, the bot on the wall's front edge, speed 1.25, harm
+// 0.5): the presence numbers on a finer grid, and the light and the bot's habits once more.
 if doVariants {
     say("")
     say("== around the standard values, at budgets \(stresses) (present lost / reference lost per budget)")

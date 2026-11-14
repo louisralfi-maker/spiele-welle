@@ -12,8 +12,8 @@ man rennt dorthin, wo es brennt." Spec: REALM.md section 3.
 ### What exists (all new files of this lane)
 
 - `Core/Front/FrontTuning.swift`: every number of the rule in one place, carried as `Balance.front` (presence radius 90,
-  speed ×1.15, harm ×0.8; relight reach 20 px, one in 4 s; touch 6 px, throw 60 px, shaken 8 s, grace 1.5 s; the
-  present bot's values; the dawn report's thresholds).
+  speed ×1.25, harm ×0.6; relight reach 48 px, one in 4 s; touch 6 px, throw 60 px, shaken 8 s, grace 1.5 s; the
+  present bot's values; the dawn report's thresholds). Tuned on the runner from the spec's starting values (below).
 - `Core/Front/FrontState.swift`: the saved state (`FrontState`: shaken, grace and relight timers, the last throw and
   the last relight as stamps for the picture, tonight's tally), the report's front half (`FrontNightReport`) and its
   lines (`FrontLine`). Every field decodes with a default; a bad plot or an unknown creature kind is dropped on load.
@@ -36,12 +36,14 @@ man rennt dorthin, wo es brennt." Spec: REALM.md section 3.
 ### The rule as built
 
 - **Presence.** At night (dusk, night, first light), unless he is shaken, archers and guards within 90 px of the lord
-  (along the ground, as the old rally) loose and strike ×1.15 as fast (their cooldowns; the guards' blows) and take
-  ×0.8 of the harm (in the breach and in passing). It replaces the old rally while the rule is on: the rally (DESIGN.md
-  "The king at night": 80 px, ×1.25) is the same idea without the harm, and two bonuses for one thing would stack to
-  ×1.44. The engines are crewed by castle staff and get nothing.
-- **Braziers.** A dead brazier within 20 px of him catches from his lantern, free, at most one in 4 s; the existing
-  `SimEvent.brazierLit(plot:)` fires, so the lantern sound already plays. By day nothing (braziers burn all day).
+  (along the ground, as the old rally) loose and strike ×1.25 as fast (their cooldowns; the guards' blows) and take
+  ×0.6 of the harm (in the breach and in passing). It replaces the old rally while the rule is on: the rally (DESIGN.md
+  "The king at night": 80 px, ×1.25) is the same idea without the harm, and two bonuses for one thing would stack. The
+  engines are crewed by castle staff and get nothing.
+- **Braziers.** A dead brazier within 48 px of him catches from his lantern, free, at most one in 4 s; the existing
+  `SimEvent.brazierLit(plot:)` fires, so the lantern sound already plays. By day nothing (braziers burn all day). The
+  braziers stand 20 to 45 px in front of their wall's face, so the lord standing on a wall's front edge keeps both of
+  that wall's fires burning; the ones further back catch as he passes.
 - **The old Light action** (`Sim.light`, `KingAction.light`, the old screen's button) still works and is marked as
   going. The reference bot lights with it: it must stay in Core for T1 to T8 (or they must be measured again); only the
   player's button goes.
@@ -50,7 +52,9 @@ man rennt dorthin, wo es brennt." Spec: REALM.md section 3.
 - **He cannot die.** A creature on the ground that comes within 6 px of him (or would walk through him in this step)
   with nothing between them (a standing wall's face, the guard line, the hearth: as the battle stops creatures) throws
   him 60 px toward the castle at once, breaks off an old-screen Light, and shakes him for 8 s: no presence. For 1.5 s
-  after a throw no creature throws him again (they pass him). Crows never throw. The lantern's radius is not touched
+  after a throw no creature throws him again (they pass him). Crows never throw. Up on a standing wall (between its
+  face and its back, the gatehouse's passage included) nothing reaches him, also not the shadehounds that leap a
+  palisade (round lh-f1-1: standing behind a palisade, the bot was bowled over up to 14 times a night). The lantern's radius is not touched
   (the stage lane's "Raise the lantern" owns it). Relighting still works while shaken (his lantern burns).
 - **Deterministic:** the rule draws nothing from the random stream.
 
@@ -85,8 +89,9 @@ so T1 to T8 are the same line for line (see the rounds).
     haptic and a dull thud (the wallHit sound, low rate). Reduce Motion: no slide, a short cross-fade.
   - `shakenLeft`, `shakenShare`: he stoops and the lantern sways while shaken; he straightens when it ends. The
     lantern's radius stays (it is the stage lane's).
-  - `lastRelight` (a new `at`): a spark from his lantern to the brazier, the brazier flares. The sound comes from
-    `SimEvent.brazierLit` already.
+  - `lastRelight` (a new `at`): a spark arcs from his lantern to the brazier (up to 48 px, over the wall's face), the
+    brazier flares. The sound comes from `SimEvent.brazierLit` already. This is how the player learns the rule: stand
+    at the wall and its fires catch.
   - `patch` (`FrontPatchOffer`): coins over the damaged wall where he stands; a touch on that wall raises the price, a
     second touch calls `FrontNight.patch(&state, plot: offer.plot, balance:, events:)` (add a one-line wrapper on
     `SimDriver`). Not `ready`: the coins shake; not `affordable`: dull coins and the refuse sound.
@@ -100,12 +105,92 @@ so T1 to T8 are the same line for line (see the rounds).
 
 ### Tuning and T13
 
-(filled in below from the rounds)
+**The measure.** Every night 3 to 14 of seeds 1 to 10 is played twice from the reference bot's eve (the morning before
+it, the realm and the bot as they were): once by the reference bot under the old rules, once by the present bot under
+the rule. The present bot is the reference by day, so the days are the same and only the night differs. The reference
+loses almost nobody at the game's own budget (15 defenders over those 120 nights), so the nights are also played at
+1.5 and 2 times the budget (a realm caught short); the band counts the losses of all three together. The reference
+loses no night at up to three times the budget, so "presence never wins a night the reference loses clearly" is also
+asked at six times (`FrontTuningRun.defaultFallStresses`), where it falls in about a third of the nights and in a few
+clearly (20 s or more before first light).
+
+**T1 to T8** do not move: the reference bots play without `GameState.front`, and every hook computes the old numbers
+under the old rules. The tuning report of round lh-f1-1 is the same as that of round lh-snd-2 (the base code) line for
+line (`diff` empty, 80 lines each); `FrontPresenceTests.testTheReferenceBotIgnoresTheRulesNumbers` proves the reference
+ignores the rule's numbers.
+
+**What the spec's starting values did** (round lh-f1-2, budgets x1, x1.5, x2; present lost / reference lost):
+
+| variant | present / reference | fewer |
+|---|---|---|
+| spec: r90, x1.15, x0.8, relight 20 px, bot behind the wall | 325 / 217 | −50 % |
+| the old rally's numbers (r80, x1.25, harm 1) in the present bot's hands | 303 / 217 | −40 % |
+| no presence at all | 348 / 217 | −60 % |
+| relight 24 px from the wall's front edge | 288 / 217 | −33 % |
+
+Even with the rally's own numbers the present bot lost 40 % more: the light. The reference relights every snuffed
+brazier with the old Light action, where nothing can touch it (10 and more a night on nights 13 and 14); under the rule
+a brazier 45 px in front of the wall sits in the crowd that throws the lord back, so the present bot relit fewer than
+one a night and the walls went blind.
+
+**The light** (round lh-f1-3, at the spec's presence numbers; how far the bot fetches a brazier and how careful it is
+changed nothing at reach 48):
+
+| relight reach (bot on the wall's front edge) | present / reference | fewer |
+|---|---|---|
+| 20 px | 317 / 217 | −46 % |
+| 24 px | 269 / 217 | −24 % |
+| 36 px | 269 / 217 | −24 % |
+| 48 px (both braziers of the wall) | 213 / 217 | +2 % |
+
+**The presence numbers** at reach 48 (round lh-f1-3; fewer defenders lost than the reference, budgets pooled):
+
+| speed \ harm | 0.6 | 0.7 | 0.8 | 0.9 | 1.0 |
+|---|---|---|---|---|---|
+| 1.0 | 3 % | −7 % | −22 % | −26 % | −36 % |
+| 1.1 | 15 % | 5 % | −3 % | −8 % | −12 % |
+| 1.15 | 21 % | 9 % | 2 % | −3 % | −10 % |
+| 1.2 | 23 % | 14 % | 2 % | 1 % | −9 % |
+| 1.25 | **28 %** | 17 % | 13 % | 6 % | −2 % |
+
+The radius does not matter between 70 and 110 (a wall's archers and its tower stand within 50 px of its front edge).
+The shaken spell's length (4, 8, 12 s) hardly matters to the bot, which is thrown about once in ten nights.
+
+**Chosen: radius 90, speed ×1.25, harm ×0.6, relight reach 48, the bot on the wall's front edge.** The smallest
+presence in the grid that reaches the band: as fast as the old rally it replaces, and 40 % less harm. T13: the present
+bot lost 156 defenders, the reference 217: **28 % fewer** (x1: 7/15, x1.5: 44/64, x2: 105/138); no clear loss held.
+Presence matters where a night is close and fades where it is lost anyway: at 3 times the budget 7 % fewer, at 4 to 6
+times about the same, and at 6 times the reference lost 5 nights clearly and the present bot all 5 of them too.
+
+**What the present bot does in a night** (the chore guard, round lh-f1-3 at the chosen values): at dusk it runs from
+the throne to the front wall (about 12 s) and stands on its front edge. From there its lantern keeps the two braziers in
+front of that wall burning (it relights one to four a night as the crows snuff them) and its presence lies on the
+wall's and the tower's archers (96 to 99 % of the fighting covered). It patches about once in ten nights, fetches a
+brazier further away about once in ten nights and is thrown back about once in ten. When the wall falls it steps back
+to the next one, and when that falls to the hearth. At the game's own budget 101 of 120 nights take that single move to
+the wall, 10 take two and 9 take three; at twice the budget 87, 28 and 5. One or two good moves carry the night;
+nothing has it sprint between walls.
 
 ### Rounds
 
-(filled in below)
+| Round | Commit | Steps | Result |
+|---|---|---|---|
+| lh-f1-1 | 1537e18 | build; unit Front, Save, Battle, Tuning; sweep | the rule's tests and T1 to T8 passed (tuning report identical to lh-snd-2's); T13 failed (−48 %), the bot's night test had no fighting on night 9; the sweep did not compile (simtune's file list was already short of AmbientRampLook2 and Lord) |
+| lh-f1-2 | 67a4672 | build; unit FrontPresenceTests; sweep | ALL PASSED; the on-the-wall rule ended the palisade throws; the first variants (table above) |
+| lh-f1-3 | 1c8c5ec | sweep | ALL PASSED; the light and the presence grids (tables above) |
+| lh-f1-4 | 5e97d4e | build, unit, ui, ui-de, release; sweep | (running) |
 
 ### Open, and waiting for the join
 
-(filled in below)
+- **The picture and the touch** (all of "For the join" above): the rebuilt gorge and hall, the rim and the shouts, the
+  throw's slide, the spark, the coins over the wall. Core is ready for them.
+- **Turning the rule on** for the player's realm (`FrontNight.adopt` in `SimDriver`): left to the join on purpose, so the
+  old screen keeps playing as it did (no Light button that would rarely appear, no lord jumping 60 px without a slide).
+- **`SimEvent` cases** for the throw and the steadying, if the join wants them in `Feedback` (now: diff the stamps).
+- **The six other languages** of Front.xcstrings (4 keys, 2 of them plural) in the i18n pass.
+- **`tools/simtune`** does not compile on the base either (its file list lacks `AmbientRampLook2.swift` and `Lord.swift`);
+  this lane only added its own three files to the list. `tools/frontsweep` shows the fix (the extra file and a stand-in
+  for `LordIdentity`).
+- **On the device** (REALM.md section 6): whether standing at the front wall all night feels like being there or like
+  waiting. The rule rewards one or two moves; the hearth (section 4) and the beacons (section 5) bring the reasons to
+  move in later steps of this lane.

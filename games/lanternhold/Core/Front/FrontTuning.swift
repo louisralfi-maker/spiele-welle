@@ -20,8 +20,10 @@ struct FrontTuning: Sendable, Equatable {
     /// Under presence they loose and strike this many times as fast (their cooldowns run this much faster). The spec
     /// started at 1.15; T13 needs 1.25 (as fast as the old rally, which it replaces).
     var presenceSpeed = 1.25
-    /// Under presence they take this share of the harm. The spec started at 0.8; T13 needs 0.6.
-    var presenceHarm = 0.6
+    /// Under presence they take this share of the harm: they hold twice as long. The spec started at 0.8; 0.6 reached
+    /// T13's band at its lower edge (28 %, with neighbours outside it), 0.5 sits in its middle (34 %) and every
+    /// neighbour of it passes too (round lh-f1-4), which T13 needs when it is measured again on the joined game.
+    var presenceHarm = 0.5
 
     // MARK: Braziers
 
