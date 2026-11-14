@@ -1211,7 +1211,7 @@ static float3 lh2_top(float3 color, PlaneCoords c, PixelLight info, constant Com
             lit += f.rgb * keyLight * (abs(band) * bandShare * ramp);
             lit += (v.hallRimL.rgb * left + v.hallRimR.rgb * right) * ramp;
             float height = float(c.row) / max(u.target.y, 1.0f);
-            lit *= mix(0.5f, 1.0f, smoothstep(0.05f, 0.8f, height));
+            lit *= mix(0.6f, 1.0f, smoothstep(0.05f, 0.8f, height));
         }
         color = color * (1.0f - f.a) + lit;
         midVisible *= 1.0f - f.a;

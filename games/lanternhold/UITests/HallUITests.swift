@@ -132,8 +132,9 @@ final class HallUITests: XCTestCase {
         let frozen = ["-GWFreezeTime", "YES", "-GWStage", "hall"]
         let shots: [(name: String, arguments: [String])] = [
             ("136-hall-day-benches", HallUITests.day3 + ["-GWClock", "9.5", "-GWHallX", "240"] + frozen),
-            // Fix round 2: the lord beside the first bench: who sits there looks up at him, the nearest bows.
-            ("132b-hall-pass-bench", HallUITests.day3 + ["-GWClock", "10", "-GWHallX", "196"] + frozen),
+            // Fix round 2: the lord at the first bench's end: the two nearest turn to him (the nearest bows), the third
+            // still looks to the throne.
+            ("132b-hall-pass-bench", HallUITests.day3 + ["-GWClock", "10", "-GWHallX", "165"] + frozen),
             ("137-hall-afternoon", HallUITests.day3 + ["-GWClock", "15.5", "-GWHallX", "200"] + frozen),
             ("138-hall-dusk-door", HallUITests.day3 + ["-GWClock", "18.6", "-GWHallX", "120"] + frozen),
             ("139-hall-night", ["-GWNight", "3", "-GWSeed", "2", "-GWHour", "23", "-GWHallX", "250"] + frozen),

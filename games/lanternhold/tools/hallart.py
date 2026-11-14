@@ -760,7 +760,7 @@ def floor(c):
 
 # ------------------------------------------------------------------------------------------------- lights' irons
 
-def chandelier(c, cx, cy=43):
+def chandelier(c, cx, cy=53):
     """An iron wheel on a chain with six candles."""
     for y in range(0, cy - 15):
         c.put(cx, y, "stoneDark" if y % 3 else "stoneMid")

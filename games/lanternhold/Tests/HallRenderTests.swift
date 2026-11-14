@@ -66,7 +66,7 @@ final class HallRenderTests: XCTestCase {
         let benches = model(["GWClock": "9.5", "GWHallX": "240"])
         try queue(benches, hour: 9.5)
         try shot(benches, "day-benches")
-        let passing = model(["GWClock": "10", "GWHallX": "196"])
+        let passing = model(["GWClock": "10", "GWHallX": "165"])
         try queue(passing, hour: 10)
         try shot(passing, "pass-bench")
         let entry = model(["GWClock": "11", "GWHallX": "68"])

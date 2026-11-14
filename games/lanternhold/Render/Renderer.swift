@@ -668,7 +668,8 @@ final class Renderer {
             // whose pool falls off from its own colour to ember. A cold light (the moon's kind: the gloomweaver's
             // violet lantern) keeps its colour to its rim.
             let window = light.kind == .window
-            let cold = window || light.kind == .moon
+            // The hall stage (stage lane, fix round 2): the lord's lantern indoors keeps its warm white to its rim.
+            let cold = window || light.kind == .moon || (frame.interior != nil && light.kind == .lantern)
             let circle = SIMD4<Float>(light.circle.x, light.circle.y,
                                       light.circle.z * (window ? Look2.windowRadius : 1),
                                       sign * light.circle.w * Look2.intensityScale(light.kind))

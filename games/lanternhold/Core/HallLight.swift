@@ -24,10 +24,12 @@ enum HallLight {
     static let lecternFlame = (x: 388.0, row: 145)
     /// Its pool sits low and a little flat, on the lord in his chair and the throne's seat, so it does not climb the
     /// cloth of estate behind them.
-    static let lecternLight = (dx: 10.0, drow: 11)
-    static let lecternRadius = 28.0
-    static let lecternSquash = 1.3
-    static let lecternLevel = 0.55
+    /// Fix round 2: higher and nearer the chair, so the warm key reaches his face (teal cloth swallows warm light
+    /// now, so the pool may climb the cloth of estate without a halo).
+    static let lecternLight = (dx: 15.0, drow: 4)
+    static let lecternRadius = 30.0
+    static let lecternSquash = 1.2
+    static let lecternLevel = 0.6
     /// The two wall sconces between the windows and the piers.
     static let sconceRadius = 20.0
     static let sconceLevel = 0.6
@@ -61,7 +63,7 @@ enum HallLight {
 
     /// The share of the hall's ambient the near pillar takes: it stands in the hall's shade, darker than the wall
     /// behind it, but its stone reads.
-    static let pillarAmbient: Float = 0.8
+    static let pillarAmbient: Float = 0.9
     /// The dithered window round the lord's body where he stands behind it (half sizes in game px): open inside
     /// 55 % of them, solid outside.
     static let holeHalf = (width: 12.0, height: 24.0)
@@ -94,7 +96,7 @@ enum HallLight {
 
     /// The near pillar's soft band of light on its key side (`InteriorLight.pillarBand`): by day the tall window's on
     /// the right, from the dusk the door torches' on the left (the nearest fire: the hearth is 380 px away).
-    static let pillarBandStrength: Float = 1.2
+    static let pillarBandStrength: Float = 2.6
 
     static func pillarBand(_ ambient: AmbientSample) -> Float {
         let day = Look.daylight(ambient)
@@ -102,11 +104,15 @@ enum HallLight {
         return day >= torch ? pillarBandStrength * day : -pillarBandStrength * torch
     }
 
-    /// The lord's lantern indoors: one round pool on the wall, the wainscot and the floor alike, centred on the
-    /// lantern's head (round 1's flattened pool lit the wainscot only and its top edge followed the cap rail), and a
-    /// flattened ellipse 40 x 8 px on the carpet under it, where its light lands.
-    static let lanternRadius = 36.0
-    static let lanternFloor = (radius: 20.0, squash: 5.0, share: 0.8)
+    /// The lord's lantern walking indoors: one round pool on the wall, the wainscot and the floor alike, centred on the
+    /// lantern's head, and a flattened ellipse 40 x 8 px on the carpet under it, where its light lands. Round 1's pool
+    /// was flattened and so strong that the light's cap held it flat over the whole wainscot panel and it dropped at
+    /// the cap rail: a lit box. This one is wider and just below the cap at its heart, so it falls off evenly over the
+    /// panel, the stone above and the floor; it keeps its warm white to its rim (the renderer's ember rim read red on
+    /// the carpet). Its strength: day share and night share.
+    static let lanternRadius = 46.0
+    static let lanternLevel = (day: 0.14, night: 0.28)
+    static let lanternFloor = (radius: 21.0, squash: 5.0, share: 0.9)
 
     /// The door's guards come to attention when the lord comes in: 2 px taller, still, the spear upright, its head
     /// catching the light as it snaps (a glint), from `attention.lowerBound` to its upper bound in seconds.

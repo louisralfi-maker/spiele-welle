@@ -710,7 +710,7 @@ enum HallFrames {
         } else {
             // Fix round 2: one round pool over the wall, the wainscot and the floor, and its ellipse on the carpet.
             let glassX = lordX + EntityFrames.kingGlass.dx * Double(lordFacing)
-            let level = lanternLevel.day + lanternLevel.night * night
+            let level = HallLight.lanternLevel.day + HallLight.lanternLevel.night * night
             light(.lantern, x: glassX, row: HallLayout.floorRow - Int((lordLift + EntityFrames.kingGlass.dy).rounded()),
                   radius: HallLight.lanternRadius, intensity: level, color: lanternColor, squash: 1,
                   seed: 0x4C4F_5244)

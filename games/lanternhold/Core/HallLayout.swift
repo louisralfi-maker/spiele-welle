@@ -51,7 +51,8 @@ enum HallLayout {
     /// round 1: the far bench stood under the action button when the lord came in, and nobody saw the room turn to
     /// him), its seat nearest the throne first in line.
     static let benches: [Double] = [184, 300]
-    static let seats: [Double] = [192, 184, 176, 308, 300, 292]
+    /// 11 px apart since fix round 2 (everyone sits now; at 8 px three bodies ran together into one).
+    static let seats: [Double] = [195, 184, 173, 311, 300, 289]
     /// Beyond the six seats one townsperson stands at the first bench's end, between its right stand and the noble's
     /// place (fix round 2: everyone else sits; at most one stands at a bench). Never between the door and the first
     /// bench: the near pillar sweeps that wall as the camera moves.
@@ -141,10 +142,11 @@ enum HallLayout {
     /// The long warm pool the hearth lays on the flags before it, reaching back toward the dais's steps and falling
     /// off before the end wall (fix round 1).
     static let floorPool = (x: 498.0, row: 184, radius: 90.0, squash: 3.0)
+    /// The chandeliers hang 10 px lower since fix round 2 (behind the realm strip they could not be seen).
     static let chandeliers: [Double] = [184, 300]
-    static let chandelierRow = 39
-    static let chandelierCandles: [(x: Double, row: Int)] = [(-16, 39), (-10, 35), (-4, 42), (4, 34), (10, 41),
-                                                              (16, 37)]
+    static let chandelierRow = 49
+    static let chandelierCandles: [(x: Double, row: Int)] = [(-16, 49), (-10, 45), (-4, 52), (4, 44), (10, 51),
+                                                              (16, 47)]
     static let standRow = 141
     static let standCandles: [(dx: Double, row: Int)] = [(-3, 141), (0, 139), (3, 141)]
     static let torches: [(x: Double, row: Int)] = [(38, 116), (98, 116)]
