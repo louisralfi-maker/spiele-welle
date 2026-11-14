@@ -219,3 +219,4 @@ people bar now says: poor and even at first, visibly richer in three stages (ham
 (presence, target T13), front-2 (the hearth, T14) and front-3 (the beacons, T15); the picture is hooked at the join.
 Notes went to people (a second cloth state), stage, world, town, panels and craft. Presence comes into build 2 only
 if its step has passed its gate by Sunday; the rest is build 3.
+Started 14.11.2026 14:47 as task `wftfwoyny` (run `wf_511c43f9-6d6`). Never resume it; after a stop, write a continuation.
