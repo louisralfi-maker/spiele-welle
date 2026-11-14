@@ -68,6 +68,9 @@ enum HallFrames {
     /// on screen between the pillar's middle and his), back to whole at its upper bound.
     static let pillarSeen = 0.32
     static let pillarFade: ClosedRange<Double> = 26...42
+    /// The lord's lantern indoors: a smaller pool than in the open (the hall is framed a step closer, and a wide pool
+    /// greened the cloth of estate behind him).
+    static let lanternRadius = 30.0
     /// The great fire's frames a second.
     static let fireRate = 8.0
     /// The one who has the word stands in a warm pool of this radius.
@@ -559,7 +562,7 @@ enum HallFrames {
             }
         }
         light(.lantern, x: lordX + EntityFrames.kingGlass.dx * Double(lordFacing),
-              row: HallLayout.floorRow - Int((lordLift + EntityFrames.kingGlass.dy).rounded()), radius: 40,
+              row: HallLayout.floorRow - Int((lordLift + EntityFrames.kingGlass.dy).rounded()), radius: lanternRadius,
               intensity: 0.3 + 0.7 * night, seed: 0x4C4F_5244)
 
         var planes: [PlaneLayer] = []

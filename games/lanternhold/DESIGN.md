@@ -3260,7 +3260,7 @@ and `WorldLayout` are not touched: the hall's old world slot (x 1700 to 1960) is
   whoever joins later walks in from it) and a slip at the door says "The horn" until he goes out or the day comes.
   The lord stays where he is.
 - **Launch:** `-GWStage world|hall` and `-GWHallX <x>`. Without `-GWStage` a lord standing in the hall's old slot
-  starts inside before his throne (`HallLayout.firstMorningX`, 404): a new realm's first morning, the tests' old
+  starts inside before his throne (`HallLayout.firstMorningX`, 412, clear of Odile): a new realm's first morning, the tests' old
   `-GWCameraX 1824` and a dawn at the hall's door; never under the reference bot. `-GWScreen petition` opens its
   audience in the hall; `-GWPetition <id>` puts another petition there (the longest letters).
 - **World-scene's value** carries `stage:world|hall` and inside `hx:<x>` (the lord's hall x); `kx:` stays the

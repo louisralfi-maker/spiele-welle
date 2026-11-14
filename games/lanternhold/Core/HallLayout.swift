@@ -40,8 +40,9 @@ enum HallLayout {
     static let lecternX = 385.0
     /// Where the petitioner stands before the throne (and the one after him rises from his bench).
     static let spotX = 338.0
-    /// Where the lord stands on a new realm's first morning: before his throne, ready to sit.
-    static let firstMorningX = 404.0
+    /// Where the lord stands on a new realm's first morning: before his throne, ready to sit (in front of its chair, a
+    /// step clear of Odile at 397).
+    static let firstMorningX = 412.0
     /// The two benches' middles, under the tall windows; three seats each, the first in line nearest the throne.
     static let benches: [Double] = [184, 300]
     static let seats: [Double] = [308, 300, 292, 192, 184, 176]
