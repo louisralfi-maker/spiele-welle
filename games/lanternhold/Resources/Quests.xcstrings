@@ -8,7 +8,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Von der Treppe des Leuchtfeuers sieht man die steinernen Herren."
+            "value" : "Von der Treppe des Leuchtfeuers sieht man die steinernen Herren an der Straße."
           }
         },
         "en" : {
@@ -98,13 +98,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lord Harrow schickt den Rest des Aufgebots für unsere Zählung."
+            "value" : "Lord Varn schickt die andere Hälfte, sobald er unsere Zählung hat."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lord Harrow sends the rest of the levy for our Count."
+            "value" : "Lord Varn sends the other half once he has our Count."
           }
         }
       }
@@ -728,13 +728,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Laterne {lantern} ist heim. Lord Harrow las unsere geschönte Zählung und zählte dann selbst die Laternen an unseren Sätteln. Lange sagte er nichts. Dann schickte er einen Bogenschützen mit uns zurück, nicht zwei."
+            "value" : "Laterne {lantern} ist heim. Lord Varn las unsere geschönte Zählung und zählte dann selbst die Laternen an unseren Sätteln. Lange sagte er nichts. Dann sagte er, er werde einen Bogenschützen schicken, nicht zwei."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lantern {lantern} is home. Lord Harrow read our rounded Count, then counted the lanterns on our saddles himself. He said nothing for a long time. Then he sent one archer back with us, not two."
+            "value" : "Lantern {lantern} is home. Lord Varn read our rounded Count, then counted the lanterns on our saddles himself. He said nothing for a long time. Then he said he would send one archer, not two."
           }
         }
       }
@@ -782,13 +782,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zwei Bogenschützen aus Highcairn reiten zu Mittag ein, graue Steinmale auf den Mänteln. Hild Varn stellt sie selbst auf."
+            "value" : "Zwei Bogenschützen aus Highcairn reiten in der nächsten Dämmerung ein, graue Steinmale auf den Mänteln. Hild Varn stellt sie selbst auf."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Two of Highcairn's archers ride in at noon, grey cairns on their cloaks. Hild Varn posts them herself."
+            "value" : "Two of Highcairn's archers ride in at the next dusk, grey cairns on their cloaks. Hild Varn posts them herself."
           }
         }
       }
@@ -818,13 +818,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Laterne {lantern} ist heim. Lord Harrow las unsere Zählung zweimal und zählte dann selbst die Laternen an unseren Sätteln. „Haus Lantern zählt noch immer genau“, sagte er. Der Rest des Aufgebots wartet an seinem Tor."
+            "value" : "Laterne {lantern} ist heim. Lord Varn las unsere Zählung zweimal und zählte dann selbst die Laternen an unseren Sätteln. „Haus Lantern zählt noch immer ehrlich“, sagte er. Der Rest des Aufgebots wartet an seinem Tor."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lantern {lantern} is home. Lord Harrow read our Count twice, then counted the lanterns on our saddles himself. “House Lantern still counts true,” he said. The rest of the levy waits at his gate."
+            "value" : "Lantern {lantern} is home. Lord Varn read our Count twice, then counted the lanterns on our saddles himself. “House Lantern still counts true,” he said. The rest of the levy waits at his gate."
           }
         }
       }
@@ -962,7 +962,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bis zur Dämmerung leuchtet Tallowford bis zur letzten Tür. Ein Kind malt eine Laterne ans Tor, und keiner wischt sie fort."
+            "value" : "In der Dämmerung leuchtet Tallowford bis zur letzten Tür. Ein Kind malt eine Laterne ans Tor, und keiner wischt sie fort."
           }
         },
         "en" : {
@@ -980,7 +980,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Fässer gehen hinauf auf den Wehrgang. Heute Nacht brennen die Feuerschalen hoch, und der Ruß hält Abstand."
+            "value" : "Die Fässer kommen hinauf auf den Wehrgang. Heute Nacht brennen die Feuerschalen hoch, und der Ruß hält Abstand."
           }
         },
         "en" : {
@@ -998,7 +998,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Fässer warten an der Mauer. Brannock sagt, die nächste Feuerschale brennt mit Lichtzieheröl und kostet Euch nichts."
+            "value" : "Die Fässer warten an der Mauer. Brannock sagt, die nächste Feuerschale brennt mit dem Öl der Lichtzieher und kostet Euch nichts."
           }
         },
         "en" : {
@@ -1202,7 +1202,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tonight thinner"
+            "value" : "Fewer tonight"
           }
         }
       }
@@ -1484,7 +1484,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Heim im Morgengrauen von Tag {n}"
+            "value" : "Zurück am Morgen von Tag {n}"
           }
         },
         "en" : {
