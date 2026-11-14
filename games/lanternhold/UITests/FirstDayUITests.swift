@@ -185,7 +185,9 @@ final class FirstDayUITests: XCTestCase {
         if waitUntilReady(defeat, name: "defeat") {
             let root = element(defeat, "defeat-root")
             XCTAssertTrue(root.waitForExistence(timeout: 10), "the defeat card opens")
-            checkTarget(element(defeat, "defeat-second-chance"), "second chance")
+            // The ads lane: no ads in this launch (any -GW argument, AdMode), so no video and no second chance button;
+            // AdsUITests.testSecondChance checks it with the stub.
+            XCTAssertFalse(element(defeat, "defeat-second-chance").exists, "no video, no dead button")
             checkTarget(element(defeat, "defeat-replay"), "replay")
             pause(1.5)
             attach(XCUIScreen.main.screenshot(), "48-defeat-\(language)")
