@@ -275,3 +275,23 @@ light. Core is untouched (one order when the last coin lands). Build 2 gets the 
 it without risk for Monday (decided on Sunday 15.11.); build 3 gets all of it, with the foreman, Brannock and Bram
 holding the board. TOWN.md section 3 and YARD.md sections 2, 4 and 6 point to it. Notes went to the stage, town, craft,
 front, people and world lanes.
+
+**The first widow and the straw crown, 14.11.2026 16:39.** Louis' two ideas, decided in `docs/VERDICT.md`: a young
+widow as the first petitioner after the first fallen soldier (a purse, words, or a cold answer; an empty treasury greys
+the purse), and a fourth, early ending: three dawns in unrest in a row, with a straw lord hung and then burnt as the
+two warnings, end in three lantern slides ("They hanged the lord of House Lantern from a lantern"). Neither is a new
+system. Build 3. The words wait for the house texts' apply pass. The age rating answers must be weighed before any
+submission.
+
+**Scope, 14.11.2026 16:39.** Louis asked whether his ideas overload the project. The director's rule from now on:
+
+- **Build 2 (Monday 16.11.) is closed.** It ships what the running lanes hold: the rebuilt castle, taxes on foot, the
+  touch. Nothing new enters, whatever its size.
+- **Build 3 is full.** If time is short, in this order: (1) whatever build 2 left out; (2) the treasury, the town's
+  growth, the craftsmen, the count in full; (3) the house texts and the first widow; (4) the drill yard with training
+  and the kettle; (5) the straw crown; (6) the hearth, the beacons, the lord's chamber, the dungeon, the armoury, the
+  pavises, evening 9.2. From (4) on a thing may slip to build 4 without asking Louis.
+- **Every new idea is sorted at once:** one that uses what exists (a petition, a line, a prop) joins build 3's list;
+  one that needs a system of its own goes to "later" and is told to Louis as such.
+- **Quota, 16:39:** weekly 29 % (21 % at 15:45, with five workflows running). No sixth workflow before the rebuild
+  joins.
