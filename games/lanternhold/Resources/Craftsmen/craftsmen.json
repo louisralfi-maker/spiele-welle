@@ -20,14 +20,14 @@
       "counsel": 2,
       "body": "citizen",
       "look": {
-        "clothes": "leatherApron",
+        "clothes": "dressWithApron",
         "face": "old",
         "beard": "noBeard",
         "hair": "bun",
-        "hat": "headscarf",
+        "hat": "noHat",
         "skin": "light",
         "hairColor": "grey",
-        "cloth": "redBrown",
+        "cloth": "blue",
         "female": true
       }
     },
@@ -186,7 +186,7 @@
         "hat": "woolCap",
         "skin": "medium",
         "hairColor": "midBrown",
-        "cloth": "redBrown",
+        "cloth": "green",
         "female": false
       }
     },
@@ -257,7 +257,7 @@
       "counsel": 0,
       "body": "citizen",
       "look": {
-        "clothes": "leatherApron",
+        "clothes": "smock",
         "face": "square",
         "beard": "noBeard",
         "hair": "bun",

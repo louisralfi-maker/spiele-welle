@@ -91,6 +91,33 @@ final class CraftUITests: XCTestCase {
         app.terminate()
     }
 
+    /// Every craftsman's card (Reduce Motion, so it opens at once): his face, name and trade, the offer, the price and
+    /// the three answers, each within the card. Saves `62-craft-<id>`.
+    func testEveryCraftsmansCard() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        for id in ["mason", "painter", "founder", "glazier", "limeburner", "weaver", "wheelwright", "lampmaker",
+                   "fletcher", "ironwright"] {
+            let app = XCUIApplication()
+            app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWScreen", "craft", "-GWCraft", id,
+                                   "-GWReduceMotion", "YES"]
+            app.launch()
+            guard waitUntilReady(app, name: "craft-\(id)") else { continue }
+            let card = element(app, "audience-root")
+            let text = element(app, "audience-text")
+            XCTAssertTrue(card.waitForExistence(timeout: 6), "\(id): the card")
+            XCTAssertTrue(text.waitForExistence(timeout: 6), "\(id): the offer")
+            if text.exists && card.exists {
+                XCTAssertLessThanOrEqual(text.frame.maxX, card.frame.maxX + 1, "\(id): the offer stays on the card")
+                XCTAssertLessThanOrEqual(text.frame.maxY, element(app, "audience-choice-0").frame.minY + 1,
+                                         "\(id): the offer ends above the answers")
+            }
+            for index in 0...2 { checkTarget(element(app, "audience-choice-\(index)"), "\(id) answer \(index + 1)") }
+            pause(0.4)
+            attach(XCUIScreen.main.screenshot(), "62-craft-\(id)-\(language)")
+            app.terminate()
+        }
+    }
+
     /// The fletcher: the longest offer in German must fit the card.
     private func longestOffer() {
         let app = XCUIApplication()

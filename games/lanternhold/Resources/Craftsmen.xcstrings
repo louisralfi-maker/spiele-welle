@@ -116,13 +116,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Kaserne riecht eine Woche nach Kiefer. In der Nacht schlägt ein Brandpfeil ein und brennt und brennt."
+            "value" : "Die Kaserne riecht eine Woche nach Kiefer. Ab morgen Nacht schlägt ein Brandpfeil ein und brennt und brennt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The barracks smell of pine for a week. That night a fire arrow lands, and burns, and burns."
+            "value" : "The barracks smell of pine for a week. From tomorrow night a fire arrow lands, and burns, and burns."
           }
         }
       }
@@ -440,13 +440,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sie arbeitet den ganzen Tag mit heißem Eisen und kalter Pfeife. In der Dämmerung brennt jede Feuerschale klarer und etwas weiter."
+            "value" : "Sie baut ihren kleinen Ofen im Hof auf. Ab morgen brennt jede Feuerschale klarer und etwas weiter."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "She works all day with a hot iron and a cold pipe. At dusk every brazier burns clearer, and a little wider."
+            "value" : "She sets up her little furnace in the courtyard. From tomorrow every brazier burns clearer, and a little wider."
           }
         }
       }
@@ -764,13 +764,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zwei Dämmerungen später leuchtet die Straße vom Tor bis zur Stadt. Irgendeine Großmutter geht sie zweimal, einfach so."
+            "value" : "Zwei Tage später leuchtet die Straße zur Dämmerung vom Tor bis zur Stadt. Irgendeine Großmutter geht sie zweimal, einfach so."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Two dusks later the road glows from gate to town. Somebody’s grandmother walks it twice, just because."
+            "value" : "Two days on, the road glows at dusk from gate to town. Somebody’s grandmother walks it twice, just because."
           }
         }
       }
@@ -926,13 +926,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zur Dämmerung riecht der Wehrgang nach nassem Kalk, und in jedem Kübel steckt eine Kelle wie ein kleines Fähnchen."
+            "value" : "Ab morgen riecht der Wehrgang nach nassem Kalk, und in jedem Kübel steckt eine Kelle wie ein kleines Fähnchen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "By dusk the wall walk smells of wet lime, and a trowel stands in every tub like a little flag."
+            "value" : "By tomorrow the wall walk smells of wet lime, and a trowel stands in every tub like a little flag."
           }
         }
       }
@@ -1088,13 +1088,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sie spuckt in die Hände. „Einen Tag stillhalten, bitte. Das schafft nie einer.“"
+            "value" : "Sie spuckt in die Hände. „Zwei Tage. Haltet einen davon still; das schafft nie einer.“"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "She spits on her palms. “Hold still for a day. Lords never do.”"
+            "value" : "She spits on her palms. “Two days. Hold still for one of them; lords never do.”"
           }
         }
       }
@@ -1250,13 +1250,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Kinn hoch. Nicht so hoch.“ Am Abend hängt Ihr im Saal, um einiges geduldiger als im Leben."
+            "value" : "„Kinn hoch. Nicht so hoch.“ Am Morgen hängt Ihr im Saal, um einiges geduldiger als im Leben."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“Chin up. Not that far.” By evening you hang in the hall, a good deal more patient than in life."
+            "value" : "“Chin up. Not that far.” By morning you hang in the hall, a good deal more patient than in life."
           }
         }
       }
@@ -1412,13 +1412,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Am Abend trägt die Mauer Blaugrün und Gold. Darunter richtet sich eine Wache auf, ohne es zu merken."
+            "value" : "Ab morgen trägt die Mauer Blaugrün und Gold. Darunter richtet sich eine Wache auf, ohne es zu merken."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "By evening the wall wears teal and gold. Below it a guard straightens up without noticing."
+            "value" : "By tomorrow the wall wears teal and gold. Below it a guard straightens up without noticing."
           }
         }
       }
@@ -1574,13 +1574,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Am Abend stehen zwei blaugrüne Karren bei der Bauhütte. Die Bauleute fahren einmal um die Wette, als sie sich unbeobachtet glauben."
+            "value" : "Ab morgen stehen zwei blaugrüne Karren bei der Bauhütte. Die Bauleute fahren einmal um die Wette, als sie sich unbeobachtet glauben."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "By evening two teal carts stand by the lodge. The builders race them, once, when they think nobody is looking."
+            "value" : "By tomorrow two teal carts stand by the lodge. The builders race them, once, when they think nobody is looking."
           }
         }
       }
