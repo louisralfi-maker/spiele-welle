@@ -1,0 +1,4 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/App/GameModel+Hall.swift:108:21: error: cannot use mutating member on immutable value: 'driver' setter is inaccessible
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/App/GameModel+Hall.swift:154:21: error: cannot use mutating member on immutable value: 'driver' setter is inaccessible
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/App/GameModel+Hall.swift:87:35: error: cannot use mutating member on immutable value: 'driver' setter is inaccessible
