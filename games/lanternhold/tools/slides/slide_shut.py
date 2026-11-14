@@ -69,10 +69,8 @@ def gloom_fog(c):
                 col = "mistDark"
             elif d < 6:
                 col = "far"
-            elif swirl > 0.68:
+            elif swirl > 0.74:
                 col = "far"
-            elif swirl < 0.3:
-                col = "nightSlate"
             else:
                 col = "farDeep"
             c.c[y][x] = P(col)

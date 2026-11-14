@@ -251,15 +251,13 @@ def high_chair(form):
     crest, the lord's head and shoulders above it (the circlet a thread of gold), the right arm on the armrest toward
     the fire."""
     lay = Layer()
-    cx = 112
+    cx = 140
     wood = P("night1")
     # the high back: two posts with knobs, the crest between them carved, the back's panel
     lay.poly([(cx - 19, 150), (cx + 19, 150), (cx + 17, 104), (cx - 17, 104)], wood)
-    lay.poly([(cx - 17, 104), (cx - 11, 97), (cx - 5, 101), (cx, 93), (cx + 5, 101), (cx + 11, 97), (cx + 17, 104)],
-             wood)
+
     for px in (cx - 19, cx + 17):
-        lay.poly([(px, 98), (px + 3, 98), (px + 3, 150), (px, 150)], wood)
-        lay.ellipse(px + 1.5, 96, 2.4, 2.4, wood)
+        lay.poly([(px, 106), (px + 3, 106), (px + 3, 150), (px, 150)], wood)
     # the armrests and the legs, the floor showing between them
     lay.poly([(cx + 18, 124), (cx + 34, 124), (cx + 34, 128), (cx + 18, 128)], wood)
     lay.poly([(cx - 34, 124), (cx - 18, 124), (cx - 18, 128), (cx - 34, 128)], wood)
@@ -274,6 +272,9 @@ def high_chair(form):
     if form == "lady":
         lay.poly([(cx - 7, 84), (cx + 9, 84), (cx + 10, 104), (cx - 8, 104)], P("night0"))
         lay.ellipse(cx + 1, 76, 5.0, 3.6, P("night0"))
+    # the lord's hair: short and full for the Burgherr, a knot for the Burgherrin (above)
+    if form != "lady":
+        lay.ellipse(cx + 1, 79, 7.0, 4.0, P("night0"))
     return lay, (cx + 1, 80)
 
 

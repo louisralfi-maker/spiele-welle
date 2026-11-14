@@ -74,7 +74,8 @@ struct ChapterEndView: View {
 
     private var header: some View {
         VStack(spacing: 2) {
-            Text(verbatim: text("end.lord") + " \u{00B7} " + text("end.chapter"))
+            // The ledger's figures for the digits (docs/UI-look.md "Type"): IM Fell's old-style 1 reads as an i.
+            Text(inked: text("end.lord") + " \u{00B7} " + text("end.chapter"), .subheadline)
                 .font(Theme.italic(.subheadline))
                 .foregroundStyle(Theme.inkSoft)
                 .lineLimit(1)
