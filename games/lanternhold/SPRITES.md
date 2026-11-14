@@ -548,3 +548,113 @@ Swift names it yet. Interface art, not world art: no plane, no light, no anchor.
   one at 48x32 pt without a tint; `CircletIcon(ink: true)` in `UI/AudienceCardView.swift` draws the ink one at
   24x16 pt as a template in the button's ink. `CircletShape` is gone. The `@2x` and `@3x` files lie unused in the
   bundle.
+
+### The great hall as a stage (look 2, stage 8; ART-look2.md section 20)
+
+**Proposals for the code lane**: the PNGs lie in `Resources/Art`, `tools/build-art.sh` rebuilds them
+(`tools/hallart.py`, the court lane), no Swift names them yet. Louis on 10.11.: the throne room "much bigger", the
+picture at the craft of the great pixel-art kingdoms. `hallInterior` (260x90) and every id above stay as they are.
+
+| id | size | frames | notes |
+|---|---|---|---|
+| `greatHall` | 600x201 | 1 | the whole hall, 2.3 times as wide and 2.2 times as tall as `hallInterior`. Albedo, opaque but for the window lights (transparent: the night and the Weltmauer show through). It fills the view's height: 175 rows above the floor line, 26 below, like the world |
+| `hallPillarNear` | 46x201 | 1 | a pillar of the near arcade with the springers of its arches. Drawn in front of everything at parallax 1.25, dark (it stands before every light) |
+| `hallFire` | 204x28 | 6 of 34x28 | the great hearth's fire, emissive, on the fire ramp. Bottom row on hall row 145, centred on x 532. About 8 frames a second |
+
+**The hall's parts** (hall px, x from the hall's left edge, rows from its top; a thing "stands on row r" when its
+lowest row is r − 1):
+
+| what | where |
+|---|---|
+| floor line of the nave (the walk line, on the long carpet) | row 175, x 14 to 363 |
+| wall line of the nave (benches, guards, the waiting) | row 169 |
+| the door (leads out) | opening x 49 to 87, from row 110; a torch each side (x 38 and 98) |
+| the gallery over the door | x 14 to 122, its rail rows 80 to 95; a window behind it |
+| benches (`bench`, 32x10) | centred on x 184 and 300, under the two tall windows; three seats each (centre − 8, centre, centre + 8), the seated townsfolk on row 169 |
+| candle stands (painted in) | x 160, 208, 276, 324: one each side of a bench |
+| dais steps | x 364 to 375: three treads of 4 px, 3 px high each |
+| the dais | x 376 to 589, raised 9 px: its floor line is row 166 |
+| the throne (`throne`, 14x24) | centred on x 416, on row 166, under the cloth of estate (x 398 to 434); the seated lord faces left, down the hall |
+| court places (row 166) | the tax lectern x 385, Odile x 397 (between lord and nave), Brannock x 441 (under the arms), Hesper x 497 (at the hearth); Pip x 350 at the foot of the steps, on row 171 (the petitioner passes in front of him) |
+| the petitioner's walk | in by the door, along row 175, stops at x 338; the one after him rises from his bench |
+| guards | x 37 and 100, row 169, facing the door |
+| the hearth | x 492 to 572, the hood up to the roof; the firebox x 508 to 556 |
+| banner places | left edges x 137, 211, 253, 327, 368, top row 62: the realm's teal banner is painted there in the houses' outline (20x41), so a house's banner drawn at the same place covers it whole |
+| windows (transparent lights) | two tall ones x 169 to 199 and x 285 to 315, rows 58 to 130; one over the gallery; a round one over the throne (centre 416, 45); two slits beside the hearth |
+
+**Fire and light anchors** (`python3 tools/hallart.py anchors greatHall` prints them all): the hearth fire (532, 145)
+with its light at (532, 128), radius 120; two chandeliers of six candles, light at (184, 39) and (300, 39), radius
+64; four stands of three candles, light at (x, 141), radius 26; the door torches (38, 116) and (98, 116), radius 34;
+four candles on the mantel, two under the arms (456, 123), two on the gallery's newels.
+
+**The light is the state of the realm**, not decoration:
+
+- the hearth's pool grows with the hearth's strength (radius about 60 + 60 × strength; below a third the small
+  `hearthFire` burns instead of `hallFire`);
+- a stand burns beside a bench while someone waits on it; an empty hall has dark stands;
+- the chandeliers burn while the court sits (the audience hours), and go out for the night;
+- the door torches burn from dusk; the lord carries his lantern as everywhere.
+
+**Layers**, back to front: the night sky and `weltmauer` (parallax about 0.3, seen through the window lights) ·
+`greatHall` · the houses' banners · the wall line (benches, the seated, guards) · the dais' props (throne, lectern) ·
+actors by their floor row · flames and glow strips · `hallPillarNear` · the interface.
+
+- The near pillars stand over the wall shafts at x 126 and 242 when the camera is centred on them: a pillar of hall
+  x `p` is drawn at screen centre + (`p` − camera centre) × 1.25, with `p` = 161 and 254. In the audience framing
+  both are off the screen's left edge, so nothing ever stands before the throne.
+
+**The hall is a stage of its own.** The world's slot (x 1700 to 1960) is too small for it. The lord taps the hall's
+door in the world, walks to it, the screen fades through dark (Reduce Motion: a cut) and he stands inside at the
+door. The door inside leads back.
+
+- **Walking in the hall:** the world's scale (6 device px per game px, a view of 437x201); the camera follows the
+  lord and stops at the hall's ends (camera x 0 to 163).
+- **The audience framing** (the lord sits): 8 device px per game px, a view of 328x151 with its left edge at hall
+  x 232 and its top at row 50. The hall fills the screen from the bench window to the hearth, the characters stand
+  80 pt tall instead of 60. The move in takes about 0.6 s, eased (Reduce Motion: a cut).
+- **The audience card over it** (a proposal, since today's card fills the lower half and would cover the stage): the
+  letter (portrait, name, role, request, Odile's slip) lies in the upper left over the wall and the window, about
+  364x226 pt; the choices lie as plaques along the floor band below the walk line. Petitioner, lord and hearth stay
+  in sight.
+
+**Texture space.** The atlas page stands at 2048x1788: 260 free rows. The hall (201 rows and its padding) would just
+fit and close the page for good. So the hall's three sprites and the tap marks below go on a **second page of
+1024x256** (DESIGN.md's budget allows two pages): `greatHall` at (0, 0), `hallPillarNear` beside it, `hallFire`
+and the marks in the 376 columns that remain. It costs 1 MB as RGBA and leaves page 1 its rows for the world.
+
+**Open, for the lead:** whether the world still shows the small cut-away (`hallInterior`) from the street once the
+stage exists, or the hall's closed front.
+
+### The marks of "touch the world" (look 2, stage 8; ART-look2.md section 20)
+
+**Proposals for the code lane**: `tools/hallart.py` (the court lane of `tools/build-art.sh`), no Swift names them
+yet. They replace the action button (DESIGN.md "Controls 2: touch the world"). A mark is a small parchment tag in
+the interface's ink and gold (docs/UI-look.md) that floats above a thing the lord can touch.
+
+| id | size | frames | above |
+|---|---|---|---|
+| `tapTalk` | 30x18 | 2 of 15x18 | a speech bubble: a petitioner who waits, a member of the court or a townsman with a word |
+| `tapThrone` | 30x18 | 2 of 15x18 | the circlet: the empty throne, when an audience can be held |
+| `tapBuild` | 30x18 | 2 of 15x18 | a hammer: an open plot, a building that can grow |
+| `tapRepair` | 30x18 | 2 of 15x18 | a wall with a wax-red crack: a damaged wall or building |
+| `tapRecruit` | 30x18 | 2 of 15x18 | a head and shoulders with a plus: where the lord can recruit |
+| `tapLight` | 30x18 | 2 of 15x18 | a flame: a cold brazier |
+
+- **Frames:** 0 idle (parchment in a gold rim), 1 pressed (the plaque a step darker, the rim dull). Pressing
+  darkens the plaque, nothing moves, as on every button of the interface. No bobbing, no pulse.
+- **Place:** the tip of the tag's pointer (frame x 7, row 17) stands 3 px above the thing's top row, over the x
+  where the lord will stand. On a bench it stands over the first in line.
+- **Drawn unlit**, like the flames: it is a piece of the interface in the world and must read in the dark. It keeps
+  whole pixels: 30x36 pt at the world's scale, 40x48 pt in the audience framing.
+- **The highlight on the thing itself needs no sprite:**
+  - a **rim** of one pixel outside the sprite's outline at its left, right and top (not below), in `gold`, unlit;
+    the engine takes it from the sprite's alpha;
+  - a **pool**: a point light 5 px above the floor line at the thing's feet, radius 20, `fireGold`, strength 0.7,
+    and 1.4 times that while the finger is down on it. The one who has the word in an audience keeps a pool of
+    radius 30.
+- **When:** rim and pool on every thing in view that offers something now. At most four marks in view, the nearest
+  to the lord first; of a row of damaged walls only the nearest carries the mark, the others keep their rim.
+- **The touch area** is the thing and its mark together, at least 44x44 pt (DESIGN.md "Controls 2").
+- **Texture space:** the six strips (180x18 together) lie on the hall's second page.
+- **Open, for the lead:** the tax lectern has no mark of its own. Odile stands at it, so her `tapTalk` can lead to
+  the tithe; a seventh mark with a coin is a quarter of an hour of art if wanted.

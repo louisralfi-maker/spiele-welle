@@ -19,6 +19,7 @@ cd "$(dirname "$0")/../../.."
 AA=games/lanternhold/tools/actorart.py
 PA=games/lanternhold/tools/portraitart.py
 RA=games/lanternhold/tools/roomart.py
+HA=games/lanternhold/tools/hallart.py
 BA=games/lanternhold/tools/bannerart.py
 IA=games/lanternhold/tools/iconart.py
 A=games/lanternhold/Resources/Art
@@ -49,6 +50,8 @@ build() { # name: one sprite (and its glow strip)
         python3 -I -B $IA build "$1" --out $A ;;
     hallFront|chapelInterior|kitchenInterior|bench|taxLectern|marekCart|statue|speakerMark)
         python3 -I -B $RA build "$1" --out $A ;;
+    greatHall|hallPillarNear|hallFire|tapTalk|tapThrone|tapBuild|tapRepair|tapRecruit|tapLight)
+      python3 -I -B $HA build "$1" --out $A ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;
     esac
 }
@@ -60,7 +63,7 @@ hildVarn lorenzPell ebbaCalder orlaLorn portraitHildVarn portraitLorenzPell port
 bannerVarn bannerBrine bannerOxmoor bannerCalder bannerLorn
 circletIcon circletIconInk
 portraitClothes portraitFace portraitBeard portraitHair portraitHat
-hallFront chapelInterior kitchenInterior bench taxLectern marekCart statue speakerMark"
+hallFront chapelInterior kitchenInterior bench taxLectern marekCart statue speakerMark greatHall hallPillarNear hallFire tapTalk tapThrone tapBuild tapRepair tapRecruit tapLight"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do
     cool
