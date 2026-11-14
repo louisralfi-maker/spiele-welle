@@ -123,6 +123,36 @@ final class TownUITests: XCTestCase {
         app.terminate()
     }
 
+    /// A grown town (`-GWBuild demo`, its ledger worked out again by `-GWTown owed`): the big house, the weaver's and
+    /// the stall wait; the stall keeper tosses; the farmer counts his coins out of the cloth.
+    func testStallFieldAndBigHouse() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWDay", "4", "-GWBuild", "demo",
+                               "-GWTown", "owed", "-GWClock", "10", "-GWHappiness", "70", "-GWCameraX", "3100"]
+        app.launch()
+        guard waitUntilReady(app, name: "town-grown") else { return }
+        let status = element(app, "town-status")
+        XCTAssertTrue(status.waitForExistence(timeout: 10))
+        pause(0.8)
+        let market = 26
+        let field = 22
+        let owing = list(status, "owing:")
+        XCTAssertTrue(owing.contains(market) && owing.contains(field) && owing.contains(cooper),
+                      "the stall, the field and the big house owe (\(statusText(status)))")
+        attach(XCUIScreen.main.screenshot(), "56-grown-waiting-\(language)")
+        let strip = element(app, "realm-strip")
+        tapStrip(strip, worldX: 3222)
+        XCTAssertTrue(waitFor(status, "paid:", contains: market, timeout: 15), "the stall (\(statusText(status)))")
+        pause(0.3)
+        attach(XCUIScreen.main.screenshot(), "57-stall-toss-\(language)")
+        tapStrip(strip, worldX: 2703)
+        XCTAssertTrue(waitFor(status, "paid:", contains: field, timeout: 20), "the field (\(statusText(status)))")
+        pause(0.45)
+        attach(XCUIScreen.main.screenshot(), "58-farmer-count-\(language)")
+        app.terminate()
+    }
+
     func testReduceMotion() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()

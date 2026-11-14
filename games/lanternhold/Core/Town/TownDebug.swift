@@ -1,8 +1,9 @@
 /// The town's debug starts (`-GWTown owed|paid|knock`, town-2), for the screenshots and the UI tests of the taxes on
 /// foot. They change today's ledger only (and the purse with it), after the start's other arguments:
 ///
-/// - `owed`: nobody has collected today: every place owes its part again and the gold the bot's morning took is
-///   taken out of the purse (a `-GWDay` start's bot collects at dawn). On the first morning nothing changes.
+/// - `owed`: nobody has collected today: the ledger is worked out again for the realm as it stands (after a
+///   `-GWBuild demo`) and the gold the bot's morning took is taken out of the purse (a `-GWDay` start's bot collects
+///   at dawn). On the first morning nothing changes.
 /// - `paid`: the lord collected every part long ago (no toss in the air, every door shut).
 /// - `knock`: that, and the first house was knocked at long ago: its shutters are closed and its window stays dark
 ///   tonight.
@@ -14,6 +15,20 @@ enum TownDebug {
     static func apply(_ s: inout GameState, mode: Mode, balance: Balance) {
         guard var town = s.town, var day = town.today else { return }
         let long = s.simTime - 3600
+        if mode == .owed && !Town.isFirstMorning(day) {
+            // The ledger again for the realm as it stands now (a `-GWBuild demo` raised fields and a market after the
+            // dawn), the purse without what was collected of the old one.
+            for place in day.places {
+                s.gold = max(0, s.gold - (place.collectorGold == nil ? place.tossGold : 0) - place.knockGold)
+            }
+            var fresh = Town.ledger(s, taxes: Economy.taxes(s, happiness: s.happiness, balance: balance),
+                                    balance: balance)
+            fresh.doubled = day.doubled
+            fresh.collectorOut = day.collectorOut
+            town.today = fresh
+            s.town = town
+            return
+        }
         for index in day.places.indices {
             var place = day.places[index]
             let taken = (place.collectorGold == nil ? place.tossGold : 0) + place.knockGold
