@@ -140,7 +140,9 @@ if doVariants {
     for reach in [16.0, 32] { list.append(("light: wall + passing \(Int(reach))", variant { $0.relightReach = reach })) }
     list.append(("relight every 2 s", variant { $0.relightEvery = 2 }))
     list.append(("relight every 6 s", variant { $0.relightEvery = 6 }))
-    for behind in [10.0, 14] { list.append(("bot: stand \(Int(behind)) on the wall", variant { $0.botBehindWall = behind })) }
+    for behind in [1.0, 5, 14, 19] {
+        list.append(("bot: stand \(Int(behind)) on the wall", variant { $0.botBehindWall = behind }))
+    }
     list.append(("bot: no rear trips", variant { $0.botRearBraziers = false }))
     for reach in [120.0, 300] { list.append(("bot: quiet reach \(Int(reach))", variant { $0.botQuietReach = reach })) }
     list.append(("bot: one rear trip", variant { $0.botMaxRearTrips = 1 }))
@@ -160,7 +162,7 @@ if doVariants {
     list.append(("relight every 3 s", variant { $0.relightEvery = 3 }))
     list.append(("relight every 1 s", variant { $0.relightEvery = 1 }))
     for speed in [1.2, 1.25, 1.3] {
-        for harm in [0.45, 0.5, 0.55, 0.6] {
+        for harm in [0.55, 0.6, 0.65, 0.7, 0.75] {
             list.append(("s\(speed) h\(harm)", variant {
                 $0.presenceSpeed = speed
                 $0.presenceHarm = harm

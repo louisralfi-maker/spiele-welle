@@ -21,10 +21,11 @@ struct FrontTuning: Sendable, Equatable {
     /// Under presence they loose and strike this many times as fast (their cooldowns run this much faster). The spec
     /// started at 1.15; T13 needs 1.25 (as fast as the old rally, which it replaces).
     var presenceSpeed = 1.25
-    /// Under presence they take this share of the harm: they hold twice as long. The spec started at 0.8; 0.6 reached
-    /// T13's band at its lower edge (28 %, with neighbours outside it), 0.5 sits in its middle (34 %) and every
-    /// neighbour of it passes too (round lh-f1-4), which T13 needs when it is measured again on the joined game.
-    var presenceHarm = 0.5
+    /// Under presence they take this share of the harm: they hold half as long again. The spec started at 0.8. Round
+    /// lh-f1-5 chose 0.5 with the bot on the wall's front edge (1 px); fix round 1 found that edge an outlier: anywhere
+    /// deeper on the wall (5 to 19 px) the same rule saves 13 to 15 points more, so 0.5 overshot T13's band there (42 to
+    /// 47 %). At 0.65 T13 is 30 to 33 % at every spot from 5 to 19 px (round lh-f1f1-4, the grid in docs/lanes/front.md).
+    var presenceHarm = 0.65
     /// The harm share never goes below this (a guard at his floor would otherwise divide by nothing in
     /// `Battle.hurtGuards`); not a tuning value.
     static let leastHarmShare = 0.05
@@ -55,9 +56,10 @@ struct FrontTuning: Sendable, Equatable {
 
     // MARK: The present bot (T13)
 
-    /// Where the bot stands when a wall takes the wave: this far behind the wall's face, on the wall (up there nothing
-    /// throws it back, and the wall's braziers catch from its lantern).
-    var botBehindWall = 1.0
+    /// Where the bot stands when a wall takes the wave: this far behind the wall's face, on the wall walk (up there
+    /// nothing throws it back, and the wall's braziers catch from its lantern). Within every wall (a palisade is 20 px
+    /// wide); T13 is the same anywhere from 5 to 19 px, only the front edge (1 px) loses more (fix round 1).
+    var botBehindWall = 10.0
     /// With no wall standing it makes its last stand this far behind the hearth (negative: in front of it, where its
     /// lantern slows the creatures on their way to the fire but they can reach it and throw it back).
     var botLastStand = 1.0
