@@ -1,0 +1,731 @@
+{
+ "strings": [
+  {
+   "key": "line.herald_fire",
+   "en_old": "Your fire is very small, lamplighter. He has watched larger ones go out.",
+   "en_new": "Your fire is very small, heir of the thief. He has watched larger ones go out.",
+   "de_old": "Euer Feuer ist sehr klein, {Laternenanzünder|Laternenanzünderin}. Er hat größere erlöschen sehen.",
+   "de_new": "Euer Feuer ist sehr klein, {Erbe|Erbin} des Diebes. Er hat größere erlöschen sehen.",
+   "why": "The herald of the Lightless King addresses the heir of a thief (HOUSE.md 1 and 7), never a lamplighter."
+  },
+  {
+   "key": "petition.herald_alone.text",
+   "en_old": "The King beneath the Gloom greets the lamplighter. The woman with the grey lantern is not here, he sees. So he asks less: sixty gold of lamp oil, poured out on the Throat’s floor at dusk. Pour it, and your town sleeps three nights.",
+   "en_new": "The King beneath the Gloom greets the heir of the thief. The woman with the grey lantern is not here, he sees. So he asks less: sixty gold of lamp oil, poured out on the Throat’s floor at dusk. Pour it, and your town sleeps three nights.",
+   "de_old": "Der König unter der Düsternis grüßt {den Laternenanzünder|die Laternenanzünderin}. Die Frau mit der grauen Laterne ist nicht hier, sieht er. Also verlangt er Geringeres: Lampenöl für sechzig Gold, bei Dämmerung auf dem Grund des Schlunds ausgegossen. Gießt es aus, und Eure Stadt schläft drei Nächte.",
+   "de_new": "Der König unter der Düsternis grüßt {den Erben|die Erbin} des Diebes. Die Frau mit der grauen Laterne ist nicht hier, sieht er. Also verlangt er Geringeres: Lampenöl für sechzig Gold, bei Dämmerung auf dem Grund des Schlunds ausgegossen. Gießt es aus, und Eure Stadt schläft drei Nächte.",
+   "why": "The herald of the Lightless King addresses the heir of a thief (HOUSE.md 1 and 7), never a lamplighter."
+  },
+  {
+   "key": "petition.herald_demand.text",
+   "en_old": "The King beneath the Gloom greets the lamplighter on {his|her} borrowed chair. He wants only the woman with the grey lantern. Give her to me, and for three nights your little town will sleep.",
+   "en_new": "The King beneath the Gloom greets the heir of the thief on {his|her} borrowed chair. He wants only the woman with the grey lantern. Give her to me, and for three nights your little town will sleep.",
+   "de_old": "Der König unter der Düsternis grüßt {den Laternenanzünder auf seinem|die Laternenanzünderin auf ihrem} geliehenen Stuhl. Er will nur die Frau mit der grauen Laterne. Gebt sie mir, und drei Nächte lang wird Euer Städtchen schlafen.",
+   "de_new": "Der König unter der Düsternis grüßt {den Erben des Diebes auf seinem|die Erbin des Diebes auf ihrem} geliehenen Stuhl. Er will nur die Frau mit der grauen Laterne. Gebt sie mir, und drei Nächte lang wird Euer Städtchen schlafen.",
+   "why": "The herald of the Lightless King addresses the heir of a thief (HOUSE.md 1 and 7), never a lamplighter."
+  },
+  {
+   "key": "petition.herald_demand.r2",
+   "en_old": "The herald’s cold eyes rest on you a long moment. “He will remember the lamplighter.” That night the Gloom comes harder.",
+   "en_new": "The herald’s cold eyes rest on you a long moment. “He will remember the heir of the thief.” That night the Gloom comes harder.",
+   "de_old": "Die kalten Augen des Herolds ruhen lange auf Euch. „Er wird sich an {den Laternenanzünder|die Laternenanzünderin} erinnern.“ In dieser Nacht drängt die Düsternis härter.",
+   "de_new": "Die kalten Augen des Herolds ruhen lange auf Euch. „Er wird sich an {den Erben|die Erbin} des Diebes erinnern.“ In dieser Nacht drängt die Düsternis härter.",
+   "why": "The herald of the Lightless King addresses the heir of a thief (HOUSE.md 1 and 7), never a lamplighter."
+  },
+  {
+   "key": "line.seren_gate",
+   "en_old": "The light is going, lamplighter. Open, or watch me wait.",
+   "en_new": "The light is going, keeper. Open, or watch me wait.",
+   "de_old": "Das Licht schwindet, {Laternenanzünder|Laternenanzünderin}. Öffnet, oder seht mir beim Warten zu.",
+   "de_new": "Das Licht schwindet, {Hüter|Hüterin}. Öffnet, oder seht mir beim Warten zu.",
+   "why": "Seren greets the heir of the guardian house as one keeper greets another (HOUSE.md 7), not as a lamplighter."
+  },
+  {
+   "key": "line.seren_lantern",
+   "en_old": "My lantern is not cold, lamplighter. It is only very far away.",
+   "en_new": "My lantern is not cold, keeper. It is only very far away.",
+   "de_old": "Meine Laterne ist nicht kalt, {Laternenanzünder|Laternenanzünderin}. Sie ist nur sehr weit fort.",
+   "de_new": "Meine Laterne ist nicht kalt, {Hüter|Hüterin}. Sie ist nur sehr weit fort.",
+   "why": "Seren greets the heir of the guardian house as one keeper greets another (HOUSE.md 7), not as a lamplighter."
+  },
+  {
+   "key": "petition.seren_at_gate.text",
+   "en_old": "You kept your gate shut, lamplighter. I do not blame you. But hear this through it: Aldric did not fall. The dark did not kill him. It crowned him. Only in the Great Beacon’s light can he be hurt. I am Seren.",
+   "en_new": "You kept your gate shut, keeper. I do not blame you. But hear this through it: Aldric did not fall. The dark did not kill him. It crowned him. Only in the Great Beacon’s light can he be hurt. I am Seren.",
+   "de_old": "Ihr habt Euer Tor verschlossen gehalten, {Laternenanzünder|Laternenanzünderin}. Ich verüble es Euch nicht. Aber hört dies durch das Tor: Aldric ist nicht gefallen. Das Dunkel hat ihn nicht getötet. Es hat ihn gekrönt. Nur im Licht des Großen Leuchtfeuers ist er verwundbar. Ich bin Seren.",
+   "de_new": "Ihr habt Euer Tor verschlossen gehalten, {Hüter|Hüterin}. Ich verüble es Euch nicht. Aber hört dies durch das Tor: Aldric ist nicht gefallen. Das Dunkel hat ihn nicht getötet. Es hat ihn gekrönt. Nur im Licht des Großen Leuchtfeuers ist er verwundbar. Ich bin Seren.",
+   "why": "Seren greets the heir of the guardian house as one keeper greets another (HOUSE.md 7), not as a lamplighter."
+  },
+  {
+   "key": "petition.seren_reveal.text",
+   "en_old": "My name is Seren. I kept the Great Beacon until it went dark, and I rode with Aldric to light it again. He did not fall, lamplighter. The dark did not kill him. It crowned him. Only in the beacon’s light can he be hurt.",
+   "en_new": "My name is Seren. I kept the Great Beacon until it went dark, and I rode with Aldric to light it again. He did not fall, keeper. The dark did not kill him. It crowned him. Only in the beacon’s light can he be hurt.",
+   "de_old": "Mein Name ist Seren. Ich hütete das Große Leuchtfeuer, bis es erlosch, und ritt mit Aldric, um es neu zu entzünden. Er ist nicht gefallen, {Laternenanzünder|Laternenanzünderin}. Das Dunkel hat ihn nicht getötet. Es hat ihn gekrönt. Nur im Licht des Leuchtfeuers ist er verwundbar.",
+   "de_new": "Mein Name ist Seren. Ich hütete das Große Leuchtfeuer, bis es erlosch, und ritt mit Aldric, um es neu zu entzünden. Er ist nicht gefallen, {Hüter|Hüterin}. Das Dunkel hat ihn nicht getötet. Es hat ihn gekrönt. Nur im Licht des Leuchtfeuers ist er verwundbar.",
+   "why": "Seren greets the heir of the guardian house as one keeper greets another (HOUSE.md 7), not as a lamplighter."
+  },
+  {
+   "key": "petition.seren_watch.text",
+   "en_old": "Let me stand on the wall tonight, lamplighter. I know how the dark moves before it moves. I can tell your archers where to look. I will not touch a bow. I only want to be useful in this house.",
+   "en_new": "Let me stand on the wall tonight, keeper. I know how the dark moves before it moves. I can tell your archers where to look. I will not touch a bow. I only want to be useful in this house.",
+   "de_old": "Lasst mich heute Nacht auf der Mauer stehen, {Laternenanzünder|Laternenanzünderin}. Ich weiß, wie sich das Dunkel bewegt, bevor es sich bewegt. Ich kann Euren Schützen sagen, wohin sie sehen müssen. Einen Bogen rühre ich nicht an. Ich will nur nützlich sein in diesem Haus.",
+   "de_new": "Lasst mich heute Nacht auf der Mauer stehen, {Hüter|Hüterin}. Ich weiß, wie sich das Dunkel bewegt, bevor es sich bewegt. Ich kann Euren Schützen sagen, wohin sie sehen müssen. Einen Bogen rühre ich nicht an. Ich will nur nützlich sein in diesem Haus.",
+   "why": "Seren greets the heir of the guardian house as one keeper greets another (HOUSE.md 7), not as a lamplighter."
+  },
+  {
+   "key": "petition.stranger_gate.text",
+   "en_old": "I have walked from the edge of the Gloom with this lantern. It burns grey and gives no warmth, so do not ask it to. Night is close, and out there the dark knows my name. Open your gate, lamplighter.",
+   "en_new": "I have walked from the edge of the Gloom with this lantern. It burns grey and gives no warmth, so do not ask it to. Night is close, and out there the dark knows my name. Open your gate, keeper.",
+   "de_old": "Ich komme vom Rand der Düsternis, mit dieser Laterne. Sie brennt grau und wärmt nicht, also verlangt es nicht von ihr. Die Nacht ist nah, und da draußen kennt das Dunkel meinen Namen. Öffnet Euer Tor, {Laternenanzünder|Laternenanzünderin}.",
+   "de_new": "Ich komme vom Rand der Düsternis, mit dieser Laterne. Sie brennt grau und wärmt nicht, also verlangt es nicht von ihr. Die Nacht ist nah, und da draußen kennt das Dunkel meinen Namen. Öffnet Euer Tor, {Hüter|Hüterin}.",
+   "why": "Seren greets the heir of the guardian house as one keeper greets another (HOUSE.md 7), not as a lamplighter."
+  },
+  {
+   "key": "line.hesper_beacon",
+   "en_old": "The beacon and the Flame are kin, child of the house. One fire, lit long ago in two bowls.",
+   "en_new": "The beacon and the Flame are kin, heir of the house. One fire, lit long ago in two bowls.",
+   "de_old": "Das Leuchtfeuer und die Flamme sind verwandt, Kind des Hauses. Ein Feuer, vor langer Zeit in zwei Schalen entzündet.",
+   "de_new": "Das Leuchtfeuer und die Flamme sind verwandt, {Erbe|Erbin} des Hauses. Ein Feuer, vor langer Zeit in zwei Schalen entzündet.",
+   "why": "Hesper speaks to the heir by right, not to a child (HOUSE.md 1: nobody calls the lord a child)."
+  },
+  {
+   "key": "line.hesper_bell",
+   "en_old": "The chapel has no voice now, child of the house. I ring a pot at dawn. The Flame pretends not to notice.",
+   "en_new": "The chapel has no voice now, heir of the house. I ring a pot at dawn. The Flame pretends not to notice.",
+   "de_old": "Die Kapelle hat jetzt keine Stimme, Kind des Hauses. Ich schlage im Morgengrauen auf einen Topf. Die Flamme tut, als merke sie nichts.",
+   "de_new": "Die Kapelle hat jetzt keine Stimme, {Erbe|Erbin} des Hauses. Ich schlage im Morgengrauen auf einen Topf. Die Flamme tut, als merke sie nichts.",
+   "why": "Hesper speaks to the heir by right, not to a child (HOUSE.md 1: nobody calls the lord a child)."
+  },
+  {
+   "key": "line.hesper_first",
+   "en_old": "Welcome, child of the house. The Flame has burned in this hall for a thousand years. Please do not be the one.",
+   "en_new": "Welcome, heir of the house. The Flame has burned in this hall for a thousand years. Please do not be the one.",
+   "de_old": "Willkommen, Kind des Hauses. Die Flamme brennt seit tausend Jahren in diesem Saal. Seid bitte nicht {derjenige|diejenige}.",
+   "de_new": "Willkommen, {Erbe|Erbin} des Hauses. Die Flamme brennt seit tausend Jahren in diesem Saal. Seid bitte nicht {derjenige|diejenige}.",
+   "why": "Hesper speaks to the heir by right, not to a child (HOUSE.md 1: nobody calls the lord a child)."
+  },
+  {
+   "key": "line.hesper_giant_hint",
+   "en_old": "I must speak with you at the throne today, child of the house. The Flame showed me something at dawn.",
+   "en_new": "I must speak with you at the throne today, heir of the house. The Flame showed me something at dawn.",
+   "de_old": "Ich muss Euch heute am Thron sprechen, Kind des Hauses. Die Flamme hat mir im Morgengrauen etwas gezeigt.",
+   "de_new": "Ich muss Euch heute am Thron sprechen, {Erbe|Erbin} des Hauses. Die Flamme hat mir im Morgengrauen etwas gezeigt.",
+   "why": "Hesper speaks to the heir by right, not to a child (HOUSE.md 1: nobody calls the lord a child)."
+  },
+  {
+   "key": "line.hesper_hunger",
+   "en_old": "The Gloom is not a creature, child of the house. It is a hunger. The creatures are only its teeth.",
+   "en_new": "The Gloom is not a creature, heir of the house. It is a hunger. The creatures are only its teeth.",
+   "de_old": "Die Düsternis ist kein Geschöpf, Kind des Hauses. Sie ist ein Hunger. Die Kreaturen sind nur ihre Zähne.",
+   "de_new": "Die Düsternis ist kein Geschöpf, {Erbe|Erbin} des Hauses. Sie ist ein Hunger. Die Kreaturen sind nur ihre Zähne.",
+   "why": "Hesper speaks to the heir by right, not to a child (HOUSE.md 1: nobody calls the lord a child)."
+  },
+  {
+   "key": "line.hesper_night20",
+   "en_old": "Tonight the Flame burns for every one of them, child of the house. For him too.",
+   "en_new": "Tonight the Flame burns for every one of them, heir of the house. For him too.",
+   "de_old": "Heute Nacht brennt die Flamme für jeden von ihnen, Kind des Hauses. Auch für ihn.",
+   "de_new": "Heute Nacht brennt die Flamme für jeden von ihnen, {Erbe|Erbin} des Hauses. Auch für ihn.",
+   "why": "Hesper speaks to the heir by right, not to a child (HOUSE.md 1: nobody calls the lord a child)."
+  },
+  {
+   "key": "line.hesper_truce_hint",
+   "en_old": "Come to the throne, child of the house. The Flame has been blue since the bargain. I want to speak of it.",
+   "en_new": "Come to the throne, heir of the house. The Flame has been blue since the bargain. I want to speak of it.",
+   "de_old": "Kommt zum Thron, Kind des Hauses. Seit dem Handel ist die Flamme blau. Ich möchte darüber sprechen.",
+   "de_new": "Kommt zum Thron, {Erbe|Erbin} des Hauses. Seit dem Handel ist die Flamme blau. Ich möchte darüber sprechen.",
+   "why": "Hesper speaks to the heir by right, not to a child (HOUSE.md 1: nobody calls the lord a child)."
+  },
+  {
+   "key": "petition.hesper_giant.text",
+   "en_old": "The Flame burned black at dawn, child of the house, for the space of three breaths. It did that once before, the night the outer line fell, in Lady Ysmay’s watch. Something heavy walks in the Gloom tonight. Let me keep a vigil.",
+   "en_new": "The Flame burned black at dawn, heir of the house, for the space of three breaths. It did that once before, the night the outer line fell, in Lady Ysmay’s watch. Something heavy walks in the Gloom tonight. Let me keep a vigil.",
+   "de_old": "Die Flamme brannte im Morgengrauen schwarz, Kind des Hauses, drei Atemzüge lang. Das tat sie schon einmal, in der Nacht, als die äußere Linie fiel, in Burgherrin Ysmays Wacht. Heute Nacht geht etwas Schweres durch die Düsternis. Lasst mich Wache halten.",
+   "de_new": "Die Flamme brannte im Morgengrauen schwarz, {Erbe|Erbin} des Hauses, drei Atemzüge lang. Das tat sie schon einmal, in der Nacht, als die äußere Linie fiel, in Burgherrin Ysmays Wacht. Heute Nacht geht etwas Schweres durch die Düsternis. Lasst mich Wache halten.",
+   "why": "Hesper speaks to the heir by right, not to a child (HOUSE.md 1: nobody calls the lord a child)."
+  },
+  {
+   "key": "petition.truce_end.text",
+   "en_old": "The last quiet night, child of the house. The Flame has burned low and blue since the bargain, as if it held its breath. Tomorrow he comes himself. I would light a candle tonight for what we paid.",
+   "en_new": "The last quiet night, heir of the house. The Flame has burned low and blue since the bargain, as if it held its breath. Tomorrow he comes himself. I would light a candle tonight for what we paid.",
+   "de_old": "Die letzte stille Nacht, Kind des Hauses. Seit dem Handel brennt die Flamme niedrig und blau, als hielte sie den Atem an. Morgen kommt er selbst. Ich würde heute eine Kerze anzünden für das, was wir bezahlt haben.",
+   "de_new": "Die letzte stille Nacht, {Erbe|Erbin} des Hauses. Seit dem Handel brennt die Flamme niedrig und blau, als hielte sie den Atem an. Morgen kommt er selbst. Ich würde heute eine Kerze anzünden für das, was wir bezahlt haben.",
+   "why": "Hesper speaks to the heir by right, not to a child (HOUSE.md 1: nobody calls the lord a child)."
+  },
+  {
+   "key": "petition.eclipse_omen.text",
+   "en_old": "Child of the house, the Flame says the moon goes black tonight. On such nights the Gloom comes in doubled ranks. The old fire-baskets on the Throat’s ledges could hold the dark back, if someone pays for the oil.",
+   "en_new": "Heir of the house, the Flame says the moon goes black tonight. On such nights the Gloom comes in doubled ranks. The old fire-baskets on the Throat’s ledges could hold the dark back, if someone pays for the oil.",
+   "de_old": "Kind des Hauses, die Flamme sagt, heute Nacht wird der Mond schwarz. In solchen Nächten kommt die Düsternis in doppelten Reihen. Die alten Feuerkörbe auf den Simsen des Schlunds könnten das Dunkel zurückhalten, wenn jemand das Öl bezahlt.",
+   "de_new": "{Erbe|Erbin} des Hauses, die Flamme sagt, heute Nacht wird der Mond schwarz. In solchen Nächten kommt die Düsternis in doppelten Reihen. Die alten Feuerkörbe auf den Simsen des Schlunds könnten das Dunkel zurückhalten, wenn jemand das Öl bezahlt.",
+   "why": "Hesper speaks to the heir by right, not to a child (HOUSE.md 1: nobody calls the lord a child)."
+  },
+  {
+   "key": "petition.hesper_bowl.text",
+   "en_old": "Child of the house, the Flame’s old offering bowl cracked in the cold. A new one in bronze costs thirty gold. With it, the chapel can bless the valley at every dawn, as it did in Aldric’s watch. Without it, the Flame only burns.",
+   "en_new": "Heir of the house, the Flame’s old offering bowl cracked in the cold. A new one in bronze costs thirty gold. With it, the chapel can bless the valley at every dawn, as it did in Aldric’s watch. Without it, the Flame only burns.",
+   "de_old": "Kind des Hauses, die alte Opferschale der Flamme ist in der Kälte gesprungen. Eine neue aus Bronze kostet dreißig Gold. Mit ihr kann die Kapelle das Tal an jedem Morgen segnen, wie in Aldrics Wacht. Ohne sie brennt die Flamme nur.",
+   "de_new": "{Erbe|Erbin} des Hauses, die alte Opferschale der Flamme ist in der Kälte gesprungen. Eine neue aus Bronze kostet dreißig Gold. Mit ihr kann die Kapelle das Tal an jedem Morgen segnen, wie in Aldrics Wacht. Ohne sie brennt die Flamme nur.",
+   "why": "Hesper speaks to the heir by right, not to a child (HOUSE.md 1: nobody calls the lord a child)."
+  },
+  {
+   "key": "petition.keep_window.text",
+   "en_old": "Child of the house, by the Count a lantern that does not come back leaves its hook in the chapel empty for a year, and one keep window dark, so the Throat can see we remember. The custom lapsed with Aldric. Shall we keep it again?",
+   "en_new": "Heir of the house, by the Count a lantern that does not come back leaves its hook in the chapel empty for a year, and one keep window dark, so the Throat can see we remember. The custom lapsed with Aldric. Shall we keep it again?",
+   "de_old": "Kind des Hauses, nach der Zählung bleibt für jede Laterne, die nicht heimkommt, ihr Haken in der Kapelle ein Jahr leer und ein Fenster des Bergfrieds dunkel, damit der Schlund sieht, dass wir uns erinnern. Der Brauch endete mit Aldric. Pflegen wir ihn wieder?",
+   "de_new": "{Erbe|Erbin} des Hauses, nach der Zählung bleibt für jede Laterne, die nicht heimkommt, ihr Haken in der Kapelle ein Jahr leer und ein Fenster des Bergfrieds dunkel, damit der Schlund sieht, dass wir uns erinnern. Der Brauch endete mit Aldric. Pflegen wir ihn wieder?",
+   "why": "Hesper speaks to the heir by right, not to a child (HOUSE.md 1: nobody calls the lord a child)."
+  },
+  {
+   "key": "line.pip_aldric",
+   "en_old": "The old lord is the new enemy, and the new {lord|lady} is the old lamplighter. Somebody write this down.",
+   "en_new": "The old lord is the new enemy, and the new {lord|lady} is his cousin. Family suppers will be awkward.",
+   "de_old": "Der alte Herr ist der neue Feind, und {der neue Herr|die neue Herrin} ist {der alte Laternenanzünder|die alte Laternenanzünderin}. Schreibt das jemand auf?",
+   "de_new": "Der alte Herr ist der neue Feind, und {der neue Herr|die neue Herrin} ist {sein Vetter|seine Base}. Das gibt peinliche Familienessen.",
+   "why": "Called the lord the old lamplighter. Pip keeps his sideways joke; the lord is Aldric's cousin by blood."
+  },
+  {
+   "key": "line.pip_crown",
+   "en_old": "Your circlet is a little big, Your Wickship. Never mind. It will fit once your head swells.",
+   "en_new": "Your circlet fits, Your Wickship. A pity. I had such a good joke for a loose one.",
+   "de_old": "Euer Stirnreif ist etwas groß, Eure Dochtheit. Keine Sorge. Er passt, sobald Euch der Kopf schwillt.",
+   "de_new": "Euer Stirnreif passt, Eure Dochtheit. Schade. Ich hatte einen so guten Witz für einen lockeren.",
+   "why": "Said the circlet is too big. HOUSE.md 1: the circlet fits. Pip still jokes, at himself."
+  },
+  {
+   "key": "line.pip_first",
+   "en_old": "A new {lord|lady}! The last one rode into the dark. Let us see how far you get before teatime.",
+   "en_new": "A new {lord|lady}! The last one rode into the dark. Don’t follow him. I own only one black cap.",
+   "de_old": "{Ein neuer Herr|Eine neue Herrin}! Der letzte ritt ins Dunkel. Mal sehen, wie weit Ihr bis zur Teestunde kommt.",
+   "de_new": "{Ein neuer Herr|Eine neue Herrin}! Der letzte ritt ins Dunkel. Folgt ihm nicht. Ich habe nur eine schwarze Kappe.",
+   "why": "Wagered on how soon the new lord fails (talked down). Now the fool's fear for the lord, as a joke."
+  },
+  {
+   "key": "line.pip_matches",
+   "en_old": "They made the lamplighter {lord|lady}. At last someone here knows where the matches are.",
+   "en_new": "The heir knows every key in this castle. At last a {lord|lady} who knows where the matches are.",
+   "de_old": "Sie haben {den Laternenanzünder zum Burgherrn|die Laternenanzünderin zur Burgherrin} gemacht. Endlich weiß hier jemand, wo die Zündhölzer liegen.",
+   "de_new": "Jeden Schlüssel der Burg kennt {der Erbe|die Erbin}. Endlich {ein Herr|eine Herrin}, {der|die} weiß, wo die Zündhölzer liegen.",
+   "why": "They made the lamplighter lord. Now the joke rests on what only the heir knows (HOUSE.md 7), and the lord comes off well; it no longer shares a gag with Pip's saved joke."
+  },
+  {
+   "key": "line.pip_turned",
+   "en_old": "You shut the gate on a woman with a lantern. Bold, for a lamplighter.",
+   "en_new": "You shut the gate on a woman with a lantern. Bold, for a house named after one.",
+   "de_old": "Ihr habt einer Frau mit Laterne das Tor verschlossen. Mutig, für {einen Laternenanzünder|eine Laternenanzünderin}.",
+   "de_new": "Ihr habt einer Frau mit Laterne das Tor verschlossen. Mutig, {Herr|Herrin} Lantern.",
+   "why": "Called the lord a lamplighter. The lantern joke now points at the house's name."
+  },
+  {
+   "key": "line.pip_verse_nine",
+   "en_old": "Verse nine is stuck in my head, Your Wickship. The circlet is too big, tra la. It is my favourite.",
+   "en_new": "Verse nine is stuck in my head, Your Wickship. The cloak is mended, tra la. It is my favourite.",
+   "de_old": "Strophe neun geht mir nicht aus dem Kopf, Eure Dochtheit. Der Stirnreif ist zu groß, trallala. Meine liebste.",
+   "de_new": "Strophe neun geht mir nicht aus dem Kopf, Eure Dochtheit. Der Mantel ist geflickt, trallala. Meine liebste.",
+   "why": "Verse nine mocked a circlet too big. It now sings the poor house's mended cloak (BARS.md 3, REALM.md 2)."
+  },
+  {
+   "key": "petition.pip_farewell.r1",
+   "en_old": "“When Odile read the name from the family book, the whole court looked at the ladder.” The hall roars.",
+   "en_new": "“Aldric bet me a gold piece no fool could make this hall laugh before a battle. Pay up, Aldric.” The hall roars.",
+   "de_old": "„Als Odile den Namen aus dem Familienbuch vorlas, sah der ganze Hof zur Leiter.“ Der Saal tobt.",
+   "de_new": "„Aldric wettete, kein Narr bringe diesen Saal vor der Schlacht zum Lachen. Zahlt, Aldric!“ Der Saal tobt.",
+   "why": "The joke was the court looking at the lamplighter's ladder. Pip's saved joke is now the one only this night can make: the bet is won as he tells it, and it is owed by the man it was saved for."
+  },
+  {
+   "key": "line.envoy_thanks",
+   "en_old": "The coast remembers your help, {Lord|Lady} {lord}. My lady has named a watchtower after the lamplighter.",
+   "en_new": "The coast remembers your help, {Lord|Lady} {lord}. My lady has named a watchtower after you.",
+   "de_old": "Die Küste erinnert sich an Eure Hilfe, {Lord|Lady} {lord}. Meine Herrin hat einen Wachturm nach {dem Laternenanzünder|der Laternenanzünderin} benannt.",
+   "de_new": "Die Küste erinnert sich an Eure Hilfe, {Lord|Lady} {lord}. Meine Herrin hat einen Wachturm nach Euch benannt.",
+   "why": "Ansel Quay called the lord the lamplighter. Envoys say Lord Lantern, politely (HOUSE.md 7)."
+  },
+  {
+   "key": "petition.envoy_coast.r3",
+   "en_old": "The envoy accepts the oil with real gratitude. “The coast will remember the lamplighter,” he says, and means it.",
+   "en_new": "The envoy accepts the oil with real gratitude. “The coast will remember {Lord|Lady} Lantern,” he says, and means it.",
+   "de_old": "Der Gesandte nimmt das Öl mit echter Dankbarkeit an. „Die Küste wird sich an {den Laternenanzünder|die Laternenanzünderin} erinnern“, sagt er, und er meint es.",
+   "de_new": "Der Gesandte nimmt das Öl mit echter Dankbarkeit an. „Die Küste wird sich an {Lord|Lady} Lantern erinnern“, sagt er, und er meint es.",
+   "why": "Ansel Quay called the lord the lamplighter. Envoys say Lord Lantern."
+  },
+  {
+   "key": "petition.bard_song.text",
+   "en_old": "My {lord|lady}! I have composed a ballad of the lamplighter {lord|lady}, eleven verses, with a chorus about the lantern. For twenty gold I sing it in every tavern from here to the coast. For forty, I leave out verse nine.",
+   "en_new": "My {lord|lady}! I have composed a ballad of {Lord|Lady} Lantern and the dark beacon, eleven verses, with a chorus about the lantern. For twenty gold I sing it in every tavern from here to the coast. For forty, I leave out verse nine.",
+   "de_old": "{Burgherr|Burgherrin}! Ich habe eine Ballade {vom Laternenanzünder, der Burgherr|von der Laternenanzünderin, die Burgherrin} wurde, gedichtet, elf Strophen, mit einem Refrain über die Laterne. Für zwanzig Gold singe ich sie in jeder Schenke von hier bis zur Küste. Für vierzig lasse ich Strophe neun weg.",
+   "de_new": "{Burgherr|Burgherrin}! Ich habe eine Ballade über {den Burgherrn|die Burgherrin} von Haus Lantern gedichtet, elf Strophen, mit einem Refrain über die Laterne. Für zwanzig Gold singe ich sie in jeder Schenke von hier bis zur Küste. Für vierzig lasse ich Strophe neun weg.",
+   "why": "The ballad was of the lamplighter lord. Now of Lord Lantern and the dark beacon."
+  },
+  {
+   "key": "petition.bard_song.r1",
+   "en_old": "By the week’s end the valley sings the chorus. Verse nine is about the circlet being too big. It is the favourite.",
+   "en_new": "By the week’s end the valley sings the chorus. Verse nine is about the mended cloak at the high table. It is the favourite.",
+   "de_old": "Bis zum Wochenende singt das Tal den Refrain. Strophe neun handelt davon, dass der Stirnreif zu groß ist. Sie ist die beliebteste.",
+   "de_new": "Bis zum Wochenende singt das Tal den Refrain. Strophe neun handelt vom geflickten Mantel am hohen Tisch. Sie ist die beliebteste.",
+   "why": "Verse nine mocked a circlet too big. It now sings the mended cloak of a poor house."
+  },
+  {
+   "key": "petition.first_plough.r2",
+   "en_old": "He shuffles out. You hear him tell the guard that the circlet looks too big anyway.",
+   "en_new": "He shuffles out. You hear him tell the guard that Lord Aldric blessed everything, even goats.",
+   "de_old": "Er schlurft hinaus. Ihr hört ihn der Wache sagen, der Stirnreif sei ohnehin zu groß.",
+   "de_new": "Er schlurft hinaus. Ihr hört ihn der Wache sagen, Aldric habe alles gesegnet, sogar Ziegen.",
+   "why": "The farmer grumbled that the circlet is too big. He now grumbles about custom, not about the lord's size."
+  },
+  {
+   "key": "petition.lantern_lanes.hint",
+   "en_old": "A lamplighter {lord|lady} who refuses lanterns. The bards would never let it go. Light the lanes.",
+   "en_new": "A {Lord|Lady} Lantern who refuses lanterns. The bards would never let it go. Light the lanes.",
+   "de_old": "{Ein Laternenanzünder als Burgherr, der|Eine Laternenanzünderin als Burgherrin, die} Laternen verweigert. Die Barden würden das nie vergessen. Erleuchtet die Gassen.",
+   "de_new": "{Ein Burgherr|Eine Burgherrin} von Haus Lantern, {der|die} Laternen verweigert. Die Barden würden das nie vergessen. Erleuchtet die Gassen.",
+   "why": "Odile called the lord a lamplighter lord. Her joke now rests on the house's name."
+  },
+  {
+   "key": "petition.lantern_lanes.r1",
+   "en_old": "That evening you light the first one yourself, out of habit. The whole lane cheers, and you nearly drop the pole.",
+   "en_new": "That evening you light the first one from the house’s own flame. The whole lane cheers, and you nearly drop the pole.",
+   "de_old": "An diesem Abend zündet Ihr die erste selbst an, aus alter Gewohnheit. Die ganze Gasse jubelt, und Euch fällt fast die Stange aus der Hand.",
+   "de_new": "An diesem Abend zündet Ihr die erste mit der Flamme des Hauses an. Die ganze Gasse jubelt, und Euch fällt fast die Stange aus der Hand.",
+   "why": "'Out of habit' implied the lord's old trade of lamplighter. Now the lord lights it from the house's flame."
+  },
+  {
+   "key": "petition.tower_request.r2",
+   "en_old": "“A lamplighter’s war, then,” he mutters. He does not say you are wrong. By noon his lads have a brazier ready for you.",
+   "en_new": "“A war of lamps, then,” he mutters. He does not say you are wrong. By noon his lads have a brazier ready for you.",
+   "de_old": "„Ein Laternenkrieg also“, murmelt er. Er sagt nicht, dass Ihr falsch liegt. Bis Mittag haben seine Jungs eine Feuerschale für Euch bereit.",
+   "de_new": "„Ein Laternenkrieg also“, murmelt er. Er sagt nicht, dass Ihr falsch liegt. Bis Mittag haben seine Jungs eine Feuerschale für Euch bereit.",
+   "why": "Brannock's grumble named the lord's trade as lamplighter. German 'Laternenkrieg' already says only a war of lanterns and stays."
+  },
+  {
+   "key": "petition.last_stand.c3",
+   "en_old": "“I was never meant for this.”",
+   "en_new": "“I am afraid too. I stay.”",
+   "de_old": "„Dafür war ich nie bestimmt.“",
+   "de_new": "„Ich hab auch Angst. Ich bleibe.“",
+   "why": "'I was never meant for this' says the lord was an heir nobody expected. The honest speech now says the lord's real fear (HOUSE.md 1)."
+  },
+  {
+   "key": "petition.last_stand.r3",
+   "en_old": "For a moment no one moves. Then Brannock laughs. “None of us were meant for this, my {lord|lady}. Here we are anyway.”",
+   "en_new": "For a moment no one moves. Then Brannock laughs. “So are we all, my {lord|lady}. And here we all stand.”",
+   "de_old": "Einen Moment rührt sich niemand. Dann lacht Brannock. „Keiner von uns war dafür bestimmt, {Herr|Herrin}. Und doch sind wir hier.“",
+   "de_new": "Einen Moment rührt sich niemand. Dann lacht Brannock. „Das haben wir alle, {Herr|Herrin}. Und hier stehen wir.“",
+   "why": "Brannock's answer follows the new third speech."
+  },
+  {
+   "key": "ending.speech_honest",
+   "en_old": "“I was never meant for this,” you told them. They followed you anyway.",
+   "en_new": "“I am afraid too. I stay,” you told them. They stayed with you.",
+   "de_old": "„Dafür war ich nie bestimmt“, habt Ihr ihnen gesagt. Sie folgten Euch trotzdem.",
+   "de_new": "„Ich hab auch Angst. Ich bleibe“, habt Ihr ihnen gesagt. Sie blieben bei Euch.",
+   "why": "Quotes the third speech, which changes."
+  },
+  {
+   "key": "line.brannock_speech_honest",
+   "en_old": "Never meant for this, you said. The lads trust that more than any circlet.",
+   "en_new": "Afraid, you said, and staying. The lads trust that more than any circlet.",
+   "de_old": "Nie dafür bestimmt, sagtet Ihr. Dem trauen die Jungs mehr als jedem Stirnreif.",
+   "de_new": "Auch Angst, sagtet Ihr, und Ihr bliebet. Dem trauen die Jungs mehr als jedem Stirnreif.",
+   "why": "Quotes the third speech, which changes."
+  },
+  {
+   "key": "line.tamsin_first",
+   "en_old": "Back in my kitchen, {lord}? My {lord|lady}, I mean. Mind the cat, the oven and the soup, in that order.",
+   "en_new": "Back in my kitchen, {Lord|Lady} {lord}? Good. Mind the cat, the oven and the soup, in that order.",
+   "de_old": "Wieder in meiner Küche, {lord}? {Mein Herr|Meine Herrin}, meine ich. Achtet auf Katze, Ofen und Suppe, in dieser Reihenfolge.",
+   "de_new": "Wieder in meiner Küche, {Burgherr|Burgherrin} {lord}? Gut. Achtet auf Katze, Ofen und Suppe, in dieser Reihenfolge.",
+   "why": "Tamsin called the lord by the bare name and corrected herself, as to the kitchen child. Warmth stays, respect is shown (HOUSE.md 1)."
+  },
+  {
+   "key": "petition.marek_relic.text",
+   "en_old": "Your Radiance, behold: a fingerbone of Saint Taper, the first lamplighter, blessed and certified. The chapel would be honoured. Forty gold, a trifle for a saint. The certificate is in my own hand.",
+   "en_new": "Your Radiance, behold: a fingerbone of Saint Taper, who kindled the Flame, blessed and certified. The chapel would be honoured. Forty gold, a trifle for a saint. The certificate is in my own hand.",
+   "de_old": "Eure Strahlkraft, seht: ein Fingerknochen des heiligen Taper, des ersten Laternenanzünders, gesegnet und beglaubigt. Die Kapelle wäre geehrt. Vierzig Gold, eine Kleinigkeit für einen Heiligen. Die Urkunde habe ich eigenhändig verfasst.",
+   "de_new": "Eure Strahlkraft, seht: ein Fingerknochen des heiligen Taper, der die Flamme entfachte, gesegnet und beglaubigt. Die Kapelle wäre geehrt. Vierzig Gold, eine Kleinigkeit für einen Heiligen. Die Urkunde habe ich eigenhändig verfasst.",
+   "why": "The founder of the guardian house was no lamplighter (TOWN.md 7, HOUSE.md 6: the house tells that he made the light)."
+  },
+  {
+   "key": "petition.lorn_visit.text",
+   "en_old": "Sit, young Taper, I already have. Orla Lorn of Greybell. Your house came down out of the Cleft, not up to it. Mine watched. We keep your hall’s first bell. Lord Edric sent it away in the Dark Year, because it rang with no hand on the rope.",
+   "en_new": "Forgive me for sitting, heir of Taper. Orla Lorn of Greybell. Your house came down out of the Cleft, not up to it. Mine watched. We keep your hall’s first bell. Lord Edric sent it away in the Dark Year: it rang with no hand on the rope.",
+   "de_old": "Setzt Euch, {junger|junge} Taper, ich sitze schon. Orla Lorn von Greybell. Euer Haus kam aus dem Spalt herab, nicht zu ihm hinauf. Meines sah zu. Wir hüten die erste Glocke Eures Saals. Burgherr Edric schickte sie im Dunklen Jahr fort, weil sie läutete, ohne dass eine Hand am Seil war.",
+   "de_new": "Verzeiht, dass ich sitze, Tapers {Erbe|Erbin}. Orla Lorn von Greybell. Euer Haus kam aus dem Spalt herab, nicht zu ihm hinauf. Meines sah zu. Wir hüten die erste Glocke Eures Saals. Burgherr Edric schickte sie im Dunklen Jahr fort, weil sie läutete, ohne dass eine Hand am Seil war.",
+   "why": "She sat unasked and called the lord \"young Taper\", the one guest talking down (HOUSE.md 1: respect). She keeps her bluntness in what she says, and begs leave for the chair at past eighty."
+  },
+  {
+   "key": "line.orla_cleft",
+   "en_old": "Your house came down out of the Cleft, young Taper. Mine watched it come.",
+   "en_new": "Your house came down out of the Cleft, heir of Taper. Mine watched it come.",
+   "de_old": "Euer Haus kam aus dem Spalt herab, {junger|junge} Taper. Meines sah es kommen.",
+   "de_new": "Euer Haus kam aus dem Spalt herab, Tapers {Erbe|Erbin}. Meines sah es kommen.",
+   "why": "\"Young Taper\" talked down to the lord (HOUSE.md 1). She names the lord by the founder's blood instead."
+  }
+ ],
+ "bible": [
+  {
+   "line": 33,
+   "old": "     Lantern, \"my lord\" / \"my lady\"; Pip's \"Your Wickship\" and the herald's \"lamplighter\" fit both. English",
+   "new": "      Lantern, \"my lord\" / \"my lady\"; Pip's \"Your Wickship\" and the herald's \"heir of the thief\" fit both. English"
+  },
+  {
+   "line": 55,
+   "old": "circlet passed to the last of his blood: his young cousin, who lights the castle's lamps. You are that",
+   "new": "circlet passed to the last of his blood: his cousin, raised in this hall as the heir of the guardian house."
+  },
+  {
+   "line": 56,
+   "old": "lamplighter, the circlet is too big, and twenty nights from now something that wears a crown is coming",
+   "new": "You are that heir, the circlet fits, and twenty nights from now something that wears a crown is coming"
+  },
+  {
+   "line": 146,
+   "old": "- **Year 1, Taper.** A lamplighter named Taper came to the Cleft with one lit lantern when the dark first",
+   "new": "- **Year 1, Taper.** Taper, son of the old lord's house beyond the Cleft, struck the Eternal Light from"
+  },
+  {
+   "line": 147,
+   "old": "  poured through, set the lantern down in the gap, and did not move. People gathered to the light. The",
+   "new": "  the bare rock when the dark first poured through, held it there nine nights, and did not move. People"
+  },
+  {
+   "line": 148,
+   "old": "  fire of that lantern is the hearth fire in the hall, never out since. The town calls him Saint Taper.",
+   "new": "  gathered to the light. (The dark tells it otherwise: docs/HOUSE.md section 6.) It is the hearth fire in the hall, never out since. The town calls him Saint Taper."
+  },
+  {
+   "line": 167,
+   "old": "Every Lantern learns a craft of the light before anything else: chandler, glazier, beacon keeper,",
+   "new": "Every Lantern is raised to one craft before any other: keeping the light. The heir sits the hearth watch"
+  },
+  {
+   "line": 168,
+   "old": "lamplighter. That is why nobody found it strange that Aldric's orphaned cousin climbed ladders with a",
+   "new": "with the priestess, walks the lines with the captain and learns the Count by heart. Aldric's cousin was"
+  },
+  {
+   "line": 169,
+   "old": "wick pole, and why nobody thought of that cousin as an heir.",
+   "new": "raised so from childhood, and the whole valley has always known that cousin as the heir."
+  },
+  {
+   "line": 175,
+   "old": "- **The Round.** At dusk the lamplighter lights every lamp of castle and town from a flame taken at the",
+   "new": "- **The Round.** At dusk the town's lamplighter (docs/TOWN.md section 7) lights every lamp of castle and town from a flame taken at the"
+  },
+  {
+   "line": 176,
+   "old": "  hearth. The lord's hooked lantern pole is the lamplighter's pole; the player keeps doing the Round as",
+   "new": "  hearth. The lord carries the house's own light, the hooked lantern of the guardian house, and on feast days lights the first lamp"
+  },
+  {
+   "line": 177,
+   "old": "  lord, and the town loves and mocks it in equal parts.",
+   "new": "  of the Round from it; the town loves that."
+  },
+  {
+   "line": 216,
+   "old": "was failing. Taper, lamplighter of the old seat, carried a brand of it out through the Cleft to keep it",
+   "new": "was failing. Taper, the old lord's younger son and keeper of its hearth, carried a brand of it out through the Cleft to keep it"
+  },
+  {
+   "line": 239,
+   "old": "  \"lamplighter\" and does not mean it as an insult. An old lady of House Lorn says the Lanterns \"came",
+   "new": "  \"heir of the thief\" as one states a title. An old lady of House Lorn says the Lanterns \"came"
+  },
+  {
+   "line": 255,
+   "old": "and faces coming back into the smoke. The lamplighter who was never meant to be lord finishes the errand",
+   "new": "and faces coming back into the smoke. The heir of the house that kept the light finishes the errand"
+  },
+  {
+   "line": 256,
+   "old": "of the lamplighter who was never meant to found a house.",
+   "new": "its founder was sent on and never finished."
+  },
+  {
+   "line": 303,
+   "old": "5. The player's low start becomes the key. A lamplighter began this and a lamplighter can end it.",
+   "new": "5. The player's blood becomes the key. A Lantern carried the light out, and a Lantern can carry it home."
+  },
+  {
+   "line": 311,
+   "old": "## 4. The player: the lamplighter who became Burgherr",
+   "new": "## 4. The player: the heir of the guardian house (docs/HOUSE.md section 7 replaces this section)"
+  },
+  {
+   "line": 313,
+   "old": "**Who.** Lord Aldric's cousin from a side branch, about nineteen, orphaned small, raised between the",
+   "new": "**Who.** Lord Aldric's cousin, the heir by right, about nineteen, orphaned small and raised in the"
+  },
+  {
+   "line": 314,
+   "old": "castle kitchen and the lamp ladders, lamplighter since the age of twelve. The last living Lantern, which",
+   "new": "castle as the heir of the guardian house. The last living Lantern, known to everyone and written in"
+  },
+  {
+   "line": 315,
+   "old": "nobody had worked out until Odile opened the family book. The lord has no name in any text and English",
+   "new": "Odile's family book. The player types the name and chooses Burgherr or Burgherrin (decision 3); English"
+  },
+  {
+   "line": 318,
+   "old": "**Voice.** The lord speaks only in choice labels, 40 characters at most. They are a working person's",
+   "new": "**Voice.** The lord speaks only in choice labels, 40 characters at most. They are the words of one raised"
+  },
+  {
+   "line": 319,
+   "old": "words: short, plain, no decrees, no royal \"we\", no speeches except the one on day 20. Kind without",
+   "new": "to the work of the house: short, plain, no decrees, no royal \"we\", no speeches except the one on day 20. Kind without"
+  },
+  {
+   "line": 323,
+   "old": "**Wants.** To know what happened to Aldric, who was the only family there was. To keep the lamps lit,",
+   "new": "**Wants.** To know what happened to Aldric, who was the only family there was. To keep the Flame lit,"
+  },
+  {
+   "line": 324,
+   "old": "which is the one job the lord is sure of. Not to be found out as too small for the chair. Under all",
+   "new": "which is what the house is for. To be worthy of the thousand years. Under all"
+  },
+  {
+   "line": 325,
+   "old": "three: to be counted as a Lantern, by a house that forgot the lamplighter was one.",
+   "new": "three: to be the Lantern on whose watch the light does not go out."
+  },
+  {
+   "line": 327,
+   "old": "**What only a lamplighter knows.** Every lamp, roof and back stair of castle and town. Who is still",
+   "new": "**What only the heir knows** (docs/HOUSE.md section 7). The Flame's moods, the Count by heart, every hook in the"
+  },
+  {
+   "line": 328,
+   "old": "awake at midnight. People by their windows before their names. Texts should use this: the lord",
+   "new": "chapel and whose it was, every key of the castle. People by their lantern numbers before their names. Texts should use this: the lord"
+  },
+  {
+   "line": 329,
+   "old": "recognises the widow by \"the last window out in Chandler's Row\", not by her face. It is the lord's",
+   "new": "recognises a soldier's widow by \"the hook beside the chapel door\", not by her face. It is the lord's"
+  },
+  {
+   "line": 336,
+   "old": "| Odile | a ledger entry that turned out to be the heir; then, slowly, a lord | \"my lord\" |",
+   "new": "| Odile | the heir she taught the ledger at twelve; now her lord, and she says so | \"my lord\" |"
+  },
+  {
+   "line": 337,
+   "old": "| Brannock | a child to be kept alive; respects orders that are short | \"lord\", once on day 20 \"my lord\" |",
+   "new": "| Brannock | the heir he taught to hold a spear; respects orders that are short | \"lord\", once on day 20 \"my lord\" |"
+  },
+  {
+   "line": 338,
+   "old": "| Tamsin | the hungry child from her kitchen bench | \"my lord\", and \"lamb\" when she forgets |",
+   "new": "| Tamsin | the heir she has fed since the cradle; the supper is kept warm | \"my lord\", never a pet name |"
+  },
+  {
+   "line": 339,
+   "old": "| Pip | the only person at court with a lower start than his | \"Your Wickship\" |",
+   "new": "| Pip | the one person he jokes with, never at | \"Your Wickship\" (the house's name, not the lord's size) |"
+  },
+  {
+   "line": 340,
+   "old": "| Mother Hesper | the hand that has carried the Flame to every lamp for seven years | \"child of the house\" |",
+   "new": "| Mother Hesper | the heir the Flame knows; she taught the lord its signs | \"heir of the house\" |"
+  },
+  {
+   "line": 341,
+   "old": "| Bram | someone who knows how to trim a wick properly | nothing, or \"lord\" |",
+   "new": "| Bram | the heir who held his tongs as a child, and held them well | nothing, or \"lord\" |"
+  },
+  {
+   "line": 343,
+   "old": "| Seren | Aldric's kin, and a debt | \"lamplighter\", and \"lord\" only after day 15 |",
+   "new": "| Seren | Aldric's kin, a keeper like herself, and a debt | \"keeper\", and \"lord\" only after day 15 |"
+  },
+  {
+   "line": 344,
+   "old": "| Ser Ludo | the noblest lord he has ever met, like all of them | \"good my lord\" |",
+   "new": "| Ser Ludo | the noblest lord he has ever met, and this time he is right | \"good my lord\" |"
+  },
+  {
+   "line": 345,
+   "old": "| The town | one of their own on a chair that is too big | \"my lord\", \"Burgherr\", or just \"lamplighter\" |",
+   "new": "| The town | the house that has kept them a thousand years, with a face they know | \"my lord\", \"Burgherr\" |"
+  },
+  {
+   "line": 346,
+   "old": "| The envoys | a servant in a dead man's circlet | \"Lord Lantern\", politely |",
+   "new": "| The envoys | the guardian of the door their houses pay for | \"Lord Lantern\", with a deeper bow than they meant |"
+  },
+  {
+   "line": 347,
+   "old": "| The herald | exactly what the lord is | \"lamplighter\" |",
+   "new": "| The herald | the heir of a thief | \"heir of the thief\" |"
+  },
+  {
+   "line": 359,
+   "old": "The middle panel of each ending names the leaning in one sentence. What never changes: the lord does the",
+   "new": "The middle panel of each ending names the leaning in one sentence. What never changes: the lord feeds the"
+  },
+  {
+   "line": 360,
+   "old": "Round, carries the hooked lantern, never fights and is never touched.",
+   "new": "Flame at dusk, carries the house's hooked lantern, never fights and is never touched."
+  },
+  {
+   "line": 368,
+   "old": "into tithe, soldiers and doors that open. No marriages and no succession plots, ever (section 10).",
+   "new": "into tithe, soldiers and doors that open. No marriage petitions and no succession plots (section 10); the lord's own family in chapter 2 is a story of the court (docs/HOUSE.md section 2)."
+  },
+  {
+   "line": 376,
+   "old": "- **Wants:** Aldric found, or at least buried. And proof that the lamplighter can hold, before more Varn",
+   "new": "- **Wants:** Aldric found, or at least buried. And proof that the new lord can hold, before more Varn"
+  },
+  {
+   "line": 413,
+   "old": "  bad weeks, and a quiet question to every other house about whether a servant can be a lord.",
+   "new": "  bad weeks, and a quiet question to every other house about whether a house this poor can hold a door."
+  },
+  {
+   "line": 439,
+   "old": "  stick, sits down without being asked, and calls the lord \"young Taper\".",
+   "new": "  stick, begs leave to sit at once, and calls the lord \"heir of Taper\"."
+  },
+  {
+   "line": 452,
+   "old": "the house could not afford a dark beacon, and believes she sent him. Arc: begins by managing a ledger",
+   "new": "the house could not afford a dark beacon, and believes she sent him. Arc: begins as the heir's"
+  },
+  {
+   "line": 453,
+   "old": "entry in a circlet; is wrong once in public (`marek_arrows`) and sees the lord notice kindly; gives her",
+   "new": "teacher, all business; is wrong once in public (`marek_arrows`) and sees the lord notice kindly; gives her"
+  },
+  {
+   "line": 454,
+   "old": "coldest counsel at `refugees_gate`; by day 20 says \"my lord\" and means it. **(new)** On day 1 she folds",
+   "new": "coldest counsel at `refugees_gate`; by day 20 says \"my lord\" and means it. **(new)** On day 1 she has"
+  },
+  {
+   "line": 455,
+   "old": "a strip of ledger paper into the circlet's band so it stops slipping. Hook: she keeps the family book",
+   "new": "the circlet's band relined with new felt, unasked, and never mentions it. Hook: she keeps the family book"
+  },
+  {
+   "line": 466,
+   "old": "(`pip_farewell`). Fears silence. Arc: sharpest about the lamplighter lord at first, because the lord",
+   "new": "(`pip_farewell`). Fears silence. Arc: sharpest in the first days, because he is most afraid then and"
+  },
+  {
+   "line": 467,
+   "old": "took the one post lower than his; ends by offering the saved joke to the new lord, or keeping it. Hook",
+   "new": "jokes hardest; ends by offering the saved joke to the new lord, or keeping it. Hook"
+  },
+  {
+   "line": 506,
+   "old": "The lord, in a circlet too big, is the one person who never laughs at the helmet. Hook: his knight's",
+   "new": "The lord is the one person who never laughs at the helmet. Hook: his knight's"
+  },
+  {
+   "line": 514,
+   "old": "Sung in a row they describe a house. He thinks it is a pretty verse. Arc: the ballad of the lamplighter",
+   "new": "Sung in a row they describe a house. He thinks it is a pretty verse. Arc: the ballad of Lord Lantern"
+  },
+  {
+   "line": 515,
+   "old": "lord with its unkind verse nine, then the satire. Hook: the Song of Small Things.",
+   "new": "with its verse nine about the mended cloak, then the satire. Hook: the Song of Small Things."
+  },
+  {
+   "line": 519,
+   "old": "\"lamplighter\" as one states a title. Tell: it does not flinch from the hearth fire. It looks at it too",
+   "new": "\"heir of the thief\" as one states a title. Tell: it does not flinch from the hearth fire. It looks at it too"
+  },
+  {
+   "line": 523,
+   "old": "table, his horn on its peg, the lamplighter's first ladder (his gift), and a hall that still expects",
+   "new": "table, his horn on its peg, the lord's first lantern (his gift), and a hall that still expects"
+  },
+  {
+   "line": 538,
+   "old": "| 1 | `first_plough` | A farmer asks the lord who lit his lane last week to bless his plough. Odile folds paper into the circlet. | The town knows its lord as its lamplighter. The circlet is too big. |",
+   "new": "| 1 | `first_plough` | A farmer asks the new lord to bless his plough. Odile has had the circlet's band relined. | The town knows its lord and trusts the house. The circlet fits. |"
+  },
+  {
+   "line": 550,
+   "old": "| 14-15 | `lorn_visit` **new** | Dame Orla Lorn sits down unasked and calls the lord \"young Taper\". | Someone remembers the house differently. The court laughs. |",
+   "new": "| 14-15 | `lorn_visit` **new** | Dame Orla Lorn, past eighty, begs leave to sit and calls the lord \"heir of Taper\". | Someone remembers the house differently. The court laughs. |"
+  },
+  {
+   "line": 556,
+   "old": "| 20 | `last_stand` | Brannock asks for the speech. \"We hold until dawn.\" / \"We bring Lord Aldric home.\" / \"I was never meant for this.\" | The lord's own leaning, said aloud. |",
+   "new": "| 20 | `last_stand` | Brannock asks for the speech. \"We hold until dawn.\" / \"We bring Lord Aldric home.\" / \"I am afraid too. I stay.\" | The lord's own leaning, said aloud. |"
+  },
+  {
+   "line": 601,
+   "old": "| 4 | The circlet passed to the last of his blood. / The one who lights the lamps. | The hall, warm: the hearth fire, the empty seat, the court in a half ring. In the middle a young lamplighter with a wick pole, soot on one cheek, the gold circlet slipped over one eyebrow. Odile is holding out a folded strip of paper. |",
+   "new": "| 4 | The circlet passed to the last of his blood. / The heir of the house that keeps the light. | The hall, warm: the hearth fire, the empty seat, the court in a half ring. In the middle the young heir in the house's mended teal cloak, the gold circlet sitting true, the hooked lantern in hand. Odile stands a step behind the heir. |"
+  },
+  {
+   "line": 615,
+   "old": "| king (Seren's address) | lamplighter; \"lord\" once `seren_revealed` | Laternenanzünder; Herr | `l.seren_*`, `p.seren_*`, `p.stranger_gate.*` |",
+   "new": "| king (Seren's address) | keeper; \"lord\" once `seren_revealed` | Hüter / Hüterin; Herr | `l.seren_*`, `p.seren_*`, `p.stranger_gate.*` |"
+  },
+  {
+   "line": 654,
+   "old": "- **The old premise** (\"nobody wanted the crown, except the lamplighter, who was too slow to run away\")",
+   "new": "- **The old premise** (a servant on the chair by accident) goes. The lord is the heir by right of the guardian"
+  },
+  {
+   "line": 655,
+   "old": "  goes. The lamplighter inherits by blood, to everyone's surprise. `p.pip_farewell.r1` becomes: when",
+   "new": "  house (docs/HOUSE.md sections 1 and 7). `p.pip_farewell.r1` becomes Pip's joke about Aldric and the"
+  },
+  {
+   "line": 656,
+   "old": "  Odile read the name from the family book, the whole court looked at the ladder.",
+   "new": "  hearth (docs/house-rewrite.json)."
+  },
+  {
+   "line": 658,
+   "old": "  is too big, not the crown.",
+   "new": "  fits; nobody says otherwise."
+  },
+  {
+   "line": 675,
+   "old": "  world-change texts say \"statue of the lamplighter saint\".",
+   "new": "  world-change texts say \"statue of Saint Taper\"."
+  },
+  {
+   "line": 689,
+   "old": "- `last_stand`: \"We hold until dawn.\" / \"We bring Lord Aldric home.\" / \"I was never meant for this.\"",
+   "new": "- `last_stand`: \"We hold until dawn.\" / \"We bring Lord Aldric home.\" / \"I am afraid too. I stay.\""
+  },
+  {
+   "line": 690,
+   "old": "- `bard_song`: the ballad of the lamplighter lord; verse nine is about the circlet.",
+   "new": "- `bard_song`: the ballad of Lord Lantern; verse nine is about the mended cloak."
+  },
+  {
+   "line": 694,
+   "old": "  `l.pip_matches` \"They made the lamplighter lord. At last someone here knows where the matches are.\";",
+   "new": "  `l.pip_matches` \"Aldric lit fires by shouting at them. At last a lord who knows where the matches are.\";"
+  },
+  {
+   "line": 695,
+   "old": "  `l.pip_aldric` \"The old lord is the new enemy, and the new lord is the old lamplighter.\";",
+   "new": "  `l.pip_aldric` \"The old lord is the new enemy, and the new lord is his cousin.\";"
+  },
+  {
+   "line": 741,
+   "old": "- Dame Orla: \"Your house came down out of the Cleft, young Taper. Mine watched it come.\"",
+   "new": "- Dame Orla: \"Your house came down out of the Cleft, heir of Taper. Mine watched it come.\""
+  },
+  {
+   "line": 786,
+   "old": "    cards or four meters. Ours: the lamplighter's hooked pole, the hearth fire as the heart, light",
+   "new": "    cards or four meters. Ours: the guardian house's hooked lantern, the hearth fire as the heart, light"
+  }
+ ]
+}

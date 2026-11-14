@@ -236,3 +236,10 @@ rewrite list on `claude/lh-house` (`docs/workflows/house-lane.js`); it is applie
 translations, never by the running lanes.
 
 The house lane started 14.11.2026 15:05 as task `wa3dtuo3c` (run `wf_4a940724-d4f`). Never resume it; after a stop, write a continuation.
+
+**House lane, 14.11.2026 15:44.** The story editor delivered (run `wf_4a940724-d4f`, done): HOUSE.md sections 6 to 12,
+`docs/house-rewrite.json` (45 keys, 73 STORY.md lines) and `tools/house_rewrite_check.py` (ALL PASSED). Critic 2: 7 of
+ten, no blocker, eight highs. This session's write hook blocks the Write tool in other worktrees and the editor did not
+go around it, so the house files live on the planning branch now; `claude/lh-house` stays at cb4b7b4, unused. The
+director's decisions on the highs and on section 12's questions are in `docs/workflows/house-lane-2.js` (fix round 2
+with critic 3, in the planning worktree). Never resume it; after a stop, write a continuation.

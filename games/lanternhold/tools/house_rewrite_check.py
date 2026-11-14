@@ -1,0 +1,210 @@
+#!/usr/bin/env python3
+"""Checks docs/house-rewrite.json (docs/HOUSE.md part C) against Resources/Story.xcstrings and STORY.md.
+
+It proves: the JSON parses; every key exists; every *_old equals the file's value exactly; no new value is more than
+15 % longer than the old one (measured as the game shows it: the longer of the Burgherr and Burgherrin readings, with
+`{lord}` counted as a 16-character name); choice labels stay at 40 characters or fewer; English keeps the story's text
+limits (request 240, reaction 140, counsel 140, court line 120); `{lord}`, printf placeholders and line breaks are
+kept; a value that had male and female forms still has them; every brace is a `{lord}` or a `{a|b}` pair; every
+bible line matches STORY.md exactly. Then it applies the list in memory and proves that no English or German value
+calls the lord a lamplighter (nor a child of the house, nor "young Taper", nor says the circlet is too big or that the lord was never
+meant for it). It prints the counts and exits 0 only when everything holds. It changes no file.
+
+Run from its home games/lanternhold/tools/:   python3 tools/house_rewrite_check.py
+Or point it anywhere:  python3 house_rewrite_check.py --game <games/lanternhold> --rewrite <house-rewrite.json>
+"""
+import argparse
+import json
+import os
+import re
+import sys
+
+NAME_LIMIT = 16  # Core/Lord.swift LordIdentity.nameLimit
+GROWTH = 1.15
+CHOICE_LIMIT = 40
+EN_LIMITS = [(re.compile(r'^petition\.[^.]+\.text$'), 240), (re.compile(r'^petition\.[^.]+\.c\d$'), 40),
+             (re.compile(r'^petition\.[^.]+\.r\d[ab]?$'), 140), (re.compile(r'^petition\.[^.]+\.hint$'), 140),
+             (re.compile(r'^line\.'), 120)]
+BRACE = re.compile(r'\{([^{}]*)\}')
+PRINTF = re.compile(r'%(?:\d+\$)?[-+ #0]*\d*(?:\.\d+)?(?:hh|h|ll|l|q|z|t|j)?[@dDuUxXoOfeEgGcCsSpaA%]')
+
+# What may not stay anywhere after the rewrite. The town's lamplighter (TOWN.md 7) has no string yet; when one needs
+# the word, its key goes into ALLOWED with the reason.
+FORBIDDEN = [
+    ('lamplighter', re.compile(r'lamp-?lighter', re.I)),
+    ('Laternenanzünder', re.compile(r'Laternenanz[üu]nder', re.I)),
+    ('child of the house', re.compile(r'child of the house', re.I)),
+    ('Kind des Hauses', re.compile(r'Kind des Hauses', re.I)),
+    ('circlet too big', re.compile(r'circlet[^.]{0,40}too big|too big[^.]{0,20}circlet', re.I)),
+    ('Stirnreif zu groß', re.compile(r'Stirnreif[^.]{0,40}zu gro|zu gro[^.]{0,20}Stirnreif', re.I)),
+    ('never meant for this', re.compile(r'meant for this', re.I)),
+    ('nie dafür bestimmt', re.compile(r'(nie|nicht) dafür bestimmt', re.I)),
+    ('young Taper', re.compile(r'young Taper', re.I)),
+    ('junger Taper', re.compile(r'\{?junger?(\|junge)?\}? Taper', re.I)),
+    ('the ladder joke', re.compile(r'looked at the ladder|zur Leiter', re.I)),
+]
+ALLOWED = {}  # key -> reason
+
+
+def resolve(text, lady):
+    def sub(m):
+        inner = m.group(1)
+        if inner == 'lord':
+            return 'N' * NAME_LIMIT
+        if '|' not in inner:
+            return m.group(0)
+        a, b = inner.split('|', 1)
+        return b if lady else a
+    return BRACE.sub(sub, text)
+
+
+def shown_len(text):
+    return max(len(resolve(text, False)), len(resolve(text, True)))
+
+
+def brace_errors(text):
+    errs = []
+    depth = 0
+    for ch in text:
+        depth += ch == '{'
+        depth -= ch == '}'
+        if depth < 0 or depth > 1:
+            errs.append('braces nested or unbalanced')
+            break
+    if depth != 0 and not errs:
+        errs.append('braces unbalanced')
+    for inner in BRACE.findall(text):
+        if inner != 'lord' and inner.count('|') != 1:
+            errs.append('brace {%s} is neither {lord} nor {a|b}' % inner)
+    return errs
+
+
+def main():
+    here = os.path.dirname(os.path.abspath(__file__))
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--game', default=os.path.dirname(here))
+    ap.add_argument('--rewrite', default=None)
+    args = ap.parse_args()
+    rewrite = args.rewrite or os.path.join(args.game, 'docs', 'house-rewrite.json')
+    strings_path = os.path.join(args.game, 'Resources', 'Story.xcstrings')
+    story_path = os.path.join(args.game, 'STORY.md')
+
+    problems = []
+    try:
+        data = json.load(open(rewrite, encoding='utf-8'))
+    except Exception as e:  # noqa: BLE001
+        print('FAIL: house-rewrite.json does not parse: %s' % e)
+        return 1
+    strings = json.load(open(strings_path, encoding='utf-8'))['strings']
+    story = open(story_path, encoding='utf-8').read().split('\n')
+
+    entries = data.get('strings', [])
+    bible = data.get('bible', [])
+    if set(data) != {'strings', 'bible'}:
+        problems.append('top level must be exactly {"strings","bible"}')
+
+    seen = set()
+    changes = {'en': 0, 'de': 0}
+    for i, e in enumerate(entries):
+        tag = e.get('key', '#%d' % i)
+        need = {'key', 'en_old', 'en_new', 'de_old', 'de_new', 'why'}
+        if set(e) != need:
+            problems.append('%s: fields must be %s' % (tag, sorted(need)))
+            continue
+        k = e['key']
+        if k in seen:
+            problems.append('%s: listed twice' % k)
+        seen.add(k)
+        if k not in strings:
+            problems.append('%s: no such key' % k)
+            continue
+        if not e['why'].strip():
+            problems.append('%s: why is empty' % k)
+        for lang in ('en', 'de'):
+            old, new = e[lang + '_old'], e[lang + '_new']
+            try:
+                cur = strings[k]['localizations'][lang]['stringUnit']['value']
+            except KeyError:
+                problems.append('%s: no %s value in the file' % (k, lang))
+                continue
+            if old != cur:
+                problems.append('%s %s: old value differs from the file' % (k, lang))
+            if new != old:
+                changes[lang] += 1
+            lo, ln = shown_len(old), shown_len(new)
+            if ln > lo * GROWTH:
+                problems.append('%s %s: new %d chars > old %d + 15 %%' % (k, lang, ln, lo))
+            if re.match(r'^petition\.[^.]+\.c\d$', k) and ln > CHOICE_LIMIT:
+                problems.append('%s %s: choice label %d > %d' % (k, lang, ln, CHOICE_LIMIT))
+            if lang == 'en':
+                for rx, lim in EN_LIMITS:
+                    if rx.match(k) and ln > lim:
+                        problems.append('%s en: %d > text limit %d' % (k, ln, lim))
+            if old.count('{lord}') != new.count('{lord}'):
+                problems.append('%s %s: {lord} not kept' % (k, lang))
+            if sorted(PRINTF.findall(old)) != sorted(PRINTF.findall(new)):
+                problems.append('%s %s: printf placeholders not kept' % (k, lang))
+            if old.count('\n') != new.count('\n'):
+                problems.append('%s %s: line breaks not kept' % (k, lang))
+            if any('|' in b for b in BRACE.findall(old)) and not any('|' in b for b in BRACE.findall(new)):
+                problems.append('%s %s: had male and female forms, new value has none' % (k, lang))
+            for err in brace_errors(new):
+                problems.append('%s %s: %s' % (k, lang, err))
+
+    bible_seen = set()
+    for i, b in enumerate(bible):
+        if set(b) != {'line', 'old', 'new'}:
+            problems.append('bible #%d: fields must be line, old, new' % i)
+            continue
+        n = b['line']
+        if n in bible_seen:
+            problems.append('bible line %d listed twice' % n)
+        bible_seen.add(n)
+        if not isinstance(n, int) or n < 1 or n > len(story):
+            problems.append('bible line %r out of range' % n)
+            continue
+        if story[n - 1] != b['old']:
+            problems.append('bible line %d: old differs from STORY.md' % n)
+        if '\n' in b['new']:
+            problems.append('bible line %d: new must be one line' % n)
+
+    applied = {k: {lang: v['localizations'][lang]['stringUnit']['value']
+                   for lang in ('en', 'de') if lang in v.get('localizations', {})}
+               for k, v in strings.items()}
+    for e in entries:
+        if e.get('key') in applied:
+            applied[e['key']]['en'] = e['en_new']
+            applied[e['key']]['de'] = e['de_new']
+    left = 0
+    for k, langs in sorted(applied.items()):
+        for lang, v in langs.items():
+            for name, rx in FORBIDDEN:
+                if rx.search(v) and k not in ALLOWED:
+                    left += 1
+                    problems.append('after apply, %s %s still says "%s": %s' % (k, lang, name, v))
+
+    story_after = list(story)
+    for b in bible:
+        if isinstance(b.get('line'), int) and 1 <= b['line'] <= len(story_after):
+            story_after[b['line'] - 1] = b['new']
+    bible_left = [(i + 1, s) for i, s in enumerate(story_after) if re.search(r'lamp-?lighter', s, re.I)]
+
+    print('house-rewrite check')
+    print('  strings: %d keys (%d English and %d German values change)' % (len(entries), changes['en'], changes['de']))
+    print('  bible:   %d STORY.md lines' % len(bible))
+    print('  scanned: %d keys x en+de after apply; forbidden words left: %d' % (len(applied), left))
+    print('  STORY.md lines still saying "lamplighter" after apply (old title, option B, the town\'s lamplighter): %d'
+          % len(bible_left))
+    for n, s in bible_left:
+        print('    %d: %s' % (n, s.strip()[:110]))
+    if problems:
+        print('FAIL: %d problem(s)' % len(problems))
+        for p in problems:
+            print('  - ' + p)
+        return 1
+    print('ALL PASSED')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
