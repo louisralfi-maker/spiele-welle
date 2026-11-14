@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lanternhold</title>
+<meta name="description" content="Lanternhold – hold the one gap in a wall of mountains against the Gloom. A pixel-art castle game for iPhone.">
+<!-- Draft of the store lane (14.11.2026), published only with Louis' go: copy to pages/lanternhold/index.html (this is
+     the support and marketing page) and run tools/publish-pages.sh. No external fonts, scripts or images. -->
+<style>
+  :root { --bg:#F3E8CC; --panel:#F8F0DA; --text:#38281A; --muted:#58432B; --accent:#8C3423; --line:rgba(56,40,26,.18); --band:#1F5C5E; --bandText:#F4E9CB; --gold:#D19A2C; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#1D1712; --panel:#2A2119; --text:#E4D6B4; --muted:#B3A27F; --accent:#E58A6E; --line:rgba(228,214,180,.16); --band:#173F41; --bandText:#E4D6B4; --gold:#F4C85A; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  header { background:var(--band); color:var(--bandText); padding:44px 16px 32px; border-bottom:3px solid var(--gold); }
+  header .in, main { max-width:760px; margin:0 auto; }
+  h1, h2 { font-family:"Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-weight:600; }
+  header h1 { margin:0; font-size:40px; letter-spacing:.08em; }
+  header p { margin:6px 0 0; font-weight:600; opacity:.92; }
+  main { padding:8px 16px 64px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:6px 20px 10px; margin:20px 0; }
+  h2 { font-size:20px; margin:16px 0 4px; }
+  p { color:var(--text); overflow-wrap:anywhere; }
+  .muted { color:var(--muted); }
+  a { color:var(--accent); }
+  dl { margin:8px 0; }
+  dt { font-weight:600; margin-top:12px; }
+  dd { margin:2px 0 0; }
+  footer { color:var(--muted); font-size:14px; margin-top:40px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="in">
+    <h1>LANTERNHOLD</h1>
+    <p>Build by day. Hold the night. · iPhone</p>
+  </div>
+</header>
+<main>
+  <p>Hold the one gap in a wall of mountains against the Gloom, tall figures of smoke that shrink from light. By day you build walls, towers and fires, judge your people's petitions from the throne and keep your town content. By night the battle plays out on its own, and only what you built and lit stands between the dark and your hearth.</p>
+  <p class="muted" lang="de">Halte die einzige Lücke in einer Mauer aus Bergen gegen die Düsternis, hohe Gestalten aus Rauch, die vor Licht zurückweichen. Bei Tag baust du Mauern, Türme und Feuer, sprichst vom Thron aus Recht über die Bitten deines Volkes und hältst deine Stadt bei Laune. Bei Nacht tobt die Schlacht von selbst, und nur was du gebaut und entzündet hast, steht zwischen der Finsternis und deinem Herdfeuer.</p>
+
+  <div class="card">
+    <h2>Support</h2>
+    <p>Questions, ideas or a bug? Write to <a href="mailto:louis.ralf@web.de">louis.ralf@web.de</a>.</p>
+    <p class="muted" lang="de">Fragen, Ideen oder ein Fehler? Schreib an <a href="mailto:louis.ralf@web.de">louis.ralf@web.de</a>.</p>
+  </div>
+
+  <div class="card">
+    <h2>Questions · Fragen</h2>
+    <dl>
+      <dt>Where is my realm saved?</dt>
+      <dd>Only on your iPhone, at every dawn. Deleting the app deletes the realm.</dd>
+      <dd class="muted" lang="de">Nur auf deinem iPhone, bei jedem Morgengrauen. Wer die App löscht, löscht auch das Reich.</dd>
+      <dt>How do I change my ad privacy choices?</dt>
+      <dd>In the game's settings under "Privacy choices" (shown where Google's consent form applies), and in iOS under Settings › Privacy &amp; Security › Tracking.</dd>
+      <dd class="muted" lang="de">In den Einstellungen des Spiels unter „Datenschutzoptionen“ (dort, wo das Einwilligungsformular von Google gilt), und in iOS unter Einstellungen › Datenschutz &amp; Sicherheit › Tracking.</dd>
+      <dt>Is there music?</dt>
+      <dd>No. The game has sound effects and haptics only, so your own music can play alongside. Both can be switched off in the game's settings.</dd>
+      <dd class="muted" lang="de">Nein. Das Spiel hat nur Soundeffekte und Vibration, deine eigene Musik kann also nebenher laufen. Beides lässt sich in den Einstellungen des Spiels ausschalten.</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2>Privacy · Datenschutz</h2>
+    <p>Read the <a href="privacy.html#en">privacy policy</a>. · Lies die <a href="privacy.html#de">Datenschutzerklärung</a>.</p>
+  </div>
+
+  <footer>© 2026 Louis Herwick</footer>
+</main>
+</body>
+</html>
