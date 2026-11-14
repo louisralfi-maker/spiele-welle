@@ -5,6 +5,7 @@ import XCTest
 /// The lantern slides are palette art (panels lane, critic look 1 of panels-1, blocker 2; artbar.md 1 "Palette colours
 /// only"): every pixel of every slide is one of tools/palette.txt's colours, opaque, at 320 x 160. The set below is
 /// palette.txt's, printed by `python3 -I tools/slides/slidecheck.py --swift`; renew it when the palette changes.
+@MainActor
 final class SlidesPaletteTests: XCTestCase {
     static let palette: Set<UInt32> = [
         0x0A1124, 0x0E0B1E, 0x0E1B1D, 0x121C3B, 0x15302C, 0x17241B, 0x1B3A4E, 0x1C1838,
