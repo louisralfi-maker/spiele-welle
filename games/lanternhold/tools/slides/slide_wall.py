@@ -136,8 +136,9 @@ def land_colour(X, Z, h, shade, slope, k):
         return P(["nightDeep", "nightBlue", "nightSlate", "nightHaze"][lv])
     if k == 3:
         # the inner lands far off under the moon: woods, fields and meadows in the blue of distance
-        n = fbm(X * 0.006 / Z, Z * 0.8, 561, 2)
-        z = Z + (n - 0.5) * 2.5
+        sx = (X - 160.0) / Z
+        n = fbm(sx * 0.045, Z * 0.35, 561, 3)
+        z = Z * (0.75 + 0.5 * n) + (fbm(sx * 0.11, Z, 563, 2) - 0.5) * 1.2
         if z < 3.4:
             return P("fir0") if n < 0.5 else P("leafDeep")
         if z < 6.0:
@@ -417,10 +418,10 @@ def castle(c, zbuf, kind):
         rows[y] = (min(lo, x), max(hi, x))
     for y, (lo, hi) in rows.items():
         for side, x0 in ((-1, lo - 2), (1, hi + 2)):
-            for k in range(7):
+            for k in range(3):
                 x = x0 + side * k
-                if 0 <= x < W and 0 <= y < H and kind[y][x] == 2:
-                    c.c[y][x] = warm(c.c[y][x], 2 if k < 3 else 1)
+                if 0 <= x < W and 0 <= y < H and kind[y][x] == 2 and y > base - 26:
+                    c.c[y][x] = warm(c.c[y][x], 1)
     # the castle itself, outlined where it meets the dark
     ink = P("ink")
     for (x, y) in pix:
