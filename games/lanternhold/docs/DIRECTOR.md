@@ -368,3 +368,31 @@ schneller geht."
 - **At the join:** `StoryLanguagesTests` allows a missing key in the six languages (valid where present); German stays
   strict. The second pass of the house texts and the interface in six languages move behind build 2.
 - If Louis says English is enough on his phone, German waits for the store pass too.
+
+**Full speed, 14.11.2026 19:36.** Louis: "Englisch passt auch, gib einfach Vollgas mit dem Game."
+
+- **Build 2 is English only.** This replaces "German stays" of 19:19. German and the six other languages stay in the
+  repo untouched and are not looked at before the store pass: no German critic, no German fix round, no `ui-de` round,
+  also not at the join (its rounds d and e are gone). The TestFlight round switches every language but English off in
+  the build, so a German phone shows no half-German game; the join's agent proves it with one screenshot on a German
+  simulator. The store still gets all eight languages (CLAUDE.md), in one pass when the texts are final.
+- **The gate is one round:** `build unit "ui <the lane's classes>"`. The slots are the brake (rounds waited up to 50
+  minutes this evening), so one build per gate beats two rounds side by side. This replaces the three rounds of 18:46.
+- **The stage and world lanes are Monday's critical path;** every other lane sends a round only when it decides
+  something.
+- **The join was rehearsed** (`ci-out/director/join-rehearsal.md`; tools on `claude/lh-joinkit`, the trial tree on the
+  local branch `lh-join-rehearsal`). All eleven lanes merge with three small hand fixes (`Core/Economy.swift`,
+  `App/DebugArgs.swift`, `docs/TOWN.md`), and the joined tree builds. Five unit tests fail; each lane has its line in
+  its notes. For the join itself:
+  1. the ads' double taxes must call the town's `Town.grantDoubleTaxes`, or the day's taxes are paid twice (no test
+     catches it);
+  2. the town's taxes on foot move numbers that quests (`TableNeutralityTests`) and craft (the lampmaker, 494 against
+     60 per mille) pinned: re-pin with the town's reference habit, then tune by values;
+  3. `AudienceFlowTests.testThePetitionSample` is not explained yet (the stage lane answers after `lh-s1-6`);
+  4. the atlas is at about 1960 of 2048 rows after the join: the world lane brings the second page first in world-2;
+  5. the quests lane's branch is `claude/lh-q`; `claude/lh-quests` is an old docs branch.
+- **An interface art kit ahead of stage-3** (one Opus agent, branch `claude/lh-hudart`, report
+  `ci-out/director/hud-kit.md`, pictures in `ci-out/director/hud-kit/`): the figures, the coins, the four faces, the
+  people, the arrows and the gear of HUD.md, with proof pictures on real screenshots at noon, dusk and night. The
+  director judges it; then the stage lane takes the commit and Louis sees one picture.
+- Quota 49 % of the week at 19:35 (Fable 9 %).
