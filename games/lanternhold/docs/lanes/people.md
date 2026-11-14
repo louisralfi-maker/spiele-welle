@@ -139,6 +139,25 @@ No new hook in `EntityFrames`: `PeopleCast.townWalkers` and `townLife` dress the
 `PeopleCast.dressed(.citizenSeated, state)` and its kin; a noble who comes before the lord plays
 `PeopleCast.bowFrame(sprite, state:, sinceArrival:)` before the talk.
 
+### Rounds (fix round 1)
+
+- **lh-p1f1-1** (b5a4a91; build, unit): build passed; unit failed in two places, both expected or mine: every
+  `SpriteID` needs a non-empty stand-in (`AtlasTests.testEveryPlaceholderDrawsSomethingAtItsSize`: the 25 states had
+  none), and look 1's two town scenes changed (Dun's rag and Ned's crown walk there). All ten `PeopleCastTests`
+  passed, the new state, bow and atlas tests among them. Fixed: a state stands in as its body; the two hashes
+  recorded again (5427d45).
+- **lh-p1f1-2** (5427d45; build, unit, ui, ui-de, release): build, ui, ui-de and release passed; unit failed only in
+  the stand-ins of the townsfolk's states (their stand-ins live in PlaceholderArt's own chain, not in PlaceholderCast);
+  the goldens passed. Fixed (f5983d6). Shots 130-135: the children read on the well's stones (Nib white with red,
+  Wren's red pinafore, Fen's cap), Wenna wrings on the well's far side, both farmers in 131, the town's cloth in the
+  running game in 134-135 (Gorm green, Hedda and Corra madder, Wenna indigo, Fen's blue breeches).
+- **lh-p1f1-3** (f5983d6; build, unit, ui, ui-de, release): **ALL PASSED** (build 21:33, unit 21:40 with 421
+  tests, ui 22:04, ui-de 22:27, release 22:33 runner time). The atlas: 2048 wide, **1850 of 2048 rows used**
+  (`atlas-rows.txt`): the join has about 200 rows; if it needs more, the 11 village strips go first.
+- After it, art only: Brede's beam a pixel lower and in weathered brown timber (003cb84, b47168d; same size and frames,
+  not in look 1, no test reads it). **lh-p1f1-4** (build, unit, ui PeopleUITests) confirms the head and gives the
+  final shots: see the report.
+
 ### What waits (people-2 and the join)
 
 - **The collector's and the lamplighter's sheets** (PEOPLE.md section 2, "Three more"): the first work of people-2
