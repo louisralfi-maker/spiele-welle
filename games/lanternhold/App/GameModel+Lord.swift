@@ -37,5 +37,7 @@ extension GameModel {
         saveNow()
         feedback.play(.cardClosed)
         setOverlay(nil)
+        // Panels lane: day 1 begins after the prologue (UI/Slides/GameModel+Slides.swift).
+        presentPrologueAfterEntry()
     }
 }
