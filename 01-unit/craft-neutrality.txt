@@ -1,0 +1,45 @@
+seed 1 night 1: gold 70/70 happiness 63/63 taxes 49/49 killed 25/25
+seed 1 night 2: gold 91/91 happiness 67/67 taxes 61/61 killed 34/34
+seed 1 night 3: gold 70/70 happiness 68/68 taxes 61/61 killed 38/38
+seed 1 night 4: gold 58/58 happiness 69/69 taxes 50/50 killed 45/45
+seed 1 night 5: gold 95/95 happiness 71/71 taxes 62/62 killed 48/48
+seed 1 night 6: gold 79/79 happiness 74/74 taxes 69/69 killed 55/55
+seed 1 night 7: gold 89/89 happiness 75/75 taxes 75/75 killed 48/48
+seed 1 night 8: gold 111/111 happiness 79/79 taxes 77/77 killed 62/62
+seed 1 night 9: gold 121/121 happiness 84/84 taxes 85/85 killed 70/70
+seed 1 night 10: gold 131/131 happiness 89/89 taxes 115/115 killed 57/57
+seed 1 night 11: gold 213/213 happiness 93/93 taxes 132/132 killed 69/69
+seed 1 night 12: gold 227/227 happiness 97/97 taxes 134/134 killed 60/60
+seed 1 night 13: gold 312/312 happiness 99/99 taxes 135/135 killed 54/54
+seed 1 night 14: gold 236/236 happiness 100/100 taxes 139/139 killed 70/70
+seed 1: met ["fletcher@5", "painter@12", "mason@14"]
+seed 2 night 1: gold 70/70 happiness 63/63 taxes 49/49 killed 25/25
+seed 2 night 2: gold 91/91 happiness 67/67 taxes 61/61 killed 34/34
+seed 2 night 3: gold 67/67 happiness 71/71 taxes 63/63 killed 37/37
+seed 2 night 4: gold 102/102 happiness 72/72 taxes 57/57 killed 47/47
+seed 2 night 5: gold 115/115 happiness 73/73 taxes 63/63 killed 46/46
+seed 2 night 6: gold 109/109 happiness 75/75 taxes 69/69 killed 57/57
+seed 2 night 7: gold 80/80 happiness 77/77 taxes 76/76 killed 57/57
+seed 2 night 8: gold 87/87 happiness 80/80 taxes 77/77 killed 51/51
+seed 2 night 9: gold 168/168 happiness 83/83 taxes 91/91 killed 58/58
+seed 2 night 10: gold 138/138 happiness 88/88 taxes 120/120 killed 66/66
+seed 2 night 11: gold 149/149 happiness 95/95 taxes 141/141 killed 86/86
+seed 2 night 12: gold 254/254 happiness 100/100 taxes 145/145 killed 58/58
+seed 2 night 13: gold 201/201 happiness 100/100 taxes 147/147 killed 62/62
+seed 2 night 14: gold 318/318 happiness 98/98 taxes 147/147 killed 76/76
+seed 2: met ["limeburner@5", "weaver@12", "mason@14"]
+seed 3 night 1: gold 90/90 happiness 56/56 taxes 69/69 killed 25/25
+seed 3 night 2: gold 65/65 happiness 53/53 taxes 65/65 killed 34/34
+seed 3 night 3: gold 57/57 happiness 50/50 taxes 56/56 killed 38/38
+seed 3 night 4: gold 60/60 happiness 42/42 taxes 58/58 killed 47/47
+seed 3 night 5: gold 66/66 happiness 38/38 taxes 56/56 killed 49/49
+seed 3 night 6: gold 85/85 happiness 33/33 taxes 54/54 killed 59/59
+seed 3 night 7: gold 72/72 happiness 28/28 taxes 52/52 killed 56/56
+seed 3 night 8: gold 58/58 happiness 25/25 taxes 51/51 killed 55/55
+seed 3 night 9: gold 107/107 happiness 20/20 taxes 49/49 killed 50/50
+seed 3 night 10: gold 94/94 happiness 15/15 taxes 47/47 killed 66/66
+seed 3 night 11: gold 120/120 happiness 12/12 taxes 46/46 killed 71/71
+seed 3 night 12: gold 40/40 happiness 9/9 taxes 0/0 killed 65/65
+seed 3 night 13: gold 20/20 happiness 0/0 taxes 0/0 killed 66/66
+seed 3 night 14: gold 0/0 happiness 0/0 taxes 0/0 killed 84/84
+seed 3: met ["wheelwright@5", "mason@12", "glazier@14"]
