@@ -182,13 +182,14 @@ in `docs/BARS.md` (the desk copy every agent reads is `ci-out/director/artbar.md
   later, has the treasury with the collector, the growing town and the craftsmen.
 
 **A third workflow** runs next to the rebuild and the v1 lanes: `docs/workflows/town-lanes.js`, two gated Opus 5.5 lanes.
+Started 14.11.2026 14:11 as task `w0w435zkx` (run `wf_58d17076-a6e`). Never resume it; after a stop, write a continuation.
 
 | lane | worktree, branch | steps |
 |---|---|---|
 | town | `lh-town`, `claude/lh-town` | town-1 taxes on foot in Core; town-2 the same on screen (build 2); town-3 treasury, collector and growth in Core (build 3) |
 | craft | `lh-craft`, `claude/lh-craft` | craft-1 the offer in the audience engine, ten craftsmen in English and German, the effects in Core (build 3) |
 
-**Notes sent on 14.11. 14:25:** stage (no permanent HUD in stage-3, no tax card, a door as a touch target), world (door
+**Notes sent on 14.11. 14:10:** stage (no permanent HUD in stage-3, no tax card, a door as a touch target), world (door
 anchors, window and shutter states, the backdrop row as its own sheet, room for a treasury), ads ("Double taxes" as a
 flag for the day), panels, quests and i18n (the two bars; the tax strings will go).
 
