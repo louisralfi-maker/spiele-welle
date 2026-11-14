@@ -127,7 +127,7 @@ Seren's address ("Lantern"); section 9.2, the premise, Pip's saved joke, `first_
 wants and hides, chapters 2 and 3, the endings, all names, the old title "The Lamplighter King" as history, and
 option B as dropped history.
 
-**DESIGN.md** is not changed by this lane. Part "design" of the list holds 15 lines that state the old premise (the
+**DESIGN.md** is not changed by this lane. Part "design" of the list holds 18 lines that state the old premise (the
 "Not a copy" rows, chapter 1's heading and premise, the statue, the voices, the address table, the speech), each with
 its replacement, for the lead to apply.
 

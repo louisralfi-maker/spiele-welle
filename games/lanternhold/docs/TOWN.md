@@ -92,7 +92,8 @@ What follows is the first plan; where it differs, the lines above win.
   sets the standing's scale again so that T12 holds.
 - **Farmers are seen:** out at first light, at work by day (hoe, scythe, sacks), home before the horn. No food and no
   rationing: a field is income and life, never a thing to manage (Louis, 08.11.).
-- **By touch:** a touch on a building shows its price as coins over the door; a second touch pays.
+- **By touch:** a touch on a building shows its price as coins; holding or tapping counts them out, coin by coin
+  (`docs/PAY.md`, 14.11. 16:13: the count).
 - **Target T12 (new):** a player who grows the town fully by night 14 earns 25 to 35 % more taxes than one who does not,
   and still cannot skip the defence. Bots that do not grow the town give today's numbers.
 

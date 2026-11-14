@@ -40,8 +40,8 @@ The risks, and the rule that answers each:
 
 ## 2. Three stages
 
-Built by the builders like every building. A touch shows the price as coins, a second touch pays (TOWN.md section 3,
-"By touch").
+Built by the builders like every building. A touch shows the price as coins, and the lord counts them out
+(`docs/PAY.md`; TOWN.md section 3, "By touch").
 
 | stage | price, from | what stands | the trained soldier's look | what it brings |
 |---|---|---|---|---|
@@ -77,9 +77,9 @@ Built by the builders like every building. A touch shows the price as coins, a s
 ## 4. The two works
 
 From the drill yard on, two empty places stand in the yard: an empty tripod by the butts and an empty rack by the
-pells. A touch shows the price, a second touch pays. Bram makes the work at the smithy (at his own forge in the
-courtyard if no smithy stands) and brings it over on a handcart at the next dawn; from that dusk it is in use. Both
-works count for every soldier, recruit or trained.
+pells. A touch shows the price, and the lord counts it out (`docs/PAY.md`). Bram makes the work at the smithy (at his
+own forge in the courtyard if no smithy stands) and brings it over on a handcart at the next dawn; from that dusk it
+is in use. Both works count for every soldier, recruit or trained.
 
 | work | price | in the yard | at night | effect |
 |---|---|---|---|---|
@@ -105,8 +105,8 @@ works count for every soldier, recruit or trained.
 ## 6. Recruiting by touch
 
 - The muster board hangs by the bunkhouse door. Two badges are painted on it: a bow and a shield.
-- A touch on the board shows both prices as coins beside the badges (10 and 14, today's prices). A touch on a badge
-  pays.
+- A touch on a badge shows its price as coins (10 and 14, today's prices), and the lord counts them out to Brannock
+  (`docs/PAY.md`).
 - A townsman with a name walks in from the town (he runs at night). Brannock swears him in at the board, his hand on
   the house's lantern; the `seal` sound. He is a soldier at once, as today.
 - This takes the place of the recruit card after build 2's join. Until then recruiting stays as the stage lane has it.

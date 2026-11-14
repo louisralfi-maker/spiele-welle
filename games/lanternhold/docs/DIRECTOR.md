@@ -253,3 +253,25 @@ the pavises), the soldiers' day, recruiting at the muster board, target T16. Not
 a second front round after the lane's present steps; the picture in the second rounds of the world and people lanes;
 the words with build 3's batch. Notes went to the world, people, stage and front lanes: keep the room and the ids, no
 work now.
+
+**The house texts passed their gate, 14.11.2026 16:16.** The second house round (`wz57nek4b`) ended with critic 4: 8
+of ten, pass, no blocker, five highs. The director took all five and every smaller note; one Opus editor fixed them
+(fix round 4, commit e5684b4; report `ci-out/director/house-1-story-fix4.md`). Decided there: Pip opens evening 9.4
+after the herald walked out ("He left the hall. He did not leave the house."); on the `herald_alone` path Brannock is
+the witness of the double game (no step behind the lord at the dusks of days 18 and 19, then "A mask, then." on night
+20); `line.herald_throne` says "a thousand years before yours"; prologue panel 2 names House Lantern; 9.2's third
+choice is "Tamsin, more pie. Then the wall." The director added the three stale voice lines of DESIGN.md (2059 to
+2061) to the design list. The list is final: 46 keys, 76 bible lines, 18 design lines; the check prints ALL PASSED.
+Still to do: the apply pass (strings, bible, design, on top of the i18n and quests branches), the second pass for the
+46 keys in six languages, the code mentions for the join (fix report), and the tuning value for night 20's first push
+(front lane, build 3). Whether the corrected words reach build 2 is decided on Sunday 15.11.
+
+**The count, 14.11.2026 16:13.** Louis asked how buying can feel as good as in Kingdom Two Crowns, where holding or
+tapping throws coin after coin, without copying it. The answer is `docs/PAY.md`: a touch brings up a tally board with
+one hollow per coin; holding or tapping counts the coins onto it, each with a rising clink and a tick in the hand;
+letting go early pays nothing; the last coin seals it, the one who was paid lights the site lantern, and the work
+starts at once. Ours: the lord pays a person hand to hand, no coin touches the ground, and every purchase ends with a
+light. Core is untouched (one order when the last coin lands). Build 2 gets the plain form if the stage lane can take
+it without risk for Monday (decided on Sunday 15.11.); build 3 gets all of it, with the foreman, Brannock and Bram
+holding the board. TOWN.md section 3 and YARD.md sections 2, 4 and 6 point to it. Notes went to the stage, town, craft,
+front, people and world lanes.

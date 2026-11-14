@@ -793,6 +793,21 @@
    "new": "| `castle.statue` | courtyard, x 1680 | M3 step 3 | a stone statue of Saint Taper with his lantern (`statue`) |"
   },
   {
+   "line": 2059,
+   "old": "  and 11,600 German words (German runs 13 % longer in characters). Voices: Odile dry and sarcastic (\"my king\"), Brannock",
+   "new": "  and 11,600 German words (German runs 13 % longer in characters). Voices: Odile dry and sarcastic (\"my lord\"), Brannock"
+  },
+  {
+   "line": 2060,
+   "old": "  gruff (\"Majesty\"), Pip jokes (\"Your Wickship\", German \"Eure Dochtheit\"), Mother Hesper calm and ominous, Tamsin",
+   "new": "  gruff (\"lord\"), Pip jokes (\"Your Wickship\", German \"Eure Dochtheit\"), Mother Hesper calm and ominous, Tamsin"
+  },
+  {
+   "line": 2061,
+   "old": "  gossip with hints, Bram in few words, Marek sly (\"Your Radiance\", \"Eure Strahlkraft\"), Seren quiet (\"king\"), the",
+   "new": "  gossip with hints, Bram in few words, Marek sly (\"Your Radiance\", \"Eure Strahlkraft\"), Seren quiet (\"Lantern\", after day 15 \"lord\"), the"
+  },
+  {
    "line": 2062,
    "old": "  herald cold (\"lamplighter\"). German addresses the king with \"Ihr\" and \"Euch\".",
    "new": "  herald cold (\"heir of the thief\"). German addresses the lord with \"Ihr\" and \"Euch\"."
