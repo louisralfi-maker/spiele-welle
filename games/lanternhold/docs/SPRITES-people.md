@@ -23,14 +23,15 @@ ask `PeopleCast.size(of:)` and `PeopleCast.frameCount(of:)`; `PeopleCast.Frames`
 
 | id | size | frames | frame use |
 |---|---|---|---|
-| `elder` | 12x26 | 6 | walk 0-3 (a shuffle for 2 game px a frame), idle 4-5 (Old Hemmet) |
+| `elder` | 12x26 | 6 | walk 0-3 (a shuffle for 2.5 game px a frame), idle 4-5 (Old Hemmet) |
 | `labourer` | 12x26 | 6 | walk 0-3 (the limp: 0 the short step onto the bad foot, 1 the good leg swinging through with the body 2 px down, 2 the long step of the good leg, 3 the bad leg dragged through stiff with the body up), idle 4-5 (Brede Hask) |
 | `washerwoman` | 12x26 | 8 | walk 0-3, idle 4-5, wring 6-7 (the basket set down before her feet, a sheet twisted between her fists) (Wenna Brisk) |
 | `farmerHoe` | 12x26 | 14 | walk 0-3 and idle 4-5 with the hoe on the shoulder; work 6-7 (the hoe raised, struck into the row); straighten 8-9 (the hoe planted and the far hand at the back, then upright with the face lifted); carry 10-13 (the walk's steps with a sack on the back) (Gorm Ashby) |
 | `farmerScythe` | 12x26 | 14 | walk 0-3 and idle 4-5 with the scythe on the shoulder; work 6-7 (the scythe swung back low, swung through with the blade along the ground); straighten 8-9 (leaning on the upright scythe with the far hand at the back, then the forearm across the brow); carry 10-13 (the walk's steps with a sheaf before her; 13 is a copy of 11) (Hedda Ashby) |
 
-Anchors: the walk's planted foot moves back 4 game px a frame (the elder's 2), as the engine advances one walk frame
-per stride (`PeopleCast.stride`). The farmers' tools stay inside the 12 px frame in every pose: the hoe's blade at the
+Anchors: the engine advances one walk frame per stride (`PeopleCast.stride`), and the stride is what the grids were
+painted for: the planted foot travels from the front of one contact to the back of the next in two frames, 6 game px
+for the cast's grown-ups (stride 3), 5 for Old Hemmet (2.5); the three repainted townsfolk keep the base game's 4. The farmers' tools stay inside the 12 px frame in every pose: the hoe's blade at the
 ground in frame 7 is on the bottom body row at cols 9-11, the scythe's blade in frame 7 lies along row 23 at cols 6-9.
 
 ## The children

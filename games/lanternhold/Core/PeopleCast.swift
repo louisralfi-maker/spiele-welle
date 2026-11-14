@@ -70,13 +70,16 @@ enum PeopleCast {
         }
     }
 
-    /// Game px per walk frame: the townsfolk's 4 (one frame per 4 px, as the lord), the elder's shuffle 2, the
-    /// children's run 5. The step a sprite was painted for, so its planted foot does not slide.
+    /// Game px per walk frame: the step each body was painted for, so its planted foot stays put (measured on the
+    /// grids: the planted foot travels from the front of one contact to the back of the next in two frames). The
+    /// cast's grown-ups 3, Old Hemmet's shuffle 2.5, the children's run 5; the three townsfolk keep the base game's 4
+    /// (look 1 is pinned to it).
     static func stride(_ sprite: SpriteID) -> Double {
         switch sprite {
-        case .elder: return 2
+        case .citizen, .citizenB, .citizenC: return 4
+        case .elder: return 2.5
         case .childA, .childB, .childC: return 5
-        default: return 4
+        default: return 3
         }
     }
 

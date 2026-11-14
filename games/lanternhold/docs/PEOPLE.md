@@ -72,7 +72,7 @@ On the bench he sits with a hand on each knee.
 
 **Old Hemmet** (`elder`, 12x26). *Silhouette:* the lowest grown-up in town: a hump of smock with the head hanging
 below its top, a stick ahead of him. *Posture:* bent nearly double, the far hand resting at the small of his back.
-*Pace:* a shuffle, half the townsfolk's speed, the feet a hand apart (2 px a frame), the body rocking down on each
+*Pace:* a shuffle, half the townsfolk's speed, the feet a hand apart (2.5 px a frame), the body rocking down on each
 contact, the stick planted ahead and drawn after. *Cloth:* an old brown wool cape over the hump (`woodLight` on its
 lit top, `wood`, `woodDark`), under it a long smock of undyed wool gone grey-pale with flour (`plaster`, `plasterDim`,
 `soilLight`), a rope belt (`straw`), dark breeches, clogs; a white fringe and beard (`stonePale`): the pale head stands
@@ -167,8 +167,8 @@ down and holds out a purse: a noble never pays himself (TOWN.md section 6), the 
 ## 5. Where they are in the game (look 2)
 
 - **The walkers** (`EntityFrames.townsfolk`, how many follows the taxpayers): Mother Corra, Old Hemmet, Brede, Dun,
-  Aldo in turn, each at the pace and step their body was drawn for (Hemmet at half speed and 2 px a frame, Brede at four
-  fifths). Look 1 keeps its three townsfolk.
+  Aldo in turn, each at the pace and step their body was drawn for (Hemmet at half speed and 2.5 px a frame, Brede at
+  four fifths). Look 1 keeps its three townsfolk.
 - **The fields** (`PeopleCast.fieldWorkers`): on every built field, Gorm with the hoe and Hedda with the scythe beside
   him (on the second field when it stands). Out from the nearest house at 06:12 with their tools on the shoulder; at
   work by day, eight strokes and then the pause that straightens the back; when the lord comes within 36 px they
