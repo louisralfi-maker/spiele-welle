@@ -9,8 +9,12 @@ Limits (Apple, App Store Connect help, read 14.11.2026): name 2 to 30 characters
 description 4000, What's New 4000, keywords 100 bytes (UTF-8 counted here, the strict reading) with every keyword
 longer than two characters, no app name or company name in the keywords, no names of other apps or companies.
 
+Without a language it also checks screenshots.md (eight shots, a caption of at most 40 characters in each of the
+eight languages) and the Notes block of review-notes.md (at most 4000 characters).
+
 Usage: python3 check_listing.py [--final] [lang ...]
-  --final  also fails on any '[if shipped]' marker still in a text (run it before pasting into App Store Connect).
+  --final  also fails on any '[if shipped]' or '[check]' marker still in a text (run it before pasting into App
+           Store Connect; until every lane has joined it is expected to fail).
 Exit 0 when every check passes. Standard library only.
 """
 import os
@@ -136,13 +140,67 @@ def check(lang, final):
     return errors, notes
 
 
+def check_captions():
+    """screenshots.md: eight shots, each with a ```captions block of 'lang: text' lines, every language, 40 chars."""
+    errors, notes = [], []
+    path = os.path.join(HERE, '..', 'screenshots.md')
+    if not os.path.exists(path):
+        return ['missing ' + path], notes
+    blocks = re.findall(r'```captions\n(.*?)\n```', open(path, encoding='utf-8').read(), re.S)
+    if len(blocks) != 8:
+        errors.append('%d caption blocks, want 8' % len(blocks))
+    longest = 0
+    for i, b in enumerate(blocks, 1):
+        seen = {}
+        for line in b.split('\n'):
+            lang, _, text = line.partition(':')
+            seen[lang.strip()] = text.strip()
+        for lang in LANGS:
+            text = seen.get(lang, '')
+            if not text:
+                errors.append('shot %d: no %s caption' % (i, lang))
+            elif chars(text) > 40:
+                errors.append('shot %d %s: %d chars > 40: %s' % (i, lang, chars(text), text))
+            longest = max(longest, chars(text))
+        for lang in seen:
+            if lang not in LANGS:
+                errors.append('shot %d: unknown language %s' % (i, lang))
+    notes.append('%d shots, longest caption %d chars (limit 40)' % (len(blocks), longest))
+    return errors, notes
+
+
+def check_review_notes(final):
+    """review-notes.md: the Notes block within 4000 characters; --final fails on any [check] or [if shipped] left."""
+    errors, notes = [], []
+    path = os.path.join(HERE, '..', 'review-notes.md')
+    if not os.path.exists(path):
+        return ['missing ' + path], notes
+    m = re.search(r'```text\n(.*?)\n```', open(path, encoding='utf-8').read(), re.S)
+    if not m:
+        return ['review-notes.md has no text block'], notes
+    t = m.group(1)
+    for keep in (True, False):
+        v = '\n'.join(line.replace('[check]', '').replace(MARK, '').rstrip() for line in t.split('\n')
+                      if keep or not line.strip().startswith(MARK))
+        n = chars(v)
+        if n > 4000:
+            errors.append('review notes (%s): %d chars > 4000' % ('kept' if keep else 'cut', n))
+        if keep:
+            notes.append('review notes %d chars (limit 4000)' % n)
+    if final and ('[check]' in t or MARK in t):
+        errors.append('review notes: [check] or [if shipped] markers left')
+    return errors, notes
+
+
 def main():
     args = sys.argv[1:]
     final = '--final' in args
     langs = [a for a in args if not a.startswith('--')] or LANGS
     bad = 0
-    for lang in langs:
-        errors, notes = check(lang, final)
+    results = [(lang, check(lang, final)) for lang in langs]
+    if langs == LANGS:
+        results += [('screenshots.md captions', check_captions()), ('review-notes.md', check_review_notes(final))]
+    for lang, (errors, notes) in results:
         print('== %s: %s' % (lang, 'OK' if not errors else '%d problem(s)' % len(errors)))
         for n in notes:
             print('   ' + n)
