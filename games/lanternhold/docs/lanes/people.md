@@ -54,7 +54,11 @@ call `PeopleCast.townLife` once and take the walkers' bodies, pace and step from
   town scenes of look 1 (square-morning, town-noon), as expected from the repainted townsfolk (all eight
   `PeopleCastTests` passed); the UI filter was named wrong (it is `LanternholdUITests/PeopleUITests`). The two hashes
   were recorded again (b452f81).
-- **lh-p1-3** (b452f81; build, unit, ui, ui-de, release): the full round, see the report.
+- **lh-p1-3** (b452f81; build, unit, ui, ui-de, release): **ALL PASSED** (build 16:21, unit 16:29, ui 16:55,
+  ui-de 17:18, release 17:25 runner time). The shots 130-133 in English and German, upright copies in the worktree's
+  `ci-out/people/shots/`: the square at 10:29 (Wenna wringing at the well, the children, Fen behind the lord), Gorm at
+  his hoe on the near field at 09:29 with Corra and Hemmet walking by the house, Gorm straightened and turned to the
+  lord passing the field, the square at 15:11 with Corra walking.
 
 ### Proof (ci-out/people in the worktree, git-ignored)
 
@@ -75,3 +79,9 @@ call `PeopleCast.townLife` once and take the walkers' bodies, pace and step from
 - Two of the twelve still wear their old bodies, `builder` and `guardsman` (and the archer), and Ilse's scarred hands
   are not drawn yet; PEOPLE.md gives each its mark for the repaint.
 - The six other languages: no strings in this step.
+- Judged at phone size in the running game: the groups read (the farmer's hat and hoe, the children's size and red,
+  the lord), but the square is the town's busiest spot: Wenna at the well, three children lapping it and Fen at the
+  lord's heels crowd round the well when the lord stands there (shot 133). If the rebuilt square has more room, move
+  Wenna a few px off the notice board and widen the children's laps.
+- The art is simple, hand-set and of one vocabulary with the base game's townsfolk; it is not yet at the level of the
+  best sprites in the game. The washerwoman's wring and Hedda's mow are the weakest poses at 400 %.
