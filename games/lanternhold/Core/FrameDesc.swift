@@ -120,8 +120,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     case gateRockL, gateRockR, bankSheetA, bankSheetB, bankSheetC
     // World rebuild, fix round 1 (SPRITES.md "The rock and the fog"): where the world ends the dark is whole (fog B,
     // drawn black), the deck of cloud across the Weltmauer with its ragged underside and veil of mist (far plane), and
-    // a thread of falling water on the cleft wall (mid plane, four frames)
-    case bankEnd, cloudDeck, cleftWater
+    // a thread of falling water on the cleft wall (mid plane, four frames), the moor's oldest ruin (near plane)
+    case bankEnd, cloudDeck, cleftWater, moorRuin
     // Stage 7 (SPRITES.md "The house envoys", "The houses' banners"): the four houses' faces as guests with a body
     // (walk 0-3, idle 4-5, talk 6-7) and a story portrait of their own, and the five houses' banners in the hall
     case hildVarn, lorenzPell, ebbaCalder, orlaLorn
@@ -360,6 +360,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bankEnd: return PixelSize(width: 96, height: 208)
         case .cloudDeck: return PixelSize(width: 720, height: 80)
         case .cleftWater: return PixelSize(width: 3, height: 132)
+        case .moorRuin: return PixelSize(width: 50, height: 36)
         case .hildVarn, .lorenzPell, .ebbaCalder, .orlaLorn: return PixelSize(width: 14, height: 30)
         case .portraitHildVarn, .portraitLorenzPell, .portraitEbbaCalder, .portraitOrlaLorn:
             return PixelSize(width: 48, height: 48)

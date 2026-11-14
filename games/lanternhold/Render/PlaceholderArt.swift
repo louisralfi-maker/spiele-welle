@@ -37,7 +37,7 @@ enum PlaceholderArt {
              .castleFront3Build, .castleFrontScaffold, .backTop2, .backTop2Build, .backTop3, .backTop3Build,
              .farCastle2, .farCastle2Build, .farCastle3, .farCastle3Build, .farCastleBack2, .farCastleBack2Build,
              .farCastleBack3, .farCastleBack3Build, .farCastlePane, .oldWall1, .oldWall2, .oldWall3,
-             .palisadeAnchor, .stoneWallAnchor, .bastionAnchor:
+             .palisadeAnchor, .stoneWallAnchor, .bastionAnchor, .moorRuin:
             frames = [cliff(salt, size: size)]
         case .d2FirBeltFar, .shadowForest, .valleyVista, .d2TreeBelt, .firA, .firB, .firC, .firD, .deadTreeA,
              .deadTreeB, .linden, .poplar, .appleTree, .willow, .d2BushA, .d2BushB, .d2LaneEnd, .d2FgFerns,

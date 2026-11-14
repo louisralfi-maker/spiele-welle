@@ -4,7 +4,7 @@ anchor the built tiers in the rock. Pure python on pixelart.py's Image; palette 
 of the position), so a run reproduces its files byte for byte.
 
   throatart.py build <id> --out <Art dir>      ids: oldWall1 oldWall2 oldWall3 palisadeAnchor stoneWallAnchor
-                                                    bastionAnchor
+                                                    bastionAnchor moorRuin
 
 The story (STORY.md): Lady Oriel the Mason built the three lines in the year 118. What stands of them today is a
 ruin; the lord's lines are built into it.
@@ -578,7 +578,77 @@ def old_wall_1():
     return sh
 
 
+def moor_ruin():
+    """moorRuin (world rebuild, fix round 1; the critic: "the oldest ruins on the moor: no frame shows them"): older
+    than Oriel's walls, half sunk into the peat of the dead moor: the stumps of an arch's two piers (the left one
+    taller, its top broken in steps, the springer of the arch still leaning out of it), the arch's fallen voussoirs in
+    the dead grass between them, a leaning standing stone to the east; weathered pale stone with moss low down. Near
+    plane, 50x36, its foot on the ground line."""
+    w, up = 50, 36
+    sh = Sheet(w, up)
+    seed = 97
+    g = up - 1
+
+    def cell(lx, u):
+        return (lx, g - u)
+
+    left = [(2, 24), (4, 27), (7, 30), (9, 26), (11, 22)]          # the left pier: its broken top in steps
+    right = [(29, 15), (31, 19), (33, 17), (35, 13)]                # the right pier, lower
+    pier_l = [cell(lx, u) for lx in range(2, 12) for u in range(0, hold(left, lx))]
+    pier_r = [cell(lx, u) for lx in range(29, 36) for u in range(0, hold(right, lx))]
+    springer = [cell(lx, u) for lx in range(12, 16) for u in range(18 + (lx - 12), 22 + (lx - 12) // 2)]
+    for cells, sd in ((pier_l, 1), (pier_r, 2)):
+        ashlar(sh, knock(cells, seed + sd, 0.12), seed + 3 + sd, tone=1, bl=6, moss=1.2, ground=g)
+        edge(sh, cells)
+    ashlar(sh, springer, seed + 7, tone=1, bl=4, ground=g)
+    edge(sh, springer)
+    # the fallen voussoirs between the piers, half in the grass
+    for (lx, u, bw, bh) in ((14, 0, 6, 3), (20, 0, 5, 4), (24, 3, 4, 3), (19, 4, 4, 2)):
+        for dx in range(bw):
+            for dy in range(bh):
+                i = 3
+                if dy == bh - 1:
+                    i = 4 if dx < bw - 1 else 3
+                elif dx == 0:
+                    i = 4
+                elif dx == bw - 1:
+                    i = 1
+                elif dy == 0:
+                    i = 2
+                x, y = cell(lx + dx, u + dy)
+                sh.put(x, y, STONES[i], "S")
+    # the standing stone, leaning east: one long block, lit on its west face, a ring cut into it
+    for u in range(0, 22):
+        x0 = 38 + u // 6
+        for dx in range(5):
+            x, y = cell(x0 + dx, u)
+            top = u >= 21 - (1 if dx in (0, 4) else 0)
+            if top and dx in (0, 4):
+                continue
+            i = 4 if dx == 0 else 3 if dx < 3 else 2 if dx == 3 else 1
+            if u == 21 or (u == 20 and dx in (1, 3)):
+                i = 4
+            if h01(seed, dx, u, 5) < 0.06 and 0 < dx < 4:
+                i -= 1
+            sh.put(x, y, STONES[max(0, i)], "S")
+        x, y = cell(x0 + 5, u)
+        sh.put(x, y, "ink", "S")
+    for (dx, u) in ((2, 14), (1, 15), (3, 15), (1, 16), (3, 16), (2, 17)):   # the worn ring
+        x, y = cell(38 + u // 6 + dx, u)
+        sh.put(x, y, "stoneMid", "S")
+    # the peat and dead grass at their feet
+    for lx in range(0, w):
+        for u in range(0, 3):
+            x, y = cell(lx, u)
+            v = h01(seed, lx, u, 11)
+            if u == 0 or (u == 1 and v < 0.55) or (u == 2 and v < 0.2):
+                if sh.m(x, y) is None or (u == 0 and v < 0.5):
+                    sh.put(x, y, "moorDark" if u == 0 else "moor" if v < 0.4 else "straw", "E")
+    return sh
+
+
 BUILD = {
+    "moorRuin": moor_ruin,
     "oldWall1": old_wall_1,
     "oldWall2": lambda: old_wall(2),
     "oldWall3": lambda: old_wall(3),

@@ -109,6 +109,9 @@ extension SceneLayout {
         (.near, Entry(sprite: .deadTreeA, x: 271, y: 0)),
         (.near, Entry(sprite: .deadTreeB, x: 325, y: 0, flipped: true)),
         (.near, Entry(sprite: .deadTreeA, x: 373, y: 0, flipped: true)),
+        // Fix round 1 (the critic: "the oldest ruins on the moor"): an arch's two piers, its fallen stones and a
+        // leaning standing stone, older than Oriel's walls, behind world 405, behind the dead trees.
+        (.near, Entry(sprite: .moorRuin, x: 336, y: 0, z: -1)),
         // Foreground: ferns, dead grass and roots in the open land, ending at the beacon (fg x 546 shows before
         // world 470); rock and scree in the Throat.
         (.foreground, Entry(sprite: .d2FgFerns, x: -414, y: -30, z: 2)),
