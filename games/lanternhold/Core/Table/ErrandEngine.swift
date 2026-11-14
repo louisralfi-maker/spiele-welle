@@ -283,6 +283,7 @@ enum ErrandEngine {
         s.citizens -= lent.count + bearers
         let builders = max(0, lend.builders ?? 0)
         if builders > 0 { changeBuilders(&s, by: -builders, balance: balance) }
+        let beds = s.citizens + lent.count + bearers
         var atReturn: [PetitionEffect] = []
         if let effect = errand.atReturn { atReturn.append(effect) }
         if let effect = order.atReturn { atReturn.append(effect) }
@@ -293,7 +294,7 @@ enum ErrandEngine {
                               citizens: bearers, builders: builders, goes: order.goes ?? [], report: order.report,
                               altReport: order.altReport ?? [],
                               lostReport: errand.lostReport ?? ErrandCatalog.lostReportID, atReturn: atReturn,
-                              atLoss: order.atLoss)
+                              atLoss: order.atLoss, bedsBefore: beds)
         table.out.append(sending)
         table.out.sort { $0.lantern < $1.lantern }
         setLantern(&table, number, .out)
@@ -377,6 +378,7 @@ enum ErrandEngine {
                                              outcome: .lost, names: names, happiness: loss))
             } else {
                 for soldier in sending.lent { insert(&s, rested(soldier)) }
+                takeBedsBack(&s, sending, balance: balance)
                 s.citizens += sending.lent.count + sending.citizens
                 if sending.builders > 0 { changeBuilders(&s, by: sending.builders, balance: balance) }
                 for (step, effect) in sending.atReturn.enumerated() {
@@ -394,6 +396,19 @@ enum ErrandEngine {
         table.out = staying
         if !returns.isEmpty { table.dawn = TableDawn(day: s.day, returns: returns) }
         s.table = table
+    }
+
+    /// The party takes its beds back: whoever came to live in the town into the room it left (growth at the dawns it was
+    /// away) makes room again as far as the town is over its houses' room, so a sending never adds people (round
+    /// `lh-q2-2`: without this every lending at a full town grew it by the people lent). Before the people come back.
+    static func takeBedsBack(_ s: inout GameState, _ sending: Sending, balance: Balance) {
+        let back = sending.lent.count + sending.citizens
+        guard back > 0, sending.bedsBefore >= 0 else { return }
+        let left = sending.bedsBefore - back
+        let grown = max(0, s.citizens - left)
+        let over = s.citizens + back - max(s.houseRoom(balance), sending.bedsBefore)
+        guard over > 0, grown > 0 else { return }
+        s.citizens = max(s.soldiers.count, s.citizens - min(over, grown))
     }
 
     /// The dawn report's row for the dawn that began `day`: each lantern that came home, came late or was lost then

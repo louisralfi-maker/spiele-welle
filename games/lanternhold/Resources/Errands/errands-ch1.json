@@ -245,7 +245,7 @@
       ]
     },
     {
-      "id": "beaconfoot_road", "speaker": "soldier", "text": "report.beaconfoot_road.text", "counsel": 0,
+      "id": "beaconfoot_road", "speaker": "soldier", "text": "report.beaconfoot_road.text", "counsel": 1,
       "choices": [
         { "label": "report.beaconfoot_road.c1", "happiness": 1, "reaction": "report.beaconfoot_road.r1" },
         { "label": "report.beaconfoot_road.c2", "reaction": "report.beaconfoot_road.r2" }

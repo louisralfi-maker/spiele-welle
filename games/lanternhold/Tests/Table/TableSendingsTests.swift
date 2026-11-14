@@ -264,6 +264,33 @@ final class TableSendingsTests: XCTestCase {
         XCTAssertTrue(lost.table?.isAway("serLudo") == false, "he is not on the road any more")
     }
 
+    /// A sending creates nobody: people who grew into a party's empty beds at a full town make room again when the
+    /// party comes home; in a town with room the growth is the town's own.
+    func testAPartyTakesItsBedsBackInAFullTown() throws {
+        var full = realm(day: 5, flags: ["varn_with"])
+        let room = full.houseRoom(balance)
+        full.citizens = max(room, full.soldiers.count + 4)
+        let town = full.citizens
+        let soldiers = full.soldiers.count
+        XCTAssertNotNil(ErrandEngine.send(&full, errand: "highcairn_count", order: 0, catalog: table, balance: balance))
+        XCTAssertEqual(full.citizens, town - 2)
+        full.citizens += 2
+        dawn(&full, day: 6)
+        dawn(&full, day: 7)
+        XCTAssertEqual(full.soldiers.count, soldiers, "both riders home")
+        XCTAssertEqual(full.citizens, max(room, town), "the two who moved into their beds make room again")
+
+        var roomy = realm(day: 5, flags: ["varn_with"])
+        roomy.citizens = roomy.soldiers.count + 4
+        let before = roomy.citizens
+        XCTAssertNotNil(ErrandEngine.send(&roomy, errand: "highcairn_count", order: 0, catalog: table, balance: balance))
+        roomy.citizens += 1
+        dawn(&roomy, day: 6)
+        dawn(&roomy, day: 7)
+        XCTAssertEqual(roomy.citizens, min(before + 1, max(roomy.houseRoom(balance), before)),
+                       "growth into free room stays")
+    }
+
     // MARK: - Sending 13: lantern 41 follows Hild's audience
 
     func testLanternFortyOneFollowsHildsRideAndStaysOut() throws {

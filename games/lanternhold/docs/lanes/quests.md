@@ -234,8 +234,19 @@ No new hook. `TableListView.swift` and `ErrandEngine.swift` are the lane's own f
 - **The tuning** (`Core/Table/TableTuning.swift`, `Tests/Table/TableTuningTests.swift`): the reference (no table),
   sender and greedy bots over the twenty tuning seeds, run side by side on every core (`DispatchQueue.concurrentPerform`,
   each run a pure value); the cells of QUESTS.md 4.4: T1, T3, T4, T5, T6, T7 (sender endless to night 66), T8 (sim
-  proxy) for the sender, T6 (without the beacon) for the greedy bot, T10 and T11; the rest reported. Attachment
-  `table-tuning`.
+  proxy) for the sender, T6 (without the beacon) for the greedy bot, T10 and the sender's T11; the rest reported.
+  Attachment `table-tuning` (with night 20's diagnostics per seed). `Core/Table/TableTuningVariants.swift` keeps the
+  tool that measured the round-2 variants (`TableVariant.make`, `TableTuning.variants`); no test calls it now.
+- **T11 for the greedy bot is reported, not asserted (a finding for the director).** "At least 2 offered sendings
+  stay unsent for want of a hook" held in no seed and no variant: rounds `lh-q2-1` and `lh-q2-2` measured the first
+  windows, the tightened windows, two-day windows for 3, 4, 7, 11 and 12, four nights for Saltgate and Stillmere, a red
+  chip on the caves: the median stayed 0 (at most 1 in a seed). A bot that sends everything at first chance gets
+  nearly every slip out, because most sendings are one or two nights and every window is three days or more; a slip
+  that waits for a hook gets the next one. What greed costs here is lanterns (14 of 20 greedy realms lose one on a red
+  chip) and soldiers, not slips. Making the strict cell hold would take windows of one or two days, which a player who
+  visits the table every second day would mostly miss; I did not ship that. The report also counts the slips that had
+  to wait for a hook. Options for the director: accept the cell as reported; or read it as "at least 2 slips had to
+  wait"; or ask for one-day windows on two late sendings.
 - **The tuned values** (by values only; `Balance` and every petition untouched):
   - Odile's seal also on 3 `ford_planks`, 6 `goldenacre_cart` order 2 (the lamp tithe list) and 8 `stillmere_proof`
     order 1 (as she wrote it). With QUESTS.md's five seals alone the sender never had more than two lanterns out (a
@@ -248,6 +259,22 @@ No new hook. `TableListView.swift` and `ErrandEngine.swift` are the lane's own f
     happiness): with the lanes the sender's high-tax realm would sit one point above the reference (T4 "not above").
     The lanes stay the warm choice for the player.
   - Ford planks: Odile counsels the toll (+15 gold, −1 happiness) while it pays (read by day 14), else the free choice.
+  - Round 2 (after `lh-q2-1`): the middle of the chapter crowds. Windows 2 `mill_herbs` 6–10, 3 `ford_planks` 9–12,
+    6 `goldenacre_cart` 8–12, 7 `saltgate_grey` 10–12, 10 `beaconfoot_smoke` 8–10, 11 `beacon_statues` 11–14,
+    12 `ludo_number` 12–14 (QUESTS.md had 6–12, 9–14, 7–13, 10–15, 8–11, 11–16, 12–15); the caves take two nights. With
+    the first windows a bot that sends everything got almost every slip out (T11 greedy: 0 unsent), so the hook did not
+    bite. Odile's counsel on the true count is Hild's word, not Varn's two archers (QUESTS.md 4.4 named those archers
+    the first value to watch; the variants showed they were not what weakened night 20, but the counsel path now gives
+    no people at all, as STORY.md 9.4 asks). Beaconfoot's road report: Odile counsels "Say nothing yet" (no happiness;
+    the lamp hung low at the Throat gate stays the player's warm choice), so the counsel path's happiness is +1 net
+    (Hild's word +1, Stillmere's answer +1, the toll −1).
+- **A sending creates nobody** (engine, round 3): `ErrandEngine.takeBedsBack`. Round `lh-q2-2`'s diagnostics showed
+  the sender's realm a step ahead of the reference (one building more at dawn 20, the beacon a day earlier, four
+  realms still standing at night 66 in endless, few patches left for night 20): every lending at a full town let the
+  town grow into the empty beds (Economy's growth fills house room at the dawns the party is away), and the party
+  came home on top. Now the people who moved into a party's beds make room again as far as the town is over its
+  houses' room when the party comes home (`Sending.bedsBefore`, saved, −1 for older saves); in a town with room the
+  growth stays.
 - **Neutrality** (director's note 19:35, join rehearsal): the pinned line is one constant, `TableNeutralityLine.pinned`
   (`Tests/Table/TableNeutralityLine.swift`, how to re-pin in its comment); only `testTodaysLineIsUnchanged` reads it.
   The seed-1 check now compares the run with the table against the run without it, line for line and dawn for dawn.
@@ -305,3 +332,15 @@ also follows sending 13 with the standard catalogue by default, `DebugArgs.Scree
   seal days 11 to 15, the oil's counsel, the stair home after two dusks, twelve places).
 
 ### Rounds
+
+- `lh-q2-1` on `7dfa0a5` (build, unit over the table's six test classes): build passed (no warning from the lane's
+  files), 64 tests ran, 2 failed. The tuning took 81 s with the seeds side by side. T1, T3, T4, T5, T7, T8, T10 and the
+  sender's T11 passed (T10: gold −8.5, soldiers 0, happiness −0.5 as medians; T11 sender: 3 full days in 19 of 20
+  seeds, days 11, 12 and 13; T7: 18 of 20 in band). Failed: T6 sender (without the beacon held 3 of 20, the reference
+  10) and T11 greedy (median 0 unsent for want of a hook). The validator reports nothing over 211 keys.
+- `lh-q2-2` on `4c44f45` (build, unit all, ui `TableUITests`; the gate's shape): build passed, `TableUITests` passed
+  (both tests, the day-11 one included), unit 474 passed, 4 failed: one stale assertion (`ErrandDataTests`, the stair's
+  window), T6 sender (without the beacon held 4), T7 sender (13 of 20 in band: four realms still standing at night 66)
+  and T11 greedy. The variants (`table-variants`, seven sets of values) moved T6 only within noise (3 to 8) and T11
+  greedy not at all; the night-20 diagnostics showed the sender's realm a building ahead with few patches left, which
+  led to the beds rule above. TuningTests' T1 to T8 passed unchanged.

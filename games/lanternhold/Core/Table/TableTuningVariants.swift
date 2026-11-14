@@ -16,40 +16,6 @@ struct TableVariant: Sendable {
                                                                reserved: base.reserved, places: base.places,
                                                                errands: list, reports: cards))
     }
-
-    /// The variants of the second tuning round: the shipped values against what each change replaced.
-    static func secondRound(_ base: ErrandCatalog) -> [TableVariant] {
-        func window(_ id: String, _ days: [Int]) -> (inout Errand) -> Void {
-            { if $0.id == id { $0.days = days } }
-        }
-        return [
-            make("shipped", from: base),
-            make("count: the levy as counsel", from: base, reports: { if $0.id == "highcairn_true" { $0.counsel = 0 } }),
-            make("oil: the lanes as counsel", from: base, reports: { if $0.id == "oil_round" { $0.counsel = 0 } }),
-            make("first windows", from: base, errands: { errand in
-                let first: [String: [Int]] = ["mill_herbs": [6, 12], "ford_planks": [9, 14], "goldenacre_cart": [7, 13],
-                                              "saltgate_grey": [10, 15], "beaconfoot_smoke": [8, 11],
-                                              "beacon_statues": [11, 16], "ludo_number": [12, 15]]
-                if let days = first[errand.id] { errand.days = days }
-                if errand.id == "beaconfoot_smoke", errand.orders.count > 1 { errand.orders[1].nights = 1 }
-            }),
-            make("two-day windows", from: base, errands: { errand in
-                window("saltgate_grey", [10, 11])(&errand)
-                window("hemmet_sentence", [10, 11])(&errand)
-                window("ludo_number", [12, 13])(&errand)
-                window("beacon_statues", [11, 13])(&errand)
-                window("ford_planks", [9, 11])(&errand)
-            }),
-            make("far houses", from: base, errands: { errand in
-                if errand.id == "saltgate_grey" || errand.id == "stillmere_proof" {
-                    for index in errand.orders.indices { errand.orders[index].nights = 4 }
-                }
-            }),
-            make("caves red", from: base, errands: { errand in
-                if errand.id == "beaconfoot_smoke", errand.orders.count > 1 { errand.orders[1].risk = 0.25 }
-            }),
-        ]
-    }
 }
 
 extension TableTuning {

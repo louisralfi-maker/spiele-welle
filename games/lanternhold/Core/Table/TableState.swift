@@ -77,12 +77,15 @@ struct Sending: Codable, Sendable, Equatable {
     /// The sending's and the order's `atReturn`, in that order.
     var atReturn: [PetitionEffect]
     var atLoss: PetitionEffect?
+    /// The realm's people the moment before the party left (−1: unknown, an older save): the party takes its beds
+    /// back at the return dawn, so a sending never adds people to a full town (`ErrandEngine.bringHome`).
+    var bedsBefore: Int
 
     init(errand: String, order: Int, lantern: Int, place: String, sentDay: Int, sentAt: Double, dueDay: Int,
          homeDay: Int, lost: Bool, late: Bool, sealed: Bool, gold: Int = 0, flagsSet: [String] = [],
          flagsCleared: [String] = [], lent: [Soldier] = [], citizens: Int = 0, builders: Int = 0, goes: [String] = [],
          report: String, altReport: [AltReport] = [], lostReport: String = ErrandCatalog.lostReportID,
-         atReturn: [PetitionEffect] = [], atLoss: PetitionEffect? = nil) {
+         atReturn: [PetitionEffect] = [], atLoss: PetitionEffect? = nil, bedsBefore: Int = -1) {
         self.errand = errand
         self.order = order
         self.lantern = lantern
@@ -106,6 +109,7 @@ struct Sending: Codable, Sendable, Equatable {
         self.lostReport = lostReport
         self.atReturn = atReturn
         self.atLoss = atLoss
+        self.bedsBefore = bedsBefore
     }
 
     /// The nights the party is away: the nights after the days from the sending to the day before it comes home.
@@ -116,7 +120,7 @@ struct Sending: Codable, Sendable, Equatable {
 
     private enum CodingKeys: String, CodingKey {
         case errand, order, lantern, place, sentDay, sentAt, dueDay, homeDay, lost, late, sealed, gold, flagsSet,
-             flagsCleared, lent, citizens, builders, goes, report, altReport, lostReport, atReturn, atLoss
+             flagsCleared, lent, citizens, builders, goes, report, altReport, lostReport, atReturn, atLoss, bedsBefore
     }
 
     init(from decoder: any Decoder) throws {
@@ -144,6 +148,7 @@ struct Sending: Codable, Sendable, Equatable {
         lostReport = try c.decodeIfPresent(String.self, forKey: .lostReport) ?? ErrandCatalog.lostReportID
         atReturn = try c.decodeIfPresent([PetitionEffect].self, forKey: .atReturn) ?? []
         atLoss = try c.decodeIfPresent(PetitionEffect.self, forKey: .atLoss)
+        bedsBefore = try c.decodeIfPresent(Int.self, forKey: .bedsBefore) ?? -1
     }
 }
 

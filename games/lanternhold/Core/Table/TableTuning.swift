@@ -42,6 +42,8 @@ struct TableSeedRun: Sendable {
     var bot: TableBot? { with?.table ?? first.table }
     var fullDays: [Int] { (bot?.fullDays ?? []).filter { TableTuning.hookDays.contains($0) } }
     var unsentForWantOfAHook: [String] { bot?.unsentForWantOfAHook((with ?? first).final) ?? [] }
+    /// Sendings the bot wanted on a day with no lantern on the hook, sent later or never.
+    var waitedForAHook: Int { bot?.starved.count ?? 0 }
     var beaconDay: Int {
         if let day = first.beaconDay { return day }
         if let run = with, run.final.beaconStage == 3 { return 20 }
@@ -377,9 +379,12 @@ struct TableTuning: Sendable {
                      + "\(d.soldiers), happiness \(d.happiness)")
         let full = sender.map { $0.fullDays.count }
         let starved = greedy.map { $0.unsentForWantOfAHook.count }
-        lines.append("T11 \(mark("T11 sender"))/\(mark("T11 greedy")) sender: days 9-15 with all three road lanterns "
-                     + "out, median \(fmt(TableTuning.median(full))) (>= 3), per seed \(full) | greedy: offered sendings "
-                     + "unsent for want of a hook, median \(fmt(TableTuning.median(starved))) (>= 2), per seed \(starved)")
+        let waited = greedy.map(\.waitedForAHook)
+        lines.append("T11 \(mark("T11 sender")) sender: days 9-15 with all three road lanterns out, median "
+                     + "\(fmt(TableTuning.median(full))) (>= 3), per seed \(full) | greedy (reported, \(mark("T11 greedy")); "
+                     + "docs/lanes/quests.md): offered sendings unsent for want of a hook, median "
+                     + "\(fmt(TableTuning.median(starved))) (>= 2), per seed \(starved); slips that waited for a hook, "
+                     + "median \(fmt(TableTuning.median(waited))), per seed \(waited)")
         lines.append("")
         lines.append("lanterns lost over the chapter: sender \(sender.map(\.lanternsLost)), greedy "
                      + "\(greedy.map(\.lanternsLost))")

@@ -121,7 +121,7 @@ final class ErrandDataTests: XCTestCase {
 
         let statues = try XCTUnwrap(catalog.errand("beacon_statues"))
         XCTAssertEqual(statues.number, 11)
-        XCTAssertEqual(statues.dayRange, 11...16)
+        XCTAssertEqual(statues.dayRange, 11...14, "tuned in round lh-q-3 (QUESTS.md had 11 to 16)")
         XCTAssertEqual(statues.unlocked, ["beacon"])
         XCTAssertEqual(statues.orders.map(\.riskTier), [.none, .fewComeBack])
         XCTAssertEqual(statues.orders[1].risk, 0.25)
