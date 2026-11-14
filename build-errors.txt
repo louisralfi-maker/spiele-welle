@@ -1,0 +1,2 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/FrameBuilder.swift:356:106: error: binary operator '*' cannot be applied to operands of type 'Double' and 'Float'
