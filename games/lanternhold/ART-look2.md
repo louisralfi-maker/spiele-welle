@@ -1644,3 +1644,56 @@ the repo.
 - The tax lectern has no mark of its own.
 - The characters are the existing 30 px sprites. In a hall this tall they read small when the whole hall is in
   view; the audience framing answers that with the larger scale, not with new sprites.
+
+<!-- BEGIN world lane: section 21 -->
+## 21. The world rebuild, step world-1: the rock and the fog (14.11.2026)
+
+The answer to docs/REVIEW-look-2.md B4, B5, B6, H1, H2, H6 and M1. Code and layout: DESIGN.md "World rebuild
+(14.11.2026)"; ids and places: SPRITES.md "The rock and the fog".
+
+### 21.1 Why a height field
+
+The first try painted the cleft wall as stripes (a column's lit strip, front and shade, with straight benches
+across the whole face): on the runner it read as a fence of planks under the mid plane's haze. Granite reads as
+granite when it has form: masses that stand out and cast shadows, recesses in shade, ledges whose tops catch the
+sky. `tools/rockfield.py` builds that form as a height field and lights it, so every shadow and highlight agrees
+with one light from the upper left:
+
+- buttresses 30 to 120 px wide whose boundaries wander down the face, each with its own depth (up to 22 px), a lit
+  west bevel, a broad front and a shaded east bevel; chimneys between them, deepest where the neighbours stand out;
+- ledges over a quarter to two thirds of a buttress, nearly level (long tilted ones read as scratches), and
+  overhangs (a third of the steps) with a shadow under them; thin joints; a slow swell and a fine grain;
+- light: Lambert on the field's normal, cast shadows marched toward the light, a cavity term, less light deeper down
+  the cleft and more on the faces that look up into the slit;
+- paint: the light on a six-step ramp with a sparse 4x4 ordered dither; the top 90 rows of the cleft take the
+  castle's cool slate ramp instead of the warm granite (the slit's cold light), its lower edge wandering and dithered
+  over 24 rows; snow in patches on the ledges of the top 60 rows; a cold rim on every edge against the sky.
+
+### 21.2 The pieces
+
+| piece | ramp | what to look for |
+|---|---|---|
+| `throatStepA` | `far` (nightSlate to farPale), contrast 0.8 | low and pale, far away; its west talus pales into the mist along a boundary that leans with the slope (never a column) |
+| `throatStepB` | `slate` (nightSlate, the stone greys, mistDark, stoneLight) | a value darker and taller; the statue's niche is a recess in the field, not a painted shape |
+| `throatStepC`, `cleftWallA…C` | `cleft` (nightBlue to rockPale), contrast 1.15 | the towering wall: one canvas (mid 600 to 1528) so the joins vanish; the slit's teeth and chockstones from `slit()`; threads of water at 902, 1131, 1268, mostly pale mist with brighter runs, broken where the water leaves the rock, a wet streak widening below each |
+| `gateRockL/R` | `gate` (nightDeep to rockPale), contrast 1.1 | broad plinths, highest at each tower's outer edge, falling under the masonry in a ragged stair |
+| `bankSheetA…C` | the night body (night0, nightDeep, nightBlue, nightSlate), a rim of nightSlate to mistDark | soft fog: the core's top and the face swirled by two scales of noise into billows and wisps; the cover grows over 14 to 22 px in eight dithered steps; the shell on the moon's side catches a little light |
+| `weltmauer` (`mistleft`) | mistDark, mist, mistLight | the wall's first 320 columns sink into mist that rises steeply only near the west end; dense and pale low down, thin and dark at its soft top |
+
+The first bank sheets were a trapezoid of night with a straight sloped face and a 6 px edge; a chain of round
+billows read as soap bubbles. The swirled density is what reads as fog.
+
+### 21.3 Values
+
+The cleft wall is the castle's backdrop: by day it sits at about the castle stone's value, so the buildings separate
+by hue (warm granite behind cool slate) and detail; at dusk the mid plane's haze makes it lighter than the
+buildings' shaded walls, so they stand as silhouettes against it; at night it is blue with its ledges still
+readable. The steps grow paler and cooler toward the west, the world plane keeps the strongest contrast.
+
+### 21.4 Rebuild
+
+`bash games/lanternhold/tools/build-art-world.sh throatStepA throatStepB throatStepC cleftWallA cleftWallB
+cleftWallC cleftShaft gateRockL gateRockR d2FogBank d2MistBand d2FogLow bankSheetA bankSheetB bankSheetC` (one
+sprite per run, each under 15 s on the old Mac; the script waits at 80 °C). The Weltmauer's `noslot` and `mistleft`
+run inside its `weltmauer` step.
+<!-- END world lane: section 21 -->

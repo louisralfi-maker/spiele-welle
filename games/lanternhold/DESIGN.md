@@ -3228,6 +3228,83 @@ banners in the open hall). UI: `UITests/PolishUITests.swift`, `testPolish`, `tes
       between the realm's own; Hild Varn waits at the hall's door on day 3, and her card shows her own portrait.
       "Tochter des Hauses Varn" and the three answers fit in German.
 
+<!-- BEGIN world lane: World rebuild (14.11.2026) -->
+### World rebuild (14.11.2026)
+
+The world lane of the rebuild after TestFlight build 86 (docs/REVIEW-look-2.md: the world plan in section 2, the
+punch list in section 3). Branch `claude/lh-world`. The simulation's positions and the tuning targets T1 to T8 are
+untouched; only the backdrops, the fog and the castle's outer art change. The stage lane (the great hall as its own
+stage, Controls 2, the interface) runs beside it on `claude/lh-stage`.
+
+#### Step world-1: the rock and the fog (B4, B5, B6, H2, H6, M1; world plan 2.3 and 2.5)
+
+The rhythm: open and cold over the moor, enclosed and towering in the Throat and the castle (a later step opens the
+warm valley beyond the back gate).
+
+- **The darkness bank** (0 to 260 by day, up to the bank's edge at night): three sheets of soft fog at the lane's own
+  parallax, `bankSheetA` on fog A (tall, its core above every screen's top), `bankSheetB` on the world plane after
+  its props (it hides what stands in the bank) and `bankSheetC` on fog B (a low roll before the creatures). They are
+  laid every 100 px westward from the bank's edge (`FrameBuilder.bankSheets`, `bankSheetTiles`), so each sheet's
+  face lies in the core of the sheet east of it and only the first face shows; the faces breathe against each other
+  (none with Reduce Motion) and move with the bank's edge as one volume. Painted in the night's colours, so on the
+  fog planes the shader's lift is taken out of their tint; the bank's eye glints (`darknessBankGlow`) stay. The old
+  wall of night (`darknessBank`, `darknessEdge`) is look 1's. The world ends in darkness, never at a wall: the
+  camera clamps at 0, so the screen's left edge always lies in the bank.
+- **The dead moor** (260 to 470): open sky, the firs and dead trees on the near plane, the shadow forest, the mist.
+  The Weltmauer stands 30 px higher (`look2WallRise`): over the shadow land and the Throat its peaks are cut by the
+  screen's top (H6), and a deck of far clouds lies across it at half the screen's height (rows 40 to 90 on the
+  runner's phone; the valley's cloud at far x 640 stays). Its first 320 columns sink into a bank of painted mist
+  toward the west (`cleftart.py mistleft`). The far castle in its first slot is gone (`cleftart.py noslot`): the
+  castle stands behind the player's back, never in the background (2.5).
+- **The Throat**: every slab and card on or before the walk line is gone (`cleftFlank`, `cleftFlankB`,
+  `cleftThroat`, `gorgeCrags`, `gorgeRock`; their files in `tools/retired-art`, `gorgeRock.png` still the old walls'
+  granite). The cleft's far wall climbs in three steps on the mid plane (`look2Rock`): `throatStepA` (mid 360, at
+  most 88 rows, far and pale, its west talus paling into the mist), `throatStepB` (mid 450, darker and taller, the
+  warden statue's niche) and `throatStepC` (mid 600, the cleft's granite, top-anchored, a crag that falls to the lane
+  at its west end, then the full height behind the gatehouse). The mid column at the screen's centre with the camera
+  centred on world x is `109.25 + x / 2` (720 → 469, 1240 → 729, 2330 → 1274).
+- **The cleft wall** (`cleftWallA` to `C`, mid 824 to 1528, top-anchored, full height): one painting with step C,
+  cut in four, behind the whole castle (H1). A jagged slit of sky in its top 24 rows; buttresses and chimneys lit
+  from the upper left with cast shadows, short ledges, snow in patches on the high ones, the slit's cold slate light
+  on the face's top dithering into the warm granite, three threads of water with wet streaks and spray; C steps down
+  to the valley floor behind the back gate. A cold shaft of light falls through the slit by day (`cleftShaft`, drawn
+  white at the sun's strength through `Prop.sunShaft`, less under cloud). At night the moon stands in the slit
+  (`FrameBuilder.cleftShare` moves it up to row 3 while the camera is in the cleft; the sun's disc stands behind the
+  rock). The castle's warm light grazes the wall over the roofs at dusk and night: five backdrop lanterns on the mid
+  plane behind the forge, the hall door, the chapel, the kitchen and the back gate.
+- **Inside the walls the far plane is gone**: in look 2 every far-plane prop is drawn at `1 − cleftShare(focus)`
+  (0 from camera centre 1380 to 2300; it fades while the gatehouse and the steps cover it and comes back as the
+  back gate opens the valley). The slit shows the sky, its clouds and the moon only.
+- **The gatehouse grows out of the rock** (H2): `gateRockL` and `gateRockR`, granite plinths in front of each
+  tower's outer foot, highest right at the outer edge (world 1249 and 1470) and falling under the tower in a ragged
+  stair (`look2GateRock`; tier 3's drums stand 11 and 12 px further out). The mid plane behind the gatehouse is rock.
+  The front's cast shadows onto the retired rock beside the east tower (`castleShadow`, `castleShadowLong`) are left
+  out in look 2 (they darkened the cleft wall far behind as a vertical band); the ground's and the gatehouse's own
+  shadows stay.
+- **Fog without square edges** (B4, M1): the hour's three banks (`d2FogBank`, `d2MistBand`, `d2FogLow`,
+  `tools/fogart.py`) are tiles with a 48 px dithered feather at each end, laid every `width − 64` px
+  (`FrameBuilder.fogOverlap`), their feathers complementary inside the overlap; the density thins upward under a
+  soft rolling top in eight alpha steps with ordered dither, and stands still under Reduce Motion. The Gloom's strips
+  are cut into 8 or 4 px pieces where a fire's hole changes the cover steeply (`FrameBuilder.gloomSubSlices`), so the
+  fog thins toward a fire in small steps instead of 16 px columns.
+- **The art** is pure python and rebuilds byte for byte (`tools/build-art-world.sh`): `tools/rockfield.py` paints
+  granite as a lit height field (buttresses with lit west and shaded east bevels, chimneys, ledges and overhangs,
+  joints, cast shadows marched toward the light, a cavity term, less light deeper in the cleft), `tools/cleftart.py`
+  cuts the cleft and the steps and the gate's rock from it, `tools/fogart.py` paints the fog and the bank. ART-look2.md
+  section 21 has the notes, SPRITES.md "The rock and the fog" the ids.
+- **Tests**: `FrameBuilderTests.testNoFogEdgeEndsInTheViewWithoutAFeatherOrANeighbour` (B4: every fog sprite's art
+  feathers out, the hour's tiles overlap complementarily, and from the bank to the river at three hours, with and
+  without the Gloom's fog, no fog instance's edge column stands in the view without a feather or a neighbour);
+  `testNoBackdropEndsInASeamFromTheThroatToTheValley` (B5: camera centres 1200 to 2500 in 20 px steps, every end
+  column of a backdrop piece inside the view is covered by a piece in front or clear; inside the walls no far plane
+  and the cleft wall at the screen's centre); `GloomFogTests.testTheFogThinsTowardAFireInSmallSteps`; the layout
+  checks in `Look2FrameTests`. The UI sweep `WorldSweepUITests` (English only; the pictures carry no text) shoots
+  camera centres 0 to 2600 in 200 px steps at noon (`-GWDay 12 -GWHour 12`), dusk (`-GWHour 19.2`) and night
+  (`-GWNight 12 -GWHour 23.33`), plus the bank and the Throat on a hard fog night and twice with Reduce Motion:
+  `w-<centre>-<noon|dusk|night|fog|fog-rm>-en`. `-GWTimeOfDay` drives only the probe and the light lab; the game's
+  clock follows the realm.
+<!-- END world lane: World rebuild (14.11.2026) -->
+
 ## Risks
 
 | Risk | What we do |
