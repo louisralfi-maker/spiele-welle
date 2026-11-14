@@ -1,8 +1,8 @@
 """The Guttering Lantern (panels-2; STORY.md section 7, "The endings"): the door held, but the town did not love its
 lord. Its light is a low red ember on a winter night, the light of a wick about to drown.
 
-  slideGutter1        Tallowford on a winter night under the cleft: the game's own houses in the snow, half their
-                      windows dark; a family pulling a handcart out of the picture; a street lantern guttering
+  slideGutter1        (slide_town.py) Tallowford on a winter night, five houses of its street, half their windows
+                      dark; a family pulling a handcart out of the picture; the castle on the wall's shoulder
   slideGutter2Lord    the great hall at night, the hearth burned down to embers; the lord alone in the high chair, seen
   slideGutter2Lady    from behind; the court's benches empty (the leaning and the houses are said under it)
   slideGutter3        on the outer line among the rags of the night, Tamsin on her knees holding up a small coat in the
@@ -16,160 +16,7 @@ from paint import P, W, H, Canvas, fbm, h1, h2, sprite, step, lit
 from figure import Layer
 from ending_kit import cluster, person, snow_flakes
 
-# --- slide 1: Tallowford in winter ------------------------------------------------------------------------------------
-
-G1_ALLOWED = ["night0", "night1", "night2", "nightDeep", "nightBlue", "nightSlate", "nightHaze", "farDeep", "far",
-              "mistDark", "mist", "mistLight", "foam", "stoneDark", "stoneMid", "stone", "woodDark", "wood", "soilDark",
-              "soil", "tile", "roofDeep", "ember", "emberDim", "fireOrange", "fireGold", "ink", "rockDeep", "rockDark",
-              "plumDeep", "crimsonDeep", "moorDark"]
-
-STREET = 142
-
-
-def winter_sky(c):
-    for y in range(0, STREET):
-        for x in range(W):
-            v = y / 120.0 + (fbm(x * 0.01, y * 0.04, 1401, 3) - 0.5) * 0.25
-            c.c[y][x] = P("nightDeep" if v < 0.45 else "nightBlue" if v < 0.8 else "nightSlate")
-
-
-def cleft(c):
-    """The Worldwall's cleft above the town: the rock dark at both sides, the castle in the gap with two dim windows."""
-    for x in range(W):
-        lt = 20 + (x - 70) * 0.9 + 6 * fbm(x * 0.05, 0.3, 1403, 2) if x > 70 else -99
-        rt = 20 + (250 - x) * 0.9 + 6 * fbm(x * 0.05, 0.7, 1405, 2) if x < 250 else -99
-        if x <= 70 or x >= 250:
-            top = 0
-        else:
-            top = min(lt, rt) if 70 < x < 250 else 0
-        for y in range(0, 112):
-            inside = 70 < x < 250 and y < min(lt, rt)
-            if not inside:
-                c.c[y][x] = P("night1" if y > 30 else "nightDeep")
-    # snow on the ledges of the rock: a few pale strokes
-    for k in range(70):
-        x0 = int(h1(k, 1407) * 316)
-        y0 = int(4 + h1(k, 1408) * 100)
-        if c.c[y0][x0] in (P("night1"), P("nightDeep")):
-            ln = 3 + int(h1(k, 1409) * 9)
-            for i in range(ln):
-                X, Y = x0 + i, y0 + (i * (1 if x0 < 160 else -1)) // 4
-                if 0 <= X < W and 0 <= Y < H and c.c[Y][X] in (P("night1"), P("nightDeep")):
-                    c.c[Y][X] = P("farDeep" if i < ln - 2 else "nightSlate")
-                    if Y + 1 < H and c.c[Y + 1][X] in (P("night1"), P("nightDeep")):
-                        c.c[Y + 1][X] = P("night0")
-    # the castle in the gap, a dark keep with two dim windows
-    keep = Layer()
-    keep.poly([(144, 62), (176, 62), (176, 92), (144, 92)], P("night0"))
-    keep.poly([(150, 50), (162, 50), (162, 62), (150, 62)], P("night0"))
-    for x in range(144, 177, 4):
-        keep.poly([(x, 59), (x + 2, 59), (x + 2, 62), (x, 62)], P("night0"))
-    keep.paste(c)
-    c.c[70][154] = P("emberDim")
-    c.c[78][166] = P("ember")
-    c.c[79][166] = P("emberDim")
-
-
-def house(c, name, x, base, lit_windows, flip=False):
-    """One of the game's own houses (Resources/Art), shaded for a winter night, snow on its roof; its lit sprite's
-    windows only where people still live."""
-    rows = sprite(name)
-    h = len(rows)
-    w = len(rows[0])
-    shade = lit((70, 78, 120))
-    for yy in range(h):
-        for xx in range(w):
-            p = rows[yy][w - 1 - xx if flip else xx]
-            if p[3] < 128:
-                continue
-            if 0 <= x + xx < W:
-                c.c[base - h + yy][x + xx] = shade(x + xx, base - h + yy, (p[0], p[1], p[2]))
-    # snow on the roof: along the topmost pixels of each column, two or three rows deep
-    for xx in range(w):
-        top = None
-        for yy in range(h):
-            if rows[yy][w - 1 - xx if flip else xx][3] >= 128:
-                top = yy
-                break
-        if top is None or top > h * 0.55:
-            continue
-        depth = 2 + (1 if h1(xx + x, 1411) > 0.5 else 0)
-        for d in range(depth):
-            y = base - h + top + d
-            if 0 <= y < H and 0 <= x + xx < W:
-                c.c[y][x + xx] = P("mistLight" if d == 0 else "mist")
-    if lit_windows:
-        glow = sprite(name + "Lit")
-        for yy in range(h):
-            for xx in range(w):
-                p = glow[yy][w - 1 - xx if flip else xx]
-                if p[3] >= 128 and 0 <= x + xx < W:
-                    lum = p[0] + p[1] + p[2]
-                    c.c[base - h + yy][x + xx] = P("fireGold" if lum > 600 else "fireOrange" if lum > 420 else "ember")
-
-
-def street_lantern(c, x, base):
-    """A street lantern on its post, guttering: a low red flame in a sooted glass."""
-    for y in range(base - 30, base):
-        c.c[y][x] = P("woodDark")
-        c.c[y][x + 1] = P("night1")
-    cluster(c, x - 2, base - 37, [".kkkk.", "kkkkkk", "k.ee.k", "k.Oe.k", "kkkkkk"],
-            {"k": "night0", "e": "emberDim", "O": "ember"})
-    for y in range(base - 39, base - 37):
-        c.c[y][x] = P("night0")
-    # its weak pool on the snow
-    for xx in range(x - 9, x + 11):
-        for yy in range(base, base + 3):
-            if 0 <= xx < W and 0 <= yy < H and abs(xx - x) < 9 - (yy - base) * 2:
-                c.c[yy][xx] = P("crimsonDeep") if abs(xx - x) < 4 else P("plumDeep")
-
-
-def leaving(c):
-    """A family pulling a handcart out of the picture to the right, along the snowy street: the father in the shafts,
-    the mother pushing, a child holding her skirt; their bundles; a small lantern on the cart."""
-    lay = Layer()
-    # the cart: bed, wheel, bundles
-    lay.poly([(266, STREET + 6), (296, STREET + 6), (296, STREET + 1), (266, STREET + 1)], P("woodDark"))
-    lay.ellipse(276, STREET + 9, 4.5, 4.5, P("night1"))
-    lay.ellipse(276, STREET + 9, 1.5, 1.5, P("woodDark"))
-    for (bx, by, rx, ry) in ((272, STREET - 3, 6, 4), (283, STREET - 4, 5, 5), (291, STREET - 2, 4, 3)):
-        lay.ellipse(bx, by, rx, ry, P("soil"))
-    lay.line([(296, STREET + 3), (310, STREET + 1)], P("woodDark"))
-    person(lay, 312, STREET + 8, 24, P("night0"), shoulders=1.0, stoop=3, arms="hold")
-    person(lay, 258, STREET + 8, 21, P("night0"), shoulders=0.9, arms="hold", robe=True)
-    person(lay, 250, STREET + 8, 11, P("night0"), head=1.3, arms="down")
-    lay.paste(c)
-    c.c[STREET - 9][268] = P("fireOrange")
-    c.c[STREET - 8][268] = P("ember")
-
-
-def slide1():
-    c = Canvas(P("nightBlue"))
-    winter_sky(c)
-    cleft(c)
-    # the far roofs of the town behind, a dark band with snow on its edge
-    for x in range(W):
-        top = 104 + 4 * math.sin(x * 0.11) + 3 * fbm(x * 0.07, 0.4, 1413, 2)
-        for y in range(int(top), STREET):
-            c.c[y][x] = P("nightSlate" if y < top + 1 else "night1")
-    # the street's houses, the game's own, half their windows dark
-    house(c, "bigHouse", 2, STREET, False)
-    house(c, "house", 76, STREET, True)
-    house(c, "houseC", 138, STREET, False, flip=True)
-    house(c, "houseB", 200, STREET, False)
-    house(c, "house", 262, STREET, True, flip=True)
-    # the snowy street
-    for y in range(STREET, H):
-        for x in range(W):
-            c.c[y][x] = P("mist" if y < STREET + 2 else ("mistDark" if fbm(x * 0.03, y * 0.1, 1415, 2) > 0.5 else "far"))
-    # footprints and cart ruts going right
-    for x in range(120, 320, 3):
-        c.c[STREET + 10][x] = P("farDeep")
-        c.c[STREET + 13][x + 1] = P("farDeep")
-    street_lantern(c, 132, STREET + 4)
-    leaving(c)
-    snow_flakes(c, 140, 1417, colour="mist", bright="mistLight")
-    return c.finish(G1_ALLOWED, protect=("fireGold", "fireOrange", "ember", "mistLight"))
+# --- slide 1 lives in slide_town.py (fix round 1: five houses of their own, the castle on the wall's shoulder) -----
 
 
 # --- slide 2: alone before the low hearth -----------------------------------------------------------------------------
@@ -469,7 +316,6 @@ def slide3():
 
 
 SLIDES = {
-    "slideGutter1": slide1,
     "slideGutter2Lord": lambda: slide2("lord"),
     "slideGutter2Lady": lambda: slide2("lady"),
     "slideGutter3": slide3,
