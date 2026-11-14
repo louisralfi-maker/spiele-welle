@@ -48,7 +48,23 @@ call `PeopleCast.townLife` once and take the walkers' bodies, pace and step from
 
 ### Rounds
 
-(see below)
+- **lh-p1-1** (9d30f44; build, unit, ui PeopleUITests): the test build failed: `Renderer.people` is main-actor
+  isolated and the new contract test read it from a nonisolated test. Fixed (its own `@MainActor` test).
+- **lh-p1-2** (289e3d0; build, unit, ui PeopleUITests): build passed; unit failed only in `LookGoldenTests`, the two
+  town scenes of look 1 (square-morning, town-noon), as expected from the repainted townsfolk (all eight
+  `PeopleCastTests` passed); the UI filter was named wrong (it is `LanternholdUITests/PeopleUITests`). The two hashes
+  were recorded again (b452f81).
+- **lh-p1-3** (b452f81; build, unit, ui, ui-de, release): the full round, see the report.
+
+### Proof (ci-out/people in the worktree, git-ignored)
+
+- `lineup-day.png`, `lineup-dusk.png` (6x, nearest neighbour) and `lineup-phone.png` (3x): left to right the lord, a
+  guard, the footman beside him, the lord and the lady of the inner lands, Fen facing Old Hemmet, Pim facing Wenna,
+  Wren, Gorm, Hedda, Brede, Mother Corra, Dun, Aldo, Master Edwy, Ilse; standing on the valley's earth lane before
+  the town's houses. The light is an approximation of the renderer's (albedo times the hour's ambient, a warm pool
+  round the lord at dusk).
+- `strips/`: one strip per walk and per work (the frames in a row, under them the footprints advanced by the stride).
+- `zoom/`: every sheet at 800 %.
 
 ### Open, and what waits for the join
 
