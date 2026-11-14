@@ -1322,13 +1322,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "{Verehrter Herr|Verehrte Herrin}, Ihr seid zu gütig. In Stillmere malen wir Syndici in ihren Amtsketten; man sagt, Ihr haltet lieber den Laternenstab, was, wenn ich darf, das schönere Motiv ist. Eine Sitzung, ein Tag zum Trocknen, und Ihr hängt in Eurem Saal, der Stadt zur Freude."
+            "value" : "{Verehrter Herr|Verehrte Herrin}, Ihr seid zu gütig. In Stillmere malen wir Syndici in Amtsketten; man sagt, Ihr haltet lieber den Laternenstab, was, wenn ich darf, das schönere Motiv ist. Eine Sitzung, ein Tag zum Trocknen, und Ihr hängt in Eurem Saal, der Stadt zur Freude."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "My {lord|lady}, you are too kind to receive me. In Stillmere we paint syndics in chains of office; I hear you prefer the lantern staff, which is, if I may, the finer subject. One sitting, a day to dry, and you hang in your hall, to the town’s joy."
+            "value" : "My {lord|lady}, you are too kind. In Stillmere we paint syndics in chains of office; I hear you prefer the lantern staff, which is, if I may, the finer subject. One sitting, a day to dry, and you hang in your hall, to the town’s joy."
           }
         }
       }
@@ -1358,7 +1358,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "{Mein lieber Herr|Meine liebe Herrin}, ganz Stillmere spricht von Eurer Stadt, und ich ließ meine Staffelei nass stehen, um zu kommen. Lasst Euch malen, ehe meine Rivalen davon hören, ich bitte Euch. Eine Sitzung, ein Tag zum Trocknen, und Ihr hängt in Eurem Saal, der ganzen Stadt zur Freude."
+            "value" : "{Teurer Herr|Teure Herrin}, ganz Stillmere spricht von Eurer Stadt, und ich ließ meine Staffelei nass stehen, um zu kommen. Lasst Euch malen, ehe meine Rivalen davon hören, ich bitte Euch. Eine Sitzung, ein Tag zum Trocknen, und Ihr hängt in Eurem Saal, der Stadt zur Freude."
           }
         },
         "en" : {
