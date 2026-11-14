@@ -207,3 +207,15 @@ Charakterwechsel mit rein." That is the third bar (`docs/BARS.md` section 3) and
 for Louis) and people-2 (who lives where, the working day, the children, the noble's coach; picture only). Notes went
 to town, craft, world, stage, panels and quests.
 Started 14.11.2026 14:21 as task `wq6eijh3t` (run `wf_1b69237b-515`). Never resume it; after a stop, write a continuation.
+
+**14.11. 14:30, Louis on the premise, and an interview:** the premise in his words (a wall of mountains, one passage,
+our castle with its wall in it, behind us a continent with the other lands and their rulers) and the direction "wir
+machen unsere Burg, Königreich, Stadt, Land immer wohlhabender; nicht so tief, aber so soll es wirken". He asked what
+is not fun yet and what the hits do better. The director's answer and his three decisions are `docs/REALM.md`: the
+dark can be pushed back with beacons into the gorge; a lost night hurts and the game goes on (the hearth burns bright,
+low, embers, out; waking at a dawn before); at night being there counts (presence, braziers relit in passing). The
+people bar now says: poor and even at first, visibly richer in three stages (hamlet, village, town). A fifth workflow,
+`docs/workflows/front-lane.js`: one gated Opus 5.5 lane (`lh-front`, `claude/lh-front`), Core only, with front-1
+(presence, target T13), front-2 (the hearth, T14) and front-3 (the beacons, T15); the picture is hooked at the join.
+Notes went to people (a second cloth state), stage, world, town, panels and craft. Presence comes into build 2 only
+if its step has passed its gate by Sunday; the rest is build 3.
