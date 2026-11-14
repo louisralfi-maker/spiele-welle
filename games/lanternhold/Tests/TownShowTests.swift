@@ -126,16 +126,18 @@ final class TownShowTests: XCTestCase {
         s.king.x = door - 20
         s.king.facing = 1
         let gold = try XCTUnwrap(Town.collect(&s, plot: house3, balance: balance))
-        XCTAssertEqual(gold, 11)
+        XCTAssertEqual(gold, 10, "house 3's part at 50 happiness")
         let count = Town.coins(for: gold, rules: rules)
         XCTAssertEqual(count, 3)
+        let shares = TownShow.coinShares(gold, count: count)
+        XCTAssertEqual(shares, [4, 3, 3])
         let times = TownShow.arrivals(count: count, kind: .house, manner: .plain, knock: false)
         let start = s.simTime
 
         // The purse holds the coins back until they land.
-        XCTAssertEqual(TownShow.goldInFlight(s, balance: balance), 11)
-        XCTAssertEqual(TownShow.heard(s, balance: balance).gold, s.gold - 11)
-        XCTAssertEqual(TownShow.goldInFlight(at(s, start + times[0] + 0.01), balance: balance), 7, "4 landed")
+        XCTAssertEqual(TownShow.goldInFlight(s, balance: balance), gold)
+        XCTAssertEqual(TownShow.heard(s, balance: balance).gold, s.gold - gold)
+        XCTAssertEqual(TownShow.goldInFlight(at(s, start + times[0] + 0.01), balance: balance), 6, "4 landed")
         XCTAssertEqual(TownShow.goldInFlight(at(s, start + times[1] + 0.01), balance: balance), 3)
         XCTAssertEqual(TownShow.goldInFlight(at(s, start + times[2] + 0.01), balance: balance), 0)
 
