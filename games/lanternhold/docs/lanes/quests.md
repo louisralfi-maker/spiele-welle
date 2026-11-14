@@ -125,6 +125,10 @@ No other existing file changed. `PetitionData.swift`, `PetitionEngine.swift`, `C
   `TableUITests` in 38 s and 31 s; release passed. The shots `40-table-list` to `43-table-reaction` in English and
   German show the slip, the sent slip with "Call back", Pip's report with both choices and their chips above the
   fold, and the answer's reaction with "+1 happiness" and "Seen in the realm"; the German texts fit.
+- `lh-q1-3` on `efbb403` (build, unit, ui, ui-de, release), after the house's new origin changed two texts:
+  **ALL PASSED**. 447 unit tests, the tuning report identical to `lh-q1-2` (and so to `lh-snd-2`), the validator
+  reports nothing, `TableUITests` passed in English (42 s) and German (37 s), every other UI test passed, release
+  passed. Upright shots: `ci-out/upright/q1-3-*.jpg` in the lane's worktree (git-ignored).
 
 ### Open, and what waits for the join or round 2
 
