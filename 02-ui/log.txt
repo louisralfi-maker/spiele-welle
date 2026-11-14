@@ -1,0 +1,3 @@
+Test Case '-[LanternholdUITests.PeopleUITests testPeople]' passed (105.271 seconds).
+exit=0
+screenshots: 6
