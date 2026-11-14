@@ -91,6 +91,11 @@ struct DebugArgs: Sendable, Equatable {
     var lord: LordForm?
     /// `-GWLordName <name>`: the lord's name, cleaned like a typed one, without the name entry.
     var lordName: String?
+    /// `-GWSound YES|NO`: sound and haptics on or off in this launch (DESIGN.md "Sound and haptics"). Without it a
+    /// launch with any `-GW` argument (the UI tests') stays silent and a plain launch plays (`SoundDirector.allowed`).
+    var sound: Bool?
+    /// True when the launch carried any `-GW` argument.
+    var hasArguments = false
 
     /// `-GWGloomFog` values.
     enum GloomFogOverride: Sendable, Equatable {
@@ -128,7 +133,7 @@ struct DebugArgs: Sendable, Equatable {
         "GWCameraX", "GWAutoplay", "GWActorMode", "GWLightStyle", "GWEffects", "GWShowLowRes", "GWShowBuffer",
         "GWDebugLights", "GWStats", "GWReduceMotion", "GWDay", "GWNight", "GWBuild", "GWGold", "GWHappiness",
         "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock", "GWLook", "GWCastle",
-        "GWWeather", "GWWind", "GWRain", "GWWetness", "GWLord", "GWLordName", "GWGloomFog", "GWHouses",
+        "GWWeather", "GWWind", "GWRain", "GWWetness", "GWLord", "GWLordName", "GWGloomFog", "GWHouses", "GWSound",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -203,6 +208,8 @@ struct DebugArgs: Sendable, Equatable {
         }
         screen = values["GWScreen"].flatMap { Screen(rawValue: $0.lowercased()) }
         skipOnboarding = DebugArgs.bool(values["GWSkipOnboarding"])
+        if let sound = values["GWSound"], !sound.isEmpty { self.sound = DebugArgs.bool(sound) }
+        hasArguments = !values.isEmpty
         if let look = DebugArgs.int(values["GWLook"]).flatMap({ LookVersion(rawValue: $0) }) {
             self.look = look
         }

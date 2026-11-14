@@ -683,8 +683,8 @@ fields under a pale sky. The realm's colour is teal-blue.
 
 ## Feel
 
-Sound effects and haptics only, synthesized in code (Comet Cargo's `Feedback` hub, `CueSynth`, `HapticHub`). Never
-music, also no melodic jingles: signals only.
+Sound effects and haptics only. Never music, also no melodic jingles: signals only. The first plan is below; what
+the game plays is in "Sound and haptics" (synthesised WAV files and `SoundDirector`).
 
 | Moment | Sound | Haptic |
 |---|---|---|
@@ -705,6 +705,110 @@ music, also no melodic jingles: signals only.
 - Juice: a small screen shake for a breaking wall, brute and giant steps; arrow trails; embers rising; creatures
   dissolving into motes; the happiness face reacts; at first light the light sweeps from right to left. Reduce Motion:
   no shake, flicker amplitude ×0.25 and slower, no camera lag.
+
+## Sound and haptics
+
+Louis: no music, ever; sound effects and haptics only; a rain sound is allowed. The mood is "düster und gemütlich":
+warm, soft, a little lo-fi but clean, nothing harsh or cartoonish, no melody longer than a horn call. The table under
+"Feel" was the first plan; this section is what the game does (sound lane, 14.11.2026).
+
+### The files (`Resources/Sound/`, 26 files, 2.48 MB)
+
+Mono 16-bit WAV at 22.05 kHz, synthesised in pure Python by `tools/soundsynth.py` (no numpy, no PIL; noise, one-pole
+and biquad filters, decaying partials, formant voices, a small Schroeder reverb). The loops are made a little longer
+than they play and their tail is crossfaded onto their head, so the last sample runs into the first without a click.
+
+| File | What it is | Played for |
+|---|---|---|
+| `amb_day` (loop, 10 s) | wind in the gorge: band-passed noise wandering 320 to 720 Hz, gusts, a low body | the day outside |
+| `amb_night` (loop, 10 s) | lower wind, two far breathy moans of the lost (formants, no words), a soft 55 Hz drone | the night outside |
+| `amb_rain` (loop, 6 s) | soft hiss, rain on roofs, drops | while `Weather` says it rains |
+| `amb_fire` (loop, 6 s) | a low roar, hiss, crackles and pops | near braziers, fire towers, torches, the lit beacon |
+| `amb_hall` (loop, 8 s) | the hearth, six people murmuring (muffled until no word is left), steps on stone, stone reverb | the great hall |
+| `coin` / `coins` | two clinks / a pouch and seven coins | gold won, the tax set / gold paid, the dawn's taxes |
+| `build_start` / `build_done` | three hammer taps / two solid knocks and a low settle | a build ordered, a wall patched / a build done |
+| `lantern` | a strike and a soft flame | a brazier lit; the beacon (slower); creatures at the hearth |
+| `horn` | a low horn, two long tones of the same pitch | the horn at 19:00; the defeat (slower, lower) |
+| `bell` | a small chapel bell, struck twice | first light; the Lightless King's aura breaking (higher) |
+| `bow` / `arrow_hit` | twang and air / a thunk | a volley, fire arrows / an arrow or bolt hitting, a shot glancing off the King |
+| `creature_hit` / `dissolve` | a short breath / a sad breathy sigh fading into soot | a creature hurt / dissolving; the King's fall (slower) |
+| `wall_hit` / `wall_break` | stone thud and crunch / rumble, crash and debris | a wall or palisade hit, the giant's step, a soldier falling / a wall breaking |
+| `gate` | creak on old hinges, the thud, the latch | the gate shutting at nightfall (20:00) |
+| `engine` | a heavy wooden thunk with a creak | the ballista, the catapult |
+| `step_1`, `step_2` | soft scuffs | the lord's steps (alternating) |
+| `parchment` | a crinkly unroll | an audience opening, the next petitioner |
+| `tap` / `seal` / `decline` | soft wood / a wax seal pressed / two dull low knocks | a card opened or closed, talking / a choice made, a recruit sworn in / refused |
+
+Rebuild: `python3 games/lanternhold/tools/soundsynth.py` (all) or with names (`... bow coin`); `--list` names them. A
+fixed seed per sound and the script's own random generator write the same bytes every run (checked: two runs, the same
+`MANIFEST.txt`, which lists every file's size and sha256). The whole set takes about half a minute of CPU on the old
+Mac; the script reads `tools/smcread` between sounds and waits below 75 °C once the CPU passes 80 °C.
+
+### In the app
+
+- `Core/SoundCues.swift` (plain values): `SoundID` (the files, each with a minimum interval, a voice count and
+  whether its pitch varies by a few per cent), `FeedbackCue.sound` (file, volume, rate) and `.haptic`,
+  `SoundThrottle`, `SoundPlace`, `AmbienceMix`, `SoundWatch`.
+- The cues come from three places, never from the HUD's buttons or the screen's layout:
+  - the simulation's events (`FeedbackThinner.cue(for:)`, as before: volleys, the horn, first light, a wall
+    breaking, builds, the dawn ...);
+  - `SoundWatch`, which compares the realm's state from frame to frame: gold won (`coin`) or paid (`paid`), a wall
+    losing HP (`wallHit`, at the wall's plot), a creature losing HP (`creatureHit`, and `arrowHit` when an archer or
+    a ballista hit it), the clock crossing 20:00 (`gate`), the lord walking (`step` every 18 px, 27 px running; none
+    under a card, none for a jump);
+  - the model's own actions: `audienceOpened` (parchment) and `choiceMade` (wax seal) in `GameModel+Court`, the
+    cards' taps and refusals as before.
+- `FeedbackThinner` thins them all (positional cues only within hearing of the lord, a gap per cue, at most four a
+  frame, the big moments first; a single coin is dropped when the dawn's coins sound in the same frame).
+- `App/SoundDirector.swift` is the real `FeedbackHub`: an `.ambient` audio session (the player's own music keeps
+  playing; the silent switch silences the game), a pool of `AVAudioPlayer`s per sound (1 to 3 voices, the oldest is
+  cut), a throttle per sound in real time (`SoundID.minimumInterval`: the horn at most every 2.5 s, a bow every 0.1 s),
+  and the five loops crossfaded toward the frame's `AmbienceMix` over about 1.2 s.
+- The simulation stays deterministic: it never reads sound state, and `SoundTests` runs a night twice, with and
+  without a hub, to the same state.
+
+### The mix
+
+`AmbienceMix.target(hour:rain:place:fire:ducked:)`, every frame from `GameModel.advanceGame`:
+
+- day wind × (1 − night), night × night; night is 0 by day, 1 from 20:00 to 05:00, ramped over the dusk (19 to 20)
+  and first light (5 to 6);
+- rain × the weather's rain (the drawn frame's `WeatherSample.rain`, so it follows `Weather` and `-GWRain`);
+- open air by place: outside 1, the castle's other rooms 0.55, the great hall 0.15 (the rain on the hall's roof
+  stays at 0.3); the hall loop: hall 1, the other rooms 0.2, outside 0;
+- fire: the nearest brazier or fire tower (0.8 / 1, softer by day), torch (0.3) or the lit beacon, full within 15 px,
+  gone 165 px away (the beacon 275); a third of it in the hall, whose loop has its own hearth;
+- everything at half under a whole screen (the pause sheet, the dawn report, the defeat card).
+- The place: `GameModel.soundPlace(_:)` answers by the lord's room (`WorldLayout.rooms`) and `.hall` during an
+  audience at the throne. When the great hall becomes its own full-screen scene, that scene answers `.hall` there;
+  nothing else changes.
+- Loop volumes at full strength: day 0.5, night 0.6, rain 0.5, fire 0.55, hall 0.6. One-shot volumes are in
+  `FeedbackCue.sound` (steps 0.3, taps 0.55, the horn 0.85, a wall breaking 0.95).
+
+### Haptics
+
+`UIImpactFeedbackGenerator` and `UINotificationFeedbackGenerator`, behind the haptics switch: a build done light; a
+coin soft (at most every 0.25 s); a wall hit medium (every 0.3 s); a wall breaking or creatures at the hearth heavy
+(every 0.6 s); the horn (night begins) rigid; the dawn survived (`taxesCounted`) success; the defeat error.
+
+### Settings and tests
+
+- The pause sheet's existing "Sound" and "Haptics" switches (`pause-sound`, `pause-haptics`, saved in
+  `SaveSettings`) set the hub's `soundOn` and `hapticsOn`; turning sound off stops every loop at once.
+- `RootView` installs the director only for the game scene and only when `SoundDirector.allowed`: never in the unit
+  tests' host (`XCTestConfigurationFilePath`), in a launch with any `-GW` argument (every UI test) only with
+  `-GWSound YES`, in a plain launch always (`-GWSound NO` silences it).
+- `Tests/SoundTests.swift`: the cue-to-sound and haptic mapping (every one-shot is played by some cue), the throttle,
+  the thinner with the watch's cues, `SoundWatch` (gold, walls, creatures, the gate, steps, jumps, resets), the mix
+  (day, dusk, night, rain, the hall, ducking, fire, the crossfade), the launch rule, and every file in the app as mono
+  16-bit 22.05 kHz WAV under 3.2 MB together.
+- Rounds: `lh-snd-1` ALL PASSED on 72b7a99 (build, unit with 411 tests and the 12 of `SoundTests`, ui, ui-de,
+  release; T1 to T8 and night 20's step check unmoved). The commits after it harden three of the new tests (no
+  tuple key paths, a tolerant throttle count, a fire check clear of the middle line's torches) and write this
+  section; `lh-snd-2` (build, unit) ALL PASSED on 9e5ba1f.
+- Open: Louis has not heard the sounds yet (TestFlight); volumes are first guesses. Happiness up and down have no
+  sound (Louis' list did not ask for one). Positional cues are heard at one volume within their hearing range, not
+  fainter with distance.
 
 ## Onboarding (no text walls)
 
@@ -994,6 +1098,7 @@ tap in Release) is checked on an A12 iPhone and a current one before the store.
 | `-GWGloomFog off\|<0...1>` | look 2: the fog out of the Gloom; without it tonight's (the night's number and the fog modifier), a number holds how hard it comes (0 the first night's, 1 a late fog night's), `off` leaves it out |
 | `-GWHouses all\|varn,brine,oxmoor,calder,lorn` | shots: these houses stand with the lord and the banners are hung, so theirs hang in the great hall ("Polish after round 2", point 5) |
 | `-GWLord lord\|lady`, `-GWLordName <name>` | the lord pass: Burgherr or Burgherrin and the lord's name (cleaned like a typed one) without the name entry; the other half is the standard lord's (Robin, Burgherr) |
+| `-GWSound YES\|NO` | sound and haptics on or off in this launch; without it a launch with any `-GW` argument (the UI tests) is silent and a plain launch plays ("Sound and haptics") |
 
 ## Accessibility identifiers
 

@@ -14,12 +14,15 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
     case buildOrdered, buildDone, recruited, patched, brazierLit, taxSet
     // The cards
     case cardOpened, cardClosed, refused, happinessUp, happinessDown
+    // Sound and haptics (`SoundWatch` reads them off the realm's state; the court's audience and choices)
+    case coin, paid, wallHit, creatureHit, arrowHit, gate, step, audienceOpened, choiceMade
 
     /// Cues that only play when they happen near the king (DESIGN.md "Archer volley (near the king)", engines "when on
     /// screen").
     var isPositional: Bool {
         switch self {
         case .volley, .fireArrow, .ballista, .catapult, .creatureDissolved, .glancedOff, .stomp: return true
+        case .wallHit, .creatureHit, .arrowHit: return true
         default: return false
         }
     }
@@ -27,8 +30,10 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
     /// How far from the king (game px) a positional cue is still heard: about one screen.
     var hearing: Double {
         switch self {
-        case .volley, .fireArrow, .creatureDissolved: return 220
+        case .volley, .fireArrow, .creatureDissolved, .arrowHit: return 220
+        case .creatureHit: return 240
         case .glancedOff: return 260
+        case .wallHit: return 420
         case .ballista, .catapult: return 300
         case .stomp: return 420
         default: return .infinity
@@ -46,6 +51,11 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
         case .catapult, .stomp: return 0.35
         case .buildDone, .soldierFell: return 0.4
         case .hearthHit: return 1
+        case .coin, .arrowHit: return 0.12
+        case .paid, .step: return 0.15
+        case .wallHit: return 0.3
+        case .creatureHit: return 0.35
+        case .gate: return 0.5
         default: return 0
         }
     }
@@ -94,22 +104,33 @@ struct FeedbackThinner: Sendable, Equatable {
     static func rank(_ cue: FeedbackCue) -> Int {
         switch cue {
         case .defeat, .kingSlain, .beaconLit, .horn, .firstLight, .taxesCounted: return 0
-        case .wallBroken, .soldierFell, .kingAuraBroken, .hearthHit, .stomp: return 1
-        case .buildOrdered, .buildDone, .recruited, .patched, .brazierLit, .taxSet: return 2
-        case .ballista, .catapult, .glancedOff: return 3
+        case .wallBroken, .soldierFell, .kingAuraBroken, .hearthHit, .stomp, .gate: return 1
+        case .buildOrdered, .buildDone, .recruited, .patched, .brazierLit, .taxSet, .coin, .paid: return 2
+        case .ballista, .catapult, .glancedOff, .wallHit: return 3
         default: return 4
         }
     }
 
     /// The cues of one frame's events at animation time `time`, heard by a listener at `listenerX`.
     mutating func cues(for events: [SimEvent], time: Double, listenerX: Double) -> [FeedbackCue] {
+        cues(for: events, extra: [], time: time, listenerX: listenerX)
+    }
+
+    /// The same with `extra` cues beside the events (`SoundWatch`: what the realm's state shows changed this frame).
+    /// A single coin is left out when the dawn's coins are counted in the same frame.
+    mutating func cues(for events: [SimEvent], extra: [(cue: FeedbackCue, x: Double?)], time: Double,
+                       listenerX: Double) -> [FeedbackCue] {
         var wanted: [FeedbackCue] = []
+        var found: [(cue: FeedbackCue, x: Double?)] = []
         for event in events {
-            guard let found = FeedbackThinner.cue(for: event) else { continue }
-            let cue = found.cue
-            if let x = found.x, cue.isPositional, abs(x - listenerX) > cue.hearing { continue }
+            if let cue = FeedbackThinner.cue(for: event) { found.append(cue) }
+        }
+        found.append(contentsOf: extra)
+        for (cue, x) in found {
+            if let x, cue.isPositional, abs(x - listenerX) > cue.hearing { continue }
             if !wanted.contains(cue) { wanted.append(cue) }
         }
+        if wanted.contains(.taxesCounted) { wanted.removeAll { $0 == .coin } }
         // By rank, the events' order breaking ties.
         let ordered = wanted.enumerated().sorted { a, b in
             let left = FeedbackThinner.rank(a.element)
