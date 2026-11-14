@@ -23,7 +23,11 @@ final class PeopleCastTests: XCTestCase {
             XCTAssertEqual(sprite.size, PixelSize(width: 12, height: 26), "\(sprite) keeps its contract")
             XCTAssertEqual(sprite.frameCount, 6)
         }
-        XCTAssertTrue(PeopleCast.bodies.allSatisfy { Renderer.people.contains($0) }, "the people's sky rim")
+    }
+
+    @MainActor
+    func testTheCastKeepsThePeoplesRim() {
+        XCTAssertTrue(PeopleCast.bodies.allSatisfy { Renderer.people.contains($0) }, "the people's sky rim in look 2")
     }
 
     func testEveryBodyIsPaintedAndStandsOnItsFeet() {
