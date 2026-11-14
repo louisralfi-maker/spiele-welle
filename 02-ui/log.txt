@@ -1,0 +1,8 @@
+Test Case '-[LanternholdUITests.AdsUITests testDoubleTaxes]' passed (38.783 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testInterstitialOnARealDawn]' passed (17.585 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testMerchantsGift]' passed (17.525 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testSecondChance]' passed (25.704 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testWithoutAdsNoOffer]' passed (29.435 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (56.649 seconds).
+exit=0
+screenshots: 12
