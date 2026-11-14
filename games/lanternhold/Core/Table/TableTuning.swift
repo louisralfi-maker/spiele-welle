@@ -323,8 +323,13 @@ struct TableTuning: Sendable {
         case "T11 sender":
             return sender.count >= TuningMetrics.targetSeeds && TableTuning.median(sender.map { $0.fullDays.count }) >= 3
         case "T11 greedy":
-            return greedy.count >= TuningMetrics.targetSeeds
-                && TableTuning.median(greedy.map { $0.unsentForWantOfAHook.count }) >= 2
+            // Restated in quests-2's fix round 1 (the critic's option a; docs/lanes/quests.md): what the hook does to a
+            // bot that sends everything at first chance. It fills the hooks (all three out on at least 2 of the days 9
+            // to 15, median), and the red chips it takes cost lanterns (one or more lost in at least half the seeds).
+            // QUESTS.md's first cell, 2 offered sendings unsent for want of a hook, held in no seed and no variant.
+            let losing = greedy.filter { $0.lanternsLost > 0 }.count
+            let full = TableTuning.median(greedy.map { $0.fullDays.count })
+            return greedy.count >= TuningMetrics.targetSeeds && full >= 2 && 2 * losing >= greedy.count
         default:
             return false
         }
@@ -378,13 +383,20 @@ struct TableTuning: Sendable {
                      + "\(signed(TableTuning.median(d.happiness))) (within 3); per seed gold \(d.gold), soldiers "
                      + "\(d.soldiers), happiness \(d.happiness)")
         let full = sender.map { $0.fullDays.count }
+        let greedyFull = greedy.map { $0.fullDays.count }
+        let greedyLost = greedy.map(\.lanternsLost)
         let starved = greedy.map { $0.unsentForWantOfAHook.count }
         let waited = greedy.map(\.waitedForAHook)
-        lines.append("T11 \(mark("T11 sender")) sender: days 9-15 with all three road lanterns out, median "
-                     + "\(fmt(TableTuning.median(full))) (>= 3), per seed \(full) | greedy (reported, \(mark("T11 greedy")); "
-                     + "docs/lanes/quests.md): offered sendings unsent for want of a hook, median "
-                     + "\(fmt(TableTuning.median(starved))) (>= 2), per seed \(starved); slips that waited for a hook, "
-                     + "median \(fmt(TableTuning.median(waited))), per seed \(waited)")
+        let losing = greedyLost.filter { $0 > 0 }.count
+        var t11 = "T11 \(mark("T11 sender"))/\(mark("T11 greedy")) sender: days 9-15 with all three road lanterns "
+        t11 += "out, median \(fmt(TableTuning.median(full))) (>= 3), per seed \(full)"
+        t11 += " | greedy (restated, docs/lanes/quests.md): full days median "
+        t11 += "\(fmt(TableTuning.median(greedyFull))) (>= 2), per seed \(greedyFull); a lantern lost in \(losing) "
+        t11 += "of \(greedy.count) seeds (>= half)"
+        t11 += " | reported: offered sendings unsent for want of a hook, median "
+        t11 += "\(fmt(TableTuning.median(starved))), per seed \(starved); slips that waited for a hook, median "
+        t11 += "\(fmt(TableTuning.median(waited))), per seed \(waited)"
+        lines.append(t11)
         lines.append("")
         lines.append("lanterns lost over the chapter: sender \(sender.map(\.lanternsLost)), greedy "
                      + "\(greedy.map(\.lanternsLost))")
@@ -400,6 +412,30 @@ struct TableTuning: Sendable {
                     line += " | dusk 20: gold \(dusk.gold) soldiers \(dusk.soldiers) happiness \(dusk.happiness)"
                 }
                 lines.append(line)
+            }
+        }
+        lines.append("")
+        lines.append("T10's tail: the two seeds furthest below the reference's happiness at dusk 20, the nights "
+                     + "where the realms differ (fallen, walls lost; at that dawn happiness, archers, guards, "
+                     + "buildings), reference | sender:")
+        func behind(_ run: TableSeedRun) -> Int {
+            guard let mine = run.dusk20, let theirs = reference.first(where: { $0.seed == run.seed })?.dusk20 else {
+                return 0
+            }
+            return mine.happiness - theirs.happiness
+        }
+        for run in sender.filter({ $0.dusk20 != nil }).sorted(by: { (behind($0), $0.seed) < (behind($1), $1.seed) })
+            .prefix(2) {
+            guard let theirs = reference.first(where: { $0.seed == run.seed }) else { continue }
+            lines.append("seed \(run.seed) (happiness \(behind(run)) at dusk 20), sent: "
+                         + (run.bot?.log ?? []).joined(separator: " "))
+            func cell(_ o: NightOutcome) -> String {
+                "f\(o.fallen) w\(o.wallsLost) \(o.happiness)h \(o.archers)a \(o.guards)g \(o.buildings)b"
+            }
+            let mine = run.first.outcomes + (run.with?.outcomes ?? [])
+            let ref = theirs.first.outcomes + (theirs.with?.outcomes ?? [])
+            for (a, b) in zip(ref, mine) where cell(a) != cell(b) {
+                lines.append("  night \(a.night): \(cell(a)) | \(cell(b))")
             }
         }
         lines.append("")

@@ -76,11 +76,12 @@ final class TableTuningTests: XCTestCase {
     func testT10TheTableIsATrade() { check("T10") }
 
     /// T11: the hook matters. The sender has all three lanterns out on at least 3 of the days 9 to 15. The greedy
-    /// cell (at least 2 offered sendings unsent for want of a hook) is reported, not asserted: with three hooks and
-    /// windows of three days or more a bot that sends everything at first chance gets nearly every slip out (rounds
-    /// lh-q2-1 and lh-q2-2, every variant of windows and nights tried: median 0); docs/lanes/quests.md has the finding
-    /// for the director.
+    /// cell as restated in quests-2's fix round 1 (docs/lanes/quests.md): the bot that sends everything at first
+    /// chance has all three out on at least 2 of those days (median) and loses a lantern on a red chip in at least
+    /// half the seeds. QUESTS.md's first greedy cell (2 offered sendings unsent for want of a hook) held in no seed and
+    /// no variant (rounds lh-q2-1 to lh-q2-4: median 0); it is still reported.
     func testT11TheHookMatters() {
         check("T11 sender")
+        check("T11 greedy")
     }
 }
