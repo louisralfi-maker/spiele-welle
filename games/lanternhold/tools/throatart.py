@@ -124,7 +124,7 @@ class Sheet:
 
 
 def gorge_levels():
-    src = PA.read_png(os.path.join(ART, "gorgeRock.png"))[0]
+    src = PA.read_png(os.path.join(os.path.dirname(os.path.abspath(__file__)), "retired-art", "gorgeRock.png"))[0]
     lvl = {col(n): i for i, n in enumerate(GRANITE)}
     return src.w, src.h, [[lvl.get(src.get(x, y), 0) for x in range(src.w)] for y in range(src.h)]
 

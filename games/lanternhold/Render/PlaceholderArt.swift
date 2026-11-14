@@ -32,8 +32,8 @@ enum PlaceholderArt {
         case .darknessBank: frames = [darknessBank(salt)]
         case .darknessEdge: frames = [darknessEdge(salt)]
         // Look 2 (ART-look2.md 13.1): every id has its PNG; these plain stand-ins keep the game drawable without one.
-        case .weltmauer, .weltmauerPatch, .gorgeRock, .gorgeCrags, .cleftFace, .cleftFaceEnd, .cleftFlank,
-             .cleftFlankB, .cleftThroat, .keepTop2, .keepTop2Build, .keepTop3, .keepTop3Build, .castleFront3,
+        case .weltmauer, .weltmauerPatch, .throatStepA, .throatStepB, .throatStepC, .cleftWallA, .cleftWallB,
+             .cleftWallC, .gateRockL, .gateRockR, .keepTop2, .keepTop2Build, .keepTop3, .keepTop3Build, .castleFront3,
              .castleFront3Build, .castleFrontScaffold, .backTop2, .backTop2Build, .backTop3, .backTop3Build,
              .farCastle2, .farCastle2Build, .farCastle3, .farCastle3Build, .farCastleBack2, .farCastleBack2Build,
              .farCastleBack3, .farCastleBack3Build, .farCastlePane, .oldWall1, .oldWall2, .oldWall3,
@@ -48,7 +48,8 @@ enum PlaceholderArt {
              .laneCobbleA, .laneCobbleB, .laneCobbleC, .laneCobbleD, .laneEarthA, .laneEarthB, .laneEarthC,
              .laneEarthD:
             frames = [ground(salt)]
-        case .d2FogBank, .d2MistBand, .d2FogLow, .d2Smoke, .gloomFogBack, .gloomFogMid, .gloomFogFront, .gloomWisp:
+        case .d2FogBank, .d2MistBand, .d2FogLow, .d2Smoke, .gloomFogBack, .gloomFogMid, .gloomFogFront, .gloomWisp,
+             .cleftShaft, .bankSheetA, .bankSheetB, .bankSheetC:
             frames = [mistBank(salt, size: size)]
         case .farCastleGlow, .farCleftGlow, .farCleftGlowBack, .farCastle2Glow, .farCastle3Glow, .farCastleBack2Glow,
              .farCastleBack3Glow, .farCleftGlow2, .farCleftGlow2Build, .farCleftGlow3, .farCleftGlow3Build,

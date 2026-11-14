@@ -42,13 +42,14 @@ final class Look2FrameTests: XCTestCase {
         }
         XCTAssertEqual(count(.weltmauer, .far), 1, "the Weltmauer closes the west")
         XCTAssertEqual(count(.wardenStatue, .mid), 1, "the warden statue stands in the Throat's wall")
-        XCTAssertEqual(count(.gorgeRock, .mid), 1)
-        XCTAssertEqual(count(.gorgeCrags, .near), 1)
+        // World rebuild (step world-1): the Throat's far wall in three steps and the cleft wall behind the castle.
+        XCTAssertEqual(count(.throatStepA, .mid) + count(.throatStepB, .mid) + count(.throatStepC, .mid), 3)
+        XCTAssertEqual(count(.cleftWallA, .mid) + count(.cleftWallB, .mid) + count(.cleftWallC, .mid), 3)
+        XCTAssertEqual(count(.cleftShaft, .mid), 1)
         XCTAssertEqual(count(.keepFar, .mid), 0, "look 1's far keep is the far castle in the Weltmauer now")
         XCTAssertEqual(count(.cliffFlank, .world) + count(.cliffFlankB, .world) + count(.throatRock, .world), 0)
-        XCTAssertEqual(count(.cleftFlank, .world), 1)
-        XCTAssertEqual(count(.cleftFlankB, .world), 2)
-        XCTAssertEqual(count(.cleftThroat, .world), 1)
+        XCTAssertEqual(count(.gateRockL, .world), 1, "the west tower grows out of the granite")
+        XCTAssertEqual(count(.gateRockR, .world), 1)
         XCTAssertGreaterThanOrEqual(props.filter { $0.plane == .near }.count, 20, "firs and the valley's trees")
         for prop in props {
             XCTAssertGreaterThan(prop.width * prop.height, 0, "\(prop.sprite) has a size")
@@ -87,29 +88,29 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertEqual(only(scaffold, .castleFrontScaffold)?.x, front.x)
 
         let second = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 2)).props
-        XCTAssertEqual(second.count, first.count + 3, "the back rise and the two far overlays")
+        XCTAssertEqual(second.count, first.count + 2, "the back rise and the valley's far overlay")
         none(second, .keepTop)
         XCTAssertEqual(only(second, .keepTop2)?.x, keep.x)
         XCTAssertEqual(only(second, .keepTop2)?.masks.count, 4)
         XCTAssertEqual(only(second, .castleFront), front, "tier 2 keeps the gatehouse")
         XCTAssertEqual(only(second, .backTop2)?.x, gate.x + 50)
         XCTAssertEqual(only(second, .backTop2)?.y, 40)
-        XCTAssertEqual(only(second, .farCastle2, .far)?.x, wall.x + 300)
-        XCTAssertEqual(only(second, .farCastle2, .far)?.y, wall.y + 92)
-        XCTAssertEqual(only(second, .farCastle2, .far)?.emissive.map(\.sprite), [.farCastle2Glow])
+        // World rebuild (2.5): no far castle in the Weltmauer's first slot, at any tier.
+        none(second, .farCastle2)
+        XCTAssertEqual(wall.emissive.count, 0)
         XCTAssertEqual(only(second, .farCastleBack2, .far)?.x, pane.x - 4)
         XCTAssertEqual(only(second, .farCastleBack2, .far)?.fade, pane.fade)
-        XCTAssertEqual(only(second, .weltmauer, .far)?.emissive.map(\.sprite), [.farCleftGlow2, .farCastleGlow])
+        XCTAssertEqual(only(second, .weltmauer, .far)?.emissive.count, 0)
         XCTAssertEqual(only(second, .farCastlePane, .far)?.emissive.map(\.sprite),
                        [.farCleftGlowBack2, .farCastlePane])
 
         let building = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 2, building: true)).props
         XCTAssertEqual(only(building, .keepTop2Build)?.masks.count, 0, "no lit panes while it is built")
-        XCTAssertEqual(only(building, .farCastle2Build, .far)?.emissive.count, 0)
-        XCTAssertEqual(only(building, .weltmauer, .far)?.emissive.first?.sprite, .farCleftGlow2Build)
+        none(building, .farCastle2Build)
+        XCTAssertEqual(only(building, .weltmauer, .far)?.emissive.count, 0)
 
         let third = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3)).props
-        XCTAssertEqual(third.count, first.count + 3)
+        XCTAssertEqual(third.count, first.count + 2)
         none(third, .keepTop)
         none(third, .castleFront)
         XCTAssertEqual(only(third, .keepTop3)?.masks.count, 3)
@@ -121,7 +122,10 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertEqual(drums.emissive.map { drums.x + $0.dx }, front.emissive.map { front.x + $0.dx })
         XCTAssertEqual(drums.masks.count, 4)
         XCTAssertEqual(only(third, .backTop3)?.masks.count, 3)
-        XCTAssertEqual(only(third, .farCastle3, .far)?.emissive.map(\.sprite), [.farCastle3Glow])
+        none(third, .farCastle3)
+        // The gate's rock moves out with the drums.
+        XCTAssertEqual(only(third, .gateRockL)?.x, (only(first, .gateRockL)?.x ?? 0) - 14)
+        XCTAssertEqual(only(third, .gateRockR)?.x, (only(first, .gateRockR)?.x ?? 0) + 14)
         for prop in third + building + scaffold {
             XCTAssertGreaterThan(prop.width * prop.height, 0, "\(prop.sprite) has a size")
         }
@@ -344,14 +348,14 @@ final class Look2FrameTests: XCTestCase {
             XCTAssertTrue((0.85...1).contains(EntityFrames.creatureShade(id)))
         }
 
-        // The bank's glow: one frame over each of its body tiles, in look 2 only.
+        // The bank's glow: its cold eyes and embers on 64 px tiles in the bank's heart, in look 2 only; since the
+        // world rebuild the bank itself is three sheets of fog (the old wall of night is look 1's).
         let night = GameFrameSupport.demoNight(hour: 23.2)
         let bank = frame(night, focus: 400)
-        let tiles = bank.layer(.world).sprites.filter { $0.sprite == .darknessBank }
+        XCTAssertGreaterThanOrEqual(bank.layer(.world).sprites.filter { $0.sprite == .bankSheetB }.count, 2)
+        XCTAssertTrue(bank.layer(.world).sprites.allSatisfy { $0.sprite != .darknessBank && $0.sprite != .darknessEdge })
         let glow = bank.emissives.filter { $0.sprite == .darknessBankGlow }
-        XCTAssertGreaterThanOrEqual(tiles.count, 3)
-        XCTAssertEqual(glow.count, tiles.count)
-        XCTAssertEqual(Set(glow.map(\.rect.x)), Set(tiles.map(\.rect.x)))
+        XCTAssertGreaterThanOrEqual(glow.count, 3)
         XCTAssertTrue(glow.allSatisfy { (0..<4).contains($0.frame) && $0.kind == .glow })
         XCTAssertEqual(Set(glow.map(\.frame)).count, min(4, glow.count), "neighbouring tiles show different frames")
         XCTAssertTrue(frame(night, focus: 400, look: .one).emissives.allSatisfy { $0.sprite != .darknessBankGlow })

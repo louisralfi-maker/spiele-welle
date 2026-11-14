@@ -59,6 +59,8 @@ enum SceneLayout {
         var sunShadow: SunShadow?
         /// A bank of ground mist (scene polish 2): white at this share of the hour's mist strength (0 by day).
         var mist: Float?
+        /// World rebuild (step world-1): a shaft of light, white at this share of the sun's strength (none at night).
+        var sunShaft: Float?
     }
 
     /// Tiles laid side by side: `sprites` in order (it repeats), `count` tiles from `x`, each `tileWidth` wide.

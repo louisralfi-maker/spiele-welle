@@ -70,12 +70,13 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // Look 2 (SPRITES.md "Look 2: the world", ART-look2.md 13.1). Far plane: the Weltmauer with the far castle in its
     // slot, the patch that hides the baked castle from the valley, and the slot's lights
     case weltmauer, weltmauerPatch, farCastleGlow, farCastlePane, farCleftGlow, farCleftGlowBack
-    // Far and mid: the fir belt, the shadow land's forest, the Throat's rock, the cleft's faces, the valley
-    case d2FirBeltFar, shadowForest, gorgeRock, cleftFace, cleftFaceEnd, valleyVista, d2TreeBelt
-    // Near plane (0.75): the Throat's crags and the trees of both lands
-    case gorgeCrags, firA, firB, firC, firD, deadTreeA, deadTreeB, linden, poplar, appleTree, willow
-    // World plane: the cleft's flanks at the castle, bushes, the lane's end and the four lanes (variants A to D)
-    case cleftFlank, cleftFlankB, cleftThroat, d2BushA, d2BushB, d2LaneEnd
+    // Far and mid: the fir belt, the shadow land's forest, the valley (the world rebuild took the Throat's rock and
+    // the cleft's faces out: they are the steps and the cleft wall below)
+    case d2FirBeltFar, shadowForest, valleyVista, d2TreeBelt
+    // Near plane (0.75): the trees of both lands
+    case firA, firB, firC, firD, deadTreeA, deadTreeB, linden, poplar, appleTree, willow
+    // World plane: bushes, the lane's end and the four lanes (variants A to D)
+    case d2BushA, d2BushB, d2LaneEnd
     case laneMoorA, laneMoorB, laneMoorC, laneMoorD, laneScreeA, laneScreeB, laneScreeC, laneScreeD
     case laneCobbleA, laneCobbleB, laneCobbleC, laneCobbleD, laneEarthA, laneEarthB, laneEarthC, laneEarthD
     // Foreground plane
@@ -112,6 +113,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // creeping fog before it (two frames each: the body that repeats, the leading face), the shred that tears off
     // the front, the cold eyes in the bank's heart (an emissive)
     case gloomFogBack, gloomFogMid, gloomFogFront, gloomWisp, gloomFogEyes
+    // World rebuild, step world-1 (SPRITES.md "The rock and the fog"; look 2 only): the Throat's far wall in three
+    // steps, the cleft wall behind the castle and the cold shaft of light through its slit (mid plane), the granite
+    // the gatehouse's towers grow out of (world plane), the darkness bank's three sheets (fog A, world, fog B)
+    case throatStepA, throatStepB, throatStepC, cleftWallA, cleftWallB, cleftWallC, cleftShaft
+    case gateRockL, gateRockR, bankSheetA, bankSheetB, bankSheetC
     // Stage 7 (SPRITES.md "The house envoys", "The houses' banners"): the four houses' faces as guests with a body
     // (walk 0-3, idle 4-5, talk 6-7) and a story portrait of their own, and the five houses' banners in the hall
     case hildVarn, lorenzPell, ebbaCalder, orlaLorn
@@ -275,12 +281,8 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
             return PixelSize(width: 44, height: 68)
         case .d2FirBeltFar: return PixelSize(width: 520, height: 40)
         case .shadowForest: return PixelSize(width: 224, height: 104)
-        case .gorgeRock: return PixelSize(width: 448, height: 211)
-        case .cleftFace: return PixelSize(width: 448, height: 218)
-        case .cleftFaceEnd: return PixelSize(width: 240, height: 218)
         case .valleyVista: return PixelSize(width: 448, height: 160)
         case .d2TreeBelt: return PixelSize(width: 520, height: 58)
-        case .gorgeCrags: return PixelSize(width: 160, height: 200)
         case .firA: return PixelSize(width: 29, height: 130)
         case .firB: return PixelSize(width: 30, height: 118)
         case .firC: return PixelSize(width: 34, height: 106)
@@ -291,8 +293,6 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .poplar: return PixelSize(width: 14, height: 116)
         case .appleTree: return PixelSize(width: 42, height: 48)
         case .willow: return PixelSize(width: 52, height: 68)
-        case .cleftFlank, .cleftFlankB: return PixelSize(width: 80, height: 240)
-        case .cleftThroat: return PixelSize(width: 192, height: 240)
         case .d2BushA: return PixelSize(width: 30, height: 15)
         case .d2BushB: return PixelSize(width: 22, height: 12)
         case .d2LaneEnd: return PixelSize(width: 48, height: 30)
@@ -340,6 +340,18 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .gloomFogFront: return PixelSize(width: 128, height: 30)
         case .gloomWisp: return PixelSize(width: 40, height: 16)
         case .gloomFogEyes: return PixelSize(width: 64, height: 72)
+        // World rebuild, step world-1
+        case .throatStepA: return PixelSize(width: 224, height: 128)
+        case .throatStepB: return PixelSize(width: 224, height: 176)
+        case .throatStepC: return PixelSize(width: 224, height: 200)
+        case .cleftWallA, .cleftWallB: return PixelSize(width: 256, height: 200)
+        case .cleftWallC: return PixelSize(width: 192, height: 200)
+        case .cleftShaft: return PixelSize(width: 64, height: 200)
+        case .gateRockL: return PixelSize(width: 56, height: 120)
+        case .gateRockR: return PixelSize(width: 28, height: 64)
+        case .bankSheetA: return PixelSize(width: 256, height: 220)
+        case .bankSheetB: return PixelSize(width: 256, height: 176)
+        case .bankSheetC: return PixelSize(width: 256, height: 96)
         case .hildVarn, .lorenzPell, .ebbaCalder, .orlaLorn: return PixelSize(width: 14, height: 30)
         case .portraitHildVarn, .portraitLorenzPell, .portraitEbbaCalder, .portraitOrlaLorn:
             return PixelSize(width: 48, height: 48)

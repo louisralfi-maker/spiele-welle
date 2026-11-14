@@ -63,9 +63,11 @@ final class GloomFogTests: XCTestCase {
         desc.emissives.filter { $0.sprite == .gloomFogEyes }
     }
 
-    /// The bank's old wall of night on the world plane.
+    /// The darkness bank's sheet on the world plane (the world rebuild's bank; look 1 keeps the old wall of night).
     private func wall(_ desc: FrameDesc) -> [SpriteInstance] {
-        desc.layer(.world).sprites.filter { $0.sprite == .darknessBank || $0.sprite == .darknessEdge }
+        desc.layer(.world).sprites.filter {
+            $0.sprite == .bankSheetB || $0.sprite == .darknessBank || $0.sprite == .darknessEdge
+        }
     }
 
     private func wisps(_ desc: FrameDesc) -> [SpriteInstance] {
@@ -359,12 +361,12 @@ final class GloomFogTests: XCTestCase {
         XCTAssertEqual(foggy.lights, plain.lights, "the fog is no light and dims none")
         XCTAssertEqual(foggy.actors, plain.actors)
 
-        // While the fog bank stands, the old wall of night and its own eyes are not drawn: the bank's heart has the
-        // painted eyes instead. Nothing else on the lane changes.
+        // World rebuild: the darkness bank's soft sheets stand in the fog too (the fog creeps out of them); only the
+        // bank's own eyes give way: the bank's heart has the painted eyes instead. Nothing on the lane changes.
         XCTAssertFalse(wall(plain).isEmpty)
-        XCTAssertTrue(wall(foggy).isEmpty, "the fog bank stands in the wall's place")
-        XCTAssertEqual(foggy.layer(.world).sprites,
-                       plain.layer(.world).sprites.filter { $0.sprite != .darknessBank && $0.sprite != .darknessEdge })
+        XCTAssertEqual(wall(foggy), wall(plain), "the bank's sheets stand in the fog")
+        XCTAssertTrue(wall(foggy).allSatisfy { $0.sprite == .bankSheetB }, "no old wall of night in look 2")
+        XCTAssertEqual(foggy.layer(.world).sprites, plain.layer(.world).sprites)
         XCTAssertTrue(plain.emissives.contains { $0.sprite == .darknessBankGlow })
         XCTAssertFalse(foggy.emissives.contains { $0.sprite == .darknessBankGlow })
         XCTAssertTrue(eyeTiles(plain).isEmpty)
