@@ -350,3 +350,21 @@ das Game schneller läuft, schneller Screenshots?"
   are never run with `ui-de`.
 - **Order of adoption:** the world lane first, once the proof is in and looked at; every other class at the join, in
   one pass. No lane changes anything before that.
+
+**Languages until build 2, 14.11.2026 19:19.** Louis: "Sollen wir vielleicht erstmal nur Englisch machen? Damit es
+schneller geht."
+
+- **Found.** The story is in all eight languages since 16:12 (`Story.xcstrings`, 882 keys, the i18n lane). The
+  interface (`Localizable.xcstrings`, 207 keys) is in English and German only. Ahead lay: the interface in six
+  languages, and the six again for every text that changes (the house texts, the new petitions). At 19:07 five rounds
+  ran on GitHub's Macs and six waited.
+- **Decided: yes, for the six.** Until build 2 the lanes write English and German and test in English. Nothing is
+  translated into fr, es, it, pt-BR, ja or zh-Hans before the texts are final; then one pass before the store
+  submission (`tools/i18n/changed.py` lists what is new, changed and gone). What is translated stays in the build; a
+  missing key shows English. The store still gets all eight (CLAUDE.md).
+- **German stays in the game.** Louis plays on a German phone and judges the words in German; the specs carry both
+  lines already. But no `ui-de` round in a lane any more: the unit tests guard German (every key, the budgets, the
+  braces), and the German screens with words are looked at once, at the join.
+- **At the join:** `StoryLanguagesTests` allows a missing key in the six languages (valid where present); German stays
+  strict. The second pass of the house texts and the interface in six languages move behind build 2.
+- If Louis says English is enough on his phone, German waits for the store pass too.
