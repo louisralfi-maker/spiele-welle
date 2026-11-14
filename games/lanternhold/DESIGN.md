@@ -3330,6 +3330,14 @@ and `WorldLayout` are not touched: the hall's old world slot (x 1700 to 1960) is
   hall. UI: `HallUITests` (130 to 142: the door, in, the walk, the audience, the counsel, the reaction, the stills by
   day, afternoon, dusk and night, the longest German letter, the horn, Reduce Motion); `AudienceUITests` and
   `FirstDayUITests` reach the hall by its door.
+- **Rounds** (the gate by the director's note of 14.11. 18:46): `lh-s1-1` build failed (the private driver changed
+  directly); `lh-s1-2` one unit test (the strip tap from inside); `lh-s1-3`, `lh-s1-4` and `lh-s1-5` full rounds ALL
+  PASSED (61e871a, 01a6f3c, 1f87a09); `lh-s1-6` full on c3ba12b failed: `AudienceFlowTests.testThePetitionSample`
+  (the first standing guest's walk from the door bay took 2 s, the test waits 1.8 s: fixed), `FirstDayUITests` (a
+  drag that stopped beside the lectern opened the tax card: the throne owns the dais while people wait) and
+  `LordUITests`' typing check (a typed "!" kept; code this step did not touch, green before and after); `lh-s1-7`
+  build, unit, ui Hall, Audience and Polish ALL PASSED on 1a29a3b; **`lh-s1-8` build, unit, ui Hall, FirstDay,
+  Audience and Lord ALL PASSED on d5b03d4** (the gate).
 
 ## Risks
 
