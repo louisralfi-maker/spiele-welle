@@ -896,6 +896,9 @@ final class GameModel {
             setOverlay(.report(ReportCard.sampleFinale()))
         case .petition?:
             openPetitionSample()
+        case .craft?:
+            // Craft lane hook: the craftsman's offer (App/GameModel+Craft.swift).
+            openCraftSample()
         case .defeat?:
             if DayClock.phase(at: game.state.hour) == .day {
                 game.state.hour = 2.5

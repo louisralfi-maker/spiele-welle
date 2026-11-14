@@ -119,13 +119,49 @@ DESIGN.md "Taxes" for the player's side. The numbers are starting values: the la
 
 ## 4. Travelling craftsmen (build 3)
 
-- From day 4, about every third day and never on a story day, one travelling craftsman joins the audience after the
-  petitioners. He offers one work in two lines: what it is, what it costs, what it does.
-- Answers: commission it (the gold is paid at once; the work stands one or two days later), "not now" (he comes back
-  once, some days later), or send him on.
-- **Ten craftsmen for chapter 1.** Every work is seen in the world and has one small effect; no effect moves a system
-  by more than about 5 %. Three are works of pride.
-- The director's starting list (the lane may better it):
+The craft lane's list and numbers (step craft-1, 14.11.2026; the code, the hooks and the art list are in
+docs/lanes/craft.md). The director's starting list stands below the final one.
+
+- **When.** From day 4 a visit is due every third day (days 4, 7, 10, ...). It waits for a free day, one with no story
+  petition in the queue except the houses' audiences that come on top, until the next one is due. Then one travelling
+  craftsman joins the audience after the petitioners, drawn with his own seeded stream among those not yet met whose
+  first day has come (and whose needs stand: the glazier comes once a brazier or fire tower stands). One a day at most.
+  A chapter meets about five (days 5, 7, 12, 14 and 16 when the story is heard on its first days; a "not now"
+  return takes a free day of its own); who comes depends on the realm's seed, and the rest come in the Long Watch.
+- **The offer** is an audience card: his portrait, name and trade, two lines in his voice (what the work is and what it
+  does), the price on the commission, Odile's counsel. Answers: **commission it** (the gold is paid at once; the work
+  stands from the dawn one or two days later; the castle's builders are not needed), **not now** (he comes back once,
+  four days later or on the next free day, and then offers only commission or no), **no, thank you** (he is gone).
+- **Unheard by the horn:** on his first visit it counts as "not now", on his return as "no". A craftsman left waiting
+  costs no happiness; he is a trader, not a subject.
+- **The save** keeps who came, the answers and the works (`GameState.craft`).
+- **Bots never commission.** The reference bot's audience passes him by, and a realm the craftsmen visit plays line for
+  line as one they never visit (a unit test, 14 nights, three seeds, normal and high tax). T1 to T8 do not move.
+- **Effects.** Each lives in Core behind its flag (the work standing) with a unit test; each is measured with the
+  reference bots against the same realm without it (14 nights, two seeds) and moves its system by at most about 5 %
+  (round lh-c1-2: the statue +4.4 % taxes while it stands, the road lanterns +2.6 % taxes for the high-tax bot, the
+  portrait +2.6 % happiness; the night's works move the reference bot's comfortable nights by nothing measurable).
+
+  | craftsman (from) | work, seen where | effect | gold | days | first day | pride |
+  |---|---|---|---|---|---|---|
+  | Dagmar Flint, stonemason (Highcairn) | a statue of the lord, pole raised, on the market square | each house pays 1 coin more at dawn while happiness is 60 or more | 90 | 2 | 6 | yes |
+  | Severin Quell, portrait painter (Stillmere) | the lord's portrait in the great hall, the first of a gallery | +3 happiness once, when it is hung | 45 | 1 | 5 | yes |
+  | Benedek Rook, bell-founder (Greybell) | a bell in the gate tower, rung at dusk and in a fight | the lord's rally (soldiers near the lord shoot and strike a quarter harder) reaches 10 % further | 75 | 2 | 6 | yes |
+  | Merle Tidewell, glazier (Saltgate) | glass hoods on every brazier and fire tower | their light reaches 5 % further | 50 | 1 | 4, once a brazier or fire tower stands | |
+  | Cuno Marl, limeburner (Kilnhollow) | tubs of mortar with trowels on the wall walks | every patch mends 30 % of the wall instead of 25 % | 35 | 1 | 4 | |
+  | Tekla Morrow, banner weaver (Wendmouth) | long teal banners with the gold lantern on the walls | a holding guard steps back at 25 % of his strength instead of 30 % | 50 | 1 | 4 | |
+  | Joost Felloe, wheelwright (Brackwater) | two teal handcarts at the lodge | builders walk 10 % faster (the collector too, once he walks) | 40 | 1 | 4 | |
+  | Ivar Glimm, lamp-maker (once of Tallowford) | twelve lanterns on posts from the back gate to the town | the unrest line sits at 12 instead of 15 | 60 | 2 | 5 | |
+  | Renske Fallow, fletcher (the Seven Hills) | a rack of pitch-black arrows by the barracks | a fire arrow's fire burns 3.5 s instead of 2.5 s | 45 | 1 | 4 | |
+  | Ottilie Brand, ironwright (Goldenacre) | iron bands on the gate, the lantern gilt where they cross | the gatehouse has 5 % more strength | 70 | 2 | 6 | |
+
+- **Works in the town** (the statue, the road lanterns) count for the town's standing (section 3).
+- **What changed from the director's list:** the fountain went (+1 happiness each dawn is the tavern's whole effect and
+  moves happiness far more than 5 %); the clockmaker went (reading the hour in the world is the stage lanes'
+  interface, not a work's effect); the limeburner (the king's own Patch) and the ironwright (the gate) came; the
+  bell carries the lord's rally further (the archers already start each night ready, so a sooner first volley had nothing
+  to move, and faster soldiers let more of them fall on hard nights); the glass is 5 %, not 8 %.
+- The director's starting list:
 
   | craftsman | work, seen where | effect |
   |---|---|---|
@@ -140,8 +176,8 @@ DESIGN.md "Taxes" for the player's side. The numbers are starting values: the la
   | lamp-maker | street lanterns out to the town | fewer grumblers: the unrest line sits a little lower |
   | fletcher | pitch arrows | fire arrows burn one second longer |
 
-- Original names and faces in the voice of STORY.md; each has one line a player remembers. English and German.
-- Bots never commission, so T1 to T8 do not change; every effect has a unit test.
+- Original names and faces in the voice of STORY.md; each has one line a player remembers. English and German in
+  `Resources/Craftsmen.xcstrings`; the six other languages after the join.
 
 ## 5. What this asks of the other lanes
 
