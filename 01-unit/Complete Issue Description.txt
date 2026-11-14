@@ -1,0 +1,1 @@
+XCTAssertTrue failed - T13 FAIL nights 3-14, seeds 1-10, budget ["x1.0", "x1.5", "x2.0"]: the present bot lost 322 defenders, the reference 217: -48 % fewer (target 25-40 %, reference at least 40); clear losses (F >= 20 s) the present bot held: 0 (target 0)

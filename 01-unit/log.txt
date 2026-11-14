@@ -1,0 +1,85 @@
+2026-11-14 14:30:10.911969+0000 Lanternhold[9541:39991] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.BattleTests testABubbleOfDarknessHidesCreaturesInTheLight]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.BattleTests testAFinishedBeaconIsLitWhenTheLightlessKingLeaves]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.BattleTests testAKingWhoFallsAsTheHearthGoesOutDoesNotWinTheNight]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.BattleTests testALoneGuardCanFallInTheBreach]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.BattleTests testANightLetsItsWavesGoAndFirstLightDissolvesTheRest]' passed (0.065 seconds).
+Test Case '-[LanternholdTests.BattleTests testAPassingCreatureHarmsASoldierByTheTimeInContact]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.BattleTests testArchersShootLitCreaturesOnly]' passed (0.030 seconds).
+Test Case '-[LanternholdTests.BattleTests testASoldierWhoArrivesMidStepIsStruckOnlyWhileHeWalks]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.BattleTests testASootCrowSnuffsABrazierAfterTwoSeconds]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BattleTests testAStakePitStrikesThreeTimesANight]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.BattleTests testAWallAtZeroBecomesPassableRubble]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.BattleTests testContactTimeIsTheTimeWithinReachAtAnyStep]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.BattleTests testCreaturesAttackTheFirstStandingWall]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.BattleTests testCreaturesAtTheHearthDrainIt]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BattleTests testEveryFourthArrowIsAFireArrowThatLightsTheGround]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.BattleTests testEveryWaveLeavesByThreeOClock]' passed (0.024 seconds).
+Test Case '-[LanternholdTests.BattleTests testGuardsHoldTheBreachInFrontOfTheFirstStandingWall]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BattleTests testGuardsStepBackBelowThirtyPercentAndTheLastOneFalls]' passed (0.038 seconds).
+Test Case '-[LanternholdTests.BattleTests testInTheBeaconsLightTheKingCanBeHurtAndOutsideItNot]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.BattleTests testOutsideTheBeaconsLightNothingHurtsTheKing]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.BattleTests testShadehoundsLeapPalisadesButNotStone]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.BattleTests testSlayingTheKingWinsTheNight]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheDarknessBankFallsBackAsTheBeaconFlaresUp]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheDarknessBankShrinksLightsInsideIt]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheDarknessBankSwallowsTheBeaconsLight]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheGuardsStrikeTheFrontmostCreatureTheyCanHurt]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheHearthTakesNoHarmAfterFirstLight]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheKingPatchesAWallAndLightsABrazier]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheKingRalliesNearbySoldiers]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheKingsAuraFailsOnlyInsideTheBeaconsReach]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheLitProbeAgreesWithTheLightField]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheNightBudget]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testWallTorchesLightTheWallWalkNotItsFoot]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BattleTests testWithoutLightTheArchersAreBlind]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testACreatureThatReachesTheLordThrowsHimBackAndShakesHim]' passed (0.026 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testADeadBrazierCatchesAsTheLordPassesAtMostOneInFourSeconds]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testAfterAThrowNoCreatureThrowsHimAgainForTheGrace]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testAnOldSaveLoadsWithoutTheRule]' passed (0.118 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testAPassingCreatureHarmsASoldierLessUnderPresence]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testArchersUnderPresenceLooseFaster]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testBehindAWallOrTheGuardsAndBeforeACrowHeIsSafe]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testGuardsUnderPresenceTakeLessHarmAndStrikeHarder]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testPatchingIsADeedAtTheWallHeStandsAt]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testPresenceReachesDefendersNearTheLordAtNight]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testTheDawnCarriesTheNightsTallyAndStartsAfresh]' passed (0.078 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testTheFrontLinesReadInEnglishAndGerman]' passed (0.063 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testTheOldLightActionStillWorksWithTheRule]' passed (0.003 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrontPresenceTests.swift:424: error: -[LanternholdTests.FrontPresenceTests testThePresentBotPlaysANightByTheRule] : XCTAssertGreaterThan failed: ("0.0") is not greater than ("0.0")
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrontPresenceTests.swift:425: error: -[LanternholdTests.FrontPresenceTests testThePresentBotPlaysANightByTheRule] : XCTAssertGreaterThan failed: ("0.0") is not greater than ("0.0") - it is where it burns
+Test Case '-[LanternholdTests.FrontPresenceTests testThePresentBotPlaysANightByTheRule]' failed (2.516 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testTheReferenceBotIgnoresTheRulesNumbers]' passed (2.641 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testTheReportsFrontLines]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testTheRuleRoundTripsAndPartialStatesDecodeWithDefaults]' passed (0.123 seconds).
+Test Case '-[LanternholdTests.FrontPresenceTests testWithoutTheRuleTheOldRallyHolds]' passed (0.003 seconds).
+Test Suite 'FrontPresenceTests' failed at 2026-11-14 14:30:20.341.
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrontTuningTests.swift:25: error: -[LanternholdTests.FrontTuningTests testTarget13BeingThereCounts] : XCTAssertTrue failed - T13 FAIL nights 3-14, seeds 1-10, budget ["x1.0", "x1.5", "x2.0"]: the present bot lost 322 defenders, the reference 217: -48 % fewer (target 25-40 %, reference at least 40); clear losses (F >= 20 s) the present bot held: 0 (target 0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrontTuningTests.swift:27: error: -[LanternholdTests.FrontTuningTests testTarget13BeingThereCounts] : XCTAssertTrue failed - T13 FAIL nights 3-14, seeds 1-10, budget ["x1.0", "x1.5", "x2.0"]: the present bot lost 322 defenders, the reference 217: -48 % fewer (target 25-40 %, reference at least 40); clear losses (F >= 20 s) the present bot held: 0 (target 0)
+Test Case '-[LanternholdTests.FrontTuningTests testTarget13BeingThereCounts]' failed (199.082 seconds).
+Test Case '-[LanternholdTests.FrontTuningTests testThePresentBotDoesNotSprintBetweenWalls]' passed (0.032 seconds).
+Test Case '-[LanternholdTests.FrontTuningTests testTheT13ReportIsAttached]' passed (0.169 seconds).
+Test Suite 'FrontTuningTests' failed at 2026-11-14 14:33:39.630.
+Test Case '-[LanternholdTests.SaveGameTests testACorruptFileIsReportedAsCorrupt]' passed (0.344 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testAnOlderSaveWithoutOptionalFieldsLoads]' passed (0.235 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testARoundTripGivesTheSameRealm]' passed (0.196 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlayingOnFromALoadedSaveMatchesPlayingStraightOn]' passed (0.697 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlotCountsAndIndicesAreCheckedOnLoad]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testSettingsAndPacingWithoutTheirFieldsDecodeWithDefaults]' passed (0.214 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheChronicleKeepsRecordsPerTrackAcrossRealms]' passed (0.315 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheFrozenVersionOneSaveStillLoads]' passed (0.021 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testUnknownFieldsOfNewerVersionsAreIgnored]' passed (0.240 seconds).
+Test Case '-[LanternholdTests.TuningTests testReportIsAttached]' passed (307.564 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget1ReferenceBotHoldsTheFirstTenNights]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget2BuildingNothingLosesOnNightTwoOrThree]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget3TheBeaconByDayEighteen]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget4TaxesMoveHappiness]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget5PaceOfBuilding]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget6NightTwentyAndTheBeacon]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget7EndlessFallsBetweenThirtyFiveAndSixty]' passed (0.048 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget8WavesAndBudgets]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.TuningTests testTheReferenceBotHeardTheCourt]' passed (0.003 seconds).
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-14 14:38:49.555.
+Test Suite 'Selected tests' failed at 2026-11-14 14:38:49.556.
+exit=65
+screenshots: 0

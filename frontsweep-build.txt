@@ -1,0 +1,210 @@
+Core/AmbientRamp.swift:192:48: error: cannot find type 'LookVersion' in scope
+190 | 
+191 |     /// The two keyframes around `hour` and the smoothstep weight of the second one.
+192 |     static func segment(at hour: Double, look: LookVersion = .one) -> (from: Keyframe, to: Keyframe, weight: Double) {
+    |                                                `- error: cannot find type 'LookVersion' in scope
+193 |         let h = DayClock.wrap(hour)
+194 |         let keys = look == .two ? keyframesLook2 : keyframes
+
+Core/AmbientRamp.swift:215:47: error: cannot find type 'LookVersion' in scope
+213 | 
+214 |     /// The ambient look at `hour` (0 ..< 24, other values are wrapped).
+215 |     static func sample(at hour: Double, look: LookVersion = .one) -> AmbientSample {
+    |                                               `- error: cannot find type 'LookVersion' in scope
+216 |         let seg = segment(at: hour, look: look)
+217 |         return AmbientSample.mix(seg.from.sample, seg.to.sample, Float(seg.weight))
+
+Core/AmbientRamp.swift:221:49: error: cannot find type 'LookVersion' in scope
+219 | 
+220 |     /// The ambient look at a `-GWTimeOfDay` position.
+221 |     static func sample(timeOfDay: Double, look: LookVersion = .one) -> AmbientSample {
+    |                                                 `- error: cannot find type 'LookVersion' in scope
+222 |         sample(at: DayClock.hour(forTimeOfDay: timeOfDay), look: look)
+223 |     }
+
+Core/AmbientRamp.swift:194:35: error: cannot find 'keyframesLook2' in scope
+192 |     static func segment(at hour: Double, look: LookVersion = .one) -> (from: Keyframe, to: Keyframe, weight: Double) {
+193 |         let h = DayClock.wrap(hour)
+194 |         let keys = look == .two ? keyframesLook2 : keyframes
+    |                                   `- error: cannot find 'keyframesLook2' in scope
+195 |         let count = keys.count
+196 |         for index in 0..<(count - 1) {
+
+Core/GameState.swift:363:15: error: cannot find type 'LordIdentity' in scope
+361 |     /// the lord pass, a bot's realm and a test's read as nil, which is `LordIdentity.standard` (`lordOrDefault`).
+362 |     /// Nothing in the simulation reads it.
+363 |     var lord: LordIdentity?
+    |               `- error: cannot find type 'LordIdentity' in scope
+364 |     var records = Records()
+365 |     var nextID = 1
+
+Core/GameState.swift:315:8: error: type 'GameState' does not conform to protocol 'Decodable'
+313 | /// because synthesized `Decodable` ignores property defaults and an old save without the key would read as corrupt
+314 | /// (`SaveGameTests` decodes a frozen version 1 save every round).
+315 | struct GameState: Codable, Sendable, Equatable {
+    |        `- error: type 'GameState' does not conform to protocol 'Decodable'
+316 |     var mode: GameMode = .chapter
+317 |     var seed: UInt64
+    :
+361 |     /// the lord pass, a bot's realm and a test's read as nil, which is `LordIdentity.standard` (`lordOrDefault`).
+362 |     /// Nothing in the simulation reads it.
+363 |     var lord: LordIdentity?
+    |         `- note: cannot automatically synthesize 'Decodable' because 'LordIdentity?' does not conform to 'Decodable'
+364 |     var records = Records()
+365 |     var nextID = 1
+
+Swift.Decodable.init:2:1: note: protocol requires initializer 'init(from:)' with type 'Decodable'
+1 | protocol Decodable {
+2 | init(from decoder: any Decoder) throws}
+  | `- note: protocol requires initializer 'init(from:)' with type 'Decodable'
+3 | 
+
+Core/GameState.swift:379:24: error: cannot find type 'LordIdentity' in scope
+377 | 
+378 |     /// The lord of this realm: the chosen one, else the standard (the Burgherr with the default name).
+379 |     var lordOrDefault: LordIdentity { lord ?? .standard }
+    |                        `- error: cannot find type 'LordIdentity' in scope
+380 | 
+381 |     // MARK: Counts
+
+Core/GameState.swift:315:8: error: type 'GameState' does not conform to protocol 'Encodable'
+313 | /// because synthesized `Decodable` ignores property defaults and an old save without the key would read as corrupt
+314 | /// (`SaveGameTests` decodes a frozen version 1 save every round).
+315 | struct GameState: Codable, Sendable, Equatable {
+    |        `- error: type 'GameState' does not conform to protocol 'Encodable'
+316 |     var mode: GameMode = .chapter
+317 |     var seed: UInt64
+    :
+361 |     /// the lord pass, a bot's realm and a test's read as nil, which is `LordIdentity.standard` (`lordOrDefault`).
+362 |     /// Nothing in the simulation reads it.
+363 |     var lord: LordIdentity?
+    |         `- note: cannot automatically synthesize 'Encodable' because 'LordIdentity?' does not conform to 'Encodable'
+364 |     var records = Records()
+365 |     var nextID = 1
+
+Swift.Encodable.encode:2:6: note: protocol requires function 'encode(to:)' with type 'Encodable'
+1 | protocol Encodable {
+2 | func encode(to encoder: any Encoder) throws}
+  |      `- note: protocol requires function 'encode(to:)' with type 'Encodable'
+3 | 
+
+Core/GameState.swift:315:8: error: type 'GameState' does not conform to protocol 'Equatable'
+313 | /// because synthesized `Decodable` ignores property defaults and an old save without the key would read as corrupt
+314 | /// (`SaveGameTests` decodes a frozen version 1 save every round).
+315 | struct GameState: Codable, Sendable, Equatable {
+    |        |- error: type 'GameState' does not conform to protocol 'Equatable'
+    |        `- note: add stubs for conformance
+316 |     var mode: GameMode = .chapter
+317 |     var seed: UInt64
+    :
+361 |     /// the lord pass, a bot's realm and a test's read as nil, which is `LordIdentity.standard` (`lordOrDefault`).
+362 |     /// Nothing in the simulation reads it.
+363 |     var lord: LordIdentity?
+    |         `- note: stored property type '_' does not conform to protocol 'Equatable', preventing synthesized conformance of 'GameState' to 'Equatable'
+364 |     var records = Records()
+365 |     var nextID = 1
+
+Swift.==:1:24: note: candidate would match if 'GameState' conformed to 'RawRepresentable'
+1 | @inlinable public func == <T>(lhs: T, rhs: T) -> Bool where T : RawRepresentable, T.RawValue : Equatable
+  |                        `- note: candidate would match if 'GameState' conformed to 'RawRepresentable'
+
+Swift.FloatingPoint.==:2:20: note: candidate would match if 'GameState' conformed to 'FloatingPoint'
+1 | protocol FloatingPoint {
+2 | public static func == (lhs: Self, rhs: Self) -> Bool}
+  |                    `- note: candidate would match if 'GameState' conformed to 'FloatingPoint'
+3 | 
+
+Swift.BinaryInteger.==:2:20: note: candidate would match if 'GameState' conformed to 'BinaryInteger'
+1 | protocol BinaryInteger {
+2 | public static func == <Other>(lhs: Self, rhs: Other) -> Bool where Other : BinaryInteger}
+  |                    `- note: candidate would match if 'GameState' conformed to 'BinaryInteger'
+3 | 
+
+Swift._Pointer.==:2:20: note: candidate would match if 'GameState' conformed to '_Pointer'
+1 | protocol _Pointer {
+2 | public static func == (lhs: Self, rhs: Self) -> Bool}
+  |                    `- note: candidate would match if 'GameState' conformed to '_Pointer'
+3 | 
+
+Swift._Pointer.==:2:31: note: candidate would match if 'GameState' conformed to '_Pointer'
+1 | protocol _Pointer {
+2 | @inlinable public static func == <Other>(lhs: Self, rhs: Other) -> Bool where Other : _Pointer}
+  |                               `- note: candidate would match if 'GameState' conformed to '_Pointer'
+3 | 
+
+Swift.Strideable.==:2:31: note: candidate would match if 'GameState' conformed to 'Strideable'
+1 | protocol Strideable {
+2 | @inlinable public static func == (x: Self, y: Self) -> Bool}
+  |                               `- note: candidate would match if 'GameState' conformed to 'Strideable'
+3 | 
+
+Swift.StringProtocol.==:2:31: note: candidate would match if 'GameState' conformed to 'StringProtocol'
+1 | protocol StringProtocol {
+2 | @inlinable public static func == <RHS>(lhs: Self, rhs: RHS) -> Bool where RHS : StringProtocol}
+  |                               `- note: candidate would match if 'GameState' conformed to 'StringProtocol'
+3 | 
+
+Swift.SIMD.==:2:20: note: candidate would match if 'GameState' conformed to 'SIMD'
+1 | protocol SIMD {
+2 | public static func == (a: Self, b: Self) -> Bool}
+  |                    `- note: candidate would match if 'GameState' conformed to 'SIMD'
+3 | 
+
+Swift.Equatable.==:2:13: note: protocol requires function '==' with type '(GameState, GameState) -> Bool'
+1 | protocol Equatable {
+2 | static func == (lhs: Self, rhs: Self) -> Bool}
+  |             `- note: protocol requires function '==' with type '(GameState, GameState) -> Bool'
+3 | 
+
+Core/GameState.swift:379:44: error: no '??' candidates produce the expected contextual result type '_'
+377 | 
+378 |     /// The lord of this realm: the chosen one, else the standard (the Burgherr with the default name).
+379 |     var lordOrDefault: LordIdentity { lord ?? .standard }
+    |                                            `- error: no '??' candidates produce the expected contextual result type '_'
+380 | 
+381 |     // MARK: Counts
+
+Swift.??:1:13: note: '??' produces '_', not the expected contextual result type '_'
+1 | public func ?? <T>(optional: consuming T?, defaultValue: @autoclosure () throws -> T) rethrows -> T where T : ~Copyable
+  |             `- note: '??' produces '_', not the expected contextual result type '_'
+
+Swift.??:1:13: note: '??' produces 'T?', not the expected contextual result type '_'
+1 | public func ?? <T>(optional: consuming T?, defaultValue: @autoclosure () throws -> T?) rethrows -> T? where T : ~Copyable
+  |             `- note: '??' produces 'T?', not the expected contextual result type '_'
+
+Core/GameState.swift:315:8: error: type 'GameState' does not conform to protocol 'Decodable'
+313 | /// because synthesized `Decodable` ignores property defaults and an old save without the key would read as corrupt
+314 | /// (`SaveGameTests` decodes a frozen version 1 save every round).
+315 | struct GameState: Codable, Sendable, Equatable {
+    |        `- error: type 'GameState' does not conform to protocol 'Decodable'
+316 |     var mode: GameMode = .chapter
+317 |     var seed: UInt64
+    :
+361 |     /// the lord pass, a bot's realm and a test's read as nil, which is `LordIdentity.standard` (`lordOrDefault`).
+362 |     /// Nothing in the simulation reads it.
+363 |     var lord: LordIdentity?
+    |         `- note: cannot automatically synthesize 'Decodable' because 'LordIdentity?' does not conform to 'Decodable'
+364 |     var records = Records()
+365 |     var nextID = 1
+
+Swift.Decodable.init:2:1: note: protocol requires initializer 'init(from:)' with type 'Decodable'
+1 | protocol Decodable {
+2 | init(from decoder: any Decoder) throws}
+  | `- note: protocol requires initializer 'init(from:)' with type 'Decodable'
+3 | 
+
+Core/GameState.swift:488:31: error: cannot infer contextual base in reference to member 'archer'
+486 |                               king: RealmKing(x: Realm.throneX))
+487 |         for _ in 0..<balance.startArchers {
+488 |             state.addSoldier(.archer, balance: balance)
+    |                               `- error: cannot infer contextual base in reference to member 'archer'
+489 |         }
+490 |         for _ in 0..<balance.startGuards {
+
+Core/GameState.swift:491:31: error: cannot infer contextual base in reference to member 'guardsman'
+489 |         }
+490 |         for _ in 0..<balance.startGuards {
+491 |             state.addSoldier(.guardsman, balance: balance)
+    |                               `- error: cannot infer contextual base in reference to member 'guardsman'
+492 |         }
+493 |         return state
