@@ -1,0 +1,3 @@
+xcodebuild: error: Failed to build project Lanternhold with scheme Lanternhold.: Tests in the target “PeopleUITests” can’t be run because “PeopleUITests” isn’t a member of the specified test plan or scheme.
+exit=70
+screenshots: 0
