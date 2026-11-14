@@ -53,6 +53,7 @@ build() {
     [ "$BUILT" = 1 ] && return 0
     note "$(stamp) build starts ($NAME)"
     simulator
+    note "$(stamp) simulator up"
     # xcodegen: brew only when the runner lacks it (GitHub's macOS images have none so far, so this saves nothing yet).
     command -v xcodegen >/dev/null 2>&1 || brew install xcodegen >"$CI_OUT/xcodegen.log" 2>&1
     xcodegen generate >>"$CI_OUT/xcodegen.log" 2>&1
@@ -61,7 +62,8 @@ build() {
     if [ -f Package.resolved ]; then mkdir -p "$PINS" && cp Package.resolved "$PINS/"; fi
     run_build() {
         xcodebuild -project "$PROJECT" -scheme "$SCHEME" -destination "id=$SIM" \
-            -derivedDataPath build/SimData -jobs "$NPROC" "$@" build-for-testing >"$CI_OUT/build.log" 2>&1
+            -derivedDataPath build/SimData -jobs "$NPROC" COMPILER_INDEX_STORE_ENABLE=NO DEBUG_INFORMATION_FORMAT=dwarf \
+            "$@" build-for-testing >"$CI_OUT/build.log" 2>&1
     }
     run_build
     RC=$?
