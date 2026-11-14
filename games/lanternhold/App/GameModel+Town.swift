@@ -169,8 +169,9 @@ extension GameModel {
 }
 
 extension TownRun {
-    /// "owing:21,23 paid:24 knocked:23 shut:23 held:4": the places that still owe, those paid today, those knocked at,
-    /// the houses whose shutters are closed, the gold still in the air.
+    /// "owing:21,23 paid:24 knocked:23 shut:23 hand:21 held:4": the places that still owe, those paid today, those
+    /// knocked at, the houses whose shutters are closed, the places handing the collector their coins right now, the
+    /// gold still in the air.
     static func status(_ s: GameState, balance: Balance) -> String {
         guard let day = s.town?.today else { return "town:none" }
         let owing = day.places.filter(\.owes).map { String($0.plot) }
@@ -178,8 +179,13 @@ extension TownRun {
         let knocked = day.places.filter { $0.knocks > 0 }.map { String($0.plot) }
         let shut = TownShow.scene(s, balance: balance, reduceMotion: true).houses.filter(\.shutters)
             .map { String($0.plot) }
+        let hand = day.places.filter { place in
+            guard let at = place.tossedAt, let paid = place.collectorGold, paid > 0, s.simTime >= at else { return false }
+            let last = TownShow.handTimes(count: Town.coins(for: paid, rules: balance.town)).last ?? 0
+            return s.simTime - at < last + TownShow.handDeep
+        }.map { String($0.plot) }
         return "day:\(day.day) owing:\(owing.joined(separator: ",")) paid:\(paid.joined(separator: ",")) "
             + "knocked:\(knocked.joined(separator: ",")) shut:\(shut.joined(separator: ",")) "
-            + "held:\(TownShow.goldInFlight(s, balance: balance))"
+            + "hand:\(hand.joined(separator: ",")) held:\(TownShow.goldInFlight(s, balance: balance))"
     }
 }

@@ -16,7 +16,8 @@ enum TownSprites {
 
     /// A household's frames (12x26, the citizen contract: the foot at the bottom centre, facing right).
     enum Frame {
-        /// Waiting with the coins in the cupped hands, a breath (0 and 1).
+        /// Waiting, the hands held a little forward, a breath (0 and 1); the coin in them is `townCoin`, drawn by the
+        /// engine at `heldCoin` (fix round 1), so it glints and glows.
         static let wait = 0
         /// The toss: the hand drawn back with the coins, the throw, the open hand after it.
         static let wind = 2
@@ -51,11 +52,43 @@ enum TownSprites {
         static let skip = 6
     }
 
-    /// The lord's knock (16x30, the lord's contract): the fist raised, the knock, the hand held out for the coins.
+    /// The lord's knock (16x30, the lord's contract): the fist drawn back, the knock, the hand held out for the coins.
+    /// His far hand knocks; the pole and lantern stay where the walking sprite's standing frame `lantern` holds them,
+    /// so his glow strip keeps that frame while he knocks (fix round 1).
     enum KnockFrame {
         static let ready = 0
         static let knock = 1
         static let receive = 2
+        /// The walking sprite's frame (the standing pose) whose pole, lantern glass and circlet the knock pose keeps.
+        static let lantern = 6
+    }
+
+    /// The coin's frames (4x4): the spin in flight 0 ... 3 (face, three quarters, edge, three quarters), and the face
+    /// with its highlight a pixel larger, the glint of a held coin.
+    enum CoinFrame {
+        static let face = 0
+        static let spin = 4
+        static let glint = 4
+    }
+
+    /// Where the coin of a waiting figure is drawn (fix round 1): its centre from the figure's anchor (game px; ahead
+    /// of it, mirrored with it) and above the ground, resting on the palm its grid's waiting frames hold out at the
+    /// waist (0 and 1; the breath lowers it a pixel on 1), on the farmer's knotted cloth, over the child's raised fist
+    /// (her frame 4). nil for every other sprite and frame. Keep in step with `tools/taxart.py` (`HELD`) and the grids'
+    /// waiting arms.
+    static func heldCoin(_ sprite: SpriteID, frame: Int) -> (dx: Double, dy: Double)? {
+        let anchor: (dx: Double, dy: Double)
+        switch sprite {
+        case .townCorra, .townDun, .townBrede, .townWenna: anchor = (5, 14)
+        case .townHemmet: anchor = (6, 9)
+        case .townGorm: anchor = (5, 16)
+        case .townNib:
+            return frame == ChildFrame.hold ? (4, 13) : nil
+        default:
+            return nil
+        }
+        guard frame == Frame.wait || frame == Frame.wait + 1 else { return nil }
+        return (anchor.dx, anchor.dy - Double(frame - Frame.wait))
     }
 
     /// The house overlays (the house's size, drawn over it at its place and with its mirror): the cottages' open door
@@ -72,7 +105,7 @@ enum TownSprites {
             return PixelSize(width: 12, height: 26)
         case .townNib: return PixelSize(width: 10, height: 18)
         case .kingKnock, .ladyKnock: return PixelSize(width: 16, height: 30)
-        case .townCoin: return PixelSize(width: 3, height: 3)
+        case .townCoin: return PixelSize(width: 4, height: 4)
         case .townCottage: return PixelSize(width: 64, height: 46)
         case .townBigHouse: return PixelSize(width: 72, height: 56)
         default: return PixelSize(width: 1, height: 1)
@@ -87,7 +120,7 @@ enum TownSprites {
         case .townGorm: return 4
         case .townNib: return 9
         case .kingKnock, .ladyKnock: return 3
-        case .townCoin: return 4
+        case .townCoin: return 5
         case .townCottage: return 4
         case .townBigHouse: return 2
         default: return nil

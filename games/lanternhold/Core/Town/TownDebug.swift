@@ -1,5 +1,5 @@
-/// The town's debug starts (`-GWTown owed|paid|knock`, town-2), for the screenshots and the UI tests of the taxes on
-/// foot. They change today's ledger only (and the purse with it), after the start's other arguments:
+/// The town's debug starts (`-GWTown owed|paid|knock|collector`, town-2), for the screenshots and the UI tests of the
+/// taxes on foot. They change today's ledger only (and the purse with it), after the start's other arguments:
 ///
 /// - `owed`: nobody has collected today: every part is owed again and the gold the bot's morning took is taken out of
 ///   the purse (a `-GWDay` start's bot collects at dawn); when the paying places changed after the dawn (a `-GWBuild
@@ -7,12 +7,23 @@
 /// - `paid`: the lord collected every part long ago (no toss in the air, every door shut).
 /// - `knock`: that, and the first house was knocked at long ago: its shutters are closed and its window stays dark
 ///   tonight.
+/// - `collector` (fix round 1): `owed`, the collector in service and out on today's round, and the clock set to the
+///   moment he is `collectorLead` before the first door that owes (on his way out from his post), so the households
+///   are seen paying him at their doors. On the first morning nothing changes.
 enum TownDebug {
     enum Mode: String, Sendable, Equatable, CaseIterable {
-        case owed, paid, knock
+        case owed, paid, knock, collector
     }
 
+    /// How far (game px) before the first door that owes a `collector` start puts him: about 13 s of his walk, time
+    /// for a UI test's launch.
+    static let collectorLead = 520.0
+
     static func apply(_ s: inout GameState, mode: Mode, balance: Balance) {
+        if mode == .collector {
+            sendCollector(&s, balance: balance)
+            return
+        }
         guard var town = s.town, var day = town.today else { return }
         let long = s.simTime - 3600
         let places = Town.payingPlaces(s).map(\.plot)
@@ -67,5 +78,28 @@ enum TownDebug {
         }
         town.today = day
         s.town = town
+    }
+
+    /// The `collector` start: every part owed, the collector out on today's round, the clock at the hour he is
+    /// `collectorLead` before the first door that owes.
+    static func sendCollector(_ s: inout GameState, balance: Balance) {
+        guard let today = s.town?.today, !Town.isFirstMorning(today) else { return }
+        apply(&s, mode: .owed, balance: balance)
+        guard var town = s.town, var day = town.today else { return }
+        town.collectorHired = true
+        day.collectorOut = true
+        day.collectorBack = nil
+        town.today = day
+        s.town = town
+        let rules = balance.town
+        let post = Town.collectorPost
+        let turn = Town.collectorTurn(day)
+        let direction: Double = turn >= post ? 1 : -1
+        let doors = day.places.filter(\.owes).map { Town.doorX(plot: $0.plot) }
+        guard let first = doors.min(by: { abs($0 - post) < abs($1 - post) }), abs(turn - post) > 1 else { return }
+        let target = first - direction * collectorLead
+        let share = max(0, min(1, (target - post) / (turn - post)))
+        let start = ClockEvent.dawnReport.hour
+        s.hour = start + share * (rules.collectorTurnHour - start)
     }
 }
