@@ -1,0 +1,11 @@
+2026-11-14 17:15:25.770685+0000 Lanternhold[10289:39366] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.SlidesPaletteTests testEverySlideIsPaletteArt]' passed (0.167 seconds).
+Test Case '-[LanternholdTests.SlidesTests testEveryPictureIsInTheBundleAtItsSize]' passed (0.024 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheArgumentsOpenAShowAndDecideThePrologue]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheNameEntryLeadsIntoThePrologueWhenTheLaunchPlaysIt]' passed (0.063 seconds).
+Test Case '-[LanternholdTests.SlidesTests testThePrologueIsFourSlidesAndTheLastShowsTheChosenLord]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheRealmStandsStillUnderAShowAndGoesOnAfter]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheStageTurnsHoldsAndEnds]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheWordsAreThereInEnglishAndGermanAndFitTwoShortLines]' passed (0.007 seconds).
+exit=0
+screenshots: 0
