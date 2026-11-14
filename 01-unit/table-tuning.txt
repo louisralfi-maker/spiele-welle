@@ -1,0 +1,52 @@
+The Lantern Table's tuning (docs/QUESTS.md 4.4) over 20 seeds: the reference bot (no table), the sender bot (Odile's seal only) and the greedy bot (everything, second orders)
+T1 PASS nights 1-10, seeds 1-3, hearth untouched, at most 3 lost: reference survived true hearth 100.0 losses 0 | sender survived true hearth 100.0 losses 0 | greedy (reported) survived true hearth 100.0 losses 0
+T2 (reference, the table's files loaded) builds nothing: falls on nights [3, 3, 3] (target 2 or 3)
+T3 PASS beacon day, seeds 1-3: reference [17, 16, 17] | sender [17, 16, 17] (within one day, never past 18) | greedy (reported) [16, 16, 18]
+T4 PASS high tax, happiness at dawn 8: reference 27 | sender 27 (under 30, not above the reference)
+T5 PASS buildings by day 10, seed 1: reference 11 | sender 11 (8-12) | greedy (reported) 11
+T6 PASS/PASS night 20: reference won 20, King slain 20, without held 10 | sender won 20 (all), King slain 19 (>= 60 %), without held 6 (30-60 %) | greedy won 20, without held 5 (at or below the reference)
+T7 PASS sender endless to night 66: falls on nights [42, 49, 44, 36, 59, 44, 36, 44, 40, 31, 48, 47, 45, 0, 44, 0, 42, 45, 51, 43], 17 between 35 and 60 (target >= 80 %; 0 = standing)
+T8 PASS sim proxy, seeds 1-3: last wave at 79.9 s / 79.8 s (<= 84), entities 103 / 94 (< 300), battle lights 20 / 20 (< 40), reference / sender; the party at the gate and the table screen's images are round 2's (nothing is drawn yet)
+T10 PASS sender at dusk of day 20 against the reference, median of 20 seeds: gold -6.5 (within 25), soldiers 0.0 (within 2), happiness -1.5 (within 3); per seed gold [5, 17, -58, -27, -51, 28, 23, -17, -1, 24, -8, -2, 45, -36, 39, -5, -9, -17, -26, -30], soldiers [-3, 0, 0, 0, 1, 1, -6, 0, -1, 0, -2, 0, -1, 1, 1, 0, 0, 0, -1, 1], happiness [-17, 0, 0, -9, -3, 1, -41, 6, -4, -2, -12, -13, -10, 1, 7, -4, -1, 19, 1, 6]
+T11 PASS sender: days 9-15 with all three road lanterns out, median 3.0 (>= 3), per seed [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3] | greedy (reported, FAIL; docs/lanes/quests.md): offered sendings unsent for want of a hook, median 0.0 (>= 2), per seed [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; slips that waited for a hook, median 0.0, per seed [0, 1, 0, 0, 2, 1, 2, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 2]
+
+lanterns lost over the chapter: sender [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], greedy [0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1]
+
+sender, what went (day:sending.order) and the full days, seeds 1-5:
+seed 1: 2:oil_round.1 5:highcairn_count.1 8:mill_herbs.1 8:beaconfoot_smoke.1 11:ford_planks.1 11:goldenacre_cart.2 11:beacon_statues.1 13:stillmere_proof.1 | full days [11, 12, 13] | reports read 8 | dusk 20: gold 59 soldiers 11 happiness 74
+seed 2: 2:oil_round.1 5:highcairn_count.1 8:mill_herbs.1 8:beaconfoot_smoke.1 11:goldenacre_cart.2 11:beacon_statues.1 12:ford_planks.1 13:stillmere_proof.1 | full days [12, 13, 14] | reports read 8 | dusk 20: gold 56 soldiers 14 happiness 90
+seed 3: 2:oil_round.1 5:highcairn_count.1 8:mill_herbs.1 8:beaconfoot_smoke.1 11:ford_planks.1 11:goldenacre_cart.2 11:beacon_statues.1 13:stillmere_proof.1 | full days [11, 12, 13] | reports read 8 | dusk 20: gold 1 soldiers 10 happiness 87
+seed 4: 2:oil_round.1 5:highcairn_count.1 8:mill_herbs.1 8:beaconfoot_smoke.1 11:ford_planks.1 11:goldenacre_cart.2 11:beacon_statues.1 13:stillmere_proof.1 | full days [11, 12, 13] | reports read 8 | dusk 20: gold 26 soldiers 15 happiness 91
+seed 5: 2:oil_round.1 5:highcairn_count.1 8:mill_herbs.1 8:beaconfoot_smoke.1 11:ford_planks.1 11:goldenacre_cart.2 11:beacon_statues.1 13:stillmere_proof.1 | full days [11, 12, 13] | reports read 8 | dusk 20: gold 4 soldiers 14 happiness 90
+
+greedy, what went (day:sending.order) and the full days, seeds 1-5:
+seed 1: 2:oil_round.1 5:highcairn_count.2 6:mill_herbs.1 8:goldenacre_cart.2 8:beaconfoot_smoke.2 9:ford_planks.1 10:hemmet_sentence.1 11:beacon_statues.2 12:ludo_number.2 13:stillmere_proof.2 15:greybell_bell.1 | full days [9, 10, 11] | reports read 11 | unsent for want of a hook [] | dusk 20: gold 56 soldiers 16 happiness 100
+seed 2: 2:oil_round.1 5:highcairn_count.2 6:mill_herbs.1 8:goldenacre_cart.2 8:beaconfoot_smoke.2 9:ford_planks.1 10:saltgate_grey.1 12:hemmet_sentence.1 12:beacon_statues.2 13:stillmere_proof.2 15:greybell_bell.1 | full days [9, 10, 11, 12] | reports read 11 | unsent for want of a hook [] | dusk 20: gold 3 soldiers 14 happiness 86
+seed 3: 2:oil_round.1 5:highcairn_count.2 6:mill_herbs.1 8:goldenacre_cart.2 8:beaconfoot_smoke.2 9:ford_planks.1 11:beacon_statues.2 13:stillmere_proof.2 14:hemmet_sentence.1 15:greybell_bell.1 | full days [9, 11] | reports read 10 | unsent for want of a hook [] | dusk 20: gold 3 soldiers 8 happiness 73
+seed 4: 2:oil_round.1 5:highcairn_count.2 6:mill_herbs.1 8:goldenacre_cart.2 8:beaconfoot_smoke.2 9:ford_planks.1 11:beacon_statues.2 12:ludo_number.2 13:stillmere_proof.2 15:greybell_bell.1 | full days [9, 11] | reports read 10 | unsent for want of a hook [] | dusk 20: gold 33 soldiers 13 happiness 85
+seed 5: 2:oil_round.1 6:mill_herbs.1 6:highcairn_count.2 8:goldenacre_cart.2 9:beaconfoot_smoke.2 10:ford_planks.1 11:saltgate_grey.1 12:beacon_statues.2 13:stillmere_proof.2 13:ludo_number.2 15:greybell_bell.1 | full days [10, 11, 12, 13] | reports read 11 | unsent for want of a hook [] | dusk 20: gold 40 soldiers 14 happiness 91
+
+reference, dusk of day 20 by seed: 1:54g/14s/91h 2:39g/14s/90h 3:59g/10s/87h 4:53g/15s/100h 5:55g/13s/93h 6:21g/13s/86h 7:3g/14s/99h 8:20g/14s/91h 9:59g/14s/86h 10:32g/13s/87h 11:44g/15s/99h 12:52g/14s/98h 13:9g/14s/85h 14:58g/14s/94h 15:6g/13s/83h 16:41g/14s/94h 17:45g/14s/90h 18:27g/14s/79h 19:50g/15s/88h 20:32g/14s/94h
+sender, night 20 by seed: 1:won/held 2:won/held 3:won/fell 4:won/held 5:won/fell 6:won/fell 7:won/fell 8:won/fell 9:won/fell 10:won/fell 11:won/fell 12:won/held 13:won/fell 14:won/fell 15:won/held 16:won/fell 17:won/held 18:won/fell 19:won/fell 20:won/fell
+
+night 20 without the beacon's last stage, by seed (held/fell, patches; at dawn 20: gold, archers, guards, happiness, buildings), reference | sender:
+seed 1: held p1 | 164g 8a 2gd 91h 18b  ||  held p1 | 99g 11a 0gd 74h 18b
+seed 2: held p3 | 127g 11a 1gd 90h 19b  ||  held p1 | 190g 8a 0gd 90h 19b
+seed 3: held p3 | 164g 8a 0gd 85h 18b  ||  fell p0 | 166g 8a 0gd 85h 18b
+seed 4: fell p2 | 133g 11a 3gd 100h 19b  ||  held p2 | 146g 8a 2gd 91h 19b
+seed 5: fell p3 | 135g 12a 0gd 92h 18b  ||  fell p0 | 144g 12a 1gd 89h 19b
+seed 6: fell p2 | 189g 6a 1gd 86h 19b  ||  fell p2 | 149g 10a 1gd 87h 19b
+seed 7: held p0 | 153g 9a 3gd 99h 19b  ||  fell p2 | 166g 5a 0gd 60h 16b
+seed 8: fell p2 | 154g 9a 0gd 90h 19b  ||  fell p0 | 163g 11a 1gd 96h 19b
+seed 9: fell p3 | 149g 11a 1gd 86h 18b  ||  fell p2 | 158g 5a 1gd 82h 19b
+seed 10: fell p2 | 122g 11a 0gd 87h 19b  ||  fell p1 | 146g 5a 2gd 85h 19b
+seed 11: held p2 | 143g 11a 3gd 100h 19b  ||  fell p2 | 123g 10a 0gd 87h 19b
+seed 12: held p3 | 132g 11a 2gd 98h 19b  ||  held p2 | 170g 8a 1gd 85h 18b
+seed 13: held p0 | 129g 11a 1gd 88h 19b  ||  fell p3 | 134g 9a 0gd 78h 19b
+seed 14: held p3 | 158g 9a 1gd 94h 18b  ||  fell p2 | 176g 11a 1gd 95h 19b
+seed 15: fell p0 | 156g 11a 0gd 83h 19b  ||  held p3 | 145g 10a 1gd 90h 19b
+seed 16: fell p3 | 151g 8a 2gd 94h 19b  ||  fell p3 | 146g 9a 1gd 90h 19b
+seed 17: fell p1 | 145g 10a 1gd 90h 19b  ||  held p2 | 116g 11a 2gd 89h 18b
+seed 18: fell p2 | 117g 11a 1gd 78h 18b  ||  fell p1 | 138g 11a 1gd 97h 19b
+seed 19: held p3 | 174g 9a 1gd 88h 19b  ||  fell p1 | 134g 11a 1gd 89h 19b
+seed 20: held p3 | 157g 8a 2gd 93h 19b  ||  fell p0 | 131g 11a 3gd 100h 19b

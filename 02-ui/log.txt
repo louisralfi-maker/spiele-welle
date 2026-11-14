@@ -1,0 +1,4 @@
+Test Case '-[LanternholdUITests.TableUITests testTheMiddleOfTheChapterFillsTheHooks]' passed (50.827 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheTableSendsPipAndReadsHisReport]' passed (36.559 seconds).
+exit=0
+screenshots: 6

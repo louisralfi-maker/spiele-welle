@@ -1,0 +1,5 @@
+Variants (not shipped, not asserted), 20 seeds each, against the same reference runs:
+oil only: T6 sender won 20, without held 5 [NO] | T10 gold -3.0, soldiers 0.0, happiness 0.0 [ok] | T11 sender median 0.0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] [NO] | T11 greedy median 0.0 [] [NO] | greedy without held 0 [NO] | greedy lost 0
+oil and the count: T6 sender won 20, without held 8 [ok] | T10 gold 0.5, soldiers 0.0, happiness 0.0 [ok] | T11 sender median 0.0 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] [NO] | T11 greedy median 0.0 [] [NO] | greedy without held 0 [NO] | greedy lost 0
+no stair: T6 sender won 20, without held 8 [ok] | T10 gold -1.0, soldiers 0.0, happiness 0.0 [ok] | T11 sender median 1.0 [1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2] [NO] | T11 greedy median 0.0 [] [NO] | greedy without held 0 [NO] | greedy lost 0
+no Stillmere: T6 sender won 20, without held 6 [ok] | T10 gold -5.5, soldiers 0.0, happiness -2.0 [ok] | T11 sender median 2.0 [2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1] [NO] | T11 greedy median 0.0 [] [NO] | greedy without held 0 [NO] | greedy lost 0
