@@ -120,6 +120,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // Stage 7 (SPRITES.md "The circlet icon"): interface art, never in the world: the lord's circlet in gold (the
     // HUD's audience button) and in ink alone (the audience card's gold button)
     case circletIcon, circletIconInk
+    // The people lane (docs/PEOPLE.md, docs/SPRITES-people.md, `PeopleCast`): working people marked by life (Old
+    // Hemmet, Wenna Brisk, Brede Hask, Gorm and Hedda Ashby at work), three children, the nobles of the inner lands
+    case elder, washerwoman, labourer, farmerHoe, farmerScythe, childA, childB, childC, nobleLord, nobleLady, footman
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -346,6 +349,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bannerVarn, .bannerBrine, .bannerOxmoor, .bannerCalder, .bannerLorn:
             return PixelSize(width: 20, height: 41)
         case .circletIcon, .circletIconInk: return PixelSize(width: 24, height: 16)
+        case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe, .childA, .childB, .childC, .nobleLord,
+             .nobleLady, .footman:
+            return PeopleCast.size(of: self)
         }
     }
 
@@ -385,6 +391,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .ashBrute, .ashBruteGlow, .ashGiant, .ashGiantGlow, .lightlessKing, .lightlessKingGlow: return 7
         case .sootling, .sootlingB, .sootlingGlow, .sootlingBGlow, .shadehound, .shadehoundGlow: return 6
         case .citizen, .citizenB, .citizenC, .builder: return 6
+        case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe, .childA, .childB, .childC, .nobleLord,
+             .nobleLady, .footman:
+            return PeopleCast.frameCount(of: self)
         case .archer: return 5
         case .sootCrow, .sootCrowGlow, .gloomweaver, .gloomweaverGlow: return 4
         case .beaconFire, .darknessBankGlow, .gloomFogEyes: return 4

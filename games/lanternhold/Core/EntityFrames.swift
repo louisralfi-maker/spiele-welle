@@ -1034,10 +1034,16 @@ enum EntityFrames {
                                       isEmissive: emissive, isLit: lit, lightCap: lightCap, moonRim: moonRim))
         }
 
-        // Townsfolk walking between their houses, the fields and the market by day.
+        // Townsfolk walking between their houses, the fields and the market by day; in look 2 the cast of the people
+        // lane walks with them, and the farmers, the children and Fen the lamp-runner are out (`PeopleCast`).
         if isDay {
-            townsfolk(s, time: time) { sprite, frame, x, y, flipped in
+            townsfolk(s, time: time, look: look) { sprite, frame, x, y, flipped in
                 add(sprite, frame: frame, x: x, y: y, flipped: flipped)
+            }
+            if look == .two {
+                PeopleCast.townLife(s, time: time) { sprite, frame, x, y, flipped in
+                    add(sprite, frame: frame, x: x, y: y, flipped: flipped)
+                }
             }
         }
 
@@ -1247,18 +1253,18 @@ enum EntityFrames {
 
     /// Visual-only townsfolk by day: each walks between a house and a place of the town (the well, the market, a
     /// field, the tavern) and pauses at both ends; how many follows the taxpayers.
-    private static func townsfolk(_ s: GameState, time: Double,
+    private static func townsfolk(_ s: GameState, time: Double, look: LookVersion = .one,
                                   add: (SpriteID, Int, Double, Double, Bool) -> Void) {
         let homes = WorldLayout.townPlots.filter { $0.kind == .house }.map { ($0.start + $0.end) / 2 }
         guard !homes.isEmpty else { return }
         let places: [Double] = [WorldLayout.wellX, 3245, 2680, 3365, 3540, 3010]
-        let sprites: [SpriteID] = [.citizen, .citizenB, .citizenC]
+        let sprites: [SpriteID] = look == .two ? PeopleCast.townWalkers : [.citizen, .citizenB, .citizenC]
         let count = min(9, max(2, s.taxpayers / 2))
         for k in 0..<count {
             let home = homes[k % homes.count] + 12
             let place = places[(k * 3 + 1) % places.count] + Double(k % 3) * 6 - 6
             let distance = abs(place - home)
-            let speed = 16 + Double(k % 3) * 3
+            let speed = (16 + Double(k % 3) * 3) * PeopleCast.pace(sprites[k % sprites.count])
             let pause = 2.5 + Double(k % 2)
             let walk = distance / speed
             let period = 2 * (walk + pause)
@@ -1281,7 +1287,8 @@ enum EntityFrames {
                 x = place + (home - place) * (u - 2 * pause - walk) / max(0.01, walk)
             }
             let direction = towardPlace ? place - home : home - place
-            let frame = moving ? Int((max(0, x) / 4).rounded(.down)) % 4 : 4 + Int((time * 2 + Double(k)).rounded(.down)) % 2
+            let frame = moving ? PeopleCast.walkFrame(sprites[k % sprites.count], x: x)
+                : 4 + Int((time * 2 + Double(k)).rounded(.down)) % 2
             add(sprites[k % sprites.count], frame, x, 0, direction < 0)
         }
     }
