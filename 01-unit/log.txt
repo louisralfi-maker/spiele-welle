@@ -1,0 +1,24 @@
+2026-11-14 20:36:37.238325+0000 Lanternhold[8538:36503] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.EndingsTests testBeginAgainStartsANewRealm]' passed (0.070 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/EndingsTests.swift:75: error: -[LanternholdTests.EndingsTests testEachEndingIsThreeSlidesOnItsOwnLightWithItsPictures] : XCTUnwrap failed: expected non-nil value of type "URL" - slideOpen1.png is in the bundle
+Test Case '-[LanternholdTests.EndingsTests testEachEndingIsThreeSlidesOnItsOwnLightWithItsPictures]' failed (0.077 seconds).
+Test Case '-[LanternholdTests.EndingsTests testEachLampHasItsOwnLight]' passed (0.026 seconds).
+Test Case '-[LanternholdTests.EndingsTests testEveryWordIsThereAndFitsTwoLinesAtFullSize]' passed (0.017 seconds).
+Test Case '-[LanternholdTests.EndingsTests testOnlyTheFinalesDawnEndsTheChapter]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.EndingsTests testTheEndingFollowsTheFinaleTheTownAndSeren]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.EndingsTests testTheFinaleLeadsThroughTheEndingToTheEndCardAndTheLongWatch]' passed (0.092 seconds).
+Test Case '-[LanternholdTests.EndingsTests testTheLeaningIsReadFromTheFlagsAndTheSpeechDecides]' passed (0.063 seconds).
+Test Case '-[LanternholdTests.EndingsTests testTheMiddleSlideNamesTheLeaningThenTheHousesOrSeren]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.EndingsTests testTheTaleOfARealmAtTheFinalesDawn]' passed (0.001 seconds).
+Test Suite 'EndingsTests' failed at 2026-11-14 20:36:39.737.
+Test Case '-[LanternholdTests.SlidesTests testEveryPictureIsInTheBundleAtItsSize]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheArgumentsOpenAShowAndDecideThePrologue]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheNameEntryLeadsIntoThePrologueWhenTheLaunchPlaysIt]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.SlidesTests testThePrologueIsFourSlidesAndTheLastShowsTheChosenLord]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheRealmStandsStillUnderAShowAndGoesOnAfter]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheStageTurnsHoldsAndEnds]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheWordsAreThereInEnglishAndGermanAndFitTwoShortLines]' passed (0.003 seconds).
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-14 20:36:39.881.
+Test Suite 'Selected tests' failed at 2026-11-14 20:36:39.881.
+exit=65
+screenshots: 0
