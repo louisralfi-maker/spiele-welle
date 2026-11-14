@@ -84,6 +84,9 @@ enum PlaceholderArt {
             if frames.isEmpty {
                 frames = PlaceholderSprites.frames(for: sprite)
             }
+            if frames.isEmpty {
+                frames = PlaceholderCast.frames(for: sprite)
+            }
         }
         let count = max(1, sprite.frameCount)
         var fitted: [PixelImage] = []

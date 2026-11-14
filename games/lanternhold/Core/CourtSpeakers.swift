@@ -197,7 +197,8 @@ enum Speakers {
     ]
 
     /// The townsfolk archetypes: a body of the townsfolk (SPRITES.md "Actors" and "M3") and the parts their portraits
-    /// choose from. There is no child body in the contract yet: a child walks as `citizen` until the lead adds one.
+    /// choose from. The child walks as Fen the lamp-runner (`childC`) and the noble as Ser Aubrey's kind (`nobleLord`),
+    /// the people lane's bodies (docs/PEOPLE.md); neither sits on the benches.
     static let townsfolk: [Speaker] = [
         folk("farmer", .citizenC, male: PortraitStyle(
             clothes: [PortraitPart.smock, PortraitPart.tunic],
@@ -253,7 +254,7 @@ enum Speakers {
             hair: [PortraitPart.bun, PortraitPart.longHair],
             hats: [PortraitPart.headscarf, PortraitPart.hood],
             hairColors: [.grey], cloths: [.plum, .blue])),
-        folk("child", .citizen, female: PortraitStyle(
+        folk("child", .childC, female: PortraitStyle(
             clothes: [PortraitPart.smock, PortraitPart.tunic],
             faces: [PortraitPart.child],
             hair: [PortraitPart.childsMop, PortraitPart.braids],
@@ -265,7 +266,7 @@ enum Speakers {
             hair: [PortraitPart.childsMop],
             hats: [PortraitPart.noHat, PortraitPart.woolCap],
             cloths: [.green, .ochre, .teal, .redBrown])),
-        folk("noble", .petitionerE, male: PortraitStyle(
+        folk("noble", .nobleLord, male: PortraitStyle(
             clothes: [PortraitPart.fineCoat, PortraitPart.robe],
             faces: [PortraitPart.long, PortraitPart.round, PortraitPart.square],
             beards: [PortraitPart.noBeard, PortraitPart.shortBeard, PortraitPart.moustache],

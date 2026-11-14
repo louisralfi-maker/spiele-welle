@@ -135,6 +135,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // dust mote and the plaster patches over the brick (tools/hallstage.py)
     case greatHall, hallPillarNear, hallFire, tapTalk, tapThrone, tapBuild, tapRepair, tapRecruit, tapLight
     case hallShaft, hallMote, hallWash
+    // The people lane (docs/PEOPLE.md, docs/SPRITES-people.md, `PeopleCast`): working people marked by life (Old
+    // Hemmet, Wenna Brisk, Brede Hask, Gorm and Hedda Ashby at work), three children, the nobles of the inner lands
+    case elder, washerwoman, labourer, farmerHoe, farmerScythe, childA, childB, childC, nobleLord, nobleLady, footman
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -380,6 +383,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .hallShaft: return PixelSize(width: 83, height: 120)
         case .hallMote: return PixelSize(width: 1, height: 1)
         case .hallWash: return PixelSize(width: 64, height: 44)
+        case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe, .childA, .childB, .childC, .nobleLord,
+             .nobleLady, .footman:
+            return PeopleCast.size(of: self)
         }
     }
 
@@ -419,6 +425,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .ashBrute, .ashBruteGlow, .ashGiant, .ashGiantGlow, .lightlessKing, .lightlessKingGlow: return 7
         case .sootling, .sootlingB, .sootlingGlow, .sootlingBGlow, .shadehound, .shadehoundGlow: return 6
         case .citizen, .citizenB, .citizenC, .builder: return 6
+        case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe, .childA, .childB, .childC, .nobleLord,
+             .nobleLady, .footman:
+            return PeopleCast.frameCount(of: self)
         case .archer: return 5
         case .sootCrow, .sootCrowGlow, .gloomweaver, .gloomweaverGlow: return 4
         case .beaconFire, .darknessBankGlow, .gloomFogEyes: return 4

@@ -26,3 +26,15 @@ Louis: "Will das UI ziemlich minimal, aufgeräumt haben wie bei Kingdom Two Crow
 - A number appears only when it changes or when a price is asked, next to the thing it belongs to, and fades.
 - A card appears only for words (an audience, the ledger, the dawn report) or a real choice, small and at the thing.
 - Whatever can be touched answers a touch with a small motion, so the player learns it by trying.
+
+## 3. The people bar (added 14.11.2026 14:25)
+
+Louis: "Was auch verdammt cool wäre, wenn die Bauern und die Leute, die arbeiten, schon richtig verbraucht sind, vom Leben geprägt. Natürlich ist unser Königreich besser, da sind alle fast gleich, weil wir nie so viel Geld hatten. Alle sind vom Leben geprägt, dann ist es halt cool, wenn es lebensfrohe Kinder gibt oder abgehobene reiche Adelige. Das bringt Charakterwechsel mit rein."
+
+- **Those who work are marked by life.** Farmers, builders, washerwomen, guards, the old: a bent back, a heavy step, weathered skin, patched and faded cloth, and one mark each that tells a life (a limp, a bound hand, an eye lost to the Gloom, a stoop from the hoe, hair gone grey early). Worn, never wretched: they straighten when the lord passes because they choose to.
+- **Lanternhold is poor and even.** Nobody here is rich, the house included: the lord's cloak is mended, the banners are old, the hall is mighty in stone and plain in everything else. Cloth is undyed wool, earth, soot and one faded house colour. Nobody in town is drawn finer than their neighbour.
+- **Children are the bright thing.** Quick where everyone else is slow: they run, skip, fight with sticks, trail after the lord. The one warm, clean accent in the town's colours belongs to them.
+- **The nobles of the inner lands are from another world.** They live safe behind the wall: upright, slow, clean, overdressed, with the only saturated cloth and the only gold thread in the game. A footman carries what they will not; they hold a cloth to the nose and look past people. Never monsters: people who have never seen the dark.
+- **The change of character is the point.** In every scene with people a player sees at a glance who has carried what. Put the groups next to each other where you can: a child beside an old farmer, a noble's footman beside a guard.
+- **Still one game.** The same grid, palette, outline rule and proportions for everyone (bar 1). The difference is posture, pace, cloth and one tell, never another style.
+- **In words too.** Working people speak short and dry; children ask; nobles speak in long polite sentences that say little. In English and in German.

@@ -1,8 +1,10 @@
-# citizenB 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md). A townsman, repainted in stage 4 of look 2
-# (ART-look2.md section 15) at the lord's level: a tall man with short dark curls and a full beard, a green tunic
-# with rolled sleeves over a linen shirt, a belt with a pouch, brown trousers, boots, a burlap sack over his far
-# shoulder, its neck in his fist. Light from the upper left; the outline is look 2's selective one (shadow side and
-# ground contact). Walk: contact (the body 1 px down) and passing on each leg, the near arm swinging. Idle: a breath.
+# citizenB 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md). Dun Rook, 41, porter at the ford (docs/PEOPLE.md;
+# repainted by the people lane on 14.11.2026, before that the townsman of look 2's stage 4). A tall man bowed under a
+# burlap sack: short dark curls going grey at the temple, a full beard grey at the chin, a soot-grey wool tunic with a
+# brown patch over the belly and a rope belt, soil-brown trousers, boots worn through at the toe. His mark: the near
+# hand and forearm bound in a grey rag (the ferry rope burnt it to the bone one winter and it never healed clean); it
+# swings with the walk. Light from the upper left; look 2's selective outline. Walk: contact (the body 1 px down) and
+# passing on each leg, the near arm swinging, the head a pixel forward under the load. Idle: a breath.
 id citizenB
 size 12x26
 frames 6
@@ -12,38 +14,38 @@ legend
     k = ink
     S = woodLight
     s = soilLight
-    n = woodDark
     N = soilDark
-    E = leafDark
-    e = leaf
-    f = meadow
-    p = plaster
-    q = plasterDim
+    L = stoneLight
+    P = stonePale
+    E = stoneDark
+    e = stoneMid
+    f = stone
+    x = wood
     H = woodDark
     h = wood
     B = soilDark
     b = soil
     m = soilLight
-    l = woodLight
     c = straw
     C = strawLight
+    q = plasterDim
 
-# the curls, the face, the full beard (frame cols 4-8)
+# the curls grey at the temple, the face, the dark beard with a grey streak at the chin (frame cols 5-9)
 part head
-    .nNn.
-    nnNNN
-    NnSkS
+    .NNN.
+    NNNNN
+    NLSkS
     .NsSs
     .NNNs
-    ..NN.
+    ..NL.
 
-# the linen collar, the tunic, the belt with its pouch, the tunic's skirt
+# the open neck, the tunic, a brown patch over the belly, the rope belt, the tunic's skirt
 part torso
-    fepeeE
-    feepeE
+    feeSeE
     feeeeE
-    .feeEE
-    .HHHlh
+    feexeE
+    .fexEE
+    .cCccx
     .feeEE
     .fe.EE
 
@@ -67,7 +69,7 @@ part legsStand
     ..bB.mb..
     ..HH.hH..
     ..HH.hH..
-    ..HHHhHH.
+    ..HHHhHm.
 
 part legsContactA
     ...bBmb..
@@ -79,7 +81,7 @@ part legsContactA
     .bB...mb.
     HH....hH.
     HH....hH.
-    .HH...hHH
+    .HH...hHm
 
 part legsPassA
     ...bBmb..
@@ -91,7 +93,7 @@ part legsPassA
     .HH..mb..
     .HHH.hH..
     .....hH..
-    .....hHH.
+    .....hHm.
 
 part legsContactB
     ...bBmb..
@@ -103,7 +105,7 @@ part legsContactB
     .mb...bB.
     hH....HH.
     hH....HH.
-    .HH...HHH
+    .hm...HHH
 
 part legsPassB
     ...bBmb..
@@ -113,67 +115,67 @@ part legsPassB
     ..mbbB...
     .hH.bB...
     .hH.bB...
-    .hHHHH...
+    .hHmHH...
     ....HH...
     ....HHH..
 
-# the near arm: the rolled sleeve, the bare forearm; hanging, swung forward, swung back
+# the near arm in its sleeve, the forearm and hand bound in a pale rag; hanging, swung forward, swung back
 part armDown
     e
     E
-    S
-    s
+    P
+    L
 
 part armFwd
     e.
     E.
-    .S
-    .s
+    .P
+    .L
 
 part armBackSwing
     .e
     .E
-    S.
-    s.
+    P.
+    L.
 
 frame 0
     legsContactA 1 15
     torso 3 9
-    head 4 3
+    head 5 3
     sack 0 8
     armBackSwing 7 10
 
 frame 1
     legsPassA 1 15
     torso 3 8
-    head 4 2
+    head 5 2
     sack 0 7
     armDown 8 9
 
 frame 2
     legsContactB 1 15
     torso 3 9
-    head 4 3
+    head 5 3
     sack 0 8
     armFwd 8 10
 
 frame 3
     legsPassB 1 15
     torso 3 8
-    head 4 2
+    head 5 2
     sack 0 7
     armDown 8 9
 
 frame 4
     legsStand 1 15
     torso 3 8
-    head 4 2
+    head 5 2
     sack 0 7
     armDown 8 9
 
 frame 5
     legsStand 1 15
     torso 3 9
-    head 4 3
+    head 5 3
     sack 0 8
     armDown 8 10

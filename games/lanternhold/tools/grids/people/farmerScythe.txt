@@ -1,0 +1,309 @@
+# farmerScythe 12x26, 14 frames: walk 0-3, idle 4-5, mow 6-7, straighten 8-9, carry 10-13 (docs/SPRITES-people.md, the
+# citizen contract plus field work). Hedda Ashby, 33, reaper on the near field, Gorm's sister (docs/PEOPLE.md). Wiry
+# and upright: a brown kerchief, an undyed blouse with the sleeves rolled, a laced earth-brown bodice, a long brown
+# skirt with an undyed apron, clogs. Her mark: her hair went white in one night, the night her husband's lantern did
+# not come back at the Count; it frames her young face and hangs down her back in a white plait. Light from the upper
+# left; look 2's selective outline. Walk: the scythe on the near shoulder, its blade hooked over her head behind;
+# contact (1 px down) and passing. Idle: a breath. Mow: the scythe swung back low (6) and through the stalks (7).
+# Straighten: leaning on the upright scythe, the far hand at the small of her back (8), then the near forearm across
+# her brow (9). Carry: a sheaf held before her, the same steps.
+id farmerScythe
+size 12x26
+frames 14
+outline ink shade
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    P = stonePale
+    F = foam
+    W = parchment
+    w = plaster
+    q = plasterDim
+    l = woodLight
+    h = wood
+    H = woodDark
+    n = soilLight
+    b = soil
+    B = soilDark
+    c = straw
+    C = strawLight
+    L = stoneLight
+    M = stoneMid
+
+# the kerchief, the white hair framing the young face (frame cols 4-8)
+part head
+    .nnb.
+    nnnbb
+    PPSkS
+    PPsSs
+    .Pss.
+    ..s..
+
+# the white plait down her back, its tie
+part plait
+    F
+    P
+    P
+    q
+
+# the undyed blouse, the laced bodice, the waistband
+part torso
+    .WwbB.
+    WwbbbB
+    WwbbbB
+    .wbbbB
+    .hhhhH
+
+part skirtPass
+    .lnwqb.
+    .lnwqb.
+    lnnwqnb
+    lnnwqnb
+    lnnwqnb
+    lnnwqnb
+    lnnnwqb
+    lnnnwqb
+    lnnnnnb
+    .bnnnb.
+
+part skirtContact
+    ..lnwqb..
+    .lnnwqnb.
+    .lnnwqnb.
+    .lnnwqnb.
+    lnnnnwqnb
+    lnnnnwqnb
+    lnnnnwqnb
+    lnnnnnnnb
+    .bnnnnnb.
+
+part feetA
+    HH....hHH
+
+part feetB
+    hH....HHH
+
+part feetTogether
+    HhHH
+
+# the near arm holding the snath on her shoulder
+part armCarry
+    w.
+    .S
+
+# the scythe on the near shoulder: the long curved blade hanging behind her head, the pale snath down to her hand
+part scytheShoulder
+    .LLLl....
+    MM...l...
+    M....l...
+    ......l..
+    ......l..
+    ......l..
+    .......l.
+    .......l.
+    .......l.
+    ........l
+    ........l
+
+# swung back: both hands at the hip, the snath down behind her, the blade raised behind at the knee
+part scytheBack
+    .......wS
+    ......l..
+    .....l...
+    ....l....
+    ...l.....
+    LLl......
+    M........
+    M........
+
+# swung through: both hands at the hip, the snath down before her, the blade flat along the ground
+part scytheFwd
+    wS...
+    ..l..
+    ..l..
+    ...l.
+    ...l.
+    ...l.
+    ....l
+    ....l
+    ...Ml
+    LLLM.
+
+# the scythe planted upright beside her, the blade hooked back over her head, her near hand on the snath
+part scytheUpright
+    LLLl
+    M..l
+    M..l
+    ...l
+    ...l
+    ...l
+    ...l
+    ...l
+    ...l
+    ...l
+    ...l
+    ..Sl
+    ...l
+    ...l
+    ...l
+    ...l
+    ...l
+    ...l
+    ...l
+    ...l
+    ...l
+    ...l
+    ...l
+    ...h
+
+# the near arm on the upright snath
+part armSnath
+    w.
+    .w
+
+# both arms down to the snath before her (frame 7)
+part armDown
+    w
+    w
+    w
+
+# the far hand at the small of her back
+part handBack
+    S
+    s
+
+# the near forearm raised across the brow
+part armBrow
+    .SS
+    .s.
+    w..
+
+# the sheaf held against her chest: the ears, the band, the cut stalks
+part sheaf
+    C.C
+    CCC
+    cCc
+    ccc
+    chc
+    ccc
+    ccc
+    c.c
+
+part armSheaf
+    w..
+    .wS
+
+frame 0
+    scytheShoulder 0 1
+    feetA 2 24
+    skirtContact 2 15
+    torso 3 10
+    plait 4 10
+    head 4 4
+    armCarry 7 11
+
+frame 1
+    scytheShoulder 0 0
+    feetTogether 5 24
+    skirtPass 3 14
+    torso 3 9
+    plait 4 9
+    head 4 3
+    armCarry 7 10
+
+frame 2
+    scytheShoulder 0 1
+    feetB 2 24
+    skirtContact 2 15
+    torso 3 10
+    plait 4 10
+    head 4 4
+    armCarry 7 11
+
+frame 3 = 1
+
+frame 4
+    scytheShoulder 0 0
+    feetTogether 5 24
+    skirtPass 3 14
+    torso 3 9
+    plait 4 9
+    head 4 3
+    armCarry 7 10
+
+frame 5
+    scytheShoulder 0 1
+    feetTogether 5 24
+    skirtPass 3 14
+    torso 3 10
+    plait 4 10
+    head 4 4
+    armCarry 7 11
+
+frame 6
+    feetA 2 24
+    skirtContact 2 15
+    torso 3 10
+    plait 4 10
+    scytheBack 0 13
+    head 4 4
+    armSnath 6 11
+
+frame 7
+    feetB 2 24
+    skirtContact 2 15
+    torso 3 10
+    plait 4 10
+    head 4 4
+    scytheFwd 6 14
+    armDown 6 11
+
+frame 8
+    scytheUpright 7 1
+    feetTogether 5 24
+    skirtPass 3 14
+    torso 3 9
+    handBack 2 13
+    plait 4 9
+    head 4 3
+    armSnath 7 10
+
+frame 9
+    scytheUpright 7 1
+    feetTogether 5 24
+    skirtPass 3 14
+    torso 3 9
+    plait 4 9
+    head 4 3
+    armBrow 6 5
+
+frame 10
+    feetA 2 24
+    skirtContact 2 15
+    torso 3 10
+    plait 4 10
+    head 4 4
+    sheaf 8 8
+    armSheaf 6 11
+
+frame 11
+    feetTogether 5 24
+    skirtPass 3 14
+    torso 3 9
+    plait 4 9
+    head 4 3
+    sheaf 8 7
+    armSheaf 6 10
+
+frame 12
+    feetB 2 24
+    skirtContact 2 15
+    torso 3 10
+    plait 4 10
+    head 4 4
+    sheaf 8 8
+    armSheaf 6 11
+
+frame 13 = 11

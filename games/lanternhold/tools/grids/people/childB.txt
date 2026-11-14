@@ -1,0 +1,179 @@
+# childB 10x18, 10 frames: run 0-3, fidget 4-5, skip 6-9 (docs/SPRITES-people.md, the children's contract). Wren Ashby,
+# 9, Gorm's daughter (docs/PEOPLE.md). Dark hair in two plaits that fly when she skips, each tied with a red ribbon
+# (the children's warm clean accent), an undyed smock dress under a brown pinafore, bare shins, small clogs. Light from
+# the upper left; look 2's selective outline. Run: contact, flight, contact, flight (the body up 1 px in flight), the
+# plait flying out behind. Fidget: hands behind her back, rocking from the heels (4) onto the toes (5). Skip: the step
+# and the hop on each foot (2 px up on the hop), the arms out, the plait up.
+id childB
+size 10x18
+frames 10
+outline ink shade
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    H = woodDark
+    h = wood
+    R = crimsonLight
+    r = crimson
+    W = parchment
+    w = plaster
+    q = plasterDim
+    n = soilLight
+    b = soil
+
+# the dark hair parted over the brow, the round face
+part head
+    .hHH.
+    hhHHH
+    hhSkS
+    .hsSs
+
+# the near plait hanging, flying out behind (run), flying up (skip); the red ribbon at its end
+part plaitDown
+    H
+    h
+    R
+
+part plaitOut
+    ...
+    hH.
+    R..
+
+part plaitUp
+    R.
+    .h
+    ..
+
+# the smock dress and the pinafore over it, the hem wide
+part body
+    .wWq.
+    Wwnnq
+    Wwnnq
+    wwnnq
+    wwnnbq
+    .wwwq.
+
+# the near arm swinging (run), held behind (fidget), out to the side (skip)
+part armSwing
+    q.
+    .S
+
+part armBack
+    q
+    s
+
+part armOut
+    q..
+    .qS
+
+part legsStand
+    .ss.
+    .sS.
+    HHhH
+
+part legsToes
+    .ss.
+    .sS.
+    .HhH
+
+part legsRunA
+    .s..S.
+    s....S
+    H....h
+
+part legsRunB
+    .S..s.
+    S....s
+    h....H
+
+part legsFlightA
+    .sSS
+    s..h
+    H...
+
+part legsFlightB
+    .Sss
+    S..H
+    h...
+
+part legsSkipA
+    .sSS.
+    .s..h
+    .H...
+
+part legsSkipB
+    .Sss.
+    .S..H
+    .h...
+
+frame 0
+    legsRunA 2 14
+    body 2 8
+    plaitOut 1 6
+    head 3 4
+    armSwing 6 9
+
+frame 1
+    legsFlightA 3 13
+    body 2 7
+    plaitOut 1 5
+    head 3 3
+    armSwing 6 8
+
+frame 2
+    legsRunB 2 14
+    body 2 8
+    plaitOut 1 6
+    head 3 4
+    armBack 2 9
+
+frame 3
+    legsFlightB 3 13
+    body 2 7
+    plaitOut 1 5
+    head 3 3
+    armBack 2 8
+
+frame 4
+    legsStand 3 14
+    body 2 8
+    plaitDown 2 6
+    head 3 4
+    armBack 2 9
+
+frame 5
+    legsToes 3 14
+    body 2 7
+    plaitDown 2 5
+    head 3 3
+    armBack 2 8
+
+frame 6
+    legsSkipA 2 14
+    body 2 8
+    plaitUp 1 5
+    head 3 4
+    armOut 6 8
+
+frame 7
+    legsSkipA 2 12
+    body 2 6
+    plaitUp 1 3
+    head 3 2
+    armOut 6 6
+
+frame 8
+    legsSkipB 2 14
+    body 2 8
+    plaitUp 1 5
+    head 3 4
+    armOut 6 8
+
+frame 9
+    legsSkipB 2 12
+    body 2 6
+    plaitUp 1 3
+    head 3 2
+    armOut 6 6

@@ -182,13 +182,14 @@ in `docs/BARS.md` (the desk copy every agent reads is `ci-out/director/artbar.md
   later, has the treasury with the collector, the growing town and the craftsmen.
 
 **A third workflow** runs next to the rebuild and the v1 lanes: `docs/workflows/town-lanes.js`, two gated Opus 5.5 lanes.
+Started 14.11.2026 14:11 as task `w0w435zkx` (run `wf_58d17076-a6e`). Never resume it; after a stop, write a continuation.
 
 | lane | worktree, branch | steps |
 |---|---|---|
 | town | `lh-town`, `claude/lh-town` | town-1 taxes on foot in Core; town-2 the same on screen (build 2); town-3 treasury, collector and growth in Core (build 3) |
 | craft | `lh-craft`, `claude/lh-craft` | craft-1 the offer in the audience engine, ten craftsmen in English and German, the effects in Core (build 3) |
 
-**Notes sent on 14.11. 14:25:** stage (no permanent HUD in stage-3, no tax card, a door as a touch target), world (door
+**Notes sent on 14.11. 14:10:** stage (no permanent HUD in stage-3, no tax card, a door as a touch target), world (door
 anchors, window and shutter states, the backdrop row as its own sheet, room for a treasury), ads ("Double taxes" as a
 flag for the day), panels, quests and i18n (the two bars; the tax strings will go).
 
@@ -196,3 +197,12 @@ flag for the day), panels, quests and i18n (the two bars; the tax strings will g
 brings the first coins belongs to the onboarding lane; the store texts are read again after the tax change; the art and
 the hall screens of build 3 (treasury, collector, house tiers, backdrop looks, craftsmen and their works) get a lane
 of their own after the join.
+
+**14.11. 14:20, Louis again:** "die Gebäude hinten" are the town's houses (confirmed). Farmers matter: the fields grow
+too (two more plots, a farmstead tier; `docs/TOWN.md` section 3, build 3). And the people: "die Leute, die arbeiten,
+schon richtig verbraucht, vom Leben geprägt … lebensfrohe Kinder … abgehobene reiche Adelige. Das bringt
+Charakterwechsel mit rein." That is the third bar (`docs/BARS.md` section 3) and a fourth workflow,
+`docs/workflows/people-lane.js`: one gated Opus 5.5 lane (`lh-people`, `claude/lh-people`) with people-1 (the cast in
+`docs/PEOPLE.md`, the three townsfolk repainted, new working bodies, children, nobles and a footman, a line-up picture
+for Louis) and people-2 (who lives where, the working day, the children, the noble's coach; picture only). Notes went
+to town, craft, world, stage, panels and quests.
