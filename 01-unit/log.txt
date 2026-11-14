@@ -1,0 +1,23 @@
+2026-11-14 22:08:36.496861+0000 Lanternhold[14643:52926] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.CraftTests testACommissionIsPaidAtOnceAndTheWorkStandsDaysLater]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.CraftTests testAnOfferIsAnAudienceCard]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.CraftTests testARunWithoutCommissionsIsTodaysRun]' passed (10.350 seconds).
+Test Case '-[LanternholdTests.CraftTests testAStoryDayHoldsTheVisitBackButTheHousesAudiencesDoNot]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.CraftTests testAWorkThatDoesNotStandChangesNothing]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testEachWorksSceneAtOtherAmounts]' passed (0.793 seconds).
+Test Case '-[LanternholdTests.CraftTests testNoCraftsmanComesToARealmWithoutThem]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.CraftTests testNotNowBringsHimBackOnceAndNoSendsHimOn]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testNoWorkMovesItsSystemMoreThanAboutFivePercent]' passed (59.109 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheBalanceWorksChangeTheirOneValue]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheBookHoldsTenCraftsmenWithTenWorks]' passed (0.070 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheCraftsmenRideInTheSave]' passed (0.073 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheMortarMakesEveryPatchMendMore]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testThePainterSpeaksToTheRealmsStage]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.CraftTests testThePitchMakesAFireArrowStrikeHarder]' passed (0.067 seconds).
+Test Case '-[LanternholdTests.CraftTests testThePortraitGivesItsHappinessOnceAsItIsHung]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheRoadLanternsHoldUnrestOffAtDawnThroughTheSimulation]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheStatueAddsACoinPerHouseWhileTheTownIsContent]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheVisitsComeEveryThirdDayAndEachComesBackOnceAfterNotNow]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheWordsAreInEnglishAndGermanWithinTheCardsLimits]' passed (0.022 seconds).
+exit=0
+screenshots: 0
