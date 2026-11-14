@@ -301,3 +301,6 @@ head e9ec11f). The director's own look: about 7 of ten, a clear step up from bui
 niche, the bank at night). Five corrections went to the lane's notes: the far wall's speckled snow, the fog's dither
 mesh, the slit of sky at dusk, the warm crags' palette, the muddy cleft wall at dusk. Louis sees a picture after the
 fix round.
+
+**Quota, 14.11.2026 17:14.** Louis: "Bis 99% und dann resete ich." The 80 % stop is lifted for the week to 21.11.: work
+up to 99 %, tell him when 95 % is near, and after his reset check every workflow before going on.
