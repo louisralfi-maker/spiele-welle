@@ -1,0 +1,3 @@
+Test Case '-[LanternholdUITests.CraftUITests testEveryCraftsmansCard]' passed (204.001 seconds).
+exit=0
+screenshots: 10

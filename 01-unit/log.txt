@@ -1,0 +1,21 @@
+2026-11-14 18:36:32.234623+0000 Lanternhold[14875:52004] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.CraftTests testACommissionIsPaidAtOnceAndTheWorkStandsDaysLater]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.CraftTests testAnOfferIsAnAudienceCard]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.CraftTests testARunWithoutCommissionsIsTodaysRun]' passed (11.180 seconds).
+Test Case '-[LanternholdTests.CraftTests testAStoryDayHoldsTheVisitBackButTheHousesAudiencesDoNot]' passed (0.029 seconds).
+Test Case '-[LanternholdTests.CraftTests testAWorkThatDoesNotStandChangesNothing]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testNoCraftsmanComesToARealmWithoutThem]' passed (0.017 seconds).
+Test Case '-[LanternholdTests.CraftTests testNotNowBringsHimBackOnceAndNoSendsHimOn]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.CraftTests testNoWorkMovesItsSystemMoreThanAboutFivePercent]' passed (68.813 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheBalanceWorksChangeTheirOneValue]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheBookHoldsTenCraftsmenWithTenWorks]' passed (0.047 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheCraftsmenRideInTheSave]' passed (0.055 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheMortarMakesEveryPatchMendMore]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testThePitchKeepsAFireArrowsFireBurningLonger]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testThePortraitGivesItsHappinessOnceAsItIsHung]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheRoadLanternsHoldUnrestOffAtDawnThroughTheSimulation]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheStatueAddsACoinPerHouseWhileTheTownIsContent]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheVisitsComeEveryThirdDayAndEachComesBackOnceAfterNotNow]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheWordsAreInEnglishAndGermanWithinTheCardsLimits]' passed (0.020 seconds).
+exit=0
+screenshots: 0
