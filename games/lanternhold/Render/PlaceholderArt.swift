@@ -46,7 +46,7 @@ enum PlaceholderArt {
             frames = [foliageStandIn(salt, size: size)]
         case .laneMoorA, .laneMoorB, .laneMoorC, .laneMoorD, .laneScreeA, .laneScreeB, .laneScreeC, .laneScreeD,
              .laneCobbleA, .laneCobbleB, .laneCobbleC, .laneCobbleD, .laneEarthA, .laneEarthB, .laneEarthC,
-             .laneEarthD:
+             .laneEarthD, .laneCobbleEnd:
             frames = [ground(salt)]
         case .d2FogBank, .d2MistBand, .d2FogLow, .d2Smoke, .gloomFogBack, .gloomFogMid, .gloomFogFront, .gloomWisp,
              .cleftShaft, .bankSheetA, .bankSheetB, .bankSheetC, .bankEnd, .cloudDeck:
@@ -55,7 +55,7 @@ enum PlaceholderArt {
              .farCastleBack3Glow, .farCleftGlow2, .farCleftGlow2Build, .farCleftGlow3, .farCleftGlow3Build,
              .farCleftGlowBack2, .farCleftGlowBack2Build, .farCleftGlowBack3, .farCleftGlowBack3Build,
              .d2Fireflies, .d2Sparks, .darknessBankGlow, .houseLit, .houseBLit, .houseCLit, .bigHouseLit,
-             .tavernLit, .gloomFogEyes, .cleftWater:
+             .tavernLit, .gloomFogEyes, .cleftWater, .cleftGraze:
             frames = [glowStandIn(salt, size: size)]
         default:
             // M2b first (the strips of SPRITES.md), then the milestone 1 buildings and grids.

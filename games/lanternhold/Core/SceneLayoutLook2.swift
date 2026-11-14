@@ -22,11 +22,16 @@ extension SceneLayout {
     ]
     private static let look2DroppedFar: Set<SpriteID> = [.farMountain, .valleyFarA, .valleyFarB, .valleyFarC]
     private static let look2Overhangs: Set<SpriteID> = [.fgOverhangA, .fgOverhangB]
+    private static let look1HighClouds: Set<SpriteID> = [.cloudA, .cloudB, .cloudC]
     private static let look2Rocks: Set<SpriteID> = [.fgRockA, .fgRockB, .fgRockC]
 
     /// True for a look-1 instance look 2 leaves out (`layout_look2.dropped`): the tile cycles are all of these.
     static func dropsInLook2(sprite: SpriteID, plane: Plane, x: Double) -> Bool {
         switch plane {
+        // World rebuild, fix round 2 (the critic: "the peak strip is torn white with blue bubble sky and orange blobs
+        // at dusk"): look 1's high clouds stood in the gaps between the Weltmauer's peaks as blobs; the gaps show the
+        // clean sky.
+        case .sky: return look1HighClouds.contains(sprite)
         case .mid: return look2DroppedMid.contains(sprite)
         case .far: return look2DroppedFar.contains(sprite)
         case .world: return look1Cliffs.contains(sprite)
@@ -89,11 +94,8 @@ extension SceneLayout {
     ]
 
     private static let look2Depth: [(plane: Plane, entry: Entry)] = [
-        // The sky: a high cloud deck over the old bands (the mock draws it on the sky plane; here it is on the clouds
-        // plane behind the bands, parallax 0.05).
-        (.clouds, Entry(sprite: .cloudB, x: 4, y: 152, z: -1)),
-        (.clouds, Entry(sprite: .cloudC, x: 330, y: 160, z: -1, flipped: true)),
-        (.clouds, Entry(sprite: .cloudA, x: 600, y: 154, z: -1)),
+        // The sky: the high cloud deck over the old bands is gone since the world rebuild's fix round 2 (its clouds
+        // stood in the gaps between the Weltmauer's peaks as blobs, orange at dusk).
         // The shadow land (world 0 to 1240). Far plane: a low ridge of firs at the wall's foot.
         (.far, Entry(sprite: .d2FirBeltFar, x: -120, y: 2, z: 2)),
         (.far, Entry(sprite: .d2FirBeltFar, x: 400, y: 2, z: 2)),
@@ -196,9 +198,11 @@ extension SceneLayout {
         // lights: they light the picture only), their pools centred over the roofs (the buildings stand 60 to 80
         // rows high), so the warmth shows on the rock above them.
         // Fix round 1: at night the moon stands in the wedge of sky over the bailey (mid 1010: seen from world 1600
-        // to 2100), low in the wedge (its top 22 rows under the wall's top, clear of the screen's top edge).
+        // to 2100), low in the wedge. Fix round 2: its top `look2SlitMoonTop` rows under the wall's top, under every
+        // rectangle of the HUD at every camera; at dusk it is not up yet (`FrameBuilder.wedgeMoonShare`).
         (.mid, Entry(sprite: .cleftWallA, x: look2CleftX[0], y: 0, z: 3, anchor: .top, region: .castle,
-                     emitters: [.sprite(.moon, dx: look2SlitMoonX - look2CleftX[0] - 7, dy: 164, glow: .moon,
+                     emitters: [.sprite(.moon, dx: look2SlitMoonX - look2CleftX[0] - 7,
+                                        dy: 200 - 14 - look2SlitMoonTop, glow: .moon,
                                         fades: true)],
                      lights: [Light(kind: .lantern, x: 884, y: 92, radius: 96),
                               Light(kind: .lantern, x: 1024, y: 98, radius: 104)])),
@@ -218,6 +222,9 @@ extension SceneLayout {
     static let look2ShaftX = 1104.0
     /// The middle of the wedge of sky over the bailey, where the moon stands at night (tools/cleftart.py `WEDGES`).
     static let look2SlitMoonX = 1010.0
+    /// Rows from the screen's top to the wedge moon's top (fix round 2; 22 before): under the HUD's deepest rectangle
+    /// (the stat panel ends 66 pt under the top of the runner's 402 pt screen, row 33 of its 201), with 3 rows to spare.
+    static let look2SlitMoonTop = 36.0
     static let look2ShaftShare: Float = 1.0   // fix round 1: a stronger shaft (0.85 before)
 
     /// The granite the gatehouse's towers grow out of (H2, tools/cleftart.py): a shoulder of bedrock at each tower's
@@ -263,17 +270,22 @@ extension SceneLayout {
     /// ruts in the Throat (from the tile edge before the beacon to the castle), cobbles from the cleft through the
     /// castle, the earth lane in the valley. 64 px tiles, the variant A to D by a hash of the tile's index.
     static let laneTileWidth = 64
+    /// The west edge of the tile where the cobbles end (fix round 2; the castle's cobbles ran to 2430 before).
+    static let look2CobbleEnd = 2432.0
     static func look2LaneTile(index: Int) -> SpriteID {
         let x = Double(index * laneTileWidth + laneTileWidth / 2)
         var h = UInt32(truncatingIfNeeded: index) &* 0x9E37_79B1
         h ^= h >> 15
         let variant = Int((h >> 3) & 3)
+        // World rebuild, fix round 2: the cobbles give way to the earth stone by stone over one tile past the castle's
+        // end (the critic: "the cobble lane ends in a straight vertical seam"), never at a tile's edge.
+        if x >= look2CobbleEnd, x < look2CobbleEnd + Double(laneTileWidth) { return .laneCobbleEnd }
         let family: [SpriteID]
         if x >= -64, x < 448 {
             family = [.laneMoorA, .laneMoorB, .laneMoorC, .laneMoorD]
         } else if x >= 448, x < WorldLayout.castleFrontX {
             family = [.laneScreeA, .laneScreeB, .laneScreeC, .laneScreeD]
-        } else if x >= WorldLayout.castleFrontX, x < 2430 {
+        } else if x >= WorldLayout.castleFrontX, x < look2CobbleEnd {
             family = [.laneCobbleA, .laneCobbleB, .laneCobbleC, .laneCobbleD]
         } else {
             family = [.laneEarthA, .laneEarthB, .laneEarthC, .laneEarthD]

@@ -150,7 +150,9 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertTrue(scree.contains(SceneLayout.look2LaneTile(index: 18)), "x 1184: before the castle")
         XCTAssertTrue(cobble.contains(SceneLayout.look2LaneTile(index: 20)), "x 1312: the castle's cobbles")
         XCTAssertTrue(cobble.contains(SceneLayout.look2LaneTile(index: 37)), "x 2400")
-        XCTAssertTrue(earth.contains(SceneLayout.look2LaneTile(index: 38)), "x 2464: the valley's earth lane")
+        // World rebuild, fix round 2: the cobbles give way to the earth stone by stone over the tile past the castle.
+        XCTAssertEqual(SceneLayout.look2LaneTile(index: 38), .laneCobbleEnd, "x 2464: the cobbles end in the earth")
+        XCTAssertTrue(earth.contains(SceneLayout.look2LaneTile(index: 39)), "x 2528: the valley's earth lane")
         var variants = Set<SpriteID>()
         for index in 0..<7 {
             variants.insert(SceneLayout.look2LaneTile(index: index))

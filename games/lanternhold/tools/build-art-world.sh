@@ -36,7 +36,7 @@ PLANTS="d2FgFerns d2FgMeadow d2FgReeds d2BushA d2BushB d2TreeBelt d2FirBeltFar l
 # darkness bank's sheets, the rock of the Throat and the cleft and the gate's granite (tools/cleftart.py, rockfield.py)
 # Fix round 1: the world's end, the bank's eyes (one pair, four frames) and the cloud deck over the Weltmauer
 FOG="d2FogBank d2MistBand d2FogLow bankSheetA bankSheetB bankSheetC bankEnd darknessBankGlow cloudDeck"
-ROCK="throatStepA throatStepB throatStepC cleftWallA cleftWallB cleftWallC cleftShaft gateRockL gateRockR cleftWater"
+ROCK="throatStepA throatStepB throatStepC cleftWallA cleftWallB cleftWallC cleftShaft gateRockL gateRockR cleftWater cleftGraze laneCobbleEnd"
 R=games/lanternhold/tools/retired-art
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
@@ -71,6 +71,8 @@ build() { # name: one sprite (or one group of small ones)
         # world rebuild: no far castle in the first slot (the shadow land's view), and the wall sinks into the fog
         # toward the west
         python3 -I -B games/lanternhold/tools/cleftart.py noslot $A/weltmauer.png; cool
+        # fix round 2: the masses (arêtes, lit and shaded flanks, gullies) over the smoothed streaks
+        python3 -I -B games/lanternhold/tools/cleftart.py ridges $A/weltmauer.png; cool
         python3 -I -B games/lanternhold/tools/cleftart.py mistleft $A/weltmauer.png ;;
     castleTiers) # the castle's tiers 2 and 3 with their building states (the art pass; from castleFront, keepTop, castleBackGate and the slots' glow)
         python3 -I -B $CA tiers $A ;;
@@ -87,8 +89,10 @@ build() { # name: one sprite (or one group of small ones)
         python3 -I -B games/lanternhold/tools/fogart.py build $1 --out $A ;;
     # cleftFace, cleftFaceEnd, cleftFlank, cleftFlankB, cleftThroat: retired by the world rebuild (REVIEW-look-2.md
     # B6, H1); the files lie in tools/retired-art, their recipe in git before 14.11.2026
-    throatStepA|throatStepB|throatStepC|cleftWallA|cleftWallB|cleftWallC|cleftShaft|gateRockL|gateRockR|cleftWater)
+    throatStepA|throatStepB|throatStepC|cleftWallA|cleftWallB|cleftWallC|cleftShaft|gateRockL|gateRockR|cleftWater|cleftGraze)
         python3 -I -B games/lanternhold/tools/cleftart.py build $1 --out $A ;;
+    laneCobbleEnd)   # fix round 2: the cobbles give way to the earth lane stone by stone (after `plants`)
+        python3 -I -B games/lanternhold/tools/lanejoin.py build laneCobbleEnd --out $A ;;
     d2FogBank|d2MistBand|d2FogLow|bankSheetA|bankSheetB|bankSheetC|bankEnd|darknessBankGlow|cloudDeck)
         python3 -I -B games/lanternhold/tools/fogart.py build $1 --out $A ;;
     shadowForest)  # the shadow land's forest edge on the mid plane: firs, two lantern statues, a ruin, a tower stump

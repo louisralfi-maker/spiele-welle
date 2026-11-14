@@ -271,7 +271,9 @@ class Massif:
             for b in (cj - 1, cj, cj + 1):
                 sx = (a + 0.1 + 0.8 * h01(s, a, b, 81)) * cw
                 sy = (b + 0.1 + 0.8 * h01(s, a, b, 82)) * ch + shift
-                dd = ((wx - sx + 0.3 * (wy - sy)) / cw) ** 2 + ((wy - sy) / ch) ** 2
+                # the slabs' tops and bottoms slant too, each its own way (granite breaks in rhombs, never in rows)
+                shear = (0.2 + 0.25 * h01(s, a, b, 89)) * (1 if (a + b) % 2 else -1)
+                dd = ((wx - sx + 0.3 * (wy - sy)) / cw) ** 2 + ((wy - sy + shear * (wx - sx)) / ch) ** 2
                 best.append((dd, a, b, sx, sy))
         best.sort()
         d1, a1, b1, sx1, sy1 = best[0]
@@ -519,7 +521,8 @@ def shade(field, x, y, light=LIGHT, sky_fall=0.5, ambient=0.14, clamp=0.0):
 
 
 def paint(field, ramp_name, gain=1.0, lift=0.0, dither=0.0, snow_rows=0, snow_share=0.6, rim=0.55, mist_left=None,
-          wet=(), seed=1, contrast=1.0, cold_rows=0, caps=False, lit_rim=False, clamp=0.0):
+          wet=(), seed=1, contrast=1.0, cold_rows=0, caps=False, lit_rim=False, clamp=0.0, rim_broken=False,
+          gain_at=None):
     """The field painted on a new image: light → ramp index with a sparse ordered dither; snow on the faces that look
     up in the top `snow_rows`; a cold rim on the edges against the sky; `wet` streaks below water threads; west of
     `mist_left` = (gx_a, gx_b) the rock pales toward the mist."""
@@ -536,7 +539,7 @@ def paint(field, ramp_name, gain=1.0, lift=0.0, dither=0.0, snow_rows=0, snow_sh
             gx = field.gx0 + x
             v, ny, lit = shade(field, x, y, clamp=clamp)
             v = (v - 0.5) * contrast + 0.5
-            v = v * gain + lift
+            v = v * gain * (gain_at(gx) if gain_at else 1.0) + lift
             for (wx, w0) in wet:
                 if y > w0:
                     spread = 1.0 + (y - w0) / 60.0
@@ -584,8 +587,14 @@ def paint(field, ramp_name, gain=1.0, lift=0.0, dither=0.0, snow_rows=0, snow_sh
                 rising = field.inside(x + 1, y)   # the column to the east stands as high or higher
                 second = field.inside(x, y - 1) and not field.inside(x, y - 2) and not field.inside(x - 1, y - 1) \
                     and field.inside(x + 1, y - 1)
-                if (edge_top and (rising or west_open)) or (west_open and field.inside(x, y - 1) and
-                                                             not field.inside(x - 1, y - 1)) or second:
+                lit_edge = (edge_top and (rising or west_open)) or (west_open and field.inside(x, y - 1) and
+                                                                     not field.inside(x - 1, y - 1)) or second
+                if lit_edge and rim_broken:
+                    # fix round 2 (the critic: "a continuous pale outline stroke around the rock"): the light catches
+                    # the edge in pieces (3 to 8 px, a third of them dark), one pixel deep, never an outline
+                    seg = int((gx + 3 * y) // (3 + 5 * h01(seed, 979, int((gx + 3 * y) // 9))))
+                    lit_edge = not second and h01(seed, 977, seg) < 0.62
+                if lit_edge:
                     # (fix round 1: on a slope the edge is two pixels deep, so it reads as one line, not dots)
                     c = snow[1] if snow_rows and y < snow_rows else ramp[min(n - 1, max(k, n - 3) + 2 - second)]
             elif rim and edge_top and h01(seed, gx) < rim:

@@ -11,15 +11,18 @@ extension FrameBuilder {
         let day: SIMD4<Float>
         let dark: SIMD4<Float>
         switch sprite {
+        // Fix round 2 (the critic: "at night the bank is about 90 % flat navy, its planes 2-3 % apart"): at night the
+        // three sheets stand apart in value: A the moonlit far fog, light and thinner (the moor's firs show through
+        // it), B a clear step darker, C the dark roll at the foot.
         case .bankSheetA:
             day = SIMD4<Float>(1.12, 1.06, 1.16, 0.62)
-            dark = SIMD4<Float>(0.46, 0.52, 0.86, 0.84)
+            dark = SIMD4<Float>(0.62, 0.72, 1.16, 0.7)
         case .bankSheetB:
             day = SIMD4<Float>(0.96, 0.92, 1.04, 0.84)
-            dark = SIMD4<Float>(0.62, 0.68, 1.0, 0.94)
+            dark = SIMD4<Float>(0.5, 0.56, 0.9, 0.9)
         default:
             day = SIMD4<Float>(0.86, 0.84, 0.96, 0.96)
-            dark = SIMD4<Float>(0.52, 0.58, 0.94, 1)
+            dark = SIMD4<Float>(0.3, 0.34, 0.62, 1)
         }
         return day + (dark - day) * night
     }
@@ -43,6 +46,8 @@ extension FrameBuilder {
     /// How far behind the bank's edge the first slot's stretch begins, and how wide each stretch is.
     static let bankEyeInset = 26.0
     static let bankEyeReach = 56.0
+    /// One cycle of a slot's eyes (fix round 2: the same for all, the slots a fifth of it apart).
+    static let bankEyePeriod = 7.0
 
     /// The pairs open at `time` in the bank whose edge stands at `edgeX`. With Reduce Motion every second slot stands
     /// open where it first opened and none blinks.
@@ -55,8 +60,10 @@ extension FrameBuilder {
             if reduceMotion {
                 guard slot % 2 == 0 else { continue }
             } else {
-                let period = 5.5 + 4 * bankUnit(SeededRandom.hash(seed, 1))
-                let t = max(0, time) / period + bankUnit(SeededRandom.hash(seed, 2))
+                // Fix round 2 (the critic: "one eye pair; show 2-3 at varied depths on every night frame"): one period
+                // for all slots, their phases a fifth apart, so at most one slot is shut at any moment
+                let t = max(0, time) / bankEyePeriod + Double(slot) / Double(bankEyeSlots)
+                    + 0.03 * bankUnit(SeededRandom.hash(seed, 2))
                 cycle = Int64(t.rounded(.down))
                 open = bankEyeOpen(t - t.rounded(.down))
             }
@@ -66,7 +73,8 @@ extension FrameBuilder {
             let near = bankUnit(SeededRandom.hash(seed, 18 + cycle * 3)) < 0.45
             let x = (edgeX - bankEyeInset - Double(slot) * bankEyeSpacing - u * bankEyeReach).rounded()
             guard x >= 2 else { continue }
-            let y = (near ? 5 + v * 42 : 36 + v * 92).rounded()
+            // above the low roll's crest (it would veil them), the far ones higher in the fog
+            let y = (near ? 26 + v * 30 : 46 + v * 82).rounded()
             let frame = (near ? 0 : 2) + (open > 0.55 ? 0 : 1)
             list.append(BankEye(x: x, y: y, near: near, open: open, frame: frame))
         }

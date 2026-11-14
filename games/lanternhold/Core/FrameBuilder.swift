@@ -191,6 +191,10 @@ enum FrameBuilder {
                 // Fix round 1: the threads of water falling down the cleft wall, in front of it.
                 planeSprites[plane.rawValue] += cleftWater(animTime: animTime, reduceMotion: options.reduceMotion,
                                                            geometry: geometry)
+                // Fix round 2: the castle's warm light on the wall's foot, behind the buildings (they hide its glow).
+                for item in cleftGraze(ambient: ambient, geometry: geometry) {
+                    glow.add(item)
+                }
             }
             if rains && plane == .near {
                 planeSprites[plane.rawValue] += rainStreaks(depth: 0, animTime: animTime, ambient: ambient,
@@ -247,10 +251,20 @@ enum FrameBuilder {
                                           geometry: geometry) {
                         glow.add(item)
                     }
+                    // Fix round 2 (the critic: "a warm half disc sits cut off at the screen's left edge"): the world's
+                    // end hides every glow inside its whole dark (the lord's lantern when he stands at the end).
+                    if let end = bankEndTile(geometry: geometry) {
+                        glow.occlude(end, plane: .world)
+                    }
                 }
             }
         }
-        let emissives = skyEmissives(ambient: ambient, hour: hour, geometry: geometry,
+        // World rebuild, fix round 2: inside the walls at dusk the wedges show a dusk sky (warm toward the horizon, no
+        // stars yet), not the night's.
+        let cleftDusk = options.look == .two ? cleftDuskShare(focus: geometry.focusX, ambient: ambient) : 0
+        var skyAmbient = ambient
+        skyAmbient.starAlpha *= Float(1 - cleftDusk)
+        let emissives = skyEmissives(ambient: skyAmbient, hour: hour, geometry: geometry,
                                      cleft: options.look == .two ? cleftShare(focus: geometry.focusX) : 0)
             + glow.items
 
@@ -339,9 +353,9 @@ enum FrameBuilder {
                          emissives: emissives,
                          fog: fog,
                          ambient: ambient,
-                         skyTop: ambient.skyTop,
+                         skyTop: ambient.skyTop + (ambient.skyBottom - ambient.skyTop) * Float(cleftDusk * cleftDuskWarmth),
                          skyBottom: ambient.skyBottom,
-                         starAlpha: ambient.starAlpha,
+                         starAlpha: skyAmbient.starAlpha,
                          bankEdge: bankEdge,
                          bankAmbientScale: Float(DarknessBank.ambientScale),
                          lightStyle: options.lightStyle,
@@ -690,6 +704,11 @@ enum FrameBuilder {
         if part.fadesByDay {
             strength *= ambient.torchStrength
         }
+        if part.sprite == .moon && options.look == .two {
+            // World rebuild, fix round 2: the moon in the cleft's wedge rises with the night's moon, not with the
+            // torches (the critic: "dusk looks the same as night: the same full moon in the same place").
+            strength *= wedgeMoonShare(ambient)
+        }
         if let seed = part.flickerSeed {
             let flicker = Flicker.sample(seed: seed, time: animTime * part.flickerPace,
                                          reduceMotion: options.reduceMotion)
@@ -828,6 +847,35 @@ enum FrameBuilder {
         return list
     }
 
+    /// The warm graze's tiles (fix round 2, tools/cleftart.py `graze`): mid x from where they begin to where they end
+    /// (the gatehouse to the back gate), every `width` px, every second one mirrored; the fire's colour at the
+    /// torches' strength.
+    static let cleftGrazeSpan: ClosedRange<Double> = 700...1300
+    static let cleftGrazeGain: Float = 0.55
+
+    private static func cleftGraze(ambient: AmbientSample, geometry: Geometry) -> [EmissiveInstance] {
+        let torch = min(1, max(0, ambient.torchStrength))
+        guard torch > 0.02 else { return [] }
+        let size = SpriteID.cleftGraze.size
+        let whole = geometry.whole(.mid)
+        let top = geometry.top(y: 0, height: Double(size.height))
+        let tone = GamePalette.fireOrange * (torch * cleftGrazeGain)
+        var list: [EmissiveInstance] = []
+        var x = cleftGrazeSpan.lowerBound
+        var index = 0
+        while x < cleftGrazeSpan.upperBound {
+            let left = x - whole
+            if geometry.isVisible(left: left, width: Double(size.width)) {
+                let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+                list.append(EmissiveInstance(sprite: .cleftGraze, plane: .mid, rect: rect,
+                                             color: SIMD4<Float>(tone.x, tone.y, tone.z, 1), flipped: index % 2 == 1))
+            }
+            x += Double(size.width)
+            index += 1
+        }
+        return list
+    }
+
     /// How deep the camera stands in the cleft (0 outside ... 1 between the gatehouse and the back gate): the open
     /// sky's moon gives way to the one in the wedge of sky and the sun stands behind the rock.
     static func cleftShare(focus: Double) -> Double {
@@ -835,6 +883,21 @@ enum FrameBuilder {
         let leave = AmbientRamp.smoothstep((focus - 2300) / 160)
         return enter * (1 - leave)
     }
+
+    /// How far the wedge moon is up (fix round 2): none while the night's moon is low (dusk), all of it from the blue
+    /// hour on.
+    static func wedgeMoonShare(_ ambient: AmbientSample) -> Float {
+        Float(AmbientRamp.smoothstep(Double((ambient.moonHeight - 0.25) / 0.25)))
+    }
+
+    /// How much of the cleft's sky is dusk's (fix round 2): deep in the cleft while the torches burn and the moon is not
+    /// up yet; 0 by day, at night and outside the walls.
+    static func cleftDuskShare(focus: Double, ambient: AmbientSample) -> Double {
+        let torch = AmbientRamp.smoothstep(Double(ambient.torchStrength) / 0.6)
+        return cleftShare(focus: focus) * torch * (1 - Double(wedgeMoonShare(ambient)))
+    }
+    /// How far the sky's top takes the horizon's colour in the cleft at dusk.
+    static let cleftDuskWarmth: Float = 0.7
 
     /// The alpha of a shaft of light: the sun's strength (as the cast shadows', `sunShadowAlpha`) times its share.
     static func sunShaftAlpha(_ share: Float, ambient: AmbientSample) -> Float {

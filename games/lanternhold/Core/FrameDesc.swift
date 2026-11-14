@@ -122,6 +122,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // drawn black), the deck of cloud across the Weltmauer with its ragged underside and veil of mist (far plane), and
     // a thread of falling water on the cleft wall (mid plane, four frames), the moor's oldest ruin (near plane)
     case bankEnd, cloudDeck, cleftWater, moorRuin
+    // World rebuild, fix round 2: where the castle's cobbles give way to the valley's earth lane (tools/lanejoin.py)
+    case laneCobbleEnd
+    // World rebuild, fix round 2: the castle's warm light grazing the cleft wall's foot (tools/cleftart.py)
+    case cleftGraze
     // Stage 7 (SPRITES.md "The house envoys", "The houses' banners"): the four houses' faces as guests with a body
     // (walk 0-3, idle 4-5, talk 6-7) and a story portrait of their own, and the five houses' banners in the hall
     case hildVarn, lorenzPell, ebbaCalder, orlaLorn
@@ -302,7 +306,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .d2LaneEnd: return PixelSize(width: 48, height: 30)
         case .laneMoorA, .laneMoorB, .laneMoorC, .laneMoorD, .laneScreeA, .laneScreeB, .laneScreeC, .laneScreeD,
              .laneCobbleA, .laneCobbleB, .laneCobbleC, .laneCobbleD, .laneEarthA, .laneEarthB, .laneEarthC,
-             .laneEarthD:
+             .laneEarthD, .laneCobbleEnd:
             return PixelSize(width: 64, height: 26)
         case .d2FgFerns: return PixelSize(width: 480, height: 64)
         case .d2FgMeadow: return PixelSize(width: 480, height: 58)
@@ -358,8 +362,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bankSheetB: return PixelSize(width: 256, height: 124)
         case .bankSheetC: return PixelSize(width: 256, height: 56)
         case .bankEnd: return PixelSize(width: 96, height: 208)
-        case .cloudDeck: return PixelSize(width: 720, height: 80)
-        case .cleftWater: return PixelSize(width: 14, height: 54)   // world rebuild fix round 2: two threads' shapes
+        case .cloudDeck: return PixelSize(width: 720, height: 100)   // fix round 2: room for the towers
+        case .cleftWater: return PixelSize(width: 14, height: 54)
+        case .cleftGraze: return PixelSize(width: 192, height: 96)   // world rebuild fix round 2: two threads' shapes
         case .moorRuin: return PixelSize(width: 50, height: 36)
         case .hildVarn, .lorenzPell, .ebbaCalder, .orlaLorn: return PixelSize(width: 14, height: 30)
         case .portraitHildVarn, .portraitLorenzPell, .portraitEbbaCalder, .portraitOrlaLorn:

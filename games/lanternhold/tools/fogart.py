@@ -306,8 +306,8 @@ def bank_eyes():
 
 # ---------------------------------------------------------------------------------------------- the cloud deck
 
-DECK_W, DECK_H = 720, 80
-DECK_BASE = 30   # the row the billows stand on; the underside hangs below it, the veil below that
+DECK_W, DECK_H = 720, 100   # fix round 2: 20 rows more room on top for the towering billows
+DECK_BASE = 50   # the row the billows stand on; the underside hangs below it, the veil below that
 
 
 def cloud_deck():
@@ -328,6 +328,19 @@ def cloud_deck():
         return ss((x - 10) / 110.0) * ss((w - 10 - x) / 160.0)
 
     discs = []   # (cx, cy, r, rank)
+    # fix round 2 (the critic: "the deck's billows repeat in one scallop row at one height"): where the deck's mass
+    # swells (a slow noise along it), towers of big billows stand 8 to 22 rows higher behind the two ranks, so the top
+    # runs at two or three heights and sizes
+    x, k = 20.0, 0
+    while x < w - 30:
+        mass = pn(sd + 40, x / 130.0, 999)
+        e = env(x)
+        if mass > 0.52 and e > 0.3:
+            r = (11 + 10 * h01(sd + 41, k)) * (0.6 + 0.8 * (mass - 0.52))
+            cy = DECK_BASE - 8 - 26 * (mass - 0.52) - r * 0.45
+            discs.append((x, cy, r, 0))
+        x += 18 + 16 * h01(sd + 43, k)
+        k += 1
     for rank, (gap, rmin, rmax, lift) in enumerate(((15, 7, 17, 0), (14, 4, 9, 6))):
         x, k = 4.0 + 7 * rank, 0
         while x < w - 4:
@@ -335,8 +348,12 @@ def cloud_deck():
             # sizes vary along the deck in swells (a few big heads among many small ones), never in a regular row
             swell = 0.55 + 0.45 * pn(sd + 30 + rank, x / 47.0, 999)
             r = (rmin + (rmax - rmin) * h01(sd + rank, k) ** 1.4) * (0.45 + 0.55 * e) * (0.6 + 0.6 * swell)
-            if e > 0.08 or h01(sd + 5 + rank, k) < 0.55:
-                cy = DECK_BASE + lift - r * (0.35 + 0.45 * h01(sd + 9 + rank, k)) + 4 * (1 - e) \
+            # fix round 2: the front rank's lobes at heights of their own (a slow swell and a jitter) and with gaps,
+            # so their lit arcs never line up into one scallop row
+            skip = rank == 1 and h01(sd + 51, k) < 0.38
+            if (e > 0.08 or h01(sd + 5 + rank, k) < 0.55) and not skip:
+                drift = max(-7.0, min(3.0, 10 * (pn(sd + 50, x / 43.0, 999) - 0.5) + 4 * (h01(sd + 52, k) - 0.5))) if rank == 1 else 0.0
+                cy = DECK_BASE + lift + drift - r * (0.35 + 0.45 * h01(sd + 9 + rank, k)) + 4 * (1 - e) \
                     - 6 * (swell - 0.5)
                 discs.append((x, cy, r, rank))
             x += gap * (0.6 + 0.6 * h01(sd + 3 + rank, k)) * (0.7 + 0.3 * e) + r * 0.4
@@ -361,7 +378,7 @@ def cloud_deck():
                 dx, dy = x + 0.5 - cx, y + 0.5 - cy
                 if dx * dx + dy * dy <= r * r:
                     inside[y][x] = True
-                    if rank == 1:
+                    if rank == 1 and r >= 5.5:
                         top_here = cy - math.sqrt(max(0.0, r * r - dx * dx))
                         dd = y + 0.5 - top_here
                         if front[y][x] is None or dd < front[y][x]:
@@ -403,10 +420,13 @@ def cloud_deck():
             elif y > u and e > 0.02:
                 # the veil of mist under the deck: 48 px down, thinning in dithered steps; rags hang in it
                 # (fix: its rags lie in long flat wisps; streaks that ran down read as a curtain)
+                # fix round 2 (the critic: "the haze under the deck hangs as a curtain of drips"): a horizontal fade
+                # that follows the underside's lobes, thick under the deck (it hides the wall's streaks) and thinning
+                # downward; its strength swells only slowly along it, never in columns
                 g = y - u
-                rag = pn2(sd + 23, x / 23.0, y / 3.5, 9999)
-                a = (1 - ss(g / 48.0)) ** 1.4 * (0.35 + 0.65 * rag) * 0.5 * e
-                col = "farPale" if g < 4 and rag > 0.6 else "mist" if g < 18 else "mistDark"
+                swell = pn(sd + 23, x / 61.0, 9999)
+                a = (1 - ss(g / 50.0)) ** 1.25 * (0.5 + 0.2 * swell) * e
+                col = "farPale" if g < 3 else "mist" if g < 20 else "mistDark"
             if col is None:
                 continue
             qa = a * (BANK_LEVELS - 1) + (bay(x + 2, y + 1) - 0.5)
