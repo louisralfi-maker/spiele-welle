@@ -16,6 +16,8 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
     case cardOpened, cardClosed, refused, happinessUp, happinessDown
     // Sound and haptics (`SoundWatch` reads them off the realm's state; the court's audience and choices)
     case coin, paid, wallHit, creatureHit, arrowHit, gate, step, audienceOpened, choiceMade
+    // The taxes on foot (town-2, `TownShow.cues`): the lord's knock at a door, a house's shutters closing
+    case knock, shutter
 
     /// Cues that only play when they happen near the king (DESIGN.md "Archer volley (near the king)", engines "when on
     /// screen").

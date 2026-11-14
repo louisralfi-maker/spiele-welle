@@ -12,7 +12,7 @@ enum TownText {
         "town.report.collected", "town.report.kept", "town.report.spared", "town.report.knocked",
         "town.report.knockedCount", "town.report.knockedAll", "town.report.levied", "town.report.leviedCount",
         "town.report.leviedAll", "town.report.unrest", "town.report.doubled", "town.report.collector",
-        "town.report.collectorEmpty", "town.reason.leftAlone",
+        "town.report.collectorEmpty", "town.reason.leftAlone", "town.access.knock", "town.access.door",
     ] + households.map { $0.name } + households.map { $0.door }
 
     /// The four households of Tallowford by their house plot (STORY.md: the town grew from the chandlers' and

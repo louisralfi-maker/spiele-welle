@@ -1,6 +1,42 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "town.access.door" : {
+      "comment" : "VoiceOver only (never on screen): a door of the town that is shut to a knock now; %@ is the household's door form.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tür %@, zu"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ door, shut"
+          }
+        }
+      }
+    },
+    "town.access.knock" : {
+      "comment" : "VoiceOver only (never on screen): a door of the town that a touch knocks at; %@ is the household's door form (\"the chandler's\" / \"beim Kerzenzieher\").",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ anklopfen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knock at %@ door"
+          }
+        }
+      }
+    },
     "town.door.chandler" : {
       "comment" : "Dawn report, in the knock's line: at this household's door (\"Knocked at the chandler's\" / \"Angeklopft beim Kerzenzieher\").",
       "extractionState" : "manual",

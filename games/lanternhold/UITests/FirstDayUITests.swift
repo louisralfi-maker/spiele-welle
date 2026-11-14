@@ -3,7 +3,7 @@ import XCTest
 
 /// M2b part 2's UI (DESIGN.md "Tests", "UI"): `testFirstDay` plays day 1 from a fresh realm (`-GWReset YES`, no
 /// onboarding, the clock four times as fast): the HUD, a walk, a tap on the realm strip, the build card and an order,
-/// the barracks, the audience with the tutorial's farmer (M3) and the tax lectern, the horn, the night, the dawn
+/// the barracks, the audience with the tutorial's farmer (M3), the horn, the night, the dawn
 /// report. `testScreens` opens the dawn report and the
 /// finale's report with sample data (`-GWScreen report|finale`), the defeat card (`-GWScreen defeat`) with its replay,
 /// and the pause sheet with its confirmation. Every button is checked for 44 pt. Saves `<nn>-<what>-<lang>`.
@@ -85,7 +85,7 @@ final class FirstDayUITests: XCTestCase {
             XCTFail("no coins at the barracks")
         }
 
-        // The throne (M3): the tutorial's farmer is heard, then the tax lectern beside the throne.
+        // The throne (M3): the tutorial's farmer is heard.
         tapStrip(strip, worldX: 1824)
         XCTAssertTrue(waitForKing(app, near: 1824, within: 14, timeout: 20), "the king ran to the throne")
         if button.waitForExistence(timeout: 6) {
@@ -108,24 +108,8 @@ final class FirstDayUITests: XCTestCase {
         } else {
             XCTFail("no crown at the throne")
         }
-        // The lectern stands beyond the hearth (M3 fix, U2; its middle 1914): from 1902 on it wins over Odile beside it.
-        tapStrip(strip, worldX: 1924)
-        XCTAssertTrue(waitForKing(app, near: 1924, within: 14, timeout: 20), "the king walked to the lectern")
-        if button.waitForExistence(timeout: 6) {
-            button.tap()
-            let taxes = element(app, "tax-card")
-            if taxes.waitForExistence(timeout: 6) {
-                pause(0.5)
-                attach(XCUIScreen.main.screenshot(), "43-taxes-\(language)")
-                checkTarget(element(app, "tax-low"), "tax low")
-                element(app, "tax-card-close").tap()
-                XCTAssertTrue(waitForGone(taxes, timeout: 6))
-            } else {
-                XCTFail("the tax card did not open")
-            }
-        } else {
-            XCTFail("no book at the tax lectern")
-        }
+        // Town-2: no tax card at the lectern any more (the taxes are collected on foot at the doors, TownUITests).
+        // On the way to the throne the lord passed the chandler's household in the courtyard: her 16 coins.
 
         // Back in front of the gate for the night; the horn at 19:00.
         tapStrip(strip, worldX: 1150)

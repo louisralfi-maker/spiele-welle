@@ -76,10 +76,14 @@ final class TownTests: XCTestCase {
         XCTAssertNil(Town.collect(&s, plot: house3, balance: balance), "nobody else owes before the first dawn")
         XCTAssertFalse(Town.grantDoubleTaxes(&s), "no dawn offered double taxes on the first morning")
 
-        // Walking past the first house on day 1: the toss.
+        // Its own door is not where it waits on day 1 (town-2): standing there collects nothing ...
         s.king.x = Town.doorX(plot: house1)
         s.king.velocity = 0
         var events: [SimEvent] = []
+        Sim.step(&s, dt: Sim.frameStep, balance: balance, events: &events)
+        XCTAssertEqual(s.gold, 44, "on the first morning the chandler's household waits in the courtyard")
+        // ... walking out of the hall into the courtyard does: the toss.
+        s.king.x = Town.firstMorningX
         let before = s.town
         Sim.step(&s, dt: Sim.frameStep, balance: balance, events: &events)
         XCTAssertEqual(s.gold, purse, "16 tossed: the 60 of before")

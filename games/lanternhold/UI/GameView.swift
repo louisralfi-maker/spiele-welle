@@ -19,6 +19,11 @@ struct GameView: View {
         ZStack {
             WorldSceneView(model: model)
                 .ignoresSafeArea()
+            if model.kind == .world {
+                // Town-2: a touch on a door knocks (`TownTapLayer`).
+                TownTapLayer(model: model)
+                    .allowsHitTesting(model.overlay == nil)
+            }
             if model.kind != .lightLab {
                 WalkPad(model: model)
                     .ignoresSafeArea()
@@ -70,6 +75,12 @@ struct WalkPad: View {
                         .onEnded { _ in
                             model.setDrag(offset: nil)
                         }
+                )
+                // Town-2: a tap on a door under the walk pad knocks too (`GameModel.touchTown`).
+                .simultaneousGesture(
+                    SpatialTapGesture().onEnded { value in
+                        _ = model.touchTown(at: value.location, in: geometry.size)
+                    }
                 )
         }
         .accessibilityHidden(true)

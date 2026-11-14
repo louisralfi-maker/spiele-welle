@@ -90,14 +90,11 @@ final class AudienceFlowTests: XCTestCase {
         XCTAssertEqual(game.strip?.petitioners, waiting, "nobody was heard")
         XCTAssertNil(game.audience)
 
+        // Town-2: the lectern stays as furniture; no button offers the tax card any more (taxes on foot).
         let lectern = model(["GWCameraX": "\(KingTargets.lecternX)"])
-        XCTAssertEqual(lectern.target, .lectern, "the tax lectern keeps its own place beyond the hearth")
+        XCTAssertNotEqual(lectern.target, .lectern, "the lectern is furniture")
         lectern.performAction()
-        XCTAssertEqual(lectern.overlay, .taxes)
-        lectern.setTax(.low)
-        XCTAssertEqual(lectern.taxCard?.current, .low)
-        lectern.closeCard()
-        XCTAssertNil(lectern.overlay)
+        XCTAssertNotEqual(lectern.overlay, .taxes, "no tax card")
     }
 
     func testThePauseEndsTheAudienceAndReduceMotionOpensTheCardAtOnce() throws {

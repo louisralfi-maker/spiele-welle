@@ -109,6 +109,18 @@ enum Town {
         day.day <= 1
     }
 
+    /// Where the first morning's household waits (world game px): in the courtyard before the hall door, so the lord
+    /// meets it as he steps out of the hall on his first morning (town-2, after critic look 2 on town-1: at its own
+    /// door, 700 px off in the town, a first-time player would almost never have met it). It tosses there and walks
+    /// home to the town; the onboarding's words, if any, come with the join.
+    static var firstMorningX: Double { Realm.hallX - 10 }
+
+    /// Where the lord meets the household of a paying place today: its door, the farmer's field, the stall; on the
+    /// first morning the courtyard (`firstMorningX`).
+    static func meetX(plot: Int, day: TownDay) -> Double {
+        isFirstMorning(day) ? firstMorningX : doorX(plot: plot)
+    }
+
     // MARK: - The clock
 
     /// The horn: today's ledger closes. Every place that still owes keeps its gold; a house that owed and whose door
@@ -262,15 +274,15 @@ enum Town {
 
     /// One sim step: by day, every household whose door the lord passed within `collectReach` on his way from
     /// `kingX` to where he stands now tosses him its part (the whole way is checked, so a long headless step cannot
-    /// slip past a door). No tap, no button. Then the collector's round (the lord first: a door they reach in the
-    /// same step pays the lord).
+    /// slip past a door; on the first morning the courtyard where the household waits, `meetX`). No tap, no button.
+    /// Then the collector's round (the lord first: a door they reach in the same step pays the lord).
     static func step(_ s: inout GameState, from kingX: Double, balance: Balance) {
         if doorsOpen(s, balance: balance), let day = s.town?.today {
             let reach = balance.town.collectReach
             let low = min(kingX, s.king.x) - reach
             let high = max(kingX, s.king.x) + reach
             for place in day.places where place.owes {
-                let door = doorX(plot: place.plot)
+                let door = meetX(plot: place.plot, day: day)
                 if door >= low && door <= high { collect(&s, plot: place.plot, balance: balance) }
             }
         }

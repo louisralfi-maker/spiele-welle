@@ -60,6 +60,8 @@ enum GameStart {
         if let clock = args.clock, DayClock.phase(at: state.hour) == .day, !state.defeated {
             state.hour = clock
         }
+        // `-GWTown` (town-2): today's doors as the screenshots need them.
+        if let mode = args.town { TownDebug.apply(&state, mode: mode, balance: balance) }
         applyNumbers(&state, args: args)
         applyNumbers(&dawn, args: args)
         applyHouses(&state, args: args)
