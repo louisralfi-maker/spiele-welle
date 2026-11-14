@@ -106,7 +106,7 @@ To start it: `Workflow({scriptPath: "<repo>/games/lanternhold/docs/workflows/reb
 
 ## 6. The v1 lanes and the director's ideas (14.11.2026)
 
-`docs/workflows/v1-lanes.js` runs next to the rebuild since 14.11. at 13:50 (workflow w798y73lm, run wf_6dfc3591-4f0). Five lanes, each in its own worktree and branch cut from planning d3ed497, each step gated by a critic as in the rebuild. They keep to new files, their own string catalogs (English and German) and small listed hooks; their notes are `docs/lanes/<lane>.md` on their branches.
+`docs/workflows/v1-lanes.js` runs next to the rebuild since 14.11. at 13:30 (workflow w798y73lm, run wf_6dfc3591-4f0). Five lanes, each in its own worktree and branch cut from planning d3ed497, each step gated by a critic as in the rebuild. They keep to new files, their own string catalogs (English and German) and small listed hooks; their notes are `docs/lanes/<lane>.md` on their branches.
 
 | lane | worktree, branch | steps |
 |---|---|---|
