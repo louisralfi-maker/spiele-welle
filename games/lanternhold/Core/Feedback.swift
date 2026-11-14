@@ -89,13 +89,14 @@ struct FeedbackThinner: Sendable, Equatable {
         case .kingSlain: return (.kingSlain, nil)
         case .horn: return (.horn, nil)
         case .firstLight: return (.firstLight, nil)
-        case .dawn: return (.taxesCounted, nil)
         case .buildOrdered: return (.buildOrdered, nil)
         case .buildDone: return (.buildDone, nil)
         case .recruited: return (.recruited, nil)
         case .patched: return (.patched, nil)
         case .brazierLit: return (.brazierLit, nil)
-        case .nightfall, .brazierSnuffed, .gloomRecedes, .kingAuraClosed:
+        // The dawn puts no coins into the purse since the taxes went on foot (town-1): `.taxesCounted` waits for the
+        // households' toss (town-2); first light's bell has already rung.
+        case .nightfall, .brazierSnuffed, .gloomRecedes, .kingAuraClosed, .dawn:
             return nil
         }
     }

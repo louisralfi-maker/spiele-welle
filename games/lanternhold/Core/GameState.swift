@@ -365,9 +365,10 @@ struct GameState: Codable, Sendable, Equatable {
     /// the lord pass, a bot's realm and a test's read as nil, which is `LordIdentity.standard` (`lordOrDefault`).
     /// Nothing in the simulation reads it.
     var lord: LordIdentity?
-    /// The taxes on foot (docs/TOWN.md section 1, `Town`): today's parts owed by the houses, fields and market, what was
-    /// collected and knocked for, and yesterday's. Optional: a save from before the taxes went on foot reads as nil
-    /// (its dawn had already put that day's taxes into the purse), and so does a realm before its first dawn.
+    /// The taxes on foot (docs/TOWN.md sections 1 and 2, `Town`): today's parts owed by the houses, fields and market,
+    /// what was collected and knocked for, yesterday's, and the collector. A new realm opens it with the first
+    /// morning's ledger. Optional: a save from before the taxes went on foot reads as nil (its dawn had already put that
+    /// day's taxes into the purse).
     var town: TownState?
     var records = Records()
     var nextID = 1
@@ -475,8 +476,9 @@ struct GameState: Codable, Sendable, Equatable {
 
     // MARK: Start of chapter 1
 
-    /// The realm on the morning of day 1 (DESIGN.md "Start of chapter 1"): 60 gold, 14 citizens in 4 houses, 3 archers
-    /// and 2 guards among them, 2 builders, happiness 60, normal tax; line 1 is the gatehouse.
+    /// The realm on the morning of day 1 (DESIGN.md "Start of chapter 1"): 60 gold (44 in the purse, 16 with the first
+    /// household since town-1 fix round 1), 14 citizens in 4 houses, 3 archers and 2 guards among them, 2 builders,
+    /// happiness 60, normal tax; line 1 is the gatehouse.
     static func newRealm(seed: UInt64, balance: Balance = .standard, mode: GameMode = .chapter) -> GameState {
         var plots: [PlotState] = []
         for spec in Realm.plots { plots.append(initialPlot(spec, balance: balance)) }
@@ -494,6 +496,9 @@ struct GameState: Codable, Sendable, Equatable {
         for _ in 0..<balance.startGuards {
             state.addSoldier(.guardsman, balance: balance)
         }
+        // The first morning (town-1 fix round 1): the town's first household waits with the coins that make the
+        // purse's 44 the 60 of before (`Town.firstMorning`).
+        state.town = Town.firstMorning(state, balance: balance)
         return state
     }
 

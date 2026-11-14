@@ -81,7 +81,9 @@ final class SoundTests: XCTestCase {
         XCTAssertEqual(thinner.cues(for: [], extra: [(.wallHit, 640)], time: 2.1, listenerX: 600), [],
                        "wall hits wait their gap")
         let dawn = thinner.cues(for: [.dawn(day: 3)], extra: [(.coin, nil)], time: 5, listenerX: 600)
-        XCTAssertEqual(dawn, [.taxesCounted], "the dawn's coins, not a single coin as well")
+        XCTAssertEqual(dawn, [.coin], "the dawn counts no coins since the taxes went on foot (town-1)")
+        let counted = thinner.cues(for: [], extra: [(.taxesCounted, nil), (.coin, nil)], time: 6, listenerX: 600)
+        XCTAssertEqual(counted, [.taxesCounted], "counted coins, not a single coin as well")
         XCTAssertEqual(thinner.cues(for: [.horn], time: 9, listenerX: 600), [.horn], "the old call still works")
     }
 

@@ -103,7 +103,8 @@ struct ReportCard: Sendable, Equatable {
                           fallen: [FallenSoldier(name: "Edda", kind: .archer)], hearthLowest: 100, gloomReceded: false,
                           taxes: taxes, happinessBefore: 64, happinessAfter: 62, happinessChanges: changes,
                           citizensBefore: 15, citizensAfter: 16, grown: 1, left: 0, volunteer: false,
-                          unlocked: ["line3", "warTax"], goldAfter: 93, realmFell: nil, kingSlain: nil)
+                          unlocked: ["line3", "warTax"], goldAfter: 93, realmFell: nil, kingSlain: nil,
+                          town: .paidInFull(day: 7, gold: 64))
     }
 
     /// The finale's dawn: the Lightless King slain in the Great Beacon's light, the Gloom receded, nobody fallen.
@@ -114,6 +115,6 @@ struct ReportCard: Sendable, Equatable {
                           fallen: [], hearthLowest: 100, gloomReceded: true, taxes: taxes, happinessBefore: 74,
                           happinessAfter: 77, happinessChanges: changes, citizensBefore: 28, citizensAfter: 29,
                           grown: 1, left: 0, volunteer: false, unlocked: [], goldAfter: 212, realmFell: nil,
-                          kingSlain: true)
+                          kingSlain: true, town: .paidInFull(day: 20, gold: 103))
     }
 }

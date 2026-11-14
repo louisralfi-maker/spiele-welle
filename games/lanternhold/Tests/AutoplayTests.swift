@@ -27,7 +27,8 @@ final class AutoplayTests: XCTestCase {
             XCTAssertTrue(s.plots[plot].item != nil || s.plots[plot].job != nil, "\(Realm.plots[plot].key) ordered")
         }
         let spent = balance.price(.brazier) * 2 + balance.price(.stakePit)
-        XCTAssertEqual(s.gold, balance.startGold - spent)
+        XCTAssertEqual(s.gold, balance.startGold + balance.town.firstMorningGold - spent,
+                       "the first morning's coins came in before the first build (town-1)")
         Sim.run(&s, untilHour: 18, balance: balance, bot: &bot)
         XCTAssertEqual(s.plots[a].item, .brazier, "built before the horn")
         XCTAssertEqual(s.plots[trap].item, .stakePit)
@@ -41,9 +42,10 @@ final class AutoplayTests: XCTestCase {
         XCTAssertEqual(s.buildingsBuilt, 0)
         XCTAssertTrue(s.plots.allSatisfy { $0.job == nil })
         XCTAssertEqual(s.soldiers.count, balance.startArchers + balance.startGuards)
-        XCTAssertEqual(s.gold, balance.startGold, "the dawn's taxes are owed, not yet collected")
+        let purse = balance.startGold + balance.town.firstMorningGold
+        XCTAssertEqual(s.gold, purse, "the first morning's coins; the dawn's taxes are owed, not yet collected")
         bot.morning(&s, balance: balance)
-        XCTAssertGreaterThan(s.gold, balance.startGold, "taxes pile up: it collects them at dawn")
+        XCTAssertGreaterThan(s.gold, purse, "taxes pile up: it collects them at dawn")
     }
 
     /// M3 fix (C1): the bot hears from the catalogue it is given (the driver's), not always the standard one.

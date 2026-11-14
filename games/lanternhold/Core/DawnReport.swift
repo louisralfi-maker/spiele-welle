@@ -39,7 +39,8 @@ struct DawnReport: Codable, Sendable, Equatable {
     /// from before this field).
     var housesFull: Bool?
     /// The taxes on foot (town-1): what the town did yesterday, what was collected, left to the people, knocked for (nil
-    /// on the first dawn and in saves from before the taxes went on foot). `taxes` is what the households owe today.
+    /// in saves from before the taxes went on foot; the first dawn tells of the first morning's coins). `taxes` is what
+    /// the households owe today.
     var town: TownSummary? = nil
 
     /// No soldier fell tonight: the report shows a small banner.
@@ -48,5 +49,9 @@ struct DawnReport: Codable, Sendable, Equatable {
     var held: Bool { realmFell != true }
     /// True when the Lightless King fell tonight.
     var slewTheKing: Bool { kingSlain == true }
-    var goldIn: Int { taxes.total }
+    /// What the town paid into the purse yesterday: the tosses, the knocks and the collector's delivery
+    /// (`TownSummary.collected`; 0 without a yesterday). Since the taxes went on foot the dawn itself puts nothing into
+    /// the purse, so the card's "Taxes" row never shows today's `taxes` as if they had come in (town-1, fix round 1;
+    /// town-2 rewrites the row).
+    var goldIn: Int { town?.collected ?? 0 }
 }

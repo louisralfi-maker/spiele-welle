@@ -144,7 +144,7 @@ final class GameScreensTests: XCTestCase {
         let game = model(["GWCameraX": "1255"])
         let plot = Realm.lines[0].braziers[0]
         XCTAssertEqual(game.target, .build(plot: plot))
-        XCTAssertEqual(game.gold, 60)
+        XCTAssertEqual(game.gold, balance.startGold, "the first morning's coins still wait in the town (town-1)")
         game.performAction()
         XCTAssertEqual(game.overlay, .build(plot: plot))
         XCTAssertTrue(game.isPaused, "nothing steps while a card is open")
@@ -157,7 +157,7 @@ final class GameScreensTests: XCTestCase {
         game.order(.brazier)
         XCTAssertNil(game.overlay, "the card closes when the order stands")
         XCTAssertFalse(game.isPaused)
-        XCTAssertEqual(game.gold, 48)
+        XCTAssertEqual(game.gold, balance.startGold - balance.price(.brazier))
         XCTAssertEqual(game.driver?.state.plots[plot].job?.target, .brazier)
     }
 
@@ -181,7 +181,7 @@ final class GameScreensTests: XCTestCase {
         barracks.recruit(.archer)
         XCTAssertEqual(barracks.overlay, .recruit, "the card stays open for the next recruit")
         XCTAssertEqual(barracks.recruitCard?.archers, 4)
-        XCTAssertEqual(barracks.gold, 50)
+        XCTAssertEqual(barracks.gold, balance.startGold - balance.archerPrice)
         XCTAssertEqual(barracks.soldiers, 6)
         // M3: a petitioner waits on day 1, so the crown opens the audience; the tax lectern beside the throne keeps
         // the tax card.
@@ -262,7 +262,7 @@ final class GameScreensTests: XCTestCase {
         game.restartChapter()
         XCTAssertNil(game.overlay)
         XCTAssertEqual(game.day, 1)
-        XCTAssertEqual(game.gold, 60)
+        XCTAssertEqual(game.gold, balance.startGold)
         XCTAssertNotEqual(game.driver?.state.seed, 4, "a new realm")
     }
 

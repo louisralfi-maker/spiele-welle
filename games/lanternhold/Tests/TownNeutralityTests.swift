@@ -14,7 +14,7 @@ final class TownNeutralityTests: XCTestCase {
         for seed in 1...2 {
             var s = GameState.newRealm(seed: UInt64(seed), balance: balance)
             var bot = Autoplay.reference()
-            var yesterday: Int?
+            var yesterday = balance.town.firstMorningGold
             for night in 1...20 {
                 guard let report = Sim.runToDawn(&s, balance: balance, bot: &bot) else {
                     return XCTFail("seed \(seed) fell on night \(night)")
@@ -27,19 +27,43 @@ final class TownNeutralityTests: XCTestCase {
                 XCTAssertEqual(s.happiness, happiness, "seed \(seed) night \(night)")
                 XCTAssertEqual(s.town?.today?.owing, 0)
                 XCTAssertFalse(report.happinessChanges.contains { $0.reason == .leftAlone })
-                if let owed = yesterday {
-                    let town = try XCTUnwrap(report.town, "seed \(seed) night \(night)")
-                    XCTAssertEqual(town.collected, owed, "seed \(seed) night \(night): all of yesterday's taxes")
-                    XCTAssertEqual(town.kept, 0)
-                    XCTAssertEqual(town.spared, [])
-                    XCTAssertEqual(town.knockedAt, [])
-                    XCTAssertEqual(town.happinessGain, 0)
-                    XCTAssertEqual(town.happinessCost, 0)
-                } else {
-                    XCTAssertNil(report.town, "the first dawn has no yesterday")
-                }
+                let town = try XCTUnwrap(report.town, "seed \(seed) night \(night)")
+                XCTAssertEqual(town.collected, yesterday,
+                               "seed \(seed) night \(night): all of yesterday's taxes (night 1: the first morning's)")
+                XCTAssertEqual(town.kept, 0)
+                XCTAssertEqual(town.spared, [])
+                XCTAssertEqual(town.knockedAt, [])
+                XCTAssertEqual(town.happinessGain, 0)
+                XCTAssertEqual(town.happinessCost, 0)
+                XCTAssertNil(town.collectorOut, "the reference bots never hire the collector")
                 yesterday = report.taxes.total
             }
+        }
+    }
+
+    /// The first morning (town-1 fix round 1) gives back the starting purse of before: 44 in the purse and 16 in the
+    /// first household's hands make the old 60, and every bot habit takes them at its first step without a knock, a
+    /// house left alone or a change of happiness, so the purse at the first build is what it was.
+    func testTheFirstMorningGivesBackTheOldStartingPurse() throws {
+        XCTAssertEqual(balance.startGold + balance.town.firstMorningGold, 60, "the realm's 60 gold of before")
+        for habit in [TownHabit.collect, .spare, .knock, .levy] {
+            var s = GameState.newRealm(seed: 1, balance: balance)
+            XCTAssertEqual(s.gold, balance.startGold)
+            Town.morning(&s, habit: habit, balance: balance)
+            XCTAssertEqual(s.gold, 60, "\(habit)")
+            XCTAssertEqual(s.happiness, balance.startHappiness, "\(habit): no knock on the first morning")
+            XCTAssertEqual(s.town?.today?.owing, 0, "\(habit)")
+            XCTAssertEqual(s.town?.today?.places.map(\.knocks), [0], "\(habit)")
+        }
+        // Every bot plan: its first step on day 1 brings the coins in before anything is bought.
+        for bot in [Autoplay.reference(), Autoplay.reference(tax: .low), Autoplay.reference(tax: .high),
+                    Autoplay.buildsNothing] {
+            var s = GameState.newRealm(seed: 2, balance: balance)
+            var player = bot
+            var events: [SimEvent] = []
+            player.act(&s, dt: Sim.dayStep, balance: balance, events: &events)
+            XCTAssertEqual(s.town?.today?.owing, 0, "its first step took the first morning's coins")
+            XCTAssertEqual(s.town?.today?.places.first?.tossGold, balance.town.firstMorningGold)
         }
     }
 

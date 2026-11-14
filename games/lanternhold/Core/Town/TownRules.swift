@@ -6,6 +6,15 @@ struct TownRules: Sendable, Equatable {
     /// The household tosses its coins when the lord passes this close to its door (world game px).
     var collectReach = 28.0
 
+    // MARK: The first morning
+
+    /// The realm's 60 gold of day 1 are 44 in the purse (`Balance.startGold`) and this much in the hands of the town's
+    /// first household (house 1, the chandler's), who tosses it to the lord on the first morning (town-1, fix round 1):
+    /// so the new way to get gold is met at once, not on day 2. Every bot collects it at its first step, whatever its
+    /// habit, so the purse at the first build and every tuning line stay as they were. Day 2's split gives house 1 the
+    /// same 16.
+    var firstMorningGold = 16
+
     // MARK: Left alone
 
     /// Each house that owed and was left alone at the horn brings this much happiness at the next dawn ...
@@ -23,6 +32,17 @@ struct TownRules: Sendable, Equatable {
     /// share again for this much more happiness. Every house knocked twice is about the old War tax (+80 %, −10 a day).
     var levyShare = 0.4
     var levyHappiness = -1
+
+    // MARK: The collector (docs/TOWN.md section 2, build 2)
+
+    /// The collector's wage: this share of what he brings back (one coin in eight, rounded) ...
+    var collectorWageShare = 0.125
+    /// ... and at least this much a day, though never more than he brought (back empty, he takes nothing).
+    var collectorWageLeast = 2
+    /// He sets out from his post at the dawn (06:00), reaches the farthest door that pays at this hour ...
+    var collectorTurnHour = 9.0
+    /// ... and is back at his post at this one (noon): the gold arrives with him.
+    var collectorBackHour = 12.0
 
     // MARK: The toss (the picture's rules, read by the screen)
 

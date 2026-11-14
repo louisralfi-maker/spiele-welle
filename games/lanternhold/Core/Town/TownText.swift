@@ -1,26 +1,35 @@
 import Foundation
 
 /// The town's words (Resources/Town.xcstrings, English and German; the six other languages follow after the join):
-/// the dawn report's lines about yesterday (what was collected, what was left to the people, who was knocked at), the
-/// households' names and the reason in the report's happiness column. The screens of town-2 show them.
+/// the dawn report's lines about yesterday (what was collected, what was left to the people, at whose door the lord
+/// knocked, what the collector brought), the households' names and the reason in the report's happiness column. The
+/// screens of town-2 show them.
 enum TownText {
     static let table = "Town"
 
     /// Every key the town uses, for the catalogue's tests.
     static let keys: [String] = [
         "town.report.collected", "town.report.kept", "town.report.spared", "town.report.knocked",
-        "town.report.levied", "town.report.unrest", "town.report.doubled", "town.reason.leftAlone",
-        "town.reason.knocked",
-    ] + householdKeys.map(\.key)
+        "town.report.knockedCount", "town.report.knockedAll", "town.report.levied", "town.report.leviedCount",
+        "town.report.leviedAll", "town.report.unrest", "town.report.doubled", "town.report.collector",
+        "town.report.collectorEmpty", "town.reason.leftAlone",
+    ] + households.map { $0.name } + households.map { $0.door }
 
     /// The four households of Tallowford by their house plot (STORY.md: the town grew from the chandlers' and
-    /// oil-pressers' camp): the chandler, the oil-presser, the cooper, the weaver.
-    static let householdKeys: [(plot: String, key: String)] = [
-        ("town.house.1", "town.household.chandler"),
-        ("town.house.3", "town.household.oilPresser"),
-        ("town.house.4", "town.household.cooper"),
-        ("town.house.5", "town.household.weaver"),
+    /// oil-pressers' camp): the chandler, the oil-presser, the cooper, the weaver; `name` names the household
+    /// ("Chandler"), `door` says at its door ("the chandler's", "beim Kerzenzieher") for the knock's line.
+    static let households: [(plot: String, name: String, door: String)] = [
+        ("town.house.1", "town.household.chandler", "town.door.chandler"),
+        ("town.house.3", "town.household.oilPresser", "town.door.oilPresser"),
+        ("town.house.4", "town.household.cooper", "town.door.cooper"),
+        ("town.house.5", "town.household.weaver", "town.door.weaver"),
     ]
+
+    /// The households by plot and name key (town-1's first list).
+    static var householdKeys: [(plot: String, key: String)] { households.map { ($0.plot, $0.name) } }
+
+    /// Houses the report names one by one; more are counted ("Knocked at 3 doors") or, all of them, "every door".
+    static let namedDoorsMost = 2
 
     /// The text of `key` in the player's language (the key itself when it is missing, so a gap shows).
     static func string(_ key: String, bundle: Bundle = .main) -> String {
@@ -39,31 +48,71 @@ enum TownText {
 
     /// The household of a house plot ("Chandler"), nil for a plot that is not one of the four houses.
     static func householdKey(plot: Int) -> String? {
+        household(plot: plot)?.name
+    }
+
+    /// "At its door" for a house plot ("the chandler's"), nil for a plot that is not one of the four houses.
+    static func doorKey(plot: Int) -> String? {
+        household(plot: plot)?.door
+    }
+
+    private static func household(plot: Int) -> (plot: String, name: String, door: String)? {
         guard plot >= 0, plot < Realm.plots.count else { return nil }
         let key = Realm.plots[plot].key
-        return householdKeys.first { $0.plot == key }?.key
+        return households.first { $0.plot == key }
+    }
+
+    /// `template` with its placeholders filled in order: `%1$@`, `%2$@` ... by position, a bare `%@` by turn.
+    static func fill(_ template: String, _ values: [String]) -> String {
+        var text = template
+        for (index, value) in values.enumerated() {
+            text = text.replacingOccurrences(of: "%\(index + 1)$@", with: value)
+        }
+        for value in values {
+            guard let range = text.range(of: "%@") else { break }
+            text.replaceSubrange(range, with: value)
+        }
+        return text
     }
 
     /// The report's lines about yesterday, each a key and its filled-in text in `lookup`'s language. Unrest says only
-    /// that the doors stayed shut; otherwise what reached the purse, what the people kept, the houses left alone, who
-    /// was knocked at (and twice: the war levy), and "double taxes" when it was granted. Lines with nothing to say are
-    /// left out.
+    /// that the doors stayed shut; otherwise what reached the purse, what the people kept, the houses left alone, at
+    /// whose door the lord knocked (and twice: the war levy; two houses by name, more counted, all of them "every
+    /// door"), "double taxes" when it was granted, and what the collector brought. Lines with nothing to say are left
+    /// out.
     static func reportLines(_ summary: TownSummary, lookup: (String) -> String = { TownText.string($0) })
         -> [(key: String, text: String)] {
         if summary.unrest { return [("town.report.unrest", lookup("town.report.unrest"))] }
         var lines: [(key: String, text: String)] = []
-        func add(_ key: String, _ value: String) {
-            lines.append((key, lookup(key).replacingOccurrences(of: "%@", with: value)))
+        func add(_ key: String, _ values: String...) {
+            lines.append((key, fill(lookup(key), values)))
         }
-        func names(_ plots: [Int]) -> String {
-            plots.compactMap { householdKey(plot: $0) }.map(lookup).joined(separator: ", ")
+        func doors(_ plots: [Int], named: String, counted: String, all: String) {
+            guard !plots.isEmpty else { return }
+            if plots.count <= namedDoorsMost {
+                add(named, plots.compactMap { doorKey(plot: $0) }.map(lookup).joined(separator: ", "))
+            } else if let houses = summary.houses, plots.count >= houses {
+                add(all)
+            } else {
+                add(counted, String(plots.count))
+            }
         }
         if summary.collected > 0 { add("town.report.collected", String(summary.collected)) }
         if summary.kept > 0 { add("town.report.kept", String(summary.kept)) }
         if !summary.spared.isEmpty { add("town.report.spared", String(summary.spared.count)) }
-        if !summary.knockedAt.isEmpty { add("town.report.knocked", names(summary.knockedAt)) }
-        if !summary.leviedAt.isEmpty { add("town.report.levied", names(summary.leviedAt)) }
-        if summary.doubled { lines.append(("town.report.doubled", lookup("town.report.doubled"))) }
+        doors(summary.knockedAt, named: "town.report.knocked", counted: "town.report.knockedCount",
+              all: "town.report.knockedAll")
+        doors(summary.leviedAt, named: "town.report.levied", counted: "town.report.leviedCount",
+              all: "town.report.leviedAll")
+        if summary.doubled { add("town.report.doubled") }
+        if summary.collectorOut == true {
+            let brought = summary.collectorGold ?? 0
+            if brought > 0 {
+                add("town.report.collector", String(brought), String(summary.collectorWage ?? 0))
+            } else {
+                add("town.report.collectorEmpty")
+            }
+        }
         return lines
     }
 }

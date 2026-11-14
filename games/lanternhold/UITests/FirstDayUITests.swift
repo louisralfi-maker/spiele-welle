@@ -28,7 +28,7 @@ final class FirstDayUITests: XCTestCase {
         // The HUD on the first morning, in front of the gatehouse.
         let gold = element(app, "hud-gold")
         XCTAssertTrue(gold.waitForExistence(timeout: 10), "the gold shows")
-        XCTAssertEqual(gold.value as? String, "60")
+        XCTAssertEqual(gold.value as? String, "44", "the first household still holds 16 of the 60 (town-1)")
         XCTAssertTrue(element(app, "hud-happiness").exists)
         XCTAssertTrue(element(app, "hud-clock").exists)
         checkTarget(element(app, "hud-pause"), "pause")
@@ -61,10 +61,10 @@ final class FirstDayUITests: XCTestCase {
         XCTAssertTrue(brazier.exists, "the brazier is on the card")
         checkTarget(brazier, "build option")
         checkTarget(element(app, "build-card-close"), "close")
-        XCTAssertTrue(brazier.isEnabled, "60 gold pay for a brazier")
+        XCTAssertTrue(brazier.isEnabled, "44 gold pay for a brazier")
         brazier.tap()
         XCTAssertTrue(waitForGone(card, timeout: 6), "the card closes after the order")
-        XCTAssertTrue(waitForValue(gold, "48", timeout: 6), "the order cost 12 gold (\(String(describing: gold.value)))")
+        XCTAssertTrue(waitForValue(gold, "32", timeout: 6), "the order cost 12 gold (\(String(describing: gold.value)))")
 
         // The barracks.
         tapStrip(strip, worldX: 1513)

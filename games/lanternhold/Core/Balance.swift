@@ -48,7 +48,9 @@ struct Balance: Sendable, Equatable {
 
     // MARK: Start of chapter 1
 
-    var startGold = 60
+    /// The purse on the morning of day 1. The realm's 60 gold of before are this and the 16 the first household tosses
+    /// the lord that morning (`TownRules.firstMorningGold`, town-1 fix round 1).
+    var startGold = 44
     var startCitizens = 14
     var startArchers = 3
     var startGuards = 2

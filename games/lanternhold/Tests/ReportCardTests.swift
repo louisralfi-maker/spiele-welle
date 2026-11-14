@@ -21,7 +21,8 @@ final class ReportCardTests: XCTestCase {
         XCTAssertEqual(card.banners.contains(.noLosses), report.fallen.isEmpty)
         XCTAssertEqual(card.creaturesStopped, report.creaturesStopped)
         XCTAssertGreaterThan(card.creaturesStopped, 0, "night 1 sends sootlings")
-        XCTAssertEqual(card.goldIn, report.taxes.total)
+        XCTAssertEqual(card.goldIn, report.town?.collected, "what the town paid yesterday, not what it owes today")
+        XCTAssertEqual(card.goldIn, Balance.standard.town.firstMorningGold, "night 1: the first morning's coins")
         XCTAssertEqual(card.goldAfter, s.gold)
         XCTAssertTrue(card.reasons.allSatisfy { $0.delta != 0 }, "only real changes are listed")
         let sum = card.reasons.reduce(0) { $0 + $1.delta }
@@ -38,6 +39,7 @@ final class ReportCardTests: XCTestCase {
         XCTAssertTrue(card.banners.isEmpty, "someone fell: no banner")
         XCTAssertNil(card.hearthLowest, "the hearth was never touched")
         XCTAssertEqual(card.happinessDelta, -2)
+        XCTAssertEqual(card.goldIn, 64, "the sample's yesterday paid in full (54 + 10)")
         XCTAssertEqual(card.reasons.map(\.reason), [.tavern, .fallen])
     }
 

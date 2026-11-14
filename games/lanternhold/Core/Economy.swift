@@ -33,7 +33,8 @@ struct DawnPeople: Sendable, Equatable {
     var grown: Int
     var left: Int
     var volunteer: Bool
-    /// What the town did yesterday (the taxes on foot), for the report; nil on the first dawn.
+    /// What the town did yesterday (the taxes on foot), for the report (the first dawn: the first morning; nil after a
+    /// save from before the taxes went on foot).
     var town: TownSummary?
 }
 

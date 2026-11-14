@@ -1,8 +1,80 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "town.door.chandler" : {
+      "comment" : "Dawn report, in the knock's line: at this household's door (\"Knocked at the chandler's\" / \"Angeklopft beim Kerzenzieher\").",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "beim Kerzenzieher"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the chandler's"
+          }
+        }
+      }
+    },
+    "town.door.cooper" : {
+      "comment" : "Dawn report, in the knock's line: at this household's door (\"Knocked at the chandler's\" / \"Angeklopft beim Kerzenzieher\").",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "beim Böttcher"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the cooper's"
+          }
+        }
+      }
+    },
+    "town.door.oilPresser" : {
+      "comment" : "Dawn report, in the knock's line: at this household's door (\"Knocked at the chandler's\" / \"Angeklopft beim Kerzenzieher\").",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "beim Ölmüller"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the oil-presser's"
+          }
+        }
+      }
+    },
+    "town.door.weaver" : {
+      "comment" : "Dawn report, in the knock's line: at this household's door (\"Knocked at the chandler's\" / \"Angeklopft beim Kerzenzieher\").",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "beim Weber"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the weaver's"
+          }
+        }
+      }
+    },
     "town.household.chandler" : {
-      "comment" : "A Tallowford household by its trade, named in the dawn report when the lord knocked at its door.",
+      "comment" : "A Tallowford household by its trade (the town's screens name it).",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -20,7 +92,7 @@
       }
     },
     "town.household.cooper" : {
-      "comment" : "A Tallowford household by its trade, named in the dawn report when the lord knocked at its door.",
+      "comment" : "A Tallowford household by its trade (the town's screens name it).",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -38,7 +110,7 @@
       }
     },
     "town.household.oilPresser" : {
-      "comment" : "A Tallowford household by its trade, named in the dawn report when the lord knocked at its door.",
+      "comment" : "A Tallowford household by its trade (the town's screens name it).",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -56,7 +128,7 @@
       }
     },
     "town.household.weaver" : {
-      "comment" : "A Tallowford household by its trade, named in the dawn report when the lord knocked at its door.",
+      "comment" : "A Tallowford household by its trade (the town's screens name it).",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -69,24 +141,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Weaver"
-          }
-        }
-      }
-    },
-    "town.reason.knocked" : {
-      "comment" : "Dawn report, why happiness changed: the lord knocked at doors yesterday and demanded more.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Angeklopft"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Knocks at the door"
           }
         }
       }
@@ -110,7 +164,7 @@
       }
     },
     "town.report.collected" : {
-      "comment" : "Dawn report: gold the households gave the lord yesterday. %@ is the amount.",
+      "comment" : "Dawn report: gold that reached the purse yesterday (the households' tosses, the knocks, the collector's delivery). %@ is the amount.",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -123,6 +177,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Collected yesterday: %@"
+          }
+        }
+      }
+    },
+    "town.report.collector" : {
+      "comment" : "Dawn report: the hired tax collector walked the town yesterday morning. %1$@ is the gold he put into the purse, %2$@ the wage he kept (one coin in eight).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Steuereintreiber brachte %1$@ (Lohn %2$@)"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The collector brought %1$@ (wage %2$@)"
+          }
+        }
+      }
+    },
+    "town.report.collectorEmpty" : {
+      "comment" : "Dawn report: the hired tax collector found nobody owing (the lord had been first, or the doors stayed shut).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Steuereintreiber kam leer zurück"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The collector came back empty"
           }
         }
       }
@@ -152,7 +242,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Den Leuten gelassen: %@"
+            "value" : "Bei den Leuten geblieben: %@"
           }
         },
         "en" : {
@@ -164,37 +254,109 @@
       }
     },
     "town.report.knocked" : {
-      "comment" : "Dawn report: the households whose door the lord knocked at to demand more. %@ is a list of names.",
+      "comment" : "Dawn report: the doors the lord knocked at yesterday (one or two). %@ is a list of town.door.* forms, joined with \", \" (\"the chandler's, the cooper's\" / \"beim Kerzenzieher, beim Böttcher\").",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Angeklopft: %@"
+            "value" : "Angeklopft %@"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Knocked at: %@"
+            "value" : "Knocked at %@"
+          }
+        }
+      }
+    },
+    "town.report.knockedAll" : {
+      "comment" : "Dawn report: the lord knocked at the door of every house that paid yesterday.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An jeder Tür angeklopft"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knocked at every door"
+          }
+        }
+      }
+    },
+    "town.report.knockedCount" : {
+      "comment" : "Dawn report: the lord knocked at this many doors yesterday (three or more, not all). %@ is the number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An %@ Türen angeklopft"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knocked at %@ doors"
           }
         }
       }
     },
     "town.report.levied" : {
-      "comment" : "Dawn report: the households knocked at a second time (the war levy). %@ is a list of names.",
+      "comment" : "Dawn report: the doors the lord knocked at a second time yesterday (the war levy; one or two). %@ is a list of town.door.* forms, joined with \", \".",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kriegsabgabe: %@"
+            "value" : "Kriegsabgabe %@"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "War levy: %@"
+            "value" : "War levy at %@"
+          }
+        }
+      }
+    },
+    "town.report.leviedAll" : {
+      "comment" : "Dawn report: the lord knocked a second time (the war levy) at every house that paid yesterday.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kriegsabgabe an jeder Tür"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "War levy at every door"
+          }
+        }
+      }
+    },
+    "town.report.leviedCount" : {
+      "comment" : "Dawn report: the lord knocked a second time (the war levy) at this many doors yesterday. %@ is the number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kriegsabgabe an %@ Türen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "War levy at %@ doors"
           }
         }
       }

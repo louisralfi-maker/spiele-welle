@@ -7,10 +7,13 @@ import XCTest
 /// horn staying with the people (+1 happiness a house at the next dawn, at most +3), the knock (40 % more, −2 at once,
 /// once a day, the shutters, nobody waving the next day), the war levy from story day 8, unrest shutting the doors,
 /// "double taxes" for the day, the bots' habits, the old High and War taxes in gold and mood, the picture's rules, the
-/// town's events, the save and the dawn report's words in English and German.
+/// town's events, the save and the dawn report's words in English and German. Fix round 1: the first morning's coins
+/// and the collector (docs/TOWN.md section 2).
 final class TownTests: XCTestCase {
     private let balance = Balance.standard
     private var rules: TownRules { balance.town }
+    /// The purse once the first morning's coins are in: the 60 of before.
+    private var purse: Int { balance.startGold + rules.firstMorningGold }
 
     private static func plot(_ key: String) -> Int {
         guard let id = Realm.plotID(key) else { fatalError("no plot \(key)") }
@@ -26,10 +29,12 @@ final class TownTests: XCTestCase {
     private let market = TownTests.plot("town.market.6")
     private var houses: [Int] { [house1, house3, house4, house5] }
 
-    /// A new realm at the morning of day 2: its first dawn has opened the ledger. 9 taxpayers in four cottages at 60
-    /// happiness owe 49 (16, 11, 11, 11); with `rich`, two fields (5 each) and the market (7) as well.
+    /// A new realm at the morning of day 2: the lord took the first morning's coins (the purse holds the 60 of before)
+    /// and its first dawn has opened the ledger. 9 taxpayers in four cottages at 60 happiness owe 49 (16, 11, 11, 11);
+    /// with `rich`, two fields (5 each) and the market (7) as well.
     private func morning(happiness: Int = 60, rich: Bool = false, seed: UInt64 = 1) -> GameState {
         var s = GameState.newRealm(seed: seed, balance: balance)
+        Town.collectAll(&s, balance: balance)
         s.happiness = happiness
         if rich {
             s.plots[field2].item = .field
@@ -58,17 +63,48 @@ final class TownTests: XCTestCase {
 
     // MARK: - What is owed
 
-    func testNothingIsOwedBeforeTheFirstDawn() {
+    func testTheFirstMorningsCoinsWaitAtTheFirstHouse() throws {
         var s = GameState.newRealm(seed: 1, balance: balance)
-        XCTAssertNil(s.town, "day 1 begins with the realm's 60 gold and no taxes")
-        XCTAssertEqual(Town.waiting(s, balance: balance), [])
-        XCTAssertNil(Town.collect(&s, plot: house1, balance: balance))
-        XCTAssertNil(Town.knock(&s, plot: house1, balance: balance))
-        XCTAssertFalse(Town.grantDoubleTaxes(&s))
+        XCTAssertEqual(s.gold, 44, "the purse on day 1")
+        let day = try XCTUnwrap(s.town?.today, "a new realm opens the first morning's ledger")
+        XCTAssertEqual(day.day, 1)
+        XCTAssertTrue(Town.isFirstMorning(day))
+        XCTAssertEqual(day.places.map(\.plot), [house1], "only the first house, the chandler's, nearest the castle")
+        XCTAssertEqual(day.places.first?.owed, rules.firstMorningGold)
+        XCTAssertEqual(day.places.first?.taxpayers, 3, "house 1's share of the 9 taxpayers, as on day 2")
+        XCTAssertEqual(Town.waiting(s, balance: balance), [house1], "the chandler waits with his coins from the start")
+        XCTAssertNil(Town.collect(&s, plot: house3, balance: balance), "nobody else owes before the first dawn")
+        XCTAssertFalse(Town.grantDoubleTaxes(&s), "no dawn offered double taxes on the first morning")
+
+        // Walking past the first house on day 1: the toss.
         s.king.x = Town.doorX(plot: house1)
+        s.king.velocity = 0
         var events: [SimEvent] = []
-        Sim.step(&s, dt: 1, balance: balance, events: &events)
-        XCTAssertEqual(s.gold, balance.startGold, "walking past a door on day 1 brings nothing")
+        let before = s.town
+        Sim.step(&s, dt: Sim.frameStep, balance: balance, events: &events)
+        XCTAssertEqual(s.gold, purse, "16 tossed: the 60 of before")
+        XCTAssertEqual(Town.events(before: before, after: s.town), [.tossed(plot: house1, gold: rules.firstMorningGold)])
+        XCTAssertEqual(Town.waiting(s, balance: balance), [])
+
+        // The first dawn tells of it.
+        let people = nextDawn(&s)
+        XCTAssertEqual(people.town?.day, 1)
+        XCTAssertEqual(people.town?.collected, rules.firstMorningGold)
+        XCTAssertEqual(people.town?.houses, 1)
+        XCTAssertEqual(s.town?.today?.places.first?.owed, 16, "day 2's split gives house 1 the same 16")
+
+        // Left alone on the first morning: the chandler keeps it and is grateful at the first dawn.
+        var t = GameState.newRealm(seed: 1, balance: balance)
+        let spared = nextDawn(&t)
+        XCTAssertEqual(t.gold, balance.startGold)
+        XCTAssertEqual(spared.town?.kept, rules.firstMorningGold)
+        XCTAssertEqual(spared.town?.spared, [house1])
+        XCTAssertTrue(spared.changes.contains(HappinessChange(reason: .leftAlone, delta: rules.spareHappiness)))
+
+        // The onboarding's townsman can bring the coins to the courtyard: collecting does not ask where the lord is.
+        var u = GameState.newRealm(seed: 1, balance: balance)
+        u.king.x = Realm.courtyardX
+        XCTAssertEqual(Town.collect(&u, plot: house1, balance: balance), rules.firstMorningGold)
     }
 
     func testTheDawnSplitsTheDaysTaxesOverThePayingPlaces() throws {
@@ -166,9 +202,9 @@ final class TownTests: XCTestCase {
 
     func testTheGoldComesOnFootNotAtDawn() throws {
         var s = morning()
-        XCTAssertEqual(s.gold, balance.startGold, "the dawn put nothing into the purse")
+        XCTAssertEqual(s.gold, purse, "the dawn put nothing into the purse")
         XCTAssertEqual(Town.collect(&s, plot: house1, balance: balance), 16)
-        XCTAssertEqual(s.gold, balance.startGold + 16)
+        XCTAssertEqual(s.gold, purse + 16)
         XCTAssertNil(Town.collect(&s, plot: house1, balance: balance), "a household pays once a day")
         let tossed = try XCTUnwrap(place(s, house1))
         XCTAssertTrue(tossed.collected)
@@ -177,7 +213,7 @@ final class TownTests: XCTestCase {
         XCTAssertFalse(Town.waiting(s, balance: balance).contains(house1), "it leaves its doorway")
         XCTAssertEqual(Town.collectAll(&s, balance: balance), 33)
         XCTAssertEqual(s.town?.today?.owing, 0)
-        XCTAssertEqual(s.gold, balance.startGold + 49)
+        XCTAssertEqual(s.gold, purse + 49)
         XCTAssertEqual(Town.waiting(s, balance: balance), [])
         XCTAssertNil(Town.collect(&s, plot: field2, balance: balance), "an empty plot owes nothing")
     }
@@ -192,7 +228,7 @@ final class TownTests: XCTestCase {
         Town.step(&s, from: s.king.x, balance: balance)
         XCTAssertTrue(try XCTUnwrap(place(s, house1)).collected, "27 px: the household tosses its coins")
         XCTAssertFalse(try XCTUnwrap(place(s, field2)).collected, "the farmer's fence is 141 px on")
-        XCTAssertEqual(s.gold, balance.startGold + 16)
+        XCTAssertEqual(s.gold, purse + 16)
 
         // A long step past a door (the headless day step) still collects.
         let fence = Town.doorX(plot: field2)
@@ -383,7 +419,7 @@ final class TownTests: XCTestCase {
         XCTAssertTrue(try XCTUnwrap(s.town?.today).doubled)
         XCTAssertEqual(Town.collect(&s, plot: house1, balance: balance), 32, "every toss counts twice")
         XCTAssertEqual(Town.knock(&s, plot: house1, balance: balance), 12, "and every knock")
-        XCTAssertEqual(s.gold, balance.startGold + 44)
+        XCTAssertEqual(s.gold, purse + 44)
         let summary = try XCTUnwrap(nextDawn(&s).town)
         XCTAssertTrue(summary.doubled)
         XCTAssertEqual(summary.tossGold, 32)
@@ -401,7 +437,7 @@ final class TownTests: XCTestCase {
         let owed = try XCTUnwrap(collect.town?.today).owedTotal
         let happiness = collect.happiness
         Town.morning(&collect, habit: .collect, balance: balance)
-        XCTAssertEqual(collect.gold, balance.startGold + owed)
+        XCTAssertEqual(collect.gold, purse + owed)
         XCTAssertEqual(collect.happiness, happiness)
         XCTAssertEqual(collect.town?.today?.owing, 0)
         let once = collect
@@ -412,7 +448,7 @@ final class TownTests: XCTestCase {
         var spare = morning(rich: true)
         Town.morning(&spare, habit: .spare, balance: balance)
         XCTAssertEqual(Set(Town.waiting(spare, balance: balance)), [house3, house4])
-        XCTAssertEqual(spare.gold, balance.startGold + owed - 22)
+        XCTAssertEqual(spare.gold, purse + owed - 22)
         XCTAssertEqual(nextDawn(&spare).changes.first { $0.reason == .leftAlone }?.delta, 2)
 
         // High: knocks once at every house.
@@ -420,7 +456,7 @@ final class TownTests: XCTestCase {
         Town.morning(&knock, habit: .knock, balance: balance)
         XCTAssertEqual(houses.map { Town.knocks(knock, plot: $0) }, [1, 1, 1, 1])
         XCTAssertEqual(knock.happiness, happiness + 4 * rules.knockHappiness)
-        XCTAssertEqual(knock.gold, balance.startGold + owed + 6 + 4 + 4 + 4)
+        XCTAssertEqual(knock.gold, purse + owed + 6 + 4 + 4 + 4)
         let knocked = knock
         knock.warTaxUnlocked = true
         Town.morning(&knock, habit: .knock, balance: balance)
@@ -511,6 +547,11 @@ final class TownTests: XCTestCase {
         guard case .loaded(let save) = SaveGame.decode(data) else { return XCTFail("the save does not load") }
         XCTAssertEqual(save.state.town, s.town)
         XCTAssertEqual(save.state, s)
+        let fresh = GameState.newRealm(seed: 4, balance: balance)
+        guard case .loaded(let first) = SaveGame.decode(try SaveGame(state: fresh).encoded()) else {
+            return XCTFail("a new realm's save does not load")
+        }
+        XCTAssertEqual(first.state.town, fresh.town, "the first morning's ledger is saved")
 
         guard case .loaded(let old) = SaveGame.decode(Data(SaveFixtures.versionOne.utf8)) else {
             return XCTFail("the frozen version 1 save no longer loads")
@@ -528,7 +569,10 @@ final class TownTests: XCTestCase {
         var s = GameState.newRealm(seed: 2, balance: balance)
         var bot = Autoplay.reference(tax: .high)
         let first = try XCTUnwrap(Sim.runToDawn(&s, balance: balance, bot: &bot))
-        XCTAssertNil(first.town, "the first dawn: no yesterday")
+        let morning = try XCTUnwrap(first.town, "the first dawn tells of the first morning")
+        XCTAssertEqual(morning.collected, rules.firstMorningGold)
+        XCTAssertEqual(morning.knockedAt, [], "no bot knocks on the first morning")
+        XCTAssertEqual(first.goldIn, rules.firstMorningGold, "the card's taxes row: what came in, not what is owed")
         XCTAssertGreaterThan(first.taxes.total, 0, "the report's taxes are what the town owes today")
         let report = try XCTUnwrap(Sim.runToDawn(&s, balance: balance, bot: &bot))
         let town = try XCTUnwrap(report.town)
@@ -539,22 +583,47 @@ final class TownTests: XCTestCase {
         XCTAssertEqual(town.kept, 0)
         XCTAssertEqual(s.lastReport?.town, town)
 
+        XCTAssertEqual(report.goldIn, town.collected)
         let keys = TownText.reportLines(town, lookup: { $0 }).map(\.key)
-        XCTAssertEqual(keys, ["town.report.collected", "town.report.knocked"])
+        XCTAssertEqual(keys, ["town.report.collected", "town.report.knockedAll"], "four houses knocked: every door")
         let lines = TownText.reportLines(town, lookup: { TownText.string($0, language: "en") ?? $0 })
         XCTAssertEqual(lines.first?.text, "Collected yesterday: \(town.collected)")
-        XCTAssertEqual(lines.last?.text, "Knocked at: Chandler, Oil-presser, Cooper, Weaver")
+        XCTAssertEqual(lines.last?.text, "Knocked at every door")
         let german = TownText.reportLines(town, lookup: { TownText.string($0, language: "de") ?? $0 })
-        XCTAssertEqual(german.last?.text, "Angeklopft: Kerzenzieher, Ölmüller, Böttcher, Weber")
+        XCTAssertEqual(german.last?.text, "An jeder Tür angeklopft")
 
         let all = TownSummary(day: 4, tossGold: 30, knockGold: 6, kept: 22, spared: [house3, house4],
-                              knockedAt: [house1], leviedAt: [house1], doubled: true, unrest: false, happinessGain: 2,
-                              happinessCost: -3)
+                              knockedAt: [house1, house5], leviedAt: [house1], doubled: true, unrest: false,
+                              happinessGain: 2, happinessCost: -3, houses: 4, collectorOut: true, collectorGold: 14,
+                              collectorWage: 2)
+        XCTAssertEqual(all.collected, 30 + 6 + 14, "the collector's delivery reached the purse too")
         XCTAssertEqual(TownText.reportLines(all, lookup: { $0 }).map(\.key),
                        ["town.report.collected", "town.report.kept", "town.report.spared", "town.report.knocked",
-                        "town.report.levied", "town.report.doubled"])
-        XCTAssertEqual(TownText.reportLines(all, lookup: { TownText.string($0, language: "en") ?? $0 })[1].text,
-                       "Left to the people: 22")
+                        "town.report.levied", "town.report.doubled", "town.report.collector"])
+        let english = TownText.reportLines(all, lookup: { TownText.string($0, language: "en") ?? $0 }).map(\.text)
+        XCTAssertEqual(english, ["Collected yesterday: 50", "Left to the people: 22", "Houses left alone: 2",
+                                 "Knocked at the chandler's, the weaver's", "War levy at the chandler's",
+                                 "Double taxes: every coin counted twice", "The collector brought 14 (wage 2)"])
+        let deutsch = TownText.reportLines(all, lookup: { TownText.string($0, language: "de") ?? $0 }).map(\.text)
+        XCTAssertEqual(deutsch, ["Gestern eingesammelt: 50", "Bei den Leuten geblieben: 22", "Verschonte Häuser: 2",
+                                 "Angeklopft beim Kerzenzieher, beim Weber", "Kriegsabgabe beim Kerzenzieher",
+                                 "Doppelte Steuern: Jede Münze zählte doppelt",
+                                 "Der Steuereintreiber brachte 14 (Lohn 2)"])
+
+        // Three of four doors are counted; the collector who found nobody owing came back empty.
+        var three = all
+        three.knockedAt = [house1, house3, house4]
+        three.leviedAt = [house1, house3, house4, house5]
+        three.collectorGold = 0
+        three.collectorWage = 0
+        XCTAssertEqual(TownText.reportLines(three, lookup: { TownText.string($0, language: "en") ?? $0 })
+                        .map(\.text).suffix(4),
+                       ["Knocked at 3 doors", "War levy at every door", "Double taxes: every coin counted twice",
+                        "The collector came back empty"])
+        XCTAssertEqual(TownText.reportLines(three, lookup: { TownText.string($0, language: "de") ?? $0 })
+                        .map(\.text).suffix(4),
+                       ["An 3 Türen angeklopft", "Kriegsabgabe an jeder Tür",
+                        "Doppelte Steuern: Jede Münze zählte doppelt", "Der Steuereintreiber kam leer zurück"])
     }
 
     // MARK: - The words
@@ -574,26 +643,59 @@ final class TownTests: XCTestCase {
                 table.german[key] = TownText.string(key, language: "de")
             }
         }
+        func placeholders(_ text: String) -> [String] {
+            ["%@", "%1$@", "%2$@"].filter { text.contains($0) }
+        }
         for key in TownText.keys {
             let english = try XCTUnwrap(table.english[key], "\(key) has no English")
             let german = try XCTUnwrap(table.german[key], "\(key) has no German")
             XCTAssertFalse(english.isEmpty)
             XCTAssertFalse(german.isEmpty)
-            XCTAssertEqual(english.contains("%@"), german.contains("%@"), "\(key): the same placeholder")
-            // Filled in as the longest real line would be: a three-digit sum, two households' names.
-            for text in [english, german] {
-                let filled = text.replacingOccurrences(of: "%@", with: key.hasSuffix("knocked") || key.hasSuffix("levied")
-                                                          ? "Kerzenzieher, Ölmüller" : "888")
-                XCTAssertLessThanOrEqual(filled.count, 46, "\(key): \"\(filled)\" is too long for the report card")
-            }
+            XCTAssertEqual(placeholders(english), placeholders(german), "\(key): the same placeholders")
             XCTAssertNotNil(TownText.string(key, language: "en"), "\(key) is in the app's English")
             XCTAssertNotNil(TownText.string(key, language: "de"), "\(key) is in the app's German")
         }
+        // Every real line fits the report card (46 characters) in both languages, filled as the longest would be:
+        // three-digit sums, every one or two of the four doors by name, more counted or "every door", the collector.
+        let houses = [house1, house3, house4, house5]
+        var pairs: [[Int]] = houses.map { [$0] }
+        for (index, first) in houses.enumerated() {
+            for second in houses.dropFirst(index + 1) { pairs.append([first, second]) }
+        }
+        var summaries: [TownSummary] = []
+        for doors in pairs + [Array(houses.prefix(3)), houses] {
+            summaries.append(TownSummary(day: 9, tossGold: 444, knockGold: 444, kept: 888, spared: [house3],
+                                         knockedAt: doors, leviedAt: doors, doubled: true, unrest: false,
+                                         happinessGain: 1, happinessCost: -3, houses: 4, collectorOut: true,
+                                         collectorGold: 888, collectorWage: 111))
+        }
+        var empty = summaries[0]
+        empty.collectorGold = 0
+        var unrest = summaries[0]
+        unrest.unrest = true
+        summaries += [empty, unrest]
+        var keysSeen: Set<String> = []
+        for words in [table.english, table.german] {
+            for summary in summaries {
+                for line in TownText.reportLines(summary, lookup: { words[$0] ?? $0 }) {
+                    keysSeen.insert(line.key)
+                    XCTAssertFalse(line.text.contains("%"), "\(line.key): \"\(line.text)\" is filled in")
+                    XCTAssertLessThanOrEqual(line.text.count, 46,
+                                             "\(line.key): \"\(line.text)\" is too long for the report card")
+                }
+            }
+        }
+        let reportKeys = Set(TownText.keys.filter { $0.hasPrefix("town.report.") })
+        XCTAssertEqual(keysSeen, reportKeys, "every report line was measured")
         for (plotKey, key) in TownText.householdKeys {
             XCTAssertEqual(TownText.householdKey(plot: TownTests.plot(plotKey)), key)
             XCTAssertEqual(Realm.plots[TownTests.plot(plotKey)].slot, .house)
         }
+        XCTAssertNotNil(TownText.doorKey(plot: house1))
         XCTAssertNil(TownText.householdKey(plot: field2))
+        XCTAssertNil(TownText.doorKey(plot: field2))
         XCTAssertEqual(Texts.reason(.leftAlone), TownText.string("town.reason.leftAlone"))
+        XCTAssertEqual(TownText.fill("%2$@ and %1$@", ["a", "b"]), "b and a")
+        XCTAssertEqual(TownText.fill("%@ then %@", ["a", "b"]), "a then b")
     }
 }

@@ -20,9 +20,13 @@ struct TownPlace: Codable, Sendable, Equatable {
     /// What reached the purse from the toss and from the knocks (twice the coins handed over on a "double taxes" day).
     var tossGold: Int
     var knockGold: Int
-    /// Sim time of the toss and of the last knock, for the screen's animations (nil before).
+    /// Sim time of the toss (to the lord or to the collector) and of the last knock, for the screen's animations (nil
+    /// before).
     var tossedAt: Double?
     var knockedAt: Double?
+    /// What the household paid the collector (docs/TOWN.md section 2): it reaches the purse when he is back at noon.
+    /// nil when it did not pay him (it paid the lord, or nobody yet).
+    var collectorGold: Int?
 
     init(plot: Int, kind: TownPlaceKind, taxpayers: Int, owed: Int) {
         self.plot = plot
@@ -37,6 +41,8 @@ struct TownPlace: Codable, Sendable, Equatable {
 
     /// The household still owes: it stands in its doorway (or at the fence, at the stall) with its coins.
     var owes: Bool { owed > 0 && !collected }
+    /// The collector took its part, not the lord.
+    var paidCollector: Bool { collectorGold != nil }
 }
 
 /// One day of the town's taxes: the parts owed at dawn, what was collected and knocked for, and at the horn what the
@@ -56,6 +62,12 @@ struct TownDay: Codable, Sendable, Equatable {
     var spared: [Int]
     /// ... and the gold the people kept (every place that still owed).
     var kept: Int
+    /// The collector walks this day (he was in service at its dawn: `TownState.collectorHired`); nil when not.
+    var collectorOut: Bool?
+    /// He is back at his post: his strongbox went into the purse, less his wage.
+    var collectorBack: Bool?
+    /// The wage he kept when he came back.
+    var collectorWage: Int?
 
     init(day: Int, places: [TownPlace], unrest: Bool) {
         self.day = day
@@ -74,19 +86,26 @@ struct TownDay: Codable, Sendable, Equatable {
     var knockGold: Int { places.reduce(0) { $0 + $1.knockGold } }
     /// What the people still owe today.
     var owing: Int { places.reduce(0) { $0 + ($1.owes ? $1.owed : 0) } }
+    /// The gold in the collector's strongbox: every part the households paid him today.
+    var collectorBox: Int { places.reduce(0) { $0 + ($1.collectorGold ?? 0) } }
+    /// What he put into the purse when he came back (his box less his wage; 0 before).
+    var collectorDelivered: Int { collectorBack == true ? collectorBox - (collectorWage ?? 0) : 0 }
 
     /// The place on `plot`, if it pays today.
     func index(of plot: Int) -> Int? { places.firstIndex { $0.plot == plot } }
 }
 
-/// The town's taxes on foot (docs/TOWN.md section 1): today's ledger and yesterday's. `GameState.town` holds it; nil in
-/// saves from before the taxes went on foot (their dawn had already put the taxes into the purse, so nothing is owed on
-/// that day) and in a realm that has not seen its first dawn. Saved (fields added later: Optional).
+/// The town's taxes on foot (docs/TOWN.md sections 1 and 2): today's ledger and yesterday's, and whether the collector
+/// is in service. `GameState.town` holds it; nil in saves from before the taxes went on foot (their dawn had already put
+/// the taxes into the purse, so nothing is owed on that day). Saved (fields added later: Optional).
 struct TownState: Codable, Sendable, Equatable {
-    /// Today's ledger; nil before the first dawn (the realm starts with its 60 gold).
+    /// Today's ledger: the first morning's (`Town.firstMorning`, from `GameState.newRealm`) until the first dawn, then
+    /// each dawn's.
     var today: TownDay?
     /// Yesterday's, closed: the dawn report's town lines and the houses knocked at yesterday (nobody waves today).
     var yesterday: TownDay?
+    /// The collector is in service from the next morning on (`Town.setCollector`); nil or false: he is not.
+    var collectorHired: Bool?
 
     init(today: TownDay? = nil, yesterday: TownDay? = nil) {
         self.today = today
@@ -114,9 +133,21 @@ struct TownSummary: Codable, Sendable, Equatable {
     /// The happiness the houses left alone bring at this dawn (≥ 0), and what the knocks cost at once yesterday (≤ 0).
     var happinessGain: Int
     var happinessCost: Int
+    /// The houses that owed yesterday (the report says "every door" when all of them were knocked at).
+    var houses: Int?
+    /// The collector walked yesterday; what he put into the purse (his wage taken off) and his wage. nil: he did not.
+    var collectorOut: Bool?
+    var collectorGold: Int?
+    var collectorWage: Int?
 
-    /// Everything that reached the purse yesterday.
-    var collected: Int { tossGold + knockGold }
+    /// Everything that reached the purse yesterday: the tosses to the lord, the knocks, the collector's delivery.
+    var collected: Int { tossGold + knockGold + (collectorGold ?? 0) }
+
+    /// A day on which the lord collected every part himself (the dawn report's samples, `-GWScreen report`).
+    static func paidInFull(day: Int, gold: Int) -> TownSummary {
+        TownSummary(day: day, tossGold: gold, knockGold: 0, kept: 0, spared: [], knockedAt: [], leviedAt: [],
+                    doubled: false, unrest: false, happinessGain: 0, happinessCost: 0)
+    }
 }
 
 /// How a household tosses its coins (docs/TOWN.md section 1, "The picture"): with a wave from 60 happiness on, at the
@@ -129,6 +160,10 @@ enum TossManner: String, Sendable, Equatable {
 enum TownEvent: Sendable, Equatable {
     /// A household tossed its coins; `gold` is what reached the purse.
     case tossed(plot: Int, gold: Int)
+    /// A household paid the collector on his round; `gold` went into his strongbox.
+    case paidCollector(plot: Int, gold: Int)
+    /// The collector is back at his post: `gold` reached the purse, `wage` he kept.
+    case collectorBack(gold: Int, wage: Int)
     /// The lord knocked at a door and the household handed over `gold` (reached the purse); `levy`: the second knock.
     case knocked(plot: Int, gold: Int, levy: Bool)
     /// A new day's ledger opened at dawn: the households step into their doorways.

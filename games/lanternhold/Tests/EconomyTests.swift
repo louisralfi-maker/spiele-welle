@@ -103,16 +103,19 @@ final class EconomyTests: XCTestCase {
 
     func testDawnUsesYesterdaysHappinessForTaxesAndOwesThem() {
         var s = realm()
+        Town.collectAll(&s, balance: balance)
+        let purse = balance.startGold + balance.town.firstMorningGold
+        XCTAssertEqual(s.gold, purse, "the first morning's coins")
         s.happiness = 72
         let expected = Economy.taxes(s, happiness: 72, balance: balance).total
         let people = Economy.dawn(&s, fallen: 0, balance: balance)
         XCTAssertEqual(people.taxes.total, expected)
-        XCTAssertEqual(s.gold, balance.startGold, "the gold comes when the lord walks to the doors, not at dawn")
+        XCTAssertEqual(s.gold, purse, "the gold comes when the lord walks to the doors, not at dawn")
         XCTAssertEqual(s.town?.today?.owedTotal, expected, "the day's taxes are owed by the town")
         XCTAssertEqual(people.happinessBefore, 72)
         XCTAssertEqual(s.happiness, 72 + balance.happinessNoLosses)
         XCTAssertEqual(people.happinessAfter, s.happiness)
-        XCTAssertNil(people.town, "the first dawn has no yesterday to tell of")
+        XCTAssertEqual(people.town?.collected, balance.town.firstMorningGold, "the first dawn tells of the first morning")
     }
 
     func testAFreeArcherVolunteersOnEveryThirdDawnAtSeventy() {

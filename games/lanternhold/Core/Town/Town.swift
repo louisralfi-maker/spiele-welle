@@ -5,7 +5,9 @@
 /// every house left alone brings +1 happiness at the next dawn (at most +3). A touch on the door of a house that has
 /// paid is a knock (`knock`): 40 % more, −2 happiness at once, once a day, and from story day 8 a second knock, the war
 /// levy. In unrest (happiness below 15) the doors stay shut. "Double taxes" (`grantDoubleTaxes`) makes every payment
-/// of the day count twice.
+/// of the day count twice. On the first morning the town's first household owes the 16 gold that complete the realm's
+/// starting purse (`firstMorning`), so the toss is met on day 1. The collector (docs/TOWN.md section 2,
+/// `setCollector`) walks every door that owes from the dawn to noon for one coin in eight; the lord can still be first.
 ///
 /// Pure and deterministic: nothing here draws from the realm's random stream, so a bot that collects everything at
 /// dawn plays exactly the game the old dawn sum gave (`TownNeutralityTests`). Everything lives in `GameState.town`.
@@ -51,15 +53,20 @@ enum Town {
         return shares
     }
 
-    /// The day's ledger from the dawn's taxes: the taxpayers spread over the houses by their room, the tax part split
-    /// over the houses by those taxpayers, each field its gold, the market its share. In unrest every part is 0.
-    static func ledger(_ s: GameState, taxes: TaxBreakdown, balance: Balance) -> TownDay {
-        let places = payingPlaces(s)
+    /// The room of every house among `places`, left to right (a cottage 4, a big house 8).
+    static func houseRooms(_ s: GameState, places: [(plot: Int, kind: TownPlaceKind)], balance: Balance) -> [Int] {
         var rooms: [Int] = []
         for place in places where place.kind == .house {
             rooms.append(s.plots[place.plot].item == .bigHouse ? balance.bigHouseRoom : balance.houseRoom)
         }
-        let payers = split(taxes.taxpayers, weights: rooms)
+        return rooms
+    }
+
+    /// The day's ledger from the dawn's taxes: the taxpayers spread over the houses by their room, the tax part split
+    /// over the houses by those taxpayers, each field its gold, the market its share. In unrest every part is 0.
+    static func ledger(_ s: GameState, taxes: TaxBreakdown, balance: Balance) -> TownDay {
+        let places = payingPlaces(s)
+        let payers = split(taxes.taxpayers, weights: houseRooms(s, places: places, balance: balance))
         let parts = split(taxes.unrest ? 0 : taxes.taxPart, weights: payers)
         var list: [TownPlace] = []
         var house = 0
@@ -79,11 +86,36 @@ enum Town {
         return TownDay(day: s.day, places: list, unrest: taxes.unrest)
     }
 
+    // MARK: - The first morning
+
+    /// The ledger of the first morning (`GameState.newRealm`, town-1 fix round 1): the town's first house (house 1, the
+    /// chandler's, nearest the castle) owes `firstMorningGold`, the rest of the realm's 60 gold of before, and tosses it
+    /// to the lord who comes by (the onboarding's townsman can bring it to the courtyard: `collect` does not ask where
+    /// the lord stands). Nobody else owes before the first dawn. Every bot collects it at once (`morning`), so the purse
+    /// at its first build is the 60 of before; "double taxes" cannot be granted on it.
+    static func firstMorning(_ s: GameState, balance: Balance) -> TownState {
+        let places = payingPlaces(s)
+        let payers = split(s.taxpayers, weights: houseRooms(s, places: places, balance: balance))
+        var list: [TownPlace] = []
+        if let first = places.first(where: { $0.kind == .house }) {
+            list.append(TownPlace(plot: first.plot, kind: .house, taxpayers: payers.first ?? 0,
+                                  owed: max(0, balance.town.firstMorningGold)))
+        }
+        return TownState(today: TownDay(day: s.day, places: list, unrest: false))
+    }
+
+    /// True for the first morning's ledger (day 1, before the first dawn).
+    static func isFirstMorning(_ day: TownDay) -> Bool {
+        day.day <= 1
+    }
+
     // MARK: - The clock
 
     /// The horn: today's ledger closes. Every place that still owes keeps its gold; a house that owed and whose door
-    /// was open (no unrest) counts as left alone. Nothing to do when the day is closed or there is none.
+    /// was open (no unrest) counts as left alone. A collector still on his round comes back first. Nothing to do when
+    /// the day is closed or there is none.
     static func horn(_ s: inout GameState, balance: Balance) {
+        bringCollectorBack(&s, balance: balance)
         guard var town = s.town, var day = town.today, !day.closed else { return }
         let thanked = doorsOpen(s, balance: balance)
         var spared: [Int] = []
@@ -117,16 +149,18 @@ enum Town {
     }
 
     /// The dawn turns the page: yesterday's ledger (closed by the horn, or here when no horn came) becomes yesterday,
-    /// `ledger` becomes today. Returns what the dawn report tells of yesterday (nil when there was no yesterday: the
-    /// first dawn, or a save from before the taxes went on foot). `Economy.dawn` calls it after the happiness changes,
-    /// which read `spareGain` first.
+    /// `ledger` becomes today, and the collector walks it when he is in service. Returns what the dawn report tells of
+    /// yesterday (nil when there was no yesterday: a save from before the taxes went on foot; the first dawn tells of
+    /// the first morning). `Economy.dawn` calls it after the happiness changes, which read `spareGain` first.
     @discardableResult
     static func open(_ s: inout GameState, ledger: TownDay, balance: Balance) -> TownSummary? {
         horn(&s, balance: balance)
         var town = s.town ?? TownState()
         let past = town.today
+        var today = ledger
+        today.collectorOut = town.collectorHired == true ? true : nil
         town.yesterday = past
-        town.today = ledger
+        town.today = today
         s.town = town
         guard let day = past else { return nil }
         var knocked: [Int] = []
@@ -137,9 +171,13 @@ enum Town {
         }
         let gain = day.spared.isEmpty ? 0 : min(balance.town.spareHappinessMost,
                                                 day.spared.count * balance.town.spareHappiness)
+        let walked = day.collectorOut == true
         return TownSummary(day: day.day, tossGold: day.tossGold, knockGold: day.knockGold, kept: day.kept,
                            spared: day.spared, knockedAt: knocked, leviedAt: levied, doubled: day.doubled,
-                           unrest: day.unrest, happinessGain: gain, happinessCost: knockCost(day, balance: balance))
+                           unrest: day.unrest, happinessGain: gain, happinessCost: knockCost(day, balance: balance),
+                           houses: day.places.filter { $0.kind == .house && $0.owed > 0 }.count,
+                           collectorOut: walked ? true : nil, collectorGold: walked ? day.collectorDelivered : nil,
+                           collectorWage: walked ? (day.collectorWage ?? 0) : nil)
     }
 
     // MARK: - At the doors
@@ -224,27 +262,152 @@ enum Town {
 
     /// One sim step: by day, every household whose door the lord passed within `collectReach` on his way from
     /// `kingX` to where he stands now tosses him its part (the whole way is checked, so a long headless step cannot
-    /// slip past a door). No tap, no button.
+    /// slip past a door). No tap, no button. Then the collector's round (the lord first: a door they reach in the
+    /// same step pays the lord).
     static func step(_ s: inout GameState, from kingX: Double, balance: Balance) {
-        guard doorsOpen(s, balance: balance), let day = s.town?.today else { return }
-        let reach = balance.town.collectReach
-        let low = min(kingX, s.king.x) - reach
-        let high = max(kingX, s.king.x) + reach
-        for place in day.places where place.owes {
-            let door = doorX(plot: place.plot)
-            if door >= low && door <= high { collect(&s, plot: place.plot, balance: balance) }
+        if doorsOpen(s, balance: balance), let day = s.town?.today {
+            let reach = balance.town.collectReach
+            let low = min(kingX, s.king.x) - reach
+            let high = max(kingX, s.king.x) + reach
+            for place in day.places where place.owes {
+                let door = doorX(plot: place.plot)
+                if door >= low && door <= high { collect(&s, plot: place.plot, balance: balance) }
+            }
         }
+        stepCollector(&s, balance: balance)
     }
 
-    /// "Double taxes" (the ads lane's reward): from now until the next dawn every toss and every knock counts twice.
-    /// False when no day is running (before the first dawn, after the horn) or it is already doubled.
+    /// "Double taxes" (the ads lane's reward): from now until the next dawn every toss and every knock counts twice
+    /// (and what the collector takes). False when no day is running (after the horn), on the first morning (no dawn
+    /// offered it) or when it is already doubled.
     @discardableResult
     static func grantDoubleTaxes(_ s: inout GameState) -> Bool {
-        guard var town = s.town, var day = town.today, !day.closed, !day.doubled else { return false }
+        guard var town = s.town, var day = town.today, !day.closed, !day.doubled, !isFirstMorning(day) else {
+            return false
+        }
         day.doubled = true
         town.today = day
         s.town = town
         return true
+    }
+
+    // MARK: - The collector (docs/TOWN.md section 2)
+
+    /// Where the collector keeps his post and starts his round: by the hall door (world game px), until the rebuilt
+    /// world brings its anchor (the join).
+    static var collectorPost: Double { Realm.hallX }
+
+    /// The collector is in service from the next morning on.
+    static func collectorHired(_ s: GameState) -> Bool {
+        s.town?.collectorHired == true
+    }
+
+    /// He walks today (he was in service at today's dawn).
+    static func collectorWalksToday(_ s: GameState) -> Bool {
+        s.town?.today?.collectorOut == true
+    }
+
+    /// Takes the collector on (`hired`) or sends him away, from the next morning: today's round, if any, goes on.
+    /// Possible from the first day, no treasury needed (he offers himself at the first audience). False when nothing
+    /// changes.
+    @discardableResult
+    static func setCollector(_ s: inout GameState, hired: Bool) -> Bool {
+        var town = s.town ?? TownState()
+        guard (town.collectorHired == true) != hired else { return false }
+        town.collectorHired = hired
+        s.town = town
+        return true
+    }
+
+    /// A touch on the collector at his post: sends him away, or takes him on again, from the next morning. Returns
+    /// whether he is in service from then on.
+    @discardableResult
+    static func toggleCollector(_ s: inout GameState) -> Bool {
+        let hired = !collectorHired(s)
+        setCollector(&s, hired: hired)
+        return hired
+    }
+
+    /// The door of the day's paying places farthest from his post: where his round turns.
+    static func collectorTurn(_ day: TownDay) -> Double {
+        let post = collectorPost
+        var far = post
+        for place in day.places {
+            let door = doorX(plot: place.plot)
+            if abs(door - post) > abs(far - post) { far = door }
+        }
+        return far
+    }
+
+    /// The farthest point of his round he has reached by `hour`: his post before the dawn, then out at an even pace to
+    /// the turn by `collectorTurnHour`, and the turn from then on (he collects on the way out).
+    static func collectorReached(_ day: TownDay, hour: Double, rules: TownRules) -> Double {
+        let start = ClockEvent.dawnReport.hour
+        let post = collectorPost
+        let turn = collectorTurn(day)
+        guard hour > start else { return post }
+        guard hour < rules.collectorTurnHour else { return turn }
+        return post + (turn - post) * (hour - start) / max(0.01, rules.collectorTurnHour - start)
+    }
+
+    /// Where the collector is on his round now (world game px): from his post at the dawn out to the farthest paying
+    /// door by 09:00 and back by noon. nil when he is not out: not in service today, back at his post, after the horn.
+    static func collectorX(_ s: GameState, balance: Balance) -> Double? {
+        guard let day = s.town?.today, day.collectorOut == true, day.collectorBack != true, !day.closed else {
+            return nil
+        }
+        let rules = balance.town
+        let hour = s.hour
+        guard hour >= ClockEvent.dawnReport.hour, hour < rules.collectorBackHour else { return nil }
+        if hour <= rules.collectorTurnHour { return collectorReached(day, hour: hour, rules: rules) }
+        let turn = collectorTurn(day)
+        let back = (hour - rules.collectorTurnHour) / max(0.01, rules.collectorBackHour - rules.collectorTurnHour)
+        return turn + (collectorPost - turn) * back
+    }
+
+    /// His wage for a strongbox of `box`: one coin in eight (rounded), at least 2, never more than he brought.
+    static func collectorWage(box: Int, rules: TownRules) -> Int {
+        guard box > 0 else { return 0 }
+        let share = Int((Double(box) * rules.collectorWageShare).rounded())
+        return min(box, max(rules.collectorWageLeast, share))
+    }
+
+    /// One sim step of the collector's round: every household that still owes and whose door he has passed pays him
+    /// its part (twice on a "double taxes" day) into his strongbox; at noon he is back and the box goes into the purse,
+    /// less his wage. He never knocks. With the doors shut (unrest) nobody pays him: he comes back with what he has.
+    static func stepCollector(_ s: inout GameState, balance: Balance) {
+        guard var town = s.town, var day = town.today, day.collectorOut == true, day.collectorBack != true,
+              !day.closed else { return }
+        let rules = balance.town
+        if doorsOpen(s, balance: balance) {
+            let reached = collectorReached(day, hour: s.hour, rules: rules)
+            let low = min(collectorPost, reached) - 1e-6
+            let high = max(collectorPost, reached) + 1e-6
+            for index in day.places.indices where day.places[index].owes {
+                let door = doorX(plot: day.places[index].plot)
+                guard door >= low && door <= high else { continue }
+                day.places[index].collected = true
+                day.places[index].collectorGold = day.places[index].owed * (day.doubled ? 2 : 1)
+                day.places[index].tossedAt = s.simTime
+            }
+            town.today = day
+            s.town = town
+        }
+        if s.hour >= rules.collectorBackHour { bringCollectorBack(&s, balance: balance) }
+    }
+
+    /// The collector is back at his post: his strongbox goes into the purse, less his wage. Nothing when he is not out
+    /// today or already back.
+    static func bringCollectorBack(_ s: inout GameState, balance: Balance) {
+        guard var town = s.town, var day = town.today, day.collectorOut == true, day.collectorBack != true,
+              !day.closed else { return }
+        let box = day.collectorBox
+        let wage = collectorWage(box: box, rules: balance.town)
+        day.collectorWage = wage
+        day.collectorBack = true
+        town.today = day
+        s.town = town
+        s.gold += box - wage
     }
 
     // MARK: - What the town shows
@@ -300,11 +463,18 @@ enum Town {
             guard let index = then.index(of: place.plot) else { continue }
             let old = then.places[index]
             if place.collected && !old.collected {
-                list.append(.tossed(plot: place.plot, gold: place.tossGold - old.tossGold))
+                if let gold = place.collectorGold {
+                    list.append(.paidCollector(plot: place.plot, gold: gold))
+                } else {
+                    list.append(.tossed(plot: place.plot, gold: place.tossGold - old.tossGold))
+                }
             }
             if place.knocks > old.knocks {
                 list.append(.knocked(plot: place.plot, gold: place.knockGold - old.knockGold, levy: place.knocks >= 2))
             }
+        }
+        if now.collectorBack == true && then.collectorBack != true {
+            list.append(.collectorBack(gold: now.collectorDelivered, wage: now.collectorWage ?? 0))
         }
         if now.closed && !then.closed { list.append(.closed(day: now.day)) }
         return list
@@ -313,17 +483,19 @@ enum Town {
     // MARK: - The bots
 
     /// A bot's morning in the town (`Autoplay`, `TuningRun`): it collects as its habit says, at once, wherever the
-    /// lord stands. Idempotent: a second call the same day changes nothing.
+    /// lord stands. On the first morning every habit collects (those coins are the starting purse of before). The
+    /// reference bots never hire the collector. Idempotent: a second call the same day changes nothing.
     static func morning(_ s: inout GameState, habit: TownHabit, balance: Balance) {
         guard doorsOpen(s, balance: balance), let day = s.town?.today else { return }
-        switch habit {
+        let todays: TownHabit = isFirstMorning(day) ? .collect : habit
+        switch todays {
         case .collect:
             collectAll(&s, balance: balance)
         case .spare:
             collectAll(&s, balance: balance, sparing: spareChoice(day, balance: balance))
         case .knock, .levy:
             collectAll(&s, balance: balance)
-            let times = habit == .knock ? 1 : 2
+            let times = todays == .knock ? 1 : 2
             for place in day.places where place.kind == .house {
                 while knocks(s, plot: place.plot) < times, knock(&s, plot: place.plot, balance: balance) != nil {}
             }
