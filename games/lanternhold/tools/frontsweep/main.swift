@@ -15,7 +15,8 @@ var doProbe = arguments.contains("probe")
 var doVariants = arguments.contains("variants")
 var doHard = arguments.contains("hard")
 var doNight20 = arguments.contains("night20")
-if !doProbe && !doVariants && !doHard && !doNight20 {
+var doGrid = arguments.contains("grid")
+if !doProbe && !doVariants && !doHard && !doNight20 && !doGrid {
     doProbe = true
     doVariants = true
     doHard = true
@@ -186,6 +187,33 @@ if doVariants {
                           $0.relightReach = 48
                       })] {
         say(row(name, measure(b, stresses: ladder)))
+    }
+    say("(\(elapsed()))")
+}
+
+// Fix round 1: with the rule by belonging the bot's spot on the wall moved T13 (front edge 32 %, 10 to 14 px in 45 to 47 %,
+// round lh-f1f1-2). The grid asks the harm share against the spot (all within a palisade's 20 px), at speed 1.25.
+if doGrid {
+    say("")
+    say("== the spot on the wall against the harm share, budgets \(stresses) (fewer losses; T13's band 25-40 %)")
+    let spots: [Double] = [1, 5, 10, 14, 19]
+    let harms: [Double] = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75]
+    var header = "harm \\ spot".padding(toLength: 12, withPad: " ", startingAt: 0)
+    for spot in spots { header += " | " + "\(Int(spot)) px".padding(toLength: 22, withPad: " ", startingAt: 0) }
+    say(header)
+    for harm in harms {
+        var line = "\(harm)".padding(toLength: 12, withPad: " ", startingAt: 0)
+        for spot in spots {
+            let m = measure(variant {
+                $0.presenceHarm = harm
+                $0.botBehindWall = spot
+            }, stresses: stresses)
+            var budgets: [String] = []
+            for k in stresses { budgets.append(m.reduction(at: k).map(pct) ?? "-") }
+            let cell = "\(pct(m.reduction)) (" + budgets.joined(separator: " ") + ")"
+            line += " | " + cell.padding(toLength: 22, withPad: " ", startingAt: 0)
+        }
+        say(line)
     }
     say("(\(elapsed()))")
 }
