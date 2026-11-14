@@ -11,6 +11,10 @@ only, no randomness (hashes of the position), so a run reproduces its files byte
           complementary dither, so where one tile's west feather lets a pixel through the other's east feather holds
           it back and the field goes on unbroken. The outer 8 px of each side are clear, the feathers 48 px wide; the
           foot feathers too. So no tile ends in a straight line, and the field itself never shows a seam.
+  gloomFogBack, gloomFogMid, gloomFogFront  the Gloom's strips (stage 7's ids, sizes and frames, repainted for M1):
+          2 frames each, a tile that repeats and the leading face; a rolling, swirled top periodic over the tile, the
+          cover growing over a soft depth in eight dithered alpha steps, the colour darkening from a pale crest to the
+          night heart in dithered steps (no flat bands, no contour lines); the face sinks to the lane and runs out clear.
   bankSheetA, bankSheetB, bankSheetC  the darkness bank (fog A, world, fog B), painted in the Gloom's night colours:
           from the west a 48 px feather, then the core, then the bank's leading face, which leans out toward the foot
           (the low fog rolls out first). The core's top and the face are swirled by noise at two scales, so they roll
@@ -195,11 +199,100 @@ def sheet(name):
     return img
 
 
+# ---------------------------------------------------------------------------------------------- the Gloom's strips
+
+def pn(seed, u, n):
+    """Smooth value noise in [0, 1) whose lattice wraps every n cells."""
+    i = math.floor(u)
+    f = u - i
+    f = f * f * (3 - 2 * f)
+    return h01(seed, int(i) % n) * (1 - f) + h01(seed, int(i + 1) % n) * f
+
+
+def pn2(seed, u, v, n):
+    """Smooth 2D value noise whose lattice wraps every n cells along u."""
+    i, j = math.floor(u), math.floor(v)
+    f, g = u - i, v - j
+    f, g = f * f * (3 - 2 * f), g * g * (3 - 2 * g)
+    i0, i1 = int(i) % n, int(i + 1) % n
+    a = h01(seed, i0, int(j)) * (1 - f) + h01(seed, i1, int(j)) * f
+    b = h01(seed, i0, int(j) + 1) * (1 - f) + h01(seed, i1, int(j) + 1) * f
+    return a * (1 - g) + b * g
+
+
+GLOOM = {
+    # frame width and height, the top's base and swing (rows above the bottom), the soft depth, the swirl, the
+    # densest cover, the colours from the crest to the heart, where the leading frame starts to sink and where it
+    # reaches the lane (px into the leading frame), seed
+    "gloomFogBack": dict(w=192, h=120, base=92, swing=22, soft=46, swirl=10, peak=1.0,
+                         ramp=["mist", "mistDark", "far", "farDeep", "night2", "night1", "night0"],
+                         hold=36, end=184, seed=311),
+    "gloomFogMid": dict(w=160, h=64, base=44, swing=14, soft=34, swirl=7, peak=0.55,
+                        ramp=["mist", "mistDark", "far", "farDeep"], hold=30, end=152, seed=313),
+    "gloomFogFront": dict(w=128, h=30, base=21, swing=7, soft=16, swirl=4, peak=0.78,
+                          ramp=["mistDark", "far", "farDeep", "night2"], hold=24, end=120, seed=315),
+}
+
+
+def gloom_strip(name):
+    """The Gloom's fog strips (stage 7's ids and sizes; world rebuild M1, B4): 2 frames side by side, frame 0 a tile
+    that repeats seamlessly, frame 1 the leading face whose left column goes on from frame 0 and whose top sinks to the
+    lane toward its right end, which runs out clear. The fog's top rolls in billows of two sizes and is swirled, both
+    periodic over the tile; under it the cover grows over a soft depth in eight alpha steps and the colour darkens
+    from a pale crest to the night heart in six or seven steps, both with ordered dither (no flat bands, no contour
+    lines); the crest's slopes that face the moon (up and west) catch a little light."""
+    spec = GLOOM[name]
+    w, h = spec["w"], spec["h"]
+    assert w % 8 == 0, "the tile keeps the dither's phase"
+    sd = spec["seed"]
+    ramp = [WA.col(n) for n in spec["ramp"]]
+    n = len(ramp)
+    img = PA.Image(2 * w, h)
+
+    def top(X, ya):
+        u = X % w
+        t = spec["base"] + spec["swing"] * (0.62 * pn(sd, u * 5.0 / w, 5) + 0.38 * pn(sd + 1, u * 13.0 / w, 13) - 0.5)
+        t += spec["swirl"] * (pn2(sd + 2, u * 8.0 / w, ya / 24.0, 8) - 0.5) * 1.2
+        if X >= w:
+            k = X - w
+            env = 1.0 if k < spec["hold"] else 1 - ss((k - spec["hold"]) / float(spec["end"] - spec["hold"]))
+            t *= env
+        return t
+
+    for y in range(h):
+        ya = h - 1 - y
+        for X in range(2 * w):
+            if X >= w and X - w >= spec["end"]:
+                continue
+            t = top(X, ya)
+            d = t - ya                                    # rows under the fog's top
+            if d <= 0:
+                continue
+            a = spec["peak"] * ss(d / spec["soft"])
+            if X >= w:
+                a *= ss((spec["end"] - (X - w)) / 10.0)   # the face's last columns thin to nothing
+            k = max(0, min(LEVELS - 1, int(round(a * (LEVELS - 1) + bay(X + 1, y + 3) - 0.5))))
+            if not k:
+                continue
+            # the colour by depth under the top: a pale crest, the heart toward the lane
+            f = min(1.0, d / float(max(spec["soft"] * 1.6, 1)))
+            ci = int(round(f * (n - 1) + (bay(X + 5, y + 2) - 0.5) * 0.9))
+            # the crest on the moon's side: where the top falls toward the east (its slope faces up and west)
+            slope = top(X + 2, ya) - top(X - 2, ya)
+            if d < 4 and slope < -0.6:
+                ci -= 1
+            c = ramp[max(0, min(n - 1, ci))]
+            img.set(X, y, (c[0], c[1], c[2], int(round(255 * k / (LEVELS - 1)))))
+    return img
+
+
 def build(name, out):
     if name in FOG:
         img = fog_tile(name)
     elif name in SHEETS:
         img = sheet(name)
+    elif name in GLOOM:
+        img = gloom_strip(name)
     else:
         raise SystemExit("unknown fog " + name)
     path = os.path.join(out, name + ".png")

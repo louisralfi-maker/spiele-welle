@@ -120,8 +120,10 @@ extension SceneLayout {
         // near bank at the river end behind 3684 and 3790. Round 2 joined: every kind stands in three paintings
         // (SPRITES.md "Two more paintings of every town tree"), planted so that no painting stands twice side by
         // side; a variant lies on its first painting's canvas, so the places and the flips are as they were.
-        (.mid, Entry(sprite: .d2TreeBelt, x: 1400, y: -2, z: 3)),
-        (.mid, Entry(sprite: .d2TreeBelt, x: 1920, y: -2, z: 3)),
+        // World rebuild (B5): the belt stands behind the cleft wall's last crags (z 2 under their 3), so its west
+        // end at mid 1400 is hidden by the rock where the cleft opens to the valley, never a cut in the open.
+        (.mid, Entry(sprite: .d2TreeBelt, x: 1400, y: -2, z: 2)),
+        (.mid, Entry(sprite: .d2TreeBelt, x: 1920, y: -2, z: 2)),
         (.near, Entry(sprite: .appleTree, x: 1883, y: 0)),
         (.near, Entry(sprite: .appleTreeB, x: 1945, y: 0, flipped: true)),
         (.near, Entry(sprite: .lindenC, x: 1997, y: 0)),
@@ -200,7 +202,7 @@ extension SceneLayout {
     static let look2CleftX: [Double] = [824, 1080, 1336]
     static let look2CleftEnd = 1528.0
     static let look2ShaftX = 1104.0
-    static let look2ShaftShare: Float = 0.55
+    static let look2ShaftShare: Float = 0.85
 
     /// The granite the gatehouse's towers grow out of (H2, tools/cleftart.py): a plinth at each tower's outer foot,
     /// in front of the tower, highest right at its outer edge (world 1249 and 1470) and falling under the tower in a

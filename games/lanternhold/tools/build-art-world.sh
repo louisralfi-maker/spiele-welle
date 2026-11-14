@@ -80,8 +80,10 @@ build() { # name: one sprite (or one group of small ones)
         wa gorge $P/gorge.png $R/gorgeRock.png $R/gorgeCrags.png ;;
     oldWall1|oldWall2|oldWall3|palisadeAnchor|stoneWallAnchor|bastionAnchor)   # stage 7: the old walls in the Throat, the tiers' anchors (granite from gorgeRock.png)
         python3 -I -B games/lanternhold/tools/throatart.py build $1 --out $A ;;
-    gloomFogBack|gloomFogMid|gloomFogFront|gloomWisp|gloomFogEyes)   # stage 7: the Gloom's fog (strips, the shred, the eyes)
+    gloomWisp|gloomFogEyes)   # stage 7: the Gloom's shred and eyes
         python3 -I -B games/lanternhold/tools/gloomart.py build $1 --out $A ;;
+    gloomFogBack|gloomFogMid|gloomFogFront)   # the Gloom's strips, repainted by the world rebuild (M1: dithered, soft, no contour bands)
+        python3 -I -B games/lanternhold/tools/fogart.py build $1 --out $A ;;
     # cleftFace, cleftFaceEnd, cleftFlank, cleftFlankB, cleftThroat: retired by the world rebuild (REVIEW-look-2.md
     # B6, H1); the files lie in tools/retired-art, their recipe in git before 14.11.2026
     throatStepA|throatStepB|throatStepC|cleftWallA|cleftWallB|cleftWallC|cleftShaft|gateRockL|gateRockR)

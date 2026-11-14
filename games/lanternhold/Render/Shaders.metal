@@ -1043,7 +1043,9 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         if (e > 0.0f) {
             ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
         }
-        float3 lit = lh2_cold(m.rgb, ambient, 1.0f - shade, 1.0f, v) + m.rgb * info.backdrop * 0.3f
+        // World rebuild: the backdrop lights a little stronger (0.3 before), so the castle's warm light grazes the
+        // cleft wall over the roofs at dusk and night.
+        float3 lit = lh2_cold(m.rgb, ambient, 1.0f - shade, 1.0f, v) + m.rgb * info.backdrop * 0.5f
             + m.rgb * kMoonLight2 * lh2_moon_key(m, v);
         lit = mix(lit, v.midHC.rgb * m.a, haze);
         lit = mix(lit, v.bandC.rgb * m.a, band * 0.6f);

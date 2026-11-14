@@ -832,21 +832,35 @@ extension FrameBuilderTests {
 
     /// B5 (and B6, H1): from the Throat through the castle to the valley (camera centres 1200 to 2500 in 20 px steps)
     /// no backdrop piece ends in a vertical seam in the view. Wherever a piece's end column stands inside the view,
-    /// every row its art holds there is covered by a piece drawn in front of it (later on its own plane, or on the mid
-    /// plane for the far one), or its art is clear there. Inside the walls the far plane is gone (the cleft wall
-    /// fills the view up to its slit of sky) and the cleft wall is the mid plane.
+    /// every row its art holds there is covered by something opaque drawn in front of it (later on its own plane, or
+    /// on a nearer plane: the mid plane for the far one, the mist band, the near plane, the world plane with the
+    /// gates' masonry), or its art is clear there. Inside the walls the far plane is gone (the cleft wall fills the
+    /// view up to its slit of sky) and the cleft wall is the mid plane.
     func testNoBackdropEndsInASeamFromTheThroatToTheValley() {
         let layout = AtlasLayout.shared
-        func opaque(_ item: SpriteInstance, column: Int, row: Int) -> Bool {
+        func texel(_ item: SpriteInstance, column: Int, row: Int) -> RGBA? {
             let cell = layout.cell(item.sprite, frame: item.frame)
-            guard column >= 0, column < cell.width, row >= 0, row < cell.height else { return false }
+            guard column >= 0, column < cell.width, row >= 0, row < cell.height else { return nil }
             let x = item.flipped ? cell.width - 1 - column : column
-            return layout.image[cell.x + x, cell.y + row].a > 128
+            return layout.image[cell.x + x, cell.y + row]
         }
-        func covers(_ item: SpriteInstance, x: Int, y: Int) -> Bool {
+        func opaque(_ item: SpriteInstance, column: Int, row: Int) -> Bool {
+            (texel(item, column: column, row: row)?.a ?? 0) > 128
+        }
+        /// The colour a plain sprite shows at screen pixel x, y (nil: not there or clear).
+        func colour(_ item: SpriteInstance, x: Int, y: Int) -> RGBA? {
+            guard item.source == nil else { return nil }
+            let t = texel(item, column: x - Int(item.rect.x.rounded()), row: y - Int(item.rect.y.rounded()))
+            return (t?.a ?? 0) > 128 ? t : nil
+        }
+        /// True when `item` hides screen pixel x, y of something drawn behind it at `alpha` (a cover fading with the
+        /// far plane hides what fades with it).
+        func covers(_ item: SpriteInstance, x: Int, y: Int, over alpha: Float = 1) -> Bool {
+            guard item.tint.w > 0.9 || item.tint.w >= alpha - 0.01 else { return false }
             let column = x - Int(item.rect.x.rounded())
             let row = y - Int(item.rect.y.rounded())
-            return item.tint.w > 0.9 && opaque(item, column: column, row: row)
+            guard column >= 0, row >= 0, column < Int(item.rect.z), row < Int(item.rect.w) else { return false }
+            return opaque(item, column: column + Int(item.source?.x ?? 0), row: row + Int(item.source?.y ?? 0))
         }
         var options = FrameOptions(flickerTime: 2.5)
         options.look = .two
@@ -856,6 +870,7 @@ extension FrameBuilderTests {
         while focus <= 2500 {
             let desc = frame(timeOfDay: 0.5, focus: focus, options: options, scene: world)
             let mid = desc.layer(.mid).sprites
+            let nearer = desc.layer(.mistBand).sprites + desc.layer(.near).sprites + desc.layer(.world).sprites
             if focus >= 1400 && focus <= 2300 {
                 XCTAssertTrue(desc.layer(.far).sprites.isEmpty, "the far plane shows inside the walls at \(focus)")
                 let cleft: Set<SpriteID> = [.throatStepC, .cleftWallA, .cleftWallB, .cleftWallC]
@@ -864,6 +879,8 @@ extension FrameBuilderTests {
                 XCTAssertTrue(mid.contains { cleft.contains($0.sprite) && covers($0, x: centre, y: row) },
                               "the cleft wall stands behind the castle at \(focus)")
             }
+            // The cleft's canvas is one painting cut in four: a piece's end that meets the next piece goes on.
+            let canvas: Set<SpriteID> = [.throatStepC, .cleftWallA, .cleftWallB, .cleftWallC]
             for plane in [Plane.far, .mid] {
                 let sprites = desc.layer(plane).sprites
                 for (index, item) in sprites.enumerated() where FrameBuilderTests.backdrops.contains(item.sprite) {
@@ -873,12 +890,25 @@ extension FrameBuilderTests {
                     for (column, edge) in [(0, left), (width - 1, left + width - 1)] {
                         guard edge > 0 && edge < desc.targetWidth - 1 else { continue }
                         checked += 1
-                        let front = Array(sprites[(index + 1)...]) + (plane == .far ? mid : [])
+                        let west = column == 0
+                        let goesOn = canvas.contains(item.sprite) && sprites.contains { other in
+                            canvas.contains(other.sprite) && other.rect.y == item.rect.y
+                                && (west ? Int(other.rect.x.rounded()) + Int(other.rect.z) == left
+                                         : Int(other.rect.x.rounded()) == edge + 1)
+                        }
+                        if goesOn { continue }
+                        let front = Array(sprites[(index + 1)...]) + (plane == .far ? mid : []) + nearer
+                        let behind = sprites[..<index]
                         var open = 0
                         for row in 0..<Int(item.rect.w) where opaque(item, column: column, row: row) {
                             let y = Int(item.rect.y.rounded()) + row
                             guard y >= 0 && y < desc.targetHeight else { continue }
-                            if !front.contains(where: { covers($0, x: edge, y: y) }) { open += 1 }
+                            if front.contains(where: { covers($0, x: edge, y: y, over: item.tint.w) }) { continue }
+                            // A patch painted over its own wall (the Weltmauer's patch) shows no seam where the wall
+                            // under it has the same colour.
+                            let mine = colour(item, x: edge, y: y)
+                            if let mine, behind.contains(where: { colour($0, x: edge, y: y) == mine }) { continue }
+                            open += 1
                         }
                         XCTAssertLessThanOrEqual(open, 2, "\(item.sprite) (\(plane)) ends in the view at column "
                                                  + "\(edge) with \(open) open rows (camera centre \(focus))")
