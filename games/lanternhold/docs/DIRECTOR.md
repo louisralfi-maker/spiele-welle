@@ -388,9 +388,15 @@ schneller geht."
      catches it);
   2. the town's taxes on foot move numbers that quests (`TableNeutralityTests`) and craft (the lampmaker, 494 against
      60 per mille) pinned: re-pin with the town's reference habit, then tune by values;
-  3. `AudienceFlowTests.testThePetitionSample` is not explained yet (the stage lane answers after `lh-s1-6`);
+  3. `AudienceFlowTests.testThePetitionSample` is explained and fixed (stage lane, 29390db): the first standing
+     guest had moved to the door bay, so the herald's walk took 2 s against the test's 1.8 s;
   4. the atlas is at about 1960 of 2048 rows after the join: the world lane brings the second page first in world-2;
-  5. the quests lane's branch is `claude/lh-q`; `claude/lh-quests` is an old docs branch.
+  5. the quests lane's branch is `claude/lh-q`; `claude/lh-quests` is an old docs branch;
+  6. the hall's lectern still opens the old tax card when nobody waits (`openCard(.taxes, ...)` in the stage
+     lane's hall): the calls go at the join, once the town's taxes on foot are in. Build 2 has no tax menu;
+  7. the speed kit (`claude/lh-speed`, cb12b7d and da894be) cherry-picks cleanly onto all ten lanes; the join
+     takes it and converts the still sweeps. Watch the ads lane's `AdDirector.shared.attach`, called once per
+     shot in a sweep.
 - **An interface art kit ahead of stage-3** (one Opus agent, branch `claude/lh-hudart`, report
   `ci-out/director/hud-kit.md`, pictures in `ci-out/director/hud-kit/`): the figures, the coins, the four faces, the
   people, the arrows and the gear of HUD.md, with proof pictures on real screenshots at noon, dusk and night. The
@@ -405,3 +411,9 @@ schneller geht."
   `release` for a game that has `games/<game>/ci-short-rounds`; `GW_CI_FULL=1` lifts it. It is on the planning branch,
   so it holds for every workflow started from it and from the join on. The join merges planning first.
 - **A rule that must reach everyone at once** goes into a script the agents call, never only into a note.
+- **stage-1-hall is accepted (22:17):** the director judged `lh-s1-8` (the hall by day, the audience, the night).
+  The hall is big and alive, the audience picture is strong, the night with the hearth is the best picture so far.
+  Five corrections ride in stage-2's rounds (`ci-out/director/notes-stage.md`): the near pillar, the lord on the
+  throne, the lantern pool's colour, the five identical banners, the hearth light's hard edge.
+- **The queue at 21:30:** an agent that started before the 19:35 note still sends one full round as its gate
+  (people 20:24, world 21:17). Quota 63 % at 21:34, about 9 % an hour.
