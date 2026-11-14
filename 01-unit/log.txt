@@ -1,0 +1,118 @@
+2026-11-14 21:28:46.782077+0000 Lanternhold[8031:36180] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.AtlasTests testBundledArtReplacesThePlaceholder]' passed (3.245 seconds).
+Test Case '-[LanternholdTests.AtlasTests testCellsKeepTheirPaddingClear]' passed (0.144 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEveryPlacedSpriteIsPainted]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEveryPlaceholderDrawsSomethingAtItsSize]' passed (10.791 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEverySpriteGetsCellsOfItsSize]' passed (0.012 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/AtlasTests.swift:95: error: -[LanternholdTests.AtlasTests testLook2ArtIsBundled] : XCTAssertEqual failed: ("Optional(Lanternhold.AtlasSource.placeholder)") is not equal to ("Optional(Lanternhold.AtlasSource.png)") - townCorra is drawn from its painting
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/AtlasTests.swift:95: error: -[LanternholdTests.AtlasTests testLook2ArtIsBundled] : XCTAssertEqual failed: ("Optional(Lanternhold.AtlasSource.placeholder)") is not equal to ("Optional(Lanternhold.AtlasSource.png)") - townDun is drawn from its painting
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/AtlasTests.swift:95: error: -[LanternholdTests.AtlasTests testLook2ArtIsBundled] : XCTAssertEqual failed: ("Optional(Lanternhold.AtlasSource.placeholder)") is not equal to ("Optional(Lanternhold.AtlasSource.png)") - townBrede is drawn from its painting
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/AtlasTests.swift:95: error: -[LanternholdTests.AtlasTests testLook2ArtIsBundled] : XCTAssertEqual failed: ("Optional(Lanternhold.AtlasSource.placeholder)") is not equal to ("Optional(Lanternhold.AtlasSource.png)") - townHemmet is drawn from its painting
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/AtlasTests.swift:95: error: -[LanternholdTests.AtlasTests testLook2ArtIsBundled] : XCTAssertEqual failed: ("Optional(Lanternhold.AtlasSource.placeholder)") is not equal to ("Optional(Lanternhold.AtlasSource.png)") - townWenna is drawn from its painting
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/AtlasTests.swift:95: error: -[LanternholdTests.AtlasTests testLook2ArtIsBundled] : XCTAssertEqual failed: ("Optional(Lanternhold.AtlasSource.placeholder)") is not equal to ("Optional(Lanternhold.AtlasSource.png)") - townGorm is drawn from its painting
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/AtlasTests.swift:95: error: -[LanternholdTests.AtlasTests testLook2ArtIsBundled] : XCTAssertEqual failed: ("Optional(Lanternhold.AtlasSource.placeholder)") is not equal to ("Optional(Lanternhold.AtlasSource.png)") - kingKnock is drawn from its painting
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/AtlasTests.swift:95: error: -[LanternholdTests.AtlasTests testLook2ArtIsBundled] : XCTAssertEqual failed: ("Optional(Lanternhold.AtlasSource.placeholder)") is not equal to ("Optional(Lanternhold.AtlasSource.png)") - ladyKnock is drawn from its painting
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/AtlasTests.swift:95: error: -[LanternholdTests.AtlasTests testLook2ArtIsBundled] : XCTAssertEqual failed: ("Optional(Lanternhold.AtlasSource.placeholder)") is not equal to ("Optional(Lanternhold.AtlasSource.png)") - townCoin is drawn from its painting
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/AtlasTests.swift:95: error: -[LanternholdTests.AtlasTests testLook2ArtIsBundled] : XCTAssertEqual failed: ("Optional(Lanternhold.AtlasSource.placeholder)") is not equal to ("Optional(Lanternhold.AtlasSource.png)") - townCottage is drawn from its painting
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/AtlasTests.swift:95: error: -[LanternholdTests.AtlasTests testLook2ArtIsBundled] : XCTAssertEqual failed: ("Optional(Lanternhold.AtlasSource.placeholder)") is not equal to ("Optional(Lanternhold.AtlasSource.png)") - townBigHouse is drawn from its painting
+Test Case '-[LanternholdTests.AtlasTests testLook2ArtIsBundled]' failed (0.334 seconds).
+Test Case '-[LanternholdTests.AtlasTests testPackerKeepsInsideTheWidth]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.AtlasTests testPlaceholdersAreDeterministic]' passed (0.377 seconds).
+Test Case '-[LanternholdTests.AtlasTests testStripsSplitIntoFrames]' passed (0.002 seconds).
+2026-11-14 21:29:04.267345+0000 Lanternhold[8031:36180] [Lanternhold] createImageAtIndex:2185: *** ERROR: createImageAtIndex[0] - 'n/a ' - failed to create image [-62]
+2026-11-14 21:29:04.267404+0000 Lanternhold[8031:36180] [Lanternhold] CGImageSourceCreateImageAtIndex:5179: *** ERROR: CGImageSourceCreateImageAtIndex[0] - 'n/a ' - failed to create image [-62]
+Test Case '-[LanternholdTests.AtlasTests testTinyPNGDecodesExactly]' passed (0.002 seconds).
+Test Suite 'AtlasTests' failed at 2026-11-14 21:29:04.277.
+Test Case '-[LanternholdTests.AudienceFlowTests testAnAudienceBeforeTheHornHoldsTheClock]' passed (0.041 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testStandingUpLeavesTheRestWaitingAndTheLecternSetsTheTaxes]' passed (0.311 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testTalkingToTheCourt]' passed (0.029 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testTheCrownOpensTheAudienceAndAChoiceIsHeard]' passed (0.047 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testThePauseEndsTheAudienceAndReduceMotionOpensTheCardAtOnce]' passed (0.053 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testThePauseLetsAHeardPetitionerWalkOut]' passed (0.024 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testThePetitionSample]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testTheStrangerIsHeardAtTheGate]' passed (0.318 seconds).
+Test Case '-[LanternholdTests.CardModelTests testALockedPlotStillOpensItsCardToTellItsDay]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.CardModelTests testAnEmptyPlotOffersItsFirstBuildWithPriceTimeAndTheMissingGold]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CardModelTests testAPlotWithAJobRunningGivesWayToItsNeighbour]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CardModelTests testByDayTheButtonOffersThePlotTheBarracksAndTheThrone]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.CardModelTests testFromTheHornToDawnTheButtonLightsAndPatchesOnly]' passed (0.024 seconds).
+Test Case '-[LanternholdTests.CardModelTests testOrderingTheCardsOptionGoesThroughTheSimulation]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CardModelTests testPatchAndLightShowWhyTheyCannotActNow]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CardModelTests testTheArrowsStepToThePlotsInReachLeftAndRight]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CardModelTests testTheBarracksCardCountsAndPrices]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.CardModelTests testTheEngineOffersBothAndTheTimesFollowTheBuilders]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CardModelTests testTheTaxLecternForecastsEachRate]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.CardModelTests testUpgradesAndRubbleUseTheSameCard]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FeelTests testFirstLightSweepsFromRightToLeftWhereTheSimulationDissolves]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FeelTests testTheBigMomentsAlwaysPlayAndComeFirst]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FeelTests testTheShakeFadesAndRespectsReduceMotion]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FeelTests testVolleysPlayNearTheKingAndThinOut]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundTests testEveryFileIsInTheAppAndSmall]' passed (0.030 seconds).
+Test Case '-[LanternholdTests.SoundTests testFireIsHeardNearBraziersAndTheBeacon]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundTests testSoundIsOffInTestsUnlessAskedFor]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheAmbienceFollowsDayNightRainAndPlace]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheGameFeedsTheHubWithoutTouchingTheSimulation]' passed (0.340 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheGateShutsAtNightfall]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheHaptics]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheLordsStepsFollowHisWalk]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheMomentsHaveTheirSounds]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheThinnerTakesTheWatchsCues]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheThrottleKeepsItsGapPerKey]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheWatchHearsGoldWallsAndCreatures]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testAHouseTheLordReachesFirstPaysTheLordInFull]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testDoubleTaxesCountForWhatHeTakesToo]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testHeCollectsTheDoorsHePassesAndTheGoldArrivesWithHimAtNoon]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testHeIsHiredFromTheFirstDayAndServesFromTheNextMorning]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testHeNeverKnocksButTheLordMayKnockWhereHeHasBeen]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testHisRoundFromTheHallDoorToTheLastDoorAndBackByNoon]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testInUnrestHeComesBackEmpty]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testTheHornBringsHimBackIfNoonNeverCameAndTheRoundIsSaved]' passed (0.085 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testTheWageIsOneCoinInEightAtLeastTwoAndNeverMoreThanHeBrought]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testThroughTheSimulation]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownNeutralityTests testSeedOnePlaysAsTheRoundBeforeTheTaxesWentOnFoot]' passed (3.156 seconds).
+Test Case '-[LanternholdTests.TownNeutralityTests testTheFirstMorningGivesBackTheOldStartingPurse]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownNeutralityTests testTheReferenceBotGetsExactlyWhatTheOldDawnGave]' passed (6.046 seconds).
+Test Case '-[LanternholdTests.TownShowTests testARefusedKnockIsOneKnockAndNothingOpens]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.TownShowTests testATouchOnADoorFindsItsHouse]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownShowTests testEveryHouseholdThatOwesWaitsBeforeItsOpenDoor]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TownShowTests testGladHouseholdsWaveAndGrimOnesThrowAtHisFeet]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownShowTests testReduceMotionFadesTheCoinsInAtTheLord]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheDebugStartsSetTodaysDoors]' passed (0.285 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheDoorsAreTheHousesPaintedDoors]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheFarmerCountsHisCoinsOutOfTheCloth]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheFirstMorningsHouseholdWaitsInTheCourtyardAndWalksHome]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheFrameGetsTheDoorsTheFiguresTheCoinsAndTheKnock]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheKnockKnocksThriceOpensBowsHandsOverAndShutsTheShutters]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheSpritesKeepTheirContract]' passed (0.017 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/TownShowTests.swift:129: error: -[LanternholdTests.TownShowTests testTheTossFliesItsCoinsIntoTheLordsHandOneByOne] : XCTAssertEqual failed: ("10") is not equal to ("11")
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/TownShowTests.swift:136: error: -[LanternholdTests.TownShowTests testTheTossFliesItsCoinsIntoTheLordsHandOneByOne] : XCTAssertEqual failed: ("10") is not equal to ("11")
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/TownShowTests.swift:137: error: -[LanternholdTests.TownShowTests testTheTossFliesItsCoinsIntoTheLordsHandOneByOne] : XCTAssertEqual failed: ("60") is not equal to ("59")
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/TownShowTests.swift:138: error: -[LanternholdTests.TownShowTests testTheTossFliesItsCoinsIntoTheLordsHandOneByOne] : XCTAssertEqual failed: ("6") is not equal to ("7") - 4 landed
+Test Case '-[LanternholdTests.TownShowTests testTheTossFliesItsCoinsIntoTheLordsHandOneByOne]' failed (0.028 seconds).
+Test Suite 'TownShowTests' failed at 2026-11-14 21:29:15.722.
+Test Case '-[LanternholdTests.TownTests testAKnockBringsAtLeastOneCoin]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testBigHousesHoldMoreTaxpayers]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testDoubleTaxesMakeEveryPaymentOfTheDayCountTwice]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testEachHouseLeftAloneIsWorthOneAndAllOfThemAtMostThree]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testEveryHouseKnockedOnceIsAboutTheOldHighTaxAndTwiceTheOldWarTax]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testEveryTownTextIsInEnglishAndGermanAndFits]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.TownTests testHowTheHouseholdTossesAndHowManyCoinsFly]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testTheBotsHabits]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testTheDawnReportTellsOfYesterday]' passed (0.150 seconds).
+Test Case '-[LanternholdTests.TownTests testTheDawnSplitsTheDaysTaxesOverThePayingPlaces]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testTheFirstMorningsCoinsWaitAtTheFirstHouse]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testTheGoldComesOnFootNotAtDawn]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testTheKnock]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testThePartsAlwaysAddUpToTheDaysTaxes]' passed (0.110 seconds).
+Test Case '-[LanternholdTests.TownTests testTheSplitByLargestRemainder]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.TownTests testTheTownIsSavedAndAnOldSaveLoads]' passed (0.039 seconds).
+Test Case '-[LanternholdTests.TownTests testTheTownsEventsForTheScreen]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testTheWarLevyIsASecondKnockFromStoryDayEight]' passed (0.661 seconds).
+Test Case '-[LanternholdTests.TownTests testUnrestAtDawnShutsEveryDoor]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testUnrestByDayShutsTheDoorsUntilItLifts]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testWalkingPastADoorCollects]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testWhatNobodyCameForByTheHornThePeopleKeep]' passed (0.001 seconds).
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-14 21:29:16.799.
+Test Suite 'Selected tests' failed at 2026-11-14 21:29:16.799.
+exit=65
+screenshots: 0
