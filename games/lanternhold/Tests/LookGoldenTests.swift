@@ -36,12 +36,17 @@ final class LookGoldenTests: XCTestCase {
     /// and the castle the upper two bands' sums are the old ones, in the court the upper three (the sky and the
     /// far layers did not move). Before the join the three hashes were acd2fe8d679560b2 (front), e002808da9004a19
     /// (castle) and c4479f099980a9e2 (court).
+    ///
+    /// The people lane (14.11.2026, docs/PEOPLE.md): the three townsfolk were repainted as worn working people at
+    /// their sizes and frames, and look 1 walks them too, so the two town scenes that show them were recorded again
+    /// from round lh-p1-2 (on 289e3d0); look 1's drawing and its walkers are unchanged (the cast's new bodies are look 2
+    /// only). Before, square-morning was c0ba9a8be11ba03e and town-noon e0e4b0352af35485.
     static let golden: [String: String] = [
         "front-night": "9b01af38246bc805",
         "castle-night": "f85bb5b965601d8",
         "court-dusk": "7847cdaa53452732",
-        "square-morning": "c0ba9a8be11ba03e",
-        "town-noon": "e0e4b0352af35485",
+        "square-morning": "48f861adaf7d4de4",
+        "town-noon": "72f6c186577a8bc6",
         "river-golden": "c0f21df86bbe85b6",
     ]
 

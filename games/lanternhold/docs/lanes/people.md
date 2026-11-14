@@ -40,6 +40,8 @@ bringt Charakterwechsel mit rein." The rule: `docs/BARS.md` section 3. Who is wh
 | `tools/grids/court/petitionerE.txt`, `petitionerD.txt` (and their PNGs) | the grids (built by `build-art-court.sh`) | petitionerE repainted (Master Edwy: felt cap, brown gown, leather apron with tallow drips, no velvet, fur or gold); petitionerD recoloured (undyed shawl, soot-grey dress, bread only) | nobody in town finer than a neighbour |
 | `Core/CourtSpeakers.swift` | `Speakers.townsfolk` | `folk("child", .childC, …)` (was `.citizen`), `folk("noble", .nobleLord, …)` (was `.petitionerE`), and the comment above | the child petitioner walks as Fen, the noble as Ser Aubrey's kind; neither sits on the benches |
 
+| `Tests/LookGoldenTests.swift` | `golden`, and the comment above it | `square-morning` 48f861adaf7d4de4 (was c0ba9a8be11ba03e), `town-noon` 72f6c186577a8bc6 (was e0e4b0352af35485), recorded from round lh-p1-2 | look 1 walks the repainted townsfolk; its drawing is unchanged. At the join: if the rebuilt town changes these scenes anyway, record them again from the join's round |
+
 The rebuild lanes rewrite `EntityFrames` and the town: at the join, wherever the rebuilt town draws its walkers by day,
 call `PeopleCast.townLife` once and take the walkers' bodies, pace and step from `PeopleCast` (`townWalkers`,
 `pace`, `walkFrame`). Everything else of the lane is in its own files.
