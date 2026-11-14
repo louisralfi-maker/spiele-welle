@@ -1,0 +1,6 @@
+Test Case '-[LanternholdUITests.LightProbeUITests testLightProbe]' passed (279.920 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolish]' passed (227.739 seconds).
+Test Case '-[LanternholdUITests.SweepProofUITests testLightProbeSweep]' passed (49.492 seconds).
+Test Case '-[LanternholdUITests.SweepProofUITests testPolishSweep]' passed (60.038 seconds).
+exit=0
+screenshots: 82
