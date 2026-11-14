@@ -120,6 +120,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // Stage 7 (SPRITES.md "The circlet icon"): interface art, never in the world: the lord's circlet in gold (the
     // HUD's audience button) and in ink alone (the audience card's gold button)
     case circletIcon, circletIconInk
+    // The hall stage (stage lane, 14.11.2026; SPRITES.md "The great hall as a stage", "The hall stage's light"): the
+    // great hall, its near pillar and its fire, the six marks of touch the world (stage 8), the day's light shaft, a
+    // dust mote and the plaster patches over the brick (tools/hallstage.py)
+    case greatHall, hallPillarNear, hallFire, tapTalk, tapThrone, tapBuild, tapRepair, tapRecruit, tapLight
+    case hallShaft, hallMote, hallWash
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -346,6 +351,14 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bannerVarn, .bannerBrine, .bannerOxmoor, .bannerCalder, .bannerLorn:
             return PixelSize(width: 20, height: 41)
         case .circletIcon, .circletIconInk: return PixelSize(width: 24, height: 16)
+        // The hall stage (stage lane).
+        case .greatHall: return PixelSize(width: 600, height: 201)
+        case .hallPillarNear: return PixelSize(width: 46, height: 201)
+        case .hallFire: return PixelSize(width: 34, height: 28)
+        case .tapTalk, .tapThrone, .tapBuild, .tapRepair, .tapRecruit, .tapLight: return PixelSize(width: 15, height: 18)
+        case .hallShaft: return PixelSize(width: 83, height: 120)
+        case .hallMote: return PixelSize(width: 1, height: 1)
+        case .hallWash: return PixelSize(width: 64, height: 44)
         }
     }
 
@@ -394,6 +407,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .arrow, .fireArrow, .bolt, .spark, .streak, .rainSplash: return 3
         case .rainStreak: return 9
         case .palisade, .stoneWall, .bastion, .ballista, .stakePit, .firepot, .shard: return 2
+        // The hall stage (stage lane): the great fire's six frames, idle and pressed marks, eight plaster patches.
+        case .hallFire: return 6
+        case .tapTalk, .tapThrone, .tapBuild, .tapRepair, .tapRecruit, .tapLight: return 2
+        case .hallWash: return 8
         default: return 1
         }
     }
@@ -612,9 +629,33 @@ struct FrameDesc: Sendable, Equatable {
     /// Look 2: the rain (0 ... 1) and how wet stone and lane are (0 ... 1), for the composite's wet sheen.
     var rain: Float = 0
     var wetness: Float = 0
+    // The hall stage (stage lane, 14.11.2026; DESIGN.md "The hall stage and touch the world").
+    /// Device pixels per game pixel as the composite reads them, when it is not `scale`: the hall's eased move into
+    /// the audience framing (s 7 to s 8) passes through fractional values; nil everywhere else.
+    var zoom: Double? = nil
+    /// An interior's own light on the world plane and the figures (the great hall): the ambient replaces the
+    /// world's (the far plane and the sky through the windows keep the hour's), the night's pull is scaled, and the
+    /// upper wall fades into the roof's dark. nil outdoors.
+    var interior: InteriorLight? = nil
 
     /// The layer of one plane.
     func layer(_ plane: Plane) -> PlaneLayer {
         planes[plane.rawValue]
     }
+}
+
+/// An interior's light (the hall stage, stage lane): what the composite of look 2 takes instead of the world's ambient
+/// on the world plane and on the figures. The far plane and the sky (seen through the windows) keep the hour's light.
+struct InteriorLight: Sendable, Equatable {
+    /// The ambient light on the hall's albedo (rgb, at its level).
+    var ambient: SIMD3<Float>
+    /// The night's pull toward deep blue × this (1: as outdoors).
+    var nightPull: Float
+    /// The vertical value ramp: the ambient falls to `1 − rampStrength` toward the top of the target, from
+    /// `rampEndRow` (target rows) upward over `InteriorLight.rampRows` rows; 0: none.
+    var rampStrength: Float
+    var rampEndRow: Float
+
+    /// The rows over which the upper wall fades into the roof's dark.
+    static let rampRows: Float = 95
 }
