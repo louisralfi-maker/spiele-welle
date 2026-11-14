@@ -87,7 +87,25 @@ were already planned in DESIGN.md).
 
 ### Rounds
 
-- `lh-pn1-1` (402cc99): build, unit SlidesTests and LordEntryTests, ui and ui-de SlidesUITests. Result: pending.
+- `lh-pn1-1` (402cc99): build, unit SlidesTests and LordEntryTests, ui and ui-de SlidesUITests. Build, ui and ui-de
+  passed; unit failed once: `slides.position` used `{n}` and `{count}`, which `LordText` reads as broken placeholders.
+  Fixed (a `%1$d of %2$d` format). Judged on the screenshots and fixed after it: the centre light (screen blend 0.17)
+  lifted the pictures' darks, now 0.09; German slide 4's "An die, die die Lampen" now "An die, die abends die Lampen
+  anzündet"; the last slide stays drawn while the stage fades out (it vanished first).
+- `lh-pn1-2` (18a01fb): the full round (build, unit, ui, ui-de, release): ALL PASSED. Screenshots 61 to 69 in English
+  and German; upright copies in `ci-out/upright/` of this worktree (git-ignored).
+
+### My own verdict, and what is weakest
+
+- The stage itself carries the idea: dark room, warm spill, breathing vignette, dust, the carrier's slide, the label on
+  the last glass. German fits (slide 3's second line is the longest, still inside the stage's width).
+- Slide 3 is the weakest picture: Aldric is small in the frame (39 x 30 px) and the twelve bearers read as dark shapes
+  with lights; the story reads, the subject could be bigger.
+- Slide 4: the half-length bodies are the portraits' chests carried down (simple shapes that sink into the dark), and
+  Odile's folded paper is small; the faces, the slipped circlet and the soot read.
+- Slide 1: the lower face of the wall is a calm, fairly flat band; the cloud banks are a little regular.
+- The art lock: a shell command that mentions an `*art*.py` inside a multi-line heredoc stays in `pgrep`'s view and
+  holds every other lane's lock holder back (it waits up to 20 minutes); run art-lock calls as single-line commands.
 
 ### Open, and what waits for the join
 
