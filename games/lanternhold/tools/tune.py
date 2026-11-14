@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
-"""Lanternhold economy mirror (DESIGN.md "Economy", "Tuning targets"): taxes, happiness, growth and the affordability
-of the reference build order over 20 days, in pure python, in well under a second. For quick checks on the old Mac,
-which never builds Swift (CLAUDE.md "This Mac").
+"""Lanternhold economy mirror (DESIGN.md "Economy", "Tuning targets"; docs/TOWN.md section 1): taxes on foot,
+happiness, growth and the affordability of the reference build order over 20 days, in pure python, in well under a
+second. For quick checks on the old Mac, which never builds Swift (CLAUDE.md "This Mac").
+
+Since town-1 the dawn works out the day's taxes at the one rate and splits them over the paying places (each house by
+its taxpayers, largest remainder; each field; the market); the bots collect at dawn by habit: normal collects
+everything, low leaves the two houses that owe least alone (+1 happiness each at the next dawn, at most +3), high
+knocks once at every house (40 % more, -2 happiness at once each). Core/Town/Town.swift is the source.
 
 It reads its numbers from the Swift sources, so it cannot drift from them:
-  Core/Balance.swift   the `var name = value` lines and the ItemStats rows (prices, build times)
-  Core/Autoplay.swift  the reference build order (.build("plot", .item), .recruitArchers, .recruitGuards(n))
-  Core/Realm.swift     the unlock days
+  Core/Balance.swift          the `var name = value` lines and the ItemStats rows (prices, build times)
+  Core/Town/TownRules.swift   the `var name = value` lines (the knock, the houses left alone)
+  Core/Autoplay.swift         the reference build order (.build("plot", .item), .recruitArchers, .recruitGuards(n))
+  Core/Realm.swift            the unlock days
 
 The battle is left out: no losses, no rubble, no patches (the runner's TuningTests measure those). Builders are a
 capacity of builder-seconds per day. Usage: python3 tools/tune.py [--days 20] [--set taxPerPayer=5.5 ...] [--quiet]
@@ -31,8 +37,9 @@ def read(name):
 def load_balance():
     text = read("Core/Balance.swift")
     values = {}
-    for name, value in re.findall(r"^\s*var (\w+) = (-?[0-9][0-9_]*(?:\.[0-9]+)?)\s*$", text, re.M):
-        values[name] = float(value.replace("_", ""))
+    for source in (text, read("Core/Town/TownRules.swift")):
+        for name, value in re.findall(r"^\s*var (\w+) = (-?[0-9][0-9_]*(?:\.[0-9]+)?)\s*$", source, re.M):
+            values[name] = float(value.replace("_", ""))
     items = {}
     for item, price, time in re.findall(r"ItemStats\(\.(\w+), price: (\d+), time: ([0-9.]+)\)", text):
         items[item] = (int(price), float(time))
@@ -76,11 +83,34 @@ TIER = {item: index + 1 for chain in CHAINS for index, item in enumerate(chain)}
 PREVIOUS = {chain[i + 1]: chain[i] for chain in CHAINS for i in range(len(chain) - 1)}
 PREBUILT = {"l1.wall": "gate", "town.house.1": "house", "town.house.3": "house", "town.house.4": "house",
             "town.house.5": "house"}
+# The town plots left to right (Realm.townPlots) and what pays there.
+TOWN = ["town.house.1", "town.field.2", "town.house.3", "town.house.4", "town.house.5", "town.market.6",
+        "town.tavern.7", "town.field.8"]
+HABIT = {"low": "spare", "normal": "collect", "high": "knock", "war": "levy"}
+
+
+def split(total, weights):
+    """Town.split: largest remainder, ties to the earlier place; the shares add up to `total`."""
+    whole = sum(max(0, w) for w in weights)
+    if total <= 0 or whole <= 0:
+        return [0] * len(weights)
+    shares = [total * max(0, w) // whole for w in weights]
+    rests = sorted(range(len(weights)), key=lambda i: (-(total * max(0, weights[i]) % whole), i))
+    left = total - sum(shares)
+    for i in rests[:left]:
+        shares[i] += 1
+    return shares
 
 
 class Realm:
     def __init__(self, v, items, arrays, unlocks, tax):
         self.v, self.items, self.arrays, self.unlocks, self.tax = v, items, arrays, unlocks, tax
+        self.habit = HABIT[tax]
+        self.today = None                     # [{plot, kind, owed, collected, knocks}], None before the first dawn
+        self.spared_yesterday = 0
+        self.unrest_today = False
+        self.income = 0                       # every coin the town paid over the run (tosses and knocks)
+        self.knocks = 0
         self.gold = int(v["startGold"])
         self.happiness = int(v["startHappiness"])
         self.citizens = int(v["startCitizens"])
@@ -223,21 +253,101 @@ class Realm:
         self.buy(order, builds_beacon)
         if self.day == 10:
             self.buildings_day10 = self.buildings()
+        self.horn()
+
+    # --- the taxes on foot (Town) ---
+    def doors_open(self):
+        return self.today is not None and not self.unrest_today and self.happiness >= self.v["unrestBelow"]
+
+    def ledger(self, tax_part, market, unrest):
+        """Town.ledger: taxpayers over the houses by room, the tax part over the houses by taxpayers."""
+        places = []
+        for plot in TOWN:
+            item = self.built.get(plot)
+            if item in ("house", "bigHouse"):
+                places.append({"plot": plot, "kind": "house",
+                               "room": int(self.v["bigHouseRoom" if item == "bigHouse" else "houseRoom"])})
+            elif item == "field":
+                places.append({"plot": plot, "kind": "field"})
+            elif item == "market":
+                places.append({"plot": plot, "kind": "market"})
+        houses = [p for p in places if p["kind"] == "house"]
+        payers = split(self.taxpayers(), [h["room"] for h in houses])
+        parts = split(0 if unrest else tax_part, payers)
+        for house, part in zip(houses, parts):
+            house["owed"] = part
+        for place in places:
+            if place["kind"] == "field":
+                place["owed"] = 0 if unrest else int(self.v["fieldGold"])
+            elif place["kind"] == "market":
+                place["owed"] = 0 if unrest else market
+            place["collected"] = False
+            place["knocks"] = 0
+        return places
+
+    def horn(self):
+        """Town.horn: houses that owed, were left alone and whose doors were open count at the next dawn."""
+        self.spared_yesterday = 0
+        if self.today is None:
+            return
+        if self.doors_open():
+            self.spared_yesterday = sum(1 for p in self.today if p["kind"] == "house" and p["owed"] > 0
+                                        and not p["collected"])
+
+    def collect(self, place):
+        if self.doors_open() and place["owed"] > 0 and not place["collected"]:
+            place["collected"] = True
+            self.gold += place["owed"]
+            self.income += place["owed"]
+
+    def knock(self, place):
+        v = self.v
+        allowed = 2 if self.day >= 8 else 1
+        if not self.doors_open() or place["kind"] != "house" or not place["collected"] or place["knocks"] >= allowed:
+            return False
+        levy = place["knocks"] >= 1
+        share = v["levyShare"] if levy else v["knockShare"]
+        gold = max(1, round_half_away(place["owed"] * share))
+        place["knocks"] += 1
+        self.gold += gold
+        self.income += gold
+        self.knocks += 1
+        self.happiness = int(min(100, max(0, self.happiness + (v["levyHappiness"] if levy else v["knockHappiness"]))))
+        return True
+
+    def morning(self):
+        """Town.morning: the bot's habit at dawn."""
+        if not self.doors_open():
+            return
+        if self.habit == "spare":
+            houses = sorted((p for p in self.today if p["kind"] == "house" and p["owed"] > 0),
+                            key=lambda p: (p["owed"], TOWN.index(p["plot"])))
+            spared = {p["plot"] for p in houses[:int(self.v["lowHabitSpares"])]}
+        else:
+            spared = set()
+        for place in self.today:
+            if place["plot"] not in spared:
+                self.collect(place)
+        if self.habit in ("knock", "levy"):
+            times = 1 if self.habit == "knock" else 2
+            for place in self.today:
+                while place["knocks"] < times and self.knock(place):
+                    pass
 
     def dawn(self):
         v = self.v
         before = self.happiness
-        rate = {"low": v["rateLow"], "normal": v["rateNormal"], "high": v["rateHigh"], "war": v["rateWar"]}[self.tax]
         mood = v["moodBase"] + v["moodSpan"] * min(100, max(0, before)) / 100
-        tax_part = round_half_away(self.taxpayers() * v["taxPerPayer"] * rate * mood)
+        tax_part = round_half_away(self.taxpayers() * v["taxPerPayer"] * mood)
         fields = sum(1 for item in self.built.values() if item == "field") * int(v["fieldGold"])
         market = round_half_away(tax_part * v["marketShare"]) if "market" in self.built.values() else 0
-        total = 0 if before < v["unrestBelow"] else tax_part + fields + market
-        self.gold += total
+        unrest = before < v["unrestBelow"]
+        total = 0 if unrest else tax_part + fields + market
+        ledger = self.ledger(tax_part, market, unrest)
+        assert sum(p["owed"] for p in ledger) == total, "the parts add up to the day's taxes"
         if self.first_taxes is None:
             self.first_taxes = total
-        delta = {"low": v["happinessLowTax"], "normal": v["happinessNormalTax"], "high": v["happinessHighTax"],
-                 "war": v["happinessWarTax"]}[self.tax]
+        delta = min(v["spareHappinessMost"], self.spared_yesterday * v["spareHappiness"])
         if "tavern" in self.built.values():
             delta += v["happinessTavern"]
         delta += v["happinessNoLosses"]
@@ -262,6 +372,9 @@ class Realm:
             self.citizens += 1
             self.archers += 1
         self.day += 1
+        self.today = ledger
+        self.unrest_today = unrest
+        self.morning()
         self.log.append((self.day, total, self.gold, self.happiness, self.citizens, self.archers, self.guards,
                          self.buildings(), self.cursor))
 
@@ -331,6 +444,8 @@ def main():
         ("T5 8-12 buildings by day 10", normal.buildings_day10 is not None and 8 <= normal.buildings_day10 <= 12,
          "%s" % normal.buildings_day10),
     ]
+    print("town over %d days: normal collects %d gold; low (two houses left alone) %d; high (knocks at every house, %d "
+          "knocks) %d" % (args.days, normal.income, low.income, high.knocks, high.income))
     failed = 0
     for name, ok, value in checks:
         print("%s %-36s %s" % ("PASS" if ok else "FAIL", name, value))

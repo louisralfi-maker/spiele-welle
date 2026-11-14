@@ -1,5 +1,5 @@
-/// Taxes collected at one dawn. Saved inside `DawnReport`: a field added later must be Optional or decoded with a
-/// default.
+/// The day's taxes as one dawn works them out (since town-1 owed by the paying places and collected on foot, `Town`).
+/// Saved inside `DawnReport`: a field added later must be Optional or decoded with a default.
 struct TaxBreakdown: Codable, Sendable, Equatable {
     var taxpayers: Int
     var taxPart: Int
@@ -11,9 +11,12 @@ struct TaxBreakdown: Codable, Sendable, Equatable {
     var total: Int { unrest ? 0 : taxPart + fields + market }
 }
 
-/// Why happiness changed at dawn.
+/// Why happiness changed at dawn. The four tax rates are no longer given since the taxes went on foot (town-1); they stay
+/// so that the reports in older saves still read.
 enum HappinessReason: String, Codable, Sendable {
     case lowTax, normalTax, highTax, warTax, tavern, chapel, noLosses, fallen, unheard
+    /// Houses the lord left alone yesterday (+1 each, at most +3: `TownRules`).
+    case leftAlone
 }
 
 struct HappinessChange: Codable, Sendable, Equatable {
@@ -30,10 +33,12 @@ struct DawnPeople: Sendable, Equatable {
     var grown: Int
     var left: Int
     var volunteer: Bool
+    /// What the town did yesterday (the taxes on foot), for the report; nil on the first dawn.
+    var town: TownSummary?
 }
 
-/// The economy at dawn (DESIGN.md "Economy"): taxes, happiness, growth, unrest. Gold comes only from taxes (and
-/// petitions from M3 on); everything else spends it.
+/// The economy at dawn (DESIGN.md "Economy"; docs/TOWN.md section 1): the day's taxes, happiness, growth, unrest. Gold
+/// comes only from taxes, collected on foot by day (`Town`), and petitions; everything else spends it.
 enum Economy {
     /// `mood = 0.6 + 0.8 × happiness / 100` (0.6 ... 1.4).
     static func mood(happiness: Int, balance: Balance) -> Double {
@@ -41,12 +46,12 @@ enum Economy {
         return balance.moodBase + balance.moodSpan * share
     }
 
-    /// `round(taxpayers × taxPerPayer × rate × mood) + fields + market bonus` at the given happiness.
+    /// The day's taxes, `round(taxpayers × taxPerPayer × mood) + fields + market bonus` at the given happiness: the old
+    /// Normal rate, the only one since the taxes went on foot (more is a knock at a door, less a house left alone).
     static func taxes(_ state: GameState, happiness: Int, balance: Balance) -> TaxBreakdown {
         let payers = state.taxpayers
-        let rate = balance.rate(state.tax)
         let mood = Economy.mood(happiness: happiness, balance: balance)
-        let raw = Double(payers) * balance.taxPerPayer * rate * mood
+        let raw = Double(payers) * balance.taxPerPayer * mood
         let taxPart = Int(raw.rounded())
         let fields = state.count(.field) * balance.fieldGold
         var market = 0
@@ -57,19 +62,12 @@ enum Economy {
                             unrest: happiness < balance.unrestBelow)
     }
 
-    /// Today's happiness changes: the tax rate, the tavern, the chapel's blessing (granted by story or petitions from
-    /// M3 on; until then `chapelBlessed` is never set), the night's losses, unheard petitioners.
+    /// Today's happiness changes: the houses left alone yesterday (`Town.spareGain`; the knocks cost theirs at once by
+    /// day), the tavern, the chapel's blessing (granted by story or petitions), the night's losses, unheard petitioners.
     static func happinessChanges(_ state: GameState, fallen: Int, balance: Balance) -> [HappinessChange] {
         var changes: [HappinessChange] = []
-        let taxDelta = balance.happinessChange(state.tax)
-        let reason: HappinessReason
-        switch state.tax {
-        case .low: reason = .lowTax
-        case .normal: reason = .normalTax
-        case .high: reason = .highTax
-        case .war: reason = .warTax
-        }
-        if taxDelta != 0 { changes.append(HappinessChange(reason: reason, delta: taxDelta)) }
+        let spared = Town.spareGain(state, balance: balance)
+        if spared != 0 { changes.append(HappinessChange(reason: .leftAlone, delta: spared)) }
         if state.has(.tavern) { changes.append(HappinessChange(reason: .tavern, delta: balance.happinessTavern)) }
         if state.chapelBlessed { changes.append(HappinessChange(reason: .chapel, delta: balance.happinessChapel)) }
         if fallen == 0 {
@@ -92,14 +90,17 @@ enum Economy {
         return 0
     }
 
-    /// The dawn's economy, in order: taxes at yesterday's happiness (unrest below 15 takes them all), the happiness
-    /// changes, growth or a citizen leaving at the new happiness, and on every third dawn at 70 and up a free archer
-    /// who volunteers (a new person, when the houses have room).
+    /// The dawn's economy, in order: the day's taxes at yesterday's happiness (unrest below 15 takes them all), split
+    /// over the paying places into today's ledger (the gold comes when the lord walks to the doors: `Town`); yesterday's
+    /// ledger closed (if no horn closed it); the happiness changes, the houses left alone yesterday among them; growth
+    /// or a citizen leaving at the new happiness; on every third dawn at 70 and up a free archer who volunteers (a new
+    /// person, when the houses have room); then today's ledger opens.
     @discardableResult
     static func dawn(_ state: inout GameState, fallen: Int, balance: Balance) -> DawnPeople {
         let before = state.happiness
         let taxes = Economy.taxes(state, happiness: before, balance: balance)
-        state.gold += taxes.total
+        let ledger = Town.ledger(state, taxes: taxes, balance: balance)
+        Town.horn(&state, balance: balance)
 
         let changes = happinessChanges(state, fallen: fallen, balance: balance)
         var after = before
@@ -131,11 +132,13 @@ enum Economy {
             state.addSoldier(.archer, balance: balance)
             volunteer = true
         }
+        let town = Town.open(&state, ledger: ledger, balance: balance)
         return DawnPeople(taxes: taxes, changes: changes, happinessBefore: before, happinessAfter: after, grown: grown,
-                          left: left, volunteer: volunteer)
+                          left: left, volunteer: volunteer, town: town)
     }
 
-    /// Sets the tax at the lectern; war tax only once it is unlocked. Returns false when refused.
+    /// Sets the old lectern's rate (the card town-2 takes away); war tax only once it is unlocked. Since the taxes went
+    /// on foot nothing in the economy reads it. Returns false when refused.
     @discardableResult
     static func setTax(_ state: inout GameState, _ tax: TaxRate) -> Bool {
         if tax == .war && !state.warTaxUnlocked { return false }

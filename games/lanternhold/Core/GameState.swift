@@ -1,4 +1,6 @@
-/// The tax rate set at the throne (DESIGN.md "Taxes"). War tax unlocks on story day 8.
+/// The old lectern's tax rates (DESIGN.md "Taxes"). Since the taxes went on foot (docs/TOWN.md, town-1) no rate exists
+/// in the economy: a bot names its habit in the town by one (`TownHabit`), and `GameState.tax` is only read from old
+/// saves and written by the lectern card until town-2 takes it away.
 enum TaxRate: String, Codable, Sendable, CaseIterable {
     case low, normal, high, war
 }
@@ -327,7 +329,9 @@ struct GameState: Codable, Sendable, Equatable {
     var happiness: Int
     /// People, soldiers included (soldiers are citizens who took up arms).
     var citizens: Int
+    /// The old lectern's rate: read by nothing in the economy since the taxes went on foot (`town`).
     var tax: TaxRate = .normal
+    /// Story day 8 (or a petition): once the war tax opened, now the war levy, a second knock at a door (`Town`).
     var warTaxUnlocked = false
     /// The chapel's blessing (+1 happiness at dawn); story and petitions set it from M3 on.
     var chapelBlessed = false
@@ -365,6 +369,10 @@ struct GameState: Codable, Sendable, Equatable {
     /// Optional: a realm that never touched the table, every bot run and every older save read as nil and play as
     /// before.
     var table: TableState?
+    /// The taxes on foot (docs/TOWN.md section 1, `Town`): today's parts owed by the houses, fields and market, what was
+    /// collected and knocked for, and yesterday's. Optional: a save from before the taxes went on foot reads as nil
+    /// (its dawn had already put that day's taxes into the purse), and so does a realm before its first dawn.
+    var town: TownState?
     var records = Records()
     var nextID = 1
     var orderCounter = 0

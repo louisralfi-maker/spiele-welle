@@ -54,24 +54,18 @@ struct Balance: Sendable, Equatable {
     var startGuards = 2
     var startHappiness = 60
 
-    // MARK: Taxes (taxes at dawn = round(taxpayers × taxPerPayer × rate × mood) + fields + market)
+    // MARK: Taxes (the day's taxes at dawn = round(taxpayers × taxPerPayer × mood) + fields + market, split over the
+    // paying places and collected on foot: `Town`, docs/TOWN.md section 1; its own numbers are `town`)
 
     var taxPerPayer = 5.0
-    var rateLow = 0.6
-    var rateNormal = 1.0
-    var rateHigh = 1.4
-    var rateWar = 1.8
     var moodBase = 0.6
     var moodSpan = 0.8
     var fieldGold = 5
     var marketShare = 0.15
+    var town = TownRules()
 
     // MARK: Happiness at dawn (0 ... 100)
 
-    var happinessLowTax = 3
-    var happinessNormalTax = 0
-    var happinessHighTax = -7
-    var happinessWarTax = -10
     var happinessTavern = 1
     var happinessChapel = 1
     var happinessNoLosses = 2
@@ -278,26 +272,6 @@ struct Balance: Sendable, Equatable {
     func price(_ item: BuildItem) -> Int { items[item.index].price }
     func buildTime(_ item: BuildItem) -> Double { items[item.index].time }
     func creature(_ kind: CreatureKind) -> CreatureStats { creatures[kind.index] }
-
-    /// The tax rate's multiplier.
-    func rate(_ tax: TaxRate) -> Double {
-        switch tax {
-        case .low: return rateLow
-        case .normal: return rateNormal
-        case .high: return rateHigh
-        case .war: return rateWar
-        }
-    }
-
-    /// The tax rate's happiness change at dawn.
-    func happinessChange(_ tax: TaxRate) -> Int {
-        switch tax {
-        case .low: return happinessLowTax
-        case .normal: return happinessNormalTax
-        case .high: return happinessHighTax
-        case .war: return happinessWarTax
-        }
-    }
 
     /// Changes one item's price and time (tests, the tuning harness).
     mutating func setItem(_ item: BuildItem, price: Int? = nil, time: Double? = nil) {

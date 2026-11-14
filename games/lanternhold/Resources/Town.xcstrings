@@ -1,0 +1,240 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "town.household.chandler" : {
+      "comment" : "A Tallowford household by its trade, named in the dawn report when the lord knocked at its door.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kerzenzieher"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chandler"
+          }
+        }
+      }
+    },
+    "town.household.cooper" : {
+      "comment" : "A Tallowford household by its trade, named in the dawn report when the lord knocked at its door.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Böttcher"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cooper"
+          }
+        }
+      }
+    },
+    "town.household.oilPresser" : {
+      "comment" : "A Tallowford household by its trade, named in the dawn report when the lord knocked at its door.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ölmüller"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oil-presser"
+          }
+        }
+      }
+    },
+    "town.household.weaver" : {
+      "comment" : "A Tallowford household by its trade, named in the dawn report when the lord knocked at its door.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weber"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weaver"
+          }
+        }
+      }
+    },
+    "town.reason.knocked" : {
+      "comment" : "Dawn report, why happiness changed: the lord knocked at doors yesterday and demanded more.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angeklopft"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knocks at the door"
+          }
+        }
+      }
+    },
+    "town.reason.leftAlone" : {
+      "comment" : "Dawn report, why happiness changed: houses the lord did not collect from yesterday.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschonte Häuser"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Houses left alone"
+          }
+        }
+      }
+    },
+    "town.report.collected" : {
+      "comment" : "Dawn report: gold the households gave the lord yesterday. %@ is the amount.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestern eingesammelt: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collected yesterday: %@"
+          }
+        }
+      }
+    },
+    "town.report.doubled" : {
+      "comment" : "Dawn report: yesterday the double-taxes reward was taken.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doppelte Steuern: Jede Münze zählte doppelt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double taxes: every coin counted twice"
+          }
+        }
+      }
+    },
+    "town.report.kept" : {
+      "comment" : "Dawn report: gold nobody came for by the horn; the people kept it. %@ is the amount.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den Leuten gelassen: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left to the people: %@"
+          }
+        }
+      }
+    },
+    "town.report.knocked" : {
+      "comment" : "Dawn report: the households whose door the lord knocked at to demand more. %@ is a list of names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angeklopft: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knocked at: %@"
+          }
+        }
+      }
+    },
+    "town.report.levied" : {
+      "comment" : "Dawn report: the households knocked at a second time (the war levy). %@ is a list of names.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kriegsabgabe: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "War levy: %@"
+          }
+        }
+      }
+    },
+    "town.report.spared" : {
+      "comment" : "Dawn report: how many houses the lord left alone yesterday. %@ is the number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschonte Häuser: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Houses left alone: %@"
+          }
+        }
+      }
+    },
+    "town.report.unrest" : {
+      "comment" : "Dawn report: in unrest nobody opened the door to pay.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unruhe: Alle Türen blieben zu"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unrest: every door stayed shut"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
