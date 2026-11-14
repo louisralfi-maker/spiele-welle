@@ -54,11 +54,14 @@ struct SimDriver: Sendable {
     private(set) var steps = 0
     /// The realm at its last dawn (what the save writes).
     private(set) var dawnSnapshot: GameState
+    /// The last three dawns (front lane hook, docs/lanes/front.md "front-2"): the fall wakes at one of them
+    /// (`wake(back:)`); the save keeps them (`SaveGame.dawns`). A fall never overwrites them.
+    private(set) var dawnRing: DawnRing
     /// The petitions (M3): the driver draws each day's petitioners (`PetitionEngine.prepare`) after every step.
     let petitions: PetitionCatalog
 
     init(state: GameState, balance: Balance = .standard, bot: Autoplay? = nil, dawnSnapshot: GameState? = nil,
-         petitions: PetitionCatalog = .standard) {
+         petitions: PetitionCatalog = .standard, dawnRing: DawnRing? = nil) {
         var start = state
         PetitionEngine.prepare(&start, catalog: petitions)
         var snapshot = dawnSnapshot ?? start
@@ -68,6 +71,9 @@ struct SimDriver: Sendable {
         self.bot = bot
         self.dawnSnapshot = snapshot
         self.petitions = petitions
+        var ring = dawnRing ?? DawnRing()
+        ring.record(snapshot, keep: balance.front.hearth.dawnsKept)
+        self.dawnRing = ring
     }
 
     /// True while the simulation may step.
@@ -129,6 +135,7 @@ struct SimDriver: Sendable {
         for event in events[first...] {
             if case .dawn = event {
                 dawnSnapshot = state
+                dawnRing.record(state, keep: balance.front.hearth.dawnsKept)
             }
         }
     }
@@ -199,6 +206,7 @@ struct SimDriver: Sendable {
         PetitionEngine.prepare(&state, catalog: petitions)
         accumulator = 0
         dawnSnapshot = state
+        dawnRing.record(state, keep: balance.front.hearth.dawnsKept)
     }
 
     /// The defeat card's "Replay the day": the realm as it was at this day's dawn.
@@ -218,6 +226,7 @@ struct SimDriver: Sendable {
         state.lord = lord
         PetitionEngine.prepare(&state, catalog: petitions)
         dawnSnapshot = state
+        dawnRing = DawnRing(state, keep: balance.front.hearth.dawnsKept)
         accumulator = 0
         bot = nil
         walker = nil
@@ -229,6 +238,22 @@ struct SimDriver: Sendable {
     mutating func setLord(_ lord: LordIdentity) {
         state.lord = lord
         dawnSnapshot.lord = lord
+        dawnRing.setLord(lord)
+    }
+
+    /// The fall card's "wake" (front lane hook, docs/lanes/front.md "front-2"; docs/REALM.md section 4): the realm as it
+    /// was at the dawn `back` mornings before the newest kept one (0 is the newest, "this morning", which is what
+    /// "Replay the day" does). That dawn and the older ones stay kept, the newer go. False (and nothing changes) when
+    /// there is no such dawn.
+    @discardableResult
+    mutating func wake(back: Int) -> Bool {
+        guard let dawn = dawnRing.wake(back: back) else { return false }
+        state = dawn
+        state.king.velocity = 0
+        dawnSnapshot = state
+        accumulator = 0
+        travelTarget = nil
+        return true
     }
 
     /// The action button: lights or patches. Returns true when it did something.

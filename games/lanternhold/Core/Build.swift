@@ -54,6 +54,8 @@ enum Build {
         let spec = Realm.plots[plot]
         let current = state.plots[plot]
         if current.job != nil { return [] }
+        // Front lane hook (docs/lanes/front.md "front-2"): a place a broken night burnt comes back at a third.
+        if let rebuild = Hearth.rebuildOption(state, plot: plot, balance: balance) { return [rebuild] }
         guard let item = current.item else {
             return spec.firstItems.map {
                 BuildOption(item: $0, price: isGift($0, state) ? 0 : balance.price($0), isRebuild: false)

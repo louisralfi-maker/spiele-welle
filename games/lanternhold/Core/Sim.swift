@@ -81,6 +81,7 @@ enum Sim {
         if DayClock.phase(at: s.hour) != .day || !s.creatures.isEmpty {
             Battle.step(&s, dt: dt, balance: balance, events: &events)
         }
+        Hearth.afterBattle(&s, balance: balance, events: &events)  // front lane hook (docs/lanes/front.md "front-2")
     }
 
     /// The dawn (06:00): the night ends, the economy runs, unlocks and records, and the report.
@@ -123,6 +124,7 @@ enum Sim {
                                 housesFull: housesFull ? true : nil)
         s.lastReport = report
         FrontNight.dawn(&s)  // front lane hook (docs/lanes/front.md)
+        Hearth.dawn(&s, balance: balance)  // front lane hook (docs/lanes/front.md "front-2")
         PetitionEngine.dawn(&s)
         events.append(.dawn(day: s.day))
     }

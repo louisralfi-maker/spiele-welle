@@ -16,6 +16,8 @@ SRC="Core/DayClock.swift Core/SeededRandom.swift Core/LightField.swift Core/Ambi
      Core/PetitionCourtState.swift Core/PetitionData.swift Core/PetitionEngine.swift Core/PetitionNight.swift
      Core/WorldLayout.swift Core/Camera.swift Core/PixelScale.swift
      Core/Front/FrontTuning.swift Core/Front/FrontState.swift Core/Front/FrontNight.swift
+     Core/Front/HearthTuning.swift Core/Front/HearthState.swift Core/Front/Hearth.swift Core/Front/HearthNames.swift
+     Core/Front/DawnRing.swift
      tools/simtune/main.swift"
 START=$(date +%s)
 # shellcheck disable=SC2086

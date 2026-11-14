@@ -1,0 +1,84 @@
+/// What the T14 bot did for the hearth in a run.
+struct HearthBotTally: Sendable, Equatable {
+    /// Times it fed the fire, and the gold it paid for wood.
+    var feeds = 0
+    var feedGold = 0
+    /// Burnt places it had rebuilt, and the gold.
+    var rebuilds = 0
+    var rebuildGold = 0
+}
+
+/// The T14 bot (docs/REALM.md section 4): the reference bot by day and by night (`Autoplay`), plus the hearth's habits
+/// of a player who plays well: by day it feeds the fire when it burns below bright (walking the few steps from the
+/// throne to the hearth), and it has burnt places rebuilt as soon as no wall lies in rubble (the reference rebuilds its
+/// walls first) and the purse holds the price. On its careless nights the lord stays at the throne all night: no
+/// patch, no brazier lit. The reference bots of T1 to T8 are untouched; this one plays only under the hearth rule.
+struct HearthBot: Sendable {
+    var day: Autoplay
+    /// Nights on which the lord is careless.
+    var carelessNights: Set<Int> = []
+    /// It feeds the fire (off: a careless player who never learned to).
+    var feeds = true
+    /// It has burnt places rebuilt.
+    var rebuilds = true
+    var tally = HearthBotTally()
+
+    init(day: Autoplay = .reference(), carelessNights: Set<Int> = [], feeds: Bool = true, rebuilds: Bool = true) {
+        self.day = day
+        self.carelessNights = carelessNights
+        self.feeds = feeds
+        self.rebuilds = rebuilds
+    }
+
+    /// Called before every sim step.
+    mutating func act(_ s: inout GameState, dt: Double, balance: Balance, events: inout [SimEvent],
+                      petitions: PetitionCatalog = .standard) {
+        let isDay = DayClock.phase(at: s.hour) == .day
+        if !isDay && carelessNights.contains(s.nightNumber) {
+            walk(&s, to: Realm.throneX, dt: dt, balance: balance)
+            return
+        }
+        guard isDay, s.hearthFire != nil else {
+            day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
+            return
+        }
+        if rebuilds && !wallInRubble(s) {
+            for ruin in Hearth.ruins(s, balance: balance) where !ruin.rebuilding && s.gold >= ruin.price {
+                if Hearth.rebuild(&s, plot: ruin.plot, balance: balance, events: &events) == .ordered {
+                    tally.rebuilds += 1
+                    tally.rebuildGold += ruin.price
+                }
+            }
+        }
+        var toHearth = false
+        if feeds, let offer = Hearth.feedOffer(s, balance: balance), !offer.fedToday, offer.affordable {
+            if offer.inReach {
+                if Hearth.feed(&s, balance: balance) {
+                    tally.feeds += 1
+                    tally.feedGold += offer.price
+                }
+            } else {
+                toHearth = true
+            }
+        }
+        day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
+        if toHearth { walk(&s, to: Realm.hearthX, dt: dt, balance: balance) }
+    }
+
+    /// True while a wall lies in rubble with no rebuild ordered (the reference bot pays for those first).
+    private func wallInRubble(_ s: GameState) -> Bool {
+        for plot in Realm.wallsOuterFirst where s.plots[plot].isRubble && s.plots[plot].job == nil { return true }
+        return false
+    }
+
+    /// Sets the lord running toward `x`, arriving exactly (as the reference bot walks).
+    private func walk(_ s: inout GameState, to x: Double, dt: Double, balance: Balance) {
+        let dx = x - s.king.x
+        if abs(dx) < 0.5 || dt <= 0 {
+            s.king.velocity = 0
+            return
+        }
+        let speed = balance.kingRunSpeed
+        s.king.velocity = max(-speed, min(speed, dx / dt))
+    }
+}

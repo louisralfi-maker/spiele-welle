@@ -39,6 +39,9 @@ struct DawnReport: Codable, Sendable, Equatable {
     /// What the lord's being there did tonight (front lane hook, docs/lanes/front.md; nil without the front rule and in
     /// saves from before this field).
     var front: FrontNightReport?
+    /// What a broken night cost and the fire's state (front lane hook, docs/lanes/front.md "front-2"; nil without the
+    /// hearth rule and in saves from before this field).
+    var hearth: HearthDawnReport?
 
     /// No soldier fell tonight: the report shows a small banner.
     var noLosses: Bool { fallen.isEmpty }

@@ -98,4 +98,9 @@ struct FrontTuning: Sendable, Equatable {
     var reportThereLives = 1.0
     /// ... "You were elsewhere" when it covered at most this share.
     var reportAwayShare = 0.2
+
+    // MARK: The hearth (docs/REALM.md section 4; front-2)
+
+    /// Every number of the hearth rule (`HearthTuning`).
+    var hearth = HearthTuning()
 }

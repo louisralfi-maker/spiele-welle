@@ -1,6 +1,348 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "front.fall.new" : {
+      "comment" : "The fall card: a button, begin a new realm from day 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein neues Reich beginnen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Begin a new realm"
+          }
+        }
+      }
+    },
+    "front.fall.title" : {
+      "comment" : "The fall card's title (docs/REALM.md 4): the fire went out, the realm fell. Short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Herdfeuer ist aus."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The hearth is out."
+          }
+        }
+      }
+    },
+    "front.fall.wake.0" : {
+      "comment" : "The fall card: a button, wake at the newest dawn kept (the morning of the day that ended in the fall). No number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An diesem Morgen erwachen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wake this morning"
+          }
+        }
+      }
+    },
+    "front.fall.wake.1" : {
+      "comment" : "The fall card: a button, wake at the dawn one morning before the newest. No number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einen Morgen früher erwachen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wake a morning earlier"
+          }
+        }
+      }
+    },
+    "front.fall.wake.2" : {
+      "comment" : "The fall card: a button, wake at the dawn two mornings before the newest. The number is a word.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zwei Morgen früher erwachen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wake two mornings earlier"
+          }
+        }
+      }
+    },
+    "front.hearth.bright" : {
+      "comment" : "Dawn report, hearth half: the fire is back to bright after it had burnt low. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Herdfeuer brennt wieder hell."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The hearth burns bright again."
+          }
+        }
+      }
+    },
+    "front.hearth.burnt.field" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). No house stood, so a field burnt. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Feld brannte ab."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A field burnt."
+          }
+        }
+      }
+    },
+    "front.hearth.burnt.house" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). One house burnt. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Haus brannte nieder."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A house burnt down."
+          }
+        }
+      }
+    },
+    "front.hearth.burnt.houses" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). Two houses burnt (never more). The number is a word. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zwei Häuser brannten nieder."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Two houses burnt down."
+          }
+        }
+      }
+    },
+    "front.hearth.burnt.market" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). No house stood, so the market stall burnt. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Marktstand brannte ab."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The market stall burnt."
+          }
+        }
+      }
+    },
+    "front.hearth.dead.one" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). One townsperson died; %@ is the first name. Dread by what is missing, no gore (STORY.md rule 9). No he or she.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ erlebte den Morgen nicht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ did not see the morning."
+          }
+        }
+      }
+    },
+    "front.hearth.dead.three" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). Three townspeople died (never more); the three first names. No gore, no he or she.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@ und %3$@ erlebten den Morgen nicht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@ and %3$@ did not see the morning."
+          }
+        }
+      }
+    },
+    "front.hearth.dead.two" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). Two townspeople died; the two first names. No gore, no he or she.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ und %2$@ erlebten den Morgen nicht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ and %2$@ did not see the morning."
+          }
+        }
+      }
+    },
+    "front.hearth.embers" : {
+      "comment" : "Dawn report, hearth half: the fire is down to embers, one step from going out. Short and dry; the danger without saying it.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Herd glimmt nur noch Glut."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only embers glow in the hearth."
+          }
+        }
+      }
+    },
+    "front.hearth.gold" : {
+      "comment" : "Dawn report, hearth half (docs/REALM.md 4): after a broken night (the Gloom reached the hearth). A fifth of the purse (at most 60) is gone; no number, the treasury figure shows it. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In der Schatzkammer fehlt Gold."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coin is missing from the treasury."
+          }
+        }
+      }
+    },
+    "front.hearth.low" : {
+      "comment" : "Dawn report, hearth half: the fire dropped from bright to low (one step of four: bright, low, embers, out). Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Herdfeuer brennt niedrig."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The hearth burns low."
+          }
+        }
+      }
+    },
+    "front.hearth.reason" : {
+      "comment" : "Dawn report, the happiness row: the reason for the loss a broken night takes at once (−8). A label, no full stop.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Düsternis erreichte den Herd"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Gloom reached the hearth"
+          }
+        }
+      }
+    },
+    "front.hearth.rekindled" : {
+      "comment" : "Dawn report, hearth half: the fire went out and the second chance (a rewarded video) brought the dawn; it glows at embers now. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Herdfeuer erlosch und fing wieder Feuer."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The hearth went out, and caught again."
+          }
+        }
+      }
+    },
+    "front.hearth.rose" : {
+      "comment" : "Dawn report, hearth half: a night held, and the fire rose from embers to low. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Herdfeuer hat sich gefangen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The hearth has caught again."
+          }
+        }
+      }
+    },
     "front.report.away" : {
       "comment" : "Dawn report, front half: there was real fighting, and the lord was rarely near it (teaches that being there counts). Short and dry.",
       "extractionState" : "manual",

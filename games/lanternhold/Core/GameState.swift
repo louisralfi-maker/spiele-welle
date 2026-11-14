@@ -374,6 +374,10 @@ struct GameState: Codable, Sendable, Equatable {
     /// presence, relighting by passing, the throw-back. Optional: nil plays by the old rules (the reference bots, saves
     /// from before it); `FrontNight.adopt` turns it on.
     var front: FrontState?
+    /// The hearth rule (docs/REALM.md section 4, "The hearth"; front lane hook, docs/lanes/front.md "front-2"): bright,
+    /// low, embers, out; broken nights, burnt places, the dead by name. Optional: nil plays by the old rules (the
+    /// reference bots, saves from before it); `Hearth.adopt` turns it on.
+    var hearthFire: HearthState?
 
     /// The lord of this realm: the chosen one, else the standard (the Burgherr with the default name).
     var lordOrDefault: LordIdentity { lord ?? .standard }
