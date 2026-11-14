@@ -16,13 +16,32 @@ struct TableVariant: Sendable {
                                                                reserved: base.reserved, places: base.places,
                                                                errands: list, reports: cards))
     }
+
+    /// The probes of the fourth tuning round: how far a tiny use of the table moves the chaotic night-20 and endless
+    /// cells (only Pip's oil carries the seal), and the sealed soldiers of days 11 to 15 one by one.
+    static func fourthRound(_ base: ErrandCatalog) -> [TableVariant] {
+        func unseal(_ ids: Set<String>) -> (inout Errand) -> Void {
+            { errand in
+                guard ids.contains(errand.id) else { return }
+                for index in errand.orders.indices { errand.orders[index].seal = nil }
+            }
+        }
+        let all = Set(base.errands.map(\.id))
+        return [
+            make("oil only", from: base, errands: unseal(all.subtracting(["oil_round"]))),
+            make("oil and the count", from: base, errands: unseal(all.subtracting(["oil_round", "highcairn_count"]))),
+            make("no stair", from: base, errands: unseal(["beacon_statues"])),
+            make("no Stillmere", from: base, errands: unseal(["stillmere_proof"])),
+        ]
+    }
 }
 
 extension TableTuning {
     /// The sender and greedy cells for each variant against the given reference runs (no endless: T7 is the shipped
     /// values' only), one line per variant.
     static func variants(_ list: [TableVariant], reference: [TableSeedRun], balance: Balance = .standard,
-                         seeds: Int = TableTuning.seeds) -> String {
+                         seeds: Int = TableTuning.seeds,
+                         policies: [TableBot.Policy] = TableBot.Policy.allCases) -> String {
         struct Job: Sendable {
             var variant: Int
             var seed: Int
@@ -30,7 +49,7 @@ extension TableTuning {
         }
         var jobs: [Job] = []
         for variant in list.indices {
-            for policy in TableBot.Policy.allCases {
+            for policy in policies {
                 for seed in 1...max(1, seeds) { jobs.append(Job(variant: variant, seed: seed, policy: policy)) }
             }
         }

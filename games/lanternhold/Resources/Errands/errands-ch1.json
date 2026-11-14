@@ -32,7 +32,7 @@
     {
       "id": "ford_planks", "number": 3, "place": "old_bridge", "chapter": 1, "days": [9, 12],
       "orders": [
-        { "seal": true, "nights": 3, "cost": { "gold": -12 }, "lend": { "guards": 1, "builders": 1 },
+        { "seal": true, "nights": 3, "cost": { "gold": -12 }, "lend": { "builders": 1, "citizens": 1 },
           "report": "ford_planks" }
       ],
       "atReturn": { "flags": ["ford_bridged"], "world": ["table.span"] }
