@@ -15,13 +15,17 @@ the quality bar), and **Opus 5.5 agents do the work**. Read this first, then CLA
   - The Agent tool: `model: "opus"`.
   - Sonnet is for routine work (CLAUDE.md "Agent models").
   - Build agents run at effort `xhigh`.
-- **Tempo:** at most 2 to 3 agents at once (Louis' "Mittel"), unless he raises it.
-  - Only one agent at a time may do image work on this Mac (heat; CLAUDE.md "This Mac").
-  - The runner takes at most 5 macOS jobs at once.
+- **Tempo (Louis, 14.11. 13:18):** "mit Opus-5.5-Agenten kannst du reinhauen, so wie der Mac es halt verkraftet". The limit of 2 to 3 agents is lifted for Opus 5.5 agents. The Mac sets the limit now:
+  - a workflow runs at most 6 agents at once on this Mac (8 logical cores minus 2); two workflows may run side by side;
+  - only one image job at a time across all lanes: every lane uses `ci-out/director/artlock.sh <command>` (section 5);
+  - the runner takes at most 5 macOS jobs at once, so more than five building lanes only queue;
+  - watch the load, the memory and TCXC after every launch, and stop the newest workflow if the Mac strains.
 - **Budget:**
-  - Check `mcp__ccd_session_mgmt__get_usage` before every workflow, and stop at 80 % of the weekly limit.
-  - The Fable quota is separate, but its use also counts toward the weekly limit.
-  - Both free Fable resets were used on 10.11. Weekly usage on 14.11. at about 13:00 was 1 %; the next reset is 21.11. at 03:00 UTC.
+  - Check `mcp__ccd_session_mgmt__get_usage` before every workflow.
+  - Louis has a full weekly reset in reserve (14.11.), so the 80 % stop does not hold this week: tell him when the week passes 80 %, and go on.
+  - The Fable quota is separate, but its use also counts toward the weekly limit. The director stays thrifty: it wakes only for reports and verdicts.
+  - Weekly usage on 14.11. at 13:25 was 3 % (Fable 1 %); the next reset is 21.11. at 03:00 UTC.
+- **Ideas:** Louis, 14.11.: "deine Ideen sind sehr gut, bring gerne mehr ein". Every brief and every notes file may carry a director's idea, with its reason. Section 6 lists them.
 - **Quality:** Louis' words: "Warum muss ich dir alles vorschreiben, mach's doch einfach besser als alle anderen."
   - Before Louis sees anything, the director judges every screen harshly against the craft of Kingdom Two Crowns and Yes, Your Grace (never their look; DESIGN.md "Not a copy").
   - Obvious quality fixes need no approval. Bring ideas.
@@ -98,4 +102,39 @@ To start it: `Workflow({scriptPath: "<repo>/games/lanternhold/docs/workflows/reb
 
 - The director is woken by a background until-loop on a report file (for example `world-1-rock-fog.md`), looks at the screenshots itself, and writes its corrections into the lane's notes file. The lane's next agent picks them up.
 - Never SendMessage to a running workflow agent; the notes files are the only channel.
+- `artlock.sh <command...>` on the desk is the art lock: one image job at a time across all lanes. It waits for the lock, for image jobs of agents that do not use it, and for TCXC under 78, then runs the command.
+
+## 6. The v1 lanes and the director's ideas (14.11.2026)
+
+`docs/workflows/v1-lanes.js` runs next to the rebuild since 14.11. at 13:50 (workflow w798y73lm, run wf_6dfc3591-4f0). Five lanes, each in its own worktree and branch cut from planning d3ed497, each step gated by a critic as in the rebuild. They keep to new files, their own string catalogs (English and German) and small listed hooks; their notes are `docs/lanes/<lane>.md` on their branches.
+
+| lane | worktree, branch | steps |
+|---|---|---|
+| quests | `lh-q`, `claude/lh-q` | engine (QUESTS.md round lh-q-1), all thirteen sendings with bots and T10/T11, the table screen. The table in the chapel and the walk through the gate wait for the join |
+| ads | `lh-ads`, `claude/lh-ads` | AdMob by DESIGN.md "Ads": rules in Core with an injected clock, stub and no-ads flags, consent at the first dawn report. Marek's cart in the world waits for the join |
+| panels | `lh-panels`, `claude/lh-panels` | the slide stage and the prologue, then the three endings and the chapter's end card |
+| i18n | `lh-i18n`, `claude/lh-i18n` | glossary and tools, then fr, es, it, pt-BR, ja, zh-Hans for Story.xcstrings (two translators at a time, an editor per language), then the merge. The interface strings follow after the join |
+| store | `lh-store`, `claude/lh-store` | listing in 8 languages, privacy and support pages, draft answers for Louis' go, review notes, the screenshot list |
+
+After both workflows: a second join (the five lanes into the joined game), the walked-world hookups, the interface strings in six languages, then the review workflow and the `tf-*` round.
+
+**The director's ideas, and where each one went:**
+
+| idea | why | where |
+|---|---|---|
+| The hall door's warm light on the cobbles | the hall calls the player home at dusk | rebuild.js, world-2 |
+| The ear arrives before the eye; the hall answers its lord | the stage change feels like entering a room | rebuild.js, stage-1 |
+| Dusk has a face: a lamplighter lights the lane at the horn | the game's one rule shown by a person every evening | notes-world.md, world-3 |
+| Raise the lantern: hold on the lord at night | one verb of the house's own in a passive night | notes-stage.md, stage-2 |
+| The lord hurries on long ways | 108 s end to end at walking pace | notes-stage.md, stage-2 |
+| The title is the world: one touch lights the lantern | no menu between the player and the castle | notes-stage.md, stage-3 |
+| The ledger on the lectern (the Chronicle) | a judgment's consequences become readable | notes-stage.md, stage-3 |
+| Lantern slides for the prologue and the endings | the house's own way to tell a story | v1-lanes.js, panels |
+| The rail is the status display; a line of light creeps across the map | who is away and when they are due, seen at a glance | v1-lanes.js, quests-3 |
+| Consent at the first dawn report, not at launch | the first minutes stay clean | v1-lanes.js, ads-1 |
+
+**Still to place (the onboarding lane, after the join):**
+
+- **The first sootling.** Night 1 teaches without a word: one sootling walks to the edge of the first brazier's light and shrinks back; a second one comes through where no light stands, and the guard deals with it.
+- **Odile's counsel.** One line from the steward at every dawn, chosen by rule from the realm's state (a dark brazier, a damaged wall, unspent gold that would buy something useful, no archer on the wall), never the same twice in a row. It replaces a tutorial and shows the money curve.
 
