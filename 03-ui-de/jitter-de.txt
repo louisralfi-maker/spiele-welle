@@ -1,0 +1,4 @@
+king screen x (device px): 1311 1311 1311 1311 1311 1311 1311 1311
+camera x (game px): 710.70 729.90 747.90 767.70 783.90 803.70 819.30 842.10
+spread 0 device px; camera rising true
+verdict: PASS
