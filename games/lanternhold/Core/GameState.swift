@@ -357,6 +357,9 @@ struct GameState: Codable, Sendable, Equatable {
     /// The court (M3, `PetitionEngine`): today's petitioners, the heard history, the follow-ups, the world's changes,
     /// the night modifiers. Optional: saves from before M3 read as nil, and the drivers start it.
     var court: CourtState?
+    /// The travelling craftsmen (craft lane, `CraftVisits`): who came, what was answered, the works. Optional: nil is a
+    /// realm without craftsmen (bots, tests, saves from before build 3 until `CraftVisits.begin`).
+    var craft: CraftState?
     /// Who the player is (the lord pass): the typed name and Burgherr or Burgherrin. Optional: a save from before
     /// the lord pass, a bot's realm and a test's read as nil, which is `LordIdentity.standard` (`lordOrDefault`).
     /// Nothing in the simulation reads it.

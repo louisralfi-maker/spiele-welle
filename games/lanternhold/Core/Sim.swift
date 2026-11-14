@@ -54,6 +54,8 @@ enum Sim {
     /// One step of `dt` seconds. Nothing moves after the realm has fallen.
     static func step(_ s: inout GameState, dt: Double, balance: Balance, events: inout [SimEvent]) {
         guard dt > 0, !s.defeated else { return }
+        // Craft lane hook: the craftsmen's standing works change the balance by values (none standing: unchanged).
+        let balance = CraftWorks.balance(balance, for: s)
         var clock = DayClock(hour: s.hour, day: s.day)
         let crossed = clock.advance(by: dt)
         s.hour = clock.hour
@@ -173,6 +175,8 @@ enum Sim {
     /// Patch (DESIGN.md: 10 gold, +25 % of the wall's HP, then 8 s cooldown), at night, at a damaged wall in reach.
     @discardableResult
     static func patch(_ s: inout GameState, plot: Int, balance: Balance, events: inout [SimEvent]) -> Bool {
+        // Craft lane hook: the limeburner's mortar makes every patch mend more.
+        let balance = CraftWorks.balance(balance, for: s)
         guard DayClock.phase(at: s.hour) != .day, s.king.patchCooldown <= 0, s.gold >= balance.patchCost else {
             return false
         }
