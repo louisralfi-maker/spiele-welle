@@ -69,7 +69,8 @@ struct FrontPicture: Sendable, Equatable {
 }
 
 /// The front rule at night (docs/REALM.md section 3, "Being there counts"): the lord's presence (`LordAura`, read by
-/// the battle), the braziers he relights by passing, the creatures that throw him back and the shaken spell, the
+/// the battle), the braziers he relights by passing, the creatures that throw him back (never while he stands up on a
+/// wall) and the shaken spell, the
 /// patch as a deed at the wall he stands at, and the night's tally for the dawn report. Deterministic: it draws nothing
 /// from the random stream. Nothing here runs for a realm without `GameState.front`.
 enum FrontNight {
@@ -150,8 +151,20 @@ enum FrontNight {
         return block
     }
 
+    /// True while the lord stands on a standing wall (between its face and its back, the gatehouse's passage included):
+    /// up there he is above the creatures, also above the shadehounds that leap a palisade.
+    static func onAWall(_ s: GameState) -> Bool {
+        for plot in Realm.wallsOuterFirst {
+            let state = s.plots[plot]
+            guard let item = state.item, !state.isRubble else { continue }
+            let x = Realm.plots[plot].x
+            if s.king.x >= x && s.king.x <= x + item.width { return true }
+        }
+        return false
+    }
+
     /// True when a creature on the ground has reached the lord: within `touchReach` of him, or about to walk through him
-    /// in this step, with nothing between them.
+    /// in this step, with nothing between them (and he is not up on a wall: `onAWall`, asked once a step by the caller).
     static func reaches(_ s: GameState, creature c: Creature, dt: Double, balance: Balance) -> Bool {
         guard c.hp > 0, !c.kind.flies else { return false }
         let tuning = balance.front
@@ -169,7 +182,7 @@ enum FrontNight {
     /// `shakenSeconds` (no presence) and no creature throws him again for `throwGrace` seconds. A Light the old screen
     /// began breaks off. The lantern's radius is not touched (the stage lane's "Raise the lantern" owns it).
     private static func throwBack(_ s: inout GameState, _ front: inout FrontState, dt: Double, balance: Balance) {
-        guard front.throwGrace <= 0 else { return }
+        guard front.throwGrace <= 0, !onAWall(s) else { return }
         var thrower: CreatureKind?
         for c in s.creatures where reaches(s, creature: c, dt: dt, balance: balance) {
             thrower = c.kind

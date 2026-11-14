@@ -264,6 +264,23 @@ final class FrontPresenceTests: XCTestCase {
         XCTAssertEqual(crow.front?.night.throwsBack, 0, "a crow flies over him")
     }
 
+    /// Shadehounds leap a palisade: a lord up on it is above them, one standing just behind it is in their way.
+    func testUpOnAWallHeIsAboveTheLeapingHounds() {
+        func throwsBack(lordX: Double) -> Int {
+            var s = night(day: 5) { state in
+                state.plots[Realm.lines[1].wall].item = .palisade
+                state.plots[Realm.lines[1].wall].hp = balance.wallHP[0]
+            }
+            s.soldiers.removeAll()
+            s.king.x = lordX
+            for k in 0..<3 { spawn(&s, .shadehound, at: 880 - 12 * Double(k)) }
+            run(&s, seconds: 4)
+            return s.front?.night.throwsBack ?? -1
+        }
+        XCTAssertEqual(throwsBack(lordX: 950), 0, "on the palisade (940 to 960)")
+        XCTAssertGreaterThan(throwsBack(lordX: 980), 0, "behind it, in the leaping hounds' way")
+    }
+
     func testAfterAThrowNoCreatureThrowsHimAgainForTheGrace() {
         var s = night { $0.plots[Realm.lines[0].wall].isRubble = true }
         s.soldiers.removeAll { $0.kind == .guardsman }
@@ -409,12 +426,13 @@ final class FrontPresenceTests: XCTestCase {
 
     // MARK: - The present bot
 
-    /// From the reference bot's eve of night 9 (seed 1): the present bot plays the night by the rule, deterministically,
-    /// never with the old Light action, and stands where the fight is.
+    /// From the reference bot's eve of night 12 (seed 1), with a night half as big again (walls are fought for): the
+    /// present bot plays the night by the rule, deterministically, and stands where the fight is.
     func testThePresentBotPlaysANightByTheRule() throws {
-        let eve = try XCTUnwrap(FrontTuningRun.eves(seed: 1, balance: balance, nights: 9...9).first)
-        let first = FrontTuningRun.presentNight(eve, balance: balance)
-        let again = FrontTuningRun.presentNight(eve, balance: balance)
+        let eve = try XCTUnwrap(FrontTuningRun.eves(seed: 1, balance: balance, nights: 12...12).first)
+        let hard = FrontTuningRun.stressed(balance, 1.5)
+        let first = FrontTuningRun.presentNight(eve, balance: hard)
+        let again = FrontTuningRun.presentNight(eve, balance: hard)
         XCTAssertTrue(first.state == again.state, "the same eve, the same night")
         XCTAssertEqual(first.tally, again.tally)
         XCTAssertFalse(first.state.defeated)
@@ -423,7 +441,7 @@ final class FrontPresenceTests: XCTestCase {
         XCTAssertLessThanOrEqual(first.tally.moves, 4, "no sprinting between walls")
         XCTAssertGreaterThan(first.front.fightSeconds, 0)
         XCTAssertGreaterThan(first.front.presentSeconds, 0.5 * first.front.fightSeconds, "it is where it burns")
-        let reference = FrontTuningRun.referenceNight(eve, balance: balance)
+        let reference = FrontTuningRun.referenceNight(eve, balance: hard)
         XCTAssertNil(reference.front, "the reference plays by the old rules")
     }
 

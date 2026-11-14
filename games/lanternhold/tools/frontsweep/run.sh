@@ -8,15 +8,17 @@ set -u
 cd "$(dirname "$0")/../.." || exit 1
 OUT=${CI_OUT:-/tmp}
 BIN="$(mktemp -d)/frontsweep"
-# simtune's core (tools/simtune/run.sh) plus the front rule, its bot and its runs (not FrontText: it needs the bundle).
-SRC="Core/DayClock.swift Core/SeededRandom.swift Core/LightField.swift Core/AmbientRamp.swift Core/Balance.swift
+# simtune's core (tools/simtune/run.sh; since the look-2 pass it also needs AmbientRampLook2, and a stand-in for the
+# lord's identity) plus the front rule, its bot and its runs (not FrontText: it needs the bundle).
+SRC="Core/DayClock.swift Core/SeededRandom.swift Core/LightField.swift Core/AmbientRamp.swift Core/AmbientRampLook2.swift
+     Core/Balance.swift
      Core/Realm.swift Core/GameState.swift Core/Economy.swift Core/Build.swift Core/Battle.swift Core/DawnReport.swift
      Core/Sim.swift Core/Names.swift Core/Autoplay.swift Core/SaveGame.swift Core/TuningRun.swift
      Core/PetitionCourtState.swift Core/PetitionData.swift Core/PetitionEngine.swift Core/PetitionNight.swift
      Core/WorldLayout.swift Core/Camera.swift Core/PixelScale.swift
      Core/Front/FrontTuning.swift Core/Front/FrontState.swift Core/Front/FrontNight.swift Core/Front/PresentBot.swift
      Core/Front/FrontTuningRun.swift
-     tools/frontsweep/main.swift"
+     tools/frontsweep/stubs.swift tools/frontsweep/main.swift"
 START=$(date +%s)
 # shellcheck disable=SC2086
 if ! xcrun swiftc -O -wmo -swift-version 5 -o "$BIN" $SRC >"$OUT/frontsweep-build.txt" 2>&1; then

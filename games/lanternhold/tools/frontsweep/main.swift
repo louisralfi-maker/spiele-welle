@@ -118,36 +118,51 @@ if doProbe {
 if doVariants {
     say("")
     say("== variants of the rule's values at budgets \(stresses) (present lost / reference lost per budget)")
-    var variants: [(String, Balance)] = [("standard r90 s1.15 h0.8", standard)]
+    var variants: [(String, Balance)] = [("standard", standard)]
     func add(_ name: String, _ change: (inout FrontTuning) -> Void) {
         var b = standard
         change(&b.front)
         variants.append((name, b))
     }
-    add("rally numbers r80 s1.25 h1") {
+    // The lord's place and the brazier's reach first: on the wall's front edge (stand 1) a reach of 24 px keeps the
+    // brazier just in front of each wall lit without stepping off it.
+    for (reach, stand) in [(20.0, 14.0), (20.0, 1.0), (24.0, 14.0), (24.0, 1.0), (30.0, 1.0)] {
+        add("reach \(Int(reach)) stand \(Int(stand))") {
+            $0.relightReach = reach
+            $0.botBehindWall = stand
+        }
+    }
+    func near(_ name: String, _ change: @escaping (inout FrontTuning) -> Void) {
+        add("r24s1 " + name) {
+            $0.relightReach = 24
+            $0.botBehindWall = 1
+            change(&$0)
+        }
+    }
+    near("rally numbers r80 s1.25 h1") {
         $0.presenceRadius = 80
         $0.presenceSpeed = 1.25
         $0.presenceHarm = 1
     }
-    add("no presence s1 h1") {
+    near("no presence s1 h1") {
         $0.presenceSpeed = 1
         $0.presenceHarm = 1
     }
-    for r in [60.0, 70, 110, 130] { add("radius \(Int(r))") { $0.presenceRadius = r } }
-    for v in [1.0, 1.25, 1.35] { add("speed \(v)") { $0.presenceSpeed = v } }
-    for h in [0.6, 0.7, 0.9, 1.0] { add("harm \(h)") { $0.presenceHarm = h } }
-    add("r110 s1.25 h0.8") {
-        $0.presenceRadius = 110
-        $0.presenceSpeed = 1.25
-    }
-    add("r90 s1.25 h0.7") {
+    for r in [70.0, 110] { near("radius \(Int(r))") { $0.presenceRadius = r } }
+    for v in [1.0, 1.25, 1.35] { near("speed \(v)") { $0.presenceSpeed = v } }
+    for h in [0.6, 0.7, 0.9, 1.0] { near("harm \(h)") { $0.presenceHarm = h } }
+    near("s1.25 h0.7") {
         $0.presenceSpeed = 1.25
         $0.presenceHarm = 0.7
     }
-    add("bot: never the guards") { $0.botJoinsGuards = false }
-    add("bot: no brazier trips") { $0.botRelightDetour = 0 }
-    add("shaken 4 s") { $0.shakenSeconds = 4 }
-    add("shaken 12 s") { $0.shakenSeconds = 12 }
+    near("s1.25 h0.6") {
+        $0.presenceSpeed = 1.25
+        $0.presenceHarm = 0.6
+    }
+    near("bot: never the guards") { $0.botJoinsGuards = false }
+    near("bot: no brazier trips") { $0.botRelightDetour = 0 }
+    near("shaken 4 s") { $0.shakenSeconds = 4 }
+    near("shaken 12 s") { $0.shakenSeconds = 12 }
     for (name, balance) in variants {
         say(row(name, measure(balance, stresses: stresses)))
     }
