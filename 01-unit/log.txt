@@ -1,0 +1,20 @@
+2026-11-14 13:18:05.825778+0000 Lanternhold[18542:62574] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.LordEntryTests testAnEmptyNameIsRobinAndQuittingBeforeTheAnswerAsksAgain]' passed (0.223 seconds).
+Test Case '-[LanternholdTests.LordEntryTests testANewRealmAsksForTheLordAndKeepsTheAnswer]' passed (0.023 seconds).
+Test Case '-[LanternholdTests.LordEntryTests testARestartAsksAgainWithTheOldLord]' passed (0.029 seconds).
+Test Case '-[LanternholdTests.LordEntryTests testTheLordSitsOnTheThroneDuringAnAudience]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.LordEntryTests testTheStoryTextsTakeTheLord]' passed (0.175 seconds).
+Test Case '-[LanternholdTests.SlidesTests testEveryPictureIsInTheBundleAtItsSize]' passed (0.022 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheArgumentsOpenAShowAndDecideThePrologue]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheNameEntryLeadsIntoThePrologueWhenTheLaunchPlaysIt]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.SlidesTests testThePrologueIsFourSlidesAndTheLastShowsTheChosenLord]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheRealmStandsStillUnderAShowAndGoesOnAfter]' passed (0.019 seconds).
+Test Case '-[LanternholdTests.SlidesTests testTheStageTurnsHoldsAndEnds]' passed (0.001 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/SlidesTests.swift:62: error: -[LanternholdTests.SlidesTests testTheWordsAreThereInEnglishAndGermanAndFitTwoShortLines] : XCTAssertEqual failed: ("["{n}", "{count}"]") is not equal to ("[]") - slides.position en: placeholders are sound
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/SlidesTests.swift:62: error: -[LanternholdTests.SlidesTests testTheWordsAreThereInEnglishAndGermanAndFitTwoShortLines] : XCTAssertEqual failed: ("["{n}", "{count}"]") is not equal to ("[]") - slides.position de: placeholders are sound
+Test Case '-[LanternholdTests.SlidesTests testTheWordsAreThereInEnglishAndGermanAndFitTwoShortLines]' failed (0.232 seconds).
+Test Suite 'SlidesTests' failed at 2026-11-14 13:18:08.592.
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-14 13:18:08.592.
+Test Suite 'Selected tests' failed at 2026-11-14 13:18:08.662.
+exit=65
+screenshots: 0

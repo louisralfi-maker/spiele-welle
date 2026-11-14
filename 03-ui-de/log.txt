@@ -1,0 +1,4 @@
+Test Case '-[LanternholdUITests.SlidesUITests testTheNameEntryLeadsIntoThePrologue]' passed (54.007 seconds).
+Test Case '-[LanternholdUITests.SlidesUITests testThePrologue]' passed (29.439 seconds).
+exit=0
+screenshots: 9
