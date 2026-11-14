@@ -44,13 +44,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ser Ludo kenne ich immer noch nicht, bevor Ihr fragt. Eure Brandpfeile versengen noch immer kaum."
+            "value" : "Ser Ludo kenne ich immer noch nicht, bevor Ihr fragt. Das Pech hab ich Euch warm gehalten."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Still haven’t met Ser Ludo, before you ask. Your fire arrows still barely singe."
+            "value" : "Still haven’t met Ser Ludo, before you ask. I kept the pitch warm for you."
           }
         }
       }
@@ -206,13 +206,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kein Sprung in meiner Gussform, die ganze Straße lang, was in meinem Handwerk als Glück gilt. Euer Torturm ist noch immer stumm wie ein geschlossener Mund."
+            "value" : "Kein Sprung in meiner Gussform, die ganze Straße lang, was in meinem Handwerk als Glück gilt. Hängen wir die Glocke, ehe das Glück ausgeht?"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Not a crack in my mould the whole road, which in my trade counts as luck. Your gate tower is still as quiet as a shut mouth."
+            "value" : "Not a crack in my mould the whole road, which in my trade counts as luck. Shall we hang the bell before the luck runs out?"
           }
         }
       }
@@ -278,13 +278,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Er entblößt Unterarme, glänzend von alten Brandnarben, und gräbt seine Grube. Zwei Tage später schlägt die Glocke einmal, tief, und jeder Hund im Tal antwortet."
+            "value" : "„Zwei Tage und eine Grube“, sagt er und zeigt Unterarme, glänzend von alten Brandnarben. Dann schlägt die Glocke einmal, tief, und jeder Hund im Tal antwortet."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "He bares forearms shiny with old burns and digs his pit. Two days on the bell rings once, deep, and every dog in the valley answers."
+            "value" : "“Two days and a pit,” he says, baring forearms shiny with old burns. Then the bell rings once, deep, and every dog in the valley answers."
           }
         }
       }
@@ -692,13 +692,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wieder daheim, für eine Weile. Eure Laternen enden noch immer am letzten Haus, und die Felder sind so dunkel, wie ich sie verlassen habe."
+            "value" : "Wieder daheim, für eine Weile. Meine Mutter fragt, warum die Felder nachts noch dunkel sind. Ich hab gesagt, ich frage Euch."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home again, for a while. Your lanterns still stop at the last house, and the fields are as dark as I left them."
+            "value" : "Home again, for a while. My mother asks why the fields are still dark at night. I told her I would ask you."
           }
         }
       }
@@ -1538,13 +1538,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Jedes Rad unterwegs gerichtet, nachts. Eure Bauleute gehen noch zu Fuß, wie ich sehe."
+            "value" : "Jedes Rad unterwegs gerichtet, nachts. Ich hab die Schritte Eurer Bauleute von der Hütte zur Mauer gezählt: zu viele."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trued every wheel on the road, nights. Your builders are still walking, I notice."
+            "value" : "Trued every wheel on the road, nights. I counted your builders’ steps from the lodge to the wall: too many."
           }
         }
       }

@@ -93,6 +93,9 @@ statue, the portrait and the bell.
 | App/GameStart.swift | `realm`, before `return` | `CraftVisits.begin(&state); CraftVisits.begin(&dawn)` | the player's realm meets craftsmen (bots' never) |
 | App/DebugArgs.swift | `Screen` | `case craft` | `-GWScreen craft` |
 | App/GameModel.swift | `applyScreen` | `case .craft?: openCraftSample()` | the sample |
+| Core/Audience.swift | `AudienceCard.make`, the `textKey:` argument | `CraftText.spoken(petition.text, state: state)` | fix round 1: the painter's offer follows the realm's stage; every other key passes unchanged |
+| Core/Balance.swift | after `fireArrowSeconds` | `var fireArrowStrike = 1.0` | fix round 1: the pitch (a fire arrow's strike against an arrow's; 1 keeps every run as it was) |
+| Core/Battle.swift | `stepSoldiers`, `.posted`, after `let fire = ...` | `let shot = fire ? damage * balance.fireArrowStrike : damage`, then `damage: shot` in the projectile and `incoming += shot` | fix round 1: the pitch |
 
 ### Rounds
 
@@ -161,26 +164,96 @@ silhouette; the portrait is composed today and may get its own 48x48 frame.
 
 | craftsman | start from | what makes him or her |
 |---|---|---|
-| Dagmar Flint (mason) | `citizen` | old woman, headscarf, leather apron, a mallet and chisel at the belt, stone dust on the sleeves |
-| Severin Quell (painter) | `petitionerE` | lean, plum coat, feather cap, moustache, a rolled canvas under the arm |
-| Benedek Rook (bell-founder) | `builder` | broad, bald, full beard, leather apron, a small hand bell on a cord |
-| Merle Tidewell (glazier) | `petitionerD` | young, red braids, teal tunic, a crate of panes on her back, a blowpipe |
-| Cuno Marl (limeburner) | `citizenC` | round, wool cap, smock white with lime, a trowel and a sack |
-| Tekla Morrow (weaver) | `petitionerD` | tall, headscarf, blue dress with apron, a bolt of teal cloth on the shoulder |
-| Joost Felloe (wheelwright) | `builder` | stocky, wool cap, short beard, a spoked wheel rolled at his side |
-| Ivar Glimm (lamp-maker) | `petitionerE` | hooded, teal tunic, a pole hung with three small lanterns (unlit by day) |
-| Renske Fallow (fletcher) | `citizen` | young, curly hair, a cap with a long feather, a quiver of black-tipped arrows |
-| Ottilie Brand (ironwright) | `citizen` | square-faced, hair in a bun, leather apron, an iron band over the shoulder, a gilder's book |
+| Dagmar Flint (mason) | `citizen` | old woman, long grey hair tied back, leather apron, a mallet and chisel at the belt, palms and sleeves grey with stone dust |
+| Severin Quell (painter) | `petitionerE` | a noble of the inner lands (BARS.md section 3): upright, slow, clean, the only saturated plum and gold thread among the craftsmen, feather cap, moustache, a scented cloth at the nose; a servant boy carries his easel and paint box (he carries nothing himself) |
+| Benedek Rook (bell-founder) | `builder` | broad, bald, full beard, leather apron, forearms shiny with old burns, a small hand bell on a cord; leans in to hear (half deaf, as founders are) |
+| Merle Tidewell (glazier) | `petitionerD` | young, red braids, teal tunic, a crate of panes on her back, a blowpipe; a hand to the mouth (the glazier's cough) |
+| Cuno Marl (limeburner) | `citizenC` | round, wool cap, smock white with lime, bare hands with knuckles cracked white, a trowel and a sack |
+| Tekla Morrow (weaver) | `petitionerD` | tall, headscarf, blue dress with apron, a bolt of teal cloth on the shoulder, fingers dyed teal |
+| Joost Felloe (wheelwright) | `builder` | stocky, wool cap, short beard, a spoked wheel rolled at his side, nine fingers |
+| Ivar Glimm (lamp-maker) | `petitionerE` | older, grey short beard, a hood, a pole hung with three small lanterns (unlit by day), thumbs black from wicks; a child of Tallowford come home |
+| Renske Fallow (fletcher) | `citizen` | young, curly hair, a cap with a long feather, a quiver of black-tipped arrows, fingers black with pitch |
+| Ottilie Brand (ironwright) | `citizen` | square-faced, hair in a bun, leather apron, an iron band over the shoulder, a gilder's book, the right arm much thicker than the left |
 
 | work | where in the rebuilt world | how it shows |
 |---|---|---|
-| the statue (mason) | the town's market square, away from the saint's statue (`town.statue`) and the well, facing the castle | a stone lord with the hooked pole raised; lit by a lamp at night |
+| the statue (mason) | the town's market square, away from the saint's statue (`town.statue`) and the well, facing the castle | a stone lord with the lantern on its hooked staff raised; lit by a lamp at night |
 | the portrait (painter) | the great hall's wall beside the throne, the first frame of a row of empty frames (the gallery to come) | a framed portrait of the chosen lord or lady (two frames: Burgherr, Burgherrin) |
-| the bell (founder) | the gate tower over the gatehouse | a bronze bell in an open belfry; it swings at dusk (the horn's partner, a sound) and when a wall falls |
+| the bell (founder) | the gate tower over the gatehouse | a bronze bell in an open belfry; it swings at dusk (the horn's partner, a sound) and when a wall falls (not House Lorn's old bell, which is a story beat of its own) |
 | the glass (glazier) | every brazier and fire tower in the Throat | glass hoods on the bowls; a clearer flame and a glint by day |
 | the mortar (limeburner) | the wall walks of the three lines and the gatehouse | tubs with trowels standing in them; a patch shows fresh pale mortar |
 | the banners (weaver) | the gatehouse and the line walls, on the castle side | long teal banners with the gold lantern that move in the wind |
 | the handcarts (wheelwright) | the builders' lodge; the builders push them to the jobs | two small teal carts with stone |
-| the road lanterns (lamp-maker) | posts along the road from the castle's back gate to the town (like `town.lanterns.extra`, but the road) | twelve lantern posts, lit at dusk with the town's windows |
-| the pitch arrows (fletcher) | a rack by the barracks | black-tipped arrows; a fire arrow's fire stays a second longer |
+| the road lanterns (lamp-maker) | the town's street lanterns (TOWN.md section 7: about four, lit by the lamplighter) carried on past the last house to the fields and the ford | about six more lantern posts; the lamplighter's evening walk goes on to the ford and back, and the last post burns at the horn |
+| the pitch arrows (fletcher) | a rack by the barracks | black-tipped arrows; a fire arrow's strike flares a little brighter |
 | the gate bands (ironwright) | the gatehouse's gate (every tier) | iron bands across the gate, a small gilt lantern where they cross |
+
+## Step craft-1, fix round 1: every work felt, every craftsman a person (14.11.2026)
+
+The independent critic's look 1 (`ci-out/director/craft-1-craftsmen-critic1.md` on the planning branch: 7/10, no
+blocker, five highs). All five highs are fixed; the smaller findings too, except those it marked for the join.
+
+### What changed
+
+- **Every work moves its own number by about 4 %** (high 1). The 5 % rule is a ceiling; nought is a placebo. A whole run
+  of the reference bot hides a work of 4 % (its nights are comfortable), so the seven works that act by night or on
+  the builders are measured in a scene of play that isolates what they change, `Tests/CraftMeasures.swift`, played by
+  the real simulation through the lane's hooks:
+
+  | work | scene | its own number | amount (was) | moved |
+  |---|---|---|---|---|
+  | handcarts | three mornings' orders (middle line, gate, castle, town) from a fresh realm on day 4 | seconds until every job stands | builders 8 % faster (10 %) | −3.7 % |
+  | bell | the lord walks from the courtyard to the outer line and back by night, archers on all three lines | soldier-seconds within the rally | reach +4 %, 83 px (+10 %) | +4.1 % |
+  | glass | both braziers of the gate and the middle line | ground lit at a sootling's height | +5 % (+5 %) | +3.7 % |
+  | mortar | the lord patches the gate at a quarter | wall strength one patch restores | 26 % (30 %) | +4.0 % |
+  | banners | an ash brute at a breach held by two, three and four guards | seconds the breach holds | steps back at 25 % (25 %) | +4.1 % |
+  | pitch | a fight at the gate, braziers lit, 24 sootlings and 4 hounds | what a fire arrow strikes for | strikes 4 % harder (fire +1 s) | +4.0 % |
+  | gate bands | four ash brutes at the gate, no soldiers | seconds the gate holds | +4 % (+5 %) | +4.0 % |
+
+  The statue (+4.4 % taxes), the road lanterns (+2.6 % taxes, high-tax bot) and the portrait (+2.6 % happiness) stay
+  measured in the bots' runs. `CraftTests.testNoWorkMovesItsSystemMoreThanAboutFivePercent` asserts 2 % to 6 % for all
+  ten, that no work costs the reference bot a night, and the hard-night guard (no night work costs a night or lets more
+  than two more soldiers fall). `testEachWorksSceneAtOtherAmounts` reports each scene at amounts around the book's.
+- **The pitch strikes harder instead of burning longer.** Round lh-c1f1-1 measured why the longer fire moved nothing: a
+  fire arrow lands on the front-most lit creature, so its fire lies where light already is, and lights do not add up
+  (in a fight before the gate lit only by the lord's lantern, of 44 points of burning under fire-arrow fire 0.3 lay
+  where no other light reached, with or without the pitch). Its strike is real damage: `Balance.fireArrowStrike`
+  (1 without the work) through one hook in `Battle.stepSoldiers`.
+- **The painter is a master of the inner lands** (high 2): Severin Quell of a Stillmere syndic family, long polite
+  sentences that say little, a scented cloth; his first offer follows the realm's stage (`craftsmen.json`
+  `stageLines`, `CraftText.spoken`, the hook in `AudienceCard.make`): `craft.painter.text_hamlet` (beneath him),
+  `craft.painter.text` (a village), `craft.painter.text_town` (a client worth having). `CraftStage.of` reads happiness
+  until the town lane's standing joins (below 70 a hamlet, from 80 a town; `testThePainterSpeaksToTheRealmsStage`).
+  `-GWCraftStage hamlet|village|town` sets the sample realm's stage.
+- **A mark of life in every craftsman's words** (high 2), in `r1` or `text`: the mason's palms grey with dust, the
+  painter's scented cloth, the founder's burnt forearms (and his half-deaf "not now"), the glazier's cough, the
+  limeburner's cracked knuckles, the weaver's dyed fingers, the wheelwright's nine fingers, the lamp-maker's blackened
+  thumbs, the fletcher's pitch, the ironwright's hammer arm.
+- **No template** (high 3): every "not now" has its own shape (a chalk mark, polite nothing, a hand to the ear, a
+  question, silence, an aphorism, a wheel that agrees, a mother's house, a feather, a bargain); no return line opens
+  with "Back" and no two share an opener; no commission reaction opens with "By/From tomorrow".
+- **The lamp-maker** (high 4) carries the lamplighter's street lanterns on past the last house to the fields and the
+  ford (TOWN.md section 7); "Home again" stays, and his mother now asks why the fields are dark.
+- **Canon** (high 5): the painter's return speaks of the light in the hall, never down to the heir; the bell-founder
+  comes from Brazenmoor (an original foundry town), so House Lorn of Greybell keeps the hall's first bell and its beat;
+  the Lorn petition does not mention him.
+- **Smaller findings:** the lamp-maker's face is older with a grey short beard (no longer the limeburner's twin); the
+  mason's grey bun became long grey hair (the bun read as a cap); Odile's fletcher counsel is dry ("Brannock will be
+  unbearable about it for a week"); "pole" became "lantern staff" (German "Laternenstab"); Stillmere paints syndics in
+  chains of office.
+
+### Hooks added in this round (also in the hook table above)
+
+- `Core/Audience.swift`, `AudienceCard.make`: `textKey: CraftText.spoken(petition.text, state: state)`.
+- `Core/Balance.swift`: `var fireArrowStrike = 1.0` after `fireArrowSeconds`.
+- `Core/Battle.swift`, `stepSoldiers`: `let shot = fire ? damage * balance.fireArrowStrike : damage`, used for the
+  projectile's damage and `incoming`. With 1 the product is the same number, so every run stays line for line (the
+  neutrality test).
+
+### Rounds
+
+- **lh-c1f1-1** (8a69132: build, CraftTests): build PASS; unit FAIL on one number: the pitch, then half a second more
+  fire, moved fire-arrow damage counted with its fire by 8.1 %, and the same scene showed that the fire lay where light
+  already was (see above), so the pitch became a harder strike. Every other work
+  landed where the scenes predicted (handcarts 3.7 %, bell 4.1 %, glass 3.7 %, mortar 4.0 %, banners 4.1 %, gate
+  4.0 %); the neutrality test, the save, the visits and the words passed; the hard nights held 28/28 for every work.
