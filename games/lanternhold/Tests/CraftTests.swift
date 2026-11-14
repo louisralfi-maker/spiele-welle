@@ -380,35 +380,44 @@ final class CraftTests: XCTestCase {
         XCTAssertEqual(CraftWorks.balance(.standard, for: s), .standard, "nothing else")
     }
 
-    func testTheBalanceWorksChangeTheirOneValue() {
+    func testTheBalanceWorksChangeTheirOneValue() throws {
         let base = Balance.standard
         func with(_ id: String) -> Balance {
             var s = realm()
             s.craft = standing([id])
             return CraftWorks.balance(base, for: s)
         }
+        func amount(_ id: String) throws -> Double { try XCTUnwrap(book.craftsman(id)).amount }
+        let bell = try amount("founder")
+        let glass = try amount("glazier")
+        let mortar = try amount("limeburner")
+        let banners = try amount("weaver")
+        let carts = try amount("wheelwright")
+        let pitch = try amount("fletcher")
+        let bands = try 1 + amount("ironwright")
+
         var expected = base
-        expected.rallyRadius *= 1 + 0.1
-        XCTAssertEqual(with("founder").rallyRadius, 88, accuracy: 1e-9)
+        expected.rallyRadius *= 1 + bell
+        XCTAssertEqual(with("founder").rallyRadius, 83.2, accuracy: 1e-9, "the bell: 80 px become 83")
         XCTAssertEqual(with("founder"), expected, "the bell changes only the rally's reach")
 
         expected = base
-        expected.brazierRadius *= 1 + 0.05
-        expected.fireTowerRadius *= 1 + 0.05
+        expected.brazierRadius *= 1 + glass
+        expected.fireTowerRadius *= 1 + glass
         XCTAssertEqual(with("glazier"), expected)
 
         expected = base
-        expected.patchShare = base.patchShare + 0.05
-        XCTAssertEqual(with("limeburner").patchShare, 0.30, accuracy: 1e-9)
+        expected.patchShare = base.patchShare + mortar
+        XCTAssertEqual(with("limeburner").patchShare, 0.26, accuracy: 1e-9, "the mortar: a patch mends 26 %")
         XCTAssertEqual(with("limeburner"), expected)
 
         expected = base
-        expected.guardRetreatShare = base.guardRetreatShare - 0.05
+        expected.guardRetreatShare = base.guardRetreatShare - banners
         XCTAssertEqual(with("weaver").guardRetreatShare, 0.25, accuracy: 1e-9)
         XCTAssertEqual(with("weaver"), expected)
 
         expected = base
-        expected.builderSpeed *= 1 + 0.1
+        expected.builderSpeed *= 1 + carts
         XCTAssertEqual(with("wheelwright"), expected)
 
         expected = base
@@ -417,12 +426,12 @@ final class CraftTests: XCTestCase {
         XCTAssertEqual(with("lampmaker"), expected)
 
         expected = base
-        expected.fireArrowSeconds += 1.0
+        expected.fireArrowSeconds += pitch
         XCTAssertEqual(with("fletcher"), expected)
 
         let gate = with("ironwright")
-        XCTAssertEqual(Build.maxHP(.gate, balance: gate), Build.maxHP(.gate, balance: base) * 1.05, accuracy: 1e-6)
-        XCTAssertEqual(Build.maxHP(.greatGate, balance: gate), Build.maxHP(.greatGate, balance: base) * 1.05,
+        XCTAssertEqual(Build.maxHP(.gate, balance: gate), Build.maxHP(.gate, balance: base) * bands, accuracy: 1e-6)
+        XCTAssertEqual(Build.maxHP(.greatGate, balance: gate), Build.maxHP(.greatGate, balance: base) * bands,
                        accuracy: 1e-6)
         XCTAssertEqual(Build.maxHP(.stoneWall, balance: gate), Build.maxHP(.stoneWall, balance: base), "only the gate")
 
@@ -460,14 +469,16 @@ final class CraftTests: XCTestCase {
             return (s.plots[plot].hp - 1000) / Build.maxHP(item, balance: .standard)
         }
         XCTAssertEqual(try patched(mortar: false), 0.25, accuracy: 1e-9)
-        XCTAssertEqual(try patched(mortar: true), 0.30, accuracy: 1e-9)
+        XCTAssertEqual(try patched(mortar: true), 0.26, accuracy: 1e-9)
     }
 
     func testThePitchKeepsAFireArrowsFireBurningLonger() {
         var s = realm()
         s.craft = standing(["fletcher"])
         let tuned = CraftWorks.balance(.standard, for: s)
-        XCTAssertEqual(tuned.fireArrowSeconds, Balance.standard.fireArrowSeconds + 1, accuracy: 1e-9)
+        let pitch = book.craftsman("fletcher")?.amount ?? 0
+        XCTAssertGreaterThan(pitch, 0)
+        XCTAssertEqual(tuned.fireArrowSeconds, Balance.standard.fireArrowSeconds + pitch, accuracy: 1e-9)
     }
 
     // MARK: - The save
@@ -579,11 +590,52 @@ final class CraftTests: XCTestCase {
         }
     }
 
-    /// No effect moves its system by more than about 5 % (docs/TOWN.md section 4): each work, commissioned on the first
-    /// day its craftsman can come, is measured against the same realm without it over 14 nights and two seeds, on the
-    /// number its system makes over the nights it stands (the statue and the road lanterns: taxes; the portrait:
-    /// happiness; the handcarts: buildings; the night's works: creatures stopped). The whole run is reported too.
-    func testNoWorkMovesItsSystemMoreThanAboutFivePercent() {
+    /// A work's own number (the scenes of `CraftMeasures`), with the work standing (`ids`) or not; with no work and a
+    /// changed `balance`, another amount of the same effect. Nil for the three works measured in whole runs.
+    private func ownNumber(_ effect: CraftEffect, works ids: [String], balance: Balance = .standard) -> Double? {
+        switch effect {
+        case .builderWalk: return CraftMeasures.buildSeconds(works: ids, balance: balance)
+        case .rallyReach: return CraftMeasures.rallySoldierSeconds(works: ids, balance: balance)
+        case .lightRadius: return CraftMeasures.litGround(works: ids, balance: balance)
+        case .patchShare: return CraftMeasures.patchRestores(works: ids, balance: balance)
+        case .guardHold: return CraftMeasures.breachSeconds(works: ids, balance: balance)
+        case .fireArrowBurn: return CraftMeasures.fireArrows(works: ids, balance: balance).damage
+        case .gateStrength: return CraftMeasures.gateSeconds(works: ids, balance: balance)
+        case .houseCoin, .happinessOnce, .unrestLine: return nil
+        }
+    }
+
+    /// The name of a work's own number, and whether less of it is better.
+    private func numberName(_ effect: CraftEffect) -> (name: String, lowerIsBetter: Bool) {
+        switch effect {
+        case .builderWalk: return ("seconds to finish three mornings' orders", true)
+        case .rallyReach: return ("soldier-seconds within the rally on a walk of the walls", false)
+        case .lightRadius: return ("pixels of ground the braziers light", false)
+        case .patchShare: return ("wall strength one patch restores", false)
+        case .guardHold: return ("seconds a breach holds against a brute (2, 3, 4 guards)", false)
+        case .fireArrowBurn: return ("fire-arrow damage before the gate (strikes and fire)", false)
+        case .gateStrength: return ("seconds the gate holds against four brutes", false)
+        case .houseCoin, .unrestLine: return ("taxes while it stands", false)
+        case .happinessOnce: return ("happiness while it stands", false)
+        }
+    }
+
+    private func moved(_ without: Double, _ with: Double, lowerIsBetter: Bool) -> Double {
+        guard without != 0 else { return 0 }
+        return lowerIsBetter ? (without - with) / without : (with - without) / without
+    }
+
+    private func pct(_ x: Double) -> String { String(Int((x * 1000).rounded())) + "‰" }
+
+    private func number(_ x: Double) -> String { TuningRun.tenths(x) }
+
+    /// Every work moves its own number by about 4 %: at least 2 %, at most 6 % (docs/TOWN.md section 4; the critic's
+    /// high 1 of fix round 1: the 5 % rule is a ceiling, and nought is a placebo). The statue and the road lanterns
+    /// move the taxes, the portrait the happiness, over the nights they stand in the reference bot's runs (each
+    /// commissioned on the first day its craftsman can come, price left out); every other work moves its own number in
+    /// its scene (`CraftMeasures`). No work costs the reference bot a night, and on harder nights (a bot with few
+    /// soldiers) no night work costs a night or lets more than two more soldiers fall.
+    func testNoWorkMovesItsSystemMoreThanAboutFivePercent() throws {
         let seeds: [UInt64] = [1, 2]
         let normal = runs(nil, bot: .reference(), seeds: seeds)
         let high = runs(nil, bot: .reference(tax: .high), seeds: seeds)
@@ -593,7 +645,6 @@ final class CraftTests: XCTestCase {
                      + "walls \(n.wallsLost) buildings \(n.buildings)",
                      "base high: taxes \(h.taxes) happiness \(h.happiness) killed \(h.killed)"]
         func share(_ value: Int, _ base: Int) -> Double { base == 0 ? 0 : Double(value - base) / Double(base) }
-        func pct(_ x: Double) -> String { String(Int((x * 1000).rounded())) + "‰" }
         for c in book.craftsmen {
             let highTax = c.effect == .unrestLine
             let baseRuns = highTax ? high : normal
@@ -603,40 +654,38 @@ final class CraftTests: XCTestCase {
             let with = Measure(workRuns, from: ready)
             let wholeBase = Measure(baseRuns)
             let whole = Measure(workRuns)
-            let system: String
-            let moved: Double
-            let movedWhole: Double
-            var countTolerance = 0.0
+            let name = numberName(c.effect)
+            var detail = ""
+            let movedBy: Double
             switch c.effect {
             case .houseCoin, .unrestLine:
-                system = "taxes"
-                moved = share(with.taxes, base.taxes)
-                movedWhole = share(whole.taxes, wholeBase.taxes)
+                movedBy = share(with.taxes, base.taxes)
+                detail = "\(base.taxes) → \(with.taxes)"
             case .happinessOnce:
-                system = "happiness"
-                moved = share(with.happiness, base.happiness)
-                movedWhole = share(whole.happiness, wholeBase.happiness)
-            case .builderWalk:
-                system = "buildings"
-                moved = share(with.buildings, base.buildings)
-                movedWhole = moved
-                countTolerance = 1 / Double(max(1, base.buildings))
-            case .rallyReach, .lightRadius, .patchShare, .guardHold, .fireArrowBurn, .gateStrength:
-                system = "creatures stopped"
-                moved = share(with.killed, base.killed)
-                movedWhole = share(whole.killed, wholeBase.killed)
+                movedBy = share(with.happiness, base.happiness)
+                detail = "\(base.happiness) → \(with.happiness)"
+            default:
+                let without = try XCTUnwrap(ownNumber(c.effect, works: []), "\(c.id): its scene without the work")
+                let withWork = try XCTUnwrap(ownNumber(c.effect, works: [c.id]), "\(c.id): its scene with the work")
+                movedBy = moved(without, withWork, lowerIsBetter: name.lowerIsBetter)
+                detail = "\(number(without)) → \(number(withWork))"
+                if c.effect == .fireArrowBurn {
+                    let a = CraftMeasures.fireArrows(works: [])
+                    let b = CraftMeasures.fireArrows(works: [c.id])
+                    detail += " (fire arrows \(a.arrows)/\(b.arrows), strikes \(number(a.strikes))/\(number(b.strikes)), "
+                        + "fire \(number(a.fire))/\(number(b.fire)), of it where no other light reaches "
+                        + "\(number(a.added))/\(number(b.added)), stopped \(a.stopped)/\(b.stopped))"
+                }
             }
-            lines.append("\(c.id) (\(c.work), \(c.effect.rawValue) \(c.amount), stands from dawn \(ready)): \(system) "
-                         + "\(pct(moved)) while it stands, \(pct(movedWhole)) over the run; taxes "
-                         + "\(pct(share(with.taxes, base.taxes))) happiness \(pct(share(with.happiness, base.happiness))) "
-                         + "killed \(pct(share(with.killed, base.killed))) fallen \(with.fallen)/\(base.fallen) walls "
-                         + "\(with.wallsLost)/\(base.wallsLost) hearth lost \(Int(with.hearthLost))/\(Int(base.hearthLost)) "
-                         + "buildings \(with.buildings)/\(base.buildings) nights held \(whole.survived)/\(wholeBase.survived)")
-            XCTAssertLessThanOrEqual(abs(moved), max(0.06, countTolerance),
-                                     "\(c.id) moves \(system) by \(pct(moved)) while it stands")
+            lines.append("\(c.id) (\(c.work), \(c.effect.rawValue) \(c.amount)): \(name.name) \(detail): \(pct(movedBy)); "
+                         + "run from dawn \(ready): taxes \(pct(share(with.taxes, base.taxes))) happiness "
+                         + "\(pct(share(with.happiness, base.happiness))) killed \(pct(share(with.killed, base.killed))) "
+                         + "fallen \(with.fallen)/\(base.fallen) nights held \(whole.survived)/\(wholeBase.survived)")
+            XCTAssertGreaterThanOrEqual(movedBy, 0.02, "\(c.id) moves \(name.name) by only \(pct(movedBy))")
+            XCTAssertLessThanOrEqual(movedBy, 0.06, "\(c.id) moves \(name.name) by \(pct(movedBy))")
             XCTAssertGreaterThanOrEqual(whole.survived, wholeBase.survived, "\(c.id): a work never costs a night")
         }
-        // Reported, not asserted: the night's works on harder nights (a bot that keeps four in five people at work, so
+        // A guard, not a measure: the night's works on harder nights (a bot that keeps four in five people at work, so
         // few soldiers), where walls fall, guards hold breaches and the king patches.
         var stress = Autoplay.reference()
         stress.soldierShare = 0.8
@@ -651,12 +700,51 @@ final class CraftTests: XCTestCase {
             lines.append("hard nights, \(c.id) (\(c.work)): killed \(pct(share(m.killed, hb.killed))) fallen "
                          + "\(m.fallen)/\(hb.fallen) walls \(m.wallsLost)/\(hb.wallsLost) hearth lost "
                          + "\(Int(m.hearthLost))/\(Int(hb.hearthLost)) nights held \(m.survived)/\(hb.survived)")
-            // A guard, not a measure: no work makes the hard nights worse (a fall or two may move either way).
             XCTAssertLessThanOrEqual(m.fallen, hb.fallen + 2, "\(c.id): more soldiers fall on hard nights")
             XCTAssertGreaterThanOrEqual(m.survived, hb.survived, "\(c.id): a work never costs a hard night")
         }
         let attachment = XCTAttachment(string: lines.joined(separator: "\n"))
         attachment.name = "craft-effect-sizes"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
+    /// Reported, not tuned here: each scene's work at amounts around the book's (how the amounts were chosen).
+    func testEachWorksSceneAtOtherAmounts() throws {
+        let sweep: [(CraftEffect, [Double])] = [
+            (.builderWalk, [0.06, 0.08, 0.1]),
+            (.rallyReach, [0.03, 0.04, 0.05, 0.1]),
+            (.lightRadius, [0.03, 0.04, 0.05, 0.08]),
+            (.patchShare, [0.01, 0.0125, 0.05]),
+            (.guardHold, [0.03, 0.05, 0.07]),
+            (.fireArrowBurn, [0.1, 0.25, 0.5, 1.0, 1.5, 2.5]),
+            (.gateStrength, [0.03, 0.04, 0.05]),
+        ]
+        var lines: [String] = []
+        for (effect, amounts) in sweep {
+            let name = numberName(effect)
+            let without = try XCTUnwrap(ownNumber(effect, works: []), effect.rawValue)
+            var parts: [String] = []
+            for amount in amounts {
+                var b = Balance.standard
+                CraftWorks.apply(effect, amount: amount, to: &b)
+                let with = try XCTUnwrap(ownNumber(effect, works: [], balance: b), "\(effect.rawValue) \(amount)")
+                parts.append("\(amount): \(pct(moved(without, with, lowerIsBetter: name.lowerIsBetter)))")
+                if effect == .fireArrowBurn {
+                    let f = CraftMeasures.fireArrows(works: [], balance: b)
+                    parts[parts.count - 1] += " (strikes \(number(f.strikes)) fire \(number(f.fire)) added "
+                        + "\(number(f.added)) stopped \(f.stopped))"
+                }
+            }
+            if effect == .fireArrowBurn {
+                let f = CraftMeasures.fireArrows(works: [])
+                parts.insert("without: strikes \(number(f.strikes)) fire \(number(f.fire)) added \(number(f.added)) "
+                             + "stopped \(f.stopped)", at: 0)
+            }
+            lines.append("\(effect.rawValue), \(name.name), without \(number(without)): " + parts.joined(separator: "; "))
+        }
+        let attachment = XCTAttachment(string: lines.joined(separator: "\n"))
+        attachment.name = "craft-scene-sweep"
         attachment.lifetime = .keepAlways
         add(attachment)
     }
