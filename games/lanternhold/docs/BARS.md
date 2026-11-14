@@ -27,7 +27,7 @@ Louis: "Will das UI ziemlich minimal, aufgeräumt haben wie bei Kingdom Two Crow
 - A card appears only for words (an audience, the ledger, the dawn report) or a real choice, small and at the thing.
 - Whatever can be touched answers a touch with a small motion, so the player learns it by trying.
 
-## 3. The people bar (added 14.11.2026 14:25)
+## 3. The people bar (added 14.11.2026 14:20)
 
 Louis: "Was auch verdammt cool wäre, wenn die Bauern und die Leute, die arbeiten, schon richtig verbraucht sind, vom Leben geprägt. Natürlich ist unser Königreich besser, da sind alle fast gleich, weil wir nie so viel Geld hatten. Alle sind vom Leben geprägt, dann ist es halt cool, wenn es lebensfrohe Kinder gibt oder abgehobene reiche Adelige. Das bringt Charakterwechsel mit rein."
 

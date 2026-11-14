@@ -206,3 +206,4 @@ Charakterwechsel mit rein." That is the third bar (`docs/BARS.md` section 3) and
 `docs/PEOPLE.md`, the three townsfolk repainted, new working bodies, children, nobles and a footman, a line-up picture
 for Louis) and people-2 (who lives where, the working day, the children, the noble's coach; picture only). Notes went
 to town, craft, world, stage, panels and quests.
+Started 14.11.2026 14:21 as task `wq6eijh3t` (run `wf_1b69237b-515`). Never resume it; after a stop, write a continuation.
