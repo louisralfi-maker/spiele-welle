@@ -361,6 +361,10 @@ struct GameState: Codable, Sendable, Equatable {
     /// the lord pass, a bot's realm and a test's read as nil, which is `LordIdentity.standard` (`lordOrDefault`).
     /// Nothing in the simulation reads it.
     var lord: LordIdentity?
+    /// The Lantern Table (docs/QUESTS.md, `Core/Table`): the road lanterns, the parties out, the reports waiting.
+    /// Optional: a realm that never touched the table, every bot run and every older save read as nil and play as
+    /// before.
+    var table: TableState?
     var records = Records()
     var nextID = 1
     var orderCounter = 0

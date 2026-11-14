@@ -84,6 +84,8 @@ enum Sim {
     /// The dawn (06:00): the night ends, the economy runs, unlocks and records, and the report.
     static func dawn(_ s: inout GameState, balance: Balance, events: inout [SimEvent]) {
         Battle.endNight(&s, balance: balance)
+        // The Lantern Table: parties due at this dawn come home before the economy and the report (docs/QUESTS.md 4.2).
+        ErrandEngine.dawn(&s, balance: balance)
         let stats = s.night
         let citizensBefore = s.citizens
         let people = Economy.dawn(&s, fallen: stats.fallen.count, balance: balance)

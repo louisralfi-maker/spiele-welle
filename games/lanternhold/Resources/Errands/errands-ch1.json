@@ -1,0 +1,101 @@
+{
+  "chapter": 1,
+  "lanterns": [38, 39, 40],
+  "reserved": [41],
+  "places": [
+    { "id": "lanternhold", "kind": "home", "nights": 0 },
+    { "id": "tallowford", "kind": "valley", "nights": 1 },
+    { "id": "old_bridge", "kind": "valley", "nights": 2 },
+    { "id": "windmill", "kind": "valley", "nights": 1 },
+    { "id": "highcairn", "kind": "house", "nights": 2 },
+    { "id": "saltgate", "kind": "house", "nights": 3 },
+    { "id": "greybell", "kind": "house", "nights": 3 },
+    { "id": "stillmere", "kind": "house", "nights": 3 },
+    { "id": "goldenacre", "kind": "house", "nights": 4 },
+    { "id": "beaconfoot", "kind": "west", "nights": 1 },
+    { "id": "beacon", "kind": "west", "nights": 1 }
+  ],
+  "errands": [
+    {
+      "id": "oil_round", "number": 1, "place": "tallowford", "chapter": 1, "days": [2, 6],
+      "orders": [
+        { "seal": true, "nights": 1, "cost": { "gold": -5 }, "goes": ["pip"], "report": "oil_round" }
+      ]
+    },
+    {
+      "id": "highcairn_count", "number": 5, "place": "highcairn", "chapter": 1, "days": [5, 11],
+      "requires": ["varn_with"],
+      "orders": [
+        { "label": "errand.highcairn_count.o1", "seal": true, "nights": 2, "cost": { "gold": -8 },
+          "lend": { "archers": 1, "guards": 1 }, "report": "highcairn_true" },
+        { "label": "errand.highcairn_count.o2", "nights": 2, "cost": { "gold": -8, "flags": ["count_rounded"] },
+          "lend": { "archers": 1, "guards": 1 }, "report": "highcairn_rounded" }
+      ],
+      "atReturn": { "flags": ["varn_road"] }
+    },
+    {
+      "id": "beacon_statues", "number": 11, "place": "beacon", "chapter": 1, "days": [11, 16],
+      "unlocked": ["beacon"],
+      "orders": [
+        { "label": "errand.beacon_statues.o1", "seal": true, "nights": 1, "lend": { "archers": 1 },
+          "report": "beacon_statues" },
+        { "label": "errand.beacon_statues.o2", "nights": 1, "lend": { "archers": 1 }, "risk": 0.25,
+          "report": "beacon_statues_lamp", "atReturn": { "world": ["table.west.2"] } }
+      ],
+      "atReturn": { "flags": ["statues_counted"], "world": ["table.west.1"] }
+    }
+  ],
+  "reports": [
+    {
+      "id": "oil_round", "speaker": "pip", "text": "report.oil_round.text", "counsel": 0,
+      "choices": [
+        { "label": "report.oil_round.c1", "happiness": 1, "world": ["town.lanterns.extra"],
+          "reaction": "report.oil_round.r1" },
+        { "label": "report.oil_round.c2", "night": ["sootlings-2"], "reaction": "report.oil_round.r2",
+          "instead": { "flags": ["brazier_gift"], "reaction": "report.oil_round.r2b" } }
+      ]
+    },
+    {
+      "id": "highcairn_true", "speaker": "soldier", "text": "report.highcairn_true.text", "counsel": 0,
+      "choices": [
+        { "label": "report.highcairn_true.c1", "archers": 2, "reaction": "report.highcairn_true.r1" },
+        { "label": "report.highcairn_true.c2", "happiness": 1, "flags": ["varn_vouch"],
+          "reaction": "report.highcairn_true.r2" }
+      ]
+    },
+    {
+      "id": "highcairn_rounded", "speaker": "soldier", "text": "report.highcairn_rounded.text", "counsel": 1,
+      "choices": [
+        { "label": "report.highcairn_rounded.c1", "archers": 1, "reaction": "report.highcairn_rounded.r1" },
+        { "label": "report.highcairn_rounded.c2", "gold": -8, "flags": ["-count_rounded", "varn_vouch"],
+          "reaction": "report.highcairn_rounded.r2" }
+      ]
+    },
+    {
+      "id": "beacon_statues", "speaker": "soldier", "text": "report.beacon_statues.text", "counsel": 0,
+      "choices": [
+        { "label": "report.beacon_statues.c1", "night": ["brutes-2"], "reaction": "report.beacon_statues.r1",
+          "instead": { "happiness": 1, "reaction": "report.beacon_statues.r1b" } },
+        { "label": "report.beacon_statues.c2", "happiness": 1, "flags": ["statues_told"],
+          "reaction": "report.beacon_statues.r2" }
+      ]
+    },
+    {
+      "id": "beacon_statues_lamp", "speaker": "soldier", "text": "report.beacon_statues_lamp.text", "counsel": 0,
+      "choices": [
+        { "label": "report.beacon_statues_lamp.c1", "night": ["brutes-2"],
+          "reaction": "report.beacon_statues_lamp.r1",
+          "instead": { "happiness": 1, "reaction": "report.beacon_statues_lamp.r1b" } },
+        { "label": "report.beacon_statues_lamp.c2", "happiness": 1, "flags": ["statues_told"],
+          "reaction": "report.beacon_statues_lamp.r2" }
+      ]
+    },
+    {
+      "id": "lantern_lost", "speaker": "brannock", "text": "report.lantern_lost.text", "counsel": 0,
+      "choices": [
+        { "label": "report.lantern_lost.c1", "flags": ["mourning_kept"], "reaction": "report.lantern_lost.r1" },
+        { "label": "report.lantern_lost.c2", "flags": ["hook_hidden"], "reaction": "report.lantern_lost.r2" }
+      ]
+    }
+  ]
+}
