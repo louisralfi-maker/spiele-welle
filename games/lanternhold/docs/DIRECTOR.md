@@ -132,6 +132,29 @@ After both workflows: a second join (the five lanes into the joined game), the w
 | Lantern slides for the prologue and the endings | the house's own way to tell a story | v1-lanes.js, panels |
 | The rail is the status display; a line of light creeps across the map | who is away and when they are due, seen at a glance | v1-lanes.js, quests-3 |
 | Consent at the first dawn report, not at launch | the first minutes stay clean | v1-lanes.js, ads-1 |
+| The night comes closer: a closer framing at the gate, volleys, a shuddering wall | Louis: "da müssen Schüsse fliegen"; creatures are tiny at 180 rows | notes-world.md, world-3 (ranks above the lamplighter) |
+| The flame shows the danger: it leans toward the next wave | a warning without an arrow or a HUD | notes-stage.md, stage-2 |
+
+**Louis' vision as the director reads it (told to him on 14.11.; correct it when he answers):**
+
+- A realm that is "düster und gemütlich" and looks like an expensive game: looks come first.
+- A strong contrast: by day a peaceful, beautiful, working town and a mighty hall where the lord's word counts; by night a fierce fight at the gate ("da müssen Schüsse fliegen").
+- The player touches people and things, never buttons. The interface matters as much as the art.
+- Little arithmetic and little tactics: one money loop (taxes), happiness up or down.
+- One coherent place: a mighty castle that blocks the cleft, the town behind it.
+- A story that goes on: the Weltmauer, a thousand-year family of defenders; story, then endless, then more chapters.
+
+The three widest gaps against it today: the night is small and passive; a judgment leaves too little trace in the world; the first minutes have no title and no guidance (in work).
+
+**Still to place (a "night and life" lane after the join; the big ones may be build 3):**
+
+- **Every creature has its entrance.** Eyes in the fog first. Each kind does one thing that is its own: the gloomweaver smothers a brazier, crows steal a torch, the Ash Giant stands as tall as the wall. Needs new sprite rows.
+- **The people remember.** Whoever was judged lives on in the town where the player can see it: the smith who was helped hammers at the gate, the house of the one who was refused stays dark. Built from the flags the petitions already set.
+- **Windows instead of numbers.** Mood and wealth are read from the town: lit windows, chimney smoke, market stalls and playing children when it is happy; closed shutters when it is not.
+- **The morning after.** At dawn the ground before the wall shows the night: scorch marks, broken stakes, arrows in the earth, townsfolk clearing up.
+- **The ancestors' gallery.** Portraits of the house line the great hall; at the chapter's end the player's lord hangs there with the ending they reached, and the heir begins the next run.
+- **A light for each of the fallen** on the chapel wall, by name.
+- **A picture of the realm to share** at the chapter's end or after a hard night (the castle, the house's name, the day): the game's own advertising.
 
 **Still to place (the onboarding lane, after the join):**
 
