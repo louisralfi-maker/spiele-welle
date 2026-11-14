@@ -118,7 +118,7 @@ chance again from night %lld"; nothing uses them now (the i18n pass may drop the
 | `lh-ad1-1` | `f0f0314` | build, unit, ui (ads, first day's screens), ui-de (ads) | build FAILED: a nonisolated unit test read `GameModel.secondChanceGap` (main actor); fixed in `aa32838` |
 | `lh-ad1-2` | `406047f` | the same | ALL PASSED: 439 unit tests (28 of them the ads'), `AdsUITests` (5) in English and German, `FirstDayUITests.testScreens` |
 | `lh-ad1-3` | `0c82c44` | build, unit, ui, ui-de, release (the full round) | ALL PASSED: 439 unit tests, 21 UI tests in English and in German, the Release build |
-| `lh-ad1-4` | see the lane's report | the full round again | see the lane's report (`ci-out/director/ads-1.md`) |
+| `lh-ad1-4` | `f3d7321` | build, unit, ui, ui-de, release (the full round) | ALL PASSED: 439 unit tests, 21 UI tests in English and in German, the Release build |
 
 Judged from `lh-ad1-2`'s shots (upright copies in the lane's report folder): the report's offer and the doubled note fit
 the footer in English and German, the defeat card's second chance reads well in both; Marek's card failed the bar: its
@@ -126,7 +126,11 @@ the footer in English and German, the defeat card's second chance reads well in 
 Fixed in `0c82c44` (a fixed "Not now", a wider card, a slip under the realm strip: "Marek's gift: +25 gold").
 From `lh-ad1-3`'s shots: the card reads well in both languages, but in German its top edge covered the HUD's gold (the
 very number the gift adds to), and the slip (2.6 s) had gone before the shot. Then: the card stands in the room below
-the HUD's ledger, the slip shows 3.5 s, and the UI test shoots while it shows.
+the HUD's ledger, the slip shows 3.5 s, and the UI test shoots while it shows. `lh-ad1-4`'s shots confirm both.
+
+Still open from the player's view (a product question, not built): after a second chance the dawn report offers the
+double taxes too, so two videos can follow each other on that dawn. DESIGN.md allows it (rewarded videos are always
+optional); "one video per dawn" would be one more rule in `AdPacing.doubleTaxesOpen` (`lastRewardedDay != day`).
 
 ### Open, and what waits for the join
 
