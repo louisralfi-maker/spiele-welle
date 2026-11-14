@@ -22,8 +22,8 @@ from ending_kit import cluster, person, snow_flakes
 # --- slide 2: alone before the low hearth -----------------------------------------------------------------------------
 
 G2_ALLOWED = ["night0", "night1", "night2", "nightDeep", "ink", "woodDark", "wood", "woodLight", "soilDark", "soil",
-              "rockDeep", "rockDark", "tile", "crimsonDeep", "crimson", "emberDim", "ember", "fireOrange", "fireGold",
-              "gold", "plumDeep"]
+              "rockDeep", "rockDark", "tile", "tileLight", "crimsonDeep", "crimson", "emberDim", "ember",
+              "fireOrange", "fireGold", "gold", "plumDeep"]
 
 HEARTH = (214, 106)
 
@@ -93,36 +93,193 @@ def hearth(c):
     cluster(c, hx - 2, 96, ["..O..", ".OGO.", ".OGO.", "OGGGO", ".OOO."], {"O": "fireOrange", "G": "fireGold"})
 
 
-def high_chair(form):
-    """The lord in the high chair, seen from behind and a little to the left: the chair's tall back with its carved
-    crest, the lord's head and shoulders above it (the circlet a thread of gold), the right arm on the armrest toward
-    the fire."""
-    lay = Layer()
-    cx = 140
-    wood = P("night1")
-    # the high back: two posts with knobs, the crest between them carved, the back's panel
-    lay.poly([(cx - 19, 150), (cx + 19, 150), (cx + 17, 104), (cx - 17, 104)], wood)
+LORD_X = 156             # the middle of the lord's back
 
-    for px in (cx - 19, cx + 17):
-        lay.poly([(px, 106), (px + 3, 106), (px + 3, 150), (px, 150)], wood)
-    # the armrests and the legs, the floor showing between them
-    lay.poly([(cx + 18, 124), (cx + 34, 124), (cx + 34, 128), (cx + 18, 128)], wood)
-    lay.poly([(cx - 34, 124), (cx - 18, 124), (cx - 18, 128), (cx - 34, 128)], wood)
-    for lx in (cx - 33, cx - 20, cx + 18, cx + 31):
-        lay.poly([(lx, 128), (lx + 3, 128), (lx + 3, 160), (lx, 160)], wood)
-    lay.poly([(cx - 34, 146), (cx + 34, 146), (cx + 34, 150), (cx - 34, 150)], wood)
-    lay.capsule((cx + 20, 106), (cx + 26, 122), 3.6, 3.2, P("night0"))
-    lay.capsule((cx + 26, 122), (cx + 34, 124), 3.0, 2.4, P("night0"))
-    lay.ellipse(cx, 104, 19, 6, P("night0"))
-    lay.ellipse(cx + 1, 84, 8.0, 9.0, P("night0"))
-    lay.capsule((cx + 1, 90), (cx, 100), 4.0, 5.0, P("night0"))
+
+def chair_and_lord(form):
+    """The lord alone in the high chair before the low hearth, seen from behind and to the left (three quarters from
+    the back): the chair's back in front of us up to the shoulder blades, its posts with their knobs; above it the
+    lord's back and shoulders under the mended cloak, slumped, the head bowed toward the embers; the right arm along
+    the chair's arm with the hand hanging limp over its end before the fire; the circlet a few pixels of gold on the
+    hair where the ember catches it. The Burgherrin's hair falls down her back in a braid. Returns the figure (a
+    layer, unlit: one colour per part) and the parts' keys for lighting."""
+    cx = LORD_X
+    parts = {}
+
+    def put(lay, key, pts=None, ellipse=None, capsule=None):
+        sub = Layer()
+        if pts:
+            sub.poly(pts, P("night0"))
+        if ellipse:
+            sub.ellipse(*ellipse, P("night0"))
+        if capsule:
+            sub.capsule(*capsule, P("night0"))
+        for k in sub.px:
+            lay.px[k] = P("night0")
+            parts[k] = key
+    lay = Layer()
+    # the cloak over the back and the slumped shoulders, falling behind the chair; the right shoulder a little higher
+    # and nearer the fire
+    put(lay, "cloak", pts=[(cx - 21, 88), (cx - 8, 81), (cx + 10, 80), (cx + 21, 85), (cx + 25, 104), (cx + 23, 126),
+                           (cx - 25, 126), (cx - 26, 104)])
+    put(lay, "cloak", ellipse=(cx - 17, 90, 8.5, 7.0))
+    put(lay, "cloak", ellipse=(cx + 16, 87, 8.5, 7.0))
+    # the head bowed forward toward the fire: only the back of the head, the hair, a sliver of cheek and ear
+    # (the head is a hand-set grid, laid on after the light: HEAD_LORD / HEAD_LADY)
     if form == "lady":
-        lay.poly([(cx - 7, 84), (cx + 9, 84), (cx + 10, 104), (cx - 8, 104)], P("night0"))
-        lay.ellipse(cx + 1, 76, 5.0, 3.6, P("night0"))
-    # the lord's hair: short and full for the Burgherr, a knot for the Burgherrin (above)
-    if form != "lady":
-        lay.ellipse(cx + 1, 79, 7.0, 4.0, P("night0"))
-    return lay, (cx + 1, 80)
+        # her hair gathered in a braid down her back over the cloak
+        for k in range(10):
+            y = 86 + k * 2.2
+            put(lay, "braid", ellipse=(cx + 5 - k * 0.3, y, 2.4 - k * 0.06, 1.6))
+    # the right arm along the chair's arm toward the fire, the hand hanging over its end
+    put(lay, "sleeve", capsule=((cx + 19, 90), (cx + 26, 108), 4.4, 3.8))
+    put(lay, "sleeve", capsule=((cx + 26, 108), (cx + 37, 112), 3.6, 3.0))
+    put(lay, "hand", pts=[(cx + 38, 110), (cx + 42, 111), (cx + 43, 116), (cx + 42, 121), (cx + 39, 121),
+                          (cx + 38, 116)])
+    # the chair: its back in front of the lord, the two posts with knobs, the right arm and its front post, the legs
+    put(lay, "chair", pts=[(cx - 24, 99), (cx + 19, 98), (cx + 19, 136), (cx - 24, 136)])
+    put(lay, "post", pts=[(cx - 27, 92), (cx - 22, 92), (cx - 22, 152), (cx - 27, 152)])
+    put(lay, "post", pts=[(cx + 18, 91), (cx + 23, 91), (cx + 23, 152), (cx + 18, 152)])
+    put(lay, "post", ellipse=(cx - 24.5, 90, 3.2, 3.0))
+    put(lay, "post", ellipse=(cx + 20.5, 89, 3.2, 3.0))
+    put(lay, "chair", pts=[(cx + 23, 112), (cx + 38, 113), (cx + 38, 117), (cx + 23, 117)])
+    put(lay, "post", pts=[(cx + 34, 117), (cx + 37, 117), (cx + 37, 150), (cx + 34, 150)])
+    put(lay, "chair", pts=[(cx - 24, 136), (cx + 19, 136), (cx + 19, 141), (cx - 24, 141)])
+    return lay, parts
+
+
+HEAD_LORD = """
+.....kkkkkk......
+...kkhhhhhhkk....
+..khhhhhhhhhCk...
+.khhhhhhhhhhhCk..
+.khhhhhhhhhhhCRk.
+khhhhhhhhhhhhhCRk
+khhhhhhhhhhhhgGGk
+khhhhhhhhhhhhSsRk
+khhhhhhhhhhhhssOk
+.khhhhhhhhhhhssOk
+.khhhhhhhhhhhsOk.
+..khhhhhhhhhhsk..
+...knnnnnnnnnk...
+....knnnnnnnk....
+"""
+HEAD_LADY = """
+.....kkkkkk......
+...kkhhhhhhkk....
+..khhhhhhhhhCk...
+.khhhhhhhhhhhCk..
+.khhhhhhhhhhhCRk.
+khhhhhhhhhhhhhCRk
+khhhhhhhhhhhhgGGk
+khhhhhhhhhhhhhSRk
+khhhhhhhhhhhhhsOk
+khhhhhhhhhhhhhsOk
+.khhhhhhhhhhhhRk.
+.khhhhhhhhhhhhk..
+..khhhhhhhhhhk...
+...khhhhhhhhk....
+"""
+
+
+def head_grid(c, form):
+    """The bowed head from behind and to the left: the hair, a line of the circlet across the back of it, dark where
+    the light is not and gold where it turns toward the fire; a sliver of cheek and ear lit; the nape under the hair
+    (the Burgherrin's hair hides it, gathered into the braid)."""
+    grid = HEAD_LADY if form == "lady" else HEAD_LORD
+    legend = {"k": "night0", "h": "night1", "C": "crimsonDeep", "R": "ember", "g": "crimsonDeep", "G": "gold",
+              "S": "tileLight", "s": "tile", "O": "fireOrange", "n": "crimsonDeep"}
+    rows = grid.strip("\n").split("\n")
+    x0, y0 = LORD_X - 3, 70
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                col = legend[ch]
+                if ch == "h" and h2(x, y, 1533) > 0.78 and x > 6:
+                    col = "plumDeep"            # a few strands catching the warm dark
+                c.c[y0 + y][x0 + x] = P(col)
+    # the gold at the circlet's turn, a pixel brighter where the ember strikes it
+    c.c[y0 + 6][x0 + 14] = P("fireGold")
+
+
+def light_lord(lay, parts, form):
+    """The ember light on the lord and the chair, as the hall's stones have it: whole parts a step up where they face
+    the fire, a hard rim on every edge toward it, the far side in the dark; carved panels on the chair's back; the
+    cloak's mend; the circlet's gold where the ember catches it."""
+    hx = HEARTH[0]
+    src = dict(lay.px)
+    for (x, y) in src:
+        key = parts[(x, y)]
+        near = ember_level(x, y)
+        facing = (x + 1, y) not in src or parts.get((x + 1, y)) not in (key, None) and False
+        right_open = (x + 1, y) not in src
+        right2 = (x + 2, y) not in src
+        top_open = (x, y - 1) not in src
+        if key == "cloak":
+            base = "night1" if x < LORD_X - 6 else "plumDeep" if x < LORD_X + 10 else "crimsonDeep"
+            if right_open:
+                col = "fireOrange" if near >= 3 else "ember"
+            elif right2:
+                col = "crimson"
+            elif top_open and x > LORD_X - 6:
+                col = "crimsonDeep"
+            else:
+                col = base
+        elif key == "hair":
+            col = "night0" if x < LORD_X + 6 else "night1"
+            if right_open:
+                col = "ember"
+            elif right2 or (top_open and x > LORD_X + 6):
+                col = "crimsonDeep"
+            elif h2(x, y, 1531) > 0.8 and x > LORD_X + 1:
+                col = "plumDeep"
+        elif key == "braid":
+            col = "ember" if right_open else "crimsonDeep" if (y % 2 == 0 and x > LORD_X + 3) else "night0"
+        elif key == "skin":
+            col = "fireOrange" if right_open else "tile" if x > LORD_X + 9 else "crimsonDeep"
+        elif key == "sleeve":
+            col = "ember" if (right_open or top_open) else "plumDeep" if y < 104 else "crimsonDeep"
+        elif key == "hand":
+            col = "fireOrange" if right_open else "tile" if x > LORD_X + 39 else "crimson"
+        elif key == "post":
+            col = "ember" if right_open else "woodDark" if near >= 1 else "night1"
+            if top_open:
+                col = "wood" if x > LORD_X else "woodDark"
+        else:  # the chair's back and arm
+            col = "night1"
+            if right_open:
+                col = "ember"
+            elif top_open:
+                col = "woodDark"
+        lay.px[(x, y)] = P(col)
+    # the chair back's carved panels: two sunk frames, their lower and left edges dark, upper lit dim
+    for (x0, x1) in ((LORD_X - 20, LORD_X - 4), (LORD_X - 1, LORD_X + 15)):
+        for x in range(x0, x1 + 1):
+            for y in (104, 130):
+                if (x, y) in lay.px:
+                    lay.px[(x, y)] = P("night0" if y == 130 else "woodDark")
+        for y in range(104, 131):
+            for x in (x0, x1):
+                if (x, y) in lay.px:
+                    lay.px[(x, y)] = P("night0" if x == x0 else "woodDark")
+    # the mended cloak: an older cloth let in below the left shoulder, stitched round
+    for (x, y) in ((LORD_X - 14, 92), (LORD_X - 12, 93), (LORD_X - 10, 92), (LORD_X - 8, 93), (LORD_X - 15, 95),
+                   (LORD_X - 7, 95)):
+        if (x, y) in lay.px:
+            lay.px[(x, y)] = P("plumDeep")
+    # the folds of the cloak over the shoulders and down the back, catching the light on their right
+    for (x0, y0, ln) in ((LORD_X - 6, 86, 12), (LORD_X + 6, 85, 13), (LORD_X + 15, 92, 6)):
+        for i in range(ln):
+            X, Y = x0 + i // 5, y0 + i
+            if (X, Y) in lay.px and lay.px[(X, Y)] in (P("night1"), P("plumDeep")):
+                lay.px[(X, Y)] = P("night0")
+                if (X + 1, Y) in lay.px and lay.px[(X + 1, Y)] in (P("night1"), P("plumDeep")):
+                    lay.px[(X + 1, Y)] = P("crimsonDeep")
+    # the hanging hand's fingers, the knuckles lit
+    for (x, y, col) in ((LORD_X + 39, 122, "crimson"), (LORD_X + 41, 122, "tile"), (LORD_X + 42, 121, "fireOrange"),
+                        (LORD_X + 40, 123, "crimsonDeep")):
+        lay.put(x, y, P(col))
+    lay.outline(P("night0"), skip_bottom=True)
 
 
 def slide2(form):
@@ -149,21 +306,17 @@ def slide2(form):
         for lx in (x0 + 4, x1 - 6):
             for yy in range(y + 4, y + 12):
                 c.c[yy][lx] = P("night0")
-    chair, head = high_chair(form)
+    lord, parts = chair_and_lord(form)
     # the lord's long shadow thrown away from the fire across the floor, to the left
-    for (x, y) in list(chair.px):
+    for (x, y) in list(lord.px):
         if y > 140:
-            for s in range(1, 30):
-                X = x - s
-                if 0 <= X < W and (X, y) not in chair.px:
+            for k in range(1, 34):
+                X = x - k
+                if 0 <= X < W and (X, y) not in lord.px:
                     c.c[y][X] = P("night0")
-    # the ember light along the edges that face the hearth
-    for (x, y), col in list(chair.px.items()):
-        if (x + 1, y) not in chair.px or ((x, y - 1) not in chair.px and x > 108):
-            chair.px[(x, y)] = P("ember" if ember_level(x, y) >= 2 else "crimson")
-    chair.paste(c)
-    for dx in range(-4, 5):
-        c.c[head[1]][head[0] + dx] = P("gold") if dx > -2 else P("crimsonDeep")
+    light_lord(lord, parts, form)
+    lord.paste(c)
+    head_grid(c, form)
     return c.finish(G2_ALLOWED, protect=("fireGold", "fireOrange", "ember", "gold", "crimson"))
 
 
