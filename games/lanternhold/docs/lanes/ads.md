@@ -59,7 +59,9 @@ minutes" holds across launches; a clock set back never holds the ads for good).
   `SecondChanceOffer` (the defeat card: the wax-red "Second chance / Watch a short video ad: the hearth is rekindled and
   dawn comes at once"; while it waits, the night it comes back; with no video nothing at all), `MerchantGiftCard` (a
   letter from the courtyard: Marek's portrait, his line, what the video gives in plain words, "Not now" and
-  "Merchant's gift +n / Watch a short video ad"), `AdLayer` (the card over the world, the stub's `ads-log`),
+  "Merchant's gift +n / Watch a short video ad"; it stands below the HUD's ledger), `GiftLandedSlip` (3.5 s under the
+  realm strip after the gift: "Marek's gift: +25 gold"), `AdLayer` (the card and the slip over the world, the stub's
+  `ads-log`),
   `PrivacyChoicesRow` (for the settings, only where UMP requires privacy options).
 
 Launch arguments (none of them is in `DebugArgs`; `AdMode` reads them):
@@ -75,7 +77,8 @@ Launch arguments (none of them is in `DebugArgs`; `AdMode` reads them):
 | `-GWAdsNoFill YES` | debug: every load fails, as offline |
 
 Identifiers: `report-ad-double`, `report-ad-doubled` (value: the treasury now), `defeat-second-chance`,
-`defeat-second-chance-later`, `merchant-card`, `merchant-gift`, `merchant-later`, `merchant-close`, `settings-privacy`,
+`defeat-second-chance-later`, `merchant-card`, `merchant-gift`, `merchant-later`, `merchant-close`,
+`merchant-gift-landed`, `settings-privacy`,
 `ads-log` (stub only: "mode:stub rewarded:n interstitial:n verdict:…").
 
 **Project.** `project.yml`: the packages GoogleMobileAds (from 13.11.0) and GoogleUserMessagingPlatform (from 3.1.0),
@@ -85,7 +88,7 @@ SKAdNetwork ids (Comet Cargo's list). `Package.resolved` (Comet Cargo's pins). `
 tracking prompt in all eight languages (Comet Cargo's text). `Resources/PrivacyInfo.xcprivacy`: still
 `NSPrivacyTracking` false with no domains; only its comments changed.
 
-**Strings.** `Resources/Ads.xcstrings` (table "Ads"), 17 strings in English and German. The six other languages follow
+**Strings.** `Resources/Ads.xcstrings` (table "Ads"), 18 strings in English and German. The six other languages follow
 in the i18n pass after the join.
 
 ### The hooks (apply them again at the join)
@@ -110,7 +113,20 @@ chance again from night %lld"; nothing uses them now (the i18n pass may drop the
 
 ### Rounds
 
-(filled in below as they come back)
+| Round | Commit | Steps | Result |
+|---|---|---|---|
+| `lh-ad1-1` | `f0f0314` | build, unit, ui (ads, first day's screens), ui-de (ads) | build FAILED: a nonisolated unit test read `GameModel.secondChanceGap` (main actor); fixed in `aa32838` |
+| `lh-ad1-2` | `406047f` | the same | ALL PASSED: 439 unit tests (28 of them the ads'), `AdsUITests` (5) in English and German, `FirstDayUITests.testScreens` |
+| `lh-ad1-3` | `0c82c44` | build, unit, ui, ui-de, release (the full round) | ALL PASSED: 439 unit tests, 21 UI tests in English and in German, the Release build |
+| `lh-ad1-4` | see the lane's report | the full round again | see the lane's report (`ci-out/director/ads-1.md`) |
+
+Judged from `lh-ad1-2`'s shots (upright copies in the lane's report folder): the report's offer and the doubled note fit
+the footer in English and German, the defeat card's second chance reads well in both; Marek's card failed the bar: its
+"Not now" stood one letter per line, and in German the card ran off the screen; after the gift the card just vanished.
+Fixed in `0c82c44` (a fixed "Not now", a wider card, a slip under the realm strip: "Marek's gift: +25 gold").
+From `lh-ad1-3`'s shots: the card reads well in both languages, but in German its top edge covered the HUD's gold (the
+very number the gift adds to), and the slip (2.6 s) had gone before the shot. Then: the card stands in the room below
+the HUD's ledger, the slip shows 3.5 s, and the UI test shoots while it shows.
 
 ### Open, and what waits for the join
 

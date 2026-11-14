@@ -40,7 +40,7 @@ final class AdDirector {
     private(set) var lastGift: MerchantGift?
     /// Marek's gift just came in: a slip says so for `giftSlipSeconds` (`AdLayer`).
     private(set) var giftLanded: MerchantGift?
-    static let giftSlipSeconds: Duration = .seconds(2.6)
+    static let giftSlipSeconds: Duration = .seconds(3.5)
     /// The last interstitial verdict, for the debug log (`ads-log`).
     private(set) var lastVerdict: InterstitialVerdict?
 

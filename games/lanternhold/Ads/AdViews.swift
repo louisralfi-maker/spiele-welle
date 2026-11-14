@@ -255,6 +255,9 @@ struct GiftLandedSlip: View {
 /// words, "Not now" and the gift's wax-red button.
 @MainActor
 struct MerchantGiftCard: View {
+    /// The HUD's ledger (top right) reaches this far down; the card stands in the room below it.
+    static let hudClearance: CGFloat = 66
+
     let gift: MerchantGift
     let model: GameModel
 
@@ -268,6 +271,8 @@ struct MerchantGiftCard: View {
             .frame(maxHeight: geometry.size.height - 12)
             .frame(width: geometry.size.width, height: geometry.size.height)
         }
+        // Below the HUD's ledger: the gold the gift adds to stays in sight.
+        .padding(.top, MerchantGiftCard.hudClearance)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("merchant-card")
     }
