@@ -1662,7 +1662,7 @@ world", step stage-1). The art is used as painted; the engine adds its light, it
   dust drift down each (frozen under Reduce Motion); a soft pool where each lands on the nave floor.
 - **The interior light** (`InteriorLight`, read by look 2's composite): the hall's ambient is 58 % of the open air's
   by day, warmed 30 % toward the stone and oak's bounce, and 82 % at night with 45 % of it a dim warm fill of the
-  hearth and candles (the old cut-away rooms' colour at level 0.3), the night's blue pull at 0.6; the upper wall
+  hearth and candles (the old cut-away rooms' colour at level 0.34), the night's blue pull at 0.6; the upper wall
   fades to 38 % of the ambient over 95 rows up from hall row 118, so the roof sinks into its dark; the floor gets no
   sky lift and no moon.
 - **Wear:** eight limewash patches (`hallWash`) on the ashlar at different heights, never in a band.
@@ -1683,6 +1683,10 @@ world", step stage-1). The art is used as painted; the engine adds its light, it
   stand behind a pillar lit the pillar (the pillars no longer catch light from behind); in the audience the first
   choice's two lines lifted its plaque over the petitioner's legs (the plaques now keep a smaller hand and two lines
   at most, below the walk line) and "Counsel" was cut to "Coun…" (the button keeps its width).
+- `lh-s1-3` (ALL PASSED): the lord shows through the pillar he stands behind, the panes hold sky and peaks, the
+  bard's 304-character German letter fits in six lines; Odile's line, once read, fell below the letter's fold (it now
+  has its own teal slip at the top between the letter and the ledger, over where she stands); the night nave was
+  still very dark away from the hearth (the warm fill raised a little, 0.30 to 0.34).
 
 ### 21.3 Open, for the art lane
 

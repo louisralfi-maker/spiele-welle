@@ -3281,10 +3281,13 @@ and `WorldLayout` are not touched: the hall's old world slot (x 1700 to 1960) is
   the width) and the top at row 50, the move eased over 0.6 s through fractional scales (`FrameDesc.zoom`, read by
   the composite; Reduce Motion: a cut). The targets keep the walking size while the move runs.
 - **The audience card in the hall (H4):** the letter in the upper left (portrait, name and role, Odile's counsel
-  button, the request; once read, Odile's line in her teal inside the letter), from the safe area's left edge to
+  button, the request), from the safe area's left edge to
   Odile's left edge (`HallLayout.letterEdgeX`, 386: 344 pt on the 17 Pro) and from the top to above the
-  petitioner's head; the choices and Leave as plaques along the floor band below the walk line; after a choice what
-  changed and the way on along the floor. The letter scrolls when a long German request needs it. The pause seal
+  petitioner's head (the longest German request, the bard's 304 characters, fits in six lines without scrolling);
+  Odile's line, once read, on a teal slip of its own at the top between the letter and the ledger, over where she
+  stands beside the throne; the choices and Leave as plaques along the floor band below the walk line (a smaller hand
+  and two lines at most, so they stay under the petitioner's feet); after a choice what changed and the way on along
+  the floor. The letter scrolls only if a request ever outgrows it. The pause seal
   rests during the hall's audience (the letter lies where it sits; Leave ends the audience). The gate's audience in
   the world keeps the old card.
 - **The hall big and alive (H9, H10):** the windows show the hour's sky with its stars and the Weltmauer on the far
@@ -3292,8 +3295,10 @@ and `WorldLayout` are not touched: the hall's old world slot (x 1700 to 1960) is
   afternoon down to the right, none round noon, clouds and rain take them) with dust drifting in them (frozen under
   Reduce Motion) and a pool of light where they land; the upper wall fades into the roof's dark (an interior ramp on
   the ambient, `InteriorLight`: the hall's ambient is 58 % of the open air's by day, 82 % at night, warmed by the
-  stone; the floor gets no sky lift and no moon); plaster and wash patches over the brick (`hallWash`); the near
-  arcade's pillars at parallax 1.25 in front. Light is the realm's state: the hearth's fire and its glow follow the
+  stone; at night 45 % of it is a dim warm fill of the hearth and candles and the blue pull is 0.6; the floor gets
+  no sky lift and no moon); plaster and wash patches over the brick (`hallWash`); the near arcade's pillars at
+  parallax 1.25 in front, lit only faintly by what stands behind them, fading to 32 % while the lord stands behind
+  one (`HallFrames.pillarSeen`), so they pass over him as he walks and never hide him where he stops. Light is the realm's state: the hearth's fire and its glow follow the
   hearth's strength (the small fire below a third), with a long warm pool on the flags; a bench's candle stands burn
   while someone waits on it; the chandeliers burn by day; the door's torches from the dusk; the one who has the word
   stands in a warm pool.
