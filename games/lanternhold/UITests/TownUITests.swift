@@ -7,7 +7,8 @@ import XCTest
 /// bow, the coins, the shutters) and waits for the night, when that house's window stays dark behind its shutters.
 /// `testTheFirstMorning` starts a new realm: the chandler's household waits in the courtyard before the hall door and
 /// tosses her coins to the lord as he steps out. `testReduceMotion` takes one toss with Reduce Motion (the coins fade
-/// in at the lord). Every door is checked for 44 pt. Saves `5x-<what>-<lang>`.
+/// in at the lord). `testTheCollector` watches the households pay the collector at their doors (fix round 1). Every door
+/// is checked for 44 pt. Saves `5x-<what>-<lang>`.
 @MainActor
 final class TownUITests: XCTestCase {
     override func setUp() async throws {
@@ -151,6 +152,28 @@ final class TownUITests: XCTestCase {
         XCTAssertTrue(waitFor(status, "paid:", contains: field, timeout: 20), "the field (\(statusText(status)))")
         pause(0.45)
         attach(XCUIScreen.main.screenshot(), "58-farmer-count-\(language)")
+        app.terminate()
+    }
+
+    /// The collector on his round (`-GWTown collector`, fix round 1): he comes from his post by the hall; as he passes
+    /// the chandler's door the household bows and its coins hop into his strongbox, then it steps back in. No sound,
+    /// no number on the screen; the lord stands aside beyond the door.
+    func testTheCollector() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWDay", "2", "-GWTown", "collector",
+                               "-GWHappiness", "66", "-GWCameraX", "2580"]
+        app.launch()
+        guard waitUntilReady(app, name: "town-collector") else { return }
+        let status = element(app, "town-status")
+        XCTAssertTrue(status.waitForExistence(timeout: 10))
+        XCTAssertTrue(list(status, "owing:").contains(chandler), "the chandler waits for him (\(statusText(status)))")
+        XCTAssertTrue(waitFor(status, "hand:", contains: chandler, timeout: 40),
+                      "the chandler's coins go to him (\(statusText(status)))")
+        attach(XCUIScreen.main.screenshot(), "59-collector-\(language)")
+        note("59-collector", statusText(status))
+        XCTAssertTrue(waitFor(status, "paid:", contains: oilPresser, timeout: 30),
+                      "the next door pays him too (\(statusText(status)))")
         app.terminate()
     }
 

@@ -6,7 +6,9 @@ import XCTest
 /// open doors, the toss and its coins landing one by one (the purse held back until they land), the wave, the throw at
 /// the lord's feet and the turned back, Reduce Motion, the knock (three knocks, the open door, the bow, the coins, the
 /// shutters, the dark window), the touch box of a door, the first morning in the courtyard, the farmer, the debug
-/// starts, the frame's props and actors, and the sprite contract.
+/// starts, the frame's props and actors, and the sprite contract. Fix round 1: the coin held out on the palm and its
+/// glint, the emissive coins and their glow, the wanderers kept clear of the doors, the knock pose keeping the lantern,
+/// the households paying the collector at their doors.
 final class TownShowTests: XCTestCase {
     private let balance = Balance.standard
     private var rules: TownRules { balance.town }
@@ -107,6 +109,17 @@ final class TownShowTests: XCTestCase {
         XCTAssertTrue(scene.coins.isEmpty)
         XCTAssertNil(scene.lord)
 
+        // Each holds its coin out toward the lord, over its palm (fix round 1); that is where the taxes happen.
+        XCTAssertEqual(scene.held.count, scene.figures.count, "one coin held out per household")
+        for figure in scene.figures {
+            let anchor = try XCTUnwrap(TownSprites.heldCoin(figure.sprite, frame: figure.frame))
+            XCTAssertTrue(scene.held.contains { abs($0.x - (figure.x - anchor.dx)) < 1e-9 && $0.y == anchor.dy },
+                          "\(figure.sprite)'s coin on its palm, on the lord's side")
+        }
+        let faces = [TownSprites.CoinFrame.face, TownSprites.CoinFrame.glint]
+        XCTAssertTrue(scene.held.allSatisfy { faces.contains($0.frame) && $0.alpha == 1 })
+        XCTAssertEqual(Set(scene.stages), Set(scene.figures.map(\.x)), "the wanderers keep clear of every door")
+
         // No sign after the horn, and none in unrest.
         var evening = s
         Town.horn(&evening, balance: balance)
@@ -116,6 +129,25 @@ final class TownShowTests: XCTestCase {
         var unrest = s
         unrest.happiness = 10
         XCTAssertTrue(TownShow.scene(unrest, balance: balance, reduceMotion: false).figures.isEmpty)
+    }
+
+    func testAHeldCoinGlintsNowAndThenButNotWithReduceMotion() throws {
+        var s = morning()
+        s.king.x = Realm.throneX
+        var glints = 0
+        var faces = 0
+        var steady = 0
+        for step in 0..<140 {
+            let now = at(s, s.simTime + Double(step) * 0.01)
+            let held = TownShow.scene(now, balance: balance, reduceMotion: false).held
+            glints += held.filter { $0.frame == TownSprites.CoinFrame.glint }.count
+            faces += held.filter { $0.frame == TownSprites.CoinFrame.face }.count
+            steady += TownShow.scene(now, balance: balance, reduceMotion: true).held
+                .filter { $0.frame == TownSprites.CoinFrame.glint }.count
+        }
+        let share = Double(glints) / Double(glints + faces)
+        XCTAssertEqual(share, TownShow.glintFor / TownShow.glintEvery, accuracy: 0.03, "a glint now and then")
+        XCTAssertEqual(steady, 0, "steady with Reduce Motion")
     }
 
     // MARK: - The toss
@@ -360,6 +392,120 @@ final class TownShowTests: XCTestCase {
 
     // MARK: - The first morning
 
+    // MARK: - The collector
+
+    func testTheHouseholdsPayTheCollectorAtTheirDoors() throws {
+        var s = morning()
+        s.king.x = Realm.throneX
+        var town = try XCTUnwrap(s.town)
+        town.collectorHired = true
+        town.today?.collectorOut = true
+        s.town = town
+        // He reaches the chandler's door on his way out from his post.
+        let day = try XCTUnwrap(s.town?.today)
+        let post = Town.collectorPost
+        let turn = Town.collectorTurn(day)
+        let dawn = ClockEvent.dawnReport.hour
+        s.hour = dawn + (Town.doorX(plot: house1) + 0.5 - post) / (turn - post) * (rules.collectorTurnHour - dawn)
+        Town.stepCollector(&s, balance: balance)
+        let place = try XCTUnwrap(s.town?.today?.places.first { $0.plot == house1 })
+        let gold = try XCTUnwrap(place.collectorGold)
+        let paidAt = try XCTUnwrap(place.tossedAt)
+        XCTAssertNil(s.town?.today?.places.first { $0.plot == house3 }?.collectorGold, "the next door still waits")
+        let x = try XCTUnwrap(Town.collectorX(s, balance: balance))
+        let times = TownShow.handTimes(count: Town.coins(for: gold, rules: rules))
+        let last = try XCTUnwrap(times.last)
+        func scene(_ t: Double, reduceMotion: Bool = false) -> TownShow.Scene {
+            TownShow.scene(at(s, paidAt + t), balance: balance, reduceMotion: reduceMotion)
+        }
+
+        // The bow with the coins held out, facing him; the coins hop into his strongbox ahead of him.
+        let bowing = scene(times[0] - 0.05)
+        let figure = try XCTUnwrap(bowing.figures.first { $0.plot == house1 })
+        XCTAssertEqual(bowing.figures.filter { $0.plot == house1 }.count, 1)
+        XCTAssertEqual(figure.frame, TownSprites.Frame.bow)
+        XCTAssertEqual(figure.flipped, x < figure.x, "facing him")
+        XCTAssertTrue(bowing.houses.first(where: { $0.plot == house1 })!.doorOpen)
+        let box = x + TownShow.collectorBox.dx
+        XCTAssertFalse(bowing.coins.isEmpty, "the coins in the air")
+        for coin in bowing.coins {
+            XCTAssertGreaterThanOrEqual(coin.x, min(figure.x, box) - 1e-9)
+            XCTAssertLessThanOrEqual(coin.x, max(figure.x, box) + 1e-9)
+        }
+        XCTAssertEqual(bowing.collector, TownShow.CollectorMoment(x: x, facing: 1, taking: true))
+        XCTAssertTrue(bowing.stages.contains(figure.x))
+
+        // The deeper bow, empty-handed, then in; the door shuts.
+        XCTAssertEqual(scene(last + 0.1).figures.first { $0.plot == house1 }?.frame, TownSprites.Frame.bowDeep)
+        XCTAssertEqual(scene(last + TownShow.handDeep + 0.1).figures.first { $0.plot == house1 }?.frame,
+                       TownSprites.Frame.stand)
+        let gone = scene(last + TownShow.handDeep + TownShow.handStand + TownShow.stepIn + 0.05)
+        XCTAssertNil(gone.figures.first { $0.plot == house1 })
+        XCTAssertFalse(gone.houses.first(where: { $0.plot == house1 })!.doorOpen)
+        XCTAssertTrue(gone.coins.isEmpty)
+        XCTAssertEqual(gone.collector?.taking, false)
+
+        // No sound and no haptic, nothing held back from the purse: the gold comes with him at noon.
+        XCTAssertTrue(TownShow.cues(s, balance: balance, from: paidAt - 0.01, to: paidAt + 3).isEmpty)
+        XCTAssertEqual(TownShow.goldInFlight(at(s, paidAt + times[0] - 0.05), balance: balance), 0)
+
+        // Reduce Motion: the coins fade in at his strongbox.
+        let still = scene(times[0] - 0.05, reduceMotion: true)
+        XCTAssertFalse(still.coins.isEmpty)
+        XCTAssertTrue(still.coins.allSatisfy { abs($0.x - box) < 1e-9 && $0.alpha < 1 })
+
+        // Far off (a debug start, a long headless step): the household only bows, no coin crosses the street.
+        var far = at(s, paidAt + times[0] - 0.05)
+        far.hour += 0.5
+        let farScene = TownShow.scene(far, balance: balance, reduceMotion: false)
+        XCTAssertNotNil(farScene.figures.first { $0.plot == house1 })
+        XCTAssertTrue(farScene.coins.isEmpty)
+
+        // Not out (sent away, or back at noon): no collector in the scene.
+        var back = s
+        back.hour = rules.collectorBackHour + 0.1
+        XCTAssertNil(TownShow.scene(back, balance: balance, reduceMotion: false).collector)
+    }
+
+    // MARK: - The wanderers
+
+    func testTheWanderersKeepClearOfWhereTheTaxesHappen() throws {
+        var s = morning()
+        s.king.x = Realm.throneX
+        let door = try spot(s, house3).doorX
+        let stages = TownShow.scene(s, balance: balance, reduceMotion: false).stages
+        XCTAssertTrue(stages.contains(door), "the oil-presser's household waits")
+        let pixelScale = PixelScale(physicalWidth: 2622, physicalHeight: 1206, virtualHeight: 180, override: nil)
+        let camera = Camera(focusX: door, pixelScale: pixelScale)
+        let view = EntityFrames.ActorView(camera: camera, pixelScale: pixelScale, mode: .smooth)
+        func actor(_ sprite: SpriteID, _ dx: Double) -> ActorInstance {
+            ActorInstance(sprite: sprite, frame: 1, rect: view.rect(sprite, x: door + dx, y: 0),
+                          tint: SIMD4<Float>(1, 1, 1, 1), flipped: true, isEmissive: false, isLit: true)
+        }
+        var layer = EntityLayer()
+        layer.actors = [actor(.citizenB, 5), actor(.citizen, -15), actor(.citizenC, 26), actor(.citizen, 60),
+                        actor(.townDun, 2)]
+        TownFrames.clearWanderers(&layer, stages: stages, view: view, time: 0)
+        let scale = Float(view.scale)
+        func offset(_ a: ActorInstance) -> Double {
+            Double((a.rect.x - view.rect(a.sprite, x: door, y: 0).x) / scale)
+        }
+        XCTAssertEqual(layer.actors.map(\.sprite), [.citizen, .citizenC, .citizen, .townDun],
+                       "the one in the doorway is gone, the household stays")
+        let left = layer.actors[0]
+        XCTAssertEqual(offset(left), -TownFrames.wanderClear, accuracy: 1, "stops short of the door")
+        XCTAssertEqual(left.tint.w, 0.5, accuracy: 1e-6, "fading as its walk would take it nearer")
+        XCTAssertFalse(left.flipped, "watching the door to its right")
+        XCTAssertTrue([4, 5].contains(left.frame), "standing")
+        let right = layer.actors[1]
+        XCTAssertEqual(offset(right), TownFrames.wanderClear, accuracy: 1)
+        XCTAssertEqual(right.tint.w, 1)
+        XCTAssertTrue(right.flipped, "watching the door to its left")
+        XCTAssertEqual(offset(layer.actors[2]), 60, accuracy: 1, "far enough: walks on")
+        XCTAssertEqual(layer.actors[2].frame, 1)
+        XCTAssertEqual(offset(layer.actors[3]), 2, accuracy: 1)
+    }
+
     func testTheFirstMorningsHouseholdWaitsInTheCourtyardAndWalksHome() throws {
         var s = GameState.newRealm(seed: 1, balance: balance)
         XCTAssertEqual(s.king.x, Realm.throneX)
@@ -418,6 +564,16 @@ final class TownShowTests: XCTestCase {
         XCTAssertTrue(scene.houses.first(where: { $0.plot == house1 })!.dark)
         XCTAssertNil(scene.lord)
 
+        var sent = start
+        TownDebug.apply(&sent, mode: .collector, balance: balance)
+        let route = try XCTUnwrap(sent.town?.today)
+        XCTAssertEqual(route.owing, day.owing, "every part owed")
+        XCTAssertTrue(Town.collectorWalksToday(sent) && Town.collectorHired(sent))
+        let collectorX = try XCTUnwrap(Town.collectorX(sent, balance: balance))
+        let first = try XCTUnwrap(route.places.filter(\.owes).map { Town.doorX(plot: $0.plot) }.min())
+        XCTAssertEqual(first - collectorX, TownDebug.collectorLead, accuracy: 1, "on his way to the first door")
+        XCTAssertEqual(DebugArgs(values: ["GWTown": "collector"]).town, .collector)
+
         XCTAssertEqual(DebugArgs(values: ["GWTown": "owed"]).town, .owed)
         XCTAssertEqual(DebugArgs(values: ["GWTown": " Knock "]).town, .knock)
         XCTAssertNil(DebugArgs(values: ["GWTown": "maybe"]).town)
@@ -445,6 +601,28 @@ final class TownShowTests: XCTestCase {
         let lord = try XCTUnwrap(layer.actors.lastIndex { $0.sprite.isLord })
         let dun = try XCTUnwrap(layer.actors.firstIndex { $0.sprite == .townDun })
         XCTAssertLessThan(dun, lord, "the households stand behind the lord")
+        let held = try XCTUnwrap(layer.actors.firstIndex { $0.sprite == .townCoin })
+        XCTAssertTrue(layer.actors[held].isEmissive, "the coin held out keeps its gold in the doorway's shade")
+        XCTAssertLessThan(held, lord)
+        XCTAssertTrue(layer.glows.contains { $0.sprite == .townCoin }, "and glows a little")
+        let dunRect = try XCTUnwrap(layer.actors.first { $0.sprite == .townDun }).rect
+        let houseLeft = try spot(s, house3).left
+        let houseRect = view.rect(.house, x: houseLeft, y: 0)
+        let grid = Float(view.scale)
+        XCTAssertEqual(dunRect.x.truncatingRemainder(dividingBy: grid), houseRect.x.truncatingRemainder(dividingBy: grid),
+                       accuracy: 0.01, "on the houses' pixel grid")
+
+        // The toss: the coins in the air are emissive and glow.
+        var tossing = s
+        Town.collect(&tossing, plot: house3, balance: balance)
+        tossing.simTime += 0.35
+        var air = EntityFrames.layer(state: tossing, balance: balance, scene: PlaceholderScene.world(),
+                                     camera: camera, pixelScale: pixelScale, options: FrameOptions(), animTime: 0)
+        TownFrames.apply(&air, state: tossing, balance: balance, view: view, reduceMotion: false)
+        let flying = air.actors.filter { $0.sprite == .townCoin }
+        XCTAssertFalse(flying.isEmpty)
+        XCTAssertTrue(flying.allSatisfy(\.isEmissive))
+        XCTAssertGreaterThanOrEqual(air.glows.filter { $0.sprite == .townCoin }.count, flying.count)
 
         // A knock: the lord's sprite is his knock pose, the shutters close afterwards, the window goes dark.
         Town.collect(&s, plot: house3, balance: balance)
@@ -456,8 +634,18 @@ final class TownShowTests: XCTestCase {
         var knocking = EntityFrames.layer(state: s, balance: balance, scene: PlaceholderScene.world(),
                                           camera: camera, pixelScale: pixelScale, options: FrameOptions(),
                                           animTime: 0)
+        // His glow strip (at dusk and night) keeps to the lantern the pose holds where his standing frame does.
+        let kingRect = try XCTUnwrap(knocking.actors.last { $0.sprite.isLord }).rect
+        knocking.actors.append(ActorInstance(sprite: .kingGlow, frame: 3, rect: kingRect, tint: SIMD4<Float>(1, 1, 1, 1),
+                                             flipped: true, isEmissive: true, isLit: true))
         TownFrames.apply(&knocking, state: s, balance: balance, view: view, reduceMotion: false)
         XCTAssertTrue(knocking.actors.contains { $0.sprite == .kingKnock && $0.frame == 1 })
+        let strip = try XCTUnwrap(knocking.actors.first { $0.sprite == .kingGlow })
+        XCTAssertEqual(strip.frame, TownSprites.KnockFrame.lantern)
+        XCTAssertFalse(strip.flipped, "with the pose, toward the door")
+        if let lantern = knocking.lights.first(where: { $0.source.kind == .lantern }) {
+            XCTAssertEqual(lantern.source.x, s.king.x + EntityFrames.kingGlass.dx, accuracy: 1e-9, "on the glass")
+        }
         s.simTime += 3
         s.hour = 21
         var night = EntityFrames.layer(state: s, balance: balance, scene: PlaceholderScene.world(),
@@ -509,7 +697,17 @@ final class TownShowTests: XCTestCase {
         XCTAssertEqual(SpriteID.townCottage.size, SpriteID.house.size)
         XCTAssertEqual(SpriteID.townCottage.size, SpriteID.houseB.size)
         XCTAssertEqual(SpriteID.townBigHouse.size, SpriteID.bigHouse.size)
-        XCTAssertEqual(SpriteID.townCoin.frameCount, 4)
+        XCTAssertEqual(SpriteID.townCoin.frameCount, 5)
+        XCTAssertEqual(SpriteID.townCoin.size, PixelSize(width: 4, height: 4))
+        for sprite in TownSprites.households + [.townGorm] {
+            XCTAssertNotNil(TownSprites.heldCoin(sprite, frame: 0), "\(sprite) holds its coin out")
+            XCTAssertEqual(TownSprites.heldCoin(sprite, frame: 1)?.dy, TownSprites.heldCoin(sprite, frame: 0)!.dy - 1,
+                           "the breath lowers it")
+            XCTAssertNil(TownSprites.heldCoin(sprite, frame: 2), "thrown, not held")
+        }
+        XCTAssertNotNil(TownSprites.heldCoin(.townNib, frame: TownSprites.ChildFrame.hold))
+        XCTAssertNil(TownSprites.heldCoin(.townNib, frame: 0))
+        XCTAssertLessThan(TownSprites.KnockFrame.lantern, SpriteID.king.frameCount)
         for sprite in TownSprites.all {
             XCTAssertEqual(PlaceholderArt.frames(for: sprite).count, sprite.frameCount, "\(sprite)")
         }
