@@ -1,0 +1,3 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/TownShowTests.swift:442:32: error: main actor-isolated class property 'people' can not be referenced from a nonisolated autoclosure
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/TownShowTests.swift:443:32: error: main actor-isolated class property 'rimmed' can not be referenced from a nonisolated autoclosure
