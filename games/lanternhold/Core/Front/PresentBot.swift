@@ -147,11 +147,11 @@ struct PresentBot: Sendable {
         return (stand, .stand, withGuards)
     }
 
-    /// Its place: behind the guards while they hold a breach and nothing stands between the lord and them, else behind
-    /// the face of the first standing wall (the wall the next wave lands on), else behind the hearth.
+    /// Its place: behind the guards while they hold a breach and nothing stands between the lord and them, else on the
+    /// first standing wall (the wall the next wave lands on), else at the hearth (`botLastStand`).
     static func place(_ s: GameState, balance: Balance) -> (x: Double, withGuards: Bool) {
         let tuning = balance.front
-        var wallSpot = Realm.hearthX + tuning.botBehindWall
+        var wallSpot = Realm.hearthX + tuning.botLastStand
         for plot in Realm.wallsOuterFirst where s.plots[plot].stands {
             wallSpot = Realm.plots[plot].x + tuning.botBehindWall
             break

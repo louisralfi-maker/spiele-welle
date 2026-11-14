@@ -58,6 +58,9 @@ struct FrontTuning: Sendable, Equatable {
     /// Where the bot stands when a wall takes the wave: this far behind the wall's face, on the wall (up there nothing
     /// throws it back, and the wall's braziers catch from its lantern).
     var botBehindWall = 1.0
+    /// With no wall standing it makes its last stand this far behind the hearth (negative: in front of it, where its
+    /// lantern slows the creatures on their way to the fire but they can reach it and throw it back).
+    var botLastStand = 1.0
     /// It joins the guards when they hold a breach and the way to them is clear ...
     var botJoinsGuards = true
     /// ... and stands this far behind their line.

@@ -145,6 +145,7 @@ if doVariants {
     list.append(("bot: one rear trip", variant { $0.botMaxRearTrips = 1 }))
     list.append(("bot: rear trips unlimited", variant { $0.botMaxRearTrips = 99 }))
     list.append(("bot: never the guards", variant { $0.botJoinsGuards = false }))
+    for stand in [-20.0, -46, -90] { list.append(("bot: last stand \(Int(stand))", variant { $0.botLastStand = stand })) }
     list.append(("bot: fetch anywhere", variant { $0.botRelightDetour = 2000 }))
     list.append(("bot: rear trips, way safe", variant { $0.botRearOnlyWhenQuiet = false }))
     list.append(("bot: rear safe, any number", variant {
@@ -178,11 +179,8 @@ if doVariants {
     say("== the falls ladder \(ladder): nights the present bot loses where the reference holds")
     for (name, b) in [("standard", standard), ("bot: no rear trips", variant { $0.botRearBraziers = false }),
                       ("bot: rear trips unlimited", variant { $0.botMaxRearTrips = 99 }),
-                      ("bot: rear trips, way safe", variant { $0.botRearOnlyWhenQuiet = false }),
-                      ("relight 2 s + rear safe", variant {
-                          $0.relightEvery = 2
-                          $0.botRearOnlyWhenQuiet = false
-                      }),
+                      ("bot: last stand -46", variant { $0.botLastStand = -46 }),
+                      ("bot: last stand -90", variant { $0.botLastStand = -90 }),
                       ("light: passing 48 only (old)", variant {
                           $0.relightOwnWall = false
                           $0.relightReach = 48
@@ -255,22 +253,20 @@ if doNight20 {
         ("reference (old rules)", "reference", standard),
         ("reference under the rule", "reference under the rule", standard),
         ("present: standard", "present", standard),
-        ("present: relight every 2 s", "present", variant { $0.relightEvery = 2 }),
-        ("present: relight every 1 s", "present", variant { $0.relightEvery = 1 }),
-        ("present: fetch anywhere", "present", variant { $0.botRelightDetour = 2000 }),
-        ("present: rear trips, way safe", "present", variant { $0.botRearOnlyWhenQuiet = false }),
-        ("present: rear trips safe, any", "present", variant {
-            $0.botRearOnlyWhenQuiet = false
-            $0.botMaxRearTrips = 99
-        }),
         ("present: no throws", "present", variant { $0.touchReach = -1_000_000 }),
-        ("present: stand 14", "present", variant { $0.botBehindWall = 14 }),
-        ("present: harm 1 (rally)", "present", variant { $0.presenceHarm = 1 }),
-        ("present: no presence", "present", variant { $0.presenceRadius = -1 }),
-        ("present: 2 s + rear safe", "present", variant {
-            $0.relightEvery = 2
-            $0.botRearOnlyWhenQuiet = false
+        ("present: last stand -20", "present", variant { $0.botLastStand = -20 }),
+        ("present: last stand -46", "present", variant { $0.botLastStand = -46 }),
+        ("present: last stand -90", "present", variant { $0.botLastStand = -90 }),
+        ("present: last stand -150", "present", variant { $0.botLastStand = -150 }),
+        ("present: -46, no throws", "present", variant {
+            $0.botLastStand = -46
+            $0.touchReach = -1_000_000
         }),
+        ("present: -46, never the guards", "present", variant {
+            $0.botLastStand = -46
+            $0.botJoinsGuards = false
+        }),
+        ("present: relight every 1 s", "present", variant { $0.relightEvery = 1 }),
     ]
     for (name, how, b) in cases {
         var bare = [Night20?](repeating: nil, count: n20)
@@ -295,7 +291,7 @@ if doNight20 {
         line += "\(mean(b0) { $0.trips }) | with: held \(f0.filter { $0.held }.count) slain \(f0.filter { $0.slain }.count) "
         line += "lost \(mean(f0) { $0.lost }) | margins without \(b0.map { $0.margin })"
         say(line)
-        if name == "reference (old rules)" || name == "present: standard" || name == "reference under the rule" {
+        if name == "present: standard" || name == "present: last stand -46" {
             for (index, one) in bare.enumerated() {
                 guard let one else { continue }
                 say("    seed \(index + 1) without: \(one.held ? "held" : "FELL") \(one.margin) snuffed \(one.snuffed) relit "
@@ -308,7 +304,8 @@ if doNight20 {
 
 if doHard {
     let hardSeeds = TuningMetrics.targetSeeds
-    for (name, b) in [("standard", standard), ("bot: no rear trips", variant { $0.botRearBraziers = false })] {
+    for (name, b) in [("standard", standard), ("bot: last stand -46", variant { $0.botLastStand = -46 }),
+                      ("bot: last stand -90", variant { $0.botLastStand = -90 })] {
         say("")
         say("== the hard nights (T6 and T7 under the rule), \(name)")
         var list = [FrontHardSeed?](repeating: nil, count: hardSeeds)
