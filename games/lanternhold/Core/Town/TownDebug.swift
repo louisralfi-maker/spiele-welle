@@ -64,6 +64,8 @@ enum TownDebug {
                 }
                 if place.tossedAt != nil || place.collected { place.tossedAt = long }
                 if place.knockedAt != nil { place.knockedAt = long }
+            case .collector:
+                break  // `sendCollector` (above) starts from `owed`
             }
             day.places[index] = place
         }
