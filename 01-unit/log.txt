@@ -1,0 +1,26 @@
+2026-11-14 21:01:52.991012+0000 Lanternhold[16005:56488] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.CraftTests testACommissionIsPaidAtOnceAndTheWorkStandsDaysLater]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.CraftTests testAnOfferIsAnAudienceCard]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.CraftTests testARunWithoutCommissionsIsTodaysRun]' passed (10.967 seconds).
+Test Case '-[LanternholdTests.CraftTests testAStoryDayHoldsTheVisitBackButTheHousesAudiencesDoNot]' passed (0.019 seconds).
+Test Case '-[LanternholdTests.CraftTests testAWorkThatDoesNotStandChangesNothing]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testEachWorksSceneAtOtherAmounts]' passed (1.731 seconds).
+Test Case '-[LanternholdTests.CraftTests testNoCraftsmanComesToARealmWithoutThem]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.CraftTests testNotNowBringsHimBackOnceAndNoSendsHimOn]' passed (0.004 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/CraftTests.swift:685: error: -[LanternholdTests.CraftTests testNoWorkMovesItsSystemMoreThanAboutFivePercent] : XCTAssertLessThanOrEqual failed: ("0.0808823529411771") is greater than ("0.06") - fletcher moves fire-arrow damage before the gate (strikes and fire) by 81‰
+Test Case '-[LanternholdTests.CraftTests testNoWorkMovesItsSystemMoreThanAboutFivePercent]' failed (72.469 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheBalanceWorksChangeTheirOneValue]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheBookHoldsTenCraftsmenWithTenWorks]' passed (0.082 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheCraftsmenRideInTheSave]' passed (0.090 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheMortarMakesEveryPatchMendMore]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CraftTests testThePitchKeepsAFireArrowsFireBurningLonger]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testThePortraitGivesItsHappinessOnceAsItIsHung]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheRoadLanternsHoldUnrestOffAtDawnThroughTheSimulation]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheStatueAddsACoinPerHouseWhileTheTownIsContent]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheVisitsComeEveryThirdDayAndEachComesBackOnceAfterNotNow]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.CraftTests testTheWordsAreInEnglishAndGermanWithinTheCardsLimits]' passed (0.038 seconds).
+Test Suite 'CraftTests' failed at 2026-11-14 21:03:22.028.
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-14 21:03:22.028.
+Test Suite 'Selected tests' failed at 2026-11-14 21:03:22.028.
+exit=65
+screenshots: 0
