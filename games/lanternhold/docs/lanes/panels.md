@@ -196,3 +196,116 @@ Unchanged: the four hooks of step panels-1 (table above). Fix round 1 touched on
 - The six other languages for Panels.xcstrings (one pass after the join); the house-rewrite texts for slides 2 and 4.
 - The endings (three slides each) and story beats: the stage takes them as data; their pictures are not painted yet.
 - The rebuild rewrites the name page: the hook in `confirmLord` must follow wherever day 1 begins after the name.
+
+## Step panels-2: the three endings and the chapter's end (14.11.2026)
+
+### What exists
+
+**The three endings as lantern slides** (STORY.md section 7 "The endings"), three slides each on the prologue's stage,
+each ending in **its own light**, so a second ending feels different before a word is read. The stage's lamp is now
+data (`SlideShow.lamp`, `SlideLamp`, `SlideLampLook`): the spill on the wall, the centre light on the glass, the
+vignette, the dust and the room's own dark.
+- **The Open Lantern** (`ending1`; the King slain, happiness 60 or more, Seren not handed over): `.dawn`, rose and gold,
+  the widest and brightest spill.
+  1. `slideOpen1`: from above at first light, the outer line's flags raked by the low sun from the right (east, where
+     the castle is), every shadow long to the left; Aldric on his back under the black mantle, his face upright, grey,
+     thin, eyes shut, the grey beard on his breast, the hood's dark lining round his hair; one thin hand out on the
+     stone toward the iron crown (a heavy ring, seven tines, the sun on its right edges); the King's snuffer broken in
+     two; the lord's lantern set down by his head, still burning; the Gloom's last fog lying off at the left.
+  2. `slideOpen2Lord` / `slideOpen2Lady`: the court on the wall walk at sunrise, seen from behind, every one a
+     silhouette of their own rimmed by the sun: Hesper tall and hooded beside Odile, Brannock broad with helmet and
+     spear, Pip sitting on the parapet with the fool's drooping horns and bells, Tamsin with her hands on her hips
+     beside Bram stooped with the hammer, a child on the merlon waving at the sun; the lord in the middle before the
+     sun, the house's lantern raised on the hooked staff, the circlet a gold thread; long shadows toward us; Tallowford's
+     roofs and two chimneys in the valley. The lady has her hair down her back.
+  3. `slideOpen3`: west from the Throat's mouth, the sun just up behind us: the ruin on its hill (larger than ours, two
+     towers torn to stumps, the keep a roofless shell, the curtain broken twice) glows rose and gold on its upper half
+     above the valley still in blue shadow; our lantern cut over its gate is the brightest gold; fog drawing back past
+     the firs; the road with its statues facing home going out toward the hill; Aldric leaning on the lord, small on
+     the road, the lantern lit.
+- **The Shuttered Lantern** (`ending2`; every other case): `.grey`, a cold, narrow, pale blue spill.
+  1. `slideShut1`: the game's own Lightless King (the `lightlessKing` sprite, a walking frame, turned) walking left
+     into the Gloom's fog at first light with the snuffer, the fog's edge already over his front; the smoke folk, gaunt
+     and long, going with him with their cold eyes; the Throat's walls faint; the outer wall at the right with a
+     brazier still smoking (the one warm thing) and two archers watching; rubble and arrows on the ground.
+  2. `slideShut2`: on the wall in the grey morning: a grey lantern (drawn from its shapes at 1.7 times, never scaled
+     pixels) on the frosted coping, its flame grey and cold, its pale pool on the frost; the coping running away from
+     us; the Great Beacon far off in the fog; a raven further along the wall; an arrow left lying.
+  3. `slideShut3`: Bram, seen from behind, a big bowed working man (the apron's straps crossed over his shirt, the
+     sleeves rolled on bare forearms, grey hair thin on top, the brush in his hand) before the herald's banner on its
+     rack: the left half still black with soot running down in streaks, the right half washed teal, and in gold thread
+     our lantern beneath half a sun; water dripping into the tub, the banner in the puddle.
+- **The Guttering Lantern** (`ending3`; happiness below 30): `.ember`, a low red spill that dips now and then like a
+  drowning wick (`SlideLampLook.gutter`; steady under Reduce Motion).
+  1. `slideGutter1`: Tallowford on a winter night under the cleft: the game's own houses (`bigHouse`, `house`,
+     `houseB`, `houseC`, shaded for the night, snow on the roofs), only two with lit windows (their `Lit` sprites); a
+     family pulling a handcart out of the picture to the right with a small lantern; a street lantern guttering; the
+     castle in the gap with two dim windows; snow falling.
+  2. `slideGutter2Lord` / `slideGutter2Lady`: the great hall at night, the hearth burned down to a bed of embers and one
+     small flame; the lord alone in the high chair, seen from behind, the ember light along the chair's and the lord's
+     edges toward the fire, the circlet a gold thread; the benches and the table empty; the lord's shadow long across
+     the floor.
+  3. `slideGutter3`: on the outer line among the rags of the night, Tamsin on her knees, a dark shape rimmed by the
+     brazier's fire, holding the small coat in the house's teal up to the light; the coat is the only colour in the
+     picture; snow.
+- **The words** (Panels.xcstrings, English and German): slide 1 and 3 are STORY.md's, cut to two lines of at most 64
+  characters in English (the unit test holds every line to 64 in English, 72 in German, so English never scales down).
+  Slide 2 is composed: line 1 the leaning in one sentence, written for each ending's mood (nine keys
+  `slides.<ending>.lean.<leaning>`); line 2 the houses (`slides.houses.some` with their names joined by the language's
+  list format, `.all`, `.few`, `.alone`), or in the Shuttered Lantern with Seren handed over her lantern
+  (`slides.seren.lantern`, STORY.md's extra sentence; the houses then stand only on the end card).
+- **The rules** (`UI/Slides/ChapterEnding.swift`): `ChapterEnding.decide` is DESIGN.md's order (below 30 the
+  Guttering, the King slain at 60 or more with Seren kept the Open, else the Shuttered; a finale saved by a second
+  chance cannot be slain, so it is the Shuttered or the Guttering). `Leaning.read` scores STORY.md section 4's flags
+  (open hand: `stranger_in`, `refugees_in`, `refugees_some`, `plough_blessed`, `coast_promise`, `coast_helped`,
+  `cough_cured`; shut gate: `stranger_turned_away`, `refugees_turned_away`, `tribute_paid`, `sick_sent_away`,
+  `seren_outside`, `seren_handed_over`, `herald_refused` without `herald_mocked`; honest lamp: `beacon_shown`,
+  `town_vigil`, `blessing_asked`); the last stand's speech counts twice and decides a tie (`speech_aldric` open hand,
+  `speech_dawn` shut gate, `speech_honest` honest lamp). `House`: the five houses, `<house>_with` (Varn, Brine,
+  Oxmoor, Calder, Lorn), their banners `banner<Name>`. `RealmTale`: the ending, the leaning, the houses, banners hung,
+  Seren handed over, nights held (`records.bestNight`), judgments (`court.heardCount`), the fallen
+  (`records.fallenTotal`), the lord; it builds the show.
+- **The chapter's end card** (`UI/Slides/ChapterEndView.swift`, docs/UI-look.md): after the last slide (or Skip) the
+  glass slides away and a page of the house chronicle lies in the beam on the same dark stage, in the ending's light.
+  The lord's name and "Chapter 1, The Dark Beacon" in italic, the ending's name as a rubric in small capitals over a
+  flourish; a ledger with leaders (Nights held, Judgments spoken, Fallen on the walls, Your way: the leaning's name in
+  House Lantern's teal); "Stood by you" with the houses' banners as the hall hangs them (the game's 20 x 41 sprites at
+  one point per pixel) and their names, or "House Lantern alone"; "Hold the realm" as a quiet plaque and "Begin again"
+  in wax red, 52 pt. The page fades and rises a few points (Reduce Motion: fades only). Identifiers `end-root`,
+  `end-ending` (value: the ending's id), `end-nights`, `end-judgments`, `end-fallen`, `end-way`, `end-stood`,
+  `end-begin`, `end-hold`.
+- **What Core has of the endless mode** (asked by the brief): `GameMode.endless` exists and is tuned (T7 plays the
+  chapter's end state on from night 21 with `endlessQuadratic`); the endless-only petitions (15) are drawn only in
+  that mode; the save counts it on the `endlessContinued` track; the second chance waits ten nights there. Not built:
+  the endless events (eclipse, festival, crows), a title entry "Endless", "New realm" in endless, and "in endless a
+  fallen realm ends the run". So the card offers **"Hold the realm"**: it sets the realm's mode to endless now and in
+  its last dawn (the SimDriver hook below), saves, and the day 21 goes on. "Begin again" is the pause sheet's
+  "Restart chapter" path (a new realm, the Chronicle kept, the name entry asks again).
+- **Launch arguments** (DESIGN.md "Debug launch arguments" gets them at the join): `-GWSlides ending1|ending2|ending3`
+  plays that ending with a sample tale and then the end card (the Open Lantern with Varn's and Brine's banners and
+  the open hand; the Shuttered Lantern with Seren handed over and the shut gate; the Guttering Lantern alone with the
+  honest lamp); `-GWSlides end` shows the end card alone (the Open Lantern's sample).
+- `tools/slides/ending_kit.py` (skies in uneven bands, clumpy clouds, people seen from behind with the sky between
+  their arms and bodies, rims, fog, strata, long shadows), `slide_open.py`, `slide_shut.py`, `slide_gutter.py`, one
+  slide per art-lock call: `bash <artlock.sh> python3 -I tools/slides/slideart.py slideOpen1 [--preview <dir>]
+  [--preview-only]`.
+- Tests: `Tests/EndingsTests.swift` (the order of the endings, the leaning, the three slides on their lights with
+  their pictures, the middle slide's lines, every word in English and German within two lines, the tale of a realm,
+  the finale's report through the ending to the end card and the Long Watch, Begin again, only the finale ends the
+  chapter, each lamp its own light and the gutter's dips); `SlidesPaletteTests` now checks all sixteen pictures;
+  `UITests/EndingsUITests.swift` (`testTheThreeEndings`: each ending tapped or skipped through, every slide and the
+  end card saved, Hold the realm and Begin again; `testTheFinaleEndsTheChapter`: the finale's report, Continue, the
+  ending, Skip, the card).
+
+### The hooks (apply again at the join)
+
+| File | Place | What and why |
+| --- | --- | --- |
+| `App/GameModel.swift` | `continueReport`, after `setOverlay(nil)` | `endChapterIfFinale(report)`: after night 20's dawn report a chapter realm plays its ending, then the end card |
+| `App/GameModel.swift` | `init`, after the lord entry's check, before `refreshHUD()` | `resumeChapterEndAtLaunch()`: a realm saved at the finale's dawn that never chose (the app closed on the ending or the card) gets its ending again; plain launches only |
+| `Core/SimDriver.swift` | after `setLord` | `mutating func holdTheRealm()`: `state.mode = .endless` and `dawnSnapshot.mode = .endless` (the snapshot is `private(set)`), so "Hold the realm" is saved at once |
+| `UI/GameView.swift` | `WorldSceneCoordinator.draw`, the `screen` flag | `model.slides.isShowing` became `model.slides.coversWorld` (the end card covers the world too: 20 fps) |
+
+Unchanged from panels-1: `let slides = SlideStage()` in `GameModel`, `presentPrologueAfterEntry()` in `confirmLord`,
+`SlideStageHost(model: model)` in `GameView` (it now also shows the end card). If the rebuild moves the dawn report's
+Continue, the first hook goes wherever night 20's report is closed.

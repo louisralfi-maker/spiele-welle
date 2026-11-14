@@ -183,7 +183,7 @@ HEARTH = (214, 106)
 
 def ember_level(x, y):
     d = math.hypot((x + 0.5 - HEARTH[0]) / 1.25, y + 0.5 - HEARTH[1])
-    d += (fbm(x * 0.05, y * 0.05, 1511, 2) - 0.5) * 22
+    d += (fbm(x * 0.05, y * 0.05, 1511, 2) - 0.5) * 8
     if d < 30:
         return 3
     if d < 56:
@@ -204,9 +204,13 @@ def hall_wall(c):
         j = 0
         while x < W:
             bw = 26 + int(h1(j + row * 11, 1505) * 22)
+            lv_block = ember_level(x + bw // 2, y0 + hgt // 2)
             for y in range(y0, min(120, y0 + hgt)):
                 for xx in range(max(0, x), min(W, x + bw)):
-                    lv = ember_level(xx, y)
+                    lv = lv_block
+                    # the block's edge toward the fire a step brighter, the far edge a step darker
+                    if lv > 0 and ((xx > x + bw - 3 and x + bw // 2 < HEARTH[0]) or (xx < x + 3 and x + bw // 2 > HEARTH[0])):
+                        lv = min(3, lv + 1) if y < y0 + hgt - 2 else lv
                     joint = y == y0 + hgt - 1 or xx == x
                     c.c[y][xx] = P("night0" if joint and lv < 2 else ramp[max(0, lv - 1)] if joint else ramp[lv])
             x += bw
@@ -279,9 +283,13 @@ def slide2(form):
     hearth(c)
     # the floor in the dark, a warm sheen spreading from the hearth
     for y in range(118, H):
+        row = (y - 118) // 6
         for x in range(W):
-            lv = ember_level(x, y)
-            c.c[y][x] = P(["night0", "night1", "plumDeep", "crimsonDeep"][lv])
+            seg = (x + row * 17) // 30
+            lv = ember_level(seg * 30 + 15 - row * 17, 118 + row * 6 + 3)
+            joint = (y - 118) % 6 == 5 or (x + row * 17) % 30 == 0
+            col = ["night0", "night1", "plumDeep", "crimsonDeep"][max(0, lv - (1 if joint else 0))]
+            c.c[y][x] = P(col)
     for x in range(W):
         c.c[118][x] = P("rockDeep" if ember_level(x, 118) < 2 else "crimson")
     # the court's benches along the left wall, empty; the long table at the far right with nobody at it
@@ -329,25 +337,45 @@ def fire_d(x, y):
 def slide3():
     c = Canvas(P("nightDeep"))
     # the outer wall's face behind in the dark, its stones only where the fire reaches, a strip of night sky above
-    for y in range(0, FLOOR3):
+    for y in range(0, 22):
         for x in range(W):
-            d = fire_d(x, y)
-            col = "nightDeep" if y < 22 else ("night1" if d > 74 else "plumDeep" if d > 44 else "crimsonDeep")
-            c.c[y][x] = P(col)
+            c.c[y][x] = P("nightDeep")
+    y0 = 23
+    row = 0
+    while y0 < FLOOR3:
+        hgt = 11 + int(h1(row, 1619) * 5)
+        x = -int(h1(row, 1621) * 30)
+        j = 0
+        while x < W:
+            bw = 24 + int(h1(j + row * 11, 1623) * 22)
+            d = fire_d(x + bw / 2.0, y0 + hgt / 2.0)
+            lv = 3 if d < 40 else 2 if d < 66 else 1 if d < 96 else 0
+            for y in range(y0, min(FLOOR3, y0 + hgt)):
+                for xx in range(max(0, x), min(W, x + bw)):
+                    joint = y == y0 + hgt - 1 or xx == x
+                    ramp = ["nightDeep", "night1", "plumDeep", "crimsonDeep"]
+                    c.c[y][xx] = P(ramp[max(0, lv - 1)] if joint else ramp[lv])
+            x += bw
+            j += 1
+        y0 += hgt
+        row += 1
     for x in range(W):
         c.c[22][x] = P("farDeep")
-    for (x0, y0, ln) in ((150, 46, 40), (196, 70, 34), (230, 40, 50), (176, 92, 30), (280, 66, 30), (214, 100, 26)):
-        for i in range(ln):
-            X = x0 + i
-            if X < W and fire_d(X, y0) < 74:
-                c.c[y0][X] = P("night1") if fire_d(X, y0) > 44 else P("plumDeep")
-    # the walk's stones under the snow, warm near the fire
+    # the walk's stones under the snow, each flag lit as a whole by the fire, the snow on their front edge
     for y in range(FLOOR3, H):
+        row = (y - FLOOR3) // 7
         for x in range(W):
-            d = fire_d(x, y)
-            top = y < FLOOR3 + 2
-            col = ("tile" if d < 30 else "crimsonDeep" if d < 58 else "night1") if not top else \
-                  ("tileLight" if d < 30 else "tile" if d < 58 else "mistDark")
+            seg = (x + row * 13) // 34
+            cxs = seg * 34 + 17 - row * 13
+            d = fire_d(cxs, FLOOR3 + row * 7 + 3)
+            lv = 2 if d < 34 else 1 if d < 62 else 0
+            joint = (y - FLOOR3) % 7 == 6 or (x + row * 13) % 34 == 0
+            if y < FLOOR3 + 2:
+                col = ["mistDark", "tile", "tileLight"][lv]
+            else:
+                col = ["night1", "crimsonDeep", "tile"][max(0, lv - (1 if joint else 0))]
+                if joint and lv == 0:
+                    col = "nightDeep"
             c.c[y][x] = P(col)
     # the rags of the night heaped along the walk: grey, torn, their edges toward the fire catching it
     rags = Layer()
