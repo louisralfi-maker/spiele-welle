@@ -20,7 +20,7 @@ final class WorldSweepUITests: XCTestCase {
         ProcessInfo.processInfo.environment["GW_LANG"] ?? "en"
     }
 
-    private static let base = ["-GWLook", "2", "-GWBuild", "demo", "-GWFreezeTime", "YES", "-GWFlickerTime", "2.5",
+    private static let base = ["-GWLook", "2", "-GWBuild", "demo", "-GWFreezeTime", "YES",
                                "-GWWeather", "clear", "-GWSkipOnboarding", "YES"]
     /// Camera centres 0 to 2600 in 200 px steps (the camera clamps at the world's west end).
     private static let centres = Array(stride(from: 0, through: 2600, by: 200))
@@ -44,14 +44,26 @@ final class WorldSweepUITests: XCTestCase {
         sweep("fog-rm", night + ["-GWReduceMotion", "YES"], centres: [200, 600])
     }
 
+    /// Fix round 1 (the critic: "the fog's drift and its freeze under Reduce Motion are unproven"): the same fog night
+    /// at two moments 7 s apart (`-GWFlickerTime` 2.5 and 9.5), with and without Reduce Motion: the fog's tops and the
+    /// bank's breath move between a and b, and stand still with Reduce Motion.
+    func testFogDriftAndItsFreeze() {
+        let night = ["-GWNight", "12", "-GWHour", "23.33", "-GWGloomFog", "1"]
+        for (suffix, time) in [("a", 2.5), ("b", 9.5)] {
+            sweep("fog-" + suffix, night, centres: [600, 1000], flicker: time)
+            sweep("fog-rm-" + suffix, night + ["-GWReduceMotion", "YES"], centres: [600, 1000], flicker: time)
+        }
+    }
+
     // MARK: - Helpers
 
-    private func sweep(_ name: String, _ arguments: [String], centres: [Int]) {
+    private func sweep(_ name: String, _ arguments: [String], centres: [Int], flicker: Double = 2.5) {
         XCUIDevice.shared.orientation = .landscapeLeft
         for centre in centres {
             let shot = String(format: "w-%04d-", centre) + name
             let app = XCUIApplication()
-            app.launchArguments = WorldSweepUITests.base + arguments + ["-GWCameraX", "\(centre)"]
+            app.launchArguments = WorldSweepUITests.base + ["-GWFlickerTime", "\(flicker)"] + arguments
+                + ["-GWCameraX", "\(centre)"]
             app.launch()
             if waitUntilReady(app, name: shot) {
                 pause(0.8)

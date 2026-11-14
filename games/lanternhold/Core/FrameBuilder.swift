@@ -399,7 +399,9 @@ enum FrameBuilder {
             let moon = GamePalette.moon
             let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
             let color = SIMD4<Float>(moon.x, moon.y, moon.z, alpha)
-            list.append(EmissiveInstance(sprite: .moon, plane: .sky, rect: rect, color: color))
+            if alpha > 0.003 {
+                list.append(EmissiveInstance(sprite: .moon, plane: .sky, rect: rect, color: color))
+            }
         }
 
         if ambient.sunHeight > -0.1 {
