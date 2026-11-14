@@ -68,7 +68,10 @@ enum HallFrames {
     /// greened the cloth of estate behind him), in a warm white that warms what it falls on instead of adding yellow
     /// (fix round 1: gold light on the teal cloth read olive green). On the throne it sits low and flat at his lap.
     static let lanternRadius = 30.0
-    static let lanternColor = SIMD3<Float>(1.0, 0.86, 0.66)
+    static let lanternColor = SIMD3<Float>(1.0, 0.82, 0.58)
+    /// Its strength indoors: day share and night share (the walls are close: at the open air's strength its centre
+    /// burned white on the wainscot).
+    static let lanternLevel = (day: 0.25, night: 0.55)
     static let throneLantern = (radius: 24.0, squash: 1.9, below: 6.0)
     /// The great fire's frames a second.
     static let fireRate = 8.0
@@ -639,12 +642,14 @@ enum HallFrames {
         if input.court.audience?.place == .throne {
             light(.lantern, x: lordX + EntityFrames.kingGlass.dx * Double(lordFacing),
                   row: HallLayout.floorRow - Int((lordLift + throneLantern.below).rounded()),
-                  radius: throneLantern.radius, intensity: 0.3 + 0.7 * night, color: lanternColor,
+                  radius: throneLantern.radius, intensity: lanternLevel.day + lanternLevel.night * night,
+                  color: lanternColor,
                   squash: Float(throneLantern.squash), seed: 0x4C4F_5244)
         } else {
             light(.lantern, x: lordX + EntityFrames.kingGlass.dx * Double(lordFacing),
                   row: HallLayout.floorRow - Int((lordLift + EntityFrames.kingGlass.dy).rounded()),
-                  radius: lanternRadius, intensity: 0.3 + 0.7 * night, color: lanternColor, seed: 0x4C4F_5244)
+                  radius: lanternRadius, intensity: lanternLevel.day + lanternLevel.night * night,
+                  color: lanternColor, seed: 0x4C4F_5244)
         }
 
         var planes: [PlaneLayer] = []

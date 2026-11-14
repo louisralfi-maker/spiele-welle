@@ -1724,7 +1724,8 @@ world", step stage-1). The art is used as painted; the engine adds its light, it
 - **The night:** the moon (when up, less under clouds) comes through the two tall windows as pale shafts (the day's
   `hallShaft` in a cool `0.55/0.65/1.0` at 0.16) with a cool pool where they land and a cool fill of 44 px round each
   window on the far wall; the door torches lay a flat pool on the flags before the door.
-- **The lord's lantern** is a warm white (1.0/0.86/0.66) indoors, so it warms the teal cloth instead of greening it;
+- **The lord's lantern** is a warm white (1.0/0.82/0.58) indoors at 0.25 + 0.55 × night of its strength, so it warms
+  the teal cloth instead of greening it and its centre does not burn white on the wainscot;
   on the throne it sits low and flat at his lap. **The lectern's candle** (the white stick on its book rest) burns
   and keys the lord in his chair in the same warm white, a low flat pool on the chair's seat (director's correction
   2).

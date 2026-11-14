@@ -23,7 +23,7 @@ final class RendererTests: XCTestCase {
         XCTAssertEqual(MemoryLayout<BloomUniforms>.stride, 48)
         XCTAssertEqual(MemoryLayout<BlurUniforms>.stride, 16)
         XCTAssertEqual(MemoryLayout<CompositeUniforms>.stride, 400)
-        XCTAssertEqual(MemoryLayout<Look2Uniforms>.stride, 288)
+        XCTAssertEqual(MemoryLayout<Look2Uniforms>.stride, 336, "the hall stage's three float4 (fix round 1)")
     }
 
     func testEveryPipelineBuilds() throws {

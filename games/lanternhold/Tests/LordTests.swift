@@ -251,6 +251,12 @@ final class LordEntryTests: XCTestCase {
         game.frame(physicalWidth: 2622, physicalHeight: 1206).actors.map(\.sprite)
     }
 
+    /// The hall stage's figures as drawn now, on screen or not.
+    private func hallSprites(_ game: GameModel) -> [SpriteID] {
+        guard let state = game.driver?.state else { return [] }
+        return game.currentHallFigures(state).map(\.sprite)
+    }
+
     func testANewRealmAsksForTheLordAndKeepsTheAnswer() throws {
         let game = model(["GWReset": "YES"])
         XCTAssertEqual(game.overlay, .lordEntry, "a new realm opens on the name entry")
@@ -313,7 +319,9 @@ final class LordEntryTests: XCTestCase {
         let game = model(["GWReset": "YES", "GWSkipOnboarding": "YES", "GWLord": "lady", "GWLordName": "Mira"])
         XCTAssertNil(game.overlay, "the arguments name the lord: no entry")
         XCTAssertTrue(sprites(game).contains(.lady))
-        XCTAssertTrue(sprites(game).contains(.citizenCSeated), "the farmer waits seated on the bench")
+        // The hall stage (fix round 1): the farmer waits on the bench by the door, out of the throne's framing, so the
+        // stage's drawn figures say where he is, not the frame.
+        XCTAssertTrue(hallSprites(game).contains(.citizenCSeated), "the farmer waits seated on the bench")
         game.performAction()
         XCTAssertEqual(game.overlay, .audience)
         XCTAssertEqual(game.stage, .hall, "the audience is held in the great hall")
@@ -322,8 +330,9 @@ final class LordEntryTests: XCTestCase {
         var frame = game.frame(physicalWidth: 2622, physicalHeight: 1206)
         XCTAssertEqual(frame.actors.first { $0.sprite == .ladySeated }?.frame, 0)
         XCTAssertFalse(frame.actors.contains { $0.sprite == .lady }, "the seated strip stands in for the walking one")
-        XCTAssertTrue(frame.actors.contains { $0.sprite == .citizenC }, "the farmer got up and walks to the throne")
-        XCTAssertFalse(frame.actors.contains { $0.sprite == .citizenCSeated })
+        game.advance(by: 0.05)
+        XCTAssertTrue(hallSprites(game).contains(.citizenC), "the farmer got up and walks to the throne")
+        XCTAssertFalse(hallSprites(game).contains(.citizenCSeated))
         for _ in 0..<16 { game.advance(by: 0.1) }
         frame = game.frame(physicalWidth: 2622, physicalHeight: 1206)
         let seated = try XCTUnwrap(frame.actors.first { $0.sprite == .ladySeated })

@@ -3367,7 +3367,8 @@ lantern over the teal cloth). What changed (new logic in `Core/HallLight.swift`)
   night it is as before.
 - **The night:** the moon through the windows (pale `hallShaft`s, a cool pool where they land, a cool fill round each
   window) and the door torches' pool on the flags.
-- **The throne:** the lantern indoors is a warm white (1.0, 0.86, 0.66), low and flat at his lap on the throne, so the
+- **The throne:** the lantern indoors is a warm white (1.0, 0.82, 0.58) at 0.25 + 0.55 × night of its strength (at the
+  open air's its centre burned white on the wainscot), low and flat at his lap on the throne, so the
   cloth of estate keeps its blue; the lectern's candle burns and keys the lord in his chair (a low, flat pool of 28 px
   on the chair's seat, so it does not climb the cloth behind him).
 - **The banners:** the realm's banner hangs at every second place (137, 253, 368); at the other two a wall sconce burns
