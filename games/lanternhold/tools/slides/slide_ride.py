@@ -198,10 +198,10 @@ def aldric(c, ox, oy):
     horse.ellipse(ox + 24, oy - 27, 15.5, 9.0, bay)
     horse.ellipse(ox + 11, oy - 27, 7.5, 9.0, bay)
     horse.ellipse(ox + 37, oy - 28, 9.0, 9.0, bay)
-    horse.capsule(L(10, -31), L(3, -43), 6.6, 4.0, bay)
-    horse.capsule(L(3, -44), L(-7, -37), 3.7, 2.4, bay)
-    horse.poly([L(1, -46), L(3, -51), L(5, -46)], bay)
-    horse.poly([L(4, -46), L(7, -50), L(7, -45)], bay)
+    horse.capsule(L(10, -31), L(1, -41), 6.6, 4.0, bay)
+    horse.capsule(L(1, -42), L(-9, -35), 3.7, 2.4, bay)
+    horse.poly([L(0, -44), L(1, -48), L(3, -44)], bay)
+    horse.poly([L(2, -44), L(4, -47), L(5, -43)], bay)
     # near legs
     for (a, b, d) in (((12, -20), (11, -10), (12, -1)), ((38, -22), (40, -12), (37, -1))):
         horse.capsule(L(*a), L(*b), 2.9, 2.1, bay)
@@ -210,20 +210,26 @@ def aldric(c, ox, oy):
         for k in range(3):
             horse.put(ox + hx + k, oy + hy, P("night0"))
     # mane and tail
-    horse.capsule(L(4, -46), L(12, -33), 1.8, 2.0, dark)
+    horse.capsule(L(2, -44), L(12, -33), 1.8, 2.0, dark)
     horse.capsule(L(45, -32), L(49, -22), 2.6, 2.2, dark)
     horse.capsule(L(49, -22), L(48, -11), 2.2, 1.3, dark)
     # the saddle cloth in the house's teal, the bridle
     horse.poly([L(18, -36), L(31, -36), L(30, -25), L(19, -25)], P("roofDeep"))
     for x in range(19, 31):
         horse.put(ox + x, oy - 25, P("gold") if x % 3 == 0 else P("roofDeep"))
-    horse.line([L(-5, -37), L(3, -42), L(15, -40)], P("night0"))
+    horse.line([L(-7, -38), L(1, -41), L(15, -40)], P("night0"))
+    # the barrel's underside and the haunch's back turn away from the light: a step darker
+    for (x, y), col in list(horse.px.items()):
+        if col == bay and (y > oy - 22 and ox + 6 < x < ox + 44 or x > ox + 40):
+            horse.px[(x, y)] = P("night0") if y > oy - 19 and ox + 18 < x < ox + 32 else step(bay, -1)
 
     rider = Layer()
     cloak = P("roofDeep")
     # the cloak blown back over the haunch
     rider.poly([L(21, -50), L(27, -50), L(41, -40), L(45, -33), L(37, -32), L(29, -36), L(22, -37)], cloak)
     rider.line([L(27, -48), L(39, -36)], P("nightDeep"))
+    rider.line([L(25, -44), L(33, -34)], P("nightDeep"))
+    rider.line([L(30, -47), L(44, -34)], P("nightDeep"))
     # the body, broad, and the near leg in its boot
     rider.capsule(L(24, -37), L(23, -48), 4.4, 4.0, P("banner"))
     rider.capsule(L(23, -37), L(17, -31), 2.8, 2.4, P("rockDeep"))
