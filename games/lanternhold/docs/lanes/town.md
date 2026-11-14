@@ -5,9 +5,9 @@ Louis' two bars are in `docs/BARS.md`.
 
 How this lane's commits are made: the session that runs the lane may not write into the `.claude/worktrees/lh-town`
 worktree (the app's worktree guard), so the lane works in a scratch clone of the repo, commits there as Louis'
-noreply identity and pushes straight to `origin/claude/lh-town`. The local worktree `.claude/worktrees/lh-town` was
-never touched and still stands at `d00180d`: before working there, `git -C .claude/worktrees/lh-town merge --ff-only
-origin/claude/lh-town`.
+noreply identity and pushes straight to `origin/claude/lh-town`. The local worktree `.claude/worktrees/lh-town` is
+only read: fix round 1 fast-forwarded it once to `bb17fe0` (no edits); before working there, `git -C
+.claude/worktrees/lh-town merge --ff-only origin/claude/lh-town`.
 
 ## town-1: taxes on foot, in Core
 
@@ -104,9 +104,9 @@ on day 8 is 18 (before 25). No balance value was changed.
   (`Town.sulking`), the tax card's removal (`TaxCard`, `TaxCardView`, `GameModel.taxCard`/`setTax`, the `.taxes`
   overlay, `FirstDayUITests`' 43-taxes part, `CardModelTests.testTheTaxLecternForecastsEachRate`, the lectern parts of
   `ScreenFlowTests` and `AudienceFlowTests`, `TaxRate.lecternPercent`/`lecternHappiness`, `Economy.setTax`).
-- **The dawn report screen:** `DawnReport.taxes` is now what the town owes today, but `ReportCard.goldIn` still shows
-  it as if it had come in; town-2 shows yesterday from `report.town` (`TownText.reportLines`). The dawn's coin sound
-  (`FeedbackCue.taxesCounted` at `.dawn`) belongs to the toss now; gold rising already plays `.coin` (`SoundWatch`).
+- **The dawn report screen:** `DawnReport.taxes` is what the town owes today; `goldIn` is yesterday's collected since
+  fix round 1, and the dawn plays no coin count. Town-2 shows yesterday from `report.town` (`TownText.reportLines`)
+  and hooks `FeedbackCue.taxesCounted` to the toss; gold rising already plays `.coin` (`SoundWatch`).
 - **STORY.md rule 12** ("never a coin pouch"): TOWN.md's household "with a pouch" should be drawn as a cloth bundle,
   a bowl or cupped hands, not a coin pouch.
 - **Door anchors (world lane):** `Town.doorX(plot:)` returns the plot's centre; the rebuilt town's door anchors (the
@@ -114,10 +114,107 @@ on day 8 is 18 (before 25). No balance value was changed.
 - **Ads lane:** the "double taxes" reward calls `Town.grantDoubleTaxes(&state)` (one saved flag on today's ledger,
   cleared by the next dawn) instead of banking a dawn sum; `AdPacing.doubleTaxesOpen(day:taxes:)` can keep reading
   `report.taxes.total`, which is now the day's owed sum. The offer belongs at dawn, before the first coins fly.
-- **Onboarding lane:** the first coins are owed on the morning of day 2 (day 1 owes nothing); the townsman who walks
-  into the courtyard comes then.
+- **Onboarding lane:** since fix round 1 the first coins are owed on the first morning (house 1's 16); the townsman
+  who walks into the courtyard comes then.
 - **Craft lane:** the stonemason's statue ("each house tosses one coin more at 60 and up") belongs in `Town.collect`;
   the fountain's +1 a dawn sits next to `.leftAlone` in `Economy.happinessChanges` (a likely merge conflict there).
 - **Six more languages** for `Town.xcstrings` follow in the i18n pass after the join.
 - **`-GWTown`** (town-2): a debug start with the households still waiting needs the dawn snapshot before the bot's
   morning (`GameStart.toMorning` now ends with it).
+
+## town-1, fix round 1 (the critic's look 1: two highs)
+
+The verdict: `ci-out/director/town-1-taxes-core-critic1.md` on the planning branch (pass, 8/10, no blocker). Both highs
+are fixed, the director's 14:45 note put the collector's Core into this round ("town-2, or town-1's fix round"), and
+the critic's smaller points are done where they were cheap.
+
+### What changed
+
+- **High 1, the dawn no longer pretends the taxes came in.** `DawnReport.goldIn` (the report card's "Taxes" row) is
+  what reached the purse yesterday, `town?.collected ?? 0` (tosses, knocks, the collector's delivery), never today's
+  owed `taxes.total`. The dawn plays no coin count any more: `FeedbackThinner.cue(for: .dawn)` is nil, so
+  `.taxesCounted` (the coins sound and the success haptic) is free for town-2 to hook to the toss; first light's bell
+  still rings. The `-GWScreen report|finale` samples carry a `TownSummary.paidInFull` so their row shows 64 and 103
+  as before.
+- **High 2, the first morning.** `GameState.newRealm` opens a first-morning ledger (`Town.firstMorning`): house 1,
+  the chandler's, nearest the castle, owes `TownRules.firstMorningGold` 16 from the start, and `Balance.startGold`
+  went from 60 to 44. So the toss can be met in the first minute, and the onboarding's townsman (TOWN.md "The first
+  morning") has his coins on day 1 (`Town.collect` does not ask where the lord stands, so he can bring them to the
+  courtyard). Every bot habit takes the 16 at its first step without a knock or a house left alone
+  (`Town.morning` on the first morning is always `.collect`), so the purse at the first build is the 60 of before and
+  every tuning line stays as it was; "double taxes" are refused on the first morning; left alone, the chandler keeps
+  the 16 and brings +1 at the first dawn like any house. The first dawn's report now tells of the first morning.
+- **The collector in Core** (TOWN.md section 2, the director's note of 14:45). `TownState.collectorHired` (saved,
+  Optional); `Town.setCollector(&s, hired:)` and `toggleCollector` take him on or send him away from the next morning
+  (from day 1, no treasury). At the dawn `Town.open` sets `TownDay.collectorOut`; he walks from his post by the hall
+  door (`collectorPost` = `Realm.hallX`) out to the farthest paying door by 09:00 and back by noon (`collectorX` for
+  the screen); every household that still owes pays him as he passes (`TownPlace.collectorGold`, into his box); at
+  noon the box goes into the purse less his wage, `collectorWage(box:)`: one coin in eight rounded, at least 2, never
+  more than the box (49 brings 43). The lord first pays the lord in full (in the same step too); he never knocks and
+  the lord may knock wherever he has been; in unrest he walks and comes back empty; double taxes count for him; a horn
+  before noon brings him back. `TownEvent.paidCollector` and `.collectorBack` for the screen; `TownSummary` has his
+  delivery and wage, and `collected` includes them. The reference bots never hire him. Not built: the first plan's
+  extra coin "for the lantern" (the director's call).
+- **The report's words** (the critic's smaller points). The knock's line names one or two doors in a door form
+  ("Knocked at the chandler's, the weaver's", "Angeklopft beim Kerzenzieher, beim Weber"; keys `town.door.*`), counts
+  three ("Knocked at 3 doors") and says "every door" when every house that owed was knocked (`TownSummary.houses`); the
+  same for the war levy. New lines for the collector ("The collector brought 43 (wage 6)", "Der Steuereintreiber
+  brachte 43 (Lohn 6)") and his empty return. "Bei den Leuten geblieben" for what the people kept. The unused
+  `town.reason.knocked` is gone. The text test now fills every real line (all one- and two-door combinations, three,
+  four, three-digit sums, the collector) and checks 46 characters in English and German. `Town.xcstrings`: 22 keys.
+- **tools/tune.py**: the first morning (every habit takes the 16, not counted as income) and the war levy on the
+  realm's unlock (`warTaxDay` from `Realm.swift`) instead of `day >= 8`. Output equal to before but for its last
+  summary line: normal 1944, low 1334, high 793 gold (47 knocks), beacon on day 16 and 20, six of six checks.
+- **TOWN.md**: the planning branch's text (collector in build 2, the fields, the people, the lamplighter, the count)
+  plus the numbers in Core refreshed (the first morning, the collector, the report, the T3 slip: only T4 moved).
+
+### New hooks in existing files (add to town-1's table for the join)
+
+| File | Place | Why |
+|---|---|---|
+| `Core/Balance.swift` | `startGold` 60 → 44, with a doc line | the first household holds the other 16 |
+| `Core/GameState.swift` | `newRealm`: `state.town = Town.firstMorning(state, balance:)` before `return`; docs of `newRealm` and `town` | the first morning's ledger |
+| `Core/DawnReport.swift` | `goldIn` = `town?.collected ?? 0`; doc of `town` | the card's taxes row is what came in |
+| `Core/ReportCard.swift` | the two samples pass `town: .paidInFull(day:gold:)` | the sample screens keep their numbers |
+| `Core/Feedback.swift` | `.dawn` joins the cases that return nil | no coin count at dawn |
+| `Core/Economy.swift` | doc of `DawnPeople.town` | the first dawn tells of the first morning |
+| `Tests/FeelTests.swift`, `Tests/SoundTests.swift` | the dawn's cue is nil; the coin is dropped beside `.taxesCounted` | the cue's new home |
+| `Tests/ReportCardTests.swift` | `goldIn` is yesterday's collected (16 after night 1); the sample's 64 | high 1 |
+| `Tests/EconomyTests.swift`, `Tests/AutoplayTests.swift` | the purse is 44 + 16 once the first morning is collected | high 2 |
+| `Tests/ScreenFlowTests.swift` | gold 60/48/50 → `startGold`, `startGold − brazier`, `startGold − archerPrice` | the new start |
+| `UITests/FirstDayUITests.swift` | gold "60" → "44", "48" → "32" | the new start (the rebuild lanes rewrite this test) |
+| `DESIGN.md` (not edited) | "the dawn survived (`taxesCounted`) success" is no longer true | for the join or town-2 |
+
+New files: `Tests/TownCollectorTests.swift` (nine tests: hiring from the next morning, his round, collecting and the
+noon delivery, through `Sim.step`, the wage table, the lord first, no knock but the lord's, unrest, double taxes,
+the horn and the save).
+
+### Rounds
+
+- **lh-t1f1-1** (d127eb9; build, unit): build FAIL, `ScreenFlowTests` read `balance` in a class that has none
+  (`GameScreensTests`); fixed with `Balance.standard` (6fc9c8e).
+- **lh-t1f1-2** (6fc9c8e; build, unit, ui, ui-de, release): build, ui, ui-de and release PASS; unit 444 passed and
+  two failed on the old 60 (`CardModelTests` the catapult's missing gold, `PetitionTests` the costly petition's);
+  both now read `startGold` (39cf7a2). Every Town, Tuning, ReportCard, Economy, Autoplay, Sound and Feel test passed.
+- **lh-t1f1-3** (39cf7a2; build, unit, ui, ui-de, release): **ALL PASSED** (446 unit tests, the UI tests in English
+  and German, the Release build). Its `tuning-report.txt` against round lh-snd-1's: byte for byte the same except
+  T4's line, exactly as after town-1 (high 20, low's lowest 80); `town-neutrality-seed1.txt` equals lh-snd-1's log
+  line for line. The first-day UI test's dawn report now says "Taxes 0" with "Houses left alone +1" (the test never
+  walks to the chandler), the treasury 32; the "9 taxpayers" under it is still today's, which town-2 rewrites.
+
+### Open, and what waits
+
+- **Town-2** draws the first household waiting at house 1 from the first minute, the toss with `.taxesCounted`, the
+  collector with his handcart (`collectorX`, `TownEvent.paidCollector`, `.collectorBack`; the people lane's sprite if
+  it has one), the touch at his post (`toggleCollector`), and the report's town lines (one or two, per the interface
+  bar).
+- **The audience lane** offers the collector at the first audience: its answer calls `Town.setCollector(&s,
+  hired: true)`.
+- **The onboarding lane:** the first morning's townsman is house 1's household; when he walks into the courtyard, the
+  screen calls `Town.collect(&s, plot:)` as the lord meets him.
+- **The director:** TOWN.md section 1 still says the household stands "with a pouch" (STORY.md rule 12, the art bar);
+  the word should change before town-2 draws (a cloth bundle, cupped hands). The extra coin "for the lantern" of the
+  first plan was not built.
+- **The ads lane:** "double taxes" on the first morning is refused; from the first dawn on the reward also doubles
+  what the collector takes.
+
