@@ -36,7 +36,7 @@ money, time · 11 names still to come (prologue, endings).
    | es | rey, reina, corona, coronación, majestad, reino, reinado, alteza |
    | it | re, regina, corona, incoronazione, maestà, regno, altezza |
    | pt-BR | rei, rainha, coroa, coroação, majestade, reino, reinado, alteza |
-   | ja | 王, 女王, 陛下, 殿下, 王冠, 冠, 王国, 玉座, 即位, 治世, 殿 (as an address) |
+   | ja | 王, 女王, 陛下, 殿下, 王冠, 冠, 王国, 玉座, 即位, 治世; 殿 and 殿様 as the lord's name (Ser Ludo's flourish 城主殿 is the one exception, section 4.2) |
    | zh-Hans | 王, 女王, 陛下, 殿下, 王冠, 冠, 王国, 王座, 宝座, 登基, 朕, 本王 |
 
    "Throne" stays for the lord's chair in the Romance languages (trône, trono) as in English and German; Japanese
@@ -80,7 +80,7 @@ What that means in each language:
   standard in narration (no mesoclisis). Never European forms ("tu" with its verb, "rapariga"), never "vós",
   "vosmecê", nor slang ("cara", "beleza", "tipo").
 - **ja:** the Japanese of a carefully translated European historical novel: polite keigo from the court, the plain
-  form from the lord, no samurai vocabulary (殿, 拙者, ござる, 御意, 殿様) and no anime role-speech (〜じゃ,
+  form from the lord, no samurai vocabulary (殿 or 殿様 for the lord, 拙者, ござる, 御意) and no anime role-speech (〜じゃ,
   〜でござる, 〜ですわ, 〜なのだ). Common kanji (常用漢字), kana where kanji would be heavy; katakana only for names
   and the fixed loanwords of this file (ランタン, サー, デイム, マザー).
 - **zh-Hans:** modern standard written Chinese with a light literary touch, as in a good translation of a European
@@ -177,7 +177,7 @@ foreign "Lord / Lady" for the other houses and for the outsiders who address the
 | Hild Varn (the old friends): {Lord\|Lady} Lantern | {Burgherr\|Burgherrin} | {monseigneur\|madame} | {mi señor\|mi señora} | {mio signore\|mia signora} | {meu senhor\|minha senhora} | 城主様 | 城主大人 |
 | The outsiders (Ansel Quay, Ebba Calder, Lorenz Pell): {Lord\|Lady} Lantern | {Lord\|Lady} Lantern | {seigneur\|dame} Lantern | {lord\|lady} Lantern | {Lord\|Lady} Lantern | {Lorde\|Lady} Lantern | ランタン様 | 兰腾大人 |
 | Ansel Quay: {Lord\|Lady} {lord} | {Lord\|Lady} {lord} | {seigneur\|dame} {lord} | {lord\|lady} {lord} | {Lord\|Lady} {lord} | {Lorde\|Lady} {lord} | {lord}様 | {lord}大人 |
-| The envoys of their own liege: my lady (Lady Maris Brine, Lady Petra Oxmoor) | meine Herrin | ma dame | mi señora | la mia signora | minha senhora | 我が主 | 我家主人 |
+| The envoys of their own liege: my lady (Lady Maris Brine, Lady Petra Oxmoor) | meine Herrin | Madame (as a servant names his mistress: « Madame vous envoie… ») | mi señora | la mia signora | minha senhora | 我が主 | 我家主人 |
 | The town calling the lord by trade | lamplighter | lampiste | farolero / farolera | lampionaio / lampionaia | acendedor / acendedora de lampiões | 灯り番 | 点灯人 |
 
 Titles at the start of a sentence take a capital; inside a sentence follow section 6, "Titles".
@@ -202,14 +202,14 @@ the speech style. Fixed:
 | Seren | 私; quiet, distant です・ます, few words | 我; sparse, distant |
 | Ser Ludo (knight) | わたくし; grand and sincere (〜ですぞ, 〜いたしましょう!) | 本骑士; grand, sincere, a little old-fashioned |
 | Finch (bard) | 私; theatrical polite | 我; theatrical |
-| The herald | わたくし (rare); archaic court courtesy (〜でございましょう), cold; the King is 我が王 or 王 | 我 (rare); formal, faintly classical; the King is 吾王; never 汝 |
+| The herald | わたくし (rare); archaic court courtesy (〜でございましょう), cold; to the lord the King is 我が王, in the fixed phrase 宵闇の下の王 | 我 (rare); formal, faintly classical; the King is 吾王; never 汝 |
 | Ansel Quay (envoy) | 私; courteous, tired keigo | 我; courteous, tired |
 | Lorenz Pell (steward) | わたくし; smooth keigo, a velvet glove | 我; smooth, polished |
 | Hild Varn | 私; blunt です・ます | 我; blunt, direct |
 | Ebba Calder (auditor) | 私; precise です・ます | 我; precise, clipped |
 | Dame Orla Lorn | わたし; plain form, old and unafraid (〜だよ, 〜ね), never 〜じゃ | 我; plain, commanding, uses 你 |
-| Townsfolk, refugees, soldiers | 私 / おれ only for a rough soldier; plain-polite です・ます, simple words, **no dialect** | 我; plain spoken, no dialect |
-| Children | ぼく / わたし by the child's look, else none; simple plain form | 我; simple words |
+| Townsfolk, refugees, soldiers | 私 (never おれ, おら); plain-polite です・ます, simple words, **no dialect** | 我; plain spoken, no dialect |
+| Children | no first person, わたし where one is unavoidable; simple plain form | 我; simple words |
 | Narrator (reactions, endings, remembered lines) | だ・である style, present tense as in English, past where the English is past | plain written narration; 你 for the lord |
 
 ---
@@ -292,8 +292,8 @@ both throat and gorge. 喉谷 is always the full compound; 谷 alone is the gree
 | the lamp-runner (Lorn's great-grandchild) | das Lampenkind | le petit porte-lampe | el recadero de las lámparas | il piccolo portalampade | o pequeno carregador de lampiões | 灯り運びの子 | 送灯的孩子 |
 | wick | Docht | mèche | mecha | stoppino | pavio | 灯心 | 灯芯 |
 
-Notes: 炎 (ja) and 圣焰 (zh-Hans) are kept for the Flame alone; every other fire is 火. "lampiste" is the French lamplighter and also the lowest man on the ladder ("c’est toujours le lampiste qui
-trinque"); that second sense is exactly how Seren and the herald mean it, and the word is the same for both sexes.
+Notes: 炎 (ja) and 圣焰 (zh-Hans) are kept for the Flame alone; every other fire is 火. "lampiste" is the French
+lamplighter and also the lowest man on the ladder ("c’est toujours le lampiste qui trinque"); that second sense is exactly how Seren and the herald mean it, and the word is the same for both sexes.
 Never "allumeur / allumeuse" (the feminine is slang). Italian and Portuguese "faro / farol" serve both the beacon and
 Saltgate's lighthouse; the beacon is always "il Grande Faro / o Grande Farol" or "il faro / o farol" of the castle,
 the lighthouse is always named with Saltgate or "our", so the reader is never lost. In Japanese the house and the
@@ -418,6 +418,11 @@ Note: "the weavers" of the market petitions are human cloth-weavers (tisserands,
 | the lectern (where taxes are set) | das Pult | le lutrin | el atril | il leggio | o atril | 書見台 | 书案 |
 | the herb-wife | die Kräuterfrau | la guérisseuse | la herbolaria | la donna delle erbe | a erveira | 薬草師の女 | 草药婆 |
 | dusk, dawn, first light | Dämmerung, Morgengrauen | crépuscule, aube, petit jour | anochecer, alba, primera luz | crepuscolo, alba, prima luce | crepúsculo, alvorada, primeira luz | 日暮れ, 夜明け, 明け方 | 黄昏, 黎明, 破晓 |
+| keeper of the Great Beacon (Seren's office); the keepers (of Beaconfoot) | Hüterin des Großen Leuchtfeuers; die Hüter | gardienne du Grand Fanal; les gardiens | guardiana de la Gran Almenara; los guardianes | custode del Grande Faro; i custodi | guardiã do Grande Farol; os guardiões | 大烽火の守り手; 守り手たち | 大烽火守护人; 守护人 |
+| the scribe | der Schreiber | le scribe | el escribano | lo scrivano | o escrivão | 書記 | 书记员 |
+| the masons | die Steinmetze | les tailleurs de pierre | los canteros | gli scalpellini | os canteiros | 石工たち | 石匠们 |
+| the guilds, guild masters | die Zünfte, Zunftmeister | les guildes, maîtres de guilde | los gremios, maestros de gremio | le corporazioni, capi delle corporazioni | as guildas, mestres de guilda | 組合, 組合の親方 | 行会, 行会会首 |
+| the syndics (of Stillmere) | die Syndizi | les syndics | los síndicos | i sindaci | os síndicos | 参事たち | 理事们 |
 | gold, silver, copper (money) | Gold, Silber, Kupfer | pièces d’or, d’argent, un sou | monedas de oro, de plata, un cobre | monete d’oro, d’argento, un soldo | moedas de ouro, de prata, um tostão | 金貨, 銀貨, 銅貨 | 金币, 银币, 铜板 |
 
 ### Ser Ludo's boasts (translated, as the German does)
@@ -519,7 +524,7 @@ German, in this order:
    wish). The German chose one; take that one.
 4. **Infinitive or order in a choice label.** Where the German writes an infinitive ("Den Pflug segnen", "Das Pech
    kaufen"), the label names an action: use your infinitive (fr Bénir la charrue, es Bendecir el arado, it Benedire
-   l'aratro, pt-BR Abençoar o arado, ja 鋤を祝福する, zh-Hans 为犁祝福). Where it writes an order or a sentence
+   l’aratro, pt-BR Abençoar o arado, ja 鋤を祝福する, zh-Hans 为犁祝福). Where it writes an order or a sentence
    ("Lasst alle herein", "Ihr bekommt Euren Turm"), the lord speaks to someone: use the order or sentence in the
    register of section 4.
 5. **Intimacy.** Where the German switches to "du" (children; Pip's farewell), switch as section 4.1 says.
