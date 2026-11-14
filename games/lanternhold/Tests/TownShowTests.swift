@@ -293,6 +293,21 @@ final class TownShowTests: XCTestCase {
         XCTAssertTrue(Town.sulking(night, plot: house3))
     }
 
+    func testAKnockRightAfterTheTossShowsOneHouseholdAtTheDoor() throws {
+        var s = morning(happiness: 80)
+        let door = try spot(s, house1).doorX
+        s.king.x = TownShow.knockSpot(doorX: door, kingX: door - 30)
+        s.king.velocity = 0
+        Town.collect(&s, plot: house1, balance: balance)
+        s.simTime += 0.3
+        Town.knock(&s, plot: house1, balance: balance)
+        let knocking = TownShow.scene(at(s, s.simTime + 0.5), balance: balance, reduceMotion: false)
+        XCTAssertNil(knocking.figures.first { $0.plot == house1 }, "inside while the lord knocks")
+        XCTAssertFalse(knocking.houses.first(where: { $0.plot == house1 })!.doorOpen)
+        let bowing = TownShow.scene(at(s, s.simTime + 1.3), balance: balance, reduceMotion: false)
+        XCTAssertEqual(bowing.figures.filter { $0.plot == house1 }.count, 1, "one household, never two")
+    }
+
     func testARefusedKnockIsOneKnockAndNothingOpens() throws {
         var s = morning()
         let door = try spot(s, house5).doorX

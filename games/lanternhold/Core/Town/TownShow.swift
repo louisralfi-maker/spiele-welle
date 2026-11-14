@@ -360,9 +360,11 @@ enum TownShow {
                 let manner = manner(s, place: place, rules: rules)
                 let count = Town.coins(for: place.tossGold, rules: rules)
                 let times = arrivals(count: count, kind: place.kind, manner: manner, knock: false)
-                if let look = tossFigure(place: place, sprite: sprite, t: t, manner: manner, coins: count,
-                                         standX: standX, towardLord: towardLord, courtyard: courtyard,
-                                         reduceMotion: reduceMotion) {
+                // Once a knock has begun the household is inside (it opens again for the knock).
+                let knocked = place.knockedAt.map { now >= $0 } ?? false
+                if !knocked, let look = tossFigure(place: place, sprite: sprite, t: t, manner: manner, coins: count,
+                                                   standX: standX, towardLord: towardLord, courtyard: courtyard,
+                                                   reduceMotion: reduceMotion) {
                     scene.figures.append(look)
                     if place.kind == .house && !courtyard { doors.insert(place.plot) }
                 }

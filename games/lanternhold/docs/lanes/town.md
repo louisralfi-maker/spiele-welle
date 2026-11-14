@@ -218,3 +218,136 @@ the horn and the save).
 - **The ads lane:** "double taxes" on the first morning is refused; from the first dawn on the reward also doubles
   what the collector takes.
 
+
+## town-2: taxes on foot, on screen (14.11.2026)
+
+The brief: TOWN.md section 1, "The sign", "The knock", "The interface", "The picture", for TestFlight build 2. Louis'
+bars (`ci-out/director/artbar.md`): pixel art at triple-A level from hand-placed pixels; no prompt, no label, no HUD
+mark; the world explains itself.
+
+### What a player sees
+
+- **The sign.** From the dawn until it has paid, each household stands before its open door with the day's coins in
+  its cupped hands (the coin catches the light with each breath); the stall keeper at the market, the farmer at the
+  field's edge with his knotted cloth. Nothing on the HUD. After the horn the doors are shut and nobody waits.
+- **The toss.** The lord walks past (28 px, Core's rule): the household draws back and throws; three to seven coins fly
+  in an arc into his hand one after the other. Each landing is heard (the coin sound and the soft tap) and the gold
+  rises coin by coin as they land; the last coin plays `.taxesCounted` (the coins and the success haptic). From 60
+  happiness the household waves (not the day after a knock), between 30 and 60 it nods and goes in, below 30 it flings
+  the coins at the lord's feet (they lie a moment, then hop into his hand; never left on the ground) and turns its
+  back. Then it steps back in and the door shuts. The farmer never tosses: he counts his coins out of the cloth in low
+  hops. Reduce Motion: no arcs; each coin fades in at the lord's hand as it would have landed.
+- **The knock.** A touch on the door of a house that has paid today: the lord walks up (the realm strip's travel), stands
+  at the door's near side and knocks three times (his knock pose, three knock sounds with a rigid tap each); the door
+  opens, the household steps into it, bows and holds the coins out; they hop into the lord's held-out hand (gold rises
+  as they land); a deeper bow, it steps back, the door shuts, then the two shutters close (two dull knocks). The house's
+  window stays dark that night (no lit room, no glass glow, no window light); the next dawn opens the shutters and
+  nobody there waves that day. A touch on a door that owes walks him past it (he takes the toss); a touch on a door
+  that is shut to him (knocked as often as allowed, unrest) gets one knock and nothing opens. By day only.
+- **The first morning** (critic look 2 on town-1): the chandler's household, Mother Corra, waits in the courtyard before
+  the hall door (`Town.firstMorningX`, 1690); the lord meets her as he steps out of the hall, she tosses her 16 coins
+  and walks home to the town (right, fading after six seconds).
+- **The tax card is gone**: the throne's crown shows only while petitioners wait; the lectern stands as furniture.
+- **The dawn report's taxes row** shows what reached the purse yesterday and one line about yesterday (a knock, else
+  what the people kept, else the collector; in unrest the shut doors); no longer today's taxpayers.
+
+### What exists (new files)
+
+- `Core/Town/TownSprites.swift`: the sprite contract (sizes, frames, the figure of each place, the lord's knock sprite).
+- `Core/Town/TownShow.swift`: what the town shows at a moment, pure functions of the realm and its sim time
+  (`TownPlace.tossedAt`, `knockedAt`): `scene` (houses with door open / shutters / dark, figures, coins, the lord's
+  pose), `goldInFlight` and `heard` (the purse held back until the coins land), `cues` (knocks, shutters, counted),
+  `spots` (the houses as `EntityFrames.town` draws them, their doors), `door(atX:y:)` (the touch box, 24 x 24 game px
+  = 48 pt), `knockSpot`. Every timing is a constant at the top of the file.
+- `Core/Town/TownFrames.swift`: `apply(&layer, ...)` after the court's: the overlays as props (z 0, ids from
+  3 000 000, the house's shade and mirror), a knocked house darkened (its lit rooms, glass masks and window lights
+  removed), the figures inserted before the lord, the coins after everyone, the lord's sprite swapped for his knock
+  pose (and his glow strip dropped for that moment).
+- `Core/Town/TownDebug.swift`: `-GWTown owed|paid|knock`.
+- `App/GameModel+Town.swift`: `stepTown` (the walk to a door arrives, the knock happens through `Town.knock`, the cues
+  play, the door marks follow the camera), `touchTown(at:in:)`, `knock(plot:)`, `townShownGold`, `refreshTownMarks`,
+  `TownRun.status` (the UI tests' `town-status`).
+- `UI/TownTapLayer.swift`: a clear full-screen layer under the walk pad and the HUD that hands taps to `touchTown`; the
+  doors on screen as accessibility elements only (`town-door-<plot>`, "Knock at the chandler's door" / "beim
+  Kerzenzieher anklopfen", value `knock` or `shut`, a VoiceOver action), and `town-status`.
+- `Render/PlaceholderTown.swift`: stand-ins while a PNG is missing.
+- `tools/taxart.py` and `tools/grids/town/`: the art (below). `tools/taxsound.py`: `Resources/Sound/knock.wav`.
+- `Tests/TownShowTests.swift` (14 tests), `UITests/TownUITests.swift` (3 tests).
+- Two keys in `Resources/Town.xcstrings` (English and German, VoiceOver only): `town.access.knock`, `town.access.door`.
+
+### The art (Louis' art bar)
+
+Every figure is a hand-set part grid on the people lane's bodies (copied verbatim from `claude/lh-people` 5427d45 into
+`tools/grids/town/base/`; only the arms, the bow and the props are new), built by `tools/actorart.py` through
+`bash <artlock> python3 -I -B tools/taxart.py build [names]`. One grid, palette colours only, look 2's selective
+outline, light from the upper left. No generated image is involved.
+
+| id | size | frames | who / what |
+|---|---|---|---|
+| `townCorra` | 12x26 | 15 | Mother Corra, house 1 (the chandler's): wait 0-1, wind 2, toss 3, follow 4, wave 5-6, fling 7, bow 8, deep bow 9, empty 10, walk 11-14 |
+| `townDun` | 12x26 | 11 | Dun Rook, house 3 (the oil-presser's), the coins in his bound rag; frames 0-10 as Corra's |
+| `townBrede` | 12x26 | 11 | Brede Hask, house 4 (the cooper's), bare heavy arms |
+| `townHemmet` | 12x26 | 11 | Old Hemmet, house 5 (the weaver's), bent double, his stick leaning on him; a flick, a lifted hand, a nod |
+| `townWenna` | 12x26 | 11 | Wenna Brisk at the market stall, the raw red forearms |
+| `townGorm` | 12x26 | 4 | Gorm Ashby at the field: wait 0-1 with the knotted cloth, count 2-3 |
+| `kingKnock`, `ladyKnock` | 16x30 | 3 | the lord's knock: fist raised 0, knock 1, hand held out 2; the pole in the far hand behind him; the same anchor as `king`/`lady` |
+| `townCoin` | 3x3 | 4 | a coin turning: face, three quarters, edge, three quarters |
+| `townCottage` | 64x46 | 4 | over a cottage: the open door 0; the closed shutters of `house` 1, `houseB` 2, `houseC` 3 |
+| `townBigHouse` | 72x56 | 2 | over the big house: the open door 0, the closed shutters 1 |
+
+The overlays are cut from the houses' own paintings: the open door is the door leaf's rectangle (cottage cols 26-36,
+rows 29-42; big house cols 30-40, rows 41-52) as a dark room with the leaf seen edge-on at the hinge side; the closed
+shutters are each window's painted open leaves moved over its 7 px glass (the same pixels, a dark seam between them)
+with plaster where they hung. The atlas gains 11 strips, 70 frames.
+
+### The hooks in existing files (for the join to apply again)
+
+| File | Place | Why |
+|---|---|---|
+| `App/GameModel.swift` | after `talkLog`: `townRun`, `townMarks`, `townStatus` | the screen's state |
+| `App/GameModel.swift` | `advanceGame`: `watch.cues(TownShow.heard(...))`; `stepTown()` after `stepCourt` | the purse heard as the coins land; the knock and its cues |
+| `App/GameModel.swift` | `frame()`: `TownFrames.apply(...)` after `noteCourtFrame` | the picture |
+| `App/GameModel.swift` | `refreshHUD`: `gold = townShownGold(s, ...)` | gold rises coin by coin |
+| `App/GameModel.swift` | `performAction`: `.throne` opens only the audience; `.lectern` does nothing | no tax card |
+| `Core/KingTargets.swift` | `target()`: `consider(.throne, ...)` and `consider(.lectern, ...)` removed | the button never offers the tax card |
+| `UI/GameView.swift` | `TownTapLayer(model:)` after `WorldSceneView`; `WalkPad`: `.simultaneousGesture(SpatialTapGesture ...)` | the touch on a door |
+| `Core/FrameDesc.swift` | the `SpriteID` cases (end of the enum), `size` case, `frameCount` first line | the sprites |
+| `Render/PlaceholderArt.swift` | `PlaceholderTown.frames` last in the fallback chain | stand-ins |
+| `Render/Renderer.swift` | `rimmed` + `kingKnock`, `ladyKnock`; `people` + `TownSprites.figures` (the people lane edits the same line) | the rims |
+| `Core/Feedback.swift` | `FeedbackCue.knock`, `.shutter` | the knock's and the shutters' sound |
+| `Core/SoundCues.swift` | `SoundID.knock`; `minimumInterval`, `varies`, `sound` (`.knock`, `.shutter` on knock.wav), `haptic` (rigid, soft) | the same |
+| `Resources/Sound/MANIFEST.txt` | the `knock` line (written by `tools/taxsound.py`) | the manifest |
+| `App/DebugArgs.swift` | `GWTown` key, `town` field, its parse | `-GWTown` |
+| `App/GameStart.swift` | `TownDebug.apply` before `applyNumbers` | `-GWTown` |
+| `Core/ReportCard.swift` | `var town: TownSummary? = nil`, `make` passes `report.town` | the taxes row |
+| `UI/ReportCardView.swift` | `taxDetail` asks `TownText.reportDetail` first | the taxes row |
+| `Core/Town/Town.swift` (this lane's) | `firstMorningX`, `meetX`; `step` meets at `meetX` | the first morning in the courtyard |
+| `Tests/TownTests.swift` | the first morning's toss in the courtyard | the same |
+| `Tests/CardModelTests.swift`, `Tests/AudienceFlowTests.swift` | no throne target without petitioners; the lectern is furniture | no tax card |
+| `UITests/FirstDayUITests.swift` | the lectern part (43-taxes) removed | no tax card |
+
+### How the join re-hooks the door touch (the rebuilt town and the stage lane's touch)
+
+1. **The rebuilt town's doors.** `TownShow.spots(_:)` is the one place that knows where a door is: it mirrors
+   `EntityFrames.town` (the cottages tile, slate, thatch, tile; every second house mirrored; the door's middle column
+   31 of a cottage, 35 of the big house). Replace its body with the world lane's door anchors from the layout data (a
+   door x per house plot, the house sprite, its mirror) and point `Town.doorX(plot:)` at the same anchors (the fields'
+   and the stall's anchors too). `TownFrames.apply` then draws the world lane's own sprite states instead of
+   `townCottage`/`townBigHouse` (the world lane's brief: each house's window and shutters lit, dark, shuttered as
+   sprite states; an open door state): keep `TownShow.House.doorOpen`, `.shutters`, `.dark` as the switches.
+2. **The stage lane's touch.** Wherever the stage lane's input takes a tap on the walked world (before its own "any
+   other touch" handling), call `model.touchTown(at: point, in: size)` first: it converts the point with the game's
+   camera and pixel scale, asks `TownShow.door(atX:y:)` (a 24 x 24 game px box over the door, standing on the ground)
+   and returns true when a door took the touch (the lord then walks there). Then drop `TownTapLayer`'s own tap gesture
+   (keep its accessibility marks and `town-status`) and the `WalkPad` hook if the walk pad goes. Nothing else of the
+   town reads the input.
+3. **The gold above the lord** (HUD.md section 3): show `townShownGold(state, balance:)` instead of `state.gold`, so it
+   ticks with each landing coin; `SoundWatch` already hears the shown purse.
+4. **The stage lane's hall `openCard(.taxes, ...)` calls** go (the director's note of 19:35).
+5. **Dead code to delete at the join** (kept here so the rebuild lanes' files merge with fewer conflicts): `TaxCard`
+   (Core/BuildCard.swift), `TaxCardView` (UI/BuildCardView.swift), `Overlay.taxes`, `GameModel.taxCard`/`setTax`,
+   `OverlayView`'s `.taxes` case, `KingTarget.lectern`, `HUDView`'s `.lectern` action and "Set the taxes",
+   `TaxRate.lecternPercent`/`lecternHappiness`, `Economy.setTax` with `EconomyTests`' war-tax test,
+   `CardModelTests.testTheTaxLecternForecastsEachRate`, `FeedbackCue.taxSet`.
+6. **The people lane:** if its bodies change after 5427d45, copy them into `tools/grids/town/base/` again and rebuild
+   (`taxart.py build`); the poses only add arms, a bow and props.
