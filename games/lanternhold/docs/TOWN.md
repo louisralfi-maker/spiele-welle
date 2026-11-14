@@ -145,8 +145,9 @@ are the people lane's work (`docs/PEOPLE.md`, branch `claude/lh-people`).
 
 "Abends wär noch einer cool, der wie im alten Prag mit diesen langen Kerzen die Straßenlaternen anmacht."
 
-- The town has a lamplighter with a name. The house began with one (STORY.md, "Year 1, Taper"): this one carries the
-  trade on. The people lane draws and names the figure.
+- The town has a lamplighter with a name: a townsman and a figure of his own. (Changed 14.11. 15:05: the lord's house
+  never were lamplighters, `docs/HOUSE.md` section 1.) Each evening he lights his pole at the hearth in the hall and
+  carries the house's light out into the street. The people lane draws and names the figure.
 - One hour before the horn (18:00) the lamplighter leaves the castle gate with a long lighting pole and lights the
   street lanterns one by one down the road; the last one burns as the horn sounds. Each gives a small warm pool.
 - At first light the same walk back, putting them out with the snuffer on the pole.

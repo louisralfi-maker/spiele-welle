@@ -226,3 +226,11 @@ between walls (`docs/REALM.md` section 3 corrected; the front lane's brief had i
 collector can be hired from the first day and comes into build 2; the lord still collects and knocks himself
 (`docs/TOWN.md` section 2). New: a lamplighter who lights the street lanterns at dusk "wie im alten Prag"
 (`docs/TOWN.md` section 7; the house's founder was one). Notes went to front, stage, town, people and world.
+
+**14.11. 15:03, Louis on family, rooms and the lord's origin (by interview):** the court is the family and has ties among
+each other, everyone respects the lord, a family of the lord's own comes in chapter 2. The lord never was a lamplighter:
+House Lantern is the guardian house, descended from the one who made or stole the Eternal Light. Two rooms one may
+enter and never must (the lord's chamber, a dungeon); special evenings with a guest on a few days, never daily. The
+spec is `docs/HOUSE.md`. Notes went to quests, panels, i18n, people, stage and world. A story editor writes the exact
+rewrite list on `claude/lh-house` (`docs/workflows/house-lane.js`); it is applied to the texts in one pass after the
+translations, never by the running lanes.
