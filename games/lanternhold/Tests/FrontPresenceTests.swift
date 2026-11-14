@@ -120,7 +120,7 @@ final class FrontPresenceTests: XCTestCase {
     }
 
     func testGuardsUnderPresenceTakeLessHarmAndStrikeHarder() throws {
-        func afterOneSecond(lordX: Double) -> (lost: Double, bruteHP: Double) {
+        func afterOneSecond(lordX: Double) -> (lost: Double, bruteHP: Double, kept: Double) {
             var s = breach()
             XCTAssertTrue(s.guardsHolding)
             s.king.x = lordX
@@ -129,19 +129,23 @@ final class FrontPresenceTests: XCTestCase {
             run(&s, seconds: 1)
             XCTAssertEqual(s.front?.night.throwsBack, 0, "behind the guard line nothing reaches him")
             let after = s.soldiers.filter { $0.kind == .guardsman }.reduce(0) { $0 + $1.hp }
-            return (before - after, s.creatures.first?.hp ?? 0)
+            return (before - after, s.creatures.first?.hp ?? 0, s.front?.night.withheldLives ?? -1)
         }
         let near = afterOneSecond(lordX: 652 + 8)
         let far = afterOneSecond(lordX: 1800)
         XCTAssertGreaterThan(far.lost, 0)
-        XCTAssertEqual(near.lost, far.lost * tuning.presenceHarm, accuracy: 1e-6, "a fifth less harm")
+        XCTAssertEqual(near.lost, far.lost * tuning.presenceHarm, accuracy: 1e-6, "less harm")
+        let guardMax = try XCTUnwrap(breach().soldiers.first { $0.kind == .guardsman }?.maxHP)
+        XCTAssertEqual(far.kept, 0, "away from him nothing is kept off")
+        XCTAssertEqual(near.kept, (far.lost - near.lost) / guardMax, accuracy: 1e-6,
+                       "the harm kept off, in a guard's lives")
         let bruteHP = balance.creature(.ashBrute).hp
         XCTAssertEqual(bruteHP - near.bruteHP, (bruteHP - far.bruteHP) * tuning.presenceSpeed, accuracy: 1e-6,
-                       "the guards strike 15 % harder")
+                       "the guards strike harder")
     }
 
     func testAPassingCreatureHarmsASoldierLessUnderPresence() {
-        func hpLost(lordX: Double) -> Double {
+        func hpLost(lordX: Double) -> (lost: Double, kept: Double) {
             var s = night()
             s.soldiers.removeAll { $0.kind == .guardsman }
             let index = s.soldiers.indices.first(where: { s.soldiers[$0].kind == .archer }) ?? 0
@@ -157,12 +161,14 @@ final class FrontPresenceTests: XCTestCase {
             spawn(&s, .shadehound, at: 1480)
             run(&s, seconds: 2)
             XCTAssertEqual(s.front?.night.throwsBack, 0, "the hound runs away from him")
-            return balance.archerHP - (s.soldiers.first { $0.name == name }?.hp ?? 0)
+            return (balance.archerHP - (s.soldiers.first { $0.name == name }?.hp ?? 0), s.front?.night.withheldLives ?? -1)
         }
         let near = hpLost(lordX: 1460)
         let far = hpLost(lordX: 1000)
-        XCTAssertGreaterThan(far, 0)
-        XCTAssertEqual(near, far * tuning.presenceHarm, accuracy: 1e-6)
+        XCTAssertGreaterThan(far.lost, 0)
+        XCTAssertEqual(near.lost, far.lost * tuning.presenceHarm, accuracy: 1e-6)
+        XCTAssertEqual(far.kept, 0)
+        XCTAssertEqual(near.kept, (far.lost - near.lost) / balance.archerHP, accuracy: 1e-6)
     }
 
     // MARK: - Braziers
@@ -177,10 +183,10 @@ final class FrontPresenceTests: XCTestCase {
         s.plots[b].snuffed = true
         s.king.x = Realm.plots[a].x - tuning.relightReach - 5
         run(&s, seconds: 0.2)
-        XCTAssertTrue(s.plots[a].snuffed, "25 px away: not yet")
+        XCTAssertTrue(s.plots[a].snuffed, "29 px away and on no wall: not yet")
         s.king.velocity = balance.kingWalkSpeed
         let events = run(&s, seconds: 0.5)
-        XCTAssertFalse(s.plots[a].snuffed, "within 20 px it caught from his lantern")
+        XCTAssertFalse(s.plots[a].snuffed, "within 24 px it caught from his lantern")
         XCTAssertTrue(events.contains(.brazierLit(plot: a)))
         XCTAssertEqual(s.front?.lastRelight?.plot, a)
         XCTAssertEqual(s.front?.night.relit, 1)
@@ -195,6 +201,55 @@ final class FrontPresenceTests: XCTestCase {
         XCTAssertFalse(s.plots[b].snuffed, "after 4 s the next one catches")
         XCTAssertEqual(s.front?.night.relit, 2)
         XCTAssertEqual(s.front?.lastRelight?.plot, b)
+    }
+
+    /// The rule by belonging: while he stands on a wall, that wall's braziers catch from his lantern wherever the world
+    /// draws them, one in 4 s; another wall's do not, and a wall in rubble is no wall.
+    func testTheBraziersOfHisWallCatchWhileHeStandsOnIt() {
+        var s = night { state in
+            for line in Realm.lines {
+                for plot in line.braziers { state.plots[plot].item = .brazier }
+            }
+            state.plots[Realm.lines[1].wall].item = .stoneWall
+            state.plots[Realm.lines[1].wall].hp = 800
+        }
+        for plot in Realm.brazierPlots { s.plots[plot].snuffed = true }
+        let gate = Realm.lines[0].braziers
+        let middle = Realm.lines[1].braziers
+
+        // At the back of the gatehouse, more than 130 px behind its braziers.
+        var back = s
+        back.king.x = Realm.wallX[0] + 118
+        XCTAssertEqual(FrontNight.wallUnder(back), Realm.lines[0].wall)
+        let first = run(&back, seconds: 0.2)
+        XCTAssertEqual(gate.filter { !back.plots[$0].snuffed }.count, 1, "one at once")
+        XCTAssertTrue(first.contains(.brazierLit(plot: gate[1])), "the nearer one first")
+        run(&back, seconds: tuning.relightEvery + 0.3)
+        XCTAssertTrue(gate.allSatisfy { !back.plots[$0].snuffed }, "both of his wall's fires burn")
+        XCTAssertTrue(middle.allSatisfy { back.plots[$0].snuffed }, "not another wall's")
+        XCTAssertEqual(back.front?.night.relit, 2)
+
+        // On the middle wall: its braziers, not the gatehouse's.
+        var mid = s
+        mid.king.x = Realm.wallX[1] + 30
+        run(&mid, seconds: tuning.relightEvery + 0.5)
+        XCTAssertTrue(middle.allSatisfy { !mid.plots[$0].snuffed })
+        XCTAssertTrue(gate.allSatisfy { mid.plots[$0].snuffed })
+
+        // The same place with the middle wall in rubble: no wall, and both braziers lie beyond the passing reach.
+        var rubble = s
+        rubble.plots[Realm.lines[1].wall].isRubble = true
+        rubble.king.x = Realm.wallX[1] + 30
+        XCTAssertNil(FrontNight.wallUnder(rubble))
+        run(&rubble, seconds: tuning.relightEvery + 0.5)
+        XCTAssertTrue(middle.allSatisfy { rubble.plots[$0].snuffed })
+        XCTAssertEqual(rubble.front?.night.relit, 0)
+
+        // Without the rule by belonging only passing counts.
+        var passing = balance
+        passing.front.relightOwnWall = false
+        XCTAssertFalse(FrontNight.catches(back, plot: gate[0], tuning: passing.front))
+        XCTAssertTrue(FrontNight.catches(back, plot: gate[0], tuning: tuning))
     }
 
     func testTheOldLightActionStillWorksWithTheRule() {
@@ -331,9 +386,13 @@ final class FrontPresenceTests: XCTestCase {
     // MARK: - The dawn
 
     func testTheReportsFrontLines() {
-        XCTAssertEqual(FrontNightReport(fightSeconds: 60, presentSeconds: 45).lines().map { $0.key }, [FrontLine.there])
+        XCTAssertEqual(FrontNightReport(fightSeconds: 60, presentSeconds: 45, withheldLives: 1.2).lines().map { $0.key },
+                       [FrontLine.there], "clearly there, and about a life kept")
+        XCTAssertEqual(FrontNightReport(fightSeconds: 60, presentSeconds: 58, withheldLives: 0.7).lines(), [],
+                       "there all night, but nobody came near falling: no line")
         XCTAssertEqual(FrontNightReport(fightSeconds: 60, presentSeconds: 6).lines().map { $0.key }, [FrontLine.away])
-        XCTAssertEqual(FrontNightReport(fightSeconds: 60, presentSeconds: 30).lines(), [], "neither clearly")
+        XCTAssertEqual(FrontNightReport(fightSeconds: 60, presentSeconds: 30, withheldLives: 3).lines(), [],
+                       "neither clearly")
         XCTAssertEqual(FrontNightReport(fightSeconds: 5, presentSeconds: 0).lines(), [], "hardly any fighting")
         XCTAssertEqual(FrontNightReport(relit: 2, throwsBack: 1).lines(),
                        [FrontLine(key: FrontLine.relit, count: 2), FrontLine(key: FrontLine.thrown, count: 1)])
@@ -405,8 +464,10 @@ final class FrontPresenceTests: XCTestCase {
         s.front?.lastThrow = FrontThrow(at: 99, fromX: 1240, toX: 1300, kind: .shadehound)
         s.front?.lastRelight = FrontRelight(at: 98, plot: Realm.lines[0].braziers[1])
         s.front?.night.relit = 2
+        s.front?.night.withheldLives = 1.25
         s.lastReport = ReportCard.sampleReport()
-        s.lastReport?.front = FrontNightReport(relit: 2, throwsBack: 1, fightSeconds: 40, presentSeconds: 30)
+        s.lastReport?.front = FrontNightReport(relit: 2, throwsBack: 1, fightSeconds: 40, presentSeconds: 30,
+                                               withheldLives: 1.25)
         let data = try SaveGame(state: s).encoded()
         guard case .loaded(let back) = SaveGame.decode(data) else { return XCTFail("does not load") }
         XCTAssertTrue(back.state == s, "every field comes back")
@@ -423,6 +484,7 @@ final class FrontPresenceTests: XCTestCase {
         XCTAssertNil(read.lastThrow, "a creature this build does not know is dropped")
         XCTAssertEqual(read.night.relit, 4)
         XCTAssertEqual(read.night.throwsBack, 0)
+        XCTAssertEqual(read.night.withheldLives, 0)
         let report = try JSONDecoder().decode(FrontNightReport.self, from: Data("{\"relit\": 1}".utf8))
         XCTAssertEqual(report, FrontNightReport(relit: 1))
     }
@@ -442,10 +504,54 @@ final class FrontPresenceTests: XCTestCase {
         XCTAssertNotNil(first.state.front)
         XCTAssertGreaterThanOrEqual(first.tally.moves, 1, "it walks out to the wall")
         XCTAssertLessThanOrEqual(first.tally.moves, 4, "no sprinting between walls")
+        XCTAssertLessThanOrEqual(first.tally.rearTrips, tuning.botMaxRearTrips)
         XCTAssertGreaterThan(first.front.fightSeconds, 0)
         XCTAssertGreaterThan(first.front.presentSeconds, 0.5 * first.front.fightSeconds, "it is where it burns")
         let reference = FrontTuningRun.referenceNight(eve, balance: hard)
         XCTAssertNil(reference.front, "the reference plays by the old rules")
+    }
+
+    /// While the front is quiet the present bot goes back for a dead brazier of a rear line (to the nearest place it
+    /// catches from), then returns to its place; while creatures come it stays.
+    func testThePresentBotGoesBackForARearBrazierWhenTheFrontIsQuiet() {
+        var s = night(day: 9) { state in
+            for line in Realm.lines {
+                for plot in line.braziers { state.plots[plot].item = .brazier }
+            }
+            state.plots[Realm.lines[1].wall].item = .stoneWall
+            state.plots[Realm.lines[1].wall].hp = 800
+            state.plots[Realm.lines[2].wall].item = .stoneWall
+            state.plots[Realm.lines[2].wall].hp = 800
+        }
+        FrontNight.adopt(&s)
+        let rear = Realm.lines[1].braziers[0]
+        s.plots[rear].snuffed = true
+        let stand = PresentBot.place(s, balance: balance).x
+        XCTAssertEqual(stand, Realm.wallX[2] + tuning.botBehindWall, "its place: on the outer wall")
+        s.king.x = stand
+        var bot = PresentBot()
+        bot.tally = PresentTally(night: s.nightNumber)
+        let quiet = bot.choose(s, balance: balance)
+        XCTAssertEqual(quiet.errand, .relight(plot: rear, rear: true))
+        XCTAssertEqual(quiet.goal, Realm.plots[rear].x - (tuning.relightReach - 1), accuracy: 1e-9,
+                       "the nearest place it catches from")
+
+        var busy = s
+        spawn(&busy, .sootling, at: stand - 100)
+        XCTAssertEqual(bot.choose(busy, balance: balance).errand, .stand, "not while creatures come")
+
+        var events: [SimEvent] = []
+        var elapsed = 0.0
+        while elapsed < 9 {
+            events.removeAll()
+            bot.act(&s, dt: 0.1, balance: balance, events: &events)
+            Sim.step(&s, dt: 0.1, balance: balance, events: &events)
+            elapsed += 0.1
+        }
+        XCTAssertFalse(s.plots[rear].snuffed, "the rear brazier caught")
+        XCTAssertEqual(bot.tally.rearTrips, 1)
+        XCTAssertEqual(bot.tally.relightTrips, 1)
+        XCTAssertEqual(s.king.x, stand, accuracy: 0.5, "back on its place")
     }
 
     /// The reference bots never touch the rule: their nights are the same whatever its numbers are.
@@ -455,6 +561,7 @@ final class FrontPresenceTests: XCTestCase {
         wild.front.presenceSpeed = 5
         wild.front.presenceHarm = 0.01
         wild.front.relightReach = 500
+        wild.front.relightOwnWall = false
         wild.front.throwDistance = 400
         for eve in FrontTuningRun.eves(seed: 2, balance: balance, nights: 11...12) {
             let standard = FrontTuningRun.referenceNight(eve, balance: balance)

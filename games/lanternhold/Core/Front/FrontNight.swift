@@ -18,7 +18,7 @@ struct LordAura: Sendable, Equatable {
             let on = !front.isShaken && DayClock.phase(at: s.hour) != .day
             radius = on ? tuning.presenceRadius : -1
             speedFactor = tuning.presenceSpeed
-            harmShare = tuning.presenceHarm
+            harmShare = max(FrontTuning.leastHarmShare, tuning.presenceHarm)
         } else {
             radius = balance.rallyRadius
             speedFactor = balance.rallyFactor
@@ -69,7 +69,7 @@ struct FrontPicture: Sendable, Equatable {
 }
 
 /// The front rule at night (docs/REALM.md section 3, "Being there counts"): the lord's presence (`LordAura`, read by
-/// the battle), the braziers he relights by passing, the creatures that throw him back (never while he stands up on a
+/// the battle), the braziers that catch from his lantern (his wall's, and those he passes), the creatures that throw him back (never while he stands up on a
 /// wall) and the shaken spell, the
 /// patch as a deed at the wall he stands at, and the night's tally for the dawn report. Deterministic: it draws nothing
 /// from the random stream. Nothing here runs for a realm without `GameState.front`.
@@ -84,8 +84,8 @@ enum FrontNight {
 
     // MARK: - The step
 
-    /// One step, after the lord moved and before the battle (`Sim.step`): timers, a dead brazier he passes catches
-    /// from his lantern, a creature that reaches him throws him back, the night's tally.
+    /// One step, after the lord moved and before the battle (`Sim.step`): timers, a dead brazier of his wall or one he
+    /// passes catches from his lantern, a creature that reaches him throws him back, the night's tally.
     static func step(_ s: inout GameState, dt: Double, balance: Balance, events: inout [SimEvent]) {
         guard var front = s.front, dt > 0 else { return }
         let tuning = balance.front
@@ -107,8 +107,31 @@ enum FrontNight {
         tally(&s, dt: dt, balance: balance)
     }
 
-    /// The nearest dead brazier within `relightReach` catches from his lantern, at most one in `relightEvery` seconds.
-    /// A Light the old screen began on it ends, since there is nothing left to light.
+    /// The wall the lord stands on (between its face and its back, the gatehouse's passage included), nil when he
+    /// stands on none; with `at`, the wall at that x instead.
+    static func wallUnder(_ s: GameState, at x: Double? = nil) -> Int? {
+        let lordX = x ?? s.king.x
+        for plot in Realm.wallsOuterFirst {
+            let state = s.plots[plot]
+            guard let item = state.item, !state.isRubble else { continue }
+            let face = Realm.plots[plot].x
+            if lordX >= face && lordX <= face + item.width { return plot }
+        }
+        return nil
+    }
+
+    /// True when a dead brazier would catch from his lantern where he stands now (or at `at`): it belongs to the line
+    /// of the wall he stands on (`relightOwnWall`), or it lies within `relightReach` of him.
+    static func catches(_ s: GameState, plot: Int, at x: Double? = nil, tuning: FrontTuning) -> Bool {
+        let lordX = x ?? s.king.x
+        if abs(Realm.plots[plot].x - lordX) <= tuning.relightReach { return true }
+        guard tuning.relightOwnWall, let wall = wallUnder(s, at: lordX) else { return false }
+        let line = Realm.plots[wall].line
+        return line >= 1 && line <= Realm.lines.count && Realm.lines[line - 1].braziers.contains(plot)
+    }
+
+    /// The nearest dead brazier that catches where he stands (`catches`) is relit, at most one in `relightEvery`
+    /// seconds. A Light the old screen began on it ends, since there is nothing left to light.
     private static func relight(_ s: inout GameState, _ front: inout FrontState, tuning: FrontTuning,
                                 events: inout [SimEvent]) {
         guard front.relightCooldown <= 0 else { return }
@@ -116,7 +139,7 @@ enum FrontNight {
         var bestDistance = Double.infinity
         for plot in Realm.brazierPlots where s.plots[plot].item != nil && s.plots[plot].snuffed {
             let distance = abs(Realm.plots[plot].x - s.king.x)
-            if distance <= tuning.relightReach && distance < bestDistance {
+            if distance < bestDistance && catches(s, plot: plot, tuning: tuning) {
                 best = plot
                 bestDistance = distance
             }
@@ -131,6 +154,15 @@ enum FrontNight {
         front.lastRelight = FrontRelight(at: s.simTime, plot: best)
         front.night.relit += 1
         events.append(.brazierLit(plot: best))
+    }
+
+    /// Battle's harm hooks report a blow under presence here (`Battle.hurtGuards`, `Battle.contactDamage`): `raw` is
+    /// what the soldier would have taken, `taken` what he took, `hp` his strength before the blow. The harm kept off
+    /// (no more than he had left to lose) goes into tonight's tally in his lives. Nothing without the rule.
+    static func withheld(_ s: inout GameState, raw: Double, taken: Double, hp: Double, maxHP: Double) {
+        guard s.front != nil, raw > taken, maxHP > 0 else { return }
+        let kept = min(raw, max(0, hp)) - min(taken, max(0, hp))
+        if kept > 0 { s.front?.night.withheldLives += kept / maxHP }
     }
 
     /// The x of the first thing that stops this creature before the hearth: the face of the next standing wall (a
@@ -153,15 +185,7 @@ enum FrontNight {
 
     /// True while the lord stands on a standing wall (between its face and its back, the gatehouse's passage included):
     /// up there he is above the creatures, also above the shadehounds that leap a palisade.
-    static func onAWall(_ s: GameState) -> Bool {
-        for plot in Realm.wallsOuterFirst {
-            let state = s.plots[plot]
-            guard let item = state.item, !state.isRubble else { continue }
-            let x = Realm.plots[plot].x
-            if s.king.x >= x && s.king.x <= x + item.width { return true }
-        }
-        return false
-    }
+    static func onAWall(_ s: GameState) -> Bool { wallUnder(s) != nil }
 
     /// True when a creature on the ground has reached the lord: within `touchReach` of him, or about to walk through him
     /// in this step, with nothing between them (and he is not up on a wall: `onAWall`, asked once a step by the caller).

@@ -21,7 +21,7 @@ struct FrontRelight: Codable, Sendable, Equatable {
 struct FrontNightStats: Codable, Sendable, Equatable {
     /// The night these numbers belong to (0 before the first night step).
     var night = 0
-    /// Braziers relit from the lord's lantern by passing.
+    /// Braziers that caught from the lord's lantern (on their wall, or as he passed).
     var relit = 0
     /// Times a creature threw him back.
     var throwsBack = 0
@@ -34,6 +34,9 @@ struct FrontNightStats: Codable, Sendable, Equatable {
     var presentSeconds = 0.0
     /// The most defenders under his presence at once.
     var mostUnderPresence = 0
+    /// The harm his presence kept off the defenders tonight, in soldiers' lives (each withheld blow over the full
+    /// strength of the soldier it was meant for): 1 is about one man kept alive.
+    var withheldLives = 0.0
 
     init(night: Int = 0) {
         self.night = night
@@ -48,6 +51,7 @@ struct FrontNightStats: Codable, Sendable, Equatable {
         fightSeconds = try c.decodeIfPresent(Double.self, forKey: .fightSeconds) ?? 0
         presentSeconds = try c.decodeIfPresent(Double.self, forKey: .presentSeconds) ?? 0
         mostUnderPresence = try c.decodeIfPresent(Int.self, forKey: .mostUnderPresence) ?? 0
+        withheldLives = max(0, try c.decodeIfPresent(Double.self, forKey: .withheldLives) ?? 0)
     }
 }
 
@@ -91,17 +95,21 @@ struct FrontNightReport: Codable, Sendable, Equatable {
     var throwsBack = 0
     var fightSeconds = 0.0
     var presentSeconds = 0.0
+    /// The harm his presence kept off, in soldiers' lives (`FrontNightStats.withheldLives`).
+    var withheldLives = 0.0
 
-    init(relit: Int = 0, throwsBack: Int = 0, fightSeconds: Double = 0, presentSeconds: Double = 0) {
+    init(relit: Int = 0, throwsBack: Int = 0, fightSeconds: Double = 0, presentSeconds: Double = 0,
+         withheldLives: Double = 0) {
         self.relit = relit
         self.throwsBack = throwsBack
         self.fightSeconds = fightSeconds
         self.presentSeconds = presentSeconds
+        self.withheldLives = withheldLives
     }
 
     init(_ stats: FrontNightStats) {
         self.init(relit: stats.relit, throwsBack: stats.throwsBack, fightSeconds: stats.fightSeconds,
-                  presentSeconds: stats.presentSeconds)
+                  presentSeconds: stats.presentSeconds, withheldLives: stats.withheldLives)
     }
 
     init(from decoder: any Decoder) throws {
@@ -110,17 +118,19 @@ struct FrontNightReport: Codable, Sendable, Equatable {
         throwsBack = try c.decodeIfPresent(Int.self, forKey: .throwsBack) ?? 0
         fightSeconds = try c.decodeIfPresent(Double.self, forKey: .fightSeconds) ?? 0
         presentSeconds = try c.decodeIfPresent(Double.self, forKey: .presentSeconds) ?? 0
+        withheldLives = max(0, try c.decodeIfPresent(Double.self, forKey: .withheldLives) ?? 0)
     }
 
     /// The share of tonight's fighting his presence covered (0 when nobody fought).
     var share: Double { fightSeconds > 0 ? min(1, presentSeconds / fightSeconds) : 0 }
 
-    /// The report's front lines, in order: where he stood (only after a night with real fighting, and only when he was
-    /// clearly there or clearly not), the braziers he relit, the throws.
+    /// The report's front lines, in order: where he stood (only after a night with real fighting: "there" only when
+    /// he was clearly there and his presence kept off about a life of harm, "away" when he was clearly not), the
+    /// braziers that caught from his lantern, the throws.
     func lines(_ tuning: FrontTuning = FrontTuning()) -> [FrontLine] {
         var lines: [FrontLine] = []
         if fightSeconds >= tuning.reportFightSeconds {
-            if share >= tuning.reportThereShare {
+            if share >= tuning.reportThereShare && withheldLives >= tuning.reportThereLives {
                 lines.append(FrontLine(key: FrontLine.there))
             } else if share <= tuning.reportAwayShare {
                 lines.append(FrontLine(key: FrontLine.away))

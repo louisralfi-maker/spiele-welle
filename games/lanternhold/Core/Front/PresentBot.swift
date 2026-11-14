@@ -4,8 +4,9 @@ enum PresentErrand: Sendable, Equatable {
     case stand
     /// Walking to a wall below half its strength under attack, to patch it where it stands.
     case patch(plot: Int)
-    /// Fetching a dead brazier near its place while no creature is near it.
-    case relight(plot: Int)
+    /// Fetching a dead brazier near its place while no creature is near it, or (`rear`) one of a line behind its place
+    /// while the front is quiet.
+    case relight(plot: Int, rear: Bool)
 }
 
 /// What the present bot did in one night: the chore guard of front-1 (docs/REALM.md section 6: "whether presence makes
@@ -20,6 +21,8 @@ struct PresentTally: Sendable, Equatable {
     var moves = 0
     var patchTrips = 0
     var relightTrips = 0
+    /// Of the brazier trips, those back to a line behind its place while the front was quiet.
+    var rearTrips = 0
     var patches = 0
     /// Seconds it ran, and how far it ran.
     var runSeconds = 0.0
@@ -42,10 +45,11 @@ struct PresentTally: Sendable, Equatable {
 
 /// The "present" bot of T13 (docs/REALM.md section 3): by day exactly the reference bot (`Autoplay.reference`, its build
 /// order, taxes and audiences), so a night played from the same eve differs only by the night. At night it plays by the
-/// front rule: it takes the lord to where the fight is (the wall the next wave lands on; when the guards hold a breach
-/// and the way is clear, behind them), patches as the reference does but standing at the wall, fetches a dead brazier
-/// near its place only while no creature is near it (relighting by passing; never the old Light action), and keeps out
-/// of the creatures' way, since a creature that reaches the lord throws him back and shakes him.
+/// front rule: it takes the lord to where the fight is (onto the first standing wall, whose braziers then catch from
+/// his lantern; when the guards hold a breach and the way is clear, behind them), patches as the reference does but
+/// standing at the wall, fetches a dead brazier near its place only while no creature is near it, goes back for the dead
+/// braziers of a rear line while the front is quiet (never the old Light action), and keeps out of the creatures' way,
+/// since a creature that reaches the lord throws him back and shakes him.
 struct PresentBot: Sendable {
     /// The reference bot that plays the day.
     var day: Autoplay
@@ -76,9 +80,16 @@ struct PresentBot: Sendable {
             case .patch(let plot):
                 tally.patchTrips += 1
                 tally.note("\(clock(s)): to patch \(Realm.plots[plot].key)")
-            case .relight(let plot):
-                tally.relightTrips += 1
-                tally.note("\(clock(s)): to fetch the dead brazier \(Realm.plots[plot].key)")
+            case .relight(let plot, let rear):
+                // The second brazier of the same trip is not a new trip.
+                var going = false
+                if case .relight(_, let wasRear) = errand, wasRear == rear { going = true }
+                if !going {
+                    tally.relightTrips += 1
+                    if rear { tally.rearTrips += 1 }
+                    tally.note("\(clock(s)): \(rear ? "back to" : "to") the dead brazier \(Realm.plots[plot].key), "
+                               + "x \(Int(goal))")
+                }
             case .stand:
                 break
             }
@@ -107,7 +118,8 @@ struct PresentBot: Sendable {
     // MARK: - Choosing
 
     /// Where to go now and why: a patch first (as the reference: a wall below half under attack, at most three a night,
-    /// never while saving for the Great Beacon), then a dead brazier near its place while it is safe, else its place.
+    /// never while saving for the Great Beacon), then a dead brazier near its place while it is safe or one of a rear
+    /// line while the front is quiet (at most `botMaxRearTrips` such trips a night), else its place.
     func choose(_ s: GameState, balance: Balance) -> (goal: Double, errand: PresentErrand, withGuards: Bool) {
         let tuning = balance.front
         let saving = day.buildsBeacon && s.day >= Realm.beaconUnlockDay && s.beaconStage < 3
@@ -121,8 +133,16 @@ struct PresentBot: Sendable {
             }
         }
         let (stand, withGuards) = PresentBot.place(s, balance: balance)
-        if let plot = PresentBot.brazierToFetch(s, near: stand, balance: balance) {
-            return (Realm.plots[plot].x, .relight(plot: plot), false)
+        var fetching = false
+        var onARearTrip = false
+        if case .relight(_, let rear) = errand {
+            fetching = true
+            onARearTrip = rear
+        }
+        let rearAllowed = tuning.botRearBraziers && (onARearTrip || tally.rearTrips < tuning.botMaxRearTrips)
+        if let fetch = PresentBot.brazierToFetch(s, near: stand, rearAllowed: rearAllowed, fetching: fetching,
+                                                 balance: balance) {
+            return (fetch.spot, .relight(plot: fetch.plot, rear: fetch.rear), false)
         }
         return (stand, .stand, withGuards)
     }
@@ -151,27 +171,75 @@ struct PresentBot: Sendable {
         return (wallSpot, false)
     }
 
-    /// The nearest dead brazier within `botRelightDetour` of its place whose way is safe: no creature on the ground from
-    /// `botRelightSafe` px in front of the brazier to the lord, and the lantern ready by the time he gets there.
-    static func brazierToFetch(_ s: GameState, near stand: Double, balance: Balance) -> Int? {
+    /// The x nearest the lord from which a dead brazier catches (`FrontNight.catches`): on its line's standing wall
+    /// (with `relightOwnWall`), else within `relightReach` of it, on his side.
+    static func catchSpot(_ s: GameState, plot: Int, balance: Balance) -> Double {
+        let tuning = balance.front
+        let x = Realm.plots[plot].x
+        let reach = max(0, tuning.relightReach - 1)
+        var best = s.king.x > x ? x + reach : x - reach
+        if abs(s.king.x - x) <= reach { best = s.king.x }
+        let line = Realm.plots[plot].line
+        if tuning.relightOwnWall && line >= 1 && line <= Realm.lines.count {
+            let wall = Realm.lines[line - 1].wall
+            if s.plots[wall].stands, let item = s.plots[wall].item {
+                let face = Realm.plots[wall].x
+                let low = face + min(1, item.width / 2)
+                let high = face + max(item.width - 1, item.width / 2)
+                let onWall = min(high, max(low, s.king.x))
+                if abs(onWall - s.king.x) < abs(best - s.king.x) { best = onWall }
+            }
+        }
+        return best
+    }
+
+    /// True while the front is quiet: no creature on the ground within `botQuietReach` px in front of its place or
+    /// anywhere behind it, and none at a wall or the guards.
+    static func frontQuiet(_ s: GameState, stand: Double, balance: Balance) -> Bool {
+        let reach = balance.front.botQuietReach
+        for c in s.creatures where c.hp > 0 {
+            if c.action == .attackingWall || c.action == .attackingGuards { return false }
+            if !c.kind.flies && c.x >= stand - reach { return false }
+        }
+        return true
+    }
+
+    /// The dead brazier to fetch, if any, and the spot it catches from: the nearest one whose spot lies within
+    /// `botRelightDetour` of its place (only while no creature on the ground is within `botRelightSafe` px in front of
+    /// the brazier or on the way to the spot), or, with `rearAllowed` and the front quiet, one of a line
+    /// behind its place. Never one that catches from its place anyway; only when the lantern is ready by the time it
+    /// gets there (while `fetching`, close to the next spot, it waits up to one `relightEvery` for it).
+    static func brazierToFetch(_ s: GameState, near stand: Double, rearAllowed: Bool = false, fetching: Bool = false,
+                               balance: Balance) -> (plot: Int, spot: Double, rear: Bool)? {
         guard let front = s.front else { return nil }
         let tuning = balance.front
-        var best: Int?
+        let quiet = rearAllowed && frontQuiet(s, stand: stand, balance: balance)
+        var best: (plot: Int, spot: Double, rear: Bool)?
         var bestDistance = Double.infinity
         for plot in Realm.brazierPlots where s.plots[plot].item != nil && s.plots[plot].snuffed {
+            if FrontNight.catches(s, plot: plot, at: stand, tuning: tuning) { continue }
             let x = Realm.plots[plot].x
-            guard abs(x - stand) <= tuning.botRelightDetour else { continue }
-            let distance = abs(x - s.king.x)
-            let arrival = max(0, distance - tuning.relightReach) / max(1, balance.kingRunSpeed)
-            guard front.relightCooldown <= arrival + 0.05 else { continue }
+            let spot = catchSpot(s, plot: plot, balance: balance)
+            let near = abs(spot - stand) <= tuning.botRelightDetour
+            let rear = !near && quiet && x > stand && spot > stand
+            guard near || rear else { continue }
+            let distance = abs(spot - s.king.x)
+            let arrival = distance / max(1, balance.kingRunSpeed)
+            let wait = fetching && distance <= tuning.relightReach ? tuning.relightEvery : 0
+            guard front.relightCooldown <= arrival + wait + 0.05 else { continue }
+            // Safe: no creature on the ground in front of the brazier, nor on the way from the lord to the spot.
             var safe = true
-            for c in s.creatures where c.hp > 0 && !c.kind.flies && c.x >= x - tuning.botRelightSafe
-                && c.x <= max(x, s.king.x) + tuning.touchReach {
-                safe = false
-                break
+            for c in s.creatures where c.hp > 0 && !c.kind.flies {
+                let ahead = c.x >= min(x, spot) - tuning.botRelightSafe && c.x <= max(x, spot) + tuning.touchReach
+                let onTheWay = c.x >= min(s.king.x, spot) - tuning.touchReach
+                    && c.x <= max(s.king.x, spot) + tuning.touchReach
+                if ahead || onTheWay {
+                    safe = false
+                    break
+                }
             }
             if safe && distance < bestDistance {
-                best = plot
+                best = (plot, spot, rear)
                 bestDistance = distance
             }
         }

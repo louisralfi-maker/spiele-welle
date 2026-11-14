@@ -32,6 +32,18 @@ final class FrontTuningTests: XCTestCase {
         XCTAssertFalse(FrontTuningTests.metrics.clearLosses.isEmpty)
     }
 
+    /// The hard nights' runner (T6 and T7 under the rule, reported only; `tools/frontsweep` plays all twenty seeds on
+    /// the runner) plays one seed: the chapter, night 20 with and without the beacon's last stage, one endless night.
+    /// The reference half agrees with T6 of `TuningTests` for seed 1, which holds night 20 with the beacon.
+    func testTheHardNightsRunnerPlaysASeed() {
+        let one = FrontTuningRun.hardSeed(seed: 1, balance: .standard, endlessCap: 21)
+        XCTAssertNil(one.chapterFell)
+        XCTAssertTrue(one.refHeld)
+        let report = FrontHardNights(seeds: [one], endlessCap: 21).report
+        XCTAssertTrue(report.contains("T6 night 20 with the beacon"), report)
+        print(report)
+    }
+
     /// The chore guard: the present bot carries a night with a move or two, not by running between walls.
     func testThePresentBotDoesNotSprintBetweenWalls() {
         let m = FrontTuningTests.metrics
@@ -39,5 +51,7 @@ final class FrontTuningTests: XCTestCase {
         let mean = Double(moves.reduce(0, +)) / Double(max(1, moves.count))
         XCTAssertLessThanOrEqual(mean, 2.5, "moves a night on average")
         XCTAssertLessThanOrEqual(moves.max() ?? 0, 6, "the busiest night")
+        let rear = m.bandPairs.map { $0.tally.rearTrips }
+        XCTAssertLessThanOrEqual(rear.max() ?? 0, Balance.standard.front.botMaxRearTrips, "rear trips a night")
     }
 }

@@ -1,12 +1,13 @@
 /// Every number of the front lane's night rules in one place (docs/REALM.md section 3, "Being there counts"; Louis,
 /// 14.11.2026: "wo der Burgherr steht, kämpfen seine Leute besser und halten länger. Kein Kampfmenü, man rennt dorthin,
-/// wo es brennt."): the lord's presence, the braziers he relights by passing, the throw-back and the shaken spell, the
-/// present bot and the dawn report's thresholds. It lives in `Balance.front`, so tests and `tools/frontsweep` pass
+/// wo es brennt."): the lord's presence, the braziers that catch from his lantern, the throw-back and the shaken spell,
+/// the present bot and the dawn report's thresholds. It lives in `Balance.front`, so tests and `tools/frontsweep` pass
 /// variants like every other balance number. The spec's starting values (90 px, 15 % faster, 20 % less harm, relight
 /// within about 20 px) were tuned by values only on the runner (docs/lanes/front.md, "front-1": the T13 tables, rounds
-/// lh-f1-2 and lh-f1-3): with them the present bot lost 50 % more defenders than the reference, mostly because the
+/// lh-f1-2 to lh-f1-5): with them the present bot lost 50 % more defenders than the reference, mostly because the
 /// braziers in front of its wall went dark (the reference relit every snuffed one with the old Light action, where
-/// nothing could touch him).
+/// nothing could touch him). Since fix round 1 the braziers of a wall catch while he stands on that wall (a rule by
+/// belonging, so no px value depends on where the world draws them), and elsewhere as he passes within 24 px.
 ///
 /// The rule applies only to a realm that carries `GameState.front` (the player's realm from the join on, and the present
 /// bot's). Without it the old rules hold: the rally of `Balance.rallyRadius` and `rallyFactor`, the Light action, a lord
@@ -24,14 +25,20 @@ struct FrontTuning: Sendable, Equatable {
     /// T13's band at its lower edge (28 %, with neighbours outside it), 0.5 sits in its middle (34 %) and every
     /// neighbour of it passes too (round lh-f1-4), which T13 needs when it is measured again on the joined game.
     var presenceHarm = 0.5
+    /// The harm share never goes below this (a guard at his floor would otherwise divide by nothing in
+    /// `Battle.hurtGuards`); not a tuning value.
+    static let leastHarmShare = 0.05
 
     // MARK: Braziers
 
-    /// A dead brazier within this many px of the lord is relit from his lantern, free. The spec started at about 20
-    /// (passing it); 48 lets the lord standing on a wall's front edge keep both braziers in front of that wall burning
-    /// (they stand 20 to 45 px in front of its face), which T13 needs: being there keeps the fires lit.
-    var relightReach = 48.0
-    /// At most one brazier is relit in this many seconds.
+    /// While the lord stands on a standing wall (`FrontNight.onAWall`), the dead braziers of that wall's line
+    /// (`Realm.lines[i].braziers`) catch from his lantern: his wall's fires burn. A rule by belonging, so it holds
+    /// wherever the world draws the braziers (fix round 1: a reach of 48 px from the wall's front edge fitted only
+    /// today's brazier positions, and 40 px lost the whole effect).
+    var relightOwnWall = true
+    /// Elsewhere a dead brazier within this many px of him catches as he passes (the spec: about 20).
+    var relightReach = 24.0
+    /// At most one brazier catches in this many seconds.
     var relightEvery = 4.0
 
     // MARK: The throw-back
@@ -48,17 +55,25 @@ struct FrontTuning: Sendable, Equatable {
 
     // MARK: The present bot (T13)
 
-    /// Where the bot stands when a wall takes the wave: this far behind the wall's face, on the wall's front edge (up
-    /// there nothing throws it back, and both braziers in front are within `relightReach`).
+    /// Where the bot stands when a wall takes the wave: this far behind the wall's face, on the wall (up there nothing
+    /// throws it back, and the wall's braziers catch from its lantern).
     var botBehindWall = 1.0
     /// It joins the guards when they hold a breach and the way to them is clear ...
     var botJoinsGuards = true
     /// ... and stands this far behind their line.
     var botBehindGuards = 6.0
-    /// It fetches a dead brazier only when it lies at most this far from where it would stand ...
+    /// It fetches a dead brazier only when the place it catches from lies at most this far from where it would stand ...
     var botRelightDetour = 120.0
     /// ... and no creature on the ground is within this many px in front of the brazier or between it and the lord.
     var botRelightSafe = 100.0
+    /// It goes back for the dead braziers of a line behind its place (the rear lines, which the crows snuff once the
+    /// front ones are taken) when the front is quiet ...
+    var botRearBraziers = true
+    /// ... that is, no creature on the ground within this many px in front of its place (nor behind it) and none at a
+    /// wall or the guards ...
+    var botQuietReach = 200.0
+    /// ... at most this many times a night.
+    var botMaxRearTrips = 3
     /// It patches walls below this share of their strength while they are under attack ...
     var botPatchBelow = 0.5
     /// ... at most this many a night, as the reference bot does.
@@ -68,8 +83,11 @@ struct FrontTuning: Sendable, Equatable {
 
     /// A night with at least this many seconds of fighting at the walls or the guards gets a presence line ...
     var reportFightSeconds = 10.0
-    /// ... "You stood where it burned" when the lord's presence covered at least this share of the fighting ...
+    /// ... "You stood where it burned" when the lord's presence covered at least this share of the fighting and kept
+    /// off at least `reportThereLives` soldiers' lives of harm (the harm it withheld, each blow over that soldier's
+    /// full strength), so the line comes only on a night it saved about a life, never as wallpaper ...
     var reportThereShare = 0.6
+    var reportThereLives = 1.0
     /// ... "You were elsewhere" when it covered at most this share.
     var reportAwayShare = 0.2
 }

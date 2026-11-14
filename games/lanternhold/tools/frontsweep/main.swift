@@ -13,9 +13,11 @@ func say(_ text: String) {
 let arguments = Array(CommandLine.arguments.dropFirst())
 var doProbe = arguments.contains("probe")
 var doVariants = arguments.contains("variants")
-if !doProbe && !doVariants {
+var doHard = arguments.contains("hard")
+if !doProbe && !doVariants && !doHard {
     doProbe = true
     doVariants = true
+    doHard = true
 }
 var stresses = FrontTuningRun.defaultStresses
 var seeds = FrontTuningRun.defaultSeeds
@@ -27,6 +29,8 @@ for argument in arguments {
     }
 }
 let probeStresses: [Double] = [1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0]
+/// The budgets of the falls ladder (fix round 1: "present falls where the reference holds", reported at x3 to x6).
+let ladder: [Double] = [3.0, 4.0, 5.0, 6.0]
 let nights = FrontTuningRun.defaultNights
 let standard = Balance.standard
 let lock = NSLock()
@@ -46,7 +50,7 @@ let eves = evesBySeed.flatMap { $0 }
 say("frontsweep: \(eves.count) eves from \(seeds) seeds, nights \(nights.lowerBound)-\(nights.upperBound) (\(elapsed()))")
 
 // The reference nights per eve and budget, once: the reference never reads the rule's values.
-let allStresses = Array(Set((doProbe ? probeStresses : []) + stresses)).sorted()
+let allStresses = Array(Set(probeStresses + stresses)).sorted()
 var references = [String: GameState]()
 DispatchQueue.concurrentPerform(iterations: eves.count * allStresses.count) { job in
     let index = job / allStresses.count
@@ -60,6 +64,7 @@ say("frontsweep: reference nights at budgets \(allStresses) (\(elapsed()))")
 
 func measure(_ balance: Balance, stresses: [Double]) -> FrontMetrics {
     var m = FrontMetrics(seeds: seeds, nights: nights, stresses: stresses)
+    m.tuning = balance.front
     var pairs = [FrontPair?](repeating: nil, count: eves.count * stresses.count)
     DispatchQueue.concurrentPerform(iterations: eves.count * stresses.count) { job in
         let index = job / stresses.count
@@ -94,18 +99,20 @@ func row(_ name: String, _ m: FrontMetrics) -> String {
     }
     let worse = m.pairs.filter { $0.preFell && !$0.refFell }.count
     let saved = m.pairs.filter { !$0.preFell && $0.refFell }.count
-    return "\(name.padding(toLength: 22, withPad: " ", startingAt: 0)) \(m.passes ? "PASS" : "fail") fewer "
-        + "\(pct(m.reduction)) (\(m.preLosses)/\(m.refLosses)) | clear held \(m.clearLossesHeld.count) | held where ref fell "
-        + "\(saved) | fell where ref held \(worse) | moves \(mean { Double($0.tally.moves) }) | brazier trips "
-        + "\(mean { Double($0.tally.relightTrips) }) | throws \(mean { Double($0.front.throwsBack) }) | presence over "
-        + "the fighting \(fight > 0 ? pct(present / fight) : "-") | " + perStress.joined(separator: ", ")
+    var head = "\(name.padding(toLength: 26, withPad: " ", startingAt: 0)) \(m.passes ? "PASS" : "fail") fewer "
+    head += "\(pct(m.reduction)) (\(m.preLosses)/\(m.refLosses)) | clear held \(m.clearLossesHeld.count) | held where ref "
+    head += "fell \(saved) | fell where ref held \(worse) | moves \(mean { Double($0.tally.moves) }) | brazier trips "
+    head += "\(mean { Double($0.tally.relightTrips) }) (rear \(mean { Double($0.tally.rearTrips) })) | relit "
+    head += "\(mean { Double($0.front.relit) }) | throws \(mean { Double($0.front.throwsBack) }) | presence over "
+    head += "the fighting \(fight > 0 ? pct(present / fight) : "-") | "
+    return head + perStress.joined(separator: ", ")
 }
 
 say("")
 say("== T13 at the standard balance, budgets \(stresses)")
-var t13 = measure(standard, stresses: stresses + FrontTuningRun.defaultFallStresses)
+var t13 = measure(standard, stresses: stresses + ladder)
 t13.stresses = stresses
-t13.fallStresses = FrontTuningRun.defaultFallStresses
+t13.fallStresses = ladder
 for seed in 1...3 { t13.wholeRuns.append(FrontTuningRun.wholeRun(seed: seed, balance: standard, nights: nights)) }
 say(t13.report)
 say("(\(elapsed()))")
@@ -116,14 +123,29 @@ func variant(_ change: (inout FrontTuning) -> Void) -> Balance {
     return b
 }
 
-// Around the chosen values (rounds lh-f1-3 and lh-f1-4: reach 48, the bot on the wall's front edge, speed 1.25, harm
-// 0.5): the presence numbers on a finer grid, and the light and the bot's habits once more.
+// Fix round 1: the braziers catch by belonging (his wall's) and by passing (24 px); the bot goes back for the rear
+// lines' braziers when the front is quiet. Around the chosen values: the light, the bot's habits and the presence
+// numbers, then the falls ladder (x3 to x6) and the hard nights (T6 and T7 under the rule).
 if doVariants {
     say("")
     say("== around the standard values, at budgets \(stresses) (present lost / reference lost per budget)")
     var list: [(String, Balance)] = [("standard", standard)]
-    for speed in [1.2, 1.25, 1.3, 1.35] {
-        for harm in [0.5, 0.55, 0.6, 0.65, 0.7] {
+    list.append(("light: passing 24 only", variant { $0.relightOwnWall = false }))
+    list.append(("light: passing 48 only (old)", variant {
+        $0.relightOwnWall = false
+        $0.relightReach = 48
+    }))
+    for reach in [16.0, 32] { list.append(("light: wall + passing \(Int(reach))", variant { $0.relightReach = reach })) }
+    list.append(("relight every 2 s", variant { $0.relightEvery = 2 }))
+    list.append(("relight every 6 s", variant { $0.relightEvery = 6 }))
+    for behind in [10.0, 14] { list.append(("bot: stand \(Int(behind)) on the wall", variant { $0.botBehindWall = behind })) }
+    list.append(("bot: no rear trips", variant { $0.botRearBraziers = false }))
+    for reach in [120.0, 300] { list.append(("bot: quiet reach \(Int(reach))", variant { $0.botQuietReach = reach })) }
+    list.append(("bot: one rear trip", variant { $0.botMaxRearTrips = 1 }))
+    list.append(("bot: rear trips unlimited", variant { $0.botMaxRearTrips = 99 }))
+    list.append(("bot: never the guards", variant { $0.botJoinsGuards = false }))
+    for speed in [1.2, 1.25, 1.3] {
+        for harm in [0.45, 0.5, 0.55, 0.6] {
             list.append(("s\(speed) h\(harm)", variant {
                 $0.presenceSpeed = speed
                 $0.presenceHarm = harm
@@ -131,17 +153,6 @@ if doVariants {
         }
     }
     for r in [60.0, 120] { list.append(("radius \(Int(r))", variant { $0.presenceRadius = r })) }
-    for reach in [40.0, 56] { list.append(("reach \(Int(reach))", variant { $0.relightReach = reach })) }
-    list.append(("relight every 2 s", variant { $0.relightEvery = 2 }))
-    list.append(("relight every 6 s", variant { $0.relightEvery = 6 }))
-    list.append(("bot: stand 14", variant { $0.botBehindWall = 14 }))
-    list.append(("bot: brazier trips anywhere", variant { $0.botRelightDetour = 2000 }))
-    list.append(("bot: never the guards", variant { $0.botJoinsGuards = false }))
-    list.append(("rally numbers r80 s1.25 h1", variant {
-        $0.presenceRadius = 80
-        $0.presenceSpeed = 1.25
-        $0.presenceHarm = 1
-    }))
     list.append(("spec numbers s1.15 h0.8", variant {
         $0.presenceSpeed = 1.15
         $0.presenceHarm = 0.8
@@ -151,15 +162,34 @@ if doVariants {
     }
     say("(\(elapsed()))")
     say("")
-    say("== the falls ladder (x6): nights the reference loses clearly, and the bot's habits at the largest budget")
-    for (name, b) in [("standard", standard), ("bot: brazier trips anywhere", variant { $0.botRelightDetour = 2000 }),
-                      ("s1.3 h0.55", variant {
-                          $0.presenceSpeed = 1.3
-                          $0.presenceHarm = 0.55
+    say("== the falls ladder \(ladder): nights the present bot loses where the reference holds")
+    for (name, b) in [("standard", standard), ("bot: no rear trips", variant { $0.botRearBraziers = false }),
+                      ("bot: rear trips unlimited", variant { $0.botMaxRearTrips = 99 }),
+                      ("light: passing 48 only (old)", variant {
+                          $0.relightOwnWall = false
+                          $0.relightReach = 48
                       })] {
-        say(row(name, measure(b, stresses: FrontTuningRun.defaultFallStresses)))
+        say(row(name, measure(b, stresses: ladder)))
     }
     say("(\(elapsed()))")
+}
+
+if doHard {
+    let hardSeeds = TuningMetrics.targetSeeds
+    for (name, b) in [("standard", standard), ("bot: no rear trips", variant { $0.botRearBraziers = false })] {
+        say("")
+        say("== the hard nights (T6 and T7 under the rule), \(name)")
+        var list = [FrontHardSeed?](repeating: nil, count: hardSeeds)
+        DispatchQueue.concurrentPerform(iterations: hardSeeds) { index in
+            let one = FrontTuningRun.hardSeed(seed: index + 1, balance: b)
+            lock.lock()
+            list[index] = one
+            lock.unlock()
+        }
+        let hard = FrontHardNights(seeds: list.compactMap { $0 }, endlessCap: 70)
+        say(hard.report)
+        say("(\(elapsed()))")
+    }
 }
 
 if doProbe {

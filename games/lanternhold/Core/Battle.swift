@@ -875,6 +875,8 @@ enum Battle {
         for (k, index) in holders.enumerated() where left > 0 {
             var soldier = s.soldiers[index]
             let share = aura.harm(at: soldier.x)
+            let hpBefore = soldier.hp
+            var raw = left  // front lane hook: the blow without presence, for the withheld tally
             if k == holders.count - 1 {
                 soldier.hp -= left * share
                 left = 0
@@ -886,6 +888,7 @@ enum Battle {
                     left = 0
                 } else {
                     soldier.hp = min(soldier.hp, floor)
+                    raw = max(0, room) / share
                     left -= max(0, room) / share
                     soldier.state = .moving
                     soldier.goal = .resting
@@ -893,6 +896,7 @@ enum Battle {
                 }
             }
             s.soldiers[index] = soldier
+            FrontNight.withheld(&s, raw: raw, taken: hpBefore - soldier.hp, hp: hpBefore, maxHP: soldier.maxHP)
         }
         refreshHolding(&s)
     }
@@ -1105,7 +1109,12 @@ enum Battle {
                 if time > 0 { harm += table[c.kind.index].harm * time }
             }
             if harm > 0 {
-                s.soldiers[index].hp -= harm * balance.creatureHarmScale * aura.harm(at: s1)
+                let raw = harm * balance.creatureHarmScale
+                let hpBefore = s.soldiers[index].hp
+                let maxHP = s.soldiers[index].maxHP
+                s.soldiers[index].hp -= raw * aura.harm(at: s1)
+                // front lane hook: the withheld tally
+                FrontNight.withheld(&s, raw: raw, taken: raw * aura.harm(at: s1), hp: hpBefore, maxHP: maxHP)
             }
         }
     }
