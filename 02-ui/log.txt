@@ -1,0 +1,6 @@
+Test Case '-[LanternholdUITests.EndingsUITests testTheFinaleEndsTheChapter]' passed (53.374 seconds).
+Test Case '-[LanternholdUITests.EndingsUITests testTheThreeEndings]' passed (104.940 seconds).
+Test Case '-[LanternholdUITests.SlidesUITests testTheNameEntryLeadsIntoThePrologue]' passed (50.624 seconds).
+Test Case '-[LanternholdUITests.SlidesUITests testThePrologue]' passed (25.996 seconds).
+exit=0
+screenshots: 25
