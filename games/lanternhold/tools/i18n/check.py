@@ -120,7 +120,9 @@ def problems_for(lang, key, text, english, german):
         errors.append("the same as the English")
     plain = lib.outside_placeholders(text)
     if lang in lib.LATIN and lang not in ("en", "de"):
-        words = [w.lower() for w in re.findall(r"[A-Za-z’']+", plain)]
+        # Whole words with their accents ("heróis" is one word, not "her" + "is"); an elision stays one word, so the
+        # Italian "all’alba" is not the English "all".
+        words = [w.lower() for w in re.findall(r"(?:[^\W\d_]|[’'])+", plain)]
         hits = [w for w in words if w in ENGLISH_WORDS]
         if len(set(hits)) >= 2 or len(hits) >= 3:
             errors.append("looks English (%s)" % ", ".join(sorted(set(hits))))
