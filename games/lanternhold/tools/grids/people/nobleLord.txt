@@ -1,4 +1,4 @@
-# nobleLord 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (docs/SPRITES-people.md, the guests' contract). Ser Aubrey
+# nobleLord 14x30, 10 frames: walk 0-3, idle 4-5, talk 6-7, bow 8-9 (docs/SPRITES-people.md, the guests' contract). Ser Aubrey
 # Oxmoor of Goldenacre, the hunting noble of `noble_hunt` (STORY.md section 5), and the body of every lord from the
 # inner lands (docs/PEOPLE.md). From another world: upright as a post, the chin lifted so he looks over people's heads,
 # clean, overdressed. A tall crimson hat with a gold band and a white plume, dark curls to the collar, a waxed
@@ -6,10 +6,12 @@
 # cuffs and a gold hem, pale gloves, polished riding boots, a cane with a gold knob. The only saturated cloth and the
 # only gold thread in the game are his and his kind's. Light from the upper left; look 2's selective outline. Walk:
 # short measured steps, the back straight, the cane swung forward and set down (contact 1 px down). Idle: both hands
-# on the cane, a breath. Talk: the gloved hand turned up in a languid gesture (6), rolled a little higher (7).
+# on the cane, a breath. Talk: the gloved hand turned up in a languid gesture (6), rolled a little higher (7). Bow
+# (when the realm is a town and the inner lands come to court it): the glove laid on the chest (8), then the head and
+# the hat inclined, the knees a pixel bent (9).
 id nobleLord
 size 14x30
-frames 8
+frames 10
 outline ink shade
 
 legend
@@ -19,7 +21,7 @@ legend
     H = woodDark
     h = wood
     l = woodLight
-    R = crimsonLight
+    R = dusk
     r = crimson
     x = crimsonDeep
     G = gold
@@ -104,6 +106,13 @@ part armTalkB
     Rx..
     .xGW
     ...W
+
+# the bow: the near forearm across the coat, the glove laid on the chest at the braid
+part armHeart
+    Rx.
+    Rx.
+    .Rx
+    xGW
 
 part legsStand
     .HH.lH.
@@ -224,3 +233,19 @@ frame 7
     head 5 5
     hat 4 0
     armTalkB 7 12
+
+frame 8
+    legsStand 3 21
+    coat 2 11
+    armBack 1 12
+    head 5 5
+    hat 4 0
+    armHeart 7 12
+
+frame 9
+    legsStand 3 21
+    coat 2 12
+    armBack 1 13
+    head 6 7
+    hat 5 2
+    armHeart 7 13

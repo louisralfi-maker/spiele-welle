@@ -5,8 +5,8 @@ Pure python 3 (pixelart.py's PNG helpers), one sheet per run, small and quick; r
   peoplesheet.py lineup <out.png> --items "king:6 guardsman:0 citizen:4 …" [--light day|dusk] [--scale 6] [--gap 5]
         The figures side by side, feet on the ground line, on the valley's earth lane before the town's houses, in
         day light or at dusk (an approximation of the renderer's light: albedo times the hour's ambient, the dusk with
-        a warm lantern pool around the lord). Each item is `id:frame` (a leading `-` mirrors it); the frame size comes
-        from the tables of SPRITES.md and docs/SPRITES-people.md.
+        a warm lantern pool around the lord). Each item is `id:frame` (a leading `-` mirrors it; `_:N` is a gap of N game
+        px between groups); the frame size comes from the tables of SPRITES.md and docs/SPRITES-people.md.
   peoplesheet.py strip <out.png> <id> --frames 0-3 [--scale 6] [--step 4] [--loops 2]
         One walk (or any run of frames) as a film strip: on top the frames in a row; under them the feet alone (the
         last four body rows), each frame advanced by --step game px like the engine's walk (one frame per stride) and
@@ -149,10 +149,13 @@ def cmd_lineup(a):
         sid, _, k = it.partition(":")
         flip = sid.startswith("-")
         sid = sid.lstrip("-")
+        if sid == "_":  # a spacer of k game px between groups
+            items.append((sid, int(k or 4), False))
+            continue
         if sid not in con:
             raise SystemExit(f"unknown sprite {sid} (not in SPRITES.md or docs/SPRITES-people.md)")
         items.append((sid, int(k or 0), flip))
-    widths = [con[s][0] for s, _, _ in items]
+    widths = [k if s == "_" else con[s][0] for s, k, _ in items]
     W = sum(widths) + a.gap * (len(items) + 1)
     ground_y = 52
     H = ground_y + 12
@@ -165,6 +168,8 @@ def cmd_lineup(a):
     lamp = lamp if a.light == "dusk" else None
     canvas = backdrop(W, H, ground_y, a.light, lamp)
     for (sid, k, flip), x0 in zip(items, xs):
+        if sid == "_":
+            continue
         fr = frame_of(con, sid, k)
         if flip:
             fr = [list(reversed(r)) for r in fr]

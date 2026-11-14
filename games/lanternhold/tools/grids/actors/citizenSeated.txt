@@ -25,8 +25,8 @@ part lapSkirt
     nblhhhbB
     nbbwqbbB
     nbbwqqbB
-    nhhwqqbB
-    nhhwqqbB
+    nppwqqbB
+    nppwqqbB
     nbbwqqbB
     nbbbqqbB
     .BbbbbB.

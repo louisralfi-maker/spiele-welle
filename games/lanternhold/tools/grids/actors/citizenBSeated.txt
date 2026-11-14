@@ -2,7 +2,7 @@
 # (docs/PEOPLE.md; repainted by the people lane on 14.11.2026) waiting on a petitioners' bench in the great hall
 # (bench 32x10: this frame's bottom on the floor, the bench drawn behind him; the cushion's rows are this frame's rows
 # 13 and 14). He sits facing the hall like the seated lord: the soot-grey tunic from the front with its patch, the
-# hands on his thighs (the near one in its grey rag), the knees over the seat's edge and the shins before it, his sack
+# hands on his thighs (the near one in its linen rag), the knees over the seat's edge and the shins before it, his sack
 # set down at his feet; only the head stays in profile, turned to the throne (the engine mirrors the frame for a bench
 # on the throne's other side). The parts are citizenB's (include).
 id citizenBSeated
@@ -21,7 +21,7 @@ part torsoFront
 
 # the thighs with the hands on them (the near one bound), the knees, the shins before the seat, the boots
 part lapFront
-    SmbBmbP
+    SmbBmbW
     mbB.mbB
     .bB..bB
     .bB..bB

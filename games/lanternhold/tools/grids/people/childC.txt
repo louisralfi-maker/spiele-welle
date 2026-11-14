@@ -1,8 +1,9 @@
 # childC 10x18, 10 frames: run 0-3, fidget 4-5, skip 6-9 (docs/SPRITES-people.md, the children's contract). Fen, 11,
 # the lamp-runner (STORY.md section 6, "the lamp-runner child"; docs/PEOPLE.md): he runs ahead of the lamplighter at
 # the Round and trails after the lord by day. A red cap (the children's warm clean accent) on dark curls, a leather
-# jerkin handed down and belted twice round, brown breeches, bare shins, clogs, and his own small lantern on a short
-# pole over his near shoulder, a copy of the lord's (unlit by day; no glow strip). A head taller than the little ones.
+# jerkin handed down, oiled clean (a step lighter than any grown-up's leather) and belted twice round over a linen
+# shirt, brown breeches, bare shins, clogs, and his own small lantern on a short pole over his near shoulder, a copy of
+# the house's lantern (unlit by day; no glow strip). A head taller than the little ones.
 # Light from the upper left; look 2's selective outline. Run: contact, flight, contact, flight (up 1 px in flight), the
 # lantern riding behind. Fidget: the pole on his shoulder, then lifted, his face turned up to the lantern. Skip: a hop-step on each foot
 # (2 px up), too old to skip properly and doing it anyway.
@@ -10,6 +11,10 @@ id childC
 size 10x18
 frames 10
 outline ink shade
+
+# Cloth states (docs/PEOPLE.md section 7, tools/peoplestates.py): the realm's stage changes the cloth, never the
+# body. Hamlet is this grid as drawn; town remaps cloth characters only.
+#@state town  b=banner B=roofDeep               # breeches and belts of the house's blue
 
 legend
     k = ink
@@ -26,6 +31,8 @@ legend
     M = stoneMid
     C = strawLight
     W = parchment
+    F = foam
+    c = straw
 
 # the red cap with its little brim, dark curls under it, the face
 part head
@@ -35,12 +42,13 @@ part head
     HhsSs
     ..ss
 
-# the jerkin, belted twice round, the breeches' seat
+# the linen collar, the jerkin (oiled clean, a step lighter than any grown-up's leather), belted twice round, the
+# breeches' seat
 part body
-    Cllh
-    Clllh
-    CBBBh
-    Clllh
+    FWcl
+    CCccl
+    CBBBl
+    CCccl
     .bbB
 
 # the lantern pole over the near shoulder, the lantern hanging from its tip behind his head

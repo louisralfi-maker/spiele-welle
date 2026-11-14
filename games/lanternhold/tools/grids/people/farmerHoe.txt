@@ -12,6 +12,11 @@ size 12x26
 frames 14
 outline ink shade
 
+# Cloth states (docs/PEOPLE.md section 7, tools/peoplestates.py): the realm's stage changes the cloth, never the
+# body. Hamlet is this grid as drawn; village and town remap cloth characters only.
+#@state village  p=soilLight                     # the darn at his back worked into the smock
+#@state town     y=leafLight o=meadow v=leaf p=meadow U=soilLight Q=soil   # a smock of moss-green wool, wool hose for the shin rags
+
 legend
     k = ink
     S = dawnRose
@@ -30,6 +35,12 @@ legend
     H = woodDark
     M = stoneMid
     D = stoneDark
+    y = woodLight
+    o = soilLight
+    v = soil
+    p = plasterDim
+    Q = plasterDim
+    U = plaster
 
 # the straw hat: the crown, the brim lit on the left, the torn front flap hanging below the brim
 part hat
@@ -54,23 +65,23 @@ part headUp
 
 # the smock over the rounded back, a darned patch, the rope belt, the smock's skirt
 part torso
-    .lnnb.
-    lnnnnb
-    lqqnnb
-    lqqnnb
-    .cCccb
-    .lnnnb
-    .ln.nb
+    .yoov.
+    yoooov
+    yppoov
+    yppoov
+    .cCccv
+    .yooov
+    .yo.ov
 
 # the same smock upright (frames 8-9): the back flat
 part torsoUp
-    .lnnb.
-    .lnnnb
-    .qqnnb
-    .qqnnb
-    .cCccb
-    .lnnnb
-    .ln.nb
+    .yoov.
+    .yooov
+    .ppoov
+    .ppoov
+    .cCccv
+    .yooov
+    .yo.ov
 
 # the far hand at the small of the back
 part handBack
@@ -79,33 +90,35 @@ part handBack
 
 # the near arm and hand holding the hoe on the shoulder
 part armCarry
-    n.
+    o.
     .S
 
-# the hoe on the near shoulder: the iron blade hanging behind his head, the pale handle down to his near hand
+# the hoe on the near shoulder: the thin iron blade seen edge-on, hanging from the handle's end behind his head with
+# its lit edge at the bottom, the pale handle down to his near hand
 part hoeShoulder
-    .l.......
-    MMl......
-    DD.l.....
+    Ml.......
+    M.l......
+    L..l.....
     ....l....
     .....l...
     ......l..
     .......l.
     ........l
 
-# the hoe raised high before him, both hands on the handle
+# the hoe raised high before him, both hands on the handle, the thin blade hanging forward from its end
 part hoeRaise
-    ..MM
-    ..Dl
-    ...l
+    ..lM
+    ..lM
+    ..lL
     ..l.
-    ..l.
+    .l..
     .l..
     .l..
     S...
     n...
 
-# the hoe struck into the row: both hands low, the handle down to the blade in the soil, a clod thrown up
+# the hoe struck into the row: both hands low, the handle down to the thin blade in the soil (its lit edge toward
+# him), a clod thrown up
 part hoeDown
     S...
     nl..
@@ -115,8 +128,8 @@ part hoeDown
     ...l
     ...l
     ...l
-    ..bl
-    .MMD
+    .b.l
+    .LMM
 
 # the hoe planted upright beside him, the near hand on its top
 part hoeUpright
@@ -135,7 +148,7 @@ part hoeUpright
     l
     l
     M
-    D
+    L
 
 # the sack of greens on his back (grey sackcloth), its neck over the shoulder in his near fist
 part sack
@@ -152,8 +165,8 @@ part legsStand
     ...bBnb..
     ...bBnb..
     ...bBnb..
-    ..qq.wq..
-    ..qq.wq..
+    ..QQ.UQ..
+    ..QQ.UQ..
     ..HH.hH..
     ..HH.hH..
     ..HHHhHH.
@@ -165,8 +178,8 @@ part legsTall
     ...bBnb..
     ...bBnb..
     ...bBnb..
-    ..qq.wq..
-    ..qq.wq..
+    ..QQ.UQ..
+    ..QQ.UQ..
     ..HH.hH..
     ..HH.hH..
     ..HHHhHH.
@@ -176,8 +189,8 @@ part legsContactA
     ..bB.nb..
     ..bB..nb.
     .bB...nb.
-    .qq...wq.
-    .qq...wq.
+    .QQ...UQ.
+    .QQ...UQ.
     HH....hH.
     HH....hH.
     .HH...hHH
@@ -187,8 +200,8 @@ part legsPassA
     ...bBnb..
     ...bBnb..
     ..bB.nb..
-    .qq..wq..
-    .qq..wq..
+    .QQ..UQ..
+    .QQ..UQ..
     .HHH.hH..
     .....hH..
     .....hHH.
@@ -198,8 +211,8 @@ part legsContactB
     ..nb.bB..
     ..nb..bB.
     .nb...bB.
-    .wq...qq.
-    .wq...qq.
+    .UQ...QQ.
+    .UQ...QQ.
     hH....HH.
     hH....HH.
     .hH...HHH
@@ -209,8 +222,8 @@ part legsPassB
     ...bBnb..
     ...bnb...
     ..nbbB...
-    .wq.qq...
-    .wq.qq...
+    .UQ.QQ...
+    .UQ.QQ...
     .hHHHH...
     ....HH...
     ....HHH..
@@ -221,8 +234,8 @@ part legsBrace
     ..bB..nb.
     .bB...nb.
     .bB...nb.
-    .qq...wq.
-    .qq...wq.
+    .QQ...UQ.
+    .QQ...UQ.
     .HH...hH.
     .HH...hH.
     HHH...hHH

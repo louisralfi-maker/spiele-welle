@@ -1,16 +1,22 @@
 # farmerScythe 12x26, 14 frames: walk 0-3, idle 4-5, mow 6-7, straighten 8-9, carry 10-13 (docs/SPRITES-people.md, the
 # citizen contract plus field work). Hedda Ashby, 33, reaper on the near field, Gorm's sister (docs/PEOPLE.md). Wiry
-# and upright: a brown kerchief, an undyed blouse with the sleeves rolled, a laced earth-brown bodice, a long brown
+# and upright: bareheaded, an undyed blouse with the sleeves rolled under a laced earth-brown bodice, a long brown
 # skirt with an undyed apron, clogs. Her mark: her hair went white in one night, the night her husband's lantern did
-# not come back at the Count; it frames her young face and hangs down her back in a white plait. Light from the upper
-# left; look 2's selective outline. Walk: the scythe on the near shoulder, its blade hooked over her head behind;
-# contact (1 px down) and passing. Idle: a breath. Mow: the scythe swung back low (6) and through the stalks (7).
+# not come back at the Count; the white crown and fringe frame her young face and a white plait hangs down her
+# back. Light from the upper left; look 2's selective outline. Walk: the scythe on the near shoulder, its blade hooked over her head behind;
+# contact (1 px down) and passing. Idle: a breath. Mow: the snath across the body, swung back with the blade behind her
+# heels (6) and through with the blade cutting before her feet (7), the upper body turning a pixel with it.
 # Straighten: leaning on the upright scythe, the far hand at the small of her back (8), then the near forearm across
 # her brow (9). Carry: a sheaf held before her, the same steps.
 id farmerScythe
 size 12x26
 frames 14
 outline ink shade
+
+# Cloth states (docs/PEOPLE.md section 7, tools/peoplestates.py): the realm's stage changes the cloth, never the
+# body. Hamlet is this grid as drawn; village and town remap cloth characters only.
+#@state village  p=soilLight                     # the skirt's patch mended
+#@state town     y=tileLight o=tile v=woodDark p=tile q=plaster   # a madder-red skirt, a fresh apron; the white hair stays (her mark)
 
 legend
     k = ink
@@ -31,11 +37,16 @@ legend
     C = strawLight
     L = stoneLight
     M = stoneMid
+    y = woodLight
+    o = soilLight
+    v = soil
+    p = wood
 
-# the kerchief, the white hair framing the young face (frame cols 4-8)
+# the white hair, bare: the crown lit on the upper left, the fringe over the brow, framing the young face (frame cols
+# 4-8)
 part head
-    .nnb.
-    nnnbb
+    .FPP.
+    FPPPL
     PPSkS
     PPsSs
     .Pss.
@@ -48,36 +59,49 @@ part plait
     P
     q
 
-# the undyed blouse, the laced bodice, the waistband
+# the laced bodice over the back and the chest (the white plait hangs down its lit column), the waistband
 part torso
-    .WwbB.
-    WwbbbB
-    WwbbbB
-    .wbbbB
+    .nbbB.
+    nbbbbB
+    nbbbbB
+    .nbbbB
     .hhhhH
 
 part skirtPass
-    .lnwqb.
-    .lnwqb.
-    lnnwqnb
-    lnnwqnb
-    lnnwqnb
-    lnnwqnb
-    lnnnwqb
-    lnnnwqb
-    lnnnnnb
-    .bnnnb.
+    .yowqv.
+    .yowqv.
+    yoowqov
+    yoowqov
+    yoowqov
+    yoowqov
+    ypoowqv
+    ypoowqv
+    yooooov
+    .vooov.
 
 part skirtContact
-    ..lnwqb..
-    .lnnwqnb.
-    .lnnwqnb.
-    .lnnwqnb.
-    lnnnnwqnb
-    lnnnnwqnb
-    lnnnnwqnb
-    lnnnnnnnb
-    .bnnnnnb.
+    ..yowqv..
+    .yoowqov.
+    .yoowqov.
+    .yoowqov.
+    yoooowqov
+    yoooowqov
+    yoooowqov
+    yooooooov
+    .vooooov.
+
+# the skirt at the mow: the stance wide, the apron hanging straight down the middle, so the snath's diagonal is the
+# only slanting line across her
+part skirtWork
+    ..yowqv..
+    .yoowqov.
+    .yoowqov.
+    .yoowqov.
+    yooowqoov
+    yooowqoov
+    yooowqoov
+    yooooooov
+    .vooooov.
 
 part feetA
     HH....hHH
@@ -107,56 +131,73 @@ part scytheShoulder
     ........l
     ........l
 
-# swung back: both hands at the hip, the snath down behind her, the blade raised behind at the knee
-part scytheBack
-    .......wS
-    ......l..
-    .....l...
-    ....l....
-    ...l.....
-    LLl......
-    M........
-    M........
+# the mow, swung back: the snath (pale ash, lit on top, its shadow under) across the body from both hands at the
+# hip down behind her to the blade, whose curve lies along the ground behind her heels; the far hand on the upper
+# nib, the near hand on the lower
+part mowBack
+    ........wwS.
+    .......w..CH
+    .......w.CH.
+    ........SCH.
+    ........CH..
+    .......CH...
+    .......CH...
+    ......CH....
+    .....CH.....
+    .....CH.....
+    ....CH......
+    .MMMH.......
+    LLL.........
 
-# swung through: both hands at the hip, the snath down before her, the blade flat along the ground
-part scytheFwd
-    wS...
-    ..l..
-    ..l..
-    ...l.
-    ...l.
-    ...l.
-    ....l
-    ....l
-    ...Ml
-    LLLM.
+# the mow, swung through: the snath across the body the other way, from her waist down before her to the blade,
+# whose curve cuts along the ground in front of her feet; the near hand closed on the snath at the hip
+part mowThrough
+    ....C.......
+    .....CH.w...
+    .....CH.w...
+    ......CS....
+    ......CH....
+    .......CH...
+    .......CH...
+    ........CH..
+    ........CH..
+    .........CH.
+    .........CH.
+    .........MMM
+    ..........LL
 
-# the scythe planted upright beside her, the blade hooked back over her head, her near hand on the snath
+# the scythe planted upright beside her, its blade's curve hooked over her head from the top of the snath (its lit
+# edge on top, the tip pointing down behind her)
 part scytheUpright
-    LLLl
-    M..l
-    M..l
-    ...l
-    ...l
-    ...l
-    ...l
-    ...l
-    ...l
-    ...l
-    ...l
-    ..Sl
-    ...l
-    ...l
-    ...l
-    ...l
-    ...l
-    ...l
-    ...l
-    ...l
-    ...l
-    ...l
-    ...l
-    ...h
+    ......PLLM..
+    ....LMMM.CH.
+    ...L.....CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........CH.
+    .........HH.
+
+# the near hand closed on the upright snath
+part handSnath
+    S
 
 # the near arm on the upright snath
 part armSnath
@@ -244,24 +285,22 @@ frame 5
 
 frame 6
     feetA 2 24
-    skirtContact 2 15
-    torso 3 10
-    plait 4 10
-    scytheBack 0 13
-    head 4 4
-    armSnath 6 11
+    skirtWork 2 15
+    torso 2 10
+    plait 3 10
+    head 3 4
+    mowBack 0 11
 
 frame 7
     feetB 2 24
-    skirtContact 2 15
-    torso 3 10
-    plait 4 10
-    head 4 4
-    scytheFwd 6 14
-    armDown 6 11
+    skirtWork 2 15
+    torso 4 10
+    plait 5 10
+    head 5 4
+    mowThrough 0 11
 
 frame 8
-    scytheUpright 7 1
+    scytheUpright 0 0
     feetTogether 5 24
     skirtPass 3 14
     torso 3 9
@@ -269,9 +308,10 @@ frame 8
     plait 4 9
     head 4 3
     armSnath 7 10
+    handSnath 9 12
 
 frame 9
-    scytheUpright 7 1
+    scytheUpright 0 0
     feetTogether 5 24
     skirtPass 3 14
     torso 3 9

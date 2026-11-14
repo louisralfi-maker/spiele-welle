@@ -1,4 +1,4 @@
-# citizenCSeated 12x22, 2 frames: seated 0, a nod 1 (SPRITES.md "The townsfolk seated on the hall's benches"). Aldo Fenn
+# citizenCSeated 12x22, 2 frames: seated 0, a nod 1 (SPRITES.md "The townsfolk seated on the hall's benches"). Ned Thatch
 # (docs/PEOPLE.md; repainted by the people lane on 14.11.2026) waiting on a petitioners' bench in the great hall
 # (bench 32x10: this frame's bottom on the floor, the bench drawn behind him; the cushion's rows are this frame's rows
 # 13 and 14). He sits facing the hall like the seated lord: the open vest over the undyed shirt from the front, a
@@ -13,9 +13,9 @@ include citizenC.txt
 
 # the vest open over the shirt from the front, the belt with its buckle (frame cols 2-9)
 part torsoFront
-    .hhWwHH.
-    lhhWwHHH
-    lhhWqHHH
+    .vvWwVV.
+    lvvWwVVV
+    lvvWqVVV
     .BBnBBB.
 
 # the hands on the knees, the patched knees apart, the shins before the seat, the boots

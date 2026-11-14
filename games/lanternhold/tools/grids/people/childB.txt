@@ -1,13 +1,18 @@
 # childB 10x18, 10 frames: run 0-3, fidget 4-5, skip 6-9 (docs/SPRITES-people.md, the children's contract). Wren Ashby,
-# 9, Gorm's daughter (docs/PEOPLE.md). Dark hair in two plaits that fly when she skips, each tied with a red ribbon
-# (the children's warm clean accent), an undyed smock dress under a brown pinafore, bare shins, small clogs. Light from
-# the upper left; look 2's selective outline. Run: contact, flight, contact, flight (the body up 1 px in flight), the
-# plait flying out behind. Fidget: hands behind her back, rocking from the heels (4) onto the toes (5). Skip: the step
-# and the hop on each foot (2 px up on the hop), the arms out, the plait up.
+# 9, Gorm's daughter (docs/PEOPLE.md). Dark hair in two plaits that fly when she skips, each tied with a red ribbon; a
+# clean linen smock, a step lighter than any grown-up's cloth, under a red pinafore (the children's warm clean accent,
+# here the biggest patch of it in town); bare shins, small clogs. Light from the upper left; look 2's selective
+# outline. Run: contact, flight, contact, flight (the body up 1 px in flight), the plait flying out behind. Fidget:
+# hands behind her back, rocking from the heels (4) onto the toes (5). Skip: the step and the hop on each foot (2 px up
+# on the hop), the arms out, the plait up.
 id childB
 size 10x18
 frames 10
 outline ink shade
+
+# Cloth states (docs/PEOPLE.md section 7, tools/peoplestates.py): the realm's stage changes the cloth, never the
+# body. Hamlet is this grid as drawn; town remaps cloth characters only.
+#@state town  F=parchment W=strawLight w=straw   # a primrose smock under the red pinafore
 
 legend
     k = ink
@@ -17,11 +22,9 @@ legend
     h = wood
     R = crimsonLight
     r = crimson
+    F = foam
     W = parchment
     w = plaster
-    q = plasterDim
-    n = soilLight
-    b = soil
 
 # the dark hair parted over the brow, the round face
 part head
@@ -46,27 +49,27 @@ part plaitUp
     .h
     ..
 
-# the smock dress and the pinafore over it, the hem wide
+# the linen smock and the red pinafore over it, the smock's hem wide below
 part body
-    .wWq.
-    Wwnnq
-    Wwnnq
-    wwnnq
-    wwnnbq
-    .wwwq.
+    .FWw.
+    FWRRr
+    FWRRr
+    FWRRr
+    FWRRrw
+    .FWWw.
 
 # the near arm swinging (run), held behind (fidget), out to the side (skip)
 part armSwing
-    q.
+    w.
     .S
 
 part armBack
-    q
+    w
     s
 
 part armOut
-    q..
-    .qS
+    W..
+    .wS
 
 part legsStand
     .ss.

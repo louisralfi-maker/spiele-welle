@@ -11,6 +11,11 @@ size 12x26
 frames 6
 outline ink shade
 
+# Cloth states (docs/PEOPLE.md section 7, tools/peoplestates.py): the realm's stage changes the cloth, never the
+# body. Hamlet is this grid as drawn; village and town remap cloth characters only.
+#@state village  p=wood                          # the patch on the cape mended
+#@state town     y=dusk v=tile V=woodDark p=tile   # a cape of wine-red wool; the smock stays a miller's, pale with flour
+
 legend
     k = ink
     S = dawnRose
@@ -26,6 +31,10 @@ legend
     H = woodDark
     h = wood
     l = woodLight
+    y = woodLight
+    v = wood
+    V = woodDark
+    p = soilLight
 
 # the bald crown, the white fringe and beard, the face low and forward (frame cols 6-10)
 part head
@@ -39,12 +48,12 @@ part head
 # the bent back under an old brown wool cape: the hump of the shoulders highest and lit; the rope belt; the smock's
 # skirt below it grey-pale with flour
 part torso
-    ..llh..
-    .llhhhH
-    .lhhhhH
-    llhhhHH
-    lhhhhHH
-    hhhhHHH
+    ..yyv..
+    .yyvvvV
+    .yvppvV
+    yyvvvVV
+    yvvvvVV
+    vvvvVVV
     .cccnB.
     .wqqnn.
     .wqqnn.

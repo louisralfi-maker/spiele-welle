@@ -1,14 +1,16 @@
-# nobleLady 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (docs/SPRITES-people.md, the guests' contract). A lady of
+# nobleLady 14x30, 10 frames: walk 0-3, idle 4-5, talk 6-7, bow 8-9 (docs/SPRITES-people.md, the guests' contract). A lady of
 # the inner lands: Oxmoor's kin from Goldenacre, or a syndic's lady of Stillmere (docs/PEOPLE.md). Upright, slow,
 # clean, overdressed, and holding a lace cloth to her nose wherever she goes in the valley. A tall plum hennin tilted
 # back with a gold band and a sheer veil falling from its tip down her back, a pale face, a lace collar, a gown of
 # plum with wide hanging sleeves lined in a lighter plum, a gold girdle, a gold hem, and a train that drags behind her
 # on the ground. Light from the upper left; look 2's selective outline. Walk: a glide, the back straight, the gown's
-# front stepping out a pixel and the tip of a shoe showing on each contact, the train dragging. Idle: the cloth at her
-# nose, a breath. Talk: the cloth lowered and the hand turned out, as if waving a smell away (6), a little higher (7).
+# front stepping out a pixel and the tip of a shoe showing on each contact, the train dragging, the cloth held at her
+# chest. Idle: the cloth pressed to her nose, a breath. Talk: the cloth lowered and the hand turned out, as if waving a
+# smell away (6), a little higher (7). Bow (when the realm is a town and the inner lands come to court it): the hand
+# with the cloth at her chest (8), then the head inclined, the body a pixel lower (9).
 id nobleLady
 size 14x30
-frames 8
+frames 10
 outline ink shade
 
 legend
@@ -94,11 +96,23 @@ part gownStep
     VVvvvvvuvvvu
     GGGGGGGGGGGH
 
-# the near arm raised: the hand holding the lace cloth to her nose, the tight inner sleeve, and the wide outer sleeve
-# hanging open from the elbow, its lighter lining showing
-part armCloth
-    ...WF
-    ..SFW
+# walking: the gloved hand at her chest with the lace cloth hanging from it (inside her outline but for the hand), the
+# tight inner sleeve, and the wide outer sleeve hanging open from the elbow, its lighter lining showing
+part armChest
+    ..WF.
+    .uWF.
+    uu.F.
+    uVu..
+    uVV..
+    .VV..
+    .VVu.
+    ..Vu.
+
+# standing: the cloth pressed to her mouth and nose by the gloved hand, inside the face's outline (no point sticks out
+# of the face), the wrist under the chin
+part armClothFace
+    .FW..
+    ..W..
     ..u..
     .uu..
     uVu..
@@ -140,7 +154,7 @@ frame 0
     veil 2 1
     hennin 3 0
     head 6 6
-    armCloth 8 7
+    armChest 8 10
 
 frame 1
     gown 0 15
@@ -148,7 +162,7 @@ frame 1
     veil 2 1
     hennin 3 0
     head 6 6
-    armCloth 8 7
+    armChest 8 10
 
 frame 2
     gownStep 0 15
@@ -156,7 +170,7 @@ frame 2
     veil 2 1
     hennin 3 0
     head 6 6
-    armCloth 8 7
+    armChest 8 10
 
 frame 3 = 1
 
@@ -166,7 +180,7 @@ frame 4
     veil 2 1
     hennin 3 0
     head 6 6
-    armCloth 8 7
+    armClothFace 8 8
 
 frame 5
     gown 0 15
@@ -174,7 +188,7 @@ frame 5
     veil 2 2
     hennin 3 1
     head 6 7
-    armCloth 8 8
+    armClothFace 8 9
 
 frame 6
     gown 0 15
@@ -191,3 +205,19 @@ frame 7
     hennin 3 0
     head 6 6
     armOutB 8 7
+
+frame 8
+    gown 0 15
+    bodice 5 11
+    veil 2 1
+    hennin 3 0
+    head 6 6
+    armChest 8 10
+
+frame 9
+    gown 0 15
+    bodice 5 12
+    veil 3 2
+    hennin 4 1
+    head 7 7
+    armChest 8 11

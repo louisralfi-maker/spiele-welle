@@ -20,7 +20,7 @@ legend
     l = woodLight
     r = crimson
     x = crimsonDeep
-    R = crimsonLight
+    R = dusk
     G = gold
     W = parchment
     w = plaster

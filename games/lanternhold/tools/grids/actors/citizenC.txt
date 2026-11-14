@@ -1,4 +1,4 @@
-# citizenC 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md). Aldo Fenn, 60, the ploughman of the near field and the
+# citizenC 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md). Ned Thatch, 60, the ploughman of the near field and the
 # farmer of the petitions (docs/PEOPLE.md; repainted by the people lane on 14.11.2026, before that the old farmer of
 # look 2's stage 4). A short, thick-set man who carries nothing and swings his arms as he walks: a bald crown burnt brown,
 # a grey fringe and a short grey beard, an undyed shirt under an old brown vest, a rope of a belt, breeches patched at
@@ -10,10 +10,15 @@ size 12x26
 frames 6
 outline ink shade
 
+# Cloth states (docs/PEOPLE.md section 7, tools/peoplestates.py): the realm's stage changes the cloth, never the
+# body. Hamlet is this grid as drawn; village and town remap cloth characters only.
+#@state village  c=soil                    # the knees mended
+#@state town     l=roofLight v=banner V=roofDeep c=soil q=plaster   # a vest of the house's blue, a clean shirt
+
 legend
     k = ink
     S = dawnRose
-    s = tileLight
+    s = woodLight
     L = stoneLight
     W = parchment
     w = plaster
@@ -26,11 +31,13 @@ legend
     B = soilDark
     b = soil
     n = soilLight
+    v = wood
+    V = woodDark
 
 # the bald crown, the patch's strap across it, the patch over the eye, the grey fringe and beard (frame cols 5-9)
 part head
-    .HSS.
-    LSHSS
+    .HSs.
+    LSHSs
     LSHHS
     LLsSs
     .LLLs
@@ -38,10 +45,10 @@ part head
 
 # the undyed shirt under the open vest, the belt with its buckle, the breeches' seat
 part torso
-    .hWwhH
-    lhWwhH
-    lhWwHH
-    .hWqHH
+    .vWwvV
+    lvWwvV
+    lvWwVV
+    .vWqVV
     .BBnBB
     .bbbbB
 
