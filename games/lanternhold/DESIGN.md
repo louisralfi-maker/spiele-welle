@@ -3310,6 +3310,21 @@ warm valley beyond the back gate).
   (`-GWNight 12 -GWHour 23.33`), plus the bank and the Throat on a hard fog night and twice with Reduce Motion:
   `w-<centre>-<noon|dusk|night|fog|fog-rm>-en`. `-GWTimeOfDay` drives only the probe and the light lab; the game's
   clock follows the realm.
+- **Rounds:** lh-w1-1 (the paused agent's snapshot) to lh-w1-4 (build, unit, sweep) ALL PASSED; lh-w1-5 on 7926e8d and
+  lh-w1-6 on 9e9cda9 (build, unit, ui, ui-de, release) ALL PASSED.
+- **Open after world-1:** the castle's buildings, the keep, the curtain wall and the postern (B1, B2, H3, H7) are the
+  next steps; until then the cut-away rooms and the two-tower back gate still stand before the new cleft wall. The
+  Throat's step B reaches almost the screen's top around the warden statue (its niche needs the height), so the
+  three steps read as low, high, full rather than three even steps. The bank by day is the night's black smoke, as
+  the wall of night was. The darkness bank's own eye glints (`darknessBankGlow`) lie in two rows.
+- **For the later steps (director's notes, 14.11.):** the gorge beyond the gate is 1240 px (gate front 1240 to the
+  world's west end at 0; the bank covers 0 to 260 by day and its edge stands near 500 on night 12). The bank and the
+  Gloom's fog are drawn from the bank's edge alone (`bankEdgeX`, a value Core can move), nothing of the fog line is
+  baked into the gorge's art (the Weltmauer's painted mist is far-plane haze, not the Gloom). Free ground for the four
+  beacon sites (REALM.md 5), as fractions of the gorge measured west from the gate: 0.55 (x ~560, between the beacon
+  crag and the outer line's trap), 0.69 (x ~380, the dead moor), 0.80 (x ~250, the moor's west end at today's day
+  edge of the bank) and 0.91 (x ~110, inside today's bank, freed when the fog line moves out). The moor's backdrops
+  (firs, forest, the Weltmauer and its mist, the cloud deck) go on to x 0 without a wall.
 <!-- END world lane: World rebuild (14.11.2026) -->
 
 ## Risks
