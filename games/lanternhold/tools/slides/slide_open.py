@@ -345,7 +345,7 @@ def creeping_fog(c):
         for x in range(0, 100):
             v = inside(x, y)
             if v > 1.0:
-                col = "mistLight" if v < 1.3 else ("mist" if v < 3.0 else "mistDark")
+                col = "mistLight" if v < 1.3 else "mist"
                 c.c[y][x] = P(col)
 
 
@@ -396,12 +396,15 @@ def aldric_from_above(x, y):
               (x - 4, y + 142), (x - 14, y + 138), (x - 16, y + 124), (x - 20, y + 96), (x - 24, y + 70),
               (x - 26, y + 34)], P("night0"))
     # folds across the cloth where it drapes over him, each lit on its right
-    for f in (((x - 18, y + 40), (x - 4, y + 46), (x + 14, y + 42)), ((x - 16, y + 66), (x, y + 72), (x + 18, y + 68)),
-              ((x - 14, y + 96), (x + 2, y + 100), (x + 16, y + 94)), ((x - 10, y + 118), (x + 12, y + 116)),
-              ((x + 20, y + 50), (x + 22, y + 80)), ((x - 22, y + 52), (x - 20, y + 84))):
+    # the mantle's drapes: long folds from the shoulders down over the body, each lit along its right edge
+    for f in (((x - 12, y + 30), (x - 6, y + 70), (x - 4, y + 112), (x - 3, y + 132)),
+              ((x + 10, y + 30), (x + 12, y + 64), (x + 10, y + 104), (x + 8, y + 134)),
+              ((x - 22, y + 46), (x - 18, y + 90), (x - 12, y + 128)),
+              ((x + 22, y + 44), (x + 20, y + 88), (x + 14, y + 124)), ((x, y + 76), (x + 1, y + 120))):
         lay.line(list(f), P("plumDeep"))
         for (fx, fy) in f[1:]:
-            lay.put(fx, fy - 1, P("plum"))
+            lay.put(fx + 1, fy, P("plum"))
+            lay.put(fx + 1, fy - 1, P("plum"))
     for (fx, fy) in ((x + 36, y + 60), (x + 40, y + 100), (x + 38, y + 126), (x - 40, y + 70), (x - 42, y + 108)):
         lay.line([(fx, fy), (fx + 2, fy + 10)], P("plum"))
     # the hood under his head: a dark round of lining, its rim catching the light at the right
