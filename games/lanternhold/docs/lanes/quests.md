@@ -189,3 +189,14 @@ No new hook. `TableListView.swift` and `ErrandEngine.swift` are the lane's own f
 - `ErrandEngineTests.testAReportWithoutACardNeverHoldsTheTable`: a party whose report id has no card comes home,
   never holds the table, and its lantern hangs again when the table opens.
 
+
+### Rounds
+
+- `lh-q1f1-1` on `2723f37` (build, unit, ui, ui-de, release; sent at 17:32, before the director's note of 14.11.
+  18:46 limited lanes to short rounds; it could not be cancelled, so it stands as the gate, a superset of rounds a, b
+  and c): **ALL PASSED**. 449 unit tests (447 plus the two new ones), the tuning report and the neutrality line byte
+  for byte those of `lh-q1-3`, the table validator reports nothing over 101 keys, no build warning from the lane's
+  files, `TableUITests` passed in English (29 s) and German (35 s), every other UI test passed, release passed.
+  Upright shots: `ci-out/upright/qf1-1-*.jpg` (the reaction's title without its full stop, "Zurück am Morgen von
+  Tag 3", the new German oil reaction; all fit).
+- From now on: short rounds only, by the director's note of 14.11. 18:46.
