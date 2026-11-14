@@ -182,7 +182,7 @@ def step_b():
     field = RF.Field(Niche(451, gx0 - 60, gx0 + w + 60, h, 22, 70, relief=0.75, ledge_gap=(16, 44)), gx0, w, h,
                      lambda gx: h - hgt(min(gx0 + w - 1, max(gx0, gx))))
     return RF.paint(field, "slate", snow_rows=44, snow_share=0.65, seed=451, contrast=0.9,
-                    lift=0.02)
+                    lift=0.08)
 
 
 # ---------------------------------------------------------------------------------------------- the shaft
@@ -272,7 +272,8 @@ def mistleft(path):
     bank of mist rises from its foot, slowly at first and steeply near the west end (there it hides the whole wall),
     its top rolling in humps of two sizes. Under the top the rock dissolves into the mist by an ordered dither over
     some 30 rows, so the top is soft and never a line; the mist is darker where it is thin and paler where it is
-    dense (low and to the west). In place; run once, after `noslot`, on the wall the build makes."""
+    dense (low and to the west), in clean patches, never a dither. In place; run once, after `noslot`, on the wall the
+    build makes."""
     img = PA.read_png(path)[0]
     out = PA.Image(img.w, img.h, list(img.px))
     light, mist, dark = col("mistLight"), col("mist"), col("mistDark")
@@ -287,10 +288,11 @@ def mistleft(path):
                 continue
             down = y - top
             share = RF.ss(down / 30.0) * (0.45 + 0.55 * RF.ss(u * 1.8))
-            if bay(x, y) >= share:
+            # the mist takes the rock in clean patches (a noise of 5 px clusters, no dither)
+            if vnoise2(919, x / 5.0, y / 4.0) >= share:
                 continue
             dense = RF.ss(down / 70.0) * (0.5 + 0.5 * u)
-            q = dense * 2 + (bay(x + 2, y + 1) - 0.5) * 0.9
+            q = dense * 2 + (vnoise2(921, x / 7.0, y / 5.0) - 0.5) * 0.8
             c = dark if q < 0.6 else mist if q < 1.45 else light
             out.set(x, y, (c[0], c[1], c[2], p[3]))
     PA.write_png(path, out)

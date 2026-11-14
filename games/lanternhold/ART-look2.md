@@ -1665,9 +1665,14 @@ with one light from the upper left:
   overhangs (a third of the steps) with a shadow under them; thin joints; a slow swell and a fine grain;
 - light: Lambert on the field's normal, cast shadows marched toward the light, a cavity term, less light deeper down
   the cleft and more on the faces that look up into the slit;
-- paint: the light on a six-step ramp with a sparse 4x4 ordered dither; the top 90 rows of the cleft take the
-  castle's cool slate ramp instead of the warm granite (the slit's cold light), its lower edge wandering and dithered
-  over 24 rows; snow in patches on the ledges of the top 60 rows; a cold rim on every edge against the sky.
+- paint: the light on a six-step ramp in clean clusters, no dither (Louis' art bar, `ci-out/director/artbar.md`:
+  "no dither mush", "every cluster placed on purpose"); the sky's fall down the face is shifted per buttress, so
+  the shading steps never line up into bands across the wall; a last pass gives every lone pixel its neighbours'
+  colour (`rockfield.declump`). The slit's cold light: on the cleft's top 90 rows the lit faces (the three lightest
+  steps) take the castle's cool slate instead of the warm granite, below a clean line of its own on every buttress
+  that steps at the chimneys and reaches further down the lit faces; the shade stays granite. Snow in patches on the
+  ledges of the top 60 rows; a cold rim on every edge against the sky; the threads of water land in small solid
+  puffs of spray.
 
 ### 21.2 The pieces
 
@@ -1678,22 +1683,39 @@ with one light from the upper left:
 | `throatStepC`, `cleftWallA…C` | `cleft` (nightBlue to rockPale), contrast 1.15 | the towering wall: one canvas (mid 600 to 1528) so the joins vanish; the slit's teeth and chockstones from `slit()`; threads of water at 902, 1131, 1268, mostly pale mist with brighter runs, broken where the water leaves the rock, a wet streak widening below each |
 | `gateRockL/R` | `gate` (nightDeep to rockPale), contrast 1.1 | broad plinths, highest at each tower's outer edge, falling under the masonry in a ragged stair |
 | `bankSheetA…C` | the night body (night0, nightDeep, nightBlue, nightSlate), a rim of nightSlate to mistDark | soft fog: the core's top and the face swirled by two scales of noise into billows and wisps; the cover grows over 14 to 22 px in eight dithered steps; the shell on the moon's side catches a little light |
-| `weltmauer` (`mistleft`) | mistDark, mist, mistLight | the wall's first 320 columns sink into mist that rises steeply only near the west end; dense and pale low down, thin and dark at its soft top |
+| `weltmauer` (`mistleft`) | mistDark, mist, mistLight | the wall's first 320 columns sink into mist that rises steeply only near the west end; dense and pale low down, thin and dark at its top, in clean patches |
+| `gloomFogBack/Mid/Front` | stage 7's night ramps | repainted for M1: stage 7 painted them as three to six flat value bands with stepped billow tops (the "contour map" of the review); now a rolling, swirled top periodic over the tile, eight dithered alpha steps and the colour darkening from a pale crest to the night heart in dithered steps; same ids, sizes and frames (the face's left column goes on from the tile, its right end runs out clear) |
 
 The first bank sheets were a trapezoid of night with a straight sloped face and a 6 px edge; a chain of round
 billows read as soap bubbles. The swirled density is what reads as fog.
 
-### 21.3 Values
+### 21.3 Against the art bar (Louis, 14.11.: "dass man gar nicht sieht, dass es von einer KI gemacht wurde")
+
+Checked at 400 % and at phone size. Redrawn because of it:
+
+- **The rock** (`throatStepA…C`, `cleftWallA…C`, `gateRockL/R`): the first height-field paint used a 4x4 ordered
+  dither on every gradient and a dithered 24-row band between the cold top and the warm granite; at 400 % that was
+  checkerboard mush. Now clean clusters, no dither, no lone pixels, the cold light only on the lit faces under a clean
+  line; the finest grain of the field is gone (it only made specks). The spray of the threads was a dithered
+  sparkle; now small solid puffs.
+- **The Weltmauer's mist** (`mistleft`): the rock dissolved into mist by an ordered dither; now the mist takes the
+  rock in clean patches of a 5 px noise.
+- **Kept dithered on purpose:** the fog's alpha (`d2FogBank`, `d2MistBand`, `d2FogLow`, the bank's sheets, the
+  Gloom's strips). They are the renderer's fog (white or night masks the engine tints and covers by alpha), and the
+  review's M1 asks for ordered dither between their 6 to 8 steps; their edges must be soft, the rock's must not.
+
+### 21.4 Values
 
 The cleft wall is the castle's backdrop: by day it sits at about the castle stone's value, so the buildings separate
 by hue (warm granite behind cool slate) and detail; at dusk the mid plane's haze makes it lighter than the
 buildings' shaded walls, so they stand as silhouettes against it; at night it is blue with its ledges still
 readable. The steps grow paler and cooler toward the west, the world plane keeps the strongest contrast.
 
-### 21.4 Rebuild
+### 21.5 Rebuild
 
 `bash games/lanternhold/tools/build-art-world.sh throatStepA throatStepB throatStepC cleftWallA cleftWallB
-cleftWallC cleftShaft gateRockL gateRockR d2FogBank d2MistBand d2FogLow bankSheetA bankSheetB bankSheetC` (one
+cleftWallC cleftShaft gateRockL gateRockR d2FogBank d2MistBand d2FogLow bankSheetA bankSheetB bankSheetC
+gloomFogBack gloomFogMid gloomFogFront` (one
 sprite per run, each under 15 s on the old Mac; the script waits at 80 °C). The Weltmauer's `noslot` and `mistleft`
 run inside its `weltmauer` step.
 <!-- END world lane: section 21 -->

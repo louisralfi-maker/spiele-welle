@@ -3285,13 +3285,20 @@ warm valley beyond the back gate).
   `tools/fogart.py`) are tiles with a 48 px dithered feather at each end, laid every `width − 64` px
   (`FrameBuilder.fogOverlap`), their feathers complementary inside the overlap; the density thins upward under a
   soft rolling top in eight alpha steps with ordered dither, and stands still under Reduce Motion. The Gloom's strips
-  are cut into 8 or 4 px pieces where a fire's hole changes the cover steeply (`FrameBuilder.gloomSubSlices`), so the
-  fog thins toward a fire in small steps instead of 16 px columns.
+  (`gloomFogBack`, `gloomFogMid`, `gloomFogFront`) are repainted the same way (stage 7 painted flat bands with
+  stepped tops: the review's "contour map"), same ids, sizes and frames; they are cut into 8 or 4 px pieces where a
+  fire's hole changes the cover steeply (`FrameBuilder.gloomSubSlices`), so the fog thins toward a fire in small
+  steps instead of 16 px columns.
+- **Set borders** (B5): the valley's tree belt (`d2TreeBelt`, mid 1400 and 1920) stands at z 2 behind the cleft wall's
+  last crags, so its west end is hidden by the rock where the cleft opens to the valley.
+- **Look 2's backdrop lights** reach the mid plane at 0.5 of their strength (0.3 before; `Shaders.metal`
+  `lh2_base`): the warden statue's bowl fire and the castle's lanterns on the cleft wall.
 - **The art** is pure python and rebuilds byte for byte (`tools/build-art-world.sh`): `tools/rockfield.py` paints
   granite as a lit height field (buttresses with lit west and shaded east bevels, chimneys, ledges and overhangs,
   joints, cast shadows marched toward the light, a cavity term, less light deeper in the cleft), `tools/cleftart.py`
-  cuts the cleft and the steps and the gate's rock from it, `tools/fogart.py` paints the fog and the bank. ART-look2.md
-  section 21 has the notes, SPRITES.md "The rock and the fog" the ids.
+  cuts the cleft and the steps and the gate's rock from it, `tools/fogart.py` paints the fog, the bank and the Gloom's
+  strips. The rock is painted in clean clusters without dither (Louis' art bar); only the fog's alpha is dithered.
+  ART-look2.md section 21 has the notes, SPRITES.md "The rock and the fog" the ids.
 - **Tests**: `FrameBuilderTests.testNoFogEdgeEndsInTheViewWithoutAFeatherOrANeighbour` (B4: every fog sprite's art
   feathers out, the hour's tiles overlap complementarily, and from the bank to the river at three hours, with and
   without the Gloom's fog, no fog instance's edge column stands in the view without a feather or a neighbour);

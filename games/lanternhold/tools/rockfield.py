@@ -6,10 +6,11 @@ A rock face is a height field z(x, y): how far each pixel stands out toward the 
 buttresses (columns of rock whose boundaries wander down the face, each its own depth, with a lit west bevel, a broad
 front and a shaded east bevel), the chimneys between them, ledges (the block below steps out: a lit top) and overhangs
 (the block above steps out: a shadow under it), joints (thin V grooves), exfoliation sheets (long diagonal steps),
-a slow swell and a fine grain. `shade` lights the field from the upper left and from the sky above (the cleft's slit):
+a slow swell and a middle grain. `shade` lights the field from the upper left and from the sky above (the cleft's slit):
 Lambert on the field's normal, cast shadows marched toward the light, a cavity term, and less light deeper down. The
-painter maps the light onto a ramp of palette colours with a sparse ordered dither, and adds snow on the faces that
-look up, a cold rim on the edges that meet the sky, wet streaks and threads of water.
+painter maps the light onto a ramp of palette colours in clean clusters (no dither, no lone pixels: Louis' art bar),
+and adds the slit's cold light on the lit faces, snow on the faces that look up, a cold rim on the edges that meet
+the sky, wet streaks and threads of water with solid puffs of spray.
 
 Light from the upper left, as everywhere in the game.
 """
@@ -164,7 +165,6 @@ class Massif:
                 z += 1.4 * r * ss((f - 0.12) / 0.06) * (1 - ss((f - 0.88) / 0.06)) * vnoise(self.seed * 53 + k, y / 40.0)
         z += 10.0 * r * (vnoise2(self.seed * 13, gx / 60.0, y / 90.0) - 0.5)
         z += 1.6 * r * (vnoise2(self.seed * 23, gx / 12.0, y / 20.0) - 0.5)
-        z += 0.45 * r * (vnoise2(self.seed * 17, gx / 3.0, y / 4.0) - 0.5)
         return z
 
 
@@ -176,12 +176,22 @@ class Field:
         self.gx0, self.w, self.h, self.m = gx0, w, h, margin
         self.top = {gx: top(gx) for gx in range(gx0 - margin, gx0 + w + margin)}
         self.z = []
+        self.cols = []
         for y in range(h):
             row = []
+            cols = []
             for x in range(-margin, w + margin):
                 gx = gx0 + x
                 row.append(massif.z(gx, y) if y >= self.top[gx] else None)
+                cols.append(massif.column(gx, y)[0])
             self.z.append(row)
+            self.cols.append(cols)
+
+    def column(self, x, y):
+        """The buttress a canvas pixel belongs to."""
+        y = max(0, min(self.h - 1, y))
+        x = max(-self.m, min(self.w + self.m - 1, x))
+        return self.cols[y][x + self.m]
 
     def at(self, x, y):
         """Height at canvas x, y (None: sky)."""
@@ -242,13 +252,14 @@ def shade(field, x, y, light=LIGHT, sky_fall=0.5, ambient=0.14):
     cav = 0.0 if not cnt else max(-1.0, min(1.0, (z0 - acc / cnt) / 4.0))
     ao = 0.78 + 0.22 * cav
     # the sky light falls off down the face (deep in the cleft); the up-facing faces take more of it
-    t = y / float(field.h)
+    j = field.column(x, y)
+    t = min(1.0, max(0.0, (y + 26 * (h01(911, j) - 0.5)) / float(field.h)))
     sky = (1.0 - sky_fall * t ** 1.2) * (1.0 + 0.25 * max(0.0, -ny))
     v = (ambient * ao + 0.92 * diff * lit * (0.85 + 0.15 * ao)) * sky
     return v, ny, lit
 
 
-def paint(field, ramp_name, gain=1.0, lift=0.0, dither=0.45, snow_rows=0, snow_share=0.6, rim=0.55, mist_left=None,
+def paint(field, ramp_name, gain=1.0, lift=0.0, dither=0.0, snow_rows=0, snow_share=0.6, rim=0.55, mist_left=None,
           wet=(), seed=1, contrast=1.0, cold_rows=0):
     """The field painted on a new image: light → ramp index with a sparse ordered dither; snow on the faces that look
     up in the top `snow_rows`; a cold rim on the edges against the sky; `wet` streaks below water threads; west of
@@ -277,11 +288,13 @@ def paint(field, ramp_name, gain=1.0, lift=0.0, dither=0.45, snow_rows=0, snow_s
             k = max(0, min(n - 1, int(round(q))))
             c = ramp[k]
             if cold_rows and y < cold_rows:
-                # the slit's cold light: the face's top in the castle's cool slate; its lower edge wanders (with the
-                # light that reaches down the lit buttresses) and dithers over a few rows into the granite
-                line = cold_rows * (0.35 + 0.65 * vnoise(seed * 71, gx / 23.0)) + 24 * max(0.0, v - 0.45)
-                if y < line - 12 or (y < line + 12 and bay(gx + 2, y + 1) < (line + 12 - y) / 24.0):
-                    c = cold[k]
+                # the slit's cold light: the face's top in the castle's cool slate; its lower edge is a clean line of
+                # its own on every buttress (it steps at the chimneys) that reaches further down the lit faces
+                j = field.column(x, y)
+                line = cold_rows * (0.35 + 0.55 * h01(seed * 71, j)) + 10 * (vnoise(seed * 73 + j, gx / 9.0) - 0.5) \
+                    + 22 * max(0.0, v - 0.5)
+                if y < line and k >= 3:
+                    c = cold[k]   # only the lit faces catch it; the shade stays the granite's
             if snow_rows and y < snow_rows and ny < -0.42:
                 # snow lies in patches on the ledges that look up, more of it higher up
                 share = (snow_rows - y) / float(snow_rows)
@@ -297,7 +310,31 @@ def paint(field, ramp_name, gain=1.0, lift=0.0, dither=0.45, snow_rows=0, snow_s
                 if t > 0.75 or (t > 0.3 and bay(gx, y) < (t - 0.3) * 2.2):
                     c = mist if v > 0.45 else mist_dark
             img.set(x, y, c)
+    declump(img)
     return img
+
+
+def declump(img, passes=2):
+    """No lone pixels: an opaque pixel that no 4-neighbour shares the colour of takes its neighbours' most common
+    colour (a pixel artist's clean clusters)."""
+    w, h = img.w, img.h
+    for _ in range(passes):
+        changes = []
+        for y in range(h):
+            for x in range(w):
+                p = img.get(x, y)
+                if not p[3]:
+                    continue
+                around = [img.get(xx, yy) for (xx, yy) in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1))
+                          if 0 <= xx < w and 0 <= yy < h]
+                opaque = [q for q in around if q[3]]
+                if len(opaque) < 3 or any(q == p for q in opaque):
+                    continue
+                best = max(set(opaque), key=opaque.count)
+                if opaque.count(best) >= 2:
+                    changes.append((x, y, best))
+        for (x, y, c) in changes:
+            img.set(x, y, c)
 
 
 def thread(img, gx0, seed, gx, y0, y1, spray):
@@ -320,12 +357,15 @@ def thread(img, gx0, seed, gx, y0, y1, spray):
             x += 1 if h01(seed, gx, y, 43) < 0.5 else -1
     x = gx - gx0
     for (sy, r) in spray:
-        for dy in range(-1, int(r * 1.8)):
-            half = int(1 + r * (0.4 + 0.6 * max(0, dy) / (r * 1.8)))
+        r *= 0.7
+        # a small puff where the water lands: a pale core and a mist rim, solid clusters (no dither)
+        for dy in range(0, int(r * 1.5) + 1):
+            half = int(round(0.6 + r * 0.55 * (1 - abs(dy - r * 0.6) / (r * 0.9 + 1))))
             for dx in range(-half, half + 1):
                 xx, yy = x + dx, sy + dy
                 if not (0 <= xx < img.w and 0 <= yy < img.h) or not img.get(xx, yy)[3]:
                     continue
-                d = (abs(dx) / float(half + 1)) + max(0, dy) / (r * 2.0)
-                if bay(xx + gx0, yy) > 0.25 + 0.75 * d:
-                    img.set(xx, yy, mist if d > 0.45 else light)
+                edge = abs(dx) == half or dy == int(r * 1.5)
+                if edge and h01(seed, gx, sy, dx, dy) < 0.35:
+                    continue
+                img.set(xx, yy, mist if edge else light)
