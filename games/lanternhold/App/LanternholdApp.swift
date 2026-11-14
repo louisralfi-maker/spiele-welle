@@ -43,6 +43,8 @@ struct RootView: View {
                        SoundDirector.allowed(args: args, environment: ProcessInfo.processInfo.environment) {
                         made.installFeedback(SoundDirector())
                     }
+                    // The ads (Ads/AdDirector.swift): the report's gate, the silent consent refresh; none in tests.
+                    AdDirector.shared.attach(made)
                     model = made
                 }
         }

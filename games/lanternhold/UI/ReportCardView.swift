@@ -181,6 +181,8 @@ struct ReportCardView: View {
                 .foregroundStyle(Theme.inkSoft)
             GoldAmount(amount: card.goldAfter, size: 17)
             Spacer(minLength: 8)
+            // The ads (Ads/AdViews.swift): double taxes, and the first report's consent.
+            DawnReportAds(model: model)
             Button {
                 model.continueReport()
             } label: {

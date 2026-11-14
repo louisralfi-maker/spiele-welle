@@ -2,8 +2,8 @@ import Foundation
 import SwiftUI
 
 /// The defeat card (DESIGN.md "Losing a night", "The town": if the realm falls, the card shows the town's windows going
-/// dark one by one; `defeat-root`, `defeat-second-chance`, `defeat-replay`): the second chance (the rewarded video of
-/// M7; until then the button gives it at once, once per five nights) and "Replay the day" (back to this day's dawn).
+/// dark one by one; `defeat-root`, `defeat-second-chance`, `defeat-replay`): the second chance (a rewarded video, once
+/// per five nights, only while a video is ready: `SecondChanceOffer`) and "Replay the day" (back to this day's dawn).
 /// It lies on the dark of the desk, not on a sheet (docs/UI-look.md: the realm's papers are parchment; what stands
 /// outside the day, the pause and the defeat, is the desk under them).
 @MainActor
@@ -42,27 +42,8 @@ struct DefeatCardView: View {
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
             VStack(spacing: 10) {
-                Button {
-                    model.takeSecondChance()
-                } label: {
-                    VStack(spacing: 2) {
-                        Label("Second chance", systemImage: "flame.fill")
-                        Text("The hearth flares up and dawn comes at once")
-                            .font(Theme.serif(.footnote))
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(GoldButtonStyle())
-                .disabled(info.secondChanceFrom != nil)
-                .opacity(info.secondChanceFrom != nil ? 0.5 : 1)
-                .accessibilityIdentifier("defeat-second-chance")
-                if let from = info.secondChanceFrom {
-                    Text(inked: String(localized: "A second chance again from night \(from)"), .footnote)
-                        .font(Theme.italic(.footnote))
-                        .foregroundStyle(Theme.boneDim)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+                // The ads (Ads/AdViews.swift): the second chance's rewarded video, only while one is ready.
+                SecondChanceOffer(info: info, model: model)
                 Button {
                     model.replayDay()
                 } label: {
