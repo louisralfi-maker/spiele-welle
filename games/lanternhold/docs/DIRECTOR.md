@@ -243,3 +243,5 @@ ten, no blocker, eight highs. This session's write hook blocks the Write tool in
 go around it, so the house files live on the planning branch now; `claude/lh-house` stays at cb4b7b4, unused. The
 director's decisions on the highs and on section 12's questions are in `docs/workflows/house-lane-2.js` (fix round 2
 with critic 3, in the planning worktree). Never resume it; after a stop, write a continuation.
+The second house round started 14.11.2026 15:44 as task `wz57nek4b` (run `wf_d2951a3c-d0c`). The editor commits on
+the planning branch with the paths named on the commit; the lead does the same while it runs.
