@@ -26,7 +26,7 @@ enum TownText {
     ]
 
     /// The households by plot and name key (town-1's first list).
-    static var householdKeys: [(plot: String, key: String)] { households.map { ($0.plot, $0.name) } }
+    static var householdKeys: [(plot: String, key: String)] { households.map { (plot: $0.plot, key: $0.name) } }
 
     /// Houses the report names one by one; more are counted ("Knocked at 3 doors") or, all of them, "every door".
     static let namedDoorsMost = 2
