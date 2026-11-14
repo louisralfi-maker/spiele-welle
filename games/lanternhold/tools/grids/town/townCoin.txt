@@ -1,0 +1,42 @@
+# townCoin 3x3, 4 frames (town-2): one coin of a toss, turning in the air: the face, three quarters, the edge, three
+# quarters the other way; lit from the upper left (Y), its shade lower right (g). No outline: it is a glint in flight.
+id townCoin
+size 3x3
+frames 4
+
+legend
+    Y = strawLight
+    G = gold
+    g = straw
+
+part face
+    .Y.
+    YGg
+    .g.
+
+part three
+    .Y.
+    .Gg
+    .g.
+
+part edge
+    .Y.
+    .G.
+    .g.
+
+part threeBack
+    .Y.
+    YG.
+    .g.
+
+frame 0
+    face 0 0
+
+frame 1
+    three 0 0
+
+frame 2
+    edge 0 0
+
+frame 3
+    threeBack 0 0

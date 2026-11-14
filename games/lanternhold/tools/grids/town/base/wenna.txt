@@ -1,0 +1,203 @@
+# The people lane's body, copied verbatim from claude/lh-people 5427d45 (tools/grids/people/washerwoman.txt) for the town lane's
+# poses (tools/grids/town/town*.txt include it). At the join the include may point at the people lane's file instead.
+# washerwoman 12x26, 8 frames: walk 0-3, idle 4-5, wring 6-7 (docs/SPRITES-people.md, the citizen contract plus two
+# work frames). Wenna Brisk, 52, washerwoman at the well (the Brisk family at the well, STORY.md section 6;
+# docs/PEOPLE.md). Broad and heavy, leaning back against the weight on her hip: a damp undyed headscarf knotted at the
+# nape, an earth-brown bodice, a soot-grey skirt kilted up into the waistband over a grey apron, bare shins, clogs, and
+# a big basket of wet linen on her near hip under her arm. Her mark: the forearms bare to the elbow and raw red from forty years of
+# lye and cold water. Light from the upper left; look 2's selective outline. Walk: a heavy rolling step, the stance
+# wide on the contact and the body 1 px down, the basket riding with her. Idle: a breath. Wring (at the well): the
+# basket set down before her feet, a sheet held level across her chest between her two red fists and twisted.
+id washerwoman
+size 12x26
+frames 8
+outline ink shade
+
+# Cloth states (docs/PEOPLE.md section 7, tools/peoplestates.py): the realm's stage changes the cloth, never the
+# body. Hamlet is this grid as drawn; village and town remap cloth characters only.
+#@state village  p=rockLight z=rockPale Z=rockLight K=rock   # whole: the patch mended, the skirt washed a step lighter
+#@state town     z=mistDark Z=far K=farDeep p=far q=plaster   # an indigo skirt, a fresh apron; her raw arms stay
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    r = tile
+    W = parchment
+    w = plaster
+    q = plasterDim
+    F = foam
+    n = soilLight
+    b = soil
+    B = soilDark
+    z = rockLight
+    Z = rock
+    K = rockDark
+    h = wood
+    H = woodDark
+    c = straw
+    C = strawLight
+    p = soil
+
+# the damp headscarf knotted at the nape, its ends sticking out behind; the ruddy face (frame cols 2-7)
+part head
+    ..WWw.
+    .WWwwq
+    wqwSkS
+    q.wsSs
+    ...sr.
+
+# the broad bodice, the apron's bib, the waistband the skirt is kilted into
+part torso
+    .nbbbB.
+    nbbbbbB
+    nbbbbqB
+    nbbbqqB
+    .hhhhhH
+
+# the soot-grey skirt kilted up to the calf, the apron down the front; narrow (passing) and swung wide (contact)
+part skirtPass
+    .zZZqqK.
+    zZZZqqKK
+    zZZZqqZK
+    zZZZqqZK
+    zZZZZqZK
+    zZppZZZK
+    .KZZZZK.
+
+part skirtContact
+    .zZZqqK..
+    zZZZqqZK.
+    zZZZZqqZK
+    zZZZZqqZK
+    zZZZZZqZK
+    zZppZZZZK
+    .KZZZZZK.
+
+# bare shins (weathered, not raw: the red belongs to her forearms) and clogs
+part legsTogether
+    ..Ss..
+    ..Ss..
+    ..Ss..
+    .HHHh.
+
+part legsWideA
+    ..S.Ss.
+    .S...Ss
+    .S...Ss
+    HHh..HHh
+
+part legsWideB
+    ..Ss.S.
+    .Ss..S.
+    .Ss..S.
+    HHh..HHh
+
+# the far arm hanging behind the body
+part armBack
+    b
+    s
+    r
+
+# the basket of wet linen on the near hip, under the near arm: the linen heaped white over the wicker
+part basket
+    .WFWFw
+    WWFWWw
+    CccCcH
+    cCcccH
+    .cccH.
+
+# the near arm over the basket: the sleeve rolled to the elbow, the bare elbow bent, the forearm laid across the wet
+# linen (raw red, 2 rows of 4: lit on top, shade under) with the heaped linen showing above it, the hand hooked over
+# the basket's far rim
+part armBasket
+    .b....
+    .sWFW.
+    .sssss
+    ..rrrr
+    .....r
+
+# the work: the basket on the ground before her feet, the near arm forward, the sheet twisted between both fists
+part basketDown
+    .WFWW.
+    CccCcH
+    cCcccH
+
+# the wring: the near arm out, its raw forearm over the sheet to the far fist; the sheet held level across her chest
+# between her two red fists, twisted (its light and shade banding runs on 1 px between the two frames); a drop falls
+part wringA
+    .....bss.
+    .rFWwFWwr
+    .rWwFWwFr
+    .........
+    .....F...
+
+part wringB
+    .....bss.
+    .rWwFWwFr
+    .rwFWwFWr
+    .........
+    ........F
+
+frame 0
+    legsWideA 2 21
+    skirtContact 1 15
+    armBack 2 11
+    torso 2 10
+    head 3 5
+    basket 6 15
+    armBasket 6 11
+
+frame 1
+    legsTogether 3 21
+    skirtPass 1 14
+    armBack 2 10
+    torso 2 9
+    head 3 4
+    basket 6 14
+    armBasket 6 10
+
+frame 2
+    legsWideB 2 21
+    skirtContact 1 15
+    armBack 2 11
+    torso 2 10
+    head 3 5
+    basket 6 15
+    armBasket 6 11
+
+frame 3 = 1
+
+frame 4
+    legsTogether 3 21
+    skirtPass 1 14
+    armBack 2 10
+    torso 2 9
+    head 3 4
+    basket 6 14
+    armBasket 6 10
+
+frame 5
+    legsTogether 3 21
+    skirtPass 1 14
+    armBack 2 11
+    torso 2 10
+    head 3 5
+    basket 6 15
+    armBasket 6 11
+
+frame 6
+    basketDown 6 22
+    legsTogether 2 21
+    skirtPass 1 14
+    torso 2 9
+    head 3 4
+    wringA 3 10
+
+frame 7
+    basketDown 6 22
+    legsTogether 2 21
+    skirtPass 1 14
+    torso 2 9
+    head 3 5
+    wringB 3 11

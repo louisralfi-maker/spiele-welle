@@ -1,0 +1,176 @@
+# townWenna 12x26, 11 frames (town-2, `TownSprites.Frame`): Wenna Brisk, the washerwoman, keeps the market stall (the
+# market's share of the day's taxes). Her body is the people lane's (base/wenna.txt: broad and heavy, the damp
+# headscarf, the kilted skirt); the basket of linen stays at the stall. Her mark shows best with the basket gone: the
+# sleeves rolled to the elbow and the forearms raw red from forty years of lye (s lit, r shade).
+#   0-1 waiting, the coins in her red hands (a breath; the coin catches the light on 1)
+#   2 the hand drawn back, 3 the throw, 4 the open hand after it, 5-6 the wave, 7 the coins flung down
+#   8 the bow at the knock, the coins held out; 9 the deeper bow, empty; 10 empty-handed
+id townWenna
+size 12x26
+frames 11
+outline ink shade
+include base/wenna.txt
+
+legend
+    G = gold
+    Y = strawLight
+    g = straw
+
+part armCup
+    b...
+    s...
+    ssGg
+    .rsr
+
+part armCupGlint
+    b...
+    s...
+    ssYG
+    .rsr
+
+part armWind
+    .b
+    .s
+    .r
+    s.
+    G.
+
+part armToss
+    ...s
+    ..s.
+    .r..
+    b...
+
+part armFollow
+    ...r
+    bsss
+
+part armWaveA
+    ...s
+    ...s
+    ...r
+    ...r
+    ..b.
+    .b..
+    b...
+
+part armWaveB
+    ..s.
+    ...s
+    ...r
+    ...r
+    ..b.
+    .b..
+    b...
+
+part armFling
+    b...
+    s...
+    .s..
+    ..r.
+    ...s
+
+part armOffer
+    b...
+    ssGg
+    .rsr
+
+part armOfferEmpty
+    b..
+    ss.
+    .rs
+
+part armDown
+    b
+    s
+    r
+    s
+    r
+
+frame 0
+    legsTogether 3 21
+    skirtPass 1 14
+    armBack 2 10
+    torso 2 9
+    head 3 4
+    armCup 7 10
+
+frame 1
+    legsTogether 3 21
+    skirtPass 1 14
+    armBack 2 11
+    torso 2 10
+    head 3 5
+    armCupGlint 7 11
+
+frame 2
+    legsTogether 3 21
+    skirtPass 1 14
+    armBack 2 10
+    torso 2 9
+    head 3 4
+    armWind 6 10
+
+frame 3
+    legsTogether 3 21
+    skirtPass 1 14
+    armBack 2 10
+    torso 2 9
+    head 3 4
+    armToss 7 7
+
+frame 4
+    legsTogether 3 21
+    skirtPass 1 14
+    armBack 2 10
+    torso 2 9
+    head 3 4
+    armFollow 7 9
+
+frame 5
+    legsTogether 3 21
+    skirtPass 1 14
+    armBack 2 10
+    torso 2 9
+    head 3 4
+    armWaveA 7 4
+
+frame 6
+    legsTogether 3 21
+    skirtPass 1 14
+    armBack 2 10
+    torso 2 9
+    head 3 4
+    armWaveB 7 4
+
+frame 7
+    legsTogether 3 21
+    skirtPass 1 14
+    armBack 2 11
+    torso 2 10
+    head 3 5
+    armFling 7 11
+
+frame 8
+    legsTogether 3 21
+    skirtPass 1 14
+    armBack 3 11
+    torso 3 10
+    head 4 6
+    armOffer 8 11
+
+frame 9
+    legsTogether 3 21
+    skirtPass 1 14
+    armBack 3 12
+    torso 3 11
+    head 4 7
+    armOfferEmpty 8 12
+
+frame 10
+    legsTogether 3 21
+    skirtPass 1 14
+    armBack 2 10
+    torso 2 9
+    head 3 4
+    armDown 7 10

@@ -1,0 +1,63 @@
+# townGorm 12x26, 4 frames (town-2, `TownSprites.FarmerFrame`): Gorm Ashby, the cottar of the near field, pays the
+# field's share (docs/TOWN.md section 6): he leaves his hoe in the furrow, comes to the field's edge and counts his
+# coins out of a knotted cloth into the lord's hand; he never tosses. His body is the people lane's (base/gorm.txt: the
+# stoop of thirty summers over the rows, the torn straw hat, the darned smock, the rag-wrapped shins).
+#   0-1 waiting with the knotted cloth held before him (a breath)
+#   2 the hand in the opened cloth (a coin shows), 3 the hand held out with a coin
+id townGorm
+size 12x26
+frames 4
+outline ink shade
+include base/gorm.txt
+
+legend
+    G = gold
+    Y = strawLight
+    W = parchment
+
+# the near arm in the earth smock (o), his hand (S lit, s shade), the undyed cloth (W lit, w, q shade)
+part clothHold
+    o...
+    .SW.
+    .wwq
+    ..qq
+
+part clothOpen
+    o...
+    .S..
+    .wGq
+    ..qq
+
+part coinOut
+    o...
+    .oSG
+    .wq.
+    .qq.
+
+frame 0
+    legsStand 1 16
+    torso 3 9
+    hat 4 2
+    head 6 6
+    clothHold 7 10
+
+frame 1
+    legsStand 1 16
+    torso 3 10
+    hat 4 3
+    head 6 7
+    clothHold 7 11
+
+frame 2
+    legsStand 1 16
+    torso 3 9
+    hat 4 2
+    head 6 6
+    clothOpen 7 10
+
+frame 3
+    legsStand 1 16
+    torso 3 9
+    hat 4 2
+    head 6 6
+    coinOut 7 10
