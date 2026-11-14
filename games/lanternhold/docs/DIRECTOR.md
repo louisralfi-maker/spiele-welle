@@ -295,3 +295,9 @@ submission.
   one that needs a system of its own goes to "later" and is told to Louis as such.
 - **Quota, 16:39:** weekly 29 % (21 % at 15:45, with five workflows running). No sixth workflow before the rebuild
   joins.
+
+**world-1 (the rock and the fog), 14.11.2026 17:12.** The lane's report is in (round lh-w1-6 ALL PASSED on 9e9cda9,
+head e9ec11f). The director's own look: about 7 of ten, a clear step up from build 86 (the wall of rock, the warden's
+niche, the bank at night). Five corrections went to the lane's notes: the far wall's speckled snow, the fog's dither
+mesh, the slit of sky at dusk, the warm crags' palette, the muddy cleft wall at dusk. Louis sees a picture after the
+fix round.
