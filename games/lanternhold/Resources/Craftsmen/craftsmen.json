@@ -23,10 +23,10 @@
         "clothes": "dressWithApron",
         "face": "old",
         "beard": "noBeard",
-        "hair": "bun",
+        "hair": "longHair",
         "hat": "noHat",
         "skin": "light",
-        "hairColor": "midBrown",
+        "hairColor": "grey",
         "cloth": "blue",
         "female": true
       }

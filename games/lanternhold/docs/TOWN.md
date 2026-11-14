@@ -99,7 +99,7 @@ are in docs/lanes/craft.md). The director's starting list stands below the final
   The statue, the road lanterns and the portrait are measured in the reference bots' runs (14 nights, two seeds,
   commissioned on the craftsman's first day, over the nights the work stands); every other work in a scene of play
   that isolates what it changes (`Tests/CraftMeasures.swift`), because the reference bot's comfortable nights hide a
-  work of 4 %. Round lh-c1f1-1:
+  work of 4 %. Round lh-c1f1-3 (the same numbers as lh-c1f1-1 and -2):
 
   | work | its own number | moved |
   |---|---|---|
