@@ -107,8 +107,20 @@ No other existing file changed. `PetitionData.swift`, `PetitionEngine.swift`, `C
 
 ### Rounds
 
-- `lh-q1-1` (build, unit over the table's tests plus `SaveGameTests` and `DebugArgsTests`, ui and ui-de
-  `TableUITests`): running.
+- `lh-q1-1` on `3ef9f22` (build, unit over the table's tests plus `SaveGameTests` and `DebugArgsTests`, ui and ui-de
+  `TableUITests`): build passed with no warning from the lane's files; 47 of 48 unit tests passed (the neutrality
+  test asked for the table at the dawn of day 2, which comes before the first look that day); the UI test failed
+  only its first check (the list read the realm before `openTable` uncovered it and showed "hook:0"), the rest of
+  the flow ran in English and German. The shots showed three more things to fix: the sent slip vanished ("nothing
+  waits today" right after sending, where QUESTS.md 5.2 keeps it with "Call back"), the report card's second choice
+  sat below the fold, and IM Fell's old-style 1 read as an I in "1 night". Fixed in `63f4a27`, together with the
+  answer's chips under its reaction and "Next brazier free" instead of "Will be remembered" for the oil kept.
+- `lh-q1-2` on `63f4a27` (build, unit, ui, ui-de, release): **ALL PASSED**. 447 unit tests (411 before the lane, 36
+  new), no build warning from the lane's files; the tuning report is byte for byte the one of `lh-snd-2` (T1 to T8
+  and the Court line unchanged); the table validator reports nothing over 101 keys; ui and ui-de passed every test,
+  `TableUITests` in 38 s and 31 s; release passed. The shots `40-table-list` to `43-table-reaction` in English and
+  German show the slip, the sent slip with "Call back", Pip's report with both choices and their chips above the
+  fold, and the answer's reaction with "+1 happiness" and "Seen in the realm"; the German texts fit.
 
 ### Open, and what waits for the join or round 2
 
