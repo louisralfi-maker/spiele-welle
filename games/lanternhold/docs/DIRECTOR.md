@@ -161,3 +161,38 @@ The three widest gaps against it today: the night is small and passive; a judgme
 - **The first sootling.** Night 1 teaches without a word: one sootling walks to the edge of the first brazier's light and shrinks back; a second one comes through where no light stands, and the guard deals with it.
 - **Odile's counsel.** One line from the steward at every dawn, chosen by rule from the realm's state (a dark brazier, a damaged wall, unspent gold that would buy something useful, no archer on the wall), never the same twice in a row. It replaces a tutorial and shows the money curve.
 
+
+## 7. Louis' wishes of 14.11.2026 (afternoon): taxes on foot, the growing town, craftsmen, two bars
+
+Louis answered the director's ideas with wishes of his own and an interview. The spec is `docs/TOWN.md`; his two bars are
+in `docs/BARS.md` (the desk copy every agent reads is `ci-out/director/artbar.md`).
+
+- **The tax menu goes.** The lord walks to the houses and the people toss him their coins. To demand more he knocks at
+  the door (Louis: "wenn man nachfordert und auf die Tür drückt, klopft der König dran").
+- **Later:** a treasury, and a tax collector to hire. The town's buildings grow in tiers, and a town that is built up
+  pays more. The director reads "die Gebäude hinten" as the town's houses plus the backdrop row behind them; Louis was
+  told so and may correct it.
+- **Travelling craftsmen** appear in the throne hall and offer works. Louis chose "schön und nützlich": every work is
+  seen in the world and has one small effect.
+- **The interface bar:** "ziemlich minimal, aufgeräumt … wie bei Kingdom Two Crowns, dass die Steuerung und alles
+  selbsterklärend ist". No permanent HUD; windows instead of numbers (approved: "okay gute Idee").
+- **The art bar:** "Pixel-Look, aber es sollte wie ein verdammtes Triple-A-Game aussehen, dass man gar nicht sieht, dass
+  es von einer KI gemacht wurde".
+- **The split (Louis):** TestFlight build 2 on Monday 16.11. has the taxes on foot and no tax menu. Build 3, some days
+  later, has the treasury with the collector, the growing town and the craftsmen.
+
+**A third workflow** runs next to the rebuild and the v1 lanes: `docs/workflows/town-lanes.js`, two gated Opus 5.5 lanes.
+
+| lane | worktree, branch | steps |
+|---|---|---|
+| town | `lh-town`, `claude/lh-town` | town-1 taxes on foot in Core; town-2 the same on screen (build 2); town-3 treasury, collector and growth in Core (build 3) |
+| craft | `lh-craft`, `claude/lh-craft` | craft-1 the offer in the audience engine, ten craftsmen in English and German, the effects in Core (build 3) |
+
+**Notes sent on 14.11. 14:25:** stage (no permanent HUD in stage-3, no tax card, a door as a touch target), world (door
+anchors, window and shutter states, the backdrop row as its own sheet, room for a treasury), ads ("Double taxes" as a
+flag for the day), panels, quests and i18n (the two bars; the tax strings will go).
+
+**For the join:** the screen side of the taxes is re-hooked to the rebuilt town and to stage-2's touch; the townsman who
+brings the first coins belongs to the onboarding lane; the store texts are read again after the tax change; the art and
+the hall screens of build 3 (treasury, collector, house tiers, backdrop looks, craftsmen and their works) get a lane
+of their own after the join.
