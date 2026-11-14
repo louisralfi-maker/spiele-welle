@@ -44,13 +44,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zurück, und Ser Ludo kenne ich noch immer nicht. Eure Brandpfeile verlöschen noch immer zu früh."
+            "value" : "Ser Ludo kenne ich immer noch nicht, bevor Ihr fragt. Eure Brandpfeile verlöschen noch immer zu früh."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Back, and I still haven’t met Ser Ludo. Your fire arrows still go out too soon."
+            "value" : "Still haven’t met Ser Ludo, before you ask. Your fire arrows still go out too soon."
           }
         }
       }
@@ -80,13 +80,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Brannock wird Euch dafür küssen wollen. Bitte lasst ihn nicht."
+            "value" : "Pech auf die Pfeile. Brannock wird eine Woche lang unerträglich sein. Ich würde es trotzdem kaufen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Brannock will want to kiss you for this. Please don’t let him."
+            "value" : "Pitch on the arrows. Brannock will be unbearable about it for a week. I would still buy it."
           }
         }
       }
@@ -116,13 +116,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Kaserne riecht eine Woche nach Kiefer. Ab morgen Nacht schlägt ein Brandpfeil ein und brennt und brennt."
+            "value" : "Ihre Finger sind danach schwarz vom Pech. Die Kaserne riecht eine Woche nach Kiefer, und ab der nächsten Nacht brennt ein Brandpfeil und brennt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The barracks smell of pine for a week. From tomorrow night a fire arrow lands, and burns, and burns."
+            "value" : "Her fingers come away black with pitch. The barracks smell of pine for a week, and from the next night a fire arrow burns, and burns."
           }
         }
       }
@@ -134,13 +134,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Pech hält sich. Groll auch, aber ich habe noch keinen.“"
+            "value" : "Sie steckt eine schwarze Feder in Euren Türrahmen. „Damit ich Euch wiederfinde.“"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“Pitch keeps. So do grudges, but I haven’t got one yet.”"
+            "value" : "She pushes a black feather into your door frame. “So I can find you again.”"
           }
         }
       }
@@ -188,13 +188,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ja, die Sieben Hügel. Nein, Ser Ludo kenne ich nicht; daheim kennt ihn keiner. Eure Brandpfeile verlöschen, bevor ihre Arbeit getan ist. Einen Tag an Eurer Werkbank mit meinem Pech, und jeder Brandpfeil brennt eine Sekunde länger, wo er einschlägt."
+            "value" : "Ja, die Sieben Hügel. Nein, Ser Ludo kenne ich nicht; daheim kennt ihn keiner. Eure Brandpfeile verlöschen, bevor ihre Arbeit getan ist. Einen Tag an Eurer Werkbank mit meinem Pech, und jeder Brandpfeil brennt etwas länger, wo er einschlägt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yes, the Seven Hills. No, I’ve never met Ser Ludo; nobody at home has. Your fire arrows go out before their work is done. A day at your bench with my pitch, and every fire arrow burns a second longer where it lands."
+            "value" : "Yes, the Seven Hills. No, I’ve never met Ser Ludo; nobody at home has. Your fire arrows go out before their work is done. A day at your bench with my pitch, and every fire arrow burns a little longer where it lands."
           }
         }
       }
@@ -206,13 +206,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zurück, und meine Gussform ist noch ganz, was in meinem Handwerk als Glück gilt. Euer Torturm ist so stumm, wie ich ihn verlassen habe."
+            "value" : "Kein Sprung in meiner Gussform, die ganze Straße lang, was in meinem Handwerk als Glück gilt. Euer Torturm ist noch immer stumm wie ein geschlossener Mund."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Back, and my mould is still in one piece, which in my trade counts as luck. Your gate tower is as quiet as I left it."
+            "value" : "Not a crack in my mould the whole road, which in my trade counts as luck. Your gate tower is still as quiet as a shut mouth."
           }
         }
       }
@@ -278,13 +278,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Er gräbt seine Grube im Hof. Zwei Tage später schlägt die Glocke einmal, tief, und jeder Hund im Tal antwortet."
+            "value" : "Er entblößt Unterarme, glänzend von alten Brandnarben, und gräbt seine Grube. Zwei Tage später schlägt die Glocke einmal, tief, und jeder Hund im Tal antwortet."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "He digs his pit in the courtyard. Two days later the bell rings once, deep, and every dog in the valley answers."
+            "value" : "He bares forearms shiny with old burns and digs his pit. Two days on the bell rings once, deep, and every dog in the valley answers."
           }
         }
       }
@@ -296,13 +296,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Glocken hängen jahrhundertelang herum. Ich kann eine Woche herumhängen.“"
+            "value" : "Er legt die Hand hinters Ohr, wie Gießer es tun. „Nicht jetzt? Das hab ich gehört. Das hören wir immer.“"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“Bells hang about for centuries. I can hang about a week.”"
+            "value" : "He cups a hand behind his ear, as founders do. “Not now? That I heard. We always hear that one.”"
           }
         }
       }
@@ -314,13 +314,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„In Greybell sagen wir, ein Haus ohne Glocke ist ein Haus, das schläft.“ Er geht, ohne Eile."
+            "value" : "„In Brazenmoor sagen wir, ein Haus ohne Glocke ist ein Haus, das schläft.“ Er geht, ohne Eile."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“In Greybell we say a house without a bell is a house asleep.” He goes, unhurried."
+            "value" : "“In Brazenmoor we say a house without a bell is a house asleep.” He goes, unhurried."
           }
         }
       }
@@ -332,13 +332,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Glockengießer aus Greybell"
+            "value" : "Glockengießer aus Brazenmoor"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bell-founder from Greybell"
+            "value" : "Bell-founder from Brazenmoor"
           }
         }
       }
@@ -440,13 +440,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sie baut ihren kleinen Ofen im Hof auf. Ab morgen brennt jede Feuerschale klarer und etwas weiter."
+            "value" : "Sie hustet die halbe Nacht über ihrem kleinen Ofen, den Husten der Glaser. Im Morgengrauen trägt jede Feuerschale Glas und brennt klarer und weiter."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "She sets up her little furnace in the courtyard. From tomorrow every brazier burns clearer, and a little wider."
+            "value" : "She coughs over her little furnace half the night, a glazier’s cough. At dawn every brazier wears glass, and burns clearer and wider."
           }
         }
       }
@@ -458,13 +458,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Ich komme auf dem Weg nach Norden wieder vorbei. Lasst dem Fels nicht Euer ganzes Licht.“"
+            "value" : "„Wisst Ihr, wie lange eine Scheibe im Karren auf der Küstenstraße hält? Ich auch nicht. Wir finden es beide heraus.“"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“I’ll pass back on my way north. Don’t let the rock have all your light.”"
+            "value" : "“Do you know how long a pane lasts in a cart on the coast road? Nor do I. We’ll both find out.”"
           }
         }
       }
@@ -602,13 +602,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zwei Tage Hämmern. Dann trägt das Tor Eisen, und eine kleine goldene Laterne fängt jeden Morgen das erste Licht."
+            "value" : "Zwei Tage Hämmern, ihr rechter Arm doppelt so stark wie der linke. Dann trägt das Tor Eisen, und eine goldene Laterne fängt das erste Licht."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Two days of hammering. Then the gate wears iron, and a small gold lantern catches the first light each morning."
+            "value" : "Two days of hammering, her right arm twice the size of her left. Then the gate wears iron, and a gold lantern catches the first light."
           }
         }
       }
@@ -620,13 +620,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Eisen rostet nicht im Karren. Kaum. Ich komme wieder.“"
+            "value" : "„Dann vergolde ich irgendeinem Händler in Tallowford die Tür und berechne ihm das Doppelte. Euch zuliebe.“"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“Iron doesn’t rust in a cart. Much. I’ll be back.”"
+            "value" : "“Then I’ll gild some merchant’s door in Tallowford and charge him double. On your behalf.”"
           }
         }
       }
@@ -692,13 +692,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wieder daheim, für eine Weile. Die Straße von Eurem Tor ist so dunkel, wie ich sie verlassen habe."
+            "value" : "Wieder daheim, für eine Weile. Eure Laternen enden noch immer am letzten Haus, und die Felder sind so dunkel, wie ich sie verlassen habe."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Home again, for a while. The road from your gate is as dark as I left it."
+            "value" : "Home again, for a while. Your lanterns still stop at the last house, and the fields are as dark as I left them."
           }
         }
       }
@@ -710,13 +710,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Beleuchtet die Straße"
+            "value" : "Beleuchtet den Weg zur Furt"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Light the road"
+            "value" : "Light the road to the ford"
           }
         }
       }
@@ -728,13 +728,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Laternen für eine Straße, die die Stadt ganz gern geht. Fragt mich wieder, wenn sie wütend ist."
+            "value" : "Mehr Laternen für eine Stadt, die zufrieden genug ist. Fragt mich wieder, wenn sie wütend ist."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lanterns for a road the town walks happily enough. Ask me again when it is angry."
+            "value" : "More lanterns for a town that is happy enough. Ask me again when it is angry."
           }
         }
       }
@@ -764,13 +764,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zwei Tage später leuchtet die Straße zur Dämmerung vom Tor bis zur Stadt. Irgendeine Großmutter geht sie zweimal, einfach so."
+            "value" : "Seine Daumen sind schwarz gebrannt von vierzig Jahren Dochte. In der zweiten Dämmerung geht der Laternenanzünder am letzten Haus vorbei weiter, bis zur Furt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Two days on, the road glows at dusk from gate to town. Somebody’s grandmother walks it twice, just because."
+            "value" : "His thumbs are burnt black from forty years of wicks. At the second dusk your lamplighter walks on past the last house, to the ford."
           }
         }
       }
@@ -782,13 +782,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Dunkle Straßen halten sich. Ich komme auf einer zurück.“"
+            "value" : "„Ich bin bei meiner Mutter. Jeder in Tallowford kennt das Haus: Es hat zu viele Lampen.“"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“Dark roads keep. I’ll come back along one.”"
+            "value" : "“I’ll be at my mother’s. Everybody in Tallowford knows the house: it has too many lamps.”"
           }
         }
       }
@@ -836,13 +836,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ich habe mein Handwerk in Eurem Tallowford gelernt und bin fort, um mehr Geld zu finden. Es gab keins. Zwei Tage, zwölf Laternen von Eurem Tor bis zum letzten Haus, und die Stadt bleibt länger gelassen. Auf einer hellen Straße verzeiht man viel."
+            "value" : "Mein Handwerk hab ich hier in Tallowford gelernt, dann bin ich fort, um mehr Geld zu finden. Es gab keins. Die Laternen Eures Anzünders enden am letzten Haus. Zwei Tage, und ich führe sie weiter bis zu den Feldern und zur Furt, und die Stadt bleibt länger gelassen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "I learned my trade in your own Tallowford, then left to find more money. There wasn’t any. Two days, twelve lanterns from your gate to the last house, and the town’s temper holds longer. People forgive a lot on a lit road."
+            "value" : "Learned my trade here in Tallowford, then left to find more money. There wasn’t any. Your lamplighter’s lanterns stop at the last house. Two days, and I carry them on to the fields and the ford, and the town keeps its temper longer."
           }
         }
       }
@@ -854,13 +854,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zurück mit frischem Kalk. Die letzte Ladung ist im Karren hart geworden, das ist das Dumme am Warten."
+            "value" : "Frischer Kalk. Die letzte Ladung ist im Karren hart geworden, das ist das Dumme am Warten. Dieser ist noch weich."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Back with fresh lime. The last batch set hard in the cart, which is the trouble with waiting."
+            "value" : "Fresh lime. The last batch set hard in the cart, which is the trouble with waiting. This one is still soft."
           }
         }
       }
@@ -926,13 +926,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ab morgen riecht der Wehrgang nach nassem Kalk, und in jedem Kübel steckt eine Kelle wie ein kleines Fähnchen."
+            "value" : "Er arbeitet mit bloßen Händen, die Knöchel vom Kalk weiß gesprungen. Bei Sonnenaufgang steckt in jedem Kübel auf dem Wehrgang eine Kelle wie ein Fähnchen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "By tomorrow the wall walk smells of wet lime, and a trowel stands in every tub like a little flag."
+            "value" : "He works bare-handed, knuckles cracked white by the lime. By sunrise a trowel stands in every tub on the wall walk like a little flag."
           }
         }
       }
@@ -944,13 +944,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Kalk hält sich, wenn man ihn trocken hält. Ich halte ihn trocken.“"
+            "value" : "Er sagt nichts. Er breitet Sackleinen über seine Kübel, gegen den Regen, ganz langsam, und ist fort."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“Lime keeps if you keep it dry. I’ll keep it dry.”"
+            "value" : "He says nothing. He spreads sacking over his tubs against the rain, slowly, and is gone."
           }
         }
       }
@@ -1016,13 +1016,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wieder da, wie versprochen. Auf Eurem Markt steht noch {kein Burgherr|keine Burgherrin}, und mein Steinblock wartet sehr geduldig."
+            "value" : "Mein Block trägt noch Euer Kreidezeichen, und Eurem Markt fehlt noch {sein Burgherr|seine Burgherrin}. Das eine richte ich mit dem anderen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Back, as I said. Your market still has no {lord|lady} on it, and my block of stone has been waiting very patiently."
+            "value" : "My block still wears your chalk mark, and your market still wants its {lord|lady}. I can mend the one with the other."
           }
         }
       }
@@ -1088,13 +1088,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sie spuckt in die Hände. „Zwei Tage. Haltet einen davon still; das schafft nie einer.“"
+            "value" : "Sie spuckt in Hände, grau von Staub, der nie mehr abgeht. „Zwei Tage. Haltet einen davon still; das schafft nie einer.“"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "She spits on her palms. “Two days. Hold still for one of them; lords never do.”"
+            "value" : "She spits into palms grey with dust that never washes out. “Two days. Hold still for one of them; lords never do.”"
           }
         }
       }
@@ -1106,13 +1106,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Stein wartet. Ich auch, ein bisschen.“ Sie kommt wieder vorbei."
+            "value" : "Sie malt mit Kreide eine kleine Laterne auf ihren Steinblock. „Der gehört jetzt Euch. Den kriegt kein anderer.“"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“Stone waits. So can I, a little.” She will pass this way again."
+            "value" : "She chalks a little lantern on her block of stone. “That one’s yours now. Nobody else gets it.”"
           }
         }
       }
@@ -1160,13 +1160,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ich habe vier Burgherren gemeißelt und einen sehr stolzen Widder. Zwei Tage, und Ihr steht in Stein auf Eurem Markt, die Stange erhoben. An einem vertrauten Gesicht zahlt man gern: Solange die Stadt zufrieden ist, gibt jedes Haus eine Münze mehr."
+            "value" : "Ich habe vier Burgherren gemeißelt und einen sehr stolzen Widder. Zwei Tage, und Ihr steht in Stein auf Eurem Markt, den Laternenstab erhoben. An einem vertrauten Gesicht zahlt man gern: Solange die Stadt zufrieden ist, gibt jedes Haus eine Münze mehr."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "I’ve carved four lords and one very proud ram. Two days, and you stand on your market in stone, pole raised. Folk pay gladly past a face they know: while the town is content, each house adds a coin."
+            "value" : "I’ve carved four lords and one very proud ram. Two days, and you stand on your market in stone, lantern staff raised. Folk pay gladly past a face they know: while the town is content, each house adds a coin."
           }
         }
       }
@@ -1178,13 +1178,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ich habe Euch eine Leinwand aufgehoben. Ihr seht schon etwas mehr nach {Burgherr|Burgherrin} aus als letztes Mal, falls das hilft."
+            "value" : "Ich habe oft an das Licht in Eurem Saal gedacht, {verehrter Herr|verehrte Herrin}; es ist ein Malerlicht, und ich konnte nicht fernbleiben. Die Leinwand gehört noch Euch, wann immer Ihr einen Nachmittag erübrigt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "I kept a canvas for you. You look a little more like a {lord|lady} than last time, if that helps."
+            "value" : "I have thought often of the light in your hall, my {lord|lady}; it is a painter’s light, and I could not stay away. The canvas is still yours, whenever you can spare an afternoon."
           }
         }
       }
@@ -1250,13 +1250,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Kinn hoch. Nicht so hoch.“ Am Morgen hängt Ihr im Saal, um einiges geduldiger als im Leben."
+            "value" : "Er staubt den Hocker mit einem duftenden Tuch ab, ehe er sich setzt. „Das Kinn hoch, ich bitte Euch. Nicht ganz so hoch.“ Am Morgen hängt Ihr im Saal."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“Chin up. Not that far.” By morning you hang in the hall, a good deal more patient than in life."
+            "value" : "He dusts the stool with a scented cloth before he will sit on it. “Chin up, I beg you. Not quite so far.” By morning you hang in the hall."
           }
         }
       }
@@ -1268,13 +1268,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Gesichter halten sich. Meistens. Ich komme wieder vorbei.“"
+            "value" : "„Gewiss, gewiss. Eine ganz andere Saison. Ich stehe Euch wie stets zur Verfügung, mehr oder weniger.“"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“Faces keep. Mostly. I’ll come by again.”"
+            "value" : "“Of course, of course. Another season entirely. I remain, as ever, at your disposal, more or less.”"
           }
         }
       }
@@ -1286,13 +1286,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Er verbeugt sich, erleichtert. „Klug. Porträts enttäuschen nur den, der sitzt.“"
+            "value" : "Er verneigt sich, ein wenig erleichtert. „Sehr weise. Ein Bildnis enttäuscht nur den, der sitzt, und recht oft den Maler.“"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "He bows, relieved. “Wise. Portraits only ever disappoint the sitter.”"
+            "value" : "He bows, a little relieved. “Most wise. A portrait only ever disappoints the sitter, and very often the painter.”"
           }
         }
       }
@@ -1304,31 +1304,67 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Porträtmaler aus Stillmere"
+            "value" : "Meistermaler aus Stillmere"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Portrait painter from Stillmere"
+            "value" : "Master painter of Stillmere"
           }
         }
       }
     },
     "craft.painter.text" : {
-      "comment" : "The offer on the audience card, in the craftsman's voice: the work, how long it takes, what it does. The price shows on the first choice. At most 240 characters in English.",
+      "comment" : "The noble portrait painter's offer (a master of the inner lands: long, polite sentences that say little), spoken to a village; a hamlet hears craft.painter.text_hamlet, a town craft.painter.text_town. The work, how long it takes, what it does. The price shows on the first choice. At most 240 characters in English.",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "In Stillmere malen wir Herren mit Krone. Man sagt mir, Ihr haltet lieber die Stange. Eine Sitzung, ein Tag zum Trocknen, und Ihr hängt im großen Saal. Die Stadt wird vorbeiziehen, schauen und froher heimgehen."
+            "value" : "{Verehrter Herr|Verehrte Herrin}, Ihr seid zu gütig. In Stillmere malen wir Syndici in ihren Amtsketten; man sagt, Ihr haltet lieber den Laternenstab, was, wenn ich darf, das schönere Motiv ist. Eine Sitzung, ein Tag zum Trocknen, und Ihr hängt in Eurem Saal, der Stadt zur Freude."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "In Stillmere we paint lords with crowns. I’m told you’d rather hold the pole. One sitting and a day to dry, and you hang in the great hall. The town will file past to look, and go home cheered."
+            "value" : "My {lord|lady}, you are too kind to receive me. In Stillmere we paint syndics in chains of office; I hear you prefer the lantern staff, which is, if I may, the finer subject. One sitting, a day to dry, and you hang in your hall, to the town’s joy."
+          }
+        }
+      }
+    },
+    "craft.painter.text_hamlet" : {
+      "comment" : "The noble portrait painter's offer when the realm is still a hamlet: long, polite, faintly appalled (he treats it as beneath him). Same work and effect as craft.painter.text. At most 240 characters in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{Verehrter Herr|Verehrte Herrin}, wie überaus … beschaulich es hier ist. Man sprach mir von einer Stadt; einerlei, ganz einerlei, der Weg war reizend. Eine Sitzung, ein Tag zum Trocknen, und Ihr hängt in Eurem Saal. Vielleicht erheitert es sogar Eure … Pächter, ein wenig."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My {lord|lady}, how very… restful it is here. I was told of a town; no matter, none at all, the road was charming. One sitting and a day to dry, and you hang in your hall. It may even cheer your… tenants, a little."
+          }
+        }
+      }
+    },
+    "craft.painter.text_town" : {
+      "comment" : "The noble portrait painter's offer when the realm has become a town: long, polite, eager (a client worth having). Same work and effect as craft.painter.text. At most 240 characters in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{Mein lieber Herr|Meine liebe Herrin}, ganz Stillmere spricht von Eurer Stadt, und ich ließ meine Staffelei nass stehen, um zu kommen. Lasst Euch malen, ehe meine Rivalen davon hören, ich bitte Euch. Eine Sitzung, ein Tag zum Trocknen, und Ihr hängt in Eurem Saal, der ganzen Stadt zur Freude."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My dear {lord|lady}, all Stillmere speaks of your town, and I confess I left my easel wet to come. Let me paint you before my rivals hear of it, I beg you. One sitting, a day to dry, and you hang in your hall, to the whole town’s joy."
           }
         }
       }
@@ -1412,13 +1448,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ab morgen trägt die Mauer Blaugrün und Gold. Darunter richtet sich eine Wache auf, ohne es zu merken."
+            "value" : "Mit Fingern, bis zum Knöchel blaugrün gefärbt, hängt sie sie selbst auf. Am Morgen richtet sich darunter eine Wache auf, ohne es zu merken."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "By tomorrow the wall wears teal and gold. Below it a guard straightens up without noticing."
+            "value" : "Fingers dyed teal to the knuckle, she hangs them herself. Next morning a guard below them straightens up without noticing."
           }
         }
       }
@@ -1430,13 +1466,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Fahnen halten sich, gefaltet. Ich bringe sie wieder vorbei.“"
+            "value" : "„Eine Fahne bemerkt keiner, bis zu der Nacht, in der sie fehlt.“ Sie faltet sie zusammen, langsam genug, dass Ihr zuseht."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“Banners keep, folded. I’ll bring them by again.”"
+            "value" : "“Nobody notices a banner until the night it isn’t there.” She folds them away, slowly enough for you to watch."
           }
         }
       }
@@ -1502,13 +1538,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zurück, die Räder schon gerichtet. Eure Bauleute gehen noch zu Fuß, wie ich sehe."
+            "value" : "Jedes Rad unterwegs gerichtet, nachts. Eure Bauleute gehen noch zu Fuß, wie ich sehe."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Back, with the wheels already trued. Your builders are still walking, I notice."
+            "value" : "Trued every wheel on the road, nights. Your builders are still walking, I notice."
           }
         }
       }
@@ -1574,13 +1610,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ab morgen stehen zwei blaugrüne Karren bei der Bauhütte. Die Bauleute fahren einmal um die Wette, als sie sich unbeobachtet glauben."
+            "value" : "Er zählt die Speichen an neun Fingern ab, zweimal. Im ersten Licht stehen zwei blaugrüne Karren bei der Bauhütte, und die Bauleute fahren einmal um die Wette."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "By tomorrow two teal carts stand by the lodge. The builders race them, once, when they think nobody is looking."
+            "value" : "He counts the spokes on nine fingers, twice. At first light two teal carts stand by the lodge, and the builders race them once."
           }
         }
       }
@@ -1592,13 +1628,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Räder rollen gern weiter. Ich rolle zurück.“"
+            "value" : "Er dreht ein loses Rad auf der Achse und lauscht, bis es stillsteht. Dann nickt er, als hätte es Euch recht gegeben."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“Wheels like to roll on. I’ll roll back.”"
+            "value" : "He spins a loose wheel on its axle and listens until it stops. Then he nods, as if it had agreed with you."
           }
         }
       }

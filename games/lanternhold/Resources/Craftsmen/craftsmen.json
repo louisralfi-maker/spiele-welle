@@ -23,7 +23,7 @@
         "clothes": "dressWithApron",
         "face": "old",
         "beard": "noBeard",
-        "hair": "bun",
+        "hair": "longHair",
         "hat": "noHat",
         "skin": "light",
         "hairColor": "grey",
@@ -55,7 +55,8 @@
         "hairColor": "black",
         "cloth": "plum",
         "female": false
-      }
+      },
+      "stageLines": true
     },
     {
       "id": "founder",
@@ -206,12 +207,12 @@
       "body": "petitionerE",
       "look": {
         "clothes": "tunic",
-        "face": "long",
-        "beard": "noBeard",
+        "face": "old",
+        "beard": "shortBeard",
         "hair": "shortHair",
         "hat": "noHat",
         "skin": "pale",
-        "hairColor": "blond",
+        "hairColor": "grey",
         "cloth": "teal",
         "female": false
       }

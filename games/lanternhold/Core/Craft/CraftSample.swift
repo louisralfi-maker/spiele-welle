@@ -1,6 +1,8 @@
 /// `-GWScreen craft` (craft lane): a travelling craftsman waits alone before the throne on a morning, his offer about
 /// to be heard. `-GWCraft <id>` picks him (the stonemason by default), `-GWCraftAgain YES` makes it his return visit
-/// after "not now" (two answers). The realm gets enough gold for the commission, so the commissioned card can be shown.
+/// after "not now" (two answers), `-GWCraftStage hamlet|village|town` the realm's stage the painter speaks to (its
+/// happiness; left out: the realm's own). The realm gets enough gold for the commission, so the commissioned card can be
+/// shown.
 enum CraftSample {
     static let defaultCraftsman = "mason"
     /// Day 9 (a craftsman's day after the war tax's story, which the sample's queue leaves out) at 10:30.
@@ -9,9 +11,10 @@ enum CraftSample {
 
     /// The realm with the craftsman waiting; false when the book has no such craftsman (the realm stays as it was).
     @discardableResult
-    static func prepare(_ s: inout GameState, craftsman id: String, again: Bool,
+    static func prepare(_ s: inout GameState, craftsman id: String, again: Bool, stage: CraftStage? = nil,
                         book: CraftBook = .standard) -> Bool {
         guard let craftsman = book.craftsman(id) else { return false }
+        if let stage { s.happiness = stage.sampleHappiness() }
         s.day = max(s.day, day)
         s.hour = hour
         CraftVisits.begin(&s)

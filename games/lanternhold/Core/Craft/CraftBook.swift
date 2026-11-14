@@ -11,7 +11,7 @@ enum CraftEffect: String, Codable, Sendable, CaseIterable {
     case rallyReach
     /// The glass: braziers and fire towers light `amount` (a share) further.
     case lightRadius
-    /// The mortar: a patch mends `amount` more of the wall (0.25 of its strength becomes 0.30).
+    /// The mortar: a patch mends `amount` more of the wall (0.25 of its strength becomes 0.26).
     case patchShare
     /// The banners: a holding guard steps back `amount` later (at 25 % of his strength instead of 30 %).
     case guardHold
@@ -69,6 +69,9 @@ struct Craftsman: Codable, Sendable, Equatable {
     /// The body the craftsman stands in the hall with (a `SpriteID` of the townsfolk until the join draws his own).
     var body: String
     var look: CraftLook
+    /// True for the craftsman from the inner lands whose offer follows the realm's stage (`text_hamlet`, `text`,
+    /// `text_town`; `CraftText.spoken`). Left out: one offer for every realm.
+    var stageLines: Bool?
 }
 
 /// When craftsmen come (docs/TOWN.md section 4).
@@ -92,8 +95,23 @@ enum CraftText {
     /// The parts of each craftsman's keys: the name and role over the card, the offer, the offer when he comes back,
     /// Odile's counsel, the commission's label and the three reactions.
     static let parts = ["name", "role", "text", "again", "hint", "c1", "r1", "r2", "r3"]
+    /// The offers of a craftsman with `stageLines`, for a hamlet and for a town (a village hears `text`).
+    static let stageParts = ["text_hamlet", "text_town"]
 
     static func key(_ id: String, _ part: String) -> String { "craft.\(id).\(part)" }
+
+    /// The offer's text key as the craftsman speaks it in `s` (the hook in `AudienceCard.make`): a craftsman with
+    /// `stageLines` turns his first offer to the realm's stage; every other key stays as it is.
+    static func spoken(_ key: String, state s: GameState, book: CraftBook = .standard) -> String {
+        guard key.hasPrefix(keyPrefix), key.hasSuffix(".text") else { return key }
+        let id = String(key.dropFirst(keyPrefix.count).dropLast(".text".count))
+        guard book.craftsman(id)?.stageLines == true else { return key }
+        switch CraftStage.of(s) {
+        case .hamlet: return self.key(id, "text_hamlet")
+        case .village: return key
+        case .town: return self.key(id, "text_town")
+        }
+    }
 
     /// The string table of a text key: the craftsmen's own for their keys, else `fallback` (the hook in `StoryText`).
     static func table(for key: String, fallback: String) -> String {
@@ -105,8 +123,35 @@ enum CraftText {
         var list = [later, no]
         for craftsman in book.craftsmen {
             for part in parts { list.append(key(craftsman.id, part)) }
+            if craftsman.stageLines == true {
+                for part in stageParts { list.append(key(craftsman.id, part)) }
+            }
         }
         return list
+    }
+}
+
+/// The realm's stage as the craftsmen see it (docs/REALM.md section 2: hamlet, village, town). A craftsman from the inner
+/// lands treats a hamlet as beneath him and a town as a client worth having (the director's note of 14.11. 14:35).
+/// Until the town lane's standing (0 to 2 a hamlet, 3 to 6 a village, 7 to 10 a town) joins this branch, happiness
+/// stands in for it: below the volunteer line (70) a hamlet, from the fast-growth line (80) a town, a village between.
+/// The join replaces the body of `of` with the standing.
+enum CraftStage: String, Sendable, CaseIterable {
+    case hamlet, village, town
+
+    static func of(_ s: GameState, balance: Balance = .standard) -> CraftStage {
+        if s.happiness >= balance.fastGrowthFrom { return .town }
+        if s.happiness >= balance.volunteerFrom { return .village }
+        return .hamlet
+    }
+
+    /// A happiness that reads as this stage (the debug sample `-GWCraftStage`).
+    func sampleHappiness(balance: Balance = .standard) -> Int {
+        switch self {
+        case .hamlet: return balance.growthFrom
+        case .village: return balance.volunteerFrom + 4
+        case .town: return balance.fastGrowthFrom + 6
+        }
     }
 }
 

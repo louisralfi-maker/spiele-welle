@@ -89,13 +89,13 @@ final class CraftTests: XCTestCase {
             switch key.split(separator: ".").last.map(String.init) ?? "" {
             case "name": return CourtValidator.nameLimit
             case "role": return CourtValidator.roleLimit
-            case "text", "again": return CourtValidator.textLimit
+            case "text", "again", "text_hamlet", "text_town": return CourtValidator.textLimit
             case "hint": return CourtValidator.hintLimit
             case "c1": return CourtValidator.choiceLimit
             default: return CourtValidator.reactionLimit
             }
         }
-        XCTAssertEqual(keys.count, 92)
+        XCTAssertEqual(keys.count, 94, "ten craftsmen of nine parts, two shared answers, the painter's two stage offers")
         var lines: [String] = []
         for key in keys {
             let english = try XCTUnwrap(table.english[key], "\(key) in English")
@@ -184,6 +184,44 @@ final class CraftTests: XCTestCase {
                       "he stands in the hall")
         var unknown = realm()
         XCTAssertFalse(CraftSample.prepare(&unknown, craftsman: "nobody", again: false))
+    }
+
+    /// The painter is a master of the inner lands: a hamlet is beneath him, a town a client worth having (the director's
+    /// note of 14.11. 14:35). His first offer follows the realm's stage (happiness until the town lane's standing joins:
+    /// below 70 a hamlet, from 80 a town); his return, his reactions and every other craftsman's words do not.
+    func testThePainterSpeaksToTheRealmsStage() throws {
+        XCTAssertEqual(book.craftsmen.filter { $0.stageLines == true }.map(\.id), ["painter"])
+        func card(_ id: String, happiness: Int, again: Bool = false) throws -> AudienceCard {
+            var s = realm(day: 9)
+            XCTAssertTrue(CraftSample.prepare(&s, craftsman: id, again: again))
+            s.happiness = happiness
+            let session = try XCTUnwrap(AudienceSession.begin(.throne, state: s, catalog: .standard, figures: [],
+                                                              reduceMotion: true))
+            return try XCTUnwrap(AudienceCard.make(session: session, state: s, catalog: .standard))
+        }
+        XCTAssertEqual(try card("painter", happiness: 40).textKey, "craft.painter.text_hamlet")
+        XCTAssertEqual(try card("painter", happiness: 69).textKey, "craft.painter.text_hamlet")
+        XCTAssertEqual(try card("painter", happiness: 70).textKey, "craft.painter.text", "a village")
+        XCTAssertEqual(try card("painter", happiness: 79).textKey, "craft.painter.text")
+        XCTAssertEqual(try card("painter", happiness: 80).textKey, "craft.painter.text_town")
+        XCTAssertEqual(try card("painter", happiness: 100).textKey, "craft.painter.text_town")
+        XCTAssertEqual(try card("painter", happiness: 40, again: true).textKey, "craft.painter.again", "his return")
+        XCTAssertEqual(try card("mason", happiness: 40).textKey, "craft.mason.text", "the others: one offer")
+        XCTAssertEqual(try card("mason", happiness: 90).textKey, "craft.mason.text")
+
+        var s = realm()
+        for stage in CraftStage.allCases {
+            s.happiness = stage.sampleHappiness()
+            XCTAssertEqual(CraftStage.of(s), stage, "the sample's happiness reads as \(stage)")
+        }
+        XCTAssertEqual(CraftText.spoken("craft.painter.r1", state: s), "craft.painter.r1")
+        XCTAssertEqual(CraftText.spoken("petition.farmer.text", state: s), "petition.farmer.text")
+        var sample = realm(day: 9)
+        XCTAssertTrue(CraftSample.prepare(&sample, craftsman: "painter", again: false, stage: .town))
+        XCTAssertEqual(CraftStage.of(sample), .town, "-GWCraftStage town")
+        for key in ["craft.painter.text", "craft.painter.text_hamlet", "craft.painter.text_town"] {
+            XCTAssertNotEqual(StoryText.string(key, language: "en"), key, "\(key) in the build")
+        }
     }
 
     // MARK: - The visits

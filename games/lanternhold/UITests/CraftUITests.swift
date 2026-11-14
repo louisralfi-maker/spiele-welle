@@ -4,7 +4,7 @@ import XCTest
 /// Craft lane, step 1 (docs/TOWN.md section 4, docs/lanes/craft.md): a travelling craftsman's offer on the audience
 /// card (`-GWScreen craft`). The stonemason's offer with its price and its two lines, Odile's counsel, the commission
 /// and its reaction; the bell-founder back once after "not now" (two answers, Reduce Motion: the card at once); the
-/// fletcher, the longest German offer. Every button is checked for 44 pt. Saves `60-craft-offer`,
+/// painter in a town, the longest offer. Every button is checked for 44 pt. Saves `60-craft-offer`,
 /// `61-craft-commissioned`, `60b-craft-counsel`, `60c-craft-again`, `60d-craft-longest` (each `-<lang>`).
 @MainActor
 final class CraftUITests: XCTestCase {
@@ -92,14 +92,20 @@ final class CraftUITests: XCTestCase {
     }
 
     /// Every craftsman's card (Reduce Motion, so it opens at once): his face, name and trade, the offer, the price and
-    /// the three answers, each within the card. Saves `62-craft-<id>`.
+    /// the three answers, each within the card. The painter, a master of the inner lands, speaks to the realm's stage:
+    /// the sample realm is a hamlet, and he is shown in a village and a town too. Saves `62-craft-<id>[-<stage>]`.
     func testEveryCraftsmansCard() {
         XCUIDevice.shared.orientation = .landscapeLeft
-        for id in ["mason", "painter", "founder", "glazier", "limeburner", "weaver", "wheelwright", "lampmaker",
-                   "fletcher", "ironwright"] {
+        let cards: [(id: String, stage: String?)] = [
+            ("mason", nil), ("painter", nil), ("painter", "village"), ("painter", "town"), ("founder", nil),
+            ("glazier", nil), ("limeburner", nil), ("weaver", nil), ("wheelwright", nil), ("lampmaker", nil),
+            ("fletcher", nil), ("ironwright", nil),
+        ]
+        for entry in cards {
+            let id = entry.stage.map { "\(entry.id)-\($0)" } ?? entry.id
             let app = XCUIApplication()
-            app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWScreen", "craft", "-GWCraft", id,
-                                   "-GWReduceMotion", "YES"]
+            app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWScreen", "craft", "-GWCraft",
+                                   entry.id, "-GWReduceMotion", "YES"] + (entry.stage.map { ["-GWCraftStage", $0] } ?? [])
             app.launch()
             guard waitUntilReady(app, name: "craft-\(id)") else { continue }
             let card = element(app, "audience-root")
@@ -118,15 +124,15 @@ final class CraftUITests: XCTestCase {
         }
     }
 
-    /// The fletcher: the longest offer in German must fit the card.
+    /// The painter in a town: the longest offer in English and German must fit the card.
     private func longestOffer() {
         let app = XCUIApplication()
         app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWScreen", "craft", "-GWCraft",
-                               "fletcher"]
+                               "painter", "-GWCraftStage", "town"]
         app.launch()
         guard waitUntilReady(app, name: "craft-longest") else { return }
         let card = element(app, "audience-root")
-        XCTAssertTrue(card.waitForExistence(timeout: 10), "the fletcher's card")
+        XCTAssertTrue(card.waitForExistence(timeout: 10), "the painter's card")
         let text = element(app, "audience-text")
         XCTAssertTrue(text.waitForExistence(timeout: 6))
         if text.exists && card.exists {
