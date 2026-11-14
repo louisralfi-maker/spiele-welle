@@ -164,4 +164,34 @@ Unchanged: the four hooks of step panels-1 (table above). Fix round 1 touched on
 
 ### Rounds
 
-- `lh-pn1f1-1` (f2ded7f): build, unit SlidesTests and SlidesPaletteTests, ui and ui-de SlidesUITests. Result below.
+- `lh-pn1f1-1` (f2ded7f): build, unit SlidesTests and SlidesPaletteTests, ui and ui-de SlidesUITests: ALL PASSED.
+  Judged on its screenshots (upright copies in `ci-out/upright-f1-1/` of this worktree): Skip sits in the dark at the
+  bottom right in English and German and touches nothing; after it slide 1's far lands lost their ruled bands, the
+  one-pixel slivers in its smoke and the wide warm strips on the cleft's sides, its creatures got the moon's rim; slide
+  3's horse its lower head and shading; slide 4 lit folds and Hesper's face a step up; the words keep to two lines.
+- `lh-pn1f1-2` (cc4df38): the full round (build, unit, ui, ui-de, release). Result below.
+- `lh-pn1f1-3` (2f705df, pictures and painter only since cc4df38): build, unit SlidesTests and SlidesPaletteTests, ui and
+  ui-de SlidesUITests. Result below.
+
+### My own verdict, and what is weakest
+
+- All five pictures are palette art (29 to 42 colours each), with one subject each and one light direction; the stage
+  is unchanged where the critic said keep.
+- Slide 4 now tells the house's story: the heir of the guardian house, the circlet as it sits, the mended cloak, the
+  lantern passing from Odile's hands, the court close around the hearth. Weakest: the court's faces are the portraits
+  carried down by area vote, readable at phone size but plain at 400 %; their bodies are simple robes with a few marks of
+  life (Bram's scorches, Tamsin's patch, Brannock's mail), and there is no child in the hall.
+- Slide 1 hooks better (the dark and its creatures in front, the castle's light in the one gap, the lands' lights
+  beyond), but its lower third, the smoke, is calm and dark, and the height-field mountains still show some regular
+  ravine streaks on their lower faces.
+- Slide 2's facets read as cut rock; a pixel artist may still see the cell pattern in the large near masses.
+- Slide 3 reads at a glance; the horse is simple (a dark bay in two or three steps).
+- The texts are unchanged (the critic: leave them): slide 4 still says "the one who lights the lamps" until
+  `docs/house-rewrite.json` is applied in the text pass; German slide 3's second line is wider than the glass (STORY.md's
+  words, for the rewrite pass).
+
+### Open, and what waits for the join
+
+- The six other languages for Panels.xcstrings (one pass after the join); the house-rewrite texts for slides 2 and 4.
+- The endings (three slides each) and story beats: the stage takes them as data; their pictures are not painted yet.
+- The rebuild rewrites the name page: the hook in `confirmLord` must follow wherever day 1 begins after the name.
