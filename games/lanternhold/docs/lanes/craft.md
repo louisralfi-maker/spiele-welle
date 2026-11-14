@@ -128,6 +128,11 @@ statue, the portrait and the bell.
 - **lh-c1-5** (322b6f7: build, CraftTests, every card in English) ALL PASSED. On hard nights the bell now moves nothing
   measurable (fallen 4/4, walls 7/7); the glass saves soldiers and walls (fallen 2 against 4, walls lost 4 against 7);
   the rest show nothing. The four faces read.
+- **lh-c1-6** (4c1267e, full: build, unit, ui, ui-de, release) **ALL PASSED** on the step's final code: every unit test
+  (T1 to T8 unchanged, the neutrality test, the effect sizes and the hard-night guard), every UI test in English and
+  German with CraftUITests' 15 shots per language, the Release build. Upright copies of every craft shot of this round:
+  `ci-out/upright-craft-1/` in the lane's worktree (60-craft-offer, 60b-craft-counsel, 60c-craft-again,
+  60d-craft-longest, 61-craft-commissioned, 62-craft-<id> for all ten, each in en and de).
 
 ### What is open, and what waits for the join
 
