@@ -26,13 +26,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Seit dem Dunklen Jahr hat sie keiner gezählt."
+            "value" : "Seit dem Dunklen Jahr stand keiner von uns auf dieser Treppe."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nobody has counted them since the Dark Year."
+            "value" : "Nobody of ours has stood on that stair since the Dark Year."
           }
         }
       }
@@ -1214,13 +1214,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bei sechzig wird es still im Saal. Odile schlägt das Familienbuch auf und zählt die Burgherren noch einmal mit dem Finger."
+            "value" : "Als der Späher sechzig sagt, wird es still im Saal. Odile schlägt das Familienbuch auf und zählt die Burgherren noch einmal mit dem Finger."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The hall goes quiet at sixty. Odile opens the family book and counts the lords again with her finger."
+            "value" : "The hall goes quiet when the scout says sixty. Odile opens the family book and counts the lords again with her finger."
           }
         }
       }
@@ -1880,13 +1880,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Niemand nimmt es ab. Im Herbst nicken die Fuhrleute dem Mühlenhemd zu, wie man einem alten Mann an seiner Tür zunickt."
+            "value" : "Niemand nimmt es ab. Den ganzen Winter über nicken die Fuhrleute dem Mühlenhemd zu, wie man einem alten Mann an seiner Tür zunickt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nobody takes it down. By autumn the carters nod to the mill shirt as they pass, the way one nods to an old man at his door."
+            "value" : "Nobody takes it down. Through the winter the carters nod to the mill shirt as they pass, the way one nods to an old man at his door."
           }
         }
       }
@@ -3669,6 +3669,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The Lantern Table"
+          }
+        }
+      }
+    },
+    "table.waits" : {
+      "comment" : "Why an order cannot leave: the named person stands in today's audience queue and is heard first.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{who} wartet im Saal"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{who} waits in the hall"
           }
         }
       }

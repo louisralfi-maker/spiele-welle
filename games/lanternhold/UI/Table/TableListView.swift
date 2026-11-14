@@ -360,8 +360,9 @@ struct TableListView: View {
         for who in order.goes ?? [] {
             let name = StoryText.name(speaker: who, look: nil, day: realm.day, flags: realm.flags) ?? who
             let away = blocks.contains(.away(who))
-            list.append(TableChip(text: QuestText.text(away ? "table.away" : "table.goes", values: ["who": name]),
-                             missing: away))
+            let waits = blocks.contains(.waits(who))
+            let key = away ? "table.away" : waits ? "table.waits" : "table.goes"
+            list.append(TableChip(text: QuestText.text(key, values: ["who": name]), missing: away || waits))
         }
         if order.goldCost == 0 && lend.isEmpty && (order.goes ?? []).isEmpty {
             list.append(TableChip(text: QuestText.string("table.free")))

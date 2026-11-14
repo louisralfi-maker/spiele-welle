@@ -45,6 +45,50 @@ final class TableSendingsTests: XCTestCase {
         return 1
     }
 
+    /// QUESTS.md 2.2: `who` is kept from the hall on every day of `days` and in both modes. Each petition of his,
+    /// with the realm's flags bent to allow it, a clean history and the petition also scheduled as today's follow-up,
+    /// is neither drawable nor drawn (story petitions excepted: the validator keeps them off the road's days), and he
+    /// has no court line. The same realm with him at court could draw something of his and hear a line from him, so
+    /// it is his absence that keeps him out.
+    private func assertAbsentFromTheHall(_ who: String, _ realm: GameState, days: ClosedRange<Int>,
+                                         file: StaticString = #filePath, line: UInt = #line) {
+        let petitions = PetitionCatalog.standard
+        var drawnIfPresent = 0
+        var linesIfPresent = 0
+        for day in days {
+            for mode in [GameMode.chapter, .endless] {
+                for petition in petitions.petitions where petition.speaker == who {
+                    var s = realm
+                    s.day = day
+                    s.hour = 9
+                    s.mode = mode
+                    s.flags = Set(s.flags).union(petition.requires ?? []).subtracting(petition.forbids ?? []).sorted()
+                    var court = s.court ?? CourtState()
+                    court.history = []
+                    court.queueDay = 0
+                    court.queue = []
+                    court.scheduled = [ScheduledPetition(id: petition.id, day: day)]
+                    s.court = court
+                    let what = "\(petition.id) on day \(day) (\(mode.rawValue))"
+                    XCTAssertTrue(ErrandEngine.isAbsent(who, s), "\(who) is absent", file: file, line: line)
+                    XCTAssertFalse(PetitionEngine.isDrawable(petition, s, court: court), what, file: file, line: line)
+                    let queue = PetitionEngine.draw(s, court: court, catalog: petitions)
+                    let his = queue.filter { $0.reason != .story && petitions.petition($0.id)?.speaker == who }
+                    XCTAssertEqual(his.map(\.id), [], "drawn: \(what)", file: file, line: line)
+                    XCTAssertEqual(CourtLineBook.standard.lines(for: who, state: s).map(\.id), [],
+                                   "\(who) is silent at court on day \(day)", file: file, line: line)
+                    var present = s
+                    present.table?.out.removeAll { $0.goes.contains(who) }
+                    present.table?.gone.removeAll()
+                    if PetitionEngine.isDrawable(petition, present, court: court) { drawnIfPresent += 1 }
+                    if !CourtLineBook.standard.lines(for: who, state: present).isEmpty { linesIfPresent += 1 }
+                }
+            }
+        }
+        XCTAssertGreaterThan(drawnIfPresent, 0, "at court, \(who) could bring a petition", file: file, line: line)
+        XCTAssertGreaterThan(linesIfPresent, 0, "at court, \(who) would talk", file: file, line: line)
+    }
+
     // MARK: - Section 3: the thirteen
 
     func testTheTableHoldsAllThirteenSendings() throws {
@@ -262,6 +306,84 @@ final class TableSendingsTests: XCTestCase {
         let card = try XCTUnwrap(table.report("ludo_lost"))
         XCTAssertTrue(card.choices.allSatisfy { CourtValidator.costsNothing($0.effect) }, "both choices are free")
         XCTAssertTrue(lost.table?.isAway("serLudo") == false, "he is not on the road any more")
+
+        // Mourned, he stays gone: the loss clears his place at court, and nothing of his comes to the hall again,
+        // not the tourney he asked for, not the old knight of endless, not a line at court.
+        XCTAssertEqual(lost.table?.gone, ["serLudo"], "his lantern did not come home")
+        XCTAssertFalse(lost.flags.contains("ludo_stays"))
+        XCTAssertTrue(lost.flags.contains("ludo_gone"))
+        XCTAssertTrue(home.flags.contains("ludo_stays"), "home again, he stays")
+        XCTAssertEqual(home.table?.gone, [])
+        let tourney = try XCTUnwrap(PetitionCatalog.standard.petition("ludo_tourney"))
+        var asked = lost
+        asked.day = 15
+        XCTAssertFalse(PetitionEngine.isDrawable(tourney, asked, court: asked.court ?? CourtState()))
+        var athome = home
+        athome.day = 15
+        XCTAssertTrue(PetitionEngine.isDrawable(tourney, athome, court: athome.court ?? CourtState()),
+                      "home, he still asks for his tourney")
+        assertAbsentFromTheHall("serLudo", lost, days: 14...40)
+    }
+
+    // MARK: - QUESTS.md 2.2: whoever is on the road is not in the hall
+
+    /// A court member on the road brings no petition: Marek's random petitions pass over the days his cart is out to
+    /// Goldenacre, and come again once he is home. While he waits in today's queue, his cart does not leave; nor does
+    /// Pip's oil round while Pip waits to be heard.
+    func testMarekOnTheRoadBringsNoPetitionAndAPetitionerIsNotSentOff() throws {
+        let cart = try XCTUnwrap(table.errand("goldenacre_cart"))
+        var s = realm(day: 11, heard: ["oxmoor_gift"])
+        var waiting = s
+        var court = waiting.court ?? CourtState()
+        court.queueDay = 11
+        court.queue = [Petitioner(id: "marek_stall", reason: .random, look: 0)]
+        waiting.court = court
+        XCTAssertEqual(ErrandEngine.blockers(cart, order: 1, waiting, catalog: table), [.waits("marek")])
+        XCTAssertNil(ErrandEngine.send(&waiting, errand: "goldenacre_cart", order: 1, catalog: table, balance: balance))
+        var yesterday = waiting
+        yesterday.court?.queueDay = 10
+        XCTAssertEqual(ErrandEngine.blockers(cart, order: 1, yesterday, catalog: table), [], "only today's queue")
+
+        let oil = try XCTUnwrap(table.errand("oil_round"))
+        var pip = realm(day: 4)
+        var hall = pip.court ?? CourtState()
+        hall.queueDay = 4
+        hall.queue = [Petitioner(id: "pip_minister", reason: .random, look: 0)]
+        pip.court = hall
+        XCTAssertEqual(ErrandEngine.blockers(oil, order: 0, pip, catalog: table), [.waits("pip")])
+
+        let sending = try XCTUnwrap(ErrandEngine.send(&s, errand: "goldenacre_cart", order: 1, catalog: table,
+                                                      balance: balance))
+        XCTAssertEqual(sending.homeDay, 15)
+        dawn(&s, day: 12)
+        assertAbsentFromTheHall("marek", s, days: 12...14)
+        for day in 13...15 { dawn(&s, day: day) }
+        XCTAssertFalse(ErrandEngine.isAbsent("marek", s), "home on day 15")
+        let stall = try XCTUnwrap(PetitionCatalog.standard.petition("marek_stall"))
+        XCTAssertTrue(PetitionEngine.isDrawable(stall, s, court: s.court ?? CourtState()), "his stall comes again")
+    }
+
+    /// The same for a guest: while Ansel Quay rides to Saltgate, his petitions do not bring him to the hall.
+    func testTheEnvoyOnTheRoadBringsNoPetition() throws {
+        let road = try XCTUnwrap(table.errand("saltgate_grey"))
+        let onTime = try seed(errand: "saltgate_grey", order: 0, late: false)
+        var s = realm(day: 12, seed: onTime, flags: ["envoy_met"])
+        var waiting = s
+        var court = waiting.court ?? CourtState()
+        court.queueDay = 12
+        court.queue = [Petitioner(id: "envoy_tide", reason: .random, look: 0)]
+        waiting.court = court
+        XCTAssertEqual(ErrandEngine.blockers(road, order: 0, waiting, catalog: table), [.waits("envoy")])
+
+        let sending = try XCTUnwrap(ErrandEngine.send(&s, errand: "saltgate_grey", order: 0, catalog: table,
+                                                      balance: balance))
+        XCTAssertEqual(sending.homeDay, 15)
+        dawn(&s, day: 13)
+        assertAbsentFromTheHall("envoy", s, days: 13...14)
+        for day in 14...15 { dawn(&s, day: day) }
+        XCTAssertFalse(ErrandEngine.isAbsent("envoy", s))
+        let tide = try XCTUnwrap(PetitionCatalog.standard.petition("envoy_tide"))
+        XCTAssertTrue(PetitionEngine.isDrawable(tide, s, court: s.court ?? CourtState()), "home, he petitions again")
     }
 
     /// A sending creates nobody: people who grew into a party's empty beds at a full town make room again when the
@@ -485,6 +607,8 @@ final class TableSendingsTests: XCTestCase {
     // MARK: - The validator's new rules
 
     func testTheValidatorKnowsTheBareWoodAndTheFollowedRide() {
+        // ride_lost's atLoss clears Hild's flag, so only its story petition is wrong; the shipped table has none of it.
+        XCTAssertEqual(ErrandValidator.presenceProblems(table, petitions: .standard), [])
         let json = """
         {"chapter": 1, "lanterns": [38], "reserved": [41],
          "places": [{"id": "near", "kind": "valley", "nights": 1}, {"id": "wood", "kind": "beyond", "nights": 2}],
@@ -498,7 +622,16 @@ final class TableSendingsTests: XCTestCase {
           {"id": "late_gold", "number": 4, "place": "near", "days": [14, 15],
            "orders": [{"seal": true, "nights": 2, "lend": {"archers": 1}, "report": "gift"}]},
           {"id": "lost_cost", "number": 5, "place": "near", "days": [3, 4], "lostReport": "dear",
-           "orders": [{"nights": 1, "goes": ["pip"], "risk": 0.25, "report": "r"}]}
+           "orders": [{"nights": 1, "goes": ["pip"], "risk": 0.25, "report": "r"}]},
+          {"id": "cart_early", "number": 6, "place": "near", "days": [5, 6],
+           "orders": [{"nights": 3, "goes": ["marek"], "report": "r"}]},
+          {"id": "song_road", "number": 7, "place": "near", "days": [9, 10],
+           "orders": [{"nights": 2, "goes": ["bard"], "report": "r"}]},
+          {"id": "knight_lost", "number": 8, "place": "near", "days": [3, 4],
+           "orders": [{"nights": 1, "goes": ["serLudo"], "risk": 0.25, "report": "r"}]},
+          {"id": "ride_lost", "number": 9, "place": "near", "days": [3, 4],
+           "orders": [{"nights": 1, "goes": ["hildVarn"], "risk": 0.25, "report": "r",
+                       "atLoss": {"flags": ["-varn_with"]}}]}
          ],
          "reports": [
           {"id": "r", "speaker": "pip", "text": "t", "choices": [{"label": "a"}, {"label": "b"}]},
@@ -518,7 +651,12 @@ final class TableSendingsTests: XCTestCase {
                          "ride: a party that stays out costs, lends, risks and brings nothing",
                          "shown: a sending the table only follows must stay out",
                          "the counsel can never apply",
-                         "report dear choice 1: both choices of a lost lantern are free"] {
+                         "report dear choice 1: both choices of a lost lantern are free",
+                         "lost_cost order 1: pip can be lost here; only a guest who stays",
+                         "knight_lost order 1: serLudo can be lost here, so its atLoss must clear ludo_stays",
+                         "ride_lost order 1: hildVarn can be lost here and speaks the story petition varn_levy",
+                         "cart_early order 1: marek can be on the road while the story petition marek_arrows comes",
+                         "song_road order 1: bard can be away over a dawn, so the follow-up bard_satire could be "] {
             XCTAssertTrue(problems.contains(expected), "the validator reports: \(expected)\n\(problems)")
         }
     }

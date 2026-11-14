@@ -165,5 +165,6 @@ final class TableSaveTests: XCTestCase {
         XCTAssertEqual(out.lostReport, ErrandCatalog.lostReportID)
         XCTAssertEqual(table.reports.first?.lantern, 0)
         XCTAssertNil(table.dawn)
+        XCTAssertEqual(table.gone, [], "nobody lost before the field existed")
     }
 }

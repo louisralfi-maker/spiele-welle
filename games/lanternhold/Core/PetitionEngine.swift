@@ -91,7 +91,8 @@ enum PetitionEngine {
             }
         }
         for entry in court.scheduled where entry.day == day && !has(entry.id) {
-            guard let petition = catalog.petition(entry.id), petition.allows(flags: s.flags) else { continue }
+            guard let petition = catalog.petition(entry.id), petition.allows(flags: s.flags),
+                  !ErrandEngine.isAbsent(petition.speaker, s) else { continue }
             picked.append(Petitioner(id: petition.id, reason: .followUp, look: look(s.seed, day: day, id: petition.id)))
         }
         var pool: [Petition] = []
@@ -137,6 +138,8 @@ enum PetitionEngine {
             return false
         }
         guard petition.allows(flags: s.flags), petition.allows(happiness: s.happiness) else { return false }
+        // The Lantern Table (docs/QUESTS.md 2.2): nobody on the road, or lost on it, comes to the hall.
+        if ErrandEngine.isAbsent(petition.speaker, s) { return false }
         return !shownRecently(petition.id, day: s.day, court: court)
     }
 

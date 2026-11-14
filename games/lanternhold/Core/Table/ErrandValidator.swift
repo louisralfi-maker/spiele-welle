@@ -40,6 +40,7 @@ enum ErrandValidator {
             numbers[errand.number] = errand.id
             out += check(errand, catalog: catalog, known: known, petitions: petitions, table: table)
         }
+        out += presenceProblems(catalog, petitions: petitions)
         var used: Set<String> = [ErrandCatalog.lostReportID]
         var lostReports: Set<String> = [ErrandCatalog.lostReportID]
         for errand in catalog.errands {
@@ -90,6 +91,78 @@ enum ErrandValidator {
             }
         }
         return flags
+    }
+
+    // MARK: - Who is in the castle (QUESTS.md 2.2 and 2.7)
+
+    /// The flag that keeps each guest at court. A guest the table can lose loses it with the lantern (the order's
+    /// `atLoss` clears it), so no petition or court line that needs it brings him back; the engine keeps him from the
+    /// hall as well (`TableState.gone`). The court (Pip, Marek) and guests without such a flag never go where a lantern
+    /// can be lost.
+    static let presence: [String: String] = ["envoy": "envoy_met", "hildVarn": "varn_with", "serLudo": "ludo_stays"]
+
+    /// The days at whose queue an order's party can still be on the road, or nil when it is always home by then. The
+    /// queue is drawn after the dawn's returns, and a petitioner of the day is not sent off (`.waits`), so a party sent
+    /// on day d with n nights misses the queues of days d + 1 to d + n − 1 (one more when it can be late); a party that
+    /// stays out misses every queue from its first day.
+    static func awayDays(_ order: ErrandOrder, of errand: Errand) -> ClosedRange<Int>? {
+        let days = errand.dayRange
+        if errand.staysOutThisChapter { return days.lowerBound...ErrandEngine.neverHome }
+        let extra = max(1, order.nights) - 1 + (order.lateChance > 0 ? 1 : 0)
+        guard extra > 0 else { return nil }
+        return (days.lowerBound + 1)...(days.upperBound + extra)
+    }
+
+    /// The named people of the orders against the court: a person who can be lost is a guest whose presence flag the
+    /// loss clears, and speaks no story petition; nobody is on the road while one of his story petitions can come, and
+    /// nobody who can be away over a dawn has a follow-up (the draw skips the absent, so it would be lost).
+    static func presenceProblems(_ catalog: ErrandCatalog, petitions: PetitionCatalog) -> [String] {
+        var out: [String] = []
+        var followUps = Set<String>()
+        func collect(_ effect: PetitionEffect?) {
+            guard let effect else { return }
+            for entry in effect.schedule ?? [] { followUps.insert(entry.id) }
+            if let chance = effect.chance {
+                collect(chance.then)
+                collect(chance.otherwise)
+            }
+        }
+        for petition in petitions.petitions {
+            for choice in petition.choices { collect(choice.effect) }
+        }
+        let guests = presence.keys.sorted().joined(separator: ", ")
+        for errand in catalog.errands {
+            for (index, order) in errand.orders.enumerated() {
+                let place = "\(errand.id) order \(index + 1)"
+                for who in order.goes ?? [] {
+                    let spoken = petitions.petitions.filter { $0.speaker == who }
+                    if order.lostChance > 0 {
+                        if let flag = presence[who] {
+                            if !(order.atLoss?.flags ?? []).contains("-" + flag) {
+                                out.append("\(place): \(who) can be lost here, so its atLoss must clear \(flag)")
+                            }
+                        } else {
+                            out.append("\(place): \(who) can be lost here; only a guest who stays (\(guests)) can be")
+                        }
+                        for petition in spoken where petition.kind == .story {
+                            out.append("\(place): \(who) can be lost here and speaks the story petition \(petition.id)")
+                        }
+                    }
+                    guard let away = awayDays(order, of: errand) else { continue }
+                    for petition in spoken {
+                        if petition.kind == .story, let days = petition.dayRange, days.overlaps(away) {
+                            out.append("\(place): \(who) can be on the road while the story petition \(petition.id) "
+                                       + "comes (days \(days.lowerBound) to \(days.upperBound))")
+                        }
+                        if followUps.contains(petition.id) {
+                            out.append("\(place): \(who) can be away over a dawn, so the follow-up \(petition.id) "
+                                       + "could be lost")
+                        }
+                    }
+                }
+            }
+        }
+        return out
     }
 
     /// The rail: road lanterns, distinct, the reserved ones apart.

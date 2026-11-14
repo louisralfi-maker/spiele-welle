@@ -75,6 +75,8 @@ enum QuestText {
         for key in ["table.goes", "table.away", "table.section.out", "table.section.offers"] {
             keys.append((key, name))
         }
+        // A red chip in place of "{who} goes": the longest name still fits the order's row.
+        keys.append(("table.waits", CourtValidator.Limit(english: 34, german: 44)))
         return keys
     }()
 }

@@ -128,7 +128,7 @@
         { "label": "errand.ludo_number.o1", "nights": 1, "lend": { "archers": 1 }, "goes": ["serLudo"],
           "report": "ludo_number" },
         { "label": "errand.ludo_number.o2", "nights": 1, "goes": ["serLudo"], "risk": 0.25, "report": "ludo_number",
-          "atReturn": { "flags": ["ludo_alone"] } }
+          "atReturn": { "flags": ["ludo_alone"] }, "atLoss": { "flags": ["-ludo_stays", "ludo_gone"] } }
       ],
       "atReturn": { "flags": ["ludo_number"] }
     },

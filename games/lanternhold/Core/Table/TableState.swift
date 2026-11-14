@@ -239,9 +239,12 @@ struct TableState: Codable, Sendable, Equatable {
     var read: [ReadReport]
     /// The last dawn that brought a lantern home, late or lost.
     var dawn: TableDawn?
+    /// The named people whose lantern did not come home (Ser Ludo on the red chip of sending 12), sorted: they never
+    /// come to the hall again, by petition or court line (`ErrandEngine.isAbsent`).
+    var gone: [String]
 
     init(chapter: Int, lanterns: [RoadLantern], out: [Sending] = [], sent: [String] = [],
-         reports: [WaitingReport] = [], read: [ReadReport] = [], dawn: TableDawn? = nil) {
+         reports: [WaitingReport] = [], read: [ReadReport] = [], dawn: TableDawn? = nil, gone: [String] = []) {
         self.chapter = chapter
         self.lanterns = lanterns
         self.out = out
@@ -249,6 +252,7 @@ struct TableState: Codable, Sendable, Equatable {
         self.reports = reports
         self.read = read
         self.dawn = dawn
+        self.gone = gone
     }
 
     /// The table at the chapter's start: the road lanterns on their hooks, the reserved one beside them.
@@ -274,8 +278,11 @@ struct TableState: Codable, Sendable, Equatable {
     /// True while a named person is away with a lantern.
     func isAway(_ who: String) -> Bool { out.contains { $0.goes.contains(who) } }
 
+    /// True while a named person is not in the castle: away with a lantern, or lost on the road for good.
+    func isAbsent(_ who: String) -> Bool { gone.contains(who) || isAway(who) }
+
     private enum CodingKeys: String, CodingKey {
-        case chapter, lanterns, out, sent, reports, read, dawn
+        case chapter, lanterns, out, sent, reports, read, dawn, gone
     }
 
     init(from decoder: any Decoder) throws {
@@ -287,5 +294,6 @@ struct TableState: Codable, Sendable, Equatable {
         reports = try c.decodeIfPresent([WaitingReport].self, forKey: .reports) ?? []
         read = try c.decodeIfPresent([ReadReport].self, forKey: .read) ?? []
         dawn = try c.decodeIfPresent(TableDawn.self, forKey: .dawn)
+        gone = try c.decodeIfPresent([String].self, forKey: .gone) ?? []
     }
 }

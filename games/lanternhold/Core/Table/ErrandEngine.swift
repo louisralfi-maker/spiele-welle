@@ -13,6 +13,9 @@ enum SendBlock: Sendable, Equatable {
     case noLantern
     /// The named person is out with another lantern.
     case away(String)
+    /// The named person stands in today's audience queue: a petitioner is not sent off before he is heard
+    /// ("Marek waits in the hall").
+    case waits(String)
     case gold(missing: Int)
     case archers(missing: Int)
     case guards(missing: Int)
@@ -115,8 +118,9 @@ enum ErrandEngine {
     }
 
     /// Everything that keeps an order from leaving now; empty when it can go. A sending not on the table, the closed
-    /// hours and a waiting report come alone.
-    static func blockers(_ errand: Errand, order index: Int, _ s: GameState, catalog: ErrandCatalog) -> [SendBlock] {
+    /// hours and a waiting report come alone. `petitions` names the speakers of today's queue (`.waits`).
+    static func blockers(_ errand: Errand, order index: Int, _ s: GameState, catalog: ErrandCatalog,
+                         petitions: PetitionCatalog = .standard) -> [SendBlock] {
         guard index >= 0, index < errand.orders.count, isOffered(errand, s) else { return [.notOffered] }
         guard sendHours.contains(s.hour) else { return [.closed] }
         let table = s.table ?? .start(catalog)
@@ -127,6 +131,8 @@ enum ErrandEngine {
         for flag in order.forbids ?? [] where s.flags.contains(flag) { list.append(.forbids(flag)) }
         if freeLantern(errand, table: table) == nil { list.append(.noLantern) }
         for who in order.goes ?? [] where table.isAway(who) { list.append(.away(who)) }
+        let waiting = Set(PetitionEngine.waiting(s, catalog: petitions).map { $0.petition.speaker })
+        for who in order.goes ?? [] where waiting.contains(who) && !table.isAway(who) { list.append(.waits(who)) }
         if order.goldCost > s.gold { list.append(.gold(missing: order.goldCost - s.gold)) }
         let lend = order.lend ?? ErrandLend()
         let archers = max(0, lend.archers ?? 0)
@@ -143,8 +149,19 @@ enum ErrandEngine {
     }
 
     /// The first thing that keeps an order from leaving, or nil.
-    static func blocker(_ errand: Errand, order index: Int, _ s: GameState, catalog: ErrandCatalog) -> SendBlock? {
-        blockers(errand, order: index, s, catalog: catalog).first
+    static func blocker(_ errand: Errand, order index: Int, _ s: GameState, catalog: ErrandCatalog,
+                        petitions: PetitionCatalog = .standard) -> SendBlock? {
+        blockers(errand, order: index, s, catalog: catalog, petitions: petitions).first
+    }
+
+    // MARK: - Who is in the castle
+
+    /// True while `who` is not in the castle (QUESTS.md 2.2): away with a road lantern, or lost on the road for good.
+    /// Such a person brings no petition and says no court line (the hooks in `PetitionEngine.isDrawable`, its
+    /// follow-ups and `CourtLineBook.lines(for:state:)`; the hall's figures follow at the join). False without a table,
+    /// so a realm that never touches the table plays exactly as before.
+    static func isAbsent(_ who: String, _ s: GameState) -> Bool {
+        s.table?.isAbsent(who) ?? false
     }
 
     /// Odile's seal holds for the order if it left today (QUESTS.md 4.3): the order carries it, risks nothing, lends
@@ -371,6 +388,8 @@ enum ErrandEngine {
                           outcome: &outcome)
                 }
                 setLantern(&table, sending.lantern, .lost)
+                for who in sending.goes where !table.gone.contains(who) { table.gone.append(who) }
+                table.gone.sort()
                 table.reports.append(WaitingReport(report: sending.lostReport, errand: sending.errand,
                                                    lantern: sending.lantern, place: sending.place, day: s.day,
                                                    lost: true, names: names))

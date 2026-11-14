@@ -92,7 +92,8 @@ final class TableUITests: XCTestCase {
     }
 
     /// The middle of the chapter (QUESTS.md 3.3, T11): on day 11 the reference realm (`-GWDay 11`) finds four slips on
-    /// the table, sends the planks, the true count and Marek's cart, and the stair waits for a hook.
+    /// the table, sends the planks, the true count and Marek's cart (the stair if Marek waits in the hall), and the
+    /// last slip waits for a hook.
     /// Saves `44-table-day11-<lang>` (the slips) and `45-table-hooks-empty-<lang>` (all three lanterns out).
     func testTheMiddleOfTheChapterFillsTheHooks() {
         XCUIDevice.shared.orientation = .landscapeLeft
@@ -115,14 +116,24 @@ final class TableUITests: XCTestCase {
         pause(0.8)
         attach(XCUIScreen.main.screenshot(), "44-table-day11-\(language)")
 
-        for (id, order, out) in [("ford_planks", 0, 1), ("highcairn_count", 0, 2), ("goldenacre_cart", 1, 3)] {
+        // Marek's cart leaves third, unless Marek stands in today's queue (QUESTS.md 2.2: a petitioner is heard before
+        // he is sent off, "Marek waits in the hall"); then the stair takes the last lantern and the cart waits.
+        var third = (id: "goldenacre_cart", order: 1)
+        var left = (id: "beacon_statues", what: "the stair")
+        let cart = element(app, "table-send-goldenacre_cart-1")
+        if cart.waitForExistence(timeout: 5) && !cart.isEnabled {
+            note("table", "Marek waits in the hall: the stair goes third")
+            third = (id: "beacon_statues", order: 0)
+            left = (id: "goldenacre_cart", what: "Marek's cart")
+        }
+        for (id, order, out) in [("ford_planks", 0, 1), ("highcairn_count", 0, 2), (third.id, third.order, 3)] {
             let send = element(app, "table-send-\(id)-\(order)")
             XCTAssertTrue(send.waitForExistence(timeout: 5), "\(id) can be sent")
             send.tap()
             XCTAssertTrue(waitFor(status, contains: ["out:\(out)"], timeout: 5), "\(id) left: \(text(status))")
         }
         XCTAssertTrue(waitFor(status, contains: ["hook:0", "out:3"], timeout: 5), "all three out: \(text(status))")
-        XCTAssertTrue(element(app, "table-offer-beacon_statues").exists, "the stair waits for a hook")
+        XCTAssertTrue(element(app, "table-offer-\(left.id)").exists, "\(left.what) waits for a hook")
         pause(0.6)
         attach(XCUIScreen.main.screenshot(), "45-table-hooks-empty-\(language)")
         let back = element(app, "table-back")
