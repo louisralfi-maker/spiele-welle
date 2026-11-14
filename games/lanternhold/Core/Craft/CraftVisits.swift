@@ -119,10 +119,12 @@ enum CraftVisits {
         return day >= rules.firstDay && (day - rules.firstDay) % every == 0
     }
 
-    /// A story day: today's queue holds a story petition that does not come on top (the houses' audiences do).
+    /// A story day: today's queue holds a story petition, on its days or as a follow-up, that does not come on top
+    /// (the houses' audiences do).
     static func isStoryDay(_ queue: [Petitioner], catalog: PetitionCatalog) -> Bool {
-        for petitioner in queue where petitioner.reason == .story {
-            if catalog.petition(petitioner.id)?.onTop != true { return true }
+        for petitioner in queue {
+            guard let petition = catalog.petition(petitioner.id), petition.kind == .story else { continue }
+            if petition.onTop != true { return true }
         }
         return false
     }

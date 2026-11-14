@@ -261,6 +261,14 @@ final class CraftTests: XCTestCase {
             evening(&s)
         }
         XCTAssertEqual(days, [4, 8, 10], "day 7 is a story day: the visit waits for day 8; a house on top is no story")
+        // A story petition that comes as a follow-up makes a story day too; a random one does not.
+        let random = Petition(id: "plain", speaker: "farmer", kind: .random, text: "t",
+                              choices: [PetitionChoice(label: "ok")])
+        let all = PetitionCatalog([story, house, random])
+        XCTAssertTrue(CraftVisits.isStoryDay([Petitioner(id: "story7", reason: .followUp, look: 1)], catalog: all))
+        XCTAssertFalse(CraftVisits.isStoryDay([Petitioner(id: "house10", reason: .story, look: 1),
+                                               Petitioner(id: "plain", reason: .random, look: 2),
+                                               Petitioner(id: "craft_mason", reason: .random, look: 3)], catalog: all))
     }
 
     func testNotNowBringsHimBackOnceAndNoSendsHimOn() throws {
