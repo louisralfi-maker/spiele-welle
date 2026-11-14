@@ -140,7 +140,9 @@ final class CardModelTests: XCTestCase {
         let card = BuildCard.make(s, plot: engine, balance: balance)
         XCTAssertEqual(card.options.map(\.item), [.ballista, .catapult])
         XCTAssertEqual(card.options.map(\.seconds), [18, 26])
-        XCTAssertEqual(card.options[1].availability, .tooExpensive(missing: 50))
+        XCTAssertEqual(card.options[1].availability,
+                       .tooExpensive(missing: balance.price(.catapult) - balance.startGold),
+                       "110 against the purse of day 1 (44 since the first household holds 16: town-1)")
         let palisade = Realm.lines[1].wall
         s.day = 3
         XCTAssertEqual(BuildCard.make(s, plot: palisade, balance: balance).options.first?.seconds, 8)
