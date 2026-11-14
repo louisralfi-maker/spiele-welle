@@ -1,4 +1,4 @@
-# citizenC 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md). Ned Thatch, 60, the ploughman of the near field and the
+# citizenC 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md). Ned Furrow, 60, the ploughman of the near field and the
 # farmer of the petitions (docs/PEOPLE.md; repainted by the people lane on 14.11.2026, before that the old farmer of
 # look 2's stage 4). A short, thick-set man who carries nothing and swings his arms as he walks: a bald crown burnt brown,
 # a grey fringe and a short grey beard, an undyed shirt under an old brown vest, a rope of a belt, breeches patched at

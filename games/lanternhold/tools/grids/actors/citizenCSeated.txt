@@ -1,4 +1,4 @@
-# citizenCSeated 12x22, 2 frames: seated 0, a nod 1 (SPRITES.md "The townsfolk seated on the hall's benches"). Ned Thatch
+# citizenCSeated 12x22, 2 frames: seated 0, a nod 1 (SPRITES.md "The townsfolk seated on the hall's benches"). Ned Furrow
 # (docs/PEOPLE.md; repainted by the people lane on 14.11.2026) waiting on a petitioners' bench in the great hall
 # (bench 32x10: this frame's bottom on the floor, the bench drawn behind him; the cushion's rows are this frame's rows
 # 13 and 14). He sits facing the hall like the seated lord: the open vest over the undyed shirt from the front, a
