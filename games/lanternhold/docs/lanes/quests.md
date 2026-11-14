@@ -385,3 +385,131 @@ same holds for T7 (13, 15, 17 and 18 of 20 in band over the rounds with almost t
 - German: every key has German within its budget (unit-tested); not reviewed, by the director's note of 19:35. The six
   other languages after the join.
 
+
+## quests-2, fix round 1 (the critic's look 1: no pass, 7 of 10; one blocker, two highs)
+
+### What changed
+
+- **Blocker, Ser Ludo is mourned and then comes back: fixed.** Sending 12's second order (alone, red chip) now has
+  `"atLoss": {"flags": ["-ludo_stays", "ludo_gone"]}`, so `ludo_tourney` (it needs `ludo_stays`) and the court line
+  `ludo_walls` can never come again. The engine also keeps him out by name: a lost lantern records the people who went
+  in `TableState.gone` (saved, sorted, `[]` for older saves), and `TableState.isAbsent(who)` / `ErrandEngine.isAbsent`
+  is true for whoever is away with a lantern or gone. That also stops what no flag guards: his court lines
+  `ludo_goose` and `ludo_helmet`, and `ludo_old` in endless (it only forbids `ludo_old_met`).
+- **High 1, people on the road petition in the hall: fixed.** The day's queue passes over a random or endless
+  petition whose speaker is absent (`PetitionEngine.isDrawable`) and a follow-up whose speaker is absent (the
+  follow-up loop of `PetitionEngine.draw`); court lines use the same check (the old `isAway` hook, now `isAbsent`). So
+  `marek_stall`, `marek_relic` and `marek_spyglass` pass over the nights Marek's cart is out to Goldenacre,
+  and `envoy_tide` / `envoy_coast` the nights Ansel Quay rides to Saltgate. Story petitions are never passed over
+  (nothing locks a story petition); the validator keeps them off the road's days instead (below). Pip's oil round is
+  one night: he is home by the next queue, so `pip_minister` can only meet him on the day he is sent, and that day is
+  covered by the new blocker.
+- **A petitioner is heard before he is sent off.** New `SendBlock.waits(who)`: an order whose named person speaks a
+  petition in today's queue cannot leave ("Marek waits in the hall", `table.waits`, English and German, a red chip in
+  place of "{who} goes"; limit 34 English, 44 German). `ErrandEngine.blockers` and `blocker` take
+  `petitions: PetitionCatalog = .standard` for it.
+- **The validator** (`ErrandValidator.presenceProblems`, run inside `problems`):
+  - an order that can be lost (`lostChance > 0`) and names a person: that person must be a guest with a presence flag
+    (`ErrandValidator.presence`: `serLudo` → `ludo_stays`, `envoy` → `envoy_met`, `hildVarn` → `varn_with`), the
+    order's `atLoss` must clear it, and the person speaks no story petition. Pip, Marek and Finch can never go where a
+    lantern can be lost;
+  - nobody can be on the road (`awayDays`: the queues from the day after the window opens to its last day plus the
+    longest road, one more when late; from the first day for a party that stays out) on a day one of his story
+    petitions can come;
+  - nobody who can be away over a dawn (two nights or more, or late) has a follow-up (the draw would skip it and it
+    would be lost).
+  The shipped table passes all three (asserted). Marek's cart is away on days 9 to 15, his story petition
+  `marek_arrows` comes on days 6 and 7; Hild's lantern 41 from day 19, `varn_ride` on day 18.
+- **High 2, T11 for the greedy bot: the critic's option (a), asserted.** "The bot that sends everything at first
+  chance has all three road lanterns out on at least 2 of the days 9 to 15 (median), and loses a lantern on a red chip
+  in at least half the seeds." It held in round `lh-q2-4` (full days 2 to 4 in seeds 1 to 5, a lantern lost in 14 of
+  20). QUESTS.md's first cell (2 offered sendings unsent for want of a hook) and the slips that waited stay in the
+  report. Why not option (b) (Stillmere four nights, Ludo's number closing on day 13): in the greedy logs of round
+  `lh-q2-4` the bot sends the lamp room on day 11 or 12 (one night), Ludo on day 12 or 13 (one night) and Stillmere
+  on day 13, and has one or two lanterns out on days 13 to 15 in every logged seed, so a fourth night for Stillmere
+  and a shorter window for Ludo make no slip wait there; the sender never sends Ludo (no seal) and has its lanterns
+  home by day 14. A real collision would take one- or two-day windows or several longer roads in the middle of the
+  chapter, which a player who comes to the table every second day would mostly miss, and which moves T1, T6 and T10
+  of the sender. QUESTS.md 4.4 is not edited; the director decides whether the spec's cell follows. This is the
+  decision of this lane, for the director to overrule.
+- **T10's tail** in the tuning report: for the two sender seeds furthest below the reference's happiness at dusk 20,
+  what they sent and every night where the two realms differ (fallen, walls lost; happiness, archers, guards and
+  buildings at that dawn).
+- **Continuity** (the critic's smaller points): the stair's second hook reads "Nobody of ours has stood on that stair
+  since the Dark Year." (Ebba Calder may have counted sixty already on days 12 and 13); its report's second reaction
+  "The hall goes quiet when the scout says sixty. …" (true whether or not Ebba said it first); Hemmet's shirt "Through
+  the winter the carters nod …" (the chapter is autumn). German written to match.
+- `TableTuningVariantsTests` is removed (about 90 s per unit round); `TableVariant` and `TableTuning.variants` stay.
+- `TableUITests.testTheMiddleOfTheChapterFillsTheHooks` sends the stair third if Marek stands in day 11's queue
+  (his cart then shows "Marek waits in the hall" and stays), so the test does not depend on what the queue draws.
+
+### Hooks (apply again at the join)
+
+| File | Place | Why |
+| --- | --- | --- |
+| `Core/PetitionEngine.swift` | `isDrawable`: `if ErrandEngine.isAbsent(petition.speaker, s) { return false }` after the flags and happiness guard | nobody away with a lantern or lost on the road comes to the hall with a random or endless petition (QUESTS.md 2.2); false without a table |
+| `Core/PetitionEngine.swift` | `draw`, the follow-up loop's guard: `!ErrandEngine.isAbsent(petition.speaker, s)` | the same for follow-ups |
+| `Core/CourtLines.swift` | the quests-1 hook in `CourtLineBook.lines(for:state:)` now reads `if ErrandEngine.isAbsent(speaker, state) { return [] }` | court lines: away or lost |
+
+Still for the join, not built here: the hall's figures. `CourtLayout.figures` walks Pip and (on his days) Marek
+through the hall from their routines, whatever the table says; the stage lane rewrites the hall, so the join adds one
+check there: skip a court figure when `ErrandEngine.isAbsent(id, state)`.
+
+### Tests
+
+- `TableSendingsTests.testLudoGoesWithAScoutOrAloneOnARedChip`: after the loss `gone == ["serLudo"]`, `ludo_stays`
+  cleared, `ludo_gone` set, the tourney not drawable (and drawable for the Ludo who came home), and
+  `assertAbsentFromTheHall` over days 14 to 40 in the chapter and in endless: every petition of his, with the flags bent
+  to allow it, a clean history and scheduled as that day's follow-up, is neither drawable nor drawn, he has no court
+  line; the same realm with him at court could draw something and hear a line.
+- `testMarekOnTheRoadBringsNoPetitionAndAPetitionerIsNotSentOff` (court): Marek in day 11's queue blocks his cart
+  (`.waits("marek")`, only today's queue), Pip in day 4's queue blocks the oil round; the cart out from day 11, Marek is
+  absent from the hall on days 12 to 14 and his stall is drawable again on day 15.
+- `testTheEnvoyOnTheRoadBringsNoPetition` (guest): Ansel Quay in the queue blocks Saltgate; on the road (home day 15)
+  he is absent on days 13 and 14, and `envoy_tide` comes again on day 15.
+- The validator test gains five cases (a court member on a red chip, a guest whose loss keeps his flag, a guest who
+  can be lost and speaks a story petition, a road over a story petition's days, a two-night road for a speaker with a
+  follow-up) and asserts the shipped table has no presence problem.
+- `TableSaveTests`: a table written before `gone` existed loads with `gone == []`.
+- `TableTuningTests.testT11TheHookMatters` asserts the greedy cell as restated.
+
+### Rounds
+
+- `lh-q2f1-1` on `57ce82b` (build, unit all, ui `TableUITests`; the gate by the director's notes of 14.11. 18:46 and
+  19:35): **ALL PASSED** (build 7 min, unit 9 min, ui 2 min). Every table class green, the new tests included; the
+  table validator reports nothing over 212 keys; `tuning-report.txt` and `table-neutral-seed1.txt` byte for byte the
+  same as round `lh-q2-4` (the hooks are 0 without a table). The table's tuning: T1, T3 ([17, 16, 17]), T4 (27 = 27),
+  T5 (11), T6 (sender won 20, King slain 19, without the beacon held 8, inside 30 to 60 %; greedy without held 2), T7
+  (18 of 20 in band), T8, T10 (gold −3.5, soldiers −0.5, happiness −1.5), T11 sender (3 full days in all 20 seeds) and
+  T11 greedy as restated (full days median 2.5, a lantern lost in 14 of 20) pass. Passing over the absent moved the
+  sender's queue on Marek's days out (days 12 to 14) and redrew a few seeds: T6 without the beacon rose from 6 to 8,
+  T7 from 17 to 18. Day 11's UI test took the cart path (Marek was not in that queue). Upright shots
+  `ci-out/upright/q2f1-44-*.jpg` and `q2f1-45-*.jpg` (the stair's new hook on the slip).
+
+### T10's tail, what broke in seeds 7 and 1 (for the director, before the values are frozen)
+
+Both realms send the same eight (oil, the true count, the mill, Beaconfoot's road, the planks, Marek's list, the
+stair, Stillmere). Up to night 12 they run within one archer of the reference. In seed 7 the sender's realm loses a
+wall section on nights 13, 14 and 15 (the reference none), with Stillmere's rider (one archer) out on exactly those
+nights; on night 15 four fall (the reference none), then 3, 4, 1, 4 and 5 on nights 16 to 20 (the reference 1, 1, 1,
+0, 6). Happiness follows the dead: 86 at dawn 16 against 100, 44 at dawn 21 against 82; buildings stall at 13 until
+night 17 (the reference 16, 18, 19) because the gold goes into new soldiers. Seed 1 is the same story one step
+milder: four fall on night 15 (the reference one), happiness 65 at dawn 20 against 91. So the tail is the sealed
+path's last soldier-nights, Stillmere's rider on nights 13 to 15 (its seal was added in quests-2 for the sender's
+T11), meeting the chapter's first heavy nights. The medians pass; if the director wants the tail shorter, the first
+value to try is Stillmere's order 1 without the seal or without the archer (a clerk on a mule), not `Balance`.
+
+### Open, and what waits for the join or later steps
+
+- QUESTS.md 4.4's T11 greedy cell still names "2 offered sendings unsent"; the lane asserts the restated cell (above).
+  The director decides whether the spec follows.
+- The hall's figures (Pip, Marek on his days) still walk while away: one `ErrandEngine.isAbsent` check in
+  `CourtLayout.figures` at the join, after the stage lane's rewrite.
+- No screenshot shows "{who} waits in the hall" or one of the twenty new cards yet (the round shoots Pip's card only):
+  for the real table screen's step, together with the longest card (`goldenacre_paid`, 240 characters) and the lost
+  card (`ludo_lost`).
+- T6 without the beacon and T7 for the sender stay chaos-fragile (6, 8 and 17, 18 over the last two rounds); the
+  critic's advice to judge them over 40 seeds or a mean is not built: the cells pass, and 40 seeds would not move a
+  rate that sits near the band's floor. For the director with the rest of the tuning.
+- `tools/simtune` (lacks `Core/Table`), the `Remembered` and `CourtWorld` lists, Pip's court line on day 2, the
+  chapel's table: as before, for the join and the table screen's step.
