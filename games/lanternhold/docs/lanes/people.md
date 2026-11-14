@@ -155,8 +155,11 @@ No new hook in `EntityFrames`: `PeopleCast.townWalkers` and `townLife` dress the
   tests, ui 22:04, ui-de 22:27, release 22:33 runner time). The atlas: 2048 wide, **1850 of 2048 rows used**
   (`atlas-rows.txt`): the join has about 200 rows; if it needs more, the 11 village strips go first.
 - After it, art only: Brede's beam a pixel lower and in weathered brown timber (003cb84, b47168d; same size and frames,
-  not in look 1, no test reads it). **lh-p1f1-4** (build, unit, ui PeopleUITests) confirms the head and gives the
-  final shots: see the report.
+  not in look 1, no test reads it). **lh-p1f1-4** (a6fa830; build, unit, ui PeopleUITests): **ALL PASSED** (build
+  22:47, unit 22:55, ui 22:57): the head confirmed, the final shots 130-135. Upright copies in the worktree's
+  `ci-out/people/shots-fix1-final/` (and of lh-p1f1-3 in `shots-fix1/`); the proof sheets in `ci-out/people/`
+  (`lineup-day`, `lineup-dusk`, `lineup-phone`, `lineup-states`, `lineup-states-2`, `lineup-states-phone`,
+  `fix1/strips/`, `fix1/*.png` at 800 %).
 
 ### What waits (people-2 and the join)
 
