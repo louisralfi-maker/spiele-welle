@@ -557,8 +557,8 @@ picture at the craft of the great pixel-art kingdoms. `hallInterior` (260x90) an
 
 | id | size | frames | notes |
 |---|---|---|---|
-| `greatHall` | 600x201 | 1 | the whole hall, 2.3 times as wide and 2.2 times as tall as `hallInterior`. Albedo, opaque but for the window lights (transparent: the night and the Weltmauer show through). It fills the view's height: 175 rows above the floor line, 26 below, like the world |
-| `hallPillarNear` | 46x201 | 1 | a pillar of the near arcade with the springers of its arches. Drawn in front of everything at parallax 1.25, dark (it stands before every light) |
+| `greatHall` | 600x201 | 1 | the whole hall, 2.3 times as wide and 2.2 times as tall as `hallInterior`. Albedo, opaque but for the window lights (transparent: the night and the Weltmauer show through). It fills the view's height: 175 rows above the floor line, 26 below, like the world. The realm's banner at every second banner place (137, 253, 368), a two-candle wall sconce at the other two (220 and 336, row 100; fix round 1 of stage-1). The camera shows x 10 to 590 only (the end strips are never seen) |
+| `hallPillarNear` | 30x201 | 1 | a pier of the near arcade: a round shaft of drums at low contrast (14 px), a capital with its abacus, the springers of two arches, a moulded base on a plinth (fix round 1 of stage-1: two thirds of the old 46 px). Drawn in front of everything at parallax 1.25 in the hall's shade (0.62 of its ambient), with a rim of light on its edges and a dithered window where the lord stands behind it (the composite, `InteriorLight`); one only, at hall x 150 |
 | `hallFire` | 204x28 | 6 of 34x28 | the great hearth's fire, emissive, on the fire ramp. Bottom row on hall row 145, centred on x 532. About 8 frames a second |
 
 **The hall's parts** (hall px, x from the hall's left edge, rows from its top; a thing "stands on row r" when its
@@ -669,7 +669,7 @@ light and wear to tools/hallart.py's hall.
 |---|---|---|---|
 | `hallShaft` | 83x120 | 1 | the light of one tall window's two lights falling onto the nave floor, slanting down to the right (the afternoon; mirrored for the morning). White, its alpha the beam's strength in ordered-dither steps: drawn as an emissive glow in the daylight's colour from hall row 72 (the lancets' spring), its left edge on the window's (x 169 and 285) |
 | `hallMote` | 1x1 | 1 | one speck of dust, drawn emissive inside a shaft (11 per shaft, drifting down slowly, frozen under Reduce Motion) |
-| `hallWash` | 512x44 | 8 of 64x44 | limewash and plaster patches, each cut for its own place on the hall's ashlar (never over a banner, a window, a shaft or the wainscot): frame `n` at `HallLayout.washPatches[n]` (top-left in hall px); a crumbling edge, the joints showing through where it is thin, a one-pixel shadow under its lower edge |
+| `hallWash` | 512x44 | 8 of 64x44 | limewash stains, each cut for its own place on the hall's ashlar (never over a banner, a window, a shaft, the wainscot or the flags): frame `n` at `HallLayout.washPatches[n]` (top-left in hall px); a ragged outline (a noisy ellipse, no straight run longer than three or four pixels) with an ordered-dither feather of one to two pixels; each pixel one step warmer than the stone under it and at most one step lighter (the blocks, highlights and joints read through), a few small islands of thicker plaster with a one-pixel shadow (fix round 1 of stage-1: the old patches covered whole blocks and read as square light blocks) |
 
 - Layers: the patches on the world plane right over `greatHall`; the shafts and the motes in the emissive pass over
   the world plane (benches and props in a shaft catch its light); the figures and the near pillars stay in front.

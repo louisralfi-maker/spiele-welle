@@ -1696,3 +1696,38 @@ world", step stage-1). The art is used as painted; the engine adds its light, it
   day sky; today they are clean holes.
 - The candle stands' flames behind a near pillar are covered while their glow shows beside it; a painted pillar
   with a thin lit edge would sit better in the light.
+
+### 21.4 Fix round 1: after the art director's first look (critic look 1, 6/10)
+
+- **The ends of the hall:** the camera never shows the sprite's dark end strips (hall x 0 to 10 and 590 to 600); both
+  framings and the move between them stay inside `HallLayout.shownLeft ... shownRight`. The hearth's pool on the
+  flags is centred at 498 with a radius of 90 (squash 3.0), so it falls off before the end wall.
+- **The wash** (`hallWash`, redrawn): stains, not patches. A noisy ellipse gives a ragged outline with a dithered
+  feather; every pixel takes the wash tone of the stone under it (stone to `rock`, thick wash to `rockLight`,
+  `stoneLight` to `rockPale`, the joints to `rockDeep`), so the ashlar reads through and no stain is a lighter block;
+  small islands of thicker plaster carry a one-pixel shadow. The two patches beside the throne's sconce moved: one
+  high on the dais end above the arms (430, 30), one on the gallery's wall left of its window (14, 30).
+- **The near pillar** (`hallPillarNear`, redrawn 30 px wide): one only, at hall x 150 between the door and the first
+  bench, so the walking framing never shows two and it is off screen in the audience. It takes 0.62 of the hall's
+  ambient (with its roof ramp) instead of near black, and a rim on its outer pixels: by day the tall window's cool
+  light (right 0.30/0.34/0.40, left 0.13/0.15/0.18 × daylight), at night the door torches' warm light on the left and
+  the moon's on the right. Where the lord stands behind it, it opens in a 4x4 ordered dither round his body (open
+  inside 55 % of an ellipse 15 x 27 px, solid outside), so its outline and rim stay: no glassy slab.
+- **Soft pools:** inside the hall every light falls off smoothly to nothing (light style 3: (1 − d)² without the lit
+  edge's step), so no pool ends in a hard disc. The bench stands' candles are round pools of 24 px centred on their
+  flames (they smeared into a bar along the wainscot's cap).
+- **The hearth by day:** its glow and pool shrink by 35 % and lose half their strength in full daylight, a warm cone
+  round the fire's mouth with grey stone beyond; at night it is as before.
+- **The night:** the moon (when up, less under clouds) comes through the two tall windows as pale shafts (the day's
+  `hallShaft` in a cool `0.55/0.65/1.0` at 0.16) with a cool pool where they land and a cool fill of 44 px round each
+  window on the far wall; the door torches lay a flat pool on the flags before the door.
+- **The lord's lantern** is a warm white (1.0/0.86/0.66) indoors, so it warms the teal cloth instead of greening it;
+  on the throne it sits low and flat at his lap. **The lectern's candle** (the white stick on its book rest) burns
+  and keys the lord in his chair in the same warm white (director's correction 2).
+- **The banners** (director's correction 4): the realm's banner hangs at every second place only (hall x 137, 253,
+  368); at 211 and 327 a two-candle iron sconce like the one under the arms hangs on the bare ashlar instead
+  (`greatHall` rebuilt by tools/hallart.py, `wall_sconce`, centred at 220 and 336 in the gaps between the windows
+  and the piers, row 100); the engine lights their flames and a round pool of 20 px, and puts a sconce out while a
+  house's banner hangs over its place. The rhythm along the nave: banner, window, sconce, banner, window, sconce,
+  banner.
+- Not done: the inner door's open frame.

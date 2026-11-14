@@ -427,6 +427,14 @@ enum HallFrames {
         candles(HallLayout.armsCandles, seed: 0x4152_4D53)
         light(.candle, x: HallLayout.armsLight.x, row: HallLayout.armsLight.row, radius: 14, intensity: 0.7,
               seed: 0x4152_4D53)
+        // The wall sconces between the windows and the piers, unless a house's banner hangs over one.
+        let hung = Set(CourtFrames.houseBannerPlaces(world: world, flags: s.flags))
+        for (index, sconce) in HallLayout.wallSconces.enumerated() where !hung.contains(sconce.place) {
+            let seed: UInt64 = 0x5343_4F4E &+ UInt64(index) &* 8
+            candles(sconce.flames, seed: seed)
+            light(.candle, x: sconce.x, row: sconce.row, radius: HallLight.sconceRadius,
+                  intensity: HallLight.sconceLevel, squash: 1, seed: seed)
+        }
         candles(HallLayout.newelCandles, seed: 0x4E45_5745)
         for (index, c) in HallLayout.newelCandles.enumerated() {
             light(.candle, x: c.x, row: c.row, radius: 12, intensity: 0.6, seed: 0x4E45_5745 &+ UInt64(index))

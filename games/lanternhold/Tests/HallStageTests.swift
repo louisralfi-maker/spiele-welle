@@ -480,6 +480,8 @@ final class HallStageTests: XCTestCase {
         let day = game.frame(physicalWidth: 2622, physicalHeight: 1206)
         let round = day.lights.filter { $0.kind == .candle && $0.ellipseY == 1 }
         XCTAssertGreaterThanOrEqual(round.count, 3, "the bench's two stands and the lectern: round pools, no bar")
+        XCTAssertTrue(day.emissives.contains { $0.sprite == .candleFlame && abs(Double($0.rect.x) + day.cameraX - 215) < 2 },
+                      "the wall sconce burns where the second banner hung")
         let noonHearth = try XCTUnwrap(model(["GWStage": "hall", "GWHallX": "470", "GWClock": "12",
                                               "GWWeather": "clear", "GWFlickerTime": "1"])
             .frame(physicalWidth: 2622, physicalHeight: 1206).lights.first { $0.kind == .hearth })

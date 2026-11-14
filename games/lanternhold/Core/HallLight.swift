@@ -24,6 +24,9 @@ enum HallLight {
     static let lecternLight = (dx: 12.0, drow: 3)
     static let lecternRadius = 34.0
     static let lecternLevel = 0.8
+    /// The two wall sconces between the windows and the piers.
+    static let sconceRadius = 20.0
+    static let sconceLevel = 0.6
 
     // MARK: - The door's torches
 

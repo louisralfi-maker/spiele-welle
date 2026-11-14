@@ -151,6 +151,13 @@ enum HallLayout {
     static let armsCandles: [(x: Double, row: Int)] = [(452, 123), (460, 123)]
     static let armsLight = (x: 456.0, row: 123)
     static let newelCandles: [(x: Double, row: Int)] = [(15, 70), (121, 70)]
+    /// The two wall sconces at every second banner place (the director's correction 4: five identical banners read
+    /// as a stamp; `python3 tools/hallart.py anchors greatHall`): the banner place they stand at (a house's banner
+    /// hung there covers the sconce and puts it out), their flames and their light.
+    static let wallSconces: [(place: Int, x: Double, row: Int, flames: [(x: Double, row: Int)])] = [
+        (1, 220, 95, [(216, 95), (224, 95)]),
+        (3, 336, 95, [(332, 95), (340, 95)]),
+    ]
 
     // MARK: - The windows and the day's light
 

@@ -3339,6 +3339,48 @@ and `WorldLayout` are not touched: the hall's old world slot (x 1700 to 1960) is
   build, unit, ui Hall, Audience and Polish ALL PASSED on 1a29a3b; **`lh-s1-8` build, unit, ui Hall, FirstDay,
   Audience and Lord ALL PASSED on d5b03d4** (the gate).
 
+#### Step stage-1, fix round 1: after the art director's first look
+
+The independent art director scored the step 6 of 10 (`ci-out/director/stage-1-hall-critic1.md`: three blockers, nine
+highs); the director's note of 14.11. 22:17 added corrections 1 to 3 (the near pillar, the lord on the throne, the
+lantern over the teal cloth). What changed (new logic in `Core/HallLight.swift`):
+
+- **No void at the ends:** both framings and the eased move between them keep the camera inside the painted hall
+  (`HallLayout.shownLeft` 10 to `shownRight` 590, `HallFraming.clamped`; a view wider than that is centred). The
+  hearth's pool on the flags falls off before the end wall (centre 498, radius 90).
+- **The wash** is redrawn as ragged limewash stains (tools/hallstage.py `wash`): a noisy outline with a dithered
+  feather, each pixel one step warmer than the stone under it, so the ashlar reads through; the two patches beside the
+  throne's sconce moved up to the dais end above the arms and to the gallery's wall.
+- **One near pillar** (`hallPillarNear` redrawn 30 px wide, at hall x 150): never two in the walking framing, none in
+  the audience. The composite gives it 0.62 of the hall's ambient, a rim of light on its edges (the window's cool light
+  by day, the torches' warm and the moon's cool light at night) and, instead of the alpha fade, a window in a 4x4
+  ordered dither round the lord's body where he stands behind it (`InteriorLight.pillarHole`, `rimLeft`,
+  `rimRight`, `pillarAmbient`; `Look2Uniforms.hallHole`, `hallRimL`, `hallRimR`).
+- **Soft light:** inside the hall the renderer draws every pool with light style 3, a smooth falloff to nothing
+  without the lit edge's step (no hard discs, no bars). The bench stands' candles are round 24 px pools on their
+  flames and burn whenever anyone waits at a bench (`HallCourt.occupiedBenches`: on it or within 40 px).
+- **The hearth by day** shrinks by 35 % and loses half its strength in full daylight (`HallLight.hearthDay…`); at
+  night it is as before.
+- **The night:** the moon through the windows (pale `hallShaft`s, a cool pool where they land, a cool fill round each
+  window) and the door torches' pool on the flags.
+- **The throne:** the lantern indoors is a warm white (1.0, 0.86, 0.66), low and flat at his lap on the throne, so the
+  cloth of estate keeps its blue; the lectern's candle burns and keys the lord in his chair.
+- **The banners:** the realm's banner hangs at every second place (137, 253, 368); at the other two a wall sconce burns
+  (`HallLayout.wallSconces`, painted into `greatHall`), out while a house's banner covers its place.
+- **The waiting:** the bench by the door fills first (seats 192, 184, 176, then 308, 300, 292), so the waiting are
+  clear of the action button when the lord comes in and the greeting shows; who cannot sit (no seated strip: the
+  soldier, the merchant, the townswoman, the builder) stands beside the first bench (`HallLayout.besideBenches` 218,
+  148, 136) instead of before an empty seat; the petitioner called hurries at 110 px/s.
+- **The plaques:** one height per row (the tallest's), words top-aligned; Odile's seal sits on the plaque's corner
+  and never takes the words' width.
+- **Proof screenshots** (`HallUITests.proofs`): 131a the dark half way (`-GWStageSlow 10`), 131b the greeting and 131c
+  the room settled again, 143 out past the door standing at 1830, 144a and 144b the hearth low and as embers at night
+  (`-GWHearth`), 145 Reduce Motion (a cut, the dust held still).
+- **New launch arguments:** `-GWHearth <0…1>` (the hearth's strength at the start) and `-GWStageSlow <factor>` (the
+  change of stage runs that many times slower).
+- **Tests:** `HallStageTests` (the painted range, the pillar's window and rims, the light after the look, who cannot
+  sit, the arguments).
+
 ## Risks
 
 | Risk | What we do |

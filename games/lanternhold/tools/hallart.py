@@ -32,7 +32,12 @@ SPRING = 56            # where the wall arches spring from the shafts' capitals
 STONE = ("ink", "stoneDark", "stoneMid", "stone", "stoneLight", "stonePale")
 THRONE_X = 416
 HEARTH_X = 532
-BANNERS = (137, 211, 253, 327, 368)   # left edges of the five banner places
+BANNERS = (137, 211, 253, 327, 368)   # left edges of the five banner places (the houses' banners hang there)
+# The realm's own banner hangs at every second place only; the others carry a two-candle wall sconce (the director's
+# correction 4 after step stage-1: five identical banners read as a stamp).
+PAINTED_BANNERS = (137, 253, 368)
+SCONCES = (220, 336)
+SCONCE_ROW = 100
 BANNER_TOP = 62
 WINDOWS = (184, 300)
 CHANDELIERS = (184, 300)
@@ -534,6 +539,23 @@ def arms(c, cx=456):
     c.anchor("light", "candle", cx, 123, 14)
 
 
+def wall_sconce(c, cx, row=SCONCE_ROW):
+    """A two-candle iron sconce on the wall between a window and a pier, like the one under the arms: an iron bar on a
+    bracket, two candles on it (their flames are the engine's)."""
+    for x in range(cx - 4, cx + 5):
+        c.put(x, row, "ink")
+    c.put(cx, row + 1, "ink")
+    c.put(cx, row + 2, "ink")
+    c.put(cx, row + 3, "stoneDark")
+    c.put(cx - 5, row - 1, "ink")
+    c.put(cx + 5, row - 1, "ink")
+    for dx in (-4, 4):
+        for y in range(row - 4, row):
+            c.put(cx + dx, y, "parchment")
+        c.anchor("flame", "candle", cx + dx, row - 5)
+    c.anchor("light", "candle", cx, row - 5, 16)
+
+
 # -------------------------------------------------------------------------------------------------------- hearth
 
 def hearth(c, cx=HEARTH_X):
@@ -799,8 +821,10 @@ def great_hall():
     slit(c, HEARTH_X + 47, 60, 92)
     gallery(c)
     door(c)
-    for bx in BANNERS:
+    for bx in PAINTED_BANNERS:
         realm_banner(c, bx, BANNER_TOP)
+    for cx in SCONCES:
+        wall_sconce(c, cx)
     throne_place(c)
     arms(c)
     hearth(c)
