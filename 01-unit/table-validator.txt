@@ -1,0 +1,4 @@
+Quests table: /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Resources/Quests.xcstrings
+files: ["errands-ch1.json"]
+keys: 101
+problems:
