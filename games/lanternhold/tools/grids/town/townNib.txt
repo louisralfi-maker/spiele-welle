@@ -21,9 +21,9 @@ part armCoins
     wSG
 
 part armHoldUp
-    .SY
-    .SG
-    W..
+    ..S
+    ..S
+    .W.
 
 part armThrow
     ..S

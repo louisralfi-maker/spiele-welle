@@ -1,88 +1,68 @@
 # kingKnock 16x30, 3 frames (town-2, `TownSprites.KnockFrame`): the Burgherr at a door of the town, demanding more
 # (docs/TOWN.md: "Wenn man nachfordert und auf die Tür drückt, klopft der König dran"). His body is the walking
-# sprite's (../actors/king.txt, the same anchor and frame, so the pose replaces it in place); the house's lantern pole
-# goes to his far hand behind him, its lantern behind his shoulder, and his near fist does the knocking. By day only,
-# so no glow strip: the lantern's glass is drawn as its painted cream.
-#   0 the fist raised, 1 the knock (the fist on the door ahead of him), 2 the hand held out for the coins
+# sprite's standing frame (../actors/king.txt frame 6, the same anchor), and the lantern pole stays exactly where that
+# frame holds it, in his near hand before him, so nothing jumps when the pose starts or ends and his glow strip
+# (kingGlow frame 6) and the lantern's light stay on the glass (fix round 1: the pole no longer swaps to his back).
+# He knocks with his free far hand: it comes out under his near arm, passes behind the pole and raps the door at the
+# height of his hip, where the town's low doors are; then it is held out, palm up, for the coins.
+#   0 the fist drawn back, 1 the knock (the fist on the door ahead of him), 2 the open hand held out for the coins
 id kingKnock
 size 16x30
 frames 3
 outline ink shade
 include ../actors/king.txt
 
+# no glow strip of its own: the engine keeps the walking sprite's (kingGlow frame 6) over this pose, whose lantern
+# and circlet are that frame's pixels
 legend
     J = strawLight
     Z = parchment
     Y = strawLight
 
-# the pole mirrored, its lantern hanging behind his back (the shaft in his far hand)
-part poleBack
-    ...II.
-    ..m..I
-    .mm..p
-    iimI.p
-    iZZi.p
-    iYYi.p
-    iiim.p
-    .....P
-    .....p
-    .....p
-    .....p
-    .....p
-    .....p
-    .....p
-    .....P
-    .....p
-    .....p
-    .....p
-    .....p
-    .....p
-    .....P
-    .....p
-    .....p
-    .....p
-    .....p
-    .....p
-    .....m
+# the far arm in the red-brown tunic, in shade (R lit, r shade), the fist and the open hand (S lit, s shade); the
+# column it leaves open (the second) is the pole's, drawn over it
+part farReady
+    R...
+    r.SS
+    ..sS
 
-# the near arm in the red-brown tunic (Q lit, R shade), the fist and the open hand (S)
-part armKnockReady
-    ...SS
-    QR.R.
-    .QRR.
+part farKnock
+    R.....
+    r.RRSS
+    ....sS
 
-part armKnock
-    QRRQSS
-    .QRRSS
-
-part armReceive
-    QR...
-    .QR..
-    ..RSS
+part farReceive
+    R.....
+    r.....
+    ..R...
+    ...SSs
 
 frame 0
-    poleBack 0 1
     legsStand 2 16
     body 0 7
     hem0 0 21
     head 4 0
     circlet 3 2
-    armKnockReady 7 8
+    farReady 9 13
+    pole 10 1
+    armHold 7 9
 
 frame 1
-    poleBack 0 1
     legsStand 2 16
     body 0 7
     hem0 0 21
     head 4 0
     circlet 3 2
-    armKnock 7 9
+    farKnock 9 13
+    pole 10 1
+    armHold 7 9
 
 frame 2
-    poleBack 0 1
     legsStand 2 16
     body 0 7
     hem0 0 21
     head 4 0
     circlet 3 2
-    armReceive 7 9
+    farReceive 9 13
+    pole 10 1
+    armHold 7 9

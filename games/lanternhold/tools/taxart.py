@@ -6,11 +6,15 @@ their pixels, palette and grid are the houses' own. No generated image is involv
 
   taxart.py build [name ...] [--out DIR]
         Writes Resources/Art/<id>.png (or DIR): the figures townCorra, townDun, townBrede, townHemmet, townWenna,
-        townGorm, townNib (the child), the lord's knock kingKnock and ladyKnock, the coin townCoin (grids), and the overlays townCottage and
-        townBigHouse (from house.png, houseB.png, houseC.png, bigHouse.png). Without names: all of them.
+        townGorm, townNib (the child), the lord's knock kingKnock and ladyKnock, the coin townCoin (grids), and the
+        overlays townCottage and townBigHouse (from house.png, houseB.png, houseC.png, bigHouse.png). Without names:
+        all of them.
   taxart.py proof <out.png> [--art DIR] [--scale 6]
-        A proof sheet: every frame of every sprite, and the moments in context (the sign, the toss, the knock, the
-        bow, the shutters by day and by night).
+        A proof sheet: every frame of every sprite, and the moments in context (the sign with the held coin, the toss,
+        the knock, the bow, the shutters by day and by night).
+
+The coin (fix round 1) is 4x4 with a dark rim on its shadow side; a waiting figure's coin is not in its grid but drawn
+by the engine over its hands at `HELD` (keep in step with `TownSprites.heldCoin`), so it can glint and glow.
 
 The overlays (64x46 and 72x56, the houses' sizes, drawn over the house at its place and with its mirror):
   frame 0  the open door: the door leaf swung in against the hinge side, the dark room behind, the floor's boards.
@@ -34,6 +38,11 @@ GRIDS = os.path.join(HERE, "grids", "town")
 FIGURES = ["townCorra", "townDun", "townBrede", "townHemmet", "townWenna", "townGorm", "townNib", "kingKnock",
            "ladyKnock", "townCoin"]
 OVERLAYS = ["townCottage", "townBigHouse"]
+# The held coin's centre from a waiting figure's anchor (ahead of it) and above the ground, frame 0 (the breath lowers it
+# a pixel on frame 1; the child's frame 4): `TownSprites.heldCoin`.
+HELD = {"townCorra": (5, 14), "townDun": (5, 14), "townBrede": (5, 14), "townHemmet": (6, 9), "townWenna": (5, 14),
+        "townGorm": (5, 16), "townNib": (4, 13)}
+WIDTHS = {"kingKnock": 16, "ladyKnock": 16, "townCoin": 4, "townNib": 10}
 
 # The houses' doors and windows (columns and rows of the paintings, from the top left; ends inclusive).
 COTTAGE_DOOR = (26, 29, 36, 42)
@@ -206,7 +215,7 @@ def cmd_proof(a):
         if not os.path.exists(path):
             continue
         img, _ = read_png(path)
-        w = {"kingKnock": 16, "ladyKnock": 16, "townCoin": 3, "townNib": 10}.get(name, 12)
+        w = WIDTHS.get(name, 12)
         x = 2
         for f in frames_of(path, w):
             paste(canvas, f, x, y)
@@ -218,13 +227,15 @@ def cmd_proof(a):
     corra = frames_of(os.path.join(art, "townCorra.png"), 12)
     lord = frames_of(os.path.join(ART, "king.png"), 16)
     knock = frames_of(os.path.join(art, "kingKnock.png"), 16)
-    coin = frames_of(os.path.join(art, "townCoin.png"), 3)
+    coin = frames_of(os.path.join(art, "townCoin.png"), 4)
     top = H - 60
     ground_band(top + 46, H)
-    # 1 the sign
+    # 1 the sign: Corra in the open door facing the lord, her coin held up over her hands (mirrored with her)
     paste(canvas, house, 4, top)
     paste(canvas, cottage[0], 4, top)
     paste(canvas, corra[0], 4 + 31 - 5, top + 46 - 26, flip=True)
+    held_dx, held_dy = HELD["townCorra"]
+    paste(canvas, coin[0], 4 + 31 - held_dx - 2, top + 46 - held_dy - 2)
     paste(canvas, lord[6], 4 - 14, top + 46 - 30)
     # 2 the toss
     ox = 74
@@ -232,19 +243,19 @@ def cmd_proof(a):
     paste(canvas, cottage[0], ox, top)
     paste(canvas, corra[3], ox + 31 - 5, top + 46 - 26, flip=True)
     paste(canvas, lord[6], ox + 4, top + 46 - 30)
-    for k, (cx, cy) in enumerate([(ox + 24, top + 30), (ox + 20, top + 26), (ox + 16, top + 27)]):
+    for k, (cx, cy) in enumerate([(ox + 24, top + 29), (ox + 19, top + 25), (ox + 14, top + 26)]):
         paste(canvas, coin[k % 4], cx, cy)
     # 3 the knock
     ox = 144
     paste(canvas, house, ox, top)
-    paste(canvas, knock[1], ox + 31 - 8 - 8, top + 46 - 30)
+    paste(canvas, knock[1], ox + 31 - 6 - 8, top + 46 - 30)
     # 4 the bow
     ox = 214
     paste(canvas, house, ox, top)
     paste(canvas, cottage[0], ox, top)
     paste(canvas, corra[8], ox + 31 - 5, top + 46 - 26, flip=True)
-    paste(canvas, knock[2], ox + 31 - 8 - 8, top + 46 - 30)
-    paste(canvas, coin[0], ox + 24, top + 33)
+    paste(canvas, knock[2], ox + 31 - 6 - 8, top + 46 - 30)
+    paste(canvas, coin[0], ox + 24, top + 31)
     # 5 the shutters by day, 6 by night
     for ox, night in ((284, False), (350, True)):
         tint = (0.42, 0.45, 0.78) if night else None

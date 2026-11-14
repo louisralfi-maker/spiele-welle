@@ -34,15 +34,18 @@ enum PlaceholderTown {
     private static let dark = RGBA(0x24181A)
     private static let board = RGBA(0x4F6E8A)
 
-    /// A 3x3 coin turning: face, three quarters, edge, three quarters.
+    /// A 4x4 coin turning: face, three quarters, edge, three quarters, and the face again for the glint.
     static func coin(_ frame: Int) -> PixelImage {
         var p = Painter(SpriteID.townCoin.size, salt: 0)
-        let columns: [[Int]] = [[0, 1, 2], [1, 2], [1], [0, 1]]
+        let columns: [[Int]] = [[0, 1, 2, 3], [1, 2, 3], [1, 2], [0, 1, 2], [0, 1, 2, 3]]
         for x in columns[frame % columns.count] {
             p.put(x, 1, x == 0 ? goldLight : gold)
+            p.put(x, 2, x == 3 ? goldDark : gold)
         }
         p.put(1, 0, goldLight)
-        p.put(1, 2, goldDark)
+        p.put(2, 0, gold)
+        p.put(1, 3, goldDark)
+        p.put(2, 3, goldDark)
         return p.image
     }
 

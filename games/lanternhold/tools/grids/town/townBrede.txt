@@ -2,7 +2,8 @@
 # the cooper's door (house 4) with the day's coins. His body is the people lane's (base/brede.txt: the shaved head with
 # the sweat rag, the sleeveless dark jerkin, the bare arms, and his mark, the near foot bound in pale rags); the beam is
 # set down by the door. Bare, heavy arms two pixels thick (S lit, s shade).
-#   0-1 waiting, the coins in his cupped hands (a breath; the coin catches the light on 1)
+#   0-1 waiting, the coins in his cupped hands (a breath), held a little forward; the coin itself is
+#       `townCoin`, drawn by the engine over the hands (`TownSprites.heldCoin`), so it can glint and glow
 #   2 the hand drawn back, 3 the throw, 4 the open hand after it, 5-6 the wave, 7 the coins flung down
 #   8 the bow at the knock, the coins held out; 9 the deeper bow, empty; 10 empty-handed
 id townBrede
@@ -19,14 +20,10 @@ legend
 part armCup
     Ss..
     Ss..
-    .SsG
-    .sSs
-
-part armCupGlint
     Ss..
-    Ss..
-    .SsY
-    .sSs
+    S...
+    .s..
+    ..Ss
 
 part armWind
     .Ss
@@ -96,7 +93,7 @@ frame 1
     legsStand 1 15
     torso 2 10
     head 4 4
-    armCupGlint 8 10
+    armCup 8 10
 
 frame 2
     legsStand 1 15

@@ -2,7 +2,8 @@
 # chandler's door (house 1) with the day's coins, and on the first morning in the courtyard. Her body is the people
 # lane's (base/corra.txt: the faded teal shawl, the undyed headscarf with the grey wisp, the rounded back); only her
 # near arm is new, the basket set down indoors. Light from the upper left; look 2's selective outline.
-#   0-1 waiting, the coins in her cupped hands (a breath; the coin catches the light on 1)
+#   0-1 waiting, the coins in her cupped hands (a breath), held a little forward; the coin itself is
+#       `townCoin`, drawn by the engine over the hands (`TownSprites.heldCoin`), so it can glint and glow
 #   2 the hand drawn back with the coins, 3 the throw, 4 the open hand after it
 #   5-6 the wave (from 60 happiness), 7 the coins flung down (below 30)
 #   8 the bow at the knock, the coins held out; 9 the deeper bow, the hands empty
@@ -22,14 +23,9 @@ legend
 part armCup
     t...
     b...
-    bSGg
-    .sSs
-
-part armCupGlint
-    t...
     b...
-    bSYG
-    .sSs
+    .b..
+    ..Ss
 
 part armWind
     .t
@@ -116,7 +112,7 @@ frame 1
     armBack 3 11
     shawl 3 10
     head 5 5
-    armCupGlint 8 11
+    armCup 8 11
 
 frame 2
     feetTogether 5 24

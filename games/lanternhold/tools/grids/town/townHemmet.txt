@@ -3,7 +3,8 @@
 # years of sacks, bent nearly double, the hump of his back above his head, the far hand at the small of his back); at
 # his own door he leans on the frame instead of his stick. He cannot straighten: his throw is a flick from under his
 # chin, his wave a lifted hand at his chest, his bow a nod lower still.
-#   0-1 waiting, the coins in his hand (a breath; the coin catches the light on 1)
+#   0-1 waiting, the coins in his hand (a breath), held a little forward; the coin itself is
+#       `townCoin`, drawn by the engine over the hands (`TownSprites.heldCoin`), so it can glint and glow
 #   2 the hand drawn back, 3 the flick, 4 the open hand after it, 5-6 the wave, 7 the coins flung down
 #   8 the bow at the knock, the coins held out; 9 lower still, empty; 10 empty-handed
 id townHemmet
@@ -19,14 +20,11 @@ legend
 
 # the near arm in the flour-grey smock (w lit, q shade), his hand (S lit, s shade)
 part armCup
-    w...
-    wq.G
-    .wSs
-
-part armCupGlint
-    w...
-    wq.Y
-    .wSs
+    w.....
+    .wq...
+    ..wq..
+    ...wq.
+    ....Ss
 
 part armWind
     .w
@@ -91,7 +89,7 @@ frame 1
     handBack 2 15
     stickUp 10 16
     head 6 12
-    armCupGlint 6 16
+    armCup 6 16
 
 frame 2
     legsStand 1 19
