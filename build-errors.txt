@@ -1,0 +1,8 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/ScreenFlowTests.swift:147:35: error: cannot find 'balance' in scope
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/ScreenFlowTests.swift:160:35: error: cannot find 'balance' in scope
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/ScreenFlowTests.swift:160:55: error: cannot find 'balance' in scope
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/ScreenFlowTests.swift:160:70: error: cannot infer contextual base in reference to member 'brazier'
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/ScreenFlowTests.swift:184:39: error: cannot find 'balance' in scope
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/ScreenFlowTests.swift:184:59: error: cannot find 'balance' in scope
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/ScreenFlowTests.swift:265:35: error: cannot find 'balance' in scope
