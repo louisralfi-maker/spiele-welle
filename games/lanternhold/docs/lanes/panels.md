@@ -352,3 +352,106 @@ Continue, the first hook goes wherever night 20's report is closed.
 - The words of the endings are STORY.md's, cut to two lines; `docs/house-rewrite.json` has no change for them. The
   speech line "I was never meant for this" (Story.xcstrings) changes to "I am afraid too. I stay." in the rewrite; the
   honest lamp's line on slide 2 does not quote it, so it holds either way.
+
+## Step panels-2, fix round 1: the critic's look 1 answered (14.11.2026)
+
+The critic (`ci-out/director/panels-2-endings-critic1.md` on the planning branch) scored the step 6/10: no blocker,
+five highs (four pictures below the bar, Begin again without a question). All five are fixed here. Kept untouched, as the
+critic asked: the three lights (`SlideLampLook`, the ember's gutter), Open 2 (the court at sunrise), Open 3 (the ruin in
+alpenglow), Shut 1 (the King into the fog), Shut 3 (Bram and the banner), the end card's page, the words.
+
+### What changed
+
+- **High 1, the Open Lantern's reveal** (`slideOpen1`, now `tools/slides/slide_open1.py`; the old top-down painter is
+  deleted from `slide_open.py`): a low side view beside the outer line's flags. The floor runs away in perspective to a
+  floor line at the parapet's foot (a dark seam), so it reads as a floor; the parapet with merlons, arrow slits and the
+  dawn through the crenels; the Great Beacon burning on its tower beyond the parapet at the upper right, the one light:
+  every edge toward it lit in palette steps, every shadow long to the left, the flags warm toward it and cool dawn grey
+  away from it. The subject along the bottom: the King's black mantle lying flat and collapsed over Aldric (a smooth
+  heap through his shape, long soft folds to a ragged hem, the top rimmed warm); Aldric's grey face comes out from under
+  its edge at the left (a hand-set frontal face, eyes shut, sunk cheeks, the long grey beard running in under the
+  mantle, turned a quarter so he lies on his back with his face toward us) and one thin hand lies on the stone,
+  reaching toward the crown; the iron crown (a hand-set crown leaned over by a pixel shear) tips away at the right with
+  a pale scrape mark behind it; the snuffer lies dropped on the flags behind the mantle. 28 colours.
+- **High 2, Tallowford** (`slideGutter1`, now `tools/slides/slide_town.py`; the old painter removed from
+  `slide_gutter.py`): five houses of their own, no sprite stamped twice: a tall timbered house with a steep gable and a
+  cold chimney; a low stone cottage with a long thatched roof, a lean-to and its woodpile, one window lit and smoke; the
+  narrow house nobody lives in (shutters nailed, one torn half off and hanging, the door boarded across, slates gone so
+  the rafters show, a drift against the door); a house with an overhanging upper storey and a half-hipped roof, one
+  pane knocked out; a small boarded house, lit. Their dark windows (frames, black glass, snow on the sills, the moon's
+  glint) are the subject. Above them, under one sky with the moon at the upper left, the Worldwall as big masses (a lit
+  face toward the moon, snow on the upper part, ravines), and the castle on its shoulder with its own outline (curtain,
+  square tower, round tower with a cone roof, the keep and its turret, snow on the crenels) and one weak ember window.
+  The family with the handcart and the guttering street lantern stay. 23 colours.
+- **High 3, the Shuttered Lantern's middle slide** (`tools/slides/slide_shutgate.py`; the old one removed from
+  `slide_shut.py`, whose `grey_lantern` and `emblem` it imports): `slideShut2` is Seren's grey lantern standing in a
+  crenel a third of the way across, snow on its roof, its cold light on the merlons and the sill in two rings, the
+  parapet with merlons and stone running away to the right, a raven, an arrow on the walk, the Throat's walls faint in
+  the fog (the floating post is gone). New `slideShut2Gate`: the great gate shut, its round arch, the planked leaves
+  with straps and the wicket, the huge bar in its brackets with frost on it, the house's banners hanging wet on either
+  side (the teal dark and heavy in their lower half, the gold thread dull, drops falling), a puddle, and a brazier's last
+  embers. **The picture follows the words** (`RealmTale.middlePicture`): Seren's lantern only when `seren_handed_over`,
+  else the gate (`ChapterEnding.shutGatePicture`, `ChapterEnding.pictureNames`).
+- **High 4, the figures**: the lord at the low hearth (`slideGutter2Lord` / `slideGutter2Lady`, `slide_gutter.py`
+  `chair_and_lord` and `light_lord`) is drawn in three-quarter back view: slumped shoulders under the mended cloak
+  above the chair's carved back, the head bowed toward the embers (a hand-set head: hair, a sliver of cheek and ear
+  lit, the nape), the circlet only three pixels of gold where the ember catches it (no band across the head), the right
+  arm along the chair's arm and the hand hanging limp over its end against the embers; the Burgherrin's hair gathered
+  in a braid down her back. Tamsin (`slideGutter3`, `tamsin_and_coat`) kneels side on, bent over a small heap of the
+  night's rags, her face (a hand-set profile under her kerchief) and hands lit by the brazier; with both hands she lifts
+  the small teal coat half out of the heap by its shoulders, its hem still in the rags; her teal kerchief, rust dress
+  and patched apron gone dark in the night, one hand wrapped in a rag. The hall's and the walk's stone-by-stone fire
+  light is kept as it was.
+- **High 5, Begin again** (`ChapterEndView`): "Hold the realm" is now the main button and "Begin again" a quiet plaque
+  with wax-red words (as the pause sheet's restart, M2b review); a tap on it asks first: "Begin a new realm?" / "This
+  realm ends here. The Chronicle keeps its records." with Cancel as the main button and Begin again as the quiet one.
+  Only `end-begin-confirm` calls `GameModel.beginAgain()`. New identifiers `end-begin-ask`, `end-begin-cancel`,
+  `end-begin-confirm`; new keys `end.begin.ask`, `end.begin.ends`, `end.cancel` (English and German).
+- **Smaller things of the critic, done**: Gutter 3's words take STORY's hint again ("Among the rags lay a child's coat
+  in our teal. / No loom here wove it. Tamsin folded it and said nothing.", German „Kein Webstuhl hier hat ihn
+  gewebt.“); the UI test's lord samples carry a man's name ("Oswin", German "Gerold"; the lady stays "Mira" /
+  "Annegret"). Not done (left open): an emblem of the ending in the card's empty lower right quarter; hiding Skip the
+  first time an ending is seen; a third line for the houses in the Shuttered Lantern with Seren (the card names them).
+- **A note for readers of the screenshots**: `75-open-hold` runs "Hold the realm" on the sample tale over a day 1 world
+  (its clock shows day 1); the unit test `testTheFinaleLeadsThroughTheEndingToTheEndCardAndTheLongWatch` proves the real
+  path from night 20 to the endless save.
+- New launch argument (DESIGN.md "Debug launch arguments" at the join): `-GWSlides ending2gate`, the Shuttered Lantern
+  with Seren kept (its middle slide shows the gate).
+- Tests: `EndingsTests` checks the middle picture by Seren's flag and the new keys; `SlidesPaletteTests` checks all
+  seventeen pictures; `EndingsUITests` saves `77g-shut-2-gate` and `83a-gutter-begin-ask` and taps Cancel, then Begin
+  again twice.
+
+### Hooks
+
+Unchanged: the hooks of panels-1 and panels-2 (tables above). This round touched only this lane's own files.
+
+### Rounds (by the director's notes of 14.11. 18:46 and 19:35: short rounds, the gate one round, English only)
+
+- `lh-pn2f1-1` (e3e4b0e: the Swift changes, Open 1, Gutter 1, Shut 2 and the gate; the old Gutter 2 and 3): build,
+  unit EndingsTests, SlidesPaletteTests and SlidesTests, ui EndingsUITests: **ALL PASSED**. Judged on 83a (the card's
+  question: Cancel the main button, Begin again quiet in wax red; it fits the page).
+- `lh-pn2f1-2` (c3322e4, the last code-bearing commit; the gate: build, all unit tests, ui EndingsUITests and
+  SlidesUITests): **ALL PASSED**. Upright copies of the judged screenshots in `ci-out/upright-pn2f1-2/` of this worktree
+  (git-ignored). After it only these notes changed.
+
+### My own verdict, and what is weakest
+
+- Every high is answered with a redrawn picture or the card's question; the picture follows Seren's flag.
+- Open 1 now reads at phone size as a man lying under a black cloth with his face turned to us, a hand out and the crown
+  fallen beyond, the beacon's fire the light. Weakest there: the parapet is a plain band of blocks and the floor between
+  the mantle and the wall is empty; the crown (a sheared grid) is small and its tines a little rough at 400 %.
+- Gutter 1 is the strongest of the redraws: five houses each its own, the dark windows read, the castle stands on its
+  shoulder against the one sky.
+- The lord at the hearth reads as a figure from behind before the fire with the head bowed; the circlet's three gold
+  pixels are small at phone size (as asked: a few pixels, no band). The picture stays very dark (the ember's light).
+- Tamsin reads as a kneeling woman lifting the coat from the rags; her face is small (a 12 x 12 profile) and the apron
+  is a plain shape.
+- Shut 2 reads (the lantern in its crenel, the fog beyond); the floor of the walk is a little streaky. The gate picture
+  reads at once (arch, bar, the two wet banners, the ember).
+
+### For the join
+
+- The ads lane must place no interstitial between night 20's report, the ending and the end card (the critic's note;
+  nothing in this branch shows one).
+- Whether the night 20 King shows his snuffer (Shut 1's words: "the snuffer went with him") is for the finale's art to
+  confirm; this lane's pictures show it in his hand (Shut 1) and dropped beside the mantle (Open 1).
