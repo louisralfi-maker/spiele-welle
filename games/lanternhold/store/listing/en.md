@@ -35,9 +35,9 @@ THE LAST LAMPLIGHTER
 For a thousand years House Lantern has held the Cleft, the only way through the Worldwall. This autumn the Great Beacon went dark. Lord Aldric rode out to light it again and never came back. The circlet passed to the castle's young lamplighter: you. Name your lord or lady, take up the hooked lantern pole, and keep the light.
 
 BY DAY: BUILD AND JUDGE
-• Raise walls, gates, towers and braziers on the gorge floor, dig stake pits, set up a ballista and a catapult.
+• Raise walls, gates, towers and braziers in front of the castle, dig stake pits, set up a ballista and a catapult.
 • Recruit archers and guards. Grow the valley town with houses, fields, a market and a tavern.
-• Step into your great hall, sit on the throne and hear your people: farmers, soldiers, merchants, a bard, a knight who means every word, envoys of the other great houses. Every choice costs or earns gold and moves your people's mood, and some change the world you walk through.
+• Step into your great hall, sit on the throne and hear your people: farmers, soldiers, merchants, a bard, a knight who means every word, envoys of the other great houses. Your choices cost or earn gold and move your people's mood, and some change the world you walk through.
 • Set the taxes. A content town pays and grows. An unhappy one grumbles.
 • Talk to your court: a dry chancellor, a gruff captain, a fool who tells the truth as jokes, a cook who hears every rumour, and a stranger with a grey lantern.
 [if shipped] • A ledger beside the throne remembers your judgments and what came of them.

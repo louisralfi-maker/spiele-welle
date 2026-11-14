@@ -33,9 +33,9 @@ LE DERNIER ALLUMEUR DE LANTERNES
 Depuis mille ans, la Maison Lantern garde la Faille, le seul passage à travers le Mur du Monde. Cet automne, le Grand Fanal s'est éteint. Le seigneur Aldric est parti le rallumer et n'est jamais revenu. Le diadème est échu au jeune allumeur de lanternes du château : vous. Nommez votre seigneur ou votre dame, prenez la perche à crochet et gardez la lumière.
 
 LE JOUR : BÂTIR ET JUGER
-• Élevez murailles, portes, tours et braseros au fond de la gorge, creusez des fosses à pieux, installez une baliste et une catapulte.
+• Élevez murailles, portes, tours et braseros devant le château, creusez des fosses à pieux, installez une baliste et une catapulte.
 • Recrutez archers et gardes. Faites grandir la ville de la vallée : maisons, champs, un marché et une taverne.
-• Entrez dans votre grande salle, asseyez-vous sur le trône et écoutez votre peuple : paysans, soldats, marchands, un barde, un chevalier qui croit dur comme fer à chacun de ses mots, les envoyés des autres grandes maisons. Chaque choix coûte ou rapporte de l'or et change l'humeur du peuple, et certains transforment le monde que vous parcourez.
+• Entrez dans votre grande salle, asseyez-vous sur le trône et écoutez votre peuple : paysans, soldats, marchands, un barde, un chevalier qui croit dur comme fer à chacun de ses mots, les envoyés des autres grandes maisons. Vos choix coûtent ou rapportent de l'or et changent l'humeur du peuple, et certains transforment le monde que vous parcourez.
 • Fixez les impôts. Une ville contente paie et grandit. Une ville mécontente gronde.
 • Parlez à votre cour : une chancelière pince-sans-rire, un capitaine bourru, un fou qui dit la vérité en plaisantant, une cuisinière qui connaît toutes les rumeurs, et une inconnue à la lanterne grise.
 [if shipped] • Un registre près du trône garde la trace de vos jugements et de ce qu'il en est advenu.

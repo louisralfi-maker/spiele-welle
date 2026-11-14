@@ -33,9 +33,9 @@ O ÚLTIMO ACENDEDOR DE LAMPIÕES
 Há mil anos a Casa Lantern guarda a Fenda, o único caminho através da Muralha do Mundo. Neste outono, o Grande Farol se apagou. O senhor Aldric partiu para reacendê-lo e nunca mais voltou. O diadema passou ao jovem acendedor de lampiões do castelo: você. Dê um nome ao seu senhor ou à sua senhora, pegue a vara de gancho e mantenha a luz acesa.
 
 DE DIA: CONSTRUIR E JULGAR
-• Erga muralhas, portões, torres e braseiros no fundo do desfiladeiro, cave fossos de estacas, monte uma balista e uma catapulta.
+• Erga muralhas, portões, torres e braseiros diante do castelo, cave fossos de estacas, monte uma balista e uma catapulta.
 • Recrute arqueiros e guardas. Faça crescer a cidade do vale com casas, campos, um mercado e uma taverna.
-• Entre no seu grande salão, sente-se no trono e ouça o seu povo: camponeses, soldados, mercadores, um bardo, um cavaleiro que leva cada palavra a sério e enviados das outras grandes casas. Cada escolha custa ou rende ouro e mexe com o humor do povo, e algumas mudam o mundo por onde você anda.
+• Entre no seu grande salão, sente-se no trono e ouça o seu povo: camponeses, soldados, mercadores, um bardo, um cavaleiro que leva cada palavra a sério e enviados das outras grandes casas. Suas escolhas custam ou rendem ouro e mexem com o humor do povo, e algumas mudam o mundo por onde você anda.
 • Defina os impostos. Uma cidade contente paga e cresce. Uma descontente resmunga.
 • Converse com a sua corte: uma chanceler de humor seco, um capitão rabugento, um bobo da corte que diz verdades brincando, uma cozinheira que sabe de todos os boatos e uma forasteira com uma lanterna cinzenta.
 [if shipped] • Um livro ao lado do trono guarda seus julgamentos e o que veio deles.

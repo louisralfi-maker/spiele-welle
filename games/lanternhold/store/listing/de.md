@@ -35,9 +35,9 @@ DER LETZTE LATERNENANZÜNDER
 Seit tausend Jahren hält Haus Lantern den Spalt, den einzigen Weg durch die Weltmauer. In diesem Herbst ist das Große Leuchtfeuer erloschen. Burgherr Aldric ritt hinaus, um es neu zu entzünden, und kam nie zurück. Der Stirnreif fiel an den jungen Laternenanzünder der Burg: an dich. Gib deinem Burgherrn oder deiner Burgherrin einen Namen, nimm die Laternenstange mit dem Haken und halte das Licht am Brennen.
 
 BEI TAG: BAUEN UND RICHTEN
-• Errichte Mauern, Tore, Türme und Feuerschalen in der Schlucht, hebe Pfahlgruben aus, stelle eine Balliste und ein Katapult auf.
+• Errichte Mauern, Tore, Türme und Feuerschalen vor der Burg, hebe Pfahlgruben aus, stelle eine Balliste und ein Katapult auf.
 • Wirb Bogenschützen und Wachen an. Lass die Stadt im Tal wachsen: Häuser, Felder, ein Markt und eine Schenke.
-• Betritt deinen großen Saal, setz dich auf den Thron und hör dein Volk an: Bauern, Soldaten, Händler, einen Barden, einen Ritter, der jedes Wort ernst meint, Gesandte der anderen großen Häuser. Jede Entscheidung kostet oder bringt Gold und bewegt die Stimmung im Volk, und manche verändern die Welt, durch die du gehst.
+• Betritt deinen großen Saal, setz dich auf den Thron und hör dein Volk an: Bauern, Soldaten, Händler, einen Barden, einen Ritter, der jedes Wort ernst meint, Gesandte der anderen großen Häuser. Deine Entscheidungen kosten oder bringen Gold und bewegen die Stimmung im Volk, und manche verändern die Welt, durch die du gehst.
 • Lege die Steuern fest. Eine zufriedene Stadt zahlt und wächst. Eine unzufriedene murrt.
 • Sprich mit deinem Hof: einer trockenen Kanzlerin, einem knurrigen Hauptmann, einem Narren, der die Wahrheit als Witz verpackt, einer Köchin, die jedes Gerücht kennt, und einer Fremden mit einer grauen Laterne.
 [if shipped] • Ein Buch neben dem Thron hält deine Urteile fest und was aus ihnen wurde.

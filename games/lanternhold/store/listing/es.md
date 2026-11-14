@@ -34,9 +34,9 @@ EL ÚLTIMO FAROLERO
 Durante mil años, la Casa Lantern ha guardado la Grieta, el único camino a través del Muro del Mundo. Este otoño, la Gran Almenara se apagó. El señor Aldric partió a encenderla de nuevo y nunca volvió. La diadema pasó al joven farolero del castillo: tú. Ponle nombre a tu señor o a tu señora, toma la pértiga con gancho y mantén viva la luz.
 
 DE DÍA: CONSTRUIR Y JUZGAR
-• Levanta murallas, puertas, torres y braseros en el fondo del desfiladero, cava fosos de estacas, instala una balista y una catapulta.
+• Levanta murallas, puertas, torres y braseros frente al castillo, cava fosos de estacas, instala una balista y una catapulta.
 • Recluta arqueros y guardias. Haz crecer la villa del valle con casas, campos, un mercado y una taberna.
-• Entra en tu gran salón, siéntate en el trono y escucha a tu pueblo: campesinos, soldados, mercaderes, un bardo, un caballero que se cree cada palabra que dice y enviados de las otras grandes casas. Cada decisión cuesta o da oro y cambia el ánimo del pueblo, y algunas transforman el mundo que recorres.
+• Entra en tu gran salón, siéntate en el trono y escucha a tu pueblo: campesinos, soldados, mercaderes, un bardo, un caballero que se cree cada palabra que dice y enviados de las otras grandes casas. Tus decisiones cuestan o dan oro y cambian el ánimo del pueblo, y algunas transforman el mundo que recorres.
 • Fija los impuestos. Una villa contenta paga y crece. Una descontenta murmura.
 • Habla con tu corte: una canciller de humor seco, un capitán gruñón, un bufón que dice verdades en broma, una cocinera que conoce todos los rumores y una forastera con un farol gris.
 [if shipped] • Un libro junto al trono recuerda tus juicios y lo que salió de ellos.

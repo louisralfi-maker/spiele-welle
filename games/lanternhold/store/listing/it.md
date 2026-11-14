@@ -33,9 +33,9 @@ L'ULTIMO LAMPIONAIO
 Da mille anni Casa Lantern custodisce la Fenditura, l'unico passaggio attraverso il Muro del Mondo. Quest'autunno il Grande Faro si è spento. Il signore Aldric è partito per riaccenderlo e non è mai tornato. Il diadema è passato al giovane lampionaio del castello: a te. Dai un nome al tuo signore o alla tua signora, impugna l'asta a uncino e custodisci la luce.
 
 DI GIORNO: COSTRUIRE E GIUDICARE
-• Erigi mura, porte, torri e bracieri sul fondo della gola, scava fosse di pali, installa una balista e una catapulta.
+• Erigi mura, porte, torri e bracieri davanti al castello, scava fosse di pali, installa una balista e una catapulta.
 • Recluta arcieri e guardie. Fai crescere la città nella valle con case, campi, un mercato e una taverna.
-• Entra nella tua sala grande, siediti sul trono e ascolta il tuo popolo: contadini, soldati, mercanti, un bardo, un cavaliere che crede a ogni parola che dice, gli inviati delle altre grandi casate. Ogni scelta costa o rende oro e cambia l'umore del popolo, e alcune trasformano il mondo che percorri.
+• Entra nella tua sala grande, siediti sul trono e ascolta il tuo popolo: contadini, soldati, mercanti, un bardo, un cavaliere che crede a ogni parola che dice, gli inviati delle altre grandi casate. Le tue scelte costano o rendono oro e cambiano l'umore del popolo, e alcune trasformano il mondo che percorri.
 • Stabilisci le tasse. Una città contenta paga e cresce. Una scontenta brontola.
 • Parla con la tua corte: una cancelliera dall'umorismo asciutto, un capitano burbero, un giullare che dice la verità scherzando, una cuoca che conosce ogni pettegolezzo e una straniera con una lanterna grigia.
 [if shipped] • Un registro accanto al trono ricorda i tuoi giudizi e ciò che ne è nato.
