@@ -29,7 +29,8 @@ STRINGS = [
     ("slides.prologue.4", "Prologue, slide 4 of 4: the warm hall, the young lamplighter with the circlet. {a|b}: "
      "Burgherr | Burgherrin.",
      "The circlet passed to the last of his blood.\nThe one who lights the lamps.",
-     "Der Stirnreif ging an {den Letzten|die Letzte} seines Blutes.\n{An den, der|An die, die} die Lampen anzündet."),
+     "Der Stirnreif ging an {den Letzten|die Letzte} seines Blutes.\n{An den, der|An die, die} abends die Lampen "
+     "anzündet."),
     ("slides.prologue.4.label", "The paper label on the last prologue slide: the name Odile wrote into the family "
      "book. {lord} is the typed name (up to 16 letters); {a|b}: Burgherr | Burgherrin.",
      "{lord}, {Lord|Lady} Lantern",
@@ -43,9 +44,9 @@ STRINGS = [
     ("slides.begin", "VoiceOver hint on the last story slide: a tap ends the slides and the day begins.",
      "Begins the day",
      "Beginnt den Tag"),
-    ("slides.position", "VoiceOver value of a story slide. {n} is its number, {count} how many there are.",
-     "Slide {n} of {count}",
-     "Bild {n} von {count}"),
+    ("slides.position", "VoiceOver value of a story slide. %1$d is its number, %2$d how many there are.",
+     "Slide %1$d of %2$d",
+     "Bild %1$d von %2$d"),
 ]
 
 

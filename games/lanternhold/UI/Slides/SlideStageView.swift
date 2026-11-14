@@ -183,9 +183,7 @@ struct SlideStageView: View {
     private var position: String {
         let count = stage.show?.slides.count ?? 0
         let template = SlideText.string("slides.position", lord: stage.lord)
-        return template
-            .replacingOccurrences(of: "{n}", with: String(stage.index + 1))
-            .replacingOccurrences(of: "{count}", with: String(count))
+        return String(format: template, locale: Locale.current, Int32(stage.index + 1), Int32(count))
     }
 
     /// The old words go at once; the new ones fade in under the glass once it has come in.
@@ -330,8 +328,9 @@ struct SlideLight: View {
             let time = reduceMotion ? 12.0 : context.date.timeIntervalSinceReferenceDate
             let b = reduceMotion ? 0 : breath(time, phase: 1.1)
             ZStack {
-                EllipticalGradient(colors: [SlidePalette.lamp.opacity(0.17 + 0.02 * b), .clear],
-                                   center: .center, startRadiusFraction: 0, endRadiusFraction: 0.62)
+                // a little brighter at the centre, without lifting the picture's darks
+                EllipticalGradient(colors: [SlidePalette.lamp.opacity(0.09 + 0.015 * b), .clear],
+                                   center: .center, startRadiusFraction: 0, endRadiusFraction: 0.55)
                     .blendMode(.screen)
                 EllipticalGradient(stops: [
                     .init(color: .clear, location: 0),

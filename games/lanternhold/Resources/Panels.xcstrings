@@ -38,19 +38,19 @@
       }
     },
     "slides.position" : {
-      "comment" : "VoiceOver value of a story slide. {n} is its number, {count} how many there are.",
+      "comment" : "VoiceOver value of a story slide. %1$d is its number, %2$d how many there are.",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bild {n} von {count}"
+            "value" : "Bild %1$d von %2$d"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Slide {n} of {count}"
+            "value" : "Slide %1$d of %2$d"
           }
         }
       }
@@ -116,7 +116,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der Stirnreif ging an {den Letzten|die Letzte} seines Blutes.\n{An den, der|An die, die} die Lampen anzündet."
+            "value" : "Der Stirnreif ging an {den Letzten|die Letzte} seines Blutes.\n{An den, der|An die, die} abends die Lampen anzündet."
           }
         },
         "en" : {
