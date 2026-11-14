@@ -1,0 +1,57 @@
+2026-11-14 13:14:46.601800+0000 Lanternhold[12608:46381] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.DebugArgsTests testDefaults]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testMalformedValuesKeepTheDefaults]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheCastleStage]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheFrontNightShotArguments]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheLookSwitch]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheWeatherArguments]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testABrokenEntryCostsOnlyItself]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testAReportChoiceRoundTrips]' passed (0.329 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testPlaceholdersAndCounts]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheBuildCompiledEveryTableKeyInEnglishAndGerman]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheBundledTableLoadsWithoutProblems]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheSourceFolderHoldsOnlyTableFilesTheBundleHas]' passed (0.368 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheThreeSendingsOfRoundOne]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheValidatorCatchesTheUsualMistakes]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.ErrandDataTests testTheValidatorFindsNothingWrongWithTheContent]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testALostLanternStaysLostForTheChapter]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testANightChoiceAppliesOnlyOnDaysFourToFourteen]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testASendingTakesTheLowestLanternItsPeopleAndItsGold]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testAtMostThreeLanternsAndFortyOneStaysOnItsHook]' passed (0.054 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testCallBackUndoesASendingWhileTheClockStands]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testFromTheLampRoomTheScoutSeesFurther]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testLateNightsWithAltReportsBearersAndBuilders]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testPipComesHomeAtTheDawnAndHisReportWaits]' passed (0.268 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testReadingPipsReportLightsTheLanes]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testReportsAreReadFirst]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testSoldiersComeBackAtTheReturnDawnWhetherOrNotTheReportIsRead]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testTheClothComesOffOnDayTwoAndOffersFollowTheirDays]' passed (0.336 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testTheCounselGivesNoPeopleOrGoldAfterDayFourteen]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testTheRiskIsRolledOnceWhenTheLanternLeavesFromItsOwnStream]' passed (0.042 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testTheRoundedCountAndTheTruthSentAfterIt]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testTheSealHoldsOnlyOnDaysItsRulesAllow]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testTheTrueCountBringsTwoArchersNamedFromTheTablesStream]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ErrandEngineTests testWhatIsMissingBlocksTheOrderAndTurnsItsChipRed]' passed (0.027 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testACorruptFileIsReportedAsCorrupt]' passed (0.193 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testAnOlderSaveWithoutOptionalFieldsLoads]' passed (0.199 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testARoundTripGivesTheSameRealm]' passed (0.184 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlayingOnFromALoadedSaveMatchesPlayingStraightOn]' passed (0.498 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlotCountsAndIndicesAreCheckedOnLoad]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testSettingsAndPacingWithoutTheirFieldsDecodeWithDefaults]' passed (0.180 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheChronicleKeepsRecordsPerTrackAcrossRealms]' passed (0.233 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheFrozenVersionOneSaveStillLoads]' passed (0.021 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testUnknownFieldsOfNewerVersionsAreIgnored]' passed (0.190 seconds).
+Test Case '-[LanternholdTests.TableNeutralityTests testNobodySentChangesNothingOnTheTuningSeeds]' passed (17.626 seconds).
+Test Case '-[LanternholdTests.TableNeutralityTests testTodaysLineIsUnchanged]' passed (5.155 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/Table/TableNeutralityTests.swift:154: error: -[LanternholdTests.TableNeutralityTests testWithTheTableLoadedAndNobodySentSeedOneWalksTodaysLine] : XCTAssertNotNil failed - the table was uncovered on day 2
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/Table/TableNeutralityTests.swift:155: error: -[LanternholdTests.TableNeutralityTests testWithTheTableLoadedAndNobodySentSeedOneWalksTodaysLine] : XCTAssertEqual failed: ("nil") is not equal to ("Optional([])") - nobody was sent
+Test Case '-[LanternholdTests.TableNeutralityTests testWithTheTableLoadedAndNobodySentSeedOneWalksTodaysLine]' failed (5.075 seconds).
+Test Suite 'TableNeutralityTests' failed at 2026-11-14 13:15:22.164.
+Test Case '-[LanternholdTests.TableSaveTests testAnOlderTableWithoutNewerFieldsLoads]' passed (0.071 seconds).
+Test Case '-[LanternholdTests.TableSaveTests testARealmThatNeverTouchedTheTableWritesNoTable]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TableSaveTests testPartiesOutAndReportsComeBackFromTheSave]' passed (0.074 seconds).
+Test Case '-[LanternholdTests.TableSaveTests testTheFrozenVersionOneSaveHasNoTable]' passed (0.015 seconds).
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-14 13:15:22.328.
+Test Suite 'Selected tests' failed at 2026-11-14 13:15:22.329.
+exit=65
+screenshots: 0

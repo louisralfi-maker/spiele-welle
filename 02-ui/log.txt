@@ -1,0 +1,7 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TableUITests.swift:32: error: -[LanternholdUITests.TableUITests testTheTableSendsPipAndReadsHisReport] : XCTAssertTrue failed - day 2, three lanterns on the hook: day:2 hour:9 hook:0 out:0 reports:0 gold:70 happy:63 lanes:0 sent:
+Test Case '-[LanternholdUITests.TableUITests testTheTableSendsPipAndReadsHisReport]' failed (59.168 seconds).
+Test Suite 'TableUITests' failed at 2026-11-14 13:17:43.989.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-14 13:17:43.997.
+Test Suite 'Selected tests' failed at 2026-11-14 13:17:43.998.
+exit=65
+screenshots: 4
