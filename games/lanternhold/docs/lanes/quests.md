@@ -61,7 +61,7 @@ Content decisions inside the spec, for the story lane and the critic to see:
   confirm (QUESTS.md 7.5).
 - The lost-lantern report says "Lantern {lantern} did not come home" in digits, not "Forty".
 - The house's new origin (director's note 15:03, docs/HOUSE.md): no text of the lane calls the lord a lamplighter or
-  talks down to the lord. Harrow's word in `report.highcairn_true.text` is "House Lantern still counts true" (it was
+  talks down to the lord. Lord Varn's word in `report.highcairn_true.text` is "House Lantern still counts true" (it was
   "The lamplighter can count"), and the slip's first line no longer says "once we can count". Pip keeps "Your
   Wickship" (`report.oil_round.text`), which HOUSE.md allows. No text names the lord.
 - A sending's slip has two hook keys (`errand.<id>.hook1`, `.hook2`) instead of one key with a line break, so each
@@ -144,3 +144,48 @@ No other existing file changed. `PetitionData.swift`, `PetitionEngine.swift`, `C
 - Sendings 2 to 4, 6 to 10, 12, 13, the sender and greedy bots, T10 and T11: round 3. Six more languages: round 4.
 - Soldiers recruited at the barracks while riders are out may get a rider's name (the barracks do not know the
   road); cosmetic, for round 3.
+
+## quests-1, fix round 1 (the critic's look 1: pass 8 of 10, no blocker, three highs)
+
+### What changed
+
+- **Lord Varn, never "Lord Harrow".** The game's own texts (`petition.varn_levy.text` / `.hint`) call Hild's father
+  "Lord Varn" or "my father"; Harrow is a first name the player never meets. Fixed in
+  `errand.highcairn_count.hook1`, `report.highcairn_true.text` and `report.highcairn_rounded.text` (en and de). The
+  slip's first line now echoes the levy petition: "Lord Varn sends the other half once he has our Count." / "Lord
+  Varn schickt die andere Hälfte, sobald er unsere Zählung hat."
+- **The Count's reports agree with their choices** (data unchanged). The rounded report: "Then he said he would send
+  one archer, not two." (DE "Dann sagte er, er werde einen Bogenschützen schicken, nicht zwei."), so the archer is
+  not yet in the castle when choice 1 brings her and choice 2 sends the truth instead. The true report's r1: the two
+  archers "ride in at the next dusk" (DE "in der nächsten Dämmerung"), no longer "at noon" from a gate two nights
+  north.
+- **A report the catalogue has no card for never holds the table.** `ErrandEngine.nextReport(table, catalog:)` is
+  the oldest waiting report with a card; `blockers` answers `.reportWaits` only for such a report, `read` reads it
+  by default (`at: nil`), the list shows it. `ErrandEngine.tidy(&s, catalog:)` drops waiting reports without a card
+  (a saved table from a version whose report ids were renamed, or a sending whose report id is gone when it comes
+  home): nothing is applied or recorded as read, a lantern that was `.back` hangs on its hook again, a lost one stays
+  lost. `uncover` (the table screen's opening) calls it, so a saved table is tidied the moment the table opens; until
+  then nothing reads such a report. A tidy table is left exactly as it was (no write), so the neutrality line is
+  untouched. Not in `dawn`: `Sim.dawn`'s hook has no catalogue and stays as it was.
+- **Smaller things from the same verdict:** EN `table.chip.night` "Fewer tonight"; DE `table.homeday` "Zurück am
+  Morgen von Tag {n}"; DE `report.oil_round.r1` "In der Dämmerung leuchtet Tallowford bis zur letzten Tür."; DE
+  `.r2` "Die Fässer kommen hinauf auf den Wehrgang."; DE `.r2b` "brennt mit dem Öl der Lichtzieher"; DE
+  `report.highcairn_true.text` "zählt noch immer ehrlich"; DE `errand.beacon_statues.hook1` "... die steinernen
+  Herren an der Straße" (as the English "on the road"). The debug list's reaction title drops a closing full stop.
+- Left for the director: DE "Laterne 38 ist heim" (QUESTS.md's own glossary fixes it; the critic proposes "ist
+  zurück" for the chip and the row, "ist heimgekehrt" for the report openings). The sent slip's repeat, hooks `.out`
+  and `.back` looking alike, a hint on 41: round 2's real screen.
+
+### Hooks
+
+No new hook. `TableListView.swift` and `ErrandEngine.swift` are the lane's own files.
+
+### Tests
+
+- `TableSaveTests.testAReportTheCatalogueNoLongerKnowsDoesNotHoldTheTable`: a saved table with two unknown report ids
+  (one on a `.back` lantern, one on a lost lantern) loads; nothing is read first, `read` answers nothing, a sending
+  takes 39; the table's opening drops both, 38 hangs again, 40 stays lost, the rest of the realm is unchanged, a second
+  tidy changes nothing; an unknown report before a known one: the known one holds the table and is read.
+- `ErrandEngineTests.testAReportWithoutACardNeverHoldsTheTable`: a party whose report id has no card comes home,
+  never holds the table, and its lantern hangs again when the table opens.
+
