@@ -177,7 +177,7 @@ def dawn_sky(c, sun, stops, y0, y1, dip=26.0, dip_width=70.0, wobble=2.0, seed=0
             c.c[y][x] = P(col)
 
 
-def cloud_wisp(c, x0, x1, y0, thick, seed, colour_fn):
+def cloud_wisp(c, x0, x1, y0, thick, seed, colour_fn, stretch=1.0):
     """A clumpy wisp of cloud: a row of overlapping lumps of uneven size along a slightly wavy line, thin at its ends
     and with gaps; colour_fn(x, y, top, bottom) paints each pixel (the belly lit, the top dark)."""
     x = x0
@@ -185,8 +185,8 @@ def cloud_wisp(c, x0, x1, y0, thick, seed, colour_fn):
     while x < x1:
         t = (x - x0) / float(max(1, x1 - x0))
         env = math.sin(t * math.pi) ** 0.7
-        r = thick * env * (0.5 + 0.8 * h1(k, seed))
-        w = 7 + h1(k, seed + 1) * 15
+        r = thick * env * (0.5 + 0.8 * h1(k, seed)) / (stretch ** 0.5)
+        w = (7 + h1(k, seed + 1) * 15) * stretch
         cy = y0 + math.sin(x * 0.03 + seed) * 1.5 + (h1(k, seed + 2) - 0.5) * 2
         if r >= 0.9 and h1(k, seed + 3) > 0.12:
             for yy in range(int(cy - r), int(cy + r * 0.55) + 1):

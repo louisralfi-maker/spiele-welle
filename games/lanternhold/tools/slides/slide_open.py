@@ -47,7 +47,7 @@ def sky_open2(c):
              (128, 200, 9, 3.0, 829)]
     for (x0, x1, y0, th, seed) in wisps:
         near = abs((x0 + x1) / 2 - SUN[0]) < 100 and y0 > 30
-        cloud_wisp(c, x0, x1, y0, th, seed, lambda x, y, t, b, n=near: tint(x, y, t, b, n))
+        cloud_wisp(c, x0, x1, y0, th, seed, lambda x, y, t, b, n=near: tint(x, y, t, b, n), stretch=2.2)
 
 
 def land_open2(c):
