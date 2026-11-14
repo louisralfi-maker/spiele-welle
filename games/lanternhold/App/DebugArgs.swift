@@ -112,6 +112,8 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWScreen` screens.
     enum Screen: String, Sendable, CaseIterable, Equatable {
         case title, audience, report, defeat, story, finale, petition
+        /// Craft lane: a travelling craftsman's offer before the throne (`-GWCraft <id>`, `-GWCraftAgain YES`).
+        case craft
     }
 
     /// `-GWAutoplay` modes.
