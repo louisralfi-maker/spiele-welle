@@ -1,0 +1,56 @@
+2026-11-14 17:48:28.951577+0000 Lanternhold[11985:46231] fopen failed for data file: errno = 2 (No such file or directory)
+2026-11-14 17:48:30.792621+0000 Lanternhold[11985:47383] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-14 17:48:30.792770+0000 Lanternhold[11985:47382] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-14 17:48:30.794135+0000 Lanternhold[11985:47383] [Client] Synchronous remote object proxy returned error: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-14 17:48:30.794142+0000 Lanternhold[11985:47386] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-14 17:48:31.087975+0000 Lanternhold[11985:47387] [Client] Updating selectors failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+2026-11-14 17:48:31.142240+0000 Lanternhold[11985:47387] [Client] Updating selectors after delegate addition failed with: Error Domain=NSCocoaErrorDomain Code=4099 "The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process." UserInfo={NSDebugDescription=The connection to service named com.apple.commcenter.coretelephony.xpc was invalidated: Connection init failed at lookup with error 3 - No such process.}
+Test Case '-[LanternholdTests.AdDirectorTests testAnAdOnScreenHoldsTheWorld]' passed (0.242 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testASecondChanceClosedEarlyKeepsTheDefeatCard]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testAVideoClosedEarlyGivesNothingAndHoldsTheInterstitial]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testDoubleTaxesSetTodaysFlagAndBridgeTheDawnsTaxes]' passed (0.080 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testMareksGiftClosedEarlyGivesNothing]' passed (0.236 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testMareksGiftLandsOnHisDay]' passed (0.432 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testNoDoubleTaxesOnAStoryDawn]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testNoVideoNoOffer]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testPassingTheDoubleTaxesWaitsTwoDawns]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testTheInterstitialComesOnContinueByTheRules]' passed (0.022 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testThePayoffWaitsForTheVideoToGo]' passed (0.182 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testTheSecondChanceComesThroughTheVideo]' passed (0.019 seconds).
+Test Case '-[LanternholdTests.AdDirectorTests testWithoutAdsTheReportClosesAtOnceAndNothingIsNoted]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.AdModeTests testTheLaunchArgumentsChooseTheProvider]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdModeTests testTheReleaseIdsAreLouisAndDebugUsesGooglesTestUnits]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testAClockSetBackNeverHoldsTheAdsForGood]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testAPlainDawnFromDayFourAllowsTheInterstitial]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testASecondChanceOncePerFiveNightsAndOncePerTenInEndless]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testAtLeastSixRealMinutesAfterAnyAd]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testAtMostEveryThirdInGameDay]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testAtMostOnceAfterAChapterEnding]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testAVideoClosedEarlyCountsAsAnAdButGivesNothing]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testChapterOneSeesOnlyAFewInterstitials]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testDoubleTaxesAtMostEverySecondDawn]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testDoubleTaxesNeverOnAStoryDawn]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testDoubleTaxesOnlyOnADawnThatOwesTaxes]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testMarekComesEveryThirdDawnWithFortyPercentOfItsTaxesAtLeastFifteen]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testMarekLeavesAtTheHornAndGivesOncePerDay]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testMarekReadsTheRealmsDayOfTaxesNotADawnSum]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testNeverAtNight]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testNeverAtTheThrone]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testNeverBeforeDayFour]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testNeverInAStorySceneNorAnywhereButTheReport]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testNeverOnAStoryDawn]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testNeverRightAfterARewardedVideo]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testOneVideoPerDawn]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testTheDoubleTaxesFlagHoldsForItsDayAndClearsAtTheNextDawn]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.AdPacingTests testThePacingRoundTripsAndAnOlderBlockDecodesWithDefaults]' passed (0.050 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testACorruptFileIsReportedAsCorrupt]' passed (0.278 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testAnOlderSaveWithoutOptionalFieldsLoads]' passed (0.234 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testARoundTripGivesTheSameRealm]' passed (0.232 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlayingOnFromALoadedSaveMatchesPlayingStraightOn]' passed (0.759 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlotCountsAndIndicesAreCheckedOnLoad]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testSettingsAndPacingWithoutTheirFieldsDecodeWithDefaults]' passed (0.181 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheChronicleKeepsRecordsPerTrackAcrossRealms]' passed (0.231 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheFrozenVersionOneSaveStillLoads]' passed (0.020 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testUnknownFieldsOfNewerVersionsAreIgnored]' passed (0.172 seconds).
+exit=0
+screenshots: 0

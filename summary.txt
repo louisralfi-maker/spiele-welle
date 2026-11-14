@@ -1,0 +1,12 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: a1c08b5
+source: claude/lh-ads
+17:41:55 build starts (Lanternhold)
+simulator: 98A0BFA3-CEC3-4FD6-9916-5A2149774DBF (iPhone 17 Pro, iOS 26.5)
+17:47:45 PASS build
+17:48:59 PASS unit LanternholdTests/AdPacingTests LanternholdTests/AdDirectorTests LanternholdTests/AdModeTests LanternholdTests/SaveGameTests
+17:51:48 PASS ui LanternholdUITests/AdsUITests
+17:54:29 PASS ui-de LanternholdUITests/AdsUITests
+ALL PASSED
