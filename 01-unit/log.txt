@@ -1,0 +1,658 @@
+2026-11-14 13:08:27.342142+0000 Lanternhold[8840:38797] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.AtlasTests testBundledArtReplacesThePlaceholder]' passed (1.796 seconds).
+Test Case '-[LanternholdTests.AtlasTests testCellsKeepTheirPaddingClear]' passed (0.103 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEveryPlacedSpriteIsPainted]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEveryPlaceholderDrawsSomethingAtItsSize]' passed (7.022 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEverySpriteGetsCellsOfItsSize]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.AtlasTests testLook2ArtIsBundled]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AtlasTests testPackerKeepsInsideTheWidth]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.AtlasTests testPlaceholdersAreDeterministic]' passed (0.362 seconds).
+Test Case '-[LanternholdTests.AtlasTests testStripsSplitIntoFrames]' passed (0.003 seconds).
+2026-11-14 13:08:39.473332+0000 Lanternhold[8840:38797] [Lanternhold] createImageAtIndex:2185: *** ERROR: createImageAtIndex[0] - 'n/a ' - failed to create image [-62]
+2026-11-14 13:08:39.473399+0000 Lanternhold[8840:38797] [Lanternhold] CGImageSourceCreateImageAtIndex:5179: *** ERROR: CGImageSourceCreateImageAtIndex[0] - 'n/a ' - failed to create image [-62]
+Test Case '-[LanternholdTests.AtlasTests testTinyPNGDecodesExactly]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testAnAudienceBeforeTheHornHoldsTheClock]' passed (0.019 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testStandingUpLeavesTheRestWaitingAndTheLecternSetsTheTaxes]' passed (0.170 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testTalkingToTheCourt]' passed (0.036 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testTheCrownOpensTheAudienceAndAChoiceIsHeard]' passed (0.048 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testThePauseEndsTheAudienceAndReduceMotionOpensTheCardAtOnce]' passed (0.032 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testThePauseLetsAHeardPetitionerWalkOut]' passed (0.035 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testThePetitionSample]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.AudienceFlowTests testTheStrangerIsHeardAtTheGate]' passed (0.220 seconds).
+Test Case '-[LanternholdTests.AudienceTests testAStoryChoiceShowsWhatItLeavesBehind]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.AudienceTests testHearingThroughTheSessionAndTheUnheardOfADawn]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AudienceTests testTheCardShowsTheChoicesWithTheirCostsAndReasons]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AudienceTests testTheLeaversWalkOutAndFade]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.AudienceTests testThePetitionerWalksUpAndTheCardOpensWhenHeArrives]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AudienceTests testTheThroneHearsTheHallAndTheStrangerWaitsAtTheGate]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AutoplayTests testAtNightTheKingStandsBehindTheFrontWall]' passed (0.024 seconds).
+Test Case '-[LanternholdTests.AutoplayTests testTaxVariantsSetTheirTax]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AutoplayTests testTheBotHearsFromTheDriversCatalogue]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AutoplayTests testTheBotThatBuildsNothingBuildsNothing]' passed (0.101 seconds).
+Test Case '-[LanternholdTests.AutoplayTests testTheReferenceBotBuildsOnTheFirstMorning]' passed (0.018 seconds).
+Test Case '-[LanternholdTests.AutoplayTests testTheReferenceOrderNamesRealPlotsAndItems]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.AutoplayTests testTwentyNightsRunInAFewSeconds]' passed (2.953 seconds).
+Test Case '-[LanternholdTests.BattleTests testABubbleOfDarknessHidesCreaturesInTheLight]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BattleTests testAFinishedBeaconIsLitWhenTheLightlessKingLeaves]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.BattleTests testAKingWhoFallsAsTheHearthGoesOutDoesNotWinTheNight]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testALoneGuardCanFallInTheBreach]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BattleTests testANightLetsItsWavesGoAndFirstLightDissolvesTheRest]' passed (0.036 seconds).
+Test Case '-[LanternholdTests.BattleTests testAPassingCreatureHarmsASoldierByTheTimeInContact]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.BattleTests testArchersShootLitCreaturesOnly]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.BattleTests testASoldierWhoArrivesMidStepIsStruckOnlyWhileHeWalks]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testASootCrowSnuffsABrazierAfterTwoSeconds]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testAStakePitStrikesThreeTimesANight]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testAWallAtZeroBecomesPassableRubble]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.BattleTests testContactTimeIsTheTimeWithinReachAtAnyStep]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BattleTests testCreaturesAttackTheFirstStandingWall]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.BattleTests testCreaturesAtTheHearthDrainIt]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BattleTests testEveryFourthArrowIsAFireArrowThatLightsTheGround]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BattleTests testEveryWaveLeavesByThreeOClock]' passed (0.018 seconds).
+Test Case '-[LanternholdTests.BattleTests testGuardsHoldTheBreachInFrontOfTheFirstStandingWall]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BattleTests testGuardsStepBackBelowThirtyPercentAndTheLastOneFalls]' passed (0.032 seconds).
+Test Case '-[LanternholdTests.BattleTests testInTheBeaconsLightTheKingCanBeHurtAndOutsideItNot]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BattleTests testOutsideTheBeaconsLightNothingHurtsTheKing]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testShadehoundsLeapPalisadesButNotStone]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.BattleTests testSlayingTheKingWinsTheNight]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheDarknessBankFallsBackAsTheBeaconFlaresUp]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheDarknessBankShrinksLightsInsideIt]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheDarknessBankSwallowsTheBeaconsLight]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheGuardsStrikeTheFrontmostCreatureTheyCanHurt]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheHearthTakesNoHarmAfterFirstLight]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheKingPatchesAWallAndLightsABrazier]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheKingRalliesNearbySoldiers]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheKingsAuraFailsOnlyInsideTheBeaconsReach]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheLitProbeAgreesWithTheLightField]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.BattleTests testTheNightBudget]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BattleTests testWallTorchesLightTheWallWalkNotItsFoot]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BattleTests testWithoutLightTheArchersAreBlind]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BuildTests testAGiftedBrazierCostsNothingOnce]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BuildTests testAnUpgradeKeepsTheOldTierUntilDone]' passed (0.023 seconds).
+Test Case '-[LanternholdTests.BuildTests testAPalisadeTakesEightSecondsWithTwoBuilders]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BuildTests testBuildersGoHomeAtTheHorn]' passed (0.029 seconds).
+Test Case '-[LanternholdTests.BuildTests testBuildersWalkOutAndBuildByDay]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.BuildTests testFreeRepairFortyHPPerBuilderPerSecond]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BuildTests testNoBuilderSpendsTheNightAtTheFront]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.BuildTests testNoBuildingAtNight]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.BuildTests testNotEnoughGoldAndLockedLines]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BuildTests testOrderCostsTheGoldAtOnce]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BuildTests testRecruitingNeedsATaxpayerAndGold]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BuildTests testRubbleRebuildsAtHalfPriceInHalfTheTime]' passed (0.054 seconds).
+Test Case '-[LanternholdTests.BuildTests testTheCardOffersFirstBuildsUpgradesAndRebuilds]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BuildTests testTheGatehouseRebuildsForHalfOfWhatItCost]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BuildTests testTheLodgeBringsBuilders]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.BuildTests testTheRealmHasItsPlots]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CameraTests testClampingToTheWorld]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CameraTests testDeviceXPlacesActorsWithTheWorldPlane]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.CameraTests testFollowSettlesOnAStandingKing]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.CameraTests testKingOnScreenJitterAtMostOneDevicePixel]' passed (0.079 seconds).
+Test Case '-[LanternholdTests.CameraTests testParallaxFactors]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CameraTests testPlaneOffsetRuleEverywhere]' passed (0.019 seconds).
+Test Case '-[LanternholdTests.CameraTests testPlaneOffsetsAtTheFrontShot]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CameraTests testReduceMotionHasNoLag]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CameraTests testSnappedActorsShowTheJitterSmoothRemoves]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CardModelTests testALockedPlotStillOpensItsCardToTellItsDay]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.CardModelTests testAnEmptyPlotOffersItsFirstBuildWithPriceTimeAndTheMissingGold]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CardModelTests testAPlotWithAJobRunningGivesWayToItsNeighbour]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CardModelTests testByDayTheButtonOffersThePlotTheBarracksAndTheThrone]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.CardModelTests testFromTheHornToDawnTheButtonLightsAndPatchesOnly]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CardModelTests testOrderingTheCardsOptionGoesThroughTheSimulation]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CardModelTests testPatchAndLightShowWhyTheyCannotActNow]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CardModelTests testTheArrowsStepToThePlotsInReachLeftAndRight]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CardModelTests testTheBarracksCardCountsAndPrices]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CardModelTests testTheEngineOffersBothAndTheTimesFollowTheBuilders]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.CardModelTests testTheTaxLecternForecastsEachRate]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CardModelTests testUpgradesAndRubbleUseTheSameCard]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CastleGrowthModelTests testTheCastleGrowsWhileThePlayBuildsTheGatehouse]' passed (0.038 seconds).
+Test Case '-[LanternholdTests.CastleGrowthModelTests testTheSceneStandsAsTheRealmBuiltIt]' passed (0.021 seconds).
+Test Case '-[LanternholdTests.CastleRoomsTests testACrowdedCastleFrameKeepsItsBudget]' passed (0.051 seconds).
+Test Case '-[LanternholdTests.CastleRoomsTests testAFrontFadesInAQuarterSecondAndSwapsAtOnceWithReduceMotion]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.CastleRoomsTests testAHousesBannerHangsWhereItStandsWithTheLord]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.CastleRoomsTests testTheCastlesWorldChangesAreDrawn]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.CastleRoomsTests testTheChapelAndTheKitchenOpenWithTheirInteriorsLit]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.CastleRoomsTests testTheCourtWalksTalksAndCarriesItsMarks]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.CastleRoomsTests testTheShutHallHidesItsCourtAndTheOpenHallShowsIt]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.CastleRoomsTests testTheThroneIsMarkedWhilePetitionersWait]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.CourtSheetTests testTheM3SpritesOnOneSheet]' passed (1.324 seconds).
+Test Case '-[LanternholdTests.CourtTests testAComposedPortraitWearsTheTargetRamps]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.CourtTests testAtNightTheCourtGathersAndTheGuestsAreGone]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.CourtTests testByDayEveryCourtMemberIsInHisRoom]' passed (0.018 seconds).
+Test Case '-[LanternholdTests.CourtTests testCourtLinesPreferAHintAboutTodaysPetitions]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.CourtTests testPositionsAreAPureFunctionAndTheRoundsMove]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.CourtTests testSerenFollowsTheStory]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CourtTests testTheCourtAnswersADecisionBeforeItsEverydayLines]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CourtTests testTheCourtsProps]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CourtTests testTheDriverDrawsEachDaysPetitioners]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.CourtTests testTheSaveKeepsTheCourtAndOldSavesStillLoad]' passed (0.164 seconds).
+Test Case '-[LanternholdTests.CourtTests testTheWorldRegistry]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.CourtTests testTodaysPetitionersWaitAtTheBenches]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DayClockTests testAFullDayCrossesEveryEventAndCountsTheDay]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.DayClockTests testEightSortedKeyframesThatTheRampHits]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DayClockTests testFrameStepsMatchOneBigStep]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.DayClockTests testNightIsDarkerThanDay]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DayClockTests testPauseAndFreezeStopTheHourButNotElapsedTime]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.DayClockTests testPhaseProgress]' passed (0.021 seconds).
+Test Case '-[LanternholdTests.DayClockTests testPhasesFollowTheDesignTable]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DayClockTests testRampIsContinuousBetweenConsecutiveFrames]' passed (0.101 seconds).
+Test Case '-[LanternholdTests.DayClockTests testTheStartingEventDoesNotFireAgain]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DayClockTests testTimeOfDayMapsToHours]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.DayClockTests testTwelveSecondsPerHourAndAHundredFiftySixSecondDay]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.DayClockTests testWarmFireAgainstColdAmbient]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testDefaults]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testMalformedValuesKeepTheDefaults]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheCastleStage]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheFrontNightShotArguments]' passed (0.059 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheLookSwitch]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DebugArgsTests testTheWeatherArguments]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.DriverMovesTests testAnHourPlaysOnFromTheStart]' passed (0.638 seconds).
+Test Case '-[LanternholdTests.DriverMovesTests testATapOnTheStripWalksTheKingThereAndADragCancelsIt]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.DriverMovesTests testReplayAndRestart]' passed (0.117 seconds).
+Test Case '-[LanternholdTests.DriverMovesTests testTheNewArgumentsParse]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EconomyTests testACitizenLeavesBelowFifteen]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EconomyTests testAFreeArcherVolunteersOnEveryThirdDawnAtSeventy]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EconomyTests testDawnUsesYesterdaysHappinessForTaxes]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EconomyTests testGrowthNeedsHappinessAndRoom]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EconomyTests testHappinessChangesForEachTaxRate]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EconomyTests testLossesTavernChapelAndUnheardPetitioners]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EconomyTests testMoodRunsFromPointSixToOnePointFour]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.EconomyTests testStartOfChapterOne]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EconomyTests testTaxFormulaWithFieldsAndMarket]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EconomyTests testUnrestTakesTheWholeDawnsTaxes]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EconomyTests testWarTaxOnlyOnceUnlocked]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testArrowsInFlightAreDrawnWithTrailsAndFireArrowsGlow]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testBuildersHammerAtTheirWorkByDay]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testEnginesAndTrapsShowWhatTheyDid]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testLineOnesArchersNeverStandInTheWallWalksFires]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testMarkersStandOnEmptyUnlockedPlotsByDay]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testProjectilesFlyOnTheirArcsWithFramesByVerticalSpeed]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheBattleLightsComeFromTheSimulation]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheBeaconsStagesAndItsFire]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheGateOpensByDayAndClosesAtNight]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheKingWalksIdlesAndCommands]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheLightlessKingsAuraHoldsOutsideTheLightAndShatters]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheSootlingsAlternateAndCreaturesAnimateByAction]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTheTownByPlotState]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testTowersStandBehindTheirWallsAndArchersOnTheirPosts]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testUnlitCreaturesShowTheirGlowOverADarkBody]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.EntityFramesTests testWallsShowDamageRubbleAndScaffolding]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.FeelTests testFirstLightSweepsFromRightToLeftWhereTheSimulationDissolves]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.FeelTests testTheBigMomentsAlwaysPlayAndComeFirst]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FeelTests testTheShakeFadesAndRespectsReduceMotion]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FeelTests testVolleysPlayNearTheKingAndThinOut]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.FlickerTests testFlickerIsBounded]' passed (0.095 seconds).
+Test Case '-[LanternholdTests.FlickerTests testFlickerIsSmoothFromFrameToFrame]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.FlickerTests testNoiseIsContinuousAcrossLatticePoints]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FlickerTests testReduceMotionIsSmallerAndSlower]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.FlickerTests testSameSeedAndTimeGiveTheSameFlicker]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrameBudgetTests testFortyCreaturesKeepTheFrameInsideTheBudget]' passed (0.047 seconds).
+Test Case '-[LanternholdTests.FrameBudgetTests testTheBudgetHoldsAcrossAWholeLiveNight]' passed (1.166 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testCastleHallAndTownAtNight]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testCastleShadowFollowsTheSun]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testCountsMatchTheLists]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testCreaturesShowTheirBodiesByDay]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testDarknessBankEdgeFollowsTheClock]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testEffectLevels]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testFrameGeometry]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testFrontAtNightHasFireCreaturesEyesAndArchers]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testGlassMasksSitInsideTheirSprite]' passed (0.019 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testGroundTilesJoinAndVary]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testKingWalkCycleRunsForwardInBothDirections]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testMidPlaneLightsMoveWithTheirPlane]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testMistAtTheCastleFootComesWithTheDusk]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testNightStaysInsideTheBudgetEverywhere]' passed (0.278 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("15") is greater than ("2") - weltmauerPatch (far) ends in the view at column 384 with 15 open rows (camera centre 1200.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("7") is greater than ("2") - weltmauerPatch (far) ends in the view at column 435 with 7 open rows (camera centre 1200.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 333 with 184 open rows (camera centre 1200.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 334 with 184 open rows (camera centre 1200.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("9") is greater than ("2") - weltmauerPatch (far) ends in the view at column 380 with 9 open rows (camera centre 1220.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("5") is greater than ("2") - weltmauerPatch (far) ends in the view at column 431 with 5 open rows (camera centre 1220.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 323 with 184 open rows (camera centre 1220.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 324 with 184 open rows (camera centre 1220.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("8") is greater than ("2") - weltmauerPatch (far) ends in the view at column 376 with 8 open rows (camera centre 1240.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("9") is greater than ("2") - weltmauerPatch (far) ends in the view at column 427 with 9 open rows (camera centre 1240.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 313 with 184 open rows (camera centre 1240.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 314 with 184 open rows (camera centre 1240.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("8") is greater than ("2") - weltmauerPatch (far) ends in the view at column 372 with 8 open rows (camera centre 1260.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("11") is greater than ("2") - weltmauerPatch (far) ends in the view at column 423 with 11 open rows (camera centre 1260.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 303 with 184 open rows (camera centre 1260.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 304 with 184 open rows (camera centre 1260.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("12") is greater than ("2") - weltmauerPatch (far) ends in the view at column 368 with 12 open rows (camera centre 1280.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("8") is greater than ("2") - weltmauerPatch (far) ends in the view at column 419 with 8 open rows (camera centre 1280.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 293 with 184 open rows (camera centre 1280.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 294 with 184 open rows (camera centre 1280.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("9") is greater than ("2") - weltmauerPatch (far) ends in the view at column 364 with 9 open rows (camera centre 1300.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("8") is greater than ("2") - weltmauerPatch (far) ends in the view at column 415 with 8 open rows (camera centre 1300.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 283 with 184 open rows (camera centre 1300.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 284 with 184 open rows (camera centre 1300.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 273 with 184 open rows (camera centre 1320.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 274 with 184 open rows (camera centre 1320.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 263 with 184 open rows (camera centre 1340.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 264 with 184 open rows (camera centre 1340.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 253 with 184 open rows (camera centre 1360.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 254 with 184 open rows (camera centre 1360.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 243 with 184 open rows (camera centre 1380.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 244 with 184 open rows (camera centre 1380.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 233 with 184 open rows (camera centre 1400.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 234 with 184 open rows (camera centre 1400.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 223 with 184 open rows (camera centre 1420.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 224 with 184 open rows (camera centre 1420.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 213 with 184 open rows (camera centre 1440.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 214 with 184 open rows (camera centre 1440.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 203 with 184 open rows (camera centre 1460.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 204 with 184 open rows (camera centre 1460.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 193 with 184 open rows (camera centre 1480.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 194 with 184 open rows (camera centre 1480.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 183 with 184 open rows (camera centre 1500.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 184 with 184 open rows (camera centre 1500.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 173 with 184 open rows (camera centre 1520.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 174 with 184 open rows (camera centre 1520.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 429 with 189 open rows (camera centre 1520.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 430 with 190 open rows (camera centre 1520.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 163 with 184 open rows (camera centre 1540.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 164 with 184 open rows (camera centre 1540.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 419 with 189 open rows (camera centre 1540.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 420 with 190 open rows (camera centre 1540.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 153 with 184 open rows (camera centre 1560.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 154 with 184 open rows (camera centre 1560.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 409 with 189 open rows (camera centre 1560.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 410 with 190 open rows (camera centre 1560.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 143 with 184 open rows (camera centre 1580.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 144 with 184 open rows (camera centre 1580.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 399 with 189 open rows (camera centre 1580.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 400 with 190 open rows (camera centre 1580.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 133 with 184 open rows (camera centre 1600.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 134 with 184 open rows (camera centre 1600.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 389 with 189 open rows (camera centre 1600.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 390 with 190 open rows (camera centre 1600.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 123 with 184 open rows (camera centre 1620.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 124 with 184 open rows (camera centre 1620.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 379 with 189 open rows (camera centre 1620.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 380 with 190 open rows (camera centre 1620.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 113 with 184 open rows (camera centre 1640.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 114 with 184 open rows (camera centre 1640.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 369 with 189 open rows (camera centre 1640.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 370 with 190 open rows (camera centre 1640.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 103 with 184 open rows (camera centre 1660.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 104 with 184 open rows (camera centre 1660.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 359 with 189 open rows (camera centre 1660.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 360 with 190 open rows (camera centre 1660.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 93 with 184 open rows (camera centre 1680.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 94 with 184 open rows (camera centre 1680.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 349 with 189 open rows (camera centre 1680.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 350 with 190 open rows (camera centre 1680.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 83 with 184 open rows (camera centre 1700.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 84 with 184 open rows (camera centre 1700.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 339 with 189 open rows (camera centre 1700.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 340 with 190 open rows (camera centre 1700.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 73 with 184 open rows (camera centre 1720.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 74 with 184 open rows (camera centre 1720.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 329 with 189 open rows (camera centre 1720.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 330 with 190 open rows (camera centre 1720.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 63 with 184 open rows (camera centre 1740.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 64 with 184 open rows (camera centre 1740.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 319 with 189 open rows (camera centre 1740.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 320 with 190 open rows (camera centre 1740.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 53 with 184 open rows (camera centre 1760.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 54 with 184 open rows (camera centre 1760.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 309 with 189 open rows (camera centre 1760.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 310 with 190 open rows (camera centre 1760.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 43 with 184 open rows (camera centre 1780.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 44 with 184 open rows (camera centre 1780.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 299 with 189 open rows (camera centre 1780.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 300 with 190 open rows (camera centre 1780.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 33 with 184 open rows (camera centre 1800.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 34 with 184 open rows (camera centre 1800.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 289 with 189 open rows (camera centre 1800.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 290 with 190 open rows (camera centre 1800.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 23 with 184 open rows (camera centre 1820.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 24 with 184 open rows (camera centre 1820.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 279 with 189 open rows (camera centre 1820.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 280 with 190 open rows (camera centre 1820.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 13 with 184 open rows (camera centre 1840.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 14 with 184 open rows (camera centre 1840.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 269 with 189 open rows (camera centre 1840.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 270 with 190 open rows (camera centre 1840.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - throatStepC (mid) ends in the view at column 3 with 184 open rows (camera centre 1860.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("184") is greater than ("2") - cleftWallA (mid) ends in the view at column 4 with 184 open rows (camera centre 1860.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 259 with 189 open rows (camera centre 1860.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 260 with 190 open rows (camera centre 1860.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 249 with 189 open rows (camera centre 1880.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 250 with 190 open rows (camera centre 1880.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 239 with 189 open rows (camera centre 1900.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 240 with 190 open rows (camera centre 1900.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 229 with 189 open rows (camera centre 1920.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 230 with 190 open rows (camera centre 1920.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 219 with 189 open rows (camera centre 1940.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 220 with 190 open rows (camera centre 1940.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 209 with 189 open rows (camera centre 1960.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 210 with 190 open rows (camera centre 1960.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 199 with 189 open rows (camera centre 1980.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 200 with 190 open rows (camera centre 1980.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 189 with 189 open rows (camera centre 2000.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 190 with 190 open rows (camera centre 2000.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 179 with 189 open rows (camera centre 2020.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 180 with 190 open rows (camera centre 2020.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 435 with 197 open rows (camera centre 2020.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 436 with 197 open rows (camera centre 2020.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 169 with 189 open rows (camera centre 2040.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 170 with 190 open rows (camera centre 2040.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 425 with 197 open rows (camera centre 2040.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 426 with 197 open rows (camera centre 2040.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 159 with 189 open rows (camera centre 2060.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 160 with 190 open rows (camera centre 2060.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 415 with 197 open rows (camera centre 2060.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 416 with 197 open rows (camera centre 2060.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 149 with 189 open rows (camera centre 2080.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 150 with 190 open rows (camera centre 2080.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 405 with 197 open rows (camera centre 2080.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 406 with 197 open rows (camera centre 2080.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 139 with 189 open rows (camera centre 2100.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 140 with 190 open rows (camera centre 2100.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 395 with 197 open rows (camera centre 2100.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 396 with 197 open rows (camera centre 2100.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 129 with 189 open rows (camera centre 2120.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 130 with 190 open rows (camera centre 2120.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 385 with 197 open rows (camera centre 2120.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 386 with 197 open rows (camera centre 2120.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 119 with 189 open rows (camera centre 2140.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 120 with 190 open rows (camera centre 2140.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 375 with 197 open rows (camera centre 2140.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 376 with 197 open rows (camera centre 2140.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 109 with 189 open rows (camera centre 2160.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 110 with 190 open rows (camera centre 2160.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 365 with 197 open rows (camera centre 2160.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 366 with 197 open rows (camera centre 2160.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 430 with 24 open rows (camera centre 2160.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 99 with 189 open rows (camera centre 2180.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 100 with 190 open rows (camera centre 2180.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 355 with 197 open rows (camera centre 2180.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 356 with 197 open rows (camera centre 2180.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 420 with 24 open rows (camera centre 2180.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 89 with 189 open rows (camera centre 2200.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 90 with 190 open rows (camera centre 2200.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 345 with 197 open rows (camera centre 2200.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 346 with 197 open rows (camera centre 2200.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 410 with 24 open rows (camera centre 2200.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 79 with 189 open rows (camera centre 2220.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 80 with 190 open rows (camera centre 2220.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 335 with 197 open rows (camera centre 2220.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 336 with 197 open rows (camera centre 2220.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 400 with 24 open rows (camera centre 2220.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 69 with 189 open rows (camera centre 2240.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 70 with 190 open rows (camera centre 2240.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 325 with 197 open rows (camera centre 2240.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 326 with 197 open rows (camera centre 2240.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 390 with 24 open rows (camera centre 2240.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 59 with 189 open rows (camera centre 2260.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 60 with 190 open rows (camera centre 2260.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 315 with 197 open rows (camera centre 2260.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 316 with 197 open rows (camera centre 2260.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 380 with 24 open rows (camera centre 2260.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 49 with 189 open rows (camera centre 2280.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 50 with 190 open rows (camera centre 2280.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 305 with 197 open rows (camera centre 2280.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 306 with 197 open rows (camera centre 2280.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 370 with 24 open rows (camera centre 2280.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 39 with 189 open rows (camera centre 2300.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 40 with 190 open rows (camera centre 2300.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 295 with 197 open rows (camera centre 2300.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 296 with 197 open rows (camera centre 2300.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 360 with 24 open rows (camera centre 2300.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 29 with 189 open rows (camera centre 2320.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 30 with 190 open rows (camera centre 2320.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 285 with 197 open rows (camera centre 2320.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 286 with 197 open rows (camera centre 2320.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 350 with 24 open rows (camera centre 2320.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 19 with 189 open rows (camera centre 2340.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 20 with 190 open rows (camera centre 2340.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 275 with 197 open rows (camera centre 2340.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 276 with 197 open rows (camera centre 2340.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 340 with 24 open rows (camera centre 2340.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("189") is greater than ("2") - cleftWallA (mid) ends in the view at column 9 with 189 open rows (camera centre 2360.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("190") is greater than ("2") - cleftWallB (mid) ends in the view at column 10 with 190 open rows (camera centre 2360.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 265 with 197 open rows (camera centre 2360.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 266 with 197 open rows (camera centre 2360.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 330 with 24 open rows (camera centre 2360.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 255 with 197 open rows (camera centre 2380.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 256 with 197 open rows (camera centre 2380.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 320 with 24 open rows (camera centre 2380.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("65") is greater than ("2") - weltmauer (far) ends in the view at column 407 with 65 open rows (camera centre 2400.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 245 with 197 open rows (camera centre 2400.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 246 with 197 open rows (camera centre 2400.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 310 with 24 open rows (camera centre 2400.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("61") is greater than ("2") - weltmauer (far) ends in the view at column 403 with 61 open rows (camera centre 2420.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 235 with 197 open rows (camera centre 2420.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 236 with 197 open rows (camera centre 2420.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 300 with 24 open rows (camera centre 2420.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 225 with 197 open rows (camera centre 2440.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 226 with 197 open rows (camera centre 2440.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 290 with 24 open rows (camera centre 2440.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 215 with 197 open rows (camera centre 2460.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 216 with 197 open rows (camera centre 2460.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 280 with 24 open rows (camera centre 2460.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 205 with 197 open rows (camera centre 2480.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 206 with 197 open rows (camera centre 2480.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 270 with 24 open rows (camera centre 2480.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallB (mid) ends in the view at column 195 with 197 open rows (camera centre 2500.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("197") is greater than ("2") - cleftWallC (mid) ends in the view at column 196 with 197 open rows (camera centre 2500.0)
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/FrameBuilderTests.swift:883: error: -[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley] : XCTAssertLessThanOrEqual failed: ("24") is greater than ("2") - d2TreeBelt (mid) ends in the view at column 260 with 24 open rows (camera centre 2500.0)
+Test Case '-[LanternholdTests.FrameBuilderTests testNoBackdropEndsInASeamFromTheThroatToTheValley]' failed (3.527 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testNoFogEdgeEndsInTheViewWithoutAFeatherOrANeighbour]' passed (0.219 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testNoonHasNoTorchlightWindowsOrStars]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testOccludersHideGlowBehindLaterSprites]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testPlaneOffsetsMatchTheCamera]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testRegionsSwitchAtTheBorders]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testSameInputsGiveEqualFrames]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testSceneMatchesTheLayout]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testShadowAndMistStrengthsByTheHour]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testSnappedActorsLandOnWholeGamePixels]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testSnuffingABrazierTakesItsLightAway]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testSpriteRectsSitOnWholeTargetPixels]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testTheKeepShowsFromTheGorge]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testTheKeepsValleyViewFadesInAtTheBackGate]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testTopAnchorHoldsOn154And181Rows]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.FrameBuilderTests testWorldIsAsWideAsTheLayout]' passed (0.003 seconds).
+Test Suite 'FrameBuilderTests' failed at 2026-11-14 13:08:52.890.
+Test Case '-[LanternholdTests.GameScreensTests testReplayingTheDayStartsTheCourtAfresh]' passed (0.185 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheBarracksAndTheThrone]' passed (0.029 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheDawnBringsTheReportAndContinueStartsTheDay]' passed (0.639 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheDefeatCardsTwoWaysOut]' passed (0.118 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheHammerOpensTheBuildCardAndTheOrderGoesThroughTheSimulation]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheHornSendsTheWaitingPetitionersHome]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheNeighbourArrowAndClosing]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testThePauseSheetAndTheRestart]' passed (0.212 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testThePauseSheetSoundsTheHornByDay]' passed (0.019 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheSettingsAndTheSecondChanceSurviveARelaunch]' passed (0.050 seconds).
+Test Case '-[LanternholdTests.GameScreensTests testTheStripTapAndTheSampleScreens]' passed (0.053 seconds).
+Test Case '-[LanternholdTests.GameStartTests testADayStartsAtThatMorning]' passed (0.193 seconds).
+Test Case '-[LanternholdTests.GameStartTests testANightStartsAtNightfall]' passed (0.111 seconds).
+Test Case '-[LanternholdTests.GameStartTests testMalformedGameArgumentsKeepTheDefaults]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GameStartTests testNumbersCameraAndTheSave]' passed (0.085 seconds).
+Test Case '-[LanternholdTests.GameStartTests testTheDemoBuildsARealmForScreenshots]' passed (3.288 seconds).
+Test Case '-[LanternholdTests.GameStartTests testTheGameArgumentsParse]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.GameStartTests testTheSaveStoreWritesReadsAndKeepsACorruptFile]' passed (0.036 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testFramesWithTheFog]' passed (0.094 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testHarderNightsBringItEarlierFurtherAndThicker]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testItComesAtDuskAndPullsBackAtDawn]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testTheArgument]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testTheCreaturesStepOutOfIt]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testTheEyesInIt]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testTheFiresCutHoles]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testTheFogThinsTowardAFireInSmallSteps]' passed (0.023 seconds).
+Test Case '-[LanternholdTests.GloomFogTests testThePaintedFog]' passed (0.058 seconds).
+Test Case '-[LanternholdTests.LightFieldTests testDarknessBankOverTheDayAndNights]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LightFieldTests testDarknessBankShrinksLightsInsideIt]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LightFieldTests testDefaultRadiiFromTheDesign]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LightFieldTests testDistanceIsEllipticSoPoolsSitFlat]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LightFieldTests testFalloffValues]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.LightFieldTests testHighestSourceWinsAndLightsDoNotAdd]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.LightFieldTests testIntensityAndFlickerDoNotChangeTheGameplayField]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LightFieldTests testLitAtTheThresholdRadius]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LightFieldTests testPlaceholderCreaturesWaitOutsideTheLightAtNight]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.LightFieldTests testWindowsCandlesAndTheMoonLightOnlyTheScene]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testCreaturesOfLookTwo]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testFirefliesOfLookTwo]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testFramesOfLookTwo]' passed (0.111 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testLookTwoRenders]' passed (33.065 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testTheCastleTiers]' passed (0.060 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testTheLaneByRegion]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testTheSceneOfLookTwo]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testTheTownAtNightOfLookTwo]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.Look2FrameTests testWeatherOfLookTwo]' passed (0.036 seconds).
+Test Case '-[LanternholdTests.LookGoldenTests testLookOneIsPinned]' passed (8.114 seconds).
+Test Case '-[LanternholdTests.LordEntryTests testAnEmptyNameIsRobinAndQuittingBeforeTheAnswerAsksAgain]' passed (0.107 seconds).
+Test Case '-[LanternholdTests.LordEntryTests testANewRealmAsksForTheLordAndKeepsTheAnswer]' passed (0.109 seconds).
+Test Case '-[LanternholdTests.LordEntryTests testARestartAsksAgainWithTheOldLord]' passed (0.095 seconds).
+Test Case '-[LanternholdTests.LordEntryTests testTheLordSitsOnTheThroneDuringAnAudience]' passed (0.019 seconds).
+Test Case '-[LanternholdTests.LordEntryTests testTheStoryTextsTakeTheLord]' passed (0.151 seconds).
+Test Case '-[LanternholdTests.LordTests testOnlyAFreshRealmAsksForTheLord]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LordTests testTheDebugArgumentsNameTheLord]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LordTests testTheLordsSpritesAndTheSittingDown]' passed (0.215 seconds).
+Test Case '-[LanternholdTests.LordTests testTheNameIsFilteredTrimmedAndCut]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.LordTests testThePlaceholdersTakeTheNameAndTheForm]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LordTests testTheSaveKeepsTheLordAndOldSavesReadAsTheBurgherr]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.LordTests testTheValidatorCountsTheLongestNameAndReportsBrokenBraces]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LordTests testWaitingTownsfolkSitOnTheBenches]' passed (0.020 seconds).
+Test Case '-[LanternholdTests.MetalProbeTests testAppContextComesUpWithEveryShader]' passed (0.098 seconds).
+Test Case '-[LanternholdTests.MetalProbeTests testDeviceExistsAndReportsItsFamilies]' passed (1.198 seconds).
+Test Case '-[LanternholdTests.MetalProbeTests testShaderStructStridesMatchTheMetalSide]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.OffscreenRenderTests testAdditiveLightsAddUp]' passed (0.331 seconds).
+Test Case '-[LanternholdTests.OffscreenRenderTests testClearColourReadsBack]' passed (0.019 seconds).
+Test Case '-[LanternholdTests.OffscreenRenderTests testNearestQuadMakesExactBlocks]' passed (0.055 seconds).
+Test Case '-[LanternholdTests.PetitionDataTests testEverySpeakerHasABodyAndAPortrait]' passed (0.027 seconds).
+Test Case '-[LanternholdTests.PetitionDataTests testEveryStoryChoiceLeavesATrace]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.PetitionDataTests testTheBuildCompiledEveryStoryKeyInEnglishAndGerman]' passed (0.067 seconds).
+Test Case '-[LanternholdTests.PetitionDataTests testTheBundledPetitionsAndLinesLoadWithoutProblems]' passed (0.053 seconds).
+Test Case '-[LanternholdTests.PetitionDataTests testTheHousesAudiencesComeOnTopAndTheirCounselMovesNothing]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.PetitionDataTests testTheLoaderSkipsABrokenPetitionAndKeepsTheRest]' passed (0.210 seconds).
+Test Case '-[LanternholdTests.PetitionDataTests testTheSourceFolderHoldsOnlyPetitionFilesTheBundleHas]' passed (0.353 seconds).
+Test Case '-[LanternholdTests.PetitionDataTests testTheValidatorCatchesTheUsualMistakes]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.PetitionDataTests testTheValidatorFindsNothingWrongWithTheContent]' passed (0.149 seconds).
+Test Case '-[LanternholdTests.PetitionNightTests testAHeardPetitionsNightEffectReachesTonightAndIsSpentAtDawn]' passed (1.451 seconds).
+Test Case '-[LanternholdTests.PetitionNightTests testAWaveModifierScalesTheNight]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PetitionNightTests testFewerCreaturesOfAKind]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.PetitionNightTests testFogBringsTheDarknessBankFurther]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PetitionNightTests testTheIdsParse]' passed (0.024 seconds).
+Test Case '-[LanternholdTests.PetitionNightTests testWithoutAModifierTheNightIsPlannedAsBefore]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.PetitionTests testABlockedChoiceIsRefused]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PetitionTests testAChanceRollsTheSimulationsStream]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.PetitionTests testAFollowUpComesOnItsDayIfItsFlagsStillAllow]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PetitionTests testAStoryPetitionComesOnItsDaysUntilHeard]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PetitionTests testAStoryPetitionOnTopLeavesTheOthersAsDrawn]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.PetitionTests testDayOneBringsOnlyTheTutorialAndLaterDaysTwoToFour]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.PetitionTests testEveryEffectKind]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.PetitionTests testNeverTheSameRandomPetitionTwiceInFiveDays]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.PetitionTests testOnlyEligiblePetitionsAreDrawn]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PetitionTests testRandomPetitionsComeByWeight]' passed (0.065 seconds).
+Test Case '-[LanternholdTests.PetitionTests testTheBotTakesTheCounselWhenItCanElseTheCheapest]' passed (0.318 seconds).
+Test Case '-[LanternholdTests.PetitionTests testTheReferenceBotHearsEveryPetitionerAndADeafBotLosesHappiness]' passed (0.684 seconds).
+Test Case '-[LanternholdTests.PetitionTests testTheSameSeedGivesTheSameQueueAndTheDrawLeavesTheStreamAlone]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.PetitionTests testUnheardPetitionersGoHomeAtTheHornAndCostHappinessAtDawn]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheCastleGrowsWithItsGatehouse]' passed (0.588 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheCircletIconsAreInTheAtlas]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheFirefliesAreDotsWithAHalo]' passed (0.027 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheHousesArgumentHangsTheirBanners]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheHousesFacesAreGuestsWithABodyAndAPortraitOfTheirOwn]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheHousesSpritesHaveTheirPlaceholders]' passed (0.038 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheOldWallsStandInTheThroatAndATierInItsAnchor]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.PolishTests testThePolishSpritesHaveTheirPlaceholders]' passed (0.328 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheRainFallsDarkByDay]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheRaisePresetAndTheFixedStage]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheRoomsFlickerSoftly]' passed (0.067 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheSquaresPropsAndTheYoungWillow]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.PolishTests testTheValleysDistanceClosesTheNotchAtTheWallsEnd]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.PortraitCardTests testStoryCharactersShowTheirOwnPortraitAndTownsfolkAComposedOne]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.PortraitCardTests testTheCardTileGetsThePortraitImage]' passed (0.021 seconds).
+Test Case '-[LanternholdTests.PortraitCardTests testTheComposedPortraitWearsItsTargetRampsFromTheAtlas]' passed (0.872 seconds).
+Test Case '-[LanternholdTests.RealmStripTests testTheFirstMorningShowsTheGateAndTheLockedLines]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.RealmStripTests testTheStripMapsTheWholeWorld]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.RealmStripTests testWallsByStateAndCreaturesAtNight]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.RealmWorldTests testTheDefenceLinesStandWhereTheWorldDrawsThem]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.RealmWorldTests testTheRealmSpansTheDrawnWorld]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.RealmWorldTests testTheTownPlotsSitAtTheCentresOfTheDrawnPlots]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.RendererTests testActorsAreLitAtDevicePixels]' passed (0.953 seconds).
+Test Case '-[LanternholdTests.RendererTests testBackdropLightsLightOnlyTheMidPlane]' passed (0.168 seconds).
+Test Case '-[LanternholdTests.RendererTests testEveryPipelineBuilds]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.RendererTests testFullEffectsAndEveryDebugViewRender]' passed (1.224 seconds).
+Test Case '-[LanternholdTests.RendererTests testLightStylesQuantizeTheFalloff]' passed (0.141 seconds).
+Test Case '-[LanternholdTests.RendererTests testNightBrazierIsWarmNearAndColdFar]' passed (0.064 seconds).
+Test Case '-[LanternholdTests.RendererTests testStructStridesMatchTheShaders]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.RendererTests testWindowGlassGlowsAndOccludersHideIt]' passed (0.180 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testAfterNightTwentyTheKingsBannerComesFirst]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testARealNightBecomesTheCard]' passed (0.116 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testASecondChanceBringsADawnWithItsBanner]' passed (0.259 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testTheFinaleQuotesTheSpeech]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testTheHearthAndTheUnlocksAreWorded]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.ReportCardTests testTheSampleShowsAWallLostAFallenArcherAndAnUnlock]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.ResolutionTests testChunkyChoiceAndOverride]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.ResolutionTests testDeviceTable]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.ResolutionTests testEitherOrientationGivesTheSameScale]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testACorruptFileIsReportedAsCorrupt]' passed (0.263 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testAnOlderSaveWithoutOptionalFieldsLoads]' passed (0.316 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testARoundTripGivesTheSameRealm]' passed (0.295 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlayingOnFromALoadedSaveMatchesPlayingStraightOn]' passed (0.746 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlotCountsAndIndicesAreCheckedOnLoad]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testSettingsAndPacingWithoutTheirFieldsDecodeWithDefaults]' passed (0.301 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheChronicleKeepsRecordsPerTrackAcrossRealms]' passed (0.339 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheFrozenVersionOneSaveStillLoads]' passed (0.023 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testUnknownFieldsOfNewerVersionsAreIgnored]' passed (0.235 seconds).
+Test Case '-[LanternholdTests.SceneFilterTests testAGameFrameDrawsWhatTheRealmHas]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.SceneFilterTests testGameModeHidesTheSimOwnedPlaceholders]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.SceneFilterTests testTheProbeKeepsTheFullScene]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testAStallNeverFastForwardsTheWorld]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testAutoplayPlaysLiveUntilADrag]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testItStepsSixtyTimesASecondWhateverTheFrameRate]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testNothingStepsWhilePausedOrInTheBackgroundOrFrozen]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testTheActionButtonLightsASnuffedBrazierAtNight]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testTheCameraLooksTowardTheGloomAtNightAtTheFront]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testTheDawnRenewsTheSnapshotTheSaveWrites]' passed (0.095 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testTheDragMovesTheKingThroughTheSimulationsIntent]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.SimTests testAFullDayAndNightEndsInADawnReport]' passed (0.066 seconds).
+Test Case '-[LanternholdTests.SimTests testDawnReportsNameTheUnlocks]' passed (1.294 seconds).
+Test Case '-[LanternholdTests.SimTests testTheClockBringsHornNightfallFirstLightAndDawnInOrder]' passed (0.112 seconds).
+Test Case '-[LanternholdTests.SimTests testTheHeadlessStepKeepsNightTwentysOutcome]' passed (17.256 seconds).
+Test Case '-[LanternholdTests.SimTests testTheHeadlessStepKeepsTheNightsOutcome]' passed (1.475 seconds).
+Test Case '-[LanternholdTests.SimTests testTheKingsWalkEndsOnTheRiverBank]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SimTests testTheRealmFallsAndASecondChanceBringsDawn]' passed (0.232 seconds).
+Test Case '-[LanternholdTests.SimTests testTheSameSeedGivesTheSameRealm]' passed (1.157 seconds).
+Test Case '-[LanternholdTests.SoundTests testEveryFileIsInTheAppAndSmall]' passed (0.023 seconds).
+Test Case '-[LanternholdTests.SoundTests testFireIsHeardNearBraziersAndTheBeacon]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testSoundIsOffInTestsUnlessAskedFor]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheAmbienceFollowsDayNightRainAndPlace]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheGameFeedsTheHubWithoutTouchingTheSimulation]' passed (0.226 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheGateShutsAtNightfall]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheHaptics]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheLordsStepsFollowHisWalk]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheMomentsHaveTheirSounds]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheThinnerTakesTheWatchsCues]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheThrottleKeepsItsGapPerKey]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SoundTests testTheWatchHearsGoldWallsAndCreatures]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TalkTests testTalkingAgainGoesOnThroughTheLines]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.TalkTests testTheButtonOffersTalkingAndThePlaceWinsACloseCall]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TalkTests testTheNearestSpeakerInReachAndNobodyAtNight]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TalkTests testTheSpeechMarkLeavesOnceTheKingHeardTheHint]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TalkTests testTheThroneOwnsTheDaisWhilePetitionersWait]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TuningTests testReportIsAttached]' passed (243.828 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget1ReferenceBotHoldsTheFirstTenNights]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget2BuildingNothingLosesOnNightTwoOrThree]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget3TheBeaconByDayEighteen]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget4TaxesMoveHappiness]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget5PaceOfBuilding]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget6NightTwentyAndTheBeacon]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget7EndlessFallsBetweenThirtyFiveAndSixty]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TuningTests testTarget8WavesAndBudgets]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TuningTests testTheReferenceBotHeardTheCourt]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.WeatherTests testNothingJumps]' passed (0.615 seconds).
+Test Case '-[LanternholdTests.WeatherTests testReduceMotionStillsTheWind]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.WeatherTests testTheFirstDaysAndTheStorms]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.WeatherTests testTheGustsOfAGustyDay]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.WeatherTests testTheLightUnderTheWeather]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.WeatherTests testTheOverrides]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.WeatherTests testTheRainWetsTheGround]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.WeatherTests testTheSameSeedGivesTheSameWeather]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.WeatherTests testTheSharesOfAThousandDays]' passed (0.029 seconds).
+Test Case '-[LanternholdTests.WeatherTests testTheSwayAndTheFires]' passed (0.002 seconds).
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-14 13:14:27.844.
+Test Suite 'All tests' failed at 2026-11-14 13:14:27.846.
+exit=65
+screenshots: 27
