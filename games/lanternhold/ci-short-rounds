@@ -1,0 +1,5 @@
+Lanternhold sends short rounds only (the director, 14.11.2026). scripts/ci/remote-check.sh reads this file's presence.
+
+Refused in a lane round: "ui" without a class filter, every "ui-de" (build 2 is English only), "release".
+Allowed: build, unit [<Target>/<Class>...], "ui LanternholdUITests/<Class> ...", sh <command>, testflight (ci/tf-* only).
+A join round or a store round sets GW_CI_FULL=1. Why: docs/DIRECTOR.md, "Speed" and "Full speed".

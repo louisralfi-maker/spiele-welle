@@ -396,3 +396,12 @@ schneller geht."
   people, the arrows and the gear of HUD.md, with proof pictures on real screenshots at noon, dusk and night. The
   director judges it; then the stage lane takes the commit and Louis sees one picture.
 - Quota 49 % of the week at 19:35 (Fable 9 %).
+- **The queue, measured (20:22, from GitHub's own job times):** five Macs ran and four rounds waited. The waits were
+  58, 51, 63 and 63 minutes. Six of the nine open rounds were still full rounds (`build unit ui ui-de release`): the
+  closing rounds of agents that began their step before the 18:46 note. **A note reaches only an agent that starts
+  after it; a running agent keeps its brief.** The agents that started later sent short rounds (quests, people,
+  panels). A sent round cannot be stopped from here: there is no token.
+- **The round guard (20:35):** `scripts/ci/remote-check.sh` refuses a `ui` without a class filter, every `ui-de` and
+  `release` for a game that has `games/<game>/ci-short-rounds`; `GW_CI_FULL=1` lifts it. It is on the planning branch,
+  so it holds for every workflow started from it and from the join on. The join merges planning first.
+- **A rule that must reach everyone at once** goes into a script the agents call, never only into a note.

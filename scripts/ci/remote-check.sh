@@ -7,6 +7,20 @@
 set -u
 [ $# -ge 4 ] || { echo "usage: $0 <game> <label> <outdir> <step>..."; exit 2; }
 GAME=$1; LABEL=$2; OUT=$3; shift 3
+# A lane round is short. A game with games/<game>/ci-short-rounds refuses the long steps: "ui" without a class filter,
+# every "ui-de" and "release" hold one of GitHub's five Macs for 70 to 90 minutes, and then every lane waits an hour.
+# A join round or a store round sets GW_CI_FULL=1.
+if git cat-file -e "HEAD:games/$GAME/ci-short-rounds" 2>/dev/null && [ "${GW_CI_FULL:-0}" != 1 ]; then
+    for S in "$@"; do
+        BAD=""
+        case "$S" in
+            ui|release|ui-de|ui-de\ *) BAD=$S ;;
+            ui\ *) for F in ${S#ui }; do case "$F" in */*) ;; *) BAD=$S ;; esac; done ;;
+        esac
+        [ -z "$BAD" ] || { echo "REFUSED: the step \"$BAD\" is too long for a lane round (games/$GAME/ci-short-rounds). Nothing was sent."
+            echo "Send short rounds: build, unit [<Target>/<Class>...], \"ui <Target>/<Class> ...\" with your own classes only."; exit 2; }
+    done
+fi
 URL=${GW_CI_REMOTE:-git@github.com:louisralfi-maker/spiele-welle.git}
 export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/id_ed25519_games -o IdentitiesOnly=yes"
 DEADLINE=$(( $(date +%s) + ${GW_CI_WAIT_MIN:-130} * 60 ))
