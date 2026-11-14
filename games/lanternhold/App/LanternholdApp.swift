@@ -36,7 +36,14 @@ struct RootView: View {
             Color.black
                 .ignoresSafeArea()
                 .onAppear {
-                    if model == nil { model = GameModel(args: args, kind: RootView.kind(of: args.scene)) }
+                    guard model == nil else { return }
+                    let made = GameModel(args: args, kind: RootView.kind(of: args.scene))
+                    // Sound and haptics (DESIGN.md "Sound and haptics"): the game only, never in tests.
+                    if made.kind == .world,
+                       SoundDirector.allowed(args: args, environment: ProcessInfo.processInfo.environment) {
+                        made.installFeedback(SoundDirector())
+                    }
+                    model = made
                 }
         }
     }

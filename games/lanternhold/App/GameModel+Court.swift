@@ -101,7 +101,7 @@ extension GameModel {
         court.lordSeated = place == .throne && !reduceMotion ? 0 : nil
         court.rooms.step(kingX: driver?.state.king.x ?? state.king.x, dt: 0, reduceMotion: true)
         refreshAudienceCard()
-        feedback.play(.cardOpened)
+        feedback.play(.audienceOpened)
         setOverlay(.audience)
     }
 
@@ -133,6 +133,7 @@ extension GameModel {
         session.elapsed = 0
         session.outcome = outcome
         court.audience = session
+        feedback.play(.choiceMade)
         if outcome.happiness > 0 { feedback.play(.happinessUp) }
         if outcome.happiness < 0 { feedback.play(.happinessDown) }
         refreshHUD()
@@ -159,7 +160,7 @@ extension GameModel {
                                             reduceMotion: reduceMotion) {
             court.audience = next
             refreshAudienceCard()
-            feedback.play(.cardOpened)
+            feedback.play(.audienceOpened)
         } else {
             endAudience(feedbackCue: true)
         }

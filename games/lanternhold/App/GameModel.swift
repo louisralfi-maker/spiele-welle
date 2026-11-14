@@ -122,8 +122,13 @@ final class GameModel {
     @ObservationIgnored private var events: [SimEvent] = []
     @ObservationIgnored private var shake = ScreenShake()
     @ObservationIgnored private var thinner = FeedbackThinner()
+    /// Sound cues read off the realm's state from frame to frame (`SoundWatch`: coins, wall and creature hits, the
+    /// gate at nightfall, the lord's steps).
+    @ObservationIgnored private var watch = SoundWatch()
+    /// The last drawn frame's rain (0 ... 1, look 2's `Weather`): the rain loop follows it.
+    @ObservationIgnored private var lastRain = 0.0
     @ObservationIgnored private var hornUntil = 0.0
-    /// The feedback hub (silent until M6).
+    /// The feedback hub: silent in tests and UI test launches; the app installs `SoundDirector` (`installFeedback`).
     @ObservationIgnored var feedback: any FeedbackHub = SilentFeedback()
     /// Creature bodies in the last drawn frame (the scene value's `seen:`, so UI tests catch the fight in view).
     @ObservationIgnored private var seenCreatures = 0
@@ -288,6 +293,14 @@ final class GameModel {
     /// A card, a screen or the pause sheet is open: the simulation does not step.
     var isPaused: Bool { driver?.isPaused ?? false }
 
+    /// The app's sound and haptics (DESIGN.md "Sound and haptics"): `RootView` installs `SoundDirector` outside
+    /// tests; the saved switches carry over.
+    func installFeedback(_ hub: any FeedbackHub) {
+        hub.soundOn = settings.sound
+        hub.hapticsOn = settings.haptics
+        feedback = hub
+    }
+
     /// The app became active or left it: nothing steps in the background.
     func setActive(_ active: Bool) {
         driver?.isInBackground = !active
@@ -345,11 +358,15 @@ final class GameModel {
             mark = events.count
         }
         driver = game
+        let heard = watch.cues(game.state, balance: game.balance, moving: stepped > 0)
         if !events.isEmpty {
             effects.note(events, state: game.state, balance: game.balance, time: animationTime)
             if tracking { dissolveSwept(before: before, state: game.state, balance: game.balance) }
-            handle(events, state: game.state)
+            handle(events, state: game.state, extra: heard)
+        } else if !heard.isEmpty {
+            playCues([], extra: heard, state: game.state)
         }
+        feedback.ambience(ambienceMix(game.state, balance: game.balance))
         // Under a card the camera still settles on the king (the audience seats him on the throne).
         if stepped == 0, game.isPaused, var follow = camera {
             follow.follow(targetX: game.state.king.x + GameModel.cameraLead(game.state), targetVelocity: 0,
@@ -383,7 +400,7 @@ final class GameModel {
 
     /// The frame's events beyond the visual effects: the dawn's save and report, the defeat card, the horn banner, the
     /// screen shake and the feedback cues.
-    private func handle(_ frameEvents: [SimEvent], state: GameState) {
+    private func handle(_ frameEvents: [SimEvent], state: GameState, extra: [(cue: FeedbackCue, x: Double?)] = []) {
         let time = clock.elapsed
         for event in frameEvents {
             switch event {
@@ -409,9 +426,28 @@ final class GameModel {
                 break
             }
         }
-        for cue in thinner.cues(for: frameEvents, time: time, listenerX: state.king.x) {
+        playCues(frameEvents, extra: extra, state: state)
+    }
+
+    /// The frame's cues, thinned (`FeedbackThinner`), to the feedback hub.
+    private func playCues(_ frameEvents: [SimEvent], extra: [(cue: FeedbackCue, x: Double?)], state: GameState) {
+        for cue in thinner.cues(for: frameEvents, extra: extra, time: clock.elapsed, listenerX: state.king.x) {
             feedback.play(cue)
         }
+    }
+
+    /// Where the listener is for the ambience (DESIGN.md "Sound and haptics"): by the lord's room, and the great hall
+    /// during an audience at the throne. The hall's own full-screen scene answers `.hall` here when it lands.
+    func soundPlace(_ state: GameState) -> SoundPlace {
+        SoundPlace.at(x: state.king.x, inAudience: overlay == .audience && court.audience?.place == .throne)
+    }
+
+    /// The ambience's target for this frame: day or night, the rain, the place, the fire nearby; half as loud under
+    /// a whole screen.
+    private func ambienceMix(_ state: GameState, balance: Balance) -> AmbienceMix {
+        AmbienceMix.target(hour: state.hour, rain: lastRain, place: soundPlace(state),
+                           fire: AmbienceMix.fireLevel(state, balance: balance, x: state.king.x),
+                           ducked: overlay?.isScreen == true)
     }
 
     /// Creatures that vanished without a kill this frame (swept away at first light, receding with the Gloom when the
@@ -778,6 +814,7 @@ final class GameModel {
         camera?.jump(toFocus: state.king.x + GameModel.cameraLead(state))
         effects = BattleEffects()
         shake = ScreenShake()
+        watch.reset()
         hornNight = nil
         closeTalk()
         talkLog = TalkLog()
@@ -881,6 +918,7 @@ final class GameModel {
     func frame(physicalWidth: Int, physicalHeight: Int) -> FrameDesc {
         var options = self.options
         options.weather = weatherSample(look: options.look)
+        lastRain = options.weather.rain
         options.gloom = gloomFog(look: options.look)
         let pixelScale = options.pixelScale(physicalWidth: physicalWidth, physicalHeight: physicalHeight)
         let frame: FrameDesc
