@@ -403,7 +403,7 @@ final class TownDayTests: XCTestCase {
         let lamp = TownDay.Context(cloth: .hamlet, reduceMotion: false, hearth: 1, collectorOut: true, nobleDue: true)
         // 70: the near field at seven, both at work.
         let field = TownDay.figures(day(7.0, happiness: 70, lord: 2600), time: 1, context: quiet)
-        XCTAssertEqual(field.filter { [.farmerHoe, .farmerScythe].contains($0.sprite) && (6...9).contains($0.frame) }
+        XCTAssertEqual(field.filter { [SpriteID.farmerHoe, .farmerScythe].contains($0.sprite) && (6...9).contains($0.frame) }
             .count, 2, "70: Gorm and Hedda at work")
         // 71: the square at noon: Wenna wringing, Hemmet nodding to the lord beside him.
         let square = TownDay.figures(day(12.0, happiness: 70, lord: 3150), time: 1, context: quiet)

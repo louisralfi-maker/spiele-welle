@@ -70,7 +70,7 @@ enum TownDay {
             props.add(.bench, x: TownHouseholds.benchLeft, z: 1)
         }
         if let span = coachSpan(s, context: context) {
-            props.add(.coach, x: span.lowerBound, z: 1)
+            props.add(.coach, x: span.lowerBound, z: 1, flipped: true)
         }
     }
 
