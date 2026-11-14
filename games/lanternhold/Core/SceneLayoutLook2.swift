@@ -194,13 +194,15 @@ extension SceneLayout {
     static let look2ShaftX = 1104.0
     static let look2ShaftShare: Float = 0.55
 
-    /// The granite the gatehouse's towers grow out of (H2): a knoll at the west tower's outer foot (its east 16
-    /// columns over the tower) and a smaller one at the east tower's (its west 21 columns over it), in front of the
-    /// towers. Tier 3's drums stand 14 px wider on each side, and the rock with them.
+    /// The granite the gatehouse's towers grow out of (H2, tools/cleftart.py): a plinth at each tower's outer foot,
+    /// in front of the tower, highest right at its outer edge (world 1249 and 1470) and falling under the tower in a
+    /// ragged stair, so the masonry climbs out of the rock. Tier 3's drums stand 11 px (west) and 12 px (east) further
+    /// out, and the rock with them.
     static func look2GateRock(front: Double, tier: Int) -> [Entry] {
-        let wider = tier == 3 ? 14.0 : 0
-        return [Entry(sprite: .gateRockL, x: front - 40 - wider, y: 0, z: 1),
-                Entry(sprite: .gateRockR, x: front + 218 + wider, y: 0, z: 1)]
+        let west = tier == 3 ? 11.0 : 0
+        let east = tier == 3 ? 12.0 : 0
+        return [Entry(sprite: .gateRockL, x: front - 40 - west, y: 0, z: 1),
+                Entry(sprite: .gateRockR, x: front + 206 + east, y: 0, z: 1)]
     }
 
     /// The old walls' canvas (and the anchors'): a line's wall begins 28 px right of its left edge, and its bottom

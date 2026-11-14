@@ -12,12 +12,14 @@ only, no randomness (hashes of the position), so a run reproduces its files byte
           it back and the field goes on unbroken. The outer 8 px of each side are clear, the feathers 48 px wide; the
           foot feathers too. So no tile ends in a straight line, and the field itself never shows a seam.
   bankSheetA, bankSheetB, bankSheetC  the darkness bank (fog A, world, fog B), painted in the Gloom's night colours:
-          from the west a 48 px feather, then the core (whole cover), then the bank's leading face: round billows
-          that fall from the core's top to the lane, their upper west rims catching a little moonlight. The engine lays
-          them every STRIDE px westward from the bank's edge; each sheet's face then lies inside the core of the sheet
-          east of it (face width <= stride <= the core's opaque width), so only the first face shows and the bank is one soft
-          volume. A is tall (its core above every screen's top), B covers what stands on the lane, C is a low roll in
-          front of the creatures.
+          from the west a 48 px feather, then the core, then the bank's leading face, which leans out toward the foot
+          (the low fog rolls out first). The core's top and the face are swirled by noise at two scales, so they roll
+          in billows and tear into wisps; the cover grows over a soft depth of 14 to 22 px in eight dithered steps,
+          the body darkens inward, and the shell on the moon's side (up and west) catches a little light. The east end
+          runs out clear. The engine lays them every STRIDE px westward from the bank's edge; each sheet's face then
+          lies inside the core of the sheet east of it, so only the first face shows and the bank is one soft volume.
+          A is tall (its core above every screen's top), B covers what stands on the lane, C is a low roll in front
+          of the creatures.
 """
 import math
 import os
@@ -117,31 +119,35 @@ def fog_tile(name):
 
 STRIDE = 100
 SHEETS = {
-    # h, face width, core top (rows from the sheet's top) and its roll, billow radii, seed
-    "bankSheetA": dict(h=220, face=100, top=(2, 12), r=(18, 32), seed=211),
-    "bankSheetB": dict(h=176, face=92, top=(12, 28), r=(14, 26), seed=213),
-    "bankSheetC": dict(h=96, face=96, top=(16, 28), r=(10, 18), seed=215),
+    # h, face width, the core's top (rows from the sheet's top), how far the face leans out at the foot, the soft depth
+    # (px over which the cover grows from nothing to whole), the swirl's reach, seed
+    "bankSheetA": dict(h=220, face=100, top=4, lean=0.75, soft=22, swirl=16, seed=211),
+    "bankSheetB": dict(h=176, face=96, top=34, lean=0.8, soft=20, swirl=15, seed=213),
+    "bankSheetC": dict(h=96, face=96, top=30, lean=0.9, soft=14, swirl=10, seed=215),
 }
-BODY = ["night0", "nightDeep", "nightBlue"]
-CREST = ["nightBlue", "nightSlate", "night2"]
+BODY = ["night0", "nightDeep", "nightBlue", "nightSlate"]
+RIM = ["nightSlate", "nightHaze", "mistDark"]
 
 
-def sheet_shape(spec, w):
-    """The billows of the face: circles along a path from the core's top east corner down to the lane, the higher ones
-    larger and leaning back, the low ones creeping ahead."""
+def fbm(seed, u, v):
+    return 0.62 * WA.vnoise2(seed, u, v) + 0.38 * WA.vnoise2(seed + 1, u * 2.3, v * 2.3)
+
+
+def sheet_depth(spec, w, x, y):
+    """How deep a point lies inside the sheet (px; negative: outside): the core under its top and west of the face,
+    the face leaning out toward the foot (the bank's foot rolls out first), both edges swirled by noise at two scales
+    so they roll in billows and tear into wisps."""
     h = spec["h"]
-    x0 = w - spec["face"]
     sd = spec["seed"]
-    rlo, rhi = spec["r"]
-    out = []
-    n = 9
-    for i in range(n):
-        t = (i + 0.5) / n
-        r = rhi - (rhi - rlo) * t + 3 * (h01(sd, i, 1) - 0.5)
-        cx = x0 - r * 0.4 + (spec["face"] - 18 + r * 0.4) * t ** 0.85 - r * 0.5 + 6 * (h01(sd, i, 2) - 0.5)
-        cy = spec["top"][1] + r * 0.6 + (h - spec["top"][1] - r - 6) * t ** 1.1 + 4 * (h01(sd, i, 3) - 0.5)
-        out.append((cx, cy, r))
-    return out
+    x0 = w - spec["face"]
+    t = y / float(h)
+    face = x0 + 12 + (spec["face"] - 34) * (t ** spec["lean"])
+    sx = face - x
+    sy = y - spec["top"]
+    d = min(sx, sy) if sx > 0 and sy > 0 else (sx if sy > 0 else sy if sx > 0 else -math.hypot(min(0, sx), min(0, sy)))
+    sw = spec["swirl"]
+    d += sw * (fbm(sd, x / 30.0, y / 26.0) - 0.5) * 2.0 + sw * 0.45 * (fbm(sd + 7, x / 9.0, y / 8.0) - 0.5) * 2.0
+    return d
 
 
 def sheet(name):
@@ -151,59 +157,40 @@ def sheet(name):
     # tile k's face must lie in the core of the sheet east of it, its west feather in the core of the sheet west of
     # it: face <= stride <= core1 - (feather + clear)
     assert spec["face"] <= STRIDE <= core1 - FEATHER - FEATHER_CLEAR, "a face must lie in the next sheet's core"
-    sd = spec["seed"]
-    billows = sheet_shape(spec, w)
-    lo, hi = spec["top"]
+    soft = float(spec["soft"])
     body = [WA.col(n) for n in BODY]
-    crest = [WA.col(n) for n in CREST]
+    rim = [WA.col(n) for n in RIM]
+    depth = [[sheet_depth(spec, w, x + 0.5, y + 0.5) for x in range(w)] for y in range(h)]
     img = PA.Image(w, h)
     for y in range(h):
         for x in range(w):
-            # signed depth inside the silhouette (px), and how much of a billow's moonlit rim the pixel is
-            inside = -99.0
-            rimlight = 0.0
-            # the core, its east side a slope that the billows bulge out of
-            top = lo + (hi - lo) * (0.7 * pnoise(sd + 5, x / 31.0, 64) + 0.3 * pnoise(sd + 6, x / 11.0, 64))
-            slope = (h - top) / float(w - 8 - core1)
-            east = core1 + max(0.0, y - top) / slope
-            inside = min(y - top, (east - x) * 0.9)
-            if 0 < inside < 3 and y - top < 3:
-                rimlight = (1 - inside / 3.0) * 0.5
-            for (cx, cy, r) in billows:
-                dx, dy = x + 0.5 - cx, y + 0.5 - cy
-                depth = r - math.sqrt(dx * dx + dy * dy)
-                if depth > inside:
-                    inside = depth
-                if 0 < depth < 4 and dy < -r * 0.5 and dx < 0:
-                    rimlight = max(rimlight, (1 - depth / 4.0) * 0.6 * min(1.0, -dy / r))
-            # under the billows' path the bank is whole down to the lane
-            for i in range(len(billows) - 1):
-                (ax, ay, ar), (bx, by, br) = billows[i], billows[i + 1]
-                if ax <= x < bx:
-                    py = ay + (by - ay) * (x - ax) / (bx - ax)
-                    lx, ly, lr = billows[-1]
-                    toe = (lx + lr * 0.3 - x) + max(0.0, y - ly) * 0.5   # the foot creeps ahead on the lane
-                    inside = max(inside, min(y - py, toe))
-            if inside <= 0:
+            d = depth[y][x]
+            if d <= 0 or x >= w - FEATHER_CLEAR:
                 continue
             # the west feather
             if x < FEATHER + FEATHER_CLEAR:
                 if bay(x, y) >= (x - FEATHER_CLEAR) / float(FEATHER):
                     continue
-            # the soft edge: eight alpha steps over 6 px, dithered
-            a = ss(inside / 6.0)
-            # the foot: the lowest four rows lie under every screen's bottom; they thin out
-            a *= ss((h - y) / 4.0)
+            # the east end runs out clear whatever the swirl does
+            east = ss((w - FEATHER_CLEAR - x) / 12.0)
+            # the soft edge: the cover grows over `soft` px in eight dithered steps; the foot thins under the screen
+            a = ss(d / soft) * ss((h - y) / 4.0) * east
             k = max(0, min(LEVELS - 1, int(round(a * (LEVELS - 1) + bay(x + 1, y + 3) - 0.5))))
             if not k:
                 continue
             alpha = int(round(255 * k / (LEVELS - 1)))
-            # colour: the night body darkening inward, the upper west rims of the billows a little moonlit
-            deep = ss((inside - 3) / 10.0)
-            ci = 2 - int(round(deep * 2 + (bay(x, y + 2) - 0.5) * 0.8))
-            c = body[max(0, min(2, ci))]
-            if rimlight > 0.2 and bay(x + 2, y) < rimlight:
-                c = crest[max(0, min(2, int(rimlight * 2.4)))]
+            # colour: the night body darkening inward; the outer shell on the moon's side (up and west of the edge's
+            # normal) catches a little light, so the billows show their round
+            deep = ss((d - 3) / (soft * 1.8))
+            ci = 3 - int(round(deep * 3 + (bay(x, y + 2) - 0.5) * 0.9))
+            c = body[max(0, min(3, ci))]
+            gx = depth[y][min(w - 1, x + 1)] - depth[y][max(0, x - 1)]
+            gy = depth[min(h - 1, y + 1)][x] - depth[max(0, y - 1)][x]
+            g = math.hypot(gx, gy)
+            if g > 0.05 and d < soft * 0.7:
+                lit = (gx * 0.6 + gy * 0.8) / g   # the outward normal (-g) against the moon's side (-0.6, -0.8)
+                if lit > 0.3 and bay(x + 2, y) < (lit - 0.3) * 1.4 * (1 - d / (soft * 0.7)):
+                    c = rim[min(2, int((lit - 0.3) * 3.5))]
             img.set(x, y, (c[0], c[1], c[2], alpha))
     return img
 

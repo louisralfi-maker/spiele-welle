@@ -124,8 +124,8 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertEqual(only(third, .backTop3)?.masks.count, 3)
         none(third, .farCastle3)
         // The gate's rock moves out with the drums.
-        XCTAssertEqual(only(third, .gateRockL)?.x, (only(first, .gateRockL)?.x ?? 0) - 14)
-        XCTAssertEqual(only(third, .gateRockR)?.x, (only(first, .gateRockR)?.x ?? 0) + 14)
+        XCTAssertEqual(only(third, .gateRockL)?.x, (only(first, .gateRockL)?.x ?? 0) - 11)
+        XCTAssertEqual(only(third, .gateRockR)?.x, (only(first, .gateRockR)?.x ?? 0) + 12)
         for prop in third + building + scaffold {
             XCTAssertGreaterThan(prop.width * prop.height, 0, "\(prop.sprite) has a size")
         }
