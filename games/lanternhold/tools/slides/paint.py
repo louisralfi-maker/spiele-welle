@@ -242,7 +242,19 @@ class Canvas:
                                 old[1] * (1 + colour[1] / 255.0 * 1.6 * f) + colour[1] * 0.08 * f,
                                 old[2] * (1 + colour[2] / 255.0 * 1.6 * f) + colour[2] * 0.08 * f)
 
+    def finish(self, allowed=None, dither=None, protect=None, clean=True, keep=None):
+        """The last step of every slide: every pixel onto the game's palette (tools/palette.txt; `allowed` names a
+        subset), an ordered dither only where `dither(x, y)` asks for a gradient, then lone pixels folded into their
+        cluster (never a protected colour: lights, eyes, stars). `keep(x, y)` marks hand-set pixels no cleanup touches.
+        Afterwards the canvas holds palette colours only (artbar.md 1)."""
+        quantize(self, allowed, dither)
+        if clean:
+            cleanup(self, protect, keep)
+        assert_palette(self)
+        return self
+
     def save(self, path):
+        assert_palette(self)
         rows = []
         for y in range(H):
             row = bytearray()
@@ -429,3 +441,147 @@ def grid(canvas, text, x0, y0, legend, flip=False):
             if callable(col):
                 col = col(X, y0 + y)
             canvas.put(X, y0 + y, col)
+
+
+# --- the palette pass (critic look 1 of panels-1: slides are palette art, artbar.md 1) -------------------------------
+
+def _lin(v):
+    v /= 255.0
+    return v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4
+
+
+def oklab(c):
+    r, g, b = _lin(c[0]), _lin(c[1]), _lin(c[2])
+    l_ = (0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b) ** (1 / 3)
+    m_ = (0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b) ** (1 / 3)
+    s_ = (0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b) ** (1 / 3)
+    return (0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_,
+            1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_,
+            0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_)
+
+
+PALETTE_SET = set(PAL.values())
+EMISSIVE = ("fireWhite", "fireGold", "fireOrange", "ember", "emberDim", "wraithWhite", "wraithGlow", "violetGlow",
+            "tealGlow")
+
+
+def palette_of(names=None):
+    names = list(PAL.keys()) if names is None else list(names)
+    return [(n, PAL[n], oklab(PAL[n])) for n in names]
+
+
+def _clip(c):
+    return (int(clamp(c[0], 0, 255) + 0.5), int(clamp(c[1], 0, 255) + 0.5), int(clamp(c[2], 0, 255) + 0.5))
+
+
+def nearest(c, pal, cache=None, two=False):
+    key = _clip(c)
+    if cache is not None and key in cache:
+        return cache[key]
+    lab = oklab(key)
+    best = sorted(pal, key=lambda e: (e[2][0] - lab[0]) ** 2 + (e[2][1] - lab[1]) ** 2 + (e[2][2] - lab[2]) ** 2)
+    out = (best[0], best[1], lab) if two else best[0][1]
+    if cache is not None:
+        cache[key] = out
+    return out
+
+
+def quantize(canvas, allowed=None, dither=None):
+    pal = palette_of(allowed)
+    cache, cache2 = {}, {}
+    for y in range(H):
+        row = canvas.c[y]
+        for x in range(W):
+            c = row[x]
+            if dither and dither(x, y):
+                a, b, lab = nearest(c, pal, cache2, two=True)
+                la, lb = a[2], b[2]
+                d = [lb[i] - la[i] for i in range(3)]
+                dd = sum(v * v for v in d) or 1e-9
+                t = clamp(sum((lab[i] - la[i]) * d[i] for i in range(3)) / dd, 0, 1)
+                row[x] = b[1] if t * 16 > BAYER4[y % 4][x % 4] + 0.5 else a[1]
+            else:
+                row[x] = nearest(c, pal, cache)
+
+
+def cleanup(canvas, protect=None, keep=None, passes=2):
+    """Folds a lone pixel (no neighbour of its colour) into the colour most of its 8 neighbours share."""
+    prot = set(PAL[n] for n in (EMISSIVE if protect is None else protect))
+    for _ in range(passes):
+        src = [row[:] for row in canvas.c]
+        changed = 0
+        for y in range(H):
+            for x in range(W):
+                c = src[y][x]
+                if c in prot or (keep and keep(x, y)):
+                    continue
+                counts = {}
+                same = 0
+                for dy in (-1, 0, 1):
+                    for dx in (-1, 0, 1):
+                        if dx == 0 and dy == 0:
+                            continue
+                        X, Y = x + dx, y + dy
+                        if 0 <= X < W and 0 <= Y < H:
+                            n = src[Y][X]
+                            if n == c:
+                                same += 1
+                            else:
+                                counts[n] = counts.get(n, 0) + 1
+                if same == 0 and counts:
+                    n, k = max(counts.items(), key=lambda e: e[1])
+                    if k >= 4:
+                        canvas.c[y][x] = n
+                        changed += 1
+        if not changed:
+            break
+
+
+def assert_palette(canvas):
+    bad = 0
+    for row in canvas.c:
+        for c in row:
+            if tuple(c) not in PALETTE_SET:
+                bad += 1
+    if bad:
+        raise SystemExit("not palette art: %d pixels are not palette colours (run finish())" % bad)
+
+
+# Ramps of palette colours, dark to light, by family: lighting steps a colour along its ramp (a pixel artist's
+# hue-shifted light), never mixes it.
+RAMPS = [
+    ["night0", "ink", "woodDark", "tile", "tileLight", "dawnRose", "parchment"],
+    ["night0", "woodDark", "soil", "soilLight", "rockLight", "rockPale"],
+    ["night0", "woodDark", "wood", "woodLight", "straw", "strawLight", "parchment"],
+    ["night0", "stoneDark", "stoneMid", "stone", "stoneLight", "stonePale", "foam"],
+    ["nightDeep", "roofDeep", "banner", "roofLight", "daySky"],
+    ["night0", "woodDark", "wood", "gold", "fireGold", "fireWhite"],
+    ["night0", "plumDeep", "plum", "plumLight", "dawnRose"],
+    ["night0", "crimsonDeep", "crimson", "crimsonLight", "dawnRose"],
+    ["nightDeep", "leafDeep", "leafDark", "leaf", "meadow", "leafLight"],
+    ["nightDeep", "fir0", "fir1", "fir2", "fir3", "fir4"],
+    ["nightDeep", "nightBlue", "nightSlate", "nightHaze", "far", "moon", "mist", "mistLight", "foam"],
+    ["night0", "night1", "night2", "farDeep", "far", "mistDark", "mist", "farPale"],
+    ["night0", "rockDeep", "rockDark", "rock", "rockLight", "rockPale"],
+    ["night0", "moorDark", "moor", "soilLight", "straw"],
+    ["night0", "soilDark", "soil", "soilLight", "plasterDim", "plaster"],
+    ["night0", "skin1", "skin2", "skin3", "skin4"],
+    ["night0", "hair1", "hair2", "hair3", "hair4"],
+    ["night0", "cloth1", "cloth2", "cloth3", "cloth4"],
+]
+_RAMP_OF = {}
+for _r in RAMPS:
+    for _i, _n in enumerate(_r):
+        _RAMP_OF.setdefault(PAL[_n], (_r, _i))
+
+
+def step(colour, k):
+    """The palette colour `k` steps lighter (k > 0) or darker along its ramp; a colour outside every ramp is kept."""
+    c = _clip(colour)
+    if c not in _RAMP_OF:
+        c = nearest(c, palette_of())
+    ramp, i = _RAMP_OF.get(c, (None, 0))
+    if ramp is None:
+        return c
+    j = max(0, min(len(ramp) - 1, i + int(k)))
+    return PAL[ramp[j]]
