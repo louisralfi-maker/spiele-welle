@@ -83,7 +83,8 @@ def to8(c):
 
 
 def backdrop(W, H, ground_y, light, lamp):
-    """Sky, the town's houses (bottoms on the ground line, a step back in the air) and the earth lane under it."""
+    """Sky, the town's houses (bottoms on the ground line, set back in the air so the figures read) and the earth
+    lane under it."""
     can = [[None] * W for _ in range(H)]
     top, bot = ((0.52, 0.62, 0.70), (0.80, 0.80, 0.76)) if light == "day" else ((0.20, 0.20, 0.38), (0.70, 0.44, 0.36))
     for y in range(H):
@@ -102,7 +103,7 @@ def backdrop(W, H, ground_y, light, lamp):
                 X, Y = x + xx, ground_y - img.h + yy
                 if p[3] and 0 <= X < W and 0 <= Y < H:
                     c = lit(p, light, X, lamp)
-                    can[Y][X] = tuple(c[i] + (air[i] - c[i]) * 0.22 for i in range(3))
+                    can[Y][X] = tuple(c[i] + (air[i] - c[i]) * 0.42 for i in range(3))
         x += img.w + 14
         k += 1
     lanes = [read_png(os.path.join(ART, n + ".png"))[0] for n in ("laneEarthA", "laneEarthC", "laneEarthB")]

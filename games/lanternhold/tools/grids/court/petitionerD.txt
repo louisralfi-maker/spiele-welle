@@ -1,8 +1,10 @@
-# petitionerD 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md "M3"). A young townswoman, repainted in look 2
-# (ART-look2.md section 18) at the lord's level: bare-headed with a long blond braid down her back, a rose shawl
-# over the shoulders with its point at the chest, a lavender dress, a basket of bread and flowers held in both hands
-# before her. Light from the upper left; the outline is look 2's selective one. Walk: a light quick step (contact
-# with the hem wide and the body 1 px down, passing), the braid swinging. Idle: a breath, the basket held close.
+# petitionerD 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md "M3"). Ilse Marrow, 24, who boils tallow at the
+# chandlery (docs/PEOPLE.md; recoloured by the people lane on 14.11.2026, before that a young townswoman in a rose shawl
+# and a lavender dress, brighter than anyone else in town). Bare-headed with a long blond braid down her back, an
+# undyed shawl over the shoulders with its point at the chest, a soot-grey dress, a basket of bread held in both hands
+# before her. Young, and the town's even cloth on her too; her mark (the hands scarred by the vats) waits for a repaint
+# of the hands. Light from the upper left; the outline is look 2's selective one. Walk: a light quick step (contact with
+# the hem wide and the body 1 px down, passing), the braid swinging. Idle: a breath, the basket held close.
 id petitionerD
 size 12x26
 frames 6
@@ -15,17 +17,17 @@ legend
     H = strawLight
     h = straw
     j = woodLight
-    R = dusk
-    r = tile
-    w = farPale
-    V = moon
-    v = far
+    R = plaster
+    r = plasterDim
+    w = stoneLight
+    V = stone
+    v = stoneMid
     G = straw
     g = woodLight
     d = wood
     W = parchment
-    F = leafLight
-    f = dusk
+    F = strawLight
+    f = woodLight
     B = woodDark
 
 part head
@@ -89,7 +91,7 @@ part feetB
 part feetTogether
     BdB
 
-# the arms to the basket, the basket of bread and flowers
+# the arms to the basket, the basket of bread
 part basket
     V....
     VvfWF
