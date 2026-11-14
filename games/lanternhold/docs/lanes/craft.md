@@ -112,11 +112,22 @@ statue, the portrait and the bell.
   | road lanterns (high-tax bot) | taxes | +2.6 % (+1.2 %) |
   | portrait | happiness | +2.6 % (+2.1 %) |
   | handcarts | buildings | 0 |
-  | bell, glass, mortar, banners, pitch, gate bands | creatures stopped | 0 to -0.2 % |
+  | bell (then: soldiers faster), glass, mortar, banners, pitch, gate bands | creatures stopped | 0 to -0.2 % |
 
   No work cost a night. The night's works move nothing measurable in these runs because the reference bot holds
   nights 5 to 14 with the hearth untouched; their mechanism is tested directly (`testTheBalanceWorksChangeTheirOneValue`,
   `testTheMortarMakesEveryPatchMendMore`, `testTheRoadLanternsHoldUnrestOffAtDawnThroughTheSimulation`).
+- **lh-c1-3** (13698f2, full) ALL PASSED (its wait timed out here; the result was fetched later).
+- **lh-c1-4** (e7cf669, full: build, unit, ui, ui-de, release) ALL PASSED: every unit test of the game (T1 to T8
+  unchanged), every UI test in English and German, the Release build. Its new report of harder nights (a bot that keeps
+  four in five people at work, so few soldiers) found a fault: with the bell's first effect (soldiers on the ground
+  10 % faster) 11 soldiers fell against 4. The bell now carries the lord's rally 10 % further (322b6f7), and a guard
+  in the test fails any work that lets more than two more soldiers fall, or costs a night, on those hard nights. Its
+  shots of all ten cards showed four faces that did not read at phone size (the limeburner, the weaver and the lamp-maker
+  monotone under a cap or hood of their clothes' colour, the ironwright a man's face): fixed.
+- **lh-c1-5** (322b6f7: build, CraftTests, every card in English) ALL PASSED. On hard nights the bell now moves nothing
+  measurable (fallen 4/4, walls 7/7); the glass saves soldiers and walls (fallen 2 against 4, walls lost 4 against 7);
+  the rest show nothing. The four faces read.
 
 ### What is open, and what waits for the join
 
@@ -132,6 +143,11 @@ statue, the portrait and the bell.
   foot the statue's coin becomes one coin more in each toss of a content household.
 - **Court talk** about the works (Pip on the statue, Brannock on the bell) would make them felt; not in this step.
 - **Six languages** after the join, from Craftsmen.xcstrings.
+- **Faces:** the composed portraits read, but the limeburner and the lamp-maker are both fair young men; each craftsman
+  gets his own portrait with the art list.
+- **Evidence for the small night works:** the mortar, the banners, the pitch and the gate bands move nothing measurable
+  even on the hard nights of the test (the walls that fall there are not patched in time, the guards rarely hold); a
+  measurement on night 20 without the beacon (T6's hard night) would show them, at the cost of nineteen nights a run.
 
 ### The art list for the join
 
