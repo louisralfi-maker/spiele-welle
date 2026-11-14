@@ -102,69 +102,239 @@ def cleft_top(gx):
                 if gx < edge_x:
                     drop = depth
             t += drop + 120 * max(0.0, f - 0.55) ** 1.5 + 3 * h01(513, int(gx))
-    if gx > 1340:
-        # cleftWallC: the cleft opens to the valley, the wall steps down in crags.
-        u = (gx - 1340) / 150.0
-        fall = 168 * min(1.0, u) ** 1.25
-        fall += 10 * (h01(515, int(gx // 13)) - 0.5) * min(1.0, u * 3) + 6 * abs(math.sin(gx / 5.0)) * min(1.0, u * 2)
-        if gx > 1490:
-            fall = max(fall, 176 + (gx - 1490) * 0.6)
-        t = t + fall
+    if gx > END_X:
+        t = t + end_fall(gx)
     return t
 
 
-# the cleft's threads of water: (gx, from row, to row, [(spray row, radius)]); each falls WATER_LEN rows from its
-# crack to a ledge, where it lands in spray (fix round 1: the engine draws the falling water as `cleftWater`)
-WATER_LEN = 132
-WATER = [
-    (902, 44, 44 + WATER_LEN, [(44 + WATER_LEN, 5)]),
-    (1131, 36, 36 + WATER_LEN, [(36 + WATER_LEN, 6)]),
-    (1268, 52, 52 + WATER_LEN, [(52 + WATER_LEN, 5)]),
+END_X = 1340
+
+
+def end_points():
+    """Fix round 2 (the critic: "the cleft wall ends in a straight diagonal"): where the cleft opens to the valley the
+    wall comes down as a broken ridge of crags: a polyline of short runs (4 to 16 px), most of them steep (a crag's
+    face), some nearly level (a shoulder), a few rising again (a tooth standing up), small at first and bigger toward
+    the valley; scaled so it is under the canvas (205 rows down) by mid 1500. [(mid x, rows down)]"""
+    pts, x, y, k = [(float(END_X), 0.0)], float(END_X), 0.0, 0
+    while x < CLEFT_X1 + 40:
+        dx = 4 + 12 * h01(517, k)
+        r = h01(518, k)
+        grow = 0.5 + min(1.0, (x - END_X) / 100.0)
+        if r < 0.58:
+            slope = (1.1 + 2.2 * h01(519, k)) * grow       # a crag's face
+        elif r < 0.88:
+            slope = (0.08 + 0.4 * h01(519, k)) * grow      # a shoulder
+        else:
+            slope = -(0.3 + 0.9 * h01(519, k))             # a tooth standing up
+            dx = min(dx, 6)
+        x += dx
+        y = max(0.0, y + slope * dx)
+        pts.append((x, y))
+        k += 1
+    at = next(ya + (yb - ya) * (1500 - xa) / (xb - xa) for (xa, ya), (xb, yb) in zip(pts, pts[1:]) if xa <= 1500 < xb)
+    return [(px, py * 205.0 / at) for (px, py) in pts]
+
+
+END_POINTS = end_points()
+
+
+def end_fall(gx):
+    for (xa, ya), (xb, yb) in zip(END_POINTS, END_POINTS[1:]):
+        if xa <= gx < xb:
+            y = ya + (yb - ya) * (gx - xa) / (xb - xa)
+            return max(0.0, y + 2.0 * (h01(520, int(gx // 2)) - 0.5) * min(1.0, (gx - END_X) / 20.0))
+    return 400.0
+
+
+# Fix round 2 (the critic: "each water thread is a rigid 1-2 px straight rod of one width, with no source crack and no
+# visible spray; where it crosses a snow ledge it forms a cross ... a street lamp or telegraph pole"): two threads, far
+# apart, high on the wall. Each springs from a dark notch with a wet stain, falls in a slight S over two or three short
+# ledges of its own (it strikes each in a puff of spray and comes on from under the ledge's lip a pixel or two aside),
+# and ends in spray on the last one, over the castle's roofs; the bands of ledges break where it falls, so it never
+# crosses one. (notch x, notch row, legs: (rows it falls, pixels it drifts by the landing))
+THREADS = [
+    (893, 26, [(15, 3), (16, -4), (13, 2)]),
+    (1258, 30, [(13, -3), (17, 4), (12, -2)]),
 ]
-# fix round 1: long ledges across the wall (row, tilt, shelf, undercut, gap seed): a lit top plane and an undershadow
-CLEFT_BANDS = [(58, 0.03, 6.0, 2.5, 2), (128, -0.025, 7.0, 3.0, 4)]
+
+
+def thread_path(spec):
+    """The thread's rows: [(row, x, leg, rows since the leg began, rows to its landing)] from under the notch to the
+    last landing, and the landings [(x, row)]. Each leg leaves its lip and drifts by its pixels in an eased curve, so
+    the legs together fall in an S; after a landing the water comes on from under the ledge's lip, 3 rows down."""
+    nx, nr, legs = spec
+    pts, lands = [], []
+    x, y = float(nx), nr + 1
+    for i, (fall, dx) in enumerate(legs):
+        y0 = y
+        y1 = nr + 1 + sum(f for f, _ in legs[:i + 1]) + 3 * i
+        for yy in range(y0, y1):
+            u = (yy - y0) / float(max(1, y1 - y0 - 1))
+            pts.append((yy, int(round(x + dx * RF.ss(u))), i, yy - y0, y1 - 1 - yy))
+        x += dx
+        lands.append((int(round(x)), y1))
+        y = y1 + 3
+    return pts, lands
+
+
+def thread_cuts():
+    """Where the bands break for the water: its columns, from its notch to its last landing."""
+    out = []
+    for spec in THREADS:
+        pts, lands = thread_path(spec)
+        xs = [p[1] for p in pts] + [l[0] for l in lands]
+        out.append((min(xs) - 5, max(xs) + 6, spec[1] - 6, lands[-1][1] + 6))
+    return out
+
+
+def thread_spots():
+    """The short ledges the water lands on: (x from, x to, row, shelf, under); the last one a little broader."""
+    out = []
+    for spec in THREADS:
+        lands = thread_path(spec)[1]
+        for i, (lx, ly) in enumerate(lands):
+            last = i == len(lands) - 1
+            out.append((lx - (5 if last else 4), lx + (7 if last else 5), ly, 5.0 if last else 4.0, 3.5))
+    return out
+
+
+# fix round 2: three bands of short ledges (row, tilt, shelf, undercut, seed): each broken into ledges 16 to 40 px long
+# that step 3 to 7 rows from one to the next, with gaps and crumbling lips (rockfield `pieces`); none crosses the water
+CLEFT_BANDS = []
+
+
+def pods():
+    """Fix round 2 (the critic: "two ruler-straight bands from edge to edge"): no bands; short ledges scattered over
+    the face instead, each a lens 8 to 26 px long with a lean of its own (up to 1 in 4), denser high on the wall where
+    the snow lies (rows 24 to 80) and sparse below, so the granite has shelves everywhere and no line across it; none
+    in the water's columns. (x from, x to, row, shelf, undercut, lean)"""
+    out = []
+    cuts = thread_cuts()
+    for cx in range(CLEFT_X0 - 20, CLEFT_X1 + 20, 26):
+        for cy in range(18, 176, 20):
+            share = 0.42 if cy < 80 else 0.16
+            if h01(621, cx, cy) > share:
+                continue
+            x0 = cx + 24 * h01(623, cx, cy)
+            row = cy + 18 * h01(625, cx, cy)
+            length = 8 + 18 * h01(627, cx, cy) ** 1.2
+            if any(lo - 8 <= x0 + length and x0 <= hi + 8 and y0 - 6 <= row <= y1 + 6 for (lo, hi, y0, y1) in cuts):
+                continue
+            out.append((x0, x0 + length, row, 3.4 + 2.0 * h01(629, cx, cy), 1.6 + 1.0 * h01(631, cx, cy),
+                        (h01(633, cx, cy) - 0.5) * 0.5))
+    return out
 
 
 def cleft_massif():
     return RF.Massif(601, CLEFT_X0 - 40, CLEFT_X1 + 40, CLEFT_H, 50, 150, relief=1.0, sheets=False,
-                     bands=CLEFT_BANDS, facets=0.3, chimneys=0.3, swell=3.0, ledge_gap=(40, 90))
+                     bands=CLEFT_BANDS, facets=0.3, chimneys=0.3, swell=3.0, ledge_gap=(40, 90), pieces=True,
+                     crease=True, spots=thread_spots() + pods(), cuts=thread_cuts(), ledge_max=30, face_relief=2.6,
+                     cracks=0.5)
 
 
 def cleft_piece(name):
     """One piece of the cleft's canvas: the granite height field lit from the upper left and from the slit, the cold
-    light of the slit on the face's top, snow on the high ledges, the threads of water with their wet streaks."""
+    light of the slit on whole facets high on the face, snow on some of the high ledges, the water's beds."""
     gx0, w = PIECES[name]
     field = RF.Field(cleft_massif(), gx0, w, CLEFT_H, cleft_top)
     img = RF.paint(field, "cleft", snow_rows=24, snow_share=0.5, cold_rows=90, seed=601, contrast=1.2,
-                   wet=[(wt[0], wt[1]) for wt in WATER], caps=True, lit_rim=True, clamp=0.55)
-    for wt in WATER:
-        if gx0 - 2 <= wt[0] < gx0 + w + 2:
-            RF.thread(img, gx0, 601, *wt)
+                   caps=True, lit_rim=True, clamp=0.55)
     snow_caps(img, field, gx0)
+    for spec in THREADS:
+        if gx0 - 12 <= spec[0] < gx0 + w + 12:
+            water_bed(img, field, gx0, spec)
     return img
 
 
-def snow_caps(img, field, gx0, rows=96):
-    """Fix round 1 (the critic: "no snow"; the director: "few large snow fields that lie on ledges, no patch under 6
-    px"): snow lies on the long ledges' shelves high on the wall, in drifts 8 to 30 px long and 2 or 3 rows deep, a
-    foam top, mistLight under it and a stoneLight lip where it overhangs; nowhere else on the face."""
-    m = cleft_massif()
-    foam, light, lip = col("foam"), col("mistLight"), col("stoneLight")
-    for (by, tilt, shelf, under, gs) in CLEFT_BANDS:
-        for x in range(img.w):
-            gx = gx0 + x
-            row = m.band_row(by, tilt, gs, gx, field.column(x, int(by)))
-            if row > rows or h01(m.seed, gs, int((gx + 37 * gs) // 57)) < 0.45:
-                continue
-            drift = vnoise(709 + gs, gx / 6.0)
-            if drift < 0.6:
-                continue
-            r0 = int(math.floor(row))
-            deep = 2 + (1 if drift > 0.8 else 0)
-            for k in range(deep + 1):
-                y = r0 - deep + 1 + k
-                if 0 <= y < img.h and img.get(x, y)[3] and field.inside(x, y):
-                    img.set(x, y, foam if k == 0 else light if k < deep else lip)
+def darker():
+    """Each colour of the cleft's ramps to the one a step darker (for wet rock)."""
+    out = {}
+    for name in ("cleft",):
+        for ramp in (RF.RAMPS[name], RF.COLD[name]):
+            cols = [col(n) for n in ramp]
+            for i in range(1, len(cols)):
+                out.setdefault(cols[i], cols[i - 1])
+    return out
+
+
+def water_bed(img, field, gx0, spec):
+    """The rock under a thread (fix round 2): the notch it springs from (a dark mouth with a lit lip over it) and a wet
+    stain under it, its bed a step darker than the rock (it shows between the strands of falling water), and on each
+    landing a puff of spray in three steps, the outer one dithered into the rock."""
+    dk = darker()
+    deep, lip = col("nightBlue"), col("rockLight")
+    light, mist = col("mistLight"), col("mist")
+    nx, nr, legs = spec
+    pts, lands = thread_path(spec)
+
+    def put(x, y, c):
+        xx = x - gx0
+        if 0 <= xx < img.w and 0 <= y < img.h and img.get(xx, y)[3] and field.inside(xx, y):
+            img.set(xx, y, c)
+
+    def wet(x, y):
+        xx = x - gx0
+        if 0 <= xx < img.w and 0 <= y < img.h and img.get(xx, y)[3]:
+            p = img.get(xx, y)
+            img.set(xx, y, dk.get(p, p))
+
+    # the wet stain under the notch: four rows, narrowing
+    for dy in range(1, 6):
+        half = 3 - dy // 2
+        for dx in range(-half, half + 2):
+            if h01(613, nx, dy, dx) < 0.85:
+                wet(nx + dx, nr + dy)
+    for (y, x, leg, since, left) in pts:
+        wet(x, y)
+        if leg:
+            wet(x + 1, y)
+    # the notch: a dark mouth two rows deep, three or four wide, its lip lit above it
+    for dx in range(-1, 3):
+        put(nx + dx, nr, deep)
+        if dx < 2:
+            put(nx + dx, nr - 1, deep)
+        put(nx + dx, nr - 2, lip)
+    # the spray on each landing: a small pale core where the water strikes, mist round it, and a ring of mist
+    # dithered into the rock, flatter than tall and leaning the way the water came from
+    for i, (lx, ly) in enumerate(lands):
+        rx = 3.6 if i == len(lands) - 1 else 3.0
+        ry = 1.8
+        for dy in range(-3, 2):
+            for dx in range(-6, 7):
+                d = math.sqrt((dx / rx) ** 2 + ((dy + 0.6) / ry) ** 2)
+                if d < 0.36 and dy <= 0:
+                    put(lx + dx, ly + dy, light)
+                elif d < 0.7:
+                    put(lx + dx, ly + dy, mist)
+                elif d < 1.15 and bay(lx + dx, ly + dy) < 0.4:
+                    put(lx + dx, ly + dy, mist)
+
+
+def snow_caps(img, field, gx0, rows=84):
+    """Snow on some of the high ledges (fix round 2, the critic: "snow lumps at even spacing"): on about half of the
+    pods above `rows`, a drift of its own length (3 to 14 px, never the whole pod) somewhere along it, mounded
+    (deepest in its middle, one to three rows), a foam top, mistLight under it and a stoneLight lip; none near the
+    water."""
+    foam, light, lipc = col("foam"), col("mistLight"), col("stoneLight")
+    for (xs, xe, row, shelf, under, lean) in pods():
+        key = int(xs * 7 + row)
+        if row > rows or xe < gx0 - 2 or xs > gx0 + img.w + 2 or h01(707, key) < 0.5:
+            continue
+        length = min(int(xe - xs) - 2, 3 + int(11 * h01(709, key) ** 1.4))
+        if length < 3:
+            continue
+        x0 = xs + 1 + (xe - xs - 2 - length) * h01(711, key)
+        deep = 1 + int(2.6 * h01(713, key) * min(1.0, length / 8.0))
+        for i in range(length):
+            gx = int(x0) + i
+            u = (i + 0.5) / length
+            dcol = max(1, int(round(deep * math.sin(math.pi * u) + 0.3)))
+            r0 = int(math.floor(row + lean * (gx - xs)))
+            x = gx - gx0
+            for kk in range(dcol + 1):
+                y = r0 - dcol + 1 + kk
+                if 0 <= x < img.w and 0 <= y < img.h and img.get(x, y)[3] and field.inside(x, y):
+                    img.set(x, y, foam if kk == 0 else light if kk < dcol else lipc)
 
 
 # ---------------------------------------------------------------------------------------------- the steps
@@ -246,41 +416,57 @@ def shaft():
     return img
 
 
-WATER_W, WATER_FRAMES = 5, 4
-WATER_JOGS = (46, 92)   # the rows where a thread strikes a ledge, splashes and goes on a pixel or two aside
+# fix round 2: the falling water, one shape per thread (frames 0-5 the first, 6-11 the second), WATER_OX columns of
+# room west of the notch; the strands scroll 3 rows a frame over a pattern 18 rows long, so six frames loop
+WATER_W, WATER_FRAMES, WATER_OX, WATER_PERIOD = 14, 6, 5, 18
+
+
+def water_rows():
+    """The sprite's height: from the row under the highest notch's to the lowest spray's."""
+    return max(thread_path(sp)[1][-1][1] - sp[1] + 3 for sp in THREADS)
 
 
 def water():
-    """cleftWater (fix round 1, the critic: "water threads are dashed lines with no spray"): one thread of falling
-    water, 5 x WATER_LEN, four frames that scroll it down 3 px each (the engine plays them at 6 a second, none with
-    Reduce Motion). It leaves its crack a pixel wide, widens to two, strikes two ledges on the way (a splash of foam,
-    then it goes on a pixel or two aside), runs in broken foam and mist (falling water, not a pole) and frays into
-    droplets over its spray."""
-    w, h = WATER_W, WATER_LEN
-    img = PA.Image(w * WATER_FRAMES, h)
-    foam, light, mist = col("foam"), col("mistLight"), col("mist")
-    for f in range(WATER_FRAMES):
-        for y in range(h):
-            yy = y - f * 3
-            x = 1 + (1 if y >= WATER_JOGS[0] else 0) + (1 if y >= WATER_JOGS[1] else 0)
-            run = h01(741, (yy // 5) % 53)
-            if run < 0.18 and 6 < y < h - 12:
-                c = None                                       # a gap: the water falls in strands
-            else:
-                c = foam if run > 0.78 else light if run > 0.42 else mist
-            wide = y > 30
-            if y > h - 10 and h01(747, f, y) < 0.5:
-                c = None                                       # it frays over the spray
-            if c:
-                img.set(f * w + x, y, c)
-                if wide:
-                    img.set(f * w + x + 1, y, mist if c == foam else light if c == mist else mist)
-            for j in WATER_JOGS:                                # the splash where it strikes a ledge
-                if j - 1 <= y <= j + 1:
-                    for dx in (-1, 0, 1, 2):
-                        xx = x + dx
-                        if 0 <= xx < w and h01(749, f, y, dx) < (0.85 if dx in (0, 1) else 0.5):
-                            img.set(f * w + xx, y, foam if dx in (0, 1) and y == j else light)
+    """cleftWater (fix round 2): each thread's falling water in its S, for its own path. At 60 to 70 % of the old
+    white (mist, a mistLight head on each strand, mistDark on its shade side), a pixel wide under the notch and two
+    below the first landing, broken into strands of four or five rows with gaps of one or two, fanning to three just
+    before it strikes a ledge, a few droplets of spray leaping over each landing. Six frames at 6 a second, still
+    with Reduce Motion (frame 0)."""
+    h = water_rows()
+    w = WATER_W
+    img = PA.Image(w * WATER_FRAMES * len(THREADS), h)
+    core, head, side = col("mist"), col("mistLight"), col("mistDark")
+    for s_i, spec in enumerate(THREADS):
+        nx, nr, legs = spec
+        pts, lands = thread_path(spec)
+        for f in range(WATER_FRAMES):
+            ox = (s_i * WATER_FRAMES + f) * w
+
+            def put(x, y, c):
+                xx = x - nx + WATER_OX
+                yy = y - nr - 1
+                if 0 <= xx < w and 0 <= yy < h:
+                    img.set(ox + xx, yy, c)
+
+            for (y, x, leg, since, left) in pts:
+                q = (y - 3 * f) % WATER_PERIOD
+                strand = (y - 3 * f) // 6
+                pos = q % 6
+                gap_from = 4 + (1 if h01(741, s_i, leg, strand % 3) < 0.5 else 0)
+                if since > 1 and pos >= gap_from:
+                    continue                                   # a gap between strands
+                c = head if pos == 0 else core
+                put(x, y, c)
+                if leg and pos < gap_from - 1:
+                    put(x + 1, y, side)
+                if left <= 1:
+                    put(x - 1, y, side)                        # it fans as it strikes the ledge
+            for i, (lx, ly) in enumerate(lands):
+                for d in range(5 if i == len(lands) - 1 else 4):
+                    if h01(747, s_i, f, i, d) < 0.6:
+                        dx = int(round((h01(749, s_i, f, i, d) - 0.5) * 9))
+                        dy = -1 - int(3 * h01(751, s_i, f, i, d))
+                        put(lx + dx, ly + dy, head if h01(753, s_i, f, i, d) < 0.4 else core)
     return img
 
 

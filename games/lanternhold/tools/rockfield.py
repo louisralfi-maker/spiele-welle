@@ -41,6 +41,23 @@ def col(name):
     return WA.col(name)
 
 
+def lnoise(seed, u):
+    """Piecewise-linear value noise in [0, 1): kinks at the lattice, so a line warped by it is a broken polyline (fix
+    round 2: a crack is a jittered polyline, never a smooth curve or a ruler)."""
+    i = math.floor(u)
+    f = u - i
+    return h01(seed, i) * (1 - f) + h01(seed, i + 1) * f
+
+
+def lnoise2(seed, u, v):
+    """The same over a plane (bilinear, no easing)."""
+    i, j = math.floor(u), math.floor(v)
+    f, g = u - i, v - j
+    a = h01(seed, i, j) * (1 - f) + h01(seed, i + 1, j) * f
+    b = h01(seed, i, j + 1) * (1 - f) + h01(seed, i + 1, j + 1) * f
+    return a * (1 - g) + b * g
+
+
 RAMPS = {
     # dark to light. The cleft is the castle's own granite, warm-neutral (the engine's night pulls it blue); the
     # Throat's steps pale and cool with distance; the gate's rock is the cleft's, a step stronger (the world plane).
@@ -63,8 +80,27 @@ class Massif:
     """The height field of a granite face over the plane's x (gx) and rows (y, 0 at the canvas top)."""
 
     def __init__(self, seed, x0, x1, h, wmin, wmax, relief=1.0, ledge_gap=(18, 52), sheets=True, bands=(),
-                 facets=0.0, chimneys=None, sheet_amp=1.4, swell=10.0):
+                 facets=0.0, chimneys=None, sheet_amp=1.4, swell=10.0, pieces=False, crease=False, spots=(),
+                 cuts=(), ledge_max=None, face_relief=0.0, cracks=0.55):
         self.seed, self.h, self.relief = seed, h, relief
+        self.x0, self.x1 = x0, x1
+        # Fix round 2 (the critic: "the ledges are two ruler-straight bands from edge to edge, the cracks perfectly
+        # straight diagonals, the faces large flat single-value polygons"), all opt-in so the other rock keeps its
+        # look: `pieces` breaks every band into short ledges (16 to 40 px) that step 3 to 7 rows up or down from one
+        # to the next and end in crumbling lips, with gaps; each ledge is local (a shelf over four rows and the dark
+        # undercut under it), so a ledge's end never leaves a step down the face below it. `crease` lets the facets
+        # meet in creases (no step, a turn of the plane) on a warped, kinked grid, with broken, tapering cracks on
+        # some of the borders; `face_relief` gives every face a gentle swell, so it takes two or three values.
+        # `spots` are extra short ledges (x0, x1, row, shelf, under), where water lands; `cuts` are x ranges with no
+        # band (where water falls, so it never crosses a ledge); `ledge_max` caps a buttress's own ledges in px.
+        self.pieces = pieces
+        self.crease = crease
+        self.spots = list(spots)
+        self.cuts = list(cuts)
+        self.ledge_max = ledge_max
+        self.face_relief = face_relief
+        self.cracks = cracks
+        self.piece_lists = {}
         self.ledge_gap = ledge_gap
         self.sheets = sheets
         # Fix round 1 (the critic: "flat pale dashes for ledges", "vertical columns that read as tree trunks"):
@@ -125,6 +161,9 @@ class Massif:
             # scratches across the face)
             s0 = -0.05 + 0.5 * h01(self.seed, j, k, 13)
             s1 = min(1.05, s0 + 0.25 + 0.4 * h01(self.seed, j, k, 14))
+            if self.ledge_max:
+                wide = self.bounds[min(j + 1, len(self.bounds) - 1)][0] - self.bounds[j][0]
+                s1 = min(s1, s0 + self.ledge_max / max(1.0, wide))
             out.append((y, (h01(self.seed, j, k, 15) - 0.5) * 0.14, s0, s1, step))
             y += lo + (hi - lo) * h01(self.seed, j, k, 16)
             k += 1
@@ -147,6 +186,125 @@ class Massif:
         """The row of a long ledge at gx on buttress j: a slight tilt, a slow wander, a step at every buttress."""
         return by + tilt * (gx - 1000) + 2.5 * (vnoise(self.seed * 59 + gs, gx / 23.0) - 0.5) \
             + 9.0 * (h01(self.seed, j, gs, 63) - 0.5)
+
+    def piece_list(self, gs, by, tilt):
+        """A band's short ledges, west to east (fix round 2): (x start, x end, row at start, slope, west lip, east lip,
+        index); between them gaps or a step of 3 to 7 rows, the rows wander back toward the band's own line."""
+        if gs in self.piece_lists:
+            return self.piece_lists[gs]
+        out, x, k, off = [], self.x0 - 80.0, 0, 0.0
+        s = self.seed * 7 + gs
+        while x < self.x1 + 80:
+            length = 14 + 22 * h01(s, k, 101)
+            if k and h01(s, k, 102) < 0.34:
+                x += 7 + 14 * h01(s, k, 103)          # a gap: the ledge has broken away
+                k += 1
+                continue
+            up = h01(s, k, 104) < 0.5 - off / 30.0
+            off = max(-16.0, min(16.0, off + (5 + 5 * h01(s, k, 105)) * (-1 if up else 1)))
+            row = by + tilt * (x - 1000) + off + 6 * (vnoise(s * 3, x / 110.0) - 0.5)
+            slope = (h01(s, k, 106) - 0.5) * 0.12
+            out.append((x, x + length, row, slope, 2 + 4 * h01(s, k, 107), 2 + 4 * h01(s, k, 108), k))
+            x += length
+            k += 1
+        self.piece_lists[gs] = out
+        return out
+
+    def cut_share(self, gx, row):
+        """1 away from the water's cuts (x from, x to, row from, row to), 0 inside one, a 3 px lip between."""
+        t = 1.0
+        for (lo, hi, y0, y1) in self.cuts:
+            if lo - 3 < gx < hi + 3 and y0 <= row <= y1:
+                t = min(t, max(0.0, (lo - gx) / 3.0, (gx - hi) / 3.0))
+        return t
+
+    def piece_at(self, gs, by, tilt, gx):
+        """The ledge of a band at gx: (its top row, how far it stands out 0 ... 1), None in a gap. Its ends crumble:
+        the depth falls in steps over the lip and the lip's top drops a row here and there."""
+        lst = self.piece_list(gs, by, tilt)
+        lo, hi = 0, len(lst) - 1
+        while lo < hi:
+            mid = (lo + hi + 1) // 2
+            if lst[mid][0] <= gx:
+                lo = mid
+            else:
+                hi = mid - 1
+        xs, xe, row, slope, lw, le, k = lst[lo]
+        if not (xs <= gx < xe):
+            return None
+        t = min(1.0, (gx - xs) / lw, (xe - gx) / le)
+        if t < 1.0:
+            t = math.floor(t * 3 + h01(self.seed, gs, k, int(gx), 109) * 0.9) / 3.0
+        r = row + slope * (gx - xs)
+        t *= self.cut_share(gx, r)
+        if t <= 0:
+            return None
+        if t < 1.0 and h01(self.seed, gs, k, int(gx), 110) < 0.5:
+            r += 1
+        return r, t
+
+    def ledge_bump(self, y, row, shelf, under, t):
+        """A local ledge: a shelf standing out over four rows below `row` (its top looks up and catches the light),
+        under it an undercut three rows deep that throws the dark band; far from it the face is untouched."""
+        d = y - row
+        if d < -2 or d > 11:
+            return 0.0
+        r = self.relief
+        z = shelf * r * t * ss(d / 1.6 + 0.5) * (1 - ss((d - 4.5) / 1.2 + 0.5))
+        z -= under * r * t * ss((d - 4.5) / 1.0 + 0.5) * (1 - ss((d - 8.5) / 1.6 + 0.5))
+        return z
+
+    def facet_seed(self, gx, y):
+        """The warped grid the creased facets lie on (fix round 2): the two nearest seeds of a jittered grid of slabs
+        (taller than wide, leaning), looked up at a position warped by kinked noise, so a border is a broken
+        polyline; returns (a, b, sx, sy) of the nearest, the second's, and their distance gap in about pixels."""
+        cw, ch = 42.0, 80.0
+        s = self.seed
+        wx = gx + 9.0 * (lnoise2(s * 3 + 1, gx / 19.0, y / 23.0) - 0.5) + 2.4 * (lnoise2(s * 3 + 2, gx / 4.0, y / 5.0) - 0.5)
+        wy = y + 9.0 * (lnoise2(s * 3 + 3, gx / 23.0, y / 19.0) - 0.5) + 2.4 * (lnoise2(s * 3 + 4, gx / 5.0, y / 4.0) - 0.5)
+        ci = int(wx // cw)
+        best = []
+        for a in (ci - 1, ci, ci + 1):
+            # each column of slabs is shifted by a height of its own, so no border runs on across the columns
+            shift = h01(s, a, 88) * ch
+            cj = int((wy - shift) // ch)
+            for b in (cj - 1, cj, cj + 1):
+                sx = (a + 0.1 + 0.8 * h01(s, a, b, 81)) * cw
+                sy = (b + 0.1 + 0.8 * h01(s, a, b, 82)) * ch + shift
+                dd = ((wx - sx + 0.3 * (wy - sy)) / cw) ** 2 + ((wy - sy) / ch) ** 2
+                best.append((dd, a, b, sx, sy))
+        best.sort()
+        d1, a1, b1, sx1, sy1 = best[0]
+        d2, a2, b2, sx2, sy2 = best[1]
+        gap = (math.sqrt(d2) - math.sqrt(d1)) * 26.0
+        return (a1, b1, sx1, sy1), (a2, b2, sx2, sy2), gap
+
+    def plane(self, a, b, sx, sy, gx, y):
+        t = self.facets
+        s = self.seed
+        lit = h01(s, a, b, 83) < 0.6
+        tx = (0.45 + 0.55 * h01(s, a, b, 84)) * t * (1 if lit else -1)
+        ty = (h01(s, a, b, 86) - 0.6) * 0.35 * t
+        return (h01(s, a, b, 85) - 0.5) * 1.6 * self.relief + tx * (gx - sx) + ty * (y - sy)
+
+    def facet2(self, gx, y):
+        """Creased facets (fix round 2): each slab a plane of its own, two neighbours meeting in a crease (the
+        height runs on, the plane turns), so the light breaks into clean value clusters along the borders instead of
+        a hairline of white or black; some borders carry a crack, a groove a pixel or two wide that breaks off and
+        tapers out along its length."""
+        (a1, b1, sx1, sy1), (a2, b2, sx2, sy2), gap = self.facet_seed(gx, y)
+        p1 = self.plane(a1, b1, sx1, sy1, gx, y)
+        p2 = self.plane(a2, b2, sx2, sy2, gx, y)
+        z = p1 + (p2 - p1) * 0.5 * (1 - ss(gap / 3.0))
+        if gap < 1.6:
+            k1, k2 = (a1, b1), (a2, b2)
+            lo, hi = min(k1, k2), max(k1, k2)
+            if h01(self.seed, lo[0], lo[1], hi[0], hi[1], 87) < self.cracks:
+                m = vnoise2(self.seed * 97 + lo[0] * 5 + hi[1], gx / 9.0, y / 9.0)
+                t = ss((m - 0.4) / 0.18)
+                if t > 0:
+                    z -= 3.2 * self.relief * t * (1 - gap / 1.6)
+        return z
 
     def facet(self, gx, y):
         """Chiselled planes (fix round 1): the face is split into slabs around jittered seeds (much taller than wide,
@@ -192,7 +350,30 @@ class Massif:
             near_b = j if px < width - px else j + 1
             deep = 1.7 if h01(self.seed, near_b, 61) < self.chimneys else 0.3
         z -= (8.0 * r * deep) * math.exp(-dw / (2.0 + 1.5 * (deep > 1)))
-        if self.bands or self.facets:
+        if self.pieces or self.crease:
+            # fix round 2: short local ledges, creased facets with broken cracks, a swell on every face
+            for (by, tilt, shelf, under, gs) in self.bands:
+                pc = self.piece_at(gs, by, tilt, gx)
+                if pc is not None:
+                    z += self.ledge_bump(y, pc[0], shelf, under, pc[1])
+            for sp in self.spots:
+                sx0, sx1, srow, shelf, under = sp[:5]
+                if sx0 <= gx < sx1:
+                    if len(sp) > 5:
+                        # a pod (fix round 2): a lens, thick in its middle and thin at its ends, its shadow shorter
+                        u = (gx - sx0 + 0.5) / max(1.0, sx1 - sx0)
+                        t = max(0.0, math.sin(math.pi * min(1.0, u))) ** 0.6
+                        z += self.ledge_bump(y, srow + sp[5] * (gx - sx0), shelf * t, under * t, 1.0)
+                    else:
+                        t = min(1.0, (gx - sx0 + 1) / 2.0, (sx1 - gx) / 2.0)
+                        z += self.ledge_bump(y, srow, shelf, under, t)
+            if self.crease and self.facets:
+                z += self.facet2(gx, y)
+            elif self.facets:
+                z += self.facet(gx, y)
+            if self.face_relief:
+                z += self.face_relief * r * (vnoise2(self.seed * 29, gx / 15.0, y / 21.0) - 0.5)
+        elif self.bands or self.facets:
             k = 0
             for (by, tilt, shelf, under, gs) in self.bands:
                 # each buttress carries the ledge a little higher or lower (it steps at the chimneys)
@@ -241,15 +422,23 @@ class Field:
         self.top = {gx: top(gx) for gx in range(gx0 - margin, gx0 + w + margin)}
         self.z = []
         self.cols = []
+        # fix round 2: with creased facets, the row of each pixel's facet seed (the slit's cold light takes whole
+        # facets, so its edge follows the rock's planes instead of tearing across them)
+        self.fsy = [] if getattr(massif, "crease", False) else None
         for y in range(h):
             row = []
             cols = []
+            fs = []
             for x in range(-margin, w + margin):
                 gx = gx0 + x
                 row.append(massif.z(gx, y) if y >= self.top[gx] else None)
                 cols.append(massif.column(gx, y)[0])
+                if self.fsy is not None:
+                    fs.append(massif.facet_seed(gx, y)[0][3] if 0 <= x < w else 0.0)
             self.z.append(row)
             self.cols.append(cols)
+            if self.fsy is not None:
+                self.fsy.append(fs)
 
     def column(self, x, y):
         """The buttress a canvas pixel belongs to."""
@@ -258,8 +447,11 @@ class Field:
         return self.cols[y][x + self.m]
 
     def at(self, x, y):
-        """Height at canvas x, y (None: sky)."""
+        """Height at canvas x, y (None: sky). Fix round 2: where the rock reaches the canvas's top row it goes on above
+        it (the top-anchored walls stand past the screen's top), so row 0 is no edge with a lit rim."""
         if y < 0:
+            if self.z and self.z[0][max(-self.m, min(self.w + self.m - 1, x)) + self.m] is not None and y > -3:
+                return self.z[0][max(-self.m, min(self.w + self.m - 1, x)) + self.m]
             return None
         y = min(self.h - 1, y)
         x = max(-self.m, min(self.w + self.m - 1, x))
@@ -357,7 +549,15 @@ def paint(field, ramp_name, gain=1.0, lift=0.0, dither=0.0, snow_rows=0, snow_sh
                 # fix round 1: the lightest step is kept for the snow and the rim; a lit edge is one step over its face
                 k = min(k, n - 2)
             c = ramp[k]
-            if cold_rows and y < cold_rows:
+            if cold_rows and field.fsy is not None and y < cold_rows + 40:
+                # fix round 2 (the critic: "flat lilac patches with torn edges pasted on the slabs"): the slit's cold
+                # light takes whole facets whose seed lies above the buttress's line, only where they are lit, so the
+                # cold patches are value clusters that follow the planes
+                j = field.column(x, y)
+                line = cold_rows * (0.22 + 0.72 * h01(seed * 71, j))
+                if field.fsy[y][x + field.m] < line and k >= 3:
+                    c = cold[k]
+            elif cold_rows and y < cold_rows:
                 # the slit's cold light: the face's top in the castle's cool slate; its lower edge is a clean line of
                 # its own on every buttress (it steps at the chimneys) that reaches further down the lit faces
                 j = field.column(x, y)

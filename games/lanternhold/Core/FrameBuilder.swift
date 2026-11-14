@@ -802,24 +802,28 @@ enum FrameBuilder {
         return SpriteInstance(sprite: .bankEnd, frame: 0, rect: rect, tint: SIMD4<Float>(0, 0, 0, 1), flipped: false)
     }
 
-    /// The cleft's threads of water (fix round 1; tools/cleftart.py `WATER`): each thread's mid x and the row of its
-    /// crack under the wall's top (the wall is anchored at the screen's top, so the row is the screen's).
-    static let cleftThreads: [(x: Double, row: Double)] = [(902, 44), (1131, 36), (1268, 52)]
+    /// The cleft's threads of water (fix round 2; tools/cleftart.py `THREADS`): each thread's notch (mid x) and its row
+    /// under the wall's top (the wall is anchored at the screen's top, so the row is the screen's). Two, far apart, each
+    /// with a shape of its own in `cleftWater` (frames 0-5 and 6-11): it falls in an S over two short ledges and ends in
+    /// spray on a third, over the castle's roofs.
+    static let cleftThreads: [(x: Double, row: Double)] = [(893, 26), (1258, 30)]
+    /// The columns of room west of a thread's notch in its `cleftWater` frame, and the frames per thread.
+    static let cleftWaterInset = 5.0
+    static let cleftWaterFrames = 6
 
-    /// The water falling down the cleft wall from each crack to its spray: `cleftWater` scrolling down at six frames a
-    /// second, still with Reduce Motion.
+    /// The water falling down the cleft wall from each notch to its last spray: its own frames of `cleftWater`
+    /// scrolling down at six a second, still with Reduce Motion.
     private static func cleftWater(animTime: Double, reduceMotion: Bool, geometry: Geometry) -> [SpriteInstance] {
         let size = SpriteID.cleftWater.size
-        let frames = SpriteID.cleftWater.frameCount
-        let frame = reduceMotion ? 0 : Int((max(0, animTime) * 6).rounded(.down)) % frames
+        let step = reduceMotion ? 0 : Int((max(0, animTime) * 6).rounded(.down)) % cleftWaterFrames
         let whole = geometry.whole(.mid)
         var list: [SpriteInstance] = []
-        for thread in cleftThreads {
-            let left = thread.x - 1 - whole
+        for (index, thread) in cleftThreads.enumerated() {
+            let left = thread.x - cleftWaterInset - whole
             guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
             let rect = SIMD4<Float>(Float(left), Float(thread.row + 1), Float(size.width), Float(size.height))
-            list.append(SpriteInstance(sprite: .cleftWater, frame: frame, rect: rect, tint: SIMD4<Float>(1, 1, 1, 1),
-                                       flipped: false))
+            list.append(SpriteInstance(sprite: .cleftWater, frame: index * cleftWaterFrames + step, rect: rect,
+                                       tint: SIMD4<Float>(1, 1, 1, 1), flipped: false))
         }
         return list
     }

@@ -359,7 +359,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bankSheetC: return PixelSize(width: 256, height: 56)
         case .bankEnd: return PixelSize(width: 96, height: 208)
         case .cloudDeck: return PixelSize(width: 720, height: 80)
-        case .cleftWater: return PixelSize(width: 5, height: 132)
+        case .cleftWater: return PixelSize(width: 14, height: 54)   // world rebuild fix round 2: two threads' shapes
         case .moorRuin: return PixelSize(width: 50, height: 36)
         case .hildVarn, .lorenzPell, .ebbaCalder, .orlaLorn: return PixelSize(width: 14, height: 30)
         case .portraitHildVarn, .portraitLorenzPell, .portraitEbbaCalder, .portraitOrlaLorn:
@@ -412,7 +412,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .gloomWisp: return 6
         case .gloomFogBack, .gloomFogMid, .gloomFogFront: return 2
         case .bankSheetA, .bankSheetB, .bankSheetC: return 2
-        case .cleftWater: return 4
+        case .cleftWater: return 12   // fix round 2: six frames per thread, the second thread's from frame 6
         case .gateWood, .gateIron, .gateGreat, .catapult: return 3
         case .arrow, .fireArrow, .bolt, .spark, .streak, .rainSplash: return 3
         case .rainStreak: return 9
