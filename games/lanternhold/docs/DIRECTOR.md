@@ -65,6 +65,8 @@ the quality bar), and **Opus 5.5 agents do the work**. Read this first, then CLA
 
 The lanes run in parallel, so two agents run at once. Each step first reads git log and finishes what the step before it left, so a fresh run picks up the WIP snapshots.
 
+**Every step is gated** (added by the director on 14.11.): after the builder, an independent critic (Opus 5.5, read-only) looks at the step's screenshots as an art director and first-time player and returns blockers, highs and a score (8 of 10 passes). Look 1 sends blockers and highs back to the lane as a fix round, look 2 only blockers, look 3 is for the record. What stays open goes to the next step through the verdict file.
+
 To start it: `Workflow({scriptPath: "<repo>/games/lanternhold/docs/workflows/rebuild.js"})`. Read and adjust it first: the director may change the plan, split steps or add ideas.
 
 ## 4. After the rebuild
@@ -82,3 +84,18 @@ To start it: `Workflow({scriptPath: "<repo>/games/lanternhold/docs/workflows/reb
    - the App Privacy and age rating answers.
 
    Submission only with Louis' go in chat, for that one submission.
+
+## 5. The director's desk
+
+`ci-out/director/` in the planning worktree (git-ignored) is how the director and the agents talk without stopping a run:
+
+| file | written by | read by |
+|---|---|---|
+| `notes-world.md`, `notes-stage.md`, `notes-join.md` | the director; newest entry at the bottom | every agent of that lane before it starts; a note wins over the brief |
+| `<step>.md`, `<step>-fix<n>.md`, `join.md` | the builder, as its last action | the director |
+| `<step>-critic<n>.md` | the critic | the next agent of the lane, and the director |
+| `digest.md` | a Sonnet agent at the start of the run | the director: the game in 1200 words |
+
+- The director is woken by a background until-loop on a report file (for example `world-1-rock-fog.md`), looks at the screenshots itself, and writes its corrections into the lane's notes file. The lane's next agent picks them up.
+- Never SendMessage to a running workflow agent; the notes files are the only channel.
+
