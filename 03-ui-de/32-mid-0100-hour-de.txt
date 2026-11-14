@@ -1,0 +1,1 @@
+32-mid-0100: taken at frame:3450 ready day:12 hour:1.31 alive:22 seen:11 lit:1 shots:4 aim:2 kx:654 lord:lord
