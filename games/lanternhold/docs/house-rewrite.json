@@ -19,10 +19,10 @@
   {
    "key": "petition.herald_demand.text",
    "en_old": "The King beneath the Gloom greets the lamplighter on {his|her} borrowed chair. He wants only the woman with the grey lantern. Give her to me, and for three nights your little town will sleep.",
-   "en_new": "The King beneath the Gloom greets the heir of the thief on {his|her} borrowed chair. He wants only the woman with the grey lantern. Give her to me, and for three nights your little town will sleep.",
+   "en_new": "The King beneath the Gloom greets the heir of the thief by {his|her} borrowed fire. He wants only the woman with the grey lantern. Give her to me, and for three nights your little town will sleep.",
    "de_old": "Der König unter der Düsternis grüßt {den Laternenanzünder auf seinem|die Laternenanzünderin auf ihrem} geliehenen Stuhl. Er will nur die Frau mit der grauen Laterne. Gebt sie mir, und drei Nächte lang wird Euer Städtchen schlafen.",
-   "de_new": "Der König unter der Düsternis grüßt {den Erben des Diebes auf seinem|die Erbin des Diebes auf ihrem} geliehenen Stuhl. Er will nur die Frau mit der grauen Laterne. Gebt sie mir, und drei Nächte lang wird Euer Städtchen schlafen.",
-   "why": "The herald of the Lightless King addresses the heir of a thief (HOUSE.md 1 and 7), never a lamplighter."
+   "de_new": "Der König unter der Düsternis grüßt {den Erben des Diebes an seinem|die Erbin des Diebes an ihrem} geliehenen Feuer. Er will nur die Frau mit der grauen Laterne. Gebt sie mir, und drei Nächte lang wird Euer Städtchen schlafen.",
+   "why": "The herald addresses the heir of a thief (HOUSE.md 1 and 7), never a lamplighter. \"Thief\" is tied to the fire, never to the chair: from day 15 the court believes the King is Aldric, and \"his borrowed chair\" would read as \"you took Aldric's seat\" (HOUSE.md 6.4)."
   },
   {
    "key": "petition.herald_demand.r2",
@@ -33,52 +33,60 @@
    "why": "The herald of the Lightless King addresses the heir of a thief (HOUSE.md 1 and 7), never a lamplighter."
   },
   {
+   "key": "line.herald_throne",
+   "en_old": "The King beneath the Gloom remembers this hall. He remembers the throne. He remembers it was his.",
+   "en_new": "The King beneath the Gloom remembers this fire. He remembers its old hearth. He remembers it was his.",
+   "de_old": "Der König unter der Düsternis erinnert sich an diesen Saal. An den Thron. Daran, dass er seiner war.",
+   "de_new": "Der König unter der Düsternis erinnert sich an dieses Feuer. An seinen alten Herd. Daran, dass es seines war.",
+   "why": "The dark's claim is the fire, never the hall or the chair (HOUSE.md 6.4). \"He remembers the throne. It was his.\" read with the day-15 belief (the King is Aldric) as a usurper charge, and Lady Oriel built this hall in year 118, so it was never the old King's."
+  },
+  {
    "key": "line.seren_gate",
    "en_old": "The light is going, lamplighter. Open, or watch me wait.",
-   "en_new": "The light is going, keeper. Open, or watch me wait.",
+   "en_new": "The light is going, Lantern. Open, or watch me wait.",
    "de_old": "Das Licht schwindet, {Laternenanzünder|Laternenanzünderin}. Öffnet, oder seht mir beim Warten zu.",
-   "de_new": "Das Licht schwindet, {Hüter|Hüterin}. Öffnet, oder seht mir beim Warten zu.",
-   "why": "Seren greets the heir of the guardian house as one keeper greets another (HOUSE.md 7), not as a lamplighter."
+   "de_new": "Das Licht schwindet, Lantern. Öffnet, oder seht mir beim Warten zu.",
+   "why": "Seren calls the heir of the guardian house by the house's name, \"Lantern\", one keeper of a fire to another, and \"lord\" after day 15 (HOUSE.md 7). Never a lamplighter. \"Lantern\" is never translated and has no gender, so the German forms fall away here (the check lists this key)."
   },
   {
    "key": "line.seren_lantern",
    "en_old": "My lantern is not cold, lamplighter. It is only very far away.",
-   "en_new": "My lantern is not cold, keeper. It is only very far away.",
+   "en_new": "My lantern is not cold, Lantern. It is only very far away.",
    "de_old": "Meine Laterne ist nicht kalt, {Laternenanzünder|Laternenanzünderin}. Sie ist nur sehr weit fort.",
-   "de_new": "Meine Laterne ist nicht kalt, {Hüter|Hüterin}. Sie ist nur sehr weit fort.",
-   "why": "Seren greets the heir of the guardian house as one keeper greets another (HOUSE.md 7), not as a lamplighter."
+   "de_new": "Meine Laterne ist nicht kalt, Lantern. Sie ist nur sehr weit fort.",
+   "why": "Seren calls the heir of the guardian house by the house's name, \"Lantern\", one keeper of a fire to another, and \"lord\" after day 15 (HOUSE.md 7). Never a lamplighter. \"Lantern\" is never translated and has no gender, so the German forms fall away here (the check lists this key)."
   },
   {
    "key": "petition.seren_at_gate.text",
    "en_old": "You kept your gate shut, lamplighter. I do not blame you. But hear this through it: Aldric did not fall. The dark did not kill him. It crowned him. Only in the Great Beacon’s light can he be hurt. I am Seren.",
-   "en_new": "You kept your gate shut, keeper. I do not blame you. But hear this through it: Aldric did not fall. The dark did not kill him. It crowned him. Only in the Great Beacon’s light can he be hurt. I am Seren.",
+   "en_new": "You kept your gate shut, Lantern. I do not blame you. But hear this through it: Aldric did not fall. The dark did not kill him. It crowned him. Only in the Great Beacon’s light can he be hurt. I am Seren.",
    "de_old": "Ihr habt Euer Tor verschlossen gehalten, {Laternenanzünder|Laternenanzünderin}. Ich verüble es Euch nicht. Aber hört dies durch das Tor: Aldric ist nicht gefallen. Das Dunkel hat ihn nicht getötet. Es hat ihn gekrönt. Nur im Licht des Großen Leuchtfeuers ist er verwundbar. Ich bin Seren.",
-   "de_new": "Ihr habt Euer Tor verschlossen gehalten, {Hüter|Hüterin}. Ich verüble es Euch nicht. Aber hört dies durch das Tor: Aldric ist nicht gefallen. Das Dunkel hat ihn nicht getötet. Es hat ihn gekrönt. Nur im Licht des Großen Leuchtfeuers ist er verwundbar. Ich bin Seren.",
-   "why": "Seren greets the heir of the guardian house as one keeper greets another (HOUSE.md 7), not as a lamplighter."
+   "de_new": "Ihr habt Euer Tor verschlossen gehalten, Lantern. Ich verüble es Euch nicht. Aber hört dies durch das Tor: Aldric ist nicht gefallen. Das Dunkel hat ihn nicht getötet. Es hat ihn gekrönt. Nur im Licht des Großen Leuchtfeuers ist er verwundbar. Ich bin Seren.",
+   "why": "Seren calls the heir of the guardian house by the house's name, \"Lantern\", one keeper of a fire to another, and \"lord\" after day 15 (HOUSE.md 7). Never a lamplighter. \"Lantern\" is never translated and has no gender, so the German forms fall away here (the check lists this key)."
   },
   {
    "key": "petition.seren_reveal.text",
    "en_old": "My name is Seren. I kept the Great Beacon until it went dark, and I rode with Aldric to light it again. He did not fall, lamplighter. The dark did not kill him. It crowned him. Only in the beacon’s light can he be hurt.",
-   "en_new": "My name is Seren. I kept the Great Beacon until it went dark, and I rode with Aldric to light it again. He did not fall, keeper. The dark did not kill him. It crowned him. Only in the beacon’s light can he be hurt.",
+   "en_new": "My name is Seren. I kept the Great Beacon until it went dark, and I rode with Aldric to light it again. He did not fall, Lantern. The dark did not kill him. It crowned him. Only in the beacon’s light can he be hurt.",
    "de_old": "Mein Name ist Seren. Ich hütete das Große Leuchtfeuer, bis es erlosch, und ritt mit Aldric, um es neu zu entzünden. Er ist nicht gefallen, {Laternenanzünder|Laternenanzünderin}. Das Dunkel hat ihn nicht getötet. Es hat ihn gekrönt. Nur im Licht des Leuchtfeuers ist er verwundbar.",
-   "de_new": "Mein Name ist Seren. Ich hütete das Große Leuchtfeuer, bis es erlosch, und ritt mit Aldric, um es neu zu entzünden. Er ist nicht gefallen, {Hüter|Hüterin}. Das Dunkel hat ihn nicht getötet. Es hat ihn gekrönt. Nur im Licht des Leuchtfeuers ist er verwundbar.",
-   "why": "Seren greets the heir of the guardian house as one keeper greets another (HOUSE.md 7), not as a lamplighter."
+   "de_new": "Mein Name ist Seren. Ich hütete das Große Leuchtfeuer, bis es erlosch, und ritt mit Aldric, um es neu zu entzünden. Er ist nicht gefallen, Lantern. Das Dunkel hat ihn nicht getötet. Es hat ihn gekrönt. Nur im Licht des Leuchtfeuers ist er verwundbar.",
+   "why": "Seren calls the heir of the guardian house by the house's name, \"Lantern\", one keeper of a fire to another, and \"lord\" after day 15 (HOUSE.md 7). Never a lamplighter. \"Lantern\" is never translated and has no gender, so the German forms fall away here (the check lists this key)."
   },
   {
    "key": "petition.seren_watch.text",
    "en_old": "Let me stand on the wall tonight, lamplighter. I know how the dark moves before it moves. I can tell your archers where to look. I will not touch a bow. I only want to be useful in this house.",
-   "en_new": "Let me stand on the wall tonight, keeper. I know how the dark moves before it moves. I can tell your archers where to look. I will not touch a bow. I only want to be useful in this house.",
+   "en_new": "Let me stand on the wall tonight, Lantern. I know how the dark moves before it moves. I can tell your archers where to look. I will not touch a bow. I only want to be useful in this house.",
    "de_old": "Lasst mich heute Nacht auf der Mauer stehen, {Laternenanzünder|Laternenanzünderin}. Ich weiß, wie sich das Dunkel bewegt, bevor es sich bewegt. Ich kann Euren Schützen sagen, wohin sie sehen müssen. Einen Bogen rühre ich nicht an. Ich will nur nützlich sein in diesem Haus.",
-   "de_new": "Lasst mich heute Nacht auf der Mauer stehen, {Hüter|Hüterin}. Ich weiß, wie sich das Dunkel bewegt, bevor es sich bewegt. Ich kann Euren Schützen sagen, wohin sie sehen müssen. Einen Bogen rühre ich nicht an. Ich will nur nützlich sein in diesem Haus.",
-   "why": "Seren greets the heir of the guardian house as one keeper greets another (HOUSE.md 7), not as a lamplighter."
+   "de_new": "Lasst mich heute Nacht auf der Mauer stehen, Lantern. Ich weiß, wie sich das Dunkel bewegt, bevor es sich bewegt. Ich kann Euren Schützen sagen, wohin sie sehen müssen. Einen Bogen rühre ich nicht an. Ich will nur nützlich sein in diesem Haus.",
+   "why": "Seren calls the heir of the guardian house by the house's name, \"Lantern\", one keeper of a fire to another, and \"lord\" after day 15 (HOUSE.md 7). Never a lamplighter. \"Lantern\" is never translated and has no gender, so the German forms fall away here (the check lists this key)."
   },
   {
    "key": "petition.stranger_gate.text",
    "en_old": "I have walked from the edge of the Gloom with this lantern. It burns grey and gives no warmth, so do not ask it to. Night is close, and out there the dark knows my name. Open your gate, lamplighter.",
-   "en_new": "I have walked from the edge of the Gloom with this lantern. It burns grey and gives no warmth, so do not ask it to. Night is close, and out there the dark knows my name. Open your gate, keeper.",
+   "en_new": "I have walked from the edge of the Gloom with this lantern. It burns grey and gives no warmth, so do not ask it to. Night is close, and out there the dark knows my name. Open your gate, Lantern.",
    "de_old": "Ich komme vom Rand der Düsternis, mit dieser Laterne. Sie brennt grau und wärmt nicht, also verlangt es nicht von ihr. Die Nacht ist nah, und da draußen kennt das Dunkel meinen Namen. Öffnet Euer Tor, {Laternenanzünder|Laternenanzünderin}.",
-   "de_new": "Ich komme vom Rand der Düsternis, mit dieser Laterne. Sie brennt grau und wärmt nicht, also verlangt es nicht von ihr. Die Nacht ist nah, und da draußen kennt das Dunkel meinen Namen. Öffnet Euer Tor, {Hüter|Hüterin}.",
-   "why": "Seren greets the heir of the guardian house as one keeper greets another (HOUSE.md 7), not as a lamplighter."
+   "de_new": "Ich komme vom Rand der Düsternis, mit dieser Laterne. Sie brennt grau und wärmt nicht, also verlangt es nicht von ihr. Die Nacht ist nah, und da draußen kennt das Dunkel meinen Namen. Öffnet Euer Tor, Lantern.",
+   "why": "Seren calls the heir of the guardian house by the house's name, \"Lantern\", one keeper of a fire to another, and \"lord\" after day 15 (HOUSE.md 7). Never a lamplighter. \"Lantern\" is never translated and has no gender, so the German forms fall away here (the check lists this key)."
   },
   {
    "key": "line.hesper_beacon",
@@ -213,8 +221,8 @@
    "en_old": "You shut the gate on a woman with a lantern. Bold, for a lamplighter.",
    "en_new": "You shut the gate on a woman with a lantern. Bold, for a house named after one.",
    "de_old": "Ihr habt einer Frau mit Laterne das Tor verschlossen. Mutig, für {einen Laternenanzünder|eine Laternenanzünderin}.",
-   "de_new": "Ihr habt einer Frau mit Laterne das Tor verschlossen. Mutig, {Herr|Herrin} Lantern.",
-   "why": "Called the lord a lamplighter. The lantern joke now points at the house's name."
+   "de_new": "Ihr sperrt eine Frau mit Laterne aus. Mutig, für {den Erben|die Erbin} eines Hauses, das nach einer heißt.",
+   "why": "Called the lord a lamplighter. The lantern joke now points at the house's name, in German too (Lantern is never translated)."
   },
   {
    "key": "line.pip_verse_nine",
@@ -301,7 +309,7 @@
    "en_old": "“I was never meant for this.”",
    "en_new": "“I am afraid too. I stay.”",
    "de_old": "„Dafür war ich nie bestimmt.“",
-   "de_new": "„Ich hab auch Angst. Ich bleibe.“",
+   "de_new": "„Ich habe auch Angst. Ich bleibe.“",
    "why": "'I was never meant for this' says the lord was an heir nobody expected. The honest speech now says the lord's real fear (HOUSE.md 1)."
   },
   {
@@ -309,7 +317,7 @@
    "en_old": "For a moment no one moves. Then Brannock laughs. “None of us were meant for this, my {lord|lady}. Here we are anyway.”",
    "en_new": "For a moment no one moves. Then Brannock laughs. “So are we all, my {lord|lady}. And here we all stand.”",
    "de_old": "Einen Moment rührt sich niemand. Dann lacht Brannock. „Keiner von uns war dafür bestimmt, {Herr|Herrin}. Und doch sind wir hier.“",
-   "de_new": "Einen Moment rührt sich niemand. Dann lacht Brannock. „Das haben wir alle, {Herr|Herrin}. Und hier stehen wir.“",
+   "de_new": "Einen Moment rührt sich niemand. Dann lacht Brannock. „Die haben wir alle, {Herr|Herrin}. Und hier stehen wir.“",
    "why": "Brannock's answer follows the new third speech."
   },
   {
@@ -317,7 +325,7 @@
    "en_old": "“I was never meant for this,” you told them. They followed you anyway.",
    "en_new": "“I am afraid too. I stay,” you told them. They stayed with you.",
    "de_old": "„Dafür war ich nie bestimmt“, habt Ihr ihnen gesagt. Sie folgten Euch trotzdem.",
-   "de_new": "„Ich hab auch Angst. Ich bleibe“, habt Ihr ihnen gesagt. Sie blieben bei Euch.",
+   "de_new": "„Ich habe auch Angst. Ich bleibe“, habt Ihr ihnen gesagt. Sie blieben bei Euch.",
    "why": "Quotes the third speech, which changes."
   },
   {
@@ -325,7 +333,7 @@
    "en_old": "Never meant for this, you said. The lads trust that more than any circlet.",
    "en_new": "Afraid, you said, and staying. The lads trust that more than any circlet.",
    "de_old": "Nie dafür bestimmt, sagtet Ihr. Dem trauen die Jungs mehr als jedem Stirnreif.",
-   "de_new": "Auch Angst, sagtet Ihr, und Ihr bliebet. Dem trauen die Jungs mehr als jedem Stirnreif.",
+   "de_new": "Auch Angst, sagtet Ihr. Und Ihr bleibt. Dem trauen die Jungs mehr als jedem Stirnreif.",
    "why": "Quotes the third speech, which changes."
   },
   {
@@ -333,8 +341,8 @@
    "en_old": "Back in my kitchen, {lord}? My {lord|lady}, I mean. Mind the cat, the oven and the soup, in that order.",
    "en_new": "Back in my kitchen, {Lord|Lady} {lord}? Good. Mind the cat, the oven and the soup, in that order.",
    "de_old": "Wieder in meiner Küche, {lord}? {Mein Herr|Meine Herrin}, meine ich. Achtet auf Katze, Ofen und Suppe, in dieser Reihenfolge.",
-   "de_new": "Wieder in meiner Küche, {Burgherr|Burgherrin} {lord}? Gut. Achtet auf Katze, Ofen und Suppe, in dieser Reihenfolge.",
-   "why": "Tamsin called the lord by the bare name and corrected herself, as to the kitchen child. Warmth stays, respect is shown (HOUSE.md 1)."
+   "de_new": "{lord} von Lantern wieder in meiner Küche? Gut so, {mein Herr|meine Herrin}. Achtet auf Katze, Ofen und Suppe, in dieser Reihenfolge.",
+   "why": "Tamsin called the lord by the bare name and corrected herself, as to the kitchen child. Warmth stays, respect is shown (HOUSE.md 1). German does not address a lord by title and first name, so the name stands with the house and she addresses \"{mein Herr|meine Herrin}\"."
   },
   {
    "key": "petition.marek_relic.text",
@@ -380,7 +388,7 @@
   {
    "line": 146,
    "old": "- **Year 1, Taper.** A lamplighter named Taper came to the Cleft with one lit lantern when the dark first",
-   "new": "- **Year 1, Taper.** Taper, son of the old lord's house beyond the Cleft, struck the Eternal Light from"
+   "new": "- **Year 1, Taper.** Taper struck the Eternal Light from"
   },
   {
    "line": 147,
@@ -540,7 +548,7 @@
   {
    "line": 343,
    "old": "| Seren | Aldric's kin, and a debt | \"lamplighter\", and \"lord\" only after day 15 |",
-   "new": "| Seren | Aldric's kin, a keeper like herself, and a debt | \"keeper\", and \"lord\" only after day 15 |"
+   "new": "| Seren | Aldric's kin, a keeper of a fire like the lord, and a debt | \"Lantern\", and \"lord\" only after day 15 |"
   },
   {
    "line": 344,
@@ -658,9 +666,19 @@
    "new": "| 14-15 | `lorn_visit` **new** | Dame Orla Lorn, past eighty, begs leave to sit and calls the lord \"heir of Taper\". | Someone remembers the house differently. The court laughs. |"
   },
   {
+   "line": 553,
+   "old": "| 17 | `herald_demand` or `herald_alone`; `truce_drill`, `truce_end` | The herald asks for the keeper, or for sixty gold of lamp oil poured out on the stone. | The King wants lights out and the beacon's keeper. He remembers this hall. |",
+   "new": "| 17 | `herald_demand` or `herald_alone`; `truce_drill`, `truce_end` | The herald asks for the keeper, or for sixty gold of lamp oil poured out on the stone. | The King wants lights out and the beacon's keeper. He remembers this fire. |"
+  },
+  {
    "line": 556,
    "old": "| 20 | `last_stand` | Brannock asks for the speech. \"We hold until dawn.\" / \"We bring Lord Aldric home.\" / \"I was never meant for this.\" | The lord's own leaning, said aloud. |",
    "new": "| 20 | `last_stand` | Brannock asks for the speech. \"We hold until dawn.\" / \"We bring Lord Aldric home.\" / \"I am afraid too. I stay.\" | The lord's own leaning, said aloud. |"
+  },
+  {
+   "line": 599,
+   "old": "| 2 | For a thousand years House Lantern has held it. / Nobody knows what waits on the other side. | Seen from the castle wall, looking west: black rock walls of the Throat, no plant anywhere, and at the far end a narrow slit of grey-violet fog with cold eyes in it. A teal banner with the gold lantern at the frame's edge. |",
+   "new": "| 2 | Saint Taper struck a light from the bare rock. / For a thousand years his house has held the door. | Seen from the castle wall, looking west: black rock walls of the Throat, no plant anywhere, and at the far end a narrow slit of grey-violet fog with cold eyes in it. A teal banner with the gold lantern at the frame's edge. |"
   },
   {
    "line": 601,
@@ -670,7 +688,7 @@
   {
    "line": 615,
    "old": "| king (Seren's address) | lamplighter; \"lord\" once `seren_revealed` | Laternenanzünder; Herr | `l.seren_*`, `p.seren_*`, `p.stranger_gate.*` |",
-   "new": "| king (Seren's address) | keeper; \"lord\" once `seren_revealed` | Hüter / Hüterin; Herr | `l.seren_*`, `p.seren_*`, `p.stranger_gate.*` |"
+   "new": "| king (Seren's address) | Lantern; \"lord\" once `seren_revealed` | Lantern; Herr | `l.seren_*`, `p.seren_*`, `p.stranger_gate.*` |"
   },
   {
    "line": 654,
@@ -680,12 +698,12 @@
   {
    "line": 655,
    "old": "  goes. The lamplighter inherits by blood, to everyone's surprise. `p.pip_farewell.r1` becomes: when",
-   "new": "  house (docs/HOUSE.md sections 1 and 7). `p.pip_farewell.r1` becomes Pip's joke about Aldric and the"
+   "new": "  house (docs/HOUSE.md sections 1 and 7). `p.pip_farewell.r1` becomes Pip's saved joke: Aldric's bet that"
   },
   {
    "line": 656,
    "old": "  Odile read the name from the family book, the whole court looked at the ladder.",
-   "new": "  hearth (docs/house-rewrite.json)."
+   "new": "  no fool could make this hall laugh before a battle. \"Pay up, Aldric.\" (docs/house-rewrite.json)."
   },
   {
    "line": 658,
@@ -696,6 +714,11 @@
    "line": 675,
    "old": "  world-change texts say \"statue of the lamplighter saint\".",
    "new": "  world-change texts say \"statue of Saint Taper\"."
+  },
+  {
+   "line": 687,
+   "old": "  The King wants lights out. `herald_demand` keeps \"his borrowed chair\".",
+   "new": "  The King wants lights out. `herald_demand` greets \"the heir of the thief by his borrowed fire\"."
   },
   {
    "line": 689,
@@ -710,7 +733,7 @@
   {
    "line": 694,
    "old": "  `l.pip_matches` \"They made the lamplighter lord. At last someone here knows where the matches are.\";",
-   "new": "  `l.pip_matches` \"Aldric lit fires by shouting at them. At last a lord who knows where the matches are.\";"
+   "new": "  `l.pip_matches` \"The heir knows every key in this castle. At last a lord who knows where the matches are.\";"
   },
   {
    "line": 695,
@@ -726,6 +749,83 @@
    "line": 786,
    "old": "    cards or four meters. Ours: the lamplighter's hooked pole, the hearth fire as the heart, light",
    "new": "    cards or four meters. Ours: the guardian house's hooked lantern, the hearth fire as the heart, light"
+  }
+ ],
+ "design": [
+  {
+   "line": 102,
+   "old": "  nobody counted on, the castle's lamplighter, Aldric's young cousin; the circlet is a little too big. Seren, the",
+   "new": "  carried the light into the Cleft: Aldric's cousin, raised as the heir of the guardian house; the circlet fits. Seren, the"
+  },
+  {
+   "line": 127,
+   "old": "| A ruler on a horse or any mount; mounts bought with gems | The king walks, carrying his old lamplighter's lantern on a hooked pole |",
+   "new": "| A ruler on a horse or any mount; mounts bought with gems | The lord walks, carrying the guardian house's lantern on a hooked staff |"
+  },
+  {
+   "line": 134,
+   "old": "| King Eryk, a queen and three daughters, a succession or forced-marriage story, Slavic folklore monsters | A lamplighter crowned because nobody else wanted the crown; the old king lost in the Gloom; original court and creatures |",
+   "new": "| King Eryk, a queen and three daughters, a succession or forced-marriage story, Slavic folklore monsters | The heir of the guardian house that has kept the light a thousand years; the old lord lost in the Gloom; original court and creatures |"
+  },
+  {
+   "line": 503,
+   "old": "### Chapter 1: The Lamplighter King (20 nights)",
+   "new": "### Chapter 1: The Dark Beacon (20 nights)"
+  },
+  {
+   "line": 505,
+   "old": "The Great Beacon at the mouth of the gorge has gone dark, and since then the Gloom comes every night. King Aldric rode",
+   "new": "The Great Beacon at the mouth of the gorge has gone dark, and since then the Gloom comes every night. Lord Aldric rode"
+  },
+  {
+   "line": 506,
+   "old": "into it to rekindle the beacon and never returned. The court needed a new king, and nobody wanted the crown, except the",
+   "new": "into it to rekindle the beacon and never returned. The circlet passed to his cousin, the heir by right of the guardian"
+  },
+  {
+   "line": 507,
+   "old": "castle's lamplighter, who was too slow to run away. The crown is a little too big.",
+   "new": "house, raised in the castle and known to everyone (docs/HOUSE.md sections 1 and 7). The circlet fits."
+  },
+  {
+   "line": 1879,
+   "old": "| `castle.statue` | courtyard, x 1680 | M3 step 3 | a stone statue of the lamplighter king with his lantern (`statue`) |",
+   "new": "| `castle.statue` | courtyard, x 1680 | M3 step 3 | a stone statue of Saint Taper with his lantern (`statue`) |"
+  },
+  {
+   "line": 2062,
+   "old": "  herald cold (\"lamplighter\"). German addresses the king with \"Ihr\" and \"Euch\".",
+   "new": "  herald cold (\"heir of the thief\"). German addresses the king with \"Ihr\" and \"Euch\"."
+  },
+  {
+   "line": 2088,
+   "old": "| 20 | `last_stand` | Brannock | the last morning's word to the men: **\"We hold until dawn\"** / \"We bring our old king home\" / \"I was never meant to be king\" (`speech_dawn`, `speech_aldric`, `speech_honest`; nothing else) |",
+   "new": "| 20 | `last_stand` | Brannock | the last morning's word to the men: **\"We hold until dawn\"** / \"We bring Lord Aldric home\" / \"I am afraid too. I stay.\" (`speech_dawn`, `speech_aldric`, `speech_honest`; nothing else) |"
+  },
+  {
+   "line": 2813,
+   "old": "  | Hesper | child of the house | Kind des Hauses |",
+   "new": "  | Hesper | heir of the house | `{Erbe\\|Erbin} des Hauses` |"
+  },
+  {
+   "line": 2815,
+   "old": "  | Seren | lamplighter | Laternenanzünder |",
+   "new": "  | Seren | Lantern; lord after day 15 | Lantern; Herr |"
+  },
+  {
+   "line": 2818,
+   "old": "  | Dame Orla | young Taper | `{junger\\|junge} Taper` |",
+   "new": "  | Dame Orla | heir of Taper | `Tapers {Erbe\\|Erbin}` |"
+  },
+  {
+   "line": 2825,
+   "old": "- 9.2, the rewritten petitions and lines, as listed there: the premise (the lamplighter inherits by blood),",
+   "new": "- 9.2, the rewritten petitions and lines, as listed there: the premise (the heir of the guardian house, HOUSE.md),"
+  },
+  {
+   "line": 2827,
+   "old": "  `banners_new`, the statues of the lamplighter saint, Lord Aldric's texts, `haunted_cellar` (a Returned and a blue",
+   "new": "  `banners_new`, the statues of Saint Taper, Lord Aldric's texts, `haunted_cellar` (a Returned and a blue"
   }
  ]
 }

@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
-"""Checks docs/house-rewrite.json (docs/HOUSE.md part C) against Resources/Story.xcstrings and STORY.md.
+"""Checks docs/house-rewrite.json (docs/HOUSE.md part C) against Resources/Story.xcstrings, STORY.md and DESIGN.md.
 
-It proves: the JSON parses; every key exists; every *_old equals the file's value exactly; no new value is more than
-15 % longer than the old one (measured as the game shows it: the longer of the Burgherr and Burgherrin readings, with
-`{lord}` counted as a 16-character name); choice labels stay at 40 characters or fewer; English keeps the story's text
-limits (request 240, reaction 140, counsel 140, court line 120); `{lord}`, printf placeholders and line breaks are
-kept; a value that had male and female forms still has them; every brace is a `{lord}` or a `{a|b}` pair; every
-bible line matches STORY.md exactly. Then it applies the list in memory and proves that no English or German value
-calls the lord a lamplighter (nor a child of the house, nor "young Taper", nor says the circlet is too big or that the lord was never
-meant for it). It prints the counts and exits 0 only when everything holds. It changes no file.
+It proves: the JSON parses; every key exists; every *_old equals the file's value exactly; no new value other than a
+choice label is more than 15 % longer than the old one (measured as the game shows it: the longer of the Burgherr and
+Burgherrin readings, with `{lord}` counted as a 16-character name); choice labels may use their full 40 characters and
+never more; English keeps the story's text limits (request 240, reaction 140, counsel 140, court line 120); `{lord}`,
+printf placeholders and line breaks are kept; a value that had male and female forms still has them (except the keys in
+FORMS_DROPPED, each with its reason); every brace is a `{lord}` or a `{a|b}` pair; every bible line matches STORY.md
+exactly, and a prologue panel's text (STORY.md section 8) grows at most 25 % (more than 15 % is flagged for the panels
+lane); every design line matches DESIGN.md exactly. Then it applies the list in memory and proves that no English or
+German value calls the lord a lamplighter (nor a child of the house, nor "young Taper", nor says the circlet is too
+big or that the lord was never meant for it), and that no DESIGN.md line still states the old premise. It prints the
+counts and exits 0 only when everything holds. It changes no file.
 
 Run from its home games/lanternhold/tools/:   python3 tools/house_rewrite_check.py
 Or point it anywhere:  python3 house_rewrite_check.py --game <games/lanternhold> --rewrite <house-rewrite.json>
@@ -44,6 +47,25 @@ FORBIDDEN = [
     ('the ladder joke', re.compile(r'looked at the ladder|zur Leiter', re.I)),
 ]
 ALLOWED = {}  # key -> reason
+
+# Keys whose new value may drop the male and female forms, because the word that needed them is gone.
+_SEREN = ('Seren calls the lord "Lantern", the house\'s name: never translated and without gender (HOUSE.md 7, '
+          'director 14.11.: question 6)')
+FORMS_DROPPED = {k: _SEREN for k in ('line.seren_gate', 'line.seren_lantern', 'petition.seren_at_gate.text',
+                                     'petition.seren_reveal.text', 'petition.seren_watch.text',
+                                     'petition.stranger_gate.text')}
+
+# The old premise in DESIGN.md (the lord a lamplighter, crowned because nobody else wanted it, the circlet too big).
+DESIGN_PREMISE = FORBIDDEN + [
+    ('nobody wanted the crown', re.compile(r'nobody (else )?wanted the crown', re.I)),
+    ('too slow to run away', re.compile(r'too slow to run away', re.I)),
+    ('a little too big', re.compile(r'(circlet|crown)[^.|]{0,20}too big', re.I)),
+    ('never meant to be king', re.compile(r'never meant to be', re.I)),
+    ('nobody counted on', re.compile(r'nobody counted on', re.I)),
+]
+DESIGN_ALLOWED = {}  # DESIGN.md line -> reason
+PROLOGUE_GROWTH = 1.25
+PROLOGUE_FLAG = 1.15
 
 
 def resolve(text, lady):
@@ -88,6 +110,7 @@ def main():
     rewrite = args.rewrite or os.path.join(args.game, 'docs', 'house-rewrite.json')
     strings_path = os.path.join(args.game, 'Resources', 'Story.xcstrings')
     story_path = os.path.join(args.game, 'STORY.md')
+    design_path = os.path.join(args.game, 'DESIGN.md')
 
     problems = []
     try:
@@ -97,11 +120,13 @@ def main():
         return 1
     strings = json.load(open(strings_path, encoding='utf-8'))['strings']
     story = open(story_path, encoding='utf-8').read().split('\n')
+    design = open(design_path, encoding='utf-8').read().split('\n')
 
     entries = data.get('strings', [])
     bible = data.get('bible', [])
-    if set(data) != {'strings', 'bible'}:
-        problems.append('top level must be exactly {"strings","bible"}')
+    design_list = data.get('design', [])
+    if set(data) != {'strings', 'bible', 'design'}:
+        problems.append('top level must be exactly {"strings","bible","design"}')
 
     seen = set()
     changes = {'en': 0, 'de': 0}
@@ -132,9 +157,10 @@ def main():
             if new != old:
                 changes[lang] += 1
             lo, ln = shown_len(old), shown_len(new)
-            if ln > lo * GROWTH:
+            is_choice = re.match(r'^petition\.[^.]+\.c\d$', k)
+            if not is_choice and ln > lo * GROWTH:
                 problems.append('%s %s: new %d chars > old %d + 15 %%' % (k, lang, ln, lo))
-            if re.match(r'^petition\.[^.]+\.c\d$', k) and ln > CHOICE_LIMIT:
+            if is_choice and ln > CHOICE_LIMIT:
                 problems.append('%s %s: choice label %d > %d' % (k, lang, ln, CHOICE_LIMIT))
             if lang == 'en':
                 for rx, lim in EN_LIMITS:
@@ -146,7 +172,8 @@ def main():
                 problems.append('%s %s: printf placeholders not kept' % (k, lang))
             if old.count('\n') != new.count('\n'):
                 problems.append('%s %s: line breaks not kept' % (k, lang))
-            if any('|' in b for b in BRACE.findall(old)) and not any('|' in b for b in BRACE.findall(new)):
+            if (any('|' in b for b in BRACE.findall(old)) and not any('|' in b for b in BRACE.findall(new))
+                    and k not in FORMS_DROPPED):
                 problems.append('%s %s: had male and female forms, new value has none' % (k, lang))
             for err in brace_errors(new):
                 problems.append('%s %s: %s' % (k, lang, err))
@@ -167,6 +194,44 @@ def main():
             problems.append('bible line %d: old differs from STORY.md' % n)
         if '\n' in b['new']:
             problems.append('bible line %d: new must be one line' % n)
+
+    # Prologue panels (STORY.md section 8): the text column may grow 25 % at most; over 15 % is flagged.
+    pro_start = next((i for i, s in enumerate(story) if s.startswith('## 8. The prologue')), None)
+    pro_end = next((i for i, s in enumerate(story) if pro_start is not None and i > pro_start and s.startswith('## ')),
+                   len(story))
+    prologue = []
+    for b in bible:
+        n = b.get('line')
+        if pro_start is None or not isinstance(n, int) or not (pro_start < n - 1 < pro_end):
+            continue
+        cells_old, cells_new = b['old'].split('|'), b['new'].split('|')
+        if len(cells_old) < 4 or len(cells_new) != len(cells_old) or not cells_old[1].strip().isdigit():
+            problems.append('bible line %d: prologue row must keep its columns' % n)
+            continue
+        lo, ln = len(cells_old[2].strip()), len(cells_new[2].strip())
+        flag = ln > lo * PROLOGUE_FLAG
+        prologue.append((n, cells_old[1].strip(), lo, ln, flag))
+        if ln > lo * PROLOGUE_GROWTH:
+            problems.append('bible line %d: prologue panel text %d chars > old %d + 25 %%' % (n, ln, lo))
+
+    design_seen = set()
+    for i, b in enumerate(design_list):
+        if set(b) != {'line', 'old', 'new'}:
+            problems.append('design #%d: fields must be line, old, new' % i)
+            continue
+        n = b['line']
+        if n in design_seen:
+            problems.append('design line %d listed twice' % n)
+        design_seen.add(n)
+        if not isinstance(n, int) or n < 1 or n > len(design):
+            problems.append('design line %r out of range' % n)
+            continue
+        if design[n - 1] != b['old']:
+            problems.append('design line %d: old differs from DESIGN.md' % n)
+        if '\n' in b['new']:
+            problems.append('design line %d: new must be one line' % n)
+        if b['new'] == b['old']:
+            problems.append('design line %d: new equals old' % n)
 
     applied = {k: {lang: v['localizations'][lang]['stringUnit']['value']
                    for lang in ('en', 'de') if lang in v.get('localizations', {})}
@@ -189,6 +254,18 @@ def main():
             story_after[b['line'] - 1] = b['new']
     bible_left = [(i + 1, s) for i, s in enumerate(story_after) if re.search(r'lamp-?lighter', s, re.I)]
 
+    design_after = list(design)
+    for b in design_list:
+        if isinstance(b.get('line'), int) and 1 <= b['line'] <= len(design_after):
+            design_after[b['line'] - 1] = b['new']
+    design_left = []
+    for i, s in enumerate(design_after):
+        for name, rx in DESIGN_PREMISE:
+            if rx.search(s) and (i + 1) not in DESIGN_ALLOWED:
+                design_left.append((i + 1, name, s))
+                problems.append('after apply, DESIGN.md line %d still states the old premise ("%s"): %s'
+                                % (i + 1, name, s.strip()[:110]))
+
     print('house-rewrite check')
     print('  strings: %d keys (%d English and %d German values change)' % (len(entries), changes['en'], changes['de']))
     print('  bible:   %d STORY.md lines' % len(bible))
@@ -197,6 +274,13 @@ def main():
           % len(bible_left))
     for n, s in bible_left:
         print('    %d: %s' % (n, s.strip()[:110]))
+    print('  prologue panels changed: %d' % len(prologue))
+    for n, panel, lo, ln, flag in prologue:
+        print('    STORY.md %d, panel %s: %d -> %d chars%s' % (n, panel, lo, ln,
+              ' (over 15 %: FLAG for the panels lane)' if flag else ''))
+    print('  forms dropped by reason: %d keys' % sum(1 for e in entries if e.get('key') in FORMS_DROPPED))
+    print('  design:  %d DESIGN.md lines; lines still stating the old premise after apply: %d'
+          % (len(design_list), len(design_left)))
     if problems:
         print('FAIL: %d problem(s)' % len(problems))
         for p in problems:
