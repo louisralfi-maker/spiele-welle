@@ -12,6 +12,13 @@ enum PlaceholderPolish {
             return [clothStandIn(salt, size: sprite.size)]
         case .circletIcon: return [circletStandIn(RGBA(0xE8B84A), size: sprite.size)]
         case .circletIconInk: return [circletStandIn(RGBA(0x2A1A12), size: sprite.size)]
+        // The hall stage (stage lane, 14.11.2026): plain fills while a painting is missing (their PNGs win).
+        case .greatHall, .hallPillarNear: return [PixelImage(width: sprite.size.width, height: sprite.size.height,
+                                                            fill: RGBA(0x3A3440))]
+        case .hallFire, .hallShaft, .hallMote, .hallWash:
+            return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0xF2D49A, alpha: 128))]
+        case .tapTalk, .tapThrone, .tapBuild, .tapRepair, .tapRecruit, .tapLight:
+            return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0xE8D7B0))]
         default: return []
         }
     }

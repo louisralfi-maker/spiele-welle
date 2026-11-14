@@ -1101,9 +1101,11 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         float room = lh2_room(c.world, v);
         ambient = mix(ambient, v.inter.rgb, room);
         float kmul = 1.0f - room * v.inter.w;
-        if (under >= 0.0f && under < 8.0f) {
+        // The hall stage (stage lane): an interior's floor faces a roof, not the sky (no night lift, no moon on it).
+        bool inside = v.weather.z > 0.0f;
+        if (under >= 0.0f && under < 8.0f && !inside) {
             ambient *= v.fog.z + 0.25f * v.weather.y;
-        } else {
+        } else if (!inside) {
             float e = lh2_ledge(worldTex, c.world, w.a);
             if (e > 0.0f) {
                 ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
@@ -1112,7 +1114,7 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         ambient *= info.bank * (1.0f - 0.12f * v.weather.y) * lh2_interior_ramp(c.row, v);
         float3 lit = lh2_cold(w.rgb, ambient, 1.0f - shade, kmul, v) + lh_reflectance(w.rgb) * light
             + light * (0.06f * w.a);
-        if (under >= 0.0f && under < 7.0f && moonUp > 0.0f) {
+        if (under >= 0.0f && under < 7.0f && moonUp > 0.0f && !inside) {
             lit += w.rgb * kMoonLight2 * (0.18f * moonUp * night);
         }
         // Weather: the wet lane's top rows throw the firelight back, column by column.

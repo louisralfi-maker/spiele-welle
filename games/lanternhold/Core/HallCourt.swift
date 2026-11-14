@@ -58,7 +58,7 @@ enum HallCourt {
     static func specs(_ s: GameState, catalog: PetitionCatalog) -> [HallFigureSpec] {
         let seconds = CourtLayout.secondsSinceDawn(s.hour)
         let byDay = DayClock.phase(at: s.hour) == .day
-        let residents = residents(day: s.day, hour: s.hour, flags: s.flags)
+        let residents = HallCourt.residents(day: s.day, hour: s.hour, flags: s.flags)
         var list: [HallFigureSpec] = []
         for who in residents {
             guard let body = Speakers.speaker(who)?.body else { continue }
@@ -140,6 +140,16 @@ enum HallCourt {
         return set
     }
 
+    // MARK: - The hall answers its lord
+
+    /// For this long after the lord came in by the door, the door's guards stand straight (no breath, a pixel taller)
+    /// and the waiting turn their heads to him.
+    static let straightenSeconds = 1.4
+    static let greetSeconds = 2.6
+    /// Whom he passes this close looks at him; a seated petitioner he passes this close bows his head (the nod).
+    static let noticeDistance = 20.0
+    static let bowDistance = 9.0
+
     // MARK: - The audience on the stage
 
     /// The petitioner's walk in the hall: 80 px a second, 0.5 to 2 s.
@@ -154,7 +164,7 @@ enum HallCourt {
                       drawn: [String: Double], reduceMotion: Bool) -> AudienceSession {
         guard session.place == .throne else { return session }
         var moved = session
-        let specs = specs(s, catalog: catalog)
+        let specs = HallCourt.specs(s, catalog: catalog)
         let key = "p:" + session.petitionID
         var from = HallLayout.leaveX
         if let spec = specs.first(where: { $0.key == key }) {
@@ -178,16 +188,22 @@ enum HallCourt {
     }
 }
 
-/// What the action button offers in the hall (until "touch the world" replaces it): the throne (the audience while
-/// petitioners wait, anywhere before and on the dais; else the tax card), the tax lectern, a member of the court or a
-/// guest to talk to (a court member yields a close call to the place beside him, as in the world). By day only.
+/// What the action button offers in the hall (until "touch the world" replaces it): the inner door near where the lord
+/// comes in (by day and by night), and by day the tax lectern when he stands at it, the throne (the audience while
+/// petitioners wait, anywhere before and on the dais; else the tax card), a member of the court or a guest to talk to
+/// (a court member yields a close call to the place beside him, as in the world).
 enum HallTargets {
-    /// While petitioners wait, the throne owns the floor before the dais and the dais itself.
+    /// While petitioners wait, the throne owns the floor before the dais and the dais itself, but for the lectern's
+    /// own place beside it (the taxes can be set while people wait).
     static let throneZone: ClosedRange<Double> = 326...470
+    static let lecternHold = 8.0
 
     static func target(_ s: GameState, x: Double, figures: [DrawnFigure], lines: CourtLineBook,
                        balance: Balance) -> KingTarget? {
-        guard !s.defeated, DayClock.phase(at: s.hour) == .day else { return nil }
+        guard !s.defeated else { return nil }
+        if x <= HallLayout.doorX + HallRules.innerDoorReach { return .hallDoor }
+        guard DayClock.phase(at: s.hour) == .day else { return nil }
+        if abs(x - HallLayout.lecternX) <= lecternHold { return .lectern }
         if throneZone.contains(x) && !AudienceRules.hall(s, catalog: .standard).isEmpty { return .throne }
         var best: KingTarget?
         var bestDistance = Double.infinity
@@ -200,7 +216,7 @@ enum HallTargets {
         consider(.lectern, abs(x - HallLayout.lecternX))
         var seen = Set<String>()
         for figure in figures where Speakers.canTalk(figure.who) && !seen.contains(figure.who) {
-            if figure.petition != nil { continue }
+            if figure.petition != nil || figure.key.hasPrefix("leaving:") { continue }
             guard lines.line(for: figure.who, state: s) != nil else { continue }
             seen.insert(figure.who)
             let distance = abs(figure.x - x)

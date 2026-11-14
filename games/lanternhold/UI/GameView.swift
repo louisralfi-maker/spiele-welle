@@ -19,6 +19,10 @@ struct GameView: View {
         ZStack {
             WorldSceneView(model: model)
                 .ignoresSafeArea()
+            if model.kind == .world {
+                // The hall stage: the dark of a change of stage, over the scene and under the HUD.
+                StageVeil(darkness: model.stageDarkness)
+            }
             if model.kind != .lightLab {
                 WalkPad(model: model)
                     .ignoresSafeArea()
@@ -29,6 +33,10 @@ struct GameView: View {
                 // M3: a court member's line in a bubble over him.
                 if let bubble = model.talkBubble, model.overlay == nil {
                     TalkBubbleView(bubble: bubble, model: model)
+                }
+                // The hall stage: the horn's slip over the hall's door.
+                if let slip = model.hornSlip, model.overlay == nil, model.stage == .hall {
+                    HornSlipView(anchor: slip)
                 }
                 OverlayView(model: model)
             }

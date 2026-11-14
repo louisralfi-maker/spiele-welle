@@ -85,9 +85,22 @@ final class FirstDayUITests: XCTestCase {
             XCTFail("no coins at the barracks")
         }
 
-        // The throne (M3): the tutorial's farmer is heard, then the tax lectern beside the throne.
-        tapStrip(strip, worldX: 1824)
-        XCTAssertTrue(waitForKing(app, near: 1824, within: 14, timeout: 20), "the king ran to the throne")
+        // The throne (M3): the tutorial's farmer is heard, then the taxes at the throne. The hall stage (14.11.2026):
+        // in by the hall's door, then a drag down the nave to the dais.
+        tapStrip(strip, worldX: 1830)
+        XCTAssertTrue(waitForKing(app, near: 1830, within: 14, timeout: 20), "the king ran to the hall's door")
+        if button.waitForExistence(timeout: 6) {
+            button.tap()
+        } else {
+            XCTFail("no door at the hall")
+        }
+        XCTAssertTrue(waitForField(app, "stage:hall", timeout: 10), "in the great hall")
+        pause(0.4)
+        let nave = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.12, dy: 0.62))
+        let further = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.26, dy: 0.62))
+        nave.press(forDuration: 0.05, thenDragTo: further, withVelocity: .default, thenHoldForDuration: 4.2)
+        let hx = hallX(app)
+        XCTAssertTrue((326...470).contains(hx), "the drag ran him to the dais (hx \(hx))")
         if button.waitForExistence(timeout: 6) {
             button.tap()
             let audience = element(app, "audience-root")
@@ -108,9 +121,7 @@ final class FirstDayUITests: XCTestCase {
         } else {
             XCTFail("no crown at the throne")
         }
-        // The lectern stands beyond the hearth (M3 fix, U2; its middle 1914): from 1902 on it wins over Odile beside it.
-        tapStrip(strip, worldX: 1924)
-        XCTAssertTrue(waitForKing(app, near: 1924, within: 14, timeout: 20), "the king walked to the lectern")
+        // Nobody waits any more: at the throne the button opens the taxes.
         if button.waitForExistence(timeout: 6) {
             button.tap()
             let taxes = element(app, "tax-card")
@@ -259,6 +270,21 @@ final class FirstDayUITests: XCTestCase {
     }
 
     /// Taps the realm strip where it shows world x `worldX` (the map spans its whole width).
+    /// The hall stage: the lord's place in the hall (`hx:` in the scene's value), -1 outside.
+    private func hallX(_ app: XCUIApplication) -> Double {
+        let text = (element(app, "world-scene").value as? String) ?? ""
+        return text.split(separator: " ").first { $0.hasPrefix("hx:") }.flatMap { Double($0.dropFirst(3)) } ?? -1
+    }
+
+    private func waitForField(_ app: XCUIApplication, _ field: String, timeout: TimeInterval) -> Bool {
+        let started = Date()
+        while Date().timeIntervalSince(started) < timeout {
+            if ((element(app, "world-scene").value as? String) ?? "").contains(field) { return true }
+            pause(0.2)
+        }
+        return false
+    }
+
     private func tapStrip(_ strip: XCUIElement, worldX: Double) {
         strip.coordinate(withNormalizedOffset: CGVector(dx: worldX / 3900, dy: 0.5)).tap()
     }

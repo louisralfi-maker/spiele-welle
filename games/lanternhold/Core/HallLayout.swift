@@ -26,6 +26,11 @@ enum HallLayout {
     static let doorX = 68.0
     /// Walking left past this, he goes out.
     static let exitX = 40.0
+    /// The door's opening: its top row (the horn's slip hangs above it).
+    static let doorTop = 110
+    /// The audience's letter ends left of this (Odile's left edge, with the lectern under the letter's foot): it never
+    /// covers the throne, the petitioner or the hearth (docs/REVIEW-look-2.md H4).
+    static let letterEdgeX = 386.0
     /// Where the lord may walk: from the door's side to the dais's far end.
     static let walkRange: ClosedRange<Double> = 30...584
 
@@ -61,10 +66,12 @@ enum HallLayout {
     /// The tapestry of Aldric (`castle.hall.tapestry`): on the gallery's wall left of the door bay window.
     static let tapestry = (x: 88.0, row: 98)
 
-    /// The court's own small rounds in the hall (the same walk as the castle's, `CourtLayout.place`): Odile by the
-    /// throne stepping to her lectern, Mother Hesper at the hearth, Pip at the foot of the steps.
+    /// The court's own small rounds in the hall (the same walk as the castle's, `CourtLayout.place`): Odile at her
+    /// place between the throne and the nave, looking down the hall and now and then back to the throne (she keeps 12
+    /// px from her lectern, so the action button tells them apart), Mother Hesper at the hearth, Pip at the foot of the
+    /// steps.
     static let routines: [String: CourtRoutine] = [
-        "odile": CourtRoutine(stops: [397, 391], faces: [-1, -1], dwell: [16, 6], night: 397, nightFacing: -1,
+        "odile": CourtRoutine(stops: [397, 397], faces: [-1, 1], dwell: [16, 6], night: 397, nightFacing: -1,
                               speed: 10),
         "hesper": CourtRoutine(stops: [497, 485], faces: [1, -1], dwell: [12, 7], night: 497, nightFacing: 1,
                                speed: 10, offset: 3),

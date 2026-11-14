@@ -94,11 +94,14 @@ enum HallFrames {
     }
 
     /// The figures as drawn now: the layout's places smoothed (`HallScene.drawn`), the audience's walker on stage,
-    /// the talking member held and gesturing, the leavers walking out.
+    /// the talking member held and gesturing, the leavers walking out. The hall answers its lord: for a moment after
+    /// he came in (`since`) the door's guards stand straight and the waiting turn their heads to him; whom he passes
+    /// close looks at him, and a seated petitioner he passes bows his head.
     static func drawnFigures(_ specs: [HallFigureSpec], scene: HallScene, court: CourtScene, residents: [String],
-                             lordX: Double, animTime: Double) -> [DrawnFigure] {
+                             lordX: Double, since: Double = 60, animTime: Double) -> [DrawnFigure] {
         var list: [DrawnFigure] = []
         let stageKey = court.audience.map { HallCourt.walkerKey($0, residents: residents) }
+        let audience = court.audience != nil
         for spec in specs where spec.key != stageKey {
             let talking = court.talking == spec.who && spec.petition == nil && spec.who != "guard"
             let target = talking ? (court.talkX ?? spec.x) : spec.x
@@ -107,20 +110,34 @@ enum HallFrames {
             var frame: Int
             var seated: SpriteID?
             var lift = spec.lift
+            let near = abs(lordX - x)
+            let toLord = lordX >= x ? 1 : -1
             if talking {
                 frame = CourtFrames.talkFrame(spec.body, animTime: animTime, key: spec.key)
-                facing = lordX >= x ? 1 : -1
+                facing = toLord
             } else if abs(x - target) > 0.75 {
                 frame = CourtFrames.walkFrame(spec.body, x: x)
                 facing = target > x ? 1 : -1
-                lift = HallLayout.lift(at: x)
+                lift = max(HallLayout.lift(at: x), spec.row == HallLayout.wallRow ? spec.lift : 0)
             } else if spec.walking {
                 frame = CourtLayout.frame(spec.body, walking: true, walked: spec.walked, seconds: 0)
             } else if let strip = spec.seated {
                 seated = strip
                 frame = CourtFrames.seatedFrame(animTime: animTime, key: spec.key)
+                if !audience && (since < HallCourt.greetSeconds || near < HallCourt.noticeDistance) {
+                    facing = toLord
+                    if near < HallCourt.bowDistance { frame = 1 }
+                }
+            } else if spec.who == "guard" {
+                frame = CourtFrames.idleFrame(spec.body, animTime: animTime, key: spec.key)
+                if since > 0.12 && since < HallCourt.straightenSeconds {
+                    frame = spec.body.idle.lowerBound
+                    lift += 1
+                }
             } else {
                 frame = CourtFrames.idleFrame(spec.body, animTime: animTime, key: spec.key)
+                let greets = spec.petition != nil && since < HallCourt.greetSeconds
+                if !audience && (greets || near < HallCourt.noticeDistance) { facing = toLord }
             }
             list.append(DrawnFigure(who: spec.who, key: spec.key, body: spec.body, x: x, y: lift, facing: facing,
                                     frame: frame, alpha: 1, look: spec.look, petition: spec.petition,
@@ -341,9 +358,11 @@ enum HallFrames {
             light(.hearth, x: HallLayout.hearthLight.x, row: HallLayout.hearthLight.row,
                   radius: HallLayout.hearthRadius.base + HallLayout.hearthRadius.perStrength * strength,
                   intensity: 1.25 * (0.4 + 0.6 * strength), seed: fireSeed)
-            light(.hearth, x: HallLayout.floorPool.x, row: HallLayout.floorPool.row,
-                  radius: HallLayout.floorPool.radius * (0.55 + 0.45 * strength), intensity: 0.75 * strength,
-                  squash: Float(HallLayout.floorPool.squash), seed: fireSeed &+ 1)
+            // The long warm pool on the flags: a pool of its own kind (a hearth light would send embers up out of
+            // the floor), in the fire's colour, scaled back up by the candle's share of look 2.
+            light(.candle, x: HallLayout.floorPool.x, row: HallLayout.floorPool.row,
+                  radius: HallLayout.floorPool.radius * (0.55 + 0.45 * strength), intensity: 1.05 * strength,
+                  color: GamePalette.fireOrange, squash: Float(HallLayout.floorPool.squash), seed: fireSeed &+ 1)
         }
         let candle = GamePalette.fireWhite
         func candles(_ list: [(x: Double, row: Int)], seed: UInt64, share: Double = 1) {

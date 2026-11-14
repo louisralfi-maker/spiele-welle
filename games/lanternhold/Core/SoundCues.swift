@@ -9,6 +9,8 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     case coin, coins, buildStart = "build_start", buildDone = "build_done", lantern, horn, bell, bow
     case arrowHit = "arrow_hit", creatureHit = "creature_hit", dissolve, wallHit = "wall_hit"
     case wallBreak = "wall_break", gate, step1 = "step_1", step2 = "step_2", parchment, tap, seal, decline, engine
+    // The hall stage (stage lane, 14.11.2026): the hall's door opening on its iron hinges, and its latch falling
+    case doorCreak = "door_creak", doorLatch = "door_latch"
 
     static let loops: [SoundID] = [.ambDay, .ambNight, .ambRain, .ambFire, .ambHall]
 
@@ -21,6 +23,7 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
         case .horn: return 2.5
         case .bell: return 2
         case .gate: return 1
+        case .doorCreak, .doorLatch: return 0.3
         case .wallBreak: return 0.4
         case .parchment, .creatureHit: return 0.3
         case .wallHit, .engine, .lantern, .buildStart, .buildDone: return 0.25
@@ -36,7 +39,7 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     /// How many copies may sound at once (the oldest is cut for a new one).
     var voices: Int {
         switch self {
-        case .horn, .bell, .gate, .wallBreak, .parchment: return 1
+        case .horn, .bell, .gate, .wallBreak, .parchment, .doorCreak, .doorLatch: return 1
         case .bow, .arrowHit, .dissolve, .coin, .step1, .step2: return 3
         default: return 2
         }
@@ -107,6 +110,8 @@ extension FeedbackCue {
         case .step: return SoundPlay(id: .step1, volume: 0.3)
         case .audienceOpened: return SoundPlay(id: .parchment, volume: 0.6)
         case .choiceMade: return SoundPlay(id: .seal, volume: 0.7)
+        case .doorOpened: return SoundPlay(id: .doorCreak, volume: 0.7)
+        case .doorShut: return SoundPlay(id: .doorLatch, volume: 0.75)
         }
     }
 
@@ -118,6 +123,7 @@ extension FeedbackCue {
         case .wallHit: return .medium
         case .wallBroken, .hearthHit: return .heavy
         case .horn: return .rigid
+        case .doorShut: return .soft
         case .taxesCounted: return .success
         case .defeat: return .error
         default: return nil

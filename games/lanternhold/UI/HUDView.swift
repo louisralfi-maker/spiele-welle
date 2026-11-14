@@ -69,6 +69,9 @@ struct GameHUD: View {
     /// A whole screen is open (the dawn report, the defeat card, the pause sheet): the pause button goes too. During
     /// the audience it stays, since the pause sheet ends the audience (M3).
     private var screen: Bool { model.overlay?.isScreen ?? false }
+    /// The hall stage: the audience's letter lies in the upper left where the pause seal sits; it ends the audience
+    /// by its own Leave plaque, so the seal rests meanwhile.
+    private var hallAudience: Bool { model.overlay == .audience && model.stage == .hall }
 
     var body: some View {
         GeometryReader { geometry in
@@ -130,7 +133,7 @@ struct GameHUD: View {
     private var topBar: some View {
         HStack(alignment: .top, spacing: 8) {
             PauseButton { model.openPause() }
-                .hiddenUnder(screen)
+                .hiddenUnder(screen || hallAudience)
             Spacer(minLength: 0)
             // One slip of the ledger: the day and the hour over a rule, the three numbers under it.
             VStack(alignment: .trailing, spacing: 9) {
@@ -279,6 +282,8 @@ struct PauseButton: View {
 /// the tax lectern's book and a speech bubble).
 enum ActionGlyph: Sendable, Equatable {
     case build, recruit, throne, light, snuff, patch, lectern, talk
+    /// The hall stage (stage lane, 14.11.2026): the hall's door, in from the bailey or out from the hall.
+    case door
 
     init(_ action: BrazierAction) {
         switch action {
@@ -297,6 +302,7 @@ enum ActionGlyph: Sendable, Equatable {
         case .talk, .stranger: self = .talk
         case .light: self = .light
         case .patch: self = .patch
+        case .hallDoor: self = .door
         }
     }
 
@@ -310,6 +316,7 @@ enum ActionGlyph: Sendable, Equatable {
         case .light: return Text("Light the brazier")
         case .snuff: return Text("Snuff the brazier")
         case .patch: return Text("Patch the wall")
+        case .door: return Text("Enter the great hall")
         }
     }
 }
@@ -358,6 +365,9 @@ struct ActionArea: View {
             return String(localized: "Light")
         case .patch:
             return String(localized: "Patch")
+        case .hallDoor:
+            // The hall stage: the door, in from the bailey or out from the hall.
+            return model.stage == .hall ? String(localized: "Leave the hall") : String(localized: "The great hall")
         }
     }
 
@@ -394,6 +404,8 @@ struct ActionArea: View {
             return Text("Talk to \(speakerName(who))")
         case (.stranger, _):
             return Text("Speak with \(speakerName("seren"))")
+        case (.hallDoor, _):
+            return model.stage == .hall ? Text("Leave the great hall") : Text("Enter the great hall")
         case (_, .missingGold?):
             return Text("Patch the wall: not enough gold")
         case (_, .cooldown?):
@@ -473,6 +485,7 @@ struct ActionButton: View {
         case .light: return "flame.fill"
         case .snuff: return "wind"
         case .patch: return "bandage.fill"
+        case .door: return "door.left.hand.open"
         }
     }
 
@@ -484,6 +497,7 @@ struct ActionButton: View {
         case .light: return Color(red: 1.0, green: 0.78, blue: 0.35)
         case .snuff: return Color(red: 0.76, green: 0.8, blue: 0.92)
         case .patch: return Color(red: 0.92, green: 0.84, blue: 0.72)
+        case .door: return Color(red: 0.95, green: 0.84, blue: 0.62)
         }
     }
 }

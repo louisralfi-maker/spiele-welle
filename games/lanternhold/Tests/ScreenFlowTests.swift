@@ -191,7 +191,7 @@ final class GameScreensTests: XCTestCase {
         XCTAssertEqual(crown.overlay, .audience)
         crown.standUp()
         XCTAssertNil(crown.overlay)
-        let throne = model(["GWCameraX": "\(KingTargets.lecternX)"])
+        let throne = model(["GWStage": "hall", "GWHallX": "\(HallLayout.lecternX)"])
         XCTAssertEqual(throne.target, .lectern)
         throne.performAction()
         XCTAssertEqual(throne.overlay, .taxes)
