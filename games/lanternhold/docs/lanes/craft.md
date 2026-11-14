@@ -164,7 +164,7 @@ silhouette; the portrait is composed today and may get its own 48x48 frame.
 
 | craftsman | start from | what makes him or her |
 |---|---|---|
-| Dagmar Flint (mason) | `citizen` | old woman, long grey hair tied back, leather apron, a mallet and chisel at the belt, palms and sleeves grey with stone dust |
+| Dagmar Flint (mason) | `citizen` | old woman, brown hair in a bun gone thin, leather apron, a mallet and chisel at the belt, palms and sleeves grey with stone dust |
 | Severin Quell (painter) | `petitionerE` | a noble of the inner lands (BARS.md section 3): upright, slow, clean, the only saturated plum and gold thread among the craftsmen, feather cap, moustache, a scented cloth at the nose; a servant boy carries his easel and paint box (he carries nothing himself) |
 | Benedek Rook (bell-founder) | `builder` | broad, bald, full beard, leather apron, forearms shiny with old burns, a small hand bell on a cord; leans in to hear (half deaf, as founders are) |
 | Merle Tidewell (glazier) | `petitionerD` | young, red braids, teal tunic, a crate of panes on her back, a blowpipe; a hand to the mouth (the glazier's cough) |
@@ -238,7 +238,7 @@ blocker, five highs). All five highs are fixed; the smaller findings too, except
   comes from Brazenmoor (an original foundry town), so House Lorn of Greybell keeps the hall's first bell and its beat;
   the Lorn petition does not mention him.
 - **Smaller findings:** the lamp-maker's face is older with a grey short beard (no longer the limeburner's twin); the
-  mason's grey bun became long grey hair (the bun read as a cap); Odile's fletcher counsel is dry ("Brannock will be
+  mason's grey bun became a brown one (white, the bun read as a cap; long grey hair read as a white hood next to Odile's grey head); Odile's fletcher counsel is dry ("Brannock will be
   unbearable about it for a week"); "pole" became "lantern staff" (German "Laternenstab"); Stillmere paints syndics in
   chains of office.
 
