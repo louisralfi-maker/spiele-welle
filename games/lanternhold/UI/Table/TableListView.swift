@@ -16,7 +16,6 @@ struct TableDebugLayer: View {
     var body: some View {
         if open {
             TableListView(model: model) { open = false }
-                .onAppear { model.openTable() }
         }
     }
 }
@@ -36,6 +35,8 @@ struct TableListView: View {
     struct ReactionNote: Equatable {
         var title: String
         var text: String
+        /// What the answer did (its effect's chips).
+        var chips: [TableChip]
     }
 
     private var catalog: ErrandCatalog { model.tableCatalog }
@@ -63,6 +64,10 @@ struct TableListView: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("table-root")
+        .onAppear {
+            model.openTable()
+            tick += 1
+        }
     }
 
     // MARK: - Left: the rail and the road
@@ -76,8 +81,8 @@ struct TableListView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             if let realm {
-                Text(QuestText.text("table.day", values: ["n": String(realm.day)]) + "  ·  "
-                     + GameModel.format(hour: realm.hour))
+                Text(inked: QuestText.text("table.day", values: ["n": String(realm.day)]) + "  ·  "
+                     + GameModel.format(hour: realm.hour), .subheadline)
                     .font(Theme.italic(.subheadline))
                     .foregroundStyle(Theme.inkSoft)
                 rail(realm)
@@ -116,15 +121,15 @@ struct TableListView: View {
                     TableLanternHook(lantern: lantern)
                 }
             }
-            Text(QuestText.text("table.hooks", values: ["n": String(table.onHook),
-                                                         "total": String(table.roadLanterns)]))
+            Text(inked: QuestText.text("table.hooks", values: ["n": String(table.onHook),
+                                                                "total": String(table.roadLanterns)]), .footnote)
                 .font(Theme.serif(.footnote))
                 .foregroundStyle(Theme.ink)
                 .accessibilityIdentifier("table-hooks")
         }
     }
 
-    /// The parties on the road, each with its lantern, its sending and its dawn; "Call back" while it may.
+    /// The parties on the road, each with its lantern, its sending and its dawn.
     @ViewBuilder
     private func road(_ realm: GameState) -> some View {
         let out = realm.table?.out ?? []
@@ -139,31 +144,16 @@ struct TableListView: View {
             }
             ForEach(out, id: \.errand) { sending in
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(QuestText.text("table.out", values: ["lantern": String(sending.lantern)]))
-                        .font(Theme.serif(.footnote, .bold))
+                    Text(inked: QuestText.text("table.out", values: ["lantern": String(sending.lantern)]), .footnote)
+                        .font(Theme.serif(.footnote))
                         .foregroundStyle(Theme.ink)
                     Text(title(sending.errand) + " · " + placeName(sending.place))
                         .font(Theme.serif(.caption))
                         .foregroundStyle(Theme.inkSoft)
                         .lineLimit(2)
-                    Text(QuestText.text("table.homeday", values: ["n": String(sending.homeDay)]))
+                    Text(inked: QuestText.text("table.homeday", values: ["n": String(sending.homeDay)]), .caption)
                         .font(Theme.italic(.caption))
                         .foregroundStyle(Theme.inkSoft)
-                    if ErrandEngine.canCallBack(realm, errand: sending.errand) {
-                        Button {
-                            model.callBackErrand(sending.errand)
-                            tick += 1
-                        } label: {
-                            Text(QuestText.string("table.callback"))
-                                .font(Theme.serif(.footnote))
-                                .foregroundStyle(Theme.rubric)
-                                .padding(.horizontal, 12)
-                                .frame(minWidth: 88, minHeight: 44)
-                                .background(PlaqueBackground())
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityIdentifier("table-callback-\(sending.errand)")
-                    }
                 }
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("table-out-\(sending.errand)")
@@ -175,11 +165,11 @@ struct TableListView: View {
     private func statusProbe(_ realm: GameState?) -> some View {
         var text = "closed"
         if let realm {
-            let table = realm.table
+            let table = realm.table ?? .start(catalog)
             let lanes = realm.court?.shows("town.lanterns.extra") == true ? 1 : 0
-            text = "day:\(realm.day) hour:\(Int(realm.hour)) hook:\(table?.onHook ?? 0) out:\(table?.out.count ?? 0)"
-                + " reports:\(table?.reports.count ?? 0) gold:\(realm.gold) happy:\(realm.happiness) lanes:\(lanes)"
-                + " sent:\((table?.sent ?? []).joined(separator: ","))"
+            text = "day:\(realm.day) hour:\(Int(realm.hour)) hook:\(table.onHook) out:\(table.out.count)"
+                + " reports:\(table.reports.count) gold:\(realm.gold) happy:\(realm.happiness) lanes:\(lanes)"
+                + " sent:\(table.sent.joined(separator: ","))"
         }
         return Color.clear
             .frame(width: 2, height: 2)
@@ -226,6 +216,7 @@ struct TableListView: View {
     @ViewBuilder
     private func slips(_ realm: GameState) -> some View {
         let offers = ErrandEngine.offers(realm, catalog: catalog)
+        let leaving = (realm.table?.out ?? []).filter { ErrandEngine.canCallBack(realm, errand: $0.errand) }
         Text(QuestText.string("table.section.offers"))
             .font(Theme.caps(.subheadline))
             .foregroundStyle(Theme.inkSoft)
@@ -233,14 +224,56 @@ struct TableListView: View {
             Text(QuestText.string("table.cloth"))
                 .font(Theme.italic(.body))
                 .foregroundStyle(Theme.inkSoft)
-        } else if offers.isEmpty {
+        } else if offers.isEmpty && leaving.isEmpty {
             Text(QuestText.string("table.nothing"))
                 .font(Theme.italic(.body))
                 .foregroundStyle(Theme.inkSoft)
         }
+        ForEach(leaving, id: \.errand) { sending in
+            sentSlip(sending)
+        }
         ForEach(offers, id: \.id) { errand in
             slip(errand, realm)
         }
+    }
+
+    /// A slip whose lantern just left: it shows "Call back" until the screen closes (the clock stands meanwhile).
+    @ViewBuilder
+    private func sentSlip(_ sending: Sending) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(title(sending.errand))
+                    .font(Theme.caps(.headline))
+                    .foregroundStyle(Theme.ink)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 6)
+                Text(placeName(sending.place))
+                    .font(Theme.italic(.footnote))
+                    .foregroundStyle(Theme.inkSoft)
+            }
+            Text(inked: QuestText.text("table.out", values: ["lantern": String(sending.lantern)]) + " · "
+                 + QuestText.text("table.homeday", values: ["n": String(sending.homeDay)]), .footnote)
+                .font(Theme.serif(.footnote))
+                .foregroundStyle(Theme.ink)
+            Button {
+                model.callBackErrand(sending.errand)
+                tick += 1
+            } label: {
+                Text(QuestText.string("table.callback"))
+                    .font(Theme.serif(.body))
+                    .foregroundStyle(Theme.rubric)
+                    .padding(.horizontal, 14)
+                    .frame(minWidth: 88, minHeight: 52)
+                    .background(PlaqueBackground())
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("table-callback-\(sending.errand)")
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(SlipBackground())
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("table-sent-\(sending.errand)")
     }
 
     /// One slip: title, place and nights, the two-line hook, and an order tile per order with its chips.
@@ -347,23 +380,27 @@ struct TableListView: View {
     @ViewBuilder
     private func reportCard(_ waiting: WaitingReport, _ report: TableReport, _ realm: GameState) -> some View {
         let counsel = ErrandEngine.counsel(report, realm)
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .firstTextBaseline) {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(QuestText.string("table.report"))
                     .font(Theme.caps(.headline))
                     .foregroundStyle(Theme.rubric)
+                Text(speakerLine(report.speaker, waiting, realm))
+                    .font(Theme.caps(.subheadline))
+                    .foregroundStyle(Theme.ink)
+                    .lineLimit(1)
                 Spacer(minLength: 6)
-                Text(QuestText.text(waiting.lost ? "table.lost" : "table.home",
-                                    values: ["lantern": String(waiting.lantern)]) + " · " + placeName(waiting.place))
+                Text(inked: QuestText.text(waiting.lost ? "table.lost" : "table.home",
+                                           values: ["lantern": String(waiting.lantern)]) + " · "
+                     + placeName(waiting.place), .footnote)
                     .font(Theme.italic(.footnote))
                     .foregroundStyle(Theme.inkSoft)
                     .lineLimit(2)
+                    .multilineTextAlignment(.trailing)
             }
-            Text(speakerLine(report.speaker, waiting, realm))
-                .font(Theme.caps(.subheadline))
-                .foregroundStyle(Theme.ink)
-            Text(QuestText.text(report.text, lord: lord, values: ["lantern": String(waiting.lantern)]))
-                .font(Theme.serif(.body))
+            Text(inked: QuestText.text(report.text, lord: lord, values: ["lantern": String(waiting.lantern)]),
+                 .callout)
+                .font(Theme.serif(.callout))
                 .foregroundStyle(Theme.ink)
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityIdentifier("table-report-text")
@@ -373,20 +410,21 @@ struct TableListView: View {
                     let effect = ErrandEngine.effect(choice, day: realm.day)
                     if model.readTableReport(choice: index) != nil {
                         reaction = ReactionNote(title: QuestText.text(choice.label, lord: lord),
-                                                text: effect.reaction.map { QuestText.text($0, lord: lord) } ?? "")
+                                                text: effect.reaction.map { QuestText.text($0, lord: lord) } ?? "",
+                                                chips: effectChips(effect, counsel: false))
                         tick += 1
                     }
                 } label: {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 3) {
                         Text(QuestText.text(choice.label, lord: lord))
-                            .font(Theme.serif(.body))
+                            .font(Theme.serif(.callout))
                             .foregroundStyle(block == nil ? Theme.ink : Theme.inkSoft)
                             .fixedSize(horizontal: false, vertical: true)
                         TableChipRow(chips: effectChips(ErrandEngine.effect(choice, day: realm.day),
                                                         counsel: counsel == index))
                     }
                     .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
+                    .padding(.vertical, 5)
                     .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
                     .background(PlaqueBackground(enabled: block == nil, marked: counsel == index))
                 }
@@ -411,6 +449,7 @@ struct TableListView: View {
                 .font(Theme.italic(.body))
                 .foregroundStyle(Theme.ink)
                 .fixedSize(horizontal: false, vertical: true)
+            TableChipRow(chips: note.chips)
             Button {
                 reaction = nil
                 tick += 1
@@ -446,7 +485,9 @@ struct TableListView: View {
         }
         if !(effect.night ?? []).isEmpty { list.append(TableChip(text: QuestText.string("table.chip.night"))) }
         if !(effect.world ?? []).isEmpty { list.append(TableChip(text: QuestText.string("table.chip.world"))) }
-        if (effect.flags ?? []).contains(where: { !$0.hasPrefix("-") }) && (effect.world ?? []).isEmpty {
+        if let tile = Remembered.tileKey(effect) {
+            list.append(TableChip(text: StoryText.string(tile, lord: lord)))
+        } else if (effect.flags ?? []).contains(where: { !$0.hasPrefix("-") }) && (effect.world ?? []).isEmpty {
             list.append(TableChip(text: QuestText.string("table.chip.remembered")))
         }
         if counsel { list.append(TableChip(text: QuestText.string("table.counsel"), style: .seal)) }
@@ -490,7 +531,7 @@ struct TableChipRow: View {
     var body: some View {
         TableChipFlow(spacing: 5) {
             ForEach(Array(chips.enumerated()), id: \.offset) { _, chip in
-                Text(chip.text)
+                Text(inked: chip.text, .caption)
                     .font(Theme.serif(.caption))
                     .foregroundStyle(color(chip))
                     .lineLimit(1)

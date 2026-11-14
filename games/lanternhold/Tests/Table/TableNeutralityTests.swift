@@ -151,8 +151,10 @@ final class TableNeutralityTests: XCTestCase {
         XCTAssertEqual(with.count, without.count)
         for (a, b) in zip(with, without) {
             var plain = a.state
-            XCTAssertNotNil(plain.table, "the table was uncovered on day 2")
-            XCTAssertEqual(plain.table?.sent, [], "nobody was sent")
+            // The dawn of day 2 comes before the first look at the table that day.
+            if plain.day > ErrandEngine.firstDay { XCTAssertNotNil(plain.table, "the table was uncovered on day 2") }
+            XCTAssertEqual(plain.table?.sent ?? [], [], "nobody was sent")
+            XCTAssertEqual(plain.table?.out ?? [], [], "no party is out")
             plain.table = nil
             XCTAssertTrue(plain == b.state, "day \(b.state.day): the realm is the one without the table")
         }

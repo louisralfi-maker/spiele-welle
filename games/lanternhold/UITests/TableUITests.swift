@@ -44,6 +44,8 @@ final class TableUITests: XCTestCase {
         checkTarget(callBack, "Call back")
         XCTAssertTrue(waitFor(status, contains: ["hook:2", "out:1", "sent:oil_round"], timeout: 5), text(status))
         XCTAssertEqual(element(app, "table-hook-38").value as? String, "out", "lantern 38 left its hook")
+        XCTAssertTrue(element(app, "table-sent-oil_round").exists, "the slip stays with Call back until the screen closes")
+        XCTAssertTrue(element(app, "table-out-oil_round").exists, "Pip is on the road")
         pause(0.5)
         attach(XCUIScreen.main.screenshot(), "41-table-sent-\(language)")
 
