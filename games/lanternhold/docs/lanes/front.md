@@ -12,8 +12,8 @@ man rennt dorthin, wo es brennt." Spec: REALM.md section 3.
 ### What exists (all new files of this lane)
 
 - `Core/Front/FrontTuning.swift`: every number of the rule in one place, carried as `Balance.front` (presence radius 90,
-  speed ×1.25, harm ×0.5; a wall's braziers catch while he stands on it, elsewhere within 24 px in passing, one in 4 s
-  (fix round 1); touch 6 px, throw 60 px, shaken 8 s, grace 1.5 s; the present bot's values; the dawn report's
+  speed ×1.3, harm ×0.6 since fix round 1 (×1.25 and ×0.5 before); a wall's braziers catch while he stands on it,
+  elsewhere within 24 px in passing, one in 4 s (fix round 1); touch 6 px, throw 60 px, shaken 8 s, grace 1.5 s; the present bot's values; the dawn report's
   thresholds). Tuned on the runner from the spec's starting values (below).
 - `Core/Front/FrontState.swift`: the saved state (`FrontState`: shaken, grace and relight timers, the last throw and
   the last relight as stamps for the picture, tonight's tally), the report's front half (`FrontNightReport`) and its
@@ -36,7 +36,8 @@ man rennt dorthin, wo es brennt." Spec: REALM.md section 3.
 
 ### The rule as built
 
-- **Presence.** At night (dusk, night, first light), unless he is shaken, archers and guards within 90 px of the lord
+- **Presence** (the numbers of round lh-f1-5; fix round 1 made them ×1.3 and ×0.6). At night (dusk, night, first
+  light), unless he is shaken, archers and guards within 90 px of the lord
   (along the ground, as the old rally) loose and strike ×1.25 as fast (their cooldowns; the guards' blows) and take
   ×0.5 of the harm (in the breach and in passing): a quarter faster, twice as long. It replaces the old rally while the rule is on: the rally (DESIGN.md
   "The king at night": 80 px, ×1.25) is the same idea without the harm, and two bonuses for one thing would stack. The
@@ -250,12 +251,12 @@ now "You stood where it burned. Your people held longer." (German unchanged).
   dead braziers of that wall's line catch from his lantern, one in 4 s, the nearest first. Elsewhere a dead brazier
   within 24 px catches as he passes (`relightReach` 24, the spec's "about 20"). `FrontNight.catches(s, plot:, at:,
   tuning:)` answers both. `relightOwnWall` turns the first half off for the sweep.
-- **No px cliff any more** (round lh-f1f1-2, the standard bot): wall + passing 16 px 32 %, 24 px 32 %, 32 px 33 %.
-  Passing alone at 24 px gives 4 % (the old cliff), passing alone at 48 px (round lh-f1-5's rule) 34 %. The rule no
-  longer depends on where the world draws the braziers, and the player can read it: his wall's fires burn.
+- **No px cliff any more** (round lh-f1f1-6, the final values): wall + passing 16 px, 24 px and 32 px all give 35 %;
+  without the rule by belonging, passing alone at 24 px gives −17 % and at 48 px (round lh-f1-5's rule) 17 %. The rule
+  no longer depends on where the world draws the braziers, and the player can read it: his wall's fires burn.
 - **A spot dependency found instead, and fixed by values.** With the rule by belonging, where the bot stands on the
   wall moved T13: the front edge (1 px, round lh-f1-5's spot) is an outlier, every deeper spot behaves alike. The grid
-  (round lh-f1f1-4, fewer losses pooled over x1, x1.5, x2; per budget in brackets):
+  at speed ×1.25 (round lh-f1f1-4, fewer losses pooled over x1, x1.5, x2; per budget in brackets):
 
 | harm \ spot | 1 px | 5 px | 10 px | 14 px | 19 px |
 |---|---|---|---|---|---|
@@ -266,10 +267,23 @@ now "You stood where it burned. Your people held longer." (German unchanged).
 | 0.7 | 15 % | 24 % | 25 % | 24 % | 23 % |
 | 0.75 | 12 % | 19 % | 21 % | 19 % | 18 % |
 
-  **Chosen: harm ×0.65 and the bot on the wall walk, 10 px behind the face** (within every wall; a palisade is 20 px).
-  T13 is 30 to 33 % wherever on the wall the lord stands from 5 to 19 px, which is what a human player does; only
-  standing on the very front edge gives less. Speed stays ×1.25, radius 90. Near the lord his people shoot a quarter
-  faster and take a third less harm, closer to the spec's 20 % than round lh-f1-5's half.
+  Round lh-f1f1-5 took harm ×0.65 at ×1.25 (T13 33 %, ALL PASSED), but its neighbours sat on the band's edges (×0.6
+  41 %, ×0.7 25 %) and the falls ladder got worse (26 nights lost where the reference held, against 15). At speed ×1.3
+  the curve is flatter. The same grid at ×1.3 (round lh-f1f1-6):
+
+| harm \ spot | 1 px | 5 px | 10 px | 14 px | 19 px |
+|---|---|---|---|---|---|
+| 0.5 | 28 % | 42 % | 42 % | 39 % | 38 % |
+| 0.55 | 24 % | 39 % | 39 % | 34 % | 33 % |
+| **0.6** | 23 % | **35 %** | **35 % (80/48/23)** | **30 %** | **29 %** |
+| 0.65 | 20 % | 32 % | 32 % | 28 % | 27 % |
+| 0.7 | 16 % | 26 % | 26 % | 22 % | 21 % |
+
+  **Chosen: speed ×1.3, harm ×0.6, radius 90, the bot on the wall walk 10 px behind the face** (within every wall; a
+  palisade is 20 px). T13 is 29 to 35 % wherever on the wall the lord stands from 5 to 19 px, and every neighbour of
+  the choice passes: harm ×0.55 39 %, ×0.65 32 %; speed ×1.35 37 %, ×1.25 41 % (just out); radius 60 31 %, 120 35 %;
+  relight every 2 s 35 %, every 3 s 29 %. Only the very front edge (1 px) gives less (23 %). Near the lord his people
+  shoot a third faster and take 40 % less harm.
 
 ### High 2: the parked night and the hard nights
 
@@ -316,8 +330,8 @@ now "You stood where it burned. Your people held longer." (German unchanged).
   hp:, maxHP:)` from the two harm hooks in `Battle` (new hooks, table below).
 - "There" shows only after 10 s of fighting, with presence over at least 60 % of it **and** at least one soldier's life
   kept (`reportThereLives` 1.0); otherwise no line. "Away" as before.
-- How often (round lh-f1f1-1, at harm ×0.5): at x1 "there" on 6 of 31 nights with fighting (was nearly all), x1.5 13 of
-  51, x2 23 of 59. At harm ×0.65 less is kept per blow, so it shows still more rarely (final numbers under "Rounds").
+- How often (round lh-f1f1-6, the final values): "there" on 5 of the 34 nights with 10 s of fighting or more at x1 (it
+  came after nearly all of them before), 16 of 49 at x1.5, 27 of 59 at x2, 71 of 120 at x6; "away" 0, 0, 2, 21.
 
 ### Smaller things
 
@@ -338,6 +352,66 @@ line (proved below).
 
 ### New values (all in `FrontTuning`)
 
-`relightOwnWall` true, `relightReach` 24 (was 48), `presenceHarm` 0.65 (was 0.5), `leastHarmShare` 0.05,
-`botBehindWall` 10 (was 1), `botLastStand` 1, `botRearBraziers` true, `botQuietReach` 200, `botRearOnlyWhenQuiet`
-true, `botMaxRearTrips` 3, `reportThereLives` 1.0.
+`relightOwnWall` true, `relightReach` 24 (was 48), `presenceSpeed` 1.3 (was 1.25), `presenceHarm` 0.6 (was 0.5),
+`leastHarmShare` 0.05, `botBehindWall` 10 (was 1), `botLastStand` 1, `botRearBraziers` true, `botQuietReach` 200,
+`botRearOnlyWhenQuiet` true, `botMaxRearTrips` 3, `reportThereLives` 1.0.
+
+### T13 and the reported lines (round lh-f1f1-6, the final values)
+
+- **T13: PASS, 35 % fewer** (the present bot lost 142 defenders, the reference 217). Per budget: x1 80 % (3 against
+  15: a few draws), x1.5 48 % (33/64), x2 23 % (106/138). The band holds only pooled; the per-budget spread is wide
+  (presence matters most on middling nights and fades as they get heavy). Of the 5 nights the reference lost clearly
+  (all at x6, 20 to 24 s before first light) the present bot held none (it fell 21 to 23 s before).
+- **Falls ladder (reported only):** the present bot fell where the reference held in 0 nights at x3, 6 at x4, 7 at x5,
+  3 at x6 (16 in all; round lh-f1-5's values 15, harm ×0.65 26), and held 1 the reference lost (x5, not clearly).
+  Fewer losses: x3 13 %, x4 −2 %, x5 −6 %, x6 −6 %. "Rear trips whenever the way is safe" would give 15 and 2 (T13 the
+  same); not taken, the difference is a night or two.
+- **The hard nights (reported only, seeds 1 to 20):** night 20 with the beacon held 20/20 by both, the King slain 20/20
+  by both, defenders lost 53 / 49. Night 20 without the beacon's last stage held by the reference 10/20, by the present
+  bot 2/20 (diagnosis above: the lost Light action and the throw-back, not presence). Endless (cap 70): the reference
+  falls on nights [46, 46, 48, 43, 55, 37, 52, 50, 39, 53, 53, 49, 38, 49, 38, 0, 63, 44, 45, 0] (17 in 35 to 60); the
+  present bot on [55, 51, 49, 0, 0, 36, 0, 51, 32, 49, 0, 55, 0, 0, 0, 0, 50, 46, 52, 0] (10 in 35 to 60, 8 still
+  standing at night 70). Under the rule endless gets easier (presence pays on every long night), night 20 without the
+  beacon harder.
+- **T1 to T8:** the tuning report of round lh-f1f1-6 is the base's (round lh-snd-2) line for line: `diff` empty, 80
+  lines, md5 f919a8fd…7324 both; night-twenty-steps.txt the same too. 437 unit tests passed, none failed.
+
+### What the present bot does in a night (the chore guard, in plain words)
+
+At dusk it runs from the throne to the first standing wall (about 12 s) and stands on the wall walk, 10 px behind
+the face. From there its lantern keeps that wall's two braziers burning (it relights about one a night at x1, three to
+four at x2, nine at x6, as the crows snuff them), and its presence lies on the wall's and the tower's archers (96 to
+99 % of the fighting covered). Nothing throws it (0.0 throws a night up to x2). It patches about once in ten nights.
+When the wall falls it steps back to the next wall, and when the last falls, to the hearth. At the game's own budget
+102 of 120 nights take that single move, 8 take two, 10 three or more; at x2 85, 24 and 11. It went back for a rear
+brazier in 0 nights at x1, 1 at x1.5, 2 at x2 and 2 at x6: while creatures come the front is never quiet, and when
+they stop the rear braziers still burn. So the night is still one good move at dusk and standing with the people;
+the rule pays for that move (35 % fewer losses) but does not ask for a second one. The reasons to move in depth come
+with this lane's next steps: a hearth that burns low (REALM.md section 4) and beacons into the gorge (section 5).
+
+### Rounds of the fix round
+
+| Round | Commit | Steps | Result |
+|---|---|---|---|
+| lh-f1f1-1 | 6017dc8 | build; unit (all); sh frontsweep | **ALL PASSED** (437 unit tests); T13 32 % at ×1.25/×0.5, the bot on the front edge; T1 to T8 identical; the hard nights showed night 20 without the beacon 2/20 against 10/20 |
+| lh-f1f1-2 | eb45720 | sh frontsweep night20 variants hard | ALL PASSED; night 20 diagnosed (table above); rear-trip variants; the spot on the wall moves T13 |
+| lh-f1f1-3 | 131bcb5 | sh frontsweep night20 variants hard | ALL PASSED; the last stand changes nothing |
+| lh-f1f1-4 | 2a2c5f7 | sh frontsweep grid | ALL PASSED; the spot against the harm share at ×1.25 |
+| lh-f1f1-5 | 38e8b8d | build; unit (all); sh frontsweep | **ALL PASSED** (437); T13 33 % at ×1.25/×0.65, the bot at 10 px; neighbours on the band's edges, the falls ladder worse (26) |
+| lh-f1f1-6 | b6aa9d9 | build; unit (all); sh frontsweep variants hard grid | **ALL PASSED** (437 unit tests, none failed); T13 35 % at ×1.3/×0.6; T1 to T8 identical to lh-snd-2; the falls ladder 16 |
+
+Rounds by the director's notes of 14.11. 18:46 and 19:35: no `ui`, `ui-de` or `release` (no UI class changed), each
+gate one round of `build unit` with the sweep as an `sh` step; the sweep-only rounds held a Mac slot 2 to 4 minutes.
+
+### Open, and waiting for the join (fix round 1)
+
+- **Night 20 without the beacon's last stage under the rule** (2 of 20 for the present bot, 6 for the reference bot
+  playing under the rule, 10 under the old rules): for the director. The reference bot's T6 holds; the player's game
+  with the rule is harder there and easier in endless. Measure T6 and T7 with the rule on at the join, and look again
+  when the hearth (section 4) and the beacons (section 5) change the night's end.
+- **T13 per budget** is lopsided (80 / 48 / 23 %); the band holds pooled only, as the target is written.
+- **The front edge of a wall** gives less than the rest of the wall walk (23 % against 29 to 35 %); the cause is not
+  found (not the throws, not the light). A human player standing anywhere else on the wall gets the band.
+- **`tools/frontsweep`** needs its file list kept in step with Core at the join (as `tools/simtune` did); the hard
+  nights and the falls ladder live only there (in unit tests they would add about four minutes to every unit round).
+- Everything listed under "Open, and waiting for the join" of front-1 still holds.
