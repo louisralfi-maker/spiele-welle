@@ -370,6 +370,10 @@ struct GameState: Codable, Sendable, Equatable {
     /// nights with `Balance.beaconEndlessRadius`).
     var beaconLit = false
     var defeated = false
+    /// The front rule (docs/REALM.md section 3, "Being there counts"; front lane hook, docs/lanes/front.md): the lord's
+    /// presence, relighting by passing, the throw-back. Optional: nil plays by the old rules (the reference bots, saves
+    /// from before it); `FrontNight.adopt` turns it on.
+    var front: FrontState?
 
     /// The lord of this realm: the chosen one, else the standard (the Burgherr with the default name).
     var lordOrDefault: LordIdentity { lord ?? .standard }

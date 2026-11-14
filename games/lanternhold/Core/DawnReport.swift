@@ -36,6 +36,9 @@ struct DawnReport: Codable, Sendable, Equatable {
     /// The houses were full: at this happiness more citizens would have been born (M2b review; nil when not, and in saves
     /// from before this field).
     var housesFull: Bool?
+    /// What the lord's being there did tonight (front lane hook, docs/lanes/front.md; nil without the front rule and in
+    /// saves from before this field).
+    var front: FrontNightReport?
 
     /// No soldier fell tonight: the report shows a small banner.
     var noLosses: Bool { fallen.isEmpty }
