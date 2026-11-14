@@ -82,6 +82,9 @@ enum GameStart {
             Sim.runToDawn(&s, balance: balance, bot: &bot)
             guardDays += 1
         }
+        // The bot's morning in the town (town-1): it collects that dawn's taxes, as `TuningRun.play` does, so a
+        // `-GWDay` start holds the gold it held before the taxes went on foot.
+        bot.morning(&s, balance: balance)
         return s
     }
 
