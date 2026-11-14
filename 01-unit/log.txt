@@ -1,0 +1,50 @@
+2026-11-14 21:45:17.097300+0000 Lanternhold[10541:42647] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.AtlasTests testBundledArtReplacesThePlaceholder]' passed (2.338 seconds).
+Test Case '-[LanternholdTests.AtlasTests testCellsKeepTheirPaddingClear]' passed (0.182 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEveryPlacedSpriteIsPainted]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEveryPlaceholderDrawsSomethingAtItsSize]' passed (9.491 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEverySpriteGetsCellsOfItsSize]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.AtlasTests testLook2ArtIsBundled]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.AtlasTests testPackerKeepsInsideTheWidth]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.AtlasTests testPlaceholdersAreDeterministic]' passed (0.334 seconds).
+Test Case '-[LanternholdTests.AtlasTests testStripsSplitIntoFrames]' passed (0.002 seconds).
+2026-11-14 21:45:34.800889+0000 Lanternhold[10541:42647] [Lanternhold] createImageAtIndex:2185: *** ERROR: createImageAtIndex[0] - 'n/a ' - failed to create image [-62]
+2026-11-14 21:45:34.801071+0000 Lanternhold[10541:42647] [Lanternhold] CGImageSourceCreateImageAtIndex:5179: *** ERROR: CGImageSourceCreateImageAtIndex[0] - 'n/a ' - failed to create image [-62]
+Test Case '-[LanternholdTests.AtlasTests testTinyPNGDecodesExactly]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.TownShowTests testARefusedKnockIsOneKnockAndNothingOpens]' passed (0.027 seconds).
+Test Case '-[LanternholdTests.TownShowTests testATouchOnADoorFindsItsHouse]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownShowTests testEveryHouseholdThatOwesWaitsBeforeItsOpenDoor]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.TownShowTests testGladHouseholdsWaveAndGrimOnesThrowAtHisFeet]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.TownShowTests testReduceMotionFadesTheCoinsInAtTheLord]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheDebugStartsSetTodaysDoors]' passed (0.525 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheDoorsAreTheHousesPaintedDoors]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheFarmerCountsHisCoinsOutOfTheCloth]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheFirstMorningsHouseholdWaitsInTheCourtyardAndWalksHome]' passed (0.023 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheFrameGetsTheDoorsTheFiguresTheCoinsAndTheKnock]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheKnockKnocksThriceOpensBowsHandsOverAndShutsTheShutters]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheSpritesKeepTheirContract]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.TownShowTests testTheTossFliesItsCoinsIntoTheLordsHandOneByOne]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testAKnockBringsAtLeastOneCoin]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testBigHousesHoldMoreTaxpayers]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testDoubleTaxesMakeEveryPaymentOfTheDayCountTwice]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testEachHouseLeftAloneIsWorthOneAndAllOfThemAtMostThree]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testEveryHouseKnockedOnceIsAboutTheOldHighTaxAndTwiceTheOldWarTax]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TownTests testEveryTownTextIsInEnglishAndGermanAndFits]' passed (0.066 seconds).
+Test Case '-[LanternholdTests.TownTests testHowTheHouseholdTossesAndHowManyCoinsFly]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testTheBotsHabits]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testTheDawnReportTellsOfYesterday]' passed (0.170 seconds).
+Test Case '-[LanternholdTests.TownTests testTheDawnSplitsTheDaysTaxesOverThePayingPlaces]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testTheFirstMorningsCoinsWaitAtTheFirstHouse]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TownTests testTheGoldComesOnFootNotAtDawn]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testTheKnock]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testThePartsAlwaysAddUpToTheDaysTaxes]' passed (0.023 seconds).
+Test Case '-[LanternholdTests.TownTests testTheSplitByLargestRemainder]' passed (0.021 seconds).
+Test Case '-[LanternholdTests.TownTests testTheTownIsSavedAndAnOldSaveLoads]' passed (0.112 seconds).
+Test Case '-[LanternholdTests.TownTests testTheTownsEventsForTheScreen]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testTheWarLevyIsASecondKnockFromStoryDayEight]' passed (0.941 seconds).
+Test Case '-[LanternholdTests.TownTests testUnrestAtDawnShutsEveryDoor]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.TownTests testUnrestByDayShutsTheDoorsUntilItLifts]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownTests testWalkingPastADoorCollects]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownTests testWhatNobodyCameForByTheHornThePeopleKeep]' passed (0.001 seconds).
+exit=0
+screenshots: 0
