@@ -197,3 +197,12 @@ flag for the day), panels, quests and i18n (the two bars; the tax strings will g
 brings the first coins belongs to the onboarding lane; the store texts are read again after the tax change; the art and
 the hall screens of build 3 (treasury, collector, house tiers, backdrop looks, craftsmen and their works) get a lane
 of their own after the join.
+
+**14.11. 14:20, Louis again:** "die Gebäude hinten" are the town's houses (confirmed). Farmers matter: the fields grow
+too (two more plots, a farmstead tier; `docs/TOWN.md` section 3, build 3). And the people: "die Leute, die arbeiten,
+schon richtig verbraucht, vom Leben geprägt … lebensfrohe Kinder … abgehobene reiche Adelige. Das bringt
+Charakterwechsel mit rein." That is the third bar (`docs/BARS.md` section 3) and a fourth workflow,
+`docs/workflows/people-lane.js`: one gated Opus 5.5 lane (`lh-people`, `claude/lh-people`) with people-1 (the cast in
+`docs/PEOPLE.md`, the three townsfolk repainted, new working bodies, children, nobles and a footman, a line-up picture
+for Louis) and people-2 (who lives where, the working day, the children, the noble's coach; picture only). Notes went
+to town, craft, world, stage, panels and quests.

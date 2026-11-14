@@ -68,8 +68,15 @@ DESIGN.md "Taxes" for the player's side. The numbers are starting values: the la
   A second tier for the market (a market hall, +25 % instead of +15 %) and the tavern (an inn, +2 happiness).
 - **Standing, 0 to 10:** one point for every house tier above the first, for the second tier of market and tavern, for
   every craftsman's work that stands in the town and for the well and the bridge. Each point adds 3 % to the tax part.
-- **The row behind** ("die Gebäude hinten"): the town's backdrop row has three looks that follow the standing: hamlet,
+- **The row behind** ("die Gebäude hinten"; Louis confirmed on 14.11. that he means the town's houses, which the
+  player builds up): the town's backdrop row has three looks that follow the standing: hamlet,
   village, town (more roofs, a spire, more smoke, more lit windows at night). Picture only.
+- **The fields grow too** (Louis, 14.11.: "Bauern sind ja auch noch extrem wichtig"): two more field plots beyond the
+  last house (four fields in all; a new field about 35), and every field has a second tier, the farmstead (a barn, a
+  haystack, an ox: 8 gold instead of 5; about 45). A farmstead counts for the standing like a house tier; the lane
+  sets the standing's scale again so that T12 holds.
+- **Farmers are seen:** out at first light, at work by day (hoe, scythe, sacks), home before the horn. No food and no
+  rationing: a field is income and life, never a thing to manage (Louis, 08.11.).
 - **By touch:** a touch on a building shows its price as coins over the door; a second touch pays.
 - **Target T12 (new):** a player who grows the town fully by night 14 earns 25 to 35 % more taxes than one who does not,
   and still cannot skip the defence. Bots that do not grow the town give today's numbers.
@@ -106,3 +113,15 @@ DESIGN.md "Taxes" for the player's side. The numbers are starting values: the la
 - **World:** each house keeps a door anchor in the layout data; the town's backdrop row stays its own sheet.
 - **Ads:** "Double taxes" as a flag for the day.
 - **Join:** the screen side of section 1 is re-hooked to the rebuilt town and to stage-2's touch.
+
+## 6. The people (Louis, 14.11.2026, 14:20)
+
+"Die Bauern und die Leute, die arbeiten, schon richtig verbraucht, vom Leben geprägt … lebensfrohe Kinder … abgehobene
+reiche Adelige. Das bringt Charakterwechsel mit rein." The rule is `docs/BARS.md` section 3; the cast and its sprites
+are the people lane's work (`docs/PEOPLE.md`, branch `claude/lh-people`).
+
+- The households in the doorways are these worn working people. At 60 happiness and more it is sometimes the
+  household's child who runs out with the coins.
+- The farmer does not toss: he leaves his hoe, comes to the fence and counts his coins out of a knotted cloth into the
+  lord's hand.
+- A noble guest never pays himself: his footman does.
