@@ -1,0 +1,7 @@
+2026-11-14 20:16:10.657594+0000 Lanternhold[16858:57737] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.SweepPlanTests testAShotReadsAsItsLaunch]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.SweepPlanTests testNoPlanWithoutTheEnvironment]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SweepPlanTests testTheNextNames]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.SweepPlanTests testUnknownKeysAreLeftOutAsAtLaunch]' passed (0.001 seconds).
+exit=0
+screenshots: 0
