@@ -1,0 +1,3 @@
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (184.161 seconds).
+exit=0
+screenshots: 14
