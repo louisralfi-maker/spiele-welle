@@ -8,7 +8,8 @@ import XCTest
 /// the realm, so the hours come from the realm's own day (`-GWDay 12 -GWHour <h>`, `-GWNight 12 -GWHour 23.33`;
 /// `-GWTimeOfDay` drives only the probe and the light lab). The fog sweep: the bank and the Throat on a hard fog
 /// night (`-GWGloomFog 1`), and twice with Reduce Motion. The pictures have no text, so the German run skips them.
-/// Saves `w-<camera centre, 4 digits>-<noon|dusk|night|fog|fog-rm>-<lang>`.
+/// Each test takes its shots in one launch (the speed kit, `SweepKit`): the app sets every shot up anew as a launch
+/// with its arguments would. Saves `w-<camera centre, 4 digits>-<noon|dusk|night|fog|fog-rm>-<lang>`.
 @MainActor
 final class WorldSweepUITests: XCTestCase {
     override func setUp() async throws {
@@ -26,22 +27,22 @@ final class WorldSweepUITests: XCTestCase {
     private static let centres = Array(stride(from: 0, through: 2600, by: 200))
 
     func testSweepNoon() {
-        sweep("noon", ["-GWDay", "12", "-GWHour", "12"], centres: WorldSweepUITests.centres)
+        take(shots("noon", ["-GWDay", "12", "-GWHour", "12"], centres: WorldSweepUITests.centres))
     }
 
     func testSweepDusk() {
-        sweep("dusk", ["-GWDay", "12", "-GWHour", "19.2"], centres: WorldSweepUITests.centres)
+        take(shots("dusk", ["-GWDay", "12", "-GWHour", "19.2"], centres: WorldSweepUITests.centres))
     }
 
     func testSweepNight() {
-        sweep("night", ["-GWNight", "12", "-GWHour", "23.33"], centres: WorldSweepUITests.centres)
+        take(shots("night", ["-GWNight", "12", "-GWHour", "23.33"], centres: WorldSweepUITests.centres))
     }
 
     /// The darkness bank and the Throat on a hard fog night, and the bank with Reduce Motion (the fog stands still).
     func testSweepFog() {
         let night = ["-GWNight", "12", "-GWHour", "23.33", "-GWGloomFog", "1"]
-        sweep("fog", night, centres: [0, 200, 400, 600, 800, 1000, 1200])
-        sweep("fog-rm", night + ["-GWReduceMotion", "YES"], centres: [200, 600])
+        take(shots("fog", night, centres: [0, 200, 400, 600, 800, 1000, 1200])
+             + shots("fog-rm", night + ["-GWReduceMotion", "YES"], centres: [200, 600]))
     }
 
     /// Fix round 1 (the critic: "the fog's drift and its freeze under Reduce Motion are unproven"): the same fog night
@@ -49,45 +50,29 @@ final class WorldSweepUITests: XCTestCase {
     /// bank's breath move between a and b, and stand still with Reduce Motion.
     func testFogDriftAndItsFreeze() {
         let night = ["-GWNight", "12", "-GWHour", "23.33", "-GWGloomFog", "1"]
+        var list: [SweepShot] = []
         for (suffix, time) in [("a", 2.5), ("b", 9.5)] {
-            sweep("fog-" + suffix, night, centres: [600, 1000], flicker: time)
-            sweep("fog-rm-" + suffix, night + ["-GWReduceMotion", "YES"], centres: [600, 1000], flicker: time)
+            list += shots("fog-" + suffix, night, centres: [600, 1000], flicker: time)
+            list += shots("fog-rm-" + suffix, night + ["-GWReduceMotion", "YES"], centres: [600, 1000], flicker: time)
         }
+        take(list)
     }
 
     // MARK: - Helpers
 
-    private func sweep(_ name: String, _ arguments: [String], centres: [Int], flicker: Double = 2.5) {
-        XCUIDevice.shared.orientation = .landscapeLeft
-        for centre in centres {
-            let shot = String(format: "w-%04d-", centre) + name
-            let app = XCUIApplication()
-            app.launchArguments = WorldSweepUITests.base + ["-GWFlickerTime", "\(flicker)"] + arguments
-                + ["-GWCameraX", "\(centre)"]
-            app.launch()
-            if waitUntilReady(app, name: shot) {
-                pause(0.8)
-                attach(XCUIScreen.main.screenshot(), "\(shot)-\(language)")
-            }
-            app.terminate()
+    /// One shot per camera centre, with the arguments a launch of its own carried before the speed kit.
+    private func shots(_ name: String, _ arguments: [String], centres: [Int], flicker: Double = 2.5) -> [SweepShot] {
+        centres.map { centre in
+            SweepShot(String(format: "w-%04d-", centre) + name,
+                      WorldSweepUITests.base + ["-GWFlickerTime", "\(flicker)"] + arguments + ["-GWCameraX", "\(centre)"])
         }
     }
 
-    private func waitUntilReady(_ app: XCUIApplication, name: String) -> Bool {
-        let scene = app.descendants(matching: .any).matching(identifier: "world-scene").firstMatch
-        guard scene.waitForExistence(timeout: 60) else {
-            attach(XCUIScreen.main.screenshot(), "\(name)-missing-\(language)")
-            XCTFail("\(name): the scene never appeared")
-            return false
+    private func take(_ shots: [SweepShot]) {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        SweepKit(test: self, settle: 0.8).run(shots) { _, shot in
+            self.attach(XCUIScreen.main.screenshot(), "\(shot.name)-\(self.language)")
         }
-        let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value CONTAINS %@", "ready"),
-                                              object: scene)
-        guard XCTWaiter().wait(for: [ready], timeout: 60) == .completed else {
-            attach(XCUIScreen.main.screenshot(), "\(name)-notready-\(language)")
-            XCTFail("\(name): the scene never reported ready (value \(String(describing: scene.value)))")
-            return false
-        }
-        return true
     }
 
     private func attach(_ screenshot: XCUIScreenshot, _ name: String) {
@@ -95,11 +80,5 @@ final class WorldSweepUITests: XCTestCase {
         attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)
-    }
-
-    private func pause(_ seconds: TimeInterval) {
-        let gone = expectation(description: "wait \(seconds) s")
-        gone.isInverted = true
-        wait(for: [gone], timeout: seconds)
     }
 }
