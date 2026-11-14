@@ -1644,3 +1644,51 @@ the repo.
 - The tax lectern has no mark of its own.
 - The characters are the existing 30 px sprites. In a hall this tall they read small when the whole hall is in
   view; the audience framing answers that with the larger scale, not with new sprites.
+
+## 21. The hall stage in the engine (stage lane, 14.11.2026)
+
+Stage 8's hall seen on the runner for the first time (rounds `lh-s1-2` and on; DESIGN.md "The hall stage and touch the
+world", step stage-1). The art is used as painted; the engine adds its light, its wear, its depth and its life.
+
+### 21.1 What the engine adds
+
+- **The light of the hour through the windows:** the hour's sky and its stars behind the transparent lights, and
+  `weltmauer` on the far plane at parallax 0.3 with its top at hall row 86, so the peaks stand in the tall windows'
+  lower half with sky above them (at row 56, the first try, the snowfields filled the panes and read as blank white
+  glass by day). Seen from inside, the far plane's haze is cut to 55 %.
+- **The shafts** (`hallShaft`, tools/hallstage.py): from the two tall windows, down to the left in the morning (the
+  painted beam mirrored) and down to the right in the afternoon, none round noon, gone with clouds and rain; 0.42 of
+  full strength in the daylight's warm white, turning gold with the low sun (`AmbientSample.warmth`); 11 motes of
+  dust drift down each (frozen under Reduce Motion); a soft pool where each lands on the nave floor.
+- **The interior light** (`InteriorLight`, read by look 2's composite): the hall's ambient is 58 % of the open air's
+  by day, warmed 30 % toward the stone and oak's bounce, and 82 % at night with 45 % of it a dim warm fill of the
+  hearth and candles (the old cut-away rooms' colour at level 0.3), the night's blue pull at 0.6; the upper wall
+  fades to 38 % of the ambient over 95 rows up from hall row 118, so the roof sinks into its dark; the floor gets no
+  sky lift and no moon.
+- **Wear:** eight limewash patches (`hallWash`) on the ashlar at different heights, never in a band.
+- **Light as the realm's state:** the hearth's fire (`hallFire`, the small `hearthFire` below a third) and its pool
+  on the hood (radius 60 + 60 × strength) with a long, flat warm pool on the flags (radius 66 to 120, squashed 3.2:
+  a candle-kind light, so no embers rise out of the floor); a bench's three-candle stands while someone waits on it;
+  the two chandeliers by day, softened to radius 44 and 0.55 so the roof stays dark; the door's torches from the
+  dusk; the mantel's and the arms' candles; the one who has the word stands in a warm pool of radius 30.
+- **Depth:** the near arcade's pillars at parallax 1.25 stand before every light (lit at 0.1 of the light buffer, the
+  world's foreground takes 0.55). While the lord stands behind one it fades to 32 % within 26 px on screen and is
+  whole again from 42 px, so it passes over him as he walks and never hides him where he stops.
+
+### 21.2 What the sweep found (and what was done)
+
+- `lh-s1-2`: the lord vanished behind the near pillars where he stopped (the fade above); the windows read as blank
+  white panes (the Weltmauer lower, less haze); the roof glowed gold under the HUD (the chandeliers softened); the
+  night was flat blue (the warm fill); the golden hour's shaft read as grey smoke (gold with the low sun); a candle
+  stand behind a pillar lit the pillar (the pillars no longer catch light from behind); in the audience the first
+  choice's two lines lifted its plaque over the petitioner's legs (the plaques now keep a smaller hand and two lines
+  at most, below the walk line) and "Counsel" was cut to "Coun…" (the button keeps its width).
+
+### 21.3 Open, for the art lane
+
+- The hall's inner door has no open frame: it stays shut while the door's creak plays and the screen darkens (0.22 s,
+  barely seen). An open frame for the door bay (as the world lane's `forebuilding` has) would let it swing.
+- The window lights could carry a few panes of leading in a lighter value so they read as glass against a bright
+  day sky; today they are clean holes.
+- The candle stands' flames behind a near pillar are covered while their glow shows beside it; a painted pillar
+  with a thin lit edge would sit better in the light.

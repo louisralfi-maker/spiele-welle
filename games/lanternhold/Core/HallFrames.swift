@@ -52,7 +52,7 @@ enum HallFrames {
     /// At night the hall keeps a dim warm fill of its hearth and candles (the old cut-away rooms' colour) against the
     /// moon's blue: this share of the night ambient, at this level.
     static let nightWarm: Float = 0.45
-    static let nightFillLevel: Float = 0.3
+    static let nightFillLevel: Float = 0.34
     /// The night's pull toward blue inside, against outdoors.
     static let nightPull: Float = 0.6
     /// The upper wall's ramp into the roof's dark: its strength and the hall row where it ends.
