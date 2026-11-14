@@ -234,3 +234,5 @@ enter and never must (the lord's chamber, a dungeon); special evenings with a gu
 spec is `docs/HOUSE.md`. Notes went to quests, panels, i18n, people, stage and world. A story editor writes the exact
 rewrite list on `claude/lh-house` (`docs/workflows/house-lane.js`); it is applied to the texts in one pass after the
 translations, never by the running lanes.
+
+The house lane started 14.11.2026 15:05 as task `wa3dtuo3c` (run `wf_4a940724-d4f`). Never resume it; after a stop, write a continuation.
