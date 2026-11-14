@@ -1,0 +1,126 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "front.report.away" : {
+      "comment" : "Dawn report, front half: there was real fighting, and the lord was rarely near it (teaches that being there counts). Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorn brannte es. Ihr wart anderswo."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It burned at the front. You were elsewhere."
+          }
+        }
+      }
+    },
+    "front.report.relit" : {
+      "comment" : "Dawn report, front half: dead braziers that caught again from the lord's lantern as the lord passed. The lord was the castle's lamplighter (STORY.md), hence the old habit.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Eine Feuerschale an Eurer Laterne neu entfacht. Alte Gewohnheit."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Feuerschalen an Eurer Laterne neu entfacht. Alte Gewohnheit."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One brazier relit from your lantern. Old habit."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld braziers relit from your lantern. Old habit."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "front.report.there" : {
+      "comment" : "Dawn report, front half: the lord's presence lay on the fighting defenders for most of the night (docs/REALM.md 3). Short and dry; no he or she in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr standet, wo es brannte. Eure Leute hielten länger stand."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You stood where it burned. Your people held longer for it."
+          }
+        }
+      }
+    },
+    "front.report.thrown" : {
+      "comment" : "Dawn report, front half: how often a creature reached the lord and threw the lord back (the lord cannot die). Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Die Düsternis warf Euch einmal zurück."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Die Düsternis warf Euch %lld-mal zurück."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "The Gloom threw you back once."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "The Gloom threw you back %lld times."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
