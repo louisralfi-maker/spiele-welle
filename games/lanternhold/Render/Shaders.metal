@@ -943,13 +943,12 @@ static inline float3 lh2_fog(float3 color, float4 g, float gain, float glow, flo
 }
 
 // The mist's share by world x (tools/scenemock/layout_look2.py `fog_region`): thick in the shadow land, thinner from
-// the castle's front (x 1240) through the cleft, light in the valley (from x 2430).
+// the castle's front (x 1240) through the cleft, light in the valley. World rebuild (B4, B5): the valley's share
+// fades in over the back gate (2330 to 2480) instead of starting in a vertical line at 2430.
 static inline float lh2_fog_region(PlaneCoords c, constant CompositeUniforms &u) {
     float x = float(c.world.x) + u.target.w;
-    if (x >= 2430.0f) {
-        return 0.45f;
-    }
-    return 1.0f - 0.3f * saturate((x - 1120.0f) / 200.0f);
+    float cleft = 1.0f - 0.3f * saturate((x - 1120.0f) / 200.0f);
+    return mix(cleft, 0.45f, smoothstep(2330.0f, 2480.0f, x));
 }
 
 // The moon on the lit albedo of the mid and near planes at night (fir tiers, crowns, statues); `p` premultiplied.
@@ -1044,7 +1043,9 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
         if (e > 0.0f) {
             ambient = lh2_ledge_light(ambient, e * (1.0f + 1.5f * v.weather.y), u);
         }
-        float3 lit = lh2_cold(m.rgb, ambient, 1.0f - shade, 1.0f, v) + m.rgb * info.backdrop * 0.3f
+        // World rebuild: the backdrop lights a little stronger (0.3 before), so the castle's warm light grazes the
+        // cleft wall over the roofs at dusk and night.
+        float3 lit = lh2_cold(m.rgb, ambient, 1.0f - shade, 1.0f, v) + m.rgb * info.backdrop * 0.5f
             + m.rgb * kMoonLight2 * lh2_moon_key(m, v);
         lit = mix(lit, v.midHC.rgb * m.a, haze);
         lit = mix(lit, v.bandC.rgb * m.a, band * 0.6f);

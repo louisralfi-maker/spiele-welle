@@ -578,6 +578,93 @@ Each is a short scene of three panels; then the realm goes on in endless mode.
 - Both landscape orientations. The HUD respects the safe area; the scene renders under the sensor housing, but nothing
   important sits in the outer 30 game px.
 
+## Controls 2: touch the world (a proposal of the art lane, 10.11.2026; not built)
+
+Louis on 10.11.: the button at the right is "cringe"; in the games he names you touch the people and the things
+themselves; the interface matters as much as the picture. This section proposes the change for the code lane. Once
+built it replaces "Controls" above. The marks and the highlight are painted (SPRITES.md "The marks of 'touch the
+world'", previews in `ci-out/hall`).
+
+**The rule:** the lord goes where the finger points. Touch a thing and he walks to it and does what it offers.
+Touch the ground and he walks there. Drag and he walks as today.
+
+| The tap lands on | The lord | Then |
+|---|---|---|
+| someone with a word: a petitioner on a bench, a member of the court, a townsman (`tapTalk`) | walks to an arm's length (12 px) and faces them | the talk bubble opens |
+| the empty throne, when an audience can be held (`tapThrone`) | walks up the steps and sits | the camera moves to the audience framing, the first in line rises and walks up; the card opens when he has stopped |
+| an open plot, a building that can grow (`tapBuild`) | walks to it | the build card |
+| a damaged wall or building (`tapRepair`) | walks to it | the repair, as the button ordered it |
+| the place to recruit (`tapRecruit`) | walks to it | the recruit card |
+| a cold brazier (`tapLight`) | walks to it | he lights it |
+| the hall's door, from either side | walks to it | the stage changes (the world, the great hall) |
+| the ground, or a thing that offers nothing now | walks to that x | stands |
+| the realm strip | as today | as today |
+
+- **The action starts when he arrives** (within 6 px of the thing's standing place), not at the tap. If he already
+  stands there it starts at once.
+- **While he walks to it**, a slip above the thing says what he is about to do and what it costs ("Repair the wall,
+  12"). It is the button's caption, moved to the thing. A tap anywhere else, or a drag, calls him off before he
+  arrives. A second tap on the same thing makes him run.
+- **Tap or drag:** a touch that never moves more than 10 pt is a tap, however long it lasts. Past 10 pt it is a
+  drag: he walks toward the drag, runs past 40 pt, stops when the finger lifts, exactly as today. The drag now works
+  anywhere in the world, since no button needs the right half.
+- **Pressed:** with the finger down on a thing its mark shows the pressed frame and its pool brightens. On the lift
+  the light haptic ticks and he sets off. If the finger slides away the mark goes back to idle.
+- **Tapping the lord** does nothing. He leaves the throne by the card's "End the audience", as today.
+
+**What wins a touch**, in this order:
+
+1. The interface: an open card, the pause seal, the ledger, the realm strip. While a card is open the world takes
+   no taps (as today).
+2. A thing that offers something now. Its touch area is its sprite and its mark together, grown to at least
+   **44x44 pt** (22x22 game px at the world's scale, 17x17 in the audience framing), centred on its standing place,
+   from the floor line up to the mark's top.
+3. Where two areas overlap, the thing whose centre x is nearer to the finger wins. Within 4 px of a tie: the one
+   who has the word, then a waiting petitioner, the court, a townsman, the throne, a brazier, a plot, a wall.
+   People are small and move, walls are big and wait. A person standing before a wall takes his area out of the
+   wall's.
+4. Everything else is ground: he walks to the finger's x. In the hall the x is held inside the floor (the nave, the
+   steps, the dais).
+
+- **A bench is one target.** The seated sit 8 px apart, too close for a finger. A tap anywhere on an occupied bench
+  walks the lord to it and the first in line speaks.
+- **Layout rule:** two things that can offer something at the same time stand at least 22 game px apart. The great
+  hall's places keep it (SPRITES.md); the world's plots and walls already do.
+- **The realm strip stays** as it is: the fast way across the realm, and its tags still say where something waits.
+- **The action button is removed** with its caption slip (`action-button`). The lower right corner is free.
+- **First minute:** one slip, once: "Touch what the lord shall do." The first mark is the lesson.
+
+**Accessibility**
+
+- Every thing that offers something and is in view gets an accessibility element at its touch area on screen (a
+  button), placed again when the camera or the thing moves (four times a second is enough) and removed when the
+  offer or the thing leaves the view. While a card is open they are hidden.
+- **Labels** name the act first, localized: "Talk to Tamsin, the cook", "Sit on the throne", "Build here",
+  "Upgrade the archer tower", "Repair the wall", "Recruit", "Light the brazier", "Enter the great hall". The value
+  carries the price where there is one.
+- **Identifiers**, stable for the UI tests: `touch-talk-<speaker id>`, `touch-bench-<n>`, `touch-throne`,
+  `touch-plot-<index>`, `touch-wall-<index>`, `touch-recruit-<building id>`, `touch-brazier-<index>`,
+  `touch-door-hall`.
+- **Order:** the HUD first, then the things from left to right. Activating an element is the tap: he walks, the
+  action follows, and VoiceOver hears the arrival ("At the wall. Repairing.").
+- **Far things:** `world-scene` gets the custom actions "Walk left" and "Walk right" (one screen each), so a
+  VoiceOver or Switch Control user reaches what is out of view without a drag. The realm strip stays a second way.
+- The mark is a shape with a glyph in ink on parchment (10:1), never a colour alone; the rim is an extra. Nothing
+  bobs or blinks. With Reduce Motion the move into the audience framing and the fade between the stages are cuts.
+
+**What the UI tests need**
+
+- The identifiers above, present only while the offer exists, so waiting for one is waiting for the offer.
+- `world-scene`'s value also carries `stage:world|hall`, `lord:<x>` and `errand:<identifier>|none`, so a test waits
+  for the arrival instead of sleeping.
+- A launch argument that starts in the hall (`-GWStage hall`), beside those that set the day and the hour.
+- The flows: tap `touch-throne`, wait for `audience-root`, choose; tap `touch-plot-<n>`, wait for `build-card`; tap
+  `touch-wall-<n>` and read the wall's state; tap the ground at a point of `world-scene` and read `lord:`; drag and
+  read `lord:`; `action-button` no longer exists. English and German, for the slip above the thing.
+- Unit tests on the pure functions: the touch area of every kind is at least 44x44 pt at both scales; the nearer
+  centre wins; a person before a wall wins; a bench is one target; a touch of 10 pt or less is a tap.
+- Screenshots `<nn>-touch-hall-<lang>` and `<nn>-touch-front-<lang>`.
+
 ## Look
 
 ### Art bar (Louis: "extrem schön")
@@ -3140,6 +3227,143 @@ banners in the open hall). UI: `UITests/PolishUITests.swift`, `testPolish`, `tes
     - the houses (`119` to `122`): five banners of five houses under the hall's beams, then Varn's and Lorn's
       between the realm's own; Hild Varn waits at the hall's door on day 3, and her card shows her own portrait.
       "Tochter des Hauses Varn" and the three answers fit in German.
+
+<!-- BEGIN world lane: World rebuild (14.11.2026) -->
+### World rebuild (14.11.2026)
+
+The world lane of the rebuild after TestFlight build 86 (docs/REVIEW-look-2.md: the world plan in section 2, the
+punch list in section 3). Branch `claude/lh-world`. The simulation's positions and the tuning targets T1 to T8 are
+untouched; only the backdrops, the fog and the castle's outer art change. The stage lane (the great hall as its own
+stage, Controls 2, the interface) runs beside it on `claude/lh-stage`.
+
+#### Step world-1: the rock and the fog (B4, B5, B6, H2, H6, M1; world plan 2.3 and 2.5)
+
+The rhythm: open and cold over the moor, enclosed and towering in the Throat and the castle (a later step opens the
+warm valley beyond the back gate).
+
+- **The darkness bank** (0 to 260 by day, up to the bank's edge at night): three sheets of soft fog at the lane's own
+  parallax, `bankSheetA` on fog A (tall, its core above every screen's top), `bankSheetB` on the world plane after
+  its props (it hides what stands in the bank) and `bankSheetC` on fog B (a low roll before the creatures). They are
+  laid every 100 px westward from the bank's edge (`FrameBuilder.bankSheets`, `bankSheetTiles`), so each sheet's
+  face lies in the core of the sheet east of it and only the first face shows; the faces breathe against each other
+  (none with Reduce Motion) and move with the bank's edge as one volume. Painted in the night's colours, so on the
+  fog planes the shader's lift is taken out of their tint; the bank's eye glints (`darknessBankGlow`) stay. The old
+  wall of night (`darknessBank`, `darknessEdge`) is look 1's. The world ends in darkness, never at a wall: the
+  camera clamps at 0, so the screen's left edge always lies in the bank.
+- **The dead moor** (260 to 470): open sky, the firs and dead trees on the near plane, the shadow forest, the mist.
+  The Weltmauer stands 30 px higher (`look2WallRise`): over the shadow land and the Throat its peaks are cut by the
+  screen's top (H6), and a deck of far clouds lies across it at half the screen's height (rows 40 to 90 on the
+  runner's phone; the valley's cloud at far x 640 stays). Its first 320 columns sink into a bank of painted mist
+  toward the west (`cleftart.py mistleft`). The far castle in its first slot is gone (`cleftart.py noslot`): the
+  castle stands behind the player's back, never in the background (2.5).
+- **The Throat**: every slab and card on or before the walk line is gone (`cleftFlank`, `cleftFlankB`,
+  `cleftThroat`, `gorgeCrags`, `gorgeRock`; their files in `tools/retired-art`, `gorgeRock.png` still the old walls'
+  granite). The cleft's far wall climbs in three steps on the mid plane (`look2Rock`): `throatStepA` (mid 360, at
+  most 88 rows, far and pale, its west talus paling into the mist), `throatStepB` (mid 450, darker and taller, the
+  warden statue's niche) and `throatStepC` (mid 600, the cleft's granite, top-anchored, a crag that falls to the lane
+  at its west end, then the full height behind the gatehouse). The mid column at the screen's centre with the camera
+  centred on world x is `109.25 + x / 2` (720 → 469, 1240 → 729, 2330 → 1274).
+- **The cleft wall** (`cleftWallA` to `C`, mid 824 to 1528, top-anchored, full height): one painting with step C,
+  cut in four, behind the whole castle (H1). A jagged slit of sky in its top 24 rows; buttresses and chimneys lit
+  from the upper left with cast shadows, short ledges, snow in patches on the high ones, the slit's cold slate light
+  on the face's top dithering into the warm granite, three threads of water with wet streaks and spray; C steps down
+  to the valley floor behind the back gate. A cold shaft of light falls through the slit by day (`cleftShaft`, drawn
+  white at the sun's strength through `Prop.sunShaft`, less under cloud). At night the moon stands in the slit
+  (`FrameBuilder.cleftShare` moves it up to row 3 while the camera is in the cleft; the sun's disc stands behind the
+  rock). The castle's warm light grazes the wall over the roofs at dusk and night: five backdrop lanterns on the mid
+  plane behind the forge, the hall door, the chapel, the kitchen and the back gate.
+- **Inside the walls the far plane is gone**: in look 2 every far-plane prop is drawn at `1 − cleftShare(focus)`
+  (0 from camera centre 1380 to 2300; it fades while the gatehouse and the steps cover it and comes back as the
+  back gate opens the valley). The slit shows the sky, its clouds and the moon only.
+- **The gatehouse grows out of the rock** (H2): `gateRockL` and `gateRockR`, granite plinths in front of each
+  tower's outer foot, highest right at the outer edge (world 1249 and 1470) and falling under the tower in a ragged
+  stair (`look2GateRock`; tier 3's drums stand 11 and 12 px further out). The mid plane behind the gatehouse is rock.
+  The front's cast shadows onto the retired rock beside the east tower (`castleShadow`, `castleShadowLong`) are left
+  out in look 2 (they darkened the cleft wall far behind as a vertical band); the ground's and the gatehouse's own
+  shadows stay.
+- **Fog without square edges** (B4, M1): the hour's three banks (`d2FogBank`, `d2MistBand`, `d2FogLow`,
+  `tools/fogart.py`) are tiles with a 48 px dithered feather at each end, laid every `width − 64` px
+  (`FrameBuilder.fogOverlap`), their feathers complementary inside the overlap; the density thins upward under a
+  soft rolling top in eight alpha steps with ordered dither, and stands still under Reduce Motion. The Gloom's strips
+  (`gloomFogBack`, `gloomFogMid`, `gloomFogFront`) are repainted the same way (stage 7 painted flat bands with
+  stepped tops: the review's "contour map"), same ids, sizes and frames; they are cut into 8 or 4 px pieces where a
+  fire's hole changes the cover steeply (`FrameBuilder.gloomSubSlices`), so the fog thins toward a fire in small
+  steps instead of 16 px columns.
+- **Set borders** (B5): the valley's tree belt (`d2TreeBelt`, mid 1400 and 1920) stands at z 2 behind the cleft wall's
+  last crags, so its west end is hidden by the rock where the cleft opens to the valley.
+- **Look 2's backdrop lights** reach the mid plane at 0.5 of their strength (0.3 before; `Shaders.metal`
+  `lh2_base`): the warden statue's bowl fire and the castle's lanterns on the cleft wall.
+- **The art** is pure python and rebuilds byte for byte (`tools/build-art-world.sh`): `tools/rockfield.py` paints
+  granite as a lit height field (buttresses with lit west and shaded east bevels, chimneys, ledges and overhangs,
+  joints, cast shadows marched toward the light, a cavity term, less light deeper in the cleft), `tools/cleftart.py`
+  cuts the cleft and the steps and the gate's rock from it, `tools/fogart.py` paints the fog, the bank and the Gloom's
+  strips. The rock is painted in clean clusters without dither (Louis' art bar); only the fog's alpha is dithered.
+  ART-look2.md section 21 has the notes, SPRITES.md "The rock and the fog" the ids.
+- **Tests**: `FrameBuilderTests.testNoFogEdgeEndsInTheViewWithoutAFeatherOrANeighbour` (B4: every fog sprite's art
+  feathers out, the hour's tiles overlap complementarily, and from the bank to the river at three hours, with and
+  without the Gloom's fog, no fog instance's edge column stands in the view without a feather or a neighbour);
+  `testNoBackdropEndsInASeamFromTheThroatToTheValley` (B5: camera centres 1200 to 2500 in 20 px steps, every end
+  column of a backdrop piece inside the view is covered by a piece in front or clear; inside the walls no far plane
+  and the cleft wall at the screen's centre); `GloomFogTests.testTheFogThinsTowardAFireInSmallSteps`; the layout
+  checks in `Look2FrameTests`. The UI sweep `WorldSweepUITests` (English only; the pictures carry no text) shoots
+  camera centres 0 to 2600 in 200 px steps at noon (`-GWDay 12 -GWHour 12`), dusk (`-GWHour 19.2`) and night
+  (`-GWNight 12 -GWHour 23.33`), plus the bank and the Throat on a hard fog night and twice with Reduce Motion:
+  `w-<centre>-<noon|dusk|night|fog|fog-rm>-en`. `-GWTimeOfDay` drives only the probe and the light lab; the game's
+  clock follows the realm.
+- **Rounds:** lh-w1-1 (the paused agent's snapshot) to lh-w1-4 (build, unit, sweep) ALL PASSED; lh-w1-5 on 7926e8d and
+  lh-w1-6 on 9e9cda9 (build, unit, ui, ui-de, release) ALL PASSED.
+- **Open after world-1:** the castle's buildings, the keep, the curtain wall and the postern (B1, B2, H3, H7) are the
+  next steps; until then the cut-away rooms and the two-tower back gate still stand before the new cleft wall. The
+  Throat's step B reaches almost the screen's top around the warden statue (its niche needs the height), so the
+  three steps read as low, high, full rather than three even steps. The bank by day is the night's black smoke, as
+  the wall of night was. The darkness bank's own eye glints (`darknessBankGlow`) lie in two rows.
+- **For the later steps (director's notes, 14.11.):** the gorge beyond the gate is 1240 px (gate front 1240 to the
+  world's west end at 0; the bank covers 0 to 260 by day and its edge stands near 500 on night 12). The bank and the
+  Gloom's fog are drawn from the bank's edge alone (`bankEdgeX`, a value Core can move), nothing of the fog line is
+  baked into the gorge's art (the Weltmauer's painted mist is far-plane haze, not the Gloom). Free ground for the four
+  beacon sites (REALM.md 5), as fractions of the gorge measured west from the gate: 0.55 (x ~560, between the beacon
+  crag and the outer line's trap), 0.69 (x ~380, the dead moor), 0.80 (x ~250, the moor's west end at today's day
+  edge of the bank) and 0.91 (x ~110, inside today's bank, freed when the fog line moves out). The moor's backdrops
+  (firs, forest, the Weltmauer and its mist, the cloud deck) go on to x 0 without a wall.
+
+#### Step world-1, fix round 1 (the critic's 6 of 10, the director's five corrections)
+
+The critic (`ci-out/director/world-1-rock-fog-critic1.md`) did not pass round lh-w1-6: two blockers (the day bank a
+black wall, the cloud deck's ruler-straight underside) and six highs; the director added five corrections (the far
+wall's snow as speckle, the fog's mesh at phone size, the slit as autumn leaves, the warm crags in another palette,
+the muddy wall behind the gatehouse). Where they differ the director's note wins: step B's height stays.
+
+- **The darkness bank** (`Core/DarknessBankLook.swift`, `FrameBuilder.bankSheetTiles`, `bankEyes`, `bankEndTile`):
+  the sheets are painted in a light cool ramp of values and tinted by the hour (`bankTint`, by `Look.nightness`): by
+  day a translucent grey-violet veil (A at 0.62 alpha, so the moor shows through it; B darker at 0.84; C the darkest
+  at 0.96), at night navy (A with a moonlit crest). Their crests step down the screen: A's near the top, B's at
+  about half the screen, C's around the ground line. Each sheet is a face frame and body tiles every 192 px westward
+  with complementary dithered feathers, so every pixel is held by one tile (translucent overlapping copies stacked
+  into stripes). Pure dark only where the world ends: `bankEnd` on fog B at world 0, drawn black. The eyes
+  (`bankEyePairs`): five slots 128 px apart behind the edge, each a pair (`darknessBankGlow`, now 9x3 x 4: near and
+  far, open and half shut) that opens at a jittered place and height, blinks, shuts and opens elsewhere; at most four
+  on a screen, never in rows; fainter by day; three still with Reduce Motion. The old 64 px glow tiles are gone.
+- **The cloud deck**: one painted `cloudDeck` (far x −100, y 22) instead of the deck's three clouds; its underside
+  hangs in lobes and rags and feathers 48 px into the wall's haze.
+- **The Weltmauer**: no snow in its gullies below the snow line (it read as an icicle curtain); the snow is the caps
+  with a clean hem, no patch under 6 px.
+- **The cleft wall**: chiselled slabs, fewer and deeper chimneys, two long stepped ledges with snow drifts on the high
+  one; the sky only in two wedges (over the gatehouse, over the bailey); at night the moon stands in the second
+  (`cleftWallA`'s emitter, `SceneLayout.Glow.moon`; the sky's moon fades with `cleftShare`); falling water
+  (`cleftWater`, 4 frames at 6 a second, `FrameBuilder.cleftWater`, still with Reduce Motion); the shaft at the sun's
+  full strength (`look2ShaftShare` 1) with dust motes; a backdrop light behind the gatehouse's top (`throatStepC`).
+- **The gate's rock**: shoulders of bedrock (`gateRockL` 108x80 at front − 54, `gateRockR` 64x70 at front + 196) with
+  the tower's ashlar stepping into their ledges and a lit edge only on the faces toward the light.
+- **The old walls**: the granite masses of lines 2 and 3 cut to footings of at most 36 rows in cool granite; the
+  anchors' toothing stops at that height. The masonry of Lady Oriel's walls is as it was.
+- **Fog**: sixteen alpha steps in the hour's fog and the Gloom's strips, the strips' colour in clean clusters.
+- **Tests**: `WorldRebuildFixTests` (the bank's tint by the hour and its tiling, the world's end, the eyes, the deck's
+  underside from the atlas, the moon in the wedge, the falling water); the B4 test knows the bank's face frames, its
+  body tiles' complementary overlap and `bankEnd`; Look2FrameTests and GloomFogTests look for the eyes over a few
+  seconds (they open and shut). The sweep adds `w-0600|1000-fog-a|b` and `-fog-rm-a|b` (flicker times 2.5 and 9.5):
+  the fog moves between a and b, and stands still with Reduce Motion.
+- **The atlas**: 2048 wide, about 1830 rows of 2048 used after this round (1757 before).
+<!-- END world lane: World rebuild (14.11.2026) -->
 
 ## Risks
 

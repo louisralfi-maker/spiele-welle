@@ -30,7 +30,8 @@ build() { # name: one sprite (and its glow strip)
         python3 -I $AA build $G/$1.txt --out $A ;;
     sootling|sootlingB|shadehound|sootCrow|ashBrute|gloomweaver|ashGiant|lightlessKing)
         python3 -I -B $CA build $1 --out $A ;;
-    darknessBank)  # the Gloom's bank of look 2: darknessBank.png, darknessEdge.png and darknessBankGlow.png
+    darknessBank)  # the Gloom's bank of look 2 (look 1's wall of night): darknessBank.png, darknessEdge.png (the eyes:
+                   # tools/fogart.py darknessBankGlow, build-art-world.sh)
         python3 -I -B games/lanternhold/tools/bankart.py --out $A ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;
     esac

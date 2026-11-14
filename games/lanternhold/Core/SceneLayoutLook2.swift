@@ -8,10 +8,11 @@
 /// behind the castle; a near plane (parallax 0.75) with single trees; bushes behind the actors; dark plants in the
 /// foreground instead of the rock lips; the lane tiles instead of the soil cross-section (`FrameBuilder`).
 extension SceneLayout {
-    /// Look 1's world-plane cliffs and their granite versions, at the same places and shades.
-    static let look2Cliffs: [SpriteID: SpriteID] = [
-        .cliffFlank: .cleftFlank, .cliffFlankB: .cleftFlankB, .throatRock: .cleftThroat,
-    ]
+    /// Look 1's world-plane cliffs at the castle. Look 2 leaves them out: since the world rebuild nothing stands on the
+    /// walk line before the gatehouse (docs/REVIEW-look-2.md B6), the cleft wall rises behind it on the mid plane.
+    /// With the rock go the shadows the front threw onto it beside the east tower (they would darken the cleft wall
+    /// far behind as a vertical band); the ground's and the gatehouse's own shadows stay.
+    static let look1Cliffs: Set<SpriteID> = [.cliffFlank, .cliffFlankB, .throatRock, .castleShadow, .castleShadowLong]
 
     /// Look-1 sprites look 2 leaves out on the mid plane (the old gorge walls, the far keep, the valley's hills and
     /// the statue at its old place) and on the far plane.
@@ -28,7 +29,7 @@ extension SceneLayout {
         switch plane {
         case .mid: return look2DroppedMid.contains(sprite)
         case .far: return look2DroppedFar.contains(sprite)
-        case .world: return look2Cliffs[sprite] != nil
+        case .world: return look1Cliffs.contains(sprite)
         case .foreground:
             // The rock lips along the top edge; the valley's rocks (the meadow replaces them).
             return look2Overhangs.contains(sprite) || (look2Rocks.contains(sprite) && x > 2900)
@@ -40,21 +41,24 @@ extension SceneLayout {
     static let look2: [(plane: Plane, entry: Entry)] = look2World + look2Depth
 
     private static let look2World: [(plane: Plane, entry: Entry)] = [
-        // The far plane: the wall (888 x 190, its ridge 135 to 173 px above the ground line), the far castle's lights
-        // in the cleft seen from the shadow land (the slot behind it glows a little at night, the colour "cleft"),
-        // the unbroken patch over the valley's view of the cleft, which fades out from focus 2330 to 2520 while the
-        // far castle's pane and its slot fade in.
-        (.far, Entry(sprite: .weltmauer, x: -44, y: -17, z: -3,
-                     emitters: [.sprite(.farCleftGlow, dx: 302, dy: 92, glow: .cleft, fades: true),
-                                .sprite(.farCastleGlow, dx: 304, dy: 92, glow: .fireGold, fades: true)])),
-        (.far, Entry(sprite: .weltmauerPatch, x: 580, y: -17, z: -2, fadeOut: 2330...2520)),
-        (.far, Entry(sprite: .farCastlePane, x: 586, y: 75, z: -1,
+        // The far plane: the wall (888 x 190, its ridge 135 to 173 px above its foot). World rebuild (step world-1,
+        // H6, 2.5): it stands `look2WallRise` higher, so over the shadow land and the Throat its peaks are cut by the
+        // screen's top (a wall of Everests, not a backdrop); the far castle is gone from its first slot (the shadow
+        // land shows the Weltmauer and the fog only, the castle stands behind the player's back), so it has no
+        // glow there. The patch and the pane of the second slot (the view from the valley) rise with it.
+        (.far, Entry(sprite: .weltmauer, x: -44, y: -17 + look2WallRise, z: -3)),
+        (.far, Entry(sprite: .weltmauerPatch, x: 580, y: -17 + look2WallRise, z: -2, fadeOut: 2330...2520)),
+        (.far, Entry(sprite: .farCastlePane, x: 586, y: 75 + look2WallRise, z: -1,
                      emitters: [.sprite(.farCleftGlowBack, dx: -2, dy: 0, glow: .cleft, fades: true),
                                 .sprite(.farCastlePane, dx: 0, dy: 0, glow: .window, fades: true)],
                      fade: 2330...2520)),
-        // A cloud deck before the wall: the peaks stand above the clouds. No cloud before the two slots.
-        (.far, Entry(sprite: .cloudA, x: -60, y: 96)),
-        (.far, Entry(sprite: .cloudB, x: 322, y: 104)),
+        // A cloud deck before the wall: the peaks stand above the clouds. No cloud before the two slots. World rebuild
+        // (H6): over the shadow land and the Throat the deck lies across the wall at half the screen's height (rows
+        // 40 to 90 on the runner's phone), so the wall rises out of it and past the screen's top. Fix round 1 (the
+        // critic: "the deck's underside is a ruler-straight line"): one painted deck, far x -100 to 620, its billows
+        // standing on y 72, its underside hanging in lobes and rags 4 to 20 px below, a veil of mist feathering 48 px
+        // under it into the wall's haze (`cloudDeck`, tools/fogart.py). The valley's cloud (far x 640) stays.
+        (.far, Entry(sprite: .cloudDeck, x: look2DeckX, y: look2DeckY)),
         (.far, Entry(sprite: .cloudC, x: 640, y: 108, flipped: true)),
         // The valley's painted distance, before the wall's end. Polish after round 2: both stand 64 px further left
         // (they stood at 620 and 1068). The wall falls from 139 to 12 px above the ground line between far x 658 and
@@ -63,22 +67,17 @@ extension SceneLayout {
         // slope reaches 101 where the wall falls through it: the wall ends behind the fir slopes.
         (.far, Entry(sprite: .valleyVista, x: look2VistaX, y: -34, z: 1)),
         (.far, Entry(sprite: .valleyVista, x: look2VistaX + 448, y: -34, z: 1, flipped: true)),
-        // The mid plane, the shadow land: the forest edge, twice, then the gorge's rock (the mouth's steps over
-        // world 520 to 700).
+        // The mid plane, the shadow land: the forest edge, three times (each join a mirror), the third behind the
+        // Throat's first step.
         (.mid, Entry(sprite: .shadowForest, x: -128, y: -4, z: 1)),
         (.mid, Entry(sprite: .shadowForest, x: 96, y: -4, z: 1, flipped: true)),
-        (.mid, Entry(sprite: .gorgeRock, x: 345, y: -10, z: 3)),
-        // The mouth's second depth: five crags on the near plane before the face's edge, the mist between.
-        (.near, Entry(sprite: .gorgeCrags, x: 415, y: -10, z: 1)),
-        // The warden statue, cut into the Throat's wall (look 1 had it at mid x 430, where the mouth now stands
-        // open): 34 px low as before, its bowl fire burning all night.
+        (.mid, Entry(sprite: .shadowForest, x: 320, y: -4, z: 1)),
+        // The warden statue, cut into the Throat's wall (in the niche of its second step): 34 px low as before, its
+        // bowl fire burning all night.
         (.mid, Entry(sprite: .wardenStatue, x: 520, y: -34, z: 4, shade: 0.88, region: .gorge,
                      emitters: [.sprite(.hearthFire, dx: 40, dy: 153, glow: .fireOrange, fades: false)],
                      lights: [Light(kind: .hearth, x: 568, y: 124, radius: 70)])),
-        // The cleft: the inner face behind the castle (its lit top edge 123 above the ground line) and its end
-        // toward the valley. No tree on its edge: a tree there gives the cliff a scale, and a small one.
-        (.mid, Entry(sprite: .cleftFace, x: 740, y: -95, z: 2, shade: 0.42)),
-        (.mid, Entry(sprite: .cleftFaceEnd, x: 1188, y: -95, z: 2, shade: 0.42)),
+    ] + look2Rock + [
         // Stage 7 (ART-look2.md 19.1), the old walls in the Throat, on the world plane behind everything built: the
         // places of the outer and the middle line (two masses of granite, the saddle between them, across it Lady
         // Oriel's broken wall; a wall's left edge is sprite x 28, the ground line 8 rows above the bottom), always
@@ -110,6 +109,9 @@ extension SceneLayout {
         (.near, Entry(sprite: .deadTreeA, x: 271, y: 0)),
         (.near, Entry(sprite: .deadTreeB, x: 325, y: 0, flipped: true)),
         (.near, Entry(sprite: .deadTreeA, x: 373, y: 0, flipped: true)),
+        // Fix round 1 (the critic: "the oldest ruins on the moor"): an arch's two piers, its fallen stones and a
+        // leaning standing stone, older than Oriel's walls, behind world 405, behind the dead trees.
+        (.near, Entry(sprite: .moorRuin, x: 336, y: 0, z: -1)),
         // Foreground: ferns, dead grass and roots in the open land, ending at the beacon (fg x 546 shows before
         // world 470); rock and scree in the Throat.
         (.foreground, Entry(sprite: .d2FgFerns, x: -414, y: -30, z: 2)),
@@ -121,8 +123,10 @@ extension SceneLayout {
         // near bank at the river end behind 3684 and 3790. Round 2 joined: every kind stands in three paintings
         // (SPRITES.md "Two more paintings of every town tree"), planted so that no painting stands twice side by
         // side; a variant lies on its first painting's canvas, so the places and the flips are as they were.
-        (.mid, Entry(sprite: .d2TreeBelt, x: 1400, y: -2, z: 3)),
-        (.mid, Entry(sprite: .d2TreeBelt, x: 1920, y: -2, z: 3)),
+        // World rebuild (B5): the belt stands behind the cleft wall's last crags (z 2 under their 3), so its west
+        // end at mid 1400 is hidden by the rock where the cleft opens to the valley, never a cut in the open.
+        (.mid, Entry(sprite: .d2TreeBelt, x: 1400, y: -2, z: 2)),
+        (.mid, Entry(sprite: .d2TreeBelt, x: 1920, y: -2, z: 2)),
         (.near, Entry(sprite: .appleTree, x: 1883, y: 0)),
         (.near, Entry(sprite: .appleTreeB, x: 1945, y: 0, flipped: true)),
         (.near, Entry(sprite: .lindenC, x: 1997, y: 0)),
@@ -163,6 +167,70 @@ extension SceneLayout {
 
     /// The far x of the valley's first vista (the second, mirrored, joins it 448 px on).
     static let look2VistaX = 556.0
+
+    // MARK: World rebuild, step world-1 (DESIGN.md "World rebuild (14.11.2026)")
+
+    /// How much higher the Weltmauer stands than in the look-2 port (H6: its peaks above the screen's top).
+    static let look2WallRise = 30.0
+    /// The cloud deck's left edge (far x) and its bottom (its billows stand 50 rows higher, on y 72).
+    static let look2DeckX = -100.0
+    static let look2DeckY = 22.0
+
+    /// The rock of the Throat and the cleft (docs/REVIEW-look-2.md 2.3, 2.5, B5, B6, H1; tools/cleftart.py), all on
+    /// the mid plane: the Throat's far wall climbs in three steps from world 720 to 1240, each darker and taller (A
+    /// and B stand on the ground and pale westward into the mist band; C is the cleft's own granite), and the cleft
+    /// wall stands behind the whole castle at full height. C and the walls are anchored at the screen's top, so the
+    /// jagged slit of sky in their top rows shows on every phone (their feet lie under the lane and the castle); they
+    /// are one painting cut in four, so their joins do not show. Nothing of it stands on the walk line. Mid x of the
+    /// column at the screen's centre when the camera is centred on world x: `109.25 + x / 2` (720 → 469, 1240 → 729,
+    /// 2330 → 1274).
+    static let look2Rock: [(plane: Plane, entry: Entry)] = [
+        (.mid, Entry(sprite: .throatStepA, x: look2StepX[0], y: -4, z: 0, region: .gorge)),
+        (.mid, Entry(sprite: .throatStepB, x: look2StepX[1], y: -4, z: 2, region: .gorge)),
+        // Fix round 1 (the director: "the castle's light is seen on the rock"): a backdrop light behind the
+        // gatehouse's top warms the rock beside and above the towers at dusk and night.
+        (.mid, Entry(sprite: .throatStepC, x: look2StepX[2], y: 0, z: 3, anchor: .top, region: .castle,
+                     lights: [Light(kind: .lantern, x: 790, y: 128, radius: 104)])),
+        // The castle's warm light grazes the wall at dusk and night: lanterns of the mid plane behind the bailey's
+        // forge, the keep's door, the chapel, the kitchen and the back gate (mid x `109.25 + world / 2`; backdrop
+        // lights: they light the picture only), their pools centred over the roofs (the buildings stand 60 to 80
+        // rows high), so the warmth shows on the rock above them.
+        // Fix round 1: at night the moon stands in the wedge of sky over the bailey (mid 1010: seen from world 1600
+        // to 2100), its top six rows under the wall's top.
+        (.mid, Entry(sprite: .cleftWallA, x: look2CleftX[0], y: 0, z: 3, anchor: .top, region: .castle,
+                     emitters: [.sprite(.moon, dx: look2SlitMoonX - look2CleftX[0] - 7, dy: 180, glow: .moon,
+                                        fades: true)],
+                     lights: [Light(kind: .lantern, x: 884, y: 92, radius: 96),
+                              Light(kind: .lantern, x: 1024, y: 98, radius: 104)])),
+        (.mid, Entry(sprite: .cleftWallB, x: look2CleftX[1], y: 0, z: 3, anchor: .top, region: .castle,
+                     lights: [Light(kind: .lantern, x: 1129, y: 94, radius: 96),
+                              Light(kind: .lantern, x: 1194, y: 88, radius: 84),
+                              Light(kind: .lantern, x: 1274, y: 92, radius: 92)])),
+        (.mid, Entry(sprite: .cleftWallC, x: look2CleftX[2], y: 0, z: 3, anchor: .top, region: .castle)),
+        // The cold shaft of light that falls through the slit by day (at the sun's strength; none at night).
+        (.mid, Entry(sprite: .cleftShaft, x: look2ShaftX, y: 0, z: 4, anchor: .top, region: .castle,
+                     sunShaft: look2ShaftShare)),
+    ]
+    /// The steps' left edges (mid x) and the cleft wall's pieces (C ends toward the valley at 1528).
+    static let look2StepX: [Double] = [360, 450, 600]
+    static let look2CleftX: [Double] = [824, 1080, 1336]
+    static let look2CleftEnd = 1528.0
+    static let look2ShaftX = 1104.0
+    /// The middle of the wedge of sky over the bailey, where the moon stands at night (tools/cleftart.py `WEDGES`).
+    static let look2SlitMoonX = 1010.0
+    static let look2ShaftShare: Float = 1.0   // fix round 1: a stronger shaft (0.85 before)
+
+    /// The granite the gatehouse's towers grow out of (H2, tools/cleftart.py): a shoulder of bedrock at each tower's
+    /// outer foot, in front of the tower, highest at its outer edge (world 1249 and 1470), bulging past it and
+    /// climbing over the tower's foot in ledges with a course of ashlar on each, so the masonry steps down into the
+    /// rock (fix round 1: wider, up to a third of the tower's height). Tier 3's drums stand 11 px (west) and 12 px
+    /// (east) further out, and the rock with them.
+    static func look2GateRock(front: Double, tier: Int) -> [Entry] {
+        let west = tier == 3 ? 11.0 : 0
+        let east = tier == 3 ? 12.0 : 0
+        return [Entry(sprite: .gateRockL, x: front - 54 - west, y: 0, z: 1),
+                Entry(sprite: .gateRockR, x: front + 196 + east, y: 0, z: 1)]
+    }
 
     /// The old walls' canvas (and the anchors'): a line's wall begins 28 px right of its left edge, and its bottom
     /// lies 8 rows under the ground line (the old footing in the track). The first line's rest stands before the
@@ -315,12 +383,13 @@ extension SceneLayout {
             guard let tiers else { return [entry] }
             return [Entry(sprite: tiers.keep, x: entry.x, y: entry.y, z: entry.z, emitters: castleGlass(tiers.keep))]
         case (.world, .castleFront):
+            let rock = look2GateRock(front: entry.x, tier: stage.tier)
             if stage.tier == 1 {
                 // The scaffold stands before the front (and before the gate's leaves, which are drawn earlier).
-                return stage.building ? [entry, Entry(sprite: .castleFrontScaffold, x: entry.x, y: 0, z: entry.z)]
-                                      : [entry]
+                return (stage.building ? [entry, Entry(sprite: .castleFrontScaffold, x: entry.x, y: 0, z: entry.z)]
+                                       : [entry]) + rock
             }
-            guard stage.tier == 3 else { return [entry] }
+            guard stage.tier == 3 else { return [entry] + rock }
             let sprite: SpriteID = stage.building ? .castleFront3Build : .castleFront3
             var emitters: [Emitter] = []
             for emitter in entry.emitters {
@@ -329,16 +398,10 @@ extension SceneLayout {
                 }
             }
             return [Entry(sprite: sprite, x: entry.x - 14, y: entry.y, z: entry.z,
-                          emitters: emitters + castleGlass(sprite), lights: entry.lights)]
+                          emitters: emitters + castleGlass(sprite), lights: entry.lights)] + rock
         case (.world, .castleBackGate):
             guard let tiers else { return [entry] }
             return [Entry(sprite: tiers.back, x: entry.x + 50, y: 40, z: -4, emitters: castleGlass(tiers.back)), entry]
-        case (.far, .weltmauer):
-            guard let tiers else { return [entry] }
-            var wall = entry
-            wall.emitters = swapped(entry.emitters, .farCleftGlow, for: tiers.cleft)
-            return [wall, Entry(sprite: tiers.far, x: entry.x + 324 - 24, y: entry.y + 92, z: -1,
-                                emitters: castleGlow(tiers.farGlow))]
         case (.far, .farCastlePane):
             guard let tiers else { return [entry] }
             var pane = entry
