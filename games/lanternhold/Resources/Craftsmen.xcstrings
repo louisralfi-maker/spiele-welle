@@ -44,13 +44,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ser Ludo kenne ich immer noch nicht, bevor Ihr fragt. Eure Brandpfeile verlöschen noch immer zu früh."
+            "value" : "Ser Ludo kenne ich immer noch nicht, bevor Ihr fragt. Eure Brandpfeile versengen noch immer kaum."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Still haven’t met Ser Ludo, before you ask. Your fire arrows still go out too soon."
+            "value" : "Still haven’t met Ser Ludo, before you ask. Your fire arrows still barely singe."
           }
         }
       }
@@ -116,13 +116,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ihre Finger sind danach schwarz vom Pech. Die Kaserne riecht eine Woche nach Kiefer, und ab der nächsten Nacht brennt ein Brandpfeil und brennt."
+            "value" : "Ihre Finger sind danach schwarz vom Pech. Die Kaserne riecht eine Woche nach Kiefer, und ab der nächsten Nacht schlägt jeder Brandpfeil heiß ein und klebt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Her fingers come away black with pitch. The barracks smell of pine for a week, and from the next night a fire arrow burns, and burns."
+            "value" : "Her fingers come away black with pitch. The barracks smell of pine for a week; from the next night every fire arrow lands hot and clings."
           }
         }
       }
@@ -188,13 +188,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ja, die Sieben Hügel. Nein, Ser Ludo kenne ich nicht; daheim kennt ihn keiner. Eure Brandpfeile verlöschen, bevor ihre Arbeit getan ist. Einen Tag an Eurer Werkbank mit meinem Pech, und jeder Brandpfeil brennt etwas länger, wo er einschlägt."
+            "value" : "Ja, die Sieben Hügel. Nein, Ser Ludo kenne ich nicht; daheim kennt ihn keiner. Eure Brandpfeile versengen kaum, was sie treffen. Einen Tag an Eurer Werkbank mit meinem Pech, und jeder Brandpfeil beißt sich etwas tiefer ein, wo er einschlägt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Yes, the Seven Hills. No, I’ve never met Ser Ludo; nobody at home has. Your fire arrows go out before their work is done. A day at your bench with my pitch, and every fire arrow burns a little longer where it lands."
+            "value" : "Yes, the Seven Hills. No, I’ve never met Ser Ludo; nobody at home has. Your fire arrows barely singe what they hit. A day at your bench with my pitch, and every fire arrow bites a little deeper where it lands."
           }
         }
       }

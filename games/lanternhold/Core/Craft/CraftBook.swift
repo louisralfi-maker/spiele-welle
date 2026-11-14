@@ -19,8 +19,9 @@ enum CraftEffect: String, Codable, Sendable, CaseIterable {
     case builderWalk
     /// The road lanterns: the unrest line (and the grumbling line) sit `amount` happiness lower.
     case unrestLine
-    /// The pitch: a fire arrow's fire burns `amount` seconds longer.
-    case fireArrowBurn
+    /// The pitch: a fire arrow strikes `amount` (a share) harder (round lh-c1f1-1: its fire burning longer moved nothing,
+    /// because a fire arrow lands where light already is, and lights do not add up).
+    case fireArrowStrike
     /// The gate bands: the gatehouse has `amount` (a share) more strength.
     case gateStrength
 }

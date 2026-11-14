@@ -220,8 +220,8 @@
     {
       "id": "fletcher",
       "work": "pitch",
-      "effect": "fireArrowBurn",
-      "amount": 0.5,
+      "effect": "fireArrowStrike",
+      "amount": 0.04,
       "price": 45,
       "days": 1,
       "pride": false,

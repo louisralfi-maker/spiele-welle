@@ -464,7 +464,8 @@ final class CraftTests: XCTestCase {
         XCTAssertEqual(with("lampmaker"), expected)
 
         expected = base
-        expected.fireArrowSeconds += pitch
+        expected.fireArrowStrike *= 1 + pitch
+        XCTAssertEqual(with("fletcher").fireArrowStrike, 1.04, accuracy: 1e-9, "the pitch: a fire arrow strikes 4 % harder")
         XCTAssertEqual(with("fletcher"), expected)
 
         let gate = with("ironwright")
@@ -510,13 +511,25 @@ final class CraftTests: XCTestCase {
         XCTAssertEqual(try patched(mortar: true), 0.26, accuracy: 1e-9)
     }
 
-    func testThePitchKeepsAFireArrowsFireBurningLonger() {
+    /// The pitch: a fire arrow strikes harder (its fire burns as long as ever: in round lh-c1f1-1 a longer fire moved
+    /// nothing, because a fire arrow lands where light already is and lights do not add up). Read from the arrows the
+    /// simulation looses in a fight at the gate.
+    func testThePitchMakesAFireArrowStrikeHarder() {
         var s = realm()
         s.craft = standing(["fletcher"])
         let tuned = CraftWorks.balance(.standard, for: s)
         let pitch = book.craftsman("fletcher")?.amount ?? 0
         XCTAssertGreaterThan(pitch, 0)
-        XCTAssertEqual(tuned.fireArrowSeconds, Balance.standard.fireArrowSeconds + pitch, accuracy: 1e-9)
+        XCTAssertEqual(Balance.standard.fireArrowStrike, 1, "without the pitch a fire arrow strikes like an arrow")
+        XCTAssertEqual(tuned.fireArrowStrike, 1 + pitch, accuracy: 1e-9)
+        XCTAssertEqual(tuned.fireArrowSeconds, Balance.standard.fireArrowSeconds, "its fire burns as long as ever")
+        let plain = CraftMeasures.fireArrows(works: [])
+        let pitched = CraftMeasures.fireArrows(works: ["fletcher"])
+        XCTAssertGreaterThanOrEqual(plain.arrows, 4, "the fight looses fire arrows")
+        XCTAssertGreaterThanOrEqual(pitched.arrows, 4)
+        let strike = Balance.standard.archerDamage
+        XCTAssertEqual(plain.strike, strike, accuracy: 1e-9)
+        XCTAssertEqual(pitched.strike, strike * (1 + pitch), accuracy: 1e-9)
     }
 
     // MARK: - The save
@@ -637,7 +650,7 @@ final class CraftTests: XCTestCase {
         case .lightRadius: return CraftMeasures.litGround(works: ids, balance: balance)
         case .patchShare: return CraftMeasures.patchRestores(works: ids, balance: balance)
         case .guardHold: return CraftMeasures.breachSeconds(works: ids, balance: balance)
-        case .fireArrowBurn: return CraftMeasures.fireArrows(works: ids, balance: balance).damage
+        case .fireArrowStrike: return CraftMeasures.fireArrows(works: ids, balance: balance).strike
         case .gateStrength: return CraftMeasures.gateSeconds(works: ids, balance: balance)
         case .houseCoin, .happinessOnce, .unrestLine: return nil
         }
@@ -651,7 +664,7 @@ final class CraftTests: XCTestCase {
         case .lightRadius: return ("pixels of ground the braziers light", false)
         case .patchShare: return ("wall strength one patch restores", false)
         case .guardHold: return ("seconds a breach holds against a brute (2, 3, 4 guards)", false)
-        case .fireArrowBurn: return ("fire-arrow damage before the gate (strikes and fire)", false)
+        case .fireArrowStrike: return ("what a fire arrow strikes for in a fight at the gate", false)
         case .gateStrength: return ("seconds the gate holds against four brutes", false)
         case .houseCoin, .unrestLine: return ("taxes while it stands", false)
         case .happinessOnce: return ("happiness while it stands", false)
@@ -707,12 +720,11 @@ final class CraftTests: XCTestCase {
                 let withWork = try XCTUnwrap(ownNumber(c.effect, works: [c.id]), "\(c.id): its scene with the work")
                 movedBy = moved(without, withWork, lowerIsBetter: name.lowerIsBetter)
                 detail = "\(number(without)) → \(number(withWork))"
-                if c.effect == .fireArrowBurn {
+                if c.effect == .fireArrowStrike {
                     let a = CraftMeasures.fireArrows(works: [])
                     let b = CraftMeasures.fireArrows(works: [c.id])
-                    detail += " (fire arrows \(a.arrows)/\(b.arrows), strikes \(number(a.strikes))/\(number(b.strikes)), "
-                        + "fire \(number(a.fire))/\(number(b.fire)), of it where no other light reaches "
-                        + "\(number(a.added))/\(number(b.added)), stopped \(a.stopped)/\(b.stopped))"
+                    detail += " (fire arrows \(a.arrows)/\(b.arrows), their damage \(number(a.damage))/"
+                        + "\(number(b.damage)), stopped \(a.stopped)/\(b.stopped))"
                 }
             }
             lines.append("\(c.id) (\(c.work), \(c.effect.rawValue) \(c.amount)): \(name.name) \(detail): \(pct(movedBy)); "
@@ -731,7 +743,7 @@ final class CraftTests: XCTestCase {
         let hb = Measure(hard)
         lines.append("hard nights (soldierShare 0.8), base: killed \(hb.killed) fallen \(hb.fallen) walls \(hb.wallsLost) "
                      + "hearth lost \(Int(hb.hearthLost)) nights held \(hb.survived)")
-        let nightWorks: Set<CraftEffect> = [.rallyReach, .lightRadius, .patchShare, .guardHold, .fireArrowBurn,
+        let nightWorks: Set<CraftEffect> = [.rallyReach, .lightRadius, .patchShare, .guardHold, .fireArrowStrike,
                                             .gateStrength]
         for c in book.craftsmen where nightWorks.contains(c.effect) {
             let m = Measure(runs(c, bot: stress, seeds: seeds))
@@ -755,7 +767,7 @@ final class CraftTests: XCTestCase {
             (.lightRadius, [0.03, 0.04, 0.05, 0.08]),
             (.patchShare, [0.01, 0.0125, 0.05]),
             (.guardHold, [0.03, 0.05, 0.07]),
-            (.fireArrowBurn, [0.1, 0.25, 0.5, 1.0, 1.5, 2.5]),
+            (.fireArrowStrike, [0.03, 0.04, 0.05]),
             (.gateStrength, [0.03, 0.04, 0.05]),
         ]
         var lines: [String] = []
@@ -768,16 +780,14 @@ final class CraftTests: XCTestCase {
                 CraftWorks.apply(effect, amount: amount, to: &b)
                 let with = try XCTUnwrap(ownNumber(effect, works: [], balance: b), "\(effect.rawValue) \(amount)")
                 parts.append("\(amount): \(pct(moved(without, with, lowerIsBetter: name.lowerIsBetter)))")
-                if effect == .fireArrowBurn {
+                if effect == .fireArrowStrike {
                     let f = CraftMeasures.fireArrows(works: [], balance: b)
-                    parts[parts.count - 1] += " (strikes \(number(f.strikes)) fire \(number(f.fire)) added "
-                        + "\(number(f.added)) stopped \(f.stopped))"
+                    parts[parts.count - 1] += " (fire arrows \(f.arrows), stopped \(f.stopped))"
                 }
             }
-            if effect == .fireArrowBurn {
+            if effect == .fireArrowStrike {
                 let f = CraftMeasures.fireArrows(works: [])
-                parts.insert("without: strikes \(number(f.strikes)) fire \(number(f.fire)) added \(number(f.added)) "
-                             + "stopped \(f.stopped)", at: 0)
+                parts.insert("without: fire arrows \(f.arrows), stopped \(f.stopped)", at: 0)
             }
             lines.append("\(effect.rawValue), \(name.name), without \(number(without)): " + parts.joined(separator: "; "))
         }

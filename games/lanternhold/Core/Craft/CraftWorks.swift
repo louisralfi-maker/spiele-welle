@@ -7,8 +7,9 @@
 /// - `houseCoins(_:happiness:balance:)`: in `Economy.taxes` (the statue).
 /// - `dawn(_:)`: in `PetitionEngine.dawn`, works whose day has come stand (the portrait's happiness once).
 ///
-/// No effect moves its system by more than about 5 % (`CraftTests.testNoWorkMovesItsSystemMoreThanAboutFivePercent`
-/// measures them with the reference bots).
+/// Every effect moves its own number by about 4 %, at least 2 % and at most 6 %
+/// (`CraftTests.testNoWorkMovesItsSystemMoreThanAboutFivePercent`: the statue, the road lanterns and the portrait in the
+/// reference bots' runs, every other work in its scene of play, `CraftMeasures`).
 enum CraftWorks {
     /// The balance a step plays with: `base` changed by every standing work.
     static func balance(_ base: Balance, for s: GameState, book: CraftBook = .standard) -> Balance {
@@ -39,8 +40,8 @@ enum CraftWorks {
             let lower = Int(amount.rounded())
             b.unrestBelow = max(0, b.unrestBelow - lower)
             b.grumbleBelow = max(0, b.grumbleBelow - lower)
-        case .fireArrowBurn:
-            b.fireArrowSeconds += amount
+        case .fireArrowStrike:
+            b.fireArrowStrike *= 1 + amount
         case .gateStrength:
             b.gateHP = b.gateHP.map { $0 * (1 + amount) }
         case .houseCoin, .happinessOnce:

@@ -11,8 +11,7 @@ import Foundation
 /// - the glass: pixels of ground the braziers light (at a sootling's height);
 /// - the mortar: wall strength one patch restores;
 /// - the banners: seconds a breach holds against an ash brute (two, three and four guards);
-/// - the pitch: fire-arrow damage in a fight before the gate (the strikes of the fire arrows and the burning of the
-///   sootlings that stand in their fire);
+/// - the pitch: what a fire arrow strikes for in a fight at the gate;
 /// - the gate bands: seconds the gate holds against four ash brutes.
 ///
 /// Every scene takes the realm with the work standing (`works`) or not, and the base balance; the work acts through the
@@ -195,51 +194,36 @@ enum CraftMeasures {
 
     // MARK: - The pitch
 
-    /// What fire arrows do in a fight before the gate (night 4, no braziers): the lord stands out in front with his
-    /// lantern, the archers on the gate shoot what it lights, a stream of thirty sootlings walks in. `strikes`: the fire
-    /// arrows' hits; `fire`: what sootlings lose while they stand in a fire arrow's fire; `added`: the part of `fire`
-    /// where no other light reaches (lights do not add up: there the fire arrow's fire is the only reason they burn).
+    /// The fire arrows of a fight at the gate (night 4, both braziers lit, the three archers on the gate): a stream of
+    /// twenty-four sootlings and four shadehounds. `arrows`: fire arrows loosed; `damage`: what they strike for, read
+    /// from the arrows the simulation looses; `strike`: what one fire arrow strikes for; `stopped`: creatures stopped.
     struct FireArrows: Sendable {
         var arrows = 0
-        var strikes = 0.0
-        var fire = 0.0
-        var added = 0.0
+        var damage = 0.0
         var stopped = 0
-        var damage: Double { strikes + fire }
+        var strike: Double { arrows > 0 ? damage / Double(arrows) : 0 }
     }
 
     static func fireArrows(works ids: [String], balance: Balance = .standard) -> FireArrows {
         var s = realm(day: 4, works: ids)
+        for plot in Realm.lines[0].braziers { s.plots[plot].item = .brazier }
         nightfall(&s, balance: balance)
-        let play = tuned(s, balance)
-        s.king.x = 1150
-        s.king.facing = 1
-        s.king.velocity = 0
-        for k in 0..<30 { spawn(&s, .sootling, at: 900 - 14 * Double(k), balance: balance) }
-        let height = Battle.litHeight(balance.creature(.sootling))
+        for k in 0..<28 {
+            spawn(&s, k % 7 == 3 ? .shadehound : .sootling, at: 1000 - 16 * Double(k), balance: balance)
+        }
         var result = FireArrows()
         let dt = 0.05
         var elapsed = 0.0
         var events: [SimEvent] = []
-        while elapsed < 50 {
+        while elapsed < 60 && !s.creatures.isEmpty {
             Sim.step(&s, dt: dt, balance: balance, events: &events)
             elapsed += dt
-            let glows = s.glows.filter { $0.kind == .fireArrow && $0.remaining > 0 }
-            if glows.isEmpty { continue }
-            let arrowFire = LitProbe(sources: glows.map {
-                LightSource(kind: .fireArrow, x: $0.x, y: $0.y, radius: $0.radius)
-            }, bankEdge: s.bankEdge)
-            let others = LitProbe(sources: Battle.lightSources(s, balance: play).filter { $0.kind != .fireArrow },
-                                  bankEdge: s.bankEdge)
-            for c in s.creatures where c.hp > 0 && balance.creature(c.kind).burns {
-                let y = c.y + height
-                guard arrowFire.isLit(x: c.x, y: y) else { continue }
-                result.fire += play.burnPerSecond * dt
-                if !others.isLit(x: c.x, y: y) { result.added += play.burnPerSecond * dt }
+            // An arrow loosed in this step has flown one step (the projectiles move after the soldiers shoot).
+            for p in s.projectiles where p.kind == .fireArrow && p.elapsed <= dt + 1e-9 {
+                result.arrows += 1
+                result.damage += p.damage
             }
         }
-        result.arrows = s.night.fireArrows
-        result.strikes = Double(s.night.fireArrows) * play.archerDamage
         result.stopped = s.night.killed
         return result
     }

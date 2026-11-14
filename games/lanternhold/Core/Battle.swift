@@ -1026,14 +1026,16 @@ enum Battle {
                 }
                 soldier.shots += 1
                 let fire = soldier.shots % max(1, balance.fireArrowEvery) == 0
+                // Craft lane hook: the fletcher's pitch makes a fire arrow strike harder (× 1 without her work).
+                let shot = fire ? damage * balance.fireArrowStrike : damage
                 let c = s.creatures[target]
                 let height = table[c.kind.index].height
                 let distance = abs(c.x - soldier.x)
                 let duration = max(0.15, distance / balance.arrowSpeed)
                 s.projectiles.append(Projectile(kind: fire ? .fireArrow : .arrow, fromX: soldier.x, fromY: soldier.y,
                                                 toX: c.x, toY: c.y + height * 0.5, duration: duration,
-                                                target: c.id, damage: damage))
-                s.creatures[target].incoming += damage
+                                                target: c.id, damage: shot))
+                s.creatures[target].incoming += shot
                 soldier.cooldown += balance.archerPeriod
                 s.night.arrows += 1
                 if fire { s.night.fireArrows += 1 }
