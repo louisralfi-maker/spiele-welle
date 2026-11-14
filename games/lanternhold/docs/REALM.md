@@ -63,8 +63,8 @@ section 3 is the number, this is its picture.
   presence.
 - **Raise the lantern** (the stage lane's notes, item 3) stays as it is: the two do not share state.
 - **The picture** (after the join): people near him straighten and shout, a warm rim on them. No HUD.
-- **Bots and targets.** The reference bots get no presence, so T1 to T8 hold line for line. A new "present" bot walks
-  to the wall the wave lands on. **T13:** over nights 3 to 14 it loses 25 to 40 % fewer defenders than the reference,
+- **Bots and targets.** The reference bots get no presence, so T1 to T8 hold line for line. A new "present" bot goes
+  to the wall at dusk and stays with the defenders. **T13:** over nights 3 to 14 it loses 25 to 40 % fewer defenders than the reference,
   and presence never wins a night the reference loses clearly.
 
 ## 4. The hearth (losing)
@@ -105,14 +105,14 @@ The director's own reading on 14.11. (the hits as a bar for craft, never a model
 
 | thin today | what the hits do | our answer |
 |---|---|---|
-| the night plays itself | the night tests the day and the player is in it | sections 3 and 4, raise the lantern, the flame leans |
+| the night plays itself | the night tests the day and the player is in it | sections 3 and 4, raise the lantern, the flame shows the danger |
 | the day has no pressure | the day is too short for everything | taxes on foot, the knock, feeding the hearth, the beacon to relight |
 | nothing in front, nothing to find | the map opens piece by piece | section 5; fields and farmsteads behind |
 | growth ends early | every session leaves something visibly bigger | section 2 |
 | a lost night is all or nothing | a loss costs something you love and you go on | section 4 |
 | judgments echo too quietly | a choice comes back with a face | the ledger; the people remember (build 3) |
 | no way in | the first minute teaches by doing | the title is the world, the first sootling, Odile's counsel |
-| long walks | short ways or a mount | the lord hurries; the collector later |
+| long walks | short ways or a mount | the lord hurries; the collector from the first day |
 
 Open questions the director watches: whether presence makes the night a chore (too many moves along the one line) and whether
 taxes on foot cost too much of a 156 s day. Both are judged on the device with build 2.
