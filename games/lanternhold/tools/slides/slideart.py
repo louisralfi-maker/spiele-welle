@@ -1253,8 +1253,9 @@ pppppppppkkkkkksss.
 
 
 import slide_hall  # noqa: E402
+import slide_wall  # noqa: E402
 
-SLIDES = {"slidePrologue1": slide1, "slidePrologue2": slide2, "slidePrologue3": slide3,
+SLIDES = {"slidePrologue1": slide_wall.slide1, "slidePrologue2": slide2, "slidePrologue3": slide3,
           "slidePrologue4Lord": lambda: slide_hall.slide4("lord"),
           "slidePrologue4Lady": lambda: slide_hall.slide4("lady")}
 
