@@ -50,9 +50,19 @@ struct SlideStageView: View {
                 let layout = SlideLayout(size: geometry.size, displayScale: displayScale, lineHeight: lineHeight)
                 stageContent(layout)
                     .frame(width: geometry.size.width, height: geometry.size.height)
-            }
-            if stage.show?.skippable == true {
-                skipButton
+                    .coordinateSpace(.named(SlideProgressMid.space))
+                    .overlayPreferenceValue(SlideProgressMid.self) { mid in
+                        // "Skip" stands in the dark at the bottom right, level with the lozenges, so it never
+                        // touches the glass in any language (critic look 1 of panels-1).
+                        if stage.show?.skippable == true, mid > 0 {
+                            HStack(spacing: 0) {
+                                Spacer(minLength: 0)
+                                skipButton
+                            }
+                            .frame(width: geometry.size.width, height: 44)
+                            .position(x: geometry.size.width / 2, y: mid)
+                        }
+                    }
             }
         }
         .accessibilityElement(children: .contain)
@@ -79,6 +89,10 @@ struct SlideStageView: View {
                     SlideProgress(count: stage.show?.slides.count ?? 0, index: stage.index,
                                   hint: wordsShown && !stage.isLast, reduceMotion: reduceMotion)
                         .frame(height: 14)
+                        .background(GeometryReader { row in
+                            Color.clear.preference(key: SlideProgressMid.self,
+                                                   value: row.frame(in: .named(SlideProgressMid.space)).midY)
+                        })
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .contentShape(Rectangle())
@@ -147,30 +161,25 @@ struct SlideStageView: View {
     }
 
     private var skipButton: some View {
-        VStack {
-            HStack {
-                Spacer()
-                Button {
-                    model.skipSlides()
-                } label: {
-                    HStack(spacing: 5) {
-                        Text(verbatim: SlideText.string("slides.skip", lord: stage.lord))
-                            .font(Theme.caps(.footnote))
-                        Image(systemName: "chevron.right.2")
-                            .font(.system(size: 10, weight: .semibold))
-                    }
-                    .foregroundStyle(SlidePalette.skip)
-                    .padding(.horizontal, 14)
-                    .frame(minWidth: 64, minHeight: 44)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(SlideTapStyle())
-                .accessibilityLabel(Text(verbatim: SlideText.string("slides.skip", lord: stage.lord)))
-                .accessibilityIdentifier("story-skip")
+        Button {
+            model.skipSlides()
+        } label: {
+            HStack(spacing: 5) {
+                Text(verbatim: SlideText.string("slides.skip", lord: stage.lord))
+                    .font(Theme.caps(.footnote))
+                    .lineLimit(1)
+                    .fixedSize()
+                Image(systemName: "chevron.right.2")
+                    .font(.system(size: 10, weight: .semibold))
             }
-            Spacer()
+            .foregroundStyle(SlidePalette.skip)
+            .padding(.horizontal, 14)
+            .frame(minWidth: 64, minHeight: 44)
+            .contentShape(Rectangle())
         }
-        .padding(.top, 4)
+        .buttonStyle(SlideTapStyle())
+        .accessibilityLabel(Text(verbatim: SlideText.string("slides.skip", lord: stage.lord)))
+        .accessibilityIdentifier("story-skip")
         .padding(.trailing, 6)
     }
 
@@ -246,6 +255,17 @@ struct SlideLayout: Equatable {
         wordsWidth = min(size.width - 24, max(picture.width + 80, 600))
         bar = max(10, picture.width * 0.03)
         corner = max(6, picture.height * 0.035)
+    }
+}
+
+/// The middle of the lozenges' row in the stage's space: "Skip" stands level with it at the right, in the dark below
+/// the glass.
+struct SlideProgressMid: PreferenceKey {
+    static let space = "slideStage"
+    static let defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
 

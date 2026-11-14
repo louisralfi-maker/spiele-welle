@@ -36,6 +36,13 @@ final class SlidesUITests: XCTestCase {
         let skip = element(app, "story-skip")
         checkTarget(skip, "skip")
         checkTarget(next, "the slide")
+        // "Skip" stands in the dark below the glass, level with the lozenges, never on the picture (critic look 1)
+        let window = app.windows.firstMatch.frame
+        if window.width > window.height {
+            XCTAssertGreaterThan(skip.frame.minY, window.minY + window.height * 0.68,
+                                 "Skip sits below the glass, not on its corner (\(skip.frame), window \(window))")
+            XCTAssertLessThanOrEqual(skip.frame.maxX, window.maxX + 1, "Skip stays on the screen")
+        }
         var seen: [String] = []
         let names = ["61-slide-1", "62-slide-2", "63-slide-3", "64-slide-4-lady"]
         for (n, name) in names.enumerated() {
