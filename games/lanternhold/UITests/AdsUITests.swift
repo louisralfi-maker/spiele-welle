@@ -94,6 +94,7 @@ final class AdsUITests: XCTestCase {
         pause(0.8)
         attach(XCUIScreen.main.screenshot(), "ads-05-merchant-\(language)")
         gift.tap()
+        XCTAssertTrue(element(app, "merchant-gift-landed").waitForExistence(timeout: 3), "a slip says what came in")
         XCTAssertTrue(waitForGone(card, timeout: 6), "the card closes")
         XCTAssertTrue(waitForValue(gold, "\(before + amount)", timeout: 4),
                       "the gift lands (\(gold.value as? String ?? "?"), was \(before), gift \(amount))")

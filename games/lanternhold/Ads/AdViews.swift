@@ -195,6 +195,13 @@ struct AdLayer: View {
     var body: some View {
         let director = AdDirector.shared
         ZStack {
+            if let gift = director.giftLanded {
+                GiftLandedSlip(gift: gift)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.top, 58)
+                    .allowsHitTesting(false)
+                    .transition(model.reduceMotion ? .identity : .opacity)
+            }
             if director.merchantCardOpen, let gift = director.merchantGift {
                 Color.black.opacity(0.3)
                     .ignoresSafeArea()
@@ -218,6 +225,28 @@ struct AdLayer: View {
             #endif
         }
         .animation(model.reduceMotion ? nil : .easeOut(duration: 0.22), value: director.merchantCardOpen)
+        .animation(model.reduceMotion ? nil : .easeOut(duration: 0.3), value: director.giftLanded)
+    }
+}
+
+/// After Marek's video: a slip under the realm strip says what came into the treasury, for a moment.
+struct GiftLandedSlip: View {
+    let gift: MerchantGift
+
+    var body: some View {
+        HStack(spacing: 7) {
+            CoinIcon(size: 15)
+            Text(inked: String(localized: "Marek's gift: +\(gift.gold) gold", table: "Ads",
+                               comment: "A slip after Marek's video: the gold came in."), .subheadline)
+                .font(Theme.caps(.subheadline))
+                .foregroundStyle(Theme.ink)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(SlipBackground())
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("merchant-gift-landed")
     }
 }
 
@@ -234,7 +263,7 @@ struct MerchantGiftCard: View {
             CardScroll {
                 content
             }
-            .frame(width: min(480, geometry.size.width - 24))
+            .frame(width: min(520, geometry.size.width - 24))
             .background(ParchmentBackground())
             .frame(maxHeight: geometry.size.height - 12)
             .frame(width: geometry.size.width, height: geometry.size.height)
@@ -280,9 +309,11 @@ struct MerchantGiftCard: View {
                     director.closeMerchantCard()
                 } label: {
                     Text("Not now", tableName: "Ads", comment: "Marek's card: closes it without the video.")
-                        .frame(maxWidth: .infinity)
+                        .lineLimit(1)
+                        .fixedSize()
                 }
                 .buttonStyle(QuietButtonStyle())
+                .fixedSize()
                 .accessibilityIdentifier("merchant-later")
                 Button {
                     director.takeMerchantGift()
@@ -305,7 +336,6 @@ struct MerchantGiftCard: View {
                 .accessibilityLabel(Text("Merchant's gift: +\(gift.gold) gold. Watch a short video ad.", tableName: "Ads",
                                          comment: "VoiceOver: Marek's rewarded video."))
                 .accessibilityIdentifier("merchant-gift")
-                .layoutPriority(1)
             }
         }
         .padding(.horizontal, 20)

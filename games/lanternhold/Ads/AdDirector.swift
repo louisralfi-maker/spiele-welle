@@ -36,8 +36,11 @@ final class AdDirector {
     private(set) var doubled: Doubled?
     /// Marek's card is open over the world (`AdLayer`); the world stands still under it.
     private(set) var merchantCardOpen = false
-    /// The last gift Marek gave (the HUD's gold shows it; the UI test reads it).
+    /// The last gift Marek gave.
     private(set) var lastGift: MerchantGift?
+    /// Marek's gift just came in: a slip says so for `giftSlipSeconds` (`AdLayer`).
+    private(set) var giftLanded: MerchantGift?
+    static let giftSlipSeconds: Duration = .seconds(2.6)
     /// The last interstitial verdict, for the debug log (`ads-log`).
     private(set) var lastVerdict: InterstitialVerdict?
 
@@ -200,6 +203,7 @@ final class AdDirector {
             self.landed(model)
             self.merchantCardOpen = false
             self.holdWorld()
+            self.showGiftSlip(gift)
         }
     }
 
@@ -300,6 +304,15 @@ final class AdDirector {
             watchShowing()
         } else {
             adGone()
+        }
+    }
+
+    private func showGiftSlip(_ gift: MerchantGift) {
+        giftLanded = gift
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: AdDirector.giftSlipSeconds)
+            guard let self, self.giftLanded == gift else { return }
+            self.giftLanded = nil
         }
     }
 

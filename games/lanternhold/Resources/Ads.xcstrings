@@ -56,6 +56,17 @@
         }
       }
     },
+    "Marek's gift: +%lld gold" : {
+      "comment" : "A slip after Marek's video: the gold came in.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mareks Geschenk: +%lld Gold"
+          }
+        }
+      }
+    },
     "Marek, the travelling merchant" : {
       "comment" : "Marek's card: who he is.",
       "localizations" : {
