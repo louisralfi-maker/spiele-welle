@@ -1,0 +1,153 @@
+# elder 12x26, 6 frames: walk 0-3, idle 4-5 (docs/SPRITES-people.md, the citizen contract). Old Hemmet, 71, the
+# miller at the Wend's weir and one of the Returned (STORY.md section 6; docs/PEOPLE.md). Sixty years of sacks have
+# bent him nearly double: the back a hump above the line of his head, the head carried low and forward, a bald crown,
+# a white fringe and a white beard, a long smock of undyed wool gone pale with flour that never washes out, a rope
+# belt, dark breeches, clogs. The near hand on a crooked stick, the far hand at the small of his back. Light from the
+# upper left; look 2's selective outline. Walk: a shuffle, the feet a hand apart, the body rocking 1 px down on each
+# contact, the stick planted ahead on the contact and drawn after on the pass (2 game px per frame: the engine walks
+# him slowly). Idle: a breath.
+id elder
+size 12x26
+frames 6
+outline ink shade
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    P = stonePale
+    W = parchment
+    w = plaster
+    q = plasterDim
+    c = straw
+    b = soil
+    B = soilDark
+    n = soilLight
+    H = woodDark
+    h = wood
+    l = woodLight
+
+# the bald crown, the white fringe and beard, the face low and forward (frame cols 6-10)
+part head
+    ..SS.
+    .PSSS
+    PPSkS
+    .PsSS
+    .PPPs
+    ..PP.
+
+# the bent back: the hump of the shoulders highest and lit, the smock grey-pale with flour, the fold under the hump,
+# the rope belt, the smock's skirt
+part torso
+    ..wwq..
+    .wwqqqn
+    .wqqqqn
+    wwqqqnn
+    wqqqqnn
+    qqqqnnn
+    .cccnB.
+    .wqqnn.
+    .wqqnn.
+    .qqnn..
+
+# the far hand resting at the small of the back
+part handBack
+    S
+    s
+
+# the near arm reaching down to the stick: the sleeve lit against the smock's shade, the knuckled hand on the knob
+part arm
+    w..
+    wq.
+    .wS
+
+# the crooked stick: planted ahead (contact) and upright under the hand (pass)
+part stickPlant
+    l.
+    h.
+    h.
+    .h
+    .h
+    .h
+    .h
+    .h
+    .h
+    .H
+
+part stickUp
+    l
+    h
+    h
+    h
+    h
+    h
+    h
+    h
+    h
+    H
+
+part legsStand
+    ..bBnb..
+    ..bBnb..
+    ..bBnb..
+    ..bBnb..
+    ..HHhH..
+    .HHHhHH.
+
+part legsContactA
+    ..bBnb..
+    ..bB.nb.
+    ..bB.nb.
+    .bB...nb
+    .HH...hH
+    .HH...hHH
+
+part legsContactB
+    ..bBnb..
+    ..nb.bB.
+    ..nb.bB.
+    .nb...bB
+    .hH...HH
+    .hH...HHH
+
+frame 0
+    legsContactA 1 19
+    torso 1 10
+    handBack 2 15
+    stickPlant 9 15
+    head 6 12
+    arm 6 16
+
+frame 1
+    legsStand 1 19
+    torso 1 9
+    handBack 2 14
+    stickUp 9 15
+    head 6 11
+    arm 6 15
+
+frame 2
+    legsContactB 1 19
+    torso 1 10
+    handBack 2 15
+    stickPlant 9 15
+    head 6 12
+    arm 6 16
+
+frame 3 = 1
+
+frame 4
+    legsStand 1 19
+    torso 1 9
+    handBack 2 14
+    stickUp 9 15
+    head 6 11
+    arm 6 15
+
+frame 5
+    legsStand 1 19
+    torso 1 10
+    handBack 2 15
+    stickUp 9 16
+    head 6 12
+    arm 6 16

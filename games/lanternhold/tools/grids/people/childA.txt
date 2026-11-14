@@ -1,0 +1,158 @@
+# childA 10x18, 10 frames: run 0-3, fidget 4-5, skip 6-9 (docs/SPRITES-people.md, the children's contract). Pim Brisk,
+# 7, Wenna's youngest (docs/PEOPLE.md). Quick where everyone else is slow: a mop of straw hair, a brother's linen tunic
+# far too big for him (the sleeves over his hands, the hem to his knees), bare feet, a stick for a sword, and the warm clean
+# accent that belongs to the children: a red kerchief knotted at his neck. Light from the upper left; look 2's
+# selective outline. Run: contact, flight, contact, flight (the body up 1 px and the feet off the ground in flight),
+# the stick held high. Fidget: on both feet, then on one foot rubbing the other against his shin. Skip: the step and
+# the hop on each foot (2 px up on the hop), the arms thrown up.
+id childA
+size 10x18
+frames 10
+outline ink shade
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    C = strawLight
+    c = straw
+    R = crimsonLight
+    r = crimson
+    W = parchment
+    w = plaster
+    q = plasterDim
+    l = woodLight
+    h = wood
+
+# the mop of straw hair over the brow, the round face
+part head
+    .CCc.
+    CCCCc
+    cCSkS
+    .csSs
+
+# the red kerchief, the tunic too big for him
+part body
+    .RRr.
+    Wwwwq
+    Wwwwq
+    Wwwwq
+    .Wwwq
+
+# the near arm, the sleeve over the hand, the stick held high and forward
+part armStick
+    w..l
+    .wl.
+    ..h.
+
+# the stick over the shoulder (fidget)
+part armShoulder
+    ..l
+    .h.
+    w..
+    q..
+
+# the arms thrown up (skip)
+part armsUp
+    w.
+    .w
+
+part legsStand
+    .sS.
+    .sS.
+    ssSS
+
+part legsOneFoot
+    .sS.
+    ..Ss
+    ..SS
+
+part legsRunA
+    .s..S.
+    s....S
+    s....S
+
+part legsRunB
+    .S..s.
+    S....s
+    S....s
+
+part legsFlightA
+    .sSS
+    s..S
+    s...
+
+part legsFlightB
+    .Sss
+    S..s
+    S...
+
+part legsSkipA
+    .sSS.
+    .s..S
+    .s...
+
+part legsSkipB
+    .Sss.
+    .S..s
+    .S...
+
+frame 0
+    legsRunA 2 14
+    body 2 9
+    head 3 5
+    armStick 5 9
+
+frame 1
+    legsFlightA 3 13
+    body 2 8
+    head 3 4
+    armStick 5 8
+
+frame 2
+    legsRunB 2 14
+    body 2 9
+    head 3 5
+    armStick 5 9
+
+frame 3
+    legsFlightB 3 13
+    body 2 8
+    head 3 4
+    armStick 5 8
+
+frame 4
+    legsStand 3 14
+    body 2 9
+    head 3 5
+    armShoulder 5 7
+
+frame 5
+    legsOneFoot 3 14
+    body 2 9
+    head 3 4
+    armShoulder 5 7
+
+frame 6
+    legsSkipA 2 14
+    body 2 9
+    head 3 5
+    armsUp 6 8
+
+frame 7
+    legsSkipA 2 12
+    body 2 7
+    head 3 3
+    armsUp 6 6
+
+frame 8
+    legsSkipB 2 14
+    body 2 9
+    head 3 5
+    armsUp 6 8
+
+frame 9
+    legsSkipB 2 12
+    body 2 7
+    head 3 3
+    armsUp 6 6

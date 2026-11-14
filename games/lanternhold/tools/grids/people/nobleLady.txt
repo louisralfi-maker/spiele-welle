@@ -1,0 +1,193 @@
+# nobleLady 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (docs/SPRITES-people.md, the guests' contract). A lady of
+# the inner lands: Oxmoor's kin from Goldenacre, or a syndic's lady of Stillmere (docs/PEOPLE.md). Upright, slow,
+# clean, overdressed, and holding a lace cloth to her nose wherever she goes in the valley. A tall plum hennin tilted
+# back with a gold band and a sheer veil falling from its tip down her back, a pale face, a lace collar, a gown of
+# plum with wide hanging sleeves lined in a lighter plum, a gold girdle, a gold hem, and a train that drags behind her
+# on the ground. Light from the upper left; look 2's selective outline. Walk: a glide, the back straight, the gown's
+# front stepping out a pixel and the tip of a shoe showing on each contact, the train dragging. Idle: the cloth at her
+# nose, a breath. Talk: the cloth lowered and the hand turned out, as if waving a smell away (6), a little higher (7).
+id nobleLady
+size 14x30
+frames 8
+outline ink shade
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    V = plumLight
+    v = plum
+    u = plumDeep
+    G = gold
+    W = parchment
+    F = foam
+    H = woodDark
+
+# the hennin tilted back: its tip, the cone, the gold band on the brow
+part hennin
+    uv.....
+    .Vvu...
+    .VVvu..
+    ..VVvu.
+    ..VVvvu
+    ...GGGG
+
+# the sheer veil from the hennin's tip down her back
+part veil
+    W.
+    FW
+    FW
+    FW
+    FW
+    .FW
+    .FW
+    .FW
+    ..W
+
+# the pale face under the band, the long neck (frame cols 6-10)
+part head
+    SSSS.
+    SSSkS
+    sSSSS
+    .sSs.
+    ..S..
+
+# the lace collar, the bodice, the gold girdle
+part bodice
+    ..WFW.
+    .Vvvvu
+    VVvvvu
+    VVvvvu
+    GGGGGG
+
+# the gown falling from the girdle with one deep fold down the front, the train dragging behind on the ground; at rest
+# and with the front stepping out (the tip of a shoe showing)
+part gown
+    .....Vvvvu..
+    ....VVvvvu..
+    ....VVvuvvu.
+    ....VVvuvvu.
+    ...VVvvuvvu.
+    ...VVvvuvvu.
+    ...VVvvuvvu.
+    ..VVvvvuvvu.
+    ..VVvvvuvvu.
+    .VVvvvvuvvu.
+    .VVvvvvuvvvu
+    VVVvvvvuvvvu
+    VVvvvvvuvvvu
+    GGGGGGGGGGGu
+
+part gownStep
+    .....Vvvvu..
+    ....VVvvvu..
+    ....VVvuvvu.
+    ....VVvuvvu.
+    ...VVvvuvvu.
+    ...VVvvuvvvu
+    ...VVvvuvvvu
+    ..VVvvvuvvvu
+    ..VVvvvuvvvu
+    .VVvvvvuvvvu
+    .VVvvvvuvvvu
+    VVVvvvvuvvvu
+    VVvvvvvuvvvu
+    GGGGGGGGGGGH
+
+# the near arm raised: the hand holding the lace cloth to her nose, the tight inner sleeve, and the wide outer sleeve
+# hanging open from the elbow, its lighter lining showing
+part armCloth
+    ...WF
+    ..SFW
+    ..u..
+    .uu..
+    uVu..
+    uVV..
+    .VV..
+    .VVu.
+    ..Vu.
+
+# talk: the cloth lowered, the hand turned out at the chest (6), a little higher (7)
+part armOutA
+    .....
+    .....
+    .....
+    ...SW
+    ..uFW
+    .uu..
+    uVu..
+    uVV..
+    .VV..
+    .VVu.
+    ..Vu.
+
+part armOutB
+    .....
+    .....
+    ...SW
+    ..uFW
+    ..u..
+    .uu..
+    uVu..
+    uVV..
+    .VV..
+    .VVu.
+    ..Vu.
+
+frame 0
+    gownStep 0 15
+    bodice 5 11
+    veil 2 1
+    hennin 3 0
+    head 6 6
+    armCloth 8 7
+
+frame 1
+    gown 0 15
+    bodice 5 11
+    veil 2 1
+    hennin 3 0
+    head 6 6
+    armCloth 8 7
+
+frame 2
+    gownStep 0 15
+    bodice 5 11
+    veil 2 1
+    hennin 3 0
+    head 6 6
+    armCloth 8 7
+
+frame 3 = 1
+
+frame 4
+    gown 0 15
+    bodice 5 11
+    veil 2 1
+    hennin 3 0
+    head 6 6
+    armCloth 8 7
+
+frame 5
+    gown 0 15
+    bodice 5 12
+    veil 2 2
+    hennin 3 1
+    head 6 7
+    armCloth 8 8
+
+frame 6
+    gown 0 15
+    bodice 5 11
+    veil 2 1
+    hennin 3 0
+    head 6 6
+    armOutA 8 7
+
+frame 7
+    gown 0 15
+    bodice 5 11
+    veil 2 1
+    hennin 3 0
+    head 6 6
+    armOutB 8 7

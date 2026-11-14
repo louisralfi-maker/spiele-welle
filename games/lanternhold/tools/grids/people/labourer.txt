@@ -1,0 +1,166 @@
+# labourer 12x26, 6 frames: walk 0-3, idle 4-5 (docs/SPRITES-people.md, the citizen contract). Brede Hask, 37, who
+# carries timber and stone for the walls and the beacon road (docs/PEOPLE.md). Broad and heavy-shouldered: a shaved
+# head with a sweat rag tied round the brow, a stubbled jaw, a sleeveless leather jerkin, bare arms, rock-grey breeches,
+# a timber beam on his near shoulder steadied by the near hand. His mark: the limp. A block slipped on the beacon road
+# and crushed his near foot; it is bound in rags instead of a boot, and the leg no longer bends right. Light from the
+# upper left; look 2's selective outline. Walk: the limp, uneven on purpose: a short step onto the bad foot (contact),
+# the dip while the good leg swings through on it (2 px down), the long step of the good leg (contact), and the bad
+# leg dragged through stiff with the body up (pass); the beam rides with the body. Idle: a breath, the weight on the
+# good leg.
+id labourer
+size 12x26
+frames 6
+outline ink shade
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    m = stone
+    q = plasterDim
+    l = woodLight
+    C = strawLight
+    c = straw
+    h = wood
+    H = woodDark
+    B = soilDark
+    n = soilLight
+    z = rockLight
+    Z = rock
+    K = rockDark
+    P = stonePale
+    L = stoneLight
+
+# the shaved crown, the sweat rag round the brow with its knot behind, the stubbled jaw, the thick neck (cols 4-9)
+part head
+    ..SSS.
+    .qqqqq
+    qsSSkS
+    .ssSSs
+    .smmm.
+    ..ss..
+
+# the sleeveless leather jerkin over the broad back and chest (dark, worn shiny on the shoulder), the belt
+part torso
+    .hHHHHB.
+    hHHHHHBB
+    hHHHHHBB
+    .HHHHBB.
+    .BBnBBB.
+
+# the beam on the near shoulder: fresh pale timber, its lit top, its underside, the end grain at both ends
+part beam
+    lCCCCCCCCCCc
+    hcccccccccch
+
+# the near arm raised to steady the beam, the hand on its underside
+part armUp
+    .S
+    .S
+    s.
+
+part legsStand
+    ...ZKzZ..
+    ...ZKzZ..
+    ...ZKzZ..
+    ...ZKzZ..
+    ...ZKzZ..
+    ..ZK.zZ..
+    ..ZK.zZ..
+    ..HH.PL..
+    ..HH.PL..
+    ..HHHPLL.
+
+# contact onto the bad foot: a short step
+part legsContactA
+    ...ZKzZ..
+    ...ZKzZ..
+    ..ZK.zZ..
+    ..ZK.zZ..
+    .ZK...zZ.
+    .ZK...zZ.
+    .ZK...zZ.
+    .HH...PL.
+    .HH...PL.
+    .HHH..PLL
+
+# the good leg swings through while he stands on the bad one
+part legsPassA
+    ...ZKzZ..
+    ...ZKzZ..
+    ...ZKzZ..
+    ..ZK.zZ..
+    .HH..zZ..
+    .HH..zZ..
+    .HHH.zZ..
+    .....PL..
+    .....PL..
+    .....PLL.
+
+# the long step of the good leg, the bad leg trailing straight
+part legsContactB
+    ...ZKzZ..
+    ...ZKzZ..
+    ..zZ.ZK..
+    ..zZ..ZK.
+    .zZ...ZK.
+    .zZ...ZK.
+    zZ....ZK.
+    PL....HH.
+    PL....HH.
+    PLL...HHH
+
+# the bad leg dragged through stiff, the foot scraping
+part legsPassB
+    ...ZKzZ..
+    ...ZKzZ..
+    ...zZZK..
+    ...zZZK..
+    ..zZ.ZK..
+    ..zZ.ZK..
+    .zZ..ZK..
+    .PL..HH..
+    .PL..HH..
+    .PLL.HHH.
+
+frame 0
+    legsContactA 1 15
+    torso 2 10
+    beam 0 9
+    head 4 4
+    armUp 8 9
+
+frame 1
+    legsPassA 1 15
+    torso 2 11
+    beam 0 10
+    head 4 5
+    armUp 8 10
+
+frame 2
+    legsContactB 1 15
+    torso 2 10
+    beam 0 9
+    head 4 4
+    armUp 8 9
+
+frame 3
+    legsPassB 1 15
+    torso 2 9
+    beam 0 8
+    head 4 3
+    armUp 8 8
+
+frame 4
+    legsStand 1 15
+    torso 2 9
+    beam 0 8
+    head 4 3
+    armUp 8 8
+
+frame 5
+    legsStand 1 15
+    torso 2 10
+    beam 0 9
+    head 4 4
+    armUp 8 9

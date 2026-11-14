@@ -1,0 +1,226 @@
+# nobleLord 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (docs/SPRITES-people.md, the guests' contract). Ser Aubrey
+# Oxmoor of Goldenacre, the hunting noble of `noble_hunt` (STORY.md section 5), and the body of every lord from the
+# inner lands (docs/PEOPLE.md). From another world: upright as a post, the chin lifted so he looks over people's heads,
+# clean, overdressed. A tall crimson hat with a gold band and a white plume, dark curls to the collar, a waxed
+# moustache and a pointed beard, a lace collar, a long coat in Oxmoor's crimson with gold braid down the front, gold
+# cuffs and a gold hem, pale gloves, polished riding boots, a cane with a gold knob. The only saturated cloth and the
+# only gold thread in the game are his and his kind's. Light from the upper left; look 2's selective outline. Walk:
+# short measured steps, the back straight, the cane swung forward and set down (contact 1 px down). Idle: both hands
+# on the cane, a breath. Talk: the gloved hand turned up in a languid gesture (6), rolled a little higher (7).
+id nobleLord
+size 14x30
+frames 8
+outline ink shade
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    H = woodDark
+    h = wood
+    l = woodLight
+    R = crimsonLight
+    r = crimson
+    x = crimsonDeep
+    G = gold
+    W = parchment
+    F = foam
+    q = plasterDim
+
+# the tall hat: the white plume curling back from the gold band, the crown, the brim
+part hat
+    FWW.....
+    .FWrrrx.
+    ...rrrx.
+    ...GGGG.
+    .rrrrrrx
+
+# dark curls to the collar, the face held high, the waxed moustache, the pointed beard (frame cols 5-10)
+part head
+    HhSSS.
+    HhSSkS
+    HhsSSS
+    HHsHHs
+    Hh.sH.
+    H...H.
+
+# the lace collar, the coat narrow at the chest with gold braid down its front edge, the belt with a gold buckle,
+# the skirt flaring to the knee, the gold hem
+part coat
+    ....WFW..
+    ..RrrrrG.
+    ..RrrrrGx
+    ..RrrrrGx
+    ..RrrrrGx
+    ..xxxxGxx
+    .RrrrrrGx
+    .RrrrrrrGx
+    RrrrrrrrGx
+    RrrrrrrrGx
+    GGGGGGGGGG
+
+# the far arm: the elbow out behind, the glove on the hip
+part armBack
+    Rx
+    Rx
+    x.
+    G.
+    .W
+
+# the near arm in its darker sleeve down to the cane: the gold cuff, the lace, the glove
+part armCane
+    Rx..
+    Rx..
+    .Rx.
+    .Rx.
+    .Rx.
+    .GWW
+
+# the cane: the gold knob, the dark shaft
+part cane
+    G
+    H
+    H
+    H
+    H
+    H
+    H
+    H
+    H
+    H
+    H
+    H
+
+# talk: the forearm up, the glove turned up (6), a little higher (7)
+part armTalkA
+    Rx..
+    Rx..
+    .Rx.
+    .xGW
+    ...W
+
+part armTalkB
+    Rx..
+    Rx..
+    .xGW
+    ...W
+
+part legsStand
+    .HH.lH.
+    .HH.lH.
+    .HH.lH.
+    .HH.lH.
+    .HH.lH.
+    .HH.lH.
+    .HH.lH.
+    .HHHlHH
+
+part legsContactA
+    .HH..lH
+    .HH..lH
+    HH...lH
+    HH....lH
+    HH....lH
+    HH....lH
+    HH....lH
+    HH....lHH
+
+part legsPassA
+    .HH.lH.
+    .HH.lH.
+    .HH.lH.
+    ..HHlH.
+    ..HHlH.
+    ..HHlH.
+    ...HlH.
+    ...HlHH
+
+part legsContactB
+    .lH..HH
+    .lH..HH
+    lH...HH
+    lH....HH
+    lH....HH
+    lH....HH
+    lH....HH
+    lH....HHH
+
+part legsPassB
+    .HH.lH.
+    .HH.lH.
+    .HH.lH.
+    .HHlH..
+    .HHlH..
+    .HHlH..
+    .HHlH..
+    .HHHlH.
+
+frame 0
+    legsContactA 3 21
+    coat 2 12
+    armBack 1 13
+    head 5 6
+    hat 4 1
+    cane 11 17
+    armCane 7 13
+
+frame 1
+    legsPassA 3 21
+    coat 2 11
+    armBack 1 12
+    head 5 5
+    hat 4 0
+    cane 11 16
+    armCane 7 12
+
+frame 2
+    legsContactB 3 21
+    coat 2 12
+    armBack 1 13
+    head 5 6
+    hat 4 1
+    cane 11 17
+    armCane 7 13
+
+frame 3
+    legsPassB 3 21
+    coat 2 11
+    armBack 1 12
+    head 5 5
+    hat 4 0
+    cane 11 16
+    armCane 7 12
+
+frame 4
+    legsStand 3 21
+    coat 2 11
+    armBack 1 12
+    head 5 5
+    hat 4 0
+    cane 11 17
+    armCane 7 12
+
+frame 5
+    legsStand 3 21
+    coat 2 12
+    armBack 1 13
+    head 5 6
+    hat 4 1
+    cane 11 17
+    armCane 7 13
+
+frame 6
+    legsStand 3 21
+    coat 2 11
+    armBack 1 12
+    head 5 5
+    hat 4 0
+    armTalkA 7 12
+
+frame 7
+    legsStand 3 21
+    coat 2 11
+    armBack 1 12
+    head 5 5
+    hat 4 0
+    armTalkB 7 12
