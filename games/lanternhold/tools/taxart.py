@@ -94,17 +94,13 @@ def door_open(src, rect, p):
 
 def shutters(src, windows, p, out=None):
     """The closed shutters: each window's painted open leaves moved over its glass (the same pixels, row by row, a dark
-    seam between them) and the wall filled in where they hung (the wall's own colour beside the leaf, a speck replaced
-    by plain plaster)."""
+    seam between them) and the wall filled in where they hung (the plaster beside the leaf, plain plaster where a
+    speck, an ivy leaf or a timber post stands beside it)."""
     out = out or Image(src.w, src.h)
     plain = p.color("plaster")
     seam = p.color("woodDark")
-    specks = {p.color("parchment"), p.color("leaf"), p.color("leafDark"), p.color("meadow")}
+    walls = {p.color("plaster"), p.color("plasterDim")}
     for (lx, gx, rx, ya, yb) in windows:
-        ramp = set()
-        for y in range(ya, yb + 1):
-            for x in (lx, lx + 1, lx + 2, rx, rx + 1, rx + 2):
-                ramp.add(src.get(x, y)[:3])
         # the leaf colours: what the left leaf's middle column holds in most rows (the right leaf can hide behind a crate)
         leafs = {src.get(lx + c, y)[:3] for c in range(3) for y in range(ya, yb + 1)}
         last_left = last_right = None
@@ -120,10 +116,11 @@ def shutters(src, windows, p, out=None):
                 out.set(gx + c, y, left[c])
                 out.set(gx + 4 + c, y, right[c])
             out.set(gx + 3, y, seam + (255,))
-            # the wall where the leaves hung
+            # the wall where the leaves hung: the plaster beside the leaf (a speck, an ivy leaf or a timber post
+            # beside it gives plain plaster)
             for side, x_beside in ((range(lx, lx + 3), lx - 1), (range(rx, rx + 3), rx + 3)):
                 wall = src.get(x_beside, y)[:3]
-                if wall in specks or wall in leafs:
+                if wall not in walls:
                     wall = plain
                 for x in side:
                     if src.get(x, y)[:3] in leafs:
