@@ -21,14 +21,14 @@ struct DawnReportAds: View {
                 .frame(width: 0, height: 0)
                 .accessibilityHidden(true)
             if let report {
-                if let done = director.doubled, done.day == report.day {
+                if let done = director.doubled, done.report == report {
                     DoubledTaxesNote(done: done)
                         .transition(transition)
                 } else if let gold = director.doubleTaxesOffer(for: report) {
                     DoubleTaxesButton(gold: gold) {
                         director.takeDoubleTaxes(report)
                     }
-                    .onAppear { director.noteDoubleTaxesShown(day: report.day) }
+                    .onAppear { director.noteDoubleTaxesShown(report) }
                     .transition(transition)
                 }
             }

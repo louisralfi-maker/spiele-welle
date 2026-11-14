@@ -17,7 +17,8 @@ final class AdDirector {
 
     /// The double taxes taken on a dawn: the report shows it in place of the offer.
     struct Doubled: Sendable, Equatable {
-        var day: Int
+        /// The report they were taken on (a day number alone would match the same day of a restarted realm).
+        var report: DawnReport
         var gold: Int
         /// The treasury after the gold came in (the report's own figure is from before).
         var treasury: Int
@@ -40,8 +41,16 @@ final class AdDirector {
     /// The last interstitial verdict, for the debug log (`ads-log`).
     private(set) var lastVerdict: InterstitialVerdict?
 
-    @ObservationIgnored private var doubleTaxesShownDay = 0
+    /// The report whose double taxes showed: if it closes without them, the next offer waits two dawns.
+    @ObservationIgnored private var doubleTaxesShownOn: DawnReport?
     @ObservationIgnored private var rewardGranted = false
+    /// The interstitial's Continue, waiting for the ad to go.
+    @ObservationIgnored private var pendingProceed: (@MainActor () -> Void)?
+    /// Google's consent form is on screen.
+    @ObservationIgnored private var formShowing = false
+    /// How long a full-screen ad may take to come on screen before the game goes on without it (an ad that never
+    /// appears must never leave the report's Continue or the offers dead).
+    static let showTimeout: Duration = .seconds(4)
 
     init(mode: AdMode, provider: (any AdProvider)? = nil, clock: any AdClock = WallClock()) {
         self.mode = mode
@@ -57,7 +66,12 @@ final class AdDirector {
         }
         if mode == .google {
             let provider = self.provider
-            consent = AdConsent(startAds: { provider.start() })
+            let made = AdConsent(startAds: { provider.start() })
+            made.onForm = { [weak self] showing in
+                self?.formShowing = showing
+                self?.holdWorld()
+            }
+            consent = made
         }
     }
 
@@ -94,9 +108,10 @@ final class AdDirector {
         #endif
     }
 
-    /// The dawn report is on screen (`DawnReportAds`): the first one asks for consent.
+    /// The dawn report is on screen (`DawnReportAds`): the first one asks for consent (and a later one again, only when
+    /// an earlier flow was cut short before the tracking question was answered).
     func reportAppeared() {
-        consent?.askAtFirstReport()
+        consent?.askAtReport()
     }
 
     func presentPrivacyOptions() async {
@@ -108,14 +123,14 @@ final class AdDirector {
     /// The gold a video would add on this report (its taxes once more), nil when the offer is not open or no video is
     /// ready.
     func doubleTaxesOffer(for report: DawnReport) -> Int? {
-        guard let model, rewardedReady, doubled?.day != report.day,
+        guard let model, rewardedReady, doubled?.report != report,
               model.adPacing.doubleTaxesOpen(day: report.day, taxes: report.goldIn) else { return nil }
         return report.goldIn
     }
 
     /// The offer is on screen: if the report closes without it, the next one waits two dawns.
-    func noteDoubleTaxesShown(day: Int) {
-        doubleTaxesShownDay = day
+    func noteDoubleTaxesShown(_ report: DawnReport) {
+        doubleTaxesShownOn = report
     }
 
     func takeDoubleTaxes(_ report: DawnReport) {
@@ -124,7 +139,7 @@ final class AdDirector {
             guard let self, let model = self.model else { return }
             model.withDriver { $0.bankReward(gold: gold) }
             model.adPacing.rewardedWatched(.doubleTaxes, day: report.day, at: self.clock.now)
-            self.doubled = Doubled(day: report.day, gold: gold, treasury: model.driver?.state.gold ?? 0)
+            self.doubled = Doubled(report: report, gold: gold, treasury: model.driver?.state.gold ?? 0)
             self.landed(model)
         }
     }
@@ -164,17 +179,15 @@ final class AdDirector {
     func openMerchantCard() {
         guard let model, model.overlay == nil, merchantOffer != nil else { return }
         merchantCardOpen = true
-        model.withDriver { $0.isPaused = true }
+        holdWorld()
         model.feedback.play(.cardOpened)
     }
 
     func closeMerchantCard() {
         guard merchantCardOpen else { return }
         merchantCardOpen = false
-        guard let model else { return }
-        let paused = model.overlay != nil
-        model.withDriver { $0.isPaused = paused }
-        model.feedback.play(.cardClosed)
+        holdWorld()
+        model?.feedback.play(.cardClosed)
     }
 
     func takeMerchantGift() {
@@ -186,8 +199,7 @@ final class AdDirector {
             self.lastGift = gift
             self.landed(model)
             self.merchantCardOpen = false
-            let paused = model.overlay != nil
-            model.withDriver { $0.isPaused = paused }
+            self.holdWorld()
         }
     }
 
@@ -196,14 +208,16 @@ final class AdDirector {
     /// The dawn report's Continue (`GameModel.adGate`): an interstitial when the rules allow it and one is loaded, over
     /// the report; then the day begins.
     private func reportContinues(_ report: DawnReport, proceed: @escaping @MainActor () -> Void) {
+        // A second tap while an ad comes: the first one goes on when it has gone (or the show timeout passed).
         guard !presenting else { return }
         guard let model, let state = model.driver?.state else {
             proceed()
             return
         }
-        if doubleTaxesShownDay == report.day && doubled?.day != report.day {
+        if doubleTaxesShownOn == report && doubled?.report != report {
             model.adPacing.doubleTaxesPassed(day: report.day)
         }
+        doubleTaxesShownOn = nil
         let moment = InterstitialMoment(day: report.day, place: .dawnReport,
                                         atNight: DayClock.phase(at: state.hour) != .day,
                                         storyDawn: AdPacing.isStoryDawn(day: report.day, mode: state.mode))
@@ -230,17 +244,42 @@ final class AdDirector {
             return
         }
         presenting = true
+        pendingProceed = proceed
         let shown = provider.showInterstitial { [weak self] in
-            self?.presenting = false
-            proceed()
+            self?.adGone()
         }
         if shown {
             model.adPacing.interstitialShown(moment, at: now)
             model.saveNow()
+            watchShowing()
         } else {
-            presenting = false
-            proceed()
+            adGone()
         }
+    }
+
+    /// The full-screen ad has gone (or never came): the offers come back and a waiting Continue goes on.
+    private func adGone() {
+        presenting = false
+        let proceed = pendingProceed
+        pendingProceed = nil
+        proceed?()
+    }
+
+    /// An ad asked for must come on screen within `showTimeout`; if it never does, the game goes on without it.
+    private func watchShowing() {
+        guard presenting else { return }
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: AdDirector.showTimeout)
+            guard let self, self.presenting, !self.provider.isShowingAd else { return }
+            self.adGone()
+        }
+    }
+
+    /// The world stands still under Marek's card and the consent form (the dawn report's screens hold it already).
+    private func holdWorld() {
+        guard let model else { return }
+        let hold = formShowing || merchantCardOpen || model.overlay != nil
+        model.withDriver { $0.isPaused = hold }
     }
 
     // MARK: - Showing a rewarded video
@@ -255,9 +294,13 @@ final class AdDirector {
             self.rewardGranted = true
             grant()
         }, onClose: { [weak self] in
-            self?.presenting = false
+            self?.adGone()
         })
-        if !shown { presenting = false }
+        if shown {
+            watchShowing()
+        } else {
+            adGone()
+        }
     }
 
     /// Gold landed: the HUD, the coins' sound, the save (the dawn snapshot holds it, `SimDriver.bankReward`).

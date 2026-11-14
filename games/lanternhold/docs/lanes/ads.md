@@ -44,13 +44,16 @@ minutes" holds across launches; a clock set back never holds the ads for good).
   with a growing pause, drops an expired ad, `maxAdContentRating = .general`, grants only in the SDK's reward callback.
 - `AdConsent.swift`: the consent info refreshed silently at launch; Google's form (UMP, where required) and then the
   ATT prompt at the first dawn report, before the first ad is ever requested (a flag `LHAdsConsentAsked` in the app's
-  own defaults); later launches start the SDK right after the silent refresh. `-GWConsentEEA YES` (debug) shows the
+  own defaults); later launches start the SDK right after the silent refresh, never with a prompt (a flow cut short
+  before the tracking question was answered finishes at the next dawn report). The world stands still while the form
+  is on screen (it does not make the app inactive; the tracking question does). `-GWConsentEEA YES` (debug) shows the
   form as in the EU. "Privacy choices" re-opens Google's form.
 - `AdDirector.swift`: the one place that asks the rules and tells the provider. `AdDirector.shared` by this launch's
   mode; the tests build their own with the stub and a counted clock. It offers the three videos, grants only when one
   was watched to its end, banks gold in the dawn (`SimDriver.bankReward`: a watched video pays after a relaunch and after
   "Replay the day" too) and saves; it stands at the report's Continue for the interstitial (over the report, the world
-  still); `chapterEndContinues(chapter:day:proceed:)` waits for the story panels' chapter end.
+  still); `chapterEndContinues(chapter:day:proceed:)` waits for the story panels' chapter end. An ad that does not come
+  on screen within 4 s is given up (`showTimeout`), so neither Continue nor an offer can ever be left dead.
 - `AdViews.swift`: `DawnReportAds` (the report: "Double taxes +64 / Watch a short video ad" on a plaque, afterwards the
   gold that came in and the treasury now, in teal; it also starts the consent at the first report),
   `SecondChanceOffer` (the defeat card: the wax-red "Second chance / Watch a short video ad: the hearth is rekindled and

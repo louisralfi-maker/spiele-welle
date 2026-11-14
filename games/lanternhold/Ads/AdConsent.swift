@@ -5,9 +5,10 @@ import UserMessagingPlatform
 /// Consent before any ad (Comet Cargo's and Piston Empire's proven flow, timed for this game): the consent info is
 /// refreshed silently at launch; Google's consent form (UMP, where the law asks for one: EEA, UK) and then Apple's
 /// tracking question appear at the first dawn report, before the first ad is ever requested, so the first minutes of
-/// the game stay the game's. Once that has happened (a flag in the app's own defaults), later launches start the ads
-/// right after the silent refresh. Offline or on any failure the game simply goes on, without ads or with the consent
-/// given earlier.
+/// the game stay the game's. Once that has happened (a flag in the app's own defaults, and the tracking question
+/// answered), later launches start the ads right after the silent refresh, with no prompt; a flow cut short is finished
+/// at the next dawn report, never at launch. Offline or on any failure the game simply goes on, without ads or with
+/// the consent given earlier.
 @MainActor
 @Observable
 final class AdConsent {
@@ -20,6 +21,8 @@ final class AdConsent {
     private(set) var isPresentingForm = false
 
     private let startAds: @MainActor () -> Void
+    /// The director holds the world while the form is on screen (it does not make the app inactive).
+    @ObservationIgnored var onForm: (@MainActor (Bool) -> Void)?
     @ObservationIgnored private var refresh: Task<Void, Never>?
     @ObservationIgnored private var asking = false
     @ObservationIgnored private var retrying = false
@@ -30,33 +33,44 @@ final class AdConsent {
 
     private var askedBefore: Bool { UserDefaults.standard.bool(forKey: AdConsent.askedKey) }
 
-    /// At launch: the consent info refreshed without a form; when the first dawn report asked in an earlier launch,
-    /// the ads start right after it.
+    /// The flow has run to its end once: the first report asked and the tracking question has an answer.
+    private var complete: Bool {
+        askedBefore && ATTrackingManager.trackingAuthorizationStatus != .notDetermined
+    }
+
+    /// At launch: the consent info refreshed without a form; when the flow ran to its end in an earlier launch, the ads
+    /// start right after it. Never a prompt here.
     func refreshAtLaunch() {
         guard refresh == nil else { return }
         refresh = Task { [weak self] in
             await self?.updateInfo()
-            guard let self, self.askedBefore else { return }
-            await self.startIfAllowed()
+            guard let self, self.complete, ConsentInformation.shared.canRequestAds else { return }
+            self.startAds()
         }
     }
 
-    /// The first dawn report is on screen: the consent form if required, then the tracking question, then the ads.
-    /// Once per install (later reports return at once).
-    func askAtFirstReport() {
-        guard !askedBefore, !asking else { return }
+    /// A dawn report is on screen: the first one runs the flow (the consent form if required, then the tracking
+    /// question, then the ads); later ones return at once unless the flow was cut short.
+    func askAtReport() {
+        guard !complete, !asking else { return }
         asking = true
         Task { [weak self] in
             guard let self else { return }
             if self.refresh == nil { self.refreshAtLaunch() }
             await self.refresh?.value
-            if ConsentInformation.shared.consentStatus == .required { self.isPresentingForm = true }
+            if ConsentInformation.shared.consentStatus == .required {
+                self.isPresentingForm = true
+                self.onForm?(true)
+            }
             do {
                 try await ConsentForm.loadAndPresentIfRequired(from: GoogleAdProvider.topViewController())
             } catch {
-                // Offline or a form that would not load: whatever consent there was stands; asked again next launch.
+                // Offline or a form that would not load: whatever consent there was stands; asked again next report.
             }
-            self.isPresentingForm = false
+            if self.isPresentingForm {
+                self.isPresentingForm = false
+                self.onForm?(false)
+            }
             self.refreshPrivacyStatus()
             UserDefaults.standard.set(true, forKey: AdConsent.askedKey)
             self.asking = false
@@ -125,7 +139,7 @@ final class AdConsent {
             // Nothing to show (offline): the row stays for another try.
         }
         refreshPrivacyStatus()
-        await startIfAllowed()
+        if ConsentInformation.shared.canRequestAds && complete { startAds() }
     }
 
     private func refreshPrivacyStatus() {
