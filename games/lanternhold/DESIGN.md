@@ -3343,17 +3343,22 @@ the muddy wall behind the gatehouse). Where they differ the director's note wins
   (`bankEyePairs`): five slots 128 px apart behind the edge, each a pair (`darknessBankGlow`, now 9x3 x 4: near and
   far, open and half shut) that opens at a jittered place and height, blinks, shuts and opens elsewhere; at most four
   on a screen, never in rows; fainter by day; three still with Reduce Motion. The old 64 px glow tiles are gone.
-- **The cloud deck**: one painted `cloudDeck` (far x −100, y 22) instead of the deck's three clouds; its underside
-  hangs in lobes and rags and feathers 48 px into the wall's haze.
+- **The cloud deck**: one painted `cloudDeck` (far x −100, y 22) instead of the deck's three clouds: lumpy masses
+  shaded from their top contour (a lit rim, broad where the contour faces the light), the front lobes' lit arcs, an
+  underside of lobes and rags, and flat wisps of mist feathering 48 px into the wall's haze.
 - **The Weltmauer**: no snow in its gullies below the snow line (it read as an icicle curtain); the snow is the caps
   with a clean hem, no patch under 6 px.
 - **The cleft wall**: chiselled slabs, fewer and deeper chimneys, two long stepped ledges with snow drifts on the high
-  one; the sky only in two wedges (over the gatehouse, over the bailey); at night the moon stands in the second
-  (`cleftWallA`'s emitter, `SceneLayout.Glow.moon`; the sky's moon fades with `cleftShare`); falling water
-  (`cleftWater`, 4 frames at 6 a second, `FrameBuilder.cleftWater`, still with Reduce Motion); the shaft at the sun's
+  one; the sky only in two wedges (over the gatehouse, over the bailey); inside the walls the high clouds of the
+  clouds plane fade with the far plane (they read as autumn leaves in the wedges at dusk), so a wedge shows the
+  sky's gradient, the stars and the moon; at night the moon stands low in the second wedge, its top 22 rows under
+  the screen's top (`cleftWallA`'s emitter, `SceneLayout.Glow.moon`; the sky's moon fades with `cleftShare`);
+  falling water (`cleftWater`, 5x132 x 4 frames at 6 a second, in strands that splash on two ledges and go on a pixel
+  aside, `FrameBuilder.cleftWater`, still with Reduce Motion); the shaft at the sun's
   full strength (`look2ShaftShare` 1) with dust motes; a backdrop light behind the gatehouse's top (`throatStepC`).
 - **The gate's rock**: shoulders of bedrock (`gateRockL` 108x80 at front − 54, `gateRockR` 64x70 at front + 196) with
-  the tower's ashlar stepping into their ledges and a lit edge only on the faces toward the light.
+  the tower's ashlar stepping into their ledges, cool grey in the shade (the `footing` ramp) and a lit edge two
+  pixels deep on the slopes that face the light only.
 - **The old walls**: the granite masses of lines 2 and 3 cut to footings of at most 36 rows in cool granite; the
   anchors' toothing stops at that height. The masonry of Lady Oriel's walls is as it was.
 - **Fog**: sixteen alpha steps in the hour's fog and the Gloom's strips, the strips' colour in clean clusters.

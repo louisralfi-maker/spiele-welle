@@ -1739,10 +1739,13 @@ What the critic and the director saw on round lh-w1-6, and what each piece becam
   five slots 128 px apart, each opening at a jittered place and height, blinking, shutting and opening elsewhere;
   never in rows, at most four on a screen.
 - **The cloud deck's underside was a ruler** (blocker 2). The three cloud sprites of the deck had flat bottoms in a
-  line, and the far plane's horizon haze began right under them. Now one painted deck (`cloudDeck`): round billows
-  in two ranks shaded as a height field of domes (so the light runs across them and creases where two meet; discs
-  shaded one by one read as bubbles), an underside of lobes and rags with 16 to 20 px of swing, and a 48 px veil of
-  mist under it in sixteen dithered alpha steps, so the haze below begins gradually.
+  line, and the far plane's horizon haze began right under them. Now one painted deck (`cloudDeck`): billows in two
+  ranks shaded from the mass's top contour down (a lit rim, broad where the contour faces the light and thin where
+  it turns away, then the body, then the shaded belly) with the front lobes' own lit arcs inside the mass, an
+  underside of lobes and rags with 16 to 20 px of swing, and flat wisps of mist under it, 48 px deep in sixteen
+  dithered alpha steps, so the haze below begins gradually. Tried and dropped on the runner (lh-w1f1-2): domes shaded
+  as spheres (white cotton balls in a row, then soap bubbles) and a veil of noise that ran downward (a curtain of
+  streaks). The deck is painted a step darker than a cloud on the open sky: the far plane's key and haze lift it.
 - **The Weltmauer was an icicle curtain** (high 5; the director's snow speckle). The painting's snow below the snow
   line hung in the gullies for 46 rows and eight couloirs ran down from the saddles, both in a pixel-pair speckle.
   Slanted snow shelves were tried (as dashes, then as tapering wedges) and read as scratches and blades. What stays:
@@ -1758,8 +1761,10 @@ What the critic and the director saw on round lh-w1-6, and what each piece becam
   with snow drifts of 8 to 30 px on the high one. (Tried and dropped: five bands across the whole face, which read as
   scaffolding, and small cells, which read as masonry.) The sky: the rock stands to the screen's top except in two
   wedges cut as stairs of blocks, a wide one over the gatehouse and a narrow one over the bailey where the moon stands
-  at night (an emitter of `cleftWallA`; the open sky's moon gives way inside the walls). The water: each thread's
-  crack, wet streak and spray are painted on the rock, the falling water is `cleftWater`, scrolling. The shaft is
+  at night, low in it (an emitter of `cleftWallA`; the open sky's moon gives way inside the walls). Inside the walls
+  the high clouds fade too: in a wedge at dusk their orange-lit pixels were the "autumn leaves". The water: each
+  thread's crack, wet streak and spray are painted on the rock, the falling water is `cleftWater`, scrolling, in
+  strands that splash on two ledges (a straight line of even brightness read as a pole). The shaft is
   stronger (twelve alpha levels to 154, at the sun's full strength) with fourteen dust motes. A backdrop light behind
   the gatehouse's top warms the rock beside the towers at dusk and night.
 - **The gate's plinths were triangle cards** (high 2). Now shoulders of bedrock (108x80 and 64x70) that bulge past
