@@ -1,0 +1,1824 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "errand.beacon_statues.hook1" : {
+      "comment" : "Sending 11: first line of its slip (statues of past lords along the road beyond the beacon).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von der Treppe des Leuchtfeuers sieht man die steinernen Herren."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From the beacon's stair you see the stone lords on the road."
+          }
+        }
+      }
+    },
+    "errand.beacon_statues.hook2" : {
+      "comment" : "Sending 11: second line of its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seit dem Dunklen Jahr hat sie keiner gezählt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nobody has counted them since the Dark Year."
+          }
+        }
+      }
+    },
+    "errand.beacon_statues.o1" : {
+      "comment" : "Sending 11, order 1 (Odile's seal, no risk).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von der Treppe aus zählen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watch from the stair."
+          }
+        }
+      }
+    },
+    "errand.beacon_statues.o2" : {
+      "comment" : "Sending 11, order 2 (few come back).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bis in die Lampenstube steigen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Climb to the lamp room."
+          }
+        }
+      }
+    },
+    "errand.beacon_statues.title" : {
+      "comment" : "Sending 11: title of its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zählt die Statuen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Count the Statues"
+          }
+        }
+      }
+    },
+    "errand.highcairn_count.hook1" : {
+      "comment" : "Sending 5: first line of its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lord Harrow schickt den Rest des Aufgebots, wenn wir zählen können."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lord Harrow sends the rest of the levy once we can count."
+          }
+        }
+      }
+    },
+    "errand.highcairn_count.hook2" : {
+      "comment" : "Sending 5: second line of its slip. The Count is the castle's tally of numbered lanterns.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schickt Highcairn die Zählung: Laternen hinaus, Laternen heim."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send Highcairn the Count: lanterns out, lanterns home."
+          }
+        }
+      }
+    },
+    "errand.highcairn_count.o1" : {
+      "comment" : "Sending 5, order 1 (Odile's seal).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die wahre Zählung überbringen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carry the true count."
+          }
+        }
+      }
+    },
+    "errand.highcairn_count.o2" : {
+      "comment" : "Sending 5, order 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine geschönte Zählung überbringen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carry a rounded count."
+          }
+        }
+      }
+    },
+    "errand.highcairn_count.title" : {
+      "comment" : "Sending 5: title of its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Zählung für Highcairn"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Count for Highcairn"
+          }
+        }
+      }
+    },
+    "errand.oil_round.hook1" : {
+      "comment" : "Sending 1: first line of its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Lichtzieher haben das erste Öl des Jahres gepresst."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The chandlers' row has pressed the first oil of the year."
+          }
+        }
+      }
+    },
+    "errand.oil_round.hook2" : {
+      "comment" : "Sending 1: second line of its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pip bringt bis zum Morgen eine Karrenladung ans Tor."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pip can have a cartload at the gate by dawn."
+          }
+        }
+      }
+    },
+    "errand.oil_round.title" : {
+      "comment" : "Sending 1: title of its slip.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öl für die Runde"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oil for the Round"
+          }
+        }
+      }
+    },
+    "place.beacon.name" : {
+      "comment" : "A carved place on the Lantern Table (proper names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Große Leuchtfeuer"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Great Beacon"
+          }
+        }
+      }
+    },
+    "place.beaconfoot.name" : {
+      "comment" : "A carved place on the Lantern Table (proper names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beaconfoot"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beaconfoot"
+          }
+        }
+      }
+    },
+    "place.goldenacre.name" : {
+      "comment" : "A carved place on the Lantern Table (proper names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goldenacre"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goldenacre"
+          }
+        }
+      }
+    },
+    "place.greybell.name" : {
+      "comment" : "A carved place on the Lantern Table (proper names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Greybell"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Greybell"
+          }
+        }
+      }
+    },
+    "place.highcairn.name" : {
+      "comment" : "A carved place on the Lantern Table (proper names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Highcairn"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Highcairn"
+          }
+        }
+      }
+    },
+    "place.lanternhold.name" : {
+      "comment" : "A carved place on the Lantern Table (proper names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lanternhold"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lanternhold"
+          }
+        }
+      }
+    },
+    "place.old_bridge.name" : {
+      "comment" : "A carved place on the Lantern Table (proper names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die alte Brücke"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Old Bridge"
+          }
+        }
+      }
+    },
+    "place.saltgate.name" : {
+      "comment" : "A carved place on the Lantern Table (proper names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saltgate"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saltgate"
+          }
+        }
+      }
+    },
+    "place.stillmere.name" : {
+      "comment" : "A carved place on the Lantern Table (proper names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stillmere"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stillmere"
+          }
+        }
+      }
+    },
+    "place.tallowford.name" : {
+      "comment" : "A carved place on the Lantern Table (proper names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tallowford"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tallowford"
+          }
+        }
+      }
+    },
+    "place.windmill.name" : {
+      "comment" : "A carved place on the Lantern Table (proper names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Windmühle"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Windmill"
+          }
+        }
+      }
+    },
+    "report.beacon_statues.c1" : {
+      "comment" : "Sending 11 (stair), report choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Mauer sagen, was sich dort regt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tell the wall what moves on the road."
+          }
+        }
+      }
+    },
+    "report.beacon_statues.c2" : {
+      "comment" : "Sending 11 (stair), report choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dem Saal sagen, was dort steht"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tell the hall what stands on the road."
+          }
+        }
+      }
+    },
+    "report.beacon_statues.r1" : {
+      "comment" : "Sending 11 (stair), reaction to choice 1 (days 4 to 14: fewer brutes tonight).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Späher geht von Posten zu Posten. Heute Nacht weiß jeder Bogenschütze, woher die Unholde kommen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The scout walks the wall from post to post. Tonight every archer knows which way the brutes will come."
+          }
+        }
+      }
+    },
+    "report.beacon_statues.r1b" : {
+      "comment" : "Sending 11 (stair), reaction to choice 1 after day 14.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Späher geht von Posten zu Posten. Bei Tag liegt der Weg still, doch die Mauer schläft ruhiger, seit sie es weiß."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The scout walks the wall from post to post. The road lies still by day, but the wall sleeps better for knowing."
+          }
+        }
+      }
+    },
+    "report.beacon_statues.r2" : {
+      "comment" : "Sending 11 (stair), reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bei sechzig wird es still im Saal. Odile schlägt das Familienbuch auf und zählt die Burgherren noch einmal mit dem Finger."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The hall goes quiet at sixty. Odile opens the family book and counts the lords again with her finger."
+          }
+        }
+      }
+    },
+    "report.beacon_statues.text" : {
+      "comment" : "Sending 11 (from the stair), the scout's report.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist heim. Von der Treppe aus zählte ich die steinernen Herren am Moorweg, jeder mit seiner Steinlaterne, alle uns zugewandt. Sechzig, und ein leerer Sockel. Das Buch sagt vierzig."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home. From the stair I counted the stone lords along the Moor Road, each with its stone lantern, all facing us. Sixty, and one empty plinth. The book says forty."
+          }
+        }
+      }
+    },
+    "report.beacon_statues_lamp.c1" : {
+      "comment" : "Sending 11 (lamp room), report choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Mauer sagen, was sich dort regt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tell the wall what moves on the road."
+          }
+        }
+      }
+    },
+    "report.beacon_statues_lamp.c2" : {
+      "comment" : "Sending 11 (lamp room), report choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dem Saal von dem Licht erzählen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tell the hall about the light."
+          }
+        }
+      }
+    },
+    "report.beacon_statues_lamp.r1" : {
+      "comment" : "Sending 11 (lamp room), reaction to choice 1 (days 4 to 14: fewer brutes tonight).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Späher geht von Posten zu Posten. Heute Nacht weiß jeder Bogenschütze, woher die Unholde kommen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The scout goes from post to post. Tonight every archer knows which way the brutes will come."
+          }
+        }
+      }
+    },
+    "report.beacon_statues_lamp.r1b" : {
+      "comment" : "Sending 11 (lamp room), reaction to choice 1 after day 14.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Späher geht von Posten zu Posten. Bei Tag regt sich nichts auf dem Weg, doch jeder Bogenschütze blickt jetzt nach Westen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The scout goes from post to post. Nothing moves on the road by day, but every archer now looks west."
+          }
+        }
+      }
+    },
+    "report.beacon_statues_lamp.r2" : {
+      "comment" : "Sending 11 (lamp room), reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Weile spricht niemand im Saal. Mutter Hesper sieht ins Herdfeuer, das sich nach Westen neigt, und schweigt ebenfalls."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nobody in the hall speaks for a while. Mother Hesper looks at the hearth, which leans west, and says nothing either."
+          }
+        }
+      }
+    },
+    "report.beacon_statues_lamp.text" : {
+      "comment" : "Sending 11 (from the lamp room), the scout's report.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist heim, und ich hatte nicht mehr daran geglaubt. Von der Lampenstube sieht man über die sechzig Statuen hinaus: den Rand des Moors und weit draußen ein niedriges Licht, das nie flackert. Es brannte die ganze Nacht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home, and I did not think it would be. From the lamp room you see past the sixty statues: the moor's edge, and far out one low light that never flickers. It burned all night."
+          }
+        }
+      }
+    },
+    "report.highcairn_rounded.c1" : {
+      "comment" : "Sending 5 (rounded count), report choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nehmen, was er schickt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take what he sends."
+          }
+        }
+      }
+    },
+    "report.highcairn_rounded.c2" : {
+      "comment" : "Sending 5 (rounded count), report choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die wahre Zählung nachschicken"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send the true count after it."
+          }
+        }
+      }
+    },
+    "report.highcairn_rounded.r1" : {
+      "comment" : "Sending 5 (rounded count), reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Bogenschützin reitet aus Highcairn ein. Sie hält den Blick auf der Straße und ihre eigene Zählung im Kopf."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One archer rides in from Highcairn. She keeps her eyes on the road and her own count in her head."
+          }
+        }
+      }
+    },
+    "report.highcairn_rounded.r2" : {
+      "comment" : "Sending 5 (rounded count), reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Reiter bringt die wahre Zählung im Galopp nach Norden. Hild Varn liest sie, bevor er reitet, und nickt einmal."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A rider takes the true Count north at a gallop. Hild Varn reads it before he goes and nods once."
+          }
+        }
+      }
+    },
+    "report.highcairn_rounded.text" : {
+      "comment" : "Sending 5 (rounded count), the rider's report.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist heim. Lord Harrow las unsere geschönte Zählung und zählte dann selbst die Laternen an unseren Sätteln. Lange sagte er nichts. Dann schickte er einen Bogenschützen mit uns zurück, nicht zwei."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home. Lord Harrow read our rounded Count, then counted the lanterns on our saddles himself. He said nothing for a long time. Then he sent one archer back with us, not two."
+          }
+        }
+      }
+    },
+    "report.highcairn_true.c1" : {
+      "comment" : "Sending 5 (true count), report choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die zweite Hälfte des Aufgebots holen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take the second half of the levy."
+          }
+        }
+      }
+    },
+    "report.highcairn_true.c2" : {
+      "comment" : "Sending 5 (true count), report choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Bögen lassen, um Hilds Wort bitten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave the bows. Ask for Hild's word."
+          }
+        }
+      }
+    },
+    "report.highcairn_true.r1" : {
+      "comment" : "Sending 5 (true count), reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zwei Bogenschützen aus Highcairn reiten zu Mittag ein, graue Steinmale auf den Mänteln. Hild Varn stellt sie selbst auf."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Two of Highcairn's archers ride in at noon, grey cairns on their cloaks. Hild Varn posts them herself."
+          }
+        }
+      }
+    },
+    "report.highcairn_true.r2" : {
+      "comment" : "Sending 5 (true count), reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Highcairn behält seine Bögen für die eigenen Hügel. Hild Varn schreibt nachts an ihren Vater und lässt Euch den Brief zuerst lesen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Highcairn keeps its bows for its own hills. Hild Varn writes to her father that night and lets you read it first."
+          }
+        }
+      }
+    },
+    "report.highcairn_true.text" : {
+      "comment" : "Sending 5 (true count), the rider's report.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist heim. Lord Harrow las unsere Zählung zweimal und zählte dann selbst die Laternen an unseren Sätteln. „{Der Laternenanzünder|Die Laternenanzünderin} kann zählen“, sagte er. Der Rest des Aufgebots wartet an seinem Tor."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home. Lord Harrow read our Count twice, then counted the lanterns on our saddles himself. “The lamplighter can count,” he said. The rest of the levy waits at his gate."
+          }
+        }
+      }
+    },
+    "report.lantern_lost.c1" : {
+      "comment" : "Lost lantern, choice 1 (mourning kept).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den Haken leer lassen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave the hook empty."
+          }
+        }
+      }
+    },
+    "report.lantern_lost.c2" : {
+      "comment" : "Lost lantern, choice 2 (the empty hook hidden).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram eine leere Laterne hängen lassen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Have Bram hang a blank lantern."
+          }
+        }
+      }
+    },
+    "report.lantern_lost.r1" : {
+      "comment" : "Lost lantern, reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In der Dämmerung liest Mutter Hesper die Namen an der Flamme. Der Haken bleibt leer, und der Saal geht langsam daran vorbei."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "At dusk Mother Hesper reads the names at the Flame. The hook stays bare, and the hall walks past it slowly."
+          }
+        }
+      }
+    },
+    "report.lantern_lost.r2" : {
+      "comment" : "Lost lantern, reaction to choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram hängt eine Laterne ohne Nummer an den Haken. Vom Saal aus sieht es keiner. Brannock schon."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bram hangs a lantern with no number on the hook. From the hall nobody can tell. Brannock can."
+          }
+        }
+      }
+    },
+    "report.lantern_lost.text" : {
+      "comment" : "Brannock at the hook rail when a lantern did not come home. {lantern} is its number in digits.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} kam nicht heim. Die Wache am Tor hat bis zum hellen Tag gewartet. Ich habe die Namen für die Flamme aufgeschrieben."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} did not come home. The watch at the gate waited until full light. I have written the names down for the Flame."
+          }
+        }
+      }
+    },
+    "report.oil_round.c1" : {
+      "comment" : "Sending 1, report choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jede Gasse damit erleuchten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light every lane with it."
+          }
+        }
+      }
+    },
+    "report.oil_round.c2" : {
+      "comment" : "Sending 1, report choice 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Für die Mauer aufheben"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep it for the wall."
+          }
+        }
+      }
+    },
+    "report.oil_round.r1" : {
+      "comment" : "Sending 1, reaction to choice 1.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bis zur Dämmerung leuchtet Tallowford bis zur letzten Tür. Ein Kind malt eine Laterne ans Tor, und keiner wischt sie fort."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By dusk Tallowford glows to the last door. A child chalks a lantern on the gate, and nobody washes it off."
+          }
+        }
+      }
+    },
+    "report.oil_round.r2" : {
+      "comment" : "Sending 1, reaction to choice 2 (days 4 to 14: fewer sootlings tonight).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Fässer gehen hinauf auf den Wehrgang. Heute Nacht brennen die Feuerschalen hoch, und der Ruß hält Abstand."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The barrels go up to the wall walk. Tonight the braziers burn high, and the soot keeps its distance."
+          }
+        }
+      }
+    },
+    "report.oil_round.r2b" : {
+      "comment" : "Sending 1, reaction to choice 2 on days outside 4 to 14 (the next brazier is free).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Fässer warten an der Mauer. Brannock sagt, die nächste Feuerschale brennt mit Lichtzieheröl und kostet Euch nichts."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The barrels wait by the wall. Brannock says the next brazier will burn on chandlers' oil and cost you nothing."
+          }
+        }
+      }
+    },
+    "report.oil_round.text" : {
+      "comment" : "Sending 1, Pip's report at the table. {lantern} is the lantern's number in digits.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist heim, Eure Dochtheit, und ich auch, worauf keiner gewettet hat. Zwei Fässer neues Öl, ein Karren, ein Narr mit Blasen. Die Lichtzieher fragen, wo es brennen soll."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home, Your Wickship, and so am I, which nobody bet on. Two barrels of new oil, one cart, one fool with blisters. The chandlers ask where it should burn."
+          }
+        }
+      }
+    },
+    "table.archers.one" : {
+      "comment" : "Cost chip: one archer leaves the wall until the return.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 Bogenschütze"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 archer"
+          }
+        }
+      }
+    },
+    "table.archers.other" : {
+      "comment" : "Cost chip: archers leave the wall until the return.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{n} Bogenschützen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{n} archers"
+          }
+        }
+      }
+    },
+    "table.away" : {
+      "comment" : "Why an order cannot leave: the named person is out with another lantern.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{who} ist fort"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{who} is away"
+          }
+        }
+      }
+    },
+    "table.back" : {
+      "comment" : "Closes the table screen.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zurück"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back"
+          }
+        }
+      }
+    },
+    "table.bearers.one" : {
+      "comment" : "Cost chip: one townsman carries for the party until the return.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 Träger"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 bearer"
+          }
+        }
+      }
+    },
+    "table.bearers.other" : {
+      "comment" : "Cost chip: townsfolk carry for the party until the return.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{n} Träger"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{n} bearers"
+          }
+        }
+      }
+    },
+    "table.builders.one" : {
+      "comment" : "Cost chip: one builder is away until the return.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 Baumeister"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 builder"
+          }
+        }
+      }
+    },
+    "table.builders.other" : {
+      "comment" : "Cost chip: builders are away until the return.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{n} Baumeister"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{n} builders"
+          }
+        }
+      }
+    },
+    "table.callback" : {
+      "comment" : "Undoes a sending while the table screen is still open, at no cost.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zurückrufen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Call back"
+          }
+        }
+      }
+    },
+    "table.chip.night" : {
+      "comment" : "Effect chip: tonight's wave has fewer creatures.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute Nacht weniger"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tonight thinner"
+          }
+        }
+      }
+    },
+    "table.chip.remembered" : {
+      "comment" : "Effect chip: the choice is remembered by the court and the story.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bleibt in Erinnerung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Will be remembered"
+          }
+        }
+      }
+    },
+    "table.chip.world" : {
+      "comment" : "Effect chip: the choice changes something you can see in castle or town.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Reich zu sehen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seen in the realm"
+          }
+        }
+      }
+    },
+    "table.closed" : {
+      "comment" : "Why nothing can be sent: it is evening or night.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufbruch nur bei Tag"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parties leave by day"
+          }
+        }
+      }
+    },
+    "table.cloth" : {
+      "comment" : "Day 1: the table is covered until Pip pulls the cloth off on day 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Tisch liegt noch unter seinem Tuch."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The table is still under its cloth."
+          }
+        }
+      }
+    },
+    "table.counsel" : {
+      "comment" : "Marks the report choice the chancellor recommends.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odiles Rat"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile's counsel"
+          }
+        }
+      }
+    },
+    "table.day" : {
+      "comment" : "The day shown on the table screen.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tag {n}"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day {n}"
+          }
+        }
+      }
+    },
+    "table.done" : {
+      "comment" : "Closes the reaction after a report was answered.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fertig"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        }
+      }
+    },
+    "table.firstreport" : {
+      "comment" : "Why nothing can be sent: a report waits at the table.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erst den Bericht lesen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read the report first"
+          }
+        }
+      }
+    },
+    "table.free" : {
+      "comment" : "Cost chip of an order that costs nothing but the lantern.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ohne Kosten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No cost"
+          }
+        }
+      }
+    },
+    "table.goes" : {
+      "comment" : "Cost chip: a named court member or guest carries the lantern ({who} is the name).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{who} geht"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{who} goes"
+          }
+        }
+      }
+    },
+    "table.gold" : {
+      "comment" : "Cost chip: gold for the road.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{n} Gold"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{n} gold"
+          }
+        }
+      }
+    },
+    "table.guards.one" : {
+      "comment" : "Cost chip: one guard leaves the wall until the return.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 Wache"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 guard"
+          }
+        }
+      }
+    },
+    "table.guards.other" : {
+      "comment" : "Cost chip: guards leave the wall until the return.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{n} Wachen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{n} guards"
+          }
+        }
+      }
+    },
+    "table.happiness" : {
+      "comment" : "Effect chip on a report choice: happiness up or down ({n} carries its sign).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{n} Zufriedenheit"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{n} happiness"
+          }
+        }
+      }
+    },
+    "table.home" : {
+      "comment" : "The party came home with this numbered lantern (digits).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist heim"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is home"
+          }
+        }
+      }
+    },
+    "table.homeday" : {
+      "comment" : "When the party is due back (day number).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heim im Morgengrauen von Tag {n}"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home at dawn of day {n}"
+          }
+        }
+      }
+    },
+    "table.hooks" : {
+      "comment" : "The hook rail's line: road lanterns on their hooks of those the rail still has.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laternen am Haken: {n} von {total}"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lanterns on the hook: {n} of {total}"
+          }
+        }
+      }
+    },
+    "table.late" : {
+      "comment" : "Due this dawn, it comes home a dawn later.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} kommt später"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is late"
+          }
+        }
+      }
+    },
+    "table.lost" : {
+      "comment" : "This numbered lantern did not come back; its hook stays empty.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} kam nicht heim"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} did not come home"
+          }
+        }
+      }
+    },
+    "table.nights.one" : {
+      "comment" : "How long a party is away: one night.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 Nacht"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 night"
+          }
+        }
+      }
+    },
+    "table.nights.other" : {
+      "comment" : "How long a party is away: several nights.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{n} Nächte"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{n} nights"
+          }
+        }
+      }
+    },
+    "table.nolantern" : {
+      "comment" : "Why an order cannot leave: all road lanterns are out or lost.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Laterne am Haken"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No lantern on the hook"
+          }
+        }
+      }
+    },
+    "table.nothing" : {
+      "comment" : "The table has nothing to offer today.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute wartet keine Aussendung auf dem Tisch."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No sending waits on the table today."
+          }
+        }
+      }
+    },
+    "table.notnow" : {
+      "comment" : "Why an order cannot leave: something it needs is missing.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht jetzt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not now"
+          }
+        }
+      }
+    },
+    "table.out" : {
+      "comment" : "A party is away with this numbered lantern (digits).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laterne {lantern} ist draußen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lantern {lantern} is out"
+          }
+        }
+      }
+    },
+    "table.playdawn" : {
+      "comment" : "Debug list only: the reference bot plays on to the next dawn.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bis zum nächsten Morgen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play to the next dawn"
+          }
+        }
+      }
+    },
+    "table.report" : {
+      "comment" : "Heading of a report card a party brought home.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bericht"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report"
+          }
+        }
+      }
+    },
+    "table.risk.dark" : {
+      "comment" : "Risk chip: some chance the lantern does not come home (or comes late).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dunkler Weg"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dark road"
+          }
+        }
+      }
+    },
+    "table.risk.few" : {
+      "comment" : "Risk chip: a high chance the lantern does not come home.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenige kehren heim"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Few come back"
+          }
+        }
+      }
+    },
+    "table.seal" : {
+      "comment" : "The chancellor's counsel seal on an order she recommends.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odiles Siegel"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odile's seal"
+          }
+        }
+      }
+    },
+    "table.section.offers" : {
+      "comment" : "Heading of the sendings offered today.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auf dem Tisch"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On the table"
+          }
+        }
+      }
+    },
+    "table.section.out" : {
+      "comment" : "Heading of the parties that are away.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unterwegs"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On the road"
+          }
+        }
+      }
+    },
+    "table.send" : {
+      "comment" : "The order tile of a sending with one order.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aussenden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send"
+          }
+        }
+      }
+    },
+    "table.title" : {
+      "comment" : "Title of the Lantern Table screen in the chapel.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Laternentisch"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Lantern Table"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
