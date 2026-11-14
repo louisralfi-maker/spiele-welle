@@ -119,12 +119,25 @@ def slide1():
                 ybuf = yi
             Z += 0.004 * Z
 
+    slivers(c, kind)
     lands(c, zbuf, kind)
     castle(c, zbuf, kind)
     gloom_eyes(c, kind, zbuf)
     creatures(c)
     return c.finish(ALLOWED, protect=("fireWhite", "fireGold", "fireOrange", "ember", "wraithWhite", "wraithGlow",
                                       "farPale", "foam"))
+
+
+def slivers(c, kind):
+    """The height field leaves rows a single pixel high in the smoke and the far lands: each folds into the colour
+    above and below it, so every bank is a cluster with a body."""
+    for _ in range(2):
+        for y in range(HOR + 1, H - 1):
+            for x in range(W):
+                if kind[y][x] in (1, 3):
+                    up, down = c.c[y - 1][x], c.c[y + 1][x]
+                    if up == down and up != c.c[y][x] and kind[y - 1][x] == kind[y][x] == kind[y + 1][x]:
+                        c.c[y][x] = up
 
 
 def land_colour(X, Z, h, shade, slope, k):
