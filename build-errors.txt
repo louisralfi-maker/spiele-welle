@@ -1,0 +1,2 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/PeopleCastTests.swift:26:63: error: main actor-isolated class property 'people' can not be referenced from a nonisolated context
