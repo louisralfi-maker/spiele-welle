@@ -1,0 +1,8 @@
+Test Case '-[LanternholdUITests.WorldSweepOldUITests testFogDriftAndItsFreeze]' passed (140.430 seconds).
+Test Case '-[LanternholdUITests.WorldSweepOldUITests testSweepFog]' passed (133.910 seconds).
+Test Case '-[LanternholdUITests.WorldSweepOldUITests testSweepNoon]' passed (200.508 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testFogDriftAndItsFreeze]' passed (44.402 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepFog]' passed (42.185 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testSweepNoon]' passed (62.252 seconds).
+exit=0
+screenshots: 62
