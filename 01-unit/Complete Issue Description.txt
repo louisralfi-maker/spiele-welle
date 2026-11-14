@@ -1,0 +1,1 @@
+XCTAssertEqual failed: ("26") is not equal to ("28") - T14a FAIL careless nights 7-13, seeds 1-4, night x6.0, the lord at the throne: 28 of 28 broke (target at least 10), 26 mended within 3 days (fire bright and every burnt place standing; target all), fell on the careless night 0

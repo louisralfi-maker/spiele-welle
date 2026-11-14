@@ -1,0 +1,54 @@
+2026-11-14 23:53:49.777280+0000 Lanternhold[8744:36754] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.HearthTests testABrokenNightDropsOneStepAndEndsTheNight]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.HearthTests testABrokenNightsCost]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.HearthTests testABurntPlaceComesBackForAThirdOfWhatItCost]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.HearthTests testAnOldSaveLoadsWithoutTheRule]' passed (0.098 seconds).
+Test Case '-[LanternholdTests.HearthTests testAPlayerCanAlwaysWakeAtADawnWithTheFireAboveOut]' passed (1.975 seconds).
+Test Case '-[LanternholdTests.HearthTests testAtEmbersABreachPutsTheFireOutAndTheRealmFalls]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.HearthTests testNoTaxpayerNoDead]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheCostIsSeededByTheRealmAndTheNight]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheDriverKeepsEveryDawnItReaches]' passed (1.080 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheFireRisesAtADawnAfterANightWithoutABreach]' passed (0.050 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheGoldTakenIsAFifthAtMostSixty]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheHearthLinesReadInEnglishAndGerman]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheLightlessKingsNightEndsTheChapterAsToday]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheReferenceBotIgnoresTheHearthsNumbers]' passed (1.201 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheReportsLinesInTheSpecsOrder]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheRingKeepsTheLastThreeDawnsAndNeverAFall]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheRingRoundTripsAndDropsWhatItCannotRead]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheRuleRoundTripsAndPartialStatesDecodeWithDefaults]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheTownsfolkNamesBelongToNobodyElse]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.HearthTests testWithNoHouseStandingAFieldOrTheStallBurns]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.HearthTests testWithoutTheRuleTheRealmFallsAsBefore]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.HearthTests testWithTheLanternsDarkOneOrTwoHousesBurnAndLitOneFewer]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.HearthTests testWoodOnceADayAtTheHearth]' passed (0.001 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/HearthTuningTests.swift:29: error: -[LanternholdTests.HearthTuningTests testTarget14aACarelessNightIsMendedWithinThreeDays] : XCTAssertEqual failed: ("26") is not equal to ("28") - T14a FAIL careless nights 7-13, seeds 1-4, night x6.0, the lord at the throne: 28 of 28 broke (target at least 10), 26 mended within 3 days (fire bright and every burnt place standing; target all), fell on the careless night 0
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/HearthTuningTests.swift:30: error: -[LanternholdTests.HearthTuningTests testTarget14aACarelessNightIsMendedWithinThreeDays] : XCTAssertTrue failed - T14a FAIL careless nights 7-13, seeds 1-4, night x6.0, the lord at the throne: 28 of 28 broke (target at least 10), 26 mended within 3 days (fire bright and every burnt place standing; target all), fell on the careless night 0
+Test Case '-[LanternholdTests.HearthTuningTests testTarget14aACarelessNightIsMendedWithinThreeDays]' failed (77.004 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/HearthTuningTests.swift:42: error: -[LanternholdTests.HearthTuningTests testTarget14bWhatTwoBrokenNightsDo] : XCTAssertTrue failed - one step a breach: two broken nights never end the realm
+Test Case '-[LanternholdTests.HearthTuningTests testTarget14bWhatTwoBrokenNightsDo]' failed (0.014 seconds).
+Test Case '-[LanternholdTests.HearthTuningTests testTheFirstBreachIsTodaysLoss]' passed (21.807 seconds).
+Test Case '-[LanternholdTests.HearthTuningTests testTheT14ReportIsAttached]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.HearthTuningTests testThreeBrokenNightsInARowPutTheFireOut]' passed (2.213 seconds).
+Test Suite 'HearthTuningTests' failed at 2026-11-14 23:55:37.446.
+Test Case '-[LanternholdTests.SaveGameTests testACorruptFileIsReportedAsCorrupt]' passed (0.510 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testAnOlderSaveWithoutOptionalFieldsLoads]' passed (0.228 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testARoundTripGivesTheSameRealm]' passed (0.210 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlayingOnFromALoadedSaveMatchesPlayingStraightOn]' passed (0.623 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlotCountsAndIndicesAreCheckedOnLoad]' passed (0.015 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testSettingsAndPacingWithoutTheirFieldsDecodeWithDefaults]' passed (0.202 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheChronicleKeepsRecordsPerTrackAcrossRealms]' passed (0.240 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheFrozenVersionOneSaveStillLoads]' passed (0.018 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testUnknownFieldsOfNewerVersionsAreIgnored]' passed (0.234 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testAStallNeverFastForwardsTheWorld]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testAutoplayPlaysLiveUntilADrag]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testItStepsSixtyTimesASecondWhateverTheFrameRate]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testNothingStepsWhilePausedOrInTheBackgroundOrFrozen]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testTheActionButtonLightsASnuffedBrazierAtNight]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testTheCameraLooksTowardTheGloomAtNightAtTheFront]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testTheDawnRenewsTheSnapshotTheSaveWrites]' passed (0.091 seconds).
+Test Case '-[LanternholdTests.SimDriverTests testTheDragMovesTheKingThroughTheSimulationsIntent]' passed (0.001 seconds).
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-14 23:55:39.861.
+Test Suite 'Selected tests' failed at 2026-11-14 23:55:39.861.
+exit=65
+screenshots: 0
