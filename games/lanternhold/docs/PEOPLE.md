@@ -89,9 +89,10 @@ wet linen (2 rows of 4 px, white linen above and below it). At the well, on its 
 wrings a sheet: held level across her chest between her two red fists, twisted, its light and shade banding moving on
 a pixel between the two frames, a drop falling (frames 6-7).
 
-**Brede Hask** (`labourer`, 12x26). *Silhouette:* broad shoulders under a long pale beam of fresh timber on his far
-shoulder, angled with its back end high above his head and its front end before his chin, his near hand up under
-it. *Posture:* the weight kept off the bad foot. *Pace:* the limp, uneven on purpose (see
+**Brede Hask** (`labourer`, 12x26). *Silhouette:* broad shoulders under a long beam of weathered timber on his far
+shoulder (`woodLight` lit, `wood`, the cut ends `strawLight`: pale fresh wood read as a brass horn at phone size),
+angled with its back end high above his brow, running behind his head and lying on his shoulder in front, his near
+hand up on top of it. *Posture:* the weight kept off the bad foot. *Pace:* the limp, uneven on purpose (see
 SPRITES-people.md): a short step onto the bad foot, the dip while the good leg swings through, the long step of the
 good leg, the bad leg dragged through stiff. Four fifths of the townsfolk's speed. *Cloth:* a shaved head with a sweat
 rag round the brow (`plasterDim`), a stubbled jaw (`stone`), a sleeveless dark leather jerkin (`woodDark`, `soilDark`,

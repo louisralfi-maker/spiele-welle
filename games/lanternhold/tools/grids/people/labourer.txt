@@ -24,10 +24,10 @@ legend
     s = tileLight
     m = stone
     q = plasterDim
-    l = woodLight
-    C = strawLight
-    c = straw
-    h = wood
+    l = strawLight
+    C = woodLight
+    c = wood
+    h = straw
     H = woodDark
     B = soilDark
     n = soilLight
@@ -57,8 +57,8 @@ part torso
     .JJJJBB.
     .BBnBBB.
 
-# the beam on the far shoulder, angled with its back end high above his brow: fresh pale timber, its lit top, its
-# underside, the end grain at both ends; it runs behind his head and comes out in front at his shoulder, below the
+# the beam on the far shoulder, angled with its back end high above his brow: weathered timber (brown, so it never
+# reads as a brass horn), its lit top, its underside, the pale end grain at both ends; it runs behind his head and comes out in front at his shoulder, below the
 # chin (never at the mouth: there it reads as a horn)
 part beam
     lC..........
