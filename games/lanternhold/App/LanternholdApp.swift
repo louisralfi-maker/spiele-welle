@@ -31,7 +31,9 @@ struct RootView: View {
             TestPatternView(virtualHeight: args.virtualHeight, scaleOverride: args.scaleOverride)
                 .ignoresSafeArea()
         } else if let model {
+            // The Lantern Table's plain list (`-GWScreen table`, `UI/Table`): nothing unless that argument asks.
             GameView(model: model)
+                .overlay { TableDebugLayer(model: model) }
         } else {
             Color.black
                 .ignoresSafeArea()
