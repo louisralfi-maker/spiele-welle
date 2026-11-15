@@ -77,9 +77,13 @@ enum TouchThings {
                                top: Double(SpriteID.barracks.size.height) - 4, rank: TouchRules.rank(.recruit)))
         list.append(TouchThing(id: "touch-door-hall", kind: .door, act: .hallDoor, x: HallRules.doorX,
                                standX: HallRules.doorX, halfWidth: 9, top: worldDoorTop,
-                               rank: TouchRules.rank(.door)))
+                               rank: TouchRules.rank(.door), marked: abs(s.king.x - HallRules.doorX) > doorQuiet))
         return list
     }
+
+    /// While the lord stands this near a door (he just came through it) its mark rests; the door still answers a
+    /// touch (the first sweep: the door's mark over his head was the first thing he saw inside).
+    static let doorQuiet = 40.0
 
     /// The great hall's door in the world: its top above the walk line (the forebuilding's door the world lane
     /// paints at x 1830).
@@ -137,7 +141,8 @@ enum TouchThings {
         var list: [TouchThing] = []
         let doorTop = Double(HallLayout.floorRow - HallLayout.doorTop)
         list.append(TouchThing(id: "touch-door-hall", kind: .door, act: .hallDoor, x: HallLayout.doorX,
-                               standX: HallLayout.doorX, halfWidth: 12, top: doorTop, rank: TouchRules.rank(.door)))
+                               standX: HallLayout.doorX, halfWidth: 12, top: doorTop, rank: TouchRules.rank(.door),
+                               marked: abs(lordX - HallLayout.doorX) > doorQuiet))
         guard DayClock.phase(at: s.hour) == .day else { return list }
         let waiting = !AudienceRules.hall(s, catalog: .standard).isEmpty
         if waiting {

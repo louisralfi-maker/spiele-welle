@@ -629,7 +629,8 @@ Touch the ground and he walks there. Drag and he walks as before.
 - **The marks:** over every thing in view that offers something, at most four, the nearest to the lord first (the
   errand's thing always among them); at most two of them over building sites, and a site's only while the treasury
   can pay something on its card (the first sweep: four hammers in a row at the gate read as the banner posts they
-  replaced); of a row of damaged walls only the nearest carries one; a tag that would overlap a nearer one gives way. Drawn unlit; at night at
+  replaced); of a row of damaged walls only the nearest carries one; a tag that would overlap a nearer one gives way;
+  a door's mark rests while he stands within 40 px of it (he just came through it). Drawn unlit; at night at
   three quarters of their value and warmed (M11). A pool of warm light (radius 20, 0.7) at the thing's feet, a scene
   light that only shows after dusk. No rim yet (the spec's gold outline is open). Nothing bobs or blinks. The old
   speech marks and the throne's pulsing mark are gone in the game.

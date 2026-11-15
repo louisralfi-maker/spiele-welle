@@ -343,6 +343,7 @@ final class TouchWorldTests: XCTestCase {
         _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         let inner = try XCTUnwrap(game.touch.things.first { $0.id == "touch-door-hall" }, "the inner door")
         XCTAssertEqual(inner.x, HallLayout.doorX)
+        XCTAssertFalse(inner.marked, "he just came through it: its mark rests")
         game.touchThing(inner)
         run(game, seconds: 4) { game.stage == .world && game.stageChange == nil }
         XCTAssertEqual(game.stage, .world, "out by the inner door")
