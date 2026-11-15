@@ -144,23 +144,29 @@ def declump(L, keep=()):
 
 
 # ------------------------------------------------------------------------------------------------- layer 1: the sky
-SKY_BANDS = [(0, "nightBlue"), (100, "nightSlate"), (130, "night2"), (143, "nightHaze")]
 HORIZON = 146
 BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]
 SKY_STEP = 12    # rows of ordered steps between two sky colours (2/16 .. 14/16)
 BRIGHT_STARS = [(64, 12), (176, 8), (338, 6), (452, 18), (500, 40), (116, 58)]
 
 
+SKY_DOMES = [("nightSlate", 470, 150, 0.10), ("night2", 300, 80, 0.12), ("nightHaze", 170, 34, 0.16)]
+DAWN = (520, 146)
+
+
 def sky_colour(x, y):
-    name = SKY_BANDS[0][1]
-    for (y0, n) in SKY_BANDS:
-        if y >= y0:
+    """The night sky lightens toward the dawn on the right horizon in nested domes (ellipses round the dawn point):
+    curved edges, each crossed in ordered steps, so there is no straight band anywhere. The Gloom's side, left, keeps
+    the deepest blue."""
+    name = "nightBlue"
+    for (n, rx, ry, soft) in SKY_DOMES:
+        e = math.hypot((x - DAWN[0]) / float(rx), (y - DAWN[1]) / float(ry))
+        if e < 1.0 - soft:
             name = n
-    for i in range(1, len(SKY_BANDS)):
-        y0, n = SKY_BANDS[i]
-        d = y - (y0 - SKY_STEP)
-        if 0 <= d < SKY_STEP:
-            return n if BAYER[y % 4][x % 4] < int(round(16.0 * (d + 1) / (SKY_STEP + 1))) else SKY_BANDS[i - 1][1]
+        elif e < 1.0:
+            level = int(16 * (1.0 - e) / soft)          # 0..15 across the edge
+            if BAYER[y % 4][x % 4] < level:
+                name = n
     return name
 
 
@@ -248,10 +254,10 @@ def draw_far():
             for x in range(int(xl), int(xr) + 1):
                 if 150 <= x <= 430 and y >= top[x]:
                     L.px(x, y, "night2")
-            if d < 4:   # snow at the very tip; the farthest catch the coming dawn's cold first light
-                for x in range(int(px_ - d * 1.25), int(px_ + d * 0.6) + 1):
+            if px_ in (314, 338, 362) and d < 5:   # snow only on the three highest, on their lit side
+                for x in range(int(px_ - d * 1.25), px_ + (1 if d < 2 else 0)):
                     if 150 <= x <= 430 and y >= top[x]:
-                        L.px(x, y, "moon" if (d < 2 and px_ > 340) else "far")
+                        L.px(x, y, "moon" if d < 2 else "far")
     for x in range(151, 431):
         t = int(round(top[x]))
         if top[x] - top[x - 1] <= -0.5 and L.is_(x, t, "nightSlate"):
@@ -299,7 +305,7 @@ def slabs():
         if x > CLIFF_EDGE:
             break
         w_ = min(w_, CLIFF_EDGE + 1 - x)
-        top = int(round(crest(x + w_ / 2.0) + (h(i, 0, 21) - 0.5) * 10))
+        top = int(round(crest(x + w_ / 2.0) + (h(i, 0, 21) - 0.5) * 16))
         out.append((x, w_, top, i))
         x += w_
     return out
@@ -593,6 +599,9 @@ def draw_castle():
     for x in range(k0 - 1, k1 + 2):
         L.px(x, 112, "night2"); L.px(x, 113, "nightSlate"); L.px(x, 114, "nightBlue")
     merlons(L, k0 - 1, k1 + 1, 109)
+    for x in range(k0, k1 + 1):                      # the corbel table under the parapet
+        L.px(x, 115, "nightDeep" if (x - k0) % 3 == 2 else "nightSlate")
+        L.px(x, 116, "nightDeep" if (x - k0) % 3 == 2 else "nightBlue")
     # the house banner on the keep: realm teal, our lantern on it in gold
     for y in range(118, 133):
         for x in range(257, 262):
@@ -667,7 +676,7 @@ def draw_fog():
     L = Layer()
     # one low bank along the whole floor: two flat levels with a scalloped top; higher in the Throat
     for x in range(W):
-        s_ = 2.0 * math.sin(x / 7.0) + 1.4 * math.sin(x / 3.1 + 2.0) + 1.0 * math.sin(x / 17.0)
+        s_ = 1.6 * math.sin(x / 7.0) + 1.0 * math.sin(x / 3.1 + 2.0) + 3.0 * math.sin(x / 23.0 + 0.6)
         base = 171 if x < 180 else (171 + (x - 180) * 0.16 if x < 230 else 179)
         t = int(round(base + s_))
         for y in range(t, H):
@@ -676,7 +685,7 @@ def draw_fog():
     for x in range(W):
         for y in range(int(round(top[x])), H):
             L.px(x, y, "nightDeep")
-    for (fx_, fb, fh) in ((16, 172, 28), (30, 170, 20), (64, 182, 16), (8, 172, 18)):
+    for (fx_, fb, fh) in ((16, 172, 28), (30, 170, 20), (52, 180, 22), (63, 182, 15), (8, 172, 18)):
         for d in range(fh):
             y = fb - fh + d
             half = d * 0.28 + (1 if d % 5 in (3, 4) else 0) * (d / float(fh)) * 1.4
@@ -695,10 +704,10 @@ def draw_fog():
 
 
 # ------------------------------------------------------------------------------- the glow of the eternal light
-GLOW_ALPHA = (0.26, 0.13, 0.05)
+GLOW_ALPHA = (0.28, 0.14, 0.06)
 
 
-def glow_layer(radii=(10, 18, 30), alphas=GLOW_ALPHA, cx=LX, cy=LY, w=W, hh=H, colour="fireOrange"):
+def glow_layer(radii=(11, 20, 33), alphas=GLOW_ALPHA, cx=LX, cy=LY, w=W, hh=H, colour="fireOrange"):
     """Stepped rings of the light's colour: hard edges on the game grid, one alpha per ring."""
     a = np.zeros((hh, w, 4), np.uint8)
     yy, xx = np.mgrid[:hh, :w]
@@ -791,8 +800,8 @@ def lantern(step):
 
 
 LANTERN_GLOW = {  # step: radii of the stepped rings around the flame
-    0: (), 1: (3,), 2: (5, 8), 3: (6, 11, 16), 4: (8, 14, 22), 5: (9, 16, 26), 6: (10, 18, 30),
-    7: (11, 19, 31),
+    0: (), 1: (3,), 2: (5, 8), 3: (6, 11, 16), 4: (8, 14, 23), 5: (10, 17, 28), 6: (11, 20, 33),
+    7: (12, 21, 34),
 }
 
 
@@ -1001,7 +1010,48 @@ def lettering(state):
             else:
                 c = "soil"
             L.px(x, y, c)
+    rule(L, boxes, state)
     return L, boxes
+
+
+RULE_Y = LETTER_Y + GH + 3
+
+
+def rule(L, boxes, state):
+    """A thin rule of iron and brass under the word, broken at its centre by a small diamond, the lantern's mark:
+    the brass faces down, toward the light."""
+    x0 = boxes[1][0] + 2
+    x1 = boxes[-2][0] + boxes[-2][2] - 3
+    for x in range(x0, x1 + 1):
+        if abs(x - LX) <= 6:
+            continue
+        L.px(x, RULE_Y - 1, "nightDeep")
+        L.px(x, RULE_Y, "nightBlue" if state == "unlit" else "stoneDark")
+        near = 1.0 - min(1.0, abs(x - LX) / 120.0)
+        L.px(x, RULE_Y + 1, "nightSlate" if state == "unlit" else ("gold" if near > 0.55 else "straw"))
+        L.px(x, RULE_Y + 2, "nightDeep")
+    for (x, y) in ((x0 - 1, RULE_Y), (x0 - 1, RULE_Y + 1), (x1 + 1, RULE_Y), (x1 + 1, RULE_Y + 1)):
+        L.px(x, y, "nightDeep")
+    # the diamond: radius 4, an iron ring with a brass lower edge round a heart that glows when lit
+    for dy in range(-5, 6):
+        for dx in range(-5, 6):
+            r = abs(dx) + abs(dy)
+            x, y = LX + dx, RULE_Y + dy
+            if r == 5:
+                L.px(x, y, "nightDeep")
+            elif r == 4:
+                if state == "unlit":
+                    L.px(x, y, "nightSlate")
+                else:
+                    L.px(x, y, "fireGold" if dy > 0 else ("gold" if dy == 0 else "straw"))
+            elif r <= 3:
+                L.px(x, y, "nightBlue" if state == "unlit" else "stoneDark")
+    if state == "lit":
+        L.px(LX, RULE_Y, "fireGold")
+        for (dx, dy) in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            L.px(LX + dx, RULE_Y + dy, "fireOrange")
+    else:
+        L.px(LX, RULE_Y, "nightSlate")
 
 
 # ------------------------------------------------------------------------------------------------- composing
@@ -1062,7 +1112,7 @@ def build_all():
 
 LAYER_FILES = {"sky": "title1Sky", "far": "title2Far", "rock": "title3Rock", "castle": "title4Castle",
                "front": "title4Parapet", "fog": "title5Fog", "glow": "titleGlow"}
-DRIFT = {"sky": 1, "far": 2, "rock": 4, "castle": 6, "fog": 8}
+DRIFT = {"sky": -3, "far": -2, "rock": -1, "castle": 0, "fog": 8}   # game px at the sway's peak; the castle (and the light) never move
 
 
 def write_art(outdir=OUT):
@@ -1070,9 +1120,10 @@ def write_art(outdir=OUT):
     layers, sprites, unlit, litl, boxes = build_all()
     for k, n in LAYER_FILES.items():
         layers[k].save(os.path.join(outdir, n + ".png"))
+    glow_layer(radii=LANTERN_GLOW[7]).save(os.path.join(outdir, "titleGlowFlicker.png"))
     scene(layers, sprites, letters=litl).convert("RGB").save(os.path.join(outdir, "titleComposite.png"))
     x0, x1 = boxes[0][0] - 1, boxes[-1][0] + boxes[-1][2] + 1
-    crop = (x0, LETTER_Y - 1, x1, LETTER_Y + GH + 1)
+    crop = (x0, LETTER_Y - 1, x1, RULE_Y + 6)
     unlit.crop(crop).save(os.path.join(outdir, "letteringUnlit.png"))
     litl.crop(crop).save(os.path.join(outdir, "letteringLit.png"))
     for i in range(8):
