@@ -1,0 +1,7 @@
+touch-plot-6: Build: Wall 
+touch-plot-7: Build: Tower 
+touch-plot-10: Build: Siege engine 
+touch-plot-2: Upgrade: Brazier 
+touch-plot-3: Upgrade: Brazier 
+touch-plot-1: Build: Tower 
+touch-plot-0: Upgrade: Wall 
