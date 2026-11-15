@@ -10,10 +10,12 @@ struct HearthTuning: Sendable, Equatable {
     // MARK: The fire (bright, low, embers, out)
 
     /// A broken night (creatures drained the hearth's strength, which under the old rules makes the realm fall) takes
-    /// the fire down this many steps. The spec: one. With one step a bright fire goes out on the third broken night
-    /// that no dawn and no wood made good; two broken nights can never put it out (docs/lanes/front.md, "front-2":
-    /// T14's second half). 2 is the value with which two broken nights within three end the realm.
-    var breachSteps = 1
+    /// the fire down this many steps: bright to embers, low to out. The spec started at one; one step cannot meet T14's
+    /// second half (two broken nights never put out a bright fire: three steps above out), and with a day's wood
+    /// undoing each breach a realm that breaks every night never goes out until the kept dawns are all lost ones
+    /// (round lh-f2-1, docs/lanes/front.md "front-2"). With two, wood (one step) and a held night (one step) mend one
+    /// broken night, two in a row end the realm, and the dawn before the trouble is always among the three kept.
+    var breachSteps = 2
     /// A night without a breach raises the fire this many steps at its dawn (never above bright).
     var recoverSteps = 1
     /// Wood: once a day (by the day's number) the lord can feed the fire this many steps, for this much gold, standing

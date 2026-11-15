@@ -58,7 +58,7 @@ final class HearthTests: XCTestCase {
         XCTAssertEqual(s.day, 6, "no dawn comes")
     }
 
-    func testABrokenNightDropsOneStepAndEndsTheNight() throws {
+    func testABrokenNightTakesABrightFireToEmbersAndEndsTheNight() throws {
         var s = night()
         crowdAtTheHearth(&s)
         let events = run(&s, seconds: 5)
@@ -69,13 +69,13 @@ final class HearthTests: XCTestCase {
         XCTAssertEqual(s.day, 7)
         XCTAssertEqual(s.hour, 6)
         XCTAssertTrue(s.creatures.isEmpty, "the creatures burn away")
-        XCTAssertEqual(fire.level, .low, "one step: bright to low")
+        XCTAssertEqual(fire.level, .embers, "two steps (breachSteps): bright to embers")
         XCTAssertEqual(fire.brokenNights, [6])
         XCTAssertNil(fire.pending, "the dawn took the breach into the report")
         let brk = try XCTUnwrap(fire.lastBreak, "the picture's stamp")
         XCTAssertEqual(brk.night, 6)
         XCTAssertEqual(brk.before, .bright)
-        XCTAssertEqual(brk.after, .low)
+        XCTAssertEqual(brk.after, .embers)
         let report = try XCTUnwrap(s.lastReport)
         XCTAssertEqual(report.night, 6)
         XCTAssertEqual(report.realmFell, true, "the night was lost: no record counts it as held")
@@ -83,8 +83,19 @@ final class HearthTests: XCTestCase {
         let hearth = try XCTUnwrap(report.hearth)
         XCTAssertTrue(hearth.broken)
         XCTAssertEqual(hearth.before, .bright)
-        XCTAssertEqual(hearth.after, .low)
-        XCTAssertEqual(hearth.lines().last, HearthLine(key: HearthLine.low), "\"The hearth burns low.\"")
+        XCTAssertEqual(hearth.after, .embers)
+        XCTAssertEqual(hearth.lines().last, HearthLine(key: HearthLine.embers), "\"Only embers glow in the hearth.\"")
+    }
+
+    func testWithOneStepABreachTakesABrightFireToLow() throws {
+        var one = balance
+        one.front.hearth.breachSteps = 1
+        var s = night()
+        crowdAtTheHearth(&s)
+        var events: [SimEvent] = []
+        while !s.defeated && s.day == 6 { Sim.step(&s, dt: 0.1, balance: one, events: &events) }
+        XCTAssertEqual(s.hearthFire?.level, .low, "the spec's starting value: one step")
+        XCTAssertEqual(s.lastReport?.hearth?.lines().last, HearthLine(key: HearthLine.low), "\"The hearth burns low.\"")
     }
 
     func testABrokenNightsCost() throws {
@@ -249,7 +260,7 @@ final class HearthTests: XCTestCase {
             XCTAssertEqual(report.before, from)
             XCTAssertEqual(report.after, to)
             let expected: [HearthLine] = from == .low ? [HearthLine(key: HearthLine.bright)]
-                : from == .embers ? [HearthLine(key: HearthLine.rose)] : []
+                : from == .embers ? [HearthLine(key: HearthLine.low)] : []
             XCTAssertEqual(report.lines(), expected)
         }
     }
@@ -290,6 +301,15 @@ final class HearthTests: XCTestCase {
     }
 
     // MARK: - Out, the fall, the second chance
+
+    func testAtLowABreachPutsTheFireOutAndTheRealmFalls() {
+        var s = night()
+        s.hearthFire?.level = .low
+        crowdAtTheHearth(&s)
+        run(&s, seconds: 5)
+        XCTAssertTrue(s.defeated, "two steps from low: out")
+        XCTAssertEqual(s.hearthFire?.level, .out)
+    }
 
     func testAtEmbersABreachPutsTheFireOutAndTheRealmFalls() throws {
         var s = night()

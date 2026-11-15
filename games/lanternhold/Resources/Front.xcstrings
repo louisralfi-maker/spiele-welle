@@ -236,7 +236,7 @@
       }
     },
     "front.hearth.embers" : {
-      "comment" : "Dawn report, hearth half: the fire is down to embers, one step from going out. Short and dry; the danger without saying it.",
+      "comment" : "Dawn report, hearth half: the fire is down to embers (a broken night takes a bright fire there): one more broken night puts it out. Short and dry; the danger without saying it.",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -272,7 +272,7 @@
       }
     },
     "front.hearth.low" : {
-      "comment" : "Dawn report, hearth half: the fire dropped from bright to low (one step of four: bright, low, embers, out). Short and dry.",
+      "comment" : "Dawn report, hearth half: the fire burns low (one of four steps: bright, low, embers, out): after a held night raised it from embers, or after a breach took it there. Short and dry.",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -321,24 +321,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The hearth went out, and caught again."
-          }
-        }
-      }
-    },
-    "front.hearth.rose" : {
-      "comment" : "Dawn report, hearth half: a night held, and the fire rose from embers to low. Short and dry.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das Herdfeuer hat sich gefangen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The hearth has caught again."
           }
         }
       }

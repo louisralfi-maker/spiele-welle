@@ -30,41 +30,46 @@ final class HearthTuningTests: XCTestCase {
         XCTAssertTrue(m.passesMend, String(line))
     }
 
-    /// 14, second half, as the rule of REALM.md section 4 gives it (one step a breach): two broken nights within three
-    /// never put out a bright fire (bright, low, embers: three steps above out), a third in a row does. With
-    /// `breachSteps` 2 two in a row end the realm. The target as written ("two broken nights within three end the
-    /// realm") is reported beside it, not asserted: with one step a breach no value of the recovery or the wood can make
-    /// it true (docs/lanes/front.md "front-2").
-    func testTarget14bWhatTwoBrokenNightsDo() {
+    /// 14, second half: two broken nights within three end the realm (`breachSteps` 2: bright to embers, low to out).
+    /// For a careless bot that never feeds the fire every such pair ends it, and two in a row end it even with wood
+    /// between; one that holds the night between and feeds the fire back to bright goes on (reported). With the spec's
+    /// starting value (one step) no pair of broken nights ends the realm (three steps above out): only a third does.
+    func testTarget14bTwoBrokenNightsWithinThreeEndTheRealm() {
         let m = HearthTuningTests.metrics
-        let oneStep = m.doubles.filter { $0.steps == 1 && $0.bothBroke }
-        XCTAssertFalse(oneStep.isEmpty, "the careless nights broke")
+        let chosen = Balance.standard.front.hearth.breachSteps
+        let line = m.report.split(separator: "\n").first { $0.hasPrefix("T14b ") && $0.contains("(chosen), no wood") }
+        XCTAssertEqual(chosen, 2)
+        XCTAssertTrue(m.passesTwoInThree(steps: chosen), String(line ?? ""))
+        let unfed = m.twoInThreeEnd(steps: chosen, feeds: false)
+        XCTAssertGreaterThan(unfed.of, 0, "the careless nights broke")
+        let oneStep = m.doubles.filter { $0.steps == 1 && $0.bothBroke && $0.breaks == 2 }
+        XCTAssertFalse(oneStep.isEmpty)
         XCTAssertTrue(oneStep.allSatisfy { !$0.fell }, "one step a breach: two broken nights never end the realm")
-        for d in oneStep where d.gap == 1 && !d.feeds {
-            XCTAssertEqual(d.levels.last, .embers, "two in a row, no wood: embers (\(d.seed).\(d.night))")
-        }
-        let twoSteps = m.doubles.filter { $0.steps == 2 && $0.bothBroke && $0.gap == 1 }
-        XCTAssertFalse(twoSteps.isEmpty)
-        XCTAssertTrue(twoSteps.allSatisfy { $0.fell }, "two steps a breach: two in a row end the realm")
-        let written = m.twoInThreeEnd(steps: 1, feeds: true)
-        print("T14b as written (one step, fed): \(written.ended) of \(written.of) ended")
+        let fed = m.twoInThreeEnd(steps: chosen, feeds: true, gap: 2)
+        print("T14b, two steps, one held night and wood between: \(fed.ended) of \(fed.of) ended")
     }
 
-    /// Three broken nights in a row with no wood end the realm (one step a breach), and the fire shows every step.
-    func testThreeBrokenNightsInARowPutTheFireOut() throws {
+    /// Two broken nights in a row put the fire out (two steps a breach), and the fire shows the step between; with the
+    /// spec's one step it takes three.
+    func testTwoBrokenNightsInARowPutTheFireOut() throws {
         let eve = try XCTUnwrap(FrontTuningRun.eves(seed: 1, balance: .standard, nights: 9...9).first)
-        var s = eve.state
-        Hearth.adopt(&s)
-        var bot = HearthBot(day: eve.bot, carelessNights: [9, 10, 11], feeds: false)
-        let caught = FrontTuningRun.stressed(.standard, 6)
-        var levels: [HearthLevel] = []
-        for _ in 0..<3 {
-            HearthTuningRun.runToDawn(&s, balance: caught, bot: &bot)
-            levels.append(s.defeated ? .out : s.hearthFire?.level ?? .bright)
-            if s.defeated { break }
+        func play(_ balance: Balance, nights: Int) -> [HearthLevel] {
+            var s = eve.state
+            Hearth.adopt(&s)
+            var bot = HearthBot(day: eve.bot, carelessNights: Set(9..<(9 + nights)), feeds: false)
+            let caught = FrontTuningRun.stressed(balance, 6)
+            var levels: [HearthLevel] = []
+            for _ in 0..<nights {
+                HearthTuningRun.runToDawn(&s, balance: caught, bot: &bot)
+                levels.append(s.defeated ? .out : s.hearthFire?.level ?? .bright)
+                if s.defeated { break }
+            }
+            return levels
         }
-        XCTAssertEqual(levels, [.low, .embers, .out])
-        XCTAssertTrue(s.defeated)
+        XCTAssertEqual(play(.standard, nights: 2), [.embers, .out])
+        var one = Balance.standard
+        one.front.hearth.breachSteps = 1
+        XCTAssertEqual(play(one, nights: 3), [.low, .embers, .out])
     }
 
     /// For T1 to T8 a night in which the hearth is reached counts as the loss it is today: in lockstep the two realms

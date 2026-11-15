@@ -51,11 +51,11 @@ struct HearthPicture: Sendable, Equatable {
 
 /// The hearth rule (docs/REALM.md section 4, "The hearth (losing)"). The hearth is the realm's life and is seen as fire:
 /// bright, low, embers, out. When creatures drain the hearth's strength (what makes the realm fall under the old rules)
-/// the night breaks: the fire drops a step, a broken night's cost is taken (houses burn, townspeople with names die, a
-/// fifth of the purse is gone, happiness falls), the creatures burn away and dawn comes at once. A night without a breach
-/// raises the fire a step at dawn; once a day the lord can feed it. Out: the realm falls, and the fall card wakes at one
-/// of the last three dawns (`DawnRing`). Night 20: the Lightless King at the hearth ends the chapter as today, whatever
-/// the fire's state.
+/// the night breaks: the fire drops (`HearthTuning.breachSteps`: bright to embers), a broken night's cost is taken
+/// (houses burn, townspeople with names die, a fifth of the purse is gone, happiness falls), the creatures burn away and
+/// dawn comes at once. A night without a breach raises the fire a step at dawn; once a day the lord can feed it a step.
+/// Out: the realm falls, and the fall card wakes at one of the last three dawns (`DawnRing`). Night 20: the Lightless
+/// King at the hearth ends the chapter as today, whatever the fire's state.
 ///
 /// Deterministic: the cost draws from its own stream, seeded by the realm's seed and the night. Nothing here runs for a
 /// realm without `GameState.hearthFire`.

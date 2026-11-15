@@ -144,8 +144,7 @@ struct HearthDawnReport: Codable, Sendable, Equatable {
     }
 
     /// The report's hearth lines, in the spec's order: what burnt, the dead by name, the gold taken, the fire's state.
-    /// A night without a breach has at most the fire's line (when it rose again); a bright fire that stayed bright has
-    /// none.
+    /// A night without a breach has at most the fire's line (when it rose); a bright fire that stayed bright has none.
     func lines() -> [HearthLine] {
         var lines: [HearthLine] = []
         let houses = burnt.filter { $0.item.slot == .house }.count
@@ -172,7 +171,8 @@ struct HearthDawnReport: Codable, Sendable, Equatable {
             default: break
             }
         } else if after > before {
-            lines.append(HearthLine(key: after == .bright ? HearthLine.bright : HearthLine.rose))
+            // A held night raised it: the state, plainly (embers to low: "The hearth burns low.").
+            lines.append(HearthLine(key: after == .bright ? HearthLine.bright : HearthLine.low))
         } else {
             // Unchanged below bright (a variant without the dawn's recovery): the state again.
             switch after {
@@ -197,7 +197,6 @@ struct HearthLine: Sendable, Equatable {
     static let gold = "front.hearth.gold"
     static let low = "front.hearth.low"
     static let embers = "front.hearth.embers"
-    static let rose = "front.hearth.rose"
     static let bright = "front.hearth.bright"
     static let rekindled = "front.hearth.rekindled"
     /// The happiness row's reason for the breach's loss (the card at the join; `HearthDawnReport.happinessLost`).
@@ -211,7 +210,7 @@ struct HearthLine: Sendable, Equatable {
 
     /// Every key of the report's hearth lines (the text tests check each in English and German).
     static let reportKeys = [burntHouse, burntHouses, burntField, burntMarket, deadOne, deadTwo, deadThree, gold, low,
-                             embers, rose, bright, rekindled]
+                             embers, bright, rekindled]
     /// The other keys (the reason and the fall card).
     static let otherKeys = [reason, fallTitle, wakeThisMorning, wakeOneEarlier, wakeTwoEarlier, newRealm]
     /// The wake keys by how many mornings back.

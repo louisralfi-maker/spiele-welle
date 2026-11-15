@@ -43,6 +43,8 @@ struct HearthDouble: Sendable, Equatable {
     var steps: Int
     /// Both careless nights broke (else the pattern did not happen and the row says so).
     var bothBroke = false
+    /// Every broken night of the run (a night between can break too, when the first left the gate open).
+    var breaks = 0
     /// The fire at each dawn from the first careless night on.
     var levels: [HearthLevel] = []
     var fell = false
@@ -72,11 +74,22 @@ struct HearthMetrics: Sendable {
     /// T14's first half: every broken careless night mended within three days (at least `minBroken` of them).
     var passesMend: Bool { broken.count >= HearthMetrics.minBroken && mended.count == broken.count }
 
-    /// T14's second half as written, for the doubles of one setting: every double whose two nights broke ended the
-    /// realm.
-    func twoInThreeEnd(steps: Int, feeds: Bool) -> (ended: Int, of: Int) {
-        let set = doubles.filter { $0.steps == steps && $0.feeds == feeds && $0.bothBroke }
+    /// T14's second half as written, for the doubles of one setting: how many whose two careless nights broke ended
+    /// the realm.
+    func twoInThreeEnd(steps: Int, feeds: Bool, gap: Int? = nil) -> (ended: Int, of: Int) {
+        let set = doubles.filter {
+            $0.steps == steps && $0.feeds == feeds && $0.bothBroke && (gap == nil || $0.gap == gap)
+        }
         return (set.filter { $0.fell }.count, set.count)
+    }
+
+    /// T14's second half at `steps`: a careless bot (no wood) that lets two nights within three break loses the realm,
+    /// and so does one that breaks two in a row with wood between; one that holds the night between and feeds the fire
+    /// back to bright may go on (reported).
+    func passesTwoInThree(steps: Int) -> Bool {
+        let unfed = twoInThreeEnd(steps: steps, feeds: false)
+        let fedInARow = twoInThreeEnd(steps: steps, feeds: true, gap: 1)
+        return unfed.of > 0 && unfed.ended == unfed.of && fedInARow.of > 0 && fedInARow.ended == fedInARow.of
     }
 
     private static func mean(_ values: [Int]) -> String {
@@ -115,7 +128,8 @@ struct HearthMetrics: Sendable {
         settings.sort { ($0.0, $0.1 ? 1 : 0) < ($1.0, $1.1 ? 1 : 0) }
         for (steps, feeds) in settings {
             let all = doubles.filter { $0.steps == steps && $0.feeds == feeds }
-            var row = "T14b two broken nights within three, breachSteps \(steps), \(feeds ? "fed" : "no wood") between: "
+            var row = "T14b \(passesTwoInThree(steps: steps) ? "PASS" : "FAIL") two broken nights within three, "
+            row += "breachSteps \(steps)\(steps == tuning.breachSteps ? " (chosen)" : ""), \(feeds ? "fed" : "no wood") between: "
             for gap in [1, 2] {
                 let set = all.filter { $0.gap == gap && $0.bothBroke }
                 let ended = set.filter { $0.fell }.count
@@ -153,6 +167,7 @@ struct HearthMetrics: Sendable {
                 var row = "  \(d.seed).\(d.night) +\(d.gap) x\(d.steps) \(d.feeds ? "fed" : "unfed") | "
                 row += d.levels.map { $0.rawValue }.joined(separator: " > ")
                 if d.fell { row += " FELL" }
+                if d.breaks > 2 { row += " (\(d.breaks) broken nights)" }
                 if !d.bothBroke { row += " (a careless night held)" }
                 lines.append(row)
             }
@@ -295,11 +310,15 @@ enum HearthTuningRun {
             runToDawn(&s, balance: careless ? caught : b, bot: &bot)
             if s.defeated {
                 if careless { broke += 1 }
+                d.breaks += 1
                 d.levels.append(.out)
                 d.fell = true
                 break
             }
-            if careless && s.lastReport?.hearth?.broken == true { broke += 1 }
+            if s.lastReport?.hearth?.broken == true {
+                d.breaks += 1
+                if careless { broke += 1 }
+            }
             d.levels.append(s.hearthFire?.level ?? .bright)
             // The day after: the bot feeds before the next night (the levels list shows the dawn's fire).
         }

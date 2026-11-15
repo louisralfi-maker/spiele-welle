@@ -9,9 +9,9 @@ struct HearthBotTally: Sendable, Equatable {
 }
 
 /// The T14 bot (docs/REALM.md section 4): the reference bot by day and by night (`Autoplay`), plus the hearth's habits
-/// of a player who plays well: by day it feeds the fire when it burns below bright (walking the few steps from the
-/// throne to the hearth), and it has burnt places rebuilt as soon as no wall lies in rubble (the reference rebuilds its
-/// walls first) and the purse holds the price. On its careless nights the lord stays at the throne all night: no
+/// of a player who plays well. By day, once no wall lies in rubble (the reference rebuilds its walls first), it feeds
+/// the fire when it burns below bright (walking the few steps from the throne to the hearth) and has burnt places
+/// rebuilt when the purse holds the price. On its careless nights the lord stays at the throne all night: no
 /// patch, no brazier lit. The reference bots of T1 to T8 are untouched; this one plays only under the hearth rule.
 struct HearthBot: Sendable {
     var day: Autoplay
@@ -42,13 +42,12 @@ struct HearthBot: Sendable {
             day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
             return
         }
-        if rebuilds && !wallInRubble(s) {
-            for ruin in Hearth.ruins(s, balance: balance) where !ruin.rebuilding && s.gold >= ruin.price {
-                if Hearth.rebuild(&s, plot: ruin.plot, balance: balance, events: &events) == .ordered {
-                    tally.rebuilds += 1
-                    tally.rebuildGold += ruin.price
-                }
-            }
+        // A wall in rubble comes first (the reference pays for it as soon as it can): no gold for wood or a house
+        // while the gate stands open (round lh-f2-1: feeding first left a wrecked realm's gate open, and it broke
+        // again).
+        guard !wallInRubble(s) else {
+            day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
+            return
         }
         var toHearth = false
         if feeds, let offer = Hearth.feedOffer(s, balance: balance), !offer.fedToday, offer.affordable {
@@ -59,6 +58,14 @@ struct HearthBot: Sendable {
                 }
             } else {
                 toHearth = true
+            }
+        }
+        if rebuilds {
+            for ruin in Hearth.ruins(s, balance: balance) where !ruin.rebuilding && s.gold >= ruin.price {
+                if Hearth.rebuild(&s, plot: ruin.plot, balance: balance, events: &events) == .ordered {
+                    tally.rebuilds += 1
+                    tally.rebuildGold += ruin.price
+                }
             }
         }
         day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
