@@ -1,0 +1,16 @@
+<unknown>:0: error: -[LanternholdUITests.AudienceUITests testAudience] : Failed to get matching snapshot: No matches found for first query match sequence: `Descendants matching type Any` -> `Elements matching predicate '"realm-strip" IN identifiers'`, given input App element pid: 24293
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' failed (37.990 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (135.231 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (56.679 seconds).
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (227.122 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwo]' passed (233.367 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoCourt]' passed (24.526 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoNight]' passed (67.825 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (71.188 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolish]' passed (202.093 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishCirclet]' passed (12.386 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishHouses]' passed (41.099 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (108.077 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (190.027 seconds).
+exit=65
+screenshots: 112
