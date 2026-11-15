@@ -193,23 +193,19 @@ if doVariants {
         $0.lightRadius = 56; $0.strength = [400, 400, 400, 400]; $0.tendedFromWall = false
         $0.botBeaconSteps = [10, 16, 22, 22]
     }
-    add("strength 600, 500, 400, 400") { $0.strength = [600, 500, 400, 400] }
+    add("strength 600 each") { $0.strength = [600, 600, 600, 600] }
+    add("strength 400 each") { $0.strength = [400, 400, 400, 400] }
     add("strength 600, 500, 400, 300") { $0.strength = [600, 500, 400, 300] }
-    add("strength 700, 500, 400, 300") { $0.strength = [700, 500, 400, 300] }
     add("strength 600, 450, 350, 300") { $0.strength = [600, 450, 350, 300] }
-    add("strength 500") { $0.strength = [500, 500, 500, 500] }
-    add("strength 600, 500, 400, 300 and pool 44") { $0.strength = [600, 500, 400, 300]; $0.lightRadius = 44 }
-    add("strength 600, 500, 400, 300 and the bolder forward bot (beacons at 10, 19, 22, 22)") {
-        $0.strength = [600, 500, 400, 300]; $0.botBeaconSteps = [10, 19, 22, 22]
-    }
     add("pool 48") { $0.lightRadius = 48 }
     add("pool 36") { $0.lightRadius = 36 }
-    add("strength 400") { $0.strength = [400, 400, 400, 400] }
     add("tended always (not from the wall)") { $0.tendedFromWall = false }
+    add("relight a quarter") { $0.relightShare = 0.25 }
     add("a beacon is raised or relit only with a wall beyond the gate") { $0.raiseNeedsWall = true }
     add("the bolder forward bot (beacons at 10, 19, 22, 22)") { $0.botBeaconSteps = [10, 19, 22, 22] }
     add("the forward bot's beacons at 10, 16, 22, 22 (front-3's)") { $0.botBeaconSteps = [10, 16, 22, 22] }
     add("no watchtower") { $0.watchArchers = 0 }
+    add("no charcoal") { $0.charcoalRadius = 1 }
     for (name, balance) in list {
         let pairList = pairs(balance)
         let whole = runs(balance, budgets: [1.0, 1.5], kinds: [.forward, .neglect, .outpost]) + referenceRuns

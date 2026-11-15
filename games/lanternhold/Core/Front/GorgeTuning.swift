@@ -60,7 +60,11 @@ struct GorgeTuning: Sendable, Equatable {
     // MARK: The light
 
     /// A lit beacon burns as a fire of this radius at this height, under the same light rules as every fire: lit
-    /// creatures slow to their lit speed and sootlings burn.
+    /// creatures slow to their lit speed and sootlings burn. 40 (fix round 1, the critic's high H2): on the ground it
+    /// lights about 41 px, so a sootling walks through one pool seen and slowed and comes out with about 1 of its 8
+    /// strength (the archers and the braziers do the killing); two pools in a row burn it out. front-3's 56 burnt a
+    /// sootling out in one pool. Measured (round lh-f3f1-2, -3): 36 to 44 change T15 and the whole runs by a few
+    /// creatures only; 48 and up burn a sootling out in one pool again.
     var lightRadius = 40.0
     var flameY = 20.0
 
@@ -68,13 +72,20 @@ struct GorgeTuning: Sendable, Equatable {
 
     /// A lit beacon's strength, nearest first. Creatures on the ground strike the furthest lit beacon as they pass (their
     /// harm per second for the time they are within `strikeReach` of it, as soldiers are struck in passing); at 0 it
-    /// falls and the fog comes back to the one before.
-    var strength: [Double] = [600, 600, 600, 600]
+    /// falls and the fog comes back to it. 600, 500, 400, 400 (fix round 1, the critic's high H1: more on the near
+    /// ones): a tended first beacon outlasts the Ash Giant's night and first falls on night 13 to 15 at the game's own
+    /// nights (front-3's 400 fell on night 10 in every seed); a realm that keeps all four untended loses the far ones
+    /// from night 6 (round lh-f3f1-3). Flat 400 or 500 lose the wager (the forward bot's first beacon falls on night 10
+    /// and it lets more creatures through than the reference); flat 600 and 800 let the neglect bot hold in one or
+    /// four seeds of ten.
+    var strength: [Double] = [600, 500, 400, 400]
     var strikeReach = 8.0
     /// The beacons are tended from the wall: a beacon still standing is full again at dawn only while a wall beyond the
     /// gate stands whole (the middle or the outer line's, built and not rubble): its people walk out by day to feed
     /// and mend it. Without one it keeps the night's harm (Louis' spec: "a player who builds beacons and neglects the
-    /// wall loses them").
+    /// wall loses them"). Measured (round lh-f3f1-2): tended always, the bot that neglects the walls keeps all four
+    /// from night 14 and holds every night; tended from the wall it loses the first on night 6 and pays 9 to 14
+    /// relights.
     var tendedFromWall = true
 
     // MARK: Freed land (one small gain per stretch, none above about 8 % on any system)
@@ -105,7 +116,11 @@ struct GorgeTuning: Sendable, Equatable {
     /// reference's order come first).
     var botReserve = 30
     /// Where the forward bot puts each beacon into the reference's build order (`Autoplay.referenceOrder`): it raises
-    /// beacon k once its order has come this far, saving for it.
+    /// beacon k once its order has come this far, saving for it. 10, 22, 22, 22: one beacon before the first big house
+    /// (about day 5), the rest once the Great Beacon is ordered: a careful player. The bolder one (10, 19, 22, 22: a
+    /// second before the market, or front-3's 10, 16, 22, 22) lets 13 to 15 % fewer creatures reach its walls on nights 3
+    /// to 14 but finishes the Great Beacon a day later and lets the King live in 4 to 6 finales of 10 (round lh-f3f1-3):
+    /// the wager the spec asks for, the gorge or the goal.
     var botBeaconSteps: [Int] = [10, 22, 22, 22]
     /// It raises the old watchtower from this point of the order on (when its stretch is held).
     var botWatchStep = 16
