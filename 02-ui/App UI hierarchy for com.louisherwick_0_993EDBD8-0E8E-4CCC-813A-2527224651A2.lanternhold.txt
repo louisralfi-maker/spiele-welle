@@ -1,0 +1,42 @@
+Application, 0x106232c00, pid: 40720, label: 'Lanternhold' <App element pid: 40720>
+  Window (Main), 0x10643c650, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 40720, elementOrHash.elementID: 4326588656.4>
+    Other, 0x106444910, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 40720, elementOrHash.elementID: 4324360544.5>
+      Other, 0x10644bef0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 40720, elementOrHash.elementID: 4324612320.6>
+        Other, 0x106446f80, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 40720, elementOrHash.elementID: 4326582080.7>
+          Other, 0x106447d90, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 40720, elementOrHash.elementID: 4324733376.8>
+            Other, 0x10644d070, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-root' <AX element pid: 40720, elementOrHash.elementID: 4324732272.9>
+              Other, 0x10643e890, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:5010 ready d... <AX element pid: 40720, elementOrHash.elementID: 4325403216.10>
+              Other, 0x10643d7b0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 40720, elementOrHash.elementID: 4324721440.11>
+              Other, 0x10644c5f0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 40720, elementOrHash.elementID: 4324721872.12>
+              Other, 0x10644c270, {{437.0, 2.0}, {0.0, 4.0}} <AX element pid: 40720, elementOrHash.elementID: 4326092336.27>
+              Other, 0x106440ed0, {{62.0, 0.0}, {750.0, 382.0}} <AX element pid: 40720, elementOrHash.elementID: 4324731168.14>
+              Other, 0x10644cd00, {{62.0, 0.0}, {750.0, 382.0}} <AX element pid: 40720, elementOrHash.elementID: 4326100704.76>
+              Other, 0x10644c960, {{222.0, 54.0}, {430.0, 163.7}}, identifier: 'build-card' <AX element pid: 40720, elementOrHash.elementID: 4326145632.77>
+                Image, 0x10644d3d0, {{222.0, 54.0}, {430.0, 163.7}} <AX element pid: 40720, elementOrHash.elementID: 4326101136.79>
+                StaticText, 0x10644d730, {{238.0, 68.0}, {180.7, 26.7}}, label: 'Brazier · Gatehouse' <AX element pid: 40720, elementOrHash.elementID: 4326102240.80>
+                StaticText, 0x10644daa0, {{238.0, 96.7}, {80.7, 20.3}}, label: 'Now: Brazier' <AX element pid: 40720, elementOrHash.elementID: 4326102672.81>
+                Other, 0x10644de20, {{518.3, 74.3}, {81.7, 18.0}}, label: 'Treasury', value: 48 <AX element pid: 40720, elementOrHash.elementID: 4326217584.82>
+                  StaticText, 0x10644e1b0, {{518.3, 74.3}, {45.7, 18.0}}, label: 'Treasury' <AX element pid: 40720, elementOrHash.elementID: 4326103104.86>
+                  Image, 0x10644e530, {{569.0, 77.3}, {12.0, 12.0}} <AX element pid: 40720, elementOrHash.elementID: 4326216048.87>
+                  StaticText, 0x10644e8a0, {{585.0, 74.7}, {15.0, 17.3}}, label: '48' <AX element pid: 40720, elementOrHash.elementID: 4326217152.88>
+                Other, 0x10644ec20, {{238.0, 124.0}, {398.0, 2.0}} <AX element pid: 40720, elementOrHash.elementID: 4326218688.83>
+                ScrollView, 0x10644efa0, {{238.0, 133.0}, {406.0, 74.7}} <AX element pid: 40720, elementOrHash.elementID: 4371704832.84>
+                  Other, 0x10644f310, {{238.0, 133.0}, {406.0, 74.7}} <AX element pid: 40720, elementOrHash.elementID: 4326191696.89>
+                    Button, 0x10620cfb0, {{238.0, 133.0}, {398.0, 72.7}}, identifier: 'build-option-fireTower', label: 'Fire tower, Lights the ground far out · burns all night, 40, 12 s' <AX element pid: 40720, elementOrHash.elementID: 4326182256.93>
+                      Image, 0x10624fa70, {{238.0, 133.0}, {398.0, 72.7}} <AX element pid: 40720, elementOrHash.elementID: 4326057936.95>
+                      Image, 0x106254920, {{268.3, 161.7}, {9.3, 26.7}} <AX element pid: 40720, elementOrHash.elementID: 4326104272.96>
+                      Image, 0x10622fb90, {{250.0, 146.3}, {46.0, 46.0}} <AX element pid: 40720, elementOrHash.elementID: 4326104704.97>
+                      StaticText, 0x1062075c0, {{306.0, 137.0}, {84.7, 23.0}}, label: 'Fire tower' <AX element pid: 40720, elementOrHash.elementID: 4326105136.98>
+                      StaticText, 0x106233cb0, {{306.0, 161.0}, {219.7, 40.7}}, label: 'Lights the ground far out · burns all night' <AX element pid: 40720, elementOrHash.elementID: 4326219888.99>
+                      Image, 0x106255c20, {{588.0, 151.7}, {15.0, 15.0}} <AX element pid: 40720, elementOrHash.elementID: 4326221232.100>
+                      StaticText, 0x1062555e0, {{607.0, 149.3}, {17.0, 19.7}}, label: '40' <AX element pid: 40720, elementOrHash.elementID: 4326222336.101>
+                      Image, 0x1062551c0, {{588.7, 176.0}, {6.7, 10.3}}, identifier: 'hourglass', label: 'Duration' <AX element pid: 40720, elementOrHash.elementID: 4326222768.102>
+                      StaticText, 0x1062542e0, {{599.7, 173.0}, {24.3, 16.3}}, label: '12 s' <AX element pid: 40720, elementOrHash.elementID: 4326223200.103>
+                  Other, 0x106253ec0, {{611.0, 133.0}, {30.0, 74.7}}, label: 'Vertical scroll bar, 1 page', value: 0% <AX element pid: 40720, elementOrHash.elementID: 4326150400.90>
+                    Other, 0x106253480, {{638.0, 197.7}, {3.0, 7.0}} <AX element pid: 40720, elementOrHash.elementID: 4326177072.94>
+                  Other, 0x106253060, {{611.0, 133.0}, {30.0, 74.7}}, label: 'Vertical scroll bar, 1 page', value: 0% <AX element pid: 40720, elementOrHash.elementID: 4326150400.90>
+                    Other, 0x1062514e0, {{638.0, 197.7}, {3.0, 7.0}} <AX element pid: 40720, elementOrHash.elementID: 4326177072.94>
+                Button, 0x10623b400, {{606.0, 56.0}, {44.0, 44.0}}, identifier: 'build-card-close', label: 'Close' <AX element pid: 40720, elementOrHash.elementID: 4326148000.85>
+                  Image, 0x10658ba40, {{615.0, 65.0}, {26.0, 26.0}} <AX element pid: 40720, elementOrHash.elementID: 4326140736.91>
+                  Image, 0x10656c820, {{606.0, 56.0}, {44.0, 44.0}}, identifier: 'xmark', label: 'Close' <AX element pid: 40720, elementOrHash.elementID: 4326147568.92>
+              Image, 0x10655d880, {{430.0, 217.7}, {14.0, 8.0}} <AX element pid: 40720, elementOrHash.elementID: 4326149968.78>

@@ -1,0 +1,32 @@
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (148.672 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:81: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no realm strip
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:83: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the king ran to the barracks
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:97: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - the barracks offer nothing
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:81: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no realm strip
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:103: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the king ran toward the hall's door
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:107: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no door at the hall
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:109: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - in the great hall
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:132: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no mark at the throne
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:148: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no lectern beside the throne
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:81: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no realm strip
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:162: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the dawn report opens
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:314: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - continue is missing
+<unknown>:0: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : Failed to tap "report-continue" Any: No matches found for first query match sequence: `Descendants matching type Any` -> `Elements matching predicate '"report-continue" IN identifiers'`, given input App element pid: 40720
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' failed (403.820 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (60.727 seconds).
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (238.336 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwo]' passed (223.134 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoCourt]' passed (26.439 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoNight]' passed (69.315 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (85.980 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolish]' passed (235.507 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishCirclet]' passed (13.476 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishHouses]' passed (42.169 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchUITests.swift:139: error: -[LanternholdUITests.TouchUITests testTheLanternMoment] : failed - no lantern moment in the hall
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' failed (116.989 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (173.168 seconds).
+Test Suite 'TouchUITests' failed at 2026-11-15 08:24:38.293.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-15 08:24:38.295.
+Test Suite 'Selected tests' failed at 2026-11-15 08:24:38.296.
+exit=65
+screenshots: 117
