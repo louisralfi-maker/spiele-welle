@@ -72,9 +72,12 @@ struct LightSource: Sendable, Equatable {
     /// World-2 fix round 1 (the scene's pools only, never the battle's field): the pool's own vertical squash in the
     /// picture (nil: `LightField.ellipseY`). Above 1 a flat pool on the cobbles, under 1 a cone up a wall.
     var squash: Double?
+    /// World-2 fix round 2 (the scene's pools only, never the battle's field): where the architecture cuts the pool
+    /// (an eave, a jamb, a corner; `SceneLayout.castleForebuildingClip`), nil for a whole pool.
+    var clip: LightClip?
 
     init(kind: LightKind, x: Double, y: Double, radius: Double? = nil, color: SIMD3<Float>? = nil,
-         intensity: Double = 1, flickerSeed: UInt64 = 0, squash: Double? = nil) {
+         intensity: Double = 1, flickerSeed: UInt64 = 0, squash: Double? = nil, clip: LightClip? = nil) {
         self.kind = kind
         self.x = x
         self.y = y
@@ -83,6 +86,7 @@ struct LightSource: Sendable, Equatable {
         self.intensity = intensity
         self.flickerSeed = flickerSeed
         self.squash = squash
+        self.clip = clip
     }
 }
 

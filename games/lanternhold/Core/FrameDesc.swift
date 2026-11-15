@@ -573,6 +573,8 @@ struct FrameLight: Sendable, Equatable {
     var ellipseY: Float
     var kind: LightKind
     var plane: Plane = .world
+    /// World-2 fix round 2: the pool's cut in its plane's target pixels (min x, min y, max x, max y), nil for none.
+    var clip: SIMD4<Float>?
 }
 
 /// One fog plane: colour, density, how much point light it catches, and its drift in game pixels.

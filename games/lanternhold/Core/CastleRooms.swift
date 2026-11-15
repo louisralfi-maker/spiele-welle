@@ -72,9 +72,12 @@ enum CastleRooms {
     // either gate. The near pier in front of the gatehouse and the slab in front of the postern are gone; `gateArchFg`
     // stays in the atlas unplaced and may come back in build 3 only as REVIEW-look-2.md 2.8 describes it (a jamb whose
     // foot runs off the screen and whose top feathers out, only while the lord passes), after a scenemock preview.
-    /// The hall's light through the open door, its wedge on the cobbles and the lantern-warm pool before it.
+    /// The hall's light through the open door, its wedge on the cobbles and the lantern-warm pool before it. Fix round 2
+    /// (the critic's high 7: "by day a dull brown field with a grey smudge"): by day the same view, dimmer but warm (a
+    /// saturated candle-amber share that burns all day; the hearth a warm spot, never grey); from the dusk the rest
+    /// comes in with the torches and flickers, so at night the door's light is `doorGlowColor` as before.
     static let doorGlowColor = SIMD3<Float>(0.92, 0.8, 0.62)
-    static let doorGlowByDay: Float = 0.5
+    static let doorGlowDay = SIMD3<Float>(0.70, 0.46, 0.20)
     static let doorWedgeColor = SIMD3<Float>(1.0, 0.82, 0.55)
 
     /// True while the lord stands at the hall door.
@@ -140,10 +143,10 @@ enum CastleRooms {
         let glow = SceneLayout.castleDoorGlow
         let wedge = SceneLayout.castleDoorWedge
         prop.emissive.append(EmissivePart(sprite: .hallDoorGlow, dx: glow.dx, dy: glow.dy,
-                                          color: doorGlowColor * doorGlowByDay, intensity: 1, flickerSeed: nil,
+                                          color: doorGlowDay, intensity: 1, flickerSeed: nil,
                                           fadesByDay: false, isFire: false))
         prop.emissive.append(EmissivePart(sprite: .hallDoorGlow, dx: glow.dx, dy: glow.dy,
-                                          color: doorGlowColor * (1 - doorGlowByDay), intensity: 1,
+                                          color: doorGlowColor - doorGlowDay, intensity: 1,
                                           flickerSeed: 0x4841_4C4C, fadesByDay: true, isFire: false,
                                           flickerAmount: 0.3, flickerPace: 0.5))
         prop.emissive.append(EmissivePart(sprite: .hallDoorWedge, dx: wedge.dx, dy: wedge.dy, color: doorWedgeColor,

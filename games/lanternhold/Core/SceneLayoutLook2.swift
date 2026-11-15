@@ -231,7 +231,9 @@ extension SceneLayout {
     /// deep, the critic of world-1's look 3; 36 in fix round 2, 22 before): under the HUD's deepest rectangle (the stat
     /// panel ends 66 pt under the top of the runner's 402 pt screen, row 33 of its 201).
     static let look2SlitMoonTop = 34.0
-    static let look2ShaftShare: Float = 1.0   // fix round 1: a stronger shaft (0.85 before)
+    // fix round 1: a stronger shaft (0.85 before); world-2 fix round 2 (the director's note of 07:47, item 7): at 40 %,
+    // behind the keep it read as a beam from the sky
+    static let look2ShaftShare: Float = 0.4
 
     /// The granite the gatehouse's towers grow out of (H2, tools/cleftart.py): a shoulder of bedrock at each tower's
     /// outer foot, in front of the tower, highest at its outer edge (world 1249 and 1470), bulging past it and

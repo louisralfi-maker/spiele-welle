@@ -98,7 +98,14 @@ final class WorldRebuild2FixTests: XCTestCase {
         let b = CastleSmoke.puffs(time: 2.5, wind: 0.3, seed: 1245)
         XCTAssertEqual(a.count, CastleSmoke.count)
         XCTAssertNotEqual(a, b, "the puffs rise")
-        XCTAssertTrue(a.allSatisfy { $0.rise >= 0 && $0.rise <= CastleSmoke.rise && (0...2).contains($0.frame) })
+        XCTAssertTrue(a.allSatisfy { $0.rise >= 0 && $0.rise <= CastleSmoke.rise && (0..<CastleSmoke.frames).contains($0.frame) })
+        // Fix round 2 (the critic's high 4): the puffs grow from the smallest to the largest size as they rise, and
+        // lean on a diagonal even in still air.
+        let still = CastleSmoke.puffs(time: 3, wind: 0, seed: 1245).sorted { $0.rise < $1.rise }
+        XCTAssertEqual(still.first?.frame, 0)
+        XCTAssertEqual(still.last?.frame, CastleSmoke.frames - 1)
+        XCTAssertGreaterThan(still.last?.dx ?? 0, 5, "a diagonal plume, not a vertical chain")
+        XCTAssertEqual(SpriteID.smokePuff.frameCount, CastleSmoke.frames)
         let world = PlaceholderScene.world(look: .two)
         func puffs(_ time: Double, _ reduce: Bool) -> [SIMD4<Float>] {
             frame(world, timeOfDay: 0.8, focus: 1830, reduceMotion: reduce, time: time).layer(.near).sprites

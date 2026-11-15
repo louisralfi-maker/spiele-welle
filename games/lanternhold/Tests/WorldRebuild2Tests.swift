@@ -144,6 +144,14 @@ final class WorldRebuild2Tests: XCTestCase {
         let castle = frame(world, timeOfDay: 0.5, focus: 2000)
         let valley = frame(world, timeOfDay: 0.5, focus: 2700)
         XCTAssertEqual(valley.ambient.warmth - castle.ambient.warmth, SceneLayout.valleyWarmthGain, accuracy: 1e-4)
+        // Fix round 2 (the critic's high 9): at dusk the valley's ambient and fog are a warm step warmer than the
+        // castle's (red against blue), so the lane and the house fronts turn warm, not only the clouds.
+        let inside = frame(world, timeOfDay: 0.8, focus: 2000).ambient
+        let open = frame(world, timeOfDay: 0.8, focus: 2700).ambient
+        XCTAssertGreaterThan(open.ambientColor.x / open.ambientColor.z, inside.ambientColor.x / inside.ambientColor.z * 1.2)
+        XCTAssertGreaterThan(open.fogColor.x / open.fogColor.z, inside.fogColor.x / inside.fogColor.z * 1.2)
+        XCTAssertEqual(frame(world, timeOfDay: 0.8, focus: 2320).ambient, frame(world, timeOfDay: 0.8, focus: 2000).ambient,
+                       "nothing changes inside the walls")
     }
 
     /// World-1's high 6 (the critic, look 3): at night the cleft's granite is a step darker than by day (its albedo at

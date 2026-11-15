@@ -14,6 +14,10 @@ struct SpriteQuad: Sendable, Equatable {
 struct LightQuad: Sendable, Equatable {
     var circle: SIMD4<Float>
     var color: SIMD4<Float>
+    /// World-2 fix round 2: the pool's cut (min x, min y, max x, max y in its plane's target pixels; `noClip`: none).
+    var clip: SIMD4<Float> = LightQuad.noClip
+
+    static let noClip = SIMD4<Float>(-100_000, -100_000, 100_000, 100_000)
 }
 
 /// `ActorQuad`: one actor in device pixels; `flags.x` = 1 for emissive actors (eye glints), `flags.y` = 1 when the

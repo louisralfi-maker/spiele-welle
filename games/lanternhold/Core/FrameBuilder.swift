@@ -141,8 +141,9 @@ enum FrameBuilder {
         var ambient = Weather.apply(weather, to: AmbientRamp.sample(at: hour, look: options.look))
         if options.look == .two {
             // World rebuild, step world-2 (REVIEW-look-2.md 2.8, item 4): through the postern the picture turns warm
-            // over world 2330 to 2530, the reveal of the valley (`SceneLayout.valleyWarmth`).
-            ambient.warmth += SceneLayout.valleyWarmth(focus: camera.focusX)
+            // over world 2330 to 2530, the reveal of the valley (`SceneLayout.valleyWarmth`); fix round 2 (the critic's
+            // high 9): its ambient and fog a warm step too (`SceneLayout.valleyWarmed`).
+            ambient = SceneLayout.valleyWarmed(ambient, focus: camera.focusX)
         }
         let animTime = options.flickerTime ?? clock.elapsed
         let sources = entities?.lights ?? scene.sceneLights()
@@ -743,8 +744,9 @@ enum FrameBuilder {
             tint = SIMD4<Float>(1, 1, 1, strength)
             if options.look == .two && (prop.plane == .fogA || prop.plane == .fogB) {
                 // World-2 fix round 1: a bank of mist on a fog plane (the keep's) takes the hour's fog colour, as the
-                // fog's own tiles do; the shader lifts it like the fog.
-                tint = SIMD4<Float>(ambient.fogColor.x, ambient.fogColor.y, ambient.fogColor.z, strength)
+                // fog's own tiles do; the shader lifts it like the fog. Fix round 2 (the critic's high 1): at night a
+                // dim, desaturated night grey, one value step over the keep's foot (`SceneLayout.castleMistTint`).
+                tint = SceneLayout.castleMistTint(ambient, strength: strength)
             }
             hidesGlow = false
         } else if let share = prop.sunShaft {
@@ -778,9 +780,14 @@ enum FrameBuilder {
         // World-2: the keep's windows (it moves with the mist band, farther off than the world plane) a step dimmer.
         let haze: Float = prop.plane == .mid && prop.region == .gorge ? gorgeMidGlass
             : prop.movesWith == .mistBand ? keepGlass : 1
+        // World-2 fix round 2 (the director's note of 07:47, item 6): the castle's lit glass halfway to the torch's
+        // amber, the chapel's lancets no brighter than the keep's windows (`SceneLayout.castleAmberGlass`).
+        let amber = options.look == .two && SceneLayout.castleAmberGlass.contains(prop.sprite)
+        let castleTint = amber ? SceneLayout.castleAmberTint * SceneLayout.castleGlassShare(prop.sprite)
+                               : SIMD3<Float>(repeating: 1)
         for mask in prop.masks {
             let gain = options.look == .two ? glassGain * look2GlassGain : glassGain
-            let rgb = mask.color * (torch * gain * haze)
+            let rgb = mask.color * castleTint * (torch * gain * haze)
             let dx = prop.flipped ? width - mask.dx - Double(mask.width) : mask.dx
             let maskTop = geometry.top(y: bottom + mask.dy, height: Double(mask.height))
             let place = SIMD4<Float>(Float(left + dx), Float(maskTop), Float(mask.width), Float(mask.height))
@@ -930,6 +937,9 @@ enum FrameBuilder {
     /// The columns of room west of a thread's notch in its `cleftWater` frame, and the frames per thread.
     static let cleftWaterInset = 5.0
     static let cleftWaterFrames = 6
+    /// World-2 fix round 2 (the director's note of 07:47, item 7): the threads a little thinner, so the one that passes
+    /// behind the keep's stair turret no longer reads as a pole on it.
+    static let cleftWaterAlpha: Float = 0.6
 
     /// The water falling down the cleft wall from each notch to its last spray: its own frames of `cleftWater`
     /// scrolling down at six a second, still with Reduce Motion.
@@ -943,7 +953,7 @@ enum FrameBuilder {
             guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
             let rect = SIMD4<Float>(Float(left), Float(thread.row + 1), Float(size.width), Float(size.height))
             list.append(SpriteInstance(sprite: .cleftWater, frame: index * cleftWaterFrames + step, rect: rect,
-                                       tint: SIMD4<Float>(1, 1, 1, 1), flipped: false))
+                                       tint: SIMD4<Float>(1, 1, 1, cleftWaterAlpha), flipped: false))
         }
         return list
     }
@@ -1491,8 +1501,16 @@ enum FrameBuilder {
             let circle = SIMD4<Float>(Float(centreX), Float(centreY), Float(radius), Float(intensity))
             let rgba = SIMD4<Float>(color.x, color.y, color.z, 0)
             // World-2 fix round 1: a scene light may shape its pool (flat on the cobbles, a cone up a wall).
-            list.append(FrameLight(circle: circle, color: rgba, ellipseY: Float(source.squash ?? LightField.ellipseY),
-                                   kind: source.kind, plane: plane))
+            var light = FrameLight(circle: circle, color: rgba, ellipseY: Float(source.squash ?? LightField.ellipseY),
+                                   kind: source.kind, plane: plane)
+            // World-2 fix round 2 (the critic's high 3): the architecture cuts it (an eave, a jamb, a corner).
+            if let cut = source.clip {
+                let whole = geometry.whole(plane)
+                let ground = Double(geometry.groundRow)
+                light.clip = SIMD4<Float>(Float(cut.x0 - whole), Float(ground - cut.y1),
+                                          Float(cut.x1 - whole + 1), Float(ground - cut.y0 + 1))
+            }
+            list.append(light)
         }
         return list
     }

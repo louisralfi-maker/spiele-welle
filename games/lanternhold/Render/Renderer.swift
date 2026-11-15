@@ -658,7 +658,8 @@ final class Renderer {
                 let circle = SIMD4<Float>(light.circle.x, light.circle.y, light.circle.z,
                                           sign * light.circle.w * Look.intensityScale(light.kind))
                 return LightQuad(circle: circle,
-                                 color: SIMD4<Float>(light.color.x, light.color.y, light.color.z, light.ellipseY))
+                                 color: SIMD4<Float>(light.color.x, light.color.y, light.color.z, light.ellipseY),
+                                 clip: light.clip ?? LightQuad.noClip)
             }
             // Look 2: a window's pool is wider and softer; every other light is a fire, marked by a negative squash,
             // whose pool falls off from its own colour to ember. A cold light (the moon's kind: the gloomweaver's
@@ -671,7 +672,8 @@ final class Renderer {
             let squash = max(light.ellipseY, 0.05)
             return LightQuad(circle: circle,
                              color: SIMD4<Float>(light.color.x, light.color.y, light.color.z,
-                                                 cold ? squash : -squash))
+                                                 cold ? squash : -squash),
+                             clip: light.clip ?? LightQuad.noClip)
         }
         let actorQuads = frame.actors.map { Renderer.quad($0, layout: layout, look: frame.look) }
 

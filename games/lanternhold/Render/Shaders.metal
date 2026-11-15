@@ -212,6 +212,7 @@ fragment float4 lh_emissive_fragment(SpriteOut in [[stage_in]],
 struct LightQuad {
     float4 circle;  // centre x, centre y, radius (target pixels of its plane), intensity
     float4 color;   // r, g, b, vertical squash of the pool (ellipseY)
+    float4 clip;    // world-2 fix round 2: the pool's cut (min x, min y, max x, max y; huge for none)
 };
 
 struct LightPassUniforms {
@@ -266,7 +267,7 @@ vertex LightPoolOut lh_pool_vertex(uint vid [[vertex_id]],
     float2 corner = float2(float(vid & 1u), float((vid >> 1) & 1u)) * 2.0f - 1.0f;
     float2 extent = float2(l.circle.z, l.circle.z / squash) + 1.0f;
     LightPoolOut out;
-    out.position = lh_ndc(l.circle.xy + corner * extent, u.target.xy);
+    out.position = lh_ndc(clamp(l.circle.xy + corner * extent, l.clip.xy, l.clip.zw), u.target.xy);
     out.circle = l.circle;
     out.color = l.color;
     return out;
@@ -890,7 +891,8 @@ vertex LightPoolOut lh_pool2_vertex(uint vid [[vertex_id]],
     float2 corner = float2(float(vid & 1u), float((vid >> 1) & 1u)) * 2.0f - 1.0f;
     float2 extent = float2(l.circle.z, l.circle.z / squash) + 1.0f;
     LightPoolOut out;
-    out.position = lh_ndc(l.circle.xy + corner * extent, u.target.xy);
+    // World-2 fix round 2: the quad is cut where the architecture stops the light (an eave, a jamb, a corner).
+    out.position = lh_ndc(clamp(l.circle.xy + corner * extent, l.clip.xy, l.clip.zw), u.target.xy);
     out.circle = l.circle;
     out.color = l.color;
     return out;

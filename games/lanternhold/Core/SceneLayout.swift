@@ -39,6 +39,8 @@ enum SceneLayout {
         var squash: Double?
         var color: SIMD3<Float>?
         var intensity: Double?
+        /// World-2 fix round 2: where the architecture cuts the pool (nil: a whole pool).
+        var clip: LightClip?
     }
 
     /// One sprite instance.

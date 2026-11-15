@@ -1,0 +1,107 @@
+import simd
+
+/// World-2 fix round 2 (the critic's look 2 of step world-2 and the director's note of 15.11.2026 07:47; DESIGN.md
+/// "World rebuild (14.11.2026)"): the castle's picture values that `FrameBuilder` reads in small, marked places, kept
+/// here so the world lane's numbers stay in one file.
+extension SceneLayout {
+    // MARK: The keep's mist at night (the critic's high 1: "neon-blue tiles in every crenel gap")
+
+    /// How far the keep's mist bank turns from the hour's fog colour to a desaturated night grey, and how much of its
+    /// value it loses at full night: the fog's colour lifted by the shader (`Look2.fogBrightness`, about 1.5 at night)
+    /// was the brightest cool value on the screen after the lights; dimmed by this it stands one value step over the
+    /// keep's dark foot.
+    static let castleMistGrey: Float = 0.85
+    static let castleMistNightDim: Float = 0.72
+    /// The night grey's hue: a hair cool, never periwinkle.
+    static let castleMistGreyHue = SIMD3<Float>(0.95, 0.98, 1.06)
+
+    /// How much of the night's treatment the mist takes at this hour: none while the evening is warm (the dusk's faint
+    /// warm mist stays as it was), all of it once the warmth has gone (the blue hour, the night, the small hours).
+    static func castleMistNightShare(_ ambient: AmbientSample) -> Float {
+        let cold = min(1, max(0, (0.25 - ambient.warmth) / 0.4))
+        return Look.nightness(ambient) * cold * cold * (3 - 2 * cold)
+    }
+
+    /// The keep's mist bank's tint (premultiplied by the shader like the fog's tiles): the hour's fog colour by day and
+    /// dusk, a dim night grey at night; `strength` is its alpha.
+    static func castleMistTint(_ ambient: AmbientSample, strength: Float) -> SIMD4<Float> {
+        let fog = ambient.fogColor
+        let night = castleMistNightShare(ambient)
+        let luma = 0.299 * fog.x + 0.587 * fog.y + 0.114 * fog.z
+        let grey = castleMistGreyHue * luma
+        var rgb = fog + (grey - fog) * (castleMistGrey * night)
+        rgb *= 1 - castleMistNightDim * night
+        return SIMD4<Float>(rgb.x, rgb.y, rgb.z, strength)
+    }
+
+    // MARK: Lit windows (the director's notes of 07:30, 07:42 and 07:47: "halfway to the torch's amber")
+
+    /// The castle's buildings whose lit glass takes the fire's amber: the keep, the forebuilding's dormer and its door's
+    /// line of light, the chapel's lancets, the postern's and the bakehouse's windows, the gatehouse's slits.
+    static let castleAmberGlass: Set<SpriteID> = [.keepT1, .keepT2, .keepT3, .keepT2Build, .keepT3Build, .forebuilding,
+                                                  .chapelTower, .posternT1, .posternT2, .posternT3, .bakehouse,
+                                                  .castleFront, .castleFront3, .castleFront3Build]
+    /// The lit core moves from the glass's cream (1, 0.76, 0.42 at a gain that clipped it to cream-white) halfway to
+    /// the torch's amber: this times the glass colour, so the core stays under the clip and reads amber; the bloom
+    /// (`keepPaneHalo`, the window pools) stays.
+    static let castleAmberTint = SIMD3<Float>(0.86, 0.80, 0.70)
+    /// The chapel's lancets no brighter than the keep's windows (the open hall door stays the brightest thing in the
+    /// court): the same share the keep's glass takes (`FrameBuilder.keepGlass`).
+    static func castleGlassShare(_ sprite: SpriteID) -> Float {
+        sprite == .chapelTower ? FrameBuilder.keepGlass : 1
+    }
+
+    // MARK: The valley's warmth (the critic's high 9: "the reveal stays cold purple on the lane and the houses")
+
+    /// Through the postern the world's ambient and the fog turn one warm step over world 2330 to 2530 (with the grade's
+    /// warmth, `valleyWarmth`): red up, blue down, so the lane and the house fronts read warm by 2530.
+    static let valleyAmbientWarm = SIMD3<Float>(1.12, 1.0, 0.84)
+    static let valleyFogWarm = SIMD3<Float>(1.14, 0.98, 0.82)
+
+    /// The share of the valley's warm step at camera `focus` (0 inside the walls, 1 from 2530).
+    static func valleyShare(focus: Double) -> Float {
+        Float(AmbientRamp.smoothstep((focus - castlePassages[1].lowerBound - 10) / 200))
+    }
+
+    /// The ambient sample through the postern: its ambient and fog colours a warm step warmer by the valley's share
+    /// (full from the dusk on, about half of it at noon, when the sun already warms the valley), its grade's warmth up
+    /// by `valleyWarmth`.
+    static func valleyWarmed(_ sample: AmbientSample, focus: Double) -> AmbientSample {
+        let share = valleyShare(focus: focus)
+        guard share > 0 else { return sample }
+        var out = sample
+        let k = share * (0.45 + 0.55 * Look.nightness(sample))
+        out.ambientColor = sample.ambientColor * (SIMD3<Float>(repeating: 1) + (valleyAmbientWarm - 1) * k)
+        out.fogColor = sample.fogColor * (SIMD3<Float>(repeating: 1) + (valleyFogWarm - 1) * k)
+        out.warmth += valleyWarmth(focus: focus)
+        return out
+    }
+
+    // MARK: The light washes (the critic's high 3: "round discs pasted over flat walls")
+
+    /// The forebuilding's wash: under its eave (its sprite's row 50, the fascia's shadow under it) and between its
+    /// quoined corners (cols 8 to 111), so the torches' light ends where the porch ends.
+    static var castleForebuildingClip: LightClip {
+        LightClip(x0: castleForebuildingX + 8, x1: castleForebuildingX + 112, y0: -40, y1: 48)
+    }
+    /// The postern's one band of lantern light under its porch roof (the slate's underside at row 38, cols 84 to 116),
+    /// reaching a little past the two lanterns either side.
+    static var castlePosternClip: LightClip {
+        LightClip(x0: castlePosternX + 76, x1: castlePosternX + 125, y0: -40, y1: 37)
+    }
+    /// The bakehouse hatch's wash, cut by the lean-to's west jamb (its col 4), the door's jamb (col 44) and the oven
+    /// dome's crown (row 24): it lights the dome, the cobbles before it and nothing of the wall over it.
+    static var castleBakehouseClip: LightClip {
+        LightClip(x0: castleBakehouseX + 4, x1: castleBakehouseX + 43, y0: -40, y1: 24)
+    }
+}
+
+/// A light pool's cut (world x from `x0` to `x1`, heights `y0` to `y1` over the ground line): the pool ends in a straight
+/// edge where the architecture stops its light (an eave, a jamb, a corner). Scene lights only, never the battle's
+/// field; `FrameBuilder` hands it to the light pass in target pixels.
+struct LightClip: Sendable, Equatable {
+    var x0: Double
+    var x1: Double
+    var y0: Double
+    var y1: Double
+}

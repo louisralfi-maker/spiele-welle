@@ -16,10 +16,12 @@ extension SceneLayout {
     }()
     /// The keep's main block's middle column in its sprite (tools/keepfix.py: `OX + 100`).
     static let castleKeepMiddle = 160.0
-    /// The hall door's middle (the stage lane's `touch-door-hall` target and the entrance of the hall stage).
+    /// The hall door's middle (the stage lane's `touch-door-hall` target and the entrance of the hall stage): the one
+    /// named value of the painted door's centre (the director's notes of 15.11. 07:30 and 07:47); the forebuilding,
+    /// `CastleRooms.doorOpen` and the keep's place follow it, and nothing else holds the door's x as a number.
     static let castleHallDoorX = 1830.0
-    /// The forebuilding's left edge (120 px; the door's middle at its col 60).
-    static let castleForebuildingX = 1770.0
+    /// The forebuilding's left edge (120 px; the painted door's middle at its col 60, tools/keepfix.py `DOOR`).
+    static let castleForebuildingX = castleHallDoorX - 60
     /// The curtain wall's tiles (64 px) from the gatehouse's east tower to the postern.
     static let castleCurtainX = 1474.0
     static let castleCurtainTiles: [SpriteID] = [.curtainA, .curtainC, .curtainB, .curtainA, .curtainC, .curtainA,
@@ -116,7 +118,7 @@ extension SceneLayout {
 
     /// How much warmer the picture's grade is with the camera at `focus` (REVIEW-look-2.md 2.8, item 4): none inside
     /// the walls, rising through the postern over world 2330 to 2530, the reveal of the valley.
-    static let valleyWarmthGain: Float = 0.07
+    static let valleyWarmthGain: Float = 0.12   // fix round 2: 0.07 before, with the warm ambient (CastleLook.swift)
     static func valleyWarmth(focus: Double) -> Float {
         valleyWarmthGain * Float(AmbientRamp.smoothstep((focus - castlePassages[1].lowerBound - 10) / 200))
     }
@@ -163,9 +165,11 @@ extension SceneLayout {
 
     /// The shaped light of a castle fire on the ground whose flame burns at `y + 14`: the pool, the cone, the core
     /// (fire-gold). A brazier on the wall walk lights one flat pool along it.
+    /// Fix round 2 (the critic's high 5: "by day the cone shows as a soot rectangle with a square top"): the cone is a
+    /// torch's light, so it fades with the dark (none at noon, full from the dusk); the pool and the core burn all day.
     static func castleFireLights(_ cx: Double, y: Double) -> [Light] {
         [Light(kind: .brazier, x: cx, y: y + 2, radius: 34, squash: 2.4, color: GamePalette.fireGold, intensity: 0.8),
-         Light(kind: .brazier, x: cx + 1, y: y + 32, radius: 15, squash: 0.62, color: GamePalette.fireGold,
+         Light(kind: .torch, x: cx + 1, y: y + 32, radius: 15, squash: 0.62, color: GamePalette.fireGold,
                intensity: 0.55),
          Light(kind: .brazier, x: cx, y: y + 15, radius: 13, color: GamePalette.fireGold, intensity: 0.7)]
     }
@@ -227,7 +231,8 @@ extension SceneLayout {
                                               .glass(dx: 57, dy: 64, width: 5, height: 10),
                                               .glass(dx: castleDoorGap.dx, dy: castleDoorGap.dy,
                                                      width: castleDoorGap.width, height: castleDoorGap.height)],
-                                   lights: [Light(kind: .torch, x: fore + 60, y: 42, radius: 42, squash: 2.2),
+                                   lights: [Light(kind: .torch, x: fore + 60, y: 42, radius: 42, squash: 2.2,
+                                                  clip: castleForebuildingClip),
                                             Light(kind: .window, x: fore + 59.5, y: 68, radius: 10)])))
 
         // The chapel of the Flame: three lancets lit from inside, the Flame's brazier at its door.
@@ -235,7 +240,9 @@ extension SceneLayout {
         let lancets: [Double] = [42, 55, 68]
         list.append((.world, Entry(sprite: .chapelTower, x: chapel, y: 0, z: -2,
                                    emitters: lancets.map { Emitter.glass(dx: $0, dy: 54, width: 5, height: 24) },
-                                   lights: lancets.map { Light(kind: .window, x: chapel + $0 + 2.5, y: 64, radius: 14) })))
+                                   // fix round 2: the lancets' pools dimmer (no brighter than the keep's windows)
+                                   lights: lancets.map { Light(kind: .window, x: chapel + $0 + 2.5, y: 64, radius: 14,
+                                                               intensity: 0.5) })))
         list.append((.world, castleBrazier(chapel + 36)))
 
         // The bakehouse: the oven's fire through its hatch (all day), a lit window at night.
@@ -244,7 +251,9 @@ extension SceneLayout {
         list.append((.world, Entry(sprite: .bakehouse, x: bake, y: 0, z: -2,
                                    emitters: [.sprite(.bakeHatchGlow, dx: 15, dy: 7, glow: .fireOrange, fades: false),
                                               .glass(dx: 63, dy: 23, width: 5, height: 5)],
-                                   lights: [Light(kind: .brazier, x: bake + 18, y: 10, radius: 22, squash: 1.8),
+                                   // fix round 2 (high 3): the hatch's wash low and flat, cut at the west jamb
+                                   lights: [Light(kind: .brazier, x: bake + 18, y: 6, radius: 24, squash: 2.6,
+                                                  clip: castleBakehouseClip),
                                             Light(kind: .window, x: bake + 65.5, y: 25, radius: 10),
                                             Light(kind: .lantern, x: bake + 75, y: 70, radius: 9, intensity: 0.35)])))
 
@@ -256,12 +265,15 @@ extension SceneLayout {
                                           .sprite(.lanternGlass, dx: 116, dy: 30, glow: .fireGold, fades: true),
                                           .glass(dx: 150, dy: 26, width: 5, height: 8),
                                           .sprite(.posternFarGlow, dx: 95, dy: 4, glow: .window, fades: true)]
-        var posternLights: [Light] = [Light(kind: .lantern, x: post + 82, y: 26, radius: 28, squash: 1.7),
-                                      Light(kind: .lantern, x: post + 117, y: 26, radius: 28, squash: 1.7),
+        // Fix round 2 (the critic's high 3: "a lens shape at the postern"): the two lanterns light one band under the
+        // porch roof, cut by its slate (row 38) and ending a little past them.
+        var posternLights: [Light] = [Light(kind: .lantern, x: post + 99.5, y: 26, radius: 32, squash: 2.0,
+                                            intensity: 1.15, clip: castlePosternClip),
                                       Light(kind: .window, x: post + 152.5, y: 29, radius: 8)]
         if built >= 2 {
             posternEmitters.append(.sprite(.lanternGlass, dx: 99, dy: 42, glow: .fireGold, fades: true))
-            posternLights.append(Light(kind: .lantern, x: post + 100, y: 36, radius: 30, squash: 1.5))
+            posternLights.append(Light(kind: .lantern, x: post + 100, y: 36, radius: 30, squash: 1.5,
+                                       clip: castlePosternClip))
         }
         list.append((.world, Entry(sprite: castlePosternSprite(stage), x: post, y: 0, z: 0,
                                    emitters: posternEmitters, lights: posternLights)))

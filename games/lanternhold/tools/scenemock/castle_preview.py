@@ -100,10 +100,54 @@ def render(art, centre, night=False, tier=1, building=False, door_open=False):
                 air = img[ty][tx] if False else ((90, 110, 150) if not night else (30, 40, 80))
                 c = tuple(int(c[i] * (1 - haze) + air[i] * haze) for i in range(3))
                 img[ty][tx] = c
+    if night:
+        # world-2 fix round 2: the keep's mist bank (fog A, moving with the mist band, bottom row at y 60) in the
+        # engine's night tint (a dim, desaturated grey a value step over the keep's foot), drawn before the world
+        # plane's buildings would hide it: here over everything but the curtain's merlons, a sketch of its value
+        mw, mh, mpx = sprite(art, "keepMist")
+        left = int(1028 - int(PAR["mistBand"] * cam))
+        top = GROUND - 60 - mh
+        tint = (34, 36, 44)
+        world_mask = _world_mask(art, centre, tier, building)
+        for yy in range(mh):
+            ty = top + yy
+            if not 0 <= ty < H:
+                continue
+            for xx in range(mw):
+                tx = left + xx
+                if not 0 <= tx < W or world_mask[ty][tx]:
+                    continue
+                a = mpx[yy][xx][3] / 255.0 * 0.8
+                if a <= 0:
+                    continue
+                c = img[ty][tx]
+                img[ty][tx] = tuple(int(c[i] * (1 - a) + tint[i] * a * 1.5) for i in range(3))
     lane = (60, 58, 70) if not night else (20, 22, 36)
     for y in range(GROUND, H):
         img[y] = [lane] * W
     return img
+
+
+def _world_mask(art, centre, tier, building):
+    """Which pixels the world plane's buildings cover (the mist on fog A stands behind them)."""
+    mask = [[False] * W for _ in range(H)]
+    cam = centre - HALF
+    for (plane, name, x, y, anchor, frame) in pieces(tier, building):
+        if plane != "world":
+            continue
+        frames = FRAMES.get(name, 1)
+        sw, sh, px = sprite(art, name, 0, frames)
+        left = int(x - int(PAR[plane] * cam))
+        top = GROUND - y - sh
+        for yy in range(sh):
+            ty = top + yy
+            if not 0 <= ty < H:
+                continue
+            for xx in range(sw):
+                tx = left + xx
+                if 0 <= tx < W and px[yy][xx][3] >= 128:
+                    mask[ty][tx] = True
+    return mask
 
 
 def main():
