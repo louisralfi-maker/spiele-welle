@@ -181,7 +181,8 @@ struct PetitionCatalog: Sendable, Equatable {
     static let empty = PetitionCatalog([])
 
     func petition(_ id: String) -> Petition? {
-        guard let position = index[id] else { return nil }
+        // Craft lane hook: a travelling craftsman's offer is a petition the craftsmen's book makes (docs/lanes/craft.md).
+        guard let position = index[id] else { return CraftBook.isCraft(id) ? CraftBook.standard.offer(id) : nil }
         return petitions[position]
     }
 

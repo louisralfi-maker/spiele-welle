@@ -1,0 +1,1698 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "craft.choice.later" : {
+      "comment" : "A travelling craftsman's offer: the answer that asks him to come back once, some days later.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht jetzt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not now"
+          }
+        }
+      }
+    },
+    "craft.choice.no" : {
+      "comment" : "A travelling craftsman's offer: the answer that sends him on for good.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nein, danke"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No, thank you"
+          }
+        }
+      }
+    },
+    "craft.fletcher.again" : {
+      "comment" : "The offer when the craftsman comes back once after 'Not now' (only 'commission' and 'No, thank you' are offered then). At most 240 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ser Ludo kenne ich immer noch nicht, bevor Ihr fragt. Das Pech hab ich Euch warm gehalten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Still haven’t met Ser Ludo, before you ask. I kept the pitch warm for you."
+          }
+        }
+      }
+    },
+    "craft.fletcher.c1" : {
+      "comment" : "The choice that commissions the work (its price shows beside it). At most 40 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taucht die Pfeile in Pech"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dip the arrows in pitch"
+          }
+        }
+      }
+    },
+    "craft.fletcher.hint" : {
+      "comment" : "Odile's counsel on the offer (the Counsel button). At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pech auf die Pfeile. Brannock wird eine Woche lang unerträglich sein. Ich würde es trotzdem kaufen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pitch on the arrows. Brannock will be unbearable about it for a week. I would still buy it."
+          }
+        }
+      }
+    },
+    "craft.fletcher.name" : {
+      "comment" : "A travelling craftsman's name over the audience card (names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renske Fallow"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renske Fallow"
+          }
+        }
+      }
+    },
+    "craft.fletcher.r1" : {
+      "comment" : "The reaction after the work is commissioned. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihre Finger sind danach schwarz vom Pech. Die Kaserne riecht eine Woche nach Kiefer, und ab der nächsten Nacht schlägt jeder Brandpfeil heiß ein und klebt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her fingers come away black with pitch. The barracks smell of pine for a week; from the next night every fire arrow lands hot and clings."
+          }
+        }
+      }
+    },
+    "craft.fletcher.r2" : {
+      "comment" : "The reaction to 'Not now': the craftsman will come back once. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie steckt eine schwarze Feder in Euren Türrahmen. „Damit ich Euch wiederfinde.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "She pushes a black feather into your door frame. “So I can find you again.”"
+          }
+        }
+      }
+    },
+    "craft.fletcher.r3" : {
+      "comment" : "The reaction to 'No, thank you': the craftsman leaves for good. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie drückt Euch einen einzelnen schwarzen Pfeil in die Hand. „Für Glück. Schießt ihn auf etwas, das Ihr nicht mögt.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "She presses a single black arrow into your hand. “For luck. Shoot it at something you dislike.”"
+          }
+        }
+      }
+    },
+    "craft.fletcher.role" : {
+      "comment" : "Under the name on the audience card: the trade and where the craftsman comes from (place names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pfeilmacherin der Sieben Hügel"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fletcher from the Seven Hills"
+          }
+        }
+      }
+    },
+    "craft.fletcher.text" : {
+      "comment" : "The offer on the audience card, in the craftsman's voice: the work, how long it takes, what it does. The price shows on the first choice. At most 240 characters in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ja, die Sieben Hügel. Nein, Ser Ludo kenne ich nicht; daheim kennt ihn keiner. Eure Brandpfeile versengen kaum, was sie treffen. Einen Tag an Eurer Werkbank mit meinem Pech, und jeder Brandpfeil beißt sich etwas tiefer ein, wo er einschlägt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yes, the Seven Hills. No, I’ve never met Ser Ludo; nobody at home has. Your fire arrows barely singe what they hit. A day at your bench with my pitch, and every fire arrow bites a little deeper where it lands."
+          }
+        }
+      }
+    },
+    "craft.founder.again" : {
+      "comment" : "The offer when the craftsman comes back once after 'Not now' (only 'commission' and 'No, thank you' are offered then). At most 240 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Sprung in meiner Gussform, die ganze Straße lang, was in meinem Handwerk als Glück gilt. Hängen wir die Glocke, ehe das Glück ausgeht?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not a crack in my mould the whole road, which in my trade counts as luck. Shall we hang the bell before the luck runs out?"
+          }
+        }
+      }
+    },
+    "craft.founder.c1" : {
+      "comment" : "The choice that commissions the work (its price shows beside it). At most 40 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gießt die Glocke"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cast the bell"
+          }
+        }
+      }
+    },
+    "craft.founder.hint" : {
+      "comment" : "Odile's counsel on the offer (the Counsel button). At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bronze ist teuer. Soldaten, die Euch nicht hören, sind teurer. Ich würde die Glocke kaufen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bronze is dear. Soldiers who cannot hear their lord are dearer. I would buy the bell."
+          }
+        }
+      }
+    },
+    "craft.founder.name" : {
+      "comment" : "A travelling craftsman's name over the audience card (names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benedek Rook"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benedek Rook"
+          }
+        }
+      }
+    },
+    "craft.founder.r1" : {
+      "comment" : "The reaction after the work is commissioned. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Zwei Tage und eine Grube“, sagt er und zeigt Unterarme, glänzend von alten Brandnarben. Dann schlägt die Glocke einmal, tief, und jeder Hund im Tal antwortet."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Two days and a pit,” he says, baring forearms shiny with old burns. Then the bell rings once, deep, and every dog in the valley answers."
+          }
+        }
+      }
+    },
+    "craft.founder.r2" : {
+      "comment" : "The reaction to 'Not now': the craftsman will come back once. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er legt die Hand hinters Ohr, wie Gießer es tun. „Nicht jetzt? Das hab ich gehört. Das hören wir immer.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "He cups a hand behind his ear, as founders do. “Not now? That I heard. We always hear that one.”"
+          }
+        }
+      }
+    },
+    "craft.founder.r3" : {
+      "comment" : "The reaction to 'No, thank you': the craftsman leaves for good. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„In Brazenmoor sagen wir, ein Haus ohne Glocke ist ein Haus, das schläft.“ Er geht, ohne Eile."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“In Brazenmoor we say a house without a bell is a house asleep.” He goes, unhurried."
+          }
+        }
+      }
+    },
+    "craft.founder.role" : {
+      "comment" : "Under the name on the audience card: the trade and where the craftsman comes from (place names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glockengießer aus Brazenmoor"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bell-founder from Brazenmoor"
+          }
+        }
+      }
+    },
+    "craft.founder.text" : {
+      "comment" : "The offer on the audience card, in the craftsman's voice: the work, how long it takes, what it does. The price shows on the first choice. At most 240 characters in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Glocke ist eine Laterne für die Ohren. Zwei Tage und eine Grube in Eurem Hof, und im Torturm hängt eine Glocke. Läutet sie im Kampf, und Eure Soldaten hören Euch von weiter her und kämpfen umso härter."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A bell is a lantern for the ears. Two days and a pit in your courtyard, and a bell hangs in the gate tower. Ring it in a fight, and your soldiers hear you from further off, and fight the harder for it."
+          }
+        }
+      }
+    },
+    "craft.glazier.again" : {
+      "comment" : "The offer when the craftsman comes back once after 'Not now' (only 'commission' and 'No, thank you' are offered then). At most 240 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Meer hat mich Geduld gelehrt, aber keine ewige. Eure Feuerschalen verschwenden noch immer gutes Licht an den Fels."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The sea taught me patience, but not forever. Your braziers are still wasting good light on rock."
+          }
+        }
+      }
+    },
+    "craft.glazier.c1" : {
+      "comment" : "The choice that commissions the work (its price shows beside it). At most 40 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verglast die Feuerschalen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glaze the braziers"
+          }
+        }
+      }
+    },
+    "craft.glazier.hint" : {
+      "comment" : "Odile's counsel on the offer (the Counsel button). At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Licht ist das Einzige, was da draußen wirkt. Kauft mehr davon."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light is the one thing out there that works. Buy more of it."
+          }
+        }
+      }
+    },
+    "craft.glazier.name" : {
+      "comment" : "A travelling craftsman's name over the audience card (names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merle Tidewell"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Merle Tidewell"
+          }
+        }
+      }
+    },
+    "craft.glazier.r1" : {
+      "comment" : "The reaction after the work is commissioned. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie hustet die halbe Nacht über ihrem kleinen Ofen, den Husten der Glaser. Im Morgengrauen trägt jede Feuerschale Glas und brennt klarer und weiter."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "She coughs over her little furnace half the night, a glazier’s cough. At dawn every brazier wears glass, and burns clearer and wider."
+          }
+        }
+      }
+    },
+    "craft.glazier.r2" : {
+      "comment" : "The reaction to 'Not now': the craftsman will come back once. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Wisst Ihr, wie lange eine Scheibe im Karren auf der Küstenstraße hält? Ich auch nicht. Wir finden es beide heraus.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Do you know how long a pane lasts in a cart on the coast road? Nor do I. We’ll both find out.”"
+          }
+        }
+      }
+    },
+    "craft.glazier.r3" : {
+      "comment" : "The reaction to 'No, thank you': the craftsman leaves for good. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie wickelt ihre Scheiben in Stroh, eine nach der anderen. „Leuchttürme widersprechen nie.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "She wraps her panes in straw, one by one. “Lighthouses never argue.”"
+          }
+        }
+      }
+    },
+    "craft.glazier.role" : {
+      "comment" : "Under the name on the audience card: the trade and where the craftsman comes from (place names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glaserin aus Saltgate"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glazier from Saltgate"
+          }
+        }
+      }
+    },
+    "craft.glazier.text" : {
+      "comment" : "The offer on the audience card, in the craftsman's voice: the work, how long it takes, what it does. The price shows on the first choice. At most 240 characters in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glas macht kein Licht. Es weigert sich nur, es zu verschwenden. An der Küste verglasen wir Leuchttürme, und Eure Feuerschalen werfen ihr halbes Licht an den Fels. Gebt mir einen Tag, und jede Flamme reicht ein Stück weiter in den Schlund."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glass makes no light. It only refuses to waste it. On the coast we glaze lighthouses, and your braziers throw half their light at the rock. Give me a day, and every flame reaches a little further into the Throat."
+          }
+        }
+      }
+    },
+    "craft.ironwright.again" : {
+      "comment" : "The offer when the craftsman comes back once after 'Not now' (only 'commission' and 'No, thank you' are offered then). At most 240 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goldenacre lässt grüßen, das kostet es nichts. Mein Angebot steht noch, das kostet Euch ein wenig."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goldenacre sends its regards, which costs it nothing. My offer still stands, which costs you a little."
+          }
+        }
+      }
+    },
+    "craft.ironwright.c1" : {
+      "comment" : "The choice that commissions the work (its price shows beside it). At most 40 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beschlagt das Tor"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Band the gate"
+          }
+        }
+      }
+    },
+    "craft.ironwright.hint" : {
+      "comment" : "Odile's counsel on the offer (the Counsel button). At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eisen an einem Tor ist nie verschwendet. Gold auf dem Eisen schon, aber sie schmollt, wenn man das sagt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iron on a gate is never wasted. Gold on the iron is, but she sulks if you say so."
+          }
+        }
+      }
+    },
+    "craft.ironwright.name" : {
+      "comment" : "A travelling craftsman's name over the audience card (names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ottilie Brand"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ottilie Brand"
+          }
+        }
+      }
+    },
+    "craft.ironwright.r1" : {
+      "comment" : "The reaction after the work is commissioned. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zwei Tage Hämmern, ihr rechter Arm doppelt so stark wie der linke. Dann trägt das Tor Eisen, und eine goldene Laterne fängt das erste Licht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Two days of hammering, her right arm twice the size of her left. Then the gate wears iron, and a gold lantern catches the first light."
+          }
+        }
+      }
+    },
+    "craft.ironwright.r2" : {
+      "comment" : "The reaction to 'Not now': the craftsman will come back once. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Dann vergolde ich irgendeinem Händler in Tallowford die Tür und berechne ihm das Doppelte. Euch zuliebe.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Then I’ll gild some merchant’s door in Tallowford and charge him double. On your behalf.”"
+          }
+        }
+      }
+    },
+    "craft.ironwright.r3" : {
+      "comment" : "The reaction to 'No, thank you': the craftsman leaves for good. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Goldenacre wird hören, dass Ihr sparsam seid. Man wird es gutheißen, und das sollte Euch beunruhigen.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Goldenacre will hear you’re careful with money. They’ll approve, which should worry you.”"
+          }
+        }
+      }
+    },
+    "craft.ironwright.role" : {
+      "comment" : "Under the name on the audience card: the trade and where the craftsman comes from (place names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eisenschmiedin aus Goldenacre"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ironwright from Goldenacre"
+          }
+        }
+      }
+    },
+    "craft.ironwright.text" : {
+      "comment" : "The offer on the audience card, in the craftsman's voice: the work, how long it takes, what it does. The price shows on the first choice. At most 240 characters in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Goldenacre vergolden wir alles, Tore auch. Eures braucht eher Eisen als Gold. Zwei Tage, und ich beschlage es mit Eisenbändern, Eure Laterne vergoldet, wo sie sich kreuzen. Es hält dann etwas mehr Prügel aus als jetzt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Goldenacre we gild everything, gates included. Yours wants iron more than gold. Two days, and I band it with iron, your lantern gilt where the bands cross. It will take a little more battering than it does now."
+          }
+        }
+      }
+    },
+    "craft.lampmaker.again" : {
+      "comment" : "The offer when the craftsman comes back once after 'Not now' (only 'commission' and 'No, thank you' are offered then). At most 240 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wieder daheim, für eine Weile. Meine Mutter fragt, warum die Felder nachts noch dunkel sind. Ich hab gesagt, ich frage Euch."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home again, for a while. My mother asks why the fields are still dark at night. I told her I would ask you."
+          }
+        }
+      }
+    },
+    "craft.lampmaker.c1" : {
+      "comment" : "The choice that commissions the work (its price shows beside it). At most 40 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beleuchtet den Weg zur Furt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light the road to the ford"
+          }
+        }
+      }
+    },
+    "craft.lampmaker.hint" : {
+      "comment" : "Odile's counsel on the offer (the Counsel button). At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mehr Laternen für eine Stadt, die zufrieden genug ist. Fragt mich wieder, wenn sie wütend ist."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More lanterns for a town that is happy enough. Ask me again when it is angry."
+          }
+        }
+      }
+    },
+    "craft.lampmaker.name" : {
+      "comment" : "A travelling craftsman's name over the audience card (names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ivar Glimm"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ivar Glimm"
+          }
+        }
+      }
+    },
+    "craft.lampmaker.r1" : {
+      "comment" : "The reaction after the work is commissioned. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seine Daumen sind schwarz gebrannt von vierzig Jahren Dochte. In der zweiten Dämmerung geht der Laternenanzünder am letzten Haus vorbei weiter, bis zur Furt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "His thumbs are burnt black from forty years of wicks. At the second dusk your lamplighter walks on past the last house, to the ford."
+          }
+        }
+      }
+    },
+    "craft.lampmaker.r2" : {
+      "comment" : "The reaction to 'Not now': the craftsman will come back once. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Ich bin bei meiner Mutter. Jeder in Tallowford kennt das Haus: Es hat zu viele Lampen.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“I’ll be at my mother’s. Everybody in Tallowford knows the house: it has too many lamps.”"
+          }
+        }
+      }
+    },
+    "craft.lampmaker.r3" : {
+      "comment" : "The reaction to 'No, thank you': the craftsman leaves for good. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Gut. Dann beleuchte ich die Straße von jemand anderem und denke an Eure.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Fair. I’ll light someone else’s road and think of yours.”"
+          }
+        }
+      }
+    },
+    "craft.lampmaker.role" : {
+      "comment" : "Under the name on the audience card: the trade and where the craftsman comes from (place names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lampenmacher aus Tallowford"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lamp-maker, once of Tallowford"
+          }
+        }
+      }
+    },
+    "craft.lampmaker.text" : {
+      "comment" : "The offer on the audience card, in the craftsman's voice: the work, how long it takes, what it does. The price shows on the first choice. At most 240 characters in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mein Handwerk hab ich hier in Tallowford gelernt, dann bin ich fort, um mehr Geld zu finden. Es gab keins. Die Laternen Eures Anzünders enden am letzten Haus. Zwei Tage, und ich führe sie weiter bis zu den Feldern und zur Furt, und die Stadt bleibt länger gelassen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learned my trade here in Tallowford, then left to find more money. There wasn’t any. Your lamplighter’s lanterns stop at the last house. Two days, and I carry them on to the fields and the ford, and the town keeps its temper longer."
+          }
+        }
+      }
+    },
+    "craft.limeburner.again" : {
+      "comment" : "The offer when the craftsman comes back once after 'Not now' (only 'commission' and 'No, thank you' are offered then). At most 240 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frischer Kalk. Die letzte Ladung ist im Karren hart geworden, das ist das Dumme am Warten. Dieser ist noch weich."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fresh lime. The last batch set hard in the cart, which is the trouble with waiting. This one is still soft."
+          }
+        }
+      }
+    },
+    "craft.limeburner.c1" : {
+      "comment" : "The choice that commissions the work (its price shows beside it). At most 40 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stellt den Mörtel auf"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set out the mortar"
+          }
+        }
+      }
+    },
+    "craft.limeburner.hint" : {
+      "comment" : "Odile's counsel on the offer (the Counsel button). At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eure eigenen Flicken, nur haltbarer. Nachts steht Ihr dort oben. Kauft es."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your own patches, holding better. You are the one up there at night. Buy it."
+          }
+        }
+      }
+    },
+    "craft.limeburner.name" : {
+      "comment" : "A travelling craftsman's name over the audience card (names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuno Marl"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuno Marl"
+          }
+        }
+      }
+    },
+    "craft.limeburner.r1" : {
+      "comment" : "The reaction after the work is commissioned. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er arbeitet mit bloßen Händen, die Knöchel vom Kalk weiß gesprungen. Bei Sonnenaufgang steckt in jedem Kübel auf dem Wehrgang eine Kelle wie ein Fähnchen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "He works bare-handed, knuckles cracked white by the lime. By sunrise a trowel stands in every tub on the wall walk like a little flag."
+          }
+        }
+      }
+    },
+    "craft.limeburner.r2" : {
+      "comment" : "The reaction to 'Not now': the craftsman will come back once. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er sagt nichts. Er breitet Sackleinen über seine Kübel, gegen den Regen, ganz langsam, und ist fort."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "He says nothing. He spreads sacking over his tubs against the rain, slowly, and is gone."
+          }
+        }
+      }
+    },
+    "craft.limeburner.r3" : {
+      "comment" : "The reaction to 'No, thank you': the craftsman leaves for good. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er nickt und belädt den Karren. „Die Mauern werden Euch sagen, was sie davon halten.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "He nods and loads the cart. “The walls will tell you what they think of that.”"
+          }
+        }
+      }
+    },
+    "craft.limeburner.role" : {
+      "comment" : "Under the name on the audience card: the trade and where the craftsman comes from (place names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kalkbrenner aus Kilnhollow"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limeburner from Kilnhollow"
+          }
+        }
+      }
+    },
+    "craft.limeburner.text" : {
+      "comment" : "The offer on the audience card, in the craftsman's voice: the work, how long it takes, what it does. The price shows on the first choice. At most 240 characters in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mauern sind vor allem Geduld, mit etwas Kalk. Lasst mich Kübel mit gutem Mörtel auf Euren Wehrgang stellen. Wenn Ihr nachts eine Mauer flickt, greift der Flicken tiefer und hält. Ein Tag Arbeit."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Walls are mostly patience, with a little lime. Let me set tubs of good mortar along your wall walk. When you patch a wall at night, the patch takes deeper and holds. One day’s work."
+          }
+        }
+      }
+    },
+    "craft.mason.again" : {
+      "comment" : "The offer when the craftsman comes back once after 'Not now' (only 'commission' and 'No, thank you' are offered then). At most 240 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mein Block trägt noch Euer Kreidezeichen, und Eurem Markt fehlt noch {sein Burgherr|seine Burgherrin}. Das eine richte ich mit dem anderen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My block still wears your chalk mark, and your market still wants its {lord|lady}. I can mend the one with the other."
+          }
+        }
+      }
+    },
+    "craft.mason.c1" : {
+      "comment" : "The choice that commissions the work (its price shows beside it). At most 40 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meißelt die Statue"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carve the statue"
+          }
+        }
+      }
+    },
+    "craft.mason.hint" : {
+      "comment" : "Odile's counsel on the offer (the Counsel button). At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Abbild in Stein. Es zahlt sich langsam zurück, eine Münze pro Haus. Eine Mauer zahlt sich heute Nacht aus."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A likeness in stone. It pays back a coin a house, slowly. A wall pays back tonight."
+          }
+        }
+      }
+    },
+    "craft.mason.name" : {
+      "comment" : "A travelling craftsman's name over the audience card (names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dagmar Flint"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dagmar Flint"
+          }
+        }
+      }
+    },
+    "craft.mason.r1" : {
+      "comment" : "The reaction after the work is commissioned. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie spuckt in Hände, grau von Staub, der nie mehr abgeht. „Zwei Tage. Haltet einen davon still; das schafft nie einer.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "She spits into palms grey with dust that never washes out. “Two days. Hold still for one of them; lords never do.”"
+          }
+        }
+      }
+    },
+    "craft.mason.r2" : {
+      "comment" : "The reaction to 'Not now': the craftsman will come back once. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie malt mit Kreide eine kleine Laterne auf ihren Steinblock. „Der gehört jetzt Euch. Den kriegt kein anderer.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "She chalks a little lantern on her block of stone. “That one’s yours now. Nobody else gets it.”"
+          }
+        }
+      }
+    },
+    "craft.mason.r3" : {
+      "comment" : "The reaction to 'No, thank you': the craftsman leaves for good. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie schultert ihren Klöpfel. „Der Widder hat nie Nein gesagt, nur dass Ihr’s wisst.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "She shoulders her mallet. “The ram never said no, you know.”"
+          }
+        }
+      }
+    },
+    "craft.mason.role" : {
+      "comment" : "Under the name on the audience card: the trade and where the craftsman comes from (place names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steinmetzin aus Highcairn"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stonemason from Highcairn"
+          }
+        }
+      }
+    },
+    "craft.mason.text" : {
+      "comment" : "The offer on the audience card, in the craftsman's voice: the work, how long it takes, what it does. The price shows on the first choice. At most 240 characters in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ich habe vier Burgherren gemeißelt und einen sehr stolzen Widder. Zwei Tage, und Ihr steht in Stein auf Eurem Markt, den Laternenstab erhoben. An einem vertrauten Gesicht zahlt man gern: Solange die Stadt zufrieden ist, gibt jedes Haus eine Münze mehr."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I’ve carved four lords and one very proud ram. Two days, and you stand on your market in stone, lantern staff raised. Folk pay gladly past a face they know: while the town is content, each house adds a coin."
+          }
+        }
+      }
+    },
+    "craft.painter.again" : {
+      "comment" : "The offer when the craftsman comes back once after 'Not now' (only 'commission' and 'No, thank you' are offered then). At most 240 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ich habe oft an das Licht in Eurem Saal gedacht, {verehrter Herr|verehrte Herrin}; es ist ein Malerlicht, und ich konnte nicht fernbleiben. Die Leinwand gehört noch Euch, wann immer Ihr einen Nachmittag erübrigt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I have thought often of the light in your hall, my {lord|lady}; it is a painter’s light, and I could not stay away. The canvas is still yours, whenever you can spare an afternoon."
+          }
+        }
+      }
+    },
+    "craft.painter.c1" : {
+      "comment" : "The choice that commissions the work (its price shows beside it). At most 40 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Für das Bildnis sitzen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sit for the portrait"
+          }
+        }
+      }
+    },
+    "craft.painter.hint" : {
+      "comment" : "Odile's counsel on the offer (the Counsel button). At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Farbe ist billig, Eitelkeit nicht. Doch ein Gesicht im Saal zeigt den Leuten, wer die Tür hält."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paint is cheap and vanity is not. Still, a face in the hall tells people who holds the door."
+          }
+        }
+      }
+    },
+    "craft.painter.name" : {
+      "comment" : "A travelling craftsman's name over the audience card (names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Severin Quell"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Severin Quell"
+          }
+        }
+      }
+    },
+    "craft.painter.r1" : {
+      "comment" : "The reaction after the work is commissioned. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er staubt den Hocker mit einem duftenden Tuch ab, ehe er sich setzt. „Das Kinn hoch, ich bitte Euch. Nicht ganz so hoch.“ Am Morgen hängt Ihr im Saal."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "He dusts the stool with a scented cloth before he will sit on it. “Chin up, I beg you. Not quite so far.” By morning you hang in the hall."
+          }
+        }
+      }
+    },
+    "craft.painter.r2" : {
+      "comment" : "The reaction to 'Not now': the craftsman will come back once. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Gewiss, gewiss. Eine ganz andere Saison. Ich stehe Euch wie stets zur Verfügung, mehr oder weniger.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Of course, of course. Another season entirely. I remain, as ever, at your disposal, more or less.”"
+          }
+        }
+      }
+    },
+    "craft.painter.r3" : {
+      "comment" : "The reaction to 'No, thank you': the craftsman leaves for good. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er verneigt sich, ein wenig erleichtert. „Sehr weise. Ein Bildnis enttäuscht nur den, der sitzt, und recht oft den Maler.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "He bows, a little relieved. “Most wise. A portrait only ever disappoints the sitter, and very often the painter.”"
+          }
+        }
+      }
+    },
+    "craft.painter.role" : {
+      "comment" : "Under the name on the audience card: the trade and where the craftsman comes from (place names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meistermaler aus Stillmere"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Master painter of Stillmere"
+          }
+        }
+      }
+    },
+    "craft.painter.text" : {
+      "comment" : "The noble portrait painter's offer (a master of the inner lands: long, polite sentences that say little), spoken to a village; a hamlet hears craft.painter.text_hamlet, a town craft.painter.text_town. The work, how long it takes, what it does. The price shows on the first choice. At most 240 characters in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{Verehrter Herr|Verehrte Herrin}, Ihr seid zu gütig. In Stillmere malen wir Syndici in Amtsketten; man sagt, Ihr haltet lieber den Laternenstab, was, wenn ich darf, das schönere Motiv ist. Eine Sitzung, ein Tag zum Trocknen, und Ihr hängt in Eurem Saal, der Stadt zur Freude."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My {lord|lady}, you are too kind. In Stillmere we paint syndics in chains of office; I hear you prefer the lantern staff, which is, if I may, the finer subject. One sitting, a day to dry, and you hang in your hall, to the town’s joy."
+          }
+        }
+      }
+    },
+    "craft.painter.text_hamlet" : {
+      "comment" : "The noble portrait painter's offer when the realm is still a hamlet: long, polite, faintly appalled (he treats it as beneath him). Same work and effect as craft.painter.text. At most 240 characters in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{Verehrter Herr|Verehrte Herrin}, wie überaus … beschaulich es hier ist. Man sprach mir von einer Stadt; einerlei, ganz einerlei, der Weg war reizend. Eine Sitzung, ein Tag zum Trocknen, und Ihr hängt in Eurem Saal. Vielleicht erheitert es sogar Eure … Pächter, ein wenig."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My {lord|lady}, how very… restful it is here. I was told of a town; no matter, none at all, the road was charming. One sitting and a day to dry, and you hang in your hall. It may even cheer your… tenants, a little."
+          }
+        }
+      }
+    },
+    "craft.painter.text_town" : {
+      "comment" : "The noble portrait painter's offer when the realm has become a town: long, polite, eager (a client worth having). Same work and effect as craft.painter.text. At most 240 characters in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "{Teurer Herr|Teure Herrin}, ganz Stillmere spricht von Eurer Stadt, und ich ließ meine Staffelei nass stehen, um zu kommen. Lasst Euch malen, ehe meine Rivalen davon hören, ich bitte Euch. Eine Sitzung, ein Tag zum Trocknen, und Ihr hängt in Eurem Saal, der Stadt zur Freude."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My dear {lord|lady}, all Stillmere speaks of your town, and I confess I left my easel wet to come. Let me paint you before my rivals hear of it, I beg you. One sitting, a day to dry, and you hang in your hall, to the whole town’s joy."
+          }
+        }
+      }
+    },
+    "craft.weaver.again" : {
+      "comment" : "The offer when the craftsman comes back once after 'Not now' (only 'commission' and 'No, thank you' are offered then). At most 240 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ich bin über die Flussstraße zurückgekommen. Die Fahnen sind gewebt, ihnen fehlt nur noch eine Mauer."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I came back by the river road. The banners are woven; all they want now is a wall."
+          }
+        }
+      }
+    },
+    "craft.weaver.c1" : {
+      "comment" : "The choice that commissions the work (its price shows beside it). At most 40 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hängt die Fahnen auf"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hang the banners"
+          }
+        }
+      }
+    },
+    "craft.weaver.hint" : {
+      "comment" : "Odile's counsel on the offer (the Counsel button). At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stoff. Hübscher Stoff. Brannock sagt, den Wachen ist er wichtig, und bei Soldaten hat er meistens recht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cloth. Pretty cloth. Brannock says it matters to the guards, and about soldiers he is usually right."
+          }
+        }
+      }
+    },
+    "craft.weaver.name" : {
+      "comment" : "A travelling craftsman's name over the audience card (names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tekla Morrow"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tekla Morrow"
+          }
+        }
+      }
+    },
+    "craft.weaver.r1" : {
+      "comment" : "The reaction after the work is commissioned. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit Fingern, bis zum Knöchel blaugrün gefärbt, hängt sie sie selbst auf. Am Morgen richtet sich darunter eine Wache auf, ohne es zu merken."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fingers dyed teal to the knuckle, she hangs them herself. Next morning a guard below them straightens up without noticing."
+          }
+        }
+      }
+    },
+    "craft.weaver.r2" : {
+      "comment" : "The reaction to 'Not now': the craftsman will come back once. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Eine Fahne bemerkt keiner, bis zu der Nacht, in der sie fehlt.“ Sie faltet sie zusammen, langsam genug, dass Ihr zuseht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Nobody notices a banner until the night it isn’t there.” She folds them away, slowly enough for you to watch."
+          }
+        }
+      }
+    },
+    "craft.weaver.r3" : {
+      "comment" : "The reaction to 'No, thank you': the craftsman leaves for good. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie rollt den Stoff fest zusammen. „Kahle Mauern wirken von außen mutiger. Von innen nie.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "She rolls the cloth up tight. “Bare walls look braver from outside. Never from in.”"
+          }
+        }
+      }
+    },
+    "craft.weaver.role" : {
+      "comment" : "Under the name on the audience card: the trade and where the craftsman comes from (place names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fahnenweberin aus Wendmouth"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Banner weaver from Wendmouth"
+          }
+        }
+      }
+    },
+    "craft.weaver.text" : {
+      "comment" : "The offer on the audience card, in the craftsman's voice: the work, how long it takes, what it does. The price shows on the first choice. At most 240 characters in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lange Fahnen, blaugrün, auf jeder eine goldene Laterne, an Eurer Mauer, wo die Wachen darunter sie die ganze Nacht sehen. Ich hab’s hundertmal erlebt: Wer die Farben sieht, hält einen Atemzug länger stand."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Long banners, teal, a gold lantern on each, hung from your wall where the guards below can see them all night. I’ve watched it a hundred times: whoever can see the colours stands a breath longer."
+          }
+        }
+      }
+    },
+    "craft.wheelwright.again" : {
+      "comment" : "The offer when the craftsman comes back once after 'Not now' (only 'commission' and 'No, thank you' are offered then). At most 240 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jedes Rad unterwegs gerichtet, nachts. Ich hab die Schritte Eurer Bauleute von der Hütte zur Mauer gezählt: zu viele."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trued every wheel on the road, nights. I counted your builders’ steps from the lodge to the wall: too many."
+          }
+        }
+      }
+    },
+    "craft.wheelwright.c1" : {
+      "comment" : "The choice that commissions the work (its price shows beside it). At most 40 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Baut die Handkarren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Build the handcarts"
+          }
+        }
+      }
+    },
+    "craft.wheelwright.hint" : {
+      "comment" : "Odile's counsel on the offer (the Counsel button). At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bauleute, die den halben Tag laufen, sind Bauleute, die ich fürs Laufen bezahle."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Builders who spend half the day walking are builders I pay to walk."
+          }
+        }
+      }
+    },
+    "craft.wheelwright.name" : {
+      "comment" : "A travelling craftsman's name over the audience card (names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Joost Felloe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Joost Felloe"
+          }
+        }
+      }
+    },
+    "craft.wheelwright.r1" : {
+      "comment" : "The reaction after the work is commissioned. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er zählt die Speichen an neun Fingern ab, zweimal. Im ersten Licht stehen zwei blaugrüne Karren bei der Bauhütte, und die Bauleute fahren einmal um die Wette."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "He counts the spokes on nine fingers, twice. At first light two teal carts stand by the lodge, and the builders race them once."
+          }
+        }
+      }
+    },
+    "craft.wheelwright.r2" : {
+      "comment" : "The reaction to 'Not now': the craftsman will come back once. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er dreht ein loses Rad auf der Achse und lauscht, bis es stillsteht. Dann nickt er, als hätte es Euch recht gegeben."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "He spins a loose wheel on its axle and listens until it stops. Then he nods, as if it had agreed with you."
+          }
+        }
+      }
+    },
+    "craft.wheelwright.r3" : {
+      "comment" : "The reaction to 'No, thank you': the craftsman leaves for good. At most 140 characters.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er tippt an die Mütze. „Arme sind billiger als Räder, bis die Arme versagen.“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "He tips his cap. “Arms are cheaper than wheels, until the arms give out.”"
+          }
+        }
+      }
+    },
+    "craft.wheelwright.role" : {
+      "comment" : "Under the name on the audience card: the trade and where the craftsman comes from (place names are never translated).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stellmacher aus Brackwater"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wheelwright from Brackwater"
+          }
+        }
+      }
+    },
+    "craft.wheelwright.text" : {
+      "comment" : "The offer on the audience card, in the craftsman's voice: the work, how long it takes, what it does. The price shows on the first choice. At most 240 characters in English.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eure Bauleute tragen Steine im Arm wie ihre Urgroßväter. Zwei Handkarren, ein Tag Arbeit, und sie kommen schneller von der Bauhütte zum Gerüst. Ein gutes Rad ist eine Straße, die man mitbringt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your builders carry stone in their arms like their great-grandfathers did. Two handcarts, one day’s work, and they get from the lodge to the scaffold faster. A good wheel is a road you bring along."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

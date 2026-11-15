@@ -323,11 +323,12 @@ enum Speakers {
     }
 
     static func speaker(_ id: String) -> Speaker? {
-        guard let position = index[id] else { return nil }
+        // Craft lane hook: a travelling craftsman is a guest the craftsmen's book makes (docs/lanes/craft.md).
+        guard let position = index[id] else { return CraftBook.isCraft(id) ? CraftBook.standard.speaker(id) : nil }
         return all[position]
     }
 
-    static func isKnown(_ id: String) -> Bool { index[id] != nil }
+    static func isKnown(_ id: String) -> Bool { index[id] != nil || speaker(id) != nil }
 
     /// True for the court and the guests: the ones who can talk in the hall (`CourtLines`).
     static func canTalk(_ id: String) -> Bool {

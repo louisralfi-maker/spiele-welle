@@ -216,6 +216,8 @@ struct SimDriver: Sendable {
         let lord = state.lord
         state = GameState.newRealm(seed: seed, balance: balance)
         state.lord = lord
+        // Craft lane hook: a restarted chapter meets the travelling craftsmen too.
+        CraftVisits.begin(&state)
         PetitionEngine.prepare(&state, catalog: petitions)
         dawnSnapshot = state
         accumulator = 0

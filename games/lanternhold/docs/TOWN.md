@@ -282,13 +282,78 @@ What follows is the first plan; where it differs, the lines above win.
 
 ## 4. Travelling craftsmen (build 3)
 
-- From day 4, about every third day and never on a story day, one travelling craftsman joins the audience after the
-  petitioners. He offers one work in two lines: what it is, what it costs, what it does.
-- Answers: commission it (the gold is paid at once; the work stands one or two days later), "not now" (he comes back
-  once, some days later), or send him on.
-- **Ten craftsmen for chapter 1.** Every work is seen in the world and has one small effect; no effect moves a system
-  by more than about 5 %. Three are works of pride.
-- The director's starting list (the lane may better it):
+The craft lane's list and numbers (step craft-1 and its fix round 1, 14.11.2026; the code, the hooks and the art list
+are in docs/lanes/craft.md). The director's starting list stands below the final one.
+
+- **When.** From day 4 a visit is due every third day (days 4, 7, 10, ...). It waits for a free day, one with no story
+  petition in the queue except the houses' audiences that come on top, until the next one is due. Then one travelling
+  craftsman joins the audience after the petitioners, drawn with his own seeded stream among those not yet met whose
+  first day has come (and whose needs stand: the glazier comes once a brazier or fire tower stands). One a day at most.
+  A chapter meets about five (days 5, 7, 12, 14 and 16 when the story is heard on its first days; a "not now"
+  return takes a free day of its own); who comes depends on the realm's seed, and the rest come in the Long Watch.
+- **The offer** is an audience card: his portrait, name and trade, two lines in his voice (what the work is and what it
+  does), the price on the commission, Odile's counsel. Answers: **commission it** (the gold is paid at once; the work
+  stands from the dawn one or two days later; the castle's builders are not needed), **not now** (he comes back once,
+  four days later or on the next free day, and then offers only commission or no), **no, thank you** (he is gone).
+- **Unheard by the horn:** on his first visit it counts as "not now", on his return as "no". A craftsman left waiting
+  costs no happiness; he is a trader, not a subject.
+- **The save** keeps who came, the answers and the works (`GameState.craft`).
+- **Bots never commission.** The reference bot's audience passes him by, and a realm the craftsmen visit plays line for
+  line as one they never visit (a unit test, 14 nights, three seeds, normal and high tax). T1 to T8 do not move.
+- **Effects.** Each lives in Core behind its flag (the work standing) with a unit test, and each moves its own number
+  by about 4 %: at least 2 %, at most 6 % (a unit test; the 5 % rule is a ceiling, and nought would be a placebo).
+  The statue, the road lanterns and the portrait are measured in the reference bots' runs (14 nights, two seeds,
+  commissioned on the craftsman's first day, over the nights the work stands); every other work in a scene of play
+  that isolates what it changes (`Tests/CraftMeasures.swift`), because the reference bot's comfortable nights hide a
+  work of 4 %. Round lh-c1f1-3 (the same numbers as lh-c1f1-1 and -2):
+
+  | work | its own number | moved |
+  |---|---|---|
+  | statue | taxes while it stands | +4.4 % |
+  | road lanterns | taxes while they stand (high-tax bot) | +2.6 % |
+  | portrait | happiness while it hangs | +2.6 % |
+  | bell | soldier-seconds within the lord's rally on a walk of the walls | +4.1 % |
+  | glass | ground the braziers light | +3.7 % |
+  | mortar | wall strength one patch restores | +4.0 % |
+  | banners | seconds a breach holds against a brute (two, three, four guards) | +4.1 % |
+  | handcarts | seconds the builders need for three mornings' orders | −3.7 % |
+  | pitch | what a fire arrow strikes for in a fight at the gate | +4.0 % |
+  | gate bands | seconds the gate holds against four ash brutes | +4.0 % |
+
+  No work costs the reference bot a night; on harder nights (few soldiers) no night work costs a night or lets more
+  than two more soldiers fall.
+
+  | craftsman (from) | work, seen where | effect | gold | days | first day | pride |
+  |---|---|---|---|---|---|---|
+  | Dagmar Flint, stonemason (Highcairn) | a statue of the lord, lantern staff raised, on the market square | each house pays 1 coin more at dawn while happiness is 60 or more | 90 | 2 | 6 | yes |
+  | Severin Quell, master painter (a syndic family of Stillmere; the inner lands) | the lord's portrait in the great hall, the first of a gallery | +3 happiness once, when it is hung | 45 | 1 | 5 | yes |
+  | Benedek Rook, bell-founder (Brazenmoor) | a bell in the gate tower, rung at dusk and in a fight | the lord's rally (soldiers near the lord shoot and strike a quarter harder) reaches 4 % further: 83 px instead of 80 | 75 | 2 | 6 | yes |
+  | Merle Tidewell, glazier (Saltgate) | glass hoods on every brazier and fire tower | their light reaches 5 % further | 50 | 1 | 4, once a brazier or fire tower stands | |
+  | Cuno Marl, limeburner (Kilnhollow) | tubs of mortar with trowels on the wall walks | every patch mends 26 % of the wall instead of 25 % | 35 | 1 | 4 | |
+  | Tekla Morrow, banner weaver (Wendmouth) | long teal banners with the gold lantern on the walls | a holding guard steps back at 25 % of his strength instead of 30 % | 50 | 1 | 4 | |
+  | Joost Felloe, wheelwright (Brackwater) | two teal handcarts at the lodge | builders walk 8 % faster (the collector too, once he walks) | 40 | 1 | 4 | |
+  | Ivar Glimm, lamp-maker (a child of Tallowford come home) | the lamplighter's street lanterns carried on past the last house to the fields and the ford (about six more posts; the lamplighter lights them with the town's four) | the unrest line sits at 12 instead of 15 | 60 | 2 | 5 | |
+  | Renske Fallow, fletcher (the Seven Hills) | a rack of pitch-black arrows by the barracks | a fire arrow strikes 4 % harder | 45 | 1 | 4 | |
+  | Ottilie Brand, ironwright (Goldenacre) | iron bands on the gate, the lantern gilt where they cross | the gatehouse has 4 % more strength | 70 | 2 | 6 | |
+
+- **Works in the town** (the statue, the road lanterns) count for the town's standing (section 3).
+- **What changed from the director's list:** the fountain went (+1 happiness each dawn is the tavern's whole effect and
+  moves happiness far more than 5 %); the clockmaker went (reading the hour in the world is the stage lanes'
+  interface, not a work's effect); the limeburner (the king's own Patch) and the ironwright (the gate) came; the
+  bell carries the lord's rally further (the archers already start each night ready, so a sooner first volley had nothing
+  to move, and faster soldiers let more of them fall on hard nights); the glass is 5 %, not 8 %.
+- **Fix round 1 (the critic's look 1):** every work now moves its own number by about 4 %, so the bell (83 px), the
+  mortar (26 %), the handcarts (8 %) and the gate bands (4 %) were tuned down to it, and the pitch strikes harder
+  instead of burning longer (a fire arrow lands where light already is, and lights do not add up, so a longer fire moved
+  nothing). The painter is a master of the inner lands with long, polite sentences, and his offer follows the realm's
+  stage: a hamlet hears that it is beneath him, a town that it is worth courting (happiness stands in for the town
+  lane's standing until the join: below 70 a hamlet, from 80 a town). The bell-founder comes from Brazenmoor (Greybell's
+  House Lorn keeps the hall's first bell, a story beat of its own). The lamp-maker carries the lamplighter's lanterns on
+  to the fields and the ford (section 7). Every craftsman carries a mark of life or trade in his words: the mason's
+  palms grey with dust, the founder's burnt forearms, the glazier's cough, the limeburner's knuckles cracked by lime,
+  the weaver's dyed fingers, the wheelwright's nine fingers, the lamp-maker's blackened thumbs, the fletcher's pitch,
+  the ironwright's hammer arm, the painter's scented cloth.
+- The director's starting list:
 
   | craftsman | work, seen where | effect |
   |---|---|---|
@@ -303,8 +368,8 @@ What follows is the first plan; where it differs, the lines above win.
   | lamp-maker | street lanterns out to the town | fewer grumblers: the unrest line sits a little lower |
   | fletcher | pitch arrows | fire arrows burn one second longer |
 
-- Original names and faces in the voice of STORY.md; each has one line a player remembers. English and German.
-- Bots never commission, so T1 to T8 do not change; every effect has a unit test.
+- Original names and faces in the voice of STORY.md; each has one line a player remembers. English and German in
+  `Resources/Craftsmen.xcstrings`; the six other languages after the join.
 
 ## 5. What this asks of the other lanes
 

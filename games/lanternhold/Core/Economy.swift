@@ -55,7 +55,8 @@ enum Economy {
         let payers = state.taxpayers
         let mood = Economy.mood(happiness: happiness, balance: balance)
         let raw = Double(payers) * balance.taxPerPayer * mood * TownGrowth.taxFactor(state, balance: balance)
-        let taxPart = Int(raw.rounded())
+        // Craft lane hook: the statue's coin from each house while the town is content (0 without it).
+        let taxPart = Int(raw.rounded()) + CraftWorks.houseCoins(state, happiness: happiness, balance: balance)
         let fields = TownGrowth.fieldGold(state, balance: balance)
         var market = 0
         if let share = TownGrowth.marketShare(state, balance: balance) {

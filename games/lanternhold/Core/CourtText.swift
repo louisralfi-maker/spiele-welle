@@ -8,7 +8,8 @@ enum StoryText {
 
     /// The text of `key` in the player's language (the key itself when it is missing, so a gap shows).
     static func string(_ key: String, bundle: Bundle = .main) -> String {
-        bundle.localizedString(forKey: key, value: key, table: table)
+        // Craft lane hook: the travelling craftsmen's keys live in Resources/Craftsmen.xcstrings.
+        bundle.localizedString(forKey: key, value: key, table: CraftText.table(for: key, fallback: table))
     }
 
     /// The text of `key` in the player's language with the lord's name and form filled in (`LordText`: `{lord}` and
@@ -23,7 +24,8 @@ enum StoryText {
             return nil
         }
         let missing = "\u{1}missing\u{1}"
-        let value = localized.localizedString(forKey: key, value: missing, table: table)
+        let value = localized.localizedString(forKey: key, value: missing,
+                                              table: CraftText.table(for: key, fallback: table))
         return value == missing ? nil : value
     }
 

@@ -159,6 +159,9 @@ struct Balance: Sendable, Equatable {
     var fireArrowEvery = 4
     var fireArrowRadius = 22.0
     var fireArrowSeconds = 2.5
+    /// A fire arrow strikes this many times as hard as an arrow (craft lane: 1; the fletcher's pitch raises it while her
+    /// work stands, `CraftWorks`).
+    var fireArrowStrike = 1.0
     var arrowSpeed = 320.0
     var archerHP = 20.0
     var guardHP = 30.0

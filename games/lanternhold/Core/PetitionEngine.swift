@@ -61,6 +61,8 @@ enum PetitionEngine {
     /// acts); a queue drawn already only loses petitioners whose petition no longer exists.
     static func prepare(_ s: inout GameState, catalog: PetitionCatalog) {
         guard DayClock.phase(at: s.hour) == .day, !s.defeated else { return }
+        // Craft lane hook: once the day's petitioners are drawn, a travelling craftsman may join them.
+        defer { CraftVisits.arrive(&s, catalog: catalog) }
         // Runs after every step: nothing is copied while today's queue stands.
         if s.court?.queueDay == s.day {
             if s.court?.queue.contains(where: { catalog.petition($0.id) == nil }) == true {
@@ -180,6 +182,8 @@ enum PetitionEngine {
     /// The horn: the petitioners still waiting go home unheard (each costs 1 happiness at dawn, and counts as shown for
     /// the five-day rule).
     static func horn(_ s: inout GameState) {
+        // Craft lane hook: a waiting craftsman leaves first, and costs no happiness.
+        CraftVisits.horn(&s)
         guard var court = s.court, !court.queue.isEmpty else { return }
         for petitioner in court.queue {
             court.history.append(HeardPetition(id: petitioner.id, day: s.day, choice: nil))
@@ -192,6 +196,8 @@ enum PetitionEngine {
     /// The dawn (the new day): the past night's modifiers are spent, the history keeps its last days, follow-ups that
     /// could not come are dropped.
     static func dawn(_ s: inout GameState) {
+        // Craft lane hook: commissioned works whose day has come stand from this dawn.
+        CraftWorks.dawn(&s)
         guard var court = s.court else { return }
         let day = s.day
         court.nightModifiers.removeAll { $0.night < day }
@@ -247,6 +253,8 @@ enum PetitionEngine {
         var outcome = PetitionOutcome(petition: petition.id, choice: choice)
         outcome.reaction = picked.effect.reaction
         apply(picked.effect, to: &s, balance: balance, outcome: &outcome)
+        // Craft lane hook: a craftsman's answer is noted (the commission ordered, his return set).
+        CraftVisits.heard(&s, petition: petition.id, choice: choice)
         return outcome
     }
 
@@ -444,7 +452,8 @@ enum PetitionEngine {
         while rounds < 16, let court = s.court, court.queueDay == s.day, !court.queue.isEmpty {
             rounds += 1
             var heardOne = false
-            for position in court.queue.indices {
+            // Craft lane hook: bots never commission; they pass a travelling craftsman by.
+            for position in court.queue.indices where !CraftVisits.isOffer(court.queue[position].id) {
                 guard let petition = catalog.petition(court.queue[position].id),
                       let pick = botChoice(petition, s) else { continue }
                 if let outcome = hear(&s, choice: pick, at: position, catalog: catalog, balance: balance) {

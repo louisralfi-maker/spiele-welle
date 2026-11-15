@@ -222,7 +222,8 @@ struct AudienceCard: Sendable, Equatable {
                             nameKey: Speakers.nameKey(speaker.id, day: state.day, flags: state.flags),
                             plainName: Speakers.townsfolkName(speaker.id, look: look), roleKey: speaker.roleKey,
                             portrait: portrait(speaker: speaker.id, look: look, day: state.day, flags: state.flags),
-                            textKey: petition.text, hintKey: petition.hint, counselShown: session.counselShown,
+                            textKey: CraftText.spoken(petition.text, state: state), hintKey: petition.hint,
+                            counselShown: session.counselShown,
                             options: options, outcome: session.outcome, reactionKey: session.outcome?.reaction,
                             remembered: Remembered.keys(session.outcome?.flagsSet ?? []), waiting: waiting)
     }
