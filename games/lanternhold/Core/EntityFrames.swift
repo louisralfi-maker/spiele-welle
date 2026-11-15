@@ -146,6 +146,9 @@ enum EntityFrames {
         beacon(s, props: &props)
         courtyard(s, props: &props)
         town(s, look: options.look, props: &props)
+        let townDay = TownLife.Context(reduceMotion: options.reduceMotion,
+                                      hearth: max(0, min(1, s.hearth / max(1, balance.hearthStrength))))
+        if options.look == .two { TownLife.props(s, context: townDay, props: &props) }
         if isDay { markers(s, layouts: layouts, time: animTime, reduceMotion: options.reduceMotion, props: &props) }
         auras(s, look: options.look, props: &props)
         layer.props = props.props
@@ -155,6 +158,9 @@ enum EntityFrames {
                             reduceMotion: options.reduceMotion)
 
         var lights = SceneFilter.sceneLights(scene)
+        // The street lanterns burn as the lamplighter lit them (`TownLamps`; `SceneFilter` hands them over).
+        TownLamps.light(s, look: options.look, context: townDay, torch: ambient.torchStrength, animTime: animTime,
+                        glows: &layer.glows, lights: &lights)
         for light in props.lights {
             lights.append((source: light, plane: .world))
         }
@@ -1037,15 +1043,24 @@ enum EntityFrames {
                                       isEmissive: emissive, isLit: lit, lightCap: lightCap, moonRim: moonRim))
         }
 
-        // Townsfolk walking between their houses, the fields and the market by day.
-        if isDay {
-            townsfolk(s, time: time) { sprite, frame, x, y, flipped in
+        // Look 2: the town lives by its people (the people lane, `TownLife`, `TownLamps`): the households through the
+        // day, the lamplighter at dusk and first light. Look 1: townsfolk walking between their houses, the fields and
+        // the market by day.
+        if look == .two {
+            let hearth = max(0, min(1, s.hearth / max(1, balance.hearthStrength)))
+            PeopleCast.townLife(s, time: time, context: TownLife.Context(reduceMotion: reduceMotion, hearth: hearth)) {
+                add($0.sprite, frame: $0.frame, x: $0.x, y: $0.y, flipped: $0.flipped, emissive: $0.emissive)
+            }
+        } else if isDay {
+            townsfolk(s, time: time, look: look) { sprite, frame, x, y, flipped in
                 add(sprite, frame: frame, x: x, y: y, flipped: flipped)
             }
         }
 
         // Builders walking to their work and hammering (spread across the scaffold by their number, M2b review: three
-        // at one x read as one brown cluster), the idle ones side by side at the lodge, every second one turned.
+        // at one x read as one brown cluster), the idle ones side by side at the lodge, every second one turned. Look 2:
+        // past a noble's coach they keep to the near side of the road, never through its footman (`TownLife.lane`).
+        let berth = look == .two ? TownLife.berthZone(s) : nil
         for (index, builder) in s.builders.enumerated() {
             var x = builder.x
             var frame = 0
@@ -1074,7 +1089,7 @@ enum EntityFrames {
                     flipped = drawn < x
                 }
             }
-            add(.builder, frame: frame, x: x, y: 0, flipped: flipped)
+            add(.builder, frame: frame, x: x, y: TownLife.lane(at: x, berth), flipped: flipped)
         }
 
         // Creatures: lit, the body and its glow; unlit, the glow over a body at a very low value with a moonlight rim.
@@ -1250,18 +1265,18 @@ enum EntityFrames {
 
     /// Visual-only townsfolk by day: each walks between a house and a place of the town (the well, the market, a
     /// field, the tavern) and pauses at both ends; how many follows the taxpayers.
-    private static func townsfolk(_ s: GameState, time: Double,
+    private static func townsfolk(_ s: GameState, time: Double, look: LookVersion = .one,
                                   add: (SpriteID, Int, Double, Double, Bool) -> Void) {
         let homes = WorldLayout.townPlots.filter { $0.kind == .house }.map { ($0.start + $0.end) / 2 }
         guard !homes.isEmpty else { return }
         let places: [Double] = [WorldLayout.wellX, 3245, 2680, 3365, 3540, 3010]
-        let sprites: [SpriteID] = [.citizen, .citizenB, .citizenC]
+        let sprites: [SpriteID] = look == .two ? PeopleCast.townWalkers : [.citizen, .citizenB, .citizenC]
         let count = min(9, max(2, s.taxpayers / 2))
         for k in 0..<count {
             let home = homes[k % homes.count] + 12
             let place = places[(k * 3 + 1) % places.count] + Double(k % 3) * 6 - 6
             let distance = abs(place - home)
-            let speed = 16 + Double(k % 3) * 3
+            let speed = (16 + Double(k % 3) * 3) * PeopleCast.pace(sprites[k % sprites.count])
             let pause = 2.5 + Double(k % 2)
             let walk = distance / speed
             let period = 2 * (walk + pause)
@@ -1284,7 +1299,8 @@ enum EntityFrames {
                 x = place + (home - place) * (u - 2 * pause - walk) / max(0.01, walk)
             }
             let direction = towardPlace ? place - home : home - place
-            let frame = moving ? Int((max(0, x) / 4).rounded(.down)) % 4 : 4 + Int((time * 2 + Double(k)).rounded(.down)) % 2
+            let frame = moving ? PeopleCast.walkFrame(sprites[k % sprites.count], x: x)
+                : 4 + Int((time * 2 + Double(k)).rounded(.down)) % 2
             add(sprites[k % sprites.count], frame, x, 0, direction < 0)
         }
     }

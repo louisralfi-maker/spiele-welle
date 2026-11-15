@@ -1,0 +1,33 @@
+# marekTie 14x30, 2 frames: marek's tie, played toward another person: a merchant's nod, then the first orange of winter on his palm (written by
+# tools/courtties.py; docs/SPRITES-people.md "The court's ties"). The member's own parts and placements.
+id marekTie
+size 14x30
+frames 2
+outline ink shade
+include ../court/kit.txt
+include ../court/marek.txt
+
+legend
+    @ = gold
+    % = tileLight
+
+part orange
+    @@
+    @%
+
+frame 0
+    legsStand 2 16
+    skirtPass 3 17
+    head 2 3
+    torso 4 9
+    satchel 1 9
+    armStrap 7 10
+
+frame 1
+    legsStand 2 16
+    skirtPass 3 17
+    head 2 3
+    torso 4 9
+    satchel 1 9
+    armPalm 7 10
+    orange 10 9

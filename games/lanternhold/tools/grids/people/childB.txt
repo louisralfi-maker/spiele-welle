@@ -1,0 +1,219 @@
+# childB 12x18, 12 frames: run 0-3, fidget 4-5, skip 6-9, the stick raised 10 and thrust 11 (docs/SPRITES-people.md,
+# the children's contract; 12 wide from people-2, so the thrust stick fits the frame). Wren Ashby,
+# 9, Gorm's daughter (docs/PEOPLE.md). Dark hair in two plaits that fly when she skips, each tied with a red ribbon; a
+# clean linen smock, a step lighter than any grown-up's cloth, under a red pinafore (the children's warm clean accent,
+# here the biggest patch of it in town); bare shins, small clogs. Light from the upper left; look 2's selective
+# outline. Run: contact, flight, contact, flight (the body up 1 px in flight), the plait flying out behind. Fidget:
+# hands behind her back, rocking from the heels (4) onto the toes (5). Skip: the step and the hop on each foot (2 px up
+# on the hop), the arms out, the plait up. The fight (with Nib, `TownDay`): a stick picked up from the lane, raised
+# back over her head (10), then thrust level before her in a lunge (11), the plaits flying; the stick three pixels
+# long in both, so it never changes length between the two (people-2 fix round 1).
+id childB
+size 12x18
+frames 12
+outline ink shade
+
+# Cloth states (docs/PEOPLE.md section 7, tools/peoplestates.py): the realm's stage changes the cloth, never the
+# body. Hamlet is this grid as drawn; town remaps cloth characters only.
+#@state town  F=parchment W=strawLight w=straw   # a primrose smock under the red pinafore
+
+legend
+    L = woodLight!
+    J = wood!
+    k = ink
+    S = dawnRose
+    s = tileLight
+    H = woodDark
+    h = wood
+    l = woodLight
+    R = crimsonLight
+    r = crimson
+    F = foam
+    W = parchment
+    w = plaster
+
+# the dark hair parted over the brow, the round face
+part head
+    .hHH.
+    hhHHH
+    hhSkS
+    .hsSs
+
+# the near plait hanging, flying out behind (run), flying up (skip); the red ribbon at its end
+part plaitDown
+    H
+    h
+    R
+
+part plaitOut
+    ...
+    hH.
+    R..
+
+part plaitUp
+    R.
+    .h
+    ..
+
+# the linen smock and the red pinafore over it, the smock's hem wide below
+part body
+    .FWw.
+    FWRRr
+    FWRRr
+    FWRRr
+    FWRRrw
+    .FWWw.
+
+# the near arm swinging (run), held behind (fidget), out to the side (skip)
+part armSwing
+    w.
+    .S
+
+part armBack
+    w
+    s
+
+part armOut
+    W..
+    .wS
+
+part legsStand
+    .ss.
+    .sS.
+    HHhH
+
+part legsToes
+    .ss.
+    .sS.
+    .HhH
+
+part legsRunA
+    .s..S.
+    s....S
+    H....h
+
+part legsRunB
+    .S..s.
+    S....s
+    h....H
+
+part legsFlightA
+    .sSS
+    s..h
+    H...
+
+part legsFlightB
+    .Sss
+    S..H
+    h...
+
+part legsSkipA
+    .sSS.
+    .s..h
+    .H...
+
+part legsSkipB
+    .Sss.
+    .S..H
+    .h...
+
+
+# the fight: the stick raised back over her head, the near arm up before her face's front
+part armRaise
+    .....
+    .L...
+    ..J..
+    ...JS
+    ....s
+    ....W
+    ....w
+    ....W
+    ...w.
+
+# the fight: the lunge, the near arm straight out from the shoulder and the stick thrust level before her
+part armStrike
+    WSJJL
+
+frame 0
+    legsRunA 3 14
+    body 3 8
+    plaitOut 2 6
+    head 4 4
+    armSwing 7 9
+
+frame 1
+    legsFlightA 4 13
+    body 3 7
+    plaitOut 2 5
+    head 4 3
+    armSwing 7 8
+
+frame 2
+    legsRunB 3 14
+    body 3 8
+    plaitOut 2 6
+    head 4 4
+    armBack 3 9
+
+frame 3
+    legsFlightB 4 13
+    body 3 7
+    plaitOut 2 5
+    head 4 3
+    armBack 3 8
+
+frame 4
+    legsStand 4 14
+    body 3 8
+    plaitDown 3 6
+    head 4 4
+    armBack 3 9
+
+frame 5
+    legsToes 4 14
+    body 3 7
+    plaitDown 3 5
+    head 4 3
+    armBack 3 8
+
+frame 6
+    legsSkipA 3 14
+    body 3 8
+    plaitUp 2 5
+    head 4 4
+    armOut 7 8
+
+frame 7
+    legsSkipA 3 12
+    body 3 6
+    plaitUp 2 3
+    head 4 2
+    armOut 7 6
+
+frame 8
+    legsSkipB 3 14
+    body 3 8
+    plaitUp 2 5
+    head 4 4
+    armOut 7 8
+
+frame 9
+    legsSkipB 3 12
+    body 3 6
+    plaitUp 2 3
+    head 4 2
+    armOut 7 6
+
+frame 10
+    legsRunA 3 14
+    body 3 8
+    plaitDown 3 6
+    head 4 4
+    armRaise 5 0
+
+frame 11
+    legsRunA 3 14
+    body 3 8
+    plaitOut 2 6
+    head 4 4
+    armStrike 7 9

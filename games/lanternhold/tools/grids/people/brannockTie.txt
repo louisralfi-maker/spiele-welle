@@ -1,0 +1,35 @@
+# brannockTie 16x30, 2 frames: brannock's tie, played toward another person: a curt nod, then the iron key of the wall stair held out (written by
+# tools/courtties.py; docs/SPRITES-people.md "The court's ties"). The member's own parts and placements.
+id brannockTie
+size 16x30
+frames 2
+outline ink shade
+include ../court/kit.txt
+include ../court/brannock.txt
+
+legend
+    @ = stoneLight
+    % = stoneMid
+
+part key
+    @@
+    .%
+
+frame 0
+    scabbard 1 17
+    legsStand 3 16
+    skirt 5 17
+    head 5 3
+    torso 4 9
+    hilt 11 14
+    armPommel 8 10
+
+frame 1
+    scabbard 1 17
+    legsStand 3 16
+    skirt 5 17
+    head 5 3
+    torso 4 9
+    hilt 11 14
+    armThrust 8 10
+    key 14 11

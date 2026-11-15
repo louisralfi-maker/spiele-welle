@@ -1,0 +1,203 @@
+# childA 12x18, 12 frames: run 0-3, fidget 4-5, skip 6-9, the stick raised 10 and struck 11 (docs/SPRITES-people.md,
+# the children's contract; 12 wide from people-2, so the swung stick fits the frame). Nib Brisk, 7, Wenna's youngest
+# (docs/PEOPLE.md). Quick where everyone else is slow, and the bright thing in a worn town: a mop of straw hair, a
+# brother's linen tunic far too big for him (the sleeves over his hands, the hem to his knees), washed white by his
+# mother at the well, a step lighter than any grown-up's cloth; bare feet, a stick for a sword; and the warm clean
+# accent that belongs to the children: a red kerchief tied round the back of his neck, its knot and ends a small clean
+# triangle on his chest, the throat under the chin left white (the director, 15.11.: nothing on a child may read as
+# blood at phone size, so no red on the throat or the belly), and a small square grey patch with a dark seam on the
+# tunic at the knee. The tunic's shade is cool (`mistLight`), so the white stands off
+# the cream plaster of the houses. Light from the upper left; look 2's selective outline. Run: contact, flight,
+# contact, flight (the body up 1 px and the feet off the ground in flight), the stick held high. Fidget: on both feet,
+# then on one foot rubbing the other against his shin. Skip: the step and the hop on each foot (2 px up on the hop),
+# the arms thrown up. The fight (with Wren, `TownDay`): feet planted wide, the stick raised back over his head (10),
+# then thrust level before him in a lunge (11); the stick three pixels long in both, so it never changes length
+# between the two (people-2 fix round 1).
+id childA
+size 12x18
+frames 12
+outline ink shade
+
+# Cloth states (docs/PEOPLE.md section 7, tools/peoplestates.py): the realm's stage changes the cloth, never the
+# body. Hamlet is this grid as drawn; town remaps cloth characters only.
+#@state town  W=mistLight w=mist                 # the washed tunic dyed a pale blue; the red stays his
+
+legend
+    L = woodLight!
+    J = wood!
+    k = ink
+    S = dawnRose
+    s = tileLight
+    C = strawLight
+    c = straw
+    R = crimsonLight
+    r = crimson
+    F = foam
+    W = foam
+    w = mistLight
+    P = stoneLight
+    D = stone
+    l = woodLight
+    h = wood
+
+# the mop of straw hair over the brow, the round face
+part head
+    .CCc.
+    CCCCc
+    cCSkS
+    .csSs
+
+# the kerchief round the back of the neck from the nape to under the ear, the throat white, the knot on the chest with
+# its ends hanging below it in a small clean triangle; the washed tunic too big for him, the square grey patch with its
+# dark seam at the knee
+part body
+    rRRw.
+    FWWRR
+    FWWrw
+    FWDPw
+    .FDPw
+
+# the near arm, the sleeve over the hand, the stick held high and forward
+part armStick
+    W..l
+    .wl.
+    ..h.
+
+# the stick over the shoulder (fidget)
+part armShoulder
+    ..l
+    .h.
+    W..
+    w..
+
+# the arms thrown up (skip)
+part armsUp
+    W.
+    .w
+
+# the fight: the stick raised back over his head, the near arm up before his face's front
+part armRaise
+    .....
+    .L...
+    ..J..
+    ...JW
+    ....w
+    ....W
+    ....w
+    ...w.
+
+# the fight: the lunge, the near arm straight out from the shoulder and the stick thrust level before him
+part armStrike
+    WwJJL
+
+part legsStand
+    .sS.
+    .sS.
+    ssSS
+
+part legsOneFoot
+    .sS.
+    ..Ss
+    ..SS
+
+part legsRunA
+    .s..S.
+    s....S
+    s....S
+
+part legsRunB
+    .S..s.
+    S....s
+    S....s
+
+part legsFlightA
+    .sSS
+    s..S
+    s...
+
+part legsFlightB
+    .Sss
+    S..s
+    S...
+
+part legsSkipA
+    .sSS.
+    .s..S
+    .s...
+
+part legsSkipB
+    .Sss.
+    .S..s
+    .S...
+
+frame 0
+    legsRunA 3 14
+    body 3 9
+    head 4 5
+    armStick 6 9
+
+frame 1
+    legsFlightA 4 13
+    body 3 8
+    head 4 4
+    armStick 6 8
+
+frame 2
+    legsRunB 3 14
+    body 3 9
+    head 4 5
+    armStick 6 9
+
+frame 3
+    legsFlightB 4 13
+    body 3 8
+    head 4 4
+    armStick 6 8
+
+frame 4
+    legsStand 4 14
+    body 3 9
+    head 4 5
+    armShoulder 6 7
+
+frame 5
+    legsOneFoot 4 14
+    body 3 9
+    head 4 4
+    armShoulder 6 7
+
+frame 6
+    legsSkipA 3 14
+    body 3 9
+    head 4 5
+    armsUp 7 8
+
+frame 7
+    legsSkipA 3 12
+    body 3 7
+    head 4 3
+    armsUp 7 6
+
+frame 8
+    legsSkipB 3 14
+    body 3 9
+    head 4 5
+    armsUp 7 8
+
+frame 9
+    legsSkipB 3 12
+    body 3 7
+    head 4 3
+    armsUp 7 6
+
+frame 10
+    legsRunA 3 14
+    body 3 9
+    head 4 5
+    armRaise 5 1
+
+frame 11
+    legsRunA 3 14
+    body 3 9
+    head 4 5
+    armStrike 7 10

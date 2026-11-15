@@ -1,0 +1,262 @@
+# collector 34x24, 8 frames: push 0-3, idle 4-5, take 6-7 (docs/SPRITES-people.md; people-2, `TownLife`). Saul Tolliver,
+# 56, the collector (docs/PEOPLE.md "Three more"; docs/TOWN.md section 2), out from his post at the dawn with the
+# town's strongbox on a handcart, every door, back in the early afternoon. A stout man in a rolled wool cap pulled down
+# to the brow (never a hat with a crown and brim: with the lamplighter's they read as two Victorian bowlers), grey stubble, a
+# long grey-brown coat patched at the elbow, boots; his far arm lost on the wall the winter the old lord died, the empty
+# sleeve folded and pinned across his chest; a leather strap over his near shoulder to the cart's handles, which he
+# pushes one-handed, leaning into it, his head and shoulders bobbing a pixel up on the passing steps. The cart: a plain plank bed on one big spoked wheel (its twin behind), the
+# iron-bound strongbox on it, a plain iron lock and a coin slot in its lid (no gold: it is the town's box), a prop leg at
+# its front for when it stands. His feet on column 8.5, the cart ahead of him (`PeopleCast.feetColumn`). Light from the
+# upper left; look 2's selective outline. Push: a brisk step (4 px a frame), the wheel's spokes turning between a cross
+# and a saltire. Idle: upright at his post, the cart on its leg, the hand on the handle, a breath. Take: the hand held
+# out for the coins (6), then the coin through the lid's slot with a nod (7).
+id collector
+size 34x24
+frames 8
+outline ink shade
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    P = stoneLight
+    d = soil
+    D = soilDark
+    R = rockLight
+    r = rock
+    Q = rockDark
+    q = rockDeep
+    b = rockPale
+    p = soilLight
+    x = woodDark
+    l = woodLight
+    h = wood
+    H = woodDark
+    M = stoneMid
+    N = stone
+    g = gold
+
+# the rolled wool cap: a soft crown slumped to the back, the rolled edge lighter, pulled down to the brow
+part hat
+    ..ddd...
+    .ddddDD.
+    .pppppd.
+
+# a broad face in profile, grey stubble at the jaw and the nape
+part head
+    PSSSS.
+    PSSSkS
+    .SSSSs
+    .PSPs.
+
+part headNod
+    PSSSS.
+    PSSSSS
+    .SSSkS
+    .PSPs.
+
+# the stout body in the long coat, leaning into the push: the strap over the near shoulder, the empty far sleeve
+# folded and pinned across the chest (pale), the coat's skirt
+part torso
+    ...RRrQ..
+    ..RRxrrQ.
+    .RRRrxrrQ
+    .RRbbrxrQ
+    RRRrbbrxQ
+    RRrrrrrQx
+    RRrrrrrQ.
+    RRrrrrrQ.
+    .RrrrrQQ.
+    .RrrrrQ..
+
+# the near arm forward and down to the cart's handle, the patch at the elbow
+part armPush
+    rR..
+    .pr.
+    ..rS
+
+# the hand held out for the coins
+part armOut
+    rRrr.
+    ....S
+
+# the hand at the lid's slot, the coin dropping in
+part armSlot
+    ......sg
+    ....rrS.
+    .rRr....
+    rR......
+
+# the handles from his hand to the bed
+part shaft
+    hh..
+    ..hH
+
+# the plank bed of the cart
+part bed
+    lllllllllllllhH
+    hhhhhhhhhhhhhhH
+    HHHHHHHHHHHHHHH
+
+# the prop leg at the front (standing)
+part leg
+    H
+    H
+    H
+    H
+    H
+    H
+
+# the iron-bound strongbox, the coin slot in its lid at the back, the plain iron lock on its face
+part box
+    .kllllllll.
+    lNllllllNlh
+    hMhhhMhhMhH
+    hMhhMkMhMhH
+    hMhhhMhhMhH
+    HMHHHHHHMHH
+
+# the big wheel with its spokes as a cross, then as a saltire
+part wheelA
+    ..HhhhH..
+    .H..h..H.
+    H...h...H
+    h...h...H
+    hhhhMhhhH
+    h...h...H
+    H...h...H
+    .H..h..H.
+    ..HHHHH..
+
+part wheelB
+    ..HhhhH..
+    .H.....H.
+    h.h...h.H
+    h..h.h..H
+    h...M...H
+    h..h.h..H
+    H.h...h.H
+    .H.....H.
+    ..HHHHH..
+
+part legsContactA
+    .qq....rr.
+    qq......rr
+    q........r
+    q........r
+    DD.......DDD
+
+part legsContactB
+    .rr....qq.
+    rr......qq
+    r........q
+    r........q
+    DD.......DDD
+
+part legsPass
+    .qr.
+    .qr.
+    .qr.
+    .qr.
+    DDDD
+
+# the passing step with the body a pixel higher: the legs a pixel longer under the coat
+part legsPassUp
+    .qr.
+    .qr.
+    .qr.
+    .qr.
+    .qr.
+    DDDD
+
+frame 0
+    legsContactA 4 19
+    torso 4 9
+    head 6 5
+    hat 4 2
+    bed 17 14
+    box 19 8
+    wheelA 21 15
+    shaft 15 13
+    armPush 11 11
+
+frame 1
+    legsPassUp 7 18
+    torso 4 8
+    head 6 4
+    hat 4 1
+    bed 17 14
+    box 19 8
+    wheelB 21 15
+    shaft 15 13
+    armPush 11 11
+
+frame 2
+    legsContactB 4 19
+    torso 4 9
+    head 6 5
+    hat 4 2
+    bed 17 14
+    box 19 8
+    wheelA 21 15
+    shaft 15 13
+    armPush 11 11
+
+frame 3
+    legsPassUp 7 18
+    torso 4 8
+    head 6 4
+    hat 4 1
+    bed 17 14
+    box 19 8
+    wheelB 21 15
+    shaft 15 13
+    armPush 11 11
+
+frame 4
+    legsPass 7 19
+    torso 4 9
+    head 6 5
+    hat 4 2
+    leg 31 17
+    bed 17 14
+    box 19 8
+    wheelA 21 15
+    shaft 15 13
+    armPush 11 11
+
+frame 5
+    legsPass 7 19
+    torso 4 10
+    head 6 6
+    hat 4 3
+    leg 31 17
+    bed 17 14
+    box 19 8
+    wheelA 21 15
+    shaft 15 13
+    armPush 11 12
+
+frame 6
+    legsPass 7 19
+    torso 4 9
+    head 6 5
+    hat 4 2
+    leg 31 17
+    bed 17 14
+    box 19 8
+    wheelA 21 15
+    shaft 15 13
+    armOut 10 10
+
+frame 7
+    legsPass 7 19
+    torso 4 9
+    headNod 6 6
+    hat 4 3
+    leg 31 17
+    bed 17 14
+    box 19 8
+    wheelA 21 15
+    shaft 15 13
+    armSlot 12 6

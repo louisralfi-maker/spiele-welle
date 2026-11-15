@@ -1,9 +1,10 @@
-# petitionerE 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md "M3"). A well-off townsman, repainted in look 2
-# (ART-look2.md section 18) at the lord's level: portly, a neat grey beard, a brimless soft cap of red velvet drooping
-# over the back of his head with a gold brooch, a teal gown to the knees with wide sleeves and pale fur at the collar,
-# the cuffs and the hem, a gold chain over the shoulders, the belt low at the hip with a gold buckle, buckled shoes.
-# Light from the upper left; the outline is look 2's selective one. Walk: a self-important waddle (contact 1 px down,
-# passing). Idle: a breath, his hand at his belt.
+# petitionerE 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md "M3"). Master Edwy Tallow, 50, the chandler of
+# Tallowford (docs/PEOPLE.md; repainted by the people lane on 14.11.2026, before that a well-off townsman in velvet, fur
+# and a gold chain, the one body in town drawn finer than its neighbours). The richest man in town, which means his
+# coat has two patches instead of five: portly, a neat grey beard, a felt cap pulled down at the back, a long brown
+# gown with plain wool at the collar, the cuffs and the hem, a plain belt, a leather apron over the belly spattered
+# with tallow from the dipping frames, buckled shoes. Light from the upper left; look 2's selective outline. Walk: a
+# self-important waddle (contact 1 px down, passing). Idle: a breath, his hand at his belt.
 id petitionerE
 size 12x26
 frames 6
@@ -16,16 +17,19 @@ legend
     s = tileLight
     W = stonePale
     w = stoneLight
-    R = dusk
-    r = tile
-    G = gold
+    R = wood
+    r = woodDark
     g = straw
-    U = roofLight
-    T = banner
-    t = roofDeep
-    F = parchment
+    U = soilLight
+    T = soil
+    t = soilDark
+    F = plaster
     f = plasterDim
     L = woodDark
+    A = woodLight
+    a = wood
+    D = parchment
+    P = straw
     1 = soil
     2 = soilDark
     3 = soilLight
@@ -33,29 +37,30 @@ legend
     5 = woodDark
     6 = wood
 
-# the velvet cap drooping over the back of the head, its brooch, the face, the neat beard
+# the felt cap pulled down at the back of the head, the face, the neat grey beard
 part head
     .RRR..
-    RRRRG.
+    RRRRr.
     rRSkS.
     rrWSSs
     ..WWw.
     ...w..
 
-# the gown over the belly: the fur collar, the chain, the low belt, the fur hem at the knees
+# the gown over the belly: the plain wool collar, the leather apron with its tallow drips, the belt and its buckle,
+# a patch at the back of the skirt, the wool hem at the knees
 part gown
     .FFFf..
-    UTGTGt.
-    UTTGTTt
-    UTTTTTt
-    UTTTTTt
-    UTTTTTt
-    LLLLGLL
-    UTTTTTt
-    UTTTTTt
-    FFFFFFf
+    UTTAat.
+    UTTAaTt
+    UTTDaat
+    UTTDaat
+    UTTAaat
+    LLLAaPL
+    UPPAaat
+    UPPADat
+    FFFAaDf
 
-# the near arm: a wide sleeve, a fur cuff, the hand
+# the near arm: a wide sleeve, a plain wool cuff, the hand
 part armDown
     UT.
     UTt

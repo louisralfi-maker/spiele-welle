@@ -124,6 +124,23 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // lord's knock, the coin, the houses' open door and closed shutters
     case townCorra, townDun, townBrede, townHemmet, townWenna, townGorm, townNib, kingKnock, ladyKnock, townCoin,
          townCottage, townBigHouse, townStrongbox
+    // The people lane (docs/PEOPLE.md, docs/SPRITES-people.md, `PeopleCast`): working people marked by life (Old
+    // Hemmet, Wenna Brisk, Brede Hask, Gorm and Hedda Ashby at work), three children, the nobles of the inner lands
+    case elder, washerwoman, labourer, farmerHoe, farmerScythe, childA, childB, childC, nobleLord, nobleLady, footman
+    // The people lane's cloth states (docs/PEOPLE.md section 7, `PeopleCast.ClothState`): the same bodies in the
+    // village's and the town's cloth (wealth changes the cloth, never the people)
+    case citizenVillage, citizenBVillage, citizenCVillage, citizenSeatedVillage, citizenBSeatedVillage,
+         citizenCSeatedVillage, elderVillage, washerwomanVillage, labourerVillage, farmerHoeVillage, farmerScytheVillage
+    case citizenTown, citizenBTown, citizenCTown, citizenSeatedTown, citizenBSeatedTown, citizenCSeatedTown, elderTown,
+         washerwomanTown, labourerTown, farmerHoeTown, farmerScytheTown, childATown, childBTown, childCTown
+    // The people lane, people-2 (docs/PEOPLE.md section 5, `TownLife`, `TownLamps`): Silas Moth the lamplighter and his
+    // pole's flame, Saul Tolliver the collector with his handcart, the noble's coach, Old Hemmet on the bench (and its
+    // cloth states)
+    case lamplighter, lamplighterGlow, collector, coach, elderSeated, elderSeatedVillage, elderSeatedTown
+    // The people lane, people-2 fix round 1: the lord's mended cloak (`LordCloak`; the sheets as painted are the good
+    // one) and the court's ties, one idle each played toward another person (`CourtTies`)
+    case kingMended, ladyMended, kingSeatedMended, ladySeatedMended
+    case odileTie, brannockTie, pipTie, hesperTie, hesperTieGlow, tamsinTie, bramTie, marekTie, serenTie, serenTieGlow
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -353,6 +370,22 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .townCorra, .townDun, .townBrede, .townHemmet, .townWenna, .townGorm, .townNib, .kingKnock, .ladyKnock,
              .townCoin, .townCottage, .townBigHouse, .townStrongbox:
             return TownSprites.size(of: self)
+        case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe, .childA, .childB, .childC, .nobleLord,
+             .nobleLady, .footman:
+            return PeopleCast.size(of: self)
+        case .citizenVillage, .citizenBVillage, .citizenCVillage, .citizenSeatedVillage, .citizenBSeatedVillage,
+             .citizenCSeatedVillage, .elderVillage, .washerwomanVillage, .labourerVillage, .farmerHoeVillage,
+             .farmerScytheVillage, .citizenTown, .citizenBTown, .citizenCTown, .citizenSeatedTown, .citizenBSeatedTown,
+             .citizenCSeatedTown, .elderTown, .washerwomanTown, .labourerTown, .farmerHoeTown, .farmerScytheTown,
+             .childATown, .childBTown, .childCTown:
+            return PeopleCast.size(of: self)
+        case .lamplighter, .lamplighterGlow, .collector, .coach, .elderSeated, .elderSeatedVillage, .elderSeatedTown:
+            return PeopleCast.size(of: self)
+        case .kingMended, .ladyMended, .kingSeatedMended, .ladySeatedMended:
+            return PeopleCast.size(of: self)
+        case .odileTie, .brannockTie, .pipTie, .hesperTie, .hesperTieGlow, .tamsinTie, .bramTie, .marekTie, .serenTie,
+             .serenTieGlow:
+            return CourtTies.size(of: self)
         }
     }
 
@@ -381,6 +414,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     var frameCount: Int {
         if isCourtBody { return 8 }
         if let count = TownSprites.frameCount(of: self) { return count }
+        if let body = PeopleCast.body(dressedAs: self) { return body.frameCount }
         switch self {
         case .petitionerD, .petitionerE: return 6
         case .portraitSeren, .speakerMark: return 2
@@ -393,6 +427,14 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .ashBrute, .ashBruteGlow, .ashGiant, .ashGiantGlow, .lightlessKing, .lightlessKingGlow: return 7
         case .sootling, .sootlingB, .sootlingGlow, .sootlingBGlow, .shadehound, .shadehoundGlow: return 6
         case .citizen, .citizenB, .citizenC, .builder: return 6
+        case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe, .childA, .childB, .childC, .nobleLord,
+             .nobleLady, .footman:
+            return PeopleCast.frameCount(of: self)
+        case .lamplighter, .lamplighterGlow, .collector, .coach, .elderSeated:
+            return PeopleCast.frameCount(of: self)
+        case .odileTie, .brannockTie, .pipTie, .hesperTie, .hesperTieGlow, .tamsinTie, .bramTie, .marekTie, .serenTie,
+             .serenTieGlow:
+            return CourtTies.frameCount
         case .archer: return 5
         case .sootCrow, .sootCrowGlow, .gloomweaver, .gloomweaverGlow: return 4
         case .beaconFire, .darknessBankGlow, .gloomFogEyes: return 4

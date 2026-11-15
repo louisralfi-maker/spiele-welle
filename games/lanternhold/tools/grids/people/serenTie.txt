@@ -1,0 +1,31 @@
+# serenTie 14x30, 2 frames: seren's tie, played toward another person: a cool nod, then a coin of her house's debt on her open hand (written by
+# tools/courtties.py; docs/SPRITES-people.md "The court's ties"). The member's own parts and placements.
+id serenTie
+size 14x30
+frames 2
+outline ink shade
+include ../court/kit.txt
+include ../court/seren.txt
+
+legend
+    @ = gold
+    % = straw
+
+part coin
+    @%
+
+frame 0
+    skirtStand 2 18
+    feetStand 3 28
+    hood 3 5
+    cloakTop 3 11
+    armLantern 7 12
+
+frame 1
+    skirtStand 2 18
+    feetStand 3 28
+    hood 3 5
+    cloakTop 3 11
+    armLantern 7 12
+    handOpen 9 14
+    coin 11 13

@@ -1,27 +1,27 @@
-# citizenBSeated 12x22, 2 frames: seated 0, a nod 1 (a PROPOSAL of the look-2 art pass, SPRITES.md "Proposals of the
-# art pass"; ART-look2.md section 15). The townsman waiting on a petitioners' bench in the great hall (bench 32x10:
-# this frame's bottom on the floor, the bench drawn behind him; the cushion's rows are this frame's rows 13 and 14).
-# He sits facing the hall like the seated lord: the green tunic from the front, the hands on his thighs, the knees
-# over the seat's edge and the shins before it, his sack set down at his feet; only the head stays in profile,
-# turned to the throne (the engine mirrors the frame for a bench on the throne's other side). The parts are
-# citizenB's (include).
+# citizenBSeated 12x22, 2 frames: seated 0, a nod 1 (SPRITES.md "The townsfolk seated on the hall's benches"). Dun Rook
+# (docs/PEOPLE.md; repainted by the people lane on 14.11.2026) waiting on a petitioners' bench in the great hall
+# (bench 32x10: this frame's bottom on the floor, the bench drawn behind him; the cushion's rows are this frame's rows
+# 13 and 14). He sits facing the hall like the seated lord: the soot-grey tunic from the front with its patch, the
+# hands on his thighs (the near one in its linen rag), the knees over the seat's edge and the shins before it, his sack
+# set down at his feet; only the head stays in profile, turned to the throne (the engine mirrors the frame for a bench
+# on the throne's other side). The parts are citizenB's (include).
 id citizenBSeated
 size 12x22
 frames 2
 outline ink shade
 include citizenB.txt
 
-# the tunic from the front: the linen collar, the sleeves down the sides, the belt and its buckle (frame cols 2-8)
+# the tunic from the front: the open neck, the sleeves down the sides, the patch, the rope belt (frame cols 2-8)
 part torsoFront
-    .fepeE.
-    feepeEE
+    .feSeE.
     feeeeEE
-    feeeeEE
-    fHHlHHE
+    feexeEE
+    feexeEE
+    fcCccxE
 
-# the thighs with the hands on them, the knees, the shins before the seat (darker than the lap), the boots
+# the thighs with the hands on them (the near one bound), the knees, the shins before the seat, the boots
 part lapFront
-    SmbBmbs
+    SmbBmbW
     mbB.mbB
     .bB..bB
     .bB..bB
@@ -29,7 +29,7 @@ part lapFront
     .bB..bB
     .bB..bB
     .HH..hH
-    HHH.hHH
+    HHH.hHm
 
 # the sack standing at his feet
 part sackFloor

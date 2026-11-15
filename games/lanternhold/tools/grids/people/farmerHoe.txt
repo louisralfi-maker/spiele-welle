@@ -1,0 +1,347 @@
+# farmerHoe 12x26, 14 frames: walk 0-3, idle 4-5, hoe 6-7, straighten 8-9, carry 10-13 (docs/SPRITES-people.md, the
+# citizen contract plus field work). Gorm Ashby, 48, cottar on the near field (docs/PEOPLE.md). Long and lean, with a
+# straw hat whose front brim is torn and hangs down, grey stubble, an earth-brown smock darned at the back, a rope
+# belt, breeches, shins wrapped in rag, clogs. His mark: the stoop from the hoe. Thirty summers bent over the rows
+# have set his shoulders forward and his head low; he only stands straight when he chooses to (frames 8-9). Light from
+# the upper left; look 2's selective outline. Walk: the hoe on the near shoulder, contact (1 px down) and passing.
+# Idle: a breath, the hoe on the shoulder. Hoe: the hoe raised (6) and struck into the row (7), the body bent deep.
+# Straighten: the hoe planted upright, the far hand to the small of the back (8), then upright with the face to the
+# sky (9). Carry: home before the horn with a sack on his back, bent further, the same steps.
+id farmerHoe
+size 12x26
+frames 14
+outline ink shade
+
+# Cloth states (docs/PEOPLE.md section 7, tools/peoplestates.py): the realm's stage changes the cloth, never the
+# body. Hamlet is this grid as drawn; village and town remap cloth characters only.
+#@state village  p=woodLight y=straw o=woodLight v=soilLight   # whole: the darn worked in, the smock washed a step lighter
+#@state town     y=leafLight o=meadow v=leaf p=meadow U=soilLight Q=soil   # a smock of moss-green wool, wool hose for the shin rags
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    L = stoneLight
+    m = stone
+    C = strawLight
+    c = straw
+    q = plasterDim
+    w = plaster
+    l = woodLight
+    n = soilLight
+    b = soil
+    B = soilDark
+    h = wood
+    H = woodDark
+    M = stoneMid
+    D = stoneDark
+    y = woodLight
+    o = soilLight
+    v = soil
+    p = plasterDim
+    Q = plasterDim
+    U = plaster
+
+# the straw hat: the crown, the brim lit on the left, the torn front flap hanging below the brim
+part hat
+    ..CCc..
+    .CCccq.
+    CCCcccq
+    .qqqq.c
+
+# the face under the brim, grey at the temple, grey stubble (frame cols 6-9)
+part head
+    LSkS
+    LsSs
+    .mms
+    ..s.
+
+# the face lifted to the sky (frame 9)
+part headUp
+    LSSk
+    LsSS
+    .mms
+    ..s.
+
+# the smock over the rounded back, a darned patch, the rope belt, the smock's skirt
+part torso
+    .yoov.
+    yoooov
+    yppoov
+    yppoov
+    .cCccv
+    .yooov
+    .yo.ov
+
+# the same smock upright (frames 8-9): the back flat
+part torsoUp
+    .yoov.
+    .yooov
+    .ppoov
+    .ppoov
+    .cCccv
+    .yooov
+    .yo.ov
+
+# the far hand at the small of the back
+part handBack
+    S
+    s
+
+# the near arm and hand holding the hoe on the shoulder
+part armCarry
+    o.
+    .S
+
+# the hoe on the near shoulder: the thin iron blade seen edge-on, hanging from the handle's end behind his head with
+# its lit edge at the bottom, the pale handle down to his near hand
+part hoeShoulder
+    Ml.......
+    M.l......
+    L..l.....
+    ....l....
+    .....l...
+    ......l..
+    .......l.
+    ........l
+
+# the hoe raised high before him, both hands on the handle, the thin blade hanging forward from its end
+part hoeRaise
+    ..lM
+    ..lM
+    ..lL
+    ..l.
+    .l..
+    .l..
+    .l..
+    S...
+    n...
+
+# the hoe struck into the row: both hands low, the handle down to the thin blade in the soil (its lit edge toward
+# him), a clod thrown up
+part hoeDown
+    S...
+    nl..
+    ..l.
+    ..l.
+    ..l.
+    ...l
+    ...l
+    ...l
+    .b.l
+    .LMM
+
+# the hoe planted upright beside him, the near hand on its top
+part hoeUpright
+    S
+    l
+    l
+    l
+    l
+    l
+    l
+    l
+    l
+    l
+    l
+    l
+    l
+    l
+    M
+    L
+
+# the sack of greens on his back (grey sackcloth), its neck over the shoulder in his near fist
+part sack
+    ..wqq.
+    .wwqqS
+    wwwqqq
+    wwqqqn
+    wqqqnn
+    qqqnn.
+    .qnn..
+
+part legsStand
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ..QQ.UQ..
+    ..QQ.UQ..
+    ..HH.hH..
+    ..HH.hH..
+    ..HHHhHH.
+
+# standing straight (frame 9): a row longer
+part legsTall
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ..QQ.UQ..
+    ..QQ.UQ..
+    ..HH.hH..
+    ..HH.hH..
+    ..HHHhHH.
+
+part legsContactA
+    ...bBnb..
+    ..bB.nb..
+    ..bB..nb.
+    .bB...nb.
+    .QQ...UQ.
+    .QQ...UQ.
+    HH....hH.
+    HH....hH.
+    .HH...hHH
+
+part legsPassA
+    ...bBnb..
+    ...bBnb..
+    ...bBnb..
+    ..bB.nb..
+    .QQ..UQ..
+    .QQ..UQ..
+    .HHH.hH..
+    .....hH..
+    .....hHH.
+
+part legsContactB
+    ...bBnb..
+    ..nb.bB..
+    ..nb..bB.
+    .nb...bB.
+    .UQ...QQ.
+    .UQ...QQ.
+    hH....HH.
+    hH....HH.
+    .hH...HHH
+
+part legsPassB
+    ...bBnb..
+    ...bBnb..
+    ...bnb...
+    ..nbbB...
+    .UQ.QQ...
+    .UQ.QQ...
+    .hHHHH...
+    ....HH...
+    ....HHH..
+
+# the legs braced for the work: apart, the knees bent
+part legsBrace
+    ..bB.nb..
+    ..bB..nb.
+    .bB...nb.
+    .bB...nb.
+    .QQ...UQ.
+    .QQ...UQ.
+    .HH...hH.
+    .HH...hH.
+    HHH...hHH
+
+frame 0
+    hoeShoulder 0 4
+    legsContactA 1 16
+    torso 3 10
+    hat 4 3
+    head 6 7
+    armCarry 7 11
+
+frame 1
+    hoeShoulder 0 3
+    legsPassA 1 16
+    torso 3 9
+    hat 4 2
+    head 6 6
+    armCarry 7 10
+
+frame 2
+    hoeShoulder 0 4
+    legsContactB 1 16
+    torso 3 10
+    hat 4 3
+    head 6 7
+    armCarry 7 11
+
+frame 3
+    hoeShoulder 0 3
+    legsPassB 1 16
+    torso 3 9
+    hat 4 2
+    head 6 6
+    armCarry 7 10
+
+frame 4
+    hoeShoulder 0 3
+    legsStand 1 16
+    torso 3 9
+    hat 4 2
+    head 6 6
+    armCarry 7 10
+
+frame 5
+    hoeShoulder 0 4
+    legsStand 1 16
+    torso 3 10
+    hat 4 3
+    head 6 7
+    armCarry 7 11
+
+frame 6
+    legsBrace 1 16
+    torso 3 10
+    hat 4 3
+    head 6 7
+    hoeRaise 8 3
+
+frame 7
+    legsBrace 1 16
+    torso 3 12
+    hat 4 5
+    head 6 9
+    hoeDown 8 15
+
+frame 8
+    hoeUpright 10 9
+    legsStand 1 16
+    torsoUp 3 9
+    handBack 3 13
+    hat 4 2
+    head 6 6
+
+frame 9
+    hoeUpright 10 9
+    legsTall 1 15
+    torsoUp 3 8
+    handBack 3 12
+    hat 4 1
+    headUp 6 5
+
+frame 10
+    legsContactA 1 16
+    torso 3 10
+    hat 4 4
+    head 6 8
+    sack 0 7
+
+frame 11
+    legsPassA 1 16
+    torso 3 9
+    hat 4 3
+    head 6 7
+    sack 0 6
+
+frame 12
+    legsContactB 1 16
+    torso 3 10
+    hat 4 4
+    head 6 8
+    sack 0 7
+
+frame 13
+    legsPassB 1 16
+    torso 3 9
+    hat 4 3
+    head 6 7
+    sack 0 6

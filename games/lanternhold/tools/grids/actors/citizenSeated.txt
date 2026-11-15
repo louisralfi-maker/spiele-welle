@@ -1,33 +1,35 @@
-# citizenSeated 12x22, 2 frames: seated 0, a nod 1 (a PROPOSAL of the look-2 art pass, SPRITES.md "Proposals of the
-# art pass"; ART-look2.md section 15). The townswoman waiting on a petitioners' bench in the great hall (bench 32x10:
-# this frame's bottom on the floor, the bench drawn behind her; the cushion's rows are this frame's rows 13 and 14).
-# She sits facing the hall like the seated lord: the bodice and the apron from the front, the basket on her lap in
-# both hands, the skirt falling to her feet; only the head stays in profile, turned to the throne (the engine
-# mirrors the frame for a bench on the throne's other side). The parts are the citizen's (include).
+# citizenSeated 12x22, 2 frames: seated 0, a nod 1 (SPRITES.md "The townsfolk seated on the hall's benches"). Mother
+# Corra (docs/PEOPLE.md; repainted by the people lane on 14.11.2026) waiting on a petitioners' bench in the great hall
+# (bench 32x10: this frame's bottom on the floor, the bench drawn behind her; the cushion's rows are this frame's rows
+# 13 and 14). She sits facing the hall like the seated lord: the faded teal shawl over both shoulders and crossed over
+# the bodice, the basket of candles on her lap in both hands, the darned skirt falling to her feet; only the head stays
+# in profile, low, turned to the throne (the engine mirrors the frame for a bench on the throne's other side). The
+# parts are the citizen's (include).
 id citizenSeated
 size 12x22
 frames 2
 outline ink shade
 include citizen.txt
 
-# the bodice and the apron's bib from the front, the sleeves down the sides, the hands on the basket (frame cols 2-8)
-part bodiceFront
-    .QRAAr.
-    QRRAARr
-    QRRAARr
-    QRhhhRr
-    QSgGgsr
+# the shawl over both shoulders from the front, crossed over the bodice and the apron's bib; the hands on the basket
+# with the candles' tips between them (frame cols 2-8)
+part shawlFront
+    .TTbtt.
+    TTTwqtt
+    TTbwqtt
+    .bbwqB.
+    .SWlWs.
 
-# the lap with the basket's bottom, the skirt over the knees and down to the feet (frame cols 2-9)
+# the lap with the basket's bottom, the skirt over the knees and down to the feet, the darned patch (frame cols 2-9)
 part lapSkirt
-    QRGgGhRr
-    QRRAAaRr
-    QRRAAaRr
-    QRRAAaRr
-    QRRAAaRr
-    QRRAAaRr
-    QRRRAaRr
-    .rRRRRr.
+    nblhhhbB
+    nbbwqbbB
+    nbbwqqbB
+    nppwqqbB
+    nppwqqbB
+    nbbwqqbB
+    nbbbqqbB
+    .BbbbbB.
 
 part feetFront
     HH..hH
@@ -35,11 +37,11 @@ part feetFront
 frame 0
     lapSkirt 2 12
     feetFront 3 20
-    bodiceFront 2 7
-    head 4 1
+    shawlFront 2 7
+    head 4 2
 
 frame 1
     lapSkirt 2 12
     feetFront 3 20
-    bodiceFront 2 7
-    head 4 2
+    shawlFront 2 7
+    head 4 3

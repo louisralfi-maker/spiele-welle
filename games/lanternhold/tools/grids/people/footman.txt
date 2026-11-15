@@ -1,0 +1,209 @@
+# footman 14x30, 8 frames: walk 0-3, idle 4-5, talk 6-7 (docs/SPRITES-people.md, the guests' contract). A footman in
+# Oxmoor's livery who walks a step behind every noble of the inner lands and carries what they will not (docs/
+# PEOPLE.md). A working man, but from the rich side of the wall: young, clean-shaven, stiff as a rule, eyes front. A
+# flat crimson cap, a crimson tabard with the gold sheaf of Goldenacre on the chest over a linen shirt, crimson
+# breeches, clean white stockings that have never seen mud, black shoes with gold buckles, and an iron-bound chest with
+# a gold lock held in both arms. Light from the upper left; look 2's selective outline. Walk: stiff short steps, the
+# chest held level (contact 1 px down). Idle: a breath. Talk (he pays for his master: a noble never pays himself): the
+# chest set down at his feet and a purse held out at arm's length (6), offered a pixel lower (7).
+id footman
+size 14x30
+frames 8
+outline ink shade
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    H = woodDark
+    h = wood
+    l = woodLight
+    r = crimson
+    x = crimsonDeep
+    R = dusk
+    G = gold
+    W = parchment
+    w = plaster
+    F = foam
+    P = stonePale
+    M = stoneMid
+    n = soilLight
+    b = soil
+
+# the flat cap, neat brown hair under it, the clean-shaven face (frame cols 5-9)
+part head
+    .rrrx
+    rrrrxx
+    hhSkS
+    hhsSs
+    .sSs.
+    ..s..
+
+# the linen collar, the tabard with the gold sheaf, the belt, the tabard's skirt
+part torso
+    .WwW..
+    Rrrrrx
+    RrrGrx
+    RrGGrx
+    Rrrrrx
+    xxxGxx
+    Rrrrrx
+    Rrrrrx
+    .rrrx.
+
+# the far arm: the linen sleeve under the chest
+part armBack
+    w
+    w
+
+# the chest: the lid lit, the iron bands, the gold lock
+part chest
+    lllhH
+    MMMMM
+    hhGhH
+    hhhhH
+    MMMMM
+
+# the near arm under the chest, the hand at its front
+part armChest
+    w..
+    w..
+    .ww
+    ...
+
+# talk: the chest at his feet; the near arm out with the purse
+part chestDown
+    lllhH
+    MMMMM
+    hhGhH
+    MMMMM
+
+part armPurseA
+    w....
+    .www.
+    ...Sn
+    ....G
+
+part armPurseB
+    w....
+    .w...
+    ..wwS
+    ....n
+    ....G
+
+part legsStand
+    .xx.rx.
+    .xx.rx.
+    .PP.FP.
+    .PP.FP.
+    .PP.FP.
+    .PP.FP.
+    .PP.FP.
+    .HH.HG.
+    .HHHHHH
+
+part legsContactA
+    .xx..rx
+    xx....rx
+    PP....FP
+    PP....FP
+    PP....FP
+    PP....FP
+    PP....FP
+    HH....HG
+    HHH...HHH
+
+part legsPassA
+    .xx.rx.
+    .xx.rx.
+    ..PPFP.
+    ..PPFP.
+    ..PPFP.
+    ...PFP.
+    ..HHFP.
+    ..HGHG.
+    ....HHH
+
+part legsContactB
+    .rx..xx
+    rx....xx
+    FP....PP
+    FP....PP
+    FP....PP
+    FP....PP
+    FP....PP
+    HG....HH
+    HHH...HHH
+
+part legsPassB
+    .xx.rx.
+    .xx.rx.
+    .PPFP..
+    .PPFP..
+    .PPFP..
+    .PFP...
+    .FPHH..
+    .HGHG..
+    .HHH...
+
+frame 0
+    legsContactA 3 20
+    torso 4 12
+    armBack 3 14
+    head 4 6
+    chest 8 14
+    armChest 8 14
+
+frame 1
+    legsPassA 3 20
+    torso 4 11
+    armBack 3 13
+    head 4 5
+    chest 8 13
+    armChest 8 13
+
+frame 2
+    legsContactB 3 20
+    torso 4 12
+    armBack 3 14
+    head 4 6
+    chest 8 14
+    armChest 8 14
+
+frame 3
+    legsPassB 3 20
+    torso 4 11
+    armBack 3 13
+    head 4 5
+    chest 8 13
+    armChest 8 13
+
+frame 4
+    legsStand 3 20
+    torso 4 11
+    armBack 3 13
+    head 4 5
+    chest 8 13
+    armChest 8 13
+
+frame 5
+    legsStand 3 20
+    torso 4 12
+    armBack 3 14
+    head 4 6
+    chest 8 14
+    armChest 8 14
+
+frame 6
+    legsStand 3 20
+    chestDown 8 25
+    torso 4 11
+    head 4 5
+    armPurseA 8 13
+
+frame 7
+    legsStand 3 20
+    chestDown 8 25
+    torso 4 11
+    head 4 5
+    armPurseB 8 13

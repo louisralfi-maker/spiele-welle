@@ -1,0 +1,185 @@
+# childC 10x18, 10 frames: run 0-3, fidget 4-5, skip 6-9 (docs/SPRITES-people.md, the children's contract). Fen, 11,
+# the lamp-runner (STORY.md section 6, "the lamp-runner child"; docs/PEOPLE.md): he runs ahead of the lamplighter at
+# the Round and trails after the lord by day. A red cap (the children's warm clean accent) on dark curls, a leather
+# jerkin handed down, oiled clean (a step lighter than any grown-up's leather) and belted twice round over a linen
+# shirt, brown breeches, bare shins, clogs, and his own small lantern on a short pole over his near shoulder, a copy of
+# the house's lantern (unlit by day; no glow strip). A head taller than the little ones.
+# Light from the upper left; look 2's selective outline. Run: contact, flight, contact, flight (up 1 px in flight), the
+# lantern riding behind. Fidget: the pole on his shoulder, then lifted, his face turned up to the lantern. Skip: a hop-step on each foot
+# (2 px up), too old to skip properly and doing it anyway.
+id childC
+size 10x18
+frames 10
+outline ink shade
+
+# Cloth states (docs/PEOPLE.md section 7, tools/peoplestates.py): the realm's stage changes the cloth, never the
+# body. Hamlet is this grid as drawn; town remaps cloth characters only.
+#@state town  b=banner B=roofDeep               # breeches and belts of the house's blue
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    R = crimsonLight
+    r = crimson
+    H = woodDark
+    h = wood
+    l = woodLight
+    B = soilDark
+    b = soil
+    n = soilLight
+    M = stoneMid
+    C = strawLight
+    W = parchment
+    F = foam
+    c = straw
+
+# the red cap with its little brim, dark curls under it, the face
+part head
+    .RRr.
+    RRRrrr
+    HHSkS
+    HhsSs
+    ..ss
+
+# the linen collar, the jerkin (oiled clean, a step lighter than any grown-up's leather), belted twice round, the
+# breeches' seat
+part body
+    FWcl
+    CCccl
+    CBBBl
+    CCccl
+    .bbB
+
+# the lantern pole over the near shoulder, the lantern hanging from its tip behind his head
+part lanternCarry
+    .l.....
+    .Ml....
+    MWMl...
+    .M..l..
+    .....l.
+    ......l
+
+# the near hand on the pole, in front of the jerkin
+part hand
+    S
+
+# the face turned up to look at the lantern (fidget 5)
+part headUp
+    .RRr.
+    RRRrrr
+    HHSSk
+    HhsSS
+    ..ss
+
+part legsStand
+    .bB.
+    .sS.
+    .sS.
+    HHhH
+
+part legsRunA
+    .bB..
+    .s..S
+    s...S
+    H...h
+
+part legsRunB
+    .bB..
+    .S..s
+    S...s
+    h...H
+
+part legsFlightA
+    .bBb
+    s..S
+    s..h
+    H...
+
+part legsFlightB
+    .bBb
+    S..s
+    S..H
+    h...
+
+part legsSkipA
+    .bBb.
+    .s.S.
+    .s..h
+    .H...
+
+part legsSkipB
+    .bBb.
+    .S.s.
+    .S..H
+    .h...
+
+frame 0
+    lanternCarry 0 3
+    legsRunA 2 13
+    body 3 8
+    head 3 3
+    hand 6 9
+
+frame 1
+    lanternCarry 0 2
+    legsFlightA 3 12
+    body 3 7
+    head 3 2
+    hand 6 8
+
+frame 2
+    lanternCarry 0 3
+    legsRunB 2 13
+    body 3 8
+    head 3 3
+    hand 6 9
+
+frame 3
+    lanternCarry 0 2
+    legsFlightB 3 12
+    body 3 7
+    head 3 2
+    hand 6 8
+
+frame 4
+    lanternCarry 0 3
+    legsStand 3 13
+    body 3 8
+    head 3 3
+    hand 6 9
+
+frame 5
+    lanternCarry 0 2
+    legsStand 3 13
+    body 3 8
+    headUp 3 3
+    hand 6 8
+
+frame 6
+    lanternCarry 0 3
+    legsSkipA 2 13
+    body 3 8
+    head 3 3
+    hand 6 9
+
+frame 7
+    lanternCarry 0 1
+    legsSkipA 2 11
+    body 3 6
+    head 3 1
+    hand 6 7
+
+frame 8
+    lanternCarry 0 3
+    legsSkipB 2 13
+    body 3 8
+    head 3 3
+    hand 6 9
+
+frame 9
+    lanternCarry 0 1
+    legsSkipB 2 11
+    body 3 6
+    head 3 1
+    hand 6 7

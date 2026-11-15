@@ -1,0 +1,68 @@
+# elderSeated 12x22, 2 frames: seated 0, a nod 1 (docs/SPRITES-people.md, the townsfolk's seated contract; people-2).
+# Old Hemmet (docs/PEOPLE.md) on the bench by the square (`TownDay`; the hall's bench, 32x10, drawn behind him, its
+# seat at this frame's rows 13 and 14, as for the townsfolk on the hall's benches, so he can wait in the hall too). He
+# sits facing out like the seated townsfolk and the seated lord: the hump of his back high on the far shoulder under the
+# old brown cape, the bald head sunk low and forward in profile, the white beard on his chest, both hands on the knob of
+# his crooked stick planted between his knees, the floury smock over his knees to his clogs. The nod: the head a pixel
+# lower, inclined to the lord (or sunk in a doze). The parts and the cloth states are the elder's (include).
+id elderSeated
+size 12x22
+frames 2
+outline ink shade
+include elder.txt
+
+# the cape over both shoulders from the front, the hump high on the far shoulder (frame cols 2-9)
+part capeFront
+    .yy.....
+    yyyv....
+    yyvvv...
+    yvvvvvV.
+    yvvpvvVV
+    yvvVvvVV
+    .vvVvvV.
+
+# both hands on the stick's knob before his chest
+part handsKnob
+    Ss
+
+# the stick planted between his knees, before the smock, its knob above his hands between the cape and the beard
+# (people-2 fix round 1: the beard stood on the cape as one pale mask on a brown sack)
+part stickFront
+    l
+    h
+    h
+    h
+    h
+    h
+    h
+    h
+    H
+
+# the rope belt, the lap and the long smock over his knees, grey-pale with flour (frame cols 2-9)
+part lapSmock
+    .cccnnB.
+    wwqqqqnn
+    wqqqqqnn
+    wwqqqqqn
+    wqqqqqqn
+    wwqqqqqn
+    .wqqqqn.
+
+part clogsFront
+    HH..HH
+
+frame 0
+    capeFront 2 5
+    lapSmock 2 13
+    clogsFront 3 20
+    stickFront 6 11
+    head 5 6
+    handsKnob 5 12
+
+frame 1
+    capeFront 2 5
+    lapSmock 2 13
+    clogsFront 3 20
+    stickFront 6 11
+    head 5 7
+    handsKnob 5 12

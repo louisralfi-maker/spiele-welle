@@ -1,0 +1,183 @@
+# labourer 12x26, 6 frames: walk 0-3, idle 4-5 (docs/SPRITES-people.md, the citizen contract). Brede Hask, 37, who
+# carries timber and stone for the walls and the beacon road (docs/PEOPLE.md). Broad and heavy-shouldered: a shaved
+# head with a sweat rag tied round the brow, a stubbled jaw, a sleeveless leather jerkin, bare arms, rock-grey breeches,
+# a timber beam on his far shoulder, its back end high, steadied
+# before his face by the near hand. His mark: the limp. A block slipped on the beacon road
+# and crushed his near foot; it is bound in rags instead of a boot, and the leg no longer bends right. Light from the
+# upper left; look 2's selective outline. Walk: the limp, uneven on purpose: a short step onto the bad foot (contact),
+# the dip while the good leg swings through on it (2 px down), the long step of the good leg (contact), and the bad
+# leg dragged through stiff with the body up (pass); the beam rides with the body. Idle: a breath, the weight on the
+# good leg.
+id labourer
+size 12x26
+frames 6
+outline ink shade
+
+# Cloth states (docs/PEOPLE.md section 7, tools/peoplestates.py): the realm's stage changes the cloth, never the
+# body. Hamlet is this grid as drawn; village and town remap cloth characters only.
+#@state village  p=woodDark z=rockPale Z=rockLight K=rock   # whole: the jerkin mended, the breeches washed a step lighter
+#@state town     z=fir4 Z=fir3 K=fir2 p=woodDark q=parchment   # breeches of fir-green wool, a clean brow rag; the rags on the foot stay (his mark)
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    m = stone
+    q = plasterDim
+    l = strawLight
+    C = woodLight
+    c = wood
+    h = straw
+    H = woodDark
+    B = soilDark
+    n = soilLight
+    z = rockLight
+    Z = rock
+    K = rockDark
+    P = stonePale
+    L = stoneLight
+    j = wood
+    J = woodDark
+    p = soilLight
+
+# the shaved crown, the sweat rag round the brow with its knot behind, the stubbled jaw, the thick neck (cols 4-9)
+part head
+    ..SSS.
+    .qqqqq
+    qsSSkS
+    .ssSSs
+    .smmm.
+    ..ss..
+
+# the sleeveless leather jerkin over the broad back and chest (dark, worn shiny on the shoulder), the belt
+part torso
+    .jJJJJB.
+    jJppJJBB
+    jJJJJJBB
+    .JJJJBB.
+    .BBnBBB.
+
+# the beam on the far shoulder, angled with its back end high above his brow: weathered timber (brown, so it never
+# reads as a brass horn), its lit top, its underside, the pale end grain at both ends; it runs behind his head and comes out in front at his shoulder, below the
+# chin (never at the mouth: there it reads as a horn)
+part beam
+    lC..........
+    hcCC........
+    ..ccCC......
+    ....ccCC....
+    ......ccCC..
+    ........ccCl
+    ..........ch
+
+# the near arm raised to steady the beam at his shoulder, the bare forearm up, the hand on top of the beam a little
+# behind its front end, so the front end's pale grain shows beyond the hand (the director's fix pass: both ends seen)
+part armUp
+    ..S
+    .Ss
+    .s.
+
+part legsStand
+    ...ZKzZ..
+    ...ZKzZ..
+    ...ZKzZ..
+    ...ZKzZ..
+    ...ZKzZ..
+    ..ZK.zZ..
+    ..ZK.zZ..
+    ..HH.Pm..
+    ..HH.Pm..
+    ..HHHPmm.
+
+# contact onto the bad foot: a short step
+part legsContactA
+    ...ZKzZ..
+    ...ZKzZ..
+    ..ZK.zZ..
+    ..ZK.zZ..
+    .ZK...zZ.
+    .ZK...zZ.
+    .ZK...zZ.
+    .HH...Pm.
+    .HH...Pm.
+    .HHH..Pmm
+
+# the good leg swings through while he stands on the bad one
+part legsPassA
+    ...ZKzZ..
+    ...ZKzZ..
+    ...ZKzZ..
+    ..ZK.zZ..
+    .HH..zZ..
+    .HH..zZ..
+    .HHH.zZ..
+    .....Pm..
+    .....Pm..
+    .....Pmm.
+
+# the long step of the good leg, the bad leg trailing straight
+part legsContactB
+    ...ZKzZ..
+    ...ZKzZ..
+    ..zZ.ZK..
+    ..zZ..ZK.
+    .zZ...ZK.
+    .zZ...ZK.
+    zZ....ZK.
+    Pm....HH.
+    Pm....HH.
+    Pmm...HHH
+
+# the bad leg dragged through stiff, the foot scraping
+part legsPassB
+    ...ZKzZ..
+    ...ZKzZ..
+    ...zZZK..
+    ...zZZK..
+    ..zZ.ZK..
+    ..zZ.ZK..
+    .zZ..ZK..
+    .Pm..HH..
+    .Pm..HH..
+    .Pmm.HHH.
+
+frame 0
+    legsContactA 1 15
+    torso 2 10
+    beam 0 5
+    head 4 4
+    armUp 7 9
+
+frame 1
+    legsPassA 1 15
+    torso 2 11
+    beam 0 6
+    head 4 5
+    armUp 7 10
+
+frame 2
+    legsContactB 1 15
+    torso 2 10
+    beam 0 5
+    head 4 4
+    armUp 7 9
+
+frame 3
+    legsPassB 1 15
+    torso 2 9
+    beam 0 4
+    head 4 3
+    armUp 7 8
+
+frame 4
+    legsStand 1 15
+    torso 2 9
+    beam 0 4
+    head 4 3
+    armUp 7 8
+
+frame 5
+    legsStand 1 15
+    torso 2 10
+    beam 0 5
+    head 4 4
+    armUp 7 9
