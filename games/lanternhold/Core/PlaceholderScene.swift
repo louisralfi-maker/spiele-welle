@@ -20,6 +20,9 @@ struct EmissivePart: Sendable, Equatable {
     /// 0.4 of it) and the speed its flicker runs at (1: a fire's).
     var flickerAmount: Float = 1
     var flickerPace = 1.0
+    // Touch the world, fix round 1 (stage lane): the gold rim one pixel outside its prop's outline (the prop's own
+    // sprite and frame); a prop drawn in front of it hides it, as it hides any glow.
+    var rim = false
 }
 
 /// Window glass of a prop (M1b): inside this rect (sprite pixels from the bottom-left, `dy` up, unflipped; it mirrors

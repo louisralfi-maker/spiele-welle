@@ -147,27 +147,29 @@ enum TouchFooting {
 /// outside the sprite's outline at its left, right and top (`EmissiveInstance.Kind.rim`), added in the emissive pass so
 /// it reads by day and at night and never covers the thing itself.
 enum TouchRims {
-    /// The rims in the world: over the entity props that stand on a marked plot, wall, brazier or the barracks, and
-    /// round the body of a marked person.
-    static func world(_ marks: [TouchMark], props: [Prop], figures: [DrawnFigure], night: Double) -> [EntityGlow] {
+    /// The rims in the world round the body of a marked person (the figures are actors, drawn over the world).
+    static func world(_ marks: [TouchMark], figures: [DrawnFigure], night: Double) -> [EntityGlow] {
         var list: [EntityGlow] = []
-        for mark in marks {
-            let color = TouchRules.rimColor(pressed: mark.pressed, night: night)
-            if mark.kind == .talk || mark.kind == .bench {
-                if let who = mark.who, let figure = figures.first(where: { $0.who == who && $0.alpha > 0.5 }) {
-                    list.append(rim(figure, color: color))
-                }
-                continue
-            }
-            guard TouchRules.keepsToBand(mark.kind) else { continue }
-            for prop in props where standsOn(prop, x: mark.rimX ?? mark.poolX, half: mark.half) {
-                var glow = EntityGlow(prop.sprite, x: prop.x, y: prop.y, color: color, frame: prop.frame,
-                                      flipped: prop.flipped)
-                glow.kind = .rim
-                list.append(glow)
+        for mark in marks where mark.kind == .talk || mark.kind == .bench {
+            if let who = mark.who, let figure = figures.first(where: { $0.who == who && $0.alpha > 0.5 }) {
+                list.append(rim(figure, color: TouchRules.rimColor(pressed: mark.pressed, night: night)))
             }
         }
         return list
+    }
+
+    /// The rims on the entity props that stand on a marked plot, wall, brazier or the barracks: a rim part on the prop
+    /// itself, so whatever is drawn in front of it (Marek's cart before the barracks, round lh-s2f1-2's 58) hides it as
+    /// it hides any glow.
+    static func mark(_ props: inout [Prop], marks: [TouchMark], night: Double) {
+        for mark in marks where TouchRules.keepsToBand(mark.kind) {
+            let color = TouchRules.rimColor(pressed: mark.pressed, night: night)
+            let part = EmissivePart(sprite: .hallMote, dx: 0, dy: 0, color: SIMD3<Float>(color.x, color.y, color.z),
+                                    intensity: 1, flickerSeed: nil, fadesByDay: false, isFire: false, rim: true)
+            for index in props.indices where standsOn(props[index], x: mark.rimX ?? mark.poolX, half: mark.half) {
+                props[index].emissive.append(part)
+            }
+        }
     }
 
     /// True for an entity prop of the world plane that stands on the thing centred on `x`, `half` px each way.

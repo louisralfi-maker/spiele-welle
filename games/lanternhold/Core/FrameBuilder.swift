@@ -665,6 +665,17 @@ enum FrameBuilder {
             strength *= part.flickerAmount == 1 ? swing : 1 + (swing - 1) * part.flickerAmount
         }
         guard strength > 0.01 else { return nil }
+        // Touch the world, fix round 1 (stage lane): a rim, the prop's sprite and frame grown by a pixel left, right
+        // and up.
+        if part.rim {
+            let top = geometry.top(y: bottom, height: Double(prop.height))
+            let rgb = part.color * strength
+            return EmissiveInstance(sprite: prop.sprite, plane: prop.plane,
+                                    rect: SIMD4<Float>(Float(left) - 1, Float(top) - 1, Float(prop.width) + 2,
+                                                       Float(prop.height) + 1),
+                                    color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1), kind: .rim, flipped: prop.flipped,
+                                    frame: prop.frame)
+        }
         let dx = prop.flipped ? Double(prop.width) - part.dx - Double(size.width) : part.dx
         let x = left + dx
         let top = geometry.top(y: bottom + part.dy, height: Double(size.height))

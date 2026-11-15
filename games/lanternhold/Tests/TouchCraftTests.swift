@@ -171,21 +171,25 @@ final class TouchCraftTests: XCTestCase {
             Prop(id: EntityFrames.propIDBase + 2, sprite: .brazier, plane: .world, x: 300, y: 0),
             Prop(id: CourtFrames.propIDBase + 1, sprite: .bench, plane: .world, x: 96, y: 0),
         ]
-        let rims = TouchRims.world([mark], props: props, figures: [], night: 0)
-        XCTAssertEqual(rims.count, 1, "the brazier under the mark, nothing else")
-        let rim = try XCTUnwrap(rims.first)
-        XCTAssertEqual(rim.kind, .rim)
-        XCTAssertEqual(rim.sprite, .brazier)
+        var marked = props
+        TouchRims.mark(&marked, marks: [mark], night: 0)
+        XCTAssertEqual(marked.map { $0.emissive.filter(\.rim).count }, [1, 0, 0],
+                       "the brazier under the mark, nothing else (a part of the prop: what stands before it hides it)")
+        let rim = try XCTUnwrap(marked[0].emissive.first { $0.rim })
         var pressed = mark
         pressed.pressed = true
-        let bright = try XCTUnwrap(TouchRims.world([pressed], props: props, figures: [], night: 0).first)
+        var held = props
+        TouchRims.mark(&held, marks: [pressed], night: 0)
+        let bright = try XCTUnwrap(held[0].emissive.first { $0.rim })
         XCTAssertGreaterThan(bright.color.x, rim.color.x, "brighter while the finger is down")
         let body = SpeakerBody.court(.petitionerD)
         let figure = DrawnFigure(who: "tamsin", key: "tamsin", body: body, x: 150, y: 0, facing: -1, frame: 2,
                                  alpha: 1, look: nil, petition: nil, talking: false)
         let talk = TouchMark(sprite: .tapTalk, x: 150, lift: 33, pressed: false, poolX: 150, kind: .talk,
                              who: "tamsin", half: 4, footing: nil)
-        let person = try XCTUnwrap(TouchRims.world([talk], props: props, figures: [figure], night: 1).first)
+        let person = try XCTUnwrap(TouchRims.world([talk, mark], figures: [figure], night: 1).first)
+        XCTAssertEqual(TouchRims.world([talk, mark], figures: [figure], night: 1).count, 1, "people only")
+        XCTAssertEqual(person.kind, .rim)
         XCTAssertEqual(person.sprite, figure.sprite)
         XCTAssertEqual(person.frame, 2)
         XCTAssertTrue(person.flipped)

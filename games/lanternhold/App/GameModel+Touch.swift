@@ -417,7 +417,8 @@ extension GameModel {
             layer.lights.append((source: pool, plane: .world))
         }
         // Fix round 1: the gold rim on each marked thing, and an empty plot's footing behind every figure.
-        layer.glows += TouchRims.world(marks, props: layer.props, figures: figures, night: night)
+        TouchRims.mark(&layer.props, marks: marks, night: night)
+        layer.glows += TouchRims.world(marks, figures: figures, night: night)
         layer.actors.insert(contentsOf: TouchFooting.actors(marks, framing: framing), at: 0)
         raisedLantern(&layer, state: state, framing: framing)
         // The flame shows the danger (director's note 5): as the next wave nears the lantern burns lower and
