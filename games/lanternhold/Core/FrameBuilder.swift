@@ -1406,6 +1406,12 @@ enum FrameBuilder {
                 let shifted = color + flicker.colorShift
                 color = clampUnit(shifted)
             }
+            if options.look == .two && plane == .world {
+                // World rebuild, fix round 2 (the critic: "a warm half disc sits cut off at the screen's left edge"):
+                // inside the world's end the dark is whole, so a light there (the lord's lantern when he stands at
+                // the end) fades with the end's own cover (`bankEnd`: whole for 20 px, gone by 92).
+                intensity *= AmbientRamp.smoothstep((source.x - 20) / 72)
+            }
             guard intensity > 0.01, radius > 0 else { continue }
             let centreX = source.x - geometry.whole(plane)
             guard geometry.isVisible(left: centreX - radius, width: 2 * radius) else { continue }
