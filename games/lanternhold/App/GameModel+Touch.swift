@@ -195,6 +195,12 @@ extension GameModel {
             touch.lastTap = "door"
             return
         }
+        // Build 2 review, app-ui-3: Marek's cart stands before the barracks; while his offer is open a touch on it opens
+        // his gift card, else it is the barracks' touch as before.
+        if stage == .world, picked?.kind == .recruit, isOnMarekCart(place), merchantTouch?() == true {
+            touch.lastTap = "merchant"
+            return
+        }
         if let thing = picked {
             touch.lastTap = thing.id
             touchThing(thing)
@@ -245,6 +251,13 @@ extension GameModel {
         // fell half a pixel nearer the site's middle and opened its card): on his body the lord wins unless the
         // finger is clearly nearer the thing (3 px); the rest of the site's wide area still opens the site.
         return abs(x - stageLordX) <= abs(x - thing.x) + 3
+    }
+
+    /// True for a point on Marek's cart as drawn (`CourtLayout.marekCartX` its left edge, its sprite's size).
+    func isOnMarekCart(_ place: (x: Double, lift: Double, minimum: Double)) -> Bool {
+        let size = SpriteID.marekCart.size
+        return place.x >= CourtLayout.marekCartX && place.x <= CourtLayout.marekCartX + Double(size.width)
+            && place.lift <= Double(size.height)
     }
 
     /// True for a point on the lord's body.

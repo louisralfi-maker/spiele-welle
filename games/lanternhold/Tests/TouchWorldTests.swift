@@ -414,6 +414,33 @@ final class TouchWorldTests: XCTestCase {
         XCTAssertTrue(game.sceneStatus.contains("lantern:raised"), game.sceneStatus)
     }
 
+    /// Build 2 review, app-ui-3: while Marek's offer is open a touch on his cart opens his gift card (no debug argument,
+    /// so in Release too); with no offer open the touch goes to the barracks as before.
+    func testATouchOnMareksCartOpensHisCardWhileTheOfferIsOpen() throws {
+        let game = model(["GWDay": "3", "GWStage": "world", "GWCameraX": "1430"])
+        let stub = StubAdProvider()
+        let ads = AdDirector(mode: .stub, provider: stub, clock: CountedClock())
+        ads.attach(game)
+        XCTAssertNotNil(ads.merchantOffer, "his cart stands on day 3")
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let framing = try XCTUnwrap(game.touch.framing)
+        let cart = CGPoint(x: framing.deviceX(stageX: CourtLayout.marekCartX + 14) / 3,
+                           y: framing.deviceY(lift: 12) / 3)
+        XCTAssertEqual(game.thingAt(cart, in: proPoints)?.kind, .recruit, "the cart stands in the barracks' area")
+        game.tap(at: cart, in: proPoints)
+        XCTAssertTrue(ads.merchantCardOpen, "the touch on the cart opens his card")
+        XCTAssertEqual(game.touch.lastTap, "merchant")
+        XCTAssertNil(game.touch.errand, "no walk to the barracks")
+        ads.closeMerchantCard()
+        // No offer open (no video ready): the barracks' touch as before.
+        stub.rewardedReady = false
+        XCTAssertNil(ads.merchantOffer)
+        game.tap(at: cart, in: proPoints)
+        XCTAssertFalse(ads.merchantCardOpen)
+        XCTAssertEqual(game.touch.lastTap, "touch-recruit-barracks")
+        XCTAssertEqual(game.touch.errand?.id, "touch-recruit-barracks", "he sets off to the barracks")
+    }
+
     /// Build 2 review, app-ui-2: by day a press on the lord held 0.35 s or longer opens the lantern moment like a short
     /// tap (the hold raises no lantern by day).
     func testALongPressOnTheLordByDayOpensTheLanternMoment() throws {

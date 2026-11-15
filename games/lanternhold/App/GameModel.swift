@@ -123,6 +123,9 @@ final class GameModel {
     /// The ads (`Ads/AdDirector.attach`): asked on the dawn report's Continue; it may show an interstitial first and
     /// calls back when the day may begin (at once when no ad comes). Nil: the day begins at once.
     @ObservationIgnored var adGate: (@MainActor (DawnReport, @escaping @MainActor () -> Void) -> Void)?
+    /// Build 2 review, app-ui-3: a touch on Marek's cart (`Ads/AdDirector.attach`): opens his gift card and answers
+    /// true while his offer is open; false (or nil) leaves the touch to the barracks.
+    @ObservationIgnored var merchantTouch: (@MainActor () -> Bool)?
     @ObservationIgnored private var events: [SimEvent] = []
     @ObservationIgnored private var shake = ScreenShake()
     @ObservationIgnored private var thinner = FeedbackThinner()

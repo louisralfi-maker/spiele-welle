@@ -112,6 +112,12 @@ final class AdDirector {
             }
             self.reportContinues(report, proceed: proceed)
         }
+        // Build 2 review, app-ui-3: the lord's touch on Marek's cart opens his card while the offer is open.
+        model.merchantTouch = { [weak self] in
+            guard let self, self.merchantOffer != nil else { return false }
+            self.openMerchantCard()
+            return self.merchantCardOpen
+        }
         consent?.refreshAtLaunch()
         #if DEBUG
         if UserDefaults.standard.bool(forKey: "GWMerchant") { openMerchantCard() }
