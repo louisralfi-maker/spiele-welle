@@ -136,6 +136,8 @@ final class WorldRebuildFix2Tests: XCTestCase {
         XCTAssertTrue(frame(timeOfDay: 0.5, focus: 1800).emissives.allSatisfy { $0.sprite != .cleftGraze })
         XCTAssertTrue(frame(timeOfDay: 0.97, focus: 400).emissives.allSatisfy { $0.sprite != .cleftGraze },
                       "not on the moor")
+        XCTAssertTrue(frame(timeOfDay: 5.8 / 24, focus: 1000).emissives.allSatisfy { $0.sprite != .cleftGraze },
+                      "never on the open rock of the Throat (it lies behind the castle's buildings only)")
     }
 
     /// The critic: "one eye pair" on the night frames. With the bank's edge at world 520 and the camera at the world's
