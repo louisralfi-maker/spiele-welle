@@ -4447,6 +4447,44 @@ strip, the ledger on the lectern, PAY.md, HUD.md section 4. New file `UI/PixelGl
   eight languages, the other new strings in English and German), the name entry as a page of the family book (it is
   glass), PAY.md, HUD.md section 4, the ledger on the lectern.
 
+#### Step stage-3-interface, fix round 2: after the critic's second look (15.11.2026)
+
+The critic's look 2 (7.5/10, no blocker, five highs a player meets in the first ten minutes) and the director's
+16:06 block: a timed round in its order, one gate.
+
+- **High 1, the glyphs** (`UI/PixelGlyphs.swift`, `RealmMapPixels.breachGlyph`): play is a clean solid wedge with an
+  even slope and a point two rows tall (7 x 8), so no single row sticks out like a stub; the flame is a teardrop with
+  its tip leaning right and a hollow low inside in the ground's colour (one colour); the breach tag is two crenellated
+  wall stubs, the right one broken lower, a gap between them and one fallen block in the gap (10 x 7). **The horn is
+  words only** ("Sound the horn" on the pause sheet, "The horn" on the slip over the hall door): three more drawn
+  horns (an outline with a strap, a solid curved cone, a sagging cone with a bell) read as a teapot or a crescent at
+  14 pt, so by the director's rule words stand alone; `PixelGlyph.horn` is gone. `PixelGlyphTests` prints the play,
+  flame and breach grids into the unit log as rows of `#` and `.`.
+- **High 3, the audience plaques** (`AudienceCardView.hallLayout`, `plaqueFoot`): their bottom line stands at the
+  bottom safe inset plus 4 pt, never nearer than 21 pt to the screen's edge (it was 5 pt); the room comes from the
+  floor band, the letter and the counsel stay. Odile's check stands 6 pt in, inside the plaque's padding.
+- **High 2, the line breaks:** `SeparatedText` keeps facts on one line with " · " when they fit, else sets one fact a
+  line with a capital; the two mixed two-line variants are gone. The barracks' head is "Archers 3 · Guards 2" with
+  "Room on the walls for 1 more." as its own line (`CardTitle.note`; new keys `Archers %lld · Guards %lld` and
+  `Room on the walls for %lld more.`, English with German; the old three-fact key is gone). The build row's words take
+  the whole free middle up to the price (`frame(maxWidth: .infinity)` in place of the spacer). With it: the report's
+  valley keeps 6 pt above the footer's rule (47), and the hall letter's name column takes the width up to the Counsel
+  plaque (98).
+- **High 5, the top centre on day 1** (`StripCall.update(held:)`, `stepLanternHUD`): the call's strip waits while the
+  first minute's hint slip stands ("Touch what the lord shall do.", in the hall "... the lady ..."), and its 6 s start
+  once the slip has gone; a call that came under the slip is still new then. A unit test in `LanternMomentTests`.
+- **High 4, the lord's portrait** (`tools/grids/court/portraits/portraitKing.txt`, finished by hand; SPRITES.md): the
+  circlet one thin gold line resting in the hair above the brow, sloping from the back to the front, with one small
+  daySky stone; a diagonal jaw line from under the ear to the chin with the neck a step darker under it; a closed mouth,
+  the profile without the pout.
+- **Round:** **`lh-s3f2-1` build, all unit tests and ui Touch, FirstDay, Hall (one step), Audience, Lord, Polish (one
+  step) and Look2 ALL PASSED on a8e6c27**, English only. Upright copies of the 18 changed frames in
+  `ci-out/lh-s3f2-1-upright`, native-pixel crops in `ci-out/lh-s3f2-1-crops`.
+- **Open after build 2:** the play glyph still shows its 2 px stairs at native size (it reads as a wedge, not yet as
+  a crisp play sign); a drawn horn (only if one names itself alone at 14 pt); the lord reads as a young man now, not
+  as a boy, but he is still younger than the lady and softer; portrait finesse for both goes to pass 4. The new
+  barracks keys have English and German only.
+
 ## Risks
 
 | Risk | What we do |

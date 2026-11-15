@@ -148,6 +148,16 @@ final class LanternMomentTests: XCTestCase {
         strip.inHall = false
         strip.petitioners = 0
         XCTAssertFalse(call.update(strip, hour: 11.1, clock: 47, allowed: true), "answered: it goes at once")
+
+        // Fix round 2 (the critic's high 5): while a hint slip holds it, the call waits, and its 6 s start after.
+        var held = StripCall()
+        var calling = strip
+        calling.petitioners = 1
+        XCTAssertFalse(held.update(calling, hour: 9, clock: 0, allowed: true, held: true), "held under the hint")
+        XCTAssertFalse(held.update(calling, hour: 9.1, clock: 8, allowed: true, held: true))
+        XCTAssertTrue(held.update(calling, hour: 9.2, clock: 10, allowed: true), "the hint gone: the call comes")
+        XCTAssertTrue(held.update(calling, hour: 9.3, clock: 15, allowed: true))
+        XCTAssertFalse(held.update(calling, hour: 9.4, clock: 16.5, allowed: true), "its 6 s from the slip's end")
     }
 
     func testTheRealmStripIsAMapOfPixels() {

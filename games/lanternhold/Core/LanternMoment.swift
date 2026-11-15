@@ -292,14 +292,21 @@ struct StripCall: Sendable, Equatable {
         return calls
     }
 
-    /// One frame: true while the strip stands by itself.
-    mutating func update(_ strip: RealmStrip?, hour: Double, clock: Double, allowed: Bool) -> Bool {
+    /// One frame: true while the strip stands by itself. `held` (fix round 2, the critic's high 5: a hint slip stands
+    /// at the top centre) keeps the call waiting, not seen: its 6 s start once the slip has gone, so a hint slip and
+    /// the call's strip never stand at the top centre together.
+    mutating func update(_ strip: RealmStrip?, hour: Double, clock: Double, allowed: Bool, held: Bool = false) -> Bool {
         let now = StripCall.size(strip)
-        defer { size = now }
         guard now > 0 else {
+            size = now
             until = 0
             return false
         }
+        if held {
+            until = 0
+            return false
+        }
+        defer { size = now }
         guard allowed else { return false }
         if now > size || clock - shownAt >= StripCall.again {
             shownAt = clock

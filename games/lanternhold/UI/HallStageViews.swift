@@ -37,9 +37,8 @@ struct HornSlipView: View {
     }
 
     private var slip: some View {
+        // Fix round 2 (the critic's high 1): words only; the drawn horn over the door read as "locked, key".
         HStack(spacing: 6) {
-            GlyphView(glyph: .horn)
-                .foregroundStyle(Theme.rubric)
             Text("The horn")
                 .font(Theme.caps(.subheadline))
                 .tracking(0.6)
