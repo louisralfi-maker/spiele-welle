@@ -38,6 +38,20 @@ final class AdModeTests: XCTestCase {
         XCTAssertNotNil(Bundle.main.object(forInfoDictionaryKey: "SKAdNetworkItems"))
         XCTAssertNotNil(Bundle.main.object(forInfoDictionaryKey: "NSUserTrackingUsageDescription"))
     }
+
+    /// Review b2 release-1: the live units only for a release build from the App Store (receipt file `receipt`); a
+    /// debug build, TestFlight (`sandboxReceipt`) and no receipt URL get Google's test units.
+    func testTheLiveUnitsServeOnlyAReleaseBuildFromTheAppStore() {
+        XCTAssertTrue(AdConfig.liveUnits(release: true, receiptFileName: "receipt"), "the App Store")
+        XCTAssertFalse(AdConfig.liveUnits(release: true, receiptFileName: "sandboxReceipt"), "TestFlight")
+        XCTAssertFalse(AdConfig.liveUnits(release: true, receiptFileName: nil), "no receipt URL")
+        XCTAssertFalse(AdConfig.liveUnits(release: false, receiptFileName: "receipt"), "a debug build")
+        XCTAssertFalse(AdConfig.liveUnits(release: false, receiptFileName: "sandboxReceipt"))
+        XCTAssertFalse(AdConfig.liveUnits(release: false, receiptFileName: nil))
+        #if DEBUG
+        XCTAssertFalse(AdConfig.servesLiveUnits, "this debug test host")
+        #endif
+    }
 }
 
 /// A clock the tests move by hand.
