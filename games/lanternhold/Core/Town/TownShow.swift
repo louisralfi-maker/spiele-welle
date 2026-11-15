@@ -120,8 +120,9 @@ enum TownShow {
     /// tools/grids/town/kingKnock.txt (the palm on row 20).
     static let handY = 12.0
     static let lordHand = (dx: 5.0, dy: 12.0)
-    /// The arc's top over the higher end (fix round 2: lower, so no coin passes through the lantern's glow).
-    static let arcHeight = 8.0
+    /// The arc's top over the higher end (fix round 2: lower, so the coins pass under the lantern's glass with 3 px
+    /// to spare; round lh-t2f2-1's toss shot at 8 still showed the arc's top touching the glass's glow).
+    static let arcHeight = 5.0
     static let lowArc = 5.0
 
     // MARK: - What is drawn
