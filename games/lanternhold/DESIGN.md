@@ -99,7 +99,7 @@ How it goes on (the lead, 09.11. evening):
   king to lord, the families in the audiences, chapter 1's new premise and the first big hint in the endings.
 - Chapter 1's premise in the new frame (decided for Louis): the Great Beacon at the cleft's mouth has gone dark; Lord
   Aldric rode into the shadow land to rekindle it and never returned. The lordship falls to the last of the house that
-  nobody counted on, the castle's lamplighter, Aldric's young cousin; the circlet is a little too big. Seren, the
+  carried the light into the Cleft: Aldric's cousin, raised as the heir of the guardian house; the circlet fits. Seren, the
   Lightless King and the endings stay as in "Story"; the story pass renames the endings from crowns to lanterns.
 - Kept apart from other wall stories: a natural mountain range, a family and its people, light against shadow; never a
   built wall of ice or a sworn order.
@@ -124,14 +124,14 @@ use their names, characters, art, music, levels or look. In particular:
 
 | Never | Instead |
 |---|---|
-| A ruler on a horse or any mount; mounts bought with gems | The king walks, carrying his old lamplighter's lantern on a hooked pole |
+| A ruler on a horse or any mount; mounts bought with gems | The lord walks, carrying the guardian house's lantern on a hooked staff |
 | Coins carried in a pouch and dropped at build sites, the coin drop as the only input | Gold in a treasury from taxes; a build card with prices at each plot |
 | Vagrants in the wild recruited with coins, tools that set a job | Citizens are born in the town when people are happy; soldiers are recruited at the barracks |
 | Masked enemies from portals that steal coins and the crown; losing the crown ends the run | The Gloom is a creeping wall of black fog with soot creatures; they want the hearth fire, never the king |
 | Enemies from both sides | One front only, on the left; the Weltmauer closes everything else |
 | A water reflection strip along the bottom, the island campaign, boats | The Weltmauer and its single cleft, a castle cut-away, the town's lit windows; reflections only where the world has water |
 | The Kingdom palette, its silhouette-heavy single band | Our own palette (see "Look"), interiors, vertical cliffs, light pools as readable game state |
-| King Eryk, a queen and three daughters, a succession or forced-marriage story, Slavic folklore monsters | A lamplighter crowned because nobody else wanted the crown; the old king lost in the Gloom; original court and creatures |
+| King Eryk, a queen and three daughters, a succession or forced-marriage story, Slavic folklore monsters | The heir of the guardian house that has kept the light a thousand years; the old lord lost in the Gloom; original court and creatures |
 | Yes, Your Grace's throne-room layout or ledger UI | Petitioners walk into a side-view great hall; a parchment card with 2 or 3 tap choices |
 | Reigns' left/right swipe cards, four meters, "you die, next king" | Tap choices, one happiness meter plus gold and people, the realm continues |
 
@@ -500,11 +500,11 @@ Original designs: soot and shadow that dissolve into black motes, never masks, n
 
 ## Story
 
-### Chapter 1: The Lamplighter King (20 nights)
+### Chapter 1: The Dark Beacon (20 nights)
 
-The Great Beacon at the mouth of the gorge has gone dark, and since then the Gloom comes every night. King Aldric rode
-into it to rekindle the beacon and never returned. The court needed a new king, and nobody wanted the crown, except the
-castle's lamplighter, who was too slow to run away. The crown is a little too big.
+The Great Beacon at the mouth of the gorge has gone dark, and since then the Gloom comes every night. Lord Aldric rode
+into it to rekindle the beacon and never returned. The circlet passed to his cousin, the heir by right of the guardian
+house, raised in the castle and known to everyone (docs/HOUSE.md sections 1 and 7). The circlet fits.
 
 | Day | Beat |
 |---|---|
@@ -1876,7 +1876,7 @@ petitions change.
 
 | Id | Where | Drawn in | What |
 |---|---|---|---|
-| `castle.statue` | courtyard, x 1680 | M3 step 3 | a stone statue of the lamplighter king with his lantern (`statue`) |
+| `castle.statue` | courtyard, x 1680 | M3 step 3 | a stone statue of Saint Taper with his lantern (`statue`) |
 | `castle.guards.wall` | castle front, x 1340 | M3 step 3 | two guards posted on the wall walk by day |
 | `castle.banners.new` | great hall | M3 step 3 | the hall's banners renewed, bright teal with gold lanterns |
 | `castle.hall.tapestry` | great hall | M3 step 3 | a tapestry of the old king Aldric |
@@ -2056,10 +2056,10 @@ talk, all in English and German (the other six languages come in M7).
   Marek 8, Seren 8, Ser Ludo 3, the envoy 3, the bard 2, the herald 2. 29 are hints (`about`), Tamsin's the most; 13
   echo a choice the king made (Gerald in his jar, the scarecrow with Brannock's face, verse nine, the dark keep window).
 - **Story.xcstrings**: 734 petition and line keys beside the 33 speaker keys, English and German; about 11,900 English
-  and 11,600 German words (German runs 13 % longer in characters). Voices: Odile dry and sarcastic ("my king"), Brannock
-  gruff ("Majesty"), Pip jokes ("Your Wickship", German "Eure Dochtheit"), Mother Hesper calm and ominous, Tamsin
-  gossip with hints, Bram in few words, Marek sly ("Your Radiance", "Eure Strahlkraft"), Seren quiet ("king"), the
-  herald cold ("lamplighter"). German addresses the king with "Ihr" and "Euch".
+  and 11,600 German words (German runs 13 % longer in characters). Voices: Odile dry and sarcastic ("my lord"), Brannock
+  gruff ("lord"), Pip jokes ("Your Wickship", German "Eure Dochtheit"), Mother Hesper calm and ominous, Tamsin
+  gossip with hints, Bram in few words, Marek sly ("Your Radiance", "Eure Strahlkraft"), Seren quiet ("Lantern", after day 15 "lord"), the
+  herald cold ("heir of the thief"). German addresses the lord with "Ihr" and "Euch".
 - The files were generated from authoring modules with a checker that mirrors `CourtValidator` (in this step's scratch
   space; `tools/` was not this lane's to edit). The JSON files and Story.xcstrings are the source from now on: edit them
   directly, and `PetitionDataTests` checks every change.
@@ -2085,7 +2085,7 @@ talk, all in English and German (the other six languages come in M7).
 | +1 | `truce_drill` (needs `truce`) | Brannock | drill the young (−20, +2 archers) / **let the town rest** (+2); both `wave-50pct` |
 | +2 | `truce_end` (needs `truce`) | Mother Hesper | **light a candle for what we paid** (`castle.chapel.candles`) / no regrets; both `wave-50pct` |
 | 19 | `pip_farewell` | Pip | **tell the joke** (+2, `pip_joke_told`) / save it for after (`pip_joke_saved`) |
-| 20 | `last_stand` | Brannock | the last morning's word to the men: **"We hold until dawn"** / "We bring our old king home" / "I was never meant to be king" (`speech_dawn`, `speech_aldric`, `speech_honest`; nothing else) |
+| 20 | `last_stand` | Brannock | the last morning's word to the men: **"We hold until dawn"** / "We bring Lord Aldric home" / "I am afraid too. I stay." (`speech_dawn`, `speech_aldric`, `speech_honest`; nothing else) |
 
 The herald's "three nights" are the handover's night and the nights of its two follow-ups (17, 18, 19), never night 20.
 
@@ -2810,21 +2810,21 @@ made on `claude/lh-storypass` after merging `claude/lh-story` (STORY.md) and `cl
   | soldiers, Bram | `my {lord\|lady}` | `{Herr\|Herrin}` |
   | Odile, Tamsin | `my {lord\|lady}` | `{mein Herr\|meine Herrin}` |
   | Brannock | `{lord\|my lady}` | `{Herr\|Herrin}` |
-  | Hesper | child of the house | Kind des Hauses |
+  | Hesper | heir of the house | `{Erbe\|Erbin} des Hauses` |
   | Ludo | `good my {lord\|lady}` | `{edler Herr\|edle Herrin}` |
-  | Seren | lamplighter | Laternenanzünder |
+  | Seren | Lantern; lord after day 15 | Lantern; Herr |
   | Marek, Pip | Your Radiance, Your Wickship | Eure Strahlkraft, Eure Dochtheit |
   | envoys and the houses' faces | `{Lord\|Lady} Lantern` | `{Lord\|Lady} Lantern`; Hild `{Burgherr\|Burgherrin}` |
-  | Dame Orla | young Taper | `{junger\|junge} Taper` |
+  | Dame Orla | heir of Taper | `Tapers {Erbe\|Erbin}` |
 
   German uses "Ihr" and "Euch" throughout. "Lantern" and the names of people, houses and towns are never translated.
   Glossary: the Throat, der Schlund; the circlet, der Stirnreif; the Count, die Zählung; the Returned, die
   Heimgekehrten; the Cleft, der Spalt; the Lamp Tithe, der Lichtzehnt; the Great Beacon, das Große Leuchtfeuer; the
   Dark Year, das Dunkle Jahr; Lady Oriel, Burgherrin Oriel; Lord Aldric, Burgherr Aldric; Saint Taper, Sankt Taper
   or der heilige Taper (one saint, one German name). No creature is called a child in either language.
-- 9.2, the rewritten petitions and lines, as listed there: the premise (the lamplighter inherits by blood),
+- 9.2, the rewritten petitions and lines, as listed there: the premise (the heir of the guardian house, HOUSE.md),
   `first_plough`, `stranger_gate`, the six from Beaconfoot, `child_question`, `hesper_giant`, `beacon_plans`,
-  `banners_new`, the statues of the lamplighter saint, Lord Aldric's texts, `haunted_cellar` (a Returned and a blue
+  `banners_new`, the statues of Saint Taper, Lord Aldric's texts, `haunted_cellar` (a Returned and a blue
   door), `scout_report`, `eclipse_omen`, `captured_sootling`, `herald_alone`, Seren's two, `last_stand`, `bard_song`,
   `chronicle`, `keep_window`, `widow_pension`, and the lines. No effect changed. One flag changed its name:
   `captured_sootling`'s third choice lets the sootling go at the Throat gate, so it sets `gerald_freed` (was

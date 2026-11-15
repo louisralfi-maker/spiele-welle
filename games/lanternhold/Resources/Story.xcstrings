@@ -116,13 +116,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Dafür war ich nie bestimmt“, habt Ihr ihnen gesagt. Sie folgten Euch trotzdem."
+            "value" : "„Ich habe auch Angst. Ich bleibe“, habt Ihr ihnen gesagt. Sie blieben bei Euch."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“I was never meant for this,” you told them. They followed you anyway."
+            "value" : "“I am afraid too. I stay,” you told them. They stayed with you."
           }
         },
         "es" : {
@@ -1844,13 +1844,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nie dafür bestimmt, sagtet Ihr. Dem trauen die Jungs mehr als jedem Stirnreif."
+            "value" : "Auch Angst, sagtet Ihr. Und Ihr bleibt. Dem trauen die Jungs mehr als jedem Stirnreif."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Never meant for this, you said. The lads trust that more than any circlet."
+            "value" : "Afraid, you said, and staying. The lads trust that more than any circlet."
           }
         },
         "es" : {
@@ -2330,13 +2330,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Küste erinnert sich an Eure Hilfe, {Lord|Lady} {lord}. Meine Herrin hat einen Wachturm nach {dem Laternenanzünder|der Laternenanzünderin} benannt."
+            "value" : "Die Küste erinnert sich an Eure Hilfe, {Lord|Lady} {lord}. Meine Herrin hat einen Wachturm nach Euch benannt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The coast remembers your help, {Lord|Lady} {lord}. My lady has named a watchtower after the lamplighter."
+            "value" : "The coast remembers your help, {Lord|Lady} {lord}. My lady has named a watchtower after you."
           }
         },
         "es" : {
@@ -2384,13 +2384,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Euer Feuer ist sehr klein, {Laternenanzünder|Laternenanzünderin}. Er hat größere erlöschen sehen."
+            "value" : "Euer Feuer ist sehr klein, {Erbe|Erbin} des Diebes. Er hat größere erlöschen sehen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your fire is very small, lamplighter. He has watched larger ones go out."
+            "value" : "Your fire is very small, heir of the thief. He has watched larger ones go out."
           }
         },
         "es" : {
@@ -2438,13 +2438,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der König unter der Düsternis erinnert sich an diesen Saal. An den Thron. Daran, dass er seiner war."
+            "value" : "Der König unter der Düsternis erinnert sich an dieses Feuer. Es brannte in seinem Saal, tausend Jahre vor Eurem."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The King beneath the Gloom remembers this hall. He remembers the throne. He remembers it was his."
+            "value" : "The King beneath the Gloom remembers this fire. He remembers it in his own hall, a thousand years before yours."
           }
         },
         "es" : {
@@ -2492,13 +2492,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Das Leuchtfeuer und die Flamme sind verwandt, Kind des Hauses. Ein Feuer, vor langer Zeit in zwei Schalen entzündet."
+            "value" : "Das Leuchtfeuer und die Flamme sind verwandt, {Erbe|Erbin} des Hauses. Ein Feuer, vor langer Zeit in zwei Schalen entzündet."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The beacon and the Flame are kin, child of the house. One fire, lit long ago in two bowls."
+            "value" : "The beacon and the Flame are kin, heir of the house. One fire, lit long ago in two bowls."
           }
         },
         "es" : {
@@ -2546,13 +2546,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Kapelle hat jetzt keine Stimme, Kind des Hauses. Ich schlage im Morgengrauen auf einen Topf. Die Flamme tut, als merke sie nichts."
+            "value" : "Die Kapelle hat jetzt keine Stimme, {Erbe|Erbin} des Hauses. Ich schlage im Morgengrauen auf einen Topf. Die Flamme tut, als merke sie nichts."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The chapel has no voice now, child of the house. I ring a pot at dawn. The Flame pretends not to notice."
+            "value" : "The chapel has no voice now, heir of the house. I ring a pot at dawn. The Flame pretends not to notice."
           }
         },
         "es" : {
@@ -2708,13 +2708,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Willkommen, Kind des Hauses. Die Flamme brennt seit tausend Jahren in diesem Saal. Seid bitte nicht {derjenige|diejenige}."
+            "value" : "Willkommen, {Erbe|Erbin} des Hauses. Die Flamme brennt seit tausend Jahren in diesem Saal. Seid bitte nicht {derjenige|diejenige}."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Welcome, child of the house. The Flame has burned in this hall for a thousand years. Please do not be the one."
+            "value" : "Welcome, heir of the house. The Flame has burned in this hall for a thousand years. Please do not be the one."
           }
         },
         "es" : {
@@ -2816,13 +2816,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ich muss Euch heute am Thron sprechen, Kind des Hauses. Die Flamme hat mir im Morgengrauen etwas gezeigt."
+            "value" : "Ich muss Euch heute am Thron sprechen, {Erbe|Erbin} des Hauses. Die Flamme hat mir im Morgengrauen etwas gezeigt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "I must speak with you at the throne today, child of the house. The Flame showed me something at dawn."
+            "value" : "I must speak with you at the throne today, heir of the house. The Flame showed me something at dawn."
           }
         },
         "es" : {
@@ -2978,13 +2978,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Düsternis ist kein Geschöpf, Kind des Hauses. Sie ist ein Hunger. Die Kreaturen sind nur ihre Zähne."
+            "value" : "Die Düsternis ist kein Geschöpf, {Erbe|Erbin} des Hauses. Sie ist ein Hunger. Die Kreaturen sind nur ihre Zähne."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The Gloom is not a creature, child of the house. It is a hunger. The creatures are only its teeth."
+            "value" : "The Gloom is not a creature, heir of the house. It is a hunger. The creatures are only its teeth."
           }
         },
         "es" : {
@@ -3086,13 +3086,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Heute Nacht brennt die Flamme für jeden von ihnen, Kind des Hauses. Auch für ihn."
+            "value" : "Heute Nacht brennt die Flamme für jeden von ihnen, {Erbe|Erbin} des Hauses. Auch für ihn."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tonight the Flame burns for every one of them, child of the house. For him too."
+            "value" : "Tonight the Flame burns for every one of them, heir of the house. For him too."
           }
         },
         "es" : {
@@ -3194,13 +3194,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kommt zum Thron, Kind des Hauses. Seit dem Handel ist die Flamme blau. Ich möchte darüber sprechen."
+            "value" : "Kommt zum Thron, {Erbe|Erbin} des Hauses. Seit dem Handel ist die Flamme blau. Ich möchte darüber sprechen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Come to the throne, child of the house. The Flame has been blue since the bargain. I want to speak of it."
+            "value" : "Come to the throne, heir of the house. The Flame has been blue since the bargain. I want to speak of it."
           }
         },
         "es" : {
@@ -5030,13 +5030,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Euer Haus kam aus dem Spalt herab, {junger|junge} Taper. Meines sah es kommen."
+            "value" : "Euer Haus kam aus dem Spalt herab, Tapers {Erbe|Erbin}. Meines sah es kommen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your house came down out of the Cleft, young Taper. Mine watched it come."
+            "value" : "Your house came down out of the Cleft, heir of Taper. Mine watched it come."
           }
         },
         "es" : {
@@ -5084,13 +5084,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der alte Herr ist der neue Feind, und {der neue Herr|die neue Herrin} ist {der alte Laternenanzünder|die alte Laternenanzünderin}. Schreibt das jemand auf?"
+            "value" : "Der alte Herr ist der neue Feind, und {der neue Herr|die neue Herrin} ist {sein Vetter|seine Base}. Das gibt peinliche Familienessen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The old lord is the new enemy, and the new {lord|lady} is the old lamplighter. Somebody write this down."
+            "value" : "The old lord is the new enemy, and the new {lord|lady} is his cousin. Family suppers will be awkward."
           }
         },
         "es" : {
@@ -5246,13 +5246,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Euer Stirnreif ist etwas groß, Eure Dochtheit. Keine Sorge. Er passt, sobald Euch der Kopf schwillt."
+            "value" : "Euer Stirnreif passt, Eure Dochtheit. Schade. Ich hatte einen so guten Witz für einen lockeren."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your circlet is a little big, Your Wickship. Never mind. It will fit once your head swells."
+            "value" : "Your circlet fits, Your Wickship. A pity. I had such a good joke for a loose one."
           }
         },
         "es" : {
@@ -5462,13 +5462,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "{Ein neuer Herr|Eine neue Herrin}! Der letzte ritt ins Dunkel. Mal sehen, wie weit Ihr bis zur Teestunde kommt."
+            "value" : "{Ein neuer Herr|Eine neue Herrin}! Der letzte ritt ins Dunkel. Folgt ihm nicht. Ich habe nur eine schwarze Kappe."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A new {lord|lady}! The last one rode into the dark. Let us see how far you get before teatime."
+            "value" : "A new {lord|lady}! The last one rode into the dark. Don’t follow him. I own only one black cap."
           }
         },
         "es" : {
@@ -5732,13 +5732,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sie haben {den Laternenanzünder zum Burgherrn|die Laternenanzünderin zur Burgherrin} gemacht. Endlich weiß hier jemand, wo die Zündhölzer liegen."
+            "value" : "Jeden Schlüssel der Burg kennt {der Erbe|die Erbin}. Endlich {ein Herr|eine Herrin}, {der|die} weiß, wo die Zündhölzer liegen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "They made the lamplighter {lord|lady}. At last someone here knows where the matches are."
+            "value" : "The heir knows every key in this castle. At last a {lord|lady} who knows where the matches are."
           }
         },
         "es" : {
@@ -6110,13 +6110,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ihr habt einer Frau mit Laterne das Tor verschlossen. Mutig, für {einen Laternenanzünder|eine Laternenanzünderin}."
+            "value" : "Ihr sperrt eine Frau mit Laterne aus. Mutig, für {den Erben|die Erbin} eines Hauses, das nach einer heißt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You shut the gate on a woman with a lantern. Bold, for a lamplighter."
+            "value" : "You shut the gate on a woman with a lantern. Bold, for a house named after one."
           }
         },
         "es" : {
@@ -6164,13 +6164,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Strophe neun geht mir nicht aus dem Kopf, Eure Dochtheit. Der Stirnreif ist zu groß, trallala. Meine liebste."
+            "value" : "Strophe neun geht mir nicht aus dem Kopf, Eure Dochtheit. Der Mantel ist geflickt, trallala. Meine liebste."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verse nine is stuck in my head, Your Wickship. The circlet is too big, tra la. It is my favourite."
+            "value" : "Verse nine is stuck in my head, Your Wickship. The cloak is mended, tra la. It is my favourite."
           }
         },
         "es" : {
@@ -6326,13 +6326,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Das Licht schwindet, {Laternenanzünder|Laternenanzünderin}. Öffnet, oder seht mir beim Warten zu."
+            "value" : "Das Licht schwindet, Lantern. Öffnet, oder seht mir beim Warten zu."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The light is going, lamplighter. Open, or watch me wait."
+            "value" : "The light is going, Lantern. Open, or watch me wait."
           }
         },
         "es" : {
@@ -6434,13 +6434,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Meine Laterne ist nicht kalt, {Laternenanzünder|Laternenanzünderin}. Sie ist nur sehr weit fort."
+            "value" : "Meine Laterne ist nicht kalt, Lantern. Sie ist nur sehr weit fort."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "My lantern is not cold, lamplighter. It is only very far away."
+            "value" : "My lantern is not cold, Lantern. It is only very far away."
           }
         },
         "es" : {
@@ -7028,13 +7028,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wieder in meiner Küche, {lord}? {Mein Herr|Meine Herrin}, meine ich. Achtet auf Katze, Ofen und Suppe, in dieser Reihenfolge."
+            "value" : "Wieder in meiner Küche, {Burgherr|Burgherrin} {lord}? Gut so. Achtet auf Katze, Ofen und Suppe, in dieser Reihenfolge."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Back in my kitchen, {lord}? My {lord|lady}, I mean. Mind the cat, the oven and the soup, in that order."
+            "value" : "Back in my kitchen, {Lord|Lady} {lord}? Good. Mind the cat, the oven and the soup, in that order."
           }
         },
         "es" : {
@@ -9782,13 +9782,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bis zum Wochenende singt das Tal den Refrain. Strophe neun handelt davon, dass der Stirnreif zu groß ist. Sie ist die beliebteste."
+            "value" : "Bis zum Wochenende singt das Tal den Refrain. Strophe neun handelt vom geflickten Mantel am hohen Tisch. Sie ist die beliebteste."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "By the week’s end the valley sings the chorus. Verse nine is about the circlet being too big. It is the favourite."
+            "value" : "By the week’s end the valley sings the chorus. Verse nine is about the mended cloak at the high table. It is the favourite."
           }
         },
         "es" : {
@@ -9944,13 +9944,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "{Burgherr|Burgherrin}! Ich habe eine Ballade {vom Laternenanzünder, der Burgherr|von der Laternenanzünderin, die Burgherrin} wurde, gedichtet, elf Strophen, mit einem Refrain über die Laterne. Für zwanzig Gold singe ich sie in jeder Schenke von hier bis zur Küste. Für vierzig lasse ich Strophe neun weg."
+            "value" : "{Burgherr|Burgherrin}! Ich habe eine Ballade über {den Burgherrn|die Burgherrin} von Haus Lantern gedichtet, elf Strophen, mit einem Refrain über die Laterne. Für zwanzig Gold singe ich sie in jeder Schenke von hier bis zur Küste. Für vierzig lasse ich Strophe neun weg."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "My {lord|lady}! I have composed a ballad of the lamplighter {lord|lady}, eleven verses, with a chorus about the lantern. For twenty gold I sing it in every tavern from here to the coast. For forty, I leave out verse nine."
+            "value" : "My {lord|lady}! I have composed a ballad of {Lord|Lady} Lantern and the dark beacon, eleven verses, with a chorus about the lantern. For twenty gold I sing it in every tavern from here to the coast. For forty, I leave out verse nine."
           }
         },
         "es" : {
@@ -15560,13 +15560,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kind des Hauses, die Flamme sagt, heute Nacht wird der Mond schwarz. In solchen Nächten kommt die Düsternis in doppelten Reihen. Die alten Feuerkörbe auf den Simsen des Schlunds könnten das Dunkel zurückhalten, wenn jemand das Öl bezahlt."
+            "value" : "{Erbe|Erbin} des Hauses, die Flamme sagt, heute Nacht wird der Mond schwarz. In solchen Nächten kommt die Düsternis in doppelten Reihen. Die alten Feuerkörbe auf den Simsen des Schlunds könnten das Dunkel zurückhalten, wenn jemand das Öl bezahlt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Child of the house, the Flame says the moon goes black tonight. On such nights the Gloom comes in doubled ranks. The old fire-baskets on the Throat’s ledges could hold the dark back, if someone pays for the oil."
+            "value" : "Heir of the house, the Flame says the moon goes black tonight. On such nights the Gloom comes in doubled ranks. The old fire-baskets on the Throat’s ledges could hold the dark back, if someone pays for the oil."
           }
         },
         "es" : {
@@ -15938,13 +15938,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der Gesandte nimmt das Öl mit echter Dankbarkeit an. „Die Küste wird sich an {den Laternenanzünder|die Laternenanzünderin} erinnern“, sagt er, und er meint es."
+            "value" : "Der Gesandte nimmt das Öl mit echter Dankbarkeit an. „Die Küste wird sich an {Lord|Lady} Lantern erinnern“, sagt er, und er meint es."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The envoy accepts the oil with real gratitude. “The coast will remember the lamplighter,” he says, and means it."
+            "value" : "The envoy accepts the oil with real gratitude. “The coast will remember {Lord|Lady} Lantern,” he says, and means it."
           }
         },
         "es" : {
@@ -17504,13 +17504,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Er schlurft hinaus. Ihr hört ihn der Wache sagen, der Stirnreif sei ohnehin zu groß."
+            "value" : "Er schlurft hinaus. Ihr hört ihn der Wache sagen, Aldric habe alles gesegnet, sogar Ziegen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "He shuffles out. You hear him tell the guard that the circlet looks too big anyway."
+            "value" : "He shuffles out. You hear him tell the guard that Lord Aldric blessed everything, even goats."
           }
         },
         "es" : {
@@ -19610,13 +19610,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der König unter der Düsternis grüßt {den Laternenanzünder|die Laternenanzünderin}. Die Frau mit der grauen Laterne ist nicht hier, sieht er. Also verlangt er Geringeres: Lampenöl für sechzig Gold, bei Dämmerung auf dem Grund des Schlunds ausgegossen. Gießt es aus, und Eure Stadt schläft drei Nächte."
+            "value" : "Der König unter der Düsternis grüßt {den Erben des Diebes an seinem|die Erbin des Diebes an ihrem} geliehenen Feuer. Die graue Laterne ist nicht hier, sieht er. Also verlangt er Geringeres: Lampenöl für sechzig Gold, bei Dämmerung auf dem Grund des Schlunds ausgegossen. Gießt es aus, und Eure Stadt schläft drei Nächte."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The King beneath the Gloom greets the lamplighter. The woman with the grey lantern is not here, he sees. So he asks less: sixty gold of lamp oil, poured out on the Throat’s floor at dusk. Pour it, and your town sleeps three nights."
+            "value" : "The King beneath the Gloom greets the heir of the thief by {his|her} borrowed fire. The grey lantern is not here, he sees. So he asks less: sixty gold of lamp oil, poured on the Throat’s floor at dusk. Pour it, and your town sleeps three nights."
           }
         },
         "es" : {
@@ -19934,13 +19934,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die kalten Augen des Herolds ruhen lange auf Euch. „Er wird sich an {den Laternenanzünder|die Laternenanzünderin} erinnern.“ In dieser Nacht drängt die Düsternis härter."
+            "value" : "Die kalten Augen des Herolds ruhen lange auf Euch. „Er wird sich an {den Erben|die Erbin} des Diebes erinnern.“ In dieser Nacht drängt die Düsternis härter."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The herald’s cold eyes rest on you a long moment. “He will remember the lamplighter.” That night the Gloom comes harder."
+            "value" : "The herald’s cold eyes rest on you a long moment. “He will remember the heir of the thief.” That night the Gloom comes harder."
           }
         },
         "es" : {
@@ -20042,13 +20042,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der König unter der Düsternis grüßt {den Laternenanzünder auf seinem|die Laternenanzünderin auf ihrem} geliehenen Stuhl. Er will nur die Frau mit der grauen Laterne. Gebt sie mir, und drei Nächte lang wird Euer Städtchen schlafen."
+            "value" : "Der König unter der Düsternis grüßt {den Erben des Diebes an seinem|die Erbin des Diebes an ihrem} geliehenen Feuer. Er will nur die Frau mit der grauen Laterne. Gebt sie mir, und drei Nächte lang wird Euer Städtchen schlafen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The King beneath the Gloom greets the lamplighter on {his|her} borrowed chair. He wants only the woman with the grey lantern. Give her to me, and for three nights your little town will sleep."
+            "value" : "The King beneath the Gloom greets the heir of the thief by {his|her} borrowed fire. He wants only the woman with the grey lantern. Give her to me, and for three nights your little town will sleep."
           }
         },
         "es" : {
@@ -20366,13 +20366,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kind des Hauses, die alte Opferschale der Flamme ist in der Kälte gesprungen. Eine neue aus Bronze kostet dreißig Gold. Mit ihr kann die Kapelle das Tal an jedem Morgen segnen, wie in Aldrics Wacht. Ohne sie brennt die Flamme nur."
+            "value" : "{Erbe|Erbin} des Hauses, die alte Opferschale der Flamme ist in der Kälte gesprungen. Eine neue aus Bronze kostet dreißig Gold. Mit ihr kann die Kapelle das Tal an jedem Morgen segnen, wie in Aldrics Wacht. Ohne sie brennt die Flamme nur."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Child of the house, the Flame’s old offering bowl cracked in the cold. A new one in bronze costs thirty gold. With it, the chapel can bless the valley at every dawn, as it did in Aldric’s watch. Without it, the Flame only burns."
+            "value" : "Heir of the house, the Flame’s old offering bowl cracked in the cold. A new one in bronze costs thirty gold. With it, the chapel can bless the valley at every dawn, as it did in Aldric’s watch. Without it, the Flame only burns."
           }
         },
         "es" : {
@@ -20798,13 +20798,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Flamme brannte im Morgengrauen schwarz, Kind des Hauses, drei Atemzüge lang. Das tat sie schon einmal, in der Nacht, als die äußere Linie fiel, in Burgherrin Ysmays Wacht. Heute Nacht geht etwas Schweres durch die Düsternis. Lasst mich Wache halten."
+            "value" : "Die Flamme brannte im Morgengrauen schwarz, {Erbe|Erbin} des Hauses, drei Atemzüge lang. Das tat sie schon einmal, in der Nacht, als die äußere Linie fiel, in Burgherrin Ysmays Wacht. Heute Nacht geht etwas Schweres durch die Düsternis. Lasst mich Wache halten."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The Flame burned black at dawn, child of the house, for the space of three breaths. It did that once before, the night the outer line fell, in Lady Ysmay’s watch. Something heavy walks in the Gloom tonight. Let me keep a vigil."
+            "value" : "The Flame burned black at dawn, heir of the house, for the space of three breaths. It did that once before, the night the outer line fell, in Lady Ysmay’s watch. Something heavy walks in the Gloom tonight. Let me keep a vigil."
           }
         },
         "es" : {
@@ -21122,13 +21122,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kind des Hauses, nach der Zählung bleibt für jede Laterne, die nicht heimkommt, ihr Haken in der Kapelle ein Jahr leer und ein Fenster des Bergfrieds dunkel, damit der Schlund sieht, dass wir uns erinnern. Der Brauch endete mit Aldric. Pflegen wir ihn wieder?"
+            "value" : "{Erbe|Erbin} des Hauses, nach der Zählung bleibt für jede Laterne, die nicht heimkommt, ihr Haken in der Kapelle ein Jahr leer und ein Fenster des Bergfrieds dunkel, damit der Schlund sieht, dass wir uns erinnern. Der Brauch endete mit Aldric. Pflegen wir ihn wieder?"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Child of the house, by the Count a lantern that does not come back leaves its hook in the chapel empty for a year, and one keep window dark, so the Throat can see we remember. The custom lapsed with Aldric. Shall we keep it again?"
+            "value" : "Heir of the house, by the Count a lantern that does not come back leaves its hook in the chapel empty for a year, and one keep window dark, so the Throat can see we remember. The custom lapsed with Aldric. Shall we keep it again?"
           }
         },
         "es" : {
@@ -21284,13 +21284,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "{Ein Laternenanzünder als Burgherr, der|Eine Laternenanzünderin als Burgherrin, die} Laternen verweigert. Die Barden würden das nie vergessen. Erleuchtet die Gassen."
+            "value" : "{Ein Burgherr|Eine Burgherrin} von Haus Lantern, {der|die} Laternen verweigert. Die Barden würden das nie vergessen. Erleuchtet die Gassen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A lamplighter {lord|lady} who refuses lanterns. The bards would never let it go. Light the lanes."
+            "value" : "A {Lord|Lady} Lantern who refuses lanterns. The bards would never let it go. Light the lanes."
           }
         },
         "es" : {
@@ -21338,13 +21338,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "An diesem Abend zündet Ihr die erste selbst an, aus alter Gewohnheit. Die ganze Gasse jubelt, und Euch fällt fast die Stange aus der Hand."
+            "value" : "An diesem Abend zündet Ihr die erste mit der Flamme des Hauses an. Die ganze Gasse jubelt, und Euch fällt fast der Stab aus der Hand."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "That evening you light the first one yourself, out of habit. The whole lane cheers, and you nearly drop the pole."
+            "value" : "That evening you light the first one from the house’s own flame. The whole lane cheers, and you nearly drop the staff."
           }
         },
         "es" : {
@@ -22040,13 +22040,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Dafür war ich nie bestimmt.“"
+            "value" : "„Ich habe auch Angst. Ich bleibe.“"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“I was never meant for this.”"
+            "value" : "“I am afraid too. I stay.”"
           }
         },
         "es" : {
@@ -22256,13 +22256,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Einen Moment rührt sich niemand. Dann lacht Brannock. „Keiner von uns war dafür bestimmt, {Herr|Herrin}. Und doch sind wir hier.“"
+            "value" : "Einen Moment rührt sich niemand. Dann lacht Brannock. „Die haben wir alle, {Herr|Herrin}. Und hier stehen wir.“"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "For a moment no one moves. Then Brannock laughs. “None of us were meant for this, my {lord|lady}. Here we are anyway.”"
+            "value" : "For a moment no one moves. Then Brannock laughs. “So are we all, my {lord|lady}. And here we all stand.”"
           }
         },
         "es" : {
@@ -22742,13 +22742,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Setzt Euch, {junger|junge} Taper, ich sitze schon. Orla Lorn von Greybell. Euer Haus kam aus dem Spalt herab, nicht zu ihm hinauf. Meines sah zu. Wir hüten die erste Glocke Eures Saals. Burgherr Edric schickte sie im Dunklen Jahr fort, weil sie läutete, ohne dass eine Hand am Seil war."
+            "value" : "Verzeiht, dass ich sitze, Tapers {Erbe|Erbin}. Orla Lorn von Greybell. Euer Haus kam aus dem Spalt herab, nicht zu ihm hinauf. Meines sah zu. Wir hüten die erste Glocke Eures Saals. Burgherr Edric schickte sie im Dunklen Jahr fort, weil sie läutete, ohne dass eine Hand am Seil war."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sit, young Taper, I already have. Orla Lorn of Greybell. Your house came down out of the Cleft, not up to it. Mine watched. We keep your hall’s first bell. Lord Edric sent it away in the Dark Year, because it rang with no hand on the rope."
+            "value" : "Forgive me for sitting, heir of Taper. Orla Lorn of Greybell. Your house came down out of the Cleft, not up to it. Mine watched. We keep your hall’s first bell. Lord Edric sent it away in the Dark Year: it rang with no hand on the rope."
           }
         },
         "es" : {
@@ -25658,13 +25658,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Eure Strahlkraft, seht: ein Fingerknochen des heiligen Taper, des ersten Laternenanzünders, gesegnet und beglaubigt. Die Kapelle wäre geehrt. Vierzig Gold, eine Kleinigkeit für einen Heiligen. Die Urkunde habe ich eigenhändig verfasst."
+            "value" : "Eure Strahlkraft, seht: ein Fingerknochen des heiligen Taper, der die Flamme entfachte, gesegnet und beglaubigt. Die Kapelle wäre geehrt. Vierzig Gold, eine Kleinigkeit für einen Heiligen. Die Urkunde habe ich eigenhändig verfasst."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your Radiance, behold: a fingerbone of Saint Taper, the first lamplighter, blessed and certified. The chapel would be honoured. Forty gold, a trifle for a saint. The certificate is in my own hand."
+            "value" : "Your Radiance, behold: a fingerbone of Saint Taper, who kindled the Flame, blessed and certified. The chapel would be honoured. Forty gold, a trifle for a saint. The certificate is in my own hand."
           }
         },
         "es" : {
@@ -29654,13 +29654,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "„Als Odile den Namen aus dem Familienbuch vorlas, sah der ganze Hof zur Leiter.“ Der Saal tobt."
+            "value" : "„Aldric wettete, kein Narr bringe diesen Saal vor der Schlacht zum Lachen. Zahlt, Aldric!“ Der Saal tobt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“When Odile read the name from the family book, the whole court looked at the ladder.” The hall roars."
+            "value" : "“Aldric bet me a gold piece no fool could make this hall laugh before a battle. Pay up, Aldric.” The hall roars."
           }
         },
         "es" : {
@@ -33110,13 +33110,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ihr habt Euer Tor verschlossen gehalten, {Laternenanzünder|Laternenanzünderin}. Ich verüble es Euch nicht. Aber hört dies durch das Tor: Aldric ist nicht gefallen. Das Dunkel hat ihn nicht getötet. Es hat ihn gekrönt. Nur im Licht des Großen Leuchtfeuers ist er verwundbar. Ich bin Seren."
+            "value" : "Ihr habt Euer Tor verschlossen gehalten, Lantern. Ich verüble es Euch nicht. Aber hört dies durch das Tor: Aldric ist nicht gefallen. Das Dunkel hat ihn nicht getötet. Es hat ihn gekrönt. Nur im Licht des Großen Leuchtfeuers ist er verwundbar. Ich bin Seren."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You kept your gate shut, lamplighter. I do not blame you. But hear this through it: Aldric did not fall. The dark did not kill him. It crowned him. Only in the Great Beacon’s light can he be hurt. I am Seren."
+            "value" : "You kept your gate shut, Lantern. I do not blame you. But hear this through it: Aldric did not fall. The dark did not kill him. It crowned him. Only in the Great Beacon’s light can he be hurt. I am Seren."
           }
         },
         "es" : {
@@ -33596,13 +33596,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mein Name ist Seren. Ich hütete das Große Leuchtfeuer, bis es erlosch, und ritt mit Aldric, um es neu zu entzünden. Er ist nicht gefallen, {Laternenanzünder|Laternenanzünderin}. Das Dunkel hat ihn nicht getötet. Es hat ihn gekrönt. Nur im Licht des Leuchtfeuers ist er verwundbar."
+            "value" : "Mein Name ist Seren. Ich hütete das Große Leuchtfeuer, bis es erlosch, und ritt mit Aldric, um es neu zu entzünden. Er ist nicht gefallen, Lantern. Das Dunkel hat ihn nicht getötet. Es hat ihn gekrönt. Nur im Licht des Leuchtfeuers ist er verwundbar."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "My name is Seren. I kept the Great Beacon until it went dark, and I rode with Aldric to light it again. He did not fall, lamplighter. The dark did not kill him. It crowned him. Only in the beacon’s light can he be hurt."
+            "value" : "My name is Seren. I kept the Great Beacon until it went dark, and I rode with Aldric to light it again. He did not fall, Lantern. The dark did not kill him. It crowned him. Only in the beacon’s light can he be hurt."
           }
         },
         "es" : {
@@ -33920,13 +33920,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lasst mich heute Nacht auf der Mauer stehen, {Laternenanzünder|Laternenanzünderin}. Ich weiß, wie sich das Dunkel bewegt, bevor es sich bewegt. Ich kann Euren Schützen sagen, wohin sie sehen müssen. Einen Bogen rühre ich nicht an. Ich will nur nützlich sein in diesem Haus."
+            "value" : "Lasst mich heute Nacht auf der Mauer stehen, Lantern. Ich weiß, wie sich das Dunkel bewegt, bevor es sich bewegt. Ich kann Euren Schützen sagen, wohin sie sehen müssen. Einen Bogen rühre ich nicht an. Ich will nur nützlich sein in diesem Haus."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Let me stand on the wall tonight, lamplighter. I know how the dark moves before it moves. I can tell your archers where to look. I will not touch a bow. I only want to be useful in this house."
+            "value" : "Let me stand on the wall tonight, Lantern. I know how the dark moves before it moves. I can tell your archers where to look. I will not touch a bow. I only want to be useful in this house."
           }
         },
         "es" : {
@@ -35162,13 +35162,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ich komme vom Rand der Düsternis, mit dieser Laterne. Sie brennt grau und wärmt nicht, also verlangt es nicht von ihr. Die Nacht ist nah, und da draußen kennt das Dunkel meinen Namen. Öffnet Euer Tor, {Laternenanzünder|Laternenanzünderin}."
+            "value" : "Ich komme vom Rand der Düsternis, mit dieser Laterne. Sie brennt grau und wärmt nicht, also verlangt es nicht von ihr. Die Nacht ist nah, und da draußen kennt das Dunkel meinen Namen. Öffnet Euer Tor, Lantern."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "I have walked from the edge of the Gloom with this lantern. It burns grey and gives no warmth, so do not ask it to. Night is close, and out there the dark knows my name. Open your gate, lamplighter."
+            "value" : "I have walked from the edge of the Gloom with this lantern. It burns grey and gives no warmth, so do not ask it to. Night is close, and out there the dark knows my name. Open your gate, Lantern."
           }
         },
         "es" : {
@@ -37868,7 +37868,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“A lamplighter’s war, then,” he mutters. He does not say you are wrong. By noon his lads have a brazier ready for you."
+            "value" : "“A war of lamps, then,” he mutters. He does not say you are wrong. By noon his lads have a brazier ready for you."
           }
         },
         "es" : {
@@ -38564,13 +38564,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die letzte stille Nacht, Kind des Hauses. Seit dem Handel brennt die Flamme niedrig und blau, als hielte sie den Atem an. Morgen kommt er selbst. Ich würde heute eine Kerze anzünden für das, was wir bezahlt haben."
+            "value" : "Die letzte stille Nacht, {Erbe|Erbin} des Hauses. Seit dem Handel brennt die Flamme niedrig und blau, als hielte sie den Atem an. Morgen kommt er selbst. Ich würde heute eine Kerze anzünden für das, was wir bezahlt haben."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The last quiet night, child of the house. The Flame has burned low and blue since the bargain, as if it held its breath. Tomorrow he comes himself. I would light a candle tonight for what we paid."
+            "value" : "The last quiet night, heir of the house. The Flame has burned low and blue since the bargain, as if it held its breath. Tomorrow he comes himself. I would light a candle tonight for what we paid."
           }
         },
         "es" : {

@@ -30,7 +30,7 @@ Asked by the lead after this bible was written; they overrule anything below tha
      panel, the endings, and a few court lines (a `{lord}` placeholder; the validator and the text limits
      must count a long name).
    - Titles and address follow the choice: Burgherr / Burgherrin, mein Herr / meine Herrin, Lord / Lady
-     Lantern, "my lord" / "my lady"; Pip's "Your Wickship" and the herald's "lamplighter" fit both. English
+      Lantern, "my lord" / "my lady"; Pip's "Your Wickship" and the herald's "heir of the thief" fit both. English
      still never needs he or she; German keeps "Ihr" and "Euch".
    - The art needs a second lord: a young Burgherrin with the same circlet, hooked lantern pole and frames
      as the Burgherr (sprite, glow strip and portrait), and the prologue's fourth panel shows the chosen one.
@@ -52,8 +52,8 @@ A wall of mountains as high as the sky parts the world, and it has one door: a c
 castle wedged in it. For a thousand years House Lantern has held that door against the tall smoke figures
 that come out of the shadow land every night, and nobody knows what they are. This autumn the Great Beacon
 at the door's far mouth went dark, Lord Aldric rode out to light it again, and he did not come back. The
-circlet passed to the last of his blood: his young cousin, who lights the castle's lamps. You are that
-lamplighter, the circlet is too big, and twenty nights from now something that wears a crown is coming
+circlet passed to the last of his blood: his cousin, raised in this hall as the heir of the guardian house.
+You are that heir, the circlet fits, and twenty nights from now something that wears a crown is coming
 through the door.
 
 Tone, in order of weight:
@@ -143,9 +143,9 @@ years old and has never been written down, which is why it is starting to fray.
 
 The house counts its years from the Kindling. Its own account, as every child in Tallowford learns it:
 
-- **Year 1, Taper.** A lamplighter named Taper came to the Cleft with one lit lantern when the dark first
-  poured through, set the lantern down in the gap, and did not move. People gathered to the light. The
-  fire of that lantern is the hearth fire in the hall, never out since. The town calls him Saint Taper.
+- **Year 1, Taper.** Taper struck the Eternal Light from
+  the bare rock when the dark first poured through, held it there nine nights, and did not move. People
+  gathered to the light. (The dark tells it otherwise: docs/HOUSE.md section 6.) It is the hearth fire in the hall, never out since. The town calls him Saint Taper.
   He took no title. The house is named for the thing he carried.
 - **Year 118, Lady Oriel the Mason.** Built the hall around the hearth, the gatehouse and the three lines
   in the Throat. Lit the Great Beacon at the mouth from the hearth fire, carried out in a lantern. "One
@@ -164,17 +164,17 @@ The house counts its years from the Kindling. Its own account, as every child in
 The house has never worn a crown and its people are proud of it: "a circlet for those who keep a door, a
 crown for those who rule lands." The only crown at the Cleft is the one in the dark.
 
-Every Lantern learns a craft of the light before anything else: chandler, glazier, beacon keeper,
-lamplighter. That is why nobody found it strange that Aldric's orphaned cousin climbed ladders with a
-wick pole, and why nobody thought of that cousin as an heir.
+Every Lantern is raised to one craft before any other: keeping the light. The heir sits the hearth watch
+with the priestess, walks the lines with the captain and learns the Count by heart. Aldric's cousin was
+raised so from childhood, and the whole valley has always known that cousin as the heir.
 
 Arms: a gold lantern on teal. Words: "Keep the light."
 
 ### Customs
 
-- **The Round.** At dusk the lamplighter lights every lamp of castle and town from a flame taken at the
-  hearth. The lord's hooked lantern pole is the lamplighter's pole; the player keeps doing the Round as
-  lord, and the town loves and mocks it in equal parts.
+- **The Round.** At dusk the town's lamplighter (docs/TOWN.md section 7) lights every lamp of castle and town from a flame taken at the
+  hearth. The lord carries the house's own light, the hooked lantern of the guardian house, and on feast days lights the first lamp
+  of the Round from it; the town loves that.
 - **The horn.** One long call at dusk: gates shut, the night has begun. Three short: a line is lost. It
   is never blown by day and never for joy. One long call at dawn that nobody has to order is the best
   sound in the valley.
@@ -213,7 +213,7 @@ How any secret is told, whichever is chosen:
 **The truth.** The shadow land is the old country of House Lantern. The house did not come up to the
 Cleft from the valley. It came out through it. A thousand years ago one great hearth kept the Gloom, an
 old night-fog that thins anyone without fire into smoke, off the whole of that country, and the hearth
-was failing. Taper, lamplighter of the old seat, carried a brand of it out through the Cleft to keep it
+was failing. Taper, the old lord's younger son and keeper of its hearth, carried a brand of it out through the Cleft to keep it
 alive on the far side until his lord called for it, and whoever could run came after him. The lord
 stayed with the sinking hearth and his people. Taper kept the light. He never carried it back. His
 children held the door from the wrong side, called themselves a house, and four hundred years on Lord
@@ -236,7 +236,7 @@ home."
   book has forty lords. The beacon tower's door opens west, toward the shadow land. The warden in the
   Throat's wall holds his lantern out toward the east, lighting a way out. The Returned can only say
   household things. Edric's cut leaves. Hesper's "one fire in two bowls". The herald calls the lord
-  "lamplighter" and does not mean it as an insult. An old lady of House Lorn says the Lanterns "came
+  "heir of the thief" (the fire, never the chair) as one states a title. An old lady of House Lorn says the Lanterns "came
   down out of the Cleft, not up to it" and is laughed at.
 - *End of chapter 1, the first big hint.* At the last dawn the Gloom draws back further than anyone
   living has seen. In the beacon's light, for one breath, the figures had faces. And for the first time
@@ -252,8 +252,8 @@ home."
   the castle dark for one night, or keep it and hold the door for another thousand years.
 
 **The payoff.** The first sunrise the shadow land has had in a thousand years, seen from the old hall,
-and faces coming back into the smoke. The lamplighter who was never meant to be lord finishes the errand
-of the lamplighter who was never meant to found a house.
+and faces coming back into the smoke. The heir of the house that kept the light finishes the errand
+its founder was sent on and never finished.
 
 ### Option B: Count Them Home
 
@@ -300,7 +300,7 @@ both sides, or keep feeding it.
 3. It keeps the nightly defense honest. If the lost take the fire, the Morninglands go dark. Both sides
    are right, and the player is never told that every arrow struck a neighbour.
 4. It gives the families a stake beyond money: the tithe, the bell, the chronicle.
-5. The player's low start becomes the key. A lamplighter began this and a lamplighter can end it.
+5. The player's blood becomes the key. A Lantern carried the light out, and a Lantern can carry it home.
 6. B is the warmest but turns every arrow into a wrong, which is heavy for a game with an endless mode.
    C makes the hearth and Mother Hesper the villains and costs the game its warm centre.
 
@@ -308,43 +308,43 @@ Kept from B inside A, because they are true there too: the Count, and faces in t
 Hesper's ominous voice stays as a false trail toward C. A must never drift into giants, a walled-in
 people with wiped memories, or a built wall; see section 10.
 
-## 4. The player: the lamplighter who became Burgherr
+## 4. The player: the heir of the guardian house (docs/HOUSE.md section 7 replaces this section)
 
-**Who.** Lord Aldric's cousin from a side branch, about nineteen, orphaned small, raised between the
-castle kitchen and the lamp ladders, lamplighter since the age of twelve. The last living Lantern, which
-nobody had worked out until Odile opened the family book. The lord has no name in any text and English
+**Who.** Lord Aldric's cousin, the heir by right, about nineteen, orphaned small and raised in the
+castle as the heir of the guardian house. The last living Lantern, known to everyone and written in
+Odile's family book. The player types the name and chooses Burgherr or Burgherrin (decision 3); English
 never says he or she; German says "der Burgherr" and "Ihr" (open question 3).
 
-**Voice.** The lord speaks only in choice labels, 40 characters at most. They are a working person's
-words: short, plain, no decrees, no royal "we", no speeches except the one on day 20. Kind without
+**Voice.** The lord speaks only in choice labels, 40 characters at most. They are the words of one raised
+to the work of the house: short, plain, no decrees, no royal "we", no speeches except the one on day 20. Kind without
 softness, hard without cruelty. "Open the gate." "Light first, then walls." "Count them again." The lord
 never jokes at a petitioner's cost and never threatens.
 
-**Wants.** To know what happened to Aldric, who was the only family there was. To keep the lamps lit,
-which is the one job the lord is sure of. Not to be found out as too small for the chair. Under all
-three: to be counted as a Lantern, by a house that forgot the lamplighter was one.
+**Wants.** To know what happened to Aldric, who was the only family there was. To keep the Flame lit,
+which is what the house is for. To be worthy of the thousand years. Under all
+three: to be the Lantern on whose watch the light does not go out.
 
-**What only a lamplighter knows.** Every lamp, roof and back stair of castle and town. Who is still
-awake at midnight. People by their windows before their names. Texts should use this: the lord
-recognises the widow by "the last window out in Chandler's Row", not by her face. It is the lord's
+**What only the heir knows** (docs/HOUSE.md section 7). The Flame's moods, the Count by heart, every hook in the
+chapel and whose it was, every key of the castle. People by their lantern numbers before their names. Texts should use this: the lord
+recognises a soldier's widow by "the hook beside the chapel door", not by her face. It is the lord's
 single advantage over every noble visitor, and it costs no words.
 
 **How others see the lord.**
 
 | Who | Sees | Says |
 |---|---|---|
-| Odile | a ledger entry that turned out to be the heir; then, slowly, a lord | "my lord" |
-| Brannock | a child to be kept alive; respects orders that are short | "lord", once on day 20 "my lord" |
-| Tamsin | the hungry child from her kitchen bench | "my lord", and "lamb" when she forgets |
-| Pip | the only person at court with a lower start than his | "Your Wickship" |
-| Mother Hesper | the hand that has carried the Flame to every lamp for seven years | "child of the house" |
-| Bram | someone who knows how to trim a wick properly | nothing, or "lord" |
+| Odile | the heir she taught the ledger at twelve; now her lord, and she says so | "my lord" |
+| Brannock | the heir he taught to hold a spear; respects orders that are short | "lord", once on day 20 "my lord" |
+| Tamsin | the heir she has fed since the cradle; the supper is kept warm | "my lord", never a pet name |
+| Pip | the one person he jokes with, never at | "Your Wickship" (the house's name, not the lord's size) |
+| Mother Hesper | the heir the Flame knows; she taught the lord its signs | "heir of the house" |
+| Bram | the heir who held his tongs as a child, and held them well | nothing, or "lord" |
 | Marek | a customer with a treasury | "Your Radiance" |
-| Seren | Aldric's kin, and a debt | "lamplighter", and "lord" only after day 15 |
-| Ser Ludo | the noblest lord he has ever met, like all of them | "good my lord" |
-| The town | one of their own on a chair that is too big | "my lord", "Burgherr", or just "lamplighter" |
-| The envoys | a servant in a dead man's circlet | "Lord Lantern", politely |
-| The herald | exactly what the lord is | "lamplighter" |
+| Seren | Aldric's kin, a keeper of a fire like the lord, and a debt | "Lantern", and "lord" only after day 15 |
+| Ser Ludo | the noblest lord he has ever met, and this time he is right | "good my lord" |
+| The town | the house that has kept them a thousand years, with a face they know | "my lord", "Burgherr" |
+| The envoys | the guardian of the door their houses pay for | "Lord Lantern", with a deeper bow than they meant |
+| The herald | the heir of a thief (the fire, never the chair) | "heir of the thief", by the borrowed fire |
 
 **How choices shape the lord.** No meter and no alignment screen. Three leanings are read from flags
 that M3 already sets, and the court and the ending panels answer them:
@@ -356,8 +356,8 @@ that M3 already sets, and the court and the ending panels answer them:
 - **The honest lamp:** tells the town what is true (shows the beacon plans, calls the chapel,
   `speech_honest`). Fear rises early and settles; Hesper approves; the envoys think it weak.
 
-The middle panel of each ending names the leaning in one sentence. What never changes: the lord does the
-Round, carries the hooked lantern, never fights and is never touched.
+The middle panel of each ending names the leaning in one sentence. What never changes: the lord feeds the
+Flame at dusk, carries the house's hooked lantern, never fights and is never touched.
 
 ## 5. The families of the Morninglands
 
@@ -365,7 +365,7 @@ Five houses, each a different answer to one question: why should we pay for a do
 Each has one face at court. In chapter 1 each gets one or two audiences and a standing flag
 (`varn_with`, `brine_with`, `oxmoor_with`, `calder_with`, `lorn_with`); their banners hang in the hall on
 night 20 for those that stand with the lord (a world change, no numbers). Later chapters turn standing
-into tithe, soldiers and doors that open. No marriages and no succession plots, ever (section 10).
+into tithe, soldiers and doors that open. No marriage petitions and no succession plots (section 10); the lord's own family in chapter 2 is a story of the court (docs/HOUSE.md section 2).
 
 ### House Varn of Highcairn: the old friends
 
@@ -373,7 +373,7 @@ Hill lords under the Wall, three days north. Stone, sheep, long memories. Arms: 
 Lord Harrow Varn was Aldric's friend from boyhood. Varn has sent a levy of soldiers to the Cleft every
 autumn for longer than its own records; Brannock came with one thirty years ago and stayed.
 
-- **Wants:** Aldric found, or at least buried. And proof that the lamplighter can hold, before more Varn
+- **Wants:** Aldric found, or at least buried. And proof that the new lord can hold, before more Varn
   children are sent to a wall that may fall.
 - **Face:** Hild Varn, the lord's daughter, twenty, blunt, arrives with the levy and wants a place on
   the outer line. She measures the lord by whether orders are clear.
@@ -410,7 +410,7 @@ largest tithe and has done the sum of what a thousand years of it comes to.
 - **Face:** Steward Lorenz Pell, smooth, generous with small gifts, and her cousin Ser Aubrey Oxmoor,
   who appears as the hunting noble of `noble_hunt`.
 - **In the game:** flattering letters, a gift that is a debt, the offer of gold for a signature in the
-  bad weeks, and a quiet question to every other house about whether a servant can be a lord.
+  bad weeks, and a quiet question to every other house about whether a house this poor can hold a door.
 - **Reacts:** to weakness. Low gold or low happiness brings Pell back with a better pen. A lord who
   refuses politely and pays the house's way earns Oxmoor's respect and its long enmity together. Odile hates
   Pell on sight and is right.
@@ -436,7 +436,7 @@ claims to be older than House Lantern and has been laughed at for it for centuri
 
 - **Wants:** to be believed once before its last old woman dies.
 - **Face:** Dame Orla Lorn, past eighty, who comes in person with a great-grandchild to carry her
-  stick, sits down without being asked, and calls the lord "young Taper".
+  stick, begs leave to sit at once, and calls the lord "heir of Taper".
 - **In the game:** she says the Lanterns "came down out of the Cleft, not up to it", and that her house
   keeps the hall's first bell, sent away by Lord Edric in the Dark Year because it rang by itself. The
   lord can laugh with the court, hear her out, or ask for the bell.
@@ -449,10 +449,10 @@ All M3 names, roles, looks and voices stay. Changes are marked **(changed)** or 
 what they want, what they hide or fear, their arc in chapter 1, and the hook for later.
 
 **Odile, chancellor.** Wants the house solvent and the lord alive by spring. Hides that she told Aldric
-the house could not afford a dark beacon, and believes she sent him. Arc: begins by managing a ledger
-entry in a circlet; is wrong once in public (`marek_arrows`) and sees the lord notice kindly; gives her
-coldest counsel at `refugees_gate`; by day 20 says "my lord" and means it. **(new)** On day 1 she folds
-a strip of ledger paper into the circlet's band so it stops slipping. Hook: she keeps the family book
+the house could not afford a dark beacon, and believes she sent him. Arc: begins as the heir's
+teacher, all business; is wrong once in public (`marek_arrows`) and sees the lord notice kindly; gives her
+coldest counsel at `refugees_gate`; by day 20 says "my lord" and means it. **(new)** On day 1 she has
+the circlet's band relined with new felt, unasked, and never mentions it. Hook: she keeps the family book
 and cannot bear the eleven stubs.
 
 **Brannock, captain of the guard.** Wants no more empty hooks in the chapel. Hides that Aldric ordered
@@ -463,8 +463,8 @@ knows. In chapter 1 he says only: "That pole. No."
 
 **Pip, the fool.** Wants one laugh a day in the hall, as proof nobody has given up. Hides that he was
 Aldric's friend more than his fool, and that he is saving a joke for the day Aldric comes home
-(`pip_farewell`). Fears silence. Arc: sharpest about the lamplighter lord at first, because the lord
-took the one post lower than his; ends by offering the saved joke to the new lord, or keeping it. Hook
+(`pip_farewell`). Fears silence. Arc: sharpest in the first days, because he is most afraid then and
+jokes hardest; ends by offering the saved joke to the new lord, or keeping it. Hook
 **(new)**: fools go where they like, and he has seen ink ghosts on the pages facing Edric's stubs.
 
 **Mother Hesper, priestess of the Flame.** Wants the hearth fire never out on her watch. Hides a
@@ -503,7 +503,7 @@ Hook: "Ask me why it went dark on the day it burns again."
 never knighted: he is the squire of a knight who rode into the shadow land ten years ago and left him
 the helmet, which is why it is far too big. Fears being asked for proof. Arc: arrives, boasts, returns,
 holds his tourney; on night 20 he stands at the gate with the dented shield, and it is the true deed.
-The lord, in a circlet too big, is the one person who never laughs at the helmet. Hook: his knight's
+The lord is the one person who never laughs at the helmet. Hook: his knight's
 lantern number.
 
 **Ansel Quay, envoy of House Brine.** **(new name; was "the envoy from the coast".)** Wants not to go
@@ -511,16 +511,16 @@ home empty-handed. Fears that the coast will be told to save itself. See section
 
 **Finch, the bard.** **(new name.)** Wants one song that outlives him. Hides a list: he collects the
 single sentences of the Returned and has eleven. Kitchen, washing, warm bread, a stair, a blue door.
-Sung in a row they describe a house. He thinks it is a pretty verse. Arc: the ballad of the lamplighter
-lord with its unkind verse nine, then the satire. Hook: the Song of Small Things.
+Sung in a row they describe a house. He thinks it is a pretty verse. Arc: the ballad of Lord Lantern
+with its verse nine about the mended cloak, then the satire. Hook: the Song of Small Things.
 
 **The herald of the Lightless King.** Ashen, a tattered black banner, cold eyes, no breath. Wants
 nothing of its own. Speaks in old court courtesy, never raises its voice, and calls the lord
-"lamplighter" as one states a title. Tell: it does not flinch from the hearth fire. It looks at it too
+"heir of the thief" (the fire, never the chair) as one states a title. Tell: it does not flinch from the hearth fire. It looks at it too
 long. Arc: the demand on day 17. Hook: under the soot of the banner there is gold thread.
 
 **Lord Aldric, absent.** Big, loud, generous, careless with money, loved. Left behind: his place at
-table, his horn on its peg, the lamplighter's first ladder (his gift), and a hall that still expects
+table, his horn on its peg, the lord's first lantern (his gift), and a hall that still expects
 his laugh. He appears only in the endings.
 
 **Smaller people worth keeping.** Old Hemmet at the mill, a Returned ("The washing was still on the
@@ -535,7 +535,7 @@ gold, people or the night on Odile's counsel path beyond the limits in section 9
 
 | Day | Petition | What happens | What the player learns |
 |---|---|---|---|
-| 1 | `first_plough` | A farmer asks the lord who lit his lane last week to bless his plough. Odile folds paper into the circlet. | The town knows its lord as its lamplighter. The circlet is too big. |
+| 1 | `first_plough` | A farmer asks the new lord to bless his plough. Odile has had the circlet's band relined. | The town knows its lord and trusts the house. The circlet fits. |
 | 2-3 | `tower_request` | Brannock wants a tower on the line; the lord can put light first. | The three lines stand on bare rock in the Throat. Why it is dark there. |
 | 3-4 | `varn_levy` **new** | Hild Varn arrives with half a levy and her father's letter. | Other houses exist, and they are watching. |
 | 4-5 | `stranger_gate` | At dawn a hooded figure with a grey lantern stands at the Throat gate, where nobody comes from. | The Returned. The hearth fire leans away from a grey flame. |
@@ -547,13 +547,13 @@ gold, people or the night on Odile's counsel path beyond the limits in section 9
 | 11-12 | `beacon_plans` | Lady Oriel's plans for the Great Beacon, found under nine hundred years of tithe rolls. The lord walks to the mouth for the first time. | The country beyond, seen whole: fog, firs, the road, the statues facing home. On the plans the tower door opens west. |
 | 12-13 | `calder_audit` **new** | Auditor Ebba Calder asks to stand one night on the wall. She counts statues from the beacon site. | Doubt can be answered or insulted. Sixty statues, forty lords. |
 | 13-14 | `refugees_gate`, then `ash_cough` | Six people from Beaconfoot, the keepers' hamlet at the mouth, reach the Throat gate after weeks in its caves. Three days later the cough. Old Hemmet may die of it. | The Gloom's edge thins the living. Odile's counsel can be right and cold. |
-| 14-15 | `lorn_visit` **new** | Dame Orla Lorn sits down unasked and calls the lord "young Taper". | Someone remembers the house differently. The court laughs. |
+| 14-15 | `lorn_visit` **new** | Dame Orla Lorn, past eighty, begs leave to sit and calls the lord "heir of Taper". | Someone remembers the house differently. The court laughs. |
 | 15-16 | `seren_reveal` or `seren_at_gate` | Seren unhoods: keeper of the beacon, rode with Aldric. "The dark did not kill him. It crowned him." | What the court will believe: the Lightless King is Aldric. Only the beacon's light can touch him. |
 | 16 | `tithe_letters` **new** | Odile reads the houses' answers. Banners go up, or do not. Marek may warn about Oxmoor. | The lord's choices have travelled. |
-| 17 | `herald_demand` or `herald_alone`; `truce_drill`, `truce_end` | The herald asks for the keeper, or for sixty gold of lamp oil poured out on the stone. | The King wants lights out and the beacon's keeper. He remembers this hall. |
+| 17 | `herald_demand` or `herald_alone`; `truce_drill`, `truce_end` | The herald asks for the keeper, or for sixty gold of lamp oil poured out on the stone. | The King wants lights out and the beacon's keeper. He remembers this fire. |
 | 18 | `varn_ride` **new** | Hild asks leave to ride out after Aldric before the last night. | What is owed to the missing, set against what is owed to the wall. |
 | 19 | `pip_farewell` | Pip's saved joke. Tamsin and Aldric's place at table. | Who the court was before, and that it has let the lord in. |
-| 20 | `last_stand` | Brannock asks for the speech. "We hold until dawn." / "We bring Lord Aldric home." / "I was never meant for this." | The lord's own leaning, said aloud. |
+| 20 | `last_stand` | Brannock asks for the speech. "We hold until dawn." / "We bring Lord Aldric home." / "I am afraid too. I stay." | The lord's own leaning, said aloud. |
 | Night 20 | finale | Seren carries the flame out. The beacon flares. The King comes up the Throat with crown, mantle and snuffer. | In the beacon's light, for one breath, they have faces. |
 
 Random and guest petitions fill the other audiences as in M3. Court lines carry the small hints between
@@ -596,9 +596,9 @@ Four panels before day 1, skippable, one tap each. Was three. Text is two short 
 | # | Text | Picture |
 |---|---|---|
 | 1 | A wall of mountains parts the world. / It has one door. | The Worldwall from far off at dusk: snow peaks above the clouds, one black upright cleft, and in it a small castle with lit windows. Warm valley lights below, right. |
-| 2 | For a thousand years House Lantern has held it. / Nobody knows what waits on the other side. | Seen from the castle wall, looking west: black rock walls of the Throat, no plant anywhere, and at the far end a narrow slit of grey-violet fog with cold eyes in it. A teal banner with the gold lantern at the frame's edge. |
+| 2 | Saint Taper struck the Light from the bare rock. / For a thousand years House Lantern has kept the door. | Seen from the castle wall, looking west: black rock walls of the Throat, no plant anywhere, and at the far end a narrow slit of grey-violet fog with cold eyes in it. A teal banner with the gold lantern at the frame's edge. |
 | 3 | This autumn the Great Beacon went dark. / Lord Aldric rode out to light it. He did not come back. | The Throat's mouth: the dark beacon tower on the left, a broad rider in a teal cloak with a lit lantern going out along a rutted road between two statues that face us, firs and fog beyond. Twelve small lights follow him. |
-| 4 | The circlet passed to the last of his blood. / The one who lights the lamps. | The hall, warm: the hearth fire, the empty seat, the court in a half ring. In the middle a young lamplighter with a wick pole, soot on one cheek, the gold circlet slipped over one eyebrow. Odile is holding out a folded strip of paper. |
+| 4 | The circlet passed to the last of his blood. / The heir of the guardian house. | The hall, warm: the hearth fire, the empty seat, the court in a half ring. In the middle the young heir in the house's mended teal cloak, the gold circlet sitting true, the hooked lantern in hand. Odile stands a step behind the heir. |
 
 ## 9. What the story pass must change
 
@@ -612,7 +612,7 @@ not in M3's strings yet; they are written new from sections 7 and 8.
 |---|---|---|---|
 | my king (Odile) | my lord | Herr | her lines and hints |
 | Majesty, Your Majesty | my lord | Burgherr (town), Herr (soldiers) | 65 keys |
-| king (Seren's address) | lamplighter; "lord" once `seren_revealed` | Laternenanzünder; Herr | `l.seren_*`, `p.seren_*`, `p.stranger_gate.*` |
+| king (Seren's address) | Lantern; "lord" once `seren_revealed` | Lantern; Herr | `l.seren_*`, `p.seren_*`, `p.stranger_gate.*` |
 | good king (Ser Ludo) | good my lord | edler Herr | 4 keys |
 | King Aldric, the old king | Lord Aldric, the old lord | Burgherr Aldric, der alte Herr | all |
 | crown (the object) | circlet | Stirnreif | 27 keys with crown/crowned |
@@ -651,11 +651,11 @@ the keys listed under "Stays" and the sea cliffs of the coast.
 
 ### 9.2 Petitions and lines to rewrite
 
-- **The old premise** ("nobody wanted the crown, except the lamplighter, who was too slow to run away")
-  goes. The lamplighter inherits by blood, to everyone's surprise. `p.pip_farewell.r1` becomes: when
-  Odile read the name from the family book, the whole court looked at the ladder.
+- **The old premise** (a servant on the chair by accident) goes. The lord is the heir by right of the guardian
+  house (docs/HOUSE.md sections 1 and 7). `p.pip_farewell.r1` becomes Pip's saved joke: Aldric's bet that
+  no fool could make this hall laugh before a battle. "Pay up, Aldric." (docs/house-rewrite.json).
 - `first_plough`: "the morning the circlet passed"; choice 2 "A lord blesses no tools."; the circlet
-  is too big, not the crown.
+  fits; nobody says otherwise.
 - `stranger_gate`: she stands at the Throat gate at dawn, the side nobody comes from.
 - `refugees_gate`, `ash_cough`, `border_family`, `border_scouts`, `l.odile_refugees`: no farms lie
   beyond the Wall and nobody walks over it. The six are from Beaconfoot, the keepers' hamlet at the
@@ -672,7 +672,7 @@ the keys listed under "Stays" and the sea cliffs of the coast.
   "Aldric's sun".
 - `statue_market`, `castle_statue`: statues of lords are for the dead and stand on the moor road. The
   town wants a Saint Taper with his lantern, and the mason admits he will use the lord's nose. The
-  world-change texts say "statue of the lamplighter saint".
+  world-change texts say "statue of Saint Taper".
 - `tapestry_aldric`, `widow_pension`, `old_sergeant`, `noble_hunt` (now Ser Aubrey Oxmoor): Lord Aldric;
   "a gift to the house".
 - `haunted_cellar`: no sootling can be behind the walls. The whisperer is the woman's brother, a
@@ -684,15 +684,15 @@ the keys listed under "Stays" and the sea cliffs of the coast.
   silent and keeps to the side of the jar where the hearth is. The choices become: put it out, keep it
   for study, let it go at the Throat gate at dusk. No choice plays cruelty for a laugh.
 - `herald_alone`: sixty gold of lamp oil poured out on the Throat's floor at dusk, not coin laid down.
-  The King wants lights out. `herald_demand` keeps "his borrowed chair".
+  The King wants lights out. `herald_demand` greets "the heir of the thief by his borrowed fire".
 - `seren_reveal`, `seren_at_gate`: "He did not fall. The dark did not kill him. It crowned him."
-- `last_stand`: "We hold until dawn." / "We bring Lord Aldric home." / "I was never meant for this."
-- `bard_song`: the ballad of the lamplighter lord; verse nine is about the circlet.
+- `last_stand`: "We hold until dawn." / "We bring Lord Aldric home." / "I am afraid too. I stay."
+- `bard_song`: the ballad of Lord Lantern; verse nine is about the mended cloak.
 - `chronicle`: the scribe finds eleven stubs where Lord Edric cut pages. `keep_window`,
   `widow_pension`: name the Count and the empty hook in the chapel.
 - Lines: `l.odile_first_day` "A circlet is a hat that argues back, my lord. Sit when you are ready.";
-  `l.pip_matches` "They made the lamplighter lord. At last someone here knows where the matches are.";
-  `l.pip_aldric` "The old lord is the new enemy, and the new lord is the old lamplighter.";
+  `l.pip_matches` "The heir knows every key in this castle. At last a lord who knows where the matches are.";
+  `l.pip_aldric` "The old lord is the new enemy, and the new lord is his cousin.";
   `l.envoy_sea` "one door" for "one gorge"; `l.envoy_thanks` "my lady".
 - Speakers: `speaker.envoy.name` Ansel Quay, role "Envoy of House Brine"; `speaker.bard.name` Finch.
 - `Localizable.xcstrings`: "The Gloom reached the throne room on night %lld." becomes "The Gloom
@@ -738,7 +738,7 @@ New court lines, one each, 120 characters at most (aim for 90):
 - Pip: "Eleven pages gone from the big book. I asked it why. Books are terrible gossips."
 - Odile: "The plans put the beacon's door on the west side. Lady Oriel did not make mistakes."
 - Ansel Quay: "Grey lanterns wash up at Saltgate all year. No chandler of ours made them."
-- Dame Orla: "Your house came down out of the Cleft, young Taper. Mine watched it come."
+- Dame Orla: "Your house came down out of the Cleft, heir of Taper. Mine watched it come."
 - Marek: "Goldenacre writes to everyone, Your Radiance. I only carry the letters."
 - Hild: "Father says a wall is as good as whoever counts it at dawn."
 - Tamsin, day 19: "I laid his place again. Tell me to stop and I will."
@@ -783,7 +783,7 @@ From M3's tuning, proven on the runner:
     take no family. Never giants, never a walled-in people whose memories were wiped. Never a ruler
     on a mount, a coin pouch, vagrants bought with coins, masked thieves of a crown, portals, or
     enemies from both sides. Never marriages, heirs or succession plots as petitions. Never swipe
-    cards or four meters. Ours: the lamplighter's hooked pole, the hearth fire as the heart, light
+    cards or four meters. Ours: the guardian house's hooked lantern, the hearth fire as the heart, light
     pools, the Round, the Count, the Returned and their one sentence, the walk from black rock into a
     warm hall.
 
