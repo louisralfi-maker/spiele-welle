@@ -3575,6 +3575,18 @@ marked hooks in shared files: `EmissiveInstance.Kind.rim` (FrameDesc), its quad 
 - **High 8, the slip and the pair of hammers:** a site's slip names its cheapest price with the coin (none for a
   gift); of sites (and cold braziers) closer than 40 px only the nearest carries a mark.
 - **High 9, German:** answered by the director's note of 14.11. 19:35 (build 2 is English only; no German round).
+- **After the first sweep (lh-s2f1-1):** the touched site's mark came back beside its group's (151: two hammers
+  again): the errand's thing now takes its group's place (`TouchRules.withErrand`); an empty site's mark hangs just
+  over its cord (tip 7 px); the gate's rim follows the gate as drawn (`rimX`); a wall carries no mark while its repair
+  cools down (after the second touch paid, the mark stayed and read as unpaid); the ring became a soft front of three
+  pixels above the walk line (a thin circle through the lane read as a radius gizmo). **After the gate's sweep
+  (lh-s2f1-2):** a building's rim is a part of its prop (`EmissivePart.rim`, drawn by `FrameBuilder` as the prop is),
+  so what stands in front of it hides it (58: the barracks' rim ran over Marek's cart).
+- **The atlas:** 2048 x 1925 of 2048 rows, unchanged (no sprite drawn).
+- **Rounds** (the gate by the director's notes of 14.11. 18:46 and 19:35, English only): `lh-s2f1-1` (ea8928d) build,
+  the touch, hall, audience, entity and lantern unit classes and ui Hall passed, ui Touch failed in the test (the
+  cold brazier's slip was gone before the test looked: he stood 55 px from it); **`lh-s2f1-2` (ce5c47c) build, unit
+  and ui Touch, Hall, FirstDay, Audience, Look2, Polish and Lord ALL PASSED**.
 
 ## Risks
 

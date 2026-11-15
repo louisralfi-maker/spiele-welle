@@ -661,7 +661,8 @@ the interface's ink and gold (docs/UI-look.md) that floats above a thing the lor
   (0.78, 0.69, 0.53) of the drawing (M11); at most four in view. The pool is a `window` light (it fades in at dusk);
   in the hall it burns at 0.4 by day. **The rim** (fix round 1 of step stage-2, 15.11.2026): built as specced, by the
   engine from the sprite's alpha (`EmissiveInstance.Kind.rim`: the quad is the cell grown by one texel left, right
-  and up; the shader lights the clear texels beside the outline, never the sprite), added in the emissive pass at
+  and up; the shader lights the clear texels beside the outline, never the sprite; a building's is a part of its prop,
+  `EmissivePart.rim`, so what stands before it hides it), added in the emissive pass at
   0.62 of `gold`, 1.15 while pressed, warmed and at three quarters at night like the marks. Over a marked plot's,
   wall's, brazier's or the barracks' entity props, round a marked person, round a marked bench and the throne in the
   hall; not on the hall's door (it is part of the facade). Its mark keeps to one band over buildings (the tip at most
