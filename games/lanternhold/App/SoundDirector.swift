@@ -82,6 +82,7 @@ final class SoundDirector: FeedbackHub {
         player.play()
     }
 
+    // b3-count: the count's coin (FeedbackHub.countCoin, build 3 lane 1); it needs this file's private voices.
     func countCoin(rate: Double, strength: Double) {
         // Every coin on its own (the count's gaps fall to 0.05 s, under the coin's own throttle): no throttle, no
         // jitter (each coin must sound a little higher than the last), and the oldest voice cut for a new one.
@@ -95,6 +96,7 @@ final class SoundDirector: FeedbackHub {
         activateSession()
         player.play()
     }
+    // end b3-count
 
     func ambience(_ mix: AmbienceMix) {
         let now = CACurrentMediaTime()
