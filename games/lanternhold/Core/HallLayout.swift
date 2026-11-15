@@ -24,8 +24,10 @@ enum HallLayout {
 
     // MARK: - The doors
 
-    /// The hall's door in the world (the forebuilding the world lane paints, REVIEW-look-2.md 2.1).
-    static let worldDoorX = 1830.0
+    /// The hall's door in the world: the middle of the door the hall front paints (touch the world, fix round 1:
+    /// `HallDoor`; at the fixed x 1830 the door's mark stood over a window and he came out of the wall). At the join
+    /// the world lane's forebuilding brings its door (REVIEW-look-2.md 2.1, `SceneLayout.castleHallDoorX`).
+    static let worldDoorX = HallDoor.paintedX
     /// Where the lord stands inside when he comes in, the door behind him.
     static let doorX = 68.0
     /// Walking left past this, he goes out.

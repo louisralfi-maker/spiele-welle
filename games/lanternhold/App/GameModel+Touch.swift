@@ -416,18 +416,15 @@ extension GameModel {
         for pool in TouchMarks.pools(marks) {
             layer.lights.append((source: pool, plane: .world))
         }
+        // Fix round 1: the gold rim on each marked thing, and an empty plot's footing behind every figure.
+        layer.glows += TouchRims.world(marks, props: layer.props, figures: figures, night: night)
+        layer.actors.insert(contentsOf: TouchFooting.actors(marks, framing: framing), at: 0)
+        raisedLantern(&layer, state: state, framing: framing)
         // The flame shows the danger (director's note 5): as the next wave nears the lantern burns lower and
         // flutters, and it steadies when the wave is spent; with Reduce Motion it reddens instead of fluttering.
-        // Raise the lantern: lifted high its light is brighter as well as wider (there is no lifting pose: the glow
-        // says it).
-        if LanternRaise.phase(since: state.king.lanternSince) == .raised {
-            for index in layer.lights.indices where layer.lights[index].source.kind == .lantern {
-                layer.lights[index].source.intensity *= 1.6
-            }
-        }
         let danger = LanternRaise.danger(state)
         if danger > 0.01 {
-            for index in layer.lights.indices where layer.lights[index].source.kind == .lantern {
+            for index in layer.lights.indices where isLordsLantern(layer.lights[index].source, state: state) {
                 var light = layer.lights[index].source
                 light.intensity *= 1 - 0.3 * danger
                 if reduceMotion {
@@ -484,17 +481,74 @@ extension GameModel {
     }
 
     /// The marks in view now: none under a card, during a change of stage or while the reference bot plays; the
-    /// errand's thing always among them.
+    /// errand's thing always among them while it stands clear of the screen's edges.
     private func currentMarks(lordX: Double, framing: TouchFraming) -> [TouchMark] {
         guard overlay == nil, stageChange == nil, driver?.bot == nil, !isShowcase else { return [] }
         var marked = TouchRules.marked(touch.things, lordX: lordX, viewLeft: framing.viewLeft,
                                        viewRight: framing.viewRight)
         if let errand = touch.errand, !marked.contains(where: { $0.id == errand.id }),
-           let thing = touch.things.first(where: { $0.id == errand.id }), thing.kind.mark != nil {
+           let thing = touch.things.first(where: { $0.id == errand.id }), thing.kind.mark != nil,
+           TouchRules.clearOfEdges(thing.markX, viewLeft: framing.viewLeft, viewRight: framing.viewRight) {
             marked.insert(thing, at: 0)
             if marked.count > TouchRules.maxMarks { marked.removeLast() }
         }
-        return TouchMarks.marks(marked, pressed: touch.pressed)
+        return TouchMarks.marks(marked, pressed: touch.pressed ?? heldMark(marked))
+    }
+
+    /// `-GWPressed <id>` (fix round 1, the pressed frame's picture): that thing's mark held pressed while no finger is
+    /// down; `nearest` presses the nearest mark.
+    private func heldMark(_ marked: [TouchThing]) -> String? {
+        guard let held = args.pressed, touch.down == nil else { return nil }
+        return held == "nearest" ? marked.first?.id : held
+    }
+
+    /// True for the lord's own lantern among the frame's lights (on his glass; the street lanterns keep theirs).
+    func isLordsLantern(_ light: LightSource, state: GameState) -> Bool {
+        guard light.kind == .lantern else { return false }
+        let x = state.king.x + EntityFrames.kingGlass.dx * Double(state.king.facing)
+        return abs(light.x - x) <= 1.5 && abs(light.y - EntityFrames.kingGlass.dy) <= 3.5
+    }
+
+    /// Raise the lantern as a picture (fix round 1, `LanternFlare`): he lifts the pole high (the command frames),
+    /// his light brighter and on the lifted glass; for its first 0.45 s a flare on the glass and a ring of warm light
+    /// at the growing light's edge (not with Reduce Motion).
+    private func raisedLantern(_ layer: inout EntityLayer, state: GameState, framing: TouchFraming) {
+        let since = state.king.lanternSince
+        guard LanternRaise.phase(since: since) == .raised else { return }
+        let lord = state.lordOrDefault
+        let pose = LanternFlare.frame(since: since, standing: state.king.velocity == 0)
+        if let pose {
+            for index in layer.actors.indices
+            where layer.actors[index].sprite == lord.body || layer.actors[index].sprite == lord.glow {
+                layer.actors[index].frame = pose
+            }
+        }
+        let lift = pose == nil ? 0 : LanternFlare.liftRows
+        let flare = reduceMotion ? 0 : LanternFlare.strength(since: since)
+        for index in layer.lights.indices where isLordsLantern(layer.lights[index].source, state: state) {
+            layer.lights[index].source.intensity *= 1.6 + 0.6 * flare
+            layer.lights[index].source.y += lift
+        }
+        guard flare > 0.01 else { return }
+        let glassX = (state.king.x + EntityFrames.kingGlass.dx * Double(state.king.facing)).rounded(.down)
+        let glassY = (EntityFrames.kingGlass.dy + lift).rounded(.down)
+        let warm = GamePalette.fireWhite
+        for spot in LanternFlare.flare {
+            let k = Float(flare * spot.share) * 1.4
+            layer.glows.append(EntityGlow(.hallMote, x: glassX + spot.dx, y: glassY + spot.dy,
+                                          color: SIMD4<Float>(warm.x * k, warm.y * k, warm.z * k, 1)))
+        }
+        let radius = LanternRaise.radius(since: since, normal: driver?.balance.lanternRadius ?? 40)
+        let gold = GamePalette.fireGold
+        let k = Float(0.55 * flare)
+        let ringColor = SIMD4<Float>(gold.x * k, gold.y * k, gold.z * k, 1)
+        let left = framing.viewLeft - 2
+        let right = framing.viewRight + 2
+        for pixel in LanternFlare.ring(cx: glassX, cy: glassY, radius: radius,
+                                       floor: -Double(WorldLayout.groundRowsBelow))
+        where pixel.x >= left && pixel.x <= right {
+            layer.glows.append(EntityGlow(.hallMote, x: pixel.x, y: pixel.y, color: ringColor))
+        }
     }
 
     /// After each frame: the slip over the errand's thing, and four times a second the accessibility elements.

@@ -188,6 +188,21 @@ fragment float4 lh_emissive_fragment(SpriteOut in [[stage_in]],
     uint2 t = uint2(max(in.texel, float2(0.0f)));
     float4 c = atlas.read(t);
     float mode = in.tint.a;
+    // Touch the world, fix round 1 (stage lane): a rim (-3) lights the clear texels beside the sprite's outline at its
+    // left and right and above it, never the sprite itself (the quad is the cell grown by a texel; the atlas keeps two
+    // clear texels round every cell).
+    if (mode < -2.5f) {
+        if (c.a >= 0.5f) {
+            discard_fragment();
+        }
+        float left = atlas.read(uint2(t.x > 0u ? t.x - 1u : 0u, t.y)).a;
+        float right = atlas.read(uint2(t.x + 1u, t.y)).a;
+        float below = atlas.read(uint2(t.x, t.y + 1u)).a;
+        if (max(left, max(right, below)) < 0.5f) {
+            discard_fragment();
+        }
+        return float4(in.tint.rgb, 0.0f);
+    }
     if (mode < -1.5f) {
         if (c.a < 0.5f) {
             discard_fragment();

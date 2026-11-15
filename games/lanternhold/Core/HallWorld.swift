@@ -3,7 +3,7 @@ import Foundation
 /// The world's side of the hall stage (stage lane, 14.11.2026; DESIGN.md "The hall stage and touch the world",
 /// docs/REVIEW-look-2.md 2.6): the great hall is a stage of its own, so in the world strip the old cut-away slot (x 1700
 /// to 1960, `WorldLayout`'s great hall room) never opens, its court and its waiting petitioners live on the stage, and
-/// the hall's door at x 1830 (the forebuilding the world lane paints) is what the lord goes in by. Pure rules; the world
+/// the hall's door the hall front paints (`HallDoor`; the world lane's forebuilding at the join) is what the lord goes in by. Pure rules; the world
 /// lane's files (`WorldLayout`, `CastleRooms`) are only read.
 enum HallRules {
     /// The door in the world, and how near the lord must stand for the action button to offer it (until "touch the
@@ -46,7 +46,7 @@ enum HallRules {
     }
 
     /// What the action button offers in the world now that the hall is a stage: as `KingTargets.target`, without the
-    /// throne, the tax lectern and the hall's court (they are inside), with the hall's door at x 1830 instead. The
+    /// throne, the tax lectern and the hall's court (they are inside), with the hall's door (`HallDoor`) instead. The
     /// door is offered by day and by night; the nearest target in reach wins as before.
     static func worldTarget(_ s: GameState, balance: Balance) -> KingTarget? {
         guard !s.defeated else { return nil }

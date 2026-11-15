@@ -1,0 +1,224 @@
+import Foundation
+
+// Touch the world, fix round 1 (stage lane, step stage-2, 15.11.2026; DESIGN.md "The hall stage and touch the
+// world" → "Step stage-2, fix round 1"; the critic's look 1 of step stage-2). The pure parts of the fix: the hall door
+// where it is painted, the marks in one height band and clear of the screen's edges, one mark for a group of sites,
+// the footing of an empty plot, the gold rim on the marked thing (SPRITES.md "The marks of 'touch the world'"), and
+// the raised lantern's pose, flare and ring.
+
+/// The great hall's door in the world, where the facade paints it (the critic's blocker 1: at a fixed x 1830 the
+/// door's target, mark, standing place and way out stood over the hall front's middle window, and the lord walked out
+/// of the wall). The door's middle is read from the hall front's own anchors: the line of light under its door
+/// (`CastleRooms.hallFrontMasks`, the one mask a pixel high). At the join the world lane's forebuilding brings its own
+/// door (`SceneLayout.castleHallDoorX`); this one line then reads that instead.
+enum HallDoor {
+    static let paintedX: Double = {
+        let sill = CastleRooms.hallFrontMasks.first { $0.height == 1 && $0.width >= 8 }
+        let middle = sill.map { $0.dx + Double($0.width) / 2 } ?? 47
+        return CastleRooms.hallX + middle
+    }()
+}
+
+extension TouchRules {
+    /// The marks' height band (the critic's high 1): over a building, a wall, a brazier or the barracks the mark's tip
+    /// stands at most this high over the walk line, so its top stays within 48 px, about a head over the townsfolk's
+    /// marks: at the building's door, never at its crown (the tower's mark hung 130 px up on its battlements).
+    static let bandTip = 30.0
+    /// A mark shows only while its thing's centre lies this far inside the view (the critic's high 3: the door's mark
+    /// stood half off the screen's left edge).
+    static let edgeMargin = 30.0
+    /// Of sites (and of cold braziers) closer together than this only the nearest carries a mark (the critic's high
+    /// 8: two hammers over the gate's two braziers read as a pair of signposts).
+    static let groupSpan = 40.0
+
+    /// True for the things whose mark keeps to the band.
+    static func keepsToBand(_ kind: TouchKind) -> Bool {
+        kind == .plot || kind == .wall || kind == .brazier || kind == .recruit
+    }
+
+    /// True for the things of which one in a group carries the mark.
+    static func grouped(_ kind: TouchKind) -> Bool {
+        kind == .plot || kind == .brazier
+    }
+
+    /// True while a mark at `x` lies far enough inside the view.
+    static func clearOfEdges(_ x: Double, viewLeft: Double, viewRight: Double) -> Bool {
+        x >= viewLeft + edgeMargin && x <= viewRight - edgeMargin
+    }
+
+    /// The gold rim on a marked thing (SPRITES.md: one pixel outside the sprite's outline at its left, right and top,
+    /// `gold`, unlit; brighter while the finger is down on it), at night three quarters of its value and warmed like
+    /// the marks.
+    static func rimColor(pressed: Bool, night: Double) -> SIMD4<Float> {
+        let gold = GamePalette.gold * (pressed ? 1.15 : 0.62)
+        let rgb = gold * markTint(night: night)
+        return SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1)
+    }
+}
+
+/// The footing of an empty plot (the critic's high 1: since the banner posts went an open plot had nothing on the
+/// ground, and its hammer floated beside the townsfolk's heads): two stakes 4 px high at its ends, a cord between their
+/// tops sagging a pixel over the middle, and a chalk line on the lane, drawn as part of the world (lit), only while its
+/// mark shows.
+enum TouchFooting {
+    static let stakeHeight = 4
+    static let woodColor = SIMD3<Float>(0.40, 0.26, 0.18)
+    static let cordColor = SIMD3<Float>(0.62, 0.55, 0.42)
+    static let chalkColor = SIMD3<Float>(0.80, 0.77, 0.68)
+
+    struct Pixel: Sendable, Equatable {
+        /// The pixel's left edge (stage px) and its bottom over the walk line.
+        var x: Double
+        var lift: Double
+        var color: SIMD3<Float>
+    }
+
+    /// The footing's pixels for a site centred on `x`, `half` px each way.
+    static func pixels(x: Double, half: Double) -> [Pixel] {
+        let left = (x - half).rounded(.down)
+        let right = (x + half).rounded(.down)
+        guard right - left >= 4 else { return [] }
+        var list: [Pixel] = []
+        for stake in [left, right] {
+            for row in 0..<stakeHeight {
+                list.append(Pixel(x: stake, lift: Double(row), color: woodColor))
+            }
+        }
+        let span = right - left
+        var column = left + 1
+        while column < right {
+            let share = (column - left) / span
+            let sag: Double = share > 0.25 && share < 0.75 ? 1 : 0
+            list.append(Pixel(x: column, lift: Double(stakeHeight - 1) - sag, color: cordColor))
+            if Int(column - left) % 3 != 0 {
+                list.append(Pixel(x: column, lift: -1, color: chalkColor))
+            }
+            column += 1
+        }
+        return list
+    }
+
+    /// The footing's half width for an empty plot: what its first building would cover (8 ... 24 px).
+    static func half(plot: Int, state s: GameState, layouts: [LineLayout]) -> Double {
+        guard plot < s.plots.count, plot < Realm.plots.count else { return 8 }
+        var ghost = s
+        ghost.plots[plot].item = Realm.plots[plot].firstItems.first
+        let half = TouchThings.extent(plot: plot, state: ghost, layouts: layouts).half
+        return min(24, max(8, half - 2))
+    }
+
+    /// The footings of the marked empty plots as lit actors on the walk line (drawn behind every figure).
+    static func actors(_ marks: [TouchMark], framing: TouchFraming) -> [ActorInstance] {
+        var list: [ActorInstance] = []
+        let side = Float(framing.scale)
+        for mark in marks {
+            guard let half = mark.footing else { continue }
+            for pixel in pixels(x: mark.poolX, half: half) {
+                let left = framing.deviceX(stageX: pixel.x)
+                let bottom = framing.deviceY(lift: pixel.lift)
+                guard left + Double(side) >= 0, left <= framing.physicalWidth else { continue }
+                list.append(ActorInstance(sprite: .hallMote, frame: 0,
+                                          rect: SIMD4<Float>(Float(left), Float(bottom) - side, side, side),
+                                          tint: SIMD4<Float>(pixel.color.x, pixel.color.y, pixel.color.z, 1),
+                                          flipped: false, isEmissive: false, isLit: true))
+            }
+        }
+        return list
+    }
+}
+
+/// The gold rim on what a mark points at (SPRITES.md "The marks of 'touch the world'"): the engine draws one pixel
+/// outside the sprite's outline at its left, right and top (`EmissiveInstance.Kind.rim`), added in the emissive pass so
+/// it reads by day and at night and never covers the thing itself.
+enum TouchRims {
+    /// The rims in the world: over the entity props that stand on a marked plot, wall, brazier or the barracks, and
+    /// round the body of a marked person.
+    static func world(_ marks: [TouchMark], props: [Prop], figures: [DrawnFigure], night: Double) -> [EntityGlow] {
+        var list: [EntityGlow] = []
+        for mark in marks {
+            let color = TouchRules.rimColor(pressed: mark.pressed, night: night)
+            if mark.kind == .talk || mark.kind == .bench {
+                if let who = mark.who, let figure = figures.first(where: { $0.who == who && $0.alpha > 0.5 }) {
+                    list.append(rim(figure, color: color))
+                }
+                continue
+            }
+            guard TouchRules.keepsToBand(mark.kind) else { continue }
+            for prop in props where standsOn(prop, x: mark.poolX, half: mark.half) {
+                var glow = EntityGlow(prop.sprite, x: prop.x, y: prop.y, color: color, frame: prop.frame,
+                                      flipped: prop.flipped)
+                glow.kind = .rim
+                list.append(glow)
+            }
+        }
+        return list
+    }
+
+    /// True for an entity prop of the world plane that stands on the thing centred on `x`, `half` px each way.
+    static func standsOn(_ prop: Prop, x: Double, half: Double) -> Bool {
+        guard prop.id >= EntityFrames.propIDBase, prop.id < CourtFrames.propIDBase, prop.plane == .world,
+              prop.alpha > 0.5, prop.sunShadow == nil, prop.mist == nil, prop.width >= 3, prop.height >= 3 else {
+            return false
+        }
+        let centre = prop.x + Double(prop.width) / 2
+        return abs(centre - x) <= max(4, half)
+    }
+
+    /// The rim round a figure as the actors place it (its anchor at its bottom middle).
+    static func rim(_ figure: DrawnFigure, color: SIMD4<Float>) -> EntityGlow {
+        let size = figure.sprite.size
+        var glow = EntityGlow(figure.sprite, x: (figure.x - Double(size.width / 2)).rounded(), y: figure.y.rounded(),
+                              color: color, frame: figure.frame, flipped: figure.facing < 0)
+        glow.kind = .rim
+        return glow
+    }
+}
+
+/// Raise the lantern as a picture (the critic's high 7: the lantern stayed at his side and the 96 px light barely
+/// differed from his pool): he lifts the pole high (the strip's command frames 8 and 9, the glass two rows up), a short
+/// flare on the glass, and for the light's first 0.45 s, while it grows from 40 to 96 px, a ring of warm light at its
+/// edge. Reduce Motion: the pose and the light, no flare and no ring.
+enum LanternFlare {
+    /// The lift: frame 8 for this long, then 9 held while the lantern is raised.
+    static let liftSeconds = 0.15
+    /// The glass stands this many px higher in the lifted frames.
+    static let liftRows = 2.0
+    /// The flare and the ring last this long.
+    static let seconds = 0.45
+
+    /// The lord's frame while the lantern was raised `since` seconds ago and he stands; nil: his own frame.
+    static func frame(since: Double?, standing: Bool) -> Int? {
+        guard standing, let t = since, LanternRaise.phase(since: t) == .raised else { return nil }
+        return t < liftSeconds ? 8 : 9
+    }
+
+    /// The flare's and the ring's strength (1 at the lift, 0 after `seconds`).
+    static func strength(since: Double?) -> Double {
+        guard let t = since, t >= 0, t < seconds else { return 0 }
+        return 1 - t / seconds
+    }
+
+    /// The ring's pixels round (`cx`, `cy`) at `radius` (stage px, y up): one per pixel of its edge, none below
+    /// `floor`.
+    static func ring(cx: Double, cy: Double, radius: Double, floor: Double) -> [(x: Double, y: Double)] {
+        guard radius > 1 else { return [] }
+        var seen = Set<Int64>()
+        var list: [(x: Double, y: Double)] = []
+        let steps = max(16, Int((2 * Double.pi * radius * 1.6).rounded(.up)))
+        for k in 0..<steps {
+            let angle = 2 * Double.pi * Double(k) / Double(steps)
+            let x = (cx + radius * cos(angle)).rounded(.down)
+            let y = (cy + radius * sin(angle)).rounded(.down)
+            guard y >= floor else { continue }
+            let key = Int64(x) * 100_000 + Int64(y + 50_000)
+            if seen.insert(key).inserted { list.append((x, y)) }
+        }
+        return list
+    }
+
+    /// The flare on the glass: its middle and the pixels round it (offsets and shares).
+    static let flare: [(dx: Double, dy: Double, share: Double)] = [
+        (0, 0, 1), (-1, 0, 0.55), (1, 0, 0.55), (0, -1, 0.55), (0, 1, 0.55), (-2, 0, 0.2), (2, 0, 0.2),
+        (0, 2, 0.2), (0, -2, 0.2),
+    ]
+}

@@ -608,7 +608,7 @@ final class GameModel {
         case .lectern:
             openCard(.taxes, anchorX: stage == .hall ? HallLayout.lecternX : KingTargets.lecternX)
         case .hallDoor:
-            // The hall stage: in by the door at x 1830, or out by the inner door.
+            // The hall stage: in by the hall's door (`HallDoor`), or out by the inner door.
             if stage == .hall { leaveHall() } else { enterHall() }
         case .stranger:
             openAudience(.gate)
@@ -1244,6 +1244,8 @@ final class GameModel {
         // Touch the world: the lord's x on the stage that shows (`lord:` names Burgherr or Burgherrin) and the
         // errand's thing.
         text += " lx:\(Int(stageLordX.rounded())) errand:\(touch.errand?.id ?? "none")"
+        // Fix round 1: where the painted hall door stands in the world (the tests check he comes out there).
+        if stage == .world { text += " door:\(Int(HallLayout.worldDoorX.rounded()))" }
         // Raise the lantern: its phase at night.
         if DayClock.phase(at: state.hour) != .day {
             text += " lantern:\(GameModel.lanternWord(LanternRaise.phase(since: state.king.lanternSince)))"

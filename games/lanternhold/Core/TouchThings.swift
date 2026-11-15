@@ -9,7 +9,8 @@ import Foundation
 ///   grow, rubble: `tapBuild`; M6: the plot markers are gone, the mark is the site's sign while it offers something),
 ///   the court and the guests with a word (`tapTalk`, marked while they have a new line today), the Stranger asking
 ///   at the gate; at night every cold brazier (`tapLight`) and every damaged wall (`tapRepair`, its price); day and
-///   night the barracks (`tapRecruit`) and the great hall's door at x 1830 (`tapDoor`).
+///   night the barracks (`tapRecruit`, marked while a recruit can be paid) and the great hall's door where the hall
+///   front paints it (`tapDoor`, `HallDoor`).
 /// - **The great hall:** the inner door (`tapDoor`); by day the empty throne while an audience can be held
 ///   (`tapThrone`), each occupied bench as one target with its mark over the first in line, the court with a word,
 ///   and the tax lectern (no mark) while nobody waits.
@@ -31,10 +32,17 @@ enum TouchThings {
                 let size = extent(plot: plot, state: s, layouts: layouts)
                 // Its mark only while the treasury can pay something on its card (a free gift included); the site
                 // still answers a touch (its card shows the prices).
-                let affordable = Build.options(s, plot: plot, balance: balance).contains { $0.price <= s.gold }
+                let options = Build.options(s, plot: plot, balance: balance)
+                let affordable = options.contains { $0.price <= s.gold }
+                // Fix round 1: the slip names the cheapest price with its coin (none for a gift); an empty plot shows
+                // its footing while its mark shows.
+                let cheapest = options.map(\.price).min()
+                let bare = s.plots[plot].item == nil && s.plots[plot].job == nil
                 list.append(TouchThing(id: "touch-plot-\(plot)", kind: .plot, act: .build(plot: plot), x: x,
                                        standX: x, halfWidth: size.half, top: size.top,
-                                       rank: TouchRules.rank(.plot), marked: affordable))
+                                       rank: TouchRules.rank(.plot), price: cheapest.flatMap { $0 > 0 ? $0 : nil },
+                                       marked: affordable,
+                                       footing: bare ? TouchFooting.half(plot: plot, state: s, layouts: layouts) : nil))
             }
             var seen = Set<String>()
             for figure in figures where figure.alpha > 0.5 && figure.petition == nil && !seen.contains(figure.who) {
@@ -71,10 +79,15 @@ enum TouchThings {
                                        rank: TouchRules.rank(.wall), price: balance.patchCost))
             }
         }
+        // Fix round 1: the barracks carry their mark only while the treasury can pay a recruit (the sites' rule; at 3
+        // gold the mark led to a card of refusals); the slip names the cheapest recruit's price.
         let barracks = KingTargets.barracksX
+        let recruits = RecruitCard.make(s, balance: balance).options
         list.append(TouchThing(id: "touch-recruit-barracks", kind: .recruit, act: .recruit, x: barracks,
                                standX: barracks, halfWidth: Double(SpriteID.barracks.size.width) / 2 - 4,
-                               top: Double(SpriteID.barracks.size.height) - 4, rank: TouchRules.rank(.recruit)))
+                               top: Double(SpriteID.barracks.size.height) - 4, rank: TouchRules.rank(.recruit),
+                               price: recruits.map(\.price).min(),
+                               marked: recruits.contains { $0.canRecruit }))
         list.append(TouchThing(id: "touch-door-hall", kind: .door, act: .hallDoor, x: HallRules.doorX,
                                standX: HallRules.doorX, halfWidth: 9, top: worldDoorTop,
                                rank: TouchRules.rank(.door), marked: abs(s.king.x - HallRules.doorX) > doorQuiet))
@@ -85,8 +98,7 @@ enum TouchThings {
     /// touch (the first sweep: the door's mark over his head was the first thing he saw inside).
     static let doorQuiet = 40.0
 
-    /// The great hall's door in the world: its top above the walk line (the forebuilding's door the world lane
-    /// paints at x 1830).
+    /// The great hall's door in the world: its top above the walk line (the painted door's arch, `HallDoor`).
     static let worldDoorTop = 40.0
 
     /// Someone with a word: his touch area is his body, his mark over his head, and the lord stops an arm's length

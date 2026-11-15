@@ -10,6 +10,8 @@ struct EntityGlow: Sendable, Equatable {
     var y: Double
     var color: SIMD4<Float>
     var flipped: Bool
+    // Touch the world, fix round 1 (stage lane): `.rim` draws the gold rim one pixel outside the sprite's outline.
+    var kind: EmissiveInstance.Kind = .glow
 
     init(_ sprite: SpriteID, x: Double, y: Double, color: SIMD4<Float>, frame: Int = 0, flipped: Bool = false) {
         self.sprite = sprite
@@ -43,9 +45,11 @@ struct EntityLayer: Sendable {
             let left = glow.x.rounded(.down) - worldWhole
             guard left + Double(size.width) >= -1, left <= Double(targetWidth) + 1 else { continue }
             let top = Double(groundRow) - glow.y.rounded(.down) - Double(size.height)
-            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            var rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            // Touch the world, fix round 1 (stage lane): a rim's quad reaches a pixel past the sprite left, right and up.
+            if glow.kind == .rim { rect = SIMD4<Float>(rect.x - 1, rect.y - 1, rect.z + 2, rect.w + 1) }
             list.append(EmissiveInstance(sprite: glow.sprite, plane: .world, rect: rect, color: glow.color,
-                                         flipped: glow.flipped, frame: glow.frame))
+                                         kind: glow.kind, flipped: glow.flipped, frame: glow.frame))
         }
         return list
     }

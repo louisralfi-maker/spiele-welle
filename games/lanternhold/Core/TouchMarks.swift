@@ -53,6 +53,12 @@ struct TouchMark: Sendable, Equatable {
     var lift: Double
     var pressed: Bool
     var poolX: Double
+    /// Fix round 1: what it marks, for the gold rim on the thing (its kind, who speaks there, its half width), and an
+    /// empty plot's footing (its half width; nil: none).
+    var kind: TouchKind = .plot
+    var who: String? = nil
+    var half: Double = 6
+    var footing: Double? = nil
 }
 
 /// The marks of touch the world on a stage (SPRITES.md "The marks of 'touch the world'"): a small tag over each thing
@@ -66,7 +72,8 @@ enum TouchMarks {
         marked.compactMap { thing in
             guard let sprite = thing.kind.mark else { return nil }
             return TouchMark(sprite: sprite, x: thing.markX, lift: thing.markLift, pressed: thing.id == pressed,
-                             poolX: thing.x)
+                             poolX: thing.x, kind: thing.kind, who: thing.who, half: thing.halfWidth,
+                             footing: thing.footing)
         }
     }
 

@@ -2,7 +2,7 @@ import UIKit
 import XCTest
 
 /// The great hall as a stage of its own (stage lane, 14.11.2026; DESIGN.md "The hall stage and touch the world"): in
-/// by a touch on the door at x 1830 (touch the world, step stage-2), the hall answering its lord, a drag down the
+/// by a touch on the hall's door (touch the world, step stage-2; fix round 1: where the facade paints it), the hall answering its lord, a drag down the
 /// nave, a touch on the throne and the audience with the letter in the upper left and the choices along the floor band, the horn's
 /// slip at the door, out by walking past the door, and Reduce Motion's cut; stills of the hall by day, in the
 /// afternoon's shafts, at dusk and at night, and the longest German letter in the hall's card. Every button is
@@ -36,7 +36,7 @@ final class HallUITests: XCTestCase {
     private func intoTheHallAndAnAudience() {
         let app = XCUIApplication()
         app.launchArguments = HallUITests.base + HallUITests.day3
-            + ["-GWClock", "10", "-GWStage", "world", "-GWCameraX", "1760"]
+            + ["-GWClock", "10", "-GWStage", "world", "-GWCameraX", "hallDoor+80"]
         app.launch()
         guard waitUntilReady(app, name: "hall-door") else { return }
         let strip = element(app, "realm-strip")
@@ -185,7 +185,7 @@ final class HallUITests: XCTestCase {
     private func reduceMotion() {
         let app = XCUIApplication()
         app.launchArguments = HallUITests.base + HallUITests.day3
-            + ["-GWClock", "9.5", "-GWStage", "world", "-GWCameraX", "1830", "-GWReduceMotion", "YES"]
+            + ["-GWClock", "9.5", "-GWStage", "world", "-GWCameraX", "hallDoor", "-GWReduceMotion", "YES"]
         app.launch()
         guard waitUntilReady(app, name: "hall-reduce-motion") else { return }
         guard let door = waitForThing(app, "touch-door-hall", timeout: 8) else {
@@ -200,11 +200,11 @@ final class HallUITests: XCTestCase {
     }
 
     /// The step's proofs (fix round 1): the dark of the change caught half way (the change ten times slower), out
-    /// past the door and standing at 1830 facing right, the hearth burning low and as embers at night.
+    /// past the door and standing in its doorway facing right, the hearth burning low and as embers at night.
     private func proofs() {
         let slow = XCUIApplication()
         slow.launchArguments = HallUITests.base + HallUITests.day3
-            + ["-GWClock", "10", "-GWStage", "world", "-GWCameraX", "1830", "-GWStageSlow", "10"]
+            + ["-GWClock", "10", "-GWStage", "world", "-GWCameraX", "hallDoor", "-GWStageSlow", "10"]
         slow.launch()
         if waitUntilReady(slow, name: "hall-dark") {
             if let door = waitForThing(slow, "touch-door-hall", timeout: 8) {
@@ -235,7 +235,9 @@ final class HallUITests: XCTestCase {
             XCTAssertTrue(waitForField(out, "stage:world", timeout: 8), "out past the door")
             pause(0.8)
             attach(XCUIScreen.main.screenshot(), "143-hall-exit-world-\(language)")
-            XCTAssertEqual(field(out, "kx:") ?? 0, 1830, accuracy: 1, "he stands at the hall's door in the world")
+            // Fix round 1: in the doorway the facade paints (the scene's `door:`), not out of the wall beside it.
+            let door = field(out, "door:") ?? -1
+            XCTAssertEqual(field(out, "kx:") ?? 0, door, accuracy: 1, "he stands in the hall's doorway in the world")
         }
         out.terminate()
 

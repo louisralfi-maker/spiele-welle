@@ -114,6 +114,15 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWTouchHint YES` (touch the world, step stage-2): the first minute's slip "Touch what the lord shall do."
     /// shows and stays (its screenshot), whatever the day.
     var touchHint = false
+    // Touch the world, fix round 1 (stage lane): the night's deeds and the pressed frame in a picture.
+    /// `-GWDamage <plot>[,<plot>]`: those walls stand damaged at the start (45 % of their strength; the repair's
+    /// screenshots).
+    var damage: [Int] = []
+    /// `-GWSnuff <plot>[,<plot>]`: those braziers stand cold at the start (the light's screenshot).
+    var snuff: [Int] = []
+    /// `-GWPressed <id>|nearest`: that thing's mark held pressed while no finger is down (the pressed frame's
+    /// screenshot).
+    var pressed: String?
 
     /// `-GWGloomFog` values.
     enum GloomFogOverride: Sendable, Equatable {
@@ -153,8 +162,8 @@ struct DebugArgs: Sendable, Equatable {
         "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock", "GWLook", "GWCastle",
         "GWWeather", "GWWind", "GWRain", "GWWetness", "GWLord", "GWLordName", "GWGloomFog", "GWHouses", "GWSound",
         "GWStage", "GWHallX", "GWPetition", "GWHearth", "GWStageSlow",
-        // Touch the world (stage lane, step stage-2)
-        "GWTouchHint",
+        // Touch the world (stage lane, step stage-2; fix round 1)
+        "GWTouchHint", "GWDamage", "GWSnuff", "GWPressed",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -189,7 +198,7 @@ struct DebugArgs: Sendable, Equatable {
         if let text = values["GWSeed"], let seed = UInt64(text.trimmingCharacters(in: .whitespaces)) {
             self.seed = seed
         }
-        if let cameraX = DebugArgs.double(values["GWCameraX"]) {
+        if let cameraX = DebugArgs.place(values["GWCameraX"]) {
             self.cameraX = cameraX
         }
         autoplay = values["GWAutoplay"].flatMap { Autoplay(rawValue: $0.lowercased()) }
@@ -279,6 +288,11 @@ struct DebugArgs: Sendable, Equatable {
             stageSlow = min(40, slow)
         }
         touchHint = DebugArgs.bool(values["GWTouchHint"])
+        damage = DebugArgs.plots(values["GWDamage"])
+        snuff = DebugArgs.plots(values["GWSnuff"])
+        if let held = values["GWPressed"]?.trimmingCharacters(in: .whitespaces), !held.isEmpty {
+            pressed = held
+        }
         lord = values["GWLord"].flatMap { LordForm(rawValue: $0.trimmingCharacters(in: .whitespaces).lowercased()) }
         if let name = values["GWLordName"]?.trimmingCharacters(in: .whitespaces), !name.isEmpty {
             lordName = name
@@ -306,6 +320,27 @@ struct DebugArgs: Sendable, Equatable {
         if let value = Int(trimmed) { return value }
         if let value = Double(trimmed), value.isFinite, abs(value) < 1_000_000 { return Int(value) }
         return nil
+    }
+
+    /// A place in the world (touch the world, fix round 1): px, or `hallDoor` with an offset (`hallDoor+80`): the
+    /// painted hall door wherever the facade has it (`HallDoor`), so the tests stand where the door is.
+    static func place(_ text: String?) -> Double? {
+        guard let trimmed = text?.trimmingCharacters(in: .whitespaces), !trimmed.isEmpty else { return nil }
+        let key = "halldoor"
+        if trimmed.lowercased().hasPrefix(key) {
+            let rest = String(trimmed.dropFirst(key.count)).replacingOccurrences(of: " ", with: "")
+            if rest.isEmpty { return HallLayout.worldDoorX }
+            guard let offset = Double(rest), offset.isFinite else { return nil }
+            return HallLayout.worldDoorX + offset
+        }
+        return double(trimmed)
+    }
+
+    /// Plot indices, comma separated.
+    static func plots(_ text: String?) -> [Int] {
+        guard let text else { return [] }
+        return text.split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+            .filter { $0 >= 0 && $0 < 64 }
     }
 
     private static func double(_ text: String?) -> Double? {

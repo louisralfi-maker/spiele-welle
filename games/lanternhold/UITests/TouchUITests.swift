@@ -7,7 +7,9 @@ import XCTest
 /// the ground; a touch on a bench (the first in line speaks in a bubble over his head) and on the throne; a damaged
 /// wall at night, its price over it and the second touch that pays; the first minute's slip; the accessibility
 /// elements (44 pt, the act first, the order left to right); raise the lantern (a hold on the lord at night).
-/// Saves `<nn>-touch-<what>-<lang>`: 150 to 158.
+/// Saves `<nn>-touch-<what>-<lang>`: 150 to 159 (fix round 1: the night forced with a damaged gate and a cold brazier,
+/// 152 to 153c; the lord walking up the nave under the throne's slip, 156; the lantern lifted, 158 and 158b; the
+/// pressed frame, 159).
 @MainActor
 final class TouchUITests: XCTestCase {
     override func setUp() async throws {
@@ -23,8 +25,10 @@ final class TouchUITests: XCTestCase {
     func testTouchTheWorld() {
         XCUIDevice.shared.orientation = .landscapeLeft
         theFront()
+        thePressedFrame()
         theFrontAtNight()
         theHall()
+        theHallWalk()
         theFirstMinute()
     }
 
@@ -88,36 +92,88 @@ final class TouchUITests: XCTestCase {
         app.terminate()
     }
 
-    /// Night 3 (seed 2) at the gatehouse: the marks darker and warm, at most four; a damaged wall, its price over it,
-    /// and the second touch that pays.
-    private func theFrontAtNight() {
+    /// The pressed frame (fix round 1): day 3 at the gatehouse, the nearest mark held pressed (`-GWPressed`: a held
+    /// finger cannot be photographed), its rim and its pool brighter.
+    private func thePressedFrame() {
         let app = XCUIApplication()
-        app.launchArguments = TouchUITests.base + ["-GWNight", "3", "-GWSeed", "2", "-GWHour", "21.5",
-                                                   "-GWStage", "world", "-GWCameraX", "1240"]
+        app.launchArguments = TouchUITests.base + ["-GWDay", "3", "-GWSeed", "2", "-GWClock", "10",
+                                                   "-GWStage", "world", "-GWCameraX", "1150", "-GWPressed", "nearest"]
+        app.launch()
+        guard waitUntilReady(app, name: "touch-pressed") else { return }
+        pause(0.8)
+        attach(XCUIScreen.main.screenshot(), "159-touch-pressed-\(language)")
+        app.terminate()
+    }
+
+    /// Night 3 (seed 2) at the gatehouse, forced for its pictures (fix round 1: the night had no damaged wall): the
+    /// gate at 45 % (`-GWDamage 0`) and the brazier before it cold (`-GWSnuff 2`) beside its lit twin. The marks darker
+    /// and warm; a touch on the cold brazier (its slip, 153c); a touch on the gate, its price over it while he waits
+    /// (153), the second touch that pays (153b); with no gold the price red (153a).
+    private func theFrontAtNight() {
+        let night = TouchUITests.base + ["-GWNight", "3", "-GWSeed", "2", "-GWHour", "21.5", "-GWStage", "world",
+                                         "-GWCameraX", "1200", "-GWDamage", "0", "-GWSnuff", "2"]
+        let app = XCUIApplication()
+        app.launchArguments = night + ["-GWGold", "60"]
         app.launch()
         guard waitUntilReady(app, name: "touch-night") else { return }
         pause(0.8)
         attach(XCUIScreen.main.screenshot(), "152-touch-front-night-\(language)")
-        let walls = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'touch-wall-'"))
-        if walls.count > 0 {
-            let wall = walls.element(boundBy: 0)
+        if let brazier = waitForThing(app, "touch-brazier-2", timeout: 3) {
+            XCTAssertFalse(brazier.label.isEmpty, "the light's label")
+            touchThing(brazier)
+            if element(app, "touch-slip").waitForExistence(timeout: 3) {
+                pause(0.25)
+                attach(XCUIScreen.main.screenshot(), "153c-touch-light-\(language)")
+            } else {
+                XCTFail("no slip over the cold brazier")
+            }
+            waitForStill(app)
+            pause(1.5)
+        } else {
+            XCTFail("the cold brazier offers nothing")
+        }
+        if let wall = waitForThing(app, "touch-wall-0", timeout: 3) {
             XCTAssertTrue(wall.label.count > 0, "the repair's label")
             touchThing(wall)
+            XCTAssertTrue(waitForField(app, "errand:touch-wall-0", timeout: 3), "he sets off to the gate")
+            waitForStill(app)
             let slip = element(app, "touch-slip")
-            if slip.waitForExistence(timeout: 8) {
-                pause(2.5)
+            if slip.waitForExistence(timeout: 4) {
+                pause(0.4)
                 attach(XCUIScreen.main.screenshot(), "153-touch-wall-price-\(language)")
-                if wall.exists {
-                    touchThing(wall)
-                    pause(0.6)
+                if let again = waitForThing(app, "touch-wall-0", timeout: 2) {
+                    touchThing(again)
+                    pause(0.8)
+                    attach(XCUIScreen.main.screenshot(), "153b-touch-wall-paid-\(language)")
+                    XCTAssertEqual(sceneField(app, "errand:"), "none", "the second touch paid")
                 }
+            } else {
+                XCTFail("no price over the gate")
             }
         } else {
-            note("touch-night", "no damaged wall tonight: \((element(app, "world-scene").value as? String) ?? "")")
+            XCTFail("the damaged gate offers nothing")
         }
         app.terminate()
 
-        // Raise the lantern: a hold on the lord at night, in the town (no camera lead: he stands in the middle).
+        // With an empty treasury the price over the gate is red, and the second touch is refused.
+        let poor = XCUIApplication()
+        poor.launchArguments = night + ["-GWGold", "0"]
+        poor.launch()
+        if waitUntilReady(poor, name: "touch-night-poor"), let wall = waitForThing(poor, "touch-wall-0", timeout: 3) {
+            touchThing(wall)
+            waitForStill(poor)
+            if element(poor, "touch-slip").waitForExistence(timeout: 4) {
+                pause(0.4)
+                attach(XCUIScreen.main.screenshot(), "153a-touch-wall-short-\(language)")
+            } else {
+                XCTFail("no price over the gate with an empty treasury")
+            }
+        }
+        poor.terminate()
+
+        // Raise the lantern: a hold on the lord at night, in the town (no camera lead: he stands in the middle). The
+        // first picture right after the lift (the flare and the ring at the growing light's edge), the second a second
+        // later (the pole held high, the wide light).
         let town = XCUIApplication()
         town.launchArguments = TouchUITests.base + ["-GWNight", "2", "-GWSeed", "2", "-GWHour", "22",
                                                     "-GWStage", "world", "-GWCameraX", "2600"]
@@ -127,9 +183,10 @@ final class TouchUITests: XCTestCase {
         XCTAssertEqual(sceneField(town, "lantern:"), "ready", "the lantern can be raised")
         let scene = element(town, "world-scene")
         let groundY = 1 - 26.0 * 6 / 1206
-        scene.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: groundY - 15.0 * 6 / 1206)).press(forDuration: 0.8)
-        pause(0.3)
+        scene.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: groundY - 15.0 * 6 / 1206)).press(forDuration: 0.5)
         attach(XCUIScreen.main.screenshot(), "158-touch-lantern-raised-\(language)")
+        pause(0.9)
+        attach(XCUIScreen.main.screenshot(), "158b-touch-lantern-held-\(language)")
         XCTAssertEqual(sceneField(town, "lantern:"), "raised", "the hold raised the lantern")
         XCTAssertEqual(sceneField(town, "errand:"), "none", "and sent him nowhere")
         town.terminate()
@@ -171,11 +228,36 @@ final class TouchUITests: XCTestCase {
             return
         }
         touchThing(throne)
-        if element(app, "touch-slip").waitForExistence(timeout: 3) {
-            pause(1.2)
-            attach(XCUIScreen.main.screenshot(), "156-touch-hall-walk-\(language)")
-        }
         XCTAssertTrue(element(app, "audience-root").waitForExistence(timeout: 16), "the audience when he sits")
+        app.terminate()
+    }
+
+    /// The walk up the nave (fix round 1: the old 156 caught the audience's card fading in): from the second bench a
+    /// touch on the throne, and the picture while he walks under its slip; then the audience, its card at rest.
+    private func theHallWalk() {
+        let app = XCUIApplication()
+        app.launchArguments = TouchUITests.base + ["-GWDay", "3", "-GWSeed", "2", "-GWClock", "10",
+                                                   "-GWStage", "hall", "-GWHallX", "280"]
+        app.launch()
+        guard waitUntilReady(app, name: "touch-hall-walk") else { return }
+        pause(0.8)
+        guard let throne = waitForThing(app, "touch-throne", timeout: 6) else {
+            XCTFail("no throne in view from the second bench")
+            app.terminate()
+            return
+        }
+        touchThing(throne)
+        if element(app, "touch-slip").waitForExistence(timeout: 3) {
+            pause(0.7)
+            attach(XCUIScreen.main.screenshot(), "156-touch-hall-walk-\(language)")
+            XCTAssertFalse(element(app, "audience-root").exists, "still on his way: no card yet")
+        } else {
+            XCTFail("no slip over the throne while he walks")
+        }
+        let card = element(app, "audience-root")
+        XCTAssertTrue(card.waitForExistence(timeout: 16), "the audience when he sits")
+        // The card's fade over before anything is read or photographed.
+        pause(1.2)
         app.terminate()
     }
 
@@ -210,6 +292,15 @@ final class TouchUITests: XCTestCase {
             return false
         }
         return true
+    }
+
+    private func waitForField(_ app: XCUIApplication, _ text: String, timeout: TimeInterval) -> Bool {
+        let started = Date()
+        while Date().timeIntervalSince(started) < timeout {
+            if ((element(app, "world-scene").value as? String) ?? "").contains(text) { return true }
+            pause(0.15)
+        }
+        return false
     }
 
     private func element(_ app: XCUIApplication, _ identifier: String) -> XCUIElement {

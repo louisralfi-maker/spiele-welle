@@ -427,7 +427,8 @@ struct AudienceCardView: View {
                     }
                 }
             }
-            .buttonStyle(GoldButtonStyle())
+            // Touch the world, fix round 1: an inked plaque in teal, no longer the wax red of the old action button.
+            .buttonStyle(TealPlaqueButtonStyle())
             .accessibilityIdentifier("audience-next")
         }
     }

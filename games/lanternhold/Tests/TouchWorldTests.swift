@@ -79,7 +79,8 @@ final class TouchWorldTests: XCTestCase {
         let big = thing("wall", kind: .wall, x: 100, half: 20, top: 50)
         let area = TouchRules.area(big, minimum: 22)
         XCTAssertEqual(area.width, 40, "a big thing keeps its own width")
-        XCTAssertEqual(area.top, 50 + TouchRules.markGap + TouchRules.markHeight, "up to its mark's top")
+        // Fix round 1: a wall's mark keeps to the band; the wall still answers up to its top.
+        XCTAssertEqual(area.top, max(50, TouchRules.bandTip + TouchRules.markHeight), "up to its top")
     }
 
     func testTheNearerCentreWins() {
@@ -134,8 +135,10 @@ final class TouchWorldTests: XCTestCase {
     func testAtMostFourMarksTheNearestFirstTwoSitesAndOneWall() {
         var list: [TouchThing] = []
         for i in 0..<4 { list.append(thing("plot-\(i)", kind: .plot, x: 100 + Double(i) * 40)) }
-        list.append(thing("wall-a", kind: .wall, x: 95, half: 15, top: 40))
-        list.append(thing("wall-b", kind: .wall, x: 99, half: 15, top: 40))
+        // Fix round 1: a wall's mark keeps to the band, low enough to give way to a site's beside it: the row of walls
+        // stands away from the sites.
+        list.append(thing("wall-a", kind: .wall, x: 255, half: 15, top: 40))
+        list.append(thing("wall-b", kind: .wall, x: 259, half: 15, top: 40))
         list.append(thing("lectern", kind: .lectern, x: 101))
         list.append(thing("odile", kind: .talk, x: 300))
         list.append(thing("door", kind: .door, x: 340))

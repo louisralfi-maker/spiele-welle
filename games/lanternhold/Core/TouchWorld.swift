@@ -15,7 +15,7 @@ enum TouchKind: String, Sendable, Equatable, CaseIterable {
     case bench
     /// The empty throne while an audience can be held.
     case throne
-    /// The great hall's door: at x 1830 in the world, the inner door in the hall.
+    /// The great hall's door: the painted door in the world (`HallDoor`), the inner door in the hall.
     case door
     /// The barracks' door.
     case recruit
@@ -73,11 +73,18 @@ struct TouchThing: Sendable, Equatable {
     /// Who speaks there (someone with a word; a bench's first in line) and his look (townsfolk's names).
     var who: String? = nil
     var look: Int? = nil
+    /// Fix round 1: an empty plot's footing, its half width (nil: none; `TouchFooting`).
+    var footing: Double? = nil
 
     var isPerson: Bool { kind == .talk || kind == .bench }
 
-    /// Where the mark's tip stands: 3 px above the thing's top row (SPRITES.md), over this x.
-    var markLift: Double { top + TouchRules.markGap }
+    /// Where the mark's tip stands: 3 px above the thing's top row (SPRITES.md), over this x; over a building, a wall,
+    /// a brazier or the barracks at most `TouchRules.bandTip` over the walk line (fix round 1: at its door, never at its
+    /// crown).
+    var markLift: Double {
+        let lift = top + TouchRules.markGap
+        return TouchRules.keepsToBand(kind) ? min(lift, TouchRules.bandTip) : lift
+    }
     var markX: Double { markAt ?? x }
 }
 
@@ -162,7 +169,8 @@ enum TouchRules {
     static func area(_ thing: TouchThing, minimum: Double) -> TouchArea {
         let half = max(thing.halfWidth, markWidth / 2, minimum / 2)
         let markTop = thing.markLift + markHeight
-        let top = max(markTop, minimum - footRoom)
+        // Fix round 1: a tall building's mark keeps to the band, the building still answers up to its top.
+        let top = max(markTop, thing.top, minimum - footRoom)
         return TouchArea(left: thing.x - half, right: thing.x + half, bottom: -footRoom, top: top)
     }
 
@@ -195,8 +203,10 @@ enum TouchRules {
     /// at most `maxMarks` (and `maxSiteMarks` over sites); of a row of damaged walls only the nearest carries the mark;
     /// a tag that would overlap a nearer one gives way.
     static func marked(_ things: [TouchThing], lordX: Double, viewLeft: Double, viewRight: Double) -> [TouchThing] {
+        // Fix round 1: only while the thing stands clear of the screen's edges (no mark cut in half there).
         var list = things.filter { thing in
-            thing.marked && thing.kind.mark != nil && thing.markX + 8 >= viewLeft && thing.markX - 8 <= viewRight
+            thing.marked && thing.kind.mark != nil
+                && clearOfEdges(thing.markX, viewLeft: viewLeft, viewRight: viewRight)
         }
         list.sort { a, b in
             let d = abs(a.x - lordX)
@@ -211,6 +221,9 @@ enum TouchRules {
                 if wall { continue }
                 wall = true
             }
+            // Fix round 1: of sites (or cold braziers) side by side only the nearest carries a mark.
+            if grouped(thing.kind) && out.contains(where: { $0.kind == thing.kind
+                && abs($0.x - thing.x) < groupSpan }) { continue }
             if thing.kind == .plot {
                 if sites >= maxSiteMarks { continue }
                 sites += 1

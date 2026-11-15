@@ -2,11 +2,11 @@ import CoreGraphics
 import Foundation
 
 /// The great hall as a stage of its own (stage lane, 14.11.2026; DESIGN.md "The hall stage and touch the world",
-/// docs/REVIEW-look-2.md 2.6, 2.7): the lord goes in by the hall's door at x 1830 (the action button there until
+/// docs/REVIEW-look-2.md 2.6, 2.7): the lord goes in by the hall's door (`HallDoor`) (the action button there until
 /// "touch the world" makes the door the tap target `touch-door-hall`), walks to it, the door opens with its creak,
 /// the screen goes through dark in 0.35 s (Reduce Motion: a cut), and he stands inside at hall x 68 while the door
 /// shuts behind him with its latch. He goes out by the inner door (the action button beside it), by walking left past
-/// hall x 40, or by a tap on the realm strip, which sends him on to that point; outside he stands at 1830 facing right.
+/// hall x 40, or by a tap on the realm strip, which sends him on to that point; outside he stands at the door facing right.
 /// The clock runs in the hall (the realm's king stands at the door in the simulation) and only the audience stops it.
 /// At the horn the waiting go home by the door and a slip at the door says so. Through the dark of a change the
 /// ambience crosses first: the ear arrives before the eye.

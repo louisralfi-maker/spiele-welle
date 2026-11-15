@@ -511,6 +511,9 @@ struct ActorInstance: Sendable, Equatable {
 struct EmissiveInstance: Sendable, Equatable {
     enum Kind: Sendable, Equatable {
         case glow, glass, occluder
+        // Touch the world, fix round 1 (stage lane): the gold rim one pixel outside the sprite's outline at its left,
+        // right and top (SPRITES.md "The marks of 'touch the world'"); the quad is the sprite grown by that pixel.
+        case rim
     }
 
     var sprite: SpriteID

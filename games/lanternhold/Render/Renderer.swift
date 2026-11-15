@@ -735,6 +735,8 @@ final class Renderer {
     /// The kind of an emissive quad for `lh_emissive_fragment`, in the tint's alpha (glow quads keep their alpha).
     static let glassMode: Float = -1
     static let occluderMode: Float = -2
+    // Touch the world, fix round 1 (stage lane): the rim's mode.
+    static let rimMode: Float = -3
 
     /// An emissive quad. Glow: its colour tints the drawn colours a little (40 %), scaled by its intensity. Glass: the
     /// part of the prop's sprite inside the mask, the glow colour as it is. Occluder: the whole sprite, black.
@@ -757,6 +759,12 @@ final class Renderer {
         case .occluder:
             return SpriteQuad(rect: emissive.rect, texel: cell.texels(flipped: emissive.flipped),
                               tint: SIMD4<Float>(0, 0, 0, occluderMode))
+        case .rim:
+            // Touch the world, fix round 1 (stage lane): the cell grown by a texel left, right and up (the atlas keeps
+            // 2 clear texels round every cell), the colour as it is.
+            let grown = AtlasCell(x: cell.x - 1, y: cell.y - 1, width: cell.width + 2, height: cell.height + 1)
+            return SpriteQuad(rect: emissive.rect, texel: grown.texels(flipped: emissive.flipped),
+                              tint: SIMD4<Float>(rgb.x, rgb.y, rgb.z, rimMode))
         }
     }
 

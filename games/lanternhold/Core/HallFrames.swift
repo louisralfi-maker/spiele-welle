@@ -755,6 +755,32 @@ enum HallFrames {
                                        groundY: g.groundDeviceY, physicalWidth: Double(g.physicalWidth),
                                        physicalHeight: Double(g.physicalHeight))
             actors += TouchMarks.actors(marks, framing: framing, night: torch)
+            // Fix round 1: the gold rim on the marked thing (who speaks there, the throne).
+            for mark in marks {
+                let color = TouchRules.rimColor(pressed: mark.pressed, night: torch)
+                func rim(_ sprite: SpriteID, left: Double, row: Int, frame: Int = 0, flipped: Bool = false) {
+                    let r = g.rect(x: left, row: row, size: sprite.size)
+                    guard r.x + r.z >= -2, r.x <= Float(g.targetWidth) + 2 else { return }
+                    emissives.append(EmissiveInstance(sprite: sprite, plane: .world,
+                                                      rect: SIMD4<Float>(r.x - 1, r.y - 1, r.z + 2, r.w + 1),
+                                                      color: color, kind: .rim, flipped: flipped, frame: frame))
+                }
+                if mark.kind == .throne {
+                    let throne = SpriteID.throne.size
+                    rim(.throne, left: HallLayout.throneX - Double(throne.width / 2),
+                        row: HallLayout.daisRow - throne.height)
+                } else if mark.kind == .bench {
+                    // The bench itself (who sits on it is cut off below its seat, so his outline would hang under it).
+                    let bench = SpriteID.bench.size
+                    rim(.bench, left: mark.poolX - Double(bench.width / 2), row: HallLayout.wallRow - bench.height)
+                } else if let who = mark.who, mark.kind == .talk,
+                          let figure = input.figures.first(where: { $0.who == who && $0.alpha > 0.5 }) {
+                    let size = figure.sprite.size
+                    rim(figure.sprite, left: (figure.x - Double(size.width / 2)).rounded(),
+                        row: HallLayout.floorRow - Int(figure.y.rounded()) - size.height, frame: figure.frame,
+                        flipped: figure.facing < 0)
+                }
+            }
             for mark in marks {
                 light(.window, x: mark.poolX, row: HallLayout.floorRow - 5, radius: TouchRules.poolRadius,
                       intensity: TouchRules.poolStrength * (0.4 + 0.6 * torch)
