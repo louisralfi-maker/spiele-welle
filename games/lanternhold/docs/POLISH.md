@@ -170,9 +170,10 @@ light. The game is about a light in the dark, and neither of the two makes light
 ## 7. The creatures: the Ash Giant is the bar (Louis, 15.11.2026)
 
 Louis: "die schatten monster was am besten gelungensten aussieht ist dieser schatten riese aber die neue version von
-dir der sieht geisteskrank aus der komische ritter kackt rein." The giant is praised. The director reads "the odd
-knight" as the Lightless King: he is the only creature that stands upright like an armed man, in a mantle with a
-pole. If Louis means another one, the rule below judges that one the same way.
+dir der sieht geisteskrank aus der komische ritter kackt rein." The giant is praised. "The odd knight" is the
+Lightless King, the upright one in a mantle with a staff; Louis confirmed it the same day ("Ja den Ritter mit dem
+stab mein ich"). And on the giant: "der riese ist so unheimlich … da scheisst man sich ein wenn man den kommen
+sieht". **The dread is in the coming**, so the rule below has a fifth point.
 
 **Why the giant works** (`tools/creatures/ashGiant.py`, 110 px high, seven frames; strips seen on 15.11.)
 
@@ -196,6 +197,14 @@ for a crown, a snuffer on a long pole, the tool that puts lights out. The figure
 2. One light of its own that tells what it was (the giant's lantern chest, the gloomweaver's dead violet lantern).
 3. Its weight is decided and shown: it stomps, it scuttles, or it has none at all.
 4. It answers the light: a flinch, and a death that reads (pass 4, item 3).
+5. A boss is felt before it is seen whole: it sends a sign ahead.
+
+**The giant's coming** (after build 2; picture, sound and haptics only. Today only his stomp at the wall raises dust.)
+
+- The ember heart is seen first: a small warm point deep in the bank, long before the body.
+- Each step is a low thud with a haptic tick; dust falls from the crenels and the puddles shiver (pass 2, item 8).
+- The birds leave the walls. The archers take one step back, then stand.
+- The king's sign is the opposite: no sound at all, and the torches gutter one after another.
 
 **The king, redrawn** (after build 2; the idea stays, the figure goes)
 
