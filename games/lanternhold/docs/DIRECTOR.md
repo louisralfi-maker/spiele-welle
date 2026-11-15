@@ -796,3 +796,10 @@ schneller geht."
   - The join's final proof is now three rounds: the pair, plus the lanes' other eight UI classes (slides, endings and the rest), because lanes A, B and C change the slides' start, their clock and the frame time.
   - After build 2: the sweep's mediums and lows (late-5 to late-19). Two of them are paid choices that change nothing they name (late-7 the eclipse omen, late-8 the drillmaster): first on that list.
   - The world's fix round 3: its first gate `lh-w3f3-1` failed, `lh-w3f3-2` runs. Its delta comes about 45 minutes later than I told Louis.
+
+- **Fix lane E is through: the three ambience beds loop without a jump in level (15.11.2026, 19:01).**
+  - `claude/lh-fix5` is on origin at aad2d62; its gate `lh-fv-1` (build, unit) ended ALL PASSED (summary read on origin).
+  - Measured by the director, not taken from the report: the first and last quarter second now carry the same level (amb_valley 2.51 before, 1.02 now; amb_bailey 2.01, 1.02; amb_fire 1.61, 1.03). Each new file is the old file begun later (the samples are identical when turned back), so the mix, the loudness and the length are unchanged. No other sound file changed.
+  - The diff: `tools/soundsynth.py` (a helper `turn(x, k)` and three offsets), the three WAVs, and three hash lines in `Resources/Sound/MANIFEST.txt` (outside the given scope, accepted: the app and the tests do not read it).
+  - For the list after build 2: running `soundsynth.py` rewrites `MANIFEST.txt` and drops the `knock` line that `tools/taxsound.py` adds. Whoever regenerates sounds must keep that line; the generator should learn it.
+  - The join merges lane E if it is on origin before the final rounds are sent (it is). It never holds D back.
