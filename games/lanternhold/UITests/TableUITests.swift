@@ -91,10 +91,12 @@ final class TableUITests: XCTestCase {
         let back = element(app, "table-back")
         checkTarget(back, "Back")
         let screen = app.windows.firstMatch.frame
-        note("table-safe", "screen \(screen) back \(back.frame) column \(element(app, "table-column").frame)")
+        note("table-safe", "screen \(screen) back \(back.frame) hook41 \(element(app, "table-hook-41").frame)")
         XCTAssertLessThanOrEqual(back.frame.maxX, screen.maxX - 40, "Back stays inside the safe area")
-        XCTAssertLessThanOrEqual(element(app, "table-column").frame.maxX, screen.maxX - 40,
-                                 "the column stays inside the safe area")
+        // The column's own accessibility frame runs to the screen's edge (its scroll view's), so the check reads what
+        // is drawn at its east edge: the last hook and Back.
+        XCTAssertLessThanOrEqual(element(app, "table-hook-41").frame.maxX, screen.maxX - 40,
+                                 "the rail stays inside the safe area")
         back.tap()
         let report = element(app, "table-report")
         XCTAssertTrue(report.waitForExistence(timeout: 90), "Pip's report waits at dawn 3")
