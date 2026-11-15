@@ -25,10 +25,13 @@ enum TownLamps {
     static let lightY = 20.0
     static let lightRadius = 28.0
 
-    /// He comes into the hall by its door on the chapel's side, stands at the hearth's right with the wick in the
-    /// Flame (the fire's middle is about 13 px right of `hearthX`), and goes out to the town by the back gate.
+    /// He comes into the hall by its door on the chapel's side, walks past the hearth and stands at its left, at the
+    /// dais' end, facing the Flame with the wick in it (the fire's middle is about 13 px right of `hearthX`; his pole's
+    /// tip reaches 14.5 px ahead), and goes out to the town by the back gate. On its right, between the hearth and the
+    /// tax lectern, Odile stands at her lectern for a third of her round, and at this hour she does (fix round 1: the
+    /// two merged in shot 77); the rebuilt hall gives him an anchor of his own at the join.
     static let hallDoor = 1956.0
-    static let hearthStand = WorldLayout.hearthX + 34
+    static let hearthStand = WorldLayout.hearthX - 4
     static let gate = WorldLayout.backGateX
     /// His door (Moth's house, `TownHouseholds`).
     static var home: Double { TownHouseholds.door(plot: 5) }
@@ -37,7 +40,7 @@ enum TownLamps {
 
     /// An old man's heavy step (px/s): a farmer's pace with his tool, never the lord's (the critic of people-2: at 32
     /// he outran the lord). The painted stride is 4 px a frame (`PeopleCast.stride`). At it the round counted back
-    /// from the horn puts him in the hall about 11:15 and the lanterns' flames at about 15:20, 17:10, 17:50 and 19:00;
+    /// from the horn puts him in the hall about 10:50 and the lanterns' flames at about 15:20, 17:10, 17:50 and 19:00;
     /// the morning's snuffing runs from 05:20 to 09:00 and he is in at the castle's gate about 10:15 (docs/lanes/
     /// people.md, "people-2 fix round 1": the hours wait for the director's ruling).
     static let pace = 16.0
@@ -198,9 +201,10 @@ enum TownLamps {
                 let x = from + (to > from ? 1 : -1) * u * pace
                 return (frame: PeopleCast.walkFrame(.lamplighter, x: x), x: x, flipped: to < from, burning: burning)
             case let .hearth(at):
-                if u < 2.5 { return (frame: frames.hearth.lowerBound, x: at, flipped: true, burning: burning) }
-                if u < 4.0 { return (frame: frames.hearth.upperBound, x: at, flipped: true, burning: burning) }
-                return (frame: frames.idle.lowerBound, x: at, flipped: u < 4.5, burning: burning)
+                // Facing the Flame on his right, then upright and away to the door on the same side.
+                if u < 2.5 { return (frame: frames.hearth.lowerBound, x: at, flipped: false, burning: burning) }
+                if u < 4.0 { return (frame: frames.hearth.upperBound, x: at, flipped: false, burning: burning) }
+                return (frame: frames.idle.lowerBound, x: at, flipped: false, burning: burning)
             case let .light(_, at):
                 return (frame: u < 0.8 ? frames.reachLight.lowerBound : frames.reachLight.upperBound, x: at,
                         flipped: false, burning: burning)

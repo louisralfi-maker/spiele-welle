@@ -36,7 +36,7 @@ final class TownLifeUITests: XCTestCase {
             ("74-noble-coach", ["-GWHour", "10.3", "-GWCameraX", "2520", "-GWCoach", "YES"] + base),
             ("75-lamplighter-dusk", ["-GWHour", "19.003", "-GWCameraX", "3080"] + ordinary),
             ("76-collector-morning", ["-GWHour", "8.66", "-GWCameraX", "2790", "-GWCollector", "YES"] + ordinary),
-            ("77-lamplighter-hearth", ["-GWHour", "11.797", "-GWCameraX", "1846"] + ordinary),
+            ("77-lamplighter-hearth", ["-GWHour", "11.6", "-GWCameraX", "1846"] + ordinary),
             ("78-horn-call", ["-GWHour", "19.08", "-GWCameraX", "2880", "-GWHappiness", "85"] + ordinary),
             ("79-sullen-town", ["-GWHour", "11.0", "-GWCameraX", "2679", "-GWHappiness", "25"] + ordinary),
         ]

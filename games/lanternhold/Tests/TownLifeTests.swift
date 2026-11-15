@@ -383,7 +383,9 @@ final class TownLifeTests: XCTestCase {
         let figure = try XCTUnwrap(TownLamps.lamplighter(atFire, time: 1, context: lamp).first)
         XCTAssertEqual(figure.frame, PeopleCast.Frames.hearth.lowerBound, "the wick held into the Flame")
         XCTAssertEqual(figure.x, TownLamps.hearthStand)
-        XCTAssertTrue(figure.flipped, "facing the hearth")
+        XCTAssertFalse(figure.flipped, "facing the Flame on his right")
+        XCTAssertLessThan(abs(figure.x + TownLamps.poleTip(frame: figure.frame).dx - (WorldLayout.hearthX + 13)), 4,
+                          "the wick in the fire")
         XCTAssertEqual(TownLamps.lamplighter(atFire, time: 1, context: lamp).count, 1, "the wick not yet lit")
         let bowing = day(hearthAt + 3 / DayClock.secondsPerHour, lord: 1850)
         let bowed = try XCTUnwrap(TownLamps.lamplighter(bowing, time: 1, context: lamp).first)
@@ -527,7 +529,7 @@ final class TownLifeTests: XCTestCase {
         XCTAssertEqual(saul.x, TownHouseholds.door(plot: 3))
         XCTAssertEqual(saul.frame, PeopleCast.Frames.take.lowerBound, "76: the hand held out")
         // 77: the bow to the Eternal Light, the wick burning, the lord in the hall.
-        let hall = day(11.797, lord: 1846)
+        let hall = day(11.6, lord: 1846)
         let bow = try XCTUnwrap(TownLamps.pose(hall, context: lamp))
         XCTAssertEqual(bow.frame, PeopleCast.Frames.hearth.upperBound)
         XCTAssertTrue(bow.burning)

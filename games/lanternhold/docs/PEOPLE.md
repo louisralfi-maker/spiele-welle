@@ -125,7 +125,7 @@ a mark and a silhouette; their sheets are the first work of people-2 (see "What 
 
 | # | who | age | trade | the mark | silhouette and tell |
 |---|---|---|---|---|---|
-| 13 | **Saul Bracken** (renamed in people-2: "Wicket" echoed a film creature) | 56 | the collector (TOWN.md section 2): hired at the first audience, out from the hall door at dawn with the strongbox on a handcart, every door, back by noon | his left arm, lost on the wall the winter the old lord died; the empty sleeve pinned across his chest. The town trusts him because he has never kept a coin that was not his | a stout man leaning into a two-wheeled handcart, pushing it one-handed with a leather strap over his shoulder to the shafts; the iron-bound strongbox on the cart (`woodLight`, `wood`, bands `stoneMid`, a plain iron lock: no gold, it is the town's box). Cloth: a long grey-brown coat patched at the elbow (`rock` ramp), a wide-brimmed felt hat (`soil`), boots. Frames: the cart walk (a wider frame for the cart), the idle at his post by the hall door with his hand on the box, the coin take at a door (the hand out, the coin dropped through the slot, a nod) |
+| 13 | **Saul Bracken** (renamed in people-2: "Wicket" echoed a film creature) | 56 | the collector (TOWN.md section 2): hired at the first audience, out from his post at dawn with the strongbox on a handcart, every door at a cart's pace, back in the early afternoon | his left arm, lost on the wall the winter the old lord died; the empty sleeve pinned across his chest. The town trusts him because he has never kept a coin that was not his | a stout man leaning into a two-wheeled handcart, pushing it one-handed with a leather strap over his shoulder to the shafts; the iron-bound strongbox on the cart (`woodLight`, `wood`, bands `stoneMid`, a plain iron lock: no gold, it is the town's box). Cloth: a long grey-brown coat patched at the elbow (`rock` ramp), a rolled wool cap pulled down to the brow (`soil`, the rolled edge `soilLight`), boots. Frames: the cart walk (a wider frame for the cart), the idle at his post by the hall door with his hand on the box, the coin take at a door (the hand out, the coin dropped through the slot, a nod) |
 | 14 | **Silas Moth** ("Moth") | 63 | the lamplighter (TOWN.md section 7, HOUSE.md section 1): a townsman, never of the house; each dusk he lights his pole at the Eternal Light in the hall's hearth and carries the house's light out into the street. He knows every window and who is awake at midnight: the lord's ear in the town | a burn on the side of his neck under the ear from a lantern that burst in his hands thirty years ago; he still flinches at a spitting wick | tall and thin as his pole, stooped from forty years of reaching up (the head and shoulders a pixel forward, a rounded upper back), a long dark coat to the shins, narrow at the shoulders and flaring to a hem that swings with his stride, gathered at the waist by a cord (`stone` ramp), a soot-blackened thumb and forefinger, a soft felt hat whose brim droops front and back (`soil`); the long lighting pole, longer than he is tall, with a small brass wick holder and a snuffer bell at its tip (`stoneLight`, `straw`): it must never be mistaken for the lord's hooked lantern staff, which carries a lantern. Frames: the walk with the pole on his shoulder (the tip burning at dusk: a glow strip), reaching up to light, reaching up to snuff, and the hearth set (the pole's tip held into the Flame, a small bow of the head to it, the turn to go) |
 | 15 | **Old Kell** (Amory Kell) | 62 | the jailer of build 3 (HOUSE.md section 10): the old sergeant of the petition `old_sergeant`, who held the old lord's gate for twenty winters, if the lord took him in; otherwise a soldier of the garrison stands there | his knees: "My knees are done, my arm is not." He stands stiff-legged and leans on his spear like a stick | square and solid at the head of the dungeon stair, the legs braced apart and straight, an old dented kettle hat, a faded house-teal surcoat over mail gone brown at the edges, the spear upright as a staff in one hand and a lit lamp hanging from the other (lit: someone below wants a word). Frames: the stand with the lamp, a nod, sitting by the gate when nobody is below |
 
@@ -211,7 +211,7 @@ upper floor's lodger):
 | 3, by the near field | the Ashbys: Gorm (the hoe), Hedda (the scythe), Wren |
 | 4, by the well | the Brisks: Wenna (the well), Nib; Dun Rook lodges with them (sacks from the ford); in a big house also Master Edwy Tallow (to the tavern) |
 | 5, by the square | Moth's: Silas Moth the lamplighter, Fen (his grandson, the lamp-runner), Old Hemmet (the bench before the door) |
-| the castle | Saul Bracken the collector lodges by the hall door |
+| the castle | Saul Bracken the collector lodges in the castle; his post is by the town gate (fix round 1) |
 
 **The day:**
 
@@ -238,17 +238,25 @@ upper floor's lodger):
 - **The noble's coach** (`TownLife.coachSpan`, `TownLife.footman`): on a day when a noble guest of the petition data is
   due (the noble petitioner, Steward Lorenz Pell of Oxmoor, Auditor Ebba Calder of Stillmere; in today's queue or heard
   today), the coach stands at the town's gate (on this branch the castle's back gate, facing it) from 06:00 to the dusk,
-  the footman beside it on the town's side looking past everyone. The townsfolk keep 30 px wide of it: who would pass
-  it (Brede on his way to the gate) stops short and looks.
-- **The collector** (`TownLife.collector`, on the days he walks): out from his post by the hall door at the dawn,
-  pushing the strongbox from door to door (the hand out, the coin through the slot, a nod), at the farthest door by
-  09:00, back at his post by noon, at his post until the horn (the town lane's rules).
+  the footman beside it on the town's side looking past everyone. The town gives it a wide berth (fix round 1): from
+  30 px short of the coach to 30 px past the footman. Who has no business there (Brede on his way to the gate) stops
+  at the berth's edge and stands looking at the coach a while; who must pass it on the one road (the builders, the
+  collector, the lamplighter) steps out to the near side of the road, 4 px lower, and passes in front of the coach's
+  people, never through the footman.
+- **The collector** (`TownLife.collector`, on the days he walks): out from his post just inside the castle's town
+  gate at the dawn, pushing the strongbox from door to door at a one-armed man's cart pace (18 px/s; the hand out, the
+  coin through the slot, a nod), at the farthest door about 10:20, back at his post about 14:10, there until the horn.
+  From the town lane's post by the hall door no round of every door fits before the horn at that pace: the post and
+  the hours wait for the director (docs/lanes/people.md, "people-2 fix round 1").
 - **The lamplighter** (`TownLamps`): each afternoon Silas Moth comes into the hall by its chapel door, holds his
   pole's wick into the Eternal Light in the hearth, bows his head to it, turns and carries the flame out through the
   castle's gate into the town; he lights the four street lanterns one by one down the road (each with a small flare
   and a warm pool), the last one as the horn sounds, and goes in at his door. At first light (05:00) he walks back from
   his door putting them out with the snuffer, and goes in at the castle's gate. The times follow from the anchors and
-  his brisk pace, counted back from the horn (he is in the hall at about 14:40). In unrest (below 15 happiness) nobody
+  an old man's heavy step (16 px/s, fix round 1; it was a brisk 32), counted back from the horn: he is in the hall
+  about 10:50, at the Flame (on the hearth's left, facing it) about 11:20, the lanterns take their flames about 15:20,
+  17:10, 17:50 and 19:00; the morning's snuffing runs 05:20 to 09:00, in at the castle's gate about 10:15. The hours
+  wait for the director (docs/lanes/people.md). In unrest (below 15 happiness) nobody
   lights them; with the hearth out there is nothing to light them with; they burn as the hearth does (bright, low,
   embers).
 - **Reduce Motion:** nobody is removed; breaths and fidgets hold one frame, the sticks stay raised, the linen is wrung
@@ -306,3 +314,29 @@ children's bright red.
   lord's sheet and waits for people-2 (docs/lanes/people.md).
 - In the game: `PeopleCast.ClothState(standing:)`, `PeopleCast.dressed(_:_:)`; until the join passes the town's
   standing, everyone wears the hamlet's cloth (`-GWCloth village|town` shows the others for screenshots).
+
+### The lord's own cloak (people-2 fix round 1; the director's note of 14.11. 14:35)
+
+The lord is the heir of an old guardian house in a poor realm: dignity, and a mended cloak. In the **hamlet** and the
+**village** the house's teal is faded to the town's old house colour (`waterDeep`), a patch of paler wool sits on the
+back below the belt and a darned tear lower down (`kingMended`, `ladyMended` and their seated forms); in the **town**
+the cloak is good and whole (the lord's sheets as painted). Only cloak pixels change; face, circlet, tunic, lantern and
+bearing stay (`LordCloak`, docs/SPRITES-people.md "The lord's cloak").
+
+## 8. The court's ties (people-2 fix round 1; the director's note of 14.11. 15:03, docs/HOUSE.md section 2)
+
+The court is the lord's family and has ties among each other. Each member has one more idle of two frames that is
+played toward another person (`CourtTies`, docs/SPRITES-people.md "The court's ties"): a nod, then the thread. The
+hall decides at the join who turns to whom (the stage lane's rebuilt court); the objects are the HOUSE.md section 7
+gifts and threads:
+
+| member | the nod | the thread (frame 1) | toward whom, for example |
+|---|---|---|---|
+| Odile | a nod | holds out the ledger on her palm | the lord at the lectern; Marek (the feud over the books) |
+| Brannock | a curt nod | holds out the iron key of the wall stair | the guard at the gate; the lord at dusk |
+| Pip | a bob of the head | holds out a juggling ball | Tamsin in the kitchen; the herald (to make him look) |
+| Mother Hesper | a nod | holds the nod with her hand on her heart | the lamplighter at the Flame (HOUSE.md section 6) |
+| Tamsin | a nod | holds out a bowl of supper | Pip; the lord, however late |
+| Bram | a nod | holds out the mended clasp between finger and thumb | the lord's chamber door (he says nothing) |
+| Marek | a merchant's nod | the first orange of winter on his palm | Odile (a sample); the lord |
+| Seren | a cool nod | a coin of her house's debt on her open hand | Hesper (two keepers, two fires: Hesper looks away) |
