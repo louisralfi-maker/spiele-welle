@@ -44,9 +44,12 @@ final class TitleUITests: XCTestCase {
         XCTAssertFalse(app.descendants(matching: .any).matching(identifier: "lord-entry-root").firstMatch.exists,
                        "nothing of the game before the touch")
         title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap()
-        // A touch before the picture stands only skips ahead; the next one starts.
-        RunLoop.current.run(until: Date().addingTimeInterval(1.5))
-        if title.exists { title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap() }
+        // A touch before the picture stands only skips ahead; the next one starts. render-1: one before the game is
+        // ready (the atlas and the pipelines are made under the title) does nothing, so touch again while it stands.
+        for _ in 0..<6 where title.exists {
+            RunLoop.current.run(until: Date().addingTimeInterval(1.5))
+            if title.exists { title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap() }
+        }
         let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: title)
         XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: 10), .completed, "the touch starts the game")
         let entry = app.descendants(matching: .any).matching(identifier: "lord-entry-root").firstMatch
