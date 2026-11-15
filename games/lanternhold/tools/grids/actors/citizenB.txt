@@ -37,12 +37,14 @@ legend
     W = parchment
     w = plaster
     o = soilLight
+    G = straw
 
-# the curls grey at the temple, the face, the dark beard with a grey streak at the chin (frame cols 5-9)
+# the curls grey at the temple, the face (its cheekbone lit by one warm pixel under the brow, so the face reads at phone
+# size: the director's fix pass), the dark beard with a grey streak at the chin (frame cols 5-9)
 part head
     .NNN.
     NNNNN
-    NLSkS
+    NLGkS
     .NsSs
     .NNNs
     ..NL.
