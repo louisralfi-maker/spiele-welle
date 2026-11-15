@@ -880,3 +880,11 @@ schneller geht."
     - A gate agent tries to refute every must-fix, fixes only what is a few lines, runs the round (lh-pf-1 to -3), pushes, looks at every screenshot and reports. Larger faults come to the director.
   - Disk: 11 GB free on this Mac and 46 worktrees. A worktree is small (67 MB); the tidy-up of finished lanes waits until build 2 is up.
   - Quota at 20:24: 58 % of the week, 25 % Fable.
+
+- **The world's final round on the merged game is green; the director's look at three frames (15.11.2026, 20:53).**
+  - Round lh-rj-23 on ea0cd846 (every delta merged), read on origin: `PASS build`, `PASS ui WorldSweepUITests Look2UITests WorldStoryUITests`, `ALL PASSED`. Rounds lh-rj-22 and lh-rj-24 still run; D needs all three.
+  - The frames are upright in `ci-out/director/join/final-world/`. All three I looked at carry the new interface: nothing stands on the walked world.
+  - `w-0400-night`: the beacon ruin takes the night grade, its masonry is blocks, the bowl is a wide dish on struts. It reads as a ruined tower with a cold fire bowl; critic 3's blocker 1 is closed in the merged game. Still on the look pile: black specks around the bowl, two eyes over the lamplighter's lantern, the tower's straight lower left edge.
+  - `w-3000-night`: the town at night is the game's best frame (lit framed windows, smoke, the lamplighter at the well). Open as before: the back row's lone squares are flat (high 5).
+  - `w-1830-dusk`: the hall at dusk, the hearth's light on the floor, the dusk in the window. New for the look pile: a pale grey block cut off at the right edge, and the small figure left of the dais is too dark against the wainscot.
+  - Sent to Louis: these three frames.
