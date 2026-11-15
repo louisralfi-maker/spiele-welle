@@ -691,3 +691,7 @@ schneller geht."
     - The barracks' head: "Archers 3 · Guards 2", then "Room on the walls for 1 more." on its own line.
   - The join merges the delta when origin moves and gives it one short round. It does not hold the gate or D for it.
   - State at 16:04: lh-w3f2-1, lh-rj-14 and lh-rj-15 run. The join's gate on the merged head (8116e03) is not sent yet.
+- **The join's gate on the merged head is sent (15.11.2026, 16:09).**
+  - lh-rj-16 runs on 8116e03 since 16:07: `build`, `unit`, ui Touch, FirstDay, Hall, Audience, then ui Lord, Town, Ads, Title. The result is due about 17:10.
+  - lh-rj-14 is `ALL PASSED` (checked: 94 unit classes and 6 UI classes, none failed). It ran on f585596, before the merges, so it decides nothing.
+  - Round A (lh-rj-15) and the world's lh-w3f2-1 still run. The stage's fix round 2 has no commit yet.
