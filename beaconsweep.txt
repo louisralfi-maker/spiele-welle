@@ -1,0 +1,185 @@
+beaconsweep: compiled in 64 s
+beaconsweep: seeds 1-10, nights 9-14, budgets ["1.0", "1.5", "2.0"] (0 s)
+
+== the idle lockstep: the reference bots' runs (T1, T2) with the rule on and nothing raised
+  39 nights, differences: none (0 s)
+
+== T15 at the chosen values (the full table)
+T15a PASS nights 9-14, seeds 1-10, budget ["x1.0", "x1.5", "x2.0"]: with all four beacons held and the watchtower manned 985 creatures reached the defence, without 2382: 59 % fewer (target at least 30 %, without at least 300; per budget x1.0 54 %, x1.5 60 %, x2.0 59 %)
+T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night where the forward bot and the reference held in 1 of 10 (target all)
+T15 wager FAIL x1.0: the forward bot fell where the reference held in 6 seeds [1, 2, 3, 4, 5, 8] (target none: never a trap)
+T15b FAIL x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night where the forward bot and the reference held in 0 of 10 (target all)
+T15 wager FAIL x1.5: the forward bot fell where the reference held in 5 seeds [2, 4, 6, 8, 10] (target none: never a trap)
+
+T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | walls lost without/with | nights fallen without/with | beacons lost | burnt without/with | watch arrows a night
+  x1.0: 312 | 144 | 54 % | 15/8 | 16/12 | 0/0 | 9 | 232/2763 | 84.2
+  x1.5: 707 | 283 | 60 % | 64/39 | 30/23 | 0/0 | 46 | 884/4127 | 102.8
+  x2.0: 1363 | 558 | 59 % | 138/95 | 35/29 | 0/0 | 62 | 1919/5313 | 113.0
+
+T15a per night (all budgets): without | with | beacons lost (the furthest falls first)
+  night 9: 83 | 2 | 19
+  night 10: 184 | 40 | 31
+  night 11: 238 | 43 | 20
+  night 12: 546 | 260 | 11
+  night 13: 625 | 296 | 16
+  night 14: 706 | 344 | 20
+
+whole runs x1.0, per seed: bot fell | defenders lost | creatures at the defence nights 3-14 | all four burning from night | first beacon lost | beacons lost | raised/relit | beacon gold | watchtower | Great Beacon day | night 20: King slain after s
+  seed 1 reference: held | 9 | 29 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 63
+  seed 1 forward: FELL 20 | 6 | 25 | 19 | 16 | 4 | 4/3 | 592 | yes | 0 | -
+  seed 1 neglect: FELL 20 | 3 | 2 | 15 | 16 | 4 | 4/3 | 640 | yes | 0 | -
+  seed 2 reference: held | 9 | 41 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 64
+  seed 2 forward: FELL 20 | 6 | 19 | 17 | 17 | 4 | 4/3 | 640 | yes | 0 | -
+  seed 2 neglect: held | 5 | 6 | 15 | 10 | 4 | 4/3 | 610 | yes | 19 | lived
+  seed 3 reference: held | 11 | 53 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 64
+  seed 3 forward: FELL 20 | 4 | 43 | 19 | 17 | 3 | 4/2 | 548 | yes | 0 | -
+  seed 3 neglect: held | 3 | 8 | 14 | 10 | 4 | 4/3 | 610 | yes | 20 | lived
+  seed 4 reference: held | 8 | 23 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 62
+  seed 4 forward: FELL 20 | 17 | 28 | 18 | 17 | 2 | 4/1 | 504 | yes | 0 | -
+  seed 4 neglect: held | 4 | 4 | 14 | 10 | 1 | 4/1 | 490 | yes | 19 | 69
+  seed 5 reference: held | 9 | 66 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 61
+  seed 5 forward: FELL 20 | 7 | 36 | 19 | 16 | 4 | 4/3 | 592 | yes | 0 | -
+  seed 5 neglect: FELL 20 | 3 | 14 | 16 | 10 | 4 | 4/3 | 610 | yes | 0 | -
+  seed 6 reference: held | 13 | 45 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 62
+  seed 6 forward: held | 3 | 34 | 17 | 16 | 3 | 4/1 | 504 | yes | 20 | lived
+  seed 6 neglect: held | 3 | 10 | 14 | 10 | 1 | 4/1 | 490 | yes | 19 | 68
+  seed 7 reference: held | 10 | 21 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 61
+  seed 7 forward: held | 9 | 19 | 0 | 17 | 3 | 3/1 | 324 | yes | 19 | lived
+  seed 7 neglect: FELL 20 | 3 | 25 | 16 | 19 | 2 | 4/1 | 520 | yes | 0 | -
+  seed 8 reference: held | 11 | 35 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 62
+  seed 8 forward: FELL 20 | 6 | 35 | 18 | 17 | 2 | 4/1 | 504 | yes | 0 | -
+  seed 8 neglect: FELL 20 | 2 | 10 | 15 | 10 | 4 | 4/3 | 610 | yes | 0 | -
+  seed 9 reference: held | 12 | 72 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 66
+  seed 9 forward: held | 9 | 57 | 17 | 17 | 3 | 4/1 | 520 | yes | 20 | lived
+  seed 9 neglect: held | 3 | 8 | 14 | 19 | 2 | 4/1 | 520 | yes | 19 | 83
+  seed 10 reference: held | 9 | 58 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 65
+  seed 10 forward: held | 6 | 43 | 17 | 17 | 2 | 4/1 | 520 | yes | 20 | lived
+  seed 10 neglect: held | 3 | 6 | 14 | 10 | 4 | 4/3 | 610 | yes | 20 | lived
+
+whole runs x1.5, per seed: bot fell | defenders lost | creatures at the defence nights 3-14 | all four burning from night | first beacon lost | beacons lost | raised/relit | beacon gold | watchtower | Great Beacon day | night 20: King slain after s
+  seed 1 reference: FELL 20 | 19 | 88 | 0 | 0 | 0 | 0/0 | 0 | no | 0 | -
+  seed 1 forward: FELL 20 | 20 | 68 | 0 | 12 | 9 | 3/8 | 542 | yes | 0 | -
+  seed 1 neglect: FELL 20 | 3 | 23 | 20 | 9 | 12 | 4/11 | 846 | yes | 0 | -
+  seed 2 reference: held | 15 | 55 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 64
+  seed 2 forward: FELL 20 | 16 | 43 | 20 | 11 | 9 | 4/8 | 708 | yes | 0 | -
+  seed 2 neglect: FELL 20 | 7 | 22 | 15 | 10 | 9 | 4/8 | 864 | yes | 0 | -
+  seed 3 reference: FELL 18 | 17 | 136 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | -
+  seed 3 forward: FELL 20 | 17 | 105 | 0 | 12 | 9 | 2/8 | 370 | yes | 0 | -
+  seed 3 neglect: FELL 20 | 4 | 22 | 20 | 9 | 11 | 4/10 | 858 | yes | 0 | -
+  seed 4 reference: held | 21 | 60 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | lived
+  seed 4 forward: FELL 20 | 16 | 49 | 0 | 12 | 9 | 3/8 | 566 | yes | 0 | -
+  seed 4 neglect: FELL 20 | 7 | 11 | 18 | 10 | 11 | 4/10 | 848 | yes | 0 | -
+  seed 5 reference: FELL 19 | 17 | 63 | 0 | 0 | 0 | 0/0 | 0 | no | 0 | -
+  seed 5 forward: FELL 20 | 18 | 50 | 0 | 12 | 9 | 2/8 | 360 | yes | 0 | -
+  seed 5 neglect: FELL 20 | 8 | 23 | 20 | 9 | 11 | 4/10 | 774 | yes | 0 | -
+  seed 6 reference: held | 25 | 114 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | lived
+  seed 6 forward: FELL 20 | 17 | 92 | 0 | 11 | 9 | 3/8 | 508 | yes | 0 | -
+  seed 6 neglect: FELL 20 | 10 | 18 | 20 | 9 | 11 | 4/10 | 858 | yes | 0 | -
+  seed 7 reference: FELL 20 | 18 | 84 | 0 | 0 | 0 | 0/0 | 0 | no | 18 | -
+  seed 7 forward: FELL 20 | 17 | 65 | 0 | 13 | 8 | 3/7 | 498 | yes | 0 | -
+  seed 7 neglect: FELL 20 | 18 | 44 | 0 | 10 | 11 | 2/10 | 450 | yes | 0 | -
+  seed 8 reference: held | 21 | 114 | 0 | 0 | 0 | 0/0 | 0 | no | 18 | lived
+  seed 8 forward: FELL 20 | 17 | 100 | 0 | 13 | 8 | 2/7 | 330 | yes | 0 | -
+  seed 8 neglect: FELL 20 | 2 | 22 | 0 | 8 | 12 | 3/11 | 708 | yes | 0 | -
+  seed 9 reference: FELL 19 | 16 | 133 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | -
+  seed 9 forward: FELL 20 | 18 | 106 | 0 | 11 | 8 | 2/7 | 320 | yes | 0 | -
+  seed 9 neglect: FELL 20 | 3 | 17 | 19 | 10 | 11 | 4/10 | 860 | yes | 0 | -
+  seed 10 reference: held | 26 | 137 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | lived
+  seed 10 forward: FELL 19 | 17 | 105 | 0 | 11 | 8 | 2/7 | 330 | yes | 0 | -
+  seed 10 neglect: FELL 20 | 4 | 22 | 19 | 9 | 12 | 4/11 | 876 | yes | 0 | -
+(5 s)
+
+== night 20 of the forward bot's runs: the fog held on the King's night (chosen) and as today
+  seed 1: held FELL 20 King slain false after -1 s, beacons at night 20 4 | as today FELL 20 King slain false after -1 s
+  seed 2: held FELL 20 King slain false after -1 s, beacons at night 20 4 | as today FELL 20 King slain false after -1 s
+  seed 3: held FELL 20 King slain false after -1 s, beacons at night 20 4 | as today FELL 20 King slain false after -1 s
+  seed 4: held FELL 20 King slain false after -1 s, beacons at night 20 4 | as today FELL 20 King slain false after -1 s
+  seed 5: held FELL 20 King slain false after -1 s, beacons at night 20 4 | as today FELL 20 King slain false after -1 s
+  seed 6: held standing King slain false after -1 s, beacons at night 20 3 | as today standing King slain false after -1 s
+  seed 7: held standing King slain false after -1 s, beacons at night 20 1 | as today standing King slain false after -1 s
+  seed 8: held FELL 20 King slain false after -1 s, beacons at night 20 4 | as today FELL 20 King slain false after -1 s
+  seed 9: held standing King slain false after -1 s, beacons at night 20 3 | as today standing King slain false after -1 s
+  seed 10: held standing King slain false after -1 s, beacons at night 20 4 | as today standing King slain false after -1 s
+(5 s)
+
+== the beacons' numbers around the chosen values (T15a pairs; whole runs of the forward and neglect bots x1)
+-- light radius 40
+T15a PASS nights 9-14, seeds 1-10, budget ["x1.0", "x1.5", "x2.0"]: with all four beacons held and the watchtower manned 968 creatures reached the defence, without 2382: 59 % fewer (target at least 30 %, without at least 300; per budget x1.0 55 %, x1.5 61 %, x2.0 59 %)
+T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night where the forward bot and the reference held in 1 of 10 (target all)
+T15 wager FAIL x1.0: the forward bot fell where the reference held in 5 seeds [3, 4, 7, 8, 9] (target none: never a trap)
+
+T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | walls lost without/with | nights fallen without/with | beacons lost | burnt without/with | watch arrows a night
+  x1.0: 312 | 141 | 55 % | 15/6 | 16/12 | 0/0 | 9 | 232/2699 | 68.7
+  x1.5: 707 | 273 | 61 % | 64/35 | 30/21 | 0/0 | 47 | 884/3937 | 88.4
+  x2.0: 1363 | 554 | 59 % | 138/98 | 35/27 | 0/0 | 62 | 1919/5036 | 100.6
+   forward x1: fell 5, beacons lost [2, 3, 4, 2, 2, 3, 4, 4, 3, 4], all four from night [18, 17, 19, 18, 0, 17, 19, 18, 18, 17]; neglect x1: fell on [0, 0, 0, 0, 20, 0, 20, 20, 0, 0], first beacon lost [10, 10, 10, 10, 10, 10, 10, 10, 19, 10]
+(8 s)
+-- light radius 70
+T15a PASS nights 9-14, seeds 1-10, budget ["x1.0", "x1.5", "x2.0"]: with all four beacons held and the watchtower manned 981 creatures reached the defence, without 2382: 59 % fewer (target at least 30 %, without at least 300; per budget x1.0 54 %, x1.5 62 %, x2.0 58 %)
+T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night where the forward bot and the reference held in 1 of 10 (target all)
+T15 wager FAIL x1.0: the forward bot fell where the reference held in 4 seeds [1, 3, 5, 8] (target none: never a trap)
+
+T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | walls lost without/with | nights fallen without/with | beacons lost | burnt without/with | watch arrows a night
+  x1.0: 312 | 143 | 54 % | 15/4 | 16/11 | 0/0 | 2 | 232/2790 | 93.2
+  x1.5: 707 | 272 | 62 % | 64/38 | 30/23 | 0/0 | 32 | 884/4182 | 111.2
+  x2.0: 1363 | 566 | 58 % | 138/95 | 35/27 | 0/0 | 61 | 1919/5379 | 120.0
+   forward x1: fell 4, beacons lost [2, 1, 2, 1, 2, 1, 3, 2, 1, 2], all four from night [18, 17, 19, 18, 18, 17, 0, 18, 17, 17]; neglect x1: fell on [0, 0, 0, 0, 0, 0, 20, 20, 0, 0], first beacon lost [20, 17, 17, 0, 17, 0, 17, 17, 0, 19]
+(11 s)
+-- strength 300
+T15a PASS nights 9-14, seeds 1-10, budget ["x1.0", "x1.5", "x2.0"]: with all four beacons held and the watchtower manned 1015 creatures reached the defence, without 2382: 57 % fewer (target at least 30 %, without at least 300; per budget x1.0 53 %, x1.5 59 %, x2.0 57 %)
+T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night where the forward bot and the reference held in 0 of 10 (target all)
+T15 wager FAIL x1.0: the forward bot fell where the reference held in 10 seeds [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] (target none: never a trap)
+
+T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | walls lost without/with | nights fallen without/with | beacons lost | burnt without/with | watch arrows a night
+  x1.0: 312 | 148 | 53 % | 15/8 | 16/12 | 0/0 | 59 | 232/2728 | 84.1
+  x1.5: 707 | 287 | 59 % | 64/40 | 30/23 | 0/0 | 96 | 884/4020 | 100.6
+  x2.0: 1363 | 580 | 57 % | 138/96 | 35/29 | 0/0 | 143 | 1919/5028 | 103.4
+   forward x1: fell 10, beacons lost [9, 12, 10, 9, 10, 9, 8, 10, 10, 10], all four from night [20, 20, 0, 19, 20, 19, 20, 20, 20, 19]; neglect x1: fell on [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], first beacon lost [8, 8, 9, 8, 9, 9, 9, 9, 9, 7]
+(14 s)
+-- strength 800
+T15a PASS nights 9-14, seeds 1-10, budget ["x1.0", "x1.5", "x2.0"]: with all four beacons held and the watchtower manned 989 creatures reached the defence, without 2382: 58 % fewer (target at least 30 %, without at least 300; per budget x1.0 54 %, x1.5 62 %, x2.0 58 %)
+T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night where the forward bot and the reference held in 0 of 10 (target all)
+T15 wager FAIL x1.0: the forward bot fell where the reference held in 4 seeds [1, 3, 5, 7] (target none: never a trap)
+
+T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | walls lost without/with | nights fallen without/with | beacons lost | burnt without/with | watch arrows a night
+  x1.0: 312 | 144 | 54 % | 15/8 | 16/12 | 0/0 | 0 | 232/2763 | 84.1
+  x1.5: 707 | 272 | 62 % | 64/39 | 30/23 | 0/0 | 0 | 884/4130 | 103.2
+  x2.0: 1363 | 573 | 58 % | 138/92 | 35/29 | 0/0 | 20 | 1919/5350 | 113.3
+   forward x1: fell 4, beacons lost [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from night [18, 17, 18, 18, 18, 17, 18, 18, 17, 17]; neglect x1: fell on [0, 0, 0, 0, 0, 0, 20, 0, 0, 0], first beacon lost [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+(18 s)
+-- no watchtower
+T15a PASS nights 9-14, seeds 1-10, budget ["x1.0", "x1.5", "x2.0"]: with all four beacons held and the watchtower manned 1422 creatures reached the defence, without 2382: 40 % fewer (target at least 30 %, without at least 300; per budget x1.0 35 %, x1.5 42 %, x2.0 41 %)
+T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night where the forward bot and the reference held in 1 of 10 (target all)
+T15 wager FAIL x1.0: the forward bot fell where the reference held in 6 seeds [1, 3, 4, 5, 6, 8] (target none: never a trap)
+
+T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | walls lost without/with | nights fallen without/with | beacons lost | burnt without/with | watch arrows a night
+  x1.0: 312 | 204 | 35 % | 15/19 | 16/16 | 0/0 | 9 | 232/2869 | 0.0
+  x1.5: 707 | 408 | 42 % | 64/49 | 30/24 | 0/0 | 46 | 884/4267 | 0.0
+  x2.0: 1363 | 810 | 41 % | 138/104 | 35/30 | 0/0 | 62 | 1919/5535 | 0.0
+   forward x1: fell 6, beacons lost [4, 3, 5, 2, 4, 4, 3, 2, 3, 3], all four from night [19, 0, 20, 18, 19, 18, 0, 18, 17, 17]; neglect x1: fell on [0, 0, 0, 0, 0, 0, 20, 20, 0, 0], first beacon lost [10, 10, 10, 10, 10, 10, 10, 10, 19, 10]
+(21 s)
+-- no charcoal
+T15a PASS nights 9-14, seeds 1-10, budget ["x1.0", "x1.5", "x2.0"]: with all four beacons held and the watchtower manned 1038 creatures reached the defence, without 2382: 56 % fewer (target at least 30 %, without at least 300; per budget x1.0 54 %, x1.5 58 %, x2.0 56 %)
+T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night where the forward bot and the reference held in 1 of 10 (target all)
+T15 wager FAIL x1.0: the forward bot fell where the reference held in 7 seeds [1, 2, 3, 4, 5, 8, 9] (target none: never a trap)
+
+T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | walls lost without/with | nights fallen without/with | beacons lost | burnt without/with | watch arrows a night
+  x1.0: 312 | 144 | 54 % | 15/10 | 16/10 | 0/0 | 9 | 232/2763 | 84.2
+  x1.5: 707 | 297 | 58 % | 64/42 | 30/24 | 0/0 | 46 | 884/4129 | 102.8
+  x2.0: 1363 | 597 | 56 % | 138/98 | 35/29 | 0/0 | 62 | 1919/5318 | 113.0
+   forward x1: fell 7, beacons lost [4, 4, 3, 2, 5, 3, 3, 2, 4, 3], all four from night [19, 17, 19, 18, 19, 17, 0, 18, 18, 17]; neglect x1: fell on [20, 0, 0, 0, 20, 0, 20, 20, 0, 0], first beacon lost [16, 10, 10, 10, 10, 10, 20, 10, 19, 10]
+(23 s)
+-- no quarry
+T15a PASS nights 9-14, seeds 1-10, budget ["x1.0", "x1.5", "x2.0"]: with all four beacons held and the watchtower manned 985 creatures reached the defence, without 2382: 59 % fewer (target at least 30 %, without at least 300; per budget x1.0 54 %, x1.5 60 %, x2.0 59 %)
+T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night where the forward bot and the reference held in 2 of 10 (target all)
+T15 wager FAIL x1.0: the forward bot fell where the reference held in 6 seeds [1, 2, 3, 4, 5, 8] (target none: never a trap)
+
+T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | walls lost without/with | nights fallen without/with | beacons lost | burnt without/with | watch arrows a night
+  x1.0: 312 | 144 | 54 % | 15/8 | 16/12 | 0/0 | 9 | 232/2763 | 84.2
+  x1.5: 707 | 283 | 60 % | 64/39 | 30/23 | 0/0 | 46 | 884/4127 | 102.8
+  x2.0: 1363 | 558 | 59 % | 138/95 | 35/29 | 0/0 | 62 | 1919/5313 | 113.0
+   forward x1: fell 6, beacons lost [4, 4, 3, 2, 4, 3, 3, 2, 3, 2], all four from night [19, 17, 19, 18, 19, 17, 0, 18, 17, 17]; neglect x1: fell on [20, 0, 0, 0, 20, 20, 20, 0, 0, 0], first beacon lost [16, 10, 10, 10, 10, 10, 10, 10, 20, 10]
+(26 s)
+
+beaconsweep: done (26 s)
+beaconsweep: exit 0 after 90 s

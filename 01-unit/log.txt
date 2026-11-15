@@ -1,0 +1,60 @@
+2026-11-15 02:47:44.375868+0000 Lanternhold[8658:37011] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.BuildTests testAGiftedBrazierCostsNothingOnce]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.BuildTests testAnUpgradeKeepsTheOldTierUntilDone]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BuildTests testAPalisadeTakesEightSecondsWithTwoBuilders]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.BuildTests testBuildersGoHomeAtTheHorn]' passed (0.041 seconds).
+Test Case '-[LanternholdTests.BuildTests testBuildersWalkOutAndBuildByDay]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.BuildTests testFreeRepairFortyHPPerBuilderPerSecond]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.BuildTests testNoBuilderSpendsTheNightAtTheFront]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.BuildTests testNoBuildingAtNight]' passed (0.013 seconds).
+Test Case '-[LanternholdTests.BuildTests testNotEnoughGoldAndLockedLines]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BuildTests testOrderCostsTheGoldAtOnce]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.BuildTests testRecruitingNeedsATaxpayerAndGold]' passed (0.152 seconds).
+Test Case '-[LanternholdTests.BuildTests testRubbleRebuildsAtHalfPriceInHalfTheTime]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BuildTests testTheCardOffersFirstBuildsUpgradesAndRebuilds]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BuildTests testTheGatehouseRebuildsForHalfOfWhatItCost]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BuildTests testTheLodgeBringsBuilders]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BuildTests testTheRealmHasItsPlots]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testAFallenBeaconIsRelitForAThirdAtOnce]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testALitBeaconBurnsUnderTheLightRules]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testAnOldSaveLoadsWithoutTheRule]' passed (0.072 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testAStandingBeaconIsTendedByDawn]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testCreaturesStrikeTheFurthestBeaconAsTheyPass]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testRaisingTakesTheBuildersIdleTime]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheCharcoalBurnersBrightenTheBraziers]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheDawnTellsWhatWasLitAndWhatWasFreed]' passed (0.058 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheFogLineHoldsTheBankAtTheFurthestLitBeacon]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheFogRollsToItsNewLine]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheGorgeLinesReadInEnglishAndGerman]' passed (0.031 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheGreatBeaconStaysAsItIs]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheNextBeaconIsRaisedByDayFromDayThreeInOrder]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheOldQuarryMakesWallWorkCheaper]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheReferenceBotIgnoresTheGorgesNumbers]' passed (1.855 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheReportsLinesInOrder]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheRuinedWatchtowerIsAForwardArchersPost]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheRuleIsDeterministic]' passed (2.447 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheRuleRoundTripsAndPartialStatesDecodeWithDefaults]' passed (0.060 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheSitesAreFractionsOfTheGorgeAtGrowingDistances]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testWithoutTheRuleNothingChanges]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeTuningTests testTarget15aWithAllFourHeldFewerCreaturesReachTheWall]' passed (48.828 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GorgeTuningTests.swift:38: error: -[LanternholdTests.GorgeTuningTests testTarget15bNeglectingTheWallLosesTheBeaconsAndThenTheNight] : XCTAssertTrue failed - seed 1: neglect first beacon lost night 16, fell night 20; forward fell 20, reference fell 0
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GorgeTuningTests.swift:38: error: -[LanternholdTests.GorgeTuningTests testTarget15bNeglectingTheWallLosesTheBeaconsAndThenTheNight] : XCTAssertTrue failed - seed 2: neglect first beacon lost night 10, fell night 0; forward fell 20, reference fell 0
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GorgeTuningTests.swift:38: error: -[LanternholdTests.GorgeTuningTests testTarget15bNeglectingTheWallLosesTheBeaconsAndThenTheNight] : XCTAssertTrue failed - seed 3: neglect first beacon lost night 10, fell night 0; forward fell 20, reference fell 0
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GorgeTuningTests.swift:40: error: -[LanternholdTests.GorgeTuningTests testTarget15bNeglectingTheWallLosesTheBeaconsAndThenTheNight] : XCTAssertEqual failed: ("[1, 2, 3]") is not equal to ("[]") - the forward bot never falls where the reference holds
+Test Case '-[LanternholdTests.GorgeTuningTests testTarget15bNeglectingTheWallLosesTheBeaconsAndThenTheNight]' failed (0.124 seconds).
+Test Case '-[LanternholdTests.GorgeTuningTests testTheReferenceBotsPlayTheSameWithTheRuleOn]' passed (9.943 seconds).
+Test Case '-[LanternholdTests.GorgeTuningTests testTheT15ReportIsAttached]' passed (0.009 seconds).
+Test Suite 'GorgeTuningTests' failed at 2026-11-15 02:48:54.054.
+Test Case '-[LanternholdTests.SaveGameTests testACorruptFileIsReportedAsCorrupt]' passed (0.376 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testAnOlderSaveWithoutOptionalFieldsLoads]' passed (0.296 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testARoundTripGivesTheSameRealm]' passed (0.341 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlayingOnFromALoadedSaveMatchesPlayingStraightOn]' passed (0.871 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlotCountsAndIndicesAreCheckedOnLoad]' passed (0.030 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testSettingsAndPacingWithoutTheirFieldsDecodeWithDefaults]' passed (0.376 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheChronicleKeepsRecordsPerTrackAcrossRealms]' passed (0.559 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheFrozenVersionOneSaveStillLoads]' passed (0.040 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testUnknownFieldsOfNewerVersionsAreIgnored]' passed (0.389 seconds).
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-15 02:48:57.343.
+Test Suite 'Selected tests' failed at 2026-11-15 02:48:57.343.
+exit=65
+screenshots: 0

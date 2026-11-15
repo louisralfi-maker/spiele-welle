@@ -1,0 +1,24 @@
+T15a PASS nights 12-14, seeds 1-3, budget ["x1.0", "x1.5", "x2.0"]: with all four beacons held and the watchtower manned 289 creatures reached the defence, without 549: 47 % fewer (target at least 30 %, without at least 300; per budget x1.0 39 %, x1.5 51 %, x2.0 48 %)
+T15b FAIL x1.0 whole runs, seeds 1-3: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon and then the night where the forward bot and the reference held in 0 of 3 (target all)
+T15 wager FAIL x1.0: the forward bot fell where the reference held in 3 seeds [1, 2, 3] (target none: never a trap)
+
+T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | walls lost without/with | nights fallen without/with | beacons lost | burnt without/with | watch arrows a night
+  x1.0: 85 | 52 | 39 % | 3/7 | 6/6 | 0/0 | 0 | 17/355 | 92.1
+  x1.5: 158 | 78 | 51 % | 13/7 | 7/6 | 0/0 | 4 | 128/552 | 103.0
+  x2.0: 306 | 159 | 48 % | 39/31 | 9/9 | 0/0 | 9 | 288/696 | 113.8
+
+T15a per night (all budgets): without | with | beacons lost (the furthest falls first)
+  night 12: 147 | 65 | 3
+  night 13: 181 | 100 | 4
+  night 14: 221 | 124 | 6
+
+whole runs x1.0, per seed: bot fell | defenders lost | creatures at the defence nights 3-14 | all four burning from night | first beacon lost | beacons lost | raised/relit | beacon gold | watchtower | Great Beacon day | night 20: King slain after s
+  seed 1 reference: held | 9 | 29 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 63
+  seed 1 forward: FELL 20 | 6 | 25 | 19 | 16 | 4 | 4/3 | 592 | yes | 0 | -
+  seed 1 neglect: FELL 20 | 3 | 2 | 15 | 16 | 4 | 4/3 | 640 | yes | 0 | -
+  seed 2 reference: held | 9 | 41 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 64
+  seed 2 forward: FELL 20 | 6 | 19 | 17 | 17 | 4 | 4/3 | 640 | yes | 0 | -
+  seed 2 neglect: held | 5 | 6 | 15 | 10 | 4 | 4/3 | 610 | yes | 19 | lived
+  seed 3 reference: held | 11 | 53 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 64
+  seed 3 forward: FELL 20 | 4 | 43 | 19 | 17 | 3 | 4/2 | 548 | yes | 0 | -
+  seed 3 neglect: held | 3 | 8 | 14 | 10 | 4 | 4/3 | 610 | yes | 20 | lived
