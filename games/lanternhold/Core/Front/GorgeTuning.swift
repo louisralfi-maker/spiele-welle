@@ -60,9 +60,10 @@ struct GorgeTuning: Sendable, Equatable {
     /// A lit beacon's strength, nearest first. Creatures on the ground strike the furthest lit beacon as they pass (their
     /// harm per second for the time they are within `strikeReach` of it, as soldiers are struck in passing); at 0 it
     /// falls and the fog comes back to the one before. A beacon still standing is tended by day: full again at dawn.
-    /// 400 (round lh-f3-3): at the game's own nights the furthest first falls on night 10 (the Ash Giant) and then on
-    /// about every third night; at 1.5 times the nights from night 6. At 600 a bot that raises nothing but beacons keeps
-    /// them all and pays no relight (and holds every night without walls); at 300 they fall from night 7 on.
+    /// 400 (round lh-f3-3): at the game's own nights the furthest first falls on night 10 (the Ash Giant) in every seed,
+    /// at 1.5 times the nights from night 6; a realm that keeps all four lit then loses about one a night on the late
+    /// nights. At 600 a bot that raises nothing but beacons keeps them all and pays no relight (and holds every night
+    /// without walls); at 300 they fall from night 7 on.
     var strength: [Double] = [400, 400, 400, 400]
     var strikeReach = 8.0
 

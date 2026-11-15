@@ -981,3 +981,301 @@ Rounds follow the director's notes of 14.11. 18:46 and 19:35. No screen and no U
   night took), the six other languages of the hearth keys (now 21), `Hearth.adopt` beside `FrontNight.adopt`, and the
   save writing `dawns`.
 - German is not judged before the store pass (the director's note of 14.11. 19:35).
+
+## front-3: beacons into the gorge (15.11.2026)
+
+Louis, 14.11.: "Ja, Leuchtfeuer: man baut Leuchtfeuer immer weiter in die Schlucht hinein. Jedes drängt den Nebel zurück
+und gibt neues Land frei. So hat man ein Ziel nach vorn, nicht nur Abwehr." Spec: REALM.md section 5. Core only: no
+SwiftUI, no renderer, no sprite, no UI test changed. Made in the scratch clone of the branch as front-2 was (the app's
+worktree guard refuses writes into `.claude/worktrees/lh-front` from the lead's session), committed as Louis' noreply
+identity and pushed to `origin/claude/lh-front`.
+
+### What exists (all new files of this lane)
+
+- `Core/Front/GorgeTuning.swift`: every number in one place, carried as `Balance.front.gorge`: the gorge (`gorgeFrontX`
+  1240, `gorgeWestX` 0), the four sites as fractions of it (0.55, 0.69, 0.80, 0.91: x 558, 384, 248, 112), the freed
+  things' anchors (0.53, 0.66, 0.75, 0.86), `raiseFromDay` 3, `prices` 60, 90, 130, 180, `raiseWork` 150 builder-seconds,
+  `relightShare` 1/3, the fire (`lightRadius` 56, `flameY` 20), `fogSeconds` 3, `holdFogOnFinale` false, `strength` 400
+  each, `strikeReach` 8, `quarryDiscount` 0.08, the watchtower (`watchtowerPrice` 40, `watchArchers` 1, `watchRange`
+  150, `watchPeriod` 3, `watchDamage` 4, `watchHeight` 40), `charcoalRadius` 1.08, the forward bot's habits
+  (`botReserve` 30, `botBeaconSteps` 10, 16, 22, 22, `botWatchStep` 16, `botGreatBeaconFirst` true).
+- `Core/Front/GorgeState.swift`: the saved state (`GorgeState` in `GameState.gorge`: the four sites with their state and
+  strength, the raise underway, the watchtower, the night's tally, the fog's last move, the stamps `lastLit` and
+  `lastFall`), the report's gorge half (`GorgeDawnReport` in `DawnReport.gorge`) and its lines (`GorgeLine`). Every field
+  decodes with a default; a state that breaks the rule's order (a beacon lit beyond a cold one, a raise anywhere but the
+  next site) is mended on load.
+- `Core/Front/Gorge.swift`: the rule. `adopt`; the places (`siteX`, `landX`), `held`, `holds`, `fogLine`, `holdFog`;
+  prices and strength; by day `offer`/`order` (raise or relight the next one), `watchOffer`/`raiseWatchtower`, `step`
+  (the builders' work, the bank at rest at the fog line); by night `addLights`, `battle` (`strike`, `watch`); the
+  quarry's `options`; `dawn`; `picture` (one `GorgePicture` a frame).
+- `Core/Front/GorgeText.swift` and `Resources/Front.xcstrings`: 11 new keys in English and German (`front.gorge.*`).
+- `Core/Front/ForwardBot.swift`: the T15 bots (forward, neglect, and the walls-neglected control without beacons).
+- `Core/Front/GorgeTuningRun.swift`: T15 (`GorgeMetrics`, `GorgeTuningRun.pair`, `wholeRun`, `measure`) and the idle
+  lockstep for T1 to T8 (`idleLockstep`).
+- `Tests/GorgeBeaconTests.swift` (21 tests: the rule, the light, the fog line and its roll, holding and falling,
+  relighting, the three gains, the Great Beacon as it is, the lines and their words, the save, the reference bot,
+  determinism) and `Tests/GorgeTuningTests.swift` (T15a, T15b and the wager, the idle lockstep).
+- `tools/beaconsweep/` (`sh bash tools/beaconsweep/run.sh [variants] [finale] [seeds=10]`): T15 on ten seeds, the
+  controls, the variants and night 20, with -O on the runner (the whole sweep runs in about two minutes).
+
+### The rule as built
+
+- **Four sites** beyond the gate, as fractions of the gorge's length from the castle front (the world lane's room for
+  them, report world-1): x 558, 384, 248, 112, each further into the gorge. The rebuilt world moves them with
+  `gorgeFrontX` and `gorgeWestX`.
+- **Raising.** From day 3, by day, the next beacon (only the one after the last that burns) can be raised for 60, 90,
+  130, 180 gold. The gold goes at once; the builders raise it with the time they have no other work for (the castle's
+  repairs and paid jobs first, as for every builder; the happy realm's faster builders included): 150 builder-seconds,
+  two idle builders in about 75 s, half a day. It burns as soon as it stands. One raise at a time.
+- **The fog line** is one value: the furthest lit beacon's x, or nothing (the old edge). The darkness bank never passes
+  it, by night and by day (`Battle.bankEdge` asks `Gorge.holdFog` last; by day `Gorge.step` keeps `GameState.bankEdge` at
+  the held edge). When the line moves (a beacon lit, a beacon fallen) the bank rolls to it over 3 s, so it never jumps.
+  At night every site west of tonight's natural edge pushes it back (the second from night 7, the third and fourth on
+  every night); by day only the fourth (the bank rests at 200 by day).
+- **A beacon's fire.** Each lit beacon is a fire of a brazier's radius at height 20 in `Battle.lightSources` (kind
+  `.brazier`, so the renderer draws its pool and the fire's crackle plays from the existing light list), under the
+  existing light rules: creatures in it are seen and slow to their lit speed, and sootlings burn. A sootling that walks
+  through one beacon's light burns out (about 66 px at 12 px/s).
+- **Holding.** Creatures on the ground strike the furthest lit beacon as they pass: their harm per second for the time
+  they are within 8 px of it (`Battle.contactTime`, as soldiers are struck in passing; crows never strike, they fly). At
+  0 of its 400 it falls: cold, the fog rolls back to the one before, and the next becomes the furthest. A beacon still
+  standing is tended by day: full again at dawn. A cold beacon is relit by day, at once, for a third of its price (20,
+  30, 44, 60), and again only the nearest cold one (they burn nearest first, always).
+- **Where the creatures appear.** They still leave the Gloom at its mouth (`Realm.spawnX`, x 40): the four sites lie on
+  their way (all east of x 40), so moving the spawn to the fog line would shorten their walk, the opposite of the
+  spec's "they walk longer under the arrows". A creature comes out of the fog at the fog line (the picture already hides
+  what is inside the bank, `GloomFog.bodyAlpha`), and walks the rest of the gorge in the beacons' light: slower, burning,
+  and under the watch's arrows.
+- **Freed land** (one thing per stretch, held while the beacon beyond it burns):
+  - the old quarry (stretch 1, the first beacon): every wall and gate build, upgrade and rubble rebuild costs 8 % less
+    (rounded: a palisade 18, the iron gate 83, the gate's rubble 46), through `Build.options`, so the card and the order
+    agree;
+  - the ruined watchtower (stretch 2): it may be raised by day for 40 gold as a forward archers' post; the watch (castle
+    staff, like the engines' crews: never falls, leaves while the stretch is lost) looses one arrow in 3 s at the King
+    when he can be hurt, else at the most advanced lit creature within 150 px; about 5 to 8 % of the strength of a
+    night's creatures (round lh-f3-4: 8 % at the game's own nights, 7 % at 1.5 times, 5 % at twice);
+  - the charcoal burners' camp (stretch 3): the braziers and fire towers burn 8 % brighter (their radius);
+  - the far stones (stretch 4): a flag for the picture only. The spec's gain ("the Great Beacon reaches further on night
+    20") moves the finale's tuning (measured: below, "The King's night"), so it stays out, as the brief allows.
+- **The Great Beacon** on the castle's site and its three stages are untouched. On the King's night, once it flares, the
+  fog rolls over the small beacons to where the Great Beacon holds it (x 360) over 3 s from the King's leaving, and the
+  night is exactly today's from then on (`holdFogOnFinale` off). Without the Great Beacon the small ones hold the fog on
+  night 20 as on any night; on the endless nights after it (its battle light 0) they hold it again.
+- **Deterministic**, nothing drawn from the random stream, and nothing runs for a realm without `GameState.gorge`.
+
+### Hooks into existing files (apply them again at the join)
+
+| File | Place | Hook | Why |
+|---|---|---|---|
+| `Core/GameState.swift` | after `var hearthFire` | `var gorge: GorgeState?` | the saved rule; nil = the old rules (bots, old saves) |
+| `Core/DawnReport.swift` | after `var hearth` | `var gorge: GorgeDawnReport?` | the report's gorge half |
+| `Core/Sim.swift` `step` | right after `Build.stepBuilders(...)` | `Gorge.step(&s, dt: dt, balance: balance)` | the builders raise a beacon with their idle time; the bank at rest at the fog line by day |
+| `Core/Sim.swift` `dawn` | right after `Hearth.dawn(&s, ...)` | `Gorge.dawn(&s, balance: balance)` | the report's gorge half, standing beacons tended, the tally |
+| `Core/Battle.swift` `lightSources` | last line before `return lights` | `Gorge.addLights(&lights, s, balance: balance)` | the beacons' fires; the charcoal's brighter braziers |
+| `Core/Battle.swift` `bankEdge` | the return | `let edge = DarknessBank.edge(...)`; `return Gorge.holdFog(s, edge: edge, balance: balance)` | the fog line |
+| `Core/Battle.swift` `step` | right after the `stepCreatures` block | `Gorge.battle(&s, dt: dt, balance: balance, creatureStartX: creatureStartX, walkTimes: walkTimes, events: &events)` | the furthest beacon struck in passing; the watch looses |
+| `Core/Build.swift` `options` | right after the hearth's `rebuildOption` line | `if let quarry = Gorge.options(state, plot: plot, balance: balance) { return quarry }` | the quarry's cheaper wall work |
+| `Core/Front/FrontTuning.swift` (own file) | end | `var gorge = GorgeTuning()` | the numbers travel with every balance |
+| `tools/simtune/run.sh`, `tools/frontsweep/run.sh`, `tools/hearthsweep/run.sh` | `SRC` | `Core/Front/GorgeTuning.swift GorgeState.swift Gorge.swift` | the sweeps compile the core |
+
+Under the old rules every hook returns at once or returns its input (`gorge` nil), so T1 to T8 do not move (proved
+below). After the join `Gorge.step` stays right after the builders (it reads who is idle), and the battle hook right after
+the creatures walked (it reads their paths).
+
+### For the join: what the world shows, and which touch calls what
+
+- **Turn the rule on** for the player's realm with the other two: `Gorge.adopt(&start)` and `Gorge.adopt(&snapshot)` in
+  `SimDriver.init`, `Gorge.adopt(&state)` in `SimDriver.restart`. A loaded old save gets it there too (no beacon burns).
+  The bots (`-GWAutoplay play` included) may stay without it.
+- **Every frame** read `Gorge.picture(state, balance:)`; the fog itself is `GameState.bankEdge`, which the world already
+  draws (the world lane: "the bank and the Gloom's fog are drawn from `bankEdgeX` alone"), and the beacons' pools are in
+  the battle's light list already. No number, no bar, no label anywhere.
+  - `sites[k]` (x, `state`, `strength`, `raised`): wild = bare ground; only the site of `offer` shows as a place to
+    build (an old stone ring or a marker cairn that answers a touch with a small shake), the others are just gorge (or
+    fog). Raising = scaffolding and a stone cairn growing with `raised` (0 to 1), by day the builders' crew at it (the
+    idle builders: Core keeps them at the lodge; draw them out at the site while a raise runs by day). Lit = a stone
+    beacon with a fire on top; while `strength` is low (below about a half) the fire gutters and throws sparks (struck),
+    a whole one burns steady. Dark = a cold, blackened beacon with a thread of smoke.
+  - `lastLit` (a new `at`): the fire catches with a burst of sparks, a light haptic, the brazier's lit sound at the site;
+    the fog rolls back from the old line to the new one over 3 s (Core rolls `bankEdge`); the freed stretch's thing
+    comes out of the fog with it.
+  - `lastFall` (a new `at`): the fire is torn apart in a burst of soot and goes out, a heavy haptic and a dull thud (the
+    wall-broken sound, low rate); the fog rolls back over the cold beacon to the one before over 3 s; the stretch's thing
+    goes back into the fog. Reduce Motion: no burst, a short cross-fade of the fire. After a load the stored stamps count
+    as seen.
+  - `lands[k]` (`held`; the watchtower `watchRaised`, `manned`): held by day, people at work there (the quarry: two
+    quarrymen and a stone cart at the rock face; the camp: smoking charcoal mounds and a burner; the stones: standing
+    stones clear of the fog); not held, fog or ruin. The watchtower: a ruin; raised, a timber top and a ladder; manned (at
+    night), one bowman on top: his arrows are Core's projectiles from x `landX(.watchtower)` at height 40, and the
+    existing `.arrow` event plays their sound.
+  - By day the bank moves only for the fourth site (it rests at 200; the first three lie east of it), so the world must
+    show "freed" by day through the things and their people, not through the fog.
+- **A touch on the next site** (`offer`, at `offer.x`): the lord walks there (as the knock walks him to a door; Core
+  does not ask for reach, the bots order from the throne), the count (PAY.md) shows `offer.price` as coins at the site,
+  and when the last coin lands it calls `Gorge.order(&state, balance:)` once (a one-line wrapper on `SimDriver`). Not
+  `open` (night, or before day 3): the site shakes. Not `affordable`: the refuse sound. `relight` true: the same touch
+  on the cold beacon, at a third. While one is being raised there is no offer (the scaffolding is the answer).
+- **A touch on the ruined watchtower** while `watchOffer` is there: the count with its price, then
+  `Gorge.raiseWatchtower(&state, balance:)`.
+- **The dawn report:** `GorgeText.lines(report)` gives up to four short lines (a beacon lost, a beacon lit or relit, the
+  land freed, the watch); put them in the night half after the front and hearth lines. Plural by words, never a number.
+- **Events.** Nothing new in `SimEvent` (its switch in `Feedback.cue` is exhaustive and other lanes edit it): diff the
+  stamps, or add `.gorgeLit(site:)` and `.gorgeFell(site:)` at the join with their `Feedback` rows.
+- **Strings:** `Resources/Front.xcstrings`, English and German; the six other languages follow in the i18n pass (11 gorge
+  keys, none plural, no placeholders).
+
+### T1 to T8: the bot tables before and after
+
+The reference bots never raise a beacon and play without `GameState.gorge`. Three proofs from the runner (rounds lh-f3-5
+and lh-f3-6, the final commit; the commits after it change only comments and these notes):
+
+- `tuning-report.txt` (TuningTests) is round lh-f2f1-5's (this branch before the step) byte for byte: md5
+  f919a8fdb355f32441b5879cc12e7324 both, 80 lines. So are `night-twenty-steps.txt` (1ab8adf6...),
+  `front-t13-report.txt` (e358924d...) and `hearth-loss-table.txt` (bcb7ea9f...). The T-lines, before and after alike:
+  T1 nights 1-10 held, hearth 100, losses 0; T2 falls on nights 3, 3, 3; T3 the beacon on days 17, 16, 17, low tax
+  never; T4 27 and 83; T5 49 gold, 3 builds, 11 buildings by day 10; T6 with the beacon 20 of 20 won, the King slain
+  20 of 20, without 10 of 20 held; T7 17 of 20 in the band; T8 79.9 s, 39 entities, 11 lights.
+- **The idle lockstep** (`GorgeTuningTests.testTheReferenceBotsPlayTheSameWithTheRuleOn`, attached as
+  `gorge-idle-lockstep.txt`; the sweep prints it too): T1's runs (the reference, seeds 1 to 3, nights 1 to 10) and T2's
+  (the bot that builds nothing, seeds 1 to 3, to its fall) played twice in lockstep, under the old rules and with the
+  gorge rule on (no beacon raised); every dawn the realms are the same but for the rule's own state. 39 nights,
+  differences: none; the before and after tables are the same line for line (the attachment prints both).
+- `GorgeBeaconTests.testTheReferenceBotIgnoresTheGorgesNumbers`: wild gorge numbers change nothing in a reference night.
+
+### T15 (new)
+
+**T15a, the beacons' worth** (lockstep, like T13): every eve of nights 9 to 14 of the reference bot's run, seeds 1 to
+10, the night played as the reference played it and with all four beacons burning and the old watchtower manned, by the
+same bot (so the day is the reference's, quarry included, and only the gorge differs), at the game's own budget and at
+1.5 and 2 times it. The band I set: **at least 30 % fewer creatures reach the defence** (a wall, the guards in a breach,
+the hearth; each counted once), the reference at least 300 over all.
+
+Round lh-f3-5 (`beaconsweep.txt`), at the chosen values: **PASS, 45 % fewer** (2382 without, 1302 with):
+
+| budget | at the defence without / with | fewer | defenders lost | walls lost | beacons lost (60 nights) | burnt | the watch |
+|---|---|---|---|---|---|---|---|
+| x1 | 312 / 185 | 41 % | 15 / 22 | 16 / 16 | 24 | 232 / 2822 | 24 arrows a night, 8 % of the creatures' strength |
+| x1.5 | 707 / 371 | 48 % | 64 / 47 | 30 / 25 | 60 | 884 / 4209 | 27, 7 % |
+| x2 | 1363 / 746 | 45 % | 138 / 108 | 35 / 29 | 83 | 1919 / 5441 | 29, 5 % |
+
+By night (all budgets): night 9 83 / 28, 10 184 / 97 (41 beacons lost: the Ash Giant), 11 238 / 107, 12 546 / 299, 13
+625 / 354, 14 706 / 417. The unit test (seeds 1 to 3, nights 12 to 14): 38 % fewer (549 / 340). What it rests on: the
+beacons' fires burn the sootlings that walk through them (232 burnt without, 2822 with), slow everything else, and the
+watch shoots in their light. Without the watch it is 41 %, without the charcoal 44 %. At the game's own nights the realm
+lost a few more defenders with the beacons (15 against 22 over 60 nights; at 1.5 and 2 times fewer): not diagnosed; my
+guess is that the slowed creatures reach the walls later and more of them together.
+
+**T15b, the walls still count** (whole runs from day 1, seeds 1 to 10, the game's own nights): the neglect bot (beacons
+first at any gold, every relight, no wall built or raised a tier, none patched) loses a beacon (the first on night 10, the
+Ash Giant, in all ten) and then falls (night 20) where the forward bot and the reference both hold: **PASS, 10 of 10**.
+It falls because the beacons and their relights (530 to 880 gold, 6 to 10 relights) leave it no Great Beacon, not because
+its walls fail: see "for the director", item 3.
+
+**The wager** (whole runs, seeds 1 to 10): "never a trap" is asserted at the game's own nights: **PASS** (the forward
+bot fell where the reference held in no seed).
+
+| seeds 1 to 10, x1 | fell | Great Beacon day | defenders lost | at the defence, nights 3-14 | beacons | night 20 |
+|---|---|---|---|---|---|---|
+| reference | none | 15 to 17 | 10.1 | 44.3 | none | the King slain 10 of 10 (61 to 66 s) |
+| forward | none | 17 to 19 | 10.9 | 48.2 | the first from day 5, the second about day 9; the furthest falls on night 10; 60 to 170 gold | held 10 of 10, the King slain 8 of 10 |
+| neglect | night 20 in all ten | never | 7.0 | 14.9 | all four by night 14 to 19 (one seed never); 530 to 880 gold | fell |
+| walls neglected, no beacons (control) | none | 14 to 17 | 6.4 | 41.8 | none | held, the King slain 10 of 10 |
+
+At 1.5 times the nights the forward bot falls where the reference holds in 5 of 10 seeds (it misses the Great Beacon:
+item 4 below); the neglect bot falls on night 20 in all ten, the reference in five.
+
+**Forward is a wager, never the one right way.** The reference holds every night at the game's own budget without a
+beacon (T1 to T8 unchanged). Held, the four beacons take 41 to 48 % of the creatures off the walls; their price is about
+a Great Beacon (460 gold and the relights), the forward bot finishes the Great Beacon one to two days later and the King
+lived in two of its ten finales. A bot that goes all in loses the chapter.
+
+### The King's night (the far stones)
+
+Night 20 from the reference's eve, seeds 1 to 10, with all four beacons granted (round lh-f3-5, lockstep):
+
+| | the King slain after (s from his leaving) |
+|---|---|
+| without beacons | 61 to 66 (at x 835 to 922) |
+| the fog held at the fourth site on the King's night (`holdFogOnFinale` on) | 67 to 73 (the Great Beacon's light, which the fog swallows, reaches out to x 112; he walks slowly in it from there) |
+| as today once the Great Beacon flares (chosen) | 59 to 64 |
+
+The other rule moves the finale (every seed 6 to 9 s later, some past T6's 70 s), so it is off and the far stones stay a
+flag for the picture. The King strikes the furthest beacon as he passes (one fell in each of the ten).
+
+### Judged as a player
+
+Day 3: the lord walks out past the gate to a ring of old stones in front of the outer line's place; 60 coins. By noon the
+builders have a cairn up and a fire on it. That night the fog stops at the fire on the late nights (on night 3 the
+first site lies behind the fog's edge), and the sootlings that come out of the dark flare up in its light far in front of
+the walls: a fireworks of small deaths out in the gorge, which reads as the beacon working. Dawn: "A new beacon burned
+all night. The fog kept off." and "The old quarry is ours again. Stone comes cheaper." The next site is further out, and
+dearer. On night 10 the Ash Giant tears the furthest fire down as he passes; the fog rolls back over it: "The far beacon
+went dark. The fog came back." The relight is cheap (a third), but it competes with the Great Beacon, which is the
+visible goal from day 11. That is the wager the spec asks for: the gorge or the goal, every morning. What makes it feel
+real is the fog line: it moves where the player put fire, and it comes back where the player could not hold it.
+
+What is thin: by day the fog moves only for the fourth beacon, so "land freed" must be shown by the things and their
+people; and the beacons' fires burn so many sootlings that a realm without walls but with beacons holds the early and
+middle nights almost untouched (the neglect bot: about 15 creatures at its defence over nights 3 to 14, the reference 44).
+
+### For the director (decisions and findings)
+
+1. **Where the creatures appear.** They still leave the Gloom's mouth (x 40); they come out of the fog at the fog line
+   (the picture hides them inside the bank). The world lane's sites lie east of x 40, so spawning at the fog line would
+   shorten their walk; one value to change if the world lane extends the gorge west of the spawn.
+2. **The beacons' fires burn sootlings** under the existing light rules: the strongest part of their worth (T15a 45 %).
+   The strength (400: the furthest first falls on night 10, the Ash Giant's, in every seed at the game's own nights,
+   from night 6 at 1.5 times; a realm that keeps all four lit then loses about one a night on the late nights) and the price bound it. If the director wants them weaker, `strikeReach` (16:
+   they fall from night 5) or `strength` are the values; the light rules themselves are not this lane's to change.
+3. **Walls beyond the gate decide no night at the game's own budget in today's balance.** The control (the walls
+   neglected exactly as the neglect bot does, and no beacon) holds all 20 nights in 10 of 10 seeds at x1, 9 of 10 at
+   x1.5 and 8 of 10 at x2, finishes the Great Beacon two days earlier and loses fewer defenders; the reference holds 5 of
+   10 at x1.5 and none at x2. So T15b's "neglects the wall ... and then the night" holds only through the beacons' cost
+   (no Great Beacon). That is a finding about the base game (walls, posts and archers), for the tuning at the join, not a
+   thing this lane changes (T1 to T8 must hold).
+4. **At 1.5 times the nights the Great Beacon has no slack.** The reference finishes it on day 16 to 18 (two seeds never);
+   any 150 gold elsewhere costs it, and the forward bot then falls on night 20 where the reference holds (5 of 10
+   seeds): a trap for a weak realm. With the town lane's income at the join this has to be measured again; if it holds,
+   the beacons' prices (the spec's "about 60, 90, 130, 180") are the value to turn.
+5. **The far stones** are a flag for the picture (the spec's own fallback); `holdFogOnFinale` measured (above).
+6. **The watch** is one bowman (an arrow in 3 s): 5 to 8 % of a night's creature strength, but 15 to 22 % of all arrows,
+   since the realm's archers loose few at the game's own nights. Two bowmen at 1.4 s were worth 19 points of T15a.
+7. **Prices** stay the spec's; all four beacons and the Great Beacon do not fit into today's economy by night 18 for a
+   bot that keeps the reference's order (the forward bot holds two before the Great Beacon, the rest after it).
+
+### Rounds
+
+| Round | Commit | Steps | Result |
+|---|---|---|---|
+| lh-f3-1 | 0f5c33c | build; unit GorgeBeaconTests, GorgeTuningTests, SaveGameTests, BuildTests; sh beaconsweep variants finale | build PASS, sh PASS; unit: T15b failed (the forward bot spent the Great Beacon's gold on beacons and fell on night 20; the neglect bot held), every rule test passed |
+| lh-f3-2 | b97f1b1 | sh beaconsweep variants | ALL PASSED: the walls-neglected control holds every night; the grid of strike reach against strength; the forward bot with the Great Beacon first never raised a beacon |
+| lh-f3-3 | 418661b | sh beaconsweep variants finale | ALL PASSED: the forward bot's beacons in its order, one bowman, strength 400: T15a 50 %, T15b 10 of 10, never a trap at x1; the watch still 41 % of the arrows |
+| lh-f3-4 | 50bf396 | sh beaconsweep variants finale | ALL PASSED: the watch at one arrow in 3 s (8 % of the creatures' strength), T15a 45 %; night 20 in lockstep: the fog held makes the King fall 6 to 9 s later |
+| lh-f3-5 | a92c30c | build, unit (all), sh beaconsweep variants finale | build PASS, sh PASS; unit 498 of 499: the watchtower test asked for three arrows in 3 s at one in 3 s; T1 to T8, T13, night 20 and the hearth's loss table identical (md5) |
+| lh-f3-6 | d10b507 | build, unit (all), sh beaconsweep variants finale | **ALL PASSED**: 500 unit tests, none failed; T1 to T8, T13, the night-twenty steps and the hearth's loss table identical to lh-f2f1-5 (md5); T15a, T15b and the wager PASS (unit test and sweep); the sweep's T15 the same as lh-f3-5 |
+
+Rounds by the director's notes of 14.11. 18:46 and 19:35: no screen and no UI test changed, so the gate is one round of
+`build unit` with the sweep as an `sh` step; no `ui`, `ui-de` or `release` step.
+
+### Front-2's open high (the critic's look 2)
+
+T14b's fed row is now reported as "T14b reported (mended, as T14a)", never as PASS, and the no-wood row says what is
+built: "two broken nights with less than two steps of mending between" end the realm (wood is one step, a held night
+one). For the director's list, as item 7 of front-2: REALM.md's "two broken nights within three end the realm" is kept
+as "two broken nights with less than two steps of mending between"; a lord who feeds once and holds one night is bright
+again and a second breach leaves him at embers.
+
+### Open, and waiting for the join
+
+- **The picture and the touch** (all of "For the join" above): the sites, the cairn growing, the fire guttering when
+  struck, the cold beacon, the four things by day, the bowman, the count at the site.
+- **Turning the rule on** (`Gorge.adopt` beside `FrontNight.adopt` and `Hearth.adopt` in `SimDriver`).
+- **`SimEvent` cases** for a beacon lit and fallen, if the join wants them in `Feedback` (now: diff the stamps).
+- **The six other languages** of the 11 gorge keys in the i18n pass.
+- **The director's items 2 to 4 and 7** with the town lane's economy in: T15 and the whole runs measured again on the
+  joined game (`tools/beaconsweep`; keep its file list in step with Core).
+- **A hearth breach and the beacons:** a broken night leaves the beacons as the battle left them (the fire's lore would
+  allow "the beacons go out with the hearth"; not built, one rule in `Gorge` if wanted).
+- **The forward bot** is a careful player (two beacons before the Great Beacon). A human who raises all four by night 14
+  pays for it with the Great Beacon's day (the variant "all four before the Great Beacon": it finished on day 18 to 20,
+  and in one seed never, which then fell on night 20).
