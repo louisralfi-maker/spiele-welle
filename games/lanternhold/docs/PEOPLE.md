@@ -248,17 +248,25 @@ upper floor's lodger):
   coin through the slot, a nod), at the farthest door about 10:20, back at his post about 14:10, there until the horn.
   From the town lane's post by the hall door no round of every door fits before the horn at that pace: the post and
   the hours wait for the director (docs/lanes/people.md, "people-2 fix round 1").
-- **The lamplighter** (`TownLamps`): each day Silas Moth comes into the hall by its chapel door, holds his
-  pole's wick into the Eternal Light in the hearth, bows his head to it, turns and carries the flame out through the
-  castle's gate into the town; he lights the four street lanterns one by one down the road (each with a small flare
-  and a warm pool), the last one as the horn sounds, and goes in at his door. At first light (05:00) he walks back from
-  his door putting them out with the snuffer, and goes in at the castle's gate. The times follow from the anchors and
-  an old man's heavy step (16 px/s, fix round 1; it was a brisk 32), counted back from the horn: he is in the hall
-  about 10:50, at the Flame (on the hearth's left, facing it) about 11:20, the lanterns take their flames about 15:20,
-  17:10, 17:50 and 19:00; the morning's snuffing runs 05:20 to 09:00, in at the castle's gate about 10:15. The hours
-  wait for the director (docs/lanes/people.md). In unrest (below 15 happiness) nobody
-  lights them; with the hearth out there is nothing to light them with; they burn as the hearth does (bright, low,
-  embers).
+- **The lamplighter** (`TownLamps`): each dusk Silas Moth comes into the hall by its chapel door, holds his
+  pole's wick into the Eternal Light in the hearth in the late afternoon's warm light, bows his head to it, turns and
+  carries the flame out through the castle's gate on his shoulder; when the light turns gold he lights the street
+  lanterns one by one down the road with the pole raised (each with a small flare and a warm pool), the last one as the
+  horn sounds, and goes home to his door. At first light (05:00) he walks back from his door putting them out with the
+  snuffer, and goes in at the castle's gate. **The rule of the dusk** (the director, 15.11. 03:39; `TownLamps.plan`,
+  data for any anchors, held by `TownLifeTests.testTheLamplightersEveningKeepsTheDirectorsRuleForAnyTown`): no street
+  lantern takes the flame before 17:00, the last as the horn sounds; he takes the Flame between 16:00 and 16:30, never
+  before 15:30; the lighting round at an old man's heavy step (16 px/s), the way from the hearth to the first post with
+  the lit pole on his shoulder at up to the lord's pace (36 px/s), home after the last at the same. Counted back from
+  the horn; what does not fit is cut in this order: the far posts (he lights by hand only the posts from the castle's
+  side that the time from 17:00 to the horn allows), then the hearth beat earlier (to 15:30 at the earliest). The posts
+  he does not reach stay dark in build 2. With this branch's anchors he reaches one post (house 1's; the second would
+  need the Flame at 15:14): in the hall about 15:54, the Flame at 16:30, the shouldered walk at about 26 px/s, the
+  lantern at the horn, home about 20:26; the morning's snuff about 06:22, in at the castle's gate about 07:39. The town
+  lane sets its posts inside his reach at the join (docs/lanes/people.md). Build 3: the lit street grows with the realm
+  (hamlet 3 posts, village 5, town 7), and from the village on Fen runs a taper from Silas' pole to the far posts; the
+  street's lamps are the wealth arc at night. In unrest (below 15 happiness) nobody lights them; with the hearth out
+  there is nothing to light them with; they burn as the hearth does (bright, low, embers).
 - **Reduce Motion:** nobody is removed; breaths and fidgets hold one frame, the sticks stay raised, the linen is wrung
   at half the rate, no lantern flares.
 - **The great hall**: the farmer (Ned), the widow and the farmwife (Corra) and the refugee (Dun) wait seated on the

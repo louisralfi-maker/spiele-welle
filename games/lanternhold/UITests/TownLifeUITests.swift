@@ -7,9 +7,10 @@ import XCTest
 /// Old Hemmet on his bench, the passers-by, Nib and Wren at play); the children in a happy town (Fen at the lord's
 /// heels, Nib and Wren at their stick fight); the walk home before the horn (Gorm and Hedda carrying the harvest past
 /// the lord at a tired pace, the children still out); the noble's coach at the gate with the footman and Brede stopped
-/// short at the berth's edge, looking at it (`-GWCoach YES`); the lamplighter lighting the last lantern; the collector
-/// at a door on his morning round (`-GWCollector YES`); the lamplighter at the Eternal Light in the hall; the horn
-/// (Wenna calling from her doorway, the children running home, the lanterns lit); a sullen town at 25 happiness (the
+/// short at the berth's edge, looking at it (`-GWCoach YES`); the lamplighter lighting a lantern in the gold light, the
+/// last as the horn sounds; the collector at a door on his morning round (`-GWCollector YES`); the lamplighter at the
+/// Eternal Light in the hall in the late afternoon's light; the horn (Silas at the lantern he has just lit, Wenna
+/// calling from her doorway, the children running home); a sullen town at 25 happiness (the
 /// farmers work on with their backs to the lord). Day 12 of the demo has a noble due, so every shot but 74 keeps the
 /// coach away (`-GWCoach NO`). The moments are pinned by `TownLifeTests.testTheShotsShowWhatTheyName`.
 /// Saves `<nn>-<what>-<lang>` from 70.
@@ -34,10 +35,10 @@ final class TownLifeUITests: XCTestCase {
             ("72-children", ["-GWHour", "16.2367", "-GWCameraX", "2850", "-GWHappiness", "85"] + ordinary),
             ("73-dusk-home", ["-GWHour", "18.0", "-GWCameraX", "2760", "-GWHappiness", "85"] + ordinary),
             ("74-noble-coach", ["-GWHour", "10.3", "-GWCameraX", "2520", "-GWCoach", "YES"] + base),
-            ("75-lamplighter-dusk", ["-GWHour", "19.003", "-GWCameraX", "3080"] + ordinary),
+            ("75-lamplighter-gold", ["-GWHour", "19.003", "-GWCameraX", "2560"] + ordinary),
             ("76-collector-morning", ["-GWHour", "8.66", "-GWCameraX", "2790", "-GWCollector", "YES"] + ordinary),
-            ("77-lamplighter-hearth", ["-GWHour", "11.6", "-GWCameraX", "1846"] + ordinary),
-            ("78-horn-call", ["-GWHour", "19.08", "-GWCameraX", "2880", "-GWHappiness", "85"] + ordinary),
+            ("77-lamplighter-hearth", ["-GWHour", "16.625", "-GWCameraX", "1846"] + ordinary),
+            ("78-horn-call", ["-GWHour", "19.08", "-GWCameraX", "2738", "-GWHappiness", "85"] + ordinary),
             ("79-sullen-town", ["-GWHour", "11.0", "-GWCameraX", "2679", "-GWHappiness", "25"] + ordinary),
         ]
         for still in stills {
