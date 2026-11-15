@@ -3514,7 +3514,9 @@ plot markers no longer drawn, M6).
   themselves (the throne out of view from the door; an element read while the camera followed the lord lay off by the
   tap); `lh-s2-4` build, unit, ui Touch and FirstDay ALL PASSED on 7f0069c; **`lh-s2-5` build, unit and ui Touch,
   Hall, FirstDay, Audience, Look2, Polish and Lord ALL PASSED on 8f7cdb0** (the gate; the door's mark rests at the
-  door).
+  door); after its sweep Odile's counsel moved under the letter: `lh-s2-6` build, ui Hall, Audience and Lord ALL
+  PASSED on 6c34ef0 (the slip stood on the plaques), `lh-s2-7` the same on f54ab50 (the letter keeps its own
+  height).
 
 ## Risks
 
