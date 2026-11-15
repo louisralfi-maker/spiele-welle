@@ -1,0 +1,13 @@
+Test Case '-[LanternholdUITests.SlidesUITests testTheNameEntryLeadsIntoThePrologue]' passed (72.077 seconds).
+Test Case '-[LanternholdUITests.SlidesUITests testThePrologue]' passed (32.213 seconds).
+Test Case '-[LanternholdUITests.TownLifeUITests testTheTownLivesByItsPeople]' passed (140.810 seconds).
+Test Case '-[LanternholdUITests.TownUITests testReduceMotion]' passed (16.961 seconds).
+Test Case '-[LanternholdUITests.TownUITests testStallFieldAndBigHouse]' passed (32.083 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTaxesOnFoot]' passed (79.727 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollector]' passed (41.113 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollectorIsTakenOnByTouch]' passed (204.148 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheFirstMorning]' passed (27.260 seconds).
+Test Case '-[LanternholdUITests.WorldStoryUITests testHesperAtTheChapelDoor]' passed (27.371 seconds).
+Test Case '-[LanternholdUITests.WorldStoryUITests testTamsinAtHerKitchenDoor]' passed (28.188 seconds).
+exit=0
+screenshots: 37
