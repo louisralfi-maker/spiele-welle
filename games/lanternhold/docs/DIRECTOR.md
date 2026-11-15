@@ -928,3 +928,10 @@ schneller geht."
   - This replaces "build 3 starts only after the résumé". The résumé still happens when he has played build 2; his three piles (missing, feel, look) are folded into the running work.
   - The first wave is what stands whatever his play test says: the count (PAY.md, paying coin by coin), the drill yard (YARD.md), the small shadow creatures as a mass, the lantern moment's build 3 ideas (no dead tap, the look-around), POLISH.md's first look pass.
   - Quota at this word: 61 % of the week, 27 % Fable. Read it before every workflow; tell Louis near 80 % and stop there unless he raises it.
+
+- **The build 2 game is final: `claude/lh-join` 309ebb46, green on four rounds; the TestFlight round `tf-lh-2` is sent (15.11.2026, 23:29).**
+  - 309ebb46 = ea0cd846 + lane G (b864c187, a fast-forward) + the proof step (7e98db22, a merge of four new files). The game code equals b864c187's.
+  - Verified on origin, each on 309ebb46: lh-rj-25 (build, all unit tests, Touch, FirstDay, Hall, Audience, Lord, Town, Ads, Title), lh-rj-26 (build, ProofUITests, the Release launch script), lh-rj-27 (`release`: the device Release compile, proven for the first time on the merged game), lh-rj-28 (Slides, Table, Endings, People, TownLife, Polish, MidChapter, Craft). No re-run, no flake. The Release app holds `en.lproj` only.
+  - The director's look: the pause sheet over the lighter dim (frame 163) reads cleanly; the lantern moment's frames were judged on b864c187.
+  - `tf-lh-2`: build, unit, testflight, sent from the join's clone. The build number comes from the runner's run number (about 331); the version stays 1.0.0. Never re-run this job from the Actions page.
+  - The join branch is closed for build 2. Build 3's lanes are cut from 309ebb46.
