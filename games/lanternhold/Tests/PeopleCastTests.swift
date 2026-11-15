@@ -51,17 +51,17 @@ final class PeopleCastTests: XCTestCase {
                 XCTAssertEqual(onGround, !airborne, "\(sprite) frame \(index): on the bottom row unless it hops")
             }
         }
-        XCTAssertLessThanOrEqual(layout.height, AtlasLayout.maxSide, "the cast still fits the one atlas page")
+        XCTAssertLessThanOrEqual(layout.height, AtlasLayout.maxHeight, "the cast still fits the atlas pages")
         // For the join (the rebuild lanes add art too): the page's real height, unclamped.
         let sizes = SpriteID.allCases.flatMap { sprite in Array(repeating: sprite.size, count: sprite.frameCount) }
         let packed = AtlasBuilder.pack(sizes + [PixelSize(width: 1, height: 1)], width: layout.width)
-        let rows = "people lane: atlas \(layout.width) wide, \(packed?.height ?? -1) of \(AtlasLayout.maxSide) rows used"
+        let rows = "people lane: atlas \(layout.width) wide, \(packed?.height ?? -1) of \(AtlasLayout.maxHeight) rows used"
         print(rows)
         let attachment = XCTAttachment(string: rows)
         attachment.name = "atlas-rows"
         attachment.lifetime = .keepAlways
         add(attachment)
-        XCTAssertLessThanOrEqual(packed?.height ?? .max, AtlasLayout.maxSide, "the packed page fits")
+        XCTAssertLessThanOrEqual(packed?.height ?? .max, AtlasLayout.maxHeight, "the packed pages fit")
     }
 
     func testWealthChangesTheClothNeverThePeople() {
