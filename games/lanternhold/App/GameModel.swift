@@ -84,9 +84,10 @@ final class GameModel {
     nonisolated static let nightLead = 60.0
     /// The horn banner shows this many real seconds.
     static let hornBannerSeconds = 3.6
-    /// A second chance once per five nights in the chapter, once per ten in endless (DESIGN.md "Losing a night").
-    static let secondChanceGap = 5
-    static let secondChanceGapEndless = 10
+    /// A second chance once per five nights in the chapter, once per ten in endless (DESIGN.md "Losing a night"; the
+    /// rule is `AdPacing.secondChanceFrom`).
+    static let secondChanceGap = AdPacing.secondChanceGap
+    static let secondChanceGapEndless = AdPacing.secondChanceGapEndless
 
     let args: DebugArgs
     let kind: SceneKind
@@ -118,7 +119,11 @@ final class GameModel {
     @ObservationIgnored private(set) var effects = BattleEffects()
     @ObservationIgnored private var store: SaveStore?
     @ObservationIgnored private var chronicle: Chronicle?
-    @ObservationIgnored private var adPacing = AdPacing()
+    /// The ads' rules and memory, kept with the save (Core/AdPacing.swift); the ads (`Ads/AdDirector`) read and note it.
+    @ObservationIgnored var adPacing = AdPacing()
+    /// The ads (`Ads/AdDirector.attach`): asked on the dawn report's Continue; it may show an interstitial first and
+    /// calls back when the day may begin (at once when no ad comes). Nil: the day begins at once.
+    @ObservationIgnored var adGate: (@MainActor (DawnReport, @escaping @MainActor () -> Void) -> Void)?
     @ObservationIgnored private var events: [SimEvent] = []
     @ObservationIgnored private var shake = ScreenShake()
     @ObservationIgnored private var thinner = FeedbackThinner()
@@ -691,9 +696,19 @@ final class GameModel {
         return ReportCard.make(report, flags: driver?.state.flags ?? [])
     }
 
-    /// The dawn report's Continue: the day begins.
+    /// The dawn report's Continue: the day begins (after the ads' gate, `adGate`: an interstitial may come first, over
+    /// the report, while the world still stands).
     func continueReport() {
         guard case .report(let report)? = overlay else { return }
+        guard let gate = adGate else {
+            beginDay(after: report)
+            return
+        }
+        gate(report) { [weak self] in self?.beginDay(after: report) }
+    }
+
+    private func beginDay(after report: DawnReport) {
+        guard case .report(let open)? = overlay, open == report else { return }
         let delta = report.happinessAfter - report.happinessBefore
         if delta > 0 { feedback.play(.happinessUp) }
         if delta < 0 { feedback.play(.happinessDown) }
@@ -709,14 +724,11 @@ final class GameModel {
 
     /// The night from which the second chance can be taken again, nil when now.
     private func secondChanceFrom(night: Int, mode: GameMode) -> Int? {
-        let last = adPacing.lastSecondChanceNight
-        guard last > 0 else { return nil }
-        let gap = mode == .endless ? GameModel.secondChanceGapEndless : GameModel.secondChanceGap
-        return night - last >= gap ? nil : last + gap
+        adPacing.secondChanceFrom(night: night, mode: mode)
     }
 
-    /// The defeat card's second chance (a placeholder for the rewarded video of M7): the hearth flares up, the
-    /// creatures burn away, dawn comes at once and its report follows.
+    /// The defeat card's second chance, granted when its rewarded video has been watched (`Ads/AdDirector`): the
+    /// hearth flares up, the creatures burn away, dawn comes at once and its report follows.
     func takeSecondChance() {
         guard let info = defeatInfo, info.secondChanceFrom == nil, var game = driver else { return }
         var chanceEvents: [SimEvent] = []

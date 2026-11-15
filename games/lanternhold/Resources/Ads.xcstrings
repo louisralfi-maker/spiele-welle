@@ -1,0 +1,204 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "A second chance again from night %lld" : {
+      "comment" : "Defeat card: when the second chance can be taken again.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine zweite Chance wieder ab Nacht %lld"
+          }
+        }
+      }
+    },
+    "A short video ad plays. Afterwards Marek gives the treasury %lld gold." : {
+      "comment" : "Marek's card: what the video gives, in plain words.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein kurzer Werbeclip läuft. Danach gibt Marek der Schatzkammer %lld Gold."
+          }
+        }
+      }
+    },
+    "Double taxes today" : {
+      "comment" : "Dawn report: the rewarded video's button (every tax of today counts twice).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steuern heute verdoppeln"
+          }
+        }
+      }
+    },
+    "Double taxes today: every tax counts twice. Watch a short video ad." : {
+      "comment" : "VoiceOver: the dawn report's rewarded video.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steuern heute verdoppeln: Jede Steuer zählt doppelt. Kurzen Werbeclip ansehen."
+          }
+        }
+      }
+    },
+    "Every tax counts twice today" : {
+      "comment" : "Dawn report: what the double taxes do (a flag for the day).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute zählt jede Steuer doppelt"
+          }
+        }
+      }
+    },
+    "Marek's cart" : {
+      "comment" : "Marek's card: its title.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mareks Karren"
+          }
+        }
+      }
+    },
+    "Marek's gift: +%lld gold" : {
+      "comment" : "A slip after Marek's video: the gold came in.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mareks Geschenk: +%lld Gold"
+          }
+        }
+      }
+    },
+    "Marek, the travelling merchant" : {
+      "comment" : "Marek's card: who he is.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marek, der fahrende Händler"
+          }
+        }
+      }
+    },
+    "Merchant's gift" : {
+      "comment" : "Marek's card: the rewarded video's button (its gold follows in figures).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geschenk des Händlers"
+          }
+        }
+      }
+    },
+    "Merchant's gift: +%lld gold. Watch a short video ad." : {
+      "comment" : "VoiceOver: Marek's rewarded video.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geschenk des Händlers: +%lld Gold. Kurzen Werbeclip ansehen."
+          }
+        }
+      }
+    },
+    "Not now" : {
+      "comment" : "Marek's card: closes it without the video.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt nicht"
+          }
+        }
+      }
+    },
+    "Privacy choices" : {
+      "comment" : "Settings: Google's privacy options form.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datenschutzoptionen"
+          }
+        }
+      }
+    },
+    "Second chance" : {
+      "comment" : "Defeat card: the rewarded video's button.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zweite Chance"
+          }
+        }
+      }
+    },
+    "Taxes doubled" : {
+      "comment" : "Dawn report: the double taxes' video was watched.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steuern verdoppelt"
+          }
+        }
+      }
+    },
+    "Taxes doubled: every tax counts twice today." : {
+      "comment" : "VoiceOver: the double taxes' video was watched.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steuern verdoppelt: Heute zählt jede Steuer doppelt."
+          }
+        }
+      }
+    },
+    "Watch a short video ad" : {
+      "comment" : "Under every rewarded offer: a video ad plays.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kurzen Werbeclip ansehen"
+          }
+        }
+      }
+    },
+    "Watch a short video ad: the hearth is rekindled and dawn comes at once" : {
+      "comment" : "Defeat card: what the second chance's video gives.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kurzen Werbeclip ansehen: Das Herdfeuer lodert neu auf und der Morgen kommt sofort"
+          }
+        }
+      }
+    },
+    "“A patron of mine pays well for a moment of your time, Your Radiance.”" : {
+      "comment" : "Marek's card: his line (sly and charming; he calls the lord Your Radiance, German Eure Strahlkraft).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Ein Gönner von mir zahlt gut für einen Augenblick Eurer Zeit, Eure Strahlkraft.“"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

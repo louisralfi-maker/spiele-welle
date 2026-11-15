@@ -31,6 +31,8 @@ struct GameView: View {
                     TalkBubbleView(bubble: bubble, model: model)
                 }
                 OverlayView(model: model)
+                // The ads (Ads/AdViews.swift): Marek's card over the world.
+                AdLayer(model: model)
             }
         }
         .background(Color.black.ignoresSafeArea())

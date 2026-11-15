@@ -231,6 +231,14 @@ struct SimDriver: Sendable {
         dawnSnapshot.lord = lord
     }
 
+    /// The ads (a rewarded video's gold: double taxes, Marek's gift): into the realm now and into its last dawn, so a
+    /// watched video always pays, after a relaunch from the save and after "Replay the day" too.
+    mutating func bankReward(gold: Int) {
+        guard gold > 0 else { return }
+        state.gold += gold
+        dawnSnapshot.gold += gold
+    }
+
     /// The action button: lights or patches. Returns true when it did something.
     @discardableResult
     mutating func perform(_ action: KingAction, events: inout [SimEvent]) -> Bool {
