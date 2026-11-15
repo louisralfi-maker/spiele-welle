@@ -118,7 +118,9 @@ extension GameModel {
         let visible = overlay == nil && stageChange == nil && lanternMoment == nil && game.bot == nil && !isShowcase
         purse.update(gold: state.gold, now: clock.elapsed, visible: visible)
         notes.update(happiness: state.happiness, people: state.citizens, clock: clock.elapsed, visible: visible)
-        let calling = stripCall.update(strip, hour: state.hour, clock: clock.elapsed, allowed: visible)
+        // Fix round 2 (the critic's high 5): the call's strip waits while the first minute's hint slip stands.
+        let calling = stripCall.update(strip, hour: state.hour, clock: clock.elapsed, allowed: visible,
+                                       held: firstTouchSlip)
         if calling != stripCalling { stripCalling = calling }
     }
 
