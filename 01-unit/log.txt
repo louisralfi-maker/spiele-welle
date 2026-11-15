@@ -1,0 +1,32 @@
+2026-11-15 05:25:48.510438+0000 Lanternhold[9399:37001] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.GorgeBeaconTests testAFallenBeaconIsRelitForAThirdAtOnce]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testALitBeaconBurnsUnderTheLightRules]' passed (0.033 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testAnOldSaveLoadsWithoutTheRule]' passed (0.058 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testARaiseWaitsBeyondAFallenBeaconAndTheSaveAgrees]' passed (0.218 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testCreaturesStrikeTheFurthestBeaconAsTheyPass]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testEachBeaconHoldsTheFogOneStretchBeyondIt]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testFromTheFirstNightEveryBeaconPushesTheFogBack]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testRaisingTakesTheBuildersIdleTime]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheBeaconsAreTendedFromTheWall]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheCharcoalBurnersBrightenTheBraziers]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheDawnTellsWhatWasLitAndWhatWasFreed]' passed (0.050 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheFogRollsToItsNewLine]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheGorgeLinesReadInEnglishAndGerman]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheGreatBeaconStaysAsItIs]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheNextBeaconIsRaisedByDayFromDayThreeInOrder]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheOldQuarryMakesWallWorkCheaper]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheReferenceBotIgnoresTheGorgesNumbers]' passed (1.289 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheReportsLinesInOrder]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheRuinedWatchtowerIsAForwardArchersPost]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheRuleIsDeterministic]' passed (1.429 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheRuleRoundTripsAndPartialStatesDecodeWithDefaults]' passed (0.050 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheSitesAreFractionsOfTheGorgeAtGrowingDistances]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testWithoutTheRuleNothingChanges]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeTuningTests testTarget15aWithAllFourHeldFewerCreaturesReachTheWall]' passed (64.900 seconds).
+Test Case '-[LanternholdTests.GorgeTuningTests testTarget15bNeglectingTheWallLosesTheBeaconsAndThenTheNight]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeTuningTests testTarget15cBeaconsWithoutWallsDoNotBeatTheReference]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeTuningTests testTheForwardWagerIsNeverATrap]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.GorgeTuningTests testTheReferenceBotsPlayTheSameWithTheRuleOn]' passed (6.045 seconds).
+Test Case '-[LanternholdTests.GorgeTuningTests testTheT15ReportIsAttached]' passed (0.126 seconds).
+exit=0
+screenshots: 0
