@@ -703,3 +703,10 @@ schneller geht."
   - lh-w3f2-1 failed in its unit step (look 1's goldens, the fog test, the bank's eyes); the world lane fixed that in 6df1728 and sent lh-w3f2-2. Its local head 59d70d6 is unbuilt.
   - Lesson: read the workflow's loop before promising a fix round. I told Louis "about 18:00" for a round nobody had been started for.
   - Quota at 16:45: 49 % of the week, 18 % of the Fable part.
+- **The join's gate lh-rj-16: one UI test failed, and it found a fault in the game (15.11.2026, 17:10).**
+  - Checked by me in the round's logs on 8116e03: build passed, unit passed (930), 20 UI tests run, 19 passed. `AudienceUITests` failed: beside Tamsin a touch on the lord opened her talk, so no lantern moment came.
+  - The cause is a rule, not the test: `prefersLord` gives every touch on the lord's body to a person standing by. After every talk the lord stands 12 px from the person, so the game's only pause cannot be raised there. The join had made the test step away first (7dc77b1).
+  - Ordered from the join: a person wins only when she stands within 6 px of him or the finger is at least as near her middle as his; a waiting second touch stays the thing's. Proof in numbers in `LanternMomentTests`, the test's step-off out again, one short round (build, unit, ui Audience, Touch, Hall, Town).
+  - The title's frame 00d from this round has the new lord and clean corners; it went to Louis. The collector's bubble stands above the slip (59b).
+  - The world lane: lh-w3f2-2 failed in unit (look 1's goldens with the clouds' second painting); head 8aabfe7, merged by the join (2eaa6cc); lh-w3f2-3 runs. Round A runs again as lh-rj-17 on 7dc77b1.
+  - The stage's fix round 2: five commits (5d8a556 to a8e6c27) in seven minutes, gate lh-s3f2-1 sent at 16:58. I judge its frames before anything goes to Louis.
