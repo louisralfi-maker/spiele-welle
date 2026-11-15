@@ -441,3 +441,9 @@ schneller geht."
   agents waiting for the lock as other image jobs (their command lines named an art script), so every holder waited
   its full 20 minutes before it ran. Now only real python and sips processes count. Six jobs had waited up to 15
   minutes; the queue was empty a minute after the repair. The old script is `artlock.sh.before-0210`.
+- **The title's round 2 is 7 of 10 (15.11.2026, 02:20).** Commit `01cf941` on `claude/lh-title`; not shown to
+  Louis. The lettering, the beacon and the gap with the dawn line are right. The light lit only edges (the
+  director's "no glow discs" was read as "no glow in the air"), the dark was a round bush with a red outline, the
+  sky had hard rectangles, the castle was small. Round 3 has one idea, "a pool of light in a sea of dark": a
+  dithered falloff of six palette steps in the air, lit faces filled by distance, the dark as the frame of the
+  left third, the castle 1.4 times as large from cliff to cliff, the lord 14 game px tall beside the beacon.
