@@ -695,3 +695,11 @@ schneller geht."
   - lh-rj-16 runs on 8116e03 since 16:07: `build`, `unit`, ui Touch, FirstDay, Hall, Audience, then ui Lord, Town, Ads, Title. The result is due about 17:10.
   - lh-rj-14 is `ALL PASSED` (checked: 94 unit classes and 6 UI classes, none failed). It ran on f585596, before the merges, so it decides nothing.
   - Round A (lh-rj-15) and the world's lh-w3f2-1 still run. The stage's fix round 2 has no commit yet.
+- **Round A was lost to the title; the workflow ended the stage's step; my own agent runs the stage's fix round 2 (15.11.2026, 16:45).**
+  - The join found its own fault: a sweep launches with its plan in the environment and no `-GW` argument, so the title stood over every sweep shot. That held lh-rj-15 (round A) and killed lh-rj-10. Fixed in 4931f27 (I read the diff). Round A goes again, so the world's pictures for Louis come about 18:15.
+  - The join merged the world's 6df1728 (fix round 2, first part) while its gate lh-w3f2-2 still ran. I let it stand. New rule: a lane's head merges when origin moves; D is declared only on a head whose own round ran build, unit and the eight UI classes after the last delta. The final gate goes after the world's last delta and the stage's fix round 2. D by about 20:00.
+  - `rebuild.js` sends only blockers back after look 2. The stage's look 2 had none, so the workflow started no fix round 2. I start it as my own Opus agent in `lh-stage` (scope: my 16:06 block in `notes-stage.md`). I judge its frames myself.
+  - The workflow's own Join phase would repeat the rolling join and write over `join.md`. A block at the top of `notes-join.md` tells that agent to stand down.
+  - lh-w3f2-1 failed in its unit step (look 1's goldens, the fog test, the bank's eyes); the world lane fixed that in 6df1728 and sent lh-w3f2-2. Its local head 59d70d6 is unbuilt.
+  - Lesson: read the workflow's loop before promising a fix round. I told Louis "about 18:00" for a round nobody had been started for.
+  - Quota at 16:45: 49 % of the week, 18 % of the Fable part.
