@@ -174,13 +174,22 @@ final class TownLifeTests: XCTestCase {
         var frames: [SpriteID: Set<Int>] = [:]
         var calm: [SpriteID: Set<Int>] = [:]
         let gentle = TownLife.Context(cloth: .hamlet, reduceMotion: true, hearth: 1, collectorOut: false, nobleDue: false)
+        let wennaEdge = TownLife.washerX - Double(SpriteID.washerwoman.size.width) / 2
         for step in 0..<1200 {
             let hour = 11 + Double(step) * 0.002
             let s = day(hour, happiness: 90, lord: 1000)
             for child in TownLife.children(s, time: Double(step) * 0.05, context: quiet) {
                 frames[child.sprite, default: []].insert(child.frame)
                 XCTAssertTrue((0..<child.sprite.frameCount).contains(child.frame), "\(child.sprite) frame \(child.frame)")
-                XCTAssertLessThanOrEqual(child.x + 5 + 14, TownLife.washerX - 6, "\(child.sprite) clear of Wenna")
+            }
+            // At least 14 px between a child's outline and Wenna's at the well, wherever the lord stands (the trailing
+            // child included; the director, 15.11.).
+            for lord in [1000.0, 2900, 2980, 3010, 3040, 3060, 3080, 3120, 3200] {
+                for child in TownLife.children(day(hour, happiness: 90, lord: lord), time: Double(step) * 0.05,
+                                               context: quiet) {
+                    XCTAssertLessThanOrEqual(child.x + Double(child.sprite.size.width) / 2 + TownLife.wennaGap,
+                                             wennaEdge + 1e-9, "\(child.sprite) clear of Wenna (lord at \(lord))")
+                }
             }
             for child in TownLife.children(s, time: Double(step) * 0.05, context: gentle) {
                 calm[child.sprite, default: []].insert(child.frame)

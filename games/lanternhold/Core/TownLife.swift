@@ -414,7 +414,8 @@ enum TownLife {
 
     // MARK: - The children
 
-    /// Where they play: before the Brisks' door, clear of Wenna at the well (the laps end 30 px and more short of her).
+    /// Where they play: before the Brisks' door, clear of Wenna at the well (the laps end 27 px and more short of her
+    /// outline, the trailing child stops `wennaGap` short of it).
     static let playCentre = 2920.0
     static let playHalf = 60.0
     /// Out after the morning's chores; home when the horn sounds and Wenna calls.
@@ -427,6 +428,14 @@ enum TownLife {
     static let trailZone = 110.0
     static let trailBack = 90.0
     static let trailGap = 22.0
+    /// No child comes nearer Wenna at the well than this (px between their outlines; the director, 15.11.: at the
+    /// well the children merged into her).
+    static let wennaGap = 14.0
+
+    /// The farthest a child's feet may come toward Wenna's spot at the well.
+    static func clearOfWenna(_ kid: SpriteID) -> Double {
+        washerX - Double(SpriteID.washerwoman.size.width) / 2 - wennaGap - Double(kid.size.width) / 2
+    }
 
     /// How many are out: none below 45 happiness, Nib and Wren from 45, Fen too from 80.
     static func childCount(happiness: Int) -> Int {
@@ -587,7 +596,7 @@ enum TownLife {
         let c = playCentre
         let side = tanh((lord - c) / 20)
         let wanted = lord - trailGap * side
-        let heels = min(c + trailZone, max(c - trailZone, wanted))
+        let heels = min(c + trailZone, clearOfWenna(playing.sprite), max(c - trailZone, wanted))
         let x = heels * w + playing.x * (1 - w)
         let moving = s.king.velocity != 0
         if moving && w < 1 {
