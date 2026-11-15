@@ -260,8 +260,18 @@ def mountain(pic, outer_l, inner_l, inner_r, outer_r, facets_l, facets_r, light=
             edge = any(x == int(xt + (xb - xt) * y / float(H)) for (xt, xb) in facets_r)
             pic.px(x, y, "nightSlate" if edge else tones[(k + 1) % len(tones)])
             m[y, x] = True
-        for x in range(max(0, d - 4), min(W, d + 1)):
-            pic.px(x, y, "night2" if x > d - 2 else "nightSlate")   # the cold plane on the slope that faces home
+        if h(y // 7, 3, 91) < 0.62:                    # a broken cold rim on the slope that faces home
+            for x in range(max(0, d - 2), min(W, d + 1)):
+                pic.px(x, y, "night2" if x == d else "nightSlate")
+        # sparse strata: short cold steps across the big planes, a tone between the plane and its edge
+        if y % 9 == 4:
+            for (x0, x1, s_) in ((a, b, 11), (c, d, 23)):
+                for q in range(3):
+                    if h(y, q, s_) < 0.7:
+                        sx0 = int(x0 + (x1 - x0) * (0.15 + 0.3 * q + 0.1 * h(y, q, s_ + 1)))
+                        for xx in range(sx0, min(x1 - 3, sx0 + 5 + int(h(y, q, s_ + 2) * 9))):
+                            if pic.get(xx, y) in ("nightBlue", "nightDeep", "night0"):
+                                pic.px(xx, y, "nightSlate" if pic.get(xx, y) == "nightBlue" else "nightBlue")
         for x in range(max(0, a), min(W, a + 2)):
             pic.px(x, y, "nightBlue")
         if light is not None:
@@ -276,7 +286,10 @@ def mountain(pic, outer_l, inner_l, inner_r, outer_r, facets_l, facets_r, light=
                 if onedge:
                     pic.px(x, y, "night0")             # a facet's edge breaks the light: a crack
                     continue
-                pic.px(x, y, warm[0] if (dist < reach * 0.5 and inner < lip * 0.5) else warm[1])
+                if len(warm) == 3:     # round 3: the light falls off in three steps by distance
+                    pic.px(x, y, warm[0] if dist < reach * 0.3 else (warm[1] if dist < reach * 0.55 else warm[2]))
+                else:
+                    pic.px(x, y, warm[0] if (dist < reach * 0.5 and inner < lip * 0.5) else warm[1])
     return m
 
 

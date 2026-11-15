@@ -10,7 +10,7 @@ import numpy as np
 
 from litkit import (W, H, Pic, BAYER, core_glow, falloff, lit_figure, mountain, poly_mask, ellipse_mask, eyes, h)
 
-SPARK = (149, 101)
+SPARK = (149, 100)
 FLOOR = 140
 
 
@@ -52,7 +52,8 @@ def slide2():
     outer_r = poly([(0, 216), (16, 224), (24, 220), (44, 234), (56, 230), (76, 246), (90, 242), (112, 258),
                     (FLOOR, 266)])
     mountain(p, outer_l, inner_l, inner_r, outer_r,
-             facets_l=[(122, 84)], facets_r=[(200, 232)], light=SPARK, reach=64, lip=16, y1=FLOOR)
+             facets_l=[(122, 84)], facets_r=[(200, 232)], light=SPARK, reach=48, lip=14, y1=FLOOR,
+             warm=("tileLight", "tile", "emberDim"))
     # a few short cracks across the planes, so the rock has volume and the light is broken by it
     for (x0, y0, x1, y1) in ((96, 40, 104, 62), (110, 90, 118, 112), (204, 30, 210, 54), (214, 96, 222, 120),
                              (128, 70, 134, 84), (180, 62, 186, 80), (126, 112, 132, 124), (182, 108, 188, 122)):
@@ -63,23 +64,11 @@ def slide2():
                 p.px(x, y, "night0")
                 if p.get(x + 1, y) in ("tileLight", "tile"):
                     p.px(x + 1, y, "plum")
-    # the floor of the cleft: rock plates, lit near the spark in two steps, each plate one tone
-    for y in range(FLOOR, H):
-        row = (y - FLOOR) // 5
-        for x in range(96, 220):
-            t = falloff(x, y, SPARK[0] + 2, FLOOR + 1, 56, 16, 1.0)
-            # the pool on the rock's own planes: two plates, a crack between them, the edge in ordered dither
-            plate = 0 if (x + (y - FLOOR) * 3) < 160 else 1
-            lvl = t * (1.0 if plate == 0 else 0.8)
-            c = "tile" if lvl > 0.5 else ("plum" if lvl > 0.16 else None)
-            if c is None:
-                if lvl > 0.08 and BAYER[y % 4][x % 4] < 6:
-                    c = "plumDeep"
-                else:
-                    continue
-            if (x + (y - FLOOR) * 3) in (160, 161):
-                c = "night0"
-            p.px(x, y, c)
+    # the floor: a few short ember dashes near his feet, nothing more
+    for (x, y, n, c) in ((136, FLOOR + 2, 4, "emberDim"), (142, FLOOR + 1, 5, "tile"), (164, FLOOR + 3, 3, "emberDim"),
+                         (128, FLOOR + 4, 3, "emberDim"), (148, FLOOR + 5, 3, "emberDim"), (170, FLOOR + 1, 2, "tile")):
+        for k in range(n):
+            p.px(x + k, y, c)
     # his long shadow: one wedge from his feet over the ground toward the land
     fx = 156
     for y in range(FLOOR, FLOOR + 5):
@@ -87,22 +76,16 @@ def slide2():
         for x in range(x0, min(W, x0 + 96 - (y - FLOOR) * 16)):
             if p.get(x, y) in ("tile", "plum", "plumDeep", "nightDeep", "nightBlue"):
                 p.px(x, y, "night0")
-    # the ancestor: a person in a cloak and hood, 30 px, the left arm raised, the spark above the hand
-    cloak = poly_mask([(fx - 5, FLOOR - 23), (fx + 4, FLOOR - 23), (fx + 7, FLOOR - 19), (fx + 8, FLOOR - 8),
-                       (fx + 11, FLOOR), (fx - 9, FLOOR), (fx - 7, FLOOR - 10), (fx - 8, FLOOR - 19)])
-    hood = poly_mask([(fx - 4, FLOOR - 23), (fx - 4, FLOOR - 28), (fx - 1, FLOOR - 31), (fx + 3, FLOOR - 30),
-                      (fx + 5, FLOOR - 26), (fx + 4, FLOOR - 22)])
-    arm = poly_mask([(fx - 8, FLOOR - 20), (fx - 4, FLOOR - 21), (fx - 5, FLOOR - 33), (fx - 9, FLOOR - 33)])
-    hand = ellipse_mask(fx - 7, FLOOR - 35, 1.8, 1.8)
-    lit_figure(p, [(cloak, "night0"), (arm, "night0"), (hood, "night0"), (hand, "crimsonDeep")], SPARK[0], SPARK[1],
-               near=40, depth=3, tones_near=("tileLight", "tile"), tones_far=("tile", "plum"),
-               lit_part={"crimsonDeep": ("dawnRose", "tileLight")})
-    # the point of gold, just above the hand: a small core, the white at its heart
-    core_glow(p, SPARK[0], SPARK[1], r=5, tones=("fireGold", "fireOrange"))
-    for (x, y, c) in ((150, 100, "fireWhite"), (151, 100, "fireWhite"), (150, 99, "fireWhite"), (149, 100, "fireGold"),
-                      (150, 101, "fireGold"), (152, 99, "fireGold"), (146, 95, "fireGold"), (155, 96, "fireOrange"),
-                      (144, 103, "fireOrange")):
-        p.px(x, y, c)
+    # the ancestor: a hand-set grid, hood, the raised arm, the hand; the spark above the hand
+    lit_grid_fig(p)
+    # the point of gold: small and hard, the stars' four rays drawn in gold
+    sx, sy = SPARK
+    p.px(sx, sy, "fireWhite")
+    for d, c in ((1, "fireGold"), (2, "fireGold"), (3, "fireOrange")):
+        for (dx, dy) in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            p.px(sx + dx * d, sy + dy * d, c)
+    for (dx, dy) in ((1, 1), (-1, 1), (1, -1), (-1, -1)):
+        p.px(sx + dx, sy + dy, "fireOrange")
     # the dark west, recoiling from the cleft: its front pulled back, a few eyes at its lip
     dk = np.zeros((H, W), bool)
     for y in range(70, H):
@@ -113,3 +96,50 @@ def slide2():
              (18, 96, 1, 1, 2, 0, 1, "wraithDim"), (30, 148, 2, 1, 2, 0, 1, "wraithGlow"),
              (10, 124, 1, 1, 3, -1, 1, "wraithDim")], inside=dk)
     return p
+
+
+ANCESTOR = [
+    "..FF............",
+    ".FFF............",
+    "..AA............",
+    "..AAA...........",
+    "...AA...........",
+    "...AAA....HH....",
+    "....AA...HHHH...",
+    "....AAA.HHHHHH..",
+    ".....AA.HHHHHHH.",
+    ".....AAASHHHHHH.",
+    "......AASSHHHHH.",
+    "......AAASHHHHH.",
+    ".......AACHHHHC.",
+    ".......ACCCCCCCC",
+    "......CCCCCCCCCC",
+    "......CCCCCCCCCC",
+    "......CCCCCCCCCC",
+    ".....CCCCCCCCCCC",
+    ".....CCCCCCCCCCC",
+    ".....CCCCCCCCCCC",
+    ".....CCCCCCCCCCC",
+    "....CCCCCCCCCCCC",
+    "....CCCCCCCCCCCC",
+    "....CCCCCCCCCCCC",
+    "....CCCCCCCCCCCC",
+    "...CCCCCCCCCCCCC",
+    "...CCCCCCCCCCCCC",
+    "...CCCCCCCCCCCCC",
+    "...CCCCCCCCCCCCC",
+    "..CCCCCCCCCCCCCC",
+    "..CCCCCCCCCCCCCC",
+    "..CCCCCCC.CCCCCC",
+    "..CCCCCC...CCCCC",
+    ".CCCCCCC...CCCCC",
+    ".CCCCCCC...CCCCC",
+    ".CCCCCCC...CCCCCC"]
+ANCESTOR_LEGEND = {"C": ("night0", "tileLight", "tile"), "A": ("night0", "tileLight", "tile"),
+                   "H": ("night0", "tileLight", "tile"), "S": ("crimsonDeep", "dawnRose", "tileLight"),
+                   "F": ("tile", "dawnRose", "dawnRose", 4)}
+
+
+def lit_grid_fig(p):
+    from litkit import grid_parts, light_grid
+    light_grid(p, grid_parts(ANCESTOR, SPARK[0] - 1, FLOOR - len(ANCESTOR), ANCESTOR_LEGEND), SPARK[0], SPARK[1])
