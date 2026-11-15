@@ -758,8 +758,8 @@ final class Renderer {
     /// Actors that keep a cool rim on their screen-right edge (scene polish 2): the lord (walking or seated), and every creature, so an
     /// unlit body's edge reads against the dark ground where its glow strip has no pixel (SPRITES.md "Unlit
     /// creatures"); firelight outshines it.
-    static let rimmed: Set<SpriteID> = Set([.king, .lady, .kingSeated, .ladySeated, .sootling, .sootlingB, .shadehound, .sootCrow, .ashBrute, .gloomweaver,
-                                        .ashGiant, .lightlessKing] + LordCloak.mendedSheets)
+    static let rimmed: Set<SpriteID> = [.king, .lady, .kingSeated, .ladySeated, .sootling, .sootlingB, .shadehound, .sootCrow, .ashBrute, .gloomweaver,
+                                        .ashGiant, .lightlessKing]
 
     /// The people of the realm, who keep a fainter sky rim in look 2.
     static let people: Set<SpriteID> = Set([SpriteID.archer, .guardsman, .builder, .citizen, .citizenB, .citizenC]
@@ -771,7 +771,10 @@ final class Renderer {
     /// Look 2: x as above, y > 0 an unlit creature (the moon's rim, by the night), z the strength of the sky's rim:
     /// `Look2.rim` for the king and the creatures, `Look2.peopleRim` for the people of the realm.
     static func quad(_ actor: ActorInstance, layout: AtlasLayout, look: LookVersion = .one) -> ActorQuad {
-        let cell = layout.cell(actor.sprite, frame: actor.frame)
+        // Look 2 paints the lord in the cloak of the realm's stage (the people lane, `LordCloak`): only the texels change,
+        // the actor stays the lord's.
+        let painted = look == .two ? LordCloak.dressed(actor.sprite, PeopleCast.launchCloth) : actor.sprite
+        let cell = layout.cell(painted, frame: actor.frame)
         guard look == .two else {
             let rim: Float = rimmed.contains(actor.sprite) ? 1 : 0
             let flags = SIMD4<Float>(actor.isEmissive ? 1 : 0, actor.moonRim, rim, actor.lightCap)

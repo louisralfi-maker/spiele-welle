@@ -966,8 +966,6 @@ final class GameModel {
                                                            mode: options.actorMode),
                               ambient: AmbientRamp.sample(at: state.hour, look: options.look), animTime: animationTime,
                               reduceMotion: reduceMotion)
-            // The people lane (people-2 fix round 1): look 2 dresses the lord in the cloak of the realm's stage.
-            if options.look == .two { LordCloak.dress(&layer.actors, cloth: PeopleCast.launchCloth) }
             noteCourtFrame(camera: view, pixelScale: pixelScale)
             for light in DawnSweep.lights(hour: state.hour) {
                 layer.lights.append((source: light, plane: .world))

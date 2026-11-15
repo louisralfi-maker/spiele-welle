@@ -46,21 +46,24 @@ final class CourtTiesTests: XCTestCase {
     }
 
     @MainActor
-    func testLookTwoDressesTheLordAndLeavesHisLanternsGlow() {
+    func testLookTwoPaintsTheLordInHisCloakAndKeepsHimTheLord() {
         let rect = SIMD4<Float>(0, 0, 16, 30)
         let white = SIMD4<Float>(1, 1, 1, 1)
         func actor(_ sprite: SpriteID) -> ActorInstance {
-            ActorInstance(sprite: sprite, frame: 2, rect: rect, tint: white, flipped: false, isEmissive: false,
+            ActorInstance(sprite: sprite, frame: 2, rect: rect, tint: white, flipped: true, isEmissive: false,
                           isLit: true)
         }
-        var actors = [actor(.king), actor(.kingGlow), actor(.ladySeated), actor(.citizen)]
-        LordCloak.dress(&actors, cloth: .hamlet)
-        XCTAssertEqual(actors.map(\.sprite), [.kingMended, .kingGlow, .ladySeatedMended, .citizen])
-        XCTAssertEqual(actors[0].frame, 2, "the same frame")
-        var town = [actor(.king), actor(.kingGlow)]
-        LordCloak.dress(&town, cloth: .town)
-        XCTAssertEqual(town.map(\.sprite), [.king, .kingGlow], "the good cloak as painted")
-        XCTAssertTrue(LordCloak.mendedSheets.allSatisfy { Renderer.rimmed.contains($0) }, "the lord's cool rim")
+        // Without -GWCloth the realm is a hamlet: look 2 paints the mended cloak; look 1 keeps the lord as he was.
+        XCTAssertEqual(PeopleCast.launchCloth, .hamlet)
+        for (body, twin) in LordCloak.mended {
+            let look2 = Renderer.quad(actor(body), layout: layout, look: .two)
+            XCTAssertEqual(look2.texel, layout.cell(twin, frame: 2).texels(flipped: true), "\(body) in the mended cloak")
+            XCTAssertGreaterThan(look2.flags.z, 0, "\(body) keeps the lord's cool rim")
+            let look1 = Renderer.quad(actor(body), layout: layout, look: .one)
+            XCTAssertEqual(look1.texel, layout.cell(body, frame: 2).texels(flipped: true), "look 1 as it was")
+        }
+        let glow = Renderer.quad(actor(.kingGlow), layout: layout, look: .two)
+        XCTAssertEqual(glow.texel, layout.cell(.kingGlow, frame: 2).texels(flipped: true), "the lantern's glow stays")
     }
 
     // MARK: - The court's ties
