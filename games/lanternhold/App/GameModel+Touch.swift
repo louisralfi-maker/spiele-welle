@@ -442,6 +442,7 @@ extension GameModel {
             if !clear || (now >= touch.lordHintUntil && !args.lordHint) {
                 touch.lordHintOn = false
                 touch.lordHintAt = now + 60
+                refreshHUD()
             }
             return
         }
@@ -450,6 +451,7 @@ extension GameModel {
             touch.lordHintShown += 1
             touch.lordHintUntil = now + 7
             touch.lordHintAt = nil
+            refreshHUD()
         }
     }
 

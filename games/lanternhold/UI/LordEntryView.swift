@@ -79,7 +79,7 @@ struct LordEntryView: View {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, typing ? 10 : 12)
+        .padding(.vertical, 12)
     }
 
     private var field: some View {

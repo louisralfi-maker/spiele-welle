@@ -8,7 +8,7 @@ import SwiftUI
 // lantern moment, so the dawn report teaches the day line; the tiles behind portraits and sprites are a 3-step band
 // dithered on the 2 pt grid; the gear stands on a small disc of the strip's glass. Plain reusable views with no
 // dependence on stage-only state (the join dresses the other lanes' cards with them): `GlyphView`, `GlyphLabel`,
-// `DitherGround`, `KitBlockView`, `KitDayLine`, `KitEffectsView`, `GearDisc`.
+// `DitherGround`, `KitBlockView`, `KitDayLine`, `KitDawnSign`, `HUDKit.effects`, `GearDisc`, `SeparatedText`.
 
 /// The glyphs. X a full pixel, x a second tone at half strength.
 enum PixelGlyph: String, CaseIterable, Sendable {
@@ -29,22 +29,21 @@ enum PixelGlyph: String, CaseIterable, Sendable {
             ]
         case .horn:
             return [
-                "XX.......",
-                "XXX......",
-                "XXXX....X",
-                ".XXXX..XX",
-                "..XXXXXX.",
-                "...XXXX..",
+                ".........XX",
+                "........XXX",
+                "XX.XXXXXXXX",
+                "........XXX",
+                ".........XX",
             ]
         case .flame:
             return [
                 "...X...",
                 "..XX...",
                 "..XXX.X",
+                ".XXXX.X",
                 ".XXXXXX",
-                "XXXXxXX",
-                "XXXxxXX",
-                "XXXxxXX",
+                "XXXXXXX",
+                "XXXXXXX",
                 ".XXXXX.",
             ]
         case .replay:

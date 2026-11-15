@@ -694,10 +694,19 @@ the interface's ink and gold (docs/UI-look.md) that floats above a thing the lor
   `hudHollow`, `hudHollowTen`) stay unregistered until the count (PAY.md) is built. Drawn unlit: in the world as
   emissive actors (the gold and the notes above the walking lord), in SwiftUI cut from the atlas (the lantern moment,
   the cards' coin, face and people, the gear, the realm strip's figures).
-- **`portraitLady`** is her own portrait now (the review's M8): rendered by `tools/portraitstory.py` (the young face
-  with a narrower jaw and a shorter chin, soft brows, a soft mouth; dark hair drawn up into a braided crown and a long
-  plait over the shoulder tied in gold; the house's circlet level at the hairline; the teal mantle over a dark wool
-  gown with a linen neckline and a gold pin) and frozen into `tools/grids/court/portraits/portraitLady.txt`.
+- **`portraitLady`** is her own portrait (the review's M8; redrawn in fix round 1 after the critic's blocker: she
+  was still the Burgherr with darker hair). `tools/portraitstory.py` builds her scene on the template turned right and
+  evaluates it mirrored, so she turns three-quarters to the left with her face in the hearth's light from the left (the
+  stamps mirrored with it, no hearth rim on the skin): a narrower soft face, a small nose; deep brown hair
+  (`soilDark`, `woodDark`, `wood`, `woodLight`) swept over the ear into a crown braid and a plait from the nape over
+  the far shoulder in front; a deep wine gown (`plumDeep`, `crimsonDeep`, `crimson`, hand colours) with a linen
+  neckline and a gold pendant. The render is a draft; `tools/grids/court/portraits/portraitLady.txt` is finished by
+  hand (the crown braid's herringbone, the circlet as one gold line resting on the braid with a `crimsonLight` stone,
+  the forehead without a band, the closed mouth with a `dusk` lower lip, only the ear lobe with a gold drop) and built
+  by actorart.py. The name entry sets her on a teal ground (`TileGround.teal`).
+- **The cards' pixel glyphs** (fix round 1) are not sprites: `UI/PixelGlyphs.swift` builds them from text grids at run
+  time on the 2 pt grid (20 glyphs, one colour each), with the tiles' dithered grounds and the gear's glass disc; they
+  take no atlas row.
 - **The atlas:** the kit's 30 frames take about 180 x 10 texels; the round's `atlas-rows` attachment gives the count.
 
 ### The hall stage's light and wear (stage lane, 14.11.2026; DESIGN.md "The hall stage and touch the world")

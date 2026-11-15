@@ -398,16 +398,18 @@ final class TouchUITests: XCTestCase {
 
         // Fix round 1 (the critic's high 3): the lord's hint over him while his lantern glints (`-GWLordHint`).
         let hint = XCUIApplication()
-        hint.launchArguments = TouchUITests.base + ["-GWClock", "9", "-GWStage", "world", "-GWCameraX", "1180",
+        hint.launchArguments = TouchUITests.base + ["-GWClock", "8", "-GWStage", "world", "-GWCameraX", "1180",
                                                     "-GWLordHint", "YES"]
         hint.launch()
         guard waitUntilReady(hint, name: "touch-lord-hint") else { return }
-        if element(hint, "touch-lord-hint").waitForExistence(timeout: 5) {
+        if element(hint, "touch-lord-hint").waitForExistence(timeout: 8) {
             pause(0.5)
             attach(XCUIScreen.main.screenshot(), "157b-touch-lord-hint-\(language)")
             XCTAssertTrue(openLantern(hint), "the hint's lord raises the lantern")
             XCTAssertTrue(waitForGone(element(hint, "touch-lord-hint"), timeout: 3), "the hint goes once he is touched")
         } else {
+            attach(XCUIScreen.main.screenshot(), "157b-touch-lord-hint-missing-\(language)")
+            note("157b-touch-lord-hint", "scene: \((element(hint, "world-scene").value as? String) ?? "")")
             XCTFail("the lord's hint did not show")
         }
         hint.terminate()

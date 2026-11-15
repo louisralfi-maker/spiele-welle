@@ -1272,6 +1272,8 @@ final class GameModel {
         // note above the lord, the strip for a call, the moment).
         let shownCamera = stage == .hall ? hall?.camera?.x : camera?.x
         text += " gold:\(state.gold) hud:\(hudWord) cam:\(Int((shownCamera ?? 0).rounded())) tap:\(touch.lastTap)"
+        // Stage-3-interface fix round 1: the lord's hint (on or off, how often it showed).
+        text += " hint:\(touch.lordHintOn ? "on" : "off")\(touch.lordHintShown)"
         // Raise the lantern: its phase at night.
         if DayClock.phase(at: state.hour) != .day {
             text += " lantern:\(GameModel.lanternWord(LanternRaise.phase(since: state.king.lanternSince)))"

@@ -3695,6 +3695,59 @@ files: `GameModel` (the state, `setOverlay` keeps the moment's pause, the backgr
   sheet), `TouchUITests.testTheLanternMoment` (167 the call's strip, 162 to 166 the moment by day, with the pause
   sheet, at dusk, at night and in the hall), `HallUITests` and `AudienceUITests` use the strip from the moment.
 
+#### Step stage-3-interface, fix round 1: after the art director's first look (15.11.2026)
+
+The critic's look 1 (ci-out/director/stage-3-interface-critic1.md: 6.5 of 10, one blocker, ten highs) and the
+director's note of 15.11. 11:39 (the stock glyphs, the gear's disc). Kept as the critic asked: the clean walked world,
+the lantern moment, the slips at their things, the audience card, the bone signs, M7, M10, the gear's 48 pt and the
+strip's 50 pt. Not in this round (the director's notes): the title (H8), German, ja and zh-Hans screenshots, the 60 %
+strip, the ledger on the lectern, PAY.md, HUD.md section 4. New file `UI/PixelGlyphs.swift`; small marked blocks in
+`GameModel+Touch.swift`, `GameModel+Lantern.swift`, `DebugArgs.swift`, `RealmMapPixels.swift` and the cards' views.
+
+- **The blocker, M8 (the Burgherrin was the Burgherr with darker hair):** redrawn with her own pose and clothes
+  (SPRITES.md, ART-look2.md 21.9): she turns three-quarters to the left with her face in the hearth's light (every
+  other portrait looks right; in the name entry the two face each other), a narrower soft face, a small nose, a closed
+  rose mouth; deep brown hair over the ear into a crown braid at the hairline, the house's thin circlet resting on the
+  braid with a red stone (never across the brow), a plait over her far shoulder in front, lighter than the gown; a
+  deep wine gown with a linen neckline and a gold pendant, a gold drop at the ear; in the name entry she stands on her
+  own teal ground (`TileGround.teal`). Checked side by side with the Burgherr and Hild Varn at 64 pt (4 device px per
+  art px) before the round.
+- **High 1, the strip's glyphs:** the houses are solid roofs over dark walls with a lit window (no pale stem); the
+  keep a crenellated block of 7 px (a house is 5) with a lit window, its shaded side and the pennant; the brackets of
+  what is on screen in dark mist, so the gatehouse inside them stays the brightest thing.
+- **High 2, every call has a tag:** `RealmMapPixels.tags`: the waiting in the hall a speech bubble and their number
+  over the keep (not while he is inside), the Stranger a speech bubble at the gate, at night every wall below half or
+  in rubble a broken-wall glyph over that wall; tags that would touch move apart, their tips stay on their places.
+- **High 3, the pause is found:** the lord's hint "Touch the {lord|lady} to still the world." (`touch.lord`, eight
+  languages) stands over his head on glass with its tail down to him while his lantern glints (a quick pulse of the
+  glass every 1.4 s and a spark; with Reduce Motion only a little brighter): on days 1 and 2, five seconds after the
+  first touch's walk (or 20 s after the first minute's slip), 7 s each time, again every 60 s, at most four times,
+  never once the lantern moment was raised. `-GWLordHint YES` holds it for its picture (157b).
+- **High 4 and the director's point 1, no stock glyph on the glass:** `PixelGlyph` (20 glyphs on the 2 pt grid in the
+  kit's language, one colour that follows the words, so the amber sweep turns them navy with the words): play, horn
+  (the pause sheet's "Sound the horn" and the horn's slip: no moon), flame, replay, close, lock, hourglass, check,
+  bookmark, key, shield, warning, recruit, stranger, waves, paw, fog, bow, hammer, dice. The dawn report's head shows
+  the day line exactly as the lantern moment draws it above the lord (the kit's dawn sign and the day's figure, 3 pt
+  per px) beside "Day n dawns"; Continue carries the kit's dawn sign. The old smooth sun (`DawnMark`) is unused.
+- **The director's point 2, the gear:** it stands on a 32 pt disc of the strip's glass (navy, brass line), its 48 pt
+  target unchanged.
+- **High 5, the hall's reaction:** no plaque across the floor band; what changed stands in the kit's coin, face and
+  people with signed figures (`HUDKit.effects`, `KitBlockView`) on the floor's dark beside the one plaque that goes on;
+  soldiers, builders and the night on a small pane only when they changed; what a choice opened and what the court
+  remembers move into the letter under the reaction.
+- **High 6, the name entry over the keyboard:** while the keyboard shows, the subtitle goes, the tiles shrink to
+  60 pt and the title to a headline, so the card keeps its padding and 12 pt of the hall above and below.
+- **High 7, the finale:** the report keeps 16 pt above and below; the large ribbon is lower (title3 and a footnote
+  line, 27 game px).
+- **High 8, typesetting:** `SeparatedText` breaks a line of facts joined by " · " only between them (one line, two,
+  or a fact a line), so no line ends on a dot (the barracks' head, the build rows, the report's details); the build
+  row's words take the width before the gap (`layoutPriority`); one inner padding on the cards (`GlassMetrics.inset`,
+  14 pt: the counsel, the letter).
+- **High 9, no gradient in the glass:** the tiles behind portraits and sprites are three bands dithered on the 2 pt
+  grid (`DitherGround`): night blue, far blue, dusk rose; the Burgherrin's teal.
+- **High 10, the hall exit by the strip:** `TouchUITests` photographs it: 166 the moment in the hall, a tap on the
+  strip's valley, 166b on his way to the door, 166c outside at the forebuilding.
+
 ## Risks
 
 | Risk | What we do |
