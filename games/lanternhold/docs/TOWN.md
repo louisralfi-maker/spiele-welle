@@ -203,6 +203,14 @@ What follows is the first plan; where it differs, the lines above win.
 `Core/Town/TownGrowth.swift` (the rules), `Core/Town/TownGrowthTuning.swift` (T12), the numbers in `TownRules`
 ("the growing town") and the prices in `Balance.items`; `tools/tune.py` mirrors them.
 
+- **Build 3's switch** (fix round 1): `TownRules.growthOpen`, **off for TestFlight build 2**. While it is off,
+  `Build.options` offers no new tier (a big house, the market, the tavern and a field have no next tier, as before
+  town-3), the far fields and the treasury's plot have no card (so the action button never offers them and
+  `Build.order` answers "not offered"), and the standing is 0 whatever stands. Build 2 thus plays the town of before,
+  with the collector's round in sim time, which it needs. The join's build 3 art lane turns it on (`growthOpen = true`)
+  once the tiers, the far fields and the treasury are drawn. Everything below is the game with it on; T12 and
+  `TownGrowthTests` play that way (`TownGrowth.opened`).
+
 - **The tiers are build items on the old plots**, built by the same builders through the same card
   (`Build.options`: each is the next tier of what stands): `townhouse` after the big house (110 gold, 25 s; room
   `townhouseRoom` 12), `marketHall` after the market (120, 28 s; `marketHallShare` 25 % of the tax part instead of
@@ -213,7 +221,7 @@ What follows is the first plan; where it differs, the lines above win.
   "about 35": one price for a field everywhere) and a farmstead after it. They pay like every field (the farmer at the
   fence, the lord only). Added last in `Realm.plots`, so every older plot keeps its id and an older save gets them as
   on day 1. Nothing of them (nor the treasury) is drawn before the join brings their art (`TownGrowth.newPlots`: no
-  plot marker), though the action button offers their cards.
+  plot marker); with the switch on, the action button offers their cards.
 - **The standing**, 0 to 10 (`standingMost`): one point for every townhouse, the market hall, the inn and every
   farmstead (four and one and one and four: 10), and every craftsman's work that stands in the town (`TownGrowth.works`:
   0 until the join hooks the craft lane's `CraftWorks.townWorks`). Each point adds `standingTaxShare` **1.5 %** to the
@@ -224,9 +232,10 @@ What follows is the first plan; where it differs, the lines above win.
   reference bot builds four), the first market and tavern, and the well and the bridge (the reference bot mends both
   when Odile counsels it: they would move T1 to T8). A big house pays by its room already.
 - **The three stages** (REALM.md section 2): hamlet 0 to 2, village from `villageFrom` 3, town from `townFrom` 7.
-  At each dawn `Town.open` asks `TownGrowth.dawn`: a higher stage than the last dawn's is reached today
+  At each dawn `Town.open` asks `TownGrowth.dawn`: a stage higher than any the realm ever reached comes today
   (`TownSummary.stageReached`, the bell and the report's one line: "Lanternhold is a village now." / "Lanternhold ist
-  jetzt ein Dorf.", `TownText.stageLine`); a lower one (a lost house) is taken without a word. **The backdrop row's
+  jetzt ein Dorf.", `TownText.stageLine`); a lower one (a lost house) is taken without a word, and so is the way back
+  up to a stage reached before (`TownState.stageBest`, fix round 1: no second bell after a fire). **The backdrop row's
   look** is `TownGrowth.look(state)`: the stage of the last dawn (`TownState.stage`, saved; a hamlet before), so it
   changes with the bell, never in the middle of a day. `TownGrowth.stageDay` is the dawn it came. A realm that stays a
   hamlet writes nothing, so its save is what it was.
@@ -240,8 +249,11 @@ What follows is the first plan; where it differs, the lines above win.
   tavern, the farmsteads, the townhouses, the inn, the market hall); the **old town** plays the same game without the
   new growth (the same middle line, then the fourth big house, the market and the tavern before the beacon: "one who
   does not grow the town"); the **skipper** builds the first line, then only the town and its growth, no more defence.
-  T12 passes when the grower's day of taxes at the dawn after night 14 is 25 to 35 % above the old town's (the mean of
-  the seeds), the grower held every night to the 14th, and the skipper fell before night 14 on every seed. The
+  A fourth bot (fix round 1) is T6's **walls without the beacon**: every defence of the reference order, never the
+  beacon. T12 passes when the grower's day of taxes at the dawn after night 14 is 25 to 35 % above the old town's (the
+  mean of the seeds), the grower held every night to the 14th, the skipper fell by night 20 on every seed, and the
+  walls without the beacon held the night the skipper fell on every seed (so that fall comes from the defence the
+  skipper left out, not from the missing beacon alone). The
   comparison is with the old town and not with the reference bot because the reference fills its houses on day 13
   and builds its fourth big house only after the beacon: any town with more room is about 30 % ahead of it at night 14
   from its people alone (the mirror: the old town +16 % over the reference, the grower +51 %). "Fully" by night 14 is
@@ -255,6 +267,11 @@ What follows is the first plan; where it differs, the lines above win.
   does replace them for the first two weeks, which is the front lane's and the director's to weigh (presence, the
   beacons, the hearth of REALM.md change the nights). The mirror reads T12 at +21.7 % (it leaves out the court, where
   the grower's people grow faster).
+  **Fix round 1 (round lh-t3f1-1, the switch on for T12): T12 passes with the same numbers.** The skipper's hearth is
+  first struck on night 20, the night it falls, on every seed; the walls without the beacon hold night 20 on every
+  seed (as in T6's report, 10 of 10). So the skipper's fall comes from the middle and outer lines it left out, but
+  nothing punishes skipping them before night 20: growing the town instead of the middle line costs nothing for 19
+  nights. That is the front lane's (T13, T14: presence, the hearth) and the director's to weigh.
 
 ## 4. Travelling craftsmen (build 3)
 

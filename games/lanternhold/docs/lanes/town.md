@@ -633,3 +633,95 @@ How the lane worked: as in town-1 and town-2, in a scratch clone (the app's work
   that every bot that does not grow plays today's game line for line.
 - **One price for a field everywhere** (25), not "about 35" for the far fields; the treasury shows the gold and does
   nothing else.
+
+## town-3, fix round 1 (the critic's look 1: two highs, no blocker; 15.11.2026)
+
+The critic (`ci-out/director/town-3-growth-core-critic1.md`, pass 8 of 10) found no blocker and two highs: no switch
+kept build 3 out of Monday's build 2, and T12's "cannot skip the defence" was only half shown. Both are fixed; three of
+the critic's small things too.
+
+### What changed
+
+- **Build 3's switch, `TownRules.growthOpen`, off by default (high 1).** While it is off:
+  - `Build.options` offers no new tier: a big house, the market, the tavern and a field have no next tier, as in
+    build 86 (`TownGrowth.offers(item, balance:)`);
+  - the far fields and the treasury's plot offer nothing (`TownGrowth.isOpen(plot:balance:)`), so `KingTargets.hasCard`
+    is false there, the action button never offers them, the build card never opens on them, and `Build.order`
+    answers `.notOffered` (they were already unmarked: `EntityFrames.markers` leaves `TownGrowth.newPlots` out);
+  - the standing is 0 whatever stands (`TownGrowth.standing`), so the tax part, the stage, the bell and the backdrop's
+    look are those of before.
+  - **Build 2 runs with `growthOpen` false; the join's build 3 art lane turns it on** (`var growthOpen = true` in
+    `TownRules`) once the tiers, the far fields and the treasury are drawn. T12, `TownGrowthTests` and T12's
+    neutrality test play with it on (`TownGrowth.opened(balance)`); every other test, the tuning report and the app
+    play with it off.
+  - Why `Build.options` and not `GameState.isUnlocked`: `isUnlocked(plot:)` has no balance, and every way to see, open
+    or order a plot already goes through `Build.options` (the card, `KingTargets.hasCard` for the action button,
+    `Build.order`, the bots). A switch in `isUnlocked` would need a new parameter at every caller, in files the rebuild
+    lanes are rewriting. The effect is the same: nothing of town-3's growth can be seen, offered or paid for.
+- **T12 shows where the skipper's fall comes from (high 2).** A fourth bot, T6's **walls without the beacon**
+  (`Autoplay.reference(buildsBeacon: false)`: every defence of the reference order, never the beacon), plays the same
+  seeds to night 20. T12 now also asks that it held the night the skipper fell, on every seed
+  (`TownGrowthMetrics.wallsHoldTheSkippersNight`, in `passes` and asserted per seed in
+  `testT12TheGrowerHoldsAndTheSkipperFallsForTheDefenceItSkipped`). The report adds the skipper's first night with its
+  hearth struck (below 100: `skipperFirstStruck`) and the walls' fall night (`noBeaconFellOn`). "By night 20" stays
+  as it was: whether T12 asks for more is the director's (see Open).
+- **Small things from the critic's list:**
+  - `Town.collectorTurn(day, rules:)` takes the balance's rules (the collector's heading and `-GWTown collector` pass
+    them), so a tuned stand-off cannot make his heading differ from his schedule; `collectorWords` asks only which
+    doors are on his round (`standOff: 0`).
+  - The bell rings once per stage: `TownState.stageBest` (Optional, saved) keeps the highest stage ever reached, and
+    `TownGrowth.dawn` announces a stage only above it. A town that burns back to a village and grows again is not
+    announced twice (`TownGrowth.bestStage`).
+  - `tools/tune.py`'s docstring says the mirror plays the growth as if the switch were on.
+- **Tests:** `TownGrowthTests.testBuildTwoShipsWithTheGrowingTownShut` (no new tier on any card, the card's options,
+  `hasCard`, the action button's plots near the far fields and the treasury, `Build.order`, the gold untouched, the
+  standing 0 and no stage written for a fully grown town; the same plots and tiers offered with the switch on); the
+  stage test grows back after the fire without a second bell; the save test drops `stageBest` for the old save.
+
+### New hooks in existing files (add to town-3's table for the join)
+
+| File | Place | Why |
+|---|---|---|
+| `Core/Build.swift` | `options`: after `if current.job != nil { return [] }`, `guard TownGrowth.isOpen(plot: plot, balance: balance) else { return [] }`; the upgrade line `if let next = item.upgrade, TownGrowth.offers(next, balance: balance) {` | build 3's switch: off in build 2 |
+
+`Core/Town/*` (`TownRules.growthOpen`, `TownGrowth`'s switch helpers and `bestStage`, `TownLedger`'s `stageBest`,
+`Town.collectorTurn(_:rules:)`) and the tests are this lane's own files.
+
+### For the join
+
+- **Build 2 takes this branch's tip** (with `growthOpen` false). It carries the collector's round in sim time (80e5f25,
+  which build 2 needs since the director's note of 14:45) and town-3's Core with the growth shut: no card offers a
+  townhouse, a market hall, an inn, a farmstead, a far field or the treasury, and nothing pays for a picture that is
+  not there. Take the hooks of town-1, town-2, town-3 and this table; town-3's `EntityFrames`, `Texts` and
+  `SpriteThumbnail` hooks stay (they only compile the new cases; nothing reaches them while the switch is off).
+- **The build 3 art lane** turns the switch on in `TownRules` when it brings the art of "What the join needs" (town-3,
+  points 1 to 7), takes the treasury and the far fields out of `TownGrowth.newPlots` as their markers come, and runs
+  `TownGrowthTuningTests` (T12), whose numbers do not depend on the switch's default.
+- The stand-in collector (town-2's `citizenB`) is still what build 2 draws until the people lane's Saul Bracken is
+  joined; the critic's note: the join must not ship the stand-in.
+
+### Rounds (by the director's notes of 18:46 and 19:35: one gate round, `build unit "ui TownUITests FirstDayUITests"`)
+
+- **lh-t3f1-1** (b9fa609): **ALL PASSED**. Build PASS; 484 unit test cases, 0 failed (483 and the new switch test);
+  7 UI tests (TownUITests, FirstDayUITests). `tuning-report.txt` and `town-neutrality-seed1.txt` are byte for byte
+  those of lh-t3-3 (cmp): with the switch off T1 to T8 and the neutral seed did not move. `t12-report.txt`: T12 PASS,
+  +28.0 % (+22.8, +32.4, +28.8 %), the same as lh-t3-3; the skipper fell on night 20 on every seed and **its hearth was
+  first struck on night 20** on every seed (untouched on nights 1 to 19); **every defence without the beacon held
+  night 20 on every seed** (`noBeaconFellOn` [0, 0, 0]).
+- No screen changed in this round, so no pictures (the collector's shot is town-3's, unchanged).
+
+### Open, and what waits
+
+- **For the director (the critic's high 2, its director half):** the first line and the gatehouse alone hold nights
+  1 to 19 untouched for a realm that grows the town instead of the middle line; only the Lightless King ends it on
+  night 20. T12 now shows that the fall comes from the missing defence (the walls without the beacon hold that night),
+  but not that skipping costs anything earlier. Route to the front lane (T13, T14: presence, the hearth, the nights'
+  difficulty), and decide whether T12 keeps "by night 20" or asks for an earlier fall once the front lane's nights
+  are in.
+- **The critic's other small things**, left for their owners: the farmstead's effect line says "+8 gold every dawn"
+  as the field's did, though a field's gold comes only when the lord stands at the fence ("+8 gold a day, at the
+  fence": the text and stage pass); "Lanternhold is a village now." follows REALM.md while STORY.md calls the town
+  Tallowford (the director's call); Saul's one arm needs a one-handled pull cart (the people lane's sprite); "back by
+  noon" needs about 30 px/s (the director's call, one value).
+- Unchanged from town-3: the town-2 critic's look-2 highs 1 and 2 (screen work), the dim stand-in collector, German
+  not looked at on screen, the six other languages in the i18n pass.
