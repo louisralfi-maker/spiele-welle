@@ -545,3 +545,18 @@ schneller geht."
     read as red curtains) and a larger ancestor on a step; slides 1 and 2 few uneven cracks in place of the regular
     strata (they read as brick); slide 1 the castle in the night's stone tones (it reads as a painted toy).
   - Still open in a running round: the people lane's director's pass (`lh-p3-1`).
+- **The prologue's round 4 is 6.5 to 7.5 of 10 (15.11.2026, 04:12) and not accepted.** Commits on
+  `claude/lh-panels`: `a4cc26f` (slide 4, the empty seat), `cd7866c` (slide 3), `908adb7` (slide 2), `24e0c80`
+  (slide 1). The director's scores, held beside the title's picture: slides 1 and 2 are 7, slide 3 is 7.5, slide 4
+  is 6.5 (the artist's own: 7, 7, 7.5, 7).
+  - **The set holds together now** as one small gold light in a big dark, and the empty seat is the right picture
+    for the hand-over. What still parts it from the title is density on the main thing and depth. Slide 4 is thin:
+    the pillars are poles, the wall is dashes, the floor's light reads as a red brick carpet.
+  - **Round 5 started 04:12, mostly for slide 4:** the moon falls through the door as a cold wedge on the floor and
+    the heir's long shadow lies in it and points at the seat; the lantern's warm pool lies at the dais; stone piers
+    with arches in place of poles; the house's teal banner behind a larger seat; flagstones in stone tones.
+    Slides 1 to 3 get three small things each for depth (mist at the mountain's foot, the castle standing out of
+    the cleft, a clearer road, a near edge of stalks). The captions' band stays calm on all four.
+  - **The rule for build 2:** round 5 is the last full round before the join. If the four slides are 7.5 or more by
+    the director's look, they go in and one short round checks them; what is still weak waits for build 3.
+  - Quota at 04:12: 12 % of the week, 3 % of the Fable part.
