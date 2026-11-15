@@ -8,8 +8,10 @@ import XCTest
 /// 21:00 the field is still empty (computed from Battle.planNight and Balance, the clip and these shots confirm it).
 /// - at the bank's edge (22:30) calm and in a gust;
 /// - at the outer wall (23:00, 23:12, 23:24) and with Reduce Motion (the threads stand, no sway);
-/// - a filmstrip: eight shots at the wall from 23:12, 0.1 s of game time apart (1/120 of a game hour), so the walk, the
-///   threads' sway and the falls can be judged without a video (scripts/ci/sim-clip.sh records the clip).
+/// - a filmstrip: eight shots at the wall from 23:12, 0.1 s of game time apart (1/120 of a game hour), so the walk and
+///   the threads' sway can be judged without a video. Every shot is a still headless state, and the falls live only in
+///   the live loop's `BattleEffects`, so no shot here holds a fall: their still proof is the unit test
+///   `HordeRenderTests` (`horde-fall-filmstrip`), and scripts/ci/sim-clip.sh records the live clip.
 /// Saves `2nn-horde-<what>-<lang>`.
 @MainActor
 final class HordeUITests: XCTestCase {
