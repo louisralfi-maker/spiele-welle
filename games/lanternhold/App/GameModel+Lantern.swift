@@ -44,7 +44,9 @@ extension GameModel {
         if stage == .hall { stopWalking() }
         if firstTouchSlip { firstTouchSlip = false }
         touch.firstSlipPending = false
-        let block = HUDKit.moment(gold: state.gold, happiness: state.happiness, people: state.citizens, day: state.day)
+        // The join (item 4): the purse as the town shows it, a coin in flight not counted before it lands.
+        let shown = townShownGold(state, balance: driver?.balance ?? .standard)
+        let block = HUDKit.moment(gold: shown, happiness: state.happiness, people: state.citizens, day: state.day)
         let lordX = stageLordX
         let viewLeft = framing.viewLeft.rounded(.up) + 3
         let viewRight = framing.viewRight.rounded(.down) - 3
@@ -55,7 +57,7 @@ extension GameModel {
         let show = LanternMomentShow(block: block, left: framing.deviceX(stageX: Double(left)),
                                      top: framing.deviceY(lift: topLift), scale: framing.scale,
                                      physicalWidth: framing.physicalWidth, physicalHeight: framing.physicalHeight,
-                                     summary: lanternSummary(state), gold: state.gold, happiness: state.happiness,
+                                     summary: lanternSummary(state), gold: shown, happiness: state.happiness,
                                      people: state.citizens, day: state.day,
                                      clock: GameModel.format(hour: state.hour))
         withDriver { game in
@@ -92,7 +94,8 @@ extension GameModel {
     func lanternSummary(_ state: GameState) -> String {
         let name = state.lordOrDefault.name.isEmpty ? String(localized: "Lord Lantern") : state.lordOrDefault.name
         let mood = GameModel.moodWords(state.happiness)
-        return String(localized: "\(name), day \(state.day), \(state.gold) gold, \(mood), \(state.citizens) people")
+        let gold = townShownGold(state, balance: driver?.balance ?? .standard)
+        return String(localized: "\(name), day \(state.day), \(gold) gold, \(mood), \(state.citizens) people")
     }
 
     /// The town's mood in words (the face's bands).
@@ -113,7 +116,7 @@ extension GameModel {
         guard kind == .world, let game = driver else { return }
         let state = game.state
         let visible = overlay == nil && stageChange == nil && lanternMoment == nil && game.bot == nil && !isShowcase
-        purse.update(gold: state.gold, now: clock.elapsed, visible: visible)
+        purse.update(gold: townShownGold(state, balance: game.balance), now: clock.elapsed, visible: visible)
         notes.update(happiness: state.happiness, people: state.citizens, clock: clock.elapsed, visible: visible)
         let calling = stripCall.update(strip, hour: state.hour, clock: clock.elapsed, allowed: visible)
         if calling != stripCalling { stripCalling = calling }
@@ -122,7 +125,7 @@ extension GameModel {
     /// A jump (a new realm, a replayed day, a second chance): the purse and the notes take the realm as it is.
     func resetLanternHUD() {
         guard let state = driver?.state else { return }
-        purse.reset(gold: state.gold)
+        purse.reset(gold: townShownGold(state, balance: driver?.balance ?? .standard))
         notes.reset(happiness: state.happiness, people: state.citizens)
         stripCall = StripCall()
         lanternMoment = nil
