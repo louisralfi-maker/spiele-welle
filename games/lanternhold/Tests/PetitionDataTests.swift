@@ -92,6 +92,32 @@ final class PetitionDataTests: XCTestCase {
         }
     }
 
+    /// late-2: the bargain of day 17 halves nights 17, 18 and 19 (the herald's choice, then every answer to Brannock's
+    /// and Hesper's follow-ups), so the realm's people speak of half a wave, never of a night without a creature.
+    func testTheBargainsThinNightsAreToldAsThin() throws {
+        let catalog = PetitionCatalog.standard
+        let demand = try XCTUnwrap(catalog.petition("herald_demand")?.choices.first?.effect)
+        let alone = try XCTUnwrap(catalog.petition("herald_alone")?.choices.first?.effect)
+        for effect in [demand, alone] {
+            XCTAssertEqual(effect.night, ["wave-50pct"], "night 17 at half strength")
+            XCTAssertEqual(effect.schedule?.map(\.id), ["truce_drill", "truce_end"])
+        }
+        for id in ["truce_drill", "truce_end"] {
+            let petition = try XCTUnwrap(catalog.petition(id), id)
+            for choice in petition.choices {
+                XCTAssertEqual(choice.effect.night, ["wave-50pct"], "\(id): its night is halved whatever the answer")
+            }
+        }
+        for key in ["petition.truce_drill.text", "petition.truce_end.text", "petition.herald_alone.r1"] {
+            let text = try XCTUnwrap(StoryText.string(key, language: "en"), key)
+            for untrue in ["Not a sootling", "quiet night", "soot track is gone"] {
+                XCTAssertFalse(text.contains(untrue), "\(key) says \(untrue)")
+            }
+        }
+        let drill = try XCTUnwrap(StoryText.string("petition.truce_drill.text", language: "en"))
+        XCTAssertTrue(drill.contains("half a wave"))
+    }
+
     func testTheSourceFolderHoldsOnlyPetitionFilesTheBundleHas() throws {
         let folder = Self.gameFolder.appendingPathComponent("Resources/Petitions")
         guard let names = try? FileManager.default.contentsOfDirectory(atPath: folder.path) else {
