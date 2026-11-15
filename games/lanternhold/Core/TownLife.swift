@@ -88,9 +88,13 @@ enum TownLife {
 
     /// False inside a castle room with a front (the hall, the chapel, the kitchen) while the lord is not in it.
     static func isSeen(_ x: Double, _ s: GameState) -> Bool {
-        guard let room = WorldLayout.room(at: x), RoomFades.rooms.contains(room) else { return true }
+        guard let room = WorldLayout.room(at: x), closedRooms.contains(room) else { return true }
         return WorldLayout.room(at: s.king.x) == room
     }
+
+    /// The castle's buildings whose walls hide who is inside (the join: since the world's one castle, world-2, they
+    /// are closed buildings seen from outside and `RoomFades.rooms` is empty; this is the list it held before).
+    static let closedRooms: [WorldLayout.RoomID] = [.greatHall, .chapel, .kitchen]
 
     // MARK: - Helpers
 

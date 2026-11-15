@@ -52,12 +52,15 @@ final class LookGoldenTests: XCTestCase {
     /// `smithy`, `lodge`; tools/keepart.py), sprites both looks draw, so the castle and the court were recorded again
     /// from round lh-w2-2 (on 07c8ea1; before: f85bb5b965601d8 and 7847cdaa53452732). Nothing else of look 1 moved.
     ///
-    /// The rolling join (claude/lh-join, 15.11.2026) puts the people lane's town and the world's castle into one tree:
-    /// all four of castle-night, court-dusk, square-morning and town-noon are recorded again from the join's rounds.
-    /// Until then they have no hash and only print their GOLDEN line. Before the join: castle eb723787eed65a73 / court
-    /// 12c426443634b583 (world) and square 315698c2d0a55839 / town ad3c5e8591125cfa (people).
+    /// The rolling join (claude/lh-join, 15.11.2026) put the people lane's town and the world's castle into one tree:
+    /// its first round (lh-rj-1, on 93b0699) printed the world's castle and court and the people lane's square and town
+    /// unchanged, so each side's hashes stand.
     static let golden: [String: String] = [
         "front-night": "9b01af38246bc805",
+        "castle-night": "eb723787eed65a73",
+        "court-dusk": "12c426443634b583",
+        "square-morning": "315698c2d0a55839",
+        "town-noon": "ad3c5e8591125cfa",
         "river-golden": "c0f21df86bbe85b6",
     ]
 
