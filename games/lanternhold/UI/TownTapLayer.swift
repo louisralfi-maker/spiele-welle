@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// The touch on a door (town-2, docs/TOWN.md section 1 "The knock"): a clear layer over the world, under the walk pad
-/// and the HUD, that hands a tap to `GameModel.touchTown` (the walk pad's own taps go there too). A door of the town
-/// takes it and the lord walks up and knocks; anywhere else nothing happens. Nothing is drawn: the doors on screen are
+/// The doors of the town on screen (town-2, docs/TOWN.md section 1 "The knock"). Since the join the touch itself goes
+/// through `TouchLayer`: a tap asks `GameModel.touchTown` first, and a door of the town takes it (the lord walks up and
+/// knocks); anywhere else the tap goes on to touch the world. This layer takes no touch. Nothing is drawn: the doors are
 /// accessibility elements only (`town-door-<plot>`, "Knock at the chandler's door"), for VoiceOver and the UI tests,
 /// and `town-status` carries the town's state for the tests.
 @MainActor
@@ -12,11 +12,9 @@ struct TownTapLayer: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
+                // The join: the touch goes through `TouchLayer`, which asks `GameModel.touchTown` first; this layer
+                // only names the doors for VoiceOver and the tests.
                 Color.clear
-                    .contentShape(Rectangle())
-                    .onTapGesture(coordinateSpace: .local) { point in
-                        _ = model.touchTown(at: point, in: geometry.size)
-                    }
                     .accessibilityHidden(true)
                 ForEach(model.townMarks) { mark in
                     Rectangle()

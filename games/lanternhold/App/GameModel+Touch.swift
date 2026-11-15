@@ -152,6 +152,8 @@ extension GameModel {
               let place = stagePoint(point, in: size) else { return }
         if firstTouchSlip { firstTouchSlip = false }
         touch.firstSlipPending = false
+        // The join: a touch on a town door knocks first (town-2, `GameModel.touchTown`); the doors are not things.
+        if stage != .hall, touchTown(at: point, in: size) { return }
         if let thing = TouchRules.pick(x: place.x, lift: place.lift, things: touch.things, minimum: place.minimum) {
             touchThing(thing)
             return
