@@ -2,8 +2,9 @@
 // plays T15 (GorgeTuningRun: the beacons' worth in lockstep from the reference bot's eves, and whole runs of the
 // forward, neglect and reference bots), the idle lockstep (the reference bots' runs with the rule on and nothing
 // raised: T1 to T8 untouched) and, with "variants", the beacons' numbers around the chosen values; with "finale", night
-// 20 of the forward bot's runs with the fog held on the King's night and without. Not part of the app; never built on
-// the old Mac (CLAUDE.md "This Mac").
+// 20 of the forward bot's runs with the fog held on the King's night and without; with "ladders", the beacons' price
+// ladders against the builders' time for the careful, bold and eager forward bots and the keeper (fix round 2). Not part
+// of the app; never built on the old Mac (CLAUDE.md "This Mac").
 import Foundation
 
 func say(_ text: String) {
@@ -14,6 +15,7 @@ func say(_ text: String) {
 let arguments = Array(CommandLine.arguments.dropFirst())
 let doVariants = arguments.contains("variants")
 let doFinale = arguments.contains("finale")
+let doLadders = arguments.contains("ladders")
 var seeds = 10
 for argument in arguments where argument.hasPrefix("seeds=") { seeds = Int(argument.dropFirst(6)) ?? seeds }
 let nights = GorgeTuningRun.defaultNights
@@ -208,7 +210,7 @@ if doVariants {
     add("no charcoal") { $0.charcoalRadius = 1 }
     for (name, balance) in list {
         let pairList = pairs(balance)
-        let whole = runs(balance, budgets: [1.0, 1.5], kinds: [.forward, .neglect, .outpost]) + referenceRuns
+        let whole = runs(balance, budgets: [1.0, 1.5], kinds: [.forward, .neglect, .outpost, .keeper]) + referenceRuns
             + wallessRuns
         let m = metrics(balance, pairs: pairList, runs: whole, budgets: [1.0, 1.5])
         var budgetsText: [String] = []
@@ -218,15 +220,92 @@ if doVariants {
         say("-- \(name): T15a \(Int((m.reduction * 100).rounded())) % fewer (" + budgetsText.joined(separator: ", ")
             + "), beacons lost in the pairs \(pairList.reduce(0) { $0 + $1.held.lost })")
         for line in m.report.split(separator: "\n") where (line.hasPrefix("T15b") || line.hasPrefix("T15c")
-            || line.hasPrefix("T15 wager")) && line.contains("x1.0") {
+            || line.hasPrefix("T15 wager") || line.hasPrefix("T15 keeper")) && line.contains("x1.0") {
             say("   " + line)
         }
         for k in [1.0, 1.5] {
             say("   " + summary(whole, .forward, k))
             say("   " + summary(whole, .neglect, k))
             say("   " + summary(whole, .outpost, k))
+            if k == 1.0 { say("   " + summary(whole, .keeper, k)) }
         }
         say("(\(elapsed()))")
+    }
+}
+
+if doLadders {
+    say("")
+    say("== the price ladders against the builders' time (fix round 2, the critic's high H1; whole runs x1.0, seeds "
+        + "1-\(seeds); nothing chosen moves: the director's note of 07:04, prices are turned at the build 3 join with the "
+        + "town's income)")
+    say("   careful: the forward bot (beacons at steps 10, 22, 22, 22 of the reference's order); bold: two before the Great "
+        + "Beacon (10, 19, 22, 22; the director's target: never costs the finale, the King slain at least 9 of 10); "
+        + "eager: all four before the Great Beacon (10, 13, 16, 19); keeper: the walls kept, the Great Beacon first, then "
+        + "every beacon it can afford (the critic's target: holds where the reference holds, the King at least 9 of 10, "
+        + "all four by night 16 in most seeds)")
+    let refOne = referenceRuns.filter { $0.stress == 1.0 }
+    let refReached = refOne.reduce(0) { $0 + $1.reached(3...14) }
+    let refKings = refOne.filter { $0.slewTheKing }.count
+    say("   reference: the King \(refKings) of \(refOne.count), \(refReached) creatures at its defence on nights 3-14, "
+        + "Great Beacon days \(refOne.sorted { $0.seed < $1.seed }.map { $0.greatBeaconDay ?? 0 })")
+    func held(_ r: GorgeRun, _ n: Int) -> Int { r.night(n)?.heldAtDusk ?? 0 }
+    func mean(_ values: [Int]) -> String {
+        values.isEmpty ? "-" : TuningRun.tenths(Double(values.reduce(0, +)) / Double(values.count))
+    }
+    let ladders: [(String, [Int])] = [
+        ("60, 90, 130, 180 (chosen)", [60, 90, 130, 180]), ("40, 60, 90, 120", [40, 60, 90, 120]),
+        ("60, 75, 90, 90 (the far two cheaper)", [60, 75, 90, 90]), ("40, 50, 60, 70", [40, 50, 60, 70]),
+        ("30, 45, 65, 90 (half)", [30, 45, 65, 90]),
+    ]
+    let styles: [(String, [Int], GorgeBotKind)] = [
+        ("careful", [10, 22, 22, 22], .forward), ("bold", [10, 19, 22, 22], .forward),
+        ("eager", [10, 13, 16, 19], .forward), ("keeper", [10, 22, 22, 22], .keeper),
+    ]
+    for (ladder, prices) in ladders {
+        for work in [150.0, 75.0] {
+            say("-- prices \(ladder), raise work \(Int(work)) builder-seconds")
+            for (style, steps, kind) in styles {
+                let b = variant {
+                    $0.prices = prices
+                    $0.raiseWork = work
+                    $0.botBeaconSteps = steps
+                }
+                let whole = runs(b, budgets: [1.0], kinds: [kind]).sorted { $0.seed < $1.seed }
+                var trapped: [Int] = []
+                for r in whole {
+                    guard let fell = r.fellOn, let ref = refOne.first(where: { $0.seed == r.seed }) else { continue }
+                    if ref.fellOn.map({ $0 > fell }) ?? true { trapped.append(r.seed) }
+                }
+                let kings = whole.filter { $0.slewTheKing }.count
+                let reached = whole.reduce(0) { $0 + $1.reached(3...14) }
+                let by14 = whole.filter { ($0.allFourOn ?? 99) <= 14 }.count
+                let by16 = whole.filter { ($0.allFourOn ?? 99) <= 16 }.count
+                let fewer = refReached > 0 ? Int(((1 - Double(reached) / Double(refReached)) * 100).rounded()) : 0
+                var verdict = ""
+                if style == "bold" {
+                    verdict = kings * 10 >= 9 * whole.count && trapped.isEmpty ? "; the director's target met"
+                        : "; the director's target missed"
+                } else if style == "keeper" {
+                    verdict = kings * 10 >= 9 * whole.count && trapped.isEmpty && 2 * by16 > whole.count
+                        ? "; the critic's target met" : "; the critic's target missed"
+                }
+                let allFour: [Int] = whole.map { $0.allFourOn ?? 0 }
+                let h10 = mean(whole.map { held($0, 10) })
+                let h14 = mean(whole.map { held($0, 14) })
+                let h20 = mean(whole.map { held($0, 20) })
+                let raised = mean(whole.map { $0.tally.raises })
+                let relit = mean(whole.map { $0.tally.relights })
+                let gold = mean(whole.map { $0.tally.beaconGold })
+                let great: [Int] = whole.map { $0.greatBeaconDay ?? 0 }
+                var line = "   \(style): fell where the reference held \(trapped), the King \(kings) of \(whole.count), "
+                line += "all four from \(allFour) (by night 14: \(by14), by 16: \(by16)), "
+                line += "burning at the horn of nights 10/14/20 \(h10)/\(h14)/\(h20), raised/relit \(raised)/\(relit), "
+                line += "beacon gold \(gold), Great Beacon \(great), "
+                line += "at the defence 3-14 \(reached) against \(refReached) (\(fewer) % fewer)" + verdict
+                say(line)
+            }
+            say("(\(elapsed()))")
+        }
     }
 }
 

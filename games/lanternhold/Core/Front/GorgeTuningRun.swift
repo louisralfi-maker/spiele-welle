@@ -28,6 +28,64 @@ struct GorgeNightCount: Sendable, Equatable {
     var arrows = 0
     /// The strength of every creature that came tonight (for the watch's share of the night's work).
     var spawnedHP = 0.0
+    /// At the horn: the purse, the archers, the guards and the archers' posts (fix round 2, the diagnosis of T15c).
+    var goldAtDusk = 0
+    var archersAtDusk = 0
+    var guardsAtDusk = 0
+    var postsAtDusk = 0
+    /// The bot's gold for beacons and relights so far, at this dawn (whole runs only).
+    var beaconGold = 0
+    /// Night 20: where the Lightless King was last seen (slain or at first light), what was left of his strength (0 to
+    /// 1), and the seconds he stood in the Great Beacon's light.
+    var kingLastX: Double?
+    var kingStrength: Double?
+    var kingLitSeconds = 0.0
+    /// Every defender who fell tonight: where, and the creature nearest him on the ground.
+    var falls: [GorgeFall] = []
+}
+
+/// One defender who fell (fix round 2, the director's question of 05:36: where they fell, and to what).
+struct GorgeFall: Sendable, Equatable {
+    var x: Double
+    var soldier: SoldierKind
+    /// What he was doing in the step he fell: holding a breach, walking on the ground, ...
+    var state: SoldierState
+    /// The creature on the ground nearest him then (within `GorgeFall.reach`; nil: none so near).
+    var by: CreatureKind?
+
+    static let reach = 30.0
+
+    /// The stretch of the front he fell on (the sim's lines: the outer at 640, the middle at 940, the gatehouse at 1300).
+    var place: String {
+        switch x {
+        case ..<560: return "beyond the outer line"
+        case ..<720: return "the outer line"
+        case ..<840: return "between the lines"
+        case ..<1020: return "the middle line"
+        case ..<1200: return "before the gate"
+        case ..<1440: return "the gatehouse"
+        default: return "the courtyard and behind"
+        }
+    }
+
+    static let places = ["beyond the outer line", "the outer line", "between the lines", "the middle line",
+                         "before the gate", "the gatehouse", "the courtyard and behind"]
+
+    /// The creature on the ground nearest `x` (flying crows only when nothing walks near).
+    static func nearest(_ s: GameState, x: Double) -> CreatureKind? {
+        var best: CreatureKind?
+        var bestDistance = reach
+        for c in s.creatures where c.hp > 0 && !c.kind.flies && abs(c.x - x) <= bestDistance {
+            best = c.kind
+            bestDistance = abs(c.x - x)
+        }
+        if best != nil { return best }
+        for c in s.creatures where c.hp > 0 && c.kind.flies && abs(c.x - x) <= bestDistance {
+            best = c.kind
+            bestDistance = abs(c.x - x)
+        }
+        return best
+    }
 }
 
 /// One night played twice from the reference bot's eve (T15's first half): as the reference played it, and with all
@@ -48,6 +106,9 @@ enum GorgeBotKind: String, Sendable, CaseIterable {
     case walless
     /// T15c: the forward bot's beacons and Great Beacon, and no wall (built, raised or patched).
     case outpost
+    /// Fix round 2 (the critic's high H1): the walls kept and the reference's order as it is, the Great Beacon first,
+    /// then every beacon it can afford (reported: the target for the build 3 join).
+    case keeper
 
     /// The bot that plays this kind (the reference plays as `Autoplay.reference()`, without the rule).
     var bot: ForwardBot {
@@ -56,6 +117,7 @@ enum GorgeBotKind: String, Sendable, CaseIterable {
         case .neglect: return ForwardBot(neglectsWalls: true)
         case .walless: return ForwardBot(neglectsWalls: true, raisesBeacons: false)
         case .outpost: return ForwardBot(neglectsWalls: true, forwardHabits: true)
+        case .keeper: return ForwardBot(keeper: true)
         }
     }
 }
@@ -74,8 +136,11 @@ struct GorgeRun: Sendable {
     var kingSlain = false
     var kingSeconds: Int?
 
-    /// The first night all four beacons burned at the horn, and the first night one fell.
+    /// The first night all four beacons burned at the horn, the first night one did, and the first night one fell.
     var allFourOn: Int? { nights.first { $0.heldAtDusk == Gorge.sites }?.night }
+    var firstHeldOn: Int? { nights.first { $0.heldAtDusk > 0 }?.night }
+    /// The count of night `n` (nil: not reached).
+    func night(_ n: Int) -> GorgeNightCount? { nights.first { $0.night == n } }
     var firstLoss: Int? { nights.first { $0.lost > 0 }?.night }
     var lost: Int { nights.reduce(0) { $0 + $1.lost } }
     var fallen: Int { nights.reduce(0) { $0 + $1.fallen } }
@@ -101,11 +166,17 @@ struct GorgeRun: Sendable {
 /// - **T15b, the walls still count** (whole runs): the neglect bot (beacons first at any gold, no wall built or raised,
 ///   none patched) loses a beacon and then falls by night `neglectFallsBy`, in every seed, on a night the forward bot
 ///   and the reference both hold.
-/// - **T15c, the beacons do not replace the walls** (whole runs): the outpost bot (the forward bot's beacons and Great
-///   Beacon, no wall) does not beat the reference: it falls where the reference holds, or slays the King less often,
-///   or lets at least as many creatures reach its defence over nights 3 to 14.
+/// - **T15c, the beacons do not replace the walls** (whole runs; fix round 2): beacons do not strengthen a realm without
+///   walls. The outpost bot (the forward bot's beacons and Great Beacon, no wall) lets at least as many creatures reach
+///   its defence over nights 3 to 14 as the walls-neglected control without beacons. Front-3 fix 1 asked it not to beat
+///   the reference; it passed there only on the King's count, which swings with values that should not touch night 20
+///   (the diagnosis in the report says why), and a realm without walls beats the reference in today's base game anyway
+///   (the director's, after build 2). That comparison is reported.
 /// - **The wager, never a trap** (whole runs): the forward bot never falls where the reference holds, slays the King at
 ///   least as often, and lets no more creatures reach its defence over nights 3 to 14 than the reference.
+/// - **The keeper** (whole runs, reported; the critic's high H1 and the director's target for the build 3 join): the
+///   walls kept, the Great Beacon first, then every beacon it can afford. It must hold where the reference holds, slay the
+///   King in at least 9 of 10 and hold all four by about night 16 in most seeds.
 struct GorgeMetrics: Sendable {
     /// T15a: at least this share fewer creatures reach the defence with all four held.
     static let least = 0.30
@@ -116,6 +187,10 @@ struct GorgeMetrics: Sendable {
     /// director").
     static let neglectLosesBy = 8
     static let neglectFallsBy = 20
+    /// The keeper's target (reported until the build 3 join): the King slain in at least this share of the seeds, and
+    /// all four beacons burning at the horn by this night in more than half of them.
+    static let keeperKings = 0.9
+    static let keeperAllFourBy = 16
 
     var seeds: Int
     var nights: ClosedRange<Int>
@@ -211,13 +286,106 @@ struct GorgeMetrics: Sendable {
             && a.reached <= a.refReached
     }
 
-    /// T15c at a stress: the outpost bot does not beat the reference (it falls where the reference holds, or slays the
-    /// King less often, or lets at least as many creatures reach its defence).
+    /// T15c at a stress: beacons do not strengthen a realm without walls: the outpost bot lets at least as many
+    /// creatures reach its defence on nights 3 to 14 as the walls-neglected control without beacons (the same seeds).
     func passesOutpost(stress: Double) -> Bool {
-        guard !runs(.outpost, stress: stress).isEmpty else { return false }
+        let mine = runs(.outpost, stress: stress)
+        let control = runs(.walless, stress: stress)
+        guard !mine.isEmpty, mine.count == control.count else { return false }
+        let outpost = mine.reduce(0) { $0 + $1.reached(3...14) }
+        let walless = control.reduce(0) { $0 + $1.reached(3...14) }
+        return outpost >= walless
+    }
+
+    /// The old T15c (front-3 fix 1), reported: the outpost bot does not beat the reference (it falls where the reference
+    /// holds, or slays the King less often, or lets at least as many creatures reach its defence).
+    func outpostBeatsReference(stress: Double) -> Bool {
         let a = against(.outpost, stress: stress)
-        let beats = a.fellWhereHeld.isEmpty && a.kings >= a.refKings && a.reached < a.refReached
-        return !beats
+        return a.fellWhereHeld.isEmpty && a.kings >= a.refKings && a.reached < a.refReached
+    }
+
+    /// The keeper at a stress against the reference: the seeds where it fell and the reference held, the King (its count
+    /// and the reference's), the seeds with all four burning by `keeperAllFourBy`, its runs, the creatures at the
+    /// defence on nights 3 to 14 (its and the reference's), and whether the target is met.
+    func keeper(stress: Double) -> (fellWhereHeld: [Int], kings: Int, refKings: Int, allFourBy: Int, seeds: Int,
+                                    reached: Int, refReached: Int, met: Bool) {
+        let mine = runs(.keeper, stress: stress)
+        let a = against(.keeper, stress: stress)
+        let allFour = mine.filter { ($0.allFourOn ?? 99) <= GorgeMetrics.keeperAllFourBy }.count
+        let met = !mine.isEmpty && a.fellWhereHeld.isEmpty
+            && Double(a.kings) >= GorgeMetrics.keeperKings * Double(mine.count) - 1e-9 && 2 * allFour > mine.count
+        return (a.fellWhereHeld, a.kings, a.refKings, allFour, mine.count, a.reached, a.refReached, met)
+    }
+
+    /// Defenders lost, where and to what: one line per stretch of the front with its count for each list (fix round 2,
+    /// the director's question of 05:36).
+    static func fallsTable(_ lists: [(name: String, falls: [GorgeFall])]) -> [String] {
+        func kinds(_ list: [GorgeFall]) -> String {
+            var counts: [String: Int] = [:]
+            for fall in list { counts[fall.by?.rawValue ?? "nothing near", default: 0] += 1 }
+            return counts.sorted { $0.value != $1.value ? $0.value > $1.value : $0.key < $1.key }
+                .map { "\($0.key) \($0.value)" }.joined(separator: ", ")
+        }
+        func states(_ list: [GorgeFall]) -> String {
+            var counts: [String: Int] = [:]
+            for fall in list { counts["\(fall.soldier.rawValue) \(fall.state.rawValue)", default: 0] += 1 }
+            return counts.sorted { $0.value != $1.value ? $0.value > $1.value : $0.key < $1.key }
+                .map { "\($0.key) \($0.value)" }.joined(separator: ", ")
+        }
+        var lines: [String] = []
+        for place in GorgeFall.places {
+            var parts: [String] = []
+            for entry in lists {
+                let here = entry.falls.filter { $0.place == place }
+                guard !here.isEmpty else { continue }
+                parts.append("\(entry.name) \(here.count) (\(states(here)); by \(kinds(here)))")
+            }
+            if !parts.isEmpty { lines.append("  \(place): " + parts.joined(separator: " | ")) }
+        }
+        let totals = lists.map { "\($0.name) \($0.falls.count)" }.joined(separator: ", ")
+        lines.append("  in all: \(totals)")
+        return lines
+    }
+
+    /// T15c's diagnosis at a stress (fix round 2, the critic's high H2): per seed, for the outpost, the walls-neglected
+    /// control and the reference, the purse at the horn of nights 15 to 20, the gold for beacons by nights 14 and 20,
+    /// the archers, guards and archers' posts on night 20, the beacons burning at its horn, the defenders lost on night
+    /// 20 (and in all), and the King: slain (after how long, where) or where he was at first light, with what strength
+    /// left and how long he stood in the Great Beacon's light.
+    func outpostDiagnosis(stress: Double) -> [String] {
+        var lines: [String] = []
+        lines.append("T15c diagnosis \(GorgeMetrics.stressText(stress)), per seed: bot | purse at the horn, nights 15-20 | "
+                     + "beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | "
+                     + "defenders lost on night 20 (in all) | the King")
+        for seed in 1...max(1, seeds) {
+            for kind in [GorgeBotKind.outpost, .walless, .reference] {
+                guard let r = run(kind, seed: seed, stress: stress) else { continue }
+                var pursed: [String] = []
+                for n in 15...20 { pursed.append(r.night(n).map { String($0.goldAtDusk) } ?? "-") }
+                let purse = pursed.joined(separator: " ")
+                let gold14 = r.night(14)?.beaconGold ?? 0
+                let gold20 = r.night(20)?.beaconGold ?? r.nights.last?.beaconGold ?? 0
+                var row = "  seed \(seed) \(kind.rawValue): " + purse + " | \(gold14) / \(gold20) | "
+                guard let n = r.night(20) else {
+                    row += "night 20 not reached (fell \(r.fellOn ?? 0))"
+                    lines.append(row)
+                    continue
+                }
+                row += "\(n.archersAtDusk), \(n.guardsAtDusk), \(n.postsAtDusk) | \(n.heldAtDusk) | \(n.fallen) "
+                row += "(\(r.fallen)) | "
+                if r.kingSlain {
+                    row += "slain after \(r.kingSeconds ?? -1) s at x \(Int((n.kingLastX ?? 0).rounded()))"
+                } else if n.fell {
+                    row += "the realm fell"
+                } else {
+                    row += "lived: last at x \(Int((n.kingLastX ?? 0).rounded())) with "
+                    row += "\(Int(((n.kingStrength ?? 1) * 100).rounded())) % of his strength"
+                }
+                row += ", \(Int(n.kingLitSeconds.rounded())) s in the Great Beacon's light"
+                lines.append(row)
+            }
+        }
+        return lines
     }
 
     private static func pct(_ value: Double) -> String { "\(Int((value * 100).rounded())) %" }
@@ -260,20 +428,37 @@ struct GorgeMetrics: Sendable {
                          + "\(w.kings) against \(w.refKings), \(w.reached) creatures at its defence on nights 3-14 against "
                          + "\(w.refReached) (target: none, at least as often, no more: never a trap)")
             let o = against(.outpost, stress: k)
-            lines.append("T15c \(verdict(passesOutpost(stress: k))) \(GorgeMetrics.stressText(k)): the outpost bot (the "
-                         + "forward bot's beacons and Great Beacon, no wall) fell where the reference held in "
-                         + "\(o.fellWhereHeld.count) seeds \(o.fellWhereHeld), slew the King in \(o.kings) against "
-                         + "\(o.refKings), \(o.reached) creatures at its defence on nights 3-14 against \(o.refReached) "
-                         + "(target: it does not beat the reference on all three)")
             let walless = runs(.walless, stress: k)
-            if !walless.isEmpty {
-                let mine = runs(.outpost, stress: k)
-                func lost(_ list: [GorgeRun]) -> Int { list.reduce(0) { $0 + $1.fallen } }
-                lines.append("T15c reported \(GorgeMetrics.stressText(k)): against the walls-neglected control without "
-                             + "beacons: the outpost bot slew the King in \(o.kings) against "
-                             + "\(walless.filter { $0.slewTheKing }.count), \(o.reached) creatures at its defence against "
-                             + "\(walless.reduce(0) { $0 + $1.reached(3...14) }), defenders lost \(lost(mine)) against "
-                             + "\(lost(walless)) (beacons do not strengthen a realm without walls)")
+            let mine = runs(.outpost, stress: k)
+            let wallessReached = walless.reduce(0) { $0 + $1.reached(3...14) }
+            let wallessKings = walless.filter { $0.slewTheKing }.count
+            let mineLost = mine.reduce(0) { $0 + $1.fallen }
+            let wallessLost = walless.reduce(0) { $0 + $1.fallen }
+            let stressName = GorgeMetrics.stressText(k)
+            var c = "T15c \(verdict(passesOutpost(stress: k))) \(stressName): the outpost bot (the forward bot's beacons "
+            c += "and Great Beacon, no wall) let \(o.reached) creatures reach its defence on nights 3-14 against "
+            c += "\(wallessReached) for the walls-neglected control without beacons (target: at least as many: beacons "
+            c += "do not strengthen a realm without walls); the King \(o.kings) against \(wallessKings), defenders lost "
+            c += "\(mineLost) against \(wallessLost)"
+            lines.append(c)
+            let beats = outpostBeatsReference(stress: k) ? "beats it on all three" : "does not beat it on all three"
+            var r = "T15c reported \(stressName): against the reference (front-3 fix 1's axis; a realm without walls "
+            r += "beats the reference in today's base game): fell where the reference held in "
+            r += "\(o.fellWhereHeld.count) seeds \(o.fellWhereHeld), the King \(o.kings) against \(o.refKings), "
+            r += "\(o.reached) creatures at its defence against \(o.refReached): \(beats)"
+            lines.append(r)
+            let keep = keeper(stress: k)
+            if keep.seeds > 0 {
+                let from: [Int] = runs(.keeper, stress: k).map { $0.allFourOn ?? 0 }
+                let kingsTarget = Int((GorgeMetrics.keeperKings * 10).rounded())
+                var e = "T15 keeper reported \(stressName) \(keep.met ? "met" : "missed"): the keeper (the walls kept, "
+                e += "the Great Beacon first, then every beacon it can afford) fell where the reference held in "
+                e += "\(keep.fellWhereHeld.count) seeds \(keep.fellWhereHeld), slew the King in \(keep.kings) against "
+                e += "\(keep.refKings), held all four by night \(GorgeMetrics.keeperAllFourBy) in \(keep.allFourBy) of "
+                e += "\(keep.seeds) (all four from nights \(from)), \(keep.reached) creatures at its defence on nights "
+                e += "3-14 against \(keep.refReached) (target for the build 3 join: none, at least \(kingsTarget) of 10, "
+                e += "most seeds)"
+                lines.append(e)
             }
         }
         lines.append("")
@@ -307,6 +492,30 @@ struct GorgeMetrics: Sendable {
             guard !set.isEmpty else { continue }
             lines.append("  night \(night): \(set.reduce(0) { $0 + $1.bare.reached }) | "
                          + "\(set.reduce(0) { $0 + $1.held.reached }) | \(set.reduce(0) { $0 + $1.held.lost })")
+        }
+        lines.append("")
+        lines.append("T15a defenders lost, where and to what (all budgets; the soldier and what he was doing in the step "
+                     + "he fell; by: the creature on the ground nearest him then, within "
+                     + "\(Int(GorgeFall.reach)) px):")
+        lines += GorgeMetrics.fallsTable([("without", pairs.flatMap { $0.bare.falls }),
+                                          ("with all four", pairs.flatMap { $0.held.falls })])
+        for k in runStresses {
+            lines.append("")
+            lines.append("whole runs \(GorgeMetrics.stressText(k)), defenders lost, where and to what (all nights; night 20 "
+                         + "on its own below):")
+            var all: [(name: String, falls: [GorgeFall])] = []
+            var finale: [(name: String, falls: [GorgeFall])] = []
+            for kind in GorgeBotKind.allCases {
+                let list = runs(kind, stress: k)
+                guard !list.isEmpty else { continue }
+                all.append((kind.rawValue, list.flatMap { $0.nights.flatMap { $0.falls } }))
+                finale.append((kind.rawValue, list.flatMap { $0.night(20)?.falls ?? [] }))
+            }
+            lines += GorgeMetrics.fallsTable(all)
+            lines.append("  night 20 alone:")
+            lines += GorgeMetrics.fallsTable(finale)
+            lines.append("")
+            lines += outpostDiagnosis(stress: k)
         }
         for k in runStresses {
             lines.append("")
@@ -355,17 +564,44 @@ enum GorgeTuningRun {
                 dt = max(Sim.nightStep, min(Sim.dayStep, toHorn))
             }
             player.act(&s, dt: dt, balance: balance, events: &events, petitions: .standard)
+            let atNight = DayClock.phase(at: s.hour) != .day
+            let soldiersBefore = atNight ? s.soldiers : []
+            let fallenBefore = s.night.fallen.count
+            let nightBefore = s.night.night
             Sim.step(&s, dt: dt, balance: balance, events: &events)
             steps += 1
             if !dusk && DayClock.phase(at: s.hour) != .day && s.day == startDay {
                 dusk = true
                 count.heldAtDusk = Gorge.held(s)
+                count.goldAtDusk = s.gold
+                count.archersAtDusk = s.archerCount
+                count.guardsAtDusk = s.guardCount
+                count.postsAtDusk = Battle.posts(s, balance: balance).count
+            }
+            if atNight && s.night.night == nightBefore && s.night.fallen.count > fallenBefore {
+                var names = s.night.fallen[fallenBefore...].map { $0.name }
+                let standing = Set(s.soldiers.map { $0.id })
+                for soldier in soldiersBefore where !standing.contains(soldier.id) {
+                    guard let k = names.firstIndex(of: soldier.name) else { continue }
+                    names.remove(at: k)
+                    count.falls.append(GorgeFall(x: soldier.x, soldier: soldier.kind, state: soldier.state,
+                                                 by: GorgeFall.nearest(s, x: soldier.x)))
+                }
             }
             for c in s.creatures {
                 if seen.insert(c.id).inserted { count.spawnedHP += c.maxHP }
                 if c.action == .attackingWall || c.action == .attackingGuards || c.action == .atHearth {
                     reached.insert(c.id)
                 }
+                if c.kind == .lightlessKing {
+                    count.kingLastX = c.x
+                    count.kingStrength = c.maxHP > 0 ? max(0, c.hp) / c.maxHP : 0
+                    if c.isLit { count.kingLitSeconds += dt }
+                }
+            }
+            if let x = s.night.kingSlainX, s.night.night == count.night {
+                count.kingLastX = x
+                count.kingStrength = 0
             }
             if let tally = s.gorge?.tonight, tally.night == count.night {
                 count.lost = tally.fell.count
@@ -425,11 +661,12 @@ enum GorgeTuningRun {
         var bot = kind.bot
         if kind != .reference { Gorge.adopt(&s) }
         while s.nightNumber <= lastNight && !s.defeated {
-            let count: GorgeNightCount
+            var count: GorgeNightCount
             if kind == .reference {
                 count = playNight(&s, player: &reference, balance: caught)
             } else {
                 count = playNight(&s, player: &bot, balance: caught)
+                count.beaconGold = bot.tally.beaconGold
             }
             run.nights.append(count)
             if count.fell {
@@ -465,7 +702,7 @@ enum GorgeTuningRun {
         }
         for k in runStresses {
             for seed in 1...max(1, runSeeds ?? seeds) {
-                for kind in [GorgeBotKind.reference, .forward, .neglect, .outpost] {
+                for kind in [GorgeBotKind.reference, .forward, .neglect, .walless, .outpost, .keeper] {
                     m.runs.append(wholeRun(seed: seed, kind: kind, balance: balance, stress: k))
                 }
             }

@@ -26,7 +26,12 @@ struct ForwardTally: Sendable, Equatable {
 /// - **Walls neglected, no beacons** (`neglectsWalls` on, `raisesBeacons` off): the control of T15b.
 /// - **Outpost** (`neglectsWalls` and `forwardHabits` on): the forward bot's beacons, watchtower and Great Beacon in the
 ///   forward bot's order, but no wall built, raised or patched (T15c: beacons and the Great Beacon without walls must
-///   not beat the reference).
+///   not strengthen a realm without walls).
+/// - **Keeper** (`keeper` on; fix round 2, the critic's high H1): the walls and the reference's whole order as they are,
+///   no beacon until the Great Beacon's third stage stands; from then on the next beacon, or its relight, as soon as the
+///   purse holds its price (the reference's further steps wait while it saves for it), and the old watchtower once its
+///   stretch is held and the purse holds its price and `GorgeTuning.botReserve` besides. Reported for the build 3 join:
+///   it must hold where the reference holds, slay the King in at least 9 of 10 and hold all four by about night 16.
 ///
 /// The reference bots of T1 to T8 are untouched; these play only under the gorge rule (`Gorge.adopt`).
 struct ForwardBot: Sendable {
@@ -36,14 +41,17 @@ struct ForwardBot: Sendable {
     /// With `neglectsWalls`: buy the beacons as the forward bot does (in its order, the Great Beacon first), not first
     /// at any gold.
     var forwardHabits = false
+    /// The keeper: the Great Beacon first, then every beacon it can afford (walls kept).
+    var keeper = false
     var tally = ForwardTally()
 
     init(day: Autoplay = .reference(), neglectsWalls: Bool = false, raisesBeacons: Bool = true,
-         forwardHabits: Bool = false) {
+         forwardHabits: Bool = false, keeper: Bool = false) {
         self.day = day
         self.neglectsWalls = neglectsWalls
         self.raisesBeacons = raisesBeacons
         self.forwardHabits = forwardHabits
+        self.keeper = keeper
         if neglectsWalls {
             self.day.maxPatchesPerNight = 0
             self.day.skipsWalls = true
@@ -64,6 +72,26 @@ struct ForwardBot: Sendable {
             return
         }
         let tuning = balance.front.gorge
+        if keeper {
+            let ready = raisesBeacons && (s.beaconStage >= 3 || !day.buildsBeacon) && !wallInRubble(s)
+            var waits = false
+            if ready, let offer = Gorge.offer(s, balance: balance), offer.open {
+                if s.gold >= offer.price {
+                    order(&s, offer, balance: balance)
+                    day.thinkTimer = 0
+                } else {
+                    waits = true
+                }
+            }
+            if waits { day.thinkTimer = 1e9 } else if day.thinkTimer > 1e8 { day.thinkTimer = 0 }
+            day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
+            if ready, let offer = Gorge.watchOffer(s, balance: balance), offer.open,
+               s.gold >= offer.price + tuning.botReserve, Gorge.raiseWatchtower(&s, balance: balance) {
+                tally.watchtower = true
+                tally.watchGold += offer.price
+            }
+            return
+        }
         let saving = day.buildsBeacon && s.day >= Realm.beaconUnlockDay && s.beaconStage < 3
             && tuning.botGreatBeaconFirst
         var waits = false

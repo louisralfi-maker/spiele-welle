@@ -6,8 +6,8 @@ import XCTest
 /// at every dawn. Both are attached (`gorge-t15-report`, `gorge-idle-lockstep`). `tools/beaconsweep` plays T15 on ten
 /// seeds and the variants on the runner.
 final class GorgeTuningTests: XCTestCase {
-    /// Seeds 1 to 3: the eves of nights 12 to 14 at three budgets, and whole runs of the reference, forward, neglect and
-    /// outpost bots at the game's own nights (asserted) and at 1.5 times them (reported).
+    /// Seeds 1 to 3: the eves of nights 12 to 14 at three budgets, and whole runs of the reference, forward, neglect,
+    /// walls-neglected, outpost and keeper bots at the game's own nights (asserted) and at 1.5 times them (reported).
     private static let metrics: GorgeMetrics = GorgeTuningRun.measure(balance: .standard, seeds: 3, nights: 12...14,
                                                                       stresses: [1.0, 1.5, 2.0],
                                                                       runStresses: [1.0, 1.5])
@@ -41,12 +41,54 @@ final class GorgeTuningTests: XCTestCase {
         }
     }
 
-    /// 15c: the beacons do not replace the walls. The outpost bot (the forward bot's beacons and Great Beacon, no wall)
-    /// does not beat the reference over whole runs.
-    func testTarget15cBeaconsWithoutWallsDoNotBeatTheReference() {
+    /// 15c: the beacons do not replace the walls. Beacons do not strengthen a realm without walls: the outpost bot (the
+    /// forward bot's beacons and Great Beacon, no wall) lets at least as many creatures reach its defence on nights 3 to
+    /// 14 as the walls-neglected control without beacons (fix round 2: front-3 fix 1's comparison with the reference,
+    /// which passed only on the King's count, is reported, with the diagnosis of that count).
+    func testTarget15cBeaconsDoNotStrengthenARealmWithoutWalls() {
         let m = GorgeTuningTests.metrics
         let line = m.report.split(separator: "\n").first { $0.hasPrefix("T15c PASS") || $0.hasPrefix("T15c FAIL") } ?? ""
+        XCTAssertEqual(m.runs(.walless, stress: 1.0).count, 3, "the control is played")
         XCTAssertTrue(m.passesOutpost(stress: 1.0), String(line))
+        XCTAssertTrue(m.report.contains("T15c reported x1.0: against the reference"), "the old axis is reported")
+        XCTAssertTrue(m.report.contains("T15c diagnosis x1.0, per seed"), "the King's count is diagnosed")
+    }
+
+    /// The keeper (fix round 2, the critic's high H1; reported, the target waits for the build 3 join): it keeps the
+    /// walls and raises no beacon before the Great Beacon's third stage stands.
+    func testTheKeeperRaisesBeaconsOnlyAfterTheGreatBeacon() {
+        let m = GorgeTuningTests.metrics
+        let keepers = m.runs(.keeper, stress: 1.0)
+        XCTAssertEqual(keepers.count, 3)
+        for r in keepers {
+            if let first = r.firstHeldOn {
+                let great = r.greatBeaconDay ?? 99
+                XCTAssertGreaterThanOrEqual(first, great, "seed \(r.seed): the first beacon burns once the Great Beacon "
+                                            + "stands (day \(great)), not before")
+            }
+        }
+        XCTAssertTrue(m.report.contains("T15 keeper reported x1.0"), "the keeper's line is in the report")
+    }
+
+    /// The director's question of 05:36 (fix round 2): every defender who fell is in the table of where and to what.
+    func testEveryFallenDefenderIsPlacedInTheTable() {
+        let m = GorgeTuningTests.metrics
+        var fallen = 0
+        var placed = 0
+        for r in m.runs {
+            for n in r.nights {
+                fallen += n.fallen
+                placed += n.falls.count
+            }
+        }
+        for p in m.pairs {
+            fallen += p.bare.fallen + p.held.fallen
+            placed += p.bare.falls.count + p.held.falls.count
+        }
+        XCTAssertGreaterThan(fallen, 0)
+        XCTAssertEqual(placed, fallen, "each fallen defender once")
+        XCTAssertTrue(m.report.contains("T15a defenders lost, where and to what"))
+        XCTAssertTrue(m.report.contains("night 20 alone:"))
     }
 
     /// The wager, never a trap: over whole runs the forward bot never falls where the reference holds, slays the King at
