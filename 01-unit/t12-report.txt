@@ -1,0 +1,18 @@
+T12 PASS the grower's taxes at the dawn after night 14 over the old town's: +28.0 % (target +25 to +35 %), seeds [1, 2, 3]: ["+22.8 %", "+32.4 %", "+28.8 %"]; grower [210, 237, 219], old town [171, 179, 170]; held [14, 14, 14] (target 14); the skipper fell on [20, 20, 20] (target by night 20; 0 = held); by night 14 its hearth's lowest [100, 100, 100], its fallen [0, 0, 0]; after it, until it fell, the hearth's lowest [100, 100, 100]
+   reported: over the reference bot ["+51.1 %", "+61.2 %", "+58.7 %"] (reference [139, 147, 138]); taxes over dawns 1-14: grower [1451, 1568, 1471], old town [1311, 1383, 1336]; standing [5, 7, 5] (["village", "town", "village"]), a village on dawn [14, 14, 14], a town on dawn [0, 15, 0] (0 = not yet); fallen: grower [1, 1, 0], old town [0, 1, 2]
+
+seed 1, dawn by dawn: taxes grower / old town / reference, the grower's standing
+  night 1: 49 / 49 / 49, citizens 15 / 15 / 15, gold 70 / 70, buildings 3
+  night 2: 61 / 61 / 61, citizens 16 / 16 / 16, gold 91 / 91, buildings 4
+  night 3: 61 / 61 / 61, citizens 16 / 16 / 16, gold 70 / 70, buildings 7
+  night 4: 50 / 50 / 50, citizens 17 / 17 / 17, gold 58 / 58, buildings 8
+  night 5: 67 / 62 / 62, citizens 18 / 18 / 18, gold 75 / 95, buildings 10
+  night 6: 79 / 69 / 69, citizens 20 / 20 / 20, gold 104 / 79, buildings 11
+  night 7: 85 / 75 / 75, citizens 21 / 21 / 21, gold 114 / 89, buildings 11
+  night 8: 93 / 77 / 77, citizens 23 / 23 / 23, gold 102 / 111, buildings 12
+  night 9: 95 / 85 / 85, citizens 26 / 26 / 26, gold 112 / 121, buildings 12
+  night 10: 111 / 101 / 115, citizens 28 / 28 / 28, gold 148 / 137, buildings 12
+  night 11: 142 / 132 / 132, citizens 30 / 30 / 28, gold 160 / 139, buildings 14
+  night 12: 170 / 150 / 134, citizens 32 / 32 / 28, gold 230 / 169, buildings 14
+  night 13: 178 / 168 / 135, citizens 34 / 32 / 28, gold 234 / 287, buildings 14
+  night 14: 210 / 171 / 139, citizens 36 / 32 / 28, gold 244 / 243, buildings 14
