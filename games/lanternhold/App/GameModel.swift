@@ -362,7 +362,10 @@ final class GameModel {
         // HUD.md section 2 (stage-3-interface): the app going to the background raises the lantern by itself; the
         // pause sheet only where the moment cannot stand (no frame drawn yet).
         if lanternMoment != nil { return }
+        // Stage-3-interface fix round 1: a moment the app raised by itself teaches nothing; the lord's hint stays due.
+        let learnt = touch.momentRaised
         openLanternMoment()
+        touch.momentRaised = learnt
         if lanternMoment == nil { setOverlay(.pause) }
     }
 
