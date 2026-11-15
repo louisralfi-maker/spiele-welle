@@ -164,6 +164,7 @@ final class TouchUITests: XCTestCase {
         if waitForThing(app, "touch-throne", timeout: 1) == nil {
             element(app, "world-scene").coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: 0.95)).tap()
         }
+        waitForStill(app)
         guard let throne = waitForThing(app, "touch-throne", timeout: 10) else {
             XCTFail("no mark at the throne")
             app.terminate()

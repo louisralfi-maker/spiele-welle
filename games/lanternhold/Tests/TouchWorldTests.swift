@@ -228,6 +228,17 @@ final class TouchWorldTests: XCTestCase {
         XCTAssertNotNil(german("%lld gold"))
     }
 
+    /// The director's note of 14.11. 22:17: the atlas's row count in every step report (the seventh mark, `tapDoor`,
+    /// joined it in this step).
+    func testTheAtlasStillFitsOnePage() {
+        let layout = AtlasBuilder.build(bundle: .main)
+        XCTAssertLessThanOrEqual(layout.height, AtlasLayout.maxSide)
+        let attachment = XCTAttachment(string: "atlas: \(layout.width) x \(layout.height) of \(AtlasLayout.maxSide)")
+        attachment.name = "atlas-rows"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
     // MARK: - What offers something
 
     func testTheWorldOffersSitesTheBarracksAndTheDoorByDay() {

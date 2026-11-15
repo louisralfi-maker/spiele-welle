@@ -15,6 +15,26 @@ extension XCTestCase {
         return thing.waitForExistence(timeout: timeout) ? thing : nil
     }
 
+    /// Waits until the lord stands still (`lx:` unchanged for 0.8 s), so a thing's element is where it is drawn when
+    /// the test taps it (while he walks the camera follows him and an element read a moment earlier lies off by then).
+    @discardableResult
+    func waitForStill(_ app: XCUIApplication, timeout: TimeInterval = 15) -> Bool {
+        let started = Date()
+        var last = sceneField(app, "lx:")
+        var since = Date()
+        while Date().timeIntervalSince(started) < timeout {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+            let now = sceneField(app, "lx:")
+            if now != last {
+                last = now
+                since = Date()
+            } else if Date().timeIntervalSince(since) >= 0.8 {
+                return true
+            }
+        }
+        return false
+    }
+
     /// The scene's value field `key` ("lx:", "errand:") as text, nil when it is missing.
     func sceneField(_ app: XCUIApplication, _ key: String) -> String? {
         let scene = app.descendants(matching: .any).matching(identifier: "world-scene").firstMatch

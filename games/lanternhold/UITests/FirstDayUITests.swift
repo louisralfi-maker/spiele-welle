@@ -101,7 +101,10 @@ final class FirstDayUITests: XCTestCase {
         }
         XCTAssertTrue(waitForField(app, "stage:hall", timeout: 14), "in the great hall")
         pause(0.4)
-        if let throne = waitForThing(app, "touch-throne", timeout: 8) {
+        // From the door the throne is out of view: a tap on the floor at the screen's right walks him up the nave.
+        scene.coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: 0.95)).tap()
+        waitForStill(app)
+        if let throne = waitForThing(app, "touch-throne", timeout: 12) {
             touchThing(throne)
             let audience = element(app, "audience-root")
             if audience.waitForExistence(timeout: 20) {

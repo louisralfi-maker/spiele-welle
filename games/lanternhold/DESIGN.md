@@ -627,7 +627,9 @@ Touch the ground and he walks there. Drag and he walks as before.
 
 - **A bench is one target.** The seated sit 11 px apart, too close for a finger.
 - **The marks:** over every thing in view that offers something, at most four, the nearest to the lord first (the
-  errand's thing always among them); of a row of damaged walls only the nearest carries one. Drawn unlit; at night at
+  errand's thing always among them); at most two of them over building sites, and a site's only while the treasury
+  can pay something on its card (the first sweep: four hammers in a row at the gate read as the banner posts they
+  replaced); of a row of damaged walls only the nearest carries one; a tag that would overlap a nearer one gives way. Drawn unlit; at night at
   three quarters of their value and warmed (M11). A pool of warm light (radius 20, 0.7) at the thing's feet, a scene
   light that only shows after dusk. No rim yet (the spec's gold outline is open). Nothing bobs or blinks. The old
   speech marks and the throne's pulsing mark are gone in the game.
@@ -3469,7 +3471,7 @@ plot markers no longer drawn, M6).
   `GameModel.target` and `performAction()` stay as the model's "what is in reach" for the unit tests; an errand that
   arrives calls `perform(_:)` with the thing's own act.
 - **M6:** the four blue banner posts (the plot markers) are gone; an open plot shows `tapBuild` only while its card
-  offers something and it is open.
+  offers something the treasury can pay, at most two sites marked at once.
 - **M9:** the bubble stands over the speaker's head (300 pt at most, its tail on him) and names him; the separate name
   slip went with the button. A bench's first in line speaks his line from his seat (`TalkBubble.nameText`).
 - **M11:** at night the marks draw at three quarters of their value, warmed; at most four in view, the nearest first; a
@@ -3484,8 +3486,9 @@ plot markers no longer drawn, M6).
   at night), the flame shows the danger (picture only). The tap on the lord stays free for stage-3's lantern moment.
 - **The stage-1 critic's four highs:** the near pillar's key band 6 px wide, soft both ways, on the pier's lower part
   only (a height ramp; the rims too); the inner door stands open for 0.45 s after he came in and while he goes out
-  (the leaf, the bailey's dark, a sliver of cold light; no new sprite); Odile's counsel inside the letter under the
-  request (never over the canopy); while an audience runs whoever stands within 28 px of the petitioner's place steps
+  (the leaf, the bailey's dark, a sliver of cold light; no new sprite; proof `131d-hall-door-open` with the change ten
+  times slower); Odile's counsel in the letter's head beside the name, where the Counsel button was (under the request
+  the long letters cut it off at the letter's foot: round lh-s2-2's 134); while an audience runs whoever stands within 28 px of the petitioner's place steps
   out toward the nave (`HallCourt.clearingTheFloor`; Pip at the foot of the steps was the one).
 - **Strings** (English and German, the director's note of 14.11. 19:19): Story.xcstrings `touch.first`,
   `touch.bench.wait|sit|far`; Localizable "Sit on the throne", "Repair the wall", "%lld gold", the two arrivals, "Walk
