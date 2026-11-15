@@ -667,3 +667,11 @@ schneller geht."
   - My note to the join (15:35): `revealTo` 260 -> 300, so the ellipse passes the corners (282 from the flame) by itself and nothing pops when the mask drops; one Title round now, frame 00d to the desk. That frame, not the painter's proof, is the picture Louis gets.
   - Lesson: a lane that keeps its art outside `Resources/` needs the copy named in the merge note. The join did it unasked this time; say it in the brief next time.
   - Running at 15:35: lh-s3f1-5 (stage), lh-rj-14 and lh-rj-15 (join), the world's fix round 2 (uncommitted work on the beacon, the castle front and the clouds).
+- **The stage's fix round 1 is green; the lady's portrait is closed from my side (15.11.2026, 15:55).**
+  - Round lh-s3f1-5 on 7c397e5: `ALL PASSED`, checked by me (build, the unit tests, 13 UI tests in Touch, FirstDay, Hall, Audience, Lord, Polish, Look2). Head `claude/lh-stage` 9c37df8 (docs on top), report `ci-out/director/stage-3-interface-fix1.md`.
+  - My look at 91, 97, 157b, 162 and a close crop of the portraits: the lady is her own person (braid crown, wine gown, turned to the lord); the reaction as a face with +1, the hint on glass, the strip's tags and the gear's disc are right.
+  - For pass 4 after build 2: portrait finesse (the lord reads young and soft, the lady's jaw is heavy).
+  - The lane did not read my 15:26 note before it ended: its 44 pt checks still allow 43.5. The join already carries the checks to the hundredth (622244c) and keeps them; the one assertion for the touch rule goes to the join too.
+  - Orders: the join merges 9c37df8 now and sends its gate on the merged head at once, with the Title class folded in (no Title round of its own). The stage's critic takes its second look; a fix round 2 only on a blocker, 60 minutes, one gate.
+  - The world's fix round 2: two unbuilt commits (db5b8d9 the buttress and the critic's list, 1001351 the cubes at the Throat's end), round lh-w3f2-1 sent 15:40.
+  - Louis got the name entry frame (91) at 15:55: the lady was his own complaint.
