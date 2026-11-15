@@ -191,7 +191,9 @@ final class HallUITests: XCTestCase {
             XCTFail("no door")
             return
         }
-        touchThing(door)
+        // Fix lane D (player-first-2): the lord stands in the doorway and his whole figure now takes the door's
+        // middle (a touch there stills the world), so the touch goes to the door above his head.
+        door.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)).tap()
         XCTAssertTrue(waitForField(app, "stage:hall", timeout: 3), "a cut")
         pause(0.6)
         attach(XCUIScreen.main.screenshot(), "145-hall-reduce-motion-\(language)")
@@ -207,7 +209,9 @@ final class HallUITests: XCTestCase {
         slow.launch()
         if waitUntilReady(slow, name: "hall-dark") {
             if let door = waitForThing(slow, "touch-door-hall", timeout: 8) {
-                touchThing(door)
+                // Fix lane D (player-first-2): he stands in the doorway, so above his head (his figure takes the
+                // door's middle).
+                door.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)).tap()
                 // The door opens for 2.2 s, the dark comes over 1.6 s: half dark about 3 s after the touch.
                 pause(2.9)
                 attach(XCUIScreen.main.screenshot(), "131a-hall-dark-\(language)")
