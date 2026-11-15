@@ -723,3 +723,12 @@ schneller geht."
     records and the report.
   - **Lesson:** an agent that ends its turn while its round runs is finished; a background job does not wake it. Every
     brief must say: wait in a foreground until-loop, and the report file is the end of the task.
+- **The interface passes for build 2; the world's look 3 failed and a timed fix round 3 runs (15.11.2026, 17:46).**
+  - Stage fix round 2 (origin `claude/lh-stage` 3d00e5c, gate lh-s3f2-1): the director's own look at 163, 91, 96, 42, 41, 48, 152 and 157 closes all five highs of the critic's second look.
+    - The horn is words. The plaques stand clear of the home bar. Broken facts stand one a line. Day 1 shows one slip at the top centre. The lord is a young man with a thin circlet in the hair.
+    - After build 2: the play glyph's stairs, the lord a little older, full stops on facts that break (41 has none).
+  - The rebuild workflow has ended (34 agents). Its join agent stood down on the note, as ordered.
+  - The world's look 3 (`world-3-camera-pass-critic3.md`): fail, 7/10. Blockers: the beacon ruin at night (a flat grey that skips the night grade, ruled courses, the bowl reads as a hat) and the gate rocks at the front gate (navy shadow pockets, a pale cut line). Nine highs.
+  - Decision: a timed fix round 3 as the director's own Opus agent: blockers 1 and 2, highs 1, 3, 6, 8, 9, and high 5 only before 19:00. Gate round by 19:10 (lh-w3f3-1); report `world-3-camera-pass-fix3.md`. After build 2: highs 2, 4, 7.
+  - The join sends its gate on the stage's delta now. D waits for the world's fix-3 delta and one more gate, so D moves from about 20:30 to about 21:15.
+  - Quota: 51 % of the week.
