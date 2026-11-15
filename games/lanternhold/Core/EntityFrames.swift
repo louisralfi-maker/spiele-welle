@@ -1046,7 +1046,7 @@ enum EntityFrames {
         if look == .two {
             let hearth = max(0, min(1, s.hearth / max(1, balance.hearthStrength)))
             PeopleCast.townLife(s, time: time, context: TownLife.Context(reduceMotion: reduceMotion, hearth: hearth)) {
-                add($0.sprite, frame: $0.frame, x: $0.x, y: 0, flipped: $0.flipped, emissive: $0.emissive)
+                add($0.sprite, frame: $0.frame, x: $0.x, y: $0.y, flipped: $0.flipped, emissive: $0.emissive)
             }
         } else if isDay {
             townsfolk(s, time: time, look: look) { sprite, frame, x, y, flipped in
@@ -1055,7 +1055,9 @@ enum EntityFrames {
         }
 
         // Builders walking to their work and hammering (spread across the scaffold by their number, M2b review: three
-        // at one x read as one brown cluster), the idle ones side by side at the lodge, every second one turned.
+        // at one x read as one brown cluster), the idle ones side by side at the lodge, every second one turned. Look 2:
+        // past a noble's coach they keep to the near side of the road, never through its footman (`TownLife.lane`).
+        let berth = look == .two ? TownLife.berthZone(s) : nil
         for (index, builder) in s.builders.enumerated() {
             var x = builder.x
             var frame = 0
@@ -1084,7 +1086,7 @@ enum EntityFrames {
                     flipped = drawn < x
                 }
             }
-            add(.builder, frame: frame, x: x, y: 0, flipped: flipped)
+            add(.builder, frame: frame, x: x, y: TownLife.lane(at: x, berth), flipped: flipped)
         }
 
         // Creatures: lit, the body and its glow; unlit, the glow over a body at a very low value with a moonlight rim.

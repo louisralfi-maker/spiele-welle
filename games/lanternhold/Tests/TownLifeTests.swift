@@ -6,9 +6,11 @@ import XCTest
 /// house its household and nobody twice; the farmers out at first light and home before the horn at a tired pace;
 /// Wenna at the well and in her doorway at the horn; Old Hemmet on the bench; whoever stands still turns to the lord
 /// or, below 30 happiness, away; the children out from 45 happiness (Fen too from 80), at their game clear of Wenna,
-/// one trailing the lord a few steps, home at the horn, never out at night; the noble's coach on a noble's day and the
-/// townsfolk wide of it; the collector's round back by noon; the lamplighter's round with the last lantern at the
-/// horn, dark streets in unrest or with the hearth out; Reduce Motion removes nobody; the town holds its frame rate.
+/// one trailing the lord a few steps, home at the horn, never out at night; the noble's coach on a noble's day, the
+/// passers-by stopped at the berth's edge and everyone who must pass it on the near side of the road, never through the
+/// footman; the collector's round of every door at a cart's pace, back in the early afternoon; the lamplighter's round
+/// at an old man's pace with the last lantern at the horn, dark streets in unrest or with the hearth out; Reduce
+/// Motion removes nobody; the town's figure count stays small (the frame rate itself is measured at the join).
 final class TownLifeTests: XCTestCase {
     private let quiet = TownLife.Context(cloth: .hamlet, reduceMotion: false, hearth: 1, collectorOut: false,
                                         nobleDue: false)
@@ -237,17 +239,26 @@ final class TownLifeTests: XCTestCase {
         XCTAssertEqual(coach.x, TownHouseholds.townGateX, "at the gate from the morning")
         let span = try XCTUnwrap(TownLife.coachSpan(day(9), context: noble))
         let footman = try XCTUnwrap(TownLife.footman(day(9), time: 1, context: noble))
-        XCTAssertEqual(footman.x, span.upperBound + 9, "the footman beside it")
+        XCTAssertEqual(footman.x, span.upperBound + TownLife.footmanGap, "the footman beside it")
         XCTAssertNil(TownLife.coachSpan(day(20), context: noble), "gone by the night")
+        let zone = TownLife.berthZone(around: span)
+        XCTAssertEqual(zone.upperBound, footman.x + TownLife.berth, "the berth runs past the footman")
         let brede = try XCTUnwrap(TownLife.routes(day(9), coach: span).first { $0.body == .labourer })
-        XCTAssertEqual(brede.spot, span.upperBound + TownLife.berth, "Brede stops short of it and looks")
+        XCTAssertEqual(brede.spot, zone.upperBound, "Brede stops short of it")
+        XCTAssertEqual(brede.lookAt, span.upperBound, "and looks at it")
         for step in 0..<2000 {
             let s = day(7 + Double(step) * 0.005)
             for walker in TownLife.walkers(s, time: 1, context: noble, coach: span) {
-                XCTAssertFalse((span.lowerBound - TownLife.berth + 0.5...span.upperBound + TownLife.berth - 0.5)
-                    .contains(walker.x), "\(walker.sprite) keeps wide of the coach at \(s.hour)")
+                XCTAssertFalse((zone.lowerBound + 0.5...zone.upperBound - 0.5).contains(walker.x),
+                               "\(walker.sprite) keeps wide of the coach and the footman at \(s.hour)")
             }
         }
+        // Stopped at the berth's edge he faces the coach (the lord far off), and turns to the lord when he comes.
+        let staring = try XCTUnwrap(TownLife.walkers(day(10.3, lord: 2560), time: 1, context: noble, coach: span)
+            .first { $0.sprite == .labourer })
+        XCTAssertEqual(staring.x, zone.upperBound, accuracy: 0.01, "10.3: Brede at the berth's edge")
+        XCTAssertTrue(staring.flipped, "looking at the coach")
+        XCTAssertTrue(PeopleCast.Frames.idle.contains(staring.frame))
         // The court decides the day: a noble petition in today's queue.
         var s = day(9)
         var court = s.court ?? CourtState()
@@ -265,30 +276,67 @@ final class TownLifeTests: XCTestCase {
         XCTAssertTrue(PetitionCatalog.standard.petitions.contains { TownLife.nobleSpeakers.contains($0.speaker) })
     }
 
+    func testEveryoneWhoMustPassTheCoachKeepsToTheNearSideOfTheRoad() throws {
+        let busy = TownLife.Context(cloth: .hamlet, reduceMotion: false, hearth: 1, collectorOut: true, nobleDue: true)
+        let span = try XCTUnwrap(TownLife.coachSpan(day(9), context: busy))
+        let zone = TownLife.berthZone(around: span)
+        let footmanX = span.upperBound + TownLife.footmanGap
+        var passed: Set<SpriteID> = []
+        for step in 0..<6000 {
+            let s = day(5 + Double(step) * 0.0025, happiness: 90, lord: 2300)
+            for figure in TownLife.figures(s, time: 1, context: busy) where figure.sprite != .footman {
+                XCTAssertEqual(figure.y, TownLife.lane(at: figure.x, zone), accuracy: 1e-9)
+                if abs(figure.x - footmanX) < TownLife.berth - TownLife.laneEase {
+                    XCTAssertEqual(figure.y, -TownLife.laneDepth, accuracy: 1e-9,
+                                   "\(figure.sprite) passes in front of the footman at \(s.hour), never through him")
+                    passed.insert(figure.sprite)
+                }
+                if !zone.contains(figure.x) { XCTAssertEqual(figure.y, 0, "\(figure.sprite) on the lane") }
+            }
+        }
+        XCTAssertTrue(passed.isSuperset(of: [.collector, .lamplighter]), "the collector and the lamplighter pass it")
+        XCTAssertEqual(TownLife.lane(at: zone.lowerBound, zone), 0, "at the edge still on the lane")
+        XCTAssertEqual(TownLife.lane(at: zone.lowerBound + TownLife.laneEase / 2, zone), -TownLife.laneDepth / 2,
+                       accuracy: 1e-9, "the step out is a walk")
+        XCTAssertEqual(TownLife.lane(at: footmanX, nil), 0, "no coach, no detour")
+        XCTAssertNil(TownLife.berthZone(day(9), context: quiet), "the builders walk the lane on an ordinary day")
+        XCTAssertEqual(TownLife.berthZone(day(9), context: busy), zone, "and keep the berth on a noble's day")
+        XCTAssertNil(TownLife.footman(day(9), time: 1, context: quiet))
+    }
+
     // MARK: - The collector
 
-    func testTheCollectorWalksEveryDoorAndIsBackByNoon() throws {
+    func testTheCollectorWalksEveryDoorAtACartsPaceAndIsBackInTheAfternoon() throws {
         let out = TownLife.Context(cloth: .hamlet, reduceMotion: false, hearth: 1, collectorOut: true, nobleDue: false)
         XCTAssertNil(TownLife.collector(day(8), time: 1, context: quiet), "not in service")
         XCTAssertNil(TownLife.collector(day(5.9), time: 1, context: out), "out at the dawn")
+        XCTAssertLessThanOrEqual(TownLife.collectorPace, 18, "a one-armed man pushing a cart: a heavy step")
+        XCTAssertLessThan(TownLife.collectorPace, TownLife.farmerSpeed + 2.01)
         let doors = TownLife.collectorDoors(day(8))
         XCTAssertEqual(doors.count, 4)
+        let hours = TownLife.collectorHours(day(8))
+        XCTAssertLessThan(hours.turn, 10.5, "the farthest door by about half past ten")
+        XCTAssertLessThan(hours.back, 15, "back at his post in the early afternoon")
         var visited = Set<Double>()
-        var previous = TownLife.collectorPost
-        for step in 0..<1800 {
-            let hour = 6 + Double(step) * 0.0033
+        var previous: (hour: Double, x: Double)?
+        for step in 0..<3000 {
+            let hour = 6 + Double(step) * 0.003
             guard let saul = TownLife.collector(day(hour), time: 1, context: out) else { continue }
-            if hour < TownLife.collectorTurn {
-                XCTAssertGreaterThanOrEqual(saul.x, previous - 0.001, "outward until the turn")
+            if hour < hours.turn {
+                if let p = previous { XCTAssertGreaterThanOrEqual(saul.x, p.x - 0.001, "outward until the turn") }
                 if PeopleCast.Frames.take.contains(saul.frame) { visited.insert(saul.x) }
             }
-            previous = saul.x
+            if let p = previous {
+                let speed = abs(saul.x - p.x) / ((hour - p.hour) * DayClock.secondsPerHour)
+                XCTAssertLessThanOrEqual(speed, TownLife.collectorPace + 0.001, "never faster than his cart at \(hour)")
+            }
+            previous = (hour: hour, x: saul.x)
         }
         XCTAssertEqual(visited, Set(doors), "the coins taken at every door")
-        let turn = try XCTUnwrap(TownLife.collector(day(TownLife.collectorTurn + 0.001), time: 1, context: out))
+        let turn = try XCTUnwrap(TownLife.collector(day(hours.turn + 0.001), time: 1, context: out))
         XCTAssertEqual(turn.x, doors.last ?? 0, accuracy: 1)
-        let back = try XCTUnwrap(TownLife.collector(day(12.2), time: 1, context: out))
-        XCTAssertEqual(back.x, TownLife.collectorPost, "back at his post by noon")
+        let back = try XCTUnwrap(TownLife.collector(day(hours.back + 0.01), time: 1, context: out))
+        XCTAssertEqual(back.x, TownLife.collectorPost, "back at his post")
         XCTAssertTrue(PeopleCast.Frames.idle.contains(back.frame))
         XCTAssertNil(TownLife.collector(day(19.2), time: 1, context: out), "off at the horn")
     }
@@ -301,7 +349,10 @@ final class TownLifeTests: XCTestCase {
         let lit = posts.indices.map { TownLamps.litHour($0) }
         XCTAssertEqual(lit, lit.sorted(), "down the road one by one")
         XCTAssertEqual(lit.last ?? 0, ClockEvent.horn.hour, accuracy: 1e-9, "the last as the horn sounds")
-        XCTAssertGreaterThan(TownLamps.eveningStart, 12, "he walks when the day is ending")
+        XCTAssertLessThanOrEqual(TownLamps.pace, 16, "an old man's heavy step, never the lord's")
+        let morningEnd = TownLamps.morningStart
+            + TownLamps.morning.reduce(0) { $0 + $1.seconds } / DayClock.secondsPerHour
+        XCTAssertGreaterThan(TownLamps.eveningStart, morningEnd, "the evening's round starts after the morning's ends")
         let out = posts.indices.map { TownLamps.snuffHour($0) }
         XCTAssertEqual(out, out.sorted(by: >), "snuffed walking back toward the castle")
         XCTAssertGreaterThan(out.min() ?? 0, ClockEvent.firstLight.hour)
@@ -350,8 +401,19 @@ final class TownLifeTests: XCTestCase {
         let morning = day((TownLamps.snuffHour(3) + TownLamps.snuffHour(2)) / 2)
         XCTAssertEqual(TownLamps.lamplighter(morning, time: 1, context: lamp).map(\.sprite), [.lamplighter])
         XCTAssertTrue(TownLamps.lamplighter(day(18, happiness: 10), time: 1, context: lamp).isEmpty, "not in unrest")
-        XCTAssertTrue(TownLamps.lamplighter(day(12), time: 1, context: lamp).isEmpty, "at home at noon")
-        let frames = Set(stride(from: TownLamps.eveningStart, to: 19.5, by: 0.002).compactMap {
+        XCTAssertTrue(TownLamps.lamplighter(day(10.6), time: 1, context: lamp).isEmpty, "in the castle between rounds")
+        // His walk never outpaces an old man's step.
+        var previous: (hour: Double, x: Double)?
+        for step in 0..<4000 {
+            let hour = 5 + Double(step) * 0.0035
+            guard let pose = TownLamps.pose(day(hour), context: lamp) else { previous = nil; continue }
+            if let p = previous {
+                let speed = abs(pose.x - p.x) / ((hour - p.hour) * DayClock.secondsPerHour)
+                XCTAssertLessThanOrEqual(speed, TownLamps.pace + 0.001, "at \(hour)")
+            }
+            previous = (hour: hour, x: pose.x)
+        }
+        let frames = Set(stride(from: TownLamps.eveningStart, to: 19.5, by: 0.001).compactMap {
             TownLamps.pose(day($0), context: lamp)?.frame
         })
         XCTAssertTrue(frames.isSuperset(of: [0, 1, 2, 3, 6, 7, 10, 11]))
@@ -391,7 +453,9 @@ final class TownLifeTests: XCTestCase {
         }
     }
 
-    func testTheTownHoldsItsFrameRateWithEveryoneOut() {
+    /// A count of figures and actor quads, not a frame time: the frame time of the rebuilt town is measured on a device
+    /// at the join (the critic of people-2).
+    func testTheTownsFigureCountStaysSmallWithEveryoneOut() {
         let busy = TownLife.Context(cloth: .hamlet, reduceMotion: false, hearth: 1, collectorOut: true, nobleDue: true)
         var most = 0
         for hour in stride(from: 0.0, to: 24, by: 0.05) {
@@ -435,27 +499,52 @@ final class TownLifeTests: XCTestCase {
         XCTAssertEqual(play.first { $0.sprite == .childB }?.frame, PeopleCast.Frames.stickRaise, "72: Wren winds up")
         let fen = try XCTUnwrap(play.first { $0.sprite == .childC })
         XCTAssertEqual(fen.x, 2850 + TownLife.trailGap * tanh(70 / 20), accuracy: 0.01, "72: Fen at the lord's heels")
-        // 73: the horn: Wenna calling from her doorway, the children running home.
-        let dusk = TownLife.figures(day(19.08, happiness: 85, lord: 2880), time: 1, context: quiet)
-        XCTAssertTrue(dusk.contains { $0.sprite == .washerwoman && PeopleCast.Frames.call.contains($0.frame) })
-        XCTAssertTrue(dusk.contains { PeopleCast.children.contains($0.sprite) && PeopleCast.Frames.run.contains($0.frame) })
-        XCTAssertGreaterThan(TownLamps.share(2, s: day(19.08), hearth: 1, reduceMotion: false), 0, "73: the lanterns lit")
-        // 74: the coach and the footman.
-        XCTAssertNotNil(TownLife.footman(day(10), time: 1, context: lamp), "74: the footman by the coach")
+        // 73: home before the horn: Gorm and Hedda carry the harvest past the lord at a tired pace, one on either side
+        // of him and clear of him; the children still out.
+        let homeward = TownLife.figures(day(18.0, happiness: 85, lord: 2760), time: 1, context: quiet)
+        let carrying = homeward.filter { [SpriteID.farmerHoe, .farmerScythe].contains($0.sprite) }
+        XCTAssertEqual(carrying.count, 2)
+        XCTAssertTrue(carrying.allSatisfy { PeopleCast.Frames.carry.contains($0.frame) && !$0.flipped },
+                      "73: both carrying the harvest home")
+        XCTAssertTrue(carrying.contains { $0.x < 2760 - 20 } && carrying.contains { $0.x > 2760 + 20 },
+                      "73: past the lord on either side, clear of him")
+        XCTAssertGreaterThanOrEqual(homeward.filter { PeopleCast.children.contains($0.sprite) }.count, 2,
+                                    "73: the children still out")
+        // 74: the coach and the footman, Brede stopped at the berth's edge looking at it (the lord 49 px off).
+        XCTAssertNotNil(TownLife.footman(day(10.3), time: 1, context: lamp), "74: the footman by the coach")
+        let coach = try XCTUnwrap(TownLife.coachSpan(day(10.3), context: lamp))
+        let brede = try XCTUnwrap(TownLife.figures(day(10.3, lord: 2520), time: 1, context: lamp)
+            .first { $0.sprite == .labourer })
+        XCTAssertEqual(brede.x, TownLife.berthZone(around: coach).upperBound, accuracy: 0.01, "74: Brede at the edge")
+        XCTAssertTrue(brede.flipped, "74: looking at the coach")
         // 75: the last lantern takes the flame as the horn sounds.
         let pose = try XCTUnwrap(TownLamps.pose(day(19.003), context: lamp))
         XCTAssertEqual(pose.frame, PeopleCast.Frames.reachLight.upperBound, "75: the wick at the glass")
         XCTAssertTrue(pose.burning)
         XCTAssertGreaterThan(TownLamps.share(3, s: day(19.003), hearth: 1, reduceMotion: false), 1, "75: the flare")
         // 76: the collector's hand out at the Ashbys' door.
-        let saul = try XCTUnwrap(TownLife.collector(day(8.15), time: 1, context: lamp))
+        let saul = try XCTUnwrap(TownLife.collector(day(8.66), time: 1, context: lamp))
         XCTAssertEqual(saul.x, TownHouseholds.door(plot: 3))
         XCTAssertEqual(saul.frame, PeopleCast.Frames.take.lowerBound, "76: the hand held out")
         // 77: the bow to the Eternal Light, the wick burning, the lord in the hall.
-        let hall = day(15.02, lord: 1846)
+        let hall = day(11.797, lord: 1846)
         let bow = try XCTUnwrap(TownLamps.pose(hall, context: lamp))
         XCTAssertEqual(bow.frame, PeopleCast.Frames.hearth.upperBound)
         XCTAssertTrue(bow.burning)
         XCTAssertTrue(TownLife.figures(hall, time: 1, context: lamp).contains { $0.sprite == .lamplighterGlow })
+        // 78: the horn: Wenna calling from her doorway, the children running home, the lanterns lit.
+        let dusk = TownLife.figures(day(19.08, happiness: 85, lord: 2880), time: 1, context: quiet)
+        XCTAssertTrue(dusk.contains { $0.sprite == .washerwoman && PeopleCast.Frames.call.contains($0.frame) })
+        XCTAssertTrue(dusk.contains { PeopleCast.children.contains($0.sprite) && PeopleCast.Frames.run.contains($0.frame) })
+        XCTAssertGreaterThan(TownLamps.share(2, s: day(19.08), hearth: 1, reduceMotion: false), 0, "78: the lanterns lit")
+        // 79: a sullen town (25): the farmers on either side of the lord work on with their backs to him.
+        let sullen = TownLife.figures(day(11.0, happiness: 25, lord: 2679), time: 1, context: quiet)
+            .filter { [SpriteID.farmerHoe, .farmerScythe].contains($0.sprite) }
+        XCTAssertEqual(sullen.count, 2)
+        for farmer in sullen {
+            XCTAssertTrue((6...9).contains(farmer.frame), "79: working on")
+            XCTAssertEqual(farmer.flipped, farmer.x < 2679, "79: the back to the lord")
+        }
+        XCTAssertTrue(TownLife.children(day(11.0, happiness: 25), time: 1, context: quiet).isEmpty, "79: no child out")
     }
 }

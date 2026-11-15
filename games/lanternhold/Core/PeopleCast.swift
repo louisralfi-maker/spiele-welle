@@ -205,13 +205,15 @@ enum PeopleCast {
 
     // MARK: - Life in the town (look 2)
 
-    /// One figure: the body, its frame, its feet's world x, mirrored (facing left); a glow strip is `emissive`.
+    /// One figure: the body, its frame, its feet's world x, mirrored (facing left); a glow strip is `emissive`; `y` is
+    /// below 0 on the near side of the road (passing a noble's coach, `TownLife.lane`).
     struct Figure: Sendable, Equatable {
         var sprite: SpriteID
         var frame: Int
         var x: Double
         var flipped: Bool
         var emissive = false
+        var y = 0.0
     }
 
     /// The column of a frame its feet stand on (from the frame's left edge, facing right): the middle for every body

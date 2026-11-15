@@ -42,14 +42,21 @@ enum TownLife {
 
     /// `-GWCollector YES` (screenshots and UI tests until the join wires the town lane's collector): he walks today.
     static let launchCollector: Bool = UserDefaults.standard.bool(forKey: "GWCollector")
-    /// `-GWCoach YES` (screenshots): the noble's coach stands at the gate whatever the court's queue says.
-    static let launchCoach: Bool = UserDefaults.standard.bool(forKey: "GWCoach")
+    /// `-GWCoach YES` (screenshots): the noble's coach stands at the gate whatever the court's queue says; `-GWCoach NO`
+    /// keeps it away (the demo realm has a noble due on day 12, so the shots of an ordinary day need it); nil without
+    /// the argument (the court's queue decides).
+    static let launchCoach: Bool? = {
+        guard let value = UserDefaults.standard.string(forKey: "GWCoach")?.lowercased() else { return nil }
+        return ["yes", "true", "1"].contains(value)
+    }()
 
     // MARK: - Everyone
 
     /// Everyone out in the town now, in drawing order (later ones in front): the passers-by, the farmers, Wenna,
     /// Hemmet, the footman, the collector, the lamplighter, the children. Feet x; `PeopleCast.townLife` dresses the
-    /// bodies and places the frames. Nobody inside a castle room the lord is not in (the room's front hides them).
+    /// bodies and places the frames. Nobody inside a castle room the lord is not in (the room's front hides them). On a
+    /// noble's day whoever must pass the coach and its footman steps out to the near side of the road (`lane`), in
+    /// front of them and never through the footman; the passers-by stop at the berth's edge.
     static func figures(_ s: GameState, time: Double, context: Context = Context()) -> [Figure] {
         let coach = coachSpan(s, context: context)
         var list: [Figure] = []
@@ -61,6 +68,11 @@ enum TownLife {
         if let saul = collector(s, time: time, context: context) { list.append(saul) }
         list += TownLamps.lamplighter(s, time: time, context: context)
         list += children(s, time: time, context: context)
+        if let zone = coach.map({ berthZone(around: $0) }) {
+            for index in list.indices where list[index].sprite != .footman {
+                list[index].y = lane(at: list[index].x, zone)
+            }
+        }
         return list.filter { isSeen($0.x, s) }
     }
 
@@ -223,7 +235,9 @@ enum TownLife {
         let home = since(washHome, s)
         if home < 0 {
             if let greet = greeting(s, at: washerX) {
-                return Figure(sprite: .washerwoman, frame: Frames.idle.lowerBound, x: washerX, flipped: greet.flipped)
+                // She straightens from the linen and turns to the lord; below 30 she wrings on with her back to him.
+                let frame = greet.greets ? Frames.idle.lowerBound : wringFrame(time: time, context: context)
+                return Figure(sprite: .washerwoman, frame: frame, x: washerX, flipped: greet.flipped)
             }
             return Figure(sprite: .washerwoman, frame: wringFrame(time: time, context: context), x: washerX,
                           flipped: true)
@@ -272,8 +286,36 @@ enum TownLife {
     /// the horn.
     static let walkersOut = 7.0
     static let walkersIn = 18.5
-    /// How far the townsfolk keep from the noble's coach (px past its ends).
+    /// How far the townsfolk keep from the noble's coach and its footman (px short of the coach's castle end and past
+    /// the footman): the berth zone (`berthZone`). Who has no business there (a passer-by) stops at its edge and looks
+    /// at the coach; who must pass it (the builders, the collector, the lamplighter: the town's one road runs past the
+    /// gate) steps out to the near side of the road and passes in front of the coach's people (`lane`).
     static let berth = 30.0
+    /// The near side of the road: this many game px lower (toward the player), reached over `laneEase` px inside the
+    /// zone, so the step out is a walk, not a jump.
+    static let laneDepth = 4.0
+    static let laneEase = 10.0
+    /// A passer-by stopped short by the coach stands and looks at it this much longer than at an ordinary end (s).
+    static let coachStare = 4.0
+
+    /// The berth zone around a coach standing at `coach`: from `berth` short of its castle end to `berth` past the
+    /// footman.
+    static func berthZone(around coach: ClosedRange<Double>) -> ClosedRange<Double> {
+        (coach.lowerBound - berth)...(coach.upperBound + footmanGap + berth)
+    }
+
+    /// The berth zone now (nil: no coach at the gate). The builders' hook in `EntityFrames.actors` asks here.
+    static func berthZone(_ s: GameState, context: Context = Context()) -> ClosedRange<Double>? {
+        coachSpan(s, context: context).map { berthZone(around: $0) }
+    }
+
+    /// How far below the lane someone at `x` walks (0 or negative game px): 0 outside the zone, stepping out to
+    /// `-laneDepth` over the first `laneEase` px inside it (a passer-by stopped at the edge stays on the lane).
+    static func lane(at x: Double, _ zone: ClosedRange<Double>?) -> Double {
+        guard let zone, zone.contains(x) else { return 0 }
+        let inside = min(x - zone.lowerBound, zone.upperBound - x)
+        return -laneDepth * min(1, inside / laneEase)
+    }
 
     /// One passer-by's way: from beside the door to the spot and back, with a pause at each end.
     struct Route: Sendable, Equatable {
@@ -283,6 +325,8 @@ enum TownLife {
         var speed: Double
         var pause: Double
         var start: Double
+        /// Stopped short by the coach: where the passer-by looks while standing at the berth's edge (nil otherwise).
+        var lookAt: Double?
     }
 
     /// The passers-by of the town's households (their house stands), as many as the taxpayers allow (at least two). On
@@ -296,16 +340,23 @@ enum TownLife {
                 let k = list.count
                 let home = door + 10
                 var spot = TownHouseholds.spot(place) + Double(k % 3) * 4 - 4
+                var lookAt: Double?
                 if let coach {
-                    let near = coach.lowerBound - berth
-                    let far = coach.upperBound + berth
-                    if home >= far && spot < far { spot = far }
-                    if home <= near && spot > near { spot = near }
+                    let zone = berthZone(around: coach)
+                    if home >= zone.upperBound && spot < zone.upperBound {
+                        spot = zone.upperBound
+                        lookAt = coach.upperBound
+                    }
+                    if home <= zone.lowerBound && spot > zone.lowerBound {
+                        spot = zone.lowerBound
+                        lookAt = coach.lowerBound
+                    }
                 }
                 let lingers = place == .well || place == .market
                 list.append(Route(body: member.body, home: home, spot: spot,
                                   speed: (16 + Double(k % 3) * 3) * PeopleCast.pace(member.body),
-                                  pause: 2.5 + Double(k % 2) + (lingers ? 2 : 0), start: Double(k) * 7.3))
+                                  pause: 2.5 + Double(k % 2) + (lingers ? 2 : 0) + (lookAt == nil ? 0 : coachStare),
+                                  start: Double(k) * 7.3, lookAt: lookAt))
             }
         }
         return Array(list.prefix(max(2, s.taxpayers / 2)))
@@ -355,6 +406,7 @@ enum TownLife {
             return Figure(sprite: r.body, frame: PeopleCast.walkFrame(r.body, x: now.x), x: now.x, flipped: goingLeft)
         }
         var flipped = now.towardSpot ? r.spot < r.home : r.home < r.spot
+        if !now.towardSpot, let look = r.lookAt { flipped = look < now.x }
         if let greet = greeting(s, at: now.x) { flipped = greet.flipped }
         return Figure(sprite: r.body, frame: breath(Frames.idle.lowerBound, time: time, salt: Double(k), context: context),
                       x: now.x, flipped: flipped)
@@ -560,6 +612,8 @@ enum TownLife {
     static let nobleSpeakers: Set<String> = ["noble", "lorenzPell", "ebbaCalder"]
     /// The coach stands at the gate from the morning until the dusk.
     static let coachHours = 6.0...19.4
+    /// The footman stands this far past the coach's town end (feet, px).
+    static let footmanGap = 9.0
 
     /// True when a noble guest comes before the lord today: in today's queue, or heard today.
     static func nobleDue(_ s: GameState, catalog: PetitionCatalog = .standard) -> Bool {
@@ -571,7 +625,7 @@ enum TownLife {
 
     /// The coach's span on the lane (world x) while it stands at the gate, else nil.
     static func coachSpan(_ s: GameState, context: Context) -> ClosedRange<Double>? {
-        guard coachHours.contains(s.hour), context.nobleDue ?? (launchCoach || nobleDue(s)) else { return nil }
+        guard coachHours.contains(s.hour), context.nobleDue ?? launchCoach ?? nobleDue(s) else { return nil }
         let left = TownHouseholds.townGateX
         return left...(left + Double(SpriteID.coach.size.width))
     }
@@ -581,63 +635,78 @@ enum TownLife {
     static func footman(_ s: GameState, time: Double, context: Context) -> Figure? {
         guard let span = coachSpan(s, context: context) else { return nil }
         return Figure(sprite: .footman, frame: breath(Frames.idle.lowerBound, time: time, rate: 0.7, context: context),
-                      x: span.upperBound + 9, flipped: false)
+                      x: span.upperBound + footmanGap, flipped: false)
     }
 
     // MARK: - The collector
 
-    /// His post by the hall door (the town lane's `Town.collectorPost`, `Realm.hallX`, a few px into the courtyard), and
-    /// his round (the town lane's rules): out at the dawn, at the farthest door by 09:00, back at noon, at his post until
-    /// the horn. The picture stops `doorStop` seconds at each door on the way out to take the coins (the town lane's
-    /// collector walks at an even pace; at the join the picture's way comes from `Town.collectorX`, the stops kept).
-    static let collectorPost = Realm.hallX - 6
+    /// Saul Bracken's post, where his handcart stands and his round starts and ends: just inside the castle's town gate
+    /// (on this branch `WorldLayout.backGateX`). The town lane keeps his post by the hall door (`Town.collectorPost`,
+    /// `Realm.hallX`), but from there a round of every door at a one-armed man's cart pace takes about thirteen hours
+    /// and cannot be back before the horn; the picture keeps his post by the gate until the director rules (docs/lanes/
+    /// people.md, "people-2 fix round 1").
+    static let collectorPost = WorldLayout.backGateX - 40
+    /// Out at the dawn (the town lane's start, `ClockEvent.dawnReport`); off at the horn.
     static let collectorOut = 6.0
-    static let collectorTurn = 9.0
-    static let collectorBack = 12.0
     static let collectorOff = 19.0
+    /// A one-armed man pushing a laden handcart (px/s): a heavy step, slower than a farmer with his tool (the critic's
+    /// bound: never above 18). At it the farthest door is reached about 10:20 and he is back at his post about 14:10.
+    static let collectorPace = 18.0
+    /// He stops this long at each door on the way out to take the coins (the hand out, the coin through the slot).
     static let doorStop = 1.5
 
-    /// The doors of his round, from his post outwards.
+    /// The doors of his round, nearest his post first.
     static func collectorDoors(_ s: GameState) -> [Double] {
-        TownHouseholds.living(s).map { TownHouseholds.door(plot: $0.household.plot) }.sorted()
+        TownHouseholds.living(s).map { TownHouseholds.door(plot: $0.household.plot) }
+            .sorted { abs($0 - collectorPost) < abs($1 - collectorPost) }
+    }
+
+    /// The hour his round turns at the farthest door (after its stop) and the hour he is back at his post, from his
+    /// pace and the doors (the town lane's `TownRules.collectorTurnHour` and `collectorBackHour` follow at the join).
+    static func collectorHours(_ s: GameState) -> (turn: Double, back: Double) {
+        let doors = collectorDoors(s)
+        let way = abs((doors.last ?? collectorPost) - collectorPost) / collectorPace
+        let turn = collectorOut + (way + doorStop * Double(doors.count)) / DayClock.secondsPerHour
+        return (turn: turn, back: turn + way / DayClock.secondsPerHour)
     }
 
     /// Saul Bracken now: pushing the strongbox on its handcart from door to door (the hand out, the coin through the
-    /// slot and a nod at each), back to his post, then at his post by the hall door, turned to the lord when he comes.
+    /// slot and a nod at each), back to his post at the same heavy pace, then at his post by the gate until the horn,
+    /// turned to the lord when he comes.
     static func collector(_ s: GameState, time: Double, context: Context) -> Figure? {
         guard context.collectorOut, s.hour >= collectorOut, s.hour < collectorOff else { return nil }
         let doors = collectorDoors(s)
         let post = collectorPost
-        let turn = doors.last ?? post
-        if s.hour >= collectorBack || doors.isEmpty {
+        let hours = collectorHours(s)
+        let atPost: () -> Figure = {
             var flipped = false
             if let greet = greeting(s, at: post) { flipped = greet.flipped }
             return Figure(sprite: .collector, frame: breath(Frames.idle.lowerBound, time: time, rate: 1, context: context),
                           x: post, flipped: flipped)
         }
-        if s.hour >= collectorTurn {
-            let total = (collectorBack - collectorTurn) * DayClock.secondsPerHour
-            let x = turn + (post - turn) * min(1, since(collectorTurn, s) / total)
-            return Figure(sprite: .collector, frame: PeopleCast.walkFrame(.collector, x: x), x: x, flipped: true)
+        guard let turn = doors.last, s.hour < hours.back else { return atPost() }
+        if s.hour >= hours.turn {
+            guard let x = walking(from: turn, to: post, t: since(hours.turn, s), speed: collectorPace) else {
+                return atPost()
+            }
+            return Figure(sprite: .collector, frame: PeopleCast.walkFrame(.collector, x: x), x: x, flipped: post < turn)
         }
-        let total = (collectorTurn - collectorOut) * DayClock.secondsPerHour
-        let speed = (turn - post) / max(1, total - doorStop * Double(doors.count))
         var t = since(collectorOut, s)
         var from = post
         for door in doors {
-            let walk = (door - from) / speed
+            let walk = abs(door - from) / collectorPace
             if t < walk {
-                let x = from + t * speed
-                return Figure(sprite: .collector, frame: PeopleCast.walkFrame(.collector, x: x), x: x, flipped: false)
+                let x = from + (door > from ? 1 : -1) * t * collectorPace
+                return Figure(sprite: .collector, frame: PeopleCast.walkFrame(.collector, x: x), x: x, flipped: door < from)
             }
             t -= walk
             if t < doorStop {
                 return Figure(sprite: .collector, frame: t < 0.8 ? Frames.take.lowerBound : Frames.take.upperBound,
-                              x: door, flipped: false)
+                              x: door, flipped: door < post)
             }
             t -= doorStop
             from = door
         }
-        return Figure(sprite: .collector, frame: Frames.idle.lowerBound, x: turn, flipped: true)
+        return Figure(sprite: .collector, frame: Frames.idle.lowerBound, x: turn, flipped: post < turn)
     }
 }

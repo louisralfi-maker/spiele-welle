@@ -5,10 +5,13 @@ import XCTest
 /// of the demo realm's day 12 (look 2, held still with `-GWFreezeTime YES`, the lord standing where the camera is) at
 /// morning, noon and dusk. The near field at seven with Gorm and Hedda at work; the square at noon (Wenna at the well,
 /// Old Hemmet on his bench, the passers-by, Nib and Wren at play); the children in a happy town (Fen at the lord's
-/// heels, Nib and Wren at their stick fight); the dusk as the horn sounds (Wenna calling from her doorway, the children
-/// running home, the lanterns lit); the noble's coach at the gate with the footman (`-GWCoach YES`); the lamplighter
-/// lighting the last lantern; the collector at a door on his morning round (`-GWCollector YES`); the lamplighter at
-/// the Eternal Light in the hall. The moments are pinned by `TownLifeTests.testTheShotsShowWhatTheyName`.
+/// heels, Nib and Wren at their stick fight); the walk home before the horn (Gorm and Hedda carrying the harvest past
+/// the lord at a tired pace, the children still out); the noble's coach at the gate with the footman and Brede stopped
+/// short at the berth's edge, looking at it (`-GWCoach YES`); the lamplighter lighting the last lantern; the collector
+/// at a door on his morning round (`-GWCollector YES`); the lamplighter at the Eternal Light in the hall; the horn
+/// (Wenna calling from her doorway, the children running home, the lanterns lit); a sullen town at 25 happiness (the
+/// farmers work on with their backs to the lord). Day 12 of the demo has a noble due, so every shot but 74 keeps the
+/// coach away (`-GWCoach NO`). The moments are pinned by `TownLifeTests.testTheShotsShowWhatTheyName`.
 /// Saves `<nn>-<what>-<lang>` from 70.
 @MainActor
 final class TownLifeUITests: XCTestCase {
@@ -24,15 +27,18 @@ final class TownLifeUITests: XCTestCase {
         XCUIDevice.shared.orientation = .landscapeLeft
         let base = ["-GWDay", "12", "-GWBuild", "demo", "-GWFreezeTime", "YES", "-GWFlickerTime", "2.5", "-GWLook", "2",
                     "-GWWeather", "clear"]
+        let ordinary = base + ["-GWCoach", "NO"]
         let stills: [(name: String, arguments: [String])] = [
-            ("70-fields-morning", ["-GWHour", "7.0", "-GWCameraX", "2600"] + base),
-            ("71-square-noon", ["-GWHour", "12.0", "-GWCameraX", "3150"] + base),
-            ("72-children", ["-GWHour", "16.2367", "-GWCameraX", "2850", "-GWHappiness", "85"] + base),
-            ("73-dusk-home", ["-GWHour", "19.08", "-GWCameraX", "2880", "-GWHappiness", "85"] + base),
-            ("74-noble-coach", ["-GWHour", "10.0", "-GWCameraX", "2500", "-GWCoach", "YES"] + base),
-            ("75-lamplighter-dusk", ["-GWHour", "19.003", "-GWCameraX", "3080"] + base),
-            ("76-collector-morning", ["-GWHour", "8.15", "-GWCameraX", "2790", "-GWCollector", "YES"] + base),
-            ("77-lamplighter-hearth", ["-GWHour", "15.02", "-GWCameraX", "1846"] + base),
+            ("70-fields-morning", ["-GWHour", "7.0", "-GWCameraX", "2600"] + ordinary),
+            ("71-square-noon", ["-GWHour", "12.0", "-GWCameraX", "3150"] + ordinary),
+            ("72-children", ["-GWHour", "16.2367", "-GWCameraX", "2850", "-GWHappiness", "85"] + ordinary),
+            ("73-dusk-home", ["-GWHour", "18.0", "-GWCameraX", "2760", "-GWHappiness", "85"] + ordinary),
+            ("74-noble-coach", ["-GWHour", "10.3", "-GWCameraX", "2520", "-GWCoach", "YES"] + base),
+            ("75-lamplighter-dusk", ["-GWHour", "19.003", "-GWCameraX", "3080"] + ordinary),
+            ("76-collector-morning", ["-GWHour", "8.66", "-GWCameraX", "2790", "-GWCollector", "YES"] + ordinary),
+            ("77-lamplighter-hearth", ["-GWHour", "11.797", "-GWCameraX", "1846"] + ordinary),
+            ("78-horn-call", ["-GWHour", "19.08", "-GWCameraX", "2880", "-GWHappiness", "85"] + ordinary),
+            ("79-sullen-town", ["-GWHour", "11.0", "-GWCameraX", "2679", "-GWHappiness", "25"] + ordinary),
         ]
         for still in stills {
             let app = XCUIApplication()

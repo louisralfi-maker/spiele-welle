@@ -35,8 +35,12 @@ enum TownLamps {
 
     // MARK: - His pace and his times
 
-    /// A brisk walk (px/s); the painted stride is 4 px a frame (`PeopleCast.stride`).
-    static let pace = 32.0
+    /// An old man's heavy step (px/s): a farmer's pace with his tool, never the lord's (the critic of people-2: at 32
+    /// he outran the lord). The painted stride is 4 px a frame (`PeopleCast.stride`). At it the round counted back
+    /// from the horn puts him in the hall about 11:15 and the lanterns' flames at about 15:20, 17:10, 17:50 and 19:00;
+    /// the morning's snuffing runs from 05:20 to 09:00 and he is in at the castle's gate about 10:15 (docs/lanes/
+    /// people.md, "people-2 fix round 1": the hours wait for the director's ruling).
+    static let pace = 16.0
     /// The hearth: the wick into the Flame (frame 10, 2.5 s; it takes the fire at 1.5 s), the head bowed (11, 1.5 s),
     /// upright and turning to go (idle, 1 s; he turns at 0.5 s).
     static let hearthSeconds = 5.0
@@ -264,7 +268,8 @@ enum TownLamps {
               TownLife.isSeen(pose.x, s) else { return }
         let tip = poleTip(frame: pose.frame)
         let x = pose.x + (pose.flipped ? -tip.dx : tip.dx)
-        lights.append((source: LightSource(kind: .candle, x: x, y: tip.dy, radius: 12, intensity: 0.9,
+        let y = tip.dy + TownLife.lane(at: pose.x, TownLife.berthZone(s, context: context))
+        lights.append((source: LightSource(kind: .candle, x: x, y: y, radius: 12, intensity: 0.9,
                                            flickerSeed: 0x504F_4C45),
                        plane: .world))
     }
