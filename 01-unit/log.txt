@@ -1,0 +1,40 @@
+2026-11-15 02:15:03.893692+0000 Lanternhold[7004:32423] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.SaveGameTests testACorruptFileIsReportedAsCorrupt]' passed (0.277 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testAnOlderSaveWithoutOptionalFieldsLoads]' passed (0.173 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testARoundTripGivesTheSameRealm]' passed (0.200 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlayingOnFromALoadedSaveMatchesPlayingStraightOn]' passed (0.523 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testPlotCountsAndIndicesAreCheckedOnLoad]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testSettingsAndPacingWithoutTheirFieldsDecodeWithDefaults]' passed (0.218 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheChronicleKeepsRecordsPerTrackAcrossRealms]' passed (0.257 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testTheFrozenVersionOneSaveStillLoads]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.SaveGameTests testUnknownFieldsOfNewerVersionsAreIgnored]' passed (0.178 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testADoorHePassedWhileItWasShutDoesNotPayHimLater]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testAHouseTheLordReachesFirstPaysTheLordInFullAndHePassesIt]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testDoubleTaxesCountForWhatHeTakesToo]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testHeCollectsTheDoorsHePassesAndTheGoldArrivesWithHimHome]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testHeIsHiredFromTheFirstDayAndServesFromTheNextMorning]' passed (0.016 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testHeNeverKnocksButTheLordMayKnockWhereHeHasBeen]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testHisRoundDoorByDoorAtAHeavyPaceWithAStopAtEachDoorThatPays]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testInUnrestHeComesBackEmpty]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testTheFarmersPayOnlyTheLordAndTheStallPaysHim]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testTheHornBringsHimBackIfHeIsStillOutAndTheRoundIsSaved]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testTheWageIsOneCoinInEightAtLeastTwoAndNeverMoreThanHeBrought]' passed (0.000 seconds).
+Test Case '-[LanternholdTests.TownCollectorTests testThroughTheSimulation]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TownGrowthTests testARealmThatNeverGrowsWritesNoStage]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownGrowthTests testATownThatNeverGrowsComputesTheEconomyOfBefore]' passed (0.022 seconds).
+Test Case '-[LanternholdTests.TownGrowthTests testTheBuildOptionsAndTheCollectorSpeakEnglishAndGermanAndFit]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.TownGrowthTests testTheFarFieldsAndTheTreasuryOpenOnDayFive]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownGrowthTests testTheGrownTownAndItsStageAreSaved]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.TownGrowthTests testTheLedgerOfAGrownTownAddsUpToTheDaysTaxes]' passed (0.018 seconds).
+Test Case '-[LanternholdTests.TownGrowthTests testTheNewTiersGrowOnTheOldPlotsThroughTheSameCard]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownGrowthTests testTheStagesFollowTheStandingAndTheDawnTellsTheOneThatIsReached]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownGrowthTests testTheTiersPayAndEveryPointOfStandingAddsItsShare]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownGrowthTests testTheTreasuryShowsThePurseAsPiles]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TownGrowthTuningTests testT12AGrownTownEarnsAQuarterToAThirdMore]' passed (27.017 seconds).
+Test Case '-[LanternholdTests.TownGrowthTuningTests testT12ReportIsAttached]' passed (0.167 seconds).
+Test Case '-[LanternholdTests.TownGrowthTuningTests testT12TheGrowerHoldsAndTheSkipperFalls]' passed (0.060 seconds).
+Test Case '-[LanternholdTests.TownGrowthTuningTests testTheBotOrders]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TownGrowthTuningTests testTheBotsThatDoNotGrowTheTownGiveTodaysNumbers]' passed (7.410 seconds).
+Test Case '-[LanternholdTests.TownGrowthTuningTests testTheGrownTownIsAVillageByNightFourteen]' passed (0.001 seconds).
+exit=0
+screenshots: 0
