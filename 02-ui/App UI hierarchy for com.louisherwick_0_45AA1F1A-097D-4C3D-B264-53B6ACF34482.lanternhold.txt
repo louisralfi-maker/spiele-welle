@@ -1,0 +1,31 @@
+Application, 0x105c5f170, pid: 50763, label: 'Lanternhold' <App element pid: 50763>
+  Window (Main), 0x105c5ddb0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 50763, elementOrHash.elementID: 4356074176.3>
+    Other, 0x105c674a0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 50763, elementOrHash.elementID: 4356859376.4>
+      Other, 0x105c63110, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 50763, elementOrHash.elementID: 4356936512.5>
+        Other, 0x105c636b0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 50763, elementOrHash.elementID: 4356886528.6>
+          Other, 0x105c67200, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 50763, elementOrHash.elementID: 4356210912.7>
+            Other, 0x105c67320, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-root' <AX element pid: 50763, elementOrHash.elementID: 4356209808.8>
+              Other, 0x105c63230, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:1950 ready d... <AX element pid: 50763, elementOrHash.elementID: 4354374832.9>
+              Other, 0x105c63350, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 50763, elementOrHash.elementID: 4356185792.10>
+              Other, 0x105c63470, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 50763, elementOrHash.elementID: 4356188192.11>
+              Button, 0x105c63590, {{70.0, 6.0}, {60.0, 60.0}}, identifier: 'hud-pause', label: 'Pause' <AX element pid: 50763, elementOrHash.elementID: 4356190192.12>
+                Other, 0x105c67750, {{70.0, 6.0}, {44.0, 44.0}} <AX element pid: 50763, elementOrHash.elementID: 4356188976.21>
+                Image, 0x105c67870, {{70.0, 6.0}, {60.0, 60.0}}, identifier: 'pause.fill', label: 'Pause' <AX element pid: 50763, elementOrHash.elementID: 4356189760.22>
+              StaticText, 0x105c67990, {{708.7, 12.3}, {83.3, 19.3}}, identifier: 'hud-clock', label: 'Day 1, 17:17' <AX element pid: 50763, elementOrHash.elementID: 4356194320.13>
+                StaticText, 0x105c67ab0, {{708.7, 12.3}, {38.7, 19.3}}, label: 'Day 1' <AX element pid: 50763, elementOrHash.elementID: 4356192512.23>
+                StaticText, 0x105c67bd0, {{755.3, 12.8}, {36.7, 18.3}}, label: '17:17' <AX element pid: 50763, elementOrHash.elementID: 4356193536.24>
+              Other, 0x105c67cf0, {{651.0, 41.0}, {38.0, 19.7}}, identifier: 'hud-gold', label: 'Gold', value: 48 <AX element pid: 50763, elementOrHash.elementID: 4356197056.14>
+                Other, 0x105c67e10, {{651.0, 43.0}, {16.0, 16.0}} <AX element pid: 50763, elementOrHash.elementID: 4356196192.25>
+                StaticText, 0x105c67f30, {{672.0, 41.0}, {17.0, 19.7}}, label: '48' <AX element pid: 50763, elementOrHash.elementID: 4356196624.26>
+              Other, 0x105c68050, {{701.0, 41.0}, {40.0, 19.7}}, identifier: 'hud-happiness', label: 'Happiness', value: 60 <AX element pid: 50763, elementOrHash.elementID: 4356199728.15>
+                Other, 0x105c68170, {{701.0, 41.8}, {18.0, 18.0}} <AX element pid: 50763, elementOrHash.elementID: 4356198512.27>
+                StaticText, 0x105c68290, {{724.0, 41.0}, {17.0, 19.7}}, label: '60' <AX element pid: 50763, elementOrHash.elementID: 4356198944.28>
+              Other, 0x105c683b0, {{753.3, 41.0}, {38.7, 19.7}}, identifier: 'hud-people', label: 'People', value: 14 <AX element pid: 50763, elementOrHash.elementID: 4356202400.16>
+                Other, 0x105c684d0, {{753.3, 43.7}, {16.0, 14.3}} <AX element pid: 50763, elementOrHash.elementID: 4356201184.29>
+                StaticText, 0x105c685f0, {{775.0, 41.0}, {17.0, 19.7}}, label: '14' <AX element pid: 50763, elementOrHash.elementID: 4356201616.30>
+              Other, 0x105c68710, {{651.0, 36.0}, {141.0, 1.0}} <AX element pid: 50763, elementOrHash.elementID: 4356203856.17>
+              Button, 0x105c68830, {{266.0, 6.0}, {342.0, 44.0}}, identifier: 'realm-strip', label: 'Map of the valley', value: Petitioners waitin... <AX element pid: 50763, elementOrHash.elementID: 4356200512.18>
+              Other, 0x105c68950, {{107.3, 140.7}, {692.0, 214.7}} <AX element pid: 50763, elementOrHash.elementID: 4356208704.19>
+                Button, 0x105c68a70, {{107.3, 140.7}, {56.0, 214.7}}, identifier: 'touch-door-hall', label: 'Leave the great hall' <AX element pid: 50763, elementOrHash.elementID: 4357135760.116>
+                Button, 0x105c68b90, {{364.0, 227.0}, {84.0, 128.3}}, identifier: 'touch-bench-0', label: 'Talk to Rasmus' <AX element pid: 50763, elementOrHash.elementID: 4357137216.117>
+                Button, 0x105c68cb0, {{755.0, 231.7}, {44.3, 123.7}}, identifier: 'touch-talk-pip', label: 'Talk to Pip' <AX element pid: 50763, elementOrHash.elementID: 4354482784.120>

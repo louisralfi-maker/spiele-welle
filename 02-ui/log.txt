@@ -1,0 +1,21 @@
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (131.100 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:122: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no mark at the throne
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:138: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no lectern beside the throne
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' failed (100.662 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (59.476 seconds).
+Test Suite 'FirstDayUITests' failed at 2026-11-15 02:26:30.413.
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (211.667 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwo]' passed (186.707 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoCourt]' passed (21.939 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoNight]' passed (66.395 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (58.199 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolish]' passed (170.091 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishCirclet]' passed (10.068 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishHouses]' passed (31.730 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchUITests.swift:177: error: -[LanternholdUITests.TouchUITests testTouchTheWorld] : XCTAssertTrue failed - the audience when he sits
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' failed (90.029 seconds).
+Test Suite 'TouchUITests' failed at 2026-11-15 02:40:37.259.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-15 02:40:37.260.
+Test Suite 'Selected tests' failed at 2026-11-15 02:40:37.260.
+exit=65
+screenshots: 105
