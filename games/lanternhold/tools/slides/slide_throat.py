@@ -36,8 +36,11 @@ def slide2():
             p.px(x, t, rim)
     # the ground of the cleft and the west
     for y in range(FLOOR, H):
-        for x in range(0, 230):
+        edge = 196 + int((y - FLOOR) * 7 + 3 * math.sin(y / 2.0))     # the near ground runs out over the shore
+        for x in range(0, min(W, edge)):
             p.px(x, y, "nightDeep")
+        if edge < W:
+            p.px(edge, y, "nightBlue")
     # the wall: two masses, wide at the foot, the cleft between, the light only on its lips
     def poly(pts):
         def f(y):
