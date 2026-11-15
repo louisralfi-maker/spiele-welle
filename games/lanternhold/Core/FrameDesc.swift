@@ -684,6 +684,8 @@ struct FrameDesc: Sendable, Equatable {
     /// Look 2: the rain (0 ... 1) and how wet stone and lane are (0 ... 1), for the composite's wet sheen.
     var rain: Float = 0
     var wetness: Float = 0
+    /// World-3 fix round 1: a hard fog night's extra haze on the mid plane (`GloomFog.midHaze`), 0 otherwise.
+    var gloomHaze: Float = 0
 
     /// The layer of one plane.
     func layer(_ plane: Plane) -> PlaneLayer {

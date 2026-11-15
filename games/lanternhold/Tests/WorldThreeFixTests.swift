@@ -76,8 +76,8 @@ final class WorldThreeFixTests: XCTestCase {
         XCTAssertGreaterThan(dusk.x, dusk.z, "warm at dusk")
     }
 
-    /// High 3 and 4: a hard fog night draws a cold veil over the mid plane (an ordinary night none), and deep in the
-    /// bank half a creature's body shows.
+    /// High 3 and 4: a hard fog night eats the mid plane (more haze, colder) where its fog stands, an ordinary night
+    /// none; deep in the bank half a creature's body shows.
     func testAHardFogNightEatsTheMidPlane() {
         XCTAssertEqual(GloomFog(hardness: 0.4).midVeil, 0)
         XCTAssertEqual(GloomFog(hardness: 1).midVeil, 1)
@@ -86,14 +86,22 @@ final class WorldThreeFixTests: XCTestCase {
         var clock = DayClock(hour: 23.33, day: 12)
         clock.isFrozen = true
         let pixelScale = options.pixelScale(physicalWidth: 2622, physicalHeight: 1206)
-        func veils(_ hardness: Double) -> Int {
-            options.gloom = GloomFog(hardness: hardness)
-            let desc = FrameBuilder.build(scene: PlaceholderScene.world(look: .two), clock: clock,
-                                          camera: Camera(focusX: 600, pixelScale: pixelScale), pixelScale: pixelScale,
-                                          options: options)
-            return desc.layer(.fogA).sprites.filter { $0.sprite == .gloomFogBack }.count
+        func desc(_ hardness: Double?, focus: Double) -> FrameDesc {
+            options.gloom = hardness.map { GloomFog(hardness: $0) }
+            return FrameBuilder.build(scene: PlaceholderScene.world(look: .two), clock: clock,
+                                      camera: Camera(focusX: focus, pixelScale: pixelScale), pixelScale: pixelScale,
+                                      options: options)
         }
-        XCTAssertGreaterThan(veils(1), veils(0.4), "the hard night's second sheet on fog A")
+        let hard = desc(1, focus: 600)
+        let ordinary = desc(0.4, focus: 600)
+        XCTAssertGreaterThan(hard.gloomHaze, 0.08, "most of the view is inside the fog")
+        XCTAssertLessThanOrEqual(hard.gloomHaze, GloomFog.midVeilHaze + 1e-4)
+        XCTAssertEqual(ordinary.gloomHaze, 0)
+        XCTAssertLessThan(desc(1, focus: 1830).gloomHaze, 0.01, "none at the castle")
+        let hazy = Look2.uniforms(hard, focus: 600).midHC
+        let plain = Look2.uniforms(ordinary, focus: 600).midHC
+        XCTAssertGreaterThan(hazy.w, plain.w + 0.06, "more haze")
+        XCTAssertGreaterThan(hazy.z / max(hazy.x, 1e-4), plain.z / max(plain.x, 1e-4), "colder")
         XCTAssertEqual(GloomFog(hardness: 1).bodyAlpha(x: 0, bankEdge: 500, hour: 23), GloomFog.bodyFloor,
                        accuracy: 1e-9)
     }

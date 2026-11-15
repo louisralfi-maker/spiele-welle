@@ -2183,7 +2183,7 @@ Painter: `tools/w3f1art.py` (SPRITES.md "World-3, fix round 1").
 - The lord's lantern in look 2: a core at a quarter of its strength and a round spill twice as wide (`LanternLook`).
 - The gate torches radial at about half their strength; the oven's hatch none by day, weak and wide at night; the
   postern's lanterns never light the valley seen through it, whose glow takes the hour.
-- A hard fog night: a second, colder sheet of the back strip over the mid plane.
+- A hard fog night: the mid plane takes about 40 % more haze, colder, where the fog stands (`GloomFog.midHaze`).
 
 ### 27.5 Rebuild
 
