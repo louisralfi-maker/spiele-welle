@@ -335,8 +335,11 @@ final class FirstDayUITests: XCTestCase {
             return
         }
         let frame = element.frame
-        XCTAssertGreaterThanOrEqual(frame.width, 44, "\(name) is \(frame.width) pt wide")
-        XCTAssertGreaterThanOrEqual(frame.height, 44, "\(name) is \(frame.height) pt high")
+        // The join: to the hundredth of a point (lh-rj-12 measured the card's close at 43.99999999999994 pt).
+        let width = (frame.width * 100).rounded() / 100
+        let height = (frame.height * 100).rounded() / 100
+        XCTAssertGreaterThanOrEqual(width, 44, "\(name) is \(frame.width) pt wide")
+        XCTAssertGreaterThanOrEqual(height, 44, "\(name) is \(frame.height) pt high")
     }
 
     private func field(_ text: String, _ key: String) -> Double? {
