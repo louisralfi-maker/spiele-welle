@@ -41,6 +41,8 @@ extension GameModel {
         guard canRaiseLanternMoment, lanternMoment == nil, let state = driver?.state,
               let framing = touch.framing, framing.stage == stage else { return }
         // Build 2 review, app-ui-1: no finger stays down under the moment (the background raises it mid-touch).
+        // Build 3 (PAY.md 4): the moment cuts a count off; it pays nothing.
+        cutCount()
         resetTouch()
         cancelErrand()
         if stage == .hall { stopWalking() }
@@ -121,7 +123,10 @@ extension GameModel {
         guard kind == .world, let game = driver else { return }
         let state = game.state
         let visible = overlay == nil && stageChange == nil && lanternMoment == nil && game.bot == nil && !isShowcase
-        purse.update(gold: townShownGold(state, balance: game.balance), now: clock.elapsed, visible: visible)
+        // Build 3, the count: the coins on the board are shown as gone from the purse (HUD.md 3: the gold runs down coin
+        // by coin), though nothing leaves the treasury before the seal.
+        purse.update(gold: townShownGold(state, balance: game.balance) - countHeld, now: clock.elapsed,
+                     visible: visible)
         notes.update(happiness: state.happiness, people: state.citizens, clock: clock.elapsed, visible: visible)
         // Fix round 2 (the critic's high 5): the call's strip waits while the first minute's hint slip stands.
         let calling = stripCall.update(strip, hour: state.hour, clock: clock.elapsed, allowed: visible,

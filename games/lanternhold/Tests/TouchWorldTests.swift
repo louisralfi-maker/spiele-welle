@@ -250,7 +250,9 @@ final class TouchWorldTests: XCTestCase {
         let brazier = Realm.lines[0].braziers[0]
         XCTAssertTrue(things.contains { $0.id == "touch-plot-\(brazier)" && $0.kind == .plot }, "line 1's empty site")
         XCTAssertFalse(things.contains { $0.id == "touch-plot-\(Realm.lines[1].wall)" }, "the middle line opens later")
-        XCTAssertTrue(things.contains { $0.id == "touch-recruit-barracks" })
+        // Build 3, the count: the barracks are two things, a board each.
+        XCTAssertTrue(things.contains { $0.id == "touch-recruit-archer" && $0.soldier == .archer })
+        XCTAssertTrue(things.contains { $0.id == "touch-recruit-guard" && $0.soldier == .guardsman })
         XCTAssertTrue(things.contains { $0.id == "touch-door-hall" && $0.x == HallLayout.worldDoorX })
         XCTAssertFalse(things.contains { $0.kind == .wall || $0.kind == .brazier }, "no repair or fire by day")
         for thing in things {
@@ -325,12 +327,13 @@ final class TouchWorldTests: XCTestCase {
     }
 
     func testASecondTapMakesHimRun() throws {
-        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1700"])
+        // Build 3: the barracks are bought by the count now; the hall's door still takes an errand.
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1640"])
         _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
-        let recruit = try XCTUnwrap(game.touch.things.first { $0.id == "touch-recruit-barracks" })
-        game.touchThing(recruit)
+        let door = try XCTUnwrap(game.touch.things.first { $0.id == "touch-door-hall" })
+        game.touchThing(door)
         XCTAssertEqual(game.driver?.travelSpeed, Balance.standard.kingWalkSpeed, "a walk")
-        game.touchThing(recruit)
+        game.touchThing(door)
         XCTAssertEqual(game.driver?.travelSpeed, Balance.standard.kingRunSpeed, "the second tap: a run")
         XCTAssertEqual(game.touch.errand?.run, true)
     }
@@ -369,33 +372,8 @@ final class TouchWorldTests: XCTestCase {
         XCTAssertEqual(game.overlay, .audience, "he sits and the audience begins")
     }
 
-    /// The director's note of 14.11. 14:35: a damaged wall's repair waits at the wall with its price; a second touch
-    /// pays.
-    func testTheRepairWaitsForASecondTouch() throws {
-        let game = model(["GWStage": "world", "GWSeed": "1", "GWNight": "1", "GWHour": "22", "GWGold": "50",
-                          "GWCameraX": "1280"])
-        let wall = Realm.lines[0].wall
-        game.withDriver { driver in
-            if let item = driver.state.plots[wall].item {
-                driver.state.plots[wall].hp = Build.maxHP(item, balance: driver.balance) / 2
-            }
-            driver.state.gold = 50
-        }
-        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
-        let repair = try XCTUnwrap(game.touch.things.first { $0.id == "touch-wall-\(wall)" }, "the wall offers")
-        let hp = try XCTUnwrap(game.driver?.state.plots[wall].hp)
-        game.touchThing(repair)
-        run(game, seconds: 6) { game.touch.errand?.waiting == true }
-        XCTAssertEqual(game.touch.errand?.waiting, true, "he stands at the wall and waits")
-        XCTAssertEqual(game.errandSlip?.price, Balance.standard.patchCost, "the price over the wall")
-        let before = try XCTUnwrap(game.driver?.state.plots[wall].hp)
-        XCTAssertLessThanOrEqual(before, hp + 1e-9, "nothing paid yet")
-        XCTAssertEqual(game.driver?.state.gold, 50, "nothing paid yet")
-        game.touchThing(repair)
-        XCTAssertGreaterThan(try XCTUnwrap(game.driver?.state.plots[wall].hp), before, "the second touch repairs")
-        XCTAssertEqual(game.driver?.state.gold, 50 - Balance.standard.patchCost, "and pays")
-        XCTAssertNil(game.touch.errand)
-    }
+    /// Build 3: a damaged wall's repair is paid by its count (PayCountTests' `testTheRepairIsPaidByItsCount`); the
+    /// second touch that paid at once is gone.
 
     func testAHoldOnTheLordAtNightRaisesTheLantern() throws {
         // In the town, where nothing offers anything at night.
@@ -437,8 +415,10 @@ final class TouchWorldTests: XCTestCase {
         XCTAssertNil(ads.merchantOffer)
         game.tap(at: cart, in: proPoints)
         XCTAssertFalse(ads.merchantCardOpen)
-        XCTAssertEqual(game.touch.lastTap, "touch-recruit-barracks")
-        XCTAssertEqual(game.touch.errand?.id, "touch-recruit-barracks", "he sets off to the barracks")
+        // Build 3: the cart stands before the archer's half; its board comes up and he sets off to it.
+        XCTAssertEqual(game.touch.lastTap, "touch-recruit-archer")
+        XCTAssertEqual(game.touch.count?.thing, "touch-recruit-archer", "the archer's board comes up")
+        XCTAssertEqual(game.touch.errand?.id, "touch-recruit-archer", "he sets off to the barracks")
     }
 
     /// Build 2 fix A's review: the background under Marek's card raises the lantern moment behind it; closing the card
@@ -543,10 +523,13 @@ final class TouchWorldTests: XCTestCase {
         XCTAssertTrue(game.sceneStatus.contains("errand:none"), game.sceneStatus)
         XCTAssertTrue(game.sceneStatus.contains("lx:1700"), game.sceneStatus)
         XCTAssertTrue(game.sceneStatus.contains("stage:world"), game.sceneStatus)
-        let recruit = try XCTUnwrap(game.touch.things.first { $0.id == "touch-recruit-barracks" })
+        let recruit = try XCTUnwrap(game.touch.things.first { $0.id == "touch-recruit-archer" })
         game.touchThing(recruit)
         game.refreshHUD()
-        XCTAssertTrue(game.sceneStatus.contains("errand:touch-recruit-barracks"), game.sceneStatus)
+        XCTAssertTrue(game.sceneStatus.contains("errand:touch-recruit-archer"), game.sceneStatus)
+        #if DEBUG
+        XCTAssertTrue(game.sceneStatus.contains("count:touch-recruit-archer:0/1:open"), game.sceneStatus)
+        #endif
     }
 
     func testTheMarksAreDrawnAndTheSpotsPlaced() throws {

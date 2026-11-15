@@ -72,6 +72,18 @@ struct TouchState: Sendable {
     var lordHintOn = false
     /// The lantern moment was raised once (the lesson is learnt).
     var momentRaised = false
+    // Build 3, the count (PAY.md; `GameModel+Pay.swift`): never saved.
+    /// The board up at a thing, and where it stands.
+    var count: PayCount?
+    var countBoard: CountBoard?
+    /// The finger is down on the count's board or thing; it is the touch that brought the board (its lift is no
+    /// tap); the lord was sent to stand beside it.
+    var countPress = false
+    var countFirst = false
+    var countSent = false
+    /// The cues still to come after a seal, and how the last count ended (`paid:touch-plot-0`; the scene's value).
+    var countCues: [CountCue] = []
+    var countLast = "none"
 }
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the finger
@@ -108,11 +120,16 @@ extension GameModel {
             touch.onLord = touch.pressed == nil && stagePoint(start, in: size).map(isOnLord) == true
             touch.downAt = clock.elapsed
             touch.raised = false
+            // Build 3, the count: a touch on a thing that is bought brings its board up and holds it; on the open
+            // board it holds (`GameModel+Pay.swift`).
+            if countDown(at: start, in: size) { touch.onLord = false }
         }
         let travel = hypot(Double(translation.width), Double(translation.height))
         if !touch.dragging && !TouchRules.isTap(travel: travel) {
             touch.dragging = true
             touch.pressed = nil
+            // A drag is a walk, never a count (the director's notes of 15.11., item 5).
+            countDragged()
             cancelErrand()
         }
         if touch.dragging {
@@ -132,6 +149,7 @@ extension GameModel {
         let dragged = touch.dragging
         let start = touch.down ?? point
         let raised = touch.raised
+        let counting = touch.countPress && !dragged
         touch.down = nil
         touch.dragging = false
         touch.pressed = nil
@@ -139,6 +157,12 @@ extension GameModel {
         touch.raised = false
         if dragged {
             setDrag(offset: nil)
+            return
+        }
+        // Build 3, the count: the finger leaves the board; a press that set no coin was a tap and sets one.
+        if counting {
+            countLift()
+            touch.lastTap = touch.count?.thing ?? "count"
             return
         }
         guard overlay == nil, !raised else { return }
@@ -149,6 +173,12 @@ extension GameModel {
     /// Center, the home edge), which never ends: nothing down, pressed or held on the lord, and a drag's walk stops.
     /// Called on a new start point, when the scene is not active, when a card opens and when the lantern moment opens.
     func resetTouch() {
+        // Build 3, the count: a finger the system took holds the board no longer (no coin for it).
+        if touch.countPress {
+            touch.countPress = false
+            touch.countFirst = false
+            touch.count?.lift(tap: false)
+        }
         let dragged = touch.dragging
         touch.down = nil
         touch.dragging = false
@@ -161,6 +191,8 @@ extension GameModel {
     /// The thing under a point of the screen, nil for the ground.
     func thingAt(_ point: CGPoint, in size: CGSize) -> TouchThing? {
         guard let place = stagePoint(point, in: size) else { return nil }
+        // Build 3, the count: the standing board answers for its thing.
+        if let thing = countBoardThing(place) { return thing }
         return TouchRules.pick(x: place.x, lift: place.lift, things: touch.things, minimum: place.minimum)
     }
 
@@ -289,6 +321,8 @@ extension GameModel {
     /// walks to makes him run; at a wall where he waits, it pays.
     func touchThing(_ thing: TouchThing) {
         guard kind == .world, overlay == nil, stageChange == nil else { return }
+        // Build 3, the count (PAY.md): a thing that is bought brings its board, or sets a coin on it.
+        if countTap(thing) { return }
         feedback.play(.touched)
         if var errand = touch.errand, errand.id == thing.id, errand.stage == stage {
             if errand.waiting {
@@ -314,6 +348,8 @@ extension GameModel {
     /// VoiceOver or Switch Control activated a thing's element: the same as a tap on it.
     func touchSpot(_ id: String) {
         guard let thing = touch.things.first(where: { $0.id == id }) else { return }
+        // Build 3, the count (PAY.md section 2): VoiceOver's double tap pays in one step.
+        if countAtOnce(thing) { return }
         touchThing(thing)
     }
 
@@ -372,8 +408,14 @@ extension GameModel {
         if errandSlip != nil { errandSlip = nil }
     }
 
-    /// He stands at the thing: he does what it offers; a wall's repair waits for a second touch.
+    /// He stands at the thing: he does what it offers. Build 3: beside a count's board he waits for the coins.
     func arrive(_ errand: TouchErrand) {
+        if touch.count?.thing == errand.id {
+            touch.errand = nil
+            countArrived()
+            refreshTouchSlip()
+            return
+        }
         switch errand.act {
         case .collector:
             // The join: at Saul Tolliver's post the slip waits for a second touch; while he was never taken on he
@@ -383,10 +425,8 @@ extension GameModel {
             touch.errand = waiting
             if let state = driver?.state, CollectorTouch.offer(state) == .hire { collectorSays(.offer) }
         case .patch:
-            var waiting = errand
-            waiting.waiting = true
-            touch.errand = waiting
-            announce(String(localized: "At the wall. Touch it again to repair it."))
+            // Build 3: the repair is paid by its count (`GameModel+Pay.swift`); the second touch that paid is gone.
+            touch.errand = nil
         case .light:
             touch.errand = nil
             announce(String(localized: "At the brazier. Lighting it."))
@@ -398,8 +438,8 @@ extension GameModel {
         refreshTouchSlip()
     }
 
-    /// The second touch at a damaged wall: the repair, paid; refused (the slip's price red) while the gold or the
-    /// cooldown does not allow it.
+    /// The second touch at Saul Tolliver's post (the walls' second touch went with build 3's count): refused while
+    /// the target holds.
     func pay(_ errand: TouchErrand) {
         guard let game = driver else { return }
         if KingTargets.hold(errand.act, state: game.state, balance: game.balance) != nil {
@@ -416,6 +456,8 @@ extension GameModel {
     func stepTouch(_ seconds: Double) {
         guard kind == .world else { return }
         // The lantern moment's side (stage-3-interface): the purse, the notes, the strip's call.
+        // Build 3, the count: before the purse, so the gold above the lord runs down coin by coin with it.
+        stepCount(seconds)
         stepLanternHUD()
         stepFirstSlip(seconds)
         stepLordHint()
@@ -442,7 +484,7 @@ extension GameModel {
             if abs(lordX - errand.standX) > 2 * TouchRules.armsLength { cancelErrand() }
             return
         }
-        if abs(thing.standX - errand.standX) > 2 {
+        if abs(thing.standX - errand.standX) > 2 && touch.count?.thing != errand.id {
             errand.standX = thing.standX
             touch.errand = errand
             if abs(lordX - errand.standX) > TouchRules.arrival { walk(to: errand.standX, run: errand.run) }
@@ -597,6 +639,8 @@ extension GameModel {
                                               tint: SIMD4<Float>(gold.x, gold.y, gold.z, 1), flipped: false,
                                               isEmissive: true, isLit: true))
         }
+        // Build 3, the count: the tally board on its post at the thing (PAY.md).
+        countWorld(&layer, state: state, framing: framing)
         // Stage-3-interface: the gold and the notes above the lord, his raised pose while the lantern is up.
         lanternWorld(&layer, state: state, framing: framing)
         noteTouchFrame()
@@ -651,6 +695,8 @@ extension GameModel {
         for index in marks.indices {
             let id = marked[index].id
             if touch.errand?.id == id && touch.errand?.stage == stage { marks[index].hidden = true }
+            // Build 3: the board stands there; the mark gives way to it.
+            if touch.count?.thing == id { marks[index].hidden = true }
             if stage == .hall && hornSlip != nil && marked[index].kind == .door { marks[index].hidden = true }
         }
         return marks
@@ -723,7 +769,9 @@ extension GameModel {
     /// The slip over the errand's thing (nil without an errand).
     func refreshTouchSlip() {
         var next: ErrandSlip?
-        if let errand = touch.errand, let framing = touch.framing, framing.stage == stage, overlay == nil,
+        // Build 3: no slip over a count's thing; its board is the price.
+        if let errand = touch.errand, touch.count?.thing != errand.id, let framing = touch.framing,
+           framing.stage == stage, overlay == nil,
            let thing = touch.things.first(where: { $0.id == errand.id }), let state = driver?.state {
             let top = thing.markLift + (thing.kind.mark != nil ? TouchRules.markHeight : 0)
             let x = framing.deviceX(stageX: thing.markX) / max(1, framing.physicalWidth)
@@ -790,7 +838,12 @@ extension GameModel {
             case .build: return String(localized: "Build: \(name)")
             }
         case .recruit:
-            return String(localized: "Recruit")
+            // Build 3: each half of the barracks takes on its own recruit (`TouchThing.soldier`).
+            switch thing.soldier {
+            case .archer?: return String(localized: "Recruit an archer")
+            case .guardsman?: return String(localized: "Recruit a guard")
+            case nil: return String(localized: "Recruit")
+            }
         case .throne:
             return String(localized: "Sit on the throne")
         case .hallDoor:

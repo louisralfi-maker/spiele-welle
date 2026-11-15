@@ -387,6 +387,8 @@ final class GameModel {
 
     /// The app went to the background: the game comes back paused (unless a screen is already open).
     func pauseForBackground() {
+        // Build 3 (PAY.md 4): the background cuts a count off; it pays nothing.
+        cutCount()
         guard kind == .world, overlay == nil, !isShowcase, driver?.state.defeated == false else { return }
         // Build 2 review, core-state-3 and app-ui-4: the slides already hold the world and come back as they were; a
         // lantern moment raised behind them would stand over a running world once they end.
@@ -504,6 +506,8 @@ final class GameModel {
             case .defeat:
                 setOverlay(.defeat)
             case .horn:
+                // Build 3 (PAY.md 4): the horn cuts a count off; it pays nothing.
+                cutCount()
                 if !isShowcase {
                     hornNight = state.nightNumber
                     hornUntil = time + GameModel.hornBannerSeconds
@@ -708,8 +712,12 @@ final class GameModel {
     // MARK: - The screens (DESIGN.md "Screens")
 
     func setOverlay(_ next: Overlay?) {
-        // Build 2 review, app-ui-1: a card takes the finger's state with it.
-        if next != nil { resetTouch() }
+        // Build 2 review, app-ui-1: a card takes the finger's state with it. Build 3 (PAY.md 4): a card cuts a count
+        // off; it pays nothing.
+        if next != nil {
+            cutCount()
+            resetTouch()
+        }
         if next != nil && next != .audience { closeTalk() }
         // The lantern moment (stage-3-interface) goes down under any card.
         if next != nil && lanternMoment != nil { lanternMoment = nil }
@@ -777,6 +785,39 @@ final class GameModel {
             feedback.play(.refused)
             refreshHUD()
         }
+    }
+
+    /// The count's seal (build 3, PAY.md section 1.5): the order that exists today, in one step, as the cards order
+    /// it (`Build.order`, `Build.recruit`, the night's repair). The work's own sound comes a moment after the seal's
+    /// (`later`, the count plays it), the recruit's is the seal itself, and the purse's `paid` rattle is not heard on
+    /// top. False (nothing changed) when the simulation refuses it.
+    func sealOrder(_ offer: PayOffer) -> (done: Bool, later: [FeedbackCue]) {
+        guard kind == .world, var game = driver else { return (false, []) }
+        var orderEvents: [SimEvent] = []
+        let done: Bool
+        switch offer {
+        case .build(let plot, let item):
+            done = Build.order(&game.state, plot: plot, item: item, balance: game.balance,
+                               events: &orderEvents) == .ordered
+        case .recruit(let soldier):
+            done = Build.recruit(&game.state, kind: soldier, balance: game.balance, events: &orderEvents)
+        case .patch(let plot):
+            done = game.perform(.patch(plot: plot), events: &orderEvents)
+        }
+        driver = game
+        revision += 1
+        guard done else {
+            refreshHUD()
+            return (false, [])
+        }
+        if case .patch = offer, !orderEvents.isEmpty {
+            effects.note(orderEvents, state: game.state, balance: game.balance, time: animationTime)
+        }
+        // The purse is heard as the count already played it: the watch takes the new treasury without a cue.
+        _ = watch.cues(TownShow.heard(game.state, balance: game.balance), balance: game.balance, moving: false)
+        let later = orderEvents.compactMap { FeedbackThinner.cue(for: $0)?.cue }.filter { $0 != .recruited }
+        refreshHUD()
+        return (true, later)
     }
 
     var recruitCard: RecruitCard? {
@@ -1314,6 +1355,8 @@ final class GameModel {
         text += " cam:\(Int((shownCamera ?? 0).rounded())) tap:\(touch.lastTap)"
         // Stage-3-interface fix round 1: the lord's hint (on or off, how often it showed).
         text += " hint:\(touch.lordHintOn ? "on" : "off")\(touch.lordHintShown)"
+        // Build 3, the count: the board up (its thing, coins on it of all, its state) and the last count's end.
+        text += " count:\(countWord)"
         #endif
         // Raise the lantern: its phase at night.
         if DayClock.phase(at: state.hour) != .day {

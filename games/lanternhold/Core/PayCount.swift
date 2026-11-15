@@ -370,6 +370,14 @@ struct PayCount: Sendable, Equatable {
         _ = finish(.letGo)
     }
 
+    /// The order behind the seal was refused after all (the treasury or the offer changed under the count): nothing
+    /// was paid, and the coins slide back as after a let go.
+    mutating func unseal() {
+        guard result == .paid else { return }
+        result = .letGo
+        resultAt = time
+    }
+
     // MARK: - Time
 
     /// Moves the count on by `seconds`; `gold` is the treasury now. Returns what happened, in order.
@@ -577,7 +585,7 @@ enum PayFreeze: Sendable, Equatable {
         case .share(let share):
             guard count.isOpen, count.sealAt == nil else { return false }
             let target = min(max(0, count.coins.count - 1), Int((share * Double(count.coins.count)).rounded(.down)))
-            return count.placed >= target && count.riseShare >= 1
+            return count.placed >= target && count.riseShare >= 1 && count.ready
         case .full:
             return count.isFull && count.isOpen
         case .sealed:

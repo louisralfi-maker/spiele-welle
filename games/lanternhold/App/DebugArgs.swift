@@ -133,6 +133,10 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWPressed <id>|nearest`: that thing's mark held pressed while no finger is down (the pressed frame's
     /// screenshot).
     var pressed: String?
+    /// `-GWCountFreeze <share>|full|sealed|back` (build 3, the count; Debug builds only): an open count stands still
+    /// at that moment, so a screenshot holds it (`PayFreeze`): a share of the coins on the board, the last coin landed,
+    /// the seal a quarter second old, the coins half way back after a let go.
+    var countFreeze: PayFreeze?
 
     /// `-GWGloomFog` values.
     enum GloomFogOverride: Sendable, Equatable {
@@ -177,6 +181,8 @@ struct DebugArgs: Sendable, Equatable {
         "GWStage", "GWHallX", "GWPetition", "GWHearth", "GWStageSlow",
         // Touch the world (stage lane, step stage-2; fix round 1)
         "GWTouchHint", "GWDamage", "GWSnuff", "GWPressed",
+        // b3-count: the count's pictures (Debug builds only)
+        "GWCountFreeze",
         "GWWalk",
         // The lord's hint (stage lane, stage-3-interface fix round 1)
         "GWLordHint",
@@ -318,6 +324,8 @@ struct DebugArgs: Sendable, Equatable {
         if let held = values["GWPressed"]?.trimmingCharacters(in: .whitespaces), !held.isEmpty {
             pressed = held
         }
+        // b3-count: the count stands still for its pictures.
+        countFreeze = PayFreeze.parse(values["GWCountFreeze"])
         #endif
         lord = values["GWLord"].flatMap { LordForm(rawValue: $0.trimmingCharacters(in: .whitespaces).lowercased()) }
         if let name = values["GWLordName"]?.trimmingCharacters(in: .whitespaces), !name.isEmpty {
