@@ -1593,7 +1593,9 @@ def main():
     if a and a[0] == "build":
         names = [n for n in a[1:] if not n.startswith("--") and n != out]
     else:
-        names = list(BUILDERS)
+        # build 3 (lane 3): tools/bannerart.py writes castleBanner.png (seven frames from this painting); the whole
+        # run leaves it alone, so it never puts the old single frame back.
+        names = [n for n in BUILDERS if n != "castleBanner"]
     for n in names:
         im = BUILDERS[n]()
         path = os.path.join(out, n + ".png")
