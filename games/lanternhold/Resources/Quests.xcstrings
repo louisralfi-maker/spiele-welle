@@ -3572,13 +3572,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Laterne {lantern} wartet auf einen Ritt"
+            "value" : "Laterne {lantern} ist für einen Ritt verwahrt"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lantern {lantern} waits for one ride"
+            "value" : "Lantern {lantern} is kept for one ride"
           }
         }
       }

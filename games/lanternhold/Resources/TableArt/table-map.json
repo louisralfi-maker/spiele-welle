@@ -1,10 +1,11 @@
 {
-  "comment": "The Lantern Table's top (docs/QUESTS.md 3.1, 5.2, 6): every position in table pixels (300 x 150, origin top left). tools/tableart.py carves the art from it and UI/Table/TableMap.swift places pins, lanterns, tokens, tags and the lines of light on it, so the two always agree. A route runs from home through its points to the place's pin.",
+  "comment": "The Lantern Table's top (docs/QUESTS.md 3.1, 5.2, 6): every position in table pixels (the realm, 300 x 150, origin top left). The slab is the whole oak table the screen stands on; the realm lies in it at 'realm'. tools/tableart.py carves the art from this file and UI/Table/TableMap.swift places pins, lanterns, tokens, tags, the lines of light and the flame's light on it, so the two always agree. A route runs from home through its points to the place's pin.",
   "size": [300, 150],
-  "rim": 4,
+  "slab": {"size": [444, 200], "realm": [8, 40]},
   "planed": 88,
   "home": [120, 80],
-  "beyond": [44, 80],
+  "flame": [120, 74],
+  "beyond": [78, 80],
   "wend": [[171, 16], [176, 34], [173, 52], [167, 70], [166, 86], [169, 102], [172, 112], [184, 119], [206, 121], [230, 121], [246, 128], [254, 140], [257, 146]],
   "bridge": [172, 112],
   "mere": [256, 47, 8, 4],
@@ -20,6 +21,6 @@
     {"id": "goldenacre", "pin": [272, 124], "pins": "oxmoor", "tag": "above", "route": [[130, 88], [140, 98], [158, 106], [172, 112], [192, 106], [214, 98], [242, 110]]},
     {"id": "beaconfoot", "pin": [100, 104], "pins": "iron", "tag": "below", "route": [[110, 90]]},
     {"id": "beacon", "pin": [98, 58], "pins": "iron", "tag": "above", "route": [[110, 70]]},
-    {"id": "moor_road", "pin": [44, 80], "pins": "none", "tag": "above", "route": [[104, 81], [88, 81], [64, 80]]}
+    {"id": "moor_road", "pin": [78, 80], "pins": "none", "tag": "above", "route": [[104, 81], [88, 81]]}
   ]
 }

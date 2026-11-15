@@ -1,8 +1,9 @@
 import SwiftUI
 
 /// A report laid on the table as a letter (QUESTS.md 2.5 and 5.2: the audience card's parts, docs/UI-look.md): the
-/// speaker's portrait in its inked frame, the name in small capitals and the role as a rubric, whose lantern came home
-/// from where, and the report itself. Its choices stand in the column, under the thumb.
+/// speaker's portrait in its inked frame, the name in small capitals and the role as a rubric, the place the party
+/// went to (the report's first words say whose lantern came home, so the line under the role does not repeat them),
+/// and the report itself. Its choices stand in the column, under the thumb.
 struct TableReportLetter: View {
     let waiting: WaitingReport
     let report: TableReport
@@ -29,9 +30,7 @@ struct TableReportLetter: View {
                             .foregroundStyle(Theme.rubric)
                             .lineLimit(1)
                     }
-                    Text(inked: QuestText.text(waiting.lost ? "table.lost" : "table.home",
-                                               values: ["lantern": String(waiting.lantern)]) + " · " + place,
-                         .footnote)
+                    Text(inked: place, .footnote)
                         .font(Theme.italic(.footnote))
                         .foregroundStyle(Theme.inkSoft)
                         .fixedSize(horizontal: false, vertical: true)

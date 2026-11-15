@@ -44,6 +44,8 @@ final class TableUITests: XCTestCase {
         XCTAssertEqual(element(app, "table-pin-tallowford").value as? String, "lit", "Tallowford's pin glows")
         XCTAssertEqual(element(app, "table-pin-highcairn").value as? String, "dull")
         XCTAssertEqual(element(app, "table-hook-38").value as? String, "hook", "38 hangs dark on its hook")
+        XCTAssertTrue(waitFor(element(app, "table-rail"), contains: ["38:dark", "39:dark", "40:dark", "41:kept"],
+                              timeout: 5), "three dark lanterns and the kept one: \(text(element(app, "table-rail")))")
         checkTarget(element(app, "table-pin-tallowford"), "Tallowford's pin")
         checkTarget(element(app, "table-hook-38"), "hook 38")
         pause(0.8)
@@ -58,6 +60,11 @@ final class TableUITests: XCTestCase {
         XCTAssertTrue(element(app, "table-tag-tallowford").exists, "the open slip's place shows its tag")
         checkTarget(send, "Send")
         pause(0.5)
+        let column = element(app, "table-column").frame
+        let offer = element(app, "table-offer-oil_round").frame
+        note("table-slip", "column \(column) slip \(offer) send \(send.frame)")
+        XCTAssertGreaterThanOrEqual(offer.minY, column.minY - 0.5, "the open slip's top is not cut by the column")
+        XCTAssertLessThanOrEqual(send.frame.maxY, column.maxY + 0.5, "and its order is in sight")
         attach(XCUIScreen.main.screenshot(), "41-slip-\(language)")
 
         send.tap()
@@ -88,7 +95,15 @@ final class TableUITests: XCTestCase {
         XCTAssertTrue(report.waitForExistence(timeout: 90), "Pip's report waits at dawn 3")
         XCTAssertTrue(waitFor(status, contains: ["day:3", "reports:1", "out:0"], timeout: 10), text(status))
         XCTAssertEqual(element(app, "table-hook-38").value as? String, "back", "home, not yet on its hook")
-        XCTAssertTrue(element(app, "table-home-38").exists, "lantern 38 stands by the castle")
+        XCTAssertTrue(element(app, "table-home-38").exists, "Pip's piece stands by the castle")
+        XCTAssertTrue(waitFor(element(app, "table-rail"), contains: ["38:lit"], timeout: 5),
+                      "lantern 38 burns on its hook: \(text(element(app, "table-rail")))")
+        let castle = element(app, "table-castle").frame
+        let letter = element(app, "table-report").frame
+        note("table-report", "castle \(castle) letter \(letter) home \(element(app, "table-home-38").frame)")
+        XCTAssertLessThanOrEqual(castle.maxX, letter.minX, "the letter leaves the castle in sight")
+        XCTAssertLessThanOrEqual(element(app, "table-home-38").frame.midX, letter.minX,
+                                 "and Pip standing at it")
         let words = element(app, "table-report-text").label
         XCTAssertTrue(words.contains("38"), "the report names its lantern in digits: \(words)")
         XCTAssertTrue(words.contains(language == "de" ? "Dochtheit" : "Wickship"), "Pip speaks: \(words)")
@@ -104,6 +119,8 @@ final class TableUITests: XCTestCase {
         XCTAssertTrue(waitFor(status, contains: ["lanes:1", "reports:0", "hook:3"], timeout: 5),
                       "the lanes are lit and lantern 38 hangs again: \(text(status))")
         XCTAssertEqual(element(app, "table-hook-38").value as? String, "hook")
+        XCTAssertTrue(waitFor(element(app, "table-rail"), contains: ["38:lit"], timeout: 5),
+                      "hung again, still burning until Done: \(text(element(app, "table-rail")))")
         pause(0.5)
         attach(XCUIScreen.main.screenshot(), "46-reaction-\(language)")
 
@@ -112,6 +129,10 @@ final class TableUITests: XCTestCase {
         done.tap()
         XCTAssertTrue(waitForGone(reaction, timeout: 5))
         XCTAssertTrue(element(app, "table-report").waitForNonExistence(timeout: 5), "no report waits any more")
+        XCTAssertTrue(waitFor(element(app, "table-rail"), contains: ["38:dark"], timeout: 5),
+                      "Done: the lantern goes dark on its hook: \(text(element(app, "table-rail")))")
+        pause(0.4)
+        attach(XCUIScreen.main.screenshot(), "50-done-\(language)")
         element(app, "table-back").tap()
         XCTAssertTrue(waitFor(element(app, "table-status"), contains: ["day:4"], timeout: 90),
                       "Back closes the table; the next morning it opens again")
@@ -191,6 +212,8 @@ final class TableUITests: XCTestCase {
         for (number, state) in states {
             XCTAssertEqual(element(app, "table-hook-\(number)").value as? String, state, "hook \(number)")
         }
+        XCTAssertTrue(waitFor(element(app, "table-rail"), contains: ["38:bare", "39:dark", "40:charred", "41:kept"],
+                              timeout: 5), "the rail's four pictures: \(text(element(app, "table-rail")))")
         let lantern = element(app, "table-out-highcairn_count")
         XCTAssertTrue(lantern.exists, "38 burns at Highcairn")
         element(app, "table-hook-40").tap()

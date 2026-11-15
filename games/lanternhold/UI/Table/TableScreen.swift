@@ -3,14 +3,19 @@ import SwiftUI
 /// The Lantern Table (`Overlay.table`; docs/QUESTS.md 5.2 to 5.5, the look of docs/UI-look.md; the quests lane, step
 /// quests-3). The clock stands while it is open and no ad is ever shown on it.
 ///
-/// - Left, to look at: the carved table top at whole device pixels per texel. Pins glow where a sending waits; a
-///   lantern out burns at the place it went to with its carved piece beside it, and a thin line of light creeps along
-///   the road from the castle toward it as its nights pass (full on the last day before it is due). A touched pin or
-///   lantern shows its paper tag; the open slip's road is dotted.
-/// - Right, to touch: the hook rail (the status display: dark lanterns at home, bare hooks for lanterns out, a charred
-///   hook for a lost one), "Lanterns on the hook: 2 of 3", the slips (tap one to open it, tap an order to send; "Call
-///   back" until the screen closes), a report's choices, and Back.
-/// - Reports first: a waiting report lies as a letter over the table and its choices stand in the column.
+/// - The ground is the oak table itself, edge to edge (`tableSlab`, the critic of quests-3): the carved realm lies in it
+///   at whole device pixels per texel, as large as the screen's height and the column allow, the bare planed west
+///   running off the screen's west edge, the title on the plain oak above the carving. Pins glow where a sending waits;
+///   a lantern out burns at the place it went to with its carved piece beside it, and a thin line of light creeps along
+///   the road from the castle toward it as its nights pass (full on the last day before it is due). The house's flame
+///   over the castle carries the screen's warmest light. A touched pin or lantern shows its paper tag; the open slip's
+///   road is dotted.
+/// - Right, to touch, lying on the oak: the hook rail (the status display: dark lanterns at home, the kept one bound in
+///   red cloth, a lantern home with its report burning on its hook, bare hooks for lanterns out, a charred hook for a
+///   lost one), "Lanterns on the hook: 2 of 3", the slips (tap one to open it, tap an order to send; "Call back" until
+///   the screen closes), a report's choices, and Back.
+/// - Reports first: a waiting report lies as a letter over the realm east of the castle, so the castle and the bearer
+///   standing at it stay in sight; its choices stand in the column.
 @MainActor
 struct TableScreen: View {
     let model: GameModel
@@ -29,6 +34,10 @@ struct TableScreen: View {
     /// Lanterns that left while the screen is open: they travel from the castle to their place once.
     @State private var travelling: Set<String> = []
     @State private var arrived: Set<String> = []
+    /// The open slip's height and the column's visible height: the open slip scrolls to its top when it fits, to its
+    /// end only when it does not (the critic of quests-3).
+    @State private var openHeight: CGFloat = 0
+    @State private var viewport: CGFloat = 0
     @Environment(\.displayScale) private var displayScale
 
     init(model: GameModel, close: @escaping () -> Void) {
@@ -45,20 +54,33 @@ struct TableScreen: View {
         let _ = tick
         let realm = model.tableRealm
         GeometryReader { geometry in
-            let layout = TableLayout(size: geometry.size, scale: displayScale, map: map)
-            HStack(alignment: .center, spacing: layout.gap) {
-                VStack(alignment: .leading, spacing: 6) {
-                    header(realm)
-                    board(realm, layout)
+            let layout = TableLayout(size: geometry.size, insets: geometry.safeAreaInsets, scale: displayScale,
+                                     map: map)
+            let report = realm.flatMap { waitingReport($0) }
+            ZStack(alignment: .topLeading) {
+                TableGround()
+                TablePixels(image: TableArt.image("tableSlab"), unit: layout.unit)
+                    .position(x: layout.slab.x + CGFloat(map.slabWidth) * layout.unit / 2,
+                              y: layout.slab.y + CGFloat(map.slabHeight) * layout.unit / 2)
+                    .accessibilityHidden(true)
+                board(realm, layout)
+                    .position(x: layout.realm.x + CGFloat(map.width) * layout.unit / 2,
+                              y: layout.realm.y + CGFloat(map.height) * layout.unit / 2)
+                if reaction != nil || report != nil {
+                    letterLayer(realm, report: report, layout)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                header(realm)
+                    .frame(width: max(120, layout.columnX - layout.headerX - 12), height: max(24, layout.band),
+                           alignment: .leading)
+                    .position(x: layout.headerX + max(120, layout.columnX - layout.headerX - 12) / 2,
+                              y: max(24, layout.band) / 2)
                 column(realm, layout)
-                    .frame(width: layout.column)
-                    .frame(maxHeight: .infinity)
+                    .frame(width: layout.column, height: layout.columnHeight)
+                    .position(x: layout.columnX + layout.column / 2, y: layout.columnTop + layout.columnHeight / 2)
             }
-            .padding(.vertical, 6)
+            .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
         }
-        .background(TableGround())
+        .ignoresSafeArea()
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("table-root")
         .onAppear {
@@ -79,7 +101,8 @@ struct TableScreen: View {
             if let realm {
                 Text(inked: QuestText.text("table.day", values: ["n": String(realm.day)]), .subheadline)
                     .font(Theme.italic(.subheadline))
-                    .foregroundStyle(Theme.boneDim)
+                    .foregroundStyle(Theme.bone.opacity(0.85))
+                    .lineLimit(1)
             }
             Spacer(minLength: 0)
         }
@@ -93,31 +116,38 @@ struct TableScreen: View {
         let covered = (realm?.day ?? 1) < ErrandEngine.firstDay
         let picture = realm.map { self.picture($0, table: table, covered: covered) } ?? TablePicture(covered: true)
         let lanterns = realm.map { self.lanterns($0, table: table) } ?? []
-        let report = realm.flatMap { waitingReport($0) }
         ZStack(alignment: .topLeading) {
             TablePixels(image: TablePictureCache.image(picture, map: map), unit: unit)
             if !covered {
+                TableFlameGlow(still: still, radius: unit * 20)
+                    .position(x: (CGFloat(map.flame.x) + 0.5) * unit, y: (CGFloat(map.flame.y) + 0.5) * unit)
                 lightGlow(picture, unit: unit)
                 pinGlows(picture, unit: unit)
                 ForEach(lanterns, id: \.id) { lantern in
                     lanternGlow(lantern, unit: unit)
                 }
+                castleProbe(unit: unit)
                 pinButtons(realm, picture: picture, unit: unit)
                 ForEach(lanterns, id: \.id) { lantern in
                     lanternPiece(lantern, unit: unit)
                 }
                 tags(realm, lanterns: lanterns, unit: unit)
             }
-            if reaction != nil || report != nil {
-                Color.black.opacity(0.32)
-                    .allowsHitTesting(false)
-                letter(realm, report: report, unit: unit)
-            }
         }
         .frame(width: CGFloat(map.width) * unit, height: CGFloat(map.height) * unit, alignment: .topLeading)
-        .clipped()
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("table-map")
+    }
+
+    /// Where the castle stands (for the UI test that keeps the letter off it).
+    private func castleProbe(unit: CGFloat) -> some View {
+        Color.clear
+            .frame(width: 19 * unit, height: 17 * unit)
+            .position(x: (CGFloat(map.home.x) + 0.5) * unit, y: (CGFloat(map.home.y) + 0.5) * unit)
+            .allowsHitTesting(false)
+            .accessibilityElement()
+            .accessibilityIdentifier("table-castle")
+            .accessibilityLabel(Text(placeName("lanternhold")))
     }
 
     /// The table top's picture for the realm as it is now.
@@ -157,6 +187,8 @@ struct TableScreen: View {
         var errand: String
         var due: Int?
         var beyond: Bool
+        /// Home with its report: only the party's piece stands by the castle; the lantern burns on its hook.
+        var home = false
     }
 
     private func lanterns(_ realm: GameState, table: TableState?) -> [MapLantern] {
@@ -175,8 +207,8 @@ struct TableScreen: View {
                                        beyond: sending.dueDay >= ErrandEngine.neverHome))
             } else if let waiting {
                 list.append(MapLantern(id: "home-\(lantern.number)", number: lantern.number, spot: spot,
-                                       place: "lanternhold", token: nil, errand: waiting.errand, due: nil,
-                                       beyond: false))
+                                       place: "lanternhold", token: TableBoard.homeToken(waiting, catalog: catalog),
+                                       errand: waiting.errand, due: nil, beyond: false, home: true))
             }
         }
         return list
@@ -212,7 +244,7 @@ struct TableScreen: View {
 
     private func lanternGlow(_ lantern: MapLantern, unit: CGFloat) -> some View {
         let point = spot(lantern)
-        let radius = unit * 22
+        let radius = unit * (lantern.home ? 9 : 22)
         return Circle()
             .fill(RadialGradient(colors: [Color(hex: 0xFF8A2A, opacity: 0.5), Color(hex: 0xFF8A2A, opacity: 0)],
                                  center: .center, startRadius: 0, endRadius: radius))
@@ -230,11 +262,19 @@ struct TableScreen: View {
             let beat = Int(timeline.date.timeIntervalSinceReferenceDate / 0.22) + lantern.number * 3
             let frame = still ? 0 : (beat % 5 == 0 || beat % 7 == 0 ? 1 : 0)
             ZStack(alignment: .topLeading) {
-                TablePixels(image: TableArt.image("tableLantern", frame: frame, width: 7), unit: unit)
-                    .offset(x: CGFloat(point.x - 3) * unit, y: CGFloat(point.y - 7) * unit)
-                if let token = lantern.token, let image = TableArt.image(token.sprite) {
-                    TablePixels(image: image, unit: unit)
-                        .offset(x: CGFloat(point.x + 5) * unit, y: CGFloat(point.y + 4 - image.height) * unit)
+                if lantern.home {
+                    if let token = lantern.token, let image = TableArt.image(token.sprite) {
+                        TablePixels(image: image, unit: unit)
+                            .offset(x: CGFloat(point.x - image.width / 2) * unit,
+                                    y: CGFloat(point.y + 4 - image.height) * unit)
+                    }
+                } else {
+                    TablePixels(image: TableArt.image("tableLantern", frame: frame, width: 7), unit: unit)
+                        .offset(x: CGFloat(point.x - 3) * unit, y: CGFloat(point.y - 7) * unit)
+                    if let token = lantern.token, let image = TableArt.image(token.sprite) {
+                        TablePixels(image: image, unit: unit)
+                            .offset(x: CGFloat(point.x + 5) * unit, y: CGFloat(point.y + 4 - image.height) * unit)
+                    }
                 }
             }
         }
@@ -371,9 +411,30 @@ struct TableScreen: View {
         return (table.reports[next], report)
     }
 
+    /// Where the letter lies: over the realm east of the castle and the bearer standing at it, west of the column,
+    /// within the safe area (the critic of quests-3: the homecoming is seen, not only read).
+    private func letterRect(_ layout: TableLayout) -> CGRect {
+        let right = layout.columnX - 10
+        var left = layout.realm.x + CGFloat(map.home.x + 30) * layout.unit
+        left = min(max(left, layout.leading + 8), right - 260)
+        let top = max(layout.realm.y + 6, 8)
+        let bottom = layout.safeBottom - 8
+        return CGRect(x: left, y: top, width: max(200, right - left), height: max(120, bottom - top))
+    }
+
     @ViewBuilder
-    private func letter(_ realm: GameState?, report: (WaitingReport, TableReport)?, unit: CGFloat) -> some View {
-        let width = min(CGFloat(map.width) * unit - 28, 470)
+    private func letterLayer(_ realm: GameState?, report: (WaitingReport, TableReport)?, _ layout: TableLayout)
+        -> some View {
+        let rect = letterRect(layout)
+        let veil = CGRect(x: rect.minX - 20, y: layout.realm.y, width: layout.columnX - rect.minX + 20,
+                          height: layout.size.height - layout.realm.y)
+        LinearGradient(stops: [.init(color: .black.opacity(0), location: 0),
+                               .init(color: .black.opacity(0.3), location: min(1, 28 / max(1, veil.width)))],
+                       startPoint: .leading, endPoint: .trailing)
+            .frame(width: veil.width, height: veil.height)
+            .position(x: veil.midX, y: veil.midY)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
         Group {
             if let note = reaction {
                 TableReactionLetter(note: note)
@@ -383,8 +444,10 @@ struct TableScreen: View {
                                   place: placeName(found.0.place))
             }
         }
-        .frame(width: width)
-        .frame(width: CGFloat(map.width) * unit, height: CGFloat(map.height) * unit)
+        .frame(width: rect.width)
+        .frame(maxHeight: rect.height)
+        .frame(width: rect.width, height: rect.height)
+        .position(x: rect.midX, y: rect.midY)
         .transition(still ? .identity : .opacity)
     }
 
@@ -393,7 +456,7 @@ struct TableScreen: View {
     @ViewBuilder
     private func column(_ realm: GameState?, _ layout: TableLayout) -> some View {
         let table = realm.map { $0.table ?? .start(catalog) }
-        VStack(alignment: .trailing, spacing: 6) {
+        VStack(alignment: .trailing, spacing: 4) {
             if let table { rail(table, realm: realm, layout) }
             TableHugging {
                 ScrollViewReader { reader in
@@ -407,19 +470,22 @@ struct TableScreen: View {
                                 slips(realm)
                             }
                         }
-                        .padding(10)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .scrollBounceBehavior(.basedOnSize)
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { viewport = $0 }
                     .onChange(of: selected) { _, open in
-                        guard let open else { return }
-                        withAnimation(still ? nil : .easeOut(duration: 0.25)) {
-                            reader.scrollTo("open-\(open)", anchor: .bottom)
-                        }
+                        guard open != nil else { return }
+                        Task { @MainActor in reveal(reader) }
                     }
+                    .onChange(of: openHeight) { _, _ in reveal(reader) }
                 }
             }
             .background(ParchmentBackground())
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("table-column")
             Spacer(minLength: 0)
             HStack(spacing: 8) {
                 statusProbe(realm)
@@ -444,11 +510,22 @@ struct TableScreen: View {
     @ViewBuilder
     private func rail(_ table: TableState, realm: GameState?, _ layout: TableLayout) -> some View {
         let flags = realm?.flags ?? []
-        let hooks = table.lanterns.map { (number: $0.number, hook: TableBoard.hook($0, flags: flags)) }
+        let answering = reaction.flatMap { $0.lost ? nil : $0.lantern }
+        let hooks = table.lanterns.map {
+            (number: $0.number, hook: TableBoard.hook($0, flags: flags, answering: answering))
+        }
         let unit = layout.railUnit
-        VStack(alignment: .center, spacing: 3) {
+        VStack(alignment: .center, spacing: 2) {
             ZStack(alignment: .topLeading) {
                 TablePixels(image: TableRailCache.image(hooks), unit: unit)
+                ForEach(Array(hooks.prefix(TableRailPicture.slots.count).enumerated()), id: \.offset) { index, entry in
+                    if entry.hook == .lit {
+                        TableFlameGlow(still: true, radius: unit * 11)
+                            .position(x: CGFloat(TableRailPicture.slots[index]) * unit - unit / 2,
+                                      y: CGFloat(TableRailPicture.glowY) * unit)
+                    }
+                }
+                railProbe(hooks)
                 ForEach(Array(table.lanterns.prefix(TableRailPicture.slots.count).enumerated()), id: \.offset) {
                     index, lantern in
                     Button {
@@ -470,9 +547,7 @@ struct TableScreen: View {
             }
             .frame(width: CGFloat(TableRailPicture.width) * unit,
                    height: max(44, CGFloat(TableRailPicture.height) * unit), alignment: .topLeading)
-            Text(inked: hookNote.flatMap { number in table.lantern(number).map { hookWords($0, table: table) } }
-                 ?? QuestText.text("table.hooks", values: ["n": String(table.onHook),
-                                                           "total": String(table.roadLanterns)]), .footnote)
+            Text(inked: railLine(table, realm: realm), .footnote)
                 .font(Theme.italic(.footnote))
                 .foregroundStyle(Theme.bone)
                 .lineLimit(1)
@@ -481,6 +556,40 @@ struct TableScreen: View {
         }
         .frame(maxWidth: .infinity)
     }
+
+    /// The line under the rail: the touched hook's words; while a report waits, its lantern's ("Lantern 38 is home",
+    /// burning on its hook); else the count, which counts exactly the dark lanterns.
+    private func railLine(_ table: TableState, realm: GameState?) -> String {
+        if let number = hookNote, let lantern = table.lantern(number) { return hookWords(lantern, table: table) }
+        if reaction == nil, let realm, let found = waitingReport(realm), let lantern = table.lantern(found.0.lantern) {
+            return hookWords(lantern, table: table)
+        }
+        return QuestText.text("table.hooks", values: ["n": String(table.onHook), "total": String(table.roadLanterns)])
+    }
+
+    /// What the rail shows, for UI tests: "38:dark 39:dark 40:dark 41:kept".
+    private func railProbe(_ hooks: [(number: Int, hook: TableBoard.Hook)]) -> some View {
+        let text = hooks.map { "\($0.number):\($0.hook)" }.joined(separator: " ")
+        return Color.clear
+            .frame(width: 2, height: 2)
+            .allowsHitTesting(false)
+            .accessibilityElement()
+            .accessibilityIdentifier("table-rail")
+            .accessibilityValue(Text(verbatim: text))
+    }
+
+    /// Brings the open slip into view: its top when it fits the column (with the room left split above and below it,
+    /// up to 8 pt), its end when it does not.
+    private func reveal(_ reader: ScrollViewProxy) {
+        guard let open = selected else { return }
+        let fits = openHeight <= viewport + 0.5
+        withAnimation(still ? nil : .easeOut(duration: 0.25)) {
+            reader.scrollTo(fits ? "top-\(open)" : "end-\(open)", anchor: fits ? .top : .bottom)
+        }
+    }
+
+    /// The room above an open slip that fits the column.
+    private var slipMargin: CGFloat { max(0, min(8, (viewport - openHeight) / 2)) }
 
     private func hookWords(_ lantern: RoadLantern, table: TableState) -> String {
         let n = ["lantern": String(lantern.number)]
@@ -611,7 +720,7 @@ struct TableScreen: View {
                     }
                 }
                 .padding(.horizontal, 8)
-                .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+                .frame(maxWidth: .infinity, minHeight: open ? 44 : 52, alignment: .leading)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -628,13 +737,21 @@ struct TableScreen: View {
                     ForEach(Array(errand.orders.enumerated()), id: \.offset) { index, _ in
                         orderTile(errand, index, realm)
                     }
-                    Color.clear.frame(height: 1).id("open-\(errand.id)")
                 }
                 .padding(.horizontal, 8)
                 .padding(.bottom, 8)
             }
         }
         .background(SlipBackground(teal: open))
+        .background(alignment: .top) {
+            Color.clear.frame(height: 1).alignmentGuide(.top) { d in d[.top] + slipMargin }.id("top-\(errand.id)")
+        }
+        .background(alignment: .bottom) {
+            Color.clear.frame(height: 1).alignmentGuide(.bottom) { d in d[.bottom] - 8 }.id("end-\(errand.id)")
+        }
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height in
+            if open { openHeight = height }
+        }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("table-offer-\(errand.id)")
     }
@@ -779,23 +896,57 @@ struct TableReaction: Equatable {
     var lost: Bool
 }
 
-/// The screen's measures (QUESTS.md 5.2): a column of 226 pt (170 at least) for the thumb, the table top at the largest
-/// whole number of device pixels per texel that fits beside it, the rail at the same scale unless its hooks would then
-/// stand closer than 44 pt.
+/// The screen's measures (QUESTS.md 5.2; the critic of quests-3: the table is the ground, the realm as large as it
+/// fits). The column keeps 226 pt (170 at least) inside the safe area on the right. The realm is drawn at the largest
+/// whole number of device pixels per texel at which its height leaves a band for the title and the realm from the
+/// Moor Road's spot (x 74) to its east edge (x 292) fits between the safe area and the column; its east frame runs
+/// under the column's edge and its bare west off the screen. The slab lies round it; the rail keeps the realm's scale
+/// unless its hooks would stand closer than 44 pt or it would be wider than the column.
 struct TableLayout {
+    /// The realm's columns that must be on screen: the Moor Road's lantern in the west, the east edge of the carving.
+    static let west = 74
+    static let east = 292
+    static let gap: CGFloat = 8
+    static let titleBand: CGFloat = 40
+
+    let size: CGSize
     let unit: CGFloat
     let railUnit: CGFloat
     let column: CGFloat
-    let gap: CGFloat = 14
+    let columnX: CGFloat
+    let columnTop: CGFloat
+    let columnHeight: CGFloat
+    /// The realm's and the slab's top-left corners on the screen.
+    let realm: CGPoint
+    let slab: CGPoint
+    /// The band above the realm (the title lies in it) and where the title starts (east of the planed edge).
+    let band: CGFloat
+    let headerX: CGFloat
+    let leading: CGFloat
+    let safeBottom: CGFloat
 
-    init(size: CGSize, scale: CGFloat, map: TableMap) {
+    init(size: CGSize, insets: EdgeInsets, scale: CGFloat, map: TableMap) {
         let screenScale = max(1, scale)
+        func snap(_ value: CGFloat) -> CGFloat { (value * screenScale).rounded() / screenScale }
+        self.size = size
+        leading = insets.leading
+        safeBottom = size.height - insets.bottom
         column = size.width >= 760 ? 226 : max(170, min(226, size.width * 0.3))
-        let header: CGFloat = 28
-        let fitWidth = (size.width - column - gap) / CGFloat(max(1, map.width))
-        let fitHeight = (size.height - header - 12) / CGFloat(max(1, map.height))
-        let devicePixels = max(1, (min(fitWidth, fitHeight) * screenScale).rounded(.down))
+        columnX = snap(size.width - insets.trailing - column)
+        columnTop = insets.top + 6
+        columnHeight = max(0, size.height - insets.top - insets.bottom - 12)
+        let room = columnX - TableLayout.gap - insets.leading
+        let fitWidth = room / CGFloat(TableLayout.east - TableLayout.west)
+        let fitHeight = (size.height - insets.top - TableLayout.titleBand) / CGFloat(max(1, map.height))
+        let devicePixels = max(1, (min(fitWidth, fitHeight) * screenScale + 0.001).rounded(.down))
         unit = devicePixels / screenScale
+        let x = snap(columnX - TableLayout.gap - CGFloat(TableLayout.east) * unit)
+        let free = size.height - CGFloat(map.height) * unit
+        let y = snap(free <= 52 ? free : 52 + (free - 52) / 2)
+        realm = CGPoint(x: x, y: y)
+        slab = CGPoint(x: x - CGFloat(map.slabOrigin.x) * unit, y: y - CGFloat(map.slabOrigin.y) * unit)
+        band = y
+        headerX = max(insets.leading + 10, x + CGFloat(map.planed + 6) * unit)
         var rail = unit
         while CGFloat(TableRailPicture.slots[1] - TableRailPicture.slots[0]) * rail < 44 { rail += 1 / screenScale }
         while CGFloat(TableRailPicture.width) * rail > column && rail > 1 / screenScale { rail -= 1 / screenScale }
@@ -851,6 +1002,30 @@ enum TableRailCache {
         guard let image = SpriteImages.cgImage(TableRailPicture.compose(hooks)) else { return nil }
         last = (numbers, states, image)
         return image
+    }
+}
+
+/// The house's flame over the castle, and a lantern burning on its hook: a warm light that breathes slowly unless
+/// Reduce Motion is on (light from the screen, not paint).
+struct TableFlameGlow: View {
+    let still: Bool
+    let radius: CGFloat
+    @State private var bright = false
+
+    var body: some View {
+        Circle()
+            .fill(RadialGradient(colors: [Color(hex: 0xFFC65A, opacity: 0.55), Color(hex: 0xFF8A2A, opacity: 0.18),
+                                          Color(hex: 0xFF8A2A, opacity: 0)],
+                                 center: .center, startRadius: 0, endRadius: radius))
+            .frame(width: radius * 2, height: radius * 2)
+            .blendMode(.plusLighter)
+            .opacity(still ? 0.9 : (bright ? 1 : 0.75))
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+            .onAppear {
+                guard !still else { return }
+                withAnimation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true)) { bright = true }
+            }
     }
 }
 

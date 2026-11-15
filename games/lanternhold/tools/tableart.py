@@ -2,11 +2,14 @@
 """Lanternhold: the Lantern Table's art (docs/QUESTS.md section 6; the quests lane, step quests-3).
 
 Hand-set pixel art on the shared palette (tools/palette.txt), drawn from rules and text grids, never generated: the
-carved oak table top seen from above with the Wend inlaid in the realm's teal and a western third of bare planed wood,
-the two knife-scratch overlays and the span for that bare wood and the old bridge, the cloth of day 1, the brass place
-pins (house pins in the house's colour), the burning road lantern and the boxwood tokens on the table, and the hook
-rail of the screen (the board, the iron hook, the dark lantern, the soot of a lost lantern, the chalk stroke, the
-plate's digits), and Odile's seal. One texel is one table pixel; the screen draws them at whole device pixels.
+whole oak table the screen stands on (the slab, planks running off every edge of the screen) with the realm carved into
+it inside one groove, the Wend inlaid in the realm's teal, the downs and woods as hand-drawn relief lit from the
+north-west, the Weltmauer peak by peak, the castle with the house's flame in gold leaf, and Lord Edric's planed west
+across the table's whole depth; the realm cut from the slab as the table top; the two knife-scratch overlays and the
+span for the bare wood and the old bridge, the cloth of day 1, the brass place pins (house pins in the house's colour),
+the burning road lantern and the boxwood tokens on the table, and the hook rail of the screen (the board, the iron hook,
+the lantern dark, blank, kept in red cloth and lit, the soot and chalk of a lost lantern, the plates' figures in the
+interface kit's face), and Odile's seal. One texel is one table pixel; the screen draws them at whole device pixels.
 
 Every position on the table comes from Resources/TableArt/table-map.json, which UI/Table/TableMap.swift reads too, so
 the pins, lanterns and lines of light stand exactly on what is carved here.
@@ -130,11 +133,38 @@ def disc(cx, cy, rx, ry):
 # ----------------------------------------------------------------------------------------------------- the table top
 
 W, H = MAP["size"]
-RIM = MAP["rim"]
 PLANED = MAP["planed"]
 HOME = tuple(MAP["home"])
 PLACES = {p["id"]: p for p in MAP["places"]}
-SEAMS = [33, 62, 91, 120]  # the oak's plank seams (rows)
+SW, SH = MAP["slab"]["size"]   # the whole table the screen stands on
+SX, SY = MAP["slab"]["realm"]  # where the carved realm (the 300 x 150 table top) lies in it
+SEAMS = [33, 62, 91, 120]      # the oak's plank seams (rows of the realm); every 29 rows across the slab
+LOW = H - 3                    # the frame's south groove (row 147): the carving lies above it
+EAST = W - 3                   # the frame's east groove (column 297)
+
+
+class Offset:
+    """The realm's carving drawn straight onto the slab: realm coordinates in, slab pixels out."""
+
+    def __init__(self, g, dx, dy):
+        self.g = g
+        self.dx = dx
+        self.dy = dy
+        self.w = W
+        self.h = H
+
+    def inside(self, x, y):
+        return 0 <= x < self.w and 0 <= y < self.h
+
+    def set(self, x, y, name):
+        if self.inside(x, y):
+            self.g.set(x + self.dx, y + self.dy, name)
+
+    def get(self, x, y):
+        return self.g.get(x + self.dx, y + self.dy) if self.inside(x, y) else None
+
+    def stamp(self, rows, legend, x0, y0, mirror=False):
+        Grid.stamp(self, rows, legend, x0, y0, mirror)
 
 
 def carved_route(place):
@@ -166,59 +196,260 @@ def flowing_grain(g, x0, x1, y0, y1, r, color, spacing, amp, period, knots=(), c
             prev = yi
 
 
-def oak_field(g, r):
-    for y in range(H):
-        for x in range(W):
+def slab_seams():
+    """The seams' rows on the slab, in step with the realm's."""
+    return list(range((SY + SEAMS[0]) % 29, SH, 29))
+
+
+def knot(g, kx, ky, kr, ring, core):
+    for (x, y) in disc(kx, ky, kr + 0.8, kr * 0.6 + 0.4):
+        g.set(x, y, ring)
+    for (x, y) in disc(kx, ky, kr - 0.6, max(0.5, kr * 0.3)):
+        g.set(x, y, core)
+
+
+# Plank ends on the bare slab, never inside the carving's frame: (the seam row above the plank, x).
+JOINTS = [(15, 236), (15, 398), (44, 344), (73, 421), (102, 333), (131, 389), (160, 352), (189, 120), (189, 410)]
+
+
+def slab_ground(g, r):
+    """The waxed oak of the whole table (the critic of quests-3: the table is the screen's ground): planks running east
+    and west, their seams every 29 rows, a quiet long grain, two knots and the plank ends, outside the carving."""
+    for y in range(SH):
+        for x in range(SW):
             g.set(x, y, "wood")
-    # the waxed oak keeps its grain quiet: the carving is what shows; only the plank seams run through it
-    for sy in SEAMS:
-        for x in range(W):
+    seams = slab_seams()
+    knots = [(262, 24, 2), (380, 120, 2)]
+    for top, bottom in zip([0] + seams, seams + [SH]):
+        flowing_grain(g, 0, SW, top + 2, bottom - 1, r, "soilLight", 6, 0.8, 150, knots, cover=0.5)
+    for (kx, ky, kr) in knots:
+        knot(g, kx, ky, kr, "soilLight", "woodDark")
+    for sy in seams:
+        for x in range(SW):
             g.set(x, sy, "woodDark")
-            if x % 37 == 5:
+            if (x - SX) % 37 == 5:
                 g.set(x, sy + 1, "soil")
+    for (seam, x) in JOINTS:
+        for y in range(max(0, seam + 1), min(SH, seam + 29)):
+            if SX - 1 <= x <= SX + W and SY - 1 <= y <= SY + H:
+                continue
+            g.set(x, y, "woodDark")
+            g.set(x + 1, y, "woodLight")
 
 
-def bare_west(g, r):
-    """Lord Edric's planed third: raw oak lighter than the waxed east, its grain flowing round two knots."""
-    knots = [(60, 108, 2)]
-    for y in range(RIM, H - RIM):
-        for x in range(RIM, PLANED):
+def planed_band(g, r):
+    """Lord Edric's planed west, across the whole table: raw oak lighter than the waxed east, its grain flowing round
+    two knots, the seams in the lighter wood, and the cut where the carving was planed away."""
+    edge = SX + PLANED
+    knots = [(68, 148, 2), (84, 27, 2)]
+    for y in range(SH):
+        for x in range(edge):
             g.set(x, y, "straw")
-    for top, bottom in zip([RIM] + SEAMS, SEAMS + [H - RIM]):
-        flowing_grain(g, RIM, PLANED - 1, top + 1, bottom, r, "plasterDim", 4, 0.9, 90, knots, cover=0.8)
-        flowing_grain(g, RIM, PLANED - 1, top + 2, bottom, r, "woodLight", 13, 1.1, 120, knots, cover=0.55)
-        flowing_grain(g, RIM, PLANED - 1, top + 1, bottom, r, "strawLight", 9, 0.8, 100, knots, cover=0.35)
-    for sy in SEAMS:
-        for x in range(RIM, PLANED):
+    seams = slab_seams()
+    for top, bottom in zip([0] + seams, seams + [SH]):
+        flowing_grain(g, 0, edge - 1, top + 1, bottom, r, "plasterDim", 4, 0.9, 90, knots, cover=0.8)
+        flowing_grain(g, 0, edge - 1, top + 2, bottom, r, "woodLight", 13, 1.1, 120, knots, cover=0.55)
+        flowing_grain(g, 0, edge - 1, top + 1, bottom, r, "strawLight", 9, 0.8, 100, knots, cover=0.35)
+    for sy in seams:
+        for x in range(edge):
             g.set(x, sy, "woodLight")
     for (kx, ky, kr) in knots:
-        for (x, y) in disc(kx, ky, kr + 0.8, kr * 0.6 + 0.4):
-            g.set(x, y, "woodLight")
-        for (x, y) in disc(kx, ky, kr - 0.6, max(0.5, kr * 0.3)):
-            g.set(x, y, "wood")
+        knot(g, kx, ky, kr, "woodLight", "wood")
     # the cut: the step's face catches the light from the west, the waxed edge above it a shade darker
-    for y in range(RIM, H - RIM):
-        g.set(PLANED, y, "strawLight")
-        g.set(PLANED + 1, y, "woodDark")
+    for y in range(SH):
+        g.set(edge, y, "strawLight")
+        g.set(edge + 1, y, "woodDark")
 
 
-def rim(g):
-    """The table's moulded edge, lit on its west and north sides."""
-    for y in range(H):
-        for x in range(W):
-            d = min(x, y, W - 1 - x, H - 1 - y)
-            if d >= RIM:
-                continue
-            topleft = (d == y or d == x) and not (d == H - 1 - y or d == W - 1 - x)
-            if d == 0:
-                g.set(x, y, "soilDark")
-            elif d == 1:
-                g.set(x, y, "straw" if topleft else "woodDark")
-            elif d == 2:
-                g.set(x, y, "woodLight" if topleft else "wood")
-            else:
-                g.set(x, y, "soilDark")
+def frame(g):
+    """The carving's one frame: a groove cut round the realm on the north, east and south (the plane took the west),
+    dark on its near wall and lit on its far one."""
+    for x in range(PLANED + 2, W - 1):
+        g.set(x, 1, "soilDark")
+        g.set(x, 2, "woodLight")
+        g.set(x, LOW, "soilDark")
+        g.set(x, LOW + 1, "woodLight")
+    for y in range(1, LOW + 1):
+        g.set(EAST, y, "soilDark")
+    for y in range(2, LOW + 2):
+        g.set(EAST + 1, y, "woodLight")
 
+
+# ------------------------------------------------------------------------------------------------- carved relief
+
+def emboss(g, rows, x0, y0):
+    """A carved relief from a hand-drawn mask (the critic of quests-3: carved, not piled). Each lowercase letter is one
+    raised piece and its uppercase twin the piece's upper step. The light comes from the north-west: a piece's north
+    and west edges catch it, its south and east edges fall into shade, and the undercut throws a one-pixel shadow on the
+    field to the south-east. The tops keep the oak's own colour, so the shape is told by its edges, as in a carving."""
+    cells = {}
+    for dy, row in enumerate(rows):
+        for dx, ch in enumerate(row):
+            if ch != ".":
+                cells[(x0 + dx, y0 + dy)] = (ch.lower(), ch.isupper())
+    _relief(g, cells)
+
+
+def _relief(g, cells):
+    def piece(p):
+        return cells[p][0] if p in cells else None
+
+    def upper(p, name):
+        return p in cells and cells[p][0] == name and cells[p][1]
+
+    for (x, y) in cells:
+        q = (x + 1, y + 1)
+        if q not in cells:
+            g.set(q[0], q[1], "woodDark")
+    for (x, y), (name, up) in cells.items():
+        n = piece((x, y - 1)) != name
+        w = piece((x - 1, y)) != name
+        s = piece((x, y + 1)) != name
+        e = piece((x + 1, y)) != name
+        colour = None
+        if n and w:
+            colour = "straw"
+        elif n or w:
+            colour = "woodLight"
+        elif s and e:
+            colour = "woodDark"
+        elif s or e:
+            colour = "soil"
+        elif up:
+            un = not upper((x, y - 1), name)
+            uw = not upper((x - 1, y), name)
+            us = not upper((x, y + 1), name)
+            ue = not upper((x + 1, y), name)
+            if un and uw:
+                colour = "straw"
+            elif un or uw:
+                colour = "woodLight"
+            elif us or ue:
+                colour = "soil"
+        g.set(x, y, colour or "wood")
+
+
+# The downs, each drawn by hand (lowercase: the down; uppercase: its upper step). No two alike.
+DOWNS = {
+    "long": [
+        "....aaaaa........",
+        "..aaaAAAAaaaa....",
+        ".aaAAAAAAAAaaaa..",
+        "aaaaAAAAAAaaaaaaa",
+        ".aaaaaaaaaaaaaaa.",
+        "....aaaaaaaa.....",
+    ],
+    "knoll": [
+        "...aaaa....",
+        ".aaaAAaaa..",
+        "aaAAAAAaaa.",
+        ".aaaAAaaaaa",
+        "...aaaaaa..",
+    ],
+    "twin": [
+        "...aaaaa........bbbb...",
+        ".aaaAAAaaa...bbbBBbbb..",
+        "aaaAAAAAaaaabbbBBBBbbb.",
+        ".aaaaAAaaaaa.bbbBBbbbbb",
+        "..aaaaaaaaa...bbbbbbbb.",
+        ".....aaaa.......bbbb...",
+    ],
+    "ridge": [
+        "aaaa............",
+        ".aaaaaaa........",
+        "..aaAAAAaaa.....",
+        "....aaaAAAAaaa..",
+        ".......aaaAAaaaa",
+        "..........aaaaa.",
+    ],
+    "swell": [
+        "..aaaaa..",
+        "aaaaaaaaa",
+        "..aaaaaa.",
+    ],
+    "shoulder": [
+        ".aaaa........",
+        "aaAAaaaaaa...",
+        "aaAAAAAAaaaa.",
+        ".aaaaaAAAaaaa",
+        "...aaaaaaaa..",
+    ],
+    "low": [
+        "..aaaa..",
+        ".aaAAaa.",
+        "aaaaaaaa",
+        "..aaaa..",
+    ],
+    "tiny": [
+        ".aaaa..",
+        "aaAaaaa",
+        ".aaaaa.",
+    ],
+    "bean": [
+        ".aaaa..aaa.",
+        "aaAAaaaaaaa",
+        ".aaaaaaaaaa",
+        "...aaaaa...",
+    ],
+}
+DOWNS_AT = [("knoll", 132, 17), ("long", 158, 12), ("shoulder", 188, 25), ("twin", 216, 20), ("bean", 262, 20),
+            ("low", 278, 62), ("ridge", 236, 78), ("swell", 197, 93), ("tiny", 154, 65), ("knoll", 279, 100),
+            ("low", 201, 43), ("tiny", 283, 41)]
+
+# Tree crowns, and the woods composed of them by hand: (crown, dx, dy), back to front. A wood is carved as one raised
+# mass whose edge follows its crowns; inside, each crown is marked by a glint on its north-west and a short cut on its
+# south-east, the way a carver cuts a forest: a clear shape and few marks.
+CROWNS = {
+    "o": [".aa.", "aaaa", "aaaa", ".aa."],
+    "O": [".aaa.", "aaaaa", "aaaaa", ".aaa."],
+    "Q": [".aaaa.", "aaaaaa", "aaaaaa", "aaaaaa", ".aaaa."],
+    "v": [".aaa", "aaaa", "aaa."],
+}
+WOODS = {
+    "great": [("Q", 3, 0), ("O", 9, 0), ("o", 14, 1), ("O", 0, 3), ("Q", 7, 4), ("O", 13, 4), ("o", 3, 7),
+              ("O", 10, 8), ("v", 15, 8)],
+    "east": [("O", 2, 0), ("o", 7, 0), ("v", 11, 1), ("Q", 0, 3), ("O", 6, 4), ("o", 11, 4), ("v", 5, 7)],
+    "shore": [("v", 0, 1), ("O", 3, 0), ("o", 8, 0), ("O", 12, 1), ("o", 6, 2)],
+    "copse": [("O", 0, 0), ("o", 4, 1), ("v", 1, 3)],
+    "north": [("o", 0, 1), ("O", 3, 0), ("v", 8, 0), ("o", 11, 1), ("O", 6, 2)],
+    "grove": [("o", 0, 0), ("O", 3, 1), ("v", 1, 3)],
+    "strand": [("O", 0, 0), ("v", 4, 1), ("o", 7, 0)],
+    "spinney": [("v", 0, 0), ("O", 3, 0), ("o", 2, 2)],
+}
+WOODS_AT = [("great", 219, 59), ("east", 255, 84), ("shore", 198, 127), ("copse", 186, 77), ("north", 275, 13),
+            ("grove", 180, 47), ("strand", 236, 128), ("spinney", 230, 92)]
+
+
+def wood(g, name, x0, y0):
+    """A wood: one raised mass with a scalloped edge, each crown marked inside it."""
+    cells = {}
+    crowns = []
+    for (crown, dx, dy) in WOODS[name]:
+        rows = CROWNS[crown]
+        for ry, row in enumerate(rows):
+            for rx, ch in enumerate(row):
+                if ch != ".":
+                    cells[(x0 + dx + rx, y0 + dy + ry)] = ("a", False)
+        crowns.append((x0 + dx, y0 + dy, len(rows[0]), len(rows)))
+    _relief(g, cells)
+    interior = {p for p in cells if g.get(*p) == "wood"}
+    for (x, y, w, h) in crowns:
+        if (x + 1, y + 1) in interior:
+            g.set(x + 1, y + 1, "woodLight")
+        for p in [(x + w - 2, y + h - 1), (x + w - 3, y + h - 1), (x + w - 1, y + h - 2)]:
+            if p in interior:
+                g.set(p[0], p[1], "soil")
+
+
+def land(g):
+    """The downs north of the valley under Highcairn and the long downs of the Morninglands, and the woods."""
+    for (name, x, y) in DOWNS_AT:
+        emboss(g, DOWNS[name], x, y)
+    for (name, x, y) in WOODS_AT:
+        wood(g, name, x, y)
+
+
+# ---------------------------------------------------------------------------------------------- the Weltmauer
 
 def peak(g, ax, ay, hl, hr, h, crease=False):
     """A carved mountain: its west face lit, its east face in shade, a lit ridge and a dark east edge."""
@@ -240,31 +471,66 @@ def peak(g, ax, ay, hl, hr, h, crease=False):
                 g.set(x, ay + dy, "tile")
 
 
-def mountains(g, r):
-    """The Weltmauer: a ridge of overlapping carved peaks, the one cleft at home, the Throat running west from it."""
-    peaks = []
-    for band in ((3, 66), (92, 140)):
-        y = band[0]
-        while y < band[1]:
-            # the crest: big peaks, never in a line
-            ax = 112 + r.range(-3, 3)
-            h = r.range(7, 10)
-            peaks.append((ax, y, r.range(5, 8), r.range(4, 7), h, True))
-            # the west side: smaller, cut off at the planed edge
-            peaks.append((r.range(93, 101), y + r.range(1, 4), r.range(3, 5), r.range(3, 5), r.range(4, 7), False))
-            # the east foothills
-            if r.next() % 3:
-                peaks.append((r.range(123, 129), y + r.range(2, 5), r.range(2, 4), r.range(2, 3), r.range(3, 5),
-                              False))
-            y += r.range(5, 8)
-    for (ax, ay, hl, hr, h, crease) in sorted(peaks, key=lambda p: p[1] + p[4]):
-        if ay + h > 73 and ay < 87:
-            continue
-        if ay + h >= H - RIM:
-            h = H - RIM - ay
-            if h < 3:
-                continue
-        peak(g, ax, ay, hl, hr, h, crease)
+# The Weltmauer peak by peak, placed by hand (apex x, apex y, west spread, east spread, height, a gully): a crest that
+# wanders, two giants, the guardians either side of the cleft, smaller peaks the plane cut off in the west, a few low
+# foothills east. No two stand in a row.
+PEAKS = [
+    # north: the west, cut by the plane
+    (94, 4, 4, 3, 6, False), (100, 10, 3, 4, 5, False), (92, 16, 3, 3, 5, False), (97, 22, 5, 4, 7, False),
+    (103, 31, 3, 3, 4, False), (93, 35, 4, 3, 6, False), (99, 42, 3, 4, 5, False), (93, 52, 3, 2, 4, False),
+    (95, 62, 3, 4, 6, False), (104, 65, 3, 3, 5, False),
+    # north: the crest
+    (109, 3, 6, 5, 9, True), (116, 6, 5, 6, 8, True), (111, 14, 7, 6, 11, True), (119, 20, 4, 5, 7, True),
+    (106, 26, 5, 4, 8, True), (114, 30, 6, 7, 10, True), (110, 41, 5, 5, 8, True), (118, 44, 5, 4, 7, True),
+    (108, 50, 6, 5, 9, True), (115, 54, 7, 6, 10, True), (111, 61, 6, 5, 9, True), (119, 63, 4, 4, 6, True),
+    # north: the foothills east
+    (125, 4, 3, 2, 4, False), (129, 12, 2, 3, 3, False), (123, 26, 3, 3, 5, False), (128, 34, 2, 2, 3, False),
+    (124, 47, 3, 2, 4, False), (130, 52, 2, 3, 3, False), (125, 58, 3, 3, 5, False), (123, 66, 2, 2, 3, False),
+    # south: the west
+    (93, 90, 3, 4, 6, False), (97, 113, 4, 3, 6, False), (92, 120, 3, 3, 5, False), (100, 124, 3, 4, 6, False),
+    (94, 131, 4, 3, 6, False), (102, 136, 3, 3, 5, False), (93, 140, 3, 3, 5, False),
+    # south: the crest
+    (113, 90, 6, 6, 9, True), (108, 99, 5, 5, 7, True), (117, 101, 5, 6, 9, True), (113, 110, 6, 6, 10, True),
+    (120, 116, 4, 4, 6, True), (107, 119, 5, 5, 8, True), (114, 124, 6, 6, 9, True), (109, 132, 5, 5, 8, True),
+    (117, 135, 5, 4, 7, True), (112, 139, 6, 5, 7, True),
+    # south: the foothills east
+    (124, 92, 3, 2, 4, False), (122, 110, 2, 3, 4, False), (126, 118, 3, 2, 3, False), (123, 127, 3, 3, 5, False),
+    (127, 138, 2, 3, 4, False),
+]
+
+
+# The Weltmauer's shelf under the peaks, its east foot by hand (row, x), drawn in between: the wall is one raised mass
+# and the peaks stand on it, opening only at the cleft.
+SHELF_NORTH = [(3, 133), (10, 131), (18, 134), (27, 130), (36, 132), (45, 129), (53, 133), (60, 130), (66, 127),
+               (70, 123)]
+SHELF_SOUTH = [(90, 124), (95, 128), (103, 125), (111, 129), (120, 127), (128, 130), (136, 128), (143, 131),
+               (146, 130)]
+
+
+def shelf_edge(points, y):
+    for (y0, x0), (y1, x1) in zip(points, points[1:]):
+        if y0 <= y <= y1:
+            return round(x0 + (x1 - x0) * (y - y0) / max(1, y1 - y0))
+    return None
+
+
+def shelf(g):
+    cells = {}
+    for points in (SHELF_NORTH, SHELF_SOUTH):
+        for y in range(points[0][0], points[-1][0] + 1):
+            for x in range(PLANED + 2, shelf_edge(points, y) + 1):
+                cells[(x, y)] = ("a", False)
+    _relief(g, cells)
+
+
+def mountains(g):
+    """The Weltmauer: its shelf, a ridge of overlapping carved peaks on it, the one cleft at home, the Throat running west
+    from it."""
+    shelf(g)
+    for (ax, ay, hl, hr, h, crease) in sorted(PEAKS, key=lambda p: p[1] + p[4]):
+        h = min(h, LOW - ay)
+        if h >= 3:
+            peak(g, ax, ay, hl, hr, h, crease)
     # the Throat: a narrow gorge cut west from the cleft to the planed edge
     for x in range(PLANED + 2, 112):
         for y in range(77, 84):
@@ -273,30 +539,40 @@ def mountains(g, r):
         g.set(x, 84, "woodLight")
 
 
+# The castle in the cleft, the clear centre of the table: two towers, the curtain wall with its gate, the keep, and the
+# house's flame over it in gold leaf (the screen lays its light over the flame).
 CASTLE = [
-    "K.K.......K.K..",
-    "KLK.K.K.K.KLK..",
-    "KLMKKKKKKKKLMK.",
-    "KLMKLMMMMDKLMK.",
-    "KLMKLMGgMDKLMK.",
-    "KLMKLMGGMDKLMK.",
-    "KLMKLMMMMDKLMK.",
-    "KLMMMMMMMMMMMDK",
-    "KLMMMKKKKKMMMDK",
-    "KLMMKDDDDDKMMDK",
-    "KLMMKD...DKMMDK",
-    "KKKKKK...KKKKKK",
+    ".........g.........",
+    "........gGg........",
+    "........GwG........",
+    ".......gGwGg.......",
+    ".......KsssK.......",
+    "K.K.K..KLMDK..K.K.K",
+    "KKKKK..KLMDK..KKKKK",
+    "KLMDK..KLMDK..KLMDK",
+    "KLMDKK.KLGDK.KKLMDK",
+    "KLMDKKKKLMDKKKKLMDK",
+    "KLMDKLMMMMMMMDKLMDK",
+    "KLMDKLMMKKKMMDKLMDK",
+    "KLMDKLMKDDDKMDKLMDK",
+    "KLMDKLMKD.DKMDKLMDK",
+    "KLMDKLMKD.DKMDKLMDK",
+    "KKKKKKKKK.KKKKKKKKK",
+    ".DDDDDDDD.DDDDDDDD.",
 ]
-CASTLE_LEGEND = {"K": "woodDark", "L": "strawLight", "M": "woodLight", "D": "soil", "G": "gold", "g": "fireGold"}
+CASTLE_LEGEND = {"K": "woodDark", "L": "strawLight", "M": "woodLight", "D": "soil", "G": "gold", "g": "fireGold",
+                 "w": "fireWhite", "s": "straw"}
+# The flame's centre in table pixels, for the screen's light (UI/Table/TableScreen.swift reads it from table-map.json).
+FLAME = (HOME[0], HOME[1] - 6)
 
 
 def castle(g):
-    x0 = HOME[0] - 7
-    y0 = HOME[1] - 6
+    x0 = HOME[0] - 9
+    y0 = HOME[1] - 8
     # the cleft's floor round it
-    for x in range(110, 130):
-        for y in range(71, 89):
-            if g.get(x, y) in ("tile", "soil", "woodLight", "woodDark", "strawLight", "straw"):
+    for x in range(110, 131):
+        for y in range(71, 90):
+            if g.get(x, y) in ("tile", "soil", "soilDark", "woodLight", "woodDark", "strawLight", "straw"):
                 g.set(x, y, "wood")
     g.stamp(CASTLE, CASTLE_LEGEND, x0, y0)
 
@@ -315,13 +591,13 @@ def wend(g):
             if n not in core:
                 border.add(n)
     for (x, y) in border:
-        if y < H - RIM:
+        if y < LOW:
             g.set(x, y, "roofDeep")
     for (x, y) in core:
-        if y < H - RIM:
+        if y < LOW:
             g.set(x, y, "banner")
     for i, (x, y) in enumerate(pts):
-        if i % 9 in (0, 1, 2) and y < H - RIM - 1:
+        if i % 9 in (0, 1, 2) and y < LOW - 1:
             g.set(x, y, "roofLight")
 
 
@@ -344,79 +620,21 @@ def shore_y(x):
 def sea(g):
     """The south coast: the land stands over a lower sea; the shore in shade, carved swells on the water."""
     mouth = MAP["wend"][-1][0]
-    for x in range(124, W - RIM):
+    for x in range(124, EAST):
         y = shore_y(x)
-        for yy in range(y + 1, H - RIM):
+        for yy in range(y + 1, LOW):
             g.set(x, yy, "soil")
         g.set(x, y, "woodDark")
     rows = [(MAP["coast"] + 3, 0), (MAP["coast"] + 5, 4)]
     for row, shift in rows:
-        for x in range(127 + shift, W - RIM - 4, 8):
+        for x in range(127 + shift, EAST - 4, 8):
             if abs(x + 2 - mouth) <= 4 or row <= shore_y(x) + 1 or row <= shore_y(x + 3) + 1:
                 continue
-            for (dx, dy) in ((0, 0), (1, 0), (2, 0), (3, 0)):
-                if row + dy < H - RIM:
-                    g.set(x + dx, row + dy, "wood")
+            for dx in range(4):
+                if row < LOW:
+                    g.set(x + dx, row, "wood")
             g.set(x + 1, row - 1, "woodLight")
             g.set(x + 2, row - 1, "woodLight")
-
-
-def hill(g, x, y, w, h=None):
-    """A carved down: a smooth mound, its west shoulder lit, its east side and foot in shade."""
-    h = h or max(3, round(w / 3))
-    for dx in range(w):
-        t = dx / (w - 1)
-        top = y - round(math.sin(t * math.pi) ** 0.8 * h)
-        for yy in range(top, y + 1):
-            if t < 0.42:
-                n = "straw" if yy == top else ("woodLight" if yy < top + 2 or t < 0.25 else "tile")
-            elif t < 0.6:
-                n = "woodLight" if yy == top else "tile"
-            else:
-                n = "woodDark" if yy == top or dx == w - 1 else "soil"
-            g.set(x + dx, yy, n)
-    # its shadow on the field, to the east
-    for dx in range(w // 2, w + 1):
-        g.set(x + dx, y + 1, "soil")
-
-
-CROWN = [".LL.", "LssD", "sssD", ".DD."]
-
-
-def forest(g, r, cx, cy, rx, ry):
-    """A wood: round crowns packed close, back to front, lit from the west, its edge falling into shade."""
-    spots = []
-    y = cy - ry
-    row = 0
-    while y <= cy + ry:
-        x = cx - rx + (2 if row % 2 else 0)
-        while x <= cx + rx:
-            if ((x - cx) / (rx + 0.5)) ** 2 + ((y - cy) / (ry + 0.5)) ** 2 <= 1:
-                spots.append((x + r.range(-1, 1), y))
-            x += 4
-        y += 3
-        row += 1
-    for (x, y) in spots:
-        g.stamp(CROWN, {"L": "straw", "s": "woodLight", "D": "soil"}, x - 2, y - 2)
-    # the wood's foot: one dark row under the front crowns
-    front = {}
-    for (x, y) in spots:
-        for dx in range(-1, 3):
-            front[x + dx] = max(front.get(x + dx, -1), y + 2)
-    for x, y in front.items():
-        if g.get(x, y) not in ("banner", "roofDeep", "roofLight"):
-            g.set(x, y, "soilDark")
-
-
-def land(g, r):
-    # the downs north of the valley under Highcairn, and the long downs of the Morninglands
-    for (x, y, w, h) in [(130, 22, 15, 5), (160, 18, 17, 6), (188, 30, 13, 4), (218, 26, 19, 6), (260, 24, 15, 5),
-                         (276, 66, 13, 4), (236, 84, 17, 5), (196, 96, 11, 3), (152, 68, 11, 3), (278, 104, 11, 3),
-                         (200, 46, 11, 3)]:
-        hill(g, x, y, w, h)
-    for (cx, cy, rx, ry) in [(228, 64, 9, 5), (262, 88, 7, 4), (206, 130, 8, 3), (190, 80, 4, 3), (282, 16, 7, 3),
-                             (184, 50, 4, 3), (240, 130, 5, 2)]:
-        forest(g, r, cx, cy, rx, ry)
 
 
 def roads(g):
@@ -543,21 +761,34 @@ def pin_shadows(g):
                     g.set(x, y, "soilDark")
 
 
+def slab():
+    """The whole table the screen stands on: the waxed oak, the realm carved into it at (SX, SY) inside its frame, and
+    the planed west across the full depth of the table."""
+    g = Grid(SW, SH)
+    slab_ground(g, Rand(0x51AB))
+    realm = Offset(g, SX, SY)
+    land(realm)
+    sea(realm)
+    mountains(realm)
+    roads(realm)
+    wend(realm)
+    mere(realm)
+    icons(realm)
+    pin_shadows(realm)
+    castle(realm)
+    frame(realm)
+    planed_band(g, Rand(0x7AB1E))
+    return g
+
+
 def table_top():
+    """The carved realm cut from the slab, pixel for pixel: the screen draws the slab and lays this picture (with its
+    pins and lines of light) exactly over its place."""
+    s = slab()
     g = Grid(W, H)
-    r = Rand(0x7AB1E)
-    oak_field(g, r)
-    land(g, r)
-    sea(g)
-    mountains(g, r)
-    roads(g)
-    wend(g)
-    mere(g)
-    icons(g)
-    pin_shadows(g)
-    castle(g)
-    bare_west(g, r)
-    rim(g)
+    for y in range(H):
+        for x in range(W):
+            g.set(x, y, s.get(SX + x, SY + y))
     return g
 
 
@@ -592,7 +823,8 @@ def west_one():
         xs.append(x)
         x -= gap[i % 2]
         i += 1
-    empty = xs[11]
+    # the empty plinth stands where every phone shows it, west of the planed edge but clear of the screen's corner
+    empty = xs[5]
     for side in (-1, 1):
         for x in xs:
             y = ys.get(x, 80)
@@ -606,23 +838,24 @@ def west_one():
 
 
 def west_two():
-    """What the lamp room saw: the moor's edge, and far out one low light that never flickers."""
+    """What the lamp room saw: the moor's edge, and far out one low light that never flickers. Drawn in the strip of
+    bare wood every phone shows (the table runs off the screen's west edge)."""
     g = Grid(96, H)
     r = Rand(0x30E)
     edge = []
-    x = 30
+    x = 70
     for y in range(14, 138):
         if y % 6 == 0:
             x += 1 if r.next() % 2 else -1
-            x = max(26, min(34, x))
+            x = max(66, min(74, x))
         edge.append((x, y))
     scratch(g, [(x, y) for (x, y) in edge if not (70 <= y <= 90)])
     # tussocks west of the edge: small v cuts
-    for (tx, ty) in [(12, 22), (20, 34), (9, 46), (17, 98), (8, 112), (21, 124), (13, 132), (22, 58), (10, 92)]:
+    for (tx, ty) in [(52, 22), (60, 34), (49, 46), (57, 98), (48, 112), (61, 124), (53, 132), (62, 58), (50, 92)]:
         scratch(g, [(tx, ty), (tx + 1, ty + 1)])
         scratch(g, [(tx + 2, ty)])
-    # the light: a small ring with its point
-    lx, ly = 13, 68
+    # the light: a small ring with its point, north of the Throat's line where no corner of a phone hides it
+    lx, ly = 58, 30
     ring = [(lx - 1, ly - 2), (lx, ly - 2), (lx + 1, ly - 2), (lx + 2, ly - 1), (lx + 2, ly), (lx + 2, ly + 1),
             (lx - 2, ly - 1), (lx - 2, ly), (lx - 2, ly + 1), (lx - 1, ly + 2), (lx, ly + 2), (lx + 1, ly + 2)]
     for (x, y) in ring:
@@ -702,8 +935,9 @@ ENAMEL = [
 ]
 BRASS_DULL = {"K": "soilDark", "H": "strawLight", "S": "gold", "s": "straw", "m": "woodLight", "d": "wood"}
 BRASS_LIT = {"K": "woodDark", "H": "fireWhite", "S": "fireGold", "s": "gold", "m": "straw", "d": "woodLight"}
-IRON_DULL = {"K": "ink", "H": "stoneLight", "S": "stone", "s": "stoneMid", "m": "stoneDark", "d": "rockDeep"}
-IRON_LIT = {"K": "ink", "H": "stonePale", "S": "stoneLight", "s": "stone", "m": "stoneMid", "d": "stoneDark"}
+# iron a step lighter than the oak's shade, its crown catching the light, so it reads as a pin and not as a hole
+IRON_DULL = {"K": "ink", "H": "foam", "S": "stonePale", "s": "stoneLight", "m": "stone", "d": "stoneMid"}
+IRON_LIT = {"K": "ink", "H": "fireWhite", "S": "foam", "s": "stonePale", "m": "stoneLight", "d": "stone"}
 HOUSES = {
     "varn": ("leafLight", "meadow", "leaf"),
     "brine": ("roofLight", "banner", "roofDeep"),
@@ -826,19 +1060,21 @@ def token(rows):
 
 # --------------------------------------------------------------------------------------------------------- the rail
 
-RAIL_W, RAIL_H = 128, 32
+RAIL_W, RAIL_H = 128, 30
 RAIL_SLOTS = [16, 48, 80, 112]  # the hooks' x (centres)
+PLATE_Y = 19                    # the brass plates' top row (17 x 11: lit top and west edges, shaded east and south)
 
 
 def rail():
-    """The board on the chapel wall: a beam along the top, oak below it, a brass plate under each hook."""
+    """The board on the chapel wall: a beam along the top, oak below it, a brass plate under each hook, wide enough
+    for its number in the interface kit's figures."""
     g = Grid(RAIL_W, RAIL_H)
     for y in range(RAIL_H):
         for x in range(RAIL_W):
             g.set(x, y, "woodLight")
     r = Rand(0x4A11)
-    for _ in range(9):
-        y = r.range(7, RAIL_H - 3)
+    for _ in range(8):
+        y = r.range(6, RAIL_H - 4)
         x = r.range(0, RAIL_W - 30)
         length = r.range(20, 60)
         step = r.range(12, 20)
@@ -848,29 +1084,20 @@ def rail():
         g.set(x, 0, "soilDark")
         g.set(x, 1, "strawLight")
         g.set(x, 2, "straw")
-        g.set(x, 3, "wood")
-        g.set(x, 4, "woodDark")
+        g.set(x, 3, "woodDark")
         g.set(x, RAIL_H - 1, "woodDark")
         g.set(x, RAIL_H - 2, "wood")
     for y in range(RAIL_H):
         g.set(0, y, "soilDark")
         g.set(RAIL_W - 1, y, "soilDark")
-    for y in range(5, RAIL_H - 2):
+    for y in range(4, RAIL_H - 2):
         g.set(1, y, "straw")
         g.set(RAIL_W - 2, y, "wood")
-    plate = [
-        "KKKKKKKKKKK",
-        "KHsssssssmK",
-        "KHsssssssmK",
-        "KHsssssssmK",
-        "KHsssssssmK",
-        "KHsssssssmK",
-        "KKKKKKKKKKK",
-    ]
+    plate = ["HHHHHHHHHHHHHHHHm"] + ["Hsssssssssssssssd"] * 9 + ["mdddddddddddddddd"]
     for cx in RAIL_SLOTS:
-        g.stamp(plate, {"K": "woodDark", "H": "strawLight", "s": "gold", "m": "straw"}, cx - 5, 24)
+        g.stamp(plate, {"H": "strawLight", "s": "gold", "m": "straw", "d": "woodDark"}, cx - 8, PLATE_Y)
     for x in (4, RAIL_W - 6):
-        g.stamp(["KK", "KK"], {"K": "soilDark"}, x, 6)
+        g.stamp(["KK", "KK"], {"K": "soilDark"}, x, 5)
     return g
 
 
@@ -892,10 +1119,10 @@ def hook():
     return g
 
 
+# The road lantern on its hook, 9 x 13: the ring the hook goes through, the cap, the glass, the foot.
 RAIL_LANTERN = [
     "....K....",
     "...K.K...",
-    "....K....",
     "..KKKKK..",
     ".KgggggK.",
     ".KwwwwwK.",
@@ -908,76 +1135,113 @@ RAIL_LANTERN = [
     "..KgggK..",
     "...KKK...",
 ]
+DARK = {"K": "ink", "g": "straw", "w": "woodDark", "n": "soilDark", "s": "stone", "m": "rockDark"}
+BLANK = {"K": "stoneDark", "g": "stone", "w": "stoneMid", "n": "stoneMid", "s": "stoneMid", "m": "stoneMid"}
+# Kept for one ride (lantern 41): dark, its glass bound in a strip of red cloth knotted at the side, the tails hanging.
+KEPT_CLOTH = [
+    ".........",
+    ".........",
+    ".........",
+    ".........",
+    ".........",
+    ".........",
+    "lllllllll",
+    "cccccccdd",
+    "......dcd",
+    ".......c.",
+    ".......dc",
+    "........d",
+    ".........",
+]
+CLOTH = {"l": "crimsonLight", "c": "crimson", "d": "crimsonDeep"}
+# Home with its report, and hung again until the lord says Done: the flame still burns behind the glass.
+LIT_GLASS = [
+    ".........",
+    ".........",
+    ".........",
+    ".........",
+    ".........",
+    "..OGGGO..",
+    "..GGFGG..",
+    "..GFwFG..",
+    "..OGFGO..",
+    "..OOGOO..",
+    ".........",
+    ".........",
+    ".........",
+]
+FIRE = {"O": "fireOrange", "G": "fireGold", "F": "fireWhite", "w": "fireWhite"}
 
 
 def rail_lanterns():
-    """The dark road lantern on its hook (frame 0) and the blank one Bram hangs on a lost lantern's hook (frame 1)."""
-    g = Grid(18, 14)
-    g.stamp(RAIL_LANTERN, {"K": "ink", "g": "straw", "w": "woodDark", "n": "soilDark", "s": "stone", "m": "rockDark"},
-            0, 0)
-    g.stamp(RAIL_LANTERN, {"K": "stoneDark", "g": "stone", "w": "stoneMid", "n": "stoneMid", "s": "stoneMid",
-                           "m": "stoneMid"}, 9, 0)
+    """The lantern on its hook, four frames of 9 x 13: dark at home (0), the blank one Bram hangs on a lost lantern's hook
+    (1), kept for one ride and bound in red cloth (2), lit, home with its report (3)."""
+    g = Grid(36, 13)
+    g.stamp(RAIL_LANTERN, DARK, 0, 0)
+    g.stamp(RAIL_LANTERN, BLANK, 9, 0)
+    g.stamp(RAIL_LANTERN, DARK, 18, 0)
+    g.stamp(KEPT_CLOTH, CLOTH, 18, 0)
+    g.stamp(RAIL_LANTERN, dict(DARK, g="gold"), 27, 0)
+    g.stamp(LIT_GLASS, FIRE, 27, 0)
     return g
 
 
+# A lost lantern's hook: the soot its last flame left on the board above, and a chalk stroke where it should hang.
 SOOT = [
-    "....sss......",
-    "...sddds.....",
-    "..sddddds....",
-    "..sdddddds...",
-    ".sddkkkddds..",
-    ".sdkkkkkdds..",
-    "sddkkkkkkdds.",
-    "sdkkkkkkkkds.",
-    "sdkkkkkkkkds.",
-    "sddkkkkkkdds.",
-    ".sdkkkkkkds..",
-    ".sddkkkkdds..",
-    "..sddddddss..",
-    "...ssddds....",
-    ".....sss.....",
-    ".............",
+    "...sss.....",
+    "..sddds....",
+    ".sddddds...",
+    ".sddkddds..",
+    "sddkkkdds..",
+    ".sddkdds...",
+    "..sddds....",
+    "...sss.....",
 ]
 
 
 def soot():
-    g = Grid(13, 16)
-    g.stamp(SOOT, {"s": "wood", "d": "soil", "k": "soilDark"}, 0, 0)
+    g = Grid(11, 8)
+    g.stamp(SOOT, {"s": "wood", "d": "soilLight", "k": "soil"}, 0, 0)
     return g
 
 
 CHALK = [
-    ".....FF",
-    "...FFp.",
-    ".FFp...",
-    "Fp.....",
+    "......FF",
+    ".....FFp",
+    "....FFp.",
+    "...FFp..",
+    "..FFp...",
+    ".FFp....",
+    "FFp.....",
 ]
 
 
 def chalk():
-    g = Grid(7, 4)
-    g.stamp(CHALK, {"F": "foam", "p": "parchment"}, 0, 0)
+    g = Grid(8, 7)
+    g.stamp(CHALK, {"F": "foam", "p": "plasterDim"}, 0, 0)
     return g
 
 
-DIGITS = [
-    ["KKK", "K.K", "K.K", "K.K", "KKK"],
-    [".K.", "KK.", ".K.", ".K.", "KKK"],
-    ["KKK", "..K", "KKK", "K..", "KKK"],
-    ["KKK", "..K", ".KK", "..K", "KKK"],
-    ["K.K", "K.K", "KKK", "..K", "..K"],
-    ["KKK", "K..", "KKK", "..K", "KKK"],
-    ["KKK", "K..", "KKK", "K.K", "KKK"],
-    ["KKK", "..K", ".K.", ".K.", ".K."],
-    ["KKK", "K.K", "KKK", "K.K", "KKK"],
-    ["KKK", "K.K", "KKK", "..K", "KKK"],
-]
+# The plates' numbers: the interface kit's figures (tools/hudart.py on claude/lh-hudart, FIG_HAND, the 5 x 7 bodies),
+# engraved dark into the brass. Every figure advances 6 pixels.
+FIGURES = {
+    "0": [".XXX.", "XX.XX", "XX.XX", "XX.XX", "XX.XX", "XX.XX", ".XXX."],
+    "1": ["..XX.", ".XXX.", "..XX.", "..XX.", "..XX.", "..XX.", ".XXXX"],
+    "2": [".XXX.", "XX.XX", "...XX", "..XX.", ".XX..", "XX...", "XXXXX"],
+    "3": ["XXXXX", "...XX", "..XX.", ".XXX.", "...XX", "...XX", "XXXX."],
+    "4": ["...XX", "..XXX", ".X.XX", "XX.XX", "XXXXX", "...XX", "...XX"],
+    "5": ["XXXXX", "XX...", "XXXX.", "...XX", "...XX", "...XX", "XXXX."],
+    "6": ["..XX.", ".XX..", "XX...", "XXXX.", "XX.XX", "XX.XX", ".XXX."],
+    "7": ["XXXXX", "...XX", "..XX.", ".XXXX", ".XX..", ".XX..", ".XX.."],
+    "8": [".XXX.", "XX.XX", "XX.XX", ".XXX.", "XX.XX", "XX.XX", ".XXX."],
+    "9": [".XXX.", "XX.XX", "XX.XX", ".XXXX", "...XX", "..XX.", ".XX.."],
+}
 
 
 def digits():
-    g = Grid(30, 5)
-    for i, rows in enumerate(DIGITS):
-        g.stamp(rows, {"K": "ink"}, 3 * i, 0)
+    g = Grid(50, 7)
+    for i in range(10):
+        g.stamp(FIGURES[str(i)], {"X": "ink"}, 5 * i, 0)
     return g
 
 
@@ -1001,6 +1265,7 @@ def seal():
 
 
 BUILDERS = {
+    "tableSlab": slab,
     "tableTop": table_top,
     "tableWest1": west_one,
     "tableWest2": west_two,

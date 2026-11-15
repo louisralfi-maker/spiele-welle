@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import XCTest
 @testable import Lanternhold
 
@@ -44,6 +45,56 @@ final class TableBoardTests: XCTestCase {
             }
         }
         XCTAssertNotNil(map.bridge, "the old bridge's spot for the span")
+        XCTAssertEqual(map.slabWidth, 444)
+        XCTAssertEqual(map.slabHeight, 200)
+        XCTAssertTrue(map.slabOrigin.x >= 0 && map.slabOrigin.x + map.width <= map.slabWidth
+                      && map.slabOrigin.y >= 0 && map.slabOrigin.y + map.height <= map.slabHeight,
+                      "the realm lies inside the slab")
+        XCTAssertLessThan(abs(map.flame.x - map.home.x), 3, "the flame stands over the castle")
+        XCTAssertLessThan(map.flame.y, map.home.y)
+        if let moor = map.place("moor_road") {
+            XCTAssertGreaterThanOrEqual(moor.pin.x, TableLayout.west + 3, "the Moor Road's lantern stays on screen")
+            XCTAssertLessThan(moor.pin.x, map.planed, "and on the bare wood")
+        }
+    }
+
+    /// The table is the screen's ground (the critic of quests-3): on every phone the slab covers the whole screen, the
+    /// realm is drawn at whole device pixels as large as the height and the column allow, the Moor Road's lantern and
+    /// the realm's east edge stand between the safe area and the column, and the title starts east of the planed edge.
+    func testTheTableFillsEveryPhone() {
+        let phones: [(String, CGSize, EdgeInsets, CGFloat, CGFloat)] = [
+            ("iPhone 17 Pro", CGSize(width: 874, height: 402), EdgeInsets(top: 0, leading: 62, bottom: 21, trailing: 62),
+             3, 7),
+            ("iPhone 17 Pro Max", CGSize(width: 956, height: 440),
+             EdgeInsets(top: 0, leading: 62, bottom: 21, trailing: 62), 3, 8),
+            ("iPhone 16e", CGSize(width: 844, height: 390), EdgeInsets(top: 0, leading: 47, bottom: 21, trailing: 47),
+             3, 7),
+            ("iPhone 13 mini", CGSize(width: 812, height: 375),
+             EdgeInsets(top: 0, leading: 44, bottom: 21, trailing: 44), 3, 6),
+            ("iPhone SE", CGSize(width: 667, height: 375), EdgeInsets(), 2, 4),
+        ]
+        for (name, size, insets, scale, pixels) in phones {
+            let layout = TableLayout(size: size, insets: insets, scale: scale, map: map)
+            XCTAssertEqual(layout.unit * scale, pixels, accuracy: 0.001, "\(name): device pixels per texel")
+            XCTAssertLessThanOrEqual(layout.slab.x, 0, name)
+            XCTAssertLessThanOrEqual(layout.slab.y, 0, name)
+            XCTAssertGreaterThanOrEqual(layout.slab.x + CGFloat(map.slabWidth) * layout.unit, size.width,
+                                        "\(name): the slab reaches the east edge")
+            XCTAssertGreaterThanOrEqual(layout.slab.y + CGFloat(map.slabHeight) * layout.unit, size.height,
+                                        "\(name): the slab reaches the bottom")
+            let moor = layout.realm.x + CGFloat(map.place("moor_road")!.pin.x - 4) * layout.unit
+            XCTAssertGreaterThanOrEqual(moor, insets.leading, "\(name): the Moor Road's lantern is in the safe area")
+            let east = layout.realm.x + CGFloat(TableLayout.east) * layout.unit
+            XCTAssertLessThanOrEqual(east, layout.columnX, "\(name): the realm's east edge is west of the column")
+            XCTAssertLessThanOrEqual(layout.realm.y + CGFloat(map.height) * layout.unit, size.height + 0.01, name)
+            XCTAssertGreaterThanOrEqual(layout.band, 30, "\(name): a band for the title")
+            XCTAssertGreaterThanOrEqual(layout.headerX, layout.realm.x + CGFloat(map.planed) * layout.unit, name)
+            XCTAssertEqual((layout.realm.x * scale).rounded(), layout.realm.x * scale, accuracy: 0.001,
+                           "\(name): the realm on whole device pixels")
+            let hooks = CGFloat(TableRailPicture.slots[1] - TableRailPicture.slots[0]) * layout.railUnit
+            XCTAssertGreaterThanOrEqual(hooks, 44, "\(name): the hooks stand 44 pt apart")
+            XCTAssertLessThanOrEqual(CGFloat(TableRailPicture.width) * layout.railUnit, layout.column, name)
+        }
     }
 
     // MARK: - The art
@@ -51,11 +102,11 @@ final class TableBoardTests: XCTestCase {
     @MainActor
     func testTheArtShipsAtItsSizesWithHardEdges() {
         let sizes: [String: (Int, Int)] = [
-            "tableTop": (300, 150), "tableWest1": (96, 150), "tableWest2": (96, 150), "tableSpan": (16, 8),
-            "tableCloth": (300, 150), "tablePins": (126, 9), "tableLantern": (14, 11), "tableRider": (12, 10),
-            "tableWalker": (8, 10), "tableCart": (14, 9), "tableBearers": (16, 10), "tableRail": (128, 32),
-            "tableHook": (5, 8), "tableRailLanterns": (18, 14), "tableSoot": (13, 16), "tableChalk": (7, 4),
-            "tableDigits": (30, 5), "tableSeal": (9, 9),
+            "tableSlab": (444, 200), "tableTop": (300, 150), "tableWest1": (96, 150), "tableWest2": (96, 150),
+            "tableSpan": (16, 8), "tableCloth": (300, 150), "tablePins": (126, 9), "tableLantern": (14, 11),
+            "tableRider": (12, 10), "tableWalker": (8, 10), "tableCart": (14, 9), "tableBearers": (16, 10),
+            "tableRail": (128, 30), "tableHook": (5, 8), "tableRailLanterns": (36, 13), "tableSoot": (11, 8),
+            "tableChalk": (8, 7), "tableDigits": (50, 7), "tableSeal": (9, 9),
         ]
         for (name, size) in sizes.sorted(by: { $0.key < $1.key }) {
             guard let image = TableArt.pixels(name) else {
@@ -72,6 +123,13 @@ final class TableBoardTests: XCTestCase {
         }
         let top = TableArt.pixels("tableTop")
         XCTAssertEqual(top.map { opaque($0) }, 300 * 150, "the table top is solid")
+        let slab = TableArt.pixels("tableSlab")
+        XCTAssertEqual(slab.map { opaque($0) }, 444 * 200, "the slab is solid")
+        if let slab, let top {
+            XCTAssertEqual(slab.cropped(x: map.slabOrigin.x, y: map.slabOrigin.y, width: map.width,
+                                        height: map.height), top,
+                           "the table top is the slab's realm pixel for pixel: the screen lays it in register")
+        }
     }
 
     private func opaque(_ image: PixelImage) -> Int {
@@ -104,10 +162,19 @@ final class TableBoardTests: XCTestCase {
 
     func testTheRailTellsWhoIsHomeAwayOrLost() {
         XCTAssertEqual(TableBoard.hook(RoadLantern(number: 38), flags: []), .dark, "at home: dark on its hook")
-        XCTAssertEqual(TableBoard.hook(RoadLantern(number: 41, reserved: true), flags: []), .dark)
+        XCTAssertEqual(TableBoard.hook(RoadLantern(number: 41, reserved: true), flags: []), .kept,
+                       "the reserved lantern is bound in red cloth, not counted with the others")
         XCTAssertEqual(TableBoard.hook(RoadLantern(number: 39, state: .out), flags: []), .bare, "away: a bare hook")
-        XCTAssertEqual(TableBoard.hook(RoadLantern(number: 39, state: .back), flags: []), .bare,
-                       "home with its report: on the table, not yet on its hook")
+        XCTAssertEqual(TableBoard.hook(RoadLantern(number: 39, state: .back), flags: []), .lit,
+                       "home with its report: burning on its hook")
+        XCTAssertEqual(TableBoard.hook(RoadLantern(number: 38), flags: [], answering: 38), .lit,
+                       "answered: it burns on its hook until Done")
+        XCTAssertEqual(TableBoard.hook(RoadLantern(number: 39), flags: [], answering: 38), .dark)
+        var table = TableState.start(catalog)
+        let dark = table.lanterns.filter { TableBoard.hook($0, flags: []) == .dark }.count
+        XCTAssertEqual(dark, table.onHook, "the rail shows as many dark lanterns as the count under it says")
+        ErrandEngine.setLantern(&table, 38, .back)
+        XCTAssertEqual(table.lanterns.filter { TableBoard.hook($0, flags: []) == .dark }.count, table.onHook)
         XCTAssertEqual(TableBoard.hook(RoadLantern(number: 40, state: .lost), flags: []), .charred, "lost: charred")
         XCTAssertEqual(TableBoard.hook(RoadLantern(number: 40, state: .lost), flags: ["hook_hidden"]), .blank,
                        "Bram's blank lantern")
@@ -188,6 +255,11 @@ final class TableBoardTests: XCTestCase {
             XCTAssertLessThan(abs(home.y - map.home.y), 10)
         }
         XCTAssertNil(TableBoard.lanternSpot(RoadLantern(number: 38), sending: nil, waiting: nil, map: map))
+        let pip = WaitingReport(report: "oil_round", errand: "oil_round", lantern: 38, place: "tallowford", day: 3)
+        XCTAssertEqual(TableBoard.homeToken(pip, catalog: catalog), .walker, "Pip stands by the castle on foot")
+        let spot = TableBoard.lanternSpot(RoadLantern(number: 38, state: .back), sending: nil, waiting: pip, map: map)
+        XCTAssertGreaterThan(spot?.x ?? 0, map.home.x + 9, "east of the castle's east tower")
+        XCTAssertLessThan((spot?.x ?? 999) + 8, map.home.x + 30, "west of the letter")
         XCTAssertNil(TableBoard.lanternSpot(RoadLantern(number: 40, state: .lost), sending: nil, waiting: nil,
                                             map: map), "a lost lantern stands nowhere")
     }

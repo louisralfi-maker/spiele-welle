@@ -115,13 +115,29 @@ struct TablePicture: Equatable {
     }
 }
 
-/// The rail of the screen (128 x 32): the board with four hooks, a dark lantern on each hook at home, a bare hook for a
-/// lantern out, soot and a chalk stroke for a lost one, the blank lantern if Bram hung one, the number on each plate.
+/// The rail of the screen (128 x 30): the board with four hooks; a dark lantern on each hook at home, the reserved one
+/// bound in red cloth, a lantern home with its report burning on its hook, a bare hook for a lantern out, soot and a
+/// chalk stroke for a lost one, the blank lantern if Bram hung one; the number on each plate in the interface kit's
+/// figures (5 x 7, advance 6), engraved in the brass.
 enum TableRailPicture {
     static let width = 128
-    static let height = 32
+    static let height = 30
     /// The hooks' centres (x), left to right.
     static let slots = [16, 48, 80, 112]
+    /// The lantern's frames in `tableRailLanterns` (9 x 13 each) and where its glass is lit (for the screen's glow).
+    static let lanternWidth = 9
+    static let lanternTop = 6
+    static let glowY = 13
+
+    static func frame(_ hook: TableBoard.Hook) -> Int? {
+        switch hook {
+        case .dark: return 0
+        case .blank: return 1
+        case .kept: return 2
+        case .lit: return 3
+        case .bare, .charred: return nil
+        }
+    }
 
     @MainActor
     static func compose(_ hooks: [(number: Int, hook: TableBoard.Hook)]) -> PixelImage {
@@ -130,19 +146,19 @@ enum TableRailPicture {
         for (index, entry) in hooks.prefix(slots.count).enumerated() {
             let cx = slots[index]
             if entry.hook == .charred || entry.hook == .blank {
-                picture.tableStamp(TableArt.pixels("tableSoot"), x: cx - 6, y: 7)
+                picture.tableStamp(TableArt.pixels("tableSoot"), x: cx - 6, y: 3)
             }
-            picture.tableStamp(TableArt.pixels("tableHook"), x: cx - 2, y: 3)
-            switch entry.hook {
-            case .dark: picture.tableStamp(TableArt.frame("tableRailLanterns", 0, width: 9), x: cx - 5, y: 9)
-            case .blank: picture.tableStamp(TableArt.frame("tableRailLanterns", 1, width: 9), x: cx - 5, y: 9)
-            case .charred: picture.tableStamp(TableArt.pixels("tableChalk"), x: cx - 3, y: 15)
-            case .bare: break
+            picture.tableStamp(TableArt.pixels("tableHook"), x: cx - 2, y: 0)
+            if let frame = frame(entry.hook) {
+                picture.tableStamp(TableArt.frame("tableRailLanterns", frame, width: lanternWidth), x: cx - 5,
+                                   y: lanternTop)
+            } else if entry.hook == .charred {
+                picture.tableStamp(TableArt.pixels("tableChalk"), x: cx - 4, y: 10)
             }
             let digits = Array(String(entry.number)).compactMap { $0.wholeNumberValue }
-            let start = cx - (digits.count * 4 - 1) / 2
+            let start = cx - (digits.count * 6 - 1) / 2
             for (place, digit) in digits.enumerated() {
-                picture.tableStamp(TableArt.frame("tableDigits", digit, width: 3), x: start + place * 4, y: 25)
+                picture.tableStamp(TableArt.frame("tableDigits", digit, width: 5), x: start + place * 6, y: 21)
             }
         }
         return picture
