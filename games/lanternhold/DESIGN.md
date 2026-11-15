@@ -3765,7 +3765,8 @@ M3, then M5 and the lows. Art: `tools/w3art.py` (ART-look2.md section 26); layou
 - **Rounds** (the director's notes of 14.11. 18:46 and 19:35 and 15.11. 09:19: `build unit "ui …"` with the lane's
   classes WorldSweepUITests, Look2UITests and WorldStoryUITests; English only, no ui-de, no release): lh-w3-1 on b3fcfa1
   (build and UI passed; unit: look 1's two hashes, the wedge's dy, the look-2 body count), lh-w3-2 on 603f70a ALL
-  PASSED, lh-w3-3 on edd0976 ALL PASSED, lh-w3-4 on the step's head (the beacon's wash per stone): see the report.
+  PASSED, lh-w3-3 on edd0976 ALL PASSED, lh-w3-4 on 57f479f, the gate: ALL PASSED. Its upright sweep:
+  `ci-out/lh-w3-4/sweep-upright`.
 - **Named, not fixed here:**
   - **The lord's lantern box** (`w-1400-night` x 1045 to 1230, `w-2200-dusk` x 640 to 840, `85`): no `LightClip` (the
     lantern has none). Its pool in the picture is the battle's lantern light (`Core/EntityFrames.swift` `layer`, moved
