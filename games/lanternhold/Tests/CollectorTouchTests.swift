@@ -31,7 +31,7 @@ final class CollectorTouchTests: XCTestCase {
     }
 
     private let english: [String: String] = [
-        "town.collector.name": "Saul Bracken", "town.collector.hire": "Take him on",
+        "town.collector.name": "Saul Tolliver", "town.collector.hire": "Take him on",
         "town.collector.act.hire": "Take on %@", "town.collector.act.dismiss": "Send %@ home",
     ]
 
@@ -76,12 +76,12 @@ final class CollectorTouchTests: XCTestCase {
     func testTheLabelsNameTheActFirst() {
         var s = firstDay(10)
         let lookup: (String) -> String = { self.english[$0] ?? $0 }
-        XCTAssertEqual(CollectorTouch.label(s, waiting: false, lookup: lookup), "Take on Saul Bracken")
+        XCTAssertEqual(CollectorTouch.label(s, waiting: false, lookup: lookup), "Take on Saul Tolliver")
         XCTAssertEqual(CollectorTouch.label(s, waiting: true, lookup: lookup), "Take him on", "his offer's slip")
         CollectorTouch.answer(&s)
-        XCTAssertEqual(CollectorTouch.label(s, waiting: true, lookup: lookup), "Send Saul Bracken home")
+        XCTAssertEqual(CollectorTouch.label(s, waiting: true, lookup: lookup), "Send Saul Tolliver home")
         CollectorTouch.answer(&s)
-        XCTAssertEqual(CollectorTouch.label(s, waiting: false, lookup: lookup), "Take on Saul Bracken")
+        XCTAssertEqual(CollectorTouch.label(s, waiting: false, lookup: lookup), "Take on Saul Tolliver")
         // The two new keys are in the app's English.
         XCTAssertEqual(TownText.string(CollectorTouch.actHireKey, language: "en"), "Take on %@")
         XCTAssertEqual(TownText.string(CollectorTouch.actDismissKey, language: "en"), "Send %@ home")

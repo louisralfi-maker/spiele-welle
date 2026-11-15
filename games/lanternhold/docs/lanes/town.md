@@ -552,7 +552,7 @@ neutrality test, the mirror, the words in English and German. The numbers chosen
    to it. Sprite states: the empty bay (with its plot marker: take the treasury out of `TownGrowth.newPlots`), the
    scaffold, the treasury with 0 to 6 chests and piles, `TownGrowth.treasuryPiles(gold: shownGold, built:, rules:)`
    each frame (pass `GameModel.townShownGold`, so the piles grow as coins land and shrink as the count pays).
-2. **The collector's sprites.** The people lane's Saul Bracken (`collector`, 34x24, 8 frames) driven by
+2. **The collector's sprites.** The people lane's Saul Tolliver (`collector`, 34x24, 8 frames) driven by
    `Town.collectorLeg(day, hour:, rules:)`: `.out` the cart walk, `.atDoor` the take (frames 6 and 7 over the 1.5 s
    stop, 20 px short of the door: the cart ahead of him reaches toward the household; town-2's hand-over coins already
    fly to `TownShow.collectorBox`, set it to the cart's slot), `.back` the walk turned home, `.home` the
@@ -614,7 +614,7 @@ How the lane worked: as in town-1 and town-2, in a scratch clone (the app's work
 - **Critic look 2 on town-2, highs 1 and 2** (the knock's hand-over hidden behind the lord; the coins landing in the
   lantern's light) are screen work and not done in this Core step. High 3's Core half is done (he stops at each door
   that pays him, 20 px short of it); its picture half (a strongbox on the stand-in, or Saul's sprite) is the join's.
-- **The stand-in collector** (town-2's `citizenB`) is dim against the house's plaster; Saul Bracken's sprite with his
+- **The stand-in collector** (town-2's `citizenB`) is dim against the house's plaster; Saul Tolliver's sprite with his
   handcart replaces it at the join.
 - **The skipper finding** above, for the director.
 - **German** is written for the 24 new keys (the unit tests check presence, braces and lengths); not looked at on
@@ -697,7 +697,7 @@ the critic's small things too.
 - **The build 3 art lane** turns the switch on in `TownRules` when it brings the art of "What the join needs" (town-3,
   points 1 to 7), takes the treasury and the far fields out of `TownGrowth.newPlots` as their markers come, and runs
   `TownGrowthTuningTests` (T12), whose numbers do not depend on the switch's default.
-- The stand-in collector (town-2's `citizenB`) is still what build 2 draws until the people lane's Saul Bracken is
+- The stand-in collector (town-2's `citizenB`) is still what build 2 draws until the people lane's Saul Tolliver is
   joined; the critic's note: the join must not ship the stand-in.
 
 ### Rounds (by the director's notes of 18:46 and 19:35: one gate round, `build unit "ui TownUITests FirstDayUITests"`)

@@ -183,7 +183,7 @@ final class TownUITests: XCTestCase {
         app.terminate()
     }
 
-    /// The collector's hire by touch (the join, the director's note of 15.11. 10:52): Saul Bracken at his post just
+    /// The collector's hire by touch (the join, the director's note of 15.11. 10:52): Saul Tolliver at his post just
     /// inside the town gate; a touch walks the lord to him, he makes his offer in the bubble and the slip says "Take him
     /// on"; a second touch takes him on ("Dawn, then."). At the next dawn he walks the doors, and the dawn after it the
     /// report says what he brought. Saves `59b-collector-offer`, `59c-collector-hired`, `59d-collector-report`.

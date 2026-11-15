@@ -27,7 +27,7 @@ enum KingTarget: Sendable, Equatable {
     /// Touch the world (stage lane, step stage-2): a bench in the great hall with people waiting on it; the first in
     /// line speaks when the lord comes to it (`HallLayout.benches[index]`).
     case bench(index: Int)
-    /// The join (`CollectorTouch`): Saul Bracken at his post just inside the town gate; a second touch takes him on,
+    /// The join (`CollectorTouch`): Saul Tolliver at his post just inside the town gate; a second touch takes him on,
     /// sends him home or takes him on again.
     case collector
 }

@@ -334,7 +334,7 @@ enum Town {
     // MARK: - The collector (docs/TOWN.md section 2; his round in sim time since town-3)
 
     /// Where the collector keeps his post and starts and ends his round: just inside the castle's town gate (town-3, as
-    /// the people lane's Saul Bracken stands; from the hall door a round at a heavy step could not be back before the
+    /// the people lane's Saul Tolliver stands; from the hall door a round at a heavy step could not be back before the
     /// horn), until the rebuilt world brings its anchor.
     static var collectorPost: Double { WorldLayout.backGateX - 40 }
 

@@ -645,7 +645,7 @@ final class GameModel {
         case .stranger:
             openAudience(.gate)
         case .collector:
-            // The join: the second touch at Saul Bracken's post (`CollectorTouch`).
+            // The join: the second touch at Saul Tolliver's post (`CollectorTouch`).
             collectorAnswers()
         case .talk(let who):
             talk(to: who)

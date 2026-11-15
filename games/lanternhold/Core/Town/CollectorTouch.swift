@@ -1,7 +1,7 @@
 import Foundation
 
 /// The collector's hire by touch (the join, the director's note of 15.11.2026 10:52; docs/TOWN.md section 2). Saul
-/// Bracken stands at his post just inside the town gate (`Town.collectorPost`) from day 1 with his handcart, by day,
+/// Tolliver stands at his post just inside the town gate (`Town.collectorPost`) from day 1 with his handcart, by day,
 /// whenever he is not out on his round. A touch sends the lord to him. There, while he was never taken on, Saul makes
 /// his offer (`town.collector.offer`, in the bubble over his head) and the slip above him says "Take him on"
 /// (`town.collector.hire`); a second touch while the slip shows takes him on (`Town.setCollector`) and he answers
@@ -71,7 +71,7 @@ enum CollectorTouch {
         }
     }
 
-    /// The act on his slip and in his accessibility label, act first ("Take on Saul Bracken"; while his offer waits
+    /// The act on his slip and in his accessibility label, act first ("Take on Saul Tolliver"; while his offer waits
     /// for the second touch, his own "Take him on").
     static func label(_ s: GameState, waiting: Bool, lookup: (String) -> String = { TownText.string($0) }) -> String {
         let name = TownText.collectorName(lookup: lookup)

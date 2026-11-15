@@ -1,6 +1,6 @@
 import Foundation
 
-/// The collector's hire by touch on the screen (the join; `CollectorTouch` holds the rules): Saul Bracken's words in
+/// The collector's hire by touch on the screen (the join; `CollectorTouch` holds the rules): Saul Tolliver's words in
 /// the talk bubble over his head at his post, and the second touch's answer.
 extension GameModel {
     /// The bubble's speaker key for Saul (no court member: `stepCourt` keeps the bubble while the lord stays near).

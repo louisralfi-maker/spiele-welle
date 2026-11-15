@@ -212,13 +212,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saul Bracken"
+            "value" : "Saul Tolliver"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saul Bracken"
+            "value" : "Saul Tolliver"
           }
         }
       }
@@ -230,13 +230,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saul Bracken. Den Arm ließ ich an der Mauer, die Beine nicht. Ich gehe morgens Eure Türen ab und bringe die Kiste heim. Jede achte Münze."
+            "value" : "Den Arm ließ ich an der Mauer, die Beine nicht. Ich gehe morgens Eure Türen ab und bringe die Kiste heim. Jede achte Münze."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saul Bracken. Lost the arm on the wall, kept the legs. I'll walk your doors at dawn and bring the box home. One coin in eight."
+            "value" : "Lost the arm on the wall, kept the legs. I'll walk your doors at dawn and bring the box home. One coin in eight."
           }
         }
       }

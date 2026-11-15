@@ -464,7 +464,7 @@ final class TownGrowthTests: XCTestCase {
                 XCTAssertFalse(text.hasPrefix("MISSING"), "\(language) \(words)")
                 XCTAssertLessThanOrEqual(text.count, words == .offer ? 150 : 56, "\(language): \"\(text)\"")
             }
-            XCTAssertEqual(TownText.collectorName(lookup: lookup), "Saul Bracken")
+            XCTAssertEqual(TownText.collectorName(lookup: lookup), "Saul Tolliver")
         }
         let english: (String) -> String = { TownText.string($0, language: "en") ?? $0 }
         XCTAssertEqual(TownText.effect(.townhouse, balance: balance, lookup: english),

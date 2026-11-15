@@ -16,7 +16,7 @@ enum PeopleCast {
     /// The nobles of the inner lands and their footman (the guests' contract: 14x30, walk 0-3, idle 4-5, talk 6-7; the
     /// two noble bodies bow 8-9).
     static let nobles: [SpriteID] = [.nobleLord, .nobleLady, .footman]
-    /// People-2's people (docs/PEOPLE.md "Three more", section 5): Silas Moth the lamplighter (36x30), Saul Bracken
+    /// People-2's people (docs/PEOPLE.md "Three more", section 5): Silas Moth the lamplighter (36x30), Saul Tolliver
     /// the collector with his handcart (34x24), Old Hemmet seated on the bench (12x22).
     static let townBodies: [SpriteID] = [.lamplighter, .collector, .elderSeated]
     /// Every body of this file, in the order of `SpriteID`.

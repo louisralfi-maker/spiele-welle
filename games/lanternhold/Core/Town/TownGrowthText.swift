@@ -2,7 +2,7 @@ import Foundation
 
 /// What the collector says (town-3, Resources/Town.xcstrings): his offer at the first audience with its two answers,
 /// a word at his post when he is taken on, sent away or taken on again, and one when he comes home with the box. Saul
-/// Bracken (the people lane's figure, docs/PEOPLE.md): 56, his left arm lost on the wall the winter the old lord died,
+/// Tolliver (the people lane's figure, docs/PEOPLE.md): 56, his left arm lost on the wall the winter the old lord died,
 /// trusted because he never kept a coin that was not his. Short and dry, as working people speak (BARS.md section 3).
 enum CollectorWords: String, Sendable, CaseIterable {
     /// The audience's offer (the audience lane's card, `Town.setCollector` on "take him on").

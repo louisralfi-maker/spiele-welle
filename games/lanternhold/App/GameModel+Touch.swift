@@ -323,7 +323,7 @@ extension GameModel {
     func arrive(_ errand: TouchErrand) {
         switch errand.act {
         case .collector:
-            // The join: at Saul Bracken's post the slip waits for a second touch; while he was never taken on he
+            // The join: at Saul Tolliver's post the slip waits for a second touch; while he was never taken on he
             // makes his offer first, in the bubble over his head.
             var waiting = errand
             waiting.waiting = true

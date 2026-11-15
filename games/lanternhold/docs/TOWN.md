@@ -158,7 +158,7 @@ What follows is the first plan; where it differs, the lines above win.
 `Core/Town/Town.swift` (the collector), `Core/Town/TownGrowth.swift` (the treasury), the numbers in `TownRules`.
 
 - **The collector's round in sim time.** He keeps his post just inside the castle's town gate (`Town.collectorPost`,
-  `WorldLayout.backGateX` − 40, where the people lane's Saul Bracken stands), not by the hall door: from there a round
+  `WorldLayout.backGateX` − 40, where the people lane's Saul Tolliver stands), not by the hall door: from there a round
   at a heavy step could not be back before the horn. At the dawn he sets out and pushes his handcart at
   `collectorPace` 18 px a second of the day clock (half the lord's walk: the art bar's "heavy step", the people lane's
   pace), there and back. His round (`Town.collectorRound`) is the town's doors, the houses and the stall, nearest his
@@ -176,7 +176,7 @@ What follows is the first plan; where it differs, the lines above win.
   `collectorSchedule` (each arrival, the hour he is home) are pure functions of the day's ledger and the hour, for the
   screen. He never knocks; the lord first; empty in unrest: unchanged.
 - **His words** (`CollectorWords`, `Town.collectorWords(day)` picks the one for his return): the offer at his post
-  ("Saul Bracken. Lost the arm on the wall, kept the legs. I'll walk your doors at dawn and bring the box home.
+  ("Lost the arm on the wall, kept the legs. I'll walk your doors at dawn and bring the box home.
   One coin in eight."), "Take him on" / "Not now", a word at his post when he is taken on, sent away or taken on again,
   one when he is home (every door paid; the doors were shut; the lord had been first) and why the fields are not his
   ("Farmers count into your hand. Nobody else's."). English and German in `Resources/Town.xcstrings`.
