@@ -1,0 +1,5 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Render/Shaders.metal:880:17: warning: unused variable 'kMoonRim2' [-Wunused-const-variable]
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/WorldThreeTests.swift:246:34: warning: left side of nil coalescing operator '??' has non-optional type 'Double', so the right side is never used
+2026-11-15 17:42:30.309 appintentsmetadataprocessor[8878:37769] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+2026-11-15 17:42:39.490 appintentsmetadataprocessor[9101:38368] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+2026-11-15 17:42:41.556 appintentsmetadataprocessor[9140:38495] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
