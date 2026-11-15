@@ -315,7 +315,7 @@ enum Town {
     /// horn), until the rebuilt world brings its anchor.
     static var collectorPost: Double { WorldLayout.backGateX - 40 }
 
-    /// One door of his round: its plot and where he stops.
+    /// One door of his round: its plot and where he stops (`collectorStandOff` before the door, on his way out).
     struct CollectorDoor: Sendable, Equatable {
         var plot: Int
         var x: Double
@@ -366,12 +366,15 @@ enum Town {
 
     /// The doors of his round today, nearest his post first (ties: the lower plot): every house and the stall that pay
     /// today, never a field (the farmer leaves his hoe only for the lord: docs/TOWN.md section 6). Fixed for the day by
-    /// its ledger. The town lies on one side of his post, so nearest first is the order of the road.
-    static func collectorRound(_ day: TownDay) -> [CollectorDoor] {
+    /// its ledger. The town lies on one side of his post, so nearest first is the order of the road. He stops
+    /// `standOff` short of each door, on the side he comes from.
+    static func collectorRound(_ day: TownDay, standOff: Double = TownRules().collectorStandOff) -> [CollectorDoor] {
         let post = collectorPost
         return day.places.filter { $0.kind != .field }
-            .map { CollectorDoor(plot: $0.plot, x: doorX(plot: $0.plot)) }
-            .sorted { abs($0.x - post) != abs($1.x - post) ? abs($0.x - post) < abs($1.x - post) : $0.plot < $1.plot }
+            .map { (plot: $0.plot, door: doorX(plot: $0.plot)) }
+            .sorted { abs($0.door - post) != abs($1.door - post) ? abs($0.door - post) < abs($1.door - post)
+                                                                   : $0.plot < $1.plot }
+            .map { CollectorDoor(plot: $0.plot, x: $0.door - ($0.door >= post ? 1 : -1) * standOff) }
     }
 
     /// The last door of his round, where he turns for home (his post when there is none).
@@ -390,7 +393,7 @@ enum Town {
                                                                          home: Double) {
         let pace = collectorPerHour(rules)
         let stop = max(0, rules.collectorStop / DayClock.secondsPerHour)
-        let doors = collectorRound(day)
+        let doors = collectorRound(day, standOff: rules.collectorStandOff)
         var clock = ClockEvent.dawnReport.hour
         var at = collectorPost
         var arrivals: [Double] = []
@@ -461,7 +464,7 @@ enum Town {
               !day.closed else { return }
         let rules = balance.town
         let open = doorsOpen(s, balance: balance)
-        let doors = collectorRound(day)
+        let doors = collectorRound(day, standOff: rules.collectorStandOff)
         let start = day.collectorReached ?? 0
         var reached = start
         // A payment adds a stop and so moves every later arrival: the schedule is worked out again at every door.

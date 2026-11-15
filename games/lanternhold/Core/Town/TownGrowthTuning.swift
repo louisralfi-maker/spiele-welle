@@ -135,6 +135,8 @@ struct TownGrowthMetrics: Sendable {
     var skipperFellOn: [Int] = []
     var skipperHearthLowest: [Int] = []
     var skipperFallen: [Int] = []
+    /// The skipper's hearth's lowest strength over the nights after the 14th that it held (100: untouched).
+    var skipperLateHearth: [Int] = []
     var log: [String] = []
 
     /// The grower over the old town, seed by seed (0 where the grower fell).
@@ -166,7 +168,8 @@ struct TownGrowthMetrics: Sendable {
                      + "\(ratios.map(percent)); grower \(growerTaxes), old town \(oldTownTaxes); held \(growerHeld) "
                      + "(target \(TownGrowthMetrics.night)); the skipper fell on \(skipperFellOn) (target by night "
                      + "\(TownGrowthMetrics.skipperNights); 0 = held); by night \(TownGrowthMetrics.night) its hearth's "
-                     + "lowest \(skipperHearthLowest), its fallen \(skipperFallen)")
+                     + "lowest \(skipperHearthLowest), its fallen \(skipperFallen); after it, until it fell, the "
+                     + "hearth's lowest \(skipperLateHearth)")
         lines.append("   reported: over the reference bot \(referenceRatios.map(percent)) (reference \(referenceTaxes)); "
                      + "taxes over dawns 1-\(TownGrowthMetrics.night): grower \(growerTaxesSum), old town "
                      + "\(oldTownTaxesSum); standing \(growerStanding) (\(growerStage.map(\.rawValue))), a village on "
@@ -208,6 +211,8 @@ enum TownGrowthTuning {
             let early = skipper.outcomes.prefix(nights)
             m.skipperHearthLowest.append(Int((early.map(\.hearthLowest).min() ?? 100).rounded()))
             m.skipperFallen.append(early.reduce(0) { $0 + $1.fallen })
+            let late = skipper.outcomes.dropFirst(nights).filter(\.survived)
+            m.skipperLateHearth.append(Int((late.map(\.hearthLowest).min() ?? 100).rounded()))
             let stages = stageDays(start, bot: .town(.grower), balance: balance, nights: nights)
             m.growerVillageDay.append(stages.village)
             m.growerTownDay.append(stages.town)

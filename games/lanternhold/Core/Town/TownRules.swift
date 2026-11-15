@@ -47,6 +47,9 @@ struct TownRules: Sendable, Equatable {
     /// At each door that pays him he stops this long (seconds of the day clock) while the household hands over its
     /// coins; a door the lord has been to first he passes by. The gold arrives when he is back at his post.
     var collectorStop = 1.5
+    /// He stops this far before each door on his way out (world game px), so his cart stands short of the household and
+    /// its coins cross a gap you can see (round lh-t3-1's shot: stopped on the door's x he hid the household).
+    var collectorStandOff = 20.0
 
     // MARK: The growing town (docs/TOWN.md section 3, town-3, build 3)
 

@@ -412,7 +412,8 @@ final class TownShowTests: XCTestCase {
         let paidAt = try XCTUnwrap(place.tossedAt)
         XCTAssertNil(s.town?.today?.places.first { $0.plot == house3 }?.collectorGold, "the next door still waits")
         let x = try XCTUnwrap(Town.collectorX(s, balance: balance))
-        XCTAssertEqual(x, Town.doorX(plot: house1), accuracy: 1e-9, "he stands at her door")
+        XCTAssertEqual(x, Town.doorX(plot: house1) - rules.collectorStandOff, accuracy: 1e-9,
+                       "he stands short of her door, on his side")
         let times = TownShow.handTimes(count: Town.coins(for: gold, rules: rules))
         XCTAssertLessThan(try XCTUnwrap(times.last), rules.collectorStop, "the coins are in his box before he walks on")
         let last = try XCTUnwrap(times.last)

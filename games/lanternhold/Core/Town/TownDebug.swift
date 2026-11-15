@@ -98,7 +98,7 @@ enum TownDebug {
         let post = Town.collectorPost
         let turn = Town.collectorTurn(day)
         let direction: Double = turn >= post ? 1 : -1
-        guard let first = Town.collectorRound(day).first(where: { door in
+        guard let first = Town.collectorRound(day, standOff: rules.collectorStandOff).first(where: { door in
             day.index(of: door.plot).map { day.places[$0].owes } ?? false
         })?.x, abs(turn - post) > 1 else { return }
         // On his way out nobody has paid him yet, so he walks from his post to the first door without a stop.

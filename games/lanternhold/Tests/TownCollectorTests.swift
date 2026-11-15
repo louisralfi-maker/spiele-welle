@@ -28,9 +28,10 @@ final class TownCollectorTests: XCTestCase {
     private let field8 = TownCollectorTests.plot("town.field.8")
     private let market = TownCollectorTests.plot("town.market.6")
 
-    /// His pace in px per hour and his stop in hours.
+    /// His pace in px per hour, his stop in hours, and where he stops before a door (he comes from the left).
     private var perHour: Double { rules.collectorPace * DayClock.secondsPerHour }
     private var stop: Double { rules.collectorStop / DayClock.secondsPerHour }
+    private func stand(_ plot: Int) -> Double { Town.doorX(plot: plot) - rules.collectorStandOff }
 
     /// A new realm at the dawn of day 2 (06:00): the lord took the first morning's coins, took the collector on during
     /// day 1 (`hired`), and the first dawn opened the ledger: 16, 11, 11, 11 owed by the four cottages; with `rich`, two
@@ -121,18 +122,21 @@ final class TownCollectorTests: XCTestCase {
         XCTAssertEqual(rules.collectorStop, 1.5)
         let day = try XCTUnwrap(s.town?.today)
         XCTAssertEqual(Town.collectorRound(day).map(\.plot), [house1, house3, house4, house5], "nearest his post first")
-        XCTAssertEqual(Town.collectorTurn(day), Town.doorX(plot: house5), "the last door")
+        XCTAssertEqual(rules.collectorStandOff, 20)
+        XCTAssertEqual(Town.collectorRound(day).map(\.x), [house1, house3, house4, house5].map(stand),
+                       "he stops short of each door, his cart before the household")
+        XCTAssertEqual(Town.collectorTurn(day), stand(house5), "the last door")
 
         // Before anyone has paid him: straight out, no stop.
         let plain = Town.collectorSchedule(day, rules: rules)
-        XCTAssertEqual(plain.arrivals[0], 6 + (Town.doorX(plot: house1) - post) / perHour, accuracy: 1e-9)
-        XCTAssertEqual(plain.home, 6 + 2 * (Town.doorX(plot: house5) - post) / perHour, accuracy: 1e-9)
+        XCTAssertEqual(plain.arrivals[0], 6 + (stand(house1) - post) / perHour, accuracy: 1e-9)
+        XCTAssertEqual(plain.home, 6 + 2 * (stand(house5) - post) / perHour, accuracy: 1e-9)
         XCTAssertEqual(try XCTUnwrap(Town.collectorX(s, balance: balance)), post, accuracy: 0.001, "06:00 at his post")
         s.hour = 6.5
         XCTAssertEqual(try XCTUnwrap(Town.collectorX(s, balance: balance)), post + 0.5 * perHour, accuracy: 0.001)
         XCTAssertEqual(Town.collectorHeading(day, hour: s.hour, rules: rules), 1)
 
-        // Every door pays him: four stops of 1.5 s; the farthest door at about 10:14, home at about 14:12.
+        // Every door pays him: four stops of 1.5 s; the farthest door at about 10:08, home at about 14:01.
         s.hour = 6
         walkHome(&s)
         let paid = try XCTUnwrap(s.town?.today)
@@ -146,15 +150,15 @@ final class TownCollectorTests: XCTestCase {
             clock += stop
         }
         XCTAssertEqual(plan.home, clock + (at - post) / perHour, accuracy: 1e-9)
-        XCTAssertEqual(plan.arrivals[3], 10.227, accuracy: 0.001, "the weaver's door")
-        XCTAssertEqual(plan.home, 14.204, accuracy: 0.001, "home in the early afternoon")
+        XCTAssertEqual(plan.arrivals[3], 10.134, accuracy: 0.001, "the weaver's door")
+        XCTAssertEqual(plan.home, 14.019, accuracy: 0.001, "home in the early afternoon")
         XCTAssertEqual(paid.collectorReached, 4)
 
         // At a door he stands while it pays; then he walks on; on the way home he faces his post.
         XCTAssertEqual(Town.collectorLeg(paid, hour: plan.arrivals[1] + stop / 2, rules: rules),
-                       .atDoor(plot: house3, x: Town.doorX(plot: house3)))
+                       .atDoor(plot: house3, x: stand(house3)))
         if case .out(let x) = Town.collectorLeg(paid, hour: plan.arrivals[1] + stop + 0.1, rules: rules) {
-            XCTAssertEqual(x, Town.doorX(plot: house3) + 0.1 * perHour, accuracy: 1e-6)
+            XCTAssertEqual(x, stand(house3) + 0.1 * perHour, accuracy: 1e-6)
         } else {
             XCTFail("he walks on to the next door")
         }
@@ -214,7 +218,7 @@ final class TownCollectorTests: XCTestCase {
         }
         XCTAssertEqual(s.gold, purse + 43, "Sim.step walks him: the town's 49 less his 6")
         XCTAssertEqual(s.town?.today?.collectorBack, true)
-        XCTAssertEqual(s.hour, 14.2, accuracy: 0.1, "home in the early afternoon")
+        XCTAssertEqual(s.hour, 14.0, accuracy: 0.1, "home in the early afternoon")
     }
 
     func testTheWageIsOneCoinInEightAtLeastTwoAndNeverMoreThanHeBrought() {
@@ -239,9 +243,9 @@ final class TownCollectorTests: XCTestCase {
         XCTAssertEqual(s.gold, purse + 11 + 33)
         XCTAssertEqual(Town.collectorWords(day), .lordFirst)
         let plan = Town.collectorSchedule(day, rules: rules)
-        XCTAssertEqual(plan.home, 14.204 - stop, accuracy: 0.001, "no stop at the door the lord had been to")
+        XCTAssertEqual(plan.home, 14.019 - stop, accuracy: 0.001, "no stop at the door the lord had been to")
         XCTAssertNotEqual(Town.collectorLeg(day, hour: plan.arrivals[2] + 0.01, rules: rules),
-                          .atDoor(plot: house4, x: Town.doorX(plot: house4)))
+                          .atDoor(plot: house4, x: stand(house4)))
 
         // The lord and the collector at the same door in the same step: the lord is first.
         var t = secondMorning()
@@ -294,8 +298,7 @@ final class TownCollectorTests: XCTestCase {
         XCTAssertEqual(s.gold, purse)
         XCTAssertEqual(Town.collectorWords(day), .empty)
         XCTAssertEqual(Town.collectorSchedule(day, rules: rules).home,
-                       6 + 2 * (Town.doorX(plot: house5) - Town.collectorPost) / perHour, accuracy: 1e-9,
-                       "no stop anywhere")
+                       6 + 2 * (stand(house5) - Town.collectorPost) / perHour, accuracy: 1e-9, "no stop anywhere")
         let summary = try XCTUnwrap(nextDawn(&s).town)
         XCTAssertEqual(summary.collectorGold, 0)
         XCTAssertEqual(TownText.reportLines(summary, lookup: { $0 }).map(\.key), ["town.report.unrest"])
