@@ -200,19 +200,19 @@
       }
     },
     "front.gorge.lost.all" : {
-      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): in the night every beacon fell; none burns at dawn and the fog comes as it always came, up to the walls. Short and dry.",
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3, fix 2): in the night two or more beacons fell and none burns at dawn; the fog comes as it always came (on early nights not yet up to the walls). Short and dry.",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alle Leuchtfeuer erloschen. Der Nebel steht vor den Mauern."
+            "value" : "Alle Leuchtfeuer erloschen. Der Nebel nahm sich die Schlucht zurück."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Every beacon went dark. The fog is at the walls."
+            "value" : "Every beacon went dark. The fog took the gorge back."
           }
         }
       }
@@ -308,19 +308,19 @@
       }
     },
     "front.gorge.untended" : {
-      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3 fix 1): the beacons are tended from a wall beyond the gate; no such wall stands, so the struck beacons kept their harm. Short and dry.",
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3 fix 1 and 2): the beacons are tended from a wall beyond the gate (its people walk out to them by day); no such wall stands, or it is rubble, so nobody went and the struck beacons kept their harm. Short and dry.",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keine Mauer vor dem Tor. Niemand hat die Leuchtfeuer gepflegt."
+            "value" : "Niemand ging zu den Leuchtfeuern hinaus. Vor dem Tor steht keine Mauer."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No wall beyond the gate. Nobody tended the beacons."
+            "value" : "Nobody walked out to the beacons. No wall to send them from."
           }
         }
       }

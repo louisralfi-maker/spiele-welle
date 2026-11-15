@@ -57,8 +57,8 @@ struct GorgeLandPicture: Sendable, Equatable {
 /// shows): read-only, built from the state.
 struct GorgePicture: Sendable, Equatable {
     var ruleOn: Bool
-    /// The fog line: where the furthest lit beacon holds the fog (the next site, or the Gloom's mouth once all four
-    /// burn); nil when no beacon burns. The darkness bank itself is `GameState.bankEdge`, which the rule holds there by
+    /// The fog line: where the furthest lit beacon holds the fog (the next site, or the fog's last line at x 37 once all
+    /// four burn); nil when no beacon burns. The darkness bank itself is `GameState.bankEdge`, which the rule holds there by
     /// day and by night (rolling over `GorgeTuning.fogSeconds` when it moves); with no beacon it rests by day at the
     /// first site.
     var fogLine: Double?
@@ -88,9 +88,9 @@ struct GorgePicture: Sendable, Equatable {
 /// it falls, and the fog comes back to it. A standing beacon is tended from the wall: full again at dawn while a wall
 /// beyond the gate stands whole. A cold beacon is relit by day for a third of its price.
 ///
-/// Creatures still leave the Gloom at its mouth (`Realm.spawnX`), west of every site, so they walk the whole gorge in
-/// the beacons' light, slower and under the watch's arrows; they come out of the fog at the fog line (the picture hides
-/// what is inside the bank).
+/// Creatures still leave the Gloom where they always did (`Realm.spawnX`, x 40), west of every site, so they walk the
+/// whole gorge in the beacons' light, slower and under the watch's arrows; they come out of the fog at the fog line (the
+/// picture hides what is inside the bank).
 ///
 /// Deterministic: nothing here draws from the random stream. Nothing runs for a realm without `GameState.gorge`.
 enum Gorge {
@@ -119,10 +119,10 @@ enum Gorge {
         return x(list.isEmpty ? 0 : list[min(max(0, index), list.count - 1)], tuning)
     }
 
-    /// Where the fog rests while `held` beacons burn: the next site (the first with none), or the Gloom's mouth once all
-    /// four burn.
+    /// Where the fog rests while `held` beacons burn: the next site (the first with none), or the fog's last line
+    /// (`GorgeTuning.lastLineFraction`, x 37) once all four burn.
     static func lineX(_ held: Int, tuning: GorgeTuning) -> Double {
-        held < sites ? siteX(held, tuning: tuning) : x(tuning.mouthFraction, tuning)
+        held < sites ? siteX(held, tuning: tuning) : x(tuning.lastLineFraction, tuning)
     }
 
     /// Where a freed thing stands.
@@ -147,7 +147,7 @@ enum Gorge {
         return false
     }
 
-    /// The fog line: where the furthest lit beacon holds the fog (the next site, or the Gloom's mouth); nil when none
+    /// The fog line: where the furthest lit beacon holds the fog (the next site, or the fog's last line); nil when none
     /// burns (the fog comes as it always came).
     static func fogLine(_ s: GameState, balance: Balance) -> Double? {
         let count = held(s)
@@ -156,9 +156,23 @@ enum Gorge {
     }
 
     /// Where the rule holds the bank before any roll: with a beacon burning at the fog line, by day and by night; with
-    /// none, as the fog comes (`edge`) but never nearer the mouth than the first site, so by day it rests there.
-    static func restingBank(held: Int, edge: Double, tuning: GorgeTuning) -> Double {
-        held > 0 ? lineX(held, tuning: tuning) : max(edge, siteX(0, tuning: tuning))
+    /// none, as the fog comes (`edge`) but never further west than the first site, so by day it rests there. A
+    /// petition's fog tonight (`petitionFog`: `NightPlanModifiers.fogShift` at night, 0 by day) still comes on past the
+    /// beacons' line, up to the furthest lit beacon and never over it (`GorgeTuning.petitionFogPresses`; fix round 2, the
+    /// critic's smaller point 2: a lit beacon erased the petition's consequence). With no beacon it is in `edge` already.
+    static func restingBank(held: Int, edge: Double, tuning: GorgeTuning, petitionFog: Double = 0) -> Double {
+        guard held > 0 else { return max(edge, siteX(0, tuning: tuning)) }
+        let line = lineX(held, tuning: tuning)
+        guard tuning.petitionFogPresses && petitionFog > 0 else { return line }
+        return max(line, min(line + petitionFog, siteX(held - 1, tuning: tuning)))
+    }
+
+    /// A petition's fog at this hour: how much further it brings the bank tonight (`NightPlanModifiers.bankShift`, swelling
+    /// and ebbing with the night as the bank does); 0 by day and on a night without it.
+    static func petitionFog(_ s: GameState) -> Double {
+        let shift = NightPlanModifiers.bankShift(s)
+        guard shift > 0 else { return 0 }
+        return DarknessBank.edge(hour: s.hour, restingEdge: 0, nightEdge: shift)
     }
 
     /// The darkness bank's edge under the rule (`Battle.bankEdge` asks it last): held at the fog line, or by day at the
@@ -171,7 +185,7 @@ enum Gorge {
     static func holdFog(_ s: GameState, edge: Double, balance: Balance) -> Double {
         guard let g = s.gorge else { return edge }
         let tuning = balance.front.gorge
-        var bank = restingBank(held: g.held, edge: edge, tuning: tuning)
+        var bank = restingBank(held: g.held, edge: edge, tuning: tuning, petitionFog: petitionFog(s))
         if let shift = g.fogShift, let from = shift.from, tuning.fogSeconds > 0, s.simTime >= shift.at,
            s.simTime - shift.at < tuning.fogSeconds {
             bank = from + (bank - from) * (s.simTime - shift.at) / tuning.fogSeconds

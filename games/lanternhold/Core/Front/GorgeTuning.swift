@@ -19,10 +19,14 @@ struct GorgeTuning: Sendable, Equatable {
     /// 160, 95 (fix round 1, the critic's blocker B1). Every site lies inside the fog on the nights it can first be
     /// raised (night 3's natural edge is 320, and it only grows), so the first beacon pushes the fog back from night 3
     /// on. The world lane's first offer (0.55 to 0.91, x 558 to 112) put the first site east of the night's edge until
-    /// night 15 and over the outer line's braziers; the world draws the sites wherever these fractions say.
+    /// night 15 and over the outer line's braziers; the world draws the sites wherever these fractions say. The one-edge
+    /// model and these places are the director's decision of 15.11.2026 07:04 (notes-front.md; REALM.md section 5); the
+    /// world lane's own offer (world-1) already had ground for sites at x about 250 and 110, and its moor runs on to x 0.
     var siteFractions: [Double] = [0.758, 0.815, 0.871, 0.923]
-    /// The Gloom's mouth (x about 37, just west of where the creatures leave it): where the fog rests once all four burn.
-    var mouthFraction = 0.97
+    /// The fog's last line (x about 37, just short of where the creatures leave the Gloom at x 40): where the fog rests
+    /// once all four burn. Not the art's cleft mouth (fix round 2, the critic's blocker B1: the old name "the Gloom's
+    /// mouth" mixed the two up).
+    var lastLineFraction = 0.97
     /// The four freed things, one per stretch: each stands in the stretch its beacon clears, between the beacon and the
     /// next site (where the fog then rests): the old quarry (x about 265), the ruined watchtower (195), the charcoal
     /// burners' camp (128), the far stones (68). Only the watchtower's place counts in the simulation (its bowmen's
@@ -56,6 +60,10 @@ struct GorgeTuning: Sendable, Equatable {
     /// King walks slowly in it from there and falls later than today (front-3 round lh-f3-4: 6 to 9 s later in every
     /// seed): it moves the finale's tuning, so the brief's "far stones" gain stays a flag for the picture.
     var holdFogOnFinale = false
+    /// A petition's fog (`NightModifier.fog`, the bank 60 px further tonight) still comes on with a beacon lit: past the
+    /// beacons' line, up to the furthest lit beacon and never over it (on, fix round 2: a lit beacon no longer erases a
+    /// petition's consequence). Off: the beacons' line holds whatever the petition said (fix round 1).
+    var petitionFogPresses = true
 
     // MARK: The light
 

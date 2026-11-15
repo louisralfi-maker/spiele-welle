@@ -104,11 +104,11 @@ final class GorgeBeaconTests: XCTestCase {
         XCTAssertEqual(xs[1], 229.4, accuracy: 0.1)
         XCTAssertEqual(xs[2], 160.0, accuracy: 0.1)
         XCTAssertEqual(xs[3], 95.5, accuracy: 0.1)
-        XCTAssertEqual(line(Gorge.sites), 37.2, accuracy: 0.1, "the Gloom's mouth, once all four burn")
+        XCTAssertEqual(line(Gorge.sites), 37.2, accuracy: 0.1, "the fog's last line, once all four burn")
         XCTAssertLessThan(xs[0], Realm.beaconX, "beyond the Great Beacon and the outer line")
         XCTAssertLessThan(xs[0], DarknessBank.nightEdge(night: tuning.raiseFromDay),
                           "the first lies inside the fog on the first night it can be raised")
-        XCTAssertGreaterThan(xs[3], Realm.spawnX, "on the creatures' way from the Gloom's mouth")
+        XCTAssertGreaterThan(xs[3], Realm.spawnX, "on the creatures' way from where they leave the Gloom")
         for k in 1..<xs.count { XCTAssertLessThan(xs[k], xs[k - 1], "each further into the gorge") }
         var moved = tuning
         moved.gorgeFrontX = 1300
@@ -184,7 +184,7 @@ final class GorgeBeaconTests: XCTestCase {
         light(&s, 2)
         XCTAssertEqual(Battle.bankEdge(s, balance: balance), site(2), accuracy: 0.001)
         light(&s, 4)
-        XCTAssertEqual(Battle.bankEdge(s, balance: balance), line(4), accuracy: 0.001, "all four: the Gloom's mouth")
+        XCTAssertEqual(Battle.bankEdge(s, balance: balance), line(4), accuracy: 0.001, "all four: the fog's last line")
         XCTAssertEqual(Gorge.picture(s, balance: balance).fogLine ?? 0, line(4), accuracy: 0.001)
         for held in 0...Gorge.sites {
             var day = morning(day: 9)
@@ -245,6 +245,45 @@ final class GorgeBeaconTests: XCTestCase {
         XCTAssertLessThan(rolling, site(3), "it rolls, it does not jump")
         run(&s, seconds: tuning.fogSeconds + 0.2)
         XCTAssertEqual(Battle.bankEdge(s, balance: balance), site(3), accuracy: 0.001, "back to the fallen beacon")
+    }
+
+    /// Fix round 2, the critic's smaller point 2: a petition's fog (the bank 60 px further tonight) keeps its teeth with
+    /// a beacon lit. It comes on past the beacons' line, up to the furthest lit beacon and never over it; by day and on
+    /// other nights nothing changes.
+    func testAPetitionsFogStillComesWithABeaconLit() {
+        func foggy(_ held: Int, night: Int = 12, hour: Double = 23, fogNight: Int? = nil) -> GameState {
+            var s = self.night(day: night)
+            light(&s, held)
+            var court = CourtState()
+            court.nightModifiers = [NightModifierEntry(night: fogNight ?? night, id: "fog")]
+            s.court = court
+            s.hour = hour
+            return s
+        }
+        let shift = NightPlanModifiers.fogShift
+        XCTAssertEqual(Battle.bankEdge(foggy(1), balance: balance), site(1) + shift, accuracy: 0.001,
+                       "one beacon: the fog comes the petition's 60 px past the second site")
+        XCTAssertLessThan(site(1) + shift, site(0), "and stays short of the lit beacon")
+        XCTAssertEqual(Battle.bankEdge(foggy(2), balance: balance), min(site(2) + shift, site(1)), accuracy: 0.001)
+        XCTAssertEqual(Battle.bankEdge(foggy(4), balance: balance), min(line(4) + shift, site(3)), accuracy: 0.001,
+                       "never over the furthest lit beacon")
+        XCTAssertLessThanOrEqual(Battle.bankEdge(foggy(4), balance: balance), site(3) + 0.001)
+        XCTAssertEqual(Battle.bankEdge(foggy(1, hour: 12), balance: balance), line(1), accuracy: 0.001,
+                       "by day the fog rests at the beacons' line")
+        XCTAssertEqual(Battle.bankEdge(foggy(1, fogNight: 11), balance: balance), line(1), accuracy: 0.001,
+                       "last night's petition is spent")
+        let dusk = Battle.bankEdge(foggy(1, hour: 19.5), balance: balance)
+        XCTAssertGreaterThan(dusk, line(1))
+        XCTAssertLessThan(dusk, line(1) + shift, "it swells with the night, as the bank does")
+        var off = balance
+        off.front.gorge.petitionFogPresses = false
+        XCTAssertEqual(Battle.bankEdge(foggy(1), balance: off), line(1), accuracy: 0.001, "the other rule: the line holds")
+        var bare = foggy(0)
+        XCTAssertEqual(Battle.bankEdge(bare, balance: balance), DarknessBank.nightEdge(night: 12) + shift,
+                       accuracy: 0.001, "no beacon: the petition's fog as it always came")
+        bare.gorge = nil
+        XCTAssertEqual(Battle.bankEdge(bare, balance: balance), DarknessBank.nightEdge(night: 12) + shift,
+                       accuracy: 0.001)
     }
 
     // MARK: - The light
