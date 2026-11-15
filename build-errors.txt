@@ -1,0 +1,13 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UI/NightGlass.swift:442:12: error: static properties may only be declared on a type
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UI/NightGlass.swift:442:12: error: Static properties may only be declared on a type
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UI/NightGlass.swift:453:12: error: static methods may only be declared on a type
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UI/NightGlass.swift:453:12: error: Static methods may only be declared on a type
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UI/NightGlass.swift:481:12: error: static methods may only be declared on a type
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UI/NightGlass.swift:481:12: error: Static methods may only be declared on a type
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UI/NightGlass.swift:513:12: error: static properties may only be declared on a type
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UI/NightGlass.swift:513:12: error: Static properties may only be declared on a type
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UI/NightGlass.swift:514:12: error: static properties may only be declared on a type
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UI/NightGlass.swift:514:12: error: Static properties may only be declared on a type
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UI/NightGlass.swift:566:1: error: extraneous '}' at top level
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UI/NightGlass.swift:566:1: error: Extraneous '}' at top level
