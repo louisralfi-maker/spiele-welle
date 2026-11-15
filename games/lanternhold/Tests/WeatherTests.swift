@@ -404,12 +404,12 @@ final class WeatherTests: XCTestCase {
 
     /// A look-2 frame of `scene` at noon on the runner's phone (2622 x 1206), in this weather at animation time `time`.
     private func windFrame(_ scene: PlaceholderScene, focus: Double, weather: WeatherSample, time: Double,
-                           reduceMotion: Bool = false) -> FrameDesc {
+                           reduceMotion: Bool = false, timeOfDay: Double = 0.5) -> FrameDesc {
         var options = FrameOptions(flickerTime: time)
         options.look = .two
         options.weather = weather
         options.reduceMotion = reduceMotion
-        var clock = DayClock(timeOfDay: 0.5)
+        var clock = DayClock(timeOfDay: timeOfDay)
         clock.isFrozen = true
         let pixelScale = options.pixelScale(physicalWidth: 2622, physicalHeight: 1206)
         return FrameBuilder.build(scene: scene, clock: clock, camera: Camera(focusX: focus, pixelScale: pixelScale),
@@ -557,6 +557,35 @@ final class WeatherTests: XCTestCase {
         }
         XCTAssertEqual(Set((0..<10).flatMap { frames(WeatherOverride(mode: .storm), time: 4 + Double($0) * 0.2,
                                                      reduceMotion: true) }), [3], "Reduce Motion: it stands")
+    }
+
+    func testTheFiresLeanWithTheirLightInTheWind() {
+        let world = PlaceholderScene.world(look: .two)
+        let calm = windFrame(world, focus: 1830, weather: .clear, time: 4, timeOfDay: 0.97)
+        let wind = Weather.sample(seed: 3, day: 12, hour: 23, time: 4,
+                                  override: WeatherOverride(mode: .clear, wind: 0.9))
+        let blown = windFrame(world, focus: 1830, weather: wind, time: 4, timeOfDay: 0.97)
+        XCTAssertEqual(blown.lights.count, calm.lights.count, "the wind adds and takes no light")
+        var leaned = 0
+        for (still, bent) in zip(calm.lights, blown.lights) {
+            XCTAssertEqual(still.kind, bent.kind)
+            if Weather.leans(still.kind) {
+                XCTAssertEqual(bent.circle.x - still.circle.x, Float(Weather.fireLeanReach), accuracy: 0.01,
+                               "\(still.kind) leans toward the valley")
+                XCTAssertEqual(bent.circle.y - still.circle.y, Float(Weather.fireLeanSink), accuracy: 0.01)
+                XCTAssertLessThan(bent.circle.w, still.circle.w, "\(still.kind) gutters")
+                leaned += 1
+            } else {
+                XCTAssertEqual(bent.circle, still.circle, "\(still.kind) stands behind its glass")
+            }
+        }
+        XCTAssertGreaterThan(leaned, 0, "torches and braziers in view")
+        // Their flames gutter with them; the windows' glass does not.
+        func strength(_ desc: FrameDesc, _ sprite: SpriteID) -> Float {
+            desc.emissives.filter { $0.sprite == sprite }.map { $0.color.x + $0.color.y + $0.color.z }.reduce(0, +)
+        }
+        XCTAssertGreaterThan(strength(calm, .flame), 0)
+        XCTAssertLessThan(strength(blown, .flame), strength(calm, .flame))
     }
 
     func testTheFiresLeanAndGutterWithTheWind() {

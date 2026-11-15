@@ -871,6 +871,12 @@ enum FrameBuilder {
             // torches (the critic: "dusk looks the same as night: the same full moon in the same place").
             strength *= wedgeMoonShare(ambient)
         }
+        if options.look == .two && (part.sprite == .flame || part.sprite == .brazierFlame) {
+            // Build 3, POLISH pass 1 (lane 3): a torch's or a brazier's flame gutters with its light in the wind.
+            let lean = Weather.fireLean(x: prop.x + part.dx, geometry.weather, time: animTime,
+                                        reduceMotion: options.reduceMotion)
+            strength *= Float(1 - Weather.fireGutter * abs(lean))
+        }
         if let seed = part.flickerSeed {
             let flicker = Flicker.sample(seed: seed, time: animTime * part.flickerPace,
                                          reduceMotion: options.reduceMotion)
@@ -1605,8 +1611,18 @@ enum FrameBuilder {
             guard intensity > 0.01, radius > 0 else { continue }
             let centreX = source.x - geometry.whole(plane)
             guard geometry.isVisible(left: centreX - radius, width: 2 * radius) else { continue }
-            let centreY = Double(geometry.groundRow) - source.y
-            let circle = SIMD4<Float>(Float(centreX), Float(centreY), Float(radius), Float(intensity))
+            // Build 3, POLISH pass 1 (lane 3): an open fire leans and gutters with the wind, one value
+            // (`Weather.fireLean`): its pool moves downwind and down and dims; none in still air. After the culling,
+            // so the wind never adds or takes a light.
+            var lean = 0.0
+            if options.look == .two && Weather.leans(source.kind) {
+                lean = Weather.fireLean(x: source.x, geometry.weather, time: animTime,
+                                        reduceMotion: options.reduceMotion)
+                intensity *= 1 - Weather.fireGutter * abs(lean)
+            }
+            let centreY = Double(geometry.groundRow) - source.y + abs(lean) * Weather.fireLeanSink
+            let circle = SIMD4<Float>(Float(centreX + lean * Weather.fireLeanReach), Float(centreY), Float(radius),
+                                      Float(intensity))
             let rgba = SIMD4<Float>(color.x, color.y, color.z, 0)
             // World-2 fix round 1: a scene light may shape its pool (flat on the cobbles, a cone up a wall).
             var light = FrameLight(circle: circle, color: rgba, ellipseY: Float(source.squash ?? LightField.ellipseY),
