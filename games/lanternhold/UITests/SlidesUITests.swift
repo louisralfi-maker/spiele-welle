@@ -105,7 +105,9 @@ final class SlidesUITests: XCTestCase {
         XCTAssertTrue(waitForStatus(app, "lord:lord", timeout: 10), "the Burgherr holds the realm")
         pause(1.0)
         attach(XCUIScreen.main.screenshot(), "68-slide-skip-hall-\(language)")
-        XCTAssertTrue(element(app, "action-button").waitForExistence(timeout: 8), "day 1 as before: the throne waits")
+        // The join: no action button since touch the world; a new lord starts in the great hall at the throne.
+        XCTAssertTrue(waitForStatus(app, "stage:hall", timeout: 8), "day 1 as before: in the great hall")
+        XCTAssertNotNil(waitForThing(app, "touch-throne", timeout: 8), "day 1 as before: the throne waits")
         app.terminate()
 
         // Reduce Motion: cross-fades, the same taps.
