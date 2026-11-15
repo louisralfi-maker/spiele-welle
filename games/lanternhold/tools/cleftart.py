@@ -78,26 +78,62 @@ SLIT_ROWS = 24
 # with rock"): the wall stands to the screen's top except in two wedges, over the gatehouse (seen when the camera is on
 # the gate) and over the bailey (seen from world 1600 to 2100, where the moon stands in it at night). (centre, half
 # width at the top, depth in rows, seed)
-# Fix round 2: the bailey's wedge deeper (68 rows), so the moon stands in it 36 rows under the screen's top, under
-# every rectangle of the HUD at every camera (the critic: "the moon is half hidden behind the stat panel").
-WEDGES = [(792, 62, 46, 521), (1010, 44, 68, 523)]
+# World-2 (the critic of world-1, look 3: "the jagged slit is a ruler-straight V with a dotted rim, and too wide"): each
+# wedge at most 12 % of the screen wide (half width 27) and about a quarter of its height deep; both edges broken crag
+# profiles (runs of 2 to 6 px, each falling in its own curve, steep faces and shoulders), a narrow floor where the
+# moon stands (its top 34 rows under the screen's top); no lit rim on the wedges' edges (`slit_rim`).
+WEDGES = [(792, 27, 40, 521), (1010, 27, 50, 523)]
+_WEDGE_CACHE = {}
+
+
+def wedge_profile(c, half, depth, sd):
+    """{canvas x: rows of sky from the top} of one wedge: from each outer edge inward, runs of 2 to 6 px (the critic's
+    6 to 20 px of the phone's view), each falling by its own share of the depth in its own curve (u ** p: a steep crag
+    face, a rounded shoulder, a ledge), with a broken floor 9 px either side of the centre."""
+    key = (c, half, depth, sd)
+    if key in _WEDGE_CACHE:
+        return _WEDGE_CACHE[key]
+    prof = {}
+    for side in (-1, 1):
+        total = half - 9
+        runs, x, k = [], 0, 0
+        while x < total:
+            w = 2 + int(h01(sd, side + 5, k, 1) * 5)
+            if total - x < w + 2:
+                w = total - x
+            runs.append(w)
+            x += w
+            k += 1
+        weights = [0.08 + h01(sd, side + 5, i, 2) ** 1.6 * 1.8 for i in range(len(runs))]
+        weights[0] *= 0.6
+        total_w = sum(weights)
+        t, x = 0.0, 0
+        for i, w in enumerate(runs):
+            drop = depth * weights[i] / total_w
+            p = 0.35 + h01(sd, side + 5, i, 3) * 2.4
+            for j in range(w):
+                gx = c + side * (half - (x + j))
+                prof[gx] = max(prof.get(gx, 0.0), t + drop * ((j + 1) / float(w)) ** p)
+            t += drop
+            x += w
+        for j in range(x, half + 1):
+            gx = c + side * (half - j)
+            prof[gx] = max(prof.get(gx, 0.0), depth - 1 + 3.0 * h01(sd, gx // 3, 5))
+    _WEDGE_CACHE[key] = prof
+    return prof
 
 
 def slit(gx):
-    """Rows from the canvas top where the rock begins: 0 where the wall closes the sky; in a wedge a V between two
-    rock edges, each a stair of blocks (a few rows high, its own lean), the west edge a little steeper."""
+    """Rows from the canvas top where the rock begins: 0 where the wall closes the sky; in a wedge its crag profile."""
     t = 0.0
-    for (c, half, depth, sd) in WEDGES:
-        d = gx - c
-        if abs(d) >= half:
-            continue
-        u = 1 - abs(d) / float(half)
-        # the edges: a stair of blocks (each 3 to 8 px wide), so the V is cut in rock, not drawn with a ruler
-        k = int((gx - c + 400) // (3 + 5 * h01(sd, int((gx - c + 400) // 6))))
-        stair = 3.0 * (h01(sd + 1, k) - 0.5)
-        shape = u ** (1.25 if d < 0 else 1.0)
-        t = max(t, depth * shape + stair * min(1.0, u * 4))
-    return max(0.0, t)
+    for wedge in WEDGES:
+        t = max(t, wedge_profile(*wedge).get(int(round(gx)), 0.0))
+    return t
+
+
+def slit_rim(gx, y):
+    """World-2: no lit rim on a wedge's edges (the critic: "a 1 px dotted pale line runs down one edge from the moon")."""
+    return slit(gx) < 0.5
 
 
 def cleft_top(gx):
@@ -258,7 +294,7 @@ def cleft_piece(name):
     gx0, w = PIECES[name]
     field = RF.Field(cleft_massif(), gx0, w, CLEFT_H, cleft_top)
     img = RF.paint(field, "cleft", snow_rows=24, snow_share=0.5, cold_rows=90, seed=601, contrast=1.2,
-                   caps=True, lit_rim=True, clamp=0.55, rim_broken=True, gain_at=cleft_gain)
+                   caps=True, lit_rim=True, clamp=0.55, rim_broken=True, gain_at=cleft_gain, rim_at=slit_rim)
     snow_caps(img, field, gx0)
     for spec in THREADS:
         if gx0 - 12 <= spec[0] < gx0 + w + 12:

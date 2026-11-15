@@ -522,7 +522,7 @@ def shade(field, x, y, light=LIGHT, sky_fall=0.5, ambient=0.14, clamp=0.0):
 
 def paint(field, ramp_name, gain=1.0, lift=0.0, dither=0.0, snow_rows=0, snow_share=0.6, rim=0.55, mist_left=None,
           wet=(), seed=1, contrast=1.0, cold_rows=0, caps=False, lit_rim=False, clamp=0.0, rim_broken=False,
-          gain_at=None):
+          gain_at=None, rim_at=None):
     """The field painted on a new image: light → ramp index with a sparse ordered dither; snow on the faces that look
     up in the top `snow_rows`; a cold rim on the edges against the sky; `wet` streaks below water threads; west of
     `mist_left` = (gx_a, gx_b) the rock pales toward the mist."""
@@ -580,7 +580,7 @@ def paint(field, ramp_name, gain=1.0, lift=0.0, dither=0.0, snow_rows=0, snow_sh
                 if vnoise(seed * 61 + int(y), gx / 13.0) < snow_share * share + 0.25 * (-ny - 0.3):
                     c = snow[2] if (lit and v > 0.55) else snow[1] if v > 0.35 else snow[0]
             edge_top = not field.inside(x, y - 1)
-            if lit_rim:
+            if lit_rim and (rim_at is None or rim_at(gx, y)):
                 # fix round 1 (the critic: "single white rim dots"): a continuous lit edge on the faces that look up
                 # or west (toward the light), none on the shaded east slopes; two pixels where the edge is steep
                 west_open = not field.inside(x - 1, y)
@@ -597,7 +597,7 @@ def paint(field, ramp_name, gain=1.0, lift=0.0, dither=0.0, snow_rows=0, snow_sh
                 if lit_edge:
                     # (fix round 1: on a slope the edge is two pixels deep, so it reads as one line, not dots)
                     c = snow[1] if snow_rows and y < snow_rows else ramp[min(n - 1, max(k, n - 3) + 2 - second)]
-            elif rim and edge_top and h01(seed, gx) < rim:
+            elif rim and edge_top and h01(seed, gx) < rim and (rim_at is None or rim_at(gx, y)):
                 c = snow[1] if snow_rows and y < snow_rows else ramp[min(n - 1, k + 2)]
             if mist_left and gx < mist_left[1]:
                 # the west end pales into the mist band: a boundary that leans with the slope (never a column),

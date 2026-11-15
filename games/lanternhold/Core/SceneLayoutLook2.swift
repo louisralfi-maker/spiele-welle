@@ -225,9 +225,10 @@ extension SceneLayout {
     static let look2ShaftX = 1104.0
     /// The middle of the wedge of sky over the bailey, where the moon stands at night (tools/cleftart.py `WEDGES`).
     static let look2SlitMoonX = 1010.0
-    /// Rows from the screen's top to the wedge moon's top (fix round 2; 22 before): under the HUD's deepest rectangle
-    /// (the stat panel ends 66 pt under the top of the runner's 402 pt screen, row 33 of its 201), with 3 rows to spare.
-    static let look2SlitMoonTop = 36.0
+    /// Rows from the screen's top to the wedge moon's top (world-2: 34, so the wedge is about a quarter of the screen
+    /// deep, the critic of world-1's look 3; 36 in fix round 2, 22 before): under the HUD's deepest rectangle (the stat
+    /// panel ends 66 pt under the top of the runner's 402 pt screen, row 33 of its 201).
+    static let look2SlitMoonTop = 34.0
     static let look2ShaftShare: Float = 1.0   // fix round 1: a stronger shaft (0.85 before)
 
     /// The granite the gatehouse's towers grow out of (H2, tools/cleftart.py): a shoulder of bedrock at each tower's
