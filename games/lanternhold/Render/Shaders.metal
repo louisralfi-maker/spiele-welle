@@ -1389,7 +1389,10 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
     bool unlit = in.flags.y > 0.0f;
     // World-3 fix round 2 (the critic's L2: "red-orange line drawings"): an unlit creature's rim is its top edge only,
     // cool blue-grey, laid on after the fog (below); the east edge rim stays for the lit figures.
-    bool topEdge = unlit && t.y > 0u && atlas.read(uint2(t.x, t.y - 1u)).a < 0.5f;
+    // (Round lh-w3f2-1: on the smoky creatures' dithered edges every lone pixel caught it, a dotted outline: only a
+    // pixel with an opaque neighbour beside it, a run of the contour, takes the rim.)
+    bool topEdge = unlit && t.y > 0u && t.x > 0u && atlas.read(uint2(t.x, t.y - 1u)).a < 0.5f
+        && (atlas.read(uint2(t.x - 1u, t.y)).a >= 0.5f || atlas.read(uint2(t.x + 1u, t.y)).a >= 0.5f);
     if (in.flags.x < 0.5f && rimStrength > 0.0f && !unlit) {
         int toward = across < 0.0f ? -1 : 1;
         int2 side = int2(t) + int2(toward, 0);

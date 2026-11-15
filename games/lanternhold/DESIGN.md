@@ -3853,6 +3853,61 @@ The critic's look 1 (`ci-out/director/world-3-camera-pass-critic1.md`): four blo
   cool grey-green rather than a deep moon-blue (no longer peach); a painted night view would be a second sprite (build
   3). The bank's own cold eyes can stand beside the beacon's top in the fog (`w-0400-night`; the bank's, not this
   step's). The buttress reads as a granite needle standing before the cliff rather than a rib tied into it.
+
+#### Step world-3, fix round 2 (the critic's 7 of 10, look 2; 15.11.2026)
+
+The critic's look 2 (`ci-out/director/world-3-camera-pass-critic2.md`): two blockers, eight highs, two smaller items.
+Logic: `Core/WorldThreeFix2.swift` (picture only); art: `tools/w3f2art.py` (ART-look2.md section 28, its sources for the
+passes over earlier sprites in `tools/w3f2src`); ids: SPRITES.md "World-3, fix round 2"; tests: `WorldThreeFix2Tests`,
+`Look2FrameTests` (the fires' spills).
+
+- **Blocker 1, the buttress as a blue cut-out.** The cobalt was the slate ramp's darkest step (`nightSlate`) on the near
+  plane, which takes little haze; the cream line its lit rim. `throatButtress` is repainted in the cliff's own warm
+  granite (shade `rockDeep`, faces `rockDark` and `rock`, lit shelves `rockLight`; no rim, no outline), so the hour
+  drives it like the cliff behind; the left slope climbs in three lit ledges, the crest is broad, a scree apron runs
+  along the whole foot and rises into skirts where the rock runs out.
+- **Blocker 2, the goal as a chimney with a pot.** The sweep's state has the tower stage built, so the goal on screen is
+  `beaconTower`. Its crown: the old parapet's 2-row transparent gap closed with courses, a chipped merlon, a broken stub,
+  the right corner fallen 16 rows in steps by the courses, fallen blocks at the foot; the cold bowl in clear values (a
+  rim ellipse 3 px thick a value over its dark body, the lip's shadow, a cold `stonePale` right lip, a rounded grey ash
+  crown over the back lip). The moon's band (all four stages) lights every second course only; a 2/16 to 3/16 wash
+  lifts the faces a value at night, the joints left dark; the bowl's lip, edge and ash catch the moon.
+- **High 1, floating eyes.** No pair opens higher than 60 rows (`EyeRules.ceiling`; the bank's near pairs at 26 to 44,
+  its far ones at 42 to 60; the fog's own stay under 50). The bank's pairs are drawn over everything on the lane, so
+  one that would stand before a building (`EyeRules.screens`: every world prop at least 40 px tall that is no creature,
+  2 px either side) opens just left of it, deeper in the bank (`EyeRules.placed`: dropped, the bank had no eyes where
+  the beacon stands behind its edge); the fog's own eyes stand behind everything on the lane and are hidden by it. The
+  bank's near eyes open are almonds, not crosses.
+- **High 2, slits as glyphs.** Their frame was glass, so it lit as "[ ]": every gatehouse slit (tiers 1 to 3) is a dark
+  reveal round a 2 px glass core; the watchtower's shuttered window (an "r") a plain loop; all at 0.5 amber
+  (`castleGlassShare`), the watchtower in `castleAmberGlass`.
+- **High 3, lit boxes.** The line braziers' pools (two 24 px apart) saturated into a plateau with a flat top on the gate
+  tower's foot: in look 2's picture every line brazier and fire tower is a core at half and a round spill 1.7 times as
+  wide (`FireLook`: core 0.3, spill 2 × at 0.16; at 0.5 and 1.7 × round lh-w3f2-1 hardly changed the box; the
+  battle's lights and the fog's holes keep the whole). The torch inside the front gate likewise
+  (`look2GateInnerTorch`), so Marek's stall's glow falls off over the gatehouse's flank. The cream square was the
+  barracks' last window (the one the cart leaves free): amber at 0.55 with a small pool (`barracksWindowPool`).
+- **High 4, the postern's pale panel.** `posternNightView` (the valley painted at night) lies over the passage's day view
+  by the night's moon; the passage's far glow falls to 0.3 under the moon (`posternFarNightDim`).
+- **High 5, L4.** The far lantern's glass in the gate torches' colour (`look2GlassColor`), its halo smaller and fainter
+  in fire orange, its reflection a broken streak 3 to 4 px wide fading down; the skiff a 40 x 12 hull (both gunwales,
+  the dark inside, the bow raised, a transom) in the open water right of the first stump (3781, y −15), its painter up
+  to it.
+- **High 6, L2.** Inside the bank an unlit creature's red line falls to 30 % (`CreatureLook.glowShare`); its body takes
+  the bank's whole fog and stands a value lighter than it (`kCreatureLift2`); its rim is a cool blue-grey line on its
+  top edge only (`kCreatureRim2`), laid after the fog, and only on a run of the contour (on the smoky creatures'
+  dithered edges every lone pixel caught it, a dotted outline in round lh-w3f2-1) (`Render/Shaders.metal`
+  `lh_actor2_fragment`).
+- **High 7, the clouds' sawtooth.** `cloudA` to `cloudC` lose the single-pixel checker under them; the notches are
+  filled and the undersides hang in broad soft scallops (12 to 28 px, 0 to 2 rows) of the belly colour, their last row a
+  value darker (round lh-w3f2-1's narrow lobes read as a fringe).
+- **High 8, the fog.** On a hard night a cold ground fog (`gloomGroundFog`, `GloomFog.groundStrip`, × `midVeil` × 0.75)
+  swallows the feet of the mid plane and the lane's to 16 to 22 rows, cut by the fires' holes; an ordinary night none.
+  It lies on fog B before the Gloom's dark strips (round lh-w3f2-1 had it on fog A, where they covered it).
+- **From the sweep, not the critic's:** the gate rocks' lit edge a step down (`gateRockL`, `gateRockR`: `rockPale`
+  to `rockLight`), the same cream cut line up their slopes as the buttress had (t-3-1360, w-1200-noon).
+- **Smaller.** The Throat's end (`oldWall1`): the stepped blocks rounded into rubble, tops chipped, heaps at the foot.
+  The verge: gaps of 3 to 17 px drawn from a hash, never one rhythm.
 <!-- END world lane: World rebuild (14.11.2026) -->
 ### The hall stage and touch the world (14.11.2026)
 
