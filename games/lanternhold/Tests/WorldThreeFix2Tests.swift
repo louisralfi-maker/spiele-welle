@@ -36,12 +36,13 @@ final class WorldThreeFix2Tests: XCTestCase {
         guard let beacon else { return }
         XCTAssertTrue(screens.contains { $0.contains(beacon.x + 20) }, "the beacon is a screen")
         XCTAssertFalse(EyeRules.allowed(x: beacon.x + 10, width: 9, y: 30, screens: screens), "not before the beacon")
-        XCTAssertTrue(EyeRules.allowed(x: beacon.x - 40, width: 9, y: 30, screens: screens), "beside it in the bank")
-        XCTAssertFalse(EyeRules.allowed(x: beacon.x - 40, width: 9, y: 70, screens: screens), "never high")
+        // (fix round 3: 40 px clear of a building, `EyeRules.clearance`)
+        XCTAssertTrue(EyeRules.allowed(x: beacon.x - 60, width: 9, y: 30, screens: screens), "beside it in the bank")
+        XCTAssertFalse(EyeRules.allowed(x: beacon.x - 60, width: 9, y: 70, screens: screens), "never high")
         let moved = EyeRules.placed(x: beacon.x + 10, width: 9, y: 30, screens: screens)
         XCTAssertNotNil(moved)
         XCTAssertLessThan((moved ?? 999) + 9, beacon.x, "a bank pair before the beacon moves left of it")
-        XCTAssertNil(EyeRules.placed(x: beacon.x - 40, width: 9, y: 70, screens: screens))
+        XCTAssertNil(EyeRules.placed(x: beacon.x - 60, width: 9, y: 70, screens: screens))
     }
 
     /// High 3: in look 2's picture a line brazier is a core at half its strength and a round spill 1.7 times as wide

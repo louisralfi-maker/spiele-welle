@@ -191,7 +191,8 @@ enum FrameBuilder {
                     // the painted eye tiles of the bank's heart are gone; with the bank's sheet lower they stood
                     // above it in rows, 64 px apart. The bank keeps its own eyes in the fog, `bankEyes`.)
                     for item in gloomEyes(gloom, edgeX: bankEdgeX, hour: hour, clearings: clearings,
-                                          animTime: animTime, reduceMotion: options.reduceMotion, geometry: geometry) {
+                                          animTime: animTime, reduceMotion: options.reduceMotion, geometry: geometry,
+                                          screens: eyeScreens) {
                         glow.add(item)
                     }
                 }
@@ -750,6 +751,13 @@ enum FrameBuilder {
             tint.w *= SceneLayout.posternNightShare(ambient)
             guard tint.w > 0.003 else { return }
         }
+        if options.look == .two && prop.plane == .world && SceneLayout.beaconStages.contains(prop.sprite) {
+            // World-3 fix round 3 (the critic's blocker 1 of look 3): the beacon takes the night like the cliff.
+            let night = SceneLayout.beaconNightTint(ambient)
+            tint.x *= night.x
+            tint.y *= night.y
+            tint.z *= night.z
+        }
         if options.look == .two && SceneLayout.townRowSprites.contains(prop.sprite) {
             // World-3 (M4): the town's back row a step darker as the night comes (the near plane's night haze lifted
             // its pale plaster over the front houses').
@@ -968,10 +976,14 @@ enum FrameBuilder {
         let size = SpriteID.darknessBankGlow.size
         let whole = geometry.whole(.world)
         var list: [EmissiveInstance] = []
+        var taken: [Double] = []
         for eye in bankEyePairs(edgeX: edgeX, time: animTime, reduceMotion: reduceMotion) {
             guard let x = EyeRules.placed(x: eye.x, width: Double(size.width), y: eye.y, screens: screens) else {
                 continue
             }
+            // World-3 fix round 3: two pairs moved off the same building would stand on one spot
+            guard !taken.contains(where: { abs($0 - x) < 40 }) else { continue }
+            taken.append(x)
             let left = x - whole
             guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
             let value = bankEyeStrength(eye, ambient: ambient) * strength
@@ -1315,14 +1327,18 @@ enum FrameBuilder {
 
     /// The cold eyes that open and close in the fog as glow on the world plane, dimmed where a fire clears it.
     private static func gloomEyes(_ gloom: GloomFog, edgeX: Double, hour: Double, clearings: [GloomFog.Clearing],
-                                  animTime: Double, reduceMotion: Bool, geometry: Geometry) -> [EmissiveInstance] {
+                                  animTime: Double, reduceMotion: Bool, geometry: Geometry,
+                                  screens: [ClosedRange<Double>] = []) -> [EmissiveInstance] {
         let size = SpriteID.eyeGlints.size
         let whole = geometry.whole(.world)
         var list: [EmissiveInstance] = []
         for eyes in gloom.eyes(bankEdge: edgeX, hour: hour, time: animTime, reduceMotion: reduceMotion) {
             // (They stand behind everything on the lane: the buildings drawn after them hide them. The ceiling only.)
-            guard eyes.y <= EyeRules.ceiling else { continue }
-            let left = eyes.x - whole
+            // World-3 fix round 3 (the critic's high 3): never within `EyeRules.clearance` of a building either.
+            guard let x = EyeRules.placed(x: eyes.x, width: Double(size.width), y: eyes.y, screens: screens) else {
+                continue
+            }
+            let left = x - whole
             guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
             let seen = eyes.strength * (1 - GloomFog.hole(x: eyes.x, clearings: clearings))
             guard seen > 0.02 else { continue }

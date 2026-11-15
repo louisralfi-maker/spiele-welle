@@ -76,7 +76,9 @@ extension FrameBuilder {
             // above the low roll's crest (it would veil them), the far ones higher in the fog
             // World-3 fix round 2 (the critic's high 1: eyes beside the beacon's top, high in the treetops): never
             // higher than `EyeRules.ceiling` (60 rows), the far ones over the near ones
-            let y = (near ? 26 + v * 18 : 42 + v * 18).rounded()
+            // World-3 fix round 3 (the critic's high 3): at a creature's head height, 26 to 30 rows, the far ones a
+            // row or two over the near ones (no longer 42 to 60: eyes with no body under them)
+            let y = (near ? 26 + v * 2 : 28 + v * 2).rounded()
             let frame = (near ? 0 : 2) + (open > 0.55 ? 0 : 1)
             list.append(BankEye(x: x, y: y, near: near, open: open, frame: frame))
         }
