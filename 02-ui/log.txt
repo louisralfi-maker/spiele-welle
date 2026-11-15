@@ -1,0 +1,7 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchUITests.swift:146: error: -[LanternholdUITests.TouchUITests testTouchTheWorld] : failed - no mark at the throne
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' failed (88.161 seconds).
+Test Suite 'TouchUITests' failed at 2026-11-15 01:42:16.568.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-15 01:42:16.570.
+Test Suite 'Selected tests' failed at 2026-11-15 01:42:16.571.
+exit=65
+screenshots: 6

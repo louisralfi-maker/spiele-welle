@@ -1,0 +1,1 @@
+no damaged wall tonight: frame:220 ready day:3 hour:21.84 alive:9 seen:0 lit:0 shots:0 aim:0 kx:1240 lord:lord stage:world lx:1240 errand:none
