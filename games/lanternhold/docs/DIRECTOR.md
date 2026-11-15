@@ -958,3 +958,9 @@ schneller geht."
   - Lane 6's first step, the frozen build-2 save with its load test, goes out as soon as a slot is free and before
     any lane changes saved state.
   - Quota at the start: 61 % of the week, 27 % Fable. The stop is at 80 % unless Louis raises it.
+
+- **Build 2 is uploaded to TestFlight: version 1.0.0, build 331 (16.11.2026, 00:05).**
+  - Round `tf-lh-2` on `claude/lh-join` 309ebb46: build, unit and testflight passed, ALL PASSED; the upload ended at 00:04. Verified on `ci-results/tf-lh-2` and on the wrapper commit (parent 309ebb46).
+  - Apple's processing follows before it shows on the phone. English only, taxes on foot.
+  - Asked of Louis: tap "Double taxes today" once on a dawn from day 9 on and say whether the taxes double; the lantern menu's fade; the cold launch.
+  - Build 3, wave 1, step 1 runs since 15.11. 23:50 as three workflows (count, wind, horde), each build, review, gate, critic.
