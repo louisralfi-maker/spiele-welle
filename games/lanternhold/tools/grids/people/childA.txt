@@ -3,9 +3,11 @@
 # (docs/PEOPLE.md). Quick where everyone else is slow, and the bright thing in a worn town: a mop of straw hair, a
 # brother's linen tunic far too big for him (the sleeves over his hands, the hem to his knees), washed white by his
 # mother at the well, a step lighter than any grown-up's cloth; bare feet, a stick for a sword; and the warm clean
-# accent that belongs to the children: a red kerchief round his neck, knotted at the nape, its two ends flying out
-# behind him when he runs (people-2, after the critic: no red on the throat or the belly, where it read as a wound at
-# phone size; the patch is gone). Light from the upper left; look 2's selective outline. Run: contact, flight,
+# accent that belongs to the children: a red kerchief tied round the back of his neck, its knot and ends a small clean
+# triangle on his chest, the throat under the chin left white (the director, 15.11.: nothing on a child may read as
+# blood at phone size, so no red on the throat or the belly), and a small square grey patch with a dark seam on the
+# tunic at the knee. The tunic's shade is cool (`mistLight`), so the white stands off
+# the cream plaster of the houses. Light from the upper left; look 2's selective outline. Run: contact, flight,
 # contact, flight (the body up 1 px and the feet off the ground in flight), the stick held high. Fidget: on both feet,
 # then on one foot rubbing the other against his shin. Skip: the step and the hop on each foot (2 px up on the hop),
 # the arms thrown up. The fight (with Wren, `TownDay`): feet planted wide, the stick raised back over his head (10),
@@ -31,8 +33,10 @@ legend
     R = crimsonLight
     r = crimson
     F = foam
-    W = parchment
-    w = plaster
+    W = foam
+    w = mistLight
+    P = stoneLight
+    D = stone
     l = woodLight
     h = wood
 
@@ -43,22 +47,15 @@ part head
     cCSkS
     .csSs
 
-# the kerchief round the neck (red at the nape, the throat white), the washed tunic too big for him
+# the kerchief round the back of the neck from the nape to under the ear, the throat white, the knot on the chest with
+# its ends hanging below it in a small clean triangle; the washed tunic too big for him, the square grey patch with its
+# dark seam at the knee
 part body
     rRRw.
-    FWWWw
-    FWWWw
-    FWWWw
-    .FWww
-
-# the kerchief's two ends: flying out behind (run, skip) and hanging at the nape (fidget, fight)
-part endsFly
-    .R
-    r.
-
-part endsHang
-    R
-    r
+    FWWRR
+    FWWrw
+    FWDPw
+    .FDPw
 
 # the near arm, the sleeve over the hand, the stick held high and forward
 part armStick
@@ -136,83 +133,71 @@ part legsSkipB
 frame 0
     legsRunA 3 14
     body 3 9
-    endsFly 1 9
     head 4 5
     armStick 6 9
 
 frame 1
     legsFlightA 4 13
     body 3 8
-    endsFly 1 8
     head 4 4
     armStick 6 8
 
 frame 2
     legsRunB 3 14
     body 3 9
-    endsFly 1 9
     head 4 5
     armStick 6 9
 
 frame 3
     legsFlightB 4 13
     body 3 8
-    endsFly 1 8
     head 4 4
     armStick 6 8
 
 frame 4
     legsStand 4 14
     body 3 9
-    endsHang 2 10
     head 4 5
     armShoulder 6 7
 
 frame 5
     legsOneFoot 4 14
     body 3 9
-    endsHang 2 10
     head 4 4
     armShoulder 6 7
 
 frame 6
     legsSkipA 3 14
     body 3 9
-    endsFly 1 9
     head 4 5
     armsUp 7 8
 
 frame 7
     legsSkipA 3 12
     body 3 7
-    endsFly 1 7
     head 4 3
     armsUp 7 6
 
 frame 8
     legsSkipB 3 14
     body 3 9
-    endsFly 1 9
     head 4 5
     armsUp 7 8
 
 frame 9
     legsSkipB 3 12
     body 3 7
-    endsFly 1 7
     head 4 3
     armsUp 7 6
 
 frame 10
     legsRunA 3 14
     body 3 9
-    endsHang 2 10
     head 4 5
     armRaise 5 1
 
 frame 11
     legsRunA 3 14
     body 3 9
-    endsHang 2 10
     head 4 5
     armStrike 7 10
