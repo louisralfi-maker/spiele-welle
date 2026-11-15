@@ -517,3 +517,15 @@ schneller geht."
     one thing per slide. **Slide 2 gets a new picture: slide 1's place, closer and long ago, bare, one point of
     gold in a huge dark,** so slide 1 answers it.
   - Louis sees nothing of the prologue before it stands beside the title.
+- **The prologue's round 2 is 5.5 to 7 of 10 (15.11.2026, 03:54) and not accepted.** Commits on
+  `claude/lh-panels`: `16444ef` (slide 4), `4d9aa45` and `5fedfef` (slide 2), `ca6d749` (slide 3), `d2660ba`
+  (slide 1). Slide 1 (7) and slide 2 (6.5) hold as pictures; on slide 3 the dark beacon reads at once (the empty
+  basket black in the moon). The figures stay the weak spot: polygons cannot reach the title's hand.
+  - **Round 3 started 03:56, decided with the artist:** every figure is a hand-set pixel grid, as the people lane's
+    cast is, and the heir and Odile are the people of the game's own portraits. **Slide 4 is a new picture: a close
+    two-shot** of the lantern, the heir, Odile and the circlet; the court and the brick wall go. On slide 3 Aldric
+    rides alone (the bearers read as gravestones). Slides 1 and 2 get one pass each.
+  - **Captions (the director's decision):** build 2 takes panel 2's and panel 4's text from HOUSE.md section 6,
+    rule 8 (English and German), with the house texts' apply pass at the join. Panel 4 still says "The one who
+    lights the lamps", which Louis turned down; it must not reach his phone again. The new pictures fit the new
+    captions.
