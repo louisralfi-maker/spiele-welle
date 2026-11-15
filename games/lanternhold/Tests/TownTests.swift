@@ -445,6 +445,30 @@ final class TownTests: XCTestCase {
         XCTAssertEqual(Town.knocksAllowed(t), 2)
     }
 
+    /// Review b2 core-day-1: the day-8 dawn opens the war levy with and without Brannock's refusal flag. The petition
+    /// comes after that dawn, so its choices promise no rate: refusing ("The town pays enough") is the lord's word, and
+    /// whether he knocks twice stays his deed at the door.
+    func testTheDayEightDawnOpensTheWarLevyWithAndWithoutTheRefusal() throws {
+        var t = GameState.newRealm(seed: 3, balance: balance)
+        var bot = Autoplay.reference()
+        while t.day < Realm.warTaxDay - 1 && !t.defeated { Sim.runToDawn(&t, balance: balance, bot: &bot) }
+        XCTAssertEqual(t.day, Realm.warTaxDay - 1)
+        XCTAssertFalse(t.warTaxUnlocked, "not before story day 8")
+        for refused in [false, true] {
+            var s = t
+            var sBot = bot
+            if refused {
+                s.flags.append("war_tax_refused")
+                s.flags.sort()
+            }
+            let report = try XCTUnwrap(Sim.runToDawn(&s, balance: balance, bot: &sBot), "refused: \(refused)")
+            XCTAssertEqual(s.day, Realm.warTaxDay)
+            XCTAssertTrue(report.unlocked.contains("warTax"), "refused: \(refused)")
+            XCTAssertTrue(s.warTaxUnlocked, "refused: \(refused)")
+            XCTAssertEqual(Town.knocksAllowed(s), 2, "refused: \(refused)")
+        }
+    }
+
     // MARK: - Unrest
 
     func testUnrestAtDawnShutsEveryDoor() throws {

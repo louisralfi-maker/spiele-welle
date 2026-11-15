@@ -160,7 +160,7 @@ enum Texts {
         case .middleLine: return String(localized: "The middle line can be built")
         case .outerLine: return String(localized: "The outer line can be built")
         case .beacon: return String(localized: "The beacon site can be built")
-        case .warTax: return String(localized: "The war tax can be set")
+        case .warTax: return String(localized: "The war levy: a second knock at a door")
         }
     }
 

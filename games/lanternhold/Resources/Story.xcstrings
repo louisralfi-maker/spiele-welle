@@ -4867,49 +4867,49 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Am Pult setzt Ihr die Steuern. Niedrige machen Freunde, hohe machen Mauern. Wählt Eure Feinde."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The lectern sets the taxes. Low taxes make friends, high taxes make walls. Choose your enemies."
+            "value" : "The taxes wait at the doors. Pass a door by and you make a friend. Knock, and you make a wall. Choose your enemies."
           }
         },
         "es" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "En el atril se fijan los impuestos. Los bajos hacen amigos; los altos, murallas. Elija a sus enemigos."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Le lutrin fixe les impôts. Bas, ils font des amis ; hauts, ils font des murailles. Choisissez vos ennemis."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Al leggio si fissano le tasse. Tasse basse fanno amici, tasse alte fanno mura. Scegliete i vostri nemici."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "税は書見台で決めます。低い税は友をつくり、高い税は城壁をつくります。どちらを敵に回すか、お選びください。"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "O atril define os impostos. Imposto baixo faz amigos, imposto alto faz muralhas. Escolha os seus inimigos."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "税在书案上定。税低交朋友，税高筑城墙。敌人由您挑。"
           }
         }
@@ -4975,49 +4975,49 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Ihr habt Brannock eine Kriegssteuer versprochen. Das Pult steht gleich dort, {mein Herr|meine Herrin}. Ich erwähne es nur."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You promised Brannock a war tax. The lectern is right there, my {lord|lady}. I merely mention it."
+            "value" : "You promised Brannock a war levy: a second knock at the doors, my {lord|lady}. I merely mention it."
           }
         },
         "es" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Le prometió a Brannock un impuesto de guerra. El atril está ahí mismo, {mi señor|mi señora}. Solo lo menciono."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Vous avez promis un impôt de guerre à Brannock. Le lutrin est juste là, {monseigneur|madame}. Je me contente de le signaler."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Avete promesso a Brannock una tassa di guerra. Il leggio è proprio lì, {mio signore|mia signora}. Mi limito a farlo notare."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "ブラノックに戦時税を約束なさいましたね。書見台はすぐそこです、城主様。念のため申し上げたまでです。"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Prometeu a Brannock um imposto de guerra. O atril está bem ali, {meu senhor|minha senhora}. Apenas comento."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "您答应过布兰诺克征战争税。书案就在那儿，大人。我只是提一句。"
           }
         }
@@ -36673,49 +36673,49 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Öffne ich die Schatzkammer einmal, erwarten sie es zweimal. Senkt lieber am Pult die Steuern."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "If I open the treasury once, they will expect it twice. Lower the taxes at the lectern instead."
+            "value" : "If I open the treasury once, they will expect it twice. Pass a few doors by instead."
           }
         },
         "es" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Si abro el tesoro una vez, esperarán que lo abra dos. Mejor baje los impuestos en el atril."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Si j’ouvre le trésor une fois, ils l’attendront deux fois. Baissez plutôt les impôts au lutrin."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Se apro il tesoro una volta, se lo aspetteranno due. Abbassate piuttosto le tasse al leggio."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "一度金庫を開ければ、二度目を期待されます。それより、書見台で税をお下げになることです。"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Se eu abrir o tesouro uma vez, vão esperar duas. Em vez disso, baixe os impostos no atril."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "我开一次府库，他们就会指望第二次。不如去书案把税调低。"
           }
         }
@@ -40291,49 +40291,49 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Ich setze die Kriegssteuer fest"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "I will set the war tax"
+            "value" : "I will knock twice"
           }
         },
         "es" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Fijaré el impuesto de guerra"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Je fixerai l’impôt de guerre"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Fisserò la tassa di guerra"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "戦時税を定めよう"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Vou fixar o imposto de guerra"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "我会定战争税"
           }
         }
@@ -40453,49 +40453,49 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Versprecht ihm die Kriegssteuer. Gnädig sein könnt Ihr am Pult immer noch. Versprechen sind die billigste Münze eines Hauses."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Promise him the war tax. You can still be merciful at the lectern. Promises are the cheapest coin a house has."
+            "value" : "Promise him the levy. Whose door you knock at twice is still yours to choose. Promises are the cheapest coin a house has."
           }
         },
         "es" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Prométale el impuesto de guerra. En el atril aún podrá ser clemente. Las promesas son la moneda más barata de una casa."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Promettez-lui l’impôt de guerre. Vous pourrez encore être {clément|clémente} au lutrin. Les promesses sont la monnaie la moins chère d’une maison."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Promettetegli la tassa di guerra. Al leggio potrete ancora essere clemente. Le promesse sono la moneta più a buon mercato di una casata."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "戦時税は、お約束ください。慈悲なら、書見台でいつでもかけられます。約束は、家が持つ一番安い硬貨です。"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Prometa a ele o imposto de guerra. Ainda pode ser clemente no atril. Promessas são a moeda mais barata de uma casa."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "答应他战争税。到了书案前，您照样可以手下留情。许诺是一个家族最便宜的钱币。"
           }
         }
@@ -40507,49 +40507,49 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Brannock salutiert. „Das Pult steht neben dem Thron, {Herr|Herrin}. Die Stadt wird es hassen. Die Mauern nicht.“"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Brannock salutes. “The lectern is by the throne, {lord|my lady}. The town will hate it. The walls will not.”"
+            "value" : "Brannock salutes. “A second knock at every door, {lord|my lady}. The town will hate it. The walls will not.”"
           }
         },
         "es" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Brannock saluda. «El atril está junto al trono, {señor|señora}. El pueblo lo odiará. Las murallas, no.»"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Brannock salue. « Le lutrin est près du trône, {monseigneur|madame}. La ville va détester. Les murailles, non. »"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Brannock saluta. «Il leggio è accanto al trono, {signore|signora}. Il borgo la odierà. Le mura no.»"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "ブラノックが敬礼する。「書見台は城主の座の隣です、城主。町は嫌がるでしょう。城壁は嫌がらない」"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Brannock bate continência. “O atril fica ao lado do trono, {senhor|senhora}. A cidade vai odiar. As muralhas, não.”"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "布兰诺克行了个礼。“书案就在主座旁边，城主。镇上会恨它。城墙不会。”"
           }
         }
@@ -40669,49 +40669,49 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "{Herr|Herrin}. Jetzt erlaubt das alte Gesetz eine Kriegssteuer, und die äußere Linie ist offen. Ich brauche Schützen, und Schützen essen. Setzt am Pult die Kriegssteuer fest, oder schröpft einmal die Zünfte. So oder so: Ich brauche Gold."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "{Lord|My lady}. The old law now allows a war tax, and the outer line is open. I need archers, and archers eat. Set the war tax at the lectern, or bleed the guilds once. Either way, I need gold."
+            "value" : "{Lord|My lady}. The old law now allows a war levy, and the outer line is open. I need archers, and archers eat. Knock twice at the doors, or bleed the guilds once. Either way, I need gold."
           }
         },
         "es" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "{Señor|Señora}. La ley antigua permite ahora un impuesto de guerra, y la línea exterior está abierta. Necesito arqueros, y los arqueros comen. Fije el impuesto de guerra en el atril, o exprima una vez a los gremios. De un modo u otro, necesito oro."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "{Monseigneur|Madame}. La vieille loi autorise désormais un impôt de guerre, et la ligne extérieure est ouverte. Il me faut des archers, et les archers mangent. Fixez l’impôt de guerre au lutrin, ou saignez les guildes une fois. D’une façon ou d’une autre, il me faut de l’or."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "{Signore|Signora}. Ora la vecchia legge consente una tassa di guerra, e la linea esterna è aperta. Mi servono arcieri, e gli arcieri mangiano. Fissate la tassa di guerra al leggio, o spremete le corporazioni una volta sola. In un modo o nell’altro, mi serve oro."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "城主。古い掟で、今は戦時税が許されています。外の防衛線も開いた。弓兵が要るし、弓兵は食う。書見台で戦時税を定めるか、一度だけ組合から絞り取るか。どちらにせよ、金が要ります。"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "{Senhor|Senhora}. A velha lei agora permite um imposto de guerra, e a linha externa está aberta. Preciso de arqueiros, e arqueiros comem. Fixe o imposto de guerra no atril, ou sangre as guildas uma vez. De um jeito ou de outro, preciso de ouro."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "城主。如今旧法准许征战争税，外防线也打开了。我需要弓手，弓手要吃饭。去书案定下战争税，或者让行会放一次血。不管怎样，我需要钱。"
           }
         }

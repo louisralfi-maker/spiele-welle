@@ -2444,8 +2444,20 @@
         }
       }
     },
+    "The war levy: a second knock at a door" : {
+      "comment" : "Dawn report: unlocked today.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Die Kriegssteuer ist möglich"
+          }
+        }
+      }
+    },
     "The war tax can be set" : {
       "comment" : "Dawn report: unlocked today.",
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
