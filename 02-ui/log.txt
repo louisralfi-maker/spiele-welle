@@ -1,0 +1,17 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:76: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - the brazier site offers nothing
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:79: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the build card opens when he arrives
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:83: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the brazier is on the card
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:332: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - build option is missing
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:332: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - close is missing
+<unknown>:0: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : Failed to get matching snapshot: No matches found for first query match sequence: `Descendants matching type Any` -> `Elements matching predicate '"build-option-brazier" IN identifiers'`, given input App element pid: 82044
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' failed (84.676 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (60.385 seconds).
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (240.349 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (169.708 seconds).
+Test Case '-[LanternholdUITests.TownUITests testReduceMotion]' passed (16.619 seconds).
+Test Case '-[LanternholdUITests.TownUITests testStallFieldAndBigHouse]' passed (26.926 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTaxesOnFoot]' passed (78.035 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollector]' passed (39.167 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheFirstMorning]' passed (26.787 seconds).
+exit=65
+screenshots: 58

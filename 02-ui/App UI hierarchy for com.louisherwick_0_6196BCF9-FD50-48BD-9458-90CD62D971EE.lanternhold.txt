@@ -1,0 +1,35 @@
+Application, 0x10433b3b0, pid: 82044, label: 'Lanternhold' <App element pid: 82044>
+  Window (Main), 0x104362030, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 82044, elementOrHash.elementID: 4311890768.3>
+    Other, 0x1043623f0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 82044, elementOrHash.elementID: 4311896112.4>
+      Other, 0x104362510, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 82044, elementOrHash.elementID: 4311897888.5>
+        Other, 0x104362150, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 82044, elementOrHash.elementID: 4314396752.6>
+          Other, 0x104362270, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 82044, elementOrHash.elementID: 4315235088.7>
+            Other, 0x1043616f0, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-root' <AX element pid: 82044, elementOrHash.elementID: 4315234656.8>
+              Other, 0x104361810, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:2000 ready d... <AX element pid: 82044, elementOrHash.elementID: 4311950224.9>
+              Other, 0x103fc4c00, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 82044, elementOrHash.elementID: 4315209584.10>
+              Other, 0x103f3e160, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 82044, elementOrHash.elementID: 4315214128.11>
+              Other, 0x103f3dde0, {{0.0, 0.0}, {1.0, 1.0}}, identifier: 'town-status', value: day:1 owing: paid:... <AX element pid: 82044, elementOrHash.elementID: 4315214912.12>
+              Other, 0x103f3ccd0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 82044, elementOrHash.elementID: 4315216368.13>
+              Button, 0x103f3da90, {{70.0, 6.0}, {60.0, 60.0}}, identifier: 'hud-pause', label: 'Pause' <AX element pid: 82044, elementOrHash.elementID: 4311783376.14>
+                Other, 0x103f3e830, {{70.0, 6.0}, {44.0, 44.0}} <AX element pid: 82044, elementOrHash.elementID: 4315216800.24>
+                Image, 0x103f3e4e0, {{70.0, 6.0}, {60.0, 60.0}}, identifier: 'pause.fill', label: 'Pause' <AX element pid: 82044, elementOrHash.elementID: 4311939760.25>
+              StaticText, 0x103f3eba0, {{708.7, 12.3}, {83.3, 19.3}}, identifier: 'hud-clock', label: 'Day 1, 19:05' <AX element pid: 82044, elementOrHash.elementID: 4315219856.15>
+                StaticText, 0x103f3ef10, {{708.7, 12.3}, {38.7, 19.3}}, label: 'Day 1' <AX element pid: 82044, elementOrHash.elementID: 4315218048.26>
+                StaticText, 0x103f3f270, {{755.3, 12.8}, {36.7, 18.3}}, label: '19:05' <AX element pid: 82044, elementOrHash.elementID: 4315219072.27>
+              Other, 0x103f3f5d0, {{651.0, 41.0}, {38.0, 19.7}}, identifier: 'hud-gold', label: 'Gold', value: 60 <AX element pid: 82044, elementOrHash.elementID: 4315222576.16>
+                Other, 0x103f3f940, {{651.0, 43.0}, {16.0, 16.0}} <AX element pid: 82044, elementOrHash.elementID: 4315220288.28>
+                StaticText, 0x103f3fc90, {{672.0, 41.0}, {17.0, 19.7}}, label: '60' <AX element pid: 82044, elementOrHash.elementID: 4315221792.29>
+              Other, 0x103f40000, {{701.0, 41.0}, {40.0, 19.7}}, identifier: 'hud-happiness', label: 'Happiness', value: 60 <AX element pid: 82044, elementOrHash.elementID: 4315225248.17>
+                Other, 0x103f403a0, {{701.0, 41.8}, {18.0, 18.0}} <AX element pid: 82044, elementOrHash.elementID: 4315224032.30>
+                StaticText, 0x103f40700, {{724.0, 41.0}, {17.0, 19.7}}, label: '60' <AX element pid: 82044, elementOrHash.elementID: 4315224464.31>
+              Other, 0x103f40a80, {{753.3, 41.0}, {38.7, 19.7}}, identifier: 'hud-people', label: 'People', value: 14 <AX element pid: 82044, elementOrHash.elementID: 4315227920.18>
+                Other, 0x103f40e10, {{753.3, 43.7}, {16.0, 14.3}} <AX element pid: 82044, elementOrHash.elementID: 4315226704.32>
+                StaticText, 0x103f411b0, {{775.0, 41.0}, {17.0, 19.7}}, label: '14' <AX element pid: 82044, elementOrHash.elementID: 4315227136.33>
+              Other, 0x103f41530, {{651.0, 36.0}, {141.0, 1.0}} <AX element pid: 82044, elementOrHash.elementID: 4315229376.19>
+              Button, 0x103f418d0, {{266.0, 6.0}, {342.0, 113.9}}, identifier: 'realm-strip', label: 'Map of the valley' <AX element pid: 82044, elementOrHash.elementID: 4315226032.20>
+              StaticText, 0x103f41c30, {{328.1, 57.4}, {217.9, 62.5}}, identifier: 'horn-banner', label: 'The horn sounds, Night 1 is coming' <AX element pid: 82044, elementOrHash.elementID: 4315275472.52>
+                StaticText, 0x103f41fb0, {{365.0, 66.0}, {144.0, 23.0}}, label: 'The horn sounds' <AX element pid: 82044, elementOrHash.elementID: 4315252176.53>
+                StaticText, 0x103f42330, {{385.8, 91.0}, {102.3, 20.3}}, label: 'Night 1 is coming' <AX element pid: 82044, elementOrHash.elementID: 4315292000.54>
+              Other, 0x103f426a0, {{405.0, 254.0}, {112.0, 108.0}} <AX element pid: 82044, elementOrHash.elementID: 4315233120.21>
+                Button, 0x103f42a40, {{405.0, 254.0}, {112.0, 108.0}}, identifier: 'touch-recruit-barracks', label: 'Recruit', value: 10 gold <AX element pid: 82044, elementOrHash.elementID: 4315308464.44>
+              Other, 0x103f42dc0, {{62.0, 0.0}, {750.0, 382.0}} <AX element pid: 82044, elementOrHash.elementID: 4315234224.22>
