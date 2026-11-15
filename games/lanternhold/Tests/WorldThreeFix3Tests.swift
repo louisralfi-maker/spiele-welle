@@ -97,4 +97,29 @@ final class WorldThreeFix3Tests: XCTestCase {
         let glow = SceneLayout.posternFarColor(dusk)
         XCTAssertGreaterThan(glow.x, glow.z, "still warm at dusk")
     }
+
+    /// Fix round 4 (the director's decision on the critic's high 2): deep in the bank an unlit creature shows no body
+    /// and no red line, only the bank's ember eyes; it comes in whole as it steps out; outside the bank it is whole.
+    func testDeepInTheBankOnlyTheEyesShow() {
+        XCTAssertEqual(CreatureLook.bodyShare(x: 600, bankEdge: 500), 1, accuracy: 1e-6)
+        XCTAssertEqual(CreatureLook.bodyShare(x: 500, bankEdge: 500), 1, accuracy: 1e-6, "whole at the edge")
+        XCTAssertEqual(CreatureLook.bodyShare(x: 400, bankEdge: 500), 0, accuracy: 1e-6, "none deep inside")
+        XCTAssertEqual(CreatureLook.glowShare(x: 400, bankEdge: 500), 0, accuracy: 1e-6, "no red line deep inside")
+        XCTAssertEqual(GloomFog(hardness: 1).bodyAlpha(x: 0, bankEdge: 500, hour: 23), 0, accuracy: 1e-9)
+        var night = GameFrameSupport.demoNight(hour: 23.2)
+        let edge = night.bankEdge
+        night.creatures = [GameFrameSupport.creature(.sootling, x: edge - 100, id: 2, lit: false),
+                           GameFrameSupport.creature(.shadehound, x: edge + 60, id: 5, lit: false)]
+        let desc = frame(night, hour: 23.2, focus: edge - 20)
+        XCTAssertTrue(desc.actors.filter { $0.sprite == .sootling || $0.sprite == .sootlingGlow }.isEmpty,
+                      "deep in the bank: no body, no glow strip")
+        let hound = desc.actors.filter { $0.sprite == .shadehound }
+        XCTAssertEqual(hound.count, 1, "outside the bank the body is drawn")
+        XCTAssertTrue(hound.allSatisfy { $0.tint.w > 0.98 }, "whole")
+        // The bank's own ember eyes still open deep inside.
+        XCTAssertTrue((0..<12).contains { step in
+            frame(night, hour: 23.2, focus: 200, time: 1.5 + Double(step) * 0.9).emissives
+                .contains { $0.sprite == .darknessBankGlow && Double($0.rect.x) >= 0 }
+        }, "the eyes in the bank")
+    }
 }

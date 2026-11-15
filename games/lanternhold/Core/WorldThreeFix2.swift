@@ -125,8 +125,18 @@ extension SceneLayout {
 enum CreatureLook {
     /// Inside the bank an unlit creature's red glow strip (its line drawing) falls to this share (the critic: "cut
     /// the red line inside the bank to 30 %"), over this many pixels behind the bank's edge.
-    static let bankGlowShare = 0.3
+    /// World-3 fix round 4 (the director's decision on the critic's high 2 of look 3: "translucent mounds with red
+    /// scratch lines, the small ones pale blobs like sheep"): deep in the bank no red line at all (0.3 before), and no
+    /// body (`bodyShare`); only the bank's ember eyes show there (`bankEyePairs`, under `EyeRules`).
+    static let bankGlowShare = 0.0
     static let bankGlowSpan = 24.0
+    /// Over this many pixels behind the bank's edge an unlit creature's body comes in whole as it steps out, a solid
+    /// dark silhouette (the shader's bank lift keeps it a step over the bank); deeper, nothing of it is drawn.
+    static let bankBodySpan = 16.0
+
+    static func bodyShare(x: Double, bankEdge: Double) -> Float {
+        Float(1 - AmbientRamp.smoothstep((bankEdge - x) / bankBodySpan))
+    }
 
     static func glowShare(x: Double, bankEdge: Double) -> Float {
         let depth = AmbientRamp.smoothstep((bankEdge - x) / bankGlowSpan)

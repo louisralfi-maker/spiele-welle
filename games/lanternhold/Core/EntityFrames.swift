@@ -1141,6 +1141,10 @@ enum EntityFrames {
             if let gloom, !c.isLit {
                 seen = Float(gloom.bodyAlpha(x: c.x, bankEdge: s.bankEdge, hour: s.hour))
             }
+            if look == .two && !c.isLit {
+                // World-3 fix round 4: deep in the bank no body, only the bank's eyes (`CreatureLook.bodyShare`).
+                seen *= CreatureLook.bodyShare(x: c.x, bankEdge: s.bankEdge)
+            }
             if seen > 0.02 {
                 add(sprite, frame: frame, x: c.x, y: y, flipped: flipped, tint: SIMD4<Float>(body, body, body, seen),
                     lit: c.isLit, lightCap: creatureLightCap, moonRim: c.isLit ? 0 : unlitRim * night * seen)
@@ -1148,8 +1152,11 @@ enum EntityFrames {
             if let glow = glowStrip(sprite) {
                 // World-3 fix round 2 (the critic's L2): inside the bank an unlit creature's red line at 30 %.
                 let share: Float = look == .two && !c.isLit ? CreatureLook.glowShare(x: c.x, bankEdge: s.bankEdge) : 1
+                // (world-3 fix round 4: none at all deep in the bank)
+                if share > 0.02 {
                 add(glow, frame: frame, x: c.x, y: y, flipped: flipped, tint: SIMD4<Float>(share, share, share, 1),
                     emissive: true, lit: c.isLit)
+                }
             }
         }
 
