@@ -392,3 +392,88 @@ with plaster where they hung. The atlas gains 12 strips, 79 frames. No pouch any
 - **German** is written for the two new keys and not looked at (the director's note of 19:35); the six other
   languages for `town.access.knock` and `town.access.door` come in the i18n pass.
 - **The join**: the hook table and "How the join re-hooks the door touch" above; the dead tax-card code list.
+
+## town-2, fix round 1 (the critic's look 1: four highs, no blocker)
+
+The critic (ci-out/director/town-2-taxes-screen-critic1.md, 7/10) found the engineering sound and the step's purpose
+half reached at phone size. All four highs are fixed; what the critic asked to keep is kept (the purse held back until
+each coin lands, `TownShow` pure with its timings at the top, the 24 x 24 px door box, the hand-placed people, the
+first morning, T1 to T8 and no new saved state).
+
+### What changed
+
+1. **The gold reads at phone size** (high 1).
+   - `townCoin` is 4x4 now (5 frames: face, three quarters, edge, three quarters back, glint): a gold edge round a
+     cream highlight, a warm brown shade and a dark rim on the shadow side (the game's selective outline), so it stands
+     off pale plaster by its hue and its rim.
+   - Every coin is an **emissive actor** (`TownFrames.add`: full colour in a doorway's shade, × 1.12) with a **glow of
+     its own pixels** under it (`EntityGlow`, the fire's gold × 1.5 in flight, × 1.0 held, × 2.2 glinting), which the
+     bloom spreads a little. Coins and the household figures stand on whole game pixels (the houses' grid), so the glow
+     lies exactly under its coin and the figure's pixels meet the door's (they stood half a pixel off before).
+   - **The waiting pose holds the palm out at the waist** (frames 0-1 of Corra, Dun, Brede, Hemmet, Wenna; the coin
+     pixels left the grids) and the engine draws the coin on it (`TownShow.Scene.held`, `TownSprites.heldCoin`; the
+     farmer's on his knotted cloth, Nib's over her raised fist). It **glints** (frame 4, × 1.4) for 0.16 s once every
+     1.4 s, each house at its own moment; steady with Reduce Motion.
+2. **The wanderers keep clear** (high 2). `TownFrames.clearWanderers`: any of the town's visual-only wanderers
+   (`EntityFrames.townsfolk`, the citizens' bodies) within 32 px of a place where the taxes happen now
+   (`TownShow.Scene.stages`: a household waiting, tossing, paying the collector, or a door knocked at until its
+   shutters are shut) stops at 32 px on its own side, stands and turns to watch; from 20 px nearer it fades and within
+   10 px it is gone, so it reappears on the far side without a jump. 32 px keeps it clear of the lord, who stops 18 px
+   off a door to take a toss. Only in the town (`TownFrames.townWest`): the first morning's stage in the courtyard
+   moves nobody, so the court's petitioners in townsfolk bodies are never touched. **Remove it** when the people
+   lane's town life replaces the wanderers.
+3. **The knock keeps the lantern in place** (high 3). `kingKnock`/`ladyKnock` are the walking sprite's standing frame
+   6 with the pole and lantern exactly where that frame holds them; his free far hand comes out under the near arm,
+   passes behind the pole and knocks at hip height (the town's doors are low), then is held out palm up for the coins
+   (`TownShow.lordHand` dy 16: the coin lands over that palm). No part changes place between the walk, the pose and
+   back. His glow strip is no longer dropped: `TownFrames` sets it to frame 6 (`KnockFrame.lantern`) and the pose's
+   mirror, and moves the lantern's point light to the glass on the pose's side.
+4. **The households pay the collector at their doors** (high 4). When his round reaches a door that owes
+   (`Town.stepCollector` sets `tossedAt` and `collectorGold`), `TownShow.scene` plays the hand-over: the bow with the
+   coins held out (frame 8), the coins hopping one after another into his strongbox (7 px ahead of him, 9 px up;
+   first after 0.1 s, 0.08 s apart, 0.28 s each), the deeper bow (9), empty-handed (10), then in and the door shuts.
+   No sound, no haptic, nothing held back from the purse (the gold comes with him at noon). A collector more than
+   48 px off (a debug start, a long headless step) gets no coins across the street: the household only bows and goes
+   in. The farmer counts his out of the cloth instead. Reduce Motion: the coins fade in at the strongbox.
+   - **Exposed for people-2:** `TownShow.Scene.collector` (`CollectorMoment`: his x, his facing, `taking` while a
+     household hands over), `TownShow.collectorBox` (where his strongbox must be), `TownShow.handTimes`.
+   - **A stand-in** draws him until then: `TownFrames.drawsCollectorStandIn` (a townsman's body, `citizenB`, walking
+     at `Scene.collector.x`, its step tied to the ground he covers). The director's note of 14:45 asked for exactly
+     this while the people lane has no collector sheet.
+   - `-GWTown collector`: every part owed, the collector out on today's round, the clock set to when he is 520 px
+     (about 13 s) before the first door that owes.
+
+### New hooks in existing files (add to town-2's table for the join)
+
+None. Everything is in the lane's own files: `Core/Town/TownShow.swift`, `TownFrames.swift`, `TownSprites.swift`,
+`TownDebug.swift`, `App/GameModel+Town.swift` (the status gains `hand:<plots>` before `held:`), `Render/PlaceholderTown.swift`
+(the stand-in coin is 4x4), the grids and `tools/taxart.py` (`HELD` mirrors `TownSprites.heldCoin`), the tests.
+
+### Rounds (by the director's notes of 18:46 and 19:35: one gate round, `build unit "ui TownUITests FirstDayUITests"`)
+
+- **lh-t2f1-1** (0cd01a6): build FAIL, one error: `TownDebug.apply`'s switch did not name the collector start.
+- **lh-t2f1-2** (e35a9fe): build PASS; unit FAIL 1 (the knock test read the first lantern light in the frame, a castle
+  lantern at x 1360, not the lord's: the test now reads his); ui: all five TownUITests PASS (the collector too),
+  `FirstDayUITests.testFirstDay` FAIL ("the crown did not open the audience"): the runner was slow that hour (the app
+  took 42 s to launch, the unit tests 418 s against 296 s), and with `-GWTimeScale 4` the lord reached the throne after
+  the horn, when no petitioner waits. Not this step's code; it passed again in the next round. Its shots were judged
+  and led to two changes: the wanderers' filter keeps to the town, the collector shot waits 0.25 s.
+- **lh-t2f1-3** (03f7cc7): **ALL PASSED**. 465 unit tests, 0 failed; 7 UI tests (FirstDayUITests 2, TownUITests 5).
+  `tuning-report.txt` and `town-neutrality-seed1.txt` byte for byte those of lh-t1f1-3: T1 to T8 did not move.
+  Upright shots: scratchpad `town/ci-out/upright-town-2f1/` (50 to 59, and the 800 % proof sheet).
+
+### For the join
+
+- **people-2 draws the collector:** read `TownShow.scene(...).collector` each frame (x, facing, `taking` for his
+  "taking coins at a door" pose), put his strongbox at `collectorBox` ahead of him, then set
+  `TownFrames.drawsCollectorStandIn = false` and delete the stand-in block in `TownFrames.apply`. If people-2 lets him
+  stop at each door, change `Town.collectorReached` (Core) and nothing here; `collectorNear` (48 px) then only guards
+  debug starts.
+- **The people lane's town life** replaces `EntityFrames.townsfolk`: delete `TownFrames.clearWanderers` and its call,
+  or point it at the new wanderers' sprites (`TownFrames.wanderers`) if they still walk past the doors.
+- **The world lane's door anchors:** `Scene.stages` and the held coins follow `TownShow.standX`, so they move with the
+  anchors (item 1 of "How the join re-hooks the door touch").
+- **A knock's cost in the world** (the critic's smaller point): when the stage lane's "number next to the thing"
+  arrives, show the −2 happiness as a short falling mark at the knocked house, not in a corner.
+- **VoiceOver** (smaller point, not changed): the doors' `accessibilityValue` "knock"/"shut" is English in every
+  language (the UI test reads it); at the i18n pass make it a key or drop it (the label already says it).
