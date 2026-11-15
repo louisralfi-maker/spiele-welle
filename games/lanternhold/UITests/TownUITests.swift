@@ -27,9 +27,11 @@ final class TownUITests: XCTestCase {
 
     func testTaxesOnFoot() {
         XCUIDevice.shared.orientation = .landscapeLeft
+        // The join: from 14:00 (was 15:00): the lantern moment's strip takes a touch more per walk, and at 15:00 the
+        // horn closed the doors before the cooper's "once a day" (lh-rj-8).
         let app = XCUIApplication()
         app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWDay", "2", "-GWTown", "owed",
-                               "-GWClock", "15", "-GWHappiness", "66", "-GWCameraX", "2400"]
+                               "-GWClock", "14", "-GWHappiness", "66", "-GWCameraX", "2400"]
         app.launch()
         guard waitUntilReady(app, name: "town") else { return }
         let status = element(app, "town-status")

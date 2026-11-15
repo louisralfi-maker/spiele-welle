@@ -57,11 +57,13 @@ final class LookGoldenTests: XCTestCase {
     /// unchanged, so each side's hashes stand. The join's street lanterns (the director's rule of 15.11. 10:52,
     /// `TownLamps.posts`: since 11:39 only the two he lights by the horn, 2430 and 2548) take the posts look 1 drew at
     /// 2868, 2968 and 3158 out of the town: square-morning (before: 315698c2d0a55839) and town-noon (before:
-    /// ad3c5e8591125cfa) are recorded again from the join's next round.
+    /// ad3c5e8591125cfa) were recorded again from round lh-rj-8 (on 78a567d).
     static let golden: [String: String] = [
         "front-night": "9b01af38246bc805",
         "castle-night": "eb723787eed65a73",
         "court-dusk": "12c426443634b583",
+        "square-morning": "b6559342f5c214c",
+        "town-noon": "7e6e2b19a82a9f07",
         "river-golden": "c0f21df86bbe85b6",
     ]
 
