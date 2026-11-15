@@ -196,14 +196,16 @@ def beacon_ruin():
 def moon_rim(im):
     """Emissive (white × the moon's colour in the engine): the moon stands high to the east, so each shape's right
     edge (the first pixel inside its ink outline) takes 0.85, the next two 0.45 and 0.26, a top edge 0.62, and the
-    stone of its face a wash that grows from its west third to 0.22 at its east edge, so the shape has inner values at
-    night (round lh-w3-1: with edges alone it read as a dark block with a thin outline)."""
+    stone of its face a wash that grows from its west third to 0.22 at its east edge, one level per painted stone, so
+    the shape has inner values at night (round lh-w3-1: with edges alone it read as a dark block with a thin outline;
+    round lh-w3-3: dithered, the wash read as a screen door)."""
     out = PA.Image(im.w, im.h)
     edge = {None, "ink", "night0"}
 
     def solid(x, y):
         return 0 <= x < im.w and 0 <= y < im.h and name_at(im, x, y) not in edge
 
+    wash_x = clusters_x(im, solid)
     for y in range(im.h):
         for x in range(im.w):
             if not solid(x, y):
@@ -219,22 +221,38 @@ def moon_rim(im):
             if not solid(x, y - 1):
                 a = max(a, 0.62 if not solid(x + 1, y - 1) or x > im.w * 0.4 else 0.45)
             stone = nm in ("stonePale", "stoneLight", "stone", "stoneMid", "stoneDark", "plaster", "parchment")
-            if stone and a < 0.2:                   # the face toward the moon: a wash that grows to the east
-                k = (x / float(im.w) - 0.35) / 0.65
-                if k > 0:
-                    a = max(a, 0.22 * k)             # from nothing, so the wash shows no seam (round lh-w3-2)
+            if stone and a < 0.2:                   # the face toward the moon: a wash that grows to the east,
+                k = (wash_x[(x, y)] / float(im.w) - 0.35) / 0.65   # one level per stone (its cluster's middle), so
+                if k > 0:                                          # its steps lie in the joints: no seam, no dither
+                    a = max(a, round(0.22 * k * 16) / 16.0)
             if nm in ("leaf", "leafDark", "meadow", "night1", "nightDeep"):
                 a *= 0.4
-            if 0 < a < 0.25:                        # the wash: dithered between neighbouring sixteenths, no bands
-                lv = a * 16
-                lo = int(lv)
-                a = (lo + (1 if (lv - lo) > BAYER4[(y % 4) * 4 + (x % 4)] else 0)) / 16.0
             if a > 0:
                 out.set(x, y, white(a))
     return out
 
 
-BAYER4 = [(v + 0.5) / 16.0 for v in (0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5)]
+def clusters_x(im, solid):
+    """Each opaque pixel's cluster middle (x): 4-connected runs of one palette colour, the painted stones."""
+    seen = {}
+    for y0 in range(im.h):
+        for x0 in range(im.w):
+            if (x0, y0) in seen or not solid(x0, y0):
+                continue
+            colour = im.get(x0, y0)
+            stack, members = [(x0, y0)], []
+            seen[(x0, y0)] = None
+            while stack:
+                x, y = stack.pop()
+                members.append((x, y))
+                for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+                    if (nx, ny) not in seen and solid(nx, ny) and im.get(nx, ny) == colour:
+                        seen[(nx, ny)] = None
+                        stack.append((nx, ny))
+            mid = sum(m[0] for m in members) / float(len(members))
+            for m in members:
+                seen[m] = mid
+    return seen
 
 
 def beacon_rim(name):

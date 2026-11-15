@@ -3740,8 +3740,48 @@ M3, then M5 and the lows. Art: `tools/w3art.py` (ART-look2.md section 26); layou
 - **Tests:** `CameraFramingTests` (the lead's ease and direction, the lead held on a stop and cleared by a jump, the
   set pieces' composition, a goal that never jumps, a walk through the front gate, the danger lead only with creatures
   on screen at night at the front, Reduce Motion, the world's ends); `WorldThreeTests` (the oven's wedge, fire by day,
-  smoke at every hour, at most three archers per walk, the back row, the beacon's moon, the statue's bowl, the verge
-  and the river end, the cliff's haze, the cuts).
+  smoke at every hour, at most three archers per walk, the back row and its night, the beacon's moon, the statue's
+  bowl, the verge and the river end, the cliff's haze, the cuts, the creatures' bodies, the gateway's torches, the
+  slits). `LookGoldenTests`: look 1's front and castle recorded again from lh-w3-1 (the statue's bowl and the
+  gatehouse's crowns are sprites both looks draw); `Look2FrameTests` compares look 2's bodies without the archers.
+- **The whole-world pass (rounds lh-w3-1 and lh-w3-2, 130 frames each, upright in `ci-out/lh-w3-<n>/sweep-upright`):
+  every frame of the sweep (0 to 3900 at noon, dusk and night, the fog and its Reduce Motion frames, the storm, rain
+  and the tier shots) looked at as a player and as an art director. Fixed from what the frames showed:**
+  - `w-3000-noon`: the church's spire stood behind the near plane's linden; its tower now stands in the gap between
+    the poplars and the linden (near 2197).
+  - `w-3000-night`, `w-2600-dusk`: the back row's plaster stood pale over the front houses at night (the near plane's
+    night haze), its panes were cream dots: it darkens by 0.45 at night (`look2TownRowNightDim`), its panes are amber
+    at 0.6 (`look2TownRowGlass`).
+  - `w-3900-dusk`, `w-3800-dusk`: the far shore's lantern stood cut by the screen's edge, and on the mid plane the low
+    mist band at its foot swallowed the skiff: both on the near plane, framed between and beside the old bridge's
+    stumps, the lantern amber.
+  - `w-0400-night`, `w-0600-night`: the beacon tower read as a dark block with a thin outline: the moon now washes its
+    face toward the east, one level per painted stone, so its steps lie in the joints (lh-w3-2's wash began with a
+    seam, lh-w3-3's dither read as a screen door).
+  - `w-0600-night`, `85-look2-storm-night`: a tower's archer stood at the shoulder of the wall's last one: a line's wall
+    and tower keep 10 px between their archers.
+  - `72-look2-castle-dusk`, `w-1360-night`, `w-1400-night`: the gateway's torches threw round olive-green halos on the
+    blue stone: in look 2 a warmer amber, a flatter pool, a little weaker (`look2GateTorches`).
+- **Rounds** (the director's notes of 14.11. 18:46 and 19:35 and 15.11. 09:19: `build unit "ui …"` with the lane's
+  classes WorldSweepUITests, Look2UITests and WorldStoryUITests; English only, no ui-de, no release): lh-w3-1 on b3fcfa1
+  (build and UI passed; unit: look 1's two hashes, the wedge's dy, the look-2 body count), lh-w3-2 on 603f70a ALL
+  PASSED, lh-w3-3 on edd0976 ALL PASSED, lh-w3-4 on the step's head (the beacon's wash per stone): see the report.
+- **Named, not fixed here:**
+  - **The lord's lantern box** (`w-1400-night` x 1045 to 1230, `w-2200-dusk` x 640 to 840, `85`): no `LightClip` (the
+    lantern has none). Its pool in the picture is the battle's lantern light (`Core/EntityFrames.swift` `layer`, moved
+    onto the painted glass; radius from `Balance`), drawn with `lh_hot`'s gain and capped (`Render/Shaders.metal`
+    `lh2_base`), so its middle is a flat bright plateau about 40 px across whose falloff ends within a few pixels;
+    where that edge meets the architecture's dark verticals (the gate's jamb, a tower's shadowed flank, the bakehouse's
+    corner, the eave) the wall between reads as a lit box. World-3's soft lit edge (`lh2_light_level`) took away the
+    ring's own 45 % step; the rest is the lord's light, the stage lane's: proposal for the join, a picture-only spill
+    under the lantern (a second, wide, faint pool, e.g. twice the radius at a quarter of the strength, a scene light
+    that never reaches the battle), so the light falls off across the wall and onto the next stone.
+  - The cleft wall's end runs about 1.5 screens into the town (`w-2330-noon`, `w-2400-noon`; not one layout value:
+    build 3). The curtain's merlon stub at the postern (`w-2200-noon`, world 2239; build 3).
+  - In the darkness bank the creatures still read mostly as their glow strips (`w-0200-night`, `w-0400-night`): the
+    bank's fog covers their bodies; L2's lighter body shows outside it.
+  - The back row repeats two of its sprites mirrored (A at near 2567, B at 2687) behind the second field; at 70 %
+    value behind the trees it reads as more of the town, a third painting is build 3.
 <!-- END world lane: World rebuild (14.11.2026) -->
 
 ## Risks
