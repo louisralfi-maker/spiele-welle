@@ -538,3 +538,14 @@ before: nothing under `Sim`, `Economy`, `Battle`, `Balance` or `GameState` chang
 Not done here (the note's point 8 and its "left for the join" list are not this pass): a separate raised-pole walk for
 the round between the posts (the note says "pole raised"; the walk frames carry the pole on the shoulder, and new
 frames would cost atlas rows), so he walks the round in the same walk frames, at the heavy step.
+
+### Rounds (the director's fix pass)
+
+- **lh-p3-1** (c564b0c; build, unit, ui TownLifeUITests PeopleUITests): build and both UI classes passed; unit failed
+  in two expected places: look 1's two town goldens (Dun's lit pixel; recorded again: square-morning 315698c2d0a55839,
+  town-noon ad3c5e8591125cfa) and `Look2FrameTests.testCreaturesOfLookTwo`, which counted look 2's street lights as
+  look 1's (now it subtracts the far posts the lamplighter does not reach). Every `TownLifeTests` test passed, the
+  rule's test among them.
+- **lh-p3-2** (9d34276; build, unit, ui TownLifeUITests PeopleUITests): **ALL PASSED** (build 03:20, unit 03:27, ui
+  03:31 runner time). The gate by the director's note (one short round, English only). Shots in the worktree's
+  `ci-out/people/p3/r2/02-ui/`; the proof sheet `ci-out/director/people/fix2-sheet.jpg` on the planning branch.
