@@ -317,7 +317,8 @@ final class TownLifeTests: XCTestCase {
 
     func testTheCollectorWalksEveryDoorAtACartsPaceAndIsBackInTheAfternoon() throws {
         let out = TownLife.Context(cloth: .hamlet, reduceMotion: false, hearth: 1, collectorOut: true, nobleDue: false)
-        XCTAssertNil(TownLife.collector(day(8), time: 1, context: quiet), "not in service")
+        // The join (`CollectorTouch`): not in service, he stands at his post with his handcart, ready to be taken on.
+        XCTAssertEqual(TownLife.collector(day(8), time: 1, context: quiet)?.x, Town.collectorPost, "not in service")
         XCTAssertNil(TownLife.collector(day(5.9), time: 1, context: out), "out at the dawn")
         XCTAssertLessThanOrEqual(TownLife.collectorPace, 18, "a one-armed man pushing a cart: a heavy step")
         XCTAssertLessThan(TownLife.collectorPace, TownLife.farmerSpeed + 2.01)

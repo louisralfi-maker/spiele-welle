@@ -204,6 +204,16 @@ extension TownRun {
     /// "owing:21,23 paid:24 knocked:23 shut:23 hand:21 held:4": the places that still owe, those paid today, those
     /// knocked at, the houses whose shutters are closed, the places handing the collector their coins right now, the
     /// gold still in the air.
+    /// The collector in `town-status` (the join): out on today's round, in service, sent home, or never taken on.
+    static func collectorWord(_ s: GameState) -> String {
+        if Town.collectorWalksToday(s) { return "out" }
+        switch s.town?.collectorHired {
+        case true?: return "hired"
+        case false?: return "home"
+        case nil: return "no"
+        }
+    }
+
     static func status(_ s: GameState, balance: Balance) -> String {
         guard let day = s.town?.today else { return "town:none" }
         let owing = day.places.filter(\.owes).map { String($0.plot) }
@@ -218,6 +228,7 @@ extension TownRun {
         }.map { String($0.plot) }
         return "day:\(day.day) owing:\(owing.joined(separator: ",")) paid:\(paid.joined(separator: ",")) "
             + "knocked:\(knocked.joined(separator: ",")) shut:\(shut.joined(separator: ",")) "
-            + "hand:\(hand.joined(separator: ",")) held:\(TownShow.goldInFlight(s, balance: balance))"
+            + "hand:\(hand.joined(separator: ",")) collector:\(collectorWord(s)) "
+            + "held:\(TownShow.goldInFlight(s, balance: balance))"
     }
 }

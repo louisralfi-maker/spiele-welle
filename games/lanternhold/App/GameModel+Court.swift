@@ -11,6 +11,8 @@ struct TalkBubble: Sendable, Equatable {
     var headY: Double
     /// Touch the world (step stage-2): a name already in words (a townsman on a bench, who has no name key).
     var nameText: String? = nil
+    /// The join: a line already in words (the collector's, from Town.xcstrings), in place of `textKey`'s story text.
+    var text: String? = nil
 }
 
 /// The court's part of the screen state machine (M3 step 3): the audience at the throne and at the gate (the clock
@@ -52,7 +54,8 @@ extension GameModel {
                 if away || gone || DayClock.phase(at: state.hour) != .day { closeTalk() }
             } else {
                 let away = abs(state.king.x - (court.talkX ?? state.king.x)) > CourtTalk.leaveDistance
-                let gone = !figures.contains { $0.who == who }
+                // The join: the collector is no court member; his bubble stays while the lord stays near his post.
+                let gone = who != GameModel.collectorSpeaker && !figures.contains { $0.who == who }
                 if away || gone || DayClock.phase(at: state.hour) != .day { closeTalk() }
             }
         }

@@ -99,6 +99,8 @@ enum TouchThings {
         list.append(TouchThing(id: "touch-door-hall", kind: .door, act: .hallDoor, x: HallRules.doorX,
                                standX: HallRules.doorX, halfWidth: 9, top: worldDoorTop,
                                rank: TouchRules.rank(.door), marked: abs(s.king.x - HallRules.doorX) > doorQuiet))
+        // The join: Saul Bracken at his post just inside the town gate (`CollectorTouch`), never on his round.
+        if let collector = CollectorTouch.thing(s) { list.append(collector) }
         return list
     }
 

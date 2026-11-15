@@ -281,6 +281,17 @@ struct SimDriver: Sendable {
         return granted
     }
 
+    /// The join (`CollectorTouch`): the collector's answer at his post (taken on, sent home, taken on again), now and in
+    /// its last dawn, as the double taxes, so a relaunch and "Replay the day" keep it. Nil when nothing changed.
+    @discardableResult
+    mutating func answerCollector() -> CollectorWords? {
+        let words = CollectorTouch.answer(&state)
+        if words != nil, dawnSnapshot.town != nil {
+            Town.setCollector(&dawnSnapshot, hired: Town.collectorHired(state))
+        }
+        return words
+    }
+
     /// Panels lane (the chapter's end card, "Hold the realm"): the realm goes on in the Long Watch, now and in its last
     /// dawn, so the save counts it as endless at once.
     mutating func holdTheRealm() {

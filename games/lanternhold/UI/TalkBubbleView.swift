@@ -26,7 +26,7 @@ struct TalkBubbleView: View {
                                 .tracking(0.8)
                                 .foregroundStyle(Theme.rubric)
                         }
-                        Text(inked: model.story(bubble.textKey), .subheadline)
+                        Text(inked: bubble.text ?? model.story(bubble.textKey), .subheadline)
                             .font(Theme.serif(.subheadline))
                             .foregroundStyle(Theme.ink)
                             .fixedSize(horizontal: false, vertical: true)

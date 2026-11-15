@@ -691,9 +691,18 @@ enum TownLife {
         if Town.collectorWalksToday(s), let day = s.town?.today {
             return townCollector(s, day: day, time: time, context: context)
         }
-        guard context.collectorOut, s.hour >= collectorOut, s.hour < collectorOff else { return nil }
-        let doors = collectorDoors(s)
         let post = collectorPost
+        if !context.collectorOut {
+            // The join (`CollectorTouch`): in the game he stands at his post with his handcart from day 1, by day,
+            // taken on or not, whenever he is not out on a round; a touch there hires him.
+            guard CollectorTouch.atPost(s) else { return nil }
+            var flipped = false
+            if let greet = greeting(s, at: post) { flipped = greet.flipped }
+            return Figure(sprite: .collector, frame: breath(Frames.idle.lowerBound, time: time, rate: 1, context: context),
+                          x: post, flipped: flipped)
+        }
+        guard s.hour >= collectorOut, s.hour < collectorOff else { return nil }
+        let doors = collectorDoors(s)
         let hours = collectorHours(s)
         let atPost: () -> Figure = {
             var flipped = false

@@ -185,6 +185,78 @@ final class TownUITests: XCTestCase {
         app.terminate()
     }
 
+    /// The collector's hire by touch (the join, the director's note of 15.11. 10:52): Saul Bracken at his post just
+    /// inside the town gate; a touch walks the lord to him, he makes his offer in the bubble and the slip says "Take him
+    /// on"; a second touch takes him on ("Dawn, then."). At the next dawn he walks the doors, and the dawn after it the
+    /// report says what he brought. Saves `59b-collector-offer`, `59c-collector-hired`, `59d-collector-report`.
+    func testTheCollectorIsTakenOnByTouch() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let app = XCUIApplication()
+        app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWDay", "2", "-GWClock", "10",
+                               "-GWCameraX", "2230", "-GWTimeScale", "4"]
+        app.launch()
+        guard waitUntilReady(app, name: "collector-hire") else { return }
+        let status = element(app, "town-status")
+        XCTAssertTrue(status.waitForExistence(timeout: 10))
+        XCTAssertTrue(statusText(status).contains("collector:no"), "never taken on (\(statusText(status)))")
+        guard let saul = waitForThing(app, "touch-collector", timeout: 10) else {
+            XCTFail("no collector at his post")
+            app.terminate()
+            return
+        }
+        checkTarget(saul, "the collector")
+        touchThing(saul)
+        let bubble = element(app, "talk-bubble")
+        XCTAssertTrue(bubble.waitForExistence(timeout: 10), "his offer in the bubble")
+        XCTAssertTrue(bubble.label.contains("One coin in eight"), "the offer (\(bubble.label))")
+        pause(0.6)
+        attach(XCUIScreen.main.screenshot(), "59b-collector-offer-\(language)")
+        if let again = waitForThing(app, "touch-collector", timeout: 4) { touchThing(again) }
+        XCTAssertTrue(waitForStatusText(status, "collector:hired", timeout: 6), "taken on (\(statusText(status)))")
+        XCTAssertTrue(bubble.waitForExistence(timeout: 4) && bubble.label.contains("Dawn, then"), "his answer")
+        pause(0.4)
+        attach(XCUIScreen.main.screenshot(), "59c-collector-hired-\(language)")
+        // On through the nights: the next dawn he walks the doors; the dawn after, the report counts his box.
+        var sawOut = false
+        var reported = false
+        let started = Date()
+        while Date().timeIntervalSince(started) < 420 && !reported {
+            if element(app, "defeat-root").exists {
+                XCTFail("the realm fell before the report")
+                break
+            }
+            if statusText(status).contains("collector:out") { sawOut = true }
+            if element(app, "report-root").exists {
+                let line = app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "The collector brought"))
+                if line.firstMatch.exists {
+                    reported = true
+                    pause(0.6)
+                    attach(XCUIScreen.main.screenshot(), "59d-collector-report-\(language)")
+                    break
+                }
+                let proceed = element(app, "report-continue")
+                if proceed.exists { proceed.tap() }
+            }
+            for id in ["story-skip", "story-next", "audience-leave"] where element(app, id).exists {
+                element(app, id).tap()
+                break
+            }
+            pause(1.0)
+        }
+        XCTAssertTrue(sawOut, "the next morning he walked the doors")
+        XCTAssertTrue(reported, "the report says what the collector brought")
+        app.terminate()
+    }
+
+    private func waitForStatusText(_ status: XCUIElement, _ part: String, timeout: TimeInterval) -> Bool {
+        let started = Date()
+        while Date().timeIntervalSince(started) < timeout {
+            if statusText(status).contains(part) { return true }
+            pause(0.2)
+        }
+        return false
+    }
+
     func testReduceMotion() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()

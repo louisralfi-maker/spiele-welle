@@ -37,6 +37,30 @@
         }
       }
     },
+    "town.collector.act.dismiss" : {
+      "comment" : "The join: the act on the collector's slip and his touch label while he is in service (%@: his name). English only in build 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send %@ home"
+          }
+        }
+      }
+    },
+    "town.collector.act.hire" : {
+      "comment" : "The join: the act on the collector's slip and his touch label before he is taken on, or after he was sent home (%@: his name). English only in build 2.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take on %@"
+          }
+        }
+      }
+    },
     "town.collector.back" : {
       "comment" : "Home with the box: every door of his round paid him.",
       "extractionState" : "manual",

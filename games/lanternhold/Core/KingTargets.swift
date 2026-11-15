@@ -27,6 +27,9 @@ enum KingTarget: Sendable, Equatable {
     /// Touch the world (stage lane, step stage-2): a bench in the great hall with people waiting on it; the first in
     /// line speaks when the lord comes to it (`HallLayout.benches[index]`).
     case bench(index: Int)
+    /// The join (`CollectorTouch`): Saul Bracken at his post just inside the town gate; a second touch takes him on,
+    /// sends him home or takes him on again.
+    case collector
 }
 
 /// Why an offered night action cannot be done right now: the button shows it greyed (M2b review: Patch offered without
@@ -152,7 +155,7 @@ enum KingTargets {
             return nil
         case .light:
             return s.king.lightingPlot >= 0 ? .busy : nil
-        case .build, .recruit, .throne, .talk, .stranger, .hallDoor, .bench:
+        case .build, .recruit, .throne, .talk, .stranger, .hallDoor, .bench, .collector:
             return nil
         }
     }
@@ -168,6 +171,8 @@ enum KingTargets {
             return throneX
         case .stranger:
             return CourtLayout.strangerAtGate
+        case .collector:
+            return Town.collectorPost
         case .talk(let who):
             return CourtLayout.figures(s, catalog: .standard).first { $0.who == who }?.x ?? s.king.x
         case .hallDoor:

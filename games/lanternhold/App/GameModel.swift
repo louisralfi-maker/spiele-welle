@@ -625,6 +625,9 @@ final class GameModel {
             if stage == .hall { leaveHall() } else { enterHall() }
         case .stranger:
             openAudience(.gate)
+        case .collector:
+            // The join: the second touch at Saul Bracken's post (`CollectorTouch`).
+            collectorAnswers()
         case .talk(let who):
             talk(to: who)
         case .bench(let index):

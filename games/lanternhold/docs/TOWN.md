@@ -130,13 +130,16 @@ DESIGN.md "Taxes" for the player's side. The numbers are starting values: the la
 **Changed 14.11.2026 14:45.** Louis: "Wir können auch direkt 'nen Steuereintreiber einstellen. Aber wir können trotzdem
 auch nochmal extra eintreiben. Morgens geht der Steuereintreiber los, bringt es zurück." So:
 
-- The collector needs no treasury and can be hired **from the first day**. He offers himself at the first audience,
-  as the craftsmen do: one coin in eight. He comes into build 2.
+- The collector needs no treasury and can be hired **from the first day**. He offers himself at his post just inside
+  the town gate: one coin in eight. He comes into build 2. (The join, 15.11.2026: by touch, no petition. A touch walks
+  the lord to him, he makes his offer in the bubble, the slip says "Take him on", a second touch takes him on;
+  walking away or touching anything else declines. `CollectorTouch`.)
 - At dawn he sets out from the hall door with his strongbox on a handcart, walks every door and is back by noon. The
   player sees him go and come back; the gold arrives when he does.
 - **The lord can still collect himself.** A house he reaches before the collector pays him in full. The knock
   (demanding more) stays his own deed, also at a house the collector has already been to.
-- A touch on the collector at his post by the hall door sends him away or takes him on again, from the next morning.
+- A touch on the collector at his post just inside the town gate (and a second on his slip) sends him away or takes
+  him on again, from the next morning.
 - Walking the town is therefore a choice and never a duty: it saves the wage and it is the only way to demand more.
 
 What follows is the first plan; where it differs, the lines above win.
@@ -172,8 +175,8 @@ What follows is the first plan; where it differs, the lines above win.
   as before. `Town.collectorLeg` (out, at a door, back, home), `collectorX`, `collectorHeading` and
   `collectorSchedule` (each arrival, the hour he is home) are pure functions of the day's ledger and the hour, for the
   screen. He never knocks; the lord first; empty in unrest: unchanged.
-- **His words** (`CollectorWords`, `Town.collectorWords(day)` picks the one for his return): the offer at the first
-  audience ("Saul Bracken. Lost the arm on the wall, kept the legs. I'll walk your doors at dawn and bring the box home.
+- **His words** (`CollectorWords`, `Town.collectorWords(day)` picks the one for his return): the offer at his post
+  ("Saul Bracken. Lost the arm on the wall, kept the legs. I'll walk your doors at dawn and bring the box home.
   One coin in eight."), "Take him on" / "Not now", a word at his post when he is taken on, sent away or taken on again,
   one when he is home (every door paid; the doors were shut; the lord had been first) and why the fields are not his
   ("Farmers count into your hand. Nobody else's."). English and German in `Resources/Town.xcstrings`.

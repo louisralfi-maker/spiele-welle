@@ -286,6 +286,13 @@ extension GameModel {
     /// He stands at the thing: he does what it offers; a wall's repair waits for a second touch.
     func arrive(_ errand: TouchErrand) {
         switch errand.act {
+        case .collector:
+            // The join: at Saul Bracken's post the slip waits for a second touch; while he was never taken on he
+            // makes his offer first, in the bubble over his head.
+            var waiting = errand
+            waiting.waiting = true
+            touch.errand = waiting
+            if let state = driver?.state, CollectorTouch.offer(state) == .hire { collectorSays(.offer) }
         case .patch:
             var waiting = errand
             waiting.waiting = true
@@ -629,6 +636,8 @@ extension GameModel {
             return stage == .hall ? String(localized: "Leave the great hall") : String(localized: "Enter the great hall")
         case .stranger:
             return String(localized: "Speak with \(speakerName("seren", state: state))")
+        case .collector:
+            return CollectorTouch.label(state, waiting: touch.errand?.id == thing.id && touch.errand?.waiting == true)
         case .talk(let who):
             return String(localized: "Talk to \(speakerName(who, state: state))")
         case .bench:
