@@ -210,7 +210,9 @@ enum Look2 {
         let farAir = air + (lavender - air) * (farCool * warm)
         let haze = sample.haze
         let farH = farHaze + haze * farHazeShare
+        // World-3 (1a): the cleft wall behind the castle a step hazier by day (`SceneLayout.castleCliffHaze`).
         let midH = midHazeDay + (midHazeNight - midHazeDay) * night + haze * midHazeShare
+            + SceneLayout.castleCliffHaze(focus: focus, night: night, warm: warm)
         let nearH = nearHazeDay + (nearHazeNight - nearHazeDay) * night + haze * nearHazeShare
         let top = sample.skyTop
         let sky = top / max(0.001, max(top.x, max(top.y, top.z)))

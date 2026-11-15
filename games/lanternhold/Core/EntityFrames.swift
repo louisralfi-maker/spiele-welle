@@ -1001,6 +1001,10 @@ enum EntityFrames {
         return 6 + Int((time * 2).rounded(.down)) % 2
     }
 
+    /// World-3 (M3): how many archers one wall walk or tower shows at most in look 2, and how far apart.
+    static let archersDrawnPerWalk = 3
+    static let archerSpacing = 10.0
+
     /// How long an archer holds the loose pose after a shot and draws before the next (M2b review: at 0.18 and 0.45 s
     /// no screenshot caught an archer shooting).
     static let archerLooseSeconds = 0.3
@@ -1181,10 +1185,19 @@ enum EntityFrames {
 
         // Archers: on their posts (drawing and loosing toward the most advanced lit creature in reach), or on the
         // ground walking to a free post when their wall fell.
+        // World-3 (REVIEW-look-2.md M3, look 2): at most three drawn per wall walk or tower, 10 px apart (six on a
+        // 40 px wall read as a picket fence of heads); the others are implied by their arrows.
+        var drawnPosts: [Int: [Double]] = [:]
         for soldier in s.soldiers where soldier.kind == .archer {
             switch soldier.state {
             case .posted:
                 guard let spot = archerSpot(soldier, layouts: layouts) else { continue }
+                if look == .two {
+                    let shown = drawnPosts[soldier.postPlot, default: []]
+                    guard shown.count < archersDrawnPerWalk,
+                          shown.allSatisfy({ abs($0 - spot.x) >= archerSpacing }) else { continue }
+                    drawnPosts[soldier.postPlot, default: []].append(spot.x)
+                }
                 var faceRight = false
                 var bestX = -Double.infinity
                 var aiming = false
