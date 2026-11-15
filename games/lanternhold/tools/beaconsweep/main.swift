@@ -123,6 +123,37 @@ if doFinale {
     say("(\(elapsed()))")
 }
 
+if doFinale {
+    say("")
+    say("== night 20 from the reference's eve, all four beacons granted (lockstep): without them | the fog held on the "
+        + "King's night (chosen) | as today once the Great Beacon flares")
+    func kill(_ s: GameState) -> String {
+        let n = s.night
+        guard !s.defeated else { return "FELL" }
+        guard let left = n.kingLeftSecond, let slain = n.kingSlainSecond else { return "held, King lived" }
+        return "King slain after \(Int((slain - left).rounded())) s at x \(Int((n.kingSlainX ?? 0).rounded()))"
+    }
+    var today = standard
+    today.front.gorge.holdFogOnFinale = false
+    for seed in 1...seeds {
+        guard let eve = FrontTuningRun.eves(seed: seed, balance: standard, nights: 20...20).first else {
+            say("  seed \(seed): no eve of night 20")
+            continue
+        }
+        var bare = eve.state
+        var botA = eve.bot
+        GorgeTuningRun.playNight(&bare, player: &botA, balance: standard)
+        var held = GorgeTuningRun.withAllFour(eve.state, balance: standard)
+        var botB = eve.bot
+        let countB = GorgeTuningRun.playNight(&held, player: &botB, balance: standard)
+        var asToday = GorgeTuningRun.withAllFour(eve.state, balance: today)
+        var botC = eve.bot
+        GorgeTuningRun.playNight(&asToday, player: &botC, balance: today)
+        say("  seed \(seed): \(kill(bare)) | \(kill(held)), beacons lost \(countB.lost) | \(kill(asToday))")
+    }
+    say("(\(elapsed()))")
+}
+
 /// One line per bot kind: the night each seed fell (0 held), the Great Beacon's day, beacons lost and relit (means).
 func summary(_ list: [GorgeRun], _ kind: GorgeBotKind, _ k: Double) -> String {
     let set = list.filter { $0.kind == kind && $0.stress == k }.sorted { $0.seed < $1.seed }
@@ -155,6 +186,8 @@ if doVariants {
     list.append(("two bowmen", variant { $0.watchArchers = 2 }))
     list.append(("no charcoal", variant { $0.charcoalRadius = 1 }))
     list.append(("the forward bot raises all four before the Great Beacon", variant { $0.botBeaconSteps = [10, 13, 16, 19] }))
+    list.append(("the forward bot raises its second beacon after the tavern", variant { $0.botBeaconSteps = [10, 19, 22, 22] }))
+    list.append(("the forward bot raises one before the Great Beacon", variant { $0.botBeaconSteps = [10, 22, 22, 22] }))
     list.append(("the forward bot relights while saving for the Great Beacon", variant {
         $0.botGreatBeaconFirst = false
     }))

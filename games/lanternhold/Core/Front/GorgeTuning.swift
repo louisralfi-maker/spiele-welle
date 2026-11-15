@@ -71,7 +71,7 @@ struct GorgeTuning: Sendable, Equatable {
     var watchtowerPrice = 40
     var watchArchers = 1
     var watchRange = 150.0
-    var watchPeriod = 1.4
+    var watchPeriod = 3.0
     var watchDamage = 4.0
     var watchHeight = 40.0
     /// The charcoal burners' camp (stretch 3): charcoal for the braziers and fire towers, which burn this much brighter

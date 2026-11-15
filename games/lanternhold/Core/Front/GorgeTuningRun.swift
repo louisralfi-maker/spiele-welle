@@ -26,6 +26,8 @@ struct GorgeNightCount: Sendable, Equatable {
     var watchShots = 0
     /// The realm's archers' arrows tonight (the watch's not counted).
     var arrows = 0
+    /// The strength of every creature that came tonight (for the watch's share of the night's work).
+    var spawnedHP = 0.0
 }
 
 /// One night played twice from the reference bot's eve (T15's first half): as the reference played it, and with all
@@ -192,7 +194,7 @@ struct GorgeMetrics: Sendable {
         lines.append("")
         lines.append("T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | "
                      + "walls lost without/with | nights fallen without/with | beacons lost | burnt without/with | "
-                     + "watch arrows a night (share of all arrows)")
+                     + "watch arrows a night")
         for k in stresses {
             let set = pairs.filter { $0.stress == k }
             let bare = set.reduce(0) { $0 + $1.bare.reached }
@@ -206,7 +208,10 @@ struct GorgeMetrics: Sendable {
             let watch = set.reduce(0) { $0 + $1.held.watchShots }
             let all = watch + set.reduce(0) { $0 + $1.held.arrows }
             let share = all > 0 ? GorgeMetrics.pct(Double(watch) / Double(all)) : "-"
-            let shots = GorgeMetrics.mean(set.map { Double($0.held.watchShots) }) + " (\(share))"
+            let hp = set.reduce(0.0) { $0 + $1.held.spawnedHP }
+            let work = hp > 0 ? GorgeMetrics.pct(Double(watch) * tuning.watchDamage / hp) : "-"
+            let shots = GorgeMetrics.mean(set.map { Double($0.held.watchShots) }) + " (\(share) of the arrows, \(work) "
+                + "of the creatures' strength)"
             lines.append("  \(GorgeMetrics.stressText(k)): \(bare) | \(held) | \(fewer) | \(fallen) | \(walls) | \(fell) | "
                          + "\(lost) | \(burnt) | \(shots)")
         }
@@ -252,6 +257,7 @@ enum GorgeTuningRun {
         var count = GorgeNightCount()
         count.night = s.nightNumber
         var reached = Set<Int>()
+        var seen = Set<Int>()
         var events: [SimEvent] = []
         let startDay = s.day
         var dusk = false
@@ -270,9 +276,11 @@ enum GorgeTuningRun {
                 dusk = true
                 count.heldAtDusk = Gorge.held(s)
             }
-            for c in s.creatures where c.action == .attackingWall || c.action == .attackingGuards
-                || c.action == .atHearth {
-                reached.insert(c.id)
+            for c in s.creatures {
+                if seen.insert(c.id).inserted { count.spawnedHP += c.maxHP }
+                if c.action == .attackingWall || c.action == .attackingGuards || c.action == .atHearth {
+                    reached.insert(c.id)
+                }
             }
             if let tally = s.gorge?.tonight, tally.night == count.night {
                 count.lost = tally.fell.count
