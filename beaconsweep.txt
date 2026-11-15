@@ -1,0 +1,546 @@
+beaconsweep: compiled in 42 s
+beaconsweep: seeds 1-10, nights 9-14, budgets ["1.0", "1.5", "2.0"] (0 s)
+
+== the idle lockstep: the reference bots' runs (T1, T2) with the rule on and nothing raised
+  39 nights, differences: none (0 s)
+  T1 reference seed 1: the bank at dawn 200 under the old rules, 300 with the rule on
+  T1 reference seed 2: the bank at dawn 200 under the old rules, 300 with the rule on
+  T1 reference seed 3: the bank at dawn 200 under the old rules, 300 with the rule on
+  T2 builds nothing seed 1: the bank at dawn 200 under the old rules, 300 with the rule on
+  T2 builds nothing seed 2: the bank at dawn 200 under the old rules, 300 with the rule on
+  T2 builds nothing seed 3: the bank at dawn 200 under the old rules, 300 with the rule on
+
+== T15 at the chosen values (the full table)
+T15a PASS nights 9-14, seeds 1-10, budget ["x1.0", "x1.5", "x2.0"]: with all four beacons held and the watchtower manned 1365 creatures reached the defence, without 2382: 43 % fewer (target at least 30 %, without at least 300; per budget x1.0 43 %, x1.5 46 %, x2.0 41 %)
+T15b PASS x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 10 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+T15 wager PASS x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 10 against 10, 428 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 165 creatures reach its defence on nights 3-14 against 106 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 2 against 10, defenders lost 64 against 0
+T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 2 against 10, 165 creatures at its defence against 443: does not beat it on all three
+T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 10 against 10, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 443 creatures at its defence on nights 3-14 against 443 (target for the build 3 join: none, at least 9 of 10, most seeds)
+T15b reported, missed x1.5 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 2 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+T15 wager reported, missed x1.5: the forward bot fell where the reference held in 6 seeds [1, 2, 5, 6, 8, 9], slew the King in 1 against 1, 957 creatures at its defence on nights 3-14 against 984 (target: none, at least as often, no more: never a trap)
+T15c reported, met x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 330 creatures reach its defence on nights 3-14 against 300 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 10 against 10, defenders lost 4 against 0
+T15c reported x1.5: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 10 against 1, 330 creatures at its defence against 984: beats it on all three
+T15 keeper reported x1.5 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 1 against 1, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 984 creatures at its defence on nights 3-14 against 984 (target for the build 3 join: none, at least 9 of 10, most seeds)
+
+T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | walls lost without/with | nights fallen without/with | beacons lost | burnt without/with | watch arrows a night
+  x1.0: 312 | 178 | 43 % | 15/10 | 16/14 | 0/0 | 24 | 232/2589 | 23.9 (20 % of the arrows, 8 % of the creatures' strength)
+  x1.5: 707 | 381 | 46 % | 64/54 | 30/26 | 0/0 | 60 | 884/3860 | 26.4 (15 % of the arrows, 6 % of the creatures' strength)
+  x2.0: 1363 | 806 | 41 % | 138/103 | 35/30 | 0/0 | 81 | 1919/4996 | 27.9 (13 % of the arrows, 5 % of the creatures' strength)
+
+T15a per night (all budgets): without | with | beacons lost (the furthest falls first)
+  night 9: 83 | 29 | 21
+  night 10: 184 | 91 | 40
+  night 11: 238 | 97 | 39
+  night 12: 546 | 368 | 20
+  night 13: 625 | 362 | 22
+  night 14: 706 | 418 | 23
+
+T15a defenders lost, where and to what (all budgets; the soldier and what he was doing in the step he fell; by: the creature on the ground nearest him then, within 30 px):
+  the middle line: without 189 (archer moving 136, guardsman holding 30, guardsman moving 23; by shadehound 149, ashBrute 27, sootling 13) | with all four 163 (archer moving 132, guardsman holding 26, guardsman moving 5; by shadehound 144, ashBrute 15, sootling 4)
+  before the gate: without 25 (guardsman moving 21, archer moving 4; by shadehound 10, ashBrute 9, gloomweaver 3, sootling 3) | with all four 4 (guardsman moving 3, archer moving 1; by ashBrute 3, shadehound 1)
+  the gatehouse: without 3 (archer moving 3; by sootling 2, shadehound 1)
+  in all: without 217, with all four 167
+
+whole runs x1.0, defenders lost, where and to what (all nights; night 20 on its own below):
+  the outer line: reference 33 (guardsman holding 26, guardsman moving 6, archer moving 1; by ashBrute 13, shadehound 13, sootling 5, gloomweaver 1, nothing near 1) | forward 13 (guardsman holding 13; by ashBrute 7, shadehound 3, sootling 2, gloomweaver 1) | keeper 33 (guardsman holding 27, archer moving 3, guardsman moving 3; by shadehound 14, ashBrute 11, sootling 6, gloomweaver 1, nothing near 1)
+  between the lines: reference 25 (guardsman moving 25; by lightlessKing 25) | forward 21 (guardsman moving 21; by lightlessKing 19, sootling 2) | keeper 21 (guardsman moving 21; by lightlessKing 21)
+  the middle line: reference 41 (archer moving 31, guardsman holding 7, guardsman moving 3; by shadehound 32, ashBrute 6, sootling 3) | forward 66 (archer moving 53, guardsman holding 12, guardsman moving 1; by shadehound 54, ashBrute 9, sootling 3) | keeper 41 (archer moving 31, guardsman holding 7, guardsman moving 3; by shadehound 32, ashBrute 6, sootling 3)
+  before the gate: reference 2 (archer moving 2; by shadehound 2) | forward 2 (archer moving 2; by shadehound 2) | keeper 2 (archer moving 2; by shadehound 2)
+  the gatehouse: neglect 65 (archer moving 36, guardsman moving 29; by lightlessKing 30, sootling 24, gloomweaver 8, shadehound 3) | outpost 64 (archer moving 32, guardsman moving 32; by lightlessKing 38, gloomweaver 18, sootling 8)
+  in all: reference 101, forward 102, neglect 65, walless 0, outpost 64, keeper 97
+  night 20 alone:
+  the outer line: reference 1 (archer moving 1; by shadehound 1) | keeper 3 (archer moving 3; by shadehound 3)
+  between the lines: reference 25 (guardsman moving 25; by lightlessKing 25) | forward 19 (guardsman moving 19; by lightlessKing 19) | keeper 21 (guardsman moving 21; by lightlessKing 21)
+  the gatehouse: neglect 65 (archer moving 36, guardsman moving 29; by lightlessKing 30, sootling 24, gloomweaver 8, shadehound 3) | outpost 64 (archer moving 32, guardsman moving 32; by lightlessKing 38, gloomweaver 18, sootling 8)
+  in all: reference 26, forward 19, neglect 65, walless 0, outpost 64, keeper 24
+
+T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+  seed 1 outpost: 9 24 21 52 45 44 | 100 / 390 | 8, 4, 10 | 2 | 8 (8) | lived: last at x 1421 with 10 % of his strength, 59 s in the Great Beacon's light
+  seed 1 walless: 36 9 88 37 82 31 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 52 s at x 831, 40 s in the Great Beacon's light
+  seed 1 reference: 191 286 0 18 49 24 | 0 / 0 | 9, 2, 15 | 0 | 2 (9) | slain after 63 s at x 909, 51 s in the Great Beacon's light
+  seed 2 outpost: 39 56 48 4 47 62 | 100 / 400 | 9, 4, 10 | 2 | 8 (8) | lived: last at x 1497 with 13 % of his strength, 56 s in the Great Beacon's light
+  seed 2 walless: 11 24 98 32 77 26 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 54 s at x 801, 41 s in the Great Beacon's light
+  seed 2 reference: 259 2 0 33 2 39 | 0 / 0 | 11, 3, 16 | 0 | 3 (9) | slain after 64 s at x 835, 51 s in the Great Beacon's light
+  seed 3 outpost: 21 38 35 12 1 51 | 100 / 280 | 10, 4, 12 | 1 | 0 (0) | slain after 64 s at x 994, 52 s in the Great Beacon's light
+  seed 3 walless: 11 24 103 22 57 21 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 53 s at x 826, 41 s in the Great Beacon's light
+  seed 3 reference: 179 282 13 15 44 9 | 0 / 0 | 9, 0, 15 | 0 | 0 (11) | slain after 64 s at x 893, 51 s in the Great Beacon's light
+  seed 4 outpost: 19 36 48 15 58 7 | 100 / 390 | 8, 4, 10 | 1 | 8 (8) | lived: last at x 1513 with 6 % of his strength, 56 s in the Great Beacon's light
+  seed 4 walless: 16 3 71 16 61 10 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 52 s at x 808, 39 s in the Great Beacon's light
+  seed 4 reference: 313 16 14 13 41 49 | 0 / 0 | 11, 4, 16 | 0 | 5 (8) | slain after 62 s at x 869, 49 s in the Great Beacon's light
+  seed 5 outpost: 3 10 7 30 30 41 | 100 / 420 | 8, 4, 10 | 2 | 8 (8) | lived: last at x 1407 with 1 % of his strength, 58 s in the Great Beacon's light
+  seed 5 walless: 1 54 23 48 108 17 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 54 s at x 801, 41 s in the Great Beacon's light
+  seed 5 reference: 203 282 26 65 29 51 | 0 / 0 | 12, 1, 15 | 0 | 1 (9) | slain after 61 s at x 922, 49 s in the Great Beacon's light
+  seed 6 outpost: 32 9 1 47 15 24 | 100 / 410 | 8, 4, 10 | 1 | 8 (8) | lived: last at x 1495 with 11 % of his strength, 56 s in the Great Beacon's light
+  seed 6 walless: 44 47 31 55 85 34 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 54 s at x 805, 41 s in the Great Beacon's light
+  seed 6 reference: 5 46 15 40 54 37 | 0 / 0 | 7, 4, 16 | 0 | 4 (13) | slain after 62 s at x 872, 50 s in the Great Beacon's light
+  seed 7 outpost: 42 44 40 33 31 56 | 100 / 320 | 10, 4, 12 | 2 | 0 (0) | slain after 66 s at x 952, 54 s in the Great Beacon's light
+  seed 7 walless: 20 18 96 61 105 14 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 51 s at x 821, 39 s in the Great Beacon's light
+  seed 7 reference: 180 303 23 7 28 9 | 0 / 0 | 9, 4, 16 | 0 | 4 (10) | slain after 61 s at x 860, 49 s in the Great Beacon's light
+  seed 8 outpost: 41 1 26 55 32 7 | 100 / 434 | 8, 4, 10 | 3 | 8 (8) | lived: last at x 1568 with 6 % of his strength, 56 s in the Great Beacon's light
+  seed 8 walless: 48 20 99 28 73 12 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 52 s at x 811, 40 s in the Great Beacon's light
+  seed 8 reference: 315 13 29 58 6 18 | 0 / 0 | 9, 4, 16 | 0 | 4 (11) | slain after 62 s at x 875, 50 s in the Great Beacon's light
+  seed 9 outpost: 49 36 38 40 23 22 | 100 / 430 | 8, 4, 10 | 2 | 8 (8) | lived: last at x 1438 with 9 % of his strength, 58 s in the Great Beacon's light
+  seed 9 walless: 49 2 16 46 91 0 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 53 s at x 815, 41 s in the Great Beacon's light
+  seed 9 reference: 295 12 51 38 36 5 | 0 / 0 | 11, 2, 15 | 0 | 2 (12) | slain after 66 s at x 898, 52 s in the Great Beacon's light
+  seed 10 outpost: 36 53 50 57 6 31 | 100 / 390 | 9, 4, 10 | 1 | 8 (8) | lived: last at x 1631 with 13 % of his strength, 54 s in the Great Beacon's light
+  seed 10 walless: 17 30 109 8 53 2 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 53 s at x 822, 41 s in the Great Beacon's light
+  seed 10 reference: 310 53 22 35 13 38 | 0 / 0 | 11, 1, 15 | 0 | 1 (9) | slain after 65 s at x 897, 50 s in the Great Beacon's light
+
+whole runs x1.5, defenders lost, where and to what (all nights; night 20 on its own below):
+  between the lines: reference 1 (guardsman moving 1; by ashBrute 1) | forward 1 (guardsman moving 1; by lightlessKing 1) | keeper 1 (guardsman moving 1; by ashBrute 1)
+  the middle line: reference 158 (archer moving 139, guardsman holding 18, guardsman moving 1; by shadehound 139, ashBrute 10, sootling 8, gloomweaver 1) | forward 135 (archer moving 110, guardsman holding 22, guardsman moving 3; by shadehound 117, ashBrute 9, sootling 9) | keeper 158 (archer moving 139, guardsman holding 18, guardsman moving 1; by shadehound 139, ashBrute 10, sootling 8, gloomweaver 1)
+  before the gate: reference 27 (archer moving 15, guardsman moving 12; by shadehound 17, sootling 8, ashBrute 2) | forward 20 (archer moving 11, guardsman moving 9; by shadehound 11, sootling 7, ashBrute 2) | keeper 27 (archer moving 15, guardsman moving 12; by shadehound 17, sootling 8, ashBrute 2)
+  the gatehouse: reference 9 (archer moving 9; by shadehound 4, sootling 4, gloomweaver 1) | forward 11 (archer moving 11; by shadehound 6, sootling 5) | neglect 70 (archer moving 41, guardsman moving 29; by sootling 31, lightlessKing 15, gloomweaver 14, shadehound 10) | outpost 4 (archer moving 4; by shadehound 4) | keeper 9 (archer moving 9; by shadehound 4, sootling 4, gloomweaver 1)
+  in all: reference 195, forward 167, neglect 70, walless 0, outpost 4, keeper 195
+  night 20 alone:
+  between the lines: forward 1 (guardsman moving 1; by lightlessKing 1)
+  the middle line: reference 5 (archer moving 5; by shadehound 5) | keeper 5 (archer moving 5; by shadehound 5)
+  before the gate: reference 1 (archer moving 1; by shadehound 1) | keeper 1 (archer moving 1; by shadehound 1)
+  the gatehouse: reference 5 (archer moving 5; by sootling 3, shadehound 2) | forward 7 (archer moving 7; by sootling 4, shadehound 3) | neglect 66 (archer moving 37, guardsman moving 29; by sootling 31, lightlessKing 15, gloomweaver 13, shadehound 7) | keeper 5 (archer moving 5; by sootling 3, shadehound 2)
+  in all: reference 11, forward 8, neglect 66, walless 0, outpost 0, keeper 11
+
+T15c diagnosis x1.5, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+  seed 1 outpost: 10 1 8 75 0 23 | 120 / 220 | 12, 4, 14 | 1 | 0 (0) | slain after 54 s at x 878, 43 s in the Great Beacon's light
+  seed 1 walless: 36 9 88 37 82 31 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 52 s at x 817, 41 s in the Great Beacon's light
+  seed 1 reference: 128 163 242 286 312 11 | 0 / 0 | 1, 0, 11 | 0 | 1 (19) | the realm fell, 58 s in the Great Beacon's light
+  seed 2 outpost: 19 6 8 64 86 37 | 120 / 200 | 10, 4, 14 | 1 | 0 (4) | slain after 58 s at x 837, 44 s in the Great Beacon's light
+  seed 2 walless: 11 24 98 32 77 26 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 51 s at x 830, 40 s in the Great Beacon's light
+  seed 2 reference: 223 3 34 38 56 36 | 0 / 0 | 9, 0, 15 | 0 | 0 (15) | slain after 64 s at x 927, 52 s in the Great Beacon's light
+  seed 3 outpost: 1 18 11 54 69 35 | 120 / 220 | 10, 4, 14 | 1 | 0 (0) | slain after 58 s at x 833, 43 s in the Great Beacon's light
+  seed 3 walless: 11 24 103 22 57 21 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 53 s at x 801, 40 s in the Great Beacon's light
+  seed 3 reference: 167 259 7 10 - - | 0 / 0 | night 20 not reached (fell 18)
+  seed 4 outpost: 9 24 46 49 58 3 | 120 / 220 | 10, 4, 14 | 1 | 0 (0) | slain after 56 s at x 839, 43 s in the Great Beacon's light
+  seed 4 walless: 16 3 71 16 61 10 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 54 s at x 804, 41 s in the Great Beacon's light
+  seed 4 reference: 233 291 2 50 5 6 | 0 / 0 | 4, 0, 15 | 0 | 0 (21) | lived: last at x 1483 with 11 % of his strength, 61 s in the Great Beacon's light
+  seed 5 outpost: 49 46 39 78 8 33 | 120 / 220 | 12, 4, 14 | 1 | 0 (0) | slain after 56 s at x 854, 44 s in the Great Beacon's light
+  seed 5 walless: 1 54 23 48 108 17 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 51 s at x 830, 40 s in the Great Beacon's light
+  seed 5 reference: 160 219 290 304 18 - | 0 / 0 | night 20 not reached (fell 19)
+  seed 6 outpost: 32 39 47 85 5 26 | 120 / 220 | 12, 4, 14 | 1 | 0 (0) | slain after 58 s at x 846, 45 s in the Great Beacon's light
+  seed 6 walless: 44 47 31 55 85 34 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 54 s at x 823, 42 s in the Great Beacon's light
+  seed 6 reference: 152 239 5 6 5 4 | 0 / 0 | 5, 0, 13 | 0 | 3 (25) | lived: last at x 1616 with 48 % of his strength, 61 s in the Great Beacon's light
+  seed 7 outpost: 21 23 15 14 28 59 | 120 / 330 | 10, 4, 12 | 2 | 0 (0) | slain after 68 s at x 985, 56 s in the Great Beacon's light
+  seed 7 walless: 20 18 96 61 105 14 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 51 s at x 816, 39 s in the Great Beacon's light
+  seed 7 reference: 127 213 311 4 32 37 | 0 / 0 | 3, 0, 13 | 0 | 1 (18) | the realm fell, 61 s in the Great Beacon's light
+  seed 8 outpost: 41 31 18 71 6 17 | 120 / 220 | 12, 4, 14 | 1 | 0 (0) | slain after 55 s at x 855, 42 s in the Great Beacon's light
+  seed 8 walless: 48 20 99 28 73 12 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 54 s at x 817, 42 s in the Great Beacon's light
+  seed 8 reference: 126 196 309 1 37 0 | 0 / 0 | 5, 0, 13 | 0 | 3 (21) | lived: last at x 1450 with 14 % of his strength, 62 s in the Great Beacon's light
+  seed 9 outpost: 49 6 44 88 3 28 | 120 / 220 | 12, 4, 14 | 1 | 0 (0) | slain after 55 s at x 848, 43 s in the Great Beacon's light
+  seed 9 walless: 49 2 16 46 91 0 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 52 s at x 811, 40 s in the Great Beacon's light
+  seed 9 reference: 204 294 7 0 8 - | 0 / 0 | night 20 not reached (fell 19)
+  seed 10 outpost: 16 3 10 27 52 3 | 120 / 200 | 10, 4, 14 | 1 | 0 (0) | slain after 54 s at x 872, 43 s in the Great Beacon's light
+  seed 10 walless: 17 30 109 8 53 2 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 53 s at x 820, 40 s in the Great Beacon's light
+  seed 10 reference: 185 280 1 3 1 6 | 0 / 0 | 5, 0, 11 | 0 | 3 (26) | lived: last at x 1631 with 64 % of his strength, 62 s in the Great Beacon's light
+
+whole runs x1.0, per seed: bot fell | defenders lost | creatures at the defence nights 3-14 | all four burning from night | first beacon lost | beacons lost | raised/relit | beacon gold | watchtower | Great Beacon day | night 20: King slain after s
+  seed 1 reference: held | 9 | 29 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 63
+  seed 1 forward: held | 11 | 25 | 0 | 13 | 1 | 1/1 | 80 | no | 17 | 64
+  seed 1 neglect: FELL 20 | 7 | 13 | 20 | 6 | 13 | 4/12 | 856 | yes | 0 | -
+  seed 1 walless: held | 0 | 13 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 52
+  seed 1 outpost: held | 8 | 26 | 0 | 6 | 6 | 3/5 | 390 | no | 15 | lived
+  seed 1 keeper: held | 9 | 29 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 63
+  seed 2 reference: held | 9 | 41 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 64
+  seed 2 forward: held | 11 | 34 | 0 | 14 | 1 | 1/0 | 60 | no | 17 | 64
+  seed 2 neglect: FELL 20 | 7 | 19 | 0 | 6 | 15 | 3/14 | 802 | yes | 0 | -
+  seed 2 walless: held | 0 | 3 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 54
+  seed 2 outpost: held | 8 | 9 | 0 | 6 | 6 | 3/5 | 400 | no | 15 | lived
+  seed 2 keeper: held | 8 | 41 | 0 | 0 | 0 | 2/0 | 150 | no | 16 | 61
+  seed 3 reference: held | 11 | 53 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 64
+  seed 3 forward: held | 11 | 51 | 0 | 14 | 1 | 1/0 | 60 | no | 18 | 61
+  seed 3 neglect: FELL 20 | 7 | 18 | 16 | 6 | 14 | 4/13 | 992 | yes | 0 | -
+  seed 3 walless: held | 0 | 14 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 53
+  seed 3 outpost: held | 0 | 19 | 0 | 6 | 7 | 2/6 | 280 | no | 15 | 64
+  seed 3 keeper: held | 11 | 53 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 64
+  seed 4 reference: held | 8 | 23 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 62
+  seed 4 forward: held | 10 | 24 | 0 | 13 | 1 | 1/1 | 80 | no | 17 | 61
+  seed 4 neglect: FELL 20 | 7 | 5 | 20 | 6 | 13 | 4/12 | 894 | yes | 0 | -
+  seed 4 walless: held | 0 | 7 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 52
+  seed 4 outpost: held | 8 | 16 | 0 | 6 | 7 | 3/5 | 390 | no | 15 | lived
+  seed 4 keeper: held | 6 | 23 | 0 | 0 | 0 | 1/0 | 60 | no | 16 | 58
+  seed 5 reference: held | 9 | 66 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 61
+  seed 5 forward: held | 12 | 28 | 0 | 15 | 1 | 1/0 | 60 | no | 18 | 67
+  seed 5 neglect: FELL 20 | 3 | 18 | 20 | 6 | 13 | 4/12 | 842 | yes | 0 | -
+  seed 5 walless: held | 0 | 4 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 54
+  seed 5 outpost: held | 8 | 19 | 0 | 6 | 7 | 3/6 | 420 | yes | 15 | lived
+  seed 5 keeper: held | 9 | 66 | 0 | 19 | 1 | 1/0 | 60 | no | 17 | 64
+  seed 6 reference: held | 13 | 45 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 62
+  seed 6 forward: held | 11 | 66 | 0 | 13 | 1 | 1/0 | 60 | no | 17 | 64
+  seed 6 neglect: FELL 20 | 7 | 17 | 20 | 6 | 14 | 4/13 | 914 | yes | 0 | -
+  seed 6 walless: held | 0 | 13 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 54
+  seed 6 outpost: held | 8 | 12 | 0 | 6 | 8 | 3/6 | 410 | no | 15 | lived
+  seed 6 keeper: held | 13 | 45 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 62
+  seed 7 reference: held | 10 | 21 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 61
+  seed 7 forward: held | 10 | 36 | 0 | 13 | 1 | 1/0 | 60 | no | 18 | 66
+  seed 7 neglect: FELL 20 | 7 | 19 | 17 | 6 | 13 | 4/12 | 918 | yes | 0 | -
+  seed 7 walless: held | 0 | 15 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 51
+  seed 7 outpost: held | 0 | 14 | 0 | 6 | 7 | 2/7 | 320 | no | 15 | 66
+  seed 7 keeper: held | 9 | 21 | 0 | 0 | 0 | 1/0 | 60 | no | 17 | 64
+  seed 8 reference: held | 11 | 35 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 62
+  seed 8 forward: held | 7 | 59 | 0 | 13 | 1 | 1/0 | 60 | no | 18 | 66
+  seed 8 neglect: FELL 20 | 6 | 13 | 15 | 6 | 14 | 4/12 | 988 | yes | 0 | -
+  seed 8 walless: held | 0 | 11 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 52
+  seed 8 outpost: held | 8 | 13 | 0 | 6 | 7 | 3/6 | 434 | no | 15 | lived
+  seed 8 keeper: held | 11 | 35 | 0 | 0 | 0 | 1/0 | 60 | no | 16 | 63
+  seed 9 reference: held | 12 | 72 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 66
+  seed 9 forward: held | 11 | 51 | 0 | 13 | 2 | 1/2 | 100 | no | 17 | 64
+  seed 9 neglect: FELL 20 | 7 | 10 | 18 | 6 | 13 | 4/11 | 882 | yes | 0 | -
+  seed 9 walless: held | 0 | 15 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 53
+  seed 9 outpost: held | 8 | 28 | 0 | 6 | 7 | 3/6 | 430 | no | 15 | lived
+  seed 9 keeper: held | 12 | 72 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 66
+  seed 10 reference: held | 9 | 58 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 65
+  seed 10 forward: held | 8 | 54 | 0 | 13 | 1 | 1/1 | 80 | no | 17 | 61
+  seed 10 neglect: FELL 20 | 7 | 15 | 15 | 6 | 15 | 4/14 | 1038 | yes | 0 | -
+  seed 10 walless: held | 0 | 11 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 53
+  seed 10 outpost: held | 8 | 9 | 0 | 6 | 7 | 3/5 | 390 | no | 15 | lived
+  seed 10 keeper: held | 9 | 58 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 65
+
+whole runs x1.5, per seed: bot fell | defenders lost | creatures at the defence nights 3-14 | all four burning from night | first beacon lost | beacons lost | raised/relit | beacon gold | watchtower | Great Beacon day | night 20: King slain after s
+  seed 1 reference: FELL 20 | 19 | 88 | 0 | 0 | 0 | 0/0 | 0 | no | 0 | -
+  seed 1 forward: FELL 17 | 16 | 78 | 0 | 10 | 1 | 1/0 | 60 | no | 0 | -
+  seed 1 neglect: FELL 20 | 7 | 24 | 18 | 5 | 19 | 4/16 | 924 | yes | 0 | -
+  seed 1 walless: held | 0 | 43 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 52
+  seed 1 outpost: held | 0 | 47 | 0 | 5 | 8 | 1/8 | 220 | no | 15 | 54
+  seed 1 keeper: FELL 20 | 19 | 88 | 0 | 0 | 0 | 0/0 | 0 | no | 0 | -
+  seed 2 reference: held | 15 | 55 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 64
+  seed 2 forward: FELL 19 | 17 | 75 | 0 | 8 | 2 | 1/1 | 80 | no | 0 | -
+  seed 2 neglect: FELL 20 | 7 | 32 | 20 | 5 | 18 | 4/17 | 966 | yes | 0 | -
+  seed 2 walless: held | 0 | 42 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 51
+  seed 2 outpost: held | 4 | 29 | 0 | 5 | 7 | 1/7 | 200 | no | 15 | 58
+  seed 2 keeper: held | 15 | 55 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 64
+  seed 3 reference: FELL 18 | 17 | 136 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | -
+  seed 3 forward: FELL 19 | 19 | 116 | 0 | 10 | 1 | 1/0 | 60 | no | 0 | -
+  seed 3 neglect: FELL 20 | 7 | 41 | 18 | 4 | 19 | 4/17 | 1064 | yes | 0 | -
+  seed 3 walless: held | 0 | 29 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 53
+  seed 3 outpost: held | 0 | 37 | 0 | 5 | 8 | 1/8 | 220 | no | 15 | 58
+  seed 3 keeper: FELL 18 | 17 | 136 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | -
+  seed 4 reference: held | 21 | 60 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | lived
+  seed 4 forward: held | 12 | 73 | 0 | 10 | 1 | 1/0 | 60 | no | 18 | 61
+  seed 4 neglect: FELL 20 | 7 | 43 | 20 | 5 | 18 | 4/16 | 918 | yes | 0 | -
+  seed 4 walless: held | 0 | 28 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 54
+  seed 4 outpost: held | 0 | 31 | 0 | 5 | 8 | 1/8 | 220 | no | 15 | 56
+  seed 4 keeper: held | 21 | 60 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | lived
+  seed 5 reference: FELL 19 | 17 | 63 | 0 | 0 | 0 | 0/0 | 0 | no | 0 | -
+  seed 5 forward: FELL 17 | 15 | 100 | 0 | 9 | 2 | 1/1 | 80 | no | 0 | -
+  seed 5 neglect: FELL 20 | 7 | 26 | 0 | 5 | 18 | 3/16 | 724 | yes | 0 | -
+  seed 5 walless: held | 0 | 22 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 51
+  seed 5 outpost: held | 0 | 35 | 0 | 5 | 8 | 1/8 | 220 | no | 15 | 56
+  seed 5 keeper: FELL 19 | 17 | 63 | 0 | 0 | 0 | 0/0 | 0 | no | 0 | -
+  seed 6 reference: held | 25 | 114 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | lived
+  seed 6 forward: FELL 17 | 13 | 109 | 0 | 10 | 1 | 1/0 | 60 | no | 0 | -
+  seed 6 neglect: FELL 20 | 7 | 47 | 18 | 4 | 20 | 4/18 | 1076 | yes | 0 | -
+  seed 6 walless: held | 0 | 29 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 54
+  seed 6 outpost: held | 0 | 22 | 0 | 5 | 8 | 1/8 | 220 | no | 15 | 58
+  seed 6 keeper: held | 25 | 114 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | lived
+  seed 7 reference: FELL 20 | 18 | 84 | 0 | 0 | 0 | 0/0 | 0 | no | 18 | -
+  seed 7 forward: held | 21 | 58 | 0 | 10 | 1 | 1/1 | 80 | no | 18 | lived
+  seed 7 neglect: FELL 20 | 8 | 38 | 18 | 5 | 18 | 4/17 | 1012 | yes | 0 | -
+  seed 7 walless: held | 0 | 32 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 51
+  seed 7 outpost: held | 0 | 41 | 0 | 5 | 8 | 2/8 | 330 | no | 15 | 68
+  seed 7 keeper: FELL 20 | 18 | 84 | 0 | 0 | 0 | 0/0 | 0 | no | 18 | -
+  seed 8 reference: held | 21 | 114 | 0 | 0 | 0 | 0/0 | 0 | no | 18 | lived
+  seed 8 forward: FELL 20 | 17 | 95 | 0 | 8 | 2 | 1/1 | 80 | no | 0 | -
+  seed 8 neglect: FELL 20 | 6 | 21 | 18 | 4 | 20 | 4/18 | 1080 | yes | 0 | -
+  seed 8 walless: held | 0 | 26 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 54
+  seed 8 outpost: held | 0 | 22 | 0 | 5 | 8 | 1/8 | 220 | no | 15 | 55
+  seed 8 keeper: held | 21 | 114 | 0 | 0 | 0 | 0/0 | 0 | no | 18 | lived
+  seed 9 reference: FELL 19 | 16 | 133 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | -
+  seed 9 forward: FELL 17 | 15 | 132 | 0 | 10 | 1 | 1/0 | 60 | no | 0 | -
+  seed 9 neglect: FELL 20 | 7 | 22 | 18 | 4 | 19 | 4/17 | 1050 | yes | 0 | -
+  seed 9 walless: held | 0 | 27 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 52
+  seed 9 outpost: held | 0 | 25 | 0 | 5 | 8 | 1/8 | 220 | no | 15 | 55
+  seed 9 keeper: FELL 19 | 16 | 133 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | -
+  seed 10 reference: held | 26 | 137 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | lived
+  seed 10 forward: held | 22 | 121 | 0 | 10 | 1 | 1/0 | 60 | no | 18 | lived
+  seed 10 neglect: FELL 20 | 7 | 33 | 18 | 4 | 18 | 4/17 | 1012 | yes | 0 | -
+  seed 10 walless: held | 0 | 22 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 53
+  seed 10 outpost: held | 0 | 41 | 0 | 5 | 7 | 1/7 | 200 | no | 15 | 54
+  seed 10 keeper: held | 26 | 137 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | lived
+(8 s)
+
+== the controls: the reference and the walls neglected without beacons, whole runs
+  reference x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 10.1, at the defence 3-14 44.3
+  walless x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 14, 15, 14, 14, 14, 15, 14, 14, 15], King slain 10, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 0.0, at the defence 3-14 10.6
+  reference x1.5: fell [20, 0, 18, 0, 19, 0, 20, 0, 19, 0], Great Beacon [0, 16, 17, 17, 0, 17, 18, 18, 17, 17], King slain 1, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 19.5, at the defence 3-14 98.4
+  walless x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 14, 15, 14, 14, 14, 15, 14, 14, 15], King slain 10, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 0.0, at the defence 3-14 30.0
+  reference x2.0: fell [17, 17, 17, 17, 14, 16, 17, 15, 17, 17], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 14.8, at the defence 3-14 198.8
+  walless x2.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 14, 15, 14, 14, 14, 15, 14, 14, 15], King slain 10, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 0.0, at the defence 3-14 58.2
+(11 s)
+
+== the beacons' numbers around the chosen values (T15a pairs; whole runs of the forward, neglect and outpost bots against the reference)
+-- front-3's pool 56, strength 400, tended always, beacons at 10, 16, 22, 22: T15a 40 % fewer (x1.0 37 %, x1.5 46 %, x2.0 38 %), beacons lost in the pairs 162
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 0, 20, 0, 0]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 8 against 10, 483 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 149 creatures reach its defence on nights 3-14 against 106 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 8 against 10, defenders lost 16 against 0
+   T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 8 against 10, 149 creatures at its defence against 443: does not beat it on all three
+   T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 10 against 10, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 443 creatures at its defence on nights 3-14 against 443 (target for the build 3 join: none, at least 9 of 10, most seeds)
+   T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 18, 18, 18, 18, 18, 17, 18], King slain 8, first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.0, relit 0.4, beacon gold 131.0, defenders lost 11.4, at the defence 3-14 48.3
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 0, 20, 0, 0], Great Beacon [0, 0, 0, 0, 0, 0, 20, 0, 20, 20], King slain 0, first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [18, 14, 14, 18, 15, 15, 14, 15, 15, 15], lost 7.3, relit 6.3, beacon gold 771.4, defenders lost 6.5, at the defence 3-14 10.9
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [16, 15, 15, 15, 16, 15, 16, 15, 15, 15], King slain 8, first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 6.4, relit 5.7, beacon gold 285.0, defenders lost 1.6, at the defence 3-14 14.9
+   keeper x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 19, 0, 0, 18, 0, 20, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.5, relit 0.2, beacon gold 34.0, defenders lost 9.7, at the defence 3-14 44.3
+   forward x1.5: fell [20, 20, 17, 20, 20, 0, 20, 20, 19, 17], Great Beacon [0, 0, 0, 0, 0, 19, 0, 0, 0, 0], King slain 0, first loss [6, 6, 6, 6, 6, 6, 6, 6, 7, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 4.9, relit 3.9, beacon gold 138.0, defenders lost 17.7, at the defence 3-14 101.4
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [6, 6, 6, 7, 6, 7, 7, 7, 6, 7], all four from [0, 0, 20, 20, 0, 0, 20, 20, 19, 20], lost 15.9, relit 14.4, beacon gold 834.6, defenders lost 6.5, at the defence 3-14 40.4
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [16, 15, 15, 15, 15, 15, 16, 15, 15, 15], King slain 10, first loss [6, 7, 6, 6, 6, 6, 6, 7, 6, 7], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 9.1, relit 8.3, beacon gold 237.0, defenders lost 0.4, at the defence 3-14 34.1
+(16 s)
+-- strength 600 each: T15a 42 % fewer (x1.0 44 %, x1.5 46 %, x2.0 40 %), beacons lost in the pairs 72
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 9 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 0, 20]
+   T15 wager PASS x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 10 against 10, 428 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 165 creatures reach its defence on nights 3-14 against 106 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 1 against 10, defenders lost 72 against 0
+   T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 1 against 10, 165 creatures at its defence against 443: does not beat it on all three
+   T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 10 against 10, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 443 creatures at its defence on nights 3-14 against 443 (target for the build 3 join: none, at least 9 of 10, most seeds)
+   T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 18, 17, 18, 17, 18, 18, 17, 17], King slain 10, first loss [13, 14, 14, 13, 15, 13, 13, 13, 13, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.1, relit 0.5, beacon gold 70.0, defenders lost 10.2, at the defence 3-14 42.8
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 0, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 20, 0], King slain 0, first loss [6, 6, 7, 6, 6, 7, 6, 7, 7, 7], all four from [17, 19, 15, 15, 17, 15, 16, 17, 17, 16], lost 10.7, relit 9.1, beacon gold 783.0, defenders lost 5.7, at the defence 3-14 12.4
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 1, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [19, 0, 19, 0, 0, 0, 20, 18, 18, 0], lost 6.2, relit 4.0, beacon gold 453.0, defenders lost 7.2, at the defence 3-14 16.5
+   keeper x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 0, 0, 0, 19, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.1, relit 0.0, beacon gold 39.0, defenders lost 9.7, at the defence 3-14 44.3
+   forward x1.5: fell [17, 19, 19, 0, 17, 17, 0, 20, 17, 0], Great Beacon [0, 0, 0, 18, 0, 0, 18, 0, 0, 18], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.3, relit 0.4, beacon gold 68.0, defenders lost 16.7, at the defence 3-14 95.7
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 0, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 20, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 14, 17, 19, 15, 0, 14, 14, 14], lost 14.8, relit 13.3, beacon gold 924.8, defenders lost 7.1, at the defence 3-14 28.9
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 10, first loss [5, 5, 5, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 7.8, relit 7.8, beacon gold 227.0, defenders lost 0.4, at the defence 3-14 33.0
+(21 s)
+-- strength 400 each: T15a 43 % fewer (x1.0 43 %, x1.5 46 %, x2.0 41 %), beacons lost in the pairs 165
+   T15b PASS x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 10 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 9 against 10, 458 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 162 creatures reach its defence on nights 3-14 against 106 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 10 against 10, defenders lost 0 against 0
+   T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 10 against 10, 162 creatures at its defence against 443: beats it on all three
+   T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 10 against 10, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 443 creatures at its defence on nights 3-14 against 443 (target for the build 3 join: none, at least 9 of 10, most seeds)
+   T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 18, 17, 18, 17, 18, 18, 17, 17], King slain 9, first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.4, relit 0.8, beacon gold 76.0, defenders lost 9.4, at the defence 3-14 45.8
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [20, 20, 14, 18, 20, 15, 19, 14, 14, 16], lost 15.2, relit 14.0, beacon gold 943.0, defenders lost 6.5, at the defence 3-14 13.1
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 10, first loss [5, 5, 5, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 8.0, relit 8.0, beacon gold 231.0, defenders lost 0.0, at the defence 3-14 16.2
+   keeper x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 19, 0, 0, 18, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.2, relit 0.2, beacon gold 34.0, defenders lost 9.8, at the defence 3-14 44.3
+   forward x1.5: fell [20, 20, 17, 20, 20, 19, 20, 20, 19, 17], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [6, 6, 6, 6, 6, 6, 6, 6, 7, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 4.9, relit 3.9, beacon gold 138.0, defenders lost 17.5, at the defence 3-14 102.8
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [0, 0, 19, 0, 0, 18, 0, 18, 18, 19], lost 21.3, relit 19.1, beacon gold 888.2, defenders lost 6.9, at the defence 3-14 37.0
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [16, 15, 16, 16, 15, 15, 16, 15, 15, 15], King slain 9, first loss [5, 5, 5, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 9.5, relit 9.3, beacon gold 256.0, defenders lost 0.8, at the defence 3-14 29.3
+(26 s)
+-- strength 600, 500, 400, 300: T15a 42 % fewer (x1.0 40 %, x1.5 47 %, x2.0 39 %), beacons lost in the pairs 222
+   T15b PASS x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 10 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager PASS x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 10 against 10, 428 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 165 creatures reach its defence on nights 3-14 against 106 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 2 against 10, defenders lost 64 against 0
+   T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 2 against 10, 165 creatures at its defence against 443: does not beat it on all three
+   T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 10 against 10, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 443 creatures at its defence on nights 3-14 against 443 (target for the build 3 join: none, at least 9 of 10, most seeds)
+   T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 18, 17, 18, 17, 18, 18, 17, 17], King slain 10, first loss [13, 14, 14, 13, 15, 13, 13, 13, 13, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.1, relit 0.5, beacon gold 70.0, defenders lost 10.2, at the defence 3-14 42.8
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [20, 0, 16, 20, 20, 20, 17, 15, 18, 15], lost 14.3, relit 12.9, beacon gold 927.2, defenders lost 6.5, at the defence 3-14 14.7
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 2, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 6.9, relit 5.7, beacon gold 386.4, defenders lost 6.4, at the defence 3-14 16.5
+   keeper x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 0, 0, 0, 19, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.1, relit 0.0, beacon gold 39.0, defenders lost 9.7, at the defence 3-14 44.3
+   forward x1.5: fell [17, 19, 19, 0, 17, 17, 0, 20, 17, 0], Great Beacon [0, 0, 0, 18, 0, 0, 18, 0, 0, 18], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.3, relit 0.4, beacon gold 68.0, defenders lost 16.7, at the defence 3-14 95.7
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 18, 20, 0, 18, 18, 18, 18, 18], lost 19.6, relit 17.3, beacon gold 999.2, defenders lost 6.9, at the defence 3-14 32.7
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 10, first loss [5, 5, 5, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 7.8, relit 7.8, beacon gold 227.0, defenders lost 0.4, at the defence 3-14 33.0
+(30 s)
+-- strength 600, 450, 350, 300: T15a 42 % fewer (x1.0 40 %, x1.5 47 %, x2.0 39 %), beacons lost in the pairs 245
+   T15b PASS x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 10 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager PASS x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 10 against 10, 428 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 165 creatures reach its defence on nights 3-14 against 106 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 7 against 10, defenders lost 24 against 0
+   T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 7 against 10, 165 creatures at its defence against 443: does not beat it on all three
+   T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 10 against 10, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 443 creatures at its defence on nights 3-14 against 443 (target for the build 3 join: none, at least 9 of 10, most seeds)
+   T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 18, 17, 18, 17, 18, 18, 17, 17], King slain 10, first loss [13, 14, 14, 13, 15, 13, 13, 13, 13, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.1, relit 0.5, beacon gold 70.0, defenders lost 10.2, at the defence 3-14 42.8
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 6, 5, 5, 6, 5, 6, 6, 6], all four from [0, 0, 16, 20, 0, 19, 0, 20, 17, 15], lost 16.0, relit 14.1, beacon gold 892.2, defenders lost 6.9, at the defence 3-14 14.1
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 7, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 7.0, relit 6.2, beacon gold 332.0, defenders lost 2.4, at the defence 3-14 16.5
+   keeper x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 0, 0, 0, 19, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.1, relit 0.0, beacon gold 39.0, defenders lost 9.7, at the defence 3-14 44.3
+   forward x1.5: fell [17, 19, 19, 0, 17, 17, 0, 20, 17, 0], Great Beacon [0, 0, 0, 18, 0, 0, 18, 0, 0, 18], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.3, relit 0.4, beacon gold 68.0, defenders lost 16.7, at the defence 3-14 95.7
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [0, 20, 18, 0, 0, 16, 20, 18, 19, 18], lost 20.5, relit 18.1, beacon gold 958.6, defenders lost 6.9, at the defence 3-14 33.5
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 10, first loss [5, 5, 5, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 7.9, relit 7.9, beacon gold 229.0, defenders lost 0.4, at the defence 3-14 33.0
+(37 s)
+-- pool 48: T15a 40 % fewer (x1.0 38 %, x1.5 44 %, x2.0 38 %), beacons lost in the pairs 163
+   T15b PASS x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 10 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager PASS x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 10 against 10, 389 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 161 creatures reach its defence on nights 3-14 against 106 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 3 against 10, defenders lost 56 against 0
+   T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 3 against 10, 161 creatures at its defence against 443: does not beat it on all three
+   T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 10 against 10, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 443 creatures at its defence on nights 3-14 against 443 (target for the build 3 join: none, at least 9 of 10, most seeds)
+   T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 17, 17, 17, 17, 17, 18, 18, 16, 17], King slain 10, first loss [13, 14, 15, 13, 13, 13, 13, 13, 13, 14], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.5, relit 0.9, beacon gold 78.0, defenders lost 9.0, at the defence 3-14 38.9
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [20, 0, 15, 20, 20, 17, 17, 15, 18, 15], lost 13.7, relit 12.1, beacon gold 900.6, defenders lost 6.5, at the defence 3-14 14.2
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 3, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 8.1, relit 5.7, beacon gold 386.4, defenders lost 5.6, at the defence 3-14 16.1
+   keeper x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 0, 0, 0, 19, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.1, relit 0.0, beacon gold 39.0, defenders lost 9.6, at the defence 3-14 44.3
+   forward x1.5: fell [17, 19, 19, 0, 17, 17, 0, 20, 17, 0], Great Beacon [0, 0, 0, 18, 0, 0, 18, 0, 0, 18], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.4, relit 0.4, beacon gold 68.0, defenders lost 16.9, at the defence 3-14 96.6
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 18, 20, 0, 18, 18, 18, 18, 18], lost 18.5, relit 16.6, beacon gold 971.2, defenders lost 6.9, at the defence 3-14 34.0
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 10, first loss [5, 5, 5, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 8.0, relit 7.8, beacon gold 227.0, defenders lost 0.4, at the defence 3-14 32.7
+(41 s)
+-- pool 36: T15a 42 % fewer (x1.0 41 %, x1.5 47 %, x2.0 40 %), beacons lost in the pairs 167
+   T15b PASS x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 10 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager PASS x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 10 against 10, 434 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 162 creatures reach its defence on nights 3-14 against 106 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 2 against 10, defenders lost 64 against 0
+   T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 2 against 10, 162 creatures at its defence against 443: does not beat it on all three
+   T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 10 against 10, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 443 creatures at its defence on nights 3-14 against 443 (target for the build 3 join: none, at least 9 of 10, most seeds)
+   T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 17, 18, 18, 17, 18, 18, 16, 17], King slain 10, first loss [14, 14, 14, 13, 15, 13, 13, 13, 13, 14], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.1, relit 0.5, beacon gold 70.0, defenders lost 10.3, at the defence 3-14 43.4
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [20, 0, 16, 20, 20, 15, 17, 17, 15, 15], lost 13.9, relit 12.8, beacon gold 926.0, defenders lost 6.1, at the defence 3-14 16.0
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 2, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 7.0, relit 5.7, beacon gold 385.4, defenders lost 6.4, at the defence 3-14 16.2
+   keeper x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 0, 0, 0, 19, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.1, relit 0.0, beacon gold 39.0, defenders lost 9.7, at the defence 3-14 44.3
+   forward x1.5: fell [17, 19, 18, 0, 17, 17, 0, 20, 17, 0], Great Beacon [0, 0, 0, 18, 0, 0, 18, 0, 0, 18], King slain 1, first loss [10, 8, 8, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.4, relit 0.5, beacon gold 70.0, defenders lost 16.4, at the defence 3-14 97.0
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 18, 20, 0, 18, 18, 18, 19, 18], lost 18.9, relit 16.9, beacon gold 977.2, defenders lost 7.0, at the defence 3-14 32.2
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 10, first loss [5, 5, 5, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 7.8, relit 7.8, beacon gold 227.0, defenders lost 0.4, at the defence 3-14 32.5
+(46 s)
+-- tended always (not from the wall): T15a 43 % fewer (x1.0 43 %, x1.5 46 %, x2.0 41 %), beacons lost in the pairs 165
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [20, 0, 20, 20, 20, 0, 0, 20, 0, 20]
+   T15 wager PASS x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 10 against 10, 421 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 126 creatures reach its defence on nights 3-14 against 106 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 0 against 10, defenders lost 80 against 0
+   T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 0 against 10, 126 creatures at its defence against 443: does not beat it on all three
+   T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 10 against 10, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 443 creatures at its defence on nights 3-14 against 443 (target for the build 3 join: none, at least 9 of 10, most seeds)
+   T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 18, 17, 18, 17, 18, 17, 16, 17], King slain 10, first loss [0, 0, 0, 17, 0, 19, 0, 0, 17, 19], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.4, relit 0.3, beacon gold 93.0, defenders lost 8.6, at the defence 3-14 42.1
+   neglect x1.0: fell [20, 0, 20, 20, 20, 0, 0, 20, 0, 20], Great Beacon [0, 20, 0, 0, 0, 20, 20, 0, 20, 0], King slain 0, first loss [10, 10, 10, 10, 10, 10, 10, 10, 13, 10], all four from [15, 15, 15, 14, 16, 14, 13, 14, 15, 14], lost 6.5, relit 5.6, beacon gold 762.4, defenders lost 6.1, at the defence 3-14 13.5
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 14, 15, 15, 15, 15], King slain 0, first loss [17, 17, 17, 17, 17, 16, 17, 17, 17, 17], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 3.9, relit 3.1, beacon gold 416.4, defenders lost 8.0, at the defence 3-14 12.6
+   keeper x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 39.0, defenders lost 9.6, at the defence 3-14 44.3
+   forward x1.5: fell [17, 19, 19, 0, 20, 17, 0, 17, 17, 0], Great Beacon [0, 0, 0, 18, 0, 0, 18, 0, 0, 18], King slain 1, first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.0, relit 0.1, beacon gold 62.0, defenders lost 16.6, at the defence 3-14 95.4
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [8, 9, 9, 8, 9, 8, 9, 8, 9, 9], all four from [20, 19, 0, 18, 19, 18, 18, 19, 16, 19], lost 12.8, relit 11.0, beacon gold 872.8, defenders lost 7.0, at the defence 3-14 36.0
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 14, 15, 15, 15, 15], King slain 10, first loss [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 5.0, relit 5.0, beacon gold 225.0, defenders lost 0.0, at the defence 3-14 32.6
+(51 s)
+-- relight a quarter: T15a 43 % fewer (x1.0 43 %, x1.5 46 %, x2.0 41 %), beacons lost in the pairs 165
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 8 of 10 (target all); it fell on nights [20, 0, 20, 20, 20, 0, 20, 20, 20, 20]
+   T15 wager PASS x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 10 against 10, 428 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 156 creatures reach its defence on nights 3-14 against 106 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 3 against 10, defenders lost 52 against 0
+   T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 3 against 10, 156 creatures at its defence against 443: does not beat it on all three
+   T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 10 against 10, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 443 creatures at its defence on nights 3-14 against 443 (target for the build 3 join: none, at least 9 of 10, most seeds)
+   T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 18, 17, 18, 17, 18, 18, 17, 17], King slain 10, first loss [13, 14, 14, 13, 15, 13, 13, 13, 13, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.1, relit 0.8, beacon gold 72.0, defenders lost 10.2, at the defence 3-14 42.8
+   neglect x1.0: fell [20, 0, 20, 20, 20, 0, 20, 20, 20, 20], Great Beacon [0, 20, 0, 0, 0, 20, 0, 0, 0, 0], King slain 0, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [16, 16, 16, 19, 16, 17, 16, 15, 16, 20], lost 13.6, relit 12.2, beacon gold 819.0, defenders lost 6.5, at the defence 3-14 15.0
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 16, 15, 15, 15], King slain 3, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [0, 0, 0, 0, 0, 0, 0, 20, 0, 0], lost 7.2, relit 5.7, beacon gold 362.7, defenders lost 5.2, at the defence 3-14 15.6
+   keeper x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 0, 0, 0, 19, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.1, relit 0.0, beacon gold 39.0, defenders lost 9.7, at the defence 3-14 44.3
+   forward x1.5: fell [17, 19, 19, 0, 20, 17, 0, 20, 17, 0], Great Beacon [0, 0, 0, 18, 0, 0, 18, 0, 0, 18], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.3, relit 0.4, beacon gold 66.0, defenders lost 16.9, at the defence 3-14 94.7
+   neglect x1.5: fell [20, 20, 20, 20, 20, 0, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 20, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [19, 20, 17, 19, 19, 17, 20, 19, 17, 15], lost 19.4, relit 16.7, beacon gold 875.1, defenders lost 7.0, at the defence 3-14 30.7
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 16, 15, 15, 15], King slain 10, first loss [5, 5, 5, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 8.5, relit 8.3, beacon gold 238.3, defenders lost 0.4, at the defence 3-14 32.0
+(55 s)
+-- a beacon is raised or relit only with a wall beyond the gate: T15a 43 % fewer (x1.0 43 %, x1.5 46 %, x2.0 41 %), beacons lost in the pairs 165
+   T15b FAIL x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 0 of 10 (target all); it fell on nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+   T15 wager PASS x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 10 against 10, 428 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 106 creatures reach its defence on nights 3-14 against 106 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 10 against 10, defenders lost 0 against 0
+   T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 10 against 10, 106 creatures at its defence against 443: beats it on all three
+   T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 10 against 10, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 443 creatures at its defence on nights 3-14 against 443 (target for the build 3 join: none, at least 9 of 10, most seeds)
+   T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 18, 17, 18, 17, 18, 18, 17, 17], King slain 10, first loss [13, 14, 14, 13, 15, 13, 13, 13, 13, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.1, relit 0.5, beacon gold 70.0, defenders lost 10.2, at the defence 3-14 42.8
+   neglect x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 14, 15, 14, 14, 14, 15, 14, 14, 15], King slain 10, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 0.0, at the defence 3-14 10.6
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 14, 15, 14, 14, 14, 15, 14, 14, 15], King slain 10, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 0.0, at the defence 3-14 10.6
+   keeper x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 0, 0, 0, 19, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.1, relit 0.0, beacon gold 39.0, defenders lost 9.7, at the defence 3-14 44.3
+   forward x1.5: fell [17, 19, 19, 0, 17, 17, 0, 20, 17, 0], Great Beacon [0, 0, 0, 18, 0, 0, 18, 0, 0, 18], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.3, relit 0.4, beacon gold 68.0, defenders lost 16.7, at the defence 3-14 95.7
+   neglect x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 14, 15, 14, 14, 14, 15, 14, 14, 15], King slain 10, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 0.0, at the defence 3-14 30.0
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 14, 15, 14, 14, 14, 15, 14, 14, 15], King slain 10, first loss [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.0, relit 0.0, beacon gold 0.0, defenders lost 0.0, at the defence 3-14 30.0
+(60 s)
+-- the bolder forward bot (beacons at 10, 19, 22, 22): T15a 43 % fewer (x1.0 43 %, x1.5 46 %, x2.0 41 %), beacons lost in the pairs 165
+   T15b PASS x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 10 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 6 against 10, 384 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 161 creatures reach its defence on nights 3-14 against 106 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 2 against 10, defenders lost 64 against 0
+   T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 2 against 10, 161 creatures at its defence against 443: does not beat it on all three
+   T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 10 against 10, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 443 creatures at its defence on nights 3-14 against 443 (target for the build 3 join: none, at least 9 of 10, most seeds)
+   T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 17, 19, 18, 19, 18, 18, 19, 18, 18], King slain 6, first loss [14, 14, 15, 13, 15, 13, 13, 13, 13, 14], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.0, relit 0.3, beacon gold 147.0, defenders lost 13.1, at the defence 3-14 38.4
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [20, 0, 16, 20, 20, 20, 17, 15, 18, 15], lost 13.7, relit 12.5, beacon gold 912.6, defenders lost 6.5, at the defence 3-14 14.7
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 16, 15, 16, 15, 15, 15], King slain 2, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 7.0, relit 5.6, beacon gold 382.4, defenders lost 6.4, at the defence 3-14 16.1
+   keeper x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 0, 0, 0, 19, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.1, relit 0.0, beacon gold 39.0, defenders lost 9.7, at the defence 3-14 44.3
+   forward x1.5: fell [17, 19, 19, 0, 17, 17, 0, 20, 17, 0], Great Beacon [0, 0, 0, 18, 0, 0, 18, 0, 0, 18], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.3, relit 0.4, beacon gold 68.0, defenders lost 16.7, at the defence 3-14 95.7
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 18, 20, 0, 18, 18, 18, 18, 18], lost 18.7, relit 16.9, beacon gold 982.6, defenders lost 7.0, at the defence 3-14 32.7
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 10, first loss [5, 5, 5, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 7.8, relit 7.8, beacon gold 227.0, defenders lost 0.4, at the defence 3-14 33.0
+(65 s)
+-- the forward bot's beacons at 10, 16, 22, 22 (front-3's): T15a 43 % fewer (x1.0 43 %, x1.5 46 %, x2.0 41 %), beacons lost in the pairs 165
+   T15b PASS x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 10 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager FAIL x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 5 against 10, 409 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 149 creatures reach its defence on nights 3-14 against 106 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 5 against 10, defenders lost 40 against 0
+   T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 5 against 10, 149 creatures at its defence against 443: does not beat it on all three
+   T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 10 against 10, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 443 creatures at its defence on nights 3-14 against 443 (target for the build 3 join: none, at least 9 of 10, most seeds)
+   T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [18, 18, 19, 19, 19, 19, 19, 19, 17, 17], King slain 5, first loss [10, 10, 10, 10, 15, 10, 13, 13, 14, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 2.1, relit 0.5, beacon gold 160.0, defenders lost 13.0, at the defence 3-14 40.9
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [20, 0, 16, 20, 20, 20, 17, 15, 18, 15], lost 13.7, relit 12.5, beacon gold 912.6, defenders lost 6.5, at the defence 3-14 14.7
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [16, 16, 16, 16, 16, 16, 16, 16, 16, 16], King slain 5, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 6.5, relit 5.7, beacon gold 356.0, defenders lost 4.0, at the defence 3-14 14.9
+   keeper x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 0, 0, 0, 19, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.1, relit 0.0, beacon gold 39.0, defenders lost 9.7, at the defence 3-14 44.3
+   forward x1.5: fell [17, 19, 19, 0, 17, 20, 0, 20, 20, 20], Great Beacon [0, 0, 0, 19, 0, 0, 18, 0, 0, 0], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.9, relit 0.4, beacon gold 122.0, defenders lost 16.7, at the defence 3-14 94.1
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 18, 20, 0, 18, 18, 18, 18, 18], lost 18.7, relit 16.9, beacon gold 982.6, defenders lost 7.0, at the defence 3-14 32.7
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [16, 16, 16, 16, 16, 16, 16, 16, 16, 16], King slain 4, first loss [5, 5, 5, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 8.9, relit 8.1, beacon gold 333.0, defenders lost 4.8, at the defence 3-14 38.4
+(70 s)
+-- no watchtower: T15a 37 % fewer (x1.0 37 %, x1.5 38 %, x2.0 37 %), beacons lost in the pairs 165
+   T15b PASS x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 10 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager PASS x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 10 against 10, 428 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 165 creatures reach its defence on nights 3-14 against 106 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 2 against 10, defenders lost 64 against 0
+   T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 2 against 10, 165 creatures at its defence against 443: does not beat it on all three
+   T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 10 against 10, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 443 creatures at its defence on nights 3-14 against 443 (target for the build 3 join: none, at least 9 of 10, most seeds)
+   T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 18, 17, 18, 17, 18, 18, 17, 17], King slain 10, first loss [13, 14, 14, 13, 15, 13, 13, 13, 13, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.1, relit 0.5, beacon gold 70.0, defenders lost 10.2, at the defence 3-14 42.8
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [20, 0, 16, 20, 20, 20, 17, 15, 18, 15], lost 13.7, relit 12.6, beacon gold 917.0, defenders lost 6.5, at the defence 3-14 17.6
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 2, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 6.9, relit 5.7, beacon gold 386.4, defenders lost 6.4, at the defence 3-14 16.5
+   keeper x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 0, 0, 0, 19, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.1, relit 0.0, beacon gold 39.0, defenders lost 9.7, at the defence 3-14 44.3
+   forward x1.5: fell [17, 19, 19, 0, 17, 17, 0, 20, 17, 0], Great Beacon [0, 0, 0, 18, 0, 0, 18, 0, 0, 18], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.3, relit 0.4, beacon gold 68.0, defenders lost 16.7, at the defence 3-14 95.7
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 18, 20, 0, 18, 18, 18, 18, 18], lost 18.7, relit 16.9, beacon gold 982.6, defenders lost 7.0, at the defence 3-14 35.2
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 10, first loss [5, 5, 5, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 7.8, relit 7.8, beacon gold 227.0, defenders lost 0.4, at the defence 3-14 33.0
+(75 s)
+-- no charcoal: T15a 41 % fewer (x1.0 41 %, x1.5 42 %, x2.0 40 %), beacons lost in the pairs 165
+   T15b PASS x1.0 whole runs, seeds 1-10: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 10 of 10 (target all); it fell on nights [20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+   T15 wager PASS x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 10 against 10, 428 creatures at its defence on nights 3-14 against 443 (target: none, at least as often, no more: never a trap)
+   T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 165 creatures reach its defence on nights 3-14 against 106 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 2 against 10, defenders lost 64 against 0
+   T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 2 against 10, 165 creatures at its defence against 443: does not beat it on all three
+   T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 10 against 10, held all four by night 16 in 0 of 10 (all four from nights [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), 443 creatures at its defence on nights 3-14 against 443 (target for the build 3 join: none, at least 9 of 10, most seeds)
+   T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+   forward x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 17, 18, 17, 18, 17, 18, 18, 17, 17], King slain 10, first loss [13, 14, 14, 13, 15, 13, 13, 13, 13, 13], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.1, relit 0.5, beacon gold 70.0, defenders lost 10.2, at the defence 3-14 42.8
+   neglect x1.0: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [20, 0, 16, 20, 20, 20, 17, 15, 18, 15], lost 13.7, relit 12.5, beacon gold 912.6, defenders lost 6.5, at the defence 3-14 15.1
+   outpost x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 2, first loss [6, 6, 6, 6, 6, 6, 6, 6, 6, 6], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 6.9, relit 5.7, beacon gold 386.4, defenders lost 6.4, at the defence 3-14 16.5
+   keeper x1.0: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], King slain 10, first loss [0, 0, 0, 0, 19, 0, 0, 0, 0, 0], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 0.1, relit 0.0, beacon gold 39.0, defenders lost 9.7, at the defence 3-14 44.3
+   forward x1.5: fell [17, 19, 19, 0, 17, 17, 0, 20, 17, 0], Great Beacon [0, 0, 0, 18, 0, 0, 18, 0, 0, 18], King slain 1, first loss [10, 8, 10, 10, 9, 10, 10, 8, 10, 10], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 1.3, relit 0.4, beacon gold 68.0, defenders lost 16.7, at the defence 3-14 95.7
+   neglect x1.5: fell [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], Great Beacon [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], King slain 0, first loss [5, 5, 4, 5, 5, 4, 5, 4, 4, 4], all four from [18, 20, 18, 20, 0, 18, 18, 18, 18, 18], lost 18.7, relit 16.9, beacon gold 982.6, defenders lost 7.0, at the defence 3-14 32.4
+   outpost x1.5: fell [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Great Beacon [15, 15, 15, 15, 15, 15, 15, 15, 15, 15], King slain 10, first loss [5, 5, 5, 5, 5, 5, 5, 5, 5, 5], all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], lost 7.8, relit 7.8, beacon gold 227.0, defenders lost 0.4, at the defence 3-14 33.0
+(82 s)
+
+== the price ladders against the builders' time (fix round 2, the critic's high H1; whole runs x1.0, seeds 1-10; nothing chosen moves: the director's note of 07:04, prices are turned at the build 3 join with the town's income)
+   careful: the forward bot (beacons at steps 10, 22, 22, 22 of the reference's order); bold: two before the Great Beacon (10, 19, 22, 22; the director's target: never costs the finale, the King slain at least 9 of 10); eager: all four before the Great Beacon (10, 13, 16, 19); keeper: the walls kept, the Great Beacon first, then every beacon it can afford (the critic's target: holds where the reference holds, the King at least 9 of 10, all four by night 16 in most seeds)
+   reference: the King 10 of 10, 443 creatures at its defence on nights 3-14, Great Beacon days [17, 16, 17, 16, 17, 15, 17, 16, 16, 16]
+-- prices 60, 90, 130, 180 (chosen), raise work 150 builder-seconds
+   careful: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/0.3/0.4, raised/relit 1.0/0.5, beacon gold 70.0, Great Beacon [17, 17, 18, 17, 18, 17, 18, 18, 17, 17], at the defence 3-14 428 against 443 (3 % fewer)
+   bold: fell where the reference held [], the King 6 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/1.4/0.2, raised/relit 1.9/0.3, beacon gold 147.0, Great Beacon [18, 17, 19, 18, 19, 18, 18, 19, 18, 18], at the defence 3-14 384 against 443 (13 % fewer); the director's target missed
+   eager: fell where the reference held [9], the King 3 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 2.0/0.8/0.4, raised/relit 2.1/0.4, beacon gold 171.0, Great Beacon [19, 19, 19, 18, 19, 18, 18, 19, 0, 19], at the defence 3-14 381 against 443 (14 % fewer)
+   keeper: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 0.0/0.0/0.5, raised/relit 0.6/0.0, beacon gold 39.0, Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], at the defence 3-14 443 against 443 (0 % fewer); the critic's target missed
+(84 s)
+-- prices 60, 90, 130, 180 (chosen), raise work 75 builder-seconds
+   careful: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/0.3/0.4, raised/relit 1.0/0.5, beacon gold 70.0, Great Beacon [17, 17, 18, 17, 18, 17, 18, 18, 17, 17], at the defence 3-14 428 against 443 (3 % fewer)
+   bold: fell where the reference held [], the King 6 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/1.4/0.2, raised/relit 1.9/0.3, beacon gold 147.0, Great Beacon [18, 17, 19, 18, 19, 18, 18, 19, 18, 18], at the defence 3-14 384 against 443 (13 % fewer); the director's target missed
+   eager: fell where the reference held [9], the King 3 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 2.0/0.8/0.4, raised/relit 2.1/0.4, beacon gold 171.0, Great Beacon [19, 19, 19, 18, 19, 18, 18, 19, 0, 19], at the defence 3-14 381 against 443 (14 % fewer)
+   keeper: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 0.0/0.0/0.5, raised/relit 0.6/0.0, beacon gold 39.0, Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], at the defence 3-14 443 against 443 (0 % fewer); the critic's target missed
+(85 s)
+-- prices 40, 60, 90, 120, raise work 150 builder-seconds
+   careful: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/0.4/1.0, raised/relit 1.1/1.1, beacon gold 61.4, Great Beacon [18, 17, 17, 18, 17, 17, 18, 16, 16, 16], at the defence 3-14 423 against 443 (5 % fewer)
+   bold: fell where the reference held [], the King 7 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/1.6/0.7, raised/relit 2.0/0.7, beacon gold 110.4, Great Beacon [18, 17, 18, 18, 18, 17, 19, 17, 17, 17], at the defence 3-14 375 against 443 (15 % fewer); the director's target missed
+   eager: fell where the reference held [], the King 5 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 2.5/1.0/0.3, raised/relit 2.5/0.6, beacon gold 154.6, Great Beacon [18, 19, 19, 19, 19, 20, 18, 19, 18, 19], at the defence 3-14 439 against 443 (1 % fewer)
+   keeper: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 0.0/0.0/1.3, raised/relit 1.4/0.2, beacon gold 66.8, Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], at the defence 3-14 443 against 443 (0 % fewer); the critic's target missed
+(87 s)
+-- prices 40, 60, 90, 120, raise work 75 builder-seconds
+   careful: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/0.4/1.0, raised/relit 1.1/1.1, beacon gold 61.4, Great Beacon [18, 17, 17, 18, 17, 17, 18, 16, 16, 16], at the defence 3-14 423 against 443 (5 % fewer)
+   bold: fell where the reference held [], the King 7 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/1.6/0.7, raised/relit 2.0/0.7, beacon gold 110.4, Great Beacon [18, 17, 18, 18, 18, 17, 19, 17, 17, 17], at the defence 3-14 375 against 443 (15 % fewer); the director's target missed
+   eager: fell where the reference held [], the King 5 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 2.5/1.0/0.3, raised/relit 2.5/0.6, beacon gold 154.6, Great Beacon [18, 19, 19, 19, 19, 20, 18, 19, 18, 19], at the defence 3-14 439 against 443 (1 % fewer)
+   keeper: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 0.0/0.0/1.3, raised/relit 1.4/0.2, beacon gold 66.8, Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], at the defence 3-14 443 against 443 (0 % fewer); the critic's target missed
+(89 s)
+-- prices 60, 75, 90, 90 (the far two cheaper), raise work 150 builder-seconds
+   careful: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/0.3/0.4, raised/relit 1.0/0.5, beacon gold 70.0, Great Beacon [17, 17, 18, 17, 18, 17, 18, 18, 17, 17], at the defence 3-14 428 against 443 (3 % fewer)
+   bold: fell where the reference held [], the King 6 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/1.4/0.2, raised/relit 1.9/0.4, beacon gold 135.5, Great Beacon [18, 17, 18, 18, 19, 18, 18, 18, 18, 18], at the defence 3-14 384 against 443 (13 % fewer); the director's target missed
+   eager: fell where the reference held [], the King 5 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 2.3/0.9/0.0, raised/relit 2.4/0.2, beacon gold 175.5, Great Beacon [19, 19, 19, 19, 19, 20, 19, 19, 18, 18], at the defence 3-14 410 against 443 (7 % fewer)
+   keeper: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 0.0/0.0/0.5, raised/relit 0.6/0.0, beacon gold 37.5, Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], at the defence 3-14 443 against 443 (0 % fewer); the critic's target missed
+(91 s)
+-- prices 60, 75, 90, 90 (the far two cheaper), raise work 75 builder-seconds
+   careful: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/0.3/0.4, raised/relit 1.0/0.5, beacon gold 70.0, Great Beacon [17, 17, 18, 17, 18, 17, 18, 18, 17, 17], at the defence 3-14 428 against 443 (3 % fewer)
+   bold: fell where the reference held [], the King 6 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/1.4/0.2, raised/relit 1.9/0.4, beacon gold 135.5, Great Beacon [18, 17, 18, 18, 19, 18, 18, 18, 18, 18], at the defence 3-14 384 against 443 (13 % fewer); the director's target missed
+   eager: fell where the reference held [], the King 5 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 2.3/0.9/0.0, raised/relit 2.4/0.2, beacon gold 175.5, Great Beacon [19, 19, 19, 19, 19, 20, 19, 19, 18, 18], at the defence 3-14 410 against 443 (7 % fewer)
+   keeper: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 0.0/0.0/0.5, raised/relit 0.6/0.0, beacon gold 37.5, Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], at the defence 3-14 443 against 443 (0 % fewer); the critic's target missed
+(93 s)
+-- prices 40, 50, 60, 70, raise work 150 builder-seconds
+   careful: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/0.4/1.3, raised/relit 1.6/1.1, beacon gold 86.4, Great Beacon [18, 17, 17, 18, 17, 17, 18, 16, 16, 16], at the defence 3-14 423 against 443 (5 % fewer)
+   bold: fell where the reference held [], the King 6 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/1.6/0.7, raised/relit 2.0/1.0, beacon gold 104.9, Great Beacon [18, 17, 18, 18, 18, 17, 19, 17, 17, 17], at the defence 3-14 374 against 443 (16 % fewer); the director's target missed
+   eager: fell where the reference held [], the King 6 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 2.7/1.3/0.6, raised/relit 2.7/0.9, beacon gold 146.1, Great Beacon [19, 18, 19, 18, 18, 18, 18, 20, 17, 19], at the defence 3-14 406 against 443 (8 % fewer)
+   keeper: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 0.0/0.0/1.5, raised/relit 1.6/0.4, beacon gold 76.2, Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], at the defence 3-14 443 against 443 (0 % fewer); the critic's target missed
+(95 s)
+-- prices 40, 50, 60, 70, raise work 75 builder-seconds
+   careful: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/0.4/1.3, raised/relit 1.6/1.1, beacon gold 86.4, Great Beacon [18, 17, 17, 18, 17, 17, 18, 16, 16, 16], at the defence 3-14 423 against 443 (5 % fewer)
+   bold: fell where the reference held [], the King 6 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/1.6/0.7, raised/relit 2.0/1.0, beacon gold 104.9, Great Beacon [18, 17, 18, 18, 18, 17, 19, 17, 17, 17], at the defence 3-14 374 against 443 (16 % fewer); the director's target missed
+   eager: fell where the reference held [], the King 6 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 2.7/1.3/0.6, raised/relit 2.7/0.9, beacon gold 146.1, Great Beacon [19, 18, 19, 18, 18, 18, 18, 20, 17, 19], at the defence 3-14 406 against 443 (8 % fewer)
+   keeper: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 0.0/0.0/1.5, raised/relit 1.6/0.4, beacon gold 76.2, Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], at the defence 3-14 443 against 443 (0 % fewer); the critic's target missed
+(97 s)
+-- prices 30, 45, 65, 90 (half), raise work 150 builder-seconds
+   careful: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/0.7/1.6, raised/relit 1.9/1.2, beacon gold 85.0, Great Beacon [16, 16, 17, 17, 18, 16, 18, 16, 16, 16], at the defence 3-14 376 against 443 (15 % fewer)
+   bold: fell where the reference held [], the King 8 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/1.6/1.1, raised/relit 2.0/1.4, beacon gold 91.5, Great Beacon [18, 17, 18, 18, 19, 17, 18, 17, 17, 17], at the defence 3-14 333 against 443 (25 % fewer); the director's target missed
+   eager: fell where the reference held [], the King 7 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 2.9/1.3/1.1, raised/relit 2.9/1.3, beacon gold 149.5, Great Beacon [18, 17, 19, 17, 18, 19, 18, 18, 17, 19], at the defence 3-14 385 against 443 (13 % fewer)
+   keeper: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 0.0/0.0/1.6, raised/relit 1.8/0.4, beacon gold 71.0, Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], at the defence 3-14 443 against 443 (0 % fewer); the critic's target missed
+(99 s)
+-- prices 30, 45, 65, 90 (half), raise work 75 builder-seconds
+   careful: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/0.7/1.6, raised/relit 1.9/1.2, beacon gold 85.0, Great Beacon [16, 16, 17, 17, 18, 16, 18, 16, 16, 16], at the defence 3-14 376 against 443 (15 % fewer)
+   bold: fell where the reference held [], the King 8 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 1.0/1.6/1.1, raised/relit 2.0/1.4, beacon gold 91.5, Great Beacon [18, 17, 18, 18, 19, 17, 18, 17, 17, 17], at the defence 3-14 333 against 443 (25 % fewer); the director's target missed
+   eager: fell where the reference held [], the King 7 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 2.9/1.3/1.1, raised/relit 2.9/1.3, beacon gold 149.5, Great Beacon [18, 17, 19, 17, 18, 19, 18, 18, 17, 19], at the defence 3-14 385 against 443 (13 % fewer)
+   keeper: fell where the reference held [], the King 10 of 10, all four from [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (by night 14: 0, by 16: 0), burning at the horn of nights 10/14/20 0.0/0.0/1.7, raised/relit 1.8/0.4, beacon gold 71.0, Great Beacon [17, 16, 17, 16, 17, 15, 17, 16, 16, 16], at the defence 3-14 443 against 443 (0 % fewer); the critic's target missed
+(101 s)
+
+beaconsweep: done (101 s)
+beaconsweep: exit 0 after 143 s
