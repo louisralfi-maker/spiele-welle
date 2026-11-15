@@ -586,7 +586,7 @@ Touch the ground and he walks there. Drag and he walks as before.
 | a damaged wall at night (`tapRepair`, its price in the slip) | walks to it | the slip stays over the wall with the price; a **second touch pays** (the director's note of 14.11. 14:35); refused while the gold or the cooldown says no |
 | the barracks (`tapRecruit`) | walks to it | the recruit card |
 | a cold brazier at night (`tapLight`) | walks to it | he lights it |
-| the hall's door, from either side (`tapDoor`, the seventh mark) | walks to it | the stage changes (the world, the great hall) |
+| the hall's door, from either side (`tapDoor`, the seventh mark; in the world where the facade paints it, `HallDoor`) | walks to it | the stage changes (the world, the great hall) |
 | the tax lectern in the hall (no mark; until the town lane's taxes on foot) | walks to it | the tax card |
 | the ground, or a thing that offers nothing now | walks to that x (in the hall inside the floor, short of the way out) | stands |
 | the lord himself | nothing (stage-3 gives the tap the lantern moment) | |
@@ -598,14 +598,16 @@ Touch the ground and he walks there. Drag and he walks as before.
   his walk; the director's note 3 of 14.11.); a second tap on the thing he walks to makes him run (80). The reference
   bots keep their own pace (they never touch the world).
 - **While he walks to it** a slip above the thing's mark says what he is about to do and what it costs ("Repair the
-  wall" and the coin with 10, its figure red while the treasury cannot pay). A tap anywhere else, or a drag, calls him
+  wall" and the coin with 10, a site's or the barracks' cheapest price; its figure red while the treasury cannot
+  pay). A tap anywhere else, or a drag, calls him
   off.
 - **Tap or drag:** a touch that never moves more than 10 pt is a tap, however long it lasts. Past 10 pt it is a drag
   anywhere on the screen: he walks toward the drag, runs past 40 pt, stops when the finger lifts.
 - **Pressed:** with the finger down on a thing its mark shows the pressed frame and its pool brightens (1.4 times).
   On the lift the light haptic ticks (`touched`) and he sets off. If the finger slides off, the mark goes back to idle.
 - **Raise the lantern** (the director's note 3): at night a press and hold on the lord (0.35 s) lifts the house's
-  lantern over his head: its light grows to 96 px for 3 s and every creature it lights flinches (stops and backs away
+  lantern over his head (the pole lifted high: the command frames; a flare on the glass and a ring of light at the
+  growing light's edge for its first 0.45 s, fix round 1): its light grows to 96 px for 3 s and every creature it lights flinches (stops and backs away
   for 1.2 s; a boss only stops, for 0.6 s); then the flame gutters (24 px for 8 s); it is ready again 30 s after the
   raise, and a small flame over the lantern's glass shows it. A medium haptic and the fire's sound pitched up. By day a
   hold does nothing. `Core/LanternRaise.swift`; the bots never raise it, so T1 to T8 hold step for step.
@@ -629,11 +631,16 @@ Touch the ground and he walks there. Drag and he walks as before.
 - **The marks:** over every thing in view that offers something, at most four, the nearest to the lord first (the
   errand's thing always among them); at most two of them over building sites, and a site's only while the treasury
   can pay something on its card (the first sweep: four hammers in a row at the gate read as the banner posts they
-  replaced); of a row of damaged walls only the nearest carries one; a tag that would overlap a nearer one gives way;
-  a door's mark rests while he stands within 40 px of it (he just came through it). Drawn unlit; at night at
-  three quarters of their value and warmed (M11). A pool of warm light (radius 20, 0.7) at the thing's feet, a scene
-  light that only shows after dusk. No rim yet (the spec's gold outline is open). Nothing bobs or blinks. The old
-  speech marks and the throne's pulsing mark are gone in the game.
+  replaced); of a row of damaged walls only the nearest carries one; of sites or cold braziers closer than 40 px
+  only the nearest (fix round 1); a tag that would overlap a nearer one gives way; a door's mark rests while he stands
+  within 40 px of it (he just came through it); no mark while its thing's centre is within 30 px of the screen's edge
+  (fix round 1). **One height band** (fix round 1): over a building, a wall, a brazier or the barracks the tip stands
+  at most 30 px over the walk line, at the door, never at the crown. An empty plot shows its **footing** (two stakes,
+  a cord, a chalk line) while its mark shows. The barracks are marked only while a recruit can be paid. Drawn unlit;
+  at night at three quarters of their value and warmed (M11). A pool of warm light (radius 20, 0.7) at the thing's
+  feet, a scene light that only shows after dusk, and the **gold rim** one pixel outside the marked thing's outline
+  at its left, right and top (fix round 1; brighter while pressed). Nothing bobs or blinks. The old speech marks and
+  the throne's pulsing mark are gone in the game.
 - **First minute:** one slip, once (a new realm's first day, 10 s or until the first touch): "Touch what the lord
   shall do." (`touch.first`, with the lord's form). The first mark is the lesson.
 
@@ -3517,6 +3524,57 @@ plot markers no longer drawn, M6).
   door); after its sweep Odile's counsel moved under the letter: `lh-s2-6` build, ui Hall, Audience and Lord ALL
   PASSED on 6c34ef0 (the slip stood on the plaques), `lh-s2-7` the same on f54ab50 (the letter keeps its own
   height).
+
+#### Step stage-2, fix round 1: after the art director's first look
+
+The critic's look 1 (6.5 of 10, `ci-out/director/stage-2-touch-critic1.md`): two blockers, nine highs. The new pure
+parts are in `Core/TouchCraft.swift` (`HallDoor`, the band, the edges, the groups, `TouchFooting`, `TouchRims`,
+`LanternFlare`), the model's side in `App/GameModel+Touch.swift`, the tests in `Tests/TouchCraftTests.swift`. Small
+marked hooks in shared files: `EmissiveInstance.Kind.rim` (FrameDesc), its quad in `Renderer` and its mode in
+`Shaders.metal`, `EntityGlow.kind` and its grown quad (EntityFrames), three launch arguments (DebugArgs, GameStart),
+`door:` in the scene's value (GameModel).
+
+- **Blocker 1, the hall door:** the target `touch-door-hall`, its mark, his standing place and where he comes out
+  stood at a fixed x 1830, over the hall front's middle window; the painted door is at 1747. `HallLayout.worldDoorX`
+  now reads the facade's own anchor (`HallDoor.paintedX`: the middle of the line of light under its door,
+  `CastleRooms.hallFrontMasks`), so all four follow the door. **At the join** the world lane's forebuilding brings
+  its door at `SceneLayout.castleHallDoorX` (1830): `HallDoor.paintedX` then reads that (one line), and the join's
+  gate is 130 and 143 showing the mark over the door and the lord in the doorway. The tests stand at the door
+  wherever it is (`-GWCameraX hallDoor`, `hallDoor+80`), and 143 checks `kx` against the scene's `door:`.
+- **Blocker 2, the night in pictures:** the night of seed 2 had no damaged wall. `-GWDamage <plot>` (45 % of its
+  strength) and `-GWSnuff <plot>` (a cold brazier) force it: night 3 with the gate damaged and the brazier before it
+  cold beside its lit twin: `152-touch-front-night` (the light's and the repair's marks at three quarters, warm, next
+  to real fire), `153c-touch-light` (the slip over the cold brazier while he hurries), `153-touch-wall-price` (he waits
+  at the gate under its price), `153b-touch-wall-paid` (the second touch paid), `153a-touch-wall-short` (no gold: the
+  price red).
+- **High 1, marks without a ground:** an empty plot shows its **footing** while its mark shows: two stakes 4 px high
+  at its ends, a cord between their tops sagging a pixel, a chalk line on the lane (lit, part of the world, behind
+  every figure; its width is what its first building would cover, 8 to 24 px each way). **One height band:** over a
+  building, a wall, a brazier or the barracks the mark's tip stands at most 30 px over the walk line (its top at 48),
+  at the building's door, never at its crown; the building still answers a touch up to its top. People keep their
+  mark over the head (33), the door over its arch (43).
+- **High 2, the rim:** the gold rim on the marked thing, as SPRITES.md asks: one pixel outside the sprite's outline at
+  its left, right and top, unlit, added in the emissive pass (`EmissiveInstance.Kind.rim`, the shader reads the
+  sprite's alpha), at 0.62 of `gold` and 1.15 while the finger is down, at night warmed and at three quarters like the
+  marks. In the world on the entity props of a marked plot, wall, brazier or the barracks and round a marked person;
+  in the hall round a person with a word, the bench whose first in line is marked, and the throne. The door has
+  none (it is part of the facade). The marks' corners and outline are the parchment tag's look: not touched, by the
+  director's note of 15.11. 01:09 (the night glass reskin comes in one place).
+- **High 3, cut marks:** a mark shows only while its thing's centre lies 30 px inside the view (the errand's too).
+- **High 4, missing pictures:** `159-touch-pressed` (`-GWPressed nearest` holds the nearest mark pressed: a finger
+  held down cannot be photographed by the UI test), `156-touch-hall-walk` taken again in its own launch (from the
+  second bench, 0.7 s after the touch, before the card; then the test waits the card's fade out).
+- **High 5, the barracks:** marked only while a recruit can be paid (`RecruitCard`); its slip names the cheapest.
+- **High 6, "Next petitioner":** an inked plaque with teal words and rule (`TealPlaqueButtonStyle`) instead of the
+  wax red in the old button's corner.
+- **High 7, raise the lantern:** he lifts the pole high (the strip's command frames 8 and 9, held while it is
+  raised and he stands; the light on the lifted glass), the light at 2.2 times falling to 1.6, a flare on the glass
+  and a one-pixel ring of warm light at the growing light's edge for the first 0.45 s (none with Reduce Motion);
+  `158-touch-lantern-raised` right after the lift, `158b-touch-lantern-held` a second later. The street lanterns no
+  longer brighten with his (only the lantern on his glass does).
+- **High 8, the slip and the pair of hammers:** a site's slip names its cheapest price with the coin (none for a
+  gift); of sites (and cold braziers) closer than 40 px only the nearest carries a mark.
+- **High 9, German:** answered by the director's note of 14.11. 19:35 (build 2 is English only; no German round).
 
 ## Risks
 

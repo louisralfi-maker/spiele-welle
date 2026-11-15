@@ -659,7 +659,17 @@ the interface's ink and gold (docs/UI-look.md) that floats above a thing the lor
 - **Texture space:** the seven strips (210x18 together) lie on the hall's page (`tapDoor` in a shelf that had room).
 - **In the game (step stage-2):** drawn as emissive actors after every figure; at night their tint is
   (0.78, 0.69, 0.53) of the drawing (M11); at most four in view. The pool is a `window` light (it fades in at dusk);
-  in the hall it burns at 0.4 by day. The rim is not drawn yet.
+  in the hall it burns at 0.4 by day. **The rim** (fix round 1 of step stage-2, 15.11.2026): built as specced, by the
+  engine from the sprite's alpha (`EmissiveInstance.Kind.rim`: the quad is the cell grown by one texel left, right
+  and up; the shader lights the clear texels beside the outline, never the sprite), added in the emissive pass at
+  0.62 of `gold`, 1.15 while pressed, warmed and at three quarters at night like the marks. Over a marked plot's,
+  wall's, brazier's or the barracks' entity props, round a marked person, round a marked bench and the throne in the
+  hall; not on the hall's door (it is part of the facade). Its mark keeps to one band over buildings (the tip at most
+  30 px over the walk line).
+- **The footing of an empty plot (fix round 1, no sprite):** while an empty plot's mark shows, two stakes (1 x 4 px,
+  wood) at the ends of what its first building would cover, a cord between their tops (sagging a pixel over the middle
+  half) and a chalk line on the lane's top row (two on, one off), drawn lit from the `hallMote` texel behind every
+  figure, so the hammer has a ground under it. The atlas gains nothing.
 - **The open inner door (step stage-2, no sprite):** for 0.45 s after he came in by the inner door and while he goes
   out through it, the hall draws the left leaf swung in (a 3 px strip of oak against the jamb) and the gap beyond it
   (15 x 45 px of the bailey's dark, hall rows 124 to 169) with a 2 px sliver of cold light at its edge (the day's, the

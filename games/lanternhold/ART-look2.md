@@ -1778,3 +1778,22 @@ world", step stage-1). The art is used as painted; the engine adds its light, it
   a sliver of cold light in the gap, for the moment after he came in and while he goes out.
 - **Open:** the gold rim round a thing that offers something (SPRITES.md asks for it; not drawn); the marks are still
   parchment tags (the night glass reskin comes in one place at stage-3 or the join, director's note of 15.11. 01:09).
+
+### 21.7 Step stage-2, fix round 1 (the critic's look 1, 6.5/10; 15.11.2026)
+
+- **The gold rim is drawn:** one pixel of `gold` outside the marked thing's outline at its left, right and top, at
+  0.62 of its value (1.15 pressed), so it reads as a warm edge on stone and timber by day without becoming the
+  brightest line on screen; at night (0.78, 0.69, 0.53) of that, like the tags, and still below the fires. It is
+  what ties a tag to its thing: the tag says what, the rim says which.
+- **The footing of an empty plot:** wood (0.40, 0.26, 0.18) stakes, a cord of (0.62, 0.55, 0.42), a chalk line of
+  (0.80, 0.77, 0.68) on the lane; lit like the world, so it is dim at dusk and gone into the dark at night with the
+  plot. Nothing on the ground glows.
+- **One height band:** the tags over buildings hang at the door's height (their tip at most 30 px over the walk
+  line), a head over the townsfolk's tags, so a row of marks reads as one line across the screen and no tag sits on a
+  battlement.
+- **Raise the lantern:** the command frames (the pole lifted high), a flare of fireWhite on the glass and a one-pixel
+  ring of fireGold at the growing light's edge for 0.45 s, the light at 2.2 times falling to 1.6.
+- **Next petitioner:** teal ink on an inked plaque like the choices, no longer a red wax button in the old action
+  button's corner.
+- **Not touched:** the tags' corners and outline (the critic asked to round them by a pixel and soften the outline):
+  they are the parchment look, which the night glass replaces in one place (director's note of 15.11. 01:09).
