@@ -63,7 +63,8 @@ final class SimDriverPhaseTests: XCTestCase {
             for (index, count) in run(&driver, frames).enumerated() {
                 fed += frames[index]
                 stepped += count
-                XCTAssertEqual(Double(stepped) * SimDriver.step, fed, accuracy: SimDriver.step,
+                // Within half a step, which only the half-step phase gives (a start at 0 lags up to a whole step).
+                XCTAssertEqual(Double(stepped) * SimDriver.step, fed, accuracy: SimDriver.step / 2 + 1e-9,
                                "\(name), frame \(index): game time keeps to real time")
             }
             XCTAssertEqual(driver.steps, stepped, name)
