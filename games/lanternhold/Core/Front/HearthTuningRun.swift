@@ -13,8 +13,12 @@ struct HearthMend: Sendable, Equatable {
     var dead = 0
     var goldTaken = 0
     var happinessLost = 0
-    /// Walls the careless night took (the battle's own damage, as under the old rules).
+    /// Walls the careless night took (the battle's own damage, as under the old rules), and of them the walls put up
+    /// again at no cost (a realm's first broken night, `HearthTuning.firstBreachRaisesWalls`).
     var wallsLost = 0
+    var wallsRaised = 0
+    /// The purse at the broken dawn (what the realm builds up again with).
+    var purse = 0
     /// Dawns after the broken dawn until the fire burnt bright again, until every burnt place stood again, and until
     /// both (nil: not within the days played).
     var brightAfter: Int?
@@ -31,6 +35,40 @@ struct HearthMend: Sendable, Equatable {
     var tally = HearthBotTally()
 }
 
+/// What a breach does to the fire, for the comparisons of T14's second half: `HearthTuning.breachSteps` and
+/// `breachCeiling`.
+struct HearthRule: Sendable, Equatable {
+    var steps: Int
+    var ceiling: HearthLevel?
+
+    init(steps: Int, ceiling: HearthLevel? = nil) {
+        self.steps = steps
+        self.ceiling = ceiling
+    }
+
+    /// The spec's starting value: one step a breach.
+    static let oneStep = HearthRule(steps: 1)
+    /// The chosen rule: two steps a breach (bright to embers, low and embers to out).
+    static let twoSteps = HearthRule(steps: 2)
+    /// The other rule (front-2 fix round 1, high 1, option b): a breach drops the fire to embers, at embers it goes out.
+    static let toEmbers = HearthRule(steps: 1, ceiling: .embers)
+    static let compared = [oneStep, twoSteps, toEmbers]
+
+    var name: String {
+        if let ceiling { return "\(steps) step\(steps == 1 ? "" : "s") down to \(ceiling.rawValue) at most" }
+        return "breachSteps \(steps)"
+    }
+
+    func matches(_ tuning: HearthTuning) -> Bool { tuning.breachSteps == steps && tuning.breachCeiling == ceiling }
+
+    func applied(to balance: Balance) -> Balance {
+        var b = balance
+        b.front.hearth.breachSteps = steps
+        b.front.hearth.breachCeiling = ceiling
+        return b
+    }
+}
+
 /// Two careless nights within three (T14's second half): the fire after each dawn and whether the realm fell.
 struct HearthDouble: Sendable, Equatable {
     var seed: Int
@@ -39,8 +77,10 @@ struct HearthDouble: Sendable, Equatable {
     var gap: Int
     /// The bot fed the fire on the days between.
     var feeds: Bool
+    /// What a breach does in the run.
+    var rule: HearthRule
     /// `HearthTuning.breachSteps` of the run.
-    var steps: Int
+    var steps: Int { rule.steps }
     /// Both careless nights broke (else the pattern did not happen and the row says so).
     var bothBroke = false
     /// Every broken night of the run (a night between can break too, when the first left the gate open).
@@ -92,9 +132,10 @@ struct HearthMetrics: Sendable {
 
     /// T14's second half as written, for the doubles of one setting: how many whose two careless nights broke ended
     /// the realm.
-    func twoInThreeEnd(steps: Int, feeds: Bool, gap: Int? = nil) -> (ended: Int, of: Int) {
+    func twoInThreeEnd(steps: Int, feeds: Bool, gap: Int? = nil, ceiling: HearthLevel? = nil) -> (ended: Int, of: Int) {
         let set = doubles.filter {
-            $0.steps == steps && $0.feeds == feeds && $0.bothBroke && (gap == nil || $0.gap == gap)
+            $0.rule == HearthRule(steps: steps, ceiling: ceiling) && $0.feeds == feeds && $0.bothBroke
+                && (gap == nil || $0.gap == gap)
         }
         return (set.filter { $0.fell }.count, set.count)
     }
@@ -102,9 +143,9 @@ struct HearthMetrics: Sendable {
     /// T14's second half at `steps`: a careless bot (no wood) that lets two nights within three break loses the realm,
     /// and so does one that breaks two in a row with wood between; one that holds the night between and feeds the fire
     /// back to bright may go on (reported).
-    func passesTwoInThree(steps: Int) -> Bool {
-        let unfed = twoInThreeEnd(steps: steps, feeds: false)
-        let fedInARow = twoInThreeEnd(steps: steps, feeds: true, gap: 1)
+    func passesTwoInThree(steps: Int, ceiling: HearthLevel? = nil) -> Bool {
+        let unfed = twoInThreeEnd(steps: steps, feeds: false, ceiling: ceiling)
+        let fedInARow = twoInThreeEnd(steps: steps, feeds: true, gap: 1, ceiling: ceiling)
         return unfed.of > 0 && unfed.ended == unfed.of && fedInARow.of > 0 && fedInARow.ended == fedInARow.of
     }
 
@@ -133,22 +174,24 @@ struct HearthMetrics: Sendable {
         lines.append("  a broken night's cost (mean): burnt \(HearthMetrics.mean(b.map { $0.burnt })), dead "
                      + "\(HearthMetrics.mean(b.map { $0.dead })), gold \(HearthMetrics.mean(b.map { $0.goldTaken })), "
                      + "happiness \(HearthMetrics.mean(b.map { $0.happinessLost })), walls lost "
-                     + "\(HearthMetrics.mean(b.map { $0.wallsLost }))")
+                     + "\(HearthMetrics.mean(b.map { $0.wallsLost })), raised for nothing "
+                     + "\(HearthMetrics.mean(b.map { $0.wallsRaised })), the purse at the broken dawn "
+                     + "\(HearthMetrics.mean(b.map { $0.purse }))")
         lines.append("  after \(HearthMetrics.mendDays) days against the costless twin (mean): gold "
                      + "\(HearthMetrics.mean(b.map { $0.goldGap })), happiness \(HearthMetrics.mean(b.map { $0.happinessGap }))"
                      + ", citizens \(HearthMetrics.mean(b.map { $0.citizensGap })); wood bought "
                      + "\(HearthMetrics.mean(b.map { $0.tally.feeds })), rebuilds \(HearthMetrics.mean(b.map { $0.tally.rebuilds }))"
                      + "; broke again \(b.filter { $0.laterBreaks > 0 }.count), fell later "
                      + "\(b.filter { $0.fellLater }.count)")
-        var settings: [(Int, Bool)] = []
-        for d in doubles where !settings.contains(where: { $0.0 == d.steps && $0.1 == d.feeds }) {
-            settings.append((d.steps, d.feeds))
+        var settings: [(HearthRule, Bool)] = []
+        for d in doubles where !settings.contains(where: { $0.0 == d.rule && $0.1 == d.feeds }) {
+            settings.append((d.rule, d.feeds))
         }
-        settings.sort { ($0.0, $0.1 ? 1 : 0) < ($1.0, $1.1 ? 1 : 0) }
-        for (steps, feeds) in settings {
-            let all = doubles.filter { $0.steps == steps && $0.feeds == feeds }
-            var row = "T14b \(passesTwoInThree(steps: steps) ? "PASS" : "FAIL") two broken nights within three, "
-            row += "breachSteps \(steps)\(steps == tuning.breachSteps ? " (chosen)" : ""), \(feeds ? "fed" : "no wood") between: "
+        for (rule, feeds) in settings {
+            let all = doubles.filter { $0.rule == rule && $0.feeds == feeds }
+            let pass = passesTwoInThree(steps: rule.steps, ceiling: rule.ceiling)
+            var row = "T14b \(pass ? "PASS" : "FAIL") two broken nights within three, "
+            row += "\(rule.name)\(rule.matches(tuning) ? " (chosen)" : ""), \(feeds ? "fed" : "no wood") between: "
             for gap in [1, 2] {
                 let set = all.filter { $0.gap == gap && $0.bothBroke }
                 let ended = set.filter { $0.fell }.count
@@ -164,7 +207,7 @@ struct HearthMetrics: Sendable {
             lines.append(row)
         }
         lines.append("")
-        lines.append("careless nights: seed.night broke before>after | burnt dead gold happiness walls | bright, "
+        lines.append("careless nights: seed.night broke before>after | burnt dead gold happiness walls purse | bright, "
                      + "rebuilt, mended after | gaps gold happiness citizens | wood rebuilds")
         for m in mends {
             var row = "  \(m.seed).\(m.night) "
@@ -173,7 +216,8 @@ struct HearthMetrics: Sendable {
                 continue
             }
             row += "\(m.before.rawValue)>\(m.after.rawValue)\(m.fell ? " FELL" : "") | \(m.burnt) \(m.dead) "
-            row += "\(m.goldTaken) \(m.happinessLost) \(m.wallsLost) | \(m.brightAfter.map(String.init) ?? "-"), "
+            row += "\(m.goldTaken) \(m.happinessLost) \(m.wallsLost)\(m.wallsRaised > 0 ? "/\(m.wallsRaised) raised" : "") "
+            row += "purse \(m.purse) | \(m.brightAfter.map(String.init) ?? "-"), "
             row += "\(m.rebuiltAfter.map(String.init) ?? "-"), \(m.mendedAfter.map(String.init) ?? "-") | "
             row += "\(m.goldGap) \(m.happinessGap) \(m.citizensGap) | \(m.tally.feeds) \(m.tally.rebuilds)"
             if m.laterBreaks > 0 { row += " | broke again \(m.laterBreaks)\(m.fellLater ? ", fell" : "")" }
@@ -183,7 +227,8 @@ struct HearthMetrics: Sendable {
             lines.append("")
             lines.append("doubles: seed.night gap steps wood | the fire at each dawn")
             for d in doubles {
-                var row = "  \(d.seed).\(d.night) +\(d.gap) x\(d.steps) \(d.feeds ? "fed" : "unfed") | "
+                var row = "  \(d.seed).\(d.night) +\(d.gap) x\(d.steps)\(d.rule.ceiling.map { "<=\($0.rawValue)" } ?? "") "
+                row += "\(d.feeds ? "fed" : "unfed") | "
                 row += d.levels.map { $0.rawValue }.joined(separator: " > ")
                 if d.fell { row += " FELL" }
                 if d.breaks > 2 { row += " (\(d.breaks) broken nights)" }
@@ -283,6 +328,8 @@ enum HearthTuningRun {
             m.dead = report.dead.count
             m.goldTaken = report.goldTaken
             m.happinessLost = report.happinessLost
+            m.wallsRaised = s.hearthFire?.lastBreak?.wallsRaised.count ?? 0
+            m.purse = s.gold
         } else if m.fell {
             m.broke = true
             m.before = s.hearthFire?.pending?.before ?? .bright
@@ -313,11 +360,10 @@ enum HearthTuningRun {
 
     /// Two careless nights from the eve of `eve.night`: the first on it, the second `gap` nights later, the nights
     /// between played well (with wood or without), at `steps` steps a breach.
-    static func double(_ eve: FrontEve, balance: Balance, stress: Double, gap: Int, feeds: Bool, steps: Int)
+    static func double(_ eve: FrontEve, balance: Balance, stress: Double, gap: Int, feeds: Bool, rule: HearthRule)
         -> HearthDouble {
-        var d = HearthDouble(seed: eve.seed, night: eve.night, gap: gap, feeds: feeds, steps: steps)
-        var b = balance
-        b.front.hearth.breachSteps = steps
+        var d = HearthDouble(seed: eve.seed, night: eve.night, gap: gap, feeds: feeds, rule: rule)
+        let b = rule.applied(to: balance)
         let caught = FrontTuningRun.stressed(b, stress)
         var s = eve.state
         Hearth.adopt(&s)
@@ -346,9 +392,9 @@ enum HearthTuningRun {
     }
 
     /// One seed's share of T14: its careless nights of `nights` and, with `doubles`, its two-in-three runs for each
-    /// `steps` value, both gaps, with and without wood, from `doubleNights`.
+    /// rule, both gaps, with and without wood, from `doubleNights`.
     static func runs(seed: Int, balance: Balance, nights: ClosedRange<Int>, stress: Double, doubles: Bool,
-                     doubleNights: [Int], doubleSteps: [Int]) -> (mends: [HearthMend], doubles: [HearthDouble]) {
+                     doubleNights: [Int], doubleRules: [HearthRule]) -> (mends: [HearthMend], doubles: [HearthDouble]) {
         var mends: [HearthMend] = []
         var pairs: [HearthDouble] = []
         let first = min(nights.lowerBound, doubles ? (doubleNights.min() ?? nights.lowerBound) : nights.lowerBound)
@@ -359,11 +405,11 @@ enum HearthTuningRun {
         }
         if doubles {
             for eve in eves where doubleNights.contains(eve.night) {
-                for steps in doubleSteps {
+                for rule in doubleRules {
                     for feeds in [false, true] {
                         for gap in [1, 2] {
                             pairs.append(double(eve, balance: balance, stress: stress, gap: gap, feeds: feeds,
-                                                steps: steps))
+                                                rule: rule))
                         }
                     }
                 }
@@ -376,11 +422,11 @@ enum HearthTuningRun {
     /// `doubleSeeds`, the two-in-three runs from `doubleNights` (`runs(seed:...)`).
     static func measure(balance: Balance = .standard, seeds: Int = defaultSeeds, nights: ClosedRange<Int> = defaultNights,
                         stress: Double = defaultStress, doubleSeeds: Int = 3, doubleNights: [Int] = [8, 11],
-                        doubleSteps: [Int] = [1, 2]) -> HearthMetrics {
+                        doubleRules: [HearthRule] = HearthRule.compared) -> HearthMetrics {
         var m = HearthMetrics(seeds: seeds, nights: nights, stress: stress, tuning: balance.front.hearth)
         for seed in 1...max(1, seeds) {
             let one = runs(seed: seed, balance: balance, nights: nights, stress: stress, doubles: seed <= doubleSeeds,
-                           doubleNights: doubleNights, doubleSteps: doubleSteps)
+                           doubleNights: doubleNights, doubleRules: doubleRules)
             m.mends.append(contentsOf: one.mends)
             m.doubles.append(contentsOf: one.doubles)
         }
@@ -484,5 +530,152 @@ enum HearthTuningRun {
             }
         }
         return (oldLines, ruleLines, differences)
+    }
+}
+
+// MARK: - A thin realm (front-2 fix round 1, high 2)
+
+/// A thin realm under the hearth rule: the T14 bot with its build order cut short (`HearthBot.buildCap`) plays from day
+/// 1 at the game's own nights (or `stress` times them). Under the old rules it falls on some night; under the hearth
+/// rule that night breaks instead, and then two things are played: it plays on thin (does the fire go out, and is the
+/// morning before its first broken night kept when it does?), and, from the first broken dawn, it plays well (the
+/// whole build order, wood, rebuilds: does it mend within three days?).
+struct HearthThin: Sendable, Equatable {
+    var seed: Int
+    /// The build order stops after this many steps.
+    var cap: Int
+    var stress: Double
+    /// Old rules: the night the realm fell (0: it held to the last night played).
+    var oldFell = 0
+    /// Hearth rule, playing on thin: the first broken night (0: none), every broken night, the fire at each dawn from
+    /// the first broken night on, and the night the fire went out (0: not by the last night played).
+    var firstBreak = 0
+    var breaks: [Int] = []
+    var levels: [HearthLevel] = []
+    var wentOut = 0
+    /// When the fire went out: the morning before the first broken night was among the dawns kept (`DawnRing`).
+    var eveKept: Bool?
+    /// The first broken night: the purse at its dawn, the walls it took and those raised for nothing.
+    var purse = 0
+    var wallsLost = 0
+    var wallsRaised = 0
+    /// From the first broken dawn, played well: dawns until mended (fire bright, every burnt place standing), broken
+    /// nights, and whether it fell, within `HearthMetrics.mendDays`.
+    var wellMendedAfter: Int?
+    var wellBreaks = 0
+    var wellFell = false
+}
+
+extension HearthTuningRun {
+    /// The last night a thin realm is played to.
+    static let thinLastNight = 14
+
+    /// One thin realm (`HearthThin`): seed, build cap and the night's size.
+    static func thin(seed: Int, cap: Int, stress: Double = 1, balance: Balance, lastNight: Int = thinLastNight)
+        -> HearthThin {
+        var t = HearthThin(seed: seed, cap: cap, stress: stress)
+        let b = FrontTuningRun.stressed(balance, stress)
+        let start = GameState.newRealm(seed: UInt64(seed), balance: b)
+
+        // The old rules.
+        var old = start
+        var oldBot = HearthBot(day: .reference(), buildCap: cap)
+        while !old.defeated && old.nightNumber <= lastNight {
+            runToDawn(&old, balance: b, bot: &oldBot)
+        }
+        if old.defeated { t.oldFell = old.night.night }
+
+        // The hearth rule, playing on thin.
+        var s = start
+        Hearth.adopt(&s)
+        var bot = HearthBot(day: .reference(), buildCap: cap)
+        var ring = DawnRing(s, keep: b.front.hearth.dawnsKept)
+        var turning: (GameState, HearthBot)?
+        while s.nightNumber <= lastNight {
+            runToDawn(&s, balance: b, bot: &bot)
+            if s.defeated {
+                let night = s.night.night
+                t.breaks.append(night)
+                if t.firstBreak == 0 { t.firstBreak = night }
+                t.wentOut = night
+                t.levels.append(.out)
+                let eve = t.firstBreak
+                t.eveKept = ring.dawns.contains { $0.day <= eve }
+                break
+            }
+            ring.record(s, keep: b.front.hearth.dawnsKept)
+            if s.lastReport?.hearth?.broken == true, let night = s.lastReport?.night {
+                t.breaks.append(night)
+                if t.firstBreak == 0 {
+                    t.firstBreak = night
+                    t.purse = s.gold
+                    t.wallsLost = s.lastReport?.wallsLost.count ?? 0
+                    t.wallsRaised = s.hearthFire?.lastBreak?.wallsRaised.count ?? 0
+                    turning = (s, bot)
+                }
+            }
+            if t.firstBreak > 0 { t.levels.append(s.hearthFire?.level ?? .bright) }
+        }
+
+        // From the first broken dawn, played well.
+        if case var (well, wellBot)? = turning {
+            wellBot.playWell()
+            for day in 1...HearthMetrics.mendDays {
+                runToDawn(&well, balance: b, bot: &wellBot)
+                if well.defeated {
+                    t.wellFell = true
+                    t.wellBreaks += 1
+                    break
+                }
+                if well.lastReport?.hearth?.broken == true { t.wellBreaks += 1 }
+                let state = mended(well, balance: b)
+                if state.bright && state.rebuilt && t.wellMendedAfter == nil { t.wellMendedAfter = day }
+            }
+        }
+        return t
+    }
+
+    /// The thin realms' table and their summary per cap and size.
+    static func thinReport(_ thins: [HearthThin]) -> String {
+        var lines: [String] = []
+        var groups: [(Int, Double)] = []
+        for t in thins where !groups.contains(where: { $0.0 == t.cap && $0.1 == t.stress }) {
+            groups.append((t.cap, t.stress))
+        }
+        for (cap, stress) in groups {
+            let set = thins.filter { $0.cap == cap && $0.stress == stress }
+            let fellOld = set.filter { $0.oldFell > 0 }
+            let broke = set.filter { $0.firstBreak > 0 }
+            let out = broke.filter { $0.wentOut > 0 }
+            let kept = out.filter { $0.eveKept == true }.count
+            let well = broke.filter { !($0.wentOut > 0 && $0.wentOut == $0.firstBreak) }
+            let mended = well.filter { ($0.wellMendedAfter ?? Int.max) <= HearthMetrics.mendDays }
+            let wellFell = well.filter { $0.wellFell }.count
+            var row = "thin cap \(cap) x\(TuningRun.tenths(stress)), seeds 1-\(set.count): old rules fell "
+            row += "\(fellOld.count) (nights \(fellOld.map { String($0.oldFell) }.joined(separator: " "))); "
+            row += "the rule: broke \(broke.count), went out playing on thin \(out.count) (nights after the first broken "
+            row += "night: \(out.map { String($0.wentOut - $0.firstBreak) }.joined(separator: " "))), the morning before "
+            row += "the trouble kept \(kept) of \(out.count); played well from the first broken dawn: mended within "
+            row += "\(HearthMetrics.mendDays) days \(mended.count) of \(well.count), fell \(wellFell)"
+            lines.append(row)
+        }
+        lines.append("")
+        lines.append("thin realms: seed cap xN | old fell | first broken night (purse, walls lost/raised) | broken nights "
+                     + "| the fire at each dawn | out, eve kept | played well: mended after, broken, fell")
+        for t in thins {
+            var row = "  \(t.seed) cap \(t.cap) x\(TuningRun.tenths(t.stress)) | "
+            row += "\(t.oldFell == 0 ? "held" : "night \(t.oldFell)") | "
+            if t.firstBreak == 0 {
+                lines.append(row + "never broke")
+                continue
+            }
+            row += "night \(t.firstBreak) (purse \(t.purse), walls \(t.wallsLost)/\(t.wallsRaised)) | "
+            row += t.breaks.map(String.init).joined(separator: " ") + " | "
+            row += t.levels.map { $0.rawValue }.joined(separator: " > ") + " | "
+            row += t.wentOut > 0 ? "out night \(t.wentOut), eve kept \(t.eveKept == true ? "yes" : "NO")" : "stood"
+            row += " | \(t.wellMendedAfter.map(String.init) ?? "-"), \(t.wellBreaks), \(t.wellFell ? "fell" : "stood")"
+            lines.append(row)
+        }
+        return lines.joined(separator: "\n")
     }
 }

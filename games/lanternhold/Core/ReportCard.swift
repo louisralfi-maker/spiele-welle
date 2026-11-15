@@ -61,7 +61,10 @@ struct ReportCard: Sendable, Equatable {
         if report.night == finaleNight {
             banners.append(report.slewTheKing ? .kingSlain : .kingWithdrew)
         }
-        if !report.held { banners.append(.secondChance) }
+        // Front lane hook (docs/lanes/front.md "front-2"): a broken night's dawn was brought by the hearth, not the video.
+        if !report.held && (report.hearth?.broken != true || report.hearth?.rekindled == true) {
+            banners.append(.secondChance)
+        }
         if report.noLosses { banners.append(.noLosses) }
         var lines: [Int] = []
         for key in report.wallsLost {

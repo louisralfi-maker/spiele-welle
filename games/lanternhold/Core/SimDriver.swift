@@ -202,6 +202,7 @@ struct SimDriver: Sendable {
     /// up, every creature burns away and dawn comes at once. The new dawn is the snapshot the save writes.
     mutating func secondChance(events: inout [SimEvent]) {
         guard state.defeated else { return }
+        guard Hearth.secondChanceOffered(state, balance: balance) else { return }  // front lane hook ("front-2")
         Sim.secondChance(&state, balance: balance, events: &events)
         PetitionEngine.prepare(&state, catalog: petitions)
         accumulator = 0

@@ -21,13 +21,31 @@ struct HearthBot: Sendable {
     var feeds = true
     /// It has burnt places rebuilt.
     var rebuilds = true
+    /// A thin realm (front-2 fix round 1, high 2: the player who builds little): the reference's build order stops
+    /// after this many steps (nil: the whole order). It still rebuilds its rubble, hears petitions, patrols by night,
+    /// feeds the fire and has burnt places rebuilt; it recruits no more soldiers and builds nothing new.
+    var buildCap: Int?
     var tally = HearthBotTally()
 
-    init(day: Autoplay = .reference(), carelessNights: Set<Int> = [], feeds: Bool = true, rebuilds: Bool = true) {
+    init(day: Autoplay = .reference(), carelessNights: Set<Int> = [], feeds: Bool = true, rebuilds: Bool = true,
+         buildCap: Int? = nil) {
         self.day = day
         self.carelessNights = carelessNights
         self.feeds = feeds
         self.rebuilds = rebuilds
+        self.buildCap = buildCap
+    }
+
+    /// The thin player learns: the whole build order from where it stopped.
+    mutating func playWell() {
+        buildCap = nil
+        day.thinkTimer = 0
+    }
+
+    /// True while the build order is held back (a thin realm past its cap).
+    var holdsBack: Bool {
+        guard let cap = buildCap else { return false }
+        return day.cursor >= cap
     }
 
     /// Called before every sim step.
@@ -37,6 +55,11 @@ struct HearthBot: Sendable {
         if !isDay && carelessNights.contains(s.nightNumber) {
             walk(&s, to: Realm.throneX, dt: dt, balance: balance)
             return
+        }
+        if isDay && holdsBack {
+            // The reference's day plan stays asleep; its rubble rebuild (the gatehouse first) is done here.
+            rebuildRubble(&s, balance: balance, events: &events)
+            day.thinkTimer = 1e9
         }
         guard isDay, s.hearthFire != nil else {
             day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
@@ -70,6 +93,16 @@ struct HearthBot: Sendable {
         }
         day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
         if toHearth { walk(&s, to: Realm.hearthX, dt: dt, balance: balance) }
+    }
+
+    /// The reference's rubble rebuild (inner walls first, as `Autoplay` does): for a thin realm past its cap.
+    private func rebuildRubble(_ s: inout GameState, balance: Balance, events: inout [SimEvent]) {
+        for plot in Realm.wallsOuterFirst.reversed() {
+            let state = s.plots[plot]
+            guard state.isRubble, state.job == nil, let item = state.item else { continue }
+            if s.gold < Build.rebuildPrice(item, balance: balance) { return }
+            Build.order(&s, plot: plot, item: item, balance: balance, events: &events)
+        }
     }
 
     /// True while a wall lies in rubble with no rebuild ordered (the reference bot pays for those first).

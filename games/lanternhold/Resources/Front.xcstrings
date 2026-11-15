@@ -236,7 +236,7 @@
       }
     },
     "front.hearth.embers" : {
-      "comment" : "Dawn report, hearth half: the fire is down to embers (a broken night takes a bright fire there): one more broken night puts it out. Short and dry; the danger without saying it.",
+      "comment" : "Dawn report, hearth half: the fire is down to embers (a broken night takes a bright fire there): one more broken night puts it out. Short and dry; the danger without saying it. The stake follows as its own line (front.hearth.last).",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -249,6 +249,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Only embers glow in the hearth."
+          }
+        }
+      }
+    },
+    "front.hearth.gift" : {
+      "comment" : "The dawn after a broken night (front-2 fix 1; the ads lane's card at the join): the rewarded video's offer. Watching it pays the day's wood for the hearth; the lord still walks there and throws the log on. A button, short.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holz für den Herd"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wood for the hearth"
           }
         }
       }
@@ -271,8 +289,26 @@
         }
       }
     },
+    "front.hearth.last" : {
+      "comment" : "Dawn report, hearth half (front-2 fix 1): the stake, right after the fire's line, on every dawn the fire is frail (with two steps a breach: low and embers). If the creatures reach the hearth once more, the fire goes out and the realm falls. True after a broken night and after a held one alike; no number. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erreicht die Düsternis den Herd noch einmal, erlischt das Feuer."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If the Gloom reaches the hearth again, it goes out."
+          }
+        }
+      }
+    },
     "front.hearth.low" : {
-      "comment" : "Dawn report, hearth half: the fire burns low (one of four steps: bright, low, embers, out): after a held night raised it from embers, or after a breach took it there. Short and dry.",
+      "comment" : "Dawn report, hearth half: the fire burns low (one of four steps: bright, low, embers, out): after a held night raised it from embers, or after a breach took it there. Short and dry. While the fire is frail the stake follows as its own line (front.hearth.last).",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -308,7 +344,7 @@
       }
     },
     "front.hearth.rekindled" : {
-      "comment" : "Dawn report, hearth half: the fire went out and the second chance (a rewarded video) brought the dawn; it glows at embers now. Short and dry.",
+      "comment" : "Dawn report, hearth half: the fire went out and the second chance (a rewarded video) brought the dawn; it glows at embers now. Short and dry. Only if the director turns the video at out back on (HearthTuning.videoAtOut); off by default.",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -321,6 +357,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The hearth went out, and caught again."
+          }
+        }
+      }
+    },
+    "front.hearth.walls" : {
+      "comment" : "Dawn report, hearth half (front-2 fix 1): a realm's first broken night only. The walls the night left in rubble are being rebuilt at no cost; the builders are at them at first light. The town turning out after its first disaster. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eure Leute richten die Mauern wieder auf. Ohne Lohn."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your people raise the walls again. They ask no coin."
           }
         }
       }

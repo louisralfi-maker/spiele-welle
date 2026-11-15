@@ -12,6 +12,7 @@ func say(_ text: String) {
 
 let arguments = Array(CommandLine.arguments.dropFirst())
 let doVariants = arguments.contains("variants")
+let doEarly = !arguments.contains("noearly")
 var seeds = 10
 for argument in arguments where argument.hasPrefix("seeds=") { seeds = Int(argument.dropFirst(6)) ?? seeds }
 let nights = 6...14
@@ -24,13 +25,16 @@ let started = Date()
 func elapsed() -> String { "\(Int(Date().timeIntervalSince(started))) s" }
 
 /// T14 at `balance` and `stress`, the seeds side by side (3 cores on the runner).
-func measure(_ balance: Balance, stress: Double, doubles: Bool, steps: [Int] = [1, 2]) -> HearthMetrics {
-    var m = HearthMetrics(seeds: seeds, nights: nights, stress: stress, tuning: balance.front.hearth)
+func measure(_ balance: Balance, stress: Double, doubles: Bool, rules: [HearthRule] = HearthRule.compared,
+             over: ClosedRange<Int>? = nil, doublesFrom: [Int]? = nil) -> HearthMetrics {
+    let range = over ?? nights
+    let from = doublesFrom ?? doubleNights
+    var m = HearthMetrics(seeds: seeds, nights: range, stress: stress, tuning: balance.front.hearth)
     var parts = [([HearthMend], [HearthDouble])?](repeating: nil, count: seeds)
     DispatchQueue.concurrentPerform(iterations: seeds) { index in
-        let one = HearthTuningRun.runs(seed: index + 1, balance: balance, nights: nights, stress: stress,
-                                       doubles: doubles && index < doubleSeeds, doubleNights: doubleNights,
-                                       doubleSteps: steps)
+        let one = HearthTuningRun.runs(seed: index + 1, balance: balance, nights: range, stress: stress,
+                                       doubles: doubles && index < doubleSeeds, doubleNights: from,
+                                       doubleRules: rules)
         lock.lock()
         parts[index] = (one.mends, one.doubles)
         lock.unlock()
@@ -75,6 +79,65 @@ func variant(_ change: (inout HearthTuning) -> Void) -> Balance {
     var b = standard
     change(&b.front.hearth)
     return b
+}
+
+/// The thin realms of every seed for `caps` at `stress`, side by side.
+func thins(_ balance: Balance, caps: [Int], stress: Double) -> [HearthThin] {
+    var parts = [[HearthThin]?](repeating: nil, count: seeds)
+    DispatchQueue.concurrentPerform(iterations: seeds) { index in
+        var list: [HearthThin] = []
+        for cap in caps { list.append(HearthTuningRun.thin(seed: index + 1, cap: cap, stress: stress, balance: balance)) }
+        lock.lock()
+        parts[index] = list
+        lock.unlock()
+    }
+    var all: [HearthThin] = []
+    for cap in caps {
+        for part in parts.compactMap({ $0 }) { all.append(contentsOf: part.filter { $0.cap == cap }) }
+    }
+    return all
+}
+
+let unsoftened = variant { $0.firstBreachRaisesWalls = false }
+
+say("")
+say("== the first broken night without the walls raised for nothing (front-2 as it was; careless nights 6-14, x6)")
+say(head(measure(unsoftened, stress: 6, doubles: false)))
+say("(\(elapsed()))")
+
+say("")
+say("== the other rule: a breach drops the fire to embers, at embers it goes out (high 1, option b; careless x6)")
+say(head(measure(HearthRule.toEmbers.applied(to: standard), stress: 6, doubles: false)))
+say("(\(elapsed()))")
+
+if doEarly {
+    let early = 2...5
+    let earlyDoubles = [2, 3, 4]
+    for stress in [2.0, 3.0, 6.0] {
+        say("")
+        say("== early careless nights \(early.lowerBound)-\(early.upperBound), x\(TuningRun.tenths(stress)), the walls raised "
+            + "for nothing (the chosen values; the full table)")
+        say(measure(standard, stress: stress, doubles: stress == 3, rules: [.twoSteps], over: early,
+                    doublesFrom: earlyDoubles).report)
+        say("(\(elapsed()))")
+        say("")
+        say("== early careless nights \(early.lowerBound)-\(early.upperBound), x\(TuningRun.tenths(stress)), without "
+            + "(front-2 as it was; the full table)")
+        say(measure(unsoftened, stress: stress, doubles: false, over: early).report)
+        say("(\(elapsed()))")
+    }
+
+    let caps = [0, 2, 4, 6, 9]
+    for stress in [1.0, 1.5] {
+        say("")
+        say("== thin realms (the build order stops after a few steps), x\(TuningRun.tenths(stress)), the chosen values")
+        say(HearthTuningRun.thinReport(thins(standard, caps: caps, stress: stress)))
+        say("(\(elapsed()))")
+        say("")
+        say("== thin realms, x\(TuningRun.tenths(stress)), without the walls raised for nothing")
+        say(HearthTuningRun.thinReport(thins(unsoftened, caps: caps, stress: stress)))
+        say("(\(elapsed()))")
+    }
 }
 
 if doVariants {

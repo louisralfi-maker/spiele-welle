@@ -10,6 +10,8 @@ struct HearthFeedOffer: Sendable, Equatable {
     var affordable: Bool
     /// The lord stands at the hearth.
     var inReach: Bool
+    /// The rewarded video paid today's wood (`Hearth.giveWood`): the price is 0, the deed is the same.
+    var gift = false
 
     /// A touch would feed it now.
     var ready: Bool { !fedToday && affordable && inReach }
@@ -34,6 +36,10 @@ struct HearthPicture: Sendable, Equatable {
     /// The rule is on for this realm.
     var ruleOn: Bool
     var level: HearthLevel
+    /// If the creatures reach the hearth again the fire goes out (`Hearth.frail`; with two steps a breach, low and
+    /// embers alike). The picture draws a frail fire sputtering (a small flame that gutters, sparks that die, the hall's
+    /// light wavering); a fire that is not frail burns steady. The four looks then tell what a breach would leave.
+    var frail: Bool
     /// The hearth light's intensity by step (`HearthTuning.glow`): the renderer multiplies the hearth light by it, and
     /// the town's street lanterns burn as the hearth does (docs/TOWN.md section 7).
     var glow: Double
@@ -71,6 +77,19 @@ enum Hearth {
         if s.hearthFire == nil { s.hearthFire = HearthState() }
     }
 
+    /// The fire a breach leaves (`HearthTuning.breachSteps`, at most `breachCeiling`): with the chosen values bright to
+    /// embers, low and embers to out.
+    static func afterBreach(_ level: HearthLevel, tuning: HearthTuning) -> HearthLevel {
+        let dropped = level.lowered(by: max(1, tuning.breachSteps))
+        guard let ceiling = tuning.breachCeiling, ceiling > .out else { return dropped }
+        return min(dropped, ceiling)
+    }
+
+    /// The fire is frail: it burns, and a breach would put it out.
+    static func frail(_ level: HearthLevel, tuning: HearthTuning) -> Bool {
+        level > .out && afterBreach(level, tuning: tuning) == .out
+    }
+
     /// The Lightless King's night (night 20 of the chapter): the hearth reached ends the chapter as today.
     static func isKingsNight(_ s: GameState) -> Bool {
         Battle.boss(night: s.nightNumber) == .lightlessKing
@@ -96,10 +115,13 @@ enum Hearth {
         if isKingsNight(s) { return }
         let tuning = balance.front.hearth
         let before = fire.level
-        let after = before.lowered(by: max(1, tuning.breachSteps))
+        let after = afterBreach(before, tuning: tuning)
         var brk = HearthBreak(at: s.simTime, night: s.nightNumber, hour: s.night.defeatHour ?? s.hour, before: before,
                               after: after)
         takeCost(&s, &brk, balance: balance)
+        if tuning.firstBreachRaisesWalls && fire.brokenNights.isEmpty && after != .out {
+            brk.wallsRaised = raiseWalls(&s, balance: balance, events: &events)
+        }
         guard var marked = s.hearthFire else { return }
         marked.level = after
         marked.pending = brk
@@ -124,10 +146,11 @@ enum Hearth {
         // The dead.
         let rolled = rng.int(in: tuning.deadLeast...max(tuning.deadLeast, tuning.deadMost))
         let deadCount = max(0, min(s.taxpayers, rolled))
-        var used = Set(s.soldiers.map { $0.name })
+        let living = Set(s.soldiers.map { $0.name })
+        var used = living
         for entry in fire.dead { used.insert(entry.name) }
         for _ in 0..<deadCount {
-            let name = HearthNames.pick(&rng, avoiding: used)
+            let name = HearthNames.pick(&rng, avoiding: used, dead: fire.dead, living: living, night: brk.night)
             used.insert(name)
             brk.dead.append(name)
             fire.dead.append(HearthDead(name: name, night: brk.night))
@@ -170,6 +193,23 @@ enum Hearth {
         brk.happinessLost = mood - s.happiness
     }
 
+    /// A realm's first broken night (`HearthTuning.firstBreachRaisesWalls`): every wall in rubble gets its rebuild
+    /// ordered at no cost, the gatehouse first (the builders are at it at first light, as with a paid rebuild). Returns
+    /// the plots.
+    static func raiseWalls(_ s: inout GameState, balance: Balance, events: inout [SimEvent]) -> [Int] {
+        var raised: [Int] = []
+        for plot in Realm.wallsOuterFirst.reversed() {
+            let state = s.plots[plot]
+            guard state.isRubble, state.job == nil, let item = state.item else { continue }
+            s.orderCounter += 1
+            s.plots[plot].job = BuildJob(target: item, work: 0, total: Build.work(item, rebuild: true, balance: balance),
+                                         isRebuild: true, order: s.orderCounter)
+            events.append(.buildOrdered(plot: plot))
+            raised.append(plot)
+        }
+        return raised
+    }
+
     /// The taxpayers who live in each standing house, spread by room (largest remainder, so the parts add up; the
     /// people already sheltering in the chapel are not in it).
     static func households(_ s: GameState, balance: Balance) -> [Int: Int] {
@@ -201,8 +241,9 @@ enum Hearth {
     // MARK: - The dawn
 
     /// At the dawn report (`Sim.dawn`, after the report is made): a broken night's tally goes into `DawnReport.hearth`
-    /// (a fire that went out and was brought back by the second chance glows again at embers); after a night without a
-    /// breach the fire rises a step. Rebuilt places leave the burnt list.
+    /// (a fire that went out and was brought back by the second chance, only with `videoAtOut`, glows again at embers);
+    /// after a night without a breach the fire rises a step; a frail fire says so (`lastStand`). Rebuilt places leave the
+    /// burnt list.
     static func dawn(_ s: inout GameState, balance: Balance) {
         guard var fire = s.hearthFire else { return }
         let tuning = balance.front.hearth
@@ -215,6 +256,7 @@ enum Hearth {
             report.dead = brk.dead
             report.goldTaken = brk.goldTaken
             report.happinessLost = brk.happinessLost
+            report.wallsRaised = !brk.wallsRaised.isEmpty
             if fire.level == .out {
                 fire.level = max(.embers, tuning.secondChanceLevel)
                 report.rekindled = true
@@ -224,6 +266,7 @@ enum Hearth {
             fire.level = fire.level.raised(by: tuning.recoverSteps)
         }
         report.after = fire.level
+        report.lastStand = frail(fire.level, tuning: tuning)
         fire.pending = nil
         s.hearthFire = fire
         tidy(&s)
@@ -238,6 +281,36 @@ enum Hearth {
         if fire.burnt.count != before { s.hearthFire = fire }
     }
 
+    // MARK: - The rewarded video
+
+    /// Whether the fall card may offer the second chance (the rewarded video). Without the rule, and on the Lightless
+    /// King's night, as today. Under the rule the fire out is the end Louis named, so the card offers the kept mornings
+    /// and a new realm, and no video (`HearthTuning.videoAtOut` off); `SimDriver.secondChance` asks it too.
+    static func secondChanceOffered(_ s: GameState, balance: Balance) -> Bool {
+        guard s.defeated else { return false }
+        guard let fire = s.hearthFire, fire.level == .out, !isKingsNight(s) else { return true }
+        return balance.front.hearth.videoAtOut
+    }
+
+    /// Whether a broken night's dawn may offer the rewarded video for the day's wood (where the video went from the
+    /// fall card): the dawn after a broken night, the fire below bright and above out, not yet fed or gifted today.
+    /// The ads lane keeps its own pacing.
+    static func woodGiftOffered(_ s: GameState, balance: Balance) -> Bool {
+        guard let fire = s.hearthFire, !s.defeated, fire.level > .out, fire.level < .bright,
+              let report = s.lastReport, report.hearth?.broken == true, report.night == s.day - 1 else { return false }
+        return fire.fedDay != s.day && fire.woodGiftDay != s.day
+    }
+
+    /// The video watched: today's wood costs nothing (the lord still walks to the hearth and throws the log on). False
+    /// (and nothing changes) when it is not offered.
+    @discardableResult
+    static func giveWood(_ s: inout GameState, balance: Balance) -> Bool {
+        guard woodGiftOffered(s, balance: balance), var fire = s.hearthFire else { return false }
+        fire.woodGiftDay = s.day
+        s.hearthFire = fire
+        return true
+    }
+
     // MARK: - Wood
 
     /// What a touch on the hearth would do now; nil without the rule, after the fall, and while the fire is bright or
@@ -245,9 +318,11 @@ enum Hearth {
     static func feedOffer(_ s: GameState, balance: Balance) -> HearthFeedOffer? {
         guard let fire = s.hearthFire, !s.defeated, fire.level > .out, fire.level < .bright else { return nil }
         let tuning = balance.front.hearth
-        return HearthFeedOffer(price: tuning.feedPrice, level: fire.level, fedToday: fire.fedDay == s.day,
-                               affordable: s.gold >= tuning.feedPrice,
-                               inReach: abs(s.king.x - Realm.hearthX) <= tuning.feedReach)
+        let gift = fire.woodGiftDay == s.day
+        let price = gift ? 0 : tuning.feedPrice
+        return HearthFeedOffer(price: price, level: fire.level, fedToday: fire.fedDay == s.day,
+                               affordable: s.gold >= price,
+                               inReach: abs(s.king.x - Realm.hearthX) <= tuning.feedReach, gift: gift)
     }
 
     /// Feeds the fire (the count calls it when the last coin lands): one step, the price from the purse, once a day,
@@ -319,12 +394,13 @@ enum Hearth {
     /// Everything the picture reads in one frame.
     static func picture(_ s: GameState, balance: Balance) -> HearthPicture {
         guard let fire = s.hearthFire else {
-            return HearthPicture(ruleOn: false, level: .bright, glow: 1, ruins: [], sheltering: 0, lanternsLit: true,
-                                 feed: nil, lastBreak: nil, lastFeed: nil)
+            return HearthPicture(ruleOn: false, level: .bright, frail: false, glow: 1, ruins: [], sheltering: 0,
+                                 lanternsLit: true, feed: nil, lastBreak: nil, lastFeed: nil)
         }
         let glow = balance.front.hearth.glow
         let share = fire.level.rank < glow.count ? glow[fire.level.rank] : 1
-        return HearthPicture(ruleOn: true, level: fire.level, glow: share, ruins: ruins(s, balance: balance),
+        return HearthPicture(ruleOn: true, level: fire.level, frail: frail(fire.level, tuning: balance.front.hearth),
+                             glow: share, ruins: ruins(s, balance: balance),
                              sheltering: sheltering(s), lanternsLit: lanternsLit(s, balance: balance) && fire.level > .out,
                              feed: feedOffer(s, balance: balance), lastBreak: fire.lastBreak, lastFeed: fire.lastFeed)
     }

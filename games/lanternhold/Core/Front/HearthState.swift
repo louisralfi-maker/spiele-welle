@@ -41,9 +41,36 @@ struct HearthBreak: Codable, Sendable, Equatable {
     var happinessLost = 0
     /// The town's street lanterns burned this evening (one house fewer).
     var lanternsLit = true
+    /// The realm's first broken night put these walls up again at no cost (`HearthTuning.firstBreachRaisesWalls`).
+    var wallsRaised: [Int] = []
 
     /// This breach put the fire out: the realm fell.
     var wentOut: Bool { after == .out }
+
+    init(at: Double, night: Int, hour: Double, before: HearthLevel, after: HearthLevel) {
+        self.at = at
+        self.night = night
+        self.hour = hour
+        self.before = before
+        self.after = after
+    }
+
+    /// Every field with a default, so a field added later never makes a save corrupt.
+    init(from decoder: any Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        at = (try? c.decodeIfPresent(Double.self, forKey: .at)) ?? 0
+        night = (try? c.decodeIfPresent(Int.self, forKey: .night)) ?? 0
+        hour = (try? c.decodeIfPresent(Double.self, forKey: .hour)) ?? 0
+        before = (try? c.decodeIfPresent(HearthLevel.self, forKey: .before)) ?? .bright
+        after = (try? c.decodeIfPresent(HearthLevel.self, forKey: .after)) ?? .bright
+        burnt = (try? c.decodeIfPresent([HearthPlace].self, forKey: .burnt)) ?? []
+        dead = (try? c.decodeIfPresent([String].self, forKey: .dead)) ?? []
+        goldTaken = max(0, (try? c.decodeIfPresent(Int.self, forKey: .goldTaken)) ?? 0)
+        happinessLost = max(0, (try? c.decodeIfPresent(Int.self, forKey: .happinessLost)) ?? 0)
+        lanternsLit = (try? c.decodeIfPresent(Bool.self, forKey: .lanternsLit)) ?? true
+        let plots = 0..<Realm.plots.count
+        wallsRaised = ((try? c.decodeIfPresent([Int].self, forKey: .wallsRaised)) ?? []).filter { plots.contains($0) }
+    }
 }
 
 /// The lord fed the fire (wood, once a day). A new `at` means a new feeding: the picture throws a log on and the flame
@@ -80,6 +107,9 @@ struct HearthState: Codable, Sendable, Equatable {
     /// An input for the lamplighter (docs/TOWN.md section 7): whether the street lanterns burn tonight. nil is the
     /// default rule: lit every evening, but not in unrest (`Hearth.lanternsLit`).
     var lanterns: Bool?
+    /// The day the rewarded video paid the day's wood (`Hearth.giveWood`; the video moved here from the fall card); 0
+    /// never.
+    var woodGiftDay = 0
 
     init() {}
 
@@ -96,6 +126,7 @@ struct HearthState: Codable, Sendable, Equatable {
         lastBreak = try? c.decodeIfPresent(HearthBreak.self, forKey: .lastBreak)
         lastFeed = try? c.decodeIfPresent(HearthFeed.self, forKey: .lastFeed)
         lanterns = try? c.decodeIfPresent(Bool.self, forKey: .lanterns)
+        woodGiftDay = max(0, (try? c.decodeIfPresent(Int.self, forKey: .woodGiftDay)) ?? 0)
     }
 
     /// The burnt entry of a plot, if it lies burnt.
@@ -118,9 +149,16 @@ struct HearthDawnReport: Codable, Sendable, Equatable {
     var goldTaken = 0
     /// What the breach took from happiness at once (already in `DawnReport.happinessBefore`).
     var happinessLost = 0
+    /// The fire at this dawn is frail: if the creatures reach the hearth again it goes out (with two steps a breach,
+    /// low and embers alike). The report says so in words (`HearthLine.last`), and the picture shows it
+    /// (`HearthPicture.frail`).
+    var lastStand = false
+    /// The realm's first broken night: its walls in rubble are put up again at no cost (`HearthLine.walls`).
+    var wallsRaised = false
 
     init(broken: Bool = false, rekindled: Bool = false, before: HearthLevel = .bright, after: HearthLevel = .bright,
-         burnt: [HearthPlace] = [], dead: [String] = [], goldTaken: Int = 0, happinessLost: Int = 0) {
+         burnt: [HearthPlace] = [], dead: [String] = [], goldTaken: Int = 0, happinessLost: Int = 0,
+         lastStand: Bool = false, wallsRaised: Bool = false) {
         self.broken = broken
         self.rekindled = rekindled
         self.before = before
@@ -129,6 +167,8 @@ struct HearthDawnReport: Codable, Sendable, Equatable {
         self.dead = dead
         self.goldTaken = goldTaken
         self.happinessLost = happinessLost
+        self.lastStand = lastStand
+        self.wallsRaised = wallsRaised
     }
 
     init(from decoder: any Decoder) throws {
@@ -141,10 +181,14 @@ struct HearthDawnReport: Codable, Sendable, Equatable {
         dead = (try? c.decodeIfPresent([String].self, forKey: .dead)) ?? []
         goldTaken = max(0, (try? c.decodeIfPresent(Int.self, forKey: .goldTaken)) ?? 0)
         happinessLost = max(0, (try? c.decodeIfPresent(Int.self, forKey: .happinessLost)) ?? 0)
+        lastStand = (try? c.decodeIfPresent(Bool.self, forKey: .lastStand)) ?? false
+        wallsRaised = (try? c.decodeIfPresent(Bool.self, forKey: .wallsRaised)) ?? false
     }
 
-    /// The report's hearth lines, in the spec's order: what burnt, the dead by name, the gold taken, the fire's state.
-    /// A night without a breach has at most the fire's line (when it rose); a bright fire that stayed bright has none.
+    /// The report's hearth lines, in the spec's order: what burnt, the dead by name, the gold taken, the walls raised
+    /// for nothing (a realm's first broken night), the fire's state, and the stake while the fire is frail ("If the
+    /// Gloom reaches the hearth again, it goes out."). A night without a breach has at most the fire's lines; a bright
+    /// fire that stayed bright has none.
     func lines() -> [HearthLine] {
         var lines: [HearthLine] = []
         let houses = burnt.filter { $0.item.slot == .house }.count
@@ -162,6 +206,7 @@ struct HearthDawnReport: Codable, Sendable, Equatable {
         default: lines.append(HearthLine(key: HearthLine.deadThree, names: Array(dead.prefix(3))))
         }
         if goldTaken > 0 { lines.append(HearthLine(key: HearthLine.gold)) }
+        if wallsRaised { lines.append(HearthLine(key: HearthLine.walls)) }
         if rekindled {
             lines.append(HearthLine(key: HearthLine.rekindled))
         } else if broken || after < before {
@@ -181,6 +226,7 @@ struct HearthDawnReport: Codable, Sendable, Equatable {
             default: break
             }
         }
+        if lastStand && after > .out { lines.append(HearthLine(key: HearthLine.last)) }
         return lines
     }
 }
@@ -199,6 +245,12 @@ struct HearthLine: Sendable, Equatable {
     static let embers = "front.hearth.embers"
     static let bright = "front.hearth.bright"
     static let rekindled = "front.hearth.rekindled"
+    /// The stake, after the fire's line while the fire is frail (`HearthDawnReport.lastStand`).
+    static let last = "front.hearth.last"
+    /// A realm's first broken night: the walls in rubble go up again at no cost.
+    static let walls = "front.hearth.walls"
+    /// The rewarded video's offer at a broken night's dawn (the ads lane's card at the join): the day's wood paid.
+    static let gift = "front.hearth.gift"
     /// The happiness row's reason for the breach's loss (the card at the join; `HearthDawnReport.happinessLost`).
     static let reason = "front.hearth.reason"
     /// The fall card (the join): its title, the three mornings to wake at (newest first), a new realm.
@@ -209,10 +261,10 @@ struct HearthLine: Sendable, Equatable {
     static let newRealm = "front.fall.new"
 
     /// Every key of the report's hearth lines (the text tests check each in English and German).
-    static let reportKeys = [burntHouse, burntHouses, burntField, burntMarket, deadOne, deadTwo, deadThree, gold, low,
-                             embers, bright, rekindled]
-    /// The other keys (the reason and the fall card).
-    static let otherKeys = [reason, fallTitle, wakeThisMorning, wakeOneEarlier, wakeTwoEarlier, newRealm]
+    static let reportKeys = [burntHouse, burntHouses, burntField, burntMarket, deadOne, deadTwo, deadThree, gold, walls,
+                             low, embers, bright, rekindled, last]
+    /// The other keys (the reason, the video's offer and the fall card).
+    static let otherKeys = [reason, gift, fallTitle, wakeThisMorning, wakeOneEarlier, wakeTwoEarlier, newRealm]
     /// The wake keys by how many mornings back.
     static let wakeKeys = [wakeThisMorning, wakeOneEarlier, wakeTwoEarlier]
 
