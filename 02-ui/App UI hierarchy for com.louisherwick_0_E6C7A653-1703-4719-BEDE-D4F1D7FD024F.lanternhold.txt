@@ -1,0 +1,56 @@
+Application, 0x104470670, pid: 13987, label: 'Lanternhold' <App element pid: 13987>
+  Window (Main), 0x10446ecc0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13987, elementOrHash.elementID: 4379935296.4>
+    Other, 0x10446cf40, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13987, elementOrHash.elementID: 4379994640.5>
+      Other, 0x10446c560, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13987, elementOrHash.elementID: 4379996416.6>
+    Other, 0x10446f920, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13987, elementOrHash.elementID: 4377780096.77>
+      Other, 0x10446dda0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13987, elementOrHash.elementID: 4378371280.78>
+        Other, 0x10446e1c0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13987, elementOrHash.elementID: 4380421232.79>
+          WebView, 0x10446bd50, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13987, elementOrHash.elementID: 4446278656.81>
+            WebView, 0x10446b2b0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13987, elementOrHash.elementID: 4447194112.83>
+              WebView, 0x10446ae90, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13987, elementOrHash.elementID: 4447213568.85>
+                Other, 0x10446aa70, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13987, elementOrHash.elementID: 12798445404480178124.9999>
+                  Other, 0x104469cc0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 15591, elementOrHash.elementID: 105553150902992.3>
+                    Other, 0x1044692c0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 15591, elementOrHash.elementID: 105553118939520.4>
+                      Other, 0x104468ea0, {{0.0, 0.0}, {874.0, 402.0}}, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118921920.5>
+                        Link, 0x104468a80, {{171.0, 317.0}, {63.0, 62.0}}, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118940096.6>
+                        Other, 0x104468660, {{246.0, 318.0}, {297.0, 32.0}}, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118940160.7>
+                          Link, 0x104468240, {{246.0, 319.0}, {58.0, 30.0}}, label: 'Flood', Focused <AX element pid: 15591, elementOrHash.elementID: 105553118916096.19>
+                            StaticText, 0x1044679b0, {{246.0, 319.0}, {58.0, 30.0}}, label: 'Flood', value: Flood, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118946336.24>
+                        Link, 0x104467590, {{246.0, 350.0}, {267.0, 16.0}}, label: 'You successfully displayed a Rewarded Video…', Focused <AX element pid: 15591, elementOrHash.elementID: 105553118940192.8>
+                          Link, 0x104467170, {{246.0, 350.0}, {267.0, 16.0}}, label: 'You successfully displayed a Rewarded Video…', Focused <AX element pid: 15591, elementOrHash.elementID: 105553118916640.20>
+                            StaticText, 0x104466d50, {{246.0, 350.0}, {267.0, 16.0}}, label: 'You successfully displayed a Rewarded Video…', value: You successfully d..., Focused <AX element pid: 15591, elementOrHash.elementID: 105553118916736.25>
+                        Link, 0x104466930, {{246.0, 366.0}, {297.0, 10.0}}, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118940256.9>
+                        Link, 0x104466510, {{246.0, 366.0}, {51.0, 16.0}}, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118940320.10>
+                        Link, 0x1044660f0, {{612.0, 338.0}, {33.0, 21.0}}, label: 'GET', Focused <AX element pid: 15591, elementOrHash.elementID: 105553118940416.11>
+                          Link, 0x104465cd0, {{612.0, 338.0}, {33.0, 21.0}}, label: 'GET', Focused <AX element pid: 15591, elementOrHash.elementID: 105553118942560.21>
+                            StaticText, 0x1044658b0, {{612.0, 338.0}, {33.0, 21.0}}, label: 'GET', value: GET, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118942720.26>
+                        Link, 0x104465490, {{612.0, 338.0}, {33.0, 21.0}}, label: 'GET', Focused <AX element pid: 15591, elementOrHash.elementID: 105553118940576.12>
+                          Link, 0x104465070, {{612.0, 338.0}, {33.0, 21.0}}, label: 'GET', Focused <AX element pid: 15591, elementOrHash.elementID: 105553118943328.22>
+                            StaticText, 0x104464c50, {{612.0, 338.0}, {33.0, 21.0}}, label: 'GET', value: GET, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118943424.27>
+                        Link, 0x104464830, {{389.0, 105.0}, {96.0, 97.0}}, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118924576.28>
+                        Link, 0x104464410, {{395.0, 214.0}, {84.0, 28.0}}, label: 'Flood–It!', Focused <AX element pid: 15591, elementOrHash.elementID: 105553118927008.29>
+                          Link, 0x104463ff0, {{395.0, 214.0}, {84.0, 28.0}}, label: 'Flood–It!', Focused <AX element pid: 15591, elementOrHash.elementID: 105553118930272.33>
+                            StaticText, 0x104463bd0, {{395.0, 214.0}, {84.0, 28.0}}, label: 'Flood–It!', value: Flood–It!, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118930432.35>
+                        Link, 0x1044637b0, {{421.0, 268.0}, {32.0, 21.0}}, label: 'GET', Focused <AX element pid: 15591, elementOrHash.elementID: 105553118927136.30>
+                          Link, 0x104463390, {{421.0, 268.0}, {32.0, 21.0}}, label: 'GET', Focused <AX element pid: 15591, elementOrHash.elementID: 105553118929408.34>
+                            StaticText, 0x104462f70, {{421.0, 268.0}, {32.0, 21.0}}, label: 'GET', value: GET, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118931008.36>
+                        Link, 0x104462b50, {{155.0, 29.0}, {564.0, 344.0}}, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118940736.13>
+                        Other, 0x104462730, {{129.0, 15.0}, {52.0, 52.0}}, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118940800.14>
+                        Other, 0x104461d30, {{67.0, 15.0}, {52.0, 52.0}}, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118940832.15>
+                          Other, 0x104461910, {{81.0, 29.0}, {23.0, 23.0}}, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118944736.23>
+                        Other, 0x1044614f0, {{62.0, 10.0}, {750.0, 382.0}}, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118940928.16>
+                        Other, 0x1044610d0, {{638.0, -22.0}, {196.0, 92.0}}, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118941184.17>
+                        StaticText, 0x104460cb0, {{684.0, 16.0}, {86.0, 15.0}}, label: 'Reward granted', value: Reward granted, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118926816.31>
+                        Other, 0x104460890, {{744.0, -20.0}, {88.0, 88.0}}, Focused <AX element pid: 15591, elementOrHash.elementID: 105553118941248.18>
+                        Button, 0x104460470, {{776.0, 12.0}, {24.0, 24.0}}, label: 'Close', Focused <AX element pid: 15591, elementOrHash.elementID: 105553118927072.32>
+              Other, 0x104460050, {{841.0, 62.0}, {30.0, 278.0}}, label: 'Vertical scroll bar, 1 page', value: 0% <AX element pid: 13987, elementOrHash.elementID: 4380455056.86>
+                Other, 0x10445fc30, {{868.0, 59.0}, {3.0, 284.0}} <AX element pid: 13987, elementOrHash.elementID: 4380455520.88>
+              Other, 0x10445f810, {{62.0, 369.0}, {750.0, 30.0}}, label: 'Horizontal scroll bar, 1 page', value: 0% <AX element pid: 13987, elementOrHash.elementID: 4380453568.87>
+                Other, 0x10445f3f0, {{55.7, 396.0}, {762.7, 3.0}} <AX element pid: 13987, elementOrHash.elementID: 4380454032.89>
+              Other, 0x10445eb80, {{841.0, 62.0}, {30.0, 278.0}}, label: 'Vertical scroll bar, 1 page', value: 0% <AX element pid: 13987, elementOrHash.elementID: 4380455056.86>
+                Other, 0x10445e760, {{868.0, 59.0}, {3.0, 284.0}} <AX element pid: 13987, elementOrHash.elementID: 4380455520.88>
+              Other, 0x10445e340, {{62.0, 369.0}, {750.0, 30.0}}, label: 'Horizontal scroll bar, 1 page', value: 0% <AX element pid: 13987, elementOrHash.elementID: 4380453568.87>
+                Other, 0x10445df20, {{55.7, 396.0}, {762.7, 3.0}} <AX element pid: 13987, elementOrHash.elementID: 4380454032.89>
+            StaticText, 0x1044553b0, {{385.3, 4.0}, {103.7, 34.0}}, label: 'Test mode' <AX element pid: 13987, elementOrHash.elementID: 4378544096.84>
+          Other, 0x10446a1f0, {{62.0, 10.0}, {751.0, 383.0}} <AX element pid: 13987, elementOrHash.elementID: 4380534512.82>
+        Button, 0x10446c980, {{62.0, 0.0}, {52.0, 52.0}}, label: 'Close Advertisement', Disabled <AX element pid: 13987, elementOrHash.elementID: 4378364080.80>

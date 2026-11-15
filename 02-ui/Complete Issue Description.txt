@@ -1,0 +1,9 @@
+Failed to get matching snapshot: No matches found for first query match sequence: `Descendants matching type Any` -> `Elements matching predicate '"world-scene" IN identifiers'`, given input App element pid: 13987
+Possibly caused by runtime issues:
+Automation type mismatch: computed StaticText from legacy attributes vs Link from modern attribute. Input attributes and values: {
+    "XC_kAXXCAttributeAutomationType" = 42;
+    "XC_kAXXCAttributeElementBaseType" = NSObject;
+    "XC_kAXXCAttributeElementType" = WebAccessibilityObjectWrapper;
+    "XC_kAXXCAttributeTraits" = 146029019202;
+}
+See test report attachments for more detail.

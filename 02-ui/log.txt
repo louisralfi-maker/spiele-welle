@@ -1,0 +1,8 @@
+Test Case '-[LanternholdUITests.ProofUITests testEndingReplayedAtLaunch]' passed (86.377 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/ProofUITests.swift:122: error: -[LanternholdUITests.ProofUITests testGoogleAdsPathWithTestUnits] : XCTAssertTrue failed - the world stands after the report
+<unknown>:0: error: -[LanternholdUITests.ProofUITests testGoogleAdsPathWithTestUnits] : Failed to get matching snapshot: No matches found for first query match sequence: `Descendants matching type Any` -> `Elements matching predicate '"world-scene" IN identifiers'`, given input App element pid: 13987
+Test Case '-[LanternholdUITests.ProofUITests testGoogleAdsPathWithTestUnits]' failed (89.133 seconds).
+Test Case '-[LanternholdUITests.ProofUITests testNoFillDefeatAndReport]' passed (65.457 seconds).
+Test Case '-[LanternholdUITests.ProofUITests testSecondLaunchWithoutArguments]' passed (57.471 seconds).
+exit=65
+screenshots: 15
