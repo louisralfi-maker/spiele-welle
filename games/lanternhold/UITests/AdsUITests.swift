@@ -90,8 +90,10 @@ final class AdsUITests: XCTestCase {
     func testMerchantsGift() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
-        // Day 6 is one of Marek's days; the card opens by the debug argument until the join wires his cart.
-        app.launchArguments = stub + ["-GWDay", "6", "-GWMerchant", "YES", "-GWCameraX", "1500"]
+        // Day 6 is one of Marek's days; the card opens by the debug argument until the join wires his cart. 07:00: the
+        // reference bot's morning coins (the taxes on foot) have landed in the purse before the card holds the world,
+        // so the HUD's purse rises by the gift alone.
+        app.launchArguments = stub + ["-GWDay", "6", "-GWHour", "7", "-GWMerchant", "YES", "-GWCameraX", "1500"]
         app.launch()
         guard waitUntilReady(app, name: "ads-merchant") else { return }
         let card = element(app, "merchant-card")
