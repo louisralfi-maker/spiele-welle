@@ -111,6 +111,9 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWStageSlow <factor>` (stage lane, fix round 1): the change of stage runs this many times slower, so a
     /// screenshot catches the dark (1: as played).
     var stageSlow = 1.0
+    /// `-GWTouchHint YES` (touch the world, step stage-2): the first minute's slip "Touch what the lord shall do."
+    /// shows and stays (its screenshot), whatever the day.
+    var touchHint = false
 
     /// `-GWGloomFog` values.
     enum GloomFogOverride: Sendable, Equatable {
@@ -150,6 +153,8 @@ struct DebugArgs: Sendable, Equatable {
         "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock", "GWLook", "GWCastle",
         "GWWeather", "GWWind", "GWRain", "GWWetness", "GWLord", "GWLordName", "GWGloomFog", "GWHouses", "GWSound",
         "GWStage", "GWHallX", "GWPetition", "GWHearth", "GWStageSlow",
+        // Touch the world (stage lane, step stage-2)
+        "GWTouchHint",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -273,6 +278,7 @@ struct DebugArgs: Sendable, Equatable {
         if let slow = DebugArgs.double(values["GWStageSlow"]), slow >= 1 {
             stageSlow = min(40, slow)
         }
+        touchHint = DebugArgs.bool(values["GWTouchHint"])
         lord = values["GWLord"].flatMap { LordForm(rawValue: $0.trimmingCharacters(in: .whitespaces).lowercased()) }
         if let name = values["GWLordName"]?.trimmingCharacters(in: .whitespaces), !name.isEmpty {
             lordName = name

@@ -2,8 +2,8 @@ import UIKit
 import XCTest
 
 /// The great hall as a stage of its own (stage lane, 14.11.2026; DESIGN.md "The hall stage and touch the world"): in
-/// by the door at x 1830 (the action button until "touch the world"), the hall answering its lord, a walk down the
-/// nave, the audience at the throne with the letter in the upper left and the choices along the floor band, the horn's
+/// by a touch on the door at x 1830 (touch the world, step stage-2), the hall answering its lord, a drag down the
+/// nave, a touch on the throne and the audience with the letter in the upper left and the choices along the floor band, the horn's
 /// slip at the door, out by walking past the door, and Reduce Motion's cut; stills of the hall by day, in the
 /// afternoon's shafts, at dusk and at night, and the longest German letter in the hall's card. Every button is
 /// checked for 44 pt. Saves `<nn>-hall-<what>-<lang>`: 130 to 145 (fix round 1 added the proofs: 131a the dark half
@@ -41,18 +41,17 @@ final class HallUITests: XCTestCase {
         guard waitUntilReady(app, name: "hall-door") else { return }
         let strip = element(app, "realm-strip")
         XCTAssertTrue(strip.waitForExistence(timeout: 10))
-        tapStrip(strip, worldX: 1830)
-        XCTAssertTrue(waitForKing(app, near: 1830, within: 3, timeout: 20), "to the hall's door")
-        let button = element(app, "action-button")
-        guard button.waitForExistence(timeout: 6) else {
+        // Touch the world (step stage-2): a touch on the hall's door; he walks to it and goes in.
+        XCTAssertFalse(element(app, "action-button").exists, "no action button")
+        guard let door = waitForThing(app, "touch-door-hall", timeout: 8) else {
             XCTFail("no door at the hall")
             return
         }
-        checkTarget(button, "hall door")
+        checkTarget(door, "hall door")
         pause(0.5)
         attach(XCUIScreen.main.screenshot(), "130-hall-door-\(language)")
-        button.tap()
-        XCTAssertTrue(waitForField(app, "stage:hall", timeout: 6), "in by the door")
+        touchThing(door)
+        XCTAssertTrue(waitForField(app, "stage:hall", timeout: 10), "in by the door")
         // The hall answers its lord: the guards stand straight, the waiting turn their heads (131b); a few seconds
         // later they stand easy and look to the throne again (131c).
         pause(0.5)
@@ -63,27 +62,24 @@ final class HallUITests: XCTestCase {
         pause(2.6)
         attach(XCUIScreen.main.screenshot(), "131c-hall-settled-\(language)")
 
+        // A drag still walks him anywhere on the screen: down the nave.
         let scene = element(app, "world-scene")
-        let from = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.12, dy: 0.62))
-        let to = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.26, dy: 0.62))
+        let from = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.52, dy: 0.62))
+        let to = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.66, dy: 0.62))
         from.press(forDuration: 0.05, thenDragTo: to, withVelocity: .default, thenHoldForDuration: 2.2)
         pause(0.4)
         attach(XCUIScreen.main.screenshot(), "132-hall-walk-\(language)")
         let walked = field(app, "hx:") ?? 0
         XCTAssertGreaterThan(walked, 150, "the drag walked him down the nave (\(walked))")
-        if walked < 326 {
-            let seconds = min(4.5, max(0.3, (400 - walked) / 80))
-            from.press(forDuration: 0.05, thenDragTo: to, withVelocity: .default, thenHoldForDuration: seconds)
-        }
-        let hx = field(app, "hx:") ?? 0
-        XCTAssertTrue((326...470).contains(hx), "on the dais's floor (\(hx))")
-        guard button.waitForExistence(timeout: 6) else {
-            XCTFail("no crown at the throne")
+        // A touch on the throne: he walks up and sits, and the audience begins.
+        guard let throne = waitForThing(app, "touch-throne", timeout: 6) else {
+            XCTFail("no mark at the throne")
             return
         }
-        button.tap()
+        checkTarget(throne, "throne")
+        touchThing(throne)
         let card = element(app, "audience-root")
-        guard card.waitForExistence(timeout: 10) else {
+        guard card.waitForExistence(timeout: 16) else {
             attach(XCUIScreen.main.screenshot(), "hall-audience-missing-\(language)")
             XCTFail("the audience card did not open in the hall")
             return
@@ -192,10 +188,12 @@ final class HallUITests: XCTestCase {
             + ["-GWClock", "9.5", "-GWStage", "world", "-GWCameraX", "1830", "-GWReduceMotion", "YES"]
         app.launch()
         guard waitUntilReady(app, name: "hall-reduce-motion") else { return }
-        let button = element(app, "action-button")
-        XCTAssertTrue(button.waitForExistence(timeout: 8), "the door")
-        button.tap()
-        XCTAssertTrue(waitForField(app, "stage:hall", timeout: 2), "a cut")
+        guard let door = waitForThing(app, "touch-door-hall", timeout: 8) else {
+            XCTFail("no door")
+            return
+        }
+        touchThing(door)
+        XCTAssertTrue(waitForField(app, "stage:hall", timeout: 3), "a cut")
         pause(0.6)
         attach(XCUIScreen.main.screenshot(), "145-hall-reduce-motion-\(language)")
         app.terminate()
@@ -209,9 +207,8 @@ final class HallUITests: XCTestCase {
             + ["-GWClock", "10", "-GWStage", "world", "-GWCameraX", "1830", "-GWStageSlow", "10"]
         slow.launch()
         if waitUntilReady(slow, name: "hall-dark") {
-            let button = element(slow, "action-button")
-            if button.waitForExistence(timeout: 8) {
-                button.tap()
+            if let door = waitForThing(slow, "touch-door-hall", timeout: 8) {
+                touchThing(door)
                 // The door opens for 2.2 s, the dark comes over 1.6 s: half dark about 3 s after the touch.
                 pause(2.9)
                 attach(XCUIScreen.main.screenshot(), "131a-hall-dark-\(language)")

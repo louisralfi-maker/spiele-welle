@@ -9,6 +9,8 @@ struct TalkBubble: Sendable, Equatable {
     var textKey: String
     var anchorX: Double
     var headY: Double
+    /// Touch the world (step stage-2): a name already in words (a townsman on a bench, who has no name key).
+    var nameText: String? = nil
 }
 
 /// The court's part of the screen state machine (M3 step 3): the audience at the throne and at the gate (the clock
@@ -45,7 +47,8 @@ extension GameModel {
                 // The hall stage: the lord's walk in the hall and the hall's court.
                 let x = hall?.walker.x ?? 0
                 let away = abs(x - (court.talkX ?? x)) > CourtTalk.leaveDistance
-                let gone = !currentHallFigures(state).contains { $0.who == who && $0.petition == nil }
+                // Touch the world: a bench's first in line (a petitioner) may speak too.
+                let gone = !currentHallFigures(state).contains { $0.who == who }
                 if away || gone || DayClock.phase(at: state.hour) != .day { closeTalk() }
             } else {
                 let away = abs(state.king.x - (court.talkX ?? state.king.x)) > CourtTalk.leaveDistance
@@ -57,8 +60,9 @@ extension GameModel {
 
     /// Every HUD refresh (`refreshHUD`): the speech marks over the court.
     func refreshCourt(_ state: GameState) {
-        let figures = CourtLayout.figures(state, catalog: .standard)
-        court.marks = CourtTalk.marks(state, figures: figures, lines: .standard, log: talkLog)
+        // Touch the world (step stage-2): the touch marks replace the speech marks in the game (`tapTalk` over whoever
+        // has a new line today); `CourtTalk.marks` stays for the court's own rules.
+        if !court.marks.isEmpty { court.marks = [] }
     }
 
     /// After each drawn frame: where the speaker of the bubble and the audience's speaker stand on screen.

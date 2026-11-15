@@ -17,7 +17,7 @@ enum PlaceholderPolish {
                                                             fill: RGBA(0x3A3440))]
         case .hallFire, .hallShaft, .hallMote, .hallWash:
             return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0xF2D49A, alpha: 128))]
-        case .tapTalk, .tapThrone, .tapBuild, .tapRepair, .tapRecruit, .tapLight:
+        case .tapTalk, .tapThrone, .tapBuild, .tapRepair, .tapRecruit, .tapLight, .tapDoor:
             return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0xE8D7B0))]
         default: return []
         }

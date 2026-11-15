@@ -26,6 +26,9 @@ enum KingTarget: Sendable, Equatable {
     /// The great hall's door in the world (the hall stage, stage lane, 14.11.2026): the lord goes in and the stage
     /// changes. The hall's throne, lectern and court are inside it now; `HallTargets` offers them on the stage.
     case hallDoor
+    /// Touch the world (stage lane, step stage-2): a bench in the great hall with people waiting on it; the first in
+    /// line speaks when the lord comes to it (`HallLayout.benches[index]`).
+    case bench(index: Int)
 }
 
 /// Why an offered night action cannot be done right now: the button shows it greyed (M2b review: Patch offered without
@@ -151,7 +154,7 @@ enum KingTargets {
             return nil
         case .light:
             return s.king.lightingPlot >= 0 ? .busy : nil
-        case .build, .recruit, .throne, .lectern, .talk, .stranger, .hallDoor:
+        case .build, .recruit, .throne, .lectern, .talk, .stranger, .hallDoor, .bench:
             return nil
         }
     }
@@ -173,6 +176,8 @@ enum KingTargets {
             return CourtLayout.figures(s, catalog: .standard).first { $0.who == who }?.x ?? s.king.x
         case .hallDoor:
             return HallLayout.worldDoorX
+        case .bench(let index):
+            return HallLayout.benches.indices.contains(index) ? HallLayout.benches[index] : HallLayout.doorX
         }
     }
 }

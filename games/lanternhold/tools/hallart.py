@@ -1061,6 +1061,19 @@ GLYPHS = {
         "..iirii..",
         "...iii...",
     ),
+    # Touch the world (stage lane, step stage-2, 15.11.2026): the seventh mark, over the great hall's door in the
+    # world and its inner door in the hall.
+    "tapDoor": (          # an arched door of planks with its ring: go in, go out
+        "..iiiii..",
+        ".ii...ii.",
+        "ii.i.i.ii",
+        "i..i.i..i",
+        "i..i.i.gi",
+        "i..i.i..i",
+        "i..i.i..i",
+        "i..i.i..i",
+        "iiiiiiiii",
+    ),
 }
 
 

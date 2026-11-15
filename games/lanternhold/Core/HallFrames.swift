@@ -29,6 +29,9 @@ struct HallFrameInput {
     var ambient: AmbientSample
     var weather: WeatherSample
     var animTime: Double
+    /// Touch the world (step stage-2): the marks over what offers something (drawn last, unlit) and their pools;
+    /// nil keeps the old speech marks and the throne's pulsing mark (tests that build a hall frame by hand).
+    var touchMarks: [TouchMark]? = nil
 }
 
 /// The great hall's frame (stage lane, 14.11.2026; DESIGN.md "The hall stage and touch the world", SPRITES.md "The
@@ -653,7 +656,8 @@ enum HallFrames {
             light(.candle, x: session.spotX, row: HallLayout.floorRow - 5, radius: speakerPool, intensity: 0.7,
                   color: GamePalette.fireGold)
         }
-        if input.court.audience == nil && !AudienceRules.hall(s, catalog: .standard).isEmpty {
+        if input.touchMarks == nil && input.court.audience == nil
+            && !AudienceRules.hall(s, catalog: .standard).isEmpty {
             let pulse = reduceMotion ? 1 : Int(max(0, animTime) / 0.6) % 2
             let rect = g.actor(.speakerMark, x: HallLayout.throneX, lift: HallLayout.lift(at: HallLayout.throneX)
                                + CourtFrames.throneMarkY)
@@ -718,6 +722,21 @@ enum HallFrames {
             light(.lantern, x: glassX, row: HallLayout.floorRow - Int(lordLift.rounded()), radius: floorPool.radius,
                   intensity: level * floorPool.share, color: lanternColor, squash: Float(floorPool.squash),
                   seed: 0x4C4F_5244)
+        }
+
+        // Touch the world (step stage-2): the marks over everything else, unlit, and their pools at the things' feet.
+        if let marks = input.touchMarks, !marks.isEmpty {
+            let framing = TouchFraming(stage: .hall, whole: g.whole(.world),
+                                       deviceShift: Double(offsets[Plane.world.rawValue].deviceShift), scale: zoom,
+                                       groundY: g.groundDeviceY, physicalWidth: Double(g.physicalWidth),
+                                       physicalHeight: Double(g.physicalHeight))
+            actors += TouchMarks.actors(marks, framing: framing, night: torch)
+            for mark in marks {
+                light(.window, x: mark.poolX, row: HallLayout.floorRow - 5, radius: TouchRules.poolRadius,
+                      intensity: TouchRules.poolStrength * (0.4 + 0.6 * torch)
+                          * (mark.pressed ? TouchRules.pressedPool : 1),
+                      color: GamePalette.fireGold)
+            }
         }
 
         var planes: [PlaneLayer] = []

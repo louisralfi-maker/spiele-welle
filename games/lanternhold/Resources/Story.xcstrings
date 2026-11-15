@@ -15876,6 +15876,78 @@
           }
         }
       }
+    },
+    "touch.bench.far" : {
+      "comment" : "Touch the world: the first in line on a hall bench, when the lord comes to the bench.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ich bin weit gelaufen, um gehört zu werden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I walked a long way to be heard."
+          }
+        }
+      }
+    },
+    "touch.bench.sit" : {
+      "comment" : "Touch the world: the first in line on a hall bench, when the lord comes to the bench.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn Ihr Euch setzt, {Herr|Herrin}, spreche ich."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When you sit, {my lord|my lady}, I will speak."
+          }
+        }
+      }
+    },
+    "touch.bench.wait" : {
+      "comment" : "Touch the world: the first in line on a hall bench, when the lord comes to the bench.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wir warten auf den Thron, {Herr|Herrin}."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We wait for the throne, {my lord|my lady}."
+          }
+        }
+      }
+    },
+    "touch.first" : {
+      "comment" : "Touch the world: the first minute's one slip, low over the lane.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tippe an, was {der Burgherr|die Burgherrin} tun soll."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touch what the {lord|lady} shall do."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

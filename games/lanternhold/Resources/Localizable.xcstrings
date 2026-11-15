@@ -100,6 +100,17 @@
         }
       }
     },
+    "%lld gold" : {
+      "comment" : "Touch the world: what a thing costs (VoiceOver value).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Gold"
+          }
+        }
+      }
+    },
     "%lld gold missing" : {
       "comment" : "Card hint: not enough gold.",
       "localizations" : {
@@ -376,6 +387,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bogenschützen treffen härter: +%@"
+          }
+        }
+      }
+    },
+    "At the brazier. Lighting it." : {
+      "comment" : "VoiceOver: the lord arrived at a cold brazier and lights it.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An der Feuerschale. Sie wird entzündet."
+          }
+        }
+      }
+    },
+    "At the wall. Touch it again to repair it." : {
+      "comment" : "VoiceOver: the lord arrived at a damaged wall; a second touch pays.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An der Mauer. Noch einmal antippen, um sie auszubessern."
           }
         }
       }
@@ -1654,6 +1687,17 @@
         }
       }
     },
+    "Repair the wall" : {
+      "comment" : "Touch the world: a damaged wall's label and slip at night; its price beside it.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Mauer ausbessern"
+          }
+        }
+      }
+    },
     "Replay the day" : {
       "comment" : "Defeat card button.",
       "localizations" : {
@@ -1771,6 +1815,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Geschütz"
+          }
+        }
+      }
+    },
+    "Sit on the throne" : {
+      "comment" : "Touch the world: the empty throne's label and slip (an audience can be held).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den Thron besteigen"
           }
         }
       }
@@ -2429,6 +2484,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ausbauen: %@"
+          }
+        }
+      }
+    },
+    "Walk left" : {
+      "comment" : "VoiceOver custom action on the world: the lord walks one screen to the left.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach links gehen"
+          }
+        }
+      }
+    },
+    "Walk right" : {
+      "comment" : "VoiceOver custom action on the world: the lord walks one screen to the right.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach rechts gehen"
           }
         }
       }

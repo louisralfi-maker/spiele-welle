@@ -209,6 +209,17 @@ final class GameModel {
     /// of the width, the slip's foot as 0 ... 1 of the height), nil when it does not show.
     var hornSlip: CGPoint? = nil
 
+    // MARK: Touch the world (stage lane, step stage-2, 15.11.2026; `GameModel+Touch.swift`)
+
+    /// The things on the stage, the errand, the finger, the framing (UI state, not observed).
+    @ObservationIgnored var touch = TouchState()
+    /// The slip above the thing the lord walks to (nil: none).
+    var errandSlip: ErrandSlip? = nil
+    /// The accessibility elements of the things in view (placed again four times a second).
+    var touchSpots: [TouchSpot] = []
+    /// The first minute's slip "Touch what the lord shall do." shows.
+    var firstTouchSlip = false
+
     /// `store` is where the game's save lives (the app's own by default; the tests pass a temporary one, so they never
     /// touch the simulator app's real save).
     init(args: DebugArgs, kind: SceneKind, store saveStore: SaveStore? = SaveStore.standard()) {
@@ -396,6 +407,8 @@ final class GameModel {
         stepCourt(seconds, state: game.state)
         // The hall stage: the change of stage, the lord's walk in the hall, its camera and its court.
         stepStage(seconds, state: driver?.state ?? game.state)
+        // Touch the world: the errand follows its thing and ends when he arrives.
+        stepTouch(seconds)
         effects.prune(time: animationTime)
         shake.prune(time: clock.elapsed)
         if hornNight != nil && clock.elapsed > hornUntil {
@@ -566,44 +579,8 @@ final class GameModel {
     func performAction() {
         switch kind {
         case .world:
-            guard let target, var game = driver, overlay == nil else { return }
-            switch target {
-            case .build(let plot):
-                let anchor = KingTargets.anchorX(target, state: game.state, balance: game.balance)
-                openCard(.build(plot: plot), anchorX: anchor)
-            case .recruit:
-                openCard(.recruit, anchorX: KingTargets.barracksX)
-            case .throne:
-                // M3: the crown opens the audience while petitioners wait in the hall, else the tax card.
-                if AudienceRules.hall(game.state, catalog: .standard).isEmpty {
-                    openCard(.taxes, anchorX: stage == .hall ? HallLayout.throneX : KingTargets.throneX)
-                } else {
-                    openAudience(.throne)
-                }
-            case .lectern:
-                openCard(.taxes, anchorX: stage == .hall ? HallLayout.lecternX : KingTargets.lecternX)
-            case .hallDoor:
-                // The hall stage: in by the door at x 1830, or out by the inner door.
-                if stage == .hall { leaveHall() } else { enterHall() }
-            case .stranger:
-                openAudience(.gate)
-            case .talk(let who):
-                talk(to: who)
-            case .light(let plot), .patch(let plot):
-                let action: KingAction = {
-                    if case .light = target { return .light(plot: plot) }
-                    return .patch(plot: plot)
-                }()
-                var actionEvents: [SimEvent] = []
-                let done = game.perform(action, events: &actionEvents)
-                driver = game
-                if !actionEvents.isEmpty {
-                    effects.note(actionEvents, state: game.state, balance: game.balance, time: animationTime)
-                    handle(actionEvents, state: game.state)
-                }
-                if !done { feedback.play(.refused) }
-                refreshHUD()
-            }
+            guard let target else { return }
+            perform(target)
         case .probe:
             scene.toggleBrazier(near: scene.king.x, reach: GameModel.actionReach)
             refreshAction()
@@ -612,9 +589,55 @@ final class GameModel {
         }
     }
 
+    /// Does what `target` offers, where the lord stands (touch the world: when he arrives at the thing).
+    func perform(_ target: KingTarget) {
+        guard kind == .world, var game = driver, overlay == nil else { return }
+        switch target {
+        case .build(let plot):
+            let anchor = KingTargets.anchorX(target, state: game.state, balance: game.balance)
+            openCard(.build(plot: plot), anchorX: anchor)
+        case .recruit:
+            openCard(.recruit, anchorX: KingTargets.barracksX)
+        case .throne:
+            // M3: the crown opens the audience while petitioners wait in the hall, else the tax card.
+            if AudienceRules.hall(game.state, catalog: .standard).isEmpty {
+                openCard(.taxes, anchorX: stage == .hall ? HallLayout.throneX : KingTargets.throneX)
+            } else {
+                openAudience(.throne)
+            }
+        case .lectern:
+            openCard(.taxes, anchorX: stage == .hall ? HallLayout.lecternX : KingTargets.lecternX)
+        case .hallDoor:
+            // The hall stage: in by the door at x 1830, or out by the inner door.
+            if stage == .hall { leaveHall() } else { enterHall() }
+        case .stranger:
+            openAudience(.gate)
+        case .talk(let who):
+            talk(to: who)
+        case .bench(let index):
+            // Touch the world: the first in line on that bench speaks.
+            benchSpeaks(index)
+        case .light(let plot), .patch(let plot):
+            let action: KingAction = {
+                if case .light = target { return .light(plot: plot) }
+                return .patch(plot: plot)
+            }()
+            var actionEvents: [SimEvent] = []
+            let done = game.perform(action, events: &actionEvents)
+            driver = game
+            if !actionEvents.isEmpty {
+                effects.note(actionEvents, state: game.state, balance: game.balance, time: animationTime)
+                handle(actionEvents, state: game.state)
+            }
+            if !done { feedback.play(.refused) }
+            refreshHUD()
+        }
+    }
+
     /// A tap on the realm strip at `fraction` of its width: the king runs there (DESIGN.md "Controls").
     func travel(toFraction fraction: Double) {
         guard kind == .world, overlay == nil, driver != nil else { return }
+        cancelErrand()
         // The hall stage: from inside, the lord goes out by the door and on to that point.
         if stage == .hall {
             leaveHall(travelOn: RealmStrip.worldX(fraction: fraction))
@@ -1022,6 +1045,9 @@ final class GameModel {
                               ambient: AmbientRamp.sample(at: state.hour, look: options.look), animTime: animationTime,
                               reduceMotion: reduceMotion)
             noteCourtFrame(camera: view, pixelScale: pixelScale)
+            // Touch the world: what offers something, its marks and pools, the framing the finger reads.
+            touchWorld(&layer, state: state, balance: game.balance, camera: view, pixelScale: pixelScale,
+                       night: Double(AmbientRamp.sample(at: state.hour, look: options.look).torchStrength))
             for light in DawnSweep.lights(hour: state.hour) {
                 layer.lights.append((source: light, plane: .world))
             }
@@ -1215,6 +1241,9 @@ final class GameModel {
         if stage == .hall, let walker = hall?.walker {
             text += " hx:\(Int(walker.x.rounded()))"
         }
+        // Touch the world: the lord's x on the stage that shows (`lord:` names Burgherr or Burgherrin) and the
+        // errand's thing.
+        text += " lx:\(Int(stageLordX.rounded())) errand:\(touch.errand?.id ?? "none")"
         if text != sceneStatus {
             sceneStatus = text
         }

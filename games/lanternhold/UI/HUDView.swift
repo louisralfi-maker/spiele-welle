@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// The HUD (DESIGN.md "Controls", "Screens"). The game's (M2b part 2): pause top left (44 pt in a 60 pt area), the realm
+/// The HUD (DESIGN.md "Controls 2", "Screens"). The game's (M2b part 2): pause top left (44 pt in a 60 pt area), the realm
 /// strip at the top centre, the day and clock top right with gold, the happiness face and the people under them, the
-/// horn banner at 19:00, and the action button bottom right with a caption naming what it does. In the map's style
+/// horn banner at 19:00. Touch the world (step stage-2, 15.11.2026) removed the action button and its caption: the
+/// lord goes where the finger points (`TouchLayer`). In the map's style
 /// (docs/UI-look.md): the clock and the three numbers are one slip of the steward's ledger, the strip a strip of map,
 /// pause and the action button wax seals, the caption a slip of parchment. While the reference bot
 /// plays for the screenshots (`-GWAutoplay play`) only the clock sits over the picture. The light probe and the light
@@ -110,15 +111,6 @@ struct GameHUD: View {
                                 DebugValues(kingX: model.debugKingX, cameraX: model.debugCameraX)
                             }
                             Spacer(minLength: 0)
-                        }
-                    }
-                }
-                if let target = model.target, model.overlay == nil, !model.isShowcase {
-                    VStack {
-                        Spacer(minLength: 0)
-                        HStack {
-                            Spacer(minLength: 0)
-                            ActionArea(target: target, model: model)
                         }
                     }
                 }
@@ -293,19 +285,6 @@ enum ActionGlyph: Sendable, Equatable {
         }
     }
 
-    init(_ target: KingTarget) {
-        switch target {
-        case .build: self = .build
-        case .recruit: self = .recruit
-        case .throne: self = .throne
-        case .lectern: self = .lectern
-        case .talk, .stranger: self = .talk
-        case .light: self = .light
-        case .patch: self = .patch
-        case .hallDoor: self = .door
-        }
-    }
-
     /// The button's VoiceOver label in the light probe.
     var label: Text {
         switch self {
@@ -318,133 +297,6 @@ enum ActionGlyph: Sendable, Equatable {
         case .patch: return Text("Patch the wall")
         case .door: return Text("Enter the great hall")
         }
-    }
-}
-
-/// The action button with its caption above it: "Build" and the plot, "Recruit", "Taxes", "Light", "Patch" and its
-/// price; M3: "Audience (n)" at the throne while petitioners wait, a court member's name for talking.
-@MainActor
-struct ActionArea: View {
-    let target: KingTarget
-    let model: GameModel
-
-    var body: some View {
-        if captionBeside {
-            // The hall stage at the throne (fix round 2 of step stage-1): the caption stands left of the button, low
-            // over the floor, so the hearth's fire above the button stays in sight (on the first morning it covered
-            // the firebox). The camera stands at the hall's end wall there and cannot move the fire out from under
-            // the button; stage-2 removes the button.
-            HStack(alignment: .bottom, spacing: -14) {
-                caption
-                    .padding(.bottom, 24)
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
-                actionButton
-            }
-        } else {
-            VStack(alignment: .trailing, spacing: 0) {
-                caption
-                    .padding(.trailing, 20)
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
-                actionButton
-            }
-        }
-    }
-
-    private var captionBeside: Bool {
-        guard model.stage == .hall, case .throne = target else { return false }
-        return true
-    }
-
-    private var actionButton: some View {
-        ActionButton(glyph: ActionGlyph(target), label: label, hold: model.targetHold) {
-            model.performAction()
-        }
-    }
-
-    private var captionText: String {
-        switch target {
-        case .build(let plot):
-            // The action and the plot (M2b review: the plot alone did not tell a build from an upgrade).
-            let name = Texts.slotName(Realm.plots[plot].slot)
-            switch model.targetVerb {
-            case .upgrade?: return String(localized: "Upgrade: \(name)")
-            case .rebuild?: return String(localized: "Rebuild: \(name)")
-            default: return String(localized: "Build: \(name)")
-            }
-        case .recruit:
-            return String(localized: "Recruit")
-        case .throne:
-            let waiting = model.strip?.petitioners ?? 0
-            return waiting > 0 ? String(localized: "Audience (\(waiting))") : String(localized: "Taxes")
-        case .lectern:
-            return String(localized: "Taxes")
-        case .talk(let who):
-            return speakerName(who)
-        case .stranger:
-            return speakerName("seren")
-        case .light:
-            return String(localized: "Light")
-        case .patch:
-            return String(localized: "Patch")
-        case .hallDoor:
-            // The hall stage: the door, in from the bailey or out from the hall.
-            return model.stage == .hall ? String(localized: "Leave the hall") : String(localized: "The great hall")
-        }
-    }
-
-    private var shortOfGold: Bool {
-        if case .missingGold? = model.targetHold { return true }
-        return false
-    }
-
-    private var caption: some View {
-        HStack(spacing: 5) {
-            Text(inked: captionText, .footnote)
-                .font(Theme.caps(.footnote))
-                .foregroundStyle(Theme.ink)
-            if case .patch = target {
-                // The price turns red while the treasury cannot pay it (M2b review).
-                GoldAmount(amount: Balance.standard.patchCost, size: 12,
-                           color: shortOfGold ? Theme.rubric : Theme.ink)
-            }
-        }
-        .lineLimit(1)
-        .fixedSize()
-        .padding(.horizontal, 10)
-        .padding(.vertical, 4)
-        .background(SlipBackground())
-    }
-
-    private var label: Text {
-        switch (target, model.targetHold) {
-        case (.build(let plot), _):
-            return Text("Build: \(Texts.plotTitle(slot: Realm.plots[plot].slot, line: Realm.plots[plot].line))")
-        case (.throne, _) where (model.strip?.petitioners ?? 0) > 0:
-            return Text("Hold audience")
-        case (.talk(let who), _):
-            return Text("Talk to \(speakerName(who))")
-        case (.stranger, _):
-            return Text("Speak with \(speakerName("seren"))")
-        case (.hallDoor, _):
-            return model.stage == .hall ? Text("Leave the great hall") : Text("Enter the great hall")
-        case (_, .missingGold?):
-            return Text("Patch the wall: not enough gold")
-        case (_, .cooldown?):
-            return Text("Patch the wall: ready again soon")
-        case (_, .busy?):
-            return Text("Lighting the brazier")
-        default:
-            return ActionGlyph(target).label
-        }
-    }
-
-    /// A court member's or guest's name (the role for the unnamed guests).
-    private func speakerName(_ who: String) -> String {
-        let flags = model.driver?.state.flags ?? []
-        return StoryText.name(speaker: who, look: nil, day: model.day, flags: flags)
-            ?? StoryText.role(speaker: who) ?? who
     }
 }
 
@@ -480,7 +332,7 @@ struct ActionButton: View {
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .accessibilityIdentifier("action-button")
+        .accessibilityIdentifier("probe-action")
         .accessibilityLabel(label)
     }
 

@@ -18,6 +18,9 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
     case coin, paid, wallHit, creatureHit, arrowHit, gate, step, audienceOpened, choiceMade
     // The hall stage (stage lane, 14.11.2026): the hall's door opens (its creak) and shuts behind the lord (its latch)
     case doorOpened, doorShut
+    // Touch the world (stage lane, step stage-2): the finger lifts from a thing or the ground and he sets off (a light
+    // tick in the hand)
+    case touched
 
     /// Cues that only play when they happen near the king (DESIGN.md "Archer volley (near the king)", engines "when on
     /// screen").

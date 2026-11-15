@@ -37,8 +37,12 @@ struct HallWalker: Sendable, Equatable {
 
     /// Sends him to `x` (at a walk, or running when `run`).
     mutating func walk(to x: Double, run: Bool = false) {
+        walk(to: x, speed: run ? KingState.runSpeed : KingState.walkSpeed)
+    }
+
+    /// Sends him to `x` at `speed` px/s (touch the world: a walk, a hurry or a run).
+    mutating func walk(to x: Double, speed: Double) {
         target = min(HallLayout.walkRange.upperBound, max(HallLayout.walkRange.lowerBound, x))
-        let speed = run ? KingState.runSpeed : KingState.walkSpeed
         let gap = (target ?? self.x) - self.x
         velocity = abs(gap) < 0.5 ? 0 : (gap > 0 ? speed : -speed)
         if velocity != 0 { facing = velocity > 0 ? 1 : -1 }

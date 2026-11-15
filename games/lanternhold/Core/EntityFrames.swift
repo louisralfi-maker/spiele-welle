@@ -146,7 +146,8 @@ enum EntityFrames {
         beacon(s, props: &props)
         courtyard(s, props: &props)
         town(s, look: options.look, props: &props)
-        if isDay { markers(s, layouts: layouts, time: animTime, reduceMotion: options.reduceMotion, props: &props) }
+        // Touch the world (stage lane, step stage-2; docs/REVIEW-look-2.md M6): the plot markers (the blue banner posts)
+        // are gone; an open plot shows its `tapBuild` mark only while it offers something (`TouchThings`).
         auras(s, look: options.look, props: &props)
         layer.props = props.props
 

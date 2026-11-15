@@ -1,0 +1,191 @@
+import Foundation
+
+/// What offers something on a stage now (stage lane, step stage-2; DESIGN.md "Controls 2: touch the world"): every
+/// thing the finger can send the lord to, with its touch area's size, its standing place, its mark and its rank. Pure
+/// functions of the realm's state and the figures as drawn; `GameModel+Touch.swift` asks for them a few times a
+/// second.
+///
+/// - **The world:** by day every plot whose card offers something and is open (an empty site, a building that can
+///   grow, rubble: `tapBuild`; M6: the plot markers are gone, the mark is the site's sign while it offers something),
+///   the court and the guests with a word (`tapTalk`, marked while they have a new line today), the Stranger asking
+///   at the gate; at night every cold brazier (`tapLight`) and every damaged wall (`tapRepair`, its price); day and
+///   night the barracks (`tapRecruit`) and the great hall's door at x 1830 (`tapDoor`).
+/// - **The great hall:** the inner door (`tapDoor`); by day the empty throne while an audience can be held
+///   (`tapThrone`), each occupied bench as one target with its mark over the first in line, the court with a word,
+///   and the tax lectern (no mark) while nobody waits.
+enum TouchThings {
+    // MARK: - The world
+
+    /// The world's things now. `figures`: the court as `CourtFrames` draws it this frame; `talked`: who was heard
+    /// today (their mark goes).
+    static func world(_ s: GameState, balance: Balance, figures: [DrawnFigure], talked: Set<String>,
+                      lines: CourtLineBook = .standard) -> [TouchThing] {
+        guard !s.defeated else { return [] }
+        var list: [TouchThing] = []
+        let day = DayClock.phase(at: s.hour) == .day
+        let layouts = KingTargets.layouts(s, balance: balance)
+        if day {
+            for plot in Realm.plots.indices where plot < s.plots.count {
+                guard s.isUnlocked(plot: plot), KingTargets.hasCard(s, plot: plot, balance: balance) else { continue }
+                let x = KingTargets.spotX(plot: plot, layouts: layouts)
+                let size = extent(plot: plot, state: s, layouts: layouts)
+                list.append(TouchThing(id: "touch-plot-\(plot)", kind: .plot, act: .build(plot: plot), x: x,
+                                       standX: x, halfWidth: size.half, top: size.top,
+                                       rank: TouchRules.rank(.plot)))
+            }
+            var seen = Set<String>()
+            for figure in figures where figure.alpha > 0.5 && figure.petition == nil && !seen.contains(figure.who) {
+                guard Speakers.canTalk(figure.who), !HallRules.livesInHallNow(figure.who, flags: s.flags),
+                      lines.line(for: figure.who, state: s) != nil else { continue }
+                seen.insert(figure.who)
+                list.append(person(figure, act: .talk(who: figure.who), lordX: s.king.x,
+                                   court: Speakers.speaker(figure.who)?.role == .court,
+                                   marked: !talked.contains(figure.who)))
+            }
+            if AudienceRules.gate(s, catalog: .standard) != nil {
+                let x = CourtLayout.strangerAtGate
+                list.append(TouchThing(id: "touch-talk-seren", kind: .talk, act: .stranger, x: x,
+                                       standX: x + TouchRules.armsLength * (s.king.x < x ? -1 : 1), halfWidth: 6,
+                                       top: 30, rank: TouchRules.rank(.talk, court: true), who: "seren"))
+            }
+        } else {
+            for plot in Realm.brazierPlots where plot < s.plots.count {
+                guard s.plots[plot].item != nil, s.plots[plot].snuffed else { continue }
+                let x = Realm.plots[plot].x
+                let size = extent(plot: plot, state: s, layouts: layouts)
+                list.append(TouchThing(id: "touch-brazier-\(plot)", kind: .brazier, act: .light(plot: plot), x: x,
+                                       standX: x, halfWidth: size.half, top: size.top,
+                                       rank: TouchRules.rank(.brazier)))
+            }
+            for plot in Realm.wallsOuterFirst where plot < s.plots.count {
+                let state = s.plots[plot]
+                guard let item = state.item, item.isWall, !state.isRubble,
+                      state.hp < Build.maxHP(item, balance: balance) else { continue }
+                let x = Realm.plots[plot].x + min(item.width, 40) / 2
+                let size = extent(plot: plot, state: s, layouts: layouts)
+                list.append(TouchThing(id: "touch-wall-\(plot)", kind: .wall, act: .patch(plot: plot), x: x,
+                                       standX: x, halfWidth: size.half, top: size.top,
+                                       rank: TouchRules.rank(.wall), price: balance.patchCost))
+            }
+        }
+        let barracks = KingTargets.barracksX
+        list.append(TouchThing(id: "touch-recruit-barracks", kind: .recruit, act: .recruit, x: barracks,
+                               standX: barracks, halfWidth: Double(SpriteID.barracks.size.width) / 2 - 4,
+                               top: Double(SpriteID.barracks.size.height) - 4, rank: TouchRules.rank(.recruit)))
+        list.append(TouchThing(id: "touch-door-hall", kind: .door, act: .hallDoor, x: HallRules.doorX,
+                               standX: HallRules.doorX, halfWidth: 9, top: worldDoorTop,
+                               rank: TouchRules.rank(.door)))
+        return list
+    }
+
+    /// The great hall's door in the world: its top above the walk line (the forebuilding's door the world lane
+    /// paints at x 1830).
+    static let worldDoorTop = 40.0
+
+    /// Someone with a word: his touch area is his body, his mark over his head, and the lord stops an arm's length
+    /// before him on the side he comes from.
+    static func person(_ figure: DrawnFigure, act: KingTarget, lordX: Double, court: Bool, marked: Bool,
+                       id: String? = nil) -> TouchThing {
+        let size = figure.sprite.size
+        let side: Double = lordX < figure.x ? -1 : 1
+        return TouchThing(id: id ?? "touch-talk-\(figure.who)", kind: .talk, act: act, x: figure.x,
+                          standX: figure.x + TouchRules.armsLength * side, halfWidth: Double(size.width) / 2 - 4,
+                          top: figure.y + Double(size.height), rank: TouchRules.rank(.talk, court: court),
+                          marked: marked, who: figure.who, look: figure.look)
+    }
+
+    /// Half the drawn width and the drawn top of what stands on a plot (game px; an empty site: a small sign's
+    /// height, its mark low over the ground).
+    static func extent(plot: Int, state s: GameState, layouts: [LineLayout]) -> (half: Double, top: Double) {
+        let spec = Realm.plots[plot]
+        let lift = EntityFrames.drawnCentre(plot: plot, layouts: layouts).y
+        guard let item = s.plots[plot].item else { return (6, max(6, lift)) }
+        switch item {
+        case .gate, .ironGate, .greatGate: return (24, 64)
+        case .palisade: return (10, 34)
+        case .stoneWall: return (16, 50)
+        case .bastion: return (20, 58)
+        case .archerTower: return (10, 56)
+        case .watchtower: return (11, 66)
+        case .brazier: return (5, 14)
+        case .fireTower: return (8, 34)
+        case .ballista, .catapult: return (11, lift + 18)
+        case .stakePit: return (10, 6)
+        case .beaconBase: return (20, 30)
+        case .beaconTower: return (20, 52)
+        case .greatBeacon: return (22, 70)
+        case .smithy, .masterSmithy: return (28, 44)
+        case .lodge, .bigLodge: return (26, 42)
+        case .house: return (22, 46)
+        case .bigHouse: return (26, 54)
+        case .field: return (spec.slot == .field ? 26 : 20, 8)
+        case .market: return (28, 36)
+        case .tavern: return (28, 50)
+        }
+    }
+
+    // MARK: - The great hall
+
+    /// The hall's things now. `figures`: the hall's figures as drawn; `talked`: who was heard today; `lordX`: where
+    /// he stands in the hall.
+    static func hall(_ s: GameState, figures: [DrawnFigure], talked: Set<String>, lordX: Double,
+                     lines: CourtLineBook = .standard) -> [TouchThing] {
+        guard !s.defeated else { return [] }
+        var list: [TouchThing] = []
+        let doorTop = Double(HallLayout.floorRow - HallLayout.doorTop)
+        list.append(TouchThing(id: "touch-door-hall", kind: .door, act: .hallDoor, x: HallLayout.doorX,
+                               standX: HallLayout.doorX, halfWidth: 12, top: doorTop, rank: TouchRules.rank(.door)))
+        guard DayClock.phase(at: s.hour) == .day else { return list }
+        let waiting = !AudienceRules.hall(s, catalog: .standard).isEmpty
+        if waiting {
+            let lift = HallLayout.lift(at: HallLayout.throneX)
+            list.append(TouchThing(id: "touch-throne", kind: .throne, act: .throne, x: HallLayout.throneX,
+                                   standX: HallLayout.throneX, halfWidth: 10, top: lift + CourtFrames.throneMarkY - 4,
+                                   rank: TouchRules.rank(.throne)))
+        } else {
+            list.append(TouchThing(id: "touch-lectern", kind: .lectern, act: .lectern, x: HallLayout.lecternX,
+                                   standX: HallLayout.lecternX, halfWidth: 6, top: 22, rank: TouchRules.rank(.lectern),
+                                   marked: false))
+        }
+        // Each occupied bench is one target: the seated sit 11 px apart, too close for a finger.
+        let order = s.court?.queue.map(\.id) ?? []
+        let benchHalf = Double(SpriteID.bench.size.width) / 2
+        for (index, centre) in HallLayout.benches.enumerated() {
+            let seated = figures.filter { figure in
+                figure.petition != nil && !figure.key.hasPrefix("leaving:") && figure.onBench
+                    && abs(figure.x - centre) <= benchHalf + 4
+            }
+            guard !seated.isEmpty else { continue }
+            let first = seated.min { a, b in
+                (order.firstIndex(of: a.petition ?? "") ?? Int.max) < (order.firstIndex(of: b.petition ?? "") ?? Int.max)
+            } ?? seated[0]
+            let top = seated.map { $0.y + Double($0.sprite.size.height) }.max() ?? 24
+            let side: Double = lordX < first.x ? -1 : 1
+            list.append(TouchThing(id: "touch-bench-\(index)", kind: .bench, act: .bench(index: index), x: centre,
+                                   standX: first.x + TouchRules.armsLength * side, halfWidth: benchHalf + 2, top: top,
+                                   rank: TouchRules.rank(.bench), markAt: first.x, who: first.who, look: first.look))
+        }
+        var seen = Set<String>()
+        for figure in figures where figure.petition == nil && !seen.contains(figure.who) {
+            guard !figure.key.hasPrefix("leaving:"), Speakers.canTalk(figure.who),
+                  lines.line(for: figure.who, state: s) != nil else { continue }
+            seen.insert(figure.who)
+            list.append(person(figure, act: .talk(who: figure.who), lordX: lordX,
+                               court: Speakers.speaker(figure.who)?.role == .court,
+                               marked: !talked.contains(figure.who)))
+        }
+        return list
+    }
+}
+
+extension HallRules {
+    /// True for the hall's own court, who never stand in the world now (Odile, Mother Hesper, the Stranger once let
+    /// in); the court of the world's rounds is drawn where it walks.
+    static func livesInHallNow(_ who: String, flags: [String]) -> Bool {
+        switch who {
+        case "odile", "hesper": return true
+        case "seren": return flags.contains(CourtLayout.serenInFlag)
+        default: return false
+        }
+    }
+}

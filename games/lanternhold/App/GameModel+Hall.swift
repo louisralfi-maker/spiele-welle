@@ -347,9 +347,11 @@ extension GameModel {
         let residents = HallCourt.residents(day: state.day, hour: state.hour, flags: state.flags)
         let figures = HallFrames.drawnFigures(specs, scene: scene, court: court, residents: residents,
                                               lordX: hallLordX, since: scene.since, animTime: animationTime)
-        let input = HallFrameInput(state: state, balance: balance, scene: scene, court: court, figures: figures,
+        var input = HallFrameInput(state: state, balance: balance, scene: scene, court: court, figures: figures,
                                    specs: specs, lord: state.lordOrDefault, pixelScale: pixelScale, options: options,
                                    ambient: ambient, weather: options.weather, animTime: animationTime)
+        // Touch the world (step stage-2): the hall's things, their marks and the framing the finger reads.
+        input.touchMarks = touchHall(state: state, figures: figures, pixelScale: pixelScale, scene: scene)
         let frame = HallFrames.build(input)
         noteHallFrame(figures: figures)
         return frame
@@ -390,7 +392,9 @@ extension GameModel {
             if abs(anchor - stageAnchor) > 0.002 { stageAnchor = anchor }
         }
         if var bubble = talkBubble {
+            // Touch the world: a bench's first in line speaks from his seat too.
             let figure = figures.first { $0.who == bubble.who && $0.petition == nil }
+                ?? figures.first { $0.who == bubble.who }
             let x = figure?.x ?? court.talkX ?? hallLordX
             let height = Double(figure?.sprite.size.height ?? 30)
             let lift = figure?.y ?? 0

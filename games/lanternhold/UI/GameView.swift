@@ -19,17 +19,29 @@ struct GameView: View {
         ZStack {
             WorldSceneView(model: model)
                 .ignoresSafeArea()
+                .accessibilitySortPriority(-2)
             if model.kind == .world {
                 // The hall stage: the dark of a change of stage, over the scene and under the HUD.
                 StageVeil(darkness: model.stageDarkness)
             }
             if model.kind != .lightLab {
-                WalkPad(model: model)
+                // Touch the world (step stage-2): the whole screen takes the finger.
+                TouchLayer(model: model)
                     .ignoresSafeArea()
                     .allowsHitTesting(model.overlay == nil)
             }
             HUDView(model: model)
             if model.kind == .world {
+                // Touch the world: the things in view for VoiceOver and the tests (after the HUD in the order), the
+                // slip above the thing he walks to, the first minute's slip.
+                TouchSpotsView(model: model)
+                    .accessibilitySortPriority(-1)
+                if let slip = model.errandSlip, model.overlay == nil {
+                    ErrandSlipView(slip: slip)
+                }
+                if model.firstTouchSlip, model.overlay == nil {
+                    FirstTouchSlipView(text: model.story("touch.first"))
+                }
                 // M3: a court member's line in a bubble over him.
                 if let bubble = model.talkBubble, model.overlay == nil {
                     TalkBubbleView(bubble: bubble, model: model)
@@ -59,31 +71,6 @@ struct GameView: View {
     }
 }
 
-/// Touch anywhere in the left 45 % and drag sideways (DESIGN.md "Controls"): the king walks toward the drag and runs
-/// beyond 40 pt; lifting the finger stops him.
-@MainActor
-struct WalkPad: View {
-    let model: GameModel
-
-    var body: some View {
-        GeometryReader { geometry in
-            Color.clear
-                .frame(width: geometry.size.width * 0.45, height: geometry.size.height)
-                .contentShape(Rectangle())
-                .gesture(
-                    DragGesture(minimumDistance: 0)
-                        .onChanged { value in
-                            model.setDrag(offset: Double(value.translation.width))
-                        }
-                        .onEnded { _ in
-                            model.setDrag(offset: nil)
-                        }
-                )
-        }
-        .accessibilityHidden(true)
-    }
-}
-
 /// The scene's `MTKView` (bgra8Unorm, native scale, 60 fps cap).
 @MainActor
 struct WorldSceneView: UIViewRepresentable {
@@ -107,6 +94,20 @@ struct WorldSceneView: UIViewRepresentable {
         view.accessibilityIdentifier = "world-scene"
         view.accessibilityLabel = "Lanternhold"
         view.accessibilityValue = "frame:0"
+        // Touch the world (M13): a VoiceOver or Switch Control user reaches what is out of view without a drag.
+        if model.kind == .world {
+            let model = self.model
+            view.accessibilityCustomActions = [
+                UIAccessibilityCustomAction(name: String(localized: "Walk left")) { _ in
+                    MainActor.assumeIsolated { model.walkScreen(-1) }
+                    return true
+                },
+                UIAccessibilityCustomAction(name: String(localized: "Walk right")) { _ in
+                    MainActor.assumeIsolated { model.walkScreen(1) }
+                    return true
+                },
+            ]
+        }
         return view
     }
 

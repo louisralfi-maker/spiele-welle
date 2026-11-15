@@ -125,6 +125,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // dust mote and the plaster patches over the brick (tools/hallstage.py)
     case greatHall, hallPillarNear, hallFire, tapTalk, tapThrone, tapBuild, tapRepair, tapRecruit, tapLight
     case hallShaft, hallMote, hallWash
+    // Touch the world (stage lane, step stage-2, 15.11.2026): the seventh mark, a door, over the great hall's door
+    // in the world and its inner door (tools/hallart.py)
+    case tapDoor
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -356,6 +359,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .hallPillarNear: return PixelSize(width: 30, height: 201)
         case .hallFire: return PixelSize(width: 34, height: 28)
         case .tapTalk, .tapThrone, .tapBuild, .tapRepair, .tapRecruit, .tapLight: return PixelSize(width: 15, height: 18)
+        case .tapDoor: return PixelSize(width: 15, height: 18)
         case .hallShaft: return PixelSize(width: 83, height: 120)
         case .hallMote: return PixelSize(width: 1, height: 1)
         case .hallWash: return PixelSize(width: 64, height: 44)
@@ -410,6 +414,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         // The hall stage (stage lane): the great fire's six frames, idle and pressed marks, eight plaster patches.
         case .hallFire: return 6
         case .tapTalk, .tapThrone, .tapBuild, .tapRepair, .tapRecruit, .tapLight: return 2
+        case .tapDoor: return 2
         case .hallWash: return 8
         default: return 1
         }

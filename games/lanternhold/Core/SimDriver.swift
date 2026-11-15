@@ -43,6 +43,9 @@ struct SimDriver: Sendable {
     /// Where a tap on the realm strip sends the king (DESIGN.md "Controls"): he runs there and stops; nil when he does
     /// not travel. Any drag cancels it.
     var travelTarget: Double?
+    /// Touch the world (stage lane, step stage-2): the pace of that walk (a walk, a hurry or a run); nil runs, as the
+    /// realm strip always did.
+    var travelSpeed: Double?
     /// A card or the pause sheet is open (the UI sets it).
     var isPaused = false
     /// The app is not active.
@@ -115,7 +118,7 @@ struct SimDriver: Sendable {
                 state.king.velocity = 0
                 travelTarget = nil
             } else {
-                let speed = balance.kingRunSpeed
+                let speed = travelSpeed ?? balance.kingRunSpeed
                 state.king.velocity = max(-speed, min(speed, gap / dt))
             }
         }
@@ -185,10 +188,11 @@ struct SimDriver: Sendable {
     }
 
     /// A tap on the realm strip: the king runs to `x` (inside his walk) and stops there; autoplay ends.
-    mutating func travel(to x: Double) {
+    mutating func travel(to x: Double, speed: Double? = nil) {
         bot = nil
         walker = nil
         travelTarget = min(Realm.walkEnd, max(0, x))
+        travelSpeed = speed
     }
 
     /// The defeat card's second chance (DESIGN.md "Losing a night"; the rewarded video comes in M7): the hearth flares

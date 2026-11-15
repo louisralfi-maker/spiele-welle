@@ -2,8 +2,9 @@ import UIKit
 import XCTest
 
 /// M2b part 2's UI (DESIGN.md "Tests", "UI"): `testFirstDay` plays day 1 from a fresh realm (`-GWReset YES`, no
-/// onboarding, the clock four times as fast): the HUD, a walk, a tap on the realm strip, the build card and an order,
-/// the barracks, the audience with the tutorial's farmer (M3) and the tax lectern, the horn, the night, the dawn
+/// onboarding, the clock four times as fast): the HUD, a walk, a touch on a site (touch the world, step stage-2) and
+/// its build card and an order, a tap on the realm strip and a touch on the barracks, a touch on the hall's door and on
+/// the throne for the audience with the tutorial's farmer (M3), the tax lectern, the horn, the night, the dawn
 /// report. `testScreens` opens the dawn report and the
 /// finale's report with sample data (`-GWScreen report|finale`), the defeat card (`-GWScreen defeat`) with its replay,
 /// and the pause sheet with its confirmation. Every button is checked for 44 pt. Saves `<nn>-<what>-<lang>`.
@@ -45,16 +46,20 @@ final class FirstDayUITests: XCTestCase {
         let after = kingX(app)
         XCTAssertGreaterThan(after, before + 10, "the drag walked the king right (\(before) to \(after))")
 
-        // A tap on the realm strip at line 1's braziers: he runs there; the hammer opens the build card.
+        // Touch the world (step stage-2): a touch on line 1's empty brazier site sends him there; its card opens
+        // when he arrives. No action button any more.
+        XCTAssertFalse(element(app, "action-button").exists, "the action button is gone")
         let strip = element(app, "realm-strip")
-        tapStrip(strip, worldX: 1262)
-        XCTAssertTrue(waitForKing(app, near: 1262, within: 14, timeout: 20), "the king ran to the braziers")
-        let button = element(app, "action-button")
-        XCTAssertTrue(button.waitForExistence(timeout: 6), "the hammer shows at the plot")
-        checkTarget(button, "action button")
-        button.tap()
+        if let site = waitForThing(app, "touch-plot-2", timeout: 8) {
+            checkTarget(site, "the site")
+            touchThing(site)
+            XCTAssertTrue(waitForField(app, "errand:touch-plot-2", timeout: 4) || element(app, "build-card").exists,
+                          "he set off to the site")
+        } else {
+            XCTFail("the brazier site offers nothing")
+        }
         let card = element(app, "build-card")
-        XCTAssertTrue(card.waitForExistence(timeout: 6), "the build card opens")
+        XCTAssertTrue(card.waitForExistence(timeout: 20), "the build card opens when he arrives")
         pause(0.5)
         attach(XCUIScreen.main.screenshot(), "41-build-card-\(language)")
         let brazier = element(app, "build-option-brazier")
@@ -66,13 +71,13 @@ final class FirstDayUITests: XCTestCase {
         XCTAssertTrue(waitForGone(card, timeout: 6), "the card closes after the order")
         XCTAssertTrue(waitForValue(gold, "48", timeout: 6), "the order cost 12 gold (\(String(describing: gold.value)))")
 
-        // The barracks.
+        // The barracks: the realm strip takes him near, a touch on the barracks opens the recruit card.
         tapStrip(strip, worldX: 1513)
         XCTAssertTrue(waitForKing(app, near: 1513, within: 14, timeout: 20), "the king ran to the barracks")
-        if button.waitForExistence(timeout: 6) {
-            button.tap()
+        if let barracks = waitForThing(app, "touch-recruit-barracks", timeout: 6) {
+            touchThing(barracks)
             let recruit = element(app, "recruit-card")
-            if recruit.waitForExistence(timeout: 6) {
+            if recruit.waitForExistence(timeout: 12) {
                 pause(0.5)
                 attach(XCUIScreen.main.screenshot(), "42-recruit-\(language)")
                 checkTarget(element(app, "recruit-archer"), "recruit archer")
@@ -82,29 +87,24 @@ final class FirstDayUITests: XCTestCase {
                 XCTFail("the recruit card did not open")
             }
         } else {
-            XCTFail("no coins at the barracks")
+            XCTFail("the barracks offer nothing")
         }
 
-        // The throne (M3): the tutorial's farmer is heard, then the taxes at the throne. The hall stage (14.11.2026):
-        // in by the hall's door, then a drag down the nave to the dais.
-        tapStrip(strip, worldX: 1830)
-        XCTAssertTrue(waitForKing(app, near: 1830, within: 14, timeout: 20), "the king ran to the hall's door")
-        if button.waitForExistence(timeout: 6) {
-            button.tap()
+        // The throne (M3): the tutorial's farmer is heard, then the taxes at the lectern. The hall stage: in by a
+        // touch on the hall's door, then a touch on the throne.
+        tapStrip(strip, worldX: 1790)
+        XCTAssertTrue(waitForKing(app, near: 1790, within: 14, timeout: 20), "the king ran toward the hall's door")
+        if let door = waitForThing(app, "touch-door-hall", timeout: 6) {
+            touchThing(door)
         } else {
             XCTFail("no door at the hall")
         }
-        XCTAssertTrue(waitForField(app, "stage:hall", timeout: 10), "in the great hall")
+        XCTAssertTrue(waitForField(app, "stage:hall", timeout: 14), "in the great hall")
         pause(0.4)
-        let nave = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.12, dy: 0.62))
-        let further = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.26, dy: 0.62))
-        nave.press(forDuration: 0.05, thenDragTo: further, withVelocity: .default, thenHoldForDuration: 4.2)
-        let hx = hallX(app)
-        XCTAssertTrue((326...470).contains(hx), "the drag ran him to the dais (hx \(hx))")
-        if button.waitForExistence(timeout: 6) {
-            button.tap()
+        if let throne = waitForThing(app, "touch-throne", timeout: 8) {
+            touchThing(throne)
             let audience = element(app, "audience-root")
-            if audience.waitForExistence(timeout: 10) {
+            if audience.waitForExistence(timeout: 20) {
                 let choice = element(app, "audience-choice-0")
                 checkTarget(choice, "audience choice")
                 choice.tap()
@@ -116,16 +116,16 @@ final class FirstDayUITests: XCTestCase {
                 }
                 XCTAssertTrue(waitForGone(audience, timeout: 6), "the audience ends with the last petitioner")
             } else {
-                XCTFail("the crown did not open the audience")
+                XCTFail("the throne did not open the audience")
             }
         } else {
-            XCTFail("no crown at the throne")
+            XCTFail("no mark at the throne")
         }
-        // Nobody waits any more: at the throne the button opens the taxes.
-        if button.waitForExistence(timeout: 6) {
-            button.tap()
+        // Nobody waits any more: the lectern beside the throne opens the taxes (until the town's taxes on foot).
+        if let lectern = waitForThing(app, "touch-lectern", timeout: 8) {
+            touchThing(lectern)
             let taxes = element(app, "tax-card")
-            if taxes.waitForExistence(timeout: 6) {
+            if taxes.waitForExistence(timeout: 10) {
                 pause(0.5)
                 attach(XCUIScreen.main.screenshot(), "43-taxes-\(language)")
                 checkTarget(element(app, "tax-low"), "tax low")
@@ -135,7 +135,7 @@ final class FirstDayUITests: XCTestCase {
                 XCTFail("the tax card did not open")
             }
         } else {
-            XCTFail("no book at the tax lectern")
+            XCTFail("no lectern beside the throne")
         }
 
         // Back in front of the gate for the night; the horn at 19:00.
