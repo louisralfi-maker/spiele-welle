@@ -35,6 +35,11 @@ struct HallFrameInput {
     /// Step stage-2 (the stage-1 critic's second high): the inner door stands open (just after he came in, and while
     /// he goes out through it).
     var doorOpen = false
+    /// Stage-3-interface (HUD.md section 3): the gold and the notes above the lord (the block, his x, the floor's lift
+    /// under him), drawn unlit after everything; nil: none.
+    var lordNotes: (block: HUDKit.Block, x: Double, ground: Double)? = nil
+    /// The lantern moment: the lord's lantern brighter.
+    var lanternUp = false
 }
 
 /// The great hall's frame (stage lane, 14.11.2026; DESIGN.md "The hall stage and touch the world", SPRITES.md "The
@@ -719,6 +724,9 @@ enum HallFrames {
             if walker.isWalking {
                 let step = Int((walker.x * Double(walker.facing) / EntityFrames.kingStride).rounded(.down))
                 frame = ((step % 6) + 6) % 6
+            } else if input.lanternUp {
+                // Stage-3-interface: the lantern moment, the pole held high (the command frame).
+                frame = 9
             } else {
                 frame = 6 + FrameBuilder.idleFrame(time: animTime, frames: 2)
             }
@@ -787,6 +795,15 @@ enum HallFrames {
                           * (mark.pressed ? TouchRules.pressedPool : 1),
                       color: GamePalette.fireGold)
             }
+        }
+
+        // Stage-3-interface (HUD.md section 3): the gold and the notes above the lord, unlit, over everything.
+        if let notes = input.lordNotes {
+            let framing = TouchFraming(stage: .hall, whole: g.whole(.world),
+                                       deviceShift: Double(offsets[Plane.world.rawValue].deviceShift), scale: zoom,
+                                       groundY: g.groundDeviceY, physicalWidth: Double(g.physicalWidth),
+                                       physicalHeight: Double(g.physicalHeight))
+            actors += HUDKitActors.actors(notes.block, lordX: notes.x, groundLift: notes.ground, framing: framing)
         }
 
         var planes: [PlaneLayer] = []

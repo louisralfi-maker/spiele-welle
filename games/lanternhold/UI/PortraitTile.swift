@@ -23,7 +23,7 @@ enum PortraitImages {
     }
 }
 
-/// A 48x48 portrait as a miniature on a dusk ground in an inked frame with a line of gold leaf (docs/UI-look.md), drawn
+/// A 48x48 portrait as a miniature on a dusk ground inside night glass's brass line (TITLE.md section 4), drawn
 /// with whole device pixels per art pixel (never smoothed).
 struct PortraitTile: View {
     let portrait: AudienceCard.Portrait
@@ -36,9 +36,11 @@ struct PortraitTile: View {
         let whole = max(1, (inner * displayScale / art).rounded(.down))
         let points = art * whole / displayScale
         ZStack {
-            RoundedRectangle(cornerRadius: 2, style: .continuous)
-                .fill(LinearGradient(colors: [Color(hex: 0x3B3566), Color(hex: 0x6E5A7E), Color(hex: 0xC98A6A)],
+            // Night glass (stage-3-interface): the dusk ground only inside the picture, the brass line round it.
+            Rectangle()
+                .fill(LinearGradient(colors: [Color(hex: 0x262E5C), Color(hex: 0x4E5A82), Color(hex: 0xA04A60)],
                                      startPoint: .top, endPoint: .bottom))
+                .frame(width: inner, height: inner)
             if let image = PortraitImages.image(portrait) {
                 Image(decorative: image, scale: 1)
                     .resizable()
@@ -47,11 +49,7 @@ struct PortraitTile: View {
                     .frame(width: inner, height: inner, alignment: .bottom)
                     .clipShape(Rectangle())
             }
-            RoundedRectangle(cornerRadius: 2, style: .continuous)
-                .strokeBorder(Theme.ink, lineWidth: 2)
-            Rectangle()
-                .inset(by: 2.5)
-                .strokeBorder(Theme.gold, lineWidth: 1)
+            GlassPortraitLine()
         }
         .frame(width: side, height: side)
         .accessibilityHidden(true)

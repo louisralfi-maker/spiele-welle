@@ -6,14 +6,7 @@ import SwiftUI
 /// Lantern's teal: the next one rising from his bench is the cue, the plaque only answers it. At least 52 pt high.
 struct TealPlaqueButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(Theme.caps(.headline))
-            .foregroundStyle(Theme.teal)
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, 18)
-            .padding(.vertical, 8)
-            .frame(minWidth: 52, minHeight: 52)
-            .background(PlaqueBackground(marked: true, pressed: configuration.isPressed))
-            .contentShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
+        // Night glass (stage-3-interface; the director's note of 15.11. 05:36): a quiet plaque in the choices' place.
+        GlassQuietButtonStyle(inside: false).makeBody(configuration: configuration)
     }
 }

@@ -220,6 +220,18 @@ final class GameModel {
     /// The first minute's slip "Touch what the lord shall do." shows.
     var firstTouchSlip = false
 
+    // MARK: The lantern moment (stage lane, step stage-3-interface, 15.11.2026; `GameModel+Lantern.swift`, HUD.md)
+
+    /// The lantern moment while it shows (a tap on the lord): the world stands still and the realm's figures stand
+    /// above him; nil when the lantern is down.
+    var lanternMoment: LanternMomentShow? = nil
+    /// The realm strip stands by itself for a call (petitioners, the Stranger, a breach at night).
+    var stripCalling = false
+    /// The gold at the lord, the change notes and the strip's call (UI state, not observed).
+    @ObservationIgnored var purse = PurseTicker(gold: 0)
+    @ObservationIgnored var notes = ChangeNotes(happiness: 0, people: 0)
+    @ObservationIgnored var stripCall = StripCall()
+
     /// `store` is where the game's save lives (the app's own by default; the tests pass a temporary one, so they never
     /// touch the simulator app's real save).
     init(args: DebugArgs, kind: SceneKind, store saveStore: SaveStore? = SaveStore.standard()) {
@@ -294,6 +306,8 @@ final class GameModel {
         if overlay == nil, let state = driver?.state, LordEntry.asks(args: args, state: state) {
             setOverlay(.lordEntry)
         }
+        // The lantern moment (stage-3-interface): the purse and the notes start from the realm as it is.
+        resetLanternHUD()
         refreshHUD()
     }
 
@@ -345,7 +359,11 @@ final class GameModel {
     /// The app went to the background: the game comes back paused (unless a screen is already open).
     func pauseForBackground() {
         guard kind == .world, overlay == nil, !isShowcase, driver?.state.defeated == false else { return }
-        setOverlay(.pause)
+        // HUD.md section 2 (stage-3-interface): the app going to the background raises the lantern by itself; the
+        // pause sheet only where the moment cannot stand (no frame drawn yet).
+        if lanternMoment != nil { return }
+        openLanternMoment()
+        if lanternMoment == nil { setOverlay(.pause) }
     }
 
     // MARK: - Simulation
@@ -652,8 +670,10 @@ final class GameModel {
 
     func setOverlay(_ next: Overlay?) {
         if next != nil && next != .audience { closeTalk() }
+        // The lantern moment (stage-3-interface) goes down under any card.
+        if next != nil && lanternMoment != nil { lanternMoment = nil }
         if overlay != next { overlay = next }
-        driver?.isPaused = next != nil
+        driver?.isPaused = next != nil || lanternMoment != nil
         if next != nil { driver?.setDrag(offset: nil) }
         refreshHUD()
     }
@@ -887,6 +907,8 @@ final class GameModel {
         court = CourtScene(rooms: RoomFades(kingX: HallRules.roomsX(state.king.x)))
         // The hall stage: a new realm's lord, or a dawn in the hall's slot, starts in the hall; else in the world.
         resetStage(state)
+        // The lantern moment (stage-3-interface): no purse ticks across a jump.
+        resetLanternHUD()
     }
 
     /// `-GWScreen report|finale|defeat`: that screen with sample data over the realm the other arguments made.
@@ -1246,6 +1268,9 @@ final class GameModel {
         text += " lx:\(Int(stageLordX.rounded())) errand:\(touch.errand?.id ?? "none")"
         // Fix round 1: where the painted hall door stands in the world (the tests check he comes out there).
         if stage == .world { text += " door:\(Int(HallLayout.worldDoorX.rounded()))" }
+        // The lantern moment (stage-3-interface): the treasury, and what stands on the world (none, the gold or a
+        // note above the lord, the strip for a call, the moment).
+        text += " gold:\(state.gold) hud:\(hudWord)"
         // Raise the lantern: its phase at night.
         if DayClock.phase(at: state.hour) != .day {
             text += " lantern:\(GameModel.lanternWord(LanternRaise.phase(since: state.king.lanternSince)))"

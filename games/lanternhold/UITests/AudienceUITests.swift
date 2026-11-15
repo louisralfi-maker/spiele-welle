@@ -49,13 +49,14 @@ final class AudienceUITests: XCTestCase {
                                "-GWClock", "10", "-GWCameraX", "1530"]
         app.launch()
         guard waitUntilReady(app, name: "castle") else { return }
+        // Stage-3-interface (docs/HUD.md section 3): the waiting petitioners call, and the strip comes by itself.
         let strip = element(app, "realm-strip")
-        XCTAssertTrue(strip.waitForExistence(timeout: 10))
+        XCTAssertTrue(strip.waitForExistence(timeout: 6), "the call brings the strip")
         XCTAssertFalse(((strip.value as? String) ?? "").isEmpty, "the strip marks the petitioners waiting")
         pause(1.0)
         attach(XCUIScreen.main.screenshot(), "58-courtyard-court-\(language)")
 
-        tapStrip(strip, worldX: 1675)
+        tapRealmStrip(app, worldX: 1675)
         XCTAssertTrue(waitForKing(app, near: 1675, within: 14, timeout: 20), "the king walked to the hall's door")
         pause(0.8)
         attach(XCUIScreen.main.screenshot(), "60-hall-front-\(language)")
@@ -73,7 +74,7 @@ final class AudienceUITests: XCTestCase {
         attach(XCUIScreen.main.screenshot(), "51-hall-court-\(language)")
 
         // A tap on the strip from inside: out by the door and on to the kitchen.
-        tapStrip(strip, worldX: 2183)
+        tapRealmStrip(app, worldX: 2183)
         XCTAssertTrue(waitForKing(app, near: 2183, within: 14, timeout: 20), "the king stepped into the kitchen")
         pause(0.9)
         attach(XCUIScreen.main.screenshot(), "57-kitchen-open-\(language)")
@@ -97,7 +98,7 @@ final class AudienceUITests: XCTestCase {
             XCTFail("no bubble over Tamsin")
         }
 
-        tapStrip(strip, worldX: 2036)
+        tapRealmStrip(app, worldX: 2036)
         XCTAssertTrue(waitForKing(app, near: 2036, within: 14, timeout: 20), "the king stepped into the chapel")
         pause(0.9)
         attach(XCUIScreen.main.screenshot(), "56-chapel-open-\(language)")
@@ -241,9 +242,6 @@ final class AudienceUITests: XCTestCase {
         return false
     }
 
-    private func tapStrip(_ strip: XCUIElement, worldX: Double) {
-        strip.coordinate(withNormalizedOffset: CGVector(dx: worldX / 3900, dy: 0.5)).tap()
-    }
 
     private func waitForGone(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
         let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: element)

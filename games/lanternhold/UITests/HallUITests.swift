@@ -39,8 +39,7 @@ final class HallUITests: XCTestCase {
             + ["-GWClock", "10", "-GWStage", "world", "-GWCameraX", "hallDoor+80"]
         app.launch()
         guard waitUntilReady(app, name: "hall-door") else { return }
-        let strip = element(app, "realm-strip")
-        XCTAssertTrue(strip.waitForExistence(timeout: 10))
+        // Stage-3-interface: no standing strip on the world (docs/HUD.md).
         // Touch the world (step stage-2): a touch on the hall's door; he walks to it and goes in.
         XCTAssertFalse(element(app, "action-button").exists, "no action button")
         guard let door = waitForThing(app, "touch-door-hall", timeout: 8) else {
@@ -117,7 +116,7 @@ final class HallUITests: XCTestCase {
         }
         // Out by the strip: through the door and on into the bailey.
         pause(0.8)
-        tapStrip(strip, worldX: 1600)
+        tapRealmStrip(app, worldX: 1600)
         XCTAssertTrue(waitForField(app, "stage:world", timeout: 12), "out by the door")
         XCTAssertTrue(waitForKing(app, near: 1600, within: 14, timeout: 20), "and on to the bailey")
         app.terminate()
@@ -315,9 +314,6 @@ final class HallUITests: XCTestCase {
         return false
     }
 
-    private func tapStrip(_ strip: XCUIElement, worldX: Double) {
-        strip.coordinate(withNormalizedOffset: CGVector(dx: worldX / 3900, dy: 0.5)).tap()
-    }
 
     private func waitForGone(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
         let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: element)

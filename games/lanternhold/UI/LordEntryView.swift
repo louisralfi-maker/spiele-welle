@@ -59,7 +59,7 @@ struct LordEntryView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Odile writes the name into the family book.")
                         .font(Theme.italic(.footnote))
-                        .foregroundStyle(Theme.teal)
+                        .foregroundStyle(NightGlass.mist)
                         .fixedSize(horizontal: false, vertical: true)
                     field
                     Button {
@@ -83,7 +83,7 @@ struct LordEntryView: View {
                   prompt: Text(verbatim: LordIdentity.defaultName).foregroundStyle(Theme.inkSoft.opacity(0.6)))
             .font(Theme.italic(.title3))
             .foregroundStyle(Theme.ink)
-            .tint(Theme.teal)
+            .tint(NightGlass.lanternGold)
             .textInputAutocapitalization(.words)
             .autocorrectionDisabled()
             .submitLabel(.done)
@@ -95,20 +95,8 @@ struct LordEntryView: View {
             }
             .padding(.horizontal, 12)
             .frame(minHeight: 48)
-            .background(RoundedRectangle(cornerRadius: 2, style: .continuous).fill(Theme.plaque.opacity(0.6)))
-            .overlay(
-                RoundedRectangle(cornerRadius: 2, style: .continuous)
-                    .strokeBorder(typing ? Theme.teal : Theme.rule.opacity(0.45), lineWidth: typing ? 1.5 : 1)
-            )
-            // The ruled line of the family book the name is written on.
-            .overlay(alignment: .bottom) {
-                Rectangle()
-                    .fill(typing ? Theme.teal : Theme.ink)
-                    .frame(height: 1.5)
-                    .padding(.horizontal, 9)
-                    .padding(.bottom, 9)
-                    .accessibilityHidden(true)
-            }
+            // Night glass (stage-3-interface): the field is an inset plaque, its line lantern gold while writing.
+            .background(GlassPlaqueBackground(marked: typing, inside: true))
             .accessibilityLabel(Text("Your name"))
             .accessibilityIdentifier("lord-name-field")
     }
@@ -126,7 +114,7 @@ struct LordEntryView: View {
                 PortraitTile(portrait: .own(portrait, frame: 0), side: 76)
                 (choice == .lady ? Text("Lady Lantern") : Text("Lord Lantern"))
                     .font(Theme.caps(.footnote))
-                    .foregroundStyle(chosen ? Theme.teal : Theme.inkSoft)
+                    .foregroundStyle(chosen ? NightGlass.lanternGold : NightGlass.mist)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }

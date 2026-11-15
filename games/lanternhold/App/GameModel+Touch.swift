@@ -64,7 +64,7 @@ struct TouchState: Sendable {
 /// instead of the action button. A tap (a touch that never moves 10 pt) on a thing sends the lord to it; he walks
 /// (hurries beyond 480 px and at night; runs after a second tap on the same thing) and does what it offers when he
 /// arrives within 6 px of its standing place; a damaged wall's repair waits there for a second touch, which pays. A tap
-/// on the ground walks him there; a tap on the lord does nothing. Past 10 pt the touch is a drag, anywhere on the
+/// on the ground walks him there; a tap on the lord raises the lantern moment (stage-3-interface). Past 10 pt the touch is a drag, anywhere on the
 /// screen: he walks toward it, runs past 40 pt, stops when the finger lifts, and the errand is called off. While a card
 /// is open the world takes no touch.
 extension GameModel {
@@ -152,12 +152,24 @@ extension GameModel {
               let place = stagePoint(point, in: size) else { return }
         if firstTouchSlip { firstTouchSlip = false }
         touch.firstSlipPending = false
-        if let thing = TouchRules.pick(x: place.x, lift: place.lift, things: touch.things, minimum: place.minimum) {
+        let picked = TouchRules.pick(x: place.x, lift: place.lift, things: touch.things, minimum: place.minimum)
+        // Stage-3-interface: a touch on the lord's own body raises the lantern moment even where he stands in a
+        // thing's area (a site he stands on), unless the finger is nearer the thing, it is a person, or he waits
+        // there for the second touch that pays.
+        if isOnLordsBody(place), picked.map({ prefersLord(over: $0, x: place.x) }) ?? true {
+            openLanternMoment()
+            return
+        }
+        if let thing = picked {
             touchThing(thing)
             return
         }
-        // Tapping the lord does nothing (stage-3 gives him the lantern moment; a hold at night raises the lantern).
-        if isOnLord(place) { return }
+        // A tap on the lord raises the lantern moment (stage-3-interface, HUD.md section 2; a hold at night still
+        // raises the lantern against the dark).
+        if isOnLord(place) {
+            openLanternMoment()
+            return
+        }
         cancelErrand()
         feedback.play(.touched)
         walk(to: groundX(place.x), run: false)
@@ -171,6 +183,20 @@ extension GameModel {
         case .guttering: return "guttering"
         case .resting: return "resting"
         }
+    }
+
+    /// True for a point on the middle of the lord's body, below where the marks hang (stage-3-interface).
+    func isOnLordsBody(_ place: (x: Double, lift: Double, minimum: Double)) -> Bool {
+        let ground = stage == .hall ? HallLayout.lift(at: stageLordX) : 0
+        return abs(place.x - stageLordX) <= 5 && place.lift >= ground + 3 && place.lift <= ground + 20
+    }
+
+    /// The lord before a thing under the same finger: not while he waits there to pay, never before a person, and
+    /// only when the finger is at least as near him as the thing's middle.
+    func prefersLord(over thing: TouchThing, x: Double) -> Bool {
+        if let errand = touch.errand, errand.id == thing.id, errand.waiting { return false }
+        if thing.isPerson { return false }
+        return abs(x - stageLordX) <= abs(x - thing.x)
     }
 
     /// True for a point on the lord's body.
@@ -317,6 +343,8 @@ extension GameModel {
     /// and is dropped when its offer is gone, a card opens or he stopped elsewhere. Then the first minute's slip.
     func stepTouch(_ seconds: Double) {
         guard kind == .world else { return }
+        // The lantern moment's side (stage-3-interface): the purse, the notes, the strip's call.
+        stepLanternHUD()
         stepFirstSlip()
         if touch.down != nil, touch.onLord, !touch.dragging, !touch.raised,
            clock.elapsed - touch.downAt >= LanternRaise.holdSeconds {
@@ -451,6 +479,8 @@ extension GameModel {
                                               tint: SIMD4<Float>(gold.x, gold.y, gold.z, 1), flipped: false,
                                               isEmissive: true, isLit: true))
         }
+        // Stage-3-interface: the gold and the notes above the lord, his raised pose while the lantern is up.
+        lanternWorld(&layer, state: state, framing: framing)
         noteTouchFrame()
     }
 
@@ -604,6 +634,11 @@ extension GameModel {
                 let value = thing.price.map { String(localized: "\($0) gold") }
                 spots.append(TouchSpot(id: thing.id, label: touchLabel(thing, state: state), value: value,
                                        rect: rect))
+            }
+            // Stage-3-interface: the lord himself, whose touch raises the lantern moment (HUD.md section 2).
+            if let lord = lordSpot(framing: framing, minimum: minimum) {
+                let index = spots.firstIndex { $0.rect.minX > lord.rect.minX } ?? spots.count
+                spots.insert(lord, at: index)
             }
         }
         if spots != touchSpots { touchSpots = spots }

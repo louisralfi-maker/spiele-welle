@@ -45,6 +45,17 @@
         }
       }
     },
+    "%@, day %lld, %lld gold, %@, %lld people" : {
+      "comment" : "VoiceOver label of the lord and the lantern moment (HUD.md section 2): the lord's name, the day, the treasury, the town's mood in words, the people.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, Tag %2$lld, %3$lld Gold, %4$@, %5$lld Einwohner"
+          }
+        }
+      }
+    },
     "%@, guard" : {
       "comment" : "Dawn report: a fallen guard.",
       "localizations" : {
@@ -622,6 +633,17 @@
         }
       }
     },
+    "Chapter" : {
+      "comment" : "Pause sheet (M10): the quiet row over the chapter's restart.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapitel"
+          }
+        }
+      }
+    },
     "Close" : {
       "comment" : "Accessibility label of a card's close button.",
       "localizations" : {
@@ -684,6 +706,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tag %lld bricht an"
+          }
+        }
+      }
+    },
+    "Double tap to go on" : {
+      "comment" : "VoiceOver hint on the lantern moment (stage-3-interface): any touch lowers the lantern and the world runs on.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doppeltippen, um weiterzuspielen"
+          }
+        }
+      }
+    },
+    "Double tap to pause" : {
+      "comment" : "VoiceOver hint on the lord (stage-3-interface): his touch raises the lantern and the world stands still.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doppeltippen für die Pause"
           }
         }
       }
@@ -2645,6 +2689,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Markt +%lld"
+          }
+        }
+      }
+    },
+    "the town is even" : {
+      "comment" : "The town's mood in words for VoiceOver (the hood face even, happiness 30 to 59).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "die Stadt ist ruhig"
+          }
+        }
+      }
+    },
+    "the town is glad" : {
+      "comment" : "The town's mood in words for VoiceOver (the hood face glad, happiness 60 or more).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "die Stadt ist froh"
+          }
+        }
+      }
+    },
+    "the town is grim" : {
+      "comment" : "The town's mood in words for VoiceOver (the hood face grim, happiness 15 to 29).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "die Stadt ist verdrossen"
+          }
+        }
+      }
+    },
+    "the town is in unrest" : {
+      "comment" : "The town's mood in words for VoiceOver (the hood face in unrest, happiness under 15).",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "die Stadt ist in Aufruhr"
           }
         }
       }

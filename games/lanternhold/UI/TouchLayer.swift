@@ -52,8 +52,11 @@ struct TouchSpotsView: View {
                         .accessibilityLabel(Text(verbatim: spot.label))
                         .accessibilityValue(Text(verbatim: spot.value ?? ""))
                         .accessibilityAddTraits(.isButton)
+                        .accessibilityHint(spot.id == "touch-lord" ? Text("Double tap to pause") : Text(verbatim: ""))
                         .accessibilityIdentifier(spot.id)
-                        .accessibilityAction { model.touchSpot(spot.id) }
+                        .accessibilityAction {
+                            if spot.id == "touch-lord" { model.openLanternMoment() } else { model.touchSpot(spot.id) }
+                        }
                 }
             }
             .frame(width: width, height: height, alignment: .topLeading)
@@ -65,7 +68,7 @@ struct TouchSpotsView: View {
 }
 
 /// The slip above the thing the lord walks to: what he is about to do and what it costs ("Repair the wall" and the
-/// coin with 10), on the interface's slip, its pointer down to the thing's mark. Over a damaged wall it stays once he
+/// coin with 10), on night glass (stage-3-interface), its pixel tail down to the thing. Over a damaged wall it stays once he
 /// stands there, until a second touch pays; the price turns red while the treasury cannot pay it.
 @MainActor
 struct ErrandSlipView: View {
@@ -91,18 +94,17 @@ struct ErrandSlipView: View {
                 .font(Theme.caps(.footnote))
                 .foregroundStyle(Theme.ink)
             if let price = slip.price {
-                GoldAmount(amount: price, size: 12, color: slip.shortOfGold ? Theme.rubric : Theme.ink)
+                // Night glass (stage-3-interface): the coin and the price in lantern gold, ember when short.
+                GoldAmount(amount: price, size: 13, color: slip.shortOfGold ? Theme.short : NightGlass.lanternGold)
             }
         }
         .lineLimit(1)
         .padding(.horizontal, 10)
-        .padding(.vertical, 4)
-        .background(SlipBackground())
+        .padding(.vertical, 5)
+        .background(GlassPanelBackground())
         .overlay(alignment: .bottom) {
-            PointerShape()
-                .fill(Theme.rule)
-                .frame(width: 10, height: 5)
-                .offset(y: 5)
+            GlassTail()
+                .offset(y: 4 * NightGlass.pointsPerPixel)
         }
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("touch-slip")

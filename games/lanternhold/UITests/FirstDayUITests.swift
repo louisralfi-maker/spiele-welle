@@ -26,15 +26,11 @@ final class FirstDayUITests: XCTestCase {
         app.launch()
         guard waitUntilReady(app, name: "first-day") else { return }
 
-        // The HUD on the first morning, in front of the gatehouse.
-        let gold = element(app, "hud-gold")
-        XCTAssertTrue(gold.waitForExistence(timeout: 10), "the gold shows")
-        XCTAssertEqual(gold.value as? String, "60")
-        XCTAssertTrue(element(app, "hud-happiness").exists)
-        XCTAssertTrue(element(app, "hud-clock").exists)
-        checkTarget(element(app, "hud-pause"), "pause")
-        checkTarget(element(app, "realm-strip"), "realm strip")
-        attach(XCUIScreen.main.screenshot(), "40-hud-\(language)")
+        // Stage-3-interface (docs/HUD.md): nothing stands on the walked world. The first morning's call (the
+        // farmer waits in the hall) brings the realm strip up for a few seconds; then the world is bare.
+        XCTAssertFalse(element(app, "hud-pause").exists, "no pause seal on the world")
+        XCTAssertFalse(element(app, "hud-gold").exists, "no ledger slip on the world")
+        XCTAssertTrue(waitForField(app, "gold:60", timeout: 6), "the treasury starts at 60")
 
         // A walk: a drag on the left of the screen.
         let before = kingX(app)
@@ -45,11 +41,33 @@ final class FirstDayUITests: XCTestCase {
         pause(0.3)
         let after = kingX(app)
         XCTAssertGreaterThan(after, before + 10, "the drag walked the king right (\(before) to \(after))")
+        // The lord walking by day: no interface at all (the strip's call has gone by now).
+        XCTAssertTrue(waitForField(app, "hud:none", timeout: 8), "nothing stands on the world")
+        attach(XCUIScreen.main.screenshot(), "40-walk-no-hud-\(language)")
+
+        // The lantern moment: a touch on the lord stills the world; above him the gold, the mood, the people and
+        // the day; the strip at the top, the gear in the corner.
+        XCTAssertTrue(openLantern(app), "a touch on the lord raises the lantern")
+        let gold = element(app, "hud-gold")
+        XCTAssertTrue(gold.waitForExistence(timeout: 4), "the gold shows over the lord")
+        XCTAssertEqual(gold.value as? String, "60")
+        XCTAssertTrue(element(app, "hud-happiness").exists)
+        XCTAssertTrue(element(app, "hud-people").exists)
+        XCTAssertTrue(element(app, "hud-clock").label.hasPrefix("Day 1") || element(app, "hud-clock").label.hasPrefix("Tag 1"))
+        checkTarget(element(app, "hud-pause"), "the gear")
+        checkTarget(element(app, "realm-strip"), "realm strip")
+        pause(0.3)
+        attach(XCUIScreen.main.screenshot(), "160-lantern-moment-\(language)")
+        let hourBefore = sceneField(app, "hour:")
+        pause(1.0)
+        XCTAssertEqual(sceneField(app, "hour:"), hourBefore, "the world stands still")
+        lowerLantern(app)
+        XCTAssertFalse(element(app, "lantern-moment").exists, "any other touch lowers the lantern")
+        XCTAssertFalse(element(app, "hud-gold").exists, "and the figures go with it")
 
         // Touch the world (step stage-2): a touch on line 1's empty brazier site sends him there; its card opens
         // when he arrives. No action button any more.
         XCTAssertFalse(element(app, "action-button").exists, "the action button is gone")
-        let strip = element(app, "realm-strip")
         if let site = waitForThing(app, "touch-plot-2", timeout: 8) {
             checkTarget(site, "the site")
             touchThing(site)
@@ -69,10 +87,13 @@ final class FirstDayUITests: XCTestCase {
         XCTAssertTrue(brazier.isEnabled, "60 gold pay for a brazier")
         brazier.tap()
         XCTAssertTrue(waitForGone(card, timeout: 6), "the card closes after the order")
-        XCTAssertTrue(waitForValue(gold, "48", timeout: 6), "the order cost 12 gold (\(String(describing: gold.value)))")
+        // The coins leave him: the coin and the figure tick down above his head (HUD.md section 3).
+        pause(0.25)
+        attach(XCUIScreen.main.screenshot(), "161-purse-at-lord-\(language)")
+        XCTAssertTrue(waitForField(app, "gold:48", timeout: 6), "the order cost 12 gold")
 
         // The barracks: the realm strip takes him near, a touch on the barracks opens the recruit card.
-        tapStrip(strip, worldX: 1513)
+        tapRealmStrip(app, worldX: 1513)
         XCTAssertTrue(waitForKing(app, near: 1513, within: 14, timeout: 20), "the king ran to the barracks")
         if let barracks = waitForThing(app, "touch-recruit-barracks", timeout: 6) {
             touchThing(barracks)
@@ -92,7 +113,7 @@ final class FirstDayUITests: XCTestCase {
 
         // The throne (M3): the tutorial's farmer is heard, then the taxes at the lectern. The hall stage: in by a
         // touch on the hall's door, then a touch on the throne.
-        tapStrip(strip, worldX: 1790)
+        tapRealmStrip(app, worldX: 1790)
         XCTAssertTrue(waitForKing(app, near: 1790, within: 14, timeout: 20), "the king ran toward the hall's door")
         if let door = waitForThing(app, "touch-door-hall", timeout: 6) {
             touchThing(door)
@@ -142,7 +163,7 @@ final class FirstDayUITests: XCTestCase {
         }
 
         // Back in front of the gate for the night; the horn at 19:00.
-        tapStrip(strip, worldX: 1150)
+        tapRealmStrip(app, worldX: 1150)
         let horn = element(app, "horn-banner")
         if horn.waitForExistence(timeout: 100) {
             attach(XCUIScreen.main.screenshot(), "44-horn-\(language)")
@@ -159,8 +180,7 @@ final class FirstDayUITests: XCTestCase {
         checkTarget(proceed, "continue")
         proceed.tap()
         XCTAssertTrue(waitForGone(report, timeout: 6), "Continue closes the report")
-        let clock = element(app, "hud-clock")
-        XCTAssertTrue(clock.label.hasPrefix("Day 2") || clock.label.hasPrefix("Tag 2"), "day 2 (\(clock.label))")
+        XCTAssertTrue(waitForField(app, "day:2", timeout: 4), "day 2")
         note("first-day", "scene after the report: \((scene.value as? String) ?? "")")
         app.terminate()
     }
@@ -205,11 +225,11 @@ final class FirstDayUITests: XCTestCase {
             attach(XCUIScreen.main.screenshot(), "48-defeat-\(language)")
             element(defeat, "defeat-replay").tap()
             XCTAssertTrue(waitForGone(root, timeout: 6), "replay closes the card")
-            let clock = element(defeat, "hud-clock")
-            XCTAssertTrue(clock.waitForExistence(timeout: 6))
-            XCTAssertTrue(clock.label.contains("06:"), "back at this day's dawn (\(clock.label))")
+            let hour = Double(sceneField(defeat, "hour:") ?? "") ?? -1
+            XCTAssertTrue(hour >= 6 && hour < 7, "back at this day's dawn (\(hour))")
 
-            // The pause sheet and its confirmation.
+            // The pause sheet and its confirmation: the gear of the lantern moment.
+            XCTAssertTrue(openLantern(defeat), "a touch on the lord raises the lantern")
             let pauseButton = element(defeat, "hud-pause")
             pauseButton.tap()
             let sheet = element(defeat, "pause-sheet")
@@ -272,7 +292,6 @@ final class FirstDayUITests: XCTestCase {
         return false
     }
 
-    /// Taps the realm strip where it shows world x `worldX` (the map spans its whole width).
     /// The hall stage: the lord's place in the hall (`hx:` in the scene's value), -1 outside.
     private func hallX(_ app: XCUIApplication) -> Double {
         let text = (element(app, "world-scene").value as? String) ?? ""
@@ -288,9 +307,6 @@ final class FirstDayUITests: XCTestCase {
         return false
     }
 
-    private func tapStrip(_ strip: XCUIElement, worldX: Double) {
-        strip.coordinate(withNormalizedOffset: CGVector(dx: worldX / 3900, dy: 0.5)).tap()
-    }
 
     private func waitForGone(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
         let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: element)
