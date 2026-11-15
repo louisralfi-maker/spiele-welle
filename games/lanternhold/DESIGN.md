@@ -3601,6 +3601,16 @@ burning doorway) and ten highs. Art: `tools/keepfix.py` (ART-look2.md section 24
   stillness under Reduce Motion, the moon at one column at every camera and clear of the keep where it shows,
   `-GWCastle` and the gate); `WorldRebuild2Tests`, `Look2FrameTests.testTheCastleTiers` and `CastleRoomsTests` follow the
   new anchors.
+- **Rounds** (the director's notes of 18:46 and 19:35: `build unit "ui …"`, English only; the gate's UI classes
+  WorldSweepUITests, Look2UITests and WorldStoryUITests): lh-w2f1-1 on be97c3c (build and UI passed; three unit checks:
+  the puff's placeholder, the wedge's faint last row, the glow-band test counting the rock's occluders), lh-w2f1-2 on
+  baa209c (one unit check: the keep's mist on fog A before the bank's tiles), lh-w2f1-3 on eb4ecb9 ALL PASSED, lh-w2f1-4
+  on 886a717, the gate: ALL PASSED. Its upright sweep: `ci-out/lh-w2f1-4/sweep-upright`; the scenemock previews of the
+  keep beside the gatehouse at 1360 and 1830: `ci-out/lh-w2f1-previews`.
+- **Open after the fix round:** the lord's own lantern (the lord lane's) still lays its round pool over the chapel's
+  brazier when he stands at the chapel's door; the moon shows only where the Throat's wedge passes its column (camera
+  about 1570 to 1650), by the nature of a still moon behind a moving slit; world-1's highs 1 to 5 and 7 (the water reads
+  as a chain behind the keep, among them); the six other languages of the two story lines (the store pass).
 <!-- END world lane: World rebuild (14.11.2026) -->
 
 ## Risks
