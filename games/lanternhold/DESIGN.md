@@ -3665,6 +3665,19 @@ files: `GameModel` (the state, `setOverlay` keeps the moment's pause, the backgr
   read from his element a moment earlier fell on the site he stood on and opened its card; the scene's value carries
   `cam:` and the tests wait for it; the lord's body wins within 7 px and over a bench (furniture), never over a person
   standing there or a wall he waits at to pay. The lady's portrait has a gold drop at her ear lobe (hand-finished).
+- **Rounds** (the gate by the director's notes of 14.11. 18:46 and 19:35: one round, English, no `ui-de`, no
+  `release`): `lh-s3-1` build (the night glass file of 62c17fd builds); `lh-s3-2` build and the touched unit classes
+  (two of the new tests: the purse's stride, the call's strip in the hud value); `lh-s3-3` build, unit, ui FirstDay and
+  Touch (FirstDay: the call's strip stood half the time, the report's Continue filled half the card); `lh-s3-4` and
+  `lh-s3-5` the gate's classes (all unit tests and five UI classes passed; FirstDay's touch on the lord on his site,
+  the moment in the hall and at dusk); `lh-s3-6` the model test of that touch (passed: the camera had eased on);
+  `lh-s3-7` ui FirstDay, Touch, Audience (the touch fixed; the day ran out at four times as fast); **`lh-s3-8` build,
+  unit and ui Touch, FirstDay, Hall, Audience, Lord, Polish and Look2 ALL PASSED on 35b9c8b** (the gate; sweep
+  `ci-out/lh-s3-8-upright`). The atlas: 2048 x 1925 of 2048 rows, unchanged (the kit fills gaps of the page).
+- **Open:** the title (TITLE.md, not this lane's); ja and zh-Hans (the store pass); the count (PAY.md: the second touch
+  still pays); the lantern's breathing before the horn (HUD.md section 4, first in the cut order); the strip covers the
+  castle's crowns while it shows (the world lane's tops, H5's second half); the Burgherrin reads young and distinct
+  from the Burgherr but could be softer still (a lip colour, a lighter cheek).
 - **After round lh-s3-3's sweep:** the glass plaque's skins lie behind its words (as ZStack siblings the resizable
   skins took all the room: the report's Continue filled half the card); the strip's Throat carries low crags in haze
   rising into the cleft's walls toward the gate and the beacon's crag (that half of the map was an empty line).
