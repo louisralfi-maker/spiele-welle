@@ -278,3 +278,39 @@ def mountain(pic, outer_l, inner_l, inner_r, outer_r, facets_l, facets_r, light=
                     continue
                 pic.px(x, y, warm[0] if (dist < reach * 0.5 and inner < lip * 0.5) else warm[1])
     return m
+
+
+# --- round 3 of the prologue: hand-set figures -------------------------------------------------------------------
+def grid_parts(rows, x0, y0, legend):
+    """Hand-set pixel grid -> {char: mask}. Each char is a region with its own dark base and lit tones (legend)."""
+    out = {}
+    for r, row in enumerate(rows):
+        for q, ch in enumerate(row):
+            if ch in (".", " "):
+                continue
+            X, Y = x0 + q, y0 + r
+            if 0 <= X < W and 0 <= Y < H:
+                out.setdefault(ch, np.zeros((H, W), bool))[Y, X] = True
+    return [(out[ch], legend[ch]) for ch in legend if ch in out]
+
+
+def light_grid(pic, parts, lx, ly, depth=3):
+    """Night versions of hand-set people: each region a dark mass; only px whose step toward the light leaves the
+    whole figure take its lit tones (outer px the first, the next 1..depth-1 the second). legend values:
+    (base, lit1, lit2[, depth])."""
+    U = np.zeros((H, W), bool)
+    for m, _ in parts:
+        U |= m
+    for m, spec in parts:
+        base, l1, l2 = spec[:3]
+        dep = spec[3] if len(spec) > 3 else depth
+        for y, x in zip(*np.where(m)):
+            d = math.hypot(x - lx, y - ly) or 1.0
+            vx, vy = (lx - x) / d, (ly - y) / d
+            facing = 0
+            for k in range(1, dep + 1):
+                qx, qy = int(round(x + vx * k)), int(round(y + vy * k))
+                if not (0 <= qx < W and 0 <= qy < H) or not U[qy, qx]:
+                    facing = k
+                    break
+            pic.px(x, y, (l1 if facing == 1 else l2) if facing else base)
