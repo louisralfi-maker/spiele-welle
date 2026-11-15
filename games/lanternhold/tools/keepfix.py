@@ -290,8 +290,8 @@ TIERS = {
     # the corner towers' walls, the main block's walls, the roof's ridge, the chimney's top, the stair turret's wall,
     # the stair hall's wall
     1: dict(tower=106, wall=98, ridge=120, chimney=122, turret=120, hall=94),
-    2: dict(tower=126, wall=118, ridge=140, chimney=142, turret=136, hall=108),
-    3: dict(tower=126, wall=118, ridge=140, chimney=142, turret=126, hall=108),
+    2: dict(tower=126, wall=118, ridge=140, chimney=136, turret=136, hall=108),
+    3: dict(tower=126, wall=118, ridge=140, chimney=136, turret=126, hall=108),
 }
 KTOWERS = ((64, 97), (222, 255))     # the round corner towers
 KBODY = (98, 221)                    # the main block between them
@@ -479,8 +479,11 @@ def keep_roof(c, t, seed):
     TA.roof(c.im, top, bot, lambda y: int(round(ra - (ra - a0) * (y - top) / run)),
             lambda y: int(round(rb + (b0 - rb) * (y - top) / run)), SLATE, "slate", seed, moss=False, mid=0.55,
             shade=10)
-    chx = rb + 8
-    TA.chimney(c.im, chx, chx + 5, c.r(t["chimney"]), c.r(ridge - 12), seed)
+    if ridge > 130:                                 # tiers 2 and 3: low on the right slope, its smoke under the HUD
+        TA.chimney(c.im, 200, 205, c.r(t["chimney"]), c.r(t["chimney"] - 12), seed)
+    else:
+        chx = rb + 8
+        TA.chimney(c.im, chx, chx + 5, c.r(t["chimney"]), c.r(ridge - 12), seed)
 
 
 def keep_brazier(c, t):
@@ -1012,8 +1015,8 @@ JAMB_SPRING = (64, 20)   # the gatehouse's gateway springs at about y 62, the po
 
 
 def gate_jamb(seed, spring):
-    """The near jamb of a gate passage in the foreground while the lord passes: an opaque pier of 12 px of coursed stone
-    in the passage's shade (the wall's thickness, nearest the eye), standing beside the opening's east edge from 6 rows
+    """The near jamb of a gate passage in the foreground while the lord passes: an opaque pier of 12 px of the gate's own
+    coursed stone (the wall's thickness, nearest the eye; the foreground's light keeps it a step darker), standing beside the opening's east edge from 6 rows
     under the lane (it stands nearer than the gate's own foot) up to the passage's springing, where its top is cut as
     the arch begins (rising toward the opening); a warm lit edge on its left and along that cut (the torch inside), a
     shaded right edge. A doorpost that frames the lord, never a bar across the screen (round lh-w2f1-1 drew it to the
@@ -1029,15 +1032,15 @@ def gate_jamb(seed, spring):
             off = int(h01(seed, k) * 7)
             joint = (up % 6 == 0) or ((x + off) % 9 == 0)
             if up == top or up == top - 1 and x < x1 - 2:
-                name = "woodLight" if up == top else "wood"   # the cut catches the passage's torch
+                name = "stonePale" if up == top else "stoneLight"   # the cut catches the passage's torch
             elif x == x0:
-                name = "wood" if joint else "woodLight"
+                name = "stoneLight" if joint else "stonePale"
             elif x == x0 + 1:
-                name = "stoneDark" if joint else "rockDark"
+                name = "stoneMid" if joint else "stone"
             elif x == x1:
-                name = "nightBlue"
+                name = "stoneDark"
             else:
-                name = "nightSlate" if joint else ("stoneDark" if h01(seed, k, (x + off) // 9) < 0.55 else "nightSlate")
+                name = "stoneDark" if joint else ("stoneMid" if h01(seed, k, (x + off) // 9) < 0.6 else "stone")
             c.set(x, y, name)
     return c.im
 

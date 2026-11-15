@@ -107,7 +107,8 @@ extension SceneLayout {
     static func castleChimney(_ prop: Prop) -> (x: Double, y: Double)? {
         switch prop.sprite {
         case .keepT1: return (prop.x + 187.5, 122)
-        case .keepT2, .keepT3, .keepT3Build: return (prop.x + 187.5, 142)
+        // (fix round 1, after lh-w2f1-3: tiers 2 and 3 low on the right slope, so the smoke rises under the HUD)
+        case .keepT2, .keepT3, .keepT3Build: return (prop.x + 202.5, 136)
         case .bakehouse: return (prop.x + 75, 61)
         default: return nil
         }

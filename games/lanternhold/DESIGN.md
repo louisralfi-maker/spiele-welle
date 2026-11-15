@@ -3569,7 +3569,8 @@ burning doorway) and ten highs. Art: `tools/keepfix.py` (ART-look2.md section 24
   with the wind's drift, a pale value; from the dusk each puff also catches the moon (the same sprite in the emissive
   pass, `CastleSmoke.moonGlow`), and over the bakehouse the oven's glow lights them from below over their first 16
   rows (`fireGlow`), so they stand a value over the night's rock (round lh-w2f1-2: as albedo alone they sank into it);
-  still with Reduce Motion.
+  still with Reduce Motion. The keep's chimney at tiers 2 and 3 stands low on the roof's right slope (its mouth at y
+  136), so its smoke rises under the HUD's realm strip, which hid most of it (round lh-w2f1-3).
 - **The postern's passage (high 4):** the jambs' faces and the vault in shadow, receding cobbles, a far opening with the
   valley's daylight, lantern-warm at night (`posternFarGlow`).
 - **The forebuilding (high 5):** a slate roof sloping back to its ridge, a dormer with a thick coping (the lord's
@@ -3579,7 +3580,7 @@ burning doorway) and ten highs. Art: `tools/keepfix.py` (ART-look2.md section 24
   lit only on its left haunch.
 - **The gates' frame (high 7):** `gateArchFg` is the near jamb of each passage (16x116, 2 frames, foreground, moving
   with the world plane, its lit edge at the opening's east edge, `CastleRooms.jambInset`): an opaque pier of 12 px of
-  dark coursed stone beside the opening, from 6 rows under the lane to the passage's springing, its top cut as the arch
+  the gate's coursed stone beside the opening, from 6 rows under the lane to the passage's springing, its top cut as the arch
   begins, with a warm lit edge, only while the lord passes (`archTenths`). Round lh-w2f1-1 drew it up over the screen's
   top (a pole across the gatehouse), round lh-w2f1-2 see-through over the opening (a ghost).
 - **The building states (high 8):** heavy scaffolding, a crane whose jib stands over the roof line (tier 2), timber
