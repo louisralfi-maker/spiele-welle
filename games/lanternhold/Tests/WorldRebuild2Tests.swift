@@ -139,4 +139,16 @@ final class WorldRebuild2Tests: XCTestCase {
         let valley = frame(world, timeOfDay: 0.5, focus: 2700)
         XCTAssertEqual(valley.ambient.warmth - castle.ambient.warmth, SceneLayout.valleyWarmthGain, accuracy: 1e-4)
     }
+
+    /// World-1's high 6 (the critic, look 3): at night the cleft's granite is a step darker than by day (its albedo at
+    /// `1 − look2CleftNightDim`), so the castle's windows carry the picture; the other mid pieces keep their tint.
+    func testTheCleftWallDarkensAtNight() {
+        let world = PlaceholderScene.world(look: .two)
+        func tint(_ timeOfDay: Double) -> Float? {
+            frame(world, timeOfDay: timeOfDay, focus: 1800).layer(.mid).sprites
+                .first { SceneLayout.look2CleftPieces.contains($0.sprite) }?.tint.x
+        }
+        XCTAssertEqual(tint(0.5) ?? 0, 1, accuracy: 1e-4)
+        XCTAssertEqual(tint(0.97) ?? 0, 1 - SceneLayout.look2CleftNightDim, accuracy: 0.02)
+    }
 }

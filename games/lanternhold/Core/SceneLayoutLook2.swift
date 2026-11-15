@@ -218,6 +218,10 @@ extension SceneLayout {
         (.mid, Entry(sprite: .cleftShaft, x: look2ShaftX, y: 0, z: 4, anchor: .top, region: .castle,
                      sunShaft: look2ShaftShare)),
     ]
+    /// The cleft's own granite (step C and the wall) and how much darker its albedo grows at full night (world-2,
+    /// `FrameBuilder.addProp`).
+    static let look2CleftPieces: Set<SpriteID> = [.throatStepC, .cleftWallA, .cleftWallB, .cleftWallC]
+    static let look2CleftNightDim: Float = 0.4
     /// The steps' left edges (mid x) and the cleft wall's pieces (C ends toward the valley at 1528).
     static let look2StepX: [Double] = [360, 450, 600]
     static let look2CleftX: [Double] = [824, 1080, 1336]

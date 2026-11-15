@@ -670,6 +670,14 @@ enum FrameBuilder {
         let top = geometry.top(y: bottom, height: height)
         let rect = SIMD4<Float>(Float(left), Float(top), Float(prop.width), Float(prop.height))
         var tint = SIMD4<Float>(prop.shade, prop.shade, prop.shade, alpha * prop.alpha)
+        if options.look == .two && prop.plane == .mid && SceneLayout.look2CleftPieces.contains(prop.sprite) {
+            // World-2 (the critic of world-1, look 3: "the wall at night is a pale moonlit cardboard face, brighter than
+            // the castle"): the cleft's granite a step darker as the night comes, so the castle's windows carry it.
+            let dim = 1 - SceneLayout.look2CleftNightDim * Look.nightness(ambient)
+            tint.x *= dim
+            tint.y *= dim
+            tint.z *= dim
+        }
         // Scene polish 2: a cast shadow is black at the sun's strength, a mist bank white at the mist's; both are
         // translucent veils that hide no glow.
         var hidesGlow = true

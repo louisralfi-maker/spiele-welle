@@ -72,8 +72,8 @@ enum CastleRooms {
     /// The gate passage's arch fades in and out over this many px either side of a passage.
     static let archFade = 12.0
     /// The hall's light through the open door, its wedge on the cobbles and the lantern-warm pool before it.
-    static let doorGlowColor = SIMD3<Float>(1.0, 0.9, 0.74)
-    static let doorGlowByDay: Float = 0.55
+    static let doorGlowColor = SIMD3<Float>(0.92, 0.8, 0.62)
+    static let doorGlowByDay: Float = 0.5
     static let doorWedgeColor = SIMD3<Float>(1.0, 0.82, 0.55)
 
     /// True while the lord stands at the hall door.
@@ -170,8 +170,8 @@ enum CastleRooms {
         prop.emissive.append(EmissivePart(sprite: .hallDoorWedge, dx: wedge.dx, dy: wedge.dy, color: doorWedgeColor,
                                           intensity: 0.8, flickerSeed: 0x5745_4447, fadesByDay: true, isFire: false,
                                           flickerAmount: 0.3, flickerPace: 0.5))
-        prop.lights.append(LightSource(kind: .lantern, x: SceneLayout.castleHallDoorX, y: 6, radius: 42,
-                                       intensity: 0.9, flickerSeed: 0x4841_4C4C))
+        prop.lights.append(LightSource(kind: .lantern, x: SceneLayout.castleHallDoorX, y: 4, radius: 36,
+                                       intensity: 0.55, flickerSeed: 0x4841_4C4C))
         return prop
     }
 

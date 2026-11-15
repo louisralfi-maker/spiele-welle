@@ -626,19 +626,20 @@ def cone(c, cx, base, half, h, dim=False):
 
 
 def keep_crown(c, t, seed):
-    """Tier 3: round bartizans with conical slate caps on the corner towers, two smaller ones behind on the far
-    corners, gilded finials."""
+    """Tier 3: round bartizans with conical slate caps crowning the corner towers (a drum on the machicolations in
+    place of the merlons' middle), two smaller ones behind on the far corners, gilded finials; every finial at or under
+    y 150 (the realm strip lies over the screen's rows above it)."""
     tw = t["tower"]
     for cx in (60, 139):                         # the rear turrets, further back, a step darker
         base = c.r(t["ridge"] - 14)
-        for y in range(base - 8, base + 1):
+        for y in range(base - 7, base + 1):
             for x in range(cx - 5, cx + 6):
                 c.set(x, y, "stoneMid" if x > cx + 2 else "stone")
-        cone(c, cx, base - 9, 7, 12, dim=True)
+        cone(c, cx, base - 8, 7, 11, dim=True)
     for (x0, x1) in KTOWERS:
         cx = (x0 + x1) // 2
-        base = c.r(tw + 8)
-        for y in range(base - 11, base + 1):     # a drum corbelled out over the crown
+        base = c.r(tw + 1)                       # on the machicolations
+        for y in range(base - 8, base + 1):      # a drum corbelled out over the crown
             for x in range(cx - 10, cx + 11):
                 k = x - (cx - 10)
                 name = "stoneLight" if 3 <= k <= 6 else "stoneMid" if k >= 16 else "stone"
@@ -647,8 +648,8 @@ def keep_crown(c, t, seed):
                 c.set(x, y, name)
         for x in range(cx - 11, cx + 12):
             c.set(x, base + 1, "stoneLight" if x < cx + 6 else "stoneMid")
-        slit(c, cx - 1, base - 8, 5)
-        cone(c, cx, base - 12, 12, 16)
+        slit(c, cx - 1, base - 6, 4)
+        cone(c, cx, base - 9, 12, 12)
 
 
 def crane(c, x, ytop):
@@ -676,6 +677,9 @@ def keep(tier, building=False):
     if tier == 3 and not building:
         keep_crown(c, t, seed)
     if tier >= 2 and not building:
+        # the realm's banners hung in the outer bays: the house shows its colours once it can afford the cloth
+        banner(c, 47, c.r(90), 7, 15)
+        banner(c, 146, c.r(90), 7, 15)
         tall = tier == 3
         ptop = c.r(170 if tall else 156)
         pole(c, 100, ptop, c.r(t["ridge"] - 1))
@@ -697,17 +701,17 @@ def keep(tier, building=False):
         else:
             for (x0, x1) in KTOWERS:                 # tier 3 under way: timber cones on the corner towers
                 cx = (x0 + x1) // 2
-                base = c.r(t["tower"] + 8)
-                for i in range(17):
+                base = c.r(t["tower"] + 1)
+                for i in range(14):
                     y = base - i
-                    w = 11 * (17 - i) / 17.0
+                    w = 11 * (14 - i) / 14.0
                     c.set(int(round(cx - w)), y, "wood")
                     c.set(int(round(cx + w)), y, "woodDark")
                     if i % 4 == 0:
                         for x in range(int(round(cx - w)), int(round(cx + w)) + 1):
                             c.set(x, y, "woodDark")
                     c.set(cx, y, "wood")
-                c.set(cx, base - 17, "woodLight")
+                c.set(cx, base - 14, "woodLight")
                 scaffold(c, x0 - 4, x1 + 4, c.r(t["tower"] - 8), base - 4, seed + x0, ladder=False)
             pole(c, 100, c.r(156), c.r(t["ridge"] - 1))
             banner(c, 101, c.r(156) + 1, 7, 15)
@@ -1025,9 +1029,9 @@ def forebuilding():
 
 
 def hall_door_glow():
-    """The hall's warm light through the open door (an emitter at forebuilding col 50, dy 1): warm white low and in the
-    middle, deepening to gold, orange and ember toward the arch and the sides; the pillar and the banner inside stay
-    dark."""
+    """The hall's warm light through the open door (an emitter at forebuilding col 50, dy 1): gold low in the middle,
+    deepening to orange and ember toward the arch and the sides (no white: the lord in the doorway must stay a dark
+    figure against it, round lh-w2-2); the pillar and the banner inside stay dark."""
     c = C(20, 30)
     for y in range(30):
         hh = 29 - y
@@ -1036,8 +1040,8 @@ def hall_door_glow():
             if dx * dx + max(0, hh - 19) ** 2 > 9.0 ** 2:
                 continue
             v = hh / 32.0 + dx / 13.0
-            c.set(x, y, "fireWhite" if v < 0.32 else "fireGold" if v < 0.66 else "fireOrange" if v < 0.95 else
-                  "ember")
+            c.set(x, y, "fireGold" if v < 0.3 else "fireOrange" if v < 0.75 else "ember" if v < 1.05 else
+                  "emberDim")
     for hh in range(0, 22):                       # the pillar (forebuilding cols 55-56)
         c.clear(5, c.r(hh))
         c.clear(6, c.r(hh))
