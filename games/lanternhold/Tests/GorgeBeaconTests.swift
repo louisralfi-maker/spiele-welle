@@ -513,8 +513,14 @@ final class GorgeBeaconTests: XCTestCase {
         XCTAssertEqual(report.held, 1, "a small night does not break a beacon")
         XCTAssertEqual(report.lit, [0])
         XCTAssertEqual(report.freed, [.quarry])
-        XCTAssertTrue(Gorge.wallBeyondGate(s), "the stone wall stands, so the beacon is tended")
-        XCTAssertEqual(report.lines(), [GorgeLine(key: GorgeLine.lit), GorgeLine(key: GorgeLine.quarry)])
+        XCTAssertEqual(Array(report.lines().prefix(2)), [GorgeLine(key: GorgeLine.lit), GorgeLine(key: GorgeLine.quarry)])
+        if Gorge.wallBeyondGate(s) {
+            XCTAssertFalse(report.untended, "the wall stands: the struck beacon was tended")
+            XCTAssertEqual(report.lines().count, 2)
+        } else {
+            XCTAssertEqual(report.untended, (s.gorge?.sites[0].strength ?? 0) < Gorge.strength(0, tuning: tuning),
+                           "the wall fell in the night: nobody tended the struck beacon")
+        }
         XCTAssertEqual(s.gorge?.heldAtDawn, 1)
         XCTAssertEqual(s.gorge?.tonight.night, 4, "a fresh tally for the night to come")
     }

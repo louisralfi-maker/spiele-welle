@@ -31,7 +31,8 @@ final class GorgeTuningTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(m.reduction, GorgeMetrics.least, String(line))
     }
 
-    /// 15, second half: a bot that builds beacons and neglects the wall loses them and then the night (by night
+    /// 15, second half: a bot that builds beacons and neglects the wall loses them (the first by night
+    /// `GorgeMetrics.neglectLosesBy`: nobody tends them without a wall) and then the night (by night
     /// `GorgeMetrics.neglectFallsBy`), where the forward bot and the reference hold.
     func testTarget15bNeglectingTheWallLosesTheBeaconsAndThenTheNight() {
         let m = GorgeTuningTests.metrics

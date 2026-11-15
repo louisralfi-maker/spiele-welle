@@ -105,6 +105,7 @@ say("")
 say("== T15 at the chosen values (the full table)")
 let chosenRuns = runs(standard, budgets: runBudgets)
 let referenceRuns = chosenRuns.filter { $0.kind == .reference }
+let wallessRuns = chosenRuns.filter { $0.kind == .walless }
 let chosen = metrics(standard, pairs: pairs(standard), runs: chosenRuns, budgets: runBudgets)
 say(chosen.report)
 say("(\(elapsed()))")
@@ -192,26 +193,27 @@ if doVariants {
         $0.lightRadius = 56; $0.strength = [400, 400, 400, 400]; $0.tendedFromWall = false
         $0.botBeaconSteps = [10, 16, 22, 22]
     }
-    add("pool 56") { $0.lightRadius = 56 }
+    add("strength 600, 500, 400, 400") { $0.strength = [600, 500, 400, 400] }
+    add("strength 600, 500, 400, 300") { $0.strength = [600, 500, 400, 300] }
+    add("strength 700, 500, 400, 300") { $0.strength = [700, 500, 400, 300] }
+    add("strength 600, 450, 350, 300") { $0.strength = [600, 450, 350, 300] }
+    add("strength 500") { $0.strength = [500, 500, 500, 500] }
+    add("strength 600, 500, 400, 300 and pool 44") { $0.strength = [600, 500, 400, 300]; $0.lightRadius = 44 }
+    add("strength 600, 500, 400, 300 and the bolder forward bot (beacons at 10, 19, 22, 22)") {
+        $0.strength = [600, 500, 400, 300]; $0.botBeaconSteps = [10, 19, 22, 22]
+    }
     add("pool 48") { $0.lightRadius = 48 }
-    add("pool 44") { $0.lightRadius = 44 }
     add("pool 36") { $0.lightRadius = 36 }
-    add("pool 32") { $0.lightRadius = 32 }
     add("strength 400") { $0.strength = [400, 400, 400, 400] }
-    add("strength 800") { $0.strength = [800, 800, 800, 800] }
     add("tended always (not from the wall)") { $0.tendedFromWall = false }
-    add("relight a quarter") { $0.relightShare = 0.25 }
     add("a beacon is raised or relit only with a wall beyond the gate") { $0.raiseNeedsWall = true }
-    add("strike reach 16") { $0.strikeReach = 16 }
+    add("the bolder forward bot (beacons at 10, 19, 22, 22)") { $0.botBeaconSteps = [10, 19, 22, 22] }
     add("the forward bot's beacons at 10, 16, 22, 22 (front-3's)") { $0.botBeaconSteps = [10, 16, 22, 22] }
-    add("the forward bot's beacons at 6, 22, 22, 22") { $0.botBeaconSteps = [6, 22, 22, 22] }
-    add("the forward bot's beacons at 10, 19, 22, 22") { $0.botBeaconSteps = [10, 19, 22, 22] }
-    add("the forward bot raises the watchtower once the Great Beacon is ordered") { $0.botWatchStep = 22 }
-    add("the forward bot relights up to 30 gold while saving for the Great Beacon") { $0.botRelightWhileSaving = 30 }
     add("no watchtower") { $0.watchArchers = 0 }
     for (name, balance) in list {
         let pairList = pairs(balance)
         let whole = runs(balance, budgets: [1.0, 1.5], kinds: [.forward, .neglect, .outpost]) + referenceRuns
+            + wallessRuns
         let m = metrics(balance, pairs: pairList, runs: whole, budgets: [1.0, 1.5])
         var budgetsText: [String] = []
         for k in stresses {
@@ -219,8 +221,8 @@ if doVariants {
         }
         say("-- \(name): T15a \(Int((m.reduction * 100).rounded())) % fewer (" + budgetsText.joined(separator: ", ")
             + "), beacons lost in the pairs \(pairList.reduce(0) { $0 + $1.held.lost })")
-        for line in m.report.split(separator: "\n") where line.hasPrefix("T15b") || line.hasPrefix("T15c")
-            || line.hasPrefix("T15 wager") {
+        for line in m.report.split(separator: "\n") where (line.hasPrefix("T15b") || line.hasPrefix("T15c")
+            || line.hasPrefix("T15 wager")) && line.contains("x1.0") {
             say("   " + line)
         }
         for k in [1.0, 1.5] {

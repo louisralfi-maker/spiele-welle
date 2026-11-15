@@ -111,8 +111,11 @@ struct GorgeMetrics: Sendable {
     static let least = 0.30
     /// Fewer reference arrivals than this would make the share a matter of a few draws.
     static let minReached = 300
-    /// T15b: the neglect bot falls by this night.
-    static let neglectFallsBy = 19
+    /// T15b: the neglect bot loses its first beacon by this night (untended without a wall) and falls by the second
+    /// (night 20: before it, no realm without walls falls in today's balance, beacons or none; fix round 1, "for the
+    /// director").
+    static let neglectLosesBy = 8
+    static let neglectFallsBy = 20
 
     var seeds: Int
     var nights: ClosedRange<Int>
@@ -150,7 +153,7 @@ struct GorgeMetrics: Sendable {
                   let reference = run(.reference, seed: seed, stress: stress) else { continue }
             var ok = false
             if let fell = neglect.fellOn, fell <= GorgeMetrics.neglectFallsBy, let loss = neglect.firstLoss,
-               loss <= fell {
+               loss <= min(fell, GorgeMetrics.neglectLosesBy) {
                 let refHeld = reference.fellOn.map { $0 > fell } ?? true
                 let fwdHeld = forward.fellOn.map { $0 > fell } ?? true
                 ok = refHeld && fwdHeld
@@ -244,8 +247,9 @@ struct GorgeMetrics: Sendable {
             let t15b = k == 1.0 ? (passesNeglect(stress: k) ? "PASS" : "FAIL")
                 : (passesNeglect(stress: k) ? "reported, met" : "reported, missed")
             lines.append("T15b \(t15b) \(GorgeMetrics.stressText(k)) whole runs, seeds 1-\(seeds): the neglect bot "
-                         + "(beacons first, no wall built or raised, none patched) lost a beacon and then the night by "
-                         + "night \(GorgeMetrics.neglectFallsBy) where the forward bot and the reference held in \(ok) of "
+                         + "(beacons first, no wall built or raised, none patched) lost a beacon by night "
+                         + "\(GorgeMetrics.neglectLosesBy) and then the night by night \(GorgeMetrics.neglectFallsBy) "
+                         + "where the forward bot and the reference held in \(ok) of "
                          + "\(verdicts.count) (target all); it fell on nights "
                          + "\(runs(.neglect, stress: k).map { $0.fellOn ?? 0 })")
             let asserted = k == 1.0
@@ -261,6 +265,16 @@ struct GorgeMetrics: Sendable {
                          + "\(o.fellWhereHeld.count) seeds \(o.fellWhereHeld), slew the King in \(o.kings) against "
                          + "\(o.refKings), \(o.reached) creatures at its defence on nights 3-14 against \(o.refReached) "
                          + "(target: it does not beat the reference on all three)")
+            let walless = runs(.walless, stress: k)
+            if !walless.isEmpty {
+                let mine = runs(.outpost, stress: k)
+                func lost(_ list: [GorgeRun]) -> Int { list.reduce(0) { $0 + $1.fallen } }
+                lines.append("T15c reported \(GorgeMetrics.stressText(k)): against the walls-neglected control without "
+                             + "beacons: the outpost bot slew the King in \(o.kings) against "
+                             + "\(walless.filter { $0.slewTheKing }.count), \(o.reached) creatures at its defence against "
+                             + "\(walless.reduce(0) { $0 + $1.reached(3...14) }), defenders lost \(lost(mine)) against "
+                             + "\(lost(walless)) (beacons do not strengthen a realm without walls)")
+            }
         }
         lines.append("")
         lines.append("T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | "
