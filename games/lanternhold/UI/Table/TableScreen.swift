@@ -347,7 +347,9 @@ struct TableScreen: View {
         .background(SlipBackground())
         .fixedSize()
         // A lantern and its carved piece stand right of the pin: their tag hangs above them instead.
-        let side: TableMap.TagSide = raised && place.tag == .right ? .above : place.tag
+        var side: TableMap.TagSide = raised && place.tag == .right ? .above : place.tag
+        // A tag above a pin near the table's north edge would hang over the rim: it hangs below instead.
+        if side == .above && place.pin.y < (raised ? 34 : 24) { side = .below }
         let gap: CGFloat = (raised ? 9 : 6) * unit
         let x = (CGFloat(place.pin.x) + 0.5) * unit
         let y = (CGFloat(place.pin.y) + 0.5) * unit

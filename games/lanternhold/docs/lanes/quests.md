@@ -513,3 +513,130 @@ value to try is Stillmere's order 1 without the seal or without the archer (a cl
   rate that sits near the band's floor. For the director with the rest of the tuning.
 - `tools/simtune` (lacks `Core/Table`), the `Remembered` and `CourtWorld` lists, Pip's court line on day 2, the
   chapel's table: as before, for the join and the table screen's step.
+
+## quests-3: the table as a real screen (QUESTS.md 5.2 to 5.5 and 6; rounds `lh-q3-*`)
+
+### What exists
+
+`Overlay.table`'s screen, `UI/Table/TableScreen.swift`, replaces the plain list of step 1 (`TableListView.swift` is
+gone). It opens over the game with `-GWScreen table` (the same one-line `RootView` hook, `TableDebugLayer`, now in
+`UI/Table/TableLayer.swift`); the walked world opens it at the join (below). The clock stands while it is open; no ad
+is ever shown on it.
+
+- **Left, to look at: the carved table top** (300 x 150 texels) at the largest whole number of device pixels per texel
+  that fits beside the column (5 device px = 1.667 pt on the iPhone 17 Pro, 500 x 250 pt; `TableLayout`), never
+  smoothed. Oak planks seen from above: the Weltmauer as a ridge of carved peaks with the one cleft and the castle in
+  it (the house's flame in gold leaf), the Throat cut west to the planed edge, the Wend inlaid in the realm's teal from
+  the northern downs past the mill and the old bridge's stumps to the south sea, the mere at Stillmere, downs, woods,
+  the carved roads from the castle to every place, a small carved sign at each place (Tallowford's roofs, the mill's
+  sails, Highcairn's keep, Greybell's bell tower, Saltgate's sea gate, Goldenacre's furrows, the beacon tower,
+  Beaconfoot's huts), and Lord Edric's planed west: raw lighter oak with its grain and the plane's strokes. No
+  lettering in the art: place names are paper tags the interface draws.
+- **Pins:** ten brass pins (iron for the two places beyond the wall, enamel in the house's colour for the five houses:
+  Varn green, Brine sea blue, Lorn plum, Calder black, Oxmoor red), each with its shadow carved under it. A pin where a
+  sending waits glows (a soft warm light that breathes). Every pin can be touched (46 pt): its tag shows, and the
+  sending waiting there opens in the column.
+- **The rail is the status display (the director's idea of 14.11.):** a board on the chapel wall in pixel art
+  (128 x 32), four iron hooks, a brass plate with the number under each. At home a lantern hangs **dark** on its hook;
+  a lantern out leaves its hook **bare** and **burns on the table at the place it went to**, with its carved boxwood
+  piece beside it (a rider, a walker, Marek's cart or the planks' cart, the bell's bearers; `TableBoard.token`); a lost
+  lantern's hook stays bare and **charred** (soot on the board, a chalk stroke), or carries Bram's blank lantern after
+  `hook_hidden`. A lantern home with its report stands lit beside the castle until the report is read. A touch on a
+  hook or a burning lantern says it under the rail ("Lantern 40 did not come home", "Lantern 38 is out · Highcairn")
+  and shows that place's tag with its dawn ("Home at dawn of day 13").
+- **The line of light:** a thin line of fire creeps along the carved road from the castle toward each party as its
+  nights pass, with a soft glow over it, and touches the lantern on the last day before it is due. It reads only
+  `dueDay`, never `homeDay`: a late party's line simply stays full a day longer and a lost one's never says so
+  (`TableBoard.lightFraction`, unit-tested). The plain list of step 1 showed "Home at dawn of day {homeDay}", which
+  told the player a late roll in advance; every text of the new screen uses `dueDay`.
+- **Right, to touch: the column** (226 pt; 170 at least on smaller phones): the rail, "Lanterns on the hook: 2 of 3",
+  then the slips on parchment (the parchment hugs its words and scrolls only when they do not fit), "Back" bottom right
+  (88 x 52). A slip closed is one row of 52 pt: title, place and nights, Odile's seal (a teal wax seal in pixel art)
+  when her seal holds. A tap opens it (the others stay closed, the open one scrolls into view): the two hook lines and
+  one order tile per order (52 pt or more) with its chips; the open slip's place lights its tag and its road is dotted
+  on the table. A tap on a tile sends: the lantern leaves its hook and travels from the castle to its place (0.55 s),
+  the slip shows "Call back" with "Lantern 38 is out · Home at dawn of day 3" until the screen closes.
+- **Reports first:** a waiting report lies as a letter over the table (a light veil under it): the speaker's portrait
+  in its inked frame, the name in small capitals, the role as a rubric, "Lantern 38 is home · Tallowford", the text
+  (it scrolls only if it must). Its choices stand in the column as plaques with their chips, Odile's counsel marked in
+  teal. After the choice the letter shows the answer (the lord's word, the reaction in italic, the chips) and the column
+  "Lantern 38 hangs on its hook" with "Done" in wax red.
+- **Day 1:** a linen cloth lies over the whole table (`tableCloth`) and the column says the table is still under it.
+- **Reduce Motion (5.4):** the screen opens at once (no transition in the layer; at the join `OverlayView` uses
+  `.identity` as for every card), a lantern that leaves is placed, not slid, lanterns do not flicker (frame 0 only) and
+  the pins' light does not breathe. The scratches on the bare wood are simply there.
+- **German lengths (5.5):** every key of the screen is in `QuestText.uiKeys` and checked by the validator in English
+  and German (two new keys, `table.ready` and `table.reserved`, both in budget); slip titles wrap to two lines and may
+  shrink to 85 %; chips wrap. By the director's note of 14.11. 19:35 no German screen was shot or judged.
+
+### The art (QUESTS.md 6), through the game's pipeline
+
+`tools/tableart.py` (pure python, `pixelart.py`'s PNG and palette code, deterministic, one image per call through the
+art lock; `build <id> [--zoom N]`, `list`) draws every piece from rules and hand-set text grids on the shared palette
+(no generation, no Recraft): `tableTop` 300x150, `tableWest1` and `tableWest2` 96x150 (the stair's sight: the Moor
+Road with sixty statues and one empty plinth; the lamp room's: the moor's edge and one low light that does not
+flicker), `tableSpan` 16x8, `tableCloth` 300x150, `tablePins` (seven kinds, dull and lit, 9x9), `tableLantern` 7x11
+(two frames), `tableRider` 12x10, `tableWalker` 8x10, `tableCart` 14x9, `tableBearers` 16x10, `tableRail` 128x32,
+`tableHook` 5x8, `tableRailLanterns` 9x14 (dark, blank), `tableSoot` 13x16, `tableChalk` 7x4, `tableDigits` 3x5,
+`tableSeal` 9x9. They live in `Resources/TableArt/` (copied flat into the bundle, prefixed `table`), outside the
+world's atlas: only this screen draws them (`UI/Table/TableArt.swift` composes the table top and the rail into one
+picture each and shows them at whole device pixels). Every position on the table comes from
+`Resources/TableArt/table-map.json` (the places' pins, house colours, tag sides and roads, the Wend, the bridge, the
+mere, the coast), which both the art tool and `TableMap.swift` read, so pins, lanterns, pieces and the lines of light
+stand exactly on the carving. Glow and the line's soft light come from the screen (light, not paint), as the art bar
+asks. Not drawn here (the walked world's, for the join): the table and rail in the chapel, the carried lantern, the
+first bell, the strip's pip, the place vignettes (optional in the spec).
+
+What changed because of Louis' bars (artbar.md): no lettering in the art (tags are paper); one light direction (from
+the west and north) on every carving and piece; no smooth shapes inside the pixel art; the column is a card for words
+and the only parchment on the screen; the rail and the table explain themselves (a dark lantern is home, a bare hook
+is away, a charred one is lost; the light says how far), so the screen has no legend, no counter of days left and no
+help text; the second slip and the order tiles appear only on a touch.
+
+### Debug arguments of the lane's own (read from the launch arguments; `DebugArgs` untouched)
+
+- `-GWTableReturn YES`: "Back" plays the rest of the day and the night headless and opens the table again at the next
+  dawn (replaces the debug button "Play to the next dawn", so no debug control stands on the screen or in the shots).
+- `-GWTableStage rail` (lantern 38 out to Highcairn, 39 home, 40 lost, 41 kept; the stair's scratches and the span) and
+  `-GWTableStage report:<id>` (that report waits on lantern 39), applied once when the table first opens
+  (`TableStage`, unit-tested).
+
+### Hooks into existing files
+
+None new. `QuestText.swift` (the lane's own) lists the two new keys; `Quests.xcstrings` (the lane's own catalog) has
+them in English and German. The `RootView` hook of quests-1 still names `TableDebugLayer`, which now shows the real
+screen. `TableListView.swift` (the lane's own) was removed. The screen uses shared pieces as they are:
+`ParchmentBackground`, `SlipBackground`, `PlaqueBackground`, `InkRule`, `FlourishRule`, `Text(inked:)`, `Theme` fonts
+and colours, `PortraitTile`, `AudienceCard.portrait`, `SpriteImages.cgImage`, `PNGDecoder`, `PixelImage` (if the
+stage lane renames any of them, the join renames the call).
+
+### How the join wires the walked world (not built here: the world and the hall are being rebuilt)
+
+1. **`Overlay.table`:** a case `table` in `GameModel.Overlay` with `isScreen == true` (the world draws at 20 fps under
+   it) and `isCard == false`; in `OverlayView` `case .table?: dim(0.6, closes: false); TableScreen(model: model) {
+   model.overlay = nil }` with the usual transition (`.identity` under Reduce Motion). `TableScreen.onAppear` calls
+   `model.openTable()` (stops the clock, takes the cloth off on day 2, tidies old reports); its "Back" calls
+   `model.closeTable()` and then the closure. Keep `TableDebugLayer` for `-GWScreen table`.
+2. **The table and the rail in the chapel:** the table at about x 1980 in the chapel's west bay (QUESTS.md 5.1; check
+   `Balance.kingReach` against Seren's corner and the candles; fallback the gatehouse at x 1380), 24 x 14 side view,
+   under its cloth on day 1; the rail on the wall above it, 26 x 10, each hook drawn from `TableBoard.hook(lantern,
+   flags:)` (`.dark` a dark lantern, `.bare` nothing, `.charred` soot and chalk, `.blank` Bram's lantern), 3 x 5
+   lantern states. Both are the stage lane's sprites; the states are this lane's data.
+3. **The touch:** a touch on the table (the stage lane's touch system; `KingTarget.table` in the old action-button
+   world) opens `.table`. A first-time glint on day 2, when Pip has pulled the cloth off (his court line, QUESTS.md
+   4.5, not yet written).
+4. **The bearer leaving:** when the screen closes, for every sending still `ErrandEngine.canCallBack(s, errand:)`
+   (sent during this visit: it stays true until the clock moves), a figure
+   walks from the chapel to the gate with a lit lantern: the back gate for `.valley` and `.house` places, the castle
+   front for `.west` (`catalog.place(sending.place)?.kind`), Pip, Marek's cart, the bard, the envoy, Ser Ludo, Hild
+   by `sending.goes`, soldiers by `sending.lent` (their walk frames plus the 5 x 7 carried lantern). Reduce Motion: no
+   walk; the gate shows its closed frame.
+5. **Coming home:** at dawn every lantern in state `.back` stands with its party at the table (the figures of
+   `sending.goes` or a soldier of `WaitingReport.names`) until the report is read; the hall skips anyone
+   `ErrandEngine.isAbsent` (`CourtLayout.figures` and Marek's cart prop, as the quests-2 notes say).
+6. **The strip's call** (HUD.md section 3: the strip comes only while something calls): a call while
+   `ErrandEngine.nextReport(table, catalog:) != nil` (a report waits) and on the day a sending opens (`offers` grew
+   since yesterday); its tag on the chapel's spot; a touch walks the lord there. Reduce Motion: the tag is still.
+7. **The dawn report's row** ("Lanterns home: 38 (Tallowford)" / "Did not come home: 40") from
+   `ErrandEngine.dawnRows(s, day:)`, in the rebuilt dawn report. Sounds (no music): a hook's clink and a light haptic
+   at dawn for a lantern home, one long haptic and no sound for a lost one (QUESTS.md 5.3), via `SoundCues` at the join.
