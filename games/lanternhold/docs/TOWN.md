@@ -89,7 +89,8 @@ DESIGN.md "Taxes" for the player's side. The numbers are starting values: the la
   petition) the doors shut until it lifts: no toss, no knock; at a horn in unrest nobody counts as left alone.
 - **Double taxes.** `Town.grantDoubleTaxes(&state)` (the ads lane's reward): from then until the next dawn every toss,
   every knock and what the collector takes counts twice; once a day; refused on the first morning and after the horn.
-- **The collector** (section 2, fix round 1, Core only). `Town.setCollector(&state, hired:)` takes him on or sends him
+- **The collector** (section 2, fix round 1, Core only; town-3 changed his post, his pace and his round: see section
+  2's numbers, which win over this bullet). `Town.setCollector(&state, hired:)` takes him on or sends him
   away from the next morning (`toggleCollector` for the touch at his post); possible from day 1, no treasury. At the
   dawn he sets out from his post by the hall door (`collectorPost`, the hall's x until the rebuilt world's anchor), is
   at the farthest paying door at 09:00 (`collectorTurnHour`) and back at noon (`collectorBackHour`); `collectorX`
@@ -142,6 +143,41 @@ What follows is the first plan; where it differs, the lines above win.
   happiness and more it adds one coin "for the lantern". In unrest he comes back empty.
 - He is a person with a name, in the voice of STORY.md.
 
+### The numbers in Core (town-3, 15.11.2026)
+
+`Core/Town/Town.swift` (the collector), `Core/Town/TownGrowth.swift` (the treasury), the numbers in `TownRules`.
+
+- **The collector's round in sim time.** He keeps his post just inside the castle's town gate (`Town.collectorPost`,
+  `WorldLayout.backGateX` − 40, where the people lane's Saul Bracken stands), not by the hall door: from there a round
+  at a heavy step could not be back before the horn. At the dawn he sets out and pushes his handcart at
+  `collectorPace` 18 px a second of the day clock (half the lord's walk: the art bar's "heavy step", the people lane's
+  pace), there and back. His round (`Town.collectorRound`) is the town's doors, the houses and the stall, nearest his
+  post first; **never a field: the farmers count their coins into the lord's hand only** (section 6), so a farmer still
+  waits at his fence after the collector has passed, and the farmers are a reason to walk out even with a collector.
+  At each door that pays him he stops `collectorStop` 1.5 s (the hand-over, the coins into the box), standing
+  `collectorStandOff` 20 px short of the door on his way out, so his cart stands before the household and the coins
+  cross a gap you can see; a door the lord has been to first, or one that is shut, he passes without a stop. A door he passed while it was shut does not pay him
+  later (`TownDay.collectorReached`). The gold goes into the purse when he is home, less his wage (one coin in eight,
+  at least 2, never more than he brought: unchanged). With the four cottages of day 2 he reaches the weaver's door at
+  10:08 and is home at 14:01; with the stall too at about 15:17. **Not "back by noon":** at a heavy step the town is too
+  long for that (the director may rule otherwise: the pace is one value). A horn while he is out brings him back first,
+  as before. `Town.collectorLeg` (out, at a door, back, home), `collectorX`, `collectorHeading` and
+  `collectorSchedule` (each arrival, the hour he is home) are pure functions of the day's ledger and the hour, for the
+  screen. He never knocks; the lord first; empty in unrest: unchanged.
+- **His words** (`CollectorWords`, `Town.collectorWords(day)` picks the one for his return): the offer at the first
+  audience ("Saul Bracken. Lost the arm on the wall, kept the legs. I'll walk your doors at dawn and bring the box home.
+  One coin in eight."), "Take him on" / "Not now", a word at his post when he is taken on, sent away or taken on again,
+  one when he is home (every door paid; the doors were shut; the lord had been first) and why the fields are not his
+  ("Farmers count into your hand. Nobody else's."). English and German in `Resources/Town.xcstrings`.
+- **The treasury.** A plot of its own at the castle (`castle.treasury`, plot 31, `TownGrowth.treasuryX` 2180 in the
+  kitchen bay until the rebuilt castle's bay near the hall's door), open from day 5, built once by the builders for 90
+  gold in 24 s (`BuildItem.treasury`, a new `SlotKind.treasury`). It does nothing else: it is where the gold is seen.
+  `TownGrowth.treasuryPiles(gold:built:rules:)` gives the scene its chests and piles: none without it, one for the
+  first coin and one more for every `treasuryGoldPerPile` 60, at most `treasuryPilesMost` 6 (the scene passes the gold
+  it shows, so the piles grow as the coins land). Not built: the first plan's coin "for the lantern" (the director's
+  call of town-1) and any rule that the treasury keeps gold safe (the front lane's broken night takes a fifth of the
+  purse; whether a treasury shelters part of it is the director's to decide).
+
 ## 3. The town grows (build 3)
 
 - **Houses in three tiers** on the four house plots: cottage (room for 4), house (8), townhouse (12, new, about 110).
@@ -161,6 +197,64 @@ What follows is the first plan; where it differs, the lines above win.
   (`docs/PAY.md`, 14.11. 16:13: the count).
 - **Target T12 (new):** a player who grows the town fully by night 14 earns 25 to 35 % more taxes than one who does not,
   and still cannot skip the defence. Bots that do not grow the town give today's numbers.
+
+### The numbers in Core (town-3, 15.11.2026)
+
+`Core/Town/TownGrowth.swift` (the rules), `Core/Town/TownGrowthTuning.swift` (T12), the numbers in `TownRules`
+("the growing town") and the prices in `Balance.items`; `tools/tune.py` mirrors them.
+
+- **The tiers are build items on the old plots**, built by the same builders through the same card
+  (`Build.options`: each is the next tier of what stands): `townhouse` after the big house (110 gold, 25 s; room
+  `townhouseRoom` 12), `marketHall` after the market (120, 28 s; `marketHallShare` 25 % of the tax part instead of
+  15 %), `inn` after the tavern (90, 22 s; `innHappiness` +2 at every dawn instead of +1), `farmstead` after a field
+  (45, 14 s; `farmsteadGold` 8 a day instead of 5).
+- **Two far fields**, `town.field.9` and `town.field.10` (plots 29 and 30, at x 3660 and 3720 beyond the last field,
+  until the world lane's anchors), open from day 5 (`TownGrowth.farFieldsDay`), a field for 25 like the others (not
+  "about 35": one price for a field everywhere) and a farmstead after it. They pay like every field (the farmer at the
+  fence, the lord only). Added last in `Realm.plots`, so every older plot keeps its id and an older save gets them as
+  on day 1. Nothing of them (nor the treasury) is drawn before the join brings their art (`TownGrowth.newPlots`: no
+  plot marker), though the action button offers their cards.
+- **The standing**, 0 to 10 (`standingMost`): one point for every townhouse, the market hall, the inn and every
+  farmstead (four and one and one and four: 10), and every craftsman's work that stands in the town (`TownGrowth.works`:
+  0 until the join hooks the craft lane's `CraftWorks.townWorks`). Each point adds `standingTaxShare` **1.5 %** to the
+  tax part (`TownGrowth.taxFactor`, exactly 1 at 0; at 10 points × 1.15). **The scale, set again for T12:** the
+  starting value of 3 % gave the grower 39.6 % more than the old town by night 14 (round lh-t3-1), over the band; and
+  what the realm of before could build
+  counts nothing, so that every bot that does not grow the town plays today's game line for line: the big house (the
+  reference bot builds four), the first market and tavern, and the well and the bridge (the reference bot mends both
+  when Odile counsels it: they would move T1 to T8). A big house pays by its room already.
+- **The three stages** (REALM.md section 2): hamlet 0 to 2, village from `villageFrom` 3, town from `townFrom` 7.
+  At each dawn `Town.open` asks `TownGrowth.dawn`: a higher stage than the last dawn's is reached today
+  (`TownSummary.stageReached`, the bell and the report's one line: "Lanternhold is a village now." / "Lanternhold ist
+  jetzt ein Dorf.", `TownText.stageLine`); a lower one (a lost house) is taken without a word. **The backdrop row's
+  look** is `TownGrowth.look(state)`: the stage of the last dawn (`TownState.stage`, saved; a hamlet before), so it
+  changes with the bell, never in the middle of a day. `TownGrowth.stageDay` is the dawn it came. A realm that stays a
+  hamlet writes nothing, so its save is what it was.
+- **The build options' words** (`TownText.itemName`, `TownText.effect`, `Resources/Town.xcstrings`): Townhouse /
+  Bürgerhaus, Market hall / Markthalle, Inn / Gasthof, Farmstead / Bauernhof, Treasury / Schatzkammer; "Room for 12
+  people · Lanternhold grows", "Taxes +25% · Lanternhold grows", "+2 happiness every dawn · Lanternhold grows",
+  "+8 gold every dawn · Lanternhold grows", "The purse in chests, for all to see".
+- **T12** (`TownGrowthTuningTests`, `TownGrowthTuning.measure`, seeds 1 to 3; `tools/tune.py` mirrors it). Three
+  bots, each the reference bot with its order changed: the **grower** builds the middle line as the reference does,
+  then the whole growth before the beacon (the far fields as soon as they open, the fourth big house, the market, the
+  tavern, the farmsteads, the townhouses, the inn, the market hall); the **old town** plays the same game without the
+  new growth (the same middle line, then the fourth big house, the market and the tavern before the beacon: "one who
+  does not grow the town"); the **skipper** builds the first line, then only the town and its growth, no more defence.
+  T12 passes when the grower's day of taxes at the dawn after night 14 is 25 to 35 % above the old town's (the mean of
+  the seeds), the grower held every night to the 14th, and the skipper fell before night 14 on every seed. The
+  comparison is with the old town and not with the reference bot because the reference fills its houses on day 13
+  and builds its fourth big house only after the beacon: any town with more room is about 30 % ahead of it at night 14
+  from its people alone (the mirror: the old town +16 % over the reference, the grower +51 %). "Fully" by night 14 is
+  not reachable for a bot that also builds its walls: the grower's purse allows standing 5 to 7 by night 14 (a village
+  on dawn 14 on every seed, a town on dawn 15 on one) and all 10 a few days later.
+  **The runner (rounds lh-t3-2 and lh-t3-3): T12 passes at +28.0 %** (seeds 1 to 3: +22.8, +32.4, +28.8 %; the
+  grower's 210, 237, 219 against the old town's 171, 179, 170; against the reference bot +51 to +61 %). The grower held
+  every night with one fallen at most. **The skipper fell on night 20 on every seed** (the Lightless King: no beacon),
+  but its hearth was untouched and nobody fell before: the first line and the gatehouse alone hold the first 14 nights
+  (see the lane notes for the nights after 14). Growing the town does not replace the walls at the chapter's end; it
+  does replace them for the first two weeks, which is the front lane's and the director's to weigh (presence, the
+  beacons, the hearth of REALM.md change the nights). The mirror reads T12 at +21.7 % (it leaves out the court, where
+  the grower's people grow faster).
 
 ## 4. Travelling craftsmen (build 3)
 

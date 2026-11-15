@@ -477,3 +477,159 @@ None. Everything is in the lane's own files: `Core/Town/TownShow.swift`, `TownFr
   arrives, show the −2 happiness as a short falling mark at the knocked house, not in a corner.
 - **VoiceOver** (smaller point, not changed): the doors' `accessibilityValue` "knock"/"shut" is English in every
   language (the UI test reads it); at the i18n pass make it a key or drop it (the label already says it).
+
+
+## town-3: the treasury, the collector and the growing town, in Core (15.11.2026)
+
+The brief: TOWN.md sections 2 and 3 for TestFlight build 3, Core only (no screen work): the treasury, the collector's
+morning round as simulated time, the third house tier, the second tier of market and tavern, the farmsteads and the
+far fields (the director's note of 14:20), the town's standing and its 3 % a point, the realm's three stages and the
+dawn one is reached (the note of 14:35), the backdrop row's look as a value, T12 with a bot that grows the town and a
+neutrality test, the mirror, the words in English and German. The numbers chosen are in TOWN.md, "The numbers in Core
+(town-3)" under sections 2 and 3.
+
+### What exists (new files)
+
+- `Core/Town/TownGrowth.swift`: `RealmStage` (hamlet, village, town; saved) and `TownGrowth`: the far fields' and the
+  treasury's plots (keys, places, the day they open, `townPlots`, `newPlots`), what each tier gives (`room`,
+  `fieldGold`, `marketShare`, `tavernHappiness`), the standing (`points`, `works` for the craft lane, `standing`,
+  `taxFactor`), the stages (`stage`, `look` for the scene, `stageDay`, `dawn`), the stand-in sprites until the art, the
+  treasury (`treasuryBuilt`, `treasuryPiles`).
+- `Core/Town/TownGrowthTuning.swift`: the three T12 bots' orders (`farFieldSteps`, `growthSteps`, `oldTownSteps`,
+  `growerOrder`, `oldTownOrder`, `skipsDefenceOrder`, `Autoplay.order(for:)`, `Autoplay.town(_:)`),
+  `TownGrowthMetrics` (the per-seed numbers, the pass rule, the report) and `TownGrowthTuning.measure`.
+- `Core/Town/TownGrowthText.swift`: `CollectorWords` (his ten lines), `TownText.growthKeys`, `itemName`, `effect`,
+  `stageLine`, `collectorName`, `collector(_:)`; `Town.collectorWords(day)` picks his line when he is home.
+- `Tests/TownGrowthTests.swift` (10 tests: the tiers on the old plots and cards, the far fields and the treasury from day
+  5, what the tiers pay and the 3 % a point, a grown town's ledger adds up (300 seeded realms), the stages and the dawn
+  that reaches one, a realm that never grows writes nothing, the treasury's piles, the save (and a save from before
+  town-3), the economy of before bit for bit (400 seeded realms), the words in English and German and their lengths).
+- `Tests/TownGrowthTuningTests.swift` (5 tests: T12's band, the grower holds and the skipper falls, the grown town is a
+  village by night 14, the bots that do not grow give today's numbers, the orders).
+- 24 keys in `Resources/Town.xcstrings` (48 in all), English and German: the five build options' names and effects,
+  the treasury's plot, the two stage lines, the collector's name and his ten lines.
+
+### What changed in this lane's own files
+
+- `Town.swift`: the paying places know the new tiers and the far fields; a field's part is its tier's gold; the dawn
+  asks `TownGrowth.dawn` and the summary carries `stageReached`. **The collector's round in sim time** (the critic's
+  high 3 on town-2, and the people-2 critic's "heavy step"): his post just inside the castle's town gate
+  (`WorldLayout.backGateX` − 40), his pace 18 px/s, a 1.5 s stop at each door that pays him, 20 px short of the door
+  (round lh-t3-1's shot: stopped on the door's x, town-2's stand-in hid the household), the houses and the stall only
+  (the farmers pay the lord in person), home when he is home (about 14:01 with four cottages, 15:17 with the stall),
+  `collectorRound`, `collectorSchedule`, `collectorLeg`, `collectorHeading`, `collectorReached` (saved: a door passed
+  while shut does not pay later). `collectorTurnHour` and `collectorBackHour` are gone from `TownRules`;
+  `collectorPace`, `collectorStop`, `collectorStandOff` and the growing town's and the treasury's values came
+  (`standingTaxShare` 1.5 %, set again for T12: at TOWN.md's 3 % the grower was 39.6 % ahead, round lh-t3-1).
+- `TownLedger.swift`: `TownState.stage`, `stageDay`; `TownDay.collectorReached`; `TownSummary.stageReached` (all
+  Optional: older saves load).
+- `TownShow.swift`: a townhouse's door is the big house's; the collector faces by `Town.collectorHeading`.
+- `TownDebug.swift`: `-GWTown collector` puts him 234 px (13 s at his pace, never behind his post) before the first door.
+- `TownText.swift`: `keys` takes the growth keys.
+- `tools/tune.py`: the new tiers, the far fields, the standing, the inn and the market hall; the grower and the old town
+  read from `TownGrowthTuning.swift`; T12 among its checks (7 of 7 pass; the reference bots' numbers unchanged).
+- Tests: `TownCollectorTests` rewritten for the round in sim time (12 tests: the farmers pay only the lord, a door passed
+  while shut, his words), `TownShowTests` (the hand-over at the first door of his round, he stands at the door),
+  `UITests/TownUITests.swift` (the collector shot's note: he stands at her door now).
+
+### The hooks in existing files (for the join to apply again)
+
+| File | Place | Why |
+|---|---|---|
+| `Core/Realm.swift` | `SlotKind`: `case treasury`; `BuildItem`: `case townhouse, marketHall, inn, farmstead, treasury` at the end, `index` 25 to 29, `slot`, `tier` (townhouse 3, the others 2, treasury 1), `upgrade` (bigHouse → townhouse, market → marketHall, tavern → inn, field → farmstead); `makePlots`: the far fields and the treasury added last | the tiers grow on the old plots through the same card; the new plots keep every older id |
+| `Core/Balance.swift` | `defaultItems`: five rows at the end (townhouse 110/25, marketHall 120/28, inn 90/22, farmstead 45/14, treasury 90/24) | the prices follow `BuildItem`'s order |
+| `Core/GameState.swift` | `houseRoom`: `room += TownGrowth.room(plot.item, balance:)` | a townhouse holds 12 |
+| `Core/Economy.swift` | `taxes`: `raw = ... * mood * TownGrowth.taxFactor(state, balance:)`, `fields = TownGrowth.fieldGold(state, balance:)`, the market by `TownGrowth.marketShare`; `happinessChanges`: the tavern's change by `TownGrowth.tavernHappiness` | the standing, the farmstead, the market hall, the inn (a town that never grows computes the old sums bit for bit) |
+| `Core/Autoplay.swift` | `Plan`: `case grower, oldTown, skipsDefence`; `act`: `guard plan != .buildsNothing`; `habit`: `plan == .buildsNothing ? .collect : TownHabit(tax)`; `planDay`: `let order = Autoplay.order(for: plan)` | T12's bots |
+| `Core/EntityFrames.swift` | `town`: `.bigHouse?, .townhouse?`, `.field?, .farmstead?`, `.market?, .marketHall?`, `.tavern?, .inn?`; `townSprite` the same; `markers`: `if TownGrowth.newPlots.contains(index) { continue }` | stand-ins until the art; nothing of the new plots drawn before the join (and look 1's "river-golden" hash keeps its far fields away) |
+| `UI/Texts.swift` | `itemName`, `effect`: the five new cases → `TownText.itemName`, `TownText.effect`; `slotName`: `.treasury` → `TownText.string("town.slot.treasury")` | the exhaustive switches compile; the words are in Town.xcstrings |
+| `UI/SpriteThumbnail.swift` | `sprite(for:)`: the five new cases → `TownGrowth.standInSprite` | the build card's thumbnails until the art |
+| `Tests/BuildTests.swift` | `Realm.plots.count` 29 → 32 | the new plots |
+
+### What the join needs (art and screens)
+
+1. **The treasury's place in the rebuilt castle.** The world lane's bay near the hall's door: set `TownGrowth.treasuryX`
+   to it. Sprite states: the empty bay (with its plot marker: take the treasury out of `TownGrowth.newPlots`), the
+   scaffold, the treasury with 0 to 6 chests and piles, `TownGrowth.treasuryPiles(gold: shownGold, built:, rules:)`
+   each frame (pass `GameModel.townShownGold`, so the piles grow as coins land and shrink as the count pays).
+2. **The collector's sprites.** The people lane's Saul Bracken (`collector`, 34x24, 8 frames) driven by
+   `Town.collectorLeg(day, hour:, rules:)`: `.out` the cart walk, `.atDoor` the take (frames 6 and 7 over the 1.5 s
+   stop, 20 px short of the door: the cart ahead of him reaches toward the household; town-2's hand-over coins already
+   fly to `TownShow.collectorBox`, set it to the cart's slot), `.back` the walk turned home, `.home` the
+   idle at his post until the horn. Replace town-2's stand-in (`TownFrames.drawsCollectorStandIn = false`) and the
+   people lane's own clock (`TownLife.collectorHours`, `collectorPace`, `doorStop`) with `Town.collectorSchedule`; one
+   anchor for his post from the world lane for both (`Town.collectorPost` and `TownLife.collectorPost` are both 2290
+   now). His words: `town.collector.offer` with "Take him on" (→ `Town.setCollector(&s, hired: true)`) and "Not now"
+   for the audience lane's first-audience offer; a speech line at his post after a touch (`hired`, `dismissed`,
+   `rehired`), when he is home (`Town.collectorWords(day)`), and `farmers` the first time he passes a waiting farmer.
+3. **The house tiers.** A townhouse painting (with lit rooms, a door anchor, the shutter states of town-2's
+   `TownShow.House`), a market hall, an inn, a farmstead at each field (a barn, a haystack, an ox), the two far fields
+   with their fences (`Town.doorX` for them is the plot's x until the anchors come; take them out of
+   `TownGrowth.newPlots` and add them to the world's town drawing). Until then `EntityFrames` draws the townhouse as
+   the big house, the hall as the market, the inn as the tavern, the farmstead as the field.
+4. **The three backdrop looks.** The town's backdrop row in three states (hamlet, village, town: more roofs, a spire,
+   more smoke, more lit windows at night) chosen by `TownGrowth.look(state)`; the roads and roofs of REALM.md section 2
+   by the same value; the people lane's `PeopleCast.ClothState` from it (its `ClothState(standing:)`), the craft lane's
+   `CraftStage.of` from it. On the dawn `report.town?.stageReached` is set: the bell, the people in their doors, and
+   the report card's one line `TownText.stageLine(report.town)`.
+5. **The price shown as coins over a door** (PAY.md, the count): a touch on a house, a field, the stall, the tavern or
+   the treasury's bay shows the next tier's price (`Build.options(state, plot:)`) as coins over its door anchor;
+   holding or tapping counts them out; the last coin gives the one order (`Build.order`). The effect lines
+   (`TownText.effect`) are for whatever card or plaque the stage lane keeps.
+6. **The craft lane's works**: `TownGrowth.works(s)` returns `CraftWorks.townWorks(s)` (one point each).
+7. **The farmers seen at work** on every built field, the far fields too (the people lane's `TownLife.farmers`).
+8. **Six more languages** for the 24 new keys in the i18n pass.
+
+### Rounds (by the director's notes of 18:46 and 19:35: filtered rounds while working, one gate round)
+
+How the lane worked: as in town-1 and town-2, in a scratch clone (the app's worktree guard refuses writes into
+`.claude/worktrees/lh-town`), committing as Louis' noreply identity and pushing to `origin/claude/lh-town`.
+
+- **lh-t3-1** (80e5f25; build, eleven unit classes, `ui TownUITests`): build PASS, ui PASS (all five TownUITests, the
+  collector's with his new round). Unit FAIL on three things: `SaveGameTests`' "more plots than the realm" sample had
+  30 plots, fewer than the realm's 32 now (the sample now exceeds the realm); T12 at TOWN.md's 3 % a point was +39.6 %
+  (seeds +34.5, +43.0, +41.2 %), over the band (the standing went to 1.5 %); the skipper held night 14 on every seed (it
+  is played to night 20 now). Its collector shot (59) showed the stand-in stopped on the door's x, hiding the household
+  (he stops 20 px short now).
+- **lh-t3-2** (aae6ced; build, `TownGrowthTests TownGrowthTuningTests SaveGameTests TownCollectorTests`): **ALL
+  PASSED**. T12 PASS at +28.0 %.
+- **lh-t3-3** (c36e60d; build, all unit tests, `ui TownUITests FirstDayUITests`): **ALL PASSED**. 483 unit test cases,
+  0 failed; 7 UI tests. `tuning-report.txt` and `town-neutrality-seed1.txt` are byte for byte those of lh-t2f1-3: T1 to
+  T8 did not move. `t12-report.txt`:
+  - T12 PASS: the grower +28.0 % over the old town at the dawn after night 14 (seeds 1 to 3: +22.8, +32.4, +28.8 %;
+    210, 237, 219 against 171, 179, 170), over the reference bot +51 to +61 %; over the 14 dawns together +11 to +13 %.
+  - The grower held every night (fallen 1, 1, 0); standing 5, 7, 5 by night 14: a village on dawn 14 on every seed,
+    a town on dawn 15 on seed 2.
+  - **The skipper fell on night 20 on every seed, and its hearth was untouched (100) on every night before, with
+    nobody fallen by night 14.** The first line and the gatehouse alone hold nights 1 to 19 for a bot that never built
+    the middle line; only the Lightless King (no beacon) ends it. "Cannot skip the defence" holds at the chapter's end,
+    not before: that is the night's difficulty (the front lane's presence, beacons and hearth change it), reported
+    for the director, not tuned here.
+  - Upright shots (sips bmp → jpeg through the art lock): scratchpad `town/ci-out/upright-town-3/`
+    (`59-collector-standoff-en.jpg` and its crops `-crop`, `-door`; `59-collector-lh-t3-1-before-en.jpg` and
+    `59-collector-before-crop.jpg`, the stand-in on the door's x).
+
+### Open, and what waits
+
+- **Critic look 2 on town-2, highs 1 and 2** (the knock's hand-over hidden behind the lord; the coins landing in the
+  lantern's light) are screen work and not done in this Core step. High 3's Core half is done (he stops at each door
+  that pays him, 20 px short of it); its picture half (a strongbox on the stand-in, or Saul's sprite) is the join's.
+- **The stand-in collector** (town-2's `citizenB`) is dim against the house's plaster; Saul Bracken's sprite with his
+  handcart replaces it at the join.
+- **The skipper finding** above, for the director.
+- **German** is written for the 24 new keys (the unit tests check presence, braces and lengths); not looked at on
+  screen (the director's note of 19:35). The six other languages: the i18n pass.
+
+### Decisions for the director (the lane's choices, each one value or one line to change)
+
+- **The collector is not "back by noon".** At the people lane's heavy pace (18 px/s, the critic's bound) the round is
+  home at about 14:01 (four cottages) or 15:17 (with the stall); "noon" would need about 30 px/s. And **the farmers
+  pay only the lord** (TOWN.md section 6's farmer counts into the lord's hand): a farmer still waits at the fence after
+  the collector has passed, a reason to walk out even with him. One value (`collectorPace`) and one line
+  (`collectorRound`'s filter) change it.
+- **T12 compares with the old town, not with the reference bot**, and "fully grown by night 14" is not reachable for a
+  bot that also builds its walls (standing 6 by night 14, all 10 a few days later): TOWN.md section 3's numbers.
+- **The standing counts only what is new** (not the big house, the first market and tavern, the well, the bridge), so
+  that every bot that does not grow plays today's game line for line.
+- **One price for a field everywhere** (25), not "about 35" for the far fields; the treasury shows the gold and does
+  nothing else.
