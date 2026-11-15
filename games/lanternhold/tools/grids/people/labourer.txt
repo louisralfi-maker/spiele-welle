@@ -69,7 +69,8 @@ part beam
     ........ccCl
     ..........ch
 
-# the near arm raised to steady the beam at his shoulder, the bare forearm up, the hand on top of the beam's front
+# the near arm raised to steady the beam at his shoulder, the bare forearm up, the hand on top of the beam a little
+# behind its front end, so the front end's pale grain shows beyond the hand (the director's fix pass: both ends seen)
 part armUp
     ..S
     .Ss
@@ -144,39 +145,39 @@ frame 0
     torso 2 10
     beam 0 5
     head 4 4
-    armUp 8 9
+    armUp 7 9
 
 frame 1
     legsPassA 1 15
     torso 2 11
     beam 0 6
     head 4 5
-    armUp 8 10
+    armUp 7 10
 
 frame 2
     legsContactB 1 15
     torso 2 10
     beam 0 5
     head 4 4
-    armUp 8 9
+    armUp 7 9
 
 frame 3
     legsPassB 1 15
     torso 2 9
     beam 0 4
     head 4 3
-    armUp 8 8
+    armUp 7 8
 
 frame 4
     legsStand 1 15
     torso 2 9
     beam 0 4
     head 4 3
-    armUp 8 8
+    armUp 7 8
 
 frame 5
     legsStand 1 15
     torso 2 10
     beam 0 5
     head 4 4
-    armUp 8 9
+    armUp 7 9
