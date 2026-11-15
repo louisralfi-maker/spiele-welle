@@ -79,7 +79,7 @@ extension EntityFrames {
 extension SceneLayout {
     /// The far end of the postern's passage (`posternFarGlow`): the dusk's warm light only while the evening is warm,
     /// the moon's cold blue at night (round lh-w3-4: at 23:19 it glowed sunset peach), a step dimmer than a window.
-    static let posternFarMoon = SIMD3<Float>(0.40, 0.48, 0.80)
+    static let posternFarMoon = SIMD3<Float>(0.28, 0.38, 0.85)
     static let posternFarDusk = SIMD3<Float>(1.0, 0.72, 0.38)
 
     /// The passage's painted far view (posternT1 to T3: cols 95 to 104, rows 4 to 17, sky, mist and meadow).
@@ -153,7 +153,7 @@ extension GloomFog {
     /// up. Round lh-w3-4: the sweep's fog frames (hardness 1) looked like its night frames (night 12: 0.4).
     var midVeil: Double { min(1, max(0, (hardness - 0.45) / 0.55)) }
     /// The veil's cover where it is whole and its cold tint (× the strips' value).
-    static let midVeilCover = 0.42
+    static let midVeilCover = 0.8
     static let midVeilTint = SIMD3<Float>(0.80, 0.92, 1.16)
     /// The share of a creature's body that shows deep in the bank under the fog (the critic's high 4: unseen, only its
     /// red glow strip and the bank's eyes showed, "red squiggles"): a dark mass with its cool rim.
@@ -167,5 +167,5 @@ extension SceneLayout {
     /// torches.
     static let look2MoonRims: Set<SpriteID> = [.riverSkiffRim]
     /// The far lantern's reflection on the water: its share of the window's glow at full torch strength.
-    static let look2RiverStreakGain: Float = 0.8
+    static let look2RiverStreakGain: Float = 1.2
 }

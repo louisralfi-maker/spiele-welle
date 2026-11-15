@@ -772,3 +772,30 @@ hands with a warm lip and a shadow under it on the robe; look 2's fire emitter o
 the keep's, outside the slits' masks and the braziers' niches), `chapelTower` (the bell bronze in shadow), `posternT3`
 (tier 2's slate roof raised on the crown's machicolations, a flag on its point).
 <!-- END world lane: world rebuild, step world-3 -->
+
+## World-3, fix round 1 (15.11.2026; ART-look2.md section 27)
+
+In `SpriteID` (look 2 only). Painted by `tools/w3f1art.py` (pure python, palette colours, hashes of the position;
+`tools/build-art-world.sh` rebuilds them byte for byte; the beacon's stages read their untouched sources from
+`tools/w3src`). Placed by `Core/SceneLayoutWorld3.swift`; the far lantern's reflection by
+`FrameBuilder.riverLanternStreak`.
+
+| id | size | plane | where (plane x) | notes |
+|---|---|---|---|---|
+| `riverLanding` | 72x20 | world, z 4, y −16 | 3708 (the bank's end to the old bridge's first stump, 3779) | a short timber landing (blocker 2): a stone footing on the bank, the deck at the lane's height (its row 4 is y −1: lit plank tops, the side with its joints, the shadow under it), a beam, four posts into the water (dark and fading under the waterline, a pale ripple either side), a bollard with the painter's turns at its end |
+| `riverSkiffMoored` | 34x9 | world, z 5, y −12 | 3722 (alongside the landing, in front of its posts) | the skiff tied at the landing: its sheer curving up to the stem and the stern, a lit sheer strake, a clinker strake, the tarred bottom strake, an oar's loom over the gunwale; under the waterline (row 6) dark and fading |
+| `riverSkiffRim` | 34x9 | world, emissive (the moon's colour) | skiff + (0, 0) | the moon on the gunwale's top (high 8), by the moon's height (`SceneLayout.look2MoonRims`) |
+| `riverLanternHalo` | 22x22 | near, emissive (window glow) | far lantern + (−1, 0), dusk and night | a warm round halo falling off from the glass and the little pool on the bank at the post's foot (high 8) |
+| `riverLanternStreak` | 9x24 | near, emissive (window glow), drawn after the world plane | under the far lantern, from the water's far edge (y −6) down | its broken reflection on the water: horizontal dashes, widest near the shore, thinning and parting downward |
+| `throatButtress` | 96x132 | near, z −1 | 852 (behind world about 1100 seen from 1000 to 1200) | a buttress of the Throat's granite with pinnacles and a scree fan spilling right (high 9), on a cool ramp (`nightDeep`, `stoneDark`, `stoneMid`, `stone`, `mistDark`, `rockLight`), a step darker than the mid plane's cliff |
+| `valleyVergeB` | 64x10 | world, z −8, y −14 | the odd tiles of the verge (2464 + 128 k) | a second painting of the verge (high 10): the tiles run A B A' B' |
+
+Repainted in place (same sizes and anchors): `beaconRuin` (no stem: a squat cold iron bowl seated low in the broken top,
+a crack in its rim), `beaconTower` (the builders' crane, posts, ledger and braces gone; the squat bowl in the crenels;
+the door kept), `greatBeacon` (the bowl in three steps of iron with a lit side, its rim an ellipse with the mouth dark
+and ash at its back, two curved hoops; the slits with a dark reveal), `beaconRuinRim` to `greatBeaconRim` (the moon a
+2 to 3 px band of lit stone faces on the right, broken by joints and missing stones, a faint wash; no outline on the
+left or the top), `valleyVerge` (stones of three sizes at gaps of two to five times, some sunk in the grass),
+`bakehouse` (the oven's dome a value step down: at noon it read as a pale grey ring round the hatch). No
+longer placed: `riverSkiff` (the skiff moved to the landing).
+<!-- END world lane: world-3, fix round 1 -->

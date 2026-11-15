@@ -15,6 +15,7 @@ untouched sources from tools/w3src.
   beaconRuinRim .. greatBeaconRim   64x130  emissive: the moon on each stage as a 2 to 3 px band of lit stone faces
         on its right, broken by the joints and by missing stones, and a faint wash on the face toward it; no outline
         on the left or the top (blocker 3: "a sticker's cut line")
+  bakehouse         100x62   the oven's dome a value step down (high 6: a pale grey ring round the hatch at noon)
   riverLanding      72x20    a short timber landing from the bank's end over the water to the old bridge's first stump
         (blocker 2: the lord stood on the water), its deck the lane's height, a bollard at its end, the posts in the water
   riverSkiffMoored  34x8     the skiff tied alongside the landing, its painter rope up to the deck
@@ -287,33 +288,37 @@ def great_beacon():
                     nm = "stoneMid" if h01(92, x) < 0.6 else "stone"
             elif u * u + v * v <= 1.0:
                 front = y >= rim_y
-                if t < 0.26:
-                    nm = "stoneLight" if not front else "stone"
-                elif t < 0.7:
-                    nm = "stone" if not front else "stoneMid"
-                else:
-                    nm = "stoneMid" if not front else "stoneDark"
-                if not front and 0.78 < t < 0.88:
-                    nm = "mistLight"                      # the cold highlight on the right lip
+                if front:                                 # the front lip, lit along its top
+                    nm = "stoneLight" if t < 0.3 else "stone" if t < 0.68 else "stoneMid"
+                    if y >= rim_y + 1.5:
+                        nm = "stone" if t < 0.3 else "stoneMid" if t < 0.68 else "stoneDark"
+                else:                                     # the back of the rim, its inside face in shade
+                    nm = "stone" if t < 0.3 else "stoneMid" if t < 0.7 else "stoneDark"
+                    if 0.78 < t < 0.88:
+                        nm = "mistLight"                  # the cold highlight on the right lip
             else:
-                # the body: three steps across, a lit edge on the left, a reflected light low on the right
-                sag = 1 if 0.3 < t < 0.7 else 0
+                # the body: a rounded value turn across it (lit left, shadow right), one hoop with its highlight
                 if t < 0.1:
+                    nm = "stoneLight"
+                elif t < 0.36:
                     nm = "stone"
-                elif t < 0.34:
+                elif t < 0.64:
                     nm = "stoneMid"
-                elif t < 0.74:
+                elif t < 0.86:
                     nm = "stoneDark"
                 else:
                     nm = "night1"
-                if y >= 16 and t > 0.8:
+                sag = 1 if 0.3 < t < 0.7 else 0
+                if y >= 17 and t > 0.84:
                     nm = "stoneDark"                      # the reflected light under its belly
-                if y in (10 + sag, 16 + sag):
-                    nm = "night1" if t < 0.34 else "night0"   # the hoops
-                    if t < 0.3 and (x % 7) == 3:
-                        nm = "stoneLight"                 # rivets on the lit side
-                if y == 7 + sag and t < 0.5:
-                    nm = "stoneMid"                       # the rim's shadow line under the lip
+                if y == 13 + sag:
+                    nm = "stoneDark" if t < 0.36 else "night1" if t < 0.86 else "night0"   # the hoop
+                elif y == 12 + sag and t < 0.6:
+                    nm = "stoneLight" if t < 0.36 else "stone"                            # its lit top
+                if y == 8 + sag and t < 0.86:
+                    nm = "stoneMid" if t < 0.36 else "stoneDark"   # the rim's shadow under the lip
+                if y >= 18:
+                    nm = {"stoneLight": "stone", "stone": "stoneMid", "stoneMid": "stoneDark"}.get(nm, nm)
             put(im, x, y, nm)
     # the slits' reveal: one row over, one column to the left, dark
     for (x0, y0, w, h) in ((23, 66, 2, 9), (38, 89, 2, 8)):
@@ -390,6 +395,22 @@ def stage_rim(name):
     painters = {"beaconRuin": beacon_ruin, "beaconTower": beacon_tower, "greatBeacon": great_beacon}
     im = painters[name]() if name in painters else PA.read_png(os.path.join(ART, name + ".png"))[0]
     return moon_band(im)
+
+
+# --------------------------------------------------------------------------------------------- the bakehouse
+def bakehouse():
+    """The oven's dome a value step down (high 6: at noon its pale stoneLight read as a grey ring round the hatch):
+    on the dome (cols 5-14, its lowest 22 rows) three of four stoneLight stones take stone; a few keep the light on
+    its upper left. The hatch, its sill and the wall stay."""
+    im = src("bakehouse")
+    for y in range(im.h - 22, im.h):
+        for x in range(5, 15):
+            if name_at(im, x, y) == "stoneLight":
+                row = im.h - 1 - y
+                keep = h01(611, x // 3, row // 3) < 0.25 and row > 12 and x < 10
+                if not keep:
+                    put(im, x, y, "stone")
+    return im
 
 
 # --------------------------------------------------------------------------------------------- the river end
@@ -509,7 +530,7 @@ def river_skiff_rim():
         for y in range(im.h):
             nm = name_at(im, x, y)
             if nm in ("woodLight", "wood") and (y == 0 or name_at(im, x, y - 1) in (None, INK)):
-                out.set(x, y, white(0.85 if x > 14 else 0.6))     # the gunwale's top, brighter toward the moon
+                out.set(x, y, white(0.55 if x > 14 else 0.38))    # the gunwale's top, brighter toward the moon
                 break
     return out
 
@@ -525,11 +546,11 @@ def river_lantern_halo():
             d = math.hypot(x - cx, (y - cy) * 1.1) / 9.0
             a = 0.0
             if d < 1:
-                a = 0.42 * (1 - d) ** 2
+                a = 0.75 * (1 - d) ** 1.6
             if y >= 19:
                 dd = math.hypot((x - cx) / 7.0, (y - 20.5) / 1.6)
                 if dd < 1:
-                    a = max(a, 0.30 * (1 - dd) ** 1.5)
+                    a = max(a, 0.45 * (1 - dd) ** 1.5)
             if a > 0.03:
                 im.set(x, y, white(a))
     return im
@@ -544,7 +565,7 @@ def river_lantern_streak():
             continue
         half = 3.5 - 2.5 * y / 23.0
         off = (h01(402, y) - 0.5) * 2.0
-        a = 0.55 * (1 - y / 26.0) ** 1.3
+        a = 0.85 * (1 - y / 26.0) ** 1.2
         for x in range(9):
             dx = abs(x - 4 - off)
             if dx <= half:
@@ -564,10 +585,9 @@ def throat_buttress():
     its foot to the right, stones of three sizes, the light from the upper left."""
     w, h = BUT_W, BUT_H
     gx0, seed = 6400, 6417
-    pts = [(0, 0), (3, 14), (6, 30), (8, 46), (11, 60), (13, 58), (15, 74), (18, 92), (20, 90), (22, 104),
-           (25, 116), (27, 113), (29, 124), (31, 128), (34, 125), (37, 118), (39, 120), (42, 112), (46, 108),
-           (49, 110), (52, 98), (55, 88), (57, 90), (60, 80), (64, 70), (67, 72), (70, 60), (74, 52), (78, 42),
-           (82, 36), (86, 24), (90, 14), (95, 0)]
+    pts = [(0, 0), (4, 24), (8, 50), (11, 68), (14, 82), (17, 96), (19, 102), (21, 100), (24, 108), (27, 112),
+           (30, 111), (33, 113), (37, 110), (40, 104), (43, 106), (47, 98), (50, 90), (53, 92), (57, 80), (61, 70),
+           (64, 72), (68, 58), (72, 46), (77, 38), (82, 26), (87, 16), (91, 8), (95, 0)]
     prof = [(gx0 + x, y) for x, y in pts]
 
     def top(gx):
@@ -586,7 +606,7 @@ def throat_buttress():
         x0 = gx0 + 8 + (w - 30) * h01(seed, i, 301)
         row = h - 14 - 90 * h01(seed, i, 302)
         spots.append((x0, x0 + 6 + 9 * h01(seed, i, 303), row, 2.6, 1.6, (h01(seed, i, 304) - 0.5) * 0.4))
-    RF.RAMPS["buttress"] = ["nightDeep", "stoneDark", "stoneMid", "stone", "mistDark", "rockLight"]
+    RF.RAMPS["buttress"] = ["nightSlate", "stoneDark", "stoneMid", "stone", "mistDark", "rockLight"]
     RF.SNOW["buttress"] = RF.SNOW["footing"]
     massif = RF.Massif(seed, gx0 - 40, gx0 + w + 40, h, 18, 40, relief=0.8, ledge_gap=(12, 22), sheets=False,
                        facets=0.3, chimneys=0.2, swell=2.0, pieces=True, crease=True, spots=spots, ledge_max=12,
@@ -686,6 +706,7 @@ def valley_verge(seed=521, variant=0):
 
 BUILDERS = {
     "beaconRuin": beacon_ruin,
+    "bakehouse": bakehouse,
     "beaconTower": beacon_tower,
     "greatBeacon": great_beacon,
     "beaconRuinRim": lambda: stage_rim("beaconRuin"),

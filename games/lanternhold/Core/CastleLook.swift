@@ -61,7 +61,7 @@ extension SceneLayout {
         case .greatBeacon: return 0.5
         // world-3 (M4): the town's back row stands back (round lh-w3-1: its panes were cream-white dots)
         case .townRoofsA, .townRoofsB, .townRoofsC, .townRoofsD: return SceneLayout.look2TownRowGlass
-        case .riverFarLantern: return 0.8
+        case .riverFarLantern: return 0.62   // world-3 fix round 1: amber, its halo carries the glow
         default: return 1
         }
     }

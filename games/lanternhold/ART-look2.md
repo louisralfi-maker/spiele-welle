@@ -2138,3 +2138,57 @@ steps at a sprite's ends, so no end stands as a cut.
 beaconBaseRim beaconTowerRim greatBeaconRim wardenStatue castleFront castleFront3 castleFront3Build townRoofsA
 townRoofsB townRoofsC townRoofsD riverFarLantern riverSkiff valleyVerge`.
 <!-- END world lane: world rebuild, step world-3 -->
+
+## 27. World-3, fix round 1: the critic's look 1 (15.11.2026)
+
+Painter: `tools/w3f1art.py` (SPRITES.md "World-3, fix round 1").
+
+### 27.1 The beacon
+
+- **The tower stage** wore the builders' crane over its crown, a bar on a post with a diagonal jib; at night it read as
+  a gallows. The crane, the scaffold's posts, ledger and braces are gone (timber over the face takes the stone of the
+  nearest course; the door at the foot stays), and a squat cold iron bowl sits in the crenels.
+- **The squat bowl** (`squat_bowl`): seen a little from above, its rim an ellipse 3 px thick at its ends, the mouth heaped
+  with grey ash a row over the back lip, the body narrowing under the front lip in three steps of iron (lit left,
+  shadow right) with an iron band, an ink outline, a cold highlight on the right lip. The ruin's bowl has no stem: it
+  sits low in the broken top between the broken merlons, a crack in its rim.
+- **The great bowl**: three steps of iron across the body (a lit edge, mid, shadow) and a reflected light under its
+  belly, the rim an ellipse (the ring lit on the left, a cold highlight on the right lip, the mouth dark with ash at its
+  back), two hoops that sag a row in the middle, rivets on the lit side; no 1 px ember line across its mouth in look 2.
+  The slits sit in a dark reveal and glow a dim amber.
+- **The moon** (`moon_band`): each row's eastmost run of stone takes a band 2 or 3 px wide by its stone (0.72, 0.44,
+  0.24), lit only on stone faces (a mortar line or a joint breaks it), a whole stone left out now and then; a faint wash
+  (to 0.14) on the face toward the moon, one level per painted stone. No outline on the left or the top.
+
+### 27.2 The river end
+
+- **The landing**: plank tops lit, the side with its joints, the shadow under it, posts dark and fading under the
+  waterline with a pale ripple, a bollard with the painter's turns. The lord's last steps are on it.
+- **The skiff** lies alongside, its sheer curving up to the stem and the stern so it reads as a boat under the deck; the
+  moon catches its gunwale.
+- **The far lantern** has a warm halo and a little pool on the bank, and its reflection lies on the water as broken
+  dashes (drawn after the world plane, so the water does not hide it).
+
+### 27.3 The Throat and the valley
+
+- **The buttress**: the Throat's granite (rockfield's massif, creased faces, lens ledges) on a cool ramp a step darker
+  than the mid plane's cliff, pinnacles along its crest, a scree fan spilling right in stones of three sizes.
+- **The bakehouse's oven**: its dome a value step down (three of four `stoneLight` stones take `stone`), so at noon it
+  no longer reads as a pale ring round the hatch; at night the hatch's weak wide pool and the wedge light it.
+- **The verge**: a hand-set rhythm of slabs, cobbles and pebbles at gaps of 3 to 15 px, some sunk so only their lit top
+  shows over the grass; two paintings, A B A' B'.
+
+### 27.4 Light (engine, no new sprites)
+
+- The lord's lantern in look 2: a core at a quarter of its strength and a round spill twice as wide (`LanternLook`).
+- The gate torches radial at about half their strength; the oven's hatch none by day, weak and wide at night; the
+  postern's lanterns never light the valley seen through it, whose glow takes the hour.
+- A hard fog night: a second, colder sheet of the back strip over the mid plane.
+
+### 27.5 Rebuild
+
+`bash games/lanternhold/tools/build-art-world.sh bakehouse beaconRuin beaconTower greatBeacon beaconRuinRim beaconBaseRim
+beaconTowerRim greatBeaconRim riverLanding riverSkiffMoored riverSkiffRim riverLanternHalo riverLanternStreak
+throatButtress valleyVerge valleyVergeB` (after build-art-buildings.sh, whose `beaconTower` and `greatBeacon` are the
+sources in tools/w3src, as keepart's `bakehouse` is).
+<!-- END world lane: world-3, fix round 1 -->

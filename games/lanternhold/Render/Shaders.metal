@@ -1145,8 +1145,10 @@ static float3 lh2_base(PlaneCoords c, uint2 mist, uint2 near, PixelLight info, c
 // Fog B, the foreground, bloom and the grade of look 2.
 static float3 lh2_top(float3 color, PlaneCoords c, PixelLight info, constant CompositeUniforms &u,
                       constant Look2Uniforms &v, texture2d<float> fogBTex, texture2d<float> fgTex,
-                      texture2d<float> bloomTex, float midVisible, float fogCover) {
-    float4 fb = fogBTex.read(c.fogB) * lh2_fog_region(c, u);
+                      texture2d<float> bloomTex, float midVisible, float fogCover, float fogShare = 1.0f) {
+    // World-3 fix round 1: an unlit creature takes fog B at half (`fogShare`), so it reads as a dark mass with its
+    // cool rim in the bank, never as its red glow strip alone.
+    float4 fb = fogBTex.read(c.fogB) * (lh2_fog_region(c, u) * fogShare);
     if (fb.a > 0.0f) {
         color = lh2_fog(color, fb, v.fog.x * info.bank, 0.8f, info.light);
         midVisible *= 1.0f - fb.a;
@@ -1277,14 +1279,21 @@ fragment float4 lh_actor2_fragment(ActorOut in [[stage_in]],
     if (in.flags.x < 0.5f && rimStrength > 0.0f) {
         int toward = across < 0.0f ? -1 : 1;
         int2 side = int2(t) + int2(toward, 0);
-        if (atlas.read(uint2(max(side, int2(0)))).a < 0.5f) {
+        bool edge = atlas.read(uint2(max(side, int2(0)))).a < 0.5f;
+        // World-3 fix round 1 (the critic's high 4): the moon stands high, so an unlit creature's top edge catches it
+        // too; with its east edge it outlines a dark mass (the cell's padding is clear above its top row).
+        if (in.flags.y > 0.0f && t.y > 0u && atlas.read(uint2(t.x, t.y - 1u)).a < 0.5f) {
+            edge = true;
+        }
+        if (edge) {
             float3 tone = in.flags.y > 0.0f ? kMoonRim2 : v.rim.rgb;
             lit = mix(lit, tone, rimStrength * (1.0f - saturate(peak * 1.5f)));
         }
     }
     float3 color = mix(base, lit, saturate(in.tint.a));
     midVisible *= 1.0f - saturate(in.tint.a);
-    color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover);
+    color = lh2_top(color, c, info, u, v, fogBTex, fgTex, bloomTex, midVisible, fogCover,
+                    in.flags.y > 0.0f ? 0.5f : 1.0f);
     if (u.debug.z != 0u) {
         color = lh_debug_lights(color, c, u, lights);
     }

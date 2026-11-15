@@ -45,7 +45,7 @@ CASTLE="keepT1 keepT2 keepT3 keepT2Build keepT3Build curtainA curtainB curtainC 
 W3="bakeHatchWedge wardenStatue castleFront castleFront3 castleFront3Build townRoofsA townRoofsB townRoofsC townRoofsD riverFarLantern riverSkiff"
 # World-3, fix round 1 (15.11.2026): the critic's look 1 (tools/w3f1art.py, ART-look2.md section 27). The beacon's three
 # stages read their untouched sources from tools/w3src; the rims are painted from the stages as built here.
-W3F1="beaconRuin beaconTower greatBeacon beaconRuinRim beaconBaseRim beaconTowerRim greatBeaconRim riverLanding riverSkiffMoored riverSkiffRim riverLanternHalo riverLanternStreak throatButtress valleyVerge valleyVergeB"
+W3F1="bakehouse beaconRuin beaconTower greatBeacon beaconRuinRim beaconBaseRim beaconTowerRim greatBeaconRim riverLanding riverSkiffMoored riverSkiffRim riverLanternHalo riverLanternStreak throatButtress valleyVerge valleyVergeB"
 R=games/lanternhold/tools/retired-art
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
@@ -90,7 +90,7 @@ build() { # name: one sprite (or one group of small ones)
     castleTiers) # the gatehouse's tier 3 and its scaffold (the art pass; castleart.py also wrote the keep's copies and
                  # the far castles, retired by world-2 into tools/retired-art)
         python3 -I -B $CA tiers $A ;;
-    curtainA|curtainC|curtainStair|curtainTower|curtainHoard|castleBanner|chapelTower|bakehouse|bakeHatchGlow)
+    curtainA|curtainC|curtainStair|curtainTower|curtainHoard|castleBanner|chapelTower|bakeHatchGlow)
         # world-2 (14.11.2026): one castle, exteriors only (tools/keepart.py, ART-look2.md section 23)
         python3 -I -B games/lanternhold/tools/keepart.py build $1 --out $A ;;
     keepT1|keepT2|keepT3|keepT2Build|keepT3Build|keepRimT1|keepRimT2|keepRimT3|keepRimT2Build|keepRimT3Build|keepMist|keepPaneHalo|keepFireGlow|forebuilding|hallDoorGlow|hallDoorWedge|smokePuff|curtainB|posternT1|posternT2|posternT3|posternFarGlow|gateArchFg)
@@ -99,7 +99,7 @@ build() { # name: one sprite (or one group of small ones)
     bakeHatchWedge|wardenStatue|castleFront|castleFront3|castleFront3Build|townRoofsA|townRoofsB|townRoofsC|townRoofsD|riverFarLantern|riverSkiff)
         # world-3 (15.11.2026): the whole-world pass (tools/w3art.py, ART-look2.md section 26)
         python3 -I -B games/lanternhold/tools/w3art.py build $1 --out $A ;;
-    beaconRuin|beaconTower|greatBeacon|beaconRuinRim|beaconBaseRim|beaconTowerRim|greatBeaconRim|riverLanding|riverSkiffMoored|riverSkiffRim|riverLanternHalo|riverLanternStreak|throatButtress|valleyVerge|valleyVergeB)
+    bakehouse|beaconRuin|beaconTower|greatBeacon|beaconRuinRim|beaconBaseRim|beaconTowerRim|greatBeaconRim|riverLanding|riverSkiffMoored|riverSkiffRim|riverLanternHalo|riverLanternStreak|throatButtress|valleyVerge|valleyVergeB)
         # world-3 fix round 1 (15.11.2026): the critic's look 1 (tools/w3f1art.py, ART-look2.md section 27)
         python3 -I -B games/lanternhold/tools/w3f1art.py build $1 --out $A ;;
     laneScreeCobble)   # world-2: the scree gives way to the cobbles under the gatehouse's gateway (after `plants`)

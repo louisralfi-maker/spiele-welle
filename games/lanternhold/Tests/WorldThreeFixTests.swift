@@ -31,7 +31,8 @@ final class WorldThreeFixTests: XCTestCase {
         XCTAssertEqual(core.count, 1)
         XCTAssertEqual(core.first?.source.pictureGain ?? 1, LanternLook.coreShare, accuracy: 1e-9)
         XCTAssertEqual(core.first?.source.radius ?? 0, Balance.standard.lanternRadius, accuracy: 1e-9)
-        let spill = layer.lights.filter { $0.source.kind == .window && $0.source.x == glassX }
+        let spill = layer.lights.filter { $0.source.kind == .window && $0.source.x == glassX
+            && $0.source.radius > Balance.standard.lanternRadius }
         XCTAssertEqual(spill.count, 1, "one spill")
         XCTAssertEqual(spill.first?.source.radius ?? 0, 2 * Balance.standard.lanternRadius, accuracy: 1e-9)
         XCTAssertEqual(spill.first?.source.squash ?? 0, 1, accuracy: 1e-9, "round: no flat top")
