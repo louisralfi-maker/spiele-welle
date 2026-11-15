@@ -148,6 +148,12 @@ enum TouchThings {
         case .field: return (spec.slot == .field ? 26 : 20, 8)
         case .market: return (28, 36)
         case .tavern: return (28, 50)
+        // The join: the town lane's grown tiers (build 3, `TownGrowth.growthOpen`) take their base building's area.
+        case .townhouse: return (26, 54)
+        case .marketHall: return (28, 36)
+        case .inn: return (28, 50)
+        case .farmstead: return (spec.slot == .field ? 26 : 20, 8)
+        case .treasury: return (24, 44)
         }
     }
 
