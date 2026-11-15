@@ -1,0 +1,83 @@
+2026-11-15 07:11:08.635311+0000 Lanternhold[9989:41301] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.AtlasTests testBundledArtReplacesThePlaceholder]' passed (2.184 seconds).
+Test Case '-[LanternholdTests.AtlasTests testCellsKeepTheirPaddingClear]' passed (0.105 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEveryPlacedSpriteIsPainted]' passed (0.011 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEveryPlaceholderDrawsSomethingAtItsSize]' passed (7.707 seconds).
+Test Case '-[LanternholdTests.AtlasTests testEverySpriteGetsCellsOfItsSize]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.AtlasTests testLook2ArtIsBundled]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.AtlasTests testPackerKeepsInsideTheWidth]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.AtlasTests testPlaceholdersAreDeterministic]' passed (0.364 seconds).
+Test Case '-[LanternholdTests.AtlasTests testStripsSplitIntoFrames]' passed (0.003 seconds).
+2026-11-15 07:11:21.431403+0000 Lanternhold[9989:41301] [Lanternhold] createImageAtIndex:2185: *** ERROR: createImageAtIndex[0] - 'n/a ' - failed to create image [-62]
+2026-11-15 07:11:21.431459+0000 Lanternhold[9989:41301] [Lanternhold] CGImageSourceCreateImageAtIndex:5179: *** ERROR: CGImageSourceCreateImageAtIndex[0] - 'n/a ' - failed to create image [-62]
+Test Case '-[LanternholdTests.AtlasTests testTinyPNGDecodesExactly]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HallStageTests testANobleStandsApartAndTheAnchorsAreKept]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.HallStageTests testEveryTownspersonSitsBehindTheBench]' passed (0.020 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheAudienceFramingEasesInOverSixTenthsOfASecond]' passed (0.049 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheCameraNeverShowsPastThePaintedHall]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheChangeGoesThroughDarkInAThirdOfASecondAndCutsWithReduceMotion]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheCourtLivesInTheHall]' passed (0.017 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheFixRoundsArguments]' passed (0.171 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHallAnswersItsLord]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHallIsHeardInsideAndTheDoorCreaks]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHallsFrameAndItsLight]' passed (0.076 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHallsLightAfterTheLook]' passed (0.133 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHallsTargets]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHearthsPoolFollowsTheHearthsStrength]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHearthsThreeStrengthsAndTheFlare]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHornSendsTheWaitingHomeAndHangsASlipAtTheDoor]' passed (0.023 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheLanternLightsWallAndFloorAndTheClothStaysDark]' passed (0.127 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheLettersRoomLeavesTheThronePetitionerAndHearthInSight]' passed (0.030 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheLordGoesInByTheDoorAndOutPastIt]' passed (0.092 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheNearPillarOpensRoundTheLordAndCatchesTheLight]' passed (0.191 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheRealmStripSendsTheLordOutAndOn]' passed (0.122 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheStageArguments]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheWalkingFramingIsOneStepAboveTheWorldAndTheAudienceTwo]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheWorldOffersTheDoorAndKeepsTheHallsPeopleInside]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testATapOnTheLordStillsTheWorldAndAnyTouchRunsItOn]' passed (0.048 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheChangeNotesComeAndGo]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheFaceTakesTheLedgersBands]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheGearOpensThePauseSheetAndTheBackgroundRaisesTheLantern]' passed (0.014 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/LanternMomentTests.swift:237: error: -[LanternholdTests.LanternMomentTests testTheGoldStandsAboveTheLordWhileItChanges] : XCTAssertTrue failed - day:1 hour:9.03 alive:0 seen:0 lit:0 shots:0 aim:0 kx:2900 lord:lord stage:world lx:2900 errand:none door:1747 gold:48 hud:strip
+Test Case '-[LanternholdTests.LanternMomentTests testTheGoldStandsAboveTheLordWhileItChanges]' failed (0.176 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheLordIsAnElementThatRaisesTheLantern]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheMomentsRowAndDayLineSitOnTheKitsGrid]' passed (0.013 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/LanternMomentTests.swift:112: error: -[LanternholdTests.LanternMomentTests testThePurseTicksCoinByCoinAndGoes] : XCTAssertLessThan failed: ("3.000000000000149") is not less than ("1.3") - a big sum ticks quickly
+Test Case '-[LanternholdTests.LanternMomentTests testThePurseTicksCoinByCoinAndGoes]' failed (0.045 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheRealmStripIsAMapOfPixels]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheStripComesForACallAndGoes]' passed (0.001 seconds).
+Test Suite 'LanternMomentTests' failed at 2026-11-15 07:11:22.874.
+Test Case '-[LanternholdTests.LordTests testOnlyAFreshRealmAsksForTheLord]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.LordTests testTheDebugArgumentsNameTheLord]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.LordTests testTheLordsSpritesAndTheSittingDown]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LordTests testTheNameIsFilteredTrimmedAndCut]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.LordTests testThePlaceholdersTakeTheNameAndTheForm]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LordTests testTheSaveKeepsTheLordAndOldSavesReadAsTheBurgherr]' passed (0.107 seconds).
+Test Case '-[LanternholdTests.LordTests testTheValidatorCountsTheLongestNameAndReportsBrokenBraces]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LordTests testWaitingTownsfolkSitOnTheBenches]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testABenchIsOneTarget]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testAHoldOnTheLordAtNightRaisesTheLantern]' passed (0.049 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testAPersonBeforeAWallWins]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testASecondTapMakesHimRun]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testATapOnASiteWalksHimThereAndOpensItsCard]' passed (0.079 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testATapOnTheGroundWalksHimThereAndADragCallsHimOff]' passed (0.180 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testAtMostFourMarksTheNearestFirstTwoSitesAndOneWall]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testEveryTouchAreaIsAtLeast44PointsAtEveryScale]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTenPointsOrLessIsATap]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheAtlasStillFitsOnePage]' passed (2.445 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheGermanSlipsFit]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheHallDoorChangesTheStage]' passed (0.051 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheMarksAreDrawnAndTheSpotsPlaced]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheMarksAtNightAreDarkerAndWarm]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheNearerCentreWins]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheNightOffersColdBraziersAndDamagedWalls]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testThePace]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testThePetitionerHasTheFloorAlone]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheRepairWaitsForASecondTouch]' passed (0.075 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheSceneValueCarriesTheLordAndTheErrand]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheThroneHoldsTheAudienceAndABenchSpeaks]' passed (0.137 seconds).
+Test Case '-[LanternholdTests.TouchWorldTests testTheWorldOffersSitesTheBarracksAndTheDoorByDay]' passed (0.002 seconds).
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-15 07:11:26.250.
+Test Suite 'Selected tests' failed at 2026-11-15 07:11:26.250.
+exit=65
+screenshots: 0

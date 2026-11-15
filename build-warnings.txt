@@ -1,0 +1,38 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:14:25: warning: call to main actor-isolated instance method 'descendants(matching:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:14:53: warning: call to main actor-isolated instance method 'matching(identifier:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:14:86: warning: main actor-isolated property 'firstMatch' can not be referenced from a nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:15:22: warning: call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:40:25: warning: call to main actor-isolated instance method 'descendants(matching:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:40:53: warning: call to main actor-isolated instance method 'matching(identifier:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:40:89: warning: main actor-isolated property 'firstMatch' can not be referenced from a nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:41:27: warning: main actor-isolated property 'value' can not be referenced from a nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:52:26: warning: call to main actor-isolated instance method 'descendants(matching:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:52:54: warning: call to main actor-isolated instance method 'matching(identifier:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:52:93: warning: main actor-isolated property 'firstMatch' can not be referenced from a nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:53:19: warning: main actor-isolated property 'exists' can not be referenced from a nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:54:24: warning: call to main actor-isolated instance method 'descendants(matching:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:54:52: warning: call to main actor-isolated instance method 'matching(identifier:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:54:87: warning: main actor-isolated property 'firstMatch' can not be referenced from a nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:55:20: warning: call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:58:14: warning: call to main actor-isolated instance method 'coordinate(withNormalizedOffset:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:58:76: warning: call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:59:23: warning: call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:64:26: warning: call to main actor-isolated instance method 'descendants(matching:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:64:54: warning: call to main actor-isolated instance method 'matching(identifier:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:64:93: warning: main actor-isolated property 'firstMatch' can not be referenced from a nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:65:22: warning: main actor-isolated property 'exists' can not be referenced from a nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:66:16: warning: call to main actor-isolated instance method 'coordinate(withNormalizedOffset:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:66:78: warning: call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:74:25: warning: call to main actor-isolated instance method 'descendants(matching:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:74:53: warning: call to main actor-isolated instance method 'matching(identifier:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:74:89: warning: main actor-isolated property 'firstMatch' can not be referenced from a nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:75:19: warning: main actor-isolated property 'exists' can not be referenced from a nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:77:23: warning: call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:79:21: warning: main actor-isolated property 'exists' can not be referenced from a nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:84:15: warning: call to main actor-isolated instance method 'coordinate(withNormalizedOffset:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:84:86: warning: call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:9:15: warning: call to main actor-isolated instance method 'coordinate(withNormalizedOffset:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:9:76: warning: call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context
+2026-11-15 07:10:07.904 appintentsmetadataprocessor[8522:36991] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+2026-11-15 07:10:11.411 appintentsmetadataprocessor[8548:37115] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+2026-11-15 07:10:12.665 appintentsmetadataprocessor[8563:37166] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
