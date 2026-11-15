@@ -711,6 +711,15 @@ enum FrameBuilder {
     private static func addProp(_ prop: Prop, ambient: AmbientSample, hour: Double, animTime: Double,
                                 options: FrameOptions, geometry: Geometry, sprites: inout [[SpriteInstance]],
                                 glow: inout EmissiveList) {
+        var prop = prop
+        if options.look == .two,
+           let pose = WindLook.pose(of: prop, weather: geometry.weather, time: animTime,
+                                    reduceMotion: options.reduceMotion) {
+            // Build 3, POLISH pass 1 (lane 3): the windmill's sails and the flags take their frame from the wind.
+            prop.frame = pose.frame
+            prop.flipped = pose.flipped
+            prop.x += pose.dx
+        }
         // A prop that moves with another plane is placed by that plane's whole offset (within a game pixel of its
         // own sub-pixel shift) but drawn into its own plane's picture.
         let left = prop.x - geometry.whole(prop.movesWith ?? prop.plane)

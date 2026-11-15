@@ -402,6 +402,58 @@ final class WeatherTests: XCTestCase {
         }
     }
 
+    /// A look-2 frame of `scene` at noon on the runner's phone (2622 x 1206), in this weather at animation time `time`.
+    private func windFrame(_ scene: PlaceholderScene, focus: Double, weather: WeatherSample, time: Double,
+                           reduceMotion: Bool = false) -> FrameDesc {
+        var options = FrameOptions(flickerTime: time)
+        options.look = .two
+        options.weather = weather
+        options.reduceMotion = reduceMotion
+        var clock = DayClock(timeOfDay: 0.5)
+        clock.isFrozen = true
+        let pixelScale = options.pixelScale(physicalWidth: 2622, physicalHeight: 1206)
+        return FrameBuilder.build(scene: scene, clock: clock, camera: Camera(focusX: focus, pixelScale: pixelScale),
+                                  pixelScale: pixelScale, options: options)
+    }
+
+    func testTheWindmillTurnsAtTheValleysEnd() throws {
+        let world = PlaceholderScene.world(look: .two)
+        let tower = try XCTUnwrap(world.props.first { $0.sprite == .windmillTower }, "the windmill")
+        let sails = try XCTUnwrap(world.props.first { $0.sprite == .windmillSails }, "its sails")
+        XCTAssertEqual(tower.plane, .mid)
+        XCTAssertEqual(sails.plane, .mid)
+        XCTAssertEqual(tower.region, .valley)
+        XCTAssertGreaterThan(sails.id, tower.id, "the sails turn in front of the tower")
+        XCTAssertEqual(sails.x + SceneLayout.look2WindmillSailsHub, tower.x + SceneLayout.look2WindmillHub.dx,
+                       "on the tower's hub")
+        XCTAssertEqual(sails.y + SceneLayout.look2WindmillSailsHub, tower.y + SceneLayout.look2WindmillHub.dy)
+        XCTAssertFalse(world.props.contains { $0.sprite == .windmill }, "look 1's still windmill stays out")
+        XCTAssertFalse(PlaceholderScene.world(look: .one).props.contains { $0.sprite == .windmillSails },
+                       "look 1 keeps its scene")
+
+        // At the river end on a breezy noon the sails turn; on a calm day and with Reduce Motion they stand.
+        func sailFrames(_ weather: (Double) -> WeatherSample, reduceMotion: Bool = false) -> [Int] {
+            (0..<24).compactMap { index in
+                let time = 4 + Double(index) * 0.25
+                let desc = windFrame(world, focus: 3900, weather: weather(time), time: time,
+                                     reduceMotion: reduceMotion)
+                return desc.layer(.mid).sprites.first { $0.sprite == .windmillSails }?.frame
+            }
+        }
+        func blowing(_ override: WeatherOverride, reduceMotion: Bool = false) -> (Double) -> WeatherSample {
+            { Weather.sample(seed: 3, day: 12, hour: 12, time: $0, override: override, reduceMotion: reduceMotion) }
+        }
+        let breeze = sailFrames(blowing(WeatherOverride(mode: .breeze)))
+        XCTAssertEqual(breeze.count, 24, "the windmill is in view at the river end")
+        XCTAssertGreaterThanOrEqual(Set(breeze).count, 5, "a breeze turns the sails")
+        XCTAssertEqual(Set(sailFrames(blowing(WeatherOverride(mode: .clear, wind: 0.08)))), [0], "a calm day")
+        XCTAssertEqual(Set(sailFrames(blowing(WeatherOverride(mode: .storm), reduceMotion: true), reduceMotion: true)),
+                       [0], "Reduce Motion stands them")
+        let towerFrame = windFrame(world, focus: 3900, weather: blowing(WeatherOverride(mode: .storm))(5), time: 5)
+        XCTAssertEqual(towerFrame.layer(.mid).sprites.first { $0.sprite == .windmillTower }?.frame, 0)
+        XCTAssertTrue(towerFrame.layer(.mid).sprites.filter { $0.sprite == .windmillSails }.allSatisfy { !$0.flipped })
+    }
+
     func testTheFiresLeanAndGutterWithTheWind() {
         XCTAssertEqual(Weather.fireLean(x: 1500, .clear, time: 2), 0)
         let storm = fixed(WeatherOverride(mode: .storm))

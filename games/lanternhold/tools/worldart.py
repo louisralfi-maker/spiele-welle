@@ -31,7 +31,11 @@ position), so a run reproduces its files byte for byte. Called by tools/build-ar
                          paints the rock over a converted part's boxes (inclusive), in place: every column of a box
                          takes the colour of the cell above the box. The gorge painting has four dry-grass tufts on
                          two ledges; converted they are pale five-fingered hands on the cliffs (review finding A7)
+  mill <out dir>         build 3, POLISH pass 1: look 2's windmill at the valley's end (windmillTower.png, 26x44: a
+                         tapered drum of whitewashed rubble under a thatched ogee cap) and its sails (windmillSails.png,
+                         six frames of 47x47: four lattice sails with canvas, a quarter turn at 15 degrees a frame)
 """
+import math
 import os
 import sys
 
@@ -724,9 +728,158 @@ def cmd_rockover(a):
     print(f"rock over {len(a) - 1} boxes of {a[0]}")
 
 
+# ------------------------------------------------------------------------------------------------ the windmill
+# Build 3, POLISH pass 1 (docs/POLISH.md 2, item 4; lane 3): look 2's windmill at the valley's end, its sails a
+# sprite of their own that the engine turns with the wind (`Weather.sailFrame`, `SceneLayout.look2Windmill`).
+MILL_W, MILL_H = 26, 44      # windmillTower: the tower and its cap, the sails' hub at MILL_HUB
+MILL_HUB = (13, 9)           # sprite col, row of the hub's centre pixel (the windshaft's end at the cap's front)
+SAIL_N = 6                   # windmillSails: a quarter turn in six frames (four sails: 15 degrees a frame)
+SAIL_S = 47                  # one frame, the hub at (23, 23)
+SAIL_R = 21                  # a stock's reach from the hub's centre
+
+
+def mill_tower():
+    """A tower mill of the valley: a tapered drum of whitewashed rubble on a stone footing (the town's plaster, lit
+    from the upper left, its right side turning into shade), a door and two small windows, a gallery rail under a
+    thatched ogee cap with a finial; the windshaft's boss looks out of the cap's front, where the sails turn."""
+    im = PA.Image(MILL_W, MILL_H)
+    cx = 12.5
+    top, bot = 15, MILL_H - 1          # the drum's rows
+    for y in range(top, bot + 1):
+        t = (y - top) / float(bot - top)
+        half = 5.2 + 2.9 * t           # 10 px across under the cap, 16 at the foot
+        a, b = int(round(cx - half)), int(round(cx + half))
+        for x in range(a, b + 1):
+            s = (x - a) / float(max(1, b - a))       # 0 at the lit edge ... 1 at the shade edge
+            n = h01(x, y, 77)
+            if y >= bot - 2:                          # the footing: dressed stone
+                name = "stoneLight" if s < 0.3 else "stone" if s < 0.75 else "stoneMid"
+                if (y == bot - 2):
+                    name = "stonePale" if s < 0.45 else "stoneLight"
+            elif s < 0.12:
+                name = "plasterDim"
+            elif s < 0.5:
+                name = "parchment" if (n > 0.86 and s < 0.4) else "plaster"
+            elif s < 0.78:
+                name = "plasterDim"
+            else:
+                name = "soilLight" if s < 0.93 else "soil"
+            # rubble shows through the wash here and there in the shade
+            if name == "plasterDim" and n < 0.07 and y < bot - 3:
+                name = "soilLight"
+            im.set(x, y, col(name))
+    # the door, the windows
+    for y in range(bot - 7, bot - 2):
+        for x in (11, 12, 13):
+            im.set(x, y, col("woodDark" if x != 12 or y == bot - 7 else "wood"))
+    im.set(12, bot - 8, col("plasterDim"))
+    for (wx, wy) in ((10, 25), (14, 33)):
+        im.set(wx, wy, col("woodDark"))
+        im.set(wx, wy + 1, col("woodDark"))
+        im.set(wx - 1, wy - 1, col("plasterDim"))
+    # the gallery under the cap: a dark band and a rail of posts
+    for x in range(6, 20):
+        im.set(x, top, col("woodDark"))
+        im.set(x, top - 1, col("wood" if x < 15 else "woodDark"))
+    for x in range(6, 20, 2):
+        im.set(x, top - 2, col("woodDark"))
+    for x in range(6, 20):
+        im.set(x, top - 3, col("woodLight" if x < 13 else "wood"))
+    # the thatched ogee cap: swelling, then drawn in to a finial
+    cap_top, cap_bot = 3, top - 4
+    for y in range(cap_top, cap_bot + 1):
+        t = (y - cap_top) / float(cap_bot - cap_top)
+        half = 1.0 + 6.4 * math.sin(min(1.0, t * 1.08) * math.pi * 0.62)
+        a, b = int(round(cx - half)), int(round(cx + half))
+        for x in range(a, b + 1):
+            s = (x - a) / float(max(1, b - a))
+            n = h01(x, y, 91)
+            name = "strawLight" if s < 0.32 else "straw" if s < 0.7 else "woodLight"
+            if (y + (x // 2)) % 3 == 0 and s > 0.2:                 # the thatch's courses
+                name = {"strawLight": "straw", "straw": "woodLight", "woodLight": "wood"}[name]
+            if n > 0.9 and s < 0.6:
+                name = "strawLight"
+            im.set(x, y, col(name))
+        im.set(b, y, col("wood"))
+    im.set(12, cap_top - 1, col("woodDark"))
+    im.set(13, cap_top - 1, col("woodDark"))
+    im.set(12, cap_top - 2, col("gold"))
+    # the windshaft's boss in the cap's front
+    hx, hy = MILL_HUB
+    for dx, dy, n in ((-1, -1, "woodDark"), (0, -1, "woodDark"), (1, -1, "woodDark"), (-1, 0, "woodDark"),
+                      (0, 0, "woodLight"), (1, 0, "woodDark"), (-1, 1, "woodDark"), (0, 1, "woodDark"),
+                      (1, 1, "woodDark")):
+        im.set(hx + dx, hy + dy, col(n))
+    return im
+
+
+def mill_sails(k):
+    """Frame k of the sails: four stocks at -15k degrees (they turn anticlockwise, as the valley's mills do), each
+    carrying a sail on its trailing side: a frame of laths with the canvas spread between them, the canvas lit on
+    its upper half. The hub's boss in front."""
+    im = PA.Image(SAIL_S, SAIL_S)
+    c = SAIL_S // 2
+    base = -math.radians(15 * k) + math.radians(12)
+    for y in range(SAIL_S):
+        for x in range(SAIL_S):
+            px, py = x - c, y - c
+            for i in range(4):
+                a = base + i * math.pi / 2
+                dx, dy = math.cos(a), math.sin(a)
+                dom = max(abs(dx), abs(dy))
+                u = px * dx + py * dy
+                v = -px * dy + py * dx          # >0: the trailing side (anticlockwise turn on screen)
+                if 5.5 <= u <= SAIL_R + 0.4 and 0.5 * dom < v <= 4.6:
+                    edge = v > 4.6 - dom
+                    tip = u > SAIL_R + 0.4 - dom
+                    lath = abs(u - 1.5 - 4 * round((u - 1.5) / 4.0)) < 0.5 * dom
+                    if edge:
+                        name = "woodDark"
+                    elif tip or lath:
+                        name = "wood"
+                    else:
+                        lit = (dy < 0.2) if v < 2.6 else (dy < -0.5)
+                        name = "parchment" if v < 2.6 else "plaster"
+                        if not lit:
+                            name = {"parchment": "plaster", "plaster": "plasterDim"}[name]
+                    im.set(x, y, col(name))
+            for i in range(4):
+                a = base + i * math.pi / 2
+                dx, dy = math.cos(a), math.sin(a)
+                dom = max(abs(dx), abs(dy))
+                u = px * dx + py * dy
+                v = -px * dy + py * dx
+                if -0.5 <= u <= SAIL_R + 0.4 and abs(v) <= 0.5 * dom:
+                    im.set(x, y, col("woodDark"))
+    for dx, dy, n in ((-1, -1, "woodDark"), (0, -1, "woodLight"), (1, -1, "woodDark"), (-1, 0, "woodLight"),
+                      (0, 0, "gold"), (1, 0, "woodDark"), (-1, 1, "woodDark"), (0, 1, "woodDark"), (1, 1, "woodDark")):
+        im.set(c + dx, c + dy, col(n))
+    return im
+
+
+def mill_strip(frames):
+    w, h = frames[0].w, frames[0].h
+    out = PA.Image(w * len(frames), h)
+    for i, f in enumerate(frames):
+        for y in range(h):
+            for x in range(w):
+                p = f.get(x, y)
+                if p[3]:
+                    out.set(i * w + x, y, p)
+    return out
+
+
+def cmd_mill(a):
+    """mill <out dir>: windmillTower.png and windmillSails.png (SAIL_N frames side by side)."""
+    out = a[0]
+    PA.write_png(os.path.join(out, "windmillTower.png"), mill_tower())
+    PA.write_png(os.path.join(out, "windmillSails.png"), mill_strip([mill_sails(k) for k in range(SAIL_N)]))
+    print(f"wrote windmillTower.png {MILL_W}x{MILL_H}, windmillSails.png {SAIL_N} x {SAIL_S}x{SAIL_S}")
+
+
 if __name__ == "__main__":
     cmds = dict(wall=cmd_wall, gorge=cmd_gorge, face=cmd_face, slope=cmd_slope, main=cmd_main, retex=cmd_retex, taper=cmd_taper,
-                rockover=cmd_rockover)
+                rockover=cmd_rockover, mill=cmd_mill)
     if len(sys.argv) < 2 or sys.argv[1] not in cmds:
         raise SystemExit(__doc__)
     cmds[sys.argv[1]](sys.argv[2:])

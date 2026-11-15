@@ -5,8 +5,58 @@ enum PlaceholderWeather {
         switch sprite {
         case .rainStreak: return (0..<9).map { rainStreak(depth: $0 / 3, slant: $0 % 3) }
         case .rainSplash: return (0..<3).map { rainSplash($0) }
+        // Build 3, POLISH pass 1 (lane 3): stand-ins until tools/worldart.py's and tools/bannerart.py's strips load.
+        case .windmillTower: return [millTower()]
+        case .windmillSails: return (0..<Weather.sailFrames).map { millSails($0) }
+        case .keepFlag: return (0..<4).map { flag($0) }
         default: return []
         }
+    }
+
+    private static let plaster = RGBA(0xC8AE84)
+    private static let thatch = RGBA(0xA68A54)
+    private static let timber = RGBA(0x3A261E)
+    private static let teal = RGBA(0x2B6584)
+
+    /// A plain drum under a cap.
+    static func millTower() -> PixelImage {
+        let size = SpriteID.windmillTower.size
+        var p = Painter(size, salt: 0)
+        p.rect(5, 15, 16, size.height - 15, plaster)
+        p.rect(6, 4, 14, 11, thatch)
+        return p.image
+    }
+
+    /// Four stocks from the hub: upright and level on even frames, crossed on odd ones.
+    static func millSails(_ frame: Int) -> PixelImage {
+        let size = SpriteID.windmillSails.size
+        var p = Painter(size, salt: 0)
+        let c = size.width / 2
+        for d in 2...21 {
+            if frame % 2 == 0 {
+                p.put(c + d, c, timber)
+                p.put(c - d, c, timber)
+                p.put(c, c + d, timber)
+                p.put(c, c - d, timber)
+            } else {
+                p.put(c + d * 2 / 3, c + d * 2 / 3, timber)
+                p.put(c - d * 2 / 3, c - d * 2 / 3, timber)
+                p.put(c + d * 2 / 3, c - d * 2 / 3, timber)
+                p.put(c - d * 2 / 3, c + d * 2 / 3, timber)
+            }
+        }
+        return p.image
+    }
+
+    /// A flag hanging (frame 0) or flying (1 to 3) from the cell's top-left corner.
+    static func flag(_ frame: Int) -> PixelImage {
+        var p = Painter(SpriteID.keepFlag.size, salt: 0)
+        if frame == 0 {
+            p.rect(0, 0, 4, 14, teal)
+        } else {
+            p.rect(0, 0, 10 + frame, 7, teal)
+        }
+        return p.image
     }
 
     /// A streak's rows by depth (behind the near trees, over the lane, before the foreground).
