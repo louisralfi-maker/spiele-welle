@@ -93,8 +93,9 @@ part cane
     H
     H
 
-# talk: the forearm up, the glove turned up (6), a little higher (7); in the talk and the bow the cane passes to the far
-# glove behind him (people-2, the critic: it no longer vanishes between the idle and the bow)
+# talk: the forearm up, the glove turned up (6), a little higher (7); in the talk and the bow the near glove leaves the
+# cane and it stays where the idle set it, leaning against the coat's front (the director's fix pass: it never jumps
+# between the idle, the bow and the talk)
 part armTalkA
     Rx..
     Rx..
@@ -220,37 +221,37 @@ frame 5
     armCane 7 13
 
 frame 6
-    cane 2 17
     legsStand 3 21
     coat 2 11
     armBack 1 12
     head 5 5
     hat 4 0
+    cane 11 17
     armTalkA 7 12
 
 frame 7
-    cane 2 17
     legsStand 3 21
     coat 2 11
     armBack 1 12
     head 5 5
     hat 4 0
+    cane 11 17
     armTalkB 7 12
 
 frame 8
-    cane 2 17
     legsStand 3 21
     coat 2 11
     armBack 1 12
     head 5 5
     hat 4 0
+    cane 11 17
     armHeart 7 12
 
 frame 9
-    cane 2 18
     legsStand 3 21
     coat 2 12
     armBack 1 13
     head 6 7
     hat 5 2
+    cane 11 17
     armHeart 7 13
