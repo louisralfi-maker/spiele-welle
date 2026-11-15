@@ -462,3 +462,9 @@ schneller geht."
   proofs only, in `ci-out/director/first-light/`). Round 5 makes the same change in the art: eyes alone, the hand as
   a solid silhouette, no two eye pairs alike, nothing else touched. Still open after that: the long wall is plain,
   the lord is small, "Touch to begin" stands in smooth type on pixels (a question for the wiring).
+- **The title's art is accepted and is in build 2 (15.11.2026, 02:31).** Round 5 is commit `ce729f3` on
+  `claude/lh-title`: eyes alone in the dark (14 pairs, no two alike), the hand a solid shape with four claws on the
+  lit cliff, the horn gone. It is the picture Louis got, in the art itself. TITLE.md section 5's condition is met
+  well before Sunday noon. After the join one agent wires the launch image, the loading lantern and the title from
+  `ci-out/director/first-light.md`; it also settles the type of "Touch to begin" (pixel letters or none, never smooth
+  type on the picture).
