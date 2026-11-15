@@ -1,0 +1,4 @@
+Test Case '-[LanternholdUITests.PeopleUITests testPeople]' passed (101.625 seconds).
+Test Case '-[LanternholdUITests.TownLifeUITests testTheTownLivesByItsPeople]' passed (124.487 seconds).
+exit=0
+screenshots: 16
