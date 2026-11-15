@@ -56,8 +56,13 @@ struct TableScreen: View {
         let _ = tick
         let realm = model.tableRealm
         GeometryReader { geometry in
-            let layout = TableLayout(size: geometry.size, insets: geometry.safeAreaInsets, scale: displayScale,
-                                     map: map)
+            // The reader stands in the safe area: it reports the safe size and the insets (a reader that ignores the
+            // safe area reports none, round lh-q3f1-2). The layer below works in the whole screen's coordinates and is
+            // placed back by the leading and top insets.
+            let insets = geometry.safeAreaInsets
+            let full = CGSize(width: geometry.size.width + insets.leading + insets.trailing,
+                              height: geometry.size.height + insets.top + insets.bottom)
+            let layout = TableLayout(size: full, insets: insets, scale: displayScale, map: map)
             let report = realm.flatMap { waitingReport($0) }
             ZStack(alignment: .topLeading) {
                 TableGround()
@@ -80,12 +85,9 @@ struct TableScreen: View {
                     .frame(width: layout.column, height: layout.columnHeight)
                     .position(x: layout.columnX + layout.column / 2, y: layout.columnTop + layout.columnHeight / 2)
             }
-            .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
-            // The layout works in the whole screen's coordinates: without this the reader would still place its
-            // content at the safe area's corner (round lh-q3f1-1 showed everything 62 pt to the right).
-            .ignoresSafeArea()
+            .frame(width: full.width, height: full.height, alignment: .topLeading)
+            .position(x: full.width / 2 - insets.leading, y: full.height / 2 - insets.top)
         }
-        .ignoresSafeArea()
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("table-root")
         .onAppear {
@@ -529,7 +531,7 @@ struct TableScreen: View {
             (number: $0.number, hook: TableBoard.hook($0, flags: flags, answering: answering))
         }
         let unit = layout.railUnit
-        VStack(alignment: .center, spacing: 2) {
+        VStack(alignment: .center, spacing: 0) {
             ZStack(alignment: .topLeading) {
                 TablePixels(image: TableRailCache.image(hooks), unit: unit)
                 ForEach(Array(hooks.prefix(TableRailPicture.slots.count).enumerated()), id: \.offset) { index, entry in
@@ -708,7 +710,7 @@ struct TableScreen: View {
         let open = selected == errand.id
         let margin = slipMargin
         let sealed = errand.orders.indices.contains { ErrandEngine.sealHolds(errand, order: $0, realm) }
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 4) {
             Button {
                 selected = open ? nil : errand.id
                 focus = nil
@@ -745,7 +747,7 @@ struct TableScreen: View {
             .accessibilityIdentifier("table-slip-\(errand.id)")
             .accessibilityValue(Text(verbatim: open ? "open" : "closed"))
             if open {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 4) {
                     ForEach(errand.hookKeys, id: \.self) { key in
                         Text(QuestText.text(key, lord: lord))
                             .font(Theme.serif(.footnote))
@@ -793,7 +795,7 @@ struct TableScreen: View {
                 TableChipRow(chips: TableChips.order(order, realm, blocks: blocks, sealed: sealed))
             }
             .padding(.horizontal, 8)
-            .padding(.vertical, 6)
+            .padding(.vertical, 4)
             .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
             .background(PlaqueBackground(enabled: blocks.isEmpty, marked: sealed))
         }
@@ -952,8 +954,8 @@ struct TableLayout {
         safeBottom = size.height - insets.bottom
         column = size.width >= 760 ? 226 : max(170, min(226, size.width * 0.3))
         columnX = snap(size.width - insets.trailing - column)
-        columnTop = insets.top + 6
-        columnHeight = max(0, size.height - insets.top - insets.bottom - 12)
+        columnTop = insets.top + 4
+        columnHeight = max(0, size.height - insets.top - insets.bottom - 8)
         let room = columnX - TableLayout.gap - insets.leading
         let fitWidth = room / CGFloat(TableLayout.east - TableLayout.west)
         let fitHeight = (size.height - insets.top - TableLayout.titleBand) / CGFloat(max(1, map.height))
