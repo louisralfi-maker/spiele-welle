@@ -752,3 +752,20 @@ schneller geht."
   - Lane B (`claude/lh-fix2`: render and the remaining lenses) follows when the review ends.
   - After build 2: `core-state-4` (only the last dawn is saved, a kill rolls back a day), `core-state-5` (hint flags are not saved).
   - D now needs the world's fix-3 delta and the fix lanes merged (note to the join, 18:06); about 21:30 to 22:00. Quota 53 %.
+- **The review's second blocker; fix lanes B and C run (15.11.2026, 18:15).**
+  - Six of eight lenses are in, nothing refuted: 2 blockers and 9 highs. New since the last entry:
+    - `release-2` (blocker): the slides' clock reads the system uptime, which the privacy manifest does not declare; the upload can be refused.
+    - `release-1` (high): a TestFlight build would show live ads on Louis' own phone.
+    - `release-3` (high): a German phone would get an unchecked German game.
+    - `core-day-1` (high): the court still teaches the tax lectern, and the war-tax choices promise what the code does not do.
+  - One workflow (`lanternhold-fix-bc`, Opus agents) runs two lanes side by side, each as fix, independent diff review, gate round, push, report:
+    - Lane B: worktree `lh-fix2`, branch `claude/lh-fix2`, rounds `lh-fy-*`, report `ci-out/director/fix-b.md`. Scope: `release-2`, `release-1`, `release-3`, `core-day-1`; `release-4` and `release-5` only if small.
+    - Lane C: worktree `lh-fix3`, branch `claude/lh-fix3`, rounds `lh-fz-*`, report `ci-out/director/fix-c.md`. Scope: `render-1` (the freeze at the title's touch), `render-2` (the hitching walk).
+  - Decisions:
+    - Live ad units only when the build is Release and the store's receipt is named `receipt`. TestFlight and App Review therefore see test ads. Look at this again at the store pass.
+    - English only is done in the built app: one build setting names the shipped languages and a script phase removes the other `.lproj` folders. The catalogs stay whole. The store pass flips the setting back.
+    - "Touch to begin" stays outside the catalogs until the store pass.
+  - The join's D now needs the world's fix-3 delta and all three fix branches; its stop rule moved to 22:00.
+  - After build 2: `release-6`, `release-7`, `release-8`, `core-day-2` to `-4`, `render-3`, `core-state-4`, `core-state-5`, `app-ui-4`.
+  - Still to come: the lenses `player-first` and `player-loop`, and the gaps critic.
+  - My own check after the join: grep the joined head once more for required-reason APIs (lane A moves a save file aside; lane B cannot see that).
