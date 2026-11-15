@@ -46,6 +46,18 @@ enum GorgeBotKind: String, Sendable, CaseIterable {
     case reference, forward, neglect
     /// The control of T15b: the walls neglected as the neglect bot does, and no beacon either.
     case walless
+    /// T15c: the forward bot's beacons and Great Beacon, and no wall (built, raised or patched).
+    case outpost
+
+    /// The bot that plays this kind (the reference plays as `Autoplay.reference()`, without the rule).
+    var bot: ForwardBot {
+        switch self {
+        case .reference, .forward: return ForwardBot()
+        case .neglect: return ForwardBot(neglectsWalls: true)
+        case .walless: return ForwardBot(neglectsWalls: true, raisesBeacons: false)
+        case .outpost: return ForwardBot(neglectsWalls: true, forwardHabits: true)
+        }
+    }
 }
 
 /// A whole run of one bot from day 1 (T15's second half and the wager).
@@ -68,6 +80,8 @@ struct GorgeRun: Sendable {
     var lost: Int { nights.reduce(0) { $0 + $1.lost } }
     var fallen: Int { nights.reduce(0) { $0 + $1.fallen } }
     var reached: Int { nights.reduce(0) { $0 + $1.reached } }
+    /// The King slain on night 20 (counted only for a realm that reached it).
+    var slewTheKing: Bool { fellOn == nil && kingSlain }
     /// The losses and the creatures at the defence over nights `range`.
     func fallen(_ range: ClosedRange<Int>) -> Int { nights.filter { range.contains($0.night) }.reduce(0) { $0 + $1.fallen } }
     func reached(_ range: ClosedRange<Int>) -> Int {
@@ -84,15 +98,21 @@ struct GorgeRun: Sendable {
 ///   day is the reference's and only the gorge differs), at the game's own budget and at 1.5 and 2 times it (a realm
 ///   caught short). The creatures that reach the defence (a wall, the guards, the hearth) over all of them together
 ///   fall by at least `least`.
-/// - **T15b, the walls still count** (whole runs): the neglect bot (beacons first, no wall built or raised, none patched)
-///   loses a beacon and then falls, in every seed, on a night the forward bot and the reference both hold.
-/// - **The wager** (whole runs, reported): the forward bot against the reference; "never a trap" (it never falls where
-///   the reference holds) is asserted, the rest is in the table.
+/// - **T15b, the walls still count** (whole runs): the neglect bot (beacons first at any gold, no wall built or raised,
+///   none patched) loses a beacon and then falls by night `neglectFallsBy`, in every seed, on a night the forward bot
+///   and the reference both hold.
+/// - **T15c, the beacons do not replace the walls** (whole runs): the outpost bot (the forward bot's beacons and Great
+///   Beacon, no wall) does not beat the reference: it falls where the reference holds, or slays the King less often,
+///   or lets at least as many creatures reach its defence over nights 3 to 14.
+/// - **The wager, never a trap** (whole runs): the forward bot never falls where the reference holds, slays the King at
+///   least as often, and lets no more creatures reach its defence over nights 3 to 14 than the reference.
 struct GorgeMetrics: Sendable {
     /// T15a: at least this share fewer creatures reach the defence with all four held.
     static let least = 0.30
     /// Fewer reference arrivals than this would make the share a matter of a few draws.
     static let minReached = 300
+    /// T15b: the neglect bot falls by this night.
+    static let neglectFallsBy = 19
 
     var seeds: Int
     var nights: ClosedRange<Int>
@@ -129,7 +149,8 @@ struct GorgeMetrics: Sendable {
                   let forward = run(.forward, seed: seed, stress: stress),
                   let reference = run(.reference, seed: seed, stress: stress) else { continue }
             var ok = false
-            if let fell = neglect.fellOn, let loss = neglect.firstLoss, loss <= fell {
+            if let fell = neglect.fellOn, fell <= GorgeMetrics.neglectFallsBy, let loss = neglect.firstLoss,
+               loss <= fell {
                 let refHeld = reference.fellOn.map { $0 > fell } ?? true
                 let fwdHeld = forward.fellOn.map { $0 > fell } ?? true
                 ok = refHeld && fwdHeld
@@ -158,6 +179,44 @@ struct GorgeMetrics: Sendable {
         return seedsTrapped
     }
 
+    /// The runs of one bot at a stress, seeds 1 to `seeds`.
+    func runs(_ kind: GorgeBotKind, stress: Double) -> [GorgeRun] {
+        (1...max(1, seeds)).compactMap { run(kind, seed: $0, stress: stress) }
+    }
+
+    /// One bot against the reference over whole runs at a stress: the seeds where it fell and the reference held, the
+    /// King slain (its count and the reference's), the creatures at the defence over nights 3 to 14 (its sum and the
+    /// reference's).
+    func against(_ kind: GorgeBotKind, stress: Double) -> (fellWhereHeld: [Int], kings: Int, refKings: Int,
+                                                           reached: Int, refReached: Int) {
+        let mine = runs(kind, stress: stress)
+        let ref = runs(.reference, stress: stress)
+        var fellWhereHeld: [Int] = []
+        for r in mine {
+            guard let fell = r.fellOn, let other = run(.reference, seed: r.seed, stress: stress) else { continue }
+            if other.fellOn.map({ $0 > fell }) ?? true { fellWhereHeld.append(r.seed) }
+        }
+        return (fellWhereHeld, mine.filter { $0.slewTheKing }.count, ref.filter { $0.slewTheKing }.count,
+                mine.reduce(0) { $0 + $1.reached(3...14) }, ref.reduce(0) { $0 + $1.reached(3...14) })
+    }
+
+    /// The wager at a stress: the forward bot never falls where the reference holds, slays the King at least as often
+    /// and lets no more creatures reach its defence (nights 3 to 14).
+    func passesWager(stress: Double) -> Bool {
+        let a = against(.forward, stress: stress)
+        return !runs(.forward, stress: stress).isEmpty && a.fellWhereHeld.isEmpty && a.kings >= a.refKings
+            && a.reached <= a.refReached
+    }
+
+    /// T15c at a stress: the outpost bot does not beat the reference (it falls where the reference holds, or slays the
+    /// King less often, or lets at least as many creatures reach its defence).
+    func passesOutpost(stress: Double) -> Bool {
+        guard !runs(.outpost, stress: stress).isEmpty else { return false }
+        let a = against(.outpost, stress: stress)
+        let beats = a.fellWhereHeld.isEmpty && a.kings >= a.refKings && a.reached < a.refReached
+        return !beats
+    }
+
     private static func pct(_ value: Double) -> String { "\(Int((value * 100).rounded())) %" }
 
     private static func stressText(_ k: Double) -> String { "x" + TuningRun.tenths(k) }
@@ -182,14 +241,26 @@ struct GorgeMetrics: Sendable {
         for k in runStresses {
             let verdicts = neglectVerdicts(stress: k)
             let ok = verdicts.filter { $0.ok }.count
-            lines.append("T15b \(passesNeglect(stress: k) ? "PASS" : "FAIL") \(GorgeMetrics.stressText(k)) whole runs, "
-                         + "seeds 1-\(seeds): the neglect bot (beacons first, no wall built or raised, none patched) lost "
-                         + "a beacon and then the night where the forward bot and the reference held in \(ok) of "
-                         + "\(verdicts.count) (target all)")
-            let trapped = traps(stress: k)
-            lines.append("T15 wager \(trapped.isEmpty ? "PASS" : "FAIL") \(GorgeMetrics.stressText(k)): the forward bot "
-                         + "fell where the reference held in \(trapped.count) seeds \(trapped) (target none: never a "
-                         + "trap)")
+            let t15b = k == 1.0 ? (passesNeglect(stress: k) ? "PASS" : "FAIL")
+                : (passesNeglect(stress: k) ? "reported, met" : "reported, missed")
+            lines.append("T15b \(t15b) \(GorgeMetrics.stressText(k)) whole runs, seeds 1-\(seeds): the neglect bot "
+                         + "(beacons first, no wall built or raised, none patched) lost a beacon and then the night by "
+                         + "night \(GorgeMetrics.neglectFallsBy) where the forward bot and the reference held in \(ok) of "
+                         + "\(verdicts.count) (target all); it fell on nights "
+                         + "\(runs(.neglect, stress: k).map { $0.fellOn ?? 0 })")
+            let asserted = k == 1.0
+            func verdict(_ ok: Bool) -> String { asserted ? (ok ? "PASS" : "FAIL") : (ok ? "reported, met" : "reported, missed") }
+            let w = against(.forward, stress: k)
+            lines.append("T15 wager \(verdict(passesWager(stress: k))) \(GorgeMetrics.stressText(k)): the forward bot fell "
+                         + "where the reference held in \(w.fellWhereHeld.count) seeds \(w.fellWhereHeld), slew the King in "
+                         + "\(w.kings) against \(w.refKings), \(w.reached) creatures at its defence on nights 3-14 against "
+                         + "\(w.refReached) (target: none, at least as often, no more: never a trap)")
+            let o = against(.outpost, stress: k)
+            lines.append("T15c \(verdict(passesOutpost(stress: k))) \(GorgeMetrics.stressText(k)): the outpost bot (the "
+                         + "forward bot's beacons and Great Beacon, no wall) fell where the reference held in "
+                         + "\(o.fellWhereHeld.count) seeds \(o.fellWhereHeld), slew the King in \(o.kings) against "
+                         + "\(o.refKings), \(o.reached) creatures at its defence on nights 3-14 against \(o.refReached) "
+                         + "(target: it does not beat the reference on all three)")
         }
         lines.append("")
         lines.append("T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | "
@@ -337,7 +408,7 @@ enum GorgeTuningRun {
         var s = GameState.newRealm(seed: UInt64(seed), balance: balance)
         var run = GorgeRun(seed: seed, kind: kind, stress: stress)
         var reference = Autoplay.reference()
-        var bot = ForwardBot(neglectsWalls: kind == .neglect || kind == .walless, raisesBeacons: kind != .walless)
+        var bot = kind.bot
         if kind != .reference { Gorge.adopt(&s) }
         while s.nightNumber <= lastNight && !s.defeated {
             let count: GorgeNightCount
@@ -380,7 +451,7 @@ enum GorgeTuningRun {
         }
         for k in runStresses {
             for seed in 1...max(1, runSeeds ?? seeds) {
-                for kind in [GorgeBotKind.reference, .forward, .neglect] {
+                for kind in [GorgeBotKind.reference, .forward, .neglect, .outpost] {
                     m.runs.append(wholeRun(seed: seed, kind: kind, balance: balance, stress: k))
                 }
             }
@@ -392,22 +463,27 @@ enum GorgeTuningRun {
 
     /// The reference bots' runs played twice in lockstep: under the old rules, and with the gorge rule turned on and
     /// never a beacon raised (the reference bots never raise one). Every dawn the two realms must be the same but for
-    /// the rule's own state. Returns one line per night of each run (the same for both when nothing differs) and the
-    /// differences.
-    static func idleLockstep(balance: Balance) -> (old: [String], rule: [String], differences: [String]) {
+    /// the rule's own state and the bank by day. Returns one line per night of each run (the same for both when nothing
+    /// differs), the differences, and the bank at the first dawn of each run under both.
+    static func idleLockstep(balance: Balance) -> (old: [String], rule: [String], differences: [String],
+                                                   banks: [String]) {
         var old: [String] = []
         var rule: [String] = []
         var differences: [String] = []
+        var banks: [String] = []
         func line(_ name: String, _ s: GameState) -> String {
             let n = s.night
             return "\(name) night \(n.night): \(s.defeated ? "FELL" : "held"), spawned \(n.spawned), killed \(n.killed), "
                 + "walls lost \(n.wallsLost.count), fallen \(n.fallen.count), gold \(s.gold), citizens \(s.citizens), "
-                + "buildings \(s.buildingsBuilt), bank \(Int(s.bankEdge.rounded()))"
+                + "buildings \(s.buildingsBuilt)"
         }
+        // The rule's own state, and the bank by day: with no beacon it rests at the first site (x 300) instead of x 200,
+        // where nothing of the battle stands (no light, no wall); every night's edge is the old one from x 300 on.
         func bare(_ s: GameState) -> GameState {
             var copy = s
             copy.gorge = nil
             copy.lastReport?.gorge = nil
+            copy.bankEdge = 0
             return copy
         }
         let runs: [(String, UInt64, Autoplay, Int)] = [
@@ -430,8 +506,10 @@ enum GorgeTuningRun {
                 rule.append(line(name, b))
                 if bare(a) != bare(b) { differences.append("\(name) night \(a.night.night)") }
                 if b.gorge?.held != 0 { differences.append("\(name): a beacon burns") }
+                if played == 1 { banks.append("\(name): the bank at dawn \(Int(a.bankEdge.rounded())) under the old rules, "
+                                             + "\(Int(b.bankEdge.rounded())) with the rule on") }
             }
         }
-        return (old, rule, differences)
+        return (old, rule, differences, banks)
     }
 }

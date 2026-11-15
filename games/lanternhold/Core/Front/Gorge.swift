@@ -37,13 +37,16 @@ struct GorgeSitePicture: Sendable, Equatable {
     var strength: Double
     /// How far the builders are (0 ... 1) while it is being raised; nil otherwise.
     var raised: Double?
+    /// The raise waits: a beacon nearer the castle went dark, and the builders stay away until it burns again (the
+    /// scaffolding stands, no crew at it).
+    var paused: Bool = false
 }
 
 /// One stretch of the gorge for the picture: the thing that stands in it and whether the stretch is held.
 struct GorgeLandPicture: Sendable, Equatable {
     var land: GorgeLand
     var x: Double
-    /// The beacon beyond it burns: the land is ours (people at work there by day).
+    /// The beacon that clears it burns: the land is ours (out of the fog, people at work there by day).
     var held: Bool
     /// The watchtower only: raised as a forward post, and manned now (raised and held).
     var watchRaised: Bool
@@ -54,8 +57,10 @@ struct GorgeLandPicture: Sendable, Equatable {
 /// shows): read-only, built from the state.
 struct GorgePicture: Sendable, Equatable {
     var ruleOn: Bool
-    /// The fog line: the furthest lit beacon's x (nil: no beacon holds the fog). The darkness bank itself is
-    /// `GameState.bankEdge`, which the rule holds there (rolling over `GorgeTuning.fogSeconds` when it moves).
+    /// The fog line: where the furthest lit beacon holds the fog (the next site, or the Gloom's mouth once all four
+    /// burn); nil when no beacon burns. The darkness bank itself is `GameState.bankEdge`, which the rule holds there by
+    /// day and by night (rolling over `GorgeTuning.fogSeconds` when it moves); with no beacon it rests by day at the
+    /// first site.
     var fogLine: Double?
     /// Beacons burning (always the nearest ones).
     var held: Int
@@ -68,20 +73,24 @@ struct GorgePicture: Sendable, Equatable {
     /// The stamps: a new `at` is a beacon lit (raised or relit) or a beacon fallen.
     var lastLit: GorgeStamp?
     var lastFall: GorgeStamp?
+    /// A wall stands whole beyond the gate, so the beacons are tended from it by day (people walk out to them).
+    var tended: Bool = true
 }
 
 /// The gorge beacons (docs/REALM.md section 5, "Beacons into the gorge (forward)"). Four sites beyond the gate, at
 /// growing distances. From day 3 the next one is raised by day (60, 90, 130, 180 gold; the builders need about a day),
-/// each only once the one before it burns. The fog cannot pass the furthest lit beacon (the darkness bank is held at its
-/// line, by day and by night), and every lit beacon burns as a fire under the existing light rules: creatures that walk
-/// through it are seen, slow to their lit speed, and sootlings burn. Creatures strike the furthest lit beacon as they
-/// pass; at 0 strength it falls, and the fog comes back to the one before. A cold beacon is relit by day for a third of
-/// its price. Each beacon frees a stretch of the gorge with one thing in it and one small gain (the old quarry, the
-/// ruined watchtower, the charcoal burners' camp, the far stones).
+/// each only once the one before it burns. Each beacon holds the fog off the stretch beyond it, up to the next site:
+/// the darkness bank rests at that line by day and by night, so every beacon pushes the fog back one stretch and frees
+/// the thing in it (the old quarry, the ruined watchtower, the charcoal burners' camp, the far stones), and the next
+/// site stands at the fog's rim. With no beacon the fog comes at night as it always came and rests by day at the
+/// first site. Every lit beacon burns as a fire under the existing light rules: creatures that walk through it are seen
+/// and slow to their lit speed, and sootlings burn. Creatures strike the furthest lit beacon as they pass; at 0 strength
+/// it falls, and the fog comes back to it. A standing beacon is tended from the wall: full again at dawn while a wall
+/// beyond the gate stands whole. A cold beacon is relit by day for a third of its price.
 ///
-/// Creatures still leave the Gloom at its mouth (`Realm.spawnX`): the four sites lie on their way (the world lane's
-/// sites, east of x 40), so a creature comes out of the fog at the fog line (the picture hides what is inside the bank)
-/// and walks the rest of the gorge in the beacons' light, slower and under the watch's arrows.
+/// Creatures still leave the Gloom at its mouth (`Realm.spawnX`), west of every site, so they walk the whole gorge in
+/// the beacons' light, slower and under the watch's arrows; they come out of the fog at the fog line (the picture hides
+/// what is inside the bank).
 ///
 /// Deterministic: nothing here draws from the random stream. Nothing runs for a realm without `GameState.gorge`.
 enum Gorge {
@@ -100,54 +109,81 @@ enum Gorge {
 
     // MARK: - Places
 
+    private static func x(_ fraction: Double, _ tuning: GorgeTuning) -> Double {
+        tuning.gorgeFrontX - fraction * (tuning.gorgeFrontX - tuning.gorgeWestX)
+    }
+
     /// Where beacon site `index` stands (a fraction of the gorge from the castle front).
     static func siteX(_ index: Int, tuning: GorgeTuning) -> Double {
         let list = tuning.siteFractions
-        let fraction = list.isEmpty ? 0 : list[min(max(0, index), list.count - 1)]
-        return tuning.gorgeFrontX - fraction * (tuning.gorgeFrontX - tuning.gorgeWestX)
+        return x(list.isEmpty ? 0 : list[min(max(0, index), list.count - 1)], tuning)
+    }
+
+    /// Where the fog rests while `held` beacons burn: the next site (the first with none), or the Gloom's mouth once all
+    /// four burn.
+    static func lineX(_ held: Int, tuning: GorgeTuning) -> Double {
+        held < sites ? siteX(held, tuning: tuning) : x(tuning.mouthFraction, tuning)
     }
 
     /// Where a freed thing stands.
     static func landX(_ land: GorgeLand, tuning: GorgeTuning) -> Double {
         let list = tuning.landFractions
-        let fraction = list.isEmpty ? 0 : list[min(land.rawValue, list.count - 1)]
-        return tuning.gorgeFrontX - fraction * (tuning.gorgeFrontX - tuning.gorgeWestX)
+        return x(list.isEmpty ? 0 : list[min(land.rawValue, list.count - 1)], tuning)
     }
 
     /// Beacons burning (the nearest ones); 0 without the rule.
     static func held(_ s: GameState) -> Int { s.gorge?.held ?? 0 }
 
-    /// The stretch of this thing is held (the beacon beyond it burns).
+    /// The stretch of this thing is held (the beacon that clears it burns).
     static func holds(_ s: GameState, _ land: GorgeLand) -> Bool { held(s) > land.rawValue }
 
-    /// The fog line: the furthest lit beacon's x; nil when none burns (the fog comes as it always came).
+    /// A wall stands whole beyond the gate (the middle or the outer line's, built and not rubble): the beacons are
+    /// tended from it.
+    static func wallBeyondGate(_ s: GameState) -> Bool {
+        for line in Realm.lines.dropFirst() {
+            let plot = s.plots[line.wall]
+            if plot.item != nil && !plot.isRubble { return true }
+        }
+        return false
+    }
+
+    /// The fog line: where the furthest lit beacon holds the fog (the next site, or the Gloom's mouth); nil when none
+    /// burns (the fog comes as it always came).
     static func fogLine(_ s: GameState, balance: Balance) -> Double? {
         let count = held(s)
         guard count > 0 else { return nil }
-        return siteX(count - 1, tuning: balance.front.gorge)
+        return lineX(count, tuning: balance.front.gorge)
     }
 
-    /// The darkness bank's edge with the fog held (`Battle.bankEdge` asks it last): never past the fog line, rolling to
-    /// a new line over `fogSeconds`. Without the rule `edge` itself. On the King's night, once the Great Beacon flares
-    /// (unless `holdFogOnFinale`), the fog rolls over the small beacons to where the Great Beacon holds it, over
-    /// `fogSeconds` from the King's leaving, and from then on the night is exactly today's.
+    /// Where the rule holds the bank before any roll: with a beacon burning at the fog line, by day and by night; with
+    /// none, as the fog comes (`edge`) but never nearer the mouth than the first site, so by day it rests there.
+    static func restingBank(held: Int, edge: Double, tuning: GorgeTuning) -> Double {
+        held > 0 ? lineX(held, tuning: tuning) : max(edge, siteX(0, tuning: tuning))
+    }
+
+    /// The darkness bank's edge under the rule (`Battle.bankEdge` asks it last): held at the fog line, or by day at the
+    /// first site, rolling to a new line over `fogSeconds` (from wherever the bank stood when the line moved). Without the
+    /// rule `edge` itself. With no beacon the bank differs from `edge` only between it and the first site (x 200 to 300),
+    /// where nothing of the battle stands, so a realm that raises nothing plays its nights exactly as before. On the
+    /// King's night, once the Great Beacon flares (unless `holdFogOnFinale`), the fog rolls over the small beacons to
+    /// where the Great Beacon holds it, over `fogSeconds` from the King's leaving, and from then on the night is exactly
+    /// today's.
     static func holdFog(_ s: GameState, edge: Double, balance: Balance) -> Double {
         guard let g = s.gorge else { return edge }
         let tuning = balance.front.gorge
-        if !tuning.holdFogOnFinale && Battle.beaconRadius(s, balance: balance) > 0 {
-            guard let line = fogLine(s, balance: balance), line < edge, let left = s.night.kingLeftSecond,
-                  tuning.fogSeconds > 0 else { return edge }
-            let share = min(1, max(0, (s.nightTime - left) / tuning.fogSeconds))
-            return min(edge, line + (edge - line) * share)
-        }
-        let target = fogLine(s, balance: balance) ?? edge
-        var line = target
-        if let shift = g.fogShift, tuning.fogSeconds > 0, s.simTime >= shift.at,
+        var bank = restingBank(held: g.held, edge: edge, tuning: tuning)
+        if let shift = g.fogShift, let from = shift.from, tuning.fogSeconds > 0, s.simTime >= shift.at,
            s.simTime - shift.at < tuning.fogSeconds {
-            let from = shift.from ?? edge
-            line = from + (target - from) * (s.simTime - shift.at) / tuning.fogSeconds
+            bank = from + (bank - from) * (s.simTime - shift.at) / tuning.fogSeconds
         }
-        return min(edge, line)
+        if !tuning.holdFogOnFinale && Battle.beaconRadius(s, balance: balance) > 0 && bank < edge {
+            var share = 0.0
+            if let left = s.night.kingLeftSecond {
+                share = tuning.fogSeconds > 0 ? min(1, max(0, (s.nightTime - left) / tuning.fogSeconds)) : 1
+            }
+            bank += (edge - bank) * share
+        }
+        return bank
     }
 
     // MARK: - Prices and strength
@@ -172,15 +208,20 @@ enum Gorge {
     // MARK: - By day: raising, relighting, the watchtower
 
     /// What a touch on the next site would do now; nil without the rule, after the fall, when all four burn or while
-    /// the next one is being raised.
+    /// the next one is being raised. While a raise waits beyond a cold beacon (it fell in the night), the cold one is
+    /// offered: relit, it lets the builders go on.
     static func offer(_ s: GameState, balance: Balance) -> GorgeOffer? {
         guard let g = s.gorge, !s.defeated else { return nil }
         let next = g.held
-        guard next < sites, g.sites[next].state != .raising, g.raise == nil else { return nil }
+        guard next < sites else { return nil }
+        let state = g.sites[next].state
+        if let job = g.raise, job.site == next || state != .dark { return nil }
+        guard state == .wild || state == .dark else { return nil }
         let tuning = balance.front.gorge
-        let relight = g.sites[next].state == .dark
+        let relight = state == .dark
         let cost = relight ? relightPrice(next, tuning: tuning) : price(next, tuning: tuning)
         let open = DayClock.phase(at: s.hour) == .day && s.day >= tuning.raiseFromDay
+            && (!tuning.raiseNeedsWall || wallBeyondGate(s))
         return GorgeOffer(site: next, x: siteX(next, tuning: tuning), price: cost, relight: relight, open: open,
                           affordable: s.gold >= cost)
     }
@@ -194,12 +235,11 @@ enum Gorge {
         let tuning = balance.front.gorge
         s.gold -= offer.price
         if offer.relight {
-            let before = fogLine(s, balance: balance)
             g.sites[offer.site] = GorgeSite(state: .lit, strength: strength(offer.site, tuning: tuning))
             g.relitToday.append(offer.site)
             g.lastLit = GorgeStamp(at: s.simTime, site: offer.site)
             s.gorge = g
-            moveFog(&s, from: before, balance: balance)
+            moveFog(&s)
         } else {
             g.sites[offer.site].state = .raising
             g.raise = GorgeRaise(site: offer.site, work: 0, total: max(1e-6, tuning.raiseWork), day: s.day)
@@ -229,22 +269,22 @@ enum Gorge {
     }
 
     /// One step (`Sim.step`, after the builders): by day the builders without other work raise the beacon (the happy
-    /// realm's faster builders included), and the bank rests at the fog line.
+    /// realm's faster builders included; a raise that waits beyond a cold beacon gets no work), and the bank rests at
+    /// the fog line.
     static func step(_ s: inout GameState, dt: Double, balance: Balance) {
         guard var g = s.gorge, !s.defeated, DayClock.phase(at: s.hour) == .day else { return }
-        if var job = g.raise {
+        if var job = g.raise, job.site == g.held {
             var idle = 0
             for builder in s.builders where builder.plot < 0 { idle += 1 }
             let factor = s.happiness >= balance.fastGrowthFrom ? balance.happyBuildFactor : 1
             job.work += Double(idle) * dt * factor
             if job.work >= job.total {
-                let before = fogLine(s, balance: balance)
                 g.raise = nil
                 g.sites[job.site] = GorgeSite(state: .lit, strength: strength(job.site, tuning: balance.front.gorge))
                 g.litToday.append(job.site)
                 g.lastLit = GorgeStamp(at: s.simTime, site: job.site)
                 s.gorge = g
-                moveFog(&s, from: before, balance: balance)
+                moveFog(&s)
             } else {
                 g.raise = job
                 s.gorge = g
@@ -253,10 +293,10 @@ enum Gorge {
         if s.creatures.isEmpty { s.bankEdge = Battle.bankEdge(s, balance: balance) }
     }
 
-    /// The fog line moved (a beacon lit or fallen): the bank rolls from where the line stood.
-    private static func moveFog(_ s: inout GameState, from: Double?, balance: Balance) {
+    /// The fog line moved (a beacon lit or fallen): the bank rolls from where it stands now.
+    private static func moveFog(_ s: inout GameState) {
         guard var g = s.gorge else { return }
-        g.fogShift = GorgeFogShift(at: s.simTime, from: from, to: fogLine(s, balance: balance))
+        g.fogShift = GorgeFogShift(at: s.simTime, from: s.bankEdge, to: nil)
         s.gorge = g
     }
 
@@ -291,7 +331,7 @@ enum Gorge {
 
     /// The harm of every creature on the ground that walked within `strikeReach` of the furthest lit beacon this step
     /// (harm × the time within reach, worked out from its path as the battle strikes soldiers in passing). At 0 it
-    /// falls: cold, and the fog comes back to the one before.
+    /// falls: cold, and the fog comes back to it. A raise beyond it waits until it burns again (`GorgeState.raise`).
     static func strike(_ s: inout GameState, balance: Balance, creatureStartX: [Double], walkTimes: [Double]) {
         guard var g = s.gorge else { return }
         let count = g.held
@@ -324,7 +364,7 @@ enum Gorge {
         g.tonight.fell.append(site)
         g.lastFall = GorgeStamp(at: s.simTime, site: site)
         s.gorge = g
-        moveFog(&s, from: x, balance: balance)
+        moveFog(&s)
     }
 
     /// The watch of the old watchtower (raised, its stretch held, at night): `watchArchers` bowmen loose at the King
@@ -410,8 +450,9 @@ enum Gorge {
     // MARK: - The dawn
 
     /// At the dawn report (`Sim.dawn`, after the report is made): the night's beacons into `DawnReport.gorge` (what
-    /// fell, what burns anew, the land freed, the watch), the standing beacons tended (full strength), a fresh tally,
-    /// and the bank at rest at the fog line.
+    /// fell, what burns anew, the land freed, the watch, the beacons left untended), the standing beacons tended from
+    /// the wall (full strength while a wall beyond the gate stands whole), a fresh tally, and the bank at rest at the
+    /// fog line.
     static func dawn(_ s: inout GameState, balance: Balance) {
         guard var g = s.gorge else { return }
         let tuning = balance.front.gorge
@@ -425,7 +466,16 @@ enum Gorge {
             report.freed = (g.heldAtDawn..<count).compactMap { GorgeLand(rawValue: $0) }
         }
         report.watchRaised = g.watchRaisedToday && count > GorgeLand.watchtower.rawValue
-        for site in 0..<count { g.sites[site].strength = strength(site, tuning: tuning) }
+        report.towerRaised = g.watchtowerRaised
+        let tended = !tuning.tendedFromWall || wallBeyondGate(s)
+        for site in 0..<count {
+            let full = strength(site, tuning: tuning)
+            if tended {
+                g.sites[site].strength = full
+            } else if g.sites[site].strength < full {
+                report.untended = true
+            }
+        }
         g.heldAtDawn = count
         g.litToday = []
         g.relitToday = []
@@ -451,9 +501,10 @@ enum Gorge {
             let site = g.sites[index]
             let full = strength(index, tuning: tuning)
             let share = site.state == .lit && full > 0 ? max(0, min(1, site.strength / full)) : 0
-            let raised = site.state == .raising && g.raise?.site == index ? g.raise?.progress : nil
+            let job = site.state == .raising && g.raise?.site == index ? g.raise : nil
             sites.append(GorgeSitePicture(site: index, x: siteX(index, tuning: tuning), state: site.state,
-                                          strength: share, raised: raised))
+                                          strength: share, raised: job?.progress, paused: job.map { $0.site > g.held }
+                                            ?? false))
         }
         var lands: [GorgeLandPicture] = []
         for land in GorgeLand.allCases {
@@ -464,6 +515,7 @@ enum Gorge {
         }
         return GorgePicture(ruleOn: true, fogLine: fogLine(s, balance: balance), held: g.held, sites: sites,
                             lands: lands, offer: offer(s, balance: balance), watchOffer: watchOffer(s, balance: balance),
-                            lastLit: g.lastLit, lastFall: g.lastFall)
+                            lastLit: g.lastLit, lastFall: g.lastFall,
+                            tended: !tuning.tendedFromWall || wallBeyondGate(s))
     }
 }

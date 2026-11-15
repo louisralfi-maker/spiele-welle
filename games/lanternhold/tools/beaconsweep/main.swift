@@ -98,11 +98,14 @@ for (old, rule) in zip(idle.old, idle.rule) where old != rule {
 }
 say("  \(idle.old.count) nights, differences: \(idle.differences.isEmpty ? "none" : idle.differences.joined(separator: "; ")) "
     + "(\(elapsed()))")
+for line in idle.banks { say("  " + line) }
 
 let runBudgets = [1.0, 1.5]
 say("")
 say("== T15 at the chosen values (the full table)")
-let chosen = metrics(standard, pairs: pairs(standard), runs: runs(standard, budgets: runBudgets), budgets: runBudgets)
+let chosenRuns = runs(standard, budgets: runBudgets)
+let referenceRuns = chosenRuns.filter { $0.kind == .reference }
+let chosen = metrics(standard, pairs: pairs(standard), runs: chosenRuns, budgets: runBudgets)
 say(chosen.report)
 say("(\(elapsed()))")
 
@@ -156,17 +159,19 @@ if doFinale {
     say("(\(elapsed()))")
 }
 
-/// One line per bot kind: the night each seed fell (0 held), the Great Beacon's day, beacons lost and relit (means).
+/// One line per bot kind: the night each seed fell (0 held), the Great Beacon's day, the King, beacons lost and relit
+/// (means), defenders lost and the creatures at the defence (means).
 func summary(_ list: [GorgeRun], _ kind: GorgeBotKind, _ k: Double) -> String {
     let set = list.filter { $0.kind == kind && $0.stress == k }.sorted { $0.seed < $1.seed }
     func mean(_ values: [Int]) -> String {
         values.isEmpty ? "-" : TuningRun.tenths(Double(values.reduce(0, +)) / Double(values.count))
     }
     return "\(kind.rawValue) x\(TuningRun.tenths(k)): fell \(set.map { $0.fellOn ?? 0 }), Great Beacon "
-        + "\(set.map { $0.greatBeaconDay ?? 0 }), first loss \(set.map { $0.firstLoss ?? 0 }), all four from "
-        + "\(set.map { $0.allFourOn ?? 0 }), lost \(mean(set.map { $0.lost })), relit \(mean(set.map { $0.tally.relights })), "
-        + "beacon gold \(mean(set.map { $0.tally.beaconGold })), defenders lost \(mean(set.map { $0.fallen })), at the "
-        + "defence 3-14 \(mean(set.map { $0.reached(3...14) }))"
+        + "\(set.map { $0.greatBeaconDay ?? 0 }), King slain \(set.filter { $0.slewTheKing }.count), first loss "
+        + "\(set.map { $0.firstLoss ?? 0 }), all four from \(set.map { $0.allFourOn ?? 0 }), lost "
+        + "\(mean(set.map { $0.lost })), relit \(mean(set.map { $0.tally.relights })), beacon gold "
+        + "\(mean(set.map { $0.tally.beaconGold })), defenders lost \(mean(set.map { $0.fallen })), at the defence 3-14 "
+        + "\(mean(set.map { $0.reached(3...14) }))"
 }
 
 if doVariants {
@@ -179,23 +184,36 @@ if doVariants {
     }
     say("(\(elapsed()))")
     say("")
-    say("== the beacons' numbers around the chosen values (T15a pairs; whole runs of the forward and neglect bots)")
+    say("== the beacons' numbers around the chosen values (T15a pairs; whole runs of the forward, neglect and outpost "
+        + "bots against the reference)")
     var list: [(String, Balance)] = []
-    list.append(("strength 300", variant { $0.strength = [300, 300, 300, 300] }))
-    list.append(("strength 600", variant { $0.strength = [600, 600, 600, 600] }))
-    list.append(("strike reach 16", variant { $0.strikeReach = 16 }))
-    list.append(("no watchtower", variant { $0.watchArchers = 0 }))
-    list.append(("two bowmen", variant { $0.watchArchers = 2 }))
-    list.append(("no charcoal", variant { $0.charcoalRadius = 1 }))
-    list.append(("the forward bot raises all four before the Great Beacon", variant { $0.botBeaconSteps = [10, 13, 16, 19] }))
-    list.append(("the forward bot raises its second beacon after the tavern", variant { $0.botBeaconSteps = [10, 19, 22, 22] }))
-    list.append(("the forward bot raises one before the Great Beacon", variant { $0.botBeaconSteps = [10, 22, 22, 22] }))
-    list.append(("the forward bot relights while saving for the Great Beacon", variant {
-        $0.botGreatBeaconFirst = false
-    }))
+    func add(_ name: String, _ change: @escaping (inout GorgeTuning) -> Void) { list.append((name, variant(change))) }
+    add("front-3's pool 56 and strength 400, tended always") {
+        $0.lightRadius = 56; $0.strength = [400, 400, 400, 400]; $0.tendedFromWall = false
+    }
+    add("pool 40, strength 400, tended always") { $0.strength = [400, 400, 400, 400]; $0.tendedFromWall = false }
+    add("pool 40, strength 600, tended always") { $0.tendedFromWall = false }
+    add("pool 56, strength 600") { $0.lightRadius = 56 }
+    add("pool 48") { $0.lightRadius = 48 }
+    add("pool 44") { $0.lightRadius = 44 }
+    add("pool 36") { $0.lightRadius = 36 }
+    add("pool 32") { $0.lightRadius = 32 }
+    add("strength 450") { $0.strength = [450, 450, 450, 450] }
+    add("strength 800") { $0.strength = [800, 800, 800, 800] }
+    add("strength 800, 700, 600, 500") { $0.strength = [800, 700, 600, 500] }
+    add("strike reach 16") { $0.strikeReach = 16 }
+    add("relight a quarter") { $0.relightShare = 0.25 }
+    add("a beacon is raised or relit only with a wall beyond the gate") { $0.raiseNeedsWall = true }
+    add("the forward bot relights up to 30 gold while saving for the Great Beacon") { $0.botRelightWhileSaving = 30 }
+    add("the forward bot relights anything while saving for the Great Beacon") { $0.botGreatBeaconFirst = false }
+    add("the forward bot's beacons at 6, 12, 22, 22") { $0.botBeaconSteps = [6, 12, 22, 22] }
+    add("the forward bot's beacons at 10, 16, 19, 22") { $0.botBeaconSteps = [10, 16, 19, 22] }
+    add("the forward bot's beacons at 10, 22, 22, 22") { $0.botBeaconSteps = [10, 22, 22, 22] }
+    add("no watchtower") { $0.watchArchers = 0 }
+    add("no charcoal") { $0.charcoalRadius = 1 }
     for (name, balance) in list {
         let pairList = pairs(balance)
-        let whole = runs(balance, budgets: [1.0, 1.5], kinds: [.forward, .neglect])
+        let whole = runs(balance, budgets: [1.0, 1.5], kinds: [.forward, .neglect, .outpost]) + referenceRuns
         let m = metrics(balance, pairs: pairList, runs: whole, budgets: [1.0, 1.5])
         var budgetsText: [String] = []
         for k in stresses {
@@ -203,9 +221,14 @@ if doVariants {
         }
         say("-- \(name): T15a \(Int((m.reduction * 100).rounded())) % fewer (" + budgetsText.joined(separator: ", ")
             + "), beacons lost in the pairs \(pairList.reduce(0) { $0 + $1.held.lost })")
+        for line in m.report.split(separator: "\n") where line.hasPrefix("T15b") || line.hasPrefix("T15c")
+            || line.hasPrefix("T15 wager") {
+            say("   " + line)
+        }
         for k in [1.0, 1.5] {
             say("   " + summary(whole, .forward, k))
             say("   " + summary(whole, .neglect, k))
+            say("   " + summary(whole, .outpost, k))
         }
         say("(\(elapsed()))")
     }

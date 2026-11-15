@@ -2,7 +2,7 @@
 enum GorgeSiteState: String, Codable, Sendable, CaseIterable {
     /// Never raised: the ground is bare (and the next one can be raised there).
     case wild
-    /// The builders are raising it (`GorgeState.raise`).
+    /// The builders are raising it (`GorgeState.raise`); it waits while a beacon before it is cold.
     case raising
     /// It burns: the fog cannot pass it.
     case lit
@@ -28,7 +28,8 @@ struct GorgeSite: Codable, Sendable, Equatable {
 }
 
 /// The thing a beacon frees, one per stretch of the gorge (docs/REALM.md section 5: "one thing seen and one small gain
-/// per stretch"). Stretch `rawValue` is held while beacon `rawValue` burns.
+/// per stretch"). Stretch `rawValue` lies between beacon `rawValue` and the next site, and is held (out of the fog)
+/// while beacon `rawValue` burns.
 enum GorgeLand: Int, Codable, Sendable, CaseIterable {
     /// Stretch 1: every wall and gate work costs a little less.
     case quarry = 0
@@ -137,8 +138,10 @@ struct GorgeState: Codable, Sendable, Equatable {
         mend()
     }
 
-    /// Beacons burn nearest first: one lit beyond a site that does not burn is cold (`dark`), a raise is only ever the
-    /// site after the last lit one, and only one site is being raised.
+    /// Beacons burn nearest first: one lit beyond a site that does not burn is cold (`dark`). A raise is the site after
+    /// the last lit one (the builders work on it), or a site further out with only cold beacons between (it waits: the
+    /// beacon before it fell in the night, and the builders go on once it is relit); only one site is being raised.
+    /// Exactly what play can produce is kept, so a game reloaded at the dawn autosave goes on as the one played on.
     mutating func mend() {
         var open = true
         for index in sites.indices {
@@ -147,17 +150,20 @@ struct GorgeState: Codable, Sendable, Equatable {
             if sites[index].state != .lit { sites[index].strength = 0 }
         }
         let next = held
-        for index in sites.indices where sites[index].state == .raising {
-            if raise?.site != index || index != next { sites[index].state = .wild }
-        }
         if let job = raise {
-            if job.site != next || !sites.indices.contains(job.site) {
-                raise = nil
-            } else if sites[job.site].state == .wild {
+            var valid = sites.indices.contains(job.site) && job.site >= next
+                && (sites[job.site].state == .raising || sites[job.site].state == .wild)
+            if valid {
+                for index in next..<job.site where sites[index].state != .dark { valid = false }
+            }
+            if valid {
                 sites[job.site].state = .raising
-            } else if sites[job.site].state != .raising {
+            } else {
                 raise = nil
             }
+        }
+        for index in sites.indices where sites[index].state == .raising && raise?.site != index {
+            sites[index].state = .wild
         }
     }
 
@@ -187,15 +193,21 @@ struct GorgeDawnReport: Codable, Sendable, Equatable {
     var held = 0
     /// The watchtower was raised yesterday and is manned.
     var watchRaised = false
+    /// The old watchtower stands raised as a forward post at this dawn (raised yesterday or earlier).
+    var towerRaised = false
+    /// Beacons burn wounded and no wall stands whole beyond the gate, so nobody tended them: they keep the night's harm.
+    var untended = false
 
     init(lit: [Int] = [], relit: [Int] = [], lost: [Int] = [], freed: [GorgeLand] = [], held: Int = 0,
-         watchRaised: Bool = false) {
+         watchRaised: Bool = false, towerRaised: Bool = false, untended: Bool = false) {
         self.lit = lit
         self.relit = relit
         self.lost = lost
         self.freed = freed
         self.held = held
         self.watchRaised = watchRaised
+        self.towerRaised = towerRaised
+        self.untended = untended
     }
 
     init(from decoder: any Decoder) throws {
@@ -207,23 +219,35 @@ struct GorgeDawnReport: Codable, Sendable, Equatable {
         freed = (try? c.decodeIfPresent([GorgeLand].self, forKey: .freed)) ?? []
         held = min(Gorge.sites, max(0, (try? c.decodeIfPresent(Int.self, forKey: .held)) ?? 0))
         watchRaised = (try? c.decodeIfPresent(Bool.self, forKey: .watchRaised)) ?? false
+        towerRaised = (try? c.decodeIfPresent(Bool.self, forKey: .towerRaised)) ?? false
+        untended = (try? c.decodeIfPresent(Bool.self, forKey: .untended)) ?? false
     }
 
-    /// The report's gorge lines: what fell in the night first (the news), then what burns anew, then the land freed and
-    /// the watch. A night with nothing new says nothing.
+    /// The report's gorge lines: what fell in the night first (the news), then what burns anew, then the land freed, the
+    /// watch and the beacons left untended. A night with nothing new says nothing. Each line is chosen by the state it
+    /// tells: the last beacon going dark is not "every beacon"; the old watchtower freed again with its watch already
+    /// raised says the watch is back on it, not that it could be manned.
     func lines() -> [GorgeLine] {
         var lines: [GorgeLine] = []
         if !lost.isEmpty {
             if held == 0 && lit.isEmpty && relit.isEmpty {
-                lines.append(GorgeLine(key: GorgeLine.lostAll))
+                lines.append(GorgeLine(key: lost.count == 1 ? GorgeLine.lostLast : GorgeLine.lostAll))
             } else {
                 lines.append(GorgeLine(key: lost.count == 1 ? GorgeLine.lostOne : GorgeLine.lostMore))
             }
         }
         if !lit.isEmpty { lines.append(GorgeLine(key: GorgeLine.lit)) }
         if !relit.isEmpty { lines.append(GorgeLine(key: relit.count == 1 ? GorgeLine.relitOne : GorgeLine.relitMore)) }
-        for land in freed { lines.append(GorgeLine(key: GorgeLine.freed(land))) }
+        for land in freed {
+            if land == .watchtower && towerRaised {
+                // Raised yesterday: the watch line below says it; raised before: the watch is back on it.
+                if !watchRaised { lines.append(GorgeLine(key: GorgeLine.watchtowerBack)) }
+            } else {
+                lines.append(GorgeLine(key: GorgeLine.freed(land)))
+            }
+        }
         if watchRaised { lines.append(GorgeLine(key: GorgeLine.watch)) }
+        if untended { lines.append(GorgeLine(key: GorgeLine.untended)) }
         return lines
     }
 }
@@ -236,15 +260,18 @@ struct GorgeLine: Sendable, Equatable {
     static let lostOne = "front.gorge.lost.one"
     static let lostMore = "front.gorge.lost.more"
     static let lostAll = "front.gorge.lost.all"
+    static let lostLast = "front.gorge.lost.last"
     static let quarry = "front.gorge.land.quarry"
     static let watchtower = "front.gorge.land.watchtower"
+    static let watchtowerBack = "front.gorge.land.watchtower.back"
     static let camp = "front.gorge.land.camp"
     static let stones = "front.gorge.land.stones"
     static let watch = "front.gorge.watch"
+    static let untended = "front.gorge.untended"
 
     /// Every key (the text tests check each in English and German).
-    static let reportKeys = [lit, relitOne, relitMore, lostOne, lostMore, lostAll, quarry, watchtower, camp, stones,
-                             watch]
+    static let reportKeys = [lit, relitOne, relitMore, lostOne, lostMore, lostAll, lostLast, quarry, watchtower,
+                             watchtowerBack, camp, stones, watch, untended]
 
     /// The line for a stretch freed.
     static func freed(_ land: GorgeLand) -> String {

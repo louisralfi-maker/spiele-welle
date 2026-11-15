@@ -163,6 +163,24 @@
         }
       }
     },
+    "front.gorge.land.watchtower.back" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3 fix 1): the second beacon burns again and frees the stretch of the old watchtower, which was raised as a forward post before; its watch goes back up. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der alte Wachturm liegt frei. Die Wache ist wieder oben."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The old watchtower stands clear. The watch is back on it."
+          }
+        }
+      }
+    },
     "front.gorge.lit" : {
       "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): a beacon the builders raised in the gorge yesterday burned through the night; the fog could not pass it. Short and dry.",
       "extractionState" : "manual",
@@ -195,6 +213,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Every beacon went dark. The fog is at the walls."
+          }
+        }
+      }
+    },
+    "front.gorge.lost.last" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3 fix 1): the only beacon that burned fell in the night; none burns at dawn and the fog comes as it always came. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das letzte Leuchtfeuer erlosch. Die Schlucht gehört wieder dem Nebel."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The last beacon went dark. The gorge is the fog's again."
           }
         }
       }
@@ -267,6 +303,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The cold beacon burns again."
+          }
+        }
+      }
+    },
+    "front.gorge.untended" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3 fix 1): the beacons are tended from a wall beyond the gate; no such wall stands, so the struck beacons kept their harm. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Mauer vor dem Tor. Niemand hat die Leuchtfeuer gepflegt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No wall beyond the gate. Nobody tended the beacons."
           }
         }
       }

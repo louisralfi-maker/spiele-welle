@@ -22,18 +22,26 @@ struct ForwardTally: Sendable, Equatable {
 ///   wall is built or raised a tier (the order's wall steps are skipped), no wall is patched at night. It still
 ///   rebuilds the gatehouse's rubble, as the reference does.
 /// - **Walls neglected, no beacons** (`neglectsWalls` on, `raisesBeacons` off): the control of T15b.
+/// - **Outpost** (`neglectsWalls` and `forwardHabits` on): the forward bot's beacons, watchtower and Great Beacon in the
+///   forward bot's order, but no wall built, raised or patched (T15c: beacons and the Great Beacon without walls must
+///   not beat the reference).
 ///
 /// The reference bots of T1 to T8 are untouched; these play only under the gorge rule (`Gorge.adopt`).
 struct ForwardBot: Sendable {
     var day: Autoplay
     var neglectsWalls = false
     var raisesBeacons = true
+    /// With `neglectsWalls`: buy the beacons as the forward bot does (in its order, the Great Beacon first), not first
+    /// at any gold.
+    var forwardHabits = false
     var tally = ForwardTally()
 
-    init(day: Autoplay = .reference(), neglectsWalls: Bool = false, raisesBeacons: Bool = true) {
+    init(day: Autoplay = .reference(), neglectsWalls: Bool = false, raisesBeacons: Bool = true,
+         forwardHabits: Bool = false) {
         self.day = day
         self.neglectsWalls = neglectsWalls
         self.raisesBeacons = raisesBeacons
+        self.forwardHabits = forwardHabits
         if neglectsWalls { self.day.maxPatchesPerNight = 0 }
     }
 
@@ -45,8 +53,8 @@ struct ForwardBot: Sendable {
             day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
             return
         }
-        if neglectsWalls {
-            skipWallSteps()
+        if neglectsWalls { skipWallSteps() }
+        if neglectsWalls && !forwardHabits {
             buy(&s, balance: balance, reserve: 0)
             day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
             return
@@ -57,7 +65,8 @@ struct ForwardBot: Sendable {
         var waits = false
         if raisesBeacons && !wallInRubble(s), let offer = Gorge.offer(s, balance: balance), offer.open {
             if offer.relight {
-                if !saving && s.gold >= offer.price + tuning.botReserve { order(&s, offer, balance: balance) }
+                let allowed = !saving || offer.price <= tuning.botRelightWhileSaving
+                if allowed && s.gold >= offer.price + tuning.botReserve { order(&s, offer, balance: balance) }
             } else if offer.site < tuning.botBeaconSteps.count && day.cursor >= tuning.botBeaconSteps[offer.site] {
                 if s.gold >= offer.price {
                     order(&s, offer, balance: balance)

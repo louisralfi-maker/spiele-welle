@@ -3,9 +3,10 @@ import XCTest
 @testable import Lanternhold
 
 /// The gorge beacons (docs/REALM.md section 5, "Beacons into the gorge"; docs/lanes/front.md "front-3"): four sites as
-/// fractions of the gorge, raised by day in order from day 3, the fog held at the furthest lit one, a beacon's own pool
-/// under the light rules, the furthest struck in passing and falling, relit for a third, the land each frees and its
-/// gain, the dawn report's lines, the save. A realm without the rule plays exactly as before.
+/// fractions of the gorge, raised by day in order from day 3, each holding the fog one stretch beyond itself by day and
+/// by night, a beacon's own pool under the light rules, the furthest struck in passing and falling, tended from the
+/// wall, relit for a third, a raise that waits beyond a cold beacon, the land each frees and its gain, the dawn report's
+/// lines, the save. A realm without the rule plays exactly as before.
 final class GorgeBeaconTests: XCTestCase {
     private let balance = Balance.standard
     private var tuning: GorgeTuning { balance.front.gorge }
@@ -57,6 +58,26 @@ final class GorgeBeaconTests: XCTestCase {
     }
 
     private func site(_ index: Int) -> Double { Gorge.siteX(index, tuning: tuning) }
+    private func line(_ held: Int) -> Double { Gorge.lineX(held, tuning: tuning) }
+
+    /// A palisade on the middle line: a wall beyond the gate, so the beacons are tended from it.
+    private func wall(_ s: inout GameState) {
+        s.plots[Realm.lines[1].wall].item = .palisade
+        s.plots[Realm.lines[1].wall].hp = balance.wallHP[0]
+    }
+
+    /// Plays to the next dawn report (day steps of 1 s, night steps of 0.1 s).
+    private func toDawn(_ s: inout GameState, balance: Balance, watch: ((GameState) -> Void)? = nil) {
+        var events: [SimEvent] = []
+        let day = s.day
+        var steps = 0
+        while s.day == day && !s.defeated && steps < 200_000 {
+            let dt = DayClock.phase(at: s.hour) == .day ? 1.0 : 0.1
+            Sim.step(&s, dt: dt, balance: balance, events: &events)
+            watch?(s)
+            steps += 1
+        }
+    }
 
     // MARK: - Without the rule
 
@@ -79,22 +100,25 @@ final class GorgeBeaconTests: XCTestCase {
 
     func testTheSitesAreFractionsOfTheGorgeAtGrowingDistances() {
         let xs = (0..<Gorge.sites).map(site)
-        XCTAssertEqual(xs[0], 558, accuracy: 0.01)
-        XCTAssertEqual(xs[1], 384.4, accuracy: 0.01)
-        XCTAssertEqual(xs[2], 248, accuracy: 0.01)
-        XCTAssertEqual(xs[3], 111.6, accuracy: 0.01)
-        XCTAssertLessThan(xs[0], Realm.wallX[2], "beyond the outer line")
+        XCTAssertEqual(xs[0], 300.1, accuracy: 0.1)
+        XCTAssertEqual(xs[1], 229.4, accuracy: 0.1)
+        XCTAssertEqual(xs[2], 160.0, accuracy: 0.1)
+        XCTAssertEqual(xs[3], 95.5, accuracy: 0.1)
+        XCTAssertEqual(line(Gorge.sites), 37.2, accuracy: 0.1, "the Gloom's mouth, once all four burn")
+        XCTAssertLessThan(xs[0], Realm.beaconX, "beyond the Great Beacon and the outer line")
+        XCTAssertLessThan(xs[0], DarknessBank.nightEdge(night: tuning.raiseFromDay),
+                          "the first lies inside the fog on the first night it can be raised")
         XCTAssertGreaterThan(xs[3], Realm.spawnX, "on the creatures' way from the Gloom's mouth")
         for k in 1..<xs.count { XCTAssertLessThan(xs[k], xs[k - 1], "each further into the gorge") }
         var moved = tuning
         moved.gorgeFrontX = 1300
         moved.gorgeWestX = 100
-        XCTAssertEqual(Gorge.siteX(0, tuning: moved), 1300 - 0.55 * 1200, accuracy: 0.01,
+        XCTAssertEqual(Gorge.siteX(0, tuning: moved), 1300 - 0.758 * 1200, accuracy: 0.01,
                        "the rebuilt world places them by two values")
         for land in GorgeLand.allCases {
             let x = Gorge.landX(land, tuning: tuning)
-            let nearer = land.rawValue == 0 ? Realm.wallX[2] : site(land.rawValue - 1)
-            XCTAssertTrue(x < nearer && x > site(land.rawValue), "\(land) stands in its own stretch")
+            XCTAssertTrue(x < site(land.rawValue) && x > line(land.rawValue + 1),
+                          "\(land) stands in the stretch its beacon clears")
         }
     }
 
@@ -148,28 +172,58 @@ final class GorgeBeaconTests: XCTestCase {
 
     // MARK: - The fog line
 
-    func testTheFogLineHoldsTheBankAtTheFurthestLitBeacon() {
+    func testEachBeaconHoldsTheFogOneStretchBeyondIt() {
         var s = night(day: 12)
         s.hour = 23
         let natural = Battle.bankEdge(s, balance: balance)
         XCTAssertEqual(natural, DarknessBank.nightEdge(night: 12), accuracy: 0.001)
         light(&s, 1)
-        XCTAssertEqual(Battle.bankEdge(s, balance: balance), natural, accuracy: 0.001,
-                       "the first site lies behind tonight's edge")
-        light(&s, 2)
-        XCTAssertEqual(Battle.bankEdge(s, balance: balance), site(1), accuracy: 0.001)
+        XCTAssertEqual(Battle.bankEdge(s, balance: balance), site(1), accuracy: 0.001,
+                       "the first beacon holds the fog at the second site")
         XCTAssertEqual(Gorge.fogLine(s, balance: balance) ?? 0, site(1), accuracy: 0.001)
+        light(&s, 2)
+        XCTAssertEqual(Battle.bankEdge(s, balance: balance), site(2), accuracy: 0.001)
         light(&s, 4)
-        XCTAssertEqual(Battle.bankEdge(s, balance: balance), site(3), accuracy: 0.001)
-        var day = morning(day: 9)
-        light(&day, 4)
-        run(&day, seconds: 2, dt: 1)
-        XCTAssertEqual(day.bankEdge, site(3), accuracy: 0.001, "by day too the fog rests at the line")
-        light(&day, 3)
-        run(&day, seconds: 2, dt: 1)
-        XCTAssertEqual(day.bankEdge, DarknessBank.restingEdge, accuracy: 0.001,
-                       "by day only the furthest site lies inside the bank's rest")
-        XCTAssertEqual(Gorge.picture(s, balance: balance).fogLine ?? 0, site(3), accuracy: 0.001)
+        XCTAssertEqual(Battle.bankEdge(s, balance: balance), line(4), accuracy: 0.001, "all four: the Gloom's mouth")
+        XCTAssertEqual(Gorge.picture(s, balance: balance).fogLine ?? 0, line(4), accuracy: 0.001)
+        for held in 0...Gorge.sites {
+            var day = morning(day: 9)
+            light(&day, held)
+            run(&day, seconds: 2, dt: 1)
+            XCTAssertEqual(day.bankEdge, line(held), accuracy: 0.001,
+                           "by day the fog rests at the next site (the first with none): \(held) burning")
+        }
+    }
+
+    /// The critic's blocker B1: from the first night a beacon can be raised, the first beacon moves the fog, at night and
+    /// by day, and every further one moves it again; the land each frees comes out of the fog by day.
+    func testFromTheFirstNightEveryBeaconPushesTheFogBack() {
+        for n in tuning.raiseFromDay...30 {
+            var bare = night(day: n)
+            bare.hour = 23
+            Gorge.adopt(&bare)
+            var before = Battle.bankEdge(bare, balance: balance)
+            XCTAssertEqual(before, DarknessBank.nightEdge(night: n), accuracy: 0.001,
+                           "night \(n): with none lit the fog comes as it always came")
+            for held in 1...Gorge.sites {
+                var s = bare
+                light(&s, held)
+                let edge = Battle.bankEdge(s, balance: balance)
+                XCTAssertLessThan(edge, before - 30, "night \(n): beacon \(held - 1) lit pushes the fog back")
+                XCTAssertEqual(edge, line(held), accuracy: 0.001)
+                before = edge
+            }
+        }
+        for land in GorgeLand.allCases {
+            let x = Gorge.landX(land, tuning: tuning)
+            XCTAssertLessThan(x, line(land.rawValue), "\(land) lies in the fog by day before its beacon burns")
+            XCTAssertGreaterThan(x, line(land.rawValue + 1), "\(land) stands clear by day once its beacon burns")
+        }
+        var first = night(day: 1)
+        first.hour = 23
+        Gorge.adopt(&first)
+        XCTAssertEqual(Battle.bankEdge(first, balance: balance), site(0), accuracy: 0.001,
+                       "night 1 (natural edge 280): with none lit the fog stops at the first site, where nothing stands")
     }
 
     func testTheFogRollsToItsNewLine() throws {
@@ -187,10 +241,10 @@ final class GorgeBeaconTests: XCTestCase {
         XCTAssertEqual(stamp.site, 3)
         XCTAssertEqual(s.gorge?.tonight.fell, [3])
         let rolling = Battle.bankEdge(s, balance: balance)
-        XCTAssertGreaterThanOrEqual(rolling, site(3) - 0.001)
-        XCTAssertLessThan(rolling, site(2), "it rolls, it does not jump")
+        XCTAssertGreaterThanOrEqual(rolling, line(4) - 0.001)
+        XCTAssertLessThan(rolling, site(3), "it rolls, it does not jump")
         run(&s, seconds: tuning.fogSeconds + 0.2)
-        XCTAssertEqual(Battle.bankEdge(s, balance: balance), site(2), accuracy: 0.001, "back to the one before")
+        XCTAssertEqual(Battle.bankEdge(s, balance: balance), site(3), accuracy: 0.001, "back to the fallen beacon")
     }
 
     // MARK: - The light
@@ -205,9 +259,22 @@ final class GorgeBeaconTests: XCTestCase {
         XCTAssertFalse(Battle.probe(s, balance: balance).isLit(x: site(0) - 60, y: 7))
         Battle.spawn(&s, kind: .sootling, x: site(0) - 60, wave: 0, balance: balance, fromWave: false)
         let id = s.creatures[0].id
-        run(&s, seconds: 12)
-        XCTAssertFalse(s.creatures.contains { $0.id == id }, "a sootling walks into the beacon's light and burns out")
-        XCTAssertGreaterThanOrEqual(s.night.killedByFire, 1)
+        var slowed = false
+        for _ in 0..<80 {
+            run(&s, seconds: 0.1)
+            if let c = s.creatures.first(where: { $0.id == id }), c.isLit { slowed = true }
+        }
+        let wounded = s.creatures.first { $0.id == id }
+        XCTAssertTrue(slowed, "seen and slowed in the beacon's light")
+        XCTAssertNotNil(wounded, "one beacon's pool does not burn a sootling out: the archers do the killing")
+        XCTAssertLessThan(wounded?.hp ?? 99, balance.creature(.sootling).hp * 0.5, "it comes out burnt")
+        XCTAssertGreaterThan(wounded?.x ?? 0, site(0) + 15, "through the pool")
+        var two = night(day: 6, lit: 2)
+        Battle.spawn(&two, kind: .sootling, x: site(1) - 60, wave: 0, balance: balance, fromWave: false)
+        let other = two.creatures[0].id
+        run(&two, seconds: 16)
+        XCTAssertFalse(two.creatures.contains { $0.id == other }, "two pools in a row burn it out")
+        XCTAssertGreaterThanOrEqual(two.night.killedByFire, 1)
     }
 
     // MARK: - Holding
@@ -250,13 +317,88 @@ final class GorgeBeaconTests: XCTestCase {
         XCTAssertEqual(Gorge.offer(s, balance: balance)?.relight, true)
     }
 
-    func testAStandingBeaconIsTendedByDawn() {
+    func testTheBeaconsAreTendedFromTheWall() throws {
         var s = morning(day: 4)
         light(&s, 2)
+        wall(&s)
         s.gorge?.sites[1].strength = 12
         s.hour = 5.99
+        var untended = s
         run(&s, seconds: 1, dt: 0.1)
-        XCTAssertEqual(s.gorge?.sites[1].strength, Gorge.strength(1, tuning: tuning))
+        XCTAssertEqual(s.gorge?.sites[1].strength, Gorge.strength(1, tuning: tuning), "a wall beyond the gate: tended")
+        XCTAssertEqual(s.lastReport?.gorge?.untended, false)
+        XCTAssertTrue(Gorge.picture(s, balance: balance).tended)
+        untended.plots[Realm.lines[1].wall].isRubble = true
+        run(&untended, seconds: 1, dt: 0.1)
+        XCTAssertEqual(untended.gorge?.sites[1].strength, 12, "the wall in rubble: nobody walks out, it keeps its harm")
+        XCTAssertEqual(untended.gorge?.sites[0].strength, Gorge.strength(0, tuning: tuning), "a whole one stays whole")
+        let report = try XCTUnwrap(untended.lastReport?.gorge)
+        XCTAssertTrue(report.untended)
+        XCTAssertEqual(report.lines(), [GorgeLine(key: GorgeLine.untended)])
+        XCTAssertFalse(Gorge.picture(untended, balance: balance).tended)
+        var always = balance
+        always.front.gorge.tendedFromWall = false
+        var other = morning(day: 4)
+        light(&other, 2)
+        other.gorge?.sites[1].strength = 12
+        other.hour = 5.99
+        var events: [SimEvent] = []
+        for _ in 0..<10 { Sim.step(&other, dt: 0.1, balance: always, events: &events) }
+        XCTAssertEqual(other.gorge?.sites[1].strength, Gorge.strength(1, tuning: tuning), "the other rule: always tended")
+    }
+
+    /// The critic's high H3: a raise that runs into the night waits when the beacon before it falls (it never stands lit
+    /// beyond a cold one), the cold one is offered, and the game reloaded at the dawn autosave goes on exactly as the
+    /// one played on.
+    func testARaiseWaitsBeyondAFallenBeaconAndTheSaveAgrees() throws {
+        // Small nights (a tenth of the budget, nights 7 and 8): only the beacons are asked here.
+        let small = FrontTuningRun.stressed(balance, 0.1)
+        func play(_ s: inout GameState, seconds: Double, dt: Double) {
+            var events: [SimEvent] = []
+            var elapsed = 0.0
+            while elapsed < seconds - 1e-9 && !s.defeated {
+                Sim.step(&s, dt: dt, balance: small, events: &events)
+                elapsed += dt
+            }
+        }
+        var s = morning(day: 7)
+        light(&s, 2)
+        wall(&s)
+        s.hour = 18.6
+        XCTAssertTrue(Gorge.order(&s, balance: small))
+        play(&s, seconds: 12, dt: 1)
+        XCTAssertEqual(s.gorge?.raise?.site, 2, "the raise runs into the night")
+        XCTAssertLessThan(s.gorge?.raise?.progress ?? 1, 0.5)
+        while DayClock.phase(at: s.hour) != .night { play(&s, seconds: 0.1, dt: 0.1) }
+        s.gorge?.sites[1].strength = 0.01
+        Battle.spawn(&s, kind: .sootling, x: site(1) - 10, wave: 0, balance: small, fromWave: false)
+        for _ in 0..<100 where s.gorge?.sites[1].state != .dark { play(&s, seconds: 0.1, dt: 0.1) }
+        XCTAssertEqual(s.gorge?.sites[1].state, .dark, "the furthest falls while the next is being raised")
+        toDawn(&s, balance: small)
+        XCTAssertFalse(s.defeated)
+        let g = try XCTUnwrap(s.gorge)
+        XCTAssertEqual(g.held, 1)
+        XCTAssertEqual(g.raise?.site, 2, "the raise is kept")
+        XCTAssertEqual(g.sites[2].state, .raising, "never lit beyond a cold one")
+        XCTAssertEqual(Gorge.picture(s, balance: small).sites[2].paused, true)
+        let offer = try XCTUnwrap(Gorge.offer(s, balance: small))
+        XCTAssertEqual(offer.site, 1)
+        XCTAssertTrue(offer.relight, "the cold one is offered, and relit it lets the builders go on")
+        let data = try SaveGame(state: s).encoded()
+        guard case .loaded(let back) = SaveGame.decode(data) else { return XCTFail("the dawn save does not load") }
+        var reloaded = back.state
+        XCTAssertTrue(reloaded == s, "the reloaded game is the one played on")
+        let work = g.raise?.work ?? 0
+        play(&s, seconds: 30, dt: 1)
+        play(&reloaded, seconds: 30, dt: 1)
+        XCTAssertEqual(s.gorge?.raise?.work ?? -1, work, accuracy: 0.001, "no work while it waits")
+        XCTAssertTrue(Gorge.order(&s, balance: small), "the relight")
+        XCTAssertTrue(Gorge.order(&reloaded, balance: small))
+        toDawn(&s, balance: small)
+        toDawn(&reloaded, balance: small)
+        XCTAssertTrue(reloaded == s, "and both stay the same after one more day")
+        XCTAssertEqual(s.gorge?.held, 3, "relit, the builders finished the waiting beacon")
+        XCTAssertNil(s.gorge?.raise)
     }
 
     // MARK: - Freed land
@@ -337,6 +479,16 @@ final class GorgeBeaconTests: XCTestCase {
         XCTAssertEqual(report.lines(), [GorgeLine(key: GorgeLine.lostMore)])
         report = GorgeDawnReport(lost: [1, 0], held: 0)
         XCTAssertEqual(report.lines(), [GorgeLine(key: GorgeLine.lostAll)])
+        report = GorgeDawnReport(lost: [0], held: 0)
+        XCTAssertEqual(report.lines(), [GorgeLine(key: GorgeLine.lostLast)], "the only beacon: not \"every beacon\"")
+        report = GorgeDawnReport(relit: [1], freed: [.watchtower], held: 2, towerRaised: true)
+        XCTAssertEqual(report.lines(), [GorgeLine(key: GorgeLine.relitOne), GorgeLine(key: GorgeLine.watchtowerBack)],
+                       "the tower raised before: the watch is back on it, not \"it could be manned\"")
+        report = GorgeDawnReport(relit: [1], freed: [.watchtower], held: 2, watchRaised: true, towerRaised: true)
+        XCTAssertEqual(report.lines(), [GorgeLine(key: GorgeLine.relitOne), GorgeLine(key: GorgeLine.watch)],
+                       "raised yesterday: the watch line says it once")
+        report = GorgeDawnReport(relit: [1], freed: [.watchtower], held: 2)
+        XCTAssertEqual(report.lines(), [GorgeLine(key: GorgeLine.relitOne), GorgeLine(key: GorgeLine.watchtower)])
         report = GorgeDawnReport(relit: [2], freed: [.camp], held: 3)
         XCTAssertEqual(report.lines(), [GorgeLine(key: GorgeLine.relitOne), GorgeLine(key: GorgeLine.camp)])
         XCTAssertEqual(GorgeDawnReport(held: 4).lines(), [], "a quiet night says nothing")
@@ -344,17 +496,18 @@ final class GorgeBeaconTests: XCTestCase {
 
     func testTheDawnTellsWhatWasLitAndWhatWasFreed() throws {
         var s = morning(day: 3)
+        wall(&s)
         XCTAssertTrue(Gorge.order(&s, balance: balance))
         // A small night (a realm that builds nothing falls on night 3, T2): only the report is asked here.
         let small = FrontTuningRun.stressed(balance, 0.25)
-        var events: [SimEvent] = []
-        var steps = 0
-        while s.day == 3 && !s.defeated && steps < 100_000 {
-            let dt = DayClock.phase(at: s.hour) == .day ? 1.0 : 0.1
-            Sim.step(&s, dt: dt, balance: small, events: &events)
-            steps += 1
+        var deepest = 0.0
+        toDawn(&s, balance: small) { state in
+            if DayClock.phase(at: state.hour) == .night { deepest = max(deepest, state.bankEdge) }
         }
         XCTAssertFalse(s.defeated)
+        XCTAssertEqual(deepest, site(1), accuracy: 0.001,
+                       "on night 3 the fog kept off: held at the second site, short of tonight's edge")
+        XCTAssertLessThan(deepest, DarknessBank.nightEdge(night: 3) - 60)
         let report = try XCTUnwrap(s.lastReport?.gorge)
         XCTAssertEqual(report.held, 1, "a small night does not break a beacon")
         XCTAssertEqual(report.lit, [0])
@@ -403,16 +556,20 @@ final class GorgeBeaconTests: XCTestCase {
         var rolling = s
         rolling.nightTime = tuning.fogSeconds / 2
         let mid = Battle.bankEdge(rolling, balance: balance)
-        XCTAssertTrue(mid > site(3) && mid < Battle.bankEdge(bare, balance: balance),
+        XCTAssertTrue(mid > line(4) && mid < Battle.bankEdge(bare, balance: balance),
                       "the fog rolls over the small beacons, it does not jump: \(mid)")
+        var waiting = s
+        waiting.night.kingLeftSecond = nil
+        XCTAssertEqual(Battle.bankEdge(waiting, balance: balance), line(4), accuracy: 0.001,
+                       "until the King leaves the small beacons hold it: no jump")
         var held = balance
         held.front.gorge.holdFogOnFinale = true
-        XCTAssertEqual(Battle.bankEdge(s, balance: held), site(3), accuracy: 0.001,
-                       "the other rule: the fog never passes a lit beacon, the King's night too")
+        XCTAssertEqual(Battle.bankEdge(s, balance: held), line(4), accuracy: 0.001,
+                       "the other rule: the fog never passes the beacons' line, the King's night too")
         XCTAssertEqual(Battle.beaconRadius(s, balance: balance), balance.beaconRadius)
         var noGreat = s
         noGreat.beaconLit = false
-        XCTAssertEqual(Battle.bankEdge(noGreat, balance: balance), site(3), accuracy: 0.001,
+        XCTAssertEqual(Battle.bankEdge(noGreat, balance: balance), line(4), accuracy: 0.001,
                        "without the Great Beacon the small ones hold the fog on night 20 too")
     }
 
@@ -434,11 +591,21 @@ final class GorgeBeaconTests: XCTestCase {
         s.gorge?.sites[2].state = .raising
         s.gorge?.raise = GorgeRaise(site: 2, work: 30, total: 150, day: 12)
         s.gorge?.lastLit = GorgeStamp(at: 4, site: 1)
-        s.gorge?.fogShift = GorgeFogShift(at: 4, from: 558, to: site(1))
-        s.lastReport = nil
+        s.gorge?.fogShift = GorgeFogShift(at: 4, from: 300, to: nil)
+        var dawned = morning(day: 3)
+        wall(&dawned)
+        Gorge.order(&dawned, balance: balance)
+        toDawn(&dawned, balance: FrontTuningRun.stressed(balance, 0.25))
+        var half = try XCTUnwrap(dawned.lastReport?.gorge)
+        half.towerRaised = true
+        half.untended = true
+        half.lost = [1]
+        dawned.lastReport?.gorge = half
+        s.lastReport = dawned.lastReport
         let data = try SaveGame(state: s).encoded()
         guard case .loaded(let back) = SaveGame.decode(data) else { return XCTFail("does not load") }
         XCTAssertTrue(back.state == s, "every field comes back")
+        XCTAssertEqual(back.state.lastReport?.gorge, half, "the report's gorge half too")
         XCTAssertEqual(try JSONDecoder().decode(GorgeState.self, from: Data("{}".utf8)), GorgeState())
         let odd = """
         {"sites": [{"state": "lit", "strength": 300}, {"state": "wild"}, {"state": "lit", "strength": -5},
@@ -464,8 +631,14 @@ final class GorgeBeaconTests: XCTestCase {
         """.utf8))
         XCTAssertEqual(next.sites[1].state, .raising, "a raise at the next site marks it")
         XCTAssertEqual(next.raise?.work, 3)
+        let waits = try JSONDecoder().decode(GorgeState.self, from: Data("""
+        {"sites": [{"state": "lit", "strength": 500}, {"state": "dark"}, {"state": "raising"}],
+         "raise": {"site": 2, "work": 9, "total": 150, "day": 4}}
+        """.utf8))
+        XCTAssertEqual(waits.raise?.site, 2, "a raise that waits beyond a cold beacon is what play makes: kept")
+        XCTAssertEqual(waits.sites.map { $0.state }, [.lit, .dark, .raising, .wild])
         let report = try JSONDecoder().decode(GorgeDawnReport.self, from: Data("{\"lost\": [3, 9]}".utf8))
-        XCTAssertEqual(report, GorgeDawnReport(lost: [3]))
+        XCTAssertEqual(report, GorgeDawnReport(lost: [3]), "the new fields default")
     }
 
     // MARK: - The reference bots
