@@ -506,7 +506,7 @@ before: nothing under `Sim`, `Economy`, `Battle`, `Balance` or `GameState` chang
      walks home after the horn (today until about 20:26).
    - PEOPLE.md says "dusk" everywhere and carries the rule. The shots: 75 is now `75-lamplighter-gold` (him lighting
      the lantern as it takes the flame, camera 2560; the only lighting today is at the horn, in the sunset's light,
-     19:00 lies between the `sunset` key at 18.8 and `dusk` at 19.5), 77 at 16:625 (the bow to the Flame in the late
+     19:00 lies between the `sunset` key at 18.8 and `dusk` at 19.5), 77 at 16.625, 16:37 (the bow to the Flame in the late
      afternoon's light), 78 at the horn with camera 2738 (Silas at the lantern he has just lit, Wenna calling from her
      doorway, the children running home). The old 75 (the far post at 3080) no longer shows him.
    - Build 3 (not here): the lit street grows with the realm (hamlet 3 posts, village 5, town 7); from the village on
