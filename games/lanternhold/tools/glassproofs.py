@@ -144,6 +144,10 @@ RESTART = (747, 857, 1875, 1013)
 TOGGLES = [(1683, 518, 1833, 602), (1683, 704, 1833, 788)]
 
 
+# The quiet words of the desk were bone (QuietButtonStyle onDark, SettingRow); JPEG blurs bone toward the gold.
+QUIET = {"bone": BONE, "boneDim": BONE, "goldHi": BONE, "seal": BONE}
+
+
 def pause(variant=None):
     light = "light"
     cards = [{"rect": PAUSE, "skin": "glassPanel", "polarity": light,
@@ -152,12 +156,12 @@ def pause(variant=None):
              {"rect": RESUME, "skin": "glassInsetMarked", "polarity": light,
               "text": [{"rect": inset(RESUME, 12), "roles": {"seal": GOLD, "bone": GOLD}, "rules": False}]},
              {"rect": HORN, "skin": "glassInset", "polarity": light,
-              "text": [{"rect": inset(HORN, 12), "rules": False}]}]
+              "text": [{"rect": inset(HORN, 12), "roles": QUIET, "rules": False}]}]
     for r, t in zip(ROWS, TOGGLES):
         cards.append({"rect": r, "skin": "glassInset", "polarity": light, "switches": [t + (True,)],
-                      "text": [{"rect": inset(r, 10), "rules": False}]})
+                      "text": [{"rect": inset(r, 10), "roles": QUIET, "rules": False}]})
     cards.append({"rect": RESTART, "skin": "glassInsetDanger" if variant == "danger" else "glassInset",
-                  "polarity": light, "text": [{"rect": inset(RESTART, 12), "rules": False}]})
+                  "polarity": light, "text": [{"rect": inset(RESTART, 12), "roles": QUIET, "rules": False}]})
     return {"src": S13 + "49-pause-en.jpg", "shadows": [(PAUSE, 16, 10, 0.6)], "cards": cards}
 
 

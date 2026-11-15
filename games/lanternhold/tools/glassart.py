@@ -57,6 +57,8 @@ MIST = 0xC5CBD9           # palette mistLight: secondary lines (the muted blue-g
 MIST_DIM = 0x98A1BB       # palette mist: words that cannot be chosen (disabled; no contrast rule)
 MIST_DARK = 0x6A7393      # palette mistDark: the line of a plaque that cannot be paid
 HAZE = 0x2F3F72           # palette nightHaze: separators
+SLATE = 0x1E2B52          # palette nightSlate: the lifted face of a sheet's main button
+SLATE_ALPHA = 200
 EMBER = 0xD9481F          # palette ember: the line of a destructive choice
 
 COLOURS = [
@@ -70,6 +72,7 @@ COLOURS = [
     ("mistDim", MIST_DIM, "words that cannot be chosen"),
     ("mistDark", MIST_DARK, "the line of a plaque that cannot be paid"),
     ("haze", HAZE, "separators"),
+    ("slate", SLATE, "the lifted face of a sheet's main button, at %d/255" % SLATE_ALPHA),
     ("ember", EMBER, "the line of a destructive choice"),
 ]
 
@@ -110,6 +113,18 @@ PANE_CAP = 4
 PLAQUE = pane_grid(1)
 PLAQUE_CAP = 3
 
+INSET = [
+    ".lllllll.",
+    "lfffffffl",
+    "lfffffffl",
+    "lfffffffl",
+    "lfffffffl",
+    "lfffffffl",
+    "lfffffffl",
+    "lfffffffl",
+    ".lllllll.",
+]
+
 PORTRAIT = [
     ".....",
     "..l..",
@@ -128,7 +143,7 @@ SKINS = {
     "glassPlaqueOff": (rgba(NAVY, NAVY_ALPHA), rgba(MIST_DARK)),
     "glassPlaqueDanger": (rgba(NAVY, NAVY_ALPHA), rgba(EMBER)),
     "glassInset": (CLEAR, rgba(BRASS)),
-    "glassInsetMarked": (CLEAR, rgba(LANTERN_GOLD)),
+    "glassInsetMarked": (rgba(SLATE, SLATE_ALPHA), rgba(LANTERN_GOLD)),
     "glassInsetDanger": (CLEAR, rgba(EMBER)),
 }
 
@@ -152,17 +167,7 @@ def pane(name, notched_line=False, inset=None):
     grid = pane_grid(inset, notched_line)
     if name.startswith("glassInset"):
         # A plaque inside a pane: its line on its own edge (no room is lost), the corners notched, no fill.
-        grid = [
-            ".lllllll.",
-            "l.......l",
-            "l.......l",
-            "l.......l",
-            "l.......l",
-            "l.......l",
-            "l.......l",
-            "l.......l",
-            ".lllllll.",
-        ]
+        grid = INSET
     return from_grid(grid, {"f": fill, "l": line})
 
 
@@ -319,6 +324,9 @@ def contrast_table(alpha=NAVY_ALPHA / 255.0):
         lines.append("  %-12s -> pane #%02X%02X%02X: %s" % (wname, *[round(v) for v in bg], ", ".join(cells)))
     lines.append("  worst %.2f (rule: 7.00 or more)" % worst)
     lines.append("pressed: navyDeep words on amber %.2f" % contrast(rgba(NAVY_DEEP), rgba(AMBER)))
+    for wname, w in (("white", (255, 255, 255)), ("black", (0, 0, 0))):
+        face = over(rgba(SLATE), SLATE_ALPHA / 255.0, over(rgba(NAVY), alpha, w))
+        lines.append("main button: lanternGold on slate over the pane over %s %.2f" % (wname, contrast(rgba(LANTERN_GOLD), face)))
     lines.append("brass line on the pane over black %.2f, over white %.2f (a line, not text)" % (
         contrast(rgba(BRASS), over(rgba(NAVY), alpha, (0, 0, 0))),
         contrast(rgba(BRASS), over(rgba(NAVY), alpha, (255, 255, 255)))))
@@ -330,10 +338,7 @@ def contrast_table(alpha=NAVY_ALPHA / 255.0):
 def check(swift_path):
     text = open(swift_path, encoding="utf-8").read()
     ok = True
-    inset_grid = [r for r in [
-        ".lllllll.", "l.......l", "l.......l", "l.......l", "l.......l", "l.......l", "l.......l", "l.......l",
-        ".lllllll."]]
-    for name, grid in (("pane", PANE), ("plaque", PLAQUE), ("inset", inset_grid), ("portrait", PORTRAIT)):
+    for name, grid in (("pane", PANE), ("plaque", PLAQUE), ("inset", INSET), ("portrait", PORTRAIT)):
         m = re.search(r"static let %sGrid = \[(.*?)\]" % name, text, re.S)
         if not m:
             print("missing %sGrid" % name)
