@@ -1,0 +1,1 @@
+scene after the report: frame:9100 ready day:2 hour:6.21 alive:0 seen:0 lit:0 shots:0 aim:0 kx:1150 lord:lord stage:world lx:1150 errand:none door:1830 gold:48 hud:strip cam:900 tap:moment hint:off0
