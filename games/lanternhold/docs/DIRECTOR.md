@@ -431,3 +431,13 @@ schneller geht."
   a front that stops at the reach, four value planes, the castle in the one gap of the Weltmauer, a taller keep
   with a real beacon, a near ledge, the dawn line, lettering lit from the flame. Every lane's notes say: no new
   parchment, and a critic's finding about the parchment look is answered with the note.
+- **Night glass is accepted (15.11.2026, 02:12).** 8 of 10 on the audience and the dawn report; Louis has both
+  pictures. Commits `2f0d556`, `adadad5`, `62c17fd` on `claude/lh-glass`, files added only. The last
+  `UI/NightGlass.swift` was never built (round lh-glass-2 failed on a doubled paste, the repair had no round left):
+  the stage lane's gate round is its first build, and `2f0d556` holds the file that passed. Plaques carry the brass
+  line 1 game px in, the pane 2. Still to do at the wiring: the HUD kit's pixel coin and face on the cards. The
+  ledger slip is not re-skinned, it goes. The stage lane's notes say all this.
+- **The image lock stalled and is repaired (15.11.2026, 02:10).** `ci-out/director/artlock.sh` counted the shells of
+  agents waiting for the lock as other image jobs (their command lines named an art script), so every holder waited
+  its full 20 minutes before it ran. Now only real python and sips processes count. Six jobs had waited up to 15
+  minutes; the queue was empty a minute after the repair. The old script is `artlock.sh.before-0210`.
