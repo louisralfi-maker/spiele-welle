@@ -195,7 +195,7 @@ critic's H4).
   stands. Each passer-by has a place (the well, the market, the tavern, the ford, the castle's gate, the far field).
   Anchors as data: the doors (the plot's centre, as the town lane's `Town.doorX`), the places, the bench, the town's
   gate (`townGateX`, on this branch before the castle's back gate).
-- **`Core/TownDay.swift`, the day** (pure functions of the state, the hour and the picture's time): the farmers on the
+- **`Core/TownLife.swift`, the day** (pure functions of the state, the hour and the picture's time): the farmers on the
   first built field (out at first light 05:30, eight strokes and the pause that straightens the back, home at a tired
   pace, in by 18:51); Wenna at the well and at the horn in her doorway calling the children in; Old Hemmet on the bench
   (07:24-17:36, a doze now and then); the passers-by (as many as the taxpayers allow; out from 07:00, home from 18:30
@@ -223,7 +223,7 @@ critic's H4).
   kept in the talk and the bow.
 - **Names** (the critic's H1 and a smaller note): Ned Thatch is Ned Furrow, Saul Wicket is Saul Bracken (both checked
   against STORY.md, the docs, both string catalogs and the petitions of the planning branch: no hit).
-- **Tests**: `Tests/TownDayTests.swift` (15 tests: the households, the farmers' day, the greeting and the turning away,
+- **Tests**: `Tests/TownLifeTests.swift` (15 tests: the households, the farmers' day, the greeting and the turning away,
   Wenna's call, the children's rules, game and trailing, the coach and the berth, the collector's round, the lantern
   times and shares, the hearth leg and the glow strip, look 1's lanterns, Reduce Motion, the figure count, the shots'
   moments); `Tests/PeopleCastTests.swift` brought to the new contract.
@@ -238,8 +238,8 @@ critic's H4).
 | `Core/FrameDesc.swift` | `enum SpriteID`, after the cloth states' case lines | `case lamplighter, lamplighterGlow, collector, coach, elderSeated, elderSeatedVillage, elderSeatedTown` with its comment | the ids (the PNG names) |
 | `Core/FrameDesc.swift` | `var size`, after the cloth states' case | `case .lamplighter, … .elderSeatedTown: return PeopleCast.size(of: self)` | the switch is exhaustive |
 | `Core/FrameDesc.swift` | `var frameCount`, after the cast's case | `case .lamplighter, .lamplighterGlow, .collector, .coach, .elderSeated: return PeopleCast.frameCount(of: self)` | frame counts live in PeopleCast |
-| `Core/EntityFrames.swift` | `actors(…)`, where people-1 called `townsfolk` and `townLife` | `if look == .two { PeopleCast.townLife(s, time:, context: TownDay.Context(reduceMotion:, hearth:)) { add($0.sprite, frame: $0.frame, x: $0.x, y: 0, flipped: $0.flipped, emissive: $0.emissive) } } else if isDay { townsfolk(…) }` (replaces people-1's two calls; look 2 now draws the town at every hour, the lamplighter and the run home are at dusk) | the town's day in look 2 |
-| `Core/EntityFrames.swift` | `layer(…)`, after `town(s, look:, props:)` | `let townDay = TownDay.Context(reduceMotion:, hearth:)`; `if options.look == .two { TownDay.props(s, context: townDay, props: &props) }` | the bench and the coach |
+| `Core/EntityFrames.swift` | `actors(…)`, where people-1 called `townsfolk` and `townLife` | `if look == .two { PeopleCast.townLife(s, time:, context: TownLife.Context(reduceMotion:, hearth:)) { add($0.sprite, frame: $0.frame, x: $0.x, y: 0, flipped: $0.flipped, emissive: $0.emissive) } } else if isDay { townsfolk(…) }` (replaces people-1's two calls; look 2 now draws the town at every hour, the lamplighter and the run home are at dusk) | the town's day in look 2 |
+| `Core/EntityFrames.swift` | `layer(…)`, after `town(s, look:, props:)` | `let townDay = TownLife.Context(reduceMotion:, hearth:)`; `if options.look == .two { TownLife.props(s, context: townDay, props: &props) }` | the bench and the coach |
 | `Core/EntityFrames.swift` | `layer(…)`, after `var lights = SceneFilter.sceneLights(scene)` | `TownLamps.light(s, look:, context: townDay, torch: ambient.torchStrength, animTime:, glows: &layer.glows, lights: &lights)` | the lanterns' glass and pools, the pole's flame |
 | `Core/SceneFilter.swift` | `gameScene`, before the hearth's strip | `if TownLamps.isStreetLantern(prop) { strip emissive and lights; keep the post }` | the street lanterns burn as the lamplighter lit them (look 1 gets them back at full share, as before) |
 | `Render/PlaceholderCast.swift` | `frames(for:)` | a case for the five new bodies (the townsfolk's figure on the frame's canvas; the coach a plain block) | every SpriteID needs a stand-in |
@@ -251,8 +251,8 @@ People-1's hooks stay as listed above, except `EntityFrames.townsfolk`'s look-2 
 
 - **One call per frame.** Wherever the rebuilt town draws its people (look 2, every hour), call
   `PeopleCast.townLife(s, time:, context:) { figure in … }` once and draw each figure (`emissive` for the lamplighter's
-  glow strip); add `TownDay.props` to the town's props and `TownLamps.light` to its lights and glows.
-- **The context**: `TownDay.Context(cloth: PeopleCast.ClothState(standing: <the town's standing>), reduceMotion:,
+  glow strip); add `TownLife.props` to the town's props and `TownLamps.light` to its lights and glows.
+- **The context**: `TownLife.Context(cloth: PeopleCast.ClothState(standing: <the town's standing>), reduceMotion:,
   hearth: <front-2's hearth level 0 … 1; out is 0>, collectorOut: Town.collectorWalksToday(s), nobleDue: nil)`.
   Until then the launch arguments stand in: `-GWCloth`, `-GWCollector YES`, `-GWCoach YES`.
 - **Anchors to replace** (all in `TownHouseholds` and `TownLamps`, data only): the house doors (`door(plot:)`, from the
@@ -260,31 +260,31 @@ People-1's hooks stay as listed above, except `EntityFrames.townsfolk`'s look-2 
   gate (`townGateX`: where the road from the inner lands meets the town), the street lanterns (`posts`, `glassDX`,
   `glassDY`, `lightDX`, `lightY`, `lightRadius`: the world lane keeps about four posts with an unlit and a lit state
   as anchors; `TownLamps.share(i, …)` says how lit post `i` is), the hall door and the hearth stand (`hallDoor`,
-  `hearthStand`), the castle's gate (`gate`), the play's centre (`TownDay.playCentre`, clear of the well by 30 px or
+  `hearthStand`), the castle's gate (`gate`), the play's centre (`TownLife.playCentre`, clear of the well by 30 px or
   more). The lamplighter's times follow from them by themselves.
 - **The lanterns' sprite state**: where the rebuilt posts have an unlit and a lit sprite, take the lit one while
   `TownLamps.share(i, …) > 0` and drop `SceneFilter`'s strip; keep `TownLamps.light` for the glow and the pool.
 - **The collector**: the town lane's sim holds where he is (`Town.collectorX`: an even pace, post at 06:00, the turn at
   09:00, back at 12:00). The picture follows the same hours and stops 1.5 s at each door on the way out (it leads the
-  sim by up to 6 s between the stops). Either make the sim stop at the doors too (`TownDay.doorStop`) or draw the
+  sim by up to 6 s between the stops). Either make the sim stop at the doors too (`TownLife.doorStop`) or draw the
   picture at `Town.collectorX` and play the take frames while he passes a door. His post is the town lane's
   `Town.collectorPost` (`Realm.hallX`); a touch on him there is the town lane's.
-- **The lord passes**: `TownDay.greeting` reads only the lord's x and the happiness; the town lane's toss at the doors
+- **The lord passes**: `TownLife.greeting` reads only the lord's x and the happiness; the town lane's toss at the doors
   is its own picture (TOWN.md section 1) and does not collide with it.
-- **The rooms**: `TownDay.isSeen` hides a figure inside the hall, chapel or kitchen while the lord is not in that room
+- **The rooms**: `TownLife.isSeen` hides a figure inside the hall, chapel or kitchen while the lord is not in that room
   (a hard cut, no fade). The stage lane's rebuilt hall may give its own rule; the lamplighter at the hearth then follows
   it (or takes the `RoomFades` alpha as the court's figures do).
 
 ### The hall side of a noble's day (waits for the join)
 
-- The noble guest walks from the coach to the hall: when the petitioner whose speaker is in `TownDay.nobleSpeakers` is
+- The noble guest walks from the coach to the hall: when the petitioner whose speaker is in `TownLife.nobleSpeakers` is
   called, he comes in at the hall's door with the footman a step behind (`PEOPLE.md` section 4); while they are in the
-  hall, `TownDay.footman` should return nil (one footman body): pass a `footmanWithGuest` flag in the context.
+  hall, `TownLife.footman` should return nil (one footman body): pass a `footmanWithGuest` flag in the context.
 - In the realm's third stage the noble bows on arriving (`PeopleCast.bowFrame`), then talks; in the hamlet and the
   village he does not.
 - The footman stands apart in the hall's spot for a noble's servant (the stage lane, its notes 14:20), the chest held
   level; he pays (`footman` frames 6-7) when the noble grants or buys something.
-- When the audience is over they walk back out; the coach stays until the dusk (`TownDay.coachHours`), or leaves at the
+- When the audience is over they walk back out; the coach stays until the dusk (`TownLife.coachHours`), or leaves at the
   audience's end if the stage lane prefers: then `coachSpan` takes the end time.
 - The lady (`nobleLady`) comes in the coach on the days of `calder_audit` (Ebba Calder) or as the hunting noble's kin;
   her hall spot is the stage lane's.
@@ -297,7 +297,7 @@ People-1's hooks stay as listed above, except `EntityFrames.townsfolk`'s look-2 
   morning still lights it a little; recorded again: 6cdcda6decd89f7d, was c7130032235b207b; `town-noon` and the others
   held), and my own test looked for every child running home from 19:00 although they leave a few seconds apart. The
   shots showed one real fault: Dun and Corra still walked home from the ford and the market at dusk (shot 73), so a
-  passer-by now turns home early enough from a far place to be in before the horn (`TownDay.inHour`), with a test.
+  passer-by now turns home early enough from a far place to be in before the horn (`TownLife.inHour`), with a test.
   Shot 73 moved so the lord stands beside Wenna's door, not on it; the children run home at 40 px/s. The atlas: **1880
   of 2048 rows** (people-1 left 1850): after the join about 1990; the eleven village strips go first if it needs room.
 - **lh-p2-2** (11827b8; build, unit, ui TownLifeUITests PeopleUITests): **ALL PASSED** (build 00:29, unit 00:35 with
@@ -324,7 +324,7 @@ People-1's hooks stay as listed above, except `EntityFrames.townsfolk`'s look-2 
 - The coach has no lit lantern at night (it is gone by the dusk).
 - Old Hemmet could wait on the hall's benches now (`elderSeated`); `CourtLayout.seatedStrip` is not extended (no
   petitioner walks in his body).
-- The square's play is in front of house 4; if the rebuilt square has more room, move `TownDay.playCentre`.
+- The square's play is in front of house 4; if the rebuilt square has more room, move `TownLife.playCentre`.
 - Saul Bracken is pushed at the town lane's even pace (about 47 px/s out, 40 back: faster than the lord's walk). If
   the town lane can start him earlier or give him till 09:30, he walks at a cart's pace; the picture follows the hours.
 - The lamplighter is in the hall at about 14:40 and walks for four hours of the clock: the castle-to-town walk at a

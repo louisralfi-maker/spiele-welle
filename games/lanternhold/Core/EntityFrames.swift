@@ -146,9 +146,9 @@ enum EntityFrames {
         beacon(s, props: &props)
         courtyard(s, props: &props)
         town(s, look: options.look, props: &props)
-        let townDay = TownDay.Context(reduceMotion: options.reduceMotion,
+        let townDay = TownLife.Context(reduceMotion: options.reduceMotion,
                                       hearth: max(0, min(1, s.hearth / max(1, balance.hearthStrength))))
-        if options.look == .two { TownDay.props(s, context: townDay, props: &props) }
+        if options.look == .two { TownLife.props(s, context: townDay, props: &props) }
         if isDay { markers(s, layouts: layouts, time: animTime, reduceMotion: options.reduceMotion, props: &props) }
         auras(s, look: options.look, props: &props)
         layer.props = props.props
@@ -1040,12 +1040,12 @@ enum EntityFrames {
                                       isEmissive: emissive, isLit: lit, lightCap: lightCap, moonRim: moonRim))
         }
 
-        // Look 2: the town lives by its people (the people lane, `TownDay`, `TownLamps`): the households through the
+        // Look 2: the town lives by its people (the people lane, `TownLife`, `TownLamps`): the households through the
         // day, the lamplighter at dusk and first light. Look 1: townsfolk walking between their houses, the fields and
         // the market by day.
         if look == .two {
             let hearth = max(0, min(1, s.hearth / max(1, balance.hearthStrength)))
-            PeopleCast.townLife(s, time: time, context: TownDay.Context(reduceMotion: reduceMotion, hearth: hearth)) {
+            PeopleCast.townLife(s, time: time, context: TownLife.Context(reduceMotion: reduceMotion, hearth: hearth)) {
                 add($0.sprite, frame: $0.frame, x: $0.x, y: 0, flipped: $0.flipped, emissive: $0.emissive)
             }
         } else if isDay {

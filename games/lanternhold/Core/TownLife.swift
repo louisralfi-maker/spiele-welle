@@ -13,7 +13,7 @@ import Foundation
 /// simulation, T1 to T8 stay as they are. Look 2 draws it (`PeopleCast.townLife`); look 1 keeps its three townsfolk.
 /// With Reduce Motion nobody is removed: only the small motions are fewer (breaths and fidgets hold a frame, the sticks
 /// stay raised, the linen is wrung at half the rate).
-enum TownDay {
+enum TownLife {
     typealias Figure = PeopleCast.Figure
     typealias Frames = PeopleCast.Frames
 
@@ -26,12 +26,12 @@ enum TownDay {
         /// The hearth's strength, 0 ... 1 (`s.hearth / balance.hearthStrength`): the street lanterns burn as it does.
         var hearth: Double = 1
         /// The collector walks today (the town lane's `Town.collectorWalksToday(s)` at the join; `-GWCollector YES`).
-        var collectorOut: Bool = TownDay.launchCollector
+        var collectorOut: Bool = TownLife.launchCollector
         /// A noble guest is due today; nil reads the court's queue and today's heard petitions (`nobleDue`).
         var nobleDue: Bool?
 
         init(cloth: PeopleCast.ClothState = PeopleCast.launchCloth, reduceMotion: Bool = false, hearth: Double = 1,
-             collectorOut: Bool = TownDay.launchCollector, nobleDue: Bool? = nil) {
+             collectorOut: Bool = TownLife.launchCollector, nobleDue: Bool? = nil) {
             self.cloth = cloth
             self.reduceMotion = reduceMotion
             self.hearth = hearth

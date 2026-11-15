@@ -5,7 +5,7 @@ import Foundation
 /// The bodies beyond the three townsfolk (the elder, the washerwoman, the labourer, two farmers at work, three children,
 /// a lord and a lady of the inner lands and their footman; from people-2 the lamplighter, the collector and the elder
 /// seated on his bench), their sizes and frames, their cloth by the realm's stage, their pace and step. Who of them is
-/// where through the day is `TownDay` (and `TownLamps`), from the households of `TownHouseholds`. Picture only:
+/// where through the day is `TownLife` (and `TownLamps`), from the households of `TownHouseholds`. Picture only:
 /// nothing here touches the simulation, the economy or the tuning targets.
 enum PeopleCast {
     /// The working people beyond the three townsfolk (the citizen contract: 12x26, walk 0-3, idle 4-5, work frames on).
@@ -166,7 +166,7 @@ enum PeopleCast {
         return Frames.bow.upperBound
     }
 
-    // MARK: - The walkers (look 1's `EntityFrames.townsfolk`; look 2's passers-by are `TownDay`)
+    // MARK: - The walkers (look 1's `EntityFrames.townsfolk`; look 2's passers-by are `TownLife`)
 
     /// The bodies of people-1's walkers in turn (kept for `EntityFrames.townsfolk`, which look 2 no longer calls).
     static let townWalkers: [SpriteID] = [.citizen, .elder, .labourer, .citizenB, .citizenC].map {
@@ -229,12 +229,12 @@ enum PeopleCast {
         return feet + (flipped ? -shift : shift)
     }
 
-    /// Everyone out in the town (`TownDay.figures`), each body in the cloth of `context.cloth` and placed for the
+    /// Everyone out in the town (`TownLife.figures`), each body in the cloth of `context.cloth` and placed for the
     /// engine. The hook in `EntityFrames.actors` (look 2, day and night: the lamplighter and the children's run home
     /// are at dusk). `cloth` is the realm's stage (the hamlet until the join passes the town's standing).
-    static func townLife(_ s: GameState, time: Double, context: TownDay.Context = TownDay.Context(),
+    static func townLife(_ s: GameState, time: Double, context: TownLife.Context = TownLife.Context(),
                          add: (Figure) -> Void) {
-        for figure in TownDay.figures(s, time: time, context: context) {
+        for figure in TownLife.figures(s, time: time, context: context) {
             var drawn = figure
             drawn.sprite = dressed(figure.sprite, context.cloth)
             drawn.x = drawX(figure.sprite, feet: figure.x, flipped: figure.flipped)

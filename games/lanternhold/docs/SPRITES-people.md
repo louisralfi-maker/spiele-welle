@@ -95,7 +95,7 @@ The cast adds 106 frames (the nobles' bow 4 of them) and the cloth states 200 mo
 clamp, prints the rows used ("people lane: atlas … rows used") and checks that it fits 2048 rows; AtlasTests checks
 every cell lies inside the page. If the joined game needs the room, the village states go first (the town's stay).
 
-## People-2: the town's day (docs/PEOPLE.md section 5, `TownDay`, `TownLamps`)
+## People-2: the town's day (docs/PEOPLE.md section 5, `TownLife`, `TownLamps`)
 
 All hand-set part grids through `tools/actorart.py` (tools/grids/people/), rebuilt by `tools/build-art-people.sh`.
 

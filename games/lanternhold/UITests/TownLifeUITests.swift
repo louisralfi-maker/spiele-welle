@@ -1,14 +1,14 @@
 import UIKit
 import XCTest
 
-/// People-2, the town lives by its people (docs/PEOPLE.md section 5, `TownDay`, `TownLamps`): the lord walks the town
+/// People-2, the town lives by its people (docs/PEOPLE.md section 5, `TownLife`, `TownLamps`): the lord walks the town
 /// of the demo realm's day 12 (look 2, held still with `-GWFreezeTime YES`, the lord standing where the camera is) at
 /// morning, noon and dusk. The near field at seven with Gorm and Hedda at work; the square at noon (Wenna at the well,
 /// Old Hemmet on his bench, the passers-by, Nib and Wren at play); the children in a happy town (Fen at the lord's
 /// heels, Nib and Wren at their stick fight); the dusk as the horn sounds (Wenna calling from her doorway, the children
 /// running home, the lanterns lit); the noble's coach at the gate with the footman (`-GWCoach YES`); the lamplighter
 /// lighting the last lantern; the collector at a door on his morning round (`-GWCollector YES`); the lamplighter at
-/// the Eternal Light in the hall. The moments are pinned by `TownDayTests.testTheShotsShowWhatTheyName`.
+/// the Eternal Light in the hall. The moments are pinned by `TownLifeTests.testTheShotsShowWhatTheyName`.
 /// Saves `<nn>-<what>-<lang>` from 70.
 @MainActor
 final class TownLifeUITests: XCTestCase {

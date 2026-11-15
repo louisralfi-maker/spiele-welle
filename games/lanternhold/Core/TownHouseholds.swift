@@ -2,7 +2,7 @@ import Foundation
 
 /// Who lives where in Lanternhold (people-2; docs/PEOPLE.md section 5, docs/lanes/people.md "people-2"). Every house of
 /// the town has its household from the cast, the same people every day, so that a player comes to know them; the
-/// fields have their farmers, the square its passers-by, the bench its old man. Data only: `TownDay` plays their day
+/// fields have their farmers, the square its passers-by, the bench its old man. Data only: `TownLife` plays their day
 /// from it, `TownLamps` the lamplighter's round. Picture only: nothing here touches the simulation.
 ///
 /// The anchors (doors, the bench, the well, the town's gate) are this branch's town. The rebuilt town (the world lane)
@@ -18,7 +18,7 @@ enum TownHouseholds {
         case bench
         /// Walks between home and a place of the town and back (a passer-by).
         case walker(Place)
-        /// A child: out to play while the town is content (`TownDay.children`).
+        /// A child: out to play while the town is content (`TownLife.children`).
         case child
         /// Lights the street lanterns at dusk and snuffs them at first light (`TownLamps`).
         case lamplighter

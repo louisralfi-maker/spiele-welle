@@ -133,7 +133,7 @@ a mark and a silhouette; their sheets are the first work of people-2 (see "What 
 
 Quick where everyone else is slow, and the one warm clean colour in town: each child wears the cleanest, lightest cloth
 in the valley (a value step above any grown-up's) and enough red to be seen at phone size on the well's stones. In the game they are out at the market
-square while the town is content (the interface bar: the town shows happiness, there is no number for it): from 45 happiness Nib and Wren, from 80 Fen too (people-2, `TownDay.children`). Nib and Wren: 12x18, run 0-3, fidget
+square while the town is content (the interface bar: the town shows happiness, there is no number for it): from 45 happiness Nib and Wren, from 80 Fen too (people-2, `TownLife.children`). Nib and Wren: 12x18, run 0-3, fidget
 4-5, skip 6-9, the stick fight 10-11; Fen: 10x18, run 0-3, fidget 4-5, skip 6-9.
 
 **Nib Brisk** (`childA`), 7, Wenna's youngest (renamed in fix round 1: "Pim" stood too near Pip the fool).
@@ -154,7 +154,7 @@ lord's (unlit by day). *Cloth:* the cap `crimsonLight`, `crimson`; dark curls; a
 and a step lighter than any grown-up's leather (`strawLight` lit, `straw`, `woodLight`), belted twice round (`soilDark`)
 over a linen shirt whose collar shows (`foam`, `parchment`), brown breeches, bare shins, clogs. *Tell:* the little
 lantern. In the game he runs after the lord at his heels while the lord is near the children's game, stops when the lord walks
-on and runs back to it (people-2, `TownDay.trailing`). The child petitioner walks in his body.
+on and runs back to it (people-2, `TownLife.trailing`). The child petitioner walks in his body.
 
 ## 4. The nobles of the inner lands (a kind: two bodies and a footman)
 
@@ -197,7 +197,7 @@ Goldenacre on the chest over a linen shirt; crimson breeches; **white stockings*
 with `gold` buckles; an iron-bound chest (`woodLight`, `wood`, bands `stoneMid`, a `gold` lock). *Talk:* he sets the chest
 down and holds out a purse: a noble never pays himself (TOWN.md section 6), the footman does.
 
-## 5. Where they are in the game (look 2; people-2, `TownHouseholds`, `TownDay`, `TownLamps`)
+## 5. Where they are in the game (look 2; people-2, `TownHouseholds`, `TownLife`, `TownLamps`)
 
 The town lives by its people: the same people every day, in their own houses, at their own work, so that a player
 comes to know them. Picture only (no rule of the simulation changes).
@@ -215,32 +215,32 @@ upper floor's lodger):
 
 **The day:**
 
-- **The farmers** (`TownDay.farmers`): Gorm and Hedda on the first built field, out from their door at first light
+- **The farmers** (`TownLife.farmers`): Gorm and Hedda on the first built field, out from their door at first light
   (05:30) with the tools on the shoulder, eight strokes and the pause that straightens the back, home with a sack and a
   sheaf at a tired pace (seven tenths of their walk), in before the horn (by 18:51; from a far field they leave
   earlier).
-- **Wenna** (`TownDay.washer`): to the well at 06:18 with her basket, wringing linen on its far side all day; home at
+- **Wenna** (`TownLife.washer`): to the well at 06:18 with her basket, wringing linen on its far side all day; home at
   18:09, and at the horn in her doorway calling the children in (the cupped hand, the beckoning arm), then in.
-- **Old Hemmet** (`TownDay.bench`): on the bench before house 5 from 07:24 to 17:36, facing the square; now and then
+- **Old Hemmet** (`TownLife.bench`): on the bench before house 5 from 07:24 to 17:36, facing the square; now and then
   his chin sinks in a doze.
-- **The passers-by** (`TownDay.walkers`, as many as the taxpayers allow): out from 07:00, each from beside their door
+- **The passers-by** (`TownLife.walkers`, as many as the taxpayers allow): out from 07:00, each from beside their door
   to their place and back with a pause at both ends; from 18:30 home from wherever they are (earlier from a far
   place, so everyone is in before the horn).
 - **The lord passes:** whoever stands still turns to him: the farmers straighten, Wenna straightens from the linen,
   Hemmet inclines his head, a passer-by pausing at an end faces him, the collector at his post turns. Below 30
   happiness they turn their back instead (the farmers work on). The footman never greets anyone.
-- **The children** (`TownDay.children`): out from 08:00 while the town is content: none below 45 happiness, Nib and
+- **The children** (`TownLife.children`): out from 08:00 while the town is content: none below 45 happiness, Nib and
   Wren from 45, Fen too from 80. They run out from their doors to their game before the Brisks' door, clear of Wenna
   at the well: across and back (Wren skipping the way back), then they meet in the middle and fight with sticks (one
   swings while the other winds up), part and begin again; Fen runs wider laps. One of them (Fen when he is out, else
   Nib) runs after the lord at his heels while he is near the play, stops when he walks on and runs back to the game;
   Wren waits for Nib meanwhile. At the horn they run home, each to its own door, all in by 19:45. Never out at night.
-- **The noble's coach** (`TownDay.coachSpan`, `TownDay.footman`): on a day when a noble guest of the petition data is
+- **The noble's coach** (`TownLife.coachSpan`, `TownLife.footman`): on a day when a noble guest of the petition data is
   due (the noble petitioner, Steward Lorenz Pell of Oxmoor, Auditor Ebba Calder of Stillmere; in today's queue or heard
   today), the coach stands at the town's gate (on this branch the castle's back gate, facing it) from 06:00 to the dusk,
   the footman beside it on the town's side looking past everyone. The townsfolk keep 30 px wide of it: who would pass
   it (Brede on his way to the gate) stops short and looks.
-- **The collector** (`TownDay.collector`, on the days he walks): out from his post by the hall door at the dawn,
+- **The collector** (`TownLife.collector`, on the days he walks): out from his post by the hall door at the dawn,
   pushing the strongbox from door to door (the hand out, the coin through the slot, a nod), at the farthest door by
   09:00, back at his post by noon, at his post until the horn (the town lane's rules).
 - **The lamplighter** (`TownLamps`): each afternoon Silas Moth comes into the hall by its chapel door, holds his

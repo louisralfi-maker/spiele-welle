@@ -168,7 +168,7 @@ enum TownLamps {
     }
 
     /// The lamplighter now (his body, and his pole's flame as a glow strip while it burns), or nobody.
-    static func lamplighter(_ s: GameState, time: Double, context: TownDay.Context) -> [Figure] {
+    static func lamplighter(_ s: GameState, time: Double, context: TownLife.Context) -> [Figure] {
         guard let pose = pose(s, context: context) else { return [] }
         var list = [Figure(sprite: .lamplighter, frame: pose.frame, x: pose.x, flipped: pose.flipped)]
         if pose.burning {
@@ -179,7 +179,7 @@ enum TownLamps {
     }
 
     /// His pose now: the frame, his feet's x, mirrored (facing left), and whether the pole's wick burns.
-    static func pose(_ s: GameState, context: TownDay.Context) -> (frame: Int, x: Double, flipped: Bool, burning: Bool)? {
+    static func pose(_ s: GameState, context: TownLife.Context) -> (frame: Int, x: Double, flipped: Bool, burning: Bool)? {
         guard works(s, hearth: context.hearth) else { return nil }
         let frames = PeopleCast.Frames.self
         let eveningT = (s.hour - eveningStart) * DayClock.secondsPerHour
@@ -242,7 +242,7 @@ enum TownLamps {
 
     /// The lanterns' glass and pools and the pole's small flame. Look 1 keeps its lanterns as they were (lit whenever
     /// the dusk lights the town); look 2 lights them as the lamplighter does.
-    static func light(_ s: GameState, look: LookVersion, context: TownDay.Context, torch: Float, animTime: Double,
+    static func light(_ s: GameState, look: LookVersion, context: TownLife.Context, torch: Float, animTime: Double,
                       glows: inout [EntityGlow], lights: inout [(source: LightSource, plane: Plane)]) {
         for (i, post) in posts.enumerated() {
             let share = look == .two ? self.share(i, s: s, hearth: context.hearth, reduceMotion: context.reduceMotion)
@@ -261,7 +261,7 @@ enum TownLamps {
                            plane: .world))
         }
         guard look == .two, let pose = pose(s, context: context), pose.burning,
-              TownDay.isSeen(pose.x, s) else { return }
+              TownLife.isSeen(pose.x, s) else { return }
         let tip = poleTip(frame: pose.frame)
         let x = pose.x + (pose.flipped ? -tip.dx : tip.dx)
         lights.append((source: LightSource(kind: .candle, x: x, y: tip.dy, radius: 12, intensity: 0.9,

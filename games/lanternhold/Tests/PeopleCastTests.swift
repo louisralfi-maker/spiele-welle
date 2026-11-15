@@ -112,7 +112,7 @@ final class PeopleCastTests: XCTestCase {
         var s = GameFrameSupport.demoDay(hour: 10)
         s.happiness = 60
         var seen: [SpriteID] = []
-        PeopleCast.townLife(s, time: 3, context: TownDay.Context(cloth: .town)) { seen.append($0.sprite) }
+        PeopleCast.townLife(s, time: 3, context: TownLife.Context(cloth: .town)) { seen.append($0.sprite) }
         XCTAssertTrue(seen.contains(.washerwomanTown), "Wenna in the town's cloth")
         XCTAssertFalse(seen.contains(.washerwoman))
     }
