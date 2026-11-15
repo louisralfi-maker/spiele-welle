@@ -5,6 +5,8 @@ import Foundation
 enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     // Ambience loops
     case ambDay = "amb_day", ambNight = "amb_night", ambRain = "amb_rain", ambFire = "amb_fire", ambHall = "amb_hall"
+    // The places' beds (stage lane, stage-3-interface, M12): the Throat, the bailey, the valley's birds, the river
+    case ambThroat = "amb_throat", ambBailey = "amb_bailey", ambValley = "amb_valley", ambRiver = "amb_river"
     // One-shots
     case coin, coins, buildStart = "build_start", buildDone = "build_done", lantern, horn, bell, bow
     case arrowHit = "arrow_hit", creatureHit = "creature_hit", dissolve, wallHit = "wall_hit"
@@ -12,7 +14,8 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     // The hall stage (stage lane, 14.11.2026): the hall's door opening on its iron hinges, and its latch falling
     case doorCreak = "door_creak", doorLatch = "door_latch"
 
-    static let loops: [SoundID] = [.ambDay, .ambNight, .ambRain, .ambFire, .ambHall]
+    static let loops: [SoundID] = [.ambDay, .ambNight, .ambRain, .ambFire, .ambHall,
+                                   .ambThroat, .ambBailey, .ambValley, .ambRiver]
 
     var isLoop: Bool { SoundID.loops.contains(self) }
 
@@ -33,6 +36,7 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
         case .coin, .coins, .seal, .decline: return 0.08
         case .tap: return 0.06
         case .ambDay, .ambNight, .ambRain, .ambFire, .ambHall: return 0
+        case .ambThroat, .ambBailey, .ambValley, .ambRiver: return 0
         }
     }
 
@@ -203,6 +207,11 @@ struct AmbienceMix: Sendable, Equatable {
     var rain = 0.0
     var fire = 0.0
     var hall = 0.0
+    // M12 (stage-3-interface): the places' beds along the strip.
+    var throat = 0.0
+    var bailey = 0.0
+    var valley = 0.0
+    var river = 0.0
 
     /// Seconds a change of place, day or weather takes to settle (the director's crossfade).
     static let fadeSeconds = 1.2
@@ -223,8 +232,38 @@ struct AmbienceMix: Sendable, Equatable {
         case .ambRain: return rain
         case .ambFire: return fire
         case .ambHall: return hall
+        case .ambThroat: return throat
+        case .ambBailey: return bailey
+        case .ambValley: return valley
+        case .ambRiver: return river
         default: return 0
         }
+    }
+
+    // MARK: The places' beds (stage lane, step stage-3-interface, 15.11.2026; docs/REVIEW-look-2.md M12)
+
+    /// The beds' own volumes at full strength.
+    static let throatVolume = 0.45
+    static let baileyVolume = 0.5
+    static let valleyVolume = 0.42
+    static let riverVolume = 0.5
+    /// Two beds cross over this many px of the lord's walk.
+    static let crossfade = 120.0
+    /// Where the places meet: the front gate's passage, the postern, the river's bank.
+    static let throatEnd = 1360.0
+    static let baileyEnd = 2330.0
+    static let riverStart = 3620.0
+
+    /// 0 west of `edge - crossfade / 2`, 1 east of `edge + crossfade / 2`, a straight ramp between.
+    static func ramp(_ x: Double, _ edge: Double) -> Double {
+        min(1, max(0, (x - (edge - crossfade / 2)) / crossfade))
+    }
+
+    /// How much of each place a lord at `x` hears: the Throat, the bailey, the valley (their sum is 1), and the river.
+    static func places(x: Double) -> (throat: Double, bailey: Double, valley: Double, river: Double) {
+        let pastGate = ramp(x, throatEnd)
+        let pastPostern = ramp(x, baileyEnd)
+        return (1 - pastGate, pastGate - pastPostern, pastPostern, ramp(x, riverStart))
     }
 
     /// How much night it is (0 by day, 1 from 20:00 to 05:00, ramped through the dusk and first light).
@@ -238,14 +277,25 @@ struct AmbienceMix: Sendable, Equatable {
     /// The mix for `hour`, the weather's `rain` (0 ... 1), the listener's `place`, the nearby fire's `fire`
     /// (0 ... 1, `fireLevel`), ducked to half under a whole screen (the pause sheet, the dawn report, the defeat
     /// card).
-    static func target(hour: Double, rain: Double, place: SoundPlace, fire: Double, ducked: Bool = false)
-        -> AmbienceMix {
+    static func target(hour: Double, rain: Double, place: SoundPlace, fire: Double, ducked: Bool = false,
+                       x: Double? = nil) -> AmbienceMix {
         let night = nightShare(hour: hour)
         let air = place.openAir
         let duck = ducked ? 0.5 : 1
         var mix = AmbienceMix()
-        mix.day = dayVolume * (1 - night) * air * duck
-        mix.night = nightVolume * night * air * duck
+        // M12: with the lord's x the places' beds come in, and the open wind falls back inside the walls and in the
+        // valley (it ducks under the bailey's sounds at the front gate).
+        var wind = 1.0
+        if let x, place != .hall {
+            let at = places(x: x)
+            mix.throat = throatVolume * at.throat * (0.8 + 0.2 * night) * air * duck
+            mix.bailey = baileyVolume * at.bailey * (1 - night) * duck
+            mix.valley = valleyVolume * at.valley * (1 - night) * air * duck
+            mix.river = riverVolume * at.river * duck
+            wind = 1 - 0.4 * at.bailey - 0.5 * at.valley
+        }
+        mix.day = dayVolume * (1 - night) * air * duck * wind
+        mix.night = nightVolume * night * air * duck * max(0.6, wind)
         let wet = max(0, min(1, rain))
         mix.rain = rainVolume * wet * max(air, place == .hall ? 0.3 : 0) * duck
         mix.fire = fireVolume * max(0, min(1, fire)) * (place == .hall ? 0.3 : 1) * duck

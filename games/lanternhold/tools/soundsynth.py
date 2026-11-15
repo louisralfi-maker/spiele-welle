@@ -435,6 +435,156 @@ def amb_hall():
 
 
 # ----------------------------------------------------------------------------------------------------------------
+# The places' beds (stage lane, step stage-3-interface, 15.11.2026; docs/REVIEW-look-2.md M12): the Throat, the bailey,
+# the valley and the river each have a bed of their own, which the game crossfades over 120 px along the strip.
+# No music: weather, work, birds and water, never a tune.
+
+def amb_throat():
+    """The Throat: a hollow wind between the cleft's walls, the fog's faint hiss, a low howl in the rock, now and then
+    a pebble falling far off and a drip."""
+    rng = Rng(606)
+    L, F = secs(7.0), secs(1.2)
+    n = L + F
+    x = gain(wind(n, rng, 150, 320, body=1.6), 0.9)
+    howl_f = smooth_random(n, rng, 0.08)
+    howl = biquad(noise(n, rng), "bp", lambda t: 175 + 40 * howl_f[min(n - 1, int(t * SR))], 9.0)
+    swell = smooth_random(n, rng, 0.15)
+    add_into(x, [h * (0.5 + 0.5 * w) for h, w in zip(howl, swell)], 0, 0.9)
+    hiss = biquad(noise(n, rng), "hp", 3500, 0.7)
+    add_into(x, hiss, 0, 0.025)
+    for at, f in ((1.6, 2300.0), (4.4, 1900.0), (6.1, 2600.0)):
+        m = secs(0.18)
+        for k in range(3):
+            pebble = grain(m, f * rng.uniform(0.8, 1.2), 0.012, rng, noisy=0.4)
+            add_into(x, pebble, secs(at + k * rng.uniform(0.07, 0.14)), 0.12 * (1 - 0.25 * k))
+    for at in (2.9, 5.3):
+        drip = grain(secs(0.08), rng.uniform(1100, 1500), 0.02)
+        add_into(x, drip, secs(at), 0.1)
+    x = reverb(x, wet=0.4, size=1.7, damp=0.5)
+    return normalize(loopify(x, L, F), 0.65)
+
+
+def anvil(rng, g=1.0):
+    """One strike of a hammer on the anvil far off: three inharmonic partials and the thud."""
+    m = secs(0.45)
+    out = [0.0] * m
+    for f, tau, a in ((1720.0, 0.22, 1.0), (2610.0, 0.14, 0.55), (4170.0, 0.07, 0.3)):
+        add_into(out, grain(m, f * rng.uniform(0.99, 1.01), tau), 0, a)
+    add_into(out, grain(secs(0.06), 140.0, 0.02, rng, noisy=0.5), 0, 0.6)
+    return gain(out, g)
+
+
+def amb_bailey():
+    """The bailey by day: the smith's hammer on the anvil in short runs, the bellows breathing, two or three folk
+    talking across the yard, a sheltered wind."""
+    rng = Rng(707)
+    L, F = secs(7.0), secs(1.2)
+    n = L + F
+    x = gain(wind(n, rng, 300, 650, body=0.6), 0.25)
+    t = 0.5
+    while t < n / SR - 0.6:
+        for k in range(int(rng.uniform(2, 5))):
+            add_into(x, anvil(rng, 0.5 if k else 0.62), secs(t))
+            t += rng.uniform(0.42, 0.55)
+        t += rng.uniform(1.0, 1.8)
+    for at in (1.2, 4.6):
+        m = secs(1.1)
+        breath = biquad(noise(m, rng), "bp", 420, 1.2)
+        env = [math.sin(math.pi * i / m) ** 2 for i in range(m)]
+        add_into(x, mul(breath, env), secs(at), 0.35)
+    talk = zeros(n)
+    for v in range(3):
+        pitch0 = rng.uniform(100, 200)
+        t = rng.uniform(0, 2.0)
+        while t < n / SR:
+            phrase = rng.uniform(0.8, 2.0)
+            m = secs(phrase)
+            f1s = [rng.uniform(320, 720) for _ in range(30)]
+            f2s = [rng.uniform(900, 1700) for _ in range(30)]
+            rate = rng.uniform(3.5, 5.0)
+            f1 = lambda tt, a=f1s, r=rate: a[int(tt * r) % 30]
+            f2 = lambda tt, a=f2s, r=rate: a[int(tt * r) % 30]
+            voice = formant_voice(m, rng, f1, f2, q=4.0,
+                                  pitch=lambda tt, p=pitch0: p * (1 + 0.05 * math.sin(tt * 2.3)), breath=0.4)
+            env = [0.0] * m
+            for i in range(m):
+                tt = i / SR
+                syl = 0.5 - 0.5 * math.cos(TWO_PI * rate * tt)
+                edge = min(1.0, tt / 0.15, (phrase - tt) / 0.25)
+                env[i] = max(0.0, edge) * (0.35 + 0.65 * syl)
+            add_into(talk, mul(voice, env), secs(t), rng.uniform(0.4, 0.8))
+            t += phrase + rng.uniform(1.0, 3.0)
+    talk = lowpass(lowpass(talk, 1100), 1100)
+    add_into(x, talk, 0, 0.8)
+    x = reverb(x, wet=0.3, size=1.3, damp=0.4)
+    return normalize(loopify(x, L, F), 0.62)
+
+
+def chirp(rng, f0, f1, length):
+    """One short bird call: a quick sweep with a soft attack and fall."""
+    m = secs(length)
+    env = [math.sin(math.pi * i / m) ** 1.5 for i in range(m)]
+    tone = sine(m, lambda t: f0 + (f1 - f0) * t / length)
+    return mul(tone, env)
+
+
+def amb_valley():
+    """The valley by day: small birds in the hedges and trees, here and there, never a tune; leaves in a light air."""
+    rng = Rng(808)
+    L, F = secs(6.0), secs(1.0)
+    n = L + F
+    leaves = biquad(noise(n, rng), "hp", 2200, 0.6)
+    swell = smooth_random(n, rng, 0.3)
+    x = [lv * (0.3 + 0.7 * (0.5 + 0.5 * w)) * 0.05 for lv, w in zip(leaves, swell)]
+    add_into(x, gain(wind(n, rng, 400, 900, body=0.3), 0.12))
+    t = 0.2
+    while t < n / SR - 0.3:
+        kind = rng.random()
+        if kind < 0.45:
+            # A trill: four to eight quick notes falling a little.
+            base = rng.uniform(3600, 5200)
+            for k in range(int(rng.uniform(4, 9))):
+                f = base * (1 - 0.02 * k) * rng.uniform(0.98, 1.02)
+                add_into(x, chirp(rng, f * 1.06, f * 0.94, 0.035), secs(t), 0.18)
+                t += 0.055
+        elif kind < 0.8:
+            # A rising call and its answer.
+            base = rng.uniform(2600, 3600)
+            add_into(x, chirp(rng, base, base * 1.35, 0.11), secs(t), 0.16)
+            add_into(x, chirp(rng, base * 1.1, base * 1.4, 0.09), secs(t + 0.18), 0.12)
+            t += 0.3
+        else:
+            # A single far tick.
+            add_into(x, chirp(rng, 5600, 5000, 0.02), secs(t), 0.1)
+        t += rng.uniform(0.25, 0.9)
+    x = reverb(x, wet=0.25, size=1.1, damp=0.3)
+    return normalize(loopify(x, L, F), 0.55)
+
+
+def amb_river():
+    """The river: the low body of water, its babble over the old bridge's stones, small bubbles."""
+    rng = Rng(909)
+    L, F = secs(5.0), secs(1.0)
+    n = L + F
+    body = lowpass(lowpass(brown(n, rng, 0.996), 500), 500)
+    wob = smooth_random(n, rng, 2.5)
+    babble = biquad(noise(n, rng), "bp", lambda t: 900 + 400 * wob[min(n - 1, int(t * SR))], 2.0)
+    x = [b * 1.6 + 0.35 * bb for b, bb in zip(body, babble)]
+    t = 0.0
+    while True:
+        t += -math.log(1 - rng.random()) / 18.0
+        at = secs(t)
+        if at >= n:
+            break
+        m = secs(0.04)
+        f0 = rng.uniform(380, 900)
+        bubble = mul(sine(m, lambda tt, f=f0: f * (1 + 6 * tt)), decay(m, 0.012, 0.002))
+        add_into(x, bubble, at, 0.08 + 0.12 * rng.random())
+    x = lowpass(x, 5200)
+    return normalize(loopify(x, L, F), 0.6)
+
+
+# ----------------------------------------------------------------------------------------------------------------
 # One-shots.
 
 def coin_clink(rng, base, amp=1.0):
@@ -826,6 +976,7 @@ SOUNDS = [
     ("gate", gate), ("step_1", step_1), ("step_2", step_2), ("parchment", parchment), ("tap", tap),
     ("seal", seal), ("decline", decline), ("engine", engine),
     ("door_creak", door_creak), ("door_latch", door_latch),
+    ("amb_throat", amb_throat), ("amb_bailey", amb_bailey), ("amb_valley", amb_valley), ("amb_river", amb_river),
 ]
 
 

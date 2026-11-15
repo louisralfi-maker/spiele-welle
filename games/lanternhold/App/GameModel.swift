@@ -503,7 +503,7 @@ final class GameModel {
     private func ambienceMix(_ state: GameState, balance: Balance) -> AmbienceMix {
         AmbienceMix.target(hour: state.hour, rain: lastRain, place: soundPlace(state),
                            fire: AmbienceMix.fireLevel(state, balance: balance, x: state.king.x),
-                           ducked: overlay?.isScreen == true)
+                           ducked: overlay?.isScreen == true || lanternMoment != nil, x: state.king.x)
     }
 
     /// Creatures that vanished without a kill this frame (swept away at first light, receding with the Gloom when the

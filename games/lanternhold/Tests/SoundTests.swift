@@ -169,6 +169,47 @@ final class SoundTests: XCTestCase {
         XCTAssertEqual(SoundPlace.at(x: 700, inAudience: true), .hall)
     }
 
+    /// M12 (stage-3-interface): each place along the strip has its bed, and two beds cross over 120 px.
+    func testThePlacesHaveTheirBedsAndCrossOver120Px() {
+        let throat = AmbienceMix.target(hour: 12, rain: 0, place: .outside, fire: 0, x: 900)
+        XCTAssertGreaterThan(throat.throat, 0.3)
+        XCTAssertEqual(throat.bailey, 0)
+        XCTAssertEqual(throat.valley, 0)
+        let bailey = AmbienceMix.target(hour: 12, rain: 0, place: .outside, fire: 0, x: 1600)
+        XCTAssertEqual(bailey.throat, 0)
+        XCTAssertGreaterThan(bailey.bailey, 0.3, "the forge and the voices")
+        XCTAssertLessThan(bailey.day, throat.day, "the wind falls back inside the walls")
+        let valley = AmbienceMix.target(hour: 12, rain: 0, place: .outside, fire: 0, x: 3000)
+        XCTAssertGreaterThan(valley.valley, 0.2, "the birds")
+        XCTAssertEqual(valley.river, 0)
+        let bank = AmbienceMix.target(hour: 12, rain: 0, place: .outside, fire: 0, x: 3750)
+        XCTAssertGreaterThan(bank.river, 0.4, "the river at its bank")
+        let night = AmbienceMix.target(hour: 0, rain: 0, place: .outside, fire: 0, x: 3000)
+        XCTAssertEqual(night.valley, 0, "no birds at night")
+        XCTAssertEqual(AmbienceMix.target(hour: 0, rain: 0, place: .outside, fire: 0, x: 1600).bailey, 0,
+                       "the forge sleeps")
+        // The crossfade at the front gate: 120 px from all Throat to all bailey, half and half at the passage.
+        let gate = AmbienceMix.places(x: AmbienceMix.throatEnd)
+        XCTAssertEqual(gate.throat, 0.5, accuracy: 1e-9)
+        XCTAssertEqual(gate.bailey, 0.5, accuracy: 1e-9)
+        XCTAssertEqual(AmbienceMix.places(x: AmbienceMix.throatEnd - 60).throat, 1, accuracy: 1e-9)
+        XCTAssertEqual(AmbienceMix.places(x: AmbienceMix.throatEnd + 60).bailey, 1, accuracy: 1e-9)
+        for x in stride(from: 0.0, through: 3900, by: 50) {
+            let at = AmbienceMix.places(x: x)
+            XCTAssertEqual(at.throat + at.bailey + at.valley, 1, accuracy: 1e-9, "\(x)")
+        }
+        XCTAssertEqual(AmbienceMix.target(hour: 12, rain: 0, place: .hall, fire: 0, x: 1830).bailey, 0,
+                       "in the hall only the hall")
+        XCTAssertEqual(AmbienceMix.target(hour: 12, rain: 0, place: .outside, fire: 0), noonWithoutPlace(),
+                       "without a place the mix is as before")
+    }
+
+    private func noonWithoutPlace() -> AmbienceMix {
+        var mix = AmbienceMix()
+        mix.day = AmbienceMix.dayVolume
+        return mix
+    }
+
     func testFireIsHeardNearBraziersAndTheBeacon() {
         var s = GameState.newRealm(seed: 3)
         s.hour = 22
@@ -236,6 +277,7 @@ final class SoundTests: XCTestCase {
             XCTAssertEqual(rate, 22050, id.rawValue)
             XCTAssertEqual(bits, 16, id.rawValue)
         }
-        XCTAssertLessThan(total, 3_200_000, "all sounds together stay under about 3 MB")
+        // Stage-3-interface (M12) added the four places' beds (1.1 MB): the budget is 4 MB now.
+        XCTAssertLessThan(total, 4_000_000, "all sounds together stay under 4 MB")
     }
 }
