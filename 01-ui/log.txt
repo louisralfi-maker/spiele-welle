@@ -1,0 +1,21 @@
+Test Case '-[LanternholdUITests.AdsUITests testDoubleTaxes]' passed (46.908 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testInterstitialOnARealDawn]' passed (22.767 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testMerchantsGift]' passed (22.285 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testSecondChance]' passed (34.188 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testWithoutAdsNoOffer]' passed (33.105 seconds).
+Test Case '-[LanternholdUITests.EndingsUITests testTheFinaleEndsTheChapter]' passed (24.239 seconds).
+Test Case '-[LanternholdUITests.EndingsUITests testTheThreeEndings]' passed (114.668 seconds).
+Test Case '-[LanternholdUITests.PeopleUITests testPeople]' passed (86.694 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/SlidesUITests.swift:108: error: -[LanternholdUITests.SlidesUITests testTheNameEntryLeadsIntoThePrologue] : XCTAssertTrue failed - day 1 as before: the throne waits
+Test Case '-[LanternholdUITests.SlidesUITests testTheNameEntryLeadsIntoThePrologue]' failed (75.881 seconds).
+Test Case '-[LanternholdUITests.SlidesUITests testThePrologue]' passed (30.867 seconds).
+Test Suite 'SlidesUITests' failed at 2026-11-15 09:59:45.500.
+Test Case '-[LanternholdUITests.TableUITests testTheLongestAndTheLostReportFit]' passed (33.524 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheMiddleOfTheChapterFillsTheHooks]' passed (51.303 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheRailTellsWhoIsAway]' passed (21.494 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheTableSendsPipAndReadsHisReport]' passed (72.172 seconds).
+Test Case '-[LanternholdUITests.TownLifeUITests testTheTownLivesByItsPeople]' passed (143.173 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-15 10:05:07.180.
+Test Suite 'Selected tests' failed at 2026-11-15 10:05:07.181.
+exit=65
+screenshots: 61
