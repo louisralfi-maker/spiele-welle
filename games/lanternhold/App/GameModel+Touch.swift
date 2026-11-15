@@ -514,15 +514,28 @@ extension GameModel {
     /// The marks in view now: none under a card, during a change of stage or while the reference bot plays; the
     /// errand's thing always among them while it stands clear of the screen's edges.
     private func currentMarks(lordX: Double, framing: TouchFraming) -> [TouchMark] {
-        guard overlay == nil, stageChange == nil, driver?.bot == nil, !isShowcase else { return [] }
+        guard overlay == nil, stageChange == nil, driver?.bot == nil, !isShowcase, lanternMoment == nil else {
+            return []
+        }
         var marked = TouchRules.marked(touch.things, lordX: lordX, viewLeft: framing.viewLeft,
                                        viewRight: framing.viewRight)
+        // Stage-3-interface (stage-2 critic look 2, high 5): by day three at most, buildings' marks 120 px apart.
+        let night = Double(AmbientRamp.sample(at: driver?.state.hour ?? 12, look: args.look).torchStrength)
+        marked = TouchRules.thinned(marked, night: night)
         if let errand = touch.errand, let thing = touch.things.first(where: { $0.id == errand.id }),
            thing.kind.mark != nil,
            TouchRules.clearOfEdges(thing.markX, viewLeft: framing.viewLeft, viewRight: framing.viewRight) {
             marked = TouchRules.withErrand(marked, thing)
         }
-        return TouchMarks.marks(marked, pressed: touch.pressed ?? heldMark(marked))
+        var marks = TouchMarks.marks(marked, pressed: touch.pressed ?? heldMark(marked))
+        // High 2: a slip that names a thing takes its mark's place (the errand's slip; inside, the horn's at the
+        // door).
+        for index in marks.indices {
+            let id = marked[index].id
+            if touch.errand?.id == id && touch.errand?.stage == stage { marks[index].hidden = true }
+            if stage == .hall && hornSlip != nil && marked[index].kind == .door { marks[index].hidden = true }
+        }
+        return marks
     }
 
     /// `-GWPressed <id>` (fix round 1, the pressed frame's picture): that thing's mark held pressed while no finger is
@@ -568,19 +581,14 @@ extension GameModel {
             layer.glows.append(EntityGlow(.hallMote, x: glassX + spot.dx, y: glassY + spot.dy,
                                           color: SIMD4<Float>(warm.x * k, warm.y * k, warm.z * k, 1)))
         }
-        // The ring: a front of light at the growing light's edge, its crest bright and two fainter pixels behind it,
-        // over the walk line only (round lh-s2f1-1: a thin circle through the lane read as a radius gizmo).
-        let radius = LanternRaise.radius(since: since, normal: driver?.balance.lanternRadius ?? 40)
+        // Stage-3-interface (stage-2 critic look 2, high 1): no ring. The wave is the light itself, growing on the
+        // lane and the figures; the lift reads as a short burst of sparks rising from the glass.
         let gold = GamePalette.fireGold
-        let left = framing.viewLeft - 2
-        let right = framing.viewRight + 2
-        for (inset, share) in LanternFlare.band {
-            let k = Float(flare * share)
-            let color = SIMD4<Float>(gold.x * k, gold.y * k, gold.z * k, 1)
-            for pixel in LanternFlare.ring(cx: glassX, cy: glassY, radius: radius - inset, floor: 0)
-            where pixel.x >= left && pixel.x <= right {
-                layer.glows.append(EntityGlow(.hallMote, x: pixel.x, y: pixel.y, color: color))
-            }
+        let t = since ?? 1
+        for spark in LanternFlare.sparks(t: t) {
+            let k = Float(spark.share)
+            layer.glows.append(EntityGlow(.hallMote, x: glassX + spark.dx, y: glassY + spark.dy,
+                                          color: SIMD4<Float>(gold.x * k, gold.y * k, gold.z * k, 1)))
         }
     }
 

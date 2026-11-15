@@ -91,11 +91,18 @@ enum TouchThings {
         // gold the mark led to a card of refusals); the slip names the cheapest recruit's price.
         let barracks = KingTargets.barracksX
         let recruits = RecruitCard.make(s, balance: balance).options
-        list.append(TouchThing(id: "touch-recruit-barracks", kind: .recruit, act: .recruit, x: barracks,
-                               standX: barracks, halfWidth: Double(SpriteID.barracks.size.width) / 2 - 4,
-                               top: Double(SpriteID.barracks.size.height) - 4, rank: TouchRules.rank(.recruit),
-                               price: recruits.map(\.price).min(),
-                               marked: recruits.contains { $0.canRecruit }))
+        var recruit = TouchThing(id: "touch-recruit-barracks", kind: .recruit, act: .recruit, x: barracks,
+                                 standX: barracks, halfWidth: Double(SpriteID.barracks.size.width) / 2 - 4,
+                                 top: Double(SpriteID.barracks.size.height) - 4, rank: TouchRules.rank(.recruit),
+                                 price: recruits.map(\.price).min(),
+                                 marked: recruits.contains { $0.canRecruit })
+        // Stage-3-interface (stage-2 critic look 2, high 3): on Marek's days his cart stands before the barracks; the
+        // barracks' sign hangs at the edge the cart leaves free, and the barracks carry no rim (it read as the cart's).
+        if CourtLayout.props(s, catalog: .standard).contains(where: { $0.sprite == .marekCart }) {
+            recruit.markAt = TouchRules.barracksFreeX
+            recruit.noRim = true
+        }
+        list.append(recruit)
         list.append(TouchThing(id: "touch-door-hall", kind: .door, act: .hallDoor, x: HallRules.doorX,
                                standX: HallRules.doorX, halfWidth: 9, top: worldDoorTop,
                                rank: TouchRules.rank(.door), marked: abs(s.king.x - HallRules.doorX) > doorQuiet))

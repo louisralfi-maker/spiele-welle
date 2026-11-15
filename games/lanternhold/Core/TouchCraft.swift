@@ -24,6 +24,34 @@ extension TouchRules {
     /// stands at most this high over the walk line, so its top stays within 48 px, about a head over the townsfolk's
     /// marks: at the building's door, never at its crown (the tower's mark hung 130 px up on its battlements).
     static let bandTip = 30.0
+    /// Stage-3-interface (stage-2 critic look 2, high 4): a site's sign stands at least this high, over the heads.
+    static let siteTip = 22.0
+    /// By day at most this many marks in view (high 5: four in a row read as a toolbar), and two marks of buildings
+    /// never closer than `buildingSpacing` px (the farther gives way).
+    static let dayMarks = 3
+    static let buildingSpacing = 120.0
+    /// The barracks' free edge beside Marek's cart (the cart covers 1486 ... 1534 of the barracks' 1481 ... 1545).
+    static let barracksFreeX = 1540.0
+
+    /// True for the marks of buildings and works (the spacing rule).
+    static func isBuilding(_ kind: TouchKind) -> Bool {
+        kind == .plot || kind == .wall || kind == .brazier || kind == .recruit || kind == .door
+    }
+
+    /// The marks after the stage-2 critic's second look (high 5): by day at most `dayMarks`, and of two building marks
+    /// closer than `buildingSpacing` the farther from the lord gives way. `marked` comes nearest first.
+    static func thinned(_ marked: [TouchThing], night: Double) -> [TouchThing] {
+        var out: [TouchThing] = []
+        for thing in marked {
+            if isBuilding(thing.kind)
+                && out.contains(where: { isBuilding($0.kind) && abs($0.markX - thing.markX) < buildingSpacing }) {
+                continue
+            }
+            out.append(thing)
+        }
+        if night < 0.5 && out.count > dayMarks { out.removeLast(out.count - dayMarks) }
+        return out
+    }
     /// A mark shows only while its thing's centre lies this far inside the view (the critic's high 3: the door's mark
     /// stood half off the screen's left edge).
     static let edgeMargin = 30.0
@@ -66,7 +94,9 @@ extension TouchRules {
     /// `gold`, unlit; brighter while the finger is down on it), at night three quarters of its value and warmed like
     /// the marks.
     static func rimColor(pressed: Bool, night: Double) -> SIMD4<Float> {
-        let gold = GamePalette.gold * (pressed ? 1.15 : 0.62)
+        // Stage-3-interface (stage-2 critic look 2): by day the rim at 0.5 (at noon it read as a neon outline).
+        let rest = 0.5 + 0.12 * Float(min(1, max(0, night)))
+        let gold = GamePalette.gold * (pressed ? 1.15 : rest)
         let rgb = gold * markTint(night: night)
         return SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1)
     }
@@ -162,7 +192,7 @@ enum TouchRims {
     /// itself, so whatever is drawn in front of it (Marek's cart before the barracks, round lh-s2f1-2's 58) hides it as
     /// it hides any glow.
     static func mark(_ props: inout [Prop], marks: [TouchMark], night: Double) {
-        for mark in marks where TouchRules.keepsToBand(mark.kind) {
+        for mark in marks where TouchRules.keepsToBand(mark.kind) && !mark.noRim {
             let color = TouchRules.rimColor(pressed: mark.pressed, night: night)
             let part = EmissivePart(sprite: .hallMote, dx: 0, dy: 0, color: SIMD3<Float>(color.x, color.y, color.z),
                                     intensity: 1, flickerSeed: nil, fadesByDay: false, isFire: false, rim: true)
@@ -232,6 +262,18 @@ enum LanternFlare {
             if seen.insert(key).inserted { list.append((x, y)) }
         }
         return list
+    }
+
+    /// Stage-3-interface (stage-2 critic look 2, high 1): the sparks of the lift, `t` seconds after it: four pixels
+    /// rise 3 to 5 px from the glass in 0.3 s and fade (offsets in stage px, y up, and shares).
+    static let sparkSeconds = 0.3
+    static func sparks(t: Double) -> [(dx: Double, dy: Double, share: Double)] {
+        guard t >= 0, t < sparkSeconds else { return [] }
+        let k = t / sparkSeconds
+        let seeds: [(dx: Double, rise: Double)] = [(-1, 3), (1, 5), (0, 4), (2, 3)]
+        return seeds.map { seed in
+            (seed.dx + (seed.dx < 0 ? -k : k), 1 + (seed.rise * k).rounded(.down), 1 - k)
+        }
     }
 
     /// The ring's band: its crest at the light's edge and two fainter pixels behind it (inset, share).
