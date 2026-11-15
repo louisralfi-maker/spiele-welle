@@ -131,6 +131,7 @@ final class EndingsTests: XCTestCase {
             keys += Leaning.allCases.map(ending.leaningKey)
         }
         keys += Leaning.allCases.map(\.nameKey)
+        keys.append(ChapterEnding.slainFirstKey)
         for key in keys {
             for language in ["en", "de"] {
                 let text = try XCTUnwrap(SlideText.string(key, language: language), "\(key) in \(language)")
@@ -142,7 +143,10 @@ final class EndingsTests: XCTestCase {
         let longest: [String: String] = ["en": "Varn, Brine, Oxmoor, and Calder", "de": "Varn, Brine, Oxmoor und Calder"]
         for ending in ChapterEnding.allCases {
             for language in ["en", "de"] {
-                var texts = [ending.firstKey, ending.thirdKey].compactMap { SlideText.string($0, language: language) }
+                let slain: [String] = ending == .shutteredLantern ? [ChapterEnding.slainFirstKey] : []
+                var texts = ([ending.firstKey, ending.thirdKey] + slain).compactMap {
+                    SlideText.string($0, language: language)
+                }
                 for leaning in Leaning.allCases {
                     let first = try XCTUnwrap(SlideText.string(ending.leaningKey(leaning), language: language))
                     for second in ["slides.seren.lantern", "slides.houses.some", "slides.houses.all",
@@ -193,6 +197,56 @@ final class EndingsTests: XCTestCase {
         XCTAssertEqual(tale.fallen, 6)
         XCTAssertEqual(tale.lord.name, "Mira")
         XCTAssertEqual(tale.housesList(language: "en"), "Varn and Calder")
+    }
+
+    func testTheShutteredLanternAfterASlainKingHasItsOwnFirstSlide() throws {
+        // late-1: the dawn report just said "The Lightless King is slain!", so the Shuttered Lantern's first slide
+        // never says he did not fall; a King who withdrew keeps the walk back into the fog.
+        var state = GameState.newRealm(seed: 7)
+        var report = ReportCard.sampleFinale()
+        XCTAssertTrue(report.slewTheKing)
+        report.happinessAfter = 45
+        var tale = RealmTale.make(state: state, report: report)
+        XCTAssertEqual(tale.ending, .shutteredLantern, "slain, a middling town")
+        XCTAssertTrue(tale.kingSlain)
+        var first = tale.show(language: "en").slides[0]
+        XCTAssertEqual(first.textKeys, [ChapterEnding.slainFirstKey])
+        XCTAssertEqual(first.picture, .fixed("slideOpen1"), "the fallen King, not the King walking away")
+
+        state.flags = [RealmTale.serenHandedOverFlag]
+        report.happinessAfter = 80
+        tale = RealmTale.make(state: state, report: report)
+        XCTAssertEqual(tale.ending, .shutteredLantern, "slain, Seren handed over")
+        XCTAssertEqual(tale.show().slides[0].textKeys, [ChapterEnding.slainFirstKey])
+
+        state.flags = []
+        report.happinessAfter = 45
+        report.kingSlain = nil
+        tale = RealmTale.make(state: state, report: report)
+        XCTAssertEqual(tale.ending, .shutteredLantern, "held until dawn")
+        XCTAssertFalse(tale.kingSlain)
+        first = tale.show().slides[0]
+        XCTAssertEqual(first.textKeys, ["slides.ending2.1"], "the old line, word for word")
+        XCTAssertEqual(first.picture, .fixed("slideShut1"))
+
+        // Endings 1 and 3 keep their first slide whatever night 20 brought.
+        for (happiness, slain, key, picture) in [(77, true, "slides.ending1.1", "slideOpen1"),
+                                                 (20, true, "slides.ending3.1", "slideGutter1"),
+                                                 (20, false, "slides.ending3.1", "slideGutter1")] {
+            report.happinessAfter = happiness
+            report.kingSlain = slain
+            first = RealmTale.make(state: state, report: report).show().slides[0]
+            XCTAssertEqual(first.textKeys, [key], "\(happiness) \(slain)")
+            XCTAssertEqual(first.picture, .fixed(picture), "\(happiness) \(slain)")
+        }
+
+        // The new words agree with the dawn report and with the Open Lantern's first slide.
+        let english = try XCTUnwrap(SlideText.string(ChapterEnding.slainFirstKey, language: "en"))
+        XCTAssertFalse(english.contains("did not fall"))
+        XCTAssertTrue(english.hasPrefix("The iron crown rolled across the stone"))
+        XCTAssertNotNil(SlideText.string(ChapterEnding.slainFirstKey, language: "de"))
+        XCTAssertFalse(RealmTale.sample(.shutteredLantern, lord: .standard).kingSlain,
+                       "-GWSlides ending2 shows the King who withdrew")
     }
 
     func testTheFinaleLeadsThroughTheEndingToTheEndCardAndTheLongWatch() throws {

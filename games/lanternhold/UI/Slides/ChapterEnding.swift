@@ -52,6 +52,10 @@ enum ChapterEnding: String, CaseIterable, Sendable {
     /// house's banners hanging wet and grey on the shut gate, so the picture follows the words.
     static let shutGatePicture = "slideShut2Gate"
 
+    /// The Shuttered Lantern's first words when the King was slain on night 20 (late-1): the dawn report just said so,
+    /// so the slide never says he did not fall.
+    static let slainFirstKey = "slides.ending2.1.slain"
+
     /// Every picture this ending may show (the Shuttered Lantern's middle slide has two).
     var pictureNames: [String] {
         pictures.flatMap(\.names) + (self == .shutteredLantern ? [ChapterEnding.shutGatePicture] : [])
@@ -136,6 +140,8 @@ struct RealmTale: Sendable, Equatable {
     /// The houses' banners hung in the hall (`tithe_letters`, day 16).
     var bannersHung: Bool
     var serenHandedOver: Bool
+    /// The Lightless King fell on night 20 (the dawn report's banner).
+    var kingSlain: Bool = false
     /// Nights held (the realm's best night; a night saved by a second chance does not count as held).
     var nightsHeld: Int
     /// Petitions heard and judged in this realm.
@@ -155,6 +161,7 @@ struct RealmTale: Sendable, Equatable {
                          houses: House.allCases.filter { set.contains($0.flag) },
                          bannersHung: set.contains(bannersHungFlag),
                          serenHandedOver: set.contains(serenHandedOverFlag),
+                         kingSlain: report.slewTheKing,
                          nightsHeld: max(state.records.bestNight, held),
                          judgments: state.court?.heardCount ?? 0,
                          fallen: state.records.fallenTotal,
@@ -195,6 +202,16 @@ struct RealmTale: Sendable, Equatable {
         return ending.pictures[1]
     }
 
+    /// The first slide follows night 20 (late-1): in the Shuttered Lantern a slain King gets his own words and the
+    /// Open Lantern's picture of the fallen King; a King who withdrew keeps the walk back into the fog.
+    var firstKey: String {
+        ending == .shutteredLantern && kingSlain ? ChapterEnding.slainFirstKey : ending.firstKey
+    }
+
+    var firstPicture: SlidePicture {
+        ending == .shutteredLantern && kingSlain ? ChapterEnding.openLantern.pictures[0] : ending.pictures[0]
+    }
+
     /// The houses' names joined as the player's language joins a list ("Varn and Brine", „Varn und Brine“).
     func housesList(language: String? = nil) -> String {
         let formatter = ListFormatter()
@@ -209,7 +226,7 @@ struct RealmTale: Sendable, Equatable {
         let second = secondLineKey
         let fill = second == "slides.houses.some" ? housesList(language: language) : nil
         return SlideShow(id: ending.rawValue, slides: [
-            Slide(picture: pictures[0], textKey: ending.firstKey, timing: .ending),
+            Slide(picture: firstPicture, textKey: firstKey, timing: .ending),
             Slide(picture: middlePicture, textKey: ending.leaningKey(leaning), timing: .ending, moreKeys: [second],
                   fill: fill),
             Slide(picture: pictures[2], textKey: ending.thirdKey, timing: .ending),
