@@ -1,0 +1,13 @@
+machine: macOS 26.7.2 arm64, 3 cores, 7 GB
+xcode: Xcode 26.6 Build version 17F113 
+game: lanternhold
+tested: 595f02c
+source: claude/lh-world
+02:58:38 build starts (Lanternhold)
+simulator: 98A0BFA3-CEC3-4FD6-9916-5A2149774DBF (iPhone 17 Pro, iOS 26.5)
+03:01:03 simulator up
+03:01:36 project generated
+03:03:03 PASS build
+03:09:49 PASS unit LanternholdTests
+03:23:44 PASS ui LanternholdUITests/WorldSweepUITests LanternholdUITests/Look2UITests
+ALL PASSED
