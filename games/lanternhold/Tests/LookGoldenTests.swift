@@ -40,9 +40,14 @@ final class LookGoldenTests: XCTestCase {
     /// World rebuild, step world-2 (15.11.2026): the bailey's lean-tos are repainted in granite and slate (`barracks`,
     /// `smithy`, `lodge`; tools/keepart.py), sprites both looks draw, so the castle and the court were recorded again
     /// from round lh-w2-2 (on 07c8ea1; before: f85bb5b965601d8 and 7847cdaa53452732). Nothing else of look 1 moved.
+    ///
+    /// World rebuild, step world-3 (15.11.2026): the warden statue's bowl (`wardenStatue`) and the gatehouse's crowns
+    /// and corbel band at the keep's values (`castleFront`; tools/w3art.py) are sprites both looks draw, so the front
+    /// and the castle were recorded again from round lh-w3-1 (on b3fcfa1; before: 9b01af38246bc805 and
+    /// eb723787eed65a73). Nothing else of look 1 moved.
     static let golden: [String: String] = [
-        "front-night": "9b01af38246bc805",
-        "castle-night": "eb723787eed65a73",
+        "front-night": "91e62b85b75e0717",
+        "castle-night": "30f274a12862a8be",
         "court-dusk": "12c426443634b583",
         "square-morning": "c0ba9a8be11ba03e",
         "town-noon": "e0e4b0352af35485",

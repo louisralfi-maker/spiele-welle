@@ -137,6 +137,10 @@ final class WorldThreeTests: XCTestCase {
         let night = frame(world, hour: 23, focus: 2995)
         XCTAssertTrue(night.emissives.contains { SceneLayout.townRowSprites.contains($0.sprite) && $0.kind == .glass },
                       "lights in the back row at night")
+        let dayTint = town.layer(.near).sprites.first { $0.sprite == .townRoofsC }?.tint.x ?? 0
+        let nightTint = night.layer(.near).sprites.first { $0.sprite == .townRoofsC }?.tint.x ?? 1
+        XCTAssertLessThan(nightTint, dayTint * 0.7, "the back row a step darker at night (round lh-w3-1)")
+        XCTAssertEqual(SceneLayout.castleGlassShare(.townRoofsA), SceneLayout.look2TownRowGlass)
         XCTAssertNil(frame(world, hour: 12, focus: 1830).layer(.near).sprites
             .first { SceneLayout.townRowSprites.contains($0.sprite) }, "none inside the castle")
     }

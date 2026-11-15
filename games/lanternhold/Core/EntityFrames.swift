@@ -1196,16 +1196,22 @@ enum EntityFrames {
         // ground walking to a free post when their wall fell.
         // World-3 (REVIEW-look-2.md M3, look 2): at most three drawn per wall walk or tower, 10 px apart (six on a
         // 40 px wall read as a picket fence of heads); the others are implied by their arrows.
+        // A line's wall and its tower keep the 10 px between them too (round lh-w3-1: a tower's archer stood at the
+        // shoulder of the wall's last one).
         var drawnPosts: [Int: [Double]] = [:]
+        var drawnLine: [Int: [Double]] = [:]
         for soldier in s.soldiers where soldier.kind == .archer {
             switch soldier.state {
             case .posted:
                 guard let spot = archerSpot(soldier, layouts: layouts) else { continue }
                 if look == .two {
-                    let shown = drawnPosts[soldier.postPlot, default: []]
+                    let plot = soldier.postPlot
+                    let line = Realm.lines.firstIndex { $0.wall == plot || $0.tower == plot }.map { -1 - $0 } ?? plot
+                    let shown = drawnPosts[plot, default: []]
                     guard shown.count < archersDrawnPerWalk,
-                          shown.allSatisfy({ abs($0 - spot.x) >= archerSpacing }) else { continue }
-                    drawnPosts[soldier.postPlot, default: []].append(spot.x)
+                          drawnLine[line, default: []].allSatisfy({ abs($0 - spot.x) >= archerSpacing }) else { continue }
+                    drawnPosts[plot, default: []].append(spot.x)
+                    drawnLine[line, default: []].append(spot.x)
                 }
                 var faceRight = false
                 var bestX = -Double.infinity

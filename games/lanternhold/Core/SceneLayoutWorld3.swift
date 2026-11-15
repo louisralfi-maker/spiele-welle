@@ -6,13 +6,18 @@ extension SceneLayout {
 
     /// The back row behind the town: tall narrow houses, the church's spire behind the market square, gardens at
     /// their foot. Near-plane x of each sprite's left edge: `0.75 × W − 5.4` stands it centred behind world W when
-    /// the camera is centred there (W 2580, 2780, 2995, 3190, 3430, 3590: between and behind the plots, the spire
-    /// behind the well). Behind the near plane's trees (z −2), at 70 % value.
+    /// the camera is centred there (W 2580, 2780, 2936, 3190, 3430, 3590: between and behind the plots; the church's
+    /// tower in the gap between the poplars at near 2225 and the linden at 2273, round lh-w3-1 hid it behind the
+    /// linden). Behind the near plane's trees (z −2), at 70 % value.
     static let look2TownRows: [(sprite: SpriteID, x: Double, flipped: Bool)] = [
-        (.townRoofsA, 1930, false), (.townRoofsB, 2080, false), (.townRoofsC, 2241, false),
+        (.townRoofsA, 1930, false), (.townRoofsB, 2080, false), (.townRoofsC, 2197, false),
         (.townRoofsD, 2387, false), (.townRoofsA, 2567, true), (.townRoofsB, 2687, true),
     ]
     static let look2TownRowShade: Float = 0.72
+    /// How much darker the back row is at full night (round lh-w3-1: the near plane's night haze lifted its pale
+    /// plaster over the front houses'), and its lit panes' share of the glass's light (they stand back).
+    static let look2TownRowNightDim: Float = 0.45
+    static let look2TownRowGlass: Float = 0.6
 
     /// The back row's lit panes at night (a few per sprite, never every window: `w3art.py masks` lists all of them).
     static func townRowPanes(_ sprite: SpriteID) -> [(Double, Double, Int, Int)] {
@@ -40,9 +45,11 @@ extension SceneLayout {
 
     // MARK: L4: the river end closes (mid plane, on the far shore's waterline)
 
-    /// The far shore's lantern and a skiff moored below it (mid x; on screen only from about camera centre 3560).
-    static let look2RiverSkiffX = 2118.0
-    static let look2RiverLanternX = 2155.0
+    /// The far shore's lantern and a skiff moored below it (mid x; on screen only from about camera centre 3560). The
+    /// river end's view is the clamped camera's: the skiff on the water between the old bridge's two stumps, the
+    /// lantern on the shore right of the second (round lh-w3-1 had the lantern cut by the screen's right edge).
+    static let look2RiverSkiffX = 2064.0
+    static let look2RiverLanternX = 2120.0
 
     // MARK: L3: the valley lane's verge (world plane, after the lane's tiles)
 

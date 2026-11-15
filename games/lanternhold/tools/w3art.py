@@ -195,9 +195,9 @@ def beacon_ruin():
 
 def moon_rim(im):
     """Emissive (white × the moon's colour in the engine): the moon stands high to the east, so each shape's right
-    edge (the first pixel inside its ink outline) takes 0.85, the next one 0.38, a top edge 0.62, and the pale stones
-    of its east half a faint wash (0.18; the plain stone of its east third 0.08), so the shape has inner values at
-    night."""
+    edge (the first pixel inside its ink outline) takes 0.85, the next two 0.45 and 0.26, a top edge 0.62, and the
+    stone of its face a wash that grows from its west third to 0.22 at its east edge, so the shape has inner values at
+    night (round lh-w3-1: with edges alone it read as a dark block with a thin outline)."""
     out = PA.Image(im.w, im.h)
     edge = {None, "ink", "night0"}
 
@@ -213,13 +213,16 @@ def moon_rim(im):
             if not solid(x + 1, y):
                 a = 0.85
             elif not solid(x + 2, y):
-                a = 0.38
+                a = 0.45
+            elif not solid(x + 3, y):
+                a = 0.26
             if not solid(x, y - 1):
                 a = max(a, 0.62 if not solid(x + 1, y - 1) or x > im.w * 0.4 else 0.45)
-            if a == 0 and x > im.w * 0.45 and nm in ("stonePale", "stoneLight", "plaster", "parchment"):
-                a = 0.18
-            elif a == 0 and x > im.w * 0.6 and nm in ("stone", "stoneMid"):
-                a = 0.08
+            stone = nm in ("stonePale", "stoneLight", "stone", "stoneMid", "stoneDark", "plaster", "parchment")
+            if stone and a < 0.2:                   # the face toward the moon: a wash that grows to the east
+                k = (x / float(im.w) - 0.35) / 0.65
+                if k > 0:
+                    a = max(a, 0.06 + 0.16 * k)
             if nm in ("leaf", "leafDark", "meadow", "night1", "nightDeep"):
                 a *= 0.4
             if a > 0:

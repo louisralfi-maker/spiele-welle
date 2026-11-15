@@ -338,7 +338,12 @@ final class Look2FrameTests: XCTestCase {
         XCTAssertLessThanOrEqual(flakes, EntityFrames.maxSootParticles)
         XCTAssertEqual(old.actors.filter { $0.sprite == .shard }.count, 0)
         XCTAssertEqual(still.actors.filter { $0.sprite == .shard }.count, 0, "no soot with Reduce Motion")
-        XCTAssertEqual(new.actors.count - flakes, old.actors.count, "the same bodies in both looks")
+        // World-3 (M3): look 2 draws at most three archers per wall walk, so the bodies compare without the archers.
+        let archersNew = new.actors.filter { $0.sprite == .archer }.count
+        let archersOld = old.actors.filter { $0.sprite == .archer }.count
+        XCTAssertLessThanOrEqual(archersNew, archersOld)
+        XCTAssertEqual(new.actors.count - flakes - archersNew, old.actors.count - archersOld,
+                       "the same bodies in both looks")
         // The Lightless King's aura sits 4 px left in look 2.
         let aura = new.props.filter { $0.sprite == .gloomBubble }.map(\.x).sorted()
         let auraOld = old.props.filter { $0.sprite == .gloomBubble }.map(\.x).sorted()

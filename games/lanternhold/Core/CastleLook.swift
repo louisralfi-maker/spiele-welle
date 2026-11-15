@@ -40,7 +40,9 @@ extension SceneLayout {
     /// line of light, the chapel's lancets, the postern's and the bakehouse's windows, the gatehouse's slits.
     static let castleAmberGlass: Set<SpriteID> = [.keepT1, .keepT2, .keepT3, .keepT2Build, .keepT3Build, .forebuilding,
                                                   .chapelTower, .posternT1, .posternT2, .posternT3, .bakehouse,
-                                                  .castleFront, .castleFront3, .castleFront3Build]
+                                                  .castleFront, .castleFront3, .castleFront3Build,
+                                                  // world-3: the town's back row
+                                                  .townRoofsA, .townRoofsB, .townRoofsC, .townRoofsD]
     /// The lit core moves from the glass's cream (1, 0.76, 0.42 at a gain that clipped it to cream-white) halfway to
     /// the torch's amber: this times the glass colour, so the core stays under the clip and reads amber; the bloom
     /// (`keepPaneHalo`, the window pools) stays.
@@ -53,6 +55,8 @@ extension SceneLayout {
         // world-3 (the critic's medium of world-2 look 3: "the gate slits' pale core"): a step lower, so the bloom
         // stays amber to the slit's middle
         case .castleFront, .castleFront3, .castleFront3Build: return 0.8
+        // world-3 (M4): the town's back row stands back (round lh-w3-1: its panes were cream-white dots)
+        case .townRoofsA, .townRoofsB, .townRoofsC, .townRoofsD: return SceneLayout.look2TownRowGlass
         default: return 1
         }
     }
@@ -136,7 +140,7 @@ extension SceneLayout {
 
     /// 1c: the bakehouse oven's wedge of light (an emitter on the bakehouse at its col 4, from the hatch's sill down
     /// over the dome's foot and 7 rows out on the lane), a quarter of it by day.
-    static let castleBakeWedge = (dx: 4.0, dy: -7.0)
+    static let castleBakeWedge = (dx: 3.0, dy: -10.0)
 }
 
 /// A light pool's cut (world x from `x0` to `x1`, heights `y0` to `y1` over the ground line): the pool ends in a straight

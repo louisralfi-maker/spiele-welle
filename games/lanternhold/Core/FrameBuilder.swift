@@ -721,6 +721,14 @@ enum FrameBuilder {
             tint.y *= dim
             tint.z *= dim
         }
+        if options.look == .two && SceneLayout.townRowSprites.contains(prop.sprite) {
+            // World-3 (M4): the town's back row a step darker as the night comes (the near plane's night haze lifted
+            // its pale plaster over the front houses').
+            let dim = 1 - SceneLayout.look2TownRowNightDim * Look.nightness(ambient)
+            tint.x *= dim
+            tint.y *= dim
+            tint.z *= dim
+        }
         // Scene polish 2: a cast shadow is black at the sun's strength, a mist bank white at the mist's; both are
         // translucent veils that hide no glow.
         var hidesGlow = true
