@@ -241,6 +241,32 @@ final class LanternMomentTests: XCTestCase {
         XCTAssertFalse(frame.actors.contains { $0.sprite == .hudCoin }, "gone 2 s after the last coin")
     }
 
+    /// Rounds lh-s3-4 and lh-s3-5: FirstDay's touch on the lord standing on the site he just ordered opened the site's
+    /// card. The same path through the model, with what the touch found in the message.
+    func testATouchOnTheLordStandingOnHisSiteRaisesTheLantern() throws {
+        let game = model(["GWStage": "world", "GWCameraX": "1150"])
+        run(game, seconds: 0.3)
+        let site = try XCTUnwrap(game.touch.things.first { $0.id == "touch-plot-2" }, "the brazier site offers")
+        game.touchThing(site)
+        run(game, seconds: 20) { game.overlay != nil }
+        XCTAssertEqual(game.overlay, .build(plot: 2), "the card on arrival")
+        game.order(.brazier)
+        XCTAssertNil(game.overlay)
+        run(game, seconds: 1.5)
+        game.setTouchViewSize(proPoints)
+        game.refreshTouchSpots()
+        let lord = try XCTUnwrap(game.touchSpots.first { $0.id == "touch-lord" })
+        let point = CGPoint(x: lord.rect.midX * proPoints.width,
+                            y: (lord.rect.minY + 0.62 * lord.rect.height) * proPoints.height)
+        let place = try XCTUnwrap(game.stagePoint(point, in: proPoints))
+        let picked = TouchRules.pick(x: place.x, lift: place.lift, things: game.touch.things, minimum: place.minimum)
+        let detail = "lord \(game.stageLordX), place x \(place.x) lift \(place.lift), picked \(picked?.id ?? "none") at "
+            + "\(picked?.x ?? -1), body \(game.isOnLordsBody(place)), prefers \(picked.map { game.prefersLord(over: $0, x: place.x) } ?? true)"
+        game.tap(at: point, in: proPoints)
+        XCTAssertNotNil(game.lanternMoment, "the lantern moment: " + detail)
+        XCTAssertNil(game.overlay, "no card: " + detail)
+    }
+
     func testTheLordIsAnElementThatRaisesTheLantern() throws {
         let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "2900"])
         _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)

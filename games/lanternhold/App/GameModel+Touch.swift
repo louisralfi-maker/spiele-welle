@@ -58,6 +58,8 @@ struct TouchState: Sendable {
     var onLord = false
     var downAt = 0.0
     var raised = false
+    /// What the last tap did (the scene's value `tap:`, for the UI tests): `moment`, a thing's id, `ground`, `none`.
+    var lastTap = "none"
 }
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the finger
@@ -157,19 +159,23 @@ extension GameModel {
         // thing's area (a site he stands on), unless the finger is nearer the thing, it is a person, or he waits
         // there for the second touch that pays.
         if isOnLordsBody(place), picked.map({ prefersLord(over: $0, x: place.x) }) ?? true {
+            touch.lastTap = "moment"
             openLanternMoment()
             return
         }
         if let thing = picked {
+            touch.lastTap = thing.id
             touchThing(thing)
             return
         }
         // A tap on the lord raises the lantern moment (stage-3-interface, HUD.md section 2; a hold at night still
         // raises the lantern against the dark).
         if isOnLord(place) {
+            touch.lastTap = "moment"
             openLanternMoment()
             return
         }
+        touch.lastTap = "ground"
         cancelErrand()
         feedback.play(.touched)
         walk(to: groundX(place.x), run: false)

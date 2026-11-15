@@ -1271,7 +1271,7 @@ final class GameModel {
         // The lantern moment (stage-3-interface): the treasury, and what stands on the world (none, the gold or a
         // note above the lord, the strip for a call, the moment).
         let shownCamera = stage == .hall ? hall?.camera?.x : camera?.x
-        text += " gold:\(state.gold) hud:\(hudWord) cam:\(Int((shownCamera ?? 0).rounded()))"
+        text += " gold:\(state.gold) hud:\(hudWord) cam:\(Int((shownCamera ?? 0).rounded())) tap:\(touch.lastTap)"
         // Raise the lantern: its phase at night.
         if DayClock.phase(at: state.hour) != .day {
             text += " lantern:\(GameModel.lanternWord(LanternRaise.phase(since: state.king.lanternSince)))"

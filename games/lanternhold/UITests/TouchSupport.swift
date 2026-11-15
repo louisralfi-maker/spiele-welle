@@ -58,8 +58,17 @@ extension XCTestCase {
         // eases on after he stops (round lh-s3-4: the tap fell on the site he stood on and opened its card).
         waitForStill(app, timeout: 6)
         waitForCamera(app, timeout: 4)
+        let frame = lord.frame
         lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62)).tap()
-        return moment.waitForExistence(timeout: 4)
+        let opened = moment.waitForExistence(timeout: 4)
+        if !opened {
+            let note = XCTAttachment(string: "lord element \(frame); the touch did \(sceneField(app, "tap:") ?? "?"); "
+                + "lx \(sceneField(app, "lx:") ?? "?") cam \(sceneField(app, "cam:") ?? "?")")
+            note.name = "lantern-touch-missed"
+            note.lifetime = .keepAlways
+            add(note)
+        }
+        return opened
     }
 
     /// Waits until the world's camera stands still (`cam:` unchanged for 0.6 s).

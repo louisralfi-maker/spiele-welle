@@ -589,7 +589,7 @@ Touch the ground and he walks there. Drag and he walks as before.
 | the hall's door, from either side (`tapDoor`, the seventh mark; in the world where the facade paints it, `HallDoor`) | walks to it | the stage changes (the world, the great hall) |
 | the tax lectern in the hall (no mark; until the town lane's taxes on foot) | walks to it | the tax card |
 | the ground, or a thing that offers nothing now | walks to that x (in the hall inside the floor, short of the way out) | stands |
-| the lord himself | nothing (stage-3 gives the tap the lantern moment) | |
+| the lord himself | raises the lantern: the lantern moment (stage-3-interface, HUD.md section 2; his body wins over a site he stands on) | any other touch lowers it |
 | the realm strip | runs there, as before | |
 
 - **The action starts when he arrives** (within 6 px of the thing's standing place). If he already stands there it
