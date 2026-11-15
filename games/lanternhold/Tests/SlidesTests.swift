@@ -73,17 +73,17 @@ final class SlidesTests: XCTestCase {
                 }
             }
         }
-        // STORY.md's words, unchanged.
+        // STORY.md's words; panels 2 and 4 as HOUSE.md section 6, rule 8.
         XCTAssertEqual(SlideText.string("slides.prologue.1", language: "en"),
                        "A wall of mountains parts the world.\nIt has one door.")
         XCTAssertEqual(SlideText.string("slides.prologue.4", language: "en"),
-                       "The circlet passed to the last of his blood.\nThe one who lights the lamps.")
+                       "The circlet passed to the last of his blood.\nThe heir of the guardian house.")
         let lady = LordIdentity(name: "Mira", form: .lady)
         let label = try XCTUnwrap(SlideText.string("slides.prologue.4.label", language: "en"))
         XCTAssertEqual(LordText.resolve(label, lord: lady), "Mira, Lady Lantern")
         let german = try XCTUnwrap(SlideText.string("slides.prologue.4", language: "de"))
-        XCTAssertTrue(LordText.resolve(german, lord: lady).contains("die Letzte seines Blutes"))
-        XCTAssertTrue(LordText.resolve(german, lord: .standard).contains("den Letzten seines Blutes"))
+        XCTAssertTrue(LordText.resolve(german, lord: lady).contains("Die Erbin des Hüterhauses"))
+        XCTAssertTrue(LordText.resolve(german, lord: .standard).contains("Der Erbe des Hüterhauses"))
     }
 
     func testTheStageTurnsHoldsAndEnds() {

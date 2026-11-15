@@ -18,20 +18,19 @@ def _strings():
      "off at dusk, one cleft with a small castle in it.",
      "A wall of mountains parts the world.\nIt has one door.",
      "Eine Mauer aus Bergen teilt die Welt.\nSie hat nur eine Tür."),
-    ("slides.prologue.2", "Prologue, slide 2 of 4: from the castle wall, looking west into the Throat; fog with cold "
-     "eyes at its far end. 'it' is the door.",
-     "For a thousand years House Lantern has held it.\nNobody knows what waits on the other side.",
-     "Seit tausend Jahren hält Haus Lantern sie.\nNiemand weiß, was auf der anderen Seite wartet."),
+    ("slides.prologue.2", "Prologue, slide 2 of 4: the founding, long ago: the bare cleft, the ancestor (Saint Taper) "
+     "strikes the first point of gold from the rock; cold eyes in the dark to the west (HOUSE.md section 6, rule 8).",
+     "Saint Taper struck the Light from the bare rock.\nFor a thousand years House Lantern has kept the door.",
+     "Sankt Taper schlug das Licht aus dem nackten Fels.\nSeit tausend Jahren bewacht Haus Lantern die Tür."),
     ("slides.prologue.3", "Prologue, slide 3 of 4: the dark beacon at the Throat's mouth, Lord Aldric riding out "
      "with twelve lights.",
      "This autumn the Great Beacon went dark.\nLord Aldric rode out to light it. He did not come back.",
      "In diesem Herbst erlosch das Große Leuchtfeuer.\nBurgherr Aldric ritt aus, um es zu entzünden. Er kam nicht "
      "zurück."),
-    ("slides.prologue.4", "Prologue, slide 4 of 4: the warm hall, the young lamplighter with the circlet. {a|b}: "
-     "Burgherr | Burgherrin.",
-     "The circlet passed to the last of his blood.\nThe one who lights the lamps.",
-     "Der Stirnreif ging an {den Letzten|die Letzte} seines Blutes.\n{An den, der|An die, die} abends die Lampen "
-     "anzündet."),
+    ("slides.prologue.4", "Prologue, slide 4 of 4: the hall at night, the empty seat with the circlet under the house's "
+     "lantern, the heir small in the door (HOUSE.md section 6, rule 8). {a|b}: Erbe | Erbin.",
+     "The circlet passed to the last of his blood.\nThe heir of the guardian house.",
+     "Der Stirnreif ging an das letzte seines Blutes.\n{Der Erbe|Die Erbin} des Hüterhauses."),
     ("slides.prologue.4.label", "The paper label on the last prologue slide: the name Odile wrote into the family "
      "book. {lord} is the typed name (up to 16 letters); {a|b}: Burgherr | Burgherrin.",
      "{lord}, {Lord|Lady} Lantern",
