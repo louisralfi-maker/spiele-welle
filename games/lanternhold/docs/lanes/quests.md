@@ -754,4 +754,37 @@ there. `tableSlab.png` lies in `Resources/TableArt/` with the others (copied fla
   edge; and one Swift 6 warning (`slipMargin` read in a Sendable guide). Fixed in `2c405d0`, with a UI check that
   Back and the column stay inside the safe area, and a just-sent slip now scrolls into view (shot 45 had left the
   column scrolled mid-slip).
+- `lh-q3f1-2` on `2c405d0`, the gate (build, unit all, ui `TableUITests`): build and unit passed (489 unit tests, 0
+  failed; `tuning-report.txt` and `table-neutral-seed1.txt` byte for byte those of `lh-q3-3`: the screen changes
+  nothing in the simulation); ui failed on the new safe-area check: Back still at the screen's right edge. A reader
+  that ignores the safe area reports no insets, so the first fix had changed nothing.
+- `lh-q3f1-3` on `f98132f` (build, unit all, ui `TableUITests`): build and unit passed again (489, 0 failed); the
+  reader now stands in the safe area, reads the insets and places the full-screen layer back by them: Back at
+  724 to 812 pt, the rail inside, day 2's slip whole (slip 215 pt in a column of 227 pt). One check still failed: it
+  measured the column's accessibility frame, which its scroll view stretches to the screen's edge although the
+  parchment ends at 812 pt (seen in the shot). The check now reads the last hook and Back (`3dfb111`).
+- `lh-q3f1-4` on `3dfb111` (build, ui `TableUITests`): **ALL PASSED** (4 UI tests; no warning from the lane's files).
+  Its shot 45 showed a 2 pt sliver of the slip above a just-sent one; the marker moved to one slip spacing (`d0697e6`).
+- `lh-q3f1-5` on `d0697e6` (build, ui `TableUITests`): **ALL PASSED** (4 UI tests, no warning from the lane's files).
+  With `lh-q3f1-3` (unit all, 489 passed, 0 failed, on `f98132f`; since then only the UI test and one alignment
+  constant of the column changed, nothing a unit test reaches) this is the step's gate, by the director's note of
+  14.11. 19:35. Upright shots of the last round: `ci-out/upright/q3f1-5/*.jpg` in the lane's worktree (git-ignored).
+  In shot 45 the column shows the end of the list: after the third sending the slips below the just-sent one are
+  shorter than the column, so the list stops at its end and the bottom edge of the slip above stays in sight; that is
+  the scroll view's end, not a clipped slip.
+
+### Open, and what waits for the join (after fix round 1)
+
+- **German:** the changed key `table.reserved` has German within its budget; no German screen shot or judged (the
+  director's note of 14.11. 19:35).
+- **Art, judged harshly:** the downs and woods are hand-drawn relief now, but small at 2.33 pt per texel (a down is
+  20 to 50 pt); the Morninglands' east is calmer than the valley; the planks' grain is quiet and may read as faint
+  streaks on a dim screen. The boxwood pieces and the map's lantern are 1.4 times larger with the table and are still
+  the smallest pictures on it.
+- **Parchment:** the cards keep the parchment skin by the director's note of 15.11. 01:09 (night glass comes in one
+  place at stage-3-interface or the join); the oak table, the rail and the plates are not cards.
+- **At the join:** the screen reads its insets from a reader inside the safe area; if `OverlayView` ever lays the
+  table out ignoring the safe area, the reader reports no insets and the column would touch the screen's edge (the UI
+  test's safe-area check would catch it). Everything under "How the join wires the walked world" above, with the new
+  hook states (`.kept`, `.lit`) for the chapel's rail sprite.
 
