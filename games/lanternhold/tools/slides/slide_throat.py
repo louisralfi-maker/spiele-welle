@@ -1,153 +1,115 @@
-"""Slide 2 of the prologue: the founding (round 1 in the title's language, litkit.py). Captions it must fit: "For a
-thousand years House Lantern has held it. / Nobody knows what waits on the other side." and the coming "Saint Taper
-struck the Light from the bare rock. / For a thousand years House Lantern has kept the door." The bare cleft before
-any castle: two huge dark rock faces with volume; low in the gap one small figure, the ancestor, his arm raised to the
-rock; at his hand the first point of gold breaks out of the stone, its light climbs both faces and throws his long
-shadow back east. West the dark recoils, a few eyes at its lip. One point of light in a great dark.
+"""Slide 2 of the prologue (round 2): slide 1's place, closer and long ago. The same cleft in the Weltmauer, bare: no
+castle, no house, no road. Low in it the ancestor, a person in a cloak, one arm raised, the first point of gold above
+the hand; its light lies only on the planes close to it and facing it, in two warm tones; his long shadow runs as one
+wedge over the ground toward the land. East the empty land under stars, not one window: slide 1 is the answer to this
+one. West the dark recoils, a few eyes at its lip. One tiny point of gold in a huge dark.
 """
 import math
 
 import numpy as np
 
-from litkit import (W, H, Pic, AIR, STONE, air, eyes, falloff, lit_mass, pick_air, pick_solid, poly_mask, h,
-                    edge_of)
+from litkit import (W, H, Pic, BAYER, core_glow, falloff, lit_figure, mountain, poly_mask, ellipse_mask, eyes, h)
 
-LIGHT = (137, 104)        # the point of gold at his hand, on the left face
-FLOOR = 138
+SPARK = (149, 101)
+FLOOR = 140
 
 
 def slide2():
     p = Pic("nightBlue")
-    # the sky in the gap: night, a few stars, the light climbing into it
-    gap = np.zeros((H, W), bool)
-    gap[:FLOOR, :] = True
-    for (x, y) in ((150, 10), (170, 26), (158, 44), (176, 8), (164, 62)):
+    # stars: few over the west, more over the empty east
+    for (x, y) in ((24, 14), (46, 40), (262, 10), (280, 30), (300, 16), (312, 44), (272, 58), (292, 70), (246, 26),
+                   (304, 86), (258, 80), (238, 50)):
         p.px(x, y, "moon")
-    air(p, lambda x, y: "nightBlue" if (x, y) not in ((150, 10), (170, 26), (158, 44), (176, 8), (164, 62))
-        else "moon", LIGHT[0] + 4, LIGHT[1] - 6, 46, 100, scale=4.4, g=1.6, mask=gap)
-    # the two rock faces, huge, from the top edge to the floor
-    left = poly_mask([(0, 0), (128, 0), (133, 22), (127, 50), (136, 78), (132, 112), (140, FLOOR), (0, FLOOR)])
-    right = poly_mask([(186, 0), (W, 0), (W, FLOOR), (180, FLOOR), (187, 104), (179, 70), (189, 36), (183, 14)])
-    for m, cold_dir in ((left, (-1, -1)), (right, (-1, -1))):
-        p.mask(m, "nightDeep")
-    # planes: big slabs, each with its own shade; joints between them
-    for (pts, n) in (([(0, 0), (60, 0), (52, FLOOR), (0, FLOOR)], "night0"),
-                     ([(60, 0), (98, 0), (92, 70), (84, FLOOR), (52, FLOOR)], "nightDeep"),
-                     ([(98, 0), (128, 0), (133, 22), (127, 50), (120, 70), (92, 70)], "nightBlue"),
-                     ([(92, 70), (120, 70), (136, 78), (132, 112), (140, FLOOR), (84, FLOOR)], "nightDeep"),
-                     ([(186, 0), (230, 0), (226, 60), (232, FLOOR), (180, FLOOR), (187, 104), (179, 70),
-                       (189, 36), (183, 14)], "nightDeep"),
-                     ([(230, 0), (280, 0), (276, FLOOR), (232, FLOOR), (226, 60)], "night0"),
-                     ([(280, 0), (W, 0), (W, FLOOR), (276, FLOOR)], "nightDeep")):
-        p.mask(poly_mask(pts) & (left | right), n)
-    for (pts) in (((60, 0), (52, FLOOR)), ((98, 0), (92, 70), (84, FLOOR)), ((92, 70), (120, 70)),
-                  ((230, 0), (226, 60), (232, FLOOR)), ((280, 0), (276, FLOOR))):
-        for (ax, ay), (bx, by) in zip(pts, pts[1:]):
-            n = int(max(abs(bx - ax), abs(by - ay)))
-            for k in range(n + 1):
-                p.px(round(ax + (bx - ax) * k / n), round(ay + (by - ay) * k / n), "night0")
-    # the light climbs both faces: the faces turned to it warm in solid steps, far up the rock
-    # the light climbs both faces: each face's band toward the gap is a plane turned to the light, warm in solid
-    # steps by distance, broad near the gap and fading into the rock
-    # planes, not contours: each face is cut into three slabs by straight joints that jog every 18 rows; the slab
-    # at the gap takes the light fully, the next half, the third a little, each in solid steps per block
-    for y in range(FLOOR):
-        blk = y // 18
-        jog = int(round((h(blk, 0, 61) - 0.5) * 6))
-        for x in range(W):
-            if left[y, x]:
-                cuts = (126 + jog, 112 + jog // 2)
-                k = 1.0 if x >= cuts[0] else (0.5 if x >= cuts[1] else (0.18 if x >= 96 else 0))
-            elif right[y, x]:
-                cuts = (190 - jog, 206 - jog // 2)
-                k = 1.0 if x <= cuts[0] else (0.5 if x <= cuts[1] else (0.16 if x <= 232 else 0))
-            else:
-                continue
-            if k <= 0:
-                continue
-            t = falloff(x, y, LIGHT[0], LIGHT[1], 96, 150, 1.15)
-            i = int(t * 6.6 * k)
-            if i > 0:
-                p.px(x, y, (["nightDeep"] + STONE)[min(6, i)])
-        # the joints themselves, dark
-        for q, jx in enumerate((126 + jog, 112 + jog // 2, 190 - jog, 206 - jog // 2)):
-            if (left[y, jx] or right[y, jx]) and h(q, blk, 62) < 0.7:
-                p.px(jx - (1 if jx < 160 else 0), y, "night0")
-    # the slabs' joints catch a thin cold line on their left, so the rock has planes beyond the light
-    for (pts) in (((60, 0), (52, FLOOR)), ((98, 0), (92, 70)), ((230, 0), (226, 60), (232, FLOOR)),
-                  ((280, 0), (276, FLOOR))):
-        for (ax, ay), (bx, by) in zip(pts, pts[1:]):
-            n = int(max(abs(bx - ax), abs(by - ay)))
-            for k in range(n + 1):
-                x, y = round(ax + (bx - ax) * k / n) + 1, round(ay + (by - ay) * k / n)
-                if p.get(x, y) in ("night0", "nightDeep"):
-                    p.px(x, y, "nightBlue")
-    # the cold sky on the faces' upper left edges
-    for m in (left, right):
-        e = edge_of(m) & ~np.roll(m, 1, 0)
-        for y, x in zip(*np.where(e)):
-            if p.get(x, y) in ("night0", "nightDeep", "nightBlue"):
-                p.px(x, y, "nightSlate")
-    # the floor of the gap: bare rock, lit near the light in solid steps; the dark to the west
+    for (x, y) in ((286, 22), (250, 62)):
+        p.px(x, y, "foam")
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            p.px(x + dx, y + dy, "moon")
+    # the empty land east: three rows of low hills toward a dark horizon, no light
+    for (base, amp, col, rim) in ((104, 3, "nightSlate", "night2"), (116, 5, "nightBlue", "nightSlate"),
+                                  (132, 6, "nightDeep", "nightBlue")):
+        for x in range(200, W):
+            t = int(round(base - amp * abs(math.sin(x / 19.0 + base))))
+            for y in range(t, H):
+                p.px(x, y, col)
+            p.px(x, t, rim)
+    # the ground of the cleft and the west
     for y in range(FLOOR, H):
-        for x in range(W):
-            t = falloff((x // 6) * 6 + 3, y, LIGHT[0], LIGHT[1] + 30, 120, 44, 1.1)
-            p.px(x, y, pick_solid(["nightDeep", "nightBlue"] + STONE[:4], t * 6.0))
-        if y == FLOOR:
-            for x in range(W):
-                if p.get(x, y) == "nightDeep":
-                    p.px(x, y, "nightBlue")
-    # the ancestor: small, cloaked, his left arm raised to the rock, the hood back
-    fig = [
-        "...aa....",
-        "..aaaa...",
-        ".aaaaa...",
-        "aaaaaa...",
-        "aaaaaa...",
-        ".aaaaa...",
-        ".aaaaaa..",
-        ".aaaaaa..",
-        ".aaaaaaa.",
-        ".aaaaaaa.",
-        "aaaaaaaaa",
-        "aaaaaaaaa",
-        "aaaaaaaaa",
-        ".aa...aa.",
-        ".aa...aa."]
-    fx, fy = 142, FLOOR - len(fig)
-    fm = np.zeros((H, W), bool)
-    for r, row in enumerate(fig):
-        for q, ch in enumerate(row):
-            if ch == "a":
-                fm[fy + r, fx + q] = True
-    for (x, y) in ((141, fy + 3), (140, fy + 2), (139, fy + 1), (139, fy), (138, fy - 1)):   # the raised arm
-        fm[y, x] = True
-    p.mask(fm, "night0")
-    for y, x in zip(*np.where(edge_of(fm))):
-        d = math.hypot(x - LIGHT[0], y - LIGHT[1])
-        if (x - LIGHT[0]) * (x - fx - 4) <= 0 or y < fy + 5:
-            p.px(x, y, "tileLight" if d < 12 else ("tile" if d < 20 else "plum"))
-    # his long shadow back east, along the lit floor
-    for y in range(FLOOR, FLOOR + 4):
-        x0 = fx + 2 + (y - FLOOR) * 2
-        for x in range(x0, x0 + 84 - (y - FLOOR) * 14):
-            p.px(x, y, "nightDeep" if (y - FLOOR) < 2 else "nightBlue")
-    # the point of gold breaking out of the rock at his hand, with a few sparks
-    for (x, y, c) in ((138, 103, "fireWhite"), (137, 104, "fireWhite"), (136, 104, "fireWhite"), (137, 103, "fireWhite"),
-                      (136, 103, "fireWhite"), (137, 102, "fireGold"), (138, 104, "fireWhite"), (139, 104, "fireGold"),
-                      (138, 104, "fireGold"), (137, 105, "fireGold"), (135, 104, "fireOrange"), (137, 102, "fireOrange"),
-                      (139, 103, "fireOrange"), (136, 105, "fireOrange"), (141, 100, "fireGold"), (133, 99, "fireGold"),
-                      (143, 106, "fireOrange"), (139, 97, "fireOrange")):
+        for x in range(0, 230):
+            p.px(x, y, "nightDeep")
+    # the wall: two masses, wide at the foot, the cleft between, the light only on its lips
+    def poly(pts):
+        def f(y):
+            for (ya, xa), (yb, xb) in zip(pts, pts[1:]):
+                if ya <= y <= yb:
+                    return xa + (xb - xa) * (y - ya) / float(yb - ya)
+            return pts[-1][1]
+        return f
+    # straight segments, jagged: the ridge leaves the frame's top, the foot is wide
+    outer_l = poly([(0, 104), (14, 96), (22, 100), (40, 86), (52, 90), (70, 72), (84, 76), (104, 58), (118, 62),
+                    (FLOOR, 44)])
+    inner_l = poly([(0, 141), (30, 139), (31, 136), (64, 135), (65, 138), (100, 137), (101, 134), (FLOOR, 133)])
+    inner_r = poly([(0, 178), (24, 180), (25, 183), (58, 184), (59, 181), (96, 182), (97, 186), (FLOOR, 188)])
+    outer_r = poly([(0, 216), (16, 224), (24, 220), (44, 234), (56, 230), (76, 246), (90, 242), (112, 258),
+                    (FLOOR, 266)])
+    mountain(p, outer_l, inner_l, inner_r, outer_r,
+             facets_l=[(122, 84)], facets_r=[(200, 232)], light=SPARK, reach=64, lip=16, y1=FLOOR)
+    # a few short cracks across the planes, so the rock has volume and the light is broken by it
+    for (x0, y0, x1, y1) in ((96, 40, 104, 62), (110, 90, 118, 112), (204, 30, 210, 54), (214, 96, 222, 120),
+                             (128, 70, 134, 84), (180, 62, 186, 80), (126, 112, 132, 124), (182, 108, 188, 122)):
+        n = max(abs(x1 - x0), abs(y1 - y0))
+        for k in range(n + 1):
+            x, y = round(x0 + (x1 - x0) * k / n), round(y0 + (y1 - y0) * k / n)
+            if p.get(x, y) not in ("nightBlue", "night2") or True:
+                p.px(x, y, "night0")
+                if p.get(x + 1, y) in ("tileLight", "tile"):
+                    p.px(x + 1, y, "plum")
+    # the floor of the cleft: rock plates, lit near the spark in two steps, each plate one tone
+    for y in range(FLOOR, H):
+        row = (y - FLOOR) // 5
+        for x in range(96, 220):
+            t = falloff(x, y, SPARK[0] + 2, FLOOR + 1, 56, 16, 1.0)
+            # the pool on the rock's own planes: two plates, a crack between them, the edge in ordered dither
+            plate = 0 if (x + (y - FLOOR) * 3) < 160 else 1
+            lvl = t * (1.0 if plate == 0 else 0.8)
+            c = "tile" if lvl > 0.5 else ("plum" if lvl > 0.16 else None)
+            if c is None:
+                if lvl > 0.08 and BAYER[y % 4][x % 4] < 6:
+                    c = "plumDeep"
+                else:
+                    continue
+            if (x + (y - FLOOR) * 3) in (160, 161):
+                c = "night0"
+            p.px(x, y, c)
+    # his long shadow: one wedge from his feet over the ground toward the land
+    fx = 156
+    for y in range(FLOOR, FLOOR + 5):
+        x0 = fx + (y - FLOOR) * 3
+        for x in range(x0, min(W, x0 + 96 - (y - FLOOR) * 16)):
+            if p.get(x, y) in ("tile", "plum", "plumDeep", "nightDeep", "nightBlue"):
+                p.px(x, y, "night0")
+    # the ancestor: a person in a cloak and hood, 30 px, the left arm raised, the spark above the hand
+    cloak = poly_mask([(fx - 5, FLOOR - 23), (fx + 4, FLOOR - 23), (fx + 7, FLOOR - 19), (fx + 8, FLOOR - 8),
+                       (fx + 11, FLOOR), (fx - 9, FLOOR), (fx - 7, FLOOR - 10), (fx - 8, FLOOR - 19)])
+    hood = poly_mask([(fx - 4, FLOOR - 23), (fx - 4, FLOOR - 28), (fx - 1, FLOOR - 31), (fx + 3, FLOOR - 30),
+                      (fx + 5, FLOOR - 26), (fx + 4, FLOOR - 22)])
+    arm = poly_mask([(fx - 8, FLOOR - 20), (fx - 4, FLOOR - 21), (fx - 5, FLOOR - 33), (fx - 9, FLOOR - 33)])
+    hand = ellipse_mask(fx - 7, FLOOR - 35, 1.8, 1.8)
+    lit_figure(p, [(cloak, "night0"), (arm, "night0"), (hood, "night0"), (hand, "crimsonDeep")], SPARK[0], SPARK[1],
+               near=40, depth=3, tones_near=("tileLight", "tile"), tones_far=("tile", "plum"),
+               lit_part={"crimsonDeep": ("dawnRose", "tileLight")})
+    # the point of gold, just above the hand: a small core, the white at its heart
+    core_glow(p, SPARK[0], SPARK[1], r=5, tones=("fireGold", "fireOrange"))
+    for (x, y, c) in ((150, 100, "fireWhite"), (151, 100, "fireWhite"), (150, 99, "fireWhite"), (149, 100, "fireGold"),
+                      (150, 101, "fireGold"), (152, 99, "fireGold"), (146, 95, "fireGold"), (155, 96, "fireOrange"),
+                      (144, 103, "fireOrange")):
         p.px(x, y, c)
-    # the dark to the west, recoiling from the light: its front curved away, eyes at its lip
+    # the dark west, recoiling from the cleft: its front pulled back, a few eyes at its lip
     dk = np.zeros((H, W), bool)
-    for y in range(80, H):
-        f = 66 + 22 * math.sin(max(0.0, (y - 80)) / 58.0 * math.pi * 0.5) - 10 * math.cos((y - 80) / 20.0)
-        f += 3 * math.sin(y / 3.3)
-        for x in range(0, int(f)):
-            dk[y, x] = True
+    for y in range(70, H):
+        f = 40 - 14 * math.cos((y - 70) / 90.0 * math.pi) + 3 * math.sin(y / 3.1) + 2 * math.sin(y / 7.0)
+        dk[y, :max(0, int(f))] = True
     p.mask(dk, "night0")
-    eyes(p, [(62, 118, 2, 1, 3, 0, 1, "wraithWhite"), (74, 140, 1, 1, 3, 1, 1, "wraithGlow"),
-             (40, 104, 1, 1, 2, 0, 1, "wraithDim"), (58, 150, 2, 1, 2, 0, 1, "wraithGlow"),
-             (24, 130, 1, 1, 3, -1, 1, "wraithDim")], inside=dk)
+    eyes(p, [(40, 112, 2, 1, 3, 0, 1, "wraithWhite"), (46, 132, 1, 1, 3, 1, 1, "wraithGlow"),
+             (18, 96, 1, 1, 2, 0, 1, "wraithDim"), (30, 148, 2, 1, 2, 0, 1, "wraithGlow"),
+             (10, 124, 1, 1, 3, -1, 1, "wraithDim")], inside=dk)
     return p

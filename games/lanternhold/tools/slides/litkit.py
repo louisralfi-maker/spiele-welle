@@ -238,3 +238,43 @@ def lit_figure(pic, parts, lx, ly, near=70, depth=3, tones_near=("tileLight", "t
                 pic.px(x, y, tones[0] if facing <= 1 else tones[1])
             else:
                 pic.px(x, y, base)
+
+
+def mountain(pic, outer_l, inner_l, inner_r, outer_r, facets_l, facets_r, light=None, reach=70, lip=9,
+             warm=("tileLight", "tile"), y0=0, y1=H):
+    """The Weltmauer with one cleft (round 2): two masses wide at the foot, their jagged outer edges leaving the top
+    of the frame; leaning facets in the night's stone tones (a facet's left edge catches the cold sky); a cold rim on
+    the planes that face home (the right mass's outer slope); warm light only on the cleft's two lips, in two tones,
+    broken by the facets' edges. outer_l .. outer_r: functions y -> x. facets_*: [(x at top, x at bottom), ...]."""
+    tones = ("nightBlue", "nightDeep", "nightBlue", "night0", "nightBlue", "nightDeep")
+    m = np.zeros((H, W), bool)
+    for y in range(y0, y1):
+        a, b, c, d = int(outer_l(y)), int(inner_l(y)), int(inner_r(y)), int(outer_r(y))
+        for x in range(max(0, a), min(W, b)):
+            k = sum(1 for (xt, xb) in facets_l if x >= xt + (xb - xt) * y / float(H))
+            edge = any(x == int(xt + (xb - xt) * y / float(H)) for (xt, xb) in facets_l)
+            pic.px(x, y, "nightSlate" if edge else tones[k % len(tones)])
+            m[y, x] = True
+        for x in range(max(0, c), min(W, d + 1)):
+            k = sum(1 for (xt, xb) in facets_r if x >= xt + (xb - xt) * y / float(H))
+            edge = any(x == int(xt + (xb - xt) * y / float(H)) for (xt, xb) in facets_r)
+            pic.px(x, y, "nightSlate" if edge else tones[(k + 1) % len(tones)])
+            m[y, x] = True
+        for x in range(max(0, d - 2), min(W, d + 1)):
+            pic.px(x, y, "night2")                     # the cold rim on the slope that faces home
+        for x in range(max(0, a), min(W, a + 2)):
+            pic.px(x, y, "nightBlue")
+        if light is not None:
+            for x in list(range(max(0, b - lip), b)) + list(range(c, min(W, c + lip))):
+                dist = math.hypot(x - light[0], y - light[1])
+                if dist >= reach:
+                    continue
+                onedge = pic.get(x, y) == "nightSlate"
+                inner = (b - 1 - x) if x < b else (x - c)
+                if inner > (lip - 1) * (1.0 - dist / reach) + 1:
+                    continue
+                if onedge:
+                    pic.px(x, y, "night0")             # a facet's edge breaks the light: a crack
+                    continue
+                pic.px(x, y, warm[0] if (dist < reach * 0.5 and inner < lip * 0.5) else warm[1])
+    return m
