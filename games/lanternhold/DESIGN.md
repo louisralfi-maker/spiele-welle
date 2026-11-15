@@ -3519,6 +3519,19 @@ Art: `tools/keepart.py` (ART-look2.md section 23); layout: `Core/SceneLayoutCast
   one shot per stage (`-GWCastle 1, 1b, 2, 2b, 3, 3b`) at the three set pieces at dusk (`t-<stage>-<centre>`).
 - **The art tool:** `tools/scenemock/castle_preview.py` composites the castle's pieces at the real framing in about a
   second (flat albedo, by day or a navy night with lit glass), for the art between runner rounds.
+- **Rounds** (the director's notes of 18:46 and 19:35: `build unit "ui …"`, English only): lh-w2-1 on 0b73d5f (the
+  sweep) ALL PASSED; lh-w2-2 on 07c8ea1 failed one unit check (look 1's castle and court hashes after the lean-tos'
+  repaint, recorded again; tier 3's turrets over y 150); lh-w2-3 on 595f02c (the sweep and `Look2UITests`) ALL
+  PASSED; lh-w2-4 on ffa4c99, the gate (build, unit, ui WorldSweepUITests and Look2UITests): ALL PASSED.
+- **The atlas after its second page:** about 1945 rows of the 4096 hold this lane's sprites (a shelf-packer estimate
+  from `SpriteID`'s sizes); with the stage lane's hall stage about 2090, so the join needs the second page and keeps
+  about 2000 rows free.
+- **Open after world-2:** world-1's highs 1 to 5 and 7 (the water's dotted strands, the snow ledges, the crack under a
+  lit ledge in the Throat, the gate rock's lit diagonal and the towers' straight tops, the soot specks by day, the
+  steps' climb); the cleft wall's descending end lies behind the first house rather than behind the postern tower
+  (no seam: the valley set begins beyond it); the court, its benches, its lectern and Marek's cart stand in front of
+  the forebuilding until the stage lane moves them into the hall stage; the camera's set pieces (2.7) are a later
+  step.
 <!-- END world lane: World rebuild (14.11.2026) -->
 
 ## Risks
