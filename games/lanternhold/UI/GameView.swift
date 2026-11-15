@@ -74,6 +74,8 @@ struct GameView: View {
             model.setActive(phase == .active)
             // Build 2 review, app-ui-1: a touch the system cancels never ends.
             if phase != .active { model.resetTouch() }
+            // Build 2 review, app-ui-6: no idle timer while the scene is active, the system's own rule when it is not.
+            UIApplication.shared.isIdleTimerDisabled = phase == .active
             if phase == .background {
                 model.saveNow()
                 model.pauseForBackground()
