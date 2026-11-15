@@ -1,0 +1,24 @@
+Application, 0x10632bdf0, pid: 71969, label: 'Lanternhold' <App element pid: 71969>
+  Window (Main), 0x106168090, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 71969, elementOrHash.elementID: 4383086208.3>
+    Other, 0x106169b70, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 71969, elementOrHash.elementID: 4383149856.4>
+      Other, 0x106168af0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 71969, elementOrHash.elementID: 4383151488.5>
+        Other, 0x106169750, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 71969, elementOrHash.elementID: 4384667312.6>
+          Other, 0x106169330, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 71969, elementOrHash.elementID: 4384795408.7>
+            Other, 0x1061686d0, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-root' <AX element pid: 71969, elementOrHash.elementID: 4384794304.8>
+              Other, 0x10617b4f0, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:2470 ready d... <AX element pid: 71969, elementOrHash.elementID: 4380133472.9>
+              Other, 0x106421490, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 71969, elementOrHash.elementID: 4384780384.10>
+              Other, 0x1064206f0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 71969, elementOrHash.elementID: 4384680192.11>
+              Other, 0x106422c90, {{0.0, 0.0}, {1.0, 1.0}}, identifier: 'town-status', value: day:3 owing: paid:... <AX element pid: 71969, elementOrHash.elementID: 4384777728.12>
+              Other, 0x10642fef0, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 71969, elementOrHash.elementID: 4380212064.13>
+              Button, 0x1064210f0, {{287.0, 6.0}, {300.0, 50.0}}, identifier: 'realm-strip', label: 'Map of the valley', value: Petitioners waitin... <AX element pid: 71969, elementOrHash.elementID: 4384786304.67>
+                Image, 0x106423cd0, {{287.0, 6.0}, {300.0, 50.0}} <AX element pid: 71969, elementOrHash.elementID: 4384828416.68>
+              Other, 0x106422240, {{379.7, 252.0}, {260.7, 110.0}} <AX element pid: 71969, elementOrHash.elementID: 4384792768.15>
+                Button, 0x106424040, {{379.7, 290.0}, {44.0, 60.0}}, identifier: 'touch-lord', label: 'Robin, day 3, 91 gold, the town is glad, 16 people' <AX element pid: 71969, elementOrHash.elementID: 4383147824.59>
+                Button, 0x106421b50, {{396.0, 252.0}, {44.0, 110.0}}, identifier: 'touch-talk-tamsin', label: 'Talk to Tamsin' <AX element pid: 71969, elementOrHash.elementID: 4384672096.60>
+                Button, 0x10643aee0, {{588.3, 260.0}, {52.0, 102.0}}, identifier: 'touch-collector', label: 'Take on Saul Tolliver' <AX element pid: 71969, elementOrHash.elementID: 4384822576.61>
+              Button, 0x1064292a0, {{269.0, 186.3}, {300.0, 95.7}}, identifier: 'talk-bubble', label: 'Tamsin, Pip stole a whole pie yesterday and blamed the Gloom. The Gloom has crumbs in its beard, apparently.' <AX element pid: 71969, elementOrHash.elementID: 4380257680.69>
+                Image, 0x106434ed0, {{269.0, 186.3}, {300.0, 95.7}} <AX element pid: 71969, elementOrHash.elementID: 4380272560.71>
+                StaticText, 0x10643a640, {{281.0, 194.3}, {44.7, 16.7}}, label: 'Tamsin' <AX element pid: 71969, elementOrHash.elementID: 4380273664.72>
+                StaticText, 0x10643b2a0, {{281.0, 213.0}, {235.7, 61.0}}, label: 'Pip stole a whole pie yesterday and blamed the Gloom. The Gloom has crumbs in its beard, apparently.' <AX element pid: 71969, elementOrHash.elementID: 4380274096.73>
+              Image, 0x1064395c0, {{412.0, 282.0}, {14.0, 8.0}} <AX element pid: 71969, elementOrHash.elementID: 4380260192.70>
+              Other, 0x10643aa60, {{62.0, 0.0}, {750.0, 382.0}} <AX element pid: 71969, elementOrHash.elementID: 4384793872.16>

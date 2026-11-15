@@ -1,0 +1,13 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:129: error: -[LanternholdUITests.AudienceUITests testAudience] : failed - no realm strip
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/AudienceUITests.swift:100: error: -[LanternholdUITests.AudienceUITests testAudience] : XCTAssertTrue failed - the king stepped into the chapel
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' failed (173.374 seconds).
+Test Suite 'AudienceUITests' failed at 2026-11-15 15:38:33.937.
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (188.652 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (59.281 seconds).
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (231.390 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (100.368 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (184.149 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-15 15:51:17.803.
+Test Suite 'Selected tests' failed at 2026-11-15 15:51:17.803.
+exit=65
+screenshots: 73
