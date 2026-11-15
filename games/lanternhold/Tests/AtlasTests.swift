@@ -8,7 +8,7 @@ final class AtlasTests: XCTestCase {
     func testEverySpriteGetsCellsOfItsSize() {
         let layout = AtlasLayout.shared
         XCTAssertLessThanOrEqual(layout.width, AtlasLayout.maxSide)
-        XCTAssertLessThanOrEqual(layout.height, AtlasLayout.maxSide)
+        XCTAssertLessThanOrEqual(layout.height, AtlasLayout.maxHeight)
         XCTAssertEqual(layout.image.width, layout.width)
         XCTAssertEqual(layout.image.height, layout.height)
         for sprite in SpriteID.allCases {
@@ -81,8 +81,9 @@ final class AtlasTests: XCTestCase {
             XCTAssertEqual(layout.sources[sprite], .png, "\(sprite) is drawn from its painting")
             XCTAssertNotNil(layout.cells[sprite], "\(sprite) has a cell")
         }
-        XCTAssertLessThanOrEqual(layout.width * layout.height, AtlasLayout.maxSide * AtlasLayout.maxSide, "one page")
-        XCTAssertLessThanOrEqual(layout.height, AtlasLayout.maxSide)
+        XCTAssertLessThanOrEqual(layout.width * layout.height, AtlasLayout.maxSide * AtlasLayout.maxHeight,
+                                 "two pages (world-2)")
+        XCTAssertLessThanOrEqual(layout.height, AtlasLayout.maxHeight)
     }
 
     func testLook2ArtIsBundled() {
@@ -98,7 +99,7 @@ final class AtlasTests: XCTestCase {
         XCTAssertEqual(layout.sources[.darknessBank], .png)
         XCTAssertEqual(layout.sources[.darknessEdge], .png)
         XCTAssertLessThanOrEqual(layout.width, AtlasLayout.maxSide)
-        XCTAssertLessThanOrEqual(layout.height, AtlasLayout.maxSide)
+        XCTAssertLessThanOrEqual(layout.height, AtlasLayout.maxHeight)
     }
 
     func testPlaceholdersAreDeterministic() {
