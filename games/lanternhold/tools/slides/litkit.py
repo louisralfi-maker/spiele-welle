@@ -329,3 +329,31 @@ def light_grid(pic, parts, lx, ly, depth=3):
                     facing = k
                     break
             pic.px(x, y, (l1 if facing == 1 else l2) if facing else base)
+
+
+def mist_band(pic, x0, x1, top, bottom, under=("nightBlue", "nightDeep", "night0", "nightSlate")):
+    """A low band of mist at the mountain's foot (round 5): a paler navy, its upper edge in ordered dither."""
+    for y in range(top, bottom):
+        for x in range(x0, x1):
+            if pic.get(x, y) not in under:
+                continue
+            edge = y - top
+            if edge < 4 and BAYER[y % 4][x % 4] >= 4 * (edge + 1):
+                continue
+            pic.px(x, y, "nightSlate" if pic.get(x, y) in ("nightBlue", "nightDeep", "night0") else "night2")
+
+
+def far_step(pic, mask, top_y, blend=8):
+    """One tone step between far and near rock: above top_y the rock is one step lighter (the air between),
+    crossing in ordered dither over `blend` rows."""
+    up = {"night0": "nightDeep", "nightDeep": "nightBlue", "nightBlue": "nightSlate"}
+    for y in range(0, top_y + blend):
+        for x in range(W):
+            if not mask[y, x]:
+                continue
+            c = pic.get(x, y)
+            if c not in up:
+                continue
+            if y >= top_y and BAYER[y % 4][x % 4] < int(16 * (y - top_y + 1) / (blend + 1)):
+                continue
+            pic.px(x, y, up[c])

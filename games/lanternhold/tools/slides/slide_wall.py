@@ -10,7 +10,7 @@ import math
 import numpy as np
 
 from litkit import (W, H, Pic, BAYER, core_glow, eyes, falloff, lit_figure, mountain, pick_air, poly_mask,
-                    ellipse_mask, h)
+                    ellipse_mask, h, mist_band, far_step)
 
 BEACON = (161, 77)
 HORIZON = 108
@@ -112,12 +112,14 @@ def slide1():
     inner_r = poly([(0, 174), (36, 175), (37, 177), (86, 178), (87, 180), (H, 183)])
     outer_r = poly([(0, 198), (14, 206), (24, 203), (42, 214), (54, 211), (74, 224), (88, 221), (110, 234),
                     (H, 248)])
-    mountain(p, outer_l, inner_l, inner_r, outer_r, facets_l=[(130, 100)], facets_r=[(186, 214)],
+    wm = mountain(p, outer_l, inner_l, inner_r, outer_r, facets_l=[(130, 100)], facets_r=[(186, 214)],
              light=BEACON, reach=46, lip=7, warm=("tileLight", "tile", "crimsonDeep"))
     for (x0, y0, x1, y1) in ((112, 30, 118, 50), (124, 90, 130, 106), (196, 40, 202, 60), (204, 100, 210, 118)):
         n = max(abs(x1 - x0), abs(y1 - y0))
         for k in range(n + 1):
             p.px(round(x0 + (x1 - x0) * k / n), round(y0 + (y1 - y0) * k / n), "night0")
+    # depth: the far rock a step lighter above, a low band of mist at the mountain's foot
+    mist_band(p, 0, W, 141, FOOT + 1, under=("nightBlue", "nightDeep"))
     # the cleft's sky behind the castle: dark, a little lighter at the foot (the east beyond)
     for y in range(0, FOOT):
         a, b = int(inner_l(y)), int(inner_r(y))
@@ -134,14 +136,14 @@ def slide1():
         elif lit and t > 0.62:
             c = "tile"
         elif lit and t > 0.2:
-            c = "nightSlate"
+            c = "night2"
         elif lit:
-            c = "nightBlue"
+            c = "nightSlate"
         else:
-            c = "nightDeep" if t < 0.5 else "nightBlue"
+            c = "nightBlue" if t < 0.5 else "nightSlate"
         if joint:
-            c = {"tileLight": "tile", "tile": "crimsonDeep", "nightSlate": "nightBlue", "nightBlue": "nightDeep",
-                 "nightDeep": "night0"}[c]
+            c = {"tileLight": "tile", "tile": "crimsonDeep", "night2": "nightSlate", "nightSlate": "nightBlue",
+                 "nightBlue": "nightDeep", "nightDeep": "night0"}[c]
         return c
 
     def body(x0, x1, y0, y1, lit_side, seed, k_lit=1.0, k_dark=0.32):
