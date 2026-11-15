@@ -3450,7 +3450,8 @@ Art: `tools/keepart.py` (ART-look2.md section 23); layout: `Core/SceneLayoutCast
   shadow on the main block), twin round-headed windows, a hip roof of teal slate behind the parapet and a chimney.
   Tier 1: three storeys, the roof's ridge at y 120, two lit windows; tier 2: a storey more (four windows, three lit), the
   house banner on the ridge (to y 156); tier 3: round bartizans with conical caps on the corner towers and two smaller
-  ones behind (four turrets), the great banner to y 170. Every top but the banner stays at or under y 150. The building
+  ones behind (four turrets, standing on the machicolations so their finials stay under y 150), the realm's banners in
+  the outer bays from tier 2, the great banner to y 170. Every top but the banner stays at or under y 150. The building
   states: tier 2's storey half laid in ragged courses under scaffolding with a crane, the roof off; tier 3's cones as
   timber frames in scaffolds. Its foot stands behind the curtain wall and the forebuilding; a bank of the evening mist
   (`castleMist`, near picture) lies over it at dusk and night. The chimney smokes (`FrameBuilder.castleSmoke`), none
@@ -3480,7 +3481,8 @@ Art: `tools/keepart.py` (ART-look2.md section 23); layout: `Core/SceneLayoutCast
   (`CastleRooms.doorOpen`; `CastleRooms.scene` swaps the frame): the open frame shows the hall's warm light
   (`hallDoorGlow`, dim by day, full at dusk and night, a pillar and a banner dark against it), and at dusk and night a
   warm wedge of light lies on the cobbles before it (`hallDoorWedge`, under the ground line, eight smooth steps of
-  alpha: light, not art) with a lantern-warm pool; shut, a thin line of light under the door at night (a mask on the sill's gap). The stage lane makes
+  alpha: light, not art) with a lantern-warm pool; the hall's light is gold to ember, never white, so the lord in the
+  doorway stays a figure against it (round lh-w2-2 washed him out); shut, a thin line of light under the door at night (a mask on the sill's gap). The stage lane makes
   1830 the `touch-door-hall` target and the hall stage's entrance; it can drive the frame through `CastleRooms`.
 - **The transitions (2.8):** the gate passage's shade (`gateArchFg`, 64x120, frame 0 the gatehouse's gateway, frame 1
   the postern's; foreground, moving with the world plane) frames the lord while he passes through either gate (1337 to
@@ -3501,6 +3503,9 @@ Art: `tools/keepart.py` (ART-look2.md section 23); layout: `Core/SceneLayoutCast
   moon 34 rows under the screen's top on the bailey wedge's floor; the far plane's seam at camera 2400 was the
   Weltmauer's own last column (its tail ran to the canvas's edge): the tail comes down as a broken ridge before the
   canvas ends (`cleftart.py wmtail`, last in the recipe).
+- **The cleft at night (world-1's high 6):** the cleft's granite (`throatStepC`, `cleftWallA` to `C`) takes its
+  albedo at `1 − 0.4 × nightness` (`SceneLayout.look2CleftNightDim`, `FrameBuilder.addProp`), so the moonlit wall no
+  longer outshines the castle; by day it is as it was.
 - **The atlas:** a second page (two pages of 2048 rows stacked in one texture 2048 wide; `AtlasLayout.pages`, the
   director's note of 19:35).
 - **Tests:** `WorldRebuild2Tests` (the keep over the hall door, its corner from the front gate, gone from the back

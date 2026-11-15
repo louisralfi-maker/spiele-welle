@@ -1906,14 +1906,30 @@ silhouette, not only the details: a low broad block with a roof (tier 1), a stor
   that ate the merlons' lit caps, a flat curtain buttress, noise-ivy, the forebuilding's flat crenellated box (now a
   gabled porch), the dotted portal ring (now voussoirs).
 
-### 23.4 World-1's open blockers
+### 23.4 After the runner's rounds (lh-w2-1, lh-w2-2)
+
+- The gate passage's arch was first a black frame 180 rows high in the foreground: on the phone it read as two black
+  bars and a lintel across the gatehouse. It is a shade now, inside the opening only (night0 in four alpha steps along
+  the jambs and the arch, a soft shadow on the floor), one frame per passage.
+- The door's wedge of light was an ordered dither: a dot matrix on the cobbles. It is eight smooth alpha steps now
+  (light, not art). The hall's light in the open door was white at its heart and its bloom washed out the lord who
+  stands in the doorway; it is gold to ember now.
+- Two full rows of lit twin windows read like an office block: three of the four upper ones are lit.
+- Tier 3's bartizans reached y 164 (under the realm strip): they stand on the machicolations now, their finials at 150.
+- The keep's glass glows at 0.72 of the world's (it stands back); the realm's banners hang in its outer bays from
+  tier 2 (the house shows its colours once it can afford the cloth).
+- Lit blocks down to about 1.5 % of a wall (they read as white patches at phone size).
+
+### 23.5 World-1's open blockers
 
 The cleft's two wedges of sky are cut anew (`cleftart.py wedge_profile`): at most 27 px either side of their middle,
 40 and 50 rows deep, each edge a chain of runs 2 to 6 px long that fall in their own curves (steep faces, shoulders,
 ledges) to a broken floor, and no lit rim on their edges (`slit_rim`, `rockfield.paint(rim_at:)`). The warm graze's
-band is retired; the Weltmauer's second slot is filled (`noslot2`, run last on the wall).
+band is retired; the Weltmauer's second slot is filled (`noslot2`) and its east tail, which ran to the canvas's last
+column and stood there as a vertical seam over the valley's haze, comes down as a broken ridge before the canvas ends
+(`wmtail`, run last on the wall). The cleft's granite takes a darker albedo as the night comes (DESIGN.md).
 
-### 23.5 Rebuild
+### 23.6 Rebuild
 
 `bash games/lanternhold/tools/build-art-world.sh keepT1 … laneScreeCobble` (the list `CASTLE`), and
 `build-art-buildings.sh barracks smithy masterSmithy lodge bigLodge`. A quick composite at the real framing:
