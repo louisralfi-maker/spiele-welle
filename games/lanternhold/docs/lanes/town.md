@@ -746,7 +746,8 @@ strings, T1 to T8, no new saved state).
    palm, so nothing jumps. The 24 x 24 door box is unchanged.
 2. **The coins land in an open palm** (high 2). `kingKnock`/`ladyKnock` frame 2 holds the far hand out low, palm up at
    belt height (row 20), under and before the lantern; `TownShow.lordHand` is (5, 12), 10 px under the glass
-   (`EntityFrames.kingGlass` dy 22.5); `arcHeight` 12 to 8, so the arc tops out at 20, under the glass too. Frame 3
+   (`EntityFrames.kingGlass` dy 22.5); `arcHeight` 12 to 5 (8 in round lh-t2f2-1, whose toss shot still showed the
+   arc's top touching the glass's glow), so the arc tops out at 17, under the glass too. Frame 3
    (`KnockFrame.give`) is the palm a pixel down and back, shown `catchFor` 0.08 s as each coin lands. The palm is held
    out for the knock and also for every toss while the lord stands within `receiveNear` (30 px) of the household
    (`TownShow.receivePose`; the touch stops him at 18 px), facing it; walking past, the coins land at his belt before
@@ -794,4 +795,25 @@ strings, T1 to T8, no new saved state).
 - **FirstDayUITests** now starts at the throne (no `-GWCameraX 1150`): the first walk out of the hall takes the toss
   (shot `43-first-toss`), the purse reads 60, the brazier leaves 48, and the first dawn's report shows the 16. A lane
   that changes the start or the day-1 purse reads those three numbers.
+
+### Rounds (by the director's notes of 18:46 and 19:35: one gate round, `build unit "ui TownUITests FirstDayUITests"`)
+
+- **lh-t2f2-1** (f982cc8): **ALL PASSED** at the first try (build, all unit tests, 7 UI tests). Its toss shot showed
+  the arc's top touching the lantern's glow at `arcHeight` 8, so one value changed.
+- **lh-t2f2-2** (66ac711, `arcHeight` 5): **ALL PASSED**. 489 unit tests, 0 failed; 7 UI tests (TownUITests 5,
+  FirstDayUITests 2) with the new shots `43-first-toss` and `54a-first-morning-crossing`, the purse 44, 60, 48 and the
+  first dawn's 16. `tuning-report.txt` and `town-neutrality-seed1.txt` are byte for byte those of lh-t3f1-1 (cmp):
+  T1 to T8 and the neutral seed did not move.
+- Upright shots: scratchpad `town/ci-out/upright-town-2f2/`; the director's proof sheet
+  `ci-out/director/town/fix2-sheet.jpg` (the bow, the toss, the collector, the first morning, 3x).
+
+### Open, and what waits
+
+- **The collector's stand-in does not read at phone size:** the coins visibly drop into the strongbox, but the
+  townsman's body (`citizenB`, green and tan) is lost against the half-timbered wall beside the door. people-2's
+  collector with his handcart replaces it at the join; the stand-in must not ship as the collector (critic's note).
+- **The bow is seen but small:** the household bows beside the lord now, no longer behind him; his pole and lantern
+  still touch the doorway's edge. A wider step back (`knockBackStand` 15) is one value if the critic asks for more.
+- **The first morning's household crosses the hall from x hall + 60:** a first-time player sees her walk only if the
+  lord stands still for the first seconds; her own door is not on screen (by rule: she must be ahead of him).
 
