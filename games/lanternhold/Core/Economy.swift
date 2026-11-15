@@ -49,7 +49,7 @@ enum Economy {
 
     /// The day's taxes, `round(taxpayers × taxPerPayer × mood) + fields + market bonus` at the given happiness: the old
     /// Normal rate, the only one since the taxes went on foot (more is a knock at a door, less a house left alone).
-    /// Town-3 (`TownGrowth`): the town's standing adds 3 % a point to the tax part, a farmstead pays more than a field,
+    /// Town-3 (`TownGrowth`): the town's standing adds 1.5 % a point to the tax part, a farmstead pays more than a field,
     /// the market hall takes a larger share; a town that never grew computes the old sum bit for bit.
     static func taxes(_ state: GameState, happiness: Int, balance: Balance) -> TaxBreakdown {
         let payers = state.taxpayers

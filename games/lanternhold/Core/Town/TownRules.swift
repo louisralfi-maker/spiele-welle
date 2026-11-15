@@ -58,8 +58,9 @@ struct TownRules: Sendable, Equatable {
     var innHappiness = 2
     /// A farmstead, a field's second tier (a barn, a haystack, an ox): this much gold a day instead of `fieldGold`.
     var farmsteadGold = 8
-    /// The town's standing: every point adds this share to the tax part ...
-    var standingTaxShare = 0.03
+    /// The town's standing: every point adds this share to the tax part (TOWN.md's starting value was 3 %; set again
+    /// for T12, round lh-t3-1: at 3 % the grower earned 39.6 % more than the old town by night 14) ...
+    var standingTaxShare = 0.015
     /// ... and it counts at most this many points.
     var standingMost = 10
     /// The realm's stages (docs/REALM.md section 2): a hamlet below this standing, a village from it ...

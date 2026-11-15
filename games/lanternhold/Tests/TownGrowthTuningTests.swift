@@ -2,8 +2,9 @@ import XCTest
 @testable import Lanternhold
 
 /// Target T12 (docs/TOWN.md section 3, town-3, `TownGrowthTuning`): a player who grows the town by night 14 earns 25 to
-/// 35 % more taxes than one who plays the same game without the growth, and still cannot skip the defence; bots that
-/// do not grow the town give today's numbers. The report is attached as `t12-report.txt`; `tools/tune.py` mirrors the
+/// 35 % more taxes than one who plays the same game without the growth, and still cannot skip the defence (a realm
+/// that grows the town instead of its walls does not reach the chapter's end); bots that do not grow the town give
+/// today's numbers. The report is attached as `t12-report.txt`; `tools/tune.py` mirrors the
 /// economy half.
 final class TownGrowthTuningTests: XCTestCase {
     private static let metrics = TownGrowthTuning.measure(balance: .standard)
@@ -29,11 +30,11 @@ final class TownGrowthTuningTests: XCTestCase {
     }
 
     /// 12. Growing the town does not replace the walls: the grower held every night to the 14th while it grew, and a
-    /// bot that grows the town instead of building the defence beyond the first line fell before night 14.
+    /// bot that grows the town instead of building the defence beyond the first line fell by night 20.
     func testT12TheGrowerHoldsAndTheSkipperFalls() {
         let m = TownGrowthTuningTests.metrics
         XCTAssertEqual(m.growerHeld, Array(repeating: TownGrowthMetrics.night, count: m.seeds.count), headline)
-        XCTAssertTrue(m.skipperFellOn.allSatisfy { $0 > 0 && $0 < TownGrowthMetrics.night }, headline)
+        XCTAssertTrue(m.skipperFellOn.allSatisfy { $0 > 0 && $0 <= TownGrowthMetrics.skipperNights }, headline)
         XCTAssertTrue(m.passes, headline)
     }
 

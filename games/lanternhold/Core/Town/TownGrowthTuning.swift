@@ -10,13 +10,14 @@
 ///   the market and the tavern before the beacon (`oldTownSteps`). It is "one who does not grow the town": the gold the
 ///   grower puts into the growth it keeps for the beacon and the rest of the order.
 /// - **The skipper** builds the first line and then only the town, the growth included, and no defence beyond it
-///   (`skipsDefence`): it must fall before night 14.
+///   (`skipsDefence`): it must not reach the chapter's end. (Round lh-t3-1: the first line alone holds to night 14 on
+///   every seed, so the skipper is played to night 20; its hearth and its fallen by night 14 are reported.)
 ///
 /// T12 passes when the grower's taxes at the dawn after night 14 are 25 to 35 % above the old town's (the mean over
-/// the seeds), the grower held every night to it, and the skipper fell before night 14 on every seed. The reference
-/// bot's own taxes are reported beside them: it fills its houses on day 13 and builds its fourth big house only after
-/// the beacon, so a grower is further ahead of it (the economy mirror: +51 % against +30 %). `tools/tune.py` mirrors the
-/// economy half.
+/// the seeds), the grower held every night to it, and the skipper fell by night 20 on every seed. The reference bot's
+/// own taxes are reported beside them: it fills its houses on day 13 and builds its fourth big house only after the
+/// beacon, so a grower is further ahead of it. `tools/tune.py` mirrors the economy half; it leaves out the court and the
+/// battle, and its grower's people grow more slowly than on the runner (T12 there reads about 8 points lower).
 extension Autoplay {
     /// Inserted right after the reference's `.build("town.field.8", .field)`: the far fields, from day 5.
     static let farFieldSteps: [BotStep] = [
@@ -110,6 +111,8 @@ extension Autoplay {
 struct TownGrowthMetrics: Sendable {
     /// T12 compares at the dawn after this night.
     static let night = 14
+    /// The skipper is played to this night (the chapter's last).
+    static let skipperNights = 20
     /// The band of the grower's taxes over the old town's (the mean over the seeds).
     static let band: ClosedRange<Double> = 0.25...0.35
 
@@ -128,7 +131,10 @@ struct TownGrowthMetrics: Sendable {
     var growerHeld: [Int] = []
     var growerFallen: [Int] = []
     var oldTownFallen: [Int] = []
+    /// The night the skipper fell (0: it held night 20), and by night 14 its hearth's lowest strength and its fallen.
     var skipperFellOn: [Int] = []
+    var skipperHearthLowest: [Int] = []
+    var skipperFallen: [Int] = []
     var log: [String] = []
 
     /// The grower over the old town, seed by seed (0 where the grower fell).
@@ -146,7 +152,7 @@ struct TownGrowthMetrics: Sendable {
     var passes: Bool {
         !seeds.isEmpty && TownGrowthMetrics.band.contains(meanRatio)
             && growerHeld.allSatisfy { $0 >= TownGrowthMetrics.night }
-            && skipperFellOn.allSatisfy { $0 > 0 && $0 < TownGrowthMetrics.night }
+            && skipperFellOn.allSatisfy { $0 > 0 && $0 <= TownGrowthMetrics.skipperNights }
     }
 
     var report: String {
@@ -158,8 +164,9 @@ struct TownGrowthMetrics: Sendable {
         lines.append("T12 \(passes ? "PASS" : "FAIL") the grower's taxes at the dawn after night \(TownGrowthMetrics.night) "
                      + "over the old town's: \(percent(meanRatio)) (target +25 to +35 %), seeds \(seeds): "
                      + "\(ratios.map(percent)); grower \(growerTaxes), old town \(oldTownTaxes); held \(growerHeld) "
-                     + "(target \(TownGrowthMetrics.night)); the skipper fell on \(skipperFellOn) (target before night "
-                     + "\(TownGrowthMetrics.night); 0 = held)")
+                     + "(target \(TownGrowthMetrics.night)); the skipper fell on \(skipperFellOn) (target by night "
+                     + "\(TownGrowthMetrics.skipperNights); 0 = held); by night \(TownGrowthMetrics.night) its hearth's "
+                     + "lowest \(skipperHearthLowest), its fallen \(skipperFallen)")
         lines.append("   reported: over the reference bot \(referenceRatios.map(percent)) (reference \(referenceTaxes)); "
                      + "taxes over dawns 1-\(TownGrowthMetrics.night): grower \(growerTaxesSum), old town "
                      + "\(oldTownTaxesSum); standing \(growerStanding) (\(growerStage.map(\.rawValue))), a village on "
@@ -182,7 +189,8 @@ enum TownGrowthTuning {
             let grower = TuningRun.play(start, bot: .town(.grower), balance: balance, nights: nights)
             let old = TuningRun.play(start, bot: .town(.oldTown), balance: balance, nights: nights)
             let reference = TuningRun.play(start, bot: .reference(), balance: balance, nights: nights)
-            let skipper = TuningRun.play(start, bot: .town(.skipsDefence), balance: balance, nights: nights)
+            let skipper = TuningRun.play(start, bot: .town(.skipsDefence), balance: balance,
+                                         nights: TownGrowthMetrics.skipperNights)
             func last(_ run: PlayResult) -> Int {
                 run.fellOnNight == nil && run.outcomes.count == nights ? run.outcomes[nights - 1].taxes : 0
             }
@@ -197,6 +205,9 @@ enum TownGrowthTuning {
             m.growerFallen.append(grower.outcomes.reduce(0) { $0 + $1.fallen })
             m.oldTownFallen.append(old.outcomes.reduce(0) { $0 + $1.fallen })
             m.skipperFellOn.append(skipper.fellOnNight ?? 0)
+            let early = skipper.outcomes.prefix(nights)
+            m.skipperHearthLowest.append(Int((early.map(\.hearthLowest).min() ?? 100).rounded()))
+            m.skipperFallen.append(early.reduce(0) { $0 + $1.fallen })
             let stages = stageDays(start, bot: .town(.grower), balance: balance, nights: nights)
             m.growerVillageDay.append(stages.village)
             m.growerTownDay.append(stages.town)

@@ -13,9 +13,10 @@ Core/Town/Town.swift is the source.
 
 Town-3 (docs/TOWN.md section 3, Core/Town/TownGrowth.swift): the townhouse (room 12), the market hall (25 % of the
 tax part), the inn (+2 happiness a dawn), the farmstead (8 gold a day) and the two far fields (from day 5); the town's
-standing (a point for every townhouse, the market hall, the inn and every farmstead, at most 10) adds 3 % a point to
-the tax part. The grower bot (Core/Town/TownGrowthTuning.swift, `growerOrder`) grows the town fully by night 14; target
-T12 compares its taxes at the dawn after night 14 with the reference bot's (25 to 35 % more). The reference bots never
+standing (a point for every townhouse, the market hall, the inn and every farmstead, at most 10) adds 1.5 % a point to
+the tax part. The grower bot (Core/Town/TownGrowthTuning.swift, `growerOrder`) grows the town before the beacon;
+target T12 compares its taxes at the dawn after night 14 with the old town's (the same game without the growth: 25 to
+35 % more on the runner; reported here, not checked: this mirror reads about 8 points low). The reference bots never
 build the new tiers, so their numbers stay what they were.
 
 It reads its numbers from the Swift sources, so it cannot drift from them:
@@ -522,10 +523,13 @@ def main():
          "%s" % normal.buildings_day10),
     ]
     t12 = grower.log[-1][1] / old_town.log[-1][1] - 1
-    checks.append(("T12 grower +25-35 % over the old town", 0.25 <= t12 <= 0.35,
-                   "%+.1f %% (taxes %d against %d; the reference %d, %+.1f %%; standing %d)" % (
-                       100 * t12, grower.log[-1][1], old_town.log[-1][1], reference14.log[-1][1],
-                       100 * (grower.log[-1][1] / reference14.log[-1][1] - 1), grower.standings[-1])))
+    # Reported, not checked: the mirror leaves out the court and the battle, and its grower's people grow more slowly
+    # than on the runner (round lh-t3-1: the mirror +30.4 %, the runner +39.6 % at 3 % a point), so the runner's
+    # TownGrowthTuningTests decide T12 (25 to 35 %).
+    print("T12 (reported; the runner decides, it reads about 8 points higher): the grower %+.1f %% over the old town "
+          "(taxes %d against %d at the dawn after night 14; the reference %d, %+.1f %%; standing %d)" % (
+              100 * t12, grower.log[-1][1], old_town.log[-1][1], reference14.log[-1][1],
+              100 * (grower.log[-1][1] / reference14.log[-1][1] - 1), grower.standings[-1]))
     print("town over %d days: normal collects %d gold; low (two houses left alone) %d; high (knocks at every house, %d "
           "knocks) %d; every bot took the first morning's %d and started its first build with %d" % (
               args.days, normal.income, low.income, high.knocks, high.income, normal.first_morning_gold,

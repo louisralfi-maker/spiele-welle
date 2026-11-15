@@ -24,7 +24,7 @@ enum RealmStage: String, Codable, Sendable, CaseIterable, Comparable {
 ///   (8 gold a day instead of 5). Two more fields open beyond the last one on day 5 (`farFieldKeys`). They are
 ///   `BuildItem`s on the same plots, built by the same builders through the same card (`Build.options`).
 /// - **The standing**, 0 to 10: one point for every townhouse, the market hall, the inn, every farmstead, and every
-///   craftsman's work that stands in the town (`works`, the craft lane's at the join). Each point adds 3 % to the tax
+///   craftsman's work that stands in the town (`works`, the craft lane's at the join). Each point adds 1.5 % to the tax
 ///   part (`taxFactor`). What the realm of before could build counts nothing (the big house, the market, the tavern,
 ///   the field; the well and the bridge that petitions mend), so every bot that does not grow the town plays exactly
 ///   today's game (`TownNeutralityTests`, `TownGrowthTests`); T12 (`TownGrowthTuning`) measures one that does.
@@ -127,7 +127,7 @@ enum TownGrowth {
         min(balance.town.standingMost, max(0, points(s)))
     }
 
-    /// What the standing does to the tax part: × (1 + 3 % a point); exactly 1 at standing 0, so the old sum is computed
+    /// What the standing does to the tax part: × (1 + 1.5 % a point); exactly 1 at standing 0, so the old sum is computed
     /// bit for bit.
     static func taxFactor(_ s: GameState, balance: Balance) -> Double {
         let standing = standing(s, balance: balance)

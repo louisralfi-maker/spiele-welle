@@ -3,7 +3,7 @@ import XCTest
 @testable import Lanternhold
 
 /// The growing town and the treasury (docs/TOWN.md sections 2 and 3, town-3, `TownGrowth`): the new tiers on the old
-/// plots and cards, the far fields and the treasury's plot, what each tier pays, the standing and its 3 % a point, the
+/// plots and cards, the far fields and the treasury's plot, what each tier pays, the standing and its 1.5 % a point, the
 /// ledger of a grown town, the realm's stages and the dawn that reaches one, the treasury's piles, the save, the words,
 /// and that a town that never grows plays the economy of before bit for bit.
 final class TownGrowthTests: XCTestCase {
@@ -142,19 +142,20 @@ final class TownGrowthTests: XCTestCase {
 
     // MARK: - What the tiers pay
 
-    func testTheTiersPayAndEveryPointOfStandingAddsThreePerCent() throws {
+    func testTheTiersPayAndEveryPointOfStandingAddsItsShare() throws {
         let old = oldTown()
         XCTAssertEqual(TownGrowth.standing(old, balance: balance), 0, "the town of before counts nothing")
         XCTAssertEqual(TownGrowth.taxFactor(old, balance: balance), 1)
         XCTAssertEqual(Economy.taxes(old, happiness: 70, balance: balance), oldTaxes(old, happiness: 70))
 
-        // One townhouse: one point, × 1.03 on the tax part.
+        // One townhouse: one point, × 1.015 on the tax part.
         var one = old
         one.plots[house1].item = .townhouse
         XCTAssertEqual(TownGrowth.standing(one, balance: balance), 1)
         let mood = Economy.mood(happiness: 70, balance: balance)
         let factor = TownGrowth.taxFactor(one, balance: balance)
-        XCTAssertEqual(factor, 1.03, accuracy: 1e-12)
+        XCTAssertEqual(rules.standingTaxShare, 0.015, "set again for T12 (TOWN.md's starting value was 3 %)")
+        XCTAssertEqual(factor, 1 + rules.standingTaxShare, accuracy: 1e-12)
         let part = Int((Double(one.taxpayers) * balance.taxPerPayer * mood * factor).rounded())
         XCTAssertEqual(Economy.taxes(one, happiness: 70, balance: balance).taxPart, part)
 
@@ -178,11 +179,11 @@ final class TownGrowthTests: XCTestCase {
         XCTAssertTrue(Economy.happinessChanges(old, fallen: 0, balance: balance)
                         .contains(HappinessChange(reason: .tavern, delta: 1)))
 
-        // Fully grown: four townhouses, four farmsteads, the inn, the market hall: 10 points, × 1.30.
+        // Fully grown: four townhouses, four farmsteads, the inn, the market hall: 10 points, × 1.15.
         let full = grown(old)
         XCTAssertEqual(TownGrowth.points(full), 10)
         XCTAssertEqual(TownGrowth.standing(full, balance: balance), 10)
-        XCTAssertEqual(TownGrowth.taxFactor(full, balance: balance), 1.3, accuracy: 1e-12)
+        XCTAssertEqual(TownGrowth.taxFactor(full, balance: balance), 1.15, accuracy: 1e-12)
         var capped = balance
         capped.town.standingMost = 7
         XCTAssertEqual(TownGrowth.standing(full, balance: capped), 7, "never more than the cap")
