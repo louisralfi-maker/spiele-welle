@@ -1,0 +1,14 @@
+2026-11-15 09:24:48.701863+0000 Lanternhold[8366:34922] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.LanternMomentTests testATapOnTheLordStillsTheWorldAndAnyTouchRunsItOn]' passed (0.053 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testATouchOnTheLordStandingOnHisSiteRaisesTheLantern]' passed (0.154 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheChangeNotesComeAndGo]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheFaceTakesTheLedgersBands]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheGearOpensThePauseSheetAndTheBackgroundRaisesTheLantern]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheGoldStandsAboveTheLordWhileItChanges]' passed (0.108 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheLordIsAnElementThatRaisesTheLantern]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheMomentsRowAndDayLineSitOnTheKitsGrid]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testThePurseTicksCoinByCoinAndGoes]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheRealmStripIsAMapOfPixels]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.LanternMomentTests testTheStripComesForACallAndGoes]' passed (0.001 seconds).
+exit=0
+screenshots: 0
