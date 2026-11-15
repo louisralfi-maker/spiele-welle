@@ -38,6 +38,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     case sootlingB, sootCrow, ashBrute, gloomweaver, ashGiant, lightlessKing
     case sootlingGlow, sootlingBGlow, shadehoundGlow, sootCrowGlow, ashBruteGlow, gloomweaverGlow, ashGiantGlow,
          lightlessKingGlow
+    // b3-horde (build 3, lane 4 step A, POLISH.md 7): the third small body and its glow, the small ones' fall (three
+    // frames per body) and its glow, the smoke thread over every small one (tools/creatures, `HordeLook`)
+    case tumbler, tumblerGlow, sootFall, sootFallGlow, sootThread
     // Buildings, overlays and the beacon
     case bastion, rubbleWood, rubbleStone, scaffold, gateWood, gateIron, gateGreat, gateBroken
     case archerTower, watchtower, fireTower, catapult, stakePit
@@ -276,6 +279,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .gloomweaver, .gloomweaverGlow: return PixelSize(width: 30, height: 30)
         case .ashGiant, .ashGiantGlow: return PixelSize(width: 110, height: 110)
         case .lightlessKing, .lightlessKingGlow: return PixelSize(width: 64, height: 64)
+        // b3-horde
+        case .tumbler, .tumblerGlow, .sootFall, .sootFallGlow: return PixelSize(width: 14, height: 14)
+        case .sootThread: return PixelSize(width: 7, height: 14)
         case .bastion: return PixelSize(width: 44, height: 64)
         case .rubbleWood: return PixelSize(width: 24, height: 10)
         case .rubbleStone: return PixelSize(width: 40, height: 14)
@@ -525,6 +531,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .guardsman: return 9
         case .ashBrute, .ashBruteGlow, .ashGiant, .ashGiantGlow, .lightlessKing, .lightlessKingGlow: return 7
         case .sootling, .sootlingB, .sootlingGlow, .sootlingBGlow, .shadehound, .shadehoundGlow: return 6
+        // b3-horde: the tumbler walks 0-3 and strikes 4-5; the fall 0-2 crawler, 3-5 loper, 6-8 tumbler; the thread
+        // (length × 5 + lean) × 2 + sway (`HordeLook.threadFrame`)
+        case .tumbler, .tumblerGlow: return 6
+        case .sootFall, .sootFallGlow: return 9
+        case .sootThread: return 30
         case .citizen, .citizenB, .citizenC, .builder: return 6
         case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe, .childA, .childB, .childC, .nobleLord,
              .nobleLady, .footman:

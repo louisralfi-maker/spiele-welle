@@ -211,7 +211,7 @@ enum EntityFrames {
         let gloom = options.look == .two && options.effects.fog ? options.gloom : nil
         layer.actors = actors(s, balance: balance, layouts: layouts, origins: origins, view: view, ambient: ambient,
                               isDay: isDay, animTime: animTime, effects: effects, look: options.look,
-                              reduceMotion: options.reduceMotion, gloom: gloom)
+                              reduceMotion: options.reduceMotion, gloom: gloom, weather: options.weather)
         return layer
     }
 
@@ -933,6 +933,7 @@ enum EntityFrames {
         case .lady: return .ladyGlow
         case .sootling: return .sootlingGlow
         case .sootlingB: return .sootlingBGlow
+        case .tumbler: return .tumblerGlow
         case .shadehound: return .shadehoundGlow
         case .sootCrow: return .sootCrowGlow
         case .ashBrute: return .ashBruteGlow
@@ -980,13 +981,28 @@ enum EntityFrames {
                                         color: GamePalette.ember, intensity: stomp ? 1.1 : 0.6, flickerSeed: seed))
             }
         }
+        // b3-horde: the small ones' sockets, a faint cold point each, in the slots the big ones leave, the most
+        // advanced first; none deep in the bank, where no body is drawn.
+        let free = maxCreatureLights - list.count
+        guard free > 0 else { return list }
+        let small = s.creatures.filter { $0.kind == .sootling && $0.hp > 0 && $0.x >= s.bankEdge - 4 }
+            .sorted { ($0.x, $0.id) > ($1.x, $1.id) }
+        guard !small.isEmpty else { return list }
+        let lifts = HordeLook.heapLifts(s.creatures)
+        for c in small.prefix(free) {
+            let eye = HordeLook.socket(HordeLook.body(id: c.id))
+            let seed = SeededRandom.mix(UInt64(c.id) &* 0x9E37_79B9 &+ 0x534F_434B)
+            list.append(LightSource(kind: .moon, x: c.x + eye.dx, y: c.y + (lifts[c.id] ?? 0) + eye.dy,
+                                    radius: HordeLook.socketRadius, color: HordeLook.socketCold,
+                                    intensity: HordeLook.socketIntensity, flickerSeed: seed))
+        }
         return list
     }
 
-    /// A creature's sprite (the two sootlings alternate by creature id).
+    /// A creature's sprite (b3-horde: the small ones take one of three bodies by their id, `HordeLook`).
     static func creatureSprite(_ c: Creature) -> SpriteID {
         switch c.kind {
-        case .sootling: return c.id % 2 == 0 ? .sootling : .sootlingB
+        case .sootling: return HordeLook.sprite(HordeLook.body(id: c.id))
         case .shadehound: return .shadehound
         case .sootCrow: return .sootCrow
         case .ashBrute: return .ashBrute
@@ -1023,6 +1039,11 @@ enum EntityFrames {
         case .gloomweaver:
             return Int(((time + phase) * 5).rounded(.down)) % 4
         default:
+            // b3-horde: each small one walks from its own start frame and strikes at its own beat (`HordeLook`).
+            if c.kind == .sootling {
+                return isStriking(c) ? HordeLook.attackFrame(id: c.id, time: time)
+                    : HordeLook.walkFrame(id: c.id, x: c.x)
+            }
             switch c.action {
             case .attackingWall, .attackingGuards, .atHearth:
                 let count = c.kind == .ashBrute || c.kind == .ashGiant || c.kind == .lightlessKing ? 3 : 2
@@ -1072,7 +1093,8 @@ enum EntityFrames {
                                origins: [OriginKey: (dx: Double, dy: Double)], view: ActorView,
                                ambient: AmbientSample, isDay: Bool, animTime: Double,
                                effects: BattleEffects, look: LookVersion = .one,
-                               reduceMotion: Bool = false, gloom: GloomFog? = nil) -> [ActorInstance] {
+                               reduceMotion: Bool = false, gloom: GloomFog? = nil,
+                               weather: WeatherSample = .clear) -> [ActorInstance] {
         var list: [ActorInstance] = []
         let time = s.simTime
         func add(_ sprite: SpriteID, frame: Int, x: Double, y: Double, flipped: Bool = false,
@@ -1145,12 +1167,18 @@ enum EntityFrames {
             if s.creatures[index].action == .attackingGuards { attacked = true }
             order.append(index)
         }
-        order.sort { (s.creatures[$0].x, s.creatures[$0].id) < (s.creatures[$1].x, s.creatures[$1].id) }
+        // b3-horde: past four small ones at one wall the later ones climb the backs in front (`HordeLook.heapLifts`),
+        // drawn after the ground row.
+        let lifts = HordeLook.heapLifts(s.creatures)
+        func climbs(_ index: Int) -> Int { lifts[s.creatures[index].id] == nil ? 0 : 1 }
+        order.sort {
+            (climbs($0), s.creatures[$0].x, s.creatures[$0].id) < (climbs($1), s.creatures[$1].x, s.creatures[$1].id)
+        }
         for index in order {
             let c = s.creatures[index]
             let sprite = creatureSprite(c)
             let frame = creatureFrame(c, time: time)
-            var y = c.y
+            var y = c.y + (lifts[c.id] ?? 0)
             if c.kind == .gloomweaver { y += weaverBob(c, time: time) }
             var flipped = false
             if c.kind == .sootCrow && c.target >= 0 && c.target < Realm.plots.count {
@@ -1180,6 +1208,46 @@ enum EntityFrames {
                 add(glow, frame: frame, x: c.x, y: y, flipped: flipped, tint: SIMD4<Float>(share, share, share, 1),
                     emissive: true, lit: c.isLit)
                 }
+            }
+            if c.kind == .sootling {
+                // b3-horde: the smoke thread from the hood's peak, leaning with the wind, back while it runs; it fades
+                // with the glow (none deep in the bank), so the horde reads as threads before its bodies are seen.
+                let share: Float = look == .two && !c.isLit ? CreatureLook.glowShare(x: c.x, bankEdge: s.bankEdge) : 1
+                if share > 0.02 {
+                    let body = HordeLook.body(id: c.id)
+                    let wind = reduceMotion ? weather.mean : Weather.wind(at: c.x, weather, time: animTime)
+                    let lean = HordeLook.threadLean(wind: wind, running: c.action == .walking)
+                    let sway = HordeLook.threadSway(id: c.id, time: time, reduceMotion: reduceMotion)
+                    let root = HordeLook.threadRoot(body, frame: frame)
+                    add(.sootThread, frame: HordeLook.threadFrame(body, lean: lean, sway: sway), x: c.x + root.dx,
+                        y: y + root.dy, tint: HordeLook.threadTint(night: night, share: share), emissive: true,
+                        lit: c.isLit)
+                }
+            }
+        }
+
+        // b3-horde: the small ones' falls (three frames, then the heap of soot fades) and their orphan threads, which
+        // stand alone for half a second and go with the wind (`HordeLook.fallFrame`, `orphanThread`).
+        for effect in effects.items where effect.kind == .fall {
+            let seconds = animTime - effect.start
+            guard seconds >= 0, seconds < HordeLook.fallLifetime else { continue }
+            let body = HordeLook.Body(rawValue: effect.body) ?? .crawler
+            if let fall = HordeLook.fallFrame(body, seconds: seconds, reduceMotion: reduceMotion) {
+                add(.sootFall, frame: fall.frame, x: effect.x, y: effect.y, tint: SIMD4<Float>(1, 1, 1, fall.alpha),
+                    lightCap: creatureLightCap)
+                if fall.frame % 3 == 0 {
+                    add(.sootFallGlow, frame: fall.frame, x: effect.x, y: effect.y,
+                        tint: SIMD4<Float>(fall.alpha, fall.alpha, fall.alpha, 1), emissive: true)
+                }
+            }
+            let wind = reduceMotion ? weather.mean : Weather.wind(at: effect.x, weather, time: animTime)
+            let sway = HordeLook.threadSway(id: Int(effect.seed % 997), time: animTime, reduceMotion: reduceMotion)
+            if let thread = HordeLook.orphanThread(body, seconds: seconds, wind: wind, sway: sway,
+                                                   reduceMotion: reduceMotion) {
+                var tint = HordeLook.threadTint(night: night, share: 1)
+                tint.w *= thread.alpha
+                add(.sootThread, frame: thread.frame, x: effect.x + thread.dx, y: effect.y + thread.dy, tint: tint,
+                    emissive: true)
             }
         }
 
@@ -1426,6 +1494,8 @@ enum EntityFrames {
                     let y = max(0, effect.y + 18 * age * (0.6 + unit(k, 6)) - 26 * age * age)
                     add(.shard, k % 2, x, y, side < 0, SIMD4<Float>(0.8, 0.76, 0.72, 1), false, true)
                 }
+            case .fall:
+                break   // b3-horde: drawn with the creatures (the fall strip and its orphan thread)
             case .beaconFlare:
                 for k in 0..<6 {
                     guard spend() else { return }

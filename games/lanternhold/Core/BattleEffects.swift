@@ -1,9 +1,10 @@
 /// A short visual effect started by a simulation event (M2b): the spark of a blow glancing off the Lightless King,
 /// the shards of his aura shattering as he steps into the beacon's light and closing round him as he leaves it, the
-/// puff of a creature dissolving, the dust of a falling wall, the beacon's flare. Visual only: no game rule reads it.
+/// puff of a creature dissolving, the dust of a falling wall, the beacon's flare; b3-horde: a small one's fall to soot
+/// and its orphan thread (`HordeLook`). Visual only: no game rule reads it.
 struct VisualEffect: Sendable, Equatable {
     enum Kind: Sendable, Equatable {
-        case glance, auraBroken, auraClosed, dissolve, wallDust, beaconFlare
+        case glance, auraBroken, auraClosed, dissolve, wallDust, beaconFlare, fall
     }
 
     var kind: Kind
@@ -14,6 +15,8 @@ struct VisualEffect: Sendable, Equatable {
     var start: Double
     /// Varies its particles.
     var seed: UInt64
+    /// b3-horde: which of the three small bodies falls (`HordeLook.Body`), for `fall`.
+    var body: Int = 0
 
     /// Seconds it lasts.
     var lifetime: Double {
@@ -24,6 +27,7 @@ struct VisualEffect: Sendable, Equatable {
         case .dissolve: return 0.8
         case .wallDust: return 1.1
         case .beaconFlare: return 1.5
+        case .fall: return HordeLook.fallLifetime
         }
     }
 
@@ -40,11 +44,22 @@ struct BattleEffects: Sendable, Equatable {
 
     private(set) var items: [VisualEffect] = []
     private var counter: UInt64 = 0
+    /// b3-horde: the small ones seen at the last note (id and x), so a kill, which names only its kind and place, finds
+    /// the body that fell. One that vanished without a matching kill is kept for one more note (`stale`), so the
+    /// swept ones' puffs (`GameModel.dissolveSwept`, noted right after) find theirs too.
+    private var seenSmall: [SmallSeen] = []
+
+    private struct SmallSeen: Sendable, Equatable {
+        var id: Int
+        var x: Double
+        var stale: Bool
+    }
 
     init() {}
 
     /// Starts the effects of one step's events at animation time `time`.
     mutating func note(_ events: [SimEvent], state: GameState, balance: Balance, time: Double) {
+        var gone = goneSmall(state)
         for event in events {
             switch event {
             case .glancedOff(let x):
@@ -55,7 +70,13 @@ struct BattleEffects: Sendable, Equatable {
             case .kingAuraClosed(let x):
                 add(.auraClosed, x: x, y: balance.creature(.lightlessKing).height * 0.5, time: time)
             case .creatureKilled(let kind, let x):
-                add(.dissolve, x: x, y: balance.creature(kind).height * 0.4, time: time)
+                if kind == .sootling {
+                    // b3-horde: a small one falls to soot and leaves its thread (`HordeLook`).
+                    let body = claimBody(x: x, from: &gone)
+                    add(.fall, x: x, y: 0, time: time, body: body)
+                } else {
+                    add(.dissolve, x: x, y: balance.creature(kind).height * 0.4, time: time)
+                }
             case .wallBroken(let plot):
                 guard plot >= 0, plot < Realm.plots.count else { continue }
                 add(.wallDust, x: Realm.plots[plot].x + 12, y: 6, time: time)
@@ -65,6 +86,44 @@ struct BattleEffects: Sendable, Equatable {
                 break
             }
         }
+        remember(state, unclaimed: gone)
+    }
+
+    /// The small ones seen before that are not alive in `state` any more, by id.
+    private func goneSmall(_ state: GameState) -> [SmallSeen] {
+        guard !seenSmall.isEmpty else { return [] }
+        var alive = Set<Int>()
+        for c in state.creatures where c.kind == .sootling && c.hp > 0 {
+            alive.insert(c.id)
+        }
+        return seenSmall.filter { !alive.contains($0.id) }.sorted { $0.id < $1.id }
+    }
+
+    /// The body of the small one that fell at `x`: the nearest gone one within 40 px (then no longer gone), else one
+    /// by the effect counter.
+    private func claimBody(x: Double, from gone: inout [SmallSeen]) -> Int {
+        var best: Int?
+        for (index, seen) in gone.enumerated() where abs(seen.x - x) <= 40 {
+            if let b = best, abs(gone[b].x - x) <= abs(seen.x - x) { continue }
+            best = index
+        }
+        if let best {
+            let id = gone[best].id
+            gone.remove(at: best)
+            return HordeLook.body(id: id).rawValue
+        }
+        return Int((counter &+ 1) % 3)
+    }
+
+    private mutating func remember(_ state: GameState, unclaimed: [SmallSeen]) {
+        var seen: [SmallSeen] = []
+        for c in state.creatures where c.kind == .sootling && c.hp > 0 {
+            seen.append(SmallSeen(id: c.id, x: c.x, stale: false))
+        }
+        for old in unclaimed where !old.stale {
+            seen.append(SmallSeen(id: old.id, x: old.x, stale: true))
+        }
+        seenSmall = seen
     }
 
     /// Drops the effects that are over (or from a time after `time`, when the clock was reset).
@@ -72,10 +131,10 @@ struct BattleEffects: Sendable, Equatable {
         items.removeAll { time - $0.start > $0.lifetime || $0.start > time + 1 }
     }
 
-    private mutating func add(_ kind: VisualEffect.Kind, x: Double, y: Double, time: Double) {
+    private mutating func add(_ kind: VisualEffect.Kind, x: Double, y: Double, time: Double, body: Int = 0) {
         counter &+= 1
         items.append(VisualEffect(kind: kind, x: x, y: y, start: time,
-                                  seed: SeededRandom.mix(counter &* 0x9E37_79B9_7F4A_7C15)))
+                                  seed: SeededRandom.mix(counter &* 0x9E37_79B9_7F4A_7C15), body: body))
         if items.count > BattleEffects.maxEffects {
             items.removeFirst(items.count - BattleEffects.maxEffects)
         }

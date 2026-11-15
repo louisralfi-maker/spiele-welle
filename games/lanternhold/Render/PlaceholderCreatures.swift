@@ -24,12 +24,29 @@ enum PlaceholderCreatures {
         case .ashGiantGlow: return strip(7) { giant($0).glow }
         case .lightlessKing: return strip(7) { lightlessKing($0).body }
         case .lightlessKingGlow: return strip(7) { lightlessKing($0).glow }
+        // b3-horde: stand-ins until the PNGs load (tools/creatures): the old sootling for the tumbler and the fall,
+        // a pale line for the thread
+        case .tumbler: return strip(6) { sootling($0).body }
+        case .tumblerGlow: return strip(6) { sootling($0).glow }
+        case .sootFall: return strip(9) { sootling($0 % 6).body }
+        case .sootFallGlow: return strip(9) { sootling($0 % 6).glow }
+        case .sootThread: return strip(30) { _ in thread() }
         default: return []
         }
     }
 
     private static func strip(_ count: Int, _ make: (Int) -> PixelImage) -> [PixelImage] {
         (0..<count).map(make)
+    }
+
+    /// b3-horde: the smoke thread's stand-in, a pale line up the middle of its cell.
+    static func thread() -> PixelImage {
+        let size = SpriteID.sootThread.size
+        var image = PixelImage(width: size.width, height: size.height)
+        for y in 2..<size.height {
+            image[size.width / 2, y] = RGBA(0x98A1BB)
+        }
+        return image
     }
 
     // MARK: - Colours
