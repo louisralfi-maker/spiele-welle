@@ -90,6 +90,9 @@ struct TitleView: View {
     @State private var lordFrame = 0
     @State private var started = false
     @State private var shown = Date()
+    /// `ready` as state: the sequence's task holds the view value it started with, so it reads this live copy
+    /// (lh-rj-9: reading `ready` there kept the lantern lit forever, the model was made after the task began).
+    @State private var gameReady = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -135,6 +138,8 @@ struct TitleView: View {
         .accessibilityHint(Text("Touch to begin"))
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { touched() }
+        .onAppear { gameReady = ready }
+        .onChange(of: ready) { _, now in gameReady = now }
         .task { await run() }
     }
 
@@ -208,7 +213,7 @@ struct TitleView: View {
             if revealing { return }
             step = next
         }
-        while !ready { try? await Task.sleep(nanoseconds: 50_000_000) }
+        while !gameReady { try? await Task.sleep(nanoseconds: 50_000_000) }
         await reveal()
     }
 
@@ -233,7 +238,7 @@ struct TitleView: View {
     private func touched() {
         guard !started else { return }
         if !revealing || lit.count < TitleLayout.letters.count {
-            guard ready else { return }
+            guard gameReady else { return }
             revealing = true
             radius = TitleLayout.revealTo
             lit = Set(TitleLayout.letters.indices)
