@@ -191,8 +191,7 @@ enum FrameBuilder {
                     // the painted eye tiles of the bank's heart are gone; with the bank's sheet lower they stood
                     // above it in rows, 64 px apart. The bank keeps its own eyes in the fog, `bankEyes`.)
                     for item in gloomEyes(gloom, edgeX: bankEdgeX, hour: hour, clearings: clearings,
-                                          animTime: animTime, reduceMotion: options.reduceMotion, geometry: geometry,
-                                          screens: eyeScreens) {
+                                          animTime: animTime, reduceMotion: options.reduceMotion, geometry: geometry) {
                         glow.add(item)
                     }
                 }
@@ -318,13 +317,13 @@ enum FrameBuilder {
                                                                       reduceMotion: options.reduceMotion,
                                                                       geometry: geometry)
                 }
-                // World-3 fix round 2 (the critic's high 8): on a hard night a cold ground fog on fog A swallows the
-                // feet of the mid and near planes (`GloomFog.groundStrip`).
+                // World-3 fix round 2 (the critic's high 8): on a hard night a cold ground fog swallows the feet of
+                // the mid plane and the lane's, before the Gloom's dark strips (`GloomFog.groundStrip`).
                 if gloom.groundShare > 0.01 {
                     let ground = gloomSlices(gloom, strip: GloomFog.groundStrip, edgeX: bankEdgeX, hour: hour,
                                              value: value, clearings: clearings, animTime: animTime,
                                              reduceMotion: options.reduceMotion, geometry: geometry)
-                    planeSprites[Plane.fogA.rawValue] += ground.map {
+                    planeSprites[GloomFog.groundStrip.plane.rawValue] += ground.map {
                         GloomFog.groundTinted($0, share: gloom.groundShare)
                     }
                 }
@@ -970,8 +969,10 @@ enum FrameBuilder {
         let whole = geometry.whole(.world)
         var list: [EmissiveInstance] = []
         for eye in bankEyePairs(edgeX: edgeX, time: animTime, reduceMotion: reduceMotion) {
-            guard EyeRules.allowed(x: eye.x, width: Double(size.width), y: eye.y, screens: screens) else { continue }
-            let left = eye.x - whole
+            guard let x = EyeRules.placed(x: eye.x, width: Double(size.width), y: eye.y, screens: screens) else {
+                continue
+            }
+            let left = x - whole
             guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
             let value = bankEyeStrength(eye, ambient: ambient) * strength
             guard value > 0.02 else { continue }
@@ -1314,13 +1315,13 @@ enum FrameBuilder {
 
     /// The cold eyes that open and close in the fog as glow on the world plane, dimmed where a fire clears it.
     private static func gloomEyes(_ gloom: GloomFog, edgeX: Double, hour: Double, clearings: [GloomFog.Clearing],
-                                  animTime: Double, reduceMotion: Bool, geometry: Geometry,
-                                  screens: [ClosedRange<Double>] = []) -> [EmissiveInstance] {
+                                  animTime: Double, reduceMotion: Bool, geometry: Geometry) -> [EmissiveInstance] {
         let size = SpriteID.eyeGlints.size
         let whole = geometry.whole(.world)
         var list: [EmissiveInstance] = []
         for eyes in gloom.eyes(bankEdge: edgeX, hour: hour, time: animTime, reduceMotion: reduceMotion) {
-            guard EyeRules.allowed(x: eyes.x, width: Double(size.width), y: eyes.y, screens: screens) else { continue }
+            // (They stand behind everything on the lane: the buildings drawn after them hide them. The ceiling only.)
+            guard eyes.y <= EyeRules.ceiling else { continue }
             let left = eyes.x - whole
             guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
             let seen = eyes.strength * (1 - GloomFog.hole(x: eyes.x, clearings: clearings))

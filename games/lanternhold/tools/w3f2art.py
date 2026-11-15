@@ -21,8 +21,8 @@ files byte for byte. Passes over existing sprites read their untouched sources f
   watchtower        24x64    the front tower's slits (high 2): the shuttered window (lit as an "r" hook) a plain
         arrow loop, a 2 px glass core in a dark reveal
   cloudA, cloudB, cloudC     the clouds' undersides (high 7): the checker dither teeth (a pinking-shears seam across
-        the sky) taken out, the underside cut in irregular lobes 0 to 4 px deep with varied lengths, its last rows a
-        value step darker (the cloud's belly)
+        the sky) taken out, the notches filled, the underside in broad soft scallops 12 to 28 px long and 0 to 2 rows
+        deep, its last row a value step darker (the cloud's belly)
   riverSkiffMoored  40x12    the skiff (high 5): a hull that reads, its bow raised (right), a light gunwale line, the
         planking a step darker, a thwart, the painter rope from the stern up to the old stump
   riverSkiffRim     40x12    emissive: the moon on the gunwale and the bow
@@ -83,11 +83,11 @@ def throat_buttress():
     whole foot and out to both ends on the ground, so the rock stands rooted at the wall's foot."""
     w, h = BUT_W, BUT_H
     gx0, seed = 6600, 6629
-    pts = [(0, 0), (4, 6), (8, 12), (12, 17), (14, 22), (15, 36), (16, 44), (24, 46), (25, 49), (26, 62), (33, 64),
-           (34, 67), (35, 80), (42, 82), (43, 85), (45, 100), (48, 104), (53, 108), (58, 110), (64, 109),
+    pts = [(0, 0), (4, 6), (8, 12), (12, 17), (14, 22), (15, 30), (17, 40), (22, 38), (24, 45), (26, 58), (27, 63),
+           (35, 61), (37, 69), (38, 77), (42, 79), (44, 87), (46, 100), (48, 104), (53, 108), (58, 110), (64, 109),
            (70, 106), (74, 100), (77, 90), (80, 79), (86, 77), (87, 66), (89, 50), (91, 34), (92, 24), (93, 14),
            (94, 7), (95, 2)]
-    shelves = [(16, 24, 44), (26, 33, 62), (35, 42, 80), (80, 86, 79)]
+    shelves = [(17, 22, 40), (27, 35, 62), (38, 42, 78), (80, 86, 79)]
     prof = [(gx0 + x, y) for x, y in pts]
 
     def height(lx):
@@ -372,7 +372,13 @@ def course_band(im, keep_parts=None):
         for (x, y) in keep_parts.get("lip", ()):
             out.set(x, y, white(0.75))
         for (x, y) in keep_parts.get("ashtop", ()):
-            out.set(x, y, white(0.4 if x > 26 else 0.28))
+            out.set(x, y, white(0.5 if x > 26 else 0.34))
+        rim_rows = {}
+        for (x, y) in keep_parts.get("rim", ()):
+            rim_rows.setdefault(x, []).append(y)
+        for x, ys in rim_rows.items():               # the back arc's top row: the moon along the rim's ellipse
+            if x > 22:
+                out.set(x, min(ys), white(0.3))
         body = keep_parts.get("body", set()) | keep_parts.get("rim", set())
         rows = {}
         for (x, y) in body:
@@ -456,9 +462,8 @@ def watchtower():
 # --------------------------------------------------------------------------------------------- high 7: the clouds
 def cloud_underside(name, seed):
     """The cloud's dithered underside (a checker of single pixels, a regular sawtooth at phone size) taken out; the
-    solid body kept; under it the underside in irregular lobes, each column 0 to 4 rows deeper by lobes of varied
-    length (3 to 9 px), the lobes' last row a value darker than the column's lowest colour (the belly); no loose
-    pixel."""
+    notches between what is left filled to the lower neighbour; the underside then hangs in broad soft scallops (12
+    to 28 px long, 0 to 2 rows deep) in the belly colour, their last row a value darker; no tooth, no loose pixel."""
     im = src2(name)
     w, h = im.w, im.h
 
@@ -488,20 +493,6 @@ def cloud_underside(name, seed):
         i = colours.index(c) if c in colours else 0
         return colours[max(0, i - 1)]
 
-    edges, pos, k = [], 0.0, 0
-    while pos < w + 10:
-        edges.append(pos)
-        pos += 3 + 6 * h01(seed, k, 1)
-        k += 1
-
-    def depth_at(x):
-        for i in range(len(edges) - 1):
-            if edges[i] <= x < edges[i + 1]:
-                t = (x - edges[i]) / (edges[i + 1] - edges[i])
-                peak = 0.6 + 2.6 * h01(seed, i, 2)
-                return int(round(peak * math.sin(math.pi * t) ** 0.8))
-        return 0
-
     bottoms = {}
     for x in range(w):
         ys = [y for y in range(h) if im.get(x, y)[3]]
@@ -518,24 +509,58 @@ def cloud_underside(name, seed):
     if luma(belly) > luma(colours[len(colours) // 2]):
         belly = colours[max(0, len(colours) // 2 - 1)]
     out = copy(im)
+    # 1. notches filled: where a column's underside stands higher than both neighbours' within 3 px, it hangs to the
+    #    lower of them (no dark tooth between two lobes)
     for x, bottom in bottoms.items():
-        if bottom < lowest - 8:          # the cloud's flanks rise there: no lobes hang from them
+        if bottom < lowest - 8:
+            continue
+        left = max([bottoms.get(xx, -1) for xx in range(x - 3, x)] or [-1])
+        right = max([bottoms.get(xx, -1) for xx in range(x + 1, x + 4)] or [-1])
+        fill = min(left, right)
+        for y in range(bottom + 1, fill + 1):
+            out.set(x, y, (belly[0], belly[1], belly[2], 255))
+        if fill > bottom:
+            bottoms[x] = fill
+    im = out
+    # 2. broad soft scallops 12 to 28 px long, 0 to 2 rows deep, in the belly colour, their last row a value darker
+    edges, pos, k = [], 0.0, 0
+    while pos < w + 30:
+        edges.append(pos)
+        pos += 12 + 16 * h01(seed, k, 1)
+        k += 1
+
+    def depth_at(x):
+        for i in range(len(edges) - 1):
+            if edges[i] <= x < edges[i + 1]:
+                t = (x - edges[i]) / (edges[i + 1] - edges[i])
+                peak = 0.4 + 1.8 * h01(seed, i, 2)
+                return int(round(peak * math.sin(math.pi * t) ** 1.5))
+        return 0
+
+    out = copy(im)
+    for x, bottom in bottoms.items():
+        if bottom < lowest - 8:          # the cloud's flanks rise there: nothing hangs from them
             continue
         c = im.get(x, bottom)[:3]
         if luma(c) > luma(belly):
-            c = belly                    # a lit pixel never hangs down as a drip
+            c = belly                    # a lit pixel never ends the underside
             out.set(x, bottom, (c[0], c[1], c[2], 255))
         d = depth_at(x)
         for kk in range(1, d + 1):
             y = bottom + kk
-            if y >= h:
-                break
-            cc = c if kk < d else darker(c)
-            out.set(x, y, (cc[0], cc[1], cc[2], 255))
+            if y < h:
+                cc = belly if kk < d else darker(belly)
+                out.set(x, y, (cc[0], cc[1], cc[2], 255))
+        if d == 0:
+            dc = darker(belly)
+            out.set(x, bottom, (dc[0], dc[1], dc[2], 255))
+    # 3. no single column hanging below both neighbours, no loose pixel
     final = copy(out)
     for y in range(h):
         for x in range(w):
-            if out.get(x, y)[3] and not any(op(out, xx, yy) for xx, yy in ((x - 1, y), (x + 1, y), (x, y - 1))):
+            if not out.get(x, y)[3]:
+                continue
+            if not op(out, x - 1, y) and not op(out, x + 1, y) and not op(out, x, y + 1):
                 final.set(x, y, CLEAR)
     return final
 

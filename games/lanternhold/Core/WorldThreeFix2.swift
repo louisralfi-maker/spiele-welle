@@ -23,11 +23,27 @@ enum EyeRules {
         }
     }
 
-    /// True when a pair `width` wide whose left end stands at world `x`, `y` rows over the ground line, may be drawn.
+    /// True when a pair `width` wide whose left end stands at world `x`, `y` rows over the ground line, may be drawn
+    /// where it is.
     static func allowed(x: Double, width: Double, y: Double, screens: [ClosedRange<Double>]) -> Bool {
         guard y <= ceiling else { return false }
         let span = x...(x + width)
         return !screens.contains { $0.overlaps(span) }
+    }
+
+    /// Where the bank's pair opens (they are drawn over everything on the lane): where it is, or, when it would stand
+    /// before a building, just left of it, deeper in the bank (the beacon stands right behind the bank's edge on many
+    /// nights, so dropping the pair would leave the bank without eyes); nil over the ceiling or past the world's end.
+    static func placed(x: Double, width: Double, y: Double, screens: [ClosedRange<Double>]) -> Double? {
+        guard y <= ceiling else { return nil }
+        var left = x
+        for _ in 0..<8 {
+            guard let screen = screens.first(where: { $0.overlaps(left...(left + width)) }) else {
+                return left >= 2 ? left : nil
+            }
+            left = (screen.lowerBound - width - 1).rounded(.down)
+        }
+        return nil
     }
 }
 
@@ -35,13 +51,13 @@ enum EyeRules {
 
 /// The battle's braziers and fire towers in look 2's picture, as the lord's lantern since fix round 1 (`LanternLook`):
 /// drawn whole, two braziers 24 px apart saturated the light buffer over a plateau whose flat top read as an orange
-/// box on the gate tower's foot (w-1400-night, w-1200-night). In the picture each is a core at half its strength plus
-/// a round spill 1.7 times as wide at a fifth (a window-kind scene light: no light field, no hole in the Gloom's fog).
+/// box on the gate tower's foot (w-1400-night, w-1200-night). In the picture each is a core at 0.3 of its strength
+/// plus a round spill twice as wide at 0.16 (a window-kind scene light: no light field, no hole in the Gloom's fog).
 /// The battle's lights and the fog's holes keep the whole (`Battle.lightSources`, `GloomFog.clearing`).
 enum FireLook {
-    static let coreShare = 0.5
-    static let spillRadius = 1.7
-    static let spillShare = 0.2
+    static let coreShare = 0.3
+    static let spillRadius = 2.0
+    static let spillShare = 0.16
     static let kinds: Set<LightKind> = [.brazier, .fireTower]
 
     static func pictureLights(_ light: LightSource) -> [LightSource] {
@@ -60,7 +76,7 @@ extension SceneLayout {
     static func look2GateInnerTorch(_ cx: Double) -> Entry {
         Entry(sprite: .torchPost, x: cx - 2, y: 0, z: 2,
               emitters: [.sprite(.flame, dx: 0, dy: 12, glow: .fireGold, fades: true)],
-              lights: [Light(kind: .torch, x: cx, y: 15, radius: 30, intensity: 0.55),
+              lights: [Light(kind: .torch, x: cx, y: 15, radius: 30, intensity: 0.4),
                        Light(kind: .window, x: cx, y: 15, radius: 58, squash: 1, color: GamePalette.fireGold,
                              intensity: 0.24)])
     }
@@ -114,11 +130,13 @@ enum CreatureLook {
 // MARK: - High 8: the Gloom's ground fog on a hard night
 
 extension GloomFog {
-    /// The ground fog (`gloomGroundFog` on fog A, behind the world plane and before the mid and near planes): a cold
-    /// low mist 16 to 22 rows high that swallows the feet of the mid plane, on the hard nights only (with `midVeil`:
-    /// none on an ordinary night, whole on the hardest).
-    static let groundStrip = FrameBuilder.GloomStrip(plane: .fogA, sprite: .gloomGroundFog, y: -6, share: 0.9,
+    /// The ground fog (`gloomGroundFog` on fog B, in front of the Gloom's dark strips: on fog A they covered it, round
+    /// lh-w3f2-1): a cold low mist 16 to 22 rows high that swallows the feet of the mid plane and the lane's, cut by the
+    /// fires' holes, on the hard nights only (with `midVeil`: none on an ordinary night, whole on the hardest).
+    static let groundStrip = FrameBuilder.GloomStrip(plane: .fogB, sprite: .gloomGroundFog, y: -6, share: 0.9,
                                                      sway: 5, period: 8, phase: 0.5)
+    /// Its alpha's share (the painting's densest row 0.74, so about 0.55 over the lane).
+    static let groundAlpha = 0.75
     /// Its colder tint over the strips' own (× the night's value).
     static let groundTint = SIMD3<Float>(0.92, 1.0, 1.14)
 
@@ -127,7 +145,7 @@ extension GloomFog {
     static func groundTinted(_ tile: SpriteInstance, share: Double) -> SpriteInstance {
         var tinted = tile
         tinted.tint = SIMD4<Float>(tile.tint.x * groundTint.x, tile.tint.y * groundTint.y, tile.tint.z * groundTint.z,
-                                   tile.tint.w * Float(share))
+                                   tile.tint.w * Float(share * groundAlpha))
         return tinted
     }
 }

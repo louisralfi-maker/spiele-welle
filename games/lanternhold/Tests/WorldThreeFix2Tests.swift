@@ -38,6 +38,10 @@ final class WorldThreeFix2Tests: XCTestCase {
         XCTAssertFalse(EyeRules.allowed(x: beacon.x + 10, width: 9, y: 30, screens: screens), "not before the beacon")
         XCTAssertTrue(EyeRules.allowed(x: beacon.x - 40, width: 9, y: 30, screens: screens), "beside it in the bank")
         XCTAssertFalse(EyeRules.allowed(x: beacon.x - 40, width: 9, y: 70, screens: screens), "never high")
+        let moved = EyeRules.placed(x: beacon.x + 10, width: 9, y: 30, screens: screens)
+        XCTAssertNotNil(moved)
+        XCTAssertLessThan((moved ?? 999) + 9, beacon.x, "a bank pair before the beacon moves left of it")
+        XCTAssertNil(EyeRules.placed(x: beacon.x - 40, width: 9, y: 70, screens: screens))
     }
 
     /// High 3: in look 2's picture a line brazier is a core at half its strength and a round spill 1.7 times as wide
@@ -116,15 +120,16 @@ final class WorldThreeFix2Tests: XCTestCase {
         XCTAssertLessThan(CreatureLook.glowShare(x: 490, bankEdge: 500), 1)
     }
 
-    /// High 8: a hard night lays a cold ground fog on fog A in the Throat; an ordinary night none.
+    /// High 8: a hard night lays a cold ground fog on fog B in the Throat, before the Gloom's dark strips; an ordinary
+    /// night none.
     func testAHardNightHasAGroundFog() {
         let world = PlaceholderScene.world(look: .two)
         let hard = frame(world, hour: 23.33, focus: 600, gloom: GloomFog(hardness: 1))
-        let ground = hard.layer(.fogA).sprites.filter { $0.sprite == .gloomGroundFog }
+        let ground = hard.layer(.fogB).sprites.filter { $0.sprite == .gloomGroundFog }
         XCTAssertFalse(ground.isEmpty, "the ground fog on a hard night")
         XCTAssertTrue(ground.allSatisfy { $0.tint.z > $0.tint.x }, "colder than the strips")
         let ordinary = frame(world, hour: 23.33, focus: 600, gloom: GloomFog(hardness: 0.4))
-        XCTAssertFalse(ordinary.layer(.fogA).sprites.contains { $0.sprite == .gloomGroundFog })
+        XCTAssertFalse(ordinary.layer(.fogB).sprites.contains { $0.sprite == .gloomGroundFog })
         XCTAssertEqual(SpriteID.gloomGroundFog.frameCount, 2)
     }
 }

@@ -52,8 +52,10 @@ final class GloomFogTests: XCTestCase {
     /// The slices of the Gloom's fog on a plane (the hour's own fog is whole tiles); since the world rebuild a slice
     /// beside a fire may be cut into halves or quarters (`FrameBuilder.gloomSubSlices`).
     private func slices(_ desc: FrameDesc, _ plane: Plane) -> [SpriteInstance] {
+        // (World-3 fix round 2: the hard night's ground fog, `gloomGroundFog`, is looked at on its own.)
         desc.layer(plane).sprites.filter {
             $0.source != nil && Int($0.rect.z) > 0 && FrameBuilder.gloomSlice % Int($0.rect.z) == 0
+                && $0.sprite != .gloomGroundFog
         }
     }
 
