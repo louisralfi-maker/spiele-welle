@@ -18,16 +18,18 @@ part capeFront
     yyvvv...
     yvvvvvV.
     yvvpvvVV
-    yvvvvvVV
-    .vvvvvV.
+    yvvVvvVV
+    .vvVvvV.
 
 # both hands on the stick's knob before his chest
 part handsKnob
     Ss
 
-# the stick planted between his knees, before the smock
+# the stick planted between his knees, before the smock, its knob above his hands between the cape and the beard
+# (people-2 fix round 1: the beard stood on the cape as one pale mask on a brown sack)
 part stickFront
     l
+    h
     h
     h
     h
@@ -53,7 +55,7 @@ frame 0
     capeFront 2 5
     lapSmock 2 13
     clogsFront 3 20
-    stickFront 6 12
+    stickFront 6 11
     head 5 6
     handsKnob 5 12
 
@@ -61,6 +63,6 @@ frame 1
     capeFront 2 5
     lapSmock 2 13
     clogsFront 3 20
-    stickFront 6 12
+    stickFront 6 11
     head 5 7
     handsKnob 5 12

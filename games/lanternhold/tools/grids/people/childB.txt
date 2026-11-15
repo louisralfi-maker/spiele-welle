@@ -6,7 +6,8 @@
 # outline. Run: contact, flight, contact, flight (the body up 1 px in flight), the plait flying out behind. Fidget:
 # hands behind her back, rocking from the heels (4) onto the toes (5). Skip: the step and the hop on each foot (2 px up
 # on the hop), the arms out, the plait up. The fight (with Nib, `TownDay`): a stick picked up from the lane, raised
-# back over her head (10), then thrust level before her in a lunge (11), the plaits flying.
+# back over her head (10), then thrust level before her in a lunge (11), the plaits flying; the stick three pixels
+# long in both, so it never changes length between the two (people-2 fix round 1).
 id childB
 size 12x18
 frames 12
@@ -119,8 +120,8 @@ part legsSkipB
 
 # the fight: the stick raised back over her head, the near arm up before her face's front
 part armRaise
-    L....
-    .J...
+    .....
+    .L...
     ..J..
     ...JS
     ....s
@@ -131,7 +132,7 @@ part armRaise
 
 # the fight: the lunge, the near arm straight out from the shoulder and the stick thrust level before her
 part armStrike
-    WSJL
+    WSJJL
 
 frame 0
     legsRunA 3 14
@@ -215,4 +216,4 @@ frame 11
     body 3 8
     plaitOut 2 6
     head 4 4
-    armStrike 8 9
+    armStrike 7 9

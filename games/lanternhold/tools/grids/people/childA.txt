@@ -9,7 +9,8 @@
 # contact, flight (the body up 1 px and the feet off the ground in flight), the stick held high. Fidget: on both feet,
 # then on one foot rubbing the other against his shin. Skip: the step and the hop on each foot (2 px up on the hop),
 # the arms thrown up. The fight (with Wren, `TownDay`): feet planted wide, the stick raised back over his head (10),
-# then thrust level before him in a lunge (11).
+# then thrust level before him in a lunge (11); the stick three pixels long in both, so it never changes length
+# between the two (people-2 fix round 1).
 id childA
 size 12x18
 frames 12
@@ -79,8 +80,8 @@ part armsUp
 
 # the fight: the stick raised back over his head, the near arm up before his face's front
 part armRaise
-    L....
-    .J...
+    .....
+    .L...
     ..J..
     ...JW
     ....w
@@ -90,7 +91,7 @@ part armRaise
 
 # the fight: the lunge, the near arm straight out from the shoulder and the stick thrust level before him
 part armStrike
-    WwJL
+    WwJJL
 
 part legsStand
     .sS.
@@ -214,4 +215,4 @@ frame 11
     body 3 9
     endsHang 2 10
     head 4 5
-    armStrike 8 10
+    armStrike 7 10
