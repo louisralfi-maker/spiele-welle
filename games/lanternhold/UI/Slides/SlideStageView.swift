@@ -142,7 +142,8 @@ struct SlideStageView: View {
         .overlay(alignment: .topLeading) {
             if let key = stage.slide?.labelKey {
                 SlideLabel(text: SlideText.string(key, table: stage.slide?.table ?? SlideShow.table, lord: stage.lord))
-                    .offset(x: -8, y: -9)
+                    .padding(.leading, 16)
+                    .padding(.top, 12)
                     .opacity(wordsShown && wordsIndex == stage.index ? 1 : 0)
                     .accessibilityHidden(true)
             }
@@ -513,20 +514,25 @@ struct SlideGateMask: View {
     }
 }
 
-/// The paper label on the last slide's mount: the lord's name in the family book's hand.
+/// The name on the last slide.
 struct SlideLabel: View {
     let text: String
 
+    /// The lord's name on the last slide (15.11.2026: no parchment anywhere): type only, no plate, inside the
+    /// picture's top left corner on the dark vault. The stage's small capitals as "Skip", in the gold of the lit
+    /// lozenge, about 60 % of the words' size, over a 1 pt hairline of the same gold at 40 %, as wide as the name.
     var body: some View {
-        Text(verbatim: text)
-            .font(Theme.italic(.subheadline))
-            .foregroundStyle(Theme.ink)
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background(SlipBackground())
-            .rotationEffect(.degrees(-2.5))
+        VStack(alignment: .leading, spacing: 3) {
+            Text(verbatim: text)
+                .font(Theme.caps(.caption))
+                .foregroundStyle(SlidePalette.lozenge)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            Rectangle()
+                .fill(SlidePalette.lozenge.opacity(0.4))
+                .frame(height: 1)
+        }
+        .fixedSize()
     }
 }
 
