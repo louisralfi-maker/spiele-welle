@@ -16,6 +16,8 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
     case cardOpened, cardClosed, refused, happinessUp, happinessDown
     // Sound and haptics (`SoundWatch` reads them off the realm's state; the court's audience and choices)
     case coin, paid, wallHit, creatureHit, arrowHit, gate, step, audienceOpened, choiceMade
+    // The taxes on foot (town-2, `TownShow.cues`): the lord's knock at a door, a house's shutters closing
+    case knock, shutter
 
     /// Cues that only play when they happen near the king (DESIGN.md "Archer volley (near the king)", engines "when on
     /// screen").
@@ -89,13 +91,14 @@ struct FeedbackThinner: Sendable, Equatable {
         case .kingSlain: return (.kingSlain, nil)
         case .horn: return (.horn, nil)
         case .firstLight: return (.firstLight, nil)
-        case .dawn: return (.taxesCounted, nil)
         case .buildOrdered: return (.buildOrdered, nil)
         case .buildDone: return (.buildDone, nil)
         case .recruited: return (.recruited, nil)
         case .patched: return (.patched, nil)
         case .brazierLit: return (.brazierLit, nil)
-        case .nightfall, .brazierSnuffed, .gloomRecedes, .kingAuraClosed:
+        // The dawn puts no coins into the purse since the taxes went on foot (town-1): `.taxesCounted` waits for the
+        // households' toss (town-2); first light's bell has already rung.
+        case .nightfall, .brazierSnuffed, .gloomRecedes, .kingAuraClosed, .dawn:
             return nil
         }
     }

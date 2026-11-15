@@ -27,7 +27,8 @@ final class AutoplayTests: XCTestCase {
             XCTAssertTrue(s.plots[plot].item != nil || s.plots[plot].job != nil, "\(Realm.plots[plot].key) ordered")
         }
         let spent = balance.price(.brazier) * 2 + balance.price(.stakePit)
-        XCTAssertEqual(s.gold, balance.startGold - spent)
+        XCTAssertEqual(s.gold, balance.startGold + balance.town.firstMorningGold - spent,
+                       "the first morning's coins came in before the first build (town-1)")
         Sim.run(&s, untilHour: 18, balance: balance, bot: &bot)
         XCTAssertEqual(s.plots[a].item, .brazier, "built before the horn")
         XCTAssertEqual(s.plots[trap].item, .stakePit)
@@ -41,7 +42,10 @@ final class AutoplayTests: XCTestCase {
         XCTAssertEqual(s.buildingsBuilt, 0)
         XCTAssertTrue(s.plots.allSatisfy { $0.job == nil })
         XCTAssertEqual(s.soldiers.count, balance.startArchers + balance.startGuards)
-        XCTAssertGreaterThan(s.gold, balance.startGold, "taxes pile up")
+        let purse = balance.startGold + balance.town.firstMorningGold
+        XCTAssertEqual(s.gold, purse, "the first morning's coins; the dawn's taxes are owed, not yet collected")
+        bot.morning(&s, balance: balance)
+        XCTAssertGreaterThan(s.gold, purse, "taxes pile up: it collects them at dawn")
     }
 
     /// M3 fix (C1): the bot hears from the catalogue it is given (the driver's), not always the standard one.
@@ -64,20 +68,31 @@ final class AutoplayTests: XCTestCase {
         XCTAssertEqual(s.court?.heardCount ?? 0, 0, "an empty catalogue: nobody to hear")
     }
 
-    func testTaxVariantsSetTheirTax() {
+    /// Since the taxes went on foot (town-1) a bot's rate names its habit in the town and sets nothing: the reference
+    /// bot collects everything at dawn, low leaves the houses alone, high knocks at every house (`TownTests`).
+    func testTaxVariantsKeepTheirHabitInTheTown() {
+        XCTAssertEqual(Autoplay.reference().habit, .collect)
+        XCTAssertEqual(Autoplay.reference(tax: .low).habit, .spare)
+        XCTAssertEqual(Autoplay.reference(tax: .high).habit, .knock)
+        XCTAssertEqual(Autoplay.reference(tax: .war).habit, .levy)
+        XCTAssertEqual(Autoplay.buildsNothing.habit, .collect, "the bot that builds nothing still collects")
         for tax in [TaxRate.low, .high] {
             var s = GameState.newRealm(seed: 1, balance: balance)
             var bot = Autoplay.reference(tax: tax)
             var events: [SimEvent] = []
             bot.act(&s, dt: 0.1, balance: balance, events: &events)
-            XCTAssertEqual(s.tax, tax)
+            XCTAssertEqual(s.tax, .normal, "the bot sets no rate")
         }
         var noBeacon = Autoplay.reference(buildsBeacon: false)
         XCTAssertFalse(noBeacon.buildsBeacon)
         var s = GameState.newRealm(seed: 1, balance: balance)
+        Sim.runToDawn(&s, balance: balance, bot: &noBeacon)
+        let owed = s.town?.today?.owedTotal ?? 0
+        XCTAssertGreaterThan(owed, 0, "the first dawn's taxes are owed")
         var events: [SimEvent] = []
         noBeacon.act(&s, dt: 0.1, balance: balance, events: &events)
-        XCTAssertEqual(s.tax, .normal)
+        XCTAssertEqual(s.town?.today?.owing, 0, "its first step of the day collects everything")
+        XCTAssertEqual(s.town?.today?.tossGold, owed)
     }
 
     func testAtNightTheKingStandsBehindTheFrontWall() {

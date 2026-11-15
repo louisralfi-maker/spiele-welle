@@ -188,6 +188,11 @@ final class GameModel {
     // The court (M3 step 3, `GameModel+Court.swift`): the rooms cut away, the audience, talking.
     @ObservationIgnored var court = CourtScene(rooms: RoomFades(kingX: 0))
     @ObservationIgnored var talkLog = TalkLog()
+    // The taxes on foot (town-2, `GameModel+Town.swift`): the walk to a door and the cues' clock; the doors on screen
+    // for VoiceOver and the UI tests; the town's state for the UI tests.
+    @ObservationIgnored var townRun = TownRun()
+    var townMarks: [TownDoorMark] = []
+    var townStatus = ""
     /// The last frame's pixel scale (the bubble's and the card's anchors).
     @ObservationIgnored var lastPixelScale: PixelScale?
     /// The audience card while it shows (nil while the petitioner walks up).
@@ -367,7 +372,9 @@ final class GameModel {
             mark = events.count
         }
         driver = game
-        let heard = watch.cues(game.state, balance: game.balance, moving: stepped > 0)
+        // Town-2: the purse is heard as the player sees it (the coins in the air held back until they land).
+        let heard = watch.cues(TownShow.heard(game.state, balance: game.balance), balance: game.balance,
+                               moving: stepped > 0)
         if !events.isEmpty {
             effects.note(events, state: game.state, balance: game.balance, time: animationTime)
             if tracking { dissolveSwept(before: before, state: game.state, balance: game.balance) }
@@ -383,6 +390,7 @@ final class GameModel {
             camera = follow
         }
         stepCourt(seconds, state: game.state)
+        stepTown()
         effects.prune(time: animationTime)
         shake.prune(time: clock.elapsed)
         if hornNight != nil && clock.elapsed > hornUntil {
@@ -553,14 +561,14 @@ final class GameModel {
             case .recruit:
                 openCard(.recruit, anchorX: KingTargets.barracksX)
             case .throne:
-                // M3: the crown opens the audience while petitioners wait in the hall, else the tax card.
-                if AudienceRules.hall(game.state, catalog: .standard).isEmpty {
-                    openCard(.taxes, anchorX: KingTargets.throneX)
-                } else {
+                // M3: the crown opens the audience while petitioners wait in the hall. Town-2: no tax card any more;
+                // the taxes are collected on foot at the doors (docs/TOWN.md section 1).
+                if !AudienceRules.hall(game.state, catalog: .standard).isEmpty {
                     openAudience(.throne)
                 }
             case .lectern:
-                openCard(.taxes, anchorX: KingTargets.lecternX)
+                // Town-2: the lectern stays as furniture; the button never offers it (`KingTargets`).
+                break
             case .stranger:
                 openAudience(.gate)
             case .talk(let who):
@@ -985,6 +993,10 @@ final class GameModel {
                               ambient: AmbientRamp.sample(at: state.hour, look: options.look), animTime: animationTime,
                               reduceMotion: reduceMotion)
             noteCourtFrame(camera: view, pixelScale: pixelScale)
+            // Town-2: the households in their doors, the coins, the knock, the shutters (`TownFrames`).
+            TownFrames.apply(&layer, state: state, balance: game.balance,
+                             view: EntityFrames.ActorView(camera: view, pixelScale: pixelScale, mode: options.actorMode),
+                             reduceMotion: reduceMotion, refused: townRun.refused)
             for light in DawnSweep.lights(hour: state.hour) {
                 layer.lights.append((source: light, plane: .world))
             }
@@ -1108,7 +1120,8 @@ final class GameModel {
         }
         if let game = driver {
             let s = game.state
-            if s.gold != gold { gold = s.gold }
+            let shown = townShownGold(s, balance: game.balance)
+            if shown != gold { gold = shown }
             if s.happiness != happiness { happiness = s.happiness }
             if s.citizens != people { people = s.citizens }
             if s.soldiers.count != soldiers { soldiers = s.soldiers.count }

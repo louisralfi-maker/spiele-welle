@@ -60,6 +60,8 @@ enum GameStart {
         if let clock = args.clock, DayClock.phase(at: state.hour) == .day, !state.defeated {
             state.hour = clock
         }
+        // `-GWTown` (town-2): today's doors as the screenshots need them.
+        if let mode = args.town { TownDebug.apply(&state, mode: mode, balance: balance) }
         applyNumbers(&state, args: args)
         applyNumbers(&dawn, args: args)
         applyHouses(&state, args: args)
@@ -82,6 +84,9 @@ enum GameStart {
             Sim.runToDawn(&s, balance: balance, bot: &bot)
             guardDays += 1
         }
+        // The bot's morning in the town (town-1): it collects that dawn's taxes, as `TuningRun.play` does, so a
+        // `-GWDay` start holds the gold it held before the taxes went on foot.
+        bot.morning(&s, balance: balance)
         return s
     }
 

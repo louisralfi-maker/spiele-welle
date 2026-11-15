@@ -1,0 +1,85 @@
+# townNib 10x18, 9 frames (town-2, `TownSprites.ChildFrame`): Nib Brisk, the town's quickest child (docs/PEOPLE.md),
+# who at 60 happiness and more sometimes runs out of a house with its coins instead of the grown-ups (docs/TOWN.md
+# section 6): the children are the bright thing. Her body is the people lane's (base/nib.txt: the whole kerchief in the
+# children's red, the light linen a value step above any grown-up's cloth). The stick is left indoors; she carries
+# the coins out in her fist.
+#   0-3 running out, the coins held before her; 4 waiting in the door, the coins held up; 5 the throw, both arms up
+#   6-8 skipping home, arms up (6 the step, 7 the hop, 8 the other step)
+id townNib
+size 10x18
+frames 9
+outline ink shade
+include base/nib.txt
+
+legend
+    G = gold
+    Y = strawLight
+
+# her near arm in the linen sleeve (W lit, w shade), the small fist (S), the coins (G, Y)
+part armCoins
+    W..
+    wSG
+
+part armHoldUp
+    ..S
+    ..S
+    .W.
+
+part armThrow
+    ..S
+    .S.
+    W..
+
+frame 0
+    legsRunA 2 14
+    body 2 9
+    head 3 5
+    armCoins 5 10
+
+frame 1
+    legsFlightA 3 13
+    body 2 8
+    head 3 4
+    armCoins 5 9
+
+frame 2
+    legsRunB 2 14
+    body 2 9
+    head 3 5
+    armCoins 5 10
+
+frame 3
+    legsFlightB 3 13
+    body 2 8
+    head 3 4
+    armCoins 5 9
+
+frame 4
+    legsStand 3 14
+    body 2 9
+    head 3 5
+    armHoldUp 5 7
+
+frame 5
+    legsOneFoot 3 14
+    body 2 9
+    head 3 4
+    armThrow 5 6
+
+frame 6
+    legsSkipA 2 14
+    body 2 9
+    head 3 5
+    armsUp 6 8
+
+frame 7
+    legsSkipA 2 12
+    body 2 7
+    head 3 3
+    armsUp 6 6
+
+frame 8
+    legsSkipB 2 14
+    body 2 9
+    head 3 5
+    armsUp 6 8

@@ -1,0 +1,145 @@
+# townDun 12x26, 11 frames (town-2, `TownSprites.Frame`): Dun Rook, the porter of the ford, at the oil-presser's door
+# (house 3) with the day's coins. His body is the people lane's (base/dun.txt: the soot-grey tunic with the brown
+# patch, the dark beard going grey); the sack is set down indoors. His mark stays the brightest thing on him: the near
+# forearm and hand bound in a pale linen rag (W lit, w, q shade), so his coins sit in the rag.
+#   0-1 waiting, the coins in the bound hand (a breath), held a little forward; the coin itself is
+#       `townCoin`, drawn by the engine over the hands (`TownSprites.heldCoin`), so it can glint and glow
+#   2 the hand drawn back, 3 the throw, 4 the open hand after it, 5-6 the wave, 7 the coins flung down
+#   8 the bow at the knock, the coins held out; 9 the deeper bow, empty; 10 empty-handed
+id townDun
+size 12x26
+frames 11
+outline ink shade
+include base/dun.txt
+
+legend
+    G = gold
+    Y = strawLight
+    g = straw
+
+# the near arm: the grey sleeve (e lit, E shade), the rag from the elbow down
+part armCup
+    ee..
+    eE..
+    .W..
+    .W..
+    .w..
+    ..Wq
+
+part armWind
+    .ee
+    .eE
+    WW.
+    Ww.
+    wq.
+    G..
+
+part armToss
+    ...W
+    ..Ww
+    .eE.
+    ee..
+
+part armFollow
+    eeWW
+    eEwq
+
+part armWaveA
+    ...W
+    ...W
+    ...w
+    ..eE
+    .eE.
+    ee..
+
+part armWaveB
+    ..W.
+    ...W
+    ...w
+    ..eE
+    .eE.
+    ee..
+
+part armFling
+    ee..
+    eE..
+    .WW.
+    ..Ww
+    ...w
+
+part armOffer
+    ee.
+    eWG
+    .wq
+
+part armOfferEmpty
+    ee.
+    eE.
+    .WW
+    .wq
+
+frame 0
+    legsStand 1 15
+    torso 3 8
+    head 5 2
+    armCup 8 9
+
+frame 1
+    legsStand 1 15
+    torso 3 9
+    head 5 3
+    armCup 8 10
+
+frame 2
+    legsStand 1 15
+    torso 3 8
+    head 5 2
+    armWind 7 9
+
+frame 3
+    legsStand 1 15
+    torso 3 8
+    head 5 2
+    armToss 8 5
+
+frame 4
+    legsStand 1 15
+    torso 3 8
+    head 5 2
+    armFollow 8 8
+
+frame 5
+    legsStand 1 15
+    torso 3 8
+    head 5 2
+    armWaveA 8 3
+
+frame 6
+    legsStand 1 15
+    torso 3 8
+    head 5 2
+    armWaveB 8 3
+
+frame 7
+    legsStand 1 15
+    torso 3 9
+    head 5 3
+    armFling 8 9
+
+frame 8
+    legsStand 1 15
+    torso 4 9
+    head 6 4
+    armOffer 9 10
+
+frame 9
+    legsStand 1 15
+    torso 4 10
+    head 6 5
+    armOfferEmpty 9 11
+
+frame 10
+    legsStand 1 15
+    torso 3 8
+    head 5 2
+    armDown 8 9

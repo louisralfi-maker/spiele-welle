@@ -1,12 +1,32 @@
 #!/usr/bin/env python3
-"""Lanternhold economy mirror (DESIGN.md "Economy", "Tuning targets"): taxes, happiness, growth and the affordability
-of the reference build order over 20 days, in pure python, in well under a second. For quick checks on the old Mac,
-which never builds Swift (CLAUDE.md "This Mac").
+"""Lanternhold economy mirror (DESIGN.md "Economy", "Tuning targets"; docs/TOWN.md section 1): taxes on foot,
+happiness, growth and the affordability of the reference build order over 20 days, in pure python, in well under a
+second. For quick checks on the old Mac, which never builds Swift (CLAUDE.md "This Mac").
+
+Since town-1 the dawn works out the day's taxes at the one rate and splits them over the paying places (each house by
+its taxpayers, largest remainder; each field; the market); the bots collect at dawn by habit: normal collects
+everything, low leaves the two houses that owe least alone (+1 happiness each at the next dawn, at most +3), high
+knocks once at every house (40 % more, -2 happiness at once each; the war levy's second knock once the realm opens it
+on story day 8). On the first morning the town's first house owes the 16 that make the purse's 44 the 60 of before,
+and every habit takes them at once (fix round 1). The bots never hire the collector, so he is left out.
+Core/Town/Town.swift is the source.
+
+Town-3 (docs/TOWN.md section 3, Core/Town/TownGrowth.swift): the townhouse (room 12), the market hall (25 % of the
+tax part), the inn (+2 happiness a dawn), the farmstead (8 gold a day) and the two far fields (from day 5); the town's
+standing (a point for every townhouse, the market hall, the inn and every farmstead, at most 10) adds 1.5 % a point to
+the tax part. The grower bot (Core/Town/TownGrowthTuning.swift, `growerOrder`) grows the town before the beacon;
+target T12 compares its taxes at the dawn after night 14 with the old town's (the same game without the growth: 25 to
+35 % more on the runner; reported here, not checked: this mirror reads about 8 points low). The reference bots never
+build the new tiers, so their numbers stay what they were. The mirror plays the growth as if `TownRules.growthOpen`
+were on (build 3); build 2 ships it off, and then no bot and no player can build the new tiers.
 
 It reads its numbers from the Swift sources, so it cannot drift from them:
-  Core/Balance.swift   the `var name = value` lines and the ItemStats rows (prices, build times)
-  Core/Autoplay.swift  the reference build order (.build("plot", .item), .recruitArchers, .recruitGuards(n))
-  Core/Realm.swift     the unlock days
+  Core/Balance.swift          the `var name = value` lines and the ItemStats rows (prices, build times)
+  Core/Town/TownRules.swift   the `var name = value` lines (the knock, the houses left alone)
+  Core/Autoplay.swift         the reference build order (.build("plot", .item), .recruitArchers, .recruitGuards(n))
+  Core/Realm.swift            the unlock days (the lines, the beacon, the war levy)
+  Core/Town/TownGrowth.swift  the far fields' and the treasury's unlock days
+  Core/Town/TownGrowthTuning.swift  the grower's build order (`growerOrder`)
 
 The battle is left out: no losses, no rubble, no patches (the runner's TuningTests measure those). Builders are a
 capacity of builder-seconds per day. Usage: python3 tools/tune.py [--days 20] [--set taxPerPayer=5.5 ...] [--quiet]
@@ -31,8 +51,9 @@ def read(name):
 def load_balance():
     text = read("Core/Balance.swift")
     values = {}
-    for name, value in re.findall(r"^\s*var (\w+) = (-?[0-9][0-9_]*(?:\.[0-9]+)?)\s*$", text, re.M):
-        values[name] = float(value.replace("_", ""))
+    for source in (text, read("Core/Town/TownRules.swift")):
+        for name, value in re.findall(r"^\s*var (\w+) = (-?[0-9][0-9_]*(?:\.[0-9]+)?)\s*$", source, re.M):
+            values[name] = float(value.replace("_", ""))
     items = {}
     for item, price, time in re.findall(r"ItemStats\(\.(\w+), price: (\d+), time: ([0-9.]+)\)", text):
         items[item] = (int(price), float(time))
@@ -42,9 +63,9 @@ def load_balance():
     return values, items, arrays
 
 
-def load_order():
-    text = read("Core/Autoplay.swift")
-    body = text.split("static let referenceOrder", 1)[1].split("]\n", 1)[0]
+def load_order(name="Core/Autoplay.swift", order="referenceOrder"):
+    text = read(name)
+    body = text.split("static let " + order, 1)[1].split("]\n", 1)[0]
     order = []
     for line in body.splitlines():
         line = line.strip()
@@ -60,27 +81,82 @@ def load_order():
     return order
 
 
+def town_orders(order):
+    """Core/Town/TownGrowthTuning.swift: the grower's and the old town's orders, the reference order with the growth
+    (or the town of before) inserted before its first big house 4 and the far fields after its field 8."""
+    growth = load_order("Core/Town/TownGrowthTuning.swift", "growthSteps")
+    old = load_order("Core/Town/TownGrowthTuning.swift", "oldTownSteps")
+    far = load_order("Core/Town/TownGrowthTuning.swift", "farFieldSteps")
+
+    def inserting(steps, with_far):
+        result, inserted = [], False
+        for step in order:
+            if not inserted and step == ("build", "town.house.4", "bigHouse"):
+                result += steps
+                inserted = True
+            result.append(step)
+            if with_far and step == ("build", "town.field.8", "field"):
+                result += far
+        return result
+    return inserting(growth, True), inserting(old, False)
+
+
 def load_unlocks():
     text = read("Core/Realm.swift")
     lines = [int(v) for v in re.search(r"lineUnlockDays: \[Int\] = \[([^\]]*)\]", text).group(1).split(",")]
     beacon = int(re.search(r"beaconUnlockDay = (\d+)", text).group(1))
-    return {"l1": lines[0], "l2": lines[1], "l3": lines[2], "beacon": beacon}
+    war = int(re.search(r"warTaxDay = (\d+)", text).group(1))
+    growth = read("Core/Town/TownGrowth.swift")
+    far = int(re.search(r"farFieldsDay = (\d+)", growth).group(1))
+    treasury = int(re.search(r"treasuryDay = (\d+)", growth).group(1))
+    return {"l1": lines[0], "l2": lines[1], "l3": lines[2], "beacon": beacon, "war": war,
+            "town.field.9": far, "town.field.10": far, "castle.treasury": treasury}
 
 
 # Upgrade chains and tiers, as in BuildItem.
 CHAINS = [["gate", "ironGate", "greatGate"], ["palisade", "stoneWall", "bastion"], ["archerTower", "watchtower"],
           ["brazier", "fireTower"], ["beaconBase", "beaconTower", "greatBeacon"], ["smithy", "masterSmithy"],
-          ["lodge", "bigLodge"], ["house", "bigHouse"], ["ballista"], ["catapult"], ["stakePit"], ["field"],
-          ["market"], ["tavern"]]
+          ["lodge", "bigLodge"], ["house", "bigHouse", "townhouse"], ["ballista"], ["catapult"], ["stakePit"],
+          ["field", "farmstead"], ["market", "marketHall"], ["tavern", "inn"], ["treasury"]]
+# The tiers that count for the town's standing (TownGrowth.points).
+STANDING = ("townhouse", "marketHall", "inn", "farmstead")
 TIER = {item: index + 1 for chain in CHAINS for index, item in enumerate(chain)}
 PREVIOUS = {chain[i + 1]: chain[i] for chain in CHAINS for i in range(len(chain) - 1)}
 PREBUILT = {"l1.wall": "gate", "town.house.1": "house", "town.house.3": "house", "town.house.4": "house",
             "town.house.5": "house"}
+# The town plots left to right (Realm.townPlots) and what pays there.
+TOWN = ["town.house.1", "town.field.2", "town.house.3", "town.house.4", "town.house.5", "town.market.6",
+        "town.tavern.7", "town.field.8", "town.field.9", "town.field.10"]
+HABIT = {"low": "spare", "normal": "collect", "high": "knock", "war": "levy"}
+
+
+def split(total, weights):
+    """Town.split: largest remainder, ties to the earlier place; the shares add up to `total`."""
+    whole = sum(max(0, w) for w in weights)
+    if total <= 0 or whole <= 0:
+        return [0] * len(weights)
+    shares = [total * max(0, w) // whole for w in weights]
+    rests = sorted(range(len(weights)), key=lambda i: (-(total * max(0, weights[i]) % whole), i))
+    left = total - sum(shares)
+    for i in rests[:left]:
+        shares[i] += 1
+    return shares
 
 
 class Realm:
     def __init__(self, v, items, arrays, unlocks, tax):
         self.v, self.items, self.arrays, self.unlocks, self.tax = v, items, arrays, unlocks, tax
+        self.habit = HABIT[tax]
+        # Town.firstMorning: the first house owes the rest of the 60 of before; [{plot, kind, owed, collected, knocks}]
+        self.today = [{"plot": "town.house.1", "kind": "house", "owed": int(v["firstMorningGold"]), "collected": False,
+                       "knocks": 0}]
+        self.first_morning = True
+        self.first_morning_gold = 0           # what the bot took on the first morning (not counted as income)
+        self.war_unlocked = False             # GameState.warTaxUnlocked: Sim's dawn opens it on story day 8
+        self.spared_yesterday = 0
+        self.unrest_today = False
+        self.income = 0                       # every coin the town paid over the run's dawns (tosses and knocks)
+        self.knocks = 0
         self.gold = int(v["startGold"])
         self.happiness = int(v["startHappiness"])
         self.citizens = int(v["startCitizens"])
@@ -95,6 +171,7 @@ class Realm:
         self.first_taxes = None
         self.buildings_day10 = None
         self.log = []
+        self.standings = []                   # the town's standing at each logged dawn
 
     # --- helpers mirroring GameState / Build ---
     def taxpayers(self):
@@ -103,11 +180,22 @@ class Realm:
     def room(self):
         room = 0
         for item in self.built.values():
-            if item == "house":
-                room += int(self.v["houseRoom"])
-            elif item == "bigHouse":
-                room += int(self.v["bigHouseRoom"])
+            room += self.house_room(item)
         return room
+
+    def house_room(self, item):
+        """TownGrowth.room: a cottage 4, a big house 8, a townhouse 12."""
+        return int({"house": self.v["houseRoom"], "bigHouse": self.v["bigHouseRoom"],
+                    "townhouse": self.v["townhouseRoom"]}.get(item, 0))
+
+    def field_gold(self, item):
+        """TownGrowth.fieldGold: a field 5, a farmstead 8."""
+        return int({"field": self.v["fieldGold"], "farmstead": self.v["farmsteadGold"]}.get(item, 0))
+
+    def standing(self):
+        """TownGrowth.standing: a point for every townhouse, the market hall, the inn, every farmstead."""
+        points = sum(1 for plot, item in self.built.items() if plot in TOWN and item in STANDING)
+        return min(int(self.v["standingMost"]), points)
 
     def builders(self):
         lodge = self.built.get("castle.lodge")
@@ -150,6 +238,8 @@ class Realm:
         return TIER[current] >= TIER[item]
 
     def unlocked(self, plot):
+        if plot in self.unlocks:
+            return self.day >= self.unlocks[plot]
         return self.day >= self.unlocks.get(plot.split(".")[0], 1)
 
     # --- the bot's day (Autoplay.planDay without rubble) ---
@@ -223,22 +313,111 @@ class Realm:
         self.buy(order, builds_beacon)
         if self.day == 10:
             self.buildings_day10 = self.buildings()
+        self.horn()
+
+    # --- the taxes on foot (Town) ---
+    def doors_open(self):
+        return self.today is not None and not self.unrest_today and self.happiness >= self.v["unrestBelow"]
+
+    def ledger(self, tax_part, market, unrest):
+        """Town.ledger: taxpayers over the houses by room, the tax part over the houses by taxpayers."""
+        places = []
+        for plot in TOWN:
+            item = self.built.get(plot)
+            if item in ("house", "bigHouse", "townhouse"):
+                places.append({"plot": plot, "kind": "house", "room": self.house_room(item)})
+            elif item in ("field", "farmstead"):
+                places.append({"plot": plot, "kind": "field", "gold": self.field_gold(item)})
+            elif item in ("market", "marketHall"):
+                places.append({"plot": plot, "kind": "market"})
+        houses = [p for p in places if p["kind"] == "house"]
+        payers = split(self.taxpayers(), [h["room"] for h in houses])
+        parts = split(0 if unrest else tax_part, payers)
+        for house, part in zip(houses, parts):
+            house["owed"] = part
+        for place in places:
+            if place["kind"] == "field":
+                place["owed"] = 0 if unrest else place["gold"]
+            elif place["kind"] == "market":
+                place["owed"] = 0 if unrest else market
+            place["collected"] = False
+            place["knocks"] = 0
+        return places
+
+    def horn(self):
+        """Town.horn: houses that owed, were left alone and whose doors were open count at the next dawn."""
+        self.spared_yesterday = 0
+        if self.today is None:
+            return
+        if self.doors_open():
+            self.spared_yesterday = sum(1 for p in self.today if p["kind"] == "house" and p["owed"] > 0
+                                        and not p["collected"])
+
+    def collect(self, place):
+        if self.doors_open() and place["owed"] > 0 and not place["collected"]:
+            place["collected"] = True
+            self.gold += place["owed"]
+            if self.first_morning:
+                self.first_morning_gold += place["owed"]
+            else:
+                self.income += place["owed"]
+
+    def knock(self, place):
+        v = self.v
+        allowed = 2 if self.war_unlocked else 1
+        if not self.doors_open() or place["kind"] != "house" or not place["collected"] or place["knocks"] >= allowed:
+            return False
+        levy = place["knocks"] >= 1
+        share = v["levyShare"] if levy else v["knockShare"]
+        gold = max(1, round_half_away(place["owed"] * share))
+        place["knocks"] += 1
+        self.gold += gold
+        self.income += gold
+        self.knocks += 1
+        self.happiness = int(min(100, max(0, self.happiness + (v["levyHappiness"] if levy else v["knockHappiness"]))))
+        return True
+
+    def morning(self):
+        """Town.morning: the bot's habit at dawn; on the first morning every habit only collects."""
+        if not self.doors_open():
+            return
+        habit = "collect" if self.first_morning else self.habit
+        if habit == "spare":
+            houses = sorted((p for p in self.today if p["kind"] == "house" and p["owed"] > 0),
+                            key=lambda p: (p["owed"], TOWN.index(p["plot"])))
+            spared = {p["plot"] for p in houses[:int(self.v["lowHabitSpares"])]}
+        else:
+            spared = set()
+        for place in self.today:
+            if place["plot"] not in spared:
+                self.collect(place)
+        if habit in ("knock", "levy"):
+            times = 1 if habit == "knock" else 2
+            for place in self.today:
+                while place["knocks"] < times and self.knock(place):
+                    pass
 
     def dawn(self):
         v = self.v
         before = self.happiness
-        rate = {"low": v["rateLow"], "normal": v["rateNormal"], "high": v["rateHigh"], "war": v["rateWar"]}[self.tax]
         mood = v["moodBase"] + v["moodSpan"] * min(100, max(0, before)) / 100
-        tax_part = round_half_away(self.taxpayers() * v["taxPerPayer"] * rate * mood)
-        fields = sum(1 for item in self.built.values() if item == "field") * int(v["fieldGold"])
-        market = round_half_away(tax_part * v["marketShare"]) if "market" in self.built.values() else 0
-        total = 0 if before < v["unrestBelow"] else tax_part + fields + market
-        self.gold += total
+        standing = self.standing()
+        factor = 1 + standing * v["standingTaxShare"] if standing > 0 else 1
+        tax_part = round_half_away(self.taxpayers() * v["taxPerPayer"] * mood * factor)
+        fields = sum(self.field_gold(item) for item in self.built.values())
+        built = self.built.values()
+        share = v["marketHallShare"] if "marketHall" in built else (v["marketShare"] if "market" in built else None)
+        market = round_half_away(tax_part * share) if share is not None else 0
+        unrest = before < v["unrestBelow"]
+        total = 0 if unrest else tax_part + fields + market
+        ledger = self.ledger(tax_part, market, unrest)
+        assert sum(p["owed"] for p in ledger) == total, "the parts add up to the day's taxes"
         if self.first_taxes is None:
             self.first_taxes = total
-        delta = {"low": v["happinessLowTax"], "normal": v["happinessNormalTax"], "high": v["happinessHighTax"],
-                 "war": v["happinessWarTax"]}[self.tax]
-        if "tavern" in self.built.values():
+        delta = min(v["spareHappinessMost"], self.spared_yesterday * v["spareHappiness"])
+        if "inn" in self.built.values():
+            delta += v["innHappiness"]
+        elif "tavern" in self.built.values():
             delta += v["happinessTavern"]
         delta += v["happinessNoLosses"]
         after = int(min(100, max(0, before + delta)))
@@ -262,8 +441,15 @@ class Realm:
             self.citizens += 1
             self.archers += 1
         self.day += 1
+        if self.day >= self.unlocks["war"]:
+            self.war_unlocked = True
+        self.today = ledger
+        self.first_morning = False
+        self.unrest_today = unrest
+        self.morning()
         self.log.append((self.day, total, self.gold, self.happiness, self.citizens, self.archers, self.guards,
                          self.buildings(), self.cursor))
+        self.standings.append(self.standing())
 
 
 def round_half_away(x):
@@ -273,6 +459,7 @@ def round_half_away(x):
 
 def simulate(v, items, arrays, unlocks, order, tax="normal", days=20, builds_beacon=True):
     realm = Realm(v, items, arrays, unlocks, tax)
+    realm.morning()                           # the bot's first step: the first morning's coins
     for _ in range(days):
         realm.run_day(order, builds_beacon)
         realm.dawn()
@@ -307,6 +494,11 @@ def main():
     unlocks = load_unlocks()
 
     normal = simulate(v, items, arrays, unlocks, order, "normal", args.days)
+    grower_order, old_order = town_orders(order)
+    night = 14                                # T12 compares at the dawn after night 14 (TownGrowthMetrics.night)
+    grower = simulate(v, items, arrays, unlocks, grower_order, "normal", night)
+    old_town = simulate(v, items, arrays, unlocks, old_order, "normal", night)
+    reference14 = simulate(v, items, arrays, unlocks, order, "normal", night)
     low = simulate(v, items, arrays, unlocks, order, "low", args.days)
     high = simulate(v, items, arrays, unlocks, order, "high", args.days)
 
@@ -331,6 +523,18 @@ def main():
         ("T5 8-12 buildings by day 10", normal.buildings_day10 is not None and 8 <= normal.buildings_day10 <= 12,
          "%s" % normal.buildings_day10),
     ]
+    t12 = grower.log[-1][1] / old_town.log[-1][1] - 1
+    # Reported, not checked: the mirror leaves out the court and the battle, and its grower's people grow more slowly
+    # than on the runner (round lh-t3-1: the mirror +30.4 %, the runner +39.6 % at 3 % a point), so the runner's
+    # TownGrowthTuningTests decide T12 (25 to 35 %).
+    print("T12 (reported; the runner decides, it reads about 8 points higher): the grower %+.1f %% over the old town "
+          "(taxes %d against %d at the dawn after night 14; the reference %d, %+.1f %%; standing %d)" % (
+              100 * t12, grower.log[-1][1], old_town.log[-1][1], reference14.log[-1][1],
+              100 * (grower.log[-1][1] / reference14.log[-1][1] - 1), grower.standings[-1]))
+    print("town over %d days: normal collects %d gold; low (two houses left alone) %d; high (knocks at every house, %d "
+          "knocks) %d; every bot took the first morning's %d and started its first build with %d" % (
+              args.days, normal.income, low.income, high.knocks, high.income, normal.first_morning_gold,
+              int(v["startGold"]) + normal.first_morning_gold))
     failed = 0
     for name, ok, value in checks:
         print("%s %-36s %s" % ("PASS" if ok else "FAIL", name, value))

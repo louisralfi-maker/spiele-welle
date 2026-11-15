@@ -120,6 +120,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // Stage 7 (SPRITES.md "The circlet icon"): interface art, never in the world: the lord's circlet in gold (the
     // HUD's audience button) and in ink alone (the audience card's gold button)
     case circletIcon, circletIconInk
+    // The town lane (town-2, docs/TOWN.md section 1, `TownSprites`): the households at their doors, the farmer, the
+    // lord's knock, the coin, the houses' open door and closed shutters
+    case townCorra, townDun, townBrede, townHemmet, townWenna, townGorm, townNib, kingKnock, ladyKnock, townCoin,
+         townCottage, townBigHouse, townStrongbox
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -346,6 +350,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .bannerVarn, .bannerBrine, .bannerOxmoor, .bannerCalder, .bannerLorn:
             return PixelSize(width: 20, height: 41)
         case .circletIcon, .circletIconInk: return PixelSize(width: 24, height: 16)
+        case .townCorra, .townDun, .townBrede, .townHemmet, .townWenna, .townGorm, .townNib, .kingKnock, .ladyKnock,
+             .townCoin, .townCottage, .townBigHouse, .townStrongbox:
+            return TownSprites.size(of: self)
         }
     }
 
@@ -373,6 +380,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     /// walls whole 0 and damaged 1; gates closed 0, closed damaged 1, open 2; projectiles rising 0, flat 1, falling 2.
     var frameCount: Int {
         if isCourtBody { return 8 }
+        if let count = TownSprites.frameCount(of: self) { return count }
         switch self {
         case .petitionerD, .petitionerE: return 6
         case .portraitSeren, .speakerMark: return 2

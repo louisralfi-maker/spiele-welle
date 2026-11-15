@@ -1,0 +1,97 @@
+# kingKnock 16x30, 3 frames (town-2, `TownSprites.KnockFrame`): the Burgherr at a door of the town, demanding more
+# (docs/TOWN.md: "Wenn man nachfordert und auf die Tür drückt, klopft der König dran"). His body is the walking
+# sprite's standing frame (../actors/king.txt frame 6, the same anchor), and the lantern pole stays exactly where that
+# frame holds it, in his near hand before him, so nothing jumps when the pose starts or ends and his glow strip
+# (kingGlow frame 6) and the lantern's light stay on the glass (fix round 1: the pole no longer swaps to his back).
+# He knocks with his free far hand: it comes out under his near arm, passes behind the pole and raps the door at the
+# height of his hip, where the town's low doors are; then it is held out, palm up, for the coins.
+# Fix round 2: the open palm is held low, at belt height (row 20), under and before the lantern, so a coin is seen to
+# land in a hand and not in the lantern's light (`TownShow.lordHand`, dy 12); frame 3 is the same palm giving a pixel
+# down and back as a coin lands in it.
+#   0 the fist drawn back, 1 the knock (the fist on the door ahead of him), 2 the open hand held out low for the coins,
+#   3 the palm giving as a coin lands
+id kingKnock
+size 16x30
+frames 4
+outline ink shade
+include ../actors/king.txt
+
+# no glow strip of its own: the engine keeps the walking sprite's (kingGlow frame 6) over this pose, whose lantern
+# and circlet are that frame's pixels
+legend
+    J = strawLight
+    Z = parchment
+    Y = strawLight
+
+# the far arm in the red-brown tunic, in shade (R lit, r shade), the fist and the open hand (S lit, s shade); the
+# column it leaves open (the second) is the pole's, drawn over it
+part farReady
+    R...
+    r.SS
+    ..sS
+
+part farKnock
+    R.....
+    r.RRSS
+    ....sS
+
+part farReceive
+    R.....
+    r.....
+    .r....
+    ..R...
+    ..R...
+    ..R...
+    ..r...
+    ..sSSs
+
+part farGive
+    R.....
+    r.....
+    .r....
+    ..R...
+    ..R...
+    ..R...
+    ..r...
+    ..s...
+    .sSSs.
+
+frame 0
+    legsStand 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    farReady 9 13
+    pole 10 1
+    armHold 7 9
+
+frame 1
+    legsStand 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    farKnock 9 13
+    pole 10 1
+    armHold 7 9
+
+frame 2
+    legsStand 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    farReceive 9 13
+    pole 10 1
+    armHold 7 9
+
+frame 3
+    legsStand 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    farGive 9 13
+    pole 10 1
+    armHold 7 9

@@ -48,30 +48,26 @@ struct Balance: Sendable, Equatable {
 
     // MARK: Start of chapter 1
 
-    var startGold = 60
+    /// The purse on the morning of day 1. The realm's 60 gold of before are this and the 16 the first household tosses
+    /// the lord that morning (`TownRules.firstMorningGold`, town-1 fix round 1).
+    var startGold = 44
     var startCitizens = 14
     var startArchers = 3
     var startGuards = 2
     var startHappiness = 60
 
-    // MARK: Taxes (taxes at dawn = round(taxpayers × taxPerPayer × rate × mood) + fields + market)
+    // MARK: Taxes (the day's taxes at dawn = round(taxpayers × taxPerPayer × mood) + fields + market, split over the
+    // paying places and collected on foot: `Town`, docs/TOWN.md section 1; its own numbers are `town`)
 
     var taxPerPayer = 5.0
-    var rateLow = 0.6
-    var rateNormal = 1.0
-    var rateHigh = 1.4
-    var rateWar = 1.8
     var moodBase = 0.6
     var moodSpan = 0.8
     var fieldGold = 5
     var marketShare = 0.15
+    var town = TownRules()
 
     // MARK: Happiness at dawn (0 ... 100)
 
-    var happinessLowTax = 3
-    var happinessNormalTax = 0
-    var happinessHighTax = -7
-    var happinessWarTax = -10
     var happinessTavern = 1
     var happinessChapel = 1
     var happinessNoLosses = 2
@@ -126,6 +122,12 @@ struct Balance: Sendable, Equatable {
         ItemStats(.field, price: 25, time: 10),
         ItemStats(.market, price: 80, time: 25),
         ItemStats(.tavern, price: 50, time: 18),
+        // Town-3 (docs/TOWN.md sections 2 and 3; the rules are `TownRules`' "growing town" and `TownGrowth`).
+        ItemStats(.townhouse, price: 110, time: 25),
+        ItemStats(.marketHall, price: 120, time: 28),
+        ItemStats(.inn, price: 90, time: 22),
+        ItemStats(.farmstead, price: 45, time: 14),
+        ItemStats(.treasury, price: 90, time: 24),
     ]
 
     // MARK: Walls, towers, braziers
@@ -278,26 +280,6 @@ struct Balance: Sendable, Equatable {
     func price(_ item: BuildItem) -> Int { items[item.index].price }
     func buildTime(_ item: BuildItem) -> Double { items[item.index].time }
     func creature(_ kind: CreatureKind) -> CreatureStats { creatures[kind.index] }
-
-    /// The tax rate's multiplier.
-    func rate(_ tax: TaxRate) -> Double {
-        switch tax {
-        case .low: return rateLow
-        case .normal: return rateNormal
-        case .high: return rateHigh
-        case .war: return rateWar
-        }
-    }
-
-    /// The tax rate's happiness change at dawn.
-    func happinessChange(_ tax: TaxRate) -> Int {
-        switch tax {
-        case .low: return happinessLowTax
-        case .normal: return happinessNormalTax
-        case .high: return happinessHighTax
-        case .war: return happinessWarTax
-        }
-    }
 
     /// Changes one item's price and time (tests, the tuning harness).
     mutating func setItem(_ item: BuildItem, price: Int? = nil, time: Double? = nil) {

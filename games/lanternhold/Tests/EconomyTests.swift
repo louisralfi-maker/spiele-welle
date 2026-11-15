@@ -1,7 +1,8 @@
 import XCTest
 @testable import Lanternhold
 
-/// Taxes, happiness, growth and unrest at dawn (DESIGN.md "Economy").
+/// Taxes, happiness, growth and unrest at dawn (DESIGN.md "Economy"; since town-1 the taxes are owed at dawn and
+/// collected on foot, docs/TOWN.md section 1 and `TownTests`).
 final class EconomyTests: XCTestCase {
     private let balance = Balance.standard
 
@@ -48,8 +49,8 @@ final class EconomyTests: XCTestCase {
         s.plots[Realm.plotID("town.market.6")!].item = .market
         s.tax = .high
         let rich = Economy.taxes(s, happiness: 60, balance: balance)
-        let part = Int((9 * balance.taxPerPayer * balance.rateHigh * Economy.mood(happiness: 60, balance: balance))
-            .rounded())
+        let part = Int((9 * balance.taxPerPayer * Economy.mood(happiness: 60, balance: balance)).rounded())
+        XCTAssertEqual(rich.taxPart, expected, "the old lectern's rate no longer changes the day's taxes")
         XCTAssertEqual(rich.taxPart, part)
         XCTAssertEqual(rich.fields, 2 * balance.fieldGold)
         XCTAssertEqual(rich.market, Int((Double(part) * balance.marketShare).rounded()))
@@ -64,20 +65,13 @@ final class EconomyTests: XCTestCase {
         XCTAssertFalse(Economy.taxes(s, happiness: 15, balance: balance).unrest)
     }
 
-    func testHappinessChangesForEachTaxRate() {
+    func testTheOldRateNoLongerMovesHappiness() {
         var s = realm()
-        let rates: [(TaxRate, Int)] = [
-            (.low, balance.happinessLowTax), (.high, balance.happinessHighTax), (.war, balance.happinessWarTax),
-        ]
-        for (tax, delta) in rates {
+        for tax in TaxRate.allCases {
             s.tax = tax
             let changes = Economy.happinessChanges(s, fallen: 0, balance: balance)
-            XCTAssertEqual(changes.first?.delta, delta, "\(tax)")
-            XCTAssertTrue(changes.contains(HappinessChange(reason: .noLosses, delta: balance.happinessNoLosses)))
+            XCTAssertEqual(changes, [HappinessChange(reason: .noLosses, delta: balance.happinessNoLosses)], "\(tax)")
         }
-        s.tax = .normal
-        let normal = Economy.happinessChanges(s, fallen: 0, balance: balance)
-        XCTAssertEqual(normal, [HappinessChange(reason: .noLosses, delta: balance.happinessNoLosses)])
     }
 
     func testLossesTavernChapelAndUnheardPetitioners() {
@@ -107,16 +101,21 @@ final class EconomyTests: XCTestCase {
         XCTAssertEqual(Economy.growth(s, happiness: 85, balance: balance), 2)
     }
 
-    func testDawnUsesYesterdaysHappinessForTaxes() {
+    func testDawnUsesYesterdaysHappinessForTaxesAndOwesThem() {
         var s = realm()
-        s.tax = .high
-        let expected = Economy.taxes(s, happiness: 60, balance: balance).total
+        Town.collectAll(&s, balance: balance)
+        let purse = balance.startGold + balance.town.firstMorningGold
+        XCTAssertEqual(s.gold, purse, "the first morning's coins")
+        s.happiness = 72
+        let expected = Economy.taxes(s, happiness: 72, balance: balance).total
         let people = Economy.dawn(&s, fallen: 0, balance: balance)
         XCTAssertEqual(people.taxes.total, expected)
-        XCTAssertEqual(s.gold, balance.startGold + expected)
-        XCTAssertEqual(people.happinessBefore, 60)
-        XCTAssertEqual(s.happiness, 60 + balance.happinessHighTax + balance.happinessNoLosses)
+        XCTAssertEqual(s.gold, purse, "the gold comes when the lord walks to the doors, not at dawn")
+        XCTAssertEqual(s.town?.today?.owedTotal, expected, "the day's taxes are owed by the town")
+        XCTAssertEqual(people.happinessBefore, 72)
+        XCTAssertEqual(s.happiness, 72 + balance.happinessNoLosses)
         XCTAssertEqual(people.happinessAfter, s.happiness)
+        XCTAssertEqual(people.town?.collected, balance.town.firstMorningGold, "the first dawn tells of the first morning")
     }
 
     func testAFreeArcherVolunteersOnEveryThirdDawnAtSeventy() {

@@ -1,0 +1,61 @@
+# townCoin 4x4, 5 frames (town-2, fix round 1): one coin of the taxes, in the air and held out on a waiting
+# household's palm. Drawn by the engine as an emissive actor with a small glow under it (`TownFrames`): it keeps its
+# full colour in the shade of a doorway and blooms a little, so the gold reads at phone size against plaster and
+# timber. Lit from the upper left: a gold edge (G) round a cream highlight (P), the warm brown shade (g) and a dark rim on
+# the shadow side (w), the game's selective outline, so the coin stands off pale plaster by its hue and its rim.
+#   0 the face, 1 three quarters, 2 the edge, 3 three quarters the other way (the spin in flight)
+#   4 the glint: the highlight runs out along the lit edge (a held coin catches the light now and then)
+id townCoin
+size 4x4
+frames 5
+
+legend
+    P = parchment
+    G = gold
+    g = woodLight
+    w = woodDark
+
+part face
+    .GG.
+    GPGg
+    GGgw
+    .gw.
+
+part three
+    .GG.
+    .PGg
+    .GGw
+    .gw.
+
+part edge
+    .Gg.
+    .Pg.
+    .Gw.
+    .gw.
+
+part threeBack
+    .Gg.
+    GPg.
+    GGw.
+    .w..
+
+part glint
+    .PG.
+    PPGg
+    GGgw
+    .gw.
+
+frame 0
+    face 0 0
+
+frame 1
+    three 0 0
+
+frame 2
+    edge 0 0
+
+frame 3
+    threeBack 0 0
+
+frame 4
+    glint 0 0

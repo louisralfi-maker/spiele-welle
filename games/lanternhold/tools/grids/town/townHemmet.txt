@@ -1,0 +1,164 @@
+# townHemmet 12x26, 11 frames (town-2, `TownSprites.Frame`): Old Hemmet, the miller at the Wend's weir, one of the
+# Returned, at the weaver's door (house 5) with the day's coins. His body is the people lane's (base/hemmet.txt: sixty
+# years of sacks, bent nearly double, the hump of his back above his head, the far hand at the small of his back); at
+# his own door he leans on the frame instead of his stick. He cannot straighten: his throw is a flick from under his
+# chin, his wave a lifted hand at his chest, his bow a nod lower still.
+#   0-1 waiting, the coins in his hand (a breath), held a little forward; the coin itself is
+#       `townCoin`, drawn by the engine over the hands (`TownSprites.heldCoin`), so it can glint and glow
+#   2 the hand drawn back, 3 the flick, 4 the open hand after it, 5-6 the wave, 7 the coins flung down
+#   8 the bow at the knock, the coins held out; 9 lower still, empty; 10 empty-handed
+id townHemmet
+size 12x26
+frames 11
+outline ink shade
+include base/hemmet.txt
+
+legend
+    G = gold
+    Y = strawLight
+    g = straw
+
+# the near arm in the flour-grey smock (w lit, q shade), his hand (S lit, s shade)
+part armCup
+    w.....
+    .wq...
+    ..wq..
+    ...wq.
+    ....Ss
+
+part armWind
+    .w
+    .q
+    S.
+    G.
+
+part armToss
+    w....
+    wq..s
+    .wqwS
+
+part armFollow
+    w....
+    wq...
+    .wqSS
+
+part armWaveA
+    w....
+    wq..S
+    .wqws
+
+part armWaveB
+    w....
+    wq...
+    .wqsS
+
+part armFling
+    w...
+    q...
+    .w..
+    ..S.
+    ...S
+
+part armOffer
+    w...
+    wqSG
+    .wSs
+
+part armOfferEmpty
+    w...
+    wq..
+    .wSs
+
+part armHang
+    w.
+    wq
+    .w
+    .S
+
+frame 0
+    legsStand 1 19
+    torso 1 9
+    handBack 2 14
+    stickUp 10 15
+    head 6 11
+    armCup 6 15
+
+frame 1
+    legsStand 1 19
+    torso 1 10
+    handBack 2 15
+    stickUp 10 16
+    head 6 12
+    armCup 6 16
+
+frame 2
+    legsStand 1 19
+    torso 1 9
+    handBack 2 14
+    stickUp 10 15
+    head 6 11
+    armWind 5 15
+
+frame 3
+    legsStand 1 19
+    torso 1 9
+    handBack 2 14
+    stickUp 10 15
+    head 6 11
+    armToss 6 15
+
+frame 4
+    legsStand 1 19
+    torso 1 9
+    handBack 2 14
+    stickUp 10 15
+    head 6 11
+    armFollow 6 15
+
+frame 5
+    legsStand 1 19
+    torso 1 9
+    handBack 2 14
+    stickUp 10 15
+    head 6 11
+    armWaveA 6 15
+
+frame 6
+    legsStand 1 19
+    torso 1 9
+    handBack 2 14
+    stickUp 10 15
+    head 6 11
+    armWaveB 6 15
+
+frame 7
+    legsStand 1 19
+    torso 1 10
+    handBack 2 15
+    stickUp 10 16
+    head 6 12
+    armFling 6 16
+
+frame 8
+    legsStand 1 19
+    torso 1 9
+    handBack 2 14
+    stickUp 10 15
+    head 7 12
+    armOffer 6 15
+
+frame 9
+    legsStand 1 19
+    torso 1 10
+    handBack 2 15
+    stickUp 10 16
+    head 7 13
+    armOfferEmpty 6 16
+
+frame 10
+    legsStand 1 19
+    torso 1 9
+    handBack 2 14
+    stickUp 10 15
+    head 6 11
+    armHang 6 15

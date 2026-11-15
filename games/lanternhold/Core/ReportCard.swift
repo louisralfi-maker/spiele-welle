@@ -51,6 +51,8 @@ struct ReportCard: Sendable, Equatable {
     /// The finale's dawn after a night that held: the line that quotes the speech the king gave before it
     /// (`ending.<speech>` in Story.xcstrings; M3 fix, U1), nil without one.
     var speechKey: String?
+    /// What the town did yesterday (town-1's `DawnReport.town`): the taxes row tells it in one line (town-2).
+    var town: TownSummary? = nil
 
     var happinessDelta: Int { happinessAfter - happinessBefore }
     var isFinale: Bool { night == ReportCard.finaleNight }
@@ -89,7 +91,7 @@ struct ReportCard: Sendable, Equatable {
                           grown: report.grown, left: report.left, volunteer: report.volunteer, unlocked: unlocks,
                           goldIn: report.goldIn, goldAfter: report.goldAfter, housesFull: report.housesFull == true,
                           speechKey: report.night == finaleNight && report.held
-                              ? Remembered.speechKey(flags: flags) : nil)
+                              ? Remembered.speechKey(flags: flags) : nil, town: report.town)
     }
 
     // MARK: - Samples (`-GWScreen report` and `-GWScreen finale`)
@@ -103,7 +105,8 @@ struct ReportCard: Sendable, Equatable {
                           fallen: [FallenSoldier(name: "Edda", kind: .archer)], hearthLowest: 100, gloomReceded: false,
                           taxes: taxes, happinessBefore: 64, happinessAfter: 62, happinessChanges: changes,
                           citizensBefore: 15, citizensAfter: 16, grown: 1, left: 0, volunteer: false,
-                          unlocked: ["line3", "warTax"], goldAfter: 93, realmFell: nil, kingSlain: nil)
+                          unlocked: ["line3", "warTax"], goldAfter: 93, realmFell: nil, kingSlain: nil,
+                          town: .paidInFull(day: 7, gold: 64))
     }
 
     /// The finale's dawn: the Lightless King slain in the Great Beacon's light, the Gloom receded, nobody fallen.
@@ -114,6 +117,6 @@ struct ReportCard: Sendable, Equatable {
                           fallen: [], hearthLowest: 100, gloomReceded: true, taxes: taxes, happinessBefore: 74,
                           happinessAfter: 77, happinessChanges: changes, citizensBefore: 28, citizensAfter: 29,
                           grown: 1, left: 0, volunteer: false, unlocked: [], goldAfter: 212, realmFell: nil,
-                          kingSlain: true)
+                          kingSlain: true, town: .paidInFull(day: 20, gold: 103))
     }
 }

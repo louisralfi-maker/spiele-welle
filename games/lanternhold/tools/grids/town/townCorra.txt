@@ -1,0 +1,213 @@
+# townCorra 12x26, 15 frames (town-2, `TownSprites.Frame`): Mother Corra, the candle-dipper of Tallowford, at the
+# chandler's door (house 1) with the day's coins, and on the first morning in the courtyard. Her body is the people
+# lane's (base/corra.txt: the faded teal shawl, the undyed headscarf with the grey wisp, the rounded back); only her
+# near arm is new, the basket set down indoors. Light from the upper left; look 2's selective outline.
+#   0-1 waiting, the coins in her cupped hands (a breath), held a little forward; the coin itself is
+#       `townCoin`, drawn by the engine over the hands (`TownSprites.heldCoin`), so it can glint and glow
+#   2 the hand drawn back with the coins, 3 the throw, 4 the open hand after it
+#   5-6 the wave (from 60 happiness), 7 the coins flung down (below 30)
+#   8 the bow at the knock, the coins held out; 9 the deeper bow, the hands empty
+#   10 empty-handed; 11-14 the walk home (the first morning)
+id townCorra
+size 12x26
+frames 15
+outline ink shade
+include base/corra.txt
+
+legend
+    G = gold
+    Y = strawLight
+    g = straw
+
+# the near arm: the shawl's edge over the shoulder (t), the brown sleeve (b), her weathered hands (S lit, s shade)
+part armCup
+    t...
+    b...
+    b...
+    .b..
+    ..Ss
+
+part armWind
+    .t
+    .b
+    .b
+    Sb
+    G.
+
+part armToss
+    ...S
+    ..S.
+    .b..
+    t...
+
+part armFollow
+    ...s
+    tbSS
+
+part armWaveA
+    ...S
+    ...S
+    ...s
+    ...b
+    ..b.
+    .b..
+    t...
+
+part armWaveB
+    ..S.
+    ...S
+    ...s
+    ...b
+    ..b.
+    .b..
+    t...
+
+part armFling
+    t...
+    b...
+    .b..
+    ..S.
+    ...S
+
+part armDown
+    t
+    b
+    b
+    s
+    S
+
+part armOffer
+    t..
+    bS.
+    .SG
+
+part armOfferEmpty
+    t..
+    b..
+    .Ss
+
+part armSwingFwd
+    t.
+    b.
+    .s
+    .S
+
+part armSwingBack
+    .t
+    .b
+    s.
+    S.
+
+frame 0
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 10
+    shawl 3 9
+    head 5 4
+    armCup 8 10
+
+frame 1
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 11
+    shawl 3 10
+    head 5 5
+    armCup 8 11
+
+frame 2
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 10
+    shawl 3 9
+    head 5 4
+    armWind 7 10
+
+frame 3
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 10
+    shawl 3 9
+    head 5 4
+    armToss 8 7
+
+frame 4
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 10
+    shawl 3 9
+    head 5 4
+    armFollow 8 9
+
+frame 5
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 10
+    shawl 3 9
+    head 5 4
+    armWaveA 8 4
+
+frame 6
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 10
+    shawl 3 9
+    head 5 4
+    armWaveB 8 4
+
+frame 7
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 11
+    shawl 3 10
+    head 5 5
+    armFling 8 11
+
+frame 8
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 4 11
+    shawl 4 10
+    head 6 6
+    armOffer 9 11
+
+frame 9
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 4 12
+    shawl 4 11
+    head 6 7
+    armOfferEmpty 9 12
+
+frame 10
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 10
+    shawl 3 9
+    head 5 4
+    armDown 8 10
+
+frame 11
+    feetA 2 24
+    skirtContact 2 15
+    armBack 3 11
+    shawl 3 10
+    head 5 5
+    armSwingFwd 8 11
+
+frame 12
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 10
+    shawl 3 9
+    head 5 4
+    armDown 8 10
+
+frame 13
+    feetB 2 24
+    skirtContact 2 15
+    armBack 3 11
+    shawl 3 10
+    head 5 5
+    armSwingBack 7 11
+
+frame 14 = 12

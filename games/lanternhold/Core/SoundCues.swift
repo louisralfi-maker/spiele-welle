@@ -9,6 +9,8 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     case coin, coins, buildStart = "build_start", buildDone = "build_done", lantern, horn, bell, bow
     case arrowHit = "arrow_hit", creatureHit = "creature_hit", dissolve, wallHit = "wall_hit"
     case wallBreak = "wall_break", gate, step1 = "step_1", step2 = "step_2", parchment, tap, seal, decline, engine
+    // The taxes on foot (town-2, made by `tools/taxsound.py`): knuckles on a wooden door
+    case knock
 
     static let loops: [SoundID] = [.ambDay, .ambNight, .ambRain, .ambFire, .ambHall]
 
@@ -27,7 +29,7 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
         case .dissolve: return 0.15
         case .step1, .step2: return 0.12
         case .bow, .arrowHit: return 0.1
-        case .coin, .coins, .seal, .decline: return 0.08
+        case .coin, .coins, .seal, .decline, .knock: return 0.08
         case .tap: return 0.06
         case .ambDay, .ambNight, .ambRain, .ambFire, .ambHall: return 0
         }
@@ -45,7 +47,8 @@ enum SoundID: String, Sendable, CaseIterable, Equatable, Hashable {
     /// Sounds whose pitch varies a little from play to play (a few per cent), so repeats never sound copied.
     var varies: Bool {
         switch self {
-        case .bow, .arrowHit, .creatureHit, .dissolve, .coin, .coins, .step1, .step2, .wallHit, .tap, .buildStart:
+        case .bow, .arrowHit, .creatureHit, .dissolve, .coin, .coins, .step1, .step2, .wallHit, .tap, .buildStart,
+             .knock:
             return true
         default:
             return false
@@ -107,6 +110,8 @@ extension FeedbackCue {
         case .step: return SoundPlay(id: .step1, volume: 0.3)
         case .audienceOpened: return SoundPlay(id: .parchment, volume: 0.6)
         case .choiceMade: return SoundPlay(id: .seal, volume: 0.7)
+        case .knock: return SoundPlay(id: .knock, volume: 0.8)
+        case .shutter: return SoundPlay(id: .knock, volume: 0.55, rate: 0.7)
         }
     }
 
@@ -120,6 +125,8 @@ extension FeedbackCue {
         case .horn: return .rigid
         case .taxesCounted: return .success
         case .defeat: return .error
+        case .knock: return .rigid
+        case .shutter: return .soft
         default: return nil
         }
     }

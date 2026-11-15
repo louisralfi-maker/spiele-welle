@@ -356,7 +356,8 @@ final class PetitionTests: XCTestCase {
         """)
         var s = realm(day: 3)
         let costly = try XCTUnwrap(book.petition("costly"))
-        XCTAssertEqual(PetitionEngine.blocker(costly.choices[0], s), .gold(missing: 40))
+        XCTAssertEqual(PetitionEngine.blocker(costly.choices[0], s), .gold(missing: 100 - balance.startGold),
+                       "100 against the purse of day 1 (44 since town-1)")
         XCTAssertEqual(PetitionEngine.blocker(costly.choices[1], s), .archers(missing: 6))
         XCTAssertEqual(PetitionEngine.blocker(costly.choices[2], s), .builders(missing: 1))
         XCTAssertEqual(PetitionEngine.blocker(try XCTUnwrap(book.petition("people")).choices[0], s),

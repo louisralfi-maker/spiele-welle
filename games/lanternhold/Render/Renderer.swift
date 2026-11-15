@@ -759,10 +759,11 @@ final class Renderer {
     /// unlit body's edge reads against the dark ground where its glow strip has no pixel (SPRITES.md "Unlit
     /// creatures"); firelight outshines it.
     static let rimmed: Set<SpriteID> = [.king, .lady, .kingSeated, .ladySeated, .sootling, .sootlingB, .shadehound, .sootCrow, .ashBrute, .gloomweaver,
-                                        .ashGiant, .lightlessKing]
+                                        .ashGiant, .lightlessKing, .kingKnock, .ladyKnock]
 
     /// The people of the realm, who keep a fainter sky rim in look 2.
-    static let people: Set<SpriteID> = [.archer, .guardsman, .builder, .citizen, .citizenB, .citizenC]
+    static let people: Set<SpriteID> = Set([SpriteID.archer, .guardsman, .builder, .citizen, .citizenB, .citizenC]
+                                           + TownSprites.figures)
 
     /// Flags: x 1 for an emissive actor, y the moonlight rim of an unlit creature (its strength, M2b review), z 1 for
     /// the cool rim, w the cap on reflected point light (0: `kLitCap`).

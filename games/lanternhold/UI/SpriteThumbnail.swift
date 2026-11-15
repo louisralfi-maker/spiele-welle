@@ -57,6 +57,7 @@ enum SpriteImages {
         case .field: return .field
         case .market: return .market
         case .tavern: return .tavern
+        case .townhouse, .marketHall, .inn, .farmstead, .treasury: return TownGrowth.standInSprite(item)
         }
     }
 

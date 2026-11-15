@@ -95,6 +95,9 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWSound YES|NO`: sound and haptics on or off in this launch (DESIGN.md "Sound and haptics"). Without it a
     /// launch with any `-GW` argument (the UI tests') stays silent and a plain launch plays (`SoundDirector.allowed`).
     var sound: Bool?
+    /// `-GWTown owed|paid|knock` (town-2, `TownDebug`): today's ledger as if nobody had collected yet, as if the lord had
+    /// collected everything long ago, or that and a knock at the first house (its shutters closed, its window dark).
+    var town: TownDebug.Mode?
     /// True when the launch carried any `-GW` argument.
     var hasArguments = false
 
@@ -135,6 +138,7 @@ struct DebugArgs: Sendable, Equatable {
         "GWDebugLights", "GWStats", "GWReduceMotion", "GWDay", "GWNight", "GWBuild", "GWGold", "GWHappiness",
         "GWReset", "GWTimeScale", "GWHour", "GWScreen", "GWSkipOnboarding", "GWClock", "GWLook", "GWCastle",
         "GWWeather", "GWWind", "GWRain", "GWWetness", "GWLord", "GWLordName", "GWGloomFog", "GWHouses", "GWSound",
+        "GWTown",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -248,6 +252,9 @@ struct DebugArgs: Sendable, Equatable {
         lord = values["GWLord"].flatMap { LordForm(rawValue: $0.trimmingCharacters(in: .whitespaces).lowercased()) }
         if let name = values["GWLordName"]?.trimmingCharacters(in: .whitespaces), !name.isEmpty {
             lordName = name
+        }
+        town = values["GWTown"].flatMap {
+            TownDebug.Mode(rawValue: $0.trimmingCharacters(in: .whitespaces).lowercased())
         }
     }
 

@@ -1,0 +1,150 @@
+# The people lane's body, copied verbatim from claude/lh-people 5427d45 (tools/grids/actors/citizen.txt) for the town lane's
+# poses (tools/grids/town/town*.txt include it). At the join the include may point at the people lane's file instead.
+# citizen 12x26, 6 frames: walk 0-3, idle 4-5 (SPRITES.md). Mother Corra, 58, the candle-dipper of Tallowford and a
+# guard's widow (docs/PEOPLE.md; repainted by the people lane on 14.11.2026, before that the townswoman of look 2's
+# stage 4). Worn, not wretched: the back rounded and the head carried forward and low, an undyed headscarf with a grey
+# wisp at the temple, an earth-brown wool dress with a patch at the back of the skirt, a pale apron, and her mark: her
+# dead husband's guard cloak, the house's teal faded to a grey-blue, cut down to a shawl over her shoulders. A basket
+# of tallow candles in the crook of her near arm. Light from the upper left; look 2's selective outline. Walk: contact
+# (the hem wide, the body 1 px down) and passing on each foot, short steps. Idle: a breath.
+id citizen
+size 12x26
+frames 6
+outline ink shade
+
+# Cloth states (docs/PEOPLE.md section 7, tools/peoplestates.py): the realm's stage changes the cloth, never the
+# body. Hamlet is this grid as drawn; village and town remap cloth characters only.
+#@state village  p=soilLight n=woodLight b=soilLight B=soil q=plaster   # whole: the darn worked in, the dress washed a step lighter, the apron fresh
+#@state town     n=tileLight b=tile B=woodDark p=tile q=plaster   # a madder-red dress, the apron fresh; the shawl stays her husband's, faded
+
+legend
+    k = ink
+    S = dawnRose
+    s = tileLight
+    W = parchment
+    w = plaster
+    q = plasterDim
+    L = stoneLight
+    T = waterDeep
+    t = roofDeep
+    n = soilLight
+    b = soil
+    B = soilDark
+    h = wood
+    H = woodDark
+    c = straw
+    C = strawLight
+    l = woodLight
+    p = wood
+
+# the headscarf round the face and under the chin, a grey wisp at the temple (frame cols 5-9: the head carried
+# forward and low, a pixel ahead of where the townswoman held it)
+part head
+    .WWq.
+    WWwwq
+    WLSkS
+    qLsSs
+    .qss.
+    ..q..
+
+# the faded cloak cut down to a shawl: high over the rounded back, down to the elbow, its ends crossed over the bodice
+# where the apron's bib shows; the apron's tie at the waist
+part shawl
+    .TTt..
+    TTTTt.
+    TTTTtt
+    TTtwqt
+    .tbwqB
+    .HhhhH
+
+# the skirt while a foot passes: narrow, the apron down the front, a darned patch at the back
+part skirtPass
+    .nbwqB.
+    .nbwqB.
+    nbbwqqB
+    nbbwqqB
+    nppwqqB
+    nppwqqB
+    nbbbqqB
+    nbbbwqB
+    nbbbbbB
+    .BbbbB.
+
+# the skirt at the contact of a step: the hem swung wide
+part skirtContact
+    ..nbwqB..
+    .nbbwqqB.
+    .nbbwqqB.
+    .nppwqqB.
+    nbppbwqbB
+    nbbbbwqbB
+    nbbbbqqbB
+    nbbbbbbbB
+    .BbbbbbB.
+
+part feetA
+    HH....hHH
+
+part feetB
+    hH....HHH
+
+part feetTogether
+    HhHH
+
+# the far arm under the shawl
+part armBack
+    t
+    t
+    b
+    s
+
+# the near arm out from under the shawl, the basket in its crook: the handle, the candles' white tips over the rim
+part armBasket
+    t...
+    bSS.
+    l..h
+    WlWh
+    lchh
+    .hhH
+
+frame 0
+    feetA 2 24
+    skirtContact 2 15
+    armBack 3 11
+    shawl 3 10
+    head 5 5
+    armBasket 8 11
+
+frame 1
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 10
+    shawl 3 9
+    head 5 4
+    armBasket 8 10
+
+frame 2
+    feetB 2 24
+    skirtContact 2 15
+    armBack 3 11
+    shawl 3 10
+    head 5 5
+    armBasket 8 11
+
+frame 3 = 1
+
+frame 4
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 10
+    shawl 3 9
+    head 5 4
+    armBasket 8 10
+
+frame 5
+    feetTogether 5 24
+    skirtPass 3 14
+    armBack 3 11
+    shawl 3 10
+    head 5 5
+    armBasket 8 11

@@ -29,7 +29,7 @@ final class BuildTests: XCTestCase {
     }
 
     func testTheRealmHasItsPlots() {
-        XCTAssertEqual(Realm.plots.count, 29)
+        XCTAssertEqual(Realm.plots.count, 32, "29, and town-3's two far fields and the treasury, added last")
         XCTAssertEqual(Realm.plots[Realm.beaconPlot].x, 470)
         XCTAssertEqual(Realm.plots[Realm.lines[2].wall].x, 640, "outer line")
         XCTAssertEqual(Realm.plots[Realm.lines[1].wall].x, 940, "middle line")

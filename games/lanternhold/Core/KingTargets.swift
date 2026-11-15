@@ -111,9 +111,9 @@ enum KingTargets {
             consider(.build(plot: plot), abs(spotX(plot: plot, layouts: drawn) - x))
         }
         consider(.recruit, abs(x - barracksX))
-        consider(.throne, abs(x - throneX))
-        // M3: the lectern, the Stranger at the gate, the court to talk to (`CourtTalk`, closer than the reach).
-        consider(.lectern, abs(x - lecternX))
+        // Town-2: the throne offers only the audience (above, while petitioners wait) and the lectern is furniture:
+        // the tax card is gone, the taxes are collected on foot (docs/TOWN.md section 1).
+        // M3: the Stranger at the gate, the court to talk to (`CourtTalk`, closer than the reach).
         if AudienceRules.gate(s, catalog: .standard) != nil {
             consider(.stranger, abs(x - CourtLayout.strangerAtGate))
         }

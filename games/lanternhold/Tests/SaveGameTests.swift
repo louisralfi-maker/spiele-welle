@@ -185,7 +185,7 @@ final class SaveGameTests: XCTestCase {
 
         let long = try editedFixture { state in
             var plots = state["plots"] as? [Any] ?? []
-            plots.append(plots[0])
+            while plots.count <= Realm.plots.count { plots.append(plots[0]) }
             state["plots"] = plots
         }
         let broken: [Data] = [

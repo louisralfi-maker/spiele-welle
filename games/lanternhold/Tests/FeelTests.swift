@@ -28,7 +28,7 @@ final class FeelTests: XCTestCase {
         XCTAssertEqual(Array(near.prefix(3)), [.defeat, .horn, .wallBroken])
         XCTAssertEqual(near.last, .ballista)
         XCTAssertNil(FeedbackThinner.cue(for: .nightfall))
-        XCTAssertEqual(FeedbackThinner.cue(for: .dawn(day: 4))?.cue, .taxesCounted)
+        XCTAssertNil(FeedbackThinner.cue(for: .dawn(day: 4)), "the dawn counts no coins since the taxes went on foot")
         XCTAssertTrue(FeedbackCue.allCases.filter(\.isPositional).allSatisfy { $0.hearing < .infinity })
     }
 

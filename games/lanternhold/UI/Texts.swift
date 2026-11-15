@@ -30,6 +30,7 @@ enum Texts {
         case .field: return String(localized: "Field")
         case .market: return String(localized: "Market")
         case .tavern: return String(localized: "Tavern")
+        case .townhouse, .marketHall, .inn, .farmstead, .treasury: return TownText.itemName(item)
         }
     }
 
@@ -48,6 +49,7 @@ enum Texts {
         case .field: return String(localized: "Field")
         case .market: return String(localized: "Market")
         case .tavern: return String(localized: "Tavern")
+        case .treasury: return TownText.string("town.slot.treasury")
         }
     }
 
@@ -132,6 +134,8 @@ enum Texts {
             return String(localized: "Taxes +\(share)")
         case .tavern:
             return String(localized: "+\(b.happinessTavern) happiness every dawn")
+        case .townhouse, .marketHall, .inn, .farmstead, .treasury:
+            return TownText.effect(item, balance: b)
         }
     }
 
@@ -147,6 +151,7 @@ enum Texts {
         case .noLosses: return String(localized: "No one fell")
         case .fallen: return String(localized: "The fallen")
         case .unheard: return String(localized: "Petitioners unheard")
+        case .leftAlone: return TownText.string("town.reason.leftAlone")
         }
     }
 

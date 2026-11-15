@@ -210,7 +210,9 @@ struct ReportCardView: View {
         return card.wallsLost.map { Texts.lineName($0) }.joined(separator: ", ")
     }
 
-    private var taxDetail: String {
+    private var taxDetail: String? {
+        // Town-2: the amount is what reached the purse yesterday; the detail tells yesterday in one line.
+        if let town = card.town { return TownText.reportDetail(town) }
         if card.taxes.unrest { return String(localized: "Unrest: no taxes at this dawn") }
         var parts = [String(localized: "\(card.taxes.taxpayers) taxpayers")]
         if card.taxes.fields > 0 { parts.append(String(localized: "fields +\(card.taxes.fields)")) }

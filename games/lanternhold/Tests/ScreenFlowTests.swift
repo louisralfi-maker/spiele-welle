@@ -144,7 +144,7 @@ final class GameScreensTests: XCTestCase {
         let game = model(["GWCameraX": "1255"])
         let plot = Realm.lines[0].braziers[0]
         XCTAssertEqual(game.target, .build(plot: plot))
-        XCTAssertEqual(game.gold, 60)
+        XCTAssertEqual(game.gold, Balance.standard.startGold, "the first household still holds 16 (town-1)")
         game.performAction()
         XCTAssertEqual(game.overlay, .build(plot: plot))
         XCTAssertTrue(game.isPaused, "nothing steps while a card is open")
@@ -157,7 +157,7 @@ final class GameScreensTests: XCTestCase {
         game.order(.brazier)
         XCTAssertNil(game.overlay, "the card closes when the order stands")
         XCTAssertFalse(game.isPaused)
-        XCTAssertEqual(game.gold, 48)
+        XCTAssertEqual(game.gold, Balance.standard.startGold - Balance.standard.price(.brazier))
         XCTAssertEqual(game.driver?.state.plots[plot].job?.target, .brazier)
     }
 
@@ -181,26 +181,20 @@ final class GameScreensTests: XCTestCase {
         barracks.recruit(.archer)
         XCTAssertEqual(barracks.overlay, .recruit, "the card stays open for the next recruit")
         XCTAssertEqual(barracks.recruitCard?.archers, 4)
-        XCTAssertEqual(barracks.gold, 50)
+        XCTAssertEqual(barracks.gold, Balance.standard.startGold - Balance.standard.archerPrice)
         XCTAssertEqual(barracks.soldiers, 6)
-        // M3: a petitioner waits on day 1, so the crown opens the audience; the tax lectern beside the throne keeps
-        // the tax card.
+        // M3: a petitioner waits on day 1, so the crown opens the audience. Town-2: the tax lectern is furniture; no
+        // button opens the tax card any more (the taxes are collected on foot).
         let crown = model([:])
         XCTAssertEqual(crown.target, .throne)
         crown.performAction()
         XCTAssertEqual(crown.overlay, .audience)
         crown.standUp()
         XCTAssertNil(crown.overlay)
-        let throne = model(["GWCameraX": "\(KingTargets.lecternX)"])
-        XCTAssertEqual(throne.target, .lectern)
-        throne.performAction()
-        XCTAssertEqual(throne.overlay, .taxes)
-        throne.setTax(.low)
-        XCTAssertEqual(throne.taxCard?.current, .low)
-        throne.setTax(.war)
-        XCTAssertEqual(throne.driver?.state.tax, .low, "the war tax is locked until day 8")
-        throne.closeCard()
-        XCTAssertNil(throne.overlay)
+        let lectern = model(["GWCameraX": "\(KingTargets.lecternX)"])
+        XCTAssertNotEqual(lectern.target, .lectern)
+        lectern.performAction()
+        XCTAssertNotEqual(lectern.overlay, .taxes)
     }
 
     func testTheDawnBringsTheReportAndContinueStartsTheDay() throws {
@@ -262,7 +256,7 @@ final class GameScreensTests: XCTestCase {
         game.restartChapter()
         XCTAssertNil(game.overlay)
         XCTAssertEqual(game.day, 1)
-        XCTAssertEqual(game.gold, 60)
+        XCTAssertEqual(game.gold, Balance.standard.startGold)
         XCTAssertNotEqual(game.driver?.state.seed, 4, "a new realm")
     }
 

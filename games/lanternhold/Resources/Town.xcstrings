@@ -1,0 +1,870 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "town.access.door" : {
+      "comment" : "VoiceOver only (never on screen): a door of the town that is shut to a knock now; %@ is the household's door form.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tür %@, zu"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ door, shut"
+          }
+        }
+      }
+    },
+    "town.access.knock" : {
+      "comment" : "VoiceOver only (never on screen): a door of the town that a touch knocks at; %@ is the household's door form (\"the chandler's\" / \"beim Kerzenzieher\").",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ anklopfen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knock at %@ door"
+          }
+        }
+      }
+    },
+    "town.collector.back" : {
+      "comment" : "Home with the box: every door of his round paid him.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jede Tür, die schuldete. Zählt nach, wenn Ihr wollt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every door that owed. Count it if you like."
+          }
+        }
+      }
+    },
+    "town.collector.decline" : {
+      "comment" : "The answer that does not hire him (audience choice).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt nicht"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not now"
+          }
+        }
+      }
+    },
+    "town.collector.dismissed" : {
+      "comment" : "At his post, when a touch sends him away (from the next morning).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dann ruht der Karren. Ihr wisst, wo ich bin."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The cart can rest. You know where I am."
+          }
+        }
+      }
+    },
+    "town.collector.empty" : {
+      "comment" : "Home with an empty box: the doors were shut (unrest).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle zu. Nicht eine Münze."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shut, every one. Not a coin."
+          }
+        }
+      }
+    },
+    "town.collector.farmers" : {
+      "comment" : "Why the fields are not on his round: the farmers pay the lord in person (TOWN.md section 6).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bauern zählen in Eure Hand. In keine andere."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Farmers count into your hand. Nobody else's."
+          }
+        }
+      }
+    },
+    "town.collector.hire" : {
+      "comment" : "The answer that hires the collector (audience choice).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take him on"
+          }
+        }
+      }
+    },
+    "town.collector.hired" : {
+      "comment" : "His reaction when taken on; he starts the next morning.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Also bei Tagesanbruch. Die Türen, die Kiste, heim."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dawn, then. The doors, the box, home."
+          }
+        }
+      }
+    },
+    "town.collector.lordFirst" : {
+      "comment" : "Home with the box: the lord had collected at one of his doors first.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihr wart vor mir da. Haben sie gesagt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You were there before me. They said so."
+          }
+        }
+      }
+    },
+    "town.collector.name" : {
+      "comment" : "The collector's name (the people lane's figure, PEOPLE.md 13). Never translated.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saul Bracken"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saul Bracken"
+          }
+        }
+      }
+    },
+    "town.collector.offer" : {
+      "comment" : "The collector offers himself at the first audience (two lines: who, what, the wage). Working people speak short and dry. German: Ihr/Euch.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saul Bracken. Den Arm ließ ich an der Mauer, die Beine nicht. Ich gehe morgens Eure Türen ab und bringe die Kiste heim. Jede achte Münze."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saul Bracken. Lost the arm on the wall, kept the legs. I'll walk your doors at dawn and bring the box home. One coin in eight."
+          }
+        }
+      }
+    },
+    "town.collector.rehired" : {
+      "comment" : "At his post, when a touch takes him on again.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wieder zu den Türen. Morgen bei Tagesanbruch."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back to the doors. Tomorrow at dawn."
+          }
+        }
+      }
+    },
+    "town.door.chandler" : {
+      "comment" : "Dawn report, in the knock's line: at this household's door (\"Knocked at the chandler's\" / \"Angeklopft beim Kerzenzieher\").",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "beim Kerzenzieher"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the chandler's"
+          }
+        }
+      }
+    },
+    "town.door.cooper" : {
+      "comment" : "Dawn report, in the knock's line: at this household's door (\"Knocked at the chandler's\" / \"Angeklopft beim Kerzenzieher\").",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "beim Böttcher"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the cooper's"
+          }
+        }
+      }
+    },
+    "town.door.oilPresser" : {
+      "comment" : "Dawn report, in the knock's line: at this household's door (\"Knocked at the chandler's\" / \"Angeklopft beim Kerzenzieher\").",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "beim Ölmüller"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the oil-presser's"
+          }
+        }
+      }
+    },
+    "town.door.weaver" : {
+      "comment" : "Dawn report, in the knock's line: at this household's door (\"Knocked at the chandler's\" / \"Angeklopft beim Kerzenzieher\").",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "beim Weber"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the weaver's"
+          }
+        }
+      }
+    },
+    "town.effect.farmstead" : {
+      "comment" : "Build card effect (town-3); %@ is the farmstead's gold a day (8).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%@ Gold jeden Morgen · Lanternhold wächst"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%@ gold every dawn · Lanternhold grows"
+          }
+        }
+      }
+    },
+    "town.effect.inn" : {
+      "comment" : "Build card effect (town-3); %@ is the inn's happiness at every dawn (2).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%@ Zufriedenheit jeden Morgen · Lanternhold wächst"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%@ happiness every dawn · Lanternhold grows"
+          }
+        }
+      }
+    },
+    "town.effect.marketHall" : {
+      "comment" : "Build card effect (town-3); %@ is the market hall's share as a per cent (25%).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steuern +%@ · Lanternhold wächst"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taxes +%@ · Lanternhold grows"
+          }
+        }
+      }
+    },
+    "town.effect.townhouse" : {
+      "comment" : "Build card effect (town-3); %@ is the room (12). 'Lanternhold grows': the town's standing rises (more taxes, the next stage).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Platz für %@ Einwohner · Lanternhold wächst"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Room for %@ people · Lanternhold grows"
+          }
+        }
+      }
+    },
+    "town.effect.treasury" : {
+      "comment" : "Build card effect (town-3): the treasury does nothing else; the gold is seen there as chests and piles.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Schatz in Truhen, für alle sichtbar"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The purse in chests, for all to see"
+          }
+        }
+      }
+    },
+    "town.household.chandler" : {
+      "comment" : "A Tallowford household by its trade (the town's screens name it).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kerzenzieher"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chandler"
+          }
+        }
+      }
+    },
+    "town.household.cooper" : {
+      "comment" : "A Tallowford household by its trade (the town's screens name it).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Böttcher"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cooper"
+          }
+        }
+      }
+    },
+    "town.household.oilPresser" : {
+      "comment" : "A Tallowford household by its trade (the town's screens name it).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ölmüller"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oil-presser"
+          }
+        }
+      }
+    },
+    "town.household.weaver" : {
+      "comment" : "A Tallowford household by its trade (the town's screens name it).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weber"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weaver"
+          }
+        }
+      }
+    },
+    "town.item.farmstead" : {
+      "comment" : "Build option (town-3): a field's second tier (a barn, a haystack, an ox).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bauernhof"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Farmstead"
+          }
+        }
+      }
+    },
+    "town.item.inn" : {
+      "comment" : "Build option (town-3): the tavern's second tier.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gasthof"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inn"
+          }
+        }
+      }
+    },
+    "town.item.marketHall" : {
+      "comment" : "Build option (town-3): the market's second tier.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markthalle"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Market hall"
+          }
+        }
+      }
+    },
+    "town.item.townhouse" : {
+      "comment" : "Build option (town-3): a house's third tier, room for 12.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bürgerhaus"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Townhouse"
+          }
+        }
+      }
+    },
+    "town.item.treasury" : {
+      "comment" : "Build option (town-3): built once at the castle; the gold is seen there.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schatzkammer"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Treasury"
+          }
+        }
+      }
+    },
+    "town.reason.leftAlone" : {
+      "comment" : "Dawn report, why happiness changed: houses the lord did not collect from yesterday.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschonte Häuser"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Houses left alone"
+          }
+        }
+      }
+    },
+    "town.report.collected" : {
+      "comment" : "Dawn report: gold that reached the purse yesterday (the households' tosses, the knocks, the collector's delivery). %@ is the amount.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestern eingesammelt: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collected yesterday: %@"
+          }
+        }
+      }
+    },
+    "town.report.collector" : {
+      "comment" : "Dawn report: the hired tax collector walked the town yesterday morning. %1$@ is the gold he put into the purse, %2$@ the wage he kept (one coin in eight).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Steuereintreiber brachte %1$@ (Lohn %2$@)"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The collector brought %1$@ (wage %2$@)"
+          }
+        }
+      }
+    },
+    "town.report.collectorEmpty" : {
+      "comment" : "Dawn report: the hired tax collector found nobody owing (the lord had been first, or the doors stayed shut).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Steuereintreiber kam leer zurück"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The collector came back empty"
+          }
+        }
+      }
+    },
+    "town.report.doubled" : {
+      "comment" : "Dawn report: yesterday the double-taxes reward was taken.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doppelte Steuern: Jede Münze zählte doppelt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double taxes: every coin counted twice"
+          }
+        }
+      }
+    },
+    "town.report.kept" : {
+      "comment" : "Dawn report: gold nobody came for by the horn; the people kept it. %@ is the amount.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bei den Leuten geblieben: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Left to the people: %@"
+          }
+        }
+      }
+    },
+    "town.report.knocked" : {
+      "comment" : "Dawn report: the doors the lord knocked at yesterday (one or two). %@ is a list of town.door.* forms, joined with \", \" (\"the chandler's, the cooper's\" / \"beim Kerzenzieher, beim Böttcher\").",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angeklopft %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knocked at %@"
+          }
+        }
+      }
+    },
+    "town.report.knockedAll" : {
+      "comment" : "Dawn report: the lord knocked at the door of every house that paid yesterday.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An jeder Tür angeklopft"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knocked at every door"
+          }
+        }
+      }
+    },
+    "town.report.knockedCount" : {
+      "comment" : "Dawn report: the lord knocked at this many doors yesterday (three or more, not all). %@ is the number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An %@ Türen angeklopft"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knocked at %@ doors"
+          }
+        }
+      }
+    },
+    "town.report.levied" : {
+      "comment" : "Dawn report: the doors the lord knocked at a second time yesterday (the war levy; one or two). %@ is a list of town.door.* forms, joined with \", \".",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kriegsabgabe %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "War levy at %@"
+          }
+        }
+      }
+    },
+    "town.report.leviedAll" : {
+      "comment" : "Dawn report: the lord knocked a second time (the war levy) at every house that paid yesterday.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kriegsabgabe an jeder Tür"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "War levy at every door"
+          }
+        }
+      }
+    },
+    "town.report.leviedCount" : {
+      "comment" : "Dawn report: the lord knocked a second time (the war levy) at this many doors yesterday. %@ is the number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kriegsabgabe an %@ Türen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "War levy at %@ doors"
+          }
+        }
+      }
+    },
+    "town.report.spared" : {
+      "comment" : "Dawn report: how many houses the lord left alone yesterday. %@ is the number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschonte Häuser: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Houses left alone: %@"
+          }
+        }
+      }
+    },
+    "town.report.unrest" : {
+      "comment" : "Dawn report: in unrest nobody opened the door to pay.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unruhe: Alle Türen blieben zu"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unrest: every door stayed shut"
+          }
+        }
+      }
+    },
+    "town.slot.treasury" : {
+      "comment" : "The build card's title at the treasury's plot (town-3).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schatzkammer"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Treasury"
+          }
+        }
+      }
+    },
+    "town.stage.town" : {
+      "comment" : "The dawn report's one line when the town's standing makes the realm a town (REALM.md section 2).",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lanternhold ist jetzt eine Stadt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lanternhold is a town now."
+          }
+        }
+      }
+    },
+    "town.stage.village" : {
+      "comment" : "The dawn report's one line when the town's standing makes the realm a village (REALM.md section 2). 'Lantern' is never translated.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lanternhold ist jetzt ein Dorf."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lanternhold is a village now."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

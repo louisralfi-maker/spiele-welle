@@ -1,6 +1,8 @@
 /// What kind of plot a slot is (DESIGN.md "The world", "The town", "The front by day: building").
 enum SlotKind: String, Codable, Sendable, CaseIterable {
     case wall, tower, brazier, engine, trap, beacon, smithy, lodge, house, field, market, tavern
+    /// The treasury at the castle (town-3, docs/TOWN.md section 2): built once, where the gold is seen.
+    case treasury
 }
 
 /// Everything that can stand on a plot, by tier (DESIGN.md "Prices and build times"). Line 1's wall is the gatehouse:
@@ -18,6 +20,9 @@ enum BuildItem: String, Codable, Sendable, CaseIterable {
     case lodge, bigLodge
     case house, bigHouse
     case field, market, tavern
+    /// Town-3 (docs/TOWN.md sections 2 and 3, `TownGrowth`): the house's third tier, the market's and the tavern's
+    /// second, the field's second, and the treasury.
+    case townhouse, marketHall, inn, farmstead, treasury
 
     /// Position in `allCases` (the row of `Balance.items`).
     var index: Int {
@@ -47,6 +52,11 @@ enum BuildItem: String, Codable, Sendable, CaseIterable {
         case .field: return 22
         case .market: return 23
         case .tavern: return 24
+        case .townhouse: return 25
+        case .marketHall: return 26
+        case .inn: return 27
+        case .farmstead: return 28
+        case .treasury: return 29
         }
     }
 
@@ -61,10 +71,11 @@ enum BuildItem: String, Codable, Sendable, CaseIterable {
         case .beaconBase, .beaconTower, .greatBeacon: return .beacon
         case .smithy, .masterSmithy: return .smithy
         case .lodge, .bigLodge: return .lodge
-        case .house, .bigHouse: return .house
-        case .field: return .field
-        case .market: return .market
-        case .tavern: return .tavern
+        case .house, .bigHouse, .townhouse: return .house
+        case .field, .farmstead: return .field
+        case .market, .marketHall: return .market
+        case .tavern, .inn: return .tavern
+        case .treasury: return .treasury
         }
     }
 
@@ -72,11 +83,12 @@ enum BuildItem: String, Codable, Sendable, CaseIterable {
     var tier: Int {
         switch self {
         case .gate, .palisade, .archerTower, .brazier, .ballista, .catapult, .stakePit, .beaconBase, .smithy, .lodge,
-             .house, .field, .market, .tavern:
+             .house, .field, .market, .tavern, .treasury:
             return 1
-        case .ironGate, .stoneWall, .watchtower, .fireTower, .beaconTower, .masterSmithy, .bigLodge, .bigHouse:
+        case .ironGate, .stoneWall, .watchtower, .fireTower, .beaconTower, .masterSmithy, .bigLodge, .bigHouse,
+             .marketHall, .inn, .farmstead:
             return 2
-        case .greatGate, .bastion, .greatBeacon:
+        case .greatGate, .bastion, .greatBeacon, .townhouse:
             return 3
         }
     }
@@ -95,6 +107,10 @@ enum BuildItem: String, Codable, Sendable, CaseIterable {
         case .smithy: return .masterSmithy
         case .lodge: return .bigLodge
         case .house: return .bigHouse
+        case .bigHouse: return .townhouse
+        case .market: return .marketHall
+        case .tavern: return .inn
+        case .field: return .farmstead
         default: return nil
         }
     }
@@ -260,6 +276,13 @@ enum Realm {
         add("town.market.6", .market, line: 0, x: 3245, day: 1, first: [.market])
         add("town.tavern.7", .tavern, line: 0, x: 3365, day: 1, first: [.tavern])
         add("town.field.8", .field, line: 0, x: 3540, day: 1, first: [.field])
+        // Town-3 (docs/TOWN.md section 3): two more fields beyond the last one and the treasury at the castle, added
+        // last so that every older plot keeps its id (a save with fewer plots gets them as on day 1).
+        for (index, key) in TownGrowth.farFieldKeys.enumerated() {
+            add(key, .field, line: 0, x: TownGrowth.farFieldX[index], day: TownGrowth.farFieldsDay, first: [.field])
+        }
+        add(TownGrowth.treasuryKey, .treasury, line: 0, x: TownGrowth.treasuryX, day: TownGrowth.treasuryDay,
+            first: [.treasury])
         return list
     }
 }

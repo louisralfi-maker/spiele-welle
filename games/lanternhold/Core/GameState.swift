@@ -1,4 +1,6 @@
-/// The tax rate set at the throne (DESIGN.md "Taxes"). War tax unlocks on story day 8.
+/// The old lectern's tax rates (DESIGN.md "Taxes"). Since the taxes went on foot (docs/TOWN.md, town-1) no rate exists
+/// in the economy: a bot names its habit in the town by one (`TownHabit`), and `GameState.tax` is only read from old
+/// saves and written by the lectern card until town-2 takes it away.
 enum TaxRate: String, Codable, Sendable, CaseIterable {
     case low, normal, high, war
 }
@@ -327,7 +329,9 @@ struct GameState: Codable, Sendable, Equatable {
     var happiness: Int
     /// People, soldiers included (soldiers are citizens who took up arms).
     var citizens: Int
+    /// The old lectern's rate: read by nothing in the economy since the taxes went on foot (`town`).
     var tax: TaxRate = .normal
+    /// Story day 8 (or a petition): once the war tax opened, now the war levy, a second knock at a door (`Town`).
     var warTaxUnlocked = false
     /// The chapel's blessing (+1 happiness at dawn); story and petitions set it from M3 on.
     var chapelBlessed = false
@@ -365,6 +369,11 @@ struct GameState: Codable, Sendable, Equatable {
     /// Optional: a realm that never touched the table, every bot run and every older save read as nil and play as
     /// before.
     var table: TableState?
+    /// The taxes on foot (docs/TOWN.md sections 1 and 2, `Town`): today's parts owed by the houses, fields and market,
+    /// what was collected and knocked for, yesterday's, and the collector. A new realm opens it with the first
+    /// morning's ledger. Optional: a save from before the taxes went on foot reads as nil (its dawn had already put that
+    /// day's taxes into the purse).
+    var town: TownState?
     var records = Records()
     var nextID = 1
     var orderCounter = 0
@@ -414,13 +423,10 @@ struct GameState: Codable, Sendable, Equatable {
         return total
     }
 
-    /// Room in the houses (DESIGN.md: a house holds 4, a big house 8).
+    /// Room in the houses (DESIGN.md: a house holds 4, a big house 8; town-3: a townhouse 12, `TownGrowth.room`).
     func houseRoom(_ balance: Balance) -> Int {
         var room = 0
-        for plot in plots {
-            if plot.item == .house { room += balance.houseRoom }
-            if plot.item == .bigHouse { room += balance.bigHouseRoom }
-        }
+        for plot in plots { room += TownGrowth.room(plot.item, balance: balance) }
         return room
     }
 
@@ -471,8 +477,9 @@ struct GameState: Codable, Sendable, Equatable {
 
     // MARK: Start of chapter 1
 
-    /// The realm on the morning of day 1 (DESIGN.md "Start of chapter 1"): 60 gold, 14 citizens in 4 houses, 3 archers
-    /// and 2 guards among them, 2 builders, happiness 60, normal tax; line 1 is the gatehouse.
+    /// The realm on the morning of day 1 (DESIGN.md "Start of chapter 1"): 60 gold (44 in the purse, 16 with the first
+    /// household since town-1 fix round 1), 14 citizens in 4 houses, 3 archers and 2 guards among them, 2 builders,
+    /// happiness 60, normal tax; line 1 is the gatehouse.
     static func newRealm(seed: UInt64, balance: Balance = .standard, mode: GameMode = .chapter) -> GameState {
         var plots: [PlotState] = []
         for spec in Realm.plots { plots.append(initialPlot(spec, balance: balance)) }
@@ -490,6 +497,9 @@ struct GameState: Codable, Sendable, Equatable {
         for _ in 0..<balance.startGuards {
             state.addSoldier(.guardsman, balance: balance)
         }
+        // The first morning (town-1 fix round 1): the town's first household waits with the coins that make the
+        // purse's 44 the 60 of before (`Town.firstMorning`).
+        state.town = Town.firstMorning(state, balance: balance)
         return state
     }
 
