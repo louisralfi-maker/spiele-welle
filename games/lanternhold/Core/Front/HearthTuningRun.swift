@@ -190,7 +190,12 @@ struct HearthMetrics: Sendable {
         for (rule, feeds) in settings {
             let all = doubles.filter { $0.rule == rule && $0.feeds == feeds }
             let pass = passesTwoInThree(steps: rule.steps, ceiling: rule.ceiling)
-            var row = "T14b \(pass ? "PASS" : "FAIL") two broken nights within three, "
+            // T14b as built (front-2 critic look 2, high 1): two broken nights with less than two steps of mending
+            // between (wood is one step, a held night one) end the realm. The fed row's "one held night between" is
+            // T14a's mend, not a pass of "two in three": reported, never labelled PASS.
+            var row = feeds
+                ? "T14b reported (mended, as T14a) wood and a held night are two steps of mending, "
+                : "T14b \(pass ? "PASS" : "FAIL") two broken nights with less than two steps of mending between, "
             row += "\(rule.name)\(rule.matches(tuning) ? " (chosen)" : ""), \(feeds ? "fed" : "no wood") between: "
             for gap in [1, 2] {
                 let set = all.filter { $0.gap == gap && $0.bothBroke }

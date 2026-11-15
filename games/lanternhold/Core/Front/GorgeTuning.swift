@@ -86,4 +86,8 @@ struct GorgeTuning: Sendable, Equatable {
     /// The forward bot keeps this much gold after buying a beacon or the watchtower (its walls' rubble and the
     /// reference's order come first).
     var botReserve = 30
+    /// While the reference saves for the Great Beacon (day 11 until its third stage stands) the forward bot spends
+    /// nothing on the gorge: the chapter's goal first (round lh-f3-1: without it the forward bot never finished the
+    /// Great Beacon and fell on night 20 in six of ten seeds).
+    var botGreatBeaconFirst = true
 }

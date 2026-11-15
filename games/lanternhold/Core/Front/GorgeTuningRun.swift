@@ -40,6 +40,8 @@ struct GorgePair: Sendable {
 /// The T15 bots and the reference, for whole runs.
 enum GorgeBotKind: String, Sendable, CaseIterable {
     case reference, forward, neglect
+    /// The control of T15b: the walls neglected as the neglect bot does, and no beacon either.
+    case walless
 }
 
 /// A whole run of one bot from day 1 (T15's second half and the wager).
@@ -321,7 +323,7 @@ enum GorgeTuningRun {
         var s = GameState.newRealm(seed: UInt64(seed), balance: balance)
         var run = GorgeRun(seed: seed, kind: kind, stress: stress)
         var reference = Autoplay.reference()
-        var bot = ForwardBot(neglectsWalls: kind == .neglect)
+        var bot = ForwardBot(neglectsWalls: kind == .neglect || kind == .walless, raisesBeacons: kind != .walless)
         if kind != .reference { Gorge.adopt(&s) }
         while s.nightNumber <= lastNight && !s.defeated {
             let count: GorgeNightCount
@@ -364,7 +366,7 @@ enum GorgeTuningRun {
         }
         for k in runStresses {
             for seed in 1...max(1, runSeeds ?? seeds) {
-                for kind in GorgeBotKind.allCases {
+                for kind in [GorgeBotKind.reference, .forward, .neglect] {
                     m.runs.append(wholeRun(seed: seed, kind: kind, balance: balance, stress: k))
                 }
             }

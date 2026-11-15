@@ -119,26 +119,64 @@ if doFinale {
     say("(\(elapsed()))")
 }
 
+/// One line per bot kind: the night each seed fell (0 held), the Great Beacon's day, beacons lost and relit (means).
+func summary(_ list: [GorgeRun], _ kind: GorgeBotKind, _ k: Double) -> String {
+    let set = list.filter { $0.kind == kind && $0.stress == k }.sorted { $0.seed < $1.seed }
+    func mean(_ values: [Int]) -> String {
+        values.isEmpty ? "-" : TuningRun.tenths(Double(values.reduce(0, +)) / Double(values.count))
+    }
+    return "\(kind.rawValue) x\(TuningRun.tenths(k)): fell \(set.map { $0.fellOn ?? 0 }), Great Beacon "
+        + "\(set.map { $0.greatBeaconDay ?? 0 }), first loss \(set.map { $0.firstLoss ?? 0 }), all four from "
+        + "\(set.map { $0.allFourOn ?? 0 }), lost \(mean(set.map { $0.lost })), relit \(mean(set.map { $0.tally.relights })), "
+        + "beacon gold \(mean(set.map { $0.tally.beaconGold })), defenders lost \(mean(set.map { $0.fallen })), at the "
+        + "defence 3-14 \(mean(set.map { $0.reached(3...14) }))"
+}
+
 if doVariants {
     say("")
-    say("== the beacons' numbers around the chosen values (T15a pairs; whole runs of the forward and neglect bots x1)")
-    var list: [(String, Balance)] = []
-    list.append(("light radius 40", variant { $0.lightRadius = 40 }))
-    list.append(("light radius 70", variant { $0.lightRadius = 70 }))
-    list.append(("strength 300", variant { $0.strength = [300, 300, 300, 300] }))
-    list.append(("strength 800", variant { $0.strength = [800, 800, 800, 800] }))
-    list.append(("no watchtower", variant { $0.watchArchers = 0 }))
-    list.append(("no charcoal", variant { $0.charcoalRadius = 1 }))
-    list.append(("no quarry", variant { $0.quarryDiscount = 0 }))
-    for (name, balance) in list {
-        let m = metrics(balance, pairs: pairs(balance), runs: runs(balance, budgets: [1.0]), budgets: [1.0])
-        say("-- \(name)")
-        say(head(m))
-        let forward = m.runs.filter { $0.kind == .forward }
-        let neglect = m.runs.filter { $0.kind == .neglect }
-        say("   forward x1: fell \(forward.filter { $0.fellOn != nil }.count), beacons lost \(forward.map { $0.lost }), "
-            + "all four from night \(forward.map { $0.allFourOn ?? 0 }); neglect x1: fell on "
-            + "\(neglect.map { $0.fellOn ?? 0 }), first beacon lost \(neglect.map { $0.firstLoss ?? 0 })")
+    say("== the controls: the reference and the walls neglected without beacons, whole runs")
+    let controls = runs(standard, budgets: [1.0, 1.5, 2.0], kinds: [.reference, .walless])
+    for k in [1.0, 1.5, 2.0] {
+        say("  " + summary(controls, .reference, k))
+        say("  " + summary(controls, .walless, k))
+    }
+    say("(\(elapsed()))")
+    say("")
+    say("== the strike's reach against the beacons' strength (T15a pairs; whole runs of the forward and neglect bots)")
+    for reach in [8.0, 16.0, 24.0, 33.0] {
+        for strength in [400.0, 600.0, 900.0] {
+            let balance = variant {
+                $0.strikeReach = reach
+                $0.strength = [strength, strength, strength, strength]
+            }
+            let list = pairs(balance)
+            let whole = runs(balance, budgets: [1.0, 1.5], kinds: [.forward, .neglect])
+            let m = metrics(balance, pairs: list, runs: whole, budgets: [1.0, 1.5])
+            var budgetsText: [String] = []
+            for k in stresses { budgetsText.append("x\(TuningRun.tenths(k)) \(Int(((m.reduction(at: k) ?? 0) * 100).rounded())) %") }
+            say("-- reach \(Int(reach)) strength \(Int(strength)): T15a \(Int((m.reduction * 100).rounded())) % fewer ("
+                + budgetsText.joined(separator: ", ") + "), beacons lost in the pairs \(list.reduce(0) { $0 + $1.held.lost })")
+            for k in [1.0, 1.5] {
+                say("   " + summary(whole, .forward, k))
+                say("   " + summary(whole, .neglect, k))
+            }
+            say("(\(elapsed()))")
+        }
+    }
+    var others: [(String, Balance)] = []
+    others.append(("no watchtower", variant { $0.watchArchers = 0 }))
+    others.append(("no charcoal", variant { $0.charcoalRadius = 1 }))
+    others.append(("no quarry", variant { $0.quarryDiscount = 0 }))
+    others.append(("light radius 40", variant { $0.lightRadius = 40 }))
+    others.append(("the forward bot spends while saving for the Great Beacon", variant { $0.botGreatBeaconFirst = false }))
+    for (name, balance) in others {
+        let list = pairs(balance)
+        let whole = runs(balance, budgets: [1.0], kinds: [.forward, .neglect])
+        let m = metrics(balance, pairs: list, runs: whole, budgets: [1.0])
+        say("-- \(name): T15a \(Int((m.reduction * 100).rounded())) % fewer, beacons lost in the pairs "
+            + "\(list.reduce(0) { $0 + $1.held.lost })")
+        say("   " + summary(whole, .forward, 1.0))
+        say("   " + summary(whole, .neglect, 1.0))
         say("(\(elapsed()))")
     }
 }

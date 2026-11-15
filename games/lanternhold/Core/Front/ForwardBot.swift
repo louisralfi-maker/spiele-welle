@@ -14,19 +14,24 @@ struct ForwardTally: Sendable, Equatable {
 /// - **Forward** (`neglectsWalls` off): it keeps the reference's walls (their rubble first, its whole build order) and
 ///   raises the next beacon, relights a cold one and raises the old watchtower whenever the purse holds the price and
 ///   `GorgeTuning.botReserve` besides. The reference's order waits a little for what the beacons took.
+///   While the reference saves for the Great Beacon (from day 11 until its third stage stands) it spends nothing on the
+///   gorge (`GorgeTuning.botGreatBeaconFirst`): the chapter's goal first.
 /// - **Neglect** (`neglectsWalls` on): it raises and relights beacons first, at any gold, and neglects the walls: no
 ///   wall is built or raised a tier (the order's wall steps are skipped), no wall is patched at night. It still
 ///   rebuilds the gatehouse's rubble, as the reference does.
+/// - **Walls neglected, no beacons** (`neglectsWalls` on, `raisesBeacons` off): the control of T15b.
 ///
 /// The reference bots of T1 to T8 are untouched; these play only under the gorge rule (`Gorge.adopt`).
 struct ForwardBot: Sendable {
     var day: Autoplay
     var neglectsWalls = false
+    var raisesBeacons = true
     var tally = ForwardTally()
 
-    init(day: Autoplay = .reference(), neglectsWalls: Bool = false) {
+    init(day: Autoplay = .reference(), neglectsWalls: Bool = false, raisesBeacons: Bool = true) {
         self.day = day
         self.neglectsWalls = neglectsWalls
+        self.raisesBeacons = raisesBeacons
         if neglectsWalls { self.day.maxPatchesPerNight = 0 }
     }
 
@@ -45,6 +50,8 @@ struct ForwardBot: Sendable {
             return
         }
         day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
+        let saving = day.buildsBeacon && s.day >= Realm.beaconUnlockDay && s.beaconStage < 3
+        if saving && balance.front.gorge.botGreatBeaconFirst { return }
         if !wallInRubble(s) { buy(&s, balance: balance, reserve: balance.front.gorge.botReserve) }
     }
 
@@ -63,6 +70,7 @@ struct ForwardBot: Sendable {
 
     /// The next beacon (or its relight), then the watchtower, while the purse holds the price and `reserve`.
     private mutating func buy(_ s: inout GameState, balance: Balance, reserve: Int) {
+        guard raisesBeacons else { return }
         if let offer = Gorge.offer(s, balance: balance), offer.open, s.gold >= offer.price + reserve {
             if Gorge.order(&s, balance: balance) {
                 if offer.relight { tally.relights += 1 } else { tally.raises += 1 }

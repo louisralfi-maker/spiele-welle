@@ -32,10 +32,12 @@ final class HearthTuningTests: XCTestCase {
         XCTAssertEqual(m.brightAgain.bright, m.brightAgain.of, String(line))
     }
 
-    /// 14, second half: two broken nights within three end the realm (`breachSteps` 2: bright to embers, low to out).
-    /// For a careless bot that never feeds the fire every such pair ends it, and two in a row end it even with wood
-    /// between; one that holds the night between and feeds the fire back to bright goes on (reported). With the spec's
-    /// starting value (one step) no pair of broken nights ends the realm (three steps above out): only a third does.
+    /// 14, second half, as built (front-2 critic look 2, high 1: REALM.md's "two broken nights within three end the
+    /// realm" reads here as "two broken nights with less than two steps of mending between end the realm"; wood is one
+    /// step, a held night one; `breachSteps` 2: bright to embers, low to out). For a careless bot that never feeds the
+    /// fire every pair within three ends it, and two in a row end it even with wood between; one that holds the night
+    /// between and feeds the fire back to bright goes on (T14a's mend, reported, not a pass). With the spec's starting
+    /// value (one step) no pair of broken nights ends the realm (three steps above out): only a third does.
     func testTarget14bTwoBrokenNightsWithinThreeEndTheRealm() {
         let m = HearthTuningTests.metrics
         let chosen = Balance.standard.front.hearth.breachSteps
@@ -48,7 +50,8 @@ final class HearthTuningTests: XCTestCase {
         XCTAssertFalse(oneStep.isEmpty)
         XCTAssertTrue(oneStep.allSatisfy { !$0.fell }, "one step a breach: two broken nights never end the realm")
         let fed = m.twoInThreeEnd(steps: chosen, feeds: true, gap: 2)
-        print("T14b, two steps, one held night and wood between: \(fed.ended) of \(fed.of) ended")
+        print("T14b reported (mended, as T14a), two steps, wood and one held night between: \(fed.ended) of "
+              + "\(fed.of) ended")
     }
 
     /// High 2 of the fix round: the first broken night of a young realm. The reference realm caught short on nights 3
