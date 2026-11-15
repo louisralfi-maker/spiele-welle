@@ -51,6 +51,56 @@ final class HearthTuningTests: XCTestCase {
         print("T14b, two steps, one held night and wood between: \(fed.ended) of \(fed.of) ended")
     }
 
+    /// High 2 of the fix round: the first broken night of a young realm. The reference realm caught short on nights 3
+    /// to 5 (ten times the night: on smaller nights a young realm with its gate and its first soldiers does not break)
+    /// has spent its purse as it went, so the gatehouse's 50 is often out of reach the morning after. With a realm's
+    /// first broken night raising its walls for nothing (`firstBreachRaisesWalls`) nine in ten are mended within three
+    /// days, and none breaks again and falls; without it some do (round lh-f2f1-3: 16 of 18, two fell).
+    func testTarget14aAYoungRealmsFirstBrokenNightIsMended() {
+        let early = HearthTuningRun.measure(balance: .standard, seeds: 6, nights: 3...5, stress: 10, doubleSeeds: 0,
+                                            doubleNights: [], doubleRules: [])
+        var off = Balance.standard
+        off.front.hearth.firstBreachRaisesWalls = false
+        let plain = HearthTuningRun.measure(balance: off, seeds: 6, nights: 3...5, stress: 10, doubleSeeds: 0,
+                                            doubleNights: [], doubleRules: [])
+        let attachment = XCTAttachment(string: early.report + "\n\nwithout the walls raised for nothing:\n" + plain.report)
+        attachment.name = "hearth-t14-young-realms"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        let line = early.report.split(separator: "\n").first ?? ""
+        print(line)
+        print(plain.report.split(separator: "\n").first ?? "")
+        XCTAssertGreaterThanOrEqual(early.broken.count, 6, String(line))
+        XCTAssertGreaterThanOrEqual(Double(early.mended.count), HearthMetrics.mendShare * Double(early.broken.count),
+                                    String(line))
+        XCTAssertEqual(early.broken.filter { $0.fellLater }.count, 0, "no young realm breaks again and falls")
+        XCTAssertTrue(early.broken.allSatisfy { $0.wallsRaised >= $0.wallsLost }, "every wall the night took is raised")
+        XCTAssertEqual(plain.broken.count, early.broken.count, "the same careless nights break")
+    }
+
+    /// High 2 of the fix round: the thinnest realm there is, the idle lord of T2 (builds nothing, stands where it is),
+    /// breaks on the night it fell under the old rules (night 3). Played on idle the fire goes out within two nights,
+    /// and the morning before the trouble is always among the dawns kept; played well from the first broken dawn the
+    /// realm is mended within three days.
+    func testTheIdleLordsRealmCanAlwaysBuildUpAgain() {
+        let thins = (1...3).map { HearthTuningRun.thin(seed: $0, cap: HearthThin.idle, balance: .standard, lastNight: 8) }
+        let report = HearthTuningRun.thinReport(thins)
+        let attachment = XCTAttachment(string: report)
+        attachment.name = "hearth-idle-lord"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        print(report)
+        for t in thins {
+            XCTAssertEqual(t.firstBreak, t.oldFell, "seed \(t.seed): the first broken night is the old fall")
+            XCTAssertEqual(t.firstBreak, 3, "seed \(t.seed)")
+            XCTAssertGreaterThan(t.wentOut, 0, "seed \(t.seed): idle, the fire goes out")
+            XCTAssertLessThanOrEqual(t.wentOut - t.firstBreak, 2, "seed \(t.seed)")
+            XCTAssertEqual(t.eveKept, true, "seed \(t.seed): the morning before the trouble is kept")
+            XCTAssertLessThanOrEqual(t.wellMendedAfter ?? Int.max, HearthMetrics.mendDays, "seed \(t.seed)")
+            XCTAssertFalse(t.wellFell, "seed \(t.seed)")
+        }
+    }
+
     /// Two broken nights in a row put the fire out (two steps a breach), and the fire shows the step between; with the
     /// spec's one step it takes three.
     func testTwoBrokenNightsInARowPutTheFireOut() throws {
