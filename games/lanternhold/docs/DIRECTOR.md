@@ -659,3 +659,11 @@ schneller geht."
   - **The stage.** FirstDay's "no realm strip" was a fault in the game: a touch on the lord standing on a site he had ordered opened the site's card. 7c397e5 lets the lord win on his body unless the finger is 3 px nearer the thing. Its 44 pt checks at 43.5 are too loose; the lane and the join round to the hundredth.
   - **The gate.** The join sends its gate on the head that holds the stage's next delta and the title's corner fix, at 16:30 at the latest.
   - **Quota:** 46 % of the week, 17 % of the Fable part.
+- **The title's lord is redrawn and in the merged game; the dark corners are fixed in code (15.11.2026, 15:35).**
+  - The title painter (Opus) redrew the lord on `claude/lh-title` at 1a56dc7: a standing man, 9 x 16, feet at (275, 88), hair, three skin pixels, the teal cloak with a warm rim, legs behind the merlons; his hand lantern goes from the hip to above his head in four frames (lantern rows 11, 7, 3, 1; were 4, 3, 1, 1).
+  - My look at the close crops and the phone-size picture: he reads as a man beside the great lantern. Weak: the hand lantern is pale yellow on a gold sky and does not read at phone size in frame 0. That goes into pass 4's picture notes (after build 2), not into today.
+  - The join merged it within a minute (59030d5) and I checked the merge: the eight files in `Resources/Title/` are identical to the lane's `art/title/`, `lordLanternRow` is `[11, 7, 3, 1]`.
+  - The join's own fixes since 15:26: the title drops the reveal's mask when the reveal ends (56ea21f); the 44 pt checks measure to the hundredth in Audience, Hall and Lord (622244c).
+  - My note to the join (15:35): `revealTo` 260 -> 300, so the ellipse passes the corners (282 from the flame) by itself and nothing pops when the mask drops; one Title round now, frame 00d to the desk. That frame, not the painter's proof, is the picture Louis gets.
+  - Lesson: a lane that keeps its art outside `Resources/` needs the copy named in the merge note. The join did it unasked this time; say it in the brief next time.
+  - Running at 15:35: lh-s3f1-5 (stage), lh-rj-14 and lh-rj-15 (join), the world's fix round 2 (uncommitted work on the beacon, the castle front and the clouds).
