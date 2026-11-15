@@ -216,10 +216,12 @@ final class GloomFogTests: XCTestCase {
         let plain = layer(s, focus: edge - 60, gloom: nil)
         let foggy = layer(s, focus: edge - 60, gloom: fog)
         XCTAssertEqual(foggy.actors.count, plain.actors.count, "the fog hides no more than the bank already does")
-        let bodies = foggy.actors.filter { $0.sprite == .sootling || $0.sprite == .sootlingB }
+        // b3-horde: the small ones take three bodies by their ids, each with its glow strip and its smoke thread.
+        let bodies = foggy.actors.filter { [SpriteID.sootling, .sootlingB, .tumbler].contains($0.sprite) }
         XCTAssertEqual(bodies.count, 2, "the one in the open and the lit one; none deep in the bank")
         XCTAssertTrue(bodies.allSatisfy { $0.tint.w > 0.98 }, "whole")
-        XCTAssertEqual(foggy.actors.filter { $0.sprite == .sootlingGlow || $0.sprite == .sootlingBGlow }.count, 2, "no glow strip deep in the bank")
+        XCTAssertEqual(foggy.actors.filter { [SpriteID.sootlingGlow, .sootlingBGlow, .tumblerGlow].contains($0.sprite) }.count, 2, "no glow strip deep in the bank")
+        XCTAssertEqual(foggy.actors.filter { $0.sprite == .sootThread }.count, 2, "no thread deep in the bank")
         XCTAssertEqual(foggy.lights.map(\.source), plain.lights.map(\.source), "the fog changes no light")
         XCTAssertEqual(foggy.props, plain.props)
         XCTAssertEqual(layer(s, focus: edge, gloom: fog, look: .one).actors,
