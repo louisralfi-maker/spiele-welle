@@ -130,7 +130,7 @@ extension SceneLayout {
         }
         list.append((.world, Entry(sprite: .curtainStair, x: castleStairX, y: 0, z: -3)))
         if built >= 2 {
-            for x in [1538.0, 1858, 2050, 2114] {
+            for x in [1538.0, 1602, 1890, 2060] {
                 list.append((.world, Entry(sprite: .curtainHoard, x: x, y: 54, z: -4)))
             }
             list.append((.world, castleBrazier(1530, y: 62, z: -3)))

@@ -1847,3 +1847,75 @@ and six highs. What each became:
 Rebuild: `build-art-world.sh weltmauer throatStepB throatStepC cleftWallA cleftWallB cleftWallC cleftWater cleftGraze
 gateRockL gateRockR cloudDeck laneCobbleEnd` (after `plants`, which makes the lane tiles `laneCobbleEnd` is made of).
 <!-- END world lane: section 22 -->
+
+## 23. The world rebuild, step world-2: one castle, exteriors only (15.11.2026)
+
+<!-- BEGIN world lane: world rebuild, step world-2 -->
+Louis on build 86: the strip "throne hall, then church, then houses, then a castle again" looked bad and strange. The
+castle is one fortress seen from outside now: the gatehouse, a curtain wall that ties every building into it, the
+bailey's lean-tos, the keep's forebuilding with the hall door, the chapel of the Flame as a tower in the wall, the
+bakehouse, the postern, and the one keep rising behind them. DESIGN.md "World rebuild" (step world-2) has the layout,
+SPRITES.md "One castle" the ids.
+
+### 23.1 How it is painted
+
+`tools/keepart.py`, pure python on `pixelart.py`'s Image, palette names only, hashes of the position (a run rebuilds
+every file byte for byte, under a second for all 27). No generated picture: every piece is drawn onto the grid from a
+small vocabulary in the gatehouse's language:
+
+- **Ashlar** (`ashlar`): courses 4 px high on the keep (it stands farther off), 5 to 6 on the world plane, blocks 5 to
+  15 px in a running bond; most blocks plain `stone`, a lit `stoneLight` block now and then (more toward the upper
+  left), a darker `stoneMid` one (more toward the foot), broken bed joints a step darker, vertical joints only at some
+  block edges. Quoins (long and short corner stones, lit on the left, shaded on the right) on every free corner. A face
+  that turns from the light darkens block by block, never by a gradient.
+- **Light from the upper left**, as on the gatehouse and the town: lit left edges and caps, a shaded right side, cast
+  shadows to the lower right (the keep's left corner tower on its main block, a buttress on the curtain and on the
+  forebuilding, an eave on the wall under it).
+- **Crenels** with a `stonePale` cap under an ink edge (the outline is laid over the silhouette on top, so the cap keeps
+  its light; on the right and at the foot it is the silhouette's own edge pixel), corbel tables and machicolations
+  with dark slots.
+- **Arches** of dressed voussoirs (`arch_ring`): blocks about 3 to 4 px along the arc with dark joints, the left half
+  lit, a pale keystone, jambs in long and short blocks; the forebuilding's portal in two orders.
+- **Teal slate** (townart's `SLATE` ramp and `roof`): the keep's hip roof, the chapel's pyramid cap, the bakehouse's
+  hipped roof, the lean-tos' pent roofs, the postern's tower roof and the pent roof over its passage.
+- **Glass** in `night1` exactly where the layout's masks light it; saddle bars and colonnettes in stone stay dark.
+- **Life**: ivy (stems with leaf clusters of five, never noise) on the curtain and the postern, shields and spears at
+  the barracks, an anvil, bellows and tongs at the forge, flour sacks and a peel at the bakehouse, a bench and a flower
+  box at the postern, the realm's banner with its gold lantern.
+
+### 23.2 The keep
+
+A Norman great tower, broad (188 px of its 200: its left corner tower has to show at the right edge from the front
+gate, REVIEW-look-2.md 2.4): four bays between pilaster buttresses, corner towers that stand forward on quoins (the
+right one a step darker: it turns from the light), twin round-headed windows under relieving arches, string courses,
+a parapet on a corbel table, a hip roof of teal slate behind it and a chimney on its right slope. Only its upper half
+shows over the curtain and the forebuilding, so its detail sits there; the lower half is calm. The tiers change the
+silhouette, not only the details: a low broad block with a roof (tier 1), a storey taller with the house banner (tier
+2), crowned with four conical turrets and the great banner (tier 3).
+
+### 23.3 Against the art bar (artbar.md)
+
+- One pixel grid, palette colours only, no dither inside the art (only `hallDoorWedge`'s alpha is dithered: it is light).
+- Clean clusters: whole blocks change value, ivy in leaf clusters, the hearth in coursed stone (a first try drew it as a
+  checkerboard of blocks, an obvious machine pattern: redrawn).
+- One light direction: every piece from the upper left; the cast shadows agree.
+- Silhouettes read at phone size against the cleft wall: crenels, the forebuilding's gable, the chapel's cap and belfry,
+  the keep's turrets, the postern's roof.
+- No repeats: three curtain paintings in an order that never puts two of a kind side by side; the lean-tos differ.
+- Redrawn because of the bar: the first ashlar (every block's top edge lit: it read as a brick texture), the outline
+  that ate the merlons' lit caps, a flat curtain buttress, noise-ivy, the forebuilding's flat crenellated box (now a
+  gabled porch), the dotted portal ring (now voussoirs).
+
+### 23.4 World-1's open blockers
+
+The cleft's two wedges of sky are cut anew (`cleftart.py wedge_profile`): at most 27 px either side of their middle,
+40 and 50 rows deep, each edge a chain of runs 2 to 6 px long that fall in their own curves (steep faces, shoulders,
+ledges) to a broken floor, and no lit rim on their edges (`slit_rim`, `rockfield.paint(rim_at:)`). The warm graze's
+band is retired; the Weltmauer's second slot is filled (`noslot2`, run last on the wall).
+
+### 23.5 Rebuild
+
+`bash games/lanternhold/tools/build-art-world.sh keepT1 … laneScreeCobble` (the list `CASTLE`), and
+`build-art-buildings.sh barracks smithy masterSmithy lodge bigLodge`. A quick composite at the real framing:
+`python3 -I tools/scenemock/castle_preview.py <Resources/Art> <out.png> <camera centre> [day|night] [1|1b|2|2b|3|3b]`.
+<!-- END world lane: world rebuild, step world-2 -->

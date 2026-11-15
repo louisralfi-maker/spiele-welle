@@ -253,6 +253,10 @@ docs/PORT-look2.md 1.7. Look 1's sprites that look 2 no longer draws stay in the
 
 ## The castle grows (ART-look2.md section 15; in `SpriteID` since the contract step; drawing only, the upgrade logic is a later lane)
 
+**World-2 (15.11.2026): only `castleFront3`, `castleFront3Build` and `castleFrontScaffold` of this table are still in
+the game.** The keep's copies (`keepTop2/3`, `backTop2/3`) and the far castles with their glows are retired
+(`tools/retired-art`); the castle grows as one building in "One castle" below.
+
 Three tiers. Tier 1 is today's castle, unchanged. Tiers 2 and 3 are sprites that stand with the existing ones; each
 has a building state (`…Build`: timber scaffolds, ladders, a crane, half-laid courses) for the days the tier is under
 construction. All are painted by `tools/castleart.py` (lane `castleTiers` of `build-art-world.sh`). F = 1240
@@ -689,10 +693,51 @@ Fix round 2 adds:
 
 | id | size | plane | where | notes |
 |---|---|---|---|---|
-| `cleftGraze` | 168x96, 3 frames | mid (emissive), bottom on the ground line, placed by the world's x | world 1490 to 2330, frames 0, 1, 1, 1, 2 (the west end, the middle, the east end) | the castle's warm light on the cleft wall's foot, behind the castle's buildings only: a white mask in three stepped bands (alpha 120, 76, 38 up to about 72, 84, 94 rows) with jagged tops, the ends fading out in the same steps over 56 px; drawn as glow in `fireOrange` × the torches' strength × 0.8; none by day |
-| `laneCobbleEnd` | 64x26 | world, lane tile | world 2432 | where the castle's cobbles give way to the valley's earth lane: `laneEarthA` with `laneCobbleB`'s stones laid over it, thinning stone by stone over 48 px (`tools/lanejoin.py`) |
+| ~~`cleftGraze`~~ | | | | retired by world-2 (the critic's look 3: it read as pale lilac drips); the backdrop pools of the cleft wall stay |
+| `laneCobbleEnd` | 64x26 | world, lane tile | world 2304 (world-2: under the postern's passage; 2432 before) | where the castle's cobbles give way to the valley's earth lane: `laneEarthA` with `laneCobbleB`'s stones laid over it, thinning stone by stone over 48 px (`tools/lanejoin.py`) |
 
 The Weltmauer's slot patch has wandering edges (no dithered blend column), and the wall is cut into buttresses by
 arêtes with lit west and shaded east flanks (`cleftart.py ridges`, between `noslot` and `mistleft`). Look 1's high
 clouds (`cloudA`, `cloudB`, `cloudC` on the sky plane) and look 2's high deck on the clouds plane are gone from look 2.
 <!-- END world lane: world rebuild, step world-1 -->
+
+<!-- BEGIN world lane: world rebuild, step world-2 -->
+## One castle (world rebuild, step world-2, 15.11.2026; ART-look2.md section 23)
+
+In `SpriteID` (look 2 only). Painted by `tools/keepart.py` (hand-placed vocabulary in the gatehouse's language: coursed
+ashlar with soft joints, quoins, lit left edges and cast shadows from the upper left, crenels with lit caps under an ink
+edge, corbel tables, teal slate, glass in `night1` for the layout's masks); `laneScreeCobble` by `tools/lanejoin.py`;
+`tools/build-art-world.sh` rebuilds them byte for byte, the bailey's lean-tos `tools/build-art-buildings.sh`. Placed by
+`Core/SceneLayoutCastle.swift`; masks are (dx, dy from the sprite's bottom, w, h).
+
+| id | size | plane | where (plane x) | notes |
+|---|---|---|---|---|
+| `keepT1`, `keepT2`, `keepT3` | 200x175 | near picture, moving with the mist band (0.62), z 5 | 1118 (centred over the hall door at 1830) | the one keep per tier: tier 1 three storeys, ridge at y 120, masks (79,80,7,10), (110,80,7,10); tiers 2 and 3 a storey more, masks + (48,100,7,10), (79,100,7,10), (110,100,7,10), (141,100,7,10), the house banner on the ridge (tier 2 to y 156; tier 3 the great banner to y 170); tier 3 round bartizans with conical caps on the corner towers and two smaller ones behind. Chimney smoke at x + 127.5, y 122 (tier 1) or 142 |
+| `keepT2Build`, `keepT3Build` | 200x175 | the same | the same | tier 2's storey half laid under scaffolding with a crane, the roof off (tier 1's two panes, no smoke); tier 3's cones as timber frames in scaffolds (tier 2's six panes) |
+| `curtainA`, `curtainB`, `curtainC` | 64x74 | world, z −5 | 1474 + 64 k, k 0 to 11 (A C B A C A B C A B A C) | the curtain wall: wall walk at 64, corbel table, merlons, putlog holes; A a slit and ivy, B an older arch blocked with rubble, C a buttress, a drain's stain and ivy |
+| `curtainTower` | 44x104 | world, z −4 | 1680 (tier 3 also 1584, mirrored) | a wall tower: lit left face, slits, a crown on machicolations |
+| `curtainStair` | 52x66 | world, z −3 | 1724 | the stair to the wall walk, rising leftward, a store's mouth under it |
+| `curtainHoard` | 64x22 | world, z −4, y 54 | 1538, 1602, 1890, 2060 (tier 2 and 3) | a timber hoarding on the wall walk under a slate pent roof, drop slots |
+| `castleBanner` | 12x30 | world, z −4, y 28 | 1500, 1906, 2084 (tier 3) | the realm's banner hung from the parapet |
+| `forebuilding` | 120x96, 2 frames | world, z −2 | 1770 | the keep's gabled porch, the hall door at col 59.5 (world 1830): frame 0 shut (mask (52,1,16,1): the light under the door), frame 1 open (the hall's light through it: `hallDoorGlow` at (50,1)). Torch flames at (36,26) and (81,26); the lord's chamber window (57,64,5,10) |
+| `hallDoorGlow` | 20x30 | world, emissive | forebuilding + (50, 1), open door only | the hall's warm light in the open door, warm white low to ember at the arch, the pillar and the banner inside left clear; dim by day, full at dusk and night |
+| `hallDoorWedge` | 60x12 | world, emissive | forebuilding + (30, −12), open door only, dusk and night | the door's wedge of warm light on the cobbles, widening toward the viewer, alpha in ordered-dither steps |
+| `chapelTower` | 110x132, 2 frames | world, z −2 | 1950 | the chapel of the Flame as a closed tower in the wall: frame 0 the bell in the belfry, frame 1 empty (`castle.chapel.bell.missing`); masks (42,54,5,24), (55,54,5,24), (68,54,5,24): three lancets lit from inside; the Flame's `brazier` at x + 31 |
+| `bakehouse` | 100x62 | world, z −2 | 2120 | the kitchen's lean-to: rubble walls, a hipped slate roof, the oven's domed hatch (`bakeHatchGlow` at (15,7), all day), a window mask (63,23,5,5), chimney smoke at x + 75, y 61 |
+| `bakeHatchGlow` | 6x6 | world, emissive | bakehouse + (15, 7) | the oven's fire through the hatch |
+| `posternT1`, `posternT2`, `posternT3` | 176x112 | world, z 0 | 2230 | the back gate per tier (a building tier shows the one before): the curtain's end, the passage at cols 90 to 110 (world 2320 to 2340) under a slate pent roof, lanterns at (81,30) and (116,30), a squat tower with a window mask (150,26,5,8), a flower box, ivy and a bench; tier 2 roofs the tower and hangs a great lantern at (99,42); tier 3 crowns it with machicolations and a flag |
+| `gateArchFg` | 64x180 | foreground, moving with the world plane, bottom 26 rows under the ground line | centred on a passage (1328, 2298) | the gate passage's dark arch while the lord passes through, faded by his place (`CastleRooms.archTenths`) |
+| `laneScreeCobble` | 64x26 | world, lane tile | world 1344 (under the gatehouse's gateway) | the Throat's scree giving way to the castle's cobbles stone by stone (`laneCobbleEnd`'s join, mirrored) |
+
+Repainted in place (same sizes, masks and anchors as `EntityFrames.courtyard`): `barracks` (64x48), `smithy` (60x48),
+`masterSmithy` (60x56), `lodge` (56x44), `bigLodge` (64x52), as lean-tos of granite and slate against the curtain: the
+barracks with shields, a spear rack and loopholes either side of its door; the smithy an open forge bay (a stone hearth
+under a hood and a chimney, bellows, tongs) beside a stone room, an anvil and a quench barrel; the master smithy with a
+loft over the forge; the lodges with stacked timber and a ladder, the big one with a hoist.
+
+Retired into `tools/retired-art`: `weltmauerPatch`, `farCastlePane`, `farCastleGlow`, `farCleftGlow`, `farCleftGlowBack`,
+`farCastle2/3`, `farCastleBack2/3` and their `Build` and `Glow` states, `farCleftGlow2/3…`, `farCleftGlowBack2/3…`,
+`keepTop2/3`, `backTop2/3` and their building states, `cleftGraze`. Look 2 no longer draws `keepTop`, `castleBackGate`,
+`hallInterior`, `hallFront`, `chapel`, `chapelInterior`, `kitchen`, `kitchenInterior`, `castleWall`, `throne`, `hearth`
+or `candleStand` (look 1 keeps them).
+<!-- END world lane: world rebuild, step world-2 -->

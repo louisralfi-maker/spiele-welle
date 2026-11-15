@@ -84,8 +84,8 @@ class C:
 
 
 # ------------------------------------------------------------------------------------------------------ stone
-def ashlar(c, x0, y0, x1, y1, seed, course=5, bmin=6, bmax=12, joints=1.0, darken=None, foot=0.0, light=0.07,
-           dark=0.09, bed=0.8, quoins=False):
+def ashlar(c, x0, y0, x1, y1, seed, course=5, bmin=6, bmax=12, joints=1.0, darken=None, foot=0.0, light=0.035,
+           dark=0.07, bed=0.8, quoins=False):
     """Coursed dressed stone over the box (image rows y0 top .. y1 bottom), calm as the gatehouse's: courses `course`
     rows high in a running bond of blocks bmin..bmax wide; most blocks the plain stone, a lit stoneLight block now and
     then (`light`, more toward the upper left) and a darker stoneMid one (`dark`, more toward the foot); the bed
@@ -1263,8 +1263,25 @@ def postern(tier):
         c.set(PASS[0] + 2, y, "woodDark")
     for x in range(PASS[0] + 3, PASS[1]):
         c.set(x, c.r(0), "stoneMid")
-    lantern_bracket(c, 81, c.r(34))                # lanterns either side (glass cols 81-83 and 116-118, dy 29-32)
+    lantern_bracket(c, 81, c.r(34))                # lanterns either side (glass cols 81-83 and 116-118, dy 30-33)
     lantern_bracket(c, 116, c.r(34))
+    # a pent roof of slate over the passage on two timber brackets: the castle's back door, friendly to the town
+    for x in range(84, 117):
+        for hh in range(39, 44):
+            k = (x + hh) % 3
+            c.set(x, c.r(hh), "roofLight" if hh == 43 and x < 108 else "banner" if k else "roofDeep")
+        c.set(x, c.r(38), "night1")
+    for bx in (86, 113):
+        for i in range(5):
+            c.set(bx + (i if bx < 100 else -i) // 2, c.r(38 - i), "woodDark")
+    ivy(c, 2, 0, 18, 30, seed + 9)
+    ivy(c, 116, 0, 10, 40, seed + 11)
+    for x in range(126, 140):                      # a bench by the tower
+        c.set(x, c.r(5), "woodLight" if x < 138 else "wood")
+        c.set(x, c.r(4), "woodDark")
+    for x in (127, 138):
+        for hh in range(0, 4):
+            c.set(x, c.r(hh), "woodDark")
     t0, t1 = 114, 170                              # the squat tower east of the passage
     ttop = 80
     ashlar(c, t0, c.r(ttop), t1, c.r(0), seed + 5, course=5, bmin=6, bmax=12, joints=0.9, foot=0.3,
