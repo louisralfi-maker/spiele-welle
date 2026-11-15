@@ -98,7 +98,7 @@ final class Look2FrameTests: XCTestCase {
 
         let second = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 2)).props
         XCTAssertEqual(only(second, .keepT2, .near)?.x, keep.x)
-        XCTAssertEqual(only(second, .keepT2, .near)?.masks.count, 6)
+        XCTAssertEqual(only(second, .keepT2, .near)?.masks.count, 5, "two below, three of the four above")
         XCTAssertEqual(only(second, .castleFront), front, "tier 2 keeps the gatehouse")
         XCTAssertNotNil(only(second, .posternT2))
         XCTAssertEqual(count(second, .curtainHoard), 3)
@@ -109,7 +109,7 @@ final class Look2FrameTests: XCTestCase {
 
         let third = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 3)).props
         XCTAssertEqual(count(third, .castleFront), 0)
-        XCTAssertEqual(only(third, .keepT3, .near)?.masks.count, 6)
+        XCTAssertEqual(only(third, .keepT3, .near)?.masks.count, 5)
         XCTAssertEqual(count(third, .curtainTower), 2, "tier 3: a second wall tower")
         XCTAssertEqual(count(third, .castleBanner), 3)
         XCTAssertNotNil(only(third, .posternT3))

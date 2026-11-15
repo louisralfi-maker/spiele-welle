@@ -3448,7 +3448,7 @@ Art: `tools/keepart.py` (ART-look2.md section 23); layout: `Core/SceneLayoutCast
   door at 1830 and leaves at the left edge at the back gate. A Norman great tower: four bays between pilaster
   buttresses, corner towers that stand forward (quoins, slits, a crown on machicolations; the left one throws its
   shadow on the main block), twin round-headed windows, a hip roof of teal slate behind the parapet and a chimney.
-  Tier 1: three storeys, the roof's ridge at y 120, two lit windows; tier 2: a storey more (four more windows), the
+  Tier 1: three storeys, the roof's ridge at y 120, two lit windows; tier 2: a storey more (four windows, three lit), the
   house banner on the ridge (to y 156); tier 3: round bartizans with conical caps on the corner towers and two smaller
   ones behind (four turrets), the great banner to y 170. Every top but the banner stays at or under y 150. The building
   states: tier 2's storey half laid in ragged courses under scaffolding with a crane, the roof off; tier 3's cones as

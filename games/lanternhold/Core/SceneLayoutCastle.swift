@@ -34,12 +34,12 @@ extension SceneLayout {
 
     // MARK: The sprites' anchors (keepart.py)
 
-    /// The keep's lit panes per tier (twin windows: two in the middle bays at tier 1, a storey of four above at tiers 2
-    /// and 3, none while that storey is built).
+    /// The keep's lit panes per tier (twin windows: two in the middle bays at tier 1; at tiers 2 and 3 three of the four
+    /// on the storey above, so the rows never light up like a grid; none of that storey while it is built).
     static func castleKeepPanes(_ stage: CastleStage) -> [(Double, Double, Int, Int)] {
         var panes: [(Double, Double, Int, Int)] = [(79, 80, 7, 10), (110, 80, 7, 10)]
         if stage.tier >= 2 && !(stage.tier == 2 && stage.building) {
-            panes += [(48, 100, 7, 10), (79, 100, 7, 10), (110, 100, 7, 10), (141, 100, 7, 10)]
+            panes += [(48, 100, 7, 10), (110, 100, 7, 10), (141, 100, 7, 10)]
         }
         return panes
     }
