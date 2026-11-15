@@ -112,16 +112,39 @@ enum Town {
         day.day <= 1
     }
 
-    /// Where the first morning's household waits (world game px): in the courtyard before the hall door, so the lord
-    /// meets it as he steps out of the hall on his first morning (town-2, after critic look 2 on town-1: at its own
-    /// door, 700 px off in the town, a first-time player would almost never have met it). It tosses there and walks
-    /// home to the town; the onboarding's words, if any, come with the join.
+    /// Where the first morning's household waits (world game px): in the courtyard before the hall door, on the lord's
+    /// way from the hall to every goal of day 1 (the braziers, the stake pit, the tower, the barracks all lie west of
+    /// it), so a lord who goes out to any of them passes her (town-2, after critic look 2 on town-1: at her own door,
+    /// 700 px off in the town, a first-time player would almost never have met her). She tosses there and walks home
+    /// to the town; the onboarding's words, if any, come with the join.
     static var firstMorningX: Double { Realm.hallX - 10 }
 
-    /// Where the lord meets the household of a paying place today: its door, the farmer's field, the stall; on the
-    /// first morning the courtyard (`firstMorningX`).
-    static func meetX(plot: Int, day: TownDay) -> Double {
-        isFirstMorning(day) ? firstMorningX : doorX(plot: plot)
+    /// Where she is at the first frame (sim time 0): she left her door in the town at first light and came in through
+    /// the castle, so the realm's first frame finds her crossing the hall ahead of the lord at the throne (town-2 fix
+    /// round 2: she walks to her place, then turns and waits there, palm out, until the horn). West of the throne and
+    /// east of the hall door, so whichever way the lord leaves the hall for a goal of day 1 he comes up behind her or
+    /// meets her where she waits; the anchor moves with the hall (`Realm.hallX`).
+    static var firstMorningEnters: Double { Realm.hallX + 60 }
+    /// Her pace across the hall (world game px per sim second), the town's walk.
+    static let firstMorningPace = 14.0
+
+    /// Where the first morning's household stands at sim time `t`: crossing the hall from `firstMorningEnters`, then
+    /// waiting at `firstMorningX`. A pure function of the sim time, so the rule (`step`), the frame and a test agree.
+    static func firstMorningStand(at t: Double) -> Double {
+        let from = firstMorningEnters
+        let to = firstMorningX
+        let walked = max(0, t) * firstMorningPace
+        guard walked < abs(to - from) else { return to }
+        return from + (to >= from ? walked : -walked)
+    }
+
+    /// The sim time at which she reaches her place in the courtyard.
+    static var firstMorningArrives: Double { abs(firstMorningX - firstMorningEnters) / firstMorningPace }
+
+    /// Where the lord meets the household of a paying place today at sim time `t`: its door, the farmer's field, the
+    /// stall; on the first morning where the chandler's household stands now (`firstMorningStand`).
+    static func meetX(plot: Int, day: TownDay, at t: Double) -> Double {
+        isFirstMorning(day) ? firstMorningStand(at: t) : doorX(plot: plot)
     }
 
     // MARK: - The clock
@@ -279,7 +302,7 @@ enum Town {
 
     /// One sim step: by day, every household whose door the lord passed within `collectReach` on his way from
     /// `kingX` to where he stands now tosses him its part (the whole way is checked, so a long headless step cannot
-    /// slip past a door; on the first morning the courtyard where the household waits, `meetX`). No tap, no button.
+    /// slip past a door; on the first morning wherever the chandler's household stands now, `meetX`). No tap, no button.
     /// Then the collector's round (the lord first: a door they reach in the same step pays the lord).
     static func step(_ s: inout GameState, from kingX: Double, balance: Balance) {
         if doorsOpen(s, balance: balance), let day = s.town?.today {
@@ -287,7 +310,7 @@ enum Town {
             let low = min(kingX, s.king.x) - reach
             let high = max(kingX, s.king.x) + reach
             for place in day.places where place.owes {
-                let door = meetX(plot: place.plot, day: day)
+                let door = meetX(plot: place.plot, day: day, at: s.simTime)
                 if door >= low && door <= high { collect(&s, plot: place.plot, balance: balance) }
             }
         }

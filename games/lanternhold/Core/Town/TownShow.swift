@@ -10,11 +10,15 @@
 ///   his coins out of a knotted cloth. Reduce Motion: the coins fade in at the lord.
 /// - **The knock.** The lord stands at the door and knocks three times; the door opens, the household bows and holds out
 ///   the coins, they hop into his hand, the door shuts and the shutters close. The window stays dark that night.
-/// - **The first morning.** The chandler's household waits in the courtyard by the hall door (`Town.firstMorningX`),
-///   tosses there and walks home to the town.
-/// - **The collector** (fix round 1, docs/TOWN.md section 2). As he passes a door that owes, the household bows and
-///   holds out its coins, they hop into his strongbox, a deeper bow, and it steps back in; no sound, no haptic (the
-///   gold reaches the purse when he is back at noon). `Scene.collector` says where he is, for the people lane's figure.
+/// - **The first morning.** The chandler's household crosses the hall ahead of the lord, waits in the courtyard by the
+///   hall door (`Town.firstMorningStand`), tosses there (or where the lord catches her up) and walks home to the town.
+/// - **The collector** (fix round 1, docs/TOWN.md section 2). He stops at each door that owes (town-3's round), the
+///   household bows and holds out its coins, they hop into his strongbox, a deeper bow, and it steps back in; no sound,
+///   no haptic (the gold reaches the purse when he is back). `Scene.collector` says where he is, for the people lane.
+/// - **The open palm** (fix round 2). The coins land in the lord's open palm at belt height, under and before his
+///   lantern's glass, so the hand and not the lantern is seen to take them; the palm gives a little at each landing.
+///   He holds it out while he stands for a toss or a knock; after the knock's door opens he has taken half a step back,
+///   so the household bows in a free doorway.
 ///
 /// The coins are the whole message, so they are drawn to be read at phone size (fix round 1): a 4x4 coin with a dark
 /// rim on its shadow side, emissive and with a small glow under it (`TownFrames`), and a waiting household holds one up
@@ -73,10 +77,21 @@ enum TownShow {
     /// The lord stands this far from the door's middle to knock (his fist, 3 to 4 px ahead of him, lands on the door's
     /// near half) ...
     static let knockStand = 6.0
+    /// ... and takes half a step back to this far while the door opens (fix round 2, critic look 2's high 1: at 6 px he
+    /// covered the household, 12 px wide in the doorway, with his 16), between `stepBackFrom` and `stepBackUntil` after
+    /// the knock, so the bow is seen in a free doorway and the coins cross a gap. The screen moves him (`GameModel`).
+    static let knockBackStand = 13.0
+    static let stepBackFrom = 0.75
+    static let stepBackUntil = 0.95
     /// ... and this far when he only walks up to a household that still owes: beside it, so its toss is seen.
     static let collectStand = 18.0
     /// He holds out his hand for the coins from here until the last coin is in it.
     static let receiveFrom = 1.15
+    /// The palm gives a pixel (down and back, `KnockFrame.give`) for this long as each coin lands in it.
+    static let catchFor = 0.08
+    /// Standing for a toss, he holds out his palm to a household this near (game px; the touch stops him at
+    /// `collectStand`, the toss starts at `TownRules.collectReach`).
+    static let receiveNear = 30.0
 
     /// A held coin glints (`TownSprites.CoinFrame.glint`) for `glintFor` once every `glintEvery`, each place at its own
     /// moment; steady with Reduce Motion.
@@ -99,11 +114,14 @@ enum TownShow {
     static let collectorNear = 48.0
 
     /// Where the coins leave a household's hands and land in the lord's (game px from the anchor; the lord's hand is
-    /// ahead of him by `lordHand.dx`, the coin's centre over the open palm of his knock pose).
+    /// ahead of him by `lordHand.dx`, the coin's centre over the open palm of his receive pose, at belt height and 10 px
+    /// under his lantern's glass, `EntityFrames.kingGlass`; fix round 2, critic look 2's high 2: at 16 px the coins
+    /// landed in the lantern's light and seemed to feed the lantern). Keep in step with `farReceive` in
+    /// tools/grids/town/kingKnock.txt (the palm on row 20).
     static let handY = 12.0
-    static let lordHand = (dx: 5.0, dy: 16.0)
-    /// The arc's top over the higher end.
-    static let arcHeight = 12.0
+    static let lordHand = (dx: 5.0, dy: 12.0)
+    /// The arc's top over the higher end (fix round 2: lower, so no coin passes through the lantern's glow).
+    static let arcHeight = 8.0
     static let lowArc = 5.0
 
     // MARK: - What is drawn
@@ -150,6 +168,8 @@ enum TownShow {
         var x: Double
         var facing: Int
         var taking: Bool
+        /// He stands at a door (his round's stop, `Town.CollectorLeg.atDoor`), not walking.
+        var still = false
     }
 
     /// Everything the town's taxes add to a frame: the figures, the coins in the air, the coins held up by the
@@ -377,7 +397,6 @@ enum TownShow {
         let day = s.town?.today
         let doorsOpen = Town.doorsOpen(s, balance: balance)
         let king = s.king
-        let hand = (x: king.x + lordHand.dx * Double(king.facing), y: lordHand.dy)
 
         // The houses: shutters after a knock, the window dark tonight; the door open while someone stands in it.
         var doors: Set<Int> = []
@@ -413,12 +432,25 @@ enum TownShow {
         for place in day.places {
             let sprite = TownSprites.figure(plot: place.plot, kind: place.kind)
             let courtyard = firstMorning && place.kind == .house
-            let standX = courtyard ? Town.firstMorningX : standX(s, plot: place.plot, kind: place.kind, spots: spots)
+            // The first morning: where she stands now, or where she stood when she tossed.
+            let standX = courtyard ? Town.firstMorningStand(at: min(now, place.tossedAt ?? now))
+                : standX(s, plot: place.plot, kind: place.kind, spots: spots)
             let towardLord = king.x < standX
             let from = (x: standX + (towardLord ? -3.0 : 3.0), y: handY)
+            let hand = receivingHand(king, standX: standX)
 
             let child = byChild(s, place: place, day: day, rules: rules)
             // Waiting with the coins (the child holds them up).
+            if place.owes && doorsOpen && courtyard && now < Town.firstMorningArrives {
+                // Still crossing the hall to her place, her back to the lord (the walk's step tied to the ground).
+                let walked = (now * Town.firstMorningPace).rounded(.down)
+                let west = Town.firstMorningX < Town.firstMorningEnters
+                scene.figures.append(Figure(plot: place.plot, sprite: sprite,
+                                            frame: TownSprites.Frame.walk + Int(walked / 4) % 4, x: standX,
+                                            flipped: west))
+                stage(standX)
+                continue
+            }
             if place.owes && doorsOpen {
                 let breath = Int(((now + Double(place.plot) * 0.37) / 0.9).rounded(.down)) % 2
                 var frame = place.kind == .field ? TownSprites.FarmerFrame.wait + breath : TownSprites.Frame.wait + breath
@@ -446,8 +478,8 @@ enum TownShow {
                     if place.kind == .house { doors.insert(place.plot) }
                     stage(standX)
                 }
-                if t < last { taking = true }
                 if let x = collectorX, abs(x - standX) <= collectorNear {
+                    if t < last { taking = true }
                     let facing = collectorFacing(s, day: day, rules: rules)
                     let box = (x: x + collectorBox.dx * Double(facing), y: collectorBox.dy)
                     let hands = (x: standX + (side ? -4.0 : 4.0), y: 9.0)
@@ -539,9 +571,13 @@ enum TownShow {
             scene.houses[index].doorOpen = true
         }
         scene.lord = knockPose(s, day: day, spots: spots, now: now, rules: rules)
+            ?? receivePose(s, day: day, spots: spots, now: now, rules: rules)
             ?? refusedPose(s, refused: refused, spots: spots, now: now)
         if let x = collectorX {
-            scene.collector = CollectorMoment(x: x, facing: collectorFacing(s, day: day, rules: rules), taking: taking)
+            var still = false
+            if case .atDoor = Town.collectorLeg(day, hour: s.hour, rules: rules) { still = true }
+            scene.collector = CollectorMoment(x: x, facing: collectorFacing(s, day: day, rules: rules), taking: taking,
+                                              still: still)
         }
         return scene
     }
@@ -721,7 +757,9 @@ enum TownShow {
         return Coin(x: x, y: base + bulge, frame: ((frame % 4) + 4) % 4)
     }
 
-    /// The lord's pose while he knocks at a door and takes the coins (nil when he is not standing there).
+    /// The lord's pose while he knocks at a door and takes the coins (nil when he is not standing there): the knocks,
+    /// the fist drawn back while he takes half a step back (`knockBackStand`) and the door opens, then the open palm
+    /// (giving a pixel as each coin lands) until the last coin is in it.
     static func knockPose(_ s: GameState, day: TownDay, spots: [Spot], now: Double, rules: TownRules) -> LordPose? {
         let king = s.king
         guard king.velocity == 0 else { return nil }
@@ -730,21 +768,67 @@ enum TownShow {
                 continue
             }
             let t = now - at
-            guard abs(abs(king.x - spot.doorX) - knockStand) <= 3 else { continue }
+            let distance = abs(king.x - spot.doorX)
+            guard distance >= knockStand - 3, distance <= knockBackStand + 3 else { continue }
             let gold = lastKnockGold(place, day: day, rules: rules)
-            let last = arrivals(count: Town.coins(for: gold, rules: rules), kind: .house, manner: .plain,
-                                knock: true).last ?? coinsFrom
+            let times = arrivals(count: Town.coins(for: gold, rules: rules), kind: .house, manner: .plain, knock: true)
+            let last = times.last ?? coinsFrom
             let flipped = king.x > spot.doorX
             if t < knocks[2] + knockHold + 0.13 {
                 let hit = knocks.contains { t >= $0 && t < $0 + knockHold }
                 return LordPose(frame: hit ? TownSprites.KnockFrame.knock : TownSprites.KnockFrame.ready,
                                 flipped: flipped)
             }
-            if t >= receiveFrom && t < last + 0.15 {
-                return LordPose(frame: TownSprites.KnockFrame.receive, flipped: flipped)
-            }
+            if t < receiveFrom { return LordPose(frame: TownSprites.KnockFrame.ready, flipped: flipped) }
+            if t < last + 0.15 { return LordPose(frame: palmFrame(t: t, landings: times), flipped: flipped) }
         }
         return nil
+    }
+
+    /// Where the lord stands at `t` after a knock he gave from `knockX` at the door `doorX`: at the knock spot until
+    /// `stepBackFrom`, then half a step back to `knockBackStand` by `stepBackUntil`, on his own side (fix round 2).
+    static func knockBackX(doorX: Double, knockX: Double, t: Double) -> Double {
+        let side: Double = knockX <= doorX ? -1 : 1
+        let back = doorX + side * knockBackStand
+        let u = min(1, max(0, (t - stepBackFrom) / (stepBackUntil - stepBackFrom)))
+        return knockX + (back - knockX) * u
+    }
+
+    /// The open palm, or the palm giving a pixel for `catchFor` after each landing in `landings` (sim s after start).
+    static func palmFrame(t: Double, landings: [Double]) -> Int {
+        landings.contains { t >= $0 && t < $0 + catchFor } ? TownSprites.KnockFrame.give
+            : TownSprites.KnockFrame.receive
+    }
+
+    /// The lord's open palm while he stands for a toss (fix round 2): from the moment the first coin leaves the
+    /// household's hands until the last is in his palm, facing a household within `receiveNear` (nil when he walks:
+    /// then the coins land at his belt before him, `receivingHand`). Not for the coins flung at his feet (he stoops for
+    /// none: they hop up into the same palm) nor for the collector.
+    static func receivePose(_ s: GameState, day: TownDay, spots: [Spot], now: Double, rules: TownRules) -> LordPose? {
+        let king = s.king
+        guard king.velocity == 0 else { return nil }
+        for place in day.places {
+            guard let at = place.tossedAt, place.collectorGold == nil, place.tossGold > 0, now >= at else { continue }
+            let standX = Town.isFirstMorning(day) && place.kind == .house ? Town.firstMorningStand(at: at)
+                : standX(s, plot: place.plot, kind: place.kind, spots: spots)
+            guard abs(king.x - standX) <= receiveNear else { continue }
+            let times = tossTimes(s, place: place, day: day, rules: rules)
+            guard let last = times.last, now - at >= release, now - at < last + 0.15 else { continue }
+            return LordPose(frame: palmFrame(t: now - at, landings: times), flipped: king.x > standX)
+        }
+        return nil
+    }
+
+    /// Where the coins of a household standing at `standX` land on the lord: his open palm, on the household's side
+    /// when he stands for them (`receivePose`), else before him as he walks; at belt height either way (`lordHand`).
+    static func receivingHand(_ king: RealmKing, standX: Double) -> (x: Double, y: Double) {
+        let side: Double
+        if king.velocity == 0 && abs(king.x - standX) <= receiveNear {
+            side = king.x > standX ? -1 : 1
+        } else {
+            side = Double(king.facing)
+        }
+        return (x: king.x + lordHand.dx * side, y: lordHand.dy)
     }
 
     /// The single knock nobody answers.

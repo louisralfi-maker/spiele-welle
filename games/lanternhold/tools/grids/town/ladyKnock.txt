@@ -1,10 +1,10 @@
 # ladyKnock 16x30, 3 frames (town-2, `TownSprites.KnockFrame`): the Burgherrin at a door of the town, the pair of
 # kingKnock pixel for pixel: her standing frame (../actors/lady.txt frame 6: her head, plait and kirtle over the
 # Burgherr's legs, arm and pole), the pole where that frame holds it, the far hand knocking (fix round 1).
-#   0 the fist drawn back, 1 the knock, 2 the open hand held out for the coins
+#   0 the fist drawn back, 1 the knock, 2 the open hand held out low for the coins (fix round 2), 3 the palm giving
 id ladyKnock
 size 16x30
-frames 3
+frames 4
 outline ink shade
 include ../actors/king.txt
 include ../actors/lady.txt
@@ -40,5 +40,16 @@ frame 2
     circlet 3 2
     plait 3 6
     farReceive 9 13
+    pole 10 1
+    armHold 7 9
+
+frame 3
+    legsStand 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    plait 3 6
+    farGive 9 13
     pole 10 1
     armHold 7 9

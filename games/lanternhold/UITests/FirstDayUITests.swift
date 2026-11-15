@@ -20,12 +20,13 @@ final class FirstDayUITests: XCTestCase {
     func testFirstDay() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
-        app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWTimeScale", "4",
-                               "-GWCameraX", "1150"]
+        // Town-2 fix round 2: the lord starts at the throne, as a new player's does, so his first walk out of the hall
+        // meets the chandler's household on her way to the courtyard.
+        app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWTimeScale", "4"]
         app.launch()
         guard waitUntilReady(app, name: "first-day") else { return }
 
-        // The HUD on the first morning, in front of the gatehouse.
+        // The HUD on the first morning, at the throne.
         let gold = element(app, "hud-gold")
         XCTAssertTrue(gold.waitForExistence(timeout: 10), "the gold shows")
         XCTAssertEqual(gold.value as? String, "44", "the first household still holds 16 of the 60 (town-1)")
@@ -45,9 +46,18 @@ final class FirstDayUITests: XCTestCase {
         let after = kingX(app)
         XCTAssertGreaterThan(after, before + 10, "the drag walked the king right (\(before) to \(after))")
 
-        // A tap on the realm strip at line 1's braziers: he runs there; the hammer opens the build card.
+        // A tap on the realm strip at line 1's braziers: he runs out of the hall, past the chandler's household, who
+        // tosses him the first 16 coins (town-2 fix round 2), and on; the hammer opens the build card.
         let strip = element(app, "realm-strip")
+        let status = element(app, "town-status")
         tapStrip(strip, worldX: 1262)
+        if waitForStatus(status, "paid:", contains: 21, timeout: 20) {
+            pause(0.05)
+            attach(XCUIScreen.main.screenshot(), "43-first-toss-\(language)")
+        } else {
+            XCTFail("he did not meet the chandler's household on his way out (\((status.value as? String) ?? ""))")
+        }
+        XCTAssertTrue(waitForValue(gold, "60", timeout: 8), "the first 16 coins (\(String(describing: gold.value)))")
         XCTAssertTrue(waitForKing(app, near: 1262, within: 14, timeout: 20), "the king ran to the braziers")
         let button = element(app, "action-button")
         XCTAssertTrue(button.waitForExistence(timeout: 6), "the hammer shows at the plot")
@@ -61,10 +71,10 @@ final class FirstDayUITests: XCTestCase {
         XCTAssertTrue(brazier.exists, "the brazier is on the card")
         checkTarget(brazier, "build option")
         checkTarget(element(app, "build-card-close"), "close")
-        XCTAssertTrue(brazier.isEnabled, "44 gold pay for a brazier")
+        XCTAssertTrue(brazier.isEnabled, "60 gold pay for a brazier")
         brazier.tap()
         XCTAssertTrue(waitForGone(card, timeout: 6), "the card closes after the order")
-        XCTAssertTrue(waitForValue(gold, "32", timeout: 6), "the order cost 12 gold (\(String(describing: gold.value)))")
+        XCTAssertTrue(waitForValue(gold, "48", timeout: 6), "the order cost 12 gold (\(String(describing: gold.value)))")
 
         // The barracks.
         tapStrip(strip, worldX: 1513)
@@ -109,7 +119,6 @@ final class FirstDayUITests: XCTestCase {
             XCTFail("no crown at the throne")
         }
         // Town-2: no tax card at the lectern any more (the taxes are collected on foot at the doors, TownUITests).
-        // On the way to the throne the lord passed the chandler's household in the courtyard: her 16 coins.
 
         // Back in front of the gate for the night; the horn at 19:00.
         tapStrip(strip, worldX: 1150)
@@ -125,6 +134,7 @@ final class FirstDayUITests: XCTestCase {
         XCTAssertTrue(report.waitForExistence(timeout: 150), "the dawn report opens")
         pause(0.6)
         attach(XCUIScreen.main.screenshot(), "45-report-\(language)")
+        XCTAssertTrue(app.staticTexts["16"].exists, "the first dawn's taxes: the chandler's 16 coins")
         let proceed = element(app, "report-continue")
         checkTarget(proceed, "continue")
         proceed.tap()
@@ -245,6 +255,21 @@ final class FirstDayUITests: XCTestCase {
     /// Taps the realm strip where it shows world x `worldX` (the map spans its whole width).
     private func tapStrip(_ strip: XCUIElement, worldX: Double) {
         strip.coordinate(withNormalizedOffset: CGVector(dx: worldX / 3900, dy: 0.5)).tap()
+    }
+
+    /// Waits until the town's state (`town-status`, "paid:21,23") lists `plot` after `key`.
+    private func waitForStatus(_ status: XCUIElement, _ key: String, contains plot: Int,
+                               timeout: TimeInterval) -> Bool {
+        let started = Date()
+        while Date().timeIntervalSince(started) < timeout {
+            let text = (status.value as? String) ?? ""
+            if let word = text.split(separator: " ").first(where: { $0.hasPrefix(key) }),
+               word.dropFirst(key.count).split(separator: ",").contains(where: { Int($0) == plot }) {
+                return true
+            }
+            pause(0.1)
+        }
+        return false
     }
 
     private func waitForGone(_ element: XCUIElement, timeout: TimeInterval) -> Bool {

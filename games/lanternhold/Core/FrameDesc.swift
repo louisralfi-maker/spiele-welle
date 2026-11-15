@@ -123,7 +123,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // The town lane (town-2, docs/TOWN.md section 1, `TownSprites`): the households at their doors, the farmer, the
     // lord's knock, the coin, the houses' open door and closed shutters
     case townCorra, townDun, townBrede, townHemmet, townWenna, townGorm, townNib, kingKnock, ladyKnock, townCoin,
-         townCottage, townBigHouse
+         townCottage, townBigHouse, townStrongbox
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -351,7 +351,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
             return PixelSize(width: 20, height: 41)
         case .circletIcon, .circletIconInk: return PixelSize(width: 24, height: 16)
         case .townCorra, .townDun, .townBrede, .townHemmet, .townWenna, .townGorm, .townNib, .kingKnock, .ladyKnock,
-             .townCoin, .townCottage, .townBigHouse:
+             .townCoin, .townCottage, .townBigHouse, .townStrongbox:
             return TownSprites.size(of: self)
         }
     }

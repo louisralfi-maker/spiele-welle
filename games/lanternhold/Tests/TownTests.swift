@@ -82,8 +82,8 @@ final class TownTests: XCTestCase {
         var events: [SimEvent] = []
         Sim.step(&s, dt: Sim.frameStep, balance: balance, events: &events)
         XCTAssertEqual(s.gold, 44, "on the first morning the chandler's household waits in the courtyard")
-        // ... walking out of the hall into the courtyard does: the toss.
-        s.king.x = Town.firstMorningX
+        // ... coming up to where she stands now (crossing the hall, or waiting in the courtyard) does: the toss.
+        s.king.x = Town.firstMorningStand(at: s.simTime)
         let before = s.town
         Sim.step(&s, dt: Sim.frameStep, balance: balance, events: &events)
         XCTAssertEqual(s.gold, purse, "16 tossed: the 60 of before")
@@ -109,6 +109,79 @@ final class TownTests: XCTestCase {
         var u = GameState.newRealm(seed: 1, balance: balance)
         u.king.x = Realm.courtyardX
         XCTAssertEqual(Town.collect(&u, plot: house1, balance: balance), rules.firstMorningGold)
+    }
+
+    /// Town-2 fix round 2 (town-1's high, critic look 2): the chandler's household crosses the hall ahead of the lord
+    /// and waits in the courtyard, on his way from the hall to every goal of day 1, so whichever goal he goes to first,
+    /// at whatever moment and pace, he meets her and the first toss is seen in the first minute.
+    func testTheFirstMorningIsMetOnTheWayToEveryGoalOfDayOne() throws {
+        let line = Realm.lines[0]
+        let goals: [(name: String, x: Double)] = [
+            ("the stake pit", Realm.plots[line.trap].x), ("brazier A", Realm.plots[line.braziers[0]].x),
+            ("brazier B", Realm.plots[line.braziers[1]].x), ("the tower", Realm.plots[line.tower].x),
+            ("the barracks", Realm.barracksX), ("the lodge", Realm.lodgeX), ("the gate", Realm.gateBackX),
+        ]
+        // Her path lies between the hall's throne and every goal, and she never starts within his reach.
+        XCTAssertLessThan(Town.firstMorningEnters, Realm.throneX - rules.collectReach, "no toss at the first frame")
+        XCTAssertEqual(Town.firstMorningStand(at: 0), Town.firstMorningEnters)
+        XCTAssertEqual(Town.firstMorningStand(at: Town.firstMorningArrives + 1), Town.firstMorningX)
+        XCTAssertEqual(Town.firstMorningStand(at: 1000), Town.firstMorningX, "she waits there until the horn")
+        XCTAssertGreaterThan(Town.firstMorningStand(at: 1), Town.firstMorningX, "walking at first")
+        XCTAssertLessThan(Town.firstMorningStand(at: 1), Town.firstMorningEnters)
+        for goal in goals {
+            XCTAssertLessThan(goal.x, Town.firstMorningX, "\(goal.name) lies beyond her, seen from the throne")
+        }
+
+        for goal in goals {
+            for pace in [balance.kingWalkSpeed, balance.kingRunSpeed] {
+                for setOff in [0.0, 2.0, 30.0, 300.0] {
+                    var s = GameState.newRealm(seed: 1, balance: balance)
+                    XCTAssertEqual(s.king.x, Realm.throneX)
+                    s.simTime = setOff
+                    Town.step(&s, from: s.king.x, balance: balance)
+                    XCTAssertEqual(s.gold, balance.startGold, "standing at the throne he does not meet her")
+                    let dt = Sim.frameStep
+                    var steps = 0
+                    while s.king.x > goal.x && steps < 100_000 {
+                        let from = s.king.x
+                        s.king.x = max(goal.x, s.king.x - pace * dt)
+                        s.simTime += dt
+                        Town.step(&s, from: from, balance: balance)
+                        steps += 1
+                    }
+                    XCTAssertEqual(s.gold, purse, "to \(goal.name) at \(pace) px/s from \(setOff) s: the toss")
+                    let tossedAt = try XCTUnwrap(s.town?.today?.places.first?.tossedAt)
+                    let met = Town.firstMorningStand(at: tossedAt)
+                    XCTAssertGreaterThanOrEqual(met, Town.firstMorningX - 1e-9)
+                    XCTAssertLessThanOrEqual(met, Town.firstMorningEnters + 1e-9)
+                }
+            }
+        }
+
+        // A lord who stays inside the castle (out to the barracks and back to the throne) meets her too.
+        var t = GameState.newRealm(seed: 1, balance: balance)
+        for target in [Realm.barracksX, Realm.throneX] {
+            while abs(t.king.x - target) > 1e-9 {
+                let from = t.king.x
+                let step = balance.kingWalkSpeed * Sim.frameStep
+                t.king.x = target < t.king.x ? max(target, t.king.x - step) : min(target, t.king.x + step)
+                t.simTime += Sim.frameStep
+                Town.step(&t, from: from, balance: balance)
+            }
+        }
+        XCTAssertEqual(t.gold, purse)
+
+        // A lord who goes the other way first, into the town, meets her when he comes back through the courtyard.
+        var u = GameState.newRealm(seed: 1, balance: balance)
+        u.simTime = 60
+        u.king.x = Town.doorX(plot: house1)
+        Town.step(&u, from: Realm.throneX, balance: balance)
+        XCTAssertEqual(u.gold, balance.startGold, "her own door is empty this morning")
+        Town.step(&u, from: u.king.x, balance: balance)
+        let back = u.king.x
+        u.king.x = Realm.courtyardX
+        Town.step(&u, from: back, balance: balance)
+        XCTAssertEqual(u.gold, purse, "she still waits in the courtyard")
     }
 
     func testTheDawnSplitsTheDaysTaxesOverThePayingPlaces() throws {

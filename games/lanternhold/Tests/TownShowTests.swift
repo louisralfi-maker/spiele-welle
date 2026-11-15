@@ -392,6 +392,160 @@ final class TownShowTests: XCTestCase {
 
     // MARK: - The first morning
 
+    // MARK: - The open palm and the half step back (fix round 2)
+
+    func testTheCoinsLandInHisOpenPalmUnderTheLantern() throws {
+        var s = morning()
+        let door = try spot(s, house3).doorX
+        s.king.x = TownShow.collectSpot(doorX: door, kingX: door - 100)
+        s.king.velocity = 0
+        s.king.facing = 1
+        Town.collect(&s, plot: house3, balance: balance)
+        let start = s.simTime
+        let place = try XCTUnwrap(s.town?.today?.places.first { $0.plot == house3 })
+        let times = TownShow.tossTimes(s, place: place, day: try XCTUnwrap(s.town?.today), rules: rules)
+        func scene(_ t: Double) -> TownShow.Scene {
+            TownShow.scene(at(s, start + t), balance: balance, reduceMotion: false)
+        }
+        // The palm is at belt height, well under his lantern's glass, and the arc stays under the glass too.
+        XCTAssertLessThanOrEqual(TownShow.lordHand.dy, EntityFrames.kingGlass.dy - 10, "under the glass, not in it")
+        XCTAssertLessThan(TownShow.handY + TownShow.arcHeight, EntityFrames.kingGlass.dy - 2)
+        XCTAssertNil(scene(0.05).lord, "nothing yet in the air")
+        XCTAssertEqual(scene(TownShow.release + 0.05).lord,
+                       TownShow.LordPose(frame: TownSprites.KnockFrame.receive, flipped: false), "the palm held out")
+        var highest = 0.0
+        for step in 0..<80 {
+            for coin in scene(Double(step) * 0.02).coins { highest = max(highest, coin.y) }
+        }
+        XCTAssertLessThanOrEqual(highest, TownShow.handY + TownShow.arcHeight + 1e-9)
+        // Each coin lands on the palm: just before it lands it is beside the palm, at its height.
+        let landing = scene(times[0] - 0.01)
+        let coin = try XCTUnwrap(landing.coins.min { abs($0.x - s.king.x) < abs($1.x - s.king.x) })
+        XCTAssertEqual(coin.x, s.king.x + TownShow.lordHand.dx, accuracy: 0.5)
+        XCTAssertEqual(coin.y, TownShow.lordHand.dy, accuracy: 1)
+        // The palm gives a pixel as each coin lands, then holds out again; he stands as ever after the last.
+        for time in times {
+            XCTAssertEqual(scene(time + 0.02).lord?.frame, TownSprites.KnockFrame.give)
+        }
+        XCTAssertEqual(scene(times[0] + TownShow.catchFor + 0.01).lord?.frame, TownSprites.KnockFrame.receive)
+        XCTAssertNil(scene(try XCTUnwrap(times.last) + 0.2).lord)
+
+        // Walking past, he holds out no palm: the coins land at his belt before him.
+        var walking = s
+        walking.king.velocity = balance.kingWalkSpeed
+        let passing = TownShow.scene(at(walking, start + 0.4), balance: balance, reduceMotion: false)
+        XCTAssertNil(passing.lord)
+        XCTAssertEqual(TownShow.receivingHand(walking.king, standX: door).x, walking.king.x + TownShow.lordHand.dx)
+        // Standing beyond her, he turns his palm to her side.
+        var beyond = s.king
+        beyond.x = door + TownShow.collectStand
+        XCTAssertEqual(TownShow.receivingHand(beyond, standX: door).x, beyond.x - TownShow.lordHand.dx)
+    }
+
+    func testHeStepsBackHalfAStepSoTheBowIsSeenInAFreeDoorway() throws {
+        let door = 1000.0
+        let knockX = TownShow.knockSpot(doorX: door, kingX: door - 50)
+        XCTAssertEqual(TownShow.knockBackX(doorX: door, knockX: knockX, t: 0.3), knockX, "he knocks from close by")
+        XCTAssertEqual(TownShow.knockBackX(doorX: door, knockX: knockX, t: TownShow.stepBackFrom), knockX)
+        let midway = (TownShow.stepBackFrom + TownShow.stepBackUntil) / 2
+        let mid = TownShow.knockBackX(doorX: door, knockX: knockX, t: midway)
+        XCTAssertLessThan(mid, knockX)
+        XCTAssertGreaterThan(mid, door - TownShow.knockBackStand)
+        XCTAssertEqual(TownShow.knockBackX(doorX: door, knockX: knockX, t: TownShow.stepBackUntil),
+                       door - TownShow.knockBackStand)
+        XCTAssertEqual(TownShow.knockBackX(doorX: door, knockX: door + TownShow.knockStand, t: 2),
+                       door + TownShow.knockBackStand, "on his own side")
+        XCTAssertLessThan(TownShow.stepBackUntil, TownShow.bowFrom, "back before the household bows")
+        XCTAssertGreaterThan(TownShow.stepBackFrom, TownShow.knocks.last! + TownShow.knockHold, "after the last knock")
+
+        // Standing back, he still holds the pose; the household bows in a doorway his 16 px leave free.
+        var s = morning()
+        let doorX = try spot(s, house3).doorX
+        s.king.x = doorX - 30
+        Town.collect(&s, plot: house3, balance: balance)
+        s.simTime += 5
+        s.king.x = TownShow.knockSpot(doorX: doorX, kingX: s.king.x)
+        s.king.velocity = 0
+        let knockAt = s.simTime
+        let knockSpot = s.king.x
+        Town.knock(&s, plot: house3, balance: balance)
+        var back = at(s, knockAt + 1.4)
+        back.king.x = TownShow.knockBackX(doorX: doorX, knockX: knockSpot, t: 1.4)
+        let bow = TownShow.scene(back, balance: balance, reduceMotion: false)
+        XCTAssertEqual(bow.lord?.frame, TownSprites.KnockFrame.receive)
+        let household = try XCTUnwrap(bow.figures.first { $0.plot == house3 })
+        XCTAssertEqual(household.frame, TownSprites.Frame.bow)
+        let lordFront = back.king.x + Double(SpriteID.king.size.width) / 2
+        let householdBack = household.x - Double(SpriteID.townBrede.size.width) / 2
+        XCTAssertLessThanOrEqual(lordFront, householdBack + 1, "his sprite ends where hers begins")
+        XCTAssertFalse(bow.coins.isEmpty)
+        let palm = back.king.x + TownShow.lordHand.dx
+        let hands = household.x - 4
+        XCTAssertGreaterThanOrEqual(hands - palm, 3, "the coins cross a gap")
+        XCTAssertTrue(bow.coins.allSatisfy { $0.x >= palm - 1e-9 && $0.x <= hands + 1e-9 })
+        // Between the knocks and the open palm the pose holds (the fist drawn back), so nothing jumps.
+        XCTAssertEqual(TownShow.scene(at(s, knockAt + 1.0), balance: balance, reduceMotion: false).lord?.frame,
+                       TownSprites.KnockFrame.ready)
+    }
+
+    @MainActor
+    func testTheCollectorsStandInCarriesHisStrongboxOnWholePixels() throws {
+        var s = morning()
+        s.king.x = Realm.throneX
+        var town = try XCTUnwrap(s.town)
+        town.collectorHired = true
+        town.today?.collectorOut = true
+        s.town = town
+        let day = try XCTUnwrap(s.town?.today)
+        s.hour = try XCTUnwrap(Town.collectorSchedule(day, rules: rules).arrivals.first) + 0.001
+        Town.stepCollector(&s, balance: balance)
+        let x = try XCTUnwrap(Town.collectorX(s, balance: balance))
+        let pixelScale = PixelScale(physicalWidth: 2622, physicalHeight: 1206, virtualHeight: 180, override: nil)
+        let camera = Camera(focusX: x, pixelScale: pixelScale)
+        let view = EntityFrames.ActorView(camera: camera, pixelScale: pixelScale, mode: .smooth)
+        var layer = EntityLayer()
+        TownFrames.apply(&layer, state: s, balance: balance, view: view, reduceMotion: false)
+        let man = try XCTUnwrap(layer.actors.first { $0.sprite == TownFrames.collectorStandIn })
+        XCTAssertEqual(man.rect, view.rect(TownFrames.collectorStandIn, x: x.rounded(.down), y: 0), "whole pixels")
+        XCTAssertTrue([4, 5].contains(man.frame), "standing at her door while she pays him")
+        let box = try XCTUnwrap(layer.actors.first { $0.sprite == .townStrongbox })
+        let moment = try XCTUnwrap(TownShow.scene(s, balance: balance, reduceMotion: false).collector)
+        XCTAssertEqual(box.rect, TownFrames.strongboxRect(moment, view: view))
+        let scale = Float(pixelScale.scale)
+        let centre = Double((box.rect.x + box.rect.z / 2 - view.rect(.townStrongbox, x: x.rounded(.down), y: 0).x
+                             - view.rect(.townStrongbox, x: x.rounded(.down), y: 0).z / 2) / scale)
+        XCTAssertEqual(centre, TownShow.collectorBox.dx, accuracy: 1, "before him, where the coins land")
+        let lid = Double(SpriteID.townStrongbox.size.height) + TownSprites.strongboxLift
+        XCTAssertEqual(lid, TownShow.collectorBox.dy, accuracy: 1, "its mouth at the coins' landing height")
+    }
+
+    @MainActor
+    func testOnlyHisOwnLanternFollowsTheKnockPose() throws {
+        var s = morning()
+        let door = try spot(s, house3).doorX
+        s.king.x = door - 30
+        Town.collect(&s, plot: house3, balance: balance)
+        s.simTime += 5
+        s.king.x = TownShow.knockSpot(doorX: door, kingX: s.king.x)
+        s.king.velocity = 0
+        s.king.facing = -1
+        Town.knock(&s, plot: house3, balance: balance)
+        let pixelScale = PixelScale(physicalWidth: 2622, physicalHeight: 1206, virtualHeight: 180, override: nil)
+        let camera = Camera(focusX: s.king.x, pixelScale: pixelScale)
+        let view = EntityFrames.ActorView(camera: camera, pixelScale: pixelScale, mode: .smooth)
+        var layer = EntityLayer()
+        let post = LightSource(kind: .lantern, x: s.king.x - 2, y: 30, radius: 40)
+        let own = LightSource(kind: .lantern, x: s.king.x - EntityFrames.kingGlass.dx, y: EntityFrames.kingGlass.dy,
+                              radius: 60)
+        layer.lights = [(source: post, plane: .world), (source: own, plane: .world)]
+        layer.actors = [ActorInstance(sprite: .king, frame: 6, rect: view.rect(.king, x: s.king.x, y: 0),
+                                      tint: SIMD4<Float>(1, 1, 1, 1), flipped: true, isEmissive: false, isLit: true)]
+        TownFrames.apply(&layer, state: at(s, s.simTime + 0.15), balance: balance, view: view, reduceMotion: false)
+        XCTAssertEqual(layer.lights[0].source.x, s.king.x - 2, "a street lamp beside him stays where it is")
+        XCTAssertEqual(layer.lights[1].source.x, s.king.x + EntityFrames.kingGlass.dx, accuracy: 1e-9,
+                       "his own lantern on the glass of the pose's side")
+    }
+
     // MARK: - The collector
 
     func testTheHouseholdsPayTheCollectorAtTheirDoors() throws {
@@ -434,7 +588,8 @@ final class TownShowTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(coin.x, min(figure.x, box) - 1e-9)
             XCTAssertLessThanOrEqual(coin.x, max(figure.x, box) + 1e-9)
         }
-        XCTAssertEqual(bowing.collector, TownShow.CollectorMoment(x: x, facing: 1, taking: true))
+        XCTAssertEqual(bowing.collector, TownShow.CollectorMoment(x: x, facing: 1, taking: true, still: true),
+                       "he stands at her door while she pays (fix round 2)")
         XCTAssertTrue(bowing.stages.contains(figure.x))
 
         // The deeper bow, empty-handed, then in; the door shuts.
@@ -462,6 +617,7 @@ final class TownShowTests: XCTestCase {
         let farScene = TownShow.scene(far, balance: balance, reduceMotion: false)
         XCTAssertNotNil(farScene.figures.first { $0.plot == house1 })
         XCTAssertTrue(farScene.coins.isEmpty)
+        XCTAssertEqual(farScene.collector?.taking, false, "taking only while he is near (fix round 2)")
 
         // Not out (sent away, or home again): no collector in the scene.
         var back = s
@@ -520,11 +676,22 @@ final class TownShowTests: XCTestCase {
     func testTheFirstMorningsHouseholdWaitsInTheCourtyardAndWalksHome() throws {
         var s = GameState.newRealm(seed: 1, balance: balance)
         XCTAssertEqual(s.king.x, Realm.throneX)
-        let waiting = TownShow.scene(s, balance: balance, reduceMotion: false)
+        // The first frame: she crosses the hall ahead of the lord, her back to him (fix round 2: she walks to her place).
+        let crossing = try XCTUnwrap(TownShow.scene(s, balance: balance, reduceMotion: false).figures.first)
+        XCTAssertEqual(crossing.sprite, .townCorra)
+        XCTAssertEqual(crossing.x, Town.firstMorningEnters)
+        XCTAssertGreaterThanOrEqual(crossing.frame, TownSprites.Frame.walk)
+        XCTAssertTrue(crossing.flipped, "walking west, to the courtyard")
+        let halfway = try XCTUnwrap(TownShow.scene(at(s, 2), balance: balance, reduceMotion: false).figures.first)
+        XCTAssertLessThan(halfway.x, Town.firstMorningEnters)
+        XCTAssertGreaterThanOrEqual(halfway.frame, TownSprites.Frame.walk)
+        // Then she waits in the courtyard, palm out with her coin, facing the hall and the lord.
+        let waiting = TownShow.scene(at(s, Town.firstMorningArrives + 0.5), balance: balance, reduceMotion: false)
         let corra = try XCTUnwrap(waiting.figures.first)
-        XCTAssertEqual(corra.sprite, .townCorra)
         XCTAssertEqual(corra.x, Town.firstMorningX, "before the hall door, not at her own door in the town")
         XCTAssertTrue(corra.flipped == false, "the lord is in the hall to her right: she faces him")
+        XCTAssertTrue([TownSprites.Frame.wait, TownSprites.Frame.wait + 1].contains(corra.frame))
+        XCTAssertEqual(waiting.held.count, 1, "her coin on her palm")
         XCTAssertFalse(waiting.houses.contains(where: \.doorOpen), "no door stands open in the town")
 
         // A lord who walks out of the hall to the gate meets her: the toss.
@@ -538,12 +705,17 @@ final class TownShowTests: XCTestCase {
         }
         XCTAssertEqual(s.gold, balance.startGold + rules.firstMorningGold, "the 16 tossed on his way to the gate")
         let tossed = try XCTUnwrap(s.town?.today?.places.first?.tossedAt)
+        let met = Town.firstMorningStand(at: tossed)
+        // She tosses where he met her and stays there through the toss.
+        var tossing = at(s, tossed + 0.25)
+        tossing.happiness = 50
+        XCTAssertEqual(TownShow.scene(tossing, balance: balance, reduceMotion: false).figures.first?.x, met)
         // Then she walks home to the town, to the right, and is gone after a few seconds.
         var later = at(s, tossed + TownShow.plainUntil + 1)
         later.happiness = 50
         let walking = try XCTUnwrap(TownShow.scene(later, balance: balance, reduceMotion: false).figures.first)
         XCTAssertGreaterThanOrEqual(walking.frame, TownSprites.Frame.walk)
-        XCTAssertGreaterThan(walking.x, Town.firstMorningX)
+        XCTAssertGreaterThan(walking.x, met)
         XCTAssertTrue(TownShow.scene(at(later, tossed + 10), balance: balance, reduceMotion: false).figures.isEmpty)
     }
 

@@ -6,6 +6,7 @@
 ///   after a knock the closed shutters (frame 1 ... 3), at the house's place and with its mirror, at z 0 after it;
 /// - a house knocked at today keeps its window dark tonight: its lit rooms, glass masks and window lights go;
 /// - the town's wanderers keep clear of every door where the taxes happen (`clearWanderers`, fix round 1);
+/// - the collector's stand-in carries a strongbox (`townStrongbox`, fix round 2) and stands idle at a door that pays him;
 /// - while the lord knocks or holds out his hand his sprite is his knock pose (`kingKnock` / `ladyKnock`, the same size
 ///   and anchor), his glow strip and his lantern's light stay on the lantern, which the pose keeps in place.
 ///
@@ -89,11 +90,20 @@ enum TownFrames {
                 actors: &figures, glows: &layer.glows)
         }
         if drawsCollectorStandIn, let collector = scene.collector {
-            let rect = view.rect(collectorStandIn, x: collector.x, y: 0)
+            // On whole game pixels, as the households and the coins (fix round 2).
+            let x = collector.x.rounded(.down)
+            let rect = view.rect(collectorStandIn, x: x, y: 0)
             if view.isOnScreen(rect) {
-                // The townsfolk's walk, its step tied to the ground he covers (no sliding feet).
-                let frame = Int((max(0, collector.x) / 4).rounded(.down)) % 4
+                // The townsfolk's walk, its step tied to the ground he covers (no sliding feet); standing at a door
+                // while it pays him, the townsfolk's idle.
+                let frame = collector.still ? 4 + Int((max(0, s.simTime) / 0.9).rounded(.down)) % 2
+                    : Int((max(0, x) / 4).rounded(.down)) % 4
                 figures.append(ActorInstance(sprite: collectorStandIn, frame: frame, rect: rect,
+                                             tint: SIMD4<Float>(1, 1, 1, 1), flipped: collector.facing < 0,
+                                             isEmissive: false, isLit: true))
+                // His strongbox before him at the hip, where the coins of the doors land (`TownShow.collectorBox`).
+                let box = strongboxRect(collector, view: view)
+                figures.append(ActorInstance(sprite: .townStrongbox, frame: 0, rect: box,
                                              tint: SIMD4<Float>(1, 1, 1, 1), flipped: collector.facing < 0,
                                              isEmissive: false, isLit: true))
             }
@@ -117,7 +127,10 @@ enum TownFrames {
                 layer.actors[strip].flipped = pose.flipped
             }
             let facing: Double = pose.flipped ? -1 : 1
+            // Only his own lantern: at his glass's height, as `EntityFrames` places it (a street lamp near a door
+            // is never pulled onto him; fix round 2).
             for light in layer.lights.indices where layer.lights[light].source.kind == .lantern
+                && layer.lights[light].source.y == EntityFrames.kingGlass.dy
                 && abs(layer.lights[light].source.x - s.king.x) < EntityFrames.kingGlass.dx + 1 {
                 layer.lights[light].source.x = s.king.x + EntityFrames.kingGlass.dx * facing
             }
@@ -127,6 +140,15 @@ enum TownFrames {
         for coin in scene.coins {
             add(coin, tint: coinTint, glow: flightGlow, view: view, actors: &layer.actors, glows: &layer.glows)
         }
+    }
+
+    /// The collector's strongbox (`townStrongbox`) under the stand-in: centred on `TownShow.collectorBox` before him,
+    /// its lid at the coins' landing height, its bottom `TownSprites.strongboxLift` above the ground, on whole pixels.
+    static func strongboxRect(_ collector: TownShow.CollectorMoment, view: EntityFrames.ActorView) -> SIMD4<Float> {
+        let size = SpriteID.townStrongbox.size
+        let centre = collector.x.rounded(.down) + TownShow.collectorBox.dx * Double(collector.facing)
+        let left = (centre - Double(size.width) / 2).rounded(.down)
+        return view.rect(.townStrongbox, x: left + Double(size.width / 2), y: TownSprites.strongboxLift)
     }
 
     /// One coin: an emissive actor on whole game pixels (its centre at `coin.x`, `coin.y` above the ground) and a glow

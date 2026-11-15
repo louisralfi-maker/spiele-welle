@@ -1,0 +1,26 @@
+# townStrongbox 6x5, 1 frame (town-2, fix round 2): the collector's strongbox, carried before him at the hip until the
+# people lane's collector brings his handcart (`TownFrames.drawsCollectorStandIn`). The coins of the doors land in its
+# open mouth (`TownShow.collectorBox`): a dark inside between iron rims, a box of oiled wood lit from the upper left,
+# a gold hasp, an iron band and a dark foot. Hand-set; no outline pass (it is drawn whole, like the coin).
+id townStrongbox
+size 6x5
+frames 1
+
+legend
+    m = stoneMid
+    k = ink
+    P = woodLight
+    p = wood
+    G = gold
+    i = stoneDark
+    w = woodDark
+
+part box
+    mkkkkm
+    pPPPPp
+    pPGPpw
+    iiiiii
+    wwwwww
+
+frame 0
+    box 0 0

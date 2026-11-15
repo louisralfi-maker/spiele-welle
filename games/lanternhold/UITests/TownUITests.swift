@@ -5,8 +5,8 @@ import XCTest
 /// every household waiting before its open door (`-GWTown owed`), touches the chandler's door so the lord walks up and
 /// takes the toss, runs through the whole town past every door that owes, knocks at the cooper's house (the knock, the
 /// bow, the coins, the shutters) and waits for the night, when that house's window stays dark behind its shutters.
-/// `testTheFirstMorning` starts a new realm: the chandler's household waits in the courtyard before the hall door and
-/// tosses her coins to the lord as he steps out. `testReduceMotion` takes one toss with Reduce Motion (the coins fade
+/// `testTheFirstMorning` starts a new realm: the chandler's household crosses the hall to the courtyard, waits there
+/// before the hall door and tosses her coins into the lord's palm as he steps out. `testReduceMotion` takes one toss with Reduce Motion (the coins fade
 /// in at the lord). `testTheCollector` watches the households pay the collector at their doors (fix round 1). Every door
 /// is checked for 44 pt. Saves `5x-<what>-<lang>`.
 @MainActor
@@ -115,12 +115,17 @@ final class TownUITests: XCTestCase {
         XCTAssertTrue(list(status, "owing:").contains(chandler), "her coins wait (\(statusText(status)))")
         let gold = element(app, "hud-gold")
         XCTAssertEqual(gold.value as? String, "44")
-        // The lord steps out of the hall toward the gate: she waits in the courtyard; he stops beside her.
+        // Fix round 2: the first frame finds her crossing the hall ahead of the lord, to her place in the courtyard.
+        attach(XCUIScreen.main.screenshot(), "54a-first-morning-crossing-\(language)")
+        pause(6)
+        XCTAssertTrue(list(status, "owing:").contains(chandler), "she waits in the courtyard (\(statusText(status)))")
+        // The lord steps out of the hall toward the gate and stops beside her: she tosses, he holds out his palm.
         let strip = element(app, "realm-strip")
         tapStrip(strip, worldX: 1712)
         XCTAssertTrue(waitFor(status, "paid:", contains: chandler, timeout: 20), "the toss (\(statusText(status)))")
-        pause(0.25)
+        pause(0.55)
         attach(XCUIScreen.main.screenshot(), "54-first-morning-\(language)")
+        note("54-first-morning", statusText(status))
         XCTAssertTrue(waitForValue(gold, "60", timeout: 6), "the first 16 coins (\(String(describing: gold.value)))")
         app.terminate()
     }
@@ -171,7 +176,7 @@ final class TownUITests: XCTestCase {
         XCTAssertTrue(waitFor(status, "hand:", contains: chandler, timeout: 40),
                       "the chandler's coins go to him (\(statusText(status)))")
         // A moment later he stands at her door (town-3: a stop at every door that pays him) and the coins are in the
-        // air between her hands and his strongbox.
+        // air between her hands and his strongbox (fix round 2: the stand-in carries one).
         pause(0.25)
         attach(XCUIScreen.main.screenshot(), "59-collector-\(language)")
         note("59-collector", statusText(status))

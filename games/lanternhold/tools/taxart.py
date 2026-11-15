@@ -6,7 +6,8 @@ their pixels, palette and grid are the houses' own. No generated image is involv
 
   taxart.py build [name ...] [--out DIR]
         Writes Resources/Art/<id>.png (or DIR): the figures townCorra, townDun, townBrede, townHemmet, townWenna,
-        townGorm, townNib (the child), the lord's knock kingKnock and ladyKnock, the coin townCoin (grids), and the
+        townGorm, townNib (the child), the lord's knock kingKnock and ladyKnock, the coin townCoin, the collector's
+        strongbox townStrongbox (grids), and the
         overlays townCottage and townBigHouse (from house.png, houseB.png, houseC.png, bigHouse.png). Without names:
         all of them.
   taxart.py proof <out.png> [--art DIR] [--scale 6]
@@ -36,13 +37,13 @@ ART = os.path.join(GAME, "Resources", "Art")
 GRIDS = os.path.join(HERE, "grids", "town")
 
 FIGURES = ["townCorra", "townDun", "townBrede", "townHemmet", "townWenna", "townGorm", "townNib", "kingKnock",
-           "ladyKnock", "townCoin"]
+           "ladyKnock", "townCoin", "townStrongbox"]
 OVERLAYS = ["townCottage", "townBigHouse"]
 # The held coin's centre from a waiting figure's anchor (ahead of it) and above the ground, frame 0 (the breath lowers it
 # a pixel on frame 1; the child's frame 4): `TownSprites.heldCoin`.
 HELD = {"townCorra": (5, 14), "townDun": (5, 14), "townBrede": (5, 14), "townHemmet": (6, 9), "townWenna": (5, 14),
         "townGorm": (5, 16), "townNib": (4, 13)}
-WIDTHS = {"kingKnock": 16, "ladyKnock": 16, "townCoin": 4, "townNib": 10}
+WIDTHS = {"kingKnock": 16, "ladyKnock": 16, "townCoin": 4, "townNib": 10, "townStrongbox": 6}
 
 # The houses' doors and windows (columns and rows of the paintings, from the top left; ends inclusive).
 COTTAGE_DOOR = (26, 29, 36, 42)

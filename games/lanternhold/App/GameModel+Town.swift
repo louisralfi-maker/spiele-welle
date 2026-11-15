@@ -14,11 +14,19 @@ struct TownWalk: Sendable, Equatable {
     var purpose: Purpose
 }
 
+/// The lord's half step back from a door he knocked at (fix round 2): where he knocked, the door, the knock's sim time.
+struct TownStepBack: Sendable, Equatable {
+    var doorX: Double
+    var knockX: Double
+    var at: Double
+}
+
 /// The screen's own state of the taxes on foot (`GameModel.townRun`): the walk to a door, a knock nobody answers, the
-/// sim time the cues were last read at.
+/// half step back after a knock, the sim time the cues were last read at.
 struct TownRun: Sendable, Equatable {
     var walk: TownWalk?
     var refused: TownShow.Refused?
+    var stepBack: TownStepBack?
     var cuesAt: Double?
     var marksAt = -1
 }
@@ -54,6 +62,7 @@ extension GameModel {
             }
         }
         if let refused = townRun.refused, now - refused.at > 1.5 { townRun.refused = nil }
+        stepBackFromDoor(game.travelTarget == nil ? state : nil)
         let from = townRun.cuesAt ?? now
         if now > from {
             for cue in TownShow.cues(driver?.state ?? state, balance: game.balance, from: from, to: now,
@@ -78,6 +87,9 @@ extension GameModel {
                 withDriver { sim in
                     sim.state.king.velocity = 0
                     _ = Town.knock(&sim.state, plot: walk.plot, balance: balance)
+                }
+                if let spot = TownShow.spots(state).first(where: { $0.plot == walk.plot }) {
+                    townRun.stepBack = TownStepBack(doorX: spot.doorX, knockX: state.king.x, at: state.simTime)
                 }
                 refreshHUD()
             } else {
@@ -106,6 +118,25 @@ extension GameModel {
         return knock(plot: plot)
     }
 
+    /// While the door he knocked at opens, the lord takes half a step back (`TownShow.knockBackX`), facing it still,
+    /// so the household bows in a free doorway. Ends at once when he is sent elsewhere (`state` nil, or he moves).
+    private func stepBackFromDoor(_ state: GameState?) {
+        guard let step = townRun.stepBack else { return }
+        guard let state, state.king.velocity == 0 else {
+            townRun.stepBack = nil
+            return
+        }
+        let t = state.simTime - step.at
+        guard t >= TownShow.stepBackFrom else { return }
+        let x = TownShow.knockBackX(doorX: step.doorX, knockX: step.knockX, t: t)
+        if abs(state.king.x - x) > 1e-6 {
+            withDriver { sim in
+                sim.state.king.x = x
+            }
+        }
+        if t >= TownShow.stepBackUntil { townRun.stepBack = nil }
+    }
+
     /// Sends the lord to the door of `plot` (the touch, or VoiceOver's action on the door): by day only.
     @discardableResult
     func knock(plot: Int) -> Bool {
@@ -125,6 +156,7 @@ extension GameModel {
             : TownShow.knockSpot(doorX: spot.doorX, kingX: state.king.x)
         townRun.walk = TownWalk(plot: plot, spot: target, purpose: purpose)
         townRun.refused = nil
+        townRun.stepBack = nil
         withDriver { sim in
             sim.travelTarget = target
         }
