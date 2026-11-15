@@ -38,8 +38,7 @@ struct HornSlipView: View {
 
     private var slip: some View {
         HStack(spacing: 6) {
-            Image(systemName: "moon.fill")
-                .font(.system(size: 11, weight: .semibold))
+            GlyphView(glyph: .horn)
                 .foregroundStyle(Theme.rubric)
             Text("The horn")
                 .font(Theme.caps(.subheadline))

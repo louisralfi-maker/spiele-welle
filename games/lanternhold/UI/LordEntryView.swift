@@ -38,7 +38,8 @@ struct LordEntryView: View {
             }
             .frame(width: min(540, geometry.size.width - 24))
             .background(ParchmentBackground())
-            .frame(maxHeight: geometry.size.height - 12)
+            // Fix round 1 (the critic's high 6): 12 pt of the hall above and below the card, also over the keyboard.
+            .frame(maxHeight: geometry.size.height - 24)
             .frame(width: geometry.size.width, height: geometry.size.height)
         }
         .accessibilityElement(children: .contain)
@@ -46,9 +47,9 @@ struct LordEntryView: View {
     }
 
     @ViewBuilder private var content: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: typing ? 6 : 8) {
             Text("Who holds the lantern now?")
-                .font(Theme.caps(.title3))
+                .font(Theme.caps(typing ? .headline : .title3))
                 .foregroundStyle(Theme.rubric)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
@@ -57,10 +58,13 @@ struct LordEntryView: View {
                 formTile(.lord)
                 formTile(.lady)
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Odile writes the name into the family book.")
-                        .font(Theme.italic(.footnote))
-                        .foregroundStyle(NightGlass.mist)
-                        .fixedSize(horizontal: false, vertical: true)
+                    // While the keyboard is up the card keeps whole above it: the line goes, the tiles shrink.
+                    if !typing {
+                        Text("Odile writes the name into the family book.")
+                            .font(Theme.italic(.footnote))
+                            .foregroundStyle(NightGlass.mist)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                     field
                     Button {
                         typing = false
@@ -75,7 +79,7 @@ struct LordEntryView: View {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, typing ? 10 : 12)
     }
 
     private var field: some View {
@@ -111,7 +115,9 @@ struct LordEntryView: View {
             model.feedback.play(.cardOpened)
         } label: {
             VStack(spacing: 4) {
-                PortraitTile(portrait: .own(portrait, frame: 0), side: 76)
+                // Fix round 1 (the critic's blocker on M8): the Burgherrin on her own teal ground.
+                PortraitTile(portrait: .own(portrait, frame: 0), side: typing ? 60 : 76,
+                             ground: choice == .lady ? .teal : .dusk)
                 (choice == .lady ? Text("Lady Lantern") : Text("Lord Lantern"))
                     .font(Theme.caps(.footnote))
                     .foregroundStyle(chosen ? NightGlass.lanternGold : NightGlass.mist)

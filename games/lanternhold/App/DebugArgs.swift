@@ -114,6 +114,9 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWTouchHint YES` (touch the world, step stage-2): the first minute's slip "Touch what the lord shall do."
     /// shows and stays (its screenshot), whatever the day.
     var touchHint = false
+    /// `-GWLordHint YES` (stage-3-interface fix round 1): the lord's hint "Touch the lord to still the world" shows at
+    /// once and stays (its screenshot), whatever the day.
+    var lordHint = false
     // Touch the world, fix round 1 (stage lane): the night's deeds and the pressed frame in a picture.
     /// `-GWDamage <plot>[,<plot>]`: those walls stand damaged at the start (45 % of their strength; the repair's
     /// screenshots).
@@ -288,6 +291,7 @@ struct DebugArgs: Sendable, Equatable {
             stageSlow = min(40, slow)
         }
         touchHint = DebugArgs.bool(values["GWTouchHint"])
+        lordHint = DebugArgs.bool(values["GWLordHint"])
         damage = DebugArgs.plots(values["GWDamage"])
         snuff = DebugArgs.plots(values["GWSnuff"])
         if let held = values["GWPressed"]?.trimmingCharacters(in: .whitespaces), !held.isEmpty {

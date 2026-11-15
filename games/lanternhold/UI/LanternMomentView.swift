@@ -132,19 +132,23 @@ struct LanternMomentView: View {
     }
 }
 
-/// The gear (the interface kit's, 10 x 10 game px at 2 pt) in a 44 pt touch area: it opens the pause sheet.
+/// The gear (the interface kit's, 10 x 10 game px at 2 pt) on a small disc of the strip's glass (fix round 1, the
+/// director's note of 15.11. 11:39: bare, it landed on the castle's flag), in a 48 pt touch area: it opens the pause
+/// sheet.
 struct GearButton: View {
     let action: @MainActor () -> Void
 
     var body: some View {
         Button(action: action) {
             ZStack {
+                GearDisc()
                 if let image = SpriteImages.image(.hudGear) {
                     Image(decorative: image, scale: 1 / NightGlass.pointsPerPixel)
                         .interpolation(.none)
+                        .frame(width: 20, height: 20)
                 }
             }
-            .frame(width: 20, height: 20)
+            .frame(width: 32, height: 32)
             .frame(width: 48, height: 48)
             .contentShape(Rectangle())
         }

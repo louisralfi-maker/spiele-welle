@@ -44,6 +44,9 @@ extension GameModel {
         if stage == .hall { stopWalking() }
         if firstTouchSlip { firstTouchSlip = false }
         touch.firstSlipPending = false
+        // Fix round 1: the lesson is learnt, the lord's hint never comes again.
+        touch.momentRaised = true
+        touch.lordHintOn = false
         let block = HUDKit.moment(gold: state.gold, happiness: state.happiness, people: state.citizens, day: state.day)
         let lordX = stageLordX
         let viewLeft = framing.viewLeft.rounded(.up) + 3
@@ -143,6 +146,7 @@ extension GameModel {
         if !block.pieces.isEmpty {
             layer.actors += HUDKitActors.actors(block, lordX: state.king.x, groundLift: 0, framing: framing)
         }
+        if touch.lordHintOn && lanternMoment == nil { lordHintGlint(&layer, state: state) }
         guard lanternMoment != nil else { return }
         let lord = state.lordOrDefault
         for index in layer.actors.indices
@@ -152,6 +156,27 @@ extension GameModel {
         for index in layer.lights.indices where isLordsLantern(layer.lights[index].source, state: state) {
             layer.lights[index].source.intensity *= 1.45
             layer.lights[index].source.y += LanternFlare.liftRows
+        }
+    }
+
+    /// The lord's hint (fix round 1, the critic's high 3): his lantern glints, a quick bright pulse on the glass every
+    /// 1.4 s with a spark beside it; with Reduce Motion the glass only burns a little brighter while the hint stands.
+    func lordHintGlint(_ layer: inout EntityLayer, state: GameState) {
+        let t = clock.elapsed.truncatingRemainder(dividingBy: 1.4) / 1.4
+        let pulse = reduceMotion ? 0.35 : pow(max(0, sin(Double.pi * min(1, t / 0.35))), 2)
+        for index in layer.lights.indices where isLordsLantern(layer.lights[index].source, state: state) {
+            layer.lights[index].source.intensity *= 1 + 0.7 * pulse
+        }
+        guard !reduceMotion, pulse > 0.05 else { return }
+        let glassX = (state.king.x + EntityFrames.kingGlass.dx * Double(state.king.facing)).rounded(.down)
+        let glassY = EntityFrames.kingGlass.dy.rounded(.down)
+        let warm = GamePalette.fireWhite
+        let k = Float(pulse) * 1.3
+        for (dx, dy, share) in [(0.0, 0.0, 1.0), (-1.0, 0.0, 0.5), (1.0, 0.0, 0.5), (0.0, 1.0, 0.5), (0.0, -1.0, 0.5),
+                                (2.0, 2.0, 0.6)] {
+            let s = k * Float(share)
+            layer.glows.append(EntityGlow(.hallMote, x: glassX + dx, y: glassY + dy,
+                                          color: SIMD4<Float>(warm.x * s, warm.y * s, warm.z * s, 1)))
         }
     }
 

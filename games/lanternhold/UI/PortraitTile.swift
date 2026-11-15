@@ -28,6 +28,8 @@ enum PortraitImages {
 struct PortraitTile: View {
     let portrait: AudienceCard.Portrait
     var side: CGFloat = 72
+    /// The ground inside the brass line (fix round 1: the Burgherrin stands on her own teal).
+    var ground: TileGround = .dusk
     @Environment(\.displayScale) private var displayScale
 
     var body: some View {
@@ -36,11 +38,9 @@ struct PortraitTile: View {
         let whole = max(1, (inner * displayScale / art).rounded(.down))
         let points = art * whole / displayScale
         ZStack {
-            // Night glass (stage-3-interface): the dusk ground only inside the picture, the brass line round it.
-            Rectangle()
-                .fill(LinearGradient(colors: [Color(hex: 0x262E5C), Color(hex: 0x4E5A82), Color(hex: 0xA04A60)],
-                                     startPoint: .top, endPoint: .bottom))
-                .frame(width: inner, height: inner)
+            // Night glass (stage-3-interface; fix round 1, the critic's high 9): the ground is three bands dithered on
+            // the 2 pt grid inside the picture, no smooth gradient; the brass line round it.
+            DitherGround(ground: ground, side: inner)
             if let image = PortraitImages.image(portrait) {
                 Image(decorative: image, scale: 1)
                     .resizable()

@@ -107,10 +107,10 @@ struct CardTitle: View {
                 .foregroundStyle(Theme.ink)
                 .fixedSize(horizontal: false, vertical: true)
             if let subtitle {
-                Text(inked: subtitle, .subheadline)
+                // Fix round 1 (the critic's high 8): it breaks between the facts, never after a "·".
+                SeparatedText(text: subtitle, style: .subheadline)
                     .font(Theme.italic(.subheadline))
                     .foregroundStyle(Theme.inkSoft)
-                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .padding(.top, 4)
@@ -142,21 +142,19 @@ struct OptionRow<Trailing: View>: View {
                 VStack(alignment: .leading, spacing: 1) {
                     HStack(spacing: 6) {
                         if selected {
-                            Image(systemName: "checkmark.seal.fill")
-                                .font(.system(size: 14, weight: .bold))
+                            GlyphView(glyph: .check)
                                 .foregroundStyle(NightGlass.lanternGold)
                         }
                         Text(inked: name, .headline)
                             .font(Theme.caps(.headline))
                             .foregroundStyle(Theme.ink.opacity(enabled ? 1 : 0.55))
                     }
-                    Text(inked: detail, .subheadline)
+                    SeparatedText(text: detail, style: .subheadline)
                         .font(Theme.serif(.subheadline))
                         .foregroundStyle(Theme.inkSoft.opacity(enabled ? 1 : 0.7))
                     if let hint {
                         HStack(spacing: 4) {
-                            Image(systemName: hintIsWarning ? "exclamationmark.circle.fill" : "lock.fill")
-                                .font(.system(size: 11, weight: .bold))
+                            GlyphView(glyph: hintIsWarning ? .warning : .lock)
                             Text(inked: hint, .footnote)
                         }
                         .font(Theme.serif(.footnote))
@@ -164,6 +162,9 @@ struct OptionRow<Trailing: View>: View {
                     }
                 }
                 .fixedSize(horizontal: false, vertical: true)
+                // Fix round 1 (the critic's high 8): the words take the row's width before the gap does ("all night"
+                // stood alone on a second line beside an empty middle).
+                .layoutPriority(1)
                 Spacer(minLength: 6)
                 trailing()
                     .opacity(enabled ? 1 : 0.6)
@@ -192,8 +193,7 @@ struct PriceAndTime: View {
         VStack(alignment: .trailing, spacing: 4) {
             GoldAmount(amount: price, size: 15)
             HStack(spacing: 3) {
-                Image(systemName: "hourglass")
-                    .font(.system(size: 11, weight: .semibold))
+                GlyphView(glyph: .hourglass)
                 Text("\(seconds) s")
                     .font(Theme.figures(14))
                     .monospacedDigit()
@@ -354,14 +354,11 @@ struct TaxCardView: View {
                                   selected: option.isCurrent, identifier: "tax-\(option.rate.rawValue)",
                                   action: { model.setTax(option.rate) }) {
                             if let day = option.lockedUntil {
-                                Label {
+                                GlyphLabel(glyph: .lock, spacing: 5) {
                                     Text(inked: String(localized: "Opens on day \(day)"), .footnote)
-                                } icon: {
-                                    Image(systemName: "lock.fill")
                                 }
                                 .font(Theme.serif(.footnote))
                                 .foregroundStyle(Theme.inkSoft)
-                                .labelStyle(.titleAndIcon)
                                 .fixedSize()
                             } else {
                                 GoldAmount(amount: option.forecast, size: 15)

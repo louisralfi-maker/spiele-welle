@@ -12,6 +12,8 @@ struct ErrandSlip: Sendable, Equatable {
     var x: Double
     var y: Double
     var waiting: Bool
+    /// The lord's hint (stage-3-interface fix round 1): a line of guidance over the lord, not an errand.
+    var hint = false
 }
 
 /// One accessibility element of touch the world: a thing in view, at its touch area on screen (0 ... 1 of the
@@ -60,6 +62,16 @@ struct TouchState: Sendable {
     var raised = false
     /// What the last tap did (the scene's value `tap:`, for the UI tests): `moment`, a thing's id, `ground`, `none`.
     var lastTap = "none"
+    // The lord's hint (stage-3-interface fix round 1, the critic's high 3: nothing taught that a touch on him stills
+    // the world, and there is no other pause): "Touch the lord to still the world" over him while his lantern glints,
+    // on the first days, after the first walk (or half a minute in), again every 60 s, never once he was touched.
+    /// The clock's second the hint shows next (nil: not due), the second it goes, how often it showed.
+    var lordHintAt: Double?
+    var lordHintUntil = 0.0
+    var lordHintShown = 0
+    var lordHintOn = false
+    /// The lantern moment was raised once (the lesson is learnt).
+    var momentRaised = false
 }
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the finger
@@ -353,6 +365,7 @@ extension GameModel {
         // The lantern moment's side (stage-3-interface): the purse, the notes, the strip's call.
         stepLanternHUD()
         stepFirstSlip()
+        stepLordHint()
         if touch.down != nil, touch.onLord, !touch.dragging, !touch.raised,
            clock.elapsed - touch.downAt >= LanternRaise.holdSeconds {
             touch.raised = true
@@ -403,6 +416,40 @@ extension GameModel {
         }
         if firstTouchSlip && (clock.elapsed > touch.firstSlipUntil || overlay?.isScreen == true) && !args.touchHint {
             firstTouchSlip = false
+        }
+    }
+
+    /// The lord's hint (fix round 1): due half a minute after the first minute's slip, or a few seconds after the
+    /// first touch's walk; it stands 7 s while no card, errand or lantern moment is up, then comes again every 60 s, at
+    /// most four times, on days 1 and 2; once the lantern moment was raised it never shows again.
+    private func stepLordHint() {
+        let now = clock.elapsed
+        guard let state = driver?.state, driver?.bot == nil, !isShowcase, !touch.momentRaised,
+              args.lordHint || (state.day <= 2 && !args.skipOnboarding), touch.lordHintShown < 4 else {
+            if touch.lordHintOn { touch.lordHintOn = false }
+            return
+        }
+        if args.lordHint && touch.lordHintShown == 0 && touch.lordHintAt == nil && !touch.lordHintOn {
+            touch.lordHintAt = now + 0.6
+        }
+        if touch.lordHintAt == nil && touch.lordHintShown == 0 && !touch.lordHintOn {
+            if firstTouchSlip { touch.lordHintAt = touch.firstSlipUntil + 20 }
+            if !touch.firstSlipPending && !firstTouchSlip { touch.lordHintAt = now + 5 }
+        }
+        let clear = overlay == nil && stageChange == nil && lanternMoment == nil && touch.errand == nil
+            && !firstTouchSlip
+        if touch.lordHintOn {
+            if !clear || (now >= touch.lordHintUntil && !args.lordHint) {
+                touch.lordHintOn = false
+                touch.lordHintAt = now + 60
+            }
+            return
+        }
+        if let at = touch.lordHintAt, now >= at, clear {
+            touch.lordHintOn = true
+            touch.lordHintShown += 1
+            touch.lordHintUntil = now + 7
+            touch.lordHintAt = nil
         }
     }
 
@@ -619,6 +666,15 @@ extension GameModel {
             let y = framing.deviceY(lift: top) / max(1, framing.physicalHeight)
             next = ErrandSlip(text: touchLabel(thing, state: state), price: thing.price,
                               shortOfGold: (thing.price ?? 0) > state.gold, x: x, y: y, waiting: errand.waiting)
+        }
+        if next == nil, touch.lordHintOn, let framing = touch.framing, framing.stage == stage, overlay == nil,
+           lanternMoment == nil {
+            // The lord's hint over his head, its tail down to him.
+            let ground = stage == .hall ? HallLayout.lift(at: stageLordX) : 0
+            let x = framing.deviceX(stageX: stageLordX) / max(1, framing.physicalWidth)
+            let y = framing.deviceY(lift: ground + Double(HUDKit.lordHead) + 4) / max(1, framing.physicalHeight)
+            next = ErrandSlip(text: story("touch.lord"), price: nil, shortOfGold: false, x: x, y: y, waiting: false,
+                              hint: true)
         }
         if let next, let old = errandSlip, next.text == old.text, next.price == old.price,
            next.shortOfGold == old.shortOfGold, next.waiting == old.waiting,
