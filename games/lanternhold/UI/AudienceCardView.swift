@@ -122,13 +122,23 @@ struct AudienceCardView: View {
             let width = min(420, max(280, edge - 6))
             let head = CGFloat(model.figureTop) * fullHeight - insets.top
             let room = max(150, head - 14)
-            // Step stage-2 (the stage-1 critic's third high): Odile's line, once read, stands inside the letter under
-            // the request, so no card covers the throne's canopy (the slip of its own at the top hid it).
+            // Step stage-2 (the stage-1 critic's third high): Odile's line, once read, hangs on its teal slip just under
+            // the letter at the left, short of the petitioner, so no card covers the throne's canopy (the slip at the
+            // top hid it; inside the letter the long requests cut it off, in its head it pushed the name out).
+            let speaker = CGFloat(model.stageAnchor) * fullWidth - insets.leading
+            let counselWidth = max(170, min(width, speaker - 30))
             ZStack(alignment: .topLeading) {
-                hallLetter
-                    .frame(width: width)
-                    .frame(maxHeight: room, alignment: .top)
-                    .offset(x: 2, y: 4)
+                VStack(alignment: .leading, spacing: 6) {
+                    hallLetter
+                        .frame(width: width)
+                        .frame(maxHeight: room, alignment: .top)
+                    if card.phase == .hearing, card.counselShown, let hint = card.hintKey {
+                        HallCounsel(text: model.story(hint), compact: true)
+                            .frame(width: counselWidth, alignment: .leading)
+                            .transition(model.reduceMotion ? .identity : .opacity)
+                    }
+                }
+                .offset(x: 2, y: 4)
                 hallPlaques
                     .frame(width: max(0, geometry.size.width - 4))
                     .frame(width: geometry.size.width, height: geometry.size.height + insets.bottom - 5,
@@ -163,15 +173,6 @@ struct AudienceCardView: View {
                     counselButton
                         .fixedSize()
                         .layoutPriority(1)
-                }
-                // Step stage-2 (the stage-1 critic's third high): Odile's line, once read, takes the button's place
-                // in the letter's head, beside the name, so it covers no canopy and the request keeps its room (under
-                // the request it was cut off at the letter's foot by the longer letters).
-                if card.phase == .hearing, card.counselShown, let hint = card.hintKey {
-                    HallCounsel(text: model.story(hint), compact: true)
-                        .frame(maxWidth: 270)
-                        .layoutPriority(1)
-                        .transition(model.reduceMotion ? .identity : .opacity)
                 }
             }
             InkRule()
@@ -429,11 +430,11 @@ struct AudienceCardView: View {
     }
 }
 
-/// Odile's line in the hall (the hall stage): her name in small capitals and her line in her hand, an inset ruled in
-/// House Lantern's teal in the letter's head beside the name (step stage-2: never over the throne's canopy).
+/// Odile's line in the hall (the hall stage): her name in small capitals and her line in her hand on a slip ruled in
+/// House Lantern's teal, just under the letter at the left (step stage-2: never over the throne's canopy).
 struct HallCounsel: View {
     let text: String
-    /// In the letter's head beside the name: a smaller hand, three lines at most.
+    /// Under the letter, short of the petitioner: a smaller hand, four lines at most.
     var compact = false
 
     var body: some View {
@@ -442,9 +443,9 @@ struct HallCounsel: View {
                 .font(Theme.caps(compact ? .caption2 : .footnote))
                 .foregroundStyle(Theme.teal)
             Text(verbatim: text)
-                .font(Theme.italic(compact ? .caption : .footnote))
+                .font(Theme.italic(.footnote))
                 .foregroundStyle(Theme.ink)
-                .lineLimit(compact ? 3 : nil)
+                .lineLimit(compact ? 4 : nil)
                 .minimumScaleFactor(compact ? 0.85 : 1)
                 .fixedSize(horizontal: false, vertical: true)
         }

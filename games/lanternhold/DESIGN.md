@@ -3488,8 +3488,9 @@ plot markers no longer drawn, M6).
 - **The stage-1 critic's four highs:** the near pillar's key band 6 px wide, soft both ways, on the pier's lower part
   only (a height ramp; the rims too); the inner door stands open for 0.45 s after he came in and while he goes out
   (the leaf, the bailey's dark, a sliver of cold light; no new sprite; proof `131d-hall-door-open` with the change ten
-  times slower); Odile's counsel in the letter's head beside the name, where the Counsel button was (under the request
-  the long letters cut it off at the letter's foot: round lh-s2-2's 134); while an audience runs whoever stands within 28 px of the petitioner's place steps
+  times slower); Odile's counsel on its teal slip just under the letter at the left, short of the petitioner (at the
+  top it hid the canopy; under the request the long letters cut it off, round lh-s2-2's 134; in the letter's head it
+  pushed the name out, round lh-s2-5's 134); while an audience runs whoever stands within 28 px of the petitioner's place steps
   out toward the nave (`HallCourt.clearingTheFloor`; Pip at the foot of the steps was the one).
 - **Strings** (English and German, the director's note of 14.11. 19:19): Story.xcstrings `touch.first`,
   `touch.bench.wait|sit|far`; Localizable "Sit on the throne", "Repair the wall", "%lld gold", the two arrivals, "Walk
