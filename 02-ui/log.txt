@@ -1,0 +1,6 @@
+Test Case '-[LanternholdUITests.WorldStoryUITests testHesperAtTheChapelDoor]' passed (29.257 seconds).
+Test Case '-[LanternholdUITests.WorldStoryUITests testTamsinAtHerKitchenDoor]' passed (18.365 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testCastleSetPieces]' passed (33.708 seconds).
+Test Case '-[LanternholdUITests.WorldSweepUITests testCastleTiers]' passed (65.739 seconds).
+exit=0
+screenshots: 29
