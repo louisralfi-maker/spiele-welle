@@ -219,7 +219,13 @@ extension GameModel {
     /// only when the finger is at least as near him as the thing's middle.
     func prefersLord(over thing: TouchThing, x: Double) -> Bool {
         if let errand = touch.errand, errand.id == thing.id, errand.waiting { return false }
-        if thing.kind == .talk { return false }
+        // The join (the director's note of 17:10; lh-rj-16): after a talk the lord stands an arm's length from the
+        // person, and a touch on his own body there must still the world. A person on his spot (within 6 px) keeps
+        // the touch; otherwise the lord wins when the finger is nearer his middle than hers (a tie is hers).
+        if thing.kind == .talk {
+            if abs(thing.x - stageLordX) <= 6 { return false }
+            return abs(x - stageLordX) < abs(x - thing.x)
+        }
         // Fix round 1 (round lh-s3f1-4: a touch on the middle of the lord standing on the site he had just ordered
         // fell half a pixel nearer the site's middle and opened its card): on his body the lord wins unless the
         // finger is clearly nearer the thing (3 px); the rest of the site's wide area still opens the site.

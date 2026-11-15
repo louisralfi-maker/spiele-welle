@@ -285,6 +285,28 @@ final class LanternMomentTests: XCTestCase {
         XCTAssertTrue(game.prefersLord(over: site(lord + 8), x: lord + 2), "2 px toward it: still the lord")
     }
 
+    /// The join (the director's note of 17:10): beside a person the lord wins a touch on his own body unless she
+    /// stands on his spot (6 px) or he waits there to pay; between them the nearer middle wins, a tie is hers.
+    func testTheLordBesideAPersonStillsTheWorld() throws {
+        let game = model(["GWStage": "world", "GWCameraX": "1150"])
+        run(game, seconds: 0.3)
+        let lord = game.stageLordX
+        func person(_ x: Double) -> TouchThing {
+            TouchThing(id: "touch-talk-test", kind: .talk, act: .talk(who: "tamsin"), x: x, standX: x - 12,
+                       halfWidth: 6, top: 30, rank: TouchRules.rank(.talk))
+        }
+        XCTAssertTrue(game.prefersLord(over: person(lord + 12), x: lord), "12 px off, his middle: his")
+        XCTAssertTrue(game.prefersLord(over: person(lord + 12), x: lord + 5), "5 px toward her: his")
+        XCTAssertFalse(game.prefersLord(over: person(lord + 12), x: lord + 7), "7 px toward her: hers")
+        XCTAssertFalse(game.prefersLord(over: person(lord + 12), x: lord + 6), "a tie: hers")
+        XCTAssertFalse(game.prefersLord(over: person(lord + 4), x: lord), "she stands on his spot: hers")
+        let waiting = person(lord + 12)
+        game.touch.errand = TouchErrand(id: waiting.id, stage: game.stage, act: waiting.act, standX: waiting.standX,
+                                        run: false, waiting: true)
+        XCTAssertFalse(game.prefersLord(over: waiting, x: lord), "he waits there for the second touch: hers")
+        game.touch.errand = nil
+    }
+
     func testTheLordIsAnElementThatRaisesTheLantern() throws {
         let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "2900"])
         _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
