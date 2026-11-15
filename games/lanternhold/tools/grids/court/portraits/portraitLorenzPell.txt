@@ -25,7 +25,7 @@ legend
     h = foam
     i = crimsonDeep
     I = crimson
-    J = crimsonLight
+    J = dusk
 
 part f0
     .........................khhhk..................

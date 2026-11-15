@@ -16,7 +16,7 @@ legend
     S = parchment
     s = dawnRose
     K = night1
-    r = crimsonLight
+    r = dusk
     R = crimson
     D = crimsonDeep
     Y = gold
