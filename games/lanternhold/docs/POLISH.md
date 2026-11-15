@@ -79,11 +79,75 @@ Every item reads the day's wind sample that the trees read; calm days stay calm 
 8. **Inside the hall:** dust in the window's light shafts, the hearth's flicker on the walls and on the people.
 9. **Weather grading:** a storm day is colder and flatter, the evening after rain is the warmest of the week.
 
-## 5. Order and cost
+## 5. The bar: the two games Louis named (15.11.2026)
+
+Louis: "schau dir mal Kingdom Two Crowns an und Yes, Your Grace Snowfall. Die games sehen so gut aus, denkst du wir
+bekommen es so hin oder noch besser?" Seen: three store pictures of the first, four of the second (Steam). We take
+their craft, never their look (DESIGN.md "Not a copy"; research-rendering.md's look-alike warning).
+
+**What makes Kingdom Two Crowns look good**
+
+- A calm picture: dark values, a muted palette, and two or three strong colours per screen (a red moon, a blue sail).
+- Much room: the play is a thin band, the sky and the trees above it are tall, the figures are tiny.
+- Depth by many planes of trees with haze between them.
+- The lower third of the screen is water that mirrors the whole world, broken by sparkle lines. It doubles every
+  light. **This is that game's signature; we do not take it.**
+- Nothing stands on the picture. Rain, mist and shafts of light are fine and thin.
+- Small figures that move very well.
+
+**What makes Yes, Your Grace: Snowfall look good**
+
+- Its rooms are built in 3D with real light: shafts through the windows, shadows that fall across floor and stone,
+  blue haze between the trunks. We have a 2D engine; this technique is not ours.
+- Warm light against cold air in every outdoor picture (a camp fire in a blue forest).
+- Dark shapes in front of the camera (grass, a tent's edge, branches at the top) frame every picture.
+- The camera is close: the figures stand a quarter of the screen high, so clothes and faces read.
+- Portraits painted at high resolution.
+
+**Where we stand (honest)**
+
+- Our own critics give the world 6 of 10 and the interface 6.5 of 10 today. We are not at that bar yet.
+- We have what the first game has not: light per pixel from every lantern and fire, wet ground, a weather engine.
+  We have the clean picture since stage-3.
+- We lack: the calm palette (too many things and colours per screen), frames per figure (an archer has five), a
+  mirror for our lights, dark shapes in front, and the years of small fixes a studio has put in.
+- The largest gap is motion, not the still picture. Stiff figures are where a game shows how it was made.
+
+**What we take from it, in our own way**
+
+1. **Our mirror is wet stone, not a river under the world:** after rain and at the landing the yard, the lane and the
+   puddles hold the lanterns', the windows' and the eternal light's glow (pass 3, item 4). The river mirrors only at
+   the valley's end, where it is.
+2. **A palette rule per scene:** at night one cold ground colour and at most three warm lights in view; by day one
+   accent per screen. The critic's squint test: with the eyes half shut the lord, the next thing to touch and the
+   light must still read (a rule for every pass, not a pass of its own).
+3. **Warm against cold everywhere:** our lights are warm, so the night's air, the gorge and the Gloom go colder.
+4. **Frame the picture:** pass 3, item 7 moves up to its first place.
+5. **The hall is our close shot:** the hall stage already shows big figures; faces, cloth and the hearth's light are
+   judged there at Hild Varn's portrait's bar.
+6. **Pass 4 below.**
+
+**Can we get there?** In the still picture, yes: with passes 1 to 4 the game stands beside the first one without
+looking like it. In motion it takes pass 4 and is the hardest part. Better than both in one thing is a fair aim: the
+light. The game is about a light in the dark, and neither of the two makes light the picture's subject.
+
+## 6. Pass 4: the figures move well
+
+1. **The lord:** a walk of eight frames with the cloak's own motion, a turn, a breath when he stands, the pole's
+   swing. He is on screen all the time; he gets the most frames.
+2. **The people:** each of the three classes its own walk (PEOPLE.md); two idle habits per trade (the smith wipes
+   his hands, the baker dusts flour off).
+3. **The archers:** draw, hold, loose, and a lean out over the crenel; nock while they wait.
+4. **The creatures:** a gait of their own per kind, a flinch from light, a dissolve that reads at phone size.
+5. **Follow-through:** nothing stops in one frame. Doors swing past their rest, signs sway after a touch, a tossed
+   coin bounces once.
+6. Proof is by short clips from the runner, not by stills; the critic judges at full speed and at a quarter.
+
+## 7. Order and cost
 
 - Each pass is one lane step with its critic, about half a day, on the sweep that the world lane already has
-  (the wind needs sweep frames on a calm, a breezy and a storm day).
+  (the wind needs sweep frames on a calm, a breezy and a storm day). Pass 4 is art work and takes a day.
 - Pass 1 first: most of it is art strips and one existing number. Then pass 2 (it carries the feel that Louis asks
-  for with "deeds in the world"), then pass 3.
+  for with "deeds in the world"), then pass 3, then pass 4; the review with Louis may put pass 4 first.
 - They run beside build 3's mechanics, not instead of them, and never touch a rule in Core.
 - Cut order inside a pass is the list's order from the bottom up.
