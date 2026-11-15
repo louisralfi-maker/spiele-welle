@@ -319,7 +319,8 @@ enum TownLamps {
     /// small flame burns and casts a little light at dusk (the art's anchors, docs/SPRITES-people.md).
     static func poleTip(frame: Int) -> (dx: Double, dy: Double) {
         switch frame {
-        case 0...3: return (dx: -12.5, dy: 29.5)
+        case 0, 2: return (dx: -12.5, dy: 29.5)
+        case 1, 3: return (dx: -11.5, dy: 29.5)  // the passing frames: the shouldered pole a pixel up with the body
         case 4, 5: return (dx: 7.5, dy: 28.5)
         case 6, 8: return (dx: 12.5, dy: 18.5)
         case 7, 9: return (dx: 14.5, dy: 20.5)

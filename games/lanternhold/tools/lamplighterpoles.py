@@ -1,6 +1,6 @@
 """Writes tools/grids/people/lamplighter.txt. The figure's parts are hand-set below (repainted in people-2's fix round 1:
 the stoop, the coat tapered from the shoulder with a fold break at the waist and a hem that swings with the stride, the
-burn on the neck under the ear, a soft felt hat with a drooping brim, the snuffer's bell turned down over the glass);
+burn on the temple (the director's fix pass: a dark skin tone under the hat's brim, away from the mouth), a soft felt hat with a drooping brim, the snuffer's bell turned down over the glass);
 the pole of each pose is a clean pixel line between two hand-picked points, and the arms that hold it run from the
 shoulders to the pole, so the hands always sit on it. Both are written out as parts like any other (one full-frame
 layer each)."""
@@ -90,8 +90,8 @@ HEADER = """# lamplighter 36x30, 12 frames, and lamplighterGlow (the wick's flam
 # `TownLamps`). Silas Moth, 63, the lamplighter (docs/PEOPLE.md "Three more"; docs/TOWN.md section 7): a townsman who
 # carries the house's light out into the street each dusk. Tall and thin as his pole and stooped from forty years of
 # reaching up: the head and the shoulders a pixel forward of the hips, a rounded upper back; a soft felt hat whose brim
-# droops over the brow; grey hair at the nape, a long thin face with a long nose; the old burn on the side
-# of his neck under the ear from a lantern that burst in his hands (`dusk`, off the mouth line); a long dark coat to the
+# droops over the brow; grey hair at the nape, a long thin face with a long nose; the old burn on his temple from a
+# lantern that burst in his hands (a dark skin tone, `tileLight`, under the hat's brim, far from the mouth); a long dark coat to the
 # shins, narrow at the shoulders and flaring to the hem, gathered at the waist by a cord (the fold break), its hem
 # swinging a pixel with the stride; a soot-black thumb, dark breeches, worn boots. The pole, longer than he is tall, of
 # plain wood with a brass wick holder and a small snuffer bell at its tip (`straw`, `stoneLight`, `stone`): never the
@@ -114,7 +114,6 @@ legend
     k = ink
     S = dawnRose
     s = tileLight
-    r = dusk
     P = stoneLight
     b = stonePale
     d = soil
@@ -138,21 +137,21 @@ part hat
     .......DD
 
 # the long thin face in profile, a pixel forward of the shoulders (the stoop): grey hair at the nape, the eye, the long
-# nose, the jaw; the old burn on the side of the neck under the ear, well behind the mouth
+# nose, the jaw; the old burn on the temple under the hat's brim, two dark pixels beside the grey hair, far from the mouth
 part head
-    PSSSS.
-    PSSSkS
+    PsSSS.
+    PsSSkS
     PSSSSs
-    .rSSS.
-    .rS...
+    .SSSS.
+    .SS...
 
-# the head bowed to the Flame: the face turned down, the nose lower, the burn still under the ear
+# the head bowed to the Flame: the face turned down, the nose lower, the burn still on the temple
 part headBowed
-    PSSSS.
-    PSSSS.
+    PsSSS.
+    PsSSS.
     PSSSkS
-    .rSSSs
-    .rS...
+    .SSSSs
+    .SS...
 
 # the long dark coat from the hunched shoulders to the waist: a rounded upper back (lit), the chest forward, two pale
 # horn buttons on the front edge, the waist gathered by a cord (the silhouette steps in, the cloth creases)
@@ -236,7 +235,7 @@ def main(path):
     # (frame, butt, tip, flame, snuffer, near hand target, far hand target or None, body lift, bowed)
     poses = {
         0: ((24, 20), (4, 0), True, False, (21, 17), None, 0, False),
-        1: ((24, 19), (4, 0), True, False, (21, 16), None, -1, False),
+        1: ((24, 19), (5, 0), True, False, (21, 16), None, -1, False),  # the pole a pixel up with the body
         4: ((24, 29), (24, 0), True, False, (24, 17), None, 0, False),
         5: ((24, 29), (24, 0), True, False, (24, 18), None, 1, False),
         6: ((12, 29), (31, 11), True, False, (25, 18), (21, 21), 0, False),
