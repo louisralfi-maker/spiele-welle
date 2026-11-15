@@ -1,0 +1,91 @@
+the old rules:
+  T1 reference seed 1 night 1: held, spawned 25, killed 25, walls lost 0, fallen 0, gold 70, citizens 15, buildings 3
+  T1 reference seed 1 night 2: held, spawned 34, killed 34, walls lost 0, fallen 0, gold 91, citizens 16, buildings 4
+  T1 reference seed 1 night 3: held, spawned 38, killed 38, walls lost 0, fallen 0, gold 70, citizens 16, buildings 7
+  T1 reference seed 1 night 4: held, spawned 45, killed 45, walls lost 0, fallen 0, gold 58, citizens 17, buildings 8
+  T1 reference seed 1 night 5: held, spawned 48, killed 48, walls lost 0, fallen 0, gold 95, citizens 18, buildings 9
+  T1 reference seed 1 night 6: held, spawned 55, killed 55, walls lost 0, fallen 0, gold 79, citizens 20, buildings 9
+  T1 reference seed 1 night 7: held, spawned 49, killed 48, walls lost 0, fallen 0, gold 89, citizens 21, buildings 9
+  T1 reference seed 1 night 8: held, spawned 62, killed 62, walls lost 0, fallen 0, gold 111, citizens 23, buildings 10
+  T1 reference seed 1 night 9: held, spawned 71, killed 70, walls lost 0, fallen 0, gold 121, citizens 26, buildings 10
+  T1 reference seed 1 night 10: held, spawned 61, killed 57, walls lost 0, fallen 0, gold 131, citizens 28, buildings 11
+  T1 reference seed 2 night 1: held, spawned 25, killed 25, walls lost 0, fallen 0, gold 70, citizens 15, buildings 3
+  T1 reference seed 2 night 2: held, spawned 34, killed 34, walls lost 0, fallen 0, gold 91, citizens 16, buildings 4
+  T1 reference seed 2 night 3: held, spawned 37, killed 37, walls lost 0, fallen 0, gold 67, citizens 17, buildings 7
+  T1 reference seed 2 night 4: held, spawned 47, killed 47, walls lost 0, fallen 0, gold 102, citizens 17, buildings 8
+  T1 reference seed 2 night 5: held, spawned 46, killed 46, walls lost 0, fallen 0, gold 115, citizens 18, buildings 9
+  T1 reference seed 2 night 6: held, spawned 57, killed 57, walls lost 0, fallen 0, gold 109, citizens 20, buildings 9
+  T1 reference seed 2 night 7: held, spawned 57, killed 57, walls lost 0, fallen 0, gold 80, citizens 21, buildings 10
+  T1 reference seed 2 night 8: held, spawned 52, killed 51, walls lost 0, fallen 0, gold 87, citizens 23, buildings 10
+  T1 reference seed 2 night 9: held, spawned 60, killed 58, walls lost 0, fallen 0, gold 168, citizens 26, buildings 10
+  T1 reference seed 2 night 10: held, spawned 68, killed 66, walls lost 0, fallen 0, gold 138, citizens 28, buildings 12
+  T1 reference seed 3 night 1: held, spawned 25, killed 25, walls lost 0, fallen 0, gold 70, citizens 15, buildings 3
+  T1 reference seed 3 night 2: held, spawned 34, killed 34, walls lost 0, fallen 0, gold 91, citizens 16, buildings 4
+  T1 reference seed 3 night 3: held, spawned 36, killed 36, walls lost 0, fallen 0, gold 74, citizens 16, buildings 6
+  T1 reference seed 3 night 4: held, spawned 45, killed 45, walls lost 0, fallen 0, gold 51, citizens 17, buildings 8
+  T1 reference seed 3 night 5: held, spawned 49, killed 49, walls lost 0, fallen 0, gold 89, citizens 19, buildings 9
+  T1 reference seed 3 night 6: held, spawned 53, killed 53, walls lost 0, fallen 0, gold 83, citizens 21, buildings 9
+  T1 reference seed 3 night 7: held, spawned 47, killed 47, walls lost 0, fallen 0, gold 89, citizens 22, buildings 9
+  T1 reference seed 3 night 8: held, spawned 57, killed 55, walls lost 0, fallen 0, gold 92, citizens 24, buildings 10
+  T1 reference seed 3 night 9: held, spawned 57, killed 56, walls lost 0, fallen 0, gold 119, citizens 27, buildings 10
+  T1 reference seed 3 night 10: held, spawned 62, killed 58, walls lost 0, fallen 0, gold 148, citizens 28, buildings 11
+  T2 builds nothing seed 1 night 1: held, spawned 25, killed 0, walls lost 0, fallen 0, gold 109, citizens 15, buildings 0
+  T2 builds nothing seed 1 night 2: held, spawned 34, killed 0, walls lost 1, fallen 0, gold 164, citizens 16, buildings 0
+  T2 builds nothing seed 1 night 3: FELL, spawned 23, killed 1, walls lost 0, fallen 1, gold 164, citizens 15, buildings 0
+  T2 builds nothing seed 2 night 1: held, spawned 25, killed 0, walls lost 0, fallen 0, gold 109, citizens 15, buildings 0
+  T2 builds nothing seed 2 night 2: held, spawned 34, killed 0, walls lost 1, fallen 0, gold 164, citizens 16, buildings 0
+  T2 builds nothing seed 2 night 3: FELL, spawned 36, killed 8, walls lost 0, fallen 1, gold 164, citizens 15, buildings 0
+  T2 builds nothing seed 3 night 1: held, spawned 25, killed 0, walls lost 0, fallen 0, gold 109, citizens 15, buildings 0
+  T2 builds nothing seed 3 night 2: held, spawned 34, killed 0, walls lost 1, fallen 0, gold 164, citizens 16, buildings 0
+  T2 builds nothing seed 3 night 3: FELL, spawned 39, killed 10, walls lost 0, fallen 1, gold 164, citizens 15, buildings 0
+
+the gorge rule on, no beacon raised:
+  T1 reference seed 1 night 1: held, spawned 25, killed 25, walls lost 0, fallen 0, gold 70, citizens 15, buildings 3
+  T1 reference seed 1 night 2: held, spawned 34, killed 34, walls lost 0, fallen 0, gold 91, citizens 16, buildings 4
+  T1 reference seed 1 night 3: held, spawned 38, killed 38, walls lost 0, fallen 0, gold 70, citizens 16, buildings 7
+  T1 reference seed 1 night 4: held, spawned 45, killed 45, walls lost 0, fallen 0, gold 58, citizens 17, buildings 8
+  T1 reference seed 1 night 5: held, spawned 48, killed 48, walls lost 0, fallen 0, gold 95, citizens 18, buildings 9
+  T1 reference seed 1 night 6: held, spawned 55, killed 55, walls lost 0, fallen 0, gold 79, citizens 20, buildings 9
+  T1 reference seed 1 night 7: held, spawned 49, killed 48, walls lost 0, fallen 0, gold 89, citizens 21, buildings 9
+  T1 reference seed 1 night 8: held, spawned 62, killed 62, walls lost 0, fallen 0, gold 111, citizens 23, buildings 10
+  T1 reference seed 1 night 9: held, spawned 71, killed 70, walls lost 0, fallen 0, gold 121, citizens 26, buildings 10
+  T1 reference seed 1 night 10: held, spawned 61, killed 57, walls lost 0, fallen 0, gold 131, citizens 28, buildings 11
+  T1 reference seed 2 night 1: held, spawned 25, killed 25, walls lost 0, fallen 0, gold 70, citizens 15, buildings 3
+  T1 reference seed 2 night 2: held, spawned 34, killed 34, walls lost 0, fallen 0, gold 91, citizens 16, buildings 4
+  T1 reference seed 2 night 3: held, spawned 37, killed 37, walls lost 0, fallen 0, gold 67, citizens 17, buildings 7
+  T1 reference seed 2 night 4: held, spawned 47, killed 47, walls lost 0, fallen 0, gold 102, citizens 17, buildings 8
+  T1 reference seed 2 night 5: held, spawned 46, killed 46, walls lost 0, fallen 0, gold 115, citizens 18, buildings 9
+  T1 reference seed 2 night 6: held, spawned 57, killed 57, walls lost 0, fallen 0, gold 109, citizens 20, buildings 9
+  T1 reference seed 2 night 7: held, spawned 57, killed 57, walls lost 0, fallen 0, gold 80, citizens 21, buildings 10
+  T1 reference seed 2 night 8: held, spawned 52, killed 51, walls lost 0, fallen 0, gold 87, citizens 23, buildings 10
+  T1 reference seed 2 night 9: held, spawned 60, killed 58, walls lost 0, fallen 0, gold 168, citizens 26, buildings 10
+  T1 reference seed 2 night 10: held, spawned 68, killed 66, walls lost 0, fallen 0, gold 138, citizens 28, buildings 12
+  T1 reference seed 3 night 1: held, spawned 25, killed 25, walls lost 0, fallen 0, gold 70, citizens 15, buildings 3
+  T1 reference seed 3 night 2: held, spawned 34, killed 34, walls lost 0, fallen 0, gold 91, citizens 16, buildings 4
+  T1 reference seed 3 night 3: held, spawned 36, killed 36, walls lost 0, fallen 0, gold 74, citizens 16, buildings 6
+  T1 reference seed 3 night 4: held, spawned 45, killed 45, walls lost 0, fallen 0, gold 51, citizens 17, buildings 8
+  T1 reference seed 3 night 5: held, spawned 49, killed 49, walls lost 0, fallen 0, gold 89, citizens 19, buildings 9
+  T1 reference seed 3 night 6: held, spawned 53, killed 53, walls lost 0, fallen 0, gold 83, citizens 21, buildings 9
+  T1 reference seed 3 night 7: held, spawned 47, killed 47, walls lost 0, fallen 0, gold 89, citizens 22, buildings 9
+  T1 reference seed 3 night 8: held, spawned 57, killed 55, walls lost 0, fallen 0, gold 92, citizens 24, buildings 10
+  T1 reference seed 3 night 9: held, spawned 57, killed 56, walls lost 0, fallen 0, gold 119, citizens 27, buildings 10
+  T1 reference seed 3 night 10: held, spawned 62, killed 58, walls lost 0, fallen 0, gold 148, citizens 28, buildings 11
+  T2 builds nothing seed 1 night 1: held, spawned 25, killed 0, walls lost 0, fallen 0, gold 109, citizens 15, buildings 0
+  T2 builds nothing seed 1 night 2: held, spawned 34, killed 0, walls lost 1, fallen 0, gold 164, citizens 16, buildings 0
+  T2 builds nothing seed 1 night 3: FELL, spawned 23, killed 1, walls lost 0, fallen 1, gold 164, citizens 15, buildings 0
+  T2 builds nothing seed 2 night 1: held, spawned 25, killed 0, walls lost 0, fallen 0, gold 109, citizens 15, buildings 0
+  T2 builds nothing seed 2 night 2: held, spawned 34, killed 0, walls lost 1, fallen 0, gold 164, citizens 16, buildings 0
+  T2 builds nothing seed 2 night 3: FELL, spawned 36, killed 8, walls lost 0, fallen 1, gold 164, citizens 15, buildings 0
+  T2 builds nothing seed 3 night 1: held, spawned 25, killed 0, walls lost 0, fallen 0, gold 109, citizens 15, buildings 0
+  T2 builds nothing seed 3 night 2: held, spawned 34, killed 0, walls lost 1, fallen 0, gold 164, citizens 16, buildings 0
+  T2 builds nothing seed 3 night 3: FELL, spawned 39, killed 10, walls lost 0, fallen 1, gold 164, citizens 15, buildings 0
+
+differences: none
+
+the bank by day (the rule rests it at the first site, where nothing of the battle stands):
+  T1 reference seed 1: the bank at dawn 200 under the old rules, 300 with the rule on
+  T1 reference seed 2: the bank at dawn 200 under the old rules, 300 with the rule on
+  T1 reference seed 3: the bank at dawn 200 under the old rules, 300 with the rule on
+  T2 builds nothing seed 1: the bank at dawn 200 under the old rules, 300 with the rule on
+  T2 builds nothing seed 2: the bank at dawn 200 under the old rules, 300 with the rule on
+  T2 builds nothing seed 3: the bank at dawn 200 under the old rules, 300 with the rule on
