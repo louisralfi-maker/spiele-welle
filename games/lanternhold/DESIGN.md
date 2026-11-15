@@ -3503,7 +3503,17 @@ plot markers no longer drawn, M6).
   that used the action button touches the world (`FirstDayUITests`, `AudienceUITests`, `HallUITests`,
   `Look2UITests`, `PolishUITests`, `LordUITests`); `TouchUITests` 150 to 157 (`150-touch-front`, `151-touch-front-walk`,
   `152-touch-front-night`, `153-touch-wall-price`, `154-touch-hall`, `155-touch-hall-bench`, `156-touch-hall-walk`,
-  `157-touch-first`).
+  `157-touch-first`, `158-touch-lantern-raised`); `HallUITests` adds `131d-hall-door-open`.
+- **The atlas:** 2048 x 1925 of 2048 rows, measured (`TouchWorldTests.testTheAtlasStillFitsOnePage`, the attachment
+  `atlas-rows`); `tapDoor` is its only new sprite.
+- **Rounds** (the gate by the director's notes of 14.11. 18:46 and 19:35, English only): `lh-s2-1` build and unit
+  passed, `TouchUITests` failed (the throne out of view after the walk to the bench); `lh-s2-2` build, unit and
+  `HallUITests` passed, `TouchUITests` failed the same way; `lh-s2-3` (b3c458e) build, unit and five of seven UI
+  classes passed (Hall, Audience, Look2, Polish, Lord), `FirstDayUITests` and `TouchUITests` failed in the tests
+  themselves (the throne out of view from the door; an element read while the camera followed the lord lay off by the
+  tap); `lh-s2-4` build, unit, ui Touch and FirstDay ALL PASSED on 7f0069c; **`lh-s2-5` build, unit and ui Touch,
+  Hall, FirstDay, Audience, Look2, Polish and Lord ALL PASSED on 8f7cdb0** (the gate; the door's mark rests at the
+  door).
 
 ## Risks
 
