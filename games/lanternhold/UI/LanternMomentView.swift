@@ -44,6 +44,28 @@ struct LanternMomentView: View {
     let show: LanternMomentShow
 
     var body: some View {
+        ZStack {
+            world
+            // The strip at the top and the gear in the corner keep inside the safe area (the display's corners).
+            if let strip = model.strip {
+                RealmStripView(strip: strip, reduceMotion: model.reduceMotion) { fraction in
+                    model.travelFromLantern(toFraction: fraction)
+                }
+                .padding(.top, 4)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            }
+            GearButton { model.openPauseFromLantern() }
+                .padding(.top, 2)
+                .padding(.trailing, 4)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+        }
+        .accessibilityAction(.escape) { model.lowerLanternMoment() }
+        .transition(model.reduceMotion ? .identity : .opacity)
+    }
+
+    /// The dim over the whole screen (a touch on it lowers the lantern) and the figures above the lord, placed on the
+    /// world's pixel grid in device pixels.
+    private var world: some View {
         GeometryReader { geometry in
             let perDevice = geometry.size.width / max(1, CGFloat(show.physicalWidth))
             let unit = CGFloat(show.scale) * perDevice
@@ -74,21 +96,6 @@ struct LanternMomentView: View {
             .frame(width: geometry.size.width, height: geometry.size.height, alignment: .topLeading)
         }
         .ignoresSafeArea()
-        .overlay(alignment: .top) {
-            if let strip = model.strip {
-                RealmStripView(strip: strip, reduceMotion: model.reduceMotion) { fraction in
-                    model.travelFromLantern(toFraction: fraction)
-                }
-                .padding(.top, 4)
-            }
-        }
-        .overlay(alignment: .topTrailing) {
-            GearButton { model.openPauseFromLantern() }
-                .padding(.top, 2)
-                .padding(.trailing, 4)
-        }
-        .accessibilityAction(.escape) { model.lowerLanternMoment() }
-        .transition(model.reduceMotion ? .identity : .opacity)
     }
 
     /// The elements over the block (they read the figures to VoiceOver and the UI tests): gold, the mood, the people

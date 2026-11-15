@@ -41,29 +41,15 @@ final class FirstDayUITests: XCTestCase {
         pause(0.3)
         let after = kingX(app)
         XCTAssertGreaterThan(after, before + 10, "the drag walked the king right (\(before) to \(after))")
-        // The lord walking by day: no interface at all (the strip's call has gone by now).
-        XCTAssertTrue(waitForField(app, "hud:none", timeout: 8), "nothing stands on the world")
-        attach(XCUIScreen.main.screenshot(), "40-walk-no-hud-\(language)")
-
-        // The lantern moment: a touch on the lord stills the world; above him the gold, the mood, the people and
-        // the day; the strip at the top, the gear in the corner.
+        // The lantern moment's gold (the day runs four times as fast here: the moment's own pictures are
+        // TouchUITests' 40, 160 and 162 to 167): a touch on the lord stills the world, the gold over him.
         XCTAssertTrue(openLantern(app), "a touch on the lord raises the lantern")
         let gold = element(app, "hud-gold")
         XCTAssertTrue(gold.waitForExistence(timeout: 4), "the gold shows over the lord")
         XCTAssertEqual(gold.value as? String, "60")
-        XCTAssertTrue(element(app, "hud-happiness").exists)
-        XCTAssertTrue(element(app, "hud-people").exists)
         XCTAssertTrue(element(app, "hud-clock").label.hasPrefix("Day 1") || element(app, "hud-clock").label.hasPrefix("Tag 1"))
-        checkTarget(element(app, "hud-pause"), "the gear")
-        checkTarget(element(app, "realm-strip"), "realm strip")
-        pause(0.3)
-        attach(XCUIScreen.main.screenshot(), "160-lantern-moment-\(language)")
-        let hourBefore = sceneField(app, "hour:")
-        pause(1.0)
-        XCTAssertEqual(sceneField(app, "hour:"), hourBefore, "the world stands still")
         lowerLantern(app)
         XCTAssertFalse(element(app, "lantern-moment").exists, "any other touch lowers the lantern")
-        XCTAssertFalse(element(app, "hud-gold").exists, "and the figures go with it")
 
         // Touch the world (step stage-2): a touch on line 1's empty brazier site sends him there; its card opens
         // when he arrives. No action button any more.

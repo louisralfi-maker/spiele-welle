@@ -32,6 +32,115 @@ final class TouchUITests: XCTestCase {
         theFirstMinute()
     }
 
+    /// Stage-3-interface (docs/HUD.md): the realm strip comes by itself for a call (167); the lantern moment in the
+    /// town by day (162) with its gear and the pause sheet (163), at the front gate at dusk (164), at night (165) and
+    /// in the great hall (166); any other touch lowers it.
+    func testTheLanternMoment() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        // Day 1 before the gatehouse: once the first call's strip has gone, the lord walking by day shows no
+        // interface at all (40); a touch on him is the lantern moment (160): the world stands still.
+        let first = XCUIApplication()
+        first.launchArguments = TouchUITests.base + ["-GWStage", "world", "-GWCameraX", "1150"]
+        first.launch()
+        if waitUntilReady(first, name: "lantern-first") {
+            XCTAssertFalse(element(first, "hud-pause").exists, "no pause seal on the world")
+            XCTAssertTrue(waitForField(first, "hud:none", timeout: 10), "nothing stands on the world")
+            let scene = element(first, "world-scene")
+            let from = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.62))
+            let to = scene.coordinate(withNormalizedOffset: CGVector(dx: 0.32, dy: 0.62))
+            from.press(forDuration: 0.05, thenDragTo: to, withVelocity: .default, thenHoldForDuration: 0.5)
+            attach(XCUIScreen.main.screenshot(), "40-walk-no-hud-\(language)")
+            XCTAssertTrue(openLantern(first), "a touch on the lord raises the lantern")
+            pause(0.4)
+            attach(XCUIScreen.main.screenshot(), "160-lantern-moment-\(language)")
+            XCTAssertEqual(element(first, "hud-gold").value as? String, "60")
+            XCTAssertTrue(element(first, "hud-happiness").exists)
+            XCTAssertTrue(element(first, "hud-people").exists)
+            let hour = sceneField(first, "hour:")
+            pause(1.0)
+            XCTAssertEqual(sceneField(first, "hour:"), hour, "the world stands still")
+            lowerLantern(first)
+            XCTAssertFalse(element(first, "hud-gold").exists, "the figures go with the lantern")
+        }
+        first.terminate()
+
+        // Day 3 at 10:00 (seed 2: three wait on the benches): the call brings the strip, then it goes.
+        let town = XCUIApplication()
+        town.launchArguments = TouchUITests.base + ["-GWDay", "3", "-GWSeed", "2", "-GWClock", "10",
+                                                    "-GWStage", "world", "-GWCameraX", "2620"]
+        town.launch()
+        if waitUntilReady(town, name: "lantern-town") {
+            let strip = element(town, "realm-strip")
+            if strip.waitForExistence(timeout: 4) {
+                attach(XCUIScreen.main.screenshot(), "167-strip-call-\(language)")
+                checkTarget(strip, "the call's strip")
+            } else {
+                note("167-strip-call", "the call's strip was not caught: \(sceneField(town, "hud:") ?? "")")
+            }
+            XCTAssertTrue(waitForField(town, "hud:none", timeout: 10), "the call's strip goes by itself")
+            XCTAssertTrue(openLantern(town), "a touch on the lord raises the lantern")
+            pause(0.4)
+            attach(XCUIScreen.main.screenshot(), "162-lantern-moment-town-\(language)")
+            XCTAssertTrue(element(town, "hud-gold").exists)
+            XCTAssertTrue(element(town, "hud-clock").exists)
+            checkTarget(element(town, "hud-pause"), "the gear")
+            checkTarget(element(town, "realm-strip"), "the strip")
+            element(town, "hud-pause").tap()
+            let sheet = element(town, "pause-sheet")
+            if sheet.waitForExistence(timeout: 4) {
+                pause(0.4)
+                attach(XCUIScreen.main.screenshot(), "163-lantern-pause-\(language)")
+                checkTarget(element(town, "pause-restart"), "the chapter's restart")
+                element(town, "pause-resume").tap()
+                XCTAssertTrue(waitForGone(sheet, timeout: 4))
+            } else {
+                XCTFail("the gear did not open the pause sheet")
+            }
+        }
+        town.terminate()
+
+        // Dusk at the front gate.
+        let dusk = XCUIApplication()
+        dusk.launchArguments = TouchUITests.base + ["-GWDay", "3", "-GWSeed", "2", "-GWHour", "19.35",
+                                                    "-GWStage", "world", "-GWCameraX", "1180"]
+        dusk.launch()
+        if waitUntilReady(dusk, name: "lantern-dusk"), openLantern(dusk) {
+            pause(0.4)
+            attach(XCUIScreen.main.screenshot(), "164-lantern-moment-dusk-\(language)")
+            lowerLantern(dusk)
+            XCTAssertFalse(element(dusk, "lantern-moment").exists, "a touch elsewhere lowers it")
+        } else {
+            XCTFail("no lantern moment at dusk")
+        }
+        dusk.terminate()
+
+        // Night 3 before the gate.
+        let night = XCUIApplication()
+        night.launchArguments = TouchUITests.base + ["-GWNight", "3", "-GWSeed", "2", "-GWHour", "21.5",
+                                                     "-GWStage", "world", "-GWCameraX", "1240"]
+        night.launch()
+        if waitUntilReady(night, name: "lantern-night"), openLantern(night) {
+            pause(0.4)
+            attach(XCUIScreen.main.screenshot(), "165-lantern-moment-night-\(language)")
+        } else {
+            XCTFail("no lantern moment at night")
+        }
+        night.terminate()
+
+        // In the great hall.
+        let hall = XCUIApplication()
+        hall.launchArguments = TouchUITests.base + ["-GWDay", "3", "-GWSeed", "2", "-GWClock", "11",
+                                                    "-GWStage", "hall", "-GWHallX", "200"]
+        hall.launch()
+        if waitUntilReady(hall, name: "lantern-hall"), openLantern(hall) {
+            pause(0.4)
+            attach(XCUIScreen.main.screenshot(), "166-lantern-moment-hall-\(language)")
+        } else {
+            XCTFail("no lantern moment in the hall")
+        }
+        hall.terminate()
+    }
+
     /// Day 3 (seed 2) at 10:00 before the gatehouse: the sites' marks, a touch on one, the slip while he walks, the card
     /// when he arrives; a tap on the ground; the elements.
     private func theFront() {

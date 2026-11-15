@@ -678,6 +678,28 @@ the interface's ink and gold (docs/UI-look.md) that floats above a thing the lor
 - **Open, for the lead:** the tax lectern has no mark of its own. Odile stands at it, so her `tapTalk` can lead to
   the tithe; a seventh mark with a coin is a quarter of an hour of art if wanted.
 
+### The marks as signs, the interface kit, the lady's portrait (stage lane, step stage-3-interface, 15.11.2026)
+
+- **The seven marks are signs alone** (the director's note of 15.11. 07:30, HUD.md rule 2): `tools/markart.py` (pure
+  Python on hudart.py's edge and pixelart.py's palette) redraws `tapTalk`, `tapThrone`, `tapBuild`, `tapRepair`,
+  `tapRecruit`, `tapLight` and `tapDoor` at their old sizes (30x18, two frames of 15x18), so no code moved: a 9x9 sign
+  in bone (`parchment`, shade `plaster`, accents `gold`, `fireGold`, `tile`) inside a one-pixel `ink` edge, its 11x11
+  cell centred over frame x 7 with its bottom on row 17, where the tag's tip was. No plate, no parchment. Frame 1
+  (pressed) turns the bone to lantern gold (`fireGold`, shade `gold`). The signs: a speech bubble with three dots, the
+  circlet, a claw hammer, four stones with a red crack, a head and shoulders with a gold plus, a flame, an arched door
+  of planks with its ring. `tools/hallart.py`'s tags (the `TAG` plate) are no longer used for them.
+- **The interface kit** (`claude/lh-hudart`, tools/hudart.py; ci-out/director/hud-kit.md) is in `SpriteID` now:
+  `hudFigures` 7x9 x 12 (0 to 9, plus, minus), `hudArrow` 8x9 x 2 (up, down), `hudCoin` 9x9, `hudFace` 9x9 x 4 (glad,
+  even, grim, unrest), `hudPeople` 13x9, `hudGear` 10x10, `hudDawn` 11x9. The board's pieces (`hudCoinTen`,
+  `hudHollow`, `hudHollowTen`) stay unregistered until the count (PAY.md) is built. Drawn unlit: in the world as
+  emissive actors (the gold and the notes above the walking lord), in SwiftUI cut from the atlas (the lantern moment,
+  the cards' coin, face and people, the gear, the realm strip's figures).
+- **`portraitLady`** is her own portrait now (the review's M8): rendered by `tools/portraitstory.py` (the young face
+  with a narrower jaw and a shorter chin, soft brows, a soft mouth; dark hair drawn up into a braided crown and a long
+  plait over the shoulder tied in gold; the house's circlet level at the hairline; the teal mantle over a dark wool
+  gown with a linen neckline and a gold pin) and frozen into `tools/grids/court/portraits/portraitLady.txt`.
+- **The atlas:** the kit's 30 frames take about 180 x 10 texels; the round's `atlas-rows` attachment gives the count.
+
 ### The hall stage's light and wear (stage lane, 14.11.2026; DESIGN.md "The hall stage and touch the world")
 
 Registered in `SpriteID` with the stage-8 hall (`greatHall`, `hallPillarNear`, `hallFire`, the six marks); made by

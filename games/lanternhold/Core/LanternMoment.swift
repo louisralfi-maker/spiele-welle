@@ -267,17 +267,19 @@ enum LordNotes {
 
 /// When the realm strip comes by itself (HUD.md section 3): a call (petitioners wait in the hall, the Stranger at the
 /// gate, a wall below half at night) brings it up with its tag. It stands for `seconds` when a call begins or grows and
-/// again once a game hour while the call is open, so it is never a standing thing (rule 1); it goes as soon as the
-/// call is answered. Inside the hall the petitioners do not call (he is there). Pure.
+/// again every `again` seconds while the call is open (round lh-s3-3: once a game hour kept it up half the time), so
+/// it is never a standing thing (rule 1); it goes as soon as the call is answered. Inside the hall the petitioners do
+/// not call (he is there). Pure; the seconds are the clock's real ones.
 struct StripCall: Sendable, Equatable {
     /// The call's size last seen (0: none).
     var size = 0
-    /// The game hour it last came up for an open call.
-    var shownHour = -10.0
+    /// The clock's second it last came up for the open call.
+    var shownAt = -1_000.0
     /// The clock's second it goes.
     var until = 0.0
 
     static let seconds = 6.0
+    static let again = 45.0
 
     /// What calls now: waiting petitioners (not while he is in the hall), the Stranger, and at night a wall below half.
     static func size(_ strip: RealmStrip?) -> Int {
@@ -299,9 +301,8 @@ struct StripCall: Sendable, Equatable {
             return false
         }
         guard allowed else { return false }
-        let gap = (hour - shownHour + 48).truncatingRemainder(dividingBy: 24)
-        if now > size || gap >= 1 {
-            shownHour = hour
+        if now > size || clock - shownAt >= StripCall.again {
+            shownAt = clock
             until = clock + StripCall.seconds
         }
         return clock < until

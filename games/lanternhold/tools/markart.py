@@ -90,15 +90,15 @@ GLYPHS = {
         "..XgggX..",
         "...XXX...",
     ],
-    "tapDoor": [           # an arched door of planks with its ring: go in, go out
+    "tapDoor": [           # an arched double door with its ring: go in, go out (two seams read as a pause sign)
         "..XXXXX..",
-        ".XXiXiXX.",
-        "XXXiXiXXX",
-        "XXXiXiXXX",
-        "XXXiXigXX",
-        "XXXiXiXXX",
-        "XXXiXiXXX",
-        "XXXiXiXXX",
+        ".XXXXXXX.",
+        "XXXXiXXXX",
+        "XXXXiXXXX",
+        "XXXXiXgXX",
+        "XXXXiXXXX",
+        "XXXXiXXXX",
+        "xxxxixxxx",
         "xxxxxxxxx",
     ],
 }

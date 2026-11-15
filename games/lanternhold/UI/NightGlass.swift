@@ -412,17 +412,23 @@ struct GlassPlaqueBody<Label: View>: View {
 
     var body: some View {
         let pressed = isPressed && isEnabled
-        ZStack {
-            GlassSkinView(skin: restSkin)
-            GlassSkinView(skin: .plaquePressed)
-                .mask(alignment: .leading) { sweep(pressed) }
-            label
-                .foregroundStyle(restWords)
-            label
-                .foregroundStyle(NightGlass.navyDeep)
-                .mask(alignment: .leading) { sweep(pressed) }
-                .accessibilityHidden(true)
-        }
+        // Stage-3-interface (round lh-s3-3's 45): the skins lie behind the words, sized to them; as siblings in a
+        // ZStack the resizable skins took all the room offered and the report's Continue filled half the card.
+        label
+            .foregroundStyle(restWords)
+            .background {
+                ZStack {
+                    GlassSkinView(skin: restSkin)
+                    GlassSkinView(skin: .plaquePressed)
+                        .mask(alignment: .leading) { sweep(pressed) }
+                }
+            }
+            .overlay {
+                label
+                    .foregroundStyle(NightGlass.navyDeep)
+                    .mask(alignment: .leading) { sweep(pressed) }
+                    .accessibilityHidden(true)
+            }
         .animation(reduceMotion ? nil : .linear(duration: 0.12), value: pressed)
         .contentShape(Rectangle())
         .sensoryFeedback(.selection, trigger: pressed) { _, now in now && haptics }

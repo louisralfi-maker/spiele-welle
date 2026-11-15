@@ -141,12 +141,13 @@ final class LanternMomentTests: XCTestCase {
         XCTAssertTrue(call.update(strip, hour: 9, clock: 0, allowed: true), "a call brings it up")
         XCTAssertTrue(call.update(strip, hour: 9.1, clock: 5, allowed: true))
         XCTAssertFalse(call.update(strip, hour: 9.2, clock: 7, allowed: true), "it goes after a few seconds")
-        XCTAssertTrue(call.update(strip, hour: 10.2, clock: 30, allowed: true), "once an hour while the call stands")
+        XCTAssertFalse(call.update(strip, hour: 10.2, clock: 30, allowed: true), "not standing while the call waits")
+        XCTAssertTrue(call.update(strip, hour: 11.0, clock: 46, allowed: true), "again after a while")
         strip.inHall = true
         XCTAssertEqual(StripCall.size(strip), 0, "in the hall the petitioners do not call")
         strip.inHall = false
         strip.petitioners = 0
-        XCTAssertFalse(call.update(strip, hour: 10.3, clock: 31, allowed: true), "answered: it goes at once")
+        XCTAssertFalse(call.update(strip, hour: 11.1, clock: 47, allowed: true), "answered: it goes at once")
     }
 
     func testTheRealmStripIsAMapOfPixels() {

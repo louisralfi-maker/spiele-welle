@@ -93,10 +93,23 @@ enum RealmMapPixels {
         }
     }
 
-    /// The ground: haze across the gorge and the castle, the valley's meadow, the river's water under its foam.
+    /// The ground: haze across the gorge and the castle, the valley's meadow, the river's water under its foam. Over
+    /// the gorge low crags in haze, rising toward the gate into the cleft's walls (round lh-s3-3: the Throat's half
+    /// of the map was an empty line), and the beacon's crag.
     static func ground(_ c: inout PixelImage, strip: RealmStrip) {
         let townStart = column(2430)
         let riverStart = column(3680)
+        let gate = column(1300)
+        let cleft = column(1080)
+        let beacon = column(Realm.beaconX)
+        for x in mapLeft..<(gate - 4) {
+            var height = Int(SeededRandom.hash(0x4352_4147, Int64(x)) % 3)
+            if x >= cleft { height += 1 + 4 * (x - cleft) / max(1, gate - 4 - cleft) }
+            if abs(x - beacon) <= 2 { height = max(height, 3 - abs(x - beacon)) }
+            guard height > 0 else { continue }
+            for y in (groundRow - height)..<groundRow { c[x, y] = haze }
+            c[x, groundRow - height] = mistDark
+        }
         for x in mapLeft...mapRight {
             if x >= riverStart {
                 c[x, groundRow] = water
@@ -205,7 +218,7 @@ enum RealmMapPixels {
         }
         let p = column(2330)
         let postern = [
-            "X.X",
+            ".X.",
             "XXX",
             "XXX",
             "X.X",

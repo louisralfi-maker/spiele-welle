@@ -1797,3 +1797,28 @@ world", step stage-1). The art is used as painted; the engine adds its light, it
   button's corner.
 - **Not touched:** the tags' corners and outline (the critic asked to round them by a pixel and soften the outline):
   they are the parchment look, which the night glass replaces in one place (director's note of 15.11. 01:09).
+
+### 21.8 Step stage-3-interface: nothing stands on the walked world (15.11.2026)
+
+- **The marks are signs alone** (bone with an ink edge, no parchment plate; `tools/markart.py`): they read on noon sky,
+  dusk rose and night navy alike (the preview at 8x was checked on all three), and a hammer over a site no longer covers
+  the people standing there. At night the engine still draws them at three quarters, warmed (M11). The gold rim on the
+  thing is 0.5 of `gold` by day now (it read as a neon outline at noon), 0.62 at night.
+- **A site's sign stands over the heads** (its tip 22 px over the walk line, still under the 30 px band of the
+  buildings); by day three signs at most in view, and two building signs never closer than 120 px.
+- **The raised lantern has no ring** (a thin circle across the sky read as a gizmo): the growing light itself is the
+  wave, and the lift throws four sparks of `fireGold` 3 to 5 px up from the glass for 0.3 s.
+- **The lantern moment** dims the world by 30 % (a black veil; the flame and the lights stay as they are) and stands
+  the kit's row and the day line above the lord on the world's grid, unlit, in bone with the ink edge; the lord holds
+  the pole high (the command frame) and his glass burns 1.45 times brighter.
+- **Night glass** (TITLE.md section 4) skins every card, sheet, slip and plaque in one place (`UI/Theme.swift` and the
+  wiring note's few places): navy at 88 %, the brass line, bone words, lantern-gold names. The portraits sit in the
+  brass line on a dusk ground of the palette (`night2`, `far`, `dusk`). Nothing parchment is left on a screen of the
+  stage lane.
+- **The realm strip** is a map cut in pixels on night glass (150 x 14 game px, the map's own glyphs, never a letter):
+  the bank in `night0`-navy dithered at its front, the beacon by stage in bone with a gold flame, the walls by state
+  (bone, gold building, ember below half, an ember cross), the gatehouse coloured by line 1's state, the keep with a
+  gold pennant, the postern, six roofs in `tileLight` over bone walls, the meadow's line in `leafLight`, the river in
+  `roofLight` with foam; the lord as a small lantern in gold; what is on screen between two mist brackets; a call's
+  tag of ember with the kit's figures above the hall.
+

@@ -272,7 +272,7 @@ enum LanternFlare {
         let k = t / sparkSeconds
         let seeds: [(dx: Double, rise: Double)] = [(-1, 3), (1, 5), (0, 4), (2, 3)]
         return seeds.map { seed in
-            (seed.dx + (seed.dx < 0 ? -k : k), 1 + (seed.rise * k).rounded(.down), 1 - k)
+            (dx: seed.dx + (seed.dx < 0 ? -k : k), dy: 1 + (seed.rise * k).rounded(.down), share: 1 - k)
         }
     }
 
