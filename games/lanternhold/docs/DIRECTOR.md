@@ -907,3 +907,18 @@ schneller geht."
   - Not judged yet: the fade itself (stills are taken after it ends). It is judged on the phone in TestFlight build 2.
   - For the look pile after build 2: the figures over a bright ground (the hall's windows); the lantern's own light (build 3 idea c) would solve it.
   - Next: the merge into the join together with `claude/lh-proof` once the proof report is read; the joined round runs the proof classes, `release` and the gate's UI classes.
+
+- **The proof step is green and accepted; the final join for build 2 runs (15.11.2026, 22:28).**
+  - Verified on origin: `claude/lh-proof` 7e98db22, round lh-pf-3 ALL PASSED (build, the build-86 save tests, ProofUITests, the Release launch script). Four new files, no game code.
+  - What it proves: a true build-86 save starts a new realm and the old file is kept byte for byte; the Chronicle and the settings carry over; an ending comes back after a restart; with no ad available there is no dead button; Google's test video comes; the Release app starts, holds English only and is still running after 25 s.
+  - The director's look at three frames (the Release title, the day-9 report with "Double taxes today", the defeat card without an ad): all clean.
+  - Decisions on its open points:
+    - The `-GW` debug hooks are live in Release (no `#if DEBUG` gate). A player cannot pass launch arguments, so build 2 ships as it is; they are gated at the store pass.
+    - No Google consent form came under the EEA test geography. Louis checks in AdMob that a GDPR message is published, before the store.
+    - A real video's reward is not proven end to end (the test could not close Google's end card). Louis taps "Double taxes today" once on a dawn from day 9 on in TestFlight build 2: the first real check.
+    - The offer comes 31 to 40 s late on the first eligible dawn. Build 3: ask the tracking question and warm the SDK earlier.
+    - The device Release compile is proven before the tf round (lh-rj-27).
+    - The cold launch (title at 11 s, "Touch to begin" at 27 s on the runner's simulator) is judged on the phone.
+    - The tf round is `tf-lh-2` with build, unit, testflight; never re-run a tf job from the Actions page.
+  - For build 3 from the seam reader: lane D's doors raise under Marek's card, five places computing the world hold, a lift after the scene went inactive counting as a tap, `keepBeforeTown`'s `try?` move before an unconditional write, stale German tax lines; development certificates pile up.
+  - The final join: one Opus agent merges `claude/lh-fix7` b864c187 and `claude/lh-proof` 7e98db22 into `claude/lh-join` and sends four rounds on the joined head (lh-rj-25 to lh-rj-28). Then the director verifies them and sends `tf-lh-2`.
