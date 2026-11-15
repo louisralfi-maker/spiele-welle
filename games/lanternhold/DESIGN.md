@@ -3586,7 +3586,12 @@ marked hooks in shared files: `EmissiveInstance.Kind.rim` (FrameDesc), its quad 
 - **Rounds** (the gate by the director's notes of 14.11. 18:46 and 19:35, English only): `lh-s2f1-1` (ea8928d) build,
   the touch, hall, audience, entity and lantern unit classes and ui Hall passed, ui Touch failed in the test (the
   cold brazier's slip was gone before the test looked: he stood 55 px from it); **`lh-s2f1-2` (ce5c47c) build, unit
-  and ui Touch, Hall, FirstDay, Audience, Look2, Polish and Lord ALL PASSED**.
+  and ui Touch, Hall, FirstDay, Audience, Look2, Polish and Lord ALL PASSED**; **`lh-s2f1-3` (5eae2f3, the rim as a
+  part of its prop) the same, ALL PASSED** (the gate; sweep `ci-out/lh-s2f1-3-upright`).
+- **Still open:** the true arm-up pose (the lantern over his head) needs two new frames for each form and its glow
+  strip (art, atlas rows): the command frames lift the glass two rows only, so the raise reads through its light,
+  flare and ring more than through the pose. The marks' parchment look waits for the night glass. German is not
+  looked at before the store pass.
 
 ## Risks
 
