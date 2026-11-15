@@ -54,10 +54,31 @@ extension XCTestCase {
         if moment.exists { return true }
         let lord = app.descendants(matching: .any).matching(identifier: "touch-lord").firstMatch
         guard lord.waitForExistence(timeout: timeout) else { return false }
-        // While he walks the camera follows him and the element read a moment ago lies off by the tap.
+        // While he walks the camera follows him and the element read a moment ago lies off by the tap; the camera
+        // eases on after he stops (round lh-s3-4: the tap fell on the site he stood on and opened its card).
         waitForStill(app, timeout: 6)
+        waitForCamera(app, timeout: 4)
         lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62)).tap()
         return moment.waitForExistence(timeout: 4)
+    }
+
+    /// Waits until the world's camera stands still (`cam:` unchanged for 0.6 s).
+    @discardableResult
+    func waitForCamera(_ app: XCUIApplication, timeout: TimeInterval) -> Bool {
+        let started = Date()
+        var last = sceneField(app, "cam:")
+        var since = Date()
+        while Date().timeIntervalSince(started) < timeout {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+            let now = sceneField(app, "cam:")
+            if now != last {
+                last = now
+                since = Date()
+            } else if Date().timeIntervalSince(since) >= 0.6 {
+                return true
+            }
+        }
+        return false
     }
 
     /// Any other touch lowers the lantern: a touch on the dim, low at the left.

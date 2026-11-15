@@ -26,6 +26,7 @@ enum RealmMapPixels {
     static let mist = RGBA(0xC5CBD9)
     static let mistDark = RGBA(0x6A7393)
     static let haze = RGBA(0x2F3F72)
+    static let far = RGBA(0x4E5A82)
     static let gold = RGBA(0xFFC65A)
     static let goldDeep = RGBA(0xE0AE48)
     static let ember = RGBA(0xD9481F)
@@ -102,13 +103,17 @@ enum RealmMapPixels {
         let gate = column(1300)
         let cleft = column(1080)
         let beacon = column(Realm.beaconX)
-        for x in mapLeft..<(gate - 4) {
-            var height = Int(SeededRandom.hash(0x4352_4147, Int64(x)) % 3)
-            if x >= cleft { height += 1 + 4 * (x - cleft) / max(1, gate - 4 - cleft) }
-            if abs(x - beacon) <= 2 { height = max(height, 3 - abs(x - beacon)) }
+        for x in mapLeft..<(gate - 2) {
+            // A smooth profile: heights 0 ... 3 every third column, eased between.
+            let k = x / 3
+            let a = Int(SeededRandom.hash(0x4352_4147, Int64(k)) % 4)
+            let b = Int(SeededRandom.hash(0x4352_4147, Int64(k + 1)) % 4)
+            var height = (a * (3 - x % 3) + b * (x % 3)) / 3
+            if x >= cleft { height += 1 + 6 * (x - cleft) / max(1, gate - 2 - cleft) }
+            if abs(x - beacon) <= 2 { height = max(height, 4 - abs(x - beacon)) }
             guard height > 0 else { continue }
             for y in (groundRow - height)..<groundRow { c[x, y] = haze }
-            c[x, groundRow - height] = mistDark
+            c[x, groundRow - height] = far
         }
         for x in mapLeft...mapRight {
             if x >= riverStart {

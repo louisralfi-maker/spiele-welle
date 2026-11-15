@@ -188,14 +188,15 @@ extension GameModel {
     /// True for a point on the middle of the lord's body, below where the marks hang (stage-3-interface).
     func isOnLordsBody(_ place: (x: Double, lift: Double, minimum: Double)) -> Bool {
         let ground = stage == .hall ? HallLayout.lift(at: stageLordX) : 0
-        return abs(place.x - stageLordX) <= 5 && place.lift >= ground + 3 && place.lift <= ground + 20
+        return abs(place.x - stageLordX) <= 7 && place.lift >= ground + 3 && place.lift <= ground + 20
     }
 
-    /// The lord before a thing under the same finger: not while he waits there to pay, never before a person, and
+    /// The lord before a thing under the same finger: not while he waits there to pay, never before a person standing
+    /// there (a bench is furniture: round lh-s3-4, the lord before the first bench could not raise his lantern), and
     /// only when the finger is at least as near him as the thing's middle.
     func prefersLord(over thing: TouchThing, x: Double) -> Bool {
         if let errand = touch.errand, errand.id == thing.id, errand.waiting { return false }
-        if thing.isPerson { return false }
+        if thing.kind == .talk { return false }
         return abs(x - stageLordX) <= abs(x - thing.x)
     }
 
