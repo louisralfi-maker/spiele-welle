@@ -486,3 +486,22 @@ schneller geht."
   - **Quests, for the store pass and build 3:** German "Laterne 38 ist heim" becomes "ist zurück" on chip and header
     and "ist heimgekehrt" in the openings; `report.highcairn_true.r1` reads "ride in at dusk"; the smaller open
     items are in `ci-out/director/quests-3-table-*.md`.
+- **The people lane's workflow is over (15.11.2026, 03:33; 8 agents): the cast 8 of 10, the town's daily life 8 of
+  10.** Last round `lh-p2f1-3` on `9a34df0`, ALL PASSED. The director looked at the line-up, the square and the
+  lamplighter himself and ruled (`ci-out/director/notes-people.md`, 03:39); one Opus agent makes the director's
+  pass on `claude/lh-people` (started 03:40), then the lane rests until the join.
+  - **The lamplighter's evening is a dusk ritual, as a rule in data:** no street lantern before 17:00, the last at
+    the horn, the Flame taken between 16:00 and 16:30. As built it was a noon chore with a lantern lit in full sun.
+    He lights by hand only the posts the time allows (three or four in build 2); the town lane sets its posts
+    inside that reach at the join. Build 3: the lit street grows with the realm (3, 5, 7 posts) and Fen runs a taper
+    to the far posts: the wealth arc at night.
+  - **The collector** keeps his post just inside the castle's town gate and is the morning's figure; the town lane
+    moves `Town.collectorPost` there at the join.
+  - **Names:** Ned Thatch is Ned Furrow, Saul Wicket is Saul Tolliver (a pirate joke and a film echo).
+  - **Art:** Nib's red read as blood at the well (a clean kerchief instead); the children keep 14 px from Wenna; the
+    lamplighter's burn read as a tongue.
+  - **The lord's sheet belongs to the people lane.** The mended cloak for hamlet and village is accepted as built.
+  - **For the join,** from the lane's notes (`docs/lanes/people.md` on its branch): the realm's stage into the
+    cloak in place of `-GWCloth`; mended `kingKnock` and `ladyKnock`; the court's ties and the lamplighter's spot in
+    the rebuilt hall; the berth and the builders' hook on the rebuilt road; `TownDay` on the people branch is now
+    `TownLife`, so it no longer clashes with the town lane's `TownDay`.
