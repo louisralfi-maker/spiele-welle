@@ -55,9 +55,15 @@ struct GameView: View {
                     HornSlipView(anchor: slip)
                 }
                 // The lantern moment (stage-3-interface, HUD.md section 2): a tap on the lord stills the world.
-                if let show = model.lanternMoment, model.overlay == nil {
-                    LanternMomentView(model: model, show: show)
+                // Fix lane G: it fades in over 0.16 s and out over 0.12 s (its own `.transition`); none under Reduce
+                // Motion. The ZStack only carries the animation, scoped to the moment.
+                ZStack {
+                    if let show = model.lanternMoment, model.overlay == nil {
+                        LanternMomentView(model: model, show: show)
+                    }
                 }
+                .animation(model.reduceMotion ? nil : (model.lanternMoment != nil ? Animation.easeOut(duration: 0.16)
+                    : Animation.easeIn(duration: 0.12)), value: model.lanternMoment != nil)
                 OverlayView(model: model)
                 // The ads (Ads/AdViews.swift): Marek's card over the world.
                 AdLayer(model: model)
