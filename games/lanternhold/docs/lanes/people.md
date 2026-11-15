@@ -475,3 +475,66 @@ their size, frame count and stand-ins follow the lord's; `PeopleCast.Figure` has
   director moves his hours, the phase moves with them (she also stops by the throne, 8 px from his stand); the rebuilt
   hall's anchor settles it.
 - The six other languages: no new strings in this round.
+
+## The director's fix pass (15.11.2026, his note of 03:39)
+
+The lane's two steps passed their critics at 8 of 10; the director looked at the pictures himself and ruled on what was
+still open (`ci-out/director/notes-people.md` on the planning branch, the note of 15.11. 03:39). Picture only, as
+before: nothing under `Sim`, `Economy`, `Battle`, `Balance` or `GameState` changed.
+
+### What changed, point by point
+
+1. **The lamplighter's dusk, a rule in data** (`TownLamps.plan(for:)`, `TownLamps.Anchors`; held for today's anchors and
+   for longer and shorter towns by `TownLifeTests.testTheLamplightersEveningKeepsTheDirectorsRuleForAnyTown`): no
+   street lantern takes the flame before 17:00 and the last takes it as the horn sounds; he takes the Flame between
+   16:00 and 16:30 and never before 15:30; the round between the posts at the heavy step (16 px/s); the way from the
+   hearth to the first post with the lit pole on the shoulder at up to the lord's pace (36 px/s, slower when the hour
+   allows; if even 16 px/s leaves time, he waits at the first post with the lit pole, idle frames); home after the
+   last post at up to 36 px/s. Counted back from the horn; what does not fit is cut in the note's order: (a) the far
+   posts (as many from the castle's side as the time from 17:00 to the horn allows), (b) the hearth beat earlier, to
+   15:30 at the earliest; if he still cannot reach the first post, one more far post goes. The posts he does not reach
+   stay dark (`share` 0) in look 2; look 1's lanterns are as before.
+   - **With this branch's anchors he reaches one post** (house 1's, at 2548): the second (2868) would need the Flame
+     at 15:14. In the hall about 15:54, the Flame at 16:30, the shouldered walk at about 26 px/s, the lantern at 19:00
+     with the horn, home about 20:26; the morning's snuff about 06:22, in at the castle's gate about 07:39.
+   - **The reach for the join** (the town lane sets its posts inside it): with the Flame at 15:30 at the earliest and
+     `d` px from the hearth stand to where he stands at the first post, the round from the first post to the last
+     must fit `min(24, 37.5 - d / 36)` seconds, each further post costing `gap / 16 + 2` s. Today `d` is 670 px, so
+     three posts need the first and the third within about 238 px of each other, four within about 206 px; with the
+     Flame inside 16:00-16:30 it is about 142 px for three and 110 px for four. Moving the first post nearer the
+     castle's gate gives the round more time (1 s for every 36 px). His door should stand near the last post, or he
+     walks home after the horn (today until about 20:26).
+   - PEOPLE.md says "dusk" everywhere and carries the rule. The shots: 75 is now `75-lamplighter-gold` (him lighting
+     the lantern as it takes the flame, camera 2560; the only lighting today is at the horn, in the sunset's light,
+     19:00 lies between the `sunset` key at 18.8 and `dusk` at 19.5), 77 at 16:625 (the bow to the Flame in the late
+     afternoon's light), 78 at the horn with camera 2738 (Silas at the lantern he has just lit, Wenna calling from her
+     doorway, the children running home). The old 75 (the far post at 3080) no longer shows him.
+   - Build 3 (not here): the lit street grows with the realm (hamlet 3 posts, village 5, town 7); from the village on
+     Fen runs a taper from Silas' pole to the far posts.
+2. **The collector stays as built.** **At the join the town lane moves `Town.collectorPost` from the hall door
+   (`Realm.hallX`) to just inside the castle's town gate** (`TownLife.collectorPost = WorldLayout.backGateX - 40`) and
+   takes `TownLife.collectorHours` (the farthest door about 10:20, back about 14:10) into
+   `TownRules.collectorTurnHour`/`collectorBackHour`. He is the morning's figure and the lamplighter the evening's;
+   they never share the road.
+3. **Names:** Ned Furrow and Saul Tolliver in the docs, the comments and `TownHouseholds.collectorName`; no old name
+   is left anywhere in the game folder (grep).
+4. **Nib** (`childA`, both cloth states): the red kerchief tied round the back of the neck, its knot and ends a small
+   clean triangle on the chest, the throat under the chin white; the flying ends behind him are gone; no red on the
+   belly; a small square grey patch (`stoneLight`) with a dark seam (`stone`) at the knee; the tunic `foam` with a cool
+   shade (`mistLight`) instead of cream, so it stands off the houses' plaster. `crimsonLight` stays the children's
+   alone (Lorenz Pell's is `dusk` now, point 7).
+5. **The square:** no child comes within 14 px of Wenna's outline at the well, the trailing child included
+   (`TownLife.wennaGap`, `clearOfWenna`: the trail stops short of her wherever the lord stands; tested with the lord at
+   nine places). Shots 130 and 134 retaken in the gate round.
+6. **The lamplighter's burn:** two pixels of dark skin (`tileLight`) on his temple under the hat's brim, beside the grey
+   hair; the pink (`dusk`) at the mouth line is gone from both heads.
+7. **The smaller list:** `lorenzPell` and `portraitLorenzPell` take `dusk` for their lit crimson; Brede's near hand
+   sits on the beam behind its front end, so both ends show; one lit pixel (`straw`) on Dun's cheekbone (standing,
+   seated, all states; Dun walks in look 1's town, so the look-1 goldens may move); the mended cloak faded one step
+   further (`far` lit, `moon` highlight, past `waterDeep`) and its patch grey wool with a shade and a brown stitch; the
+   shouldered pole rides a pixel up with the body on the walk's passing frames (its flame anchor `poleTip` follows:
+   -11.5 on frames 1 and 3); the noble lord's cane stays leaning at his coat's front through idle, talk and bow.
+
+Not done here (the note's point 8 and its "left for the join" list are not this pass): a separate raised-pole walk for
+the round between the posts (the note says "pole raised"; the walk frames carry the pole on the shoulder, and new
+frames would cost atlas rows), so he walks the round in the same walk frames, at the heavy step.

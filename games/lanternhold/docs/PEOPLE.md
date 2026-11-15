@@ -246,8 +246,9 @@ upper floor's lodger):
 - **The collector** (`TownLife.collector`, on the days he walks): out from his post just inside the castle's town
   gate at the dawn, pushing the strongbox from door to door at a one-armed man's cart pace (18 px/s; the hand out, the
   coin through the slot, a nod), at the farthest door about 10:20, back at his post about 14:10, there until the horn.
-  From the town lane's post by the hall door no round of every door fits before the horn at that pace: the post and
-  the hours wait for the director (docs/lanes/people.md, "people-2 fix round 1").
+  The director ruled (15.11. 03:39): he stays as built, the morning's figure as the lamplighter is the evening's (they
+  never share the road); at the join the town lane moves `Town.collectorPost` from the hall door to just inside the
+  castle's town gate (`TownLife.collectorPost`) and takes his hours (docs/lanes/people.md, "The director's fix pass").
 - **The lamplighter** (`TownLamps`): each dusk Silas Moth comes into the hall by its chapel door, holds his
   pole's wick into the Eternal Light in the hearth in the late afternoon's warm light, bows his head to it, turns and
   carries the flame out through the castle's gate on his shoulder; when the light turns gold he lights the street
