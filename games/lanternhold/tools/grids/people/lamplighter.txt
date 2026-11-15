@@ -113,10 +113,9 @@ part hemPass
     .NMKMMMKK.
     ..NMMMMK..
 
-# the far arm hanging at his back (the walk, the idle)
+# the far arm hanging at his back (the walk, the idle), the hand against the coat above the cord
 part armBack
     N
-    M
     M
     s
 
