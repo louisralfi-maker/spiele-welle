@@ -6,7 +6,6 @@
 ///   after a knock the closed shutters (frame 1 ... 3), at the house's place and with its mirror, at z 0 after it;
 /// - a house knocked at today keeps its window dark tonight: its lit rooms, glass masks and window lights go;
 /// - the town's wanderers keep clear of every door where the taxes happen (`clearWanderers`, fix round 1);
-/// - the collector's stand-in carries a strongbox (`townStrongbox`, fix round 2) and stands idle at a door that pays him;
 /// - while the lord knocks or holds out his hand his sprite is his knock pose (`kingKnock` / `ladyKnock`, the same size
 ///   and anchor), his glow strip and his lantern's light stay on the lantern, which the pose keeps in place.
 ///
@@ -40,11 +39,9 @@ enum TownFrames {
     /// moves nobody, so the court's people in townsfolk bodies (petitioners) are never touched.
     static var townWest: Double { (WorldLayout.townPlots.map(\.start).min() ?? 0) - wanderClear }
 
-    /// The collector's stand-in on his round (fix round 1), until the people lane's collector (Saul Wicket with his
-    /// handcart, people-2) draws him from `TownShow.Scene.collector`: a townsman's body walking at his place. Set false
-    /// and delete with that figure at the join (docs/lanes/town.md).
-    static let drawsCollectorStandIn = true
-    static let collectorStandIn: SpriteID = .citizenB
+    // The collector is the people lane's Saul Tolliver with his handcart (`TownLife.collector`, drawn with the town's
+    // life in `EntityFrames`), placed by the town's round (`Town.collectorLeg`); the coins of the doors land in his
+    // cart's strongbox at `TownShow.collectorBox` (the pre-join, 15.11.2026: the stand-in and its strongbox are gone).
 
     static func apply(_ layer: inout EntityLayer, state s: GameState, balance: Balance, view: EntityFrames.ActorView,
                       reduceMotion: Bool, refused: TownShow.Refused? = nil) {
@@ -72,7 +69,7 @@ enum TownFrames {
             }
         }
 
-        // The wanderers keep clear of the doors (before the collector's stand-in joins the layer).
+        // The wanderers keep clear of the doors.
         clearWanderers(&layer, stages: scene.stages, view: view, time: s.simTime)
 
         // The figures and the coins they hold up, before the lord (and before whatever the court put before him).
@@ -88,25 +85,6 @@ enum TownFrames {
             let glint = coin.frame == TownSprites.CoinFrame.glint
             add(coin, tint: glint ? glintTint : coinTint, glow: glint ? glintGlow : heldGlow, view: view,
                 actors: &figures, glows: &layer.glows)
-        }
-        if drawsCollectorStandIn, let collector = scene.collector {
-            // On whole game pixels, as the households and the coins (fix round 2).
-            let x = collector.x.rounded(.down)
-            let rect = view.rect(collectorStandIn, x: x, y: 0)
-            if view.isOnScreen(rect) {
-                // The townsfolk's walk, its step tied to the ground he covers (no sliding feet); standing at a door
-                // while it pays him, the townsfolk's idle.
-                let frame = collector.still ? 4 + Int((max(0, s.simTime) / 0.9).rounded(.down)) % 2
-                    : Int((max(0, x) / 4).rounded(.down)) % 4
-                figures.append(ActorInstance(sprite: collectorStandIn, frame: frame, rect: rect,
-                                             tint: SIMD4<Float>(1, 1, 1, 1), flipped: collector.facing < 0,
-                                             isEmissive: false, isLit: true))
-                // His strongbox before him at the hip, where the coins of the doors land (`TownShow.collectorBox`).
-                let box = strongboxRect(collector, view: view)
-                figures.append(ActorInstance(sprite: .townStrongbox, frame: 0, rect: box,
-                                             tint: SIMD4<Float>(1, 1, 1, 1), flipped: collector.facing < 0,
-                                             isEmissive: false, isLit: true))
-            }
         }
         let lordIndex = layer.actors.lastIndex { $0.sprite.isLord }
         if let lordIndex {
@@ -140,15 +118,6 @@ enum TownFrames {
         for coin in scene.coins {
             add(coin, tint: coinTint, glow: flightGlow, view: view, actors: &layer.actors, glows: &layer.glows)
         }
-    }
-
-    /// The collector's strongbox (`townStrongbox`) under the stand-in: centred on `TownShow.collectorBox` before him,
-    /// its lid at the coins' landing height, its bottom `TownSprites.strongboxLift` above the ground, on whole pixels.
-    static func strongboxRect(_ collector: TownShow.CollectorMoment, view: EntityFrames.ActorView) -> SIMD4<Float> {
-        let size = SpriteID.townStrongbox.size
-        let centre = collector.x.rounded(.down) + TownShow.collectorBox.dx * Double(collector.facing)
-        let left = (centre - Double(size.width) / 2).rounded(.down)
-        return view.rect(.townStrongbox, x: left + Double(size.width / 2), y: TownSprites.strongboxLift)
     }
 
     /// One coin: an emissive actor on whole game pixels (its centre at `coin.x`, `coin.y` above the ground) and a glow

@@ -106,9 +106,11 @@ enum TownShow {
     static let handFlight = 0.28
     static let handDeep = 0.3
     static let handStand = 0.2
-    /// Where the coins land on the collector: his strongbox, ahead of him in his walking direction and this high (game
-    /// px; people-2 draws him and his handcart there).
-    static let collectorBox = (dx: 7.0, dy: 9.0)
+    /// Where the coins land on the collector: the slot of the strongbox on his handcart, ahead of his feet in his
+    /// walking direction and this high (game px). The people lane's `collector` sprite (34x24, feet on column 8.5) has
+    /// the box's lid on row 8 from column 20, where his hand drops the coin in the take frame 7: 12 ahead, 16 up (the
+    /// pre-join, 15.11.2026; the stand-in's hip box was at 7 and 9).
+    static let collectorBox = (dx: 12.0, dy: 16.0)
     /// The coins hop only to a collector this near the door (a debug start or a long headless step finds him far off:
     /// the household only bows and steps in).
     static let collectorNear = 48.0

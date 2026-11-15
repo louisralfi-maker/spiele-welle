@@ -17,11 +17,6 @@ enum PlaceholderTown {
             return (0..<count).map { _ in PlaceholderPeople.king(6) }
         case .townCoin:
             return (0..<count).map { coin($0) }
-        case .townStrongbox:
-            var p = Painter(sprite.size, salt: 0)
-            p.rect(0, 1, 6, 4, goldDark)
-            p.rect(0, 0, 6, 1, dark)
-            return [p.image]
         case .townCottage:
             return [doorway(sprite, door: (26, 29, 11, 14))]
                 + (1..<count).map { _ in shutters(sprite, windows: [(10, 31), (45, 31)]) }

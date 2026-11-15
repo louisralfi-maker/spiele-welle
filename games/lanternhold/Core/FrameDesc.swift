@@ -123,7 +123,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // The town lane (town-2, docs/TOWN.md section 1, `TownSprites`): the households at their doors, the farmer, the
     // lord's knock, the coin, the houses' open door and closed shutters
     case townCorra, townDun, townBrede, townHemmet, townWenna, townGorm, townNib, kingKnock, ladyKnock, townCoin,
-         townCottage, townBigHouse, townStrongbox
+         townCottage, townBigHouse
     // The people lane (docs/PEOPLE.md, docs/SPRITES-people.md, `PeopleCast`): working people marked by life (Old
     // Hemmet, Wenna Brisk, Brede Hask, Gorm and Hedda Ashby at work), three children, the nobles of the inner lands
     case elder, washerwoman, labourer, farmerHoe, farmerScythe, childA, childB, childC, nobleLord, nobleLady, footman
@@ -368,7 +368,7 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
             return PixelSize(width: 20, height: 41)
         case .circletIcon, .circletIconInk: return PixelSize(width: 24, height: 16)
         case .townCorra, .townDun, .townBrede, .townHemmet, .townWenna, .townGorm, .townNib, .kingKnock, .ladyKnock,
-             .townCoin, .townCottage, .townBigHouse, .townStrongbox:
+             .townCoin, .townCottage, .townBigHouse:
             return TownSprites.size(of: self)
         case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe, .childA, .childB, .childC, .nobleLord,
              .nobleLady, .footman:

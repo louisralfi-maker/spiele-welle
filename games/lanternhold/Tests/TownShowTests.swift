@@ -488,8 +488,10 @@ final class TownShowTests: XCTestCase {
                        TownSprites.KnockFrame.ready)
     }
 
-    @MainActor
-    func testTheCollectorsStandInCarriesHisStrongboxOnWholePixels() throws {
+    /// The pre-join (15.11.2026): the stand-in and its strongbox are gone; the people lane's collector with his
+    /// handcart stands where the town's round puts him, in his standing pose while the household pays him, and the
+    /// coins land in his cart's strongbox (`TownShow.collectorBox`: the slot of the painted box, ahead of his feet).
+    func testThePeopleLanesCollectorStandsAtHerDoorWithHisCart() throws {
         var s = morning()
         s.king.x = Realm.throneX
         var town = try XCTUnwrap(s.town)
@@ -500,23 +502,20 @@ final class TownShowTests: XCTestCase {
         s.hour = try XCTUnwrap(Town.collectorSchedule(day, rules: rules).arrivals.first) + 0.001
         Town.stepCollector(&s, balance: balance)
         let x = try XCTUnwrap(Town.collectorX(s, balance: balance))
-        let pixelScale = PixelScale(physicalWidth: 2622, physicalHeight: 1206, virtualHeight: 180, override: nil)
-        let camera = Camera(focusX: x, pixelScale: pixelScale)
-        let view = EntityFrames.ActorView(camera: camera, pixelScale: pixelScale, mode: .smooth)
-        var layer = EntityLayer()
-        TownFrames.apply(&layer, state: s, balance: balance, view: view, reduceMotion: false)
-        let man = try XCTUnwrap(layer.actors.first { $0.sprite == TownFrames.collectorStandIn })
-        XCTAssertEqual(man.rect, view.rect(TownFrames.collectorStandIn, x: x.rounded(.down), y: 0), "whole pixels")
-        XCTAssertTrue([4, 5].contains(man.frame), "standing at her door while she pays him")
-        let box = try XCTUnwrap(layer.actors.first { $0.sprite == .townStrongbox })
         let moment = try XCTUnwrap(TownShow.scene(s, balance: balance, reduceMotion: false).collector)
-        XCTAssertEqual(box.rect, TownFrames.strongboxRect(moment, view: view))
-        let scale = Float(pixelScale.scale)
-        let centre = Double((box.rect.x + box.rect.z / 2 - view.rect(.townStrongbox, x: x.rounded(.down), y: 0).x
-                             - view.rect(.townStrongbox, x: x.rounded(.down), y: 0).z / 2) / scale)
-        XCTAssertEqual(centre, TownShow.collectorBox.dx, accuracy: 1, "before him, where the coins land")
-        let lid = Double(SpriteID.townStrongbox.size.height) + TownSprites.strongboxLift
-        XCTAssertEqual(lid, TownShow.collectorBox.dy, accuracy: 1, "its mouth at the coins' landing height")
+        XCTAssertTrue(moment.still, "he stands at her door")
+        let saul = try XCTUnwrap(TownLife.figures(s, time: s.simTime).first { $0.sprite == .collector })
+        XCTAssertEqual(saul.x, x, accuracy: 1e-9, "where the town's round puts him")
+        XCTAssertTrue(PeopleCast.Frames.take.contains(saul.frame), "his standing pose while she pays him")
+        XCTAssertEqual(saul.flipped, moment.facing < 0, "facing the way the town's round faces him")
+        XCTAssertEqual(TownLife.figures(s, time: s.simTime).filter { $0.sprite == .collector }.count, 1, "one collector")
+        // The coins' target lies over his cart, ahead of his feet, inside the painted frame and above its wheels.
+        let size = SpriteID.collector.size
+        let ahead = Double(size.width) - PeopleCast.feetColumn(.collector)
+        XCTAssertGreaterThan(TownShow.collectorBox.dx, 0)
+        XCTAssertLessThan(TownShow.collectorBox.dx, ahead, "on the cart")
+        XCTAssertLessThan(TownShow.collectorBox.dy, Double(size.height), "inside the frame")
+        XCTAssertNil(SpriteID(rawValue: "townStrongbox"), "the stand-in's strongbox is gone")
     }
 
     @MainActor

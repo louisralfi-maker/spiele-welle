@@ -681,8 +681,12 @@ enum TownLife {
 
     /// Saul Tolliver now: pushing the strongbox on its handcart from door to door (the hand out, the coin through the
     /// slot and a nod at each), back to his post at the same heavy pace, then at his post by the gate until the horn,
-    /// turned to the lord when he comes.
+    /// turned to the lord when he comes. On a day he walks in the town's ledger (hired, `Town.collectorWalksToday`) the
+    /// town's round places him (`townCollector`); `-GWCollector YES` alone keeps this file's own clock for the shots.
     static func collector(_ s: GameState, time: Double, context: Context) -> Figure? {
+        if Town.collectorWalksToday(s), let day = s.town?.today {
+            return townCollector(s, day: day, time: time, context: context)
+        }
         guard context.collectorOut, s.hour >= collectorOut, s.hour < collectorOff else { return nil }
         let doors = collectorDoors(s)
         let post = collectorPost
@@ -717,5 +721,32 @@ enum TownLife {
             from = door
         }
         return Figure(sprite: .collector, frame: Frames.idle.lowerBound, x: turn, flipped: post < turn)
+    }
+
+    /// The hired collector by the town's round (the pre-join, 15.11.2026; docs/lanes/town.md "For the join"): where he
+    /// is comes from `Town.collectorLeg` (the town lane's sim: its pace, its 1.5 s stop at every door that pays him, its
+    /// stand-off), so the coins of `TownShow` land in his cart's strongbox (`TownShow.collectorBox`). Out his cart
+    /// walk, at a door his standing pose (`TownShow.Scene.collector.still`: the hand held out, then the coin dropped
+    /// through the slot with a nod), back the walk turned home, then at his post until the horn.
+    static func townCollector(_ s: GameState, day: TownDay, time: Double, context: Context) -> Figure? {
+        guard s.hour >= ClockEvent.dawnReport.hour, s.hour < collectorOff, !day.closed else { return nil }
+        let rules = Balance.standard.town
+        let post = Town.collectorPost
+        let facingLeft = Town.collectorHeading(day, hour: s.hour, rules: rules) < 0
+        switch Town.collectorLeg(day, hour: s.hour, rules: rules) {
+        case .out(let x), .back(let x):
+            return Figure(sprite: .collector, frame: PeopleCast.walkFrame(.collector, x: x), x: x, flipped: facingLeft)
+        case .atDoor(let plot, let x):
+            let schedule = Town.collectorSchedule(day, rules: rules)
+            let arrived = schedule.doors.firstIndex { $0.plot == plot }.map { schedule.arrivals[$0] } ?? s.hour
+            let t = since(arrived, s)
+            return Figure(sprite: .collector, frame: t < 0.8 ? Frames.take.lowerBound : Frames.take.upperBound,
+                          x: x, flipped: facingLeft)
+        case .home:
+            var flipped = false
+            if let greet = greeting(s, at: post) { flipped = greet.flipped }
+            return Figure(sprite: .collector, frame: breath(Frames.idle.lowerBound, time: time, rate: 1, context: context),
+                          x: post, flipped: flipped)
+        }
     }
 }

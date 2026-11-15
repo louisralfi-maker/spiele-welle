@@ -12,8 +12,7 @@ enum TownSprites {
     /// who sometimes runs out with the coins.
     static let figures: [SpriteID] = households + [.townGorm, .townNib]
     /// Every sprite of this file.
-    static let all: [SpriteID] = figures + [.kingKnock, .ladyKnock, .townCoin, .townCottage, .townBigHouse,
-                                            .townStrongbox]
+    static let all: [SpriteID] = figures + [.kingKnock, .ladyKnock, .townCoin, .townCottage, .townBigHouse]
 
     /// A household's frames (12x26, the citizen contract: the foot at the bottom centre, facing right).
     enum Frame {
@@ -95,11 +94,6 @@ enum TownSprites {
         return (anchor.dx, anchor.dy - Double(frame - Frame.wait))
     }
 
-    /// The collector's strongbox (6x5, one frame; fix round 2): an iron-bound box he carries before him at the hip,
-    /// the coins of the doors landing in it (`TownShow.collectorBox`). Drawn under the collector's stand-in until the
-    /// people lane's collector with his handcart takes over at the join (`TownFrames.drawsCollectorStandIn`).
-    static let strongboxLift = 4.0
-
     /// The house overlays (the house's size, drawn over it at its place and with its mirror): the cottages' open door
     /// (frame 0) and the closed shutters of `house`, `houseB` and `houseC` (1, 2, 3); the big house's open door (0)
     /// and closed shutters (1).
@@ -117,7 +111,6 @@ enum TownSprites {
         case .townCoin: return PixelSize(width: 4, height: 4)
         case .townCottage: return PixelSize(width: 64, height: 46)
         case .townBigHouse: return PixelSize(width: 72, height: 56)
-        case .townStrongbox: return PixelSize(width: 6, height: 5)
         default: return PixelSize(width: 1, height: 1)
         }
     }
@@ -133,7 +126,6 @@ enum TownSprites {
         case .townCoin: return 5
         case .townCottage: return 4
         case .townBigHouse: return 2
-        case .townStrongbox: return 1
         default: return nil
         }
     }
