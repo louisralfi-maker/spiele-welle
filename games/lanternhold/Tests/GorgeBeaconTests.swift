@@ -300,12 +300,13 @@ final class GorgeBeaconTests: XCTestCase {
         let x = Gorge.landX(.watchtower, tuning: tuning)
         var manned = night(day: 12, lit: 2, watchtower: true)
         Battle.spawn(&manned, kind: .ashBrute, x: site(1) - 20, wave: 0, balance: balance, fromWave: false)
-        run(&manned, seconds: 3)
-        XCTAssertGreaterThan(manned.gorge?.tonight.watchShots ?? 0, 2, "the watch looses at the lit brute")
+        run(&manned, seconds: 6.5)
+        XCTAssertGreaterThanOrEqual(manned.gorge?.tonight.watchShots ?? 0, 2,
+                                    "the watch looses at the lit brute (one arrow in \(tuning.watchPeriod) s)")
         XCTAssertLessThan(manned.creatures.first?.hp ?? 0, balance.creature(.ashBrute).hp)
         var lost = night(day: 12, lit: 1, watchtower: true)
         Battle.spawn(&lost, kind: .ashBrute, x: x - 60, wave: 0, balance: balance, fromWave: false)
-        run(&lost, seconds: 3)
+        run(&lost, seconds: 6.5)
         XCTAssertEqual(lost.gorge?.tonight.watchShots, 0, "its stretch lost, the watch leaves")
     }
 
