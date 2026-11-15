@@ -1,0 +1,72 @@
+T14a PASS careless nights 7-13, seeds 1-4, night x6.0, the lord at the throne: 28 of 28 broke (target at least 10), 28 mended within 3 days (fire bright and every burnt place standing; target at least 90 %), fell on the careless night 0; of the realms still standing the fire was bright again within 3 days in 28 of 28
+  mended after (dawns): fire bright 1.4, rebuilt 1.1, both 1.4; not within 3: 
+  a broken night's cost (mean): burnt 1.0, dead 2.0, gold 10.7, happiness 8.0, walls lost 2.0, raised for nothing 2.0, the purse at the broken dawn 45.3
+  after 3 days against the costless twin (mean): gold -16.7, happiness -6.0, citizens -3.0; wood bought 0.8, rebuilds 1.0; broke again 0, fell later 0
+T14b FAIL two broken nights with less than two steps of mending between, breachSteps 1, no wood between: in a row ended 0/4 (else embers 4); one held night between ended 0/4 (else low 4)
+T14b reported (mended, as T14a) wood and a held night are two steps of mending, breachSteps 1, fed between: in a row ended 0/4 (else embers 2, low 2); one held night between ended 0/4 (else low 4)
+T14b PASS two broken nights with less than two steps of mending between, breachSteps 2 (chosen), no wood between: in a row ended 4/4; one held night between ended 4/4
+T14b reported (mended, as T14a) wood and a held night are two steps of mending, breachSteps 2 (chosen), fed between: in a row ended 4/4; one held night between ended 1/4 (else embers 3)
+
+careless nights: seed.night broke before>after | burnt dead gold happiness walls purse | bright, rebuilt, mended after | gaps gold happiness citizens | wood rebuilds
+  1.7 bright>embers | 1 1 2 8 2/2 raised purse 12 | 2, 1, 2 | -8 -2 -1 | 0 1
+  1.8 bright>embers | 1 3 6 8 2/2 raised purse 28 | 1, 1, 1 | 3 -7 -4 | 1 1
+  1.9 bright>embers | 1 2 7 8 2/2 raised purse 29 | 2, 3, 3 | -59 2 -1 | 0 1
+  1.10 bright>embers | 1 3 5 8 2/2 raised purse 21 | 2, 1, 2 | -9 1 -3 | 1 1
+  1.11 bright>embers | 1 2 16 8 2/2 raised purse 65 | 2, 1, 2 | -125 -10 -5 | 1 1
+  1.12 bright>embers | 1 2 18 8 2/2 raised purse 75 | 1, 1, 1 | -88 -2 -2 | 1 1
+  1.13 bright>embers | 1 3 35 8 2/2 raised purse 142 | 1, 1, 1 | -150 -7 -6 | 1 1
+  2.7 bright>embers | 1 1 0 8 2/2 raised purse 4 | 1, 1, 1 | 21 -7 -3 | 1 1
+  2.8 bright>embers | 1 1 2 8 2/2 raised purse 8 | 2, 1, 2 | -7 -8 -2 | 0 1
+  2.9 bright>embers | 1 3 15 8 2/2 raised purse 62 | 1, 1, 1 | 25 -10 -5 | 1 1
+  2.10 bright>embers | 1 3 3 8 2/2 raised purse 15 | 1, 1, 1 | -11 3 -1 | 1 1
+  2.11 bright>embers | 1 3 1 8 2/2 raised purse 7 | 1, 1, 1 | 88 -18 -9 | 1 1
+  2.12 bright>embers | 1 1 21 8 2/2 raised purse 88 | 1, 1, 1 | -100 -5 -2 | 1 1
+  2.13 bright>embers | 1 3 10 8 2/2 raised purse 44 | 1, 1, 1 | 249 -8 -4 | 1 1
+  3.7 bright>embers | 1 2 6 8 2/2 raised purse 27 | 2, 1, 2 | -37 -8 -2 | 0 1
+  3.8 bright>embers | 1 1 2 8 2/2 raised purse 12 | 2, 1, 2 | -28 -7 -2 | 1 1
+  3.9 bright>embers | 1 1 5 8 2/2 raised purse 22 | 2, 2, 2 | -42 -11 -3 | 0 1
+  3.10 bright>embers | 1 1 7 8 2/2 raised purse 32 | 1, 1, 1 | -71 -8 -1 | 1 1
+  3.11 bright>embers | 1 1 15 8 2/2 raised purse 63 | 1, 1, 1 | -45 -5 -2 | 1 1
+  3.12 bright>embers | 1 3 19 8 2/2 raised purse 79 | 1, 1, 1 | 97 3 -2 | 1 1
+  3.13 bright>embers | 1 2 36 8 2/2 raised purse 146 | 1, 1, 1 | -113 -3 -2 | 1 1
+  4.7 bright>embers | 1 1 0 8 2/2 raised purse 2 | 2, 1, 2 | 43 -9 -1 | 0 1
+  4.8 bright>embers | 1 2 3 8 2/2 raised purse 15 | 1, 1, 1 | -48 -11 -4 | 1 1
+  4.9 bright>embers | 1 2 13 8 2/2 raised purse 52 | 1, 1, 1 | 30 -2 -2 | 1 1
+  4.10 bright>embers | 1 1 5 8 2/2 raised purse 20 | 2, 2, 2 | -30 -9 -3 | 1 1
+  4.11 bright>embers | 1 3 6 8 2/2 raised purse 27 | 1, 1, 1 | 73 -5 -5 | 1 1
+  4.12 bright>embers | 1 3 31 8 2/2 raised purse 126 | 1, 1, 1 | -94 -8 -4 | 1 1
+  4.13 bright>embers | 1 3 11 8 2/2 raised purse 45 | 1, 1, 1 | -32 -8 -4 | 1 1
+
+doubles: seed.night gap steps wood | the fire at each dawn
+  1.8 +1 x1 unfed | low > embers
+  1.8 +2 x1 unfed | low > bright > low
+  1.8 +1 x1 fed | low > low
+  1.8 +2 x1 fed | low > bright > low
+  1.8 +1 x2 unfed | embers > out FELL
+  1.8 +2 x2 unfed | embers > low > out FELL
+  1.8 +1 x2 fed | embers > out FELL
+  1.8 +2 x2 fed | embers > bright > embers
+  1.11 +1 x1 unfed | low > embers
+  1.11 +2 x1 unfed | low > bright > low
+  1.11 +1 x1 fed | low > embers
+  1.11 +2 x1 fed | low > bright > low
+  1.11 +1 x2 unfed | embers > out FELL
+  1.11 +2 x2 unfed | embers > low > out FELL
+  1.11 +1 x2 fed | embers > out FELL
+  1.11 +2 x2 fed | embers > low > embers
+  2.8 +1 x1 unfed | low > embers
+  2.8 +2 x1 unfed | low > bright > low
+  2.8 +1 x1 fed | low > embers
+  2.8 +2 x1 fed | low > bright > low
+  2.8 +1 x2 unfed | embers > out FELL
+  2.8 +2 x2 unfed | embers > low > out FELL
+  2.8 +1 x2 fed | embers > out FELL
+  2.8 +2 x2 fed | embers > low > out FELL
+  2.11 +1 x1 unfed | low > embers
+  2.11 +2 x1 unfed | low > bright > low
+  2.11 +1 x1 fed | low > low
+  2.11 +2 x1 fed | low > bright > low
+  2.11 +1 x2 unfed | embers > out FELL
+  2.11 +2 x2 unfed | embers > low > out FELL
+  2.11 +1 x2 fed | embers > out FELL
+  2.11 +2 x2 fed | embers > bright > embers

@@ -1,0 +1,110 @@
+T15a PASS nights 12-14, seeds 1-3, budget ["x1.0", "x1.5", "x2.0"]: with all four beacons held and the watchtower manned 362 creatures reached the defence, without 549: 34 % fewer (target at least 30 %, without at least 300; per budget x1.0 42 %, x1.5 31 %, x2.0 33 %)
+T15b FAIL x1.0 whole runs, seeds 1-3: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 0 of 3 (target all); it fell on nights [20, 0, 0]
+T15 wager PASS x1.0: the forward bot fell where the reference held in 0 seeds [], slew the King in 3 against 3, 110 creatures at its defence on nights 3-14 against 123 (target: none, at least as often, no more: never a trap)
+T15c PASS x1.0: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 55 creatures reach its defence on nights 3-14 against 30 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 3 against 3, defenders lost 0 against 0
+T15c reported x1.0: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 3 against 3, 55 creatures at its defence against 123: beats it on all three
+T15 keeper reported x1.0 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 3 against 3, held all four by night 16 in 0 of 3 (all four from nights [0, 0, 0]), 123 creatures at its defence on nights 3-14 against 123 (target for the build 3 join: none, at least 9 of 10, most seeds)
+T15b reported, missed x1.5 whole runs, seeds 1-3: the neglect bot (beacons first, no wall built or raised, none patched) lost a beacon by night 8 and then the night by night 20 where the forward bot and the reference held in 0 of 3 (target all); it fell on nights [20, 20, 20]
+T15 wager reported, missed x1.5: the forward bot fell where the reference held in 2 seeds [1, 2], slew the King in 0 against 1, 269 creatures at its defence on nights 3-14 against 279 (target: none, at least as often, no more: never a trap)
+T15c reported, met x1.5: the outpost bot (the forward bot's beacons and Great Beacon, no wall) let 114 creatures reach its defence on nights 3-14 against 114 for the walls-neglected control without beacons (target: at least as many: beacons do not strengthen a realm without walls); the King 3 against 3, defenders lost 4 against 0
+T15c reported x1.5: against the reference (front-3 fix 1's axis; a realm without walls beats the reference in today's base game): fell where the reference held in 0 seeds [], the King 3 against 1, 114 creatures at its defence against 279: beats it on all three
+T15 keeper reported x1.5 missed: the keeper (the walls kept, the Great Beacon first, then every beacon it can afford) fell where the reference held in 0 seeds [], slew the King in 1 against 1, held all four by night 16 in 0 of 3 (all four from nights [0, 0, 0]), 279 creatures at its defence on nights 3-14 against 279 (target for the build 3 join: none, at least 9 of 10, most seeds)
+
+T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | walls lost without/with | nights fallen without/with | beacons lost | burnt without/with | watch arrows a night
+  x1.0: 85 | 49 | 42 % | 3/3 | 6/5 | 0/0 | 0 | 17/306 | 25.7 (21 % of the arrows, 10 % of the creatures' strength)
+  x1.5: 158 | 109 | 31 % | 13/12 | 7/7 | 0/0 | 9 | 128/492 | 25.8 (14 % of the arrows, 6 % of the creatures' strength)
+  x2.0: 306 | 204 | 33 % | 39/34 | 9/9 | 0/0 | 9 | 288/609 | 25.9 (12 % of the arrows, 5 % of the creatures' strength)
+
+T15a per night (all budgets): without | with | beacons lost (the furthest falls first)
+  night 12: 147 | 102 | 6
+  night 13: 181 | 122 | 6
+  night 14: 221 | 138 | 6
+
+T15a defenders lost, where and to what (all budgets; the soldier and what he was doing in the step he fell; by: the creature on the ground nearest him then, within 30 px):
+  the middle line: without 50 (archer moving 34, guardsman holding 10, guardsman moving 6; by shadehound 38, ashBrute 9, sootling 3) | with all four 48 (archer moving 38, guardsman holding 7, guardsman moving 3; by shadehound 44, ashBrute 3, sootling 1)
+  before the gate: without 5 (guardsman moving 3, archer moving 2; by ashBrute 3, shadehound 2) | with all four 1 (archer moving 1; by shadehound 1)
+  in all: without 55, with all four 49
+
+whole runs x1.0, defenders lost, where and to what (all nights; night 20 on its own below):
+  the outer line: reference 8 (guardsman holding 8; by shadehound 4, ashBrute 2, nothing near 1, sootling 1) | forward 6 (guardsman holding 6; by ashBrute 3, sootling 2, shadehound 1) | keeper 8 (guardsman holding 8; by ashBrute 3, shadehound 3, nothing near 1, sootling 1)
+  between the lines: reference 5 (guardsman moving 5; by lightlessKing 5) | forward 5 (guardsman moving 5; by lightlessKing 5) | keeper 4 (guardsman moving 4; by lightlessKing 4)
+  the middle line: reference 14 (archer moving 10, guardsman holding 4; by shadehound 10, sootling 3, ashBrute 1) | forward 22 (archer moving 18, guardsman holding 4; by shadehound 19, sootling 2, ashBrute 1) | keeper 14 (archer moving 10, guardsman holding 4; by shadehound 10, sootling 3, ashBrute 1)
+  before the gate: reference 2 (archer moving 2; by shadehound 2) | keeper 2 (archer moving 2; by shadehound 2)
+  the gatehouse: neglect 17 (guardsman moving 9, archer moving 8; by lightlessKing 9, shadehound 7, sootling 1)
+  in all: reference 29, forward 33, neglect 17, walless 0, outpost 0, keeper 28
+  night 20 alone:
+  between the lines: reference 5 (guardsman moving 5; by lightlessKing 5) | forward 5 (guardsman moving 5; by lightlessKing 5) | keeper 4 (guardsman moving 4; by lightlessKing 4)
+  the gatehouse: neglect 17 (guardsman moving 9, archer moving 8; by lightlessKing 9, shadehound 7, sootling 1)
+  in all: reference 5, forward 5, neglect 17, walless 0, outpost 0, keeper 4
+
+T15c diagnosis x1.0, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+  seed 1 outpost: 31 8 21 44 69 24 | 80 / 210 | 12, 4, 14 | 2 | 0 (0) | slain after 52 s at x 840, 40 s in the Great Beacon's light
+  seed 1 walless: 36 9 88 37 82 31 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 52 s at x 831, 40 s in the Great Beacon's light
+  seed 1 reference: 191 286 0 18 49 24 | 0 / 0 | 9, 2, 15 | 0 | 2 (9) | slain after 63 s at x 909, 51 s in the Great Beacon's light
+  seed 2 outpost: 39 16 24 32 7 8 | 100 / 340 | 8, 4, 12 | 3 | 0 (0) | slain after 66 s at x 1012, 54 s in the Great Beacon's light
+  seed 2 walless: 11 24 98 32 77 26 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 54 s at x 801, 41 s in the Great Beacon's light
+  seed 2 reference: 259 2 0 33 2 39 | 0 / 0 | 11, 3, 16 | 0 | 3 (9) | slain after 64 s at x 835, 51 s in the Great Beacon's light
+  seed 3 outpost: 34 21 128 5 24 4 | 80 / 210 | 10, 4, 14 | 0 | 0 (0) | slain after 53 s at x 858, 41 s in the Great Beacon's light
+  seed 3 walless: 11 24 103 22 57 21 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 53 s at x 826, 41 s in the Great Beacon's light
+  seed 3 reference: 179 282 13 15 44 9 | 0 / 0 | 9, 0, 15 | 0 | 0 (11) | slain after 64 s at x 893, 51 s in the Great Beacon's light
+
+whole runs x1.5, defenders lost, where and to what (all nights; night 20 on its own below):
+  the middle line: reference 44 (archer moving 40, guardsman holding 4; by shadehound 40, ashBrute 3, sootling 1) | forward 43 (archer moving 36, guardsman holding 6, guardsman moving 1; by shadehound 37, ashBrute 3, sootling 3) | keeper 44 (archer moving 40, guardsman holding 4; by shadehound 40, ashBrute 3, sootling 1)
+  before the gate: reference 5 (guardsman moving 5; by sootling 3, shadehound 2) | forward 8 (archer moving 4, guardsman moving 4; by shadehound 4, sootling 4) | keeper 5 (guardsman moving 5; by sootling 3, shadehound 2)
+  the gatehouse: reference 2 (archer moving 2; by shadehound 2) | forward 1 (archer moving 1; by sootling 1) | neglect 21 (archer moving 12, guardsman moving 9; by shadehound 12, lightlessKing 6, gloomweaver 3) | outpost 4 (archer moving 4; by shadehound 4) | keeper 2 (archer moving 2; by shadehound 2)
+  in all: reference 51, forward 52, neglect 21, walless 0, outpost 4, keeper 51
+  night 20 alone:
+  the middle line: reference 1 (archer moving 1; by shadehound 1) | keeper 1 (archer moving 1; by shadehound 1)
+  the gatehouse: neglect 21 (archer moving 12, guardsman moving 9; by shadehound 12, lightlessKing 6, gloomweaver 3)
+  in all: reference 1, forward 0, neglect 21, walless 0, outpost 0, keeper 1
+
+T15c diagnosis x1.5, per seed: bot | purse at the horn, nights 15-20 | beacon gold by night 14 / 20 | night 20: archers, guards, posts | beacons burning at its horn | defenders lost on night 20 (in all) | the King
+  seed 1 outpost: 31 8 21 44 69 4 | 80 / 230 | 12, 4, 14 | 2 | 0 (0) | slain after 56 s at x 851, 44 s in the Great Beacon's light
+  seed 1 walless: 36 9 88 37 82 31 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 52 s at x 817, 41 s in the Great Beacon's light
+  seed 1 reference: 128 163 242 286 312 11 | 0 / 0 | 1, 0, 11 | 0 | 1 (19) | the realm fell, 58 s in the Great Beacon's light
+  seed 2 outpost: 39 16 17 70 4 45 | 100 / 140 | 12, 4, 14 | 0 | 0 (4) | slain after 56 s at x 826, 42 s in the Great Beacon's light
+  seed 2 walless: 11 24 98 32 77 26 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 51 s at x 830, 40 s in the Great Beacon's light
+  seed 2 reference: 223 3 34 38 56 36 | 0 / 0 | 9, 0, 15 | 0 | 0 (15) | slain after 64 s at x 927, 52 s in the Great Beacon's light
+  seed 3 outpost: 34 11 24 37 52 2 | 80 / 230 | 12, 4, 14 | 2 | 0 (0) | slain after 54 s at x 865, 42 s in the Great Beacon's light
+  seed 3 walless: 11 24 103 22 57 21 | 0 / 0 | 12, 4, 14 | 0 | 0 (0) | slain after 53 s at x 801, 40 s in the Great Beacon's light
+  seed 3 reference: 167 259 7 10 - - | 0 / 0 | night 20 not reached (fell 18)
+
+whole runs x1.0, per seed: bot fell | defenders lost | creatures at the defence nights 3-14 | all four burning from night | first beacon lost | beacons lost | raised/relit | beacon gold | watchtower | Great Beacon day | night 20: King slain after s
+  seed 1 reference: held | 9 | 29 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 63
+  seed 1 forward: held | 11 | 25 | 0 | 13 | 1 | 1/1 | 80 | no | 17 | 64
+  seed 1 neglect: FELL 20 | 7 | 9 | 14 | 11 | 10 | 4/8 | 854 | yes | 0 | -
+  seed 1 walless: held | 0 | 13 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 52
+  seed 1 outpost: held | 0 | 27 | 0 | 6 | 3 | 2/3 | 210 | no | 15 | 52
+  seed 1 keeper: held | 9 | 29 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 63
+  seed 2 reference: held | 9 | 41 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 64
+  seed 2 forward: held | 11 | 34 | 0 | 14 | 1 | 1/0 | 60 | no | 17 | 64
+  seed 2 neglect: held | 7 | 2 | 17 | 10 | 11 | 4/9 | 822 | yes | 20 | lived
+  seed 2 walless: held | 0 | 3 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 54
+  seed 2 outpost: held | 0 | 9 | 0 | 6 | 3 | 3/3 | 340 | yes | 15 | 66
+  seed 2 keeper: held | 8 | 41 | 0 | 0 | 0 | 2/0 | 150 | no | 16 | 61
+  seed 3 reference: held | 11 | 53 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 64
+  seed 3 forward: held | 11 | 51 | 0 | 14 | 1 | 1/0 | 60 | no | 18 | 61
+  seed 3 neglect: held | 3 | 17 | 16 | 10 | 10 | 4/8 | 794 | yes | 20 | lived
+  seed 3 walless: held | 0 | 14 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 53
+  seed 3 outpost: held | 0 | 19 | 0 | 6 | 5 | 2/3 | 210 | yes | 15 | 53
+  seed 3 keeper: held | 11 | 53 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | 64
+
+whole runs x1.5, per seed: bot fell | defenders lost | creatures at the defence nights 3-14 | all four burning from night | first beacon lost | beacons lost | raised/relit | beacon gold | watchtower | Great Beacon day | night 20: King slain after s
+  seed 1 reference: FELL 20 | 19 | 88 | 0 | 0 | 0 | 0/0 | 0 | no | 0 | -
+  seed 1 forward: FELL 17 | 16 | 78 | 0 | 10 | 1 | 1/0 | 60 | no | 0 | -
+  seed 1 neglect: FELL 20 | 7 | 22 | 15 | 10 | 15 | 4/13 | 1020 | yes | 0 | -
+  seed 1 walless: held | 0 | 43 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 52
+  seed 1 outpost: held | 0 | 46 | 0 | 5 | 4 | 2/4 | 230 | no | 15 | 56
+  seed 1 keeper: FELL 20 | 19 | 88 | 0 | 0 | 0 | 0/0 | 0 | no | 0 | -
+  seed 2 reference: held | 15 | 55 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 64
+  seed 2 forward: FELL 19 | 17 | 75 | 0 | 8 | 2 | 1/1 | 80 | no | 0 | -
+  seed 2 neglect: FELL 20 | 7 | 21 | 17 | 10 | 16 | 4/12 | 918 | yes | 0 | -
+  seed 2 walless: held | 0 | 42 | 0 | 0 | 0 | 0/0 | 0 | no | 14 | 51
+  seed 2 outpost: held | 4 | 31 | 0 | 5 | 5 | 1/4 | 140 | no | 15 | 56
+  seed 2 keeper: held | 15 | 55 | 0 | 0 | 0 | 0/0 | 0 | no | 16 | 64
+  seed 3 reference: FELL 18 | 17 | 136 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | -
+  seed 3 forward: FELL 19 | 19 | 116 | 0 | 10 | 1 | 1/0 | 60 | no | 0 | -
+  seed 3 neglect: FELL 20 | 7 | 19 | 15 | 10 | 15 | 4/12 | 986 | yes | 0 | -
+  seed 3 walless: held | 0 | 29 | 0 | 0 | 0 | 0/0 | 0 | no | 15 | 53
+  seed 3 outpost: held | 0 | 37 | 0 | 5 | 4 | 2/4 | 230 | no | 15 | 54
+  seed 3 keeper: FELL 18 | 17 | 136 | 0 | 0 | 0 | 0/0 | 0 | no | 17 | -
