@@ -24,6 +24,8 @@ struct GorgeNightCount: Sendable, Equatable {
     var lost = 0
     var struck = 0.0
     var watchShots = 0
+    /// The realm's archers' arrows tonight (the watch's not counted).
+    var arrows = 0
 }
 
 /// One night played twice from the reference bot's eve (T15's first half): as the reference played it, and with all
@@ -190,7 +192,7 @@ struct GorgeMetrics: Sendable {
         lines.append("")
         lines.append("T15a per budget: creatures at the defence without | with | fewer | defenders lost without/with | "
                      + "walls lost without/with | nights fallen without/with | beacons lost | burnt without/with | "
-                     + "watch arrows a night")
+                     + "watch arrows a night (share of all arrows)")
         for k in stresses {
             let set = pairs.filter { $0.stress == k }
             let bare = set.reduce(0) { $0 + $1.bare.reached }
@@ -201,7 +203,10 @@ struct GorgeMetrics: Sendable {
             let fell = "\(set.filter { $0.bare.fell }.count)/\(set.filter { $0.held.fell }.count)"
             let lost = set.reduce(0) { $0 + $1.held.lost }
             let burnt = "\(set.reduce(0) { $0 + $1.bare.burnt })/\(set.reduce(0) { $0 + $1.held.burnt })"
-            let shots = GorgeMetrics.mean(set.map { Double($0.held.watchShots) })
+            let watch = set.reduce(0) { $0 + $1.held.watchShots }
+            let all = watch + set.reduce(0) { $0 + $1.held.arrows }
+            let share = all > 0 ? GorgeMetrics.pct(Double(watch) / Double(all)) : "-"
+            let shots = GorgeMetrics.mean(set.map { Double($0.held.watchShots) }) + " (\(share))"
             lines.append("  \(GorgeMetrics.stressText(k)): \(bare) | \(held) | \(fewer) | \(fallen) | \(walls) | \(fell) | "
                          + "\(lost) | \(burnt) | \(shots)")
         }
@@ -283,6 +288,7 @@ enum GorgeTuningRun {
         count.burnt = stats.killedByFire
         count.fallen = stats.fallen.count
         count.walls = stats.wallsLost.count
+        count.arrows = stats.arrows
         count.fell = s.defeated
         return count
     }

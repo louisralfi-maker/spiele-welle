@@ -57,7 +57,7 @@ struct GorgeTuning: Sendable, Equatable {
     /// A lit beacon's strength, nearest first. Creatures on the ground strike the furthest lit beacon as they pass (their
     /// harm per second for the time they are within `strikeReach` of it, as soldiers are struck in passing); at 0 it
     /// falls and the fog comes back to the one before. A beacon still standing is tended by day: full again at dawn.
-    var strength: [Double] = [500, 500, 500, 500]
+    var strength: [Double] = [400, 400, 400, 400]
     var strikeReach = 8.0
 
     // MARK: Freed land (one small gain per stretch, none above about 8 % on any system)
@@ -69,7 +69,7 @@ struct GorgeTuning: Sendable, Equatable {
     /// the watch (castle staff, like the engines' crews: they never fall, they leave while the stretch is lost) looses at
     /// lit creatures in reach.
     var watchtowerPrice = 40
-    var watchArchers = 2
+    var watchArchers = 1
     var watchRange = 150.0
     var watchPeriod = 1.4
     var watchDamage = 4.0
@@ -86,8 +86,15 @@ struct GorgeTuning: Sendable, Equatable {
     /// The forward bot keeps this much gold after buying a beacon or the watchtower (its walls' rubble and the
     /// reference's order come first).
     var botReserve = 30
-    /// While the reference saves for the Great Beacon (day 11 until its third stage stands) the forward bot spends
-    /// nothing on the gorge: the chapter's goal first (round lh-f3-1: without it the forward bot never finished the
-    /// Great Beacon and fell on night 20 in six of ten seeds).
+    /// Where the forward bot puts each beacon into the reference's build order (`Autoplay.referenceOrder`): it raises
+    /// beacon k once its order has come this far, saving for it. 10: before the first big house (the middle line stands
+    /// with its braziers); 16: before the third big house (the middle line has its stone wall and tower); 22: once the
+    /// Great Beacon is ordered (round lh-f3-2: a bot that bought beacons whenever its purse allowed never finished the
+    /// Great Beacon and fell on night 20; one that waited for spare gold never raised one).
+    var botBeaconSteps: [Int] = [10, 16, 22, 22]
+    /// It raises the old watchtower from this point of the order on (when its stretch is held).
+    var botWatchStep = 16
+    /// While the reference saves for the Great Beacon (day 11 until its third stage stands) the forward bot relights
+    /// nothing: the chapter's goal first.
     var botGreatBeaconFirst = true
 }

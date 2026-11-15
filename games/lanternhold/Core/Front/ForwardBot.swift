@@ -12,10 +12,12 @@ struct ForwardTally: Sendable, Equatable {
 /// The T15 bots (docs/REALM.md section 5): the reference bot by day and by night (`Autoplay`), plus the gorge.
 ///
 /// - **Forward** (`neglectsWalls` off): it keeps the reference's walls (their rubble first, its whole build order) and
-///   raises the next beacon, relights a cold one and raises the old watchtower whenever the purse holds the price and
-///   `GorgeTuning.botReserve` besides. The reference's order waits a little for what the beacons took.
-///   While the reference saves for the Great Beacon (from day 11 until its third stage stands) it spends nothing on the
-///   gorge (`GorgeTuning.botGreatBeaconFirst`): the chapter's goal first.
+///   puts the beacons into that order (`GorgeTuning.botBeaconSteps`): the first once the middle line stands with its
+///   braziers, the second once that line has its stone wall and tower, the last two once the Great Beacon is ordered.
+///   When the order reaches a beacon's place it saves for it (the reference's next steps wait); the old watchtower it
+///   raises when the purse holds its price and `GorgeTuning.botReserve` besides, a cold beacon it relights the same
+///   way. While the reference saves for the Great Beacon (day 11 until its third stage stands) it relights nothing
+///   (`GorgeTuning.botGreatBeaconFirst`): the chapter's goal first.
 /// - **Neglect** (`neglectsWalls` on): it raises and relights beacons first, at any gold, and neglects the walls: no
 ///   wall is built or raised a tier (the order's wall steps are skipped), no wall is patched at night. It still
 ///   rebuilds the gatehouse's rubble, as the reference does.
@@ -49,10 +51,36 @@ struct ForwardBot: Sendable {
             day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
             return
         }
-        day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
+        let tuning = balance.front.gorge
         let saving = day.buildsBeacon && s.day >= Realm.beaconUnlockDay && s.beaconStage < 3
-        if saving && balance.front.gorge.botGreatBeaconFirst { return }
-        if !wallInRubble(s) { buy(&s, balance: balance, reserve: balance.front.gorge.botReserve) }
+            && tuning.botGreatBeaconFirst
+        var waits = false
+        if raisesBeacons && !wallInRubble(s), let offer = Gorge.offer(s, balance: balance), offer.open {
+            if offer.relight {
+                if !saving && s.gold >= offer.price + tuning.botReserve { order(&s, offer, balance: balance) }
+            } else if offer.site < tuning.botBeaconSteps.count && day.cursor >= tuning.botBeaconSteps[offer.site] {
+                if s.gold >= offer.price {
+                    order(&s, offer, balance: balance)
+                    day.thinkTimer = 0
+                } else {
+                    waits = true
+                }
+            }
+        }
+        if waits { day.thinkTimer = 1e9 } else if day.thinkTimer > 1e8 { day.thinkTimer = 0 }
+        day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
+        if raisesBeacons && !wallInRubble(s), day.cursor >= tuning.botWatchStep,
+           let offer = Gorge.watchOffer(s, balance: balance), offer.open, s.gold >= offer.price + tuning.botReserve,
+           Gorge.raiseWatchtower(&s, balance: balance) {
+            tally.watchtower = true
+            tally.watchGold += offer.price
+        }
+    }
+
+    private mutating func order(_ s: inout GameState, _ offer: GorgeOffer, balance: Balance) {
+        guard Gorge.order(&s, balance: balance) else { return }
+        if offer.relight { tally.relights += 1 } else { tally.raises += 1 }
+        tally.beaconGold += offer.price
     }
 
     /// The neglect bot's order without its wall steps.
