@@ -99,9 +99,10 @@ final class TouchUITests: XCTestCase {
         }
         town.terminate()
 
-        // Dusk at the front gate.
+        // Dusk at the front gate (the clock set, nobody playing on: with -GWHour the reference bot had walked him
+        // into the dark at the world's end).
         let dusk = XCUIApplication()
-        dusk.launchArguments = TouchUITests.base + ["-GWDay", "3", "-GWSeed", "2", "-GWHour", "19.35",
+        dusk.launchArguments = TouchUITests.base + ["-GWDay", "3", "-GWSeed", "2", "-GWClock", "18.97",
                                                     "-GWStage", "world", "-GWCameraX", "1180"]
         dusk.launch()
         if waitUntilReady(dusk, name: "lantern-dusk"), openLantern(dusk) {

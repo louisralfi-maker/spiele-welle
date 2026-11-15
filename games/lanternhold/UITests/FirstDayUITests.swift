@@ -21,7 +21,9 @@ final class FirstDayUITests: XCTestCase {
     func testFirstDay() {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
-        app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWTimeScale", "4",
+        // Three times as fast (stage-3-interface: four left too little day for the walks by the lantern moment's
+        // strip before the horn).
+        app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWTimeScale", "3",
                                "-GWCameraX", "1150"]
         app.launch()
         guard waitUntilReady(app, name: "first-day") else { return }
@@ -41,15 +43,8 @@ final class FirstDayUITests: XCTestCase {
         pause(0.3)
         let after = kingX(app)
         XCTAssertGreaterThan(after, before + 10, "the drag walked the king right (\(before) to \(after))")
-        // The lantern moment's gold (the day runs four times as fast here: the moment's own pictures are
-        // TouchUITests' 40, 160 and 162 to 167): a touch on the lord stills the world, the gold over him.
-        XCTAssertTrue(openLantern(app), "a touch on the lord raises the lantern")
-        let gold = element(app, "hud-gold")
-        XCTAssertTrue(gold.waitForExistence(timeout: 4), "the gold shows over the lord")
-        XCTAssertEqual(gold.value as? String, "60")
-        XCTAssertTrue(element(app, "hud-clock").label.hasPrefix("Day 1") || element(app, "hud-clock").label.hasPrefix("Tag 1"))
-        lowerLantern(app)
-        XCTAssertFalse(element(app, "lantern-moment").exists, "any other touch lowers the lantern")
+        // The lantern moment's own pictures and figures are TouchUITests' 40, 160 and 162 to 167 (the day runs fast
+        // here).
 
         // Touch the world (step stage-2): a touch on line 1's empty brazier site sends him there; its card opens
         // when he arrives. No action button any more.

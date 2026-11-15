@@ -49,15 +49,8 @@ final class AudienceUITests: XCTestCase {
                                "-GWClock", "10", "-GWCameraX", "1530"]
         app.launch()
         guard waitUntilReady(app, name: "castle") else { return }
-        // Stage-3-interface (docs/HUD.md section 3): the waiting petitioners call, and the strip comes by itself.
-        // (The strip stands for 6 s: read it at once, and only while it is there.)
-        let strip = element(app, "realm-strip")
-        if strip.waitForExistence(timeout: 4) {
-            let marked = strip.exists ? ((strip.value as? String) ?? "") : "gone"
-            XCTAssertFalse(marked.isEmpty, "the strip marks the petitioners waiting")
-        } else {
-            XCTAssertTrue(sceneField(app, "hud:") != nil, "the scene reports what stands on the world")
-        }
+        // Stage-3-interface (docs/HUD.md section 3): the waiting petitioners call and the strip comes by itself for
+        // a few seconds (TouchUITests' 167 shows it); the walks below take it, or the lantern moment's.
         pause(1.0)
         attach(XCUIScreen.main.screenshot(), "58-courtyard-court-\(language)")
 

@@ -56,8 +56,8 @@ extension XCTestCase {
         guard lord.waitForExistence(timeout: timeout) else { return false }
         // While he walks the camera follows him and the element read a moment ago lies off by the tap; the camera
         // eases on after he stops (round lh-s3-4: the tap fell on the site he stood on and opened its card).
-        waitForStill(app, timeout: 6)
-        waitForCamera(app, timeout: 4)
+        waitForStill(app, timeout: 4)
+        waitForCamera(app, timeout: 3)
         let frame = lord.frame
         lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62)).tap()
         let opened = moment.waitForExistence(timeout: 4)
