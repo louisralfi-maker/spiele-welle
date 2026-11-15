@@ -133,10 +133,12 @@ extension GloomFog {
     /// The ground fog (`gloomGroundFog` on fog B, in front of the Gloom's dark strips: on fog A they covered it, round
     /// lh-w3f2-1): a cold low mist 16 to 22 rows high that swallows the feet of the mid plane and the lane's, cut by the
     /// fires' holes, on the hard nights only (with `midVeil`: none on an ordinary night, whole on the hardest).
-    static let groundStrip = FrameBuilder.GloomStrip(plane: .fogB, sprite: .gloomGroundFog, y: -6, share: 0.9,
+    /// It creeps ahead of the Gloom's own front along the ground (share 1.35 of the fog's way; round lh-w3f2-2 at 0.9
+    /// never reached the Throat's view at 1000, and its `far` paint at 0.75 was hardly paler than the night).
+    static let groundStrip = FrameBuilder.GloomStrip(plane: .fogB, sprite: .gloomGroundFog, y: -6, share: 1.35,
                                                      sway: 5, period: 8, phase: 0.5)
-    /// Its alpha's share (the painting's densest row 0.74, so about 0.55 over the lane).
-    static let groundAlpha = 0.75
+    /// Its alpha's share (the painting's densest row 0.74, so about 0.63 over the lane).
+    static let groundAlpha = 0.85
     /// Its colder tint over the strips' own (× the night's value).
     static let groundTint = SIMD3<Float>(0.92, 1.0, 1.14)
 

@@ -727,7 +727,7 @@ def gloom_ground_fog():
                     a = 0.74 - 0.08 * (y - ground)
                 if f == 1:
                     a *= face
-                nm = "mist" if up > top - 2.5 else "mistDark" if depth < 0.55 else "far"   # cold, a step over the haze
+                nm = "mistLight" if up > top - 2.5 else "mist" if depth < 0.55 else "mistDark"   # cold, pale over the haze
                 kk = max(0, min(16, int(a * 16 + 0.5)))
                 if kk:
                     r, g, b, _ = col(nm)

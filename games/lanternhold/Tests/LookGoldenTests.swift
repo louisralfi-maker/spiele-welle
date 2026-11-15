@@ -49,15 +49,16 @@ final class LookGoldenTests: XCTestCase {
     /// World rebuild, step world-3, fix round 2 (15.11.2026): sprites both looks draw were repainted (the gatehouse's
     /// slits and the watchtower's loops, a 2 px glass core in a dark reveal; the clouds' undersides without the checker
     /// teeth, `cloudA` to `cloudC`; tools/w3f2art.py) and the barracks' free window has a small pool, so all six were
-    /// recorded again from round lh-w3f2-1 (on db5b8d9; before: 91e62b85b75e0717, 30f274a12862a8be, 12c426443634b583,
-    /// c0ba9a8be11ba03e, e0e4b0352af35485 and c0f21df86bbe85b6). Nothing else of look 1 moved.
+    /// recorded again from round lh-w3f2-2 (on 6df1728, the clouds' second painting; before: 91e62b85b75e0717,
+    /// 30f274a12862a8be, 12c426443634b583, c0ba9a8be11ba03e, e0e4b0352af35485 and c0f21df86bbe85b6). Nothing else of
+    /// look 1 moved.
     static let golden: [String: String] = [
-        "front-night": "33a590095caabf26",
-        "castle-night": "de4bdd427b1cb29e",
-        "court-dusk": "cc0e0a90a0e48b8b",
-        "square-morning": "94a9fa20e13f3d3d",
-        "town-noon": "60268aab280c9113",
-        "river-golden": "6ac9ca655af4c593",
+        "front-night": "a57845e99231006f",
+        "castle-night": "2366a6f40bf3c4aa",
+        "court-dusk": "df1f49c8cb6f8702",
+        "square-morning": "94cd6c92d75fe9df",
+        "town-noon": "523b61e122fef778",
+        "river-golden": "577cfd5a2d792e15",
     ]
 
     func testLookOneIsPinned() throws {
