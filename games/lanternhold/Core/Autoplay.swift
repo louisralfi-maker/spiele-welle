@@ -155,14 +155,17 @@ struct Autoplay: Sendable, Equatable {
             if s.gold < Build.rebuildPrice(item, balance: balance) { return }
             Build.order(&s, plot: plot, item: item, balance: balance, events: &events)
         }
-        // Replace one fallen soldier a day, first.
-        archerTarget = max(archerTarget, s.archerCount)
-        guardTarget = max(guardTarget, s.guardCount)
+        // Replace one fallen soldier a day, first. Soldiers out with a road lantern are not fallen (the Lantern
+        // Table's hook, docs/lanes/quests.md: 0 without the table).
+        let archers = s.archerCount + s.archersOnTheRoad
+        let guards = s.guardCount + s.guardsOnTheRoad
+        archerTarget = max(archerTarget, archers)
+        guardTarget = max(guardTarget, guards)
         if refillDay != s.day && s.happiness >= refillFrom && canRecruit(s) {
-            if s.archerCount < archerTarget && Battle.posts(s, balance: balance).count > s.archerCount {
+            if archers < archerTarget && Battle.posts(s, balance: balance).count > archers {
                 if s.gold < balance.archerPrice { return }
                 if Build.recruit(&s, kind: .archer, balance: balance, events: &events) { refillDay = s.day }
-            } else if s.guardCount < guardTarget {
+            } else if guards < guardTarget {
                 if s.gold < balance.guardPrice { return }
                 if Build.recruit(&s, kind: .guardsman, balance: balance, events: &events) { refillDay = s.day }
             }
@@ -191,7 +194,7 @@ struct Autoplay: Sendable, Equatable {
                 if result != .ordered { return }
                 cursor += 1
             case .recruitArchers:
-                let free = Battle.posts(s, balance: balance).count - s.archerCount
+                let free = Battle.posts(s, balance: balance).count - s.archerCount - s.archersOnTheRoad
                 let floor = Int((soldierShare * Double(s.citizens)).rounded(.up))
                 if free <= 0 || s.taxpayers - 1 < floor {
                     cursor += 1
@@ -201,7 +204,7 @@ struct Autoplay: Sendable, Equatable {
                 Build.recruit(&s, kind: .archer, balance: balance, events: &events)
             case .recruitGuards(let total):
                 let floor = Int((soldierShare * Double(s.citizens)).rounded(.up))
-                if s.guardCount >= total || s.taxpayers - 1 < floor {
+                if s.guardCount + s.guardsOnTheRoad >= total || s.taxpayers - 1 < floor {
                     cursor += 1
                     continue
                 }

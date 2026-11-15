@@ -58,9 +58,10 @@ struct DebugArgs: Sendable, Equatable {
     /// `-GWHour <h>` (0 ... 24): after the start (a day, a night, the save or a new realm, and the demo build), the
     /// reference bot plays on headless until the clock next shows this hour.
     var hour: Double?
-    /// `-GWScreen title|audience|report|defeat|story|finale|petition`: opens that screen with sample data (M2b:
-    /// report, defeat and finale, the dawn report of night 20 with the Lightless King slain; M3: petition, the herald
-    /// of the Lightless King before the throne on day 17).
+    /// `-GWScreen title|audience|report|defeat|story|finale|petition|table`: opens that screen with sample data
+    /// (M2b: report, defeat and finale, the dawn report of night 20 with the Lightless King slain; M3: petition, the
+    /// herald of the Lightless King before the throne on day 17; the Lantern Table lane: table, its plain list over
+    /// the realm the other arguments made).
     var screen: Screen?
     /// `-GWClock <h>` (tests): the clock of the start state is set to this hour by day (6 ... 19) without anyone
     /// playing on, so today's petitioners still wait (`-GWHour` lets the reference bot play, and it hears them).
@@ -111,7 +112,7 @@ struct DebugArgs: Sendable, Equatable {
 
     /// `-GWScreen` screens.
     enum Screen: String, Sendable, CaseIterable, Equatable {
-        case title, audience, report, defeat, story, finale, petition
+        case title, audience, report, defeat, story, finale, petition, table
     }
 
     /// `-GWAutoplay` modes.
