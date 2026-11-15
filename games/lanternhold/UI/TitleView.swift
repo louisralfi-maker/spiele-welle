@@ -95,6 +95,8 @@ struct TitleView: View {
     @State private var gameReady = false
     /// TITLE.md step 6: "Touch to begin" after 3 s without a touch.
     @State private var showHint = false
+    /// The reveal has ended: the picture stands without its mask (the ellipse alone left the bottom corners dark).
+    @State private var revealDone = false
 
     /// `-GWTitleHold loading|half|lit|hint` (Debug only): the sequence holds at that state for the proof frames.
     private static let hold: String? = {
@@ -113,7 +115,10 @@ struct TitleView: View {
                 let t = timeline.date.timeIntervalSince(shown)
                 ZStack(alignment: .topLeading) {
                     TitleLayout.night
-                    if revealing {
+                    if revealDone {
+                        picture(scale: scale, t: t)
+                        lettering(scale: scale)
+                    } else if revealing {
                         picture(scale: scale, t: t)
                             .mask(alignment: .topLeading) {
                                 Ellipse()
@@ -268,11 +273,13 @@ struct TitleView: View {
         revealing = true
         if reduceMotion {
             radius = TitleLayout.revealTo
+            revealDone = true
             lit = Set(TitleLayout.letters.indices)
             return
         }
         withAnimation(.easeOut(duration: TitleLayout.revealSeconds)) { radius = TitleLayout.revealTo }
         try? await Task.sleep(nanoseconds: UInt64(TitleLayout.revealSeconds * 1_000_000_000))
+        revealDone = true
         for group in TitleLayout.lightOrder {
             lit.formUnion(group)
             try? await Task.sleep(nanoseconds: 70_000_000)
@@ -287,6 +294,7 @@ struct TitleView: View {
             guard gameReady else { return }
             revealing = true
             radius = TitleLayout.revealTo
+            revealDone = true
             lit = Set(TitleLayout.letters.indices)
             return
         }
