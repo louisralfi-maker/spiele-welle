@@ -423,3 +423,11 @@ schneller geht."
   (`ci-out/director/notes-world.md`, the patch `speed-kit-world.patch`); every other lane at the join. Not proven:
   the tap fallback, a German run, shots with `-GWStage`, `-GWScreen` or the ads lane's `AdDirector`. The build
   flags saved 21 s and are not kept.
+- **First light and night glass (15.11.2026, 01:50).** Two Opus artists draw for `docs/TITLE.md`: the title
+  (`claude/lh-title`, art in `games/lanternhold/art/title/`, report `ci-out/director/first-light.md`) and the
+  card skin (`claude/lh-glass`, report `ci-out/director/night-glass.md`). The title's round 1 (d5f53b1) is 6.5 of
+  10 and is not shown to Louis: the light lit nothing and the picture sat in one band of navy. Round 2 has one
+  idea, "the light holds the dark": lit surfaces inside the light's reach in place of glow discs, the darkness as
+  a front that stops at the reach, four value planes, the castle in the one gap of the Weltmauer, a taller keep
+  with a real beacon, a near ledge, the dawn line, lettering lit from the flame. Every lane's notes say: no new
+  parchment, and a critic's finding about the parchment look is answered with the note.
