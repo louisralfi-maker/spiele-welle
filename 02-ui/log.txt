@@ -1,0 +1,23 @@
+Test Case '-[LanternholdUITests.AdsUITests testDoubleTaxes]' passed (31.955 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testInterstitialOnARealDawn]' passed (15.372 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testMerchantsGift]' passed (17.331 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testSecondChance]' passed (19.982 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testWithoutAdsNoOffer]' passed (25.425 seconds).
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (115.842 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:338: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertGreaterThanOrEqual failed: ("43.99999999999994") is less than ("44.0") - close is 43.99999999999994 pt wide
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' failed (180.856 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (55.935 seconds).
+Test Suite 'FirstDayUITests' failed at 2026-11-15 13:48:54.226.
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (195.362 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (93.623 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (157.887 seconds).
+Test Case '-[LanternholdUITests.TownUITests testReduceMotion]' passed (13.804 seconds).
+Test Case '-[LanternholdUITests.TownUITests testStallFieldAndBigHouse]' passed (28.445 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTaxesOnFoot]' passed (91.285 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollector]' passed (36.491 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollectorIsTakenOnByTouch]' passed (154.132 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheFirstMorning]' passed (31.650 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-15 14:02:16.920.
+Test Suite 'Selected tests' failed at 2026-11-15 14:02:16.923.
+exit=65
+screenshots: 93
