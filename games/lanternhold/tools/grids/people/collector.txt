@@ -1,9 +1,10 @@
-# collector 34x24, 8 frames: push 0-3, idle 4-5, take 6-7 (docs/SPRITES-people.md; people-2, `TownDay`). Saul Bracken,
-# 56, the collector (docs/PEOPLE.md "Three more"; docs/TOWN.md section 2), out from the hall door at the dawn with the
-# town's strongbox on a handcart, every door, back by noon. A stout man under a wide-brimmed felt hat, grey stubble, a
+# collector 34x24, 8 frames: push 0-3, idle 4-5, take 6-7 (docs/SPRITES-people.md; people-2, `TownLife`). Saul Bracken,
+# 56, the collector (docs/PEOPLE.md "Three more"; docs/TOWN.md section 2), out from his post at the dawn with the
+# town's strongbox on a handcart, every door, back in the early afternoon. A stout man in a rolled wool cap pulled down
+# to the brow (never a hat with a crown and brim: with the lamplighter's they read as two Victorian bowlers), grey stubble, a
 # long grey-brown coat patched at the elbow, boots; his far arm lost on the wall the winter the old lord died, the empty
 # sleeve folded and pinned across his chest; a leather strap over his near shoulder to the cart's handles, which he
-# pushes one-handed, leaning into it. The cart: a plain plank bed on one big spoked wheel (its twin behind), the
+# pushes one-handed, leaning into it, his head and shoulders bobbing a pixel up on the passing steps. The cart: a plain plank bed on one big spoked wheel (its twin behind), the
 # iron-bound strongbox on it, a plain iron lock and a coin slot in its lid (no gold: it is the town's box), a prop leg at
 # its front for when it stands. His feet on column 8.5, the cart ahead of him (`PeopleCast.feetColumn`). Light from the
 # upper left; look 2's selective outline. Push: a brisk step (4 px a frame), the wheel's spokes turning between a cross
@@ -35,11 +36,11 @@ legend
     N = stone
     g = gold
 
-# the wide-brimmed felt hat
+# the rolled wool cap: a soft crown slumped to the back, the rolled edge lighter, pulled down to the brow
 part hat
     ..ddd...
-    .ddddD..
-    ddddddDD
+    .ddddDD.
+    .pppppd.
 
 # a broad face in profile, grey stubble at the jaw and the nape
 part head
@@ -159,6 +160,15 @@ part legsPass
     .qr.
     DDDD
 
+# the passing step with the body a pixel higher: the legs a pixel longer under the coat
+part legsPassUp
+    .qr.
+    .qr.
+    .qr.
+    .qr.
+    .qr.
+    DDDD
+
 frame 0
     legsContactA 4 19
     torso 4 9
@@ -171,10 +181,10 @@ frame 0
     armPush 11 11
 
 frame 1
-    legsPass 7 19
-    torso 4 9
-    head 6 5
-    hat 4 2
+    legsPassUp 7 18
+    torso 4 8
+    head 6 4
+    hat 4 1
     bed 17 14
     box 19 8
     wheelB 21 15
@@ -193,10 +203,10 @@ frame 2
     armPush 11 11
 
 frame 3
-    legsPass 7 19
-    torso 4 9
-    head 6 5
-    hat 4 2
+    legsPassUp 7 18
+    torso 4 8
+    head 6 4
+    hat 4 1
     bed 17 14
     box 19 8
     wheelB 21 15
