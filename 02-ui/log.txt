@@ -1,0 +1,19 @@
+Test Case '-[LanternholdUITests.AdsUITests testDoubleTaxes]' passed (29.224 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testInterstitialOnARealDawn]' passed (17.206 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testMerchantsGift]' passed (19.218 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testSecondChance]' passed (21.724 seconds).
+Test Case '-[LanternholdUITests.AdsUITests testWithoutAdsNoOffer]' passed (28.949 seconds).
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (131.728 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (180.415 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (55.116 seconds).
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (217.094 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (100.598 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (155.694 seconds).
+Test Case '-[LanternholdUITests.TownUITests testReduceMotion]' passed (13.795 seconds).
+Test Case '-[LanternholdUITests.TownUITests testStallFieldAndBigHouse]' passed (27.722 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTaxesOnFoot]' passed (91.989 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollector]' passed (36.653 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollectorIsTakenOnByTouch]' passed (152.359 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheFirstMorning]' passed (32.019 seconds).
+exit=0
+screenshots: 93
