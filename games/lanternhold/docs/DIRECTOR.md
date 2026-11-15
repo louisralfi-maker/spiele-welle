@@ -838,3 +838,17 @@ schneller geht."
     - add the new key to `tools/slides/panels_catalog.py` (re-running the tool today would drop it);
     - late-10 (an unheard follow-up leaves its night at full strength);
     - maybe soften `petition.truce_end.r2`.
+
+- **The world's fix round 4 is accepted for build 2: the beacon's bowl and the creatures in the bank (15.11.2026, 19:59).**
+  - `claude/lh-world` 4188e94e; round lh-w3f4-1 ALL PASSED on 7d5e0a47 (build, unit, ui WorldSweep, Look2, WorldStory); read on origin by the director.
+  - The director's own look (w-0400-night and the two crops):
+    - the beacon at night is a ruined tower with a deep bowl on two iron struts, in the night's blue, with a moonlit right face and a broken top. It no longer reads as a stele with a hat (critic 3, blocker 1);
+    - deep in the bank there are no ghost mounds and no red scratches, only eye pairs at head height (critic 3, high 2).
+  - Not seen by the director this round: frame 78, w-0000-night as a whole, and the keep list's frames. The delta touches only the night beacon's two sprites and the unlit creatures' shares inside the bank, so the keep list is judged from the join's final world round.
+  - For the look pile after build 2:
+    - the tower's shadow side is close to black and its left edge is still straight;
+    - the bowl is dark against the sky and could take one more moonlit step on its rim;
+    - black specks hang over the bowl; decide whether they are ash, bats or noise;
+    - one violet glow sits low in the bank in w-0000-night; it should be an ember pair or go;
+    - a creature beside the lord's lantern deep in the bank shows only eyes; check in play that the lantern's light shows a body at the bank's edge.
+  - Still open from critic 3: high 4 (far lantern), high 5 (lone squares), high 7 (fog at the Throat), the pale mossy stump in w-1200-noon.
