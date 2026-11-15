@@ -74,6 +74,8 @@ struct TouchThing: Sendable, Equatable {
     /// drawn there when it is not the standing place (a wall's: the gate in its gatehouse; the gold rim's).
     var footing: Double? = nil
     var rimX: Double? = nil
+    /// Stage-3-interface: no gold rim on it (the barracks while Marek's cart stands before them).
+    var noRim = false
 
     var isPerson: Bool { kind == .talk || kind == .bench }
 
@@ -81,7 +83,10 @@ struct TouchThing: Sendable, Equatable {
     /// a brazier or the barracks at most `TouchRules.bandTip` over the walk line (fix round 1: at its door, never at its
     /// crown).
     var markLift: Double {
-        let lift = top + TouchRules.markGap
+        var lift = top + TouchRules.markGap
+        // Stage-3-interface (stage-2 critic look 2, high 4): a site's sign clears the heads of the folk who stand
+        // there (at the cord's height it hung beside their faces).
+        if kind == .plot { lift = max(lift, TouchRules.siteTip) }
         return TouchRules.keepsToBand(kind) ? min(lift, TouchRules.bandTip) : lift
     }
     var markX: Double { markAt ?? x }

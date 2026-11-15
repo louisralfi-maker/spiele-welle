@@ -50,9 +50,7 @@ struct AudienceCardView: View {
                     content
                         .frame(width: width)
                         .frame(maxHeight: room, alignment: .bottom)
-                    PointerShape()
-                        .fill(Theme.woodDark)
-                        .frame(width: 18, height: 9)
+                    GlassTail()
                         .offset(x: pointer - width / 2)
                         .accessibilityHidden(true)
                 }
@@ -159,12 +157,12 @@ struct AudienceCardView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(verbatim: name)
                         .font(Theme.caps(.headline))
-                        .foregroundStyle(Theme.ink)
+                        .foregroundStyle(NightGlass.lanternGold)
                     if let role {
                         Text(verbatim: role)
                             .font(Theme.caps(.caption))
                             .tracking(0.8)
-                            .foregroundStyle(Theme.rubric)
+                            .foregroundStyle(NightGlass.mist)
                     }
                 }
                 .lineLimit(2)
@@ -238,15 +236,13 @@ struct AudienceCardView: View {
                 PortraitTile(portrait: .own(.portraitOdile, frame: 0), side: 40)
                 Text("Counsel")
                     .font(Theme.caps(.subheadline))
-                    .foregroundStyle(Theme.teal)
+                    .foregroundStyle(NightGlass.lanternGold)
                     .lineLimit(1)
             }
             .padding(.leading, 3)
             .padding(.trailing, 12)
             .frame(minHeight: 46)
-            .background(RoundedRectangle(cornerRadius: 2, style: .continuous).fill(Theme.plaque.opacity(0.8)))
-            .overlay(RoundedRectangle(cornerRadius: 2, style: .continuous)
-                .strokeBorder(Theme.teal, lineWidth: 1.2))
+            .background(GlassPlaqueBackground(inside: true))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -291,12 +287,12 @@ struct AudienceCardView: View {
             VStack(alignment: .leading, spacing: 0) {
                 Text(verbatim: name)
                     .font(Theme.caps(.headline))
-                    .foregroundStyle(Theme.ink)
+                    .foregroundStyle(NightGlass.lanternGold)
                 if let role {
                     Text(verbatim: role)
                         .font(Theme.caps(.caption))
                         .tracking(0.8)
-                        .foregroundStyle(Theme.rubric)
+                        .foregroundStyle(NightGlass.mist)
                 }
             }
             .fixedSize(horizontal: false, vertical: true)
@@ -310,15 +306,13 @@ struct AudienceCardView: View {
                         PortraitTile(portrait: .own(.portraitOdile, frame: 0), side: 40)
                         Text("Counsel")
                             .font(Theme.caps(.subheadline))
-                            .foregroundStyle(Theme.teal)
+                            .foregroundStyle(NightGlass.lanternGold)
                             .lineLimit(1)
                     }
                     .padding(.leading, 3)
                     .padding(.trailing, 12)
                     .frame(minHeight: 46)
-                    .background(RoundedRectangle(cornerRadius: 2, style: .continuous).fill(Theme.plaque.opacity(0.8)))
-                    .overlay(RoundedRectangle(cornerRadius: 2, style: .continuous)
-                        .strokeBorder(Theme.teal, lineWidth: 1.2))
+                    .background(GlassPlaqueBackground(inside: true))
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -334,9 +328,7 @@ struct AudienceCardView: View {
                     .lineLimit(1)
                     .padding(.horizontal, 12)
                     .frame(minWidth: 44, minHeight: 44)
-                    .background(RoundedRectangle(cornerRadius: 2, style: .continuous).fill(Theme.plaque.opacity(0.5)))
-                    .overlay(RoundedRectangle(cornerRadius: 2, style: .continuous)
-                        .strokeBorder(Theme.rule.opacity(0.7), lineWidth: 1))
+                    .background(GlassPlaqueBackground(inside: true))
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -445,7 +437,7 @@ struct HallCounsel: View {
         VStack(alignment: .leading, spacing: compact ? 1 : 2) {
             Text("Odile counsels")
                 .font(Theme.caps(compact ? .caption2 : .footnote))
-                .foregroundStyle(Theme.teal)
+                .foregroundStyle(NightGlass.lanternGold)
             Text(verbatim: text)
                 .font(Theme.italic(.footnote))
                 .foregroundStyle(Theme.ink)
@@ -457,9 +449,6 @@ struct HallCounsel: View {
         .padding(.vertical, 7)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(SlipBackground(teal: true))
-        .overlay(alignment: .leading) {
-            Rectangle().fill(Theme.teal).frame(width: 3).padding(.vertical, 1)
-        }
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("audience-counsel-line")
     }
@@ -474,8 +463,8 @@ struct CounselNote: View {
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
             PortraitTile(portrait: .own(.portraitOdile, frame: 0), side: 40)
-            (Text("Odile counsels").font(Theme.caps(.footnote)).foregroundStyle(Theme.teal)
-                + Text(verbatim: ": ").font(Theme.caps(.footnote)).foregroundStyle(Theme.teal)
+            (Text("Odile counsels").font(Theme.caps(.footnote)).foregroundStyle(NightGlass.lanternGold)
+                + Text(verbatim: ": ").font(Theme.caps(.footnote)).foregroundStyle(NightGlass.lanternGold)
                 + Text(verbatim: text).font(Theme.italic(.footnote)).foregroundStyle(Theme.ink))
                 .lineLimit(4)
                 .minimumScaleFactor(0.8)
@@ -529,7 +518,7 @@ struct ChoiceTile: View {
                             .lineLimit(compact ? 1 : nil)
                             .minimumScaleFactor(compact ? 0.75 : 1)
                     }
-                    .foregroundStyle(Theme.rubric)
+                    .foregroundStyle(NightGlass.mist)
                     .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -544,7 +533,7 @@ struct ChoiceTile: View {
                 if option.favoured {
                     Image(systemName: "checkmark.seal.fill")
                         .font(.system(size: 13, weight: .bold))
-                        .foregroundStyle(Theme.teal)
+                        .foregroundStyle(NightGlass.lanternGold)
                         .padding(2)
                         .accessibilityLabel(Text("Odile's choice"))
                 }

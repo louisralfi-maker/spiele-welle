@@ -63,15 +63,6 @@ struct ReportCardView: View {
         .padding(.horizontal, 20)
         .padding(.top, 10)
         .padding(.bottom, 6)
-        .background(
-            // A wash of dawn across the head of the page, inside the frame's inner rule.
-            Rectangle()
-                .fill(LinearGradient(colors: [Theme.dawnRose.opacity(0.5), Theme.goldHi.opacity(0.14), Color.clear],
-                                     startPoint: .top, endPoint: .bottom))
-                .padding(.horizontal, 6)
-                .padding(.top, 6)
-                .accessibilityHidden(true)
-        )
         .overlay(alignment: .bottom) {
             InkRule().padding(.horizontal, 20)
         }
@@ -259,9 +250,9 @@ struct DawnMark: View {
             SunDisc()
                 .fill(LinearGradient(colors: [Theme.goldHi, Theme.gold], startPoint: .top, endPoint: .bottom))
             SunDisc()
-                .stroke(Theme.ink, style: StrokeStyle(lineWidth: 1.3, lineJoin: .round))
+                .stroke(NightGlass.lanternGold, style: StrokeStyle(lineWidth: 1.3, lineJoin: .round))
             SunRays()
-                .stroke(Theme.ink, style: StrokeStyle(lineWidth: 1.3, lineCap: .round))
+                .stroke(NightGlass.lanternGold, style: StrokeStyle(lineWidth: 1.3, lineCap: .round))
         }
         .frame(width: size, height: size * 0.66)
         .accessibilityHidden(true)
@@ -361,8 +352,8 @@ struct ReportBanner: View {
         .padding(.horizontal, 30)
         .padding(.vertical, large ? 7 : 5)
         .frame(maxWidth: .infinity)
-        .background(RibbonShape(notch: large ? 16 : 10).fill(fill))
-        .overlay(RibbonShape(notch: large ? 16 : 10).stroke(Theme.gold.opacity(0.7), lineWidth: 1))
+        // Night glass (stage-3-interface): the ribbon's pane with its brass line and V-cut ends.
+        .background(GlassRibbonBackground(height: large ? 32 : 15))
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier(banner == .kingSlain || banner == .kingWithdrew ? "report-king-banner" : "report-banner")
     }
@@ -390,15 +381,6 @@ struct ReportBanner: View {
         case .kingWithdrew: return Theme.sealWords
         case .secondChance: return Theme.sealWords
         case .noLosses: return Theme.sealWords
-        }
-    }
-
-    private var fill: Color {
-        switch banner {
-        case .kingSlain: return Theme.teal
-        case .kingWithdrew: return Theme.desk2
-        case .secondChance: return Theme.rubric
-        case .noLosses: return Theme.teal
         }
     }
 }

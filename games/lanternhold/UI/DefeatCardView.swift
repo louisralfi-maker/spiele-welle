@@ -336,13 +336,29 @@ struct PauseSheetView: View {
                            identifier: "pause-haptics") {
                     model.setHaptics(!model.settings.haptics)
                 }
-                Button {
-                    confirming = true
-                } label: {
-                    Label("Restart chapter", systemImage: "arrow.counterclockwise").frame(maxWidth: .infinity)
+                // M10 (stage-3-interface): the chapter's restart is no longer a button of Resume's weight: it stands
+                // under its own quiet "Chapter" row, below the switches, as words alone (its confirmation follows).
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Chapter")
+                        .font(Theme.caps(.footnote))
+                        .tracking(1)
+                        .foregroundStyle(NightGlass.mist)
+                    GlassRule()
+                    Button {
+                        confirming = true
+                    } label: {
+                        Label("Restart chapter", systemImage: "arrow.counterclockwise")
+                            .font(Theme.italic(.subheadline))
+                            .foregroundStyle(NightGlass.mist)
+                            .padding(.horizontal, 4)
+                            .frame(minWidth: 44, minHeight: 44, alignment: .leading)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("pause-restart")
                 }
-                .buttonStyle(QuietButtonStyle(onDark: true))
-                .accessibilityIdentifier("pause-restart")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 4)
             }
         }
         .padding(.horizontal, 22)
@@ -350,8 +366,8 @@ struct PauseSheetView: View {
     }
 }
 
-/// A switch row of the pause sheet: the whole row toggles (at least 48 pt high). The switch is a seal in a slot: wax
-/// red on the right when it is on, set grey on the left when it is off.
+/// A switch row of the pause sheet: the whole row toggles (at least 48 pt high). The switch is night glass's pixel
+/// slot: its knob amber on the right when it is on, dark on the left when it is off.
 struct SettingRow: View {
     let title: String
     let isOn: Bool
@@ -365,24 +381,12 @@ struct SettingRow: View {
                     .font(Theme.caps(.headline))
                     .foregroundStyle(Theme.bone)
                 Spacer(minLength: 8)
-                ZStack(alignment: isOn ? .trailing : .leading) {
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(isOn ? Theme.gold.opacity(0.35) : Theme.desk)
-                        .frame(width: 50, height: 28)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .strokeBorder(isOn ? Theme.goldHi.opacity(0.9) : Theme.boneDim.opacity(0.6), lineWidth: 1)
-                        )
-                    WaxSeal(spent: !isOn)
-                        .frame(width: 22, height: 22)
-                        .padding(3)
-                }
+                // Night glass (stage-3-interface): a pixel slot with a square knob, no wax.
+                GlassSwitchFace(isOn: isOn)
             }
             .padding(.horizontal, 14)
             .frame(minHeight: 50)
-            .background(RoundedRectangle(cornerRadius: 2, style: .continuous).fill(Theme.desk2.opacity(0.85)))
-            .overlay(RoundedRectangle(cornerRadius: 2, style: .continuous)
-                .strokeBorder(Theme.boneDim.opacity(0.4), lineWidth: 1))
+            .background(GlassPlaqueBackground(inside: true))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

@@ -1174,31 +1174,70 @@ def king():
 DARKHAIR = ["night0", "soilDark", "soil", "soilLight"]
 
 
+def _lady_body(q):
+    """The Burgherrin's bust: the realm's teal mantle open in front over a dark wool gown with a strip of linen at
+    its neckline, held by a small gold pin (her own clothes, not the Burgherr's tunic and clasp)."""
+    x, y, z = q
+    d = K.bust(q, -0.9)
+    m = "cloak"
+    if z > 2.6 and abs(x - 0.4) < 5.8 and y > -13.4:
+        m = "gown"
+        if y < -10.4:
+            m = "linen"
+    pin = sd_sphere(q, (-5.2, -9.8, 6.8), 1.05)
+    if pin < d + 0.3:
+        d, m = min(d, pin), "goldc"
+    return d, m
+
+
 @builder("portraitLady")
 def lady():
-    """The Burgherrin (STORY.md; a proposal of look 2's art pass): the same lamplighter of about nineteen, a young
-    woman. Dark hair drawn back into a long plait that falls over her shoulder with a gold tie, the same circlet,
-    cloak, clasp and tunic."""
+    """The Burgherrin, heir of the guardian house (HOUSE.md; stage-3-interface, the review's M8): her own portrait,
+    not the Burgherr's with long hair. A young face with a narrower jaw and a shorter chin, soft brows and a soft
+    mouth; dark hair drawn up off the brow and temples into a braided crown and the rest in a long plait over the
+    shoulder, the house's narrow circlet worn level at the hairline under the crown (it fits); the realm's teal
+    mantle over a dark wool gown with a linen neckline and a small gold pin."""
     P = K.face_params("young")
-    P.update(cheek=(5.4, 1.8, 6.2, 2.9), nose_r=(0.7, 1.05), neck_r=4.5)
+    P.update(cheek=(5.5, 1.4, 6.3, 2.8), chin=(0.0, 8.5, 6.4, 1.9), jaw_r=(6.3, 7.0, 7.2),
+             mand=((5.2, 5.6, -0.6), (1.2, 8.8, 5.6), 1.15), nose_r=(0.65, 1.0), neck_r=4.3)
     cc, cr = P["cran_c"], P["cran_r"]
 
     def hair_m(q):
-        d = smax(sd_ellipsoid(q, cc, (cr[0] + 1.3, cr[1] + 1.5, cr[2] + 1.5)),
-                 K.hairline(q, front=-6.0, temple=2.6, nape=6.6, burn=1.0, jag=0.3), 0.4)
-        d = smin(d, sd_ellipsoid(q, (-2.0, 1.0, -10.6), (3.6, 4.2, 3.2)), 1.6)   # gathered at the nape
+        # Drawn back hard from the brow, close over the temples, gathered high behind.
+        d = smax(sd_ellipsoid(q, cc, (cr[0] + 0.8, cr[1] + 0.5, cr[2] + 1.0)),
+                 K.hairline(q, front=-7.6, temple=2.2, nape=5.8, burn=0.4, jag=0.2), 0.4)
+        d = smin(d, sd_ellipsoid(q, (cc[0], cc[1] - cr[1] + 2.4, cc[2] - 4.0), (5.2, 3.0, 4.6)), 1.6)
         return d, "hair"
+
+    top = cc[1] - cr[1] * 0.56
+
+    def braid_m(q):
+        # The braided crown: a ring of braid laid over the top of the head, its strands crossing (alternate lobes).
+        d = 1e9
+        for k in range(18):
+            ang = 2 * math.pi * k / 18
+            r = 9.9 + (0.6 if k % 2 else -0.2)
+            c = (cc[0] + r * math.cos(ang), top + (0.6 if k % 2 else -0.5), cc[2] + r * math.sin(ang))
+            d = min(d, sd_sphere(q, c, 2.2))
+        return d, "hair"
+
+    def circlet_m(q):
+        # The house's circlet, level at the hairline under the braided crown: it fits her.
+        f = Frame((0, 0, 0), roll=0.0).to_local(q)
+        return smax(abs(math.hypot(f[0] - cc[0], f[2] - cc[2]) - 10.9) - 0.7, abs(f[1] - (top + 2.4)) - 0.8,
+                    0.3), "crown"
 
     PLAIT = [(-9.6, -13.6, -1.0), (-11.6, -9.0, 4.6), (-11.4, -3.6, 8.2), (-10.2, 2.0, 9.6), (-9.2, 7.0, 9.8)]
 
     def plait_m(q):
+        # The rest of her hair in a long plait from the nape over the shoulder, tied in gold.
         d, m = 1e9, "hair"
-        for i, (a, b) in enumerate(zip(PLAIT, PLAIT[1:])):
+        for i, (p0, p1) in enumerate(zip(PLAIT, PLAIT[1:])):
             for k in range(3):
                 t = k / 3.0
-                c = tuple(a[j] + (b[j] - a[j]) * t for j in range(3))
-                d = min(d, sd_sphere(q, c, 2.2 - 0.1 * i))
-        tie = sd_sphere(q, PLAIT[-1], 1.9)
+                c = tuple(p0[j] + (p1[j] - p0[j]) * t for j in range(3))
+                d = min(d, sd_sphere(q, c, 2.1 - 0.1 * i))
+        tie = sd_sphere(q, PLAIT[-1], 1.8)
         if tie < d:
             d, m = tie, "crown"
         tail = sd_ellipsoid(q, (PLAIT[-1][0] + 0.4, PLAIT[-1][1] + 3.0, PLAIT[-1][2]), (1.5, 2.4, 1.4))
@@ -1206,12 +1245,18 @@ def lady():
             d, m = tail, "hair"
         return d, m
 
-    parts = [localm(HEAD, hair_m), localm(HEAD, _circlet), localm(BODY, _lord_body), localm(BODY, plait_m)]
+    parts = [localm(HEAD, hair_m), localm(HEAD, braid_m), localm(HEAD, circlet_m), localm(BODY, _lady_body),
+             localm(BODY, plait_m)]
+    mats = _lord_mats(DARKHAIR, [0.3, 0.6, 0.86])
+    mats.update({
+        "gown": Mat(["night0", "soilDark", "soil"], th=[0.3, 0.7], tex=K.folds(0.08)),
+        "linen": Mat(["plasterDim", "plaster", "parchment"], th=[0.3, 0.7]),
+    })
     L = legend_for(SKIN_ROSY, DARKHAIR)
     a = K.anchors(P)
-    st = eye_stamps(P, L, eyes="open", brows="soft", mouth="neutral", a=a)
+    st = eye_stamps(P, L, eyes="open", brows="soft", mouth="soft", a=a)
     st.append(ear_stamp(P, L))
-    return std_portrait(P, parts, _lord_mats(DARKHAIR, [0.3, 0.6, 0.86]), st, SKIN_ROSY)
+    return std_portrait(P, parts, mats, st, SKIN_ROSY)
 
 
 # ------------------------------------------------------------------------------------- the four houses' envoys

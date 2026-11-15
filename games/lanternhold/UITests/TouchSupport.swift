@@ -42,3 +42,76 @@ extension XCTestCase {
         return text.split(separator: " ").first { $0.hasPrefix(key) }.map { String($0.dropFirst(key.count)) }
     }
 }
+
+@MainActor
+/// The lantern moment (stage lane, step stage-3-interface; docs/HUD.md): nothing stands on the walked world, so the
+/// tests raise the lantern with a touch on the lord to read the realm's figures, reach the gear or use the realm strip.
+extension XCTestCase {
+    /// Touches the lord's body (`touch-lord`, low on it, below where the marks hang) and waits for the moment.
+    @discardableResult
+    func openLantern(_ app: XCUIApplication, timeout: TimeInterval = 6) -> Bool {
+        let moment = app.descendants(matching: .any).matching(identifier: "lantern-moment").firstMatch
+        if moment.exists { return true }
+        let lord = app.descendants(matching: .any).matching(identifier: "touch-lord").firstMatch
+        guard lord.waitForExistence(timeout: timeout) else { return false }
+        // While he walks the camera follows him and the element read a moment ago lies off by the tap; the camera
+        // eases on after he stops (round lh-s3-4: the tap fell on the site he stood on and opened its card).
+        waitForStill(app, timeout: 4)
+        waitForCamera(app, timeout: 3)
+        let frame = lord.frame
+        lord.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.62)).tap()
+        let opened = moment.waitForExistence(timeout: 4)
+        if !opened {
+            let note = XCTAttachment(string: "lord element \(frame); the touch did \(sceneField(app, "tap:") ?? "?"); "
+                + "lx \(sceneField(app, "lx:") ?? "?") cam \(sceneField(app, "cam:") ?? "?")")
+            note.name = "lantern-touch-missed"
+            note.lifetime = .keepAlways
+            add(note)
+        }
+        return opened
+    }
+
+    /// Waits until the world's camera stands still (`cam:` unchanged for 0.6 s).
+    @discardableResult
+    func waitForCamera(_ app: XCUIApplication, timeout: TimeInterval) -> Bool {
+        let started = Date()
+        var last = sceneField(app, "cam:")
+        var since = Date()
+        while Date().timeIntervalSince(started) < timeout {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.15))
+            let now = sceneField(app, "cam:")
+            if now != last {
+                last = now
+                since = Date()
+            } else if Date().timeIntervalSince(since) >= 0.6 {
+                return true
+            }
+        }
+        return false
+    }
+
+    /// Any other touch lowers the lantern: a touch on the dim, low at the left.
+    func lowerLantern(_ app: XCUIApplication) {
+        let moment = app.descendants(matching: .any).matching(identifier: "lantern-moment").firstMatch
+        guard moment.exists else { return }
+        moment.coordinate(withNormalizedOffset: CGVector(dx: 0.08, dy: 0.9)).tap()
+        let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: moment)
+        _ = XCTWaiter().wait(for: [gone], timeout: 4)
+    }
+
+    /// Walks the lord to world x by the realm strip: the strip that a call brought up, else the lantern moment's.
+    /// The map spans columns 3 ... 146 of the strip's 150 game px.
+    func tapRealmStrip(_ app: XCUIApplication, worldX: Double) {
+        let strip = app.descendants(matching: .any).matching(identifier: "realm-strip").firstMatch
+        if !strip.exists {
+            openLantern(app)
+            _ = strip.waitForExistence(timeout: 4)
+        }
+        guard strip.exists else {
+            XCTFail("no realm strip")
+            return
+        }
+        let column = 3 + min(1, max(0, worldX / 3900)) * 143
+        strip.coordinate(withNormalizedOffset: CGVector(dx: column / 150, dy: 0.72)).tap()
+    }
+}

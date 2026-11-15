@@ -589,7 +589,7 @@ Touch the ground and he walks there. Drag and he walks as before.
 | the hall's door, from either side (`tapDoor`, the seventh mark; in the world where the facade paints it, `HallDoor`) | walks to it | the stage changes (the world, the great hall) |
 | the tax lectern in the hall (no mark; until the town lane's taxes on foot) | walks to it | the tax card |
 | the ground, or a thing that offers nothing now | walks to that x (in the hall inside the floor, short of the way out) | stands |
-| the lord himself | nothing (stage-3 gives the tap the lantern moment) | |
+| the lord himself | raises the lantern: the lantern moment (stage-3-interface, HUD.md section 2; his body wins over a site he stands on) | any other touch lowers it |
 | the realm strip | runs there, as before | |
 
 - **The action starts when he arrives** (within 6 px of the thing's standing place). If he already stands there it
@@ -1211,6 +1211,10 @@ review also `aim:<n>` (archers drawing or loosing in the frame). Since M3 step 3
 `audience-reaction`, `audience-counsel-line`, `talk-bubble`, `report-unheard`; `realm-strip`'s value names the
 petitioners waiting. Since the lord pass also: `lord-entry-root`, `lord-name-field`, `lord-form-lord`,
 `lord-form-lady`, `lord-confirm`, `audience-text`, `audience-remembered`; `world-scene`'s value adds `lord:<form>`.
+Since stage-3-interface (15.11.2026, HUD.md): `hud-gold`, `hud-happiness`, `hud-people`, `hud-clock` and `hud-pause`
+(the gear) exist only in the lantern moment (`lantern-moment`, opened by a touch on the lord, `touch-lord`); `realm-strip`
+only there and while a call brings it up; `build-card-prev` and `build-card-next` are gone; `world-scene`'s value adds
+`gold:<n>` and `hud:none|notes|strip|moment`.
 Debug only: `debug-king-x`, `debug-camera-x` (values for the jitter test).
 
 ## Tests
@@ -4046,6 +4050,104 @@ marked hooks in shared files: `EmissiveInstance.Kind.rim` (FrameDesc), its quad 
   strip (art, atlas rows): the command frames lift the glass two rows only, so the raise reads through its light,
   flare and ring more than through the pose. The marks' parchment look waits for the night glass. German is not
   looked at before the store pass.
+
+#### Step stage-3-interface: nothing stands on the walked world, night glass, the places' sound (15.11.2026)
+
+The brief's items (docs/REVIEW-look-2.md H5, H8, M7, M8, M10, M12, L1, L5) as the director's notes of 14.11. and
+15.11. changed them: HUD.md (nothing on the walked world, the lantern moment), TITLE.md section 4 (night glass, no
+parchment anywhere), the stage-2 critic's second look (its five highs), build 2 English only (L5 waits for the store
+pass), the title is not this lane's (TITLE.md sections 1 to 3: one agent wires it after the join). New files:
+`Core/LanternMoment.swift` (`HUDKit`: the kit's pieces on the grid; `PurseTicker`; `ChangeNotes`; `LordNotes`;
+`StripCall`; `HUDKitActors`), `Core/RealmMapPixels.swift` (the realm strip's pixels), `App/GameModel+Lantern.swift`,
+`UI/LanternMomentView.swift`, `tools/markart.py`, `Tests/LanternMomentTests.swift`. Small marked blocks in shared
+files: `GameModel` (the state, `setOverlay` keeps the moment's pause, the background raises the lantern, `gold:` and
+`hud:` in the scene's value, the ambience's x), `SpriteID` (the kit's seven ids), `PlaceholderPolish`, the catalog.
+
+- **Nothing on the walked world (HUD.md sections 1, 5):** the ledger slip, the pause seal (L1) and the standing realm
+  strip are gone. A screenshot of the lord walking shows no interface (`40-walk-no-hud`).
+- **The lantern moment (section 2):** a tap on the lord (his body, below where the marks hang; he wins over a thing
+  he stands on unless the finger is nearer the thing, it is a person, or he waits there to pay) raises the lantern:
+  the simulation stops, the world dims by 30 %, he holds the pole high and his glass burns brighter; above him on the
+  world's grid, unlit, the kit's coin and gold, the hood face of the mood, the people and their count, and 2 px under
+  them the dawn sign and the day (the day line's bottom 8 px over his head); the realm strip at the top (a tap walks
+  him there and lowers the lantern; from the hall he goes out by the door); the gear (44 pt) in the top right opens
+  the pause sheet; any other touch lowers it; both answer at once. The app going to the background raises it by
+  itself (the pause sheet only where no frame was drawn yet). VoiceOver: the lord is the element `touch-lord` ("Mira,
+  day 12, 93 gold, the town is glad, 28 people", "Double tap to pause"); in the moment the figures are elements
+  (`hud-gold`, `hud-happiness` with the mood in words, `hud-people`, `hud-clock` "Day 12, 10:24"). The ambience ducks
+  as under a screen. Works on the world and in the hall.
+- **What comes by itself (section 3):** while the treasury changes, the coin and the figure stand 6 px over his head
+  and tick a coin at a time (at most 30 ticks of 0.035 s for a change, evenly), and go 2 s after the last coin; a
+  change made under a card ticks once the world shows again (the order on the build card ticks down after it closes,
+  `161-purse-at-lord`). A change of the mood or the people shows its sign and an arrow for 2 s on the same row. A call
+  (petitioners waiting while he is outside the hall, the Stranger at the gate, a wall below half at night) brings the
+  strip for 6 s when it begins or grows and again every 45 s while it stands (round lh-s3-3: once a game hour, 12 s,
+  kept it up half the time); answered, it goes at once. The
+  breathing of the lantern before the horn (section 4) is the first item of the cut order and not built.
+- **The realm strip (H5):** 300 x 50 pt (the map 150 x 14 game px at 2 pt, the call's tag above it), a map cut in
+  pixels on night glass with the map's own glyphs (`RealmMapPixels`, ART-look2.md 21.8). It never stands, so the 60 %
+  state of H5 (a standing strip while nothing calls) has no place left: it shows whole whenever it shows.
+- **Night glass (TITLE.md section 4; ci-out/director/night-glass.md):** the three commits of `claude/lh-glass` are
+  taken (2f0d556, adadad5, 62c17fd; `UI/NightGlass.swift` built at once, round lh-s3-1), and the wiring note is done:
+  the paper's tokens hold the glass's colours, the sheet, slip, desk and plaque backgrounds are the pane and the
+  plaques, the main and quiet buttons the glass styles, the rules haze and the gold lozenge; the portraits and the
+  thumbnails sit in the brass line; the talk bubble, the horn's slip, the errand's slip and the cards' pointers carry
+  the pixel tail; the dawn report's wash is gone, its sun and ribbons are glass; the pause sheet's switches are the
+  pixel slot; Odile's slips lose the teal bar, names are lantern gold and roles mist. The cards' coin, face and people
+  are the kit's pixel ones (`KitIcon`). A short price is `Theme.short` (ember). Layout, sizes and words are unchanged.
+- **M7, the build card:** the header's figure says "Treasury" in the quiet italic beside it; the arrows to the other
+  sites are gone (the player touches the site he means; `GameModel.showPlot` stays for the tests).
+- **M8, the Burgherrin's own portrait:** SPRITES.md "The marks as signs, the interface kit, the lady's portrait".
+- **M10, the pause sheet:** "Restart chapter" stands under a quiet "Chapter" row below the switches as words alone
+  (44 pt), its confirmation as before.
+- **M12, the places' sound:** four beds synthesised in `tools/soundsynth.py` (`amb_throat` 7 s: the hollow wind, the
+  fog's hiss, a howl in the rock, pebbles and a drip; `amb_bailey` 7 s: the anvil in short runs, the bellows, three
+  voices, a sheltered wind; `amb_valley` 6 s: small birds, never a tune, leaves; `amb_river` 5 s: the water's body,
+  its babble, bubbles). `AmbienceMix.target(..., x:)` crossfades them over 120 px along the strip (the Throat to the
+  bailey at the front gate's passage, 1360; the bailey to the valley at the postern, 2330; the river from 3560 to
+  3680); the bailey's forge and the valley's birds sleep at night; the open wind falls back inside the walls (to 60 %)
+  and in the valley (to 50 %); in the hall only the hall. The hall's door creak and latch were already in (stage-1).
+  The sounds are 3.8 MB now (the test's budget 4 MB).
+- **The stage-2 critic's second look (first jobs):** the marks are signs alone (bone with an ink edge; frame 1 lantern
+  gold); a slip that names a thing takes its mark's place (the errand's slip, and inside the horn's slip at the door);
+  on Marek's days the barracks' sign hangs at the edge the cart leaves free (x 1540) and the barracks carry no rim; a
+  site's sign stands over the heads (tip 22 px); by day three marks at most, and two building marks never closer than
+  120 px; the rim at 0.5 of `gold` by day; the raised lantern's ring is gone, the lift throws four sparks. The door's
+  sign is an arched double door with one seam and its ring (round lh-s3-3's 155: two seams read as a pause sign).
+- **After the gate round lh-s3-4** (build, all unit tests, ui Hall, Audience, Lord, Polish, Look2 and TouchUITests'
+  stage-2 flow passed; FirstDay and the moment in the hall failed): the camera eases on after the lord stops, so a touch
+  read from his element a moment earlier fell on the site he stood on and opened its card; the scene's value carries
+  `cam:` and the tests wait for it; the lord's body wins within 7 px and over a bench (furniture), never over a person
+  standing there or a wall he waits at to pay. The lady's portrait has a gold drop at her ear lobe (hand-finished).
+- **Rounds** (the gate by the director's notes of 14.11. 18:46 and 19:35: one round, English, no `ui-de`, no
+  `release`): `lh-s3-1` build (the night glass file of 62c17fd builds); `lh-s3-2` build and the touched unit classes
+  (two of the new tests: the purse's stride, the call's strip in the hud value); `lh-s3-3` build, unit, ui FirstDay and
+  Touch (FirstDay: the call's strip stood half the time, the report's Continue filled half the card); `lh-s3-4` and
+  `lh-s3-5` the gate's classes (all unit tests and five UI classes passed; FirstDay's touch on the lord on his site,
+  the moment in the hall and at dusk); `lh-s3-6` the model test of that touch (passed: the camera had eased on);
+  `lh-s3-7` ui FirstDay, Touch, Audience (the touch fixed; the day ran out at four times as fast); **`lh-s3-8` build,
+  unit and ui Touch, FirstDay, Hall, Audience, Lord, Polish and Look2 ALL PASSED on 35b9c8b** (the gate; sweep
+  `ci-out/lh-s3-8-upright`). The atlas: 2048 x 1925 of 2048 rows, unchanged (the kit fills gaps of the page).
+- **Open:** the title (TITLE.md, not this lane's); ja and zh-Hans (the store pass); the count (PAY.md: the second touch
+  still pays); the lantern's breathing before the horn (HUD.md section 4, first in the cut order); the strip covers the
+  castle's crowns while it shows (the world lane's tops, H5's second half); the Burgherrin reads young and distinct
+  from the Burgherr but could be softer still (a lip colour, a lighter cheek).
+- **After round lh-s3-3's sweep:** the glass plaque's skins lie behind its words (as ZStack siblings the resizable
+  skins took all the room: the report's Continue filled half the card); the strip's Throat carries low crags in haze
+  rising into the cleft's walls toward the gate and the beacon's crag (that half of the map was an empty line).
+- **H8, the title:** not built here: the director's note of 15.11. 01:09 gives the title, the loading lantern and the
+  launch image to one agent after the join (TITLE.md). The name entry is on night glass.
+- **L5 (ja and zh-Hans):** not run: build 2 is English only (the director's notes of 14.11. 19:19 and 19:35). New
+  strings in English and German: "Double tap to go on", "Double tap to pause", "%@, day %lld, %lld gold, %@, %lld
+  people", the four moods in words ("the town is glad", "even", "grim", "in unrest"), "Chapter".
+- **Tests:** `LanternMomentTests` (the row and the day line on the grid, the face's bands, the purse's ticks and
+  linger, the notes, the strip's call, the strip's pixels, and through the model: a tap on the lord stills the world
+  and any touch runs it on, the gear and the background, the gold over the lord in the frame, the lord's element);
+  `TouchCraftTests` (three by day and the 120 px spacing, the quieter rim, a hidden mark, the cart's barracks, the
+  sparks; a site's sign at 22 px); `SoundTests` (the places' beds and the crossfade). UI: `FirstDayUITests` (40
+  without a HUD, 160 the lantern moment, 161 the purse at the lord, the strip from the moment, the gear to the pause
+  sheet), `TouchUITests.testTheLanternMoment` (167 the call's strip, 162 to 166 the moment by day, with the pause
+  sheet, at dusk, at night and in the hall), `HallUITests` and `AudienceUITests` use the strip from the moment.
 
 ## Risks
 

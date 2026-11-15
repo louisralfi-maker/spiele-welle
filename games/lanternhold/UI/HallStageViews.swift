@@ -51,10 +51,9 @@ struct HornSlipView: View {
         .padding(.vertical, 6)
         .background(SlipBackground())
         .overlay(alignment: .bottom) {
-            PointerShape()
-                .fill(Theme.rule)
-                .frame(width: 12, height: 6)
-                .offset(y: 6)
+            // Night glass: the pane's own pixel tail under it.
+            GlassTail()
+                .offset(y: 4 * NightGlass.pointsPerPixel)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Text("The horn has sounded"))

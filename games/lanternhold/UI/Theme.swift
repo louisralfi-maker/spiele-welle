@@ -11,31 +11,37 @@ enum Theme {
     /// The writing desk: the dark under the papers (the pause sheet, the defeat card, the veil).
     static let desk = Color(hex: 0x1D1712)
     static let desk2 = Color(hex: 0x2A2119)
-    /// Writing on the desk.
-    static let bone = Color(hex: 0xE4D6B4)
-    static let boneDim = Color(hex: 0xB3A27F)
+    /// Writing on the desk. Night glass (stage-3-interface, TITLE.md section 4): bone and the muted blue-grey.
+    static let bone = Color(hex: 0xDED2B8)
+    static let boneDim = Color(hex: 0xC5CBD9)
     /// A sheet of parchment, from its light corner to its deep one.
     static let parchment = Color(hex: 0xECDCB1)
     static let parchmentMid = Color(hex: 0xDCC690)
     static let parchmentDeep = Color(hex: 0xCDB47C)
-    /// The lighter slip of a plaque on the sheet.
-    static let plaque = Color(hex: 0xF4E9CB)
-    static let ink = Color(hex: 0x38281A)
-    static let inkSoft = Color(hex: 0x58432B)
-    /// The ink rules of a frame.
-    static let rule = Color(hex: 0x5D4526)
-    /// House Lantern's teal: Odile's hand, what is chosen, what opens.
-    static let teal = Color(hex: 0x1F5C5E)
+    // Night glass (stage-3-interface; ci-out/director/night-glass.md step 2): the paper's names now hold the glass's
+    // colours, so every card that says them is repainted at once. No parchment is left (Louis, 15.11.2026).
+    /// A plaque's own fill: none (the glass skins carry it).
+    static let plaque = Color.clear
+    /// Running words: bone.
+    static let ink = Color(hex: 0xDED2B8)
+    /// Quieter words and asides: the muted blue-grey.
+    static let inkSoft = Color(hex: 0xC5CBD9)
+    /// Rules and separators: night haze.
+    static let rule = Color(hex: 0x2F3F72)
+    /// What was House Lantern's teal (Odile's hand, what is chosen): the muted blue-grey on glass.
+    static let teal = Color(hex: 0xC5CBD9)
     static let gold = Color(hex: 0xD19A2C)
-    static let goldHi = Color(hex: 0xF4C85A)
-    /// Wax red: rubrics, seals, warnings.
-    static let rubric = Color(hex: 0x8C3423)
+    static let goldHi = Color(hex: 0xFFC65A)
+    /// Headings and names: lantern gold (the wax red is gone).
+    static let rubric = Color(hex: 0xFFC65A)
     static let rubricHi = Color(hex: 0xB9503A)
     static let rubricDeep = Color(hex: 0x63200F)
-    /// The words and signs pressed into wax.
-    static let sealWords = Color(hex: 0xF6E8C6)
-    /// A warning written on the desk (the rubric is too dark there).
-    static let rubricOnDesk = Color(hex: 0xE58A6E)
+    /// The words of a main button: lantern gold.
+    static let sealWords = Color(hex: 0xFFC65A)
+    /// A warning on the glass is told by its ember line; its words stay bone.
+    static let rubricOnDesk = Color(hex: 0xDED2B8)
+    /// A price the treasury cannot pay (the slip, a plaque's cost): ember, the palette's red.
+    static let short = Color(hex: 0xD9481F)
 
     // Fire and land for the strip of map and the banners.
     static let fireOrange = Color(hex: 0xE8822A)
@@ -267,41 +273,24 @@ struct CrossedRule: Shape {
 /// card. Warm paper, darker toward one corner, nearly square corners, an ink rule at the edge and a second one inside
 /// whose lines cross at the corners.
 struct ParchmentBackground: View {
-    /// Kept from the first look's rounded cards; the sheets are cut square (2 pt) whatever is asked.
+    /// Kept from the first look's rounded cards; ignored (night glass, stage-3-interface).
     var corner: CGFloat = 2
-    /// A small slip (Odile's note, a caption) has no room for the inner rule.
+    /// Kept for the callers; ignored.
     var ruled = true
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 2, style: .continuous)
-        shape
-            .fill(LinearGradient(stops: [.init(color: Theme.parchment, location: 0),
-                                         .init(color: Theme.parchmentMid, location: 0.6),
-                                         .init(color: Theme.parchmentDeep, location: 1)],
-                                 startPoint: .topLeading, endPoint: .bottomTrailing))
-            .overlay(shape.strokeBorder(Theme.rule, lineWidth: 1))
-            .overlay {
-                if ruled {
-                    CrossedRule(inset: 5, reach: 3).stroke(Theme.rule.opacity(0.85), lineWidth: 1)
-                }
-            }
-            .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 5)
+        GlassPanelBackground()
     }
 }
 
 /// A slip of parchment over the scene (the HUD's ledger, a caption, a word from the court, Odile's note): the sheet's
 /// paper inside one ink rule, cut square.
 struct SlipBackground: View {
-    /// Odile's hand: the rule in House Lantern's teal.
+    /// Odile's hand once had a teal rule; on night glass every slip is one pane.
     var teal = false
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 2, style: .continuous)
-        shape
-            .fill(LinearGradient(colors: [Theme.parchment, Theme.parchmentMid], startPoint: .topLeading,
-                                 endPoint: .bottomTrailing))
-            .overlay(shape.strokeBorder(teal ? Theme.teal : Theme.rule, lineWidth: teal ? 1.5 : 1))
-            .shadow(color: .black.opacity(0.45), radius: 3, x: 0, y: 2)
+        GlassPanelBackground()
     }
 }
 
@@ -311,12 +300,7 @@ struct NightBackground: View {
     var corner: CGFloat = 2
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 2, style: .continuous)
-        shape
-            .fill(LinearGradient(colors: [Theme.desk2, Theme.desk], startPoint: .top, endPoint: .bottom))
-            .overlay(shape.strokeBorder(Theme.boneDim.opacity(0.75), lineWidth: 1))
-            .overlay(CrossedRule(inset: 5, reach: 3).stroke(Theme.gold.opacity(0.4), lineWidth: 1))
-            .shadow(color: .black.opacity(0.6), radius: 12, x: 0, y: 6)
+        GlassPanelBackground()
     }
 }
 
@@ -329,44 +313,32 @@ struct PlaqueBackground: View {
     var pressed = false
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 2, style: .continuous)
-        shape
-            .fill(pressed ? Theme.parchmentDeep.opacity(0.9) : Theme.plaque.opacity(enabled ? 0.82 : 0.3))
-            .overlay(shape.strokeBorder(marked ? Theme.teal : Theme.rule.opacity(enabled ? 0.9 : 0.4),
-                                        lineWidth: marked ? 2 : 1))
-            .overlay(
-                RoundedRectangle(cornerRadius: 1, style: .continuous)
-                    .inset(by: 3)
-                    .strokeBorder(Theme.rule.opacity(enabled ? 0.32 : 0.16), lineWidth: 1)
-            )
+        if pressed {
+            GlassSkinView(skin: .plaquePressed)
+        } else {
+            GlassPlaqueBackground(enabled: enabled, marked: marked)
+        }
     }
 }
 
 /// A thin ink rule across a sheet.
 struct InkRule: View {
-    var color: Color = Theme.rule.opacity(0.6)
+    /// Kept for the callers; the rule is night haze on glass.
+    var color: Color = Theme.rule
 
     var body: some View {
-        Rectangle()
-            .fill(color)
-            .frame(height: 1)
-            .accessibilityHidden(true)
+        GlassRule()
     }
 }
 
 /// A rule with a small lozenge at its middle, as under the map's title: it closes a heading.
 struct FlourishRule: View {
-    var color: Color = Theme.rule.opacity(0.7)
+    /// Kept for the callers; on glass two haze rules and a pixel lozenge in lantern gold.
+    var color: Color = Theme.rule
     var gem: Color = Theme.rubric
 
     var body: some View {
-        HStack(spacing: 6) {
-            Rectangle().fill(color).frame(height: 1)
-            Rectangle().fill(gem).frame(width: 5, height: 5).rotationEffect(.degrees(45))
-            Rectangle().fill(color).frame(height: 1)
-        }
-        .frame(height: 9)
-        .accessibilityHidden(true)
+        GlassFlourish()
     }
 }
 
@@ -375,7 +347,7 @@ struct FlourishRule: View {
 struct Leader: View {
     var body: some View {
         LeaderLine()
-            .stroke(Theme.rule.opacity(0.6), style: StrokeStyle(lineWidth: 1.3, lineCap: .round, dash: [0.1, 4.6]))
+            .stroke(NightGlass.mistDark, style: StrokeStyle(lineWidth: 1.3, lineCap: .round, dash: [0.1, 4.6]))
             .frame(minWidth: 6, maxWidth: .infinity)
             .frame(height: 3)
             .layoutPriority(-1)
@@ -434,22 +406,37 @@ struct CornerGem: View {
 
 // MARK: - Icons, drawn in the same ink
 
-/// A gold coin (DESIGN.md "Economy": a coin icon, never a currency symbol): gold leaf inside an ink line.
+/// A gold coin (DESIGN.md "Economy": a coin icon, never a currency symbol). Night glass (stage-3-interface; the
+/// director's note of 15.11. 02:11): the interface kit's pixel coin (`hudCoin`), at whole device pixels near `size`.
 struct CoinIcon: View {
     var size: CGFloat = 16
 
     var body: some View {
-        ZStack {
-            Circle()
-                .fill(LinearGradient(colors: [Theme.goldHi, Theme.gold], startPoint: .topLeading,
-                                     endPoint: .bottomTrailing))
-            Circle()
-                .strokeBorder(Theme.ink, lineWidth: max(1, size * 0.09))
-            Circle()
-                .inset(by: size * 0.27)
-                .strokeBorder(Theme.ink.opacity(0.5), lineWidth: max(0.75, size * 0.06))
+        KitIcon(sprite: .hudCoin, size: size)
+    }
+}
+
+/// One frame of the interface kit at whole device pixels per art pixel, as near to `size` points as that allows,
+/// never smoothed (the cards' coin, face and people).
+struct KitIcon: View {
+    let sprite: SpriteID
+    var frame = 0
+    var size: CGFloat = 16
+    @Environment(\.displayScale) private var displayScale
+
+    var body: some View {
+        let art = CGFloat(max(1, sprite.size.height))
+        let whole = max(1, (size * displayScale / art).rounded())
+        let points = whole / displayScale
+        Group {
+            if let image = SpriteImages.image(sprite, frame: frame) {
+                Image(decorative: image, scale: 1 / points)
+                    .interpolation(.none)
+            } else {
+                Color.clear
+            }
         }
-        .frame(width: size, height: size)
+        .frame(width: CGFloat(sprite.size.width) * points, height: art * points)
         .accessibilityHidden(true)
     }
 }
@@ -513,28 +500,8 @@ struct HappinessFace: View {
     }
 
     var body: some View {
-        let mood = HappinessFace.mood(happiness)
-        ZStack {
-            Circle().fill(faceColor(mood))
-            Circle().strokeBorder(Theme.ink, lineWidth: max(1, size * 0.08))
-            HStack(spacing: size * 0.2) {
-                Capsule().fill(Theme.ink).frame(width: size * 0.12, height: size * 0.17)
-                Capsule().fill(Theme.ink).frame(width: size * 0.12, height: size * 0.17)
-            }
-            .offset(y: -size * 0.1)
-            if mood == .angry {
-                BrowShape()
-                    .stroke(Theme.ink, style: StrokeStyle(lineWidth: max(1, size * 0.08), lineCap: .round))
-                    .frame(width: size * 0.56, height: size * 0.14)
-                    .offset(y: -size * 0.26)
-            }
-            MouthShape(curve: curve(mood))
-                .stroke(Theme.ink, style: StrokeStyle(lineWidth: max(1.1, size * 0.09), lineCap: .round))
-                .frame(width: size * 0.46, height: size * 0.2)
-                .offset(y: size * 0.2)
-        }
-        .frame(width: size, height: size)
-        .accessibilityHidden(true)
+        // Night glass (stage-3-interface): the kit's hooded townsman in his four moods.
+        KitIcon(sprite: .hudFace, frame: HUDKit.faceFrame(happiness: happiness), size: size)
     }
 
     private func faceColor(_ mood: Mood) -> Color {
@@ -625,16 +592,13 @@ struct PeopleShape: Shape {
     }
 }
 
-/// The people of the valley as an icon.
+/// The people of the valley as an icon: the interface kit's two heads (stage-3-interface).
 struct PeopleIcon: View {
     var size: CGFloat = 16
     var color: Color = Theme.ink
 
     var body: some View {
-        PeopleShape()
-            .fill(color)
-            .frame(width: size, height: size * 0.86)
-            .accessibilityHidden(true)
+        KitIcon(sprite: .hudPeople, size: size)
     }
 }
 
@@ -643,65 +607,22 @@ struct PeopleIcon: View {
 /// The main button of a card (Continue, Resume, Begin, a second chance): a plaque of wax red with its words pressed in
 /// small capitals, at least 52 pt high. (The name is the first look's; every card says it.)
 struct GoldButtonStyle: ButtonStyle {
+    /// Night glass (stage-3-interface): the main button's lantern-gold line and words on a lifted slate face.
     func makeBody(configuration: Configuration) -> some View {
-        let shape = RoundedRectangle(cornerRadius: 3, style: .continuous)
-        return configuration.label
-            .font(Theme.caps(.headline))
-            .foregroundStyle(Theme.sealWords)
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, 22)
-            .padding(.vertical, 8)
-            .frame(minWidth: 52, minHeight: 52)
-            .background(
-                shape.fill(LinearGradient(colors: [Theme.rubricHi, Theme.rubric, Theme.rubricDeep],
-                                          startPoint: .topLeading, endPoint: .bottomTrailing))
-            )
-            .overlay(shape.strokeBorder(Color(hex: 0x4A160B), lineWidth: 1))
-            .overlay(
-                RoundedRectangle(cornerRadius: 2, style: .continuous)
-                    .inset(by: 3)
-                    .strokeBorder(Theme.sealWords.opacity(0.28), lineWidth: 1)
-            )
-            .overlay(shape.fill(Color.black.opacity(configuration.isPressed ? 0.2 : 0)))
-            .contentShape(shape)
+        GlassMainButtonStyle().makeBody(configuration: configuration)
     }
 }
 
 /// A quieter button (Replay the day, Cancel, Restart chapter): an inked plaque, at least 52 pt high; on the desk a
 /// plaque of dark wood with a bone rule.
 struct QuietButtonStyle: ButtonStyle {
+    /// Kept for the callers; every card is dark glass now.
     var onDark = false
-    /// A destructive choice (restarting the chapter): wax-red words and rule.
+    /// A destructive choice (restarting the chapter): an ember line.
     var danger = false
 
-    private var text: Color {
-        if danger { return onDark ? Theme.rubricOnDesk : Theme.rubric }
-        return onDark ? Theme.bone : Theme.ink
-    }
-
-    private var border: Color {
-        if danger { return (onDark ? Theme.rubricOnDesk : Theme.rubric).opacity(0.9) }
-        return onDark ? Theme.boneDim.opacity(0.8) : Theme.rule
-    }
-
     func makeBody(configuration: Configuration) -> some View {
-        let shape = RoundedRectangle(cornerRadius: 3, style: .continuous)
-        return configuration.label
-            .font(Theme.caps(.headline))
-            .foregroundStyle(text)
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 8)
-            .frame(minWidth: 52, minHeight: 52)
-            .background(shape.fill(onDark ? Theme.desk.opacity(0.7) : Theme.plaque.opacity(0.8)))
-            .overlay(shape.strokeBorder(border, lineWidth: danger ? 1.5 : 1))
-            .overlay(
-                RoundedRectangle(cornerRadius: 2, style: .continuous)
-                    .inset(by: 3)
-                    .strokeBorder(border.opacity(0.35), lineWidth: 1)
-            )
-            .overlay(shape.fill((onDark ? Color.white : Color.black).opacity(configuration.isPressed ? 0.14 : 0)))
-            .contentShape(shape)
+        GlassQuietButtonStyle(danger: danger).makeBody(configuration: configuration)
     }
 }
 
@@ -714,10 +635,9 @@ struct CardCloseButton: View {
         Button(action: action) {
             Image(systemName: "xmark")
                 .font(.system(size: 12, weight: .bold))
-                .foregroundStyle(Theme.ink)
+                .foregroundStyle(NightGlass.bone)
                 .frame(width: 26, height: 26)
-                .background(RoundedRectangle(cornerRadius: 2, style: .continuous).fill(Theme.plaque.opacity(0.7)))
-                .overlay(RoundedRectangle(cornerRadius: 2, style: .continuous).strokeBorder(Theme.inkSoft, lineWidth: 1))
+                .background(GlassSkinView(skin: .inset))
                 .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
         }

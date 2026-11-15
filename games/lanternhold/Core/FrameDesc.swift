@@ -170,6 +170,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // Touch the world (stage lane, step stage-2, 15.11.2026): the seventh mark, a door, over the great hall's door
     // in the world and its inner door (tools/hallart.py)
     case tapDoor
+    // The interface kit (stage lane, stage-3-interface, 15.11.2026; HUD.md, tools/hudart.py, SPRITES.md "The interface
+    // kit"): the lantern moment's row and day line, the gold at the lord, the cards' coin, face and people; drawn
+    // unlit, never lit by the world
+    case hudFigures, hudArrow, hudCoin, hudFace, hudPeople, hudGear, hudDawn
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -444,6 +448,13 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .hallShaft: return PixelSize(width: 83, height: 120)
         case .hallMote: return PixelSize(width: 1, height: 1)
         case .hallWash: return PixelSize(width: 64, height: 44)
+        // The interface kit (stage lane, stage-3-interface).
+        case .hudFigures: return PixelSize(width: 7, height: 9)
+        case .hudArrow: return PixelSize(width: 8, height: 9)
+        case .hudCoin, .hudFace: return PixelSize(width: 9, height: 9)
+        case .hudPeople: return PixelSize(width: 13, height: 9)
+        case .hudGear: return PixelSize(width: 10, height: 10)
+        case .hudDawn: return PixelSize(width: 11, height: 9)
         }
     }
 
@@ -512,6 +523,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .tapTalk, .tapThrone, .tapBuild, .tapRepair, .tapRecruit, .tapLight: return 2
         case .tapDoor: return 2
         case .hallWash: return 8
+        // The interface kit: the figures 0-9, plus and minus; the arrows up and down; the face's four moods.
+        case .hudFigures: return 12
+        case .hudArrow: return 2
+        case .hudFace: return 4
         default: return 1
         }
     }

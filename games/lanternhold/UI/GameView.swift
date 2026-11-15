@@ -54,6 +54,10 @@ struct GameView: View {
                 if let slip = model.hornSlip, model.overlay == nil, model.stage == .hall {
                     HornSlipView(anchor: slip)
                 }
+                // The lantern moment (stage-3-interface, HUD.md section 2): a tap on the lord stills the world.
+                if let show = model.lanternMoment, model.overlay == nil {
+                    LanternMomentView(model: model, show: show)
+                }
                 OverlayView(model: model)
                 // The ads (Ads/AdViews.swift): Marek's card over the world.
                 AdLayer(model: model)

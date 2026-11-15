@@ -58,13 +58,15 @@ struct TouchState: Sendable {
     var onLord = false
     var downAt = 0.0
     var raised = false
+    /// What the last tap did (the scene's value `tap:`, for the UI tests): `moment`, a thing's id, `ground`, `none`.
+    var lastTap = "none"
 }
 
 /// Touch the world (stage lane, step stage-2, 15.11.2026; DESIGN.md "Controls 2: touch the world"): the finger
 /// instead of the action button. A tap (a touch that never moves 10 pt) on a thing sends the lord to it; he walks
 /// (hurries beyond 480 px and at night; runs after a second tap on the same thing) and does what it offers when he
 /// arrives within 6 px of its standing place; a damaged wall's repair waits there for a second touch, which pays. A tap
-/// on the ground walks him there; a tap on the lord does nothing. Past 10 pt the touch is a drag, anywhere on the
+/// on the ground walks him there; a tap on the lord raises the lantern moment (stage-3-interface). Past 10 pt the touch is a drag, anywhere on the
 /// screen: he walks toward it, runs past 40 pt, stops when the finger lifts, and the errand is called off. While a card
 /// is open the world takes no touch.
 extension GameModel {
@@ -152,14 +154,33 @@ extension GameModel {
               let place = stagePoint(point, in: size) else { return }
         if firstTouchSlip { firstTouchSlip = false }
         touch.firstSlipPending = false
-        // The join: a touch on a town door knocks first (town-2, `GameModel.touchTown`); the doors are not things.
-        if stage != .hall, touchTown(at: point, in: size) { return }
-        if let thing = TouchRules.pick(x: place.x, lift: place.lift, things: touch.things, minimum: place.minimum) {
+        let picked = TouchRules.pick(x: place.x, lift: place.lift, things: touch.things, minimum: place.minimum)
+        // Stage-3-interface: a touch on the lord's own body raises the lantern moment even where he stands in a
+        // thing's area (a site he stands on), unless the finger is nearer the thing, it is a person, or he waits
+        // there for the second touch that pays.
+        if isOnLordsBody(place), picked.map({ prefersLord(over: $0, x: place.x) }) ?? true {
+            touch.lastTap = "moment"
+            openLanternMoment()
+            return
+        }
+        // The join: a touch on a town door knocks (town-2, `GameModel.touchTown`); the doors are not things.
+        if stage != .hall, touchTown(at: point, in: size) {
+            touch.lastTap = "door"
+            return
+        }
+        if let thing = picked {
+            touch.lastTap = thing.id
             touchThing(thing)
             return
         }
-        // Tapping the lord does nothing (stage-3 gives him the lantern moment; a hold at night raises the lantern).
-        if isOnLord(place) { return }
+        // A tap on the lord raises the lantern moment (stage-3-interface, HUD.md section 2; a hold at night still
+        // raises the lantern against the dark).
+        if isOnLord(place) {
+            touch.lastTap = "moment"
+            openLanternMoment()
+            return
+        }
+        touch.lastTap = "ground"
         cancelErrand()
         feedback.play(.touched)
         walk(to: groundX(place.x), run: false)
@@ -173,6 +194,21 @@ extension GameModel {
         case .guttering: return "guttering"
         case .resting: return "resting"
         }
+    }
+
+    /// True for a point on the middle of the lord's body, below where the marks hang (stage-3-interface).
+    func isOnLordsBody(_ place: (x: Double, lift: Double, minimum: Double)) -> Bool {
+        let ground = stage == .hall ? HallLayout.lift(at: stageLordX) : 0
+        return abs(place.x - stageLordX) <= 7 && place.lift >= ground + 3 && place.lift <= ground + 20
+    }
+
+    /// The lord before a thing under the same finger: not while he waits there to pay, never before a person standing
+    /// there (a bench is furniture: round lh-s3-4, the lord before the first bench could not raise his lantern), and
+    /// only when the finger is at least as near him as the thing's middle.
+    func prefersLord(over thing: TouchThing, x: Double) -> Bool {
+        if let errand = touch.errand, errand.id == thing.id, errand.waiting { return false }
+        if thing.kind == .talk { return false }
+        return abs(x - stageLordX) <= abs(x - thing.x)
     }
 
     /// True for a point on the lord's body.
@@ -326,6 +362,8 @@ extension GameModel {
     /// and is dropped when its offer is gone, a card opens or he stopped elsewhere. Then the first minute's slip.
     func stepTouch(_ seconds: Double) {
         guard kind == .world else { return }
+        // The lantern moment's side (stage-3-interface): the purse, the notes, the strip's call.
+        stepLanternHUD()
         stepFirstSlip()
         if touch.down != nil, touch.onLord, !touch.dragging, !touch.raised,
            clock.elapsed - touch.downAt >= LanternRaise.holdSeconds {
@@ -460,6 +498,8 @@ extension GameModel {
                                               tint: SIMD4<Float>(gold.x, gold.y, gold.z, 1), flipped: false,
                                               isEmissive: true, isLit: true))
         }
+        // Stage-3-interface: the gold and the notes above the lord, his raised pose while the lantern is up.
+        lanternWorld(&layer, state: state, framing: framing)
         noteTouchFrame()
     }
 
@@ -493,15 +533,28 @@ extension GameModel {
     /// The marks in view now: none under a card, during a change of stage or while the reference bot plays; the
     /// errand's thing always among them while it stands clear of the screen's edges.
     private func currentMarks(lordX: Double, framing: TouchFraming) -> [TouchMark] {
-        guard overlay == nil, stageChange == nil, driver?.bot == nil, !isShowcase else { return [] }
+        guard overlay == nil, stageChange == nil, driver?.bot == nil, !isShowcase, lanternMoment == nil else {
+            return []
+        }
         var marked = TouchRules.marked(touch.things, lordX: lordX, viewLeft: framing.viewLeft,
                                        viewRight: framing.viewRight)
+        // Stage-3-interface (stage-2 critic look 2, high 5): by day three at most, buildings' marks 120 px apart.
+        let night = Double(AmbientRamp.sample(at: driver?.state.hour ?? 12, look: args.look).torchStrength)
+        marked = TouchRules.thinned(marked, night: night)
         if let errand = touch.errand, let thing = touch.things.first(where: { $0.id == errand.id }),
            thing.kind.mark != nil,
            TouchRules.clearOfEdges(thing.markX, viewLeft: framing.viewLeft, viewRight: framing.viewRight) {
             marked = TouchRules.withErrand(marked, thing)
         }
-        return TouchMarks.marks(marked, pressed: touch.pressed ?? heldMark(marked))
+        var marks = TouchMarks.marks(marked, pressed: touch.pressed ?? heldMark(marked))
+        // High 2: a slip that names a thing takes its mark's place (the errand's slip; inside, the horn's at the
+        // door).
+        for index in marks.indices {
+            let id = marked[index].id
+            if touch.errand?.id == id && touch.errand?.stage == stage { marks[index].hidden = true }
+            if stage == .hall && hornSlip != nil && marked[index].kind == .door { marks[index].hidden = true }
+        }
+        return marks
     }
 
     /// `-GWPressed <id>` (fix round 1, the pressed frame's picture): that thing's mark held pressed while no finger is
@@ -547,19 +600,14 @@ extension GameModel {
             layer.glows.append(EntityGlow(.hallMote, x: glassX + spot.dx, y: glassY + spot.dy,
                                           color: SIMD4<Float>(warm.x * k, warm.y * k, warm.z * k, 1)))
         }
-        // The ring: a front of light at the growing light's edge, its crest bright and two fainter pixels behind it,
-        // over the walk line only (round lh-s2f1-1: a thin circle through the lane read as a radius gizmo).
-        let radius = LanternRaise.radius(since: since, normal: driver?.balance.lanternRadius ?? 40)
+        // Stage-3-interface (stage-2 critic look 2, high 1): no ring. The wave is the light itself, growing on the
+        // lane and the figures; the lift reads as a short burst of sparks rising from the glass.
         let gold = GamePalette.fireGold
-        let left = framing.viewLeft - 2
-        let right = framing.viewRight + 2
-        for (inset, share) in LanternFlare.band {
-            let k = Float(flare * share)
-            let color = SIMD4<Float>(gold.x * k, gold.y * k, gold.z * k, 1)
-            for pixel in LanternFlare.ring(cx: glassX, cy: glassY, radius: radius - inset, floor: 0)
-            where pixel.x >= left && pixel.x <= right {
-                layer.glows.append(EntityGlow(.hallMote, x: pixel.x, y: pixel.y, color: color))
-            }
+        let t = since ?? 1
+        for spark in LanternFlare.sparks(t: t) {
+            let k = Float(spark.share)
+            layer.glows.append(EntityGlow(.hallMote, x: glassX + spark.dx, y: glassY + spark.dy,
+                                          color: SIMD4<Float>(gold.x * k, gold.y * k, gold.z * k, 1)))
         }
     }
 
@@ -613,6 +661,11 @@ extension GameModel {
                 let value = thing.price.map { String(localized: "\($0) gold") }
                 spots.append(TouchSpot(id: thing.id, label: touchLabel(thing, state: state), value: value,
                                        rect: rect))
+            }
+            // Stage-3-interface: the lord himself, whose touch raises the lantern moment (HUD.md section 2).
+            if let lord = lordSpot(framing: framing, minimum: minimum) {
+                let index = spots.firstIndex { $0.rect.minX > lord.rect.minX } ?? spots.count
+                spots.insert(lord, at: index)
             }
         }
         if spots != touchSpots { touchSpots = spots }

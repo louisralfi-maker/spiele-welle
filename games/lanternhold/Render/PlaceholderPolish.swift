@@ -19,6 +19,9 @@ enum PlaceholderPolish {
             return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0xF2D49A, alpha: 128))]
         case .tapTalk, .tapThrone, .tapBuild, .tapRepair, .tapRecruit, .tapLight, .tapDoor:
             return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0xE8D7B0))]
+        // The interface kit (stage lane, stage-3-interface): a plain bone fill while a strip is missing.
+        case .hudFigures, .hudArrow, .hudCoin, .hudFace, .hudPeople, .hudGear, .hudDawn:
+            return [PixelImage(width: sprite.size.width, height: sprite.size.height, fill: RGBA(0xDED2B8))]
         default: return []
         }
     }

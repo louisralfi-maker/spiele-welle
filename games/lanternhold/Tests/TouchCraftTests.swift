@@ -48,7 +48,8 @@ final class TouchCraftTests: XCTestCase {
         XCTAssertEqual(tower.markLift, TouchRules.bandTip, "at the building's door, not at its crown")
         XCTAssertLessThanOrEqual(tower.markLift + TouchRules.markHeight, 48)
         XCTAssertGreaterThanOrEqual(TouchRules.area(tower, minimum: 22).top, 66, "the building answers to its top")
-        XCTAssertEqual(thing("site", kind: .plot, x: 100, top: 6).markLift, 6 + TouchRules.markGap, "a low site")
+        XCTAssertEqual(thing("site", kind: .plot, x: 100, top: 6).markLift, TouchRules.siteTip,
+                       "a low site's sign over the heads (stage-3-interface)")
         XCTAssertEqual(thing("barracks", kind: .recruit, x: 100, top: 44).markLift, TouchRules.bandTip)
         XCTAssertEqual(thing("tamsin", kind: .talk, x: 100, top: 30).markLift, 30 + TouchRules.markGap,
                        "over a person's head")
@@ -131,7 +132,7 @@ final class TouchCraftTests: XCTestCase {
         let cheapest = Build.options(s, plot: plot, balance: .standard).map(\.price).min()
         XCTAssertEqual(site.price, cheapest.flatMap { $0 > 0 ? $0 : nil }, "the cheapest price with its coin")
         XCTAssertNotNil(site.footing, "an empty plot has a footing")
-        XCTAssertEqual(site.markLift, Double(TouchFooting.stakeHeight) + TouchRules.markGap, "just over its cord")
+        XCTAssertEqual(site.markLift, TouchRules.siteTip, "over the heads of who stands there (stage-3-interface)")
         let footing = try XCTUnwrap(site.footing)
         XCTAssertTrue((8...24).contains(footing))
         let marks = TouchMarks.marks([site], pressed: nil)
@@ -225,6 +226,59 @@ final class TouchCraftTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(pixel.y, -26, "nothing under the lane")
         }
         XCTAssertEqual(Set(ring.map { "\($0.x),\($0.y)" }).count, ring.count, "each pixel once")
+    }
+
+    // MARK: - Stage-3-interface: the stage-2 critic's second look
+
+    func testByDayThreeMarksAndBuildingsKeepTheirDistance() {
+        let list = [thing("site", kind: .plot, x: 100), thing("tower", kind: .plot, x: 180),
+                    thing("tamsin", kind: .talk, x: 120), thing("barracks", kind: .recruit, x: 300),
+                    thing("door", kind: .door, x: 520)]
+        let marked = TouchRules.marked(list, lordX: 100, viewLeft: 0, viewRight: 700)
+        let day = TouchRules.thinned(marked, night: 0).map(\.id)
+        XCTAssertFalse(day.contains("tower"), "two building marks closer than 120 px: the farther gives way")
+        XCTAssertLessThanOrEqual(day.count, TouchRules.dayMarks, "by day three at most")
+        XCTAssertEqual(day.first, "site", "the nearest first")
+        let night = TouchRules.thinned(marked, night: 1)
+        XCTAssertGreaterThanOrEqual(night.count, day.count, "at night the four of M11")
+    }
+
+    func testTheRimIsQuieterByDay() {
+        let day = TouchRules.rimColor(pressed: false, night: 0)
+        let dusk = TouchRules.rimColor(pressed: false, night: 1)
+        XCTAssertEqual(day.x, GamePalette.gold.x * 0.5, accuracy: 0.001, "0.5 by day")
+        XCTAssertGreaterThan(TouchRules.rimColor(pressed: true, night: 0).x, day.x)
+        XCTAssertLessThan(dusk.z, dusk.x, "warm at night")
+    }
+
+    func testAHiddenMarkIsNotDrawnAndTheCartCarriesNoRim() throws {
+        var mark = TouchMark(sprite: .tapBuild, x: 100, lift: 22, pressed: false, poolX: 100, kind: .plot)
+        let framing = TouchFraming(stage: .world, whole: 0, deviceShift: 0, scale: 6, groundY: 1050,
+                                   physicalWidth: 2622, physicalHeight: 1206)
+        XCTAssertEqual(TouchMarks.actors([mark], framing: framing, night: 0).count, 1)
+        mark.hidden = true
+        XCTAssertTrue(TouchMarks.actors([mark], framing: framing, night: 0).isEmpty, "the slip takes its place")
+        // Day 3 of seed 2 is one of Marek's days (HallUITests' walk of the castle).
+        var s = GameState.newRealm(seed: 2)
+        s.day = 3
+        s.hour = 10
+        s.gold = 1_000
+        let barracks = try XCTUnwrap(TouchThings.world(s, balance: .standard, figures: [], talked: []).first {
+            $0.id == "touch-recruit-barracks"
+        })
+        if CourtLayout.props(s, catalog: .standard).contains(where: { $0.sprite == .marekCart }) {
+            XCTAssertTrue(barracks.noRim, "no rim while the cart stands before the barracks")
+            XCTAssertEqual(barracks.markX, TouchRules.barracksFreeX, "the sign at the edge the cart leaves free")
+        }
+    }
+
+    func testTheLiftThrowsSparksNotARing() {
+        let early = LanternFlare.sparks(t: 0.05)
+        XCTAssertEqual(early.count, 4)
+        XCTAssertTrue(early.allSatisfy { $0.dy >= 1 && $0.share > 0.5 })
+        let late = LanternFlare.sparks(t: 0.29)
+        XCTAssertTrue(late.allSatisfy { $0.dy <= 6 && $0.dy >= 3 }, "they rise 3 to 5 px")
+        XCTAssertTrue(LanternFlare.sparks(t: 0.3).isEmpty, "gone after 0.3 s")
     }
 
     // MARK: - The night's pictures

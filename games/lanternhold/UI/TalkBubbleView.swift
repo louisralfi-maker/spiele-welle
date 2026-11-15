@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// A court member's line in a speech bubble over his head (DESIGN.md "Talking"; M3 step 3; `talk-bubble`): a slip of
-/// parchment with his name as a rubric and the line, its tail pointing down at him, following him on screen. A tap closes it
+/// A court member's line in a speech bubble over his head (DESIGN.md "Talking"; M3 step 3; `talk-bubble`): a pane of
+/// night glass with his name in lantern gold and the line, its tail pointing down at him, following him on screen. A tap closes it
 /// (walking away closes it too, `GameModel.stepCourt`).
 @MainActor
 struct TalkBubbleView: View {
@@ -36,27 +36,16 @@ struct TalkBubbleView: View {
                     .padding(.vertical, 8)
                     .frame(width: width, alignment: .leading)
                     .frame(minHeight: 44)
-                    .background(
-                        RoundedRectangle(cornerRadius: 2, style: .continuous)
-                            .fill(Theme.parchment)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 2, style: .continuous)
-                            .strokeBorder(Theme.rule, lineWidth: 1.2)
-                    )
+                    .background(GlassPanelBackground())
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityHint(Text("Tap to close"))
                 .accessibilityIdentifier("talk-bubble")
-                TailShape()
-                    .fill(Theme.parchment)
-                    .overlay(TailShape().stroke(Theme.rule, lineWidth: 1.2))
-                    .frame(width: 14, height: 9)
-                    .offset(x: tail - width / 2, y: -1.2)
+                GlassTail()
+                    .offset(x: tail - width / 2)
                     .accessibilityHidden(true)
             }
-            .shadow(color: .black.opacity(0.35), radius: 6, x: 0, y: 3)
             .frame(width: width)
             .offset(x: left)
             .frame(width: geometry.size.width, height: max(0, head - 4), alignment: .bottomLeading)

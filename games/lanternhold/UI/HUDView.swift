@@ -55,93 +55,52 @@ struct ProbeHUD: View {
     }
 }
 
-/// The game's HUD.
+/// The game's HUD after docs/HUD.md (stage lane, step stage-3-interface, 15.11.2026): nothing stands on the walked
+/// world. The ledger slip, the pause seal and the standing realm strip are gone; a tap on the lord is the lantern moment
+/// (`LanternMomentView`: the figures above him, the strip, the gear). What stays here comes by itself and goes: the
+/// realm strip while something calls (petitioners, the Stranger, a breach at night; `StripCall`), and the horn's ribbon
+/// at 19:00. The gold and the notes above the walking lord are drawn in the world (`GameModel+Lantern.swift`).
 @MainActor
 struct GameHUD: View {
     let model: GameModel
-    /// Room kept on each side of the realm strip for the pause button and the clock column.
-    static let sideRoom: CGFloat = 196
-
-    /// A card or a screen is open (M2b review: the HUD's clock, numbers and strip peeked out beside and under every
-    /// card as cut fragments; the cards that spend gold show the treasury themselves). The audience is neither (M3):
-    /// its card stands below the HUD, whose numbers roll in their place after a choice, and the strip rests for
-    /// Odile's counsel.
-    private var covered: Bool { model.overlay != nil && model.overlay != .audience }
-    /// A whole screen is open (the dawn report, the defeat card, the pause sheet): the pause button goes too. During
-    /// the audience it stays, since the pause sheet ends the audience (M3).
-    private var screen: Bool { model.overlay?.isScreen ?? false }
-    /// The hall stage: the audience's letter lies in the upper left where the pause seal sits; it ends the audience
-    /// by its own Leave plaque, so the seal rests meanwhile.
-    private var hallAudience: Bool { model.overlay == .audience && model.stage == .hall }
 
     var body: some View {
-        GeometryReader { geometry in
-            let stripWidth = max(160, min(380, geometry.size.width - 2 * GameHUD.sideRoom))
-            ZStack(alignment: .top) {
-                if model.isShowcase {
-                    HStack {
-                        Spacer(minLength: 0)
-                        ClockBadge(day: model.day, time: model.clockText)
-                            .hiddenUnder(covered)
-                    }
-                } else {
-                    topBar
-                    VStack(spacing: 8) {
-                        // M3: the strip rests during the audience (Odile's counsel shows there).
-                        if let strip = model.strip, model.overlay != .audience {
-                            RealmStripView(strip: strip, reduceMotion: model.reduceMotion) { fraction in
-                                model.travel(toFraction: fraction)
-                            }
-                            .frame(width: stripWidth, height: RealmStripView.height)
+        ZStack(alignment: .top) {
+            if !model.isShowcase {
+                VStack(spacing: 8) {
+                    if model.stripCalling, model.lanternMoment == nil, model.overlay == nil, let strip = model.strip {
+                        RealmStripView(strip: strip, reduceMotion: model.reduceMotion) { fraction in
+                            model.travel(toFraction: fraction)
                         }
-                        if let night = model.hornNight {
-                            HornBanner(night: night)
-                                .transition(model.reduceMotion ? AnyTransition.identity : AnyTransition.opacity)
-                        }
+                        .transition(model.reduceMotion ? AnyTransition.identity : AnyTransition.opacity)
                     }
-                    .animation(model.reduceMotion ? nil : .easeInOut(duration: 0.35), value: model.hornNight)
-                    .hiddenUnder(covered)
+                    if let night = model.hornNight, model.lanternMoment == nil {
+                        HornBanner(night: night)
+                            .transition(model.reduceMotion ? AnyTransition.identity : AnyTransition.opacity)
+                    }
                 }
-                if model.showsDebugValues || model.showsStats {
-                    VStack {
-                        Spacer(minLength: 0)
-                        HStack(alignment: .bottom) {
-                            if model.showsStats { StatsPanel(text: model.statsText) }
-                            if model.showsDebugValues {
-                                DebugValues(kingX: model.debugKingX, cameraX: model.debugCameraX)
-                            }
-                            Spacer(minLength: 0)
+                .padding(.top, 4)
+                .animation(model.reduceMotion ? nil : .easeInOut(duration: 0.35), value: model.hornNight)
+                .animation(model.reduceMotion ? nil : .easeInOut(duration: 0.3), value: model.stripCalling)
+                .hiddenUnder(model.overlay != nil && model.overlay != .audience)
+            }
+            if model.showsDebugValues || model.showsStats {
+                VStack {
+                    Spacer(minLength: 0)
+                    HStack(alignment: .bottom) {
+                        if model.showsStats { StatsPanel(text: model.statsText) }
+                        if model.showsDebugValues {
+                            DebugValues(kingX: model.debugKingX, cameraX: model.debugCameraX)
                         }
+                        Spacer(minLength: 0)
                     }
                 }
             }
-            .frame(width: geometry.size.width, height: geometry.size.height, alignment: .top)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 8)
-        .padding(.top, 6)
+        .padding(.top, 2)
         .padding(.bottom, 2)
-    }
-
-    private var topBar: some View {
-        HStack(alignment: .top, spacing: 8) {
-            PauseButton { model.openPause() }
-                .hiddenUnder(screen || hallAudience)
-            Spacer(minLength: 0)
-            // One slip of the ledger: the day and the hour over a rule, the three numbers under it.
-            VStack(alignment: .trailing, spacing: 9) {
-                ClockBadge(day: model.day, time: model.clockText, framed: false)
-                    .frame(height: 20)
-                RealmNumbers(gold: model.gold, happiness: model.happiness, people: model.people,
-                             reduceMotion: model.reduceMotion, framed: false)
-            }
-            .overlay(alignment: .top) {
-                InkRule().padding(.top, 24)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(SlipBackground())
-            .hiddenUnder(covered)
-        }
     }
 }
 
@@ -376,8 +335,8 @@ struct ActionButton: View {
     }
 }
 
-/// The horn at 19:00 (DESIGN.md "Day and night": a low horn sounds, the Gloom stirs): a dark ribbon for a few seconds,
-/// lettered in gold like the map's headings.
+/// The horn at 19:00 (DESIGN.md "Day and night": a low horn sounds, the Gloom stirs): a ribbon of night glass for a
+/// few seconds, lettered in lantern gold (TITLE.md section 4).
 struct HornBanner: View {
     let night: Int
 
@@ -395,8 +354,7 @@ struct HornBanner: View {
         .fixedSize(horizontal: false, vertical: true)
         .padding(.horizontal, 36)
         .padding(.vertical, 8)
-        .background(RibbonShape(notch: 14).fill(Theme.desk.opacity(0.92)))
-        .overlay(RibbonShape(notch: 14).stroke(Theme.gold.opacity(0.8), lineWidth: 1.2))
+        .background(GlassRibbonBackground(height: 30))
         .allowsHitTesting(false)
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("horn-banner")

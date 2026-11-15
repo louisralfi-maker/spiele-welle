@@ -19,9 +19,8 @@ struct AnchoredCard<Content: View>: View {
             VStack(spacing: 0) {
                 content()
                     .frame(width: cardWidth)
-                PointerShape()
-                    .fill(Theme.woodDark)
-                    .frame(width: 18, height: 9)
+                // Night glass (stage-3-interface): the pane's pixel tail toward the place.
+                GlassTail()
                     .offset(x: pointer - cardWidth / 2)
                     .accessibilityHidden(true)
             }
@@ -61,10 +60,17 @@ struct CardChrome<Header: View, Content: View>: View {
                 header()
                 Spacer(minLength: 6)
                 if let treasury {
-                    GoldAmount(amount: treasury, size: 14)
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityLabel(Text("Gold"))
-                        .accessibilityValue(Text(verbatim: "\(treasury)"))
+                    // M7 (stage-3-interface): the treasury says so, in the quiet words, so it never reads as a price.
+                    HStack(spacing: 5) {
+                        Text("Treasury")
+                            .font(Theme.italic(.footnote))
+                            .foregroundStyle(NightGlass.mist)
+                        GoldAmount(amount: treasury, size: 13, color: NightGlass.mist)
+                    }
+                    .fixedSize()
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(Text("Treasury"))
+                    .accessibilityValue(Text(verbatim: "\(treasury)"))
                 }
             }
             .padding(.trailing, 44)
@@ -138,7 +144,7 @@ struct OptionRow<Trailing: View>: View {
                         if selected {
                             Image(systemName: "checkmark.seal.fill")
                                 .font(.system(size: 14, weight: .bold))
-                                .foregroundStyle(Theme.teal)
+                                .foregroundStyle(NightGlass.lanternGold)
                         }
                         Text(inked: name, .headline)
                             .font(Theme.caps(.headline))
@@ -154,7 +160,7 @@ struct OptionRow<Trailing: View>: View {
                             Text(inked: hint, .footnote)
                         }
                         .font(Theme.serif(.footnote))
-                        .foregroundStyle(hintIsWarning ? Theme.rubric : Theme.inkSoft)
+                        .foregroundStyle(NightGlass.mist)
                     }
                 }
                 .fixedSize(horizontal: false, vertical: true)
@@ -209,19 +215,9 @@ struct BuildCardView: View {
         AnchoredCard(anchor: model.cardAnchor, width: 430) {
             CardChrome(identifier: "build-card", closeIdentifier: "build-card-close", treasury: model.gold,
                        close: { model.closeCard() }) {
-                HStack(alignment: .top, spacing: 2) {
-                    if let previous = card.previous {
-                        arrow("chevron.left", label: Text("Previous site"), identifier: "build-card-prev") {
-                            model.showPlot(previous)
-                        }
-                    }
-                    CardTitle(title: Texts.plotTitle(slot: card.slot, line: card.line), subtitle: subtitle)
-                    if let next = card.next {
-                        arrow("chevron.right", label: Text("Next site"), identifier: "build-card-next") {
-                            model.showPlot(next)
-                        }
-                    }
-                }
+                // M7 (stage-3-interface): no arrows to the other sites; with touch the world the player touches the
+                // site he means.
+                CardTitle(title: Texts.plotTitle(slot: card.slot, line: card.line), subtitle: subtitle)
             } content: {
                 VStack(alignment: .leading, spacing: 8) {
                     ForEach(card.options, id: \.item) { option in
@@ -273,20 +269,6 @@ struct BuildCardView: View {
     private func isWarning(_ option: BuildCard.Option) -> Bool {
         if case .tooExpensive = option.availability { return true }
         return false
-    }
-
-    private func arrow(_ symbol: String, label: Text, identifier: String,
-                       action: @escaping @MainActor () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: symbol)
-                .font(.system(size: 16, weight: .bold))
-                .foregroundStyle(Theme.ink)
-                .frame(width: 44, height: 44)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(label)
-        .accessibilityIdentifier(identifier)
     }
 }
 

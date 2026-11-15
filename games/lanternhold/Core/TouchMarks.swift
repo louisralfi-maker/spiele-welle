@@ -60,6 +60,11 @@ struct TouchMark: Sendable, Equatable {
     var half: Double = 6
     var footing: Double? = nil
     var rimX: Double? = nil
+    /// Stage-3-interface (stage-2 critic look 2, high 2): a slip names the thing now and takes the mark's place, so the
+    /// mark is not drawn (its rim and pool stay).
+    var hidden = false
+    /// No gold rim on the thing (the barracks while Marek's cart stands before them: the rim read as the cart's).
+    var noRim = false
 }
 
 /// The marks of touch the world on a stage (SPRITES.md "The marks of 'touch the world'"): a small tag over each thing
@@ -74,7 +79,7 @@ enum TouchMarks {
             guard let sprite = thing.kind.mark else { return nil }
             return TouchMark(sprite: sprite, x: thing.markX, lift: thing.markLift, pressed: thing.id == pressed,
                              poolX: thing.x, kind: thing.kind, who: thing.who, half: thing.halfWidth,
-                             footing: thing.footing, rimX: thing.rimX)
+                             footing: thing.footing, rimX: thing.rimX, noRim: thing.noRim)
         }
     }
 
@@ -93,7 +98,7 @@ enum TouchMarks {
     static func actors(_ marks: [TouchMark], framing: TouchFraming, night: Double) -> [ActorInstance] {
         let tint = TouchRules.markTint(night: night)
         var list: [ActorInstance] = []
-        for mark in marks {
+        for mark in marks where !mark.hidden {
             let rect = rect(mark, framing: framing)
             guard rect.x + rect.z >= 0, rect.x <= Float(framing.physicalWidth) else { continue }
             list.append(ActorInstance(sprite: mark.sprite, frame: mark.pressed ? 1 : 0, rect: rect,
