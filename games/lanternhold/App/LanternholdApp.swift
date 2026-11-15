@@ -4,7 +4,8 @@ import SwiftUI
 struct LanternholdApp: App {
     var body: some Scene {
         WindowGroup {
-            RootView()
+            // The speed kit's sweep (App/SweepRunner.swift): a new RootView per shot; nothing without `GW_SWEEP`.
+            SweepHost { RootView() }
                 .statusBarHidden(true)
                 .persistentSystemOverlays(.hidden)
         }
@@ -15,7 +16,7 @@ struct LanternholdApp: App {
 /// (`probe`), the light lab, or the pixel-grid test pattern of the runner's Metal probe. Each Metal view fills the
 /// screen; the HUD keeps to the safe area.
 struct RootView: View {
-    private let args = DebugArgs.fromProcess()
+    private let args = SweepRunner.current ?? DebugArgs.fromProcess()
     /// The one model of the run, made when the screen first appears (M2b review: not in a view's init).
     @State private var model: GameModel? = nil
 
