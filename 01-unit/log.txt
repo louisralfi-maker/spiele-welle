@@ -1,0 +1,54 @@
+2026-11-15 00:07:24.299274+0000 Lanternhold[12083:45804] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.BuildTests testAGiftedBrazierCostsNothingOnce]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.BuildTests testAnUpgradeKeepsTheOldTierUntilDone]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BuildTests testAPalisadeTakesEightSecondsWithTwoBuilders]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.BuildTests testBuildersGoHomeAtTheHorn]' passed (0.026 seconds).
+Test Case '-[LanternholdTests.BuildTests testBuildersWalkOutAndBuildByDay]' passed (0.029 seconds).
+Test Case '-[LanternholdTests.BuildTests testFreeRepairFortyHPPerBuilderPerSecond]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.BuildTests testNoBuilderSpendsTheNightAtTheFront]' passed (0.009 seconds).
+Test Case '-[LanternholdTests.BuildTests testNoBuildingAtNight]' passed (0.008 seconds).
+Test Case '-[LanternholdTests.BuildTests testNotEnoughGoldAndLockedLines]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BuildTests testOrderCostsTheGoldAtOnce]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BuildTests testRecruitingNeedsATaxpayerAndGold]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BuildTests testRubbleRebuildsAtHalfPriceInHalfTheTime]' passed (0.093 seconds).
+Test Case '-[LanternholdTests.BuildTests testTheCardOffersFirstBuildsUpgradesAndRebuilds]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BuildTests testTheGatehouseRebuildsForHalfOfWhatItCost]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BuildTests testTheLodgeBringsBuilders]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.BuildTests testTheRealmHasItsPlots]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.HearthTests testABrokenNightsCost]' passed (0.007 seconds).
+Test Case '-[LanternholdTests.HearthTests testABrokenNightTakesABrightFireToEmbersAndEndsTheNight]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.HearthTests testABurntPlaceComesBackForAThirdOfWhatItCost]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HearthTests testAnOldSaveLoadsWithoutTheRule]' passed (0.073 seconds).
+Test Case '-[LanternholdTests.HearthTests testAPlayerCanAlwaysWakeAtADawnWithTheFireAboveOut]' passed (2.168 seconds).
+Test Case '-[LanternholdTests.HearthTests testAtEmbersABreachPutsTheFireOutAndTheRealmFalls]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.HearthTests testAtLowABreachPutsTheFireOutAndTheRealmFalls]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HearthTests testNoTaxpayerNoDead]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheCostIsSeededByTheRealmAndTheNight]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheDriverKeepsEveryDawnItReaches]' passed (1.489 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheFireRisesAtADawnAfterANightWithoutABreach]' passed (0.047 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheGoldTakenIsAFifthAtMostSixty]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheHearthLinesReadInEnglishAndGerman]' passed (0.026 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheLightlessKingsNightEndsTheChapterAsToday]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheReferenceBotIgnoresTheHearthsNumbers]' passed (1.908 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheReportsLinesInTheSpecsOrder]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheRingKeepsTheLastThreeDawnsAndNeverAFall]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheRingRoundTripsAndDropsWhatItCannotRead]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheRuleRoundTripsAndPartialStatesDecodeWithDefaults]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.HearthTests testTheTownsfolkNamesBelongToNobodyElse]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.HearthTests testWithNoHouseStandingAFieldOrTheStallBurns]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.HearthTests testWithOneStepABreachTakesABrightFireToLow]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.HearthTests testWithoutTheRuleTheRealmFallsAsBefore]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HearthTests testWithTheLanternsDarkOneOrTwoHousesBurnAndLitOneFewer]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.HearthTests testWoodOnceADayAtTheHearth]' passed (0.002 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/HearthTuningTests.swift:29: error: -[LanternholdTests.HearthTuningTests testTarget14aACarelessNightIsMendedWithinThreeDays] : XCTAssertEqual failed: ("26") is not equal to ("28") - T14a FAIL careless nights 7-13, seeds 1-4, night x6.0, the lord at the throne: 28 of 28 broke (target at least 10), 26 mended within 3 days (fire bright and every burnt place standing; target all), fell on the careless night 0
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/HearthTuningTests.swift:30: error: -[LanternholdTests.HearthTuningTests testTarget14aACarelessNightIsMendedWithinThreeDays] : XCTAssertTrue failed - T14a FAIL careless nights 7-13, seeds 1-4, night x6.0, the lord at the throne: 28 of 28 broke (target at least 10), 26 mended within 3 days (fire bright and every burnt place standing; target all), fell on the careless night 0
+Test Case '-[LanternholdTests.HearthTuningTests testTarget14aACarelessNightIsMendedWithinThreeDays]' failed (71.996 seconds).
+Test Case '-[LanternholdTests.HearthTuningTests testTarget14bTwoBrokenNightsWithinThreeEndTheRealm]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.HearthTuningTests testTheFirstBreachIsTodaysLoss]' passed (24.648 seconds).
+Test Case '-[LanternholdTests.HearthTuningTests testTheT14ReportIsAttached]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.HearthTuningTests testTwoBrokenNightsInARowPutTheFireOut]' passed (2.245 seconds).
+Test Suite 'HearthTuningTests' failed at 2026-11-15 00:09:11.219.
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-15 00:09:11.221.
+Test Suite 'Selected tests' failed at 2026-11-15 00:09:11.222.
+exit=65
+screenshots: 0
