@@ -17,13 +17,11 @@ final class TouchCraftTests: XCTestCase {
 
     func testTheHallDoorStandsOnThePaintedDoor() {
         let door = HallLayout.worldDoorX
-        XCTAssertEqual(door, CastleRooms.hallX + 47, "the middle of the line of light under the painted door")
-        let lanterns = CastleRooms.hallFrontLights.filter { $0.kind == .lantern }.map { CastleRooms.hallX + $0.dx }
-        XCTAssertEqual(lanterns.count, 2)
-        XCTAssertTrue(lanterns.allSatisfy { abs($0 - door) < 25 }, "between the door's two wall lanterns")
-        for window in CastleRooms.hallFrontLights where window.kind == .window {
-            XCTAssertGreaterThan(abs(CastleRooms.hallX + window.dx - door), 40, "clear of every window")
-        }
+        // The join: the world lane's forebuilding paints the door; its middle is the line of light under it.
+        XCTAssertEqual(door, SceneLayout.castleHallDoorX, "the world's one named value of the painted door")
+        let sill = SceneLayout.castleForebuildingX + SceneLayout.castleDoorGap.dx
+            + Double(SceneLayout.castleDoorGap.width) / 2
+        XCTAssertEqual(sill, door, "the middle of the line of light under the forebuilding's door")
         var s = GameState.newRealm(seed: 2)
         s.hour = 10
         s.king.x = door + 80

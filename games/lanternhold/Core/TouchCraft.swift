@@ -6,17 +6,11 @@ import Foundation
 // the footing of an empty plot, the gold rim on the marked thing (SPRITES.md "The marks of 'touch the world'"), and
 // the raised lantern's pose, flare and ring.
 
-/// The great hall's door in the world, where the facade paints it (the critic's blocker 1: at a fixed x 1830 the
-/// door's target, mark, standing place and way out stood over the hall front's middle window, and the lord walked out
-/// of the wall). The door's middle is read from the hall front's own anchors: the line of light under its door
-/// (`CastleRooms.hallFrontMasks`, the one mask a pixel high). At the join the world lane's forebuilding brings its own
-/// door (`SceneLayout.castleHallDoorX`); this one line then reads that instead.
+/// The great hall's door in the world, where the facade paints it (the critic's blocker 1 of step stage-2: the door's
+/// target, mark, standing place and way out must stand at the painted door). Since the join the world lane's
+/// forebuilding brings its own door: `SceneLayout.castleHallDoorX`, the one named value of the painted door's centre.
 enum HallDoor {
-    static let paintedX: Double = {
-        let sill = CastleRooms.hallFrontMasks.first { $0.height == 1 && $0.width >= 8 }
-        let middle = sill.map { $0.dx + Double($0.width) / 2 } ?? 47
-        return CastleRooms.hallX + middle
-    }()
+    static let paintedX: Double = SceneLayout.castleHallDoorX
 }
 
 extension TouchRules {
