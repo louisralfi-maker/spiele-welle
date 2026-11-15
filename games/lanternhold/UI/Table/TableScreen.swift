@@ -697,7 +697,7 @@ struct TableScreen: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(SlipBackground())
         .background(alignment: .top) {
-            Color.clear.frame(height: 1).alignmentGuide(.top) { d in d[.top] + 6 }.id("sent-\(sending.errand)")
+            Color.clear.frame(height: 1).alignmentGuide(.top) { d in d[.top] + 8 }.id("sent-\(sending.errand)")
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("table-sent-\(sending.errand)")
