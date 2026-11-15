@@ -1,0 +1,2 @@
+** TEST BUILD FAILED **
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Core/TouchCraft.swift:16:32: error: type 'CastleRooms' has no member 'hallFrontMasks'
