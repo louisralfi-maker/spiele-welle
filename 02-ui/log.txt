@@ -1,0 +1,4 @@
+Test Case '-[LanternholdUITests.EndingsUITests testTheFinaleEndsTheChapter]' passed (29.233 seconds).
+Test Case '-[LanternholdUITests.EndingsUITests testTheThreeEndings]' passed (96.816 seconds).
+exit=0
+screenshots: 18
