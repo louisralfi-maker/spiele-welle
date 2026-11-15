@@ -307,11 +307,19 @@ enum AtlasSource: String, Sendable, Equatable {
     case png, placeholder
 }
 
-/// The one atlas page of milestone 1 (DESIGN.md "Art pipeline": at most 2048², cells padded by 2 px, nearest
-/// sampling): every frame of every `SpriteID` at exactly `SpriteID.size`, plus one white texel for particles.
+/// The atlas of milestone 1 (DESIGN.md "Art pipeline": cells padded by 2 px, nearest sampling): every frame of every
+/// `SpriteID` at exactly `SpriteID.size`, plus one white texel for particles. World rebuild, step world-2 (the
+/// director's note of 14.11.: "the second atlas page is yours"): up to two pages of 2048², stacked in one texture
+/// 2048 wide and up to 4096 high (every GPU family the game runs on reads 8192), so the shaders' texel reads stay as
+/// they are; the texture is only as high as the packed cells need.
 struct AtlasLayout: Sendable {
     static let padding = 2
+    /// The widest the atlas gets, and the height of one page.
     static let maxSide = 2048
+    /// Pages stacked under each other in the one texture.
+    static let pages = 2
+    /// The highest the atlas gets (`pages` pages).
+    static let maxHeight = maxSide * pages
 
     let width: Int
     let height: Int
@@ -359,7 +367,7 @@ enum AtlasBuilder {
             packed = pack(sizes, width: atlasWidth)
         }
         let placement = packed ?? (origins: Array(repeating: (x: 0, y: 0), count: sizes.count), height: 1)
-        let atlasHeight = min(AtlasLayout.maxSide, max(1, placement.height))
+        let atlasHeight = min(AtlasLayout.maxHeight, max(1, placement.height))
 
         var image = PixelImage(width: atlasWidth, height: atlasHeight)
         var cells: [SpriteID: [AtlasCell]] = [:]
