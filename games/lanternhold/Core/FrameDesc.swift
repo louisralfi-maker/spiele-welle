@@ -133,6 +133,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // pole's flame, Saul Bracken the collector with his handcart, the noble's coach, Old Hemmet on the bench (and its
     // cloth states)
     case lamplighter, lamplighterGlow, collector, coach, elderSeated, elderSeatedVillage, elderSeatedTown
+    // The people lane, people-2 fix round 1: the lord's mended cloak (`LordCloak`; the sheets as painted are the good
+    // one) and the court's ties, one idle each played toward another person (`CourtTies`)
+    case kingMended, ladyMended, kingSeatedMended, ladySeatedMended
+    case odileTie, brannockTie, pipTie, hesperTie, hesperTieGlow, tamsinTie, bramTie, marekTie, serenTie, serenTieGlow
 
     /// Size of one frame in game pixels: the painted sprites' PNG sizes (ART.md), the procedural ones as DESIGN.md
     /// "Pixel scale" (king 30, palisade 34, stone wall 52, castle front 236, cliffs above the screen).
@@ -370,6 +374,11 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
             return PeopleCast.size(of: self)
         case .lamplighter, .lamplighterGlow, .collector, .coach, .elderSeated, .elderSeatedVillage, .elderSeatedTown:
             return PeopleCast.size(of: self)
+        case .kingMended, .ladyMended, .kingSeatedMended, .ladySeatedMended:
+            return PeopleCast.size(of: self)
+        case .odileTie, .brannockTie, .pipTie, .hesperTie, .hesperTieGlow, .tamsinTie, .bramTie, .marekTie, .serenTie,
+             .serenTieGlow:
+            return CourtTies.size(of: self)
         }
     }
 
@@ -415,6 +424,9 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
             return PeopleCast.frameCount(of: self)
         case .lamplighter, .lamplighterGlow, .collector, .coach, .elderSeated:
             return PeopleCast.frameCount(of: self)
+        case .odileTie, .brannockTie, .pipTie, .hesperTie, .hesperTieGlow, .tamsinTie, .bramTie, .marekTie, .serenTie,
+             .serenTieGlow:
+            return CourtTies.frameCount
         case .archer: return 5
         case .sootCrow, .sootCrowGlow, .gloomweaver, .gloomweaverGlow: return 4
         case .beaconFire, .darknessBankGlow, .gloomFogEyes: return 4

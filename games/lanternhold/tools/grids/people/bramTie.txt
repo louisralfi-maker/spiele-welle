@@ -1,0 +1,33 @@
+# bramTie 16x30, 2 frames: bram's tie, played toward another person: a nod, then the mended clasp held out between finger and thumb (written by
+# tools/courtties.py; docs/SPRITES-people.md "The court's ties"). The member's own parts and placements.
+id bramTie
+size 16x30
+frames 2
+outline ink shade
+include ../court/kit.txt
+include ../court/bram.txt
+
+legend
+    @ = gold
+
+part armGive
+    SS...
+    SsSS@
+
+frame 0
+    armFarDown 4 10
+    legsStand 4 16
+    apron 5 17
+    head 6 3
+    torso 4 9
+    hammer 2 7
+    armBent 9 10
+
+frame 1
+    armFarDown 4 10
+    legsStand 4 16
+    apron 5 17
+    head 6 3
+    torso 4 9
+    hammer 2 7
+    armGive 9 10

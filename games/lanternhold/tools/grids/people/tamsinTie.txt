@@ -1,0 +1,32 @@
+# tamsinTie 14x28, 2 frames: tamsin's tie, played toward another person: a nod, then a bowl of supper held out (written by
+# tools/courtties.py; docs/SPRITES-people.md "The court's ties"). The member's own parts and placements.
+id tamsinTie
+size 14x28
+frames 2
+outline ink shade
+include ../court/kit.txt
+include ../court/tamsin.txt
+
+legend
+    @ = woodLight
+    % = wood
+
+part armBowl
+    R.@@@
+    RS%%.
+
+frame 0
+    feetTogether 6 26
+    skirtPass 3 15
+    armBack 3 10
+    head 3 4
+    bodice 4 9
+    armLadle 9 10
+
+frame 1
+    feetTogether 6 26
+    skirtPass 3 15
+    armBack 3 10
+    head 3 4
+    bodice 4 9
+    armBowl 9 10

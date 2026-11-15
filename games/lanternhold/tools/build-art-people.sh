@@ -29,12 +29,19 @@ build() { # name: one sprite and its cloth states
         python3 -I -B $PS build $GP/$1.txt --out $A --state town ;;
     nobleLord|nobleLady|footman|lamplighter|collector|coach)
         python3 -I -B $AA build $GP/$1.txt --out $A ;;
+    odileTie|brannockTie|pipTie|hesperTie|tamsinTie|bramTie|marekTie|serenTie)
+        # the court's ties (fix round 1 of people-2): grids written by tools/courtties.py from the members' own
+        python3 -I -B $AA build $GP/$1.txt --out $A ;;
+    kingMended|ladyMended|kingSeatedMended|ladySeatedMended)
+        # the lord's mended cloak (fix round 1 of people-2): grids written by tools/lordcloak.py from the lord's own
+        python3 -I -B $AA build $GP/$1.txt --out $A ;;
     *) echo "unknown sprite $1" >&2; return 1 ;;
     esac
 }
 
 ALL="citizen citizenB citizenC citizenSeated citizenBSeated citizenCSeated farmerHoe farmerScythe elder washerwoman
-labourer childA childB childC nobleLord nobleLady footman elderSeated lamplighter collector coach"
+labourer childA childB childC nobleLord nobleLady footman elderSeated lamplighter collector coach kingMended ladyMended
+kingSeatedMended ladySeatedMended odileTie brannockTie pipTie hesperTie tamsinTie bramTie marekTie serenTie"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi
 for name in ${@:-$ALL}; do
     build "$name"

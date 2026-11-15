@@ -1,0 +1,24 @@
+# hesperTie 14x30, 2 frames: hesper's tie, played toward another person: a nod, then the nod held with her hand on her heart (written by
+# tools/courtties.py; docs/SPRITES-people.md "The court's ties"). The member's own parts and placements.
+id hesperTie
+size 14x30
+frames 2
+outline ink shade
+include ../court/kit.txt
+include ../court/hesper.txt
+
+frame 0
+    feetTogether 5 28
+    lowerPass 2 18
+    head 2 6
+    upper 2 11
+    staff 11 12
+    flame0 11 9
+
+frame 1
+    feetTogether 5 28
+    lowerPass 2 18
+    head 2 6
+    upperHeart 2 11
+    staff 11 12
+    flame3 11 9

@@ -1,0 +1,34 @@
+# odileTie 14x30, 2 frames: odile's tie, played toward another person: a nod, then the ledger held out on her palm (written by
+# tools/courtties.py; docs/SPRITES-people.md "The court's ties"). The member's own parts and placements.
+id odileTie
+size 14x30
+frames 2
+outline ink shade
+include ../court/kit.txt
+include ../court/odile.txt
+
+legend
+    @ = woodLight
+    % = wood
+
+part ledger
+    @@%
+    %%%
+
+frame 0
+    feetTogether 6 28
+    skirtPass 3 17
+    head 2 3
+    torso 4 9
+    armLedger 6 10
+    chain 4 9
+
+frame 1
+    feetTogether 6 28
+    skirtPass 3 17
+    head 2 3
+    torso 4 9
+    armUpper 6 10
+    chain 4 9
+    forearmPalm 8 12
+    ledger 10 10

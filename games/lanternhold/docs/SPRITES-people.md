@@ -107,3 +107,41 @@ All hand-set part grids through `tools/actorart.py` (tools/grids/people/), rebui
 | `coach` | 60x34 | 1 | the noble's travelling coach at rest, facing the gate: Oxmoor's crimson and gold, the shafts down on the lane (the horses are in the tavern's stable), the trunk on the roof, the curtains drawn. A prop (left edge on its x) |
 | `elderSeated` | 12x22 | 2 | seated 0, a nod 1 (on the bench by the square, the hall's bench drawn behind him; facing out like the seated townsfolk, the head in profile) (Old Hemmet) |
 
+## The lord's cloak (people-2 fix round 1; the director's note of 14.11. 14:35, `LordCloak`)
+
+The lord's own cloak in two states, like the townsfolk's cloth (REALM.md section 2): **mended** in the hamlet and the
+village, **good** in the town. The good state is the lord's sheets as painted (`king`, `lady`, `kingSeated`,
+`ladySeated`); the mended state is four sheets that take their body's parts and change only cloak pixels (written by
+`tools/lordcloak.py`, built by `tools/build-art-people.sh`): the mantle's bright edge (`roofLight`) faded to the house
+colour (`banner`), a patch of grey-blue wool on the back below the belt (`far` lit at its upper left, `farDeep`), and a
+darned tear lower down in brown thread (`soilLight`). Same size, frames, alpha and lantern anchors; no glow strip of
+their own (the engine draws the body's glow strip over them). The lord is not repainted beyond the cloak.
+
+| id | size | frames | frame use |
+|---|---|---|---|
+| `kingMended` | 16x30 | 10 | `king` frame for frame in the mended cloak (glow: `kingGlow`) |
+| `ladyMended` | 16x30 | 10 | `lady` frame for frame in the mended cloak, the patch and the darn below her plait (glow: `ladyGlow`) |
+| `kingSeatedMended` | 16x30 | 4 | `kingSeated` frame for frame, the patch on the narrow cloak between his back and the throne (glow: `kingSeatedGlow`) |
+| `ladySeatedMended` | 16x30 | 4 | `ladySeated` frame for frame, the patch on the cloak below the plait (glow: `ladySeatedGlow`) |
+
+## The court's ties (people-2 fix round 1; the director's note of 14.11. 15:03, docs/HOUSE.md section 2, `CourtTies`)
+
+One more idle per court member that is played toward another person (the engine mirrors it to face them): frame 0 a
+nod (the head under the collar a pixel lower, the shoulders still), frame 1 the thread itself, mostly something
+handed over. Each sheet takes its member's parts and the placements of the member's idle or talk frame (written by
+`tools/courtties.py`, built by `tools/build-art-people.sh`), so the size, the outline and the feet are the member's.
+Separate sheets, so the members' own sheets (8 frames each) stay untouched for the hall's rebuild.
+
+| id | size | frames | frame use |
+|---|---|---|---|
+| `odileTie` | 14x30 | 2 | a nod, then the ledger held out on her palm (Odile taught the lord the ledger) |
+| `brannockTie` | 16x30 | 2 | a curt nod, then the iron key of the wall stair held out |
+| `pipTie` | 12x22 | 2 | a bob of the head, then a juggling ball held out |
+| `hesperTie` | 14x30 | 2 | a nod, then the nod held with her hand on her heart (to the lamplighter at the hearth, HOUSE.md section 6) |
+| `hesperTieGlow` | 14x30 | 2 | the staff's flame on the same frames (`hesperGlow`'s) |
+| `tamsinTie` | 14x28 | 2 | a nod, then a bowl of supper held out |
+| `bramTie` | 16x30 | 2 | a nod, then the mended clasp held out between finger and thumb |
+| `marekTie` | 14x30 | 2 | a merchant's nod, then the first orange of winter on his palm |
+| `serenTie` | 14x30 | 2 | a cool nod, then a coin of her house's debt on her open hand |
+| `serenTieGlow` | 14x30 | 2 | the grey lantern's light on the same frames (`serenGlow`'s) |
+

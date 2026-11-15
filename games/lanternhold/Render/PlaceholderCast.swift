@@ -7,6 +7,10 @@ enum PlaceholderCast {
     static func frames(for sprite: SpriteID) -> [PixelImage] {
         // a cloth state (docs/PEOPLE.md section 7) stands in as its body
         if let body = PeopleCast.body(dressedAs: sprite) { return PlaceholderArt.frames(for: body) }
+        // a court member's tie stands in as the member's first frames (people-2 fix round 1, `CourtTies`)
+        if let member = CourtTies.member(of: sprite) {
+            return Array(PlaceholderArt.frames(for: member).prefix(CourtTies.frameCount))
+        }
         switch sprite {
         case .elder, .washerwoman, .labourer, .farmerHoe, .farmerScythe:
             let variant = sprite == .washerwoman ? 0 : (sprite == .labourer ? 1 : 2)

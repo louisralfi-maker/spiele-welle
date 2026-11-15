@@ -1,0 +1,27 @@
+# pipTie 12x22, 2 frames: pip's tie, played toward another person: a bob of the head, then a juggling ball held out (written by
+# tools/courtties.py; docs/SPRITES-people.md "The court's ties"). The member's own parts and placements.
+id pipTie
+size 12x22
+frames 2
+outline ink shade
+include ../court/kit.txt
+include ../court/pip.txt
+
+part armOffer
+    TT.
+    ..S
+
+frame 0
+    legsStand 2 17
+    head 1 6
+    tunic 3 12
+    ruff 3 11
+    armDown 5 12
+
+frame 1
+    legsStand 2 17
+    head 1 6
+    tunic 3 12
+    ruff 3 11
+    armOffer 6 12
+    ballGold 9 12

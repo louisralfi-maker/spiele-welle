@@ -1,0 +1,88 @@
+# ladySeatedMended 16x30, 4 frames: `ladySeated` frame for frame in the mended cloak of the hamlet and the village
+# (written by tools/lordcloak.py; docs/SPRITES-people.md "The lord's cloak"). Only cloak pixels differ
+# from `ladySeated`; no glow strip (the engine draws `ladySeatedGlow`).
+id ladySeatedMended
+size 16x30
+frames 4
+outline ink shade
+include ../actors/king.txt
+include ../actors/lady.txt
+include ../actors/kingSeated.txt
+include ../actors/ladySeated.txt
+
+legend
+    J = strawLight
+    Y = strawLight
+    Z = parchment
+    U = waterDeep
+    u = waterDeep
+    X = moon
+    x = far
+    y = soilLight
+
+# the trunk with the mended cloak (below the plait): the teal faded, the patch under the belt, the darned tear
+part body
+    ....uUTQR.
+    ...uUTGQR.
+    ..UUTtRRR.
+    ..UTtTRRr.
+    ..UTtTRR..
+    ..UTtTRR..
+    .UUTtTHGH.
+    .XXxtTRRR.
+    .XxxTTRRRr
+    .UTtTQRRRr
+    UUTtTQRRrR
+    UTytTRRRRr
+    UTTyTRrRRr
+    UTtTT.....
+
+# the seated trunk with the mended cloak (the plait over col 4): the teal faded, the patch below the plait, the darn
+part bodySit
+    ....uUTQR
+    ....UTGQR
+    ....UTRRR
+    ....UTRRr
+    ....UTRR.
+    ....UTRR.
+    ....UTHGH
+    ....UXRRR
+    ...UxxRRR
+    ...TyTQRR
+    ....tT...
+
+frames 4
+frame 0
+    legsCrouch 2 18
+    body 0 9
+    hem0 0 23
+    head 4 2
+    circlet 3 4
+    plait 3 8
+    pole 10 2
+    armHold 7 11
+frame 1
+    pole 10 2
+    bodySit 0 10
+    head 4 3
+    circlet 3 5
+    plait 3 9
+    legsHalf 7 19
+    armHold 7 12
+frame 2
+    pole 10 2
+    bodySit 0 12
+    head 4 5
+    circlet 3 7
+    plait 3 11
+    legsSit 8 19
+    armHold 7 14
+frame 3
+    pole 10 2
+    bodySit 0 11
+    bodySit 0 12
+    head 4 4
+    circlet 3 6
+    plait 3 10
+    legsSit 8 19
+    armHold 7 14

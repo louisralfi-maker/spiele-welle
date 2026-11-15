@@ -1,0 +1,83 @@
+# kingSeatedMended 16x30, 4 frames: `kingSeated` frame for frame in the mended cloak of the hamlet and the village
+# (written by tools/lordcloak.py; docs/SPRITES-people.md "The lord's cloak"). Only cloak pixels differ
+# from `kingSeated`; no glow strip (the engine draws `kingSeatedGlow`).
+id kingSeatedMended
+size 16x30
+frames 4
+outline ink shade
+include ../actors/king.txt
+include ../actors/kingSeated.txt
+
+legend
+    J = strawLight
+    Y = strawLight
+    Z = parchment
+    U = waterDeep
+    u = waterDeep
+    X = moon
+    x = far
+    y = soilLight
+
+# the trunk with the mended cloak: the teal faded (legend), a patch of paler wool on the back under the belt (lit at
+# its upper left), a darned tear lower down in brown thread
+part body
+    ...uUUTQR
+    ..uUTTGQR
+    ..UTtTQRR
+    ..UTtTRRR
+    ..UTtTRRr
+    ..UTtTRRr
+    .UUTtTHGH
+    .XXxtTRRR
+    .XxxTTRRr
+    .UTtTTRrR
+    UUTtT....
+    UTytT....
+    UTTyT....
+    UTtTT....
+
+# the seated trunk with the mended cloak: the teal faded, the patch on the narrow cloak, the darn by the seat
+part bodySit
+    ....uUTQR
+    ....UTGQR
+    ....UTQRR
+    ....UTRRR
+    ....XxRRr
+    ....xxRRr
+    ....UTHGH
+    ....UTRRR
+    ...UTyRRr
+    ...TtTTrr
+    ....tT...
+
+frames 4
+frame 0
+    legsCrouch 2 18
+    body 0 9
+    hem0 0 23
+    head 4 2
+    circlet 3 4
+    pole 10 2
+    armHold 7 11
+frame 1
+    pole 10 2
+    bodySit 0 10
+    head 4 3
+    circlet 3 5
+    legsHalf 7 19
+    armHold 7 12
+frame 2
+    pole 10 2
+    bodySit 0 12
+    head 4 5
+    circlet 3 7
+    legsSit 8 19
+    armHold 7 14
+frame 3
+    pole 10 2
+    bodySit 0 11
+    bodySit 0 12
+    head 4 4
+    circlet 3 6
+    legsSit 8 19
+    armHold 7 14

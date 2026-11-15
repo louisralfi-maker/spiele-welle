@@ -144,7 +144,7 @@ enum PeopleCast {
 
     /// The body a cloth-state sprite is drawn on (nil for every other sprite): its size and frames are the body's.
     static func body(dressedAs sprite: SpriteID) -> SpriteID? {
-        dressedAs[sprite]
+        dressedAs[sprite] ?? LordCloak.body(of: sprite)
     }
 
     private static let dressedAs: [SpriteID: SpriteID] = {

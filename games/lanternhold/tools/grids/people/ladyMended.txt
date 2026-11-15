@@ -1,0 +1,128 @@
+# ladyMended 16x30, 10 frames: `lady` frame for frame in the mended cloak of the hamlet and the village
+# (written by tools/lordcloak.py; docs/SPRITES-people.md "The lord's cloak"). Only cloak pixels differ
+# from `lady`; no glow strip (the engine draws `ladyGlow`).
+id ladyMended
+size 16x30
+frames 10
+outline ink shade
+include ../actors/king.txt
+include ../actors/lady.txt
+
+legend
+    J = strawLight
+    Y = strawLight
+    Z = parchment
+    U = waterDeep
+    u = waterDeep
+    X = moon
+    x = far
+    y = soilLight
+
+# the trunk with the mended cloak (below the plait): the teal faded, the patch under the belt, the darned tear
+part body
+    ....uUTQR.
+    ...uUTGQR.
+    ..UUTtRRR.
+    ..UTtTRRr.
+    ..UTtTRR..
+    ..UTtTRR..
+    .UUTtTHGH.
+    .XXxtTRRR.
+    .XxxTTRRRr
+    .UTtTQRRRr
+    UUTtTQRRrR
+    UTytTRRRRr
+    UTTyTRrRRr
+    UTtTT.....
+
+frames 10
+frame 0
+    legsContactA 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    plait 3 6
+    pole 10 1
+    armHold 7 9
+frame 1
+    legsDownA 2 17
+    body 0 8
+    hem1 0 22
+    head 4 1
+    circlet 3 3
+    plaitSwing 3 7
+    poleSwing 10 2
+    armHold 7 10
+frame 2
+    legsPassA 2 16
+    body 0 7
+    hem2 0 21
+    head 4 0
+    circlet 3 2
+    plait 3 6
+    pole 10 1
+    armHold 7 9
+frame 3
+    legsContactB 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    plait 3 6
+    pole 10 1
+    armHold 7 9
+frame 4
+    legsDownB 2 17
+    body 0 8
+    hem1 0 22
+    head 4 1
+    circlet 3 3
+    plaitSwing 3 7
+    poleSwing 10 2
+    armHold 7 10
+frame 5
+    legsPassB 2 16
+    body 0 7
+    hem2 0 21
+    head 4 0
+    circlet 3 2
+    plait 3 6
+    pole 10 1
+    armHold 7 9
+frame 6
+    legsStand 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    plait 3 6
+    pole 10 1
+    armHold 7 9
+frame 7
+    legsStand 2 16
+    body 0 8
+    hem0 0 22
+    head 4 1
+    circlet 3 3
+    plait 3 7
+    poleSwing 10 2
+    armHold 7 10
+frame 8
+    legsStand 2 16
+    body 0 7
+    hem0 0 21
+    head 4 0
+    circlet 3 2
+    plait 3 6
+    poleHigh 10 0
+    armRaise 7 6
+frame 9
+    legsStand 2 16
+    body 0 7
+    hem2 0 21
+    head 4 0
+    circlet 3 2
+    plaitSwing 3 6
+    poleHigh 10 -1
+    armRaise 7 5

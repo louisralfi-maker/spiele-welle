@@ -758,8 +758,8 @@ final class Renderer {
     /// Actors that keep a cool rim on their screen-right edge (scene polish 2): the lord (walking or seated), and every creature, so an
     /// unlit body's edge reads against the dark ground where its glow strip has no pixel (SPRITES.md "Unlit
     /// creatures"); firelight outshines it.
-    static let rimmed: Set<SpriteID> = [.king, .lady, .kingSeated, .ladySeated, .sootling, .sootlingB, .shadehound, .sootCrow, .ashBrute, .gloomweaver,
-                                        .ashGiant, .lightlessKing]
+    static let rimmed: Set<SpriteID> = Set([.king, .lady, .kingSeated, .ladySeated, .sootling, .sootlingB, .shadehound, .sootCrow, .ashBrute, .gloomweaver,
+                                        .ashGiant, .lightlessKing] + LordCloak.mendedSheets)
 
     /// The people of the realm, who keep a fainter sky rim in look 2.
     static let people: Set<SpriteID> = Set([SpriteID.archer, .guardsman, .builder, .citizen, .citizenB, .citizenC]
