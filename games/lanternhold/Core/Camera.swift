@@ -185,6 +185,16 @@ struct Camera: Sendable, Equatable {
         follow(targetX: goal, targetVelocity: goalVelocity, dt: step, reduceMotion: reduceMotion)
     }
 
+    /// World-3 fix round 1 (`-GWWalk`, the sweep's proof): the walking lead as it stands after half a second of walking
+    /// toward `facing`, and the camera on its goal.
+    mutating func presetLead(facing: Int, lordX: Double) {
+        lead = CameraFraming.walkLead * (facing < 0 ? -1 : 1)
+        leadVelocity = 0
+        let goal = CameraFraming.goal(lordX: lordX, lead: lead, danger: danger)
+        jump(toFocus: goal)
+        lastGoal = goal
+    }
+
     /// Cuts to the framing goal at once (a restart, travel): the walking lead is cleared, the danger share set to its
     /// want; the camera stands still afterwards.
     mutating func reframe(_ input: CameraFraming.Input) {

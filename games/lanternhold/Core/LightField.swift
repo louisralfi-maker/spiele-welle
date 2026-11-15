@@ -75,6 +75,10 @@ struct LightSource: Sendable, Equatable {
     /// World-2 fix round 2 (the scene's pools only, never the battle's field): where the architecture cuts the pool
     /// (an eave, a jamb, a corner; `SceneLayout.castleForebuildingClip`), nil for a whole pool.
     var clip: LightClip?
+    /// World-3 fix round 1 (the scene's pools only, never the battle's field nor the Gloom's fog holes): the share of
+    /// its intensity the pool is drawn with in the picture (nil: whole). The lord's lantern in look 2
+    /// (`LanternLook`): a dim core plus a wide spill, so it falls off across a wall instead of a lit box.
+    var pictureGain: Double?
 
     init(kind: LightKind, x: Double, y: Double, radius: Double? = nil, color: SIMD3<Float>? = nil,
          intensity: Double = 1, flickerSeed: UInt64 = 0, squash: Double? = nil, clip: LightClip? = nil) {

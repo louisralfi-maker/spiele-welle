@@ -86,6 +86,11 @@ enum GameStart {
             CraftVisits.begin(&state)
             CraftVisits.begin(&dawn)
         }
+        if let walk = args.walk {
+            // World-3 fix round 1: mid stride (the sweep holds the clock, so he stays there).
+            state.king.facing = walk
+            state.king.velocity = Double(walk) * balance.kingWalkSpeed
+        }
         return Result(state: state, dawn: dawn, bot: bot)
     }
 

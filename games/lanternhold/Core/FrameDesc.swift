@@ -138,6 +138,10 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
     // the valley lane's verge
     case bakeHatchWedge, beaconRuinRim, beaconBaseRim, beaconTowerRim, greatBeaconRim
     case townRoofsA, townRoofsB, townRoofsC, townRoofsD, riverFarLantern, riverSkiff, valleyVerge
+    // World lane, world-3 fix round 1 (tools/w3f1art.py, SPRITES.md "World-3, fix round 1"): the river end's landing,
+    // the skiff moored at it and the moon on its gunwale, the far lantern's halo and its reflection on the water, a
+    // buttress in the Throat (near plane), a second painting of the valley's verge
+    case riverLanding, riverSkiffMoored, riverSkiffRim, riverLanternHalo, riverLanternStreak, throatButtress, valleyVergeB
     // Stage 7 (SPRITES.md "The house envoys", "The houses' banners"): the four houses' faces as guests with a body
     // (walk 0-3, idle 4-5, talk 6-7) and a story portrait of their own, and the five houses' banners in the hall
     case hildVarn, lorenzPell, ebbaCalder, orlaLorn
@@ -425,6 +429,13 @@ enum SpriteID: String, Sendable, CaseIterable, Equatable {
         case .townRoofsC: return PixelSize(width: 120, height: 96)
         case .riverFarLantern: return PixelSize(width: 12, height: 26)
         case .riverSkiff: return PixelSize(width: 34, height: 10)
+        // World-3 fix round 1 (tools/w3f1art.py).
+        case .riverLanding: return PixelSize(width: 72, height: 20)
+        case .riverSkiffMoored, .riverSkiffRim: return PixelSize(width: 34, height: 9)
+        case .riverLanternHalo: return PixelSize(width: 22, height: 22)
+        case .riverLanternStreak: return PixelSize(width: 9, height: 24)
+        case .throatButtress: return PixelSize(width: 96, height: 132)
+        case .valleyVergeB: return PixelSize(width: 64, height: 10)
         case .valleyVerge: return PixelSize(width: 64, height: 10)
         case .moorRuin: return PixelSize(width: 50, height: 36)
         case .hildVarn, .lorenzPell, .ebbaCalder, .orlaLorn: return PixelSize(width: 14, height: 30)

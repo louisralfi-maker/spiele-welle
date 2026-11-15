@@ -1139,7 +1139,10 @@ final class GameModel {
         if let camera, camera.viewWidth == pixelScale.visibleColumns {
             return camera
         }
-        let made = Camera(focusX: focus, pixelScale: pixelScale)
+        var made = Camera(focusX: focus, pixelScale: pixelScale)
+        if let walk = args.walk, kind == .world, let lord = driver?.state.king.x {
+            made.presetLead(facing: walk, lordX: lord)   // world-3 fix round 1: `-GWWalk`
+        }
         camera = made
         return made
     }

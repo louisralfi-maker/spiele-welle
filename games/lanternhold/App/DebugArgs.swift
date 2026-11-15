@@ -23,6 +23,9 @@ struct DebugArgs: Sendable, Equatable {
     var seed: UInt64 = 1
     /// `-GWCameraX <px>`: camera focus; the king stands there.
     var cameraX: Double?
+    /// World-3 fix round 1 (the sweep's proof of the camera's walking lead): `-GWWalk right|left` puts the lord in mid
+    /// stride facing that way, his camera lead already eased in (`Camera.presetLead`); nil: he stands.
+    var walk: Int?
     /// `-GWAutoplay walk|play`.
     var autoplay: Autoplay?
     /// `-GWActorMode smooth|snapped`.
@@ -171,6 +174,7 @@ struct DebugArgs: Sendable, Equatable {
         "GWStage", "GWHallX", "GWPetition", "GWHearth", "GWStageSlow",
         // Touch the world (stage lane, step stage-2; fix round 1)
         "GWTouchHint", "GWDamage", "GWSnuff", "GWPressed",
+        "GWWalk",
     ]
 
     static func fromProcess() -> DebugArgs {
@@ -207,6 +211,11 @@ struct DebugArgs: Sendable, Equatable {
         }
         if let cameraX = DebugArgs.place(values["GWCameraX"]) {
             self.cameraX = cameraX
+        }
+        switch values["GWWalk"]?.trimmingCharacters(in: .whitespaces).lowercased() ?? "" {
+        case "right", "1": walk = 1
+        case "left", "-1": walk = -1
+        default: break
         }
         autoplay = values["GWAutoplay"].flatMap { Autoplay(rawValue: $0.lowercased()) }
         if let mode = values["GWActorMode"].flatMap({ ActorMode(rawValue: $0.lowercased()) }) {

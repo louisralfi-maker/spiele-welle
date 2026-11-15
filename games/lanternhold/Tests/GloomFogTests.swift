@@ -181,8 +181,10 @@ final class GloomFogTests: XCTestCase {
     func testTheCreaturesStepOutOfIt() {
         let fog = GloomFog(hardness: 0.5)
         XCTAssertEqual(fog.bodyAlpha(x: 100, bankEdge: 500, hour: 12), 1, "by day the bank hides no more than it did")
-        XCTAssertEqual(fog.bodyAlpha(x: 500 - GloomFog.bodyUnseen, bankEdge: 500, hour: 23), 0, accuracy: 1e-9)
-        XCTAssertEqual(fog.bodyAlpha(x: 100, bankEdge: 500, hour: 23), 0, accuracy: 1e-9)
+        // World-3 fix round 1: deep in the bank half a body shows (a dark mass with its rim, never red squiggles).
+        XCTAssertEqual(fog.bodyAlpha(x: 500 - GloomFog.bodyUnseen, bankEdge: 500, hour: 23), GloomFog.bodyFloor,
+                       accuracy: 1e-9)
+        XCTAssertEqual(fog.bodyAlpha(x: 100, bankEdge: 500, hour: 23), GloomFog.bodyFloor, accuracy: 1e-9)
         XCTAssertEqual(fog.bodyAlpha(x: 500 - GloomFog.bodyWhole, bankEdge: 500, hour: 23), 1, accuracy: 1e-9)
         XCTAssertEqual(fog.bodyAlpha(x: 640, bankEdge: 500, hour: 23), 1, "whole at the outer wall")
         var before = 0.0
@@ -198,8 +200,9 @@ final class GloomFogTests: XCTestCase {
         let deepest = DarknessBank.nightEdge(night: 99) + NightPlanModifiers.fogShift
         XCTAssertLessThanOrEqual(deepest - GloomFog.bodyWhole, Realm.wallX[2] + 20)
 
-        // In a frame: the body deep in the bank is not drawn, the one on its way out is drawn thin, the ones in the
-        // open and the lit ones whole; without the fog and in look 1 every body is whole.
+        // In a frame: the body deep in the bank is drawn at half (world-3 fix round 1: a dark mass with its rim, never
+        // its glow strip alone), the one on its way out thin, the ones in the open and the lit ones whole; without
+        // the fog and in look 1 every body is whole.
         var s = GameFrameSupport.demoNight(hour: 23.2)
         let edge = s.bankEdge
         s.creatures = [
@@ -210,10 +213,11 @@ final class GloomFogTests: XCTestCase {
         ]
         let plain = layer(s, focus: edge - 60, gloom: nil)
         let foggy = layer(s, focus: edge - 60, gloom: fog)
-        XCTAssertEqual(foggy.actors.count, plain.actors.count - 1, "the one deep in the bank has no body yet")
+        XCTAssertEqual(foggy.actors.count, plain.actors.count, "the one deep in the bank shows as a dark mass")
+        XCTAssertTrue(foggy.actors.contains { abs($0.tint.w - Float(GloomFog.bodyFloor)) < 1e-4 }, "at half")
         let thin = foggy.actors.filter { $0.tint.w > 0.02 && $0.tint.w < 0.98 }.count
             - plain.actors.filter { $0.tint.w > 0.02 && $0.tint.w < 0.98 }.count
-        XCTAssertEqual(thin, 1, "the one on its way out is thin")
+        XCTAssertEqual(thin, 2, "the one deep in the bank at half, the one on its way out thinning")
         XCTAssertEqual(foggy.lights.map(\.source), plain.lights.map(\.source), "the fog changes no light")
         XCTAssertEqual(foggy.props, plain.props)
         XCTAssertEqual(layer(s, focus: edge, gloom: fog, look: .one).actors,
@@ -342,7 +346,14 @@ final class GloomFogTests: XCTestCase {
         let foggy = frame(night, focus: 620, gloom: hard)
         XCTAssertTrue(slices(plain, .fogA).isEmpty)
         XCTAssertTrue(slices(plain, .fogB).isEmpty)
-        let back = slices(foggy, .fogA)
+        // World-3 fix round 1: a hard night's cold veil is a second sheet of the back strip on fog A, tinted cold.
+        let veil = slices(foggy, .fogA).filter { $0.tint.x != $0.tint.z }
+        XCTAssertFalse(veil.isEmpty, "the hard night's veil over the mid plane")
+        XCTAssertTrue(veil.allSatisfy { $0.sprite == .gloomFogBack && $0.tint.z > $0.tint.x }, "cold")
+        XCTAssertTrue(veil.allSatisfy { $0.tint.w <= Float(GloomFog.midVeilCover * hard.paintCover) + 1e-4 })
+        XCTAssertTrue(slices(frame(night, focus: 620, gloom: GloomFog(hardness: 0.4)), .fogA)
+            .allSatisfy { $0.tint.x == $0.tint.z }, "an ordinary night has none")
+        let back = slices(foggy, .fogA).filter { $0.tint.x == $0.tint.z }
         let before = slices(foggy, .fogB)
         XCTAssertGreaterThan(back.count, 10, "the fog bank behind the lane")
         XCTAssertTrue(back.allSatisfy { $0.sprite == .gloomFogBack })

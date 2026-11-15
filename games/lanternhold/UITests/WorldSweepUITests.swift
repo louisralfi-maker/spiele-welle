@@ -87,6 +87,17 @@ final class WorldSweepUITests: XCTestCase {
         take(list)
     }
 
+    /// World-3 fix round 1 (the critic's high 7: "a promise without a screenshot counts as missing"): the camera's
+    /// walking lead at 2800 (no set piece there), the lord in mid stride walking right, walking left, and walking
+    /// right with Reduce Motion (the lead instant): he stands about 32 px off the screen's centre, behind it.
+    /// `w-2800-walk-r`, `w-2800-walk-l`, `w-2800-walk-r-rm`.
+    func testCameraWalkLead() {
+        let noon = ["-GWDay", "12", "-GWHour", "12"]
+        take(shots("walk-r", noon + ["-GWWalk", "right"], centres: [2800])
+             + shots("walk-l", noon + ["-GWWalk", "left"], centres: [2800])
+             + shots("walk-r-rm", noon + ["-GWWalk", "right", "-GWReduceMotion", "YES"], centres: [2800]))
+    }
+
     // MARK: - Helpers
 
     /// One shot per camera centre, with the arguments a launch of its own carried before the speed kit.
