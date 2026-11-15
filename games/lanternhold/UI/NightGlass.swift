@@ -91,6 +91,14 @@ enum NightGlass {
         ".....",
     ]
 
+    /// The talk bubble's tail under the pane: 7x4 game px of the pane's navy, pointing down at the speaker.
+    static let tailGrid = [
+        "fffffff",
+        ".fffff.",
+        "..fff..",
+        "...f...",
+    ]
+
     /// The horn's ribbon (and the dawn report's banners), `height` game px high: the pane with both ends cut in a V
     /// of 1:1 pixel stairs, the line 2 game px inside the top and bottom and 3 inside the stairs. The middle column
     /// stretches (glassart.py ribbon_grid).
@@ -224,6 +232,10 @@ enum NightGlassImages {
 
     static func portraitLine() -> CGImage? {
         image(key: "portrait", grid: NightGlass.portraitGrid, legend: ["l": NightGlass.brassInk])
+    }
+
+    static func tail() -> CGImage? {
+        image(key: "tail", grid: NightGlass.tailGrid, legend: ["f": NightGlass.navyInk])
     }
 
     static func ribbon(height: Int) -> CGImage? {
@@ -438,326 +450,25 @@ struct GlassPlaqueBody<Label: View>: View {
     }
 }
 
-/// A portrait's brass line, 1 game px hugging the picture, its corners notched; no mat. Caps 2.
-    static let portraitGrid = [
-        ".....",
-        "..l..",
-        ".l.l.",
-        "..l..",
-        ".....",
-    ]
-
-    /// The horn's ribbon (and the dawn report's banners), `height` game px high: the pane with both ends cut in a V
-    /// of 1:1 pixel stairs, the line 2 game px inside the top and bottom and 3 inside the stairs. The middle column
-    /// stretches (glassart.py ribbon_grid).
-    static func ribbonGrid(height: Int) -> (rows: [String], cap: Int) {
-        let depth = height / 2
-        let cap = depth + 4
-        let width = 2 * cap + 1
-        let mid = height / 2
-        var rows: [String] = []
-        for y in 0..<height {
-            let left = depth - abs(y - mid)
-            var row = ""
-            for x in 0..<width {
-                let right = width - 1 - left
-                if x < left || x > right {
-                    row.append(".")
-                } else if y >= 2 && y <= height - 3 && (x - left == 3 || right - x == 3) {
-                    row.append("l")
-                } else if (y == 2 || y == height - 3) && x >= left + 3 && x <= right - 3 {
-                    row.append("l")
-                } else {
-                    row.append("f")
-                }
-            }
-            rows.append(row)
-        }
-        return (rows, cap)
-    }
-
-    /// The pause sheet's switch, 24x12 game px: a slot with a square knob (no wax seal). k the knob's edge, m its
-    /// face, s the slot (glassart.py switch_grid).
-    static func switchGrid(on: Bool) -> [String] {
-        let left = on ? 12 : 2
-        var rows: [String] = []
-        for y in 0..<12 {
-            var row = ""
-            for x in 0..<24 {
-                if (x == 0 || x == 23) && (y == 0 || y == 11) {
-                    row.append(".")
-                } else if x == 0 || x == 23 || y == 0 || y == 11 {
-                    row.append("l")
-                } else if x >= left && x <= left + 9 && y >= 2 && y <= 9 {
-                    let corner = (x == left || x == left + 9) && (y == 2 || y == 9)
-                    let edge = x == left || x == left + 9 || y == 2 || y == 9
-                    row.append(corner ? "s" : (edge ? "k" : "m"))
-                } else {
-                    row.append("s")
-                }
-            }
-            rows.append(row)
-        }
-        return rows
-    }
-
-    // MARK: Skins
-
-    /// One pixel's colour as 0xRRGGBB and an alpha of 0...255.
-    struct Ink: Sendable, Hashable {
-        var rgb: UInt32
-        var alpha: UInt8 = 255
-    }
-
-    /// The pane's navy at 224 of 255 (paneAlpha).
-    static let navyInk = Ink(rgb: 0x121C3B, alpha: 224)
-    static let brassInk = Ink(rgb: 0xA68A54)
-
-    /// The skins of the pane family.
-    enum Skin: String, Sendable, CaseIterable {
-        /// A card or a sheet.
-        case panel
-        /// A choice at rest.
-        case plaque
-        /// The favoured or chosen choice: the line in lantern gold.
-        case plaqueMarked
-        /// Pressed: filled with lantern amber, the line in deep navy (the words turn deep navy).
-        case plaquePressed
-        /// Cannot be paid: the line in dark mist (the words in dim mist).
-        case plaqueOff
-        /// A destructive choice: the line in ember (the words stay bone).
-        case plaqueDanger
-        /// A plaque inside a pane: no second fill.
-        case inset
-        /// The main button of a sheet (Resume, Continue): the inset's line in lantern gold on a lifted slate face.
-        case insetMarked
-        /// A destructive choice inside a sheet.
-        case insetDanger
-
-        var grid: [String] {
-            switch self {
-            case .panel: return NightGlass.paneGrid
-            case .inset, .insetMarked, .insetDanger: return NightGlass.insetGrid
-            default: return NightGlass.plaqueGrid
-            }
-        }
-
-        var cap: Int { (grid.count - 1) / 2 }
-
-        var fill: Ink? {
-            switch self {
-            case .plaquePressed: return Ink(rgb: 0xFFA34D)
-            case .insetMarked: return Ink(rgb: 0x1E2B52, alpha: 200)
-            case .inset, .insetDanger: return nil
-            default: return NightGlass.navyInk
-            }
-        }
-
-        var line: Ink {
-            switch self {
-            case .plaqueMarked, .insetMarked: return Ink(rgb: 0xFFC65A)
-            case .plaquePressed: return Ink(rgb: 0x0A1124)
-            case .plaqueOff: return Ink(rgb: 0x6A7393)
-            case .plaqueDanger, .insetDanger: return Ink(rgb: 0xD9481F)
-            default: return NightGlass.brassInk
-            }
-        }
-    }
-}
-
-// MARK: - Pixels
-
-/// The skins' pixels, built once from the grids (whole pixels, no smoothing) and cached.
-@MainActor
-enum NightGlassImages {
-    private static var cache: [String: CGImage] = [:]
-
-    static func image(_ skin: NightGlass.Skin) -> CGImage? {
-        var legend: [Character: NightGlass.Ink] = ["l": skin.line]
-        if let fill = skin.fill { legend["f"] = fill }
-        return image(key: "skin-" + skin.rawValue, grid: skin.grid, legend: legend)
-    }
-
-    static func portraitLine() -> CGImage? {
-        image(key: "portrait", grid: NightGlass.portraitGrid, legend: ["l": NightGlass.brassInk])
-    }
-
-    static func ribbon(height: Int) -> CGImage? {
-        image(key: "ribbon-\(height)", grid: NightGlass.ribbonGrid(height: height).rows,
-              legend: ["f": NightGlass.navyInk, "l": NightGlass.brassInk])
-    }
-
-    static func toggle(on: Bool) -> CGImage? {
-        let legend: [Character: NightGlass.Ink] = [
-            "l": NightGlass.brassInk,
-            "s": NightGlass.Ink(rgb: 0x0A1124, alpha: 235),
-            "k": NightGlass.Ink(rgb: on ? 0xFFC65A : 0x6A7393),
-            "m": NightGlass.Ink(rgb: on ? 0xFFA34D : 0x2F3F72),
-        ]
-        return image(key: on ? "switch-on" : "switch-off", grid: NightGlass.switchGrid(on: on), legend: legend)
-    }
-
-    /// Draws a grid one pixel per character into a premultiplied sRGB bitmap.
-    static func image(key: String, grid: [String], legend: [Character: NightGlass.Ink]) -> CGImage? {
-        if let hit = cache[key] { return hit }
-        let height = grid.count
-        let width = grid.first?.count ?? 0
-        guard width > 0, let space = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
-        var bytes = [UInt8](repeating: 0, count: width * height * 4)
-        for (y, row) in grid.enumerated() {
-            for (x, character) in row.enumerated() {
-                guard let ink = legend[character] else { continue }
-                let alpha = UInt32(ink.alpha)
-                let offset = (y * width + x) * 4
-                // Premultiplied: each channel times alpha / 255, rounded.
-                bytes[offset] = UInt8((((ink.rgb >> 16) & 0xFF) * alpha + 127) / 255)
-                bytes[offset + 1] = UInt8((((ink.rgb >> 8) & 0xFF) * alpha + 127) / 255)
-                bytes[offset + 2] = UInt8(((ink.rgb & 0xFF) * alpha + 127) / 255)
-                bytes[offset + 3] = ink.alpha
-            }
-        }
-        let made: CGImage? = bytes.withUnsafeMutableBytes { buffer in
-            guard let context = CGContext(data: buffer.baseAddress, width: width, height: height,
-                                          bitsPerComponent: 8, bytesPerRow: width * 4, space: space,
-                                          bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return nil }
-            return context.makeImage()
-        }
-        if let made { cache[key] = made }
-        return made
-    }
-}
-
-// MARK: - Views
-
-/// A nine-slice of night glass: the caps at whole game pixels, the middle stretched, never smoothed.
-struct GlassSkinView: View {
-    var skin: NightGlass.Skin = .panel
-
-    var body: some View {
-        GlassNineSlice(image: NightGlassImages.image(skin), cap: skin.cap)
-    }
-}
-
-/// A grid image at 2 pt per pixel with fixed caps (`vertical: false` stretches only across, for the ribbon).
-struct GlassNineSlice: View {
-    let image: CGImage?
-    let cap: Int
-    var vertical = true
-
-    var body: some View {
-        if let image {
-            let points = CGFloat(cap) * NightGlass.pointsPerPixel
-            Image(decorative: image, scale: 1 / NightGlass.pointsPerPixel)
-                .resizable(capInsets: EdgeInsets(top: vertical ? points : 0, leading: points,
-                                                 bottom: vertical ? points : 0, trailing: points),
-                           resizingMode: .stretch)
-                .interpolation(.none)
-                .accessibilityHidden(true)
-        } else {
-            NightGlass.navy.opacity(NightGlass.paneAlpha)
-                .accessibilityHidden(true)
-        }
-    }
-}
-
-/// The pane of a card or a sheet (replaces ParchmentBackground, SlipBackground and NightBackground).
-struct GlassPanelBackground: View {
-    var body: some View {
-        GlassSkinView(skin: .panel)
-    }
-}
-
-/// A plaque's pane at rest (replaces PlaqueBackground where the style below cannot be used, e.g. a row of a card).
-struct GlassPlaqueBackground: View {
-    var enabled = true
-    var marked = false
-    /// Inside a pane: the inset skin, so the pane is not darkened twice.
-    var inside = false
-
-    var body: some View {
-        GlassSkinView(skin: skin)
-    }
-
-    private var skin: NightGlass.Skin {
-        if inside { return marked ? .insetMarked : .inset }
-        if !enabled { return .plaqueOff }
-        return marked ? .plaqueMarked : .plaque
-    }
-}
-
-/// A choice on night glass. Pressed, lantern amber fills it from the left in 0.12 s (at once with Reduce Motion), the
-/// words under the fill turn deep navy, and one haptic tick answers (`haptics`: pass the player's setting). The label
-/// keeps its own padding and frame; words inside it must not set their own colour, or they keep it under the fill.
-struct GlassPlaqueStyle: ButtonStyle {
-    var marked = false
-    var danger = false
-    /// Inside a pane (a sheet's buttons): the inset skins.
-    var inside = false
-    var haptics = true
-    /// Words in lantern gold at rest (a sheet's main button); otherwise bone.
-    var goldWords = false
-
-    func makeBody(configuration: Configuration) -> some View {
-        GlassPlaqueBody(configuration: configuration, marked: marked, danger: danger, inside: inside,
-                        haptics: haptics, goldWords: goldWords)
-    }
-}
-
-private struct GlassPlaqueBody: View {
-    let configuration: ButtonStyleConfiguration
-    let marked: Bool
-    let danger: Bool
-    let inside: Bool
-    let haptics: Bool
-    let goldWords: Bool
-    @Environment(\.isEnabled) private var isEnabled
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    var body: some View {
-        let pressed = configuration.isPressed && isEnabled
-        ZStack {
-            GlassSkinView(skin: restSkin)
-            GlassSkinView(skin: .plaquePressed)
-                .mask(alignment: .leading) { sweep(pressed) }
-            configuration.label
-                .foregroundStyle(restWords)
-            configuration.label
-                .foregroundStyle(NightGlass.navyDeep)
-                .mask(alignment: .leading) { sweep(pressed) }
-                .accessibilityHidden(true)
-        }
-        .animation(reduceMotion ? nil : .linear(duration: 0.12), value: pressed)
-        .contentShape(Rectangle())
-        .sensoryFeedback(.selection, trigger: pressed) { _, now in now && haptics }
-    }
-
-    /// The fill's mask: the whole plaque, scaled from the leading edge.
-    private func sweep(_ pressed: Bool) -> some View {
-        Rectangle()
-            .scaleEffect(x: pressed ? 1 : 0.0001, y: 1, anchor: .leading)
-    }
-
-    private var restSkin: NightGlass.Skin {
-        if inside {
-            if danger { return .insetDanger }
-            return marked ? .insetMarked : .inset
-        }
-        if !isEnabled { return .plaqueOff }
-        if danger { return .plaqueDanger }
-        return marked ? .plaqueMarked : .plaque
-    }
-
-    private var restWords: Color {
-        if !isEnabled { return NightGlass.mistDim }
-        return goldWords ? NightGlass.lanternGold : NightGlass.bone
-    }
-}
-
 /// A portrait's brass line (replaces PortraitTile's ink frame and gold hairline): lay it over the tile at the tile's
 /// size; the picture fills the tile less 2 game px (4 pt) on every side, as before, and the ring outside it is pane.
 struct GlassPortraitLine: View {
     var body: some View {
         GlassNineSlice(image: NightGlassImages.portraitLine(), cap: 2)
+    }
+}
+
+/// The talk bubble's tail (replaces TailShape's fill and stroke), 14 x 8 pt; hang it under the pane with no gap.
+struct GlassTail: View {
+    var body: some View {
+        Group {
+            if let image = NightGlassImages.tail() {
+                Image(decorative: image, scale: 1 / NightGlass.pointsPerPixel)
+                    .interpolation(.none)
+            }
+        }
+        .frame(width: 7 * NightGlass.pointsPerPixel, height: 4 * NightGlass.pointsPerPixel)
+        .accessibilityHidden(true)
     }
 }
 

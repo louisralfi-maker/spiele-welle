@@ -22,6 +22,7 @@ builds the same pixels from the same grids at run time, `glassart.py check` prov
                       line on its own edge, the corners notched)
   glassInsetMarked    the same, the line in lantern gold: the main button of a sheet (Resume, Continue)
   glassInsetDanger    the same, the line in ember: a destructive choice inside a sheet
+  glassTail           7x4: the talk bubble's tail, the pane's navy in 1:1 stairs, under the pane at the speaker
   glassPortrait       5x5, caps 2: the portrait's brass line, 1 game px hugging the picture, notched; no mat
   glassRibbon<h>      the horn's ribbon (and the dawn report's banners): the pane with notched ends, brass line,
                       3-slice (caps h//2 + 3, middle column stretched), h game px high (13 and 15 written)
@@ -123,6 +124,14 @@ INSET = [
     "lfffffffl",
     "lfffffffl",
     ".lllllll.",
+]
+
+# The talk bubble's tail under the pane: 7x4 game px of the pane's navy, pointing down at the speaker.
+TAIL = [
+    "fffffff",
+    ".fffff.",
+    "..fff..",
+    "...f...",
 ]
 
 PORTRAIT = [
@@ -246,6 +255,7 @@ def pieces(notched_line=False):
     for name in SKINS:
         out[name] = pane(name, notched_line)
     out["glassPortrait"] = portrait()
+    out["glassTail"] = from_grid(TAIL, {"f": rgba(NAVY, NAVY_ALPHA)})
     for h in (13, 15):
         out["glassRibbon%d" % h] = ribbon(h)
     out["glassSwitchOn"] = switch(True)
@@ -338,7 +348,7 @@ def contrast_table(alpha=NAVY_ALPHA / 255.0):
 def check(swift_path):
     text = open(swift_path, encoding="utf-8").read()
     ok = True
-    for name, grid in (("pane", PANE), ("plaque", PLAQUE), ("inset", INSET), ("portrait", PORTRAIT)):
+    for name, grid in (("pane", PANE), ("plaque", PLAQUE), ("inset", INSET), ("portrait", PORTRAIT), ("tail", TAIL)):
         m = re.search(r"static let %sGrid = \[(.*?)\]" % name, text, re.S)
         if not m:
             print("missing %sGrid" % name)
@@ -374,15 +384,16 @@ def contact_sheet(path, notched_line=False):
     for name, im in ps.items():
         if name.startswith("glassRibbon"):
             h = im.size[1]
-            tiles.append((name, nine(im, h // 2 + 3, im.size[0] + 18, h)))
+            tiles.append((name, nine(im, h // 2 + 4, im.size[0] + 40, h)))
         elif name in ("glassPortrait",):
             tiles.append((name, nine(im, PORTRAIT_CAP, 16, 16)))
-        elif name.startswith("glassSwitch") or name in ("glassGem",):
+        elif name.startswith("glassSwitch") or name in ("glassGem", "glassTail"):
             tiles.append((name, im.resize((im.size[0] * 6, im.size[1] * 6), Image.NEAREST)))
         elif name == "glassRule":
             tiles.append((name, nine(im, 1, 30, 1)))
         else:
-            tiles.append((name, nine(im, PANE_CAP, 34, 14)))
+            cap = (im.size[0] - 1) // 2
+            tiles.append((name, nine(im, cap, 34, 14)))
     W = 1500
     rowh = 130
     sheet = Image.new("RGBA", (W * len(grounds), rowh * len(tiles) + 20), (0, 0, 0, 255))
