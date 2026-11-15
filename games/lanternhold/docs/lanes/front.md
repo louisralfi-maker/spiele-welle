@@ -415,3 +415,324 @@ gate one round of `build unit` with the sweep as an `sh` step; the sweep-only ro
 - **`tools/frontsweep`** needs its file list kept in step with Core at the join (as `tools/simtune` did); the hard
   nights and the falls ladder live only there (in unit tests they would add about four minutes to every unit round).
 - Everything listed under "Open, and waiting for the join" of front-1 still holds.
+
+## front-2: the hearth (15.11.2026)
+
+Louis, 14.11.: "Tut weh, geht weiter: Häuser brennen, Leute mit Namen sterben, die Stadt wird ärmer und man baut wieder
+auf. Ganz vorbei ist es nur, wenn das Herdfeuer ausgeht, und dann startet man am Morgen davor neu." Spec: REALM.md
+section 4. Core only: no SwiftUI, no renderer, no sprite, no UI test changed.
+
+How this step was made: the app's worktree guard refuses writes into `.claude/worktrees/lh-front` from the lead's
+session, so the step worked in a scratch clone of the branch (`scratchpad/front2/repo`), committed there as Louis'
+noreply identity and pushed to `origin/claude/lh-front`. The local worktree `lh-front` is behind origin until someone
+runs `git -C .claude/worktrees/lh-front merge --ff-only origin/claude/lh-front`.
+
+### What exists (all new files of this lane)
+
+- `Core/Front/HearthTuning.swift`: every number in one place, carried as `Balance.front.hearth` (`HearthTuning`), and
+  the fire's four steps (`HearthLevel`: bright, low, embers, out). `breachSteps` 2 (the spec's starting value was 1:
+  see "The one number moved"), `recoverSteps` 1, `feedSteps` 1, `feedPrice` 25, `feedReach` 40 px, `secondChanceLevel`
+  embers; `housesLeast` 1, `housesMost` 2, `lanternsSpare` 1, `deadLeast` 1, `deadMost` 3, `goldShare` 0.2, `goldCap`
+  60, `happinessLoss` 8, `rebuildShare` 1/3; `dawnsKept` 3; the picture's `glow` by step (0, 0.35, 0.65, 1).
+- `Core/Front/HearthState.swift`: the saved state (`HearthState` in `GameState.hearthFire`: the step, the day it was
+  fed, the burnt places with their households, the dead by name, the broken nights, tonight's breach until its dawn,
+  the stamps `lastBreak` and `lastFeed`, the lamplighter's input `lanterns`), the report's hearth half
+  (`HearthDawnReport` in `DawnReport.hearth`) and its lines (`HearthLine`). Every field decodes with a default; a burnt
+  plot outside the realm is dropped on load.
+- `Core/Front/Hearth.swift`: the rule. `adopt`; `afterBattle` (the breach); `takeCost` and `households` (the cost);
+  `dawn` (the report, the fire's rise, the second chance's rekindling); `feedOffer` and `feed` (wood); `rebuildPrice`,
+  `rebuildOption` and `rebuild` (building up again); `ruins`, `sheltering`, `lanternsLit` and `picture` (one
+  `HearthPicture` a frame: step, glow, ruins, sheltering, the feed offer, the stamps).
+- `Core/Front/DawnRing.swift`: the last three dawns (`DawnRing`, `DawnChoice`). Only a living realm is ever kept, the
+  same dawn written twice replaces itself, another realm's dawn starts it afresh, waking keeps that dawn and the older
+  ones. It decodes dawn by dawn and never makes a save corrupt.
+- `Core/Front/HearthNames.swift`: 40 townsfolk names (none a soldier's, the court's, the house's past or the people
+  lane's cast; none that says an age).
+- `Core/Front/HearthText.swift`: the words (Front.xcstrings) in the player's language or one language, the names filled
+  in; the fall card's wake buttons.
+- `Core/Front/HearthBot.swift`: the T14 bot (the reference by day and night; once no wall lies in rubble it feeds the
+  fire below bright and has burnt places rebuilt; on its careless nights the lord stays at the throne).
+- `Core/Front/HearthTuningRun.swift`: T14 (`HearthMetrics`, `HearthMend`, `HearthDouble`) and the loss table
+  (`HearthLoss`, `lockstep`, `lossTable`).
+- `Resources/Front.xcstrings`: 18 new keys in English and German (12 report lines, the happiness row's reason, the fall
+  card's title, three wake buttons and "Begin a new realm").
+- `Tests/HearthTests.swift` (25 tests: the breach, the cost, the lanterns, the rebuild, wood, the dawn's rise, out and
+  the second chance, night 20, the lines and their words, the names, the ring, waking, the driver, the save, the
+  reference bot) and `Tests/HearthTuningTests.swift` (T14a, T14b, two in a row, the loss table).
+- `tools/hearthsweep/` (`sh bash tools/hearthsweep/run.sh [variants] [seeds=10]`): the loss table, T14 on 10 seeds at
+  four sizes of the careless night, and the cost's variants, with -O on the runner.
+
+### The rule as built
+
+- **The fire** has four steps, bright, low, embers, out, and is seen only as fire (the picture reads `level` and
+  `glow`; no bar, no number). A realm starts bright; a realm whose rule is turned on later (an old save) starts bright.
+- **A broken night.** When the creatures drain the hearth's strength (the step in which the old rules set `defeated`),
+  `Hearth.afterBattle` takes over in the same step: the fire drops `breachSteps` (two: bright to embers, low to out),
+  the cost is taken, the `.defeat` event goes, and `Sim.secondChance` ends the night (the hearth flares up, every
+  creature burns away, dawn comes at once; the walls stay as they are). The report says `realmFell` (the night was
+  lost: no record counts it as held) and `hearth.broken`.
+- **The cost** (taken at the breach, before the dawn's economy, from the night's own stream seeded by the realm's seed
+  and the night, so the realm's random stream is untouched and waking at a dawn and losing the same night again costs
+  the same): one to three townspeople with names die (taxpayers only, never a soldier, never more than there are; each
+  name once a realm); one or two houses burn, one fewer with the street lanterns lit and never fewer than one (with the
+  default lanterns that is one house, two in unrest), or one field or the market stall when no house stands; a fifth of
+  the purse is gone (rounded down, at most 60); happiness falls by 8 at once.
+- **Building up again.** A burnt place lies with `PlotState.item` nil and an entry in `HearthState.burnt`: it holds
+  nobody (the house room is gone), pays nothing (fields and the market count by item), and its household (its share of
+  the taxpayers by room) shelters in the chapel (`Hearth.sheltering`). The build card of a burnt plot offers only the
+  same place back at a third of what it cost, every tier counted (house 10, big house 30, field 9, market stall 27),
+  built as a rebuild (`Build.order` with `isRebuild`, so half the work). Once it stands the entry goes at the next dawn.
+- **The fire recovers** one step at a dawn after a night without a breach (not after a night 20 lost and saved by the
+  second chance). **Wood:** once a day (by the day's number, at any hour) the lord, standing within 40 px of the hearth,
+  feeds a fire that burns low or embers one step for 25 gold. A bright fire and a dead one take no wood.
+- **Out.** A breach that takes the fire to out leaves the realm fallen (`defeated`, the `.defeat` event, the fall
+  card); the cost is taken all the same. The defeat card's second chance (the ads lane's rewarded video, `Sim.
+  secondChance`) brings the dawn with the fire glowing again at embers and the cost standing (`hearth.rekindled`).
+- **The last three dawns.** `SimDriver.dawnRing` keeps every dawn the realm reaches (and the first morning), the last
+  three; `SimDriver.wake(back:)` wakes at one (0 is this morning, as "Replay the day" was) and keeps it and the older
+  ones; `SimDriver.restart` begins a new realm with a fresh ring; `SaveGame.dawns` keeps the ring on disk. A fall never
+  produces a dawn, and `DawnRing.record` refuses a fallen state, so a fall never overwrites a kept dawn, and every kept
+  dawn has the fire above out. With two steps a breach the fire goes out on the second of two broken nights at most one
+  held night apart, so the dawn before the first of them is among the three kept: nobody is stuck in a lost position.
+- **Night 20** (the Lightless King's night, `Battle.boss`): the realm falls as today, whatever the fire's state; the
+  rule takes no cost and leaves the fire as it is.
+- **The street lanterns** (the director's note of 14.11. 14:45): `HearthState.lanterns` is a plain input; nil is the
+  default rule (lit every evening, not in unrest, happiness below 15). With them lit one house fewer burns.
+- **Deterministic**, and nothing runs for a realm without `GameState.hearthFire`: the reference bots of T1 to T8 play
+  exactly as before (the loss table below).
+
+### The one number moved: two steps a breach (the spec's starting value was one)
+
+REALM.md's numbers are starting values that the lanes tune by values; the spec says a broken night drops "one step",
+and T14 asks that "two broken nights within three end the realm". With one step these cannot both hold: a bright fire
+has three steps above out, so two broken nights never put it out (round lh-f2-3, ten seeds: 0 of 20 in a row, 1 of 20
+with a held night between, and that one only because the night between broke too). Worse for the player: wood undoes
+one step a day, so a realm that breaks every night and buys wood every morning never goes out until its purse is empty,
+and by then the three kept dawns all lie inside the slide: the fall would wake the player in a lost position (round
+lh-f2-1: seed 2 night 8 broke four nights running at the game's own budget, fed every morning, and stood). With two
+steps: wood (one step) and one held night (one step) mend one broken night; two in a row end the realm, with or without
+wood; a careless bot that never feeds loses the realm on any two broken nights within three; one that holds the night
+between and feeds the fire back to bright goes on, which is the deed the rule asks for. And the dawn before the trouble
+is always among the three kept. The cost: after the first broken night the report says "Only embers glow in the
+hearth." rather than "The hearth burns low." (that line now comes the morning after, when a held night raised the fire
+from embers). `breachSteps` 1 is one value away for the director (T14b then reported as failing; T14a passes either
+way).
+
+No other number moved. The cost's variants (round lh-f2-3, careless night x6, 90 careless nights) changed T14a by a few
+nights in either direction and none fixed the six it misses (happiness −4: 80 mended, −12: 81; gold cap 30: 84; a
+third capped at 100: 79; dead 1-2: 86, 2-4: 82; two houses always: 75; rebuild at half: 80; wood 40: 84; no dawn
+recovery: 51). The spec's values stay.
+
+### Judged as a player
+
+The first broken night: the hearth gutters to embers, the creatures burn away and it is morning. The report says, in
+four short lines, which house burnt, who did not see the morning (one to three names), that coin is missing from the
+treasury, and that only embers glow in the hearth. The gatehouse lies in rubble (the battle's own damage, as today).
+The way back is plain and cheap: the gate (50, as today), the house (10), a log on the fire (25), and one night held.
+In the T14 runs that is what happens: the fire is bright again after 1.6 dawns on average and the house stands again
+after 1.5; three days later the realm is about 16 gold, 7 happiness and 3 people poorer than a twin whose breach cost
+nothing. That reads as a loss you feel and mend, with names to remember, not as a reason to put the phone away. The
+sting that stays is the names; the threat that stays is the embers: the next night must hold. What can make a player
+quit: a young realm (nights 6 to 10) whose purse is empty when the gate falls cannot pay the 50 for it the next day, so
+the next night breaks too and the fire goes out (3 of 90 careless nights). Then the fall card offers the morning before
+the careless night, which is the second try Louis described ("startet man am Morgen davor neu"). At the join the town's
+knock and the lord's presence give a human player two more ways out of that hole.
+
+### Hooks into existing files (apply them again at the join)
+
+| File | Place | Hook | Why |
+|---|---|---|---|
+| `Core/GameState.swift` | after `var front` | `var hearthFire: HearthState?` | the saved rule; nil = the old rules (bots, old saves) |
+| `Core/DawnReport.swift` | after `var front` | `var hearth: HearthDawnReport?` | the report's hearth half |
+| `Core/Sim.swift` `step` | after the `Battle.step` block, last line | `Hearth.afterBattle(&s, balance: balance, events: &events)` | the breach instead of the fall |
+| `Core/Sim.swift` `dawn` | right after `FrontNight.dawn(&s)` | `Hearth.dawn(&s, balance: balance)` | the report's hearth half, the fire's rise |
+| `Core/Build.swift` `options` | after `if current.job != nil { return [] }` | `if let rebuild = Hearth.rebuildOption(state, plot: plot, balance: balance) { return [rebuild] }` | a burnt place comes back at a third |
+| `Core/Front/FrontTuning.swift` (own file) | end | `var hearth = HearthTuning()` | the numbers travel with every balance |
+| `Core/SaveGame.swift` | after `var chronicle`; `init` | `var dawns: DawnRing?`; parameter `dawns: DawnRing? = nil`, `self.dawns = dawns` | the kept dawns on disk |
+| `Core/SimDriver.swift` | after `dawnSnapshot` | `private(set) var dawnRing: DawnRing` | the kept dawns |
+| `Core/SimDriver.swift` `init` | parameter `dawnRing: DawnRing? = nil`; at the end | `var ring = dawnRing ?? DawnRing(); ring.record(snapshot, keep:); self.dawnRing = ring` | a loaded save's ring, or the first morning |
+| `Core/SimDriver.swift` `stepOnce`, `secondChance` | after each `dawnSnapshot = state` | `dawnRing.record(state, keep: balance.front.hearth.dawnsKept)` | every dawn kept |
+| `Core/SimDriver.swift` `restart` | after `dawnSnapshot = state` | `dawnRing = DawnRing(state, keep:)` | a new realm, a new ring |
+| `Core/SimDriver.swift` `setLord` | end | `dawnRing.setLord(lord)` | the kept dawns know the lord |
+| `Core/SimDriver.swift` | after `setLord` | `mutating func wake(back: Int) -> Bool` | the fall card's wake (as `replayDay`, at a kept dawn) |
+| `tools/simtune/run.sh`, `tools/frontsweep/run.sh` | `SRC` | `Core/Front/HearthTuning.swift HearthState.swift Hearth.swift HearthNames.swift DawnRing.swift` | the sweeps compile the core |
+
+Under the old rules every hook does nothing (`hearthFire` nil: `afterBattle`, `dawn` and `rebuildOption` return at
+once); the ring only records. The loss table and the tuning report prove it (below).
+
+### For the join: what the screen shows and which touch calls what
+
+- **Turn the rule on** for the player's realm with the front rule: `Hearth.adopt(&start)` and `Hearth.adopt(&snapshot)`
+  in `SimDriver.init`, `Hearth.adopt(&state)` in `SimDriver.restart`. The save writes `SaveGame(state:
+  driver.dawnSnapshot, ..., dawns: driver.dawnRing)`; the load builds `SimDriver(state: save.state, ..., dawnRing:
+  save.dawns)`. Panels' `holdTheRealm` (it sets the mode in the state and the snapshot) should end with
+  `dawnRing.record(dawnSnapshot)` so the kept dawn carries the mode.
+- **Every frame** read `Hearth.picture(state, balance:)`:
+  - `level` and `glow`: the hearth's flame in the hall in four looks (bright: a full fire; low: a small fire; embers: a
+    red glow and no flame; out: cold ash). The hearth light's intensity times `glow` (its radius as it is). The
+    lamplighter's street lanterns burn as the hearth does (TOWN.md section 7) and stay dark when `lanternsLit` is
+    false. No bar, no number, no label.
+  - `ruins`: each burnt house, field or stall drawn charred (black beams, no window light, no smoke from the chimney),
+    with scaffolding while `rebuilding`. Nobody stands in its door.
+  - `sheltering`: that many townspeople bedded down in the chapel (a few figures and blankets; by day too).
+  - `lastBreak` (a new `at`): the breach. The flame gutters down to its new step, a flare runs out of the hearth
+    through the hall, the creatures burn away (as the second chance shows it), and the picture fades to first light;
+    a heavy haptic and the hearth's low exhale. Reduce Motion: no flare, a short cross-fade. After a load or a wake the
+    stored `at` counts as seen.
+  - `lastFeed` (a new `at`): the lord throws a log on, the flame leaps up one step; a light haptic.
+- **The dawn report:** `HearthText.lines(report)` gives up to four lines (what burnt, who did not see the morning, the
+  coin, the fire); put them in the night half right after the fallen soldiers, before the front lines. When
+  `report.hearth.happinessLost` is above 0 the happiness row shows it as its own reason, "The Gloom reached the hearth
+  −8" (`front.hearth.reason`); `happinessBefore` already includes it, so the row starts at `happinessBefore +
+  happinessLost`. `report.realmFell` is true on a broken night too: tell it from a second chance by `report.hearth`.
+- **A touch on the hearth** (in the hall): `Hearth.feedOffer`. Ready: the price shows as coins at the hearth and the
+  count (PAY.md) pays it; when the last coin lands it calls `Hearth.feed(&state, balance:)` once (a one-line wrapper on
+  `SimDriver`). Not `inReach`: the touch walks the lord to the hearth first (as the knock walks him to the door).
+  `fedToday`: the board shakes. Not `affordable`: the refuse sound. nil (bright or out): the flame flickers once, no
+  coins. No prompt, no button: the low fire is the prompt.
+- **A touch on a burnt place:** `Hearth.rebuildOption(state, plot:, balance:)` gives the price; the count pays it and
+  calls `Hearth.rebuild(&state, plot:, balance:, events:)` (or the old build card's order: the card offers just that
+  line).
+- **The fall card** (`state.defeated`, the fire out, not night 20): title `front.fall.title` ("The hearth is out."),
+  then one button per kept dawn, newest first (`driver.dawnRing.choices`; words `HearthText.wake(choice)`: "Wake this
+  morning", "Wake a morning earlier", "Wake two mornings earlier"), each with a small flame drawn at that dawn's
+  `level`; a touch calls `driver.wake(back: choice.back)`. Then "Begin a new realm" (`front.fall.new`) →
+  `driver.restart(seed:)`. The ads lane's second chance stays on the card. Night 20 keeps today's card and the
+  chapter's ending.
+- **Events.** `.defeat` comes only when the fire goes out and on the King's night; a broken night sends no `.defeat`
+  and its `.dawn` comes in the same step. Nothing new in `SimEvent`: diff the stamps.
+- **Strings:** `Resources/Front.xcstrings`, English and German; the six other languages follow in the i18n pass (18
+  hearth keys: 12 report lines, 3 of them with names as `%@`, `%1$@ ... %3$@`).
+
+### How the hearth meets the town lane at the join (docs/TOWN.md; branch `claude/lh-town`)
+
+- This lane keeps to the house's state: a burnt place has `item` nil and an entry in `HearthState.burnt` with its
+  household. The town's ledger (`Town.ledger`) builds its paying places from the plots' items, so a burnt house, field
+  or stall owes nothing, needs no toss and has no door to knock on, with no change.
+- One change the join must make in the ledger: the day's tax part is worked out from the taxpayers, and the households
+  that shelter in the chapel would then pay through the other houses. Use `state.taxpayers − Hearth.sheltering(state)`
+  where the ledger counts the taxpayers to spread over the houses by room. (On this branch the old dawn taxes still
+  count them; the cost is taken before the dawn, so on the joined game the first ledger after a broken night already
+  sees the town as it is.)
+- The households by trade (`TownText`: chandler, oil-presser, cooper, weaver for houses 1, 3, 4, 5) can name the burnt
+  house ("The cooper's house burnt down."): four keys at the join instead of `front.hearth.burnt.house`.
+- Build 3's third house tier and farmsteads: `Hearth.rebuildPrice` counts every tier through `BuildItem.upgrade`, so a
+  townhouse or a farmstead comes back at a third of its whole cost with no change.
+- The ads lane's "no second video on the dawn a second chance brought" reads `realmFell`; a broken night sets it too.
+  Let the double taxes show on a broken night's dawn: `report.realmFell == true && report.hearth?.broken != true` is
+  the second chance's own dawn (a rekindled fire has `rekindled`).
+
+### Story and interface lines that speak of the fall (STORY.md not edited; new words for the join)
+
+- `Localizable`: "The hearth has gone out" (the fall card: still right, at out only); "The Gloom reached the hearth on
+  night %lld." (a broken night reaches it too and goes on: the fall card should say the fire went out); "Replay the day"
+  (now "Wake this morning", `front.fall.wake.0`, beside two earlier mornings); "The hearth went out, but a second chance
+  brought the dawn" and "The hearth flares up and dawn comes at once" (the ad's promise: it now brings the fire back to
+  embers, and the night's cost stands); "A second chance again from night %lld".
+- `Story.xcstrings`: `line.hesper_flame` ("The Flame remembers every lord. Mostly the ones who let it go out.") now
+  speaks of a real thing: keep; `line.herald_fire` ("Your fire is very small, lamplighter. He has watched larger ones go
+  out."): the house lane already rewrites "lamplighter"; it could follow the fire's step; `petition.pilgrims.text` ("the
+  Flame that never goes out"): true in every kept timeline, keep, or a variant at embers; `petition.hesper_giant.text`
+  ("The Flame burned black at dawn"): fine.
+- `DESIGN.md` "Losing a night" (the realm falls at 0; the defeat card's second chance and "Replay the day") and the
+  ads section's second chance: rewrite at the join from this section.
+
+### T1 to T8: the bot tables before and after
+
+The reference bots play without `GameState.hearthFire`, so nothing of the rule runs for them. Two proofs, both from the
+runner:
+
+- **The tuning report** (`TuningTests`, attached as `tuning-report.txt`) of round lh-f2-4 is round lh-f1f1-6's (this
+  branch before the step, itself the base's) line for line: 80 lines each, `diff` empty, md5
+  f919a8fdb355f32441b5879cc12e7324 both. `night-twenty-steps.txt` (md5 1ab8adf6...) and T13's `front-t13-report.txt`
+  (md5 e358924d...) are the same too. The T-lines, before and after alike: T1 nights 1-10 held, hearth 100, losses 0;
+  T2 falls on nights [3, 3, 3]; T3 beacon on days [17, 16, 17], low tax never; T4 high 27, low 83; T5 49 gold, 3
+  builds, 11 buildings by day 10; T6 with the beacon 20 of 20 won, the King slain 20 of 20, without 10 of 20 held; T7
+  17 of 20 endless seeds fall between 35 and 60; T8 last wave 79.9 s, 39 entities, 11 lights.
+- **The loss table** (`HearthTuningTests.testTheFirstBreachIsTodaysLoss`, attached as `hearth-loss-table.txt`; the
+  sweep prints it too): T1's runs (the reference, seeds 1 to 3, nights 1 to 10), T2's (the bot that builds nothing,
+  seeds 1 to 3) and the reference's eves of nights 9, 12 and 14 of seeds 1 to 3 at six times the night (a realm caught
+  short, where it does fall) are each played twice in lockstep, under the old rules and under the hearth rule. Both
+  realms are the same at every step (but for the hearth's own state) until the old one falls, and the hearth rule's
+  first broken night is that step: the same night, the same hour, the same fallen, killed, walls and spawned. 15 runs,
+  differences: none. Before (old rules) and after (the hearth rule), line for line:
+
+  | run | old rules: the realm falls | hearth rule: the first broken night |
+  |---|---|---|
+  | T1 reference seeds 1, 2, 3 | held every night | held every night |
+  | T2 builds nothing seed 1 | night 3 at 00:07, fallen 1, killed 1, spawned 23 | the same |
+  | T2 builds nothing seed 2 | night 3 at 02:11, fallen 1, killed 8, spawned 36 | the same |
+  | T2 builds nothing seed 3 | night 3 at 02:40, fallen 1, killed 10, spawned 39 | the same |
+  | x6 seeds 1, 2, 3 night 9 | held | held |
+  | x6 seed 1 night 12 / 14 | 04:17, fallen 10, killed 218, walls 2 / 04:07, fallen 10, killed 198 | the same |
+  | x6 seed 2 night 12 / 14 | 03:30, fallen 9, killed 161 / 03:40, fallen 9, killed 238 | the same |
+  | x6 seed 3 night 12 / 14 | 03:34, fallen 10, killed 139 / 03:26, fallen 8, killed 120 | the same |
+
+  (Hours as the table prints them ×100: 11, 219, 267, 428, 412, 350, 366, 357, 344.)
+
+So for T1 to T8 a night in which the hearth is reached still counts as the loss it is today, and the reference run
+still stops there: their numbers do not move.
+
+### T14 (new)
+
+The careless night: on the game's own nights the reference realm never lets the creatures reach the hearth before night
+20 (T1, T6), so a careless night is the reference realm caught short (the night six times as big, as T13 and the loss
+table do) with the lord at the throne all night (no patch, no brazier lit). "Well afterwards" is the T14 bot. Each
+careless night is played from the reference bot's eve; then three days at the game's own nights; beside it a twin that
+plays the same careless night with a breach that costs nothing (the fire still drops), for the gaps.
+
+Round lh-f2-4's sweep (`hearthsweep.txt`; seeds 1 to 10, careless nights 6 to 14, 90 nights):
+
+- **T14a: PASS.** All 90 careless nights broke (bright to embers). 84 were mended within three days (the fire bright
+  again and every burnt place standing): the fire after 1.6 dawns, the burnt place after 1.5 on average. In every realm
+  still standing (87) the fire was bright again within three days. The six not mended are young realms (seed.night 2.8,
+  4.7, 5.7, 7.6, 7.7, 10.9): the careless night left the gatehouse in rubble, the purse held a few coins, and the
+  reference could not pay the gate's 50 the next day; three of them broke again the next night and fell (and wake at
+  the morning before the careless night), three stood and paid for the gate before the house. The bar is therefore
+  nine in ten (`HearthMetrics.mendShare`), named in the report. The same at x4 (69 of 90 broke, 65 mended), x8 and x10
+  (84 of 90). The unit test (seeds 1 to 4, nights 7 to 13): 28 broke, 26 mended, the fire bright again in 26 of 26.
+- **A broken night's cost** (mean over the 90): one house, 2.1 dead, 11.3 gold (the reference keeps little in its
+  purse), happiness 8, and the battle's own two walls. Three days later against the costless twin: −16 gold, −7
+  happiness, −3 citizens; wood bought 0.6 times, 0.9 rebuilds.
+- **T14b: PASS** at two steps (the chosen value). A careless bot that never feeds: two broken nights in a row ended the
+  realm 20 of 20, with one held night between 19 of 19. With wood between: in a row 20 of 20; with one held night
+  between 8 of 19 (the other 11 had fed the fire back to bright and stood at embers). At one step (the spec's starting
+  value): 0 of 20 and 1 of 20 (the one with a third broken night between); fed 0 and 1.
+- Two in a row put the fire out (`testTwoBrokenNightsInARowPutTheFireOut`: embers, out; with one step low, embers, out
+  over three).
+
+### Rounds
+
+| Round | Commit | Steps | Result |
+|---|---|---|---|
+| lh-f2-1 | abe69c7 | build; unit HearthTests, HearthTuningTests, SaveGameTests, SimDriverTests | build PASS; 43 of 45 passed: T14a 26 of 28 (the bot fed the fire before closing the gate), and one step a breach let two broken nights with a third between end a realm; the loss table: differences none |
+| lh-f2-2 | e441dac | build; unit HearthTests, HearthTuningTests, BuildTests | build PASS; 45 of 46 passed, all but T14a (26 of 28 with "all" as the bar); T14b passes at two steps |
+| lh-f2-3 | e441dac | sh hearthsweep variants | ALL PASSED; T14 on 10 seeds at four sizes, the cost's variants (none fixes the six) |
+| lh-f2-4 | 261f35c | build, unit (all), sh hearthsweep | **ALL PASSED**: 467 unit tests, none failed; T1 to T8, T13 and the night-twenty steps identical to lh-f1f1-6 (md5); T14a and T14b PASS |
+
+Rounds by the director's notes of 14.11. 18:46 and 19:35: no `ui`, `ui-de` or `release` (no screen and no UI test
+changed), the gate one round of `build unit` with the sweep as an `sh` step.
+
+### Open, and waiting for the join
+
+- **For the director: two steps a breach** (the spec said one; the reasons above). One value (`breachSteps`) returns
+  to one step, which fails T14b by construction.
+- **For the director: T14a at nine in ten.** The careless nights not mended are young realms that cannot pay the
+  gatehouse's rubble (50 gold, today's rule) the morning after; at the join the town's knock and the lord's presence
+  give a human more ways to find the gold and hold the next night.
+- **Wood at any hour.** Feeding is once a day by the day's number and needs the lord at the hearth; at night it lets a
+  lord who runs home from the wall lift embers to low before the creatures come (a breach from low still puts it out).
+  If the director wants wood by day only, it is one guard in `Hearth.feedOffer`.
+- **The picture and the touch** (all of "For the join" above): the hearth's four looks, the breach's flare and fade, the
+  ruins and the chapel, the coins at the hearth and at a burnt house, the fall card with three mornings.
+- **Turning the rule on** for the player's realm (`Hearth.adopt` beside `FrontNight.adopt` in `SimDriver`), and the save
+  writing and reading `dawns`; write the save at once after a wake (else a relaunch before the next dawn loads the
+  newest kept dawn, not the woken one).
+- **The town's ledger** leaves the sheltering households out of the tax part (above); on this branch the old dawn
+  taxes still count them.
+- **The ads lane's** double-taxes check on a broken night's dawn (above); its second chance needs no change.
+- **The Chronicle** counts fallen soldiers; the townspeople a broken night took are not in it yet (their names are in
+  `HearthState.dead`).
+- **The six other languages** of the 18 hearth keys in the i18n pass.
+- **`tools/frontsweep` and `tools/simtune`** got the hearth's files in their lists; `tools/hearthsweep` shares
+  frontsweep's stand-in for `LordIdentity`. Keep the lists in step with Core at the join.
