@@ -1,0 +1,1 @@
+people lane: atlas 2048 wide, 1880 of 2048 rows used
