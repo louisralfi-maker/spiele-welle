@@ -107,38 +107,24 @@ final class TouchUITests: XCTestCase {
 
     /// Night 3 (seed 2) at the gatehouse, forced for its pictures (fix round 1: the night had no damaged wall): the
     /// gate at 45 % (`-GWDamage 0`) and the brazier before it cold (`-GWSnuff 2`) beside its lit twin. The marks darker
-    /// and warm; a touch on the cold brazier (its slip, 153c); a touch on the gate, its price over it while he waits
-    /// (153), the second touch that pays (153b); with no gold the price red (153a).
+    /// and warm (152); a touch on the gate, its price over it while he waits (153), the second touch that pays (153b);
+    /// then with an empty treasury, from farther off: a touch on the cold brazier, its slip while he hurries (153c),
+    /// and the gate's price red (153a).
     private func theFrontAtNight() {
         let night = TouchUITests.base + ["-GWNight", "3", "-GWSeed", "2", "-GWHour", "21.5", "-GWStage", "world",
-                                         "-GWCameraX", "1200", "-GWDamage", "0", "-GWSnuff", "2"]
+                                         "-GWDamage", "0", "-GWSnuff", "2"]
         let app = XCUIApplication()
-        app.launchArguments = night + ["-GWGold", "60"]
+        app.launchArguments = night + ["-GWCameraX", "1200", "-GWGold", "60"]
         app.launch()
         guard waitUntilReady(app, name: "touch-night") else { return }
         pause(0.8)
         attach(XCUIScreen.main.screenshot(), "152-touch-front-night-\(language)")
-        if let brazier = waitForThing(app, "touch-brazier-2", timeout: 3) {
-            XCTAssertFalse(brazier.label.isEmpty, "the light's label")
-            touchThing(brazier)
-            if element(app, "touch-slip").waitForExistence(timeout: 3) {
-                pause(0.25)
-                attach(XCUIScreen.main.screenshot(), "153c-touch-light-\(language)")
-            } else {
-                XCTFail("no slip over the cold brazier")
-            }
-            waitForStill(app)
-            pause(1.5)
-        } else {
-            XCTFail("the cold brazier offers nothing")
-        }
         if let wall = waitForThing(app, "touch-wall-0", timeout: 3) {
             XCTAssertTrue(wall.label.count > 0, "the repair's label")
             touchThing(wall)
             XCTAssertTrue(waitForField(app, "errand:touch-wall-0", timeout: 3), "he sets off to the gate")
             waitForStill(app)
-            let slip = element(app, "touch-slip")
-            if slip.waitForExistence(timeout: 4) {
+            if element(app, "touch-slip").waitForExistence(timeout: 4) {
                 pause(0.4)
                 attach(XCUIScreen.main.screenshot(), "153-touch-wall-price-\(language)")
                 if let again = waitForThing(app, "touch-wall-0", timeout: 2) {
@@ -155,11 +141,25 @@ final class TouchUITests: XCTestCase {
         }
         app.terminate()
 
-        // With an empty treasury the price over the gate is red, and the second touch is refused.
         let poor = XCUIApplication()
-        poor.launchArguments = night + ["-GWGold", "0"]
+        poor.launchArguments = night + ["-GWCameraX", "1110", "-GWGold", "0"]
         poor.launch()
-        if waitUntilReady(poor, name: "touch-night-poor"), let wall = waitForThing(poor, "touch-wall-0", timeout: 3) {
+        guard waitUntilReady(poor, name: "touch-night-poor") else { return }
+        pause(0.6)
+        if let brazier = waitForThing(poor, "touch-brazier-2", timeout: 3) {
+            XCTAssertFalse(brazier.label.isEmpty, "the light's label")
+            touchThing(brazier)
+            if element(poor, "touch-slip").waitForExistence(timeout: 2) {
+                attach(XCUIScreen.main.screenshot(), "153c-touch-light-\(language)")
+            } else {
+                XCTFail("no slip over the cold brazier")
+            }
+            waitForStill(poor)
+            pause(1.5)
+        } else {
+            XCTFail("the cold brazier offers nothing")
+        }
+        if let wall = waitForThing(poor, "touch-wall-0", timeout: 3) {
             touchThing(wall)
             waitForStill(poor)
             if element(poor, "touch-slip").waitForExistence(timeout: 4) {

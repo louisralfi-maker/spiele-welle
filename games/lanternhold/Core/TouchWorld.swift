@@ -73,8 +73,10 @@ struct TouchThing: Sendable, Equatable {
     /// Who speaks there (someone with a word; a bench's first in line) and his look (townsfolk's names).
     var who: String? = nil
     var look: Int? = nil
-    /// Fix round 1: an empty plot's footing, its half width (nil: none; `TouchFooting`).
+    /// Fix round 1: an empty plot's footing, its half width (nil: none; `TouchFooting`), and the middle of what is
+    /// drawn there when it is not the standing place (a wall's: the gate in its gatehouse; the gold rim's).
     var footing: Double? = nil
+    var rimX: Double? = nil
 
     var isPerson: Bool { kind == .talk || kind == .bench }
 

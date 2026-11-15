@@ -486,11 +486,10 @@ extension GameModel {
         guard overlay == nil, stageChange == nil, driver?.bot == nil, !isShowcase else { return [] }
         var marked = TouchRules.marked(touch.things, lordX: lordX, viewLeft: framing.viewLeft,
                                        viewRight: framing.viewRight)
-        if let errand = touch.errand, !marked.contains(where: { $0.id == errand.id }),
-           let thing = touch.things.first(where: { $0.id == errand.id }), thing.kind.mark != nil,
+        if let errand = touch.errand, let thing = touch.things.first(where: { $0.id == errand.id }),
+           thing.kind.mark != nil,
            TouchRules.clearOfEdges(thing.markX, viewLeft: framing.viewLeft, viewRight: framing.viewRight) {
-            marked.insert(thing, at: 0)
-            if marked.count > TouchRules.maxMarks { marked.removeLast() }
+            marked = TouchRules.withErrand(marked, thing)
         }
         return TouchMarks.marks(marked, pressed: touch.pressed ?? heldMark(marked))
     }
@@ -538,16 +537,19 @@ extension GameModel {
             layer.glows.append(EntityGlow(.hallMote, x: glassX + spot.dx, y: glassY + spot.dy,
                                           color: SIMD4<Float>(warm.x * k, warm.y * k, warm.z * k, 1)))
         }
+        // The ring: a front of light at the growing light's edge, its crest bright and two fainter pixels behind it,
+        // over the walk line only (round lh-s2f1-1: a thin circle through the lane read as a radius gizmo).
         let radius = LanternRaise.radius(since: since, normal: driver?.balance.lanternRadius ?? 40)
         let gold = GamePalette.fireGold
-        let k = Float(0.55 * flare)
-        let ringColor = SIMD4<Float>(gold.x * k, gold.y * k, gold.z * k, 1)
         let left = framing.viewLeft - 2
         let right = framing.viewRight + 2
-        for pixel in LanternFlare.ring(cx: glassX, cy: glassY, radius: radius,
-                                       floor: -Double(WorldLayout.groundRowsBelow))
-        where pixel.x >= left && pixel.x <= right {
-            layer.glows.append(EntityGlow(.hallMote, x: pixel.x, y: pixel.y, color: ringColor))
+        for (inset, share) in LanternFlare.band {
+            let k = Float(flare * share)
+            let color = SIMD4<Float>(gold.x * k, gold.y * k, gold.z * k, 1)
+            for pixel in LanternFlare.ring(cx: glassX, cy: glassY, radius: radius - inset, floor: 0)
+            where pixel.x >= left && pixel.x <= right {
+                layer.glows.append(EntityGlow(.hallMote, x: pixel.x, y: pixel.y, color: color))
+            }
         }
     }
 

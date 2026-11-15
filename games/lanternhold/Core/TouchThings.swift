@@ -37,12 +37,16 @@ enum TouchThings {
                 // Fix round 1: the slip names the cheapest price with its coin (none for a gift); an empty plot shows
                 // its footing while its mark shows.
                 let cheapest = options.map(\.price).min()
-                let bare = s.plots[plot].item == nil && s.plots[plot].job == nil
+                // The footing only where its building stands on the lane (not on the gatehouse's wall walk); the
+                // mark's tip then hangs just over its cord.
+                let footed = s.plots[plot].item == nil && s.plots[plot].job == nil
+                    && EntityFrames.drawnCentre(plot: plot, layouts: layouts).y < 2
                 list.append(TouchThing(id: "touch-plot-\(plot)", kind: .plot, act: .build(plot: plot), x: x,
-                                       standX: x, halfWidth: size.half, top: size.top,
+                                       standX: x, halfWidth: size.half,
+                                       top: footed ? Double(TouchFooting.stakeHeight) : size.top,
                                        rank: TouchRules.rank(.plot), price: cheapest.flatMap { $0 > 0 ? $0 : nil },
                                        marked: affordable,
-                                       footing: bare ? TouchFooting.half(plot: plot, state: s, layouts: layouts) : nil))
+                                       footing: footed ? TouchFooting.half(plot: plot, state: s, layouts: layouts) : nil))
             }
             var seen = Set<String>()
             for figure in figures where figure.alpha > 0.5 && figure.petition == nil && !seen.contains(figure.who) {
@@ -74,9 +78,13 @@ enum TouchThings {
                       state.hp < Build.maxHP(item, balance: balance) else { continue }
                 let x = Realm.plots[plot].x + min(item.width, 40) / 2
                 let size = extent(plot: plot, state: s, layouts: layouts)
+                // Fix round 1: no mark while the last repair's cooldown runs (it would only be refused; after the
+                // second touch paid the mark stayed and read as unpaid); the rim on the wall as drawn.
                 list.append(TouchThing(id: "touch-wall-\(plot)", kind: .wall, act: .patch(plot: plot), x: x,
                                        standX: x, halfWidth: size.half, top: size.top,
-                                       rank: TouchRules.rank(.wall), price: balance.patchCost))
+                                       rank: TouchRules.rank(.wall), price: balance.patchCost,
+                                       marked: s.king.patchCooldown <= 0,
+                                       rimX: EntityFrames.drawnCentre(plot: plot, layouts: layouts).x))
             }
         }
         // Fix round 1: the barracks carry their mark only while the treasury can pay a recruit (the sites' rule; at 3

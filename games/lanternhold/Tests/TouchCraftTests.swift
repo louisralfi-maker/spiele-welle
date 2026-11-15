@@ -75,6 +75,37 @@ final class TouchCraftTests: XCTestCase {
         XCTAssertEqual(TouchRules.marked(apart, lordX: 90, viewLeft: 0, viewRight: 400).count, 2)
     }
 
+    func testTheErrandsThingTakesItsGroupsPlace() {
+        let a = thing("a", kind: .plot, x: 100)
+        let b = thing("b", kind: .plot, x: 124)
+        let door = thing("door", kind: .door, x: 300)
+        let marked = TouchRules.marked([a, b, door], lordX: 90, viewLeft: 0, viewRight: 400)
+        XCTAssertEqual(marked.map(\.id), ["a", "door"])
+        XCTAssertEqual(TouchRules.withErrand(marked, b).map(\.id), ["b", "door"],
+                       "the touched site's mark, not a pair of hammers")
+        XCTAssertEqual(TouchRules.withErrand(marked, a).map(\.id), ["a", "door"], "already marked: as it was")
+    }
+
+    func testAWallCarriesNoMarkWhileItsRepairCoolsDown() throws {
+        var s = GameState.newRealm(seed: 2)
+        s.hour = 22
+        let wall = Realm.lines[0].wall
+        if s.plots[wall].item == nil { s.plots[wall].item = .gate }
+        let item = s.plots[wall].item ?? .gate
+        s.plots[wall].hp = Build.maxHP(item, balance: .standard) / 2
+        let ready = try XCTUnwrap(TouchThings.world(s, balance: .standard, figures: [], talked: []).first {
+            $0.id == "touch-wall-\(wall)"
+        })
+        XCTAssertTrue(ready.marked)
+        XCTAssertEqual(ready.rimX, EntityFrames.drawnCentre(plot: wall, layouts: KingTargets.layouts(s,
+                                                            balance: .standard)).x, "the rim on the gate as drawn")
+        s.king.patchCooldown = 3
+        let cooling = try XCTUnwrap(TouchThings.world(s, balance: .standard, figures: [], talked: []).first {
+            $0.id == "touch-wall-\(wall)"
+        })
+        XCTAssertFalse(cooling.marked, "just paid: no mark that would only be refused")
+    }
+
     func testTheBarracksCarryTheirMarkOnlyWhileARecruitCanBePaid() {
         var s = GameState.newRealm(seed: 2)
         s.hour = 10
@@ -102,6 +133,7 @@ final class TouchCraftTests: XCTestCase {
         let cheapest = Build.options(s, plot: plot, balance: .standard).map(\.price).min()
         XCTAssertEqual(site.price, cheapest.flatMap { $0 > 0 ? $0 : nil }, "the cheapest price with its coin")
         XCTAssertNotNil(site.footing, "an empty plot has a footing")
+        XCTAssertEqual(site.markLift, Double(TouchFooting.stakeHeight) + TouchRules.markGap, "just over its cord")
         let footing = try XCTUnwrap(site.footing)
         XCTAssertTrue((8...24).contains(footing))
         let marks = TouchMarks.marks([site], pressed: nil)

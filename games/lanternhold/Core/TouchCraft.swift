@@ -41,6 +41,22 @@ extension TouchRules {
         kind == .plot || kind == .brazier
     }
 
+    /// The marks with the errand's thing among them, first (the lord walks to it): of its group, and any tag it
+    /// would overlap, it takes the place (round lh-s2f1-1's 151: the touched site's hammer came back beside its
+    /// group's).
+    static func withErrand(_ marked: [TouchThing], _ thing: TouchThing) -> [TouchThing] {
+        guard !marked.contains(where: { $0.id == thing.id }) else { return marked }
+        var list = marked.filter { other in
+            let sameGroup = grouped(thing.kind) && other.kind == thing.kind && abs(other.x - thing.x) < groupSpan
+            let overlaps = abs(other.markX - thing.markX) < markWidth + 1
+                && abs(other.markLift - thing.markLift) < markHeight
+            return !sameGroup && !overlaps
+        }
+        list.insert(thing, at: 0)
+        if list.count > maxMarks { list.removeLast(list.count - maxMarks) }
+        return list
+    }
+
     /// True while a mark at `x` lies far enough inside the view.
     static func clearOfEdges(_ x: Double, viewLeft: Double, viewRight: Double) -> Bool {
         x >= viewLeft + edgeMargin && x <= viewRight - edgeMargin
@@ -144,7 +160,7 @@ enum TouchRims {
                 continue
             }
             guard TouchRules.keepsToBand(mark.kind) else { continue }
-            for prop in props where standsOn(prop, x: mark.poolX, half: mark.half) {
+            for prop in props where standsOn(prop, x: mark.rimX ?? mark.poolX, half: mark.half) {
                 var glow = EntityGlow(prop.sprite, x: prop.x, y: prop.y, color: color, frame: prop.frame,
                                       flipped: prop.flipped)
                 glow.kind = .rim
@@ -215,6 +231,9 @@ enum LanternFlare {
         }
         return list
     }
+
+    /// The ring's band: its crest at the light's edge and two fainter pixels behind it (inset, share).
+    static let band: [(inset: Double, share: Double)] = [(0, 0.6), (1, 0.32), (2, 0.14)]
 
     /// The flare on the glass: its middle and the pixels round it (offsets and shares).
     static let flare: [(dx: Double, dy: Double, share: Double)] = [

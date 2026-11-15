@@ -59,6 +59,7 @@ struct TouchMark: Sendable, Equatable {
     var who: String? = nil
     var half: Double = 6
     var footing: Double? = nil
+    var rimX: Double? = nil
 }
 
 /// The marks of touch the world on a stage (SPRITES.md "The marks of 'touch the world'"): a small tag over each thing
@@ -73,7 +74,7 @@ enum TouchMarks {
             guard let sprite = thing.kind.mark else { return nil }
             return TouchMark(sprite: sprite, x: thing.markX, lift: thing.markLift, pressed: thing.id == pressed,
                              poolX: thing.x, kind: thing.kind, who: thing.who, half: thing.halfWidth,
-                             footing: thing.footing)
+                             footing: thing.footing, rimX: thing.rimX)
         }
     }
 
