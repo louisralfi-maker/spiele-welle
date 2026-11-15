@@ -171,7 +171,9 @@ extension GloomFog {
     }
     /// The share of a creature's body that shows deep in the bank under the fog (the critic's high 4: unseen, only its
     /// red glow strip and the bank's eyes showed, "red squiggles"): a dark mass with its cool rim.
-    static let bodyFloor = 0.5
+    /// World-3 fix round 4 (the director: "deep in the bank a creature shows no body at all, only its ember eyes"): 0
+    /// (0.5 before: the half body read as a translucent mound).
+    static let bodyFloor = 0.0
 }
 
 // MARK: - High 8: the moon on the skiff's gunwale

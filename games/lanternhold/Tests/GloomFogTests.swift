@@ -202,9 +202,9 @@ final class GloomFogTests: XCTestCase {
         let deepest = DarknessBank.nightEdge(night: 99) + NightPlanModifiers.fogShift
         XCTAssertLessThanOrEqual(deepest - GloomFog.bodyWhole, Realm.wallX[2] + 20)
 
-        // In a frame: the body deep in the bank is drawn at half (world-3 fix round 1: a dark mass with its rim, never
-        // its glow strip alone), the one on its way out thin, the ones in the open and the lit ones whole; without
-        // the fog and in look 1 every body is whole.
+        // In a frame (world-3 fix round 4, the director: deep in the bank no body at all, only the bank's eyes): the
+        // bodies deep in the bank are not drawn, with or without the fog, nor their glow strips; the one in the open
+        // and the lit one are whole; in look 1 every body is whole.
         var s = GameFrameSupport.demoNight(hour: 23.2)
         let edge = s.bankEdge
         s.creatures = [
@@ -215,11 +215,11 @@ final class GloomFogTests: XCTestCase {
         ]
         let plain = layer(s, focus: edge - 60, gloom: nil)
         let foggy = layer(s, focus: edge - 60, gloom: fog)
-        XCTAssertEqual(foggy.actors.count, plain.actors.count, "the one deep in the bank shows as a dark mass")
-        XCTAssertTrue(foggy.actors.contains { abs($0.tint.w - Float(GloomFog.bodyFloor)) < 1e-4 }, "at half")
-        let thin = foggy.actors.filter { $0.tint.w > 0.02 && $0.tint.w < 0.98 }.count
-            - plain.actors.filter { $0.tint.w > 0.02 && $0.tint.w < 0.98 }.count
-        XCTAssertEqual(thin, 2, "the one deep in the bank at half, the one on its way out thinning")
+        XCTAssertEqual(foggy.actors.count, plain.actors.count, "the fog hides no more than the bank already does")
+        let bodies = foggy.actors.filter { $0.sprite == .sootling || $0.sprite == .sootlingB }
+        XCTAssertEqual(bodies.count, 2, "the one in the open and the lit one; none deep in the bank")
+        XCTAssertTrue(bodies.allSatisfy { $0.tint.w > 0.98 }, "whole")
+        XCTAssertEqual(foggy.actors.filter { $0.sprite == .sootlingGlow || $0.sprite == .sootlingBGlow }.count, 2, "no glow strip deep in the bank")
         XCTAssertEqual(foggy.lights.map(\.source), plain.lights.map(\.source), "the fog changes no light")
         XCTAssertEqual(foggy.props, plain.props)
         XCTAssertEqual(layer(s, focus: edge, gloom: fog, look: .one).actors,
