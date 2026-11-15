@@ -107,12 +107,12 @@ enum HallLight {
     /// The lord's lantern walking indoors: one round pool on the wall, the wainscot and the floor alike, centred on the
     /// lantern's head, and a flattened ellipse 40 x 8 px on the carpet under it, where its light lands. Round 1's pool
     /// was flattened and so strong that the light's cap held it flat over the whole wainscot panel and it dropped at
-    /// the cap rail: a lit box. This one is wider and just below the cap at its heart, so it falls off evenly over the
-    /// panel, the stone above and the floor; it keeps its warm white to its rim (the renderer's ember rim read red on
+    /// the cap rail: a lit box. This one is wider and reaches the cap only in a small heart round the lantern, so it
+    /// falls off evenly over the panel, the stone above and the floor; it keeps its warm white to its rim (the renderer's ember rim read red on
     /// the carpet). Its strength: day share and night share.
-    static let lanternRadius = 46.0
-    static let lanternLevel = (day: 0.14, night: 0.28)
-    static let lanternFloor = (radius: 21.0, squash: 5.0, share: 0.9)
+    static let lanternRadius = 44.0
+    static let lanternLevel = (day: 0.18, night: 0.37)
+    static let lanternFloor = (radius: 21.0, squash: 5.0, share: 1.0)
 
     /// The door's guards come to attention when the lord comes in: 2 px taller, still, the spear upright, its head
     /// catching the light as it snaps (a glint), from `attention.lowerBound` to its upper bound in seconds.

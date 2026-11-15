@@ -557,8 +557,8 @@ picture at the craft of the great pixel-art kingdoms. `hallInterior` (260x90) an
 
 | id | size | frames | notes |
 |---|---|---|---|
-| `greatHall` | 600x201 | 1 | the whole hall, 2.3 times as wide and 2.2 times as tall as `hallInterior`. Albedo, opaque but for the window lights (transparent: the night and the Weltmauer show through). It fills the view's height: 175 rows above the floor line, 26 below, like the world. The realm's banner at every second banner place (137, 253, 368), a two-candle wall sconce at the other two (220 and 336, row 100; fix round 1 of stage-1). The camera shows x 10 to 590 only (the end strips are never seen) |
-| `hallPillarNear` | 30x201 | 1 | a pier of the near arcade: a round shaft of drums at low contrast (14 px), a capital with its abacus, the springers of two arches, a moulded base on a plinth (fix round 1 of stage-1: two thirds of the old 46 px). Drawn in front of everything at parallax 1.25 in the hall's shade (0.62 of its ambient), with a rim of light on its edges and a dithered window where the lord stands behind it (the composite, `InteriorLight`); one only, at hall x 150 |
+| `greatHall` | 600x201 | 1 | the whole hall, 2.3 times as wide and 2.2 times as tall as `hallInterior`. Albedo, opaque but for the window lights (transparent: the night and the Weltmauer show through). It fills the view's height: 175 rows above the floor line, 26 below, like the world. The realm's banner at every second banner place (137, 253, 368), a two-candle wall sconce at the other two (220 and 336, row 100; fix round 1 of stage-1). The camera shows x 10 to 590 only (the end strips are never seen). Fix round 2: the dais is a raised platform at the back (its top rows 154 to 165, its 9 px front face rows 166 to 174 standing on the walk line; the steps' treads and risers likewise), the nave's flags run on below the walk line under its whole length; the runner ends at the foot of the steps with a gold fringe, a rug lies on the dais before the throne (x 380 to 439, rows 158 to 164); the chandeliers hang 10 px lower (wheel at row 53) |
+| `hallPillarNear` | 30x201 | 1 | a pier of the near arcade: a round shaft of drums (14 px), a capital with its abacus, the springers of two arches, a moulded base on a plinth (fix round 1 of stage-1: two thirds of the old 46 px). Fix round 2: evenly lit (darker edges both sides, no baked key), the drums' joints in `stoneDark` with a lit lip under each; the engine lays the key light on it. Drawn in front of everything at parallax 1.25 in the hall's shade (0.9 of its ambient), with a soft band of light 4 px wide on its key side (the window's by day, the torches' at night), thin rims on its edges, a ramp darker toward the roof and a dithered window where the lord stands behind it (the composite, `InteriorLight`); one only, at hall x 150 |
 | `hallFire` | 204x28 | 6 of 34x28 | the great hearth's fire, emissive, on the fire ramp. Bottom row on hall row 145, centred on x 532. About 8 frames a second |
 
 **The hall's parts** (hall px, x from the hall's left edge, rows from its top; a thing "stands on row r" when its
@@ -566,14 +566,14 @@ lowest row is r − 1):
 
 | what | where |
 |---|---|
-| floor line of the nave (the walk line, on the long carpet) | row 175, x 14 to 363 |
+| floor line of the nave (the walk line, on the long carpet) | row 175, x 14 to 363 (the runner ends at 363 with a gold fringe; below row 175 the nave's flags run on to x 589 under the dais, fix round 2) |
 | wall line of the nave (benches, guards, the waiting) | row 169 |
 | the door (leads out) | opening x 49 to 87, from row 110; a torch each side (x 38 and 98) |
 | the gallery over the door | x 14 to 122, its rail rows 80 to 95; a window behind it |
-| benches (`bench`, 32x10) | centred on x 184 and 300, under the two tall windows; three seats each (centre − 8, centre, centre + 8), the seated townsfolk on row 169 |
+| benches (`bench`, 32x10) | centred on x 184 and 300, under the two tall windows; three seats each (centre − 11, centre, centre + 11 since fix round 2), the seated townsfolk on row 169. Fix round 2: everyone waiting sits, behind the bench's front: the engine draws the benches again as actors over who sits (after the wall line, before the walk line); a body without a seated strip stands 5 px lower with its rows below the wall line cut off (`ActorInstance.cropBottom`) |
 | candle stands (painted in) | x 160, 208, 276, 324: one each side of a bench |
-| dais steps | x 364 to 375: three treads of 4 px, 3 px high each |
-| the dais | x 376 to 589, raised 9 px: its floor line is row 166 |
+| dais steps | x 364 to 375: three treads of 4 px, 3 px high each, from the back wall to the walk line, each with its riser on the walk line (fix round 2) |
+| the dais | x 376 to 589, raised 9 px: its floor line is row 166; its front face rows 166 to 174 on the walk line (fix round 2: no longer down to the hall's bottom) |
 | the throne (`throne`, 14x24) | centred on x 416, on row 166, under the cloth of estate (x 398 to 434); the seated lord faces left, down the hall |
 | court places (row 166) | the tax lectern x 385, Odile x 397 (between lord and nave), Brannock x 441 (under the arms), Hesper x 497 (at the hearth); Pip x 350 at the foot of the steps, on row 171 (the petitioner passes in front of him) |
 | the petitioner's walk | in by the door, along row 175, stops at x 338; the one after him rises from his bench |
@@ -583,8 +583,8 @@ lowest row is r − 1):
 | windows (transparent lights) | two tall ones x 169 to 199 and x 285 to 315, rows 58 to 130; one over the gallery; a round one over the throne (centre 416, 45); two slits beside the hearth |
 
 **Fire and light anchors** (`python3 tools/hallart.py anchors greatHall` prints them all): the hearth fire (532, 145)
-with its light at (532, 128), radius 120; two chandeliers of six candles, light at (184, 39) and (300, 39), radius
-64; four stands of three candles, light at (x, 141), radius 26; the door torches (38, 116) and (98, 116), radius 34;
+with its light at (532, 128), radius 120; two chandeliers of six candles, light at (184, 49) and (300, 49) since fix
+round 2, radius 64; four stands of three candles, light at (x, 141), radius 26; the door torches (38, 116) and (98, 116), radius 34;
 four candles on the mantel, two under the arms (456, 123), two on the gallery's newels.
 
 **The light is the state of the realm**, not decoration:
