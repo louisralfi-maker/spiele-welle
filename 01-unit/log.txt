@@ -1,0 +1,27 @@
+2026-11-15 00:14:50.979022+0000 Lanternhold[14217:51510] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.HallRenderTests testTheHallsStills]' passed (35.287 seconds).
+Test Case '-[LanternholdTests.HallStageTests testANobleStandsApartAndTheAnchorsAreKept]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.HallStageTests testEveryTownspersonSitsBehindTheBench]' passed (0.054 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheAudienceFramingEasesInOverSixTenthsOfASecond]' passed (0.057 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheCameraNeverShowsPastThePaintedHall]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheChangeGoesThroughDarkInAThirdOfASecondAndCutsWithReduceMotion]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheCourtLivesInTheHall]' passed (0.075 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheFixRoundsArguments]' passed (0.198 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHallAnswersItsLord]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHallIsHeardInsideAndTheDoorCreaks]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHallsFrameAndItsLight]' passed (0.120 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHallsLightAfterTheLook]' passed (0.203 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHallsTargets]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHearthsPoolFollowsTheHearthsStrength]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHearthsThreeStrengthsAndTheFlare]' passed (0.012 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheHornSendsTheWaitingHomeAndHangsASlipAtTheDoor]' passed (0.117 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheLanternLightsWallAndFloorAndTheClothStaysDark]' passed (0.171 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheLettersRoomLeavesTheThronePetitionerAndHearthInSight]' passed (0.038 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheLordGoesInByTheDoorAndOutPastIt]' passed (0.094 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheNearPillarOpensRoundTheLordAndCatchesTheLight]' passed (0.134 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheRealmStripSendsTheLordOutAndOn]' passed (0.096 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheStageArguments]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheWalkingFramingIsOneStepAboveTheWorldAndTheAudienceTwo]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.HallStageTests testTheWorldOffersTheDoorAndKeepsTheHallsPeopleInside]' passed (0.002 seconds).
+exit=0
+screenshots: 11
