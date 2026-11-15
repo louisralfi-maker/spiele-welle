@@ -87,6 +87,23 @@ def slide3():
     p.mask(gm, "nightDeep")
     for x in range(W):
         p.px(x, ground_y(x), "nightBlue")
+    # the moon on the land: a broken cold rim on the ridges on its side
+    for (base, amp) in ((100, 4), (110, 6)):
+        for x in range(0, 230):
+            t = int(round(base - amp * abs(math.sin(x / 23.0 + base))))
+            if h(x // 9, base, 17) < 0.6 and (t <= int(round(base - amp * abs(math.sin((x - 1) / 23.0 + base)))) or x < 120):
+                if p.get(x, t) in ("nightSlate", "night2", "nightBlue"):
+                    p.px(x, t, "far" if x < 140 else "nightHaze")
+    # the road: one pale line from the last window over the hills to the beacon's hill; he rides on it
+    # the road lies on the slope (a few px below its crest line), then climbs the crag's flank to the tower
+    for x in range(108, W):
+        y = ground_y(x) + 3 + int(round(1.5 * math.sin(x / 31.0)))
+        p.px(x, y, "nightSlate" if x > 220 else "night2")
+        if 116 < x < 210:
+            p.px(x, y + 1, "nightSlate")
+    for k in range(0, 18):
+        x, y = 108 - k, ground_y(108) + 3 - int(k * 1.35)
+        p.px(x, y, "night2")
     # the last warm window at the right edge
     p.mask(P([(300, 96), (W, 88), (W, 128), (300, 128)]), "nightDeep")
     p.mask(P([(296, 98), (308, 86), (W, 80), (W, 88), (300, 98)]), "night0")
@@ -164,8 +181,8 @@ for r, (a, b) in zip(range(27, 43), ((24, 40), (26, 44), (27, 46), (15, 48), (15
                                      (16, 52), (16, 52), (16, 52), (16, 52), (17, 52), (18, 51), (19, 50), (20, 49))):
     _S.append((r, a, b, "N"))
 _S += [(43, 21, 30, "N"), (43, 40, 48, "N"), (44, 21, 26, "N"), (44, 42, 48, "N")]
-for r, (a, b) in zip(range(29, 49), ((52, 54), (53, 55), (53, 56)) + tuple((54, 56) for _ in range(13)) +
-                     ((54, 57), (55, 57), (55, 57), (56, 57))):
+for r, (a, b) in zip(range(29, 50), ((51, 54), (52, 56), (52, 57), (53, 57), (53, 58)) + tuple((54, 58) for _ in range(9))
+                     + ((54, 59), (55, 59), (55, 59), (56, 59), (56, 58), (57, 58), (57, 58))):
     _S.append((r, a, b, "T"))
 for r, (a, b) in zip(range(44, 59), ((21, 23), (20, 22), (19, 21), (19, 21), (18, 20), (18, 20), (17, 19), (17, 19),
                                      (17, 19), (16, 18), (16, 18), (16, 18), (16, 18), (15, 18), (15, 18))):
@@ -182,7 +199,7 @@ for k, (c, r) in enumerate(((15, 10), (14, 9), (13, 8), (12, 7), (11, 6), (10, 5
     _S.append((r, c, c, "P"))
 RIDER = _spans_to_rows(_S)
 RIDER_LEGEND = {"N": ("night0", "tileLight", "tile"), "M": ("night0", "tile", "plum"), "e": ("night0", "tile", "plum"),
-                "L": ("night0", "tile", "plum"), "K": ("night0", "plum", "night0"), "T": ("night0", "plum", "night0"),
+                "L": ("night0", "nightDeep", "night0"), "K": ("night0", "night0", "night0"), "T": ("night0", "nightDeep", "night0"),
                 "C": ("nightDeep", "tile", "plum"), "R": ("night0", "tileLight", "tile"), "B": ("night0", "tile", "plum"),
                 "A": ("night0", "tileLight", "tile"), "F": ("crimsonDeep", "dawnRose", "tileLight"),
                 "H": ("woodDark", "woodLight", "wood"), "G": ("gold", "fireGold", "gold"),
