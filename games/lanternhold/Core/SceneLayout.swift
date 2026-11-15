@@ -414,9 +414,12 @@ enum SceneLayout {
                               emitters: [glass(11, 8, 5, 6), glass(46, 8, 5, 6)] + dormer,
                               lights: [window(start + (mirrored ? 50 : 13), 11, 8),
                                        window(start + (mirrored ? 15 : 48), 11, 8)]))
-            list.append(Entry(sprite: .lanternPost, x: start + 68, y: 0, z: 1,
+        }
+        // The street lanterns (the join, the director's rule of 15.11. 10:52): one table, `TownLamps.posts`.
+        for post in TownLamps.posts {
+            list.append(Entry(sprite: .lanternPost, x: post, y: 0, z: 1,
                               emitters: [.sprite(.lanternGlass, dx: 1, dy: 18, glow: .fireGold, fades: true)],
-                              lights: [Light(kind: .lantern, x: start + 71, y: 20, radius: 28)]))
+                              lights: [Light(kind: .lantern, x: post + 3, y: 20, radius: 28)]))
         }
         if let field = WorldLayout.townPlots.first(where: { $0.kind == .field }) {
             list.append(Entry(sprite: .field, x: field.start, y: 0, z: -1))

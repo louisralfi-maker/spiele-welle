@@ -10,15 +10,14 @@ import Foundation
 /// nobody lights them, and with the hearth out there is nothing to light them with: the street stays dark. The
 /// lanterns burn as the hearth does (bright, low, embers).
 ///
-/// **The rule of the evening** (the director, 15.11. 03:39), as data for any anchors (`Anchors`, `evening(for:)`):
-/// - no street lantern takes the flame before 17:00 (the light is gold); the last takes it as the horn sounds;
-/// - he takes the Flame at the hearth between 16:00 and 16:30, never before 15:30;
+/// **The rule of the evening** (the director, 15.11. 10:52, for the join; it replaces the rule of 03:39), as data for
+/// any anchors (`Anchors`, `plan(for:)`):
+/// - he sets out (in at the hall's door) not before 16:00, and as late as still lets the first street lantern burn by
+///   18:00 and three by the horn (19:00); if three by the horn would need an earlier start, he sets out at 16:00 and
+///   lights what he reaches by the horn;
 /// - the lighting round keeps the heavy step (16 px/s); the way from the hearth to the first post is walked with the lit
-///   pole on the shoulder at up to the lord's pace (36 px/s);
-/// - counted back from the horn; what does not fit is cut in this order: (a) the far posts (he lights by hand only the
-///   posts, from the castle's side, that the time from 17:00 to the horn allows); (b) the hearth beat moves earlier,
-///   to 15:30 at the earliest. If even that cannot bring him to the first post in time, one more far post goes; the
-///   three limits are never cut. The posts he does not reach stay dark in build 2 (build 3: Fen's taper).
+///   pole on the shoulder at the lord's pace (36 px/s);
+/// - the posts he does not reach by the horn stay dark in build 2 (build 3: Fen's taper).
 ///
 /// Picture only: a pure function of the state and the hour. The times follow from the anchors and the paces, so the
 /// join only moves the anchors (the rebuilt town's lantern posts, the hall door, the hearth, his door).
@@ -27,8 +26,41 @@ enum TownLamps {
 
     // MARK: - Anchors (this branch's town; the rebuilt town's at the join)
 
-    /// The town's street lanterns: `SceneLayout`'s posts, one by each house plot (the post's left edge, start + 68).
-    static let posts: [Double] = WorldLayout.townPlots.filter { $0.kind == .house }.map { $0.start + 68 }
+    /// The town's street lanterns (the join, the director's rule of 15.11. 10:52), the one table `SceneLayout` draws
+    /// (each a post's left edge): the first `posternGap` px outside the postern on the town side, then one in each gap
+    /// between neighbouring houses of `WorldLayout.townPlots`, going out from the gate (`houseGap` px after the nearer
+    /// house), never nearer than `doorClear` to a door nor `postSpacing` to another post, at most `maxPosts`.
+    static let posts: [Double] = {
+        let postern = SceneLayout.castlePosternX + Double(SpriteID.posternT1.size.width)
+        var list = [postern + posternGap]
+        let houses = WorldLayout.townPlots.filter { $0.kind == .house }.sorted { $0.start < $1.start }
+        for (near, far) in zip(houses, houses.dropFirst()) where list.count < maxPosts {
+            let x = near.end + houseGap
+            guard x + Double(SpriteID.lanternPost.size.width) <= far.start, x - (list.last ?? 0) >= postSpacing,
+                  doorXs.allSatisfy({ abs(glassX(x) - $0) >= doorClear }) else { continue }
+            list.append(x)
+        }
+        return list
+    }()
+    /// The rule's numbers: 20 to 30 px outside the postern, 4 px after a house, 12 px from a door, 40 px apart, four.
+    static let posternGap = 24.0
+    static let houseGap = 4.0
+    static let doorClear = 12.0
+    static let postSpacing = 40.0
+    static let maxPosts = 4
+    /// Every door a house of the town can have (a cottage's or a big house's, mirrored or not; `TownShow.spots`).
+    static var doorXs: [Double] {
+        let houses = WorldLayout.townPlots.filter { $0.kind == .house }
+        return houses.flatMap { plot -> [Double] in
+            let cottage = Double(SpriteID.house.size.width)
+            let big = Double(SpriteID.bigHouse.size.width)
+            let bigLeft = (plot.start + plot.end) / 2 - 36
+            return [plot.start + Double(TownShow.cottageDoorColumn) + 0.5,
+                    plot.start + cottage - 1 - Double(TownShow.cottageDoorColumn) + 0.5,
+                    bigLeft + Double(TownShow.bigDoorColumn) + 0.5,
+                    bigLeft + big - 1 - Double(TownShow.bigDoorColumn) + 0.5]
+        }
+    }
     /// The glass on a post (the post's left edge to the 4x4 glass, its bottom above the lane) and the pool's light.
     static let glassDX = 1.0
     static let glassDY = 18.0
@@ -69,12 +101,6 @@ enum TownLamps {
     /// The lit pole on the shoulder from the hearth to the first post, and the empty pole home after the last: up to
     /// the lord's pace (`Balance.kingWalkSpeed`), never faster.
     static let brisk = 36.0
-    /// No street lantern takes the flame before this hour (the light is gold).
-    static let earliestLantern = 17.0
-    /// He takes the Flame in this window (the late afternoon's warm light) ...
-    static let flameHours = 16.0...16.5
-    /// ... and never before this, however far the town is.
-    static let earliestFlame = 15.5
     /// The hearth: the wick into the Flame (frame 10, 2.5 s; it takes the fire at 1.5 s), the head bowed (11, 1.5 s),
     /// upright and turning to go (idle, 1 s; he turns at 0.5 s).
     static let hearthSeconds = 5.0
@@ -138,48 +164,52 @@ enum TownLamps {
     /// Where he stands to light post `i` (its glass at the pole's tip, from the castle's side).
     private static func stand(_ a: Anchors, _ i: Int) -> Double { glassX(a.posts[i]) - reach }
 
-    /// The hour the first of `n` posts takes the flame when the last takes it at the horn (the round at the heavy step).
-    static func firstLit(_ a: Anchors, posts n: Int) -> Double {
-        guard n > 1 else { return ClockEvent.horn.hour }
-        let round = (1..<n).reduce(0.0) { $0 + abs(stand(a, $1) - stand(a, $1 - 1)) / pace + lightSeconds }
-        return ClockEvent.horn.hour - round / DayClock.secondsPerHour
+    /// He sets out no earlier than this (in at the hall's door) ...
+    static let setOutEarliest = 16.0
+    /// ... and as late as still lets the first lantern burn by this hour ...
+    static let firstLanternBy = 18.0
+    /// ... and this many by the horn.
+    static let wantedByHorn = 3
+
+    /// Seconds from setting out to the moment each post takes the flame, lighting them all in order.
+    static func flameOffsets(_ a: Anchors) -> [Double] {
+        guard !a.posts.isEmpty else { return [] }
+        var t = abs(a.hearthStand - a.hallDoor) / pace + hearthSeconds + abs(stand(a, 0) - a.hearthStand) / brisk
+            + lightTakes
+        var list = [t]
+        for i in a.posts.indices.dropFirst() {
+            t += (lightSeconds - lightTakes) + abs(stand(a, i) - stand(a, i - 1)) / pace + lightTakes
+            list.append(t)
+        }
+        return list
     }
 
-    /// The latest hour he can take the Flame and still reach the first of `n` posts in time at the lord's pace.
-    static func latestFlame(_ a: Anchors, posts n: Int) -> Double {
-        let way = abs(stand(a, 0) - a.hearthStand) / brisk
-        return firstLit(a, posts: n) - ((hearthSeconds - wickLit) + way + lightTakes) / DayClock.secondsPerHour
+    /// The hour he sets out for a set of anchors, by the rule.
+    static func setOut(_ a: Anchors) -> Double {
+        let offsets = flameOffsets(a)
+        guard !offsets.isEmpty else { return setOutEarliest }
+        let sph = DayClock.secondsPerHour
+        let want = min(wantedByHorn, offsets.count)
+        let latest = min(firstLanternBy - offsets[0] / sph, ClockEvent.horn.hour - offsets[want - 1] / sph)
+        return max(setOutEarliest, latest)
     }
 
-    /// The evening for a set of anchors, by the rule (nil when not even the nearest post can be lit within it).
+    /// The evening for a set of anchors, by the rule (nil when not even the nearest post can be lit by the horn).
     static func plan(for a: Anchors) -> Plan? {
-        // (a) The far posts: as many from the castle's side as the time from 17:00 to the horn allows.
-        var n = a.posts.count
-        while n > 0 && firstLit(a, posts: n) < earliestLantern - 1e-9 { n -= 1 }
-        // (b) The hearth beat earlier, to 15:30 at the earliest; if he still cannot make it, one more far post goes.
-        while n > 0 && latestFlame(a, posts: n) < earliestFlame - 1e-9 { n -= 1 }
+        let sph = DayClock.secondsPerHour
+        let start = setOut(a)
+        let offsets = flameOffsets(a)
+        let n = offsets.filter { start + $0 / sph <= ClockEvent.horn.hour + 1e-9 }.count
         guard n > 0 else { return nil }
-        let first = firstLit(a, posts: n)
-        let flame = min(flameHours.upperBound, latestFlame(a, posts: n))
-        let way = abs(stand(a, 0) - a.hearthStand)
-        let time = (first - flame) * DayClock.secondsPerHour - (hearthSeconds - wickLit) - lightTakes
-        let shoulder = min(brisk, max(pace, way / time))
-        let wait = max(0, time - way / shoulder)
-
         var evening: [Leg] = [.walk(from: a.hallDoor, to: a.hearthStand, pace: pace), .hearth(at: a.hearthStand),
-                              .walk(from: a.hearthStand, to: stand(a, 0), pace: shoulder)]
-        if wait > 1e-6 { evening.append(.wait(at: stand(a, 0), seconds: wait)) }
-        evening.append(.light(0, at: stand(a, 0)))
+                              .walk(from: a.hearthStand, to: stand(a, 0), pace: brisk), .light(0, at: stand(a, 0))]
         for i in 1..<n {
             evening.append(.walk(from: stand(a, i - 1), to: stand(a, i), pace: pace))
             evening.append(.light(i, at: stand(a, i)))
         }
         evening.append(.walk(from: stand(a, n - 1), to: a.home, pace: brisk))
-        let start = flame - (evening[0].seconds + wickLit) / DayClock.secondsPerHour
-        let litHours = (0..<n).map { i in
-            let index = evening.firstIndex { if case .light(i, _) = $0 { return true }; return false } ?? 0
-            return start + seconds(evening, to: index, offset: lightTakes) / DayClock.secondsPerHour
-        }
+        let flame = start + (evening[0].seconds + wickLit) / sph
+        let litHours = offsets.prefix(n).map { start + $0 / sph }
 
         // The morning: out of his door at first light (the empty pole at up to the lord's pace to the farthest lit
         // post), each lit lantern from the river's side at the heavy step, then in at the castle's gate.
@@ -197,11 +227,12 @@ enum TownLamps {
             let index = morning.firstIndex { if case .snuff(i, _) = $0 { return true }; return false } ?? 0
             return dawn + seconds(morning, to: index, offset: snuffOut) / DayClock.secondsPerHour
         }
-        return Plan(lit: n, flameHour: flame, shoulderPace: shoulder, litHours: litHours, evening: evening,
+        return Plan(lit: n, flameHour: flame, shoulderPace: brisk, litHours: litHours, evening: evening,
                     eveningStart: start, snuffHours: snuffHours, morning: morning, morningStart: dawn)
     }
 
-    /// Today's plan (this branch's anchors: one post in reach, see docs/lanes/people.md, the director's fix pass).
+    /// Today's plan (the join's posts: the first by the postern at 17:58, the second at 18:45; the third would take the
+    /// flame after the horn, so two burn at the horn and the far two stay dark).
     static let today: Plan? = plan(for: anchors)
 
     /// Seconds from a round's start to a moment in one of its legs (`index`, `offset` into it).

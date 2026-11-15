@@ -352,24 +352,36 @@ final class TownLifeTests: XCTestCase {
 
     // MARK: - The lamplighter
 
-    /// The director's rule of the evening (15.11. 03:39) for one set of anchors: no lantern before 17:00, the last at
-    /// the horn; the Flame between 16:00 and 16:30, never before 15:30; the heavy step on the round, at most the lord's
-    /// pace with the pole on the shoulder; the posts lit from the castle's side, as many as fit and no more.
+    /// The director's rule of the evening (15.11. 10:52, the join) for one set of anchors: he sets out not before
+    /// 16:00 and as late as still lets the first lantern burn by 18:00 and three by the horn (else at 16:00, lighting
+    /// what he reaches by the horn); the heavy step on the round, the lord's pace with the pole on the shoulder; the
+    /// posts lit from the castle's side, as many as the horn allows and no more.
     private func assertTheEveningKeepsTheRule(_ a: TownLamps.Anchors, _ town: String,
                                              file: StaticString = #filePath, line: UInt = #line) throws {
         let plan = try XCTUnwrap(TownLamps.plan(for: a), "\(town): a plan", file: file, line: line)
         let sph = DayClock.secondsPerHour
+        let horn = ClockEvent.horn.hour
         XCTAssertGreaterThanOrEqual(plan.lit, 1, "\(town): at least the nearest post", file: file, line: line)
         XCTAssertEqual(plan.litHours.count, plan.lit, file: file, line: line)
         XCTAssertEqual(plan.litHours, plan.litHours.sorted(), "\(town): one by one down the road", file: file, line: line)
-        XCTAssertGreaterThanOrEqual(plan.litHours.first ?? 0, TownLamps.earliestLantern - 1e-9,
-                                    "\(town): no lantern before 17:00", file: file, line: line)
-        XCTAssertEqual(plan.litHours.last ?? 0, ClockEvent.horn.hour, accuracy: 1e-9, "\(town): the last at the horn",
-                       file: file, line: line)
-        XCTAssertGreaterThanOrEqual(plan.flameHour, TownLamps.earliestFlame - 1e-9, "\(town): never before 15:30",
+        XCTAssertGreaterThanOrEqual(plan.eveningStart, TownLamps.setOutEarliest - 1e-9, "\(town): not before 16:00",
                                     file: file, line: line)
-        XCTAssertLessThanOrEqual(plan.flameHour, TownLamps.flameHours.upperBound + 1e-9, "\(town): by 16:30",
-                                 file: file, line: line)
+        XCTAssertLessThanOrEqual(plan.litHours.last ?? 99, horn + 1e-9, "\(town): lit by the horn", file: file, line: line)
+        let want = min(TownLamps.wantedByHorn, a.posts.count)
+        let offsets = TownLamps.flameOffsets(a)
+        if plan.eveningStart > TownLamps.setOutEarliest + 1e-9 {
+            // A later start only while the rule still holds: the first by 18:00, three by the horn, and one of the two
+            // exactly at its limit (he sets out as late as he can).
+            XCTAssertLessThanOrEqual(plan.litHours[0], TownLamps.firstLanternBy + 1e-9, file: file, line: line)
+            XCTAssertGreaterThanOrEqual(plan.lit, want, "\(town): three by the horn", file: file, line: line)
+            let atLimit = abs(plan.litHours[0] - TownLamps.firstLanternBy) < 1e-6
+                || abs(plan.litHours[want - 1] - horn) < 1e-6
+            XCTAssertTrue(atLimit, "\(town): as late as the rule allows", file: file, line: line)
+        } else {
+            // At 16:00 the rule could not be met by a later start; what burns at the horn is all he can reach.
+            let reachable = offsets.filter { TownLamps.setOutEarliest + $0 / sph <= horn + 1e-9 }.count
+            XCTAssertEqual(plan.lit, reachable, "\(town): all he reaches by the horn", file: file, line: line)
+        }
         // The legs say the same as the hours: the wick takes the fire at the flame hour, each post at its hour.
         var t = plan.eveningStart
         var sawHearth = false
@@ -378,8 +390,8 @@ final class TownLifeTests: XCTestCase {
             switch leg {
             case let .walk(from, to, pace):
                 if index == plan.evening.count - 1 || index == 2 {
-                    XCTAssertLessThanOrEqual(pace, TownLamps.brisk + 1e-9, "\(town): at most the lord's pace",
-                                             file: file, line: line)
+                    XCTAssertEqual(pace, TownLamps.brisk, "\(town): the lord's pace with the pole on the shoulder",
+                                   file: file, line: line)
                 } else {
                     XCTAssertEqual(pace, TownLamps.pace, "\(town): the heavy step (\(from) to \(to))", file: file, line: line)
                 }
@@ -387,7 +399,7 @@ final class TownLifeTests: XCTestCase {
                 sawHearth = true
                 XCTAssertEqual(t + TownLamps.wickLit / sph, plan.flameHour, accuracy: 1e-9, file: file, line: line)
             case .wait:
-                XCTAssertEqual(index, 3, "\(town): he waits only at the first post", file: file, line: line)
+                XCTFail("\(town): he never waits since the join's rule", file: file, line: line)
             case let .light(i, _):
                 XCTAssertEqual(i, lightsSeen, "\(town): from the castle's side", file: file, line: line)
                 XCTAssertEqual(t + TownLamps.lightTakes / sph, plan.litHours[i], accuracy: 1e-9, file: file, line: line)
@@ -399,19 +411,10 @@ final class TownLifeTests: XCTestCase {
         }
         XCTAssertTrue(sawHearth, file: file, line: line)
         XCTAssertEqual(lightsSeen, plan.lit, file: file, line: line)
-        XCTAssertEqual(plan.shoulderPace, abs(a.posts[0] + TownLamps.glassDX + 2 - TownLamps.reach - a.hearthStand)
-            / (plan.evening[2].seconds), accuracy: 1e-9, file: file, line: line)
-        // As many as fit, no more: one post more would break a limit.
+        // As many as the horn allows, no more: the next post would take the flame after the horn.
         if plan.lit < a.posts.count {
-            let more = plan.lit + 1
-            XCTAssertTrue(TownLamps.firstLit(a, posts: more) < TownLamps.earliestLantern
-                          || TownLamps.latestFlame(a, posts: more) < TownLamps.earliestFlame,
-                          "\(town): \(more) posts would fit too", file: file, line: line)
-        }
-        // The hearth beat leaves its window only when the posts that fit need it.
-        if plan.flameHour < TownLamps.flameHours.lowerBound - 1e-9 {
-            XCTAssertLessThan(TownLamps.latestFlame(a, posts: plan.lit), TownLamps.flameHours.lowerBound,
-                              file: file, line: line)
+            XCTAssertGreaterThan(plan.eveningStart + offsets[plan.lit] / sph, horn, "\(town): one more would fit",
+                                 file: file, line: line)
         }
         // The morning: every lit post snuffed walking back toward the castle, done before the evening starts.
         XCTAssertEqual(plan.snuffHours, plan.snuffHours.sorted(by: >), file: file, line: line)
@@ -431,17 +434,78 @@ final class TownLifeTests: XCTestCase {
             return a
         }
         for scale in [1.6, 1.25, 0.75, 0.5, 0.3] { try assertTheEveningKeepsTheRule(town(scale), "the town × \(scale)") }
-        // Posts set close together near the gate (the join's reach): three or four of them.
+        // Posts set close together near the gate: three by the horn, and he sets out after 16:00.
         var near = today
-        near.posts = [2400, 2470, 2540, 2610]
-        try assertTheEveningKeepsTheRule(near, "posts 70 px apart")
-        XCTAssertGreaterThanOrEqual(try XCTUnwrap(TownLamps.plan(for: near)).lit, 3, "the join's reach lights three or more")
-        XCTAssertGreaterThan(try XCTUnwrap(TownLamps.plan(for: town(0.5))).lit,
-                             try XCTUnwrap(TownLamps.plan(for: town(1.6))).lit, "a shorter town lights more by hand")
-        // Today's anchors: one post in reach (the second would need the Flame at 15:14), the Flame at 16:30.
+        near.posts = [2400, 2440, 2480, 2520]
+        try assertTheEveningKeepsTheRule(near, "posts 40 px apart")
+        let close = try XCTUnwrap(TownLamps.plan(for: near))
+        XCTAssertGreaterThanOrEqual(close.lit, 3, "close posts: three or more by the horn")
+        XCTAssertGreaterThan(close.eveningStart, TownLamps.setOutEarliest, "close posts: he can set out later")
+        XCTAssertGreaterThanOrEqual(try XCTUnwrap(TownLamps.plan(for: town(0.5))).lit,
+                                    try XCTUnwrap(TownLamps.plan(for: town(1.6))).lit, "a shorter town lights more by hand")
+        // Today's posts (the join): he sets out at 16:00; the first burns at 17:58, the second at 18:45, the third
+        // would need the Flame earlier than 16:00 allows, so two burn at the horn.
         let plan = try XCTUnwrap(TownLamps.today)
-        XCTAssertEqual(plan.lit, 1)
-        XCTAssertEqual(plan.flameHour, 16.5, accuracy: 1e-9)
+        XCTAssertEqual(plan.eveningStart, 16, accuracy: 1e-9)
+        XCTAssertEqual(plan.lit, 2)
+        XCTAssertLessThanOrEqual(plan.litHours[0], 18)
+    }
+
+    /// The street lanterns' places (the director's rule of 15.11. 10:52): the first 20 to 30 px outside the postern on
+    /// the town side, the rest in the gaps between neighbouring houses going out, never in front of a door (12 px from
+    /// every door a house can have), never closer than 40 px to each other, at most four.
+    func testTheStreetLanternsStandByTheRule() {
+        let posts = TownLamps.posts
+        XCTAssertFalse(posts.isEmpty)
+        XCTAssertLessThanOrEqual(posts.count, 4)
+        let postern = SceneLayout.castlePosternX + Double(SpriteID.posternT1.size.width)
+        XCTAssertTrue((postern + 20...postern + 30).contains(posts[0]), "the first by the postern: \(posts[0])")
+        let houses = WorldLayout.townPlots.filter { $0.kind == .house }.sorted { $0.start < $1.start }
+        let gaps = zip(houses, houses.dropFirst()).map { ($0.end, $1.start) }
+        for post in posts.dropFirst() {
+            let width = Double(SpriteID.lanternPost.size.width)
+            XCTAssertTrue(gaps.contains { post >= $0.0 && post + width <= $0.1 }, "\(post) between two houses")
+        }
+        XCTAssertEqual(posts, posts.sorted(), "going out from the gate")
+        for (a, b) in zip(posts, posts.dropFirst()) { XCTAssertGreaterThanOrEqual(b - a, 40, "\(a) and \(b)") }
+        for post in posts {
+            for door in TownLamps.doorXs {
+                XCTAssertGreaterThanOrEqual(abs(TownLamps.glassX(post) - door), 12, "\(post) by the door at \(door)")
+            }
+        }
+        // The scene draws the same table.
+        let scene = SceneFilter.gameScene(GameFrameSupport.world, state: day(23))
+        XCTAssertEqual(scene.props.filter { TownLamps.isStreetLantern($0) }.map(\.x).sorted(), posts)
+    }
+
+    /// The castle's closed buildings (`TownLife.closedRooms`, a list kept by hand since world-2 emptied
+    /// `RoomFades.rooms`): each still a room of `WorldLayout`, and the lamplighter hidden inside them while the lord is
+    /// outside, seen again once he is out by the postern.
+    func testTheClosedBuildingsStillHideWhoIsInside() throws {
+        XCTAssertFalse(TownLife.closedRooms.isEmpty)
+        for room in TownLife.closedRooms {
+            XCTAssertTrue(WorldLayout.rooms.contains { $0.id == room }, "\(room) is still a room of the castle")
+        }
+        let lamp = TownLife.Context(cloth: .hamlet, reduceMotion: false, hearth: 1, collectorOut: false, nobleDue: false)
+        let plan = try XCTUnwrap(TownLamps.today)
+        let sph = DayClock.secondsPerHour
+        let atHearth = plan.flameHour + 0.5 / sph
+        let outside = day(atHearth, lord: 1000)
+        XCTAssertNotNil(TownLamps.pose(outside, context: lamp), "he is at the hearth")
+        XCTAssertFalse(TownLife.figures(outside, time: 1, context: lamp).contains { $0.sprite == .lamplighter },
+                       "inside the hall, hidden from the lord outside")
+        // On his way to the first post he comes out by the postern (east of the kitchen, the last closed building).
+        let lastClosed = WorldLayout.rooms.filter { TownLife.closedRooms.contains($0.id) }.map(\.end).max() ?? 0
+        var sawHidden = false
+        var sawOut = false
+        for step in 0..<900 {
+            let hour = plan.flameHour + Double(step) * 0.002
+            guard hour < plan.litHours[0], let pose = TownLamps.pose(day(hour, lord: 1000), context: lamp) else { continue }
+            let seen = TownLife.figures(day(hour, lord: 1000), time: 1, context: lamp).contains { $0.sprite == .lamplighter }
+            if pose.x < lastClosed { XCTAssertFalse(seen, "hidden at \(pose.x)"); sawHidden = true }
+            if pose.x >= lastClosed + 2 { XCTAssertTrue(seen, "seen at \(pose.x)"); sawOut = true }
+        }
+        XCTAssertTrue(sawHidden && sawOut, "he walks from inside out by the postern")
     }
 
     func testTheLamplighterLightsTheLanternsOneByOneTheLastAtTheHorn() throws {
@@ -512,7 +576,7 @@ final class TownLifeTests: XCTestCase {
             if let p = previous {
                 let speed = abs(pose.x - p.x) / ((hour - p.hour) * sph)
                 XCTAssertLessThanOrEqual(speed, TownLamps.brisk + 0.001, "at \(hour)")
-                if hour > firstLit && hour <= ClockEvent.horn.hour {
+                if hour > firstLit && hour <= (TownLamps.litHour(plan.lit - 1) ?? firstLit) {
                     XCTAssertLessThanOrEqual(speed, TownLamps.pace + 0.001, "the round at the heavy step at \(hour)")
                 }
             }
@@ -622,7 +686,7 @@ final class TownLifeTests: XCTestCase {
             .first { $0.sprite == .labourer })
         XCTAssertEqual(brede.x, TownLife.berthZone(around: coach).upperBound, accuracy: 0.01, "74: Brede at the edge")
         XCTAssertTrue(brede.flipped, "74: looking at the coach")
-        // 75: he lights a lantern in the gold light: the last takes the flame as the horn sounds.
+        // 75: he lights a lantern in the gold light: the last he reaches (since the join at 18:45, before the horn).
         let last = (TownLamps.today?.lit ?? 1) - 1
         let lightHour = try XCTUnwrap(TownLamps.litHour(last)) + 0.003
         let pose = try XCTUnwrap(TownLamps.pose(day(lightHour), context: lamp))
@@ -635,7 +699,7 @@ final class TownLifeTests: XCTestCase {
         XCTAssertEqual(saul.x, TownHouseholds.door(plot: 3))
         XCTAssertEqual(saul.frame, PeopleCast.Frames.take.lowerBound, "76: the hand held out")
         // 77: the bow to the Eternal Light in the late light, the wick burning, the lord in the hall.
-        let hall = day(16.625, lord: 1846)
+        let hall = day(16.45, lord: 1846)
         let bow = try XCTUnwrap(TownLamps.pose(hall, context: lamp))
         XCTAssertEqual(bow.frame, PeopleCast.Frames.hearth.upperBound)
         XCTAssertTrue(bow.burning)
@@ -646,8 +710,9 @@ final class TownLifeTests: XCTestCase {
         let dusk = TownLife.figures(day(19.08, happiness: 85, lord: 2738), time: 1, context: quiet)
         XCTAssertTrue(dusk.contains { $0.sprite == .washerwoman && PeopleCast.Frames.call.contains($0.frame) && seen.contains($0.x) })
         XCTAssertTrue(dusk.contains { PeopleCast.children.contains($0.sprite) && PeopleCast.Frames.run.contains($0.frame) })
+        // The join's posts: his last lantern took the flame at 18:45, so at the horn he walks home through the shot.
         let silas = try XCTUnwrap(dusk.first { $0.sprite == .lamplighter })
-        XCTAssertTrue(seen.contains(silas.x) && PeopleCast.Frames.reachLight.contains(silas.frame), "78: Silas at the lantern")
+        XCTAssertTrue(seen.contains(silas.x), "78: Silas on his way home")
         XCTAssertGreaterThan(TownLamps.share(0, s: day(19.08), hearth: 1, reduceMotion: false), 0, "78: the lantern lit")
         // 79: a sullen town (25): the farmers on either side of the lord work on with their backs to him.
         let sullen = TownLife.figures(day(11.0, happiness: 25, lord: 2679), time: 1, context: quiet)

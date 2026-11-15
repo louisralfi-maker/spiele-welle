@@ -54,12 +54,13 @@ final class LookGoldenTests: XCTestCase {
     ///
     /// The rolling join (claude/lh-join, 15.11.2026) put the people lane's town and the world's castle into one tree:
     /// its first round (lh-rj-1, on 93b0699) printed the world's castle and court and the people lane's square and town
-    /// unchanged, so each side's hashes stand.
+    /// unchanged, so each side's hashes stand. The join's street lanterns (the director's rule of 15.11. 10:52,
+    /// `TownLamps.posts`: one by the postern, none after the last house) move the post look 1 draws at 3158 out of
+    /// the square: square-morning (before: 315698c2d0a55839) is recorded again from the join's next round.
     static let golden: [String: String] = [
         "front-night": "9b01af38246bc805",
         "castle-night": "eb723787eed65a73",
         "court-dusk": "12c426443634b583",
-        "square-morning": "315698c2d0a55839",
         "town-noon": "ad3c5e8591125cfa",
         "river-golden": "c0f21df86bbe85b6",
     ]
