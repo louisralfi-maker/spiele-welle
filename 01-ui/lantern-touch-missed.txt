@@ -1,0 +1,1 @@
+lord element (340.66666666666663, 290.0, 44.00000000000006, 60.0); the touch did ground; lx 181 cam 0

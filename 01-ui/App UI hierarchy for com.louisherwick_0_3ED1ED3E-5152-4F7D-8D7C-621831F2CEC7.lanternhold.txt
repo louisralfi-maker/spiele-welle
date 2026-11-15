@@ -1,0 +1,18 @@
+Application, 0x1044555d0, pid: 13450, label: 'Lanternhold' <App element pid: 13450>
+  Window (Main), 0x104442b50, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13450, elementOrHash.elementID: 4320397936.4>
+    Other, 0x104448540, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13450, elementOrHash.elementID: 4308624896.5>
+      Other, 0x104455910, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13450, elementOrHash.elementID: 4308746592.6>
+        Other, 0x10443b290, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13450, elementOrHash.elementID: 4308747712.7>
+          Other, 0x10441ce50, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13450, elementOrHash.elementID: 4311227520.8>
+            Other, 0x104456990, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-root' <AX element pid: 13450, elementOrHash.elementID: 4311226416.9>
+              Other, 0x104456570, {{0.0, 0.0}, {874.0, 402.0}}, identifier: 'world-scene', label: 'Lanternhold', value: frame:3270 ready d... <AX element pid: 13450, elementOrHash.elementID: 4320574640.10>
+              Other, 0x10444ed10, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13450, elementOrHash.elementID: 4311213984.11>
+              Other, 0x10444f130, {{0.0, 0.0}, {874.0, 402.0}} <AX element pid: 13450, elementOrHash.elementID: 4311216368.12>
+              Other, 0x10444c570, {{437.0, 2.0}, {0.0, 4.0}} <AX element pid: 13450, elementOrHash.elementID: 4310744240.163>
+              Other, 0x10444c150, {{415.0, 271.3}, {44.3, 70.0}} <AX element pid: 13450, elementOrHash.elementID: 4311225312.14>
+                Button, 0x10443d050, {{415.0, 271.3}, {44.3, 70.0}}, identifier: 'touch-lord', label: 'Robin, day 1, 48 gold, the town is glad, 14 people' <AX element pid: 13450, elementOrHash.elementID: 4310741840.152>
+              StaticText, 0x104455d30, {{75.7, 153.7}, {113.0, 40.3}}, identifier: 'hall-horn-slip', label: 'The horn has sounded' <AX element pid: 13450, elementOrHash.elementID: 4311283392.155>
+                Image, 0x104453eb0, {{75.7, 153.7}, {113.0, 32.3}} <AX element pid: 13450, elementOrHash.elementID: 4311279696.159>
+                Image, 0x104453fd0, {{88.7, 164.0}, {11.3, 11.3}}, identifier: 'moon.fill', label: 'Do Not Disturb' <AX element pid: 13450, elementOrHash.elementID: 4311281424.160>
+                StaticText, 0x1044540f0, {{106.5, 159.5}, {70.0, 20.3}}, label: 'The horn' <AX element pid: 13450, elementOrHash.elementID: 4311281856.161>
+                Image, 0x1042506a0, {{125.0, 186.0}, {14.0, 8.0}} <AX element pid: 13450, elementOrHash.elementID: 4311282288.162>

@@ -1,0 +1,15 @@
+<unknown>:0: error: -[LanternholdUITests.AudienceUITests testAudience] : Failed to get matching snapshot: No matches found for first query match sequence: `Descendants matching type Any` -> `Elements matching predicate '"realm-strip" IN identifiers'`, given input App element pid: 12562
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' failed (39.701 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:132: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no mark at the throne
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:148: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no lectern beside the throne
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' failed (208.892 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (73.486 seconds).
+Test Suite 'FirstDayUITests' failed at 2026-11-15 09:39:47.537.
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchUITests.swift:113: error: -[LanternholdUITests.TouchUITests testTheLanternMoment] : failed - no lantern moment at dusk
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' failed (108.348 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (167.972 seconds).
+Test Suite 'TouchUITests' failed at 2026-11-15 09:44:23.865.
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-15 09:44:23.867.
+Test Suite 'Selected tests' failed at 2026-11-15 09:44:23.869.
+exit=65
+screenshots: 30
