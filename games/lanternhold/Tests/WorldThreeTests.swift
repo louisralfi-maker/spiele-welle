@@ -204,6 +204,13 @@ final class WorldThreeTests: XCTestCase {
         XCTAssertEqual(SceneLayout.castleBakehouseClip.y0, -3)
     }
 
+    /// L2: in look 2 an unlit creature's ash body a step lighter, still opaque and dark (its cool rim stays).
+    func testCreaturesReadAsBodiesAtDistance() {
+        XCTAssertGreaterThan(EntityFrames.unlitValueLook2, EntityFrames.unlitValue)
+        XCTAssertLessThan(EntityFrames.unlitValueLook2, 0.4)
+        XCTAssertGreaterThan(EntityFrames.unlitRim, 0.5)
+    }
+
     /// The gatehouse's slits a step lower (the critic's medium: their pale core).
     func testTheGateSlitsGlowAStepLower() {
         XCTAssertLessThan(SceneLayout.castleGlassShare(.castleFront), 1)

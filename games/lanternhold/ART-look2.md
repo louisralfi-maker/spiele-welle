@@ -2078,3 +2078,62 @@ keepRimT1 keepRimT2 keepRimT3 keepRimT2Build keepRimT3Build keepMist smokePuff f
 posternT3`. The previews (castle_preview.py now draws the keep's mist at night) are in the scratch folder of the run,
 not in git.
 <!-- END world lane: world rebuild, step world-2, fix round 2 -->
+
+## 26. The world rebuild, step world-3: the camera, the mediums and the whole-world pass (15.11.2026)
+
+Painter: `tools/w3art.py` (SPRITES.md "World-3"). The bar: the craft of the genre's best, never their look (DESIGN.md
+"Not a copy"); Louis' art bar (no AI tells: clean clusters, palette colours only, no noise).
+
+### 26.1 The beacon (M2)
+
+The chapter's goal was a flat black block with a handle at night: the ruin's fire cage over the broken top read as a
+handle, and the night's cold pull flattened its pale stones into one value. Now the crown is the Great Beacon's own cold
+bowl: a wide shallow basin of black iron on a stub of its stem in the broken top, its lip catching the sky, two straps,
+a bite broken out of its right rim, a low heap of grey ash with a charred log end. Every beacon stage (the ruin, the
+base, the tower, the great beacon) carries a moon rim: an emissive sprite made from its own silhouette, strongest on
+the right edges (the moon stands high to the east), softer on the tops, a faint wash on the east half's pale stones,
+so the shape has inner values. It rises with the moon (none at the dusk).
+
+### 26.2 The town's back row (M4)
+
+A town is never one row of houses. Behind the plots, on the near plane at 70 % value: tall narrow town houses that
+overlap, the narrow ones turning their gables to the lane, the wide ones a long hipped roof; tile, slate and thatch
+mixed (REALM.md: roofs are sprite states by data, so the first stage stands now); half-timbering with end braces and a
+cross in the middle bay; dormers; small panes of which only a few light up at night (never a grid); a smoking chimney
+per sprite (`CastleSmoke` on the near plane); and one church spire behind the market square, the town's one vertical
+accent. A field-stone garden wall and a hedge at their foot keep them standing on the ground; the wall crumbles in
+steps at a sprite's ends, so no end stands as a cut.
+
+### 26.3 The smaller pieces
+
+- **The warden statue's bowl (M5):** a stone basin held at its chest, its lip in warm granite where the fire lights it,
+  its inside in deep shadow, its body darkening to the right, a shadow under it on the robe; the fire sits in it.
+- **The river end (L4):** a lantern on the far shore and a skiff moored below it, on the mid plane at the far bank's
+  waterline (half the world plane's scale), the lantern's glass lit at dusk and night with a small backdrop pool.
+- **The valley's verge (L3):** the earth track's lower edge breaks into tufts of the meadow, half-bedded stones and
+  roots; the band under it stays the band.
+- **The bakehouse's oven (the critic's high 1):** no disc on the cobbles: a wedge of warm light from the hatch's sill
+  down the dome's foot and out on the lane, its strongest row at the wall's foot; the hatch's own light a small round
+  glow on the dome, above the ground line only.
+- **The gatehouse's crowns and corbel band** take the keep's values (the director's 1c): their gaps a slate dark and
+  mid instead of the window glass's black, so both read as one castle at noon. The braziers' niches stay dark.
+- **The chapel's bell** is bronze in the belfry's shadow; **the tier-3 postern** keeps tier 2's roof under its crown.
+
+### 26.4 Light and values (engine, no new sprites)
+
+- **The lantern's box was the lit edge.** Look 2's pools stepped 45 % at the lit threshold (the smooth style's rule,
+  so the edge the creatures respect reads); on walls the ring's flanks stood as vertical edges and gave the castle's
+  washes a round outline. Look 2 now draws that edge as a dithered shoulder over a band (`lh2_light_level`): the value
+  still drops, but softly. A pool cut by the architecture feathers over its last 3 rows (`lh2_clip_feather`).
+- **The cliff behind the castle** takes one step of haze by day (`SceneLayout.castleCliffHaze`).
+- **Fire by day:** an open fire's pool falls to 0.22 at noon and is whole from the dusk (`look2FireDayShare`).
+- **Smoke** has a light of its own at every hour (`CastleSmoke.glow`).
+- **The valley** one more warm step at dusk (ambient × 1.32, 1.02, 0.68; fog × 1.36, 1, 0.64; 70 % of the cold pull let
+  go while the evening is warm).
+
+### 26.5 Rebuild
+
+`bash games/lanternhold/tools/build-art-world.sh chapelTower posternT3 bakeHatchWedge beaconRuin beaconRuinRim
+beaconBaseRim beaconTowerRim greatBeaconRim wardenStatue castleFront castleFront3 castleFront3Build townRoofsA
+townRoofsB townRoofsC townRoofsD riverFarLantern riverSkiff valleyVerge`.
+<!-- END world lane: world rebuild, step world-3 -->

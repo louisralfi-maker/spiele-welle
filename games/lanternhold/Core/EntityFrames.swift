@@ -104,6 +104,9 @@ enum EntityFrames {
     static let beaconLeft = Realm.beaconX - 32
     /// An unlit creature's body at full night (× its albedo): only its glow strip reads.
     static let unlitValue: Float = 0.2
+    /// World-3 (REVIEW-look-2.md L2, look 2): a step lighter, so a creature far from the fires reads as an ash body with
+    /// its cool rim, not as its red glow strip alone ("red line smears" at the outer line).
+    static let unlitValueLook2: Float = 0.3
     /// Creatures reflect at most this much point light (the world 1.6, `kLitCap`; M2b review: their pale ash crusts
     /// blew out to cream in the beacon's and the braziers' light), and an unlit creature's moonlight rim is this
     /// strong at full night (the king's rim is 0.5: on a body at 0.2 it vanished into the ground).
@@ -1088,7 +1091,7 @@ enum EntityFrames {
         // Drawn from left to right, so neighbours always overlap the same way and a crowd separates (M2b review), each
         // body a shade lighter or darker by its id (bosses as painted).
         let night = min(1, max(0, ambient.torchStrength))
-        let value = 1 - (1 - unlitValue) * night
+        let value = 1 - (1 - (look == .two ? unlitValueLook2 : unlitValue)) * night
         var attacked = false
         var order: [Int] = []
         order.reserveCapacity(s.creatures.count)

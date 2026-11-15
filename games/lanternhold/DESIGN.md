@@ -3681,6 +3681,67 @@ note of 15.11. 07:47 set the order and replaced his list of 07:42. Art: `tools/k
   is flat and cut at the jamb but still an oval on the cobbles; the gatehouse's slits are amber at their rim and pale at
   their 1 px core under the bloom; high 8 and the moon's notch (deferred by the director); world-1's highs 2 to 5 and 7;
   the six other languages of the two story lines (the store pass).
+#### Step world-3: the camera, the mediums and the whole-world pass (2.7, M2 to M5, L2 to L4; 15.11.2026)
+
+The director's order of 15.11. 09:19 and 09:23: the whole-world pass's noon items first, then the camera, then M2, M4,
+M3, then M5 and the lows. Art: `tools/w3art.py` (ART-look2.md section 26); layout: `Core/SceneLayoutWorld3.swift`,
+`Core/CameraFraming.swift`; ids: SPRITES.md "World-3".
+
+- **The camera (2.7):** `CameraFraming` gives the goal and `Camera.frame` follows it (GameModel's three camera calls
+  hand it the realm). Walking: 32 px of lead in the walking direction, eased in over 0.5 s (critically damped, so it
+  starts and stops without a jolt); it holds on his facing when he stops (a stop never slides the picture back) and a
+  jump clears it. Set pieces at the beacon (470), the front gate (1360), the hall door (`castleHallDoorX`, 1830) and
+  the back gate (2330): within ±70 px the goal is `anchor + (lord − anchor) × 0.3`, beyond it the set piece lets go
+  over 130 px (a smoothstep), so the goal never jumps and the camera never runs faster than about 2.3 times the lord.
+  At night in front of the castle (`nightFront`: the hour's night share times the old front fade) and only while
+  creatures are on screen (or 30 px left of it), the camera leads 60 px to the left, toward the danger, eased in over
+  about a second; it replaces the lead and the set piece. The river end and the bank clamp as before. Reduce Motion:
+  the leads and the set pieces are instant. The goal's change per step is fed forward, so a steady walk keeps the lord
+  steady on screen (the jitter tests hold). The sweep's stills stand composed: a lord who never walked has no lead, so
+  `w-1360`, `w-1830` and `w-2330` frame their buildings as before, and `w-0400`, `w-1400`, `w-1800` and `w-2400` show
+  the set piece's pull (camera centres 449, 1372, 1821 and 2351).
+- **The whole-world pass, the director's point 1:**
+  - a. The cleft wall behind the castle takes one step of haze by day (`SceneLayout.castleCliffHaze`, 0.17 of the mid
+    plane's haze inside the walls, none at dusk and night), so the curtain's silhouette reads against it.
+  - b. **The lord's lantern box was no LightClip** (the lantern has none): look 2's pools stepped 45 % at the lit
+    threshold (`lh_light_level`'s smooth style, so the edge the creatures respect reads), and on walls the ring's flanks
+    stood as hard vertical edges (beside the gate, at the bakehouse's corner, at the chapel). Look 2 draws that edge as a
+    dithered shoulder over a band now (`Render/Shaders.metal` `lh2_light_level`); the value still drops there.
+  - c. The bakehouse oven: no oval. Its pool lights the dome above the ground only (a small round glow at the hatch,
+    clip from 3 rows under the ground line), and a wedge of warm light (`bakeHatchWedge`) runs from the sill down the
+    dome's foot and 10 rows out on the lane, strongest at the wall's foot (dusk and night).
+  - d. Smoke you can see: every puff has a light of its own (`CastleSmoke.glow`): a pale sky light by day, the sky's low
+    warm colour in the evening, the moon at night, and the chimney's fire under its lowest three or four puffs (the
+    keep's hearth fainter than the bakehouse's oven); a little denser (alpha 0.62).
+  - e. The hall door's wash: its cut at the eave's shadow line (row 50), and every cut pool feathers over its last 3
+    rows and columns (`lh2_clip_feather`); with the soft lit edge the round outline is gone.
+  - f. Fire by day: an open fire's pool (braziers, fire towers, firepots: the gate rock's fires, the oven, the chapel's
+    and the castle's braziers) falls to 0.22 at noon and is whole from the dusk (`look2FireDayShare`); the flames show
+    all day, the torches still go out.
+  - g. The gatehouse's crowns and corbel band at the keep's values: their gaps a slate dark and mid instead of glass
+    black (`w3art.py gate_lift`; the slits' glass and the braziers' niches stay).
+  - h. The valley one more warm step at dusk (`valleyAmbientWarm` 1.32, 1.02, 0.68; `valleyFogWarm` 1.36, 1, 0.64; the
+    cold pull 70 % let go while the evening is warm, 30 % at night).
+  - i. The mediums: the chapel's bell bronze in shadow; the tier-3 postern keeps tier 2's roof under its crown and flag;
+    the gate slits a step lower (`castleGlassShare` 0.8). The curtain's lone merlon stub at the postern (world 2239) is
+    open: it is the curtain's last tile ending over the postern's lower wall, and moving the tiles breaks the merlons'
+    rhythm; build 3.
+- **M2:** the beacon ruin's crown is a cold iron bowl (the cage read as a handle), and every beacon stage catches the
+  moon on its right and upper edges (`beaconRuinRim` to `greatBeaconRim`, by the moon's height).
+- **M3:** at most three archers drawn per wall walk or tower, 10 px apart (look 2, `EntityFrames.archersDrawnPerWalk`);
+  the others shoot from their posts, implied by their arrows.
+- **M4:** the town's back row on the near plane at 70 % value (`townRoofsA` to `D`): overlapping town houses, one
+  church spire behind the square, dormers, a few lit panes at night, a smoking chimney per sprite, gardens at their foot.
+- **M5:** the warden statue's bowl, its fire seated in it (look 2's emitter at dy 156).
+- **L3:** the valley lane's verge (`valleyVerge`, world 2400 to 3680). **L4:** a far-shore lantern and a moored skiff
+  (mid plane at the river end). **L2:** in look 2 an unlit creature's ash body is a step lighter (0.3 of its albedo at
+  full night, 0.2 before; `EntityFrames.unlitValueLook2`), so far from the fires it reads as a body with its cool rim,
+  not as its red glow strip alone.
+- **Tests:** `CameraFramingTests` (the lead's ease and direction, the lead held on a stop and cleared by a jump, the
+  set pieces' composition, a goal that never jumps, a walk through the front gate, the danger lead only with creatures
+  on screen at night at the front, Reduce Motion, the world's ends); `WorldThreeTests` (the oven's wedge, fire by day,
+  smoke at every hour, at most three archers per walk, the back row, the beacon's moon, the statue's bowl, the verge
+  and the river end, the cliff's haze, the cuts).
 <!-- END world lane: World rebuild (14.11.2026) -->
 
 ## Risks
