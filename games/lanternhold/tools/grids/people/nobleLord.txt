@@ -93,7 +93,8 @@ part cane
     H
     H
 
-# talk: the forearm up, the glove turned up (6), a little higher (7)
+# talk: the forearm up, the glove turned up (6), a little higher (7); in the talk and the bow the cane passes to the far
+# glove behind him (people-2, the critic: it no longer vanishes between the idle and the bow)
 part armTalkA
     Rx..
     Rx..
@@ -219,6 +220,7 @@ frame 5
     armCane 7 13
 
 frame 6
+    cane 2 17
     legsStand 3 21
     coat 2 11
     armBack 1 12
@@ -227,6 +229,7 @@ frame 6
     armTalkA 7 12
 
 frame 7
+    cane 2 17
     legsStand 3 21
     coat 2 11
     armBack 1 12
@@ -235,6 +238,7 @@ frame 7
     armTalkB 7 12
 
 frame 8
+    cane 2 17
     legsStand 3 21
     coat 2 11
     armBack 1 12
@@ -243,6 +247,7 @@ frame 8
     armHeart 7 12
 
 frame 9
+    cane 2 18
     legsStand 3 21
     coat 2 12
     armBack 1 13

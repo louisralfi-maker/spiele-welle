@@ -35,7 +35,7 @@ bodies until a repaint adds their mark.
 |---|---|---|---|---|---|
 | 1 | **Mother Corra** | 58 | candle-dipper at the chandlery (Tallowford still smells of wax), a guard's widow | her dead husband's guard cloak, the house teal faded to grey-blue, cut down to a shawl | `citizen` (repainted) |
 | 2 | **Dun Rook** | 41 | porter at the ford, carries sacks across the Wend | the near hand and forearm bound in a grey rag: the ferry rope burnt it to the bone one winter | `citizenB` (repainted) |
-| 3 | **Ned Furrow** | 60 | ploughman of the near field; the farmer who comes to the throne (renamed in fix round 1: "Aldo Fenn" stood too near Lord Aldric and the child Fen) | the near eye lost to the Gloom on a night of the Count thirty years ago: a leather patch, its strap across the bald crown | `citizenC` (repainted) |
+| 3 | **Ned Furrow** | 60 | ploughman of the near field; the farmer who comes to the throne (renamed in fix round 1: "Aldo Fenn" stood too near Lord Aldric and the child Fen; and in people-2: "Ned Thatch" is a famous pirate's name) | the near eye lost to the Gloom on a night of the Count thirty years ago: a leather patch, its strap across the bald crown | `citizenC` (repainted) |
 | 4 | **Old Hemmet** | 71 | miller at the Wend's weir, one of the Returned (STORY.md: "The washing was still on the line") | sixty years of sacks: bent nearly double, the hump of his back above his head; flour in every crease | `elder` (new) |
 | 5 | **Wenna Brisk** | 52 | washerwoman at the well (STORY.md: the Brisk family at the well) | forearms raw red to the elbow from forty years of lye and cold water | `washerwoman` (new) |
 | 6 | **Brede Hask** | 37 | carries timber and stone for the walls and the beacon road | the limp: a block slipped and crushed his near foot; it is bound in rags instead of a boot | `labourer` (new) |
@@ -125,7 +125,7 @@ a mark and a silhouette; their sheets are the first work of people-2 (see "What 
 
 | # | who | age | trade | the mark | silhouette and tell |
 |---|---|---|---|---|---|
-| 13 | **Saul Bracken** | 56 | the collector (TOWN.md section 2): hired at the first audience, out from the hall door at dawn with the strongbox on a handcart, every door, back by noon | his left arm, lost on the wall the winter the old lord died; the empty sleeve pinned across his chest. The town trusts him because he has never kept a coin that was not his | a stout man leaning into a two-wheeled handcart, pushing it one-handed with a leather strap over his shoulder to the shafts; the iron-bound strongbox on the cart (`woodLight`, `wood`, bands `stoneMid`, a plain iron lock: no gold, it is the town's box). Cloth: a long grey-brown coat patched at the elbow (`rock` ramp), a wide-brimmed felt hat (`soil`), boots. Frames: the cart walk (a wider frame for the cart), the idle at his post by the hall door with his hand on the box, the coin take at a door (the hand out, the coin dropped through the slot, a nod) |
+| 13 | **Saul Bracken** (renamed in people-2: "Wicket" echoed a film creature) | 56 | the collector (TOWN.md section 2): hired at the first audience, out from the hall door at dawn with the strongbox on a handcart, every door, back by noon | his left arm, lost on the wall the winter the old lord died; the empty sleeve pinned across his chest. The town trusts him because he has never kept a coin that was not his | a stout man leaning into a two-wheeled handcart, pushing it one-handed with a leather strap over his shoulder to the shafts; the iron-bound strongbox on the cart (`woodLight`, `wood`, bands `stoneMid`, a plain iron lock: no gold, it is the town's box). Cloth: a long grey-brown coat patched at the elbow (`rock` ramp), a wide-brimmed felt hat (`soil`), boots. Frames: the cart walk (a wider frame for the cart), the idle at his post by the hall door with his hand on the box, the coin take at a door (the hand out, the coin dropped through the slot, a nod) |
 | 14 | **Silas Moth** ("Moth") | 63 | the lamplighter (TOWN.md section 7, HOUSE.md section 1): a townsman, never of the house; each dusk he lights his pole at the Eternal Light in the hall's hearth and carries the house's light out into the street. He knows every window and who is awake at midnight: the lord's ear in the town | a burn up the side of his neck and jaw from a lantern that burst in his hands thirty years ago; he still flinches at a spitting wick | tall and thin as his pole, a little stooped, a long dark coat to the shins (`stoneDark`, `stoneMid`), a soot-blackened thumb and forefinger, a narrow-brimmed hat; the long lighting pole, longer than he is tall, with a small brass wick holder and a snuffer cone at its tip (`stoneLight`, `straw`): it must never be mistaken for the lord's hooked lantern staff, which carries a lantern. Frames: the walk with the pole on his shoulder (the tip burning at dusk: a glow strip), reaching up to light, reaching up to snuff, and the hearth set (the pole's tip held into the Flame, a small bow of the head to it, the turn to go) |
 | 15 | **Old Kell** (Amory Kell) | 62 | the jailer of build 3 (HOUSE.md section 10): the old sergeant of the petition `old_sergeant`, who held the old lord's gate for twenty winters, if the lord took him in; otherwise a soldier of the garrison stands there | his knees: "My knees are done, my arm is not." He stands stiff-legged and leans on his spear like a stick | square and solid at the head of the dungeon stair, the legs braced apart and straight, an old dented kettle hat, a faded house-teal surcoat over mail gone brown at the edges, the spear upright as a staff in one hand and a lit lamp hanging from the other (lit: someone below wants a word). Frames: the stand with the lamp, a nod, sitting by the gate when nobody is below |
 
@@ -133,14 +133,15 @@ a mark and a silhouette; their sheets are the first work of people-2 (see "What 
 
 Quick where everyone else is slow, and the one warm clean colour in town: each child wears the cleanest, lightest cloth
 in the valley (a value step above any grown-up's) and enough red to be seen at phone size on the well's stones. In the game they are out at the market
-square while the town is content (the interface bar: the town shows happiness, there is no number for it): none below
-30 happiness, Fen from 30, Nib from 35, Wren from 50. All three: 10x18, run 0-3, fidget 4-5, skip 6-9.
+square while the town is content (the interface bar: the town shows happiness, there is no number for it): from 45 happiness Nib and Wren, from 80 Fen too (people-2, `TownDay.children`). Nib and Wren: 12x18, run 0-3, fidget
+4-5, skip 6-9, the stick fight 10-11; Fen: 10x18, run 0-3, fidget 4-5, skip 6-9.
 
 **Nib Brisk** (`childA`), 7, Wenna's youngest (renamed in fix round 1: "Pim" stood too near Pip the fool).
 *Silhouette:* a mop of straw hair, a brother's linen tunic far too big (the sleeves over his hands, the hem to his
 knees), bare feet, a stick held high for a sword. *Cloth:* `strawLight`, `straw` hair; the tunic washed white by his
-mother at the well (`foam` lit, `parchment`, `plaster`). *Tell:* the red kerchief knotted at his neck with its ends at
-his chest, and a patch cut from the same red on the tunic (`crimsonLight`, `crimson`). *Pace:* he only runs.
+mother at the well (`foam` lit, `parchment`, `plaster`). *Tell:* the red kerchief round his neck, knotted at the nape, its two
+ends flying out behind him when he runs (`crimsonLight`, `crimson`; people-2, after the critic: no red on the throat or
+the belly, where it read as a wound at phone size, so the patch is gone). *Pace:* he only runs.
 
 **Wren Ashby** (`childB`), 9, Gorm's daughter. *Silhouette:* dark hair in plaits that fly out behind when she runs and
 up when she skips, a smock dress widening at the hem. *Cloth:* `woodDark`, `wood` hair; a clean linen smock (`foam`,
@@ -152,8 +153,8 @@ ones, a red cap, a short pole over his shoulder with a small lantern hanging fro
 lord's (unlit by day). *Cloth:* the cap `crimsonLight`, `crimson`; dark curls; a handed-down leather jerkin, oiled clean
 and a step lighter than any grown-up's leather (`strawLight` lit, `straw`, `woodLight`), belted twice round (`soilDark`)
 over a linen shirt whose collar shows (`foam`, `parchment`), brown breeches, bare shins, clogs. *Tell:* the little
-lantern. In the game he trails after the lord through the town (26 px on the castle side: behind him going out, ahead
-of him going home) and waits at the town's edge when the lord leaves it. The child petitioner walks in his body.
+lantern. In the game he runs after the lord at his heels while the lord is near the children's game, stops when the lord walks
+on and runs back to it (people-2, `TownDay.trailing`). The child petitioner walks in his body.
 
 ## 4. The nobles of the inner lands (a kind: two bodies and a footman)
 
@@ -196,23 +197,66 @@ Goldenacre on the chest over a linen shirt; crimson breeches; **white stockings*
 with `gold` buckles; an iron-bound chest (`woodLight`, `wood`, bands `stoneMid`, a `gold` lock). *Talk:* he sets the chest
 down and holds out a purse: a noble never pays himself (TOWN.md section 6), the footman does.
 
-## 5. Where they are in the game (look 2)
+## 5. Where they are in the game (look 2; people-2, `TownHouseholds`, `TownDay`, `TownLamps`)
 
-- **The walkers** (`EntityFrames.townsfolk`, how many follows the taxpayers): Mother Corra, Old Hemmet, Brede, Dun,
-  Ned in turn, each at the pace and step their body was drawn for (Hemmet at half speed and 2.5 px a frame, Brede at
-  four fifths). Look 1 keeps its three townsfolk.
-- **The fields** (`PeopleCast.fieldWorkers`): on the first built field, Gorm with the hoe and his sister Hedda with the
-  scythe beside him, so one view shows both tools. Out from the nearest house at 06:12 with their tools on the shoulder; at
-  work by day, eight strokes and then the pause that straightens the back; when the lord comes within 36 px they
-  straighten and turn to him; home from 17:24 with a sack and a sheaf, gone before the horn.
-- **The well** (`PeopleCast.washer`): Wenna on the well's far side from the notice board, facing the well, wringing
-  linen, then a breath, all day.
-- **The square** (`PeopleCast.children`): the children by happiness, laps of 120 px round the well with their centres
-  spread, Wren skipping every second lap, a fidget at each end. Fen at the lord's heels while the lord is in the town.
+The town lives by its people: the same people every day, in their own houses, at their own work, so that a player
+comes to know them. Picture only (no rule of the simulation changes).
+
+**Who lives where** (`TownHouseholds.households`; a house's people are out only while it stands, a big house adds its
+upper floor's lodger):
+
+| house | household |
+|---|---|
+| 1, at the castle end | Mother Corra (to the market with her candles), Ned Furrow (out to the far field), Brede Hask (timber to the castle's gate); in a big house also Ilse Marrow (to the well) |
+| 3, by the near field | the Ashbys: Gorm (the hoe), Hedda (the scythe), Wren |
+| 4, by the well | the Brisks: Wenna (the well), Nib; Dun Rook lodges with them (sacks from the ford); in a big house also Master Edwy Tallow (to the tavern) |
+| 5, by the square | Moth's: Silas Moth the lamplighter, Fen (his grandson, the lamp-runner), Old Hemmet (the bench before the door) |
+| the castle | Saul Bracken the collector lodges by the hall door |
+
+**The day:**
+
+- **The farmers** (`TownDay.farmers`): Gorm and Hedda on the first built field, out from their door at first light
+  (05:30) with the tools on the shoulder, eight strokes and the pause that straightens the back, home with a sack and a
+  sheaf at a tired pace (seven tenths of their walk), in before the horn (by 18:51; from a far field they leave
+  earlier).
+- **Wenna** (`TownDay.washer`): to the well at 06:18 with her basket, wringing linen on its far side all day; home at
+  18:09, and at the horn in her doorway calling the children in (the cupped hand, the beckoning arm), then in.
+- **Old Hemmet** (`TownDay.bench`): on the bench before house 5 from 07:24 to 17:36, facing the square; now and then
+  his chin sinks in a doze.
+- **The passers-by** (`TownDay.walkers`, as many as the taxpayers allow): out from 07:00, each from beside their door
+  to their place and back with a pause at both ends; from 18:30 home from wherever they are.
+- **The lord passes:** whoever stands still turns to him: the farmers straighten, Wenna straightens from the linen,
+  Hemmet inclines his head, a passer-by pausing at an end faces him, the collector at his post turns. Below 30
+  happiness they turn their back instead (the farmers work on). The footman never greets anyone.
+- **The children** (`TownDay.children`): out from 08:00 while the town is content: none below 45 happiness, Nib and
+  Wren from 45, Fen too from 80. They run out from their doors to their game before the Brisks' door, clear of Wenna
+  at the well: across and back (Wren skipping the way back), then they meet in the middle and fight with sticks (one
+  swings while the other winds up), part and begin again; Fen runs wider laps. One of them (Fen when he is out, else
+  Nib) runs after the lord at his heels while he is near the play, stops when he walks on and runs back to the game;
+  Wren waits for Nib meanwhile. At the horn they run home, each to its own door, all in by 19:40. Never out at night.
+- **The noble's coach** (`TownDay.coachSpan`, `TownDay.footman`): on a day when a noble guest of the petition data is
+  due (the noble petitioner, Steward Lorenz Pell of Oxmoor, Auditor Ebba Calder of Stillmere; in today's queue or heard
+  today), the coach stands at the town's gate (on this branch the castle's back gate, facing it) from 06:00 to the dusk,
+  the footman beside it on the town's side looking past everyone. The townsfolk keep 30 px wide of it: who would pass
+  it (Brede on his way to the gate) stops short and looks.
+- **The collector** (`TownDay.collector`, on the days he walks): out from his post by the hall door at the dawn,
+  pushing the strongbox from door to door (the hand out, the coin through the slot, a nod), at the farthest door by
+  09:00, back at his post by noon, at his post until the horn (the town lane's rules).
+- **The lamplighter** (`TownLamps`): each afternoon Silas Moth comes into the hall by its chapel door, holds his
+  pole's wick into the Eternal Light in the hearth, bows his head to it, turns and carries the flame out through the
+  castle's gate into the town; he lights the four street lanterns one by one down the road (each with a small flare
+  and a warm pool), the last one as the horn sounds, and goes in at his door. At first light (05:00) he walks back from
+  his door putting them out with the snuffer, and goes in at the castle's gate. The times follow from the anchors and
+  his brisk pace, counted back from the horn (he is in the hall at about 14:40). In unrest (below 15 happiness) nobody
+  lights them; with the hearth out there is nothing to light them with; they burn as the hearth does (bright, low,
+  embers).
+- **Reduce Motion:** nobody is removed; breaths and fidgets hold one frame, the sticks stay raised, the linen is wrung
+  at half the rate, no lantern flares.
 - **The great hall**: the farmer (Ned), the widow and the farmwife (Corra) and the refugee (Dun) wait seated on the
-  benches as before; the child petitioner is Fen, the noble petitioner Ser Aubrey; neither sits on a bench.
-- **Not placed yet**: the lady and the footman. They wait for the hall's spot where a noble stands apart with a footman
-  (the stage lane) and for the footman paying at the town's doors (the town lane).
+  benches as before; the child petitioner is Fen, the noble petitioner Ser Aubrey; neither sits on a bench. Old Hemmet
+  has a seated strip now (`elderSeated`, the townsfolk's seated contract) and could wait on a bench too.
+- **Not placed yet**: the lady of the inner lands (the hall's spot where a noble stands apart with a footman, the stage
+  lane; the coach's day brings the footman to the town's gate already).
 
 ## 6. In words too
 
