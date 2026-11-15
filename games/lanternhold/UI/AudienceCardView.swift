@@ -140,12 +140,21 @@ struct AudienceCardView: View {
                     }
                 }
                 .offset(x: 2, y: 4)
+                // Fix round 2 (the critic's high 3): the plaques stand on the bottom safe edge, at least 21 pt from
+                // the screen's edge (insets.bottom + 4), clear of the home bar's swipe; the room comes from the floor
+                // band, the letter and the counsel do not move.
                 hallPlaques
                     .frame(width: max(0, geometry.size.width - 4))
-                    .frame(width: geometry.size.width, height: geometry.size.height + insets.bottom - 5,
+                    .frame(width: geometry.size.width,
+                           height: geometry.size.height + insets.bottom - Self.plaqueFoot(insets.bottom),
                            alignment: .bottom)
             }
         }
+    }
+
+    /// The plaques' bottom line above the screen's edge: the bottom safe inset plus 4 pt, never under 21 pt.
+    static func plaqueFoot(_ bottomInset: CGFloat) -> CGFloat {
+        max(21, bottomInset + 4)
     }
 
     /// The letter: the portrait, the name and the role, Odile's counsel button; under the rule the request (or the
@@ -604,9 +613,12 @@ struct ChoiceTile: View {
             // the chosen plaque wrapped and grew).
             .overlay(alignment: .topTrailing) {
                 if option.favoured {
+                    // Fix round 2 (the critic's high 3): 6 pt in, inside the plaque's padding and clear of its
+                    // brass line (at 4 pt its right arm ran over the line).
                     GlyphView(glyph: .check)
                         .foregroundStyle(NightGlass.lanternGold)
-                        .padding(4)
+                        .padding(.top, 6)
+                        .padding(.trailing, 6)
                         .accessibilityElement()
                         .accessibilityLabel(Text("Odile's choice"))
                 }
