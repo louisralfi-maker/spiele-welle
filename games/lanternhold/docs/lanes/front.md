@@ -1502,3 +1502,248 @@ Rounds by the director's notes of 14.11. 18:46 and 19:35: no screen and no UI te
 - T15 and the whole runs again on the joined game with the town lane's income (x1.5 above all).
 - The base game's walls (item 1) and T15b's night (item 2).
 - The six other languages of the 14 gorge keys.
+
+## front-3, fix round 2 (15.11.2026, morning)
+
+The critic's look 2 (`ci-out/director/front-3-beacons-critic2.md`, 6.5 of 10): one blocker, three highs, seven smaller
+points. The critic read notes-front.md up to 05:36; the director's note of 07:04 (three minutes before the verdict) had
+already decided the blocker and two of the highs. What follows is what this round did with each. Made in the scratch
+clone of the branch again (the app's guard still refuses writes into `.claude/worktrees/lh-front` from the lead's
+session; I fast-forwarded that worktree once to 182ea37 with git at the start, before the first write refusal). Pushed to
+`origin/claude/lh-front`. Nothing the T1 to T8 bots touch moved, and no chosen gorge value moved.
+
+### Blocker B1: the one-edge model is the director's decision (07:04)
+
+- notes-front.md 07:04: "**B1.** One edge, not two. The sites at x 300, 229, 160 and 95 ... This is better than my note of
+  05:36. The two edges of that note are withdrawn: do not build `GorgePicture.veilEdge`." REALM.md section 5 says it
+  ("One edge, as built", planning commit a52cfc8). That is the critic's option (b), in writing, in both places.
+- So the sites, the land, the daytime bank at x 300 and the absence of `veilEdge` stay; the 620 measurement belonged to
+  the two-edge model and was withdrawn with it.
+- **Renamed** (the rest of option b): `GorgeTuning.mouthFraction` is now `lastLineFraction`, "the fog's last line" (x 37,
+  just short of where the creatures leave the Gloom at x 40), in the code, its comments and the tests. It is not the art's
+  cleft mouth. REALM.md still says "the Gloom's mouth is at x 37": that sentence is the director's to change.
+- **Ground at x 95 to 300** (the other half of option b) is the world lane's to confirm at the join. What exists: the
+  world lane's own offer (world-1 report, "For later steps") already put sites at x about 250 and 110 and says its moor's
+  backdrops run on to x 0; the critic notes near firs in the look2 shadow land there. Item for the join below.
+
+### High H1: the price ladders and the builders' time, measured (nothing turned)
+
+The director (07:04): "H1 is open, and waits ... It cannot be settled before the town's income is in ... Prices first. Do
+not turn anything for it now." So this round measures what the critic asked and changes no chosen value.
+
+- **New bot, the keeper** (`GorgeBotKind.keeper`, `ForwardBot(keeper: true)`): the walls and the reference's whole order as
+  they are, no beacon until the Great Beacon's third stage stands, then the next beacon (or its relight) as soon as the
+  purse holds its price, the reference's further steps waiting while it saves; the watchtower when its stretch is held.
+  In the T15 report as a reported line against the critic's target (holds where the reference holds, the King at least 9
+  of 10, all four by night 16 in most seeds); unit test: it raises nothing before the Great Beacon stands.
+- **The grid** (`tools/beaconsweep` "ladders", round lh-f3f2-1, whole runs x1, seeds 1 to 10): five price ladders (60, 90,
+  130, 180 chosen; 40, 60, 90, 120; 60, 75, 90, 90; 40, 50, 60, 70; 30, 45, 65, 90) times two raise works (150 chosen,
+  75) times four players: careful (the forward bot, 10, 22, 22, 22), bold (two before the Great Beacon, 10, 19, 22, 22:
+  the director's target, the King at least 9 of 10), eager (all four before the Great Beacon, 10, 13, 16, 19), keeper.
+
+| x1, 10 seeds | careful | bold | eager | keeper |
+|---|---|---|---|---|
+| 60, 90, 130, 180 (chosen) | King 10, 3 % fewer at the defence | King 6, 13 % fewer | King 3 (one trap), 14 % | King 10, 0 %, 0.6 raised |
+| 40, 60, 90, 120 | 10, 5 % | 7, 15 % | 5, 1 % | 10, 0 %, 1.4 raised |
+| 60, 75, 90, 90 | 10, 3 % | 6, 13 % | 5, 7 % | 10, 0 %, 0.6 raised |
+| 40, 50, 60, 70 | 10, 5 % | 6, 16 % | 6, 8 % | 10, 0 %, 1.6 raised |
+| 30, 45, 65, 90 (half) | 10, 15 % | 8, 25 % | 7, 13 % | 10, 0 %, 1.8 raised |
+
+- **All four at once is reached by no player, at any ladder, on any night** ("all four from" is 0 in all 400 runs).
+- **The builders' time is no lever**: raise work 75 gives the same runs as 150, to the digit (evidently every raise finishes
+  before the horn either way).
+- **Prices are a lever, but not enough**: at half prices the bold bot slays the King in 8 of 10 (the target is 9) and lets
+  25 % fewer creatures reach its walls; the careful one gains 15 %.
+- **The lever for "all four" is holding**: the eager bot has 2.0 to 2.9 beacons burning at the horn of night 10 and 0.8 to
+  1.3 at night 14. Its beacons fall on nights 10 to 14, and from day 11 it relights nothing while it saves for the Great
+  Beacon (`botRelightWhileSaving` 0, the chapter's goal first).
+- **The keeper's target cannot be met as written**: the Great Beacon stands on day 15 to 17 at x1, and four beacons need
+  four raises one after another. "After the Great Beacon" and "all four by night 16" exclude each other. It raises 0.6 to
+  1.8 by night 20, because the reference's order spends the purse while each raise runs.
+- For the build 3 join, with the town's income: the far beacons' strength (or the strike's reach) and the relight price
+  beside the Great Beacon decide whether "all four before night 14" is a wager. Prices alone do not. The director's own
+  target (two before the Great Beacon never cost the finale) is missed at every ladder, at best 8 of 10.
+
+### High H2: T15c on a stable axis, the outpost's King diagnosed, "tended" kept
+
+- **The diagnosis** (the critic asked for it per seed; `GorgeMetrics.outpostDiagnosis`, in the T15 report and the sweep).
+  At x1 the outpost's King lives in 8 of 10:
+  - The purse at the horn of nights 15 to 20 stays at 1 to 62 gold.
+  - Its beacon gold rises from 100 by night 14 to 390 to 434 by night 20: relights and raises after the Great Beacon.
+  - On night 20 it has 8 or 9 archers on 10 posts. The walls-neglected control has 12 archers on 14 posts and no beacon
+    gold.
+  - The King then walks out of the Great Beacon's light with 1 to 13 % of his strength, after 54 to 59 s in it. He ends
+    at x 1407 to 1631, past the gatehouse, and kills its 8 defenders there: the King 38 of 64, gloomweavers 18, sootlings 8.
+  - In the two seeds where the outpost slays him (3 and 7) its beacon gold is 280 and 320, with 10 archers on 12 posts.
+  - The control slays him every time, after 51 to 54 s at x 801 to 831.
+- **The King's count is a cliff of two archers.** Whether they get bought rests on the outpost's 280 to 430 gold of far
+  beacons after day 14. Every variant that moves that gold moves seeds across the cliff: strength 400 each gives 231 gold
+  and the King in 10 of 10; tended always gives 416 gold and 0 of 10; the chosen values give 386 gold and 2 of 10. That is
+  why it swung, and why it was no axis.
+- **T15c now asserts the stable axis** (`GorgeMetrics.passesOutpost`, `testTarget15cBeaconsDoNotStrengthenARealmWithoutWalls`):
+  beacons do not strengthen a realm without walls. The outpost lets at least as many creatures reach its defence on nights
+  3 to 14 as the walls-neglected control without beacons.
+  - x1, 10 seeds: 165 against 106. In the unit test (seeds 1 to 3): 54 against 30.
+  - It passes in all 14 variants of the sweep (106 to 165 against 106), while the King's count in them runs from 0 to 10.
+  - Front-3 fix 1's comparison with the reference is kept as a reported line ("does not beat it on all three" at x1).
+  - x1.5, reported: met in the sweep (330 against 300). The unit test's three seeds miss by one (113 against 114): the
+    margin is thin there.
+- **Tended from the wall stays**: the director (07:04): "'Tended from the wall' is a good rule: keep it." The picture must
+  show it (For the join, below).
+- **T15b** still falls on night 20 through the Great Beacon's gold: the neglect bot's relights (800 to 1060 gold) leave no
+  gold for it. That chain is the rule (untended beacons, relights, no Great Beacon, the King's night). A night-14 fall
+  waits for the base game (the director, 07:04: "T15b 'by night 14' waits for that; `GorgeMetrics.neglectFallsBy` stays
+  the one value").
+
+### High H3: for the director, and decided
+
+The walls (no wall beyond the gate and no beacon is the dominant line at every budget) are the base game. The director
+(07:04): "do not touch a base value, the reference's build order or T1 to T8 ... a separate diagnosis after build 2, on a
+branch of its own". Nothing done here; `Autoplay.skipsWalls` and the walless control are as they were.
+
+### The defenders lost: where they fell, and to what (the director's question of 05:36, the critic's smaller point 1)
+
+Each fallen defender is now placed in a table: where he fell, what he was doing in the step he fell, and the creature on
+the ground nearest him then, within 30 px (`GorgeFall`, `GorgeMetrics.fallsTable`). Unit test: every fallen defender is
+placed once.
+
+- **T15a pairs** (all budgets, 10 seeds; 217 lost without the beacons, 167 with):
+  - The middle line: 189 without, 163 with. Mostly archers on the ground (136 and 132), caught by shadehounds (149 and
+    144); the rest are guards holding the breach.
+  - Before the gate: 25 without, 4 with. That is most of what the beacons save.
+  - The gatehouse: 3 without, none with.
+  - **Base game, for the director:** most defenders who fall are archers walking on the ground at the middle line (the
+    `moving` state, between posts), run down by shadehounds.
+- **Whole runs x1** (all nights, 10 seeds):
+
+| Bot | Lost | The outer line | Between the lines | The middle line | The gatehouse |
+|---|---|---|---|---|---|
+| reference | 101 | 33 (guards holding; brutes 13, hounds 13) | 25 (guards walking into the King on night 20) | 41 (archers walking; hounds) | 2 before the gate |
+| forward | 102 | 13 | 21 (King 19) | 66 (archers walking; hounds 54) | 2 before the gate |
+| keeper | 97 | the reference's | 21 (King) | 41 | 2 before the gate |
+| neglect | 65, all on night 20 | | | | 65 (King 30, sootlings 24) |
+| outpost | 64, all on night 20 | | | | 64 (King 38, gloomweavers 18) |
+| walless | 0 | | | | |
+
+- About a quarter of the reference's losses are guards who walk into the Lightless King between the lines on night 20.
+- The forward bot loses more archers on the middle line than the reference does (66 against 41) and fewer guards on the
+  outer line (13 against 33).
+
+### The critic's smaller points
+
+1. The table of lost defenders: above.
+2. **A petition's fog with a beacon lit** (decided and tested). Before, a lit beacon took the teeth out of the petition's
+   fog.
+   - Now the petition's 60 px still come on, past the beacons' line, up to the furthest lit beacon and never over it.
+   - By day and on other nights nothing changes, and with no beacon it is as before.
+   - Code: `Gorge.restingBank(petitionFog:)` and `Gorge.petitionFog`, which reads `NightPlanModifiers.bankShift` and lets
+     it swell with the night as the bank does. `GorgeTuning.petitionFogPresses` is true; false gives the old rule.
+   - Test: `testAPetitionsFogStillComesWithABeaconLit`.
+   - T15's numbers are identical to fix round 1's, so no bot met a fog petition with a beacon lit.
+3. **The lines** (English and German, Front.xcstrings):
+   - `front.gorge.lost.all`: "Every beacon went dark. The fog took the gorge back." / "Alle Leuchtfeuer erloschen. Der
+     Nebel nahm sich die Schlucht zurück." On early nights the fog does not reach the walls, so "the fog is at the walls"
+     was false then.
+   - `front.gorge.untended`: "Nobody walked out to the beacons. No wall to send them from." / "Niemand ging zu den
+     Leuchtfeuern hinaus. Vor dem Tor steht keine Mauer." It says what nobody did, and it is true when the wall is
+     rubble too.
+4. `Gorge.options` still copies `Build.options`' shape: left for the join, as in fix round 1.
+5. `mouthFraction` is renamed (B1 above).
+6. The lh-front worktree: fast-forwarded to 182ea37 at the start. It is behind origin again by this round's commits, and
+   this session may not write there; fast-forward it before the join.
+7. The far stones: their stretch frees no gain (a flag, as decided). The picture gives it something to see (For the join,
+   below).
+
+### Hooks of this round
+
+None. Every change is in this lane's own files: `Core/Front/Gorge.swift`, `GorgeTuning.swift`, `GorgeTuningRun.swift`,
+`ForwardBot.swift`, `Tests/GorgeBeaconTests.swift`, `Tests/GorgeTuningTests.swift`, `tools/beaconsweep/main.swift` and
+`Resources/Front.xcstrings`. `Gorge.holdFog` now reads `NightPlanModifiers.bankShift`, an existing function, unchanged.
+Front-3's hooks and fix round 1's two Autoplay hooks are unchanged.
+
+### New values and fields
+
+- `GorgeTuning.lastLineFraction` 0.97 (renamed from `mouthFraction`) and `petitionFogPresses` true (new).
+- Not saved: `GorgeNightCount` gains the purse, archers, guards and posts at the horn, the beacon gold so far, the King
+  (last x, strength left, seconds in the Great Beacon's light) and `falls`.
+- New: `GorgeFall`, `GorgeBotKind.keeper`, `ForwardBot.keeper`, `GorgeRun.firstHeldOn` and `night(_:)`.
+- `GorgeMetrics`:
+  - `passesOutpost` now compares with the walls-neglected control; the old comparison is `outpostBeatsReference`.
+  - New: `keeper(stress:)`, `keeperKings` 0.9, `keeperAllFourBy` 16, `fallsTable`, `outpostDiagnosis`.
+- No saved field changed, so the old-save tests stand as they are.
+- Front.xcstrings: two values changed (above); still 14 gorge keys.
+
+### For the join, as of fix round 2 (this replaces front-3's line "By day the bank moves only for the fourth site")
+
+- **The fog by day and by night** is `GameState.bankEdge`.
+  - With no beacon it rests by day at the first site (x 300).
+  - Each lit beacon holds it at the next site, the fourth at the fog's last line (x 37).
+  - It rolls over 3 s when a beacon is lit or falls.
+  - A petition's fog brings it up to 60 px nearer that night, never over the furthest lit beacon.
+  - The world draws nothing else for it.
+- **Tended** (`GorgePicture.tended`): this is a **must** for the picture, because the rule is only fair if it is seen. By
+  day, while a wall beyond the gate stands whole:
+  - two or three people walk out from that wall to each burning beacon, stand at it a moment (one feeds the fire, one
+    stacks stones) and walk back;
+  - a fire struck in the night burns steady again by noon.
+  
+  With no such wall (none built, or rubble):
+  - nobody goes, and a struck fire still gutters and sparks at dusk;
+  - at dawn the line "Nobody walked out to the beacons. No wall to send them from." stands in the report.
+  
+  Reduce Motion: the walkers stay, without the sparks.
+- **The far stones** (the fourth stretch, x 68; no gain, a flag): they must still be worth seeing.
+  - When the fourth beacon catches, the fog rolls back to its last line and a ring of old standing stones comes out of
+    it, tall and pale on the dead moor.
+  - Each stone catches the four beacons' light on one face.
+  - By day a crow or two sits on them; at night they stand lit at the fog's rim.
+  - It is the end of the gorge the player can win back, and the picture should say so without a word.
+- **The world lane**:
+  - The sites (x 300, 229, 160, 95) and the land (the quarry 265, the watchtower 195, the camp 128, the stones 68) need
+    open ground there, west of the art's cleft mouth.
+  - Near firs of the shadow land may have to give way.
+  - The fog's last line (x 37) is not the cleft mouth.
+- Everything else of front-3's and fix round 1's "For the join" stands.
+
+### T1 to T8 before and after (round lh-f3f2-1)
+
+- `tuning-report.txt`, `night-twenty-steps.txt`, `front-t13-report.txt` and the hearth's four tables are byte for byte
+  those of rounds lh-f3-6 and lh-f3f1-4 (md5 f919a8fd..., 1ab8adf6..., e358924d..., bcb7ea9f..., c91bfcda...,
+  befad52b..., 493df35f...).
+- The idle lockstep is identical to lh-f3f1-4's: 39 nights, no difference; the bank at dawn 200 under the old rules, 300
+  with the rule.
+
+### T15 at the chosen values (round lh-f3f2-1)
+
+- **T15a PASS**: 43 % fewer, the same as fix round 1 (1365 against 2382; the unit test: 34 %).
+- **T15b PASS** 10 of 10 (night 20).
+- **The wager PASS**: 428 against 443, the King 10 of 10.
+- **T15c PASS** on the new axis: 165 against 106.
+- The keeper, reported, **missed**: the King 10 of 10, all four by night 16 in 0 of 10, 0.6 beacons raised.
+- x1.5, reported:
+  - T15b 2 of 10.
+  - The wager missed in 6 seeds.
+  - T15c met (330 against 300).
+  - The keeper missed.
+
+### Rounds of fix round 2
+
+| Round | Commit | Steps | Result |
+|---|---|---|---|
+| lh-f3f2-1 | d0ec1cc | build, unit (all), sh beaconsweep variants ladders | **ALL PASSED**: 507 unit tests, none failed; T1 to T8 and every front table identical (md5); T15a, T15b, T15c, the wager PASS; the sweep 143 s |
+
+Rounds follow the director's notes of 14.11. 18:46 and 19:35. No screen or UI test changed, so the gate is one round of
+`build unit` with the sweep as an `sh` step: no `ui`, `ui-de` or `release`. The commit after it changes only these notes.
+
+### Open, and waiting for the join (fix round 2)
+
+- H1, all four beacons as a wager:
+  - The holding lever: the far beacons' strength, the strike's reach and the relight price beside the Great Beacon.
+  - Measure it with the town's income, with the ladder grid as the starting point.
+  - The keeper's target needs rewording: "after the Great Beacon" cannot give "all four by night 16".
+- The base game's walls (H3), T15b's night 14, and the base-game findings on defenders: archers walking at the middle
+  line; guards walking into the King on night 20.
+- REALM.md's "the Gloom's mouth is at x 37" should read "the fog's last line" (the director's file).
+- From the world lane: ground at x 95 to 300 confirmed.
+- The picture, including "tended" and the far stones (above), the touch, and `Gorge.adopt`.
+- The six other languages for the 14 gorge keys.
