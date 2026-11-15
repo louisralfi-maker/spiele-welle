@@ -103,4 +103,9 @@ struct FrontTuning: Sendable, Equatable {
 
     /// Every number of the hearth rule (`HearthTuning`).
     var hearth = HearthTuning()
+
+    // MARK: The gorge beacons (docs/REALM.md section 5; front-3)
+
+    /// Every number of the gorge beacons (`GorgeTuning`).
+    var gorge = GorgeTuning()
 }

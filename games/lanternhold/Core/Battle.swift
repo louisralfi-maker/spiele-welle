@@ -511,6 +511,7 @@ enum Battle {
             lights.append(LightSource(kind: .beacon, x: Realm.beaconX, y: balance.beaconFlameY, radius: beacon,
                                       flickerSeed: 0x4245_4143))
         }
+        Gorge.addLights(&lights, s, balance: balance)  // front lane hook (docs/lanes/front.md "front-3")
         return lights
     }
 
@@ -532,7 +533,8 @@ enum Battle {
             }
             nightEdge += (balance.beaconBankEdge - nightEdge) * share
         }
-        return DarknessBank.edge(hour: s.hour, restingEdge: DarknessBank.restingEdge, nightEdge: nightEdge)
+        let edge = DarknessBank.edge(hour: s.hour, restingEdge: DarknessBank.restingEdge, nightEdge: nightEdge)
+        return Gorge.holdFog(s, edge: edge, balance: balance)  // front lane hook (docs/lanes/front.md "front-3")
     }
 
     /// The lit test for the current state (lights, darkness bank, bubbles of darkness).
@@ -632,6 +634,9 @@ enum Battle {
             walkTimes = stepCreatures(&s, dt: dt, balance: balance, probe: probe, firstLight: phase == .firstLight,
                                       events: &events)
         }
+        // front lane hook (docs/lanes/front.md "front-3"): the furthest gorge beacon struck in passing, the watch looses
+        Gorge.battle(&s, dt: dt, balance: balance, creatureStartX: creatureStartX, walkTimes: walkTimes,
+                     events: &events)
         stepSoldiers(&s, dt: dt, balance: balance, creatureStartX: creatureStartX, walkTimes: walkTimes,
                      events: &events)
         if !s.creatures.isEmpty {

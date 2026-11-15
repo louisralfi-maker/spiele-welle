@@ -78,6 +78,7 @@ enum Sim {
         stepKing(&s, dt: dt, balance: balance, events: &events)
         FrontNight.step(&s, dt: dt, balance: balance, events: &events)  // front lane hook (docs/lanes/front.md)
         Build.stepBuilders(&s, dt: dt, balance: balance, events: &events)
+        Gorge.step(&s, dt: dt, balance: balance)  // front lane hook (docs/lanes/front.md "front-3")
         if DayClock.phase(at: s.hour) != .day || !s.creatures.isEmpty {
             Battle.step(&s, dt: dt, balance: balance, events: &events)
         }
@@ -125,6 +126,7 @@ enum Sim {
         s.lastReport = report
         FrontNight.dawn(&s)  // front lane hook (docs/lanes/front.md)
         Hearth.dawn(&s, balance: balance)  // front lane hook (docs/lanes/front.md "front-2")
+        Gorge.dawn(&s, balance: balance)  // front lane hook (docs/lanes/front.md "front-3")
         PetitionEngine.dawn(&s)
         events.append(.dawn(day: s.day))
     }

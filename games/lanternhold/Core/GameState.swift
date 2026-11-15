@@ -378,6 +378,10 @@ struct GameState: Codable, Sendable, Equatable {
     /// low, embers, out; broken nights, burnt places, the dead by name. Optional: nil plays by the old rules (the
     /// reference bots, saves from before it); `Hearth.adopt` turns it on.
     var hearthFire: HearthState?
+    /// The gorge beacons (docs/REALM.md section 5, "Beacons into the gorge"; front lane hook, docs/lanes/front.md
+    /// "front-3"): four beacons raised into the gorge, the fog held at the furthest lit one, the land they free.
+    /// Optional: nil plays by the old rules (the reference bots, saves from before it); `Gorge.adopt` turns it on.
+    var gorge: GorgeState?
 
     /// The lord of this realm: the chosen one, else the standard (the Burgherr with the default name).
     var lordOrDefault: LordIdentity { lord ?? .standard }

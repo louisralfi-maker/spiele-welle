@@ -19,7 +19,7 @@ SRC="Core/DayClock.swift Core/SeededRandom.swift Core/LightField.swift Core/Ambi
      Core/Front/FrontTuning.swift Core/Front/FrontState.swift Core/Front/FrontNight.swift Core/Front/PresentBot.swift
      Core/Front/FrontTuningRun.swift
      Core/Front/HearthTuning.swift Core/Front/HearthState.swift Core/Front/Hearth.swift Core/Front/HearthNames.swift
-     Core/Front/DawnRing.swift
+     Core/Front/DawnRing.swift Core/Front/GorgeTuning.swift Core/Front/GorgeState.swift Core/Front/Gorge.swift
      tools/frontsweep/stubs.swift tools/frontsweep/main.swift"
 START=$(date +%s)
 # shellcheck disable=SC2086

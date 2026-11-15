@@ -91,6 +91,204 @@
         }
       }
     },
+    "front.gorge.land.camp" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): the third beacon freed the stretch where the charcoal burners worked; they are back, and their charcoal makes the braziers burn brighter. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Köhler sind zurück. Die Feuerschalen brennen heller."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The charcoal burners are back. The braziers burn brighter."
+          }
+        }
+      }
+    },
+    "front.gorge.land.quarry" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): the first beacon freed the stretch with the old quarry: stone for the walls, so wall and gate work costs a little less. Short and dry; no number.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der alte Steinbruch gehört wieder uns. Stein wird billiger."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The old quarry is ours again. Stone comes cheaper."
+          }
+        }
+      }
+    },
+    "front.gorge.land.stones" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): the fourth beacon freed the last stretch, where old standing stones stand (the wardens' stones). Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die fernen Steine stehen frei vom Nebel."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The far stones stand clear of the fog."
+          }
+        }
+      }
+    },
+    "front.gorge.land.watchtower" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): the second beacon freed the stretch with a ruined watchtower; it can be raised as a forward post for archers. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der alte Wachturm liegt frei. Man könnte ihn besetzen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The old watchtower stands clear. It could be manned."
+          }
+        }
+      }
+    },
+    "front.gorge.lit" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): a beacon the builders raised in the gorge yesterday burned through the night; the fog could not pass it. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein neues Leuchtfeuer brannte die Nacht durch. Der Nebel blieb fern."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A new beacon burned all night. The fog kept off."
+          }
+        }
+      }
+    },
+    "front.gorge.lost.all" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): in the night every beacon fell; none burns at dawn and the fog comes as it always came, up to the walls. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Leuchtfeuer erloschen. Der Nebel steht vor den Mauern."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every beacon went dark. The fog is at the walls."
+          }
+        }
+      }
+    },
+    "front.gorge.lost.more" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): the creatures struck down more than one beacon in the night (the furthest first); the fog came back. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die äußeren Leuchtfeuer erloschen. Der Nebel kam zurück."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The far beacons went dark. The fog came back."
+          }
+        }
+      }
+    },
+    "front.gorge.lost.one" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): the creatures struck down the beacon furthest out in the night; it went cold and the fog came back to the next one. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das äußerste Leuchtfeuer erlosch. Der Nebel kam zurück."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The far beacon went dark. The fog came back."
+          }
+        }
+      }
+    },
+    "front.gorge.relit.more" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): several beacons that had fallen were relit yesterday and burned through the night. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die kalten Leuchtfeuer brennen wieder."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The cold beacons burn again."
+          }
+        }
+      }
+    },
+    "front.gorge.relit.one" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): one beacon that had fallen was relit yesterday and burned through the night. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das kalte Leuchtfeuer brennt wieder."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The cold beacon burns again."
+          }
+        }
+      }
+    },
+    "front.gorge.watch" : {
+      "comment" : "Dawn report, gorge half (docs/REALM.md 5, front-3): the ruined watchtower was raised yesterday as a forward post; the castle's watch now holds it at night. Short and dry.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Wache hält den alten Turm."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The watch holds the old tower."
+          }
+        }
+      }
+    },
     "front.hearth.bright" : {
       "comment" : "Dawn report, hearth half: the fire is back to bright after it had burnt low. Short and dry.",
       "extractionState" : "manual",
