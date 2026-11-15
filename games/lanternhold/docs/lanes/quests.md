@@ -620,8 +620,9 @@ stage lane renames any of them, the join renames the call).
 2. **The table and the rail in the chapel:** the table at about x 1980 in the chapel's west bay (QUESTS.md 5.1; check
    `Balance.kingReach` against Seren's corner and the candles; fallback the gatehouse at x 1380), 24 x 14 side view,
    under its cloth on day 1; the rail on the wall above it, 26 x 10, each hook drawn from `TableBoard.hook(lantern,
-   flags:)` (`.dark` a dark lantern, `.bare` nothing, `.charred` soot and chalk, `.blank` Bram's lantern), 3 x 5
-   lantern states. Both are the stage lane's sprites; the states are this lane's data.
+   flags:)` (`.dark` a dark lantern, `.kept` the reserved 41 bound in red cloth, `.lit` a lantern home with its report
+   burning on its hook, `.bare` nothing, `.charred` soot and chalk, `.blank` Bram's lantern; since fix round 1 of
+   quests-3), 3 x 5 lantern states. Both are the stage lane's sprites; the states are this lane's data.
 3. **The touch:** a touch on the table (the stage lane's touch system; `KingTarget.table` in the old action-button
    world) opens `.table`. A first-time glint on day 2, when Pip has pulled the cloth off (his court line, QUESTS.md
    4.5, not yet written).
@@ -631,8 +632,9 @@ stage lane renames any of them, the join renames the call).
    front for `.west` (`catalog.place(sending.place)?.kind`), Pip, Marek's cart, the bard, the envoy, Ser Ludo, Hild
    by `sending.goes`, soldiers by `sending.lent` (their walk frames plus the 5 x 7 carried lantern). Reduce Motion: no
    walk; the gate shows its closed frame.
-5. **Coming home:** at dawn every lantern in state `.back` stands with its party at the table (the figures of
-   `sending.goes` or a soldier of `WaitingReport.names`) until the report is read; the hall skips anyone
+5. **Coming home:** at dawn every lantern in state `.back` hangs lit on its hook in the chapel (`.lit`) and its
+   party stands at the table (the figures of `sending.goes` or a soldier of `WaitingReport.names`; on the screen the
+   party's carved piece stands by the castle, `TableBoard.homeToken`) until the report is read; the hall skips anyone
    `ErrandEngine.isAbsent` (`CourtLayout.figures` and Marek's cart prop, as the quests-2 notes say).
 6. **The strip's call** (HUD.md section 3: the strip comes only while something calls): a call while
    `ErrandEngine.nextReport(table, catalog:) != nil` (a report waits) and on the day a sending opens (`offers` grew
@@ -687,3 +689,69 @@ stage lane renames any of them, the join renames the call).
   when it happens).
 - **For the join:** everything under "How the join wires the walked world" above; Pip's court line on day 2 (the cloth),
   the `Remembered` and `CourtWorld` lists, `tools/simtune`, the six other languages, as before.
+
+## quests-3, fix round 1 (the critic's look 1: H1 to H5; rounds `lh-q3f1-*`)
+
+### What changed
+
+- **H1, lantern 41 no longer lies:** the rail has two new hook states (`TableBoard.Hook.kept`, `.lit`). The reserved
+  lantern hangs dark but bound in a strip of red cloth knotted at its side (`tableRailLanterns` frame 2), so four
+  lanterns over "3 of 3" now read as three ready and one kept; its touch line says "Lantern 41 is kept for one ride"
+  (`table.reserved`, English changed from "waits for one ride", German "ist für einen Ritt verwahrt"). A unit test
+  holds the rule: the rail shows exactly as many dark lanterns as the count under it says.
+- **H2, the plates read:** the figures are the interface kit's ledger numerals (`FIG_HAND` of `tools/hudart.py` on
+  `claude/lh-hudart`, the 5 x 7 bodies), engraved in ink on brass plates of 17 x 11 with a lit top and west edge and
+  margins round the number (`tableDigits` 50 x 7, `tableRail` 128 x 30). At 1.67 pt per texel a figure is 8 x 12 pt.
+- **H3, the table is the screen:** `tableSlab` (444 x 200) is the whole oak table, planks running off every edge,
+  their seams and plank ends, a quiet grain; the realm is carved into it inside one groove (north, east, south; the
+  plane took the west), Lord Edric's planed band runs across the table's full depth. `tableTop` is cut from the slab
+  pixel for pixel (unit-tested), so the screen draws the slab and lays the live picture in register. `TableLayout`
+  draws the realm at the largest whole device pixels per texel at which a 40 pt title band stays free and the realm
+  from the Moor Road's spot (x 74) to its east edge (x 292) fits between the safe area and the column: 7 device px on
+  the iPhone 17 Pro (2.33 pt per texel, 1.4 times the old 5), 8 on the Pro Max, 6 on a mini, 4 on an SE (unit-tested
+  for five phones: the slab covers the screen, the Moor Road's lantern is in the safe area). The bare west runs off
+  the screen's west edge (a 100 pt strip stays, with the cut); the Moor Road's spot moved from x 44 to x 78 and the
+  scratches' empty plinth and the lamp room's light moved into that strip; the title lies on the plain oak above the
+  carving, east of the planed edge. Art, all hand-set in `tools/tableart.py`: nine hand-drawn downs (no two alike, each
+  used at most twice and far apart) and eight woods composed crown by crown, all as relief lit from the north-west
+  (`emboss`: the north and west edges catch the light, the south and east edges fall into shade, a one-pixel
+  undercut shadow, the tops in the oak's own colour; no more red piles); a wood is one raised mass with a scalloped
+  edge and a glint and a cut per crown; the Weltmauer stands on a raised shelf with a hand-set east foot and 52 peaks
+  placed one by one (a wandering crest, two giants, guardians at the cleft, small peaks cut by the plane, low
+  foothills); the castle is 19 x 17 (was 15 x 12) with two towers, curtain wall, gate, keep and the house's flame in
+  gold leaf, its floor cleared of roads so they meet its walls, and the screen lays a slow warm light on the flame
+  (`TableFlameGlow`, still under Reduce Motion): the castle is the clear centre. The iron pins are a step lighter with
+  a bright crown, so they read as pins, not holes.
+- **H4, the homecoming is seen:** while a report waits its lantern hangs lit on its hook (`.lit`, with the screen's
+  glow) and the line under the rail says "Lantern 38 is home"; the party's carved piece stands by the castle's east
+  tower (`TableBoard.homeToken`: Pip walks); the letter lies over the realm east of the castle (from x 150 of the
+  realm to the column, inside the safe area), with the veil only under it, so the castle, its flame and the bearer
+  stay in sight (a UI test checks the castle and the piece stand west of the letter). After the answer the lantern
+  still burns on its hook; after Done it goes dark (UI-tested, shot `50-done`). The letter's line under the role
+  shows only the place now (the critic's small note: the first words of every report already say whose lantern came
+  home).
+- **H5, the open slip:** the column brings the open slip's top into view when it fits (the room left split above
+  and below it, up to 8 pt) and its end only when it does not; the open slip's title row is 44 pt (52 closed) and
+  the column's spacing a little tighter, so day 2's slip fits whole (a UI test checks its top and its Send in the
+  column). A slip whose lantern just left scrolls into view with its Call back.
+- Smaller notes of the critic, done: the iron pins, the lost hook (less soot, a bold chalk slash), the letter's
+  subtitle, "is kept for one ride". Left as they are: the one-night line full at once (the rule "full on the last day
+  before it is due" holds and is unit-tested), two parties' lines on a shared road (they share the carved road),
+  "Seen in the realm" (the join's text pass), the hall chip (still not shot).
+- The director's note of 15.11. 01:09 kept: no new parchment, wax or seal; the cards keep their words and inner
+  layout; only the letter's place and width follow the board.
+
+### Hooks into existing files
+
+None new. Same as quests-3: the `RootView` hook names `TableDebugLayer`; the screen uses the shared pieces listed
+there. `tableSlab.png` lies in `Resources/TableArt/` with the others (copied flat into the bundle).
+
+### Rounds (short rounds, English only, the gate one round, by the director's notes of 14.11. 18:46 and 19:35)
+
+- `lh-q3f1-1` on `daf3c92` (build, unit `TableBoardTests`, ui `TableUITests`): **ALL PASSED** (9 unit tests, 4 UI
+  tests). Its shots showed one bug the tests did not catch: the whole screen sat 62 pt to the right (the reader that
+  ignores the safe area still placed its content at the safe area's corner), so the column touched the screen's right
+  edge; and one Swift 6 warning (`slipMargin` read in a Sendable guide). Fixed in `2c405d0`, with a UI check that
+  Back and the column stay inside the safe area, and a just-sent slip now scrolls into view (shot 45 had left the
+  column scrolled mid-slip).
+
