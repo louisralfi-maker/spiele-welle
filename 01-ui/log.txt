@@ -1,0 +1,17 @@
+Test Case '-[LanternholdUITests.EndingsUITests testTheFinaleEndsTheChapter]' passed (69.895 seconds).
+Test Case '-[LanternholdUITests.EndingsUITests testTheThreeEndings]' passed (217.975 seconds).
+Test Case '-[LanternholdUITests.PeopleUITests testPeople]' passed (127.056 seconds).
+Test Case '-[LanternholdUITests.SlidesUITests testTheNameEntryLeadsIntoThePrologue]' passed (95.012 seconds).
+Test Case '-[LanternholdUITests.SlidesUITests testThePrologue]' passed (39.291 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheLongestAndTheLostReportFit]' passed (60.409 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheMiddleOfTheChapterFillsTheHooks]' passed (71.414 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheRailTellsWhoIsAway]' passed (38.918 seconds).
+Test Case '-[LanternholdUITests.TableUITests testTheTableSendsPipAndReadsHisReport]' passed (85.662 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TitleUITests.swift:37: error: -[LanternholdUITests.TitleUITests testTheFirstLight] : XCTAssertEqual failed: ("XCTWaiterResult(rawValue: 2)") is not equal to ("XCTWaiterResult(rawValue: 1)") - the touch starts the game
+Test Case '-[LanternholdUITests.TitleUITests testTheFirstLight]' failed (56.998 seconds).
+Test Suite 'TitleUITests' failed at 2026-11-15 11:51:03.067.
+Test Case '-[LanternholdUITests.TownLifeUITests testTheTownLivesByItsPeople]' passed (212.216 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-15 11:54:35.293.
+Test Suite 'Selected tests' failed at 2026-11-15 11:54:35.294.
+exit=65
+screenshots: 57
