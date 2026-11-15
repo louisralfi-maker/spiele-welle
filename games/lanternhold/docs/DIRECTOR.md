@@ -560,3 +560,25 @@ schneller geht."
   - **The rule for build 2:** round 5 is the last full round before the join. If the four slides are 7.5 or more by
     the director's look, they go in and one short round checks them; what is still weak waits for build 3.
   - Quota at 04:12: 12 % of the week, 3 % of the Fable part.
+- **The town lanes' workflow is over (15.11.2026, 04:15; 16 agents).** Branch `claude/lh-town` at `2584730`,
+  `claude/lh-craft` at `cc9bf4b`. The critics' last looks:
+  - **Taxes in Core (town-1): passed, 8.** One high stays: the first morning is met only in Core. The chandler
+    waits at his own door, far behind the throne, so a first-time player never sees the toss, the purse opens on
+    44 and the first dawn says "Taxes 0".
+  - **The tax screen (town-2): 7.5, not passed.** Three highs: the lord covers the household's bow at the knock;
+    the coins land in the lantern's glow and not in a hand; the collector walks on while the coins fly.
+  - **The growing town in Core (town-3): passed, 8.5.** It is switched off for build 2 (`TownRules.growthOpen`).
+    Its one high goes to the front lane for build 3: the first line alone holds 19 nights untouched, so skipping
+    the walls costs nothing until night 20 (T13 and T14; then T12 asks that the skipper's hearth is struck by
+    night 14).
+  - **The craftsmen (craft-1): passed, 8.** Build 3. Two text highs wait for its second round: the mason's living
+    lord in stone is made deliberate in Odile's hint (this house sets its lords in stone only when dead), and the
+    fire arrow's reaction says "strikes a little harder" as the offer does.
+  - **The director's decisions.** Taxes on foot is Monday's centrepiece, so one Opus fix agent runs on
+    `claude/lh-town` since 04:17 (fix 2): the lord steps back at the knock, the coins land in an open palm at belt
+    height, the collector stands 1.5 s at a door with a strongbox, and **on the first morning the chandler walks to
+    the courtyard and waits on the lord's way**, so the first minute of build 2 shows the toss. Places are named
+    by anchors, because the world lane rebuilds the castle. The word "pouch" leaves TOWN.md (an open palm with a
+    coin, as built). The extra coin "for the lantern" is not in build 2; it waits for build 3 with the growing
+    town. Gate: one short round `lh-t2f2-<n>` and the director's own look at a sheet of four crops
+    (`ci-out/director/town/fix2-sheet.jpg`).
