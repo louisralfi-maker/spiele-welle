@@ -1,0 +1,1 @@
+scene: frame:3920 ready day:3 hour:15.85 alive:0 seen:0 lit:0 shots:0 aim:0 kx:2204 lord:lord stage:world lx:2204 errand:none door:1830 gold:91 hud:none cam:2051 tap:touch-talk-tamsin hint:off0
