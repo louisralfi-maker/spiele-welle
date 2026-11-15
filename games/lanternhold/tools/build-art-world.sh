@@ -54,8 +54,9 @@ W3F2="throatButtress beaconTower beaconRuinRim beaconBaseRim beaconTowerRim grea
 # painting (tools/w3f2art.py and its sources), so this case comes first.
 W3F3="beaconTower beaconTowerRim beaconRuinRim beaconBaseRim greatBeaconRim gateRockL gateRockR oldWall1 castleFront3 castleFront3Build bakehouse"
 # Build 3, POLISH pass 1 (docs/POLISH.md 2; lane 3): what the wind moves. The windmill at the valley's end and its
-# sails (tools/worldart.py mill: windmillTower writes both).
-WIND="windmillTower"
+# sails (tools/worldart.py mill: windmillTower writes both); the keep's flag (tools/bannerart.py wind). The keep's
+# sprites and rims (keepfix.py, CASTLE above) hold only the flags' poles since.
+WIND="windmillTower keepFlag"
 R=games/lanternhold/tools/retired-art
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
@@ -85,6 +86,8 @@ build() { # name: one sprite (or one group of small ones)
     case $1 in
     windmillTower|windmillSails)   # build 3, POLISH pass 1: the windmill and its sails' strip
         wa mill $A ;;
+    keepFlag)   # build 3, POLISH pass 1: the keep's flag, four frames
+        python3 -I -B games/lanternhold/tools/bannerart.py wind $1 --out $A ;;
     beaconTower|beaconTowerRim|beaconRuinRim|beaconBaseRim|greatBeaconRim|gateRockL|gateRockR|oldWall1|castleFront3|castleFront3Build|bakehouse)
         # world-3 fix round 3 (15.11.2026): the critic's look 3 (tools/w3f3art.py)
         python3 -I -B games/lanternhold/tools/w3f3art.py build $1 --out $A ;;

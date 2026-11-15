@@ -13,10 +13,16 @@ do not have.
   bannerart.py build <id> [--out DIR]     writes DIR/<id>.png (default games/lanternhold/Resources/Art)
   bannerart.py list                       the ids, for build-art-court.sh
   bannerart.py place                      the five places in hallInterior (sprite left, top), for SPRITES.md
+  bannerart.py wind <id> [--out DIR]      build 3, POLISH pass 1 (docs/POLISH.md 2; lane 3): what flies in the wind,
+                                          as frames side by side (build-art-world.sh):
+      keepFlag      16x21, 4 frames: the realm's flag on the keep's poles (teal, the guardian house's gold lantern
+                    near the hoist, a swallowtail), limp, stirring, flying, snapping (`Weather.flagFrame`). Column 0
+                    is the cloth's hoist, one pixel right of the pole; row 0 its top, one row under the pole's top.
 
 Pure python 3 (pixelart.py's PNG and palette code), deterministic, well under a second per banner.
 """
 import argparse
+import math
 import os
 import sys
 
@@ -149,6 +155,74 @@ def build(bid, pal):
     return img
 
 
+# ------------------------------------------------------------------------------------------------ in the wind
+# Build 3, POLISH pass 1: the keep's flag. The cloth is a sheet hung from the hoist: a centreline from the hoist's top
+# whose direction droops and waves along it, the hoist's height laid straight down from every point of it (a sheared
+# sheet, right for a flag seen side on); the folds take the light by the wave's slope.
+FLAG_W, FLAG_H = 16, 21
+FLAG_HOIST = 7
+# per frame: the cloth's length, its droop at the hoist and the droop added toward the fly (degrees, down from level),
+# the wave's amplitude (degrees), its waves along the cloth and its phase
+FLAG_POSES = [
+    (13.0, 56.0, 16.0, 12.0, 1.9, 0.0),      # 0 limp: the cloth hangs down beside the pole in folds
+    (13.0, 26.0, 24.0, 9.0, 1.1, 0.6),       # 1 stirring: lifted, its fly sagging
+    (14.0, 8.0, 2.0, 15.0, 1.25, 0.0),       # 2 flying: a soft wave runs along it
+    (14.5, 1.0, 0.0, 15.0, 1.6, 3.1416),     # 3 snapping: taut, the wave tighter and shifted half a length
+]
+FLAG_LANTERN = [".g.", "ggg", "gfg", "ggg"]  # the guardian house's lantern: its ring, its hood, the flame, its foot
+
+
+def flag_frame(pal, k):
+    length, droop, sag, amp, waves, phase = FLAG_POSES[k]
+    c = lambda nm: pal.rgb[pal.index(nm)] + (255,)
+    img = Image(FLAG_W, FLAG_H)
+    seen = {}
+    steps = int(length * 6)
+    x, y = 0.0, 0.0
+    for i in range(steps + 1):
+        s = i / float(steps)
+        bend = amp * (0.35 + 0.65 * s) * math.sin(2 * math.pi * waves * s + phase)
+        a = math.radians(droop + sag * s + bend)
+        slope = math.cos(2 * math.pi * waves * s + phase) if amp else 0.0   # > 0: the cloth turns down here
+        for j in range(FLAG_HOIST * 6 + 1):
+            t = j / float(FLAG_HOIST * 6)
+            if s > 1 - 0.16 * (1 - abs(2 * t - 1)):                       # the swallowtail
+                continue
+            px, py = int(math.floor(x)), int(math.floor(y + t * (FLAG_HOIST - 0.01)))
+            if 0 <= px < FLAG_W and 0 <= py < FLAG_H:
+                seen[(px, py)] = (s, t, slope)
+        x += (length / steps) * math.cos(a)
+        y += (length / steps) * math.sin(a)
+    ramp = ["roofDeep", "banner", "roofLight"]
+    for (px, py), (s, t, slope) in seen.items():
+        v = 2 if slope < -0.7 else 0 if slope > 0.82 else 1
+        if t < 0.12:                      # the hem along the top catches the light
+            v = min(2, v + 1)
+        if t > 0.86 or s > 0.96:          # the lower edge and the fly in shade
+            v = max(0, v - 1)
+        name = ramp[v]
+        if 0.16 <= s < 0.40 and 0.2 <= t < 0.8:
+            ch = FLAG_LANTERN[min(3, int((t - 0.2) / 0.15))][min(2, int((s - 0.16) / 0.08))]
+            if ch != ".":
+                name = "gold" if ch == "g" else "fireGold"
+        img.set(px, py, c(name))
+    return img
+
+
+def wind_strip(wid, pal):
+    if wid != "keepFlag":
+        raise SystemExit(f"unknown wind sprite {wid}")
+    frames = [flag_frame(pal, k) for k in range(len(FLAG_POSES))]
+    out = Image(FLAG_W * len(frames), FLAG_H)
+    for k, f in enumerate(frames):
+        for yy in range(FLAG_H):
+            for xx in range(FLAG_W):
+                p = f.get(xx, yy)
+                if p[3]:
+                    out.set(k * FLAG_W + xx, yy, p)
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -157,7 +231,17 @@ def main():
     b.add_argument("--out", default=os.path.join(HERE, "..", "Resources", "Art"))
     sub.add_parser("list")
     sub.add_parser("place")
+    w = sub.add_parser("wind")
+    w.add_argument("id")
+    w.add_argument("--out", default=os.path.join(HERE, "..", "Resources", "Art"))
     a = ap.parse_args()
+    if a.cmd == "wind":
+        pal = Palette(DEFAULT_PALETTE, True)
+        os.makedirs(a.out, exist_ok=True)
+        img = wind_strip(a.id, pal)
+        write_png(os.path.join(a.out, a.id + ".png"), img)
+        print(f"wrote {a.id}.png {img.w}x{img.h}")
+        return
     if a.cmd == "list":
         print(" ".join(BANNERS))
         return

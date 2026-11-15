@@ -195,6 +195,10 @@ extension SceneLayout {
         let keep = castleKeepSprite(stage)
         list.append((.near, Entry(sprite: keep, x: castleKeepX, y: 0, z: 5, region: .castle,
                                   emitters: castleKeepEmitters(stage), movesWith: .mistBand)))
+        // Build 3, POLISH pass 1 (lane 3): its flags fly from its poles in the wind (`castleKeepFlags`, `WindLook`).
+        for flag in castleKeepFlags(stage, keepX: castleKeepX) {
+            list.append((.near, flag))
+        }
         // Fix round 1 (blocker 1: "no mist at its foot"): a feathered bank of mist on the mistBand plane, its billows
         // standing over the curtain's crenels at dawn, dusk and night.
         // On fog A (in front of the near plane's picture, behind the world's), so it takes the hour's fog colour and

@@ -13,6 +13,36 @@ extension SceneLayout {
     static let look2WindmillHub = (dx: 13.0, dy: 34.0)
     static let look2WindmillSailsHub = 23.0
 
+    // MARK: The keep's flags (item 1)
+
+    /// The keep's poles (tools/keepfix.py `MAIN_POLE_X`, `MAIN_POLE`, `TURRET`, `TURRET_POLE`): the pole's column in
+    /// the keep's sprite and its top as a height above the ground line. The great pole on the ridge stands at every
+    /// stage but tier 2 under way (its roof is off), as high as the tier drawn (tier 3 under way stands on tier 2's
+    /// roof); the stair turret's pole at tier 2.
+    static func castleKeepPoles(_ stage: CastleStage) -> [(dx: Double, top: Double)] {
+        if stage.building && stage.tier == 2 { return [] }
+        let top: Double
+        switch (stage.tier, stage.building) {
+        case (1, _): top = 140
+        case (3, false): top = 170
+        default: top = 156
+        }
+        var poles: [(dx: Double, top: Double)] = [(dx: 160, top: top)]
+        if stage.tier == 2 && !stage.building {
+            poles.append((dx: 30, top: 162))
+        }
+        return poles
+    }
+
+    /// The keep's flags (`keepFlag`), one on each pole: in the near plane's picture and moving with the mist band like
+    /// the keep, drawn after it; the cloth's hoist one column right of the pole, its top row under the pole's top.
+    static func castleKeepFlags(_ stage: CastleStage, keepX: Double) -> [Entry] {
+        castleKeepPoles(stage).map { pole in
+            Entry(sprite: .keepFlag, x: keepX + pole.dx + 1, y: pole.top - Double(SpriteID.keepFlag.size.height),
+                  z: 5, region: .castle, movesWith: .mistBand)
+        }
+    }
+
     /// The tower, then its sails over it (the sails turn in front of the tower and its cap).
     static let look2Wind: [(plane: Plane, entry: Entry)] = [
         (.mid, Entry(sprite: .windmillTower, x: look2WindmillX, y: look2WindmillY, z: 1, region: .valley)),

@@ -454,6 +454,84 @@ final class WeatherTests: XCTestCase {
         XCTAssertTrue(towerFrame.layer(.mid).sprites.filter { $0.sprite == .windmillSails }.allSatisfy { !$0.flipped })
     }
 
+    func testTheKeepsFlagsFlyFromItsPoles() throws {
+        let stages: [(CastleStage, Int)] = [(CastleStage(tier: 1), 1), (CastleStage(tier: 2), 2),
+                                            (CastleStage(tier: 2, building: true), 0), (CastleStage(tier: 3), 1),
+                                            (CastleStage(tier: 3, building: true), 1)]
+        let layout = AtlasLayout.shared
+        let size = SpriteID.keepFlag.size
+        for (stage, count) in stages {
+            let world = PlaceholderScene.world(look: .two, castle: stage)
+            let keep = try XCTUnwrap(world.props.first { SceneLayout.keepTops.contains($0.sprite) }, "\(stage)")
+            let flags = world.props.filter { $0.sprite == .keepFlag }
+            XCTAssertEqual(flags.count, count, "\(stage): a flag on every pole")
+            let poles = SceneLayout.castleKeepPoles(stage)
+            XCTAssertEqual(poles.count, count)
+            for (flag, pole) in zip(flags, poles) {
+                XCTAssertEqual(flag.plane, .near, "\(stage)")
+                XCTAssertEqual(flag.movesWith, .mistBand, "\(stage): it moves with the keep")
+                XCTAssertGreaterThan(flag.id, keep.id, "\(stage): drawn after the keep")
+                XCTAssertEqual(flag.x, keep.x + pole.dx + 1, "\(stage): its hoist beside the pole")
+                XCTAssertEqual(flag.y + Double(size.height), pole.top, "\(stage): its top under the pole's top")
+                // The keep's own painting holds the pole and its gold point, and no cloth beside it any more.
+                let cell = layout.cell(keep.sprite, frame: 0)
+                let row = cell.height - 1 - Int(pole.top)
+                let column = Int(pole.dx)
+                XCTAssertGreaterThan(layout.image[cell.x + column, cell.y + row].a, 0, "\(stage): the pole")
+                XCTAssertGreaterThan(layout.image[cell.x + column, cell.y + row - 1].a, 0, "\(stage): its point")
+                for dy in 1...7 {
+                    for dx in 1...14 {
+                        XCTAssertEqual(layout.image[cell.x + column + dx, cell.y + row + dy].a, 0,
+                                       "\(stage): no painted cloth at \(dx), \(dy)")
+                    }
+                }
+            }
+        }
+        XCTAssertEqual(layout.cells[.keepFlag]?.count, 4, "limp, stirring, flying, snapping")
+        XCTAssertEqual(layout.sources[.keepFlag], .png)
+        XCTAssertEqual(layout.sources[.windmillTower], .png)
+        XCTAssertEqual(layout.sources[.windmillSails], .png)
+        XCTAssertEqual(layout.cells[.windmillSails]?.count, Weather.sailFrames)
+    }
+
+    func testTheKeepsFlagStreamsDownwindAndStandsInStillAir() throws {
+        let world = PlaceholderScene.world(look: .two, castle: CastleStage(tier: 2))
+        func flags(_ override: WeatherOverride, time: Double, reduceMotion: Bool = false) -> [SpriteInstance] {
+            let weather = Weather.sample(seed: 3, day: 12, hour: 12, time: time, override: override,
+                                         reduceMotion: reduceMotion)
+            return windFrame(world, focus: 1830, weather: weather, time: time, reduceMotion: reduceMotion)
+                .layer(.near).sprites.filter { $0.sprite == .keepFlag }
+        }
+        let still = flags(WeatherOverride(mode: .clear), time: 4)
+        XCTAssertEqual(still.count, 2, "both flags in view from the hall door")
+        XCTAssertTrue(still.allSatisfy { $0.frame == 0 && !$0.flipped }, "still air: limp, as drawn")
+        XCTAssertTrue(flags(WeatherOverride(mode: .clear, wind: 0.08), time: 4).allSatisfy { $0.frame == 0 })
+        var snapped = Set<Int>()
+        var apart = false
+        for index in 0..<40 {
+            let storm = flags(WeatherOverride(mode: .storm), time: 4 + Double(index) * 0.05)
+            XCTAssertTrue(storm.allSatisfy { $0.frame >= 2 && !$0.flipped }, "a storm toward the valley flies them")
+            snapped.formUnion(storm.map(\.frame))
+            if storm.count == 2 && storm[0].frame != storm[1].frame { apart = true }
+        }
+        XCTAssertEqual(snapped, [2, 3])
+        XCTAssertTrue(apart, "the two flags never move in step")
+        // A wind from the valley: mirrored on the pole's other side, 17 columns to the left.
+        let west = flags(WeatherOverride(mode: .clear, wind: -0.5), time: 4)
+        XCTAssertEqual(west.count, 2)
+        for (blown, hanging) in zip(west, still) {
+            XCTAssertTrue(blown.flipped)
+            XCTAssertEqual(blown.rect.x, hanging.rect.x - Float(SpriteID.keepFlag.size.width + 1))
+            XCTAssertEqual(blown.rect.y, hanging.rect.y)
+        }
+        // Reduce Motion: they stand in the steady wind's pose.
+        let poses = (0..<20).map { index in
+            flags(WeatherOverride(mode: .storm), time: 4 + Double(index) * 0.13, reduceMotion: true).map(\.frame)
+        }
+        XCTAssertEqual(Set(poses).count, 1)
+        XCTAssertEqual(poses.first, [3, 3])
+    }
+
     func testTheFiresLeanAndGutterWithTheWind() {
         XCTAssertEqual(Weather.fireLean(x: 1500, .clear, time: 2), 0)
         let storm = fixed(WeatherOverride(mode: .storm))

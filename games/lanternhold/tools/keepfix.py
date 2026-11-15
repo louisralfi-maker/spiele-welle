@@ -10,6 +10,10 @@ reproduces its files byte for byte):
         round stair turret and its stair hall on the west (the corner the front gate sees: crenels, then a flag, then a
         cone), deep window reveals, shadows under every string course and corbel table, a brazier on the wall walk;
         the building states with heavy timber and a crane whose jib stands over the roof (high 8)
+        Build 3, POLISH pass 1 (lane 3): the flags fly in the wind as a prop of their own (`keepFlag`,
+        tools/bannerart.py wind; `SceneLayout.castleKeepFlags`), so the keep keeps only their poles: the great pole on
+        the ridge at every tier but tier 2 under way (its roof is off; tier 1 has one now too, `MAIN_POLE`), the stair
+        turret's pole at tier 2
   keepRimT1 .. keepRimT3Build  260x175  emissive: the keep's warm rim on its west edges at dusk (blocker 1)
   keepMist          320x32   the feathered mist bank on the mistBand plane at the keep's foot (dawn, dusk, night)
   keepPaneHalo      11x14    emissive: the soft warm bloom around a lit twin window of the keep
@@ -324,6 +328,11 @@ TIERS = {
     2: dict(tower=126, wall=118, ridge=140, chimney=136, turret=136, hall=108),
     3: dict(tower=126, wall=118, ridge=140, chimney=136, turret=126, hall=108),
 }
+# Build 3, POLISH pass 1: the top of the great pole on the ridge (height above the ground line) by the tier drawn; the
+# flag hangs from the row under it. The stair turret's pole at tier 2 stands at TURRET's middle, its top at TURRET_POLE.
+MAIN_POLE = {1: 140, 2: 156, 3: 170}
+MAIN_POLE_X = OX + 100
+TURRET_POLE = 162
 KTOWERS = ((64, 97), (222, 255))     # the round corner towers
 KBODY = (98, 221)                    # the main block between them
 TURRET = (15, 45)                    # the stair turret on the west (centre col 30)
@@ -406,8 +415,7 @@ def keep_turret(c, t, tier, seed, building):
     kparapet(c, x0 - ext, x1 + ext, top + 4, rows=3, drum_x=(x0 - ext, x1 + ext))
     kmerlons(c, x0 - ext, x1 + ext, top + 7, mh=5, mw=5, gap=3, phase=1, drum_x=(x0 - ext, x1 + ext))
     if tier >= 2 and not building:
-        K.pole(c, cx, c.r(162), c.r(top + 7))
-        K.flag(c, cx, c.r(161), 13, h=6)
+        K.pole(c, cx, c.r(TURRET_POLE), c.r(top + 7))   # its flag flies as a prop of its own (build 3)
 
 
 def keep_hall(c, t, seed):
@@ -604,11 +612,10 @@ def keep(tier, building=False):
         # the realm's banners hung in the outer bays: the house shows its colours once it can afford the cloth
         K.banner(c, OX + 47, c.r(90), 7, 15)
         K.banner(c, OX + 146, c.r(90), 7, 15)
-    if tier >= 2 and not building:
-        tall = tier == 3
-        ptop = c.r(170 if tall else 156)
-        K.pole(c, OX + 100, ptop, c.r(t["ridge"] - 1))
-        K.banner(c, OX + 101, ptop + 1, 9 if tall else 7, 22 if tall else 15)
+    if not (building and tier == 2):
+        # build 3: the great pole at every tier with a roof (tier 3 under way stands on tier 2's); its flag flies as a
+        # prop of its own
+        K.pole(c, MAIN_POLE_X, c.r(MAIN_POLE[3 if tier == 3 and not building else shown]), c.r(t["ridge"] - 1))
     if building:
         nt = TIERS[tier]
         if tier == 2:
@@ -628,8 +635,6 @@ def keep(tier, building=False):
                 cx = (x0 + x1) // 2
                 timber_cone(c, cx, c.r(t["tower"] + 4), 20, 18)
                 heavy_scaffold(c, x0 - 4, x1 + 4, t["tower"] - 8, t["tower"] + 4, seed + x0)
-            K.pole(c, OX + 100, c.r(156), c.r(t["ridge"] - 1))
-            K.banner(c, OX + 101, c.r(156) + 1, 7, 15)
     K.outline(c, sides=("right",), name="stoneDark")
     return c.im
 
