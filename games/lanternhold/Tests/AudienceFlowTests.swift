@@ -96,7 +96,6 @@ final class AudienceFlowTests: XCTestCase {
         // Town-2: the lectern stays as furniture; nothing offers the tax card any more (taxes on foot), in the
         // world's old slot nor in the hall beside the throne.
         let lectern = model(["GWCameraX": "\(KingTargets.lecternX)"])
-        XCTAssertNotEqual(lectern.target, .lectern, "the lectern is furniture")
         let hall = model(["GWStage": "hall", "GWReduceMotion": "YES"])
         hall.performAction()
         hall.choosePetition(0)
@@ -104,9 +103,10 @@ final class AudienceFlowTests: XCTestCase {
         XCTAssertNil(hall.overlay, "the farmer was heard")
         hall.hall?.walker = HallWalker(x: HallLayout.lecternX, facing: -1)
         hall.refreshAction()
-        XCTAssertNotEqual(hall.target, .lectern, "the hall's lectern is furniture too")
+        hall.performAction()
+        XCTAssertFalse(hall.overlay?.isCard ?? false, "the hall's lectern is furniture too")
         lectern.performAction()
-        XCTAssertNotEqual(lectern.overlay, .taxes, "no tax card")
+        XCTAssertFalse(lectern.overlay?.isCard ?? false, "no card at the lectern")
     }
 
     func testThePauseEndsTheAudienceAndReduceMotionOpensTheCardAtOnce() throws {

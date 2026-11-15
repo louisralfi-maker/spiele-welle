@@ -4,7 +4,7 @@ import XCTest
 
 /// The models behind the action button and the cards (M2b part 2): what the button offers where the king stands
 /// (`KingTargets`), the build card (`BuildCard`: options, prices, times, greyed and locked, the arrows), the barracks
-/// (`RecruitCard`) and the tax lectern (`TaxCard`).
+/// (`RecruitCard`).
 final class CardModelTests: XCTestCase {
     private let balance = Balance.standard
 
@@ -233,25 +233,5 @@ final class CardModelTests: XCTestCase {
         s.citizens = s.soldiers.count
         card = RecruitCard.make(s, balance: balance)
         XCTAssertTrue(card.options.allSatisfy { $0.availability == .noOneLeft })
-    }
-
-    func testTheTaxLecternForecastsEachRate() {
-        var s = morning()
-        var card = TaxCard.make(s, balance: balance)
-        XCTAssertEqual(card.options.map(\.rate), [.low, .normal, .high, .war])
-        XCTAssertEqual(card.options.map(\.percent), [60, 100, 140, 180])
-        XCTAssertEqual(card.options.map(\.happiness), [3, 0, -7, -10])
-        XCTAssertEqual(card.current, .normal)
-        XCTAssertEqual(card.options.filter(\.isCurrent).map(\.rate), [.normal])
-        XCTAssertEqual(card.options[3].lockedUntil, Realm.warTaxDay)
-        XCTAssertNil(card.options[2].lockedUntil)
-        let forecasts = card.options.map(\.forecast)
-        XCTAssertEqual(forecasts, forecasts.sorted(), "higher rates bring more")
-        XCTAssertEqual(forecasts[1], Economy.taxes(s, happiness: s.happiness, balance: balance).total)
-        s.warTaxUnlocked = true
-        XCTAssertTrue(Economy.setTax(&s, .war))
-        card = TaxCard.make(s, balance: balance)
-        XCTAssertNil(card.options[3].lockedUntil)
-        XCTAssertEqual(card.current, .war)
     }
 }

@@ -247,8 +247,6 @@ final class HallStageTests: XCTestCase {
         XCTAssertEqual(HallRules.worldTarget(s, balance: .standard), .hallDoor, "the door, not the throne")
         s.king.x = HallLayout.worldDoorX + 21
         XCTAssertEqual(HallRules.worldTarget(s, balance: .standard), .hallDoor)
-        s.king.x = KingTargets.lecternX
-        XCTAssertNotEqual(HallRules.worldTarget(s, balance: .standard), .lectern, "the lectern is inside")
         s.king.x = KingTargets.barracksX
         XCTAssertEqual(HallRules.worldTarget(s, balance: .standard), .recruit)
         s.hour = 22
@@ -271,10 +269,6 @@ final class HallStageTests: XCTestCase {
         XCTAssertEqual(HallTargets.target(s, x: 404, figures: figures, lines: .standard, balance: .standard), .throne)
         XCTAssertEqual(HallTargets.target(s, x: HallLayout.lecternX, figures: figures, lines: .standard,
                                           balance: .standard), .throne, "while people wait the throne owns the dais")
-        var heard = s
-        heard.court?.queue = []
-        XCTAssertNotEqual(HallTargets.target(heard, x: HallLayout.lecternX, figures: figures, lines: .standard,
-                                             balance: .standard), .lectern, "town-2: the lectern is furniture")
         XCTAssertEqual(HallTargets.target(s, x: HallLayout.doorX, figures: figures, lines: .standard,
                                           balance: .standard), .hallDoor)
         XCTAssertNil(HallTargets.target(s, x: 240, figures: figures, lines: .standard, balance: .standard))

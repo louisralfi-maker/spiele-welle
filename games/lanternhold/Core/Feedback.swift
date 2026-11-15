@@ -11,7 +11,7 @@ enum FeedbackCue: String, Sendable, Equatable, Hashable, CaseIterable {
     // The day and night
     case horn, firstLight, taxesCounted
     // The king's work
-    case buildOrdered, buildDone, recruited, patched, brazierLit, taxSet
+    case buildOrdered, buildDone, recruited, patched, brazierLit
     // The cards
     case cardOpened, cardClosed, refused, happinessUp, happinessDown
     // Sound and haptics (`SoundWatch` reads them off the realm's state; the court's audience and choices)
@@ -115,7 +115,7 @@ struct FeedbackThinner: Sendable, Equatable {
         switch cue {
         case .defeat, .kingSlain, .beaconLit, .horn, .firstLight, .taxesCounted: return 0
         case .wallBroken, .soldierFell, .kingAuraBroken, .hearthHit, .stomp, .gate: return 1
-        case .buildOrdered, .buildDone, .recruited, .patched, .brazierLit, .taxSet, .coin, .paid: return 2
+        case .buildOrdered, .buildDone, .recruited, .patched, .brazierLit, .coin, .paid: return 2
         case .ballista, .catapult, .glancedOff, .wallHit: return 3
         default: return 4
         }

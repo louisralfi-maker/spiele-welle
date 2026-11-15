@@ -27,12 +27,11 @@ final class GameModel {
         case lightLab
     }
 
-    /// What covers the world (DESIGN.md "Screens"): the build card above a plot, the barracks' recruit card, the tax
-    /// lectern at the throne, the dawn report, the defeat card, the pause sheet.
+    /// What covers the world (DESIGN.md "Screens"): the build card above a plot, the barracks' recruit card, the dawn
+    /// report, the defeat card, the pause sheet (town-2: the tax lectern's card is gone, taxes are paid on foot).
     enum Overlay: Sendable, Equatable {
         case build(plot: Int)
         case recruit
-        case taxes
         case report(DawnReport)
         case defeat
         case pause
@@ -41,10 +40,10 @@ final class GameModel {
         /// The lord pass: a new realm asks for the lord's name and Burgherr or Burgherrin (`GameModel+Lord.swift`).
         case lordEntry
 
-        /// The three cards opened by the action button (they close with a tap beside them).
+        /// The two cards opened by a touch on a thing (they close with a tap beside them).
         var isCard: Bool {
             switch self {
-            case .build, .recruit, .taxes: return true
+            case .build, .recruit: return true
             default: return false
             }
         }
@@ -55,7 +54,7 @@ final class GameModel {
         var isScreen: Bool {
             switch self {
             case .report, .defeat, .pause, .lordEntry: return true
-            case .build, .recruit, .taxes, .audience: return false
+            case .build, .recruit, .audience: return false
             }
         }
     }
@@ -591,7 +590,7 @@ final class GameModel {
     }
 
     /// The action button: in the probe it lights or snuffs the brazier in reach; in the game it opens the card of
-    /// what is in front of the king (a plot's build card, the barracks, the tax lectern) or, from the horn to dawn,
+    /// what is in front of the king (a plot's build card, the barracks) or, from the horn to dawn,
     /// lights a snuffed brazier or patches a damaged wall.
     func performAction() {
         switch kind {
@@ -621,9 +620,6 @@ final class GameModel {
             if !AudienceRules.hall(game.state, catalog: .standard).isEmpty {
                 openAudience(.throne)
             }
-        case .lectern:
-            // Town-2: the lectern stays as furniture; nothing offers it (`KingTargets`, `TouchThings`).
-            break
         case .hallDoor:
             // The hall stage: in by the hall's door (`HallDoor`), or out by the inner door.
             if stage == .hall { leaveHall() } else { enterHall() }
@@ -749,22 +745,6 @@ final class GameModel {
         driver = game
         revision += 1
         if done { handle(recruitEvents, state: game.state) } else { feedback.play(.refused) }
-        refreshHUD()
-    }
-
-    var taxCard: TaxCard? {
-        guard overlay == .taxes, let game = driver else { return nil }
-        _ = revision
-        return TaxCard.make(game.state, balance: game.balance)
-    }
-
-    /// Sets the tax at the lectern (the war tax once it is unlocked).
-    func setTax(_ rate: TaxRate) {
-        guard overlay == .taxes, var game = driver else { return }
-        let done = Economy.setTax(&game.state, rate)
-        driver = game
-        revision += 1
-        feedback.play(done ? .taxSet : .refused)
         refreshHUD()
     }
 

@@ -13,10 +13,8 @@
 enum KingTarget: Sendable, Equatable {
     case build(plot: Int)
     case recruit
-    /// The throne: the audience while petitioners wait in the hall, else the tax card (M3).
+    /// The throne: the audience while petitioners wait in the hall (M3; town-2: no tax card any more).
     case throne
-    /// The tax lectern beyond the hearth, its own place (M3).
-    case lectern
     /// A court member or guest to talk to, by day (M3).
     case talk(who: String)
     /// The Stranger asking at the front gate (M3).
@@ -154,7 +152,7 @@ enum KingTargets {
             return nil
         case .light:
             return s.king.lightingPlot >= 0 ? .busy : nil
-        case .build, .recruit, .throne, .lectern, .talk, .stranger, .hallDoor, .bench:
+        case .build, .recruit, .throne, .talk, .stranger, .hallDoor, .bench:
             return nil
         }
     }
@@ -168,8 +166,6 @@ enum KingTargets {
             return barracksX
         case .throne:
             return throneX
-        case .lectern:
-            return lecternX
         case .stranger:
             return CourtLayout.strangerAtGate
         case .talk(let who):

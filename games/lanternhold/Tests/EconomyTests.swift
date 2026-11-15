@@ -145,13 +145,4 @@ final class EconomyTests: XCTestCase {
         XCTAssertEqual(people.left, 1)
         XCTAssertEqual(s.citizens, 13)
     }
-
-    func testWarTaxOnlyOnceUnlocked() {
-        var s = realm()
-        XCTAssertFalse(Economy.setTax(&s, .war))
-        XCTAssertEqual(s.tax, .normal)
-        s.warTaxUnlocked = true
-        XCTAssertTrue(Economy.setTax(&s, .war))
-        XCTAssertEqual(s.tax, .war)
-    }
 }

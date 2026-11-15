@@ -139,7 +139,6 @@ final class TouchWorldTests: XCTestCase {
         // stands away from the sites.
         list.append(thing("wall-a", kind: .wall, x: 255, half: 15, top: 40))
         list.append(thing("wall-b", kind: .wall, x: 259, half: 15, top: 40))
-        list.append(thing("lectern", kind: .lectern, x: 101))
         list.append(thing("odile", kind: .talk, x: 300))
         list.append(thing("door", kind: .door, x: 340))
         var quiet = thing("tamsin", kind: .talk, x: 102)
@@ -151,7 +150,6 @@ final class TouchWorldTests: XCTestCase {
         XCTAssertEqual(marked.filter { $0.kind == .plot }.count, TouchRules.maxSiteMarks, "two sites at most")
         XCTAssertEqual(marked.first?.id, "plot-0")
         XCTAssertTrue(marked.contains { $0.id == "odile" }, "then the next nearest of another kind")
-        XCTAssertFalse(marked.contains { $0.id == "lectern" }, "the lectern has no mark")
         XCTAssertFalse(marked.contains { $0.id == "tamsin" }, "nothing new to say, no mark")
         XCTAssertTrue(TouchRules.marked(list, lordX: 100, viewLeft: 500, viewRight: 900).isEmpty, "none out of view")
         // Two tags side by side: the farther gives way.

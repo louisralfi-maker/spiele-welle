@@ -192,9 +192,8 @@ final class GameScreensTests: XCTestCase {
         crown.standUp()
         XCTAssertNil(crown.overlay)
         let lectern = model(["GWCameraX": "\(KingTargets.lecternX)"])
-        XCTAssertNotEqual(lectern.target, .lectern)
         lectern.performAction()
-        XCTAssertNotEqual(lectern.overlay, .taxes)
+        XCTAssertFalse(lectern.overlay?.isCard ?? false)
         // The join: in the hall too, once nobody waits, the lectern beside the throne offers nothing (taxes on foot).
         let throne = model(["GWStage": "hall", "GWReduceMotion": "YES"])
         throne.performAction()
@@ -202,9 +201,8 @@ final class GameScreensTests: XCTestCase {
         throne.nextPetitioner()
         throne.hall?.walker = HallWalker(x: HallLayout.lecternX, facing: -1)
         throne.refreshAction()
-        XCTAssertNotEqual(throne.target, .lectern, "the lectern is furniture")
         throne.performAction()
-        XCTAssertNotEqual(throne.overlay, .taxes)
+        XCTAssertFalse(throne.overlay?.isCard ?? false, "the lectern is furniture")
     }
 
     func testTheDawnBringsTheReportAndContinueStartsTheDay() throws {

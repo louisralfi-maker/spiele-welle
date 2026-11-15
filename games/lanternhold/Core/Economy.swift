@@ -142,13 +142,4 @@ enum Economy {
         return DawnPeople(taxes: taxes, changes: changes, happinessBefore: before, happinessAfter: after, grown: grown,
                           left: left, volunteer: volunteer, town: town)
     }
-
-    /// Sets the old lectern's rate (the card town-2 takes away); war tax only once it is unlocked. Since the taxes went
-    /// on foot nothing in the economy reads it. Returns false when refused.
-    @discardableResult
-    static func setTax(_ state: inout GameState, _ tax: TaxRate) -> Bool {
-        if tax == .war && !state.warTaxUnlocked { return false }
-        state.tax = tax
-        return true
-    }
 }

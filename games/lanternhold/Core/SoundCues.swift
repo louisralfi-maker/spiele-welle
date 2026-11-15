@@ -99,7 +99,6 @@ extension FeedbackCue {
         case .recruited: return SoundPlay(id: .seal, volume: 0.6)
         case .patched: return SoundPlay(id: .buildStart, volume: 0.6, rate: 1.1)
         case .brazierLit: return SoundPlay(id: .lantern, volume: 0.75)
-        case .taxSet: return SoundPlay(id: .coin, volume: 0.6)
         case .cardOpened: return SoundPlay(id: .tap, volume: 0.55)
         case .cardClosed: return SoundPlay(id: .tap, volume: 0.45, rate: 0.85)
         case .refused: return SoundPlay(id: .decline, volume: 0.6)

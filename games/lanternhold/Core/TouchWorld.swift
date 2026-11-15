@@ -19,8 +19,6 @@ enum TouchKind: String, Sendable, Equatable, CaseIterable {
     case door
     /// The barracks' door.
     case recruit
-    /// The tax lectern beside the throne (until the town lane's taxes on foot replace the tax card; no mark).
-    case lectern
     /// A cold brazier at night.
     case brazier
     /// A plot whose card offers something: an empty site, a building that can grow, rubble to rebuild.
@@ -35,7 +33,6 @@ enum TouchKind: String, Sendable, Equatable, CaseIterable {
         case .throne: return .tapThrone
         case .door: return .tapDoor
         case .recruit: return .tapRecruit
-        case .lectern: return nil
         case .brazier: return .tapLight
         case .plot: return .tapBuild
         case .wall: return .tapRepair
@@ -144,7 +141,6 @@ enum TouchRules {
         case .throne: return 4
         case .door: return 5
         case .recruit: return 6
-        case .lectern: return 7
         case .brazier: return 8
         case .plot: return 9
         case .wall: return 10

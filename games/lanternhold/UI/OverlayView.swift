@@ -23,12 +23,6 @@ struct OverlayView: View {
                     RecruitCardView(card: card, model: model)
                         .transition(transition)
                 }
-            case .taxes?:
-                if let card = model.taxCard {
-                    dim(0.22, closes: true)
-                    TaxCardView(card: card, model: model)
-                        .transition(transition)
-                }
             case .report?:
                 if let card = model.reportCard {
                     dim(0.38, closes: false)

@@ -83,8 +83,6 @@ final class TalkTests: XCTestCase {
             s.king.x = x
             XCTAssertEqual(KingTargets.target(s, balance: balance), .throne, "the audience at \(x)")
         }
-        s.king.x = KingTargets.lecternX
-        XCTAssertNotEqual(KingTargets.target(s, balance: balance), .lectern, "town-2: the lectern is furniture")
         s.court?.queue = []
         s.king.x = odile.x
         XCTAssertEqual(KingTargets.target(s, balance: balance), .talk(who: "odile"), "nobody waits: she talks")

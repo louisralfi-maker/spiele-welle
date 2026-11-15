@@ -273,7 +273,7 @@ struct PauseButton: View {
 /// What the action button shows (DESIGN.md "Controls": a hammer, coins, the lord's circlet, a flame, a patch; M3:
 /// the tax lectern's book and a speech bubble).
 enum ActionGlyph: Sendable, Equatable {
-    case build, recruit, throne, light, snuff, patch, lectern, talk
+    case build, recruit, throne, light, snuff, patch, talk
     /// The hall stage (stage lane, 14.11.2026): the hall's door, in from the bailey or out from the hall.
     case door
 
@@ -290,7 +290,7 @@ enum ActionGlyph: Sendable, Equatable {
         switch self {
         case .build: return Text("Build")
         case .recruit: return Text("Recruit at the barracks")
-        case .throne, .lectern: return Text("Set the taxes")
+        case .throne: return Text("Sit on the throne")
         case .talk: return Text("Talk")
         case .light: return Text("Light the brazier")
         case .snuff: return Text("Snuff the brazier")
@@ -355,7 +355,6 @@ struct ActionButton: View {
         case .build: return "hammer.fill"
         case .recruit: return "circle.fill"
         case .throne: return "circle.fill"
-        case .lectern: return "book.fill"
         case .talk: return "bubble.left.fill"
         case .light: return "flame.fill"
         case .snuff: return "wind"
@@ -367,7 +366,7 @@ struct ActionButton: View {
     private var iconColor: Color {
         switch glyph {
         case .build: return Color(red: 0.86, green: 0.8, blue: 0.7)
-        case .recruit, .throne, .lectern: return Color(red: 1.0, green: 0.8, blue: 0.36)
+        case .recruit, .throne: return Color(red: 1.0, green: 0.8, blue: 0.36)
         case .talk: return Color(red: 0.95, green: 0.89, blue: 0.77)
         case .light: return Color(red: 1.0, green: 0.78, blue: 0.35)
         case .snuff: return Color(red: 0.76, green: 0.8, blue: 0.92)

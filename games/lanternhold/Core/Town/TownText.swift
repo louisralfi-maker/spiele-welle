@@ -132,24 +132,3 @@ extension TownText {
     }
 }
 
-/// The old tax lectern's labels (60, 100, 140, 180 % and +3, 0, −7, −10 at dawn). Since the taxes went on foot (town-1)
-/// no rate exists in the economy: only the lectern card still shows these, until town-2 takes the card away.
-extension TaxRate {
-    var lecternPercent: Int {
-        switch self {
-        case .low: return 60
-        case .normal: return 100
-        case .high: return 140
-        case .war: return 180
-        }
-    }
-
-    var lecternHappiness: Int {
-        switch self {
-        case .low: return 3
-        case .normal: return 0
-        case .high: return -7
-        case .war: return -10
-        }
-    }
-}

@@ -625,8 +625,6 @@ extension GameModel {
             return String(localized: "Recruit")
         case .throne:
             return String(localized: "Sit on the throne")
-        case .lectern:
-            return String(localized: "Set the taxes")
         case .hallDoor:
             return stage == .hall ? String(localized: "Leave the great hall") : String(localized: "Enter the great hall")
         case .stranger:
