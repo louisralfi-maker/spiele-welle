@@ -1,3 +1,5 @@
+import simd
+
 /// World lane, step world-3, fix round 3 (DESIGN.md "World rebuild (14.11.2026)", the critic's look 3 of world-3:
 /// `ci-out/director/world-3-camera-pass-critic3.md`). Picture only: nothing here reaches the simulation, the battle,
 /// the light field the creatures respect, the Gloom's fog holes or the tuning. Art: tools/w3f3art.py.
@@ -28,4 +30,21 @@ extension SceneLayout {
 extension SceneLayout {
     /// How much of the hour's view (`posternNightView`) lies over the painted day's at dusk, while the torches burn.
     static let posternDuskViewShare: Float = 0.75
+}
+
+// MARK: - High 3: the fog's eyes clear of the buildings
+
+extension EyeRules {
+    /// Where one of the Gloom's eyes opens: where it is, or, when it would stand within `clearance` of a building,
+    /// just right of that building's clear stretch, deeper in the fog that comes on from the bank (the bank's own pairs
+    /// move left, into the bank, `placed`); nil over the ceiling.
+    static func placedInFog(x: Double, width: Double, y: Double, screens: [ClosedRange<Double>]) -> Double? {
+        guard y <= ceiling else { return nil }
+        var left = x
+        for _ in 0..<8 {
+            guard let screen = screens.first(where: { $0.overlaps(left...(left + width)) }) else { return left }
+            left = (screen.upperBound + 1).rounded(.up)
+        }
+        return nil
+    }
 }

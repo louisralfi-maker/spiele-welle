@@ -1335,7 +1335,8 @@ enum FrameBuilder {
         for eyes in gloom.eyes(bankEdge: edgeX, hour: hour, time: animTime, reduceMotion: reduceMotion) {
             // (They stand behind everything on the lane: the buildings drawn after them hide them. The ceiling only.)
             // World-3 fix round 3 (the critic's high 3): never within `EyeRules.clearance` of a building either.
-            guard let x = EyeRules.placed(x: eyes.x, width: Double(size.width), y: eyes.y, screens: screens) else {
+            guard let x = EyeRules.placedInFog(x: eyes.x, width: Double(size.width), y: eyes.y,
+                                               screens: screens) else {
                 continue
             }
             let left = x - whole
