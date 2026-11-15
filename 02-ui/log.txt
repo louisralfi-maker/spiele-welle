@@ -1,0 +1,11 @@
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' passed (128.891 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (66.054 seconds).
+Test Case '-[LanternholdUITests.PeopleUITests testPeople]' passed (71.714 seconds).
+Test Case '-[LanternholdUITests.TownLifeUITests testTheTownLivesByItsPeople]' passed (110.157 seconds).
+Test Case '-[LanternholdUITests.TownUITests testReduceMotion]' passed (12.428 seconds).
+Test Case '-[LanternholdUITests.TownUITests testStallFieldAndBigHouse]' passed (21.080 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTaxesOnFoot]' passed (75.832 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheCollector]' passed (36.833 seconds).
+Test Case '-[LanternholdUITests.TownUITests testTheFirstMorning]' passed (21.232 seconds).
+exit=0
+screenshots: 40

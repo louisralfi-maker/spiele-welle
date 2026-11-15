@@ -1,0 +1,4 @@
+Story table: /Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Resources/Story.xcstrings
+files: ["petitions-court.json", "petitions-endless.json", "petitions-front.json", "petitions-guests.json", "petitions-story.json", "petitions-town.json"]
+problems:
+herald_alone text: petition.herald_alone.text is 288 characters in German (at most 280)
