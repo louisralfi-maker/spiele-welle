@@ -3454,12 +3454,13 @@ Art: `tools/keepart.py` (ART-look2.md section 23); layout: `Core/SceneLayoutCast
   states: tier 2's storey half laid in ragged courses under scaffolding with a crane, the roof off; tier 3's cones as
   timber frames in scaffolds. Its foot stands behind the curtain wall and the forebuilding; a bank of the evening mist
   (`castleMist`, near picture) lies over it at dusk and night. The chimney smokes (`FrameBuilder.castleSmoke`), none
-  while tier 2's roof is off. A world change darkens one of its windows (`castle.keep.window.dark`).
+  while tier 2's roof is off. A world change darkens one of its windows (`castle.keep.window.dark`). Its glass glows
+  at 0.72 of the world's (`FrameBuilder.keepGlass`: it stands back).
 - **Exteriors only (B1, 2.1):** the curtain wall (`curtainA` to `C`, 64x74, wall walk at 64, corbel table, merlons,
   putlog holes; a blocked older arch, a buttress, ivy) runs on the world plane at z −5 from 1474 to 2242 behind every
   castle building, with a wall tower (`curtainTower`) at 1680 and the stair to the wall walk (`curtainStair`) at 1724;
-  tier 2 adds timber hoardings (`curtainHoard`) and two braziers on the wall walk, tier 3 a second tower at 1584 and
-  the realm's banners (`castleBanner`). The bailey's lean-tos are repainted in granite and slate (`barracks`, `smithy`,
+  tier 2 adds timber hoardings (`curtainHoard`, where the curtain shows: 1538, 1602, 2060) and two braziers on the
+  wall walk, tier 3 a second tower at 1584 and the realm's banners (`castleBanner`). The bailey's lean-tos are repainted in granite and slate (`barracks`, `smithy`,
   `masterSmithy`, `lodge`, `bigLodge`: same sizes, glass masks and forge fires as `EntityFrames.courtyard` expects).
   The forebuilding (`forebuilding`, 120x96, 2 frames) at 1770 to 1890: a gabled porch with a voussoired round portal,
   the hall door at 1830 (frame 0 shut, frame 1 open), two torches, the house's lantern on a plaque, the lord's chamber
@@ -3471,17 +3472,21 @@ Art: `tools/keepart.py` (ART-look2.md section 23); layout: `Core/SceneLayoutCast
   end, the passage at 2320 to 2340 under a slate pent roof, lanterns either side, a squat tower with a flower box, ivy
   and a bench; tier 2 roofs the tower and hangs a great lantern over the passage, tier 3 crowns it with machicolations
   and a flag. The cut-away rooms and `CastleRooms`' wall fades are gone: `RoomFades` keeps its shape for the court's
-  code with every room open, so the court and the audience stand where they stood (in front of the forebuilding until
-  the stage lane moves them into the hall stage).
+  code with every room shut (nothing of the hall's or the chapel's insides shows in the world: not the hearth's fire and
+  pool, the hall's banners, tapestry and Seren's lantern, the throne's mark, the chapel's candles or the procedural
+  empty belfry) while `visibility` stays 1, so the court and the audience stand where they stood (in front of the
+  forebuilding until the stage lane moves them into the hall stage).
 - **The hall door (the promise of the hall):** it opens while the lord stands within 18 px of 1830
   (`CastleRooms.doorOpen`; `CastleRooms.scene` swaps the frame): the open frame shows the hall's warm light
   (`hallDoorGlow`, dim by day, full at dusk and night, a pillar and a banner dark against it), and at dusk and night a
-  warm wedge of light lies on the cobbles before it (`hallDoorWedge`, under the ground line, dithered alpha) with a
-  lantern-warm pool; shut, a thin line of light under the door at night (a mask on the sill's gap). The stage lane makes
+  warm wedge of light lies on the cobbles before it (`hallDoorWedge`, under the ground line, eight smooth steps of
+  alpha: light, not art) with a lantern-warm pool; shut, a thin line of light under the door at night (a mask on the sill's gap). The stage lane makes
   1830 the `touch-door-hall` target and the hall stage's entrance; it can drive the frame through `CastleRooms`.
-- **The transitions (2.8):** the gate passage's arch (`gateArchFg`, 64x180, foreground, moving with the world plane)
-  frames the lord while he passes through either gate (1337 to 1383, 2320 to 2340; full inside, fading over 12 px
-  outside, `CastleRooms.archTenths`); a torch post inside the front gate puts warm light on the bailey's cobbles; the
+- **The transitions (2.8):** the gate passage's shade (`gateArchFg`, 64x120, frame 0 the gatehouse's gateway, frame 1
+  the postern's; foreground, moving with the world plane) frames the lord while he passes through either gate (1337 to
+  1383, 2320 to 2340; full inside, fading over 12 px outside, `CastleRooms.archTenths`): night0 in stepped alpha in a
+  band along the inside of the opening's jambs and arch and a soft shadow on the floor, nothing over the masonry
+  outside (round lh-w2-1 drew a full black arch 180 rows high: it read as a bar across the screen); a torch post inside the front gate puts warm light on the bailey's cobbles; the
   lane changes under the gates, stone by stone (`laneScreeCobble` under the gateway at 1344 to 1408, `laneCobbleEnd`
   under the postern at 2304 to 2368; `SceneLayout.look2CobbleStart`, `look2CobbleEnd`); the picture's grade warms by
   0.07 over 2330 to 2530 (`SceneLayout.valleyWarmth`), the reveal of the valley.
@@ -3493,8 +3498,9 @@ Art: `tools/keepart.py` (ART-look2.md section 23); layout: `Core/SceneLayoutCast
   the castle's fires warm the cleft wall only as the backdrop pools over the roofs; the curtain wall now hides the
   wall's foot between the buildings; the two wedges of sky are at most 12 % of the screen wide and about a quarter deep,
   their edges broken crag profiles in runs of 2 to 6 px with no lit rim (`cleftart.py wedge_profile`, `slit_rim`), the
-  moon 34 rows under the screen's top on the bailey wedge's floor; the far plane's seam at camera 2400 went with the
-  patch.
+  moon 34 rows under the screen's top on the bailey wedge's floor; the far plane's seam at camera 2400 was the
+  Weltmauer's own last column (its tail ran to the canvas's edge): the tail comes down as a broken ridge before the
+  canvas ends (`cleftart.py wmtail`, last in the recipe).
 - **The atlas:** a second page (two pages of 2048 rows stacked in one texture 2048 wide; `AtlasLayout.pages`, the
   director's note of 19:35).
 - **Tests:** `WorldRebuild2Tests` (the keep over the hall door, its corner from the front gate, gone from the back
