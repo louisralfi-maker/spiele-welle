@@ -333,3 +333,143 @@ People-1's hooks stay as listed above, except `EntityFrames.townsfolk`'s look-2 
 - Smaller keep items of the people-1 critic not done: Dun's face, Wenna's forearm pixel, Lorenz Pell's lit crimson (a
   court sheet), the close names Mother Corra / Mother Hesper.
 - The six other languages: no strings in this step.
+
+## people-2, fix round 1 (the critic's look 1: five highs, no blocker)
+
+The critic's verdict: `ci-out/director/people-2-life-critic1.md` on the planning branch (7/10). Rounds by the
+director's notes of 14.11. 18:46 and 19:35 (short rounds, English only, one gate round; no `ui-de`, no `release`).
+Picture only: nothing under `Sim`, `Economy`, `Battle`, `Balance` or `GameState` changed; T1 to T8 untouched.
+
+### What changed, finding by finding
+
+- **Merge safety first (not a finding, found on the way):** the town lane has a `struct TownDay` (its day's ledger,
+  `Core/Town/TownLedger.swift` on `claude/lh-town`); this lane's `enum TownDay` would not compile beside it. Renamed to
+  **`TownLife`** (`Core/TownLife.swift`, `Tests/TownLifeTests.swift`); every note above that says `TownDay` means
+  `TownLife`. `TownLife`, `LordCloak` and `CourtTies` are free on every lane branch (checked).
+- **H1, the berth.** The berth now runs from 30 px short of the coach to 30 px past its footman
+  (`TownLife.berthZone`). A passer-by stops at its edge and stands looking at the coach 4 s longer than at an ordinary
+  end of the way (`Route.lookAt`, `coachStare`); Brede stops 30 px from the footman, turned to the coach. Whoever must
+  pass on the one road (the collector, the lamplighter, and the builders through a hook in `EntityFrames.actors`)
+  steps out to the near side of the road, 4 px lower, over the first 10 px inside the zone (`TownLife.lane`,
+  `PeopleCast.Figure.y`), and passes in front of the footman, never through him. Shot 74 at 10:18: Brede at the
+  berth's edge looking at the coach, a clear gap to the footman, no builder in the zone.
+- **H2, the heavy steps.** The lamplighter walks at 16 px/s (a farmer's pace; it was 32). The collector pushes his
+  cart at 18 px/s (it was about 47 out and 40 back), and a round of every door at that pace starts from a post just
+  inside the castle's town gate (`TownLife.collectorPost = WorldLayout.backGateX - 40`): the farthest door about
+  10:20, back about 14:10 (`TownLife.collectorHours`, from the pace and the doors). The hours wait for the director
+  (below).
+- **H3, the lamplighter repainted by hand** (`tools/lamplighterpoles.py` holds the hand-set parts; the grid is written
+  from it): the stoop (head and shoulders forward of the hips, a rounded lit upper back), the coat narrow at the
+  shoulders and flaring to the hem, a cord at the waist where the silhouette steps in and the cloth creases, the fold
+  running on down the skirt, the hem swinging out on the walk's contacts and hanging straight on the passing frames
+  (where the body rises a pixel and the legs lengthen under it: the old passing frames left a hole under the coat);
+  the burn on the side of the neck under the ear, two pixels behind the jaw; a soft felt hat lit on the crown, its
+  brim drooping two pixels over the brow; snuffing with the pole steeper and higher, ending in a bell turned mouth
+  down above the lantern's cap (8) and over it (9). The flame anchors follow (walk -12.5, idle 7.5). The collector
+  wears a rolled wool cap instead of a second crowned hat, and his head and shoulders bob a pixel on the passing steps
+  (the smaller note). At his new hours the lamplighter's hearth moment fell where Odile stands at her lectern on the
+  hearth's right (round lh-p2f1-1, shot 77: they merged), so he now takes the Flame from the hearth's left, facing it
+  (`TownLamps.hearthStand = WorldLayout.hearthX - 4`).
+- **H4, the director's 14:35 and 15:03 items.** The notes are written to this lane (`notes-people.md`), and a note
+  wins over the brief, so this lane owns them; no other lane branch touches `king`, `lady`, their seated forms or the
+  court's sheets (checked on every `claude/lh-*` branch; only the town lane adds `kingKnock`/`ladyKnock`).
+  - The lord's cloak in two states (`Core/LordCloak.swift`, `tools/lordcloak.py`, grids `kingMended`, `ladyMended`,
+    `kingSeatedMended`, `ladySeatedMended`): mended in the hamlet and the village (the teal faded to the town's old
+    house colour `waterDeep`, a paler patch on the back, a darned tear), good in the town (the sheets as painted).
+    Only cloak pixels change (a test holds alpha and the share); no glow strip of their own. The renderer paints the
+    lord's actor from the mended texels in look 2 (`Renderer.quad`), so the frame's actor stays `king`/`lady`.
+  - The court's ties (`Core/CourtTies.swift`, `tools/courtties.py`, grids `<member>Tie`): one idle of two frames per
+    court member, played toward another person: a nod, then the thread (Odile's ledger, Brannock's key, Pip's ball,
+    Hesper's hand on her heart, Tamsin's bowl, Bram's mended clasp, Marek's orange, Seren's coin). Separate sheets of
+    the members' own size; Hesper's and Seren's carry glow strips (`hesperTieGlow`, `serenTieGlow`). PEOPLE.md section
+    8 says who turns to whom.
+- **H5, the shots.** 73-dusk-home is the walk home at 18:00: Gorm with the sack and Hedda with the sheaf at a tired
+  pace on either side of the lord, the children still at play, the evening light readable. The horn is 78-horn-call
+  (the old 73). 79-sullen-town: 25 happiness, the lord between the two farmers, who work on with their backs to him
+  (Wenna below 30 now wrings on with her back turned too). The ordinary day's shots keep the coach away
+  (`-GWCoach NO`; the demo realm has a noble due on day 12), 74 brings it (`-GWCoach YES`).
+- **Smaller notes done:** the children's stick is three pixels raised and thrust alike; Old Hemmet's stick knob rises
+  between his cape and his beard and the cape beside the beard is a shade darker; the figure-count test is named for
+  what it counts (`testTheTownsFigureCountStaysSmallWithEveryoneOut`; the frame time is measured at the join).
+
+### The hours: the director's ruling, asked (H2)
+
+One game hour is 12 s, the town's distances are long, and the critic asks for a heavy step and for the director to
+set the hours rather than bend the walk. The code keeps every time as data that follows from the anchors and the pace
+(one constant each), so a ruling is a one-line change.
+
+- **The lamplighter** (16 px/s; the hearth to the last lantern is about 1300 px, the first to the last lantern 600 px:
+  3.2 h of the clock at any heavy step). Built now, the critic's fix "start him earlier": the last lantern at the
+  horn as TOWN.md says, so he is in the hall about 10:50, at the Flame about 11:20, the lanterns at 15:20, 17:10,
+  17:50, 19:00; mornings 05:00 to 10:15. Bent: "every dusk he comes into the hall" becomes "every day before noon".
+  The alternative: he takes the Flame about 15:30, leaves the castle's gate at 18:00 (TOWN.md's hour) and lights the
+  lanterns from 19:05 into the night (the last about 22:45), each flare seen against the dark; bent: the last no longer
+  burns as the horn sounds, and he is out in the town at night (the Gloom does not reach it). One constant
+  (`TownLamps.eveningStart` counted from a gate hour instead of the horn).
+- **The collector** (18 px/s). From the town lane's post by the hall door (`Town.collectorPost = Realm.hallX`), every
+  door and back takes about 13.5 h: no fit before the horn. Built now: his post by the castle's town gate, out at the
+  dawn, the farthest door about 10:20, back about 14:10, the gold arriving then. The town lane's sim follows at the
+  join with `Town.collectorPost` and `TownRules.collectorTurnHour`/`collectorBackHour` (values only; the reference
+  bots collect at dawn, so T1 to T8 hold). The alternative: keep the hall door, set out at first light (05:00), the
+  farthest door about noon, back about 18:45, the gold arriving near the horn.
+
+### New hooks in existing files (fix round 1; apply them again at the join)
+
+| file | place | the hook | why |
+|---|---|---|---|
+| `Core/FrameDesc.swift` | `enum SpriteID`, after people-2's case line | `case kingMended, ladyMended, kingSeatedMended, ladySeatedMended` and `case odileTie, brannockTie, pipTie, hesperTie, hesperTieGlow, tamsinTie, bramTie, marekTie, serenTie, serenTieGlow` with their comment | the ids |
+| `Core/FrameDesc.swift` | `var size`, after people-2's case | `case .kingMended, …: return PeopleCast.size(of: self)` and `case .odileTie, …, .serenTieGlow: return CourtTies.size(of: self)` | the switch is exhaustive |
+| `Core/FrameDesc.swift` | `var frameCount`, after people-2's case | `case .odileTie, …, .serenTieGlow: return CourtTies.frameCount` (the mended sheets take their body's count through `PeopleCast.body(dressedAs:)`, which the switch asks first) | two frames per tie |
+| `Core/EntityFrames.swift` | `actors(…)`, people-2's look-2 call | `add($0.sprite, …, y: $0.y, …)` instead of `y: 0` | the near side of the road |
+| `Core/EntityFrames.swift` | `actors(…)`, before the builders' loop and in its `add(.builder, …)` | `let berth = look == .two ? TownLife.berthZone(s) : nil` and `y: TownLife.lane(at: x, berth)` | the builders keep the berth |
+| `Render/Renderer.swift` | `static func quad(_:layout:look:)`, its first line | `let painted = look == .two ? LordCloak.dressed(actor.sprite, PeopleCast.launchCloth) : actor.sprite` and `layout.cell(painted, frame:)` | look 2 paints the lord's actor from the mended twin's texels; the actor stays the lord's (round lh-p2f1-2: a pass over the actor list broke `LordEntryTests`, which look for `.lady` and `.ladySeated` in the frame) |
+| `Render/PlaceholderCast.swift` | `frames(for:)`, after the cloth states' line | `if let member = CourtTies.member(of: sprite) { return Array(PlaceholderArt.frames(for: member).prefix(CourtTies.frameCount)) }` | every SpriteID needs a stand-in |
+
+In this lane's own files: `PeopleCast.body(dressedAs:)` also answers for the mended sheets (`LordCloak.body(of:)`), so
+their size, frame count and stand-ins follow the lord's; `PeopleCast.Figure` has `y`.
+
+### For the join
+
+- **The rename:** `TownDay` (this lane) is `TownLife`; the town lane's `TownDay` stays theirs.
+- **The berth** on the rebuilt road: `TownLife.berthZone` reads the coach's span (`TownHouseholds.townGateX`) and
+  `footmanGap`; re-apply the builders' two lines wherever the rebuilt town draws its builders (or any other walker of
+  the realm that passes the gate), and pass `TownLife.lane` as the actor's y.
+- **The lord's cloak:** `Renderer.quad` reads the stage from `PeopleCast.launchCloth`; at the join pass the realm's
+  stage instead (`PeopleCast.ClothState(standing: <the town's standing>)`, e.g. through the frame options). The town
+  lane's `kingKnock` and `ladyKnock` need a mended twin each (`tools/lordcloak.py` writes one from their grid in a
+  minute, and `LordCloak.mended` takes the pair) or the knock is drawn in the good cloak until then.
+- **The court's ties:** the rebuilt hall draws `CourtTies.sheet(for: member)` with `CourtTies.frame(since:reduceMotion:)`
+  while two tied members face each other (or a member faces the lord or the lamplighter, PEOPLE.md section 8), mirrored
+  toward the other, and Hesper's and Seren's glow strips (`CourtTies.glows`) where their own glow strips are drawn.
+- **The hearth anchor:** the lamplighter stands at `TownLamps.hearthStand` (the hearth's left, facing it); the rebuilt
+  hall's anchor replaces it, and his times follow by themselves.
+- **The collector's post and hours** and **the lamplighter's hours**: the director's ruling above.
+
+### Rounds (fix round 1)
+
+- **lh-p2f1-1** (ec8d8ec; build, unit TownLifeTests PeopleCastTests, ui TownLifeUITests): **ALL PASSED** (build 01:22,
+  unit 01:23, ui 01:25 runner time). The shots showed 74 with Brede at the berth's edge and a clear gap to the
+  footman, 73 the walk home with the harvest, 79 the sullen farmers; and one real fault: at the lamplighter's new hour
+  Odile stands at her lectern on the hearth's right, and the two merged in 77, so he now takes the Flame from the
+  hearth's left.
+- **lh-p2f1-2** (6c9bdea; build, unit, ui TownLifeUITests PeopleUITests): build and both UI classes passed; unit
+  failed in three `LordEntryTests`: the pass over look 2's actors renamed the lord's actor, and those tests look for
+  `.lady` and `.ladySeated` in the frame. The dressing moved into `Renderer.quad` (the texels only). The atlas: **1890
+  of 2048 rows** (people-2 left 1880; after the join about 2000; the eleven village strips go first if it needs room).
+- **lh-p2f1-3** (9a34df0; build, unit, ui TownLifeUITests PeopleUITests): **ALL PASSED** (build 02:13, unit 02:22 with
+  every unit test of the branch, ui 02:27 runner time). The gate by the director's note of 14.11. 19:35 (one round,
+  English only, no `ui-de`, no `release`). Upright copies of shots 70-79 in the worktree's
+  `ci-out/people/p2f1/shots-final/`; the proofs in `ci-out/people/p2f1/proofs/` (the lamplighter at 800 %, the
+  lamplighter and the collector beside the townsfolk, the two cloaks side by side, the court's ties, a crop of 74).
+
+### Open, and what waits
+
+- The director's ruling on the hours (above).
+- Smaller notes not done: Nib's white tunic on the cream plaster in 72 (the play stays before the Brisks' door); a
+  hitching rail or a horse's nose for the coach; one short walk of the lord in the UI test with three stills (the
+  shots set the camera per still, and `-GWFreezeTime` holds the clock, so the greeting and the trailing are proven in
+  unit tests and shown in still poses); the demo's builders by Hemmet's bench in 71 (the demo raises house 5; the
+  bench stands before Moth's house where Hemmet lives).
+- The lamplighter at the hearth still meets Odile's other stop now and then in the old hall (she alternates between
+  the throne and her lectern); the rebuilt hall's anchor settles it.
+- The six other languages: no new strings in this round.
