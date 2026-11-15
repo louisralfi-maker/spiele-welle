@@ -14,10 +14,12 @@ extension SceneLayout {
     /// stone ramp (blue over red about 1.1), while the cliff and the firs behind it carry their night blue in their
     /// own paint and in the haze of their planes; the world plane's dim night ambient left the tower a flat grey, and
     /// fix round 2's moon wash over every face (an emissive added before the grade's night desaturation) lifted it
-    /// evenly toward grey. At night the stone takes the cliff's cold step: red and green down, blue up (the shade
+    /// evenly toward grey. At night the stone takes the cliff's cold step: blue up most, red least (the shade
     /// side about two steps bluer); the moon's band on the right face (`beaconTowerRim`) gives the lit side its cool
-    /// grey. Nothing by day or at dusk: the factor rises with the night's moon, like the band.
-    static let beaconNightCold = SIMD3<Float>(0.84, 0.90, 1.14)
+    /// grey. Without the wash the tower fell to about (14, 16, 34) in round lh-w3f3-1 (a black mass): the step also lifts
+    /// it to about the cliff's shade (the plane is 8-bit, so a lit block's blue clips first: the lit side stays a cool
+    /// grey). Nothing by day or at dusk: the factor rises with the night's moon, like the band.
+    static let beaconNightCold = SIMD3<Float>(1.5, 1.62, 1.9)
 
     static func beaconNightTint(_ ambient: AmbientSample) -> SIMD3<Float> {
         let share = FrameBuilder.wedgeMoonShare(ambient)

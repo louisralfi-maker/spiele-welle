@@ -298,7 +298,27 @@ def gate_rock(name):
                 c = out.get(x, y)
                 if c[:3] == col("rockLight")[:3]:
                     final.set(x, y, col("rock"))
-    return final
+    # The shader's ledge (Shaders.metal `lh2_ledge`): a world sprite's pixel with nothing above it takes 1.4 x the
+    # ambient and a share of the horizon's colour, the one under it half of that; on a slope every row's first pixel
+    # is such a ledge, so the lit edge came back as a pale stepped line (lh-w3f3-1, t-3-1360). Those pixels are
+    # painted dark enough that the ledge lifts them to the face's value, never over it.
+    out = copy(final)
+    for y in range(h):
+        for x in range(w):
+            if not final.get(x, y)[3]:
+                continue
+            if y == 0 or not final.get(x, y - 1)[3]:
+                out.set(x, y, LEDGE_TOP)
+            elif (y < 2 or not final.get(x, y - 2)[3]) and lum3(final.get(x, y)) > lum3(GRANITE_DEEP):
+                out.set(x, y, GRANITE_DEEP)
+    return out
+
+
+def lum3(c):
+    return 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]
+
+
+LEDGE_TOP = (50, 47, 55, 255)          # under the ledge's lift it lands on the shade's value
 
 
 # ------------------------------------------------------------------------------------------------- high 1: oldWall1

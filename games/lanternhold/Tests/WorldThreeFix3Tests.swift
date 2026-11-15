@@ -72,7 +72,7 @@ final class WorldThreeFix3Tests: XCTestCase {
         }
     }
 
-    /// Blocker 1: at night the beacon's stone takes the cliff's cold step (blue up, red down); by day and at dusk it
+    /// Blocker 1: at night the beacon's stone takes the cliff's cold step (blue up most); by day and at dusk it
     /// is drawn as painted.
     func testTheBeaconTakesTheNightsColdStep() {
         let night = GameFrameSupport.demoNight(hour: 23.2)
@@ -85,7 +85,7 @@ final class WorldThreeFix3Tests: XCTestCase {
         }
         XCTAssertEqual(noon.x, noon.z, accuracy: 1e-4, "as painted by day")
         XCTAssertGreaterThan(dark.z, dark.x * 1.1, "bluer at night")
-        XCTAssertLessThan(dark.x, noon.x, "red down at night")
+        XCTAssertGreaterThan(dark.z, noon.z, "lifted toward the cliff's cold shade at night")
     }
 
     /// High 9: at dusk the postern's view takes the hour (the night view over the painted day's, most of it) and the
