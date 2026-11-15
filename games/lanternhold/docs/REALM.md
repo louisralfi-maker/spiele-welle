@@ -91,10 +91,11 @@ section 3 is the number, this is its picture.
   needs the one before it lit).
 - **The fog line** moves out to the furthest lit beacon. Creatures appear at the fog line, so they walk longer under
   the arrows; the beacon lights its own pool.
-- **Two edges (director, 15.11.2026).** The battle's bank keeps its natural edge, capped by the furthest lit beacon,
-  so the reference nights do not move. The picture shows more: land beyond the furthest lit beacon lies under a
-  standing veil of mist, by day and by night, until its beacon burns. Lighting a beacon uncovers its land that day.
-  The front lane first measures whether the two edges can be one.
+- **One edge, as built (15.11.2026, front-3 fix round 1).** The sites stand inside the fog, at x 300, 229, 160 and 95
+  (the Gloom's mouth is at x 37). Each lit beacon holds the fog at the next site, by day and by night, so the first
+  beacon already pushes the night's fog back and its land comes out of the fog that day. With no beacon the night's
+  fog comes as before and rests by day at the first site. A standing beacon is whole again at dawn only while a wall
+  beyond the gate stands ("tended from the wall"). The reference nights T1 to T8 did not move.
 - **Freed land,** one thing seen and one small gain per stretch (none above about 8 % on any system): the old quarry
   (wall and gate work cheaper), the ruined watchtower (a forward archers' post), the charcoal burners' camp (braziers
   burn longer), the far stones (the Great Beacon reaches further on night 20; picture only if the finale would move).
