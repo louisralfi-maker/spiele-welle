@@ -170,11 +170,8 @@ enum TouchThings {
             list.append(TouchThing(id: "touch-throne", kind: .throne, act: .throne, x: HallLayout.throneX,
                                    standX: HallLayout.throneX, halfWidth: 10, top: lift + CourtFrames.throneMarkY - 4,
                                    rank: TouchRules.rank(.throne)))
-        } else {
-            list.append(TouchThing(id: "touch-lectern", kind: .lectern, act: .lectern, x: HallLayout.lecternX,
-                                   standX: HallLayout.lecternX, halfWidth: 6, top: 22, rank: TouchRules.rank(.lectern),
-                                   marked: false))
         }
+        // Town-2 (the join): the lectern is furniture; the taxes are paid on foot at the doors.
         // Each occupied bench is one target: the seated sit 11 px apart, too close for a finger.
         let order = s.court?.queue.map(\.id) ?? []
         let benchHalf = Double(SpriteID.bench.size.width) / 2

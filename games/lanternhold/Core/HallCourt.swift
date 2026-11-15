@@ -257,7 +257,6 @@ enum HallTargets {
             bestDistance = distance
         }
         consider(.throne, abs(x - HallLayout.throneX))
-        consider(.lectern, abs(x - HallLayout.lecternX))
         var seen = Set<String>()
         for figure in figures where Speakers.canTalk(figure.who) && !seen.contains(figure.who) {
             if figure.petition != nil || figure.key.hasPrefix("leaving:") { continue }

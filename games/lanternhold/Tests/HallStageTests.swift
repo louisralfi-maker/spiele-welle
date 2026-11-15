@@ -273,8 +273,8 @@ final class HallStageTests: XCTestCase {
                                           balance: .standard), .throne, "while people wait the throne owns the dais")
         var heard = s
         heard.court?.queue = []
-        XCTAssertEqual(HallTargets.target(heard, x: HallLayout.lecternX, figures: figures, lines: .standard,
-                                          balance: .standard), .lectern, "nobody waits: the lectern")
+        XCTAssertNotEqual(HallTargets.target(heard, x: HallLayout.lecternX, figures: figures, lines: .standard,
+                                             balance: .standard), .lectern, "town-2: the lectern is furniture")
         XCTAssertEqual(HallTargets.target(s, x: HallLayout.doorX, figures: figures, lines: .standard,
                                           balance: .standard), .hallDoor)
         XCTAssertNil(HallTargets.target(s, x: 240, figures: figures, lines: .standard, balance: .standard))
