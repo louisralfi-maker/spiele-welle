@@ -14,10 +14,10 @@ legend
     J = strawLight
     Y = strawLight
     Z = parchment
-    U = waterDeep
-    u = waterDeep
-    X = moon
-    x = far
+    U = far
+    u = moon
+    X = stoneLight
+    x = stone
     y = soilLight
 
 # the trunk with the mended cloak (below the plait): the teal faded, the patch under the belt, the darned tear
@@ -30,7 +30,7 @@ part body
     ..UTtTRR..
     .UUTtTHGH.
     .XXxtTRRR.
-    .XxxTTRRRr
+    .XyxTTRRRr
     .UTtTQRRRr
     UUTtTQRRrR
     UTytTRRRRr

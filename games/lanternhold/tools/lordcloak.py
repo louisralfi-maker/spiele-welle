@@ -2,9 +2,10 @@
 """Writes the lord's mended cloak (the director's note of 14.11.2026 14:35; docs/PEOPLE.md section 7, docs/lanes/
 people.md "people-2 fix round 1") as four grids in tools/grids/people/: kingMended, ladyMended, kingSeatedMended and
 ladySeatedMended. Each takes its body's legend and parts (include) and replaces only the parts that carry the cloak,
-with the cloak's pixels mended: the house's teal faded to the town's old house colour (`banner` and `roofLight` to
-`waterDeep`, docs/PEOPLE.md: the one faded house colour is `waterDeep` over `roofDeep`), a patch of paler blue-grey wool
-on the back (`moon` lit, `far` shaded), and a darned tear in brown thread (`soilLight`). Face, hands, tunic, circlet, lantern and alpha are the body's to the pixel: wealth changes the cloth,
+with the cloak's pixels mended: the house's teal faded past the town's old house colour to a washed-out blue-grey
+(`banner` to `far`, `roofLight` to `moon`; the director's fix pass of 15.11.: one step further than `waterDeep`, so
+mended and good read apart at a glance), a patch of grey wool on the back (`stoneLight` lit, `stone` shaded, with a
+brown stitch across it), and a darned tear in brown thread (`soilLight`). Face, hands, tunic, circlet, lantern and alpha are the body's to the pixel: wealth changes the cloth,
 never the people. The glow entries become plain body colours, so no glow strip is written (the engine keeps the
 body's: `kingGlow`, `ladyGlow`, `kingSeatedGlow`, `ladySeatedGlow`, whose pixels are the lantern's and the circlet's).
 The frames are copied from the body's grid, so run this again whenever those change. The sheets as painted are the
@@ -20,16 +21,16 @@ LEGEND = """legend
     J = strawLight
     Y = strawLight
     Z = parchment
-    U = waterDeep
-    u = waterDeep
-    X = moon
-    x = far
+    U = far
+    u = moon
+    X = stoneLight
+    x = stone
     y = soilLight
 """
 
 # The king's trunk: the faded cloak (legend), the patch on the back under the belt, the darn further down.
-KING_BODY = """# the trunk with the mended cloak: the teal faded (legend), a patch of paler wool on the back under the belt (lit at
-# its upper left), a darned tear lower down in brown thread
+KING_BODY = """# the trunk with the mended cloak: the teal faded (legend), a patch of grey wool on the back under the belt (lit at
+# its upper left, shaded at its lower right, a brown stitch across it), a darned tear lower down in brown thread
 part body
     ...uUUTQR
     ..uUTTGQR
@@ -39,7 +40,7 @@ part body
     ..UTtTRRr
     .UUTtTHGH
     .XXxtTRRR
-    .XxxTTRRr
+    .XyxTTRRr
     .UTtTTRrR
     UUTtT....
     UTytT....
@@ -59,7 +60,7 @@ part body
     ..UTtTRR..
     .UUTtTHGH.
     .XXxtTRRR.
-    .XxxTTRRRr
+    .XyxTTRRRr
     .UTtTQRRRr
     UUTtTQRRrR
     UTytTRRRRr
