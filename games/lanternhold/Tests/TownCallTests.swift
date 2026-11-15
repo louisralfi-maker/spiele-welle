@@ -129,6 +129,16 @@ final class TownCallTests: XCTestCase {
         var none = day2
         none.owingDoors = 0
         XCTAssertFalse(paid.update(none, hour: 6.2, clock: 1, allowed: true), "answered: it goes")
+
+        // The review's should-fix: a petitioners' call answered while the doors still owe goes at once; the doors'
+        // own raise does not keep the call's seconds alive.
+        var answered = StripCall()
+        XCTAssertTrue(answered.update(day2, hour: 6.1, clock: 0, allowed: true), "the doors' raise")
+        XCTAssertFalse(answered.update(day2, hour: 7, clock: 10, allowed: true))
+        var asking = day2
+        asking.petitioners = 1
+        XCTAssertTrue(answered.update(asking, hour: 8, clock: 20, allowed: true), "a petitioner calls")
+        XCTAssertFalse(answered.update(day2, hour: 8.05, clock: 21, allowed: true), "answered: it goes at once")
     }
 
     // MARK: - The dawn report

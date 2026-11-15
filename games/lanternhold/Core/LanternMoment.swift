@@ -279,6 +279,9 @@ struct StripCall: Sendable, Equatable {
     var until = 0.0
     /// Fix lane D (player-loop-1): the day whose owing doors last raised the strip (0: none yet).
     var doorsShown = 0
+    /// The clock's second the doors' own raise goes (kept apart from the calls', so an answered call still goes at
+    /// once).
+    var doorsUntil = 0.0
 
     static let seconds = 6.0
     static let again = 45.0
@@ -311,13 +314,18 @@ struct StripCall: Sendable, Equatable {
     mutating func update(_ strip: RealmStrip?, hour: Double, clock: Double, allowed: Bool, held: Bool = false) -> Bool {
         let now = StripCall.size(strip)
         let doors = StripCall.doorsDay(strip)
-        guard now > 0 || doors > 0 else {
-            size = now
+        if now == 0 {
+            // Answered: the call's strip goes at once, even while the doors still owe.
+            size = 0
             until = 0
+        }
+        guard now > 0 || doors > 0 else {
+            doorsUntil = 0
             return false
         }
         if held {
             until = 0
+            doorsUntil = 0
             return false
         }
         defer { size = now }
@@ -328,9 +336,9 @@ struct StripCall: Sendable, Equatable {
         }
         if doors > 0 && doors != doorsShown {
             doorsShown = doors
-            until = max(until, clock + StripCall.seconds)
+            doorsUntil = clock + StripCall.seconds
         }
-        return clock < until
+        return clock < max(until, doors > 0 ? doorsUntil : 0)
     }
 }
 
