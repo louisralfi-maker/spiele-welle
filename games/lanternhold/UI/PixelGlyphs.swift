@@ -12,38 +12,36 @@ import SwiftUI
 
 /// The glyphs. X a full pixel, x a second tone at half strength.
 enum PixelGlyph: String, CaseIterable, Sendable {
-    case play, horn, flame, replay, close, lock, hourglass, check, bookmark, key, shield, warning, recruit, stranger,
+    case play, flame, replay, close, lock, hourglass, check, bookmark, key, shield, warning, recruit, stranger,
          waves, paw, fog, bow, hammer, dice
 
     var grid: [String] {
         switch self {
         case .play:
+            // Fix round 2 (the critic's high 1): a clean solid wedge, its slope even and its point two rows tall, so no
+            // single row sticks out like a stub (the 7 x 7 read as a horn or a megaphone).
             return [
                 "X......",
                 "XXX....",
                 "XXXXX..",
                 "XXXXXXX",
+                "XXXXXXX",
                 "XXXXX..",
                 "XXX....",
                 "X......",
-            ]
-        case .horn:
-            return [
-                ".........XX",
-                "........XXX",
-                "XX.XXXXXXXX",
-                "........XXX",
-                ".........XX",
             ]
         case .flame:
+            // Fix round 2: a teardrop with its tip leaning right and a hot hollow low inside, one colour (the old flame
+            // read as a fist with a thumb).
             return [
-                "...X...",
-                "..XX...",
-                "..XXX.X",
-                ".XXXX.X",
-                ".XXXXXX",
+                "....X..",
+                "...XX..",
+                "..XXX..",
+                ".XXXX..",
+                ".XXXXX.",
                 "XXXXXXX",
-                "XXXXXXX",
+                "XXX.XXX",
+                "XX..XXX",
                 ".XXXXX.",
             ]
         case .replay:

@@ -339,7 +339,9 @@ struct PauseSheetView: View {
                         Button {
                             callingTheNight = true
                         } label: {
-                            GlyphLabel("Sound the horn", glyph: .horn)
+                            // Fix round 2 (the director's 16:06 rule): the horn in words only; three drawn horns read as a crescent, a key
+                            // and a teapot, and words alone beat a wrong picture.
+                            Text("Sound the horn")
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.75)
                                 .frame(maxWidth: .infinity)

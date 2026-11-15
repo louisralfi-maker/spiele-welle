@@ -103,15 +103,16 @@ enum RealmMapPixels {
         ".X.....",
     ]
 
-    /// A wall breached: its crenels broken by a gap down to the middle.
+    /// A wall breached (fix round 2, the critic's high 1: the old glyph read as a carton): two crenellated stubs of
+    /// wall, the right one broken lower, a gap between them, and one fallen block on the ground in the gap.
     static let breachGlyph = [
-        "X.X...X",
-        "XXX...X",
-        "XXX..XX",
-        "XXXX.XX",
-        "XXXXXXX",
-        "XXXXXXX",
-        "XXXXXXX",
+        "X.X.......",
+        "XXX....X.X",
+        "XXX....XXX",
+        "XXX....XXX",
+        "XXX....XXX",
+        "XXX.XX.XXX",
+        "XXX.XX.XXX",
     ]
 
     /// Every call has a tag at its place: the petitioners waiting in the hall (the talk glyph and their number, over the
