@@ -159,7 +159,12 @@ final class TouchUITests: XCTestCase {
         } else {
             XCTFail("nobody waits on a bench")
         }
-        guard let throne = waitForThing(app, "touch-throne", timeout: 6) else {
+        // The walk to the bench took the throne out of view: a tap on the ground at the screen's right walks him
+        // toward it until it comes into view.
+        if waitForThing(app, "touch-throne", timeout: 1) == nil {
+            element(app, "world-scene").coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: 0.95)).tap()
+        }
+        guard let throne = waitForThing(app, "touch-throne", timeout: 10) else {
             XCTFail("no mark at the throne")
             app.terminate()
             return

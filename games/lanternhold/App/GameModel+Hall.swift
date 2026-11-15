@@ -360,7 +360,7 @@ extension GameModel {
         input.touchMarks = touchHall(state: state, figures: figures, pixelScale: pixelScale, scene: scene)
         // The inner door stands open just after he came in by it and while he goes out through it.
         let leaving = stageChange.map { $0.to == .world && ($0.phase == .opening || $0.phase == .darkening) } ?? false
-        input.doorOpen = leaving || scene.since < HallFrames.doorOpenSeconds
+        input.doorOpen = leaving || scene.since < HallFrames.doorOpenSeconds * max(1, args.stageSlow)
         let frame = HallFrames.build(input)
         noteHallFrame(figures: figures)
         return frame

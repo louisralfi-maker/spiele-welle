@@ -418,6 +418,13 @@ extension GameModel {
         }
         // The flame shows the danger (director's note 5): as the next wave nears the lantern burns lower and
         // flutters, and it steadies when the wave is spent; with Reduce Motion it reddens instead of fluttering.
+        // Raise the lantern: lifted high its light is brighter as well as wider (there is no lifting pose: the glow
+        // says it).
+        if LanternRaise.phase(since: state.king.lanternSince) == .raised {
+            for index in layer.lights.indices where layer.lights[index].source.kind == .lantern {
+                layer.lights[index].source.intensity *= 1.6
+            }
+        }
         let danger = LanternRaise.danger(state)
         if danger > 0.01 {
             for index in layer.lights.indices where layer.lights[index].source.kind == .lantern {

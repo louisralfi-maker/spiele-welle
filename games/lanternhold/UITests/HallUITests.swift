@@ -213,6 +213,9 @@ final class HallUITests: XCTestCase {
                 pause(2.9)
                 attach(XCUIScreen.main.screenshot(), "131a-hall-dark-\(language)")
                 XCTAssertTrue(waitForField(slow, "stage:hall", timeout: 8), "in through the slow dark")
+                // Step stage-2: inside, the inner door stands open for a moment behind him (ten times as long here).
+                pause(1.7)
+                attach(XCUIScreen.main.screenshot(), "131d-hall-door-open-\(language)")
             } else {
                 XCTFail("no door for the slow change")
             }

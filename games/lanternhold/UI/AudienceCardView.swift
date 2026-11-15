@@ -164,6 +164,15 @@ struct AudienceCardView: View {
                         .fixedSize()
                         .layoutPriority(1)
                 }
+                // Step stage-2 (the stage-1 critic's third high): Odile's line, once read, takes the button's place
+                // in the letter's head, beside the name, so it covers no canopy and the request keeps its room (under
+                // the request it was cut off at the letter's foot by the longer letters).
+                if card.phase == .hearing, card.counselShown, let hint = card.hintKey {
+                    HallCounsel(text: model.story(hint), compact: true)
+                        .frame(maxWidth: 270)
+                        .layoutPriority(1)
+                        .transition(model.reduceMotion ? .identity : .opacity)
+                }
             }
             InkRule()
             CardScroll {
@@ -176,10 +185,6 @@ struct AudienceCardView: View {
                             .foregroundStyle(Theme.ink)
                             .fixedSize(horizontal: false, vertical: true)
                             .accessibilityIdentifier("audience-text")
-                        if card.phase == .hearing, card.counselShown, let hint = card.hintKey {
-                            HallCounsel(text: model.story(hint))
-                                .transition(model.reduceMotion ? .identity : .opacity)
-                        }
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -425,18 +430,22 @@ struct AudienceCardView: View {
 }
 
 /// Odile's line in the hall (the hall stage): her name in small capitals and her line in her hand, an inset ruled in
-/// House Lantern's teal inside the letter under the request (step stage-2: never over the throne's canopy).
+/// House Lantern's teal in the letter's head beside the name (step stage-2: never over the throne's canopy).
 struct HallCounsel: View {
     let text: String
+    /// In the letter's head beside the name: a smaller hand, three lines at most.
+    var compact = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: compact ? 1 : 2) {
             Text("Odile counsels")
-                .font(Theme.caps(.footnote))
+                .font(Theme.caps(compact ? .caption2 : .footnote))
                 .foregroundStyle(Theme.teal)
             Text(verbatim: text)
-                .font(Theme.italic(.footnote))
+                .font(Theme.italic(compact ? .caption : .footnote))
                 .foregroundStyle(Theme.ink)
+                .lineLimit(compact ? 3 : nil)
+                .minimumScaleFactor(compact ? 0.85 : 1)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.horizontal, 10)

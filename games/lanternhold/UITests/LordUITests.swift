@@ -71,7 +71,7 @@ final class LordUITests: XCTestCase {
             return
         }
         touchThing(throne)
-        XCTAssertFalse(element(app, "touch-first-slip").exists, "the first touch ends the slip")
+        XCTAssertTrue(waitForGone(element(app, "touch-first-slip"), timeout: 3), "the first touch ends the slip")
         pause(0.7)
         attach(XCUIScreen.main.screenshot(), "94-lady-sitting-\(language)")
         let card = element(app, "audience-root")
