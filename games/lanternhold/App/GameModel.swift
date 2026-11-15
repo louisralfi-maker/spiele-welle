@@ -349,8 +349,9 @@ final class GameModel {
         while game.stepIfDue(events: &events) {
             stepped += 1
             if var follow = camera {
-                follow.follow(targetX: game.state.king.x + GameModel.cameraLead(game.state),
-                              targetVelocity: game.state.king.velocity, dt: GameModel.step, reduceMotion: reduceMotion)
+                // World-3: the framing (lead, set pieces, the danger at night; `CameraFraming`).
+                follow.frame(CameraFraming.input(game.state, camera: follow), dt: GameModel.step,
+                             reduceMotion: reduceMotion)
                 camera = follow
             }
             // The dawn's report and the defeat card stop the world in the step that brings them.
@@ -369,8 +370,8 @@ final class GameModel {
         feedback.ambience(ambienceMix(game.state, balance: game.balance))
         // Under a card the camera still settles on the king (the audience seats him on the throne).
         if stepped == 0, game.isPaused, var follow = camera {
-            follow.follow(targetX: game.state.king.x + GameModel.cameraLead(game.state), targetVelocity: 0,
-                          dt: seconds, reduceMotion: reduceMotion)
+            follow.frame(CameraFraming.input(game.state, camera: follow, moving: false), dt: seconds,
+                         reduceMotion: reduceMotion)
             camera = follow
         }
         stepCourt(seconds, state: game.state)
@@ -811,7 +812,8 @@ final class GameModel {
     /// afresh (M3 fix, C4: a replayed day kept the bubble, who had been talked to, the walkers on their way out and
     /// the smoothed places of the day that was undone).
     private func restartView(_ state: GameState) {
-        camera?.jump(toFocus: state.king.x + GameModel.cameraLead(state))
+        let framing = CameraFraming.input(state, camera: camera)
+        camera?.reframe(framing)
         effects = BattleEffects()
         shake = ScreenShake()
         watch.reset()
@@ -937,7 +939,7 @@ final class GameModel {
             }
             let state = game.state
             growCastle(state)
-            var view = ensureCamera(pixelScale, focus: state.king.x + GameModel.cameraLead(state))
+            var view = ensureCamera(pixelScale, focus: CameraFraming.goal(lordX: state.king.x, lead: 0, danger: 0))
             let sway = shake.offset(at: clock.elapsed, reduceMotion: reduceMotion)
             if sway != 0 {
                 view.jump(toFocus: view.focusX + sway)
@@ -1002,18 +1004,9 @@ final class GameModel {
     /// Where the game's camera aims relative to the king: at night in front of the castle, `nightLead` toward the
     /// Gloom, so the approach and its eyes show; eased in through the dusk, out through first light, and faded out
     /// as the king walks into the castle front.
+    /// World-3: the camera leads this way only while creatures are on screen (`CameraFraming.input`).
     nonisolated static func cameraLead(_ state: GameState) -> Double {
-        let hour = state.hour
-        var night = 0.0
-        if hour >= 19 && hour < 20 {
-            night = hour - 19
-        } else if hour >= 20 || hour < 5 {
-            night = 1
-        } else if hour >= 5 && hour < 6 {
-            night = 6 - hour
-        }
-        let front = min(1, max(0, (WorldLayout.castleFrontX + 60 - state.king.x) / 120))
-        return -nightLead * night * front
+        -nightLead * CameraFraming.nightFront(state)
     }
 
     private func ensureCamera(_ pixelScale: PixelScale, focus: Double) -> Camera {
