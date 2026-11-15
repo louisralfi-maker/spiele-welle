@@ -295,11 +295,15 @@ struct DebugArgs: Sendable, Equatable {
             stageSlow = min(40, slow)
         }
         touchHint = DebugArgs.bool(values["GWTouchHint"])
+        // The join (item 14): the night's proofs and the held mark only in a Debug build; a Release build (TestFlight)
+        // ignores them, so no launch argument can start a realm with damaged walls or cold braziers.
+        #if DEBUG
         damage = DebugArgs.plots(values["GWDamage"])
         snuff = DebugArgs.plots(values["GWSnuff"])
         if let held = values["GWPressed"]?.trimmingCharacters(in: .whitespaces), !held.isEmpty {
             pressed = held
         }
+        #endif
         lord = values["GWLord"].flatMap { LordForm(rawValue: $0.trimmingCharacters(in: .whitespaces).lowercased()) }
         if let name = values["GWLordName"]?.trimmingCharacters(in: .whitespaces), !name.isEmpty {
             lordName = name
