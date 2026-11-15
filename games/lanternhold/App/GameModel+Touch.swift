@@ -385,7 +385,7 @@ extension GameModel {
         guard kind == .world else { return }
         // The lantern moment's side (stage-3-interface): the purse, the notes, the strip's call.
         stepLanternHUD()
-        stepFirstSlip()
+        stepFirstSlip(seconds)
         stepLordHint()
         if touch.down != nil, touch.onLord, !touch.dragging, !touch.raised,
            clock.elapsed - touch.downAt >= LanternRaise.holdSeconds {
@@ -424,7 +424,13 @@ extension GameModel {
 
     /// The first minute's slip "Touch what the lord shall do.", once: on a new realm's first day, when no card covers
     /// the world, for 10 s or until the first touch.
-    private func stepFirstSlip() {
+    private func stepFirstSlip(_ seconds: Double) {
+        // Build 2 review, core-state-2: under the slides (the prologue after the name entry) the slip neither starts
+        // nor runs out; its 10 s begin when the world shows.
+        if slides.coversWorld {
+            if firstTouchSlip { touch.firstSlipUntil += seconds }
+            return
+        }
         if touch.firstSlipPending, overlay == nil, stageChange == nil, let state = driver?.state, driver?.bot == nil {
             let fresh = state.day == 1 && !args.skipOnboarding && !isShowcase
             if fresh || args.touchHint {
@@ -458,7 +464,7 @@ extension GameModel {
             if !touch.firstSlipPending && !firstTouchSlip { touch.lordHintAt = now + 5 }
         }
         let clear = overlay == nil && stageChange == nil && lanternMoment == nil && touch.errand == nil
-            && !firstTouchSlip
+            && !firstTouchSlip && !slides.coversWorld
         if touch.lordHintOn {
             if !clear || (now >= touch.lordHintUntil && !args.lordHint) {
                 touch.lordHintOn = false
