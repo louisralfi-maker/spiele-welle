@@ -1,0 +1,1 @@
+XCTAssertEqual failed: ("[Lanternhold.GorgeLine(key: "front.gorge.lit"), Lanternhold.GorgeLine(key: "front.gorge.land.quarry"), Lanternhold.GorgeLine(key: "front.gorge.untended")]") is not equal to ("[Lanternhold.GorgeLine(key: "front.gorge.lit"), Lanternhold.GorgeLine(key: "front.gorge.land.quarry")]")

@@ -1,0 +1,41 @@
+2026-11-15 05:09:29.223310+0000 Lanternhold[15633:54303] fopen failed for data file: errno = 2 (No such file or directory)
+Test Case '-[LanternholdTests.GorgeBeaconTests testAFallenBeaconIsRelitForAThirdAtOnce]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testALitBeaconBurnsUnderTheLightRules]' passed (0.024 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testAnOldSaveLoadsWithoutTheRule]' passed (0.051 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testARaiseWaitsBeyondAFallenBeaconAndTheSaveAgrees]' passed (0.268 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testCreaturesStrikeTheFurthestBeaconAsTheyPass]' passed (0.014 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testEachBeaconHoldsTheFogOneStretchBeyondIt]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testFromTheFirstNightEveryBeaconPushesTheFogBack]' passed (0.004 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testRaisingTakesTheBuildersIdleTime]' passed (0.143 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheBeaconsAreTendedFromTheWall]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheCharcoalBurnersBrightenTheBraziers]' passed (0.002 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GorgeBeaconTests.swift:516: error: -[LanternholdTests.GorgeBeaconTests testTheDawnTellsWhatWasLitAndWhatWasFreed] : XCTAssertTrue failed - the stone wall stands, so the beacon is tended
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GorgeBeaconTests.swift:517: error: -[LanternholdTests.GorgeBeaconTests testTheDawnTellsWhatWasLitAndWhatWasFreed] : XCTAssertEqual failed: ("[Lanternhold.GorgeLine(key: "front.gorge.lit"), Lanternhold.GorgeLine(key: "front.gorge.land.quarry"), Lanternhold.GorgeLine(key: "front.gorge.untended")]") is not equal to ("[Lanternhold.GorgeLine(key: "front.gorge.lit"), Lanternhold.GorgeLine(key: "front.gorge.land.quarry")]")
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheDawnTellsWhatWasLitAndWhatWasFreed]' failed (0.371 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheFogRollsToItsNewLine]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheGorgeLinesReadInEnglishAndGerman]' passed (0.010 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheGreatBeaconStaysAsItIs]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheNextBeaconIsRaisedByDayFromDayThreeInOrder]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheOldQuarryMakesWallWorkCheaper]' passed (0.002 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheReferenceBotIgnoresTheGorgesNumbers]' passed (1.852 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheReportsLinesInOrder]' passed (0.001 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheRuinedWatchtowerIsAForwardArchersPost]' passed (0.006 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheRuleIsDeterministic]' passed (2.078 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheRuleRoundTripsAndPartialStatesDecodeWithDefaults]' passed (0.201 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testTheSitesAreFractionsOfTheGorgeAtGrowingDistances]' passed (0.003 seconds).
+Test Case '-[LanternholdTests.GorgeBeaconTests testWithoutTheRuleNothingChanges]' passed (0.003 seconds).
+Test Suite 'GorgeBeaconTests' failed at 2026-11-15 05:09:38.095.
+Test Case '-[LanternholdTests.GorgeTuningTests testTarget15aWithAllFourHeldFewerCreaturesReachTheWall]' passed (101.883 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GorgeTuningTests.swift:39: error: -[LanternholdTests.GorgeTuningTests testTarget15bNeglectingTheWallLosesTheBeaconsAndThenTheNight] : XCTAssertTrue failed - seed 1: neglect first beacon lost night 6, fell night 20; forward fell 0, reference fell 0
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GorgeTuningTests.swift:39: error: -[LanternholdTests.GorgeTuningTests testTarget15bNeglectingTheWallLosesTheBeaconsAndThenTheNight] : XCTAssertTrue failed - seed 2: neglect first beacon lost night 6, fell night 20; forward fell 0, reference fell 0
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/Tests/GorgeTuningTests.swift:39: error: -[LanternholdTests.GorgeTuningTests testTarget15bNeglectingTheWallLosesTheBeaconsAndThenTheNight] : XCTAssertTrue failed - seed 3: neglect first beacon lost night 7, fell night 20; forward fell 0, reference fell 0
+Test Case '-[LanternholdTests.GorgeTuningTests testTarget15bNeglectingTheWallLosesTheBeaconsAndThenTheNight]' failed (0.034 seconds).
+Test Case '-[LanternholdTests.GorgeTuningTests testTarget15cBeaconsWithoutWallsDoNotBeatTheReference]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.GorgeTuningTests testTheForwardWagerIsNeverATrap]' passed (0.005 seconds).
+Test Case '-[LanternholdTests.GorgeTuningTests testTheReferenceBotsPlayTheSameWithTheRuleOn]' passed (9.467 seconds).
+Test Case '-[LanternholdTests.GorgeTuningTests testTheT15ReportIsAttached]' passed (0.007 seconds).
+Test Suite 'GorgeTuningTests' failed at 2026-11-15 05:11:29.503.
+Test Suite 'LanternholdTests.xctest' failed at 2026-11-15 05:11:29.505.
+Test Suite 'Selected tests' failed at 2026-11-15 05:11:29.505.
+exit=65
+screenshots: 0
