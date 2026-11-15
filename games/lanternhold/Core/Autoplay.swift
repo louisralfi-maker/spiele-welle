@@ -22,6 +22,8 @@ struct Autoplay: Sendable, Equatable {
     var plan: Plan
     var tax: TaxRate = .normal
     var buildsBeacon = true
+    /// Front lane hook (docs/lanes/front.md "front-3 fix 1"): the T15 bots that neglect the walls skip every wall step.
+    var skipsWalls = false
     /// The next step of the build order.
     var cursor = 0
     var thinkTimer = 0.0
@@ -177,7 +179,7 @@ struct Autoplay: Sendable, Equatable {
                     cursor += 1
                     continue
                 }
-                if !buildsBeacon && item.slot == .beacon {
+                if !buildsBeacon && item.slot == .beacon || skipsWalls && item.isWall {
                     cursor += 1
                     continue
                 }

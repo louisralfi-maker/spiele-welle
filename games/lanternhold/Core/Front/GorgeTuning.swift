@@ -106,7 +106,7 @@ struct GorgeTuning: Sendable, Equatable {
     var botReserve = 30
     /// Where the forward bot puts each beacon into the reference's build order (`Autoplay.referenceOrder`): it raises
     /// beacon k once its order has come this far, saving for it.
-    var botBeaconSteps: [Int] = [10, 16, 22, 22]
+    var botBeaconSteps: [Int] = [10, 22, 22, 22]
     /// It raises the old watchtower from this point of the order on (when its stretch is held).
     var botWatchStep = 16
     /// While the reference saves for the Great Beacon (day 11 until its third stage stands) the forward bot relights

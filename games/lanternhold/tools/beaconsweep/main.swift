@@ -188,29 +188,27 @@ if doVariants {
         + "bots against the reference)")
     var list: [(String, Balance)] = []
     func add(_ name: String, _ change: @escaping (inout GorgeTuning) -> Void) { list.append((name, variant(change))) }
-    add("front-3's pool 56 and strength 400, tended always") {
+    add("front-3's pool 56, strength 400, tended always, beacons at 10, 16, 22, 22") {
         $0.lightRadius = 56; $0.strength = [400, 400, 400, 400]; $0.tendedFromWall = false
+        $0.botBeaconSteps = [10, 16, 22, 22]
     }
-    add("pool 40, strength 400, tended always") { $0.strength = [400, 400, 400, 400]; $0.tendedFromWall = false }
-    add("pool 40, strength 600, tended always") { $0.tendedFromWall = false }
-    add("pool 56, strength 600") { $0.lightRadius = 56 }
+    add("pool 56") { $0.lightRadius = 56 }
     add("pool 48") { $0.lightRadius = 48 }
     add("pool 44") { $0.lightRadius = 44 }
     add("pool 36") { $0.lightRadius = 36 }
     add("pool 32") { $0.lightRadius = 32 }
-    add("strength 450") { $0.strength = [450, 450, 450, 450] }
+    add("strength 400") { $0.strength = [400, 400, 400, 400] }
     add("strength 800") { $0.strength = [800, 800, 800, 800] }
-    add("strength 800, 700, 600, 500") { $0.strength = [800, 700, 600, 500] }
-    add("strike reach 16") { $0.strikeReach = 16 }
+    add("tended always (not from the wall)") { $0.tendedFromWall = false }
     add("relight a quarter") { $0.relightShare = 0.25 }
     add("a beacon is raised or relit only with a wall beyond the gate") { $0.raiseNeedsWall = true }
+    add("strike reach 16") { $0.strikeReach = 16 }
+    add("the forward bot's beacons at 10, 16, 22, 22 (front-3's)") { $0.botBeaconSteps = [10, 16, 22, 22] }
+    add("the forward bot's beacons at 6, 22, 22, 22") { $0.botBeaconSteps = [6, 22, 22, 22] }
+    add("the forward bot's beacons at 10, 19, 22, 22") { $0.botBeaconSteps = [10, 19, 22, 22] }
+    add("the forward bot raises the watchtower once the Great Beacon is ordered") { $0.botWatchStep = 22 }
     add("the forward bot relights up to 30 gold while saving for the Great Beacon") { $0.botRelightWhileSaving = 30 }
-    add("the forward bot relights anything while saving for the Great Beacon") { $0.botGreatBeaconFirst = false }
-    add("the forward bot's beacons at 6, 12, 22, 22") { $0.botBeaconSteps = [6, 12, 22, 22] }
-    add("the forward bot's beacons at 10, 16, 19, 22") { $0.botBeaconSteps = [10, 16, 19, 22] }
-    add("the forward bot's beacons at 10, 22, 22, 22") { $0.botBeaconSteps = [10, 22, 22, 22] }
     add("no watchtower") { $0.watchArchers = 0 }
-    add("no charcoal") { $0.charcoalRadius = 1 }
     for (name, balance) in list {
         let pairList = pairs(balance)
         let whole = runs(balance, budgets: [1.0, 1.5], kinds: [.forward, .neglect, .outpost]) + referenceRuns

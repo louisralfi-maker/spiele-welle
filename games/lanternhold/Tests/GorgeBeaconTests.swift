@@ -496,7 +496,8 @@ final class GorgeBeaconTests: XCTestCase {
 
     func testTheDawnTellsWhatWasLitAndWhatWasFreed() throws {
         var s = morning(day: 3)
-        wall(&s)
+        s.plots[Realm.lines[1].wall].item = .stoneWall
+        s.plots[Realm.lines[1].wall].hp = balance.wallHP[1]
         XCTAssertTrue(Gorge.order(&s, balance: balance))
         // A small night (a realm that builds nothing falls on night 3, T2): only the report is asked here.
         let small = FrontTuningRun.stressed(balance, 0.25)
@@ -512,6 +513,7 @@ final class GorgeBeaconTests: XCTestCase {
         XCTAssertEqual(report.held, 1, "a small night does not break a beacon")
         XCTAssertEqual(report.lit, [0])
         XCTAssertEqual(report.freed, [.quarry])
+        XCTAssertTrue(Gorge.wallBeyondGate(s), "the stone wall stands, so the beacon is tended")
         XCTAssertEqual(report.lines(), [GorgeLine(key: GorgeLine.lit), GorgeLine(key: GorgeLine.quarry)])
         XCTAssertEqual(s.gorge?.heldAtDawn, 1)
         XCTAssertEqual(s.gorge?.tonight.night, 4, "a fresh tally for the night to come")

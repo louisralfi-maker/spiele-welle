@@ -19,8 +19,10 @@ struct ForwardTally: Sendable, Equatable {
 ///   way. While the reference saves for the Great Beacon (day 11 until its third stage stands) it relights nothing
 ///   (`GorgeTuning.botGreatBeaconFirst`): the chapter's goal first.
 /// - **Neglect** (`neglectsWalls` on): it raises and relights beacons first, at any gold, and neglects the walls: no
-///   wall is built or raised a tier (the order's wall steps are skipped), no wall is patched at night. It still
-///   rebuilds the gatehouse's rubble, as the reference does.
+///   wall is built or raised a tier (`Autoplay.skipsWalls`: every wall step of the order is skipped, the gate's tiers
+///   included), no wall is patched at night. It still rebuilds the gatehouse's rubble, as the reference does. (Before
+///   fix round 1 the bot skipped a wall step only when its order stood on it between two plans; the reference's plan
+///   walks several steps at once, so these bots still built the middle line's palisade and stone wall.)
 /// - **Walls neglected, no beacons** (`neglectsWalls` on, `raisesBeacons` off): the control of T15b.
 /// - **Outpost** (`neglectsWalls` and `forwardHabits` on): the forward bot's beacons, watchtower and Great Beacon in the
 ///   forward bot's order, but no wall built, raised or patched (T15c: beacons and the Great Beacon without walls must
@@ -42,7 +44,10 @@ struct ForwardBot: Sendable {
         self.neglectsWalls = neglectsWalls
         self.raisesBeacons = raisesBeacons
         self.forwardHabits = forwardHabits
-        if neglectsWalls { self.day.maxPatchesPerNight = 0 }
+        if neglectsWalls {
+            self.day.maxPatchesPerNight = 0
+            self.day.skipsWalls = true
+        }
     }
 
     /// Called before every sim step.
@@ -53,7 +58,6 @@ struct ForwardBot: Sendable {
             day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
             return
         }
-        if neglectsWalls { skipWallSteps() }
         if neglectsWalls && !forwardHabits {
             buy(&s, balance: balance, reserve: 0)
             day.act(&s, dt: dt, balance: balance, events: &events, petitions: petitions)
@@ -90,14 +94,6 @@ struct ForwardBot: Sendable {
         guard Gorge.order(&s, balance: balance) else { return }
         if offer.relight { tally.relights += 1 } else { tally.raises += 1 }
         tally.beaconGold += offer.price
-    }
-
-    /// The neglect bot's order without its wall steps.
-    private mutating func skipWallSteps() {
-        let order = Autoplay.referenceOrder
-        while day.cursor < order.count, case .build(_, let item) = order[day.cursor], item.isWall {
-            day.cursor += 1
-        }
     }
 
     private func wallInRubble(_ s: GameState) -> Bool {
