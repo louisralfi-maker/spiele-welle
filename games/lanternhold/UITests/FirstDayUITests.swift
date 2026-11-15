@@ -24,8 +24,9 @@ final class FirstDayUITests: XCTestCase {
         XCUIDevice.shared.orientation = .landscapeLeft
         let app = XCUIApplication()
         // Town-2 fix round 2: the lord starts at the throne, as a new player's does, so his first walk out of the hall
-        // meets the chandler's household on her way to the courtyard.
-        app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWTimeScale", "4"]
+        // meets the chandler's household on her way to the courtyard. The join: the clock twice as fast, not four
+        // times (the walk out of the great hall comes first; at four the horn sounded before the throne, lh-rj-4).
+        app.launchArguments = ["-GWReset", "YES", "-GWSkipOnboarding", "YES", "-GWTimeScale", "2"]
         app.launch()
         guard waitUntilReady(app, name: "first-day") else { return }
 
@@ -63,6 +64,10 @@ final class FirstDayUITests: XCTestCase {
         pause(0.3)
         let after = kingX(app)
         XCTAssertGreaterThan(after, before + 10, "the drag walked the king right (\(before) to \(after))")
+        // Back to line 1's braziers by the strip (the drag took him past them, out of view of the site).
+        tapStrip(strip, worldX: 1262)
+        XCTAssertTrue(waitForKing(app, near: 1262, within: 14, timeout: 20), "the king came back to the braziers")
+        waitForStill(app)
 
         // Touch the world (step stage-2): a touch on line 1's empty brazier site sends him there; its card opens
         // when he arrives. No action button any more.
