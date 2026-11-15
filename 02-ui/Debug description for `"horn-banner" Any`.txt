@@ -1,0 +1,5 @@
+Query chain:
+ →Find: Target Application 'com.louisherwick.lanternhold'
+  ↪︎Find: Descendants matching type Any
+    ↪︎Find: Elements matching predicate '"horn-banner" IN identifiers'
+      ↪︎Find: First Match

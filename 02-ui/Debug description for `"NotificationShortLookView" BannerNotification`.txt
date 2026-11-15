@@ -1,0 +1,19 @@
+Attributes: BannerNotification, 0x106434e80, {{328.0, 159.0}, {66.0, 556.0}}, identifier: 'NotificationShortLookView', label: 'SETTINGS, now, Ready for Apple Intelligence, Time to experience the new personal intelligence system.'
+Element subtree:
+ →BannerNotification, 0x106434e80, {{328.0, 159.0}, {66.0, 556.0}}, identifier: 'NotificationShortLookView', label: 'SETTINGS, now, Ready for Apple Intelligence, Time to experience the new personal intelligence system.'
+Path to element:
+ →BannerNotification, 0x106434e80, {{328.0, 159.0}, {66.0, 556.0}}, identifier: 'NotificationShortLookView', label: 'SETTINGS, now, Ready for Apple Intelligence, Time to experience the new personal intelligence system.'
+Query chain:
+ →Find: Application 'com.apple.springboard'
+  Output: {
+    Application, 0x106448300, pid: 3998, label: ' '
+  }
+  ↪︎Find: Descendants matching type BannerNotification
+    Output: {
+      BannerNotification, 0x106560220, {{159.0, 8.0}, {556.0, 66.0}}
+      BannerNotification, 0x106560c60, {{159.0, 8.0}, {556.0, 66.0}}, identifier: 'NotificationShortLookView', label: 'SETTINGS, now, Ready for Apple Intelligence, Time to experience the new personal intelligence system.'
+    }
+    ↪︎Find: Identity Binding
+      Output: {
+        BannerNotification, 0x106272960, {{159.0, 8.0}, {556.0, 66.0}}, identifier: 'NotificationShortLookView', label: 'SETTINGS, now, Ready for Apple Intelligence, Time to experience the new personal intelligence system.'
+      }

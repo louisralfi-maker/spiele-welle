@@ -1,0 +1,12 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:45: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - nothing stands on the world
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:146: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no mark at the throne
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:162: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no lectern beside the throne
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:182: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - Continue closes the report
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' failed (212.641 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (55.411 seconds).
+Test Suite 'FirstDayUITests' failed at 2026-11-15 07:28:12.921.
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (143.819 seconds).
+Test Suite 'LanternholdUITests.xctest' failed at 2026-11-15 07:30:36.749.
+Test Suite 'Selected tests' failed at 2026-11-15 07:30:36.749.
+exit=65
+screenshots: 25

@@ -1,0 +1,13 @@
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:14:25: warning: call to main actor-isolated instance method 'descendants(matching:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:14:53: warning: call to main actor-isolated instance method 'matching(identifier:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:14:86: warning: main actor-isolated property 'firstMatch' can not be referenced from a nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:15:22: warning: call to main actor-isolated instance method 'waitForExistence(timeout:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:40:25: warning: call to main actor-isolated instance method 'descendants(matching:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:40:53: warning: call to main actor-isolated instance method 'matching(identifier:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:40:89: warning: main actor-isolated property 'firstMatch' can not be referenced from a nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:41:27: warning: main actor-isolated property 'value' can not be referenced from a nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:9:15: warning: call to main actor-isolated instance method 'coordinate(withNormalizedOffset:)' in a synchronous nonisolated context
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:9:76: warning: call to main actor-isolated instance method 'tap()' in a synchronous nonisolated context
+2026-11-15 07:22:31.191 appintentsmetadataprocessor[9964:40307] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+2026-11-15 07:22:32.937 appintentsmetadataprocessor[10058:40539] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+2026-11-15 07:22:34.127 appintentsmetadataprocessor[10072:40591] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
