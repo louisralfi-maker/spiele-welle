@@ -40,6 +40,8 @@ extension GameModel {
     func openLanternMoment() {
         guard canRaiseLanternMoment, lanternMoment == nil, let state = driver?.state,
               let framing = touch.framing, framing.stage == stage else { return }
+        // Build 2 review, app-ui-1: no finger stays down under the moment (the background raises it mid-touch).
+        resetTouch()
         cancelErrand()
         if stage == .hall { stopWalking() }
         if firstTouchSlip { firstTouchSlip = false }

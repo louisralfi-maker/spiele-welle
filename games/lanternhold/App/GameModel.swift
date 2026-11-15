@@ -700,6 +700,8 @@ final class GameModel {
     // MARK: - The screens (DESIGN.md "Screens")
 
     func setOverlay(_ next: Overlay?) {
+        // Build 2 review, app-ui-1: a card takes the finger's state with it.
+        if next != nil { resetTouch() }
         if next != nil && next != .audience { closeTalk() }
         // The lantern moment (stage-3-interface) goes down under any card.
         if next != nil && lanternMoment != nil { lanternMoment = nil }

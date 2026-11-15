@@ -98,6 +98,8 @@ extension GameModel {
             return
         }
         guard overlay == nil else { return }
+        // Build 2 review, app-ui-1: a touch the system cancelled never ended; a new start point is a new touch.
+        if let down = touch.down, down != start { resetTouch() }
         if touch.down == nil {
             touch.down = start
             touch.dragging = false
@@ -141,6 +143,19 @@ extension GameModel {
         }
         guard overlay == nil, !raised else { return }
         tap(at: start, in: size)
+    }
+
+    /// Build 2 review, app-ui-1: forgets the finger, for a touch the system cancelled (the notification shade, Control
+    /// Center, the home edge), which never ends: nothing down, pressed or held on the lord, and a drag's walk stops.
+    /// Called on a new start point, when the scene is not active, when a card opens and when the lantern moment opens.
+    func resetTouch() {
+        let dragged = touch.dragging
+        touch.down = nil
+        touch.dragging = false
+        touch.pressed = nil
+        touch.onLord = false
+        touch.raised = false
+        if dragged { setDrag(offset: nil) }
     }
 
     /// The thing under a point of the screen, nil for the ground.

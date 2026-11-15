@@ -72,6 +72,8 @@ struct GameView: View {
         .accessibilityIdentifier("world-root")
         .onChange(of: scenePhase) { _, phase in
             model.setActive(phase == .active)
+            // Build 2 review, app-ui-1: a touch the system cancels never ends.
+            if phase != .active { model.resetTouch() }
             if phase == .background {
                 model.saveNow()
                 model.pauseForBackground()

@@ -414,6 +414,67 @@ final class TouchWorldTests: XCTestCase {
         XCTAssertTrue(game.sceneStatus.contains("lantern:raised"), game.sceneStatus)
     }
 
+    /// Build 2 review, app-ui-1: a touch the system cancels (the notification shade, Control Center, the home edge)
+    /// never ends. A new start point is a new touch; the scene going inactive (`GameView` calls `resetTouch`), a card
+    /// and the lantern moment forget the finger.
+    func testACancelledTouchLeavesNoStaleFinger() throws {
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "2900"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let framing = try XCTUnwrap(game.touch.framing)
+        let x = try XCTUnwrap(game.driver?.state.king.x)
+        // A drag the system cancels: no end comes.
+        game.touchChanged(start: CGPoint(x: 400, y: 300), at: CGPoint(x: 380, y: 300),
+                          translation: CGSize(width: -20, height: 0), in: proPoints)
+        XCTAssertTrue(game.touch.dragging)
+        // The next touch starts elsewhere: a tap of its own, not the end of the dead drag.
+        let p = CGPoint(x: framing.deviceX(stageX: x + 60) / 3, y: framing.deviceY(lift: -3) / 3)
+        game.touchChanged(start: p, at: p, translation: .zero, in: proPoints)
+        XCTAssertFalse(game.touch.dragging, "a new touch")
+        XCTAssertEqual(game.touch.down, p)
+        game.touchEnded(at: p, translation: .zero, in: proPoints)
+        XCTAssertNotEqual(game.touch.lastTap, "none", "the tap counted")
+
+        // The scene goes inactive during a drag: the finger is forgotten and he stops.
+        game.touchChanged(start: CGPoint(x: 500, y: 300), at: CGPoint(x: 470, y: 300),
+                          translation: CGSize(width: -30, height: 0), in: proPoints)
+        XCTAssertLessThan(try XCTUnwrap(game.driver?.state.king.velocity), 0, "walking toward the drag")
+        game.resetTouch()
+        XCTAssertNil(game.touch.down)
+        XCTAssertFalse(game.touch.dragging)
+        XCTAssertEqual(try XCTUnwrap(game.driver?.state.king.velocity), 0, "he stops")
+
+        // A card opens under a finger.
+        game.touchChanged(start: CGPoint(x: 600, y: 300), at: CGPoint(x: 570, y: 300),
+                          translation: CGSize(width: -30, height: 0), in: proPoints)
+        game.openPause()
+        XCTAssertEqual(game.overlay, .pause)
+        XCTAssertNil(game.touch.down, "the card takes the finger's state")
+        XCTAssertFalse(game.touch.dragging)
+        game.resume()
+
+        // The lantern moment opens under a finger (the app goes to the background mid-touch).
+        game.touchChanged(start: p, at: p, translation: .zero, in: proPoints)
+        XCTAssertNotNil(game.touch.down)
+        game.pauseForBackground()
+        XCTAssertNotNil(game.lanternMoment)
+        XCTAssertNil(game.touch.down, "no finger under the moment")
+        XCTAssertNil(game.touch.pressed)
+    }
+
+    /// Build 2 review, app-ui-1: a hold on the lord at night that the system cancels raises nothing by itself.
+    func testACancelledHoldOnTheLordAtNightRaisesNothing() throws {
+        let game = model(["GWStage": "world", "GWSeed": "1", "GWNight": "1", "GWHour": "22", "GWCameraX": "2600"])
+        _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
+        let framing = try XCTUnwrap(game.touch.framing)
+        let x = try XCTUnwrap(game.driver?.state.king.x)
+        let on = CGPoint(x: framing.deviceX(stageX: x) / 3, y: framing.deviceY(lift: 15) / 3)
+        game.touchChanged(start: on, at: on, translation: .zero, in: proPoints)
+        XCTAssertTrue(game.touch.onLord)
+        game.resetTouch()
+        run(game, seconds: 0.5)
+        XCTAssertNotEqual(LanternRaise.phase(since: game.driver?.state.king.lanternSince), .raised, "nothing raised")
+    }
+
     func testTheSceneValueCarriesTheLordAndTheErrand() throws {
         let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "1700"])
         _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
