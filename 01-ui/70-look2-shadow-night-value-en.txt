@@ -1,0 +1,1 @@
+frame:240 ready day:12 hour:23.33 alive:18 seen:3 lit:0 shots:0 aim:0 kx:570 lord:lord stage:world lx:570 errand:none door:1830 gold:93 hud:none cam:291 tap:none hint:off0 lantern:ready
