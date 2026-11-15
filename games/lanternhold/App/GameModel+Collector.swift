@@ -31,6 +31,22 @@ extension GameModel {
         feedback.play(.cardOpened)
     }
 
+    /// While his slip waits for the second touch, the bubble stands above it: its lower edge 2 game px over the
+    /// slip's top (the director's note of 14:22; frame 59b of lh-rj-11 had the slip under the bubble). `fallback`
+    /// is the head's height when no slip shows.
+    func collectorBubbleHeadY(_ fallback: Double) -> Double {
+        guard let slip = errandSlip, touch.errand?.id == CollectorTouch.id, let pixelScale = lastPixelScale,
+              touch.viewWidth > 0 else { return fallback }
+        let width = Double(max(1, pixelScale.physicalWidth))
+        let height = Double(max(1, pixelScale.physicalHeight))
+        let points = touch.viewWidth * min(width, height) / max(width, height)
+        // ErrandSlipView stands centred 18 pt over its foot and is about 27 pt high: its top is 31.5 pt over the foot.
+        let slipTop = slip.y * points - 31.5
+        let gap = 2 * Double(pixelScale.scale) * points / height
+        // TalkBubbleView ends 4 pt over its head line.
+        return min(fallback, (slipTop - gap + 4) / points)
+    }
+
     /// The second touch at his post: taken on, sent home or taken on again (from the next morning, now and in the
     /// day's dawn snapshot), and his answer.
     func collectorAnswers() {

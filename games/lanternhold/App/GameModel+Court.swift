@@ -91,6 +91,8 @@ extension GameModel {
             let height = Double(Speakers.speaker(bubble.who)?.body.sprite.size.height ?? 30)
             bubble.anchorX = screenX(x)
             bubble.headY = (ground - height * Double(scale)) / physicalHeight
+            // The join: while the collector's slip waits, his bubble stands above it (`collectorBubbleHeadY`).
+            if bubble.who == GameModel.collectorSpeaker { bubble.headY = collectorBubbleHeadY(bubble.headY) }
             let old = talkBubble
             if abs(bubble.anchorX - (old?.anchorX ?? 0)) > 0.002 || abs(bubble.headY - (old?.headY ?? 0)) > 0.002 {
                 talkBubble = bubble
