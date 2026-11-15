@@ -3546,9 +3546,10 @@ burning doorway) and ten highs. Art: `tools/keepfix.py` (ART-look2.md section 24
   round stair turret and its stair hall on the west. Light of its own: a brazier on the wall walk (`brazierFlame`, its
   light `keepFireGlow` at dusk and night; none among the builders), a 2 px bloom round every lit twin window
   (`keepPaneHalo`; a dark window loses it), a warm rim on its west edges at the golden hour and dusk (`keepRim…`, by
-  `FrameBuilder.keepRimShare`: the hour's warmth, gone once the moon is up). Mist at its foot: `keepMist` (near picture,
-  moving with the mist band, y 60, 2.6 of the hour's mist), its billows over the curtain's crenels at dawn, dusk and
-  night. A fifth pane, the stair hall's small window (53,70,3,7), lights at night at every tier.
+  `FrameBuilder.keepRimShare`: the hour's warmth, gone once the moon is up). Mist at its foot: `keepMist` (fog A picture,
+  moving with the mist band, y 60, the hour's fog colour at 2.6 of the hour's mist; `FrameBuilder.addProp` tints a mist
+  bank on a fog plane like the fog's tiles), its billows over the curtain's crenels at dawn, dusk and night (round
+  lh-w2f1-1 had it in the near picture, where the night's ambient made it vanish). A fifth pane, the stair hall's small window (53,70,3,7), lights at night at every tier.
 - **The hall door (blocker 2):** the open frame shows a view into the lit hall (`hallDoorGlow`, 20x32: flagstones
   receding to a warm far wall, the hearth's glow its brightest point high in the middle, dark jambs, beams, the pillar
   and the banner dark against it). The door's own light is a flat pool at the steps' foot (y −4, squash 2.6), so the
@@ -3574,9 +3575,10 @@ burning doorway) and ten highs. Art: `tools/keepfix.py` (ART-look2.md section 24
   at row 7: `castleDoorGap`, `castleDoorGlow`).
 - **The curtain's blind arch (high 6):** `curtainB`'s blocked arch is a recess a value darker with the intrados's shadow,
   lit only on its left haunch.
-- **The gates' frame (high 7):** `gateArchFg` is the near jamb of each passage (16x205, 2 frames, foreground, moving
-  with the world plane, at the passage's east end − 8): 14 px of dark coursed stone up over the screen's top with a
-  warm lit edge, only while the lord passes (`archTenths`).
+- **The gates' frame (high 7):** `gateArchFg` is the near jamb of each passage (16x116, 2 frames, foreground, moving
+  with the world plane, at the passage's east end − 8): a doorpost of 12 px of dark coursed stone up to the passage's
+  springing, curling into the soffit and feathering out, with a warm lit edge, only while the lord passes
+  (`archTenths`). Round lh-w2f1-1 drew it up over the screen's top: a pole across the gatehouse.
 - **The building states (high 8):** heavy scaffolding, a crane whose jib stands over the roof line (tier 2), timber
   cones in light wood with two-px rafters (tier 3).
 - **The moon (high 10):** inside the walls it stands on the sky, still on the screen (`FrameBuilder.wedgeMoon`: column
