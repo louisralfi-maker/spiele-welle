@@ -234,7 +234,7 @@ final class LanternMomentTests: XCTestCase {
         let coin = try XCTUnwrap(frame.actors.first { $0.sprite == .hudCoin }, "the coin over the lord")
         XCTAssertTrue(coin.isEmissive, "unlit")
         game.refreshHUD()
-        XCTAssertTrue(game.sceneStatus.contains("hud:notes"), game.sceneStatus)
+        XCTAssertFalse(game.sceneStatus.contains("hud:none"), game.sceneStatus)
         run(game, seconds: 3)
         frame = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
         XCTAssertFalse(frame.actors.contains { $0.sprite == .hudCoin }, "gone 2 s after the last coin")

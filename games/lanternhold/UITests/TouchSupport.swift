@@ -43,6 +43,7 @@ extension XCTestCase {
     }
 }
 
+@MainActor
 /// The lantern moment (stage lane, step stage-3-interface; docs/HUD.md): nothing stands on the walked world, so the
 /// tests raise the lantern with a touch on the lord to read the realm's figures, reach the gear or use the realm strip.
 extension XCTestCase {

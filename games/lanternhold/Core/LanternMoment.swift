@@ -143,6 +143,8 @@ struct PurseTicker: Sendable, Equatable {
     var lastTick = 0.0
     /// The clock's second of the next tick.
     var nextTick = 0.0
+    /// Coins per tick for the change on show (set when it starts or its target moves, so a sum ticks evenly).
+    var stride = 1
 
     /// It stays this long after the last coin.
     static let linger = 2.0
@@ -171,17 +173,19 @@ struct PurseTicker: Sendable, Equatable {
             guard gold != target else { return false }
             shown = target
             target = gold
+            stride = PurseTicker.step(gold - (shown ?? gold))
             lastTick = now
             nextTick = now + PurseTicker.tickSeconds
             return true
         }
+        guard var value = shown else { return false }
         if gold != target {
             target = gold
+            stride = PurseTicker.step(gold - value)
         }
-        guard var value = shown else { return false }
         while value != target && now >= nextTick {
             let gap = target - value
-            let move = min(abs(gap), PurseTicker.step(gap))
+            let move = min(abs(gap), stride)
             value += gap > 0 ? move : -move
             lastTick = now
             nextTick += PurseTicker.tickSeconds
