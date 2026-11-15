@@ -41,10 +41,18 @@ struct RealmStripView: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text("Map of the valley"))
-        .accessibilityValue(snapshot.petitioners > 0 ? Text("Petitioners waiting: \(snapshot.petitioners)")
-                                                     : Text(verbatim: ""))
+        .accessibilityValue(Text(verbatim: RealmStripView.callsValue(snapshot)))
         .accessibilityHint(Text("Tap to walk there"))
         .accessibilityAddTraits(.isButton)
         .accessibilityIdentifier("realm-strip")
+    }
+
+    /// The strip's VoiceOver value: who waits, and (fix lane D, player-loop-1) how many of the town's doors still owe
+    /// today, so the pointer to the taxes reaches VoiceOver too; empty while nothing calls.
+    static func callsValue(_ strip: RealmStrip) -> String {
+        var parts: [String] = []
+        if strip.petitioners > 0 { parts.append(String(localized: "Petitioners waiting: \(strip.petitioners)")) }
+        if strip.owingDoors > 0 { parts.append(String(localized: "Doors owing: \(strip.owingDoors)")) }
+        return parts.joined(separator: ", ")
     }
 }

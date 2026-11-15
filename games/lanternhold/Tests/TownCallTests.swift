@@ -141,6 +141,22 @@ final class TownCallTests: XCTestCase {
         XCTAssertFalse(answered.update(day2, hour: 8.05, clock: 21, allowed: true), "answered: it goes at once")
     }
 
+    /// The review's should-fix: the doors' pointer reaches VoiceOver too, through the strip's value.
+    func testTheStripTellsVoiceOverOfTheDoors() {
+        var s = secondMorning()
+        s.hour = 6.2
+        var owing = strip(s)
+        XCTAssertGreaterThan(owing.owingDoors, 0)
+        XCTAssertEqual(RealmStripView.callsValue(owing), String(localized: "Doors owing: \(owing.owingDoors)"))
+        owing.petitioners = 2
+        XCTAssertEqual(RealmStripView.callsValue(owing),
+                       String(localized: "Petitioners waiting: \(owing.petitioners)") + ", "
+                           + String(localized: "Doors owing: \(owing.owingDoors)"))
+        owing.petitioners = 0
+        owing.owingDoors = 0
+        XCTAssertEqual(RealmStripView.callsValue(owing), "", "nothing calls: no value")
+    }
+
     // MARK: - The dawn report
 
     func testTheReportSaysWhenNobodyAskedAtTheDoors() {
