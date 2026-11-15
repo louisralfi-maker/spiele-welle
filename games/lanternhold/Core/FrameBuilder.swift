@@ -847,10 +847,11 @@ enum FrameBuilder {
         return list
     }
 
-    /// The warm graze's tiles (fix round 2, tools/cleftart.py `graze`): mid x from where they begin to where they end
-    /// (the gatehouse to the back gate), every `width` px, every second one mirrored; the fire's colour at the
+    /// The warm graze (fix round 2, tools/cleftart.py `graze`): three frames of `cleftGraze` side by side (the west
+    /// end, the middle, the east end) behind the castle's buildings only, from the gatehouse (mid 740) to before the
+    /// back gate's passage (mid 1244), so it never lies on the open rock of the cleft's mouth; the fire's colour at the
     /// torches' strength.
-    static let cleftGrazeSpan: ClosedRange<Double> = 700...1300
+    static let cleftGrazeX = 740.0
     static let cleftGrazeGain: Float = 0.8
 
     private static func cleftGraze(ambient: AmbientSample, geometry: Geometry) -> [EmissiveInstance] {
@@ -861,17 +862,12 @@ enum FrameBuilder {
         let top = geometry.top(y: 0, height: Double(size.height))
         let tone = GamePalette.fireOrange * (torch * cleftGrazeGain)
         var list: [EmissiveInstance] = []
-        var x = cleftGrazeSpan.lowerBound
-        var index = 0
-        while x < cleftGrazeSpan.upperBound {
-            let left = x - whole
-            if geometry.isVisible(left: left, width: Double(size.width)) {
-                let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
-                list.append(EmissiveInstance(sprite: .cleftGraze, plane: .mid, rect: rect,
-                                             color: SIMD4<Float>(tone.x, tone.y, tone.z, 1), flipped: index % 2 == 1))
-            }
-            x += Double(size.width)
-            index += 1
+        for frame in 0..<SpriteID.cleftGraze.frameCount {
+            let left = cleftGrazeX + Double(frame * size.width) - whole
+            guard geometry.isVisible(left: left, width: Double(size.width)) else { continue }
+            let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+            list.append(EmissiveInstance(sprite: .cleftGraze, plane: .mid, rect: rect,
+                                         color: SIMD4<Float>(tone.x, tone.y, tone.z, 1), frame: frame))
         }
         return list
     }

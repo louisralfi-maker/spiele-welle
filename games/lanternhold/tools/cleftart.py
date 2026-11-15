@@ -27,8 +27,9 @@ sprite per run of `build` (each under 15 s on the old Mac).
                  tower's outer edge (world 1249), climbing over its foot in ledges; ashlar set into it. world x 1186.
   gateRockR      60x70, world plane: the same at the east tower's outer edge (world 1470). world x 1440.
   cleftWater     14x54, 12 frames: the two threads of falling water, six scrolling frames each (fix round 2).
-  cleftGraze     192x96 white alpha mask in three stepped bands: the castle's warm light on the wall's foot (fix
-                 round 2; the engine tints it with the fire's colour at the torches' strength).
+  cleftGraze     168x96, 3 frames (west end, middle, east end), white alpha mask in three stepped bands: the castle's
+                 warm light on the wall's foot (fix round 2; the engine tints it with the fire's colour at the
+                 torches' strength, behind the castle's buildings only).
 
   cleftart.py ridges <weltmauer.png>       fix round 2: the Weltmauer's arêtes and buttress masses (in place, after
                                            `noslot`, before `mistleft`)
@@ -501,33 +502,46 @@ def water():
     return img
 
 
-GRAZE_W, GRAZE_H = 192, 96
+GRAZE_W, GRAZE_H, GRAZE_FRAMES = 168, 96, 3
 
 
 def graze():
     """cleftGraze (fix round 2, the critic: "the promised warm graze from the castle at the wall's foot does not
     show"): the castle's warm light on the cleft wall's foot, a white alpha mask in three steps (the engine tints it
-    with the fire's colour at the torches' strength, behind the castle's buildings, so it shows in the gaps and as a
-    warm rim on the rock over the roofs): strongest over the lowest 44 rows, a second step to about 70, a faint third
-    to about 92; each step's top a jagged line (a row or two up or down every 3 to 7 px), never a ruler."""
+    with the fire's colour at the torches' strength behind the castle's buildings, so it shows in the gaps between
+    them and as a warm rim on the rock over the roofs): strongest up to about 72 rows, a second step to about 84, a
+    faint third to about 94; each step's top a jagged line (rows up or down every 3 to 7 px and a slow wander), never
+    a ruler. Three frames laid side by side behind the castle: 0 the west end, 1 the middle, 2 the east end; the ends
+    fade out in the same steps over 56 px, so the warmth never stops at a column."""
     w, h = GRAZE_W, GRAZE_H
-    img = PA.Image(w, h)
-    steps = [(44, 110), (70, 64), (92, 30)]   # (rows above the bottom, alpha)
+    img = PA.Image(w * GRAZE_FRAMES, h)
+    steps = [(72, 120), (84, 76), (94, 38)]   # (rows above the bottom, alpha)
 
-    def edge(x, i, base):
-        seg = int((x + 13 * i) // (3 + 4 * h01(941, i, int((x + 13 * i) // 7))))
-        return base + int(round(4 * (h01(943, i, seg) - 0.5) + 6 * (vnoise(945 + i, x / 23.0) - 0.5)))
+    def edge(gx, i, base):
+        seg = int((gx + 13 * i) // (3 + 4 * h01(941, i, int((gx + 13 * i) // 7))))
+        return base + int(round(6 * (h01(943, i, seg) - 0.5) + 10 * (vnoise(945 + i, gx / 29.0) - 0.5)))
 
-    for x in range(w):
-        tops = [edge(x, i, b) for i, (b, a) in enumerate(steps)]
-        for y in range(h):
-            up = h - 1 - y
-            a = 0
-            for (t, (b, al)) in zip(tops, steps):
-                if up < t:
-                    a = max(a, al)
-            if a:
-                img.set(x, y, (255, 255, 255, a))
+    for f in range(GRAZE_FRAMES):
+        for x in range(w):
+            gx = f * w + x                     # the three frames are one strip
+            # the ends: a step down every 18 px or so, its place wandering by the row
+            end = 1.0
+            if f == 0:
+                end = min(1.0, x / 56.0)
+            elif f == GRAZE_FRAMES - 1:
+                end = min(1.0, (w - 1 - x) / 56.0)
+            tops = [edge(gx, i, b) for i, (b, a) in enumerate(steps)]
+            for y in range(h):
+                up = h - 1 - y
+                a = 0
+                for k, (t, (b, al)) in enumerate(zip(tops, steps)):
+                    if up < t:
+                        a = max(a, al)
+                if a and end < 1.0:
+                    q = int(end * 3 + h01(947, gx, up // 5) * 0.99)   # 0 ... 3 steps in
+                    a = int(a * min(1.0, q / 3.0))
+                if a:
+                    img.set(f * w + x, y, (255, 255, 255, a))
     return img
 
 

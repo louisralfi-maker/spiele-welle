@@ -689,7 +689,7 @@ Fix round 2 adds:
 
 | id | size | plane | where | notes |
 |---|---|---|---|---|
-| `cleftGraze` | 192x96 | mid (emissive), bottom on the ground line | mid 700 to 1300, every 192 px, every second one mirrored | the castle's warm light on the cleft wall's foot: a white mask in three stepped bands (alpha 110, 64, 30 over the lowest 44, 70, 92 rows) with jagged tops, drawn as glow in `fireOrange` × the torches' strength × 0.55 behind the buildings; none by day |
+| `cleftGraze` | 168x96, 3 frames | mid (emissive), bottom on the ground line | mid 740, 908, 1076 (frames 0, 1, 2: the west end, the middle, the east end) | the castle's warm light on the cleft wall's foot, behind the castle's buildings only: a white mask in three stepped bands (alpha 120, 76, 38 up to about 72, 84, 94 rows) with jagged tops, the ends fading out in the same steps over 56 px; drawn as glow in `fireOrange` × the torches' strength × 0.8; none by day |
 | `laneCobbleEnd` | 64x26 | world, lane tile | world 2432 | where the castle's cobbles give way to the valley's earth lane: `laneEarthA` with `laneCobbleB`'s stones laid over it, thinning stone by stone over 48 px (`tools/lanejoin.py`) |
 
 The Weltmauer's slot patch has wandering edges (no dithered blend column), and the wall is cut into buttresses by

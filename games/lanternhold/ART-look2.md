@@ -1825,9 +1825,10 @@ and six highs. What each became:
   spire any more but the same shoulder, low toward the bailey.
 - **Dusk in the cleft** (high 5): no moon in the wedge until the night's moon is up (`wedgeMoonShare`), no stars, and
   the wedge's sky warmed toward the horizon's colour (`cleftDuskShare`), so dusk and night differ. The castle's warm
-  graze on the wall's foot: `cleftGraze`, a white mask in three stepped bands with jagged tops, drawn as glow in the
-  fire's colour at the torches' strength behind the buildings (they hide it), so the warmth shows in the gaps and as
-  a rim over the roofs.
+  graze on the wall's foot: `cleftGraze`, a white mask in three stepped bands with jagged tops (three frames: the
+  west end, the middle, the east end, the ends fading out in steps), drawn as glow in the fire's colour at the
+  torches' strength behind the castle's buildings only (they hide it), so the warmth shows in the gaps and as a rim
+  over the roofs; on the open rock of the cleft's mouth it read as a band of haze.
 - **The night bank** (high 1): the sheets stand apart in value at night (A light and thinner, so the moor's firs
   show through it; B a clear step darker; C the dark roll), the eyes keep one period a fifth apart per slot (two or
   three pairs open on every frame, above the low roll's crest), and the world's end hides every glow inside its dark

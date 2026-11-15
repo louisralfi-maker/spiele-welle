@@ -3410,8 +3410,10 @@ and six highs. Art notes: ART-look2.md 22.7; ids: SPRITES.md "The rock and the f
   56 rows, far 46 to 128); `bankEnd` occludes the glow inside the world's end (`FrameBuilder.build`).
 - **Dusk in the cleft** (`FrameBuilder.cleftDuskShare`, `wedgeMoonShare`): no wedge moon until the night's moon is
   up, no stars, the sky's top 0.7 of the way to the horizon's colour inside the walls at dusk. **The warm graze**
-  (`cleftGraze`, `FrameBuilder.cleftGraze`): glow in `fireOrange` × torches × 0.55 behind the buildings, mid 700 to
-  1300. **The moon** stands 36 rows under the screen's top (`look2SlitMoonTop`; the HUD's stat panel ends at row 33).
+  (`cleftGraze`, `FrameBuilder.cleftGraze`): three frames (west end, middle, east end) of glow in `fireOrange` ×
+  torches × 0.8 behind the buildings only, mid 740 to 1244 (round lh-w1f2-4 showed a 1300-wide span lying on the open
+  rock of the cleft's mouth as a hazy band with a hard edge). A light inside the world's end fades with the end's own
+  cover (the lord's lantern lit the black fog as a warm half disc; the glow occluder alone did not hide it). **The moon** stands 36 rows under the screen's top (`look2SlitMoonTop`; the HUD's stat panel ends at row 33).
 - **The Weltmauer and the deck**: arêtes and buttress masses (`cleftart.py ridges`), the slot patch without dotted
   columns, no high clouds in the peak gaps (`SceneLayout.dropsInLook2` drops look 1's sky clouds; look 2's clouds-plane
   deck is gone), `cloudDeck` 720x100 with towers and a horizontal veil.
