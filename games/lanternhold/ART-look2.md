@@ -1736,3 +1736,23 @@ world", step stage-1). The art is used as painted; the engine adds its light, it
   house's banner hangs over its place. The rhythm along the nave: banner, window, sconce, banner, window, sconce,
   banner.
 - Not done: the inner door's open frame.
+
+### 21.5 Fix round 2: after the art director's second look (critic look 2, 7/10)
+
+- **The lantern indoors** is a soft disc, not a box: one round pool of 44 px on the lantern's head and an ellipse of
+  42 x 8 px on the carpet under it, both in its warm white to the rim. Its strength reaches the light's cap only in a
+  small heart round the glass (round 1's cap held the whole wainscot panel flat and the pool ended at the cap rail).
+- **Teal cloth** (banners, the cloth of estate) takes a dim neutral 0.3 of warm light and keeps its ambient: it stays the
+  dark ground behind the lord; candles and the lantern no longer halo or green it. Stone and wood take warm light whole.
+- **The near pillar** is painted evenly lit (`stoneMid` edges, `stone` face, `stoneDark` joints with a `stoneLight`
+  lip every 19 rows); the engine gives it a 4 px band of the key light on one side (window cool 0.42/0.46/0.54 by day
+  on the right, torch warm 0.52/0.30/0.12 at night on the left, × 2.6 on the stone, falling 1, 0.8, 0.55, 0.3, 0.12
+  over 5 px), the thin rims on both edges and a ramp to 0.6 toward the roof.
+- **The waiting sit behind the bench's front:** the bench is drawn again over who sits on it (seat, cushion and legs
+  over the body); a body without a seated strip stands 5 px lower with its legs below the wall line cut off, its shins
+  showing between the bench's legs. Seats 11 px apart.
+- **The dais** is a raised platform at the back: pale flags on its top (rows 154 to 165, a `stonePale` nosing on the
+  last), a 9 px ashlar face (rows 166 to 174) with its `stoneDark` shadow on the flags at its foot; the steps' treads
+  end at their risers on the walk line; the nave's flags run on below. The runner ends at the steps' foot in a gold
+  fringe; a seven-row rug of the runner's border lies on the dais before the throne (x 380 to 439).
+- **The chandeliers** hang 10 px lower (wheel at row 53), just above the tall windows' apex.

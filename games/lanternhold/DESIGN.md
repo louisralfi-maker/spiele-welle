@@ -3394,6 +3394,60 @@ lantern over the teal cloth). What changed (new logic in `Core/HallLight.swift`)
   frame), the UI classes passed; **`lh-s1f1-3` build, unit, ui Hall, FirstDay, Audience and Lord ALL PASSED on
   704cc29.** The atlas gains no rows (the narrower pillar shares the hall's shelf; `hallWash` keeps its size).
 
+#### Step stage-1, fix round 2: after the art director's second look
+
+The independent art director scored fix round 1 7 of 10 (`ci-out/director/stage-1-hall-critic2.md`: one blocker, eight
+highs). What changed (new values in `Core/HallLight.swift` and `HallCourt`):
+
+- **The lantern (the blocker):** walking, the lord's lantern indoors is one round pool on its head (radius 44,
+  `HallLight.lanternRadius`) over the stone, the wainscot and the floor alike, and an ellipse 42 x 8 px on the carpet
+  under it (`lanternFloor`). Round 1's lit box came from two things: its pool was flattened (squash 1.25, so it
+  spanned the wainscot only) and so strong that the light's cap held it flat over the whole panel, dropping at the cap
+  rail. Now it reaches the cap only in a small heart round the lantern (0.18 + 0.37 × night) and falls off evenly; inside
+  the hall the lantern's pools keep their warm white to the rim (the renderer's ember rim read red on the carpet). On
+  the throne the low pool at his lap is as before.
+- **Teal cloth swallows warm light** (the composite, inside only): on cool albedo (blue minus red over 0.10) warm light
+  becomes a dim neutral touch (0.3) and displaces little of the ambient, so the lantern leaves no cyan halo round the
+  lord's head on the cloth of estate (round 1 brightened its luminance) and no olive green (before round 1); grey stone
+  takes warm light whole.
+- **The near pillar:** `hallPillarNear` repainted evenly lit (both edges darker, the drums' joints in `stoneDark` with
+  a lit lip, no baked key); the composite lays a soft band 4 px wide on its key side (`InteriorLight.pillarBand`,
+  `hallRimR.a`: the tall window's light on the right by day, the door torches' on the left from the dusk, strength 2.6),
+  keeps the thin rims, darkens the whole pier toward the roof (to 0.6) and gives it 0.9 of the hall's ambient. It stays
+  at hall x 150: at the entry it already stands at 34 % of the screen (a third); the door bay is its own bay under the
+  gallery, so the pier marks it.
+- **Everyone waiting sits:** every townsperson takes a seat (six, 11 px apart now), with a seated strip where the body
+  has one, otherwise the standing body 5 px lower (`HallCourt.sunk`) with its rows below the wall line cut off
+  (`ActorInstance.cropBottom`); the stage draws both benches again as actors after the wall line and before the walk
+  line, so the bench's seat and legs stand over who sits. Beyond six, one stands at the first bench's end (218), the
+  rest by the door bay.
+- **The hall answers its lord:** the door's guards come to attention when he comes in (0.12 to 2.2 s: 2 px taller,
+  still, and a glint on the spear's head for 0.8 s); the waiting rise half way (3 px) and turn to him for 3 s; whom he
+  passes within 24 px looks at him (Odile and Pip too), the nearest bows (the seated strip's nod, or a pixel lower).
+  Proof: `132b-hall-pass-bench` (the lord at the first bench's end: two turn to him, the third still looks to the
+  throne).
+- **The dais** is a raised platform at the back (`greatHall` repainted): its top from the back wall to the walk line,
+  its 9 px front face standing on the walk line, the steps' treads and risers likewise; below the walk line the nave's
+  flags run on under its whole length (the treads painted down to the hall's bottom made a seam to the screen's edge).
+  The runner ends at the foot of the steps; a rug lies on the dais before the throne.
+- **The audience framing:** the day's shafts from windows under the letter fade with the move (`HallLight.shaftShare`;
+  their beams seemed to fall out of the letter's lower edge); their pools on the floor stay.
+- **The first morning at the throne:** on the hall stage the throne's caption ("Audience (n)") stands left of the
+  button, low over the floor, instead of over the hearth's fire. The camera cannot move the fire out from under the
+  button: it stands at the hall's end wall there (left 215.4 of 590 − 374.6); 40 px further would show the void past
+  the hall again (round 1's blocker). Stage-2 removes the button.
+- **German on the floor band** (no German round, by the director's note of 14.11. 19:35): the plaques' words keep their
+  two lines at most, and now their cost line and their reason keep to one line each (shrinking to 0.75), so the row
+  cannot grow toward the petitioner's feet.
+- **Smaller notes:** the lectern's key higher and nearer the chair (on the lord's face; teal cloth no longer takes a
+  halo from it); the chandeliers 10 px lower (out from behind the realm strip); the hearth's wall light follows its
+  strength more closely (0.2 + 0.8 × strength), so over embers the firebox's frame dims.
+- **Tests:** `HallStageTests` (everyone sits, the benches over them, the crop; the lantern's two pools, the pillar's
+  band by day and night, the shafts under the letter; the guards at attention, the glint, the waiting half risen);
+  `HallRenderTests` renders the hall's stills off screen (`hall-r-*` in the unit step's results: the lantern at night,
+  the pillar by day and at night, the benches, the greeting and the room settled, the passing look, the first morning
+  at the throne, the hearth at night over the dais, the audience framing), so a look round needs no simulator.
+
 ## Risks
 
 | Risk | What we do |
