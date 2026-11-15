@@ -1,0 +1,9 @@
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] 03s: report-root continue-hittable:false webviews:0 close-buttons:0 system-alert:true app:4
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] 10s: report-root continue-hittable:false webviews:0 close-buttons:0 system-alert:true app:4
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] the tracking question came; tapped "Ask App Not to Track"
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] no consent form was answered (none came, or none could be tapped)
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] report: offer shown 40 s after the report appeared
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] tap+05s: continue-hittable:false webviews:3 close-buttons:2 system-alert:false app:4
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] tap+15s: continue-hittable:false webviews:3 close-buttons:2 system-alert:false app:4
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] tap+35s: continue-hittable:false webviews:3 close-buttons:2 system-alert:false app:4
+PROOF: -[ProofUITests testGoogleAdsPathWithTestUnits] the ad could not be closed within 40 s: the test ends here without failing

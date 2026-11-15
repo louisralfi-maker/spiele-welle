@@ -1,0 +1,2 @@
+PROOF: -[ProofUITests testNoFillDefeatAndReport] report: report-root continue-hittable:true webviews:0 close-buttons:0 system-alert:false app:4
+PROOF: -[ProofUITests testNoFillDefeatAndReport] defeat: defeat-root defeat-replay continue-hittable:false webviews:0 close-buttons:0 system-alert:false app:4; later-note false
