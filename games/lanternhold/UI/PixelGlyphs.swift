@@ -19,13 +19,13 @@ enum PixelGlyph: String, CaseIterable, Sendable {
         switch self {
         case .play:
             return [
-                "XX.....",
-                "XXXX...",
-                "XXXXXX.",
+                "X......",
+                "XXX....",
+                "XXXXX..",
                 "XXXXXXX",
-                "XXXXXX.",
-                "XXXX...",
-                "XX.....",
+                "XXXXX..",
+                "XXX....",
+                "X......",
             ]
         case .horn:
             return [
