@@ -1,0 +1,4 @@
+Test Case '-[LanternholdUITests.TitleUITests testTheFirstLight]' passed (30.569 seconds).
+Test Case '-[LanternholdUITests.TitleUITests testTheTitlesStates]' passed (39.548 seconds).
+exit=0
+screenshots: 5
