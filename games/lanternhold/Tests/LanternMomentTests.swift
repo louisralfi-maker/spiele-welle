@@ -267,6 +267,24 @@ final class LanternMomentTests: XCTestCase {
         XCTAssertNil(game.overlay, "no card: " + detail)
     }
 
+    /// The join (the director's note of 15:55), the rule of 7c397e5 in numbers: on his body the lord wins unless the
+    /// finger is more than 3 px nearer the thing's middle. Standing half a game px off a site's middle, a touch on his
+    /// middle is his, and so is a touch 4 px toward the site (with the site's middle half a px off him no finger on his
+    /// body is 3 px nearer it); a site whose middle lies 8 px off him opens for a finger 6 px toward it.
+    func testTheLordWinsOnHisBodyUnlessTheFingerIsClearlyNearerTheThing() throws {
+        let game = model(["GWStage": "world", "GWCameraX": "1150"])
+        run(game, seconds: 0.3)
+        let lord = game.stageLordX
+        func site(_ x: Double) -> TouchThing {
+            TouchThing(id: "touch-plot-test", kind: .plot, act: .build(plot: 2), x: x, standX: x, halfWidth: 10, top: 14,
+                       rank: TouchRules.rank(.plot))
+        }
+        XCTAssertTrue(game.prefersLord(over: site(lord + 0.5), x: lord), "half a px off the site: his middle is his")
+        XCTAssertTrue(game.prefersLord(over: site(lord + 0.5), x: lord + 4), "4 px toward it: still nearer than 3 px")
+        XCTAssertFalse(game.prefersLord(over: site(lord + 8), x: lord + 6), "6 px toward a site 8 px off: the site")
+        XCTAssertTrue(game.prefersLord(over: site(lord + 8), x: lord + 2), "2 px toward it: still the lord")
+    }
+
     func testTheLordIsAnElementThatRaisesTheLantern() throws {
         let game = model(["GWStage": "world", "GWSeed": "1", "GWClock": "9", "GWCameraX": "2900"])
         _ = game.frame(physicalWidth: pro.physicalWidth, physicalHeight: pro.physicalHeight)
