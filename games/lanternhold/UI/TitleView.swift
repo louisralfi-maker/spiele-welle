@@ -39,9 +39,9 @@ enum TitleLayout {
     ]
     /// The order the letters light: R first, then outward in pairs (0.07 s apart).
     static let lightOrder: [[Int]] = [[5], [4, 6], [3, 7], [2, 8], [1, 9], [0, 10]]
-    /// The lord on the keep: feet (275, 88), sprite 9 x 16; his lantern is sprite column 0, row 4 / 3 / 1 / 1.
+    /// The lord on the keep: feet (275, 88), sprite 9 x 16; his lantern is sprite column 0, row 11 / 7 / 3 / 1 (1a56dc7).
     static let lord = CGRect(x: 271, y: 73, width: 9, height: 16)
-    static let lordLanternRow: [CGFloat] = [4, 3, 1, 1]
+    static let lordLanternRow: [CGFloat] = [11, 7, 3, 1]
     /// His light (15 x 15) centred on his lantern's pixel.
     static let lordLightSize: CGFloat = 15
     /// The sentries (7 x 14), top left = feet - (3, 13).
