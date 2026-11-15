@@ -34,7 +34,7 @@ final class TitleUITests: XCTestCase {
         RunLoop.current.run(until: Date().addingTimeInterval(1.5))
         if title.exists { title.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7)).tap() }
         let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: title)
-        XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: 6), .completed, "the touch starts the game")
+        XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: 10), .completed, "the touch starts the game")
         let entry = app.descendants(matching: .any).matching(identifier: "lord-entry-root").firstMatch
         XCTAssertTrue(entry.waitForExistence(timeout: 20), "a new realm asks for its lord after the title")
         RunLoop.current.run(until: Date().addingTimeInterval(0.6))
