@@ -791,7 +791,8 @@ final class HearthTests: XCTestCase {
         XCTAssertEqual(brk.wallsRaised, [])
         XCTAssertEqual(brk.dead, ["Cobb"])
         XCTAssertEqual(brk.after, .embers)
-        XCTAssertEqual(try JSONDecoder().decode(HearthBreak.self, from: Data("{}".utf8)).night, 0)
+        XCTAssertThrowsError(try JSONDecoder().decode(HearthBreak.self, from: Data("{}".utf8)),
+                             "without its night and its fire it is no breach (and the state drops it)")
         let state = try JSONDecoder().decode(HearthState.self, from: Data("{\"level\": \"low\", \"fedDay\": 4}".utf8))
         XCTAssertEqual(state.woodGiftDay, 0)
         XCTAssertEqual(state.level, .low)

@@ -55,14 +55,16 @@ struct HearthBreak: Codable, Sendable, Equatable {
         self.after = after
     }
 
-    /// Every field with a default, so a field added later never makes a save corrupt.
+    /// The breach's own fields (when, which night, the fire before and after) are required: without them it is no
+    /// breach, and `HearthState` drops it. Every other field has a default, so a field added later (`wallsRaised`)
+    /// never makes a save corrupt.
     init(from decoder: any Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        at = (try? c.decodeIfPresent(Double.self, forKey: .at)) ?? 0
-        night = (try? c.decodeIfPresent(Int.self, forKey: .night)) ?? 0
+        at = try c.decode(Double.self, forKey: .at)
+        night = try c.decode(Int.self, forKey: .night)
         hour = (try? c.decodeIfPresent(Double.self, forKey: .hour)) ?? 0
-        before = (try? c.decodeIfPresent(HearthLevel.self, forKey: .before)) ?? .bright
-        after = (try? c.decodeIfPresent(HearthLevel.self, forKey: .after)) ?? .bright
+        before = try c.decode(HearthLevel.self, forKey: .before)
+        after = try c.decode(HearthLevel.self, forKey: .after)
         burnt = (try? c.decodeIfPresent([HearthPlace].self, forKey: .burnt)) ?? []
         dead = (try? c.decodeIfPresent([String].self, forKey: .dead)) ?? []
         goldTaken = max(0, (try? c.decodeIfPresent(Int.self, forKey: .goldTaken)) ?? 0)
