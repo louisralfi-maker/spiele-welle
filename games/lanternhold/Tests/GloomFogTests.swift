@@ -181,8 +181,10 @@ final class GloomFogTests: XCTestCase {
     func testTheCreaturesStepOutOfIt() {
         let fog = GloomFog(hardness: 0.5)
         XCTAssertEqual(fog.bodyAlpha(x: 100, bankEdge: 500, hour: 12), 1, "by day the bank hides no more than it did")
-        XCTAssertEqual(fog.bodyAlpha(x: 500 - GloomFog.bodyUnseen, bankEdge: 500, hour: 23), 0, accuracy: 1e-9)
-        XCTAssertEqual(fog.bodyAlpha(x: 100, bankEdge: 500, hour: 23), 0, accuracy: 1e-9)
+        // World-3 fix round 1: deep in the bank half a body shows (a dark mass with its rim, never red squiggles).
+        XCTAssertEqual(fog.bodyAlpha(x: 500 - GloomFog.bodyUnseen, bankEdge: 500, hour: 23), GloomFog.bodyFloor,
+                       accuracy: 1e-9)
+        XCTAssertEqual(fog.bodyAlpha(x: 100, bankEdge: 500, hour: 23), GloomFog.bodyFloor, accuracy: 1e-9)
         XCTAssertEqual(fog.bodyAlpha(x: 500 - GloomFog.bodyWhole, bankEdge: 500, hour: 23), 1, accuracy: 1e-9)
         XCTAssertEqual(fog.bodyAlpha(x: 640, bankEdge: 500, hour: 23), 1, "whole at the outer wall")
         var before = 0.0

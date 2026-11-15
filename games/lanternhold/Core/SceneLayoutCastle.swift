@@ -262,8 +262,12 @@ extension SceneLayout {
                                                       glow: .fireOrange, fades: true)],
                                    // fix round 2 (high 3): the hatch's wash cut at the west jamb; world-3: a small
                                    // round glow on the dome around the hatch's mouth, above the ground only
-                                   lights: [Light(kind: .brazier, x: bake + 18, y: 9, radius: 17, squash: 1.5,
-                                                  clip: castleBakehouseClip),
+                                   // world-3 fix round 1 (the critic's high 6: a disc at night, a pale ring at
+                                   // noon): a torch's fade (none by day), weak, wide and low, never saturated
+                                   lights: [Light(kind: .torch, x: bake + castleBakeHatchLight.dx,
+                                                  y: castleBakeHatchLight.y, radius: castleBakeHatchLight.radius,
+                                                  squash: castleBakeHatchLight.squash, color: GamePalette.fireOrange,
+                                                  intensity: castleBakeHatchLight.intensity, clip: castleBakeHatchClip),
                                             Light(kind: .window, x: bake + 65.5, y: 25, radius: 10),
                                             Light(kind: .lantern, x: bake + 75, y: 70, radius: 9, intensity: 0.35)])))
 
@@ -277,13 +281,15 @@ extension SceneLayout {
                                           .sprite(.posternFarGlow, dx: 95, dy: 4, glow: .window, fades: true)]
         // Fix round 2 (the critic's high 3: "a lens shape at the postern"): the two lanterns light one band under the
         // porch roof, cut by its slate (row 38) and ending a little past them.
-        var posternLights: [Light] = [Light(kind: .lantern, x: post + 99.5, y: 26, radius: 32, squash: 2.0,
-                                            intensity: 1.15, clip: castlePosternClip),
-                                      Light(kind: .window, x: post + 152.5, y: 29, radius: 8)]
+        // World-3 fix round 1 (the critic's high 2): the band is cut around the passage's painted far view, so the
+        // lanterns never light the valley beyond it (`posternPassageCut`); its glow takes the hour.
+        var posternLights: [Light] = posternPassageCut(Light(kind: .lantern, x: post + 99.5, y: 26, radius: 32,
+                                                             squash: 2.0, intensity: 1.15, clip: castlePosternClip))
+            + [Light(kind: .window, x: post + 152.5, y: 29, radius: 8)]
         if built >= 2 {
             posternEmitters.append(.sprite(.lanternGlass, dx: 99, dy: 42, glow: .fireGold, fades: true))
-            posternLights.append(Light(kind: .lantern, x: post + 100, y: 36, radius: 30, squash: 1.5,
-                                       clip: castlePosternClip))
+            posternLights += posternPassageCut(Light(kind: .lantern, x: post + 100, y: 36, radius: 30, squash: 1.5,
+                                                     clip: castlePosternClip))
         }
         list.append((.world, Entry(sprite: castlePosternSprite(stage), x: post, y: 0, z: 0,
                                    emitters: posternEmitters, lights: posternLights)))

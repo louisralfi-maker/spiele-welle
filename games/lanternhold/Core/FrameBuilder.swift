@@ -199,6 +199,12 @@ enum FrameBuilder {
                         geometry: geometry, sprites: &planeSprites, glow: &glow)
                 next += 1
             }
+            if plane == .world && options.look == .two,
+               let streak = riverLanternStreak(props: ordered, ambient: ambient, geometry: geometry) {
+                // World-3 fix round 1 (the critic's high 8): the far lantern's reflection, added after the world
+                // plane's water so it lies on it.
+                glow.add(streak)
+            }
             if (plane == .near || plane == .world) && options.look == .two {
                 // World rebuild, step world-2: the castle's chimneys smoke, the keep's in the near plane's picture
                 // (moving with the mist band), the bakehouse's on the world plane.
@@ -308,6 +314,16 @@ enum FrameBuilder {
                                                                       clearings: clearings, animTime: animTime,
                                                                       reduceMotion: options.reduceMotion,
                                                                       geometry: geometry)
+                }
+                if gloom.midVeil > 0 {
+                    // World-3 fix round 1 (the critic's high 3): a hard night's cold veil eats the mid plane.
+                    planeSprites[Plane.fogA.rawValue] += gloomSlices(gloom, strip: gloomVeilStrip, edgeX: bankEdgeX,
+                                                                     hour: hour, value: value, clearings: clearings,
+                                                                     animTime: animTime,
+                                                                     reduceMotion: options.reduceMotion,
+                                                                     geometry: geometry,
+                                                                     cover: gloom.midVeil * GloomFog.midVeilCover,
+                                                                     tint: GloomFog.midVeilTint)
                 }
                 planeSprites[Plane.fogB.rawValue] += gloomWisps(gloom, edgeX: bankEdgeX, hour: hour, value: value,
                                                                 clearings: clearings, animTime: animTime,
@@ -814,7 +830,7 @@ enum FrameBuilder {
             // World-2 fix round 1 (blocker 1): the keep's warm west rim while the evening sun is low and warm.
             strength *= keepRimShare(ambient)
         }
-        if SceneLayout.beaconRims.contains(part.sprite) {
+        if SceneLayout.beaconRims.contains(part.sprite) || SceneLayout.look2MoonRims.contains(part.sprite) {
             // World-3 (M2): the beacon's moon rim rises with the night's moon, not with the torches.
             strength *= wedgeMoonShare(ambient)
         }
@@ -835,10 +851,34 @@ enum FrameBuilder {
         let x = left + dx
         let top = geometry.top(y: bottom + part.dy, height: Double(size.height))
         let rect = SIMD4<Float>(Float(x), Float(top), Float(size.width), Float(size.height))
-        let rgb = part.color * strength
+        var rgb = part.color * strength
+        if part.sprite == .posternFarGlow && options.look == .two {
+            // World-3 fix round 1 (the critic's high 2): the valley through the postern takes the valley's hour.
+            rgb = SceneLayout.posternFarColor(ambient) * strength
+        }
         let color = SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1)
         return EmissiveInstance(sprite: part.sprite, plane: prop.plane, rect: rect, color: color,
                                 flipped: part.mirrors && prop.flipped)
+    }
+
+    /// World-3 fix round 1 (the critic's high 8): the far shore's lantern (near plane) laid on the water as a broken
+    /// streak under it, from the water's far edge (y −6) down; its rect in the near plane's pixels, drawn after the
+    /// world plane so the water does not hide it. Nil while the lantern is out of view or dark.
+    private static func riverLanternStreak(props: [Prop], ambient: AmbientSample,
+                                           geometry: Geometry) -> EmissiveInstance? {
+        guard let lantern = props.first(where: { $0.sprite == .riverFarLantern && $0.plane == .near }) else {
+            return nil
+        }
+        let strength = ambient.torchStrength * SceneLayout.look2RiverStreakGain
+        guard strength > 0.01 else { return nil }
+        let size = SpriteID.riverLanternStreak.size
+        let left = lantern.x - geometry.whole(.near) + 5
+        guard geometry.isVisible(left: left, width: Double(size.width)) else { return nil }
+        let top = geometry.top(y: -6 - Double(size.height - 1), height: Double(size.height))
+        let rect = SIMD4<Float>(Float(left), Float(top), Float(size.width), Float(size.height))
+        let rgb = SIMD3<Float>(1.0, 0.72, 0.38) * strength
+        return EmissiveInstance(sprite: .riverLanternStreak, plane: .near, rect: rect,
+                                color: SIMD4<Float>(rgb.x, rgb.y, rgb.z, 1))
     }
 
     // MARK: - World rebuild, step world-1 (DESIGN.md "World rebuild (14.11.2026)")
@@ -1158,6 +1198,10 @@ enum FrameBuilder {
         GloomStrip(plane: .fogB, sprite: .gloomFogMid, y: 0, share: 0.7, sway: 6, period: 7, phase: 0.33),
         GloomStrip(plane: .fogB, sprite: .gloomFogFront, y: -8, share: 1, sway: 10, period: 5, phase: 0.67),
     ]
+    /// World-3 fix round 1 (the critic's high 3): on a hard night a second, taller sheet of the back strip on fog A,
+    /// raised over the lane and reaching most of the fog's way, so the fog visibly eats the mid plane (`midVeil`).
+    static let gloomVeilStrip = GloomStrip(plane: .fogA, sprite: .gloomFogBack, y: 22, share: 0.85, sway: 2,
+                                           period: 13, phase: 0.5)
     /// The fog is drawn in slices this wide, each with the hole a fire cuts where it stands.
     static let gloomSlice = 16
 
@@ -1184,7 +1228,8 @@ enum FrameBuilder {
     /// the shader gives the hour's fog, so the painting keeps its own colours.
     private static func gloomSlices(_ gloom: GloomFog, strip: GloomStrip, edgeX: Double, hour: Double, value: Float,
                                     clearings: [GloomFog.Clearing], animTime: Double, reduceMotion: Bool,
-                                    geometry: Geometry) -> [SpriteInstance] {
+                                    geometry: Geometry, cover coverShare: Double = 1,
+                                    tint: SIMD3<Float> = SIMD3<Float>(repeating: 1)) -> [SpriteInstance] {
         let world = geometry.whole(.world)
         let front = gloomFront(gloom, strip: strip, edgeX: edgeX, hour: hour, animTime: animTime,
                                reduceMotion: reduceMotion)
@@ -1192,7 +1237,8 @@ enum FrameBuilder {
         let tile = Double(size.width)
         let slice = Double(gloomSlice)
         let top = geometry.top(y: strip.y, height: Double(size.height))
-        let whole = gloom.presence(hour: hour) * gloom.paintCover
+        let whole = gloom.presence(hour: hour) * gloom.paintCover * coverShare
+        let rgb = tint * value
         var list: [SpriteInstance] = []
         var tileLeft = front - tile - world
         var face = true
@@ -1217,7 +1263,7 @@ enum FrameBuilder {
                         let source = SIMD4<Float>(Float(k * gloomSlice + part * width), 0, Float(width),
                                                   Float(size.height))
                         list.append(SpriteInstance(sprite: strip.sprite, frame: face ? 1 : 0, rect: rect,
-                                                   tint: SIMD4<Float>(value, value, value, Float(min(1, cover))),
+                                                   tint: SIMD4<Float>(rgb.x, rgb.y, rgb.z, Float(min(1, cover))),
                                                    flipped: false, source: source))
                     }
                 }
@@ -1473,7 +1519,7 @@ enum FrameBuilder {
         for (source, plane) in sources {
             var radius = source.radius
             if plane == .world && bank.contains(x: source.x) { radius *= DarknessBank.radiusScale }
-            var intensity = source.intensity
+            var intensity = source.intensity * (source.pictureGain ?? 1)   // world-3 fix 1: `LanternLook`
             if source.kind.fadesByDay {
                 intensity *= torch
             } else if options.look == .two && SceneLayout.fadesToADayShare(source.kind) {

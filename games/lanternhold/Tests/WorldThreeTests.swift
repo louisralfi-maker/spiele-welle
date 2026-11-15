@@ -27,10 +27,14 @@ final class WorldThreeTests: XCTestCase {
         XCTAssertNotNil(wedge, "the oven's wedge of light")
         XCTAssertEqual(wedge?.dy ?? 0, -10, accuracy: 1e-9, "its top 4 rows on the dome's foot, 10 on the lane")
         XCTAssertEqual(wedge?.fadesByDay, true)
-        let hatch = bake.lights.first { $0.kind == .brazier }
+        // Fix round 1 (the critic's high 6): a torch's fade (no pool by day), weak (never saturated into a disc
+        // with a rim), its cut below the ground line where its own falloff has ended.
+        let hatch = bake.lights.first { $0.kind == .torch }
         XCTAssertNotNil(hatch)
-        XCTAssertGreaterThanOrEqual(hatch?.clip?.y0 ?? -99, -3, "nothing of the pool lies far under the ground line")
-        XCTAssertLessThanOrEqual(hatch?.squash ?? 9, 1.6, "a round glow at the hatch, not a flat disc")
+        XCTAssertLessThanOrEqual(hatch?.intensity ?? 9, 0.34, "under the light cap: no plateau, no rim")
+        XCTAssertLessThanOrEqual(hatch?.clip?.y0 ?? 0, -12, "the pool's own falloff ends it on the lane")
+        XCTAssertFalse(frame(world, hour: 12, focus: 2200).lights.contains { $0.kind == .torch }, "no pool at noon")
+        XCTAssertTrue(frame(world, hour: 22, focus: 2200).lights.contains { $0.kind == .torch }, "a pool at night")
         let night = frame(world, hour: 22, focus: 2200)
         XCTAssertTrue(night.emissives.contains { $0.sprite == .bakeHatchWedge }, "the wedge at night")
         XCTAssertFalse(frame(world, hour: 12, focus: 2200).emissives.contains { $0.sprite == .bakeHatchWedge },
@@ -79,35 +83,42 @@ final class WorldThreeTests: XCTestCase {
         XCTAssertTrue(door.emissives.contains { $0.sprite == .smokePuff }, "the keep's smoke glows by day")
     }
 
-    /// M3: at most three archers drawn on one wall walk or tower, at least 10 px apart (look 2); the posts keep their
+    /// M3, fix round 1 (the critic's blocker 4): at most three archers drawn per defensive line (its wall and its
+    /// tower together), at least 14 px apart, so no two sprites (12 px wide) overlap (look 2); the posts keep their
     /// places (the others are implied by their arrows).
-    func testAtMostThreeArchersPerWallWalk() {
+    func testAtMostThreeArchersPerDefensiveLine() {
         let s = GameFrameSupport.demoNight()
         var options = FrameOptions(flickerTime: 1.5)
         options.look = .two
         let pixelScale = options.pixelScale(physicalWidth: 2622, physicalHeight: 1206)
         let layouts = (0..<3).map { EntityFrames.lineLayout($0, state: s, balance: .standard) }
+        let shown = EntityFrames.drawnArchers(s, layouts: layouts)
+        for (index, slots) in Realm.lines.enumerated() {
+            var xs: [Double] = []
+            for soldier in s.soldiers where soldier.kind == .archer && soldier.state == .posted
+                && shown.contains(soldier.id) && (soldier.postPlot == slots.wall || soldier.postPlot == slots.tower) {
+                if let spot = EntityFrames.archerSpot(soldier, layouts: layouts) { xs.append(spot.x) }
+            }
+            XCTAssertLessThanOrEqual(xs.count, EntityFrames.archersDrawnPerWalk, "line \(index + 1)")
+            let sorted = xs.sorted()
+            for (a, b) in zip(sorted, sorted.dropFirst()) {
+                XCTAssertGreaterThanOrEqual(b - a, EntityFrames.archerLineSpacing, "line \(index + 1)")
+            }
+            let posted = s.soldiers.filter { $0.kind == .archer && $0.state == .posted
+                && ($0.postPlot == slots.wall || $0.postPlot == slots.tower) }
+            if !posted.isEmpty { XCTAssertGreaterThanOrEqual(xs.count, 1, "line \(index + 1) keeps a watch") }
+        }
         for focus in [700.0, 960, 1360] {
             let camera = Camera(focusX: focus, pixelScale: pixelScale)
             let scene = SceneFilter.gameScene(PlaceholderScene.world(look: .two), state: s)
             let layer = EntityFrames.layer(state: s, balance: .standard, scene: scene, camera: camera,
                                            pixelScale: pixelScale, options: options, animTime: 1.5)
-            let view = EntityFrames.ActorView(camera: camera, pixelScale: pixelScale, mode: options.actorMode)
             let archers = layer.actors.filter { $0.sprite == .archer }
-            var perPlot: [Int: [(x: Double, y: Double)]] = [:]
-            for soldier in s.soldiers where soldier.kind == .archer && soldier.state == .posted {
-                guard let spot = EntityFrames.archerSpot(soldier, layouts: layouts) else { continue }
-                perPlot[soldier.postPlot, default: []].append(spot)
-            }
-            for (plot, spots) in perPlot {
-                let drawn = spots.filter { spot in
-                    let rect = view.rect(.archer, x: spot.x, y: spot.y)
-                    return archers.contains { abs($0.rect.x - rect.x) < 0.5 && abs($0.rect.y - rect.y) < 0.5 }
-                }
-                XCTAssertLessThanOrEqual(drawn.count, EntityFrames.archersDrawnPerWalk, "plot \(plot) at \(focus)")
-                let xs = drawn.map(\.x).sorted()
-                for (a, b) in zip(xs, xs.dropFirst()) {
-                    XCTAssertGreaterThanOrEqual(b - a, EntityFrames.archerSpacing, "plot \(plot) at \(focus)")
+            for (i, a) in archers.enumerated() {
+                for b in archers.dropFirst(i + 1) {
+                    let overlapX = a.rect.x < b.rect.x + b.rect.z && b.rect.x < a.rect.x + a.rect.z
+                    let overlapY = a.rect.y < b.rect.y + b.rect.w && b.rect.y < a.rect.y + a.rect.w
+                    XCTAssertFalse(overlapX && overlapY, "two archers overlap at focus \(focus)")
                 }
             }
         }
@@ -174,20 +185,28 @@ final class WorldThreeTests: XCTestCase {
     /// moored skiff on the far shore at the river end.
     func testTheValleyVergeAndTheRiverEnd() {
         let world = PlaceholderScene.world(look: .two)
-        let verge = world.props.filter { $0.sprite == .valleyVerge }
+        let verge = world.props.filter { $0.sprite == .valleyVerge || $0.sprite == .valleyVergeB }
         XCTAssertEqual(verge.count, SceneLayout.look2VergeCount)
         XCTAssertTrue(verge.allSatisfy { $0.plane == .world && $0.x >= 2400 && $0.x + 64 <= 3680 && $0.y == -14 })
-        XCTAssertTrue(verge.contains { $0.flipped } && verge.contains { !$0.flipped }, "every other tile mirrored")
-        let skiff = world.props.first { $0.sprite == .riverSkiff }
+        XCTAssertTrue(verge.contains { $0.flipped } && verge.contains { !$0.flipped }, "mirrored by pairs")
+        XCTAssertTrue(verge.contains { $0.sprite == .valleyVergeB }, "fix round 1: two paintings")
+        // Fix round 1 (blocker 2): the skiff is tied at the landing (world plane); none on the far shore.
+        XCTAssertNil(world.props.first { $0.sprite == .riverSkiff })
+        let skiff = world.props.first { $0.sprite == .riverSkiffMoored }
+        XCTAssertEqual(skiff?.plane, .world)
+        XCTAssertEqual(skiff?.emissive.first?.sprite, .riverSkiffRim, "the moon on its gunwale")
         let lantern = world.props.first { $0.sprite == .riverFarLantern }
-        XCTAssertEqual(skiff?.plane, .near, "out of the mid plane's low mist band (round lh-w3-2)")
         XCTAssertEqual(lantern?.plane, .near)
         XCTAssertEqual(lantern?.masks.count, 1, "its glass lit at night")
+        XCTAssertTrue(lantern?.emissive.contains { $0.sprite == .riverLanternHalo } ?? false, "fix round 1: its halo")
         let river = frame(world, hour: 20.5, focus: 3800)
-        XCTAssertTrue(river.layer(.near).sprites.contains { $0.sprite == .riverSkiff }, "the skiff at the river end")
+        XCTAssertTrue(river.layer(.world).sprites.contains { $0.sprite == .riverSkiffMoored }, "the skiff at the end")
+        XCTAssertTrue(river.layer(.world).sprites.contains { $0.sprite == .riverLanding })
         XCTAssertTrue(river.layer(.near).sprites.contains { $0.sprite == .riverFarLantern })
-        XCTAssertTrue(river.layer(.world).sprites.contains { $0.sprite == .valleyVerge })
-        XCTAssertFalse(frame(world, hour: 12, focus: 3000).layer(.near).sprites.contains { $0.sprite == .riverSkiff })
+        XCTAssertTrue(river.emissives.contains { $0.sprite == .riverLanternStreak }, "its reflection on the water")
+        XCTAssertTrue(river.layer(.world).sprites.contains { $0.sprite == .valleyVerge || $0.sprite == .valleyVergeB })
+        XCTAssertFalse(frame(world, hour: 12, focus: 3800).emissives.contains { $0.sprite == .riverLanternStreak },
+                       "no reflection by day")
     }
 
     /// 1a: the cleft wall behind the castle takes a step of haze by day, none at night and none outside the walls.
@@ -222,7 +241,9 @@ final class WorldThreeTests: XCTestCase {
             let front = world.props.first { $0.sprite == .castleFront || $0.sprite == .castleFront3 }
             let torches = front?.lights.filter { $0.kind == .torch } ?? []
             XCTAssertEqual(torches.count, 2, "\(stage)")
-            XCTAssertTrue(torches.allSatisfy { $0.color == SceneLayout.look2GateTorchColor && $0.squash == 1.5 })
+            // Fix round 1 (the critic's high 1): radial (no lens) and at most 60 % of the old 0.85.
+            XCTAssertTrue(torches.allSatisfy { $0.color == SceneLayout.look2GateTorchColor && $0.squash == 1.0
+                && ($0.intensity ?? 1) <= 0.85 * 0.6 })
         }
         let one = PlaceholderScene.world(look: .one).props.first { $0.sprite == .castleFront }
         XCTAssertFalse(one?.lights.contains { $0.color == SceneLayout.look2GateTorchColor } ?? true, "look 1 as it was")

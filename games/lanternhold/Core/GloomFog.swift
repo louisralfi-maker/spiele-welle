@@ -145,7 +145,8 @@ struct GloomFog: Sendable, Equatable {
         let amount = min(1, self.amount(hour: hour) * 4)
         guard amount > 0 else { return 1 }
         let t = (x - (bankEdge - GloomFog.bodyUnseen)) / (GloomFog.bodyUnseen - GloomFog.bodyWhole)
-        return 1 - amount * (1 - AmbientRamp.smoothstep(t))
+        // World-3 fix round 1 (`bodyFloor`): deep in the bank half of it still shows, a dark mass with its cool rim.
+        return 1 - amount * (1 - AmbientRamp.smoothstep(t)) * (1 - GloomFog.bodyFloor)
     }
 
     /// One pair of cold eyes in the fog.

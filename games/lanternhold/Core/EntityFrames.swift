@@ -169,6 +169,14 @@ enum EntityFrames {
                 // the simulation holds it, a few pixels ahead (its reach on the ground is the same within 3 px).
                 light.x = s.king.x + kingGlass.dx * Double(s.king.facing)
                 light.y = kingGlass.dy
+                if options.look == .two {
+                    // World-3 fix round 1 (the critic's blocker 1, `LanternLook`): a dim core and a wide spill, so
+                    // the light falls off across a wall; the battle's lantern stays whole (`Battle.lightSources`).
+                    for part in LanternLook.pictureLights(light) {
+                        lights.append((source: part, plane: .world))
+                    }
+                    continue
+                }
             }
             lights.append((source: light, plane: .world))
         }
@@ -528,8 +536,11 @@ enum EntityFrames {
             default: sprite = .greatBeacon
             }
             // The great beacon's slits, and the bowl's dark mouth glowing as an ember line (ART-buildings.md).
-            let masks = sprite == .greatBeacon
-                ? [glass(23, 55, 2, 9), glass(38, 33, 2, 8), glass(9, 125, 46, 1)] : []
+            // World-3 fix round 1 (the critic's high 5, look 2): the bowl's rim is painted as an ellipse, so no
+            // 1 px ember line across its mouth; the slits glow a dim amber (`castleAmberGlass`) in a dark reveal.
+            let masks: [GlassMask] = sprite != .greatBeacon ? []
+                : look == .two ? [glass(23, 55, 2, 9), glass(38, 33, 2, 8)]
+                : [glass(23, 55, 2, 9), glass(38, 33, 2, 8), glass(9, 125, 46, 1)]
             // While it burns, a warm scene-only light at the bowl (M2b review): the parapet, the banners and the bowl's
             // rim catch the blaze from above, so the tower reads crowned by fire, not floodlit by its own pool.
             let blaze = sprite == .greatBeacon && s.beaconLit
@@ -1198,21 +1209,14 @@ enum EntityFrames {
         // 40 px wall read as a picket fence of heads); the others are implied by their arrows.
         // A line's wall and its tower keep the 10 px between them too (round lh-w3-1: a tower's archer stood at the
         // shoulder of the wall's last one).
-        var drawnPosts: [Int: [Double]] = [:]
-        var drawnLine: [Int: [Double]] = [:]
+        // World-3 fix round 1 (the critic's blocker 4): the cap is the defensive line's (its wall and its tower), at
+        // least 14 px apart, one on the tower top and the wall walk's from its far end (`drawnArchers`).
+        let drawn = look == .two ? drawnArchers(s, layouts: layouts) : Set<Int>()
         for soldier in s.soldiers where soldier.kind == .archer {
             switch soldier.state {
             case .posted:
                 guard let spot = archerSpot(soldier, layouts: layouts) else { continue }
-                if look == .two {
-                    let plot = soldier.postPlot
-                    let line = Realm.lines.firstIndex { $0.wall == plot || $0.tower == plot }.map { -1 - $0 } ?? plot
-                    let shown = drawnPosts[plot, default: []]
-                    guard shown.count < archersDrawnPerWalk,
-                          drawnLine[line, default: []].allSatisfy({ abs($0 - spot.x) >= archerSpacing }) else { continue }
-                    drawnPosts[plot, default: []].append(spot.x)
-                    drawnLine[line, default: []].append(spot.x)
-                }
+                if look == .two && !drawn.contains(soldier.id) { continue }
                 var faceRight = false
                 var bestX = -Double.infinity
                 var aiming = false

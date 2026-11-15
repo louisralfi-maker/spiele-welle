@@ -87,14 +87,19 @@ extension SceneLayout {
     /// round olive-green halos on its blue stone (fire-gold on the cold grey). In look 2 their light is a warmer amber,
     /// a flatter pool and a little weaker, like the castle's torches.
     static let look2GateTorchColor = SIMD3<Float>(1.0, 0.64, 0.30)
+    static let look2GateTorchSquash = 1.0
+    static let look2GateTorchIntensity = 0.45
     static func look2GateTorches(_ entry: Entry) -> Entry {
         var warmed = entry
         warmed.lights = entry.lights.map { light in
             guard light.kind == .torch else { return light }
             var torch = light
             torch.color = look2GateTorchColor
-            torch.squash = 1.5
-            torch.intensity = 0.85
+            // Fix round 1 (the critic's high 1: "two crisp lens-shaped halos, a pair of glowing eyes"): radial from
+            // the flame and at about half the strength, so the light never saturates into a plateau with a rim and
+            // its edge dissolves into the dark stone.
+            torch.squash = look2GateTorchSquash
+            torch.intensity = look2GateTorchIntensity
             return torch
         }
         return warmed
@@ -108,13 +113,25 @@ extension SceneLayout {
             list.append((.near, Entry(sprite: row.sprite, x: row.x, y: 0, z: -2, shade: look2TownRowShade,
                                       flipped: row.flipped, region: .valley, emitters: panes)))
         }
-        list.append((.near, Entry(sprite: .riverSkiff, x: look2RiverSkiffX, y: -2, z: 2, region: .valley)))
+        // Fix round 1 (the critic's high 8): the far lantern glows (a warm halo and its small pool on the bank; its
+        // reflection lies on the water, `FrameBuilder.riverLanternStreak`). Its skiff moved to the landing.
         list.append((.near, Entry(sprite: .riverFarLantern, x: look2RiverLanternX, y: 0, z: 2, region: .valley,
-                                  emitters: [.glass(dx: 8, dy: 14, width: 3, height: 4)])))
+                                  emitters: [.glass(dx: 8, dy: 14, width: 3, height: 4),
+                                             .sprite(.riverLanternHalo, dx: -1, dy: 0, glow: .window, fades: true)])))
+        // Fix round 1 (the critic's high 10): two paintings of the verge, A B A' B', so its stones never keep one
+        // rhythm.
         for index in 0..<look2VergeCount {
-            list.append((.world, Entry(sprite: .valleyVerge, x: look2VergeStart + 64 * Double(index), y: look2VergeY,
-                                       z: -8, flipped: index % 2 == 1)))
+            list.append((.world, Entry(sprite: index % 2 == 0 ? .valleyVerge : .valleyVergeB,
+                                       x: look2VergeStart + 64 * Double(index), y: look2VergeY,
+                                       z: -8, flipped: (index / 2) % 2 == 1)))
         }
+        // Fix round 1 (the critic's blocker 2): the landing under the lord's last steps, the skiff tied alongside.
+        list.append((.world, Entry(sprite: .riverLanding, x: look2LandingX, y: -16, z: 4, region: .valley)))
+        list.append((.world, Entry(sprite: .riverSkiffMoored, x: look2LandingSkiffX, y: look2LandingSkiffY, z: 5,
+                                   region: .valley,
+                                   emitters: [.sprite(.riverSkiffRim, dx: 0, dy: 0, glow: .moon, fades: true)])))
+        // Fix round 1 (the critic's high 9): a buttress in the Throat on the near plane.
+        list.append((.near, Entry(sprite: .throatButtress, x: look2ThroatButtressX, y: 0, z: -1)))
         return list
     }()
 }

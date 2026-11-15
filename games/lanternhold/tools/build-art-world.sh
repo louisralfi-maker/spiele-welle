@@ -42,7 +42,10 @@ CASTLE="keepT1 keepT2 keepT3 keepT2Build keepT3Build curtainA curtainB curtainC 
 # World-3 (15.11.2026): the whole-world pass (tools/w3art.py, ART-look2.md section 26). Its passes over existing sprites
 # (the beacon ruin's crown, the warden statue's bowl, the gatehouse's crenels) read their untouched sources from
 # tools/w3src, so they run again without stacking; the chapel's bell and the tier-3 postern are keepart's (castle list).
-W3="bakeHatchWedge beaconRuin beaconRuinRim beaconBaseRim beaconTowerRim greatBeaconRim wardenStatue castleFront castleFront3 castleFront3Build townRoofsA townRoofsB townRoofsC townRoofsD riverFarLantern riverSkiff valleyVerge"
+W3="bakeHatchWedge wardenStatue castleFront castleFront3 castleFront3Build townRoofsA townRoofsB townRoofsC townRoofsD riverFarLantern riverSkiff"
+# World-3, fix round 1 (15.11.2026): the critic's look 1 (tools/w3f1art.py, ART-look2.md section 27). The beacon's three
+# stages read their untouched sources from tools/w3src; the rims are painted from the stages as built here.
+W3F1="beaconRuin beaconTower greatBeacon beaconRuinRim beaconBaseRim beaconTowerRim greatBeaconRim riverLanding riverSkiffMoored riverSkiffRim riverLanternHalo riverLanternStreak throatButtress valleyVerge valleyVergeB"
 R=games/lanternhold/tools/retired-art
 
 cool() { # wait below 70 °C when the CPU reached 80 °C
@@ -93,9 +96,12 @@ build() { # name: one sprite (or one group of small ones)
     keepT1|keepT2|keepT3|keepT2Build|keepT3Build|keepRimT1|keepRimT2|keepRimT3|keepRimT2Build|keepRimT3Build|keepMist|keepPaneHalo|keepFireGlow|forebuilding|hallDoorGlow|hallDoorWedge|smokePuff|curtainB|posternT1|posternT2|posternT3|posternFarGlow|gateArchFg)
         # world-2 fix round 1 (15.11.2026): the pieces the critic sent back (tools/keepfix.py, ART-look2.md section 24)
         python3 -I -B games/lanternhold/tools/keepfix.py build $1 --out $A ;;
-    bakeHatchWedge|beaconRuin|beaconRuinRim|beaconBaseRim|beaconTowerRim|greatBeaconRim|wardenStatue|castleFront|castleFront3|castleFront3Build|townRoofsA|townRoofsB|townRoofsC|townRoofsD|riverFarLantern|riverSkiff|valleyVerge)
+    bakeHatchWedge|wardenStatue|castleFront|castleFront3|castleFront3Build|townRoofsA|townRoofsB|townRoofsC|townRoofsD|riverFarLantern|riverSkiff)
         # world-3 (15.11.2026): the whole-world pass (tools/w3art.py, ART-look2.md section 26)
         python3 -I -B games/lanternhold/tools/w3art.py build $1 --out $A ;;
+    beaconRuin|beaconTower|greatBeacon|beaconRuinRim|beaconBaseRim|beaconTowerRim|greatBeaconRim|riverLanding|riverSkiffMoored|riverSkiffRim|riverLanternHalo|riverLanternStreak|throatButtress|valleyVerge|valleyVergeB)
+        # world-3 fix round 1 (15.11.2026): the critic's look 1 (tools/w3f1art.py, ART-look2.md section 27)
+        python3 -I -B games/lanternhold/tools/w3f1art.py build $1 --out $A ;;
     laneScreeCobble)   # world-2: the scree gives way to the cobbles under the gatehouse's gateway (after `plants`)
         python3 -I -B games/lanternhold/tools/lanejoin.py build laneScreeCobble --out $A ;;
     gorgeRock)   # the gorge's wall of the look-2 port: since the world rebuild (14.11.2026) not in the game, kept in
@@ -143,6 +149,6 @@ build() { # name: one sprite (or one group of small ones)
     esac
 }
 
-ALL="weltmauer castleTiers gorgeRock oldWall1 oldWall2 oldWall3 palisadeAnchor stoneWallAnchor bastionAnchor moorRuin gloomFogBack gloomFogMid gloomFogFront gloomWisp gloomFogEyes $ROCK shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow lindenB lindenC poplarB poplarC appleTreeB appleTreeC willowB willowC plants $FOG $CASTLE $W3"
+ALL="weltmauer castleTiers gorgeRock oldWall1 oldWall2 oldWall3 palisadeAnchor stoneWallAnchor bastionAnchor moorRuin gloomFogBack gloomFogMid gloomFogFront gloomWisp gloomFogEyes $ROCK shadowForest valleyVista firA firB firC firD deadTreeA deadTreeB linden poplar appleTree willow lindenB lindenC poplarB poplarC appleTreeB appleTreeC willowB willowC plants $FOG $CASTLE $W3 $W3F1"
 if [ "${1:-}" = "--list" ]; then echo $ALL; exit 0; fi  # the names, for build-art.sh
 for name in ${@:-$ALL}; do cool; build "$name"; done
