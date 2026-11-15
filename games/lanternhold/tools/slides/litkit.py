@@ -260,8 +260,8 @@ def mountain(pic, outer_l, inner_l, inner_r, outer_r, facets_l, facets_r, light=
             edge = any(x == int(xt + (xb - xt) * y / float(H)) for (xt, xb) in facets_r)
             pic.px(x, y, "nightSlate" if edge else tones[(k + 1) % len(tones)])
             m[y, x] = True
-        for x in range(max(0, d - 2), min(W, d + 1)):
-            pic.px(x, y, "night2")                     # the cold rim on the slope that faces home
+        for x in range(max(0, d - 4), min(W, d + 1)):
+            pic.px(x, y, "night2" if x > d - 2 else "nightSlate")   # the cold plane on the slope that faces home
         for x in range(max(0, a), min(W, a + 2)):
             pic.px(x, y, "nightBlue")
         if light is not None:
