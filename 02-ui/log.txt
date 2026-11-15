@@ -1,0 +1,29 @@
+Test Case '-[LanternholdUITests.AudienceUITests testAudience]' passed (166.081 seconds).
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:313: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertGreaterThanOrEqual failed: ("43.99999999999997") is less than ("44.0") - the site is 43.99999999999997 pt wide
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:114: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no realm strip
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:78: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the king ran to the barracks
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:92: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - the barracks offer nothing
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:114: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no realm strip
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:98: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the king ran toward the hall's door
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:102: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no door at the hall
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:104: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - in the great hall
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:127: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no mark at the throne
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:143: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no lectern beside the throne
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/TouchSupport.swift:114: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - no realm strip
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:157: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : XCTAssertTrue failed - the dawn report opens
+/Users/runner/work/spiele-welle/spiele-welle/games/lanternhold/UITests/FirstDayUITests.swift:309: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : failed - continue is missing
+<unknown>:0: error: -[LanternholdUITests.FirstDayUITests testFirstDay] : Failed to tap "report-continue" Any: No matches found for first query match sequence: `Descendants matching type Any` -> `Elements matching predicate '"report-continue" IN identifiers'`, given input App element pid: 34546
+Test Case '-[LanternholdUITests.FirstDayUITests testFirstDay]' failed (421.231 seconds).
+Test Case '-[LanternholdUITests.FirstDayUITests testScreens]' passed (62.585 seconds).
+Test Case '-[LanternholdUITests.HallUITests testHallStage]' passed (239.625 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwo]' passed (213.414 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoCourt]' passed (24.007 seconds).
+Test Case '-[LanternholdUITests.Look2UITests testLookTwoNight]' passed (67.218 seconds).
+Test Case '-[LanternholdUITests.LordUITests testTheLordIsNamed]' passed (67.895 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolish]' passed (209.441 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishCirclet]' passed (11.377 seconds).
+Test Case '-[LanternholdUITests.PolishUITests testPolishHouses]' passed (36.072 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTheLanternMoment]' passed (102.754 seconds).
+Test Case '-[LanternholdUITests.TouchUITests testTouchTheWorld]' passed (174.510 seconds).
+exit=65
+screenshots: 121

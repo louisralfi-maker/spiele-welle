@@ -1,0 +1,1 @@
+lord element (415.0, 290.0, 44.0, 60.0); the touch did touch-plot-2; lx 1255 cam 1037
