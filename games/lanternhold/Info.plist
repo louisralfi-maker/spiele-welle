@@ -2,6 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- The first light (item 12 of the join): the launch screen is the night's darkest colour, #0A1124, the colour of
+	     TitleView's first frame, so nothing flashes before the title. -->
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchNight</string>
+	</dict>
 	<key>UIAppFonts</key>
 	<array>
 		<string>IMFeENrm28P.ttf</string>
