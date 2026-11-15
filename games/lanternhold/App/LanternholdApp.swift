@@ -19,6 +19,8 @@ struct RootView: View {
     private let args = SweepRunner.current ?? DebugArgs.fromProcess()
     /// The one model of the run, made when the screen first appears (M2b review: not in a view's init).
     @State private var model: GameModel? = nil
+    /// The first light (item 12, `TitleView`): on a real launch the title stands before the game.
+    @State private var titleDone = !TitleGate.shows
 
     var body: some View {
         if MetalContext.shared == nil {
@@ -31,13 +33,21 @@ struct RootView: View {
         } else if args.scene == "testpattern" {
             TestPatternView(virtualHeight: args.virtualHeight, scaleOverride: args.scaleOverride)
                 .ignoresSafeArea()
-        } else if let model {
+        } else if let model, titleDone {
             // The Lantern Table's plain list (`-GWScreen table`, `UI/Table`): nothing unless that argument asks.
             GameView(model: model)
                 .overlay { TableDebugLayer(model: model) }
         } else {
-            Color.black
-                .ignoresSafeArea()
+            ZStack {
+                // The first light: the night's darkest colour and the house's lantern while the game is made.
+                if titleDone {
+                    Color.black.ignoresSafeArea()
+                } else {
+                    TitleView(ready: model != nil) {
+                        withAnimation(.easeInOut(duration: 0.4)) { titleDone = true }
+                    }
+                }
+            }
                 .onAppear {
                     guard model == nil else { return }
                     let made = GameModel(args: args, kind: RootView.kind(of: args.scene))
