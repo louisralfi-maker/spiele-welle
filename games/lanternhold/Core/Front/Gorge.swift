@@ -128,12 +128,18 @@ enum Gorge {
     }
 
     /// The darkness bank's edge with the fog held (`Battle.bankEdge` asks it last): never past the fog line, rolling to
-    /// a new line over `fogSeconds`. Without the rule `edge` itself; on the King's night, once the Great Beacon flares,
-    /// `edge` unless `holdFogOnFinale`.
+    /// a new line over `fogSeconds`. Without the rule `edge` itself. On the King's night, once the Great Beacon flares
+    /// (unless `holdFogOnFinale`), the fog rolls over the small beacons to where the Great Beacon holds it, over
+    /// `fogSeconds` from the King's leaving, and from then on the night is exactly today's.
     static func holdFog(_ s: GameState, edge: Double, balance: Balance) -> Double {
         guard let g = s.gorge else { return edge }
         let tuning = balance.front.gorge
-        if !tuning.holdFogOnFinale && Battle.beaconRadius(s, balance: balance) > 0 { return edge }
+        if !tuning.holdFogOnFinale && Battle.beaconRadius(s, balance: balance) > 0 {
+            guard let line = fogLine(s, balance: balance), line < edge, let left = s.night.kingLeftSecond,
+                  tuning.fogSeconds > 0 else { return edge }
+            let share = min(1, max(0, (s.nightTime - left) / tuning.fogSeconds))
+            return min(edge, line + (edge - line) * share)
+        }
         let target = fogLine(s, balance: balance) ?? edge
         var line = target
         if let shift = g.fogShift, tuning.fogSeconds > 0, s.simTime >= shift.at,

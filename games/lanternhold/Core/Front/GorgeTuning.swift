@@ -47,16 +47,22 @@ struct GorgeTuning: Sendable, Equatable {
     /// When the fog line moves (a beacon is lit, a beacon falls) the fog rolls to its new line over this many seconds,
     /// so the darkness bank never jumps.
     var fogSeconds = 3.0
-    /// On the Lightless King's night the fog holds at the furthest lit beacon too, as on every night (one rule: the fog
-    /// never passes a lit beacon). The Great Beacon's light is swallowed by the fog, so with a beacon lit west of x 360
-    /// it then reaches further west than today. Off: once the Great Beacon flares the fog comes exactly as today.
-    var holdFogOnFinale = true
+    /// On the Lightless King's night, once the Great Beacon flares, the fog rolls over the small beacons to where the
+    /// Great Beacon holds it (x 360) and the finale is exactly today's (off, chosen). On: the fog holds at the furthest
+    /// lit beacon on that night too; the Great Beacon's light, which the fog swallows, then reaches out to the third or
+    /// fourth site, the King walks slowly in it from there and falls 6 to 9 s later than today in every seed (69 to
+    /// 73 s after leaving, against 61 to 66; round lh-f3-4, night 20 in lockstep with all four beacons): it moves the
+    /// finale's tuning, so the brief's "far stones" gain stays a flag for the picture.
+    var holdFogOnFinale = false
 
     // MARK: Holding
 
     /// A lit beacon's strength, nearest first. Creatures on the ground strike the furthest lit beacon as they pass (their
     /// harm per second for the time they are within `strikeReach` of it, as soldiers are struck in passing); at 0 it
     /// falls and the fog comes back to the one before. A beacon still standing is tended by day: full again at dawn.
+    /// 400 (round lh-f3-3): at the game's own nights the furthest first falls on night 10 (the Ash Giant) and then on
+    /// about every third night; at 1.5 times the nights from night 6. At 600 a bot that raises nothing but beacons keeps
+    /// them all and pays no relight (and holds every night without walls); at 300 they fall from night 7 on.
     var strength: [Double] = [400, 400, 400, 400]
     var strikeReach = 8.0
 
@@ -67,7 +73,8 @@ struct GorgeTuning: Sendable, Equatable {
     var quarryDiscount = 0.08
     /// The ruined watchtower (stretch 2): it may be raised by day for this much gold as a forward archers' post, where
     /// the watch (castle staff, like the engines' crews: they never fall, they leave while the stretch is lost) looses at
-    /// lit creatures in reach.
+    /// lit creatures in reach. One bowman, one arrow in 3 s: about 5 to 8 % of the strength of a night's creatures
+    /// (round lh-f3-4; two bowmen at 1.4 s did 41 % of all arrows and were worth 19 points of T15a on their own).
     var watchtowerPrice = 40
     var watchArchers = 1
     var watchRange = 150.0
@@ -78,8 +85,8 @@ struct GorgeTuning: Sendable, Equatable {
     /// (their radius).
     var charcoalRadius = 1.08
     // The far stones (stretch 4) are a flag for the picture only. The spec's gain ("the Great Beacon reaches further on
-    // night 20") would move the finale's tuning; with `holdFogOnFinale` the fog held at the fourth site lets the Great
-    // Beacon's light reach the stones anyway (measured in docs/lanes/front.md "front-3").
+    // night 20") moves the finale's tuning (`holdFogOnFinale` measures exactly that: the King falls 6 to 9 s later), so
+    // it is left out, as the brief allows (docs/lanes/front.md "front-3").
 
     // MARK: The forward bot (T15)
 

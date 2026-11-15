@@ -108,9 +108,10 @@ say("(\(elapsed()))")
 
 if doFinale {
     say("")
-    say("== night 20 of the forward bot's runs: the fog held on the King's night (chosen) and as today; the reference")
-    let held = runs(standard, budgets: [1.0], kinds: [.forward, .reference])
-    let today = runs(variant { $0.holdFogOnFinale = false }, budgets: [1.0], kinds: [.forward])
+    say("== night 20 of the forward bot's runs: the fog held on the King's night (the other rule) and as today (chosen); "
+        + "the reference")
+    let held = runs(variant { $0.holdFogOnFinale = true }, budgets: [1.0], kinds: [.forward, .reference])
+    let today = runs(standard, budgets: [1.0], kinds: [.forward])
     for seed in 1...seeds {
         guard let a = held.first(where: { $0.seed == seed && $0.kind == .forward }),
               let r = held.first(where: { $0.seed == seed && $0.kind == .reference }),
@@ -126,15 +127,16 @@ if doFinale {
 if doFinale {
     say("")
     say("== night 20 from the reference's eve, all four beacons granted (lockstep): without them | the fog held on the "
-        + "King's night (chosen) | as today once the Great Beacon flares")
+        + "King's night (the other rule) | as today once the Great Beacon flares (chosen)")
     func kill(_ s: GameState) -> String {
         let n = s.night
         guard !s.defeated else { return "FELL" }
         guard let left = n.kingLeftSecond, let slain = n.kingSlainSecond else { return "held, King lived" }
         return "King slain after \(Int((slain - left).rounded())) s at x \(Int((n.kingSlainX ?? 0).rounded()))"
     }
-    var today = standard
-    today.front.gorge.holdFogOnFinale = false
+    let today = standard
+    var heldFog = standard
+    heldFog.front.gorge.holdFogOnFinale = true
     for seed in 1...seeds {
         guard let eve = FrontTuningRun.eves(seed: seed, balance: standard, nights: 20...20).first else {
             say("  seed \(seed): no eve of night 20")
@@ -143,9 +145,9 @@ if doFinale {
         var bare = eve.state
         var botA = eve.bot
         GorgeTuningRun.playNight(&bare, player: &botA, balance: standard)
-        var held = GorgeTuningRun.withAllFour(eve.state, balance: standard)
+        var held = GorgeTuningRun.withAllFour(eve.state, balance: heldFog)
         var botB = eve.bot
-        let countB = GorgeTuningRun.playNight(&held, player: &botB, balance: standard)
+        let countB = GorgeTuningRun.playNight(&held, player: &botB, balance: heldFog)
         var asToday = GorgeTuningRun.withAllFour(eve.state, balance: today)
         var botC = eve.bot
         GorgeTuningRun.playNight(&asToday, player: &botC, balance: today)

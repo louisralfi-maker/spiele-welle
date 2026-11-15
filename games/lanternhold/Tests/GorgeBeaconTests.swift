@@ -393,16 +393,26 @@ final class GorgeBeaconTests: XCTestCase {
         s.night.kingLeftSecond = 0
         s.nightTime = 40
         s.hour = 23
-        var today = balance
-        today.front.gorge.holdFogOnFinale = false
         var bare = s
         bare.gorge = nil
-        XCTAssertEqual(Battle.bankEdge(s, balance: today), Battle.bankEdge(bare, balance: today),
-                       "with the switch off the King's night comes exactly as today")
+        XCTAssertFalse(tuning.holdFogOnFinale)
         XCTAssertEqual(Battle.bankEdge(bare, balance: balance), balance.beaconBankEdge, accuracy: 0.001)
-        XCTAssertEqual(Battle.bankEdge(s, balance: balance), site(3), accuracy: 0.001,
-                       "the chosen rule: the fog never passes a lit beacon, the King's night too")
+        XCTAssertEqual(Battle.bankEdge(s, balance: balance), Battle.bankEdge(bare, balance: balance),
+                       "once the Great Beacon flares the King's night comes exactly as today")
+        var rolling = s
+        rolling.nightTime = tuning.fogSeconds / 2
+        let mid = Battle.bankEdge(rolling, balance: balance)
+        XCTAssertTrue(mid > site(3) && mid < Battle.bankEdge(bare, balance: balance),
+                      "the fog rolls over the small beacons, it does not jump: \(mid)")
+        var held = balance
+        held.front.gorge.holdFogOnFinale = true
+        XCTAssertEqual(Battle.bankEdge(s, balance: held), site(3), accuracy: 0.001,
+                       "the other rule: the fog never passes a lit beacon, the King's night too")
         XCTAssertEqual(Battle.beaconRadius(s, balance: balance), balance.beaconRadius)
+        var noGreat = s
+        noGreat.beaconLit = false
+        XCTAssertEqual(Battle.bankEdge(noGreat, balance: balance), site(3), accuracy: 0.001,
+                       "without the Great Beacon the small ones hold the fog on night 20 too")
     }
 
     // MARK: - The save
