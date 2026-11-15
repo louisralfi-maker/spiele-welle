@@ -98,12 +98,12 @@ def slide3():
     # the road lies on the slope (a few px below its crest line), then climbs the crag's flank to the tower
     for x in range(108, W):
         y = ground_y(x) + 3 + int(round(1.5 * math.sin(x / 31.0)))
-        p.px(x, y, "nightSlate" if x > 220 else "night2")
-        if 116 < x < 210:
-            p.px(x, y + 1, "nightSlate")
+        p.px(x, y, "night2" if x > 220 else "nightHaze")
+        if x < 230:
+            p.px(x, y + 1, "night2" if x > 160 else "nightHaze")    # 2 px where it is near
     for k in range(0, 18):
         x, y = 108 - k, ground_y(108) + 3 - int(k * 1.35)
-        p.px(x, y, "night2")
+        p.px(x, y, "nightHaze")
     # the last warm window at the right edge
     p.mask(P([(300, 96), (W, 88), (W, 128), (300, 128)]), "nightDeep")
     p.mask(P([(296, 98), (308, 86), (W, 80), (W, 88), (300, 98)]), "night0")
@@ -117,6 +117,16 @@ def slide3():
                           (154, 3, 2, "emberDim")):
         for k in range(n):
             p.px(x + k, ground_y(x + k) + dy, c)
+    # the near edge: dry stalks and tufts in silhouette along the bottom, as the title has at its foot
+    for x in range(W):
+        top = H - 4 - int(2 * abs(math.sin(x / 11.0))) - int(2 * abs(math.sin(x / 4.3)))
+        for y in range(top, H):
+            p.px(x, y, "night0")
+    for (x, hgt, lean) in ((14, 9, 1), (18, 6, 0), (40, 11, -1), (44, 7, 0), (90, 8, 1), (176, 7, 0), (180, 10, 1),
+                           (212, 6, -1), (246, 9, 0), (250, 12, 1), (254, 6, 0), (292, 8, -1), (296, 11, 0)):
+        for k in range(hgt):
+            p.px(x + (lean * k) // 4, H - 4 - k, "night0")
+        p.px(x + 1, H - 5, "night0")
     # Aldric and his horse: one hand-set grid, about 60 px, walking west
     ox = 104
     oy = ground_y(130) - 58
@@ -135,7 +145,6 @@ def slide3():
     lamp = (ox + 7, oy + 6)
     light_grid(p, [(m & ~(np.roll(U, 1, 0) == False), spec) for m, spec in parts], lamp[0], lamp[1], depth=3)
     # his lantern: the small sister of the hall's lantern, hanging from the pole's hook, a small core glow
-    core_glow(p, lamp[0], lamp[1] + 1, r=4, tones=("emberDim", "emberDim"))
     for r, row in enumerate(SMALL_LANTERN):
         for q, ch in enumerate(row):
             if ch != ".":
