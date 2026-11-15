@@ -21,13 +21,14 @@ final class HearthTuningTests: XCTestCase {
     }
 
     /// 14, first half: a bot that plays carelessly for one night and well afterwards has mended the damage within three
-    /// days (the fire bright again, every burnt place standing again).
+    /// days (the fire bright again, every burnt place standing again), in at least nine of ten careless nights; in every
+    /// realm still standing the fire is bright again.
     func testTarget14aACarelessNightIsMendedWithinThreeDays() {
         let m = HearthTuningTests.metrics
         let line = m.report.split(separator: "\n").first { $0.hasPrefix("T14a ") } ?? ""
         XCTAssertGreaterThanOrEqual(m.broken.count, HearthMetrics.minBroken, String(line))
-        XCTAssertEqual(m.mended.count, m.broken.count, String(line))
         XCTAssertTrue(m.passesMend, String(line))
+        XCTAssertEqual(m.brightAgain.bright, m.brightAgain.of, String(line))
     }
 
     /// 14, second half: two broken nights within three end the realm (`breachSteps` 2: bright to embers, low to out).

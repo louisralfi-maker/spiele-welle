@@ -496,6 +496,14 @@ final class HearthTests: XCTestCase {
             XCTAssertFalse(choices.isEmpty, "fall \(falls): a dawn is always kept")
             XCTAssertTrue(choices.allSatisfy { $0.level > .out }, "fall \(falls): every kept dawn has the fire above out")
             XCTAssertTrue(driver.dawnRing.dawns.allSatisfy { !$0.defeated })
+            // Two steps a breach: the fire goes out on the second of two broken nights at most one held night apart,
+            // so the dawn before the first of them is among the three kept (asked at the first fall: after a wake the
+            // player may have chosen to drop the older dawns).
+            let broken = driver.state.hearthFire?.brokenNights ?? []
+            XCTAssertGreaterThanOrEqual(broken.count, falls == 1 ? 2 : 1)
+            if falls == 1, broken.count >= 2, let oldest = driver.dawnRing.dawns.first {
+                XCTAssertLessThanOrEqual(oldest.day, broken[broken.count - 2], "fall \(falls): the dawn before the trouble")
+            }
             // Save and load in between: the ring comes back with the snapshot.
             let save = SaveGame(state: driver.dawnSnapshot, dawns: driver.dawnRing)
             guard case .loaded(let loaded) = SaveGame.decode(try save.encoded()) else { return XCTFail("save") }
