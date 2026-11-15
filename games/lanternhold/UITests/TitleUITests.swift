@@ -19,8 +19,10 @@ final class TitleUITests: XCTestCase {
     /// lit, and the hint after 3 s without a touch.
     func testTheTitlesStates() {
         XCUIDevice.shared.orientation = .landscapeLeft
-        for (hold, name, wait) in [("loading", "00a-title-loading", 2.0), ("half", "00b-title-half", 3.0),
-                                   ("lit", "00c-title-lit", 5.0), ("hint", "00d-title-hint", 5.5)] {
+        // render-1: "half", "lit" and "hint" wait for the game's ready, which now includes the warm-up (about 3 s in
+        // Debug on the runner); each hold stays in its state, so the longer waits only make sure it has been reached.
+        for (hold, name, wait) in [("loading", "00a-title-loading", 2.0), ("half", "00b-title-half", 8.0),
+                                   ("lit", "00c-title-lit", 10.0), ("hint", "00d-title-hint", 10.5)] {
             let app = XCUIApplication()
             app.launchArguments = ["-GWTitle", "YES", "-GWTitleHold", hold, "-GWReset", "YES", "-GWSeed", "1"]
             app.launch()
