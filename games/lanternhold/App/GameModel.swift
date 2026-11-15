@@ -386,6 +386,9 @@ final class GameModel {
     /// The app went to the background: the game comes back paused (unless a screen is already open).
     func pauseForBackground() {
         guard kind == .world, overlay == nil, !isShowcase, driver?.state.defeated == false else { return }
+        // Build 2 review, core-state-3 and app-ui-4: the slides already hold the world and come back as they were; a
+        // lantern moment raised behind them would stand over a running world once they end.
+        guard !slides.coversWorld else { return }
         // HUD.md section 2 (stage-3-interface): the app going to the background raises the lantern by itself; the
         // pause sheet only where the moment cannot stand (no frame drawn yet).
         if lanternMoment != nil { return }

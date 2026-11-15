@@ -186,6 +186,29 @@ final class SlidesTests: XCTestCase {
         XCTAssertEqual(game.day, 1)
     }
 
+    /// Build 2 review, core-state-3 and app-ui-4: going to the background under the slides raises no lantern moment
+    /// behind them, so none stands over the running world when they end.
+    func testTheBackgroundUnderTheSlidesLeavesNoLanternMoment() throws {
+        let game = GameModel(args: DebugArgs(values: ["GWReset": "YES", "GWSkipOnboarding": "YES", "GWStage": "world",
+                                                      "GWClock": "9"]),
+                             kind: .world, store: SaveStore(directory: directory))
+        // A frame places the stage, so the lantern moment could stand.
+        _ = game.frame(physicalWidth: 2622, physicalHeight: 1206)
+        game.presentSlides(.prologue)
+        XCTAssertTrue(game.slides.coversWorld)
+        game.pauseForBackground()
+        XCTAssertNil(game.lanternMoment, "no moment behind the slides")
+        XCTAssertNil(game.overlay, "and no pause sheet")
+        XCTAssertTrue(game.isPaused, "the slides hold the world")
+        game.skipSlides()
+        XCTAssertNil(game.lanternMoment)
+        XCTAssertFalse(game.isPaused, "the day goes on with nothing over it")
+        // Over the open world the background still raises the moment.
+        game.pauseForBackground()
+        XCTAssertNotNil(game.lanternMoment)
+        XCTAssertTrue(game.isPaused)
+    }
+
     /// Build 2 review, core-state-2: the first-touch slip starts only when the prologue no longer covers the world,
     /// and its 10 s do not run under slides.
     func testTheFirstTouchSlipWaitsForTheSlides() throws {
