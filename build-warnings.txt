@@ -1,0 +1,3 @@
+2026-11-15 09:11:45.523 appintentsmetadataprocessor[16548:58956] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+2026-11-15 09:11:59.515 appintentsmetadataprocessor[17276:60622] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+2026-11-15 09:12:02.785 appintentsmetadataprocessor[17394:60954] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
