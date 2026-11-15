@@ -98,7 +98,9 @@ final class FirstDayUITests: XCTestCase {
         tapRealmStrip(app, worldX: 1513)
         XCTAssertTrue(waitForKing(app, near: 1513, within: 14, timeout: 20), "the king ran to the barracks")
         if let barracks = waitForThing(app, "touch-recruit-barracks", timeout: 6) {
-            touchThing(barracks)
+            // Fix lane D (player-first-2): he stands at the barracks' middle and his whole figure takes it (a touch
+            // there stills the world), so the touch goes to the barracks above his head.
+            barracks.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)).tap()
             let recruit = element(app, "recruit-card")
             if recruit.waitForExistence(timeout: 12) {
                 pause(0.5)
